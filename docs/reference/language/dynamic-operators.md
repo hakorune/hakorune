@@ -121,6 +121,16 @@ This semantic envelope alone does not admit a Text read or activate Bool,
 Loop, ABI, runtime comparison or cleanup. Source correspondence, conditional
 RHS reach, exact Text lifetime and both final consumers remain required.
 
+## Exact Integer and Bool comparisons
+
+The issuer distinguishes exact `I64/I64` operands from the checked
+`NormalInteger/NormalInteger` view below. All six exact Integer comparisons,
+and only `Equal`/`NotEqual` for exact `Bool/Bool`, return a Normal TrivialBool,
+are NonSuspending and have NoSourceFault, with no result lifecycle. Operand
+evaluation retains its own Faults, source order and borrowed access. Exactness
+comes from source evidence; a tagged value or MIR storage type does not grant
+this contract. The checked Integer view keeps TypeError and MaySuspend.
+
 ## Mixed Dynamic and String comparisons
 
 The `types.md` comparison table also covers a tagged Dynamic value compared
@@ -253,7 +263,7 @@ final operand/use correspondence are required before publication.
 
 NULLCOMPARE-S0 landed the full chain: source admission (exact `==`, direct
 `if`, exact `null` sibling, either operand order), the `Equal(Dynamic, Null)`
-envelope (`TrivialBool`, `NonSuspending`, no lifecycle obligation), the
+envelope (`TrivialBool`, `NoSourceFault`, `NonSuspending`, no lifecycle obligation), the
 per-admission null coverage verifier, the `borrowed_null_compare` wire
 spelling, and physical validation/indexing/flow/emission executing through
 the C lane. `!=`, non-null siblings, ambiguous operands and equality outside

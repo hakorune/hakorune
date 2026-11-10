@@ -476,8 +476,11 @@ is conformance evidence:
   precede extensions, with no normalization or locale-specific collation)
 - Other combinations are `TypeError`.
 
-For two exact Strings, all six comparisons produce only a Normal Bool and do
-not themselves suspend or Fault. Evaluating either operand can still Fault;
+For two exact Integers or Strings, all six comparisons produce only a Normal
+Bool and do not themselves suspend or Fault. Exact Bool equality and inequality
+have the same contract; Bool ordering remains unsupported. A checked Integer
+view still checks its operands and can TypeError. Evaluating either operand can
+still Fault;
 source order, borrowing and ownership remain unchanged. Mixed classes and null
 keep their separate checked contracts in [dynamic-operators.md](dynamic-operators.md).
 

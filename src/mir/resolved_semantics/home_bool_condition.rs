@@ -443,10 +443,14 @@ pub(crate) fn qualify_condition_expression_v1<E>(
             }
         }
         let (left_class, right_class) = match (classes[left], classes[right]) {
-            (Leaf::Value(Class::I64), Leaf::Value(Class::I64)) => (
-                DynamicOperatorValueClassV1::NormalInteger,
-                DynamicOperatorValueClassV1::NormalInteger,
-            ),
+            (Leaf::Value(Class::I64), Leaf::Value(Class::I64)) => {
+                let operand = if binary.operator().compare_op().is_some() {
+                    DynamicOperatorValueClassV1::I64
+                } else {
+                    DynamicOperatorValueClassV1::NormalInteger
+                };
+                (operand, operand)
+            },
             (Leaf::Value(Class::Dynamic), Leaf::Value(Class::I64))
                 if matches!(binary.operator(), Op::Less | Op::Greater) => (
                     DynamicOperatorValueClassV1::Dynamic,

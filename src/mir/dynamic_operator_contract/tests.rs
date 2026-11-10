@@ -147,7 +147,7 @@ fn equal_dynamic_null_issues_non_suspending_trivial_bool() {
         );
         assert_eq!(
             envelope.fault(),
-            DynamicOperatorFaultV1::TypeErrorBeforeResultNoOperandMutationNoRebind
+            DynamicOperatorFaultV1::NoSourceFault
         );
     }
     // General tagged equality and the Integer-Zero literal stay outside
@@ -204,11 +204,6 @@ fn unsupported_domains_fail_without_fallback() {
             DynamicOperatorFamilyV1::Add,
             DynamicOperatorValueClassV1::I64,
             DynamicOperatorValueClassV1::Dynamic,
-        ),
-        (
-            DynamicOperatorFamilyV1::Less,
-            DynamicOperatorValueClassV1::I64,
-            DynamicOperatorValueClassV1::I64,
         ),
         (
             DynamicOperatorFamilyV1::Mul,
@@ -304,7 +299,7 @@ fn module_contains_no_partial_or_physical_authority() {
 
 #[test]
 fn checked_comparisons_preserve_complete_borrowed_normal_fault_contract() {
-    for domain in [DynamicOperatorValueClassV1::NormalInteger, DynamicOperatorValueClassV1::String]
+    for domain in [DynamicOperatorValueClassV1::NormalInteger, DynamicOperatorValueClassV1::I64, DynamicOperatorValueClassV1::String]
         .into_iter().flat_map(|class| [
             DynamicOperatorFamilyV1::Equal,
             DynamicOperatorFamilyV1::NotEqual,
@@ -328,9 +323,8 @@ fn checked_comparisons_preserve_complete_borrowed_normal_fault_contract() {
             envelope.ordering(),
             DynamicOperatorOrderingV1::SynchronousNonDetached
         );
-        let exact_text = domain.left() == DynamicOperatorValueClassV1::String
-            && domain.right() == DynamicOperatorValueClassV1::String;
-        assert_eq!(envelope.suspension(), if exact_text {
+        let exact = domain.left() != DynamicOperatorValueClassV1::NormalInteger;
+        assert_eq!(envelope.suspension(), if exact {
             DynamicOperatorSuspensionV1::NonSuspending
         } else { DynamicOperatorSuspensionV1::MaySuspend });
         assert_eq!(
@@ -345,7 +339,7 @@ fn checked_comparisons_preserve_complete_borrowed_normal_fault_contract() {
             envelope.normal_result(),
             DynamicOperatorNormalResultV1::TrivialBool
         );
-        assert_eq!(envelope.fault(), if exact_text {
+        assert_eq!(envelope.fault(), if exact {
             DynamicOperatorFaultV1::NoSourceFault
         } else { DynamicOperatorFaultV1::TypeErrorBeforeResultNoOperandMutationNoRebind });
         assert_eq!(envelope.lifecycle(), None);
@@ -372,7 +366,7 @@ fn checked_comparisons_refuse_every_other_operand_domain() {
     ] {
         for left in classes {
             for right in classes {
-                if matches!(left, DynamicOperatorValueClassV1::NormalInteger | DynamicOperatorValueClassV1::String) && right == left {
+                if matches!(left, DynamicOperatorValueClassV1::NormalInteger | DynamicOperatorValueClassV1::I64 | DynamicOperatorValueClassV1::String) && right == left {
                     continue;
                 }
                 if left == DynamicOperatorValueClassV1::Bool && right == left

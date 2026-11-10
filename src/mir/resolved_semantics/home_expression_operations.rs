@@ -37,7 +37,7 @@ pub(super) fn qualify_comparison_operation_v1(
     let class = |site| {
         let position = source.nodes().iter().position(|node| node.site() == site)?;
         match classes[position] {
-            Leaf::Value(Class::I64) => Some(DynamicOperatorValueClassV1::NormalInteger),
+            Leaf::Value(Class::I64) => Some(DynamicOperatorValueClassV1::I64),
             Leaf::Value(Class::String) => Some(DynamicOperatorValueClassV1::String),
             Leaf::Value(Class::Dynamic) => Some(DynamicOperatorValueClassV1::Dynamic),
             Leaf::Value(Class::Bool) => Some(DynamicOperatorValueClassV1::Bool),

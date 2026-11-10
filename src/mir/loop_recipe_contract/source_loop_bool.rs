@@ -207,7 +207,7 @@ pub(crate) fn project_source_loop_bool_v1(frame: Rc<CheckedBoolConditionFrameV1>
                     } else {
                         let (op, family) = compare(binary.operator())?;
                         let operand = match (domain.left(), domain.right()) {
-                            (Operand::NormalInteger, Operand::NormalInteger) => Domain::I64,
+                            (Operand::I64, Operand::I64) => Domain::I64,
                             (Operand::String, Operand::String) => Domain::Text,
                             (Operand::Dynamic, Operand::I64) if matches!(binary.operator(), Op::Less | Op::Greater) => Domain::DynamicI64,
                             (Operand::I64, Operand::Dynamic) if binary.operator() == Op::Less => Domain::I64Dynamic,

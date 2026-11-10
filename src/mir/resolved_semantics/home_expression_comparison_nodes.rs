@@ -148,8 +148,8 @@ impl CheckedExpressionEvaluationV1 {
         let envelope = loan.single_envelope()?;
         if !Rc::ptr_eq(loan.source(), &self.source)
             || envelope.normal_result() != Normal::TrivialBool
-            || envelope.domain().left() != Class::NormalInteger
-            || envelope.domain().right() != Class::NormalInteger
+            || envelope.domain().left() != Class::I64
+            || envelope.domain().right() != Class::I64
             || crate::mir::resolved_value_profile::expression_class::comparison_operator_family_v1(
                 binary.operator(),
             ) != Some(envelope.domain().family())

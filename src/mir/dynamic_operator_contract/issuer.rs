@@ -79,11 +79,11 @@ const ADD_STRING_DYNAMIC: VerifiedDynamicOperatorExecutionEnvelopeV1 =
         Some(DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded),
     );
 
-/// Exact immutable String operands use the existing language comparison law.
+/// Exact scalar operands use their existing language comparison laws.
 /// The source class and family stay attached to the complete borrowed contract.
-const fn string_comparison(family: DynamicOperatorFamilyV1) -> VerifiedDynamicOperatorExecutionEnvelopeV1 {
+const fn exact_comparison(family: DynamicOperatorFamilyV1, class: DynamicOperatorValueClassV1) -> VerifiedDynamicOperatorExecutionEnvelopeV1 {
     VerifiedDynamicOperatorExecutionEnvelopeV1::sealed_with_fault(
-        DynamicOperatorDomainV1::new(family, DynamicOperatorValueClassV1::String, DynamicOperatorValueClassV1::String),
+        DynamicOperatorDomainV1::new(family, class, class),
         DynamicOperatorNormalResultV1::TrivialBool,
         DynamicOperatorSuspensionV1::NonSuspending,
         None,
@@ -91,26 +91,27 @@ const fn string_comparison(family: DynamicOperatorFamilyV1) -> VerifiedDynamicOp
     )
 }
 const STRING_COMPARISONS: [VerifiedDynamicOperatorExecutionEnvelopeV1; 6] = [
-    string_comparison(DynamicOperatorFamilyV1::Equal),
-    string_comparison(DynamicOperatorFamilyV1::NotEqual),
-    string_comparison(DynamicOperatorFamilyV1::Less),
-    string_comparison(DynamicOperatorFamilyV1::Greater),
-    string_comparison(DynamicOperatorFamilyV1::GreaterEqual),
-    string_comparison(DynamicOperatorFamilyV1::LessEqual),
+    exact_comparison(DynamicOperatorFamilyV1::Equal, DynamicOperatorValueClassV1::String),
+    exact_comparison(DynamicOperatorFamilyV1::NotEqual, DynamicOperatorValueClassV1::String),
+    exact_comparison(DynamicOperatorFamilyV1::Less, DynamicOperatorValueClassV1::String),
+    exact_comparison(DynamicOperatorFamilyV1::Greater, DynamicOperatorValueClassV1::String),
+    exact_comparison(DynamicOperatorFamilyV1::GreaterEqual, DynamicOperatorValueClassV1::String),
+    exact_comparison(DynamicOperatorFamilyV1::LessEqual, DynamicOperatorValueClassV1::String),
+];
+
+const I64_COMPARISONS: [VerifiedDynamicOperatorExecutionEnvelopeV1; 6] = [
+    exact_comparison(DynamicOperatorFamilyV1::Equal, DynamicOperatorValueClassV1::I64),
+    exact_comparison(DynamicOperatorFamilyV1::NotEqual, DynamicOperatorValueClassV1::I64),
+    exact_comparison(DynamicOperatorFamilyV1::Less, DynamicOperatorValueClassV1::I64),
+    exact_comparison(DynamicOperatorFamilyV1::Greater, DynamicOperatorValueClassV1::I64),
+    exact_comparison(DynamicOperatorFamilyV1::GreaterEqual, DynamicOperatorValueClassV1::I64),
+    exact_comparison(DynamicOperatorFamilyV1::LessEqual, DynamicOperatorValueClassV1::I64),
 ];
 
 /// Only equality is defined for exact Boolean operands.
-const fn bool_equality(family: DynamicOperatorFamilyV1) -> VerifiedDynamicOperatorExecutionEnvelopeV1 {
-    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
-        DynamicOperatorDomainV1::new(family, DynamicOperatorValueClassV1::Bool, DynamicOperatorValueClassV1::Bool),
-        DynamicOperatorNormalResultV1::TrivialBool,
-        DynamicOperatorSuspensionV1::MaySuspend,
-        None,
-    )
-}
 const BOOL_EQUALITIES: [VerifiedDynamicOperatorExecutionEnvelopeV1; 2] = [
-    bool_equality(DynamicOperatorFamilyV1::Equal),
-    bool_equality(DynamicOperatorFamilyV1::NotEqual),
+    exact_comparison(DynamicOperatorFamilyV1::Equal, DynamicOperatorValueClassV1::Bool),
+    exact_comparison(DynamicOperatorFamilyV1::NotEqual, DynamicOperatorValueClassV1::Bool),
 ];
 
 const LESS_DYNAMIC_DYNAMIC: VerifiedDynamicOperatorExecutionEnvelopeV1 =
@@ -374,7 +375,7 @@ const MUL_NORMAL_INTEGER_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelop
 /// TrivialBool with no lifecycle obligation, and the read-only evaluation
 /// completes at the expression site without suspending.
 const EQUAL_DYNAMIC_NULL: VerifiedDynamicOperatorExecutionEnvelopeV1 =
-    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
+    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed_with_fault(
         DynamicOperatorDomainV1::new(
             DynamicOperatorFamilyV1::Equal,
             DynamicOperatorValueClassV1::Dynamic,
@@ -383,6 +384,7 @@ const EQUAL_DYNAMIC_NULL: VerifiedDynamicOperatorExecutionEnvelopeV1 =
         DynamicOperatorNormalResultV1::TrivialBool,
         DynamicOperatorSuspensionV1::NonSuspending,
         None,
+        DynamicOperatorFaultV1::NoSourceFault,
     );
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -407,18 +409,12 @@ pub(crate) const fn issue_dynamic_operator_execution_envelope_v1(
             return Ok(&comparisons[index]);
         }
     }
-    if matches!((domain.left(), domain.right()),
-        (DynamicOperatorValueClassV1::String, DynamicOperatorValueClassV1::String)) {
-        let index = match domain.family() {
-            DynamicOperatorFamilyV1::Equal => Some(0),
-            DynamicOperatorFamilyV1::NotEqual => Some(1),
-            DynamicOperatorFamilyV1::Less => Some(2),
-            DynamicOperatorFamilyV1::Greater => Some(3),
-            DynamicOperatorFamilyV1::GreaterEqual => Some(4),
-            DynamicOperatorFamilyV1::LessEqual => Some(5),
-            _ => None,
-        };
-        if let Some(index) = index { return Ok(&STRING_COMPARISONS[index]); }
+    if let Some(index) = comparison_index(domain.family()) {
+        match (domain.left(), domain.right()) {
+            (DynamicOperatorValueClassV1::String, DynamicOperatorValueClassV1::String) => return Ok(&STRING_COMPARISONS[index]),
+            (DynamicOperatorValueClassV1::I64, DynamicOperatorValueClassV1::I64) => return Ok(&I64_COMPARISONS[index]),
+            _ => {}
+        }
     }
     if matches!((domain.left(), domain.right()),
         (DynamicOperatorValueClassV1::Bool, DynamicOperatorValueClassV1::Bool)) {
