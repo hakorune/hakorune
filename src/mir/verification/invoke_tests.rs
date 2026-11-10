@@ -844,3 +844,49 @@ fn null_comparison_uses_the_phi_incoming_edge_for_lifetime() {
     missing.blocks.remove(&BasicBlockId(2));
     assert_eq!(super::null_compare::check(&missing).unwrap_err().1, "null-comparison/successor-missing");
 }
+
+
+#[test]
+fn null_comparison_preserves_correlated_phi_resources() {
+    use crate::mir::{BasicBlock, BasicBlockId, CompareOp, MirType};
+    for same in [false, true] {
+        let mut function = null_read_function(ConstValue::Integer(7));
+        let entry = function.blocks.get_mut(&BasicBlockId(0)).unwrap();
+        entry.instructions.pop(); entry.instruction_spans.pop();
+        entry.add_instruction(MirInstruction::Const { dst: ValueId(3), value: ConstValue::Bool(true) });
+        entry.add_instruction(MirInstruction::Const { dst: ValueId(4), value: ConstValue::Integer(9) });
+        entry.set_terminator(MirInstruction::Branch { condition: ValueId(3), then_bb: BasicBlockId(1), else_bb: BasicBlockId(2), then_edge_args: None, else_edge_args: None });
+        for id in [1,2] {
+            let mut block = BasicBlock::new(BasicBlockId(id));
+            block.set_terminator(MirInstruction::Jump { target: BasicBlockId(3), edge_args: None });
+            function.add_block(block);
+        }
+        let mut join = BasicBlock::new(BasicBlockId(3));
+        for (dst, left, right) in [(6,0,4), (8,if same {0}else{4},if same {4}else{0})] {
+            join.add_instruction(MirInstruction::Phi { dst:ValueId(dst), inputs:vec![(BasicBlockId(1),ValueId(left)),(BasicBlockId(2),ValueId(right))], type_hint:Some(MirType::Integer) });
+        }
+        join.add_instruction(MirInstruction::DestroyOwned { value: ValueId(8) });
+        join.add_instruction(MirInstruction::NullCompare { dst:ValueId(7), op:CompareOp::Eq, lhs:ValueId(6), rhs:ValueId(1) });
+        join.set_terminator(MirInstruction::Return { value:Some(ValueId(7)) });
+        function.add_block(join); function.update_cfg();
+        assert_eq!(super::null_compare::check(&function).is_err(), same);
+    }
+}
+
+
+#[test]
+fn null_comparison_backedge_keeps_ended_observations_invalid() {
+    use crate::mir::{BasicBlock, BasicBlockId, CompareOp};
+    let mut f=null_read_function(ConstValue::Integer(7));
+    let e=f.blocks.get_mut(&BasicBlockId(0)).unwrap();
+    e.instructions.clear();e.instruction_spans.clear();
+    e.add_instruction(MirInstruction::Const {dst:ValueId(1),value:ConstValue::Null});
+    e.set_terminator(MirInstruction::Jump {target:BasicBlockId(1),edge_args:None});
+    let mut b=BasicBlock::new(BasicBlockId(1));
+    b.add_instruction(MirInstruction::Const {dst:ValueId(0),value:ConstValue::Integer(7)});
+    b.add_instruction(MirInstruction::NullCompare {dst:ValueId(2),op:CompareOp::Eq,lhs:ValueId(0),rhs:ValueId(1)});
+    b.add_instruction(MirInstruction::DestroyOwned {value:ValueId(0)});
+    b.set_terminator(MirInstruction::Jump {target:BasicBlockId(1),edge_args:None});
+    f.add_block(b);f.update_cfg();
+    assert_eq!(super::null_compare::check(&f).unwrap_err().1,"null-comparison/carrier-not-live");
+}

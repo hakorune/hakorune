@@ -349,17 +349,16 @@ fn check_function_inner(
     if !has_control && !has_text_reads && !has_null_reads {
         return Ok(());
     }
-    let mut errors = Vec::new();
-    if let Err((block, reason)) = null_compare::check(function) { errors.push(error(block, reason)); }
-    if has_control { check_frame_entry(function, &mut errors); }
-    for result in [
-        ssa::check_ssa_form(function),
-        cfg::check_control_flow(function),
-    ] {
-        if let Err(mut found) = result {
-            errors.append(&mut found);
-        }
+    let (definitions, mut errors) = ssa::definitions(function);
+    if let Err(mut found) = cfg::check_control_flow(function) { errors.append(&mut found); }
+    if has_null_reads {
+        if let Some((block, reason)) = null_compare::structural_failure(function, &errors) { errors.push(error(block, reason)); }
     }
+    ssa::check_uses(function, &definitions, &mut errors);
+    if has_null_reads && errors.is_empty() {
+        if let Err((block, reason)) = null_compare::check_with_definitions(function, &definitions) { errors.push(error(block, reason)); }
+    }
+    if has_control { check_frame_entry(function, &mut errors); }
     // Compute actual edges, not a potentially stale predecessor cache.
     let mut predecessors = std::collections::BTreeMap::<_, Vec<_>>::new();
     for (id, block) in &function.blocks {

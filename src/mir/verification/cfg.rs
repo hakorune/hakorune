@@ -18,7 +18,7 @@ pub fn check_control_flow(function: &MirFunction) -> Result<(), Vec<Verification
                 ),
             });
         }
-        for successor in &block.successors {
+        for successor in &expected_successors {
             if !function.blocks.contains_key(successor) {
                 errors.push(VerificationError::ControlFlowError {
                     block: *block_id,
