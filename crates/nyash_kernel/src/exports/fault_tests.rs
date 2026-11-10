@@ -679,11 +679,36 @@ fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
                 assert_eq!(index, expected);
             }
         }
+        // All physical Text pairings, including identical leased operands.
+        let mut needle = sentinel;
+        assert_eq!(checked_materialize(pointer, 24, &literal("界".as_bytes()), &mut needle), 0);
+        for (value, needle, expected) in [
+            (literal("aé界z".as_bytes()), literal("界".as_bytes()), 2),
+            (literal("aé界z".as_bytes()), owned(needle), 2),
+            (owned(base), literal("界".as_bytes()), 2),
+            (owned(base), owned(needle), 2),
+            (owned(base), owned(base), 0),
+        ] {
+            let mut index = 999;
+            assert_eq!(api::code_point_index_of(&value, &needle, &mut index), 0);
+            assert_eq!(index, expected);
+        }
+        for (value, needle, expected) in [
+            ("", "", 0), ("a", "longer", -1), ("e\u{301}猫𝄞", "\u{301}", 1),
+            ("e\u{301}猫𝄞", "猫", 2), ("e\u{301}猫𝄞", "𝄞", 3),
+        ] {
+            let mut index = 999;
+            assert_eq!(api::code_point_index_of(&literal(value.as_bytes()), &literal(needle.as_bytes()), &mut index), 0);
+            assert_eq!(index, expected);
+        }
+        assert_eq!(checked_end(pointer, 24, needle.handle, needle.token), 0);
         for bad in [integer, literal(&[0xff]), owned(first), Operand { reserved: 1, ..owned(base) },
             Operand { token: base.token + 1, ..owned(base) }] {
             let mut scalar = 999;
             let mut slice = sentinel;
             assert_eq!(code_point_count(&bad, &mut scalar), 2);
+            assert_eq!(api::code_point_index_of(&bad, &literal(b""), &mut scalar), 2);
+            assert_eq!(api::code_point_index_of(&owned(base), &bad, &mut scalar), 2);
             assert_eq!(checked_index_of(pointer, 25, &bad, &literal(b""), &mut scalar), 2);
             assert_eq!(checked_index_of(pointer, 25, &owned(base), &bad, &mut scalar), 2);
             assert_eq!(checked_materialize(pointer, 25, &bad, &mut slice), 2);
@@ -697,6 +722,11 @@ fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
         assert_ne!(full.handle, empty.handle);
         assert_ne!(full.token, empty.token);
         assert_eq!(code_point_count(&owned(base), std::ptr::null_mut()), 2);
+        assert_eq!(api::code_point_index_of(&owned(base), &literal(b""), std::ptr::null_mut()), 2);
+        let mut untouched = 999;
+        assert_eq!(api::code_point_index_of(std::ptr::null(), &owned(base), &mut untouched), 2);
+        assert_eq!(api::code_point_index_of(&owned(base), std::ptr::null(), &mut untouched), 2);
+        assert_eq!(untouched, 999);
         assert_eq!(checked_substring(pointer, 27, &owned(base), 0, 1, std::ptr::null_mut()), 2);
         assert_eq!(checked_index_of(pointer, 27, &owned(base), &literal(b""), std::ptr::null_mut()), 2);
         assert_eq!(checked_end(pointer, 28, base.handle, base.token), 0);

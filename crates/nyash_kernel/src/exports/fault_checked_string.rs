@@ -238,33 +238,63 @@ unsafe fn comparable(value: *const Operand) -> Result<Comparable, u32> {
     }
 }
 
+/// Validate one or two Text descriptors, then borrow all leased texts at once.
+/// Arrays avoid allocation; no registry/lease callback is nested or reentered.
+unsafe fn with_text_operands<const N: usize, R>(
+    values: [*const Operand; N],
+    callback: impl FnOnce([&str; N]) -> R,
+) -> Result<R, Status> {
+    let mut literals = [None; N];
+    let mut pairs = [None; N];
+    for (i, value) in values.into_iter().enumerate() {
+        let value = unsafe { operand(value) }?;
+        match value.kind {
+            STATIC_TEXT if value.handle == 0 && value.token == 0 && value.integer == 0 => {
+                if value.len > isize::MAX as usize || (value.len != 0 && value.bytes.is_null()) {
+                    return Err(Status::InvalidContract);
+                }
+                let bytes = if value.len == 0 { &[] } else {
+                    unsafe { std::slice::from_raw_parts(value.bytes, value.len) }
+                };
+                literals[i] = Some(std::str::from_utf8(bytes).map_err(|_| Status::InvalidContract)?);
+            }
+            OWNED_TEXT if value.bytes.is_null() && value.len == 0 && value.integer == 0 => {
+                pairs[i] = Some((value.handle, NonZeroU64::new(value.token).ok_or(Status::InvalidContract)?));
+            }
+            _ => return Err(Status::InvalidContract),
+        }
+    }
+    if pairs.iter().all(Option::is_none) {
+        return Ok(callback(literals.map(|text| text.expect("validated literal"))));
+    }
+    lease::with_end_authorized_texts(pairs, |texts| {
+        callback(std::array::from_fn(|i| texts[i].or(literals[i]).expect("validated Text")))
+    }).map_err(|_| Status::InvalidContract)
+}
+
 /// Count a live Text borrow without allocation or a language Fault frame.
 /// Invalid descriptors leave the caller's output unchanged.
 #[export_name = "nyash.string.code_point_count_v1"]
 pub unsafe extern "C" fn code_point_count(value: *const Operand, out: *mut i64) -> u32 {
     if out.is_null() || !out.is_aligned() { return Status::InvalidContract as u32; }
-    let value = match unsafe { operand(value) } { Ok(v) => v, Err(s) => return s as u32 };
-    let count = match value.kind {
-        STATIC_TEXT if value.handle == 0 && value.token == 0 && value.integer == 0 => {
-            if value.len > isize::MAX as usize || (value.len != 0 && value.bytes.is_null()) {
-                return Status::InvalidContract as u32;
-            }
-            let bytes = if value.len == 0 { &[] } else {
-                unsafe { std::slice::from_raw_parts(value.bytes, value.len) }
-            };
-            std::str::from_utf8(bytes).map(|text| text.chars().count()).ok()
-        }
-        OWNED_TEXT if value.bytes.is_null() && value.len == 0 && value.integer == 0 => {
-            NonZeroU64::new(value.token).and_then(|token|
-                lease::with_end_authorized_text_pair(value.handle, token, |text| text.chars().count()).ok())
-        }
-        _ => None,
-    };
-    let Some(count) = count.and_then(|count| i64::try_from(count).ok()) else {
+    let count = unsafe { with_text_operands([value], |[text]| text.chars().count()) };
+    let Some(count) = count.ok().and_then(|count| i64::try_from(count).ok()) else {
         return Status::InvalidContract as u32;
     };
-    // The lease/handle callback has returned and released its locks.
-    unsafe { out.write(count) };
+    unsafe { out.write(count) }; // Both identity guards have been released.
+    Status::Normal as u32
+}
+
+/// Search two exact live Text borrows without copies, acquisition or a Fault.
+#[export_name = "nyash.string.code_point_index_of_v1"]
+pub unsafe extern "C" fn code_point_index_of(
+    value: *const Operand, needle: *const Operand, out: *mut i64,
+) -> u32 {
+    if out.is_null() || !out.is_aligned() { return Status::InvalidContract as u32; }
+    let index = unsafe { with_text_operands([value, needle], |[value, needle]|
+        string_ops::index_of(value, needle, None, StringIndexMode::CodePoint)) };
+    let Ok(index) = index else { return Status::InvalidContract as u32; };
+    unsafe { out.write(index) }; // No identity guard is held here.
     Status::Normal as u32
 }
 

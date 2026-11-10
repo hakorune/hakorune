@@ -97,15 +97,33 @@ pub fn with_end_authorized_text_pair<R>(
     token: NonZeroU64,
     callback: impl FnOnce(&str) -> R,
 ) -> Result<R, EndAuthorizedTextBorrowRejectV1> {
+    with_end_authorized_texts([Some((handle, token))], |[text]| {
+        callback(text.expect("validated Text"))
+    })
+}
+
+/// Lend every requested lease under one lease guard then one registry guard.
+/// None belongs to an independently validated literal. Both positions are
+/// checked even when they name the same pair; callbacks cannot publish/drop/reenter.
+pub fn with_end_authorized_texts<const N: usize, R>(
+    pairs: [Option<(u64, NonZeroU64)>; N],
+    callback: impl FnOnce([Option<&str>; N]) -> R,
+) -> Result<R, EndAuthorizedTextBorrowRejectV1> {
     let table = leases().lock().expect("dynamic v2 lease mutex poisoned");
-    let identity = table
-        .get(&token)
-        .ok_or(EndAuthorizedTextBorrowRejectV1::UnknownOrAlreadyConsumed)?;
-    if handle == 0 || identity.handle() != handle {
-        return Err(EndAuthorizedTextBorrowRejectV1::TokenHandleMismatch);
+    let mut identities = [None; N];
+    for (i, pair) in pairs.into_iter().enumerate() {
+        let Some((handle, token)) = pair else {
+            continue;
+        };
+        let identity = table
+            .get(&token)
+            .ok_or(EndAuthorizedTextBorrowRejectV1::UnknownOrAlreadyConsumed)?;
+        if handle == 0 || identity.handle() != handle {
+            return Err(EndAuthorizedTextBorrowRejectV1::TokenHandleMismatch);
+        }
+        identities[i] = Some(identity);
     }
-    host_handles::with_text_formal_wire(handle, identity.generation(), callback)
-        .map_err(map_text_lookup_reject)
+    host_handles::with_text_formal_identities(identities, callback).map_err(map_text_lookup_reject)
 }
 
 /// End the exact pair; a mismatched handle preserves the valid token. No raw
@@ -407,6 +425,54 @@ mod tests {
             );
             assert_eq!(
                 consume_end_authorized(token),
+                Err(LeaseConsumeRejectV1::StaleHandleIdentity)
+            );
+            host_handles::drop_handle(replacement);
+        });
+    }
+    #[test]
+    fn multiple_text_borrows_share_identity_checks_without_consumption() {
+        with_lifo_policy(|| {
+            let first = publish_end_authorized_text("a猫").unwrap();
+            let second = publish_end_authorized_text("猫").unwrap();
+            let a = Some((first.handle(), first.token()));
+            let b = Some((second.handle(), second.token()));
+            assert_eq!(
+                with_end_authorized_texts([a, b], |[a, b]| (
+                    a.unwrap().chars().count(),
+                    b.unwrap().chars().count()
+                )),
+                Ok((2, 1))
+            );
+            assert_eq!(with_end_authorized_texts([a, a], |[a, b]| a == b), Ok(true));
+            for pairs in [
+                [a, Some((first.handle(), second.token()))],
+                [Some((second.handle(), first.token())), b],
+            ] {
+                assert_eq!(
+                    with_end_authorized_texts(pairs, |_| panic!("invalid pair invoked callback")),
+                    Err(EndAuthorizedTextBorrowRejectV1::TokenHandleMismatch)
+                );
+            }
+            // Neither a successful borrow nor a rejected second operand consumes a lease.
+            assert_eq!(first.with_text(str::len), Ok(4));
+            second.finish().unwrap();
+            assert_eq!(
+                with_end_authorized_texts([a, b], |_| panic!("ended pair invoked callback")),
+                Err(EndAuthorizedTextBorrowRejectV1::UnknownOrAlreadyConsumed)
+            );
+            let stale_handle = first.handle();
+            host_handles::drop_handle(stale_handle);
+            let replacement = host_handles::to_handle_text("replacement");
+            assert_eq!(replacement, stale_handle);
+            for pairs in [[a, None], [None, a]] {
+                assert_eq!(
+                    with_end_authorized_texts(pairs, |_| panic!("stale pair invoked callback")),
+                    Err(EndAuthorizedTextBorrowRejectV1::StaleHandleIdentity)
+                );
+            }
+            assert_eq!(
+                consume_end_authorized(first.token()),
                 Err(LeaseConsumeRejectV1::StaleHandleIdentity)
             );
             host_handles::drop_handle(replacement);

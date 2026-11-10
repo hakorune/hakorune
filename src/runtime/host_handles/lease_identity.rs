@@ -113,20 +113,40 @@ impl Registry {
         identity: &HostHandleLeaseIdentityV1,
         f: impl FnOnce(&str) -> R,
     ) -> Result<R, TextFormalLookupRejectV1> {
-        let idx = usize::try_from(identity.handle)
-            .map_err(|_| TextFormalLookupRejectV1::ZeroOrOutOfRangeSlot)?;
+        self.with_text_formal_identities(
+            [Some(identity)],
+            |[text]| f(text.expect("validated Text")),
+        )
+    }
+
+    /// Validate all captured identities with one registry guard, including
+    /// repeated identities. None denotes a literal validated by the caller.
+    pub(super) fn with_text_formal_identities<const N: usize, R>(
+        &self,
+        identities: [Option<&HostHandleLeaseIdentityV1>; N],
+        f: impl FnOnce([Option<&str>; N]) -> R,
+    ) -> Result<R, TextFormalLookupRejectV1> {
         let table = self.table.read();
-        if idx >= table.slots.len() {
-            return Err(TextFormalLookupRejectV1::ZeroOrOutOfRangeSlot);
+        let mut texts = [None; N];
+        for (i, identity) in identities.into_iter().enumerate() {
+            let Some(identity) = identity else {
+                continue;
+            };
+            let idx = usize::try_from(identity.handle)
+                .map_err(|_| TextFormalLookupRejectV1::ZeroOrOutOfRangeSlot)?;
+            if idx >= table.slots.len() {
+                return Err(TextFormalLookupRejectV1::ZeroOrOutOfRangeSlot);
+            }
+            let payload = table.slots[idx]
+                .as_ref()
+                .ok_or(TextFormalLookupRejectV1::MissingSlot)?;
+            if table.lease_generations[idx] != identity.generation {
+                return Err(TextFormalLookupRejectV1::GenerationMismatch);
+            }
+            texts[i] =
+                Some(exact_text_ref(payload).ok_or(TextFormalLookupRejectV1::NonTextPayload)?);
         }
-        let payload = table.slots[idx]
-            .as_ref()
-            .ok_or(TextFormalLookupRejectV1::MissingSlot)?;
-        if table.lease_generations[idx] != identity.generation {
-            return Err(TextFormalLookupRejectV1::GenerationMismatch);
-        }
-        let text = exact_text_ref(payload).ok_or(TextFormalLookupRejectV1::NonTextPayload)?;
-        Ok(f(text))
+        Ok(f(texts))
     }
 
     /// Validate and lend only the registry's StableText payload.  StringBox
@@ -214,6 +234,14 @@ pub(crate) fn with_text_formal_wire<R>(
 ) -> Result<R, TextFormalLookupRejectV1> {
     let identity = HostHandleLeaseIdentityV1 { handle, generation };
     super::reg().with_text_formal_identity(&identity, f)
+}
+
+/// Lend captured Text identities under one registry read guard.
+pub(crate) fn with_text_formal_identities<const N: usize, R>(
+    identities: [Option<&HostHandleLeaseIdentityV1>; N],
+    f: impl FnOnce([Option<&str>; N]) -> R,
+) -> Result<R, TextFormalLookupRejectV1> {
+    super::reg().with_text_formal_identities(identities, f)
 }
 
 /// Validate an already-published StableText pair without recapturing a
