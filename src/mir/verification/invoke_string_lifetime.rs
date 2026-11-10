@@ -2,6 +2,8 @@
 //! carrier transfers and operations. Normal/Fault order remains checked here.
 use super::source::{Origin, TextSourceImage};
 use super::*;
+#[path = "invoke_string_read.rs"]
+mod read;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Residence {
@@ -76,27 +78,6 @@ impl Live {
             ),
             _ => false,
         }
-    }
-    fn check_text_reads(
-        &self,
-        operands: &[&Operand],
-        faulted: bool,
-        source: &TextSourceImage,
-    ) -> Result<(), &'static str> {
-        if !operands.is_empty()
-            && (faulted || self.replacement.is_some() || self.hold.is_some()
-                || self.call_pending.is_some())
-        {
-            return Err("string-effect-after-fault");
-        }
-        for operand in operands {
-            if matches!(operand, Operand::TextOperand(value) if !self.descriptor_live(*value, source))
-                || matches!(operand, Operand::OwnedString(value) if !self.contains(value))
-            {
-                return Err("string-borrow-not-live");
-            }
-        }
-        Ok(())
     }
     fn end(
         &mut self,
@@ -272,6 +253,7 @@ pub(super) fn check(
     let result = (|| {
         let empty = TextSourceImage::default();
         let source = source.unwrap_or(&empty);
+        read::check_i64_results(function)?;
         // Lifecycle dependencies are not actual arguments. Only an owned Text
         // Invoke can carry them, even when no other String operation is selected.
         for (block_id, row) in function
@@ -300,7 +282,7 @@ pub(super) fn check(
             }
         }
         let selected = |instruction: &MirInstruction| {
-            matches!(instruction, MirInstruction::StringResidenceInstall { .. })
+            matches!(instruction, MirInstruction::StringResidenceInstall { .. } | MirInstruction::StringLength { .. })
                 || matches!(
             instruction, MirInstruction::Invoke { operation, .. }
                 if matches!(operation, InvokeOperation::FieldSet { mode, .. } if mode.has_owned_text_candidate_v1())
@@ -393,38 +375,8 @@ pub(super) fn check(
                             }
                         }
                     }
-                    for operand in text_operands(operation) {
-                        match operand {
-                            Operand::TextOperand(value)
-                                if !source.permits_operation(block.id, instruction)
-                                    || !matches!(source.origin(*value), Some(Origin::Slot(_))) =>
-                            {
-                                if crate::config::env::builder_debug_enabled() {
-                                    eprintln!("[string-domain] text-operand value={value:?} permits={} origin_slot={}",
-                                        source.permits_operation(block.id, instruction), matches!(source.origin(*value), Some(Origin::Slot(_))));
-                                }
-                                return Err(domain_refusal("string-text-operand-domain", &site, operation));
-                            }
-                            Operand::OwnedString(value) if !results.contains_key(value) => {
-                                return Err("string-owned-result-missing");
-                            }
-                            Operand::BorrowedText(value) => {
-                                check_borrowed_operand(function, *value)?
-                            }
-                            Operand::NormalInteger(value)
-                                if results.contains_key(value)
-                                    || check_borrowed_operand(function, *value).is_ok() =>
-                            {
-                                return Err(domain_refusal("string-integer-domain", &site, operation));
-                            }
-                            Operand::Dynamic(value)
-                                if !is_tagged_dynamic_formal(function, *value) =>
-                            {
-                                return Err(domain_refusal("string-dynamic-source-domain", &site, operation));
-                            }
-                            _ => {}
-                        }
-                    }
+                    read::check_domains(function, source, &results, block.id, instruction,
+                        &text_operands(operation))?;
                     if matches!(operation, InvokeOperation::String(Op::End { value }) if !results.contains_key(value))
                     {
                         return Err("string-end-result-missing");
@@ -460,6 +412,9 @@ pub(super) fn check(
                         return Err("string-residence-install-terminator");
                     }
                 }
+                if let MirInstruction::StringLength { dst, value } = instruction {
+                    read::check_length(function, source, &results, block.id, instruction, *dst, value)?;
+                }
                 // A pair cannot be copied, boxed, PHI-merged, returned, stored,
                 // passed to arbitrary calls or interpreted as one scalar word.
                 let uses = instruction.used_values();
@@ -482,6 +437,8 @@ pub(super) fn check(
                                 {
                                     1
                                 }
+                                MirInstruction::StringLength { value: Operand::TextOperand(used), .. }
+                                    if *used == value && matches!(source.origin(value), Some(Origin::Slot(_))) => 1,
                                 MirInstruction::Invoke { operation, .. } => {
                                     let text = text_operands(operation).iter().filter(|operand|
                                         matches!(operand, Operand::TextOperand(used) if *used == value)
@@ -516,6 +473,8 @@ pub(super) fn check(
                     if matches!(operation, Op::End { value: end } if *end == value)
                         || operation.operands().iter().any(|operand|
                             matches!(operand, Operand::OwnedString(owned) if *owned == value)));
+                    let allowed = allowed
+                        || matches!(instruction, MirInstruction::StringLength { value: Operand::OwnedString(used), .. } if *used == value);
                     let allowed = allowed
                         || matches!(instruction, MirInstruction::Invoke { operation, .. }
                     if text_operands(operation).iter().any(|operand| matches!(operand, Operand::OwnedString(owned) if *owned == value)));
@@ -569,6 +528,9 @@ pub(super) fn check(
             previous.push(live.clone());
             let block = function.blocks.get(&id).ok_or("string-block-missing")?;
             for row in &block.instructions {
+                if let MirInstruction::StringLength { value, .. } = row {
+                    live.check_text_reads(&[value], faulted, source)?;
+                }
                 if let MirInstruction::StringResidenceInstall {
                     value,
                     replaces,

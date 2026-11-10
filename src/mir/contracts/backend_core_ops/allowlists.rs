@@ -159,6 +159,7 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         | MirInstruction::FaultFrameEnter { .. }
         | MirInstruction::ReturnFault { .. }
         | MirInstruction::ArrayResidenceRelease { .. }
+        | MirInstruction::StringLength { .. }
         | MirInstruction::StringResidenceInstall { .. } => &[],
         MirInstruction::Const { .. } => &["const"],
         MirInstruction::BinOp { .. } => &["binop"],

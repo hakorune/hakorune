@@ -154,6 +154,7 @@ impl fmt::Display for MirInstruction {
             MirInstruction::CopyOwned { dst, src } => {
                 write!(f, "{} = copy_owned {}", dst, src)
             }
+            MirInstruction::StringLength { dst, value } => write!(f, "{} = string_length {:?}", dst, value),
             MirInstruction::StringResidenceInstall { value, replaces, returning } => {
                 write!(f, "string_residence_install {}", value)?;
                 if *returning { write!(f, " returning")?; }

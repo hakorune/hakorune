@@ -506,7 +506,7 @@ impl FinalizedRootSourceHandoffV1 {
                 let mut operations = Vec::new();
                 for original in originals {
                     let selected = matches!(original.1,
-                        MirInstruction::StringResidenceInstall { .. } | MirInstruction::Invoke { .. });
+                        MirInstruction::StringResidenceInstall { .. } | MirInstruction::StringLength { .. } | MirInstruction::Invoke { .. });
                     if !selected { continue; }
                     let finished = projection.binding(original.0, &original.1)?
                         .ok_or_else(|| freeze("finished-local-call/producer-removed"))?;

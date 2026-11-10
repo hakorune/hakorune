@@ -184,6 +184,11 @@ impl JoinIrIdRemapper {
                 index: index.map(|value| remap(value)),
                 value: remap(*value),
             },
+            StringLength { dst, value } => {
+                let mut value = value.clone();
+                value.rewrite_value(|v| *v = remap(*v));
+                StringLength { dst: remap(*dst), value }
+            }
             ArrayRead {
                 site_id,
                 dst,

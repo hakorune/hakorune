@@ -336,14 +336,17 @@ fn check_function_inner(
                     | MirInstruction::FaultFrameEnter { .. }
                     | MirInstruction::ArrayResidenceRelease { .. }
                     | MirInstruction::StringResidenceInstall { .. }
+
             )
         })
     });
-    if !has_control {
+    let has_text_reads = function.blocks.values().any(|block|
+        block.all_instructions().any(|row| matches!(row, MirInstruction::StringLength { .. })));
+    if !has_control && !has_text_reads {
         return Ok(());
     }
     let mut errors = Vec::new();
-    check_frame_entry(function, &mut errors);
+    if has_control { check_frame_entry(function, &mut errors); }
     for result in [
         ssa::check_ssa_form(function),
         cfg::check_control_flow(function),

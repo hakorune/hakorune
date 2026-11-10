@@ -58,6 +58,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
         match inst {
             Invoke { .. }
             | InvokeNormalResult { .. }
+            | StringLength { .. }
             | ReturnFault { .. }
             | FaultFrameEnter { .. } => inst.used_values(),
             Const { .. } => Vec::new(),
@@ -172,7 +173,8 @@ impl<'m> MirQuery for MirQueryBox<'m> {
         use MirInstruction::*;
         match inst {
             InvokeNormalResult { dst, .. } | FaultFrameEnter { dst, .. } => vec![*dst],
-            Const { dst, .. }
+            StringLength { dst, .. }
+            | Const { dst, .. }
             | UnaryOp { dst, .. }
             | BinOp { dst, .. }
             | Compare { dst, .. }

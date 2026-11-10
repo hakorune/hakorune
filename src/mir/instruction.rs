@@ -668,6 +668,8 @@ pub enum MirInstruction {
     /// `returning` preserves its rank, has no replacement, and skips Normal End.
     /// A replacement keeps the exact old Home live until its checked End attempt.
     /// Infallible identity-preserving lifecycle event; no runtime/refcount work.
+    /// Borrow live Text and count Unicode code points without a Fault edge.
+    StringLength { dst: ValueId, value: StringInvokeOperand },
     StringResidenceInstall { value: ValueId, replaces: Option<ValueId>, returning: bool },
 
     /// Check an exact-numeric local contract, then publish `%dst = %src`.

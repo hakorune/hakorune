@@ -78,7 +78,8 @@ impl MirInstruction {
             | MirInstruction::StaticDataLoad { .. }
             | MirInstruction::FieldGet { .. }
             | MirInstruction::ObjectFieldGet { .. }
-            | MirInstruction::ArrayRead { .. } => EffectMask::READ,
+            | MirInstruction::ArrayRead { .. }
+            | MirInstruction::StringLength { .. } => EffectMask::READ,
             MirInstruction::Store { .. }
             | MirInstruction::FieldSet { .. }
             | MirInstruction::WeakFieldWrite { .. }
@@ -185,7 +186,8 @@ impl MirInstruction {
             | MirInstruction::WeakRef { dst, .. }
             | MirInstruction::FutureNew { dst, .. }
             | MirInstruction::Await { dst, .. }
-            | MirInstruction::Select { dst, .. } => Some(*dst),
+            | MirInstruction::Select { dst, .. }
+            | MirInstruction::StringLength { dst, .. } => Some(*dst),
             MirInstruction::NewClosure { dst, .. } => Some(*dst),
 
             MirInstruction::Call(call) => call.dst,
@@ -378,6 +380,7 @@ impl MirInstruction {
             MirInstruction::KeepAlive { values } => values.clone(),
             MirInstruction::DestroyOwned { value }
             | MirInstruction::ArrayResidenceRelease { value } => vec![*value],
+            MirInstruction::StringLength { value, .. } => value.value().into_iter().collect(),
             MirInstruction::StringResidenceInstall { value, replaces, .. } => std::iter::once(*value).chain(*replaces).collect(),
             MirInstruction::ReleaseStrong { values } => values.clone(),
 
