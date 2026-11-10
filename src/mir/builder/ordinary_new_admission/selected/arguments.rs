@@ -2,15 +2,17 @@
 //! the sole argument-value owner inside the selected `new` admission: it
 //! validates the row/source relation, then emits the physical operand for
 //! each kind — never a second issuer of argument meaning.
-use super::{freeze, expression_value, terminal_call};
-use std::rc::Rc;
-use crate::mir::instruction::BirthArgumentV1;
-use crate::mir::normal_callable_semantic_package::{EmittedNewArgumentV1, EmittedNewExpressionV1, ExpressionCallTransientPrefixV1};
+use super::{expression_value, freeze, terminal_call};
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
+use crate::mir::instruction::BirthArgumentV1;
+use crate::mir::normal_callable_semantic_package::{
+    EmittedNewArgumentV1, EmittedNewExpressionV1, ExpressionCallTransientPrefixV1,
+};
 use crate::mir::normal_callable_semantic_package::{
     OrdinaryNewClaimLedgerV1, OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1,
 };
 use crate::mir::{MirBuilder, MirInstruction, MirType};
+use std::rc::Rc;
 
 pub(super) fn materialize_arguments(
     builder: &mut MirBuilder,
@@ -19,32 +21,81 @@ pub(super) fn materialize_arguments(
     site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
     arity: usize,
     rows: &[OrdinaryNewTrivialArgumentV1],
-    consume_receiver: &dyn Fn(&crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    consume_receiver: &dyn Fn(
+        &crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1,
+    ) -> Result<(), String>,
     static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
 ) -> Result<Vec<EmittedNewArgumentV1>, String> {
     validate_argument_rows_v1(site.owner(), site, arity, rows)?;
     let mut arguments = Vec::with_capacity(rows.len());
     for row in rows {
         if let OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = row.kind() {
-            let inherited = ExpressionCallTransientPrefixV1::for_prepared_new_argument_v1(row, &arguments, rows)?;
-            let mut expression = expression_value::emit_with_prefix(builder, state, ledger, evaluation, Some(&inherited),
-                &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call_with_prefix(
-                    builder, state, ledger, evaluation, call, acquired, values, bindings,
-                    consume_receiver, static_source, Some(&inherited)))?;
-            if !expression.value.as_operand()?.is_text() || expression.purpose_acquisition.is_some() {
+            let inherited = ExpressionCallTransientPrefixV1::for_prepared_new_argument_v1(
+                row, &arguments, rows,
+            )?;
+            let mut expression = expression_value::emit_with_prefix(
+                builder,
+                state,
+                ledger,
+                evaluation,
+                Some(&inherited),
+                &mut |builder, state, call, acquired, values, bindings| {
+                    terminal_call::emit_expression_call_with_prefix(
+                        builder,
+                        state,
+                        ledger,
+                        evaluation,
+                        call,
+                        acquired,
+                        values,
+                        bindings,
+                        consume_receiver,
+                        static_source,
+                        Some(&inherited),
+                    )
+                },
+            )?;
+            if !expression.value.as_operand()?.is_text() || expression.purpose_acquisition.is_some()
+            {
                 return Err(freeze("argument-source-unavailable"));
             }
             let (terminal, continuation) = if expression.body.acquired.is_empty() {
                 expression_value::finish_value_continuation_v1(builder, &mut expression.body)?
-            } else { expression_value::finish_deferred_argument_continuation(builder, &mut expression)? };
+            } else {
+                expression_value::finish_deferred_argument_continuation(builder, &mut expression)?
+            };
             let payload = BirthArgumentV1::Text(expression.value.as_operand()?.clone());
             let body = expression.body;
-            let packet = Rc::new(EmittedNewExpressionV1::new(Rc::clone(evaluation), body.values, body.calls,
-                body.path_reads, body.reference_reads, body.acquired,
-                body.entry, body.inline_range, terminal, continuation, body.bindings));
-            packet.validate_emitted_v1(row, &payload, ledger,
-                builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?, Some(&inherited))?;
-            arguments.push(EmittedNewArgumentV1::new_v1(row.clone(), payload, None, Some(packet)));
+            let packet = Rc::new(EmittedNewExpressionV1::new(
+                Rc::clone(evaluation),
+                body.values,
+                body.calls,
+                body.path_reads,
+                body.reference_reads,
+                body.acquired,
+                body.entry,
+                body.inline_range,
+                terminal,
+                continuation,
+                body.bindings,
+            ));
+            packet.validate_emitted_v1(
+                row,
+                &payload,
+                ledger,
+                builder
+                    .function_state
+                    .current_function
+                    .as_ref()
+                    .ok_or_else(|| freeze("no-function"))?,
+                Some(&inherited),
+            )?;
+            arguments.push(EmittedNewArgumentV1::new_v1(
+                row.clone(),
+                payload,
+                None,
+                Some(packet),
+            ));
             continue;
         }
         let value = match row.kind() {
@@ -65,9 +116,10 @@ pub(super) fn materialize_arguments(
                     .map_err(|_| freeze("argument-binding-unavailable"))?;
                 // An explicit `move x` actual observes `x` at the move's operand
                 // site; the state validates that site is a read of this binding.
-                let operand = crate::mir::resolved_semantics::SourcePathV1::from_node(row.site().node())
-                    .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Operand)
-                    .expr();
+                let operand =
+                    crate::mir::resolved_semantics::SourcePathV1::from_node(row.site().node())
+                        .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Operand)
+                        .expr();
                 let observed = state.actual_variable_site(row.site().node(), operand.node());
                 state
                     .observe_variable_site(observed, *binding, value)
@@ -90,7 +142,7 @@ pub(super) fn materialize_arguments(
                     site.owner(),
                     row.site().clone(),
                 );
-                let (base, field) = ledger.take_argument_field_read(
+                let (base, source) = ledger.take_argument_field_read(
                     &read_site,
                     *object,
                     |binding, receiver_site| {
@@ -110,21 +162,39 @@ pub(super) fn materialize_arguments(
                     .function_state
                     .current_block
                     .ok_or_else(|| freeze("no-block"))?;
-                let (dst, _) = builder.append_object_field_read_v1(base, field, None)?;
-                builder
-                    .function_state
-                    .type_ctx
-                    .value_types
-                    .insert(dst, MirType::Integer);
-                ledger.record_argument_field_read(&read_site, block, dst, base, field)?;
+                let (ty, compatibility) = source
+                    .raw_projection_v1()
+                    .ok_or_else(|| freeze("argument-field-observation"))?;
+                if compatibility.is_some() {
+                    return Err(freeze("argument-field-observation"));
+                }
+                let (dst, (_, instruction)) =
+                    builder.append_object_field_read_v1(base, source.field(), None)?;
+                builder.function_state.type_ctx.value_types.insert(dst, ty);
+                ledger.record_argument_field_read(&read_site, block, instruction, &source)?;
                 Ok(dst)
             }
         }?;
-        let read = row.field_array_read().map(|source| {
-            state.field_array_read_argument_v1(source,
-                builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?, value)
-        }).transpose()?;
-        arguments.push(EmittedNewArgumentV1::new_v1(row.clone(), BirthArgumentV1::Value(value), read, None));
+        let read = row
+            .field_array_read()
+            .map(|source| {
+                state.field_array_read_argument_v1(
+                    source,
+                    builder
+                        .function_state
+                        .current_function
+                        .as_ref()
+                        .ok_or_else(|| freeze("no-function"))?,
+                    value,
+                )
+            })
+            .transpose()?;
+        arguments.push(EmittedNewArgumentV1::new_v1(
+            row.clone(),
+            BirthArgumentV1::Value(value),
+            read,
+            None,
+        ));
     }
     Ok(arguments)
 }
@@ -155,10 +225,10 @@ fn validate_argument_rows_v1(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::ValueId;
     use crate::mir::resolved_semantics::{
         FunctionOwnerIssuerV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
     };
+    use crate::mir::ValueId;
 
     fn site(segments: Vec<SourcePathSegmentV1>) -> crate::mir::resolved_semantics::OwnedExprSiteV1 {
         let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().expect("owner issuer");
@@ -247,26 +317,58 @@ mod tests {
         ) {
             use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
             let mut state = CallableSemanticLoweringState::from_exact_source(input).unwrap();
-            let mut names: Vec<_> = input.function().declaration_sites().filter_map(|site| match site {
-                crate::mir::resolved_semantics::SourceBindingSiteV1::Parameter { index } => {
-                    let binding = input.function().declaration_binding(site).unwrap();
-                    Some((*index, input.function().binding(binding).unwrap().diagnostic_name().to_owned()))
-                }, _ => None,
-            }).collect();
+            let mut names: Vec<_> = input
+                .function()
+                .declaration_sites()
+                .filter_map(|site| match site {
+                    crate::mir::resolved_semantics::SourceBindingSiteV1::Parameter { index } => {
+                        let binding = input.function().declaration_binding(site).unwrap();
+                        Some((
+                            *index,
+                            input
+                                .function()
+                                .binding(binding)
+                                .unwrap()
+                                .diagnostic_name()
+                                .to_owned(),
+                        ))
+                    }
+                    _ => None,
+                })
+                .collect();
             names.sort_by_key(|row| row.0);
             let names: Vec<_> = names.into_iter().map(|row| row.1).collect();
             let mut builder = MirBuilder::new();
-            builder.create_function_skeleton("finite_entry".into(), &names, &[]).unwrap();
+            builder
+                .create_function_skeleton("finite_entry".into(), &names, &[])
+                .unwrap();
             builder.setup_function_params(&names).unwrap();
-            builder.function_state.current_function.as_mut().unwrap().metadata.physical_param_carriers =
+            builder
+                .function_state
+                .current_function
+                .as_mut()
+                .unwrap()
+                .metadata
+                .physical_param_carriers =
                 Some(vec![Carrier::ExistingCallableI64; names.len()].into_boxed_slice());
             state.lend_ordinary_new_claim_ledger(std::rc::Rc::clone(&ledger));
-            state.stage_borrowed_entry_formals(input.owner(), Ok(Some(formals.into_boxed_slice()))).unwrap();
+            state
+                .stage_borrowed_entry_formals(input.owner(), Ok(Some(formals.into_boxed_slice())))
+                .unwrap();
             let entry = crate::mir::builder::normal_callable_binding_materialization_port::CallableEntryShapeV1::Static { parameter_count: names.len() }
                 .prepare_values(&builder).unwrap();
-            let (carriers, _) = state.prepare_borrowed_entry_carriers(&entry, &builder).unwrap().unwrap();
+            let (carriers, _) = state
+                .prepare_borrowed_entry_carriers(&entry, &builder)
+                .unwrap()
+                .unwrap();
             state.install_entry_values(&entry).unwrap();
-            builder.function_state.current_function.as_mut().unwrap().metadata.physical_param_carriers = Some(carriers);
+            builder
+                .function_state
+                .current_function
+                .as_mut()
+                .unwrap()
+                .metadata
+                .physical_param_carriers = Some(carriers);
             crate::mir::builder::vars::lexical_scope::try_with_lexical_scope(&mut builder, |mut builder| -> Result<(), String> {
                 let mut originals: Vec<_> = input.function().expression_source().initializers().collect();
                 originals.sort_by_key(|row| row.declaration_site().clone());
@@ -328,45 +430,92 @@ mod tests {
             ledger: std::rc::Rc<OrdinaryNewClaimLedgerV1>,
             frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1,
         ) {
-            use std::rc::Rc;
+            use crate::mir::instruction::{
+                InvokeOperation, StringInvokeOperand as Operand, StringInvokeOperation as Operation,
+            };
+            use crate::mir::normal_callable_semantic_package::{
+                CallValidationContextV1, ExpressionPhysicalProjectionRefV1,
+            };
             use crate::mir::BasicBlockId;
-            use crate::mir::instruction::{InvokeOperation, StringInvokeOperand as Operand, StringInvokeOperation as Operation};
-            use crate::mir::normal_callable_semantic_package::{CallValidationContextV1, ExpressionPhysicalProjectionRefV1};
+            use std::rc::Rc;
             let mut state = CallableSemanticLoweringState::from_exact_source(input).unwrap();
             let mut builder = MirBuilder::new();
             if frame.text_reads().is_empty() {
                 builder.enter_function_for_test("core_argument".into());
             } else {
-                let mut names: Vec<_> = input.function().declaration_sites().filter_map(|site| match site {
-                    crate::mir::resolved_semantics::SourceBindingSiteV1::Parameter { index } => {
-                        let binding = input.function().declaration_binding(site).unwrap();
-                        Some((*index, input.function().binding(binding).unwrap().diagnostic_name().to_owned()))
-                    }
-                    _ => None,
-                }).collect();
+                let mut names: Vec<_> = input
+                    .function()
+                    .declaration_sites()
+                    .filter_map(|site| match site {
+                        crate::mir::resolved_semantics::SourceBindingSiteV1::Parameter {
+                            index,
+                        } => {
+                            let binding = input.function().declaration_binding(site).unwrap();
+                            Some((
+                                *index,
+                                input
+                                    .function()
+                                    .binding(binding)
+                                    .unwrap()
+                                    .diagnostic_name()
+                                    .to_owned(),
+                            ))
+                        }
+                        _ => None,
+                    })
+                    .collect();
                 names.sort_by_key(|row| row.0);
                 let names: Vec<_> = names.into_iter().map(|row| row.1).collect();
-                builder.create_function_skeleton("core_argument".into(), &names, &[]).unwrap();
+                builder
+                    .create_function_skeleton("core_argument".into(), &names, &[])
+                    .unwrap();
                 builder.setup_function_params(&names).unwrap();
                 // This unit shell predates the canonical compiler skeleton;
                 // install its ordinary physical column before entry projection.
                 use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
-                builder.function_state.current_function.as_mut().unwrap().metadata.physical_param_carriers =
+                builder
+                    .function_state
+                    .current_function
+                    .as_mut()
+                    .unwrap()
+                    .metadata
+                    .physical_param_carriers =
                     Some(vec![Carrier::ExistingCallableI64; names.len()].into_boxed_slice());
             }
             // Reference-free evaluation needs no entry values. In particular
             // this unit cannot manufacture the unfinished caller's Text entry.
             state.lend_ordinary_new_claim_ledger(Rc::clone(&ledger));
             if !frame.text_reads().is_empty() {
-                let formals: std::collections::BTreeSet<_> = frame.text_reads().iter().map(|read| read.formal()).collect();
-                state.stage_borrowed_entry_formals(input.owner(), Ok(Some(formals.into_iter().collect()))).unwrap();
+                let formals: std::collections::BTreeSet<_> = frame
+                    .text_reads()
+                    .iter()
+                    .map(|read| read.formal())
+                    .collect();
+                state
+                    .stage_borrowed_entry_formals(
+                        input.owner(),
+                        Ok(Some(formals.into_iter().collect())),
+                    )
+                    .unwrap();
                 let entry = crate::mir::builder::normal_callable_binding_materialization_port::CallableEntryShapeV1::Static {
                     parameter_count: builder.function_state.current_function.as_ref().unwrap().params.len(),
                 }.prepare_values(&builder).unwrap();
-                let (carriers, projected) = state.prepare_borrowed_entry_carriers(&entry, &builder).unwrap().unwrap();
-                assert!(projected.is_empty(), "opaque Text entry carries no declared object view");
+                let (carriers, projected) = state
+                    .prepare_borrowed_entry_carriers(&entry, &builder)
+                    .unwrap()
+                    .unwrap();
+                assert!(
+                    projected.is_empty(),
+                    "opaque Text entry carries no declared object view"
+                );
                 state.install_entry_values(&entry).unwrap();
-                builder.function_state.current_function.as_mut().unwrap().metadata.physical_param_carriers = Some(carriers);
+                builder
+                    .function_state
+                    .current_function
+                    .as_mut()
+                    .unwrap()
+                    .metadata
+                    .physical_param_carriers = Some(carriers);
             }
 
             crate::mir::builder::vars::lexical_scope::try_with_lexical_scope(
@@ -576,33 +725,61 @@ mod tests {
 
 /// Every actual is a synchronous loan through Birth. Computed Text stays owned
 /// by its argument packet; only the field's independent materialization moves.
-pub(super) fn temporary_ends_v1(arguments: &[EmittedNewArgumentV1]) -> Result<Vec<crate::mir::instruction::InvokeOperation>, String> {
+pub(super) fn temporary_ends_v1(
+    arguments: &[EmittedNewArgumentV1],
+) -> Result<Vec<crate::mir::instruction::InvokeOperation>, String> {
     let mut operations = Vec::new();
     let mut seen = std::collections::BTreeSet::new();
     for argument in arguments.iter().rev() {
         for value in argument.deferred_text_values_v1()?.into_iter().rev() {
-            if !seen.insert(value) { return Err(freeze("argument-expression/prefix-duplicate-acquisition")); }
-            operations.push(crate::mir::instruction::InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value }));
+            if !seen.insert(value) {
+                return Err(freeze("argument-expression/prefix-duplicate-acquisition"));
+            }
+            operations.push(crate::mir::instruction::InvokeOperation::String(
+                crate::mir::instruction::StringInvokeOperation::End { value },
+            ));
         }
     }
     Ok(operations)
 }
 
-pub(super) fn finish_new_arguments_v1(builder: &mut MirBuilder, ledger: &OrdinaryNewClaimLedgerV1,
-    site: &crate::mir::resolved_semantics::OwnedExprSiteV1, result: crate::mir::ValueId,
-    frame: crate::mir::ValueId, arguments: &[EmittedNewArgumentV1],
+pub(super) fn finish_new_arguments_v1(
+    builder: &mut MirBuilder,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+    result: crate::mir::ValueId,
+    frame: crate::mir::ValueId,
+    arguments: &[EmittedNewArgumentV1],
     bindings: &mut Vec<(crate::mir::BasicBlockId, MirInstruction)>,
 ) -> Result<(), String> {
     use super::{RawRootGraphWriterV1, RootGraphWriterPortV1};
     let normal = temporary_ends_v1(arguments)?;
-    if normal.is_empty() { return Ok(()); }
+    if normal.is_empty() {
+        return Ok(());
+    }
     let (_, object_cleanup) = ledger.new_argument_object_cleanup_v1(site, result)?;
-    let plan = super::FaultCleanupPlanV1::new_arguments(object_cleanup, normal, ledger.new_argument_home_unwind_v1(site, true)?)?;
+    let plan = super::FaultCleanupPlanV1::new_arguments(
+        object_cleanup,
+        normal,
+        ledger.new_argument_home_unwind_v1(site, true)?,
+    )?;
     let mut writer = RawRootGraphWriterV1;
     let clean = writer.reserve_block(builder)?;
     builder.ensure_block_exists(clean)?;
-    let graph = super::root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, frame,
-        clean, &plan, bindings)?;
-    bindings.push(writer.emit_current(builder, MirInstruction::Jump { target: graph.clean, edge_args: None })?);
+    let graph = super::root_graph::emit_cleanup_suffixes_with_writer(
+        &mut writer,
+        builder,
+        frame,
+        clean,
+        &plan,
+        bindings,
+    )?;
+    bindings.push(writer.emit_current(
+        builder,
+        MirInstruction::Jump {
+            target: graph.clean,
+            edge_args: None,
+        },
+    )?);
     builder.start_new_block(clean)
 }

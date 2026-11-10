@@ -81,3 +81,13 @@ The child-field cohort model is separated from the source-query owner without
 changing its witness conditions. Installation tests move intact out of the source
 model so the touched production files stay below800 lines; test names/assertions
 and literal inputs are unchanged. Neither movement is counted as a deletion.
+
+The final A scope audit also found argument-position physical metadata outside
+the descriptor. Its exact declared-i64 proof now issues that same descriptor;
+take, writer and correspondence retain it. ArgumentFieldRead remains only the
+distinct affine/releasable receipt, not a separate field/result classifier.
+
+F17. C nonnull field readability may use an existing nullable-transport Birth
+formal only after joining its exact provided-field writer to this root's unique
+Birth call, a kind3 canonical child actual, Normal dominance and the unchanged
+nonmutation suffix; nullable transport alone never proves nonnull.
