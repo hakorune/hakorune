@@ -301,6 +301,15 @@ fn encode_instruction(
                     "rhs": value(rhs), "predicate": predicate })
             }
         }
+        MirInstruction::NullCompare { dst, op, lhs, rhs } => {
+            let predicate = match op {
+                crate::mir::CompareOp::Eq => "eq",
+                crate::mir::CompareOp::Ne => "ne",
+                _ => return Err(fault("null-comparison/operator")),
+            };
+            json!({ "op": "borrowed_null_compare", "dst": value(dst), "lhs": value(lhs),
+                "rhs": value(rhs), "predicate": predicate })
+        }
         // Optimizer-only SSA liveness hint; no Home, lease or runtime retain.
         MirInstruction::KeepAlive { values } => json!({ "op": "keep_alive", "values": values.iter().map(|value| value.0).collect::<Vec<_>>() }),
         MirInstruction::Copy { dst, src } => {

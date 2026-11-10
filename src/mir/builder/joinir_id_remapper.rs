@@ -133,6 +133,12 @@ impl JoinIrIdRemapper {
                 lhs: remap(*lhs),
                 rhs: remap(*rhs),
             },
+            NullCompare { dst, op, lhs, rhs } => NullCompare {
+                dst: remap(*dst),
+                op: *op,
+                lhs: remap(*lhs),
+                rhs: remap(*rhs),
+            },
             Load { dst, ptr } => Load {
                 dst: remap(*dst),
                 ptr: remap(*ptr),

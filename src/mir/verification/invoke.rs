@@ -15,6 +15,8 @@ mod map;
 mod string;
 #[path = "invoke_owned_array.rs"]
 mod owned_array;
+#[path = "invoke_null_compare.rs"]
+mod null_compare;
 #[path = "invoke_object_end.rs"]
 mod object_end;
 use crate::mir::verification_types::VerificationError;
@@ -342,10 +344,13 @@ fn check_function_inner(
     });
     let has_text_reads = function.blocks.values().any(|block|
         block.all_instructions().any(|row| matches!(row, MirInstruction::StringLength { .. } | MirInstruction::StringIndexOf { .. } | MirInstruction::StringCompare { .. })));
-    if !has_control && !has_text_reads {
+    let has_null_reads = function.blocks.values().any(|block| block.all_instructions()
+        .any(|row| matches!(row, MirInstruction::NullCompare { .. })));
+    if !has_control && !has_text_reads && !has_null_reads {
         return Ok(());
     }
     let mut errors = Vec::new();
+    if let Err((block, reason)) = null_compare::check(function) { errors.push(error(block, reason)); }
     if has_control { check_frame_entry(function, &mut errors); }
     for result in [
         ssa::check_ssa_form(function),
@@ -656,4 +661,9 @@ fn text_slot_admits(
         None => true,
         Some(nullable) => matches!(tag, Some(Tag::Text)) || (nullable && matches!(tag, Some(Tag::Null))),
     }
+}
+
+/// Selection belongs to the canonical physical program owner, never opcode guessing.
+pub(super) fn reject_canonical_legacy_null_comparisons(function: &MirFunction) -> Result<(), &'static str> {
+    null_compare::reject_legacy(function)
 }

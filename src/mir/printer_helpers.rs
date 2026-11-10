@@ -130,6 +130,9 @@ pub fn format_instruction(
             format!("{} icmp {:?} {}, {}", format_dst(dst, types), op, lhs, rhs)
         }
 
+        MirInstruction::NullCompare { dst, op, lhs, rhs } => {
+            format!("{} null_compare {:?} {}, {}", format_dst(dst, types), op, lhs, rhs)
+        }
         MirInstruction::Load { dst, ptr } => {
             format!("{} load {}", format_dst(dst, types), ptr)
         }

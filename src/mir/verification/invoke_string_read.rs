@@ -62,13 +62,13 @@ pub(super) fn check_domains(
                 check_available(function, id, instruction, *value)?
             }
             Operand::NormalBool(value)
-                if has_text_read_scalar_origin(function, *value, &crate::mir::MirType::Integer) =>
+                if has_scalar_read_origin(function, *value, &crate::mir::MirType::Integer) =>
             {
                 return Err("string-bool-domain");
             }
             Operand::NormalInteger(value)
                 if results.contains_key(value)
-                    || has_text_read_scalar_origin(
+                    || has_scalar_read_origin(
                         function,
                         *value,
                         &crate::mir::MirType::Bool,
@@ -127,7 +127,7 @@ pub(super) fn check_text_read(
 
 /// Ordinary Text reads cannot be moved above their actual definitions, even
 /// within one block; generic block dominance alone does not prove that order.
-fn check_available<'a>(
+pub(in crate::mir::verification::invoke) fn check_available<'a>(
     function: &'a MirFunction,
     mut id: BasicBlockId,
     mut at: &'a MirInstruction,
@@ -175,7 +175,7 @@ fn check_available<'a>(
 }
 
 /// Derive the scalar result from actual definitions, never an absent type hint.
-pub(in crate::mir::verification) fn has_text_read_scalar_origin(
+pub(in crate::mir::verification) fn has_scalar_read_origin(
     function: &MirFunction,
     value: ValueId,
     kind: &crate::mir::MirType,
@@ -196,8 +196,8 @@ pub(in crate::mir::verification) fn has_text_read_scalar_origin(
             .any(|row| match row {
                 row if row.dst_value() == Some(value)
                     && row
-                        .text_read_operands_v1()
-                        .is_some_and(|(dst, actual, _)| dst == value && &actual == kind) =>
+                        .scalar_read_result_v1()
+                        .is_some_and(|(dst, actual)| dst == value && &actual == kind) =>
                 {
                     true
                 }
@@ -232,8 +232,8 @@ pub(super) fn check_scalar_results(function: &MirFunction) -> Result<(), &'stati
     let present = [MirType::Integer, MirType::Bool].map(|kind| {
         function.blocks.values().any(|block| {
             block.all_instructions().any(|row| {
-                row.text_read_operands_v1()
-                    .is_some_and(|(_, actual, _)| actual == kind)
+                row.scalar_read_result_v1()
+                    .is_some_and(|(_, actual)| actual == kind)
             })
         })
     });
@@ -249,7 +249,7 @@ pub(super) fn check_scalar_results(function: &MirFunction) -> Result<(), &'stati
             if !enabled {
                 continue;
             }
-            let origin = |value| has_text_read_scalar_origin(function, value, &kind);
+            let origin = |value| has_scalar_read_origin(function, value, &kind);
             if row.dst_value().is_some_and(|dst| {
                 origin(dst)
                     && function
@@ -292,7 +292,7 @@ pub(super) fn check_scalar_results(function: &MirFunction) -> Result<(), &'stati
         }
         // A normal Bool read must not become an integer merely by deleting metadata.
         // Unknown legacy values are not assigned a new type by this check.
-        let bool_origin = |v| has_text_read_scalar_origin(function, v, &MirType::Bool);
+        let bool_origin = |v| has_scalar_read_origin(function, v, &MirType::Bool);
         let incompatible = |v| {
             intrinsic_scalar_type(function, v, &mut std::collections::BTreeSet::new())
                 .is_some_and(|ty| ty != MirType::Bool)
@@ -351,6 +351,7 @@ fn intrinsic_scalar_type(
         ) => Some(MirType::Integer),
         Some(
             MirInstruction::Compare { .. }
+            | MirInstruction::NullCompare { .. }
             | MirInstruction::StringCompare { .. }
             | MirInstruction::Const {
                 value: ConstValue::Bool(_),

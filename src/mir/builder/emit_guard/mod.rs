@@ -57,6 +57,7 @@ fn short_inst_name(inst: &crate::mir::MirInstruction) -> &'static str {
         crate::mir::MirInstruction::Copy { .. } => "Copy",
         crate::mir::MirInstruction::BinOp { .. } => "BinOp",
         crate::mir::MirInstruction::Compare { .. } => "Compare",
+        crate::mir::MirInstruction::NullCompare { .. } => "NullCompare",
         crate::mir::MirInstruction::StaticDataLoad { .. } => "StaticDataLoad",
         crate::mir::MirInstruction::LegacyCallV0 { .. } => "Call",
         crate::mir::MirInstruction::Phi { .. } => "Phi",

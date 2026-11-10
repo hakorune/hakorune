@@ -103,7 +103,7 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
         | MirInstruction::VariantTag { value: operand, .. }
         | MirInstruction::VariantProject { value: operand, .. } => vec![*operand],
         MirInstruction::BinOp { lhs, rhs, .. }
-        | MirInstruction::Compare { lhs, rhs, .. }
+        | MirInstruction::Compare { lhs, rhs, .. } | MirInstruction::NullCompare { lhs, rhs, .. }
         | MirInstruction::Store {
             value: lhs,
             ptr: rhs,

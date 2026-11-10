@@ -330,6 +330,14 @@ pub enum MirInstruction {
         rhs: ValueId,
     },
 
+    /// Ordered Eq/Ne null-kind read; exactly one direct null producer, Bool result.
+    NullCompare {
+        dst: ValueId,
+        op: CompareOp,
+        lhs: ValueId,
+        rhs: ValueId,
+    },
+
     // === Memory Operations ===
     /// Load from memory/variable
     /// `%dst = load %ptr`
@@ -779,15 +787,12 @@ pub enum MirInstruction {
     },
 }
 
-// Method implementations have been moved to src/mir/instruction/methods.rs
 #[path = "instruction/methods.rs"]
 mod methods;
 
-// Display implementation has been moved to src/mir/instruction/display.rs
 #[path = "instruction/display.rs"]
 mod display;
 
-// Tests have been moved to src/mir/instruction/tests.rs for better organization
 #[cfg(test)]
 #[path = "instruction/tests.rs"]
 mod tests;

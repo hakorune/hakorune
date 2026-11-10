@@ -70,7 +70,7 @@ fn is_tagged_dynamic_formal(function: &MirFunction, value: ValueId) -> bool {
 mod source;
 #[path = "invoke_string_lifetime.rs"]
 mod lifetime;
-pub(super) use lifetime::read::has_text_read_scalar_origin;
+pub(super) use lifetime::read::{has_scalar_read_origin, check_available};
 
 pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
     lifetime::check(function, None).map_err(|(_, reason, _)| reason)

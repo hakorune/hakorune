@@ -11,6 +11,7 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::BinOp { .. } => "BinOp",
         MirInstruction::UnaryOp { .. } => "UnaryOp",
         MirInstruction::Compare { .. } => "Compare",
+        MirInstruction::NullCompare { .. } => "NullCompare",
         MirInstruction::FieldGet { .. } => "FieldGet",
         MirInstruction::ObjectFieldGet { .. } => "ObjectFieldGet",
         MirInstruction::FieldSet { .. } => "FieldSet",
@@ -95,6 +96,7 @@ pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "Call",
     "Catch",
     "Compare",
+    "NullCompare",
     "Const",
     "Copy",
     "CopyOwned",
@@ -188,6 +190,7 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
         | MirInstruction::LegacyCallV0 { .. }
         | MirInstruction::Catch { .. }
         | MirInstruction::Compare { .. }
+        | MirInstruction::NullCompare { .. }
         | MirInstruction::StaticDataLoad { .. }
         | MirInstruction::Const { .. }
         | MirInstruction::Copy { .. }

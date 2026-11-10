@@ -43,6 +43,9 @@ impl fmt::Display for MirInstruction {
             MirInstruction::Compare { dst, op, lhs, rhs } => {
                 write!(f, "{} = {} {:?} {}", dst, lhs, op, rhs)
             }
+            MirInstruction::NullCompare { dst, op, lhs, rhs } => {
+                write!(f, "{} = null_compare {:?} {}, {}", dst, op, lhs, rhs)
+            }
             MirInstruction::Load { dst, ptr } => {
                 write!(f, "{} = load {}", dst, ptr)
             }

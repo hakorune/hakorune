@@ -86,7 +86,7 @@ pub(super) fn check_call_edge(
         .enumerate()
     {
         for kind in [crate::mir::MirType::Integer, crate::mir::MirType::Bool] {
-            if super::string::has_text_read_scalar_origin(function, *argument, &kind)
+            if super::string::has_scalar_read_origin(function, *argument, &kind)
                 && parameter != &kind && parameter != &crate::mir::MirType::Unknown {
                 let actual = if kind == crate::mir::MirType::Integer { "StringLength(I64)" } else { "TextRead(Bool)" };
                 errors.push(call_argument_drift(function, callee, block,

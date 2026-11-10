@@ -22,6 +22,14 @@ impl MirInstruction {
         }
     }
 
+    /// Intrinsic scalar results of read instructions, without Text-operand assumptions.
+    pub(crate) fn scalar_read_result_v1(&self) -> Option<(ValueId, crate::mir::MirType)> {
+        match self {
+            Self::NullCompare { dst, .. } => Some((*dst, crate::mir::MirType::Bool)),
+            _ => self.text_read_operands_v1().map(|(dst, kind, _)| (dst, kind)),
+        }
+    }
+
     /// Materialize an already-resolved canonical Call without classifying its target.
     pub(crate) fn call(
         dst: Option<ValueId>,
@@ -91,7 +99,8 @@ impl MirInstruction {
             | MirInstruction::ArrayRead { .. }
             | MirInstruction::StringLength { .. }
             | MirInstruction::StringIndexOf { .. }
-            | MirInstruction::StringCompare { .. } => EffectMask::READ,
+            | MirInstruction::StringCompare { .. }
+            | MirInstruction::NullCompare { .. } => EffectMask::READ,
             MirInstruction::Store { .. }
             | MirInstruction::FieldSet { .. }
             | MirInstruction::WeakFieldWrite { .. }
@@ -180,6 +189,7 @@ impl MirInstruction {
             | MirInstruction::BinOp { dst, .. }
             | MirInstruction::UnaryOp { dst, .. }
             | MirInstruction::Compare { dst, .. }
+            | MirInstruction::NullCompare { dst, .. }
             | MirInstruction::Load { dst, .. }
             | MirInstruction::StaticDataLoad { dst, .. }
             | MirInstruction::FieldGet { dst, .. }
@@ -373,6 +383,7 @@ impl MirInstruction {
 
             MirInstruction::BinOp { lhs, rhs, .. }
             | MirInstruction::Compare { lhs, rhs, .. }
+            | MirInstruction::NullCompare { lhs, rhs, .. }
             | MirInstruction::Store {
                 value: lhs,
                 ptr: rhs,

@@ -23,7 +23,7 @@ impl JoinIrIdRemapper {
             Const { dst, .. } => vec![*dst],
             UnaryOp { dst, operand, .. } => vec![*dst, *operand],
             BinOp { dst, lhs, rhs, .. } => vec![*dst, *lhs, *rhs],
-            Compare { dst, lhs, rhs, .. } => vec![*dst, *lhs, *rhs],
+            Compare { dst, lhs, rhs, .. } | NullCompare { dst, lhs, rhs, .. } => vec![*dst, *lhs, *rhs],
             Load { dst, ptr } => vec![*dst, *ptr],
             StaticDataLoad { dst, index, .. } => vec![*dst, *index],
             Store { value, ptr } => vec![*value, *ptr],

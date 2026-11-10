@@ -57,6 +57,7 @@ pub(crate) fn def_inst_kind(inst: &MirInstruction) -> &'static str {
         MirInstruction::BinOp { .. } => "BinOp",
         MirInstruction::UnaryOp { .. } => "UnaryOp",
         MirInstruction::Compare { .. } => "Compare",
+        MirInstruction::NullCompare { .. } => "NullCompare",
         MirInstruction::Copy { .. } => "Copy",
         MirInstruction::CopyOwned { .. } => "CopyOwned",
         MirInstruction::DestroyOwned { .. } => "DestroyOwned",

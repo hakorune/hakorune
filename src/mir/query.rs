@@ -96,7 +96,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             },
             ArrayStateContractClaim { array, .. } => vec![*array],
             UnaryOp { operand, .. } => vec![*operand],
-            BinOp { lhs, rhs, .. } | Compare { lhs, rhs, .. } => {
+            BinOp { lhs, rhs, .. } | Compare { lhs, rhs, .. } | NullCompare { lhs, rhs, .. } => {
                 vec![*lhs, *rhs]
             }
             TypeOp { value, .. } => vec![*value],
@@ -179,7 +179,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | Const { dst, .. }
             | UnaryOp { dst, .. }
             | BinOp { dst, .. }
-            | Compare { dst, .. }
+            | Compare { dst, .. } | NullCompare { dst, .. }
             | TypeOp { dst, .. }
             | FieldGet { dst, .. }
             | ObjectFieldGet { dst, .. }

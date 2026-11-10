@@ -718,3 +718,8 @@ mod tests {
         );
     }
 }
+
+/// Validate selected canonical rows before serialization, without source-plan waivers.
+pub(crate) fn reject_canonical_legacy_null_comparisons(function: &MirFunction) -> Result<(), &'static str> {
+    invoke::reject_canonical_legacy_null_comparisons(function)
+}
