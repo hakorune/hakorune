@@ -111,6 +111,13 @@ pub(crate) fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usi
     elimination::eliminate_dead_code_in_function(function)
 }
 
+/// Validated null observations have no source Fault, write, or ownership effect.
+/// This permits dead-result elision, not movement/replay or a generic READ rule.
+fn is_elidable_value_instruction(instruction: &crate::mir::MirInstruction) -> bool {
+    instruction.effects().is_pure()
+        || matches!(instruction, crate::mir::MirInstruction::NullCompare { .. })
+}
+
 fn propagate_used_values(
     function: &MirFunction,
     reachable_blocks: &HashSet<crate::mir::BasicBlockId>,

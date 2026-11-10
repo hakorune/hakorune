@@ -48,9 +48,10 @@ impl FinishedBindings {
         if captured.next() != Some(original) || captured.next().is_some() {
             return Err(fault("relation-captured-membership"));
         }
-        let mapped = self
-            .binding(original.0, &original.1)?
-            .ok_or_else(|| fault("relation-destination"))?;
+        let Some(mapped) = self.binding(original.0, &original.1)? else {
+            return if self.borrowed_copies.may_omit(function, &original.1) { Ok(None) }
+                else { Err(fault("relation-destination")) };
+        };
         let definitions: Vec<_> = function
             .blocks
             .iter()
@@ -252,7 +253,8 @@ impl FinishedBindings {
                 .then_some(*source_block)
         }) else {
             return Ok(
-                self.removable_copies.contains(&local) && !used_values(function).contains(&local)
+                (self.removable_copies.contains(&local) && !used_values(function).contains(&local))
+                    || self.borrowed_copies.may_omit(function, expected)
             );
         };
         let actual = function
@@ -267,8 +269,8 @@ impl FinishedBindings {
             return Ok(true);
         }
         Ok(surviving_count == 0
-            && self.removable_copies.contains(&local)
-            && !used_values(function).contains(&local))
+            && ((self.removable_copies.contains(&local) && !used_values(function).contains(&local))
+                || self.borrowed_copies.may_omit(function, expected)))
     }
     pub(super) fn instruction(&self, mut instruction: MirInstruction) -> MirInstruction {
         instruction = self.literal_controls.instruction(instruction);
@@ -335,7 +337,11 @@ impl FinishedBindings {
         {
             return Ok(None);
         }
-        Ok(Some((destination, self.instruction(instruction.clone()))))
+        let mapped = (destination, self.instruction(instruction.clone()));
+        if self.borrowed_copies.contains(instruction) && self.validated_sequence_omissions.contains(&mapped) {
+            return Ok(None);
+        }
+        Ok(Some(mapped))
     }
     pub(in super::super) fn bindings(
         &self,

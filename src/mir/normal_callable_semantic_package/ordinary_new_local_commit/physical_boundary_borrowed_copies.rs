@@ -14,6 +14,14 @@ impl OriginalBorrowedCopies {
         mandatory: &Bindings,
         copies: &Bindings,
     ) -> Result<Self, String> {
+        Self::capture_with_reads(function, mandatory, copies, &[])
+    }
+    pub(super) fn capture_with_reads(
+        function: &MirFunction,
+        mandatory: &Bindings,
+        copies: &Bindings,
+        reads: &Bindings,
+    ) -> Result<Self, String> {
         let mut originals = BTreeMap::new();
         for (block, instruction) in copies {
             let MirInstruction::Copy { dst, .. } = instruction else {
@@ -36,9 +44,75 @@ impl OriginalBorrowedCopies {
                 }
             }
         }
+        let mut optional = BTreeSet::new();
+        for binding in reads {
+            if !matches!(
+                binding.1,
+                MirInstruction::Copy { .. }
+                    | MirInstruction::NullCompare { .. }
+                    | MirInstruction::Const {
+                        value: crate::mir::ConstValue::Null,
+                        ..
+                    }
+            ) {
+                return Err(fault("borrowed-read-kind"));
+            }
+            let dst = binding
+                .1
+                .dst_value()
+                .ok_or_else(|| fault("borrowed-read-dst"))?;
+            if definition_count(function, dst) != 1
+                || function.params.contains(&dst)
+                || function.blocks.get(&binding.0).is_none_or(|block| {
+                    block
+                        .all_instructions()
+                        .filter(|row| *row == &binding.1)
+                        .count()
+                        != 1
+                })
+            {
+                return Err(fault("borrowed-read-original"));
+            }
+            if originals
+                .insert(dst, binding.clone())
+                .is_some_and(|old| old != *binding)
+            {
+                return Err(fault("borrowed-copy-conflicting-prefix"));
+            }
+            optional.insert(dst);
+        }
+        // Transparent result Copies can extend beyond the initializer receipt.
+        // Other mandatory consumers never become optional through this closure.
+        loop {
+            let mut added = false;
+            for (id, block) in &function.blocks {
+                for row in &block.instructions {
+                    let MirInstruction::Copy { dst, src } = row else {
+                        continue;
+                    };
+                    if optional.contains(src)
+                        && !originals.contains_key(dst)
+                        && !mandatory
+                            .iter()
+                            .any(|(_, row)| row.dst_value() == Some(*dst))
+                    {
+                        if definition_count(function, *dst) != 1 || function.params.contains(dst) {
+                            return Err(fault("borrowed-read-copy-definition"));
+                        }
+                        originals.insert(*dst, (*id, row.clone()));
+                        optional.insert(*dst);
+                        added = true;
+                    }
+                }
+            }
+            if !added {
+                break;
+            }
+        }
         let protected: BTreeSet<_> = mandatory
             .iter()
             .filter_map(|(_, i)| i.dst_value())
+            .filter(|dst| !optional.contains(dst))
             .collect();
         let mut dead = BTreeSet::new();
         loop {
@@ -59,7 +133,8 @@ impl OriginalBorrowedCopies {
                                 return true;
                             }
                             match instruction {
-                                MirInstruction::Copy { dst: consumer, .. } => {
+                                MirInstruction::Copy { dst: consumer, .. }
+                                | MirInstruction::NullCompare { dst: consumer, .. } => {
                                     dead.contains(consumer)
                                         && originals.get(consumer).is_some_and(|original| {
                                             original.0 == block.id && &original.1 == instruction
@@ -89,13 +164,13 @@ impl OriginalBorrowedCopies {
     }
 
     pub(super) fn may_omit(&self, function: &MirFunction, instruction: &MirInstruction) -> bool {
-        let MirInstruction::Copy { dst, .. } = instruction else {
+        let Some(dst) = instruction.dst_value() else {
             return false;
         };
         self.contains(instruction)
-            && self.dead.contains(dst)
-            && definition_count(function, *dst) == 0
-            && !operand_used(function, *dst)
+            && self.dead.contains(&dst)
+            && definition_count(function, dst) == 0
+            && !operand_used(function, dst)
     }
 }
 
@@ -140,7 +215,9 @@ impl FinishedBindings {
 
     pub(super) fn validate_borrowed_copies(&self, function: &MirFunction) -> Result<(), String> {
         for original in self.borrowed_copies.originals.values() {
-            self.borrowed_copy_coordinate(function, original)?;
+            if matches!(original.1, MirInstruction::Copy { .. }) {
+                self.borrowed_copy_coordinate(function, original)?;
+            }
         }
         Ok(())
     }

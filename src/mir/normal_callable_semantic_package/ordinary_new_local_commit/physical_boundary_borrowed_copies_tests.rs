@@ -360,3 +360,91 @@ fn borrowed_copy_boundary_uses_existing_contraction_mapping_for_live_copies() {
         Some((BasicBlockId(0), 2))
     );
 }
+
+#[test]
+fn source_null_read_cone_allows_only_captured_unobserved_elision() {
+    let (mut original, mut mandatory, aliases) = fixture(false);
+    let mut reads = aliases.clone();
+    for row in [
+        MirInstruction::Const {
+            dst: ValueId(70),
+            value: ConstValue::Null,
+        },
+        MirInstruction::NullCompare {
+            dst: ValueId(71),
+            op: crate::mir::CompareOp::Eq,
+            lhs: ValueId(61),
+            rhs: ValueId(70),
+        },
+        MirInstruction::Copy {
+            dst: ValueId(72),
+            src: ValueId(71),
+        },
+    ] {
+        original
+            .blocks
+            .get_mut(&BasicBlockId(1))
+            .unwrap()
+            .add_instruction(row.clone());
+        reads.push((BasicBlockId(1), row));
+    }
+    original
+        .blocks
+        .get_mut(&BasicBlockId(1))
+        .unwrap()
+        .add_instruction(MirInstruction::Copy {
+            dst: ValueId(73),
+            src: ValueId(72),
+        });
+    mandatory.extend_from_slice(&reads);
+    let capture = |function: &MirFunction, approved: &Bindings| {
+        PhysicalBoundary::capture_with_source_loop_roles_v2(
+            function,
+            &mandatory,
+            &[(ValueId(72), ValueId(71))],
+            &aliases,
+            &BTreeMap::new(),
+            None,
+            &[],
+            approved,
+        )
+        .unwrap()
+    };
+    let boundary = capture(&original, &reads);
+    // Being eligible for deletion never prohibits preserving the whole cone.
+    validate(&boundary, &original, &mandatory).unwrap();
+    let mut omitted = original.clone();
+    let body = omitted.blocks.get_mut(&BasicBlockId(1)).unwrap();
+    body.instructions.clear();
+    body.instruction_spans.clear();
+    let projected = validate(&boundary, &omitted, &mandatory).unwrap();
+    assert_eq!(
+        projected.relation_binding(&omitted, &reads[3]).unwrap(),
+        None
+    );
+    assert!(projected
+        .check_source_local_copy(&omitted, ValueId(72), ValueId(71))
+        .unwrap());
+    assert!(validate(&capture(&original, &[]), &omitted, &mandatory).is_err());
+    let mut changed = original.clone();
+    if let MirInstruction::NullCompare { op, .. } = &mut changed
+        .blocks
+        .get_mut(&BasicBlockId(1))
+        .unwrap()
+        .instructions[3]
+    {
+        *op = crate::mir::CompareOp::Ne;
+    }
+    assert!(validate(&boundary, &changed, &mandatory).is_err());
+    let mut observed = original.clone();
+    observed
+        .blocks
+        .get_mut(&BasicBlockId(2))
+        .unwrap()
+        .return_env = Some(vec![ValueId(71)]);
+    let retained = capture(&observed, &reads);
+    let body = observed.blocks.get_mut(&BasicBlockId(1)).unwrap();
+    body.instructions.clear();
+    body.instruction_spans.clear();
+    assert!(validate(&retained, &observed, &mandatory).is_err());
+}

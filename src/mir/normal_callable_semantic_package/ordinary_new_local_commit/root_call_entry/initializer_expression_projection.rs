@@ -665,10 +665,12 @@ impl EmittedComparisonInitializerProjectionV1 {
         if let Some(copy) = &self.copy { if !expected.contains(copy) { expected.push(copy.clone()); } }
         let projected = match coordinates { Some(boundary) => boundary.bindings(&expected)?, None => expected.clone() };
         if bindings != projected { return Err(freeze("initializer-expression/comparison-inventory")); }
-        for relation in &self.operands { relation.verify_projected(function, &mut |binding| map(binding))?; }
+        let actual = map(&self.original)?;
+        if actual.is_some() {
+            for relation in &self.operands { relation.verify_projected(function, &mut |binding| map(binding))?; }
+        }
         let physical = expected.iter().map(map).collect::<Result<Vec<_>,_>>()?.into_iter().flatten().collect::<Vec<_>>();
-        let actual = map(&self.original)?.ok_or_else(|| freeze("initializer-expression/comparison-removed"))?;
-        if actual.1 != self.original.1 { return Err(freeze("initializer-expression/comparison-drift")); }
+        if actual.as_ref().is_some_and(|actual| actual.1 != self.original.1) { return Err(freeze("initializer-expression/comparison-drift")); }
         for binding in &physical {
             if !super::super::physical_boundary::check_binding(function, None, binding.0, &binding.1)? {
                 return Err(freeze("initializer-expression/comparison-binding"));

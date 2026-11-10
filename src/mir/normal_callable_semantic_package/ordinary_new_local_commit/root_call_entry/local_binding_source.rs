@@ -78,3 +78,61 @@ impl RootLifecyclePrefixBindingGroupV1 {
         }
     }
 }
+
+impl OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn comparison_read_cone_bindings_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+    ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
+        let roots = self
+            .root_local_call_bindings
+            .borrow()
+            .get(&owner)
+            .cloned()
+            .unwrap_or_default();
+        let groups = RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(&roots);
+        let mut protected = std::collections::BTreeSet::new();
+        for group in &groups {
+            if group.comparison_initializer().is_none() {
+                protected.extend(
+                    group
+                        .bindings()
+                        .iter()
+                        .filter_map(|(_, row)| row.dst_value()),
+                );
+            }
+        }
+        let mut rows = Vec::new();
+        for group in &groups {
+            if group.comparison_initializer().is_none() {
+                continue;
+            }
+            group.validate_recorded_in_context(
+                CallValidationContextV1::Lowering(self),
+                function,
+                None,
+            )?;
+            for binding in group.bindings() {
+                if binding
+                    .1
+                    .dst_value()
+                    .is_some_and(|dst| !protected.contains(&dst))
+                    && matches!(
+                        binding.1,
+                        MirInstruction::Copy { .. }
+                            | MirInstruction::NullCompare { .. }
+                            | MirInstruction::Const {
+                                value: crate::mir::ConstValue::Null,
+                                ..
+                            }
+                    )
+                    && !rows.contains(binding)
+                {
+                    rows.push(binding.clone());
+                }
+            }
+        }
+        Ok(rows)
+    }
+}

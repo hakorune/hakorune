@@ -146,15 +146,15 @@ impl PhysicalBoundary {
         single_predecessor_phi_body: Option<BasicBlockId>,
     ) -> Result<Self, String> {
         Self::capture_with_phi_policy_and_source_loops(function, bindings, copies, borrowed_copies,
-            source_phi_roles, single_predecessor_phi_body, &[])
+            source_phi_roles, single_predecessor_phi_body, &[], &[])
     }
 
     fn capture_with_phi_policy_and_source_loops(
         function: &MirFunction, bindings: &Bindings, copies: &[(ValueId, ValueId)], borrowed_copies: &Bindings,
         source_phi_roles: &phi_policy::SourcePhiRoles, single_predecessor_phi_body: Option<BasicBlockId>,
-        source_loops: &[std::rc::Rc<crate::mir::builder::VerifiedLoopCondAfterPhysicalRoleV1>],
+        source_loops: &[std::rc::Rc<crate::mir::builder::VerifiedLoopCondAfterPhysicalRoleV1>], read_cones: &Bindings,
     ) -> Result<Self, String> {
-        let borrowed_copies = OriginalBorrowedCopies::capture(function, bindings, borrowed_copies)?;
+        let borrowed_copies = OriginalBorrowedCopies::capture_with_reads(function, bindings, borrowed_copies, read_cones)?;
         let used = used_values(function);
         let reachable = crate::mir::verification::utils::compute_reachable_blocks(function);
         let mut definitions = BTreeMap::<ValueId, usize>::new();

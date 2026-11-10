@@ -92,8 +92,9 @@ impl PhysicalBoundary {
         function: &MirFunction, bindings: &Bindings, copies: &[(ValueId, ValueId)], borrowed_copies: &Bindings,
         phi_roles: &SourcePhiRoles, selected_body: Option<BasicBlockId>,
         roles: &[std::rc::Rc<crate::mir::builder::VerifiedLoopCondAfterPhysicalRoleV1>],
+        read_cones: &Bindings,
     ) -> Result<Self, String> {
-        Self::capture_with_phi_policy_and_source_loops(function, bindings, copies, borrowed_copies, phi_roles, selected_body, roles)
+        Self::capture_with_phi_policy_and_source_loops(function, bindings, copies, borrowed_copies, phi_roles, selected_body, roles, read_cones)
     }
 }
 pub(super) fn source_loop_feedback_v2(function: &MirFunction, nodes: &BTreeMap<BasicBlockId, Node>,

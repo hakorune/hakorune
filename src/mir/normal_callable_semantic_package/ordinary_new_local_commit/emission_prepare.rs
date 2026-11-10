@@ -500,6 +500,7 @@ impl OrdinaryNewClaimLedgerV1 {
             &source_phi_roles,
             selected_body_block,
             &self.recorded_source_loop_roles_v2(owner),
+            &self.comparison_read_cone_bindings_v1(owner, function)?,
         )?;
         Ok(PendingChildPhysicalValidationV1 {
             ledger: self,

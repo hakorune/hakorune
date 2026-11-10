@@ -75,7 +75,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let groups = self.root_local_call_bindings.borrow().get(&owner).cloned().unwrap_or_default();
         for group in RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(&groups) {
-            if group.initializer().is_some() || group.comparison_initializer().is_some() || group.rebind().is_some() || group.retains_argument_frames_v1() {
+            if group.initializer().is_some() || group.rebind().is_some() || group.retains_argument_frames_v1() {
                 // Call argument packets also retain exact auxiliary producers
                 // after a LocalSSA adapter has supplied the consumed operand.
                 expressions.extend_from_slice(group.bindings());

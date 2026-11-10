@@ -51,7 +51,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let source_phi_roles = self.recorded_loop_cond_after_blocks(owner, function, &bindings)?
             .into_iter().map(|(block, phis)| (block, (phis, None))).collect();
         let boundary = super::physical_boundary::PhysicalBoundary::capture_with_source_loop_roles_v2(
-            function, &bindings, &copies, &aliases, &source_phi_roles, None, &self.recorded_source_loop_roles_v2(owner),
+            function, &bindings, &copies, &aliases, &source_phi_roles, None, &self.recorded_source_loop_roles_v2(owner), &self.comparison_read_cone_bindings_v1(owner, function)?,
         )?;
         *state = RootNewValidation::Checked(owner, boundary);
         Ok(observation)
