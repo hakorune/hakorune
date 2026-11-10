@@ -179,8 +179,9 @@ pub(crate) fn is_removable_effect_sensitive_read_instruction(
     local_reads: &LocalReadInfo,
 ) -> bool {
     match inst {
-        // A validated observation has no source Fault. Elision never permits
-        // movement or replay; the common DCE entry validates its lifetime.
+        // A validated observation has no source Fault. The canonical callable
+        // and main paths check its lifetime before optimization. This rule
+        // permits only dead-result elision.
         crate::mir::MirInstruction::NullCompare { .. } => true,
         crate::mir::MirInstruction::FieldGet { base, .. } => {
             local_reads.is_non_escaping_local(*base)
