@@ -184,15 +184,11 @@ pub(super) fn validate_result(
 ) -> Result<Option<ExactTrivialScalarAbiV1>, CallablePhysicalHeaderIssueV1> {
     let result = match completion.function_exit_contract().declared_result() {
         DeclaredFunctionResultContractV1::Annotated(name) => {
-            match crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::classify_resolved(name, declared_box) {
-                Some(crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::Scalar(abi)) => Some(abi),
-                Some(crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::OwnedText
-                    | crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::OwnedObject) => None,
-                None => return Err(CallablePhysicalHeaderIssueV1::UnsupportedResultAnnotation {
+            crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::classify_resolved(name, declared_box)
+                .ok_or_else(|| CallablePhysicalHeaderIssueV1::UnsupportedResultAnnotation {
                     _batch_slot: batch_slot,
                     _name: name.clone(),
-                }),
-            }
+                })?.scalar_abi()
         }
         DeclaredFunctionResultContractV1::Unannotated | DeclaredFunctionResultContractV1::Void => {
             None

@@ -26,8 +26,8 @@ impl ExactTrivialScalarAbiV1 {
     /// of declared result spellings is `DeclaredResultKindV1::classify`.
     pub(crate) const fn classify_result(source_type_name: &str) -> Option<Self> {
         match DeclaredResultKindV1::classify(source_type_name) {
-            Some(DeclaredResultKindV1::Scalar(abi)) => Some(abi),
-            _ => None,
+            Some(kind) => kind.scalar_abi(),
+            None => None,
         }
     }
 
@@ -65,6 +65,14 @@ impl DeclaredResultKindV1 {
                 Some(abi) => Some(Self::Scalar(abi)),
                 None => None,
             },
+        }
+    }
+
+    /// A known non-scalar result has no scalar ABI; it is not an unknown spelling.
+    pub(crate) const fn scalar_abi(self) -> Option<ExactTrivialScalarAbiV1> {
+        match self {
+            Self::Scalar(abi) => Some(abi),
+            Self::OwnedText | Self::OwnedObject => None,
         }
     }
 

@@ -413,12 +413,8 @@ fn validate_exact_i64_header(
         params.push(kind);
     }
     let result = match view.return_type_name() {
-        Some(name) => match crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::classify(name) {
-            Some(crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::Scalar(abi)) => Some(abi),
-            Some(crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::OwnedText
-                | crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::OwnedObject) => None,
-            None => return Err(CallableIndexSealErrorV1::ReturnTypeOutsideProfile),
-        },
+        Some(name) => crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::classify(name)
+            .ok_or(CallableIndexSealErrorV1::ReturnTypeOutsideProfile)?.scalar_abi(),
         None => None,
     };
 
