@@ -13,10 +13,11 @@ use crate::mir::types::{BarrierOp, WeakRefOp};
 
 impl MirInstruction {
     /// Borrow occurrences for frame-free Text read verification. Never source permission.
-    pub(crate) fn text_read_operands_v1(&self) -> Option<(ValueId, Vec<&super::StringInvokeOperand>)> {
+    pub(crate) fn text_read_operands_v1(&self) -> Option<(ValueId, crate::mir::MirType, Vec<&super::StringInvokeOperand>)> {
         match self {
-            Self::StringLength { dst, value } => Some((*dst, vec![value])),
-            Self::StringIndexOf { dst, value, needle } => Some((*dst, vec![value, needle])),
+            Self::StringLength { dst, value } => Some((*dst, crate::mir::MirType::Integer, vec![value])),
+            Self::StringIndexOf { dst, value, needle } => Some((*dst, crate::mir::MirType::Integer, vec![value, needle])),
+            Self::StringCompare { dst, left, right, .. } => Some((*dst, crate::mir::MirType::Bool, vec![left, right])),
             _ => None,
         }
     }
@@ -89,7 +90,8 @@ impl MirInstruction {
             | MirInstruction::ObjectFieldGet { .. }
             | MirInstruction::ArrayRead { .. }
             | MirInstruction::StringLength { .. }
-            | MirInstruction::StringIndexOf { .. } => EffectMask::READ,
+            | MirInstruction::StringIndexOf { .. }
+            | MirInstruction::StringCompare { .. } => EffectMask::READ,
             MirInstruction::Store { .. }
             | MirInstruction::FieldSet { .. }
             | MirInstruction::WeakFieldWrite { .. }
@@ -198,7 +200,8 @@ impl MirInstruction {
             | MirInstruction::Await { dst, .. }
             | MirInstruction::Select { dst, .. }
             | MirInstruction::StringLength { dst, .. }
-            | MirInstruction::StringIndexOf { dst, .. } => Some(*dst),
+            | MirInstruction::StringIndexOf { dst, .. }
+            | MirInstruction::StringCompare { dst, .. } => Some(*dst),
             MirInstruction::NewClosure { dst, .. } => Some(*dst),
 
             MirInstruction::Call(call) => call.dst,
@@ -393,6 +396,7 @@ impl MirInstruction {
             | MirInstruction::ArrayResidenceRelease { value } => vec![*value],
             MirInstruction::StringLength { value, .. } => value.value().into_iter().collect(),
             MirInstruction::StringIndexOf { value, needle, .. } => value.value().into_iter().chain(needle.value()).collect(),
+            MirInstruction::StringCompare { left, right, .. } => left.value().into_iter().chain(right.value()).collect(),
             MirInstruction::StringResidenceInstall { value, replaces, .. } => std::iter::once(*value).chain(*replaces).collect(),
             MirInstruction::ReleaseStrong { values } => values.clone(),
 

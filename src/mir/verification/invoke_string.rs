@@ -70,7 +70,7 @@ fn is_tagged_dynamic_formal(function: &MirFunction, value: ValueId) -> bool {
 mod source;
 #[path = "invoke_string_lifetime.rs"]
 mod lifetime;
-pub(super) use lifetime::read::has_text_read_i64_origin;
+pub(super) use lifetime::read::has_text_read_scalar_origin;
 
 pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
     lifetime::check(function, None).map_err(|(_, reason, _)| reason)
@@ -540,16 +540,22 @@ mod tests {
     #[test]
     fn string_length_rows_keep_domain_lifetime_and_definition_order() {
         // One matrix covers both read arities and both positions of IndexOf.
-        for needle_position in [None, Some(false), Some(true)] {
-        let read = |dst, value| match needle_position {
+        for (comparison, needle_position) in [(false, None), (false, Some(false)), (false, Some(true)), (true, Some(false)), (true, Some(true))] {
+        let kind = if comparison { MirType::Bool } else { MirType::Integer };
+        let type_error = if comparison { "string-read-bool-result-type" } else { "string-length-result-type" };
+        let read = |dst, value: Operand| if comparison {
+            let literal = Operand::StaticText { utf8: "猫".into() };
+            let (left, right) = if needle_position == Some(true) { (literal, value) } else { (value, literal) };
+            MirInstruction::StringCompare { dst, op: crate::mir::CompareOp::Eq, left, right }
+        } else { match needle_position {
             None => MirInstruction::StringLength { dst, value },
             Some(false) => MirInstruction::StringIndexOf { dst, value,
                 needle: Operand::StaticText { utf8: "猫".into() } },
             Some(true) => MirInstruction::StringIndexOf { dst, needle: value,
                 value: Operand::StaticText { utf8: "猫".into() } },
-        };
+        } };
         let mut function = MirFunction::new(FunctionSignature {
-            name: "code_point_count".into(), params: vec![], return_type: MirType::Integer,
+            name: "code_point_count".into(), params: vec![], return_type: kind.clone(),
             effects: EffectMask::READ,
         }, BasicBlockId(0));
         let mut block = BasicBlock::new(BasicBlockId(0));
@@ -569,12 +575,12 @@ mod tests {
         let body = terminal.blocks.get_mut(&BasicBlockId(0)).unwrap();
         body.instructions.clear();
         body.terminator = Some(read(ValueId(1), Operand::StaticText { utf8: "x".into() }));
-        assert_eq!(check(&terminal), Err("string-length-terminator"));
+        assert_eq!(check(&terminal), Err(if comparison { "string-read-bool-terminator" } else { "string-length-terminator" }));
         let mut bool_condition = function.clone();
         bool_condition.blocks.get_mut(&BasicBlockId(0)).unwrap().set_terminator(
             MirInstruction::Branch { condition: ValueId(1), then_bb: BasicBlockId(0),
                 else_bb: BasicBlockId(0), then_edge_args: None, else_edge_args: None });
-        assert_eq!(check(&bool_condition), Err("string-length-result-type"));
+        assert_eq!(check(&bool_condition), if comparison { Ok(()) } else { Err(type_error) });
         let mut borrowed = function.clone();
         borrowed.params = vec![ValueId(10)];
         borrowed.signature.params = vec![MirType::Integer];
@@ -601,8 +607,8 @@ mod tests {
         borrowed.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions.swap(0, 1);
         assert_eq!(check(&borrowed), Err("string-read-before-definition"));
         let mut bad_type = function.clone();
-        bad_type.metadata.value_types.insert(ValueId(1), MirType::Bool);
-        assert_eq!(check(&bad_type), Err("string-length-result-type"));
+        bad_type.metadata.value_types.insert(ValueId(1), if comparison { MirType::Integer } else { MirType::Bool });
+        assert_eq!(check(&bad_type), Err(type_error));
         let mut unowned = function.clone();
         unowned.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions[0] =
             read(ValueId(1), Operand::OwnedString(ValueId(9)));
@@ -633,18 +639,20 @@ mod tests {
 
     #[test]
     fn string_length_phi_preserves_i64_without_type_metadata() {
-        for search in [false, true] {
+        for mode in [0, 1, 2] {
+        let boolean = mode == 2;
+        let type_error = if boolean { "string-read-bool-result-type" } else { "string-length-result-type" };
         let mut function = MirFunction::new(FunctionSignature {
-            name: "count_phi".into(), params: vec![], return_type: MirType::Integer,
+            name: "count_phi".into(), params: vec![], return_type: if boolean { MirType::Bool } else { MirType::Integer },
             effects: EffectMask::READ,
         }, BasicBlockId(0));
         let mut entry = BasicBlock::new(BasicBlockId(0));
         let value = Operand::StaticText { utf8: "猫".into() };
-        entry.add_instruction(if search { MirInstruction::StringIndexOf { dst: ValueId(1), value,
+        entry.add_instruction(if boolean { MirInstruction::StringCompare { dst: ValueId(1), op: crate::mir::CompareOp::Eq, left: value, right: Operand::StaticText { utf8: "猫".into() } } } else if mode == 1 { MirInstruction::StringIndexOf { dst: ValueId(1), value,
             needle: Operand::StaticText { utf8: "猫".into() } } }
             else { MirInstruction::StringLength { dst: ValueId(1), value } });
         entry.add_instruction(MirInstruction::Const { dst: ValueId(2), value: ConstValue::Bool(true) });
-        entry.add_instruction(MirInstruction::Const { dst: ValueId(5), value: ConstValue::Integer(0) });
+        entry.add_instruction(MirInstruction::Const { dst: ValueId(5), value: if boolean { ConstValue::Bool(false) } else { ConstValue::Integer(0) } });
         entry.set_terminator(MirInstruction::Branch { condition: ValueId(2), then_bb: BasicBlockId(1),
             else_bb: BasicBlockId(2), then_edge_args: None, else_edge_args: None });
         function.add_block(entry);
@@ -660,20 +668,48 @@ mod tests {
         function.add_block(join);
         assert_eq!(check(&function), Ok(()));
         assert!(super::super::check_function(&function).is_ok());
+        if boolean {
+            for op in [crate::mir::CompareOp::Eq, crate::mir::CompareOp::Ne, crate::mir::CompareOp::Lt] {
+                let mut changed = function.clone();
+                changed.blocks.get_mut(&BasicBlockId(3)).unwrap().instructions.push(
+                    MirInstruction::Compare { dst: ValueId(7), op, lhs: ValueId(4), rhs: ValueId(2) });
+                assert_eq!(check(&changed), if op == crate::mir::CompareOp::Lt { Err(type_error) } else { Ok(()) });
+            }
+            let mut arithmetic = function.clone();
+            arithmetic.blocks.get_mut(&BasicBlockId(3)).unwrap().instructions.push(
+                MirInstruction::BinOp { dst: ValueId(7), op: crate::mir::BinaryOp::Add, lhs: ValueId(4), rhs: ValueId(2) });
+            assert_eq!(check(&arithmetic), Err(type_error));
+            let mut mixed = function.clone();
+            mixed.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions.push(
+                MirInstruction::Const { dst: ValueId(8), value: ConstValue::Integer(1) });
+            mixed.blocks.get_mut(&BasicBlockId(3)).unwrap().instructions.push(
+                MirInstruction::Compare { dst: ValueId(7), op: crate::mir::CompareOp::Eq, lhs: ValueId(4), rhs: ValueId(8) });
+            assert_eq!(check(&mixed), Err(type_error));
+        }
         function.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions[2] =
-            MirInstruction::Const { dst: ValueId(5), value: ConstValue::Bool(false) };
-        assert_eq!(check(&function), Err("string-length-result-type"));
+            MirInstruction::Const { dst: ValueId(5), value: if boolean { ConstValue::Integer(0) } else { ConstValue::Bool(false) } };
+        assert_eq!(check(&function), Err(type_error));
         }
     }
 
     #[test]
     fn ordinary_text_search_repeated_owned_operand_is_a_read() {
+        for comparison in [false, true] {
         let mut function = graph();
         function.blocks.get_mut(&BasicBlockId(2)).unwrap().instructions.push(
-            MirInstruction::StringIndexOf { dst: ValueId(45),
-                value: Operand::OwnedString(ValueId(3)), needle: Operand::OwnedString(ValueId(3)) });
+            if comparison { MirInstruction::StringCompare { dst: ValueId(45), op: crate::mir::CompareOp::Eq,
+                left: Operand::OwnedString(ValueId(3)), right: Operand::OwnedString(ValueId(3)) } }
+            else { MirInstruction::StringIndexOf { dst: ValueId(45),
+                value: Operand::OwnedString(ValueId(3)), needle: Operand::OwnedString(ValueId(3)) } });
         assert_eq!(check(&function), Ok(()));
         assert!(super::super::check_function(&function).is_ok());
+        if comparison {
+            if let Some(MirInstruction::Invoke { operation, .. }) = &mut function.blocks.get_mut(&BasicBlockId(2)).unwrap().terminator {
+                *operation = InvokeOperation::String(Op::Print { value: Operand::NormalInteger(ValueId(45)) });
+            }
+            assert_eq!(check(&function), Err("string-integer-domain"));
+        }
+        }
     }
 
 }

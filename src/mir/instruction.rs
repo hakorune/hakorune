@@ -671,6 +671,7 @@ pub enum MirInstruction {
     /// Borrow live Text and count Unicode code points without a Fault edge.
     StringLength { dst: ValueId, value: StringInvokeOperand },
     StringIndexOf { dst: ValueId, value: StringInvokeOperand, needle: StringInvokeOperand },
+    StringCompare { dst: ValueId, op: CompareOp, left: StringInvokeOperand, right: StringInvokeOperand },
     StringResidenceInstall { value: ValueId, replaces: Option<ValueId>, returning: bool },
 
     /// Check an exact-numeric local contract, then publish `%dst = %src`.

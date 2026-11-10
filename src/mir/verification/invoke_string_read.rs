@@ -61,11 +61,18 @@ pub(super) fn check_domains(
                 check_borrowed_operand(function, *value)?;
                 check_available(function, id, instruction, *value)?
             }
-            Operand::NormalBool(value) if has_text_read_i64_origin(function, *value) => {
+            Operand::NormalBool(value)
+                if has_text_read_scalar_origin(function, *value, &crate::mir::MirType::Integer) =>
+            {
                 return Err("string-bool-domain");
             }
             Operand::NormalInteger(value)
                 if results.contains_key(value)
+                    || has_text_read_scalar_origin(
+                        function,
+                        *value,
+                        &crate::mir::MirType::Bool,
+                    )
                     || check_borrowed_operand(function, *value).is_ok() =>
             {
                 return Err(domain_refusal("string-integer-domain", &id, instruction));
@@ -90,6 +97,7 @@ pub(super) fn check_text_read(
     id: BasicBlockId,
     instruction: &MirInstruction,
     dst: ValueId,
+    kind: &crate::mir::MirType,
     operands: &[&Operand],
 ) -> Result<(), &'static str> {
     if operands.iter().any(|value| !value.is_text()) {
@@ -99,12 +107,16 @@ pub(super) fn check_text_read(
         .metadata
         .value_types
         .get(&dst)
-        .is_some_and(|ty| *ty != crate::mir::MirType::Integer)
+        .is_some_and(|ty| ty != kind)
     {
-        return Err("string-length-result-type");
+        return Err(result_type_refusal(kind));
     }
     if function.blocks.get(&id).and_then(|b| b.terminator.as_ref()) == Some(instruction) {
-        return Err("string-length-terminator");
+        return Err(if *kind == crate::mir::MirType::Integer {
+            "string-length-terminator"
+        } else {
+            "string-read-bool-terminator"
+        });
     }
     check_domains(function, source, results, id, instruction, operands)?;
     for value in operands.iter().filter_map(|operand| operand.value()) {
@@ -163,13 +175,15 @@ fn check_available<'a>(
 }
 
 /// Derive the scalar result from actual definitions, never an absent type hint.
-pub(in crate::mir::verification) fn has_text_read_i64_origin(
+pub(in crate::mir::verification) fn has_text_read_scalar_origin(
     function: &MirFunction,
     value: ValueId,
+    kind: &crate::mir::MirType,
 ) -> bool {
     fn walk(
         function: &MirFunction,
         value: ValueId,
+        kind: &crate::mir::MirType,
         seen: &mut std::collections::BTreeSet<ValueId>,
     ) -> bool {
         if !seen.insert(value) {
@@ -180,66 +194,131 @@ pub(in crate::mir::verification) fn has_text_read_i64_origin(
             .values()
             .flat_map(|block| block.all_instructions())
             .any(|row| match row {
-                row if row
-                    .text_read_operands_v1()
-                    .is_some_and(|(dst, _)| dst == value) =>
+                row if row.dst_value() == Some(value)
+                    && row
+                        .text_read_operands_v1()
+                        .is_some_and(|(dst, actual, _)| dst == value && &actual == kind) =>
                 {
                     true
                 }
-                MirInstruction::Copy { dst, src } if *dst == value => walk(function, *src, seen),
+                MirInstruction::Copy { dst, src } if *dst == value => {
+                    walk(function, *src, kind, seen)
+                }
                 MirInstruction::Phi { dst, inputs, .. } if *dst == value => inputs
                     .iter()
-                    .any(|(_, incoming)| walk(function, *incoming, seen)),
+                    .any(|(_, incoming)| walk(function, *incoming, kind, seen)),
                 _ => false,
             })
     }
-    walk(function, value, &mut std::collections::BTreeSet::new())
+    walk(
+        function,
+        value,
+        kind,
+        &mut std::collections::BTreeSet::new(),
+    )
 }
 
-pub(super) fn check_i64_results(function: &MirFunction) -> Result<(), &'static str> {
+fn result_type_refusal(kind: &crate::mir::MirType) -> &'static str {
+    if *kind == crate::mir::MirType::Integer {
+        "string-length-result-type"
+    } else {
+        "string-read-bool-result-type"
+    }
+}
+
+pub(super) fn check_scalar_results(function: &MirFunction) -> Result<(), &'static str> {
     use crate::mir::MirType;
-    if !function.blocks.values().any(|block| {
-        block
-            .all_instructions()
-            .any(|row| row.text_read_operands_v1().is_some())
-    }) {
+    // Do not walk origins repeatedly for a kind this function never reads.
+    let present = [MirType::Integer, MirType::Bool].map(|kind| {
+        function.blocks.values().any(|block| {
+            block.all_instructions().any(|row| {
+                row.text_read_operands_v1()
+                    .is_some_and(|(_, actual, _)| actual == kind)
+            })
+        })
+    });
+    if !present[0] && !present[1] {
         return Ok(());
     }
-
     for row in function
         .blocks
         .values()
         .flat_map(|block| block.all_instructions())
     {
-        if row.dst_value().is_some_and(|dst| {
-            has_text_read_i64_origin(function, dst)
-                && function
-                    .metadata
-                    .value_types
-                    .get(&dst)
-                    .is_some_and(|ty| *ty != MirType::Integer)
-        }) {
-            return Err("string-length-result-type");
+        for (enabled, kind) in present.into_iter().zip([MirType::Integer, MirType::Bool]) {
+            if !enabled {
+                continue;
+            }
+            let origin = |value| has_text_read_scalar_origin(function, value, &kind);
+            if row.dst_value().is_some_and(|dst| {
+                origin(dst)
+                    && function
+                        .metadata
+                        .value_types
+                        .get(&dst)
+                        .is_some_and(|ty| *ty != kind)
+            }) {
+                return Err(result_type_refusal(&kind));
+            }
+            if let MirInstruction::Phi {
+                dst,
+                inputs,
+                type_hint,
+            } = row
+            {
+                if origin(*dst)
+                    && (type_hint.as_ref().is_some_and(|ty| *ty != kind)
+                        || inputs.iter().any(|(_, value)| {
+                            matches!(intrinsic_scalar_type(function, *value,
+                        &mut std::collections::BTreeSet::new()), Some(ty) if ty != kind)
+                        }))
+                {
+                    return Err(result_type_refusal(&kind));
+                }
+            }
+            if kind == MirType::Integer
+                && matches!(row, MirInstruction::Branch { condition, .. } if origin(*condition))
+            {
+                return Err(result_type_refusal(&kind));
+            }
+            if matches!(row, MirInstruction::Return { value: Some(value) }
+                if origin(*value) && function.signature.return_type != kind)
+            {
+                return Err(result_type_refusal(&kind));
+            }
         }
-        if let MirInstruction::Phi {
-            dst,
-            inputs,
-            type_hint,
-        } = row
-        {
-            if has_text_read_i64_origin(function, *dst) && (type_hint.as_ref().is_some_and(|ty| *ty != MirType::Integer) || inputs.iter().any(|(_, value)| {
-                matches!(intrinsic_scalar_type(function, *value, &mut std::collections::BTreeSet::new()),
-                    Some(ty) if ty != MirType::Integer)
-            })) { return Err("string-length-result-type"); }
+        if !present[1] {
+            continue;
         }
-        if matches!(row, MirInstruction::Branch { condition, .. } if has_text_read_i64_origin(function, *condition))
-        {
-            return Err("string-length-result-type");
-        }
-        if matches!(row, MirInstruction::Return { value: Some(value) }
-            if has_text_read_i64_origin(function, *value) && function.signature.return_type != MirType::Integer)
-        {
-            return Err("string-length-result-type");
+        // A normal Bool read must not become an integer merely by deleting metadata.
+        // Unknown legacy values are not assigned a new type by this check.
+        let bool_origin = |v| has_text_read_scalar_origin(function, v, &MirType::Bool);
+        let incompatible = |v| {
+            intrinsic_scalar_type(function, v, &mut std::collections::BTreeSet::new())
+                .is_some_and(|ty| ty != MirType::Bool)
+        };
+        match row {
+            MirInstruction::BinOp { op, lhs, rhs, .. }
+                if bool_origin(*lhs) || bool_origin(*rhs) =>
+            {
+                if !matches!(op, crate::mir::BinaryOp::And | crate::mir::BinaryOp::Or)
+                    || incompatible(*lhs)
+                    || incompatible(*rhs)
+                {
+                    return Err(result_type_refusal(&MirType::Bool));
+                }
+            }
+            MirInstruction::Compare { op, lhs, rhs, .. }
+                if bool_origin(*lhs) || bool_origin(*rhs) =>
+            {
+                if !matches!(op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne)
+                    || incompatible(*lhs)
+                    || incompatible(*rhs)
+                {
+                    return Err(result_type_refusal(&MirType::Bool));
+                }
+            }
+            _ => {}
         }
     }
     Ok(())
@@ -272,6 +351,7 @@ fn intrinsic_scalar_type(
         ) => Some(MirType::Integer),
         Some(
             MirInstruction::Compare { .. }
+            | MirInstruction::StringCompare { .. }
             | MirInstruction::Const {
                 value: ConstValue::Bool(_),
                 ..

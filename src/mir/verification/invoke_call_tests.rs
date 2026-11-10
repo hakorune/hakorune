@@ -516,11 +516,14 @@ fn cataloged_call_checks_bool_and_unit_results_against_the_callee_declaration() 
 
 #[test]
 fn cataloged_call_checks_length_result_type_without_metadata() {
-    for search in [false, true] {
-    let mut module = call_module(cataloged_callee(crate::mir::MirType::Bool));
+    for mode in [0, 1, 2] {
+    let mut module = call_module(cataloged_callee(if mode == 2 { crate::mir::MirType::Integer } else { crate::mir::MirType::Bool }));
     let caller = module.functions.get_mut("invoke_control_test").unwrap();
     caller.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions[1] =
-        if search { MirInstruction::StringIndexOf { dst: ValueId(1),
+        if mode == 2 { MirInstruction::StringCompare { dst: ValueId(1), op: crate::mir::CompareOp::Eq,
+ left: crate::mir::instruction::StringInvokeOperand::StaticText { utf8: "x".into() },
+ right: crate::mir::instruction::StringInvokeOperand::StaticText { utf8: "x".into() } } }
+ else if mode == 1 { MirInstruction::StringIndexOf { dst: ValueId(1),
             value: crate::mir::instruction::StringInvokeOperand::StaticText { utf8: "x".into() },
             needle: crate::mir::instruction::StringInvokeOperand::StaticText { utf8: "x".into() } } }
         else { MirInstruction::StringLength { dst: ValueId(1), value:

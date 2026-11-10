@@ -35,6 +35,7 @@ fn def_inst_kind(inst: &MirInstruction) -> &'static str {
         MirInstruction::ArrayRead { .. } => "ArrayRead",
         MirInstruction::StringLength { .. } => "StringLength",
         MirInstruction::StringIndexOf { .. } => "StringIndexOf",
+        MirInstruction::StringCompare { .. } => "StringCompare",
         MirInstruction::ArrayStateContractClaim { .. } => "ArrayStateContractClaim",
         MirInstruction::Store { .. } => "Store",
         MirInstruction::MemOp { .. } => "MemOp",

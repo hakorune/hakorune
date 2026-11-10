@@ -85,12 +85,14 @@ pub(super) fn check_call_edge(
         .zip(params.iter().skip(receiver_params))
         .enumerate()
     {
-        if super::string::has_text_read_i64_origin(function, *argument)
-            && !matches!(parameter, crate::mir::MirType::Integer | crate::mir::MirType::Unknown)
-        {
-            errors.push(call_argument_drift(function, callee, block,
-                format!("argument={index} value={argument:?} actual=StringLength(I64) formal={parameter:?}")));
-            return;
+        for kind in [crate::mir::MirType::Integer, crate::mir::MirType::Bool] {
+            if super::string::has_text_read_scalar_origin(function, *argument, &kind)
+                && parameter != &kind && parameter != &crate::mir::MirType::Unknown {
+                let actual = if kind == crate::mir::MirType::Integer { "StringLength(I64)" } else { "TextRead(Bool)" };
+                errors.push(call_argument_drift(function, callee, block,
+                    format!("argument={index} value={argument:?} actual={actual} formal={parameter:?}")));
+                return;
+            }
         }
         if let Some((expected, object)) = take_slots.and_then(|slots| slots.get(&index)) {
             if !source_bound || expected != argument || module.canonical_object_definition(*object).is_none()

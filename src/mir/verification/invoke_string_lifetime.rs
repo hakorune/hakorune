@@ -253,7 +253,7 @@ pub(super) fn check(
     let result = (|| {
         let empty = TextSourceImage::default();
         let source = source.unwrap_or(&empty);
-        read::check_i64_results(function)?;
+        read::check_scalar_results(function)?;
         // Lifecycle dependencies are not actual arguments. Only an owned Text
         // Invoke can carry them, even when no other String operation is selected.
         for (block_id, row) in function
@@ -282,7 +282,7 @@ pub(super) fn check(
             }
         }
         let selected = |instruction: &MirInstruction| {
-            matches!(instruction, MirInstruction::StringResidenceInstall { .. } | MirInstruction::StringLength { .. } | MirInstruction::StringIndexOf { .. })
+            matches!(instruction, MirInstruction::StringResidenceInstall { .. } | MirInstruction::StringLength { .. } | MirInstruction::StringIndexOf { .. } | MirInstruction::StringCompare { .. })
                 || matches!(
             instruction, MirInstruction::Invoke { operation, .. }
                 if matches!(operation, InvokeOperation::FieldSet { mode, .. } if mode.has_owned_text_candidate_v1())
@@ -412,8 +412,8 @@ pub(super) fn check(
                         return Err("string-residence-install-terminator");
                     }
                 }
-                if let Some((dst, operands)) = instruction.text_read_operands_v1() {
-                    read::check_text_read(function, source, &results, block.id, instruction, dst, &operands)?;
+                if let Some((dst, kind, operands)) = instruction.text_read_operands_v1() {
+                    read::check_text_read(function, source, &results, block.id, instruction, dst, &kind, &operands)?;
                 }
                 // A pair cannot be copied, boxed, PHI-merged, returned, stored,
                 // passed to arbitrary calls or interpreted as one scalar word.
@@ -438,7 +438,7 @@ pub(super) fn check(
                                     1
                                 }
                                 row if row.text_read_operands_v1().is_some() =>
-                                    row.text_read_operands_v1().expect("matched Text read").1.iter().filter(|operand|
+                                    row.text_read_operands_v1().expect("matched Text read").2.iter().filter(|operand|
                                         matches!(operand, Operand::TextOperand(used) if *used == value)
                                             && matches!(source.origin(value), Some(Origin::Slot(_)))).count(),
                                 MirInstruction::Invoke { operation, .. } => {
@@ -476,7 +476,7 @@ pub(super) fn check(
                         || operation.operands().iter().any(|operand|
                             matches!(operand, Operand::OwnedString(owned) if *owned == value)));
                     let allowed = allowed
-                        || instruction.text_read_operands_v1().is_some_and(|(_, operands)| operands.iter()
+                        || instruction.text_read_operands_v1().is_some_and(|(_, _, operands)| operands.iter()
                             .any(|operand| matches!(operand, Operand::OwnedString(used) if *used == value)));
                     let allowed = allowed
                         || matches!(instruction, MirInstruction::Invoke { operation, .. }
@@ -531,7 +531,7 @@ pub(super) fn check(
             previous.push(live.clone());
             let block = function.blocks.get(&id).ok_or("string-block-missing")?;
             for row in &block.instructions {
-                if let Some((_, operands)) = row.text_read_operands_v1() {
+                if let Some((_, _, operands)) = row.text_read_operands_v1() {
                     live.check_text_reads(&operands, faulted, source)?;
                 }
                 if let MirInstruction::StringResidenceInstall {

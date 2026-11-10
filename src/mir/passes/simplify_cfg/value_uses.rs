@@ -112,6 +112,10 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
             value.rewrite_value(|v| rewrite_value_use(v, from, to));
             needle.rewrite_value(|v| rewrite_value_use(v, from, to));
         }
+        MirInstruction::StringCompare { left, right, .. } => {
+            left.rewrite_value(|v| rewrite_value_use(v, from, to));
+            right.rewrite_value(|v| rewrite_value_use(v, from, to));
+        }
         MirInstruction::ArrayRead {
             receiver, operation, ..
         } => {

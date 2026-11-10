@@ -375,7 +375,7 @@ impl FunctionUses {
                 }
             }
             row if row.text_read_operands_v1().is_some() => {
-                let (_, operands) = row.text_read_operands_v1().expect("matched Text read");
+                let (_, _, operands) = row.text_read_operands_v1().expect("matched Text read");
                 self.verify_readonly_text_operands_v1(tracked, views, &operands, &[])?;
             }
             MirInstruction::Invoke { operation: InvokeOperation::String(operation), fault_frame, .. } => {
