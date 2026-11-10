@@ -44,7 +44,7 @@ until the v2 frame and both C consumers are ready. See the
 
 以下の行は CI/テストで参照する契約値（編集時は実装と同時更新）。
 
-DOC_SYNC_MIR_KEPT_COUNT=61
+DOC_SYNC_MIR_KEPT_COUNT=62
 DOC_SYNC_MIR_LOWERED_AWAY_COUNT=0
 DOC_SYNC_MIR_REMOVED_COUNT=16
 DOC_SYNC_MIR_VOCABULARY_COUNT=78
@@ -408,7 +408,7 @@ Transition Note
 - VariantTag
 - VariantProject
 
-## Current Kept Vocabulary（61）
+## Current Kept Vocabulary（62）
 
 This is the current kept vocabulary (backend admission is separate) from
 `src/mir/contracts/backend_core_ops.rs::MIR_INSTRUCTION_KEPT_TAGS`.
