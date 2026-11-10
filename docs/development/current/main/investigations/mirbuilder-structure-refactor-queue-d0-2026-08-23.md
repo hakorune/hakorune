@@ -259,6 +259,8 @@ MIRの書き手の整理（Codex実装・Opus監査、`c3df413562`、[規則と�
 
 正規化の1回目（Codex実装・Opus監査、`a303a0cc1d`、[規則と記録](normalize-1-2026-11-09.md) N1〜N22）: 元の証拠でFaultが起きないと示せるscalarの式は、root以外の関数でFaultの枠なしで書く。`TerminalI64AddReturnV1`と`TerminalI64FieldReturnV1`の専用一式（5つのmodule、台帳の欄、hook、writer、dispatch）を、共通の評価器と既存のReturnの続きへ合流させて消した。1つのReturnの後始末は、既存のroot graphの組み立て役が1回だけ作る。整形後production −791行（`a74b40ba59`から）。1,788本で拒否の後退は0、85本のMIRが軽くなり、重くなった物は0。rootの枠はLifecycle V4の公開の約束なので残す。子のobjectのfieldを通るReturnの読みは、builderが受け付けて所有検証が拒否する（fieldの読みの正規化の回で直す）。次の順番（ユーザー決定2026-11-09の2回目、[記録](normalize-consult-2026-11-09.md)）: Stringのlength→fieldの読みの正規化（1つの要求・結果・物理の記述、証明のcallbackを1つの持ち主へ）→基本式の残り→Mapの契約→`edit`→3bと退役→徹底的な整理（terminalの先着順の連鎖を1つの振り分けへ）。
 
+Stringのlength（Codex調査・ChatGPT Proに相談・Opusが根拠を確認、[記録](string-length-2026-11-10.md)）: 今EXEまで動くlengthは全部checkedのInvoke（45本）で、軽いrawの形（13本）は全部sourceの段で止まり、EXEに届く物は無かった。ユーザー決定（2026-11-10）: 非terminatorの`StringLength`（JSON `string_length`、runtime `nyash.string.code_point_count_v1`はframe無しでstatus 0か2）をlifecycleのprogram v2の語彙に足す。文法と意味（code pointの数）は変えない。旧checked length（`StringInvokeOperation::Length`、JSON、Cの受理、`checked_length_v1`）とsourceのlengthのrawの選択は同じseriesで消す。機能の追加と旧経路の整理は別に集計し、整理の分は純減で閉じる。最初の回にcache・loop全般・借りた引数の全経路は入れない。
+
 徹底的な整理（ユーザー決定2026-11-09）: MirBuilderができたら徹底的に綺麗にする。時期は基本式の残り・`edit`・3bと旧経路の退役の後、`.hako` parserのparityとselfhostの前（前の「builderの調査」の枠）。数回の大きな回で行い、各回は実装者がsubagentで経路を上からたどる調査から始める。目標: 責務ごとに持ち主1つ、操作ごとにMIRの書き手1つ（W12〜W14の意味で数える）、形や文脈の名前のfamilyを作らない、退役した経路と互換のfallbackを残さない、productionのfileは800行以下、各回で整形後の行数を純減。既存のgateは保つ。
 
 ## 証明の作り（2026-11-06、ChatGPT Proの検討、Opusが引用を確認）

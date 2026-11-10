@@ -386,3 +386,28 @@ Unicode実測は「あい」CP2/byte6、空0/0、`é` CP2/byte3（grapheme1）�
 - docs-onlyなのでCargo/unit/full-lib/固定suite/Python v4の再実行は範囲外。既存binaryでの調査だけ。RULES §6とworker共通ルールに従う。
 
 監査資産: L/start.json、population.json、selected.json、probes.json、measurements.json、discovery.json、capture-results.json、out/、captures/。MIR全数の古い証拠はnormalize-1b/dumps-final（同一source/binaryの正規化済み版）、この回のselected測定はLを正本とする。production/testの差分0、docsのcommitだけを着地する。
+
+## ChatGPT Proへの相談とユーザー決定（2026-11-10）
+
+Opusが基点`6ea4f9437e`で相談文を作った（7問: A/BかCか、AかB、runtimeの約束、O(n)とcache、独立検証の共通化、version、順番）。ChatGPT Proが答え、Proが引いた42か所はOpusが`6ea4f9437e`で読み、全て記述どおりだった。
+
+### Proの答え（要点）
+
+- **Aを今足す。** 前回の「軽い操作を先に通してからrawを退役」の理由のうち「動いている軽いEXEを守る」は、raw 13本が全てsource側で止まる（上の入力一覧）ので成り立たない。`call-not-birth`（`physical_program_json.rs:434`）は別の障壁で、13本の実測の停止ではない。Aを選ぶ理由は、意味が確定した操作（`core_method_contract_rows.rs:153`、CodePointCount・I64・PureRead）を共通の評価器から公開の形まで運ぶこと。Cも成立するが、「Faultが起きない演算は軽い形」の方針からの長い例外になる。
+- Faultの枠は関数ごとに1つを共有する（`function_fault_frame.rs:1,30`）。lengthごとの費用はInvoke・NormalResult・Normal/Faultの辺・runtimeのframe検査。
+- Aは機能の追加で、`RULES.md:98`により全機能commitに純減を要求しない。旧経路の整理は別に集計して純減で閉じる。
+- **AとB:** A。JSONは`array_length`（`physical_program_json.rs:383`）と同じ平らな`{"op":"string_length","dst":D,"value":<Text>}`。印字も`string_length`で、frame・normal・faultを持たない。`StringInvokeOperand`（`invoke_string.rs:7`）の流用と全variantの受理は分け、StaticText・OwnedString・BorrowedText・TextOperandだけを受ける。次の軽いString読みの候補は1引数`indexOf`（CodePointSearchFromZero、`core_method_contract_rows.rs:178`）。`contains`と2引数`indexOf`はUnprojected、比較はTypeErrorのFaultを持つ（`fault_checked_string.rs:177`）ので一括しない。将来を見越した一要素のenumは今の重複を減らさない。
+- **runtime:** `nyash.string.code_point_count_v1(value, out) -> status`。正しい生きたTextなら数を書いて0。検出できるdescriptor・lease・出力の違反は2で、`out`を変えない。1は返さない。frame・siteを受けず、Faultを記録せず、handle・tokenを取得・移転・消費しない。Cは0だけを次の行へ、それ以外を既存のinvalidの出口へ送る（`hako_llvmc_ffi_lifecycle_v4_emit.inc:720`、rootはframeをdisposeして70）。InvalidContractはartifact・ABI呼び出し・compilerとruntimeの不変条件の違反で、sourceのFaultではない。dangling pointerを2に変えられる約束にはしない。Stringの全文の複製（`fault_checked_string.rs:129`）をやめ、`with_end_authorized_text_pair`（`dynamic_v2_lease.rs:92`）等の借用のcallbackの中で数える。callbackの中でpublish・drop・再入をしない。
+- **cache:** 公開の形にも最初の回にも入れない。後でruntimeの不変のbackingに、handleのgenerationを含むidentityに結びつけて持つ（`host_handles.rs:78,260`、`lease_identity.rs:108`）。StaticTextの`from_utf8`検査は別のO(n)。NoSourceFaultは、Endをまたぐ移動や投機実行の証拠ではない。
+- **独立検証:** Textを読んでよいかの判定をInvokeと通常行で共通にし、状態遷移（InvokeのNormal・Faultごとの取得・移転・End）は分けたままにする。既存の`(block, faulted)`とLiveのsolver（`invoke_string_lifetime.rs:534`）を使い、length専用の台帳を作らない。検査を起動する選択条件（`:281`）、block内の通常行（`:550`）、Invoke側の読みの検査（`:610`）、BorrowedTextのformalの起源（`invoke_string.rs:104`）、一般のMIR検査（dst・使用・型・支配・visitor）を一緒に直す。C側も行ごとにTextの読み取り可能性を検査する（`hako_llvmc_ffi_lifecycle_v4_admission.inc:190`）。Cの名前は今blockとoperandのroleで作っている（`hako_llvmc_ffi_lifecycle_v4_string_emit.inc:21,85`）ので、関数・block・行で一意にし、slotはfunctionのprologueで確保する。PHIは既存のedge forwarding（`nyrt_c_abi_v0.md:358`）を使う。
+- **version:** v2への追加。前例はCompareの通常行の追加（`nyrt_c_abi_v0.md:323–340`）。
+- **順番:** 変えない。最初の回にcache、36組の全部、loop全般、借りた引数の全経路、raw 13本のEXE到達を入れない。`(s + t).length()`では連結のFaultと一時StringのEndが残る。既存testのFault注入（`published_native_array_runtime_probe.c:229`）はchecked lengthを包んでいるので、実際にFaultを持つ操作へ移す。
+- Proが確かめていない物: 45本と13本の原ログの全件、行数の見積もり、frame・複製・cacheの実時間の効果、tokenizerの頻度、repositoryの外の旧artifactの扱い。
+
+Opusの追加の確認: frameの要否の判定で、Core操作の例外は`checked_array_count_law_v1`だけ（`home_expression_evaluation.rs:47`）。Coreのprojectionの戻り値は`InvokeOperation`（`expression_source_values.rs:393`）で、Arrayのcountはwriter（`expression_value.rs:522`）とsourceの対応検査（`expression_source_values.rs:224`）で、projectionの前に別に扱われている。
+
+### ユーザー決定（2026-11-10）
+
+- 案Aを採る。非terminatorの`StringLength { dst, value }`、JSONの`string_length`、runtimeの`nyash.string.code_point_count_v1`（status 0/2）、lifecycleのprogram v2の語彙への追加。文法と意味（code pointの数、`docs/reference/language/strings.md:121`）は変えない。
+- 旧checked lengthは同じseriesで消す（Proの案は、exportを薄い包みとして残し、旧artifactを切る時にreaderと一緒に退役させる、だった）。消す物は`StringInvokeOperation::Length`（`invoke_string.rs:76`）、そのJSON、Cの受理、`nyash.string.checked_length_v1`。生成する所を全部`StringLength`へ移して0にしてから消す。物理のJSONはcompilerとC shimの間の一時文書で、語彙が閉じているので、消した行を持つ古い文書は知らない行として拒否され、別の意味で読まれることはない。このためschemaの名前はv2のままにする。
+- sourceのlengthからrawのbyteの選択（`src/mir/generic_method_route_plan/collection_read_routes.rs:456–485`、`match_generic_len_route`のStringBoxの部分）を退役させる。`len_fast_h`などVM・compatのbyteのhelperは、呼ぶ所が0なら消し、残る時は呼ぶ所を記録する。
