@@ -122,9 +122,9 @@ A read-only final audit found that alias/null preflight also accepts a local sto
 
 N23. Existing read-only interval/guard consumers explicitly recognize source-selected NullCompare while preserving operand relations and End checks; initializer source and Local Copy receipts remain in their existing owner, with dead-read omission governed by N25.
 
-N24. The independent lifetime walk visits every CFG prefix that can reach an actual NullCompare, using reverse normal/fault reachability without branch-value assumptions. Only tails unable to reach any observation are skipped; whole-function structural/type/definition checks and all returning loops remain. No state-count budget or safety shortcut is introduced.
+N24. Superseded by N28–31: the independent lifetime analysis summarizes finite relations per `(block, faulted)`, preserving correlated Copy/PHI substitution and all relevant Normal/Fault observations without enumerating paths. Whole-function structural/type/definition checks remain; no state-count budget is introduced.
 
-N25. An unused NullCompare is an elidable NoSourceFault READ, never a generic READ waiver. Canonical drafts pass actual MIR validation before optimization. Source-validated initializer rows lend only exact Copy/ConstNull/NullCompare and transparent downstream Copies to the existing captured dead-cone owner; other mandatory consumers stay protected. Omission requires the original whole-draft dead-user fixed point and final whole-function no-definition/no-use (including return_env). Shared operand producers may remain. No force-pinning or source-use heuristic is used to hide MIR growth.
+N25. An unused NullCompare is an elidable NoSourceFault READ, never a generic READ waiver. Canonical drafts pass actual MIR validation before optimization. Ordinary source-validated initializer packets lend exact context-independently removable reads and Copy/ConstNull dependencies to the existing captured dead-cone owner; other mandatory consumers stay protected. FieldGet admission still belongs to its existing nonescaping-read law, not this packet collector. Omission requires the original whole-draft dead-user fixed point and final whole-function no-definition/no-use (including return_env). Shared operand producers may remain. No force-pinning or source-use heuristic is used to hide MIR growth.
 
 N26. Ownership-SSA classifies NullCompare's result as the same non-owning scalar as Compare and recognizes it in the same readonly field-borrow window; managed-use, move/copy, End and acquisition checks remain unchanged. This preserves the existing CopyOnOwned refusal for the Opus n07 input rather than introducing an unsupported-opcode refusal.
 
@@ -155,4 +155,16 @@ N27. Compatibility MIR JSON keeps its existing compare keys for NullCompare with
 | 省略 | DCE eliminationのroot/deletion判定とOriginalBorrowedCopiesの元行捕捉・最終省略照合。比較専用収集とDCE別例外を消す |
 | loop | home_bool_conditionの契約発行を既存home_expression_operationsへ、source_loop_bool/executionの再分類を計画消費へ |
 
-固定source probeは `$L2/probes` に保存。元の1,788本と前回probeは変更しない。sourceで表せない相関PHIやEnd後観測は既存actual-MIR検証testへ責務別に追加する。DCE低位入口も検証前の不正観測を保持し、後段拒否を回避しない。
+固定source probeは `$L2/probes` に保存。元の1,788本と前回probeは変更しない。sourceで表せない相関PHIやEnd後観測は既存actual-MIR検証testへ責務別に追加する。N36の低位入口への追加guardは下記の段階停止により未接続。canonicalの最適化前検証と独立した最終検証は保持する。
+
+### 今回の接続と段階別の保持
+
+比較initializerは通常Expression packetのreference/operationへ統合し、同じ元行を捕捉済み省略証明へ渡す。DCEとmemory-effectは同じrequired rootsを受け、最終projectionはexact captured membership・dead-user証明・最終no-def/no-useを照合する。Local格納自体のframe不要性とoperand取得・call・所有結果のFaultは区別する。
+
+N33のうち`Original`構文fallbackの撤去は段階停止とする。`$S/place-survey/mx/condition__x-null.hako`のfresh-owned Box/null条件は正規EXEで受理されるが、source分類はHandle、condition installationはUnselectedで既存比較実行許可がない。後続のSourceNullExclusionはnarrowingであり発行権限ではない。受理を保つための新しいsource法則はこの整理の範囲外なので、Raw port第三lookupとOriginal腕を保持する。全該当入力・file位置・正規EXE実測は外部報告へ残す。
+
+追加指示(オ)のissuer整理は既存`a2af095f4e`で接続済み。checked Integer比較6件は生成関数と配列、同じ契約のDynamic/I64比較は共通生成、dispatchはcomparison_indexを使う。全説明commentと既存test期待は保持。整形後589→480行(-109)は前seriesの削減であり、今回基点からは0として二重計上しない。
+
+低位DCE/memory-effectへfull null検証を置く試作は停止した。既にcanonicalで拒否される`$OA/in/c21.hako`(String/null)では、carrier-kind拒否により無関係なdead行も最適化されず、dumpが9→14命令となった。検証結果を文字列で分岐したり、invalid観測をpinして不正CFG/重複定義の消失を見逃す回復は採らない。canonical前検証を保持したまま、低位guardの一般的な接続はこのseriesでは着地しない。共有READ削除判定と通常packet省略の統合は行うが、memory-effectへ新たなNullCompare削除権限は足さない。
+
+`return_env`の使用は両passの共通control-anchorへ集約し、到達不能な捕捉scopeのmetadataも含めて生存を保持する。既存scalar/null actual-MIR testへmetadata-only useと真の未使用を加え、両入口を検証する。Text比較の既存consumer protocolは保持し、frame不要のLocal receiptは既存計画のScalar/Nullに限定する。

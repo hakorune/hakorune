@@ -189,7 +189,7 @@ fn evaluation(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, fram
             faults.push(fault(input, source, frame, node, &acquisitions, text_carriers)?);
             calls += 1;
         } else if frame.operations().iter().any(|loan| loan.node() == node
-            && loan.single_envelope().is_some_and(is_source_loop_dynamic_operator_v1)) {
+            && is_source_loop_dynamic_operator_v1(frame,loan)) {
             use crate::mir::dynamic_operator_contract::{DynamicOperatorFamilyV1 as Family,
                 DynamicOperatorNormalResultV1 as ResultKind,
                 DynamicOperatorValueClassV1 as Value};
@@ -197,7 +197,9 @@ fn evaluation(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, fram
                 .ok_or_else(|| reject("execution-dynamic-operation-loan"))?;
             let envelope = loan.single_envelope().ok_or_else(|| reject("execution-dynamic-operation-envelope"))?;
             let domain = envelope.domain();
-            let valid = match (domain.family(), domain.left(), domain.right(), envelope.normal_result()) {
+            let valid = if matches!(frame.comparison_plan_v1(node),Ok(Some(plan)) if matches!(plan.kind(),crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionKindV1::Checked {..})) {
+                frame.class(node)==Some(Leaf::Value(Class::Bool)) && !frame.owned_result_nodes().contains(&node)
+            } else { match (domain.family(), domain.left(), domain.right(), envelope.normal_result()) {
                 (Family::Add, Value::Dynamic, Value::I64, ResultKind::SelfContainedNonAliasingDynamicCarrier) => {
                     frame.class(node) == Some(Leaf::Value(Class::Dynamic))
                         && !frame.owned_result_nodes().contains(&node)
@@ -206,29 +208,14 @@ fn evaluation(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, fram
                     frame.class(node) == Some(Leaf::Value(Class::Dynamic))
                         && frame.owned_result_nodes().contains(&node)
                 }
-                (Family::Less | Family::Greater, Value::Dynamic, Value::I64, ResultKind::TrivialBool)
-                | (Family::Less, Value::I64, Value::Dynamic, ResultKind::TrivialBool)
-                | (Family::Equal | Family::NotEqual | Family::Less | Family::LessEqual
-                    | Family::Greater | Family::GreaterEqual, Value::Dynamic, Value::String, ResultKind::TrivialBool)
-                | (Family::Equal | Family::NotEqual | Family::Less | Family::LessEqual
-                    | Family::Greater | Family::GreaterEqual, Value::String, Value::Dynamic, ResultKind::TrivialBool) => {
-                    frame.class(node) == Some(Leaf::Value(Class::Bool))
-                        && !frame.owned_result_nodes().contains(&node)
-                }
                 _ => false,
-            };
+            }};
             if !valid {
                 return Err(reject("execution-dynamic-operation-domain"));
             }
             faults.push(fault(input, source, frame, node, &acquisitions, text_carriers)?);
             dynamic_operator_faults += 1;
-        } else if frame.operations().iter().any(|loan| loan.node() == node
-            && loan.single_envelope().is_some_and(|envelope| {
-                use crate::mir::dynamic_operator_contract::{DynamicOperatorFamilyV1 as Family,
-                    DynamicOperatorValueClassV1 as Value};
-                envelope.domain().family() != Family::Add
-                    && envelope.domain().left() == Value::String && envelope.domain().right() == Value::String
-            })) {
+        } else if matches!(frame.comparison_plan_v1(node),Ok(Some(plan)) if plan.kind()==crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionKindV1::Text) {
             // The same closed Bool source projector already seals exact family,
             // domain and conditional reach. Its comparisons acquire no owner.
             if frame.class(node) != Some(Leaf::Value(Class::Bool)) || frame.owned_result_nodes().contains(&node) {
@@ -302,7 +289,7 @@ fn evaluation(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, fram
         }
     }
     let expected_dynamic_faults = frame.operations().iter()
-        .filter(|loan| loan.single_envelope().is_some_and(is_source_loop_dynamic_operator_v1)).count();
+        .filter(|loan| is_source_loop_dynamic_operator_v1(frame,loan)).count();
     if calls != frame.calls().len() || cores != frame.cores().len() || dynamic_operator_faults != expected_dynamic_faults
         || owned_string_operations != frame.operations().iter()
         .filter(|loan| loan.normal_result_v1() == Some(crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1::OwnedStringValue)).count()
@@ -341,21 +328,18 @@ fn bool_condition_execution(
 }
 
 fn is_source_loop_dynamic_operator_v1(
-    envelope: &crate::mir::dynamic_operator_contract::VerifiedDynamicOperatorExecutionEnvelopeV1,
+    frame:&crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+    loan:&crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionOperationLoanV1,
 ) -> bool {
+    if matches!(frame.comparison_plan_v1(loan.node()),Ok(Some(plan)) if matches!(plan.kind(),crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionKindV1::Checked {..})) { return true; }
+    let Some(envelope)=loan.single_envelope() else {return false};
     use crate::mir::dynamic_operator_contract::{DynamicOperatorFamilyV1 as Family,
-        DynamicOperatorNormalResultV1 as ResultKind, DynamicOperatorValueClassV1 as Value};
-    let domain = envelope.domain();
-    matches!((domain.family(), domain.left(), domain.right(), envelope.normal_result()),
-        (Family::Add, Value::Dynamic, Value::I64, ResultKind::SelfContainedNonAliasingDynamicCarrier)
-            | (Family::Sub, Value::Dynamic, Value::I64, ResultKind::SelfContainedNonAliasingDynamicCarrier)
-            | (Family::Less | Family::Greater, Value::Dynamic, Value::I64, ResultKind::TrivialBool)
-            | (Family::Less, Value::I64, Value::Dynamic, ResultKind::TrivialBool)
-            | (Family::Equal | Family::NotEqual | Family::Less | Family::LessEqual
-                | Family::Greater | Family::GreaterEqual, Value::Dynamic, Value::String, ResultKind::TrivialBool)
-            | (Family::Equal | Family::NotEqual | Family::Less | Family::LessEqual
-                | Family::Greater | Family::GreaterEqual, Value::String, Value::Dynamic, ResultKind::TrivialBool))
+        DynamicOperatorNormalResultV1 as ResultKind,DynamicOperatorValueClassV1 as Value};
+    let domain=envelope.domain();
+    matches!((domain.family(),domain.left(),domain.right(),envelope.normal_result()),
+        (Family::Add|Family::Sub,Value::Dynamic,Value::I64,ResultKind::SelfContainedNonAliasingDynamicCarrier))
 }
+
 fn normal_port(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary,
     port: usize, homes: &[LiveHomeV1],
     text_carriers: &BTreeMap<crate::mir::resolved_semantics::BindingRefV1, SourceLoopTextCarrierStateV2>,

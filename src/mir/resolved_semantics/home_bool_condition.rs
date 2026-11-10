@@ -59,8 +59,11 @@ impl CheckedBoolConditionFrameV1 {
     /// not scalar-producing nodes or separate Local acquisitions.
     pub(crate) fn comparison_input_children_v1(&self, node: usize) -> Option<[usize; 2]> {
         let plan = self.evaluation.comparison_plan_v1(node).ok()??;
-        matches!(plan.kind(), ComparisonExecutionKindV1::Text | ComparisonExecutionKindV1::Checked { .. })
-            .then_some(plan.operands()?)
+        matches!(
+            plan.kind(),
+            ComparisonExecutionKindV1::Text | ComparisonExecutionKindV1::Checked { .. }
+        )
+        .then_some(plan.operands()?)
     }
 
     pub(crate) fn scalar_invocation_input_nodes_v1(&self) -> BTreeSet<usize> {
@@ -215,7 +218,10 @@ pub(crate) fn qualify_condition_expression_v1<E>(
             return Ok(None);
         };
         if source.copy_operand_node_v1(index).is_some() {
-            let Some(copy) = super::operations::qualify_copy_operation_v1(&source, index, &classes) else { return Ok(None); };
+            let Some(copy) = super::operations::qualify_copy_operation_v1(&source, index, &classes)
+            else {
+                return Ok(None);
+            };
             operations.push(copy);
             continue;
         }
@@ -264,11 +270,17 @@ pub(crate) fn qualify_condition_expression_v1<E>(
             return Ok(None);
         };
         if binary.operator() == Op::Subtract {
-            if [index, left, right].into_iter().any(|node| classes[node] != Leaf::Value(Class::I64)) {
+            if [index, left, right]
+                .into_iter()
+                .any(|node| classes[node] != Leaf::Value(Class::I64))
+            {
                 return Ok(None);
             }
             let Some(scalar) = ExpressionScalarOperationLoanV1::issue_node_v1(
-                Rc::clone(&source), index, binary, None,
+                Rc::clone(&source),
+                index,
+                binary,
+                None,
             ) else {
                 return Ok(None);
             };
@@ -279,23 +291,43 @@ pub(crate) fn qualify_condition_expression_v1<E>(
             }));
             continue;
         }
-        let family = match (crate::mir::resolved_value_profile::expression_class::comparison_operator_family_v1(binary.operator()), binary.operator()) {
+        let family = match (
+            crate::mir::resolved_value_profile::expression_class::comparison_operator_family_v1(
+                binary.operator(),
+            ),
+            binary.operator(),
+        ) {
             (Some(family), _) => family,
             (None, Op::Add) => DynamicOperatorFamilyV1::Add,
             (None, Op::Multiply) => DynamicOperatorFamilyV1::Mul,
             _ => return Ok(None),
         };
         if binary.operator() == Op::Equal {
-            let nullable_field = [(left, right), (right, left)].into_iter().find_map(|(reference, null)| {
-                let request = fields.iter().find(|request| request.node_in_plan(&source) == Some(reference))?;
-                (classes[reference] == Leaf::Value(Class::Opaque)
-                    && classes[null] == Leaf::Value(Class::Null)
-                    && request.is_nullable_object_comparison_v1(&source)).then(|| (reference, null, request.clone()))
-            });
+            let nullable_field =
+                [(left, right), (right, left)]
+                    .into_iter()
+                    .find_map(|(reference, null)| {
+                        let request = fields
+                            .iter()
+                            .find(|request| request.node_in_plan(&source) == Some(reference))?;
+                        (classes[reference] == Leaf::Value(Class::Opaque)
+                            && classes[null] == Leaf::Value(Class::Null)
+                            && request.is_nullable_object_comparison_v1(&source))
+                        .then(|| (reference, null, request.clone()))
+                    });
             if let Some((reference, null, request)) = nullable_field {
-                let loan = CheckedExpressionOperationLoanV1 { plan: Rc::clone(&source), node: index,
-                    proof: CheckedExpressionOperationProofV1::NullableFieldNull { reference, null, request } };
-                if loan.nullable_field_null_v1().is_none() { return Ok(None); }
+                let loan = CheckedExpressionOperationLoanV1 {
+                    plan: Rc::clone(&source),
+                    node: index,
+                    proof: CheckedExpressionOperationProofV1::NullableFieldNull {
+                        reference,
+                        null,
+                        request,
+                    },
+                };
+                if loan.nullable_field_null_v1().is_none() {
+                    return Ok(None);
+                }
                 operations.push(Rc::new(loan));
                 continue;
             }
@@ -369,15 +401,23 @@ pub(crate) fn qualify_condition_expression_v1<E>(
         // A dynamic invocation result is a tagged value; comparing it with the
         // exact source null observes the tag only and takes no payload view.
         if binary.operator() == Op::Equal {
-            let result_null = [(left, right), (right, left)].into_iter().any(|(reference, null)| {
-                matches!(reference_proofs.get(&reference),
-                    Some(CheckedExpressionReferenceV1::DynamicInvocationResult(_)))
-                    && matches!(classes[reference], Leaf::Value(Class::Dynamic | Class::Opaque))
-                    && matches!(
-                        source.nodes()[null].source(),
-                        ExpressionNodeSourceV1::Literal(super::super::ResolvedLiteralSourceV1::Null)
-                    )
-            });
+            let result_null =
+                [(left, right), (right, left)]
+                    .into_iter()
+                    .any(|(reference, null)| {
+                        matches!(
+                            reference_proofs.get(&reference),
+                            Some(CheckedExpressionReferenceV1::DynamicInvocationResult(_))
+                        ) && matches!(
+                            classes[reference],
+                            Leaf::Value(Class::Dynamic | Class::Opaque)
+                        ) && matches!(
+                            source.nodes()[null].source(),
+                            ExpressionNodeSourceV1::Literal(
+                                super::super::ResolvedLiteralSourceV1::Null
+                            )
+                        )
+                    });
             if result_null {
                 let Ok(envelope) =
                     issue_dynamic_operator_execution_envelope_v1(DynamicOperatorDomainV1::new(
@@ -396,71 +436,27 @@ pub(crate) fn qualify_condition_expression_v1<E>(
                 continue;
             }
         }
-        if matches!(
-            binary.operator(),
-            Op::Equal | Op::NotEqual | Op::Less | Op::LessEqual | Op::Greater | Op::GreaterEqual
-        ) {
-            let mixed_string_dynamic = match (classes[left], classes[right]) {
-                (Leaf::Value(Class::Dynamic), Leaf::Value(Class::String)) => Some((
-                    DynamicOperatorValueClassV1::Dynamic,
-                    DynamicOperatorValueClassV1::String,
-                )),
-                (Leaf::Value(Class::String), Leaf::Value(Class::Dynamic)) => Some((
-                    DynamicOperatorValueClassV1::String,
-                    DynamicOperatorValueClassV1::Dynamic,
-                )),
-                _ => None,
+        if binary.operator().compare_op().is_some() {
+            let Some(loan) =
+                super::operations::qualify_comparison_operation_v1(&source, index, &classes)
+            else {
+                return Ok(None);
             };
-            if let Some((left_class, right_class)) = mixed_string_dynamic {
-                let Ok(envelope) = issue_dynamic_operator_execution_envelope_v1(
-                    DynamicOperatorDomainV1::new(family, left_class, right_class),
-                ) else {
-                    return Ok(None);
-                };
-                operations.push(Rc::new(CheckedExpressionOperationLoanV1 {
-                    plan: Rc::clone(&source),
-                    node: index,
-                    proof: CheckedExpressionOperationProofV1::Dynamic(Box::new([envelope])),
-                }));
-                continue;
-            }
+            operations.push(loan);
+            continue;
         }
         let (left_class, right_class) = match (classes[left], classes[right]) {
-            (Leaf::Value(Class::I64), Leaf::Value(Class::I64)) => {
-                let operand = if binary.operator().compare_op().is_some() {
-                    DynamicOperatorValueClassV1::I64
-                } else {
-                    DynamicOperatorValueClassV1::NormalInteger
-                };
-                (operand, operand)
-            },
-            (Leaf::Value(Class::Dynamic), Leaf::Value(Class::I64))
-                if matches!(binary.operator(), Op::Less | Op::Greater) => (
-                    DynamicOperatorValueClassV1::Dynamic,
-                    DynamicOperatorValueClassV1::I64,
-                ),
-            (Leaf::Value(Class::I64), Leaf::Value(Class::Dynamic))
-                if binary.operator() == Op::Less => (
-                    DynamicOperatorValueClassV1::I64,
-                    DynamicOperatorValueClassV1::Dynamic,
-                ),
-            (Leaf::Value(Class::Bool), Leaf::Value(Class::Bool))
-                if matches!(binary.operator(), Op::Equal | Op::NotEqual) =>
-            {
-                (DynamicOperatorValueClassV1::Bool, DynamicOperatorValueClassV1::Bool)
-            }
-            (Leaf::Value(Class::String), Leaf::Value(Class::String))
-                if binary.operator() != Op::Add =>
-            {
-                // The complete original input subtree is checked below, after
-                // all comparison loans and Core acquisitions are retained.
-                (DynamicOperatorValueClassV1::String, DynamicOperatorValueClassV1::String)
-            }
+            (Leaf::Value(Class::I64), Leaf::Value(Class::I64)) => (
+                DynamicOperatorValueClassV1::NormalInteger,
+                DynamicOperatorValueClassV1::NormalInteger,
+            ),
             _ => return Ok(None),
         };
         let Ok(envelope) = issue_dynamic_operator_execution_envelope_v1(
             DynamicOperatorDomainV1::new(family, left_class, right_class),
-        ) else { return Ok(None); };
+        ) else {
+            return Ok(None);
+        };
         operations.push(Rc::new(CheckedExpressionOperationLoanV1 {
             plan: Rc::clone(&source),
             node: index,
@@ -504,13 +500,19 @@ pub(crate) fn qualify_condition_expression_v1<E>(
     }
     let mut input_owners = BTreeMap::new();
     for &node in frame.ordered_nodes() {
-        let required_carrier_comparison = frame.operations().iter().find(|loan| loan.node() == node)
-            .and_then(|loan| loan.single_envelope()).is_some_and(|envelope|
+        let required_carrier_comparison = frame
+            .operations()
+            .iter()
+            .find(|loan| loan.node() == node)
+            .and_then(|loan| loan.single_envelope())
+            .is_some_and(|envelope| {
                 envelope.domain().family() == DynamicOperatorFamilyV1::Greater
                     && envelope.domain().left() == DynamicOperatorValueClassV1::Dynamic
-                    && envelope.domain().right() == DynamicOperatorValueClassV1::I64);
-        if required_carrier_comparison && !matches!(frame.evaluation().comparison_plan_v1(node), Ok(Some(plan))
-            if matches!(plan.kind(), ComparisonExecutionKindV1::Checked { integer_carrier_left: Some(_) })) {
+                    && envelope.domain().right() == DynamicOperatorValueClassV1::I64
+            });
+        if required_carrier_comparison
+            && !matches!(frame.evaluation().comparison_plan_v1(node), Ok(Some(_)))
+        {
             return Ok(None);
         }
         let scalar_core = frame.evaluation().cores().get(&node).is_some_and(|core| {
@@ -550,7 +552,7 @@ pub(crate) fn qualify_condition_expression_v1<E>(
 
     let candidate = HomeExpressionPlanV1 {
         source: Rc::clone(&source),
-        scalar_operations: Vec::new(), comparison_root: None,
+        scalar_operations: Vec::new(),
         source_fields: Vec::new(),
         source_field_homes: None,
         argument_frame: None,
@@ -569,7 +571,10 @@ pub(crate) fn qualify_condition_expression_v1<E>(
     }
     if !field_batch(
         &fields,
-        super::super::LocalFieldReadDemandV1::SourceExpression { probe: false, plan: source },
+        super::super::LocalFieldReadDemandV1::SourceExpression {
+            probe: false,
+            plan: source,
+        },
     )? {
         return Ok(None);
     }

@@ -20,17 +20,17 @@ use super::physical_program::{
 
 #[path = "physical_program_json_call_transport.rs"]
 mod call_transport;
-#[path = "physical_program_json_object_return.rs"]
-mod object_return;
 #[path = "physical_program_json_numeric.rs"]
 mod numeric;
+#[path = "physical_program_json_object_return.rs"]
+mod object_return;
 #[path = "physical_program_json_operation.rs"]
 mod operation;
-use operation::encode_invoke;
-#[cfg(test)]
-pub(super) use object_return::encode_object_return;
 #[cfg(test)]
 pub(super) use call_transport::corroborate_function as corroborate_borrowed_function_snapshot;
+#[cfg(test)]
+pub(super) use object_return::encode_object_return;
+use operation::encode_invoke;
 
 const SCHEMA: &str = "hako.published-lifecycle-physical-program.v2";
 
@@ -267,8 +267,11 @@ fn encode_instruction(
         } => json!({ "op": "const_unit", "dst": value(dst) }),
         MirInstruction::BinOp { dst, op, lhs, rhs } => {
             let operator = match op {
-                BinaryOp::Add => "add", BinaryOp::Mul => "mul", BinaryOp::Sub => "sub",
-                BinaryOp::Div => "div", BinaryOp::Mod => "mod",
+                BinaryOp::Add => "add",
+                BinaryOp::Mul => "mul",
+                BinaryOp::Sub => "sub",
+                BinaryOp::Div => "div",
+                BinaryOp::Mod => "mod",
                 _ => return Err(fault("instruction-unsupported")),
             };
             json!({ "op": operator, "dst": value(dst), "lhs": value(lhs), "rhs": value(rhs) })
@@ -295,18 +298,23 @@ fn encode_instruction(
                 "rhs": value(rhs), "predicate": predicate })
         }
         // Optimizer-only SSA liveness hint; no Home, lease or runtime retain.
-        MirInstruction::KeepAlive { values } => json!({ "op": "keep_alive", "values": values.iter().map(|value| value.0).collect::<Vec<_>>() }),
+        MirInstruction::KeepAlive { values } => {
+            json!({ "op": "keep_alive", "values": values.iter().map(|value| value.0).collect::<Vec<_>>() })
+        }
         MirInstruction::Copy { dst, src } => {
             json!({ "op": "copy", "dst": value(dst), "src": value(src) })
         }
         MirInstruction::Phi { dst, inputs, .. } => {
-            let text_operand = call_context.is_some_and(|(_, function, _)|
-                function.value_types().get(dst) == Some(&crate::mir::MirType::TextOperand));
+            let text_operand = call_context.is_some_and(|(_, function, _)| {
+                function.value_types().get(dst) == Some(&crate::mir::MirType::TextOperand)
+            });
             let mut row = json!({
                 "op": "phi", "dst": value(dst),
                 "inputs": inputs.iter().map(|(block, value)| json!({ "block": block.0, "value": value.0 })).collect::<Vec<_>>(),
             });
-            if text_operand { row["representation"] = json!("text_operand"); }
+            if text_operand {
+                row["representation"] = json!("text_operand");
+            }
             row
         }
         MirInstruction::ObjectFieldGet { dst, base, field } => json!({
@@ -328,7 +336,8 @@ fn encode_instruction(
         } => {
             let field = field_ref.ok_or_else(|| fault("field-set-route-missing"))?;
             let site = required_site(diagnostic_site, abi_input.is_some())?;
-            let runtime_check = numeric::range_check(abi_input, caller_function_index, call_context);
+            let runtime_check =
+                numeric::range_check(abi_input, caller_function_index, call_context);
             json!({
                 "op": "field_set", "base": value(base),
                 "object_id": field.object().declaration_index(),
@@ -373,26 +382,52 @@ fn encode_instruction(
             json!({ "op": "array_get", "array": value(receiver),
                 "index": value(index), "dst": dst.map(|value| value.0) })
         }
-        MirInstruction::ArrayRead { dst, receiver,
-            operation: crate::mir::instruction::ArrayReadOperationV1::Count, ..
-        } => json!({ "op": "array_length", "array": value(receiver), "dst": dst.map(|value| value.0) }),
-        MirInstruction::StringLength { dst, value: operand } => {
+        MirInstruction::ArrayRead {
+            dst,
+            receiver,
+            operation: crate::mir::instruction::ArrayReadOperationV1::Count,
+            ..
+        } => {
+            json!({ "op": "array_length", "array": value(receiver), "dst": dst.map(|value| value.0) })
+        }
+        MirInstruction::StringLength {
+            dst,
+            value: operand,
+        } => {
             json!({"op": "string_length", "dst": value(dst), "value": operand})
         }
-        MirInstruction::StringIndexOf { dst, value: operand, needle } => {
+        MirInstruction::StringIndexOf {
+            dst,
+            value: operand,
+            needle,
+        } => {
             json!({"op": "string_index_of", "dst": value(dst), "value": operand, "needle": needle})
         }
-        MirInstruction::StringCompare { dst, op, left, right } => {
+        MirInstruction::StringCompare {
+            dst,
+            op,
+            left,
+            right,
+        } => {
             json!({"op":"string_compare", "dst":value(dst),
                 "comparison":operation::encode_text_comparison_v1(*op), "left":left, "right":right})
         }
-        MirInstruction::StringResidenceInstall { value: installed, replaces, returning } => {
+        MirInstruction::StringResidenceInstall {
+            value: installed,
+            replaces,
+            returning,
+        } => {
             let input = abi_input.ok_or_else(|| fault("string-residence-input-missing"))?;
-            let (_, caller, _) = call_context.ok_or_else(|| fault("string-residence-caller-missing"))?;
+            let (_, caller, _) =
+                call_context.ok_or_else(|| fault("string-residence-caller-missing"))?;
             call_transport::corroborate_function(caller, caller_function_index, input)?;
             let mut event = json!({ "op": "string_residence_install", "value": value(installed) });
-            if let Some(previous) = replaces { event["replaces"] = json!(value(previous)); }
-            if *returning { event["returning"] = json!(true); }
+            if let Some(previous) = replaces {
+                event["replaces"] = json!(value(previous));
+            }
+            if *returning {
+                event["returning"] = json!(true);
+            }
             event
         }
         MirInstruction::ArrayResidenceRelease { value: released } => {
@@ -400,7 +435,8 @@ fn encode_instruction(
             // owned-holder source membership. Borrow that SAME ABI function;
             // a Script-only flag cannot represent the owned Claim Fault path.
             let input = abi_input.ok_or_else(|| fault("array-residence-input-missing"))?;
-            let (_, caller, _) = call_context.ok_or_else(|| fault("array-residence-caller-missing"))?;
+            let (_, caller, _) =
+                call_context.ok_or_else(|| fault("array-residence-caller-missing"))?;
             call_transport::corroborate_function(caller, caller_function_index, input)?;
             json!({ "op": "array_residence_release", "value": value(released) })
         }
@@ -428,7 +464,9 @@ fn encode_instruction(
         MirInstruction::Return { value: result } => {
             let mut wire = json!({ "op": "return", "value": result.map(|value| value.0) });
             if let Some((_, function, coordinate)) = call_context {
-                if let Some(origin) = object_return::encode_object_return(function, coordinate, instruction)? {
+                if let Some(origin) =
+                    object_return::encode_object_return(function, coordinate, instruction)?
+                {
                     wire["result_origin"] = origin;
                 }
             }
@@ -439,8 +477,17 @@ fn encode_instruction(
                 return Err(fault("call-not-birth"));
             };
             let birth = crate::mir::instruction::BirthInvokeV1::from_value_arguments(
-                key.clone(), *receiver, call.args.clone(), call.effects);
-            let mut wire = call_transport::encode_birth_call(&birth, births, caller_function_index, abi_input)?;
+                key.clone(),
+                *receiver,
+                call.args.clone(),
+                call.effects,
+            );
+            let mut wire = call_transport::encode_birth_call(
+                &birth,
+                births,
+                caller_function_index,
+                abi_input,
+            )?;
             // Preserve the raw Compatibility row exactly; its destination is
             // never silently erased by the checked Unit-only representation.
             wire["dst"] = json!(call.dst.map(|value| value.0));
@@ -449,11 +496,6 @@ fn encode_instruction(
         _ => return Err(fault("instruction-unsupported")),
     })
 }
-
-/// Whether `operand`'s producer inside `function` is the exact
-/// `ConstValue::Null` row — the null sentinel materialization, never a
-/// borrowed carrier or a forged zero.
-
 
 fn diagnostic_site(
     abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
@@ -496,8 +538,8 @@ fn fault(reason: &str) -> String {
 mod tests;
 
 #[cfg(test)]
-#[path = "physical_program_json_text_read_tests.rs"]
-mod text_read_tests;
-#[cfg(test)]
 #[path = "physical_program_json_bool_result_tests.rs"]
 mod bool_result_tests;
+#[cfg(test)]
+#[path = "physical_program_json_text_read_tests.rs"]
+mod text_read_tests;
