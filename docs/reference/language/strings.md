@@ -43,6 +43,26 @@ backings without cloning or changing ownership; concatenation, calls and End
 retain their existing Fault and cleanup responsibilities. This transport change
 does not extend accepted source shapes or the two-argument compatibility API.
 
+## Selected canonical String comparisons
+
+For two exact source Strings, `==`, `!=`, `<`, `<=`, `>` and `>=` select
+normal `StringCompare` MIR and return Bool. They compare Unicode scalar
+sequences without normalization or locale: `é` and `e` followed by U+0301
+are unequal, prefixes sort before longer strings, and supplementary characters
+follow code-point order rather than UTF-16 code-unit order.
+
+The issuer marks comparison itself NoSourceFault and NonSuspending. Both
+operands are evaluated once in source order and borrowed without acquisition,
+transfer or End. Concatenation, calls and field materialization retain their
+own Fault/cleanup responsibility. Comparison alone no longer requires a
+FaultFrameEnter; a fallible operand can still require the existing shared frame.
+
+Dynamic/String and null keep their checked contracts. Both checked and normal
+comparison borrow ordinary Text backing through the same helper; opaque
+Dynamic carriers retain their existing snapshot boundary. A valid Text lease
+is checked even when the opposite side is null or another value. This changes
+transport, not the accepted source contexts or their expected output/exit.
+
 ## Selected AOT TextScan profile
 
 The selected `hako.text.scan@1` AOT capability fixes the CodePoint/clamped

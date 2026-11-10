@@ -425,6 +425,7 @@ impl EmittedBoolConditionProjectionV1 {
                         terminal,
                         continuation,
                         receiver,
+                        ..
                     },
                 ) => {
                     if let Some(core) = self.frame.evaluation().cores().get(&node.node) {
@@ -440,12 +441,8 @@ impl EmittedBoolConditionProjectionV1 {
                     } else if receiver.is_some() {
                         return Err(freeze("expression-core/source-identity"));
                     }
-                    self.text_comparison_producers_v1(
-                        node,
-                        input_values,
-                        receiver.as_ref(),
-                        bindings,
-                    )?;
+                    super::scalar_condition_bindings_v1(self.frame.evaluation(), node.node,
+                        input_values, receiver.as_ref(), node.value, bindings)?;
                     let inputs = self
                         .frame
                         .evaluation()
@@ -477,9 +474,9 @@ impl EmittedBoolConditionProjectionV1 {
                         context,
                         function,
                         finishing,
-                        &Some(entry.clone()),
-                        &Some(terminal.clone()),
-                        &Some(continuation.clone()),
+                        entry,
+                        terminal,
+                        continuation,
                         None,
                     )?;
                     for binding in bindings.iter() {

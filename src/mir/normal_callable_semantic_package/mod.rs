@@ -253,7 +253,7 @@ pub(crate) use ordinary_new_coseal::NamedArrayHolderSourceLoanV1;
 pub(crate) use core_method_source::{FieldArrayReadRecipeV1, FieldKeysCountRecipeV1, EmittedFieldArrayReadV1, EmittedFieldArrayReadArgumentV1};
 pub(crate) use ordinary_new_coseal::{CheckedFieldArrayAccessSourceV1, ArgumentFieldArrayReadSourceV1};
 
-pub(crate) use ordinary_new_coseal::{checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1};
+pub(crate) use ordinary_new_coseal::{FrameFreeExpressionReadV1, checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1};
 pub(crate) use ordinary_new_coseal::{StoredMapGetReturnEmissionV1, StoredMapGetReadEmissionV1, StoredMapGetLocalEmissionV1, PreparedMapFieldInstallV1, MapFieldInstallEmissionV1};
 pub(in crate::mir) use ordinary_new_coseal::{EvaluatedExpressionValueV1, BranchScalarPhiObservationV1, BranchTextPhiObservationV1, BranchReadPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
 #[cfg(test)]

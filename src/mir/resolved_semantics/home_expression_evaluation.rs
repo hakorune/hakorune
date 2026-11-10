@@ -51,6 +51,7 @@ impl CheckedExpressionEvaluationV1 {
         for loan in self.operations.iter() {
             if loan.scalar_copy_v1().is_none() && loan.integer_operator_v1().is_none()
                 && self.exact_integer_comparison_nodes_v1(loan.node()).is_none()
+                && !matches!(self.frame_free_text_comparison_v1(loan.node()), Ok(Some(_)))
                 && loan.nullable_null_v1().is_none() && loan.nullable_field_null_v1().is_none()
             {
                 return true;

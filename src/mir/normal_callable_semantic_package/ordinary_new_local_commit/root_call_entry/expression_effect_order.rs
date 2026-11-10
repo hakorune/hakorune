@@ -489,10 +489,17 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 return Err(freeze("print-expression/scope-disconnected"));
             }
             if let Some(pair) = self.comparison_pair()? {
-                let MirInstruction::Invoke { fault_frame, .. } = pair[0].1 else {
+                // A fallible operand can retain a frame even when the
+                // comparison itself is a normal read. The retained scope owns
+                // that frame; only checked comparison rows also name it.
+                let frame = self
+                    .require_unique(|row| matches!(row, MirInstruction::FaultFrameEnter { .. }))?;
+                let MirInstruction::FaultFrameEnter { dst, .. } = frame.1 else {
                     unreachable!()
                 };
-                let frame = self.require_unique(|row| matches!(row, MirInstruction::FaultFrameEnter { dst, .. } if *dst == fault_frame))?;
+                if pair.iter().any(|(_, row)| matches!(row, MirInstruction::Invoke { fault_frame, .. } if *fault_frame != dst)) {
+                    return Err(freeze("print-expression/scope-frame"));
+                }
                 if self
                     .original
                     .iter()

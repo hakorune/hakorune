@@ -685,7 +685,7 @@ pub(in crate::mir) use dynamic_invocation_expression_projection::EmittedDynamicI
 mod print_expression_projection;
 pub(crate) use bool_condition_projection::checked_scalar_invoke_operation_v1;
 use bool_condition_projection::scalar_condition_bindings_v1;
-pub(crate) use expression_projection::checked_expression_core_operation_v1;
+pub(crate) use expression_projection::{FrameFreeExpressionReadV1, checked_expression_core_operation_v1};
 pub(in crate::mir) use expression_projection::ExpressionPhysicalProjectionRefV1;
 pub(in crate::mir) use expression_projection::{
     validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1,

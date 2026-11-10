@@ -225,10 +225,8 @@ fn text_condition_keeps_short_circuit_and_final_source_operation() {
             let physical = crate::mir::verification::MirVerifier::new_strict().verify_function(main);
             assert!(physical.is_ok(), "{prefix}: {physical:?}\n{main:#?}");
         }
-        let comparisons: Vec<_> = main.blocks.iter().filter_map(|(id, block)| match block.terminator.as_ref() {
-            Some(row @ MirInstruction::Invoke { operation: InvokeOperation::String(Operation::Compare { .. }), .. }) => Some((*id, row.clone())),
-            _ => None,
-        }).collect();
+        let comparisons: Vec<_> = main.blocks.iter().flat_map(|(id, block)| block.instructions.iter()
+            .filter_map(move |row| matches!(row, MirInstruction::StringCompare { .. }).then(|| (*id, row.clone())))).collect();
         assert_eq!(comparisons.len(), 2);
         assert_ne!(comparisons[0].0, comparisons[1].0, "RHS comparison is not eagerly emitted in LHS block");
         let rhs = main.blocks.values().filter_map(|block| match block.terminator.as_ref() {
@@ -252,7 +250,7 @@ fn text_condition_keeps_short_circuit_and_final_source_operation() {
             MirInstruction::Const { dst, value: crate::mir::ConstValue::String(_) } => Some(*dst), _ => None,
         }).collect();
         for (_, row) in &comparisons {
-            if let MirInstruction::Invoke { operation: InvokeOperation::String(Operation::Compare { left, right, .. }), .. } = row {
+            if let MirInstruction::StringCompare { left, right, .. } = row {
                 for operand in [left, right] { if let Operand::OwnedString(value) = operand { roots.insert(*value); } }
             }
         }
@@ -270,8 +268,8 @@ fn text_condition_keeps_short_circuit_and_final_source_operation() {
             }, _ => None,
         });
         let mut faults = std::collections::BTreeSet::new();
-        let mut pending: Vec<_> = comparisons.iter().filter_map(|(_, row)| match row {
-            MirInstruction::Invoke { fault_landing, .. } => Some(*fault_landing), _ => None,
+        let mut pending: Vec<_> = rows.iter().filter_map(|row| match row {
+            MirInstruction::Invoke { operation: InvokeOperation::String(_), fault_landing, .. } => Some(*fault_landing), _ => None,
         }).collect();
         while let Some(id) = pending.pop() {
             if !faults.insert(id) { continue; }
@@ -281,7 +279,10 @@ fn text_condition_keeps_short_circuit_and_final_source_operation() {
                 MirInstruction::ReturnFault { .. } => {}, _ => panic!("comparison Fault escaped its unwind"),
             }
         }
-        for mutation in ["operator", "operand", "normal", "fault", "frame", "projection", "logical-edge", "copy-source", "text-end", "residence-producer", "return-value"] {
+        // Any remaining operand/End Fault path still unwinds only through cleanup.
+        // When the comparison's former Fault edge was the only one, End is
+        // observed on its surviving Normal path instead.
+        for mutation in ["operator", "operand", "checked-transport", "result-definition", "logical-edge", "copy-source", "text-end", "residence-producer", "return-value"] {
             if mutation == "return-value" && !in_loop { continue; }
             if mutation == "copy-source" && text_copy.is_none() { continue; }
             if mutation == "residence-producer" && !residence { continue; }
@@ -289,35 +290,33 @@ fn text_condition_keeps_short_circuit_and_final_source_operation() {
             let mut changed = module.clone();
             let function = changed.functions.get_mut(&main_key).unwrap();
             let mut count = 0;
-            for (block_id, block) in function.blocks.iter_mut() {
+            for block in function.blocks.values_mut() {
                 for row in block.instructions.iter_mut().chain(block.terminator.iter_mut()) {
                     if count != 0 { break; }
-                    match (mutation, row) {
+                    match (mutation, &mut *row) {
                         ("return-value", MirInstruction::Return { value }) => { *value = Some(ValueId(90006)); count += 1; }
-                        ("operator" | "operand" | "normal" | "fault" | "frame", MirInstruction::Invoke {
-                            operation: InvokeOperation::String(Operation::Compare { op, left, .. }), normal_landing, fault_landing, fault_frame,
-                        }) => {
+                        ("operator" | "operand" | "checked-transport" | "result-definition", MirInstruction::StringCompare { dst, op, left, right }) => {
                             match mutation {
                                 "operator" => *op = if *op == crate::mir::CompareOp::Eq { crate::mir::CompareOp::Ne } else { crate::mir::CompareOp::Eq },
                                 "operand" => *left = Operand::StaticText { utf8: "foreign".into() },
-                                "normal" => *normal_landing = BasicBlockId(90001),
-                                "fault" => *fault_landing = *normal_landing,
-                                "frame" => *fault_frame = ValueId(90002),
-                                _ => unreachable!(),
+                                "result-definition" => *dst = ValueId(90003),
+                                // A normal read cannot be replaced by any checked frame/edge transport.
+                                _ => *row = MirInstruction::Invoke {
+                                    operation: InvokeOperation::String(Operation::Compare { op: *op, left: left.clone(), right: right.clone() }),
+                                    normal_landing: BasicBlockId(90001), fault_landing: BasicBlockId(90002), fault_frame: ValueId(90002),
+                                },
                             }
                             count += 1;
                         }
                         ("residence-producer", MirInstruction::Invoke { operation: InvokeOperation::String(Operation::Add { left, .. }), .. }) => {
                             *left = Operand::StaticText { utf8: "foreign".into() }; count += 1;
                         }
-                        ("projection", MirInstruction::InvokeNormalResult { invoke_block, .. })
-                            if comparisons.iter().any(|(id, _)| id == invoke_block) => { *invoke_block = BasicBlockId(90003); count += 1; }
                         ("logical-edge", MirInstruction::Branch { then_bb, else_bb, then_edge_args: None, else_edge_args: None, .. }) => {
                             std::mem::swap(then_bb, else_bb); count += 1;
                         }
                         ("copy-source", MirInstruction::Copy { dst, src }) if Some((*dst, *src)) == text_copy => { *src = ValueId(90004); count += 1; }
                         ("text-end", MirInstruction::Invoke { operation: InvokeOperation::String(Operation::End { value }), .. })
-                            if faults.contains(block_id) && roots.contains(value) => {
+                            if roots.contains(value) => {
                             *value = ValueId(90005); count += 1;
                         }
                         _ => {}

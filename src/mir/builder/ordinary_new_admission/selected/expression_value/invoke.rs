@@ -72,6 +72,29 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn emit_string_ope
 /// Physical Invoke/Normal writer shared by source nodes and purpose acquisition.
 /// Only the caller that owns a source node may add it to the source-node stack.
 /// Share source-derived comparison emission across conditions and value consumers.
+pub(super) fn emit_frame_free_text_read_v1(
+    builder: &mut MirBuilder,
+    read: &crate::mir::normal_callable_semantic_package::FrameFreeExpressionReadV1,
+    bindings: &mut Vec<Binding>,
+) -> Result<ValueId, String> {
+    let dst = builder.next_value_id();
+    let block = builder
+        .function_state
+        .current_block
+        .ok_or_else(|| freeze("no-block"))?;
+    let row = read
+        .text_instruction_v1(dst)
+        .ok_or_else(|| freeze("expression-core/operation-domain"))?;
+    builder.emit_instruction(row.clone())?;
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(dst, read.result_type_v1());
+    bindings.push((block, row));
+    Ok(dst)
+}
+
 pub(in crate::mir::builder::ordinary_new_admission::selected) fn emit_checked_scalar_condition_v1(
     builder: &mut MirBuilder,
     frame: &CheckedExpressionEvaluationV1,
@@ -86,6 +109,9 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn emit_checked_sc
     let plan = crate::mir::normal_callable_semantic_package::checked_scalar_invoke_operation_v1(
         frame, node, values, receiver,
     )?;
+    if let Some(read) = plan.read() {
+        return emit_frame_free_text_read_v1(builder, read, bindings);
+    }
     let (normal, kind) = match (plan.operation(), plan.direct_integer()) {
         (Some(operation), _) => {
             let frame = fault_frame.ok_or_else(|| freeze("expression/fault-frame-required"))?;

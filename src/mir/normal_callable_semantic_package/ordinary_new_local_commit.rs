@@ -727,7 +727,7 @@ pub(in crate::mir) use root_home::{
 pub(in crate::mir) use root_home::EmittedDynamicInvocationCallProjectionV1;
 
 pub(crate) use root_home::{RootLifecyclePrefixBindingGroupV1, StoredMapGetReturnEmissionV1, StoredMapGetReadEmissionV1, StoredMapGetLocalEmissionV1, PreparedMapFieldInstallV1, MapFieldInstallEmissionV1};
-pub(crate) use root_home::{checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1};
+pub(crate) use root_home::{FrameFreeExpressionReadV1, checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1};
 pub(in crate::mir) use root_home::{EvaluatedExpressionValueV1, BranchScalarPhiObservationV1, BranchTextPhiObservationV1, BranchReadPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
 #[cfg(test)]
 pub(in crate::mir) use root_home::ExpressionPhysicalProjectionRefV1;

@@ -133,7 +133,7 @@ pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::
 pub(crate) use lexical_instance_call::NamedArrayHolderSourceLoanV1;
 pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::ArrayHolderLifecycleRecipeV1;
 pub(crate) use local_commit::EmittedOwnedArrayReadV1;
-pub(crate) use local_commit::{checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1};
+pub(crate) use local_commit::{FrameFreeExpressionReadV1, checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1};
 pub(crate) use local_commit::{StoredMapGetReturnEmissionV1, StoredMapGetReadEmissionV1, StoredMapGetLocalEmissionV1, PreparedMapFieldInstallV1, MapFieldInstallEmissionV1};
 pub(in crate::mir) use local_commit::{EvaluatedExpressionValueV1, BranchScalarPhiObservationV1, BranchTextPhiObservationV1, BranchReadPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
 #[cfg(test)]

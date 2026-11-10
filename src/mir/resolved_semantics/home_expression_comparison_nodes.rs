@@ -7,6 +7,57 @@ use crate::mir::resolved_value_profile::expression_projection::ExpressionLeafCla
 use std::rc::Rc;
 
 impl CheckedExpressionEvaluationV1 {
+    /// The original source loan alone selects an exact, frame-free Text read.
+    /// Invalid exact evidence refuses rather than degrading to checked Compare.
+    pub(crate) fn frame_free_text_comparison_v1(
+        &self,
+        node: usize,
+    ) -> Result<Option<crate::mir::CompareOp>, &'static str> {
+        use crate::mir::dynamic_operator_contract::{
+            DynamicOperatorFaultV1 as Fault, DynamicOperatorNormalResultV1 as Normal,
+            DynamicOperatorSuspensionV1 as Suspension, DynamicOperatorValueClassV1 as Class,
+        };
+        use crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1 as ValueClass;
+        let Some(binary) = self.source.nodes().get(node).and_then(|node| node.binary()) else {
+            return Ok(None);
+        };
+        let Some(op) = binary.operator().compare_op() else {
+            return Ok(None);
+        };
+        let operands = [binary.lhs(), binary.rhs()].map(|site| {
+            self.source
+                .nodes()
+                .iter()
+                .position(|row| row.site() == site)
+        });
+        let exact_classes = operands.iter().all(|index| {
+            index.is_some_and(|index| {
+                self.class(index) == Some(ExpressionLeafClassV1::Value(ValueClass::String))
+            })
+        });
+        let loan = self.operations.iter().find(|loan| loan.node() == node);
+        let envelope = loan.and_then(|loan| loan.single_envelope());
+        let exact_domain = envelope.is_some_and(|envelope| {
+            envelope.domain().left() == Class::String && envelope.domain().right() == Class::String
+        });
+        if !exact_classes && !exact_domain {
+            return Ok(None);
+        }
+        let valid = loan.zip(envelope).is_some_and(|(loan, envelope)| {
+            Rc::ptr_eq(loan.source(), &self.source) && exact_classes && exact_domain
+            && envelope.normal_result() == Normal::TrivialBool
+            && envelope.fault() == Fault::NoSourceFault
+            && envelope.suspension() == Suspension::NonSuspending
+            && envelope.lifecycle().is_none()
+            && crate::mir::resolved_value_profile::expression_class::comparison_operator_family_v1(
+                binary.operator()) == Some(envelope.domain().family())
+            && operands.iter().all(|index| index.is_some_and(|index| !self.transfers_node(index)))
+        });
+        if !valid {
+            return Err("bool-condition/text-comparison-source");
+        }
+        Ok(Some(op))
+    }
     /// Source-issued Integer payload check for one opaque carrier comparison.
     /// The returned nodes are (carrier, I64, carrier-on-left); no MIR fact or
     /// runtime tag participates in selecting this operation.

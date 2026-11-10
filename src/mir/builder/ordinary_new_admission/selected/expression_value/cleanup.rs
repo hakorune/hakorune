@@ -427,6 +427,13 @@ pub(super) fn finish_inline_scope_v1(
 }
 
 impl EmittedExpressionBodyV1 {
+    pub(in crate::mir::builder::ordinary_new_admission::selected) fn complete_inline_range_v1(
+        &mut self, builder: &MirBuilder,
+    ) -> Result<(), String> {
+        self.inline_range = finish_inline_scope_v1(builder,
+            self.inline_range.map(|(block, start, _, had_frame)| (block, start, had_frame)))?;
+        Ok(())
+    }
     pub(in crate::mir::builder) fn required_fault_frame_v1(&self) -> Result<ValueId, String> {
         self.fault_frame.ok_or_else(|| freeze("expression/fault-frame-required"))
     }

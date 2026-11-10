@@ -25,7 +25,7 @@ pub(crate) use read_value::EvaluatedExpressionValueV1;
 
 #[path = "expression_source_values.rs"]
 mod source_values;
-pub(crate) use source_values::checked_expression_core_operation_v1;
+pub(crate) use source_values::{FrameFreeExpressionReadV1, checked_expression_core_operation_v1};
 #[path = "expression_effect_order.rs"]
 mod effect_order;
 

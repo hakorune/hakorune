@@ -61,9 +61,10 @@ pub(in crate::mir) enum BoolConditionValueProofV1 {
             usize,
             super::expression_projection::ExpressionReferenceReadV1,
         >,
-        entry: Binding,
-        terminal: Binding,
-        continuation: Binding,
+        entry: Option<Binding>,
+        terminal: Option<Binding>,
+        continuation: Option<Binding>,
+        inline_range: Option<(BasicBlockId, usize, usize, bool)>,
         bindings: Box<[Binding]>,
     },
     Logical {
@@ -188,6 +189,7 @@ impl EmittedBoolConditionProjectionV1 {
             input_reads,
             bindings,
             receiver,
+            inline_range,
             ..
         } = &node.proof
         else {
@@ -202,6 +204,7 @@ impl EmittedBoolConditionProjectionV1 {
             input_reads,
             bindings,
         )
+        .with_inline_range_v1(*inline_range)
         .for_comparison_inputs(node.node, node.value, receiver.as_ref())
     }
     pub(in crate::mir) fn prepare(

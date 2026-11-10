@@ -393,30 +393,46 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
     }
 }
 
-/// Source-qualified read projection. Only the common Core factory constructs it.
+#[derive(Debug, PartialEq)]
+enum FrameFreeExpressionReadKindV1 {
+    Core(Law),
+    Compare(crate::mir::CompareOp),
+}
+
+/// Source-qualified read projection shared by Core and exact comparison loans.
 /// This retains evaluated operands; it never re-evaluates syntax or issues a loan.
 #[derive(Debug, PartialEq)]
-pub(crate) struct FrameFreeExpressionCoreReadV1 {
-    law: Law,
+pub(crate) struct FrameFreeExpressionReadV1 {
+    kind: FrameFreeExpressionReadKindV1,
     value: Operand,
     needle: Option<Operand>,
 }
-impl FrameFreeExpressionCoreReadV1 {
+impl FrameFreeExpressionReadV1 {
     pub(crate) fn array_receiver_v1(&self) -> Option<crate::mir::ValueId> {
-        match (&self.law, &self.value, &self.needle) {
-            (Law::ArrayCount, Operand::NormalInteger(array), None) => Some(*array),
+        match (&self.kind, &self.value, &self.needle) {
+            (FrameFreeExpressionReadKindV1::Core(Law::ArrayCount), Operand::NormalInteger(array), None) => Some(*array),
             _ => None,
         }
     }
     pub(crate) fn text_instruction_v1(&self, dst: crate::mir::ValueId) -> Option<MirInstruction> {
-        match (&self.law, &self.needle) {
-            (Law::CodePointCount, None) => Some(MirInstruction::StringLength { dst, value: self.value.clone() }),
-            (Law::CodePointSearchFromZero, Some(needle)) => Some(MirInstruction::StringIndexOf {
+        match (&self.kind, &self.needle) {
+            (FrameFreeExpressionReadKindV1::Core(Law::CodePointCount), None) => Some(MirInstruction::StringLength { dst, value: self.value.clone() }),
+            (FrameFreeExpressionReadKindV1::Core(Law::CodePointSearchFromZero), Some(needle)) => Some(MirInstruction::StringIndexOf {
                 dst, value: self.value.clone(), needle: needle.clone() }),
+            (FrameFreeExpressionReadKindV1::Compare(op), Some(right)) => Some(MirInstruction::StringCompare {
+                dst, op: *op, left: self.value.clone(), right: right.clone() }),
             _ => None,
         }
     }
-    fn matches_instruction_v1(&self, dst: crate::mir::ValueId, row: &MirInstruction) -> bool {
+    pub(crate) fn text_comparison_v1(op: crate::mir::CompareOp, left: Operand, right: Operand) -> Result<Self, String> {
+        if !left.is_text() || !right.is_text() { return Err(freeze("bool-condition/text-operand-order")); }
+        Ok(Self { kind: FrameFreeExpressionReadKindV1::Compare(op), value: left, needle: Some(right) })
+    }
+    pub(crate) fn result_type_v1(&self) -> crate::mir::MirType {
+        match self.kind { FrameFreeExpressionReadKindV1::Compare(_) => crate::mir::MirType::Bool,
+            FrameFreeExpressionReadKindV1::Core(_) => crate::mir::MirType::Integer }
+    }
+    pub(crate) fn matches_instruction_v1(&self, dst: crate::mir::ValueId, row: &MirInstruction) -> bool {
         if let Some(expected) = self.text_instruction_v1(dst) { return expected == *row; }
         matches!(row, MirInstruction::ArrayRead { dst: Some(actual), receiver,
             operation: crate::mir::instruction::ArrayReadOperationV1::Count, .. }
@@ -429,7 +445,7 @@ impl FrameFreeExpressionCoreReadV1 {
 pub(crate) fn checked_expression_core_operation_v1(
     core: &crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1,
     values: &[Option<EvaluatedExpressionValueV1>],
-) -> Result<ControlFlow<crate::mir::instruction::InvokeOperation, FrameFreeExpressionCoreReadV1>, String> {
+) -> Result<ControlFlow<crate::mir::instruction::InvokeOperation, FrameFreeExpressionReadV1>, String> {
     use crate::mir::core_method_op::CoreMethodOp as Core;
     let source = core.plan();
     if !core.matches_plan(source, core.node()) || values.len() != source.nodes().len() {
@@ -465,7 +481,7 @@ pub(crate) fn checked_expression_core_operation_v1(
                 return Err(freeze("expression-core/source-identity")),
             _ => return Err(freeze("expression-core/operand-domain")),
         };
-        return Ok(ControlFlow::Continue(FrameFreeExpressionCoreReadV1 { law, value: receiver, needle }));
+        return Ok(ControlFlow::Continue(FrameFreeExpressionReadV1 { kind: FrameFreeExpressionReadKindV1::Core(law), value: receiver, needle }));
     }
     use crate::mir::instruction::InvokeOperation as Invoke;
     let operation = match (core.source().target().row().row().op, arguments.as_slice()) {

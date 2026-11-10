@@ -107,10 +107,12 @@ pub(crate) struct CheckedScalarConditionOperationV1 {
     /// `None` for a comparison of two exact i64 operand values: that is one `Compare`
     /// with no Invoke, and `direct_integer` is its left operand.
     operation: Option<InvokeOperation>,
+    read: Option<super::expression_projection::FrameFreeExpressionReadV1>,
     direct_integer: Option<ValueId>,
     comparison: Option<(crate::mir::CompareOp, ValueId, bool)>,
 }
 impl CheckedScalarConditionOperationV1 {
+    pub(crate) fn read(&self) -> Option<&super::expression_projection::FrameFreeExpressionReadV1> { self.read.as_ref() }
     pub(crate) fn operation(&self) -> Option<&InvokeOperation> { self.operation.as_ref() }
     /// The left operand a direct integer comparison compares; absent when an Invoke supplies it.
     pub(crate) fn direct_integer(&self) -> Option<ValueId> { self.direct_integer }
@@ -145,6 +147,7 @@ pub(crate) fn checked_scalar_invoke_operation_v1(
             .filter(|op| matches!(op, crate::mir::CompareOp::Gt | crate::mir::CompareOp::Lt))
             .ok_or_else(|| freeze("bool-condition/text-operator"))?;
         return Ok(CheckedScalarConditionOperationV1 {
+            read: None,
             operation: Some(InvokeOperation::DynamicCarrierInteger { carrier: *carrier }),
             direct_integer: None,
             comparison: Some((op, *other, carrier_left)),
@@ -162,13 +165,25 @@ pub(crate) fn checked_scalar_invoke_operation_v1(
         let op = frame.source().nodes()[node].binary().and_then(|binary| binary.operator().compare_op())
             .ok_or_else(|| freeze("bool-condition/text-operator"))?;
         return Ok(CheckedScalarConditionOperationV1 {
+            read: None,
             operation: None,
             direct_integer: Some(operand(left)?),
             comparison: Some((op, operand(right)?, true)),
         });
     }
+    let exact = frame.frame_free_text_comparison_v1(node).map_err(freeze)?;
+    let operation = checked_scalar_base_operation_v1(frame, node, values, receiver)?;
+    if let Some(expected) = exact {
+        let InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::Compare { op, left, right }) = operation else {
+            return Err(freeze("bool-condition/text-comparison-source"));
+        };
+        if op != expected { return Err(freeze("bool-condition/text-operator")); }
+        let read = super::expression_projection::FrameFreeExpressionReadV1::text_comparison_v1(op, left, right)?;
+        return Ok(CheckedScalarConditionOperationV1 { read: Some(read), operation: None, direct_integer: None, comparison: None });
+    }
     Ok(CheckedScalarConditionOperationV1 {
-        operation: Some(checked_scalar_base_operation_v1(frame, node, values, receiver)?),
+        read: None,
+        operation: Some(operation),
         direct_integer: None,
         comparison: None,
     })
@@ -189,6 +204,9 @@ pub(crate) fn scalar_condition_bindings_v1(
         if matching.next().is_some() { return Err(freeze("bool-condition/text-compare-duplicate")); }
         Ok(row)
     };
+    if let Some(read) = plan.read() {
+        return Ok(vec![unique(&|(_, row)| read.matches_instruction_v1(result, row))?.clone()]);
+    }
     if let Some(integer) = plan.direct_integer() {
         // A direct integer comparison is the single original `Compare`; no Invoke or projection exists.
         let expected = plan.comparison_instruction(integer, result).ok_or_else(|| freeze("bool-condition/text-compare-projection"))?;

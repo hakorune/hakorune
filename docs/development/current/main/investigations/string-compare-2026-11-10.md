@@ -33,7 +33,7 @@ C20. Functionality and cleanup use separate normalized production/test counts; c
 |---|---|
 | Source operand classes | `resolved_semantics/home_expression_operations.rs:30-52`; Bool qualification `home_bool_condition.rs:350-480` |
 | Exact/mixed/null issuer | `dynamic_operator_contract/issuer.rs:82-99,395-420`; original loan `home_expression_operator_loan.rs:33-39` |
-| Source query to extend | `home_expression_evaluation.rs:213`; frame requirement `:47` |
+| Shared exact-source query | `home_expression_comparison_nodes.rs:13`; existing eligibility `home_expression_evaluation.rs:213`, frame requirement `:47` |
 | Sole checked producer | `ordinary_new_local_commit/root_call_entry/scalar_condition_operation.rs:6,99,126` |
 | Shared bindings/source checks | same file `:179`; `expression_source_values.rs:196`, `expression_effect_order.rs:101`, `expression_projection.rs:284` |
 | Sole scalar writer | `builder/ordinary_new_admission/selected/expression_value/invoke.rs:75` |

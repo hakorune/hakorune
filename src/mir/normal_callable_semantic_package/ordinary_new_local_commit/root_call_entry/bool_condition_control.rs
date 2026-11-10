@@ -425,6 +425,7 @@ impl EmittedBoolConditionProjectionV1 {
                     entry,
                     terminal,
                     continuation,
+                    inline_range,
                     ..
                 } => {
                     let projection = self.comparison_inputs_v1(node)?;
@@ -433,39 +434,38 @@ impl EmittedBoolConditionProjectionV1 {
                         context,
                         function,
                         None,
-                        &Some(entry.clone()),
-                        &Some(terminal.clone()),
-                        &Some(continuation.clone()),
+                        entry,
+                        terminal,
+                        continuation,
                         None,
                     )?;
                     let mut ordered = projection.ordered_bindings_in_context(context)?;
-                    ordered.push(terminal.clone());
+                    ordered.extend(terminal.iter().cloned());
                     projection.validate_original_scope(
             CallValidationContextV1::Lowering(ledger),
                         function,
                         &covered,
-                        &Some(entry.clone()),
-                        &Some(terminal.clone()),
-                        &Some(continuation.clone()),
+                        entry,
+                        terminal,
+                        continuation,
                         &ordered,
             None,
                     )?;
-                    let MirInstruction::Jump {
-                        target,
-                        edge_args: None,
-                    } = continuation.1
-                    else {
-                        return Err(freeze("bool-condition/text-evaluation-order"));
-                    };
-                    if node.entry.block != entry.0
-                        || function
-                            .blocks
-                            .get(&entry.0)
-                            .is_none_or(|block| node.entry.instruction != block.instructions.len())
-                        || node.exit.block != target
-                        || node.exit.instruction != 0
-                    {
-                        return Err(freeze("bool-condition/text-evaluation-order"));
+                    if let (Some(entry), Some(continuation)) = (entry, continuation) {
+                        let MirInstruction::Jump { target, edge_args: None } = continuation.1 else {
+                            return Err(freeze("bool-condition/text-evaluation-order"));
+                        };
+                        if node.entry.block != entry.0
+                            || function.blocks.get(&entry.0).is_none_or(|block| node.entry.instruction != block.instructions.len())
+                            || node.exit.block != target || node.exit.instruction != 0 {
+                            return Err(freeze("bool-condition/text-evaluation-order"));
+                        }
+                    } else {
+                        let (block, start, end, _) = inline_range.ok_or_else(|| freeze("expression/inline-range-missing"))?;
+                        if node.entry.block != block || node.exit.block != block
+                            || node.entry.instruction != start || node.exit.instruction != end {
+                            return Err(freeze("bool-condition/text-evaluation-order"));
+                        }
                     }
                     allowed.extend_from_slice(bindings);
                 }

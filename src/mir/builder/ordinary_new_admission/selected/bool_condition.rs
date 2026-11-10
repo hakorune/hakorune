@@ -205,11 +205,11 @@ pub(in crate::mir::builder) fn emit_scalar_condition_v1(
     let (terminal, continuation) = super::expression_value::finish_bool_condition_continuation_v1(
         builder, &mut body, normal_temporaries,
     )?;
+    body.complete_inline_range_v1(builder)?;
     Ok((value, Proof::ScalarInvocation { receiver,
         input_values: body.values.into_boxed_slice(), dynamic_calls: body.dynamic_calls.into_boxed_slice(),
-        input_reads: body.reference_reads, entry: body.entry.ok_or_else(|| freeze("expression/fault-frame-required"))?,
-        terminal: terminal.ok_or_else(|| freeze("expression/fault-frame-required"))?,
-        continuation: continuation.ok_or_else(|| freeze("expression/fault-frame-required"))?, bindings: body.bindings.into_boxed_slice() }))
+        input_reads: body.reference_reads, entry: body.entry, inline_range: body.inline_range,
+        terminal, continuation, bindings: body.bindings.into_boxed_slice() }))
 }
 pub(in crate::mir::builder) fn definition(function: &MirFunction, value: ValueId) -> Result<Option<Binding>, String> {
     let mut definitions = function.blocks.iter().flat_map(|(id, block)| block.all_instructions()
