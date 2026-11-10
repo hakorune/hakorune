@@ -263,6 +263,8 @@ Stringのlength（Codex調査・ChatGPT Proに相談・Opusが根拠を確認、
 
 Faultが要らない操作（Codex調査`78ca1419c9`・ChatGPT Proに相談・Opusが根拠を確認、[記録](no-fault-ops-2026-11-10.md)）: 候補は1引数の`indexOf`（5本）、exactなText同士の比較（27本、一番効く）、`Shared.Borrow`、専用`OwnedArray.Get`。調査の途中で、DynamicとStringの`==`で、仕様とissuerは「Stringでない正しい値は不等」なのに、runtimeはTypeErrorにする食い違いが見つかった。ユーザー決定（2026-11-10）: mixedの`==`の修正（再現を作ってからruntimeを仕様に合わせる）→ fieldの読みの正規化 → Textを2つ借りるhelperと`StringIndexOf`（旧checked IndexOfは同じseriesで消す）→ 比較の契約の精密化（exact String同士は結果がBoolだけでFaultなし、NonSuspending）と`StringCompare`（複製しないruntimeと一緒に）→ basic-exprの残り → Mapの契約。DynamicとStringの比較とnullの比較はcheckedの形に残す。`Shared.Borrow`と`OwnedArray.Get`は後回し、TextのEndはbasic-exprの頃に小さな設計調査。
 
+mixedの`==`の修正（Codex実装・Opus監査、`297ea922b3`、[記録](mixed-equality-2026-11-10.md)）: runtimeの比較で、operandをText・null・それ以外の正しい値・壊れた入力に分けてから演算子を選ぶようにし、仕様どおりStringでない正しい値との`==`はfalse、`!=`はtrueにした。大小の比較はTypeErrorのまま。Integerのcarrierを使うsourceはEXEの前で止まるので、証拠はABIのtest。既存のEXEの出力の差分は0。次はfieldの読みの正規化。
+
 徹底的な整理（ユーザー決定2026-11-09）: MirBuilderができたら徹底的に綺麗にする。時期は基本式の残り・`edit`・3bと旧経路の退役の後、`.hako` parserのparityとselfhostの前（前の「builderの調査」の枠）。数回の大きな回で行い、各回は実装者がsubagentで経路を上からたどる調査から始める。目標: 責務ごとに持ち主1つ、操作ごとにMIRの書き手1つ（W12〜W14の意味で数える）、形や文脈の名前のfamilyを作らない、退役した経路と互換のfallbackを残さない、productionのfileは800行以下、各回で整形後の行数を純減。既存のgateは保つ。
 
 ## 証明の作り（2026-11-06、ChatGPT Proの検討、Opusが引用を確認）
