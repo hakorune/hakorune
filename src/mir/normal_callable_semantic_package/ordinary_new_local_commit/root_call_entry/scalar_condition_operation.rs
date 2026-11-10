@@ -8,7 +8,8 @@ fn checked_scalar_base_operation_v1(
     node: usize,
     values: &[Option<EvaluatedExpressionValueV1>],
     receiver: Option<&crate::mir::builder::ExactLexicalReadV1>,
-) -> Result<InvokeOperation, String> {
+) -> Result<std::ops::ControlFlow<InvokeOperation, super::expression_projection::FrameFreeExpressionReadV1>, String> {
+    use std::ops::ControlFlow;
     use crate::mir::instruction::{
         StringInvokeOperand as Operand, StringInvokeOperation as Operation,
     };
@@ -44,19 +45,18 @@ fn checked_scalar_base_operation_v1(
             .cloned()
             .filter(Operand::is_text)
             .ok_or_else(|| freeze("expression-core/operand-domain"))?;
-        return Ok(InvokeOperation::Map(
-            crate::mir::instruction::MapInvokeOperation::FieldHas {
-                field: field.field(),
-                base,
-                key,
-            },
-        ));
+        return Ok(ControlFlow::Break(InvokeOperation::Map(
+            crate::mir::instruction::MapInvokeOperation::FieldHas { field: field.field(), base, key },
+        )));
     }
     if receiver.is_some() {
         return Err(freeze("expression-core/source-identity"));
     }
-    frame.text_comparison_operation_v1(node, true)
-        .ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
+    let exact = frame.frame_free_text_comparison_v1(node).map_err(freeze)?;
+    if exact.is_none() {
+        frame.text_comparison_operation_v1(node, true)
+            .ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
+    }
     let binary = frame.source().nodes()[node]
         .binary()
         .ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
@@ -95,12 +95,13 @@ fn checked_scalar_base_operation_v1(
             _ => Err(freeze("bool-condition/text-operand-order")),
         }
     };
+    let left = operand(binary.lhs())?;
+    let right = operand(binary.rhs())?;
+    if let Some(op) = exact {
+        return Ok(ControlFlow::Continue(super::expression_projection::FrameFreeExpressionReadV1::text_comparison_v1(op, left, right)?));
+    }
     let op = binary.operator().compare_op().ok_or_else(|| freeze("bool-condition/text-operator"))?;
-    Ok(InvokeOperation::String(Operation::Compare {
-        op,
-        left: operand(binary.lhs())?,
-        right: operand(binary.rhs())?,
-    }))
+    Ok(ControlFlow::Break(InvokeOperation::String(Operation::Compare { op, left, right })))
 }
 
 pub(crate) struct CheckedScalarConditionOperationV1 {
@@ -171,22 +172,11 @@ pub(crate) fn checked_scalar_invoke_operation_v1(
             comparison: Some((op, operand(right)?, true)),
         });
     }
-    let exact = frame.frame_free_text_comparison_v1(node).map_err(freeze)?;
-    let operation = checked_scalar_base_operation_v1(frame, node, values, receiver)?;
-    if let Some(expected) = exact {
-        let InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::Compare { op, left, right }) = operation else {
-            return Err(freeze("bool-condition/text-comparison-source"));
-        };
-        if op != expected { return Err(freeze("bool-condition/text-operator")); }
-        let read = super::expression_projection::FrameFreeExpressionReadV1::text_comparison_v1(op, left, right)?;
-        return Ok(CheckedScalarConditionOperationV1 { read: Some(read), operation: None, direct_integer: None, comparison: None });
-    }
-    Ok(CheckedScalarConditionOperationV1 {
-        read: None,
-        operation: Some(operation),
-        direct_integer: None,
-        comparison: None,
-    })
+    let (operation, read) = match checked_scalar_base_operation_v1(frame, node, values, receiver)? {
+        std::ops::ControlFlow::Break(operation) => (Some(operation), None),
+        std::ops::ControlFlow::Continue(read) => (None, Some(read)),
+    };
+    Ok(CheckedScalarConditionOperationV1 { operation, read, direct_integer: None, comparison: None })
 }
 
 /// The same source plan checks either a direct Bool Invoke or an Integer
