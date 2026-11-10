@@ -372,8 +372,10 @@ fn checked_string_transport_preserves_bytes_operand_roles_and_sites() {
     assert_eq!(encode(Op::Substring { value: Operand::OwnedString(ValueId(9)), start: Operand::NormalInteger(ValueId(1)), end: Operand::NormalInteger(ValueId(2)) }),
         json!({"kind":"string_substring", "site":42, "value":{"kind":"owned_string", "value":9},
             "start":{"kind":"normal_integer", "value":1}, "end":{"kind":"normal_integer", "value":2}}));
-    assert_eq!(encode(Op::IndexOf { value: Operand::OwnedString(ValueId(9)), needle: Operand::StaticText { utf8:"界".into() } }),
-        json!({"kind":"string_index_of", "site":42, "value":{"kind":"owned_string", "value":9}, "needle":{"kind":"static_text", "utf8":"界"}}));
+    let row = MirInstruction::StringIndexOf { dst: ValueId(11), value: Operand::OwnedString(ValueId(9)), needle: Operand::StaticText { utf8:"界".into() } };
+    assert_eq!(encode_instruction(None, &row, &BTreeMap::new(), 0, None, None,
+        &BTreeMap::new(), None).unwrap(),
+        json!({"op":"string_index_of", "dst":11, "value":{"kind":"owned_string", "value":9}, "needle":{"kind":"static_text", "utf8":"界"}}));
     // Cross the original-source boundary as well as the wire projection:
     // declared and inferred Text both borrow, materialize and transfer once.
     crate::runtime::ring0::ensure_global_ring0_initialized();

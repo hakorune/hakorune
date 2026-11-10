@@ -222,16 +222,9 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                         return Err(freeze("expression-core/source-identity"));
                     }
                     let expected = match checked_expression_core_operation_v1(core, self.values)? {
-                        ControlFlow::Continue((law, receiver)) => {
+                        ControlFlow::Continue(read) => {
                             let Operand::NormalInteger(dst) = value else { return Err(freeze("expression-core/result-domain")); };
-                            self.require_unique(|row| match (law, row) {
-                                (Law::ArrayCount, MirInstruction::ArrayRead { dst: Some(actual), receiver: array,
-                                    operation: crate::mir::instruction::ArrayReadOperationV1::Count, .. }) =>
-                                    actual == dst && receiver == Operand::NormalInteger(*array),
-                                (Law::CodePointCount, MirInstruction::StringLength { dst: actual, value }) =>
-                                    actual == dst && value == &receiver,
-                                _ => false,
-                            })?;
+                            self.require_unique(|row| read.matches_instruction_v1(*dst, row))?;
                             continue;
                         }
                         ControlFlow::Break(operation) => operation,
@@ -400,12 +393,43 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
     }
 }
 
+/// Source-qualified read projection. Only the common Core factory constructs it.
+/// This retains evaluated operands; it never re-evaluates syntax or issues a loan.
+#[derive(Debug, PartialEq)]
+pub(crate) struct FrameFreeExpressionCoreReadV1 {
+    law: Law,
+    value: Operand,
+    needle: Option<Operand>,
+}
+impl FrameFreeExpressionCoreReadV1 {
+    pub(crate) fn array_receiver_v1(&self) -> Option<crate::mir::ValueId> {
+        match (&self.law, &self.value, &self.needle) {
+            (Law::ArrayCount, Operand::NormalInteger(array), None) => Some(*array),
+            _ => None,
+        }
+    }
+    pub(crate) fn text_instruction_v1(&self, dst: crate::mir::ValueId) -> Option<MirInstruction> {
+        match (&self.law, &self.needle) {
+            (Law::CodePointCount, None) => Some(MirInstruction::StringLength { dst, value: self.value.clone() }),
+            (Law::CodePointSearchFromZero, Some(needle)) => Some(MirInstruction::StringIndexOf {
+                dst, value: self.value.clone(), needle: needle.clone() }),
+            _ => None,
+        }
+    }
+    fn matches_instruction_v1(&self, dst: crate::mir::ValueId, row: &MirInstruction) -> bool {
+        if let Some(expected) = self.text_instruction_v1(dst) { return expected == *row; }
+        matches!(row, MirInstruction::ArrayRead { dst: Some(actual), receiver,
+            operation: crate::mir::instruction::ArrayReadOperationV1::Count, .. }
+            if *actual == dst && self.array_receiver_v1() == Some(*receiver))
+    }
+}
+
 /// The sole source-qualified Core-operation projection, shared by the writer
 /// and both independent source consumers. It does not issue source permission.
 pub(crate) fn checked_expression_core_operation_v1(
     core: &crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1,
     values: &[Option<EvaluatedExpressionValueV1>],
-) -> Result<ControlFlow<crate::mir::instruction::InvokeOperation, (Law, Operand)>, String> {
+) -> Result<ControlFlow<crate::mir::instruction::InvokeOperation, FrameFreeExpressionCoreReadV1>, String> {
     use crate::mir::core_method_op::CoreMethodOp as Core;
     let source = core.plan();
     if !core.matches_plan(source, core.node()) || values.len() != source.nodes().len() {
@@ -432,14 +456,16 @@ pub(crate) fn checked_expression_core_operation_v1(
         .map(|arg| operand(arg.site()))
         .collect::<Result<Vec<_>, _>>()?;
     if let Some(law) = core.source().target().frame_free_read_law_v1() {
-        if core.owns_result() || !arguments.is_empty() { return Err(freeze("expression-core/source-identity")); }
-        let valid = match law {
-            Law::ArrayCount => matches!(receiver, Operand::NormalInteger(_)),
-            Law::CodePointCount => receiver.is_text(),
-            _ => false,
+        if core.owns_result() { return Err(freeze("expression-core/source-identity")); }
+        let needle = match (law, arguments.as_slice()) {
+            (Law::ArrayCount, []) if matches!(receiver, Operand::NormalInteger(_)) => None,
+            (Law::CodePointCount, []) if receiver.is_text() => None,
+            (Law::CodePointSearchFromZero, [needle]) if receiver.is_text() && needle.is_text() => Some(needle.clone()),
+            (Law::ArrayCount | Law::CodePointCount, args) if !args.is_empty() =>
+                return Err(freeze("expression-core/source-identity")),
+            _ => return Err(freeze("expression-core/operand-domain")),
         };
-        if !valid { return Err(freeze("expression-core/operand-domain")); }
-        return Ok(ControlFlow::Continue((law, receiver)));
+        return Ok(ControlFlow::Continue(FrameFreeExpressionCoreReadV1 { law, value: receiver, needle }));
     }
     use crate::mir::instruction::InvokeOperation as Invoke;
     let operation = match (core.source().target().row().row().op, arguments.as_slice()) {
@@ -451,10 +477,7 @@ pub(crate) fn checked_expression_core_operation_v1(
             start: start.clone(),
             end: end.clone(),
         }),
-        (Core::StringIndexOf, [needle]) => Invoke::String(Operation::IndexOf {
-            value: receiver,
-            needle: needle.clone(),
-        }),
+
         (Core::ArrayGet, [Operand::NormalInteger(index)]) if core.is_array_dynamic_get_v1() => {
             let Operand::NormalInteger(array) = receiver else {
                 return Err(freeze("expression-core/array-receiver-domain"));

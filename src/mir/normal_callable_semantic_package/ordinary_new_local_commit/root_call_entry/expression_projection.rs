@@ -244,8 +244,9 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         let Some(core) = cores.next() else { return Ok(None); };
         if cores.next().is_some() { return Err(freeze("finished-array-field/source-membership")); }
         let (array, binding) = if operation.is_count() {
-            let std::ops::ControlFlow::Continue((crate::mir::core_method_result_kind::CoreMethodSemanticLawV2::ArrayCount, Operand::NormalInteger(array))) =
-                checked_expression_core_operation_v1(core, self.values)? else { return Err(freeze("finished-array-field/source-membership")); };
+            let std::ops::ControlFlow::Continue(read) = checked_expression_core_operation_v1(core, self.values)?
+                else { return Err(freeze("finished-array-field/source-membership")); };
+            let array = read.array_receiver_v1().ok_or_else(|| freeze("finished-array-field/source-membership"))?;
             let Some(Some(EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(value)))) = self.values.get(core.node())
                 else { return Err(freeze("finished-array-field/source-membership")); };
             (array, self.require_unique(|row| matches!(row, MirInstruction::ArrayRead {

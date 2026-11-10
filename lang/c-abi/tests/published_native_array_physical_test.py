@@ -268,8 +268,9 @@ def checked_string_physical():
             block(1, inv("string_substring", 2, 10, value=owned(2), start={"kind":"normal_integer", "value":1}, end={"kind":"normal_integer", "value":4}), [projection(0,2)]),
             block(2, {"op":"jump", "target":3, "args":None}, [projection(1,3),
                 {"op":"string_length", "dst":7, "value":owned(3)}]),
-            block(3, inv("string_index_of", 4, 20, value=owned(3), needle=literal("界"))),
-            block(4, inv("string_print", 5, 20, value={"kind":"normal_integer", "value":7}), [projection(3,8)]),
+            block(3, {"op":"jump", "target":4, "args":None},
+                [{"op":"string_index_of", "dst":8, "value":owned(3), "needle":literal("界")}]),
+            block(4, inv("string_print", 5, 20, value={"kind":"normal_integer", "value":7})),
             block(5, inv("string_print", 6, 20, value={"kind":"normal_integer", "value":8})),
             block(6, inv("string_print", 7, 20, value=owned(3))),
             block(7, end(3, 8, 21)), block(8, end(2, 9, 90)), block(9, {"op":"return", "value":5}),
@@ -295,6 +296,22 @@ def checked_string_physical():
             for i, row in enumerate(carrier_block["instructions"]): row["index"] = i
             carrier_block["terminator"]["index"] = len(carrier_block["instructions"])
             execute(carrier, endings=[1,0], payload="2\n1\né界\n".encode())
+        if not native:
+            # A real borrowed-kind call boundary, then two reads of that formal.
+            borrowed = copy.deepcopy(cp)
+            caller_block = next(b for b in borrowed["functions"][0]["blocks"] if b["id"] == 3)
+            caller_block.update(block(3, {"op":"invoke", "operation":{"kind":"ordinary_call", "result":"i64",
+                "call":{"target":1,"args":[{"kind":"borrowed_text","operand":owned(3)}],"dst":None}},
+                "fault_frame":0,"normal":4,"fault":20}))
+            landing = next(b for b in borrowed["functions"][0]["blocks"] if b["id"] == 4)
+            landing["instructions"] = [{"index":0,"instruction":projection(3,8)}]
+            landing["terminator"]["index"] = 1
+            borrowed["functions"].append({"name":"borrowed_search", "role":"ordinary_i64", "receiver":None,
+                "receiver_object":None, "params":[{"value":1,"representation":"borrowed_kind_payload_v1","object_view":None,"text_view":True}],
+                "entry":0, "blocks":[block(0,{"op":"return","value":2},
+                    [{"op":"string_index_of","dst":2,"value":{"kind":"borrowed_text","value":1},
+                        "needle":{"kind":"borrowed_text","value":1}}])]})
+            execute(borrowed, endings=[1,0], payload="2\n0\né界\n".encode())
         obsolete = copy.deepcopy(cp)
         old_block = next(b for b in obsolete["functions"][0]["blocks"] if b["id"] == 2)
         old_block["instructions"].pop()
@@ -338,6 +355,31 @@ def checked_string_physical():
                 end_block["terminator"]["index"] = 1
             compile_input(bad, False)
 
+        # Both source positions obey the same Text-only schema, availability
+        # and live-state rules; no fake frame/edge metadata is accepted.
+        for side in ["value", "needle"]:
+            for mutation in ["normal_integer", "normal_bool", "tagged_dynamic", "dynamic_carrier",
+                    "borrowed_text", "ended", "before_definition", "frame", "site", "normal", "fault"]:
+                bad = copy.deepcopy(cp)
+                search_block = next(b for b in bad["functions"][0]["blocks"] if b["id"] == 3)
+                search = search_block["instructions"][0]["instruction"]
+                if mutation in ["normal_integer", "normal_bool", "tagged_dynamic", "dynamic_carrier"]:
+                    search[side] = {"kind":mutation,"value":1}
+                elif mutation == "borrowed_text": search[side] = {"kind":"borrowed_text","value":3}
+                elif mutation in ["frame", "site", "normal", "fault"]: search[mutation] = 0
+                else:
+                    search[side] = owned(3)
+                    source_block = next(b for b in bad["functions"][0]["blocks"] if b["id"] == (1 if mutation == "before_definition" else 1007))
+                    search_block["instructions"].clear(); search_block["terminator"]["index"] = 0
+                    source_block["instructions"].append({"index":len(source_block["instructions"]),"instruction":search})
+                    source_block["terminator"]["index"] = len(source_block["instructions"])
+                compile_input(bad, False)
+        if not native:
+            repeated = copy.deepcopy(carrier)
+            search = next(r for r in instructions(repeated) if r["op"] == "string_index_of")
+            search["value"] = search["needle"] = {"kind":"text_operand","value":46}
+            execute(repeated, endings=[1,0], payload="2\n0\né界\n".encode())
+
         execute(cp, ["-DTEST_FAIL_STRING_SUBSTRING"], 70, [0], primary=9304)
         # Inject only genuinely fallible I/O, after both String acquisitions.
         # Both ordinal failures must release the same two live pairs.
@@ -346,7 +388,7 @@ def checked_string_physical():
             bad = copy.deepcopy(cp)
             if mutation == "owned_bound": first(bad, "string_substring")["operation"]["start"] = owned(2)
             elif mutation == "integer_receiver": first(bad, "string_materialize")["operation"]["value"] = {"kind":"normal_integer", "value":1}
-            elif mutation == "integer_needle": first(bad, "string_index_of")["operation"]["needle"] = {"kind":"normal_integer", "value":1}
+            elif mutation == "integer_needle": next(r for r in instructions(bad) if r["op"] == "string_index_of")["needle"] = {"kind":"normal_integer", "value":1}
             elif mutation == "end_scalar": first(bad, "string_end")["operation"]["value"] = 7
             else: first(bad, "string_print")["operation"]["value"] = {"kind":"normal_integer", "value":3}
             compile_input(bad, False)

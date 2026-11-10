@@ -149,8 +149,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     if (!lv4_dynamic_alloca(f, in, op, lv4_u(block, "id"), session)) return 0;
     for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
       yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
-      if (lv4_is(ins, "op", "string_length"))
-        lv4_string_length_alloca(f, fi, lv4_u(block, "id"), ri);
+      if (hako_physical_text_read_arity(ins))
+        lv4_string_read_alloca(f, ins, fi, lv4_u(block, "id"), ri);
       if (lv4_is(ins, "op", "borrowed_null_compare"))
         fprintf(f, "  %%nulout%u = alloca i64, align 8\n", lv4_u(ins, "dst"));
       if (lv4_is(ins, "op", "object_field_get"))
@@ -424,8 +424,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             "  %%aset%u_%zu = call i32 @\"nyash.array.checked_set_i64_v1\"(ptr %%frame, i64 %llu, i64 %%v%u, i64 %%v%u, i64 %%v%u)\n"
             "  switch i32 %%aset%u_%zu, label %%invalid [ i32 0, label %%asd%u_%zu i32 1, label %%fault ]\nasd%u_%zu:\n",
             b, ri, site, sarray, sindex, svalue, b, ri, b, ri, b, ri);
-      } else if (lv4_is(ins, "op", "string_length")) {
-        lv4_string_length_emit(f, ins, fi, b, ri);
+      } else if (hako_physical_text_read_arity(ins)) {
+        lv4_string_read_emit(f, ins, fi, b, ri);
       } else if (lv4_is(ins, "op", "array_length")) {
         fprintf(f, "  %%v%u = call i64 @\"nyash.array.slot_len_h\"(i64 %%v%u)\n",
             lv4_u(ins, "dst"), lv4_u(ins, "array"));

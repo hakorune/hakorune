@@ -386,6 +386,9 @@ fn encode_instruction(
         MirInstruction::StringLength { dst, value: operand } => {
             json!({"op": "string_length", "dst": value(dst), "value": operand})
         }
+        MirInstruction::StringIndexOf { dst, value: operand, needle } => {
+            json!({"op": "string_index_of", "dst": value(dst), "value": operand, "needle": needle})
+        }
         MirInstruction::StringResidenceInstall { value: installed, replaces, returning } => {
             let input = abi_input.ok_or_else(|| fault("string-residence-input-missing"))?;
             let (_, caller, _) = call_context.ok_or_else(|| fault("string-residence-caller-missing"))?;

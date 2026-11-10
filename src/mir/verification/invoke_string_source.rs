@@ -138,3 +138,147 @@ pub(super) fn images_for_module(
     })?;
     Ok(images)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::instruction::FaultFrameMode;
+    use crate::mir::{BasicBlock, ConstValue, EffectMask, FunctionSignature, MirType};
+
+    #[test]
+    fn text_read_occurrences_follow_the_supplied_carrier_image_and_actual_end() {
+        // Isolate the independent consumer with a supplied image. This does
+        // not claim that source lowering admits new loop-carried Text shapes.
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "carrier_read".into(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::CONTROL,
+            },
+            BasicBlockId(0),
+        );
+        let mut entry = BasicBlock::new(BasicBlockId(0));
+        entry.add_instruction(MirInstruction::FaultFrameEnter {
+            dst: ValueId(0),
+            mode: FaultFrameMode::RootOwned,
+        });
+        entry.set_terminator(MirInstruction::Invoke {
+            operation: InvokeOperation::String(Op::Materialize {
+                value: Operand::StaticText { utf8: "abc".into() },
+            }),
+            fault_frame: ValueId(0),
+            normal_landing: BasicBlockId(1),
+            fault_landing: BasicBlockId(4),
+        });
+        function.add_block(entry);
+        let mut acquired = BasicBlock::new(BasicBlockId(1));
+        acquired.add_instruction(MirInstruction::InvokeNormalResult {
+            dst: ValueId(2),
+            invoke_block: BasicBlockId(0),
+        });
+        acquired.add_instruction(MirInstruction::StringResidenceInstall {
+            value: ValueId(2),
+            replaces: None,
+            returning: false,
+        });
+        acquired.set_terminator(MirInstruction::Jump {
+            target: BasicBlockId(2),
+            edge_args: None,
+        });
+        function.add_block(acquired);
+        let phi = MirInstruction::Phi {
+            dst: ValueId(3),
+            inputs: vec![(BasicBlockId(1), ValueId(2))],
+            type_hint: None,
+        };
+        let copy = MirInstruction::Copy {
+            dst: ValueId(5),
+            src: ValueId(3),
+        };
+        let read = MirInstruction::StringIndexOf {
+            dst: ValueId(6),
+            value: Operand::TextOperand(ValueId(5)),
+            needle: Operand::TextOperand(ValueId(5)),
+        };
+        let end = MirInstruction::Invoke {
+            operation: InvokeOperation::String(Op::EndIfOwned { value: ValueId(3) }),
+            fault_frame: ValueId(0),
+            normal_landing: BasicBlockId(3),
+            fault_landing: BasicBlockId(4),
+        };
+        let mut body = BasicBlock::new(BasicBlockId(2));
+        for row in [&phi, &copy, &read] {
+            body.add_instruction(row.clone());
+        }
+        body.set_terminator(end.clone());
+        function.add_block(body);
+        let mut normal = BasicBlock::new(BasicBlockId(3));
+        normal.set_terminator(MirInstruction::Return {
+            value: Some(ValueId(6)),
+        });
+        function.add_block(normal);
+        let mut fault = BasicBlock::new(BasicBlockId(4));
+        fault.set_terminator(MirInstruction::ReturnFault {
+            fault_frame: ValueId(0),
+        });
+        function.add_block(fault);
+        let mut image = TextSourceImage::default();
+        image.slots.insert(ValueId(3), ValueId(3));
+        image.copies.insert(ValueId(5), ValueId(3));
+        image.edges.insert(
+            (BasicBlockId(1), BasicBlockId(2)),
+            vec![(ValueId(3), ValueId(2))],
+        );
+        image.aliases = vec![(BasicBlockId(2), phi), (BasicBlockId(2), copy)];
+        image.operations = vec![(BasicBlockId(2), read.clone()), (BasicBlockId(2), end)];
+        assert_eq!(
+            read.used_values()
+                .iter()
+                .filter(|v| **v == ValueId(5))
+                .count(),
+            2
+        );
+        assert!(super::super::lifetime::check(&function, Some(&image)).is_ok());
+        for side in [0, 1] {
+            let mut ended = function.clone();
+            let mut image = TextSourceImage {
+                slots: image.slots.clone(),
+                edges: image.edges.clone(),
+                copies: image.copies.clone(),
+                literals: image.literals.clone(),
+                aliases: image.aliases.clone(),
+                operations: image.operations.clone(),
+                normal_retained: image.normal_retained.clone(),
+            };
+            let mut read = read.clone();
+            if let MirInstruction::StringIndexOf { value, needle, .. } = &mut read {
+                if side == 0 {
+                    *needle = Operand::StaticText { utf8: "a".into() };
+                } else {
+                    *value = Operand::StaticText { utf8: "a".into() };
+                }
+            }
+            ended
+                .blocks
+                .get_mut(&BasicBlockId(2))
+                .unwrap()
+                .instructions
+                .pop();
+            ended
+                .blocks
+                .get_mut(&BasicBlockId(3))
+                .unwrap()
+                .instructions
+                .push(read.clone());
+            image
+                .operations
+                .retain(|(_, row)| row.text_read_operands_v1().is_none());
+            image.operations.push((BasicBlockId(3), read));
+            assert!(matches!(
+                super::super::lifetime::check(&ended, Some(&image)),
+                Err((_, "string-borrow-not-live", _))
+            ));
+        }
+    }
+}

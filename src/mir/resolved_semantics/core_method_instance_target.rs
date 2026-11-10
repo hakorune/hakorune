@@ -436,7 +436,7 @@ impl VerifiedCoreMethodInstanceTargetV1 {
     pub(crate) fn frame_free_read_law_v1(&self) -> Option<crate::mir::core_method_result_kind::CoreMethodSemanticLawV2> {
         use crate::mir::core_method_result_kind::CoreMethodSemanticLawV2 as Law;
         if self.checked_array_count_law_v1() { Some(Law::ArrayCount) }
-        else { self.checked_code_point_law_v1().filter(|law| *law == Law::CodePointCount) }
+        else { self.checked_code_point_law_v1().filter(|law| matches!(law, Law::CodePointCount | Law::CodePointSearchFromZero)) }
     }
     pub(crate) fn checked_map_presence_law_v1(&self) -> bool {
         self.schema == CoreMethodHomeSchemaV1::MapTextPresence

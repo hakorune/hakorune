@@ -18,6 +18,7 @@ static void lv4_string_globals(FILE* f, const hako_lv4_input* in) {
       "declare i32 @\"nyash.string.checked_end_v1\"(ptr, i64, i64, i64)\n"
       "declare i32 @\"nyash.string.checked_compare_v1\"(ptr, i64, i32, ptr, ptr, ptr)\n"
       "declare i32 @\"nyash.string.code_point_count_v1\"(ptr, ptr)\n"
+      "declare i32 @\"nyash.string.code_point_index_of_v1\"(ptr, ptr, ptr)\n"
       "declare i32 @\"nyash.string.checked_materialize_v1\"(ptr, i64, ptr, ptr)\n"
       "declare i32 @\"nyash.string.checked_substring_operands_v1\"(ptr, i64, ptr, ptr, ptr, ptr)\n"
       "declare i32 @\"nyash.string.checked_index_of_v1\"(ptr, i64, ptr, ptr, ptr)\n");
@@ -32,11 +33,14 @@ static void lv4_string_globals(FILE* f, const hako_lv4_input* in) {
         if (lv4_is(ins, "op", "const_string")) {
           snprintf(name, sizeof(name), "ctext_%zu_%u", fi, lv4_u(ins, "dst"));
           lv4_string_literal_global(f, name, yyjson_obj_get(ins, "value"));
-        } else if (lv4_is(ins, "op", "string_length")) {
-          yyjson_val* operand = yyjson_obj_get(ins, "value");
-          if (lv4_is(operand, "kind", "static_text")) {
-            snprintf(name, sizeof(name), "str_%zu_row%zu_%u_%zu", fi, fi, lv4_u(block, "id"), ri);
-            lv4_string_literal_global(f, name, yyjson_obj_get(operand, "utf8"));
+        } else if (hako_physical_text_read_arity(ins)) {
+          static const char* const operands[] = {"value", "needle"};
+          for (size_t role = 0; role < hako_physical_text_read_arity(ins); role++) {
+            yyjson_val* operand = yyjson_obj_get(ins, operands[role]);
+            if (lv4_is(operand, "kind", "static_text")) {
+              snprintf(name, sizeof(name), "str_%zu_row%zu_%u_%zu_%zu", fi, fi, lv4_u(block, "id"), ri, role);
+              lv4_string_literal_global(f, name, yyjson_obj_get(operand, "utf8"));
+            }
           }
         }
       }
@@ -100,116 +104,127 @@ static void lv4_string_alloca(FILE* f, yyjson_val* op, uint32_t b) {
     fprintf(f, "  %%strarg%u_%u = alloca %%nyrt.string.operand, align 8\n", b, role);
   if (result) fprintf(f, "  %%strout%u = alloca %s, align 8\n", b, result == 1 ? "%nyrt.string.owned" : "i64");
 }
-static void lv4_string_operand_named_emit(FILE* f, yyjson_val* operand,
-    size_t fi, const char* prefix, uint32_t b, size_t role) {
+static void lv4_string_operand_storage_emit(FILE* f, yyjson_val* operand,
+    const char* name, const char* literal) {
   int text = lv4_is(operand, "kind", "static_text");
   int owned = lv4_is(operand, "kind", "owned_string");
   int dynamic = lv4_is(operand, "kind", "tagged_dynamic");
   int carrier = lv4_is(operand, "kind", "dynamic_carrier");
   uint32_t value = lv4_u(operand, "value");
   if (lv4_is(operand, "kind", "text_operand")) {
-    fprintf(f, "  store %%nyrt.string.operand %%text%u, ptr %%strarg%s%u_%zu, align 8\n", value,prefix,b,role);
+    fprintf(f, "  store %%nyrt.string.operand %%text%u, ptr %%strarg%s, align 8\n", value,name);
     return;
   }
   if (lv4_is(operand, "kind", "normal_bool")) {
     /* Bool displays through the tagged Dynamic spelling: tag 2, payload 0/1. */
     fprintf(f,
-        "  %%str%s%u_%zu_0 = insertvalue %%nyrt.string.operand zeroinitializer, i32 4, 0\n"
-        "  %%str%s%u_%zu_1 = insertvalue %%nyrt.string.operand %%str%s%u_%zu_0, i32 2, 1\n"
-        "  %%str%s%u_%zu_2 = insertvalue %%nyrt.string.operand %%str%s%u_%zu_1, i64 %%v%u, 6\n"
-        "  store %%nyrt.string.operand %%str%s%u_%zu_2, ptr %%strarg%s%u_%zu, align 8\n",
-        prefix,b,role,prefix,b,role,prefix,b,role,prefix,b,role,prefix,b,role,value,prefix,b,role,prefix,b,role);
+        "  %%str%s_0 = insertvalue %%nyrt.string.operand zeroinitializer, i32 4, 0\n"
+        "  %%str%s_1 = insertvalue %%nyrt.string.operand %%str%s_0, i32 2, 1\n"
+        "  %%str%s_2 = insertvalue %%nyrt.string.operand %%str%s_1, i64 %%v%u, 6\n"
+        "  store %%nyrt.string.operand %%str%s_2, ptr %%strarg%s, align 8\n",
+        name,name,name,name,name,value,name,name);
     return;
   }
   if (carrier) {
     fprintf(f,
-        "  %%str%s%u_%zu_0 = insertvalue %%nyrt.string.operand zeroinitializer, i32 5, 0\n"
-        "  %%str%s%u_%zu_1 = insertvalue %%nyrt.string.operand %%str%s%u_%zu_0, i64 %%v%u, 5\n"
-        "  store %%nyrt.string.operand %%str%s%u_%zu_1, ptr %%strarg%s%u_%zu, align 8\n",
-        prefix,b,role,prefix,b,role,prefix,b,role,value,prefix,b,role,prefix,b,role);
+        "  %%str%s_0 = insertvalue %%nyrt.string.operand zeroinitializer, i32 5, 0\n"
+        "  %%str%s_1 = insertvalue %%nyrt.string.operand %%str%s_0, i64 %%v%u, 5\n"
+        "  store %%nyrt.string.operand %%str%s_1, ptr %%strarg%s, align 8\n",
+        name,name,name,value,name,name);
     return;
   }
   if (dynamic) {
-    fprintf(f, "  %%str_dynamic_text%s%u_%zu = icmp eq i32 %%k%u, 4\n", prefix,b,role,value);
-    fprintf(f, "  br i1 %%str_dynamic_text%s%u_%zu, label %%str_dynamic_borrow%s%u_%zu, label %%str_dynamic_scalar%s%u_%zu\n",
-        prefix,b,role,prefix,b,role,prefix,b,role);
-    fprintf(f, "str_dynamic_scalar%s%u_%zu:\n", prefix,b,role);
-    fprintf(f, "  %%str%s%u_%zu_0 = insertvalue %%nyrt.string.operand zeroinitializer, i32 4, 0\n", prefix,b,role);
-    fprintf(f, "  %%str%s%u_%zu_1 = insertvalue %%nyrt.string.operand %%str%s%u_%zu_0, i32 %%k%u, 1\n", prefix,b,role,prefix,b,role,value);
-    fprintf(f, "  %%str%s%u_%zu_2 = insertvalue %%nyrt.string.operand %%str%s%u_%zu_1, i64 %%v%u, 6\n", prefix,b,role,prefix,b,role,value);
-    fprintf(f, "  store %%nyrt.string.operand %%str%s%u_%zu_2, ptr %%strarg%s%u_%zu, align 8\n", prefix,b,role,prefix,b,role);
-    fprintf(f, "  br label %%str_dynamic_ready%s%u_%zu\nstr_dynamic_borrow%s%u_%zu:\n", prefix,b,role,prefix,b,role);
+    fprintf(f, "  %%str_dynamic_text%s = icmp eq i32 %%k%u, 4\n", name,value);
+    fprintf(f, "  br i1 %%str_dynamic_text%s, label %%str_dynamic_borrow%s, label %%str_dynamic_scalar%s\n",
+        name,name,name);
+    fprintf(f, "str_dynamic_scalar%s:\n", name);
+    fprintf(f, "  %%str%s_0 = insertvalue %%nyrt.string.operand zeroinitializer, i32 4, 0\n", name);
+    fprintf(f, "  %%str%s_1 = insertvalue %%nyrt.string.operand %%str%s_0, i32 %%k%u, 1\n", name,name,value);
+    fprintf(f, "  %%str%s_2 = insertvalue %%nyrt.string.operand %%str%s_1, i64 %%v%u, 6\n", name,name,value);
+    fprintf(f, "  store %%nyrt.string.operand %%str%s_2, ptr %%strarg%s, align 8\n", name,name);
+    fprintf(f, "  br label %%str_dynamic_ready%s\nstr_dynamic_borrow%s:\n", name,name);
   }
   if (dynamic || lv4_is(operand, "kind", "borrowed_text")) {
     /* The indexed source domain proves a borrowed formal/Copy root. These
        guards supplement that proof before any descriptor memory is read. */
     fprintf(f,
-        "  %%strtag%s%u_%zu = icmp eq i32 %%k%u, 4\n"
-        "  %%strnonzero%s%u_%zu = icmp ne i64 %%v%u, 0\n"
-        "  %%stralign%s%u_%zu = and i64 %%v%u, 7\n"
-        "  %%straligned%s%u_%zu = icmp eq i64 %%stralign%s%u_%zu, 0\n"
-        "  %%straddress%s%u_%zu = and i1 %%strnonzero%s%u_%zu, %%straligned%s%u_%zu\n"
-        "  %%strvalid%s%u_%zu = and i1 %%strtag%s%u_%zu, %%straddress%s%u_%zu\n"
-        "  br i1 %%strvalid%s%u_%zu, label %%strborrow%s%u_%zu, label %%invalid\nstrborrow%s%u_%zu:\n"
-        "  %%strptr%s%u_%zu = inttoptr i64 %%v%u to ptr\n"
-        "  %%strkind%s%u_%zu = load i32, ptr %%strptr%s%u_%zu, align 8\n"
-        "  %%strstatic%s%u_%zu = icmp eq i32 %%strkind%s%u_%zu, 1\n"
-        "  %%strowned%s%u_%zu = icmp eq i32 %%strkind%s%u_%zu, 2\n"
-        "  %%strtext%s%u_%zu = or i1 %%strstatic%s%u_%zu, %%strowned%s%u_%zu\n"
-        "  br i1 %%strtext%s%u_%zu, label %%struse%s%u_%zu, label %%invalid\nstruse%s%u_%zu:\n"
-        "  %%strview%s%u_%zu = load %%nyrt.string.operand, ptr %%strptr%s%u_%zu, align 8\n"
-        "  store %%nyrt.string.operand %%strview%s%u_%zu, ptr %%strarg%s%u_%zu, align 8\n",
-        prefix,b,role,value, prefix,b,role,value, prefix,b,role,value, prefix,b,role,prefix,b,role,
-        prefix,b,role,prefix,b,role,prefix,b,role, prefix,b,role,prefix,b,role,prefix,b,role,
-        prefix,b,role,prefix,b,role,prefix,b,role, prefix,b,role,value, prefix,b,role,prefix,b,role,
-        prefix,b,role,prefix,b,role, prefix,b,role,prefix,b,role, prefix,b,role,prefix,b,role,prefix,b,role,
-        prefix,b,role,prefix,b,role,prefix,b,role, prefix,b,role,prefix,b,role, prefix,b,role,prefix,b,role);
-    if (dynamic) fprintf(f, "  br label %%str_dynamic_ready%s%u_%zu\nstr_dynamic_ready%s%u_%zu:\n", prefix,b,role,prefix,b,role);
+        "  %%strtag%s = icmp eq i32 %%k%u, 4\n"
+        "  %%strnonzero%s = icmp ne i64 %%v%u, 0\n"
+        "  %%stralign%s = and i64 %%v%u, 7\n"
+        "  %%straligned%s = icmp eq i64 %%stralign%s, 0\n"
+        "  %%straddress%s = and i1 %%strnonzero%s, %%straligned%s\n"
+        "  %%strvalid%s = and i1 %%strtag%s, %%straddress%s\n"
+        "  br i1 %%strvalid%s, label %%strborrow%s, label %%invalid\nstrborrow%s:\n"
+        "  %%strptr%s = inttoptr i64 %%v%u to ptr\n"
+        "  %%strkind%s = load i32, ptr %%strptr%s, align 8\n"
+        "  %%strstatic%s = icmp eq i32 %%strkind%s, 1\n"
+        "  %%strowned%s = icmp eq i32 %%strkind%s, 2\n"
+        "  %%strtext%s = or i1 %%strstatic%s, %%strowned%s\n"
+        "  br i1 %%strtext%s, label %%struse%s, label %%invalid\nstruse%s:\n"
+        "  %%strview%s = load %%nyrt.string.operand, ptr %%strptr%s, align 8\n"
+        "  store %%nyrt.string.operand %%strview%s, ptr %%strarg%s, align 8\n",
+        name,value, name,value, name,value, name,name,
+        name,name,name, name,name,name,
+        name,name,name, name,value, name,name,
+        name,name, name,name, name,name,name,
+        name,name,name, name,name, name,name);
+    if (dynamic) fprintf(f, "  br label %%str_dynamic_ready%s\nstr_dynamic_ready%s:\n", name,name);
     return;
   }
-  fprintf(f, "  %%str%s%u_%zu_0 = insertvalue %%nyrt.string.operand zeroinitializer, i32 %d, 0\n",
-      prefix,b, role, text ? 1 : owned ? 2 : 3);
+  fprintf(f, "  %%str%s_0 = insertvalue %%nyrt.string.operand zeroinitializer, i32 %d, 0\n",
+      name, text ? 1 : owned ? 2 : 3);
   if (text) {
     size_t len = yyjson_get_len(yyjson_obj_get(operand, "utf8"));
     fprintf(f,
-        "  %%str%s%u_%zu_1 = insertvalue %%nyrt.string.operand %%str%s%u_%zu_0, ptr @str_%zu_%s%u_%zu, 2\n"
-        "  %%str%s%u_%zu_2 = insertvalue %%nyrt.string.operand %%str%s%u_%zu_1, i64 %zu, 3\n",
-        prefix,b,role,prefix,b,role,fi,prefix,b,role,prefix,b,role,prefix,b,role,len);
+        "  %%str%s_1 = insertvalue %%nyrt.string.operand %%str%s_0, ptr @%s, 2\n"
+        "  %%str%s_2 = insertvalue %%nyrt.string.operand %%str%s_1, i64 %zu, 3\n",
+        name,name,literal,name,name,len);
   } else if (owned) {
     fprintf(f,
-        "  %%str%s%u_%zu_1 = insertvalue %%nyrt.string.operand %%str%s%u_%zu_0, i64 %%v%u, 4\n"
-        "  %%str%s%u_%zu_2 = insertvalue %%nyrt.string.operand %%str%s%u_%zu_1, i64 %%t%u, 5\n",
-        prefix,b,role,prefix,b,role,value,prefix,b,role,prefix,b,role,value);
+        "  %%str%s_1 = insertvalue %%nyrt.string.operand %%str%s_0, i64 %%v%u, 4\n"
+        "  %%str%s_2 = insertvalue %%nyrt.string.operand %%str%s_1, i64 %%t%u, 5\n",
+        name,name,value,name,name,value);
   } else {
     fprintf(f,
-        "  %%str%s%u_%zu_2 = insertvalue %%nyrt.string.operand %%str%s%u_%zu_0, i64 %%v%u, 6\n",
-        prefix,b,role,prefix,b,role,value);
+        "  %%str%s_2 = insertvalue %%nyrt.string.operand %%str%s_0, i64 %%v%u, 6\n",
+        name,name,value);
   }
-  fprintf(f, "  store %%nyrt.string.operand %%str%s%u_%zu_2, ptr %%strarg%s%u_%zu, align 8\n", prefix,b,role,prefix,b,role);
+  fprintf(f, "  store %%nyrt.string.operand %%str%s_2, ptr %%strarg%s, align 8\n", name,name);
 }
 static void lv4_string_operand_emit(FILE* f, yyjson_val* operand,
     size_t fi, uint32_t b, unsigned role) {
-  lv4_string_operand_named_emit(f, operand, fi, "", b, role);
+  char name[64], literal[96];
+  snprintf(name, sizeof(name), "%u_%u", b, role);
+  snprintf(literal, sizeof(literal), "str_%zu_%u_%u", fi, b, role);
+  lv4_string_operand_storage_emit(f, operand, name, literal);
 }
 
-/* Normal Text reads allocate storage only in the function prologue. */
-static void lv4_string_length_alloca(FILE* f, size_t fi, uint32_t b, size_t row) {
-  fprintf(f, "  %%strargrow%zu_%u_%zu = alloca %%nyrt.string.operand, align 8\n"
-      "  %%strlen_out%zu_%u_%zu = alloca i64, align 8\n", fi,b,row,fi,b,row);
+/* Normal Text reads share row machinery; storage stays in the prologue. */
+static void lv4_string_read_alloca(FILE* f, yyjson_val* ins, size_t fi, uint32_t b, size_t row) {
+  for (size_t role = 0; role < hako_physical_text_read_arity(ins); role++)
+    fprintf(f, "  %%strargrow%zu_%u_%zu_%zu = alloca %%nyrt.string.operand, align 8\n", fi,b,row,role);
+  fprintf(f, "  %%strread_out%zu_%u_%zu = alloca i64, align 8\n", fi,b,row);
 }
-static void lv4_string_length_emit(FILE* f, yyjson_val* ins, size_t fi,
-    uint32_t b, size_t row) {
-  char prefix[64];
-  snprintf(prefix, sizeof(prefix), "row%zu_", fi);
-  lv4_string_operand_named_emit(f, yyjson_obj_get(ins, "value"), fi, prefix, b, row);
+static void lv4_string_read_emit(FILE* f, yyjson_val* ins, size_t fi, uint32_t b, size_t row) {
+  static const char* const operands[] = {"value", "needle"};
+  size_t arity = hako_physical_text_read_arity(ins);
+  for (size_t role = 0; role < arity; role++) {
+    char name[96], literal[128];
+    snprintf(name, sizeof(name), "row%zu_%u_%zu_%zu", fi,b,row,role);
+    snprintf(literal, sizeof(literal), "str_%zu_%s", fi,name);
+    lv4_string_operand_storage_emit(f, yyjson_obj_get(ins, operands[role]), name, literal);
+  }
+  fprintf(f, "  %%strread_status%zu_%u_%zu = call i32 @\"nyash.string.%s_v1\"(",
+      fi,b,row, arity == 1 ? "code_point_count" : "code_point_index_of");
+  for (size_t role = 0; role < arity; role++)
+    fprintf(f, "ptr %%strargrow%zu_%u_%zu_%zu, ", fi,b,row,role);
   fprintf(f,
-      "  %%strlen_status%zu_%u_%zu = call i32 @\"nyash.string.code_point_count_v1\"(ptr %%strargrow%zu_%u_%zu, ptr %%strlen_out%zu_%u_%zu)\n"
-      "  %%strlen_ok%zu_%u_%zu = icmp eq i32 %%strlen_status%zu_%u_%zu, 0\n"
-      "  br i1 %%strlen_ok%zu_%u_%zu, label %%strlen_ready%zu_%u_%zu, label %%invalid\n"
-      "strlen_ready%zu_%u_%zu:\n"
-      "  %%v%u = load i64, ptr %%strlen_out%zu_%u_%zu, align 8\n",
-      fi,b,row,fi,b,row,fi,b,row, fi,b,row,fi,b,row,
-      fi,b,row,fi,b,row, fi,b,row, lv4_u(ins, "dst"),fi,b,row);
+      "ptr %%strread_out%zu_%u_%zu)\n"
+      "  %%strread_ok%zu_%u_%zu = icmp eq i32 %%strread_status%zu_%u_%zu, 0\n"
+      "  br i1 %%strread_ok%zu_%u_%zu, label %%strread_ready%zu_%u_%zu, label %%invalid\n"
+      "strread_ready%zu_%u_%zu:\n"
+      "  %%v%u = load i64, ptr %%strread_out%zu_%u_%zu, align 8\n",
+      fi,b,row, fi,b,row,fi,b,row, fi,b,row,fi,b,row, fi,b,row, lv4_u(ins,"dst"),fi,b,row);
 }
 static void lv4_string_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op, size_t fi, uint32_t b,
     const char* normal, const char* fault) {

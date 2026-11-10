@@ -521,30 +521,26 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             }
             Node::MethodCall if frame.cores().contains_key(&index) => {
                 let operation = match crate::mir::normal_callable_semantic_package::checked_expression_core_operation_v1(&frame.cores()[&index], &values)? {
-                    std::ops::ControlFlow::Continue((law, receiver)) => {
-                        use crate::mir::core_method_result_kind::CoreMethodSemanticLawV2 as Law;
+                    std::ops::ControlFlow::Continue(read) => {
                         let dst = builder.next_value_id();
                         let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
-                        match (law, receiver) {
-                            (Law::ArrayCount, Operand::NormalInteger(receiver)) => {
-                                let recipe = ledger.field_array_read_recipe_v1(owner, &site)?
-                                    .ok_or_else(|| freeze("expression-core/source-identity"))?;
-                                if frame.cores()[&index].field_array_access_v1().is_none_or(|source|
-                                    source.as_ref() != recipe.source().as_ref()) {
-                                    return Err(freeze("expression-core/source-identity"));
-                                }
-                                let operation = crate::mir::instruction::ArrayReadOperationV1::Count;
-                                let site_id = builder.emit_checked_field_array_read_v1(&recipe, receiver, operation, dst)?;
-                                state.record_field_array_read_v1(recipe, site_id, receiver, operation, dst)?;
-                                bindings.push((block, MirInstruction::ArrayRead { site_id, dst: Some(dst), receiver, operation }));
+                        if let Some(receiver) = read.array_receiver_v1() {
+                            let recipe = ledger.field_array_read_recipe_v1(owner, &site)?
+                                .ok_or_else(|| freeze("expression-core/source-identity"))?;
+                            if frame.cores()[&index].field_array_access_v1().is_none_or(|source|
+                                source.as_ref() != recipe.source().as_ref()) {
+                                return Err(freeze("expression-core/source-identity"));
                             }
-                            (Law::CodePointCount, value) => {
-                                let instruction = MirInstruction::StringLength { dst, value };
-                                builder.emit_instruction(instruction.clone())?;
-                                builder.function_state.type_ctx.value_types.insert(dst, MirType::Integer);
-                                bindings.push((block, instruction));
-                            }
-                            _ => return Err(freeze("expression-core/operation-domain")),
+                            let operation = crate::mir::instruction::ArrayReadOperationV1::Count;
+                            let site_id = builder.emit_checked_field_array_read_v1(&recipe, receiver, operation, dst)?;
+                            state.record_field_array_read_v1(recipe, site_id, receiver, operation, dst)?;
+                            bindings.push((block, MirInstruction::ArrayRead { site_id, dst: Some(dst), receiver, operation }));
+                        } else {
+                            let instruction = read.text_instruction_v1(dst)
+                                .ok_or_else(|| freeze("expression-core/operation-domain"))?;
+                            builder.emit_instruction(instruction.clone())?;
+                            builder.function_state.type_ctx.value_types.insert(dst, MirType::Integer);
+                            bindings.push((block, instruction));
                         }
                         values[index] = Some(Operand::NormalInteger(dst).into());
                         state.complete_expression_core_source_v1(&frame.cores()[&index])?;
