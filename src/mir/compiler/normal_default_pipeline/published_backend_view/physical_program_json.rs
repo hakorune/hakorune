@@ -389,6 +389,10 @@ fn encode_instruction(
         MirInstruction::StringIndexOf { dst, value: operand, needle } => {
             json!({"op": "string_index_of", "dst": value(dst), "value": operand, "needle": needle})
         }
+        MirInstruction::StringCompare { dst, op, left, right } => {
+            json!({"op":"string_compare", "dst":value(dst),
+                "comparison":operation::encode_text_comparison_v1(*op), "left":left, "right":right})
+        }
         MirInstruction::StringResidenceInstall { value: installed, replaces, returning } => {
             let input = abi_input.ok_or_else(|| fault("string-residence-input-missing"))?;
             let (_, caller, _) = call_context.ok_or_else(|| fault("string-residence-caller-missing"))?;

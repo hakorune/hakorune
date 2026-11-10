@@ -1,7 +1,12 @@
 /* Normal Text read arity is an ISA query, never source-law permission. */
 static size_t hako_physical_text_read_arity(yyjson_val* row) {
-  const char* op = row ? yyjson_get_str(yyjson_obj_get(row, "op")) : NULL;
-  return !op ? 0 : !strcmp(op, "string_length") ? 1 : !strcmp(op, "string_index_of") ? 2 : 0;
+  yyjson_val* op = row ? yyjson_obj_get(row, "op") : NULL;
+  return hako_physical_string(op, "string_length") ? 1 :
+      hako_physical_string(op, "string_index_of") || hako_physical_string(op, "string_compare") ? 2 : 0;
+}
+static yyjson_val* hako_physical_text_read_operand(yyjson_val* row, size_t role) {
+  int comparison = hako_physical_string(yyjson_obj_get(row, "op"), "string_compare");
+  return yyjson_obj_get(row, comparison ? (role ? "right" : "left") : (role ? "needle" : "value"));
 }
 
 /* Operation and instruction schema within the existing physical-v2 owner. */
@@ -680,12 +685,14 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
   }
   if (hako_physical_text_read_arity(instruction)) {
     static const char* const keys[] = {"op", "dst", "value", "needle"};
-    static const char* const operands[] = {"value", "needle"};
+    static const char* const compare_keys[] = {"op", "dst", "comparison", "left", "right"};
+    int comparison = hako_physical_string(yyjson_obj_get(instruction, "op"), "string_compare");
     size_t arity = hako_physical_text_read_arity(instruction);
-    if (!hako_physical_exact_keys(instruction, keys, 2 + arity) ||
+    if (!hako_physical_exact_keys(instruction, comparison ? compare_keys : keys, comparison ? 5 : 2 + arity) ||
+        (comparison && hako_physical_string_comparison(instruction) < 0) ||
         !hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a)) return 0;
     for (size_t i = 0; i < arity; i++)
-      if (!hako_physical_string_operand(function, yyjson_obj_get(instruction, operands[i]),
+      if (!hako_physical_string_operand(function, hako_physical_text_read_operand(instruction, i),
           current_block, current_index, 1, 0, 0)) return 0;
     return 1;
   }

@@ -364,6 +364,12 @@ fn checked_string_transport_preserves_bytes_operand_roles_and_sites() {
             right: Operand::StaticText { utf8: "界".into() } }),
             json!({"kind":"string_compare", "site":42, "comparison":comparison,
                 "left":{"kind":"owned_string", "value":9}, "right":{"kind":"static_text", "utf8":"界"}}));
+        let row = MirInstruction::StringCompare { dst: ValueId(12), op,
+            left: Operand::OwnedString(ValueId(9)), right: Operand::StaticText { utf8:"界".into() } };
+        assert_eq!(encode_instruction(None, &row, &BTreeMap::new(), 0, None, None,
+            &BTreeMap::new(), None).unwrap(), json!({"op":"string_compare", "dst":12,
+                "comparison":comparison, "left":{"kind":"owned_string", "value":9},
+                "right":{"kind":"static_text", "utf8":"界"}}));
     }
     let row = MirInstruction::StringLength { dst: ValueId(10), value: Operand::OwnedString(ValueId(9)) };
     assert_eq!(encode_instruction(None, &row, &BTreeMap::new(), 0, None, None,

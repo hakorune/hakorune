@@ -173,11 +173,10 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
           !value || (value->kind != LV4_I64 && !(value->kind == LV4_TAGGED && !lv4_borrowed_text_formal(fn, value)))) return 0;
     } else if (hako_physical_text_read_arity(ins)) {
       /* Both operands borrow at this row; no state or ownership transfer. */
-      static const char* const operands[] = {"value", "needle"};
       if (faulted || lv4_string_pending(state, lv4_state_count(fn)) ||
           lv4_string_held(state, lv4_state_count(fn)) || lv4_string_call_pending(state, lv4_state_count(fn))) return 0;
       for (size_t i = 0; i < hako_physical_text_read_arity(ins); i++)
-        if (!lv4_string_indexed_operand(fn, yyjson_obj_get(ins, operands[i]), state)) return 0;
+        if (!lv4_string_indexed_operand(fn, hako_physical_text_read_operand(ins, i), state)) return 0;
     } else if (lv4_is(ins, "op", "array_length")) {
       hako_lv4_value* array = lv4_index_value(fn, lv4_u(ins, "array"));
       hako_lv4_value* snapshot = array ? lv4_map_keys_root(fn, array->id) : NULL;

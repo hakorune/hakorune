@@ -19,6 +19,7 @@ static void lv4_string_globals(FILE* f, const hako_lv4_input* in) {
       "declare i32 @\"nyash.string.checked_compare_v1\"(ptr, i64, i32, ptr, ptr, ptr)\n"
       "declare i32 @\"nyash.string.code_point_count_v1\"(ptr, ptr)\n"
       "declare i32 @\"nyash.string.code_point_index_of_v1\"(ptr, ptr, ptr)\n"
+      "declare i32 @\"nyash.string.compare_text_v1\"(i32, ptr, ptr, ptr)\n"
       "declare i32 @\"nyash.string.checked_materialize_v1\"(ptr, i64, ptr, ptr)\n"
       "declare i32 @\"nyash.string.checked_substring_operands_v1\"(ptr, i64, ptr, ptr, ptr, ptr)\n");
   for (size_t fi = 0; fi < yyjson_arr_size(in->functions); fi++) {
@@ -33,9 +34,8 @@ static void lv4_string_globals(FILE* f, const hako_lv4_input* in) {
           snprintf(name, sizeof(name), "ctext_%zu_%u", fi, lv4_u(ins, "dst"));
           lv4_string_literal_global(f, name, yyjson_obj_get(ins, "value"));
         } else if (hako_physical_text_read_arity(ins)) {
-          static const char* const operands[] = {"value", "needle"};
           for (size_t role = 0; role < hako_physical_text_read_arity(ins); role++) {
-            yyjson_val* operand = yyjson_obj_get(ins, operands[role]);
+            yyjson_val* operand = hako_physical_text_read_operand(ins, role);
             if (lv4_is(operand, "kind", "static_text")) {
               snprintf(name, sizeof(name), "str_%zu_row%zu_%u_%zu_%zu", fi, fi, lv4_u(block, "id"), ri, role);
               lv4_string_literal_global(f, name, yyjson_obj_get(operand, "utf8"));
@@ -205,16 +205,19 @@ static void lv4_string_read_alloca(FILE* f, yyjson_val* ins, size_t fi, uint32_t
   fprintf(f, "  %%strread_out%zu_%u_%zu = alloca i64, align 8\n", fi,b,row);
 }
 static void lv4_string_read_emit(FILE* f, yyjson_val* ins, size_t fi, uint32_t b, size_t row) {
-  static const char* const operands[] = {"value", "needle"};
   size_t arity = hako_physical_text_read_arity(ins);
   for (size_t role = 0; role < arity; role++) {
     char name[96], literal[128];
     snprintf(name, sizeof(name), "row%zu_%u_%zu_%zu", fi,b,row,role);
     snprintf(literal, sizeof(literal), "str_%zu_%s", fi,name);
-    lv4_string_operand_storage_emit(f, yyjson_obj_get(ins, operands[role]), name, literal);
+    lv4_string_operand_storage_emit(f, hako_physical_text_read_operand(ins, role), name, literal);
   }
-  fprintf(f, "  %%strread_status%zu_%u_%zu = call i32 @\"nyash.string.%s_v1\"(",
-      fi,b,row, arity == 1 ? "code_point_count" : "code_point_index_of");
+  const char* leaf = lv4_is(ins, "op", "string_length") ? "code_point_count" :
+      lv4_is(ins, "op", "string_index_of") ? "code_point_index_of" :
+      lv4_is(ins, "op", "string_compare") ? "compare_text" : NULL;
+  if (!leaf) { fprintf(f, "  br label %%invalid\n"); return; }
+  fprintf(f, "  %%strread_status%zu_%u_%zu = call i32 @\"nyash.string.%s_v1\"(", fi,b,row,leaf);
+  if (lv4_is(ins, "op", "string_compare")) fprintf(f, "i32 %d, ", hako_physical_string_comparison(ins));
   for (size_t role = 0; role < arity; role++)
     fprintf(f, "ptr %%strargrow%zu_%u_%zu_%zu, ", fi,b,row,role);
   fprintf(f,

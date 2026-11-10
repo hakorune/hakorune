@@ -386,6 +386,23 @@ remain separate. Removing the search Fault edge can remove its exclusive
 cleanup copy; executable Normal and remaining concatenation/call Fault paths
 retain their original acquisition, transfer and End responsibility and order.
 
+String comparison transport (2026-11-10) adds the normal v2 row
+`{"op":"string_compare","dst":D,"comparison":"eq|ne|lt|le|gt|ge","left":T,"right":T}`.
+It has exactly these five keys. Both inputs use the same four Text
+representations and positional validation as the other normal reads. Its Bool
+result uses the existing i64 0/1 representation; Copy and PHI preserve that kind.
+It has no frame, site, ownership transition or Normal/Fault successor.
+
+The leaf is `nyash.string.compare_text_v1(uint32_t op,
+const NyrtStringOperandV1*, const NyrtStringOperandV1*, int64_t*) -> uint32_t`.
+Opcodes 0 through 5 mean eq, ne, lt, le, gt, ge respectively. It compares Unicode
+scalar sequences without normalization or locale, borrowing both inputs through
+the shared Text helper. Status 0 writes Bool; status 2 leaves output untouched;
+it never returns 1. C selects this export by row op, not operand count, and
+shares descriptor/output prologue slots and invalid-exit handling with search.
+The checked Invoke operation `kind:string_compare` and its checked export stay
+separate for mixed/null contracts; normal-row keys are not valid operation keys.
+
 Scalar PHIs may carry I64 or BOOL only. Their leading group uses the existing
 physical predecessor/value relations; no resource provenance is merged. Kind
 equality components must have one consistent defining kind, independent of

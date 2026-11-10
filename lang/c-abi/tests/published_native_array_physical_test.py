@@ -401,68 +401,134 @@ def checked_string_physical():
             compile_input(bad, False)
         # Independent Bool consumers: exact Unicode scalar order and proper
         # prefixes, both Normal outcomes, live paired borrows and Fault cleanup.
-        for comparison, predicate in [
-            ("eq", lambda a,b: a == b), ("ne", lambda a,b: a != b),
-            ("lt", lambda a,b: a < b), ("le", lambda a,b: a <= b),
-            ("gt", lambda a,b: a > b), ("ge", lambda a,b: a >= b),
-        ]:
-            pairs = ([("é", "é"), ("é", "e\u0301")] if comparison in ["eq", "ne"] else
-                     [("\ue000", "\U00010000"), ("\U00010000", "\ue000")] if comparison == "lt" else
-                     [("a", "aa"), ("aa", "a")] if comparison == "le" else
-                     [("a\0z", "a\0y"), ("a\0y", "a\0z")])
-            for case, (left, right) in enumerate(pairs):
-                expected = predicate(left, right)
-                compare_rows = [
-                    block(0, inv("string_add",1,90,left=literal(left),right=literal("")),
-                          [entry[0], {"op":"const_i64","dst":4,"value":0}, {"op":"const_i64","dst":5,"value":1}]),
-                    block(1, inv("string_compare",2,10,comparison=comparison,left=owned(2) if not case else literal(left),right=literal(right)), [projection(0,2)]),
-                    block(2, {"op":"branch","condition":3,"then":3 if expected else 4,"else":4 if expected else 3,
-                              "then_args":None,"else_args":None}, [projection(1,3)]),
-                    block(3, end(2,5,90)), block(4, end(2,6,90)),
-                    block(5, {"op":"return","value":4}), block(6, {"op":"return","value":5}),
-                    block(10, end(2,90,91)), block(90,fault), block(91,fault),
-                ]
-                for b in list(compare_rows):
-                    term = b["terminator"]["instruction"]
-                    if term["op"] == "invoke" and term["operation"]["kind"] == "string_end":
-                        target = term["normal"]; landing = 1000+b["id"]; term["normal"] = landing
-                        b["edges"][0]["target"] = landing
-                        compare_rows.append(block(landing,{"op":"jump","target":target,"args":None}))
-                for i,b in enumerate(compare_rows):
-                    if b["terminator"]["instruction"]["op"] == "invoke": b["terminator"]["instruction"]["operation"]["site"] = 300+i
-                compared = copy.deepcopy(data); compared["functions"][0]["blocks"] = compare_rows
-                execute(compared, endings=[0])
-            if comparison == "eq":
-                for text_operands in ["static_owned", "same_owned"]:
-                    variant = copy.deepcopy(compared)
-                    operation = first(variant,"string_compare")["operation"]
-                    operation["left"] = literal(left) if text_operands == "static_owned" else owned(2)
-                    operation["right"] = owned(2)
-                    branch = next(b for b in variant["functions"][0]["blocks"] if b["id"] == 2)
-                    branch["terminator"]["instruction"].update(then=3, **{"else":4})
-                    branch["edges"] = [{"target":3,"args":None},{"target":4,"args":None}]
-                    execute(variant, endings=[0])
-            if comparison != "lt": continue
-            execute(compared, ["-DTEST_FAIL_STRING_COMPARE"], 70, [0], primary=9306)
-            for mutation in ["unknown", "nul_suffix", "numeric", "missing", "extra", "integer_condition", "integer_left", "integer_right", "bool_as_text", "bool_as_i64"]:
-                bad = copy.deepcopy(compared); operation = first(bad,"string_compare")["operation"]
-                if mutation == "unknown": operation["comparison"] = "slt"
-                elif mutation == "nul_suffix": operation["comparison"] = "lt\0suffix"
-                elif mutation == "numeric": operation["comparison"] = 2
-                elif mutation == "integer_condition":
-                    next(b for b in bad["functions"][0]["blocks"] if b["id"] == 2)["terminator"]["instruction"]["condition"] = 4
-                elif mutation == "missing": del operation["comparison"]
-                elif mutation == "extra": operation["extra"] = 0
-                elif mutation in ["integer_left","integer_right"]:
-                    operation[mutation[8:]] = {"kind":"normal_integer","value":4}
-                else:
-                    normal = next(b for b in bad["functions"][0]["blocks"] if b["id"] == 2)
-                    branch = normal["terminator"]["instruction"]
-                    term = inv("string_print",1002,10,value={"kind":"owned_string" if mutation == "bool_as_text" else "normal_integer","value":3}); term["operation"]["site"] = 999
-                    normal["terminator"]["instruction"] = term
-                    normal["edges"] = [{"target":1002,"args":None},{"target":10,"args":None}]
-                    bad["functions"][0]["blocks"].append(block(1002,branch))
-                compile_input(bad,False)
+        for normal_read in [False, True]:
+            for comparison, predicate in [
+                ("eq", lambda a,b: a == b), ("ne", lambda a,b: a != b),
+                ("lt", lambda a,b: a < b), ("le", lambda a,b: a <= b),
+                ("gt", lambda a,b: a > b), ("ge", lambda a,b: a >= b),
+            ]:
+                compare_operation = lambda document: (next(r for r in instructions(document) if r["op"] == "string_compare")
+                    if normal_read else first(document, "string_compare")["operation"])
+                pairs = ([("é", "é"), ("é", "e\u0301")] if comparison in ["eq", "ne"] else
+                         [("\ue000", "\U00010000"), ("\U00010000", "\ue000")] if comparison == "lt" else
+                         [("a", "aa"), ("aa", "a")] if comparison == "le" else
+                         [("a\0z", "a\0y"), ("a\0y", "a\0z")])
+                for case, (left, right) in enumerate(pairs):
+                    expected = predicate(left, right)
+                    compare_rows = [
+                        block(0, inv("string_add",1,90,left=literal(left),right=literal("")),
+                              [entry[0], {"op":"const_i64","dst":4,"value":0}, {"op":"const_i64","dst":5,"value":1}]),
+                        block(1, inv("string_compare",2,10,comparison=comparison,left=owned(2) if not case else literal(left),right=literal(right)), [projection(0,2)]),
+                        block(2, {"op":"branch","condition":3,"then":3 if expected else 4,"else":4 if expected else 3,
+                                  "then_args":None,"else_args":None}, [projection(1,3)]),
+                        block(3, end(2,5,90)), block(4, end(2,6,90)),
+                        block(5, {"op":"return","value":4}), block(6, {"op":"return","value":5}),
+                        block(10, end(2,90,91)), block(90,fault), block(91,fault),
+                    ]
+                    for b in list(compare_rows):
+                        term = b["terminator"]["instruction"]
+                        if term["op"] == "invoke" and term["operation"]["kind"] == "string_end":
+                            target = term["normal"]; landing = 1000+b["id"]; term["normal"] = landing
+                            b["edges"][0]["target"] = landing
+                            compare_rows.append(block(landing,{"op":"jump","target":target,"args":None}))
+                    for i,b in enumerate(compare_rows):
+                        if b["terminator"]["instruction"]["op"] == "invoke": b["terminator"]["instruction"]["operation"]["site"] = 300+i
+                    compared = copy.deepcopy(data); compared["functions"][0]["blocks"] = compare_rows
+                    if normal_read:
+                        read_block = next(b for b in compared["functions"][0]["blocks"] if b["id"] == 1)
+                        operation = read_block["terminator"]["instruction"]["operation"]
+                        read_block.update(block(1, {"op":"jump","target":2,"args":None}, [projection(0,2),
+                            {"op":"string_compare","dst":3,"comparison":operation["comparison"],
+                             "left":operation["left"],"right":operation["right"]}]))
+                        landing = next(b for b in compared["functions"][0]["blocks"] if b["id"] == 2)
+                        landing["instructions"] = []; landing["terminator"]["index"] = 0
+                        compared["functions"][0]["blocks"] = [b for b in compared["functions"][0]["blocks"] if b["id"] not in [10,1010,91]]
+                    execute(compared, endings=[0])
+                if comparison == "eq":
+                    for text_operands in ["static_owned", "same_owned"]:
+                        variant = copy.deepcopy(compared)
+                        operation = compare_operation(variant)
+                        operation["left"] = literal(left) if text_operands == "static_owned" else owned(2)
+                        operation["right"] = owned(2)
+                        branch = next(b for b in variant["functions"][0]["blocks"] if b["id"] == 2)
+                        branch["terminator"]["instruction"].update(then=3, **{"else":4})
+                        branch["edges"] = [{"target":3,"args":None},{"target":4,"args":None}]
+                        execute(variant, endings=[0])
+                if comparison != "lt": continue
+                if not normal_read: execute(compared, ["-DTEST_FAIL_STRING_COMPARE"], 70, [0], primary=9306)
+                for mutation in ["unknown", "nul_suffix", "numeric", "missing", "extra", "integer_condition", "integer_left", "integer_right", "bool_as_text", "bool_as_i64", "cross_op", "cross_dst"]:
+                    bad = copy.deepcopy(compared); operation = compare_operation(bad)
+                    if mutation == "unknown": operation["comparison"] = "slt"
+                    elif mutation == "nul_suffix": operation["comparison"] = "lt\0suffix"
+                    elif mutation == "numeric": operation["comparison"] = 2
+                    elif mutation == "integer_condition":
+                        next(b for b in bad["functions"][0]["blocks"] if b["id"] == 2)["terminator"]["instruction"]["condition"] = 4
+                    elif mutation == "missing": del operation["comparison"]
+                    elif mutation == "extra": operation["extra"] = 0
+                    elif mutation == "cross_op": operation["kind" if normal_read else "op"] = "string_compare"
+                    elif mutation == "cross_dst": operation["site" if normal_read else "dst"] = 3
+                    elif mutation in ["integer_left","integer_right"]:
+                        operation[mutation[8:]] = {"kind":"normal_integer","value":4}
+                    else:
+                        normal = next(b for b in bad["functions"][0]["blocks"] if b["id"] == 2)
+                        branch = normal["terminator"]["instruction"]
+                        term = inv("string_print",1002,90 if normal_read else 10,value={"kind":"owned_string" if mutation == "bool_as_text" else "normal_integer","value":3}); term["operation"]["site"] = 999
+                        normal["terminator"]["instruction"] = term
+                        normal["edges"] = [{"target":1002,"args":None},{"target":90 if normal_read else 10,"args":None}]
+                        bad["functions"][0]["blocks"].append(block(1002,branch))
+                    compile_input(bad,False)
+                if normal_read:
+                    for side in ["left", "right"]:
+                        for mutation in ["normal_integer", "normal_bool", "tagged_dynamic", "dynamic_carrier", "borrowed_text", "text_operand", "ended", "before_definition"]:
+                            bad = copy.deepcopy(compared); operation = compare_operation(bad)
+                            if mutation in ["ended", "before_definition"]:
+                                operation = copy.deepcopy(operation); operation["dst"] = 70; operation[side] = owned(2)
+                                target = next(b for b in bad["functions"][0]["blocks"] if b["id"] == (1003 if mutation == "ended" else 1))
+                                target["instructions"].insert(0, {"index":0,"instruction":operation})
+                                for index, row in enumerate(target["instructions"]): row["index"] = index
+                                target["terminator"]["index"] = len(target["instructions"])
+                            else: operation[side] = {"kind":mutation,"value":4}
+                            compile_input(bad, False)
+                    for key in ["frame", "normal", "fault"]:
+                        bad = copy.deepcopy(compared); compare_operation(bad)[key] = 0; compile_input(bad, False)
+                    faulted = copy.deepcopy(compared)
+                    target = next(b for b in faulted["functions"][0]["blocks"] if b["id"] == 90)
+                    target["instructions"] = [{"index":0,"instruction":{"op":"string_compare","dst":70,
+                        "comparison":"eq","left":literal("a"),"right":literal("a")}}]
+                    target["terminator"]["index"] = 1
+                    compile_input(faulted, False)
+                    if not native:
+                        # The scalar Bool survives End and crosses a real metadata-free PHI.
+                        phi = copy.deepcopy(compared); blocks = phi["functions"][0]["blocks"]
+                        first_block = next(b for b in blocks if b["id"] == 0)
+                        first_block["instructions"].append({"index":len(first_block["instructions"]),
+                            "instruction":{"op":"const_bool","dst":8,"value":True}})
+                        first_block["terminator"]["index"] = len(first_block["instructions"])
+                        for ident in [5,6]: next(b for b in blocks if b["id"] == ident).update(block(ident,{"op":"jump","target":7,"args":None}))
+                        # Bool Print is not a supported runtime consumer yet; use
+                        # Branch to observe the PHI without adding display semantics.
+                        term = {"op":"branch","condition":44,"then":8,"else":9,"then_args":None,"else_args":None}
+                        blocks.extend([block(7,term,[{"op":"phi","dst":44,"inputs":[{"block":5,"value":3},{"block":6,"value":8}]}]),
+                            block(8,{"op":"return","value":5}),block(9,{"op":"return","value":4})])
+                        execute(phi, endings=[0])
+                        mismatch = copy.deepcopy(phi)
+                        next(r for r in instructions(mismatch) if r["op"] == "phi")["inputs"][1]["value"] = 4
+                        compile_input(mismatch, False)
+                        # Ordinary Bool ABI from a borrowed Text formal, repeated twice.
+                        borrowed = copy.deepcopy(compared); blocks = borrowed["functions"][0]["blocks"]
+                        next(b for b in blocks if b["id"] == 1).update(block(1,{"op":"invoke","fault_frame":0,"normal":2,"fault":10,
+                            "operation":{"kind":"ordinary_call","result":"bool","call":{"target":1,"dst":None,
+                                "args":[{"kind":"borrowed_text","operand":owned(2)}]}}},[projection(0,2)]))
+                        landing = next(b for b in blocks if b["id"] == 2)
+                        landing["instructions"] = [{"index":0,"instruction":projection(1,3)}];landing["terminator"]["index"] = 1
+                        landing["terminator"]["instruction"].update(then=3, **{"else":4});landing["edges"] = [{"target":3,"args":None},{"target":4,"args":None}]
+                        cleanup = end(2,1010,91);cleanup["operation"]["site"] = 998
+                        blocks.extend([block(10,cleanup),block(1010,{"op":"jump","target":90,"args":None}),block(91,fault)])
+                        borrowed["functions"].append({"name":"compare_borrowed","role":"ordinary_bool","receiver":None,"receiver_object":None,
+                            "params":[{"value":1,"representation":"borrowed_kind_payload_v1","object_view":None,"text_view":True}],"entry":0,
+                            "blocks":[block(0,{"op":"return","value":2},[{"op":"string_compare","dst":2,"comparison":"eq",
+                                "left":{"kind":"borrowed_text","value":1},"right":{"kind":"borrowed_text","value":1}}])]})
+                        execute(borrowed, endings=[0])
     print("checked String: indexed/native real ABI, literal NUL, MIN Integer, Normal/Fault LIFO End and malformed input refusal")
 
 

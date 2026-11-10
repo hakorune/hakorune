@@ -207,7 +207,8 @@ static int lv4_index_seed(const hako_lv4_input* in,
   if (value->seed_state == 1) return 0;
   value->seed_state = 1;
   if (value->kind != LV4_BAD) { value->seed_state = 2; return 1; }
-  if (lv4_is(ins, "op", "const_i64") || lv4_is(ins, "op", "add") ||
+  if (lv4_is(ins, "op", "string_compare")) value->kind = LV4_BOOL;
+  else if (lv4_is(ins, "op", "const_i64") || lv4_is(ins, "op", "add") ||
       lv4_is(ins, "op", "mul") || lv4_is(ins, "op", "sub") ||
       lv4_is(ins, "op", "div") || lv4_is(ins, "op", "mod") ||
       lv4_is(ins, "op", "array_get") || lv4_is(ins, "op", "array_length") || hako_physical_text_read_arity(ins))
@@ -405,7 +406,7 @@ static int lv4_body_readonly(hako_lv4_function_index* fn, int closed) {
   if (!lv4_is(fn->function, "role", "ordinary_i64") &&
       !(lv4_is(fn->function, "role", "ordinary_borrowed_nullable_handle") &&
         yyjson_is_true(yyjson_obj_get(fn->function, "result_read")))) return 0;
-  static const char* const pure[] = {"string_length", "string_index_of", "const_i64", "const_bool", "const_null", "const_unit", "copy", "phi",
+  static const char* const pure[] = {"string_length", "string_index_of", "string_compare", "const_i64", "const_bool", "const_null", "const_unit", "copy", "phi",
       "add", "sub", "mul", "div", "mod", "compare", "borrowed_null_compare",
       "object_field_get", "invoke_normal_result", "fault_frame_enter", "keep_alive"};
   for (size_t bi = 0; bi < fn->block_count; bi++) {

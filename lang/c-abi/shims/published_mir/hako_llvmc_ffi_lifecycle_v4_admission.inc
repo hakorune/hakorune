@@ -53,6 +53,7 @@ static int lv4_type(yyjson_val* fn, uint32_t value, size_t budget) {
       return LV4_TAGGED;
   def = lv4_def(fn, value);
   if (!def) return LV4_BAD;
+  if (lv4_is(def, "op", "string_compare")) return LV4_BOOL;
   if (lv4_is(def, "op", "const_i64") || lv4_is(def, "op", "add") ||
       lv4_is(def, "op", "mul") || lv4_is(def, "op", "sub") ||
       lv4_is(def, "op", "div") || lv4_is(def, "op", "mod") ||

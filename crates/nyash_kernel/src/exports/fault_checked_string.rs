@@ -241,12 +241,13 @@ unsafe fn comparable(value: *const Operand) -> Result<Comparable, u32> {
 /// Validate one or two Text descriptors, then borrow all leased texts at once.
 /// Arrays avoid allocation; no registry/lease callback is nested or reentered.
 unsafe fn with_text_operands<const N: usize, R>(
-    values: [*const Operand; N],
-    callback: impl FnOnce([&str; N]) -> R,
+    values: [Option<*const Operand>; N],
+    callback: impl FnOnce([Option<&str>; N]) -> R,
 ) -> Result<R, Status> {
     let mut literals = [None; N];
     let mut pairs = [None; N];
     for (i, value) in values.into_iter().enumerate() {
+        let Some(value) = value else { continue; };
         let value = unsafe { operand(value) }?;
         match value.kind {
             STATIC_TEXT if value.handle == 0 && value.token == 0 && value.integer == 0 => {
@@ -265,10 +266,10 @@ unsafe fn with_text_operands<const N: usize, R>(
         }
     }
     if pairs.iter().all(Option::is_none) {
-        return Ok(callback(literals.map(|text| text.expect("validated literal"))));
+        return Ok(callback(literals));
     }
     lease::with_end_authorized_texts(pairs, |texts| {
-        callback(std::array::from_fn(|i| texts[i].or(literals[i]).expect("validated Text")))
+        callback(std::array::from_fn(|i| texts[i].or(literals[i])))
     }).map_err(|_| Status::InvalidContract)
 }
 
@@ -277,8 +278,8 @@ unsafe fn with_text_operands<const N: usize, R>(
 #[export_name = "nyash.string.code_point_count_v1"]
 pub unsafe extern "C" fn code_point_count(value: *const Operand, out: *mut i64) -> u32 {
     if out.is_null() || !out.is_aligned() { return Status::InvalidContract as u32; }
-    let count = unsafe { with_text_operands([value], |[text]| text.chars().count()) };
-    let Some(count) = count.ok().and_then(|count| i64::try_from(count).ok()) else {
+    let count = unsafe { with_text_operands([Some(value)], |[text]| text.map(|text| text.chars().count())) };
+    let Some(count) = count.ok().flatten().and_then(|count| i64::try_from(count).ok()) else {
         return Status::InvalidContract as u32;
     };
     unsafe { out.write(count) }; // Both identity guards have been released.
@@ -291,10 +292,32 @@ pub unsafe extern "C" fn code_point_index_of(
     value: *const Operand, needle: *const Operand, out: *mut i64,
 ) -> u32 {
     if out.is_null() || !out.is_aligned() { return Status::InvalidContract as u32; }
-    let index = unsafe { with_text_operands([value, needle], |[value, needle]|
-        string_ops::index_of(value, needle, None, StringIndexMode::CodePoint)) };
-    let Ok(index) = index else { return Status::InvalidContract as u32; };
+    let index = unsafe { with_text_operands([Some(value), Some(needle)], |[value, needle]|
+        value.zip(needle).map(|(value, needle)| string_ops::index_of(value, needle, None, StringIndexMode::CodePoint))) };
+    let Ok(Some(index)) = index else { return Status::InvalidContract as u32; };
     unsafe { out.write(index) }; // No identity guard is held here.
+    Status::Normal as u32
+}
+
+/// Shared exact scalar-sequence law. Every caller validates the wire predicate.
+fn compare_text_value(op: u32, left: &str, right: &str) -> i64 {
+    let order = left.chars().cmp(right.chars());
+    i64::from(match op {
+        0 => order.is_eq(), 1 => !order.is_eq(), 2 => order.is_lt(),
+        3 => !order.is_gt(), 4 => order.is_gt(), 5 => !order.is_lt(),
+        _ => unreachable!("validated comparison opcode"),
+    })
+}
+
+/// Exact Text comparison is a read; release all identity guards before output.
+#[export_name = "nyash.string.compare_text_v1"]
+pub unsafe extern "C" fn compare_text(op: u32, left: *const Operand,
+    right: *const Operand, out: *mut i64) -> u32 {
+    if out.is_null() || !out.is_aligned() || op > 5 { return Status::InvalidContract as u32; }
+    let result = unsafe { with_text_operands([Some(left), Some(right)], |[left, right]|
+        left.zip(right).map(|(left, right)| compare_text_value(op, left, right))) };
+    let Ok(Some(result)) = result else { return Status::InvalidContract as u32; };
+    unsafe { out.write(result) };
     Status::Normal as u32
 }
 

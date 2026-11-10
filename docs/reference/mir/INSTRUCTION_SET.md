@@ -72,6 +72,16 @@ Text/domain/liveness and I64-origin checks. Its printer is `string_index_of`;
 selected v2 JSON has exactly `op`, `dst`, `value`, `needle`. Other String
 operations retain their own Fault and cleanup edges.
 
+`StringCompare { dst, op: CompareOp, left: StringInvokeOperand,
+right: StringInvokeOperand }` is a nonterminator READ defining Bool. Both
+operands have the same four Text representations and independent positional
+liveness checks as length/search. Copy and every PHI incoming preserve its Bool
+origin; it cannot serve as an I64, Text or ownership token. It acquires,
+transfers and Ends nothing and has no frame, site or Normal/Fault edges. The
+printer is `string_compare`; selected v2 JSON has exactly `op`, `dst`,
+`comparison`, `left`, `right`. Checked String Compare remains a distinct Invoke
+operation for mixed/null contracts.
+
 ### Owned String residence and Return handoff
 
 `StringResidenceInstall { value, replaces, returning }` is an infallible WRITE

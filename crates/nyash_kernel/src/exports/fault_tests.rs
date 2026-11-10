@@ -690,6 +690,37 @@ fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
             assert_eq!(api::code_point_index_of(&value, &needle, &mut index), 0);
             assert_eq!(index, expected);
         }
+        // Independent ordering facts, not a second implementation of Unicode comparison.
+        for (left, right, expected) in [
+            ("same", "same", [1,0,0,1,0,1]), ("a", "ab", [0,1,1,1,0,0]),
+            ("", "", [1,0,0,1,0,1]), ("", "界", [0,1,1,1,0,0]),
+            ("あ", "い", [0,1,1,1,0,0]), ("é", "e\u{301}", [0,1,0,0,1,1]),
+            ("\u{ff61}", "😀", [0,1,1,1,0,0]),
+        ] {
+            for (op, expected) in expected.into_iter().enumerate() {
+                let mut result = 999;
+                assert_eq!(api::compare_text(op as u32, &literal(left.as_bytes()), &literal(right.as_bytes()), &mut result), 0);
+                assert_eq!(result, expected);
+            }
+        }
+        for (left, right, expected) in [
+            (literal("aé界z".as_bytes()), literal("界".as_bytes()), [0,1,1,1,0,0]),
+            (literal("aé界z".as_bytes()), owned(needle), [0,1,1,1,0,0]),
+            (owned(base), literal("界".as_bytes()), [0,1,1,1,0,0]),
+            (owned(base), owned(needle), [0,1,1,1,0,0]),
+            (owned(base), owned(base), [1,0,0,1,0,1]),
+        ] {
+            for (op, expected) in expected.into_iter().enumerate() {
+                let mut result = 999;
+                assert_eq!(api::compare_text(op as u32, &left, &right, &mut result), 0);
+                assert_eq!(result, expected);
+            }
+        }
+        for op in [6, u32::MAX] {
+            let mut result = 999;
+            assert_eq!(api::compare_text(op, &owned(base), &owned(base), &mut result), 2);
+            assert_eq!(result, 999);
+        }
         for (value, needle, expected) in [
             ("", "", 0), ("a", "longer", -1), ("e\u{301}猫𝄞", "\u{301}", 1),
             ("e\u{301}猫𝄞", "猫", 2), ("e\u{301}猫𝄞", "𝄞", 3),
@@ -706,6 +737,8 @@ fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
             assert_eq!(code_point_count(&bad, &mut scalar), 2);
             assert_eq!(api::code_point_index_of(&bad, &literal(b""), &mut scalar), 2);
             assert_eq!(api::code_point_index_of(&owned(base), &bad, &mut scalar), 2);
+            assert_eq!(api::compare_text(0, &bad, &owned(base), &mut scalar), 2);
+            assert_eq!(api::compare_text(0, &owned(base), &bad, &mut scalar), 2);
             assert_eq!(checked_materialize(pointer, 25, &bad, &mut slice), 2);
             assert_eq!(scalar, 999);
             assert_eq!(slice, sentinel);
@@ -721,6 +754,12 @@ fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
         let mut untouched = 999;
         assert_eq!(api::code_point_index_of(std::ptr::null(), &owned(base), &mut untouched), 2);
         assert_eq!(api::code_point_index_of(&owned(base), std::ptr::null(), &mut untouched), 2);
+        assert_eq!(api::compare_text(0, std::ptr::null(), &owned(base), &mut untouched), 2);
+        assert_eq!(api::compare_text(0, &owned(base), std::ptr::null(), &mut untouched), 2);
+        assert_eq!(api::compare_text(0, &owned(base), &owned(base), std::ptr::null_mut()), 2);
+        let mut unaligned = [0u64; 2];
+        assert_eq!(api::compare_text(0, &owned(base), &owned(base), unaligned.as_mut_ptr().cast::<u8>().add(1).cast()), 2);
+        assert_eq!(unaligned, [0, 0]);
         assert_eq!(untouched, 999);
         assert_eq!(checked_substring(pointer, 27, &owned(base), 0, 1, std::ptr::null_mut()), 2);
         assert_eq!(checked_end(pointer, 28, base.handle, base.token), 0);

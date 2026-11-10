@@ -1,6 +1,14 @@
 //! Checked operation transport inside the sole lifecycle JSON owner.
 use super::*;
 
+pub(super) fn encode_text_comparison_v1(op: crate::mir::CompareOp) -> &'static str {
+    match op {
+        crate::mir::CompareOp::Eq => "eq", crate::mir::CompareOp::Ne => "ne",
+        crate::mir::CompareOp::Lt => "lt", crate::mir::CompareOp::Le => "le",
+        crate::mir::CompareOp::Gt => "gt", crate::mir::CompareOp::Ge => "ge",
+    }
+}
+
 pub(super) fn encode_invoke(
     operation: &InvokeOperation,
     births: &BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
@@ -85,11 +93,7 @@ pub(super) fn encode_invoke(
             let operand = encode_string_operand_v1;
             let encoded = match operation {
                 Op::Add { left, right } => json!({"kind":"string_add", "left":operand(left), "right":operand(right)}),
-                Op::Compare { op, left, right } => json!({"kind":"string_compare", "comparison":match op {
-                    crate::mir::CompareOp::Eq => "eq", crate::mir::CompareOp::Ne => "ne",
-                    crate::mir::CompareOp::Lt => "lt", crate::mir::CompareOp::Le => "le",
-                    crate::mir::CompareOp::Gt => "gt", crate::mir::CompareOp::Ge => "ge",
-                }, "left":operand(left), "right":operand(right)}),
+                Op::Compare { op, left, right } => json!({"kind":"string_compare", "comparison":encode_text_comparison_v1(*op), "left":operand(left), "right":operand(right)}),
                 Op::Materialize { value } => json!({"kind":"string_materialize", "value":operand(value)}),
                 Op::FieldMaterialize { field, base } => json!({"kind":"string_field_materialize",
                     "object_id":field.object().declaration_index(), "field_ordinal":field.declaration_ordinal(),

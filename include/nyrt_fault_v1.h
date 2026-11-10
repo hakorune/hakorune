@@ -142,6 +142,9 @@ uint32_t nyrt_string_checked_end_v1(void *, uint64_t, uint64_t, uint64_t)
 #define NYRT_STRING_COMPARE_LE_V1 3u
 #define NYRT_STRING_COMPARE_GT_V1 4u
 #define NYRT_STRING_COMPARE_GE_V1 5u
+/* Exact Text-only read: 0 writes a Bool word, 2 preserves it, never 1. */
+uint32_t nyrt_string_compare_text_v1(uint32_t, const NyrtStringOperandV1 *, const NyrtStringOperandV1 *, int64_t *)
+    __asm__("nyash.string.compare_text_v1");
 uint32_t nyrt_string_checked_compare_v1(void *, uint64_t, uint32_t,
     const NyrtStringOperandV1 *, const NyrtStringOperandV1 *, int64_t *)
     __asm__("nyash.string.checked_compare_v1");
