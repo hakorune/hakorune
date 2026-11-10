@@ -20,14 +20,30 @@ use crate::mir::{MirFunction, MirModule, ValueId};
 use std::collections::{HashMap, HashSet};
 
 pub fn apply(module: &mut MirModule) -> OptimizationStats {
+    apply_with_required_roots(module, &Default::default())
+}
+
+pub(in crate::mir) fn apply_with_required_roots(
+    module: &mut MirModule,
+    roots: &crate::mir::passes::dce::RequiredLivenessRoots,
+) -> OptimizationStats {
     let mut stats = OptimizationStats::new();
-    for function in module.functions.values_mut() {
-        stats.memory_effect_optimizations += eliminate_memory_effect_in_function(function);
+    for (symbol, function) in &mut module.functions {
+        stats.memory_effect_optimizations += eliminate_memory_effect_in_function(
+            function,
+            roots
+                .get(symbol)
+                .into_iter()
+                .flat_map(|values| values.iter().copied()),
+        );
     }
     stats
 }
 
-fn eliminate_memory_effect_in_function(function: &mut MirFunction) -> usize {
+fn eliminate_memory_effect_in_function(
+    function: &mut MirFunction,
+    roots: impl IntoIterator<Item = ValueId>,
+) -> usize {
     let reachable_blocks = crate::mir::verification::utils::compute_reachable_blocks(function);
     let local_reads = analyze_local_reads(function, &reachable_blocks);
     let private_carriers = analyze_private_carriers(function, &reachable_blocks, &local_reads);
@@ -41,7 +57,7 @@ fn eliminate_memory_effect_in_function(function: &mut MirFunction) -> usize {
     let forwarded_same_block_loads =
         forward_same_block_private_carrier_loads(function, &reachable_blocks, &private_carriers);
 
-    let mut base_used_values: HashSet<ValueId> = HashSet::new();
+    let mut base_used_values: HashSet<ValueId> = roots.into_iter().collect();
     for (bid, block) in &function.blocks {
         if !reachable_blocks.contains(bid) {
             continue;
@@ -68,7 +84,9 @@ fn eliminate_memory_effect_in_function(function: &mut MirFunction) -> usize {
         }
     }
 
-    seed_control_anchor_values(function, &reachable_blocks, &mut base_used_values);
+    super::dce::control_anchor::seed_control_anchor_values(function, &reachable_blocks, |value| {
+        base_used_values.insert(value);
+    });
     propagate_used_values(function, &reachable_blocks, &mut base_used_values);
 
     let mut used_values = base_used_values.clone();
@@ -243,30 +261,6 @@ fn collect_cross_block_overwritten_private_stores(
     }
 
     removable
-}
-
-fn seed_control_anchor_values(
-    function: &MirFunction,
-    reachable_blocks: &HashSet<crate::mir::BasicBlockId>,
-    base_used_values: &mut HashSet<ValueId>,
-) {
-    for (bid, block) in &function.blocks {
-        if !reachable_blocks.contains(bid) {
-            continue;
-        }
-        if let Some(term) = &block.terminator {
-            for u in term.used_values() {
-                base_used_values.insert(u);
-            }
-        }
-        for edge in block.out_edges() {
-            if let Some(args) = edge.args {
-                for u in args.values {
-                    base_used_values.insert(u);
-                }
-            }
-        }
-    }
 }
 
 fn propagate_used_values(

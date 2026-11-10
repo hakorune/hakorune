@@ -174,14 +174,19 @@ pub(crate) fn analyze_local_reads(
     info
 }
 
-pub(super) fn is_removable_effect_sensitive_read_instruction(
+pub(crate) fn is_removable_effect_sensitive_read_instruction(
     inst: &crate::mir::MirInstruction,
     local_reads: &LocalReadInfo,
 ) -> bool {
-    matches!(
-        inst,
-        crate::mir::MirInstruction::FieldGet { base, .. } if local_reads.is_non_escaping_local(*base)
-    )
+    match inst {
+        // A validated observation has no source Fault. Elision never permits
+        // movement or replay; the common DCE entry validates its lifetime.
+        crate::mir::MirInstruction::NullCompare { .. } => true,
+        crate::mir::MirInstruction::FieldGet { base, .. } => {
+            local_reads.is_non_escaping_local(*base)
+        }
+        _ => false,
+    }
 }
 
 pub(super) fn is_removable_effect_sensitive_write_instruction(

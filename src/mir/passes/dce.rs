@@ -3,7 +3,7 @@
 //! Extracted from the monolithic optimizer to enable modular pass composition.
 
 #[path = "dce/control_anchor.rs"]
-mod control_anchor;
+pub(in crate::mir::passes) mod control_anchor;
 #[path = "dce/elimination.rs"]
 mod elimination;
 #[path = "dce/local_fields.rs"]
@@ -109,13 +109,6 @@ pub(in crate::mir) fn eliminate_dead_code_with_required_roots(
 /// Eliminate dead code in a single function.
 pub(crate) fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
     elimination::eliminate_dead_code_in_function(function)
-}
-
-/// Validated null observations have no source Fault, write, or ownership effect.
-/// This permits dead-result elision, not movement/replay or a generic READ rule.
-fn is_elidable_value_instruction(instruction: &crate::mir::MirInstruction) -> bool {
-    instruction.effects().is_pure()
-        || matches!(instruction, crate::mir::MirInstruction::NullCompare { .. })
 }
 
 fn propagate_used_values(

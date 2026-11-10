@@ -162,7 +162,7 @@ impl MirOptimizer {
         // Memory-effect layer owner seam. This remains separate from DCE so
         // future store/load widening can grow without re-burying memory logic
         // inside DCE.
-        stats.merge(crate::mir::passes::memory_effect::apply(module));
+        stats.merge(crate::mir::passes::memory_effect::apply_with_required_roots(module, roots));
 
         // Rerun pure DCE after memory effects; this can expose newly dead pure
         // defs after private-carrier Load/Store cleanup.

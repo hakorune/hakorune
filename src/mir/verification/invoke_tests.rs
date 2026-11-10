@@ -710,16 +710,37 @@ fn object_field_read_admits_numeric_fields_and_rejects_other_types() {
 
 fn null_read_function(carrier: ConstValue) -> crate::mir::MirFunction {
     use crate::mir::{BasicBlockId, FunctionSignature, MirFunction, MirType};
-    let mut function = MirFunction::new(FunctionSignature {
-        name: "null_read/0".into(), params: vec![], return_type: MirType::Bool, effects: EffectMask::READ,
-    }, BasicBlockId(0));
+    let mut function = MirFunction::new(
+        FunctionSignature {
+            name: "null_read/0".into(),
+            params: vec![],
+            return_type: MirType::Bool,
+            effects: EffectMask::READ,
+        },
+        BasicBlockId(0),
+    );
     let block = function.blocks.get_mut(&BasicBlockId(0)).unwrap();
     for instruction in [
-        MirInstruction::Const { dst: ValueId(0), value: carrier },
-        MirInstruction::Const { dst: ValueId(1), value: ConstValue::Null },
-        MirInstruction::NullCompare { dst: ValueId(2), op: crate::mir::CompareOp::Eq, lhs: ValueId(0), rhs: ValueId(1) },
-    ] { block.add_instruction(instruction); }
-    block.set_terminator(MirInstruction::Return { value: Some(ValueId(2)) });
+        MirInstruction::Const {
+            dst: ValueId(0),
+            value: carrier,
+        },
+        MirInstruction::Const {
+            dst: ValueId(1),
+            value: ConstValue::Null,
+        },
+        MirInstruction::NullCompare {
+            dst: ValueId(2),
+            op: crate::mir::CompareOp::Eq,
+            lhs: ValueId(0),
+            rhs: ValueId(1),
+        },
+    ] {
+        block.add_instruction(instruction);
+    }
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId(2)),
+    });
     function.update_cfg();
     function
 }
@@ -729,12 +750,64 @@ fn null_comparison_reads_scalar_carriers_in_source_order_without_a_fault_frame()
     for value in [ConstValue::Integer(0), ConstValue::Bool(false)] {
         for swapped in [false, true] {
             let mut function = null_read_function(value.clone());
-            let row = &mut function.blocks.get_mut(&crate::mir::BasicBlockId(0)).unwrap().instructions[2];
+            let row = &mut function
+                .blocks
+                .get_mut(&crate::mir::BasicBlockId(0))
+                .unwrap()
+                .instructions[2];
             if let MirInstruction::NullCompare { lhs, rhs, op, .. } = row {
-                if swapped { std::mem::swap(lhs, rhs); *op = crate::mir::CompareOp::Ne; }
+                if swapped {
+                    std::mem::swap(lhs, rhs);
+                    *op = crate::mir::CompareOp::Ne;
+                }
             }
             assert_eq!(row.effects(), EffectMask::READ);
             super::check_function(&function).unwrap();
+        }
+    }
+    // Metadata-only uses, including unreachable captured scopes, are not dead.
+    for metadata in [None, Some(0), Some(9)] {
+        for memory in [false, true] {
+            let mut function = null_read_function(ConstValue::Integer(7));
+            function.signature.return_type = crate::mir::MirType::Void;
+            function
+                .blocks
+                .get_mut(&crate::mir::BasicBlockId(0))
+                .unwrap()
+                .set_terminator(MirInstruction::Return { value: None });
+            if let Some(id) = metadata {
+                if id != 0 {
+                    let mut block = crate::mir::BasicBlock::new(crate::mir::BasicBlockId(id));
+                    block.set_terminator(MirInstruction::Return { value: None });
+                    function.add_block(block);
+                }
+                function
+                    .blocks
+                    .get_mut(&crate::mir::BasicBlockId(id))
+                    .unwrap()
+                    .return_env = Some(vec![ValueId(2)]);
+            }
+            if memory {
+                let mut module = crate::mir::MirModule::new("null_metadata".into());
+                module.add_function(function);
+                crate::mir::passes::memory_effect::apply(&mut module);
+                function = module.functions.remove("null_read/0").unwrap();
+            } else {
+                crate::mir::passes::dce::eliminate_dead_code_in_function(&mut function);
+            }
+            let retained = function.blocks.values().any(|block| {
+                block.instructions.iter().any(|row| {
+                    matches!(
+                        row,
+                        MirInstruction::NullCompare {
+                            dst: ValueId(2),
+                            ..
+                        }
+                    )
+                })
+            });
+            // memory-effect retains READ by default; DCE may elide a truly unused read.
+            assert_eq!(retained, memory || metadata.is_some());
         }
     }
 }
@@ -745,39 +818,98 @@ fn null_comparison_rejects_forged_sentinels_results_order_and_ended_carriers() {
     let baseline = null_read_function(ConstValue::Integer(7));
     for replacement in [ConstValue::Integer(0), ConstValue::Bool(false)] {
         let mut function = baseline.clone();
-        function.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions[1] =
-            MirInstruction::Const { dst: ValueId(1), value: replacement };
-        assert!(format!("{:?}", super::check_function(&function).unwrap_err()).contains("exact-sentinel"));
+        function
+            .blocks
+            .get_mut(&BasicBlockId(0))
+            .unwrap()
+            .instructions[1] = MirInstruction::Const {
+            dst: ValueId(1),
+            value: replacement,
+        };
+        assert!(
+            format!("{:?}", super::check_function(&function).unwrap_err())
+                .contains("exact-sentinel")
+        );
     }
     let mut both = null_read_function(ConstValue::Null);
     assert!(format!("{:?}", super::check_function(&both).unwrap_err()).contains("exact-sentinel"));
     for op in [CompareOp::Lt, CompareOp::Le, CompareOp::Gt, CompareOp::Ge] {
         both = baseline.clone();
-        if let MirInstruction::NullCompare { op: actual, .. } = &mut both.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions[2] { *actual = op; }
-        assert!(format!("{:?}", super::check_function(&both).unwrap_err()).contains("null-comparison/operator"));
+        if let MirInstruction::NullCompare { op: actual, .. } =
+            &mut both.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions[2]
+        {
+            *actual = op;
+        }
+        assert!(format!("{:?}", super::check_function(&both).unwrap_err())
+            .contains("null-comparison/operator"));
     }
     let mut copy_null = baseline.clone();
-    copy_null.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions.insert(2,
-        MirInstruction::Copy { dst: ValueId(3), src: ValueId(1) });
-    if let MirInstruction::NullCompare { rhs, .. } = &mut copy_null.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions[3] { *rhs = ValueId(3); }
-    assert!(format!("{:?}", super::check_function(&copy_null).unwrap_err()).contains("exact-sentinel"));
+    copy_null
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .instructions
+        .insert(
+            2,
+            MirInstruction::Copy {
+                dst: ValueId(3),
+                src: ValueId(1),
+            },
+        );
+    if let MirInstruction::NullCompare { rhs, .. } = &mut copy_null
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .instructions[3]
+    {
+        *rhs = ValueId(3);
+    }
+    assert!(
+        format!("{:?}", super::check_function(&copy_null).unwrap_err()).contains("exact-sentinel")
+    );
     let mut wrong_type = baseline.clone();
-    wrong_type.metadata.value_types.insert(ValueId(2), MirType::Integer);
-    assert!(format!("{:?}", super::check_function(&wrong_type).unwrap_err()).contains("result-type"));
+    wrong_type
+        .metadata
+        .value_types
+        .insert(ValueId(2), MirType::Integer);
+    assert!(
+        format!("{:?}", super::check_function(&wrong_type).unwrap_err()).contains("result-type")
+    );
     let mut early = baseline.clone();
-    early.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions.swap(0, 2);
+    early
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .instructions
+        .swap(0, 2);
     assert!(super::check_function(&early).is_err());
     let mut ended = baseline.clone();
-    ended.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions.insert(2,
-        MirInstruction::DestroyOwned { value: ValueId(0) });
-    assert_eq!(super::null_compare::check(&ended).unwrap_err().1, "null-comparison/carrier-not-live");
+    ended
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .instructions
+        .insert(2, MirInstruction::DestroyOwned { value: ValueId(0) });
+    assert_eq!(
+        super::null_compare::check(&ended).unwrap_err().1,
+        "null-comparison/carrier-not-live"
+    );
     let mut legacy = baseline;
-    legacy.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions[2] =
-        MirInstruction::Compare { dst: ValueId(2), op: CompareOp::Eq, lhs: ValueId(0), rhs: ValueId(1) };
-    assert_eq!(crate::mir::verification::reject_canonical_legacy_null_comparisons(&legacy),
-        Err("null-comparison/legacy-compare"));
+    legacy
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .instructions[2] = MirInstruction::Compare {
+        dst: ValueId(2),
+        op: CompareOp::Eq,
+        lhs: ValueId(0),
+        rhs: ValueId(1),
+    };
+    assert_eq!(
+        crate::mir::verification::reject_canonical_legacy_null_comparisons(&legacy),
+        Err("null-comparison/legacy-compare")
+    );
 }
-
 
 #[test]
 fn null_comparison_keeps_copy_phi_values_and_rejects_missing_incoming_or_carrier_kind() {
@@ -786,65 +918,149 @@ fn null_comparison_keeps_copy_phi_values_and_rejects_missing_incoming_or_carrier
     let entry = function.blocks.get_mut(&BasicBlockId(0)).unwrap();
     entry.instructions.pop();
     entry.instruction_spans.pop();
-    entry.add_instruction(MirInstruction::Const { dst: ValueId(3), value: ConstValue::Bool(true) });
-    entry.set_terminator(MirInstruction::Branch { condition: ValueId(3), then_bb: BasicBlockId(1), else_bb: BasicBlockId(2), then_edge_args: None, else_edge_args: None });
+    entry.add_instruction(MirInstruction::Const {
+        dst: ValueId(3),
+        value: ConstValue::Bool(true),
+    });
+    entry.set_terminator(MirInstruction::Branch {
+        condition: ValueId(3),
+        then_bb: BasicBlockId(1),
+        else_bb: BasicBlockId(2),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
     for (id, value) in [(1, 4), (2, 5)] {
         let mut block = BasicBlock::new(BasicBlockId(id));
-        block.add_instruction(MirInstruction::Copy { dst: ValueId(value), src: ValueId(0) });
-        block.set_terminator(MirInstruction::Jump { target: BasicBlockId(3), edge_args: None });
+        block.add_instruction(MirInstruction::Copy {
+            dst: ValueId(value),
+            src: ValueId(0),
+        });
+        block.set_terminator(MirInstruction::Jump {
+            target: BasicBlockId(3),
+            edge_args: None,
+        });
         function.add_block(block);
     }
     let mut join = BasicBlock::new(BasicBlockId(3));
     for instruction in [
-        MirInstruction::Phi { dst: ValueId(6), inputs: vec![(BasicBlockId(1), ValueId(4)), (BasicBlockId(2), ValueId(5))], type_hint: Some(MirType::Integer) },
-        MirInstruction::NullCompare { dst: ValueId(7), op: CompareOp::Eq, lhs: ValueId(6), rhs: ValueId(1) },
-        MirInstruction::Copy { dst: ValueId(8), src: ValueId(7) },
-    ] { join.add_instruction(instruction); }
-    join.set_terminator(MirInstruction::Return { value: Some(ValueId(8)) });
+        MirInstruction::Phi {
+            dst: ValueId(6),
+            inputs: vec![(BasicBlockId(1), ValueId(4)), (BasicBlockId(2), ValueId(5))],
+            type_hint: Some(MirType::Integer),
+        },
+        MirInstruction::NullCompare {
+            dst: ValueId(7),
+            op: CompareOp::Eq,
+            lhs: ValueId(6),
+            rhs: ValueId(1),
+        },
+        MirInstruction::Copy {
+            dst: ValueId(8),
+            src: ValueId(7),
+        },
+    ] {
+        join.add_instruction(instruction);
+    }
+    join.set_terminator(MirInstruction::Return {
+        value: Some(ValueId(8)),
+    });
     function.add_block(join);
     function.update_cfg();
     super::check_function(&function).unwrap();
     let mut missing = function.clone();
-    if let MirInstruction::Phi { inputs, .. } = &mut missing.blocks.get_mut(&BasicBlockId(3)).unwrap().instructions[0] { inputs.pop(); }
+    if let MirInstruction::Phi { inputs, .. } = &mut missing
+        .blocks
+        .get_mut(&BasicBlockId(3))
+        .unwrap()
+        .instructions[0]
+    {
+        inputs.pop();
+    }
     assert!(super::check_function(&missing).is_err());
     let mut wrong_return = function;
     wrong_return.signature.return_type = MirType::Integer;
     assert!(super::check_function(&wrong_return).is_err());
     let mut wrong_kind = null_read_function(ConstValue::String("text".into()));
-    wrong_kind.metadata.value_types.insert(ValueId(0), MirType::Integer);
-    assert_eq!(super::null_compare::check(&wrong_kind).unwrap_err().1, "null-comparison/carrier-kind");
+    wrong_kind
+        .metadata
+        .value_types
+        .insert(ValueId(0), MirType::Integer);
+    assert_eq!(
+        super::null_compare::check(&wrong_kind).unwrap_err().1,
+        "null-comparison/carrier-kind"
+    );
 }
-
 
 #[test]
 fn null_comparison_uses_the_phi_incoming_edge_for_lifetime() {
     use crate::mir::{BasicBlock, BasicBlockId, CompareOp, MirType};
     let mut function = null_read_function(ConstValue::Integer(7));
     let entry = function.blocks.get_mut(&BasicBlockId(0)).unwrap();
-    entry.instructions.pop(); entry.instruction_spans.pop();
-    entry.add_instruction(MirInstruction::Const { dst: ValueId(3), value: ConstValue::Bool(true) });
-    entry.add_instruction(MirInstruction::Const { dst: ValueId(4), value: ConstValue::Integer(9) });
-    entry.set_terminator(MirInstruction::Branch { condition: ValueId(3), then_bb: BasicBlockId(1), else_bb: BasicBlockId(2), then_edge_args: None, else_edge_args: None });
+    entry.instructions.pop();
+    entry.instruction_spans.pop();
+    entry.add_instruction(MirInstruction::Const {
+        dst: ValueId(3),
+        value: ConstValue::Bool(true),
+    });
+    entry.add_instruction(MirInstruction::Const {
+        dst: ValueId(4),
+        value: ConstValue::Integer(9),
+    });
+    entry.set_terminator(MirInstruction::Branch {
+        condition: ValueId(3),
+        then_bb: BasicBlockId(1),
+        else_bb: BasicBlockId(2),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
     for (id, ended) in [(1, 4), (2, 0)] {
         let mut block = BasicBlock::new(BasicBlockId(id));
-        block.add_instruction(MirInstruction::DestroyOwned { value: ValueId(ended) });
-        block.set_terminator(MirInstruction::Jump { target: BasicBlockId(3), edge_args: None });
+        block.add_instruction(MirInstruction::DestroyOwned {
+            value: ValueId(ended),
+        });
+        block.set_terminator(MirInstruction::Jump {
+            target: BasicBlockId(3),
+            edge_args: None,
+        });
         function.add_block(block);
     }
     let mut join = BasicBlock::new(BasicBlockId(3));
-    join.add_instruction(MirInstruction::Phi { dst: ValueId(6), inputs: vec![(BasicBlockId(1), ValueId(0)), (BasicBlockId(2), ValueId(4))], type_hint: Some(MirType::Integer) });
-    join.add_instruction(MirInstruction::NullCompare { dst: ValueId(7), op: CompareOp::Eq, lhs: ValueId(6), rhs: ValueId(1) });
-    join.set_terminator(MirInstruction::Return { value: Some(ValueId(7)) });
-    function.add_block(join); function.update_cfg();
+    join.add_instruction(MirInstruction::Phi {
+        dst: ValueId(6),
+        inputs: vec![(BasicBlockId(1), ValueId(0)), (BasicBlockId(2), ValueId(4))],
+        type_hint: Some(MirType::Integer),
+    });
+    join.add_instruction(MirInstruction::NullCompare {
+        dst: ValueId(7),
+        op: CompareOp::Eq,
+        lhs: ValueId(6),
+        rhs: ValueId(1),
+    });
+    join.set_terminator(MirInstruction::Return {
+        value: Some(ValueId(7)),
+    });
+    function.add_block(join);
+    function.update_cfg();
     super::null_compare::check(&function).unwrap();
     let mut dead = function.clone();
-    if let MirInstruction::Phi { inputs, .. } = &mut dead.blocks.get_mut(&BasicBlockId(3)).unwrap().instructions[0] { inputs.swap(0, 1); inputs[0].0 = BasicBlockId(1); inputs[1].0 = BasicBlockId(2); }
-    assert_eq!(super::null_compare::check(&dead).unwrap_err().1, "null-comparison/carrier-not-live");
+    if let MirInstruction::Phi { inputs, .. } =
+        &mut dead.blocks.get_mut(&BasicBlockId(3)).unwrap().instructions[0]
+    {
+        inputs.swap(0, 1);
+        inputs[0].0 = BasicBlockId(1);
+        inputs[1].0 = BasicBlockId(2);
+    }
+    assert_eq!(
+        super::null_compare::check(&dead).unwrap_err().1,
+        "null-comparison/carrier-not-live"
+    );
     let mut missing = function;
     missing.blocks.remove(&BasicBlockId(2));
-    assert_eq!(super::null_compare::check(&missing).unwrap_err().1, "null-comparison/successor-missing");
+    assert_eq!(
+        super::null_compare::check(&missing).unwrap_err().1,
+        "null-comparison/successor-missing"
+    );
 }
-
 
 #[test]
 fn null_comparison_preserves_correlated_phi_resources() {
@@ -852,41 +1068,200 @@ fn null_comparison_preserves_correlated_phi_resources() {
     for same in [false, true] {
         let mut function = null_read_function(ConstValue::Integer(7));
         let entry = function.blocks.get_mut(&BasicBlockId(0)).unwrap();
-        entry.instructions.pop(); entry.instruction_spans.pop();
-        entry.add_instruction(MirInstruction::Const { dst: ValueId(3), value: ConstValue::Bool(true) });
-        entry.add_instruction(MirInstruction::Const { dst: ValueId(4), value: ConstValue::Integer(9) });
-        entry.set_terminator(MirInstruction::Branch { condition: ValueId(3), then_bb: BasicBlockId(1), else_bb: BasicBlockId(2), then_edge_args: None, else_edge_args: None });
-        for id in [1,2] {
+        entry.instructions.pop();
+        entry.instruction_spans.pop();
+        entry.add_instruction(MirInstruction::Const {
+            dst: ValueId(3),
+            value: ConstValue::Bool(true),
+        });
+        entry.add_instruction(MirInstruction::Const {
+            dst: ValueId(4),
+            value: ConstValue::Integer(9),
+        });
+        entry.set_terminator(MirInstruction::Branch {
+            condition: ValueId(3),
+            then_bb: BasicBlockId(1),
+            else_bb: BasicBlockId(2),
+            then_edge_args: None,
+            else_edge_args: None,
+        });
+        for id in [1, 2] {
             let mut block = BasicBlock::new(BasicBlockId(id));
-            block.set_terminator(MirInstruction::Jump { target: BasicBlockId(3), edge_args: None });
+            block.set_terminator(MirInstruction::Jump {
+                target: BasicBlockId(3),
+                edge_args: None,
+            });
             function.add_block(block);
         }
         let mut join = BasicBlock::new(BasicBlockId(3));
-        for (dst, left, right) in [(6,0,4), (8,if same {0}else{4},if same {4}else{0})] {
-            join.add_instruction(MirInstruction::Phi { dst:ValueId(dst), inputs:vec![(BasicBlockId(1),ValueId(left)),(BasicBlockId(2),ValueId(right))], type_hint:Some(MirType::Integer) });
+        for (dst, left, right) in [
+            (6, 0, 4),
+            (8, if same { 0 } else { 4 }, if same { 4 } else { 0 }),
+        ] {
+            join.add_instruction(MirInstruction::Phi {
+                dst: ValueId(dst),
+                inputs: vec![
+                    (BasicBlockId(1), ValueId(left)),
+                    (BasicBlockId(2), ValueId(right)),
+                ],
+                type_hint: Some(MirType::Integer),
+            });
         }
         join.add_instruction(MirInstruction::DestroyOwned { value: ValueId(8) });
-        join.add_instruction(MirInstruction::NullCompare { dst:ValueId(7), op:CompareOp::Eq, lhs:ValueId(6), rhs:ValueId(1) });
-        join.set_terminator(MirInstruction::Return { value:Some(ValueId(7)) });
-        function.add_block(join); function.update_cfg();
+        join.add_instruction(MirInstruction::NullCompare {
+            dst: ValueId(7),
+            op: CompareOp::Eq,
+            lhs: ValueId(6),
+            rhs: ValueId(1),
+        });
+        join.set_terminator(MirInstruction::Return {
+            value: Some(ValueId(7)),
+        });
+        function.add_block(join);
+        function.update_cfg();
         assert_eq!(super::null_compare::check(&function).is_err(), same);
     }
 }
 
-
 #[test]
 fn null_comparison_backedge_keeps_ended_observations_invalid() {
     use crate::mir::{BasicBlock, BasicBlockId, CompareOp};
-    let mut f=null_read_function(ConstValue::Integer(7));
-    let e=f.blocks.get_mut(&BasicBlockId(0)).unwrap();
-    e.instructions.clear();e.instruction_spans.clear();
-    e.add_instruction(MirInstruction::Const {dst:ValueId(1),value:ConstValue::Null});
-    e.set_terminator(MirInstruction::Jump {target:BasicBlockId(1),edge_args:None});
-    let mut b=BasicBlock::new(BasicBlockId(1));
-    b.add_instruction(MirInstruction::Const {dst:ValueId(0),value:ConstValue::Integer(7)});
-    b.add_instruction(MirInstruction::NullCompare {dst:ValueId(2),op:CompareOp::Eq,lhs:ValueId(0),rhs:ValueId(1)});
-    b.add_instruction(MirInstruction::DestroyOwned {value:ValueId(0)});
-    b.set_terminator(MirInstruction::Jump {target:BasicBlockId(1),edge_args:None});
-    f.add_block(b);f.update_cfg();
-    assert_eq!(super::null_compare::check(&f).unwrap_err().1,"null-comparison/carrier-not-live");
+    let mut f = null_read_function(ConstValue::Integer(7));
+    let e = f.blocks.get_mut(&BasicBlockId(0)).unwrap();
+    e.instructions.clear();
+    e.instruction_spans.clear();
+    e.add_instruction(MirInstruction::Const {
+        dst: ValueId(1),
+        value: ConstValue::Null,
+    });
+    e.set_terminator(MirInstruction::Jump {
+        target: BasicBlockId(1),
+        edge_args: None,
+    });
+    let mut b = BasicBlock::new(BasicBlockId(1));
+    b.add_instruction(MirInstruction::Const {
+        dst: ValueId(0),
+        value: ConstValue::Integer(7),
+    });
+    b.add_instruction(MirInstruction::NullCompare {
+        dst: ValueId(2),
+        op: CompareOp::Eq,
+        lhs: ValueId(0),
+        rhs: ValueId(1),
+    });
+    b.add_instruction(MirInstruction::DestroyOwned { value: ValueId(0) });
+    b.set_terminator(MirInstruction::Jump {
+        target: BasicBlockId(1),
+        edge_args: None,
+    });
+    f.add_block(b);
+    f.update_cfg();
+    assert_eq!(
+        super::null_compare::check(&f).unwrap_err().1,
+        "null-comparison/carrier-not-live"
+    );
+}
+
+#[test]
+fn null_comparison_kind_dag_and_fault_prefix_remain_independent() {
+    use crate::mir::{BasicBlock, BasicBlockId, CompareOp, MirType};
+    let mut f = null_read_function(ConstValue::Integer(7));
+    let e = f.blocks.get_mut(&BasicBlockId(0)).unwrap();
+    e.instructions.pop();
+    e.instruction_spans.pop();
+    e.add_instruction(MirInstruction::Const {
+        dst: ValueId(3),
+        value: ConstValue::Bool(true),
+    });
+    let mut current = 0;
+    let mut value = 0;
+    for n in 0..40 {
+        let left = 3 * n + 1;
+        let right = left + 1;
+        let join = left + 2;
+        f.blocks
+            .get_mut(&BasicBlockId(current))
+            .unwrap()
+            .set_terminator(MirInstruction::Branch {
+                condition: ValueId(3),
+                then_bb: BasicBlockId(left),
+                else_bb: BasicBlockId(right),
+                then_edge_args: None,
+                else_edge_args: None,
+            });
+        for id in [left, right] {
+            let mut block = BasicBlock::new(BasicBlockId(id));
+            block.set_terminator(MirInstruction::Jump {
+                target: BasicBlockId(join),
+                edge_args: None,
+            });
+            f.add_block(block);
+        }
+        let mut block = BasicBlock::new(BasicBlockId(join));
+        let next = 10 + n;
+        block.add_instruction(MirInstruction::Phi {
+            dst: ValueId(next),
+            inputs: vec![
+                (BasicBlockId(left), ValueId(value)),
+                (BasicBlockId(right), ValueId(value)),
+            ],
+            type_hint: Some(MirType::Integer),
+        });
+        f.add_block(block);
+        current = join;
+        value = next;
+    }
+    let tail = f.blocks.get_mut(&BasicBlockId(current)).unwrap();
+    tail.add_instruction(MirInstruction::NullCompare {
+        dst: ValueId(2),
+        op: CompareOp::Eq,
+        lhs: ValueId(value),
+        rhs: ValueId(1),
+    });
+    tail.set_terminator(MirInstruction::Return {
+        value: Some(ValueId(2)),
+    });
+    f.update_cfg();
+    super::null_compare::check(&f).unwrap();
+    // The same DAG must still reject a non-carrier leaf; memoization is not a waiver.
+    f.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions[0] = MirInstruction::Const {
+        dst: ValueId(0),
+        value: ConstValue::String("text".into()),
+    };
+    assert_eq!(
+        super::null_compare::check(&f).unwrap_err().1,
+        "null-comparison/carrier-kind"
+    );
+    for target in [2, 3] {
+        let mut f = allocation_invoke_function();
+        f.blocks
+            .get_mut(&BasicBlockId(0))
+            .unwrap()
+            .add_instruction(MirInstruction::Const {
+                dst: ValueId(3),
+                value: ConstValue::Null,
+            });
+        f.blocks
+            .get_mut(&BasicBlockId(target))
+            .unwrap()
+            .add_instruction(MirInstruction::NullCompare {
+                dst: ValueId(4),
+                op: CompareOp::Eq,
+                lhs: ValueId(1),
+                rhs: ValueId(3),
+            });
+        let result = super::null_compare::check(&f);
+        if target == 2 {
+            result.unwrap();
+        } else {
+            assert_eq!(result.unwrap_err().1, "null-comparison/carrier-not-live");
+        }
+    }
+    let mut f = null_read_function(ConstValue::Integer(7));
+    f.params = vec![ValueId(8), ValueId(8)];
+    f.signature.params = vec![MirType::Integer, MirType::Integer];
+    assert_eq!(
+        super::null_compare::check(&f).unwrap_err().1,
+        "null-comparison/parameter-duplicate"
+    );
 }

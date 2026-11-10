@@ -38,7 +38,7 @@ pub(super) fn eliminate_dead_code_with_required_roots(
             if is_removable_effect_sensitive_write_instruction(instruction, &local_reads) {
                 continue;
             }
-            if !super::is_elidable_value_instruction(instruction) {
+            if !instruction.effects().is_pure() {
                 if let Some(dst) = instruction.dst_value() {
                     base_used_values.insert(dst);
                 }
@@ -49,7 +49,9 @@ pub(super) fn eliminate_dead_code_with_required_roots(
         }
     }
 
-    seed_control_anchor_values(function, &reachable_blocks, &mut base_used_values);
+    seed_control_anchor_values(function, &reachable_blocks, |value| {
+        base_used_values.insert(value);
+    });
 
     propagate_used_values(function, &reachable_blocks, &mut base_used_values);
 
@@ -118,7 +120,7 @@ pub(super) fn eliminate_dead_code_with_required_roots(
                 eliminated += 1;
                 keep = false;
             }
-            if keep && super::is_elidable_value_instruction(&inst) {
+            if keep && inst.effects().is_pure() {
                 if reachable_blocks.contains(&bbid) {
                     if let crate::mir::MirInstruction::KeepAlive { values } = &inst {
                         if values.iter().all(|value| base_used_values.contains(value)) {
