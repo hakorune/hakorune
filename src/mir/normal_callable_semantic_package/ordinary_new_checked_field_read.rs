@@ -94,13 +94,13 @@ impl OrdinaryNewClaimLedgerV1 {
         let consumer_frame_free_proved = self.root_owner()
             .is_some_and(|root| root != frame.source().owner())
             || self.expression_root_cleanup_v1(frame).ok().flatten().is_some()
-            // A Local receipt itself neither faults nor ends an owned value.
-            // Operand/call/owned-result effects are checked below by the frame.
+            // Null observation keeps its existing non-owning Local protocol.
+            // Scalar/Text consumers retain their existing publication frame;
+            // operand/call/owned-result Faults are checked below independently.
             || matches!(frame.source().root(),
                 crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LocalInitializer { .. })
                 && matches!(frame.comparison_plan_v1(0), Ok(Some(plan)) if matches!(plan.kind(),
-                    crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionKindV1::Null
-                    | crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionKindV1::Scalar(_)));
+                    crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionKindV1::Null));
         frame.requires_fault_frame_v1(consumer_frame_free_proved, |site| rows.get(site)
             .map(|row| row.source.requires_checked_field_read_v1()))
     }

@@ -167,4 +167,4 @@ N33のうち`Original`構文fallbackの撤去は段階停止とする。`$S/plac
 
 低位DCE/memory-effectへfull null検証を置く試作は停止した。既にcanonicalで拒否される`$OA/in/c21.hako`(String/null)では、carrier-kind拒否により無関係なdead行も最適化されず、dumpが9→14命令となった。検証結果を文字列で分岐したり、invalid観測をpinして不正CFG/重複定義の消失を見逃す回復は採らない。canonical前検証を保持したまま、低位guardの一般的な接続はこのseriesでは着地しない。共有READ削除判定と通常packet省略の統合は行うが、memory-effectへ新たなNullCompare削除権限は足さない。
 
-`return_env`の使用は両passの共通control-anchorへ集約し、到達不能な捕捉scopeのmetadataも含めて生存を保持する。既存scalar/null actual-MIR testへmetadata-only useと真の未使用を加え、両入口を検証する。Text比較の既存consumer protocolは保持し、frame不要のLocal receiptは既存計画のScalar/Nullに限定する。
+`return_env`の使用は両passの共通control-anchorへ集約し、到達不能な捕捉scopeのmetadataも含めて生存を保持する。既存scalar/null actual-MIR testへmetadata-only useと真の未使用を加え、両入口を検証する。Scalar/Text比較の既存consumer protocolは保持し、frame不要のLocal receiptは既存のNull計画に限定する。全群のEXE照合で、Scalarまで省略するとOpusの`targets-and-unseen/e05`が正規publicationを外れる退行を確認したため、Scalarの既存frameを保持する。
