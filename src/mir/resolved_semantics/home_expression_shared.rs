@@ -10,7 +10,7 @@ impl HomeExpressionPlanV1 {
         moved: Option<crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1>,
         prior_homes: Rc<[LiveHomeV1]>,
     ) -> Option<Self> {
-        let plan = Self { source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(),
+        let plan = Self { source: Rc::clone(&source), scalar_operations: Vec::new(), comparison_root: None, source_fields: Vec::new(),
             print_frame: None, argument_frame: None,
             initializer_frame: Some(InitializerFrameV1::Shared { source, payload_source, shared, moved, prior_homes }),
             rebind_frame: None, condition_frame: None, loop_recipe: None, field_write: None, source_field_homes: None };

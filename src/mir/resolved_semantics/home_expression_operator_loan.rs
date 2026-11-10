@@ -12,6 +12,11 @@ pub(super) enum CheckedExpressionOperationProofV1 {
     ScalarCopy(super::super::SourceScalarKind),
     Dynamic(Box<[&'static VerifiedDynamicOperatorExecutionEnvelopeV1]>),
     Scalar(Rc<ExpressionScalarOperationLoanV1>),
+    NullableAliasNull {
+        reference: usize, null: usize,
+        binding: crate::mir::resolved_semantics::BindingRefV1,
+        root: crate::mir::resolved_semantics::BindingRefV1,
+    },
     NullableFieldNull { reference: usize, null: usize, request: LocalFieldReadRequestV1 },
     NullableNull {
         reference: usize,
@@ -64,8 +69,22 @@ impl CheckedExpressionOperationLoanV1 {
                     .then_some(result)
             }
             CheckedExpressionOperationProofV1::NullableNull { .. }
+            | CheckedExpressionOperationProofV1::NullableAliasNull { .. }
             | CheckedExpressionOperationProofV1::NullableFieldNull { .. } => None,
         }
+    }
+    pub(crate) fn nullable_alias_null_v1(&self) -> Option<(usize, usize)> {
+        let CheckedExpressionOperationProofV1::NullableAliasNull { reference, null, binding, root } = &self.proof else { return None; };
+        let binary = self.plan.nodes().get(self.node)?.binary()?;
+        let read = self.plan.nodes().get(*reference)?;
+        let empty = self.plan.nodes().get(*null)?;
+        (binding.owner() == self.plan.owner() && root.owner() == self.plan.owner()
+            && matches!(binary.operator(), ResolvedBinaryOperatorV1::Equal | ResolvedBinaryOperatorV1::NotEqual)
+            && matches!(read.source(), ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(original)) if original == binding)
+            && matches!(empty.source(), ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Null))
+            && ((read.site() == binary.lhs() && empty.site() == binary.rhs())
+                || (read.site() == binary.rhs() && empty.site() == binary.lhs())))
+            .then_some((*reference, *null))
     }
     pub(crate) fn nullable_field_null_v1(&self) -> Option<(usize, usize, &LocalFieldReadRequestV1)> {
         let CheckedExpressionOperationProofV1::NullableFieldNull { reference, null, request } = &self.proof else { return None; };

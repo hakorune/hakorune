@@ -15,7 +15,7 @@ impl HomeExpressionPlanV1 {
         }
         let mut plan = prepared.unwrap_or_else(|| Self {
             source: Rc::clone(&source),
-            scalar_operations: Vec::new(),
+            scalar_operations: Vec::new(), comparison_root: None,
             source_fields: Vec::new(),
             print_frame: None,
             argument_frame: None,
@@ -95,7 +95,7 @@ impl HomeExpressionPlanV1 {
             || !evaluation.reference_coverage_is_exact() { return None; }
         let plan = Self {
             source: Rc::clone(evaluation.source()),
-            scalar_operations: Vec::new(),
+            scalar_operations: Vec::new(), comparison_root: None,
             source_fields: Vec::new(),
             print_frame: None,
             argument_frame: None,
@@ -176,7 +176,7 @@ impl HomeExpressionPlanV1 {
     }
     fn source_reads_v1(source: Rc<ExpressionSourcePlanV1>, homes: &[LiveHomeV1], requests: &[LocalFieldReadRequestV1]) -> Option<Self> {
         Self {
-            source, scalar_operations: Vec::new(), source_fields: Vec::new(),
+            source, scalar_operations: Vec::new(), comparison_root: None, source_fields: Vec::new(),
             print_frame: None, argument_frame: None, initializer_frame: None,
             rebind_frame: None, condition_frame: None, loop_recipe: None,
             field_write: None, source_field_homes: Some(Rc::from(homes)),

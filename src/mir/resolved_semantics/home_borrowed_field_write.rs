@@ -145,7 +145,7 @@ impl HomeExpressionPlanV1 {
         });
         Some(Self {
             source,
-            scalar_operations: Vec::new(),
+            scalar_operations: Vec::new(), comparison_root: None,
             source_fields: Vec::new(),
             source_field_homes: None,
             argument_frame: None,

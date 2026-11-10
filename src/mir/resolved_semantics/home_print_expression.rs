@@ -121,7 +121,7 @@ pub(crate) fn qualify_print_expression_v1<E>(
     }
     let candidate = HomeExpressionPlanV1 {
         source: Rc::clone(&source),
-        scalar_operations: Vec::new(),
+        scalar_operations: Vec::new(), comparison_root: None,
         source_fields: Vec::new(),
         source_field_homes: None,
         argument_frame: None,

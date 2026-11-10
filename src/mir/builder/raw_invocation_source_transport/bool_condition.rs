@@ -21,6 +21,11 @@ impl RawInvocationChildPortV1<'_, '_> {
             return emission.frame.evaluation().comparison_plan_v1(node)
                 .map_err(|reason| format!("[freeze:contract][{reason}]"));
         }
+        if let (Some(ledger), Some(owner)) = (&self.ordinary_new_claim_ledger, self.callable_owner_v1()) {
+            if let Some(loan) = ledger.comparison_initializer_source_v1(owner, &SourceExprSiteV1::from_node(site.clone()))? {
+                return loan.alias_comparison_plan_v1().map(Some).map_err(|reason| format!("[freeze:contract][{reason}]"));
+            }
+        }
         let Some(input) = self.source_input else { return Ok(None); };
         crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionPlanV1::original_null_v1(
             input.function().expression_source(), &SourceExprSiteV1::from_node(site))

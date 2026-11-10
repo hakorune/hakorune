@@ -293,6 +293,15 @@ fn field_alias_null_equality_claims_both_predicates_and_orders() {
             "local l = pool.page local c = {compare} local later = new Page() return 0"
         ));
         assert_eq!(staged_count(&package), 1, "compare {compare}");
+        let loans: Vec<_> = package.batch().declarations().filter_map(|declaration|
+            package.ordinary_new_claim_ledger.completion_for_owner(declaration.owner())
+                .and_then(|row| row.cleanup().root_flow()))
+            .flat_map(|flow| flow.expression_plans()).filter_map(|plan| plan.comparison_root()).collect();
+        assert_eq!(loans.len(), 1, "the original field-alias comparison is retained: {compare}");
+        let plan = loans[0].alias_comparison_plan_v1().expect("original null law");
+        assert_eq!(plan.kind(), crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionKindV1::Null);
+        assert_eq!(plan.operator(), if compare.contains("!=") { crate::mir::CompareOp::Ne } else { crate::mir::CompareOp::Eq });
+
         assert!(
             package
                 .ordinary_new_claim_ledger

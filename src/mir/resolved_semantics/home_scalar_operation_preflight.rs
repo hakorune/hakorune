@@ -56,19 +56,28 @@ pub(super) fn preflight<E>(
     use SourceScalarKind as Kind;
     if matches!(row.operator(), Op::Equal | Op::NotEqual) {
         let alias_null = |value: &SourceExprSiteV1, null: &SourceExprSiteV1| {
-            let Some(ResolvedLexicalRefV1::Local(binding)) = input.function().variable_ref(value)
-            else {
-                return false;
-            };
-            matches!(
-                locals.field_read_receiver(binding, None),
-                Some(local_flow::FieldReadReceiverV1::Alias { .. })
-            ) && matches!(locals.observe(null), Some(OrdinaryObservation::Null))
+            let ResolvedLexicalRefV1::Local(binding) = input.function().variable_ref(value)? else { return None; };
+            let local_flow::FieldReadReceiverV1::Alias { root, .. } = locals.field_read_receiver(binding, None)? else { return None; };
+            matches!(locals.observe(null), Some(OrdinaryObservation::Null)).then_some((binding, root))
         };
-        if alias_null(row.lhs(), row.rhs()) || alias_null(row.rhs(), row.lhs()) {
+        if let Some((binding, root)) = alias_null(row.lhs(), row.rhs()).or_else(|| alias_null(row.rhs(), row.lhs())) {
+            if local_initializer_profile && is_root {
+                let mut initializers = input.function().expression_source().initializers()
+                    .filter(|initializer| initializer.initializer_site() == Some(site));
+                let Some(initializer) = initializers.next() else { return Ok(None); };
+                if initializers.next().is_some() || initializer.binding().owner() != input.owner()
+                    || !matches!(initializer.declaration_site(), SourceBindingSiteV1::Local { statement: original, .. } if original == statement) {
+                    return Ok(None);
+                }
+                let Ok(source) = crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(
+                    ledger, input.body_shape(), initializer) else { return Ok(None); };
+                let Some(plan) = HomeExpressionPlanV1::alias_null_root(source, binding, root) else { return Ok(None); };
+                *operation = Some(plan);
+            }
             return Ok(Some(Kind::Bool));
         }
     }
+
     // The operator table decides the operand and result kinds; the restriction
     // below is only where the operator may be used (a use-site limit, not a kind).
     let Some((operand, result)) = scalar_operator_kinds_v1(row.operator()) else {

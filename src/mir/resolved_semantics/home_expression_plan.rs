@@ -130,6 +130,7 @@ enum InitializerFrameV1 {
 pub(crate) struct HomeExpressionPlanV1 {
     source: Rc<ExpressionSourcePlanV1>,
     scalar_operations: Vec<Rc<ExpressionScalarOperationLoanV1>>,
+    comparison_root: Option<Rc<CheckedExpressionOperationLoanV1>>,
     source_fields: Vec<ExpressionFieldRequirementV1>,
     print_frame: Option<Rc<CheckedPrintExpressionFrameV1>>,
     argument_frame: Option<Rc<CheckedArgumentExpressionFrameV1>>,
@@ -165,7 +166,7 @@ impl HomeExpressionPlanV1 {
         }
         let plan = Self {
             source: Rc::clone(&source),
-            scalar_operations: Vec::new(),
+            scalar_operations: Vec::new(), comparison_root: None,
             source_fields: Vec::new(),
             print_frame: None,
             argument_frame: None,
@@ -193,7 +194,7 @@ impl HomeExpressionPlanV1 {
         )?;
         Some(Self {
             source,
-            scalar_operations: vec![loan],
+            scalar_operations: vec![loan], comparison_root: None,
             source_fields: Vec::new(),
             print_frame: None,
             argument_frame: None,
@@ -205,6 +206,24 @@ impl HomeExpressionPlanV1 {
             source_field_homes: None,
         })
     }
+    pub(super) fn alias_null_root(source: Rc<ExpressionSourcePlanV1>,
+        binding: crate::mir::resolved_semantics::BindingRefV1,
+        root: crate::mir::resolved_semantics::BindingRefV1,
+    ) -> Option<Self> {
+        source.root().initializer()?;
+        let binary = source.nodes().first()?.binary()?;
+        let index = |site| source.nodes().iter().position(|node| node.site() == site);
+        let (left, right) = (index(binary.lhs())?, index(binary.rhs())?);
+        let (reference, null) = if matches!(source.nodes()[left].source(), ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Null)) { (right, left) } else { (left, right) };
+        let loan = Rc::new(CheckedExpressionOperationLoanV1 { plan: Rc::clone(&source), node: 0,
+            proof: CheckedExpressionOperationProofV1::NullableAliasNull { reference, null, binding, root } });
+        loan.nullable_alias_null_v1()?;
+        let plan = Self { source, scalar_operations: Vec::new(), comparison_root: Some(loan), source_fields: Vec::new(),
+            print_frame: None, argument_frame: None, initializer_frame: None, rebind_frame: None,
+            condition_frame: None, loop_recipe: None, field_write: None, source_field_homes: None };
+        plan.is_consistent().then_some(plan)
+    }
+    pub(crate) fn comparison_root(&self) -> Option<&Rc<CheckedExpressionOperationLoanV1>> { self.comparison_root.as_ref() }
     /// The same completed evaluation, independent of its existing purpose.
     /// Scalar field RHS stays source-only; Text RHS borrows this same evaluator.
     pub(crate) fn evaluation(&self) -> Option<&CheckedExpressionEvaluationV1> {
@@ -303,6 +322,7 @@ impl HomeExpressionPlanV1 {
     pub(super) fn is_consistent(&self) -> bool {
         let mut seen = std::collections::BTreeSet::new();
         [
+            self.comparison_root.is_some(),
             self.initializer_frame.is_some(),
             self.rebind_frame.is_some(),
             self.argument_frame.is_some(),
@@ -315,6 +335,8 @@ impl HomeExpressionPlanV1 {
         .filter(|present| *present)
         .count()
             <= 1
+            && self.comparison_root.as_ref().is_none_or(|loan| Rc::ptr_eq(loan.source(), &self.source)
+                && loan.node() == 0 && self.source.root().initializer().is_some() && loan.nullable_alias_null_v1().is_some())
             && self.source_field_homes.as_ref().is_none_or(|homes| {
                 (self.source.root().initializer().is_some()
                     || matches!(self.source.root(), ExpressionPlanRootV1::CallArgument { .. })
@@ -487,6 +509,9 @@ impl super::RootHomeFlow {
                 (None, None) => false,
                 (Some(a), Some(b)) => !std::rc::Rc::ptr_eq(a, b),
                 _ => true,
+            }
+            || match (original.comparison_root(), refined.comparison_root()) {
+                (None, None) => false, (Some(a), Some(b)) => !Rc::ptr_eq(a, b), _ => true,
             }
             || original.scalar_operations().count() != refined.scalar_operations().count()
             || !original

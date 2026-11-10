@@ -8,6 +8,18 @@ use std::rc::Rc;
 type Binding = (BasicBlockId, MirInstruction);
 
 impl OrdinaryNewClaimLedgerV1 {
+    pub(crate) fn comparison_initializer_source_v1(&self, owner: FunctionOwnerIdV1,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    ) -> Result<Option<Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionOperationLoanV1>>, String> {
+        let mut rows = self.completion_for_owner(owner).and_then(|row| row.cleanup().root_flow())
+            .into_iter().flat_map(|flow| flow.expression_plans()).filter_map(|plan| plan.comparison_root())
+            .filter(|loan| loan.source().nodes().first().is_some_and(|node| node.site() == site));
+        let row = rows.next().cloned();
+        if rows.next().is_some() || row.as_ref().is_some_and(|loan| loan.source().owner() != owner || loan.nullable_alias_null_v1().is_none()) {
+            return Err(freeze("initializer-expression/comparison-source"));
+        }
+        Ok(row)
+    }
     /// Borrow the already checked source transfer from the same Home flow.
     pub(crate) fn move_initializer_v1(
         &self, owner: FunctionOwnerIdV1, statement: &crate::mir::resolved_semantics::SourceNodeSiteV1,
