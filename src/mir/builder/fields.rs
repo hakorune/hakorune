@@ -14,10 +14,6 @@ pub(in crate::mir::builder) use assignment::{
     lower_prepared_raw_field_assignment_with_port_v1, PreparedRawFieldAssignmentV1,
 };
 
-pub(in crate::mir::builder) struct PreparedRawFieldReadV1 {
-    route: PreparedRawFieldReadRouteV1,
-}
-
 /// Which sealed claim family owns one exact `receiver.field` read —
 /// decides the destination type and the ledger record family. `Local`
 /// carries the issuer's declared-type classification: `Scalar` reads an
@@ -31,7 +27,7 @@ pub(in crate::mir::builder) enum PreparedExactFieldReadClaimV1 {
     Local(std::rc::Rc<crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1>),
 }
 
-enum PreparedRawFieldReadRouteV1 {
+pub(in crate::mir::builder) enum PreparedRawFieldReadV1 {
     ResultPath {
         object: ASTNode,
         site: crate::mir::resolved_semantics::OwnedExprSiteV1,
@@ -74,7 +70,7 @@ impl PreparedRawFieldReadV1 {
     pub(in crate::mir::builder) fn result_path(object: ASTNode,
         site: crate::mir::resolved_semantics::OwnedExprSiteV1,
         ledger: std::rc::Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
-    ) -> Self { Self { route: PreparedRawFieldReadRouteV1::ResultPath { object, site, ledger } } }
+    ) -> Self { Self::ResultPath { object, site, ledger } }
     pub(in crate::mir::builder) fn exact_object(
         object: ASTNode,
         base: ValueId,
@@ -83,15 +79,13 @@ impl PreparedRawFieldReadV1 {
         ledger: std::rc::Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
         claim: PreparedExactFieldReadClaimV1,
     ) -> Self {
-        Self {
-            route: PreparedRawFieldReadRouteV1::ExactObject {
-                object,
-                base,
-                field,
-                site,
-                ledger,
-                claim,
-            },
+        Self::ExactObject {
+            object,
+            base,
+            field,
+            site,
+            ledger,
+            claim,
         }
     }
     pub(in crate::mir::builder) fn prepare(
@@ -114,16 +108,14 @@ impl PreparedRawFieldReadV1 {
                         .is_some()
                 });
             if let Some(value) = record_value {
-                return Self {
-                    route: PreparedRawFieldReadRouteV1::ExistingRecord { value, field },
-                };
+                return Self::ExistingRecord { value, field };
             }
         }
         let route = match object {
             ASTNode::New {
                 class, arguments, ..
             } if builder.is_record_constructor_class(&class) => {
-                PreparedRawFieldReadRouteV1::RecordConstructor {
+                PreparedRawFieldReadV1::RecordConstructor {
                     class,
                     arguments,
                     field,
@@ -133,29 +125,29 @@ impl PreparedRawFieldReadV1 {
                 record_type_name,
                 fields,
                 ..
-            } => PreparedRawFieldReadRouteV1::RecordLiteral {
+            } => PreparedRawFieldReadV1::RecordLiteral {
                 record_type_name,
                 fields,
                 field,
             },
             ASTNode::RecordUpdate { base, updates, .. } => {
-                PreparedRawFieldReadRouteV1::RecordUpdate {
+                PreparedRawFieldReadV1::RecordUpdate {
                     base: *base,
                     updates,
                     field,
                 }
             }
-            object => PreparedRawFieldReadRouteV1::Dynamic { object, field },
+            object => PreparedRawFieldReadV1::Dynamic { object, field },
         };
-        Self { route }
+        route
     }
 
     pub(in crate::mir::builder) fn requires_receiver_source_v1(&self) -> bool {
         matches!(
-            self.route,
-            PreparedRawFieldReadRouteV1::Dynamic { .. }
-                | PreparedRawFieldReadRouteV1::ResultPath { .. }
-        ) || matches!(&self.route, PreparedRawFieldReadRouteV1::ExactObject { claim, .. }
+            self,
+            PreparedRawFieldReadV1::Dynamic { .. }
+                | PreparedRawFieldReadV1::ResultPath { .. }
+        ) || matches!(self, PreparedRawFieldReadV1::ExactObject { claim, .. }
             if !matches!(claim, PreparedExactFieldReadClaimV1::CheckedLocal { .. })
         )
     }
@@ -231,34 +223,11 @@ impl super::MirBuilder {
         if matches!(&claim, PreparedExactFieldReadClaimV1::Local(source) if source.requires_checked_field_read_v1()) {
             return Err("[freeze:contract][ordinary-field-read/checked-fault-context-missing]".into());
         }
-        let ty = match &claim {
-
-            PreparedExactFieldReadClaimV1::CheckedLocal { .. } => return Err("[freeze:contract][ordinary-field-read/checked-dispatch]".into()),
-            PreparedExactFieldReadClaimV1::Local(source) => match source.result() {
-                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedObject(_)
-                | crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Text(_) => return Err("[freeze:contract][ordinary-field-read/checked-dispatch]".into()),
-                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(array)
-                    if array.integer_requirement_v1().is_none() && source.array_operation_sources_v1().is_empty() => return Err("[freeze:contract][ordinary-field-read/checked-dispatch]".into()),
-                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar => crate::mir::MirType::Integer,
-                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Alias(class) => crate::mir::MirType::Box(class.to_string()),
-                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(_)
-                | crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(_) => crate::mir::MirType::Box("ArrayBox".into()),
-            },
+        let PreparedExactFieldReadClaimV1::Local(source) = &claim else {
+            return Err("[freeze:contract][ordinary-field-read/checked-dispatch]".into());
         };
-        if let PreparedExactFieldReadClaimV1::Local(source) = &claim {
-            if !source.array_operation_sources_v1().is_empty() || matches!(source.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(array)
-                if array.text_append_origin_v1().is_some()) {
-                let (dst, binding) = self.append_exact_object_field_read_with_destination_v1(base, field, ty, destination)?;
-                ledger.record_local_field_read_binding(site, binding.0, binding.1.clone(), source)?;
-                return Ok((dst, binding));
-            }
-            let array_field = match source.result() {
-                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(array) =>
-                    array.integer_requirement_v1().map(|source| (source.owner(), source.field_site(), source.field_name())),
-                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(array) =>
-                    Some((array.site().owner(), array.site().site(), array.name())),
-                _ => None,
-            };
+        let (ty, array_field) = source.raw_projection_v1()
+            .ok_or("[freeze:contract][ordinary-field-read/checked-dispatch]")?;
             if let Some((owner, source_site, field_name)) = array_field {
                 if source.field() != field || source_site != site.site() || owner != site.owner() {
                     return Err("[freeze:contract][ordinary-field-read/array-source-drift]".into());
@@ -273,7 +242,6 @@ impl super::MirBuilder {
                 ledger.record_local_field_read_binding(site, block, instruction.clone(), source)?;
                 return Ok((dst, (block, instruction)));
             }
-        }
         let (dst, binding) = self.append_exact_object_field_read_with_destination_v1(base, field, ty, destination)?;
         match claim {
             PreparedExactFieldReadClaimV1::CheckedLocal { .. } => return Err("[freeze:contract][ordinary-field-read/checked-dispatch]".into()),
@@ -291,14 +259,14 @@ impl super::MirBuilder {
     where
         Port: RawAstChildLoweringPortV1,
     {
-        match prepared.route {
-            PreparedRawFieldReadRouteV1::ResultPath { object, site, ledger } => {
+        match prepared {
+            PreparedRawFieldReadV1::ResultPath { object, site, ledger } => {
                 let base = drive_legacy_expression_v1(self, port, object)?;
                 let source = ledger.bind_result_path_receiver_v1(&site, base)?;
                 self.complete_exact_field_read_v1(base, source.field(), &site, &ledger,
                     PreparedExactFieldReadClaimV1::Local(source)).map(|(value, _)| value)
             }
-            PreparedRawFieldReadRouteV1::ExactObject {
+            PreparedRawFieldReadV1::ExactObject {
                 object,
                 base,
                 field,
@@ -318,10 +286,10 @@ impl super::MirBuilder {
                 self.complete_exact_field_read_v1(base, field, &site, &ledger, claim)
                     .map(|(value, _)| value)
             }
-            PreparedRawFieldReadRouteV1::ExistingRecord { value, field } => {
+            PreparedRawFieldReadV1::ExistingRecord { value, field } => {
                 self.lower_prepared_record_field_read_from_value(value, &field)
             }
-            PreparedRawFieldReadRouteV1::RecordConstructor {
+            PreparedRawFieldReadV1::RecordConstructor {
                 class,
                 arguments,
                 field,
@@ -330,7 +298,7 @@ impl super::MirBuilder {
                     self.build_record_constructor_value_with_port_v1(port, class, arguments)?;
                 self.lower_prepared_record_field_read_from_value(value, &field)
             }
-            PreparedRawFieldReadRouteV1::RecordLiteral {
+            PreparedRawFieldReadV1::RecordLiteral {
                 record_type_name,
                 fields,
                 field,
@@ -339,7 +307,7 @@ impl super::MirBuilder {
                     self.build_record_literal_value_with_port_v1(port, record_type_name, fields)?;
                 self.lower_prepared_record_field_read_from_value(value, &field)
             }
-            PreparedRawFieldReadRouteV1::RecordUpdate {
+            PreparedRawFieldReadV1::RecordUpdate {
                 base,
                 updates,
                 field,
@@ -347,7 +315,7 @@ impl super::MirBuilder {
                 let value = self.build_record_update_value_with_port_v1(port, base, updates)?;
                 self.lower_prepared_record_field_read_from_value(value, &field)
             }
-            PreparedRawFieldReadRouteV1::Dynamic { object, field } => {
+            PreparedRawFieldReadV1::Dynamic { object, field } => {
                 let object_value = drive_legacy_expression_v1(self, port, object)?;
                 let object_value = self.local_field_base(object_value);
                 if let Some(property_value) =
@@ -465,7 +433,7 @@ impl super::MirBuilder {
 #[cfg(test)]
 mod tests {
     use super::{
-        super::MirBuilder, PreparedRawFieldAssignmentV1, PreparedRawFieldReadRouteV1,
+        super::MirBuilder, PreparedRawFieldAssignmentV1,
         PreparedRawFieldReadV1,
     };
     use crate::ast::{ASTNode, FieldDecl, LiteralValue, Span};
@@ -514,16 +482,16 @@ mod tests {
     }
 
     fn prepared_route(builder: &MirBuilder, object: ASTNode) -> &'static str {
-        match PreparedRawFieldReadV1::prepare(builder, object, "value".to_string()).route {
-            PreparedRawFieldReadRouteV1::ResultPath { .. } => panic!("compatibility preparation cannot select source path"),
-            PreparedRawFieldReadRouteV1::ExactObject { .. } => {
+        match PreparedRawFieldReadV1::prepare(builder, object, "value".to_string()) {
+            PreparedRawFieldReadV1::ResultPath { .. } => panic!("compatibility preparation cannot select source path"),
+            PreparedRawFieldReadV1::ExactObject { .. } => {
                 panic!("compatibility preparation must not issue an exact object field read")
             }
-            PreparedRawFieldReadRouteV1::ExistingRecord { .. } => "existing-record",
-            PreparedRawFieldReadRouteV1::RecordConstructor { .. } => "record-constructor",
-            PreparedRawFieldReadRouteV1::RecordLiteral { .. } => "record-literal",
-            PreparedRawFieldReadRouteV1::RecordUpdate { .. } => "record-update",
-            PreparedRawFieldReadRouteV1::Dynamic { .. } => "dynamic",
+            PreparedRawFieldReadV1::ExistingRecord { .. } => "existing-record",
+            PreparedRawFieldReadV1::RecordConstructor { .. } => "record-constructor",
+            PreparedRawFieldReadV1::RecordLiteral { .. } => "record-literal",
+            PreparedRawFieldReadV1::RecordUpdate { .. } => "record-update",
+            PreparedRawFieldReadV1::Dynamic { .. } => "dynamic",
         }
     }
 

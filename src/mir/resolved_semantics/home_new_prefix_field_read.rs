@@ -106,12 +106,6 @@ impl ScalarFieldReadSourceV1 {
     }
 }
 
-#[derive(Debug)]
-pub(super) struct ObservedLocalFieldReadV1 {
-    request: LocalFieldReadRequestV1,
-    result: LocalFieldReadResultV1,
-}
-
 #[derive(Debug, Clone)]
 pub(crate) struct BorrowedArrayFieldSourceV1 {
     origin: BorrowedArrayFieldOriginV1,
@@ -198,7 +192,7 @@ pub(super) fn observe_local_field_read<E>(
         &[LocalFieldReadRequestV1],
         LocalFieldReadDemandV1,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
-) -> Result<Option<ObservedLocalFieldReadV1>, E> {
+) -> Result<Option<(LocalFieldReadRequestV1, LocalFieldReadResultV1)>, E> {
     let Some(request) = field_read_request(input, site, locals) else {
         return Ok(None);
     };
@@ -260,10 +254,7 @@ pub(super) fn observe_local_field_read<E>(
     if let Some(installation) = installation {
         installation.commit();
     }
-    Ok(Some(ObservedLocalFieldReadV1 {
-        request,
-        result: results.remove(0),
-    }))
+    Ok(Some((request, results.remove(0))))
 }
 
 /// Original received acquisition; no class, nonnull fact or Home is issued.
@@ -476,13 +467,13 @@ pub(super) fn install_local_field_read_result(
     binding: BindingRefV1,
     locals: &mut PrefixLocalFlow<'_>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,
-    observed: ObservedLocalFieldReadV1,
+    observed: (LocalFieldReadRequestV1, LocalFieldReadResultV1),
 ) {
     // A proven `receiver.field` initializer binds by its
     // declared result class — numeric scalars are trivial,
     // ordinary-box results are borrowed field aliases that
     // join no Home set.
-    let ObservedLocalFieldReadV1 { request, result } = observed;
+    let (request, result) = observed;
     match result {
         LocalFieldReadResultV1::ArrayField(_) | LocalFieldReadResultV1::BorrowedObject(_) | LocalFieldReadResultV1::Text(_) => {
             // Statement-call provenance never installs a local Home.

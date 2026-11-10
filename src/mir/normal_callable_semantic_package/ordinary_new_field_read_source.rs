@@ -63,18 +63,35 @@ impl LocalFieldReadSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn received_root_source_v1(&self) -> Option<&ReceivedFieldReadSourceV1> {
         self.received.as_ref().or_else(|| self.statement_path().and_then(|path| path.received_root_v1()))
     }
-    pub(in crate::mir) fn matches_checked_operation_v1(&self, operation: &crate::mir::instruction::InvokeOperation, base: ValueId) -> bool {
-        use crate::mir::instruction::InvokeOperation;
+    /// One source-qualified checked operation, shared by emission and correspondence.
+    pub(in crate::mir) fn checked_operation_v1(
+        &self, base: ValueId,
+    ) -> Option<(crate::mir::instruction::InvokeOperation, crate::mir::MirType)> {
+        use crate::mir::instruction::{InvokeOperation, StringInvokeOperation};
         use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
-        match (self.result(), operation) {
-            (LocalFieldReadResultV1::BorrowedObject(source), InvokeOperation::ObjectFieldBorrow { field, base: actual, child, nullable }) =>
-                *field == self.field && source.field() == self.field && *actual == base && *child == source.child()
-                    && *nullable == self.checked_object_nullable_v1(),
-            (LocalFieldReadResultV1::Text(source), InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { field, base: actual })) =>
-                *field == self.field && source.field() == self.field && *actual == base,
-            (LocalFieldReadResultV1::Scalar, InvokeOperation::FieldGet { field, base: actual }) => *field == self.field && *actual == base,
-            _ => false,
+        use crate::mir::MirType;
+        match self.result() {
+            LocalFieldReadResultV1::BorrowedObject(child) => Some((
+                InvokeOperation::ObjectFieldBorrow { field: self.field, base,
+                    child: child.child(), nullable: self.checked_object_nullable_v1() },
+                MirType::Box(child.child_class().into()),
+            )),
+            LocalFieldReadResultV1::Text(text) if text.field() == self.field => Some((
+                InvokeOperation::String(StringInvokeOperation::FieldMaterialize { field: self.field, base }),
+                MirType::String,
+            )),
+            LocalFieldReadResultV1::Scalar => Some((
+                InvokeOperation::FieldGet { field: self.field, base }, MirType::Integer,
+            )),
+            _ => None,
         }
+    }
+    pub(in crate::mir) fn matches_checked_operation_v1(&self, operation: &crate::mir::instruction::InvokeOperation, base: ValueId) -> bool {
+        use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
+        if matches!(self.result(), LocalFieldReadResultV1::BorrowedObject(child) if child.field() != self.field) {
+            return false;
+        }
+        self.checked_operation_v1(base).is_some_and(|(expected, _)| expected == *operation)
     }
     pub(crate) fn field(&self) -> CanonicalFieldRefV1 { self.field }
     pub(in crate::mir) fn shared_support_v1(&self) -> Option<&(OwnedExprSiteV1, OwnedExprSiteV1)> {
@@ -87,21 +104,44 @@ impl LocalFieldReadSourceV1 {
         &self.array_reads
     }
     pub(crate) fn declared_type_name(&self) -> Option<&str> { self.declared_type_name.as_deref() }
-    pub(super) fn corroborates_instruction(&self, instruction: &MirInstruction) -> bool {
+    /// Raw representation and its original compatibility-field obligation, if any.
+    /// The optional source site is checked by the writer before that projection.
+    pub(in crate::mir) fn raw_projection_v1(&self) -> Option<(
+        crate::mir::MirType, Option<(FunctionOwnerIdV1, &SourceExprSiteV1, &str)>,
+    )> {
         use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
-        if self.requires_checked_field_read_v1() { return false; }
-        match (self.result(), instruction) {
-            (LocalFieldReadResultV1::BorrowedArray(source), MirInstruction::FieldGet { field, declared_type: Some(crate::mir::MirType::Box(class)), .. }) =>
-                source.integer_requirement_v1().is_some_and(|source| source.field() == self.field() && source.field_name() == field && class == "ArrayBox"),
-            (LocalFieldReadResultV1::BorrowedArray(_), MirInstruction::ObjectFieldGet { field, .. }) =>
-                !self.array_reads.is_empty() && *field == self.field(),
-            (LocalFieldReadResultV1::BorrowedArray(_), _) => false,
-            (LocalFieldReadResultV1::ArrayField(source), MirInstruction::ObjectFieldGet { field, .. })
-                if source.text_append_origin_v1().is_some() || !self.array_reads.is_empty() => source.field() == self.field() && *field == self.field(),
-            (LocalFieldReadResultV1::ArrayField(source), MirInstruction::FieldGet { field, declared_type: Some(crate::mir::MirType::Box(class)), .. }) =>
-                source.text_append_origin_v1().is_none() && source.field() == self.field() && source.name() == field && class == "ArrayBox",
-            (LocalFieldReadResultV1::ArrayField(_), _) => false,
-            (_, MirInstruction::ObjectFieldGet { field, .. }) => *field == self.field(),
+        use crate::mir::MirType;
+        if self.requires_checked_field_read_v1() { return None; }
+        let (ty, array) = match self.result() {
+            LocalFieldReadResultV1::Scalar => (MirType::Integer, None),
+            LocalFieldReadResultV1::Alias(class) => (MirType::Box(class.to_string()), None),
+            LocalFieldReadResultV1::BorrowedArray(array) => {
+                if array.integer_requirement_v1().is_some_and(|source| source.field() != self.field) {
+                    return None;
+                }
+                if array.integer_requirement_v1().is_none() && self.array_reads.is_empty() {
+                    return None;
+                }
+                let origin = self.array_reads.is_empty().then(|| array.integer_requirement_v1())
+                    .flatten().map(|source| (source.owner(), source.field_site(), source.field_name()));
+                (MirType::Box("ArrayBox".into()), origin)
+            }
+            LocalFieldReadResultV1::ArrayField(array) => {
+                if array.field() != self.field { return None; }
+                let origin = (array.text_append_origin_v1().is_none() && self.array_reads.is_empty())
+                    .then(|| (array.site().owner(), array.site().site(), array.name()));
+                (MirType::Box("ArrayBox".into()), origin)
+            }
+            _ => return None,
+        };
+        Some((ty, array))
+    }
+    pub(super) fn corroborates_instruction(&self, instruction: &MirInstruction) -> bool {
+        let Some((ty, array)) = self.raw_projection_v1() else { return false; };
+        match (array, instruction) {
+            (Some((_, _, name)), MirInstruction::FieldGet { field, declared_type, .. }) =>
+                field == name && declared_type.as_ref() == Some(&ty),
+            (None, MirInstruction::ObjectFieldGet { field, .. }) => *field == self.field,
             _ => false,
         }
     }

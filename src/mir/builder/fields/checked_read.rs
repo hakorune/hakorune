@@ -55,22 +55,13 @@ impl crate::mir::MirBuilder {
         fault_frame: ValueId, normal: crate::mir::BasicBlockId, fault: crate::mir::BasicBlockId,
         destination: Option<ValueId>,
     ) -> Result<(ValueId, [(crate::mir::BasicBlockId, crate::mir::MirInstruction); 2]), String> {
-        use crate::mir::{MirInstruction, MirType};
+        use crate::mir::MirInstruction;
         if !source.requires_checked_field_read_v1() || normal == fault {
             return Err("[freeze:contract][ordinary-field-read/checked-source-missing]".into());
         }
         let block = self.function_state.current_block.ok_or("[freeze:contract][ordinary-field-read/no-block]")?;
-        use crate::mir::instruction::InvokeOperation;
-        use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
-        let (operation, ty) = match source.result() {
-            LocalFieldReadResultV1::BorrowedObject(child) =>
-                (InvokeOperation::ObjectFieldBorrow { field: source.field(), base, child: child.child(), nullable: source.checked_object_nullable_v1() },
-                    MirType::Box(child.child_class().into())),
-            LocalFieldReadResultV1::Text(text) if text.field() == source.field() =>
-                (InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { field: source.field(), base }), MirType::String),
-            LocalFieldReadResultV1::Scalar => (InvokeOperation::FieldGet { field: source.field(), base }, MirType::Integer),
-            _ => return Err("[freeze:contract][ordinary-field-read/checked-source-missing]".into()),
-        };
+        let (operation, ty) = source.checked_operation_v1(base)
+            .ok_or("[freeze:contract][ordinary-field-read/checked-source-missing]")?;
         let invoke = MirInstruction::Invoke {
             operation,
             fault_frame, normal_landing: normal, fault_landing: fault,
