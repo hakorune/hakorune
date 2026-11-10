@@ -913,3 +913,84 @@ fn checked_dynamic_invocation_publishes_and_ends_one_opaque_carrier() {
     assert_eq!((primary.reason, primary.site, primary.details[0]), (400, 51, 4));
     host_handles::drop_handle(handle);
 }
+
+#[test]
+fn checked_string_mixed_equality_checks_both_carriers_without_consuming_them() {
+    use super::checked_string::{self as api, Operand};
+    use nyash_rust::{box_trait::StringBox, runtime::dynamic_invocation as dynamic};
+    use std::sync::Arc;
+
+    let integer = dynamic::plan_dynamic_invocation_v1(
+        dynamic::DynamicInvocationValueV1::Object(Arc::new(StringBox::new("cat"))),
+        "length", vec![],
+    ).unwrap().execute_once_v1().unwrap();
+    let null = dynamic::publish_null_v1().unwrap();
+    let text = dynamic::publish_string_v1("cat".into()).unwrap();
+    let different = dynamic::publish_string_v1("dog".into()).unwrap();
+    let other = dynamic::publish_array_get_v1(Box::new(
+        nyash_rust::box_trait::BoolBox::new(true),
+    )).unwrap();
+    let stale = dynamic::publish_null_v1().unwrap();
+    let stale_raw = stale.raw_v1();
+    stale.end_v1().unwrap();
+    let literal = Operand { kind: 1, reserved: 0, bytes: b"cat".as_ptr(), len: 3,
+        handle: 0, token: 0, integer: 0 };
+    let carrier = |token| Operand { kind: 5, bytes: std::ptr::null(), len: 0,
+        token, ..literal };
+    let operands = [literal, carrier(text.raw_v1()), carrier(different.raw_v1()),
+        carrier(null.raw_v1()), carrier(integer.raw_v1()), carrier(other.raw_v1())];
+    // Every ordered pair is checked, including Other/Other (never null/null).
+    for (left_index, left) in operands.iter().enumerate() {
+        for (right_index, right) in operands.iter().enumerate() {
+            for op in 0..6 {
+                let mut frame = FaultFrame::new();
+                let pointer = (&mut frame as *mut FaultFrame).cast();
+                let mut out = 777;
+                let status = unsafe { api::compare(pointer, 71, op, left, right, &mut out) };
+                if left_index < 3 && right_index < 3 {
+                    let values = ["cat", "cat", "dog"];
+                    let order = values[left_index].cmp(values[right_index]);
+                    let expected = [order.is_eq(), !order.is_eq(), order.is_lt(),
+                        !order.is_gt(), order.is_gt(), !order.is_lt()][op as usize];
+                    assert_eq!((status, out), (0, i64::from(expected)));
+                } else if op < 2 {
+                    let equal = left_index == 3 && right_index == 3;
+                    assert_eq!((status, out), (0, i64::from(equal == (op == 0))),
+                        "operands {left_index}/{right_index}, op {op}");
+                } else {
+                    assert_eq!((status, out), (1, 777));
+                    assert_eq!(frame.diagnostics().unwrap().0.unwrap().reason, 302);
+                }
+            }
+        }
+    }
+    let invalid = [carrier(0), carrier(1), carrier(stale_raw),
+        Operand { reserved: 1, ..carrier(integer.raw_v1()) }];
+    for bad in invalid {
+        for op in 0..6 {
+            for (left, right) in [(carrier(integer.raw_v1()), bad),
+                (bad, carrier(integer.raw_v1()))] {
+                let mut frame = FaultFrame::new();
+                let mut out = 777;
+                assert_eq!(unsafe { api::compare((&mut frame as *mut FaultFrame).cast(),
+                    72, op, &left, &right, &mut out) }, 2);
+                assert_eq!(out, 777, "invalid operands never publish a result");
+                assert!(frame.diagnostics().unwrap().0.is_none());
+            }
+        }
+    }
+    let mut frame = FaultFrame::new();
+    let mut out = 777;
+    assert_eq!(unsafe { api::compare((&mut frame as *mut FaultFrame).cast(),
+        73, 6, &literal, &literal, &mut out) }, 2);
+    assert_eq!(out, 777);
+    assert_eq!(integer.integer_payload_v1(), Ok(3));
+    assert_eq!(text.text_snapshot_v1(), Ok("cat".into()));
+    assert_eq!(null.is_null_v1(), Ok(true));
+    for token in [integer, null, text, different, other] {
+        let raw = token.raw_v1();
+        token.end_v1().unwrap();
+        assert!(dynamic::DynamicCarrierTokenV1::from_raw_v1(raw).unwrap().end_v1().is_err(),
+            "comparison leaves exactly one End obligation");
+    }
+}

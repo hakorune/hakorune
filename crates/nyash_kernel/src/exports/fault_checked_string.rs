@@ -179,15 +179,15 @@ pub unsafe extern "C" fn compare(storage: *mut c_void, site: u64, op: u32,
     left: *const Operand, right: *const Operand, out: *mut i64) -> u32 {
     if out.is_null() || !out.is_aligned() || op > 5 { return Status::InvalidContract as u32; }
     let frame = match unsafe { frame(storage) } { Ok(v) => v, Err(s) => return s as u32 };
-    let left = match unsafe { comparable(frame, site, left) } { Ok(v) => v, Err(status) => return status };
-    let right = match unsafe { comparable(frame, site, right) } { Ok(v) => v, Err(status) => return status };
+    let left = match unsafe { comparable(left) } { Ok(v) => v, Err(status) => return status };
+    let right = match unsafe { comparable(right) } { Ok(v) => v, Err(status) => return status };
     let (left, right) = match (left, right) {
-        (Some(left), Some(right)) => (left, right),
-        // A null carrier equals only null; ordering a null is a TypeError.
+        (Comparable::Text(left), Comparable::Text(right)) => (left, right),
+        // Only null/null is equal here. Other valid values are not null.
         (left, right) => {
             return match op {
                 0 | 1 => {
-                    unsafe { out.write(i64::from((left.is_none() && right.is_none()) == (op == 0))) };
+                    unsafe { out.write(i64::from((matches!(left, Comparable::Null) && matches!(right, Comparable::Null)) == (op == 0))) };
                     Status::Normal as u32
                 }
                 _ => fault(frame, site, TYPE_ERROR),
@@ -204,11 +204,19 @@ pub unsafe extern "C" fn compare(storage: *mut c_void, site: u64, op: u32,
     Status::Normal as u32
 }
 
-/// A comparison operand: Text, or the language null of a Dynamic carrier (`None`).
-unsafe fn comparable(frame: &mut FaultFrame, site: u64, value: *const Operand) -> Result<Option<String>, u32> {
+/// Separate valid non-Text payloads from null without assigning them Text equality.
+enum Comparable {
+    Text(String),
+    Null,
+    Other,
+}
+
+/// Decode both operands before applying an operator. Invalid transport is never
+/// a language TypeError, and a valid non-Text payload need not Fault for equality.
+unsafe fn comparable(value: *const Operand) -> Result<Comparable, u32> {
     let descriptor = unsafe { operand(value) }.map_err(|status| status as u32)?;
     if descriptor.kind != DYNAMIC_CARRIER {
-        return unsafe { text_operand(value) }.map(Some).map_err(|status| status as u32);
+        return unsafe { text_operand(value) }.map(Comparable::Text).map_err(|status| status as u32);
     }
     if !descriptor.bytes.is_null() || descriptor.len != 0 || descriptor.handle != 0
         || descriptor.integer != 0 || descriptor.token == 0 || descriptor.reserved != 0 {
@@ -217,14 +225,14 @@ unsafe fn comparable(frame: &mut FaultFrame, site: u64, value: *const Operand) -
     let carrier = nyash_rust::runtime::dynamic_invocation::DynamicCarrierTokenV1::from_raw_v1(descriptor.token)
         .map_err(|_| Status::InvalidContract as u32)?;
     match carrier.is_null_v1() {
-        Ok(true) => return Ok(None),
+        Ok(true) => return Ok(Comparable::Null),
         Ok(false) => {}
         Err(_) => return Err(Status::InvalidContract as u32),
     }
     match carrier.text_snapshot_v1() {
-        Ok(text) => Ok(Some(text)),
+        Ok(text) => Ok(Comparable::Text(text)),
         Err(nyash_rust::runtime::dynamic_invocation::DynamicInvocationFailureV1::ArgumentTypeMismatch) => {
-            Err(fault(frame, site, TYPE_ERROR))
+            Ok(Comparable::Other)
         }
         Err(_) => Err(Status::InvalidContract as u32),
     }
