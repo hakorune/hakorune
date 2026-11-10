@@ -378,3 +378,32 @@ Opusが基点`78ca1419c9`で相談文を作った（8問: 分類、比較の仕�
 - 順番: mixedの`==`の不具合の修正（最初にsourceからEXEまでの再現を作る）→ fieldの読みの正規化 → 2-Text helperと`StringIndexOf`（旧checked IndexOfは、producer・C・header・test・互換の経路が0であることを確かめて、同じseriesで消す）→ 比較の契約の精密化と`StringCompare`（複製しないruntimeと一緒に）→ basic-exprの残り → Mapの契約 → `edit` → 3bと旧経路の退役 → 徹底的な整理 → `.hako`のparserのparity → selfhost。
 - 比較の仕様: exact String同士の6つの比較は、結果がNormal(Bool)だけ（比較そのもののFaultは無い）、NonSuspending、評価の順序と借用と所有は今のまま。左右の値を作る時のFault（連結、呼び出し、fieldの読み）はその操作の物。issuerのFaultの種類に「無し」を足し、枠の判定・命令の選択・sourceの対応の検査はその答えを使う。DynamicとStringの比較とnullの比較は今の仕様のままcheckedの形に残し、どちらを使うかはsourceの型の組で決める。
 - 後回し: `Shared.Borrow`、専用`OwnedArray.Get`。TextのEndは、basic-exprの頃に小さな設計調査をする。
+
+## 比較の正規化のChatGPT Proへの相談とユーザー決定（2026-11-10）
+
+ユーザーが「比較を正規化して他の比較にも使えるようにするか」を聞いた。Opusが基点`57bde328c4`で相談文を作った（8問: 方向、決める持ち主の形、nullの等値、整数とBoolのenvelope、綴り、実装中の`StringCompare`への注意、3bとの関係、順番）。ChatGPT Proが答え、Proが引いた根拠はOpusが`57bde328c4`で読み、記述どおりだった。Proは非公開の`StringCompare`のbranchを読んでおらず、build・EXE・全producerの集計もしていない。
+
+### Opusの前提の誤り（Proの指摘、Opusが確認）
+
+- 整数の`compare`は「Faultの無い比較」だけではない。Cはtaggedのoperandも受け（`lang/c-abi/shims/published_mir/hako_llvmc_ffi_lifecycle_v4_indexed_rows.inc:128–132`）、kindが1でなければ`%fault`へ飛ぶ（`hako_llvmc_ffi_lifecycle_v4_emit.inc:273–289`）。整数の比較のenvelopeのTypeErrorは、このcheckedの見方では正しい（`docs/reference/language/dynamic-operators.md:146–173`）。
+- `sealed()`が入れる初期値はTypeErrorだけで、suspensionは各行が明示している（`src/mir/dynamic_operator_contract/model.rs:128–151`）。BoolとIntegerの`MaySuspend`は明示の値。
+- nullの`!=`が無いのは意図。最初の対応は直接の`if`の`==`だけで、`!=`は別のcapability（`dynamic-operators.md:225–228`、`issuer.rs:518–529`）。
+- Boolの物理形: CはBool同士の`eq`/`ne`だけを枠なしの`compare`で受け、順序比較は拒否する（`hako_llvmc_ffi_lifecycle_v4_indexed_rows.inc:122–127`）。
+
+### Proの答え（要点）
+
+- **方向**: 賛成。ただし「issuerの表1つに意味と物理形を全部持たせ、独立検証もその答えを使う」は直す。意味はcanonical issuer（`src/mir/dynamic_operator_contract/mod.rs:1–5`の境界を守る）、実装形への変換はprivateな変換1つ、出来たMIRの検証は独立。命令とruntimeは平らなまま（整数、null、String、checked）。公開の比較命令を1つにまとめるのは、今回の問題（意味の推定のやり直し）には要らない、より広いMIRの再設計。
+- **各層**: issuerは意味の契約（domain、法則、入力に要る検査・証拠、結果、Fault/suspension/順序/borrow）を返し、JSON名やC exportは持たない。変換はprivateな実行計画（概念: Scalar、NullObservation、Text、Checked）を作る。writerは計画を書くだけで型の組から選び直さない。sourceの対応の検査は計画とMIRを照合する。独立検証は実際のMIRを検査し、issuerの答えを免除証にしない。出発点は既にある共有の計画`scalar_condition_operation.rs:106–213`。
+- **null**: serializerの`null_producer`（`src/mir/compiler/normal_default_pipeline/published_backend_view/physical_program_json.rs:285–301,456–475`）は検査ではなく形を選んでいる。長期形はMIRにnullを見る行を明示する方を勧める（JSONの`borrowed_null_compare`とruntimeはそのまま使える見込み）。物理の`borrowed_null_compare`はtaggedの他にhandle、borrowed/mixed object、slot borrow、opaque carrierも扱う（`hako_llvmc_ffi_lifecycle_v4_indexed_rows.inc:133–160`、`hako_llvmc_ffi_lifecycle_v4_emit.inc:290–322`）ので、全部を`Equal(Dynamic, Null)`に押し込まない。独立検証はEq/Neの制限、Boolの結果、operandの定義と支配、許すcarrier、生存と借用、Copy/PHIの対応を見る。Integerの0、Boolのfalse、nullを同じにしない（`dynamic-operators.md:232–243`）。
+- **`EQUAL_DYNAMIC_NULL`のFault**: 本当の食い違い。仕様は「許すnon-nullの種類にTypeErrorを入れない」「壊れた搬送はcontract failure」（`dynamic-operators.md:236–237`）だが、envelopeは`sealed()`でTypeError（`issuer.rs:368–385`）。test（`src/mir/dynamic_operator_contract/tests.rs:123–151`）も一緒に直す。NoSourceFault化と`!=`の受理は別の変更にする。Opusの追加確認: 既にある`MalformedCarrierBeforeResult…`（`model.rs:111`、`issuer.rs:179`）は使わない。null比較で壊れたopaque carrierは`%fault`ではなく`%invalid`へ飛ぶ（`hako_llvmc_ffi_lifecycle_v4_emit.inc:314–316`）。
+- **整数とBool**: exactな比較はNoSourceFault/NonSuspendingと正直に書く。ただし既にある整数のenvelopeを一括で変えない。「入力がexact I64」と「Integerの種類を確かめてから比べる」を分ける（値の種類`I64`と`NormalInteger`は既に別、`model.rs`の`DynamicOperatorValueClassV1`）。builderが`MirType::Integer`やCのkindを見て勝手にFaultを落とさない。exact Bool同士のEq/NeもNoSourceFault/NonSuspending。taggedの中身がBoolでも同じにはしない。監査する物は、Faultとsuspensionを読んで枠・借用・順序・refinement・再生成を決める所全部。比較本体がFault無しでも、左右の値を作る時のFaultと後始末は残る。
+- **綴り**: 価値はあるが優先度は低い。今は変えない。`slt`の`s`は符号付きの意味を持つ。変えるなら`comparison`・`left/right`寄り。既存の鍵（`hako_llvmc_ffi_published_lifecycle_instruction_schema.inc:544`）の改名は破壊的変更なので、新しいversionが自然。旧と新の両方を受けるaliasは作らない。
+- **実装中の`StringCompare`への注意**: sourceの契約から1回だけ選ぶ（失敗してcheckedへ戻らない）。NoSourceFaultは明示した契約だけに使い、`sealed()`の初期値を変えない。枠の判定・writer・sourceの対応の検査は同じ選択を使い、`is_text`の独立した分類器を増やさない。新しい行を既存の`Compare`の再生成（`src/mir/builder/ssa/local/materialize.rs:555–568`、`src/mir/builder/ssa/phi_input_materializer/edge_rematerialization.rs:198–203`）へ自動で入れない。C exportはoperandの数ではなくopcodeで選ぶ。JSONの綴りは決めた通り。
+- **3b**: 拒否も意味の決定の1つとして、理由を3つに分ける（言語で禁止、許されているがまだ繋いでいない、証拠が足りない）。Bool同士のEq/Neはscalarの比較。nullable objectのnull testはobject同士の`==`の拒否（`docs/reference/language/status-index.md:581`）と別。objectの同一性はraw handleの整数比較へ落とさない。明示の同一性比較が今どこまであるかはPro未確認。
+- **順番**: Opusの案（`StringCompare`の後、basic-exprの残りの前）を支持。正規化では、意味を決める所、最初に比較を書く所、SSAの再生成、検査・搬送・読む所の4つを分けて数える。再生成は別の意味の決定ではない。確かめる事: 6演算と左右の順、Boolの順序比較の拒否、nullと0とfalseの区別、tagged/nullの今の受理範囲、Copy/PHIの後の対応、短絡の右辺、型の検査のFaultと後始末、TextのEndの後の使用の拒否。意図した契約の訂正の他に、受理が広がっていない事。
+
+### ユーザー決定（2026-11-10）
+
+- 順番: `StringCompare`（実装中、このまま）→ **比較の正規化** → basic-exprの残り → Mapの契約 → `edit` → ADRの残り → 3bと旧経路の退役 → 徹底的な整理 → `.hako`のparserのparity → selfhost。JSONの綴りの統一は比較の正規化に入れない。
+- nullの等値: MIRに専用の行を足す（公開MIRの追加として承認。名前と形は正規化の回の調べの後で決める）。JSONの`borrowed_null_compare`、C、runtimeは今のまま。serializerの`null_producer`による形の選択は退役させる。`!=`の受理は別の判断。`EQUAL_DYNAMIC_NULL`のFaultは、仕様に合わせてNoSourceFaultへ直す。
+- 整数とBool: exactな整数同士の6つの比較と、exactなBool同士の`==`/`!=`は、exact Stringと同じ約束（結果はNormal(Bool)だけ、Fault無し、NonSuspending）。taggedの値をIntegerとして比べるcheckedの見方は、TypeErrorが起き得る約束のまま残す。既にあるcheckedのenvelopeを一括でFault無しに書き換えない。仕様の文書も正規化の回で直す。

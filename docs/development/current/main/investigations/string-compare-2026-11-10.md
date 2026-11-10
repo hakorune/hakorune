@@ -85,3 +85,21 @@ After connection, the new source query is the intentional production axis reader
 Integer equality still uses the existing MaySuspend/TypeError envelope although its direct MIR route is frame-free; reader impact and a proposed contract correction are report-only.
 Checked null/null and other/other are outside the issuer's mixed String domain; their current Normal/TypeError behavior is preserved, with InvalidContract only a report proposal.
 The opaque carrier snapshot cannot borrow a host lease it does not contain; retaining that bounded copy is an explicit exception, not fallback.
+
+## Opus の確認（2026-11-10）
+
+Codex の `8377d69d20`〜`61bdc5f6b7`（8 commit）を、main `57bde328c4` から監査して fast-forward した。
+
+- 約束: `DynamicOperatorFaultV1::NoSourceFault` を足し、`string_comparison` だけが `sealed_with_fault` で NoSourceFault と NonSuspending を明示する。`sealed()` の初期値と、整数・Bool・null の envelope は変えていない。
+- 選ぶ所: `frame_free_text_comparison_v1`（`home_expression_comparison_nodes.rs`）1 つ。元の loan と source が同じ、左右とも String の class、envelope の domain・family・TrivialBool・NoSourceFault・NonSuspending・lifecycle 無し、operand の移転無し、を全部確かめる。class と domain の片方だけが String の時は、checked に戻らず `bool-condition/text-comparison-source` で止まる。枠の判定（`home_expression_evaluation.rs`）も同じ問い合わせを使う。
+- SSA: `materialize.rs` と `edge_rematerialization.rs` は変わっていない（新しい行を既存の `Compare` の複製の規則に入れていない）。増えたのは id の付け替え（`joinir_id_remapper*.rs`、`value_uses.rs`）と名前の表だけ。
+- 独立検証: Bool の結果の型を、metadata ではなく実際の定義から Copy と PHI をたどって決める（`has_text_read_scalar_origin`）。Bool の結果を And/Or 以外の算術に使う所や、型の食い違う PHI・Return は拒否する。
+- C: export を operand の数ではなく `op` の名前で選ぶ（`lv4_string_read_emit`）。知らない op は `%invalid` へ飛ぶ。JSON の鍵は `op,dst,comparison,left,right` の 5 つで、`comparison` の値も検査する。
+- runtime: `compare_text_v1` は `with_text_operands` で 2 つの Text を借りて、複製せずに比べる。checked の比較も同じ helper と比べる関数（`compare_text_value`）を使い、Text の複製をやめた。opaque carrier だけは既存の snapshot の複製が残る（carrier は host の lease を持たないため）。
+- 行数（`fmtcount.py` の `src/` だけ）: production +558 / test +47。inline test を test に分けると、`src/` の production +378 / test +227 で、Codex の数（`src/` の合計 605）と合う。全体は機能 +444 / +382、整理 −11 / +57。変更したファイルは生の行数で最大 795 行。
+- 未見の 21 本（`/mnt/workdisk/claude-scratch/scmp-audit`、基準は `57bde328c4` の CLI と、Codex が build の前に写した FFI と runtime）: 出力と拒否は 21 本とも同じ。MIR が変わった 11 本は全部軽くなって `string_compare` を使い、答えも正しい（substring の結果、`&&` と `||`、loop の中、局所の Bool、比較の結果どうしの `==`、同じ owned を両側、else if の連鎖、日本語の 5 つの比較を `&&` で、3 つの `if`、2 つの substring どうし）。
+- 残した事:
+  - 比較の結果どうしの順序比較 `(s < t) < (t < s)` と `(s < t) + 1` は、前と同じく拒否のまま。ただし理由の名前は `TerminalNotCovered` / `ReturnValueNotCovered` で、「Bool の順序比較」としての名前ではない。
+  - String の field との比較、`Cmp.pick(a, b)` の formal、String を返す static method、`ArrayBox.get` との mixed、`s == null`、`loop(s != "aaa")` は前と同じ拒否のまま。`not (...)` は前と同じく canonical の道に乗らない。
+  - 速さ: 200 万回の比較の 1 本で、前 0.305 秒、借用だけ 0.262 秒、後 0.200 秒（3 回の中央値）。
+  - 整数の約束は変えていない。ユーザー決定（[no-fault-ops](no-fault-ops-2026-11-10.md) の最後）により、次の比較の正規化の回で、exact な入力と checked の見方を分けて直す。
