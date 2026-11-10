@@ -1,0 +1,57 @@
+# Field-read normalization
+
+Base: `e96d198b99`. Branch: `field-read`. Read-only workers trace source,
+Home proofs and projection before implementation. Logs `$L`; baselines `$SL` and `$ME`.
+
+## Rules
+
+F1. One field read retains one original request, receiver, field, source site and evaluation; its lease and use position are never reconstructed from a name or result type.
+F2. Existing LocalFieldReadRequestV1 and LocalFieldReadResultV1 own the common request/result; differences of Text, scalar, object, nullable and container remain variants and retained evidence, not context-specific replacement types.
+F3. LocalFieldReadSourceV1 owns the source-qualified physical description used by the writer and source correspondence; generated-MIR verification remains independent and reads actual MIR, declarations and CFG, never the source plan.
+F4. Checked versus raw field access follows original receiver/read/write/ownership evidence; a declared type, opcode or successful backend alone grants no lighter operation.
+F5. HomeFieldSourceConsultV1 and its existing package implementation own field proof queries; removing callback plumbing must preserve each query's scope, census, source identity and staging responsibility.
+F6. Probe queries remain read-only; executable issuance retains the same all-or-nothing batch, affine progress, exact receiver, original read and ordered consumption.
+F7. Declaration spelling is classified only by DeclaredResultKindV1; scalar projection must preserve the difference between a known nonscalar result and an unsupported annotation, including caller-specific errors.
+F8. All executable Normal and surviving Fault paths retain acquisition, transfer and End responsibilities and order; static cleanup counts are diagnostic, not equality gates.
+F9. Existing acceptance, refusal wording and EXE results remain unchanged except the explicitly selected u16 boundary; local Text field binding remains closed.
+F10. A child-path read may only emit a raw field operation when its receiver has the independently supported original object/borrow evidence; otherwise the builder gives a named refusal rather than producing invalid lifecycle MIR.
+F11. Replaced types, decision branches and callback plumbing retire with their consumers in this series; no new classifier, ledger, progress type, public ABI/opcode or shape-specific producer is introduced.
+F12. Completed cleanup is production net negative after formatting, including common code and all move destinations; u16 functionality, if any, is counted separately.
+
+## Existing routes and responsibilities
+
+|Stage|Base source location|Responsibility|
+|---|---|---|
+|Original expression|resolved value-profile expression plan and resolved semantics field observers|Resolved receiver/root/site/path and single evaluation|
+|Home source walk|`src/mir/resolved_semantics/home_new_prefix.rs:405`|12 FnMut callbacks plus HomeFieldSourceConsultV1; five FnMut are field-proof queries|
+|Field proofs|`src/mir/resolved_semantics/home_field_source.rs`; `src/mir/normal_callable_semantic_package/ordinary_new_coseal_field_source.rs:30`|Existing consult and original writer/constructor/entry source owner|
+|Batch issuer|`ordinary_new_coseal_issue_source_field_batch.rs:35`|Root batch, original declaration, nullable/formal/child source, staging and conflict checks|
+|Physical description|`ordinary_new_field_read_source.rs:7,53,65,90`|LocalFieldReadSourceV1; checked demand and physical correspondence|
+|Expression writer|`src/mir/builder/ordinary_new_admission/selected/expression_value.rs:397,487`|Path/direct field reads, retained receiver and Normal/Fault temporary cleanup|
+|Final verification|`src/mir/verification`; `src/mir/ownership_ssa/verify.rs:86–93`|Actual operand/CFG/liveness and lifecycle; u16 currently fails here|
+|Declared result|`src/mir/exact_trivial_scalar_abi.rs:60`; `resolved_semantics/callable_index.rs:415`; package `physical_header.rs:185`|Spelling table already one; repeated scalar projection remains|
+
+Unqualified package paths in the table are under `src/mir/normal_callable_semantic_package`.
+Detailed type/decision inventories, final metrics and validation are recorded in the report.
+
+## Forms and governing rules
+
+|Existing form/context|Rules and retained boundary|
+|---|---|
+|Declared i64, untyped scalar; return/local expression/condition/print/argument/loop|F1–6, F9; keep original integer/declaration/SUM/write proof|
+|Text read and expression use|F1–6, F8–9; preserve one materialized copy and cleanup; do not open local s = t.f|
+|Nullable/object/borrowed receiver and me.f|F1–6, F8–10; keep receiver identity, nonnull/read interval and ownership evidence|
+|Child path n.leaf.value|F1–6, F10; preserve parent handle support or refuse before invalid MIR|
+|Map/Array fields|F1–6, F8–9; preserve whole-Box element census, residence and exact operation contract|
+|Declared scalar/Text/object result and unknown spelling|F7; source-resolved object proof remains distinct from spelling|
+
+## Stages
+
+A. Fold duplicate request/result/physical interpretation into existing field representations.
+B. Consolidate field query callbacks into the existing Home field-source owner.
+C. Reuse the existing single declaration classifier and scalar projection.
+D. Resolve u16 using the same child-read evidence, without weakening the verifier.
+
+Final validation uses the final source binary: 1,788 dumps, all changed compilable
+inputs, fixed suite and existing EXE groups, complete lib failure names, applicable
+Python physical tests and naming/pointer/rustfmt/diff checks. No source edits after it.
