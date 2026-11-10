@@ -265,6 +265,8 @@ Faultが要らない操作（Codex調査`78ca1419c9`・ChatGPT Proに相談・Op
 
 mixedの`==`の修正（Codex実装・Opus監査、`297ea922b3`、[記録](mixed-equality-2026-11-10.md)）: runtimeの比較で、operandをText・null・それ以外の正しい値・壊れた入力に分けてから演算子を選ぶようにし、仕様どおりStringでない正しい値との`==`はfalse、`!=`はtrueにした。大小の比較はTypeErrorのまま。Integerのcarrierを使うsourceはEXEの前で止まるので、証拠はABIのtest。既存のEXEの出力の差分は0。次はfieldの読みの正規化。
 
+fieldの読みの正規化（Codex実装・Opus監査、`097ba0fff4`、[記録](field-read-2026-11-10.md)）: fieldの証明のqueryを既存の`HomeFieldSourceConsultV1`1つに集め（`scan_new_home_flow`の`FnMut`は12→7）、要求・結果の重複wrapperと物理の再分類を消し、宣言の結果のscalar投影を1か所にした。整形後のproductionは整理で−669行（u16の機能+236行は別）。1,788本のMIRは全部同じ。所有の検証が、子のobjectのfieldを通る読み（`return n.leaf.value + 1`）の借用を実MIRと公開の宣言から証明するようになり、u16はexit 6。`local s = t.f`は閉じたまま。次は`StringIndexOf`。
+
 徹底的な整理（ユーザー決定2026-11-09）: MirBuilderができたら徹底的に綺麗にする。時期は基本式の残り・`edit`・3bと旧経路の退役の後、`.hako` parserのparityとselfhostの前（前の「builderの調査」の枠）。数回の大きな回で行い、各回は実装者がsubagentで経路を上からたどる調査から始める。目標: 責務ごとに持ち主1つ、操作ごとにMIRの書き手1つ（W12〜W14の意味で数える）、形や文脈の名前のfamilyを作らない、退役した経路と互換のfallbackを残さない、productionのfileは800行以下、各回で整形後の行数を純減。既存のgateは保つ。
 
 ## 証明の作り（2026-11-06、ChatGPT Proの検討、Opusが引用を確認）

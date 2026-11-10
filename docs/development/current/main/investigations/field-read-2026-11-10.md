@@ -72,14 +72,14 @@ consume this descriptor. ObservedLocalFieldReadV1 and the nested raw-route wrapp
 are removed, not replaced by aliases.
 
 HomeFieldSourceConsultV1 now carries all six field queries: scan FnMut ports
-fall from12 to7 and the 64 named field-FnMut signatures disappear. Original
+fall from 12 to 7 and the 64 named field-FnMut signatures disappear. Original
 construction/write/frame/SUM capabilities remain optional and absent on the probe;
 all ten former defaults are returned before lookups, errors or diagnostics.
 The two existing staging maps are retained only by the verified walk.
 
 The child-field cohort model is separated from the source-query owner without
 changing its witness conditions. Installation tests move intact out of the source
-model so the touched production files stay below800 lines; test names/assertions
+model so the touched production files stay below 800 lines; test names/assertions
 and literal inputs are unchanged. Neither movement is counted as a deletion.
 
 The final A scope audit also found argument-position physical metadata outside
@@ -91,3 +91,18 @@ F17. C nonnull field readability may use an existing nullable-transport Birth
 formal only after joining its exact provided-field writer to this root's unique
 Birth call, a kind3 canonical child actual, Normal dominance and the unchanged
 nonmutation suffix; nullable transport alone never proves nonnull.
+
+## Opus の確認（2026-11-10）
+
+Codex の `37e824fabf`〜`097ba0fff4`（9 commit）を、main `e96d198b99` から監査して fast-forward した。
+
+- A: 物理の答え（checked か raw か）は `LocalFieldReadSourceV1` の `checked_operation_v1` と `raw_projection_v1` だけが出し、builder と source の対応の検査が同じ答えを使う。引数の位置の固定の Integer の答えも同じ記述へ寄せた。`ObservedLocalFieldReadV1` と二重の wrapper は消え、呼ぶ所は 0。
+- B: 5 つの field の `FnMut` は `HomeFieldSourceConsultV1` の method になり、`scan_new_home_flow` の `FnMut` は 12→7。trait の初期値は「証明なし」（`Ok(false)` / `Ok(None)`）なので、実装し忘れは拒否になる側に倒れる。1,788本の dump は、拒否の文言を含めて全部同じ。引数の名前は `scalar_field` のままなので、次の整理で `field_source` などに直す候補。
+- C: 綴りの表はもともと 1 つ。scalar の投影の 3 か所を 1 つにした（「分類器 5→1」とは数えていない）。
+- u16: 所有の検証（`ownership_ssa/classify.rs` の `local_field_borrow`）は、公開の宣言の非 weak・非 nullable の子の field、1 回だけの定義、同じ block の後の `ObjectFieldGet` だけの使用、その区間に読み以外の命令がないこと、root が live で Published であることを、実 MIR から確かめる。source の記述は使わない。module つきの検証は receipt を返さない。C は、nullable の formal を、この root の Birth の実引数（kind 3 の子、非 null）と唯一の writer に結んだ時だけ非 null とする。負例の test（nullable、weak、String、Array、membership なし、Copy、定義の重複、順序の入れ替え、Store、別の block、Release の後、引数との衝突）を確かめ、test を単独で流して通った。
+- 行数（`fmtcount.py`、file 単位）: production −1,131 / test +806。このうち `home_expression_plan.rs` の inline test（約 667 行）を別 file へ移した分を除くと、production 約 −464 / test 約 +139 で、Codex の Rust の数（−454 / +129）と合う。変えた Rust の file は全部 800 行以下（最大 785）。`home_expression_plan.rs` は 1,246 行から 800 行以下になった。
+- 未見の 23 本（`/mnt/workdisk/claude-scratch/fr-audit`、基準は main の CLI と main から作った FFI）: MIR は 23 本とも同じ。新しく EXE になった 4 本は正しい答え（子の読みを 2 回足す → 10、print → 5、別の整数 field と混ぜる → 110、root 2 つ → 35）。後退は 0。
+- 残した事:
+  - 3 段の子の読み（`r.mid.leaf.value`）は、Rust の検証を通るが、C が `unsupported-cohort` で拒否する（前は Rust の所有の検証で拒否）。拒否の段が変わっただけで、受理は増えていない。
+  - `local lf = n.leaf` の後に `lf.value` を読む形は、前と同じく、builder が作った MIR を所有の検証が拒否する（Copy での逃げ）。F10 の「builder で名前のついた理由で止める」は、この形にはまだ届いていない。
+  - `me.leaf.value`（method の中の子の読み）は、前と同じく C が拒否する。
