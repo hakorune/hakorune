@@ -57,27 +57,32 @@ pub(super) fn observe_static_i64_search_loop<'a, E>(
     else {
         return Ok(false);
     };
-    let Some((SourceScalarKind::Bool, header_calls)) =
-        scalar_expression::observe_scalar_expression(
-            input,
-            condition.site(),
-            locals,
-            Some(SourceScalarKind::Bool),
-            false,
-            scalar_field,
-            statement.site(),
-            homes,
-            unavailable.is_none(),
-            &mut super::local_call_route::static_claim_of(&mut *local_call_route),
-            &mut |operand, binary| {
-                view_use(
-                    operand,
-                    BorrowedViewUseRequestV1::CheckedCompareOperand { binary },
-                )
-            },
-            borrowed_actuals,
-        )?
-    else {
+    let observed = match scalar_expression::observe_scalar_expression(
+        input,
+        condition.site(),
+        locals,
+        Some(SourceScalarKind::Bool),
+        false,
+        scalar_field,
+        statement.site(),
+        homes,
+        unavailable.is_none(),
+        &mut super::local_call_route::static_claim_of(&mut *local_call_route),
+        &mut |operand, binary| {
+            view_use(
+                operand,
+                BorrowedViewUseRequestV1::CheckedCompareOperand { binary },
+            )
+        },
+        borrowed_actuals,
+    )? {
+        Ok(value) => value,
+        Err(issue) => {
+            unavailable.get_or_insert(issue);
+            return Ok(false);
+        }
+    };
+    let Some((SourceScalarKind::Bool, header_calls)) = observed else {
         return Ok(false);
     };
     if header_calls.len() != 1 || header_calls[0].site().site() != source.header_call_site() {

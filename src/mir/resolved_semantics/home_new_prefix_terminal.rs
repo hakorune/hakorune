@@ -42,7 +42,12 @@ pub(super) fn observe_terminal_statement<'a, E>(
     // Qualified object returns are exclusive, including unavailable support.
     // They must never reach the scalar borrowed-argument shortcut.
     let borrowed_terminal = match super::terminal_relation::observe_borrowed_call_return_v1(
-        input, statement, locals, homes, borrowed_actuals)? {
+        input,
+        statement,
+        locals,
+        homes,
+        borrowed_actuals,
+    )? {
         Some(Ok((terminal, observed))) => {
             path_calls.insert(observed.site().clone());
             local_calls.push(observed);
@@ -112,16 +117,24 @@ pub(super) fn observe_terminal_statement<'a, E>(
     let value_terminal =
         if object_terminal.is_none() && scalar_terminal.is_none() && unavailable.is_none() {
             if let Some(returned) = super::terminal_relation::observe_receiver_field_return_v1(
-                input, statement, locals, homes, field_source,
-            )? { Some(returned) } else { observe_text_return_expression_v1(
                 input,
                 statement,
                 locals,
                 homes,
-                local_calls,
-                borrowed_actuals,
                 field_source,
-            )? }
+            )? {
+                Some(returned)
+            } else {
+                observe_text_return_expression_v1(
+                    input,
+                    statement,
+                    locals,
+                    homes,
+                    local_calls,
+                    borrowed_actuals,
+                    field_source,
+                )?
+            }
         } else {
             None
         };
@@ -178,20 +191,29 @@ pub(super) fn observe_terminal_statement<'a, E>(
                     exit_homes.insert(statement.site().clone(), Err(issue));
                     return Ok(());
                 }
-                GuardedMulReturnV1::Unselected => scalar_expression::observe_scalar_expression(
-                    input,
-                    value.site(),
-                    locals,
-                    Some(SourceScalarKind::Integer),
-                    false,
-                    &mut crate::mir::resolved_semantics::home_new_prefix::NoScalarFieldSourceV1,
-                    statement.site(),
-                    homes,
-                    unavailable.is_none(),
-                    &mut super::local_call_route::static_claim_of(&mut *local_call_route),
-                    &mut |_, _| Ok(false),
-                    borrowed_actuals,
-                )?,
+                GuardedMulReturnV1::Unselected => {
+                    match scalar_expression::observe_scalar_expression(
+                        input,
+                        value.site(),
+                        locals,
+                        Some(SourceScalarKind::Integer),
+                        false,
+                        &mut crate::mir::resolved_semantics::home_new_prefix::NoScalarFieldSourceV1,
+                        statement.site(),
+                        homes,
+                        unavailable.is_none(),
+                        &mut super::local_call_route::static_claim_of(&mut *local_call_route),
+                        &mut |_, _| Ok(false),
+                        borrowed_actuals,
+                    )? {
+                        Ok(value) => value,
+                        Err(issue) => {
+                            unavailable.get_or_insert(issue.clone());
+                            exit_homes.insert(statement.site().clone(), Err(issue));
+                            return Ok(());
+                        }
+                    }
+                }
             };
             if let Some((_, calls)) = scalar {
                 if selected_mul || !calls.is_empty() {
@@ -218,9 +240,15 @@ pub(super) fn observe_terminal_statement<'a, E>(
         }
     }
     if crate::config::env::builder_debug_enabled() {
-        eprintln!("[terminal-relation] owner={:?} statement={:?} object={} scalar={} text={} static={}",
-            input.owner(), statement.site(), object_terminal.is_some(), scalar_terminal.is_some(),
-            value_terminal.is_some(), static_terminal.is_some());
+        eprintln!(
+            "[terminal-relation] owner={:?} statement={:?} object={} scalar={} text={} static={}",
+            input.owner(),
+            statement.site(),
+            object_terminal.is_some(),
+            scalar_terminal.is_some(),
+            value_terminal.is_some(),
+            static_terminal.is_some()
+        );
     }
     let borrowed_terminal = if object_terminal.is_none()
         && scalar_terminal.is_none()
@@ -473,11 +501,8 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                 statement.site(),
                                 locals,
                                 view_use,
-
                             )?;
                             match scalar {
-
-
                                 // A top-level proven scalar — a bound local (i64 or Bool)
                                 // or trivial integer expression — is its own source
                                 // relation (R16: its kind is the local's stored kind).
@@ -582,7 +607,10 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                                             .map(|outward_fault| ResultNewHomePrefixV1::from_transition(
                                                                                 ResultNewPurposeV1::Return, homes, &moved_arguments, outward_fault, covered_statements)),
                                                                     };
-                                                                    locals.release_to_callee(homes, &moved_arguments);
+                                                                    locals.release_to_callee(
+                                                                        homes,
+                                                                        &moved_arguments,
+                                                                    );
                                                                     result_prefixes.insert(
                                                                         owned.clone(),
                                                                         result_prefix,
@@ -677,7 +705,13 @@ pub(super) fn observe_terminal_statement<'a, E>(
         maps,
         map_compatible,
     )?;
-    locals.commit_statement_takes_v1(statement.site(), local_calls, homes, unavailable, borrowed_actuals)?;
+    locals.commit_statement_takes_v1(
+        statement.site(),
+        local_calls,
+        homes,
+        unavailable,
+        borrowed_actuals,
+    )?;
     let homes_row = match &*unavailable {
         Some(issue) => Err(issue.clone()),
         None if !scalar_return => Err(HomePrefixUnavailableV1::ReturnValueNotCovered(
@@ -696,7 +730,12 @@ pub(super) fn observe_terminal_statement<'a, E>(
         )),
     };
     if let Err(issue) = &homes_row {
-        note_terminal_unavailable(input.owner(), statement, "terminal homes (the relation is dropped)", issue);
+        note_terminal_unavailable(
+            input.owner(),
+            statement,
+            "terminal homes (the relation is dropped)",
+            issue,
+        );
     }
     if homes_row.is_err() {
         // `return new <class>` is exact-site evidence: its own
@@ -723,7 +762,11 @@ pub(super) fn observe_terminal_statement<'a, E>(
     exit_homes.insert(statement.site().clone(), homes_row);
     if let Some(relation) = relation {
         if crate::config::env::builder_debug_enabled() {
-            eprintln!("[terminal-relation] stored owner={:?} statement={:?}", input.owner(), statement.site());
+            eprintln!(
+                "[terminal-relation] stored owner={:?} statement={:?}",
+                input.owner(),
+                statement.site()
+            );
         }
         terminal_relations.insert(statement.site().clone(), relation);
     }
@@ -740,6 +783,9 @@ fn note_terminal_unavailable(
 ) {
     if crate::config::env::builder_debug_enabled() {
         let issue: String = format!("{issue:?}").chars().take(300).collect();
-        eprintln!("[terminal-relation] owner={owner:?} statement={:?}: {which} unavailable: {issue}", statement.site());
+        eprintln!(
+            "[terminal-relation] owner={owner:?} statement={:?}: {which} unavailable: {issue}",
+            statement.site()
+        );
     }
 }

@@ -15,7 +15,7 @@ impl HomeExpressionPlanV1 {
         }
         let mut plan = prepared.unwrap_or_else(|| Self {
             source: Rc::clone(&source),
-            scalar_operations: Vec::new(), comparison_root: None,
+            scalar_operations: Vec::new(),
             source_fields: Vec::new(),
             print_frame: None,
             argument_frame: None,
@@ -35,7 +35,8 @@ impl HomeExpressionPlanV1 {
     /// Keep only the original field requirement and evaluation-time Homes.
     /// Source observation grants no executable or nonnull object operand.
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn borrowed_argument_reads_v1(
-        source: Rc<ExpressionSourcePlanV1>, homes: &[LiveHomeV1],
+        source: Rc<ExpressionSourcePlanV1>,
+        homes: &[LiveHomeV1],
         requests: &[LocalFieldReadRequestV1],
     ) -> Option<Self> {
         if source.has_opaque_obligations()
@@ -78,7 +79,10 @@ impl HomeExpressionPlanV1 {
                     .ordered_nodes()
                     .iter()
                     .copied()
-                    .filter(|node| evaluation.transfers_node(*node) && evaluation.direct_array_receiver_v1(*node).is_none())
+                    .filter(|node| {
+                        evaluation.transfers_node(*node)
+                            && evaluation.direct_array_receiver_v1(*node).is_none()
+                    })
                     .collect()
             })
             .unwrap_or_default();
@@ -95,7 +99,7 @@ impl HomeExpressionPlanV1 {
             || !evaluation.reference_coverage_is_exact() { return None; }
         let plan = Self {
             source: Rc::clone(evaluation.source()),
-            scalar_operations: Vec::new(), comparison_root: None,
+            scalar_operations: Vec::new(),
             source_fields: Vec::new(),
             print_frame: None,
             argument_frame: None,
@@ -110,7 +114,10 @@ impl HomeExpressionPlanV1 {
             .ordered_nodes()
             .iter()
             .copied()
-            .filter(|node| evaluation.transfers_node(*node) && evaluation.direct_array_receiver_v1(*node).is_none())
+            .filter(|node| {
+                evaluation.transfers_node(*node)
+                    && evaluation.direct_array_receiver_v1(*node).is_none()
+            })
             .collect();
         plan.with_source_field_basis_v1(requests, Rc::from(evaluation.prior_homes()), &transferred)
     }
@@ -158,28 +165,50 @@ impl HomeExpressionPlanV1 {
         self.is_consistent().then_some(self)
     }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn borrowed_return_reads_v1(
-        source: Rc<ExpressionSourcePlanV1>, homes: &[LiveHomeV1], request: &LocalFieldReadRequestV1,
+        source: Rc<ExpressionSourcePlanV1>,
+        homes: &[LiveHomeV1],
+        request: &LocalFieldReadRequestV1,
     ) -> Option<Self> {
-        if source.has_opaque_obligations() || !matches!(source.root(), ExpressionPlanRootV1::Statement {
+        if source.has_opaque_obligations()
+            || !matches!(source.root(), ExpressionPlanRootV1::Statement {
             role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue,
-            value, .. } if value == request.site.site()) || request.node_in_plan(&source) != Some(0)
-        { return None; }
+            value, .. } if value == request.site.site())
+            || request.node_in_plan(&source) != Some(0)
+        {
+            return None;
+        }
         Self::source_reads_v1(source, homes, std::slice::from_ref(request))
     }
     pub(super) fn has_borrowed_return_field_basis_v1(&self) -> bool {
-        let [field] = self.source_fields.as_slice() else { return false; };
-        field.node == 0 && field.request.receiver == field.request.home
-            && field.request.path.is_none() && field.request.received.is_none()
+        let [field] = self.source_fields.as_slice() else {
+            return false;
+        };
+        field.node == 0
+            && field.request.receiver == field.request.home
+            && field.request.path.is_none()
+            && field.request.received.is_none()
             && matches!(self.source.root(), ExpressionPlanRootV1::Statement {
                 role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue,
                 value, .. } if value == field.request.site.site())
     }
-    fn source_reads_v1(source: Rc<ExpressionSourcePlanV1>, homes: &[LiveHomeV1], requests: &[LocalFieldReadRequestV1]) -> Option<Self> {
+    fn source_reads_v1(
+        source: Rc<ExpressionSourcePlanV1>,
+        homes: &[LiveHomeV1],
+        requests: &[LocalFieldReadRequestV1],
+    ) -> Option<Self> {
         Self {
-            source, scalar_operations: Vec::new(), comparison_root: None, source_fields: Vec::new(),
-            print_frame: None, argument_frame: None, initializer_frame: None,
-            rebind_frame: None, condition_frame: None, loop_recipe: None,
-            field_write: None, source_field_homes: Some(Rc::from(homes)),
-        }.with_source_field_requirements(requests)
+            source,
+            scalar_operations: Vec::new(),
+            source_fields: Vec::new(),
+            print_frame: None,
+            argument_frame: None,
+            initializer_frame: None,
+            rebind_frame: None,
+            condition_frame: None,
+            loop_recipe: None,
+            field_write: None,
+            source_field_homes: Some(Rc::from(homes)),
+        }
+        .with_source_field_requirements(requests)
     }
 }

@@ -1,7 +1,7 @@
 //! Existing root exit progress retains the same affine Call source row.
 //! Physical observations do not issue a target, result or cleanup obligation.
-use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::LocalRouteWriterV1;
 use super::*;
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::LocalRouteWriterV1;
 use crate::mir::normal_callable_semantic_package::RootCallDispositionV1;
 use crate::mir::resolved_semantics::home_new_prefix::LifecyclePrefixSourceV1;
 
@@ -62,7 +62,8 @@ impl PreparedLifecyclePrefixBindingGroupV1<'_> {
             "scoped publication requires its prepared transaction"
         );
         assert!(
-            self.group.initializer_rc().is_none() && self.group.text_residence_v1().is_none()
+            self.group.initializer_rc().is_none()
+                && self.group.text_residence_v1().is_none()
                 && self.group.shared_initializer_v1().is_none(),
             "Text publication requires its prepared transaction"
         );
@@ -241,7 +242,9 @@ impl OrdinaryNewClaimLedgerV1 {
         site: OwnedExprSiteV1,
         writer: LocalRouteWriterV1,
     ) -> Result<(), String> {
-        self.lifecycle_local_call_sites.borrow_mut().route_local(site, writer)
+        self.lifecycle_local_call_sites
+            .borrow_mut()
+            .route_local(site, writer)
     }
 
     /// Select the local emitter without stealing receiver-owned Object rows.
@@ -386,11 +389,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let mapped_local_bindings = local_bindings
             .iter()
             .map(|group| {
-                Ok::<_, String>(
-                    group.with_bindings(
-                        projection.bindings(group.bindings())?,
-                    ),
-                )
+                Ok::<_, String>(group.with_bindings(projection.bindings(group.bindings())?))
             })
             .collect::<Result<Vec<_>, _>>()?;
         // Internal argument CFG jumps may contract after full boundary validation.
@@ -551,7 +550,6 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl RootHomeExitEntry {
-
     pub(crate) fn call_invoke(&self) -> Option<&(BasicBlockId, MirInstruction)> {
         match self {
             Self::Call { invoke, .. } => Some(invoke),
@@ -665,7 +663,8 @@ pub(crate) use lexical_projection::PreparedStaticTerminalPacketV1;
 pub(in crate::mir) use lexical_projection::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
     LexicalCallArgumentProjectionV1, PendingStaticCallProjectionV1,
-    PreparedLexicalCallProjectionV1, StoredReceiverReadV1, StoredReceiverFaultV1, PreparedSelectedStaticLoopCallProjectionV1,
+    PreparedLexicalCallProjectionV1, PreparedSelectedStaticLoopCallProjectionV1,
+    StoredReceiverFaultV1, StoredReceiverReadV1,
 };
 
 #[path = "root_call_entry/local_binding_group.rs"]
@@ -685,14 +684,17 @@ pub(in crate::mir) use dynamic_invocation_expression_projection::EmittedDynamicI
 mod print_expression_projection;
 pub(crate) use bool_condition_projection::checked_scalar_invoke_operation_v1;
 use bool_condition_projection::scalar_condition_bindings_v1;
-pub(crate) use expression_projection::{FrameFreeExpressionReadV1, checked_expression_core_operation_v1};
 pub(in crate::mir) use expression_projection::ExpressionPhysicalProjectionRefV1;
+pub(crate) use expression_projection::{
+    checked_expression_core_operation_v1, FrameFreeExpressionReadV1,
+};
 pub(in crate::mir) use expression_projection::{
     validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1,
-    BranchScalarPhiObservationV1, BranchTextPhiObservationV1, BranchReadPhiObservationV1, EvaluatedExpressionValueV1, ExpressionCallArgumentSourceV1,
-    ExpressionCallTransientPrefixV1, ExpressionReferenceReadV1, ScalarBindingReadProofV1,
+    BranchReadPhiObservationV1, BranchScalarPhiObservationV1, BranchTextPhiObservationV1,
+    EvaluatedExpressionValueV1, ExpressionCallArgumentSourceV1, ExpressionCallTransientPrefixV1,
+    ExpressionReferenceReadV1, ScalarBindingReadProofV1,
 };
-pub(crate) use initializer_expression_projection::{EmittedInitializerExpressionProjectionV1, EmittedComparisonInitializerProjectionV1};
+pub(crate) use initializer_expression_projection::EmittedInitializerExpressionProjectionV1;
 pub(crate) use print_expression_projection::EmittedPrintExpressionProjectionV1;
 
 #[path = "root_call_entry/owned_array_append_projection.rs"]

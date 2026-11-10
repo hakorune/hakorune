@@ -1,16 +1,13 @@
 //! Completed semantic argument qualification at the real covered Prefix point.
 //! Mandatory entry requirements remain obligations, not physical descriptors.
-use super::super::{
-    BindingRefV1, OwnedExprSiteV1, SourceExprSiteV1, SourceScalarKind,
-};
+use super::super::{BindingRefV1, OwnedExprSiteV1, SourceExprSiteV1, SourceScalarKind};
 use super::*;
 use crate::mir::normal_callable_semantic_package::{
     ArgumentExpressionSourceLoanV1, BorrowedTextEntryReadRequirementV1,
 };
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_value_profile::{
-    expression_class::ExpressionValueClassV1 as Class,
-    expression_plan::ExpressionPlanRootV1,
+    expression_class::ExpressionValueClassV1 as Class, expression_plan::ExpressionPlanRootV1,
     expression_projection::ExpressionLeafClassV1 as Leaf,
 };
 use std::collections::BTreeMap;
@@ -191,7 +188,10 @@ pub(crate) fn qualify_argument_expression_v1<E>(
         return Ok(None);
     }
     if crate::config::env::builder_debug_enabled() {
-        eprintln!("[argument-expression] source preflight complete nodes={}", source.nodes().len());
+        eprintln!(
+            "[argument-expression] source preflight complete nodes={}",
+            source.nodes().len()
+        );
     }
     let mut seeded = BTreeMap::new();
     let mut finite_proofs = BTreeMap::new();
@@ -267,7 +267,10 @@ pub(crate) fn qualify_argument_expression_v1<E>(
             || !read.matches_source_node(&source, node)
             || seeded.insert(node, Leaf::Value(Class::Dynamic)).is_some()
             || loop_dynamic_proofs
-                .insert(node, CheckedExpressionReferenceV1::LoopDynamic(read.clone()))
+                .insert(
+                    node,
+                    CheckedExpressionReferenceV1::LoopDynamic(read.clone()),
+                )
                 .is_some()
         {
             if crate::config::env::builder_debug_enabled() {
@@ -330,7 +333,10 @@ pub(crate) fn qualify_argument_expression_v1<E>(
             || seeded.insert(index, Leaf::Value(Class::String)).is_some() { return Ok(None); }
     }
     if crate::config::env::builder_debug_enabled() {
-        eprintln!("[argument-expression] reference seeds complete loop_dynamic={}", loop_dynamic_reads.len());
+        eprintln!(
+            "[argument-expression] reference seeds complete loop_dynamic={}",
+            loop_dynamic_reads.len()
+        );
     }
     let Some(mut prepared) = super::leaves::prepare_expression_calls_v1(
         &source,
@@ -403,7 +409,8 @@ pub(crate) fn qualify_argument_expression_v1<E>(
     };
     let dynamic_producer_matches = !dynamic_array_carrier_root
         || calls.get(&0).is_some_and(|call| {
-            call.result() == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Dynamic
+            call.result()
+                == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Dynamic
                 && call.dynamic_invocation_result_lifecycle_v1().is_some()
         });
     if classes[0] != Leaf::Value(expected)
@@ -523,7 +530,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
     }
     let candidate = HomeExpressionPlanV1 {
         source: Rc::clone(&source),
-        scalar_operations: Vec::new(), comparison_root: None,
+        scalar_operations: Vec::new(),
         source_fields: Vec::new(),
         print_frame: None,
         condition_frame: None,
@@ -542,7 +549,10 @@ pub(crate) fn qualify_argument_expression_v1<E>(
     }
     if !field_batch(
         &fields,
-        super::super::LocalFieldReadDemandV1::SourceExpression { probe: false, plan: source },
+        super::super::LocalFieldReadDemandV1::SourceExpression {
+            probe: false,
+            plan: source,
+        },
     )? {
         return Ok(None);
     }

@@ -13,11 +13,16 @@ pub(super) enum CheckedExpressionOperationProofV1 {
     Dynamic(Box<[&'static VerifiedDynamicOperatorExecutionEnvelopeV1]>),
     Scalar(Rc<ExpressionScalarOperationLoanV1>),
     NullableAliasNull {
-        reference: usize, null: usize,
+        reference: usize,
+        null: usize,
         binding: crate::mir::resolved_semantics::BindingRefV1,
         root: crate::mir::resolved_semantics::BindingRefV1,
     },
-    NullableFieldNull { reference: usize, null: usize, request: LocalFieldReadRequestV1 },
+    NullableFieldNull {
+        reference: usize,
+        null: usize,
+        request: LocalFieldReadRequestV1,
+    },
     NullableNull {
         reference: usize,
         null: usize,
@@ -26,7 +31,9 @@ pub(super) enum CheckedExpressionOperationProofV1 {
 }
 impl CheckedExpressionOperationLoanV1 {
     pub(crate) fn scalar_copy_v1(&self) -> Option<(usize, super::super::SourceScalarKind)> {
-        let CheckedExpressionOperationProofV1::ScalarCopy(kind) = self.proof else { return None; };
+        let CheckedExpressionOperationProofV1::ScalarCopy(kind) = self.proof else {
+            return None;
+        };
         Some((self.plan.copy_operand_node_v1(self.node)?, kind))
     }
     pub(crate) fn node(&self) -> usize {
@@ -68,13 +75,23 @@ impl CheckedExpressionOperationLoanV1 {
                     .all(|envelope| envelope.normal_result() == result)
                     .then_some(result)
             }
+            CheckedExpressionOperationProofV1::NullableAliasNull { .. } => {
+                Some(ResultKind::TrivialBool)
+            }
             CheckedExpressionOperationProofV1::NullableNull { .. }
-            | CheckedExpressionOperationProofV1::NullableAliasNull { .. }
             | CheckedExpressionOperationProofV1::NullableFieldNull { .. } => None,
         }
     }
     pub(crate) fn nullable_alias_null_v1(&self) -> Option<(usize, usize)> {
-        let CheckedExpressionOperationProofV1::NullableAliasNull { reference, null, binding, root } = &self.proof else { return None; };
+        let CheckedExpressionOperationProofV1::NullableAliasNull {
+            reference,
+            null,
+            binding,
+            root,
+        } = &self.proof
+        else {
+            return None;
+        };
         let binary = self.plan.nodes().get(self.node)?.binary()?;
         let read = self.plan.nodes().get(*reference)?;
         let empty = self.plan.nodes().get(*null)?;
@@ -86,22 +103,32 @@ impl CheckedExpressionOperationLoanV1 {
                 || (read.site() == binary.rhs() && empty.site() == binary.lhs())))
             .then_some((*reference, *null))
     }
-    pub(crate) fn nullable_field_null_v1(&self) -> Option<(usize, usize, &LocalFieldReadRequestV1)> {
-        let CheckedExpressionOperationProofV1::NullableFieldNull { reference, null, request } = &self.proof else { return None; };
+    pub(crate) fn nullable_field_null_v1(
+        &self,
+    ) -> Option<(usize, usize, &LocalFieldReadRequestV1)> {
+        let CheckedExpressionOperationProofV1::NullableFieldNull {
+            reference,
+            null,
+            request,
+        } = &self.proof
+        else {
+            return None;
+        };
         let binary = self.plan.nodes().get(self.node)?.binary()?;
         let read = self.plan.nodes().get(*reference)?;
         let empty = self.plan.nodes().get(*null)?;
         (request.node_in_plan(&self.plan) == Some(*reference)
             && request.is_nullable_object_comparison_v1(&self.plan)
             && binary.operator() == ResolvedBinaryOperatorV1::Equal
-            && matches!(empty.source(), ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Null))
+            && matches!(
+                empty.source(),
+                ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Null)
+            )
             && ((read.site() == binary.lhs() && empty.site() == binary.rhs())
                 || (read.site() == binary.rhs() && empty.site() == binary.lhs())))
-            .then_some((*reference, *null, request))
+        .then_some((*reference, *null, request))
     }
-    pub(crate) fn nullable_null_v1(
-        &self,
-    ) -> Option<(usize, usize, &NullableResultReferenceV1)> {
+    pub(crate) fn nullable_null_v1(&self) -> Option<(usize, usize, &NullableResultReferenceV1)> {
         let CheckedExpressionOperationProofV1::NullableNull {
             reference,
             null,

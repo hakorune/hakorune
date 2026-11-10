@@ -68,44 +68,101 @@ impl OrdinaryNewClaimLedgerV1 {
         // while its recorded source/physical correspondence remains mandatory.
         let mut expressions = Vec::new();
         for ((original_owner, _), progress) in self.root_exits.borrow().iter() {
-            if *original_owner != owner { continue; }
+            if *original_owner != owner {
+                continue;
+            }
             if let RootHomeExitProgress::Emitted { order, .. } = progress {
-                expressions.extend(order.return_value_bindings_v1(CallValidationContextV1::Lowering(self))?);
+                expressions.extend(
+                    order.return_value_bindings_v1(CallValidationContextV1::Lowering(self))?,
+                );
             }
         }
-        let groups = self.root_local_call_bindings.borrow().get(&owner).cloned().unwrap_or_default();
+        let groups = self
+            .root_local_call_bindings
+            .borrow()
+            .get(&owner)
+            .cloned()
+            .unwrap_or_default();
         for group in RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(&groups) {
-            if group.initializer().is_some() || group.rebind().is_some() || group.retains_argument_frames_v1() {
+            if group.initializer().is_some()
+                || group.rebind().is_some()
+                || group.retains_argument_frames_v1()
+            {
                 // Call argument packets also retain exact auxiliary producers
                 // after a LocalSSA adapter has supplied the consumed operand.
                 expressions.extend_from_slice(group.bindings());
                 // The scalar operands' LocalSSA sources are recorded with the frame.
                 for packet in group.lexical_packets() {
-                    expressions.extend(packet.copy_dependencies(self)?.into_iter().map(|(_, binding)| binding));
+                    expressions.extend(
+                        packet
+                            .copy_dependencies(self)?
+                            .into_iter()
+                            .map(|(_, binding)| binding),
+                    );
                 }
             }
         }
-        required.extend(validated_roots_with_auxiliary(function, boundary, expressions, true)?);
-        required.extend(validated_roots_with_auxiliary(function, boundary,
-            self.original_condition_bindings_v1(owner)?, true)?);
-        required.extend(validated_roots_with_auxiliary(function, boundary,
-            self.original_field_array_append_bindings_v1(owner)?, true)?);
-        required.extend(validated_roots_with_auxiliary(function, boundary,
-            self.original_borrowed_field_write_bindings_v1(owner, true)?, true)?);
-        required.extend(validated_roots_with_auxiliary(function, boundary,
-            self.original_borrowed_field_write_guard_bindings_v1(owner)?, true)?);
-        required.extend(validated_roots_with_auxiliary(function, boundary,
-            self.original_borrowed_array_set_bindings_v1(owner)?, true)?);
-        required.extend(validated_roots_with_auxiliary(function, boundary,
-            self.original_checked_field_bindings_v1(owner)?, true)?);
-        required.extend(validated_roots_with_auxiliary(function, boundary,
-            boundary.control_producer_bindings_v1(function)?, true)?);
+        required.extend(validated_roots_with_auxiliary(
+            function,
+            boundary,
+            expressions,
+            true,
+        )?);
+        required.extend(validated_roots_with_auxiliary(
+            function,
+            boundary,
+            self.original_condition_bindings_v1(owner)?,
+            true,
+        )?);
+        required.extend(validated_roots_with_auxiliary(
+            function,
+            boundary,
+            self.original_field_array_append_bindings_v1(owner)?,
+            true,
+        )?);
+        required.extend(validated_roots_with_auxiliary(
+            function,
+            boundary,
+            self.original_borrowed_field_write_bindings_v1(owner, true)?,
+            true,
+        )?);
+        required.extend(validated_roots_with_auxiliary(
+            function,
+            boundary,
+            self.original_borrowed_field_write_guard_bindings_v1(owner)?,
+            true,
+        )?);
+        required.extend(validated_roots_with_auxiliary(
+            function,
+            boundary,
+            self.original_borrowed_array_set_bindings_v1(owner)?,
+            true,
+        )?);
+        required.extend(validated_roots_with_auxiliary(
+            function,
+            boundary,
+            self.original_checked_field_bindings_v1(owner)?,
+            true,
+        )?);
+        required.extend(validated_roots_with_auxiliary(
+            function,
+            boundary,
+            boundary.control_producer_bindings_v1(function)?,
+            true,
+        )?);
         let mut loop_dependencies = Vec::new();
         for role in self.recorded_source_loop_roles_v2(owner) {
-            let proof = role.source_proof_v2().ok_or_else(|| freeze("scalar-liveness/source-loop-role"))?;
+            let proof = role
+                .source_proof_v2()
+                .ok_or_else(|| freeze("scalar-liveness/source-loop-role"))?;
             loop_dependencies.extend(proof.source_dependency_bindings_v2()?);
         }
-        required.extend(validated_roots_with_auxiliary(function, boundary, loop_dependencies, true)?);
+        required.extend(validated_roots_with_auxiliary(
+            function,
+            boundary,
+            loop_dependencies,
+            true,
+        )?);
         roots.insert(symbol.to_owned(), required);
         Ok(())
     }
@@ -128,10 +185,12 @@ fn validated_roots_with_auxiliary(
     let projection = boundary.project(function)?;
     let mut bindings = BTreeMap::new();
     for original in originals {
-        if !include_auxiliary && matches!(
-            original.1,
-            MirInstruction::Const { .. } | MirInstruction::Copy { .. }
-        ) {
+        if !include_auxiliary
+            && matches!(
+                original.1,
+                MirInstruction::Const { .. } | MirInstruction::Copy { .. }
+            )
+        {
             continue;
         }
         let Some(dst) = original.1.dst_value() else {
@@ -144,10 +203,20 @@ fn validated_roots_with_auxiliary(
             continue;
         }
         if projection.relation_binding(function, &original)?.as_ref() != Some(&original) {
-            return Err(format!("{} original={original:?}", freeze("scalar-liveness/original-drift")));
+            return Err(format!(
+                "{} original={original:?}",
+                freeze("scalar-liveness/original-drift")
+            ));
         }
     }
-    Ok(bindings.keys().copied().collect())
+    // Validate every source row above before consulting the same captured
+    // dead-cone certificate; a forged or shared mandatory row cannot unpin it.
+    Ok(bindings
+        .into_iter()
+        .filter_map(|(dst, original)| {
+            (!boundary.permits_dead_source_elision_v1(&original)).then_some(dst)
+        })
+        .collect())
 }
 
 #[cfg(test)]
@@ -200,15 +269,35 @@ mod tests {
             .unwrap(),
             BTreeSet::from([ValueId(2)])
         );
-        assert_eq!(validated_roots_with_auxiliary(&function, &boundary,
-            vec![literal.clone(), original.clone()], true).unwrap(),
-            BTreeSet::from([ValueId(1), ValueId(2)]));
+        assert_eq!(
+            validated_roots_with_auxiliary(
+                &function,
+                &boundary,
+                vec![literal.clone(), original.clone()],
+                true
+            )
+            .unwrap(),
+            BTreeSet::from([ValueId(1), ValueId(2)])
+        );
         let mut foreign_literal = literal.clone();
-        if let MirInstruction::Const { value, .. } = &mut foreign_literal.1 { *value = ConstValue::Integer(9); }
-        assert!(validated_roots_with_auxiliary(&function, &boundary, vec![foreign_literal], true).is_err());
+        if let MirInstruction::Const { value, .. } = &mut foreign_literal.1 {
+            *value = ConstValue::Integer(9);
+        }
+        assert!(
+            validated_roots_with_auxiliary(&function, &boundary, vec![foreign_literal], true)
+                .is_err()
+        );
         let mut missing_literal = function.clone();
-        missing_literal.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions.remove(0);
-        assert!(validated_roots_with_auxiliary(&missing_literal, &boundary, vec![literal], true).is_err());
+        missing_literal
+            .blocks
+            .get_mut(&BasicBlockId(0))
+            .unwrap()
+            .instructions
+            .remove(0);
+        assert!(
+            validated_roots_with_auxiliary(&missing_literal, &boundary, vec![literal], true)
+                .is_err()
+        );
         let mut foreign = original.clone();
         if let MirInstruction::BinOp { op, .. } = &mut foreign.1 {
             *op = BinaryOp::Add;

@@ -50,11 +50,17 @@ impl OrdinaryNewClaimLedgerV1 {
         arity: usize,
         constructor: &OrdinaryNewConstructorDispositionV1,
         construction: &ConstructionEligibilityV1,
-        execution: Result<super::super::NewExecutionProfileRefV1<'_>, super::super::ConstructionUnavailableV1>,
+        execution: Result<
+            super::super::NewExecutionProfileRefV1<'_>,
+            super::super::ConstructionUnavailableV1,
+        >,
         object: hakorune_mir_defs::CanonicalObjectIdV1,
         destruction: ObjectDestructionDispositionV1,
         children: Option<&[super::super::OwnedFieldChildV1]>,
-        prior_homes: Option<(&[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1], &OwnedExprSiteV1)>,
+        prior_homes: Option<(
+            &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1],
+            &OwnedExprSiteV1,
+        )>,
     ) -> Result<(NewEmissionProgress, NewEmissionSelectionV1), String> {
         if let OrdinaryNewConstructorDispositionV1::Birth(recipe) = constructor {
             let physical = arity
@@ -111,10 +117,11 @@ impl OrdinaryNewClaimLedgerV1 {
                         operands.extend(plans.into_iter().map(|(_, operation)| operation));
                         continue;
                     }
-                    let prior = installed_source_home(rows, binding).map_err(|error| match error {
-                        HomeLookupError::Missing => freeze("prior-home-not-installed"),
-                        HomeLookupError::Duplicate => freeze("duplicate-prior-home"),
-                    })?;
+                    let prior =
+                        installed_source_home(rows, binding).map_err(|error| match error {
+                            HomeLookupError::Missing => freeze("prior-home-not-installed"),
+                            HomeLookupError::Duplicate => freeze("duplicate-prior-home"),
+                        })?;
                     if crate::config::env::builder_debug_enabled() && !prior.end_available() {
                         eprintln!("[new-emission] site={site:?} prior Home {binding:?} End unavailable: {}", prior.end_unavailable_reason());
                     }
@@ -146,7 +153,8 @@ impl OrdinaryNewClaimLedgerV1 {
         claim: &OrdinaryNewAdmissionClaimV1,
     ) -> Result<NewEmissionSelectionV1, String> {
         if claim.core.allocation_execution.is_some() {
-            let completion = self.completion_source_for_owner_v1(claim.site().owner())
+            let completion = self
+                .completion_source_for_owner_v1(claim.site().owner())
                 .ok_or_else(|| freeze("allocation-only/completion-missing"))?;
             if !self.root_home_flow_ready_v1(completion)? {
                 return Err(freeze("allocation-only/source-home-closure-unavailable"));
@@ -162,8 +170,10 @@ impl OrdinaryNewClaimLedgerV1 {
             || row.binding != claim.destination
             || !row.box_source.same_source_as(claim.box_source())
             || row.allocation_execution != claim.core.allocation_execution
-            || row.allocation_execution.as_ref().is_some_and(|lease|
-                !lease.matches_source(&row.construction_source) || !lease.matches_source(claim.construction_source()))
+            || row.allocation_execution.as_ref().is_some_and(|lease| {
+                !lease.matches_source(&row.construction_source)
+                    || !lease.matches_source(claim.construction_source())
+            })
         {
             return Err(freeze("prepare-state-or-source-mismatch"));
         }
@@ -233,10 +243,16 @@ impl OrdinaryNewClaimLedgerV1 {
         // the truthful unavailable terminal.
         if crate::config::env::builder_debug_enabled() {
             if let Err(issue) = claim.argument_rows() {
-                eprintln!("[new-emission] argument rows unavailable site={:?}: {issue:?}", claim.site());
+                eprintln!(
+                    "[new-emission] argument rows unavailable site={:?}: {issue:?}",
+                    claim.site()
+                );
             }
             if !matches!(next, NewEmissionProgress::Prepared { .. }) {
-                eprintln!("[new-emission] not prepared site={:?} (prior Home or constructor unavailable)", claim.site());
+                eprintln!(
+                    "[new-emission] not prepared site={:?} (prior Home or constructor unavailable)",
+                    claim.site()
+                );
             }
         }
         if claim.argument_rows().is_err() && selection.is_ok() {
@@ -291,18 +307,35 @@ impl OrdinaryNewClaimLedgerV1 {
         reclaim: Option<(ReclaimUnpublishedOriginV1, BasicBlockId, MirInstruction)>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<(), String> {
-        let source = { let rows = self.local_commits.borrow();
+        let source = {
+            let rows = self.local_commits.borrow();
             rows.get(site).and_then(LocalCommitV1::new_argument_rows)
                 .ok_or_else(|| freeze("record-without-take"))?.as_ref()
-                .map_err(crate::mir::resolved_semantics::home_new_prefix::argument_source_unavailable_tag_v1)?.to_vec() };
-        if source.len() != arguments.len() { return Err(freeze("argument-count-drift")); }
-        let arguments = source.into_iter().zip(arguments).map(|(source, value)|
-            EmittedNewArgumentV1::new_v1(source, crate::mir::instruction::BirthArgumentV1::Value(value), None, None)).collect();
+                .map_err(crate::mir::resolved_semantics::home_new_prefix::argument_source_unavailable_tag_v1)?.to_vec()
+        };
+        if source.len() != arguments.len() {
+            return Err(freeze("argument-count-drift"));
+        }
+        let arguments = source
+            .into_iter()
+            .zip(arguments)
+            .map(|(source, value)| {
+                EmittedNewArgumentV1::new_v1(
+                    source,
+                    crate::mir::instruction::BirthArgumentV1::Value(value),
+                    None,
+                    None,
+                )
+            })
+            .collect();
         self.record_new_argument_emission_v1(site, result, arguments, None, reclaim, bindings)
     }
 
     pub(in crate::mir) fn record_new_argument_emission_v1(
-        &self, site: &OwnedExprSiteV1, result: ValueId, arguments: Vec<EmittedNewArgumentV1>,
+        &self,
+        site: &OwnedExprSiteV1,
+        result: ValueId,
+        arguments: Vec<EmittedNewArgumentV1>,
         argument_cleanup: Option<NewArgumentCleanupV1>,
         reclaim: Option<(ReclaimUnpublishedOriginV1, BasicBlockId, MirInstruction)>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
@@ -315,7 +348,9 @@ impl OrdinaryNewClaimLedgerV1 {
             .new_argument_rows()
             .ok_or_else(|| freeze("record-without-take"))?
             .as_ref()
-            .map_err(crate::mir::resolved_semantics::home_new_prefix::argument_source_unavailable_tag_v1)?
+            .map_err(
+                crate::mir::resolved_semantics::home_new_prefix::argument_source_unavailable_tag_v1,
+            )?
             .to_vec();
         if source_arguments.len() != arguments.len() {
             return Err(freeze("argument-count-drift"));
@@ -327,10 +362,20 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("record-without-emission-or-duplicate"));
         }
         for (source, argument) in source_arguments.iter().zip(&arguments) {
-            if source != argument.source() { return Err(freeze("argument-source-drift")); }
-            match (source.field_array_read(), &argument.field_array_read, argument.payload()) {
-                (None, None, _) => {},
-                (Some(original), Some(read), crate::mir::instruction::BirthArgumentV1::Value(value)) if read.matches(original, *value) => {},
+            if source != argument.source() {
+                return Err(freeze("argument-source-drift"));
+            }
+            match (
+                source.field_array_read(),
+                &argument.field_array_read,
+                argument.payload(),
+            ) {
+                (None, None, _) => {}
+                (
+                    Some(original),
+                    Some(read),
+                    crate::mir::instruction::BirthArgumentV1::Value(value),
+                ) if read.matches(original, *value) => {}
                 _ => return Err(freeze("argument-read-record-drift")),
             }
             argument.deferred_text_values_v1()?;
@@ -377,16 +422,25 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 return Err(freeze("provider-birth-argument-drift"));
             }
-            if source.field_array_read().is_some() { return Err(freeze("provider-argument-read-unconnected")); }
-            emitted.push(EmittedNewArgumentV1 { source, payload: crate::mir::instruction::BirthArgumentV1::Value(value), field_array_read: None, expression: None });
+            if source.field_array_read().is_some() {
+                return Err(freeze("provider-argument-read-unconnected"));
+            }
+            emitted.push(EmittedNewArgumentV1 {
+                source,
+                payload: crate::mir::instruction::BirthArgumentV1::Value(value),
+                field_array_read: None,
+                expression: None,
+            });
         }
-        self.provider_births.borrow_mut().push(ProviderBirthRecordV1 {
-            site,
-            object,
-            handoff,
-            receiver,
-            arguments: emitted.into_boxed_slice(),
-        });
+        self.provider_births
+            .borrow_mut()
+            .push(ProviderBirthRecordV1 {
+                site,
+                object,
+                handoff,
+                receiver,
+                arguments: emitted.into_boxed_slice(),
+            });
         Ok(())
     }
 
@@ -408,7 +462,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 LocalCommitV1::Map(row) => row.mark_checked(),
                 LocalCommitV1::OwnedArray(row) => row.mark_checked(),
                 LocalCommitV1::CallReceived(row) => row.mark_checked(),
-                LocalCommitV1::TextResidence(_) | LocalCommitV1::DynamicCarrierResidence(_) | LocalCommitV1::Shared(_) => {},
+                LocalCommitV1::TextResidence(_)
+                | LocalCommitV1::DynamicCarrierResidence(_)
+                | LocalCommitV1::Shared(_) => {}
             }
         }
         Ok(())
@@ -461,7 +517,6 @@ impl OrdinaryNewClaimLedgerV1 {
         self.validate_field_reads(owner, function)?;
         self.validate_terminal_scalar_literal_return(owner, function)?;
 
-
         let (bindings, selected_body_block) = if let Some(view) = pending {
             self.validate_root_home_exit_with_pending(owner, function, None, view)?;
             self.validate_root_cleanup_shape_with_pending(owner, function, view)?;
@@ -500,7 +555,7 @@ impl OrdinaryNewClaimLedgerV1 {
             &source_phi_roles,
             selected_body_block,
             &self.recorded_source_loop_roles_v2(owner),
-            &self.comparison_read_cone_bindings_v1(owner, function)?,
+            &self.initializer_optional_bindings_v1(owner, function)?,
         )?;
         Ok(PendingChildPhysicalValidationV1 {
             ledger: self,

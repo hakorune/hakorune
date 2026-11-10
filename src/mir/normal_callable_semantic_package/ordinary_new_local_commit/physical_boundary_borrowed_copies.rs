@@ -37,17 +37,24 @@ impl OriginalBorrowedCopies {
                 }
             }
         }
+        let local_reads = crate::mir::passes::dce::local_fields::LocalReadInfo::default();
+        let removable_read = |row: &MirInstruction| {
+            crate::mir::passes::dce::local_fields::is_removable_effect_sensitive_read_instruction(
+                row,
+                &local_reads,
+            )
+        };
         let mut optional = BTreeSet::new();
         for binding in reads {
-            if !matches!(
+            if !(matches!(
                 binding.1,
                 MirInstruction::Copy { .. }
-                    | MirInstruction::NullCompare { .. }
                     | MirInstruction::Const {
                         value: crate::mir::ConstValue::Null,
                         ..
                     }
-            ) {
+            ) || removable_read(&binding.1))
+            {
                 return Err(fault("borrowed-read-kind"));
             }
             let dst = binding
@@ -125,16 +132,14 @@ impl OriginalBorrowedCopies {
                             if !instruction.used_values().contains(dst) {
                                 return true;
                             }
-                            match instruction {
-                                MirInstruction::Copy { dst: consumer, .. }
-                                | MirInstruction::NullCompare { dst: consumer, .. } => {
-                                    dead.contains(consumer)
-                                        && originals.get(consumer).is_some_and(|original| {
-                                            original.0 == block.id && &original.1 == instruction
-                                        })
-                                }
-                                _ => false,
-                            }
+                            instruction.dst_value().is_some_and(|consumer| {
+                                (matches!(instruction, MirInstruction::Copy { .. })
+                                    || removable_read(instruction))
+                                    && dead.contains(&consumer)
+                                    && originals.get(&consumer).is_some_and(|original| {
+                                        original.0 == block.id && &original.1 == instruction
+                                    })
+                            })
                         })
                 });
                 if only_dead_users {
@@ -160,10 +165,25 @@ impl OriginalBorrowedCopies {
         let Some(dst) = instruction.dst_value() else {
             return false;
         };
-        self.contains(instruction)
+        let allowed = self.contains(instruction)
             && self.dead.contains(&dst)
             && definition_count(function, dst) == 0
-            && !operand_used(function, dst)
+            && !operand_used(function, dst);
+        allowed
+    }
+}
+
+impl PhysicalBoundary {
+    /// This is the captured pre-optimization permission, not final omission
+    /// approval. Projection still requires no definition and no use afterward.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn permits_dead_source_elision_v1(
+        &self,
+        original: &(BasicBlockId, MirInstruction),
+    ) -> bool {
+        original.1.dst_value().is_some_and(|dst| {
+            self.borrowed_copies.originals.get(&dst) == Some(original)
+                && self.borrowed_copies.dead.contains(&dst)
+        })
     }
 }
 

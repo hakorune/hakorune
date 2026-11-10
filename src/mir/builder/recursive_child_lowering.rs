@@ -243,23 +243,26 @@ pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
     /// the original resolver input used to issue exact loop membership; it is
     /// copied as a view into nested frames and restored when that scope exits.
     /// SAME installed result/ledger borrow, shortened with the source scope.
-    pub(in crate::mir::builder) owned_array_source:
-        Option<crate::mir::normal_callable_semantic_package::OwnedArrayLifecycleSourceLoanV1<'port>>,
+    pub(in crate::mir::builder) owned_array_source: Option<
+        crate::mir::normal_callable_semantic_package::OwnedArrayLifecycleSourceLoanV1<'port>,
+    >,
     pub(in crate::mir::builder) source_input:
         Option<crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'port>>,
     /// Existing source Loop product retained only while one scheduled child
     /// lowers; its checked argument frames remain owned by that product.
-    pub(in crate::mir::builder) active_source_loop_product: Option<
-        Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
-    >,
+    pub(in crate::mir::builder) active_source_loop_product:
+        Option<Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>,
     pub(in crate::mir::builder) ordinary_new_claim_ledger:
         Option<Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>>,
     pub(in crate::mir::builder) map_read_consumer:
         Option<Rc<RefCell<super::map_read_physical_consumer::MapReadPhysicalConsumerV1>>>,
-    pub(in crate::mir::builder) comparison_initializer_emission:
-        Option<Rc<RefCell<super::normal_callable_binding_materialization::ComparisonInitializerObservationV1>>>,
-    pub(in crate::mir::builder) bool_condition_emission:
-        Option<Rc<RefCell<super::ordinary_new_admission::selected::bool_condition::BoolConditionEmissionV1>>>,
+    pub(in crate::mir::builder) bool_condition_emission: Option<
+        Rc<
+            RefCell<
+                super::ordinary_new_admission::selected::bool_condition::BoolConditionEmissionV1,
+            >,
+        >,
+    >,
     pub(in crate::mir::builder) field_write_rhs_emission:
         Option<Rc<RefCell<super::raw_invocation_source_transport::FieldWriteRhsEmissionV1>>>,
     pub(in crate::mir::builder) generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1,
@@ -370,7 +373,6 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             owned_array_source: None,
             ordinary_new_claim_ledger: None,
             map_read_consumer: None,
-            comparison_initializer_emission: None,
             bool_condition_emission: None,
             field_write_rhs_emission: None,
             generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1::new(),
@@ -399,7 +401,6 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             owned_array_source: self.owned_array_source,
             ordinary_new_claim_ledger: self.ordinary_new_claim_ledger.clone(),
             map_read_consumer: self.map_read_consumer.clone(),
-            comparison_initializer_emission: self.comparison_initializer_emission.clone(),
             bool_condition_emission: self.bool_condition_emission.clone(),
             field_write_rhs_emission: self.field_write_rhs_emission.clone(),
             generic_loop_diagnostic: self.generic_loop_diagnostic.reborrow(),

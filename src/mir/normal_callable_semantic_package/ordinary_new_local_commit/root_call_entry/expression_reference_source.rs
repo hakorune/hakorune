@@ -290,7 +290,9 @@ pub(super) fn reference_operand(
     )
     .map_err(|error| error.to_string())?;
     match reference {
-        Reference::NullableResult(_) => Err(freeze("expression/reference-source-node")),
+        Reference::NullableResult(_) | Reference::Alias(_) => {
+            Err(freeze("expression/reference-source-node"))
+        }
         Reference::DynamicInvocationResult(initializer) => {
             let (value, binding) = dynamic_initializer_result_producer_v1(
                 initializer,

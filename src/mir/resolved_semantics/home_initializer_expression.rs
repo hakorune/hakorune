@@ -4,8 +4,7 @@ use super::*;
 use crate::mir::normal_callable_semantic_package::FiniteEntryReadV1;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_value_profile::{
-    expression_class::ExpressionValueClassV1 as Class,
-    expression_plan::ExpressionPlanRootV1,
+    expression_class::ExpressionValueClassV1 as Class, expression_plan::ExpressionPlanRootV1,
     expression_projection::ExpressionLeafClassV1 as Leaf,
 };
 use std::collections::BTreeMap;
@@ -173,13 +172,20 @@ impl CheckedInitializerExpressionFrameV1 {
             return Some(self.binding());
         }
         if self.evaluation.root_class() != Leaf::Value(Class::Dynamic)
-            || self.source().nodes().len() != 1 || self.owns_root() {
+            || self.source().nodes().len() != 1
+            || self.owns_root()
+        {
             return None;
         }
         let CheckedExpressionReferenceV1::DynamicInvocationResult(source) =
-            self.evaluation.references().get(&0)? else { return None; };
+            self.evaluation.references().get(&0)?
+        else {
+            return None;
+        };
         let owner = source.dynamic_home_binding_v1()?;
-        self.prior_homes().contains(&LiveHomeV1::Stable(owner)).then_some(owner)
+        self.prior_homes()
+            .contains(&LiveHomeV1::Stable(owner))
+            .then_some(owner)
     }
     pub(crate) fn owns_root(&self) -> bool {
         self.evaluation.owned_result_nodes().contains(&0)
@@ -190,7 +196,9 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     mut prepared: super::leaves::PreparedExpressionCallsV1,
     entry_reads: &[FiniteEntryReadV1],
     dynamic_entry_reads: &[crate::mir::normal_callable_semantic_package::DynamicEntryReadV1],
-    dynamic_local_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<Rc<CheckedInitializerExpressionFrameV1>>,
+    dynamic_local_reference: &mut impl FnMut(
+        &SourceExprSiteV1,
+    ) -> Option<Rc<CheckedInitializerExpressionFrameV1>>,
     signed_root_sum: Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>>,
     // A selected source Loop body evaluates even a scalar literal or plain
     // read through one complete frame; the caller proves that context.
@@ -246,7 +254,10 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     for (node, original) in source.nodes().iter().enumerate() {
         if matches!(original.source(), ExpressionNodeSourceV1::Reference(_)) {
             if let Some(frame) = dynamic_local_reference(original.site()) {
-                initial.push((node, CheckedExpressionReferenceV1::DynamicInvocationResult(frame)));
+                initial.push((
+                    node,
+                    CheckedExpressionReferenceV1::DynamicInvocationResult(frame),
+                ));
             }
         }
     }
@@ -337,13 +348,20 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     // R16: a root comparison over exact operands is a Bool Local. The comparison table names
     // the family; `qualify_comparison_operation_v1` below admits the operand classes.
     let bool_comparison = classes[0] == Leaf::Value(Class::Bool)
-        && source.nodes()[0].binary().is_some_and(|binary| crate::mir::resolved_value_profile::expression_class::comparison_operator_family_v1(binary.operator()).is_some());
+        && source.nodes()[0].binary().is_some_and(|binary| {
+            crate::mir::resolved_value_profile::expression_class::comparison_operator_family_v1(
+                binary.operator(),
+            )
+            .is_some()
+        });
     let copy_root = source.copy_operand_node_v1(0).is_some();
     let bool_root = bool_comparison || (copy_root && classes[0] == Leaf::Value(Class::Bool));
     if !references.is_empty()
         || transferred.contains(&0)
         || (!matches!(classes[0], Leaf::Value(Class::String | Class::I64))
-            && !dynamic_invocation_root && !dynamic_alias_root && !bool_root)
+            && !dynamic_invocation_root
+            && !dynamic_alias_root
+            && !bool_root)
         || (classes[0] == Leaf::Value(Class::I64)
             && !has_core
             && !calls.contains_key(&0)
@@ -352,7 +370,8 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
                 .any(|read| read.requirement().node() == 0 && read.signed_only())
             && !signed_current
             && !loop_scalar_frame
-            && source.nodes()[0].binary().is_none() && !copy_root)
+            && source.nodes()[0].binary().is_none()
+            && !copy_root)
     {
         return Ok(None);
     }
@@ -362,9 +381,18 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
         // Operand subtrees (calls, Text adds) keep their own arithmetic law.
         let root = super::operations::qualify_comparison_operation_v1(&source, 0, &classes);
         let inner_order: Vec<usize> = order.iter().copied().filter(|node| *node != 0).collect();
-        root.and_then(|root| super::operations::qualify_arithmetic_operations_v1(
-            &source, &inner_order, &classes, &transferred,
-        ).map(|(mut operations, owned)| { operations.push(root); (operations, owned) }))
+        root.and_then(|root| {
+            super::operations::qualify_arithmetic_operations_v1(
+                &source,
+                &inner_order,
+                &classes,
+                &transferred,
+            )
+            .map(|(mut operations, owned)| {
+                operations.push(root);
+                (operations, owned)
+            })
+        })
     } else {
         super::operations::qualify_arithmetic_operations_v1(&source, &order, &classes, &transferred)
     }) else {
@@ -373,7 +401,12 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     // Owned Text transfers one root residence; I64 retains no Home. Its Text
     // child acquisitions still belong to the SAME ordered evaluation/cleanup.
     let mut owned_results = owned_results;
-    owned_results.extend(super::operations::owned_text_field_nodes_v1(&source, &order, &classes, &transferred));
+    owned_results.extend(super::operations::owned_text_field_nodes_v1(
+        &source,
+        &order,
+        &classes,
+        &transferred,
+    ));
     let owned_results =
         super::evaluation::owned_result_nodes(&order, &owned_results, &cores, &calls);
     if classes[0] == Leaf::Value(Class::String) && !owned_results.contains(&0) {
@@ -386,7 +419,7 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     {
         return Ok(None);
     }
-    let mut evaluation = CheckedExpressionEvaluationV1 {
+    let evaluation = CheckedExpressionEvaluationV1 {
         source: Rc::clone(&source),
         prior_homes: prior_homes.into(),
         order: order.clone().into_boxed_slice(),
@@ -398,19 +431,45 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
         cores,
         transferred_inputs: transferred,
     };
-    if !evaluation.retain_core_text_entry_reads_v1() {
+    let Some(candidate) = initializer_plan_v1(evaluation, signed_root_sum) else {
+        return Ok(None);
+    };
+    let Some(candidate) = candidate.with_source_field_requirements(&fields) else {
+        return Ok(None);
+    };
+    if !can_install(&candidate) {
         return Ok(None);
     }
+    if !field_batch(
+        &fields,
+        super::super::LocalFieldReadDemandV1::SourceExpression {
+            probe: false,
+            plan: source,
+        },
+    )? {
+        return Ok(None);
+    }
+    Ok(Some(candidate))
+}
+
+fn initializer_plan_v1(
+    mut evaluation: CheckedExpressionEvaluationV1,
+    signed_root_sum: Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>>,
+) -> Option<HomeExpressionPlanV1> {
+    if !evaluation.retain_core_text_entry_reads_v1() {
+        return None;
+    }
+    let source = Rc::clone(evaluation.source());
     let frame = Rc::new(CheckedInitializerExpressionFrameV1 {
         signed_root_sum,
         evaluation,
     });
     if !frame.evaluation().reference_coverage_is_exact() {
-        return Ok(None);
+        return None;
     }
     let candidate = HomeExpressionPlanV1 {
         source: Rc::clone(&source),
-        scalar_operations: Vec::new(), comparison_root: None,
+        scalar_operations: Vec::new(),
         source_fields: Vec::new(),
         print_frame: None,
         condition_frame: None,
@@ -421,17 +480,62 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
         field_write: None,
         source_field_homes: None,
     };
-    let Some(candidate) = candidate.with_source_field_requirements(&fields) else {
-        return Ok(None);
+    candidate.is_consistent().then_some(candidate)
+}
+
+/// The existing alias/null law lends its same non-owning Bool to the ordinary
+/// evaluator; Eq/Ne permission does not come from the general Dynamic domain.
+pub(crate) fn qualify_alias_null_initializer_v1(
+    source: Rc<ExpressionSourcePlanV1>,
+    binding: BindingRefV1,
+    root: BindingRefV1,
+    homes: &[LiveHomeV1],
+) -> Option<HomeExpressionPlanV1> {
+    source.root().initializer()?;
+    let binary = source.nodes().first()?.binary()?;
+    let index = |site| source.nodes().iter().position(|node| node.site() == site);
+    let (left, right) = (index(binary.lhs())?, index(binary.rhs())?);
+    let (reference, null) = if matches!(
+        source.nodes()[left].source(),
+        ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Null)
+    ) {
+        (right, left)
+    } else {
+        (left, right)
     };
-    if !can_install(&candidate) {
-        return Ok(None);
+    let loan = Rc::new(CheckedExpressionOperationLoanV1 {
+        plan: Rc::clone(&source),
+        node: 0,
+        proof: CheckedExpressionOperationProofV1::NullableAliasNull {
+            reference,
+            null,
+            binding,
+            root,
+        },
+    });
+    loan.nullable_alias_null_v1()?;
+    let order = source.ordered_postorder_v1().ok()?;
+    let mut classes = vec![Leaf::Unresolved; source.nodes().len()];
+    classes[0] = Leaf::Value(Class::Bool);
+    classes[reference] = Leaf::Value(Class::Opaque);
+    classes[null] = Leaf::Value(Class::Null);
+    if order.iter().any(|node| classes[*node] == Leaf::Unresolved) {
+        return None;
     }
-    if !field_batch(
-        &fields,
-        super::super::LocalFieldReadDemandV1::SourceExpression { probe: false, plan: source },
-    )? {
-        return Ok(None);
-    }
-    Ok(Some(candidate))
+    let evaluation = CheckedExpressionEvaluationV1 {
+        source,
+        prior_homes: homes.into(),
+        order: order.into(),
+        classes: classes.into(),
+        calls: Box::new([]),
+        cores: BTreeMap::new(),
+        references: BTreeMap::from([(
+            reference,
+            CheckedExpressionReferenceV1::Alias(Rc::clone(&loan)),
+        )]),
+        operations: vec![loan].into(),
+        owned_results: Box::new([]),
+        transferred_inputs: Default::default(),
+    };
+    initializer_plan_v1(evaluation, None)
 }

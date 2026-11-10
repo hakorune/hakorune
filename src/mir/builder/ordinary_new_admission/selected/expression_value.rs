@@ -257,6 +257,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                 | CheckedExpressionReferenceV1::LoopText(_) | CheckedExpressionReferenceV1::LoopDynamic(_)
                 | CheckedExpressionReferenceV1::ArgumentEntry(_) | CheckedExpressionReferenceV1::FiniteEntry { .. }
                 | CheckedExpressionReferenceV1::DynamicEntry(_)
+                | CheckedExpressionReferenceV1::Alias(_)
                 | CheckedExpressionReferenceV1::DynamicInvocationResult(_)
                 | CheckedExpressionReferenceV1::NullableResult(crate::mir::resolved_semantics::home_new_prefix::NullableResultReferenceV1::DeclaredFrom(_)))) {
             return Err(freeze("expression/reference-execution-pending"));
@@ -456,10 +457,31 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             values[index] = Some(values[tail].clone().ok_or_else(|| freeze("print-expression/node-value"))?);
             continue;
         }
-        if let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::NullableResult(
-            crate::mir::resolved_semantics::home_new_prefix::NullableResultReferenceV1::DeclaredFrom(_))) = frame.references().get(&index) {
+        if matches!(frame.references().get(&index), Some(CheckedExpressionReferenceV1::Alias(_) | CheckedExpressionReferenceV1::NullableResult(
+            crate::mir::resolved_semantics::home_new_prefix::NullableResultReferenceV1::DeclaredFrom(_)))) {
             let read = reference_reads.get(&index).ok_or_else(|| freeze("expression/reference-read-missing"))?;
             let value = read.declared_read_value_v1(frame, index, CallValidationContextV1::Lowering(ledger))?;
+            values[index] = Some(EvaluatedExpressionValueV1::DeclaredRead(value));
+            continue;
+        }
+        if let Node::Literal(Literal::Null) = node.source() {
+            if !frame.operations().iter().any(|loan| {
+                loan.nullable_alias_null_v1()
+                    .is_some_and(|(_, null)| null == index)
+            }) {
+                return Err(freeze("expression/reference-source-node"));
+            }
+            let value = builder.next_value_id();
+            let block = builder
+                .function_state
+                .current_block
+                .ok_or_else(|| freeze("no-block"))?;
+            let instruction = MirInstruction::Const {
+                dst: value,
+                value: crate::mir::ConstValue::Null,
+            };
+            builder.emit_instruction(instruction.clone())?;
+            bindings.push((block, instruction));
             values[index] = Some(EvaluatedExpressionValueV1::DeclaredRead(value));
             continue;
         }

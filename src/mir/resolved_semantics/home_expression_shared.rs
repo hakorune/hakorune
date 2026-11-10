@@ -10,10 +10,25 @@ impl HomeExpressionPlanV1 {
         moved: Option<crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1>,
         prior_homes: Rc<[LiveHomeV1]>,
     ) -> Option<Self> {
-        let plan = Self { source: Rc::clone(&source), scalar_operations: Vec::new(), comparison_root: None, source_fields: Vec::new(),
-            print_frame: None, argument_frame: None,
-            initializer_frame: Some(InitializerFrameV1::Shared { source, payload_source, shared, moved, prior_homes }),
-            rebind_frame: None, condition_frame: None, loop_recipe: None, field_write: None, source_field_homes: None };
+        let plan = Self {
+            source: Rc::clone(&source),
+            scalar_operations: Vec::new(),
+            source_fields: Vec::new(),
+            print_frame: None,
+            argument_frame: None,
+            initializer_frame: Some(InitializerFrameV1::Shared {
+                source,
+                payload_source,
+                shared,
+                moved,
+                prior_homes,
+            }),
+            rebind_frame: None,
+            condition_frame: None,
+            loop_recipe: None,
+            field_write: None,
+            source_field_homes: None,
+        };
         plan.is_consistent().then_some(plan)
     }
 }
@@ -27,11 +42,17 @@ impl HomeExpressionPlanV1 {
         prior_homes: &[LiveHomeV1],
     ) -> bool {
         let nodes = source.nodes();
-        from.owner() == source.owner() && acquisition.owner() == source.owner()
-            && prior_homes.iter().filter(|home| home.binding() == from).count() == 1
+        from.owner() == source.owner()
+            && acquisition.owner() == source.owner()
+            && prior_homes
+                .iter()
+                .filter(|home| home.binding() == from)
+                .count()
+                == 1
             && nodes.len() == 2
             && shared.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Shared
-            && shared.site() == nodes[0].site() && shared.operand() == nodes[1].site()
+            && shared.site() == nodes[0].site()
+            && shared.operand() == nodes[1].site()
             && matches!(nodes[1].source(), ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == from)
     }
 }
@@ -43,14 +64,22 @@ impl HomeExpressionPlanV1 {
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     ) -> Result<(), super::super::HomePrefixUnavailableV1> {
         let expressions = input.function().expression_source();
-        for unary in expressions.unaries().filter(|unary|
-            unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Shared) {
-            if !expressions.initializers().any(|initializer|
+        for unary in expressions.unaries().filter(|unary| {
+            unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Shared
+        }) {
+            if !expressions.initializers().any(|initializer| {
                 initializer.initializer_site() == Some(unary.site())
-                    && matches!(initializer.declaration_site(), crate::mir::resolved_semantics::SourceBindingSiteV1::Local { .. })) {
-                return Err(super::super::HomePrefixUnavailableV1::SharedOperandUnsupported {
-                    site: unary.site().clone(), guidance: "share is supported only as a complete local initializer",
-                });
+                    && matches!(
+                        initializer.declaration_site(),
+                        crate::mir::resolved_semantics::SourceBindingSiteV1::Local { .. }
+                    )
+            }) {
+                return Err(
+                    super::super::HomePrefixUnavailableV1::SharedOperandUnsupported {
+                        site: unary.site().clone(),
+                        guidance: "share is supported only as a complete local initializer",
+                    },
+                );
             }
         }
         Ok(())

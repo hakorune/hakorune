@@ -303,7 +303,14 @@ fn field_alias_null_equality_claims_both_predicates_and_orders() {
                     .and_then(|row| row.cleanup().root_flow())
             })
             .flat_map(|flow| flow.expression_plans())
-            .filter_map(|plan| plan.comparison_root())
+            .filter_map(|plan| plan.initializer_frame())
+            .filter(|frame| {
+                frame
+                    .evaluation()
+                    .operations()
+                    .iter()
+                    .any(|loan| loan.nullable_alias_null_v1().is_some())
+            })
             .collect();
         assert_eq!(
             loans.len(),
@@ -311,8 +318,10 @@ fn field_alias_null_equality_claims_both_predicates_and_orders() {
             "the original field-alias comparison is retained: {compare}"
         );
         let plan = loans[0]
-            .alias_comparison_plan_v1()
-            .expect("original null law");
+            .evaluation()
+            .comparison_plan_v1(0)
+            .expect("original null law")
+            .expect("retained alias operation");
         assert_eq!(
             plan.kind(),
             crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionKindV1::Null

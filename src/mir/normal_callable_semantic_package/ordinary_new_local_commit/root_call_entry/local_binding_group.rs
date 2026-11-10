@@ -2,7 +2,7 @@
 //! Sharing a prefix between exits shares the packet, never its affine row.
 use super::*;
 use crate::mir::normal_callable_semantic_package::{
-    CallValidationContextV1, StoredMapGetLocalEmissionV1, MapFieldInstallEmissionV1,
+    CallValidationContextV1, MapFieldInstallEmissionV1, StoredMapGetLocalEmissionV1,
 };
 use std::rc::Rc;
 #[path = "direct_scalar_call.rs"]
@@ -40,7 +40,6 @@ enum PrefixPhysicalProofV1 {
 #[derive(Debug, Clone)]
 enum EvaluatedBindingProjectionV1 {
     Initializer(Rc<EmittedInitializerExpressionProjectionV1>),
-    ComparisonInitializer(Rc<EmittedComparisonInitializerProjectionV1>),
     Rebind(Rc<binding_rebind_projection::EmittedBindingRebindProjectionV1>),
 }
 
@@ -169,10 +168,12 @@ impl RootLifecyclePrefixBindingGroupV1 {
         function: &MirFunction,
         check_coordinates: bool,
     ) -> Result<(), String> {
-        let owned = matches!(source.result(),
+        let owned =
+            matches!(source.result(),
             crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Handle
             | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Nullable);
-        let has_result = !owned && (source.local_binding().is_some() || source.is_expression_value());
+        let has_result =
+            !owned && (source.local_binding().is_some() || source.is_expression_value());
         if self.site() != source.site() || has_result != value.is_some() {
             return Err(freeze("source-loop/call-source"));
         }
@@ -182,7 +183,9 @@ impl RootLifecyclePrefixBindingGroupV1 {
             }
         }
         if owned {
-            context.ledger().source_loop_received_call_value_v2(source, self, context)?;
+            context
+                .ledger()
+                .source_loop_received_call_value_v2(source, self, context)?;
         }
         match &self.proof {
             PrefixPhysicalProofV1::Call(Some(packet)) => packet.corroborate_loop_continuation_v2(
@@ -206,10 +209,12 @@ impl RootLifecyclePrefixBindingGroupV1 {
     }
     pub(super) fn permits_empty_bindings_v1(&self, ledger: &OrdinaryNewClaimLedgerV1) -> bool {
         match &self.proof {
-            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(packet)) =>
-                packet.expression().permits_empty_bindings_v1(ledger),
-            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(packet)) =>
-                packet.expression().permits_empty_bindings_v1(ledger),
+            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(
+                packet,
+            )) => packet.expression().permits_empty_bindings_v1(ledger),
+            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(
+                packet,
+            )) => packet.expression().permits_empty_bindings_v1(ledger),
             _ => false,
         }
     }
@@ -366,8 +371,12 @@ impl RootLifecyclePrefixBindingGroupV1 {
     /// A Call, direct scalar Call or Print group retains its argument frames'
     /// exact auxiliary producers after a LocalSSA adapter supplied the operand.
     pub(in crate::mir) fn retains_argument_frames_v1(&self) -> bool {
-        matches!(self.proof, PrefixPhysicalProofV1::Call(_) | PrefixPhysicalProofV1::DirectScalar(_)
-            | PrefixPhysicalProofV1::PrintExpression(_))
+        matches!(
+            self.proof,
+            PrefixPhysicalProofV1::Call(_)
+                | PrefixPhysicalProofV1::DirectScalar(_)
+                | PrefixPhysicalProofV1::PrintExpression(_)
+        )
     }
 
     pub(in crate::mir) fn lexical_rc_v1(&self) -> Option<Rc<EmittedLexicalCallProjectionV1>> {
@@ -409,7 +418,11 @@ impl RootLifecyclePrefixBindingGroupV1 {
                     .into_iter()
                     .flat_map(|packet| packet.argument_calls_v1()),
             )
-            .chain(self.borrowed_field_write().into_iter().flat_map(|packet| packet.lexical_calls_v1()))
+            .chain(
+                self.borrowed_field_write()
+                    .into_iter()
+                    .flat_map(|packet| packet.lexical_calls_v1()),
+            )
             .chain(print.into_iter().flat_map(|packet| packet.calls()))
             .chain(self.rebind().into_iter().flat_map(|packet| packet.calls()))
             .chain(
@@ -470,37 +483,46 @@ impl RootLifecyclePrefixBindingGroupV1 {
 
     /// Reuse a purpose's complete physical body, without a second Core registry.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn array_operation_bindings_v1(
-        &self, operation: &Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>,
-        context: CallValidationContextV1<'_>, function: &MirFunction, projection: &super::super::physical_boundary::FinishedBindings,
-    ) -> Result<Option<((BasicBlockId, MirInstruction), (BasicBlockId, MirInstruction))>, String> {
+        &self,
+        operation: &Rc<
+            crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1,
+        >,
+        context: CallValidationContextV1<'_>,
+        function: &MirFunction,
+        projection: &super::super::physical_boundary::FinishedBindings,
+    ) -> Result<
+        Option<(
+            (BasicBlockId, MirInstruction),
+            (BasicBlockId, MirInstruction),
+        )>,
+        String,
+    > {
         let expression = match &self.proof {
-            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(packet)) => packet.expression(),
-            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(packet)) => packet.expression(),
+            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(
+                packet,
+            )) => packet.expression(),
+            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(
+                packet,
+            )) => packet.expression(),
             PrefixPhysicalProofV1::PrintExpression(packet) => packet.expression(),
             PrefixPhysicalProofV1::BoolCondition(packet) => {
                 let pair = packet.array_operation_bindings_v1(operation)?;
-                if pair.is_some() { self.validate_recorded_in_context(context, function, Some(projection))?; }
+                if pair.is_some() {
+                    self.validate_recorded_in_context(context, function, Some(projection))?;
+                }
                 return Ok(pair);
             }
             _ => return Ok(None),
         };
         let pair = expression.array_operation_bindings_v1(operation, context)?;
-        if pair.is_some() { self.validate_recorded_in_context(context, function, Some(projection))?; }
+        if pair.is_some() {
+            self.validate_recorded_in_context(context, function, Some(projection))?;
+        }
         Ok(pair)
     }
 
     pub(in crate::mir) fn initializer(&self) -> Option<&EmittedInitializerExpressionProjectionV1> {
         self.initializer_rc().map(Rc::as_ref)
-    }
-    pub(in crate::mir) fn comparison_initializer(&self) -> Option<&EmittedComparisonInitializerProjectionV1> {
-        match &self.proof {
-            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::ComparisonInitializer(packet)) => Some(packet),
-            _ => None,
-        }
-    }
-    pub(super) fn new_comparison_initializer(packet: Rc<EmittedComparisonInitializerProjectionV1>, bindings: Vec<(BasicBlockId, MirInstruction)>) -> Self {
-        Self { site: OwnedExprSiteV1::new(packet.source().source().owner(), packet.source().source().nodes()[0].site().clone()),
-            bindings, proof: PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::ComparisonInitializer(packet)), projected: false }
     }
     pub(super) fn new_initializer(
         packet: Rc<EmittedInitializerExpressionProjectionV1>,
@@ -619,7 +641,6 @@ impl RootLifecyclePrefixBindingGroupV1 {
         }
     }
 
-
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_recorded(
         &self,
         ledger: &OrdinaryNewClaimLedgerV1,
@@ -646,9 +667,9 @@ impl RootLifecyclePrefixBindingGroupV1 {
                 .validate_text_residence_home_v1(&home, context)?;
         }
         match &self.proof {
-            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::ComparisonInitializer(packet)) =>
-                packet.validate(context, function, &self.bindings, coordinates, finishing),
-            PrefixPhysicalProofV1::SharedInitializer(packet) => packet.validate_shared_v1(context.ledger(), function, coordinates),
+            PrefixPhysicalProofV1::SharedInitializer(packet) => {
+                packet.validate_shared_v1(context.ledger(), function, coordinates)
+            }
             PrefixPhysicalProofV1::Loop(packet) => packet.validate_completion_v2(
                 context,
                 function,

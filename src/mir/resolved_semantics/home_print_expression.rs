@@ -4,10 +4,8 @@ use super::super::{LocalCallObservationV1, OwnedExprSiteV1, SourceExprSiteV1};
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_value_profile::{
-    expression_class::ExpressionValueClassV1,
-    expression_plan::ExpressionPlanRootV1,
-    expression_projection::ExpressionLeafClassV1,
-    expression_root::StatementExpressionRoleV1,
+    expression_class::ExpressionValueClassV1, expression_plan::ExpressionPlanRootV1,
+    expression_projection::ExpressionLeafClassV1, expression_root::StatementExpressionRoleV1,
 };
 use std::collections::BTreeMap;
 
@@ -20,9 +18,13 @@ pub(crate) struct CheckedPrintExpressionFrameV1 {
 impl CheckedPrintExpressionFrameV1 {
     /// A bare statement call whose owned result ends with the statement.
     pub(crate) fn is_discard(&self) -> bool {
-        matches!(self.source().root(), ExpressionPlanRootV1::Statement {
-            role: StatementExpressionRoleV1::DiscardValue, ..
-        })
+        matches!(
+            self.source().root(),
+            ExpressionPlanRootV1::Statement {
+                role: StatementExpressionRoleV1::DiscardValue,
+                ..
+            }
+        )
     }
     pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 {
         &self.evaluation
@@ -121,7 +123,7 @@ pub(crate) fn qualify_print_expression_v1<E>(
     }
     let candidate = HomeExpressionPlanV1 {
         source: Rc::clone(&source),
-        scalar_operations: Vec::new(), comparison_root: None,
+        scalar_operations: Vec::new(),
         source_fields: Vec::new(),
         source_field_homes: None,
         argument_frame: None,
@@ -140,7 +142,10 @@ pub(crate) fn qualify_print_expression_v1<E>(
     }
     if !field_batch(
         &fields,
-        super::super::LocalFieldReadDemandV1::SourceExpression { probe: false, plan: source },
+        super::super::LocalFieldReadDemandV1::SourceExpression {
+            probe: false,
+            plan: source,
+        },
     )? {
         return Ok(None);
     }
@@ -162,7 +167,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_statement_eva
     loop_text_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::LoopTextReadV1>,
     scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::CurrentScalarReadV1>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
-) -> Result<Result<(CheckedExpressionEvaluationV1, Vec<LocalFieldReadRequestV1>), &'static str>, E> {
+) -> Result<Result<(CheckedExpressionEvaluationV1, Vec<LocalFieldReadRequestV1>), &'static str>, E>
+{
     use ExpressionLeafClassV1 as Leaf;
     use ExpressionValueClassV1 as Class;
     let source = Rc::clone(prepared.source());
@@ -215,15 +221,29 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_statement_eva
     let Some((operations, mut owned_results)) = (if bool_root {
         let root = super::operations::qualify_comparison_operation_v1(&source, 0, &classes);
         let inner_order: Vec<usize> = order.iter().copied().filter(|node| *node != 0).collect();
-        root.and_then(|root| super::operations::qualify_arithmetic_operations_v1(
-            &source, &inner_order, &classes, &transferred,
-        ).map(|(mut operations, owned)| { operations.push(root); (operations, owned) }))
+        root.and_then(|root| {
+            super::operations::qualify_arithmetic_operations_v1(
+                &source,
+                &inner_order,
+                &classes,
+                &transferred,
+            )
+            .map(|(mut operations, owned)| {
+                operations.push(root);
+                (operations, owned)
+            })
+        })
     } else {
         super::operations::qualify_arithmetic_operations_v1(&source, &order, &classes, &transferred)
     }) else {
         return Ok(Err("arithmetic-operations-unproved"));
     };
-    owned_results.extend(super::operations::owned_text_field_nodes_v1(&source, &order, &classes, &transferred));
+    owned_results.extend(super::operations::owned_text_field_nodes_v1(
+        &source,
+        &order,
+        &classes,
+        &transferred,
+    ));
     if crate::config::env::builder_debug_enabled() {
         eprintln!("[statement-evaluation] owner={:?} order={:?} owned_candidates={:?} transferred={:?} classes={:?} nodes={:?}",
             source.owner(), order, owned_results, transferred, classes, source.nodes().iter().map(|node| format!("{:?}", node.source())).collect::<Vec<_>>());

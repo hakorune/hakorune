@@ -6,8 +6,7 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::home_new_prefix::LoopHeaderValueBasisV1;
 use crate::mir::resolved_semantics::{ResolvedAssignmentFormV1, ResolvedAssignmentTargetV1};
 use crate::mir::resolved_value_profile::{
-    expression_class::ExpressionValueClassV1 as Class,
-    expression_plan::ExpressionPlanRootV1,
+    expression_class::ExpressionValueClassV1 as Class, expression_plan::ExpressionPlanRootV1,
     expression_projection::ExpressionLeafClassV1 as Leaf,
 };
 
@@ -30,7 +29,10 @@ pub(crate) struct CheckedBindingRebindFrameV1 {
 }
 impl CheckedBindingRebindFrameV1 {
     pub(crate) fn declared_read_v1(&self) -> Option<&super::super::BorrowedResultReadV1> {
-        match &self.destination { BindingRebindDestinationV1::DeclaredRead(read) => Some(read), _ => None }
+        match &self.destination {
+            BindingRebindDestinationV1::DeclaredRead(read) => Some(read),
+            _ => None,
+        }
     }
     pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 {
         &self.evaluation
@@ -65,7 +67,10 @@ impl CheckedBindingRebindFrameV1 {
         }
     }
     pub(crate) fn is_dynamic_loop_carrier_v1(&self) -> bool {
-        matches!(self.destination, BindingRebindDestinationV1::DynamicLoopCarrier(_))
+        matches!(
+            self.destination,
+            BindingRebindDestinationV1::DynamicLoopCarrier(_)
+        )
     }
     pub(crate) fn text_acquisition_v1(self: &Rc<Self>) -> TextResidenceAcquisitionV1 {
         TextResidenceAcquisitionV1::from_rebind(Rc::clone(self))
@@ -122,8 +127,13 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         TextResidenceAcquisitionV1,
     )>,
     loop_text_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::LoopTextReadV1>,
-    dynamic_invocation_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<Rc<CheckedInitializerExpressionFrameV1>>,
-    loop_dynamic_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::LoopDynamicReadV1>,
+    dynamic_invocation_reference: &mut impl FnMut(
+        &SourceExprSiteV1,
+    )
+        -> Option<Rc<CheckedInitializerExpressionFrameV1>>,
+    loop_dynamic_reference: &mut impl FnMut(
+        &SourceExprSiteV1,
+    ) -> Option<super::super::LoopDynamicReadV1>,
     scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::CurrentScalarReadV1>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
     can_install: &mut impl FnMut(&HomeExpressionPlanV1) -> bool,
@@ -140,7 +150,10 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         return Ok(None);
     };
     macro_rules! reject_rebind {
-        ($stage:literal) => {{ let _ = $stage; return Ok(None); }};
+        ($stage:literal) => {{
+            let _ = $stage;
+            return Ok(None);
+        }};
     }
     let Some(ResolvedAssignmentTargetV1::BindingRebind(target)) =
         input.function().assignment_target(assignment.target_site())
@@ -217,18 +230,37 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         .filter_map(|(node, original)| {
             (prepared.is_active_reference(node)
                 && matches!(original.source(), ExpressionNodeSourceV1::Reference(_)))
-                .then(|| dynamic_invocation_reference(original.site())
-                    .map(|frame| (node, CheckedExpressionReferenceV1::DynamicInvocationResult(frame)))
-                    .or_else(|| loop_dynamic_reference(original.site())
-                        .map(|read| (node, CheckedExpressionReferenceV1::LoopDynamic(read))))
-                ).flatten()
+            .then(|| {
+                dynamic_invocation_reference(original.site())
+                    .map(|frame| {
+                        (
+                            node,
+                            CheckedExpressionReferenceV1::DynamicInvocationResult(frame),
+                        )
+                    })
+                    .or_else(|| {
+                        loop_dynamic_reference(original.site())
+                            .map(|read| (node, CheckedExpressionReferenceV1::LoopDynamic(read)))
+                    })
+            })
+            .flatten()
         })
         .collect();
     if let BindingRebindDestinationV1::DeclaredRead(read) = &destination {
-        if source.nodes().len() != 1 || read.read().site() != assignment.value_site()
+        if source.nodes().len() != 1
+            || read.read().site() != assignment.value_site()
             || prior_homes.iter().any(|home| home.binding() == *target)
-            || initial_dynamic_references.insert(0, CheckedExpressionReferenceV1::NullableResult(
-                super::super::NullableResultReferenceV1::DeclaredFrom(read.clone().into()))).is_some() { return Ok(None); }
+            || initial_dynamic_references
+                .insert(
+                    0,
+                    CheckedExpressionReferenceV1::NullableResult(
+                        super::super::NullableResultReferenceV1::DeclaredFrom(read.clone().into()),
+                    ),
+                )
+                .is_some()
+        {
+            return Ok(None);
+        }
     }
     let Some(mut reference_proofs) =
         super::evaluation::seed_current_expression_references_with_loop_text_v1(
@@ -316,7 +348,7 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
     }
     let candidate = HomeExpressionPlanV1 {
         source: Rc::clone(&source),
-        scalar_operations: Vec::new(), comparison_root: None,
+        scalar_operations: Vec::new(),
         source_fields: Vec::new(),
         source_field_homes: None,
         argument_frame: None,
@@ -335,7 +367,10 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
     }
     if !field_batch(
         &fields,
-        super::super::LocalFieldReadDemandV1::SourceExpression { probe: false, plan: Rc::clone(&source) },
+        super::super::LocalFieldReadDemandV1::SourceExpression {
+            probe: false,
+            plan: Rc::clone(&source),
+        },
     )? {
         reject_rebind!("field-batch");
     }
@@ -380,11 +415,12 @@ mod tests {
                 5 => locals.install_observed(binding, Observation::Handle(binding)),
                 _ => unreachable!(),
             }
-            let mut homes = crate::mir::resolved_semantics::home_new_prefix::HomesV1::entry(if case == 1 {
-                vec![super::super::super::LiveHomeV1::Stable(binding)]
-            } else {
-                vec![]
-            });
+            let mut homes =
+                crate::mir::resolved_semantics::home_new_prefix::HomesV1::entry(if case == 1 {
+                    vec![super::super::super::LiveHomeV1::Stable(binding)]
+                } else {
+                    vec![]
+                });
             let body = input.source().root_body().unwrap();
             let statement = input.source().body_stmt(&body, 1).unwrap();
             let mut calls = Vec::new();
@@ -415,16 +451,33 @@ mod tests {
             let program = crate::parser::NyashParser::parse_from_string(&format!(
                 "function probe() {{ local x = new Page() local y = new Page() {assignment} return 0 }}"
             )).unwrap();
-            let crate::ast::ASTNode::Program { mut statements, .. } = program else { panic!("Program") };
-            let unit = VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+            let crate::ast::ASTNode::Program { mut statements, .. } = program else {
+                panic!("Program")
+            };
+            let unit =
+                VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
             let input = unit.root_function_input().unwrap();
-            let initializers = input.function().expression_source().initializers().take(2).collect::<Vec<_>>();
+            let initializers = input
+                .function()
+                .expression_source()
+                .initializers()
+                .take(2)
+                .collect::<Vec<_>>();
             let mut locals = PrefixLocalFlow::new(input);
-            let mut homes = crate::mir::resolved_semantics::home_new_prefix::HomesV1::entry(Vec::new());
+            let mut homes =
+                crate::mir::resolved_semantics::home_new_prefix::HomesV1::entry(Vec::new());
             let mut acquisitions = Vec::new();
             for initializer in initializers {
-                let acquisition = OwnedExprSiteV1::new(input.owner(), initializer.initializer_site().unwrap().clone());
-                locals.acquire_selected_home(&mut homes, initializer.binding(), acquisition.clone(), None);
+                let acquisition = OwnedExprSiteV1::new(
+                    input.owner(),
+                    initializer.initializer_site().unwrap().clone(),
+                );
+                locals.acquire_selected_home(
+                    &mut homes,
+                    initializer.binding(),
+                    acquisition.clone(),
+                    None,
+                );
                 acquisitions.push((initializer.binding(), acquisition));
             }
             let before = homes.clone();
@@ -437,7 +490,9 @@ mod tests {
             ).unwrap();
             assert!(!accepted, "{assignment}");
             assert_eq!(homes, before);
-            for (binding, acquisition) in acquisitions { assert_eq!(locals.home_acquisition(binding), Some(&acquisition)); }
+            for (binding, acquisition) in acquisitions {
+                assert_eq!(locals.home_acquisition(binding), Some(&acquisition));
+            }
         }
     }
 

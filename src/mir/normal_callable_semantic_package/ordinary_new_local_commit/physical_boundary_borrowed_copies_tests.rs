@@ -411,6 +411,11 @@ fn source_null_read_cone_allows_only_captured_unobserved_elision() {
         .unwrap()
     };
     let boundary = capture(&original, &reads);
+    assert!(boundary.permits_dead_source_elision_v1(&reads[2]));
+    let mut foreign = reads[2].clone();
+    foreign.0 = BasicBlockId(999);
+    assert!(!boundary.permits_dead_source_elision_v1(&foreign));
+
     // Being eligible for deletion never prohibits preserving the whole cone.
     validate(&boundary, &original, &mandatory).unwrap();
     let mut omitted = original.clone();

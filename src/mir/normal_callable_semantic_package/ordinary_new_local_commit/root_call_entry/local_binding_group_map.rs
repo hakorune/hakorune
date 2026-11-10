@@ -15,9 +15,6 @@ impl RootLifecyclePrefixBindingGroupV1 {
         if let Some(packet) = self.stored_map_get() {
             return Some(packet.copy_receipt());
         }
-        if let Some(packet) = self.comparison_initializer() {
-            return packet.copy_receipt_v1();
-        }
         let packet = self.initializer()?;
         Some((
             packet.local_value(),
@@ -45,8 +42,13 @@ impl RootLifecyclePrefixBindingGroupV1 {
             _ => None,
         }
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn map_field_install_rc(&self) -> Option<Rc<MapFieldInstallEmissionV1>> {
-        match &self.proof { PrefixPhysicalProofV1::FieldMapInstall(packet) => Some(Rc::clone(packet)), _ => None }
+    pub(in crate::mir::normal_callable_semantic_package) fn map_field_install_rc(
+        &self,
+    ) -> Option<Rc<MapFieldInstallEmissionV1>> {
+        match &self.proof {
+            PrefixPhysicalProofV1::FieldMapInstall(packet) => Some(Rc::clone(packet)),
+            _ => None,
+        }
     }
     fn new_map_field_install(packet: Rc<MapFieldInstallEmissionV1>) -> Result<Self, String> {
         packet.validate_recorded(packet.bindings(), None)?;

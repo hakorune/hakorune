@@ -2,10 +2,10 @@
 //! Acquisitions are source templates; only the physical Normal edge owns a value.
 use super::*;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::resolved_semantics::{OwnedExprSiteV1, SourceExprSiteV1};
 use crate::mir::resolved_semantics::home_new_prefix::local_flow::PrefixLocalFlow;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1;
+use crate::mir::resolved_semantics::{OwnedExprSiteV1, SourceExprSiteV1};
 use crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1;
 use std::collections::BTreeSet;
 
@@ -35,21 +35,34 @@ impl CheckedExpressionEvaluationV1 {
         consumer_frame_free_proved: bool,
         mut checked_field: impl FnMut(&OwnedExprSiteV1) -> Option<bool>,
     ) -> bool {
-        use crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1;
         use crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1;
+        use crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1;
         if !consumer_frame_free_proved
-            || !matches!(self.root_class(), ExpressionLeafClassV1::Value(
-                ExpressionValueClassV1::I64 | ExpressionValueClassV1::Bool))
-            || !self.calls.is_empty() || !self.owned_results.is_empty()
-            || matches!(self.source.root(), ExpressionPlanRootV1::Statement {
-                role: StatementExpressionRoleV1::PrintValue, ..
-            })
-            || self.cores.values().any(|core| core.source().target().frame_free_read_law_v1().is_none())
+            || !matches!(
+                self.root_class(),
+                ExpressionLeafClassV1::Value(
+                    ExpressionValueClassV1::I64 | ExpressionValueClassV1::Bool
+                )
+            )
+            || !self.calls.is_empty()
+            || !self.owned_results.is_empty()
+            || matches!(
+                self.source.root(),
+                ExpressionPlanRootV1::Statement {
+                    role: StatementExpressionRoleV1::PrintValue,
+                    ..
+                }
+            )
+            || self
+                .cores
+                .values()
+                .any(|core| core.source().target().frame_free_read_law_v1().is_none())
         {
             return true;
         }
         for loan in self.operations.iter() {
-            if loan.scalar_copy_v1().is_none() && loan.integer_operator_v1().is_none()
+            if loan.scalar_copy_v1().is_none()
+                && loan.integer_operator_v1().is_none()
                 && !matches!(self.comparison_plan_v1(loan.node()), Ok(Some(plan)) if !plan.requires_fault_frame())
             {
                 return true;
@@ -57,10 +70,15 @@ impl CheckedExpressionEvaluationV1 {
         }
         self.order.iter().any(|&index| {
             let node = &self.source.nodes()[index];
-            matches!(node.source(), ExpressionNodeSourceV1::Shape(
-                crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }
-            )) && checked_field(&OwnedExprSiteV1::new(self.source.owner(), node.site().clone()))
-                != Some(false)
+            matches!(
+                node.source(),
+                ExpressionNodeSourceV1::Shape(
+                    crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }
+                )
+            ) && checked_field(&OwnedExprSiteV1::new(
+                self.source.owner(),
+                node.site().clone(),
+            )) != Some(false)
         })
     }
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> {
@@ -109,12 +127,24 @@ impl CheckedExpressionEvaluationV1 {
         operand: crate::mir::instruction::StringInvokeOperand,
     ) -> crate::mir::instruction::StringInvokeOperand {
         use crate::mir::instruction::StringInvokeOperand as Operand;
-        let Some(node) = self.source.nodes().iter().position(|node| node.site() == site) else { return operand };
+        let Some(node) = self
+            .source
+            .nodes()
+            .iter()
+            .position(|node| node.site() == site)
+        else {
+            return operand;
+        };
         match operand {
-            Operand::Dynamic(carrier) if self.dynamic_local_carrier_read_v1(node) => Operand::DynamicCarrier(carrier),
-            Operand::NormalInteger(value) if matches!(self.references.get(&node),
+            Operand::Dynamic(carrier) if self.dynamic_local_carrier_read_v1(node) => {
+                Operand::DynamicCarrier(carrier)
+            }
+            Operand::NormalInteger(value)
+                if matches!(self.references.get(&node),
                 Some(CheckedExpressionReferenceV1::Scalar(read)) if read.kind() == super::super::SourceScalarKind::Bool) =>
-                Operand::NormalBool(value),
+            {
+                Operand::NormalBool(value)
+            }
             _ => operand,
         }
     }
@@ -214,7 +244,12 @@ impl CheckedExpressionEvaluationV1 {
     /// computed key effects must not move ahead of receiver field evaluation.
     pub(crate) fn scalar_invoke_input_order_v1(&self, root: usize) -> Option<Vec<usize>> {
         if let Some(plan) = self.comparison_plan_v1(root).ok().flatten() {
-            if matches!(plan.kind(), ComparisonExecutionKindV1::Checked { integer_carrier_left: Some(_) }) {
+            if matches!(
+                plan.kind(),
+                ComparisonExecutionKindV1::Checked {
+                    integer_carrier_left: Some(_)
+                }
+            ) {
                 return Some(plan.operands()?.to_vec());
             }
         }
@@ -270,12 +305,19 @@ impl CheckedExpressionEvaluationV1 {
             crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String))
             && self.text_snapshot_root_v1().is_none()).then_some(node)
     }
-    pub(crate) fn direct_array_receiver_v1(&self, node: usize)
-        -> Option<&crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1> {
+    pub(crate) fn direct_array_receiver_v1(
+        &self,
+        node: usize,
+    ) -> Option<&crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1> {
         let site = self.source.nodes().get(node)?.site();
-        let mut cores = self.cores.values().filter(|core| core.matches_plan(&self.source, core.node())
-            && core.field_array_access_v1().is_some_and(|array| array.receiver_alias_v1().is_none()
-                && array.receiver().site() == site && array.matches_expression_receiver_v1(&self.source)));
+        let mut cores = self.cores.values().filter(|core| {
+            core.matches_plan(&self.source, core.node())
+                && core.field_array_access_v1().is_some_and(|array| {
+                    array.receiver_alias_v1().is_none()
+                        && array.receiver().site() == site
+                        && array.matches_expression_receiver_v1(&self.source)
+                })
+        });
         let core = cores.next()?;
         cores.next().is_none().then_some(core)
     }
@@ -304,6 +346,7 @@ pub(super) fn owned_result_nodes(
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum CheckedExpressionReferenceV1 {
     NullableResult(NullableResultReferenceV1),
+    Alias(Rc<CheckedExpressionOperationLoanV1>),
     /// A local Dynamic result borrowed from its exact initializer call frame.
     /// The frame grants neither a concrete payload type nor ownership transfer.
     DynamicInvocationResult(Rc<super::super::CheckedInitializerExpressionFrameV1>),
@@ -322,6 +365,14 @@ pub(crate) enum CheckedExpressionReferenceV1 {
 impl CheckedExpressionReferenceV1 {
     pub(crate) fn binding(&self) -> super::super::BindingRefV1 {
         match self {
+            Self::Alias(loan) => {
+                let CheckedExpressionOperationProofV1::NullableAliasNull { binding, .. } =
+                    loan.proof
+                else {
+                    unreachable!("qualified alias reference")
+                };
+                binding
+            }
             Self::NullableResult(frame) => frame.binding(),
             Self::DynamicInvocationResult(frame) => frame.binding(),
             Self::StaticText(read) => read.binding(),
@@ -346,6 +397,12 @@ impl CheckedExpressionReferenceV1 {
             return false;
         }
         match self {
+            Self::Alias(loan) => {
+                Rc::ptr_eq(loan.source(), source)
+                    && loan
+                        .nullable_alias_null_v1()
+                        .is_some_and(|(reference, _)| reference == node)
+            }
             Self::NullableResult(frame) => {
                 frame.site().owner() == source.owner() && frame.matches_source()
             }
@@ -465,15 +522,21 @@ fn seed_reference_v1(
         return None;
     }
     let class = match &proof {
+        CheckedExpressionReferenceV1::Alias(_) => return None,
         CheckedExpressionReferenceV1::NullableResult(frame) => {
-            if !prepared.accepts_nullable_reference_v1(frame) || !frame.accepts_prior_homes(prepared.prior_homes()) {
+            if !prepared.accepts_nullable_reference_v1(frame)
+                || !frame.accepts_prior_homes(prepared.prior_homes())
+            {
                 return None;
             }
             Leaf::Value(Class::Opaque)
         }
         CheckedExpressionReferenceV1::DynamicInvocationResult(frame) => {
-            if !frame.is_dynamic_value() || frame.dynamic_home_binding_v1().is_none_or(|owner|
-                !prepared.prior_homes().contains(&LiveHomeV1::Stable(owner))) {
+            if !frame.is_dynamic_value()
+                || frame.dynamic_home_binding_v1().is_none_or(|owner| {
+                    !prepared.prior_homes().contains(&LiveHomeV1::Stable(owner))
+                })
+            {
                 return None;
             }
             Leaf::Value(Class::Dynamic)
@@ -578,7 +641,11 @@ pub(super) fn seed_current_expression_references_with_loop_text_v1(
         } else if let Some(read) = scalar_reference(site) {
             // An exact Bool Local is a first-class operand (Text display, Bool
             // equality); no other non-Integer scalar exists.
-            if !matches!(read.kind(), super::super::SourceScalarKind::Integer | super::super::SourceScalarKind::Bool) && !bool_condition {
+            if !matches!(
+                read.kind(),
+                super::super::SourceScalarKind::Integer | super::super::SourceScalarKind::Bool
+            ) && !bool_condition
+            {
                 return Err(());
             }
             CheckedExpressionReferenceV1::Scalar(read)
@@ -591,9 +658,7 @@ pub(super) fn seed_current_expression_references_with_loop_text_v1(
 
 /// Shared original Text evaluation for terminal values and passive Map keys.
 /// The purpose chooses the source root; this function grants no result/Home ABI.
-pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_text_evaluation_v1<
-    E,
->(
+pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_text_evaluation_v1<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     source: std::rc::Rc<
         crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
@@ -635,7 +700,11 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_text_evaluati
         Ok(prepared) => prepared,
         Err(reason) => return Ok(Err(reason)),
     };
-    Ok(if fields.is_empty() { Ok(evaluation) } else { Err("evaluation-requests-field-reads") })
+    Ok(if fields.is_empty() {
+        Ok(evaluation)
+    } else {
+        Err("evaluation-requests-field-reads")
+    })
 }
 
 #[path = "home_expression_value_preparation.rs"]

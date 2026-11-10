@@ -42,7 +42,8 @@ impl QualifiedFieldWriteRhsV1 {
         self.evaluation.as_deref()
     }
     pub(crate) fn ordered_nodes(&self) -> &[usize] {
-        self.evaluation().map_or(&self.order, |evaluation| evaluation.ordered_nodes())
+        self.evaluation()
+            .map_or(&self.order, |evaluation| evaluation.ordered_nodes())
     }
     pub(crate) fn node_class(&self, node: usize) -> Option<Leaf> {
         match self.evaluation() {
@@ -95,8 +96,10 @@ impl QualifiedFieldWriteRhsV1 {
         if let Some(evaluation) = self.evaluation() {
             return Rc::ptr_eq(source, self.source())
                 && Rc::ptr_eq(source, evaluation.source())
-                && self.owned_array.is_none() && self.order.is_empty()
-                && self.classes.is_empty() && self.references.is_empty()
+                && self.owned_array.is_none()
+                && self.order.is_empty()
+                && self.classes.is_empty()
+                && self.references.is_empty()
                 && !source.has_opaque_obligations()
                 && evaluation.root_class() == Leaf::Value(Class::String)
                 && evaluation.reference_coverage_is_exact()
@@ -268,7 +271,11 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
                 // A finite entry read of an entry formal owns that reference; the
                 // entry-use check accepts no other reference kind for it.
                 let finite = finite_reference(node.site());
-                let scalar = if finite.is_none() { scalar_reference(node.site()) } else { None };
+                let scalar = if finite.is_none() {
+                    scalar_reference(node.site())
+                } else {
+                    None
+                };
                 let (proof, sum, kind) = if let Some(kind) = scalar {
                     let ExpressionNodeSourceV1::Reference(
                         crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding),
@@ -386,7 +393,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
     }
     let candidate = HomeExpressionPlanV1 {
         source: Rc::clone(&source),
-        scalar_operations: operations, comparison_root: None,
+        scalar_operations: operations,
         source_fields: Vec::new(),
         source_field_homes: None,
         argument_frame: None,
@@ -408,7 +415,10 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
     }
     if !field_batch(
         &requests,
-        super::super::LocalFieldReadDemandV1::SourceExpression { probe: false, plan: source },
+        super::super::LocalFieldReadDemandV1::SourceExpression {
+            probe: false,
+            plan: source,
+        },
     )? {
         return Ok(None);
     }
@@ -424,19 +434,34 @@ impl HomeExpressionPlanV1 {
     ) -> Option<Self> {
         frame.entry()?.text_value()?;
         if !Rc::ptr_eq(frame.source(), evaluation.source())
-            || frame.prior_homes() != evaluation.prior_homes() {
+            || frame.prior_homes() != evaluation.prior_homes()
+        {
             return None;
         }
         let source = Rc::clone(frame.source());
         let rhs = Rc::new(QualifiedFieldWriteRhsV1 {
-            source: Rc::clone(&source), order: Box::default(), classes: Box::default(),
-            references: BTreeMap::new(), owned_array: None, evaluation: Some(evaluation),
+            source: Rc::clone(&source),
+            order: Box::default(),
+            classes: Box::default(),
+            references: BTreeMap::new(),
+            owned_array: None,
+            evaluation: Some(evaluation),
         });
         let plan = Self {
-            source, scalar_operations: Vec::new(), comparison_root: None, source_fields: Vec::new(),
-            source_field_homes: None, argument_frame: None, initializer_frame: None,
-            rebind_frame: None, print_frame: None, condition_frame: None, loop_recipe: None,
-            field_write: Some(FieldWritePlanV1 { frame, rhs: Some(rhs) }),
+            source,
+            scalar_operations: Vec::new(),
+            source_fields: Vec::new(),
+            source_field_homes: None,
+            argument_frame: None,
+            initializer_frame: None,
+            rebind_frame: None,
+            print_frame: None,
+            condition_frame: None,
+            loop_recipe: None,
+            field_write: Some(FieldWritePlanV1 {
+                frame,
+                rhs: Some(rhs),
+            }),
         };
         plan.is_consistent().then_some(plan)
     }
@@ -481,7 +506,7 @@ impl HomeExpressionPlanV1 {
         }
         Some(Self {
             source,
-            scalar_operations: Vec::new(), comparison_root: None,
+            scalar_operations: Vec::new(),
             source_fields: Vec::new(),
             source_field_homes: None,
             argument_frame: None,

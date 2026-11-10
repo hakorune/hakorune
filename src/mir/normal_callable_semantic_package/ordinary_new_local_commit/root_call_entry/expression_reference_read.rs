@@ -21,8 +21,10 @@ mod dynamic;
 use dynamic::*;
 #[path = "expression_reference_branch.rs"]
 mod branch;
-pub(in crate::mir) use branch::{BranchScalarPhiObservationV1, BranchTextPhiObservationV1, BranchReadPhiObservationV1};
 use branch::validate_scalar_binding_observation_v1;
+pub(in crate::mir) use branch::{
+    BranchReadPhiObservationV1, BranchScalarPhiObservationV1, BranchTextPhiObservationV1,
+};
 
 #[derive(Debug, Clone)]
 pub(in crate::mir) enum ReferenceProducerV1 {
@@ -78,7 +80,9 @@ impl ExpressionReferenceReadV1 {
     ) -> Result<(), String> {
         self.validate_layout(frame, node, context, function)?;
         if let source @ (Reference::NullableResult(_)
-        | Reference::DynamicInvocationResult(_)) = original_reference(frame, node)? {
+        | Reference::Alias(_)
+        | Reference::DynamicInvocationResult(_)) = original_reference(frame, node)?
+        {
             self.validate_source_reference_v1(
                 frame.source(),
                 node,
@@ -178,6 +182,7 @@ impl ExpressionReferenceReadV1 {
             Reference::Scalar(_)
             | Reference::FiniteEntry { .. }
             | Reference::DynamicEntry(_)
+            | Reference::Alias(_)
             | Reference::NullableResult(_)
             | Reference::DynamicInvocationResult(_) => {
                 return Self::prepare_source_reference_v1(
@@ -499,6 +504,18 @@ impl ExpressionReferenceReadV1 {
             return Err(freeze("expression/reference-source-node"));
         }
         match source {
+            Reference::Alias(_) => {
+                read.value_for(
+                    plan.owner(),
+                    plan.nodes()[node].site().node(),
+                    source.binding(),
+                )
+                .map_err(|error| error.to_string())?;
+                let (initialized, _) = read.loan_local_initializer_v1(source.binding())?;
+                let producer = definition_for_initializer(initialized, function)?;
+                validate_dependencies(read.binding_observation_v2(), &producer, context, function)?;
+                Ok(PreparedExpressionReferenceReadV1 { producer })
+            }
             Reference::NullableResult(frame) => {
                 let (_, normal) = context.nullable_result_read_v1(frame, read, function, None)?;
                 let producer = ReferenceProducerV1::Definition(normal);
@@ -572,6 +589,30 @@ impl ExpressionReferenceReadV1 {
             return Err(freeze("expression/reference-source-node"));
         }
         match source {
+            Reference::Alias(_) => {
+                let value = self
+                    .read
+                    .value_for(
+                        plan.owner(),
+                        plan.nodes()[node].site().node(),
+                        source.binding(),
+                    )
+                    .map_err(|error| error.to_string())?;
+                let (initialized, _) = self.read.loan_local_initializer_v1(source.binding())?;
+                let expected = match finishing {
+                    Some(finishing) => ReferenceProducerV1::Definition(
+                        finishing.captured_definition(initialized)?.clone(),
+                    ),
+                    None => definition_for_initializer(initialized, function)?,
+                };
+                if self.producer != expected {
+                    return Err(freeze("expression/reference-source-node"));
+                }
+                if let Some(finishing) = finishing {
+                    self.validate_finished_dependencies_v1(function, finishing)?;
+                }
+                Ok(value)
+            }
             Reference::NullableResult(frame) => {
                 let (value, normal) =
                     context.nullable_result_read_v1(frame, &self.read, function, finishing)?;
@@ -579,7 +620,12 @@ impl ExpressionReferenceReadV1 {
                 {
                     return Err(freeze("expression/reference-source-node"));
                 }
-                self.read.value_for(plan.owner(), plan.nodes()[node].site().node(), frame.binding())
+                self.read
+                    .value_for(
+                        plan.owner(),
+                        plan.nodes()[node].site().node(),
+                        frame.binding(),
+                    )
                     .map_err(|error| error.to_string())?;
                 if let Some(finishing) = finishing {
                     self.validate_finished_dependencies_v1(function, finishing)?;

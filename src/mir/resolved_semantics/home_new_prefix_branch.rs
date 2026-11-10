@@ -14,8 +14,8 @@ use crate::mir::resolved_semantics::{
 
 #[path = "home_new_prefix_null_exclusion.rs"]
 mod null_exclusion;
-pub(crate) use null_exclusion::SourceNullExclusionV1;
 use null_exclusion::null_guarded_local;
+pub(crate) use null_exclusion::SourceNullExclusionV1;
 
 /// One path's Home/local state during a branch walk. A terminated path
 /// (one that reached an explicit Return) does not join the continuation.
@@ -83,7 +83,6 @@ fn walk_branch<'a, E>(
         &mut path.covered,
         &mut path.selected_seen,
         &mut path.unavailable,
-
         map_compatible,
         terminal_call,
         local_call_route,
@@ -165,7 +164,13 @@ fn stage_subtree_call_actuals<E>(
         ) {
             borrowed_actuals(
                 &call_site,
-                BorrowedCallActualRequestV1::Observe(input, &actuals, locals.declared_read_call_receiver_v1(&call_site, prefix_known).as_ref()),
+                BorrowedCallActualRequestV1::Observe(
+                    input,
+                    &actuals,
+                    locals
+                        .declared_read_call_receiver_v1(&call_site, prefix_known)
+                        .as_ref(),
+                ),
             )?;
         }
     }
@@ -417,7 +422,7 @@ pub(super) fn observe_if_statement<'a, E>(
             &mut super::local_call_route::static_claim_of(&mut *local_call_route),
         )?
     {
-        if let Some((_, calls)) = scalar_expression::observe_scalar_expression(
+        let observed = match scalar_expression::observe_scalar_expression(
             input,
             condition.site(),
             locals,
@@ -436,6 +441,13 @@ pub(super) fn observe_if_statement<'a, E>(
             },
             borrowed_actuals,
         )? {
+            Ok(value) => value,
+            Err(issue) => {
+                unavailable.get_or_insert(issue);
+                return if_refused(statement.site(), line!());
+            }
+        };
+        if let Some((_, calls)) = observed {
             path_calls.extend(calls.iter().map(|call| call.site().clone()));
             local_calls.extend(calls);
         } else {
@@ -506,7 +518,6 @@ pub(super) fn observe_if_statement<'a, E>(
                 .filter(|(_, operator)| matches!(operator, ResolvedBinaryOperatorV1::NotEqual))
                 .map(|(binding, _)| binding),
         ),
-
         map_compatible,
         terminal_call,
         local_call_route,
@@ -541,7 +552,6 @@ pub(super) fn observe_if_statement<'a, E>(
                     .filter(|(_, operator)| matches!(operator, ResolvedBinaryOperatorV1::Equal))
                     .map(|(binding, _)| binding),
             ),
-
             map_compatible,
             terminal_call,
             local_call_route,
@@ -563,10 +573,14 @@ pub(super) fn observe_if_statement<'a, E>(
         },
     };
 
-
     let both_paths_available = then_path.unavailable.is_none() && else_path.unavailable.is_none();
     if !both_paths_available && crate::config::env::builder_debug_enabled() {
-        eprintln!("[if-paths] {:?} then={:?} else={:?}", statement.site(), then_path.unavailable, else_path.unavailable);
+        eprintln!(
+            "[if-paths] {:?} then={:?} else={:?}",
+            statement.site(),
+            then_path.unavailable,
+            else_path.unavailable
+        );
     }
     locals.record_source_loop_if_v1(
         statement.site(),

@@ -1,7 +1,7 @@
 //! Original source/value correspondence and checked core-operation projection.
 use super::*;
-use std::ops::ControlFlow;
 use crate::mir::core_method_result_kind::CoreMethodSemanticLawV2 as Law;
+use std::ops::ControlFlow;
 
 impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
     pub(in crate::mir) fn validate_source(
@@ -51,12 +51,22 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             let value = read
                 .value_for(source.owner(), site.site().node(), *binding)
                 .map_err(|error| error.to_string())?;
-            if let Some(access) = self.frame.cores().values().filter_map(|core| core.field_array_access_v1())
-                .find(|access| access.receiver_alias_v1().is_some() && access.receiver() == &site) {
+            if let Some(access) = self
+                .frame
+                .cores()
+                .values()
+                .filter_map(|core| core.field_array_access_v1())
+                .find(|access| access.receiver_alias_v1().is_some() && access.receiver() == &site)
+            {
                 let (actual, _) = ledger.array_alias_operation_read_v1(access, read, context)?;
-                let node = source.nodes().iter().position(|node| node.site() == site.site())
+                let node = source
+                    .nodes()
+                    .iter()
+                    .position(|node| node.site() == site.site())
                     .ok_or_else(|| freeze("print-expression/path-root-source"))?;
-                if actual != value || self.values[node] != Some(Operand::NormalInteger(value).into()) {
+                if actual != value
+                    || self.values[node] != Some(Operand::NormalInteger(value).into())
+                {
                     return Err(freeze("print-expression/path-root-value"));
                 }
                 continue;
@@ -66,8 +76,14 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             let mut operations = emitted.iter().filter_map(|(_, row)| match row {
                 MirInstruction::ObjectFieldGet { base, .. }
                 | MirInstruction::Invoke {
-                    operation: InvokeOperation::FieldGet { base, .. }
-                        | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { base, .. }),
+                    operation:
+                        InvokeOperation::FieldGet { base, .. }
+                        | InvokeOperation::String(
+                            crate::mir::instruction::StringInvokeOperation::FieldMaterialize {
+                                base,
+                                ..
+                            },
+                        ),
                     ..
                 } => Some(*base),
                 _ => None,
@@ -144,10 +160,18 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         {
             let node = &source.nodes()[index];
             let value = self.values[index].as_ref();
-            let alias_receiver = self.frame.cores().values().filter(|core| self.node_selected(core.node()))
-                .filter_map(|core| core.field_array_access_v1()).any(|access|
-                    access.receiver_alias_v1().is_some() && access.receiver().site() == node.site());
-            let direct_receiver = self.frame.direct_array_receiver_v1(index)
+            let alias_receiver = self
+                .frame
+                .cores()
+                .values()
+                .filter(|core| self.node_selected(core.node()))
+                .filter_map(|core| core.field_array_access_v1())
+                .any(|access| {
+                    access.receiver_alias_v1().is_some() && access.receiver().site() == node.site()
+                });
+            let direct_receiver = self
+                .frame
+                .direct_array_receiver_v1(index)
                 .is_some_and(|core| self.node_selected(core.node()));
             if self.frame.transfers_node(index) && !alias_receiver && !direct_receiver {
                 if value.is_some() {
@@ -155,12 +179,33 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 }
                 continue;
             }
-            if let Some(operation) = self.frame.operations().iter().find(|loan| loan.node() == index && loan.scalar_copy_v1().is_some()) {
-                let (operand, kind) = operation.scalar_copy_v1().ok_or_else(|| freeze("expression/copy-contract"))?;
-                let Some(input) = self.values[operand].as_ref() else { return Err(freeze("expression/copy-contract")); };
-                if !matches!((kind, input, value),
-                    (crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer, EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(_)), Some(EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(_)))) |
-                    (crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool, EvaluatedExpressionValueV1::Bool(_) | EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(_)), Some(EvaluatedExpressionValueV1::Bool(_)))) {
+            if let Some(operation) = self
+                .frame
+                .operations()
+                .iter()
+                .find(|loan| loan.node() == index && loan.scalar_copy_v1().is_some())
+            {
+                let (operand, kind) = operation
+                    .scalar_copy_v1()
+                    .ok_or_else(|| freeze("expression/copy-contract"))?;
+                let Some(input) = self.values[operand].as_ref() else {
+                    return Err(freeze("expression/copy-contract"));
+                };
+                if !matches!(
+                    (kind, input, value),
+                    (
+                        crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer,
+                        EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(_)),
+                        Some(EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(
+                            _
+                        )))
+                    ) | (
+                        crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool,
+                        EvaluatedExpressionValueV1::Bool(_)
+                            | EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(_)),
+                        Some(EvaluatedExpressionValueV1::Bool(_))
+                    )
+                ) {
                     return Err(freeze("expression/copy-contract"));
                 }
                 self.require_unique(|row| matches!(row, MirInstruction::Copy { dst, src } if Some(*dst) == value.as_ref().and_then(|value| value.value()) && Some(*src) == input.value()))?;
@@ -172,15 +217,32 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 }
                 continue;
             }
-            if let (Node::Reference(_), Some(EvaluatedExpressionValueV1::DeclaredRead(value))) = (node.source(), value) {
-                let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::NullableResult(
-                    crate::mir::resolved_semantics::home_new_prefix::NullableResultReferenceV1::DeclaredFrom(_))) = self.frame.references().get(&index) else {
-                    return Err(freeze("expression/reference-source-node"));
-                };
-                let read = self.reference_reads.get(&index).ok_or_else(|| freeze("expression/reference-source-node"))?;
+            if let (Node::Reference(_), Some(EvaluatedExpressionValueV1::DeclaredRead(value))) =
+                (node.source(), value)
+            {
+                if !matches!(self.frame.references().get(&index), Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::Alias(_) | crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::NullableResult(
+                    crate::mir::resolved_semantics::home_new_prefix::NullableResultReferenceV1::DeclaredFrom(_)))) { return Err(freeze("expression/reference-source-node")); }
+                let read = self
+                    .reference_reads
+                    .get(&index)
+                    .ok_or_else(|| freeze("expression/reference-source-node"))?;
                 if read.declared_read_value_v1(self.frame, index, context)? != *value {
                     return Err(freeze("expression/reference-source-node"));
                 }
+                continue;
+            }
+            if let (
+                Node::Literal(Literal::Null),
+                Some(EvaluatedExpressionValueV1::DeclaredRead(value)),
+            ) = (node.source(), value)
+            {
+                if !self.frame.operations().iter().any(|loan| {
+                    loan.nullable_alias_null_v1()
+                        .is_some_and(|(_, null)| null == index)
+                }) {
+                    return Err(freeze("expression/reference-source-node"));
+                }
+                self.require_unique(|row| matches!(row,MirInstruction::Const {dst,value:crate::mir::ConstValue::Null} if dst==value))?;
                 continue;
             }
             if let (
@@ -192,17 +254,34 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     if actual == dst && value == expected))?;
                 continue;
             }
-            if let (Node::Binary(_), Some(EvaluatedExpressionValueV1::Bool(result))) = (node.source(), value) {
-                scalar_condition_bindings_v1(self.frame, index, self.values, None, *result, self.original)?;
+            if let (Node::Binary(_), Some(EvaluatedExpressionValueV1::Bool(result))) =
+                (node.source(), value)
+            {
+                scalar_condition_bindings_v1(
+                    self.frame,
+                    index,
+                    self.values,
+                    None,
+                    *result,
+                    self.original,
+                )?;
                 continue;
             }
             let value = value.map(|value| value.as_operand()).transpose()?;
             match (node.source(), value) {
                 (Node::Literal(Literal::String(text)), Some(Operand::StaticText { utf8 }))
                     if utf8.as_str() == text.as_ref() => {}
-                (Node::Reference(_), Some(Operand::NormalInteger(_))) if self.frame.node_is_identity(index)
-                    && self.frame.cores().values().filter_map(|core| core.field_array_access_v1())
-                        .any(|access| access.receiver_alias_v1().is_some() && access.receiver().site() == node.site()) => {}
+                (Node::Reference(_), Some(Operand::NormalInteger(_)))
+                    if self.frame.node_is_identity(index)
+                        && self
+                            .frame
+                            .cores()
+                            .values()
+                            .filter_map(|core| core.field_array_access_v1())
+                            .any(|access| {
+                                access.receiver_alias_v1().is_some()
+                                    && access.receiver().site() == node.site()
+                            }) => {}
                 (Node::Reference(_), Some(value)) => {
                     let observed = self
                         .reference_reads
@@ -223,7 +302,9 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     }
                     let expected = match checked_expression_core_operation_v1(core, self.values)? {
                         ControlFlow::Continue(read) => {
-                            let Operand::NormalInteger(dst) = value else { return Err(freeze("expression-core/result-domain")); };
+                            let Operand::NormalInteger(dst) = value else {
+                                return Err(freeze("expression-core/result-domain"));
+                            };
                             self.require_unique(|row| read.matches_instruction_v1(*dst, row))?;
                             continue;
                         }
@@ -257,10 +338,16 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                         return Err(freeze("expression-core/producer"));
                     }
                 }
-                (Node::MethodCall, Some(Operand::NormalInteger(_) | Operand::OwnedString(_) | Operand::DynamicCarrier(_)))
-                    if self
-                        .calls()
-                        .any(|packet| packet.call_site().site() == node.site()) => {}
+                (
+                    Node::MethodCall,
+                    Some(
+                        Operand::NormalInteger(_)
+                        | Operand::OwnedString(_)
+                        | Operand::DynamicCarrier(_),
+                    ),
+                ) if self
+                    .calls()
+                    .any(|packet| packet.call_site().site() == node.site()) => {}
                 (Node::MethodCall, Some(Operand::DynamicCarrier(value)))
                     if self.dynamic_calls().any(|packet| {
                         packet.source().site().site() == node.site() && packet.value() == *value
@@ -273,7 +360,9 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     ),
                     Some(operand @ (Operand::NormalInteger(dst) | Operand::OwnedString(dst))),
                 ) => {
-                    if matches!(operand, Operand::OwnedString(_)) != self.frame.owned_result_nodes().contains(&index) {
+                    if matches!(operand, Operand::OwnedString(_))
+                        != self.frame.owned_result_nodes().contains(&index)
+                    {
                         return Err(freeze("print-expression/field-source-value"));
                     }
                     let emitted = ledger.expression_field_read_bindings_v1(
@@ -350,7 +439,11 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                         (Operand::Dynamic(dst), _, _) => {
                             self.dynamic_add_original_v1(index, *dst)?;
                         }
-                        (Operand::DynamicCarrier(dst), Operand::Dynamic(lhs), Operand::NormalInteger(rhs)) => {
+                        (
+                            Operand::DynamicCarrier(dst),
+                            Operand::Dynamic(lhs),
+                            Operand::NormalInteger(rhs),
+                        ) => {
                             self.dynamic_sub_original_v1(index, *dst, lhs, rhs)?;
                         }
                         _ => return Err(freeze("print-expression/add-values")),
@@ -410,30 +503,68 @@ pub(crate) struct FrameFreeExpressionReadV1 {
 impl FrameFreeExpressionReadV1 {
     pub(crate) fn array_receiver_v1(&self) -> Option<crate::mir::ValueId> {
         match (&self.kind, &self.value, &self.needle) {
-            (FrameFreeExpressionReadKindV1::Core(Law::ArrayCount), Operand::NormalInteger(array), None) => Some(*array),
+            (
+                FrameFreeExpressionReadKindV1::Core(Law::ArrayCount),
+                Operand::NormalInteger(array),
+                None,
+            ) => Some(*array),
             _ => None,
         }
     }
     pub(crate) fn text_instruction_v1(&self, dst: crate::mir::ValueId) -> Option<MirInstruction> {
         match (&self.kind, &self.needle) {
-            (FrameFreeExpressionReadKindV1::Core(Law::CodePointCount), None) => Some(MirInstruction::StringLength { dst, value: self.value.clone() }),
-            (FrameFreeExpressionReadKindV1::Core(Law::CodePointSearchFromZero), Some(needle)) => Some(MirInstruction::StringIndexOf {
-                dst, value: self.value.clone(), needle: needle.clone() }),
-            (FrameFreeExpressionReadKindV1::Compare(op), Some(right)) => Some(MirInstruction::StringCompare {
-                dst, op: *op, left: self.value.clone(), right: right.clone() }),
+            (FrameFreeExpressionReadKindV1::Core(Law::CodePointCount), None) => {
+                Some(MirInstruction::StringLength {
+                    dst,
+                    value: self.value.clone(),
+                })
+            }
+            (FrameFreeExpressionReadKindV1::Core(Law::CodePointSearchFromZero), Some(needle)) => {
+                Some(MirInstruction::StringIndexOf {
+                    dst,
+                    value: self.value.clone(),
+                    needle: needle.clone(),
+                })
+            }
+            (FrameFreeExpressionReadKindV1::Compare(op), Some(right)) => {
+                Some(MirInstruction::StringCompare {
+                    dst,
+                    op: *op,
+                    left: self.value.clone(),
+                    right: right.clone(),
+                })
+            }
             _ => None,
         }
     }
-    pub(crate) fn text_comparison_v1(op: crate::mir::CompareOp, left: Operand, right: Operand) -> Result<Self, String> {
-        if !left.is_text() || !right.is_text() { return Err(freeze("bool-condition/text-operand-order")); }
-        Ok(Self { kind: FrameFreeExpressionReadKindV1::Compare(op), value: left, needle: Some(right) })
+    pub(crate) fn text_comparison_v1(
+        op: crate::mir::CompareOp,
+        left: Operand,
+        right: Operand,
+    ) -> Result<Self, String> {
+        if !left.is_text() || !right.is_text() {
+            return Err(freeze("bool-condition/text-operand-order"));
+        }
+        Ok(Self {
+            kind: FrameFreeExpressionReadKindV1::Compare(op),
+            value: left,
+            needle: Some(right),
+        })
     }
     pub(crate) fn result_type_v1(&self) -> crate::mir::MirType {
-        match self.kind { FrameFreeExpressionReadKindV1::Compare(_) => crate::mir::MirType::Bool,
-            FrameFreeExpressionReadKindV1::Core(_) => crate::mir::MirType::Integer }
+        match self.kind {
+            FrameFreeExpressionReadKindV1::Compare(_) => crate::mir::MirType::Bool,
+            FrameFreeExpressionReadKindV1::Core(_) => crate::mir::MirType::Integer,
+        }
     }
-    pub(crate) fn matches_instruction_v1(&self, dst: crate::mir::ValueId, row: &MirInstruction) -> bool {
-        if let Some(expected) = self.text_instruction_v1(dst) { return expected == *row; }
+    pub(crate) fn matches_instruction_v1(
+        &self,
+        dst: crate::mir::ValueId,
+        row: &MirInstruction,
+    ) -> bool {
+        if let Some(expected) = self.text_instruction_v1(dst) {
+            return expected == *row;
+        }
         matches!(row, MirInstruction::ArrayRead { dst: Some(actual), receiver,
             operation: crate::mir::instruction::ArrayReadOperationV1::Count, .. }
             if *actual == dst && self.array_receiver_v1() == Some(*receiver))
@@ -445,7 +576,8 @@ impl FrameFreeExpressionReadV1 {
 pub(crate) fn checked_expression_core_operation_v1(
     core: &crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1,
     values: &[Option<EvaluatedExpressionValueV1>],
-) -> Result<ControlFlow<crate::mir::instruction::InvokeOperation, FrameFreeExpressionReadV1>, String> {
+) -> Result<ControlFlow<crate::mir::instruction::InvokeOperation, FrameFreeExpressionReadV1>, String>
+{
     use crate::mir::core_method_op::CoreMethodOp as Core;
     let source = core.plan();
     if !core.matches_plan(source, core.node()) || values.len() != source.nodes().len() {
@@ -461,7 +593,13 @@ pub(crate) fn checked_expression_core_operation_v1(
             .map(|value| value.as_operand().cloned())
             .transpose()?
             .ok_or_else(|| {
-                if crate::config::env::builder_debug_enabled() { eprintln!("[core-operand] owner={:?} call={:?} missing={site:?}", source.owner(), original.site()); }
+                if crate::config::env::builder_debug_enabled() {
+                    eprintln!(
+                        "[core-operand] owner={:?} call={:?} missing={site:?}",
+                        source.owner(),
+                        original.site()
+                    );
+                }
                 freeze("expression-core/operand-missing")
             })
     };
@@ -472,16 +610,25 @@ pub(crate) fn checked_expression_core_operation_v1(
         .map(|arg| operand(arg.site()))
         .collect::<Result<Vec<_>, _>>()?;
     if let Some(law) = core.source().target().frame_free_read_law_v1() {
-        if core.owns_result() { return Err(freeze("expression-core/source-identity")); }
+        if core.owns_result() {
+            return Err(freeze("expression-core/source-identity"));
+        }
         let needle = match (law, arguments.as_slice()) {
             (Law::ArrayCount, []) if matches!(receiver, Operand::NormalInteger(_)) => None,
             (Law::CodePointCount, []) if receiver.is_text() => None,
-            (Law::CodePointSearchFromZero, [needle]) if receiver.is_text() && needle.is_text() => Some(needle.clone()),
-            (Law::ArrayCount | Law::CodePointCount, args) if !args.is_empty() =>
-                return Err(freeze("expression-core/source-identity")),
+            (Law::CodePointSearchFromZero, [needle]) if receiver.is_text() && needle.is_text() => {
+                Some(needle.clone())
+            }
+            (Law::ArrayCount | Law::CodePointCount, args) if !args.is_empty() => {
+                return Err(freeze("expression-core/source-identity"))
+            }
             _ => return Err(freeze("expression-core/operand-domain")),
         };
-        return Ok(ControlFlow::Continue(FrameFreeExpressionReadV1 { kind: FrameFreeExpressionReadKindV1::Core(law), value: receiver, needle }));
+        return Ok(ControlFlow::Continue(FrameFreeExpressionReadV1 {
+            kind: FrameFreeExpressionReadKindV1::Core(law),
+            value: receiver,
+            needle,
+        }));
     }
     use crate::mir::instruction::InvokeOperation as Invoke;
     let operation = match (core.source().target().row().row().op, arguments.as_slice()) {
@@ -498,14 +645,21 @@ pub(crate) fn checked_expression_core_operation_v1(
             let Operand::NormalInteger(array) = receiver else {
                 return Err(freeze("expression-core/array-receiver-domain"));
             };
-            Invoke::DynamicArrayGet { array, index: *index }
+            Invoke::DynamicArrayGet {
+                array,
+                index: *index,
+            }
         }
         _ => return Err(freeze("expression-core/operand-domain")),
     };
     let result_kind = operation.normal_result_kind();
-    let owned_result = matches!(result_kind, Some(
-        crate::mir::instruction::InvokeNormalResultKind::OwnedString
-            | crate::mir::instruction::InvokeNormalResultKind::DynamicCarrier));
+    let owned_result = matches!(
+        result_kind,
+        Some(
+            crate::mir::instruction::InvokeNormalResultKind::OwnedString
+                | crate::mir::instruction::InvokeNormalResultKind::DynamicCarrier
+        )
+    );
     let operation_valid = match &operation {
         Invoke::String(operation) => operation.valid_operand_domains(),
         Invoke::DynamicArrayGet { .. } => core.is_array_dynamic_get_v1(),
@@ -516,4 +670,3 @@ pub(crate) fn checked_expression_core_operation_v1(
     }
     Ok(ControlFlow::Break(operation))
 }
-

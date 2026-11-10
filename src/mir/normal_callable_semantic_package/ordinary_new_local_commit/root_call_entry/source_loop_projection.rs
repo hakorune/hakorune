@@ -79,18 +79,25 @@ impl EmittedSourceLoopProjectionV2 {
     /// Lend only transport Copies observed by the SAME source-edge writer.
     /// The enclosing group must validate its whole source/physical completion.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn incoming_copy_bindings_v2(
-        &self, function: &MirFunction,
+        &self,
+        function: &MirFunction,
         projection: &super::super::super::physical_boundary::FinishedBindings,
     ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
-        let proof = self.completion.get().and_then(|role| role.source_proof_v2())
+        let proof = self
+            .completion
+            .get()
+            .and_then(|role| role.source_proof_v2())
             .ok_or_else(|| freeze("source-loop/whole-proof-missing"))?;
         let mut bindings = Vec::new();
         for edge in &proof.graph.edges {
             for incoming in &edge.values {
                 incoming.localized.require_completed_v1()?;
-                incoming.localized.verify_projected(function, &mut |row|
-                    projection.relation_binding(function, row))?;
-                incoming.localized.append_observed_bindings_v1(&mut bindings);
+                incoming.localized.verify_projected(function, &mut |row| {
+                    projection.relation_binding(function, row)
+                })?;
+                incoming
+                    .localized
+                    .append_observed_bindings_v1(&mut bindings);
             }
         }
         bindings.retain(|(_, row)| matches!(row, MirInstruction::Copy { .. }));
@@ -238,11 +245,16 @@ impl OrdinaryNewClaimLedgerV1 {
             Class::Nullable => CallReceivedReleaseV1::Nullable,
             _ => return Err(freeze("source-loop/call-source")),
         };
-        let (declaration, binding) = source.local_binding()
+        let (declaration, binding) = source
+            .local_binding()
             .ok_or_else(|| freeze("source-loop/call-source"))?;
-        let packet = group.lexical().ok_or_else(|| freeze("source-loop/call-packet"))?;
-        if group.site() != source.site() || packet.call_site() != source.site()
-            || self.local_call_for_owner(source.owner(), source.site().site()) != Some(source) {
+        let packet = group
+            .lexical()
+            .ok_or_else(|| freeze("source-loop/call-packet"))?;
+        if group.site() != source.site()
+            || packet.call_site() != source.site()
+            || self.local_call_for_owner(source.owner(), source.site().site()) != Some(source)
+        {
             return Err(freeze("source-loop/call-source"));
         }
         let arguments = self.original_local_packet_arguments_v1(packet)?;
@@ -254,12 +266,20 @@ impl OrdinaryNewClaimLedgerV1 {
         if matches!(context, CallValidationContextV1::Finalized(_)) {
             received.checked_bindings()?;
         }
-        let CallReceivedProgress::Emitted { packet: Some(retained), .. } = &received.progress else {
+        let CallReceivedProgress::Emitted {
+            packet: Some(retained),
+            ..
+        } = &received.progress
+        else {
             return Err(freeze("source-loop/call-packet"));
         };
-        if received.owner != source.owner() || received.binding != binding
-            || &received.declaration != declaration || received.release != release
-            || received.local() != Some(value) || !std::ptr::eq(retained.as_ref(), packet) {
+        if received.owner != source.owner()
+            || received.binding != binding
+            || &received.declaration != declaration
+            || received.release != release
+            || received.local() != Some(value)
+            || !std::ptr::eq(retained.as_ref(), packet)
+        {
             return Err(freeze("source-loop/call-result"));
         }
         Ok(value)
@@ -273,7 +293,12 @@ impl OrdinaryNewClaimLedgerV1 {
         call: &OwnedExprSiteV1,
         ordinal: u32,
         site: &crate::mir::resolved_semantics::SourceExprSiteV1,
-    ) -> Result<Option<Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>>, String> {
+    ) -> Result<
+        Option<
+            Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>,
+        >,
+        String,
+    > {
         CallValidationContextV1::Lowering(self).with_local_call_group_tree_v2(call.owner(), |groups| {
             let mut selected = None;
             for parent in groups.iter().filter_map(|group| group.source_loop_rc()) {
@@ -477,8 +502,12 @@ impl OrdinaryNewClaimLedgerV1 {
             .unwrap_or_default();
         // The deepest open Loop that expects this site owns it: a child Loop's
         // group is placed in its parent, and the child's own prefixes in it.
-        fn deepest(groups: &[RootLifecyclePrefixBindingGroupV1], site: &OwnedExprSiteV1, depth: usize,
-            best: &mut Option<(usize, Rc<EmittedSourceLoopProjectionV2>, bool)>) {
+        fn deepest(
+            groups: &[RootLifecyclePrefixBindingGroupV1],
+            site: &OwnedExprSiteV1,
+            depth: usize,
+            best: &mut Option<(usize, Rc<EmittedSourceLoopProjectionV2>, bool)>,
+        ) {
             for packet in groups.iter().filter_map(|group| group.source_loop_rc()) {
                 if packet.expected.iter().any(|source| source.site() == site) {
                     match best {
@@ -624,7 +653,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
             );
         }
         if let Some(initializer) = self.initializer() {
-            rows.extend(initializer.source_loop_dependencies_v1(context)?);
+            rows.extend(initializer.source_dependencies_v1(context)?);
         }
         let mut unique = Vec::new();
         for row in rows {
@@ -634,5 +663,4 @@ impl RootLifecyclePrefixBindingGroupV1 {
         }
         Ok(unique)
     }
-
 }

@@ -11,12 +11,6 @@ impl RootLifecyclePrefixBindingGroupV1 {
         }
         match (&self.proof, source) {
             (
-                PrefixPhysicalProofV1::EvaluatedBinding(
-                    EvaluatedBindingProjectionV1::ComparisonInitializer(packet),
-                ),
-                LifecyclePrefixSourceV1::ComparisonInitializer { operation, .. },
-            ) => Rc::ptr_eq(packet.source(), operation),
-            (
                 PrefixPhysicalProofV1::SharedInitializer(packet),
                 LifecyclePrefixSourceV1::SharedInitializer { source, .. },
             ) => Rc::ptr_eq(&packet.source, source),
@@ -80,7 +74,9 @@ impl RootLifecyclePrefixBindingGroupV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn comparison_read_cone_bindings_v1(
+    /// Source-validated ordinary initializer rows use the same physical omission
+    /// certificate. Mandatory rows in any consumer remain protected.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn initializer_optional_bindings_v1(
         &self,
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
@@ -92,47 +88,41 @@ impl OrdinaryNewClaimLedgerV1 {
             .cloned()
             .unwrap_or_default();
         let groups = RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(&roots);
+        // Per-local FieldGet elision retains its existing owner. This source
+        // certificate lends only context-independent read-elision laws.
+        let reads = crate::mir::passes::dce::local_fields::LocalReadInfo::default();
+        let eligible = |row: &MirInstruction| {
+            matches!(row,MirInstruction::Copy {..} | MirInstruction::Const {value:crate::mir::ConstValue::Null,..})
+            || crate::mir::passes::dce::local_fields::is_removable_effect_sensitive_read_instruction(row,&reads)
+        };
         let mut protected = std::collections::BTreeSet::new();
+        let mut candidates = Vec::new();
         for group in &groups {
-            if group.comparison_initializer().is_none() {
-                protected.extend(
-                    group
-                        .bindings()
-                        .iter()
-                        .filter_map(|(_, row)| row.dst_value()),
+            let packet=group.initializer().filter(|_| group.bindings().iter().any(|(_,row)|
+                crate::mir::passes::dce::local_fields::is_removable_effect_sensitive_read_instruction(row,&reads)));
+            let mut source = group.bindings().to_vec();
+            if let Some(packet) = packet {
+                group.validate_recorded_in_context(
+                    CallValidationContextV1::Lowering(self),
+                    function,
+                    None,
+                )?;
+                source.extend(
+                    packet.source_dependencies_v1(CallValidationContextV1::Lowering(self))?,
                 );
+                source.extend(packet.receipt_copy_binding_v1().cloned());
             }
-        }
-        let mut rows = Vec::new();
-        for group in &groups {
-            if group.comparison_initializer().is_none() {
-                continue;
-            }
-            group.validate_recorded_in_context(
-                CallValidationContextV1::Lowering(self),
-                function,
-                None,
-            )?;
-            for binding in group.bindings() {
-                if binding
-                    .1
-                    .dst_value()
-                    .is_some_and(|dst| !protected.contains(&dst))
-                    && matches!(
-                        binding.1,
-                        MirInstruction::Copy { .. }
-                            | MirInstruction::NullCompare { .. }
-                            | MirInstruction::Const {
-                                value: crate::mir::ConstValue::Null,
-                                ..
-                            }
-                    )
-                    && !rows.contains(binding)
-                {
-                    rows.push(binding.clone());
+            for binding in source {
+                if packet.is_some() && eligible(&binding.1) {
+                    if !candidates.contains(&binding) {
+                        candidates.push(binding);
+                    }
+                } else if let Some(dst) = binding.1.dst_value() {
+                    protected.insert(dst);
                 }
             }
         }
-        Ok(rows)
+        candidates.retain(|(_, row)| row.dst_value().is_some_and(|dst| !protected.contains(&dst)));
+        Ok(candidates)
     }
 }

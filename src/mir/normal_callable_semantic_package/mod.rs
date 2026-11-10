@@ -14,11 +14,10 @@ pub(crate) mod named_array_emission_tests;
 #[cfg(test)]
 pub(crate) use core_method_source::test_witness::unconditional_test_rows;
 pub(crate) use core_method_source::{
-    validate_named_array_coverage, EmittedNamedArrayRequirementV1, NamedArrayEmissionCollectorV1,
-    NamedArrayWriteEmissionPortV1, SelectedSourceCoreMethodCallV1, FieldArrayAppendSourceLoanV1,
+    validate_named_array_coverage, EmittedNamedArrayRequirementV1, FieldArrayAppendSourceLoanV1,
+    NamedArrayEmissionCollectorV1, NamedArrayWriteEmissionPortV1, SelectedSourceCoreMethodCallV1,
 };
 mod declared_instance_locator;
-mod original_call_source;
 #[cfg(test)]
 mod direct_call_lifecycle_tests;
 mod direct_call_loan;
@@ -27,18 +26,27 @@ mod direct_call_owner_loan_tests;
 mod disposition_slot;
 mod dynamic_admission;
 mod install;
-pub(crate) use install::{OwnedArrayLifecycleSourceLoanV1, OwnedArrayAppendSourceLoanV1, OwnedArrayReadSourceLoanV1, PreparedOwnedArrayConstructionV1};
+mod original_call_source;
+pub(crate) use install::{
+    OwnedArrayAppendSourceLoanV1, OwnedArrayLifecycleSourceLoanV1, OwnedArrayReadSourceLoanV1,
+    PreparedOwnedArrayConstructionV1,
+};
 mod instance_construction;
+mod instance_constructor_initialization;
 mod instance_constructor_loan;
 mod instance_constructor_non_escape;
-mod instance_constructor_initialization;
-pub(crate) use instance_constructor_initialization::{ConstructionInitKeyV1, ConstructionInitOriginV1};
+pub(crate) use instance_constructor_initialization::{
+    ConstructionInitKeyV1, ConstructionInitOriginV1,
+};
 mod instance_constructor_semantic;
-pub(crate) use instance_constructor_semantic::provider_source::{ProviderStaticArgumentSourceV1, PreparedProviderStaticArgumentV1};
+pub(crate) use instance_constructor_semantic::provider_source::{
+    PreparedProviderStaticArgumentV1, ProviderStaticArgumentSourceV1,
+};
 mod instance_entry_home;
 pub(crate) use instance_construction::{
-    ConstructionEligibilityV1, ConstructionPlanV1, ConstructionSourceStructureV1, ConstructionSourceStepV1, ConstructionStoreV1, ConstructionStoreRhsV1, ConstructionUnavailableV1,
-    ProviderConstructionChildV1,
+    ConstructionEligibilityV1, ConstructionPlanV1, ConstructionSourceStepV1,
+    ConstructionSourceStructureV1, ConstructionStoreRhsV1, ConstructionStoreV1,
+    ConstructionUnavailableV1, ProviderConstructionChildV1,
 };
 pub(crate) use instance_constructor_semantic::{
     BirthFormalContractV1, BirthFormalDeclarationClassV1, BirthFormalPhysicalDispositionV1,
@@ -56,14 +64,16 @@ mod map_read_fact;
 mod map_read_fact_tests;
 mod model;
 mod ordinary_new_coseal;
-pub(in crate::mir) use ordinary_new_coseal::SourceValueClassFactsV1;
-pub(crate) use ordinary_new_coseal::RetainedSourceLoopProductV1;
-pub(in crate::mir) use ordinary_new_coseal::{MainArgumentsSourceV1, MainArgumentKindV1};
 pub(crate) use ordinary_new_coseal::OrdinaryResultSourceLoanV1;
-pub(crate) use ordinary_new_coseal::{OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1, EntryFieldWriteSourceV1};
+pub(crate) use ordinary_new_coseal::RetainedSourceLoopProductV1;
+pub(in crate::mir) use ordinary_new_coseal::SourceValueClassFactsV1;
+pub(crate) use ordinary_new_coseal::{
+    EntryFieldWriteSourceV1, OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1,
+};
+pub(in crate::mir) use ordinary_new_coseal::{MainArgumentKindV1, MainArgumentsSourceV1};
+mod callee_result_kind;
 mod physical_header;
 mod physical_signature;
-mod callee_result_kind;
 mod qualified_static_call_claim;
 pub(in crate::mir) use qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 mod result_contract;
@@ -97,9 +107,9 @@ impl BuilderInstallTokenV1 {
 #[cfg(test)]
 mod brand_catalog_tests;
 #[cfg(test)]
-pub(in crate::mir) use brand_catalog_tests::{issue_with_brand_catalog as issue_source_package_fixture_v1, STORED_BORROWED_LOCAL_SOURCE};
-#[cfg(test)]
-mod ordinary_new_bin_size_words_tests;
+pub(in crate::mir) use brand_catalog_tests::{
+    issue_with_brand_catalog as issue_source_package_fixture_v1, STORED_BORROWED_LOCAL_SOURCE,
+};
 #[cfg(test)]
 mod declared_instance_locator_tests;
 #[cfg(test)]
@@ -109,6 +119,8 @@ mod instance_entry_home_tests;
 mod loop_break_source_tests;
 #[cfg(test)]
 mod main_static_child_tests;
+#[cfg(test)]
+mod ordinary_new_bin_size_words_tests;
 #[cfg(test)]
 mod ordinary_new_emission_validation_tests;
 #[cfg(test)]
@@ -162,46 +174,53 @@ pub(crate) use model::{
     QualifiedReceiverCatalogTakeV1, VerifiedNormalCallableSemanticPackageV1,
     VerifiedQualifiedReceiverCatalogRelationV1,
 };
-pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareCarrierOperandLoanV1;
 pub(in crate::mir) use ordinary_new_coseal::BorrowedArraySetSourceLoanV1;
-pub(crate) use ordinary_new_coseal::CanonicalArrayFieldReadSourceV1;
+pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareCarrierOperandLoanV1;
 pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareIntegerLiteralMaterializationV1;
 pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareMaterializationV1;
-pub(in crate::mir) use ordinary_new_coseal::{OriginalScalarAppendV1, LocalFieldReadSourceV1, StoredChildFieldSourceV1};
-pub(in crate::mir) use ordinary_new_coseal::TextFieldValueSourceV1;
+pub(crate) use ordinary_new_coseal::CanonicalArrayFieldReadSourceV1;
+pub(in crate::mir) use ordinary_new_coseal::LoopEntryStaticI64SourceLoanV1;
 pub(in crate::mir) use ordinary_new_coseal::LoopStaticSourceCallLoanV1;
+pub(in crate::mir) use ordinary_new_coseal::LoopTailStaticI64SourceLoanV1;
+pub(in crate::mir) use ordinary_new_coseal::TextFieldValueSourceV1;
+pub(in crate::mir) use ordinary_new_coseal::VerifiedStaticLoopI64ResultSourceV1;
+pub(in crate::mir) use ordinary_new_coseal::VerifiedStaticLoopPacketSourceV1;
+pub(in crate::mir) use ordinary_new_coseal::VerifiedStaticLoopTaggedEntrySourceV1;
+pub(crate) use ordinary_new_coseal::{
+    BirthAbiHandoffV1, BorrowedCallResultSourceLoanV1, BorrowedCallSourceLoanV1,
+    BorrowedCompareIntegerLiteralLoanV1, BorrowedCompareSourceLoanV1, BorrowedLifetimeAnchorV1,
+    BorrowedNullableLocalSourceLoanV1, FinalizedBirthActualsV1, FinalizedRootResultAbiV1,
+    FinalizedRootSourceHandoffV1, LexicalInstanceCallDispositionRowV1,
+    LexicalInstanceCallSourceTargetV1, MapStoredResultSourceV1, MixedLocalCallSourceLoanV1,
+    NewEmissionSelectionV1, NewEmissionUnavailableV1, ObjectReturnCallQualificationV1,
+    OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewConstructorDispositionV1,
+    OrdinaryNewResultClaimV1, OrdinaryNewResultClassV1, OrdinaryNewTrivialArgumentKindV1,
+    OrdinaryNewTrivialArgumentV1, OwnedFieldChildKindV1, OwnedFieldChildV1,
+    PreparedTerminalMapGetReturnV1, QualifiedFieldWriteReceiverV1,
+    QualifiedStaticCallArgumentKindV1, ReceiverCallClassObservationV1, ResultExitOriginV1,
+    ResultOriginWitnessV1, ResultValueOriginV1, ResultWitnessStepV1, RootCallDispositionV1,
+    RootInstanceCallDispositionRowV1, StoredMapGetReturnSourceLoanV1, StoredMapGetSourceLoanV1,
+    TerminalNullReturnSourceLoanV1, VerifiedOrdinaryNewBirthRecipeV1,
+};
+pub(in crate::mir) use ordinary_new_coseal::{
+    BorrowedMulMaterializationV1, BorrowedMulSourceLoanV1,
+};
+pub(in crate::mir) use ordinary_new_coseal::{
+    FinalizedObjectReturnOriginV1, FinalizedObjectReturnOutcomeV1,
+};
+pub(in crate::mir) use ordinary_new_coseal::{
+    LocalFieldReadSourceV1, OriginalScalarAppendV1, StoredChildFieldSourceV1,
+};
+pub(crate) use ordinary_new_coseal::{
+    PendingChildPhysicalValidationV1, PendingRootHomeExitV1, PendingSelectedStaticLoopViewV1,
+    PreparedLoopStaticBodyRetentionV1, PreparedRootHomeGraphPlanV1, PreparedRootHomeOrderV1,
+    PreparedRootLexicalCallBindingGroupV1, PreparedStaticTerminalPacketV1,
+    PreparedStaticTerminalRootRouteV1, RootCleanupActionV1, RootHomeFaultSequencesV1,
+    RootHomeReleaseOriginV1,
+};
 pub(in crate::mir) use ordinary_new_coseal::{
     PreparedLoopStaticBodyDetachedPacketV1, VerifiedLoopStaticBodyPrepacketV1,
     VerifiedLoopStaticBodyScalarSourceV1,
-};
-pub(in crate::mir) use ordinary_new_coseal::{FinalizedObjectReturnOutcomeV1, FinalizedObjectReturnOriginV1};
-pub(crate) use ordinary_new_coseal::{
-    PendingChildPhysicalValidationV1, PendingSelectedStaticLoopViewV1,
-    PreparedLoopStaticBodyRetentionV1, PreparedRootLexicalCallBindingGroupV1,
-    RootCleanupActionV1, RootHomeFaultSequencesV1, RootHomeReleaseOriginV1,
-    PreparedRootHomeGraphPlanV1,
-    PreparedRootHomeOrderV1,
-    PendingRootHomeExitV1,
-    PreparedStaticTerminalRootRouteV1,
-    PreparedStaticTerminalPacketV1,
-};
-pub(in crate::mir) use ordinary_new_coseal::LoopEntryStaticI64SourceLoanV1;
-pub(in crate::mir) use ordinary_new_coseal::LoopTailStaticI64SourceLoanV1;
-pub(in crate::mir) use ordinary_new_coseal::VerifiedStaticLoopTaggedEntrySourceV1;
-pub(in crate::mir) use ordinary_new_coseal::VerifiedStaticLoopI64ResultSourceV1;
-pub(in crate::mir) use ordinary_new_coseal::VerifiedStaticLoopPacketSourceV1;
-pub(in crate::mir) use ordinary_new_coseal::{BorrowedMulMaterializationV1, BorrowedMulSourceLoanV1};
-pub(crate) use ordinary_new_coseal::{
-    MapStoredResultSourceV1, BorrowedNullableLocalSourceLoanV1, BorrowedCallResultSourceLoanV1, BorrowedCallSourceLoanV1, BorrowedLifetimeAnchorV1, MixedLocalCallSourceLoanV1, ObjectReturnCallQualificationV1,
-    BirthAbiHandoffV1, BorrowedCompareIntegerLiteralLoanV1, BorrowedCompareSourceLoanV1,
-    FinalizedBirthActualsV1, FinalizedRootResultAbiV1, FinalizedRootSourceHandoffV1, QualifiedFieldWriteReceiverV1,
-    LexicalInstanceCallDispositionRowV1, LexicalInstanceCallSourceTargetV1, OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1,
-    NewEmissionSelectionV1, NewEmissionUnavailableV1, OrdinaryNewConstructorDispositionV1, OrdinaryNewResultClaimV1, OrdinaryNewResultClassV1,
-    OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1, OwnedFieldChildKindV1,
-    OwnedFieldChildV1, PreparedTerminalMapGetReturnV1, StoredMapGetSourceLoanV1, StoredMapGetReturnSourceLoanV1, QualifiedStaticCallArgumentKindV1,
-    ReceiverCallClassObservationV1, ResultExitOriginV1, ResultOriginWitnessV1, ResultValueOriginV1,
-    ResultWitnessStepV1, RootCallDispositionV1, RootInstanceCallDispositionRowV1,
-    TerminalNullReturnSourceLoanV1, VerifiedOrdinaryNewBirthRecipeV1,
 };
 pub(crate) use physical_header::CallablePhysicalHeaderRefV1;
 pub(crate) use physical_signature::{
@@ -239,52 +258,87 @@ mod terminal_value_return_tests;
 mod map_physical_dependency_tests;
 
 pub(in crate::mir) use ordinary_new_coseal::{
-    BorrowedFormalDomainV1, BorrowedFormalActualSourceV1, CallPacketSourceLoanV1, CallPacketSourceV1,
-    EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
-    PreparedBorrowedFormalActualV1, PreparedLexicalCallProjectionV1, StoredReceiverReadV1, StoredReceiverFaultV1,
-    PreparedSelectedStaticLoopCallProjectionV1,
+    BorrowedFormalActualSourceV1, BorrowedFormalDomainV1, CallPacketSourceLoanV1,
+    CallPacketSourceV1, EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
+    PreparedBorrowedFormalActualV1, PreparedLexicalCallProjectionV1,
+    PreparedSelectedStaticLoopCallProjectionV1, StoredReceiverFaultV1, StoredReceiverReadV1,
 };
 
 pub(in crate::mir) use ordinary_new_coseal::FinalizedLexicalCallContextV1;
 
-pub(crate) use ordinary_new_coseal::{BorrowedScalarResultSourceLoanV1, CallableScalarResultSourceLoanV1, CallableResultSourceV1, ResultPathFieldSourceLoanV1};
 pub(crate) use ordinary_new_coseal::NamedArrayHolderSourceLoanV1;
+pub(crate) use ordinary_new_coseal::{
+    BorrowedScalarResultSourceLoanV1, CallableResultSourceV1, CallableScalarResultSourceLoanV1,
+    ResultPathFieldSourceLoanV1,
+};
 
-pub(crate) use core_method_source::{FieldArrayReadRecipeV1, FieldKeysCountRecipeV1, EmittedFieldArrayReadV1, EmittedFieldArrayReadArgumentV1};
-pub(crate) use ordinary_new_coseal::{CheckedFieldArrayAccessSourceV1, ArgumentFieldArrayReadSourceV1};
+pub(crate) use core_method_source::{
+    EmittedFieldArrayReadArgumentV1, EmittedFieldArrayReadV1, FieldArrayReadRecipeV1,
+    FieldKeysCountRecipeV1,
+};
+pub(crate) use ordinary_new_coseal::{
+    ArgumentFieldArrayReadSourceV1, CheckedFieldArrayAccessSourceV1,
+};
 
-pub(crate) use ordinary_new_coseal::{FrameFreeExpressionReadV1, checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1};
-pub(crate) use ordinary_new_coseal::{StoredMapGetReturnEmissionV1, StoredMapGetReadEmissionV1, StoredMapGetLocalEmissionV1, PreparedMapFieldInstallV1, MapFieldInstallEmissionV1};
-pub(in crate::mir) use ordinary_new_coseal::{EvaluatedExpressionValueV1, BranchScalarPhiObservationV1, BranchTextPhiObservationV1, BranchReadPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
+pub(in crate::mir) use ordinary_new_coseal::EmittedDynamicInvocationCallProjectionV1;
 #[cfg(test)]
 pub(in crate::mir) use ordinary_new_coseal::ExpressionPhysicalProjectionRefV1;
-pub(in crate::mir) use ordinary_new_coseal::EmittedDynamicInvocationCallProjectionV1;
-pub(crate) use ordinary_new_coseal::{RootLifecyclePrefixBindingGroupV1, EmittedFieldArrayAppendV1, FieldAppendTextProjectionV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedBindingRebindProjectionV1, EmittedInitializerExpressionProjectionV1, EmittedComparisonInitializerProjectionV1};
+pub(crate) use ordinary_new_coseal::{
+    checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1,
+    FrameFreeExpressionReadV1,
+};
+pub(in crate::mir) use ordinary_new_coseal::{
+    validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1,
+    BranchReadPhiObservationV1, BranchScalarPhiObservationV1, BranchTextPhiObservationV1,
+    EvaluatedExpressionValueV1, ExpressionCallArgumentSourceV1, ExpressionCallTransientPrefixV1,
+    ExpressionReferenceReadV1,
+};
+pub(crate) use ordinary_new_coseal::{
+    EmittedBindingRebindProjectionV1, EmittedFieldArrayAppendV1,
+    EmittedInitializerExpressionProjectionV1, EmittedOwnedArrayAppendV1,
+    EmittedPrintExpressionProjectionV1, FieldAppendTextProjectionV1, OwnedArrayAppendCandidateV1,
+    RootLifecyclePrefixBindingGroupV1,
+};
+pub(crate) use ordinary_new_coseal::{
+    MapFieldInstallEmissionV1, PreparedMapFieldInstallV1, StoredMapGetLocalEmissionV1,
+    StoredMapGetReadEmissionV1, StoredMapGetReturnEmissionV1,
+};
 
 pub(crate) use ordinary_new_coseal::EmittedOwnedArrayReadV1;
-pub(crate) use ordinary_new_coseal::{ReadActualSourceLoanV1, EmittedReadArgumentV1};
+pub(crate) use ordinary_new_coseal::{EmittedReadArgumentV1, ReadActualSourceLoanV1};
 
 pub(crate) use ordinary_new_coseal::EmittedOwnedArrayHolderV1;
 
-pub(in crate::mir) use ordinary_new_coseal::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1, borrowed_source_loop_phi_relations_v2};
+pub(in crate::mir) use ordinary_new_coseal::{
+    borrowed_source_loop_phi_relations_v2, BoolConditionCursorV1, BoolConditionNodeProjectionV1,
+    BoolConditionSealV1, BoolConditionValueProofV1, EmittedBoolConditionProjectionV1,
+    SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2,
+};
 
 pub(in crate::mir) use ordinary_new_coseal::CallValidationContextV1;
 
 pub(crate) use ordinary_new_coseal::{BorrowedFieldWriteSourceLoanV1, FieldWriteSourceLoanV1};
 
-pub(crate) use ordinary_new_coseal::{EmittedBorrowedFieldWriteV1, CheckedFieldWriteGraphV1};
-pub(in crate::mir) use ordinary_new_coseal::{EmittedFieldWriteRhsV1, FieldWriteValueV1, FieldWriteRhsNodeV1, FieldWriteRhsProofV1};
+pub(crate) use ordinary_new_coseal::{CheckedFieldWriteGraphV1, EmittedBorrowedFieldWriteV1};
+pub(in crate::mir) use ordinary_new_coseal::{
+    EmittedFieldWriteRhsV1, FieldWriteRhsNodeV1, FieldWriteRhsProofV1, FieldWriteValueV1,
+};
 
-pub(crate) use ordinary_new_coseal::{ArgumentExpressionSourceLoanV1, DynamicEntryReadV1, FiniteEntryReadV1};
+pub(crate) use ordinary_new_coseal::{
+    ArgumentExpressionSourceLoanV1, DynamicEntryReadV1, FiniteEntryReadV1,
+};
 
-pub(crate) use ordinary_new_coseal::BorrowedTextEntryReadRequirementV1;
 pub(crate) use ordinary_new_coseal::BorrowedFormalEntryReadRequirementV1;
+pub(crate) use ordinary_new_coseal::BorrowedTextEntryReadRequirementV1;
 
+pub(crate) use ordinary_new_coseal::{
+    displaced_replacement_fault_sequences_v2, fault_indices_after_normal_step_v2,
+};
 
-pub(crate) use ordinary_new_coseal::{displaced_replacement_fault_sequences_v2, fault_indices_after_normal_step_v2};
+pub(in crate::mir) use ordinary_new_coseal::{SourceValueAlternativeV1, SourceValueSumV1};
 
-pub(in crate::mir) use ordinary_new_coseal::{SourceValueSumV1, SourceValueAlternativeV1};
-
-pub(in crate::mir) use ordinary_new_coseal::{EmittedNewExpressionV1, NewArgumentCleanupV1, EmittedNewArgumentV1};
+pub(in crate::mir) use ordinary_new_coseal::{
+    EmittedNewArgumentV1, EmittedNewExpressionV1, NewArgumentCleanupV1,
+};
 
 pub(in crate::mir) use ordinary_new_coseal::FinalizedBorrowedCallPacketV1;

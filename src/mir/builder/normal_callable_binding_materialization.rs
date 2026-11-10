@@ -6,7 +6,7 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::stmts::{drive_local_statement_with_placement_v1, RawLegacyLocalInputV1};
 use crate::mir::resolved_semantics::ExprChildRoleV1;
-use crate::mir::{MirBuilder, MirInstruction, ValueId};
+use crate::mir::{MirBuilder, ValueId};
 
 use super::normal_callable_binding_materialization_port::{
     CallableBindingMaterializationPortV1, CallableEntryShapeV1,
@@ -16,14 +16,10 @@ use super::recursive_child_lowering::{
     lower_raw_expression_with_recursion_guard_v1, RawInvocationChildPortV1,
 };
 
-pub(in crate::mir::builder) struct ComparisonInitializerObservationV1 {
-    source: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionOperationLoanV1>,
-    ordinal: u32,
-    completed: Option<super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1>,
-}
-
 impl CallableBindingMaterializationPortV1 for RawInvocationChildPortV1<'_, '_> {
-    fn callable_result_owner_v1(&self) -> Result<Option<crate::mir::resolved_semantics::FunctionOwnerIdV1>, String> {
+    fn callable_result_owner_v1(
+        &self,
+    ) -> Result<Option<crate::mir::resolved_semantics::FunctionOwnerIdV1>, String> {
         let owner = self.callable_owner_v1();
         if self.ordinary_new_claim_ledger.is_some() && owner.is_none() {
             return Err(freeze("result-source-owner-missing"));
@@ -32,26 +28,45 @@ impl CallableBindingMaterializationPortV1 for RawInvocationChildPortV1<'_, '_> {
     }
     fn prepare_callable_result_source_v1(
         &self,
-    ) -> Result<Option<crate::mir::normal_callable_semantic_package::CallableResultSourceV1>, String> {
-        let Some(owner) = self.callable_result_owner_v1()? else { return Ok(None); };
-        let ledger = self.ordinary_new_claim_ledger.as_ref()
+    ) -> Result<Option<crate::mir::normal_callable_semantic_package::CallableResultSourceV1>, String>
+    {
+        let Some(owner) = self.callable_result_owner_v1()? else {
+            return Ok(None);
+        };
+        let ledger = self
+            .ordinary_new_claim_ledger
+            .as_ref()
             .ok_or_else(|| freeze("result-source-ledger-missing"))?;
         let source = ledger.callable_result_source_v1(owner)?;
-        if let Some(scalar) = source.as_ref().and_then(|source| source.scalar()) { ledger.stage_result_field_paths_v1(scalar)?; }
+        if let Some(scalar) = source.as_ref().and_then(|source| source.scalar()) {
+            ledger.stage_result_field_paths_v1(scalar)?;
+        }
         Ok(source)
     }
     fn prepare_implicit_callable_end_v1(
         &self,
     ) -> Result<Option<super::port_aware_function_draft_impl::ImplicitCallableEndV1>, String> {
-        let Some(owner) = self.callable_result_owner_v1()? else { return Ok(None); };
-        let ledger = self.ordinary_new_claim_ledger.as_ref()
+        let Some(owner) = self.callable_result_owner_v1()? else {
+            return Ok(None);
+        };
+        let ledger = self
+            .ordinary_new_claim_ledger
+            .as_ref()
             .ok_or_else(|| freeze("implicit-end-ledger-missing"))?;
-        let Some(completion) = ledger.implicit_unit_completion_source_v1(owner)? else { return Ok(None); };
-        let state = self.callable_ledger.as_ref()
+        let Some(completion) = ledger.implicit_unit_completion_source_v1(owner)? else {
+            return Ok(None);
+        };
+        let state = self
+            .callable_ledger
+            .as_ref()
             .ok_or_else(|| freeze("implicit-end-state-missing"))?;
         super::port_aware_function_draft_impl::ImplicitCallableEndV1::new(
-            owner, completion, ledger.clone(), state.clone(),
-        ).map(Some)
+            owner,
+            completion,
+            ledger.clone(),
+            state.clone(),
+        )
+        .map(Some)
     }
     fn adopt_callable_entry_values_v1(
         &mut self,
@@ -66,9 +81,11 @@ impl CallableBindingMaterializationPortV1 for RawInvocationChildPortV1<'_, '_> {
         let exact_usize = ledger
             .borrow()
             .prepare_exact_usize_entry_projection(&values, builder)?;
-        let carriers = ledger
-            .borrow()
-            .prepare_borrowed_entry_carriers_for_shape(&values, builder, has_physical_formals)?;
+        let carriers = ledger.borrow().prepare_borrowed_entry_carriers_for_shape(
+            &values,
+            builder,
+            has_physical_formals,
+        )?;
         ledger.borrow_mut().install_entry_values(&values)?;
         let declared = carriers
             .as_ref()
@@ -101,8 +118,15 @@ impl CallableBindingMaterializationPortV1 for RawInvocationChildPortV1<'_, '_> {
         // Real instance entry values already exist. Declaration defaults use
         // this receiver directly; they have no fabricated source read/site.
         loop {
-            let Some(taken) = ledger.borrow_mut().take_next_declaration_construction_store()? else { break; };
-            ledger.borrow_mut().emit_construction_store(builder, taken, None)?;
+            let Some(taken) = ledger
+                .borrow_mut()
+                .take_next_declaration_construction_store()?
+            else {
+                break;
+            };
+            ledger
+                .borrow_mut()
+                .emit_construction_store(builder, taken, None)?;
         }
         let owner = ledger.borrow().checked_compare_entry_owner_v1()?;
         if self
@@ -125,7 +149,10 @@ impl RawInvocationChildPortV1<'_, '_> {
         builder: &mut MirBuilder,
         input: ASTNode,
     ) -> Result<ValueId, String> {
-        if let (Some(claims), Some(state)) = (self.ordinary_new_claim_ledger.clone(), self.callable_ledger.clone()) {
+        if let (Some(claims), Some(state)) = (
+            self.ordinary_new_claim_ledger.clone(),
+            self.callable_ledger.clone(),
+        ) {
             let site = self.current_callable_site_v1("rebind-expression/statement-site")?;
             let frame = claims.rebind_expression_frame_v1(state.borrow().owner(), &site)?;
             if let Some(frame) = frame {
@@ -140,7 +167,14 @@ impl RawInvocationChildPortV1<'_, '_> {
                         &mut port.borrow_mut(), builder, original, frame, observation, &claims)
                 };
                 return super::ordinary_new_admission::selected::binding_rebind_expression::emit(
-                    builder, &mut state.borrow_mut(), &claims, frame, source_loop, &consume, Some(&issue_static));
+                    builder,
+                    &mut state.borrow_mut(),
+                    &claims,
+                    frame,
+                    source_loop,
+                    &consume,
+                    Some(&issue_static),
+                );
             }
         }
         let role = match &input {
@@ -168,15 +202,29 @@ impl RawInvocationChildPortV1<'_, '_> {
         self.record_callable_rebind_v1(&target_site, value)?;
         Ok(value)
     }
-    pub(in crate::mir::builder) fn emit_checked_print_value_v1(&mut self, builder: &mut MirBuilder,
-        frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1>,
+    pub(in crate::mir::builder) fn emit_checked_print_value_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        frame: std::rc::Rc<
+            crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1,
+        >,
     ) -> Result<ValueId, String> {
-        let node = self.current_source_site_v1().ok_or_else(|| "[freeze:contract][print-expression/value-site-missing]".to_owned())?;
-        if self.callable_owner_v1() != Some(frame.source().owner()) || frame.source().nodes()[0].site().node() != &node {
+        let node = self
+            .current_source_site_v1()
+            .ok_or_else(|| "[freeze:contract][print-expression/value-site-missing]".to_owned())?;
+        if self.callable_owner_v1() != Some(frame.source().owner())
+            || frame.source().nodes()[0].site().node() != &node
+        {
             return Err("[freeze:contract][print-expression/value-source-drift]".into());
         }
-        let ledger = self.ordinary_new_claim_ledger.clone().ok_or_else(|| "[freeze:contract][print-expression/ledger-missing]".to_owned())?;
-        let state = self.callable_ledger.clone().ok_or_else(|| "[freeze:contract][print-expression/state-missing]".to_owned())?;
+        let ledger = self
+            .ordinary_new_claim_ledger
+            .clone()
+            .ok_or_else(|| "[freeze:contract][print-expression/ledger-missing]".to_owned())?;
+        let state = self
+            .callable_ledger
+            .clone()
+            .ok_or_else(|| "[freeze:contract][print-expression/state-missing]".to_owned())?;
         let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
         let port = std::cell::RefCell::new(self);
         let issue_static = |builder: &mut MirBuilder,
@@ -186,8 +234,14 @@ impl RawInvocationChildPortV1<'_, '_> {
             super::static_result_publication_ingress::take_expression_static_packet_v1(
                 &mut port.borrow_mut(), builder, original, evaluation, observation, &ledger)
         };
-        super::ordinary_new_admission::selected::print_expression::emit(builder, &mut state.borrow_mut(), &ledger, frame,
-            &consume_receiver, Some(&issue_static))?;
+        super::ordinary_new_admission::selected::print_expression::emit(
+            builder,
+            &mut state.borrow_mut(),
+            &ledger,
+            frame,
+            &consume_receiver,
+            Some(&issue_static),
+        )?;
         // Print has a genuine Unit statement result, outside the expression's
         // Continue boundary. Never invent an SSA String for inline StaticText.
         super::emission::constant::emit_void(builder)
@@ -195,50 +249,101 @@ impl RawInvocationChildPortV1<'_, '_> {
 
     pub(in crate::mir::builder) fn emit_checked_local_initializer_v1(&mut self, builder: &mut MirBuilder,
         source: &super::raw_structured_child_scope::PreparedRawChildSourceV1, statement: &ASTNode, ordinal: u32,
-    ) -> Result<Option<super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1>, String> {
-        let (Some(claims), Some(state)) = (self.ordinary_new_claim_ledger.clone(), self.callable_ledger.clone()) else { return Ok(None) };
+    ) -> Result<Option<super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1>, String>{
+        let (Some(claims), Some(state)) = (
+            self.ordinary_new_claim_ledger.clone(),
+            self.callable_ledger.clone(),
+        ) else {
+            return Ok(None);
+        };
         let site = self.current_callable_site_v1("initializer-expression/statement-site")?;
         let owner = state.borrow().owner();
-        if let Some((plan, payload_source, prior_homes)) = claims.shared_initializer_v1(owner, &site)? {
+        if let Some((plan, payload_source, prior_homes)) =
+            claims.shared_initializer_v1(owner, &site)?
+        {
             use crate::mir::resolved_semantics::home_new_prefix::SharedPayloadSourceV1 as P;
             let (from, acquisition, is_clone) = match payload_source {
                 P::Fresh { site: payload_site } => {
                     use super::recursive_child_lowering_port::RecursiveChildLoweringPortV1;
-                    let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) = source else {
+                    let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) =
+                        source
+                    else {
                         return Err(freeze("shared-fresh/exact-source-required"));
                     };
-                    let ASTNode::Local { initial_values, .. } = statement else { return Err(freeze("shared-fresh/local-source")); };
-                    let Some(unary) = initial_values.get(ordinal as usize).and_then(Option::as_deref)
-                        else { return Err(freeze("shared-fresh/unary-source")); };
-                    let ASTNode::UnaryOp { operator: crate::ast::UnaryOperator::Shared, operand, .. } = unary
-                        else { return Err(freeze("shared-fresh/unary-source")); };
-                    let initializer = plan.root().initializer().ok_or_else(|| freeze("shared-fresh/source-missing"))?;
+                    let ASTNode::Local { initial_values, .. } = statement else {
+                        return Err(freeze("shared-fresh/local-source"));
+                    };
+                    let Some(unary) = initial_values
+                        .get(ordinal as usize)
+                        .and_then(Option::as_deref)
+                    else {
+                        return Err(freeze("shared-fresh/unary-source"));
+                    };
+                    let ASTNode::UnaryOp {
+                        operator: crate::ast::UnaryOperator::Shared,
+                        operand,
+                        ..
+                    } = unary
+                    else {
+                        return Err(freeze("shared-fresh/unary-source"));
+                    };
+                    let initializer = plan
+                        .root()
+                        .initializer()
+                        .ok_or_else(|| freeze("shared-fresh/source-missing"))?;
                     if context.site() != Some(plan.nodes()[0].site().node())
-                        || !matches!(initializer.declaration_site(), crate::mir::resolved_semantics::SourceBindingSiteV1::Local { ordinal: original, .. } if *original == ordinal) {
+                        || !matches!(initializer.declaration_site(), crate::mir::resolved_semantics::SourceBindingSiteV1::Local { ordinal: original, .. } if *original == ordinal)
+                    {
                         return Err(freeze("shared-fresh/source-drift"));
-                }
+                    }
                     let binding = initializer.binding();
                     let child = context.child_expression(unary, ExprChildRoleV1::UnaryOperand)?;
-                    if child.site() != Some(payload_site.site().node()) { return Err(freeze("shared-fresh/payload-site")); }
+                    if child.site() != Some(payload_site.site().node()) {
+                        return Err(freeze("shared-fresh/payload-site"));
+                    }
                     let payload = self.with_prepared_child_source_v1(
                         super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(child),
-                        |port| lower_raw_expression_with_recursion_guard_v1(builder, port, (**operand).clone()),
+                        |port| {
+                            lower_raw_expression_with_recursion_guard_v1(
+                                builder,
+                                port,
+                                (**operand).clone(),
+                            )
+                        },
                     )?;
-                    let shared_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, plan.nodes()[0].site().clone());
+                    let shared_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                        owner,
+                        plan.nodes()[0].site().clone(),
+                    );
                     let pending = super::ordinary_new_admission::selected::initializer_expression::emit_shared_fresh_initializer_v1(
                         builder, &mut state.borrow_mut(), &claims, ordinal, plan, payload_site, shared_site, binding, prior_homes, payload)?;
                     return Ok(Some(pending));
                 }
-                P::Existing { from, acquisition, is_clone } => (from, acquisition, is_clone),
+                P::Existing {
+                    from,
+                    acquisition,
+                    is_clone,
+                } => (from, acquisition, is_clone),
             };
-            let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) = source else {
+            let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) =
+                source
+            else {
                 return Err(freeze("shared-initializer/exact-source-required"));
             };
-            let read_node = plan.nodes().last().ok_or_else(|| freeze("shared-initializer/source-missing"))?.site().node();
-            let initializer = plan.root().initializer().ok_or_else(|| freeze("shared-initializer/source-missing"))?;
+            let read_node = plan
+                .nodes()
+                .last()
+                .ok_or_else(|| freeze("shared-initializer/source-missing"))?
+                .site()
+                .node();
+            let initializer = plan
+                .root()
+                .initializer()
+                .ok_or_else(|| freeze("shared-initializer/source-missing"))?;
             if context.site() != Some(plan.nodes()[0].site().node())
                 || !matches!(initializer.declaration_site(), crate::mir::resolved_semantics::SourceBindingSiteV1::Local { ordinal: original, .. } if *original == ordinal)
-                || state.borrow().source_read_binding(read_node)? != from {
+                || state.borrow().source_read_binding(read_node)? != from
+            {
                 return Err(freeze("shared-initializer/source-drift"));
             }
             let value = state.borrow_mut().read_variable(read_node)?;
@@ -247,49 +352,71 @@ impl RawInvocationChildPortV1<'_, '_> {
             return Ok(Some(pending));
         }
         if let Some((plan, from, _acquisition)) = claims.move_initializer_v1(owner, &site)? {
-            let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) = source else {
+            let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) =
+                source
+            else {
                 return Err(freeze("move-initializer/exact-source-required"));
             };
-            let initializer = plan.root().initializer().ok_or_else(|| freeze("move-initializer/source-missing"))?;
+            let initializer = plan
+                .root()
+                .initializer()
+                .ok_or_else(|| freeze("move-initializer/source-missing"))?;
             if context.site() != Some(plan.nodes()[0].site().node())
                 || !matches!(initializer.declaration_site(), crate::mir::resolved_semantics::SourceBindingSiteV1::Local { ordinal: original, .. } if *original == ordinal)
-                || state.borrow().source_read_binding(plan.nodes()[1].site().node())? != from {
+                || state
+                    .borrow()
+                    .source_read_binding(plan.nodes()[1].site().node())?
+                    != from
+            {
                 return Err(freeze("move-initializer/source-drift"));
             }
-            let value = state.borrow_mut().read_variable(plan.nodes()[1].site().node())?;
+            let value = state
+                .borrow_mut()
+                .read_variable(plan.nodes()[1].site().node())?;
             return Ok(Some(super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1::Move { ordinal, value }));
         }
         if let Some(frame) = claims.stored_map_get_local_source_v1(owner, &site)? {
-            let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) = source else {
+            let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) =
+                source
+            else {
                 return Err(freeze("initializer-expression/exact-source-required"));
             };
-            let relation = state.borrow().expression_initializer(frame.site().site().node())?;
-            if context.site() != Some(frame.site().site().node()) || relation.binding() != frame.binding()
+            let relation = state
+                .borrow()
+                .expression_initializer(frame.site().site().node())?;
+            if context.site() != Some(frame.site().site().node())
+                || relation.binding() != frame.binding()
                 || relation.declaration_site() != frame.declaration()
-                || !matches!(frame.declaration(), crate::mir::resolved_semantics::SourceBindingSiteV1::Local { ordinal: original, .. } if *original == ordinal) {
+                || !matches!(frame.declaration(), crate::mir::resolved_semantics::SourceBindingSiteV1::Local { ordinal: original, .. } if *original == ordinal)
+            {
                 return Err(freeze("initializer-expression/source-drift"));
             }
             if relation.declared_type_name().is_some() {
-                return Err(freeze("initializer-expression/local-contract-receipt-pending"));
+                return Err(freeze(
+                    "initializer-expression/local-contract-receipt-pending",
+                ));
             }
             let pending = super::ordinary_new_admission::selected::terminal_map_get::emit_local(
-                builder, &mut state.borrow_mut(), &claims, frame, ordinal)?;
+                builder,
+                &mut state.borrow_mut(),
+                &claims,
+                frame,
+                ordinal,
+            )?;
             return Ok(Some(super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1::StoredMapGet(pending)));
         }
-        if let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) = source {
-            if let Some(node) = context.site() {
-                if let Some(loan) = claims.comparison_initializer_source_v1(owner, &crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node.clone()))? {
-                    return self.emit_comparison_initializer_v1(builder, source, statement, ordinal, loan).map(Some);
-                }
-            }
-        }
-        let Some(frame) = claims.initializer_expression_frame_v1(state.borrow().owner(), &site)? else { return Ok(None) };
-        let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) = source else {
+        let Some(frame) = claims.initializer_expression_frame_v1(state.borrow().owner(), &site)?
+        else {
+            return Ok(None);
+        };
+        let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) = source
+        else {
             return Err(freeze("initializer-expression/exact-source-required"));
         };
         if context.site() != Some(frame.source().nodes()[0].site().node())
             || !matches!(frame.source().root().initializer().map(|row| row.declaration_site()),
-                Some(crate::mir::resolved_semantics::SourceBindingSiteV1::Local { ordinal: source_ordinal, .. }) if *source_ordinal == ordinal) {
+                Some(crate::mir::resolved_semantics::SourceBindingSiteV1::Local { ordinal: source_ordinal, .. }) if *source_ordinal == ordinal)
+        {
             return Err(freeze("initializer-expression/source-drift"));
         }
         let consume = self.lexical_self_receiver_locator_consumer_v1()?;
@@ -377,11 +504,24 @@ impl RawInvocationChildPortV1<'_, '_> {
         let pending = completed.take_checked_initializers();
         if let Some(claims) = self.ordinary_new_claim_ledger.as_ref() {
             for emission in pending {
-                let receipt = completed.bindings().iter().find(|row| row.ordinal() == emission.ordinal())
+                let receipt = completed
+                    .bindings()
+                    .iter()
+                    .find(|row| row.ordinal() == emission.ordinal())
                     .ok_or_else(|| freeze("initializer-expression/completed-ordinal"))?;
-                emission.publish(receipt, claims, builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
+                emission.publish(
+                    receipt,
+                    claims,
+                    builder
+                        .function_state
+                        .current_function
+                        .as_ref()
+                        .ok_or_else(|| freeze("no-function"))?,
+                )?;
             }
-        } else if !pending.is_empty() { return Err(freeze("initializer-expression/claim-ledger-missing")); }
+        } else if !pending.is_empty() {
+            return Err(freeze("initializer-expression/claim-ledger-missing"));
+        }
         Ok(completed)
     }
 
@@ -461,47 +601,4 @@ fn freeze(reason: &str) -> String {
     format!("[freeze:contract][callable-semantic-lowering/{reason}]")
 }
 
-impl RawInvocationChildPortV1<'_, '_> {
-    fn emit_comparison_initializer_v1(&mut self, builder: &mut MirBuilder,
-        source: &super::raw_structured_child_scope::PreparedRawChildSourceV1, statement: &ASTNode, ordinal: u32,
-        loan: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionOperationLoanV1>,
-    ) -> Result<super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1, String> {
-        use super::recursive_child_lowering_port::RecursiveChildLoweringPortV1;
-        let ASTNode::Local { initial_values, .. } = statement else { return Err(freeze("initializer-expression/local-source")); };
-        let input = initial_values.get(ordinal as usize).and_then(Option::as_deref).ok_or_else(|| freeze("initializer-expression/source-drift"))?;
-        if self.comparison_initializer_emission.is_some() || self.bool_condition_emission.is_some()
-            || !matches!(loan.source().root().initializer().map(|row| row.declaration_site()),
-                Some(crate::mir::resolved_semantics::SourceBindingSiteV1::Local { ordinal: original, .. }) if *original == ordinal) {
-            return Err(freeze("initializer-expression/source-drift"));
-        }
-        let observation = std::rc::Rc::new(std::cell::RefCell::new(ComparisonInitializerObservationV1 { source: loan, ordinal, completed: None }));
-        self.comparison_initializer_emission = Some(std::rc::Rc::clone(&observation));
-        let value = self.with_prepared_child_source_v1(source.clone(), |child| child.lower_expression(builder, input.clone()));
-        self.comparison_initializer_emission = None;
-        let value = value?;
-        let pending = observation.borrow_mut().completed.take().ok_or_else(|| freeze("initializer-expression/comparison-observation"))?;
-        if pending.value() != value { return Err(freeze("initializer-expression/comparison-value")); }
-        Ok(pending)
-    }
-    pub(super) fn observe_initializer_comparison_v1(&mut self, builder: &mut MirBuilder,
-        children: (ValueId, ValueId), completed: &super::ops::CompletedOrdinaryBinaryV1,
-    ) -> Result<(), String> {
-        let Some(observation) = self.comparison_initializer_emission.clone() else { return Ok(()); };
-        let mut observation = observation.borrow_mut();
-        if self.current_source_site_v1().as_ref() != Some(observation.source.source().nodes()[0].site().node()) { return Ok(()); }
-        if observation.completed.is_some() { return Err(freeze("initializer-expression/comparison-repeated")); }
-        let original = completed.comparison_original().ok_or_else(|| freeze("initializer-expression/comparison-writer"))?.clone();
-        let MirInstruction::NullCompare { lhs, rhs, .. } = original.1 else { return Err(freeze("initializer-expression/comparison-writer")); };
-        let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
-        let relations = &mut builder.function_state.local_ssa_correspondence;
-        let left = relations.loan(function, children.0, lhs).ok_or_else(|| freeze("initializer-expression/comparison-left"))?;
-        let right = relations.loan(function, children.1, rhs).ok_or_else(|| freeze("initializer-expression/comparison-right"))?;
-        let mut dependencies = Vec::new();
-        left.append_observed_bindings_v1(&mut dependencies); right.append_observed_bindings_v1(&mut dependencies);
-        observation.completed = Some(super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1::Comparison {
-            ordinal: observation.ordinal, source: std::rc::Rc::clone(&observation.source), value: completed.value(), children,
-            original, operands: [left, right], dependencies,
-        });
-        Ok(())
-    }
-}
+impl RawInvocationChildPortV1<'_, '_> {}

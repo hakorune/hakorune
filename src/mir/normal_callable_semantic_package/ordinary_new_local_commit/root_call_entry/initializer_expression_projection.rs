@@ -8,31 +8,38 @@ use std::rc::Rc;
 type Binding = (BasicBlockId, MirInstruction);
 
 impl OrdinaryNewClaimLedgerV1 {
-    pub(crate) fn comparison_initializer_source_v1(&self, owner: FunctionOwnerIdV1,
-        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
-    ) -> Result<Option<Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionOperationLoanV1>>, String> {
-        let mut rows = self.completion_for_owner(owner).and_then(|row| row.cleanup().root_flow())
-            .into_iter().flat_map(|flow| flow.expression_plans()).filter_map(|plan| plan.comparison_root())
-            .filter(|loan| loan.source().nodes().first().is_some_and(|node| node.site() == site));
-        let row = rows.next().cloned();
-        if rows.next().is_some() || row.as_ref().is_some_and(|loan| loan.source().owner() != owner || loan.nullable_alias_null_v1().is_none()) {
-            return Err(freeze("initializer-expression/comparison-source"));
-        }
-        Ok(row)
-    }
     /// Borrow the already checked source transfer from the same Home flow.
     pub(crate) fn move_initializer_v1(
-        &self, owner: FunctionOwnerIdV1, statement: &crate::mir::resolved_semantics::SourceNodeSiteV1,
-    ) -> Result<Option<(Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>, crate::mir::resolved_semantics::BindingRefV1, OwnedExprSiteV1)>, String> {
-        let Some(flow) = self.completion_for_owner(owner).and_then(|completion| completion.cleanup().root_flow()) else {
+        &self,
+        owner: FunctionOwnerIdV1,
+        statement: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+    ) -> Result<
+        Option<(
+            Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+            crate::mir::resolved_semantics::BindingRefV1,
+            OwnedExprSiteV1,
+        )>,
+        String,
+    > {
+        let Some(flow) = self
+            .completion_for_owner(owner)
+            .and_then(|completion| completion.cleanup().root_flow())
+        else {
             return Ok(None);
         };
-        let mut rows = flow.expression_plans().iter()
+        let mut rows = flow
+            .expression_plans()
+            .iter()
             .filter_map(|plan| plan.move_initializer_v1())
             .filter(|(source, _, _)| source.root().statement().node() == statement);
-        let row = rows.next().map(|(source, from, acquisition)| (Rc::clone(source), from, acquisition.clone()));
-        if rows.next().is_some() || row.as_ref().is_some_and(|(source, from, acquisition)|
-            source.owner() != owner || from.owner() != owner || acquisition.owner() != owner) {
+        let row = rows
+            .next()
+            .map(|(source, from, acquisition)| (Rc::clone(source), from, acquisition.clone()));
+        if rows.next().is_some()
+            || row.as_ref().is_some_and(|(source, from, acquisition)| {
+                source.owner() != owner || from.owner() != owner || acquisition.owner() != owner
+            })
+        {
             return Err(freeze("move-initializer/source-owner-or-duplicate"));
         }
         Ok(row)
@@ -64,7 +71,6 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         Ok(frame)
     }
-
 }
 
 /// The completed Local receipt and the sole original evaluation share one pool.
@@ -85,8 +91,10 @@ pub(crate) struct EmittedInitializerExpressionProjectionV1 {
     inline_range: Option<(BasicBlockId, usize, usize, bool)>,
     terminal: Option<Binding>,
     continuation: Option<Binding>,
-    loop_residency: Option<(Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
-        Vec<crate::mir::builder::BindingValueObservationV2>)>,
+    loop_residency: Option<(
+        Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+        Vec<crate::mir::builder::BindingValueObservationV2>,
+    )>,
     /// The `Materialize` pair when the Local owns a Text snapshot of an owned carrier.
     purpose_acquisition: Option<[Binding; 2]>,
     original: Vec<Binding>,
@@ -99,8 +107,16 @@ impl EmittedInitializerExpressionProjectionV1 {
         end: BasicBlockId,
         value: ValueId,
     ) -> Result<(), String> {
-        if self.value() != value { return Err(freeze("source-loop/binding-frame-correspondence")); }
-        self.expression().corroborate_outer_scope_v1(ledger, &self.entry, &self.continuation, entry, end)
+        if self.value() != value {
+            return Err(freeze("source-loop/binding-frame-correspondence"));
+        }
+        self.expression().corroborate_outer_scope_v1(
+            ledger,
+            &self.entry,
+            &self.continuation,
+            entry,
+            end,
+        )
     }
     pub(crate) fn frame(&self) -> &Rc<CheckedInitializerExpressionFrameV1> {
         &self.frame
@@ -135,14 +151,22 @@ impl EmittedInitializerExpressionProjectionV1 {
             && self.values.first() == Some(&Some(Operand::DynamicCarrier(self.value).into()))
     }
     pub(in crate::mir::normal_callable_semantic_package) fn has_dynamic_alias(&self) -> bool {
-        self.frame.is_dynamic_alias() && self.install.is_none()
+        self.frame.is_dynamic_alias()
+            && self.install.is_none()
             && self.values.first() == Some(&Some(Operand::Dynamic(self.value).into()))
-            && self.copy.as_ref().is_some_and(|(_, row)| matches!(row,
-                MirInstruction::Copy { dst, src } if *dst == self.local && *src == self.value))
+            && self.copy.as_ref().is_some_and(|(_, row)| {
+                matches!(row,
+                MirInstruction::Copy { dst, src } if *dst == self.local && *src == self.value)
+            })
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn dynamic_read_binding_v1(&self) -> Result<&Binding, String> {
+    pub(in crate::mir::normal_callable_semantic_package) fn dynamic_read_binding_v1(
+        &self,
+    ) -> Result<&Binding, String> {
         if self.has_dynamic_alias() {
-            return self.copy.as_ref().ok_or_else(|| freeze("initializer-expression/local-copy-receipt"));
+            return self
+                .copy
+                .as_ref()
+                .ok_or_else(|| freeze("initializer-expression/local-copy-receipt"));
         }
         self.dynamic_result_binding_v1()
     }
@@ -150,7 +174,9 @@ impl EmittedInitializerExpressionProjectionV1 {
         &self,
     ) -> Result<&Binding, String> {
         if !self.has_dynamic_carrier() {
-            return Err(freeze("initializer-expression/dynamic-carrier-local-handoff"));
+            return Err(freeze(
+                "initializer-expression/dynamic-carrier-local-handoff",
+            ));
         }
         let Some(root) = self.frame.source().nodes().first() else {
             return Err(freeze("initializer-expression/dynamic-source-root"));
@@ -159,14 +185,23 @@ impl EmittedInitializerExpressionProjectionV1 {
             self.frame.source().owner(),
             root.site().clone(),
         );
-        let mut ordinary = self.calls.iter().filter(|call| call.call_site() == &site
-            && call.original_source().result() == Some(crate::mir::instruction::InvokeCallResultKind::DynamicCarrier));
+        let mut ordinary = self.calls.iter().filter(|call| {
+            call.call_site() == &site
+                && call.original_source().result()
+                    == Some(crate::mir::instruction::InvokeCallResultKind::DynamicCarrier)
+        });
         if let Some(call) = ordinary.next() {
-            if ordinary.next().is_some() || self.dynamic_calls.iter().any(|call| call.source().site() == &site) {
+            if ordinary.next().is_some()
+                || self
+                    .dynamic_calls
+                    .iter()
+                    .any(|call| call.source().site() == &site)
+            {
                 return Err(freeze("initializer-expression/dynamic-result-pair"));
             }
             let (_, normal) = call.outer_bindings()?;
-            if !matches!(normal.1, MirInstruction::InvokeNormalResult { dst, .. } if dst == self.value) {
+            if !matches!(normal.1, MirInstruction::InvokeNormalResult { dst, .. } if dst == self.value)
+            {
                 return Err(freeze("initializer-expression/dynamic-result-pair"));
             }
             return Ok(normal);
@@ -205,24 +240,37 @@ impl EmittedInitializerExpressionProjectionV1 {
     /// Scalar dependencies of this same complete initializer. Call/field/
     /// ownership effects keep their own source consumers and are never lent.
     pub(in crate::mir::normal_callable_semantic_package) fn scalar_source_bindings_v1(
-        &self, context: CallValidationContextV1<'_>,
+        &self,
+        context: CallValidationContextV1<'_>,
     ) -> Result<Vec<Binding>, String> {
-        if !self.frame.is_i64() && !self.frame.is_bool() { return Err(freeze("expression/scalar-entry-contract")); }
+        if !self.frame.is_i64() && !self.frame.is_bool() {
+            return Err(freeze("expression/scalar-entry-contract"));
+        }
         let expression = self.expression();
         let mut source = expression.ordered_bindings_in_context(context)?;
         source.extend(expression.scalar_copy_dependencies_v1(context)?);
-        for read in self.reference_reads.values() { source.extend(read.dependencies()?); }
+        for read in self.reference_reads.values() {
+            source.extend(read.dependencies()?);
+        }
         source.extend(self.receipt_copy_binding_v1().cloned());
         let mut bindings = Vec::new();
-        for binding in source.into_iter().filter(|(_, instruction)| matches!(instruction,
-            MirInstruction::Copy { .. } | MirInstruction::Phi { .. }
-                | MirInstruction::BinOp { .. } | MirInstruction::Compare { .. })) {
-            if !bindings.contains(&binding) { bindings.push(binding); }
+        for binding in source.into_iter().filter(|(_, instruction)| {
+            matches!(
+                instruction,
+                MirInstruction::Copy { .. }
+                    | MirInstruction::Phi { .. }
+                    | MirInstruction::BinOp { .. }
+                    | MirInstruction::Compare { .. }
+            )
+        }) {
+            if !bindings.contains(&binding) {
+                bindings.push(binding);
+            }
         }
         Ok(bindings)
     }
 
-    pub(super) fn source_loop_dependencies_v1(
+    pub(super) fn source_dependencies_v1(
         &self,
         context: CallValidationContextV1<'_>,
     ) -> Result<Vec<Binding>, String> {
@@ -277,8 +325,10 @@ impl EmittedInitializerExpressionProjectionV1 {
         inline_range: Option<(BasicBlockId, usize, usize, bool)>,
         terminal: Option<Binding>,
         continuation: Option<Binding>,
-        loop_residency: Option<(Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
-            Vec<crate::mir::builder::BindingValueObservationV2>)>,
+        loop_residency: Option<(
+            Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+            Vec<crate::mir::builder::BindingValueObservationV2>,
+        )>,
         purpose_acquisition: Option<[Binding; 2]>,
         original: Vec<Binding>,
         ledger: &OrdinaryNewClaimLedgerV1,
@@ -335,46 +385,85 @@ impl EmittedInitializerExpressionProjectionV1 {
     /// Lend original tagged inputs of source-checked String Add operations.
     /// The caller first validates this SAME packet and its finished group.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn visit_tagged_text_operands_v1(
-        &self, context: CallValidationContextV1<'_>, function: &MirFunction,
+        &self,
+        context: CallValidationContextV1<'_>,
+        function: &MirFunction,
         finishing: &super::super::physical_boundary::FinishedBindings,
         mut visit: impl FnMut(&Binding, usize, BindingRefV1, ValueId) -> Result<(), String>,
     ) -> Result<(), String> {
-        use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1 as Reference;
         use crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1 as Normal;
+        use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1 as Reference;
         let frame = self.frame.evaluation();
         let expression = self.expression();
         for loan in frame.operations() {
             let index = loan.node();
-            if frame.transfers_node(index) { continue; }
-            let Some(binary) = frame.source().nodes().get(index).and_then(|node| node.binary()) else { continue; };
+            if frame.transfers_node(index) {
+                continue;
+            }
+            let Some(binary) = frame
+                .source()
+                .nodes()
+                .get(index)
+                .and_then(|node| node.binary())
+            else {
+                continue;
+            };
             if binary.operator() != crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Add
-                || loan.normal_result_v1() != Some(Normal::OwnedStringValue) { continue; }
-            if !Rc::ptr_eq(loan.source(), frame.source()) { return Err(freeze("print-expression/add-source")); }
-            let Some(EvaluatedExpressionValueV1::Operand(Operand::OwnedString(result))) = self.values.get(index).and_then(Option::as_ref)
-                else { return Err(freeze("print-expression/add-values")); };
-            let normal = expression.require_unique(|row| matches!(row,
-                MirInstruction::InvokeNormalResult { dst, .. } if dst == result))?;
-            let MirInstruction::InvokeNormalResult { invoke_block, .. } = normal.1 else { unreachable!() };
+                || loan.normal_result_v1() != Some(Normal::OwnedStringValue)
+            {
+                continue;
+            }
+            if !Rc::ptr_eq(loan.source(), frame.source()) {
+                return Err(freeze("print-expression/add-source"));
+            }
+            let Some(EvaluatedExpressionValueV1::Operand(Operand::OwnedString(result))) =
+                self.values.get(index).and_then(Option::as_ref)
+            else {
+                return Err(freeze("print-expression/add-values"));
+            };
+            let normal = expression.require_unique(|row| {
+                matches!(row,
+                MirInstruction::InvokeNormalResult { dst, .. } if dst == result)
+            })?;
+            let MirInstruction::InvokeNormalResult { invoke_block, .. } = normal.1 else {
+                unreachable!()
+            };
             let invoke = expression.require_unique(|row| matches!(row,
                 MirInstruction::Invoke { operation: InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::Add { .. }), normal_landing, .. }
                     if *normal_landing == normal.0))?;
-            if invoke.0 != invoke_block { return Err(freeze("print-expression/add-producer")); }
+            if invoke.0 != invoke_block {
+                return Err(freeze("print-expression/add-producer"));
+            }
             for (side, site) in [binary.lhs(), binary.rhs()].into_iter().enumerate() {
-                let node = frame.source().nodes().iter().position(|node| node.site() == site)
+                let node = frame
+                    .source()
+                    .nodes()
+                    .iter()
+                    .position(|node| node.site() == site)
                     .ok_or_else(|| freeze("print-expression/dynamic-add-operand"))?;
-                let Some(EvaluatedExpressionValueV1::Operand(Operand::Dynamic(value))) = self.values.get(node).and_then(Option::as_ref)
-                    else { continue; };
+                let Some(EvaluatedExpressionValueV1::Operand(Operand::Dynamic(value))) =
+                    self.values.get(node).and_then(Option::as_ref)
+                else {
+                    continue;
+                };
                 let formal = match frame.references().get(&node) {
-                    Some(Reference::FiniteEntry { read, exclusion }) if read.tagged_string_integer_only_v1(exclusion.as_deref()) => {
+                    Some(Reference::FiniteEntry { read, exclusion })
+                        if read.tagged_string_integer_only_v1(exclusion.as_deref()) =>
+                    {
                         if let Some(exclusion) = exclusion {
-                            context.validate_finite_entry_nonnull_use_v1(read, exclusion, function, finishing, invoke)?;
+                            context.validate_finite_entry_nonnull_use_v1(
+                                read, exclusion, function, finishing, invoke,
+                            )?;
                         }
                         read.requirement().formal().1
                     }
                     Some(Reference::DynamicEntry(read)) => read.requirement().formal().1,
                     _ => continue,
                 };
-                let read = self.reference_reads.get(&node).ok_or_else(|| freeze("expression/reference-read-missing"))?;
+                let read = self
+                    .reference_reads
+                    .get(&node)
+                    .ok_or_else(|| freeze("expression/reference-read-missing"))?;
                 if read.operand(frame, node, context)? != Operand::Dynamic(*value) {
                     return Err(freeze("expression/reference-source-value"));
                 }
@@ -383,7 +472,9 @@ impl EmittedInitializerExpressionProjectionV1 {
         }
         Ok(())
     }
-    pub(super) fn expression(&self) -> super::expression_projection::ExpressionPhysicalProjectionRefV1<'_> {
+    pub(super) fn expression(
+        &self,
+    ) -> super::expression_projection::ExpressionPhysicalProjectionRefV1<'_> {
         super::expression_projection::ExpressionPhysicalProjectionRefV1::new_with_dynamic(
             self.frame.evaluation(),
             &self.values,
@@ -392,7 +483,8 @@ impl EmittedInitializerExpressionProjectionV1 {
             &self.path_reads,
             &self.reference_reads,
             &self.original,
-        ).with_inline_range_v1(self.inline_range)
+        )
+        .with_inline_range_v1(self.inline_range)
     }
     fn validate_source(&self, context: CallValidationContextV1<'_>) -> Result<(), String> {
         let selected = context
@@ -415,16 +507,24 @@ impl EmittedInitializerExpressionProjectionV1 {
             match &self.purpose_acquisition {
                 Some([invoke, _]) => match &invoke.1 {
                     MirInstruction::Invoke {
-                        operation: InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::Materialize { value }),
+                        operation:
+                            InvokeOperation::String(
+                                crate::mir::instruction::StringInvokeOperation::Materialize {
+                                    value,
+                                },
+                            ),
                         ..
                     } => match value {
-                        crate::mir::instruction::StringInvokeOperand::DynamicCarrier(carrier) => Operand::DynamicCarrier(*carrier),
+                        crate::mir::instruction::StringInvokeOperand::DynamicCarrier(carrier) => {
+                            Operand::DynamicCarrier(*carrier)
+                        }
                         _ => return Err(freeze("initializer-expression/source-or-result")),
                     },
                     _ => return Err(freeze("initializer-expression/source-or-result")),
                 },
                 None => Operand::OwnedString(self.value),
-            }.into()
+            }
+            .into()
         } else {
             return Err(freeze("initializer-expression/source-or-result"));
         };
@@ -435,7 +535,11 @@ impl EmittedInitializerExpressionProjectionV1 {
             if !matches!(&invoke.1, MirInstruction::Invoke {
                     operation: InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::Materialize { .. }),
                     normal_landing, .. } if *normal_landing == normal.0)
-                || normal.1 != (MirInstruction::InvokeNormalResult { invoke_block: invoke.0, dst: self.value })
+                || normal.1
+                    != (MirInstruction::InvokeNormalResult {
+                        invoke_block: invoke.0,
+                        dst: self.value,
+                    })
                 || !self.original.contains(invoke)
                 || !self.original.contains(normal)
             {
@@ -444,20 +548,26 @@ impl EmittedInitializerExpressionProjectionV1 {
         }
         if !Rc::ptr_eq(&selected, &self.frame)
             || self.values.first() != Some(&Some(expected))
-            || context.ledger().expression_requires_fault_frame_v1(self.frame.evaluation()) && !matches!(
-                self.terminal.as_ref().map(|row| &row.1),
-                Some(MirInstruction::Jump {
-                    edge_args: None,
-                    ..
-                })
-            )
-            || context.ledger().expression_requires_fault_frame_v1(self.frame.evaluation()) && !matches!(
-                self.continuation.as_ref().map(|row| &row.1),
-                Some(MirInstruction::Jump {
-                    edge_args: None,
-                    ..
-                })
-            )
+            || context
+                .ledger()
+                .expression_requires_fault_frame_v1(self.frame.evaluation())
+                && !matches!(
+                    self.terminal.as_ref().map(|row| &row.1),
+                    Some(MirInstruction::Jump {
+                        edge_args: None,
+                        ..
+                    })
+                )
+            || context
+                .ledger()
+                .expression_requires_fault_frame_v1(self.frame.evaluation())
+                && !matches!(
+                    self.continuation.as_ref().map(|row| &row.1),
+                    Some(MirInstruction::Jump {
+                        edge_args: None,
+                        ..
+                    })
+                )
         {
             return Err(freeze("initializer-expression/source-or-result"));
         }
@@ -515,7 +625,10 @@ impl EmittedInitializerExpressionProjectionV1 {
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
         self.expression().validate_recorded(bindings, finishing)?;
-        for expected in [&self.entry, &self.terminal, &self.continuation].into_iter().flatten() {
+        for expected in [&self.entry, &self.terminal, &self.continuation]
+            .into_iter()
+            .flatten()
+        {
             if !self.original.contains(expected) {
                 return Err(freeze("initializer-expression/structural-membership"));
             }
@@ -545,9 +658,20 @@ impl EmittedInitializerExpressionProjectionV1 {
             self.local,
             self.copy.as_ref(),
         )?;
-        let unwind = self.loop_residency.as_ref().map(|(product, reads)|
-            context.ledger().loop_expression_text_unwind_v2(self.frame.evaluation(), product, reads,
-                context, function, finishing)).transpose()?;
+        let unwind = self
+            .loop_residency
+            .as_ref()
+            .map(|(product, reads)| {
+                context.ledger().loop_expression_text_unwind_v2(
+                    self.frame.evaluation(),
+                    product,
+                    reads,
+                    context,
+                    function,
+                    finishing,
+                )
+            })
+            .transpose()?;
         let expression = self.expression();
         let expression = match &unwind {
             Some(unwind) => expression.with_prior_home_unwind(unwind),
@@ -618,83 +742,3 @@ mod tests;
 
 #[path = "initializer_local_copy.rs"]
 mod local_copy;
-
-
-/// Source-only comparison receipt in the existing evaluated-binding pool.
-#[derive(Debug)]
-pub(crate) struct EmittedComparisonInitializerProjectionV1 {
-    source: Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionOperationLoanV1>,
-    value: ValueId, local: ValueId, copy: Option<Binding>,
-    children: (ValueId, ValueId), original: Binding,
-    operands: [Rc<crate::mir::builder::LocalSsaPhysicalRelationV1>; 2],
-    dependencies: Vec<Binding>,
-}
-impl EmittedComparisonInitializerProjectionV1 {
-    pub(super) fn copy_receipt_v1(&self) -> Option<(ValueId, ValueId, &Binding)> {
-        Some((self.local, self.value, self.copy.as_ref()?))
-    }
-    pub(super) fn source(&self) -> &Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionOperationLoanV1> { &self.source }
-    pub(super) fn validate(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
-        bindings: &[Binding], coordinates: Option<&super::super::physical_boundary::FinishedBindings>,
-        finishing: Option<&super::super::physical_boundary::FinishedBindings>,
-    ) -> Result<(), String> {
-        let source = self.source.source();
-        let current = context.ledger().comparison_initializer_source_v1(source.owner(), source.nodes()[0].site())?
-            .ok_or_else(|| freeze("initializer-expression/comparison-source"))?;
-        if !Rc::ptr_eq(&current, &self.source) { return Err(freeze("initializer-expression/comparison-source")); }
-        let plan = self.source.alias_comparison_plan_v1().map_err(freeze)?;
-        let (lhs, rhs) = match &self.original.1 {
-            MirInstruction::NullCompare { dst, lhs, rhs, .. } if *dst == self.value => (*lhs, *rhs),
-            _ => return Err(freeze("initializer-expression/comparison-original")),
-        };
-        if plan.instruction_v1(self.value, lhs, rhs).as_ref() != Some(&self.original.1)
-            || self.operands[0].values() != (self.children.0, lhs) || self.operands[1].values() != (self.children.1, rhs) {
-            return Err(freeze("initializer-expression/comparison-operands"));
-        }
-        let (_, null) = self.source.nullable_alias_null_v1().ok_or_else(|| freeze("initializer-expression/comparison-source"))?;
-        let [left, _] = plan.operands().ok_or_else(|| freeze("initializer-expression/comparison-source"))?;
-        let original_null = if null == left { self.children.0 } else { self.children.1 };
-        let mut null_rows = self.dependencies.iter().filter(|(_, row)| row.dst_value() == Some(original_null));
-        if !matches!(null_rows.next(), Some((_, MirInstruction::Const { value: crate::mir::ConstValue::Null, .. })))
-            || null_rows.next().is_some() { return Err(freeze("initializer-expression/comparison-null-source")); }
-        let map = |binding: &Binding| match finishing {
-            Some(boundary) => boundary.relation_binding(function, binding), None => Ok(Some(binding.clone())),
-        };
-        let mut expected = self.dependencies.clone();
-        if !expected.contains(&self.original) { expected.push(self.original.clone()); }
-        if let Some(copy) = &self.copy { if !expected.contains(copy) { expected.push(copy.clone()); } }
-        let projected = match coordinates { Some(boundary) => boundary.bindings(&expected)?, None => expected.clone() };
-        if bindings != projected { return Err(freeze("initializer-expression/comparison-inventory")); }
-        let actual = map(&self.original)?;
-        if actual.is_some() {
-            for relation in &self.operands { relation.verify_projected(function, &mut |binding| map(binding))?; }
-        }
-        let physical = expected.iter().map(map).collect::<Result<Vec<_>,_>>()?.into_iter().flatten().collect::<Vec<_>>();
-        if actual.as_ref().is_some_and(|actual| actual.1 != self.original.1) { return Err(freeze("initializer-expression/comparison-drift")); }
-        for binding in &physical {
-            if !super::super::physical_boundary::check_binding(function, None, binding.0, &binding.1)? {
-                return Err(freeze("initializer-expression/comparison-binding"));
-            }
-        }
-        context.ledger().validate_initializer_local_copy_v1(context, function, finishing,
-            self.value, self.local, self.copy.as_ref())?;
-        Ok(())
-    }
-}
-impl OrdinaryNewClaimLedgerV1 {
-    pub(crate) fn prepare_comparison_initializer_bindings_v1(&self,
-        source: Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionOperationLoanV1>,
-        value: ValueId, local: ValueId, copy: Option<Binding>, children: (ValueId, ValueId), original: Binding,
-        operands: [Rc<crate::mir::builder::LocalSsaPhysicalRelationV1>; 2], dependencies: Vec<Binding>,
-        function: &MirFunction,
-    ) -> Result<PreparedLifecyclePrefixBindingGroupV1<'_>, String> {
-        let owner = source.source().owner();
-        let mut bindings = dependencies.clone();
-        if !bindings.contains(&original) { bindings.push(original.clone()); }
-        if let Some(copy) = &copy { if !bindings.contains(copy) { bindings.push(copy.clone()); } }
-        let packet = Rc::new(EmittedComparisonInitializerProjectionV1 { source, value, local, copy,
-            children, original, operands, dependencies });
-        packet.validate(CallValidationContextV1::Lowering(self), function, &bindings, None, None)?;
-        self.prepare_local_call_binding_group(owner, RootLifecyclePrefixBindingGroupV1::new_comparison_initializer(packet, bindings))
-    }
-}

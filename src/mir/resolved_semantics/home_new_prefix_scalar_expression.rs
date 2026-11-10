@@ -14,7 +14,9 @@ mod scalar_preflight;
 mod static_eq_condition;
 use crate::mir::resolved_value_profile::expression_children::binary_children_v1;
 use scalar_preflight::preflight;
-pub(super) use scalar_preflight::{is_arithmetic_operator_v1, is_comparison_operator_v1, is_logical_operator_v1};
+pub(super) use scalar_preflight::{
+    is_arithmetic_operator_v1, is_comparison_operator_v1, is_logical_operator_v1,
+};
 pub(in crate::mir) use static_eq_condition::contains_exact_lhs as contains_static_eq_lhs_source_v1;
 
 pub(super) fn observe_local_initializer<E>(
@@ -32,7 +34,10 @@ pub(super) fn observe_local_initializer<E>(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
-) -> Result<Option<(SourceScalarKind, Vec<LocalCallObservationV1>)>, E> {
+) -> Result<
+    Result<Option<(SourceScalarKind, Vec<LocalCallObservationV1>)>, HomePrefixUnavailableV1>,
+    E,
+> {
     observe_scalar_expression_with_operation(
         operation,
         input,
@@ -71,7 +76,10 @@ pub(super) fn observe_scalar_expression<E>(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
-) -> Result<Option<(SourceScalarKind, Vec<LocalCallObservationV1>)>, E> {
+) -> Result<
+    Result<Option<(SourceScalarKind, Vec<LocalCallObservationV1>)>, HomePrefixUnavailableV1>,
+    E,
+> {
     observe_scalar_expression_with_operation(
         &mut None,
         input,
@@ -106,7 +114,10 @@ fn observe_scalar_expression_with_operation<E>(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
-) -> Result<Option<(SourceScalarKind, Vec<LocalCallObservationV1>)>, E> {
+) -> Result<
+    Result<Option<(SourceScalarKind, Vec<LocalCallObservationV1>)>, HomePrefixUnavailableV1>,
+    E,
+> {
     if required == Some(SourceScalarKind::Bool) && !local_initializer_profile {
         if let Some(calls) = static_eq_condition::observe(
             input,
@@ -116,7 +127,7 @@ fn observe_scalar_expression_with_operation<E>(
             static_call,
             borrowed_actuals,
         )? {
-            return Ok(Some((SourceScalarKind::Bool, calls)));
+            return Ok(Ok(Some((SourceScalarKind::Bool, calls))));
         }
         if let Some((if_site, call_site)) = if_current_owner_ge_zero_call(input, site) {
             if if_site == *statement {
@@ -131,9 +142,9 @@ fn observe_scalar_expression_with_operation<E>(
                     borrowed_actuals,
                 )?
                 else {
-                    return Ok(None);
+                    return Ok(Ok(None));
                 };
-                return Ok(Some((SourceScalarKind::Bool, vec![call])));
+                return Ok(Ok(Some((SourceScalarKind::Bool, vec![call]))));
             }
         }
     }
@@ -153,16 +164,16 @@ fn observe_scalar_expression_with_operation<E>(
             static_call,
             borrowed_actuals,
         )? {
-            return Ok(Some((SourceScalarKind::Integer, vec![call])));
+            return Ok(Ok(Some((SourceScalarKind::Integer, vec![call]))));
         }
     }
     let mut requests = Vec::new();
     let mut calls = Vec::new();
     let mut prepared_operation = None;
     let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else {
-        return Ok(None);
+        return Ok(Ok(None));
     };
-    let Some(kind) = preflight(
+    let kind = match preflight(
         &mut prepared_operation,
         input,
         &ledger,
@@ -178,12 +189,13 @@ fn observe_scalar_expression_with_operation<E>(
         true,
         false,
         checked_compare_operand,
-    )?
-    else {
-        return Ok(None);
+    )? {
+        Ok(Some(kind)) => kind,
+        Ok(None) => return Ok(Ok(None)),
+        Err(issue) => return Ok(Err(issue)),
     };
     if required.is_some_and(|expected| expected != kind) {
-        return Ok(None);
+        return Ok(Ok(None));
     }
     // LOCAL readiness lends a field value, while this read's cleanup uses the
     // current evaluation snapshot. Retain the whole original initializer even
@@ -200,16 +212,16 @@ fn observe_scalar_expression_with_operation<E>(
                 .initializers()
                 .filter(|row| row.initializer_site() == Some(site));
             let Some(initializer) = rows.next() else {
-                return Ok(None);
+                return Ok(Ok(None));
             };
             if rows.next().is_some()
                 || !matches!(initializer.declaration_site(),
                 SourceBindingSiteV1::Local { statement: original, .. } if original == statement)
             {
-                return Ok(None);
+                return Ok(Ok(None));
             }
             let Ok(source) = crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(
-                &ledger, input.body_shape(), initializer) else { return Ok(None) };
+                &ledger, input.body_shape(), initializer) else { return Ok(Ok(None)) };
             source
         };
         let Some(plan) = HomeExpressionPlanV1::initializer_reads(
@@ -218,7 +230,7 @@ fn observe_scalar_expression_with_operation<E>(
             prepared_operation.take(),
             &requests,
         ) else {
-            return Ok(None);
+            return Ok(Ok(None));
         };
         Some(plan)
     } else {
@@ -229,7 +241,7 @@ fn observe_scalar_expression_with_operation<E>(
         .map(|_| locals.expression_installation());
     if let (Some(plan), Some(installation)) = (&initializer_plan, &mut installation) {
         if !installation.approve(plan) {
-            return Ok(None);
+            return Ok(Ok(None));
         }
     }
     if !requests.is_empty() {
@@ -241,14 +253,14 @@ fn observe_scalar_expression_with_operation<E>(
             })
             .unwrap_or(LocalFieldReadDemandV1::Declared { scalar_only: true });
         let Some(results) = field_source.local_field_read(&requests, demand)? else {
-            return Ok(None);
+            return Ok(Ok(None));
         };
         if results.len() != requests.len()
             || results
                 .iter()
                 .any(|result| *result != LocalFieldReadResultV1::Scalar)
         {
-            return Ok(None);
+            return Ok(Ok(None));
         }
     }
     // Publish only after the whole original expression is proved. A rejected
@@ -263,7 +275,7 @@ fn observe_scalar_expression_with_operation<E>(
         installation.commit();
     }
     *operation = prepared_operation;
-    Ok(Some((kind, calls)))
+    Ok(Ok(Some((kind, calls))))
 }
 
 pub(super) enum GuardedMulReturnV1 {

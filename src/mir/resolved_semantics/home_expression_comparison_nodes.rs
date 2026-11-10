@@ -85,7 +85,10 @@ impl CheckedExpressionEvaluationV1 {
                 kind,
             })
         };
-        if loan.nullable_field_null_v1().is_some() || loan.nullable_null_v1().is_some() {
+        if loan.nullable_field_null_v1().is_some()
+            || loan.nullable_null_v1().is_some()
+            || loan.nullable_alias_null_v1().is_some()
+        {
             return Ok(plan(Kind::Null));
         }
         let Some(envelope) = loan.single_envelope() else {
@@ -305,7 +308,6 @@ impl CheckedExpressionEvaluationV1 {
 /// Original syntax facts do not grant carrier admission or a source loan.
 enum ComparisonEvidenceV1<'a> {
     Checked(&'a CheckedExpressionEvaluationV1, usize),
-    Alias(&'a CheckedExpressionOperationLoanV1),
     Original(
         &'a crate::mir::resolved_semantics::ResolvedExpressionSourceInventoryV1,
         &'a crate::mir::resolved_semantics::SourceExprSiteV1,
@@ -316,27 +318,6 @@ fn comparison_execution_plan_v1(
 ) -> Result<Option<ComparisonExecutionPlanV1>, &'static str> {
     match evidence {
         ComparisonEvidenceV1::Checked(frame, node) => frame.checked_comparison_plan_v1(node),
-        ComparisonEvidenceV1::Alias(loan) => {
-            let (reference, null) = loan
-                .nullable_alias_null_v1()
-                .ok_or("bool-condition/operator-source")?;
-            let binary = loan.source().nodes()[loan.node()]
-                .binary()
-                .ok_or("bool-condition/operator-source")?;
-            let operands = if loan.source().nodes()[reference].site() == binary.lhs() {
-                [reference, null]
-            } else {
-                [null, reference]
-            };
-            Ok(Some(ComparisonExecutionPlanV1 {
-                operator: binary
-                    .operator()
-                    .compare_op()
-                    .ok_or("bool-condition/operator-kind")?,
-                operands: Some(operands),
-                kind: ComparisonExecutionKindV1::Null,
-            }))
-        }
         ComparisonEvidenceV1::Original(source, site) => {
             let Some(binary) = source.binary(site) else {
                 return Ok(None);
@@ -394,14 +375,5 @@ impl ComparisonExecutionPlanV1 {
             }),
             _ => None,
         }
-    }
-}
-
-impl CheckedExpressionOperationLoanV1 {
-    pub(crate) fn alias_comparison_plan_v1(
-        &self,
-    ) -> Result<ComparisonExecutionPlanV1, &'static str> {
-        comparison_execution_plan_v1(ComparisonEvidenceV1::Alias(self))?
-            .ok_or("bool-condition/operator-source")
     }
 }

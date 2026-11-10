@@ -186,6 +186,9 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                         matches!(context, CallValidationContextV1::Finalized(_)),
                     )?
                 }
+                Some(boundary) if original.1.dst_value().is_some() => {
+                    boundary.relation_binding(function, original)?
+                }
                 _ => Some(mapped(original)?),
             };
             if let Some(current) = current {

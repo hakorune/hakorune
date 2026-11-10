@@ -9,7 +9,10 @@ pub(crate) enum LifecyclePrefixSourceV1 {
         site: OwnedExprSiteV1,
         product: std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
     },
-    FieldMapInstall { site: OwnedExprSiteV1, frame: std::rc::Rc<MapFieldInstallV1> },
+    FieldMapInstall {
+        site: OwnedExprSiteV1,
+        frame: std::rc::Rc<MapFieldInstallV1>,
+    },
     StoredMapGet {
         site: OwnedExprSiteV1,
         frame: std::rc::Rc<MapFieldGetLocalV1>,
@@ -41,14 +44,15 @@ pub(crate) enum LifecyclePrefixSourceV1 {
         site: OwnedExprSiteV1,
         frame: std::rc::Rc<CheckedBindingRebindFrameV1>,
     },
-    ComparisonInitializer { site: OwnedExprSiteV1, operation: std::rc::Rc<CheckedExpressionOperationLoanV1> },
     InitializerExpression {
         site: OwnedExprSiteV1,
         frame: std::rc::Rc<CheckedInitializerExpressionFrameV1>,
     },
     SharedInitializer {
         site: OwnedExprSiteV1,
-        source: std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+        source: std::rc::Rc<
+            crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
+        >,
     },
     PrintExpression {
         site: OwnedExprSiteV1,
@@ -66,7 +70,6 @@ impl LifecyclePrefixSourceV1 {
             | Self::StoredMapGet { site, .. }
             | Self::Loop { site, .. }
             | Self::BindingRebind { site, .. }
-            | Self::ComparisonInitializer { site, .. }
             | Self::InitializerExpression { site, .. }
             | Self::SharedInitializer { site, .. }
             | Self::BorrowedFieldWrite { site, .. }
@@ -87,7 +90,6 @@ impl LifecyclePrefixSourceV1 {
             Self::FieldArrayAppend { proof, .. } => proof.site(),
             Self::FieldTextAppend { frame, .. } => frame.statement(),
             Self::BindingRebind { frame, .. } => frame.source().root().statement(),
-            Self::ComparisonInitializer { operation, .. } => operation.source().root().statement(),
             Self::InitializerExpression { frame, .. } => frame.source().root().statement(),
             Self::SharedInitializer { source, .. } => source.root().statement(),
             Self::PrintExpression { frame, .. } => frame.source().root().statement(),
@@ -102,7 +104,6 @@ impl LifecyclePrefixSourceV1 {
             | Self::StoredMapGet { .. }
             | Self::Loop { .. }
             | Self::BindingRebind { .. }
-            | Self::ComparisonInitializer { .. }
             | Self::InitializerExpression { .. }
             | Self::SharedInitializer { .. }
             | Self::BorrowedFieldWrite { .. }
@@ -140,8 +141,14 @@ impl RootHomeFlow {
             .filter_map(HomeExpressionPlanV1::loop_recipe_v2)
             .collect();
         // A child Loop is a lifecycle group of its parent Loop, not of the root.
-        let loops: Vec<_> = all_loops.iter().copied()
-            .filter(|product| !all_loops.iter().any(|parent| parent.owns_child_loop_v2(product)))
+        let loops: Vec<_> = all_loops
+            .iter()
+            .copied()
+            .filter(|product| {
+                !all_loops
+                    .iter()
+                    .any(|parent| parent.owns_child_loop_v2(product))
+            })
             .collect();
         let standalone = |plan: &&HomeExpressionPlanV1| {
             !loops
@@ -245,11 +252,6 @@ impl RootHomeFlow {
                     frame: std::rc::Rc::clone(frame),
                 }),
         );
-        prefixes.extend(self.expression_plans.iter().filter(standalone).filter_map(HomeExpressionPlanV1::comparison_root)
-            .map(|operation| LifecyclePrefixSourceV1::ComparisonInitializer {
-                site: OwnedExprSiteV1::new(operation.source().owner(), operation.source().nodes()[0].site().clone()),
-                operation: std::rc::Rc::clone(operation),
-            }));
         prefixes.extend(initializers.into_iter().map(|frame| {
             LifecyclePrefixSourceV1::InitializerExpression {
                 site: OwnedExprSiteV1::new(
@@ -259,12 +261,16 @@ impl RootHomeFlow {
                 frame: std::rc::Rc::clone(frame),
             }
         }));
-        prefixes.extend(self.expression_plans.iter().filter(standalone)
-            .filter_map(HomeExpressionPlanV1::shared_initializer_source_v1)
-            .map(|source| LifecyclePrefixSourceV1::SharedInitializer {
-                site: OwnedExprSiteV1::new(source.owner(), source.nodes()[0].site().clone()),
-                source: std::rc::Rc::clone(source),
-            }));
+        prefixes.extend(
+            self.expression_plans
+                .iter()
+                .filter(standalone)
+                .filter_map(HomeExpressionPlanV1::shared_initializer_source_v1)
+                .map(|source| LifecyclePrefixSourceV1::SharedInitializer {
+                    site: OwnedExprSiteV1::new(source.owner(), source.nodes()[0].site().clone()),
+                    source: std::rc::Rc::clone(source),
+                }),
+        );
         prefixes.extend(
             rebinds
                 .into_iter()
@@ -363,7 +369,8 @@ impl RootHomeFlow {
         for observation in &self.maps {
             if let MapHomeObservation::FieldInstall(frame) = observation {
                 prefixes.push(LifecyclePrefixSourceV1::FieldMapInstall {
-                    site: frame.site().clone(), frame: std::rc::Rc::clone(frame),
+                    site: frame.site().clone(),
+                    frame: std::rc::Rc::clone(frame),
                 });
             }
             if let MapHomeObservation::FieldGet(frame) = observation {

@@ -14,20 +14,21 @@ use crate::mir::resolved_value_profile::expression_plan::{
 use std::rc::Rc;
 #[path = "home_expression_nullable_result.rs"]
 mod nullable_result;
-pub(crate) use nullable_result::{DeclaredReadValueV1, DeclaredReadReceiverV1, BorrowedResultReadV1, BranchCallResultSourceV1, DeclaredCallReadSourceV1, SourceCallResultReadV1, NullableResultReferenceV1};
+pub(crate) use nullable_result::{
+    BorrowedResultReadV1, BranchCallResultSourceV1, DeclaredCallReadSourceV1,
+    DeclaredReadReceiverV1, DeclaredReadValueV1, NullableResultReferenceV1, SourceCallResultReadV1,
+};
 #[path = "home_expression_operator_loan.rs"]
 mod operator_loan;
 pub(crate) use operator_loan::CheckedExpressionOperationLoanV1;
 use operator_loan::CheckedExpressionOperationProofV1;
 
-#[path = "home_expression_shared.rs"]
-mod shared;
 #[path = "home_expression_leaves.rs"]
 mod leaves;
+#[path = "home_expression_shared.rs"]
+mod shared;
 pub(crate) use leaves::ExpressionCallSourceV1;
-pub(super) use leaves::{
-    prepare_expression_calls_v1, ExpressionLeafProfileV1,
-};
+pub(super) use leaves::{prepare_expression_calls_v1, ExpressionLeafProfileV1};
 #[path = "home_field_write_expression.rs"]
 mod field_write_expression;
 pub(super) use field_write_expression::qualify_field_write_expression_v1;
@@ -46,14 +47,15 @@ pub(crate) use argument_expression::{
 };
 #[path = "home_initializer_expression.rs"]
 mod initializer_expression;
+pub(super) use initializer_expression::qualify_alias_null_initializer_v1;
 pub(crate) use initializer_expression::{
     qualify_initializer_expression_v1, CheckedInitializerExpressionFrameV1,
 };
 #[path = "home_binding_rebind_expression.rs"]
 mod binding_rebind_expression;
 pub(crate) use binding_rebind_expression::{
-    qualify_binding_rebind_expression_with_loop_dynamic_v1,
-    BindingRebindDestinationV1, CheckedBindingRebindFrameV1,
+    qualify_binding_rebind_expression_with_loop_dynamic_v1, BindingRebindDestinationV1,
+    CheckedBindingRebindFrameV1,
 };
 #[path = "home_expression_evaluation.rs"]
 mod evaluation;
@@ -130,7 +132,6 @@ enum InitializerFrameV1 {
 pub(crate) struct HomeExpressionPlanV1 {
     source: Rc<ExpressionSourcePlanV1>,
     scalar_operations: Vec<Rc<ExpressionScalarOperationLoanV1>>,
-    comparison_root: Option<Rc<CheckedExpressionOperationLoanV1>>,
     source_fields: Vec<ExpressionFieldRequirementV1>,
     print_frame: Option<Rc<CheckedPrintExpressionFrameV1>>,
     argument_frame: Option<Rc<CheckedArgumentExpressionFrameV1>>,
@@ -166,11 +167,16 @@ impl HomeExpressionPlanV1 {
         }
         let plan = Self {
             source: Rc::clone(&source),
-            scalar_operations: Vec::new(), comparison_root: None,
+            scalar_operations: Vec::new(),
             source_fields: Vec::new(),
             print_frame: None,
             argument_frame: None,
-            initializer_frame: Some(InitializerFrameV1::Move { source, unary: unary.clone(), from, acquisition }),
+            initializer_frame: Some(InitializerFrameV1::Move {
+                source,
+                unary: unary.clone(),
+                from,
+                acquisition,
+            }),
             rebind_frame: None,
             condition_frame: None,
             loop_recipe: None,
@@ -194,7 +200,7 @@ impl HomeExpressionPlanV1 {
         )?;
         Some(Self {
             source,
-            scalar_operations: vec![loan], comparison_root: None,
+            scalar_operations: vec![loan],
             source_fields: Vec::new(),
             print_frame: None,
             argument_frame: None,
@@ -206,24 +212,6 @@ impl HomeExpressionPlanV1 {
             source_field_homes: None,
         })
     }
-    pub(super) fn alias_null_root(source: Rc<ExpressionSourcePlanV1>,
-        binding: crate::mir::resolved_semantics::BindingRefV1,
-        root: crate::mir::resolved_semantics::BindingRefV1,
-    ) -> Option<Self> {
-        source.root().initializer()?;
-        let binary = source.nodes().first()?.binary()?;
-        let index = |site| source.nodes().iter().position(|node| node.site() == site);
-        let (left, right) = (index(binary.lhs())?, index(binary.rhs())?);
-        let (reference, null) = if matches!(source.nodes()[left].source(), ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Null)) { (right, left) } else { (left, right) };
-        let loan = Rc::new(CheckedExpressionOperationLoanV1 { plan: Rc::clone(&source), node: 0,
-            proof: CheckedExpressionOperationProofV1::NullableAliasNull { reference, null, binding, root } });
-        loan.nullable_alias_null_v1()?;
-        let plan = Self { source, scalar_operations: Vec::new(), comparison_root: Some(loan), source_fields: Vec::new(),
-            print_frame: None, argument_frame: None, initializer_frame: None, rebind_frame: None,
-            condition_frame: None, loop_recipe: None, field_write: None, source_field_homes: None };
-        plan.is_consistent().then_some(plan)
-    }
-    pub(crate) fn comparison_root(&self) -> Option<&Rc<CheckedExpressionOperationLoanV1>> { self.comparison_root.as_ref() }
     /// The same completed evaluation, independent of its existing purpose.
     /// Scalar field RHS stays source-only; Text RHS borrows this same evaluator.
     pub(crate) fn evaluation(&self) -> Option<&CheckedExpressionEvaluationV1> {
@@ -254,15 +242,37 @@ impl HomeExpressionPlanV1 {
             InitializerFrameV1::Move { .. } | InitializerFrameV1::Shared { .. } => None,
         }
     }
-    pub(crate) fn move_initializer_v1(&self) -> Option<(&Rc<ExpressionSourcePlanV1>, crate::mir::resolved_semantics::BindingRefV1, &crate::mir::resolved_semantics::OwnedExprSiteV1)> {
+    pub(crate) fn move_initializer_v1(
+        &self,
+    ) -> Option<(
+        &Rc<ExpressionSourcePlanV1>,
+        crate::mir::resolved_semantics::BindingRefV1,
+        &crate::mir::resolved_semantics::OwnedExprSiteV1,
+    )> {
         match self.initializer_frame.as_ref()? {
-            InitializerFrameV1::Move { source, from, acquisition, .. } => Some((source, *from, acquisition)),
+            InitializerFrameV1::Move {
+                source,
+                from,
+                acquisition,
+                ..
+            } => Some((source, *from, acquisition)),
             InitializerFrameV1::Evaluation(_) | InitializerFrameV1::Shared { .. } => None,
         }
     }
-    pub(crate) fn shared_initializer_v1(&self) -> Option<(&Rc<ExpressionSourcePlanV1>, &super::SharedPayloadSourceV1, &[LiveHomeV1])> {
+    pub(crate) fn shared_initializer_v1(
+        &self,
+    ) -> Option<(
+        &Rc<ExpressionSourcePlanV1>,
+        &super::SharedPayloadSourceV1,
+        &[LiveHomeV1],
+    )> {
         match self.initializer_frame.as_ref()? {
-            InitializerFrameV1::Shared { source, payload_source, prior_homes, .. } => Some((source, payload_source, prior_homes)),
+            InitializerFrameV1::Shared {
+                source,
+                payload_source,
+                prior_homes,
+                ..
+            } => Some((source, payload_source, prior_homes)),
             _ => None,
         }
     }
@@ -322,7 +332,6 @@ impl HomeExpressionPlanV1 {
     pub(super) fn is_consistent(&self) -> bool {
         let mut seen = std::collections::BTreeSet::new();
         [
-            self.comparison_root.is_some(),
             self.initializer_frame.is_some(),
             self.rebind_frame.is_some(),
             self.argument_frame.is_some(),
@@ -335,8 +344,6 @@ impl HomeExpressionPlanV1 {
         .filter(|present| *present)
         .count()
             <= 1
-            && self.comparison_root.as_ref().is_none_or(|loan| Rc::ptr_eq(loan.source(), &self.source)
-                && loan.node() == 0 && self.source.root().initializer().is_some() && loan.nullable_alias_null_v1().is_some())
             && self.source_field_homes.as_ref().is_none_or(|homes| {
                 (self.source.root().initializer().is_some()
                     || matches!(self.source.root(), ExpressionPlanRootV1::CallArgument { .. })
@@ -469,13 +476,20 @@ impl super::RootHomeFlow {
                 (Some(a), Some(b)) => !Rc::ptr_eq(a, b),
                 _ => true,
             }
-            || match (original.move_initializer_v1(), refined.move_initializer_v1()) {
+            || match (
+                original.move_initializer_v1(),
+                refined.move_initializer_v1(),
+            ) {
                 (None, None) => false,
-                (Some((a, from_a, acquisition_a)), Some((b, from_b, acquisition_b))) =>
-                    !Rc::ptr_eq(a, b) || from_a != from_b || acquisition_a != acquisition_b,
+                (Some((a, from_a, acquisition_a)), Some((b, from_b, acquisition_b))) => {
+                    !Rc::ptr_eq(a, b) || from_a != from_b || acquisition_a != acquisition_b
+                }
                 _ => true,
             }
-            || match (original.shared_initializer_v1(), refined.shared_initializer_v1()) {
+            || match (
+                original.shared_initializer_v1(),
+                refined.shared_initializer_v1(),
+            ) {
                 (None, None) => false,
                 (Some((a, pa, ha)), Some((b, pb, hb))) => !Rc::ptr_eq(a, b) || pa != pb || ha != hb,
                 _ => true,
@@ -509,9 +523,6 @@ impl super::RootHomeFlow {
                 (None, None) => false,
                 (Some(a), Some(b)) => !std::rc::Rc::ptr_eq(a, b),
                 _ => true,
-            }
-            || match (original.comparison_root(), refined.comparison_root()) {
-                (None, None) => false, (Some(a), Some(b)) => !Rc::ptr_eq(a, b), _ => true,
             }
             || original.scalar_operations().count() != refined.scalar_operations().count()
             || !original
@@ -563,8 +574,13 @@ impl<'a, 'source> ExpressionPlanInstallationV1<'a, 'source> {
         if self.approved.is_some()
             || plan.source().owner() != self.owner
             || !plan.is_consistent()
-            || plan.evaluation().is_some_and(|evaluation| evaluation.cores().values()
-                .filter_map(|core| core.field_array_access_v1()).any(|count| !self.locals.has_field_array_access_source_v1(count)))
+            || plan.evaluation().is_some_and(|evaluation| {
+                evaluation
+                    .cores()
+                    .values()
+                    .filter_map(|core| core.field_array_access_v1())
+                    .any(|count| !self.locals.has_field_array_access_source_v1(count))
+            })
             || self.plans.iter().any(|old| {
                 old.source().root().statement() == plan.source().root().statement()
                     && old.source().nodes()[0].site() == plan.source().nodes()[0].site()

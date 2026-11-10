@@ -96,6 +96,14 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 ordered.extend(packet.scope_bindings_in_context_v1(context)?.0);
                 continue;
             }
+            if let (
+                Node::Literal(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Null),
+                Some(EvaluatedExpressionValueV1::DeclaredRead(value)),
+            ) = (source.nodes()[index].source(), self.values[index].as_ref())
+            {
+                ordered.push(self.require_unique(|row| matches!(row,MirInstruction::Const {dst,value:crate::mir::ConstValue::Null} if dst==value))?.clone());
+                continue;
+            }
             if let Some(EvaluatedExpressionValueV1::Bool(value)) = self.values[index].as_ref() {
                 if source.nodes()[index].binary().is_some() {
                     ordered.extend(scalar_condition_bindings_v1(

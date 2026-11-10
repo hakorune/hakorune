@@ -109,6 +109,15 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn emit_checked_sc
     let plan = crate::mir::normal_callable_semantic_package::checked_scalar_invoke_operation_v1(
         frame, node, values, receiver,
     )?;
+    if let Some((plan, left, right)) = plan.direct_observation_v1() {
+        let result = builder.next_value_id();
+        bindings.push(
+            crate::mir::builder::emission::compare::emit_planned_recorded(
+                builder, plan, result, left, right,
+            )?,
+        );
+        return Ok(result);
+    }
     if let Some(read) = plan.read() {
         return emit_frame_free_text_read_v1(builder, read, bindings);
     }

@@ -780,6 +780,7 @@ fn reference_kind_name(
     use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1 as Reference;
     match reference {
         None => "none",
+        Some(Reference::Alias(_)) => "Alias",
         Some(Reference::NullableResult(_)) => "NullableResult",
         Some(Reference::DynamicInvocationResult(_)) => "DynamicInvocationResult",
         Some(Reference::StaticText(_)) => "StaticText",

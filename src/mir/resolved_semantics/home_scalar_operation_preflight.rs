@@ -21,72 +21,100 @@ pub(super) fn preflight<E>(
     is_root: bool,
     allow_mul_here: bool,
     checked_compare_operand: &mut impl FnMut(&OwnedExprSiteV1, &OwnedExprSiteV1) -> Result<bool, E>,
-) -> Result<Option<SourceScalarKind>, E> {
+) -> Result<Result<Option<SourceScalarKind>, HomePrefixUnavailableV1>, E> {
     match locals.observe(site) {
-        Some(OrdinaryObservation::Integer(_)) => return Ok(Some(SourceScalarKind::Integer)),
-        Some(OrdinaryObservation::Bool(_)) => return Ok(Some(SourceScalarKind::Bool)),
-        Some(OrdinaryObservation::TrivialLocal(_, Some(kind))) => return Ok(Some(kind)),
+        Some(OrdinaryObservation::Integer(_)) => return Ok(Ok(Some(SourceScalarKind::Integer))),
+        Some(OrdinaryObservation::Bool(_)) => return Ok(Ok(Some(SourceScalarKind::Bool))),
+        Some(OrdinaryObservation::TrivialLocal(_, Some(kind))) => return Ok(Ok(Some(kind))),
         _ => {}
     }
     if let Some(binary) = checked_binary {
         let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
         let binary = OwnedExprSiteV1::new(input.owner(), binary.clone());
         if checked_compare_operand(&owned, &binary)? {
-            return Ok(Some(SourceScalarKind::Integer));
+            return Ok(Ok(Some(SourceScalarKind::Integer)));
         }
     }
     if let Some(call) =
         local_call_flow::issue_static_i64_value_call(input, statement, site, homes, static_call)?
     {
         calls.push(call);
-        return Ok(Some(SourceScalarKind::Integer));
+        return Ok(Ok(Some(SourceScalarKind::Integer)));
     }
     if let Some(request) = field_read::field_read_request(input, site, locals) {
         requests.push(request);
-        return Ok(Some(SourceScalarKind::Integer));
+        return Ok(Ok(Some(SourceScalarKind::Integer)));
     }
     let Some(row) = expression_source_v1(ledger, input.body_shape(), site)
-        .and_then(ResolvedExpressionSourceV1::binary) else {
-        return Ok(None);
+        .and_then(ResolvedExpressionSourceV1::binary)
+    else {
+        return Ok(Ok(None));
     };
     let Some([lhs_site, rhs_site]) = binary_children_v1(site, row) else {
-        return Ok(None);
+        return Ok(Ok(None));
     };
     use ResolvedBinaryOperatorV1 as Op;
     use SourceScalarKind as Kind;
     if matches!(row.operator(), Op::Equal | Op::NotEqual) {
         let alias_null = |value: &SourceExprSiteV1, null: &SourceExprSiteV1| {
-            let ResolvedLexicalRefV1::Local(binding) = input.function().variable_ref(value)? else { return None; };
-            let local_flow::FieldReadReceiverV1::Alias { root, .. } = locals.field_read_receiver(binding, None)? else { return None; };
-            let direct_null = matches!(expression_source_v1(ledger, input.body_shape(), null),
-                Some(ResolvedExpressionSourceV1::Literal(ResolvedLiteralSourceV1::Null)));
-            matches!(locals.observe(null), Some(OrdinaryObservation::Null)).then_some((binding, root, direct_null))
+            let ResolvedLexicalRefV1::Local(binding) = input.function().variable_ref(value)? else {
+                return None;
+            };
+            let local_flow::FieldReadReceiverV1::Alias { root, .. } =
+                locals.field_read_receiver(binding, None)?
+            else {
+                return None;
+            };
+            let direct_null = matches!(
+                expression_source_v1(ledger, input.body_shape(), null),
+                Some(ResolvedExpressionSourceV1::Literal(
+                    ResolvedLiteralSourceV1::Null
+                ))
+            );
+            matches!(locals.observe(null), Some(OrdinaryObservation::Null)).then_some((
+                binding,
+                root,
+                direct_null,
+            ))
         };
-        if let Some((binding, root, direct_null)) = alias_null(row.lhs(), row.rhs()).or_else(|| alias_null(row.rhs(), row.lhs())) {
+        if let Some((binding, root, direct_null)) =
+            alias_null(row.lhs(), row.rhs()).or_else(|| alias_null(row.rhs(), row.lhs()))
+        {
             // Stored null locals keep their existing scalar law. Only an
             // original literal can supply the direct sentinel of NullCompare;
             // a local reference is never rewritten into a fresh literal.
             if local_initializer_profile && is_root && direct_null {
-                let mut initializers = input.function().expression_source().initializers()
+                let mut initializers = input
+                    .function()
+                    .expression_source()
+                    .initializers()
                     .filter(|initializer| initializer.initializer_site() == Some(site));
-                let Some(initializer) = initializers.next() else { return Ok(None); };
-                if initializers.next().is_some() || initializer.binding().owner() != input.owner()
-                    || !matches!(initializer.declaration_site(), SourceBindingSiteV1::Local { statement: original, .. } if original == statement) {
-                    return Ok(None);
+                let Some(initializer) = initializers.next() else {
+                    return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
+                };
+                if initializers.next().is_some()
+                    || initializer.binding().owner() != input.owner()
+                    || !matches!(initializer.declaration_site(), SourceBindingSiteV1::Local { statement: original, .. } if original == statement)
+                {
+                    return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
                 }
                 let Ok(source) = crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(
-                    ledger, input.body_shape(), initializer) else { return Ok(None); };
-                let Some(plan) = HomeExpressionPlanV1::alias_null_root(source, binding, root) else { return Ok(None); };
+                    ledger, input.body_shape(), initializer) else { return Ok(Err(HomePrefixUnavailableV1::SourceMismatch)); };
+                let Some(plan) = super::super::expression_plan::qualify_alias_null_initializer_v1(
+                    source, binding, root, homes,
+                ) else {
+                    return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
+                };
                 *operation = Some(plan);
             }
-            return Ok(Some(Kind::Bool));
+            return Ok(Ok(Some(Kind::Bool)));
         }
     }
 
     // The operator table decides the operand and result kinds; the restriction
     // below is only where the operator may be used (a use-site limit, not a kind).
     let Some((operand, result)) = scalar_operator_kinds_v1(row.operator()) else {
-        return Ok(None);
+        return Ok(Ok(None));
     };
     let used_here = match row.operator() {
         Op::Multiply => {
@@ -130,7 +158,7 @@ pub(super) fn preflight<E>(
         _ => true,
     };
     if !used_here {
-        return Ok(None);
+        return Ok(Ok(None));
     }
     let mark = requests.len();
     let call_mark = calls.len();
@@ -145,7 +173,7 @@ pub(super) fn preflight<E>(
             | Op::GreaterEqual
     )
     .then_some(row.site());
-    let Some(lhs) = preflight(
+    let lhs = match preflight(
         &mut None,
         input,
         ledger,
@@ -161,11 +189,12 @@ pub(super) fn preflight<E>(
         false,
         false,
         checked_compare_operand,
-    )?
-    else {
-        return Ok(None);
+    )? {
+        Ok(Some(value)) => value,
+        Ok(None) => return Ok(Ok(None)),
+        Err(issue) => return Ok(Err(issue)),
     };
-    let Some(rhs) = preflight(
+    let rhs = match preflight(
         &mut None,
         input,
         ledger,
@@ -181,12 +210,13 @@ pub(super) fn preflight<E>(
         false,
         is_root && local_initializer_profile && row.operator() == Op::Subtract,
         checked_compare_operand,
-    )?
-    else {
-        return Ok(None);
+    )? {
+        Ok(Some(value)) => value,
+        Ok(None) => return Ok(Ok(None)),
+        Err(issue) => return Ok(Err(issue)),
     };
     if matches!(row.operator(), Op::And | Op::Or) && calls.len() != call_mark {
-        return Ok(None);
+        return Ok(Ok(None));
     }
     if matches!(
         row.operator(),
@@ -203,16 +233,19 @@ pub(super) fn preflight<E>(
                     )
                 });
             if !request.formal && !me_receiver {
-                return Ok(None);
+                return Ok(Ok(None));
             }
         }
     }
     if lhs != operand || rhs != operand {
-        return Ok(None);
+        return Ok(Ok(None));
     }
     if local_initializer_profile
         && is_root
-        && matches!(row.operator(), Op::Add | Op::Subtract | Op::Divide | Op::Modulo)
+        && matches!(
+            row.operator(),
+            Op::Add | Op::Subtract | Op::Divide | Op::Modulo
+        )
     {
         let mut initializers = input
             .function()
@@ -220,7 +253,7 @@ pub(super) fn preflight<E>(
             .initializers()
             .filter(|initializer| initializer.initializer_site() == Some(site));
         let Some(initializer) = initializers.next() else {
-            return Ok(None);
+            return Ok(Ok(None));
         };
         if initializers.next().is_some()
             || initializer.binding().owner() != input.owner()
@@ -228,12 +261,12 @@ pub(super) fn preflight<E>(
                 crate::mir::resolved_semantics::SourceBindingSiteV1::Local { statement: original, .. }
                     if original == statement)
         {
-            return Ok(None);
+            return Ok(Ok(None));
         }
         let positive_divisor = if matches!(row.operator(), Op::Divide | Op::Modulo) {
             match input.function().expression_source().literal(row.rhs()) {
                 Some(ResolvedLiteralSourceV1::Integer(value)) => Some(*value),
-                _ => return Ok(None),
+                _ => return Ok(Ok(None)),
             }
         } else {
             None
@@ -245,14 +278,14 @@ pub(super) fn preflight<E>(
                 initializer,
             )
         else {
-            return Ok(None);
+            return Ok(Ok(None));
         };
         let Some(plan) = HomeExpressionPlanV1::scalar_root(source, row, positive_divisor) else {
-            return Ok(None);
+            return Ok(Ok(None));
         };
         *operation = Some(plan);
     }
-    Ok(Some(result))
+    Ok(Ok(Some(result)))
 }
 
 /// The one operator table of the scalar preflight: operand kind and result kind of
@@ -289,5 +322,6 @@ pub(crate) fn is_logical_operator_v1(operator: ResolvedBinaryOperatorV1) -> bool
 
 /// Integer operands, Integer result.
 pub(crate) fn is_arithmetic_operator_v1(operator: ResolvedBinaryOperatorV1) -> bool {
-    scalar_operator_kinds_v1(operator) == Some((SourceScalarKind::Integer, SourceScalarKind::Integer))
+    scalar_operator_kinds_v1(operator)
+        == Some((SourceScalarKind::Integer, SourceScalarKind::Integer))
 }
