@@ -356,3 +356,25 @@ IndexOf:5入力5行、NormalResult5＋専用Fault block8の命令8＝gross13行�
 5. Text End/EndIfOwned、Array/Script引数のallocation、owned/carrier Array claimのNoFault特殊化はsource決定が足りない。runtime0/2だけを理由に先行しない。
 
 未確認: 新public schema/ABIの最終名、2-Text helperのlock順序/alias実装/実時間、追加/削除LOCの実値、calleeごとのFault集合、D41語彙の全profile、mixed Dynamic Eq/Neのsource-to-carrier到達整合、dump entry仮定の全関数照合、canonical JSONだけに現れる操作頻度、母集団外アプリの効果、benchmark wall/RSS。法則・domainを満たさない物をNoFaultと認定していない。実装・schema/test追加・NoFault化による検証の弱化は0。
+
+## ChatGPT Proへの相談とユーザー決定（2026-11-10）
+
+Opusが基点`78ca1419c9`で相談文を作った（8問: 分類、比較の仕様、公開の形、Textを2つ借りるhelper、mixedの`==`の食い違い、順番、古いchecked形、速さ）。ChatGPT Proが答え、Proが引いた根拠はOpusが`78ca1419c9`で読み、記述どおりだった。
+
+### Proの答え（要点）
+
+- **分類**はおおむね妥当。ただし「opcodeの分類」ではなく「source domainを含む操作の分類」として読む。同じfamilyの読みがNoFaultでも、終了（SharedのRelease、OwnedArrayのEnd）はNoFaultとは限らない（`fault_checked_shared.rs:116–159`、`fault_checked_array_owned.rs:109–174`）。
+- **TextのEnd**は有望。`ArrayResidenceRelease`は、frame・結果・sourceのFaultの辺を持たない前例（`design/collection-literal-construction-ssot.md:171–178`）。runtimeのText Endも0/2だけ（`fault_checked_string.rs:442–455`）。ただしEndは所有の状態を変えるので、`frame_free_read_law_v1`や読みのhelperに入れず、別の小さな設計検討にする。確保とClaimはDのまま。
+- **mixedの`==`の食い違いは、契約と実装の不整合として確認できる。** issuerはDynamicとStringの`==`/`!=`で、正しい形のString以外の値を不等とし、壊れたcarrierだけをFaultにする（`issuer.rs:160–184`）。runtimeは演算子に関係なく、Text以外のcarrierをTypeErrorにする（`fault_checked_string.rs:178–229`）。比較のprojectionはDynamicの呼び出し結果をcarrierとして渡し（`scalar_condition_operation.rs:80–96`）、Dynamicの`length`はInteger carrierを返す（`dynamic_invocation.rs:360–377`）。sourceからEXEまでの再現は未確認。直す方向はruntimeを仕様とissuerに合わせる。Text以外を一律にnullとして扱わない（今のnullは両方nullなら等しい）。物理のdescriptorの破損（status 2）と、sourceの契約の壊れたcarrierのFaultを区別する。②の軽量化より前に、独立した正しさの修正として行う。
+- **比較の仕様**: 生きたexact Text同士に限って、NonSuspendingに決め直してよい。順序・observable・borrowは別の軸（`model.rs:66–92`）なので、MaySuspendを残す必要はない。ただし今のFaultの種類にNoFaultの選択肢がなく（`model.rs:106–112`）、`sealed()`はTypeErrorを入れる（`model.rs:128–141`）ので、「残るsourceのFaultが無い」こともissuerで明示的に発行する。NonSuspendingの定義は「確保・dispatch・停止点が無い」（`model.rs:76–82`）なので、今の全文を複製するruntimeのまま値だけ変えない。lease Mutexの待ちは言語の停止ではない（Lengthと同じ）。
+- **公開の形**: 平らな`StringIndexOf`と`StringCompare`。`StringRead`のfamilyには移らない。既存のI64の`compare`の行（`nyrt_c_abi_v0.md:334–340`）は広げない。共有するのは、Text operandの検査、借りて読むruntime helper、通常行の結果型・定義・PHI・Cの出力の仕組み。Core projectionの`(Law, Operand)`は、receiverとneedleを持つprivateな計画へ広げる。検証側の`has_length_origin`等を操作ごとに複製しない。
+- **Textを2つ借りるhelper**: lease tableのMutexは表全体で1つ（`dynamic_v2_lease.rs:100–131`）なので、別々のString同士でも入れ子は不可。lease tableを1回、host registryを1回だけ取り、両方のtoken・generation・exactなTextを確かめてから2つの`&str`で計算し、lockを離してから結果を書く。lockの順序はlease → registry。同じ値を2回読むのは許すが、検証は省かない。
+- **古いchecked形**: IndexOfは条件付きで同じseriesで消してよい。canonicalのproducerが0であることに加え、Cのconsumer、header、別のbackend、test、互換の経路を確かめる。Compareのchecked形はDynamicとnullのために残す。exact Textの証拠が閉じた時に新しい行の発行に失敗しても、checkedへ戻るfallbackは作らない。
+- **順番**: mixedの`==`の修正 → fieldの読みの正規化 → 2-Text helperと①IndexOf → 契約の精密化と②Text比較 → basic-exprの残り → Mapの契約…。①と②は別々に着地・検証できる段階に分ける。②の仕様決定が長引くなら①だけで進めてよい。③④は後回し。
+- **速さ**: 全文の複製をやめる → 枠を外す → lengthのcache、の順。測る時は「checked＋複製 → checked＋借用 → 通常行＋借用」を比べる。
+
+### ユーザー決定（2026-11-10）
+
+- 順番: mixedの`==`の不具合の修正（最初にsourceからEXEまでの再現を作る）→ fieldの読みの正規化 → 2-Text helperと`StringIndexOf`（旧checked IndexOfは、producer・C・header・test・互換の経路が0であることを確かめて、同じseriesで消す）→ 比較の契約の精密化と`StringCompare`（複製しないruntimeと一緒に）→ basic-exprの残り → Mapの契約 → `edit` → 3bと旧経路の退役 → 徹底的な整理 → `.hako`のparserのparity → selfhost。
+- 比較の仕様: exact String同士の6つの比較は、結果がNormal(Bool)だけ（比較そのもののFaultは無い）、NonSuspending、評価の順序と借用と所有は今のまま。左右の値を作る時のFault（連結、呼び出し、fieldの読み）はその操作の物。issuerのFaultの種類に「無し」を足し、枠の判定・命令の選択・sourceの対応の検査はその答えを使う。DynamicとStringの比較とnullの比較は今の仕様のままcheckedの形に残し、どちらを使うかはsourceの型の組で決める。
+- 後回し: `Shared.Borrow`、専用`OwnedArray.Get`。TextのEndは、basic-exprの頃に小さな設計調査をする。
