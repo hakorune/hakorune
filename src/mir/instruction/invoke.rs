@@ -198,6 +198,7 @@ impl crate::mir::MirInstruction {
                 | Self::ArrayResidenceRelease { .. }
                 | Self::StringResidenceInstall { .. }
                 | Self::StringLength { .. }
+                | Self::StringIndexOf { .. }
         ) || matches!(self, Self::Call(call)
                 if matches!(call.callee, crate::mir::Callee::BirthConstructor { .. }))
     }

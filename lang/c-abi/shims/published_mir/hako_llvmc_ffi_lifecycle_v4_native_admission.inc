@@ -69,10 +69,13 @@ static int lv4_native_flow(yyjson_val* fn, size_t bi, const hako_lv4_state* inco
               ? state[origin] <= LV4_STRING_RANK_BASE : state[origin] != 1)) return 0;
       int result_kind = lv4_type(fn, lv4_u(ins, "dst"), budget);
       if (result_kind == LV4_I64 || result_kind == LV4_BOOL) state[origin] = 0;
-    } else if (lv4_is(ins, "op", "string_length")) {
-      if (faulted || lv4_string_pending(state, count) || lv4_string_held(state, count) ||
-          lv4_string_call_pending(state, count) ||
-          !lv4_string_native_operand(fn, yyjson_obj_get(ins, "value"), state, budget)) return 0;
+    } else if (hako_physical_text_read_arity(ins)) {
+      /* Both operands borrow at this row; no state or ownership transfer. */
+      static const char* const operands[] = {"value", "needle"};
+      if (faulted || lv4_string_pending(state, count) ||
+          lv4_string_held(state, count) || lv4_string_call_pending(state, count)) return 0;
+      for (size_t i = 0; i < hako_physical_text_read_arity(ins); i++)
+        if (!lv4_string_native_operand(fn, yyjson_obj_get(ins, operands[i]), state, budget)) return 0;
     } else if (lv4_is(ins, "op", "string_residence_install")) {
       uint32_t value = lv4_u(ins, "value");
       yyjson_val* previous = yyjson_obj_get(ins, "replaces");

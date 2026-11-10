@@ -20,6 +20,7 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::ArrayElementWrite { .. } => "ArrayElementWrite",
         MirInstruction::ArrayRead { .. } => "ArrayRead",
         MirInstruction::StringLength { .. } => "StringLength",
+        MirInstruction::StringIndexOf { .. } => "StringIndexOf",
         MirInstruction::ArrayStateContractClaim { .. } => "ArrayStateContractClaim",
         MirInstruction::VariantMake { .. } => "VariantMake",
         MirInstruction::VariantTag { .. } => "VariantTag",
@@ -84,6 +85,7 @@ pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "ArrayElementWrite",
     "ArrayRead",
     "StringLength",
+    "StringIndexOf",
     "ArrayStateContractClaim",
     "Barrier",
     "BinOp",
@@ -173,6 +175,7 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
         | MirInstruction::MapLiteralEntryWrite { .. }
         | MirInstruction::ArrayElementWrite { .. }
         | MirInstruction::StringLength { .. }
+        | MirInstruction::StringIndexOf { .. }
         | MirInstruction::ArrayRead { .. }
         | MirInstruction::ArrayStateContractClaim { .. }
         | MirInstruction::Barrier { .. }

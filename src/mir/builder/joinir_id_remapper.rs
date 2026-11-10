@@ -184,6 +184,12 @@ impl JoinIrIdRemapper {
                 index: index.map(|value| remap(value)),
                 value: remap(*value),
             },
+            StringIndexOf { dst, value, needle } => {
+                let (mut value, mut needle) = (value.clone(), needle.clone());
+                value.rewrite_value(|v| *v = remap(*v));
+                needle.rewrite_value(|v| *v = remap(*v));
+                StringIndexOf { dst: remap(*dst), value, needle }
+            }
             StringLength { dst, value } => {
                 let mut value = value.clone();
                 value.rewrite_value(|v| *v = remap(*v));

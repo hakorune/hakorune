@@ -85,7 +85,7 @@ pub(super) fn check_call_edge(
         .zip(params.iter().skip(receiver_params))
         .enumerate()
     {
-        if super::string::has_length_origin(function, *argument)
+        if super::string::has_text_read_i64_origin(function, *argument)
             && !matches!(parameter, crate::mir::MirType::Integer | crate::mir::MirType::Unknown)
         {
             errors.push(call_argument_drift(function, callee, block,

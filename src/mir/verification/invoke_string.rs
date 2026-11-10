@@ -70,7 +70,7 @@ fn is_tagged_dynamic_formal(function: &MirFunction, value: ValueId) -> bool {
 mod source;
 #[path = "invoke_string_lifetime.rs"]
 mod lifetime;
-pub(super) use lifetime::read::has_length_origin;
+pub(super) use lifetime::read::has_text_read_i64_origin;
 
 pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
     lifetime::check(function, None).map_err(|(_, reason, _)| reason)
@@ -544,14 +544,21 @@ mod tests {
     }
     #[test]
     fn string_length_rows_keep_domain_lifetime_and_definition_order() {
+        // One matrix covers both read arities and both positions of IndexOf.
+        for needle_position in [None, Some(false), Some(true)] {
+        let read = |dst, value| match needle_position {
+            None => MirInstruction::StringLength { dst, value },
+            Some(false) => MirInstruction::StringIndexOf { dst, value,
+                needle: Operand::StaticText { utf8: "猫".into() } },
+            Some(true) => MirInstruction::StringIndexOf { dst, needle: value,
+                value: Operand::StaticText { utf8: "猫".into() } },
+        };
         let mut function = MirFunction::new(FunctionSignature {
             name: "code_point_count".into(), params: vec![], return_type: MirType::Integer,
             effects: EffectMask::READ,
         }, BasicBlockId(0));
         let mut block = BasicBlock::new(BasicBlockId(0));
-        block.add_instruction(MirInstruction::StringLength {
-            dst: ValueId(1), value: Operand::StaticText { utf8: "e\u{301}猫".into() },
-        });
+        block.add_instruction(read(ValueId(1), Operand::StaticText { utf8: "e\u{301}猫".into() }));
         block.set_terminator(MirInstruction::Return { value: Some(ValueId(1)) });
         function.add_block(block);
         assert_eq!(check(&function), Ok(()));
@@ -560,9 +567,14 @@ mod tests {
             Operand::Dynamic(ValueId(4)), Operand::DynamicCarrier(ValueId(4))] {
             let mut bad = function.clone();
             bad.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions[0] =
-                MirInstruction::StringLength { dst: ValueId(1), value };
+                read(ValueId(1), value);
             assert_eq!(check(&bad), Err("string-text-operand-domain"));
         }
+        let mut terminal = function.clone();
+        let body = terminal.blocks.get_mut(&BasicBlockId(0)).unwrap();
+        body.instructions.clear();
+        body.terminator = Some(read(ValueId(1), Operand::StaticText { utf8: "x".into() }));
+        assert_eq!(check(&terminal), Err("string-length-terminator"));
         let mut bool_condition = function.clone();
         bool_condition.blocks.get_mut(&BasicBlockId(0)).unwrap().set_terminator(
             MirInstruction::Branch { condition: ValueId(1), then_bb: BasicBlockId(0),
@@ -577,11 +589,20 @@ mod tests {
         borrowed.metadata.physical_param_carriers = Some(vec![
             crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue].into_boxed_slice());
         let body = borrowed.blocks.get_mut(&BasicBlockId(0)).unwrap();
-        body.instructions[0] = MirInstruction::StringLength {
-            dst: ValueId(1), value: Operand::BorrowedText(ValueId(11)),
-        };
+        body.instructions[0] = read(ValueId(1), Operand::BorrowedText(ValueId(11)));
         body.instructions.insert(0, MirInstruction::Copy { dst: ValueId(11), src: ValueId(10) });
         assert_eq!(check(&borrowed), Ok(()));
+        let mut duplicate = borrowed.clone();
+        duplicate.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions.insert(0,
+            MirInstruction::Copy { dst: ValueId(11), src: ValueId(10) });
+        assert_eq!(check(&duplicate), Err("string-borrowed-copy-duplicate"));
+        let mut nondominating = borrowed.clone();
+        let moved = nondominating.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions.remove(0);
+        let mut other = BasicBlock::new(BasicBlockId(1));
+        other.add_instruction(moved);
+        other.set_terminator(MirInstruction::Return { value: Some(ValueId(1)) });
+        nondominating.add_block(other);
+        assert_eq!(check(&nondominating), Err("string-read-before-definition"));
         borrowed.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions.swap(0, 1);
         assert_eq!(check(&borrowed), Err("string-read-before-definition"));
         let mut bad_type = function.clone();
@@ -589,40 +610,44 @@ mod tests {
         assert_eq!(check(&bad_type), Err("string-length-result-type"));
         let mut unowned = function.clone();
         unowned.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions[0] =
-            MirInstruction::StringLength { dst: ValueId(1), value: Operand::OwnedString(ValueId(9)) };
+            read(ValueId(1), Operand::OwnedString(ValueId(9)));
         assert_eq!(check(&unowned), Err("string-owned-result-missing"));
         let mut forged = function.clone();
         forged.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions[0] =
-            MirInstruction::StringLength { dst: ValueId(1), value: Operand::BorrowedText(ValueId(9)) };
+            read(ValueId(1), Operand::BorrowedText(ValueId(9)));
         assert_eq!(check(&forged), Err("string-borrowed-origin"));
         // Same-block order is checked independently of cached type metadata.
         let mut owned = graph();
         owned.blocks.get_mut(&BasicBlockId(1)).unwrap().instructions.insert(0,
-            MirInstruction::StringLength { dst: ValueId(45), value: Operand::OwnedString(ValueId(2)) });
+            read(ValueId(45), Operand::OwnedString(ValueId(2))));
         assert_eq!(check(&owned), Err("string-read-before-definition"));
         // Surviving real Fault paths still forbid even a static read before cleanup.
         for value in [Operand::OwnedString(ValueId(3)), Operand::StaticText { utf8: "live".into() }] {
             let mut faulted = graph();
             faulted.blocks.get_mut(&BasicBlockId(20)).unwrap().instructions.push(
-                MirInstruction::StringLength { dst: ValueId(45), value });
+                read(ValueId(45), value));
             assert_eq!(check(&faulted), Err("string-effect-after-fault"));
         }
         // A previously valid pair is not readable after its End.
         let mut ended = graph();
         ended.blocks.get_mut(&BasicBlockId(4)).unwrap().instructions.push(
-            MirInstruction::StringLength { dst: ValueId(45), value: Operand::OwnedString(ValueId(3)) });
+            read(ValueId(45), Operand::OwnedString(ValueId(3))));
         assert_eq!(check(&ended), Err("string-borrow-not-live"));
+        }
     }
 
     #[test]
     fn string_length_phi_preserves_i64_without_type_metadata() {
+        for search in [false, true] {
         let mut function = MirFunction::new(FunctionSignature {
             name: "count_phi".into(), params: vec![], return_type: MirType::Integer,
             effects: EffectMask::READ,
         }, BasicBlockId(0));
         let mut entry = BasicBlock::new(BasicBlockId(0));
-        entry.add_instruction(MirInstruction::StringLength { dst: ValueId(1),
-            value: Operand::StaticText { utf8: "猫".into() } });
+        let value = Operand::StaticText { utf8: "猫".into() };
+        entry.add_instruction(if search { MirInstruction::StringIndexOf { dst: ValueId(1), value,
+            needle: Operand::StaticText { utf8: "猫".into() } } }
+            else { MirInstruction::StringLength { dst: ValueId(1), value } });
         entry.add_instruction(MirInstruction::Const { dst: ValueId(2), value: ConstValue::Bool(true) });
         entry.add_instruction(MirInstruction::Const { dst: ValueId(5), value: ConstValue::Integer(0) });
         entry.set_terminator(MirInstruction::Branch { condition: ValueId(2), then_bb: BasicBlockId(1),
@@ -643,6 +668,17 @@ mod tests {
         function.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions[2] =
             MirInstruction::Const { dst: ValueId(5), value: ConstValue::Bool(false) };
         assert_eq!(check(&function), Err("string-length-result-type"));
+        }
+    }
+
+    #[test]
+    fn ordinary_text_search_repeated_owned_operand_is_a_read() {
+        let mut function = graph();
+        function.blocks.get_mut(&BasicBlockId(2)).unwrap().instructions.push(
+            MirInstruction::StringIndexOf { dst: ValueId(45),
+                value: Operand::OwnedString(ValueId(3)), needle: Operand::OwnedString(ValueId(3)) });
+        assert_eq!(check(&function), Ok(()));
+        assert!(super::super::check_function(&function).is_ok());
     }
 
 }

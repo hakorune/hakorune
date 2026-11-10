@@ -64,7 +64,7 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
         MirInstruction::Invoke { .. }
         | MirInstruction::InvokeNormalResult { .. }
         | MirInstruction::FaultFrameEnter { .. }
-        | MirInstruction::StringLength { .. }
+        | MirInstruction::StringLength { .. } | MirInstruction::StringIndexOf { .. }
         | MirInstruction::ReturnFault { .. } => inst.used_values(),
         MirInstruction::Const { .. } | MirInstruction::Safepoint => Vec::new(),
         MirInstruction::MapLiteralEntryWrite {

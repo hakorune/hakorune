@@ -670,6 +670,7 @@ pub enum MirInstruction {
     /// Infallible identity-preserving lifecycle event; no runtime/refcount work.
     /// Borrow live Text and count Unicode code points without a Fault edge.
     StringLength { dst: ValueId, value: StringInvokeOperand },
+    StringIndexOf { dst: ValueId, value: StringInvokeOperand, needle: StringInvokeOperand },
     StringResidenceInstall { value: ValueId, replaces: Option<ValueId>, returning: bool },
 
     /// Check an exact-numeric local contract, then publish `%dst = %src`.

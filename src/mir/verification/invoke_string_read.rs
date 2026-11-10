@@ -61,7 +61,7 @@ pub(super) fn check_domains(
                 check_borrowed_operand(function, *value)?;
                 check_available(function, id, instruction, *value)?
             }
-            Operand::NormalBool(value) if has_length_origin(function, *value) => {
+            Operand::NormalBool(value) if has_text_read_i64_origin(function, *value) => {
                 return Err("string-bool-domain");
             }
             Operand::NormalInteger(value)
@@ -83,16 +83,16 @@ pub(super) fn check_domains(
     Ok(())
 }
 
-pub(super) fn check_length(
+pub(super) fn check_text_read(
     function: &MirFunction,
     source: &TextSourceImage,
     results: &BTreeMap<ValueId, BasicBlockId>,
     id: BasicBlockId,
     instruction: &MirInstruction,
     dst: ValueId,
-    value: &Operand,
+    operands: &[&Operand],
 ) -> Result<(), &'static str> {
-    if !value.is_text() {
+    if operands.iter().any(|value| !value.is_text()) {
         return Err("string-text-operand-domain");
     }
     if function
@@ -106,8 +106,8 @@ pub(super) fn check_length(
     if function.blocks.get(&id).and_then(|b| b.terminator.as_ref()) == Some(instruction) {
         return Err("string-length-terminator");
     }
-    check_domains(function, source, results, id, instruction, &[value])?;
-    if let Some(value) = value.value() {
+    check_domains(function, source, results, id, instruction, operands)?;
+    for value in operands.iter().filter_map(|operand| operand.value()) {
         check_available(function, id, instruction, value)?;
     }
     Ok(())
@@ -163,7 +163,7 @@ fn check_available<'a>(
 }
 
 /// Derive the scalar result from actual definitions, never an absent type hint.
-pub(in crate::mir::verification) fn has_length_origin(
+pub(in crate::mir::verification) fn has_text_read_i64_origin(
     function: &MirFunction,
     value: ValueId,
 ) -> bool {
@@ -180,7 +180,12 @@ pub(in crate::mir::verification) fn has_length_origin(
             .values()
             .flat_map(|block| block.all_instructions())
             .any(|row| match row {
-                MirInstruction::StringLength { dst, .. } => *dst == value,
+                row if row
+                    .text_read_operands_v1()
+                    .is_some_and(|(dst, _)| dst == value) =>
+                {
+                    true
+                }
                 MirInstruction::Copy { dst, src } if *dst == value => walk(function, *src, seen),
                 MirInstruction::Phi { dst, inputs, .. } if *dst == value => inputs
                     .iter()
@@ -196,7 +201,7 @@ pub(super) fn check_i64_results(function: &MirFunction) -> Result<(), &'static s
     if !function.blocks.values().any(|block| {
         block
             .all_instructions()
-            .any(|row| matches!(row, MirInstruction::StringLength { .. }))
+            .any(|row| row.text_read_operands_v1().is_some())
     }) {
         return Ok(());
     }
@@ -207,7 +212,7 @@ pub(super) fn check_i64_results(function: &MirFunction) -> Result<(), &'static s
         .flat_map(|block| block.all_instructions())
     {
         if row.dst_value().is_some_and(|dst| {
-            has_length_origin(function, dst)
+            has_text_read_i64_origin(function, dst)
                 && function
                     .metadata
                     .value_types
@@ -222,17 +227,17 @@ pub(super) fn check_i64_results(function: &MirFunction) -> Result<(), &'static s
             type_hint,
         } = row
         {
-            if has_length_origin(function, *dst) && (type_hint.as_ref().is_some_and(|ty| *ty != MirType::Integer) || inputs.iter().any(|(_, value)| {
+            if has_text_read_i64_origin(function, *dst) && (type_hint.as_ref().is_some_and(|ty| *ty != MirType::Integer) || inputs.iter().any(|(_, value)| {
                 matches!(intrinsic_scalar_type(function, *value, &mut std::collections::BTreeSet::new()),
                     Some(ty) if ty != MirType::Integer)
             })) { return Err("string-length-result-type"); }
         }
-        if matches!(row, MirInstruction::Branch { condition, .. } if has_length_origin(function, *condition))
+        if matches!(row, MirInstruction::Branch { condition, .. } if has_text_read_i64_origin(function, *condition))
         {
             return Err("string-length-result-type");
         }
         if matches!(row, MirInstruction::Return { value: Some(value) }
-            if has_length_origin(function, *value) && function.signature.return_type != MirType::Integer)
+            if has_text_read_i64_origin(function, *value) && function.signature.return_type != MirType::Integer)
         {
             return Err("string-length-result-type");
         }
@@ -259,6 +264,7 @@ fn intrinsic_scalar_type(
     match definition {
         Some(
             MirInstruction::StringLength { .. }
+            | MirInstruction::StringIndexOf { .. }
             | MirInstruction::Const {
                 value: ConstValue::Integer(_),
                 ..

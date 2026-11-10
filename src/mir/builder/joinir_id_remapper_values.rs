@@ -47,6 +47,7 @@ impl JoinIrIdRemapper {
                 vals
             }
             StringLength { dst, value } => std::iter::once(*dst).chain(value.value()).collect(),
+            StringIndexOf { dst, value, needle } => std::iter::once(*dst).chain(value.value()).chain(needle.value()).collect(),
             ArrayRead {
                 dst,
                 receiver,

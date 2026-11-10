@@ -12,6 +12,15 @@ use crate::mir::instruction_kinds as inst_meta;
 use crate::mir::types::{BarrierOp, WeakRefOp};
 
 impl MirInstruction {
+    /// Borrow occurrences for frame-free Text read verification. Never source permission.
+    pub(crate) fn text_read_operands_v1(&self) -> Option<(ValueId, Vec<&super::StringInvokeOperand>)> {
+        match self {
+            Self::StringLength { dst, value } => Some((*dst, vec![value])),
+            Self::StringIndexOf { dst, value, needle } => Some((*dst, vec![value, needle])),
+            _ => None,
+        }
+    }
+
     /// Materialize an already-resolved canonical Call without classifying its target.
     pub(crate) fn call(
         dst: Option<ValueId>,
@@ -79,7 +88,8 @@ impl MirInstruction {
             | MirInstruction::FieldGet { .. }
             | MirInstruction::ObjectFieldGet { .. }
             | MirInstruction::ArrayRead { .. }
-            | MirInstruction::StringLength { .. } => EffectMask::READ,
+            | MirInstruction::StringLength { .. }
+            | MirInstruction::StringIndexOf { .. } => EffectMask::READ,
             MirInstruction::Store { .. }
             | MirInstruction::FieldSet { .. }
             | MirInstruction::WeakFieldWrite { .. }
@@ -187,7 +197,8 @@ impl MirInstruction {
             | MirInstruction::FutureNew { dst, .. }
             | MirInstruction::Await { dst, .. }
             | MirInstruction::Select { dst, .. }
-            | MirInstruction::StringLength { dst, .. } => Some(*dst),
+            | MirInstruction::StringLength { dst, .. }
+            | MirInstruction::StringIndexOf { dst, .. } => Some(*dst),
             MirInstruction::NewClosure { dst, .. } => Some(*dst),
 
             MirInstruction::Call(call) => call.dst,
@@ -381,6 +392,7 @@ impl MirInstruction {
             MirInstruction::DestroyOwned { value }
             | MirInstruction::ArrayResidenceRelease { value } => vec![*value],
             MirInstruction::StringLength { value, .. } => value.value().into_iter().collect(),
+            MirInstruction::StringIndexOf { value, needle, .. } => value.value().into_iter().chain(needle.value()).collect(),
             MirInstruction::StringResidenceInstall { value, replaces, .. } => std::iter::once(*value).chain(*replaces).collect(),
             MirInstruction::ReleaseStrong { values } => values.clone(),
 

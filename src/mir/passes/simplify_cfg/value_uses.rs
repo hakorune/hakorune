@@ -108,6 +108,10 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
             rewrite_value_use(value, from, to);
         }
         MirInstruction::StringLength { value, .. } => value.rewrite_value(|v| rewrite_value_use(v, from, to)),
+        MirInstruction::StringIndexOf { value, needle, .. } => {
+            value.rewrite_value(|v| rewrite_value_use(v, from, to));
+            needle.rewrite_value(|v| rewrite_value_use(v, from, to));
+        }
         MirInstruction::ArrayRead {
             receiver, operation, ..
         } => {

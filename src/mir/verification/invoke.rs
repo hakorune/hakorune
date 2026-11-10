@@ -341,7 +341,7 @@ fn check_function_inner(
         })
     });
     let has_text_reads = function.blocks.values().any(|block|
-        block.all_instructions().any(|row| matches!(row, MirInstruction::StringLength { .. })));
+        block.all_instructions().any(|row| matches!(row, MirInstruction::StringLength { .. } | MirInstruction::StringIndexOf { .. })));
     if !has_control && !has_text_reads {
         return Ok(());
     }
