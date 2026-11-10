@@ -12,7 +12,9 @@ pub(crate) enum ComparisonExecutionKindV1 {
     Text,
     /// An opaque integer extraction needs the original carrier orientation;
     /// otherwise the existing checked Text operation supplies the Bool directly.
-    Checked { integer_carrier_left: Option<bool> },
+    Checked {
+        integer_carrier_left: Option<bool>,
+    },
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct ComparisonExecutionPlanV1 {
@@ -21,22 +23,32 @@ pub(crate) struct ComparisonExecutionPlanV1 {
     kind: ComparisonExecutionKindV1,
 }
 impl ComparisonExecutionPlanV1 {
-    pub(crate) fn operator(self) -> crate::mir::CompareOp { self.operator }
-    pub(crate) fn operands(self) -> Option<[usize; 2]> { self.operands }
-    pub(crate) fn kind(self) -> ComparisonExecutionKindV1 { self.kind }
+    pub(crate) fn operator(self) -> crate::mir::CompareOp {
+        self.operator
+    }
+    pub(crate) fn operands(self) -> Option<[usize; 2]> {
+        self.operands
+    }
+    pub(crate) fn kind(self) -> ComparisonExecutionKindV1 {
+        self.kind
+    }
     pub(crate) fn requires_fault_frame(self) -> bool {
         matches!(self.kind, ComparisonExecutionKindV1::Checked { .. })
     }
 }
 
 impl CheckedExpressionEvaluationV1 {
-    pub(crate) fn comparison_plan_v1(&self, node: usize) -> Result<Option<ComparisonExecutionPlanV1>, &'static str> {
+    pub(crate) fn comparison_plan_v1(
+        &self,
+        node: usize,
+    ) -> Result<Option<ComparisonExecutionPlanV1>, &'static str> {
         comparison_execution_plan_v1(ComparisonEvidenceV1::Checked(self, node))
     }
     /// The only execution-form conversion. Immutable source laws and exact
     /// operand evidence are required together; neither MIR nor ABI chooses a form.
     fn checked_comparison_plan_v1(
-        &self, node: usize,
+        &self,
+        node: usize,
     ) -> Result<Option<ComparisonExecutionPlanV1>, &'static str> {
         use crate::mir::dynamic_operator_contract::{
             DynamicOperatorFaultV1 as Fault, DynamicOperatorNormalResultV1 as Normal,
@@ -44,27 +56,58 @@ impl CheckedExpressionEvaluationV1 {
         };
         use crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1 as Value;
         use ComparisonExecutionKindV1 as Kind;
-        let Some(binary) = self.source.nodes().get(node).and_then(|row| row.binary()) else { return Ok(None); };
-        let Some(operator) = binary.operator().compare_op() else { return Ok(None); };
+        let Some(binary) = self.source.nodes().get(node).and_then(|row| row.binary()) else {
+            return Ok(None);
+        };
+        let Some(operator) = binary.operator().compare_op() else {
+            return Ok(None);
+        };
         let mut loans = self.operations.iter().filter(|loan| loan.node() == node);
-        let Some(loan) = loans.next() else { return Ok(None); };
+        let Some(loan) = loans.next() else {
+            return Ok(None);
+        };
         let error = "bool-condition/text-comparison-source";
-        if loans.next().is_some() || !Rc::ptr_eq(loan.source(), &self.source) { return Err(error); }
-        let index = |site| self.source.nodes().iter().position(|row| row.site() == site).ok_or(error);
+        if loans.next().is_some() || !Rc::ptr_eq(loan.source(), &self.source) {
+            return Err(error);
+        }
+        let index = |site| {
+            self.source
+                .nodes()
+                .iter()
+                .position(|row| row.site() == site)
+                .ok_or(error)
+        };
         let operands = [index(binary.lhs())?, index(binary.rhs())?];
-        let plan = |kind| Some(ComparisonExecutionPlanV1 { operator, operands: Some(operands), kind });
+        let plan = |kind| {
+            Some(ComparisonExecutionPlanV1 {
+                operator,
+                operands: Some(operands),
+                kind,
+            })
+        };
         if loan.nullable_field_null_v1().is_some() || loan.nullable_null_v1().is_some() {
             return Ok(plan(Kind::Null));
         }
-        let Some(envelope) = loan.single_envelope() else { return Ok(None); };
+        let Some(envelope) = loan.single_envelope() else {
+            return Ok(None);
+        };
         let domain = envelope.domain();
         if envelope.normal_result() != Normal::TrivialBool
-            || crate::mir::resolved_value_profile::expression_class::comparison_operator_family_v1(binary.operator()) != Some(domain.family()) {
+            || crate::mir::resolved_value_profile::expression_class::comparison_operator_family_v1(
+                binary.operator(),
+            ) != Some(domain.family())
+        {
             return Err(error);
         }
         let exact = match (domain.left(), domain.right()) {
-            (Class::I64, Class::I64) => Some((Value::I64, Kind::Scalar(super::super::super::SourceScalarKind::Integer))),
-            (Class::Bool, Class::Bool) => Some((Value::Bool, Kind::Scalar(super::super::super::SourceScalarKind::Bool))),
+            (Class::I64, Class::I64) => Some((
+                Value::I64,
+                Kind::Scalar(super::super::super::SourceScalarKind::Integer),
+            )),
+            (Class::Bool, Class::Bool) => Some((
+                Value::Bool,
+                Kind::Scalar(super::super::super::SourceScalarKind::Bool),
+            )),
             (Class::String, Class::String) => Some((Value::String, Kind::Text)),
             _ => None,
         };
@@ -72,33 +115,71 @@ impl CheckedExpressionEvaluationV1 {
             if envelope.fault() != Fault::NoSourceFault
                 || envelope.suspension() != Suspension::NonSuspending
                 || envelope.lifecycle().is_some()
-                || operands.iter().any(|&node| self.class(node) != Some(ExpressionLeafClassV1::Value(class)) || self.transfers_node(node)) {
+                || operands.iter().any(|&node| {
+                    self.class(node) != Some(ExpressionLeafClassV1::Value(class))
+                        || self.transfers_node(node)
+                })
+            {
                 return Err(error);
             }
             return Ok(plan(kind));
         }
-        if matches!((domain.left(), domain.right()), (Class::Dynamic, Class::Null) | (Class::Null, Class::Dynamic)) {
-            if operator != crate::mir::CompareOp::Eq || envelope.fault() != Fault::NoSourceFault
-                || envelope.suspension() != Suspension::NonSuspending || envelope.lifecycle().is_some()
-                || operands.iter().filter(|&&node| matches!(self.source.nodes()[node].source(),
-                    ExpressionNodeSourceV1::Literal(super::super::super::ResolvedLiteralSourceV1::Null))).count() != 1 {
+        if matches!(
+            (domain.left(), domain.right()),
+            (Class::Dynamic, Class::Null) | (Class::Null, Class::Dynamic)
+        ) {
+            if operator != crate::mir::CompareOp::Eq
+                || envelope.fault() != Fault::NoSourceFault
+                || envelope.suspension() != Suspension::NonSuspending
+                || envelope.lifecycle().is_some()
+                || operands
+                    .iter()
+                    .filter(|&&node| {
+                        matches!(
+                            self.source.nodes()[node].source(),
+                            ExpressionNodeSourceV1::Literal(
+                                super::super::super::ResolvedLiteralSourceV1::Null
+                            )
+                        )
+                    })
+                    .count()
+                    != 1
+            {
                 return Err(error);
             }
             return Ok(plan(Kind::Null));
         }
         let carrier_left = match (domain.left(), domain.right(), operator) {
-            (Class::Dynamic, Class::I64, crate::mir::CompareOp::Lt | crate::mir::CompareOp::Gt) => Some(true),
+            (Class::Dynamic, Class::I64, crate::mir::CompareOp::Lt | crate::mir::CompareOp::Gt) => {
+                Some(true)
+            }
             (Class::I64, Class::Dynamic, crate::mir::CompareOp::Lt) => Some(false),
             _ => None,
         };
         if let Some(carrier_left) = carrier_left {
             let [left, right] = operands;
-            let (carrier, integer) = if carrier_left { (left, right) } else { (right, left) };
-            return Ok(self.checked_integer_carrier_home_v1(carrier, integer).is_some()
-                .then(|| plan(Kind::Checked { integer_carrier_left: Some(carrier_left) })).flatten());
+            let (carrier, integer) = if carrier_left {
+                (left, right)
+            } else {
+                (right, left)
+            };
+            return Ok(self
+                .checked_integer_carrier_home_v1(carrier, integer)
+                .is_some()
+                .then(|| {
+                    plan(Kind::Checked {
+                        integer_carrier_left: Some(carrier_left),
+                    })
+                })
+                .flatten());
         }
-        if matches!((domain.left(), domain.right()), (Class::String, Class::Dynamic) | (Class::Dynamic, Class::String)) {
-            return Ok(plan(Kind::Checked { integer_carrier_left: None }));
+        if matches!(
+            (domain.left(), domain.right()),
+            (Class::String, Class::Dynamic) | (Class::Dynamic, Class::String)
+        ) {
+            return Ok(plan(Kind::Checked {
+                integer_carrier_left: None,
+            }));
         }
         Ok(None)
     }
@@ -137,7 +218,14 @@ impl CheckedExpressionEvaluationV1 {
     ) -> Option<Vec<usize>> {
         let plan = self.comparison_plan_v1(comparison).ok()??;
         if !matches!(plan.kind(), ComparisonExecutionKindV1::Text)
-            && !(allow_dynamic_call && matches!(plan.kind(), ComparisonExecutionKindV1::Checked { integer_carrier_left: None })) {
+            && !(allow_dynamic_call
+                && matches!(
+                    plan.kind(),
+                    ComparisonExecutionKindV1::Checked {
+                        integer_carrier_left: None
+                    }
+                ))
+        {
             return None;
         }
         let root = self.source.nodes().get(comparison)?;
@@ -214,56 +302,106 @@ impl CheckedExpressionEvaluationV1 {
     }
 }
 
-
 /// Original syntax facts do not grant carrier admission or a source loan.
 enum ComparisonEvidenceV1<'a> {
     Checked(&'a CheckedExpressionEvaluationV1, usize),
     Alias(&'a CheckedExpressionOperationLoanV1),
-    Original(&'a crate::mir::resolved_semantics::ResolvedExpressionSourceInventoryV1,
-        &'a crate::mir::resolved_semantics::SourceExprSiteV1),
+    Original(
+        &'a crate::mir::resolved_semantics::ResolvedExpressionSourceInventoryV1,
+        &'a crate::mir::resolved_semantics::SourceExprSiteV1,
+    ),
 }
-fn comparison_execution_plan_v1(evidence: ComparisonEvidenceV1<'_>)
-    -> Result<Option<ComparisonExecutionPlanV1>, &'static str> {
+fn comparison_execution_plan_v1(
+    evidence: ComparisonEvidenceV1<'_>,
+) -> Result<Option<ComparisonExecutionPlanV1>, &'static str> {
     match evidence {
         ComparisonEvidenceV1::Checked(frame, node) => frame.checked_comparison_plan_v1(node),
         ComparisonEvidenceV1::Alias(loan) => {
-            let (reference, null) = loan.nullable_alias_null_v1().ok_or("bool-condition/operator-source")?;
-            let binary = loan.source().nodes()[loan.node()].binary().ok_or("bool-condition/operator-source")?;
-            let operands = if loan.source().nodes()[reference].site() == binary.lhs() { [reference, null] } else { [null, reference] };
-            Ok(Some(ComparisonExecutionPlanV1 { operator: binary.operator().compare_op().ok_or("bool-condition/operator-kind")?,
-                operands: Some(operands), kind: ComparisonExecutionKindV1::Null }))
+            let (reference, null) = loan
+                .nullable_alias_null_v1()
+                .ok_or("bool-condition/operator-source")?;
+            let binary = loan.source().nodes()[loan.node()]
+                .binary()
+                .ok_or("bool-condition/operator-source")?;
+            let operands = if loan.source().nodes()[reference].site() == binary.lhs() {
+                [reference, null]
+            } else {
+                [null, reference]
+            };
+            Ok(Some(ComparisonExecutionPlanV1 {
+                operator: binary
+                    .operator()
+                    .compare_op()
+                    .ok_or("bool-condition/operator-kind")?,
+                operands: Some(operands),
+                kind: ComparisonExecutionKindV1::Null,
+            }))
         }
         ComparisonEvidenceV1::Original(source, site) => {
-            let Some(binary) = source.binary(site) else { return Ok(None); };
-            let Some(operator) = binary.operator().compare_op()
-                .filter(|op| matches!(op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne)) else { return Ok(None); };
-            let null = |site| matches!(source.literal(site), Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Null));
-            Ok((null(binary.lhs()) ^ null(binary.rhs())).then_some(ComparisonExecutionPlanV1 {
-                operator, operands: None, kind: ComparisonExecutionKindV1::Null,
-            }))
+            let Some(binary) = source.binary(site) else {
+                return Ok(None);
+            };
+            let Some(operator) = binary
+                .operator()
+                .compare_op()
+                .filter(|op| matches!(op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne))
+            else {
+                return Ok(None);
+            };
+            let null = |site| {
+                matches!(
+                    source.literal(site),
+                    Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Null)
+                )
+            };
+            Ok(
+                (null(binary.lhs()) ^ null(binary.rhs())).then_some(ComparisonExecutionPlanV1 {
+                    operator,
+                    operands: None,
+                    kind: ComparisonExecutionKindV1::Null,
+                }),
+            )
         }
     }
 }
 impl ComparisonExecutionPlanV1 {
     /// The old raw source comparison keeps its executable admission with the
     /// existing owner. Only its original exact-null representation is selected here.
-    pub(crate) fn original_null_v1(source: &crate::mir::resolved_semantics::ResolvedExpressionSourceInventoryV1,
+    pub(crate) fn original_null_v1(
+        source: &crate::mir::resolved_semantics::ResolvedExpressionSourceInventoryV1,
         site: &crate::mir::resolved_semantics::SourceExprSiteV1,
     ) -> Result<Option<Self>, &'static str> {
         comparison_execution_plan_v1(ComparisonEvidenceV1::Original(source, site))
     }
-    pub(crate) fn instruction_v1(self, dst: crate::mir::ValueId, lhs: crate::mir::ValueId, rhs: crate::mir::ValueId)
-        -> Option<crate::mir::MirInstruction> {
+    pub(crate) fn instruction_v1(
+        self,
+        dst: crate::mir::ValueId,
+        lhs: crate::mir::ValueId,
+        rhs: crate::mir::ValueId,
+    ) -> Option<crate::mir::MirInstruction> {
         match self.kind {
-            ComparisonExecutionKindV1::Null => Some(crate::mir::MirInstruction::NullCompare { dst, op: self.operator, lhs, rhs }),
-            ComparisonExecutionKindV1::Scalar(_) => Some(crate::mir::MirInstruction::Compare { dst, op: self.operator, lhs, rhs }),
+            ComparisonExecutionKindV1::Null => Some(crate::mir::MirInstruction::NullCompare {
+                dst,
+                op: self.operator,
+                lhs,
+                rhs,
+            }),
+            ComparisonExecutionKindV1::Scalar(_) => Some(crate::mir::MirInstruction::Compare {
+                dst,
+                op: self.operator,
+                lhs,
+                rhs,
+            }),
             _ => None,
         }
     }
 }
 
 impl CheckedExpressionOperationLoanV1 {
-    pub(crate) fn alias_comparison_plan_v1(&self) -> Result<ComparisonExecutionPlanV1, &'static str> {
-        comparison_execution_plan_v1(ComparisonEvidenceV1::Alias(self))?.ok_or("bool-condition/operator-source")
+    pub(crate) fn alias_comparison_plan_v1(
+        &self,
+    ) -> Result<ComparisonExecutionPlanV1, &'static str> {
+        comparison_execution_plan_v1(ComparisonEvidenceV1::Alias(self))?
+            .ok_or("bool-condition/operator-source")
     }
 }

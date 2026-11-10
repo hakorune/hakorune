@@ -68,11 +68,7 @@ pub(super) fn check_domains(
             }
             Operand::NormalInteger(value)
                 if results.contains_key(value)
-                    || has_scalar_read_origin(
-                        function,
-                        *value,
-                        &crate::mir::MirType::Bool,
-                    )
+                    || has_scalar_read_origin(function, *value, &crate::mir::MirType::Bool)
                     || check_borrowed_operand(function, *value).is_ok() =>
             {
                 return Err(domain_refusal("string-integer-domain", &id, instruction));

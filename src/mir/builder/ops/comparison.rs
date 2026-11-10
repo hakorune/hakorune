@@ -85,8 +85,12 @@ impl super::super::MirBuilder {
         let mut rhs2 = rhs2_raw;
         crate::mir::builder::ssa::local::finalize_compare(self, &mut lhs2, &mut rhs2)?;
         let original = match plan {
-            Some(plan) => crate::mir::builder::emission::compare::emit_planned_recorded(self, plan, dst, lhs2, rhs2)?,
-            None => crate::mir::builder::emission::compare::emit_to_recorded(self, dst, op, lhs2, rhs2)?,
+            Some(plan) => crate::mir::builder::emission::compare::emit_planned_recorded(
+                self, plan, dst, lhs2, rhs2,
+            )?,
+            None => {
+                crate::mir::builder::emission::compare::emit_to_recorded(self, dst, op, lhs2, rhs2)?
+            }
         };
 
         Ok(CompletedOrdinaryComparisonV1 {
