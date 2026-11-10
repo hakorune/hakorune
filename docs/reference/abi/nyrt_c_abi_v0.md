@@ -387,8 +387,9 @@ cleanup copy; executable Normal and remaining concatenation/call Fault paths
 retain their original acquisition, transfer and End responsibility and order.
 
 String comparison transport (2026-11-10) adds the normal v2 row
-`{"op":"string_compare","dst":D,"comparison":"eq|ne|lt|le|gt|ge","left":T,"right":T}`.
-It has exactly these five keys. Both inputs use the same four Text
+`{"op":"string_compare","dst":D,"comparison":"eq","left":T,"right":T}`.
+It has exactly these five keys; comparison is eq, ne, lt, le, gt or ge.
+Both inputs use the same four Text
 representations and positional validation as the other normal reads. Its Bool
 result uses the existing i64 0/1 representation; Copy and PHI preserve that kind.
 It has no frame, site, ownership transition or Normal/Fault successor.

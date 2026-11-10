@@ -497,7 +497,18 @@ def checked_string_physical():
                         "comparison":"eq","left":literal("a"),"right":literal("a")}}]
                     target["terminator"]["index"] = 1
                     compile_input(faulted, False)
-                    if not native:
+                    if not native and comparison == "lt" and case == 1:
+                        # Multiple comparisons in one block have separate ABI slots.
+                        multiple = copy.deepcopy(compared); blocks = multiple["functions"][0]["blocks"]
+                        read_block = next(b for b in blocks if b["id"] == 1)
+                        for dst, op, value in [(45,"eq",owned(2)),(46,"ne",literal("a"))]:
+                            read_block["instructions"].append({"index":len(read_block["instructions"]),
+                                "instruction":{"op":"string_compare","dst":dst,"comparison":op,"left":value,"right":value}})
+                        read_block["terminator"]["index"] = len(read_block["instructions"])
+                        next(b for b in blocks if b["id"] == 5).update(block(5,{"op":"branch","condition":45,"then":7,"else":6,"then_args":None,"else_args":None}))
+                        blocks.extend([block(7,{"op":"branch","condition":46,"then":6,"else":8,"then_args":None,"else_args":None}),
+                            block(8,{"op":"return","value":4})])
+                        execute(multiple, endings=[0])
                         # The scalar Bool survives End and crosses a real metadata-free PHI.
                         phi = copy.deepcopy(compared); blocks = phi["functions"][0]["blocks"]
                         first_block = next(b for b in blocks if b["id"] == 0)
