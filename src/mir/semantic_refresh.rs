@@ -575,14 +575,9 @@ mod tests {
         let debug_len = module
             .get_function("Helper.debug_len/1")
             .expect("debug_len");
-        assert_eq!(debug_len.metadata.generic_method_routes.len(), 1);
-        let route = &debug_len.metadata.generic_method_routes[0];
-        assert_eq!(route.route_id(), "generic_method.len");
-        assert_eq!(route.receiver_origin_box(), Some("StringBox"));
-        assert_eq!(route.route_kind_tag(), "string_len");
-        assert_eq!(
-            route.return_shape().map(|shape| shape.to_string()),
-            Some("scalar_i64".to_string())
+        assert!(
+            debug_len.metadata.generic_method_routes.is_empty(),
+            "source String length must not recover the retired byte route during refresh"
         );
         assert_eq!(
             debug_len.metadata.global_call_routes[0].target_shape(),
