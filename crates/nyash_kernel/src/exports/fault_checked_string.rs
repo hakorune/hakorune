@@ -181,34 +181,49 @@ pub unsafe extern "C" fn compare(storage: *mut c_void, site: u64, op: u32,
     let frame = match unsafe { frame(storage) } { Ok(v) => v, Err(s) => return s as u32 };
     let left = match unsafe { comparable(left) } { Ok(v) => v, Err(status) => return status };
     let right = match unsafe { comparable(right) } { Ok(v) => v, Err(status) => return status };
-    let (left, right) = match (left, right) {
-        (Comparable::Text(left), Comparable::Text(right)) => (left, right),
-        // Only null/null is equal here. Other valid values are not null.
-        (left, right) => {
-            return match op {
-                0 | 1 => {
-                    unsafe { out.write(i64::from((matches!(left, Comparable::Null) && matches!(right, Comparable::Null)) == (op == 0))) };
-                    Status::Normal as u32
-                }
-                _ => fault(frame, site, TYPE_ERROR),
-            };
-        }
-    };
-    let order = left.chars().cmp(right.chars());
-    let result = match op {
-        0 => order.is_eq(), 1 => !order.is_eq(), 2 => order.is_lt(),
-        3 => !order.is_gt(), 4 => order.is_gt(), 5 => !order.is_lt(),
-        _ => unreachable!("validated comparison opcode"),
-    };
-    unsafe { out.write(i64::from(result)) };
-    Status::Normal as u32
+    let both_null = matches!((&left, &right), (Comparable::Null, Comparable::Null));
+    let descriptors = [left.text_descriptor(), right.text_descriptor()];
+    let result = unsafe { with_text_operands(descriptors.each_ref().map(|value|
+        value.as_ref().map(std::ptr::from_ref)), |[left, right]| match (left, right) {
+            (Some(left), Some(right)) => Some(compare_text_value(op, left, right)),
+            _ if op < 2 => Some(i64::from(both_null == (op == 0))),
+            _ => None,
+        }) };
+    match result {
+        Ok(Some(result)) => { unsafe { out.write(result) }; Status::Normal as u32 }
+        Ok(None) => fault(frame, site, TYPE_ERROR),
+        Err(status) => status as u32,
+    }
 }
 
 /// Separate valid non-Text payloads from null without assigning them Text equality.
 enum Comparable {
-    Text(String),
+    Text(Operand),
+    Snapshot(String),
     Null,
     Other,
+}
+impl Comparable {
+    /// A snapshot keeps the carrier's existing copy boundary; it is borrowed
+    /// here without another copy and remains alive until the helper returns.
+    fn text_descriptor(&self) -> Option<Operand> {
+        match self {
+            Self::Text(value) => Some(*value),
+            Self::Snapshot(value) => Some(Operand { kind: STATIC_TEXT, reserved: 0,
+                bytes: value.as_ptr(), len: value.len(), handle: 0, token: 0, integer: 0 }),
+            Self::Null | Self::Other => None,
+        }
+    }
+}
+
+/// One descriptor/token decoder for every opaque String carrier consumer.
+fn dynamic_carrier(value: &Operand) -> Result<nyash_rust::runtime::dynamic_invocation::DynamicCarrierTokenV1, u32> {
+    if value.kind != DYNAMIC_CARRIER || !value.bytes.is_null() || value.len != 0
+        || value.handle != 0 || value.integer != 0 || value.token == 0 || value.reserved != 0 {
+        return Err(Status::InvalidContract as u32);
+    }
+    nyash_rust::runtime::dynamic_invocation::DynamicCarrierTokenV1::from_raw_v1(value.token)
+        .map_err(|_| Status::InvalidContract as u32)
 }
 
 /// Decode both operands before applying an operator. Invalid transport is never
@@ -216,21 +231,17 @@ enum Comparable {
 unsafe fn comparable(value: *const Operand) -> Result<Comparable, u32> {
     let descriptor = unsafe { operand(value) }.map_err(|status| status as u32)?;
     if descriptor.kind != DYNAMIC_CARRIER {
-        return unsafe { text_operand(value) }.map(Comparable::Text).map_err(|status| status as u32);
+        if !matches!(descriptor.kind, STATIC_TEXT | OWNED_TEXT) { return Err(Status::InvalidContract as u32); }
+        return Ok(Comparable::Text(*descriptor));
     }
-    if !descriptor.bytes.is_null() || descriptor.len != 0 || descriptor.handle != 0
-        || descriptor.integer != 0 || descriptor.token == 0 || descriptor.reserved != 0 {
-        return Err(Status::InvalidContract as u32);
-    }
-    let carrier = nyash_rust::runtime::dynamic_invocation::DynamicCarrierTokenV1::from_raw_v1(descriptor.token)
-        .map_err(|_| Status::InvalidContract as u32)?;
+    let carrier = dynamic_carrier(descriptor)?;
     match carrier.is_null_v1() {
         Ok(true) => return Ok(Comparable::Null),
         Ok(false) => {}
         Err(_) => return Err(Status::InvalidContract as u32),
     }
     match carrier.text_snapshot_v1() {
-        Ok(text) => Ok(Comparable::Text(text)),
+        Ok(text) => Ok(Comparable::Snapshot(text)),
         Err(nyash_rust::runtime::dynamic_invocation::DynamicInvocationFailureV1::ArgumentTypeMismatch) => {
             Ok(Comparable::Other)
         }
@@ -330,14 +341,7 @@ pub unsafe extern "C" fn materialize(storage: *mut c_void, site: u64, value: *co
     let frame = match unsafe { frame(storage) } { Ok(v) => v, Err(s) => return s as u32 };
     let descriptor = match unsafe { operand(value) } { Ok(v) => v, Err(s) => return s as u32 };
     let value = if descriptor.kind == DYNAMIC_CARRIER {
-        if !descriptor.bytes.is_null() || descriptor.len != 0 || descriptor.handle != 0
-            || descriptor.integer != 0 || descriptor.token == 0 || descriptor.reserved != 0 {
-            return Status::InvalidContract as u32;
-        }
-        let carrier = match nyash_rust::runtime::dynamic_invocation::DynamicCarrierTokenV1::from_raw_v1(descriptor.token) {
-            Ok(carrier) => carrier,
-            Err(_) => return Status::InvalidContract as u32,
-        };
+        let carrier = match dynamic_carrier(descriptor) { Ok(value) => value, Err(status) => return status };
         match carrier.text_snapshot_v1() {
             Ok(value) => value,
             Err(nyash_rust::runtime::dynamic_invocation::DynamicInvocationFailureV1::ArgumentTypeMismatch) => {
@@ -426,14 +430,7 @@ pub unsafe extern "C" fn add(
             Err(DynamicDisplayFailure::InvalidContract) => return Status::InvalidContract as u32,
         },
         DYNAMIC_CARRIER => {
-            if right.reserved != 0 || !right.bytes.is_null() || right.len != 0
-                || right.handle != 0 || right.integer != 0 || right.token == 0 {
-                return Status::InvalidContract as u32;
-            }
-            let carrier = match nyash_rust::runtime::dynamic_invocation::DynamicCarrierTokenV1::from_raw_v1(right.token) {
-                Ok(carrier) => carrier,
-                Err(_) => return Status::InvalidContract as u32,
-            };
+            let carrier = match dynamic_carrier(right) { Ok(value) => value, Err(status) => return status };
             match carrier.string_add_suffix_v1() {
                 Ok(value) => value,
                 Err(nyash_rust::runtime::dynamic_invocation::DynamicInvocationFailureV1::ArgumentTypeMismatch) => {

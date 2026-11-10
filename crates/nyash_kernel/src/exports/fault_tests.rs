@@ -1027,6 +1027,30 @@ fn checked_string_mixed_equality_checks_both_carriers_without_consuming_them() {
             }
         }
     }
+    let mut owner_frame = FaultFrame::new();
+    let owner_pointer = (&mut owner_frame as *mut FaultFrame).cast();
+    let mut owned = api::OwnedText { handle: 0, token: 0 };
+    assert_eq!(unsafe { api::materialize(owner_pointer, 72, &literal, &mut owned) }, 0);
+    let leased = Operand { kind: 2, bytes: std::ptr::null(), len: 0,
+        handle: owned.handle, token: owned.token, ..literal };
+    for ended in [false, true] {
+        if ended { assert_eq!(unsafe { api::end(owner_pointer, 73, owned.handle, owned.token) }, 0); }
+        for other in [carrier(null.raw_v1()), carrier(integer.raw_v1()), carrier(other.raw_v1())] {
+            for (left, right) in [(leased, other), (other, leased)] {
+                for op in 0..6 {
+                    let mut frame = FaultFrame::new();
+                    let pointer = (&mut frame as *mut FaultFrame).cast();
+                    let mut out = 777;
+                    let status = unsafe { api::compare(pointer, 74, op, &left, &right, &mut out) };
+                    let expected = if ended { (2, 777) } else if op < 2 { (0, i64::from(op == 1)) } else { (1, 777) };
+                    assert_eq!((status, out), expected);
+                    let primary = frame.diagnostics().unwrap().0;
+                    if status == 1 { assert_eq!(primary.unwrap().reason, 302); }
+                    else { assert!(primary.is_none(), "InvalidContract must not be hidden as a source Fault"); }
+                }
+            }
+        }
+    }
     let invalid = [carrier(0), carrier(1), carrier(stale_raw),
         Operand { reserved: 1, ..carrier(integer.raw_v1()) }];
     for bad in invalid {
