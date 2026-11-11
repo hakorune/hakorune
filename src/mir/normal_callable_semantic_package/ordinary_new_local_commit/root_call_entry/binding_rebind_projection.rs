@@ -332,6 +332,13 @@ impl OrdinaryNewClaimLedgerV1 {
                 visit_plan(plan, owner, site, &mut output);
             }
         }
+        for relation in self.terminal_relations_for_owner(owner) {
+            if let crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Scalar(row) = relation {
+                if let Some(evaluation) = row.evaluation() {
+                    visit_evaluation(evaluation, owner, site, &mut output);
+                }
+            }
+        }
         for source in self.selected_source_loop_branch_joins_v2(owner, site) {
             visit(&Producer::BranchNormal(source), owner, site, &mut output);
         }

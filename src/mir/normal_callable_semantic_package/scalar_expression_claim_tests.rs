@@ -572,4 +572,37 @@ fn scalar_source_retention_keeps_both_branch_inventories() {
         .iter()
         .zip(again)
         .all(|(left, right)| std::rc::Rc::ptr_eq(left, &right)));
+    let text = "static box Main { main() { local a = 5 if a > 3 { a = a + 1 } else { a = a - 1 } return a + 1 } }";
+    let joined = issue(text).unwrap();
+    let ledger = &joined.ordinary_new_claim_ledger;
+    let owner = ledger.root_owner().unwrap();
+    let foreign = issue(text).unwrap();
+    let mut joins = 0;
+    for terminal in ledger.terminal_relations_for_owner(owner) {
+        let crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Scalar(terminal) =
+            terminal
+        else {
+            continue;
+        };
+        let Some(evaluation) = terminal.evaluation() else {
+            continue;
+        };
+        for reference in evaluation.references().values() {
+            let crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::Scalar(read) = reference else { continue; };
+            let Some(read) = read.original_read() else {
+                continue;
+            };
+            let crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1::BranchNormal(source) = read.producer() else { continue; };
+            assert!(ledger
+                .branch_scalar_sources_v1(owner, source.site())
+                .contains(source));
+            ledger.require_branch_scalar_source_v1(source).unwrap();
+            assert!(foreign
+                .ordinary_new_claim_ledger
+                .require_branch_scalar_source_v1(source)
+                .is_err());
+            joins += 1;
+        }
+    }
+    assert!(joins > 0);
 }

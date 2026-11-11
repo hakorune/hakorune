@@ -111,6 +111,24 @@ fn control_phi_preservation_uses_finishing_roots_and_leaves_dead_temporaries_rem
     let required: BTreeSet<_> = boundary.control_producer_bindings_v1(&original).unwrap().iter().filter_map(|(_, row)| row.dst_value()).collect();
     assert!(required.contains(&ValueId(6)));
     assert!(!required.contains(&ValueId(7)) && !required.contains(&ValueId(8)));
+    // Both alternatives are genuine, dominating parameters. Reversing only
+    // their predecessor association must not be mistaken for another valid Phi.
+    let mut two_arms = original.clone();
+    two_arms.blocks.get_mut(&BasicBlockId(2)).unwrap().set_terminator(
+        MirInstruction::Jump { target: BasicBlockId(4), edge_args: None });
+    let MirInstruction::Phi { inputs, .. } = &mut two_arms.blocks.get_mut(&BasicBlockId(4)).unwrap().instructions[0]
+        else { unreachable!() };
+    inputs.push((BasicBlockId(2), ValueId(2)));
+    two_arms.update_cfg();
+    let paired = PhysicalBoundary::capture(&two_arms, &bindings).unwrap();
+    let mut observed = paired.project(&two_arms).unwrap();
+    paired.validate_complete(&two_arms, &mut observed, &bindings).unwrap();
+    let MirInstruction::Phi { inputs, .. } = &mut two_arms.blocks.get_mut(&BasicBlockId(4)).unwrap().instructions[0]
+        else { unreachable!() };
+    inputs[0].1 = ValueId(2);
+    inputs[1].1 = ValueId(1);
+    assert!(paired.project(&two_arms).and_then(|mut observed|
+        paired.validate_complete(&two_arms, &mut observed, &bindings)).is_err());
     let symbol = original.signature.name.clone();
     let mut module = crate::mir::MirModule::new("control-preservation".into());
     module.functions.insert(symbol.clone(), original);
@@ -127,4 +145,11 @@ fn control_phi_preservation_uses_finishing_roots_and_leaves_dead_temporaries_rem
     let mut projection = boundary.project(finished).unwrap();
     boundary.validate_complete(finished, &mut projection, &bindings).unwrap();
     projection.validate_finished_sequences_v1(finished).unwrap();
+    let mut forged = finished.clone();
+    let phi = forged.blocks.values_mut().flat_map(|block| &mut block.instructions)
+        .find(|row| row.dst_value() == Some(ValueId(6))).unwrap();
+    let MirInstruction::Phi { inputs, .. } = phi else { unreachable!() };
+    inputs[0].1 = ValueId(2); // Same type and valid dominance, wrong original input.
+    assert!(boundary.project(&forged).and_then(|mut observed|
+        boundary.validate_complete(&forged, &mut observed, &bindings)).is_err());
 }

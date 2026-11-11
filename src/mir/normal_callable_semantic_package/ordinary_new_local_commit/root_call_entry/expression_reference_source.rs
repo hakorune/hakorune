@@ -16,11 +16,14 @@ pub(super) fn prepare_scalar_binding_producer(
         return Err(freeze("expression/scalar-binding-observation"));
     }
     let producer = match source {
-        Producer::BranchNormal(_) | Producer::LoopHeader(_) | Producer::LoopAfter { .. } => {
-            ReferenceProducerV1::Phi(std::rc::Rc::clone(
-                read.loan_scalar_join_v1(source)?.relation(),
-            ))
-        }
+        Producer::BranchNormal(_) => ReferenceProducerV1::Branch(std::rc::Rc::clone(
+            read.loan_scalar_join_v1(source)?
+                .branch()
+                .ok_or_else(|| freeze("expression/scalar-producer-kind"))?,
+        )),
+        Producer::LoopHeader(_) | Producer::LoopAfter { .. } => ReferenceProducerV1::Phi(
+            std::rc::Rc::clone(read.loan_scalar_join_v1(source)?.relation()),
+        ),
         Producer::Initializer(frame) => {
             let value = initializer_value(source, read, context)?;
             if function.params.contains(&value) {
@@ -569,6 +572,10 @@ pub(super) fn validate_dependencies(
                 context,
                 function,
             )?;
+            None
+        }
+        ReferenceProducerV1::Branch(point) => {
+            point.validate(context, function, None)?;
             None
         }
         ReferenceProducerV1::Phi(point) => {

@@ -291,6 +291,15 @@ fn validate_branch_geometry_v1(
         || function.blocks.get(&merge).is_none_or(|body| body.predecessors != expected) {
         return Err(freeze(kind_refusal));
     }
+    // The merge writer may retain one already-dominating SSA value instead
+    // of emitting a Phi. Both original arms and all geometry above still apply.
+    if values[0] == values[1] && relation.values() == (values[0], values[0]) {
+        if !relation.is_identity_v1()
+            || !crate::mir::builder::reusable_branch_value_v1(function, merge, &exits, values[0]) {
+            return Err(freeze(kind_refusal));
+        }
+        return Ok(());
+    }
     let phi = actual(relation.identity_phi_binding_v1()?)?
         .ok_or_else(|| freeze("expression/reference-dependency-missing"))?;
     let mut expected_inputs = [(exits[0], values[0]), (exits[1], values[1])];
