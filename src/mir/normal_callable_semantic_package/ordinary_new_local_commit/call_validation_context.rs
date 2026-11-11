@@ -208,7 +208,7 @@ impl<'a> CallValidationContextV1<'a> {
         if let Some(frame) = acquisition.initializer_origin_v1() {
             return self.with_original_initializer_v1(frame, |packet| {
                 let home = self.text_home_for_acquisition_v1(acquisition)?;
-                let value = read.loan_local_initializer_v1(acquisition.binding())?.0;
+                let value = read.binding_observation_v2().loan_root_initializer_v1(acquisition.binding())?;
                 if value != packet.value() || home.local_value() != value {
                     return Err(freeze("expression/residence-original-pair"));
                 }

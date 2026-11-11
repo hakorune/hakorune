@@ -196,8 +196,8 @@ impl ExpressionReferenceReadV1 {
             }
             Reference::StaticText(original) => {
                 let value = read
-                    .loan_local_initializer_v1(original.definition_binding())?
-                    .0;
+                    .binding_observation_v2()
+                .loan_root_initializer_v1(original.definition_binding())?;
                 let mut rows = function
                     .blocks
                     .iter()

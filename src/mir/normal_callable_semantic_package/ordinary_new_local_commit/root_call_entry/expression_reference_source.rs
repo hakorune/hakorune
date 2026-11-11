@@ -310,8 +310,8 @@ pub(super) fn reference_operand(
         }
         Reference::StaticText(original) => {
             let value = read
-                .loan_local_initializer_v1(original.definition_binding())?
-                .0;
+                .binding_observation_v2()
+                .loan_root_initializer_v1(original.definition_binding())?;
             if !matches!(producer, ReferenceProducerV1::Definition((_, MirInstruction::Const {
                 dst, value: ConstValue::String(text) })) if *dst == value && text == original.utf8())
             {
