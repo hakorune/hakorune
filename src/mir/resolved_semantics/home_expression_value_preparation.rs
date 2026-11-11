@@ -25,6 +25,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_value_evaluat
         usize,
         crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1,
     >,
+    root_core: Option<crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1>,
     field_request: &mut impl FnMut(
         &SourceExprSiteV1,
     ) -> Option<super::super::super::LocalFieldReadRequestV1>,
@@ -41,10 +42,26 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_value_evaluat
     E,
 > {
     use crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1;
-    let Some(prepared) = crate::mir::resolved_semantics::home_new_prefix::expression_plan::prepare_expression_calls_v1(&source,
-        crate::mir::resolved_semantics::home_new_prefix::expression_plan::ExpressionLeafProfileV1::Print, field_seeds, homes,
-        &mut |site| super::super::super::local_call_flow::issue_source_expression_call_v1(input, &source, site, homes,
-            &mut |binding| locals.field_alias_call_path(binding), actuals))? else { return Ok(Err("call-preparation-declined")) };
+    let mut root_core = root_core;
+    let Some(prepared) = crate::mir::resolved_semantics::home_new_prefix::expression_plan::prepare_expression_calls_v1(
+        &source,
+        crate::mir::resolved_semantics::home_new_prefix::expression_plan::ExpressionLeafProfileV1::Print,
+        field_seeds,
+        homes,
+        &mut |site| {
+            if site == purpose_site {
+                if let Some(core) = root_core.take() {
+                    return Ok(Some(crate::mir::resolved_semantics::home_new_prefix::ExpressionCallSourceV1::Core(core)));
+                }
+            }
+            super::super::super::local_call_flow::issue_source_expression_call_v1(
+                input, &source, site, homes,
+                &mut |binding| locals.field_alias_call_path(binding), actuals,
+            )
+        },
+    )? else {
+        return Ok(Err("call-preparation-declined"));
+    };
     let mut initial = Vec::new();
     for (node, original) in source.nodes().iter().enumerate() {
         if !prepared.is_active_reference(node) {

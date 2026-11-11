@@ -58,12 +58,17 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         &purpose,
         super::super::super::BorrowedCallActualRequestV1::CallEntryHomes(input),
     )?, Some(super::super::super::BorrowedCallArgumentsV1::CallEntryHomes { taken, instance_input: true, .. }) if !taken.is_empty());
-    if !stored_field
-        && !add
-        && !copy
-        && !bool_root
-        && !owns_inputs
-        && binary != Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Subtract)
+    let previous_scalar_candidate = stored_field
+        || add
+        || copy
+        || bool_root
+        || owns_inputs
+        || binary == Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Subtract);
+    if !previous_scalar_candidate
+        && input
+            .function()
+            .method_call_source_v1(value.site())
+            .is_none()
     {
         return Ok(None);
     }
@@ -72,11 +77,18 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
             super::super::HomePrefixUnavailableV1::ReturnValueNotCovered(statement.site().clone()),
         ))
     };
+    let preselection_unavailable = || {
+        if previous_scalar_candidate {
+            refused()
+        } else {
+            None
+        }
+    };
     let Some(shape) = input.body_shape() else {
-        return Ok(refused());
+        return Ok(preselection_unavailable());
     };
     let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else {
-        return Ok(refused());
+        return Ok(preselection_unavailable());
     };
     let Ok(Some(source)) =
         crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
@@ -85,7 +97,36 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
             statement.site(),
         )
     else {
-        return Ok(refused());
+        return Ok(preselection_unavailable());
+    };
+    let root_core = if previous_scalar_candidate {
+        None
+    } else {
+        use crate::mir::core_method_result_kind::CoreMethodSemanticLawV2;
+        use crate::mir::resolved_semantics::home_new_prefix::{
+            BorrowedCallActualRequestV1, BorrowedCallArgumentsV1,
+        };
+        let Some(BorrowedCallArgumentsV1::ExpressionCoreSource(core)) = actuals(
+            &purpose,
+            BorrowedCallActualRequestV1::ExpressionCoreSource {
+                input,
+                plan: &source,
+            },
+        )?
+        else {
+            return Ok(None);
+        };
+        if core.source().target().checked_code_point_law_v1()
+            != Some(CoreMethodSemanticLawV2::CodePointCount)
+        {
+            return Ok(None);
+        }
+        Some(core)
+    };
+    let field_seeds = if root_core.is_some() {
+        super::super::super::field_read::text_field_seeds_v1(input, &source, locals, fields)
+    } else {
+        Default::default()
     };
     // The complete Return evaluation borrows its Call and field leaves from
     // their existing source issuers and retains their ordered cleanup proof.
@@ -103,7 +144,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         calls,
         actuals,
         None,
-        &std::collections::BTreeMap::new(),
+        &field_seeds,
+        root_core,
         &mut |site| {
             super::super::super::field_read::expression_field_read_request(
                 input, &source, site, locals,
@@ -125,6 +167,11 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
             return Ok(if add || bool_root { None } else { refused() });
         }
     };
+    // A Return using the frame-free Core read does not acquire a Text Home.
+    // An expression requiring an acquisition or Fault frame keeps its terminal owner.
+    if !previous_scalar_candidate && evaluation.requires_fault_frame_v1(true, |_| None) {
+        return Ok(None);
+    }
     // Preserve the plain scalar kernel for returns whose operands have no
     // retained execution dependency that it cannot replay.
     use crate::mir::resolved_semantics::home_new_prefix::{
@@ -134,14 +181,16 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         let CheckedExpressionReferenceV1::Scalar(scalar) = reference else {
             return false;
         };
-        scalar.original_read().is_some_and(|read| match read.producer() {
-            CurrentScalarProducerV1::Operation(operation) => matches!(
-                operation.integer_operator_v1(),
-                Some(crate::mir::BinaryOp::Div | crate::mir::BinaryOp::Mod)
-            ),
-            CurrentScalarProducerV1::BindingRebind(_) => true,
-            _ => false,
-        })
+        scalar
+            .original_read()
+            .is_some_and(|read| match read.producer() {
+                CurrentScalarProducerV1::Operation(operation) => matches!(
+                    operation.integer_operator_v1(),
+                    Some(crate::mir::BinaryOp::Div | crate::mir::BinaryOp::Mod)
+                ),
+                CurrentScalarProducerV1::BindingRebind(_) => true,
+                _ => false,
+            })
     });
     if add
         && !needs_retained_producer

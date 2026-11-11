@@ -695,6 +695,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_text_evaluati
         actuals,
         field_text_source,
         &std::collections::BTreeMap::new(),
+        None,
         &mut |_| None,
     )? {
         Ok(prepared) => prepared,
