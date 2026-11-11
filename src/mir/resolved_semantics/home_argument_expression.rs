@@ -181,9 +181,6 @@ pub(crate) fn qualify_argument_expression_v1<E>(
     if !source.admits_prior_homes_v1(prior_homes) {
         return Ok(None);
     }
-    let Ok(order) = source.ordered_postorder_v1() else {
-        return Ok(None);
-    };
     if !source.children_always_known_v1() {
         return Ok(None);
     }
@@ -193,7 +190,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
             source.nodes().len()
         );
     }
-    let mut seeded = BTreeMap::new();
+    let mut seed_nodes = std::collections::BTreeSet::new();
     let mut finite_proofs = BTreeMap::new();
     for read in finite_entry_reads {
         let requirement = read.requirement();
@@ -209,7 +206,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
             })
             || !read.signed_only()
             || read.leaf_class(None) != Some(Leaf::Value(Class::I64))
-            || seeded.insert(node, Leaf::Value(Class::I64)).is_some()
+            || !seed_nodes.insert(node)
             || finite_proofs
                 .insert(
                     node,
@@ -237,7 +234,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
                     ) if *binding == requirement.binding())
             })
             || !read.corroborates_original_read_v1()
-            || seeded.insert(node, read.leaf_class()).is_some()
+            || !seed_nodes.insert(node)
             || dynamic_proofs
                 .insert(
                     node,
@@ -265,7 +262,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
             != 1
             || !core.dynamic_operand_contains(read.read())
             || !read.matches_source_node(&source, node)
-            || seeded.insert(node, Leaf::Value(Class::Dynamic)).is_some()
+            || !seed_nodes.insert(node)
             || loop_dynamic_proofs
                 .insert(
                     node,
@@ -295,9 +292,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
             continue;
         }
         if let Some(read) = static_reference(node.site()) {
-            if read.read() != node.site()
-                || read.binding() != *binding
-                || seeded.insert(index, Leaf::Value(Class::String)).is_some()
+            if read.read() != node.site() || read.binding() != *binding || !seed_nodes.insert(index)
             {
                 return Ok(None);
             }
@@ -308,7 +303,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
                 || acquisition.source().owner() != source.owner()
                 || (acquisition.owns_root()
                     && !prior_homes.contains(&LiveHomeV1::Text(acquisition.clone())))
-                || seeded.insert(index, Leaf::Value(Class::String)).is_some()
+                || !seed_nodes.insert(index)
             {
                 return Ok(None);
             }
@@ -330,7 +325,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
         let index = read.node();
         if source.nodes().get(index).is_none_or(|node| node.site() != read.read()
             || !matches!(node.source(), ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == read.binding()))
-            || seeded.insert(index, Leaf::Value(Class::String)).is_some() { return Ok(None); }
+            || !seed_nodes.insert(index) { return Ok(None); }
     }
     if crate::config::env::builder_debug_enabled() {
         eprintln!(
@@ -338,10 +333,10 @@ pub(crate) fn qualify_argument_expression_v1<E>(
             loop_dynamic_reads.len()
         );
     }
-    let Some(mut prepared) = super::leaves::prepare_expression_calls_v1(
+    let Some(prepared) = super::leaves::prepare_expression_calls_v1(
         &source,
         super::leaves::ExpressionLeafProfileV1::Argument,
-        &seeded,
+        &BTreeMap::new(),
         prior_homes,
         source_call,
     )?
@@ -354,50 +349,76 @@ pub(crate) fn qualify_argument_expression_v1<E>(
     let Some(core_i64_inputs) = prepared.i64_core_input_reference_nodes_v1() else {
         return Ok(None);
     };
-    let mut scalar_proofs = BTreeMap::new();
+    let mut initial = Vec::new();
+    for (node, proof) in finite_proofs
+        .into_iter()
+        .chain(dynamic_proofs)
+        .chain(loop_dynamic_proofs)
+    {
+        if prepared.transfers_node_v1(node) {
+            return Ok(None);
+        }
+        initial.push((node, proof));
+    }
+    for read in static_reads {
+        let Some(node) = source
+            .nodes()
+            .iter()
+            .position(|node| node.site() == read.read())
+        else {
+            return Ok(None);
+        };
+        if !prepared.transfers_node_v1(node) {
+            initial.push((node, CheckedExpressionReferenceV1::StaticText(read)));
+        }
+    }
+    for read in residence_reads {
+        if !prepared.transfers_node_v1(read.node()) {
+            initial.push((read.node(), CheckedExpressionReferenceV1::Residence(read)));
+        }
+    }
+    for read in text_reads {
+        if !prepared.transfers_node_v1(read.node()) {
+            initial.push((
+                read.node(),
+                CheckedExpressionReferenceV1::ArgumentEntry(read.clone()),
+            ));
+        }
+    }
     for (node, original) in source.nodes().iter().enumerate() {
-        let active = prepared.is_active_reference(node);
-        let signed = core.signed_operand_contains(original.site());
-        let core_i64 = core_i64_inputs.contains(&node);
-        if !active || (!core_i64 && !signed) {
+        if !prepared.is_active_reference(node)
+            || seed_nodes.contains(&node)
+            || !(core.signed_operand_contains(original.site()) || core_i64_inputs.contains(&node))
+        {
             continue;
         }
         let Some(read) = scalar_reference(original.site()) else {
-            if crate::config::env::builder_debug_enabled() {
-                eprintln!("[argument-expression] call={call:?} ordinal={ordinal} signed operand {:?} has no current scalar read", original.site());
-            }
             continue;
         };
         let proof = CheckedExpressionReferenceV1::Scalar(CheckedScalarReferenceV1::Original(read));
         if !proof.matches_node(&source, node)
-            || !prepared.seed_reference(node, Leaf::Value(Class::I64))
-            || scalar_proofs.insert(node, proof).is_some()
+            || !matches!(&proof, CheckedExpressionReferenceV1::Scalar(read) if read.kind() == SourceScalarKind::Integer)
         {
-            if crate::config::env::builder_debug_enabled() {
-                eprintln!("[argument-expression] call={call:?} ordinal={ordinal} signed operand {:?} proof failed exact seeding", original.site());
-            }
             return Ok(None);
         }
+        initial.push((node, proof));
     }
-    let Ok(super::leaves::QualifiedExpressionLeavesV1 {
-        classes,
-        mut calls,
-        cores,
-        fields,
-        transferred,
-        references,
-    }) = super::leaves::qualify_expression_leaves_with_calls_v1::<E>(
+    let Ok((evaluation, fields)) = super::qualification::qualify_expression_evaluation_v1(
         prepared,
+        initial,
         &mut |_| None,
-        &order,
+        &mut |_| None,
+        &mut |_| None,
+        &mut |_| None,
         field_request,
     )?
     else {
-        if crate::config::env::builder_debug_enabled() {
-            eprintln!("[argument-expression] call={call:?} ordinal={ordinal} unresolved expression leaves");
-        }
         return Ok(None);
     };
+    let root_call = evaluation
+        .calls()
+        .iter()
+        .find(|call| call.site().site() == root.site());
     let dynamic_array_carrier_root = core.dynamic_array_carrier_append_root_v1()
         && core.dynamic_array_carrier_call_is_v1(root.site());
     let expected = if core.requires_i64_v1() {
@@ -408,118 +429,29 @@ pub(crate) fn qualify_argument_expression_v1<E>(
         Class::String
     };
     let dynamic_producer_matches = !dynamic_array_carrier_root
-        || calls.get(&0).is_some_and(|call| {
+        || root_call.is_some_and(|call| {
             call.result()
                 == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Dynamic
                 && call.dynamic_invocation_result_lifecycle_v1().is_some()
         });
-    if classes[0] != Leaf::Value(expected)
-        || transferred.contains(&0)
-        || !references.is_empty()
+    if evaluation.root_class() != Leaf::Value(expected)
+        || evaluation.transfers_node(0)
         || !dynamic_producer_matches
     {
         if crate::config::env::builder_debug_enabled() {
-            eprintln!("[argument-expression] root rejected class={:?} expected={expected:?} transferred={} unresolved_refs={references:?}", classes.first(), transferred.contains(&0));
+            eprintln!("[argument-expression] root rejected class={:?} expected={expected:?} transferred={}", evaluation.root_class(), evaluation.transfers_node(0));
         }
         return Ok(None);
     }
-    let Some((operations, owned_results)) = super::operations::qualify_arithmetic_operations_v1(
-        &source,
-        &order,
-        &classes,
-        &transferred,
-        &scalar_proofs,
-    ) else {
-        if crate::config::env::builder_debug_enabled() {
-            eprintln!("[argument-expression] operator envelope rejected classes={classes:?} binaries={:?}", source.nodes().iter().enumerate().filter_map(|(node, original)| original.binary().map(|binary| (node, binary.operator(), binary.lhs(), binary.rhs()))).collect::<Vec<_>>());
-        }
-        return Ok(None);
-    };
     if core.resolver_source().is_some_and(|original| {
-        !cores
+        !evaluation
+            .cores()
             .get(&0)
             .is_some_and(|retained| std::ptr::eq(retained.source(), original))
     }) {
         if crate::config::env::builder_debug_enabled() {
             eprintln!("[argument-expression] original Core source differs from retained Core node");
         }
-        return Ok(None);
-    }
-    let mut reference_proofs = scalar_proofs;
-    for (node, proof) in finite_proofs {
-        if transferred.contains(&node) || reference_proofs.insert(node, proof).is_some() {
-            return Ok(None);
-        }
-    }
-    for (node, proof) in dynamic_proofs {
-        if transferred.contains(&node) || reference_proofs.insert(node, proof).is_some() {
-            return Ok(None);
-        }
-    }
-    for (node, proof) in loop_dynamic_proofs {
-        if transferred.contains(&node) || reference_proofs.insert(node, proof).is_some() {
-            return Ok(None);
-        }
-    }
-    for read in static_reads {
-        let Some(node) = source
-            .nodes()
-            .iter()
-            .position(|node| node.site() == read.read())
-        else {
-            return Ok(None);
-        };
-        if !transferred.contains(&node)
-            && reference_proofs
-                .insert(node, CheckedExpressionReferenceV1::StaticText(read))
-                .is_some()
-        {
-            return Ok(None);
-        }
-    }
-    for read in residence_reads {
-        if !transferred.contains(&read.node())
-            && reference_proofs
-                .insert(read.node(), CheckedExpressionReferenceV1::Residence(read))
-                .is_some()
-        {
-            return Ok(None);
-        }
-    }
-    for read in text_reads {
-        if !transferred.contains(&read.node())
-            && reference_proofs
-                .insert(
-                    read.node(),
-                    CheckedExpressionReferenceV1::ArgumentEntry(read.clone()),
-                )
-                .is_some()
-        {
-            return Ok(None);
-        }
-    }
-    reference_proofs.retain(|node, _| !transferred.contains(node));
-    if reference_proofs
-        .iter()
-        .any(|(&node, proof)| !proof.matches_node(&source, node))
-    {
-        return Ok(None);
-    }
-    let owned_results =
-        super::evaluation::owned_result_nodes(&order, &owned_results, &cores, &calls);
-    let mut evaluation = CheckedExpressionEvaluationV1 {
-        source: Rc::clone(&source),
-        prior_homes: prior_homes.into(),
-        order: order.clone().into_boxed_slice(),
-        classes: classes.into_boxed_slice(),
-        references: reference_proofs,
-        calls: order.iter().filter_map(|node| calls.remove(node)).collect(),
-        operations: operations.into_boxed_slice(),
-        owned_results,
-        cores,
-        transferred_inputs: transferred,
-    };
-    if !evaluation.retain_core_text_entry_reads_v1() {
         return Ok(None);
     }
     let frame = Rc::new(CheckedArgumentExpressionFrameV1 {

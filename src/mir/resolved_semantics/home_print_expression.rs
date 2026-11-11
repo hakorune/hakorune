@@ -4,8 +4,8 @@ use super::super::{LocalCallObservationV1, OwnedExprSiteV1, SourceExprSiteV1};
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_value_profile::{
-    expression_class::ExpressionValueClassV1, expression_plan::ExpressionPlanRootV1,
-    expression_projection::ExpressionLeafClassV1, expression_root::StatementExpressionRoleV1,
+    expression_plan::ExpressionPlanRootV1, expression_projection::ExpressionLeafClassV1,
+    expression_root::StatementExpressionRoleV1,
 };
 use std::collections::BTreeMap;
 

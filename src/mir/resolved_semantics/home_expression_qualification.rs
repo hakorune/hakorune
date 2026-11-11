@@ -48,6 +48,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_expression_ev
 {
     use ExpressionLeafClassV1 as Leaf;
     use ExpressionValueClassV1 as Class;
+    let materializes_text_fields = prepared.materializes_text_fields_v1();
     let source = Rc::clone(prepared.source());
     let prior_homes = prepared.prior_homes().to_vec();
     let Ok(order) = source.ordered_postorder_v1() else {
@@ -117,12 +118,14 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_expression_ev
     }) else {
         return Ok(Err("arithmetic-operations-unproved"));
     };
-    owned_results.extend(super::operations::owned_text_field_nodes_v1(
-        &source,
-        &order,
-        &classes,
-        &transferred,
-    ));
+    if materializes_text_fields {
+        owned_results.extend(super::operations::owned_text_field_nodes_v1(
+            &source,
+            &order,
+            &classes,
+            &transferred,
+        ));
+    }
     if crate::config::env::builder_debug_enabled() {
         eprintln!("[statement-evaluation] owner={:?} order={:?} owned_candidates={:?} transferred={:?} classes={:?} nodes={:?}",
             source.owner(), order, owned_results, transferred, classes, source.nodes().iter().map(|node| format!("{:?}", node.source())).collect::<Vec<_>>());

@@ -244,9 +244,6 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     if !source.admits_prior_homes_v1(&prior_homes) {
         return Ok(None);
     }
-    if source.ordered_postorder_v1().is_err() {
-        return Ok(None);
-    }
     if !source.children_always_known_v1() {
         return Ok(None);
     }

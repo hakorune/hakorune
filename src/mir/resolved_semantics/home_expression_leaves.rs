@@ -64,6 +64,14 @@ impl PreparedExpressionCallsV1 {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn prior_homes(&self) -> &[LiveHomeV1] {
         &self.prior_homes
     }
+    /// Value destinations materialize field Text as an owned copy; borrowed
+    /// argument/rebind/condition leaves keep their existing read obligation.
+    pub(super) fn materializes_text_fields_v1(&self) -> bool {
+        matches!(self.profile, ExpressionLeafProfileV1::Print | ExpressionLeafProfileV1::LocalInitializer)
+    }
+    pub(super) fn transfers_node_v1(&self, node: usize) -> bool {
+        self.transferred.contains(&node)
+    }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_local_initializer(&self) -> bool {
         self.profile == ExpressionLeafProfileV1::LocalInitializer
     }
