@@ -253,47 +253,6 @@ fn result_observation_v1(
     }
 }
 
-pub(crate) fn issue_source_scalar_expression_call<E>(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    statement: &SourceStmtSiteV1,
-    site: &OwnedExprSiteV1,
-    prior_homes: &[LiveHomeV1],
-    receiver_path: &mut impl FnMut(BindingRefV1) -> Option<super::super::FieldAliasPathV1>,
-    borrowed_arguments: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        BorrowedCallActualRequestV1<'_>,
-    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
-) -> Result<Option<LocalCallObservationV1>, E> {
-    let SourceScalarDemandV1::Ready { loan, arguments } =
-        demand_v1(input, site, borrowed_arguments)?
-    else {
-        return Ok(None);
-    };
-    if loan.kind() != SourceScalarKind::Integer {
-        return Ok(None);
-    }
-    let field_alias = loan
-        .source()
-        .receiver_binding()
-        .ok()
-        .and_then(receiver_path);
-    Ok(Some(LocalCallObservationV1 {
-        owner: input.owner(),
-        statement: statement.clone(),
-        site: site.clone(),
-        destination: LocalCallDestinationV1::ExpressionValue,
-        prior_homes: prior_homes.into(),
-        entry_ownership: None,
-        arguments,
-        result: LocalCallResultClassV1::I64,
-        result_source: Some(LocalCallResultSourceV1::Scalar(loan)),
-        unit_source: None,
-        borrowed_nullable: None,
-        mixed: None,
-        field_alias,
-    }))
-}
-
 /// Selection keeps a refused original scalar demand distinct from absence.
 pub(crate) enum SourceScalarConditionCallV1 {
     Unselected,

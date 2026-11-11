@@ -189,3 +189,22 @@ pub(super) fn validate_selected_new_argument_contracts_v1(
     }
     Ok(())
 }
+
+impl super::OrdinaryNewClaimLedgerV1 {
+    /// Constructor Text demands settle with the execution plans, not with
+    /// their early co-seal copies. Check once before any physical take.
+    pub(in crate::mir::normal_callable_semantic_package) fn validate_new_argument_contracts_v1(
+        &self,
+    ) -> Result<(), OrdinaryNewCoSealIssueV1> {
+        let claims = self.claims.borrow();
+        let results = self.result_claims.borrow();
+        let births = self.birth_abi_handoffs.borrow();
+        for core in claims.values().map(|claim| &claim.core)
+            .chain(results.values().map(|claim| &claim.core)) {
+            validate_selected_new_argument_contracts_v1(
+                &core.site, &core.argument_rows, births.get(&core.site),
+            )?;
+        }
+        Ok(())
+    }
+}

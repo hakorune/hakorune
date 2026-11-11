@@ -320,7 +320,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_take_homes_v1(
         retained_contract || exact_no_entry_transfer_v1(input, prepared, targets, contracts, site)?;
     let mut children = Vec::new();
     if let Some(rows) = rows {
-        let slots = if let Some(snapshot) = rows.source_static_snapshot_v1() {
+        let slots = if let Some(dynamic) = &rows.dynamic_invocation_arguments {
+            Some(&dynamic.arguments)
+        } else if let Some(snapshot) = rows.source_static_snapshot_v1() {
             match &snapshot.phase {
                 BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) => {
                     Some(&identity.argument_sources)

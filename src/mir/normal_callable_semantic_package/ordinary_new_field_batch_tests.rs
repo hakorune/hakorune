@@ -566,16 +566,31 @@ fn scalar_expression_batch_duplicate_rejects_without_commit() {
                             })
                         },
                         &std::collections::BTreeMap::new(),
-                        &mut |site| crate::mir::resolved_semantics::home_new_prefix::issue_source_scalar_expression_call(
-                            input, statement.site(), site, &homes, &mut |_| None,
+                        &mut |site| crate::mir::resolved_semantics::home_new_prefix::issue_source_expression_call_v1(
+                            input, &source, site, &homes, &mut |_| None,
                             &mut |site, request| {
-                                assert!(matches!(request, crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1::SourceResultArguments { .. }));
-                                super::super::super::lexical_instance_call::source_scalar_result_arguments_v1(
-                                    &prepared, &package.parameter_contracts,
-                                    ledger.borrowed_formal_source.as_ref().unwrap(), &ledger.borrowed_formal_actuals,
-                                    &ledger.borrowed_i64_results, site, &ledger.callable_result_classes)
+                                use crate::mir::resolved_semantics::home_new_prefix::{BorrowedCallActualRequestV1 as Request, BorrowedCallArgumentsV1 as Reply};
+                                let ingress = ledger.borrowed_formal_source.as_ref().unwrap();
+                                match request {
+                                    Request::CallEntryHomes(input) => {
+                                        super::super::super::lexical_instance_call::source_take_homes_v1(
+                                            &ledger.borrowed_formal_actuals, site, &candidates,
+                                            &package.parameter_contracts, input, ingress, &prepared,
+                                        ).map(|(instance_input, contract_proved, taken, fresh, arguments)| Some(Reply::CallEntryHomes {
+                                            instance_input, contract_proved, taken, fresh, arguments,
+                                            preserves_reads: ingress.as_ref().is_ok_and(|source|
+                                                source.call_preserves_read_loans_v1(input, package.batch(), &package.parameter_contracts, site)),
+                                        }))
+                                    }
+                                    Request::SourceResultArguments { .. } =>
+                                        super::super::super::lexical_instance_call::source_scalar_result_arguments_v1(
+                                            &prepared, &package.parameter_contracts, ingress, &ledger.borrowed_formal_actuals,
+                                            &ledger.borrowed_i64_results, site, &ledger.callable_result_classes),
+                                    Request::ExpressionCoreSource { .. } | Request::DynamicInvocationSource { .. } => Ok(None),
+                                    _ => panic!("unexpected request in exact scalar source fixture"),
+                                }
                             },
-                        ).map(|call| call.map(crate::mir::resolved_semantics::home_new_prefix::ExpressionCallSourceV1::Ordinary)),
+                        ),
                         &mut |_| can_install,
                         &mut |requests, demand| {
                             *batches += 1;

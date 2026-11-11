@@ -301,7 +301,7 @@ impl LocalCallObservationV1 {
 }
 
 pub(crate) use source_scalar_call::{
-    issue_source_expression_call_v1, issue_source_scalar_expression_call,
+    issue_source_expression_call_v1,
     issue_source_scalar_frame_call_v1, issue_source_static_scalar_frame_call_v1,
     LocalCallResultClassV1, LocalCallResultSourceV1,
 };
