@@ -48,7 +48,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_expression_ev
 {
     use ExpressionLeafClassV1 as Leaf;
     use ExpressionValueClassV1 as Class;
-    let materializes_text_fields = prepared.materializes_text_fields_v1();
+    let coverage = prepared.operation_coverage_v1();
+    let materializes_text_fields = coverage.materializes_text_fields_v1();
     let source = Rc::clone(prepared.source());
     let prior_homes = prepared.prior_homes().to_vec();
     let Ok(order) = source.ordered_postorder_v1() else {
@@ -89,23 +90,22 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_expression_ev
     }
     reference_proofs.retain(|node, _| !transferred.contains(node));
     // R16: a root comparison is a Bool value; its operand subtrees keep their own law.
-    let bool_root = classes[0] == Leaf::Value(Class::Bool)
-        && super::operations::qualify_comparison_operation_v1(&source, 0, &classes).is_some();
-    let Some((operations, mut owned_results)) = (if bool_root {
-        let root = super::operations::qualify_comparison_operation_v1(&source, 0, &classes);
+    let root_comparison = (coverage.covers_comparison_node_v1(0)
+        && classes[0] == Leaf::Value(Class::Bool))
+    .then(|| super::operations::qualify_comparison_operation_v1(&source, 0, &classes))
+    .flatten();
+    let Some((operations, mut owned_results)) = (if let Some(root) = root_comparison {
         let inner_order: Vec<usize> = order.iter().copied().filter(|node| *node != 0).collect();
-        root.and_then(|root| {
-            super::operations::qualify_arithmetic_operations_v1(
-                &source,
-                &inner_order,
-                &classes,
-                &transferred,
-                &reference_proofs,
-            )
-            .map(|(mut operations, owned)| {
-                operations.push(root);
-                (operations, owned)
-            })
+        super::operations::qualify_arithmetic_operations_v1(
+            &source,
+            &inner_order,
+            &classes,
+            &transferred,
+            &reference_proofs,
+        )
+        .map(|(mut operations, owned)| {
+            operations.push(root);
+            (operations, owned)
         })
     } else {
         super::operations::qualify_arithmetic_operations_v1(

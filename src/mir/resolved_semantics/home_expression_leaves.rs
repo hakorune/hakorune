@@ -20,6 +20,23 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) enum ExpressionLeafProfi
     BindingRebind,
 }
 
+impl ExpressionLeafProfileV1 {
+    /// Current implementation coverage only: the common issuer still proves
+    /// the exact operand/domain law. No language ban or NoFault permission.
+    pub(super) fn covers_comparison_node_v1(self, node: usize) -> bool {
+        self == Self::BoolCondition
+            || node == 0 && matches!(self, Self::Print | Self::LocalInitializer)
+    }
+    /// Value destinations materialize field Text as an owned copy; borrowed
+    /// argument/rebind/condition leaves keep their existing read obligation.
+    pub(super) fn materializes_text_fields_v1(&self) -> bool {
+        matches!(
+            self,
+            ExpressionLeafProfileV1::Print | ExpressionLeafProfileV1::LocalInitializer
+        )
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ExpressionCallSourceV1 {
     Ordinary(LocalCallObservationV1),
@@ -64,10 +81,9 @@ impl PreparedExpressionCallsV1 {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn prior_homes(&self) -> &[LiveHomeV1] {
         &self.prior_homes
     }
-    /// Value destinations materialize field Text as an owned copy; borrowed
-    /// argument/rebind/condition leaves keep their existing read obligation.
-    pub(super) fn materializes_text_fields_v1(&self) -> bool {
-        matches!(self.profile, ExpressionLeafProfileV1::Print | ExpressionLeafProfileV1::LocalInitializer)
+    /// Snapshot implementation coverage; it grants no source or effect proof.
+    pub(super) fn operation_coverage_v1(&self) -> ExpressionLeafProfileV1 {
+        self.profile
     }
     pub(super) fn transfers_node_v1(&self, node: usize) -> bool {
         self.transferred.contains(&node)
