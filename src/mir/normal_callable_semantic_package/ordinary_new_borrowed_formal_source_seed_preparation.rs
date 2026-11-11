@@ -330,10 +330,15 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                     expression_roots.push(classify_original_actual_seed_in_scope(input, batch, selected, results, input.owner(),
                         local_candidates, receiver, definitions, contracts, site, None, Some(inventory), Some(&source_context)));
                 }
-                // Direct ReturnValue uses the same original Core/SUM analysis;
-                // a source result is not a physical Return or ownership grant.
+                // Every statement expression asks the same original Core/SUM
+                // analysis. A demand grants neither execution nor ownership.
                 if let Some(shape) = input.body_shape() {
-                    for site in shape.return_value_sites() {
+                    let ledger = input.forest().callable_source_ledger(input.owner())
+                        .map_err(|_| freeze("source-sum/caller-owner"))?;
+                    for statement in shape.statements() {
+                        let Ok(Some(plan)) = crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
+                            &ledger, shape, statement.site()) else { continue; };
+                        let Some(site) = plan.root().expression_site() else { continue; };
                         expression_roots.push(classify_original_actual_seed_in_scope(input, batch, selected, results, input.owner(),
                             local_candidates, receiver, definitions, contracts, site, None, Some(inventory), Some(&source_context)));
                     }

@@ -200,6 +200,16 @@ pub(in crate::mir::builder) fn checked_scalar_arg(
     builder: &mut MirBuilder,
     value: ValueId,
 ) -> Result<(ValueId, std::rc::Rc<LocalSsaPhysicalRelationV1>), String> {
+    let function = builder.function_state.current_function.as_ref()
+        .ok_or_else(|| "[freeze:contract][scalar-original/function-missing]".to_owned())?;
+    let block = builder.function_state.current_block
+        .ok_or_else(|| "[freeze:contract][scalar-original/block-missing]".to_owned())?;
+    if checked_mul::reuse_same_block_operand(function, block, value)? {
+        let relation = builder.function_state.local_ssa_correspondence.loan(function, value, value)
+            .ok_or_else(|| "[freeze:contract][scalar-original/operand-correspondence]".to_owned())?;
+        relation.verify(function)?;
+        return Ok((value, relation));
+    }
     let returned = ensure_inner_with_policy(builder, value, LocalKind::Arg, false, true, true)?;
     let function = builder.function_state.current_function.as_ref()
         .ok_or_else(|| "[freeze:contract][scalar-original/function-missing]".to_owned())?;

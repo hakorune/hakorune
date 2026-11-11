@@ -229,7 +229,21 @@ impl CheckedExpressionEvaluationV1 {
         allow_dynamic_call: bool,
     ) -> Option<Vec<usize>> {
         let plan = self.comparison_plan_v1(comparison).ok()??;
-        if !matches!(plan.kind(), ComparisonExecutionKindV1::Text)
+        let root = self.source.nodes().get(comparison)?;
+        let prefix = root.site().node().segments();
+        let computed_scalar = allow_dynamic_call
+            && matches!(plan.kind(), ComparisonExecutionKindV1::Scalar(_))
+            && self.cores.iter().any(|(&node, core)| {
+                self.source.nodes()[node]
+                    .site()
+                    .node()
+                    .segments()
+                    .starts_with(prefix)
+                    && core.matches_plan(&self.source, node)
+                    && core.source().target().frame_free_read_law_v1().is_some()
+            });
+        if !computed_scalar
+            && !matches!(plan.kind(), ComparisonExecutionKindV1::Text)
             && !(allow_dynamic_call
                 && matches!(
                     plan.kind(),
@@ -240,8 +254,6 @@ impl CheckedExpressionEvaluationV1 {
         {
             return None;
         }
-        let root = self.source.nodes().get(comparison)?;
-        let prefix = root.site().node().segments();
         let order: Vec<_> = self
             .order
             .iter()

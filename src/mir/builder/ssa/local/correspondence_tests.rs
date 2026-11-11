@@ -161,10 +161,8 @@ fn cache_and_identity_keep_exact_index_membership_and_detect_mutation() {
             }
         }
     }
-    assert!(relation
-        .verify(&changed)
-        .unwrap_err()
-        .contains("materialized-producer"));
+    let producer = if returned == raw { "original-producer" } else { "materialized-producer" };
+    assert!(relation.verify(&changed).unwrap_err().contains(producer));
 
     // The same LocalSSA writer must retain ordered Compare children through
     // the pin Copy used by short-circuit conditions, and reject later edits.

@@ -134,6 +134,28 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     else {
         return Ok(preselection_unavailable());
     };
+    let mut root_argument_evaluation = false;
+    if !previous_scalar_candidate {
+        if let Some(call) = input.function().method_call_source_v1(value.site()) {
+            use crate::mir::resolved_semantics::home_new_prefix::{
+                BorrowedCallActualRequestV1, BorrowedCallArgumentsV1,
+            };
+            for argument in call.arguments() {
+                if let Some(BorrowedCallArgumentsV1::ArgumentExpressionSource(loan)) = actuals(
+                    &purpose,
+                    BorrowedCallActualRequestV1::ArgumentExpressionSource(
+                        input,
+                        argument.ordinal(),
+                    ),
+                )? {
+                    if !matches!(loan.plan().nodes().first().map(|node| node.source()),
+                        Some(crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Literal(_)
+                            | crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_)))
+                    { root_argument_evaluation = true; }
+                }
+            }
+        }
+    }
     let root_core = if previous_scalar_candidate {
         None
     } else {
@@ -141,22 +163,22 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         use crate::mir::resolved_semantics::home_new_prefix::{
             BorrowedCallActualRequestV1, BorrowedCallArgumentsV1,
         };
-        let Some(BorrowedCallArgumentsV1::ExpressionCoreSource(core)) = actuals(
+        match actuals(
             &purpose,
             BorrowedCallActualRequestV1::ExpressionCoreSource {
                 input,
                 plan: &source,
             },
-        )?
-        else {
-            return Ok(None);
-        };
-        if core.source().target().checked_code_point_law_v1()
-            != Some(CoreMethodSemanticLawV2::CodePointCount)
-        {
-            return Ok(None);
+        )? {
+            Some(BorrowedCallArgumentsV1::ExpressionCoreSource(core))
+                if core.source().target().checked_code_point_law_v1()
+                    == Some(CoreMethodSemanticLawV2::CodePointCount) =>
+            {
+                Some(core)
+            }
+            None if root_argument_evaluation => None,
+            _ => return Ok(None),
         }
-        Some(core)
     };
     let field_seeds = if root_core.is_some() {
         super::super::super::field_read::text_field_seeds_v1(input, &source, locals, fields)
@@ -204,7 +226,10 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     };
     // A Return using the frame-free Core read does not acquire a Text Home.
     // An expression requiring an acquisition or Fault frame keeps its terminal owner.
-    if !previous_scalar_candidate && evaluation.requires_fault_frame_v1(true, |_| None) {
+    if !previous_scalar_candidate
+        && !root_argument_evaluation
+        && evaluation.requires_fault_frame_v1(true, |_| None)
+    {
         return Ok(None);
     }
     // A value already available at this point needs no new evaluation.

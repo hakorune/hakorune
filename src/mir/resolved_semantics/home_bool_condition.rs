@@ -59,10 +59,13 @@ impl CheckedBoolConditionFrameV1 {
     /// not scalar-producing nodes or separate Local acquisitions.
     pub(crate) fn comparison_input_children_v1(&self, node: usize) -> Option<[usize; 2]> {
         let plan = self.evaluation.comparison_plan_v1(node).ok()??;
-        matches!(
+        (matches!(
             plan.kind(),
             ComparisonExecutionKindV1::Text | ComparisonExecutionKindV1::Checked { .. }
-        )
+        ) || self
+            .evaluation
+            .bool_condition_comparison_input_order_v1(node)
+            .is_some())
         .then_some(plan.operands()?)
     }
 
@@ -507,7 +510,8 @@ pub(crate) fn qualify_condition_expression_v1<E>(
         }
     }
     if frame.evaluation().cores().iter().any(|(node, core)| {
-        !input_owners.contains_key(node)
+        core.source().target().frame_free_read_law_v1().is_none()
+            && !input_owners.contains_key(node)
             && !(core.field_map().is_some()
                 && core.source().target().checked_map_presence_law_v1()
                 && frame
