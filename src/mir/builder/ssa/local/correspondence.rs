@@ -1,8 +1,8 @@
 //! Function-owned observations from the sole LocalSSA materialization writer.
 //! These records carry physical provenance only, never scalar/source authority.
 use crate::mir::normal_callable_semantic_package::OriginalScalarAppendV1;
-use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 use crate::mir::verification::geometry::FunctionVerificationGeometry;
+use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
 use std::rc::Rc;
 
@@ -20,15 +20,24 @@ enum Definition {
 }
 
 impl PartialEq for PhysicalPhiDefinitionV1 {
-    fn eq(&self, other: &Self) -> bool { std::ptr::eq(self, other) }
+    fn eq(&self, other: &Self) -> bool {
+        std::ptr::eq(self, other)
+    }
 }
 
 impl Definition {
     fn resolved(&self) -> Result<Self, String> {
-        match self { Self::Phi(phi) => Ok(Self::Instruction(phi.current()?.clone())), _ => Ok(self.clone()) }
+        match self {
+            Self::Phi(phi) => Ok(Self::Instruction(phi.current()?.clone())),
+            _ => Ok(self.clone()),
+        }
     }
     fn binding(&self) -> Option<&PhysicalBinding> {
-        match self { Self::Instruction(row) => Some(row), Self::Phi(phi) => phi.current().ok(), _ => None }
+        match self {
+            Self::Instruction(row) => Some(row),
+            Self::Phi(phi) => phi.current().ok(),
+            _ => None,
+        }
     }
 }
 
@@ -66,27 +75,37 @@ impl LocalSsaPhysicalRelationV1 {
         self.is_identity_v1() && matches!(self.source, Definition::Phi(_))
     }
     pub(in crate::mir) fn require_completed_v1(&self) -> Result<(), String> {
-        if let Definition::Phi(phi) = &self.source { phi.require_completed()?; }
+        if let Definition::Phi(phi) = &self.source {
+            phi.require_completed()?;
+        }
         if let Step::Append(children) = &self.step {
-            for child in children { child.require_completed_v1()?; }
+            for child in children {
+                child.require_completed_v1()?;
+            }
         }
         Ok(())
     }
 
     /// Resolve only a binding retained from this same writer observation.
     /// Final MIR is never a source for replacement evidence.
-    pub(in crate::mir) fn resolve_observed_binding_v1(&self, original: &PhysicalBinding, require_completed: bool)
-        -> Result<Option<PhysicalBinding>, String>
-    {
+    pub(in crate::mir) fn resolve_observed_binding_v1(
+        &self,
+        original: &PhysicalBinding,
+        require_completed: bool,
+    ) -> Result<Option<PhysicalBinding>, String> {
         if let Definition::Phi(phi) = &self.source {
             if phi.resolves(original) {
-                if require_completed { phi.require_completed()?; }
+                if require_completed {
+                    phi.require_completed()?;
+                }
                 return Ok(Some(phi.current()?.clone()));
             }
         }
         if let Step::Append(children) = &self.step {
             for child in children {
-                if let Some(row) = child.resolve_observed_binding_v1(original, require_completed)? { return Ok(Some(row)); }
+                if let Some(row) = child.resolve_observed_binding_v1(original, require_completed)? {
+                    return Ok(Some(row));
+                }
             }
         }
         Ok(None)
@@ -103,12 +122,19 @@ impl LocalSsaPhysicalRelationV1 {
 
     /// Exact writer output in emission order: a nested materialization precedes
     /// the instruction that consumes it. Grants no operand class.
-    pub(in crate::mir) fn append_materialization_chain_v1(&self, bindings: &mut Vec<PhysicalBinding>) {
+    pub(in crate::mir) fn append_materialization_chain_v1(
+        &self,
+        bindings: &mut Vec<PhysicalBinding>,
+    ) {
         if let Step::Append(children) = &self.step {
-            for child in children { child.append_materialization_chain_v1(bindings); }
+            for child in children {
+                child.append_materialization_chain_v1(bindings);
+            }
         }
         if let Some(target) = &self.target {
-            if !bindings.contains(target) { bindings.push(target.clone()); }
+            if !bindings.contains(target) {
+                bindings.push(target.clone());
+            }
         }
     }
 
@@ -116,13 +142,19 @@ impl LocalSsaPhysicalRelationV1 {
     /// This grants no operand class and changes no removable-binding policy.
     pub(in crate::mir) fn append_observed_bindings_v1(&self, bindings: &mut Vec<PhysicalBinding>) {
         if let Some(original) = self.source.binding() {
-            if !bindings.contains(original) { bindings.push(original.clone()); }
+            if !bindings.contains(original) {
+                bindings.push(original.clone());
+            }
         }
         if let Some(target) = &self.target {
-            if !bindings.contains(target) { bindings.push(target.clone()); }
+            if !bindings.contains(target) {
+                bindings.push(target.clone());
+            }
         }
         if let Step::Append(children) = &self.step {
-            for child in children { child.append_observed_bindings_v1(bindings); }
+            for child in children {
+                child.append_observed_bindings_v1(bindings);
+            }
         }
     }
 
@@ -151,7 +183,10 @@ impl LocalSsaPhysicalRelationV1 {
     pub(in crate::mir) fn verify(&self, function: &MirFunction) -> Result<(), String> {
         self.verify_with_geometry(&FunctionVerificationGeometry::new(function))
     }
-    pub(in crate::mir) fn verify_with_geometry(&self, function: &FunctionVerificationGeometry<'_>) -> Result<(), String> {
+    pub(in crate::mir) fn verify_with_geometry(
+        &self,
+        function: &FunctionVerificationGeometry<'_>,
+    ) -> Result<(), String> {
         if indexed_definition(function, self.from).as_ref() != Some(&self.source.resolved()?) {
             return Err(reject("original-producer"));
         }
@@ -166,10 +201,15 @@ impl LocalSsaPhysicalRelationV1 {
         if let (Definition::Instruction((_, MirInstruction::Copy { .. })), Some(target)) =
             (&self.source, self.target.as_ref())
         {
-            if let MirInstruction::Const { value: crate::mir::ConstValue::Integer(value), .. } = target.1 {
+            if let MirInstruction::Const {
+                value: crate::mir::ConstValue::Integer(value),
+                ..
+            } = target.1
+            {
                 crate::mir::verification::utils::exact_integer_operand_origin(
                     function, self.from, target, value,
-                ).ok_or_else(|| reject("copy-constant-origin"))?;
+                )
+                .ok_or_else(|| reject("copy-constant-origin"))?;
             }
         }
         if let Step::Append(children) = &self.step {
@@ -195,16 +235,23 @@ impl LocalSsaPhysicalRelationV1 {
         project: &mut impl FnMut(&PhysicalBinding) -> Result<Option<PhysicalBinding>, String>,
     ) -> Result<(), String> {
         self.verify_shape()?;
-        let mut verify_binding = |original: &PhysicalBinding, cloned_compare: bool| -> Result<(), String> {
+        let mut verify_binding = |original: &PhysicalBinding,
+                                  cloned_compare: bool|
+         -> Result<(), String> {
             match project(original)? {
                 Some(mapped) => {
                     let value = mapped
                         .1
                         .dst_value()
                         .ok_or_else(|| reject("projected-dst"))?;
-                    if !matches!(indexed_definition(function, value), Some(Definition::Instruction(ref actual)) if actual == &mapped) {
-                        return Err(format!("{} function={} original={original:?} mapped={mapped:?} actual={:?}",
-                            reject("projected-producer"), function.signature.name, indexed_definition(function, value)));
+                    if !matches!(indexed_definition(function, value), Some(Definition::Instruction(ref actual)) if actual == &mapped)
+                    {
+                        return Err(format!(
+                            "{} function={} original={original:?} mapped={mapped:?} actual={:?}",
+                            reject("projected-producer"),
+                            function.signature.name,
+                            indexed_definition(function, value)
+                        ));
                     }
                 }
                 None if matches!(
@@ -220,8 +267,13 @@ impl LocalSsaPhysicalRelationV1 {
             Ok(())
         };
         match &self.source.resolved()? {
-            Definition::Instruction(original) => verify_binding(original,
-                matches!((&self.step, &self.target), (Step::Append(_), Some((_, MirInstruction::Compare { .. })))))?,
+            Definition::Instruction(original) => verify_binding(
+                original,
+                matches!(
+                    (&self.step, &self.target),
+                    (Step::Append(_), Some((_, MirInstruction::Compare { .. })))
+                ),
+            )?,
             Definition::Phi(_) => return Err(reject("unresolved-phi")),
             Definition::Parameter { value, index } => {
                 if function.params.get(*index) != Some(value)
@@ -283,9 +335,15 @@ impl LocalSsaPhysicalRelationV1 {
                         Ok(())
                     }
                     (
-                        Definition::Instruction((_, MirInstruction::Compare {
-                            op: original_op, lhs: original_lhs, rhs: original_rhs, ..
-                        })),
+                        Definition::Instruction((
+                            _,
+                            MirInstruction::Compare {
+                                op: original_op,
+                                lhs: original_lhs,
+                                rhs: original_rhs,
+                                ..
+                            },
+                        )),
                         MirInstruction::Compare { op, lhs, rhs, .. },
                     ) if original_op == op && children.len() == 2 => {
                         if children[0].values() != (*original_lhs, *lhs)
@@ -306,13 +364,17 @@ impl LocalSsaPhysicalRelationV1 {
                     }
                     (
                         Definition::Instruction((_, MirInstruction::Copy { src, .. })),
-                        MirInstruction::Const { value: crate::mir::ConstValue::Integer(value), .. },
+                        MirInstruction::Const {
+                            value: crate::mir::ConstValue::Integer(value),
+                            ..
+                        },
                     ) if children.len() == 1 && children[0].from == *src => {
                         let child = &children[0];
                         let constant = child.target.as_ref().or_else(|| child.source.binding());
                         if matches!(constant, Some((_, MirInstruction::Const {
                             dst, value: crate::mir::ConstValue::Integer(actual),
-                        })) if *dst == child.to && actual == value) {
+                        })) if *dst == child.to && actual == value)
+                        {
                             Ok(())
                         } else {
                             Err(reject("copy-constant-child"))
@@ -340,37 +402,67 @@ pub(in crate::mir) struct LocalSsaPhysicalIndexV1 {
 
 impl LocalSsaPhysicalIndexV1 {
     fn require_fresh_phi_v1(&self, function: &MirFunction, dst: ValueId) -> Result<(), String> {
-        if self.phis.contains_key(&dst) || function.params.contains(&dst)
-            || function.blocks.values().any(|body| body.all_instructions().any(|row| row.dst_value() == Some(dst))) {
+        if self.phis.contains_key(&dst)
+            || function.params.contains(&dst)
+            || function.blocks.values().any(|body| {
+                body.all_instructions()
+                    .any(|row| row.dst_value() == Some(dst))
+            })
+        {
             return Err(reject("phi-definition-origin"));
         }
         Ok(())
     }
     pub(in crate::mir::builder) fn prepare_provisional_phi_v1(
-        &self, function: &MirFunction, block: BasicBlockId, dst: ValueId,
+        &self,
+        function: &MirFunction,
+        block: BasicBlockId,
+        dst: ValueId,
     ) -> Result<Rc<PhysicalPhiDefinitionV1>, String> {
         self.require_fresh_phi_v1(function, dst)?;
         Ok(Rc::new(PhysicalPhiDefinitionV1::new(block, dst)))
     }
     pub(in crate::mir::builder) fn prepare_final_phi_v1(
-        &self, function: &MirFunction, binding: PhysicalBinding,
+        &self,
+        function: &MirFunction,
+        binding: PhysicalBinding,
     ) -> Result<Rc<PhysicalPhiDefinitionV1>, String> {
-        let MirInstruction::Phi { dst, .. } = &binding.1 else { return Err(reject("phi-completion-shape")); };
+        let MirInstruction::Phi { dst, .. } = &binding.1 else {
+            return Err(reject("phi-completion-shape"));
+        };
         self.require_fresh_phi_v1(function, *dst)?;
         Ok(Rc::new(PhysicalPhiDefinitionV1::final_definition(binding)))
     }
-    pub(in crate::mir::builder) fn commit_phi_definition_v1(&mut self, phi: Rc<PhysicalPhiDefinitionV1>) {
-        let dst = phi.current().expect("new Phi observation is live").1.dst_value().expect("Phi defines dst");
-        assert!(self.phis.insert(dst, phi).is_none(), "exclusive Phi definition preflight changed");
+    pub(in crate::mir::builder) fn commit_phi_definition_v1(
+        &mut self,
+        phi: Rc<PhysicalPhiDefinitionV1>,
+    ) {
+        let dst = phi
+            .current()
+            .expect("new Phi observation is live")
+            .1
+            .dst_value()
+            .expect("Phi defines dst");
+        assert!(
+            self.phis.insert(dst, phi).is_none(),
+            "exclusive Phi definition preflight changed"
+        );
     }
 
     pub(in crate::mir::builder) fn prepare_phi_patch_v1(
-        &self, function: &MirFunction, binding: PhysicalBinding,
+        &self,
+        function: &MirFunction,
+        binding: PhysicalBinding,
     ) -> Result<Option<PhysicalPhiPatchV1>, String> {
-        let dst = binding.1.dst_value().ok_or_else(|| reject("phi-completion-dst"))?;
+        let dst = binding
+            .1
+            .dst_value()
+            .ok_or_else(|| reject("phi-completion-dst"))?;
         // Provisional observations complete once. Unborrowed final definitions
         // may be replaced by this same successful writer; loans freeze them.
-        let Some(phi) = self.phis.get(&dst) else { return Ok(None); };
+        let Some(phi) = self.phis.get(&dst) else {
+            return Ok(None);
+        };
         let before = instruction(function, dst).ok_or_else(|| reject("phi-completion-missing"))?;
         phi.prepare(&before, binding).map(Some)
     }
@@ -379,28 +471,50 @@ impl LocalSsaPhysicalIndexV1 {
     /// child's own completion then does not require them complete; the
     /// enclosing finalized validation still does. Each must be a pending,
     /// unrolled Phi of this index.
-    pub(in crate::mir::builder) fn open_ancestor_phi_obligations_v1(&self, dsts: &[ValueId])
-        -> Result<AncestorPhiObligationsV1, String> {
-        let phis = dsts.iter().map(|dst| self.phis.get(dst).cloned().ok_or_else(|| reject("ancestor-phi-missing")))
+    pub(in crate::mir::builder) fn open_ancestor_phi_obligations_v1(
+        &self,
+        dsts: &[ValueId],
+    ) -> Result<AncestorPhiObligationsV1, String> {
+        let phis = dsts
+            .iter()
+            .map(|dst| {
+                self.phis
+                    .get(dst)
+                    .cloned()
+                    .ok_or_else(|| reject("ancestor-phi-missing"))
+            })
             .collect::<Result<Vec<_>, _>>()?;
-        for phi in &phis { phi.current()?; }
-        for phi in &phis { phi.open_ancestor_obligation(); }
+        for phi in &phis {
+            phi.current()?;
+        }
+        for phi in &phis {
+            phi.open_ancestor_obligation();
+        }
         Ok(AncestorPhiObligationsV1(phis))
     }
     pub(in crate::mir::builder) fn rollback_phi_v1(&self, dst: ValueId) {
-        if let Some(phi) = self.phis.get(&dst) { phi.rollback(); }
+        if let Some(phi) = self.phis.get(&dst) {
+            phi.rollback();
+        }
     }
 
     fn observed_definition(&self, function: &MirFunction, value: ValueId) -> Option<Definition> {
         let actual = definition(function, value)?;
         if let Some(phi) = self.phis.get(&value) {
-            if actual.binding() != phi.current().ok() { return None; }
+            if actual.binding() != phi.current().ok() {
+                return None;
+            }
             Some(Definition::Phi(Rc::clone(phi)))
-        } else { Some(actual) }
+        } else {
+            Some(actual)
+        }
     }
 
     pub(in crate::mir::builder) fn is_empty(&self) -> bool {
-        self.rows.is_empty() && self.scalar_loans.is_empty() && self.scalar_appends.is_empty() && self.phis.is_empty()
+        self.rows.is_empty()
+            && self.scalar_loans.is_empty()
+            && self.scalar_appends.is_empty()
+            && self.phis.is_empty()
     }
     pub(in crate::mir::builder) fn clear(&mut self) {
         self.rows.clear();
@@ -538,7 +652,11 @@ impl LocalSsaPhysicalIndexV1 {
     /// Observe the sole pin writer's actual Copy before slot redirection can
     /// reuse it. This is physical provenance, with no scalar/type authority.
     pub(in crate::mir::builder) fn record_pin_copy(
-        &mut self, function: &MirFunction, from: ValueId, to: ValueId, block: BasicBlockId,
+        &mut self,
+        function: &MirFunction,
+        from: ValueId,
+        to: ValueId,
+        block: BasicBlockId,
     ) -> Result<(), String> {
         if !matches!(instruction(function, to), Some((id, MirInstruction::Copy { dst, src }))
             if id == block && dst == to && src == from)
@@ -546,7 +664,8 @@ impl LocalSsaPhysicalIndexV1 {
             return Err(reject("pin-copy-writer"));
         }
         self.record_append(function, from, instruction(function, from), to, block, None);
-        self.loan(function, from, to).ok_or_else(|| reject("pin-copy-observation"))?
+        self.loan(function, from, to)
+            .ok_or_else(|| reject("pin-copy-observation"))?
             .verify(function)
     }
 
@@ -575,7 +694,9 @@ impl LocalSsaPhysicalIndexV1 {
             }
         };
         if let Some(phi) = self.phis.get(&from) {
-            if source.binding() != phi.current().ok() { return; }
+            if source.binding() != phi.current().ok() {
+                return;
+            }
             source = Definition::Phi(Rc::clone(phi));
         }
         let Some(row) = function.blocks.get(&block).and_then(|row| {
@@ -614,12 +735,23 @@ impl LocalSsaPhysicalIndexV1 {
 fn definition(function: &MirFunction, value: ValueId) -> Option<Definition> {
     indexed_definition(&FunctionVerificationGeometry::new(function), value)
 }
-fn indexed_definition(function: &FunctionVerificationGeometry<'_>, value: ValueId) -> Option<Definition> {
-    if function.ambiguous(value) { return None; }
-    if let Some(index) = function.params.iter().position(|parameter| *parameter == value) {
+fn indexed_definition(
+    function: &FunctionVerificationGeometry<'_>,
+    value: ValueId,
+) -> Option<Definition> {
+    if function.ambiguous(value) {
+        return None;
+    }
+    if let Some(index) = function
+        .params
+        .iter()
+        .position(|parameter| *parameter == value)
+    {
         return Some(Definition::Parameter { value, index });
     }
-    function.definition(value).map(|(block, _, row)| Definition::Instruction((block, row.clone())))
+    function
+        .definition(value)
+        .map(|(block, _, row)| Definition::Instruction((block, row.clone())))
 }
 fn instruction(function: &MirFunction, value: ValueId) -> Option<PhysicalBinding> {
     match definition(function, value)? {
@@ -632,7 +764,9 @@ fn instruction(function: &MirFunction, value: ValueId) -> Option<PhysicalBinding
 pub(in crate::mir::builder) struct AncestorPhiObligationsV1(Vec<Rc<PhysicalPhiDefinitionV1>>);
 impl AncestorPhiObligationsV1 {
     pub(in crate::mir::builder) fn close(self) -> Result<(), String> {
-        for phi in &self.0 { phi.close_ancestor_obligation()?; }
+        for phi in &self.0 {
+            phi.close_ancestor_obligation()?;
+        }
         Ok(())
     }
 }

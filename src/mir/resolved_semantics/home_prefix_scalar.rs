@@ -60,7 +60,12 @@ impl PartialEq for BranchNormalScalarSourceV1 {
 impl Eq for BranchNormalScalarSourceV1 {}
 impl BranchNormalScalarSourceV1 {
     pub(crate) fn identity_v1(&self) -> (usize, SourceValueRefV1, BindingRefV1, SourceStmtSiteV1) {
-        (Arc::as_ptr(&self.flow) as usize, self.value, self.binding, self.site.clone())
+        (
+            Arc::as_ptr(&self.flow) as usize,
+            self.value,
+            self.binding,
+            self.site.clone(),
+        )
     }
 
     pub(crate) fn binding(&self) -> BindingRefV1 {

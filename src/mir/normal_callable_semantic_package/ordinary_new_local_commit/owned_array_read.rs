@@ -133,36 +133,49 @@ impl EmittedOwnedArrayReadV1 {
         let value = self.value_with_source_v1(call_site, &self.source, ledger)?;
         self.check_physical_v1(function, Some(projection), ledger)?;
         let mapped = |original: &Binding| -> Result<Binding, String> {
-            let binding = projection.binding(original.0, &original.1)?
+            let binding = projection
+                .binding(original.0, &original.1)?
                 .ok_or_else(|| freeze("owned-array-read-finished-producer-removed"))?;
             if !projection.recorded().contains(&binding) {
                 return Err(freeze("owned-array-read-finished-unrecorded"));
             }
             Ok(binding)
         };
-        let index = projection.relation_binding(function, &self.index)?
+        let index = projection
+            .relation_binding(function, &self.index)?
             .ok_or_else(|| freeze("owned-array-read-finished-index-removed"))?;
         let invoke = mapped(&self.invoke)?;
-        let normal = projection.relation_binding(function, &self.normal)?
+        let normal = projection
+            .relation_binding(function, &self.normal)?
             .ok_or_else(|| freeze("owned-array-read-finished-normal-removed"))?;
         let outer = mapped(outer)?;
         let locate = |binding: &Binding| -> Result<(BasicBlockId, usize), String> {
-            let block = function.blocks.get(&binding.0)
+            let block = function
+                .blocks
+                .get(&binding.0)
                 .ok_or_else(|| freeze("owned-array-read-finished-block"))?;
-            let mut found = block.all_instructions().enumerate()
-                .filter(|(_, actual)| *actual == &binding.1);
-            let (position, _) = found.next()
-                .ok_or_else(|| freeze("owned-array-read-finished-producer-missing"))?;
-            if found.next().is_some() {
-                return Err(freeze("owned-array-read-finished-producer-duplicate"));
-            }
+            let position = crate::mir::verification::utils::unique_instruction_position(
+                block.all_instructions(),
+                &binding.1,
+                || freeze("owned-array-read-finished-producer-missing"),
+                || freeze("owned-array-read-finished-producer-duplicate"),
+            )?;
             Ok((binding.0, position))
         };
-        let positions = [locate(&index)?, locate(&invoke)?, locate(&normal)?, locate(&outer)?];
+        let positions = [
+            locate(&index)?,
+            locate(&invoke)?,
+            locate(&normal)?,
+            locate(&outer)?,
+        ];
         if positions[3] != call_coordinate {
             return Err(freeze("owned-array-read-finished-call-coordinate"));
         }
-        let MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. } = &outer.1 else {
+        let MirInstruction::Invoke {
+            operation: InvokeOperation::Call { call, .. },
+            ..
+        } = &outer.1
+        else {
             return Err(freeze("owned-array-read-finished-call-missing"));
         };
         if call.args.get(ordinal as usize) != Some(&value) {
@@ -191,7 +204,9 @@ impl EmittedOwnedArrayReadV1 {
     }
 
     pub(crate) fn check_raw_v1(
-        &self, function: &MirFunction, ledger: &OrdinaryNewClaimLedgerV1,
+        &self,
+        function: &MirFunction,
+        ledger: &OrdinaryNewClaimLedgerV1,
     ) -> Result<(), String> {
         self.check_physical_v1(function, None, ledger)
     }
@@ -204,20 +219,28 @@ impl EmittedOwnedArrayReadV1 {
     ) -> Result<(), String> {
         self.value_with_source_v1(&self.call, &self.source, ledger)?;
         for (block, instruction) in self.bindings() {
-            if !super::physical_boundary::check_binding(function, projection, *block, instruction)? {
+            if !super::physical_boundary::check_binding(function, projection, *block, instruction)?
+            {
                 return Err(freeze("owned-array-read-physical-binding-drift"));
             }
         }
         let invoke = match projection {
-            Some(projection) => projection.binding(self.invoke.0, &self.invoke.1)?
+            Some(projection) => projection
+                .binding(self.invoke.0, &self.invoke.1)?
                 .ok_or_else(|| freeze("owned-array-read-physical-get-removed"))?,
             None => self.invoke.clone(),
         };
-        let MirInstruction::Invoke { fault_landing, fault_frame, .. } = invoke.1 else {
+        let MirInstruction::Invoke {
+            fault_landing,
+            fault_frame,
+            ..
+        } = invoke.1
+        else {
             return Err(freeze("owned-array-read-physical-get-missing"));
         };
         super::root_cleanup_graph::ordered_paths::pending_operations(
-            function, fault_landing,
+            function,
+            fault_landing,
             &ledger.owned_array_read_fault_unwind_v1(&self.call, &self.source)?,
             Some(fault_frame),
         )?;

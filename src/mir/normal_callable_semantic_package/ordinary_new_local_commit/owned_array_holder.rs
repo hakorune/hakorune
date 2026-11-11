@@ -51,8 +51,12 @@ impl EmittedOwnedArrayHolderV1 {
             .groups
             .iter()
             .filter_map(|group| group.owned_array_append())
-            .filter(|packet| packet.source().typed_recipe()
-                .is_some_and(|recipe| Rc::ptr_eq(recipe, &self.recipe)))
+            .filter(|packet| {
+                packet
+                    .source()
+                    .typed_recipe()
+                    .is_some_and(|recipe| Rc::ptr_eq(recipe, &self.recipe))
+            })
             .collect();
         let expected: Vec<_> = self.recipe.original_append_sites_v1().collect();
         if appends.len() != expected.len()
@@ -349,16 +353,12 @@ fn locate(function: &MirFunction, binding: &Binding) -> Result<(BasicBlockId, us
         .blocks
         .get(&binding.0)
         .ok_or_else(|| freeze("owned-holder/block-missing"))?;
-    let mut rows = block
-        .all_instructions()
-        .enumerate()
-        .filter(|(_, row)| *row == &binding.1);
-    let (position, _) = rows
-        .next()
-        .ok_or_else(|| freeze("owned-holder/instruction-missing"))?;
-    if rows.next().is_some() {
-        return Err(freeze("owned-holder/instruction-duplicate"));
-    }
+    let position = crate::mir::verification::utils::unique_instruction_position(
+        block.all_instructions(),
+        &binding.1,
+        || freeze("owned-holder/instruction-missing"),
+        || freeze("owned-holder/instruction-duplicate"),
+    )?;
     Ok((binding.0, position))
 }
 impl OrdinaryNewClaimLedgerV1 {

@@ -118,13 +118,21 @@ impl OrdinaryNewCandidate {
         let construction_source = if has_overrides {
             Err(ConstructionUnavailableV1::OverrideUnsupported)
         } else {
-            instance_constructors.construction_source_for(box_source, arity)
+            instance_constructors
+                .construction_source_for(box_source, arity)
                 .map_err(|error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
-                    site: site.clone(), class: class.clone(), error,
-                })?.clone()
+                    site: site.clone(),
+                    class: class.clone(),
+                    error,
+                })?
+                .clone()
         };
         if matches!(&construction_source, Ok(source) if source.object() != object) {
-            return Err(OrdinaryNewCoSealIssueV1::ConstructorRelationMismatch { site, class, arity });
+            return Err(OrdinaryNewCoSealIssueV1::ConstructorRelationMismatch {
+                site,
+                class,
+                arity,
+            });
         }
         Ok(Some(OrdinaryNewSiteResolutionV1 {
             site,
@@ -162,8 +170,13 @@ impl OrdinaryNewCandidate {
             return Ok(None);
         };
         let allocation_execution = AllocationOnlyNewExecutionV1::issue_local(
-            &resolution.construction, &resolution.construction_source, &resolution.constructor,
-            resolution.arity, resolution.object, resolution.destruction);
+            &resolution.construction,
+            &resolution.construction_source,
+            &resolution.constructor,
+            resolution.arity,
+            resolution.object,
+            resolution.destruction,
+        );
         Ok(Some(Self {
             allocation_execution,
             site: resolution.site,
@@ -258,8 +271,11 @@ pub(super) fn validate_take_declarations_v1(
     class: &str,
     row: &VerifiedInstanceConstructorSemanticRowV1,
 ) -> Result<(), OrdinaryNewCoSealIssueV1> {
-    
-    match row.formal_contracts().iter().find(|formal| formal.is_take() && !formal.declares_exact_object()) {
+    match row
+        .formal_contracts()
+        .iter()
+        .find(|formal| formal.is_take() && !formal.declares_exact_object())
+    {
         Some(formal) => Err(OrdinaryNewCoSealIssueV1::TakeFormalDeclarationUnavailable {
             site: site.clone(),
             class: class.into(),
@@ -277,26 +293,46 @@ pub(super) fn validate_take_actuals_v1(
     row: &VerifiedInstanceConstructorSemanticRowV1,
     arguments: &[OrdinaryNewTrivialArgumentV1],
 ) -> Result<(), OrdinaryNewCoSealIssueV1> {
-    
     use crate::mir::normal_callable_semantic_package::instance_construction::ConstructionUnavailableV1 as Unavailable;
     // A birth with a `take` formal has no legacy route (it cannot lower `move`), so every
     // reason its source or plan is unavailable is a refusal, not only the two spelling errors.
-    if let Some(issue) = row.construction_source().as_ref().err().or(row.construction().as_ref().err()) {
+    if let Some(issue) = row
+        .construction_source()
+        .as_ref()
+        .err()
+        .or(row.construction().as_ref().err())
+    {
         let (site, class, issue) = (site.clone(), class.into(), *issue);
-        if matches!(issue, Unavailable::TakeStoreRequiresMove | Unavailable::MoveRequiresTakeFormal) {
-            return Err(OrdinaryNewCoSealIssueV1::BirthStoreOwnershipMismatch { site, class, issue });
+        if matches!(
+            issue,
+            Unavailable::TakeStoreRequiresMove | Unavailable::MoveRequiresTakeFormal
+        ) {
+            return Err(OrdinaryNewCoSealIssueV1::BirthStoreOwnershipMismatch {
+                site,
+                class,
+                issue,
+            });
         }
         if row.formal_contracts().iter().any(|formal| formal.is_take()) {
-            return Err(OrdinaryNewCoSealIssueV1::TakeBirthSourceUnconnected { site, class, issue });
+            return Err(OrdinaryNewCoSealIssueV1::TakeBirthSourceUnconnected {
+                site,
+                class,
+                issue,
+            });
         }
     }
     for formal in row.formal_contracts() {
         if !formal.declares_exact_object() {
             continue;
         }
-        let moved = arguments.iter().any(|argument| argument.ordinal() == formal.ordinal()
-            && argument.explicit_move()
-            && matches!(argument.kind(), OrdinaryNewTrivialArgumentKindV1::Handle { .. }));
+        let moved = arguments.iter().any(|argument| {
+            argument.ordinal() == formal.ordinal()
+                && argument.explicit_move()
+                && matches!(
+                    argument.kind(),
+                    OrdinaryNewTrivialArgumentKindV1::Handle { .. }
+                )
+        });
         if !moved {
             return Err(OrdinaryNewCoSealIssueV1::TakeActualRequiresMove {
                 site: site.clone(),
@@ -304,7 +340,10 @@ pub(super) fn validate_take_actuals_v1(
                 ordinal: formal.ordinal(),
             });
         }
-        if matches!(formal.uses(), crate::mir::normal_callable_semantic_package::BirthFormalUseCoverageV1::NoUse) {
+        if matches!(
+            formal.uses(),
+            crate::mir::normal_callable_semantic_package::BirthFormalUseCoverageV1::NoUse
+        ) {
             return Err(OrdinaryNewCoSealIssueV1::TakeFormalNotStored {
                 site: site.clone(),
                 class: class.into(),
@@ -313,4 +352,54 @@ pub(super) fn validate_take_actuals_v1(
         }
     }
     Ok(())
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedOrdinaryNewBirthRecipeV1 {
+    pub(super) source_id: crate::parser::ConstructorSourceIdV1,
+    pub(super) target: CanonicalSameModuleCallableKeyV1,
+    pub(super) effect: DeclaredInstanceCallSemanticEffectV1,
+    pub(super) abi: InstanceConstructorAbiV1,
+}
+
+impl VerifiedOrdinaryNewBirthRecipeV1 {
+    pub(crate) fn source_id(&self) -> &crate::parser::ConstructorSourceIdV1 {
+        &self.source_id
+    }
+
+    pub(crate) fn target(self) -> CanonicalSameModuleCallableKeyV1 {
+        self.target
+    }
+
+    pub(crate) fn target_ref(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.target
+    }
+
+    pub(crate) const fn abi(&self) -> InstanceConstructorAbiV1 {
+        self.abi
+    }
+
+    /// Explicit conservative physical policy, not an effect inferred from MIR
+    /// or source event counts. Completion and FieldSet Fault remain separate.
+    pub(crate) fn physical_effect_mask(&self) -> EffectMask {
+        EffectMask::MUT
+            .union(EffectMask::IO)
+            .union(EffectMask::WRITE)
+            .add(Effect::Control)
+            .add(Effect::P2P)
+            .add(Effect::FFI)
+            .add(Effect::Panic)
+            .add(Effect::Alloc)
+            .add(Effect::Global)
+            .add(Effect::Async)
+            .add(Effect::Unsafe)
+            .add(Effect::Debug)
+            .add(Effect::Barrier)
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) enum OrdinaryNewConstructorDispositionV1 {
+    NoBirthZero,
+    Birth(VerifiedOrdinaryNewBirthRecipeV1),
 }

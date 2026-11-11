@@ -52,9 +52,7 @@ impl CallRouteTableV1 {
                 slot.insert(CallRouteV1::LocalLifecycle(writer));
                 Ok(())
             }
-            std::collections::btree_map::Entry::Occupied(row)
-                if matches!(row.get(), CallRouteV1::LocalLifecycle(origin) if Some(*origin) == writer.continues()) =>
-            {
+            std::collections::btree_map::Entry::Occupied(row) if matches!(row.get(), CallRouteV1::LocalLifecycle(origin) if Some(*origin) == writer.continues()) => {
                 Ok(())
             }
             std::collections::btree_map::Entry::Occupied(_) => {
@@ -75,7 +73,10 @@ impl CallRouteTableV1 {
     }
 
     pub(crate) fn local_sites_for(&self, owner: FunctionOwnerIdV1) -> Vec<OwnedExprSiteV1> {
-        self.local_sites().filter(|site| site.owner() == owner).cloned().collect()
+        self.local_sites()
+            .filter(|site| site.owner() == owner)
+            .cloned()
+            .collect()
     }
 
     /// The root packet takes this site's Invoke from the lifecycle lane.
@@ -103,5 +104,28 @@ impl CallRouteTableV1 {
     #[cfg(test)]
     pub(crate) fn remove_for_test(&mut self, site: &OwnedExprSiteV1) {
         self.routes.remove(site);
+    }
+}
+
+use super::OrdinaryNewClaimLedgerV1;
+
+/// One original terminal Static route, checked before selected draft admission.
+/// The shared ledger changes only after the collector accepts the draft.
+pub(crate) struct PreparedStaticTerminalRootRouteV1<'ledger> {
+    pub(super) ledger: &'ledger OrdinaryNewClaimLedgerV1,
+    pub(super) site: OwnedExprSiteV1,
+}
+
+impl PreparedStaticTerminalRootRouteV1<'_> {
+    pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
+        &self.site
+    }
+
+    pub(crate) fn commit_prechecked(self) {
+        self.ledger
+            .lifecycle_local_call_sites
+            .borrow_mut()
+            .hand_to_root_packet(&self.site)
+            .expect("preflighted terminal route remains installed");
     }
 }

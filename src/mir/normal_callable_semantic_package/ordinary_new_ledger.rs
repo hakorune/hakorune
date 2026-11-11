@@ -1,172 +1,20 @@
 //! Construction, affine takes and root identity access for the New ledger.
-use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::CallRouteTableV1;
 use super::*;
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::CallRouteTableV1;
 
 impl OrdinaryNewClaimLedgerV1 {
     /// An original New requires lifecycle context even while its execution
     /// premise is unavailable. Keep that failure in the claim for its consumer;
     /// neither membership nor this query grants construction permission.
-    pub(in crate::mir::normal_callable_semantic_package) fn requires_new_context_v1(&self, owner: FunctionOwnerIdV1) -> bool {
-        self.claims.borrow().keys().chain(self.result_claims.borrow().keys()).any(|site| site.owner() == owner)
-    }
-
-    /// Borrow the original SUM only for this original Birth formal and store.
-    /// Its use census stays Unqualified; this is not a physical ABI grant.
-    pub(in crate::mir::normal_callable_semantic_package) fn constructor_text_store_sum_v1(
-        &self, row: &VerifiedInstanceConstructorSemanticRowV1,
-        store: &crate::mir::normal_callable_semantic_package::instance_construction::ConstructionStoreV1,
-    ) -> Option<Rc<super::SourceValueSumV1>> {
-        let crate::mir::normal_callable_semantic_package::instance_construction::ConstructionStoreRhsV1::Parameter { site, binding, provided: None } = store.rhs() else { return None };
-        let source = row.construction_source().as_ref().ok()?;
-        let (constructor, owner) = source.constructor()?;
-        if !constructor.same_as(row.source_id()) || *owner != binding.owner()
-            || source.object() != row.object() || !source.stores().iter().any(|original| std::ptr::eq(original, store)) {
-            return None;
-        }
-        let formal = row.formal_contracts().iter().enumerate().find_map(|(index, formal)|
-            (formal.binding() == *binding && formal.ordinal() as usize == index).then_some(formal))?;
-        if !formal.unqualified_store_sites_v1(true).is_some_and(|sites| sites.contains(site)) {
-            return None;
-        }
-        self.borrowed_formal_source.as_ref()?.as_ref().ok()?.lend_source_value_sum_v1(*binding)
-            .filter(|sum| sum.text_only())
-    }
-
-    /// Select the executable lane for one untyped Birth store from the
-    /// retained formal source: a signed source sum initializes I64, while a
-    /// complete same-field constructor relation initializes an exact object
-    /// residence. No MIR carrier or field spelling selects the tag.
-    pub(in crate::mir::normal_callable_semantic_package) fn constructor_dynamic_store_mode_v1(
+    pub(in crate::mir::normal_callable_semantic_package) fn requires_new_context_v1(
         &self,
-        row: &VerifiedInstanceConstructorSemanticRowV1,
-        store: &crate::mir::normal_callable_semantic_package::instance_construction::ConstructionStoreV1,
-    ) -> Option<crate::mir::instruction::FieldSetModeV1> {
-        use crate::mir::instruction::{
-            DynamicFieldResidenceV1 as Residence, DynamicFieldSetContractV1 as Contract,
-            DynamicFieldValueTagV1 as Tag, DynamicFieldWriteIntentV1 as Intent,
-            FieldSetModeV1 as Mode,
-        };
-        use crate::mir::normal_callable_semantic_package::instance_construction::ConstructionStoreRhsV1;
-        use crate::mir::normal_callable_semantic_package::instance_constructor_semantic::BirthFormalUseCoverageV1 as Uses;
-
-        let ConstructionStoreRhsV1::Parameter { site, binding, provided: None } = store.rhs() else {
-            return store_mode_declined(0);
-        };
-        let source = row.construction_source().as_ref().ok()?;
-        let (constructor, owner) = source.constructor()?;
-        if !constructor.same_as(row.source_id()) || *owner != binding.owner()
-            || source.object() != row.object()
-            || !source.stores().iter().any(|original| std::ptr::eq(original, store))
-            || source.stores().iter().filter(|other| other.field() == store.field()).count() != 1
-        {
-            return store_mode_declined(1);
-        }
-        let formal = row.formal_contracts().iter().find(|formal| formal.binding() == *binding).or_else(|| { let _ = store_mode_declined::<()>(50); None })?;
-        let Uses::UnqualifiedFieldStores { sites } = formal.uses() else { return None };
-        if formal.binding() != *binding || formal.ordinal() as usize >= row.source_arity() as usize
-            || sites.len() != 1 || !sites.contains(site)
-        {
-            return store_mode_declined(2);
-        }
-
-        let mut child = None;
-        let mut nullable = false;
-        let mut outer_sites = std::collections::BTreeSet::new();
-        let relations: Vec<_> = self.callable_result_classes.construction_child_relations()
-            .filter(|relation| relation.is_unqualified_dynamic_v1()
-                && relation.field() == store.field()
-                && relation.constructor_source().same_as(constructor)
-                && relation.constructor_owner() == *owner
-                && relation.formal_binding() == Some(*binding)
-                && relation.formal_ordinal() == Some(formal.ordinal()))
-            .collect();
-        for relation in &relations {
-            if relation.field().object() != row.object()
-                || !outer_sites.insert(relation.outer().clone())
-                || relation.unqualified_field_source_v1(row.box_name()).is_err()
-                || relation.witnesses().is_empty()
-            {
-                return store_mode_declined(3);
-            }
-            for witness in relation.witnesses() {
-                match witness.origin() {
-                    ResultValueOriginV1::Null => {
-                        nullable = true;
-                    }
-                    ResultValueOriginV1::Fresh(_) => {}
-                    _ => return None,
-                }
-            }
-            if child.is_some_and(|prior| prior != relation.child()) {
-                return store_mode_declined(4);
-            }
-            child = Some(relation.child());
-        }
-        if let Some(child) = child {
-            let tag = if nullable { Tag::NullableObject } else { Tag::Object };
-            let contract = Contract::issue(Intent::Initialize, tag, Residence::ObjectHome(child))?;
-            return Some(Mode::DynamicValue(contract));
-        }
-
-        self.borrowed_formal_source.as_ref()?.as_ref().ok()?
-            .lend_source_value_sum_v1(*binding)
-            .filter(|sum| sum.signed_only())
-            .map(|_| Mode::DYNAMIC_I64_INITIALIZE)
-    }
-
-    /// Existing source New claims already cloned initial eligibility. Update
-    /// both families and every early ABI copy before any physical take,
-    /// retaining all other core products.
-    pub(in crate::mir::normal_callable_semantic_package) fn install_late_constructor_plan_v1(
-        &mut self,
-        row: &VerifiedInstanceConstructorSemanticRowV1,
-        plan: &crate::mir::normal_callable_semantic_package::instance_construction::ConstructionPlanV1,
-    ) -> Result<(), String> {
-        if !self.local_commits.get_mut().is_empty() || !self.provider_births.get_mut().is_empty() {
-            return Err("[freeze:contract][constructor-unit/late-after-take]".into());
-        }
-        let matches = |core: &OrdinaryNewClaimCoreV1| -> Result<bool, String> {
-            if !core.box_source.same_source_as(row.box_source_v1())
-                || &core.construction != row.construction() { return Ok(false); }
-            let OrdinaryNewConstructorDispositionV1::Birth(birth) = &core.constructor else {
-                return Err("[freeze:contract][constructor-unit/new-birth-missing]".into());
-            };
-            if !birth.source_id().same_as(row.source_id())
-                || row.published_birth_key() != Some(birth.target_ref())
-                || core.object != row.object() || core.arity != row.source_arity() as usize
-                || core.class.as_ref() != row.box_name() || plan.object() != core.object
-                || !matches!((&core.construction_source, row.construction_source()), (Ok(core), Ok(source))
-                    if Rc::ptr_eq(core, source) && Rc::ptr_eq(core, plan.source_v1())) {
-                return Err("[freeze:contract][constructor-unit/new-source-drift]".into());
-            }
-            Ok(true)
-        };
-        // Preflight both maps before either mutates.
-        for claim in self.claims.get_mut().values() { matches(&claim.core)?; }
-        for claim in self.result_claims.get_mut().values() { matches(&claim.core)?; }
-        // Providers retain another early handoff in their destination-less
-        // index. Prepare every replacement before mutating any claim or index.
-        let handoffs = self.birth_abi_handoffs.get_mut().iter()
-            .filter(|(_, handoff)| handoff.source_id().same_as(row.source_id()))
-            .map(|(site, handoff)| Ok((site.clone(), handoff.with_late_construction_plan_v1(row, plan)?)))
-            .collect::<Result<Vec<_>, String>>()?;
-        let providers = self.birth_site_index.get_mut().iter()
-            .filter(|(_, (_, handoff))| handoff.source_id().same_as(row.source_id()))
-            .map(|(site, (_, handoff))| Ok((site.clone(), handoff.with_late_construction_plan_v1(row, plan)?)))
-            .collect::<Result<Vec<_>, String>>()?;
-        for claim in self.claims.get_mut().values_mut() {
-            if matches(&claim.core)? { claim.core.construction = Ok(plan.clone()); }
-        }
-        for claim in self.result_claims.get_mut().values_mut() {
-            if matches(&claim.core)? { claim.core.construction = Ok(plan.clone()); }
-        }
-        for (site, handoff) in handoffs {
-            *self.birth_abi_handoffs.get_mut().get_mut(&site).expect("preflight retained ABI site") = handoff;
-        }
-        for (site, handoff) in providers {
-            self.birth_site_index.get_mut().get_mut(&site).expect("preflight retained provider site").1 = handoff;
-        }
-        Ok(())
+        owner: FunctionOwnerIdV1,
+    ) -> bool {
+        self.claims
+            .borrow()
+            .keys()
+            .chain(self.result_claims.borrow().keys())
+            .any(|site| site.owner() == owner)
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn retain_original_parameter_contracts_v1(
@@ -437,10 +285,10 @@ impl OrdinaryNewClaimLedgerV1 {
         if let Ok(prefix) = &claim.home_prefix {
             if prefix.destination() != claim.destination
                 || prefix.required_unwind() != site
-                || prefix
-                    .prior_homes()
-                    .iter()
-                    .any(|binding| self.source_home_installed_v1(&commits, binding).map_or(true, |ready| !ready))
+                || prefix.prior_homes().iter().any(|binding| {
+                    self.source_home_installed_v1(&commits, binding)
+                        .map_or(true, |ready| !ready)
+                })
             {
                 return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
             }
@@ -476,7 +324,8 @@ impl OrdinaryNewClaimLedgerV1 {
         drop(commits);
         drop(claims);
         Ok(Some(
-            self.claims.borrow_mut()
+            self.claims
+                .borrow_mut()
                 .remove(site)
                 .expect("claim remained present after the checked lookup"),
         ))
@@ -534,10 +383,10 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         if let Ok(prefix) = &claim.home_prefix {
             if prefix.required_unwind() != site
-                || prefix
-                    .prior_homes()
-                    .iter()
-                    .any(|binding| self.source_home_installed_v1(&commits, binding).map_or(true, |ready| !ready))
+                || prefix.prior_homes().iter().any(|binding| {
+                    self.source_home_installed_v1(&commits, binding)
+                        .map_or(true, |ready| !ready)
+                })
             {
                 return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
             }
@@ -631,8 +480,15 @@ impl OrdinaryNewClaimLedgerV1 {
     /// Original field/writer/constructor correspondence, without a value-class
     /// or execution grant. Numeric preservation must close every writer later.
     pub(crate) fn field_value_source(
-        &self, class: &str, field: &str,
-    ) -> Option<&Result<Rc<field_write_claim::DeclaredFieldValueSourceV1>, field_write_claim::FieldValueSourceIssueV1>> {
+        &self,
+        class: &str,
+        field: &str,
+    ) -> Option<
+        &Result<
+            Rc<field_write_claim::DeclaredFieldValueSourceV1>,
+            field_write_claim::FieldValueSourceIssueV1,
+        >,
+    > {
         self.field_write_claims.value_source(class, field)
     }
 
@@ -707,9 +563,11 @@ impl OrdinaryNewClaimLedgerV1 {
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         contracts: &[super::super::model::OwnedCallableParameterContractDeclarationV1],
     ) -> Result<(), OrdinaryNewCoSealIssueV1> {
-        self.main_arguments_source = lexical_instance_call::borrow_app_main_source_v1(batch, source)?
-            .map(|loan| loan.arguments_source_v1(batch, contracts)).transpose()
-            .map_err(|reason| OrdinaryNewCoSealIssueV1::CompletionIndexRetention { reason })?;
+        self.main_arguments_source =
+            lexical_instance_call::borrow_app_main_source_v1(batch, source)?
+                .map(|loan| loan.arguments_source_v1(batch, contracts))
+                .transpose()
+                .map_err(|reason| OrdinaryNewCoSealIssueV1::CompletionIndexRetention { reason })?;
         self.app_main_identity = source.map(|main| main.parser_identity().clone());
         self.app_main_catalog_key = source.map(|main| main.catalog_key().clone());
         Ok(())
@@ -752,11 +610,4 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Option<&[result_class_claim::ResultExitOriginV1]> {
         self.callable_result_classes.outcomes(key)
     }
-}
-
-/// Default-off (builder debug flag): which numbered check declined a dynamic constructor store mode.
-#[inline(never)]
-fn store_mode_declined<T>(check: u32) -> Option<T> {
-    if crate::config::env::builder_debug_enabled() { eprintln!("[constructor-store-mode] declined check={check}"); }
-    None
 }

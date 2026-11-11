@@ -228,23 +228,25 @@ impl OrdinaryNewClaimLedgerV1 {
             &(BasicBlockId, MirInstruction),
         ) -> Result<(BasicBlockId, MirInstruction), String>,
     ) -> Result<(), String> {
-        self.borrowed_mul_bindings_v1(owner)?;
-        let entries = self.borrowed_entry_values.borrow();
-        let Some(entry) = entries.get(&owner) else {
-            return Ok(());
-        };
-        let Some(consumers) = &entry.multiplication_consumers else {
-            return Ok(());
-        };
-        for (value, record) in &entry.multiplications {
-            let finished = project(record.original())?;
-            let copies = consumers[value]
-                .iter()
-                .map(|original| original.as_ref().map(&mut project).transpose())
-                .collect::<Result<Vec<_>, _>>()?;
-            check_finished_mul_group(function, record, &finished, &copies)?;
-        }
-        Ok(())
+        self.with_function_geometry_v1(function, |geometry| {
+            self.borrowed_mul_bindings_v1(owner)?;
+            let entries = self.borrowed_entry_values.borrow();
+            let Some(entry) = entries.get(&owner) else {
+                return Ok(());
+            };
+            let Some(consumers) = &entry.multiplication_consumers else {
+                return Ok(());
+            };
+            for (value, record) in &entry.multiplications {
+                let finished = project(record.original())?;
+                let copies = consumers[value]
+                    .iter()
+                    .map(|original| original.as_ref().map(&mut project).transpose())
+                    .collect::<Result<Vec<_>, _>>()?;
+                check_finished_mul_group(geometry, record, &finished, &copies)?;
+            }
+            Ok(())
+        })
     }
 
     /// Both executable and source-only Mul inventory select the raw site;
@@ -282,19 +284,25 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(None);
         };
         let source = source.as_ref().map_err(Clone::clone)?;
-        let definition = if let Some(definition) = source.definitions.get(&owner) {
-            definition
-        } else if let Some(definition) = source.source_only_definitions.get(&owner) {
-            if !definition.uses.iter().any(
-                |row| matches!(&row.kind, Use::MulOperand { binary, .. } if binary == site))
-            { return Ok(None); }
-            if self.checked_completed_static_scalar_cohort_v1(source, owner)?.is_none() {
-                return Err(freeze("borrowed-mul/source-only-entry"));
-            }
-            definition
-        } else {
-            return Ok(None);
-        };
+        let definition =
+            if let Some(definition) = source.definitions.get(&owner) {
+                definition
+            } else if let Some(definition) = source.source_only_definitions.get(&owner) {
+                if !definition.uses.iter().any(
+                    |row| matches!(&row.kind, Use::MulOperand { binary, .. } if binary == site),
+                ) {
+                    return Ok(None);
+                }
+                if self
+                    .checked_completed_static_scalar_cohort_v1(source, owner)?
+                    .is_none()
+                {
+                    return Err(freeze("borrowed-mul/source-only-entry"));
+                }
+                definition
+            } else {
+                return Ok(None);
+            };
         let mut selected: Option<&Rc<BorrowedMulSourceV1>> = None;
         for row in &definition.uses {
             let Use::MulOperand {
@@ -402,12 +410,18 @@ impl OrdinaryNewClaimLedgerV1 {
                 } else {
                     None
                 };
-                definition.map(|definition| {
-                    definition.uses.iter().filter_map(|row| match &row.kind {
-                        Use::MulOperand { binary, .. } => Some(binary.clone()),
-                        _ => None,
-                    }).collect()
-                }).unwrap_or_default()
+                definition
+                    .map(|definition| {
+                        definition
+                            .uses
+                            .iter()
+                            .filter_map(|row| match &row.kind {
+                                Use::MulOperand { binary, .. } => Some(binary.clone()),
+                                _ => None,
+                            })
+                            .collect()
+                    })
+                    .unwrap_or_default()
             }
             None => BTreeSet::new(),
         };
@@ -456,7 +470,7 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 fn check_finished_mul_group(
-    function: &crate::mir::MirFunction,
+    function: &crate::mir::verification::geometry::FunctionVerificationGeometry<'_>,
     record: &BorrowedMulMaterializationV1,
     finished: &(BasicBlockId, MirInstruction),
     copies: &[Option<(BasicBlockId, MirInstruction)>],
@@ -502,13 +516,7 @@ fn check_finished_mul_group(
                         .filter(|row| **row == &copies[side].as_ref().unwrap().1)
                         .count()
                         == 1
-                    && function
-                        .blocks
-                        .values()
-                        .flat_map(|block| block.all_instructions())
-                        .filter(|row| row.dst_value() == Some(*dst))
-                        .count()
-                        == 1 => {}
+                    && function.instruction_definition_count(*dst) == 1 => {}
             _ => return Err(freeze("borrowed-mul/finished-operand-copy")),
         }
     }

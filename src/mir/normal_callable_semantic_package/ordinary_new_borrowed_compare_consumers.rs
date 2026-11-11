@@ -217,19 +217,16 @@ pub(super) fn exact(
     function: &FunctionVerificationGeometry<'_>,
     binding: &Binding,
 ) -> Result<(), String> {
-    let count = function
+    let block = function
         .blocks
         .get(&binding.0)
-        .map(|block| {
-            block
-                .all_instructions()
-                .filter(|row| *row == &binding.1)
-                .count()
-        })
-        .unwrap_or(0);
-    if count != 1 {
-        return Err(freeze("borrowed-compare/consumer-identity"));
-    }
+        .ok_or_else(|| freeze("borrowed-compare/consumer-identity"))?;
+    crate::mir::verification::utils::unique_instruction_position(
+        block.all_instructions(),
+        &binding.1,
+        || freeze("borrowed-compare/consumer-identity"),
+        || freeze("borrowed-compare/consumer-identity"),
+    )?;
     if let Some(dst) = binding.1.dst_value() {
         if function.instruction_definition_count(dst) != 1 {
             return Err(freeze("borrowed-compare/consumer-definition"));

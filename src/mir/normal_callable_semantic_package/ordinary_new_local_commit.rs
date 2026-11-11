@@ -11,9 +11,8 @@ use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
 use crate::mir::function::{RootOrdinaryNewObservation, RootOrdinaryNewUnavailable};
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::resolved_semantics::home_new_prefix::{
-    LocalCallObservationV1, LocalCallResultClassV1,
-     TerminalIntegerLiteralReturnV1, TerminalRelationV1,
-    TerminalReturnedSourceV1, TerminalUnitReturnV1,
+    LocalCallObservationV1, LocalCallResultClassV1, TerminalIntegerLiteralReturnV1,
+    TerminalRelationV1, TerminalReturnedSourceV1, TerminalUnitReturnV1,
 };
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceNodeSiteV1,
@@ -28,47 +27,20 @@ use std::rc::Rc;
 
 #[path = "ordinary_new_local_commit/physical_validation_scope.rs"]
 mod physical_validation_scope;
-pub(super) use physical_validation_scope::PhysicalValidationState;
-use self::root_home::RootHomeExitEntry;
-pub(crate) use self::root_home::TerminalNullReturnSourceLoanV1;
-pub(crate) use self::root_home::PreparedRootLexicalCallBindingGroupV1;
-pub(crate) use self::root_home::{RootCleanupActionV1, RootHomeFaultSequencesV1, RootHomeReleaseOriginV1};
-pub(crate) use self::root_home::PreparedRootHomeGraphPlanV1;
-pub(crate) use self::root_home::PreparedRootHomeOrderV1;
 pub(crate) use self::root_home::PendingRootHomeExitV1;
 pub(in crate::mir) use self::root_home::PendingStaticCallProjectionV1;
+pub(crate) use self::root_home::PreparedRootHomeGraphPlanV1;
+pub(crate) use self::root_home::PreparedRootHomeOrderV1;
+pub(crate) use self::root_home::PreparedRootLexicalCallBindingGroupV1;
 pub(crate) use self::root_home::PreparedStaticTerminalPacketV1;
+use self::root_home::RootHomeExitEntry;
+pub(crate) use self::root_home::TerminalNullReturnSourceLoanV1;
+pub(crate) use self::root_home::{
+    RootCleanupActionV1, RootHomeFaultSequencesV1, RootHomeReleaseOriginV1,
+};
+pub(super) use physical_validation_scope::PhysicalValidationState;
 
-#[derive(Debug)]
-pub(super) enum RootNewValidation {
-    Unregistered,
-    Pending(FunctionOwnerIdV1),
-    Checked(FunctionOwnerIdV1, physical_boundary::PhysicalBoundary),
-    FinishingChecked {
-        owner: FunctionOwnerIdV1,
-        symbol: String,
-        projection: Rc<physical_boundary::FinishedBindings>,
-    },
-    ArtifactFinalized {
-        owner: FunctionOwnerIdV1,
-        symbol: String,
-        projection: Rc<physical_boundary::FinishedBindings>,
-    },
-}
-
-/// Physical validation retained for one selected ordinary child.  This is
-/// request-local finishing state, not a source receipt or a second owner.
-#[derive(Debug)]
-pub(super) enum ChildPhysicalValidation {
-    Checked {
-        symbol: String,
-        boundary: physical_boundary::PhysicalBoundary,
-    },
-    FinishingChecked {
-        symbol: String,
-        projection: physical_boundary::FinishedBindings,
-    },
-}
+pub(super) use physical_validation_scope::{ChildPhysicalValidation, RootNewValidation};
 
 #[path = "ordinary_new_local_commit/progress.rs"]
 mod progress;
@@ -83,7 +55,8 @@ pub(crate) struct EmittedNewArgumentV1 {
     source: super::OrdinaryNewTrivialArgumentV1,
     payload: crate::mir::instruction::BirthArgumentV1,
     expression: Option<Rc<EmittedNewExpressionV1>>,
-    field_array_read: Option<crate::mir::normal_callable_semantic_package::EmittedFieldArrayReadArgumentV1>,
+    field_array_read:
+        Option<crate::mir::normal_callable_semantic_package::EmittedFieldArrayReadArgumentV1>,
 }
 
 #[path = "ordinary_new_local_commit/argument_projection.rs"]
@@ -102,7 +75,9 @@ impl EmittedNewArgumentV1 {
     pub(crate) fn value_only_v1(&self) -> Result<ValueId, String> {
         match self.payload {
             crate::mir::instruction::BirthArgumentV1::Value(value) => Ok(value),
-            crate::mir::instruction::BirthArgumentV1::Text(_) => Err(freeze("argument-source-unavailable")),
+            crate::mir::instruction::BirthArgumentV1::Text(_) => {
+                Err(freeze("argument-source-unavailable"))
+            }
         }
     }
 }
@@ -218,7 +193,7 @@ pub(crate) use owned_array_read::EmittedOwnedArrayReadV1;
 mod read_argument;
 #[path = "ordinary_new_local_commit/readonly_call_interval.rs"]
 mod readonly_call_interval;
-pub(crate) use read_argument::{ReadActualSourceLoanV1, EmittedReadArgumentV1};
+pub(crate) use read_argument::{EmittedReadArgumentV1, ReadActualSourceLoanV1};
 
 #[path = "ordinary_new_local_commit/owned_array.rs"]
 mod owned_array;
@@ -227,8 +202,8 @@ use owned_array::OwnedArrayLocalProgress;
 
 #[path = "ordinary_new_local_commit/local_entry.rs"]
 mod local_entry;
-use local_entry::{DynamicCarrierResidencePacketV1, SharedLocalCommitV1, TextResidencePacketV1};
 pub(super) use local_entry::LocalCommitV1;
+use local_entry::{DynamicCarrierResidencePacketV1, SharedLocalCommitV1, TextResidencePacketV1};
 
 /// Exact source relation retained after its matching physical root passed
 /// final validation. This is transport only: it cannot select an entry ABI or
@@ -256,9 +231,11 @@ pub(crate) struct FinalizedRootSourceHandoffV1 {
     >,
     // Original local prefix groups from every selected owner. The same
     // packet can be shared with sibling exit entries; its Taken rows are not copied.
-    local_calls: std::collections::BTreeMap<FunctionOwnerIdV1, Vec<RootLifecyclePrefixBindingGroupV1>>,
+    local_calls:
+        std::collections::BTreeMap<FunctionOwnerIdV1, Vec<RootLifecyclePrefixBindingGroupV1>>,
     // The selected LoopBody source packet has no Home local-call observation.
-    loop_body_calls: std::collections::BTreeMap<OwnedExprSiteV1, super::PreparedLoopStaticBodyDetachedPacketV1>,
+    loop_body_calls:
+        std::collections::BTreeMap<OwnedExprSiteV1, super::PreparedLoopStaticBodyDetachedPacketV1>,
     construction: crate::mir::builder::RetainedConstructionDrafts,
 }
 
@@ -266,13 +243,20 @@ pub(crate) struct FinalizedRootSourceHandoffV1 {
 /// Entry receivers carry their actual parameter lane, never a fabricated New.
 #[derive(Debug, Clone)]
 pub(crate) enum QualifiedFieldWriteReceiverV1 {
-    LocalNew { invoke: ((BasicBlockId, MirInstruction), (BasicBlockId, usize)) },
-    Entry { parameter: usize, value: crate::mir::ValueId },
+    LocalNew {
+        invoke: ((BasicBlockId, MirInstruction), (BasicBlockId, usize)),
+    },
+    Entry {
+        parameter: usize,
+        value: crate::mir::ValueId,
+    },
 }
 
 #[path = "ordinary_new_local_commit/finalized_source_projection.rs"]
 mod finalized_source_projection;
-pub(in crate::mir) use finalized_source_projection::{FinalizedObjectReturnOutcomeV1, FinalizedObjectReturnOriginV1};
+pub(in crate::mir) use finalized_source_projection::{
+    FinalizedObjectReturnOriginV1, FinalizedObjectReturnOutcomeV1,
+};
 
 #[path = "ordinary_new_local_commit/finalized_callable_participants.rs"]
 mod finalized_callable_participants;
@@ -498,12 +482,16 @@ pub(super) fn installed_source_home<'a>(
     match home {
         LiveHomeV1::Stable(binding) => {
             let row = installed_home(rows, *binding)?;
-            if matches!(row, LocalCommitV1::TextResidence(_)) { return Err(HomeLookupError::Missing); }
+            if matches!(row, LocalCommitV1::TextResidence(_)) {
+                return Err(HomeLookupError::Missing);
+            }
             Ok(row)
         }
         LiveHomeV1::Moved { origin, .. } => {
             let row = installed_home(rows, *origin)?;
-            if !matches!(row, LocalCommitV1::Ordinary(_) | LocalCommitV1::Shared(_)) { return Err(HomeLookupError::Missing); }
+            if !matches!(row, LocalCommitV1::Ordinary(_) | LocalCommitV1::Shared(_)) {
+                return Err(HomeLookupError::Missing);
+            }
             Ok(row)
         }
         LiveHomeV1::Text(acquisition) => {
@@ -511,7 +499,8 @@ pub(super) fn installed_source_home<'a>(
             let site = OwnedExprSiteV1::new(source.owner(), source.nodes()[0].site().clone());
             let row = rows.get(&site).ok_or(HomeLookupError::Missing)?;
             if !matches!(row, LocalCommitV1::TextResidence(packet)
-                if packet.acquisition().same_source(acquisition) && packet.has_text_home()) {
+                if packet.acquisition().same_source(acquisition) && packet.has_text_home())
+            {
                 return Err(HomeLookupError::Missing);
             }
             Ok(row)
@@ -528,17 +517,25 @@ impl NewLocalCommitV1 {
     /// disposition.
     fn end_plan(&self) -> Box<[(root_home::RootHomeReleaseSubjectV1, InvokeOperation)]> {
         let base = self.emission.local().expect("installed Home");
-        assert!(self.destruction.supports_complete_execution(self.children.is_some()),
-            "teardown requires a supported profile and sealed field residences");
+        assert!(
+            self.destruction
+                .supports_complete_execution(self.children.is_some()),
+            "teardown requires a supported profile and sealed field residences"
+        );
         let children = self.children.as_deref().unwrap_or(&[]);
         super::object_end::operations_v1(self.object, false, children, base)
-            .map(|(field, operation)| (
-                match field {
-                    Some(field) => root_home::RootHomeReleaseSubjectV1::FieldResidence { binding: self.binding, field },
-                    None => root_home::RootHomeReleaseSubjectV1::Binding(self.binding),
-                },
-                operation,
-            ))
+            .map(|(field, operation)| {
+                (
+                    match field {
+                        Some(field) => root_home::RootHomeReleaseSubjectV1::FieldResidence {
+                            binding: self.binding,
+                            field,
+                        },
+                        None => root_home::RootHomeReleaseSubjectV1::Binding(self.binding),
+                    },
+                    operation,
+                )
+            })
             .collect()
     }
 }
@@ -590,7 +587,12 @@ impl OrdinaryNewClaimLedgerV1 {
             let emission = match row {
                 LocalCommitV1::Ordinary(row) => Some(&row.emission),
                 LocalCommitV1::Result(row) => Some(&row.emission),
-                LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) | LocalCommitV1::OwnedArray(_) | LocalCommitV1::TextResidence(_) | LocalCommitV1::DynamicCarrierResidence(_) | LocalCommitV1::Shared(_) => None,
+                LocalCommitV1::Map(_)
+                | LocalCommitV1::CallReceived(_)
+                | LocalCommitV1::OwnedArray(_)
+                | LocalCommitV1::TextResidence(_)
+                | LocalCommitV1::DynamicCarrierResidence(_)
+                | LocalCommitV1::Shared(_) => None,
             };
             emission.is_some_and(|emission| {
                 matches!(emission, NewEmissionProgress::RetainedUnavailable { .. })
@@ -661,8 +663,12 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             if row.initializer() != Some(*initializer)
                 || (matches!(row, LocalCommitV1::Ordinary(_)) && initializer == local)
-                || (matches!(row, LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) | LocalCommitV1::OwnedArray(_))
-                    && initializer != local)
+                || (matches!(
+                    row,
+                    LocalCommitV1::Map(_)
+                        | LocalCommitV1::CallReceived(_)
+                        | LocalCommitV1::OwnedArray(_)
+                ) && initializer != local)
             {
                 return Err(freeze("local-initializer-mismatch"));
             }
@@ -691,7 +697,11 @@ mod pending_selected_static_loop;
 pub(crate) use pending_selected_static_loop::PendingSelectedStaticLoopViewV1;
 #[path = "ordinary_new_local_commit/emission_prepare.rs"]
 mod emission_prepare;
-pub(crate) use emission_prepare::{NewEmissionSelectionV1, NewEmissionUnavailableV1, PendingChildPhysicalValidationV1};
+pub(crate) use emission_prepare::{
+    NewEmissionSelectionV1, NewEmissionUnavailableV1, PendingChildPhysicalValidationV1,
+};
+#[path = "ordinary_new_local_commit/call_validation_context.rs"]
+mod call_validation_context;
 #[path = "ordinary_new_local_commit/emission_validation.rs"]
 mod emission_validation;
 #[path = "ordinary_new_local_commit/handle_call.rs"]
@@ -702,8 +712,6 @@ mod mixed_call;
 mod reclaim;
 #[path = "ordinary_new_local_commit/root_cleanup_graph.rs"]
 mod root_cleanup_graph;
-#[path = "ordinary_new_local_commit/call_validation_context.rs"]
-mod call_validation_context;
 pub(in crate::mir) use call_validation_context::CallValidationContextV1;
 #[path = "ordinary_new_local_commit/root_home.rs"]
 mod root_home;
@@ -717,32 +725,56 @@ pub(super) use root_home::{RootHomeExitProgress, RootHomeReleaseSubjectV1};
 #[path = "ordinary_new_local_commit/finalized_root_handoff.rs"]
 mod finalized_root_handoff;
 
-#[path = "ordinary_new_local_commit/physical_boundary.rs"]
-pub(super) mod physical_boundary;
 #[path = "ordinary_new_local_commit/loop_cond_after_role.rs"]
 mod loop_cond_after_role;
+#[path = "ordinary_new_local_commit/physical_boundary.rs"]
+pub(super) mod physical_boundary;
 
+pub(in crate::mir) use root_home::EmittedDynamicInvocationCallProjectionV1;
 pub(in crate::mir) use root_home::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
-    LexicalCallArgumentProjectionV1, TakenObjectArgumentOriginV1, PreparedLexicalCallProjectionV1, StoredReceiverReadV1, StoredReceiverFaultV1,
-    PreparedSelectedStaticLoopCallProjectionV1,
+    LexicalCallArgumentProjectionV1, PreparedLexicalCallProjectionV1,
+    PreparedSelectedStaticLoopCallProjectionV1, StoredReceiverFaultV1, StoredReceiverReadV1,
+    TakenObjectArgumentOriginV1,
 };
-pub(in crate::mir) use root_home::EmittedDynamicInvocationCallProjectionV1;
 
-pub(crate) use root_home::{RootLifecyclePrefixBindingGroupV1, StoredMapGetReturnEmissionV1, StoredMapGetReadEmissionV1, StoredMapGetLocalEmissionV1, PreparedMapFieldInstallV1, MapFieldInstallEmissionV1};
-pub(crate) use root_home::{FrameFreeExpressionReadV1, checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1};
-pub(in crate::mir) use root_home::{EvaluatedExpressionValueV1, BranchScalarPhiObservationV1, BranchTextPhiObservationV1, BranchReadPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
 #[cfg(test)]
 pub(in crate::mir) use root_home::ExpressionPhysicalProjectionRefV1;
-pub(crate) use root_home::{EmittedFieldArrayAppendV1, FieldAppendTextProjectionV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedBindingRebindProjectionV1, EmittedInitializerExpressionProjectionV1};
+pub(crate) use root_home::{
+    checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1,
+    FrameFreeExpressionReadV1,
+};
+pub(in crate::mir) use root_home::{
+    validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1,
+    BranchReadPhiObservationV1, BranchScalarPhiObservationV1, BranchTextPhiObservationV1,
+    EvaluatedExpressionValueV1, ExpressionCallArgumentSourceV1, ExpressionCallTransientPrefixV1,
+    ExpressionReferenceReadV1,
+};
+pub(crate) use root_home::{
+    EmittedBindingRebindProjectionV1, EmittedFieldArrayAppendV1,
+    EmittedInitializerExpressionProjectionV1, EmittedOwnedArrayAppendV1,
+    EmittedPrintExpressionProjectionV1, FieldAppendTextProjectionV1, OwnedArrayAppendCandidateV1,
+};
+pub(crate) use root_home::{
+    MapFieldInstallEmissionV1, PreparedMapFieldInstallV1, RootLifecyclePrefixBindingGroupV1,
+    StoredMapGetLocalEmissionV1, StoredMapGetReadEmissionV1, StoredMapGetReturnEmissionV1,
+};
 
 #[cfg(test)]
 #[path = "ordinary_new_local_commit/root_return_construction_tests.rs"]
 mod root_return_construction_tests;
 
-pub(in crate::mir) use root_home::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1, borrowed_source_loop_phi_relations_v2};
+pub(in crate::mir) use root_home::{
+    borrowed_source_loop_phi_relations_v2, BoolConditionCursorV1, BoolConditionNodeProjectionV1,
+    BoolConditionSealV1, BoolConditionValueProofV1, EmittedBoolConditionProjectionV1,
+    SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2,
+};
 
-pub(crate) use root_home::{EmittedBorrowedFieldWriteV1, CheckedFieldWriteGraphV1};
-pub(in crate::mir) use root_home::{EmittedFieldWriteRhsV1, FieldWriteValueV1, FieldWriteRhsNodeV1, FieldWriteRhsProofV1};
+pub(crate) use root_home::{CheckedFieldWriteGraphV1, EmittedBorrowedFieldWriteV1};
+pub(in crate::mir) use root_home::{
+    EmittedFieldWriteRhsV1, FieldWriteRhsNodeV1, FieldWriteRhsProofV1, FieldWriteValueV1,
+};
 
-pub(crate) use self::root_home::{displaced_replacement_fault_sequences_v2, fault_indices_after_normal_step_v2};
+pub(crate) use self::root_home::{
+    displaced_replacement_fault_sequences_v2, fault_indices_after_normal_step_v2,
+};

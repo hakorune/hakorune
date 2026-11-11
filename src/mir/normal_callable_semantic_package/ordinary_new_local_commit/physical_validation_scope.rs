@@ -103,3 +103,34 @@ impl OrdinaryNewClaimLedgerV1 {
         )
     }
 }
+
+#[derive(Debug)]
+pub(in super::super) enum RootNewValidation {
+    Unregistered,
+    Pending(FunctionOwnerIdV1),
+    Checked(FunctionOwnerIdV1, physical_boundary::PhysicalBoundary),
+    FinishingChecked {
+        owner: FunctionOwnerIdV1,
+        symbol: String,
+        projection: Rc<physical_boundary::FinishedBindings>,
+    },
+    ArtifactFinalized {
+        owner: FunctionOwnerIdV1,
+        symbol: String,
+        projection: Rc<physical_boundary::FinishedBindings>,
+    },
+}
+
+/// Physical validation retained for one selected ordinary child.  This is
+/// request-local finishing state, not a source receipt or a second owner.
+#[derive(Debug)]
+pub(in super::super) enum ChildPhysicalValidation {
+    Checked {
+        symbol: String,
+        boundary: physical_boundary::PhysicalBoundary,
+    },
+    FinishingChecked {
+        symbol: String,
+        projection: physical_boundary::FinishedBindings,
+    },
+}

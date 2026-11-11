@@ -5,7 +5,10 @@
 //! scans, and post-lowering target inference are deliberately outside this
 //! owner.
 
-use super::instance_construction::{ConstructionEligibilityV1, ConstructionSourceEligibilityV1, ConstructionUnavailableV1, AllocationOnlyNewExecutionV1, NewExecutionProfileRefV1, new_execution_profile_v1};
+use super::instance_construction::{
+    new_execution_profile_v1, AllocationOnlyNewExecutionV1, ConstructionEligibilityV1,
+    ConstructionSourceEligibilityV1, ConstructionUnavailableV1, NewExecutionProfileRefV1,
+};
 use crate::mir::function::ObjectDestructionDispositionV1;
 use crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1;
 use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
@@ -26,8 +29,8 @@ use crate::mir::instance_constructor_abi::{
 };
 use crate::mir::resolved_semantics::home_new_prefix::{
     CallerNewHomePrefixV1, HomePrefixUnavailableV1, ResultNewHomePrefixV1,
-    SelectedNewArgumentUnavailableV1, TerminalIntegerLiteralReturnV1, TerminalMapGetReturnV1, TerminalRelationV1,
-    TerminalUnitReturnV1,
+    SelectedNewArgumentUnavailableV1, TerminalIntegerLiteralReturnV1, TerminalMapGetReturnV1,
+    TerminalRelationV1, TerminalUnitReturnV1,
 };
 use crate::mir::resolved_semantics::DeclaredInstanceCallSemanticEffectV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
@@ -38,30 +41,11 @@ use crate::mir::resolved_semantics::{
 use crate::mir::{Effect, EffectMask};
 use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
 
-/// One original terminal Static route, checked before selected draft admission.
-/// The shared ledger changes only after the collector accepts the draft.
-pub(crate) struct PreparedStaticTerminalRootRouteV1<'ledger> {
-    ledger: &'ledger OrdinaryNewClaimLedgerV1,
-    site: OwnedExprSiteV1,
-}
-
-impl PreparedStaticTerminalRootRouteV1<'_> {
-    pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
-        &self.site
-    }
-
-    pub(crate) fn commit_prechecked(self) {
-        self.ledger
-            .lifecycle_local_call_sites
-            .borrow_mut()
-            .hand_to_root_packet(&self.site)
-            .expect("preflighted terminal route remains installed");
-    }
-}
-
 #[path = "ordinary_new_call_routes.rs"]
 mod call_routes;
-pub(crate) use call_routes::{CallRouteTableV1, LocalRouteWriterV1};
+pub(crate) use call_routes::{
+    CallRouteTableV1, LocalRouteWriterV1, PreparedStaticTerminalRootRouteV1,
+};
 #[path = "ordinary_new_claim_access.rs"]
 mod claim_access;
 #[path = "ordinary_new_arguments.rs"]
@@ -70,14 +54,14 @@ pub(crate) use ordinary_new_arguments::{
     ArgumentFieldArrayReadSourceV1, OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1,
     QualifiedStaticCallArgumentKindV1,
 };
-#[path = "ordinary_new_object_end.rs"]
-mod object_end;
-#[path = "ordinary_new_completion_index.rs"]
-mod completion_index;
 #[path = "ordinary_new_branch_source_index.rs"]
 mod branch_source_index;
+#[path = "ordinary_new_completion_index.rs"]
+mod completion_index;
 #[path = "ordinary_new_completion_lookup.rs"]
 mod completion_lookup;
+#[path = "ordinary_new_object_end.rs"]
+mod object_end;
 #[path = "ordinary_new_scalar_operations.rs"]
 mod scalar_operations;
 pub(in crate::mir) use scalar_operations::OriginalScalarAppendV1;
@@ -88,21 +72,29 @@ mod field_reads;
 pub(in crate::mir) use field_reads::LocalFieldReadSourceV1;
 #[path = "ordinary_new_field_write_claim.rs"]
 mod field_write_claim;
-pub(super) use field_write_claim::{DeclaredFieldValueSourceV1, OrdinaryNewFieldWriteClaimsV1, FieldValueSourcesV1};
 pub(crate) use field_write_claim::TextFieldValueSourceV1;
+pub(super) use field_write_claim::{
+    DeclaredFieldValueSourceV1, FieldValueSourcesV1, OrdinaryNewFieldWriteClaimsV1,
+};
+pub(crate) use field_write_claim::{
+    EntryFieldWriteSourceV1, OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1,
+};
+pub(super) use field_write_claim::{
+    OrdinaryNewFieldWriteClaimDraftV1, OriginalFieldWriterInventoryV1,
+};
 pub(super) use terminal_home::ExpressionFieldRootSourceV1;
-pub(crate) use field_write_claim::{OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1, EntryFieldWriteSourceV1};
-pub(super) use field_write_claim::{OrdinaryNewFieldWriteClaimDraftV1, OriginalFieldWriterInventoryV1};
 // The helper owns the exact `SourcePathSegmentV1::Initializer` admission shape.
 use coseal_helpers::no_birth_constructor_disposition;
 #[path = "ordinary_new_coseal_issue.rs"]
 mod coseal_issue;
+pub(super) use coseal_issue::issue_ordinary_source_cohort_v1;
 pub(in crate::mir) use coseal_issue::source_claims::StoredChildFieldSourceV1;
 pub(crate) use coseal_issue::RetainedSourceLoopProductV1;
-pub(super) use coseal_issue::issue_ordinary_source_cohort_v1;
 #[path = "ordinary_new_terminal_map_get_return.rs"]
 mod terminal_map_get_return;
-pub(crate) use terminal_map_get_return::{PreparedTerminalMapGetReturnV1, StoredMapGetSourceLoanV1, StoredMapGetReturnSourceLoanV1};
+pub(crate) use terminal_map_get_return::{
+    PreparedTerminalMapGetReturnV1, StoredMapGetReturnSourceLoanV1, StoredMapGetSourceLoanV1,
+};
 #[path = "birth_abi_handoff.rs"]
 mod birth_abi_handoff;
 #[path = "ordinary_new_candidate.rs"]
@@ -111,12 +103,14 @@ pub(in crate::mir::normal_callable_semantic_package) use candidate::LocalNewRoot
 #[path = "ordinary_new_lexical_instance_call.rs"]
 pub(super) mod lexical_instance_call;
 pub(super) use lexical_instance_call::ClosedOriginalCoreSourceV1;
-pub(in crate::mir) use lexical_instance_call::{MainArgumentsSourceV1, MainArgumentKindV1};
-pub(in crate::mir) use lexical_instance_call::SourceValueClassFactsV1;
-pub(crate) use lexical_instance_call::ResultPathFieldSourceLoanV1;
 pub(crate) use lexical_instance_call::LexicalInstanceCallSourceTargetV1;
+pub(crate) use lexical_instance_call::ResultPathFieldSourceLoanV1;
+pub(in crate::mir) use lexical_instance_call::SourceValueClassFactsV1;
+pub(in crate::mir) use lexical_instance_call::{MainArgumentKindV1, MainArgumentsSourceV1};
 #[cfg(test)]
-pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::{StoredReceiverSourceV1, StoredReceiverSourceOriginV1};
+pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::{
+    StoredReceiverSourceOriginV1, StoredReceiverSourceV1,
+};
 #[path = "ordinary_new_loop_static_body_actual.rs"]
 mod loop_static_body_actual;
 #[path = "ordinary_new_loop_static_preissue.rs"]
@@ -131,18 +125,13 @@ mod static_loop_packet_source;
 mod static_loop_result;
 #[path = "ordinary_new_static_loop_tagged_entry.rs"]
 mod static_loop_tagged_entry;
+pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::ArrayHolderLifecycleRecipeV1;
 pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::BorrowedAppMainSourceLoanV1;
 pub(crate) use lexical_instance_call::NamedArrayHolderSourceLoanV1;
-pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::ArrayHolderLifecycleRecipeV1;
+pub(in crate::mir) use local_commit::EmittedDynamicInvocationCallProjectionV1;
 pub(crate) use local_commit::EmittedOwnedArrayReadV1;
-pub(crate) use local_commit::{FrameFreeExpressionReadV1, checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1};
-pub(crate) use local_commit::{StoredMapGetReturnEmissionV1, StoredMapGetReadEmissionV1, StoredMapGetLocalEmissionV1, PreparedMapFieldInstallV1, MapFieldInstallEmissionV1};
-pub(in crate::mir) use local_commit::{EvaluatedExpressionValueV1, BranchScalarPhiObservationV1, BranchTextPhiObservationV1, BranchReadPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
 #[cfg(test)]
 pub(in crate::mir) use local_commit::ExpressionPhysicalProjectionRefV1;
-pub(in crate::mir) use local_commit::EmittedDynamicInvocationCallProjectionV1;
-pub(crate) use local_commit::{ReadActualSourceLoanV1, EmittedReadArgumentV1};
-pub(crate) use local_commit::{NewEmissionSelectionV1, NewEmissionUnavailableV1, PendingChildPhysicalValidationV1};
 pub(crate) use local_commit::PendingRootHomeExitV1;
 pub(crate) use local_commit::PendingSelectedStaticLoopViewV1;
 pub(in crate::mir) use local_commit::PendingStaticCallProjectionV1;
@@ -150,8 +139,30 @@ pub(crate) use local_commit::PreparedRootHomeGraphPlanV1;
 pub(crate) use local_commit::PreparedRootHomeOrderV1;
 pub(crate) use local_commit::PreparedRootLexicalCallBindingGroupV1;
 pub(crate) use local_commit::PreparedStaticTerminalPacketV1;
-pub(in crate::mir) use local_commit::{FinalizedObjectReturnOutcomeV1, FinalizedObjectReturnOriginV1};
-pub(crate) use local_commit::{RootCleanupActionV1, RootHomeFaultSequencesV1, RootHomeReleaseOriginV1};
+pub(crate) use local_commit::{
+    checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1,
+    FrameFreeExpressionReadV1,
+};
+pub(in crate::mir) use local_commit::{
+    validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1,
+    BranchReadPhiObservationV1, BranchScalarPhiObservationV1, BranchTextPhiObservationV1,
+    EvaluatedExpressionValueV1, ExpressionCallArgumentSourceV1, ExpressionCallTransientPrefixV1,
+    ExpressionReferenceReadV1,
+};
+pub(crate) use local_commit::{EmittedReadArgumentV1, ReadActualSourceLoanV1};
+pub(in crate::mir) use local_commit::{
+    FinalizedObjectReturnOriginV1, FinalizedObjectReturnOutcomeV1,
+};
+pub(crate) use local_commit::{
+    MapFieldInstallEmissionV1, PreparedMapFieldInstallV1, StoredMapGetLocalEmissionV1,
+    StoredMapGetReadEmissionV1, StoredMapGetReturnEmissionV1,
+};
+pub(crate) use local_commit::{
+    NewEmissionSelectionV1, NewEmissionUnavailableV1, PendingChildPhysicalValidationV1,
+};
+pub(crate) use local_commit::{
+    RootCleanupActionV1, RootHomeFaultSequencesV1, RootHomeReleaseOriginV1,
+};
 pub(crate) use loop_static_body_actual::PreparedLoopStaticBodyRetentionV1;
 pub(in crate::mir) use loop_static_body_actual::{
     PreparedLoopStaticBodyDetachedPacketV1, VerifiedLoopStaticBodyPrepacketV1,
@@ -171,12 +182,15 @@ pub(in crate::mir) use lexical_instance_call::BorrowedCompareIntegerLiteralMater
 pub(in crate::mir) use lexical_instance_call::BorrowedCompareMaterializationV1;
 pub(crate) use lexical_instance_call::BorrowedCompareSourceLoanV1;
 pub(crate) use lexical_instance_call::OrdinaryResultSourceLoanV1;
-pub(crate) use lexical_instance_call::{LexicalInstanceCallDispositionRowV1, BorrowedScalarResultSourceLoanV1, CallableScalarResultSourceLoanV1, CallableResultSourceV1};
 pub(in crate::mir) use lexical_instance_call::{
-    BorrowedFormalDomainV1, BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1,
+    BorrowedFormalActualSourceV1, BorrowedFormalDomainV1, PreparedBorrowedFormalActualV1,
 };
 pub(in crate::mir) use lexical_instance_call::{
     BorrowedMulMaterializationV1, BorrowedMulSourceLoanV1,
+};
+pub(crate) use lexical_instance_call::{
+    BorrowedScalarResultSourceLoanV1, CallableResultSourceV1, CallableScalarResultSourceLoanV1,
+    LexicalInstanceCallDispositionRowV1,
 };
 #[path = "ordinary_new_receiver_call_observation.rs"]
 mod receiver_call_observation;
@@ -185,17 +199,21 @@ pub(crate) use receiver_call_observation::ReceiverCallClassObservationV1;
 pub(super) mod result_class_claim;
 pub(in crate::mir::normal_callable_semantic_package) use result_class_claim::verified_value_return_sites;
 pub(crate) use result_class_claim::{
-    BorrowedNullableLocalSourceLoanV1, BorrowedCallResultSourceLoanV1, BorrowedCallSourceLoanV1, BorrowedLifetimeAnchorV1, MixedLocalCallSourceLoanV1, ObjectReturnCallQualificationV1, OrdinaryNewResultClassV1,
-    ResultExitOriginV1, MapStoredResultSourceV1, ResultOriginWitnessV1, ResultValueOriginV1, ResultWitnessStepV1,
+    BorrowedCallResultSourceLoanV1, BorrowedCallSourceLoanV1, BorrowedLifetimeAnchorV1,
+    BorrowedNullableLocalSourceLoanV1, MapStoredResultSourceV1, MixedLocalCallSourceLoanV1,
+    ObjectReturnCallQualificationV1, OrdinaryNewResultClassV1, ResultExitOriginV1,
+    ResultOriginWitnessV1, ResultValueOriginV1, ResultWitnessStepV1,
 };
 #[path = "ordinary_new_field_array_read_source.rs"]
 mod field_array_read_source;
-pub(crate) use field_array_read_source::{CheckedFieldArrayAccessSourceV1, CanonicalArrayFieldReadSourceV1};
+pub(crate) use field_array_read_source::{
+    CanonicalArrayFieldReadSourceV1, CheckedFieldArrayAccessSourceV1,
+};
 
-#[path = "container_field_uses.rs"]
-mod container_field_uses;
 #[path = "array_i64_fields.rs"]
 mod array_i64_fields;
+#[path = "container_field_uses.rs"]
+mod container_field_uses;
 #[path = "ordinary_new_root_instance_call.rs"]
 mod root_instance_call;
 #[path = "ordinary_new_terminal_access.rs"]
@@ -209,8 +227,8 @@ pub(in crate::mir::normal_callable_semantic_package) use terminal_home::{
 };
 
 pub(crate) use local_commit::{
-    FinalizedBirthActualsV1, FinalizedRootResultAbiV1, FinalizedRootSourceHandoffV1, QualifiedFieldWriteReceiverV1,
-    TerminalNullReturnSourceLoanV1,
+    FinalizedBirthActualsV1, FinalizedRootResultAbiV1, FinalizedRootSourceHandoffV1,
+    QualifiedFieldWriteReceiverV1, TerminalNullReturnSourceLoanV1,
 };
 pub(crate) use root_instance_call::RootInstanceCallDispositionRowV1;
 
@@ -222,55 +240,7 @@ pub(crate) enum RootCallDispositionV1 {
     PendingStatic(PendingStaticCallProjectionV1),
 }
 
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) struct VerifiedOrdinaryNewBirthRecipeV1 {
-    source_id: crate::parser::ConstructorSourceIdV1,
-    target: CanonicalSameModuleCallableKeyV1,
-    effect: DeclaredInstanceCallSemanticEffectV1,
-    abi: InstanceConstructorAbiV1,
-}
-
-impl VerifiedOrdinaryNewBirthRecipeV1 {
-    pub(crate) fn source_id(&self) -> &crate::parser::ConstructorSourceIdV1 {
-        &self.source_id
-    }
-
-    pub(crate) fn target(self) -> CanonicalSameModuleCallableKeyV1 {
-        self.target
-    }
-
-    pub(crate) fn target_ref(&self) -> &CanonicalSameModuleCallableKeyV1 {
-        &self.target
-    }
-
-    pub(crate) const fn abi(&self) -> InstanceConstructorAbiV1 {
-        self.abi
-    }
-
-    /// Explicit conservative physical policy, not an effect inferred from MIR
-    /// or source event counts. Completion and FieldSet Fault remain separate.
-    pub(crate) fn physical_effect_mask(&self) -> EffectMask {
-        EffectMask::MUT
-            .union(EffectMask::IO)
-            .union(EffectMask::WRITE)
-            .add(Effect::Control)
-            .add(Effect::P2P)
-            .add(Effect::FFI)
-            .add(Effect::Panic)
-            .add(Effect::Alloc)
-            .add(Effect::Global)
-            .add(Effect::Async)
-            .add(Effect::Unsafe)
-            .add(Effect::Debug)
-            .add(Effect::Barrier)
-    }
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) enum OrdinaryNewConstructorDispositionV1 {
-    NoBirthZero,
-    Birth(VerifiedOrdinaryNewBirthRecipeV1),
-}
+pub(crate) use candidate::{OrdinaryNewConstructorDispositionV1, VerifiedOrdinaryNewBirthRecipeV1};
 
 /// One sealed owned field child of an object, in declaration order.
 /// `Array` children release through `OwnedFieldResidenceRelease`;
@@ -349,7 +319,14 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // parallel issuer.
     result_claims: RefCell<BTreeMap<OwnedExprSiteV1, OrdinaryNewResultClaimV1>>,
     ordinary_box_names: Box<[Box<str>]>,
-    original_object_sources: Option<Rc<[(crate::parser::ParserOrdinaryBoxSourceRowV1, CanonicalObjectIdV1)]>>,
+    original_object_sources: Option<
+        Rc<
+            [(
+                crate::parser::ParserOrdinaryBoxSourceRowV1,
+                CanonicalObjectIdV1,
+            )],
+        >,
+    >,
     // Borrow the package's single immutable catalog; never reissue parameters.
     original_parameter_contracts:
         Option<Rc<[super::model::OwnedCallableParameterContractDeclarationV1]>>,
@@ -359,7 +336,8 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
         Rc<super::physical_signature::VerifiedCallablePhysicalSignatureCohortV1>,
     )>,
     // Package-owned obligations; never stored back in source/Completion.
-    array_holder_lifecycles: RefCell<BTreeMap<BindingRefV1, Rc<lexical_instance_call::ArrayHolderLifecycleRecipeV1>>>,
+    array_holder_lifecycles:
+        RefCell<BTreeMap<BindingRefV1, Rc<lexical_instance_call::ArrayHolderLifecycleRecipeV1>>>,
     local_commits: RefCell<BTreeMap<OwnedExprSiteV1, local_commit::LocalCommitV1>>,
     root_validation: RefCell<local_commit::RootNewValidation>,
     main_arguments_source: Option<Rc<MainArgumentsSourceV1>>,
@@ -374,11 +352,18 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     >,
     // Live Text carriers' Ends for a loop-body Call's Fault unwind, keyed by
     // call site: (loop prior Home count, Ends in unwind order).
-    loop_call_text_ends: RefCell<BTreeMap<OwnedExprSiteV1, (usize, Vec<crate::mir::instruction::InvokeOperation>)>>,
+    loop_call_text_ends:
+        RefCell<BTreeMap<OwnedExprSiteV1, (usize, Vec<crate::mir::instruction::InvokeOperation>)>>,
     // Text carriers still conditionally owned at an in-loop `return`: their
     // Ends join that exit's order once the header values are readable.
     loop_return_text_ends: RefCell<
-        BTreeMap<(FunctionOwnerIdV1, RootHomeExitKeyV1), (Vec<BindingRefV1>, Vec<local_commit::RootHomeReleaseOriginV1>)>,
+        BTreeMap<
+            (FunctionOwnerIdV1, RootHomeExitKeyV1),
+            (
+                Vec<BindingRefV1>,
+                Vec<local_commit::RootHomeReleaseOriginV1>,
+            ),
+        >,
     >,
     // Physical bindings for the bounded source-local Call prefix. These are
     // consumed by the existing root Call entry; they do not issue a target or
@@ -566,9 +551,14 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     >,
     terminal_relation_index:
         BTreeMap<FunctionOwnerIdV1, Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>>,
-    terminal_scalar_literal_value: RefCell<BTreeMap<SourceStmtSiteV1, terminal_access::TerminalScalarLiteralEmissionV1>>,
-    terminal_scalar_literal_values:
-        RefCell<BTreeMap<(FunctionOwnerIdV1, SourceStmtSiteV1), terminal_access::TerminalScalarLiteralEmissionV1>>,
+    terminal_scalar_literal_value:
+        RefCell<BTreeMap<SourceStmtSiteV1, terminal_access::TerminalScalarLiteralEmissionV1>>,
+    terminal_scalar_literal_values: RefCell<
+        BTreeMap<
+            (FunctionOwnerIdV1, SourceStmtSiteV1),
+            terminal_access::TerminalScalarLiteralEmissionV1,
+        >,
+    >,
     root_completion: Option<
         Result<
             Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,
@@ -593,7 +583,9 @@ mod ledger;
 
 #[derive(Debug)]
 pub(crate) enum OrdinaryNewCoSealIssueV1 {
-    ResultKindConflict { issue: String },
+    ResultKindConflict {
+        issue: String,
+    },
     CompletionSeed(super::physical_header::CallablePhysicalHeaderIssueV1),
     CompletionIndexRetention {
         reason: &'static str,
@@ -698,7 +690,10 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
     ArgumentFieldReadMissing {
         site: OwnedExprSiteV1,
     },
-    FieldArrayArgumentSource { site: OwnedExprSiteV1, detail: Box<str> },
+    FieldArrayArgumentSource {
+        site: OwnedExprSiteV1,
+        detail: Box<str>,
+    },
     AppMainIdentityMissing,
     AppMainIdentityDuplicate,
 }
@@ -715,51 +710,74 @@ mod tests;
 
 pub(in crate::mir) use local_commit::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
-    FinalizedLexicalCallContextV1, LexicalCallArgumentProjectionV1, TakenObjectArgumentOriginV1,
-    PreparedLexicalCallProjectionV1, StoredReceiverReadV1, StoredReceiverFaultV1, PreparedSelectedStaticLoopCallProjectionV1,
+    FinalizedLexicalCallContextV1, LexicalCallArgumentProjectionV1,
+    PreparedLexicalCallProjectionV1, PreparedSelectedStaticLoopCallProjectionV1,
+    StoredReceiverFaultV1, StoredReceiverReadV1, TakenObjectArgumentOriginV1,
 };
 
 #[cfg(test)]
 pub(in crate::mir::normal_callable_semantic_package) use result_class_claim::source_result_facts_for_test;
 
-pub(crate) use local_commit::{RootLifecyclePrefixBindingGroupV1, EmittedFieldArrayAppendV1, FieldAppendTextProjectionV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedBindingRebindProjectionV1, EmittedInitializerExpressionProjectionV1};
+pub(crate) use local_commit::{
+    EmittedBindingRebindProjectionV1, EmittedFieldArrayAppendV1,
+    EmittedInitializerExpressionProjectionV1, EmittedOwnedArrayAppendV1,
+    EmittedPrintExpressionProjectionV1, FieldAppendTextProjectionV1, OwnedArrayAppendCandidateV1,
+    RootLifecyclePrefixBindingGroupV1,
+};
 
 pub(crate) use local_commit::EmittedOwnedArrayHolderV1;
 
-pub(in crate::mir) use local_commit::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1, borrowed_source_loop_phi_relations_v2};
+pub(in crate::mir) use local_commit::{
+    borrowed_source_loop_phi_relations_v2, BoolConditionCursorV1, BoolConditionNodeProjectionV1,
+    BoolConditionSealV1, BoolConditionValueProofV1, EmittedBoolConditionProjectionV1,
+    SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2,
+};
 
 pub(in crate::mir) use local_commit::CallValidationContextV1;
 
 #[path = "ordinary_new_main_arguments.rs"]
 mod main_arguments;
 
-pub(crate) use lexical_instance_call::{BorrowedFieldWriteSourceLoanV1, FieldWriteSourceLoanV1};
 pub(in crate::mir) use lexical_instance_call::BorrowedArraySetSourceLoanV1;
+pub(crate) use lexical_instance_call::{BorrowedFieldWriteSourceLoanV1, FieldWriteSourceLoanV1};
 
-pub(crate) use local_commit::{EmittedBorrowedFieldWriteV1, CheckedFieldWriteGraphV1};
-pub(in crate::mir) use local_commit::{EmittedFieldWriteRhsV1, FieldWriteValueV1, FieldWriteRhsNodeV1, FieldWriteRhsProofV1};
+pub(crate) use local_commit::{CheckedFieldWriteGraphV1, EmittedBorrowedFieldWriteV1};
+pub(in crate::mir) use local_commit::{
+    EmittedFieldWriteRhsV1, FieldWriteRhsNodeV1, FieldWriteRhsProofV1, FieldWriteValueV1,
+};
 
-pub(crate) use lexical_instance_call::{ArgumentExpressionSourceLoanV1, DynamicEntryReadV1, FiniteEntryReadV1};
+pub(crate) use lexical_instance_call::{
+    ArgumentExpressionSourceLoanV1, DynamicEntryReadV1, FiniteEntryReadV1,
+};
 
-pub(crate) use lexical_instance_call::BorrowedTextEntryReadRequirementV1;
 pub(crate) use lexical_instance_call::BorrowedFormalEntryReadRequirementV1;
+pub(crate) use lexical_instance_call::BorrowedTextEntryReadRequirementV1;
 
-pub(crate) use local_commit::{displaced_replacement_fault_sequences_v2, fault_indices_after_normal_step_v2};
+pub(crate) use local_commit::{
+    displaced_replacement_fault_sequences_v2, fault_indices_after_normal_step_v2,
+};
 
-pub(in crate::mir) use lexical_instance_call::{SourceValueSumV1, SourceValueAlternativeV1};
+pub(in crate::mir) use lexical_instance_call::{SourceValueAlternativeV1, SourceValueSumV1};
 
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn corroborate_field_map_source_v1(
-        &self, source: &super::core_method_source::FieldMapReceiverSourceV1,
-    ) -> bool { source.same_source(&self.field_write_claims) }
+        &self,
+        source: &super::core_method_source::FieldMapReceiverSourceV1,
+    ) -> bool {
+        source.same_source(&self.field_write_claims)
+    }
 }
 
-pub(in crate::mir) use local_commit::{EmittedNewExpressionV1, NewArgumentCleanupV1, EmittedNewArgumentV1};
+pub(in crate::mir) use local_commit::{
+    EmittedNewArgumentV1, EmittedNewExpressionV1, NewArgumentCleanupV1,
+};
 
 pub(in crate::mir) use local_commit::FinalizedBorrowedCallPacketV1;
 
 impl OrdinaryNewClaimLedgerV1 {
-    pub(super) fn result_kind_catalog_v1(&self) -> Option<&super::callee_result_kind::CalleeResultKindCatalogV1> {
+    pub(super) fn result_kind_catalog_v1(
+        &self,
+    ) -> Option<&super::callee_result_kind::CalleeResultKindCatalogV1> {
         self.callable_result_classes.result_catalog_v1()
     }
 }

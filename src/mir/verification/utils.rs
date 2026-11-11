@@ -237,19 +237,28 @@ pub(in crate::mir) fn exact_integer_operand_origin(
 ) -> Option<(BasicBlockId, crate::mir::MirInstruction)> {
     let (use_block, use_index) = {
         let body = function.blocks.get(&use_site.0)?;
-        let mut matches = body
-            .all_instructions()
-            .enumerate()
-            .filter(|(_, row)| *row == &use_site.1);
-        let (index, _) = matches.next()?;
-        if matches.next().is_some() {
-            return None;
-        }
+        let index =
+            unique_instruction_position(body.all_instructions(), &use_site.1, || (), || ()).ok()?;
         (use_site.0, index)
     };
     exact_integer_operand_chain_at(function, value, use_block, use_index, expected)?
         .last()
         .cloned()
+}
+
+/// Query exact row identity and order; callers retain their domain-specific refusals.
+pub(in crate::mir) fn unique_instruction_position<'a, E>(
+    rows: impl Iterator<Item = &'a crate::mir::MirInstruction>,
+    instruction: &crate::mir::MirInstruction,
+    missing: impl FnOnce() -> E,
+    duplicate: impl FnOnce() -> E,
+) -> Result<usize, E> {
+    let mut positions = rows.enumerate().filter(|(_, row)| *row == instruction);
+    let (index, _) = positions.next().ok_or_else(missing)?;
+    if positions.next().is_some() {
+        return Err(duplicate());
+    }
+    Ok(index)
 }
 
 /// One complete Copy chain, checked before a writer emits any correspondence.

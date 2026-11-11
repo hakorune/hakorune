@@ -2,18 +2,30 @@
 use super::*;
 
 impl RootLifecyclePrefixBindingGroupV1 {
-    pub(in super::super) fn new_shared_initializer(packet: Rc<SharedLocalCommitV1>) -> Result<Self, String> {
-        if packet.bindings.is_empty() { return Err(freeze("shared-initializer/bindings-empty")); }
+    pub(in super::super) fn new_shared_initializer(
+        packet: Rc<SharedLocalCommitV1>,
+    ) -> Result<Self, String> {
+        if packet.bindings.is_empty() {
+            return Err(freeze("shared-initializer/bindings-empty"));
+        }
         Ok(Self {
-            site: OwnedExprSiteV1::new(packet.source.owner(), packet.source.nodes()[0].site().clone()),
-            bindings: packet.bindings.clone(),
+            site: OwnedExprSiteV1::new(
+                packet.source.owner(),
+                packet.source.nodes()[0].site().clone(),
+            ),
+            bindings: Rc::from(packet.bindings.as_slice()),
             proof: PrefixPhysicalProofV1::SharedInitializer(packet),
             projected: false,
         })
     }
 
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn shared_initializer_v1(&self) -> Option<Rc<SharedLocalCommitV1>> {
-        match &self.proof { PrefixPhysicalProofV1::SharedInitializer(packet) => Some(Rc::clone(packet)), _ => None }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn shared_initializer_v1(
+        &self,
+    ) -> Option<Rc<SharedLocalCommitV1>> {
+        match &self.proof {
+            PrefixPhysicalProofV1::SharedInitializer(packet) => Some(Rc::clone(packet)),
+            _ => None,
+        }
     }
 
     pub(in super::super) fn new_append(
@@ -23,7 +35,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
         packet.validate_recorded(&bindings, None)?;
         Ok(Self {
             site: packet.source().site().clone(),
-            bindings,
+            bindings: bindings.into(),
             proof: PrefixPhysicalProofV1::OwnedArrayAppend(packet),
             projected: false,
         })
@@ -44,7 +56,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
         packet.validate_recorded(&bindings, None)?;
         Ok(Self {
             site: packet.source().site().clone(),
-            bindings,
+            bindings: bindings.into(),
             proof: PrefixPhysicalProofV1::FieldArrayAppend(packet),
             projected: false,
         })

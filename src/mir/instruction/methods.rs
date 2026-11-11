@@ -7,13 +7,19 @@
 
 use super::super::{Effect, EffectMask, ValueId};
 use crate::mir::definitions::{Callee, MirCall};
-use crate::mir::instruction::{MirInstruction, ArrayReadOperationV1};
+use crate::mir::instruction::{ArrayReadOperationV1, MirInstruction};
 use crate::mir::instruction_kinds as inst_meta;
 use crate::mir::types::{BarrierOp, WeakRefOp};
 
 impl MirInstruction {
     /// Borrow occurrences for frame-free Text read verification. Never source permission.
-    pub(crate) fn text_read_operands_v1(&self) -> Option<(ValueId, crate::mir::MirType, Vec<&super::StringInvokeOperand>)> {
+    pub(crate) fn text_read_operands_v1(
+        &self,
+    ) -> Option<(
+        ValueId,
+        crate::mir::MirType,
+        Vec<&super::StringInvokeOperand>,
+    )> {
         let (dst, kind) = self.scalar_read_result_v1()?;
         let operands = match self {
             Self::StringLength { value, .. } => vec![value],
@@ -27,8 +33,12 @@ impl MirInstruction {
     /// Intrinsic scalar results of read instructions, without Text-operand assumptions.
     pub(crate) fn scalar_read_result_v1(&self) -> Option<(ValueId, crate::mir::MirType)> {
         match self {
-            Self::StringLength { dst, .. } | Self::StringIndexOf { dst, .. } => Some((*dst, crate::mir::MirType::Integer)),
-            Self::StringCompare { dst, .. } | Self::NullCompare { dst, .. } => Some((*dst, crate::mir::MirType::Bool)),
+            Self::StringLength { dst, .. } | Self::StringIndexOf { dst, .. } => {
+                Some((*dst, crate::mir::MirType::Integer))
+            }
+            Self::StringCompare { dst, .. } | Self::NullCompare { dst, .. } => {
+                Some((*dst, crate::mir::MirType::Bool))
+            }
             _ => None,
         }
     }
@@ -367,12 +377,14 @@ impl MirInstruction {
             }
 
             MirInstruction::ArrayRead {
-                receiver, operation, ..
+                receiver,
+                operation,
+                ..
             } => {
                 let mut values = vec![*receiver];
                 values.extend(operation.used_values());
                 values
-            },
+            }
 
             MirInstruction::UnaryOp { operand, .. }
             | MirInstruction::Load { ptr: operand, .. }
@@ -409,9 +421,15 @@ impl MirInstruction {
             MirInstruction::DestroyOwned { value }
             | MirInstruction::ArrayResidenceRelease { value } => vec![*value],
             MirInstruction::StringLength { value, .. } => value.value().into_iter().collect(),
-            MirInstruction::StringIndexOf { value, needle, .. } => value.value().into_iter().chain(needle.value()).collect(),
-            MirInstruction::StringCompare { left, right, .. } => left.value().into_iter().chain(right.value()).collect(),
-            MirInstruction::StringResidenceInstall { value, replaces, .. } => std::iter::once(*value).chain(*replaces).collect(),
+            MirInstruction::StringIndexOf { value, needle, .. } => {
+                value.value().into_iter().chain(needle.value()).collect()
+            }
+            MirInstruction::StringCompare { left, right, .. } => {
+                left.value().into_iter().chain(right.value()).collect()
+            }
+            MirInstruction::StringResidenceInstall {
+                value, replaces, ..
+            } => std::iter::once(*value).chain(*replaces).collect(),
             MirInstruction::ReleaseStrong { values } => values.clone(),
 
             // Phase 256 P1.5: Select instruction uses cond, then_val, else_val
@@ -471,12 +489,24 @@ impl MirInstruction {
 
 impl ArrayReadOperationV1 {
     pub fn used_values(self) -> impl Iterator<Item = ValueId> {
-        match self { Self::Element { index } => Some(index), Self::Count => None }.into_iter()
+        match self {
+            Self::Element { index } => Some(index),
+            Self::Count => None,
+        }
+        .into_iter()
     }
     pub fn rewrite_values(&mut self, mut rewrite: impl FnMut(&mut ValueId)) {
-        match self { Self::Element { index } => rewrite(index), Self::Count => {} }
+        match self {
+            Self::Element { index } => rewrite(index),
+            Self::Count => {}
+        }
     }
     pub fn remapped(self, mut remap: impl FnMut(ValueId) -> ValueId) -> Self {
-        match self { Self::Element { index } => Self::Element { index: remap(index) }, Self::Count => Self::Count }
+        match self {
+            Self::Element { index } => Self::Element {
+                index: remap(index),
+            },
+            Self::Count => Self::Count,
+        }
     }
 }

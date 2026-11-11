@@ -373,11 +373,6 @@ impl BranchScalarPhiObservationV1 {
         function: &MirFunction,
         finishing: Option<&Finished>,
     ) -> Result<(), String> {
-        let _scope = context.ledger().physical_validation_scope_v1(
-            function,
-            finishing,
-            matches!(context, CallValidationContextV1::Finalized(_)),
-        );
         context.ledger().with_physical_geometry_v1(
             function,
             finishing,

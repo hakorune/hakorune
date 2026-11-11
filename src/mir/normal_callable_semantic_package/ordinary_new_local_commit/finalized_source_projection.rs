@@ -1,7 +1,7 @@
 //! Read-only original source and finished-coordinate loans from the same owner.
-use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use super::super::lexical_instance_call::PreparedBorrowedFormalActualV1;
 use super::*;
+use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 
 type Binding = (BasicBlockId, MirInstruction);
 
@@ -23,22 +23,26 @@ mod array_field_reads;
 #[path = "finalized_initializer_homes.rs"]
 mod initializer_homes;
 
+#[path = "finalized_borrowed_array_sets.rs"]
+mod borrowed_array_sets;
 #[path = "finalized_borrowed_field_writes.rs"]
 mod borrowed_field_writes;
 #[path = "finalized_null_guard_projection.rs"]
 mod null_guard;
-#[path = "finalized_borrowed_array_sets.rs"]
-mod borrowed_array_sets;
 
 #[path = "finalized_object_return_outcomes.rs"]
 mod object_return_outcomes;
-pub(in crate::mir) use object_return_outcomes::{FinalizedObjectReturnOutcomeV1, FinalizedObjectReturnOriginV1};
+pub(in crate::mir) use object_return_outcomes::{
+    FinalizedObjectReturnOriginV1, FinalizedObjectReturnOutcomeV1,
+};
 
 impl FinalizedRootSourceHandoffV1 {
     /// Lend original append observations; derived and execution coverage remain separate.
     pub(in crate::mir) fn visit_scalar_operation_originals_v1(
         &self,
-        visit: impl FnMut(&std::rc::Rc<crate::mir::normal_callable_semantic_package::OriginalScalarAppendV1>) -> Result<(), String>,
+        visit: impl FnMut(
+            &std::rc::Rc<crate::mir::normal_callable_semantic_package::OriginalScalarAppendV1>,
+        ) -> Result<(), String>,
     ) -> Result<(), String> {
         self.ledger.visit_scalar_operation_originals_v1(visit)
     }
@@ -76,7 +80,9 @@ impl FinalizedRootSourceHandoffV1 {
             if groups.next().is_some() {
                 return Err(freeze("finished-local-call/group-duplicate"));
             }
-            let mut packets = group.lexical_packets().filter(|packet| packet.has_producer_at(node_site, original));
+            let mut packets = group
+                .lexical_packets()
+                .filter(|packet| packet.has_producer_at(node_site, original));
             if packets.next().is_none() || packets.next().is_some() {
                 return Err(freeze("finished-local-call/original-producer"));
             }
@@ -114,8 +120,12 @@ impl FinalizedRootSourceHandoffV1 {
                 _ => return Err(freeze("finished-terminal-call/child-exit-missing")),
             }
         };
-        self.ledger
-            .validate_lexical_terminal_packet_in_context(owner, exit, &packet, CallValidationContextV1::Finalized(self))?;
+        self.ledger.validate_lexical_terminal_packet_in_context(
+            owner,
+            exit,
+            &packet,
+            CallValidationContextV1::Finalized(self),
+        )?;
         read(&packet)
     }
 
@@ -131,7 +141,10 @@ impl FinalizedRootSourceHandoffV1 {
             return Err(freeze("finished-terminal-call/owner"));
         }
         if let Some(coordinate) = self.finished_return_expression_call_binding_v1(
-            owner, exit, node_site, original, function, false)? { return Ok(coordinate); }
+            owner, exit, node_site, original, function, false,
+        )? {
+            return Ok(coordinate);
+        }
         self.with_terminal_call_packet_v1(owner, exit, |packet| {
             if !packet.has_producer_at(node_site, original) {
                 return Err(freeze("finished-terminal-call/original-producer"));
@@ -161,12 +174,23 @@ impl FinalizedRootSourceHandoffV1 {
             }
             let mut found = None;
             for packet in group.lexical_packets() {
-                if packet.copy_dependencies_in_context(CallValidationContextV1::Finalized(self))?.iter()
-                    .any(|(node, copy)| node == node_site && copy == original) {
-                    if found.replace(packet).is_some() { return Err(freeze("finished-copy/packet-duplicate")); }
+                if packet
+                    .copy_dependencies_in_context(CallValidationContextV1::Finalized(self))?
+                    .iter()
+                    .any(|(node, copy)| node == node_site && copy == original)
+                {
+                    if found.replace(packet).is_some() {
+                        return Err(freeze("finished-copy/packet-duplicate"));
+                    }
                 }
             }
-            self.finished_packet_copy(owner, found.ok_or_else(|| freeze("finished-copy/packet"))?, node_site, original, function)
+            self.finished_packet_copy(
+                owner,
+                found.ok_or_else(|| freeze("finished-copy/packet"))?,
+                node_site,
+                original,
+                function,
+            )
         })
     }
 
@@ -182,7 +206,10 @@ impl FinalizedRootSourceHandoffV1 {
             return Err(freeze("finished-copy/owner"));
         }
         if let Some(coordinate) = self.finished_return_expression_call_binding_v1(
-            owner, exit, node_site, original, function, true)? { return Ok(coordinate); }
+            owner, exit, node_site, original, function, true,
+        )? {
+            return Ok(coordinate);
+        }
         self.with_terminal_call_packet_v1(owner, exit, |packet| {
             self.finished_packet_copy(owner, packet, node_site, original, function)
         })
@@ -268,25 +295,51 @@ impl FinalizedRootSourceHandoffV1 {
     {
         let source = self.borrowed_ordinary_entry_source_v1(owner)?;
         let values = self.borrowed_ordinary_entry_values_v1(owner)?;
-        let offset = usize::from(self.ledger.borrowed_ordinary_entry_receiver_required_v1(owner)?);
+        let offset = usize::from(
+            self.ledger
+                .borrowed_ordinary_entry_receiver_required_v1(owner)?,
+        );
         let takes = self.ledger.take_ordinary_entry_bindings_v1(owner)?;
-        let carriers = function.metadata.physical_param_carriers.as_deref()
+        let carriers = function
+            .metadata
+            .physical_param_carriers
+            .as_deref()
             .ok_or_else(|| freeze("borrowed-entry/finished-carriers"))?;
         use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
-        if carriers.len() != function.params.len() || function.signature.params.len() != function.params.len()
-            || carriers.iter().filter(|carrier| **carrier == Carrier::BorrowedTaggedValue).count() + takes.len() != values.len()
+        if carriers.len() != function.params.len()
+            || function.signature.params.len() != function.params.len()
+            || carriers
+                .iter()
+                .filter(|carrier| **carrier == Carrier::BorrowedTaggedValue)
+                .count()
+                + takes.len()
+                != values.len()
             || values.len() != source.formals().len()
             || values.iter().any(|(ordinal, binding, value)| {
                 let slot = *ordinal as usize + offset;
-                !source.formals().contains(&(*ordinal, *binding)) || function.params.get(slot) != Some(value)
-                    || carriers.get(slot) != Some(&if takes.contains(binding) { Carrier::ExistingCallableI64 } else { Carrier::BorrowedTaggedValue })
-            }) {
+                !source.formals().contains(&(*ordinal, *binding))
+                    || function.params.get(slot) != Some(value)
+                    || carriers.get(slot)
+                        != Some(&if takes.contains(binding) {
+                            Carrier::ExistingCallableI64
+                        } else {
+                            Carrier::BorrowedTaggedValue
+                        })
+            })
+        {
             return Err(freeze("borrowed-entry/finished-parameter-correspondence"));
         }
-        for (ordinal, binding, _) in values.iter().filter(|(_, binding, _)| takes.contains(binding)) {
-            let view = source.formal_object_view(*binding)?.ok_or_else(|| freeze("borrowed-entry/finished-parameter-correspondence"))?;
-            if !view.is_declared() || function.signature.params.get(*ordinal as usize + offset)
-                != Some(&crate::mir::MirType::Box(view.class().into())) {
+        for (ordinal, binding, _) in values
+            .iter()
+            .filter(|(_, binding, _)| takes.contains(binding))
+        {
+            let view = source
+                .formal_object_view(*binding)?
+                .ok_or_else(|| freeze("borrowed-entry/finished-parameter-correspondence"))?;
+            if !view.is_declared()
+                || function.signature.params.get(*ordinal as usize + offset)
+                    != Some(&crate::mir::MirType::Box(view.class().into()))
+            {
                 return Err(freeze("borrowed-entry/finished-parameter-correspondence"));
             }
         }
@@ -357,6 +410,7 @@ impl FinalizedRootSourceHandoffV1 {
         function: &MirFunction,
         mut visit: impl FnMut(&Binding, (BasicBlockId, usize)) -> Result<(), String>,
     ) -> Result<(), String> {
+        self.ledger.with_function_geometry_v1(function, |geometry| {
         self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
         self.ledger.with_finished_projection(owner, |symbol, projection| {
             if function.signature.name != symbol {
@@ -372,8 +426,7 @@ impl FinalizedRootSourceHandoffV1 {
                 };
                 let coordinate = find_finished_producer(symbol, &finished, function)?;
                 if function.params.contains(&dst)
-                    || function.blocks.values().flat_map(|block| block.all_instructions())
-                        .filter(|row| row.dst_value() == Some(dst)).count() != 1
+                    || geometry.instruction_definition_count(dst) != 1
                 {
                     return Err(freeze("borrowed-carrier/finished-copy-definition"));
                 }
@@ -383,6 +436,7 @@ impl FinalizedRootSourceHandoffV1 {
                 visit(&finished, coordinate)?;
             }
             Ok(())
+        })
         })
     }
 
@@ -399,28 +453,34 @@ impl FinalizedRootSourceHandoffV1 {
         ) -> Result<(), String>,
     ) -> Result<(), String> {
         self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
-        self.ledger.with_finished_projection(owner, |symbol, projection| {
-            if function.signature.name != symbol {
-                return Err(freeze("borrowed-mul/finished-function"));
-            }
-            self.ledger.verify_finished_borrowed_muls_v1(owner, function, |original| {
-                project_recorded(symbol, projection, original).map(|(_, binding)| binding)
-            })
-        })?;
-        self.ledger.with_borrowed_ordinary_muls_v1(owner, |record, copies| {
-            let (symbol, finished) = self.ledger.finished_binding_for_owner(owner, record.original())?;
-            find_finished_producer(&symbol, &finished, function)?;
-            let mut mapped = [None, None];
-            for side in 0..2 {
-                if let Some(original) = &copies[side] {
-                    let (copy_symbol, copy) = self.ledger.finished_binding_for_owner(owner, original)?;
-                    find_finished_producer(&copy_symbol, &copy, function)?;
-                    mapped[side] = Some(copy);
+        self.ledger
+            .with_finished_projection(owner, |symbol, projection| {
+                if function.signature.name != symbol {
+                    return Err(freeze("borrowed-mul/finished-function"));
                 }
-            }
-            self.verify_finished_mul_nonviews_v1(owner, function, record, &finished, &mapped)?;
-            visit(record.source(), &finished, &mapped)
-        })
+                self.ledger
+                    .verify_finished_borrowed_muls_v1(owner, function, |original| {
+                        project_recorded(symbol, projection, original).map(|(_, binding)| binding)
+                    })
+            })?;
+        self.ledger
+            .with_borrowed_ordinary_muls_v1(owner, |record, copies| {
+                let (symbol, finished) = self
+                    .ledger
+                    .finished_binding_for_owner(owner, record.original())?;
+                find_finished_producer(&symbol, &finished, function)?;
+                let mut mapped = [None, None];
+                for side in 0..2 {
+                    if let Some(original) = &copies[side] {
+                        let (copy_symbol, copy) =
+                            self.ledger.finished_binding_for_owner(owner, original)?;
+                        find_finished_producer(&copy_symbol, &copy, function)?;
+                        mapped[side] = Some(copy);
+                    }
+                }
+                self.verify_finished_mul_nonviews_v1(owner, function, record, &finished, &mapped)?;
+                visit(record.source(), &finished, &mapped)
+            })
     }
 
     /// Same original literal observations, not final operand correspondence.
@@ -451,7 +511,8 @@ impl FinalizedRootSourceHandoffV1 {
         self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
         self.ledger
             .with_finished_projection(owner, |_, projection| {
-                let Some(coordinate) = projection.borrowed_copy_coordinate(function, original)? else {
+                let Some(coordinate) = projection.borrowed_copy_coordinate(function, original)?
+                else {
                     return Ok(None);
                 };
                 let instruction = function
@@ -577,21 +638,35 @@ impl FinalizedRootSourceHandoffV1 {
         function: &MirFunction,
     ) -> Result<Box<[(BindingRefV1, BindingRefV1, OwnedExprSiteV1)]>, String> {
         let source = self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
-        let mut uses: Vec<_> = source.null_compare_uses()
-            .map(|(binding, formal, binary)| (binding, formal, binary.clone())).collect();
+        let mut uses: Vec<_> = source
+            .null_compare_uses()
+            .map(|(binding, formal, binary)| (binding, formal, binary.clone()))
+            .collect();
         if source.uses_finite_input_v1() {
-            self.ledger.with_finished_projection(owner, |_, projection| {
-                self.ledger.visit_finished_null_compare_uses_v1(owner, CallValidationContextV1::Finalized(self),
-                    function, projection, |binding, formal, binary| {
-                        if source.origins().get(&binding) != Some(&formal)
-                            || !source.formals().iter().any(|(_, original)| *original == formal)
-                            || uses.iter().any(|prior| prior == &(binding, formal, binary.clone())) {
-                            return Err(freeze("bool-condition/reference-source"));
-                        }
-                        uses.push((binding, formal, binary.clone()));
-                        Ok(())
-                    })
-            })?;
+            self.ledger
+                .with_finished_projection(owner, |_, projection| {
+                    self.ledger.visit_finished_null_compare_uses_v1(
+                        owner,
+                        CallValidationContextV1::Finalized(self),
+                        function,
+                        projection,
+                        |binding, formal, binary| {
+                            if source.origins().get(&binding) != Some(&formal)
+                                || !source
+                                    .formals()
+                                    .iter()
+                                    .any(|(_, original)| *original == formal)
+                                || uses
+                                    .iter()
+                                    .any(|prior| prior == &(binding, formal, binary.clone()))
+                            {
+                                return Err(freeze("bool-condition/reference-source"));
+                            }
+                            uses.push((binding, formal, binary.clone()));
+                            Ok(())
+                        },
+                    )
+                })?;
         }
         Ok(uses.into_boxed_slice())
     }
@@ -670,8 +745,10 @@ fn project_recorded(
         .binding(original.0, &original.1)?
         .ok_or_else(|| freeze("finished-local-call/producer-removed"))?;
     if !projection.recorded().contains(&finished) {
-        return Err(format!("{} symbol={symbol} original={original:?} finished={finished:?}",
-            freeze("finished-local-call/producer-unrecorded")));
+        return Err(format!(
+            "{} symbol={symbol} original={original:?} finished={finished:?}",
+            freeze("finished-local-call/producer-unrecorded")
+        ));
     }
     Ok((symbol.to_owned(), finished))
 }
@@ -689,9 +766,10 @@ impl OrdinaryNewClaimLedgerV1 {
         if packet.source_site() != site || !packet.corroborates_retained_scalar() {
             return Err(freeze("finished-loop-body/source-site-drift"));
         }
-        let (symbol, finished) = self.with_finished_child_projection(owner, |symbol, projection| {
-            project_recorded(symbol, projection, packet.original_invoke_binding())
-        })?;
+        let (symbol, finished) =
+            self.with_finished_child_projection(owner, |symbol, projection| {
+                project_recorded(symbol, projection, packet.original_invoke_binding())
+            })?;
         let function = module
             .functions
             .get(&symbol)
@@ -711,55 +789,9 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 }
 
-/// Shared independent Copy shape/unique-definition check after source membership.
-pub(super) fn find_finished_copy(
-    symbol: &str, finished: &Binding, function: &MirFunction,
-) -> Result<(BasicBlockId, usize), String> {
-        if !matches!(finished.1, MirInstruction::Copy { .. }) {
-            return Err(freeze("finished-copy/instruction"));
-        }
-        let coordinate = find_finished_producer(symbol, finished, function)?;
-        let dst = finished.1.dst_value().expect("checked Copy");
-        if function.params.contains(&dst) {
-            return Err(freeze("finished-copy/parameter-collision"));
-        }
-        if function
-            .blocks
-            .values()
-            .flat_map(|block| block.all_instructions())
-            .filter(|instruction| instruction.dst_value() == Some(dst))
-            .count()
-            != 1
-        {
-            return Err(freeze("finished-copy/destination-duplicate"));
-        }
-        Ok(coordinate)
-}
-
-pub(super) fn find_finished_producer(
-    symbol: &str,
-    finished: &Binding,
-    function: &MirFunction,
-) -> Result<(BasicBlockId, usize), String> {
-    if function.signature.name != symbol {
-        return Err(freeze("finished-local-call/function"));
-    }
-    let block = function
-        .blocks
-        .get(&finished.0)
-        .ok_or_else(|| freeze("finished-local-call/block-missing"))?;
-    let mut matches = block
-        .all_instructions()
-        .enumerate()
-        .filter(|(_, instruction)| *instruction == &finished.1);
-    let (index, _) = matches
-        .next()
-        .ok_or_else(|| freeze("finished-local-call/producer-missing"))?;
-    if matches.next().is_some() {
-        return Err(freeze("finished-local-call/producer-duplicate"));
-    }
-    Ok((finished.0, index))
-}
+#[path = "finalized_binding_coordinates.rs"]
+mod binding_coordinates;
+pub(super) use binding_coordinates::{find_finished_copy, find_finished_producer};
 
 #[cfg(test)]
 #[path = "finalized_static_loop_actual_tests.rs"]

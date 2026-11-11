@@ -47,12 +47,7 @@ impl EmittedOwnedArrayAppendV1 {
         context: CallValidationContextV1<'_>,
         function: &MirFunction,
     ) -> Result<(), String> {
-        self.validate_paths_in_context_mode(
-            context,
-            function,
-            None,
-            true,
-        )
+        self.validate_paths_in_context_mode(context, function, None, true)
     }
     pub(crate) fn candidate_packet(&self) -> Option<&EmittedLexicalCallProjectionV1> {
         match &self.candidate {
@@ -64,9 +59,9 @@ impl EmittedOwnedArrayAppendV1 {
         match &self.candidate {
             OwnedArrayAppendCandidateV1::Null(binding) => binding,
             OwnedArrayAppendCandidateV1::Call(packet) => packet.invoke_binding(),
-            OwnedArrayAppendCandidateV1::DynamicExpression(packet) => {
-                packet.dynamic_carrier_append_entry_binding_v1().expect("validated Dynamic carrier append packet")
-            }
+            OwnedArrayAppendCandidateV1::DynamicExpression(packet) => packet
+                .dynamic_carrier_append_entry_binding_v1()
+                .expect("validated Dynamic carrier append packet"),
         }
     }
     pub(crate) fn new(
@@ -179,7 +174,10 @@ impl EmittedOwnedArrayAppendV1 {
                     candidate,
                 }),
                 false,
-            ) if source.descriptor().is_some_and(|expected| *descriptor == expected) => {
+            ) if source
+                .descriptor()
+                .is_some_and(|expected| *descriptor == expected) =>
+            {
                 (*array, *candidate)
             }
             (
@@ -306,11 +304,7 @@ impl EmittedOwnedArrayAppendV1 {
                 };
                 packet.validate_expression_recorded_v1(&inventory, projection)?;
                 packet.validate_expression_physical_v1(
-                    context,
-                    function,
-                    projection,
-                    &inventory,
-                    projection,
+                    context, function, projection, &inventory, projection,
                 )?;
                 let entry = map(&entry)?;
                 require_before(
@@ -351,16 +345,12 @@ fn require_before(
             .blocks
             .get(&binding.0)
             .ok_or_else(|| freeze("array-append/block-missing"))?;
-        let mut rows = block
-            .all_instructions()
-            .enumerate()
-            .filter(|(_, row)| *row == &binding.1);
-        let (position, _) = rows
-            .next()
-            .ok_or_else(|| freeze("array-append/producer-missing"))?;
-        if rows.next().is_some() {
-            return Err(freeze("array-append/producer-duplicate"));
-        }
+        let position = crate::mir::verification::utils::unique_instruction_position(
+            block.all_instructions(),
+            &binding.1,
+            || freeze("array-append/producer-missing"),
+            || freeze("array-append/producer-duplicate"),
+        )?;
         Ok(position)
     };
     let (before, after) = (locate(producer)?, locate(consumer)?);
@@ -368,9 +358,7 @@ fn require_before(
     let producer_reachable = dom.is_reachable(producer.0);
     let consumer_reachable = dom.is_reachable(consumer.0);
     if producer_reachable && consumer_reachable {
-        if !dom.dominates(producer.0, consumer.0)
-            || (producer.0 == consumer.0 && before >= after)
-        {
+        if !dom.dominates(producer.0, consumer.0) || (producer.0 == consumer.0 && before >= after) {
             return Err(freeze("array-append/evaluation-order"));
         }
         return Ok(());

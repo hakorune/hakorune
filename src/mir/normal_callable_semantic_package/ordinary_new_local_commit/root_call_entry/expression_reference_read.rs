@@ -122,15 +122,8 @@ impl ExpressionReferenceReadV1 {
                     .validate(context, function, finishing)?;
             }
         }
-        if let Some(point) = self.producer.join_relation() {
-            if let Some(projection) = finishing {
-                if matches!(context, CallValidationContextV1::Finalized(_)) {
-                    point.require_completed_v1()?;
-                    point.verify_projected(function, &mut |row| {
-                        projection.relation_binding(function, row)
-                    })?;
-                }
-            } else {
+        if finishing.is_none() {
+            if let Some(point) = self.producer.join_relation() {
                 point.verify(function)?;
             }
         }

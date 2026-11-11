@@ -189,79 +189,6 @@ impl OrdinaryNewClaimLedgerV1 {
                 })
     }
 
-    fn scalar_operation_sources_v1(
-        &self,
-        owner: FunctionOwnerIdV1,
-    ) -> Result<Vec<Rc<Source>>, String> {
-        let flow = self
-            .completion_for_owner(owner)
-            .and_then(|row| row.cleanup().root_flow());
-        let mut sources = Vec::<Rc<Source>>::new();
-        let mut lend = |source: &Rc<Source>| -> Result<(), String> {
-            if source.owner() != owner {
-                return Err(reject("source-membership"));
-            }
-            if let Some(prior) = sources
-                .iter()
-                .find(|prior| prior.binary().site() == source.binary().site())
-            {
-                if !Rc::ptr_eq(prior, source) {
-                    return Err(reject("source-membership"));
-                }
-            } else {
-                sources.push(Rc::clone(source));
-            }
-            Ok(())
-        };
-        for source in flow.into_iter().flat_map(|flow| flow.scalar_operations()) {
-            lend(source)?;
-        }
-        self.visit_expression_evaluations_v1(owner, &mut |evaluation| {
-            for operation in evaluation.operations() {
-                if let Some(source) = operation.scalar_source_v1() {
-                    if !Rc::ptr_eq(source.plan(), evaluation.source()) {
-                        return Err(reject("source-membership"));
-                    }
-                    lend(source)?;
-                }
-            }
-            Ok(true)
-        })?;
-        Ok(sources)
-    }
-    pub(in crate::mir) fn has_scalar_operation_source_v1(
-        &self,
-        owner: FunctionOwnerIdV1,
-    ) -> Result<bool, String> {
-        self.scalar_operation_sources_v1(owner)
-            .map(|sources| !sources.is_empty())
-    }
-
-    pub(in crate::mir) fn prepare_scalar_operation_source_v1(
-        &self,
-        owner: FunctionOwnerIdV1,
-        site: &OwnedExprSiteV1,
-        operator: Option<BinaryOp>,
-    ) -> Result<Option<Rc<Source>>, String> {
-        if site.owner() != owner {
-            return Err(reject("owner"));
-        }
-        let sources = self.scalar_operation_sources_v1(owner)?;
-        let mut rows = sources
-            .iter()
-            .filter(|row| row.binary().site() == site.site());
-        let Some(row) = rows.next() else {
-            return Ok(None);
-        };
-        if rows.next().is_some() || row.owner() != owner {
-            return Err(reject("source-membership"));
-        }
-        if Some(source_operator(row)?) != operator {
-            return Err(reject("operator"));
-        }
-        Ok(Some(Rc::clone(row)))
-    }
-
     /// The already recorded append of this exact source law. No MIR search or
     /// equal-shaped source can substitute for the original affine receipt.
     pub(in crate::mir) fn scalar_operation_original_v1(
@@ -532,7 +459,7 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 }
 
-fn source_operator(source: &Source) -> Result<BinaryOp, String> {
+pub(super) fn source_operator(source: &Source) -> Result<BinaryOp, String> {
     source
         .integer_operator_v1()
         .ok_or_else(|| reject("source-operator"))
@@ -551,7 +478,7 @@ fn unique_definition(
     Ok((block, row.clone()))
 }
 
-fn reject(reason: &str) -> String {
+pub(super) fn reject(reason: &str) -> String {
     format!("[freeze:contract][scalar-original/{reason}]")
 }
 

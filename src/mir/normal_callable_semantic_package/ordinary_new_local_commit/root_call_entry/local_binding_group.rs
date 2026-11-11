@@ -14,7 +14,7 @@ use direct_scalar::DirectScalarCallProjectionV1;
 #[derive(Debug, Clone)]
 pub(crate) struct RootLifecyclePrefixBindingGroupV1 {
     site: OwnedExprSiteV1,
-    bindings: Vec<(BasicBlockId, MirInstruction)>,
+    bindings: Rc<[(BasicBlockId, MirInstruction)]>,
     proof: PrefixPhysicalProofV1,
     projected: bool,
 }
@@ -55,7 +55,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
         let source = packet.product().source.condition.source();
         Self {
             site: OwnedExprSiteV1::new(source.owner(), source.nodes()[0].site().clone()),
-            bindings: Vec::new(),
+            bindings: Rc::from([]),
             proof: PrefixPhysicalProofV1::Loop(packet),
             projected: false,
         }
@@ -85,7 +85,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
         }
         Ok(Self {
             site,
-            bindings,
+            bindings: bindings.into(),
             proof: PrefixPhysicalProofV1::Call(lexical),
             projected: false,
         })
@@ -394,7 +394,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
         let source = packet.frame().source();
         Ok(Self {
             site: OwnedExprSiteV1::new(source.owner(), source.nodes()[0].site().clone()),
-            bindings,
+            bindings: bindings.into(),
             proof: PrefixPhysicalProofV1::PrintExpression(packet),
             projected: false,
         })
@@ -534,7 +534,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
                 packet.frame().source().owner(),
                 packet.frame().source().nodes()[0].site().clone(),
             ),
-            bindings,
+            bindings: bindings.into(),
             proof: PrefixPhysicalProofV1::EvaluatedBinding(
                 EvaluatedBindingProjectionV1::Initializer(packet),
             ),
@@ -562,7 +562,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
                 packet.frame().source().owner(),
                 packet.frame().source().nodes()[0].site().clone(),
             ),
-            bindings,
+            bindings: bindings.into(),
             proof: PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(
                 packet,
             )),
@@ -600,7 +600,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
         let source = packet.frame().source();
         Ok(Self {
             site: OwnedExprSiteV1::new(source.owner(), source.nodes()[0].site().clone()),
-            bindings: packet.prefix().to_vec(),
+            bindings: Rc::from(packet.prefix()),
             proof: PrefixPhysicalProofV1::BoolCondition(packet),
             projected: false,
         })
@@ -626,7 +626,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
         packet.validate_recorded(packet.bindings(), None)?;
         Ok(Self {
             site: packet.source().value_site(),
-            bindings: packet.bindings().to_vec(),
+            bindings: Rc::from(packet.bindings()),
             proof: PrefixPhysicalProofV1::BorrowedFieldWrite(packet),
             projected: false,
         })
@@ -749,7 +749,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
     ) -> Self {
         Self {
             site: self.site.clone(),
-            bindings,
+            bindings: bindings.into(),
             proof: self.proof.clone(),
             projected: true,
         }

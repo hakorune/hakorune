@@ -28,7 +28,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
         packet.validate_recorded(packet.bindings(), None)?;
         Ok(Self {
             site: packet.frame().site().clone(),
-            bindings: packet.bindings().to_vec(),
+            bindings: Rc::from(packet.bindings()),
             proof: PrefixPhysicalProofV1::StoredMapGet(packet),
             projected: false,
         })
@@ -54,7 +54,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
         packet.validate_recorded(packet.bindings(), None)?;
         Ok(Self {
             site: packet.frame().site().clone(),
-            bindings: packet.bindings().to_vec(),
+            bindings: Rc::from(packet.bindings()),
             proof: PrefixPhysicalProofV1::FieldMapInstall(packet),
             projected: false,
         })

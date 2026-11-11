@@ -2,6 +2,20 @@
 use super::*;
 
 impl FinishedBindings {
+    pub(in super::super) fn required_recorded_binding(
+        &self,
+        original: &(BasicBlockId, MirInstruction),
+        role: &str,
+    ) -> Result<(BasicBlockId, MirInstruction), String> {
+        let mapped = self
+            .binding(original.0, &original.1)?
+            .ok_or_else(|| freeze(&format!("{role}/mandatory-binding-removed")))?;
+        if !self.recorded().contains(&mapped) {
+            return Err(freeze(&format!("{role}/mandatory-binding-unrecorded")));
+        }
+        Ok(mapped)
+    }
+
     /// Lend the exact captured producer of an observed raw child, never a
     /// final instruction selected by its payload or operation shape.
     pub(in super::super) fn captured_definition(
@@ -49,8 +63,11 @@ impl FinishedBindings {
             return Err(fault("relation-captured-membership"));
         }
         let Some(mapped) = self.binding(original.0, &original.1)? else {
-            return if self.borrowed_copies.may_omit(function, &original.1) { Ok(None) }
-                else { Err(fault("relation-destination")) };
+            return if self.borrowed_copies.may_omit(function, &original.1) {
+                Ok(None)
+            } else {
+                Err(fault("relation-destination"))
+            };
         };
         let definitions: Vec<_> = function
             .blocks
@@ -74,15 +91,19 @@ impl FinishedBindings {
             && unused
             && matches!(
                 original.1,
-                MirInstruction::Const { .. } | MirInstruction::Copy { .. }
+                MirInstruction::Const { .. }
+                    | MirInstruction::Copy { .. }
                     | MirInstruction::Compare { .. }
             )
             && self.validated_sequence_omissions.contains(&mapped)
         {
             return Ok(None);
         }
-        Err(format!("{} function={} original={original:?} mapped={mapped:?} actual={definitions:?}",
-            fault("relation-finished-producer"), function.signature.name))
+        Err(format!(
+            "{} function={} original={original:?} mapped={mapped:?} actual={definitions:?}",
+            fault("relation-finished-producer"),
+            function.signature.name
+        ))
     }
 
     /// Only an unborrowed, source-proved scalar candidate may omit its exact
@@ -98,14 +119,25 @@ impl FinishedBindings {
             return self.relation_binding(function, binding);
         }
         let original = binding == candidate.original();
-        let member = original || relation.is_some_and(|relation| {
-            let mut observed = Vec::new();
-            relation.append_observed_bindings_v1(&mut observed);
-            observed.contains(binding)
-        });
-        let pure = matches!(&binding.1, MirInstruction::Const { value: crate::mir::ConstValue::Integer(_), .. }
-            | MirInstruction::Copy { .. })
-            || matches!(&binding.1, MirInstruction::BinOp { op: crate::mir::BinaryOp::Add, .. });
+        let member = original
+            || relation.is_some_and(|relation| {
+                let mut observed = Vec::new();
+                relation.append_observed_bindings_v1(&mut observed);
+                observed.contains(binding)
+            });
+        let pure = matches!(
+            &binding.1,
+            MirInstruction::Const {
+                value: crate::mir::ConstValue::Integer(_),
+                ..
+            } | MirInstruction::Copy { .. }
+        ) || matches!(
+            &binding.1,
+            MirInstruction::BinOp {
+                op: crate::mir::BinaryOp::Add,
+                ..
+            }
+        );
         if !member || !pure || self.recorded.contains(binding) {
             return self.relation_binding(function, binding);
         }
@@ -114,31 +146,49 @@ impl FinishedBindings {
             return Err(fault("relation-captured-membership"));
         }
         // Validate the exact destination projection before permitting absence.
-        let mapped = self.binding(binding.0, &binding.1)?.ok_or_else(|| fault("relation-destination"))?;
+        let mapped = self
+            .binding(binding.0, &binding.1)?
+            .ok_or_else(|| fault("relation-destination"))?;
         if !function.blocks.contains_key(&mapped.0) || self.recorded.contains(&mapped) {
             return self.relation_binding(function, binding);
         }
         let unused = function.blocks.values().all(|block| {
-            block.all_instructions().all(|row| row.dst_value() != Some(value)
-                && !row.used_values().contains(&value))
-                && block.return_env.as_ref().is_none_or(|values| !values.contains(&value))
+            block
+                .all_instructions()
+                .all(|row| row.dst_value() != Some(value) && !row.used_values().contains(&value))
+                && block
+                    .return_env
+                    .as_ref()
+                    .is_none_or(|values| !values.contains(&value))
         });
-        if unused { return Ok(None); }
+        if unused {
+            return Ok(None);
+        }
         self.relation_binding(function, binding)
     }
 
     /// Before the source-owned boundary seal, check original capture and the
     /// actual projected effect. This lends correspondence, not publication.
     pub(in super::super) fn captured_effect_binding(
-        &self, function: &MirFunction, original: &(BasicBlockId, MirInstruction),
+        &self,
+        function: &MirFunction,
+        original: &(BasicBlockId, MirInstruction),
     ) -> Result<(BasicBlockId, MirInstruction), String> {
         if original.1.dst_value().is_some()
-            || self.captured.iter().filter(|row| *row == original).count() != 1 {
+            || self.captured.iter().filter(|row| *row == original).count() != 1
+        {
             return Err(fault("effect-captured-membership"));
         }
-        let mapped = self.binding(original.0, &original.1)?.ok_or_else(|| fault("effect-removed"))?;
-        if function.blocks.get(&mapped.0).is_none_or(|block|
-            block.all_instructions().filter(|row| super::same_finished_instruction(row, &mapped.1)).count() != 1) {
+        let mapped = self
+            .binding(original.0, &original.1)?
+            .ok_or_else(|| fault("effect-removed"))?;
+        if function.blocks.get(&mapped.0).is_none_or(|block| {
+            block
+                .all_instructions()
+                .filter(|row| super::same_finished_instruction(row, &mapped.1))
+                .count()
+                != 1
+        }) {
             return Err(fault("effect-actual-membership"));
         }
         Ok(mapped)
@@ -146,31 +196,58 @@ impl FinishedBindings {
     /// Structural Jumps may contract only through the original destination map.
     /// Recheck the surviving terminator even for an omitted trampoline.
     pub(in super::super) fn structural_jump_binding(
-        &self, function: &MirFunction, original: &(BasicBlockId, MirInstruction),
+        &self,
+        function: &MirFunction,
+        original: &(BasicBlockId, MirInstruction),
         finalized: bool,
     ) -> Result<Option<(BasicBlockId, MirInstruction)>, String> {
-        let MirInstruction::Jump { target, edge_args: None } = original.1 else {
+        let MirInstruction::Jump {
+            target,
+            edge_args: None,
+        } = original.1
+        else {
             return Err(fault("structural-jump-shape"));
         };
         if self.captured.iter().filter(|row| *row == original).count() != 1 {
             return Err(fault("structural-jump-capture"));
         }
         let mapped = self.binding(original.0, &original.1)?;
-        let destination = self.destination(original.0).ok_or_else(|| fault("structural-jump-destination"))?;
+        let destination = self
+            .destination(original.0)
+            .ok_or_else(|| fault("structural-jump-destination"))?;
         let expected = match &mapped {
             Some((_, instruction)) => {
-                if finalized && self.recorded.iter().filter(|row| **row == (destination, instruction.clone())).count() != 1 {
+                if finalized
+                    && self
+                        .recorded
+                        .iter()
+                        .filter(|row| **row == (destination, instruction.clone()))
+                        .count()
+                        != 1
+                {
                     return Err(fault("structural-jump-finished-membership"));
                 }
                 instruction.clone()
             }
             None => {
-                if self.destination(target) != Some(destination) { return Err(fault("structural-jump-contraction")); }
-                self.instruction(self.sequences.get(&destination).ok_or_else(|| fault("structural-jump-sequence"))?.1.clone())
+                if self.destination(target) != Some(destination) {
+                    return Err(fault("structural-jump-contraction"));
+                }
+                self.instruction(
+                    self.sequences
+                        .get(&destination)
+                        .ok_or_else(|| fault("structural-jump-sequence"))?
+                        .1
+                        .clone(),
+                )
             }
         };
-        if !function.blocks.get(&destination).and_then(|block| block.terminator.as_ref())
-            .is_some_and(|actual| super::same_finished_instruction(actual, &expected)) {
+        if !function
+            .blocks
+            .get(&destination)
+            .and_then(|block| block.terminator.as_ref())
+            .is_some_and(|actual| super::same_finished_instruction(actual, &expected))
+        {
             return Err(fault("structural-jump-actual"));
         }
         Ok(mapped)
@@ -179,23 +256,37 @@ impl FinishedBindings {
     /// Metadata may disappear during finishing, but only the same sealed
     /// ordered sequence decides surviving occurrences at the final consumer.
     pub(in super::super) fn validate_metadata_correspondence_v2(
-        &self, function: &MirFunction, original: &(BasicBlockId, MirInstruction), finalized: bool,
+        &self,
+        function: &MirFunction,
+        original: &(BasicBlockId, MirInstruction),
+        finalized: bool,
     ) -> Result<(), String> {
-        if !matches!(original.1, MirInstruction::KeepAlive { .. }) || !self.captured.contains(original) {
+        if !matches!(original.1, MirInstruction::KeepAlive { .. })
+            || !self.captured.contains(original)
+        {
             return Err(fault("metadata-captured-membership"));
         }
-        let mapped = self.binding(original.0, &original.1)?.ok_or_else(|| fault("metadata-destination"))?;
-        if self.sequences.get(&mapped.0).is_none_or(|(rows, _)|
-            !rows.iter().any(|row| self.instruction(row.clone()) == mapped.1)) {
+        let mapped = self
+            .binding(original.0, &original.1)?
+            .ok_or_else(|| fault("metadata-destination"))?;
+        if self.sequences.get(&mapped.0).is_none_or(|(rows, _)| {
+            !rows
+                .iter()
+                .any(|row| self.instruction(row.clone()) == mapped.1)
+        }) {
             return Err(fault("metadata-sequence-membership"));
         }
-        if finalized { self.validate_finished_sequences_v1(function)?; }
+        if finalized {
+            self.validate_finished_sequences_v1(function)?;
+        }
         Ok(())
     }
 
     /// Final effects additionally require the sealed source-owned census.
     pub(in super::super) fn required_effect_binding(
-        &self, function: &MirFunction, original: &(BasicBlockId, MirInstruction),
+        &self,
+        function: &MirFunction,
+        original: &(BasicBlockId, MirInstruction),
     ) -> Result<(BasicBlockId, MirInstruction), String> {
         let mapped = self.captured_effect_binding(function, original)?;
         if self.recorded.iter().filter(|row| **row == mapped).count() != 1 {
@@ -206,24 +297,49 @@ impl FinishedBindings {
 
     /// One completed Local receipt owns any permitted source-Copy omission.
     pub(in super::super) fn validate_initializer_copy_observation_v1(
-        &self, observed: &(BasicBlockId, MirInstruction), function: &MirFunction,
-        projected: bool, copy: &(BasicBlockId, MirInstruction), local: ValueId, value: ValueId,
+        &self,
+        observed: &(BasicBlockId, MirInstruction),
+        function: &MirFunction,
+        projected: bool,
+        copy: &(BasicBlockId, MirInstruction),
+        local: ValueId,
+        value: ValueId,
     ) -> Result<bool, String> {
-        let expected = if projected { self.binding(copy.0, &copy.1)? } else { Some(copy.clone()) };
-        if expected.as_ref() != Some(observed) { return Ok(false); }
+        let expected = if projected {
+            self.binding(copy.0, &copy.1)?
+        } else {
+            Some(copy.clone())
+        };
+        if expected.as_ref() != Some(observed) {
+            return Ok(false);
+        }
         if self.captured_definition(local)? != copy
-            || self.source_local_copy_binding_v1(function, local, value)?.as_ref() != Some(copy) {
-            return Err(super::super::freeze("initializer-expression/local-copy-correspondence"));
+            || self
+                .source_local_copy_binding_v1(function, local, value)?
+                .as_ref()
+                != Some(copy)
+        {
+            return Err(super::super::freeze(
+                "initializer-expression/local-copy-correspondence",
+            ));
         }
         Ok(true)
     }
 
     /// Lend the captured local producer through the same exact Copy contract.
     pub(in super::super) fn source_local_copy_binding_v1(
-        &self, function: &MirFunction, local: ValueId, result: ValueId,
+        &self,
+        function: &MirFunction,
+        local: ValueId,
+        result: ValueId,
     ) -> Result<Option<(BasicBlockId, MirInstruction)>, String> {
-        if !self.check_source_local_copy(function, local, result)? { return Err(fault("source-copy-drift")); }
-        let (block, instruction) = self.source_copies.get(&local).ok_or_else(|| fault("source-copy-missing"))?;
+        if !self.check_source_local_copy(function, local, result)? {
+            return Err(fault("source-copy-drift"));
+        }
+        let (block, instruction) = self
+            .source_copies
+            .get(&local)
+            .ok_or_else(|| fault("source-copy-missing"))?;
         Ok(Some((*block, instruction.clone())))
     }
 
@@ -252,10 +368,9 @@ impl FinishedBindings {
                 .contains_key(source_block)
                 .then_some(*source_block)
         }) else {
-            return Ok(
-                (self.removable_copies.contains(&local) && !used_values(function).contains(&local))
-                    || self.borrowed_copies.may_omit(function, expected)
-            );
+            return Ok((self.removable_copies.contains(&local)
+                && !used_values(function).contains(&local))
+                || self.borrowed_copies.may_omit(function, expected));
         };
         let actual = function
             .blocks
@@ -269,7 +384,8 @@ impl FinishedBindings {
             return Ok(true);
         }
         Ok(surviving_count == 0
-            && ((self.removable_copies.contains(&local) && !used_values(function).contains(&local))
+            && ((self.removable_copies.contains(&local)
+                && !used_values(function).contains(&local))
                 || self.borrowed_copies.may_omit(function, expected)))
     }
     pub(super) fn instruction(&self, mut instruction: MirInstruction) -> MirInstruction {
@@ -338,7 +454,9 @@ impl FinishedBindings {
             return Ok(None);
         }
         let mapped = (destination, self.instruction(instruction.clone()));
-        if self.borrowed_copies.contains(instruction) && self.validated_sequence_omissions.contains(&mapped) {
+        if self.borrowed_copies.contains(instruction)
+            && self.validated_sequence_omissions.contains(&mapped)
+        {
             return Ok(None);
         }
         Ok(Some(mapped))

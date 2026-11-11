@@ -42,8 +42,9 @@ impl DirectScalarCallProjectionV1 {
     fn validate_source(&self, context: CallValidationContextV1<'_>) -> Result<ValueId, String> {
         if context.ledger().lexical_i64_call_source(self.source.site()) != Some(&self.source)
             || self.source.result().scalar_invoke_result().is_none()
-            || !self.source.prior_homes().iter().all(|home|
-                home.stable_origin().is_some() && home.binding().owner() == self.source.owner())
+            || !self.source.prior_homes().iter().all(|home| {
+                home.stable_origin().is_some() && home.binding().owner() == self.source.owner()
+            })
             || self.source.local_binding().is_none()
         {
             return Err(freeze("direct-scalar/source"));
@@ -232,7 +233,9 @@ impl DirectScalarCallProjectionV1 {
                     return Err(freeze("direct-scalar/normal"));
                 };
                 // The callee-fault path ends every prior Home newest-first, then returns the Fault.
-                let unwind = context.ledger().prior_home_unwind_for(self.source.prior_homes())?;
+                let unwind = context
+                    .ledger()
+                    .prior_home_unwind_for(self.source.prior_homes())?;
                 if Some(*invoke_result) != self.source.result().scalar_invoke_result()
                     || actual != &call || *normal_landing != normal.0 || invoke_block != invoke.0
                     || !self.original.contains(invoke) || !self.original.contains(normal)
@@ -354,71 +357,68 @@ impl DirectScalarCallProjectionV1 {
                 coordinates,
             )?;
         }
-        for original in self.original.iter().chain(&self.dependencies) {
-            let resolved;
-            let original = if let ScalarCallSourceV1::Static { transport, .. } = &self.origin {
-                let mut current = original.clone();
-                for relation in transport {
-                    if let Some(row) =
-                        relation.resolve_observed_binding_v1(&current, require_completed)?
-                    {
-                        current = row;
-                    }
-                }
-                resolved = current;
-                &resolved
-            } else {
-                original
-            };
-            let actual = match (finishing, original.1.dst_value()) {
-                (Some(boundary), Some(dst)) => {
-                    if boundary.captured_definition(dst)? != original {
-                        return Err(freeze("direct-scalar/captured-producer"));
-                    }
-                    match context {
-                        CallValidationContextV1::Finalized(_) => {
-                            boundary.relation_binding(function, original)?
+        context
+            .ledger()
+            .with_function_geometry_v1(function, |geometry| {
+                for original in self.original.iter().chain(&self.dependencies) {
+                    let resolved;
+                    let original =
+                        if let ScalarCallSourceV1::Static { transport, .. } = &self.origin {
+                            let mut current = original.clone();
+                            for relation in transport {
+                                if let Some(row) = relation
+                                    .resolve_observed_binding_v1(&current, require_completed)?
+                                {
+                                    current = row;
+                                }
+                            }
+                            resolved = current;
+                            &resolved
+                        } else {
+                            original
+                        };
+                    let actual = match (finishing, original.1.dst_value()) {
+                        (Some(boundary), Some(dst)) => {
+                            if boundary.captured_definition(dst)? != original {
+                                return Err(freeze("direct-scalar/captured-producer"));
+                            }
+                            match context {
+                                CallValidationContextV1::Finalized(_) => {
+                                    boundary.relation_binding(function, original)?
+                                }
+                                CallValidationContextV1::Lowering(_) => continue,
+                            }
                         }
-                        CallValidationContextV1::Lowering(_) => continue,
+                        (Some(boundary), None)
+                            if matches!(original.1, MirInstruction::Invoke { .. }) =>
+                        {
+                            Some(match context {
+                                CallValidationContextV1::Finalized(_) => {
+                                    boundary.required_effect_binding(function, original)?
+                                }
+                                CallValidationContextV1::Lowering(_) => {
+                                    boundary.captured_effect_binding(function, original)?
+                                }
+                            })
+                        }
+                        (Some(boundary), None) => boundary.binding(original.0, &original.1)?,
+                        (None, _) => Some(original.clone()),
+                    };
+                    if let Some((block, row)) = actual {
+                        if !super::super::super::physical_boundary::check_binding(
+                            function, None, block, &row,
+                        )? {
+                            return Err(freeze("direct-scalar/physical-binding"));
+                        }
+                        if row.dst_value().is_some() {
+                            if !geometry.matches_exact_definition(block, &row, true) {
+                                return Err(freeze("direct-scalar/unique-producer"));
+                            }
+                        }
                     }
                 }
-                (Some(boundary), None) if matches!(original.1, MirInstruction::Invoke { .. }) => {
-                    Some(match context {
-                        CallValidationContextV1::Finalized(_) => {
-                            boundary.required_effect_binding(function, original)?
-                        }
-                        CallValidationContextV1::Lowering(_) => {
-                            boundary.captured_effect_binding(function, original)?
-                        }
-                    })
-                }
-                (Some(boundary), None) => boundary.binding(original.0, &original.1)?,
-                (None, _) => Some(original.clone()),
-            };
-            if let Some((block, row)) = actual {
-                if !super::super::super::physical_boundary::check_binding(
-                    function, None, block, &row,
-                )? {
-                    return Err(freeze("direct-scalar/physical-binding"));
-                }
-                if let Some(dst) = row.dst_value() {
-                    let mut definitions = function
-                        .blocks
-                        .iter()
-                        .flat_map(|(block, body)| {
-                            body.all_instructions().map(move |row| (*block, row))
-                        })
-                        .filter(|(_, row)| row.dst_value() == Some(dst));
-                    if function.params.contains(&dst)
-                        || definitions.next() != Some((block, &row))
-                        || definitions.next().is_some()
-                    {
-                        return Err(freeze("direct-scalar/unique-producer"));
-                    }
-                }
-            }
-        }
-        Ok(())
+                Ok(())
+            })
     }
 }
 
@@ -541,7 +541,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let owner = packet.source.owner();
         let group = RootLifecyclePrefixBindingGroupV1 {
             site: packet.source.site().clone(),
-            bindings,
+            bindings: bindings.into(),
             proof: PrefixPhysicalProofV1::DirectScalar(Rc::new(packet)),
             projected: false,
         };
@@ -593,7 +593,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let owner = packet.source.owner();
         let group = RootLifecyclePrefixBindingGroupV1 {
             site: packet.source.site().clone(),
-            bindings,
+            bindings: bindings.into(),
             proof: PrefixPhysicalProofV1::DirectScalar(Rc::new(packet)),
             projected: false,
         };
@@ -644,7 +644,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let owner = packet.source.owner();
         let group = RootLifecyclePrefixBindingGroupV1 {
             site: packet.source.site().clone(),
-            bindings,
+            bindings: bindings.into(),
             proof: PrefixPhysicalProofV1::DirectScalar(Rc::new(packet)),
             projected: false,
         };

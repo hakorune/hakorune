@@ -245,23 +245,11 @@ impl OrdinaryNewClaimLedgerV1 {
         })?;
         if child {
             self.verify_finished_borrowed_compares_v1(owner, function, |original| {
-                let mapped = projection
-                    .binding(original.0, &original.1)?
-                    .ok_or_else(|| freeze("borrowed-compare/mandatory-binding-removed"))?;
-                if !projection.recorded().contains(&mapped) {
-                    return Err(freeze("borrowed-compare/mandatory-binding-unrecorded"));
-                }
-                Ok(mapped)
+                projection.required_recorded_binding(original, "borrowed-compare")
             })?;
         }
         self.verify_finished_borrowed_muls_v1(owner, function, |original| {
-            let mapped = projection
-                .binding(original.0, &original.1)?
-                .ok_or_else(|| freeze("borrowed-mul/mandatory-binding-removed"))?;
-            if !projection.recorded().contains(&mapped) {
-                return Err(freeze("borrowed-mul/mandatory-binding-unrecorded"));
-            }
-            Ok(mapped)
+            projection.required_recorded_binding(original, "borrowed-mul")
         })?;
         self.validate_forwarded_copies(owner, function, projection)
     }
@@ -286,13 +274,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let _physical_scope = self.physical_validation_scope_v1(function, Some(&projection), false);
         self.validate_owner_body(owner, function, Some(&projection), false)?;
         self.main_arguments_projected_bindings_v1(function, |original| {
-            let mapped = projection
-                .binding(original.0, &original.1)?
-                .ok_or_else(|| freeze("main-arguments/mandatory-binding-removed"))?;
-            if !projection.recorded().contains(&mapped) {
-                return Err(freeze("main-arguments/mandatory-binding-unrecorded"));
-            }
-            Ok(mapped)
+            projection.required_recorded_binding(original, "main-arguments")
         })?;
         self.validate_finished_operations_v1(owner, function, &projection, false)?;
         // The finishing projection may rewrite block identities. Rebind each
