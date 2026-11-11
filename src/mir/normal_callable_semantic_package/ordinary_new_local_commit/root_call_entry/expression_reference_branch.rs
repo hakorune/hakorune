@@ -210,30 +210,69 @@ impl BranchScalarPhiObservationV1 {
         &self.relation
     }
     pub(in crate::mir) fn validate(
-        &self,
+        self: &std::rc::Rc<Self>,
         context: CallValidationContextV1<'_>,
         function: &MirFunction,
         finishing: Option<&Finished>,
     ) -> Result<(), String> {
-        context
-            .ledger()
-            .require_branch_scalar_source_v1(&self.source)?;
-        validate_branch_geometry_v1(&self.pending, &self.branch, self.exits, &self.jumps,
-            [self.inputs[0].binding_value().1, self.inputs[1].binding_value().1], &self.relation,
-            function, finishing, "expression/scalar-producer-kind")?;
-        for (index, (_, _, source)) in self.source.incoming().iter().enumerate() {
-            validate_scalar_binding_observation_v1(
-                self.source.binding(),
-                source,
-                &self.inputs[index],
-                &self.producers[index],
-                context,
+        // A query borrows exactly one immutable MIR/context/projection. Every
+        // read edge is checked; only completed shared observation bodies reuse
+        // that query's successful geometry/children check.
+        let mut pending = vec![(std::rc::Rc::clone(self), false)];
+        let mut active = std::collections::BTreeSet::new();
+        let mut completed = std::collections::BTreeSet::new();
+        while let Some((point, exiting)) = pending.pop() {
+            let key = std::rc::Rc::as_ptr(&point);
+            if exiting {
+                active.remove(&key);
+                completed.insert(key);
+                continue;
+            }
+            if completed.contains(&key) {
+                continue;
+            }
+            if !active.insert(key) {
+                return Err(freeze("expression/scalar-producer-kind"));
+            }
+            context
+                .ledger()
+                .require_branch_scalar_source_v1(&point.source)?;
+            validate_branch_geometry_v1(
+                &point.pending,
+                &point.branch,
+                point.exits,
+                &point.jumps,
+                [
+                    point.inputs[0].binding_value().1,
+                    point.inputs[1].binding_value().1,
+                ],
+                &point.relation,
                 function,
                 finishing,
+                "expression/scalar-producer-kind",
             )?;
+            let mut children = Vec::new();
+            for (index, (_, _, source)) in point.source.incoming().iter().enumerate() {
+                validate_scalar_binding_observation_with_branches_v1(
+                    point.source.binding(),
+                    source,
+                    &point.inputs[index],
+                    &point.producers[index],
+                    context,
+                    function,
+                    finishing,
+                    &mut |child| {
+                        children.push(std::rc::Rc::clone(child));
+                        Ok(())
+                    },
+                )?;
+            }
+            pending.push((point, true));
+            pending.extend(children.into_iter().rev().map(|child| (child, false)));
         }
         Ok(())
     }
+
 }
 /// One geometry verifier for source-qualified Normal branch values. Payload
 /// type, ownership and original incoming producers remain with each caller.
@@ -341,6 +380,28 @@ pub(super) fn validate_scalar_binding_observation_v1(
     function: &MirFunction,
     finishing: Option<&Finished>,
 ) -> Result<(), String> {
+    validate_scalar_binding_observation_with_branches_v1(
+        binding,
+        source,
+        read,
+        producer,
+        context,
+        function,
+        finishing,
+        &mut |point| point.validate(context, function, finishing),
+    )
+}
+
+pub(super) fn validate_scalar_binding_observation_with_branches_v1(
+    binding: crate::mir::resolved_semantics::BindingRefV1,
+    source: &Producer,
+    read: &BindingValueObservationV2,
+    producer: &ReferenceProducerV1,
+    context: CallValidationContextV1<'_>,
+    function: &MirFunction,
+    finishing: Option<&Finished>,
+    branches: &mut impl FnMut(&std::rc::Rc<BranchScalarPhiObservationV1>) -> Result<(), String>,
+) -> Result<(), String> {
     validate_entry_layout(binding, source, producer, context, function)?;
     validate_scalar_origin(binding, source, read, producer, context)?;
     let finite_initializer_entry = matches!((source, producer),
@@ -352,12 +413,17 @@ pub(super) fn validate_scalar_binding_observation_v1(
         }
     }
     if matches!(source, Producer::BranchNormal(_)) {
-        read.loan_scalar_join_v1(source)?
+        let point = read.loan_scalar_join_v1(source)?;
+        point
             .branch()
-            .ok_or_else(|| freeze("expression/scalar-producer-kind"))?
-            .validate(context, function, finishing)?;
+            .ok_or_else(|| freeze("expression/scalar-producer-kind"))?;
     }
     if let Some(projection) = finishing {
+        // The retained producer owns this obligation, including a Branch
+        // forwarded through a BindingRebind rather than a direct Branch source.
+        if let ReferenceProducerV1::Branch(point) = producer {
+            branches(point)?;
+        }
         if let ReferenceProducerV1::Phi(point) = producer {
             point.require_completed_v1()?;
             point.verify_projected(function, &mut |row| {
@@ -371,7 +437,7 @@ pub(super) fn validate_scalar_binding_observation_v1(
             projection.relation_binding(function, row)?;
         }
     } else if !finite_initializer_entry {
-        validate_dependencies(read, producer, context, function)?;
+        validate_dependencies_with_branches_v1(read, producer, context, function, branches)?;
     }
     Ok(())
 }

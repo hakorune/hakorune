@@ -263,7 +263,10 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         owner: FunctionOwnerIdV1,
         site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
-    ) -> Result<Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>>, String> {
+    ) -> Result<
+        Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>>,
+        String,
+    > {
         use crate::mir::resolved_semantics::home_new_prefix::{
             CheckedExpressionReferenceV1 as Reference, CurrentScalarProducerV1 as Producer,
         };
@@ -274,8 +277,15 @@ impl OrdinaryNewClaimLedgerV1 {
             output: &mut Vec<
                 Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>,
             >,
+            seen: &mut Vec<
+                Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>,
+            >,
         ) {
             if let Producer::BranchNormal(basis) = source {
+                if seen.iter().any(|old| old == basis) {
+                    return;
+                }
+                seen.push(Rc::clone(basis));
                 if basis.binding().owner() == owner
                     && basis.site() == site
                     && !output.iter().any(|old| old == basis)
@@ -283,7 +293,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     output.push(Rc::clone(basis));
                 }
                 for (_, _, input) in basis.incoming() {
-                    visit(input, owner, site, output);
+                    visit(input, owner, site, output, seen);
                 }
             }
         }
@@ -294,22 +304,32 @@ impl OrdinaryNewClaimLedgerV1 {
             output: &mut Vec<
                 Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>,
             >,
+            seen: &mut Vec<
+                Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>,
+            >,
         ) {
             for reference in evaluation.references().values() {
                 if let Reference::Scalar(read) = reference {
                     if let Some(read) = read.original_read() {
-                        visit(read.producer(), owner, site, output);
+                        visit(read.producer(), owner, site, output, seen);
                     }
                 }
             }
         }
         let mut output = Vec::new();
+        let mut seen = Vec::new();
         self.visit_expression_evaluations_v1(owner, &mut |evaluation| {
-            visit_evaluation(evaluation, owner, site, &mut output);
+            visit_evaluation(evaluation, owner, site, &mut output, &mut seen);
             Ok(true)
         })?;
         for source in self.selected_source_loop_branch_joins_v2(owner, site) {
-            visit(&Producer::BranchNormal(source), owner, site, &mut output);
+            visit(
+                &Producer::BranchNormal(source),
+                owner,
+                site,
+                &mut output,
+                &mut seen,
+            );
         }
         Ok(output)
     }

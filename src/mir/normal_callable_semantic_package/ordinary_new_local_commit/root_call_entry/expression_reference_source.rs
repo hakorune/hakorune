@@ -563,6 +563,18 @@ pub(super) fn validate_dependencies(
     context: CallValidationContextV1<'_>,
     function: &MirFunction,
 ) -> Result<(), String> {
+    validate_dependencies_with_branches_v1(read, producer, context, function, &mut |point| {
+        point.validate(context, function, None)
+    })
+}
+
+pub(super) fn validate_dependencies_with_branches_v1(
+    read: &BindingValueObservationV2,
+    producer: &ReferenceProducerV1,
+    context: CallValidationContextV1<'_>,
+    function: &MirFunction,
+    branches: &mut impl FnMut(&std::rc::Rc<BranchScalarPhiObservationV1>) -> Result<(), String>,
+) -> Result<(), String> {
     let definition = match producer {
         ReferenceProducerV1::Definition(binding) => Some(binding),
         ReferenceProducerV1::Entry(entry) => {
@@ -575,7 +587,7 @@ pub(super) fn validate_dependencies(
             None
         }
         ReferenceProducerV1::Branch(point) => {
-            point.validate(context, function, None)?;
+            branches(point)?;
             None
         }
         ReferenceProducerV1::Phi(point) => {
