@@ -193,7 +193,14 @@ impl LexicalCallArgumentProjectionV1 {
         call: &OwnedExprSiteV1,
         context: CallValidationContextV1<'_>,
     ) -> Result<Vec<InvokeOperation>, String> {
-        if let Self::FreshTakenArgument { site, value, .. } = self {
+        if let Self::TakenObjectArgument {
+            site,
+            value,
+            read: None,
+            bounds: Some(_),
+            ..
+        } = self
+        {
             let acquisition = OwnedExprSiteV1::new(call.owner(), site.clone());
             return context
                 .ledger()
@@ -218,7 +225,7 @@ impl LexicalCallArgumentProjectionV1 {
         homes: &[LiveHomeV1],
         context: CallValidationContextV1<'_>,
     ) -> Result<(), String> {
-        if let Self::FreshTakenArgument {
+        if let Self::TakenObjectArgument {
             ordinal: position,
             site,
             ..

@@ -482,6 +482,7 @@ impl EmittedBoolConditionProjectionV1 {
                         observation.arguments(),
                         ledger,
                         &mut |inner, _| {
+                            producers.extend(inner.taken_argument_scope_bindings_v1(CallValidationContextV1::Lowering(ledger))?);
                             // The original walk already checked read identity and
                             // its source-owned Fault chain. Keep those effects
                             // separate from the value-producer lender.

@@ -246,6 +246,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 observation.arguments(),
                 ledger,
                 &mut |node, _| {
+                    calls.extend(node.taken_argument_scope_bindings_v1(context)?);
                     calls.extend(
                         self.original
                             .iter()

@@ -560,6 +560,8 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
     ordinary_new_claim_ledger
         .retain_completion_index(&completion_seeds)
         .map_err(|_error| NormalCallableSemanticPackageIssueV1::OrdinaryNew { _error })?;
+    ordinary_new_claim_ledger.validate_expression_entry_cleanup_v1(&parameter_contracts)
+        .map_err(|_error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error })?;
     let map_read_facts = super::map_read_fact::issue_map_read_facts_v1(
         &batch,
         direct_call_loans.as_ref(),

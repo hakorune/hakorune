@@ -125,6 +125,24 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok([allocation, completion])
     }
 
+    /// Exact completed acquisition rows lent to the enclosing argument packet.
+    pub(in crate::mir) fn taken_new_argument_bindings_v1(
+        &self, site: &OwnedExprSiteV1, call: &OwnedExprSiteV1, ordinal: u32,
+        value: ValueId, bounds: &[(BasicBlockId, MirInstruction); 2],
+    ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
+        let rows = self.local_commits.borrow();
+        let Some(LocalCommitV1::Result(row)) = rows.get(site) else {
+            return Err(freeze("taken-argument/result-source"));
+        };
+        if &self.taken_new_argument_bounds_v1(site, call, ordinal, row.box_source.name(), value)? != bounds {
+            return Err(freeze("taken-argument/result-emission"));
+        }
+        let NewEmissionProgress::Emitted { bindings, .. } = &row.emission else {
+            return Err(freeze("taken-argument/result-emission"));
+        };
+        Ok(bindings.to_vec())
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn with_result_new_source_v1<T>(
         &self,
         site: &OwnedExprSiteV1,

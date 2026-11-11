@@ -515,8 +515,15 @@ fn prepare_arguments_with_prefix(
                         )?;
                         ledger.complete_new_expression(acquisition, class, value)?;
                         let bounds = ledger.taken_new_argument_bounds_v1(acquisition, row.call_site(), *ordinal, class, value)?;
-                        ArgumentProjection::FreshTakenArgument {
-                            ordinal: *ordinal, site: site.clone(), formal: actual.formal, value, bounds,
+                        for binding in ledger.taken_new_argument_bindings_v1(
+                            acquisition, row.call_site(), *ordinal, value, &bounds,
+                        )? {
+                            if matches!(binding.1, MirInstruction::FaultFrameEnter { .. }) && bindings.contains(&binding) { continue; }
+                            bindings.push(binding);
+                        }
+                        ArgumentProjection::TakenObjectArgument {
+                            ordinal: *ordinal, site: site.clone(), formal: actual.formal, value,
+                            read: None, bounds: Some(bounds),
                         }
                     }
                     Source::Read(source) => {
@@ -619,12 +626,21 @@ fn prepare_arguments_with_prefix(
                             .map_err(|error| {
                                 format!("[freeze:contract][lexical-i64/borrowed-read/{error:?}]")
                             })?;
+                        if source.transfers_home_at_entry_v1() {
+                            let value = read.value_for(owner, read_site.node(), binding)
+                                .map_err(|error| format!("[freeze:contract][taken-argument/read/{error:?}]"))?;
+                            ArgumentProjection::TakenObjectArgument {
+                                ordinal: *ordinal, site: site.clone(), formal: actual.formal,
+                                value, read: Some(read), bounds: None,
+                            }
+                        } else {
                         ArgumentProjection::BorrowedRead {
                             ordinal: *ordinal,
                             site: site.clone(),
                             formal: actual.formal,
                             read,
                             entry,
+                        }
                         }
                     }
                 }

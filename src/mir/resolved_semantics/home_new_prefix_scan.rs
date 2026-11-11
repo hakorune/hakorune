@@ -89,31 +89,26 @@ pub(super) fn scan_statement_flow<'a, E>(
             }
         }
         locals.invalidate_dynamic_field_sources(&statement);
-        let mut taken_news = Vec::new();
         local_call_flow::stage_statement_actuals(
-            input,
-            &statement,
-            locals,
-            unavailable.is_none(),
-            homes,
-            result_sites,
-            local_calls,
-            path_calls,
-            scalar_field,
-            &mut |call, request| {
-                if let BorrowedCallActualRequestV1::Observe(_, actuals, _) = request {
-                    taken_news.extend(actuals.iter().filter_map(|actual| {
-                        let site = OwnedExprSiteV1::new(input.owner(), actual.site.clone());
-                        if !result_sites.contains(&site) {
-                            return None;
-                        }
-                        let construction = function.expression_source().construction(&actual.site)?;
-                        Some((call.clone(), actual.ordinal, site, construction.arguments().len()))
-                    }));
-                }
-                borrowed_actuals(call, request)
-            },
+            input, &statement, locals, unavailable.is_none(), homes, result_sites,
+            local_calls, path_calls, scalar_field, borrowed_actuals,
         )?;
+        // Membership already proves the destination-less New belongs to a
+        // declared take argument. Every sink borrows that same acquisition.
+        let taken_news: Vec<_> = result_sites.iter().filter_map(|site| {
+            if site.owner() != input.owner()
+                || function.source_site_inventory().containing_statement(site.site()) != Some(statement.site())
+            { return None; }
+            let (last, parent) = site.site().node().segments().split_last()?;
+            let SourcePathSegmentV1::Argument(ordinal) = last else { return None; };
+            let call_site = SourceExprSiteV1::from_node(
+                crate::mir::resolved_semantics::SourceNodeSiteV1::from_segments(parent.to_vec()));
+            let call = function.method_call(&call_site)?;
+            if call.arguments().get(*ordinal as usize)?.site() != site.site() { return None; }
+            let construction = function.expression_source().construction(site.site())?;
+            Some((OwnedExprSiteV1::new(input.owner(), call_site), *ordinal,
+                site.clone(), construction.arguments().len()))
+        }).collect();
         for (call, ordinal, site, arity) in taken_news {
             let (observation, moved, issue) = super::new_local::observe_new_arguments_v1(
                 input, &site, arity, locals, homes, local_calls, scalar_field, borrowed_actuals,

@@ -26,6 +26,7 @@ pub(super) fn materialize_arguments(
     ) -> Result<(), String>,
     static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
     inherited: &[crate::mir::instruction::InvokeOperation],
+    bindings: &mut Vec<(crate::mir::BasicBlockId, MirInstruction)>,
 ) -> Result<Vec<EmittedNewArgumentV1>, String> {
     validate_argument_rows_v1(site.owner(), site, arity, rows)?;
     let mut arguments = Vec::with_capacity(rows.len());
@@ -101,13 +102,16 @@ pub(super) fn materialize_arguments(
         }
         let value = match row.kind() {
             OrdinaryNewTrivialArgumentKindV1::Integer(value) => {
-                crate::mir::builder::emission::constant::emit_integer(builder, *value)
+                crate::mir::builder::emission::constant::emit_integer_recorded(builder, *value)
+                    .map(|value| value.into_recorded_value(bindings))
             }
             OrdinaryNewTrivialArgumentKindV1::Bool(value) => {
-                crate::mir::builder::emission::constant::emit_bool(builder, *value)
+                crate::mir::builder::emission::constant::emit_bool_recorded(builder, *value)
+                    .map(|value| value.into_recorded_value(bindings))
             }
             OrdinaryNewTrivialArgumentKindV1::Null => {
-                crate::mir::builder::emission::constant::emit_null(builder)
+                crate::mir::builder::emission::constant::emit_null_recorded(builder)
+                    .map(|value| value.into_recorded_value(bindings))
             }
             OrdinaryNewTrivialArgumentKindV1::Local { binding }
             | OrdinaryNewTrivialArgumentKindV1::Handle { binding }
@@ -172,6 +176,7 @@ pub(super) fn materialize_arguments(
                 let (dst, (_, instruction)) =
                     builder.append_object_field_read_v1(base, source.field(), None)?;
                 builder.function_state.type_ctx.value_types.insert(dst, ty);
+                bindings.push((block, instruction.clone()));
                 ledger.record_argument_field_read(&read_site, block, instruction, &source)?;
                 Ok(dst)
             }

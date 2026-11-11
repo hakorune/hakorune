@@ -60,27 +60,56 @@ impl CheckedExpressionEvaluationV1 {
         {
             return true;
         }
-        for loan in self.operations.iter() {
-            if loan.scalar_copy_v1().is_none()
-                && loan.integer_operator_v1().is_none()
-                && !matches!(self.comparison_plan_v1(loan.node()), Ok(Some(plan)) if !plan.requires_fault_frame())
-            {
-                return true;
-            }
-        }
         self.order.iter().any(|&index| {
             let node = &self.source.nodes()[index];
-            matches!(
+            let checked = if matches!(
                 node.source(),
                 ExpressionNodeSourceV1::Shape(
                     crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }
                 )
-            ) && checked_field(&OwnedExprSiteV1::new(
-                self.source.owner(),
-                node.site().clone(),
-            )) != Some(false)
+            ) {
+                checked_field(&OwnedExprSiteV1::new(
+                    self.source.owner(),
+                    node.site().clone(),
+                ))
+            } else {
+                None
+            };
+            self.node_requires_fault_frame_v1(index, checked)
         })
     }
+
+    /// One node's retained operation law, shared by frame and cleanup admission.
+    pub(crate) fn node_requires_fault_frame_v1(
+        &self,
+        index: usize,
+        checked_field: Option<bool>,
+    ) -> bool {
+        let Some(node) = self.source.nodes().get(index) else {
+            return true;
+        };
+        if let Some(core) = self.cores.get(&index) {
+            return core.source().target().frame_free_read_law_v1().is_none();
+        }
+        if matches!(node.source(), ExpressionNodeSourceV1::MethodCall) {
+            return true;
+        }
+        if self.owned_results.contains(&index) {
+            return true;
+        }
+        if let Some(loan) = self.operations.iter().find(|loan| loan.node() == index) {
+            return loan.scalar_copy_v1().is_none()
+                && loan.integer_operator_v1().is_none()
+                && !matches!(self.comparison_plan_v1(index), Ok(Some(plan)) if !plan.requires_fault_frame());
+        }
+        matches!(
+            node.source(),
+            ExpressionNodeSourceV1::Shape(
+                crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }
+            )
+        ) && checked_field != Some(false)
+    }
+
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> {
         &self.source
     }

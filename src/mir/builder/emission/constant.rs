@@ -30,6 +30,13 @@ impl CompletedConstV1 {
     pub(in crate::mir) fn original(&self) -> &(BasicBlockId, MirInstruction) {
         &self.original
     }
+    pub(in crate::mir) fn into_recorded_value(
+        self,
+        bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
+    ) -> ValueId {
+        bindings.push(self.original);
+        self.value
+    }
 }
 
 fn emit_exact_const_at_recorded(
@@ -62,6 +69,13 @@ pub(in crate::mir) fn emit_integer_recorded(
     value: i64,
 ) -> Result<CompletedConstV1, String> {
     emit_exact_const_at_recorded(builder, None, ConstValue::Integer(value))
+}
+
+pub(in crate::mir) fn emit_bool_recorded(
+    builder: &mut MirBuilder,
+    value: bool,
+) -> Result<CompletedConstV1, String> {
+    emit_exact_const_at_recorded(builder, None, ConstValue::Bool(value))
 }
 
 fn emit_exact_const(b: &mut MirBuilder, value: ConstValue) -> Result<ValueId, String> {

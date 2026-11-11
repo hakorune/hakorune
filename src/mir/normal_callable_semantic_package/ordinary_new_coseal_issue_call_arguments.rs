@@ -208,6 +208,17 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             });
     }
     if let BorrowedCallActualRequestV1::CompleteArgumentExpression { input, frame } = request {
+        for call in frame.evaluation().calls() {
+            let (_, taken) = super::super::lexical_instance_call::source_take_homes_v1(
+                pending, call.site(), candidates, contracts,
+            ).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue })?;
+            if !taken.is_empty() {
+                return Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                    site: site.clone(),
+                    issue: super::super::lexical_instance_call::freeze("expression/argument-entry-transition-unavailable"),
+                });
+            }
+        }
         return source
             .as_ref()
             .map_err(Clone::clone)

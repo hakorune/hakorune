@@ -162,15 +162,16 @@ fn emit_selected_new(
     static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
     inherited: &[InvokeOperation],
 ) -> Result<ValueId, String> {
+    let mut bindings = Vec::new();
     let arguments = arguments::materialize_arguments(builder, state, ledger, &site, arity,
-        argument_rows, consume_receiver, static_source, inherited)?;
+        argument_rows, consume_receiver, static_source, inherited, &mut bindings)?;
     let (mut prior, reclaim_origin) = ledger.begin_new_emission(&site)?;
     let argument_ends = arguments::temporary_ends_v1(&arguments)?;
     prior.splice(0..0, argument_ends.into_iter().chain(inherited.iter().cloned()));
     let frame = state.borrow_fault_frame(builder)?;
     let result = builder.next_value_id();
     let frame_binding = fault_frame_binding(builder, state, frame)?;
-    let mut bindings = vec![frame_binding];
+    bindings.push(frame_binding);
     let outward = builder.next_block_id();
     append_block(
         builder,

@@ -316,7 +316,7 @@ impl EmittedLexicalCallProjectionV1 {
         }
         let mut covered = std::collections::BTreeSet::new();
         for (ordinal, argument) in self.prepared.arguments.iter().enumerate() {
-            if let LexicalCallArgumentProjectionV1::FreshTakenArgument { site, value, .. } = argument {
+            if let LexicalCallArgumentProjectionV1::TakenObjectArgument { site, value, read: None, bounds: Some(_), .. } = argument {
                 let acquisition = OwnedExprSiteV1::new(self.call_site().owner(), site.clone());
                 let prefix = ExpressionCallTransientPrefixV1::for_prepared_call_argument(
                     original.ok_or_else(|| freeze("taken-argument/call-source"))?,
@@ -574,7 +574,7 @@ impl LexicalCallArgumentProjectionV1 {
                     .zip(packet.body.bindings.last().cloned()),
                 _ => return Err(freeze("expression/inline-delimiter-drift")),
             },
-            Self::FreshTakenArgument { bounds, .. } => Some((bounds[0].clone(), bounds[1].clone())),
+            Self::TakenObjectArgument { bounds, .. } => bounds.as_ref().map(|bounds| (bounds[0].clone(), bounds[1].clone())),
             Self::CallResult(packet) => {
                 let mut entry = packet.invoke.clone();
                 for argument in &packet.prepared.arguments {
@@ -639,5 +639,26 @@ impl EmittedLexicalCallProjectionV1 {
         } else {
             crate::mir::instruction::StringInvokeOperand::OwnedString(value)
         }))
+    }
+}
+
+impl EmittedLexicalCallProjectionV1 {
+    /// The source-checked completed New remains owned by this argument packet.
+    pub(in crate::mir) fn taken_argument_scope_bindings_v1(
+        &self, context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<Binding>, String> {
+        let mut bindings = Vec::new();
+        for argument in &self.prepared.arguments {
+            if let LexicalCallArgumentProjectionV1::TakenObjectArgument {
+                ordinal, site, value, read: None, bounds: Some(bounds), ..
+            } = argument {
+                borrowed_projection::value(argument, self.call_site().owner(), self.row.loan(), *ordinal, site, context)?;
+                let acquisition = OwnedExprSiteV1::new(self.call_site().owner(), site.clone());
+                bindings.extend(context.ledger().taken_new_argument_bindings_v1(
+                    &acquisition, self.call_site(), *ordinal, *value, bounds,
+                )?);
+            }
+        }
+        Ok(bindings)
     }
 }
