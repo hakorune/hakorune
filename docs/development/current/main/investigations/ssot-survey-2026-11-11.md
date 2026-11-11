@@ -136,3 +136,54 @@
 - **合流の証拠は ID で比べる**: source の点と binding で決まる ID で比べ、重複を除く。前から 1 回たどって「確かめ済み」の表を作り、後ろの読みは自分のすぐ前の合流だけを見る。
 - 独立の検証の中身は省かない。速くするために、検証を弱めたり、確かめた印を MIR の変更の後へ持ち越したりしない。
 - 確かめ方: 上の k=15〜120 の入力で、時間がほぼ k に比例する事。目安は k=120 で 1 秒程度。出来上がる MIR は前と同じ。
+
+
+## 検証の回の記録（2026-11-12、基点 5ba99418b0）
+
+### 原因と一つにする持ち主
+
+| 項目 | 実際の入口・原因（基点の行） | 置換先の持ち主 |
+|---|---|---|
+| R1 | `ordinary_new_local_commit/root_validation.rs:138,156` の child 比較検証が同一。root と child 全体は下表のとおり異なる | 同 file の共通 finished operation 検証、役割別 wrapper は保持 |
+| R2 | `ownership_ssa/verify.rs:725` は通常 successors だけを辿り、`verification/utils.rs:192` は Catch handler も辿る | `verification/utils::compute_reachable_blocks`。所有状態の handler 伝播とは分離 |
+| R3 | `verification.rs:299`、`verification/invoke.rs:352,504`、`ownership_ssa/verify.rs:31` が解析を再構築。`invoke_string_read.rs:132,141` は operand ごとに支配木と全定義走査 | 既存 `value_origin::indexed_value_definitions` と、一つの関数検証スコープの geometry |
+| R4 | `root_call_entry/binding_rebind_projection.rs:263,294,385` の全評価・過去合流の再探索と線形 seen 検索。`expression_reference_branch.rs:212,278` は過去観測の幾何を再検証 | 原本の flow/value/binding/site による source 索引と、不変 MIR 内の観測検証スコープ |
+| R5 | 同じ判断・書き手の増加を着地時に検出できない | `tools/checks` の持ち主数 guard と、同じ変更で下げる基準 |
+
+現在の `home_prefix_scalar.rs:52` の source 等値性は、flow の同一性と value/binding/site の浅い比較である。過去の「一回の比較が DAG 全体を再帰比較する」という説明は現在の実装には当たらない。全 DAG の再訪問と線形 seen 検索の回数が増幅する。
+
+| 最終検証の責務 | Child | Root |
+|---|---|---|
+| New / field / literal / Home exit | 個別、child の順序 | root body の順序 |
+| unit return / main arguments | なし | あり |
+| borrowed compare | 同じ呼出し2回を1回へ | 呼出しなし |
+| scalar / mul / forwarded copies | あり | あり |
+| terminal Call 再束縛・状態遷移 | child 用 | root 用 |
+
+役割差と最初の拒否順序を保ち、同一の処理だけ共通化する。child を root body に丸ごと置換しない。
+
+### 変更前の実測
+
+基準は `basic-expr-2-take/hakorune.final`（SHA-256 `80050f468d05ab7833bf0512aa2721ab6eaa45c36ab0391445892a1ce94e555a`）。同じ機械で Cargo と重ねず `--dump-mir` を2回ずつ実行した。回数は基点に一時計数だけを入れた別 build で測り、計数を撤去してから実装する（計数時の時間は比較に使わない）。
+
+| k | 秒（2回） | 支配木の回数 / 処理block数 | predecessor の回数 / 処理block数 | source照会 | Branch訪問 | seen比較 | 全評価visitor / 評価候補 | 物理Branch幾何 |
+|---:|---|---|---|---:|---:|---:|---|---:|
+| 15 | 0.0963 / 0.1005 | 1183 / 55403 | 1989 / 90012 | 1597 | 43119 | 290654 | 1799 / 52710 | 721 |
+| 30 | 0.4026 / 0.3996 | 3688 / 354563 | 6849 / 629312 | 6352 | 362064 | 5157824 | 6704 / 399720 | 3016 |
+| 60 | 2.7006 / 2.7358 | 12748 / 2494583 | 25344 / 4690062 | 25312 | 2961504 | 86617664 | 25964 / 3110640 | 12331 |
+| 120 | 23.0569 / 23.1822 | 47068 / 18611423 | 97434 / 36174662 | 101032 | 23944584 | 1418691344 | 102284 / 24538080 | 49861 |
+
+### 規則（実装より前に固定）
+
+V1. 同じ不変入力に対する同じ検査は一回とし、root と child の責務差・拒否順序は保つ。
+V2. CFG の到達判断は共通 owner に寄せ、Catch setup を通常 PHI predecessor や所有状態の伝播の証拠にしない。
+V3. terminator と cached successors の不一致検出を保持し、通常辺と Catch-aware 到達性を混同しない。
+V4. 一つの不変関数の検証スコープで既存の定義索引・predecessors・支配木・到達集合を一回作り、consumer は借りる。
+V5. パラメータ、terminator、重複定義、定義前使用、PHI の predecessor edge 上の支配、Copy cycle の検査を保つ。
+V6. MIR の変更で解析と物理観測の検証済み集合を破棄し、常設 cache や別 epoch への証明の持越しを作らない。
+V7. Branch source の識別は既存の flow identity・value・binding・site の等値性に一致させ、原本所属と incoming の照合を省かない。
+V8. source の索引と物理観測の検証済み集合は分離し、同じ source に異なる PHI を対応させた改変を拒否する。
+V9. loop の補助 source、Return を含む既存の全評価 inventory、独立した Fault と所有権の検証を保持する。
+V10. 持ち主数の guard は test を除き、読む pattern と作る式を区別し、数え方と実数を表示する。
+V11. 持ち主数が減ったら同じ commit で基準を下げ、増加にはユーザーの判断を必要とする。
+V12. 入力の名前や if の個数に依存せず共通表現で整理し、MIR・拒否・実行結果を不変にして整形後 production の純減で閉じる。
