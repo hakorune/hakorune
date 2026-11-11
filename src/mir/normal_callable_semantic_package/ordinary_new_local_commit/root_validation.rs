@@ -132,37 +132,7 @@ impl OrdinaryNewClaimLedgerV1 {
             )?;
 
             self.validate_root_home_exit(owner, function, Some(&projection))?;
-            self.verify_finished_scalar_operations_v1(owner, function, |original| {
-                self.project_scalar_operation_binding_v1(owner, function, &projection, original)
-            })?;
-            self.verify_finished_borrowed_compares_v1(owner, function, |original| {
-                let mapped = projection
-                    .binding(original.0, &original.1)?
-                    .ok_or_else(|| freeze("borrowed-compare/mandatory-binding-removed"))?;
-                if !projection.recorded().contains(&mapped) {
-                    return Err(freeze("borrowed-compare/mandatory-binding-unrecorded"));
-                }
-                Ok(mapped)
-            })?;
-            self.verify_finished_borrowed_muls_v1(owner, function, |original| {
-                let mapped = projection
-                    .binding(original.0, &original.1)?
-                    .ok_or_else(|| freeze("borrowed-mul/mandatory-binding-removed"))?;
-                if !projection.recorded().contains(&mapped) {
-                    return Err(freeze("borrowed-mul/mandatory-binding-unrecorded"));
-                }
-                Ok(mapped)
-            })?;
-            self.verify_finished_borrowed_compares_v1(owner, function, |original| {
-                let mapped = projection
-                    .binding(original.0, &original.1)?
-                    .ok_or_else(|| freeze("borrowed-compare/mandatory-binding-removed"))?;
-                if !projection.recorded().contains(&mapped) {
-                    return Err(freeze("borrowed-compare/mandatory-binding-unrecorded"));
-                }
-                Ok(mapped)
-            })?;
-            self.validate_forwarded_copies(owner, function, &projection)?;
+            self.validate_finished_operations_v1(owner, function, &projection, true)?;
             if artifact {
                 // Children share the root's inadmissibility contract: a
                 // RetainedUnavailable commit row is source-unavailable, not a
@@ -268,6 +238,41 @@ impl OrdinaryNewClaimLedgerV1 {
         self.validate_finished_root(function, true)
     }
 
+    /// Shared finished operations retain each role's historical check order.
+    /// Only child functions carry the borrowed comparison obligation here.
+    fn validate_finished_operations_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+        projection: &super::physical_boundary::FinishedBindings,
+        child: bool,
+    ) -> Result<(), String> {
+        self.verify_finished_scalar_operations_v1(owner, function, |original| {
+            self.project_scalar_operation_binding_v1(owner, function, &projection, original)
+        })?;
+        if child {
+            self.verify_finished_borrowed_compares_v1(owner, function, |original| {
+                let mapped = projection
+                    .binding(original.0, &original.1)?
+                    .ok_or_else(|| freeze("borrowed-compare/mandatory-binding-removed"))?;
+                if !projection.recorded().contains(&mapped) {
+                    return Err(freeze("borrowed-compare/mandatory-binding-unrecorded"));
+                }
+                Ok(mapped)
+            })?;
+        }
+        self.verify_finished_borrowed_muls_v1(owner, function, |original| {
+            let mapped = projection
+                .binding(original.0, &original.1)?
+                .ok_or_else(|| freeze("borrowed-mul/mandatory-binding-removed"))?;
+            if !projection.recorded().contains(&mapped) {
+                return Err(freeze("borrowed-mul/mandatory-binding-unrecorded"));
+            }
+            Ok(mapped)
+        })?;
+        self.validate_forwarded_copies(owner, function, projection)
+    }
+
     fn validate_finished_root(&self, function: &MirFunction, artifact: bool) -> Result<(), String> {
         let mut state = self.root_validation.borrow_mut();
         if artifact && !matches!(*state, RootNewValidation::Checked(..)) {
@@ -295,19 +300,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             Ok(mapped)
         })?;
-        self.verify_finished_scalar_operations_v1(owner, function, |original| {
-            self.project_scalar_operation_binding_v1(owner, function, &projection, original)
-        })?;
-        self.verify_finished_borrowed_muls_v1(owner, function, |original| {
-            let mapped = projection
-                .binding(original.0, &original.1)?
-                .ok_or_else(|| freeze("borrowed-mul/mandatory-binding-removed"))?;
-            if !projection.recorded().contains(&mapped) {
-                return Err(freeze("borrowed-mul/mandatory-binding-unrecorded"));
-            }
-            Ok(mapped)
-        })?;
-        self.validate_forwarded_copies(owner, function, &projection)?;
+        self.validate_finished_operations_v1(owner, function, &projection, false)?;
         // The finishing projection may rewrite block identities. Rebind each
         // already-issued Call payload at its own exit before the handoff
         // moves it affinely.
