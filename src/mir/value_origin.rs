@@ -24,6 +24,40 @@ pub fn build_value_def_map(function: &MirFunction) -> ValueDefMap {
     defs
 }
 
+/// SSA's definition index, including parameters and terminators. Conflicts are
+/// retained separately: a domain query must reject ambiguity on its whole path.
+pub(in crate::mir) fn indexed_value_definitions(
+    function: &MirFunction,
+) -> (ValueDefMap, Vec<(ValueId, BasicBlockId, BasicBlockId)>) {
+    let mut conflicts = Vec::new();
+    let mut definitions: ValueDefMap = Default::default();
+
+    // Treat parameters as defined at the entry block.
+    for pid in &function.params {
+        if let Some((first_block, _)) = definitions.insert(*pid, (function.entry_block, usize::MAX))
+        {
+            conflicts.push((*pid, first_block, function.entry_block));
+        }
+    }
+
+    // Deterministic iteration: function.blocks is a HashMap, and nondeterminism makes
+    // SSA/verify diagnosis harder (e.g. "first_block" can drift run-to-run).
+    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
+    block_ids.sort_by_key(|b| b.0);
+
+    for block_id in &block_ids {
+        let block = &function.blocks[block_id];
+        for (inst_idx, instruction) in block.all_instructions().enumerate() {
+            if let Some(dst) = instruction.dst_value() {
+                if let Some((first_block, _)) = definitions.insert(dst, (*block_id, inst_idx)) {
+                    conflicts.push((dst, first_block, *block_id));
+                }
+            }
+        }
+    }
+    (definitions, conflicts)
+}
+
 pub struct ValueOriginQueryContext<'a> {
     function: &'a MirFunction,
     def_map: &'a ValueDefMap,
@@ -87,7 +121,8 @@ fn walk_value_origin(
         let Some(inst) = function
             .blocks
             .get(&bbid)
-            .and_then(|block| block.instructions.get(idx))
+            .and_then(|block| block.instructions.get(idx).or_else(||
+                (idx == block.instructions.len()).then_some(block.terminator.as_ref()).flatten()))
         else {
             break;
         };

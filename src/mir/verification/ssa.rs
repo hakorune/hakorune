@@ -8,40 +8,17 @@ pub(super) fn definitions(
     crate::mir::value_origin::ValueDefMap,
     Vec<VerificationError>,
 ) {
-    let mut errors = Vec::new();
-    let mut definitions: crate::mir::value_origin::ValueDefMap = Default::default();
-
-    // Treat parameters as defined at the entry block.
-    for pid in &function.params {
-        if let Some((first_block, _)) = definitions.insert(*pid, (function.entry_block, usize::MAX))
-        {
-            errors.push(VerificationError::MultipleDefinition {
-                value: *pid,
+    let (definitions, conflicts) = crate::mir::value_origin::indexed_value_definitions(function);
+    let errors = conflicts
+        .into_iter()
+        .map(
+            |(value, first_block, second_block)| VerificationError::MultipleDefinition {
+                value,
                 first_block,
-                second_block: function.entry_block,
-            });
-        }
-    }
-
-    // Deterministic iteration: function.blocks is a HashMap, and nondeterminism makes
-    // SSA/verify diagnosis harder (e.g. "first_block" can drift run-to-run).
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort_by_key(|b| b.0);
-
-    for block_id in &block_ids {
-        let block = &function.blocks[block_id];
-        for (inst_idx, instruction) in block.all_instructions().enumerate() {
-            if let Some(dst) = instruction.dst_value() {
-                if let Some((first_block, _)) = definitions.insert(dst, (*block_id, inst_idx)) {
-                    errors.push(VerificationError::MultipleDefinition {
-                        value: dst,
-                        first_block,
-                        second_block: *block_id,
-                    });
-                }
-            }
-        }
-    }
+                second_block,
+            },
+        )
+        .collect();
 
     (definitions, errors)
 }

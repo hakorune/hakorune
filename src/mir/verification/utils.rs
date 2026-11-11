@@ -246,26 +246,47 @@ pub(in crate::mir) fn exact_integer_operand_origin(
 /// The same proof at a writer's insertion point, before any instruction is emitted.
 pub(in crate::mir) fn exact_integer_operand_origin_at(
     function: &MirFunction,
-    mut value: ValueId,
+    value: ValueId,
+    use_block: BasicBlockId,
+    use_index: usize,
+    expected: i64,
+) -> Option<(BasicBlockId, crate::mir::MirInstruction)> {
+    exact_integer_operand_chain_at(function, value, use_block, use_index, expected)?
+        .last()
+        .cloned()
+}
+
+/// One complete Copy chain, checked before a writer emits any correspondence.
+/// Generic origin traversal owns the path; this domain proves order and Const.
+pub(in crate::mir) fn exact_integer_operand_chain_at(
+    function: &MirFunction,
+    value: ValueId,
     mut use_block: BasicBlockId,
     mut use_index: usize,
     expected: i64,
-) -> Option<(BasicBlockId, crate::mir::MirInstruction)> {
+) -> Option<Vec<(BasicBlockId, crate::mir::MirInstruction)>> {
     use crate::mir::{ConstValue, MirInstruction};
+    let (definitions, conflicts) = crate::mir::value_origin::indexed_value_definitions(function);
+    let ambiguous: HashSet<_> = conflicts.iter().map(|(value, _, _)| *value).collect();
+    let (root, path) = crate::mir::value_origin::trace_value_origin(function, &definitions, value);
     let mut seen = HashSet::new();
     let mut dominators = None;
-    while seen.insert(value) {
-        let mut definitions = function
-            .blocks
-            .iter()
-            .flat_map(|(block, body)| {
-                body.all_instructions()
-                    .enumerate()
-                    .map(move |(index, row)| (*block, index, row))
-            })
-            .filter(|(_, _, row)| row.dst_value() == Some(value));
-        let (block, index, definition) = definitions.next()?;
-        if definitions.next().is_some() {
+    let mut chain = Vec::new();
+    for (offset, value) in path.iter().copied().enumerate() {
+        if ambiguous.contains(&value) || !seen.insert(value) {
+            return None;
+        }
+        let (block, index) = *definitions.get(&value)?;
+        if index == usize::MAX {
+            return None;
+        }
+        let body = function.blocks.get(&block)?;
+        let definition = body.instructions.get(index).or_else(|| {
+            (index == body.instructions.len())
+                .then_some(body.terminator.as_ref())
+                .flatten()
+        })?;
+        if definition.dst_value() != Some(value) {
             return None;
         }
         if block == use_block {
@@ -281,13 +302,15 @@ pub(in crate::mir) fn exact_integer_operand_origin_at(
                 return None;
             }
         }
+        chain.push((block, definition.clone()));
         match definition {
             MirInstruction::Const {
                 value: ConstValue::Integer(actual),
                 ..
-            } if *actual == expected => return Some((block, definition.clone())),
-            MirInstruction::Copy { src, .. } => {
-                value = *src;
+            } if *actual == expected && root == value && offset + 1 == path.len() => {
+                return Some(chain)
+            }
+            MirInstruction::Copy { src, .. } if path.get(offset + 1) == Some(src) => {
                 use_block = block;
                 use_index = index;
             }

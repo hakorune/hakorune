@@ -714,18 +714,103 @@ fn selected_scalar_rejects_reachable_nondominating_and_duplicate_producers_befor
 fn positive_divisor_preserves_copy_origin_and_rejects_reordered_source() {
     let (mut builder, source) = fixture();
     let copied = builder.alloc_value_for_test();
-    builder.emit_instruction(MirInstruction::Copy { dst: copied, src: source }).unwrap();
-    let (_, relation) = super::super::checked_positive_divisor_arg(&mut builder, copied, 7).unwrap();
+    builder
+        .emit_instruction(MirInstruction::Copy {
+            dst: copied,
+            src: source,
+        })
+        .unwrap();
+    let (_, relation) =
+        super::super::checked_positive_divisor_arg(&mut builder, copied, 7).unwrap();
     let function = builder.function_state.current_function.as_ref().unwrap();
     relation.verify(function).unwrap();
+    let canonical = function.clone();
     let mut reordered = function.clone();
     let block = reordered.blocks.get_mut(&reordered.entry_block).unwrap();
-    let original = block.instructions.iter().position(|row| row.dst_value() == Some(source)).unwrap();
-    let copy = block.instructions.iter().position(|row| row.dst_value() == Some(copied)).unwrap();
+    let original = block
+        .instructions
+        .iter()
+        .position(|row| row.dst_value() == Some(source))
+        .unwrap();
+    let copy = block
+        .instructions
+        .iter()
+        .position(|row| row.dst_value() == Some(copied))
+        .unwrap();
     block.instructions.swap(original, copy);
     assert!(relation.verify(&reordered).is_err());
     builder.function_state.current_function = Some(reordered);
     let before = builder.current_function_instructions().len();
     assert!(super::super::checked_positive_divisor_arg(&mut builder, copied, 7).is_err());
     assert_eq!(builder.current_function_instructions().len(), before);
+    // Invalid origins must fail before any materialization, even when a
+    // previously completed correspondence remains cached in the builder.
+    for case in 0..5 {
+        let mut invalid = canonical.clone();
+        if case == 0 {
+            invalid.params.push(source);
+        } else {
+            let body = invalid.blocks.get_mut(&invalid.entry_block).unwrap();
+            match case {
+                1 => body.instructions.push(MirInstruction::Const {
+                    dst: source,
+                    value: crate::mir::ConstValue::Integer(7),
+                }),
+                2 => {
+                    body.terminator = Some(MirInstruction::Const {
+                        dst: source,
+                        value: crate::mir::ConstValue::Integer(7),
+                    })
+                }
+                3 => {
+                    let row = body
+                        .instructions
+                        .iter_mut()
+                        .find(|row| row.dst_value() == Some(copied))
+                        .unwrap();
+                    let MirInstruction::Copy { src, .. } = row else {
+                        panic!("original Copy")
+                    };
+                    *src = copied;
+                }
+                4 => {
+                    let row = body
+                        .instructions
+                        .iter_mut()
+                        .find(|row| row.dst_value() == Some(source))
+                        .unwrap();
+                    let MirInstruction::Const { value, .. } = row else {
+                        panic!("original Const")
+                    };
+                    *value = crate::mir::ConstValue::Integer(0);
+                }
+                _ => unreachable!(),
+            }
+        }
+        builder.function_state.current_function = Some(invalid);
+        let before = builder.current_function_instructions().len();
+        assert!(
+            super::super::checked_positive_divisor_arg(&mut builder, copied, 7).is_err(),
+            "invalid origin {case}"
+        );
+        assert_eq!(builder.current_function_instructions().len(), before);
+    }
+    let (mut chained, root) = fixture();
+    let mut tail = root;
+    for _ in 0..8 {
+        let next = chained.alloc_value_for_test();
+        chained
+            .emit_instruction(MirInstruction::Copy {
+                dst: next,
+                src: tail,
+            })
+            .unwrap();
+        tail = next;
+    }
+    let (returned, relation) =
+        super::super::checked_positive_divisor_arg(&mut chained, tail, 7).unwrap();
+    assert_eq!(relation.values(), (tail, returned));
+    relation
+        .verify(chained.function_state.current_function.as_ref().unwrap())
+        .unwrap();
 }
