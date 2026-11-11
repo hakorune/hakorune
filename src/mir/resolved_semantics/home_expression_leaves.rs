@@ -27,6 +27,31 @@ impl ExpressionLeafProfileV1 {
         self == Self::BoolCondition
             || node == 0 && matches!(self, Self::Print | Self::LocalInitializer)
     }
+    /// Limits of the current source representation, never an arithmetic law.
+    pub(super) fn covers_arithmetic_domains_v1(self, exact_integer_operands: bool) -> bool {
+        self != Self::BoolCondition || exact_integer_operands
+    }
+    pub(super) fn covers_scalar_arithmetic_v1(
+        self,
+        integer_root: bool,
+        integer_node: bool,
+        needs_divisor: bool,
+    ) -> bool {
+        if self == Self::BoolCondition {
+            integer_node && !needs_divisor
+        } else {
+            integer_root
+        }
+    }
+    pub(super) fn covers_short_circuit_v1(self) -> bool {
+        self == Self::BoolCondition
+    }
+    pub(super) fn covers_nullable_comparison_v1(self) -> bool {
+        self == Self::BoolCondition
+    }
+    pub(super) fn uses_postorder_reference_queries_v1(self) -> bool {
+        self == Self::BoolCondition
+    }
     /// Value destinations materialize field Text as an owned copy; borrowed
     /// argument/rebind/condition leaves keep their existing read obligation.
     pub(super) fn materializes_text_fields_v1(&self) -> bool {

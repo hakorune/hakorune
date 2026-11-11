@@ -291,7 +291,7 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
             CheckedExpressionReferenceV1::DynamicEntry(read.clone()),
         ));
     }
-    let Ok((evaluation, fields)) = super::qualification::qualify_expression_evaluation_v1(
+    let Ok((evaluation, fields, _)) = super::qualification::qualify_expression_evaluation_v1(
         prepared,
         initial,
         static_reference,

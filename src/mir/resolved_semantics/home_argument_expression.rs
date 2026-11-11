@@ -403,7 +403,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
         }
         initial.push((node, proof));
     }
-    let Ok((evaluation, fields)) = super::qualification::qualify_expression_evaluation_v1(
+    let Ok((evaluation, fields, _)) = super::qualification::qualify_expression_evaluation_v1(
         prepared,
         initial,
         &mut |_| None,

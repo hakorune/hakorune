@@ -602,35 +602,6 @@ fn seed_reference_v1(
 
 /// Current Home references use the same original proof selection for every
 /// participating purpose. Purpose-specific entry loans remain with that issuer.
-pub(super) fn seed_current_expression_references_v1(
-    prepared: &mut super::leaves::PreparedExpressionCallsV1,
-    initial: Vec<(usize, CheckedExpressionReferenceV1)>,
-    order: &[usize],
-    static_reference: &mut impl FnMut(
-        &super::super::SourceExprSiteV1,
-    ) -> Option<super::super::StaticTextReadV1>,
-    residence_reference: &mut impl FnMut(
-        &super::super::SourceExprSiteV1,
-    ) -> Option<(
-        super::super::BindingRefV1,
-        super::super::BindingRefV1,
-        TextResidenceAcquisitionV1,
-    )>,
-    scalar_reference: &mut impl FnMut(
-        &super::super::SourceExprSiteV1,
-    ) -> Option<CheckedScalarReferenceV1>,
-) -> Option<std::collections::BTreeMap<usize, CheckedExpressionReferenceV1>> {
-    seed_current_expression_references_with_loop_text_v1(
-        prepared,
-        initial,
-        order,
-        static_reference,
-        residence_reference,
-        &mut |_| None,
-        scalar_reference,
-    )
-}
-
 pub(super) fn seed_current_expression_references_with_loop_text_v1(
     prepared: &mut super::leaves::PreparedExpressionCallsV1,
     initial: Vec<(usize, CheckedExpressionReferenceV1)>,

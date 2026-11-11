@@ -44,10 +44,17 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_expression_ev
         &SourceExprSiteV1,
     ) -> Option<super::evaluation::CheckedScalarReferenceV1>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
-) -> Result<Result<(CheckedExpressionEvaluationV1, Vec<LocalFieldReadRequestV1>), &'static str>, E>
-{
-    use ExpressionLeafClassV1 as Leaf;
-    use ExpressionValueClassV1 as Class;
+) -> Result<
+    Result<
+        (
+            CheckedExpressionEvaluationV1,
+            Vec<LocalFieldReadRequestV1>,
+            Vec<usize>,
+        ),
+        &'static str,
+    >,
+    E,
+> {
     let coverage = prepared.operation_coverage_v1();
     let materializes_text_fields = coverage.materializes_text_fields_v1();
     let source = Rc::clone(prepared.source());
@@ -55,7 +62,11 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_expression_ev
     let Ok(order) = source.ordered_postorder_v1() else {
         return Ok(Err("postorder-unavailable"));
     };
-    let reference_order: Vec<_> = (0..source.nodes().len()).collect();
+    let reference_order: Vec<_> = if coverage.uses_postorder_reference_queries_v1() {
+        order.clone()
+    } else {
+        (0..source.nodes().len()).collect()
+    };
     let Some(mut reference_proofs) =
         super::evaluation::seed_current_expression_references_with_loop_text_v1(
             &mut prepared,
@@ -89,33 +100,17 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_expression_ev
         return Ok(Err("scalar-references-unsupported"));
     }
     reference_proofs.retain(|node, _| !transferred.contains(node));
-    // R16: a root comparison is a Bool value; its operand subtrees keep their own law.
-    let root_comparison = (coverage.covers_comparison_node_v1(0)
-        && classes[0] == Leaf::Value(Class::Bool))
-    .then(|| super::operations::qualify_comparison_operation_v1(&source, 0, &classes))
-    .flatten();
-    let Some((operations, mut owned_results)) = (if let Some(root) = root_comparison {
-        let inner_order: Vec<usize> = order.iter().copied().filter(|node| *node != 0).collect();
-        super::operations::qualify_arithmetic_operations_v1(
-            &source,
-            &inner_order,
-            &classes,
-            &transferred,
-            &reference_proofs,
-        )
-        .map(|(mut operations, owned)| {
-            operations.push(root);
-            (operations, owned)
-        })
-    } else {
-        super::operations::qualify_arithmetic_operations_v1(
+    let Some((operations, mut owned_results, logical)) =
+        super::operations::qualify_expression_operations_v1(
             &source,
             &order,
             &classes,
             &transferred,
             &reference_proofs,
+            &fields,
+            coverage,
         )
-    }) else {
+    else {
         return Ok(Err("arithmetic-operations-unproved"));
     };
     if materializes_text_fields {
@@ -147,5 +142,5 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_expression_ev
     if !evaluation.retain_core_text_entry_reads_v1() || !evaluation.reference_coverage_is_exact() {
         return Ok(Err("core-text-entry-or-reference-coverage"));
     }
-    Ok(Ok((evaluation, fields)))
+    Ok(Ok((evaluation, fields, logical)))
 }

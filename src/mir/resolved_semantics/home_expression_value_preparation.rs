@@ -100,7 +100,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_value_evaluat
             }));
         }
     }
-    let (evaluation, fields) = match crate::mir::resolved_semantics::home_new_prefix::expression_plan::qualify_expression_evaluation_v1(prepared, initial,
+    let (evaluation, fields, _) = match crate::mir::resolved_semantics::home_new_prefix::expression_plan::qualify_expression_evaluation_v1(prepared, initial,
         &mut |site| locals.static_text_reference(site), &mut |site| locals.text_reference(site),
         &mut |site| locals.loop_text_reference_v1(site, homes),
         &mut |site| locals.current_scalar_read_v1(site, calls).map(crate::mir::resolved_semantics::home_new_prefix::CheckedScalarReferenceV1::Original), field_request)? {

@@ -258,7 +258,7 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
             return Ok(None);
         }
     }
-    let Ok((evaluation, fields)) = super::qualification::qualify_expression_evaluation_v1(
+    let Ok((evaluation, fields, _)) = super::qualification::qualify_expression_evaluation_v1(
         prepared,
         initial_dynamic_references.into_iter().collect(),
         static_reference,

@@ -105,7 +105,7 @@ pub(crate) fn qualify_print_expression_v1<E>(
     else {
         return Ok(None);
     };
-    let Ok((evaluation, fields)) = super::qualification::qualify_expression_evaluation_v1(
+    let Ok((evaluation, fields, _)) = super::qualification::qualify_expression_evaluation_v1(
         prepared,
         Vec::new(),
         static_reference,
