@@ -1,6 +1,6 @@
 //! Analysis borrowed only while this exact immutable function is verified.
 //! This is not a proof of domain/ownership validity, nor a cross-epoch cache.
-use super::{cfg, dom, ssa, utils};
+use super::{uses, utils};
 use crate::mir::value_origin::ValueDefMap;
 use crate::mir::verification_types::VerificationError;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
@@ -17,16 +17,11 @@ pub(in crate::mir) struct FunctionVerificationFacts {
     actual_predecessors: OnceCell<BTreeMap<BasicBlockId, Vec<BasicBlockId>>>,
     dominators: OnceCell<utils::DominatorTree>,
     reachable: OnceCell<HashSet<BasicBlockId>>,
-    ssa_errors: OnceCell<Vec<VerificationError>>,
-    dominance_errors: OnceCell<Vec<VerificationError>>,
-}
-enum Facts<'a> {
-    Owned(Box<FunctionVerificationFacts>),
-    Borrowed(&'a FunctionVerificationFacts),
+    use_errors: OnceCell<uses::FunctionUseErrors>,
 }
 pub(in crate::mir) struct FunctionVerificationGeometry<'a> {
     function: &'a MirFunction,
-    facts: Facts<'a>,
+    facts: std::rc::Rc<FunctionVerificationFacts>,
 }
 impl<'a> std::ops::Deref for FunctionVerificationGeometry<'a> {
     type Target = MirFunction;
@@ -38,51 +33,66 @@ impl<'a> FunctionVerificationGeometry<'a> {
     pub(in crate::mir) fn new(function: &'a MirFunction) -> Self {
         Self {
             function,
-            facts: Facts::Owned(Box::default()),
+            facts: std::rc::Rc::default(),
         }
     }
     pub(in crate::mir) fn borrow(
         function: &'a MirFunction,
-        facts: &'a FunctionVerificationFacts,
+        facts: &std::rc::Rc<FunctionVerificationFacts>,
     ) -> Self {
         Self {
             function,
-            facts: Facts::Borrowed(facts),
-        }
-    }
-    fn facts(&self) -> &FunctionVerificationFacts {
-        match &self.facts {
-            Facts::Owned(facts) => facts,
-            Facts::Borrowed(facts) => facts,
+            facts: std::rc::Rc::clone(facts),
         }
     }
     pub(in crate::mir) fn definitions(&self) -> &ValueDefMap {
         &self.definition_image().0
     }
     fn definition_image(&self) -> &Definitions {
-        self.facts()
+        self.facts
             .definitions
             .get_or_init(|| crate::mir::value_origin::indexed_value_definitions(self.function))
     }
     pub(in crate::mir) fn conflicts(&self) -> &[(ValueId, BasicBlockId, BasicBlockId)] {
         &self.definition_image().1
     }
+    pub(in crate::mir) fn definition_count(&self, value: ValueId) -> usize {
+        usize::from(self.definitions().contains_key(&value))
+            + self
+                .conflicts()
+                .iter()
+                .filter(|(old, _, _)| *old == value)
+                .count()
+    }
+    /// Exact instruction identity; callers retain their parameter-collision policy.
+    pub(in crate::mir) fn matches_exact_definition(
+        &self,
+        block: BasicBlockId,
+        row: &MirInstruction,
+        forbid_parameters: bool,
+    ) -> bool {
+        row.dst_value().is_some_and(|value| {
+            self.instruction_definition_count(value) == 1
+                && (!forbid_parameters || !self.params.contains(&value))
+                && self
+                    .definition(value)
+                    .is_some_and(|(actual, _, instruction)| actual == block && instruction == row)
+        })
+    }
     /// Original instruction-only uniqueness, distinct from parameter collisions.
     pub(in crate::mir) fn instruction_definition_count(&self, value: ValueId) -> usize {
-        if !self.definitions().contains_key(&value) {
-            return 0;
-        }
-        1 + self
-            .conflicts()
-            .iter()
-            .filter(|(old, _, _)| *old == value)
-            .count()
+        self.definition_count(value)
             - self
                 .function
                 .params
                 .iter()
                 .filter(|old| **old == value)
                 .count()
+    }
+    pub(in crate::mir) fn parameters_have_unique_definitions(&self) -> bool {
+        self.conflicts()
+            .iter()
+            .all(|(value, _, _)| !self.params.contains(value))
     }
     pub(in crate::mir) fn ambiguous(&self, value: ValueId) -> bool {
         self.conflicts().iter().any(|(old, _, _)| *old == value)
@@ -104,12 +114,12 @@ impl<'a> FunctionVerificationGeometry<'a> {
         self.definitions().get(&value).map(|(block, _)| *block)
     }
     pub(in crate::mir) fn predecessors(&self) -> &HashMap<BasicBlockId, Vec<BasicBlockId>> {
-        self.facts()
+        self.facts
             .predecessors
             .get_or_init(|| utils::compute_predecessors(self.function))
     }
     pub(super) fn actual_predecessors(&self) -> &BTreeMap<BasicBlockId, Vec<BasicBlockId>> {
-        self.facts().actual_predecessors.get_or_init(|| {
+        self.facts.actual_predecessors.get_or_init(|| {
             let mut result = BTreeMap::<_, Vec<_>>::new();
             for (id, block) in &self.function.blocks {
                 for target in block.successors_from_terminator() {
@@ -120,12 +130,12 @@ impl<'a> FunctionVerificationGeometry<'a> {
         })
     }
     pub(in crate::mir) fn dominators(&self) -> &utils::DominatorTree {
-        self.facts().dominators.get_or_init(|| {
+        self.facts.dominators.get_or_init(|| {
             utils::compute_dominators_with_predecessors(self.function, self.predecessors())
         })
     }
     pub(in crate::mir) fn reachable(&self) -> &HashSet<BasicBlockId> {
-        self.facts()
+        self.facts
             .reachable
             .get_or_init(|| utils::compute_reachable_blocks(self.function))
     }
@@ -141,25 +151,24 @@ impl<'a> FunctionVerificationGeometry<'a> {
             )
             .collect()
     }
-    pub(in crate::mir) fn ssa_errors(&self) -> &[VerificationError] {
-        self.facts().ssa_errors.get_or_init(|| {
-            let mut errors = self.definition_errors();
-            ssa::check_uses(self.function, self.definitions(), &mut errors);
-            errors
+    fn use_errors(&self) -> &uses::FunctionUseErrors {
+        self.facts.use_errors.get_or_init(|| {
+            uses::check(
+                self.function,
+                self.definitions(),
+                self.definition_errors(),
+                self.dominators(),
+                self.predecessors(),
+            )
         })
+    }
+    pub(in crate::mir) fn ssa_errors(&self) -> &[VerificationError] {
+        &self.use_errors().ssa
     }
     pub(in crate::mir) fn dominance_errors(&self) -> &[VerificationError] {
-        self.facts().dominance_errors.get_or_init(|| {
-            dom::check_dominance_by(self.function, self.dominators(), |v| {
-                self.definition_block(v)
-            })
-            .err()
-            .unwrap_or_default()
-        })
+        &self.use_errors().dominance
     }
-    pub(super) fn check_merge_uses(&self) -> Result<(), Vec<VerificationError>> {
-        cfg::check_merge_uses_by(self.function, self.predecessors(), self.dominators(), |v| {
-            self.definition_block(v)
-        })
+    pub(super) fn merge_errors(&self) -> &[VerificationError] {
+        &self.use_errors().merge
     }
 }

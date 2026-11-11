@@ -230,7 +230,7 @@ pub fn compute_reachable_blocks(function: &MirFunction) -> HashSet<BasicBlockId>
 /// Prove the exact integer operand at a use through unique ordered Copy defs.
 /// The same check serves source append correspondence and finished MIR.
 pub(in crate::mir) fn exact_integer_operand_origin(
-    function: &MirFunction,
+    function: &super::geometry::FunctionVerificationGeometry<'_>,
     value: ValueId,
     use_site: &(BasicBlockId, crate::mir::MirInstruction),
     expected: i64,
@@ -247,17 +247,6 @@ pub(in crate::mir) fn exact_integer_operand_origin(
         }
         (use_site.0, index)
     };
-    exact_integer_operand_origin_at(function, value, use_block, use_index, expected)
-}
-
-/// The same proof at a writer's insertion point, before any instruction is emitted.
-pub(in crate::mir) fn exact_integer_operand_origin_at(
-    function: &MirFunction,
-    value: ValueId,
-    use_block: BasicBlockId,
-    use_index: usize,
-    expected: i64,
-) -> Option<(BasicBlockId, crate::mir::MirInstruction)> {
     exact_integer_operand_chain_at(function, value, use_block, use_index, expected)?
         .last()
         .cloned()
@@ -266,42 +255,28 @@ pub(in crate::mir) fn exact_integer_operand_origin_at(
 /// One complete Copy chain, checked before a writer emits any correspondence.
 /// Generic origin traversal owns the path; this domain proves order and Const.
 pub(in crate::mir) fn exact_integer_operand_chain_at(
-    function: &MirFunction,
+    function: &super::geometry::FunctionVerificationGeometry<'_>,
     value: ValueId,
     mut use_block: BasicBlockId,
     mut use_index: usize,
     expected: i64,
 ) -> Option<Vec<(BasicBlockId, crate::mir::MirInstruction)>> {
     use crate::mir::{ConstValue, MirInstruction};
-    let (definitions, conflicts) = crate::mir::value_origin::indexed_value_definitions(function);
-    let ambiguous: HashSet<_> = conflicts.iter().map(|(value, _, _)| *value).collect();
+    let definitions = function.definitions();
     let (root, path) = crate::mir::value_origin::trace_value_origin(function, &definitions, value);
     let mut seen = HashSet::new();
-    let mut dominators = None;
     let mut chain = Vec::new();
     for (offset, value) in path.iter().copied().enumerate() {
-        if ambiguous.contains(&value) || !seen.insert(value) {
+        if function.ambiguous(value) || !seen.insert(value) {
             return None;
         }
-        let (block, index) = *definitions.get(&value)?;
-        if index == usize::MAX {
-            return None;
-        }
-        let body = function.blocks.get(&block)?;
-        let definition = body.instructions.get(index).or_else(|| {
-            (index == body.instructions.len())
-                .then_some(body.terminator.as_ref())
-                .flatten()
-        })?;
-        if definition.dst_value() != Some(value) {
-            return None;
-        }
+        let (block, index, definition) = function.definition(value)?;
         if block == use_block {
             if index >= use_index {
                 return None;
             }
         } else {
-            let tree = dominators.get_or_insert_with(|| compute_dominators(function));
+            let tree = function.dominators();
             if !tree.is_reachable(block)
                 || !tree.is_reachable(use_block)
                 || !tree.dominates(block, use_block)

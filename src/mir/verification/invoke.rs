@@ -1,8 +1,8 @@
 //! Structural Normal/Fault verification, independent of compatibility env flags.
 //! Runtime admission remains closed until the common Fault ABI consumer lands.
 
+use super::cfg;
 use super::geometry::{FunctionVerificationGeometry, ModuleGeometry};
-use super::{cfg, ssa};
 use crate::mir::instruction::{InvokeOperation, MapInvokeOperation};
 
 #[path = "invoke_borrowed_calls.rs"]
@@ -409,7 +409,6 @@ fn check_function_inner(
     if !has_control && !has_text_reads && !has_null_reads {
         return Ok(());
     }
-    let definitions = function.definitions();
     let mut errors = function.definition_errors();
     if let Err(mut found) = cfg::check_control_flow(function) {
         errors.append(&mut found);
@@ -428,7 +427,7 @@ fn check_function_inner(
             .cloned(),
     );
     if has_null_reads && errors.is_empty() {
-        if let Err((block, reason)) = null_compare::check_with_definitions(function, &definitions) {
+        if let Err((block, reason)) = null_compare::check_with_geometry(function) {
             errors.push(error(block, reason));
         }
     }

@@ -22,7 +22,6 @@ mod awaits;
 mod barrier;
 mod cfg;
 mod contract_carriers;
-pub(crate) mod dom;
 mod fastmem;
 pub(crate) mod geometry;
 mod hako_alloc_metadata;
@@ -34,8 +33,8 @@ mod module_metadata;
 mod numeric_substrate;
 pub(crate) mod return_outcome;
 mod rune_contracts;
-pub(crate) mod ssa;
 mod string_kernel;
+mod uses;
 pub(crate) mod utils; // Phase 257 P1-2: Made public for loop_header_phi_builder
 
 /// MIR verifier for SSA form and semantic correctness
@@ -323,7 +322,7 @@ impl MirVerifier {
         }
 
         // 3. Check control flow integrity
-        collect_errors!(local_errors, self.verify_control_flow(function));
+        collect_errors!(local_errors, cfg::check_control_flow(function));
 
         // Active non-void return contracts require a final value on every
         // reachable terminating return/fallthrough path.
@@ -346,16 +345,16 @@ impl MirVerifier {
 
         // Merge and PHI checks borrow the same immutable function geometry.
         if !skip_phi_checks {
-            collect_errors!(local_errors, geometry.check_merge_uses());
+            local_errors.extend_from_slice(geometry.merge_errors());
         }
         // 5. Minimal checks for WeakRef/Barrier
-        collect_errors!(local_errors, self.verify_weakref_and_barrier(function));
+        collect_errors!(local_errors, barrier::check_weakref_and_barrier(function));
         // 6. Light barrier-context diagnostic (strict mode only)
-        collect_errors!(local_errors, self.verify_barrier_context(function));
+        collect_errors!(local_errors, barrier::check_barrier_context(function));
         // 7. Forbid legacy instructions (must be rewritten to Core-15)
         collect_errors!(local_errors, self.verify_no_legacy_ops(function));
         // 8. Async semantics: ensure checkpoints around await
-        collect_errors!(local_errors, self.verify_await_checkpoints(function));
+        collect_errors!(local_errors, awaits::check_await_checkpoints(function));
 
         // 9. PHI-off strict edge-copy policy (optional)
         if !self.strict_policy
@@ -374,17 +373,23 @@ impl MirVerifier {
         }
 
         // 11. String direct-kernel legality / consumer rule verification
-        collect_errors!(local_errors, self.verify_string_kernel_plans(function));
+        collect_errors!(
+            local_errors,
+            string_kernel::check_string_kernel_plans(function)
+        );
 
         // 12. Rune contract metadata verification before any backend may trust it.
-        collect_errors!(local_errors, self.verify_rune_contracts(function));
+        collect_errors!(local_errors, rune_contracts::check_rune_contracts(function));
 
         // 13. Required inline verification before strict lowering may trust it.
-        collect_errors!(local_errors, self.verify_required_inline_plans(function));
+        collect_errors!(
+            local_errors,
+            inline_required::check_required_inline_plans(function)
+        );
 
         // 14. FastMemory MemOp region contract verification before any backend
         // may consume the dialect.
-        collect_errors!(local_errors, self.verify_fastmem_regions(function));
+        collect_errors!(local_errors, fastmem::check_fastmem_regions(function));
 
         if local_errors.is_empty() {
             Ok(())
@@ -580,28 +585,6 @@ impl MirVerifier {
         }
     }
 
-    fn verify_string_kernel_plans(
-        &self,
-        function: &MirFunction,
-    ) -> Result<(), Vec<VerificationError>> {
-        string_kernel::check_string_kernel_plans(function)
-    }
-
-    fn verify_rune_contracts(&self, function: &MirFunction) -> Result<(), Vec<VerificationError>> {
-        rune_contracts::check_rune_contracts(function)
-    }
-
-    fn verify_required_inline_plans(
-        &self,
-        function: &MirFunction,
-    ) -> Result<(), Vec<VerificationError>> {
-        inline_required::check_required_inline_plans(function)
-    }
-
-    fn verify_fastmem_regions(&self, function: &MirFunction) -> Result<(), Vec<VerificationError>> {
-        fastmem::check_fastmem_regions(function)
-    }
-
     /// Reject legacy instructions that should be rewritten to Core-15 equivalents
     /// Skips check when NYASH_VERIFY_ALLOW_LEGACY=1
     fn verify_no_legacy_ops(&self, function: &MirFunction) -> Result<(), Vec<VerificationError>> {
@@ -610,35 +593,6 @@ impl MirVerifier {
         } else {
             legacy::check_no_legacy_ops(function)
         }
-    }
-
-    /// Ensure that each Await instruction (or ExternCall(env.future.await)) is immediately
-    /// preceded and followed by a checkpoint.
-    /// A checkpoint is either MirInstruction::Safepoint or ExternCall("env.runtime", "checkpoint").
-    fn verify_await_checkpoints(
-        &self,
-        function: &MirFunction,
-    ) -> Result<(), Vec<VerificationError>> {
-        awaits::check_await_checkpoints(function)
-    }
-
-    /// Verify WeakRef/Barrier minimal semantics
-    fn verify_weakref_and_barrier(
-        &self,
-        function: &MirFunction,
-    ) -> Result<(), Vec<VerificationError>> {
-        barrier::check_weakref_and_barrier(function)
-    }
-
-    /// Light diagnostic: Barrier should be near memory ops in the same block (best-effort)
-    /// Enabled only when NYASH_VERIFY_BARRIER_STRICT=1
-    fn verify_barrier_context(&self, function: &MirFunction) -> Result<(), Vec<VerificationError>> {
-        barrier::check_barrier_context(function)
-    }
-
-    /// Verify control flow graph integrity
-    fn verify_control_flow(&self, function: &MirFunction) -> Result<(), Vec<VerificationError>> {
-        cfg::check_control_flow(function)
     }
 }
 

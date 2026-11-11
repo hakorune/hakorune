@@ -30,25 +30,12 @@ impl OrdinaryNewClaimLedgerV1 {
                 (None, _) => Some(copy.clone()),
             };
             if let Some((block, instruction)) = &actual {
-                let mut definitions = function
-                    .blocks
-                    .iter()
-                    .flat_map(|(id, body)| body.all_instructions().map(move |row| (*id, row)))
-                    .filter(|(_, row)| row.dst_value() == Some(local));
-                if function.params.contains(&local)
-                    || definitions.next() != Some((*block, instruction))
-                    || definitions.next().is_some()
-                {
-                    return Err(freeze("initializer-expression/local-definition-identity"));
-                }
-                if !super::super::physical_boundary::check_binding(
-                    function,
-                    None,
-                    *block,
-                    instruction,
-                )? {
-                    return Err(freeze("initializer-expression/local-copy-missing"));
-                }
+                self.with_function_geometry_v1(function, |geometry| {
+                    if !geometry.matches_exact_definition(*block, instruction, true) {
+                        return Err(freeze("initializer-expression/local-definition-identity"));
+                    }
+                    Ok(())
+                })?;
             }
             return Ok(actual);
         }

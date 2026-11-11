@@ -8,6 +8,7 @@ pub(super) fn validate_selected_scalar_operations(
     function: &MirFunction,
     view: Option<&PublishedMirBackendView<'_>>,
 ) -> Result<Vec<Binding>, String> {
+    let geometry = crate::mir::verification::geometry::FunctionVerificationGeometry::new(function);
     let actual: Vec<_> = function
         .blocks
         .iter()
@@ -66,8 +67,9 @@ pub(super) fn validate_selected_scalar_operations(
                     .ok_or_else(|| fault("scalar-positive-divisor-missing"))?;
                 if positive <= 0
                     || crate::mir::verification::utils::exact_integer_operand_origin(
-                        function, *rhs, binding, positive,
-                    ).is_none()
+                        &geometry, *rhs, binding, positive,
+                    )
+                    .is_none()
                 {
                     return Err(fault("scalar-positive-divisor-drift"));
                 }
@@ -76,17 +78,32 @@ pub(super) fn validate_selected_scalar_operations(
         }
         Ok(())
     })?;
-    let mandatory: Vec<_> = expected.iter().filter(|(_, row)| matches!(row,
-        MirInstruction::BinOp { op: BinaryOp::Sub | BinaryOp::Div | BinaryOp::Mod, .. })).cloned().collect();
+    let mandatory: Vec<_> = expected
+        .iter()
+        .filter(|(_, row)| {
+            matches!(
+                row,
+                MirInstruction::BinOp {
+                    op: BinaryOp::Sub | BinaryOp::Div | BinaryOp::Mod,
+                    ..
+                }
+            )
+        })
+        .cloned()
+        .collect();
     if actual.len() != mandatory.len()
         || actual.iter().any(|binding| !mandatory.contains(binding))
         || mandatory.iter().any(|binding| !actual.contains(binding))
     {
-        return Err(format!("{} function={} actual={} source={} unexpected={:?} missing={:?}",
-            fault("scalar-source-coverage"), function.signature.name,
-            actual.len(), expected.len(),
+        return Err(format!(
+            "{} function={} actual={} source={} unexpected={:?} missing={:?}",
+            fault("scalar-source-coverage"),
+            function.signature.name,
+            actual.len(),
+            expected.len(),
             actual.iter().find(|binding| !expected.contains(binding)),
-            expected.iter().find(|binding| !actual.contains(binding))));
+            expected.iter().find(|binding| !actual.contains(binding))
+        ));
     }
     Ok(expected)
 }

@@ -12,7 +12,7 @@ pub(in crate::mir) struct PhysicalValidationState {
     function: *const MirFunction,
     projection: Option<*const FinishedBindings>,
     finalized: bool,
-    facts: FunctionVerificationFacts,
+    facts: Rc<FunctionVerificationFacts>,
     completed: RefCell<BTreeMap<*const Branch, Rc<Branch>>>,
 }
 pub(in crate::mir) struct PhysicalValidationGuard<'a> {
@@ -54,7 +54,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         function,
                         projection: projection.map(|p| p as *const _),
                         finalized,
-                        facts: FunctionVerificationFacts::default(),
+                        facts: Rc::default(),
                         completed: RefCell::new(BTreeMap::new()),
                     }))),
             )

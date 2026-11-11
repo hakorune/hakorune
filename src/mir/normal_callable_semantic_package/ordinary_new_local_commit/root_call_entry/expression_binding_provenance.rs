@@ -84,22 +84,15 @@ impl ExpressionReferenceReadV1 {
                     return Err(freeze("source-loop/text-static-binding"));
                 }
                 let value = read.loan_local_initializer_v1(binding)?.0;
-                let mut rows = function
-                    .blocks
-                    .iter()
-                    .flat_map(|(block, body)| body.all_instructions().map(move |row| (*block, row)))
-                    .filter(|(_, row)| row.dst_value() == Some(value));
-                let (block, row) = rows
-                    .next()
-                    .ok_or_else(|| freeze("source-loop/text-static-definition"))?;
-                if rows.next().is_some()
-                    || function.params.contains(&value)
-                    || !matches!(row, MirInstruction::Const { dst, value: ConstValue::String(text) }
-                        if *dst == value && text == utf8.as_ref())
-                {
-                    return Err(freeze("source-loop/text-static-value"));
-                }
-                dependencies.push((block, row.clone()));
+                dependencies.push(context.ledger().with_function_geometry_v1(function, |geometry| {
+                    let (block, _, row) = geometry.definition(value).ok_or_else(|| freeze("source-loop/text-static-definition"))?;
+                    if geometry.instruction_definition_count(value) != 1 || function.params.contains(&value)
+                        || !matches!(row, MirInstruction::Const { dst, value: ConstValue::String(text) }
+                            if *dst == value && text == utf8.as_ref()) {
+                        return Err(freeze("source-loop/text-static-value"));
+                    }
+                    Ok((block, row.clone()))
+                })?);
             }
             Source::Residence(acquisition) => {
                 if acquisition.binding() != binding || !acquisition.is_text_residence() {

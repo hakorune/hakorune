@@ -14,19 +14,22 @@ use crate::mir::types::{BarrierOp, WeakRefOp};
 impl MirInstruction {
     /// Borrow occurrences for frame-free Text read verification. Never source permission.
     pub(crate) fn text_read_operands_v1(&self) -> Option<(ValueId, crate::mir::MirType, Vec<&super::StringInvokeOperand>)> {
-        match self {
-            Self::StringLength { dst, value } => Some((*dst, crate::mir::MirType::Integer, vec![value])),
-            Self::StringIndexOf { dst, value, needle } => Some((*dst, crate::mir::MirType::Integer, vec![value, needle])),
-            Self::StringCompare { dst, left, right, .. } => Some((*dst, crate::mir::MirType::Bool, vec![left, right])),
-            _ => None,
-        }
+        let (dst, kind) = self.scalar_read_result_v1()?;
+        let operands = match self {
+            Self::StringLength { value, .. } => vec![value],
+            Self::StringIndexOf { value, needle, .. } => vec![value, needle],
+            Self::StringCompare { left, right, .. } => vec![left, right],
+            _ => return None,
+        };
+        Some((dst, kind, operands))
     }
 
     /// Intrinsic scalar results of read instructions, without Text-operand assumptions.
     pub(crate) fn scalar_read_result_v1(&self) -> Option<(ValueId, crate::mir::MirType)> {
         match self {
-            Self::NullCompare { dst, .. } => Some((*dst, crate::mir::MirType::Bool)),
-            _ => self.text_read_operands_v1().map(|(dst, kind, _)| (dst, kind)),
+            Self::StringLength { dst, .. } | Self::StringIndexOf { dst, .. } => Some((*dst, crate::mir::MirType::Integer)),
+            Self::StringCompare { dst, .. } | Self::NullCompare { dst, .. } => Some((*dst, crate::mir::MirType::Bool)),
+            _ => None,
         }
     }
 

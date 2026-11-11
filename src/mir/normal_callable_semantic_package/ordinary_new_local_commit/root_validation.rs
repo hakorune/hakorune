@@ -49,7 +49,7 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         self.seal_physical_observations_v1(owner)?;
         self.main_arguments_bindings_v1(function)?;
-        self.validate_root_body(owner, function, None)?;
+        self.validate_owner_body(owner, function, None, false)?;
         let observation = self.finalized_root_observation(owner);
         self.validate_root_cleanup_shape(owner, function)?;
         let bindings = self.lifecycle_bindings(owner)?;
@@ -115,26 +115,7 @@ impl OrdinaryNewClaimLedgerV1 {
             boundary.validate_complete(function, &mut projection, &bindings)?;
             let _physical_scope =
                 self.physical_validation_scope_v1(function, Some(&projection), false);
-            self.validate_new_emissions_projected(owner, function, Some(&projection))?;
-            self.validate_field_reads_with_projection_v1(
-                owner,
-                function,
-                CallValidationContextV1::Lowering(self),
-                Some(&projection),
-                |binding| projection.binding(binding.0, &binding.1),
-                |copy| {
-                    projection
-                        .borrowed_copy_coordinate(function, copy)
-                        .map(|_| ())
-                },
-            )?;
-            self.validate_terminal_scalar_literal_return_projected(
-                owner,
-                function,
-                Some(&projection),
-            )?;
-
-            self.validate_root_home_exit(owner, function, Some(&projection))?;
+            self.validate_owner_body(owner, function, Some(&projection), true)?;
             self.validate_finished_operations_v1(owner, function, &projection, true)?;
             if artifact {
                 // Children share the root's inadmissibility contract: a
@@ -181,17 +162,20 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(covered)
     }
 
-    fn validate_root_body(
+    fn validate_owner_body(
         &self,
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
         projection: Option<&super::physical_boundary::FinishedBindings>,
+        child: bool,
     ) -> Result<(), String> {
         let _source_scope = self.branch_source_scope_v1(owner);
         let _physical_scope = self.physical_validation_scope_v1(function, projection, false);
         self.validate_new_emissions_projected(owner, function, projection)?;
-        self.validate_terminal_unit_return(owner, function)?;
-        self.validate_root_home_exit(owner, function, projection)?;
+        if !child {
+            self.validate_terminal_unit_return(owner, function)?;
+            self.validate_root_home_exit(owner, function, projection)?;
+        }
         self.validate_field_reads_with_projection_v1(
             owner,
             function,
@@ -223,6 +207,9 @@ impl OrdinaryNewClaimLedgerV1 {
         )?;
 
         self.validate_terminal_scalar_literal_return_projected(owner, function, projection)?;
+        if child {
+            self.validate_root_home_exit(owner, function, projection)?;
+        }
 
         Ok(())
     }
@@ -296,7 +283,8 @@ impl OrdinaryNewClaimLedgerV1 {
         let bindings = self.lifecycle_bindings(owner)?;
         let mut projection = boundary.project(function)?;
         boundary.validate_complete(function, &mut projection, &bindings)?;
-        self.validate_root_body(owner, function, Some(&projection))?;
+        let _physical_scope = self.physical_validation_scope_v1(function, Some(&projection), false);
+        self.validate_owner_body(owner, function, Some(&projection), false)?;
         self.main_arguments_projected_bindings_v1(function, |original| {
             let mapped = projection
                 .binding(original.0, &original.1)?
@@ -343,6 +331,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if artifact {
             self.validate_artifact_lifecycle_coverage(owner, function, projection.recorded())?;
         }
+        drop(_physical_scope);
         *state = RootNewValidation::FinishingChecked {
             owner,
             symbol: function.signature.name.clone(),
@@ -599,23 +588,15 @@ impl OrdinaryNewClaimLedgerV1 {
                 let finished = projection
                     .binding(original.0, &original.1)?
                     .ok_or_else(|| freeze("forwarded-copy/removed"))?;
-                let MirInstruction::Copy { dst, .. } = &finished.1 else {
+                let MirInstruction::Copy { .. } = &finished.1 else {
                     return Err(freeze("forwarded-copy/finished-instruction"));
                 };
-                let count = function
-                    .blocks
-                    .get(&finished.0)
-                    .ok_or_else(|| freeze("forwarded-copy/finished-block"))?
-                    .all_instructions()
-                    .filter(|i| *i == &finished.1)
-                    .count();
-                let definitions = function
-                    .blocks
-                    .values()
-                    .flat_map(|b| b.all_instructions())
-                    .filter(|i| i.dst_value() == Some(*dst))
-                    .count();
-                if count != 1 || definitions != 1 {
+                if !function.blocks.contains_key(&finished.0) {
+                    return Err(freeze("forwarded-copy/finished-block"));
+                }
+                if !self.with_function_geometry_v1(function, |geometry| {
+                    geometry.matches_exact_definition(finished.0, &finished.1, false)
+                }) {
                     return Err(freeze("forwarded-copy/finished-unique"));
                 }
             }

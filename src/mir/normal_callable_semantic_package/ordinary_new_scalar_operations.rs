@@ -35,7 +35,10 @@ impl OriginalScalarAppendV1 {
         left: ValueId,
     ) -> Rc<Self> {
         let (ledger, sources) = Self::source_inventory_for_correspondence_test();
-        let source = sources.into_iter().find(|source| source.positive_divisor().is_some()).unwrap();
+        let source = sources
+            .into_iter()
+            .find(|source| source.positive_divisor().is_some())
+            .unwrap();
         let operator = match source_operator(&source).unwrap() {
             BinaryOp::Sub => crate::ast::BinaryOperator::Subtract,
             BinaryOp::Div => crate::ast::BinaryOperator::Divide,
@@ -104,14 +107,26 @@ impl OriginalScalarAppendV1 {
     }
     /// Expression wrappers consume the same recorded operands and their SSA
     /// dependencies; direct arithmetic equality cannot erase a pinned Copy.
-    pub(in crate::mir) fn validate_expression_operands_v1(&self, children: (ValueId, ValueId),
-        destination: ValueId, bindings: &[Binding],
+    pub(in crate::mir) fn validate_expression_operands_v1(
+        &self,
+        children: (ValueId, ValueId),
+        destination: ValueId,
+        bindings: &[Binding],
     ) -> Result<(), String> {
-        if self.children != children || self.original.1.dst_value() != Some(destination)
+        if self.children != children
+            || self.original.1.dst_value() != Some(destination)
             || !matches!(self.original.1, MirInstruction::BinOp { op, .. } if Some(op) == self.source.integer_operator_v1())
-            || !bindings.contains(&self.original) { return Err(reject("operand-correspondence")); }
+            || !bindings.contains(&self.original)
+        {
+            return Err(reject("operand-correspondence"));
+        }
         for relation in &self.operand_relations {
-            if relation.target_binding().is_some_and(|target| !bindings.contains(target)) { return Err(reject("operand-correspondence")); }
+            if relation
+                .target_binding()
+                .is_some_and(|target| !bindings.contains(target))
+            {
+                return Err(reject("operand-correspondence"));
+            }
         }
         Ok(())
     }
@@ -122,48 +137,91 @@ impl OriginalScalarAppendV1 {
 
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir) fn retain_scalar_operation_use_v1(
-        &self, source: &Rc<Source>, finalized: bool,
+        &self,
+        source: &Rc<Source>,
+        finalized: bool,
     ) -> Result<(), String> {
         // Existing original laws retain their mandatory correspondence.
-        if !source.original_needs_consumer_receipt_v1() { return Ok(()); }
+        if !source.original_needs_consumer_receipt_v1() {
+            return Ok(());
+        }
         self.scalar_operation_original_v1(source)?;
         {
             let consumers = self.scalar_operation_consumers.borrow();
             if let Some(group) = consumers.get(&source.owner()) {
-                if finalized && group.derived.is_none() { return Err(reject("consumer-handoff-missing")); }
-                if group.borrowed.iter().any(|prior| Rc::ptr_eq(prior, source)) { return Ok(()); }
-                if group.derived.is_some() { return Err(reject("source-membership")); }
+                if finalized && group.derived.is_none() {
+                    return Err(reject("consumer-handoff-missing"));
+                }
+                if group.borrowed.iter().any(|prior| Rc::ptr_eq(prior, source)) {
+                    return Ok(());
+                }
+                if group.derived.is_some() {
+                    return Err(reject("source-membership"));
+                }
             }
-            if finalized { return Err(reject("consumer-handoff-missing")); }
+            if finalized {
+                return Err(reject("consumer-handoff-missing"));
+            }
         }
-        self.scalar_operation_consumers.borrow_mut().entry(source.owner()).or_default()
-            .borrowed.push(Rc::clone(source));
+        self.scalar_operation_consumers
+            .borrow_mut()
+            .entry(source.owner())
+            .or_default()
+            .borrowed
+            .push(Rc::clone(source));
         Ok(())
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn scalar_operation_original_required_v1(
-        &self, original: &OriginalScalarAppendV1,
+        &self,
+        original: &OriginalScalarAppendV1,
     ) -> bool {
         !original.source().original_needs_consumer_receipt_v1()
-            || self.scalar_operation_consumers.borrow().get(&original.source().owner())
-                .is_some_and(|group| group.borrowed.iter().any(|source| Rc::ptr_eq(source, original.source())))
+            || self
+                .scalar_operation_consumers
+                .borrow()
+                .get(&original.source().owner())
+                .is_some_and(|group| {
+                    group
+                        .borrowed
+                        .iter()
+                        .any(|source| Rc::ptr_eq(source, original.source()))
+                })
     }
 
-    fn scalar_operation_sources_v1(&self, owner: FunctionOwnerIdV1) -> Result<Vec<Rc<Source>>, String> {
-        let flow = self.completion_for_owner(owner).and_then(|row| row.cleanup().root_flow());
+    fn scalar_operation_sources_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<Vec<Rc<Source>>, String> {
+        let flow = self
+            .completion_for_owner(owner)
+            .and_then(|row| row.cleanup().root_flow());
         let mut sources = Vec::<Rc<Source>>::new();
         let mut lend = |source: &Rc<Source>| -> Result<(), String> {
-            if source.owner() != owner { return Err(reject("source-membership")); }
-            if let Some(prior) = sources.iter().find(|prior| prior.binary().site() == source.binary().site()) {
-                if !Rc::ptr_eq(prior, source) { return Err(reject("source-membership")); }
-            } else { sources.push(Rc::clone(source)); }
+            if source.owner() != owner {
+                return Err(reject("source-membership"));
+            }
+            if let Some(prior) = sources
+                .iter()
+                .find(|prior| prior.binary().site() == source.binary().site())
+            {
+                if !Rc::ptr_eq(prior, source) {
+                    return Err(reject("source-membership"));
+                }
+            } else {
+                sources.push(Rc::clone(source));
+            }
             Ok(())
         };
-        for source in flow.into_iter().flat_map(|flow| flow.scalar_operations()) { lend(source)?; }
+        for source in flow.into_iter().flat_map(|flow| flow.scalar_operations()) {
+            lend(source)?;
+        }
         self.visit_expression_evaluations_v1(owner, &mut |evaluation| {
             for operation in evaluation.operations() {
                 if let Some(source) = operation.scalar_source_v1() {
-                    if !Rc::ptr_eq(source.plan(), evaluation.source()) { return Err(reject("source-membership")); }
+                    if !Rc::ptr_eq(source.plan(), evaluation.source()) {
+                        return Err(reject("source-membership"));
+                    }
                     lend(source)?;
                 }
             }
@@ -171,8 +229,12 @@ impl OrdinaryNewClaimLedgerV1 {
         })?;
         Ok(sources)
     }
-    pub(in crate::mir) fn has_scalar_operation_source_v1(&self, owner: FunctionOwnerIdV1) -> Result<bool, String> {
-        self.scalar_operation_sources_v1(owner).map(|sources| !sources.is_empty())
+    pub(in crate::mir) fn has_scalar_operation_source_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<bool, String> {
+        self.scalar_operation_sources_v1(owner)
+            .map(|sources| !sources.is_empty())
     }
 
     pub(in crate::mir) fn prepare_scalar_operation_source_v1(
@@ -185,7 +247,9 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(reject("owner"));
         }
         let sources = self.scalar_operation_sources_v1(owner)?;
-        let mut rows = sources.iter().filter(|row| row.binary().site() == site.site());
+        let mut rows = sources
+            .iter()
+            .filter(|row| row.binary().site() == site.site());
         let Some(row) = rows.next() else {
             return Ok(None);
         };
@@ -200,11 +264,16 @@ impl OrdinaryNewClaimLedgerV1 {
 
     /// The already recorded append of this exact source law. No MIR search or
     /// equal-shaped source can substitute for the original affine receipt.
-    pub(in crate::mir) fn scalar_operation_original_v1(&self, source: &Rc<Source>) -> Result<Rc<OriginalScalarAppendV1>, String> {
+    pub(in crate::mir) fn scalar_operation_original_v1(
+        &self,
+        source: &Rc<Source>,
+    ) -> Result<Rc<OriginalScalarAppendV1>, String> {
         let site = OwnedExprSiteV1::new(source.owner(), source.binary().site().clone());
         let rows = self.scalar_operation_appends.borrow();
         let row = rows.get(&site).ok_or_else(|| reject("append-missing"))?;
-        if !Rc::ptr_eq(row.source(), source) { return Err(reject("source-membership")); }
+        if !Rc::ptr_eq(row.source(), source) {
+            return Err(reject("source-membership"));
+        }
         Ok(Rc::clone(row))
     }
 
@@ -217,62 +286,67 @@ impl OrdinaryNewClaimLedgerV1 {
         index: &crate::mir::builder::LocalSsaPhysicalIndexV1,
         function: &MirFunction,
     ) -> Result<Rc<OriginalScalarAppendV1>, String> {
-        let site = OwnedExprSiteV1::new(source.owner(), source.binary().site().clone());
-        let current = self
-            .prepare_scalar_operation_source_v1(
-                source.owner(),
-                &site,
-                Some(source_operator(&source)?),
-            )?
-            .ok_or_else(|| reject("source-missing"))?;
-        if !Rc::ptr_eq(&source, &current) {
-            return Err(reject("source-membership"));
-        }
-        let original = completed
-            .arithmetic_original()
-            .ok_or_else(|| reject("append-missing"))?;
-        let MirInstruction::BinOp { dst, op, lhs, rhs } = &original.1 else {
-            return Err(reject("append-shape"));
-        };
-        if *dst != completed.value()
-            || *op != source_operator(&source)?
-            || unique_definition(function, *dst)? != *original
-        {
-            return Err(reject("append-identity"));
-        }
-        if relations[0].values() != (children.0, *lhs)
-            || relations[1].values() != (children.1, *rhs)
-        {
-            return Err(reject("operand-correspondence"));
-        }
-        for relation in &relations {
-            index.require_member(relation)?;
-            relation.verify(function)?;
-        }
-        let divisor = match source.positive_divisor() {
-            Some(expected) => {
-                if expected <= 0 {
-                    return Err(reject("divisor-producer"));
-                }
-                Some(crate::mir::verification::utils::exact_integer_operand_origin(
-                    function, children.1, original, expected,
-                ).ok_or_else(|| reject("divisor-producer"))?)
+        self.with_function_geometry_v1(function, |geometry| {
+            let site = OwnedExprSiteV1::new(source.owner(), source.binary().site().clone());
+            let current = self
+                .prepare_scalar_operation_source_v1(
+                    source.owner(),
+                    &site,
+                    Some(source_operator(&source)?),
+                )?
+                .ok_or_else(|| reject("source-missing"))?;
+            if !Rc::ptr_eq(&source, &current) {
+                return Err(reject("source-membership"));
             }
-            None => None,
-        };
-        let mut appends = self.scalar_operation_appends.borrow_mut();
-        if appends.contains_key(&site) {
-            return Err(reject("duplicate-original"));
-        }
-        let row = Rc::new(OriginalScalarAppendV1 {
-            source,
-            children,
-            original: original.clone(),
-            operand_relations: relations,
-            divisor,
-        });
-        appends.insert(site, Rc::clone(&row));
-        Ok(row)
+            let original = completed
+                .arithmetic_original()
+                .ok_or_else(|| reject("append-missing"))?;
+            let MirInstruction::BinOp { dst, op, lhs, rhs } = &original.1 else {
+                return Err(reject("append-shape"));
+            };
+            if *dst != completed.value()
+                || *op != source_operator(&source)?
+                || unique_definition(geometry, *dst)? != *original
+            {
+                return Err(reject("append-identity"));
+            }
+            if relations[0].values() != (children.0, *lhs)
+                || relations[1].values() != (children.1, *rhs)
+            {
+                return Err(reject("operand-correspondence"));
+            }
+            for relation in &relations {
+                index.require_member(relation)?;
+                relation.verify_with_geometry(geometry)?;
+            }
+            let divisor = match source.positive_divisor() {
+                Some(expected) => {
+                    if expected <= 0 {
+                        return Err(reject("divisor-producer"));
+                    }
+                    Some(
+                        crate::mir::verification::utils::exact_integer_operand_origin(
+                            geometry, children.1, original, expected,
+                        )
+                        .ok_or_else(|| reject("divisor-producer"))?,
+                    )
+                }
+                None => None,
+            };
+            let mut appends = self.scalar_operation_appends.borrow_mut();
+            if appends.contains_key(&site) {
+                return Err(reject("duplicate-original"));
+            }
+            let row = Rc::new(OriginalScalarAppendV1 {
+                source,
+                children,
+                original: original.clone(),
+                operand_relations: relations,
+                divisor,
+            });
+            appends.insert(site, Rc::clone(&row));
+            Ok(row)
+        })
     }
 
     /// Retain the complete same-frame consumer set only after all rows validate.
@@ -282,78 +356,80 @@ impl OrdinaryNewClaimLedgerV1 {
         function: &MirFunction,
         index: &crate::mir::builder::LocalSsaPhysicalIndexV1,
     ) -> Result<(), String> {
-        let expected = self.scalar_operation_sources_v1(owner)?;
-        let originals: Vec<_> = index.scalar_originals().collect();
-        if originals.len() != expected.len() {
-            return Err(reject("original-coverage"));
-        }
-        let recorded = self.scalar_operation_appends.borrow();
-        let mut sites = BTreeSet::new();
-        for original in originals {
-            let source = original.source();
-            if source.owner() != owner || !expected.iter().any(|row| Rc::ptr_eq(row, source)) {
-                return Err(reject("source-membership"));
+        self.with_function_geometry_v1(function, |geometry| {
+            let expected = self.scalar_operation_sources_v1(owner)?;
+            let originals: Vec<_> = index.scalar_originals().collect();
+            if originals.len() != expected.len() {
+                return Err(reject("original-coverage"));
             }
-            let site = OwnedExprSiteV1::new(owner, source.binary().site().clone());
-            if !sites.insert(site.clone())
-                || !recorded
-                    .get(&site)
-                    .is_some_and(|row| Rc::ptr_eq(row, original))
-            {
-                return Err(reject("original-membership"));
+            let recorded = self.scalar_operation_appends.borrow();
+            let mut sites = BTreeSet::new();
+            for original in originals {
+                let source = original.source();
+                if source.owner() != owner || !expected.iter().any(|row| Rc::ptr_eq(row, source)) {
+                    return Err(reject("source-membership"));
+                }
+                let site = OwnedExprSiteV1::new(owner, source.binary().site().clone());
+                if !sites.insert(site.clone())
+                    || !recorded
+                        .get(&site)
+                        .is_some_and(|row| Rc::ptr_eq(row, original))
+                {
+                    return Err(reject("original-membership"));
+                }
+                let value = original
+                    .original()
+                    .1
+                    .dst_value()
+                    .ok_or_else(|| reject("append-shape"))?;
+                if unique_definition(geometry, value)? != *original.original() {
+                    return Err(reject("append-identity"));
+                }
+                for relation in original.operand_relations() {
+                    index.require_member(relation)?;
+                    relation.verify_with_geometry(geometry)?;
+                }
             }
-            let value = original
-                .original()
-                .1
-                .dst_value()
-                .ok_or_else(|| reject("append-shape"))?;
-            if unique_definition(function, value)? != *original.original() {
-                return Err(reject("append-identity"));
-            }
-            for relation in original.operand_relations() {
+            let mut targets = BTreeSet::new();
+            let mut collected = Vec::new();
+            for (original, relation) in index.scalar_observations() {
+                let source = original.source();
+                let site = OwnedExprSiteV1::new(owner, source.binary().site().clone());
+                if source.owner() != owner
+                    || !recorded
+                        .get(&site)
+                        .is_some_and(|row| Rc::ptr_eq(row, original))
+                {
+                    return Err(reject("derived-source-membership"));
+                }
                 index.require_member(relation)?;
-                relation.verify(function)?;
+                relation.verify_with_geometry(geometry)?;
+                let (from, to) = relation.values();
+                if from == to
+                    || !targets.insert(to)
+                    || !index
+                        .scalar_source_for(from)
+                        .is_some_and(|row| Rc::ptr_eq(row, original))
+                    || !index
+                        .scalar_source_for(to)
+                        .is_some_and(|row| Rc::ptr_eq(row, original))
+                {
+                    return Err(reject("derived-target"));
+                }
+                collected.push((Rc::clone(original), Rc::clone(relation)));
             }
-        }
-        let mut targets = BTreeSet::new();
-        let mut collected = Vec::new();
-        for (original, relation) in index.scalar_observations() {
-            let source = original.source();
-            let site = OwnedExprSiteV1::new(owner, source.binary().site().clone());
-            if source.owner() != owner
-                || !recorded
-                    .get(&site)
-                    .is_some_and(|row| Rc::ptr_eq(row, original))
-            {
-                return Err(reject("derived-source-membership"));
+            index.validate_scalar_consumer_coverage(&targets)?;
+            if expected.is_empty() && collected.is_empty() {
+                return Ok(());
             }
-            index.require_member(relation)?;
-            relation.verify(function)?;
-            let (from, to) = relation.values();
-            if from == to
-                || !targets.insert(to)
-                || !index
-                    .scalar_source_for(from)
-                    .is_some_and(|row| Rc::ptr_eq(row, original))
-                || !index
-                    .scalar_source_for(to)
-                    .is_some_and(|row| Rc::ptr_eq(row, original))
-            {
-                return Err(reject("derived-target"));
+            let mut consumers = self.scalar_operation_consumers.borrow_mut();
+            let group = consumers.entry(owner).or_default();
+            if group.derived.is_some() {
+                return Err(reject("duplicate-consumer-handoff"));
             }
-            collected.push((Rc::clone(original), Rc::clone(relation)));
-        }
-        index.validate_scalar_consumer_coverage(&targets)?;
-        if expected.is_empty() && collected.is_empty() {
-            return Ok(());
-        }
-        let mut consumers = self.scalar_operation_consumers.borrow_mut();
-        let group = consumers.entry(owner).or_default();
-        if group.derived.is_some() {
-            return Err(reject("duplicate-consumer-handoff"));
-        }
-        group.derived = Some(collected);
-        Ok(())
+            group.derived = Some(collected);
+            Ok(())
+        })
     }
 
     pub(super) fn scalar_operation_bindings_v1(
@@ -362,7 +438,9 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Vec<Binding>, String> {
         let mut bindings = Vec::new();
         self.visit_scalar_operation_originals_v1(|original| {
-            if original.source().owner() == owner && self.scalar_operation_original_required_v1(original) {
+            if original.source().owner() == owner
+                && self.scalar_operation_original_required_v1(original)
+            {
                 bindings.push(original.original().clone());
                 for relation in original.operand_relations() {
                     relation.append_required_bindings(&mut bindings);
@@ -385,31 +463,37 @@ impl OrdinaryNewClaimLedgerV1 {
         function: &MirFunction,
         mut project: impl FnMut(&Binding) -> Result<Option<Binding>, String>,
     ) -> Result<(), String> {
-        self.visit_scalar_operation_originals_v1(|original| {
-            if original.source().owner() == owner {
-                let Some(mapped) = project(original.original())? else {
-                    return if self.scalar_operation_original_required_v1(original) {
-                        Err(reject("mandatory-original-removed"))
-                    } else { Ok(()) };
-                };
-                let value = mapped.1.dst_value().ok_or_else(|| reject("append-shape"))?;
-                if unique_definition(function, value)? != mapped {
-                    return Err(reject("finished-original-producer"));
+        self.with_function_geometry_v1(function, |geometry| {
+            self.visit_scalar_operation_originals_v1(|original| {
+                if original.source().owner() == owner {
+                    let Some(mapped) = project(original.original())? else {
+                        return if self.scalar_operation_original_required_v1(original) {
+                            Err(reject("mandatory-original-removed"))
+                        } else {
+                            Ok(())
+                        };
+                    };
+                    let value = mapped.1.dst_value().ok_or_else(|| reject("append-shape"))?;
+                    if unique_definition(geometry, value)? != mapped {
+                        return Err(reject("finished-original-producer"));
+                    }
+                    for relation in original.operand_relations() {
+                        relation.verify_projected_with_geometry(geometry, &mut project)?;
+                    }
+                    if let Some(divisor) = original.divisor() {
+                        project(divisor)?;
+                    }
                 }
-                for relation in original.operand_relations() {
-                    relation.verify_projected(function, &mut project)?;
+                Ok(())
+            })?;
+            self.visit_scalar_operation_consumers_v1(owner, |original, relation| {
+                if !self.scalar_operation_original_required_v1(original)
+                    && project(original.original())?.is_none()
+                {
+                    return Ok(());
                 }
-                if let Some(divisor) = original.divisor() {
-                    project(divisor)?;
-                }
-            }
-            Ok(())
-        })?;
-        self.visit_scalar_operation_consumers_v1(owner, |original, relation| {
-            if !self.scalar_operation_original_required_v1(original) && project(original.original())?.is_none() {
-                return Ok(());
-            }
-            relation.verify_projected(function, &mut project)
+                relation.verify_projected_with_geometry(geometry, &mut project)
+            })
         })
     }
 
@@ -422,7 +506,10 @@ impl OrdinaryNewClaimLedgerV1 {
         ) -> Result<(), String>,
     ) -> Result<(), String> {
         let consumers = self.scalar_operation_consumers.borrow();
-        let Some(rows) = consumers.get(&owner).and_then(|group| group.derived.as_ref()) else {
+        let Some(rows) = consumers
+            .get(&owner)
+            .and_then(|group| group.derived.as_ref())
+        else {
             if self.has_scalar_operation_source_v1(owner)? {
                 return Err(reject("consumer-handoff-missing"));
             }
@@ -446,20 +533,19 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 fn source_operator(source: &Source) -> Result<BinaryOp, String> {
-    source.integer_operator_v1().ok_or_else(|| reject("source-operator"))
+    source
+        .integer_operator_v1()
+        .ok_or_else(|| reject("source-operator"))
 }
 
-fn unique_definition(function: &MirFunction, value: ValueId) -> Result<Binding, String> {
-    let mut rows = function
-        .blocks
-        .iter()
-        .flat_map(|(block, row)| {
-            row.all_instructions()
-                .map(move |instruction| (*block, instruction))
-        })
-        .filter(|(_, row)| row.dst_value() == Some(value));
-    let (block, row) = rows.next().ok_or_else(|| reject("producer-missing"))?;
-    if rows.next().is_some() {
+fn unique_definition(
+    function: &crate::mir::verification::geometry::FunctionVerificationGeometry<'_>,
+    value: ValueId,
+) -> Result<Binding, String> {
+    let (block, _, row) = function
+        .definition(value)
+        .ok_or_else(|| reject("producer-missing"))?;
+    if function.instruction_definition_count(value) != 1 {
         return Err(reject("producer-duplicate"));
     }
     Ok((block, row.clone()))

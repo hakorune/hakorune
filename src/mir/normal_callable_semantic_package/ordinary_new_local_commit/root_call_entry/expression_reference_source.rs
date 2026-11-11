@@ -64,7 +64,7 @@ pub(super) fn prepare_scalar_binding_producer(
                 }
                 ReferenceProducerV1::Entry(value)
             } else {
-                definition_for_initializer(value, function)?
+                definition_for_initializer(value, function, context)?
             }
         }
         Producer::BindingRebind(frame) => context.with_original_rebind_v1(frame, |packet| {
@@ -84,7 +84,7 @@ pub(super) fn prepare_scalar_binding_producer(
         }
         _ => {
             let value = initializer_value(source, read, context)?;
-            definition_for_initializer(value, function)?
+            definition_for_initializer(value, function, context)?
         }
     };
     validate_scalar_binding_observation_v1(
@@ -95,19 +95,20 @@ pub(super) fn prepare_scalar_binding_producer(
 pub(super) fn definition_for_initializer(
     value: ValueId,
     function: &MirFunction,
+    context: CallValidationContextV1<'_>,
 ) -> Result<ReferenceProducerV1, String> {
-    let mut rows = function
-        .blocks
-        .iter()
-        .flat_map(|(block, body)| body.all_instructions().map(move |row| (*block, row)))
-        .filter(|(_, row)| row.dst_value() == Some(value));
-    let (block, row) = rows
-        .next()
-        .ok_or_else(|| freeze("expression/scalar-producer-missing"))?;
-    if rows.next().is_some() || function.params.contains(&value) {
-        return Err(freeze("expression/scalar-producer-unique"));
-    }
-    Ok(ReferenceProducerV1::Definition((block, row.clone())))
+    context
+        .ledger()
+        .with_function_geometry_v1(function, |geometry| {
+            let (block, _, row) = geometry
+                .definition(value)
+                .ok_or_else(|| freeze("expression/scalar-producer-missing"))?;
+            if geometry.instruction_definition_count(value) != 1 || function.params.contains(&value)
+            {
+                return Err(freeze("expression/scalar-producer-unique"));
+            }
+            Ok(ReferenceProducerV1::Definition((block, row.clone())))
+        })
 }
 
 /// A local declaration may preserve the exact physical parameter ValueId.
@@ -575,48 +576,48 @@ pub(super) fn validate_dependencies_with_branches_v1(
     function: &MirFunction,
     branches: &mut impl FnMut(&std::rc::Rc<BranchScalarPhiObservationV1>) -> Result<(), String>,
 ) -> Result<(), String> {
-    let definition = match producer {
-        ReferenceProducerV1::Definition(binding) => Some(binding),
-        ReferenceProducerV1::Entry(entry) => {
-            validate_dependencies_for_entry(
-                *entry,
-                Some(read.binding_value().0),
-                context,
-                function,
-            )?;
-            None
-        }
-        ReferenceProducerV1::Branch(point) => {
-            branches(point)?;
-            None
-        }
-        ReferenceProducerV1::Phi(point) => {
-            point.identity_phi_binding_v1()?;
-            point.verify(function)?;
-            None
-        }
-    };
-    for binding in definition
-        .into_iter()
-        .chain(read.original_copy_dependencies_v1()?)
-    {
-        let dst = binding
-            .1
-            .dst_value()
-            .ok_or_else(|| freeze("expression/reference-dependency-dst"))?;
-        let mut rows = function
-            .blocks
-            .iter()
-            .flat_map(|(block, body)| body.all_instructions().map(move |row| (*block, row)))
-            .filter(|(_, row)| row.dst_value() == Some(dst));
-        if function.params.contains(&dst)
-            || rows.next() != Some((binding.0, &binding.1))
-            || rows.next().is_some()
-        {
-            return Err(freeze("expression/reference-dependency-identity"));
-        }
-    }
-    Ok(())
+    context
+        .ledger()
+        .with_function_geometry_v1(function, |geometry| {
+            let definition = match producer {
+                ReferenceProducerV1::Definition(binding) => Some(binding),
+                ReferenceProducerV1::Entry(entry) => {
+                    validate_dependencies_for_entry(
+                        *entry,
+                        Some(read.binding_value().0),
+                        context,
+                        function,
+                    )?;
+                    None
+                }
+                ReferenceProducerV1::Branch(point) => {
+                    branches(point)?;
+                    None
+                }
+                ReferenceProducerV1::Phi(point) => {
+                    point.identity_phi_binding_v1()?;
+                    point.verify_with_geometry(geometry)?;
+                    None
+                }
+            };
+            for binding in definition
+                .into_iter()
+                .chain(read.original_copy_dependencies_v1()?)
+            {
+                let dst = binding
+                    .1
+                    .dst_value()
+                    .ok_or_else(|| freeze("expression/reference-dependency-dst"))?;
+                if function.params.contains(&dst)
+                    || geometry.instruction_definition_count(dst) != 1
+                    || geometry.definition(dst).map(|(block, _, row)| (block, row))
+                        != Some((binding.0, &binding.1))
+                {
+                    return Err(freeze("expression/reference-dependency-identity"));
+                }
+            }
+            Ok(())
+        })
 }
 
 pub(super) fn validate_entry_layout(
@@ -663,20 +664,10 @@ pub(super) fn validate_dependencies_for_entry(
             .filter(|value| **value == entry)
             .count()
             != 1
-        || function
-            .params
-            .iter()
-            .copied()
-            .collect::<std::collections::BTreeSet<_>>()
-            .len()
-            != function.params.len()
-        || function
-            .blocks
-            .values()
-            .flat_map(|block| block.all_instructions())
-            .any(|row| {
-                row.dst_value()
-                    .is_some_and(|dst| function.params.contains(&dst))
+        || !context
+            .ledger()
+            .with_function_geometry_v1(function, |geometry| {
+                geometry.parameters_have_unique_definitions()
             })
     {
         return Err(freeze("expression/scalar-entry-physical"));

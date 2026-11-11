@@ -211,18 +211,17 @@ impl ExpressionReferenceReadV1 {
                 let value = read
                     .binding_observation_v2()
                     .loan_root_initializer_v1(original.definition_binding())?;
-                let mut rows = function
-                    .blocks
-                    .iter()
-                    .flat_map(|(block, body)| body.all_instructions().map(move |row| (*block, row)))
-                    .filter(|(_, row)| row.dst_value() == Some(value));
-                let (block, row) = rows
-                    .next()
-                    .ok_or_else(|| freeze("expression/static-initializer-missing"))?;
-                if rows.next().is_some() {
-                    return Err(freeze("expression/static-initializer-producer"));
-                }
-                ReferenceProducerV1::Definition((block, row.clone()))
+                context
+                    .ledger()
+                    .with_function_geometry_v1(function, |geometry| {
+                        let (block, _, row) = geometry
+                            .definition(value)
+                            .ok_or_else(|| freeze("expression/static-initializer-missing"))?;
+                        if geometry.instruction_definition_count(value) != 1 {
+                            return Err(freeze("expression/static-initializer-producer"));
+                        }
+                        Ok(ReferenceProducerV1::Definition((block, row.clone())))
+                    })?
             }
             Reference::Residence(original) => {
                 let binding = context.with_text_residence_v1(
@@ -529,7 +528,7 @@ impl ExpressionReferenceReadV1 {
                 )
                 .map_err(|error| error.to_string())?;
                 let (initialized, _) = read.loan_local_initializer_v1(source.binding())?;
-                let producer = definition_for_initializer(initialized, function)?;
+                let producer = definition_for_initializer(initialized, function, context)?;
                 validate_dependencies(read.binding_observation_v2(), &producer, context, function)?;
                 Ok(PreparedExpressionReferenceReadV1 { producer })
             }
@@ -620,7 +619,7 @@ impl ExpressionReferenceReadV1 {
                     Some(finishing) => ReferenceProducerV1::Definition(
                         finishing.captured_definition(initialized)?.clone(),
                     ),
-                    None => definition_for_initializer(initialized, function)?,
+                    None => definition_for_initializer(initialized, function, context)?,
                 };
                 if self.producer != expected {
                     return Err(freeze("expression/reference-source-node"));

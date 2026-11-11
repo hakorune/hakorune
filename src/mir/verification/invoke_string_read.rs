@@ -328,30 +328,25 @@ fn intrinsic_scalar_type(
     if function.ambiguous(value) {
         return None;
     }
-    let definition = function.definition(value).map(|(_, _, row)| row);
+    let (_, _, definition) = function.definition(value)?;
+    if let Some((_, kind)) = definition.scalar_read_result_v1() {
+        return Some(kind);
+    }
     match definition {
-        Some(
-            MirInstruction::StringLength { .. }
-            | MirInstruction::StringIndexOf { .. }
-            | MirInstruction::Const {
-                value: ConstValue::Integer(_),
-                ..
-            },
-        ) => Some(MirType::Integer),
-        Some(
-            MirInstruction::Compare { .. }
-            | MirInstruction::NullCompare { .. }
-            | MirInstruction::StringCompare { .. }
-            | MirInstruction::Const {
-                value: ConstValue::Bool(_),
-                ..
-            },
-        ) => Some(MirType::Bool),
-        Some(MirInstruction::Const {
+        MirInstruction::Const {
+            value: ConstValue::Integer(_),
+            ..
+        } => Some(MirType::Integer),
+        MirInstruction::Const {
+            value: ConstValue::Bool(_),
+            ..
+        }
+        | MirInstruction::Compare { .. } => Some(MirType::Bool),
+        MirInstruction::Const {
             value: ConstValue::Float(_),
             ..
-        }) => Some(MirType::Float),
-        Some(MirInstruction::InvokeNormalResult { invoke_block, .. }) => {
+        } => Some(MirType::Float),
+        MirInstruction::InvokeNormalResult { invoke_block, .. } => {
             let MirInstruction::Invoke { operation, .. } =
                 function.blocks.get(invoke_block)?.terminator.as_ref()?
             else {
@@ -366,7 +361,7 @@ fn intrinsic_scalar_type(
                 _ => None,
             }
         }
-        Some(MirInstruction::Copy { src, .. }) => intrinsic_scalar_type(function, *src, seen),
+        MirInstruction::Copy { src, .. } => intrinsic_scalar_type(function, *src, seen),
         _ => None,
     }
 }

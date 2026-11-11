@@ -109,7 +109,8 @@ fn ensure_inner_with_policy(
     require_checked: bool,
     selected_scalar: bool,
 ) -> Result<ValueId, String> {
-    let checked = require_checked || builder.function_state.checked_compare_reuse.contains(v)
+    let checked = require_checked
+        || builder.function_state.checked_compare_reuse.contains(v)
         || (kind == LocalKind::CompareOperand
             && builder
                 .function_state
@@ -171,7 +172,11 @@ pub(in crate::mir::builder) fn try_arg(
     builder: &mut MirBuilder,
     value: ValueId,
 ) -> Result<ValueId, String> {
-    if builder.function_state.local_ssa_correspondence.selects_scalar(value) {
+    if builder
+        .function_state
+        .local_ssa_correspondence
+        .selects_scalar(value)
+    {
         checked_scalar_arg(builder, value).map(|(value, _)| value)
     } else {
         Ok(arg(builder, value))
@@ -184,9 +189,14 @@ pub(in crate::mir::builder) fn checked_mul_arg(
     builder: &mut MirBuilder,
     value: ValueId,
 ) -> Result<ValueId, String> {
-    let function = builder.function_state.current_function.as_ref()
+    let function = builder
+        .function_state
+        .current_function
+        .as_ref()
         .ok_or_else(|| "[freeze:contract][borrowed-mul/operand-function]".to_owned())?;
-    let block = builder.function_state.current_block
+    let block = builder
+        .function_state
+        .current_block
         .ok_or_else(|| "[freeze:contract][borrowed-mul/operand-block]".to_owned())?;
     if checked_mul::reuse_same_block_operand(function, block, value)? {
         return Ok(value);
@@ -200,20 +210,36 @@ pub(in crate::mir::builder) fn checked_scalar_arg(
     builder: &mut MirBuilder,
     value: ValueId,
 ) -> Result<(ValueId, std::rc::Rc<LocalSsaPhysicalRelationV1>), String> {
-    let function = builder.function_state.current_function.as_ref()
+    let function = builder
+        .function_state
+        .current_function
+        .as_ref()
         .ok_or_else(|| "[freeze:contract][scalar-original/function-missing]".to_owned())?;
-    let block = builder.function_state.current_block
+    let block = builder
+        .function_state
+        .current_block
         .ok_or_else(|| "[freeze:contract][scalar-original/block-missing]".to_owned())?;
     if checked_mul::reuse_same_block_operand(function, block, value)? {
-        let relation = builder.function_state.local_ssa_correspondence.loan(function, value, value)
-            .ok_or_else(|| "[freeze:contract][scalar-original/operand-correspondence]".to_owned())?;
+        let relation = builder
+            .function_state
+            .local_ssa_correspondence
+            .loan(function, value, value)
+            .ok_or_else(|| {
+                "[freeze:contract][scalar-original/operand-correspondence]".to_owned()
+            })?;
         relation.verify(function)?;
         return Ok((value, relation));
     }
     let returned = ensure_inner_with_policy(builder, value, LocalKind::Arg, false, true, true)?;
-    let function = builder.function_state.current_function.as_ref()
+    let function = builder
+        .function_state
+        .current_function
+        .as_ref()
         .ok_or_else(|| "[freeze:contract][scalar-original/function-missing]".to_owned())?;
-    let relation = builder.function_state.local_ssa_correspondence.loan(function, value, returned)
+    let relation = builder
+        .function_state
+        .local_ssa_correspondence
+        .loan(function, value, returned)
         .ok_or_else(|| "[freeze:contract][scalar-original/operand-correspondence]".to_owned())?;
     relation.verify(function)?;
     Ok((returned, relation))
@@ -244,7 +270,11 @@ pub(in crate::mir::builder) fn checked_positive_divisor_arg(
             .all_instructions()
             .count();
         crate::mir::verification::utils::exact_integer_operand_chain_at(
-            function, value, block, end, expected,
+            &crate::mir::verification::geometry::FunctionVerificationGeometry::new(function),
+            value,
+            block,
+            end,
+            expected,
         )
         .ok_or_else(reject)?
     };
@@ -328,7 +358,10 @@ pub(in crate::mir::builder) fn try_cmp_operand(
         .function_state
         .checked_compare_reuse
         .contains_operand(v)
-        || builder.function_state.local_ssa_correspondence.selects_scalar(v)
+        || builder
+            .function_state
+            .local_ssa_correspondence
+            .selects_scalar(v)
     {
         ensure_inner(builder, v, LocalKind::CompareOperand, false)
     } else {

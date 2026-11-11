@@ -5,7 +5,6 @@ use crate::mir::{ConstValue, MirType, ValueId};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 type Failure = (BasicBlockId, &'static str);
-type Definitions = crate::mir::value_origin::ValueDefMap;
 
 pub(super) fn structural_failure(
     function: &MirFunction,
@@ -43,24 +42,17 @@ pub(super) fn structural_failure(
         })
 }
 fn definition<'a>(
-    function: &'a MirFunction,
-    definitions: &Definitions,
+    function: &'a super::FunctionVerificationGeometry<'_>,
     value: ValueId,
 ) -> Option<(BasicBlockId, &'a MirInstruction)> {
-    let (block, index) = definitions.get(&value)?;
-    let body = function.blocks.get(block)?;
-    Some((
-        *block,
-        body.instructions.get(*index).or_else(|| {
-            (*index == body.instructions.len())
-                .then_some(body.terminator.as_ref())
-                .flatten()
-        })?,
-    ))
+    function
+        .definition(value)
+        .map(|(block, _, row)| (block, row))
 }
-fn direct_null(function: &MirFunction, definitions: &Definitions, value: ValueId) -> bool {
+
+fn direct_null(function: &super::FunctionVerificationGeometry<'_>, value: ValueId) -> bool {
     matches!(
-        definition(function, definitions, value),
+        definition(function, value),
         Some((
             _,
             MirInstruction::Const {
@@ -71,9 +63,8 @@ fn direct_null(function: &MirFunction, definitions: &Definitions, value: ValueId
     )
 }
 fn carrier(
-    function: &MirFunction,
+    function: &super::FunctionVerificationGeometry<'_>,
     row: &MirInstruction,
-    definitions: &Definitions,
 ) -> Result<ValueId, &'static str> {
     let MirInstruction::NullCompare { op, lhs, rhs, .. } = row else {
         unreachable!()
@@ -81,10 +72,7 @@ fn carrier(
     if !matches!(op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne) {
         return Err("null-comparison/operator");
     }
-    match (
-        direct_null(function, definitions, *lhs),
-        direct_null(function, definitions, *rhs),
-    ) {
+    match (direct_null(function, *lhs), direct_null(function, *rhs)) {
         (true, false) => Ok(*rhs),
         (false, true) => Ok(*lhs),
         _ => Err("null-comparison/exact-sentinel"),
@@ -94,8 +82,7 @@ fn carrier(
 /// Independent actual value domains. Unknown formal carriers remain ABI
 /// obligations; this does not admit them into a canonical executable.
 fn check_kind(
-    function: &MirFunction,
-    definitions: &Definitions,
+    function: &super::FunctionVerificationGeometry<'_>,
     value: ValueId,
     active: &mut BTreeSet<ValueId>,
     completed: &mut BTreeMap<ValueId, Result<(), &'static str>>,
@@ -115,15 +102,12 @@ fn check_kind(
                 _ => Err("null-comparison/carrier-kind"),
             };
         }
-        let (_, row) =
-            definition(function, definitions, value).ok_or("null-comparison/carrier-definition")?;
+        let (_, row) = definition(function, value).ok_or("null-comparison/carrier-definition")?;
         match row {
-            MirInstruction::Copy { src, .. } => {
-                check_kind(function, definitions, *src, active, completed)
-            }
+            MirInstruction::Copy { src, .. } => check_kind(function, *src, active, completed),
             MirInstruction::Phi { inputs, .. } if !inputs.is_empty() => {
                 for (_, value) in inputs {
-                    check_kind(function, definitions, *value, active, completed)?;
+                    check_kind(function, *value, active, completed)?;
                 }
                 Ok(())
             }
@@ -145,8 +129,8 @@ fn check_kind(
                 ..
             } => Ok(()),
             MirInstruction::BinOp { lhs, rhs, .. } => {
-                check_kind(function, definitions, *lhs, active, completed)?;
-                check_kind(function, definitions, *rhs, active, completed)
+                check_kind(function, *lhs, active, completed)?;
+                check_kind(function, *rhs, active, completed)
             }
             MirInstruction::InvokeNormalResult { invoke_block, .. } => {
                 let Some(MirInstruction::Invoke { operation, .. }) = function
@@ -180,11 +164,10 @@ fn check_kind(
 
 /// Only acquisition establishes support; joined may-relations are never closed transitively.
 fn support_base(
-    function: &MirFunction,
-    definitions: &Definitions,
+    function: &super::FunctionVerificationGeometry<'_>,
     value: ValueId,
 ) -> Option<ValueId> {
-    match definition(function, definitions, value).map(|(_, row)| row) {
+    match definition(function, value).map(|(_, row)| row) {
         Some(
             MirInstruction::ObjectFieldGet { base, .. } | MirInstruction::FieldGet { base, .. },
         ) => Some(*base),
@@ -312,7 +295,6 @@ pub(super) fn check(function: &MirFunction) -> Result<(), Failure> {
         return Ok(());
     }
     let geometry = super::FunctionVerificationGeometry::new(function);
-    let definitions = geometry.definitions();
     let mut errors = geometry.definition_errors();
     if let Err(mut found) = cfg::check_control_flow(function) {
         errors.append(&mut found);
@@ -320,20 +302,20 @@ pub(super) fn check(function: &MirFunction) -> Result<(), Failure> {
     if let Some(error) = structural_failure(function, &errors) {
         return Err(error);
     }
-    check_with_definitions(&geometry, definitions)
+    check_with_geometry(&geometry)
 }
 
-pub(super) fn check_with_definitions(
+pub(super) fn check_with_geometry(
     function: &super::FunctionVerificationGeometry<'_>,
-    definitions: &Definitions,
 ) -> Result<(), Failure> {
+    let definitions = function.definitions();
     let mut completed = BTreeMap::new();
     for (id, block) in &function.blocks {
         for row in block.all_instructions() {
             let MirInstruction::NullCompare { dst, lhs, rhs, .. } = row else {
                 continue;
             };
-            let value = carrier(function, row, definitions).map_err(|why| (*id, why))?;
+            let value = carrier(function, row).map_err(|why| (*id, why))?;
             if block
                 .terminator
                 .as_ref()
@@ -352,14 +334,8 @@ pub(super) fn check_with_definitions(
             for value in [*lhs, *rhs] {
                 string::check_available(function, *id, row, value).map_err(|why| (*id, why))?;
             }
-            check_kind(
-                function,
-                &definitions,
-                value,
-                &mut BTreeSet::new(),
-                &mut completed,
-            )
-            .map_err(|why| (*id, why))?;
+            check_kind(function, value, &mut BTreeSet::new(), &mut completed)
+                .map_err(|why| (*id, why))?;
         }
     }
     // A tail that cannot reach any observation cannot affect a null read.
@@ -392,21 +368,17 @@ pub(super) fn check_with_definitions(
     let mut related = BTreeMap::<ValueId, BTreeSet<ValueId>>::new();
     let mut values = BTreeSet::new();
     for value in definitions.keys() {
-        let Some((_, row)) = definition(function, definitions, *value) else {
+        let Some((_, row)) = definition(function, *value) else {
             continue;
         };
         if matches!(row, MirInstruction::NullCompare { .. }) {
-            values.insert(
-                carrier(function, row, definitions).map_err(|why| (function.entry_block, why))?,
-            );
+            values.insert(carrier(function, row).map_err(|why| (function.entry_block, why))?);
         }
         if let Some(dst) = row.dst_value() {
             let inputs = match row {
                 MirInstruction::Copy { src, .. } => vec![*src],
                 MirInstruction::Phi { inputs, .. } => inputs.iter().map(|(_, v)| *v).collect(),
-                _ => support_base(function, definitions, dst)
-                    .into_iter()
-                    .collect(),
+                _ => support_base(function, dst).into_iter().collect(),
             };
             for input in inputs {
                 related.entry(dst).or_default().insert(input);
@@ -414,7 +386,8 @@ pub(super) fn check_with_definitions(
             }
         }
     }
-    let mut origins = crate::mir::value_origin::ValueOriginQueryContext::new(function, definitions);
+    let mut origins =
+        crate::mir::value_origin::ValueOriginQueryContext::new(function, function.definitions());
     let mut pending_values: VecDeque<_> = values.iter().copied().collect();
     while let Some(v) = pending_values.pop_front() {
         if values.insert(origins.origin(v)) {
@@ -455,13 +428,13 @@ pub(super) fn check_with_definitions(
                     }
                     _ => live.acquire(
                         dst,
-                        support_base(function, definitions, dst),
+                        support_base(function, dst),
                         matches!(row, MirInstruction::InvokeNormalResult { .. }),
                     ),
                 }
             }
             if matches!(row, MirInstruction::NullCompare { .. }) {
-                let value = carrier(function, row, definitions).map_err(|why| (id, why))?;
+                let value = carrier(function, row).map_err(|why| (id, why))?;
                 if faulted || live.bad.contains(&value) {
                     return Err((id, "null-comparison/carrier-not-live"));
                 }
@@ -517,7 +490,6 @@ pub(super) fn check_with_definitions(
 /// Compatibility dumps do not obtain execution admission from this check.
 pub(super) fn reject_legacy(function: &MirFunction) -> Result<(), &'static str> {
     let geometry = super::FunctionVerificationGeometry::new(function);
-    let definitions = geometry.definitions();
     let mut errors = geometry.definition_errors();
     if let Err(mut found) = cfg::check_control_flow(function) {
         errors.append(&mut found);
@@ -531,7 +503,7 @@ pub(super) fn reject_legacy(function: &MirFunction) -> Result<(), &'static str> 
         .flat_map(|block| block.all_instructions())
     {
         if matches!(row, MirInstruction::Compare { lhs, rhs, .. }
-            if direct_null(function, &definitions, *lhs) || direct_null(function, &definitions, *rhs))
+            if direct_null(&geometry, *lhs) || direct_null(&geometry, *rhs))
         {
             return Err("null-comparison/legacy-compare");
         }

@@ -15,20 +15,14 @@ impl OriginalBorrowedCopies {
         copies: &Bindings,
         reads: &Bindings,
     ) -> Result<Self, String> {
+        let geometry =
+            crate::mir::verification::geometry::FunctionVerificationGeometry::new(function);
         let mut originals = BTreeMap::new();
         for (block, instruction) in copies {
             let MirInstruction::Copy { dst, .. } = instruction else {
                 return Err(fault("borrowed-copy-instruction"));
             };
-            if definition_count(function, *dst) != 1
-                || function.params.contains(dst)
-                || function.blocks.get(block).is_none_or(|row| {
-                    row.all_instructions()
-                        .filter(|actual| *actual == instruction)
-                        .count()
-                        != 1
-                })
-            {
+            if !geometry.matches_exact_definition(*block, instruction, true) {
                 return Err(fault("borrowed-copy-original"));
             }
             if let Some(previous) = originals.insert(*dst, (*block, instruction.clone())) {
@@ -61,16 +55,7 @@ impl OriginalBorrowedCopies {
                 .1
                 .dst_value()
                 .ok_or_else(|| fault("borrowed-read-dst"))?;
-            if definition_count(function, dst) != 1
-                || function.params.contains(&dst)
-                || function.blocks.get(&binding.0).is_none_or(|block| {
-                    block
-                        .all_instructions()
-                        .filter(|row| *row == &binding.1)
-                        .count()
-                        != 1
-                })
-            {
+            if !geometry.matches_exact_definition(binding.0, &binding.1, true) {
                 return Err(fault("borrowed-read-original"));
             }
             if originals
@@ -96,7 +81,7 @@ impl OriginalBorrowedCopies {
                             .iter()
                             .any(|(_, row)| row.dst_value() == Some(*dst))
                     {
-                        if definition_count(function, *dst) != 1 || function.params.contains(dst) {
+                        if !geometry.matches_exact_definition(*id, row, true) {
                             return Err(fault("borrowed-read-copy-definition"));
                         }
                         originals.insert(*dst, (*id, row.clone()));
@@ -237,17 +222,8 @@ impl FinishedBindings {
 }
 
 fn definition_count(function: &MirFunction, value: ValueId) -> usize {
-    function
-        .params
-        .iter()
-        .filter(|parameter| **parameter == value)
-        .count()
-        + function
-            .blocks
-            .values()
-            .flat_map(|block| block.all_instructions())
-            .filter(|instruction| instruction.dst_value() == Some(value))
-            .count()
+    crate::mir::verification::geometry::FunctionVerificationGeometry::new(function)
+        .definition_count(value)
 }
 
 fn operand_used(function: &MirFunction, value: ValueId) -> bool {

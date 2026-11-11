@@ -1,7 +1,6 @@
 use crate::mir::function::MirFunction;
-use crate::mir::verification::utils;
 use crate::mir::verification_types::VerificationError;
-use crate::mir::{BasicBlockId, ValueId};
+use crate::mir::BasicBlockId;
 use std::collections::{HashMap, HashSet};
 
 /// Verify CFG references and reachability
@@ -33,57 +32,6 @@ pub fn check_control_flow(function: &MirFunction) -> Result<(), Vec<Verification
     // control flow terminators. This is standard practice (see LLVM's `unreachable`).
     // Dead code elimination pass (TODO) will remove them during optimization.
 
-    if errors.is_empty() {
-        Ok(())
-    } else {
-        Err(errors)
-    }
-}
-
-pub(super) fn check_merge_uses_by(
-    function: &MirFunction,
-    preds: &HashMap<BasicBlockId, Vec<BasicBlockId>>,
-    dominators: &utils::DominatorTree,
-    definition_block: impl Fn(ValueId) -> Option<BasicBlockId>,
-) -> Result<(), Vec<VerificationError>> {
-    let mut errors = Vec::new();
-    let mut phi_dsts_in_block: HashMap<BasicBlockId, HashSet<ValueId>> = HashMap::new();
-    for (bid, block) in &function.blocks {
-        let set = phi_dsts_in_block.entry(*bid).or_default();
-        for sp in block.all_spanned_instructions() {
-            if let crate::mir::MirInstruction::Phi { dst, .. } = sp.inst {
-                set.insert(*dst);
-            }
-        }
-    }
-    for (bid, block) in &function.blocks {
-        let Some(pred_list) = preds.get(bid) else {
-            continue;
-        };
-        if pred_list.len() < 2 {
-            continue;
-        }
-        let phi_dsts = phi_dsts_in_block.get(bid);
-        for sp in block.all_spanned_instructions() {
-            if let crate::mir::MirInstruction::Phi { .. } = sp.inst {
-                continue;
-            }
-            for used in sp.inst.used_values() {
-                if let Some(db) = definition_block(used) {
-                    if !dominators.dominates(db, *bid) {
-                        let is_phi_dst = phi_dsts.map(|s| s.contains(&used)).unwrap_or(false);
-                        if !is_phi_dst {
-                            errors.push(VerificationError::MergeUsesPredecessorValue {
-                                value: used,
-                                merge_block: *bid,
-                                pred_block: db,
-                            });
-                        }
-                    }
-                }
-            }
-        }
-    }
     if errors.is_empty() {
         Ok(())
     } else {
