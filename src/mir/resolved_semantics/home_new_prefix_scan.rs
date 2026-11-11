@@ -89,6 +89,7 @@ pub(super) fn scan_statement_flow<'a, E>(
             }
         }
         locals.invalidate_dynamic_field_sources(&statement);
+        let mut taken_news = Vec::new();
         local_call_flow::stage_statement_actuals(
             input,
             &statement,
@@ -98,8 +99,38 @@ pub(super) fn scan_statement_flow<'a, E>(
             local_calls,
             path_calls,
             scalar_field,
-            borrowed_actuals,
+            &mut |call, request| {
+                if let BorrowedCallActualRequestV1::Observe(_, actuals, _) = request {
+                    taken_news.extend(actuals.iter().filter_map(|actual| {
+                        let BorrowedCallActualValueV1::FreshConstruction(construction) = &actual.value
+                        else { return None; };
+                        let site = OwnedExprSiteV1::new(input.owner(), actual.site.clone());
+                        result_sites.contains(&site).then(|| (call.clone(), actual.ordinal, site, construction.arguments().len()))
+                    }));
+                }
+                borrowed_actuals(call, request)
+            },
         )?;
+        for (call, ordinal, site, arity) in taken_news {
+            let (observation, moved, issue) = super::new_local::observe_new_arguments_v1(
+                input, &site, arity, locals, homes, local_calls, scalar_field, borrowed_actuals,
+            )?;
+            let prefix = match (unavailable.as_ref(), issue, moved.is_empty()) {
+                (None, None, true) => crate::mir::resolved_control_flow::issue_taken_new_fault_continuation_v1(
+                    input, &site, &call, ordinal,
+                ).map_err(|_| HomePrefixUnavailableV1::SourceMismatch).map(|outward_fault|
+                    ResultNewHomePrefixV1::from_transition(
+                        ResultNewPurposeV1::TakenArgument { call, ordinal },
+                        homes, &[], outward_fault, covered_statements,
+                    )),
+                (prior, issue, _) => Err(prior.cloned().or(issue).unwrap_or(HomePrefixUnavailableV1::SourceMismatch)),
+            };
+            if argument_observations.insert(site.clone(), observation).is_some()
+                || result_prefixes.insert(site, prefix).is_some()
+            {
+                return Ok(false);
+            }
+        }
 
         if let Some(available) = locals.observe_source_loop_exit_v1(
             statement.site(),

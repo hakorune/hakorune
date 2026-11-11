@@ -106,7 +106,7 @@ pub(in crate::mir::builder) fn emit(
         class,
         arity,
         constructor,
-        &rows, consume_receiver, static_source,
+        &rows, consume_receiver, static_source, &[],
     )
 }
 
@@ -120,6 +120,7 @@ pub(in crate::mir::builder) fn emit_result(
     claim: crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1,
     consume_receiver: &dyn Fn(&crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
     static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
+    inherited: &[InvokeOperation],
 ) -> Result<ValueId, String> {
     if state.owner() != claim.site().owner() {
         return Err(freeze("owner-or-argument-count"));
@@ -142,7 +143,7 @@ pub(in crate::mir::builder) fn emit_result(
         class,
         arity,
         constructor,
-        &rows, consume_receiver, static_source,
+        &rows, consume_receiver, static_source, inherited,
     )
 }
 
@@ -159,12 +160,13 @@ fn emit_selected_new(
     argument_rows: &[OrdinaryNewTrivialArgumentV1],
     consume_receiver: &dyn Fn(&crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
     static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
+    inherited: &[InvokeOperation],
 ) -> Result<ValueId, String> {
     let arguments = arguments::materialize_arguments(builder, state, ledger, &site, arity,
-        argument_rows, consume_receiver, static_source)?;
+        argument_rows, consume_receiver, static_source, inherited)?;
     let (mut prior, reclaim_origin) = ledger.begin_new_emission(&site)?;
     let argument_ends = arguments::temporary_ends_v1(&arguments)?;
-    prior.splice(0..0, argument_ends);
+    prior.splice(0..0, argument_ends.into_iter().chain(inherited.iter().cloned()));
     let frame = state.borrow_fault_frame(builder)?;
     let result = builder.next_value_id();
     let frame_binding = fault_frame_binding(builder, state, frame)?;
@@ -255,10 +257,10 @@ fn emit_selected_new(
         bindings.push((normal, birth));
         builder.start_new_block(after_birth)?;
     }
-    arguments::finish_new_arguments_v1(builder, ledger, &site, result, frame, &arguments, &mut bindings)?;
+    arguments::finish_new_arguments_v1(builder, ledger, &site, result, frame, &arguments, inherited, &mut bindings)?;
     let continuation = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
-    let cleanup = if arguments.iter().any(|argument| argument.expression_v1().is_some()) {
-        Some(crate::mir::normal_callable_semantic_package::NewArgumentCleanupV1::new(allocation_binding, birth_binding, continuation))
+    let cleanup = if !inherited.is_empty() || arguments.iter().any(|argument| argument.expression_v1().is_some()) {
+        Some(crate::mir::normal_callable_semantic_package::NewArgumentCleanupV1::new(allocation_binding, birth_binding, continuation, inherited.into()))
     } else { None };
     for argument in &arguments {
         if let Some(expression) = argument.expression_v1() {

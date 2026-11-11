@@ -72,6 +72,24 @@ pub(super) fn value(
             site,
             context,
         ),
+        LexicalCallArgumentProjectionV1::FreshTakenArgument {
+            ordinal: observed,
+            site: observed_site,
+            formal,
+            value,
+            bounds,
+        } if *observed == ordinal && observed_site == site && *formal == actual.formal => {
+            let Source::FreshTakenHome { acquisition, class } = &actual.source else {
+                return Err(freeze("taken-argument/source"));
+            };
+            if acquisition.owner() != owner
+                || acquisition.site() != site
+                || &ledger.taken_new_argument_bounds_v1(acquisition, row.call_site(), ordinal, class, *value)? != bounds
+            {
+                return Err(freeze("taken-argument/source"));
+            }
+            Ok(*value)
+        }
         LexicalCallArgumentProjectionV1::BorrowedReadArgument {
             ordinal: observed,
             site: observed_site,

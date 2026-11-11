@@ -25,13 +25,14 @@ pub(super) fn materialize_arguments(
         &crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1,
     ) -> Result<(), String>,
     static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
+    inherited: &[crate::mir::instruction::InvokeOperation],
 ) -> Result<Vec<EmittedNewArgumentV1>, String> {
     validate_argument_rows_v1(site.owner(), site, arity, rows)?;
     let mut arguments = Vec::with_capacity(rows.len());
     for row in rows {
         if let OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = row.kind() {
             let inherited = ExpressionCallTransientPrefixV1::for_prepared_new_argument_v1(
-                row, &arguments, rows,
+                row, &arguments, rows, inherited,
             )?;
             let mut expression = expression_value::emit_with_prefix(
                 builder,
@@ -751,6 +752,7 @@ pub(super) fn finish_new_arguments_v1(
     result: crate::mir::ValueId,
     frame: crate::mir::ValueId,
     arguments: &[EmittedNewArgumentV1],
+    inherited: &[crate::mir::instruction::InvokeOperation],
     bindings: &mut Vec<(crate::mir::BasicBlockId, MirInstruction)>,
 ) -> Result<(), String> {
     use super::{RawRootGraphWriterV1, RootGraphWriterPortV1};
@@ -762,7 +764,7 @@ pub(super) fn finish_new_arguments_v1(
     let plan = super::FaultCleanupPlanV1::new_arguments(
         object_cleanup,
         normal,
-        ledger.new_argument_home_unwind_v1(site, true)?,
+        inherited.iter().cloned().chain(ledger.new_argument_home_unwind_v1(site, true)?).collect(),
     )?;
     let mut writer = RawRootGraphWriterV1;
     let clean = writer.reserve_block(builder)?;

@@ -22,6 +22,109 @@ pub(in crate::mir::normal_callable_semantic_package) struct ResultNewSourceRefV1
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir) fn require_taken_new_prefix_v1(
+        &self,
+        site: &OwnedExprSiteV1,
+        value: ValueId,
+        inherited: &[InvokeOperation],
+    ) -> Result<(), String> {
+        let rows = self.local_commits.borrow();
+        let Some(LocalCommitV1::Result(row)) = rows.get(site) else {
+            return Err(freeze("taken-argument/result-source"));
+        };
+        let NewEmissionProgress::Emitted { result, argument_cleanup, .. } = &row.emission else {
+            return Err(freeze("taken-argument/result-source"));
+        };
+        if *result != value
+            || argument_cleanup.as_ref().map_or(&[][..], |cleanup| cleanup.inherited()) != inherited
+        {
+            return Err(freeze("taken-argument/prefix-drift"));
+        }
+        Ok(())
+    }
+
+    pub(in crate::mir) fn with_fresh_taken_new_arity_v1(
+        &self,
+        site: &OwnedExprSiteV1,
+        call: &OwnedExprSiteV1,
+        ordinal: u32,
+        class: &str,
+    ) -> Result<usize, String> {
+        use crate::mir::resolved_semantics::home_new_prefix::ResultNewPurposeV1;
+        self.with_result_new_source_v1(site, |source| {
+            if source.site.owner() != call.owner() || source.class != class
+                || source.prefix.as_ref().ok().map(|prefix| prefix.purpose())
+                    != Some(&ResultNewPurposeV1::TakenArgument { call: call.clone(), ordinal })
+            {
+                return Err(freeze("taken-argument/result-source"));
+            }
+            Ok(source.arity)
+        })?.ok_or_else(|| freeze("taken-argument/result-source"))
+    }
+
+    /// Reborrow the original fresh argument's completed New and its exact
+    /// Normal boundary. Neither the comparison nor the Call can synthesize it.
+    pub(in crate::mir) fn taken_new_argument_bounds_v1(
+        &self,
+        site: &OwnedExprSiteV1,
+        call: &OwnedExprSiteV1,
+        ordinal: u32,
+        class: &str,
+        value: ValueId,
+    ) -> Result<[(BasicBlockId, MirInstruction); 2], String> {
+        use crate::mir::resolved_semantics::home_new_prefix::ResultNewPurposeV1;
+        let rows = self.local_commits.borrow();
+        let Some(LocalCommitV1::Result(row)) = rows.get(site) else {
+            return Err(freeze("taken-argument/result-source"));
+        };
+        if &row.site != site
+            || row.box_source.name() != class
+            || site.owner() != call.owner()
+            || !site.site().is_argument_of(call.site(), ordinal)
+            || row.home_prefix.as_ref().ok().map(|prefix| prefix.purpose())
+                != Some(&ResultNewPurposeV1::TakenArgument { call: call.clone(), ordinal })
+        {
+            return Err(freeze("taken-argument/result-source"));
+        }
+        let NewEmissionProgress::Emitted { result, progress, bindings, .. } = &row.emission else {
+            return Err(freeze("taken-argument/result-emission"));
+        };
+        if *result != value || !match progress {
+            EmittedLocalProgress::ExpressionCompleted => true,
+            EmittedLocalProgress::Checked { local } => *local == value,
+            _ => false,
+        } {
+            return Err(freeze("taken-argument/result-emission"));
+        }
+        let one = |pred: &dyn Fn(&MirInstruction) -> bool| {
+            let mut rows = bindings.iter().filter(|(_, row)| pred(row));
+            let row = rows.next().ok_or_else(|| freeze("taken-argument/result-emission"))?;
+            if rows.next().is_some() {
+                return Err(freeze("taken-argument/result-emission"));
+            }
+            Ok(row.clone())
+        };
+        let projection = one(&|row| matches!(row,
+            MirInstruction::InvokeNormalResult { dst, .. } if *dst == value))?;
+        let MirInstruction::InvokeNormalResult { invoke_block, .. } = &projection.1 else {
+            unreachable!("checked projection");
+        };
+        let allocation = one(&|instruction| matches!(instruction, MirInstruction::Invoke {
+            operation: InvokeOperation::NewBox { object }, normal_landing, ..
+        } if *object == row.object && *normal_landing == projection.0))?;
+        if allocation.0 != *invoke_block {
+            return Err(freeze("taken-argument/result-emission"));
+        }
+        let completion = if row.birth_target.is_some() {
+            one(&|row| matches!(row, MirInstruction::Invoke {
+                operation: InvokeOperation::Birth(call), ..
+            } if call.receiver == value))?
+        } else {
+            projection
+        };
+        Ok([allocation, completion])
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn with_result_new_source_v1<T>(
         &self,
         site: &OwnedExprSiteV1,

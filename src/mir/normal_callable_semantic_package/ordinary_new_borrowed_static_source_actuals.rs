@@ -380,6 +380,8 @@ pub(super) fn prepare_static_source_actuals_v1(
         };
         let integer = match &actual.value {
             BorrowedCallActualValueV1::Integer(_) => true,
+            BorrowedCallActualValueV1::FreshConstruction(construction)
+                if prepared.has_original_fresh_take_v1(call, actual.ordinal, construction, contracts)? => false,
             BorrowedCallActualValueV1::Home { binding, root, acquisition, moved: Some(moved) }
                 if formal.demand == crate::mir::resolved_semantics::HomeDemandV1::Home
                     && binding.owner() == call.owner() && root.owner() == call.owner()

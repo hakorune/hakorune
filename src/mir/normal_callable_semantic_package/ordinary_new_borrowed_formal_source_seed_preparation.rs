@@ -122,52 +122,6 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         if !source.same_inventory(fields) || source.field().object() != payload.payload_object_v1() { return None; }
         Some(OriginalFormalActualSeedV1::MapField { read: OwnedExprSiteV1::new(input.owner(), site.clone()), get: Box::new(get), source: Rc::clone(source) })
     };
-    let mut rows = Vec::new();
-    let mut seen = BTreeSet::new();
-    for (call, legacy) in inventory.source_rows_with_legacy_v1() {
-        if !seen.insert(call.call.clone()) {
-            return Err(freeze("borrowed-view/duplicate-original-call"));
-        }
-        let caller = call.call.owner();
-        let seeds = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
-            batch, constructors, caller, |context, input| -> Result<Vec<_>, String> {
-                let original = input.function().method_call(call.call.site())
-                    .ok_or_else(|| freeze("borrowed-view/original-call"))?;
-                context.constructor_key_for_call(&call.call, original)?;
-                if original.selector() != call.source.target().name()
-                    || original.arity() != call.source.target().arity()
-                    || original.arguments().iter().map(|argument| argument.site()).ne(call.source.argument_sites().iter())
-                { return Err(freeze("borrowed-view/original-call-identity")); }
-                let source_context = OriginalActualSourceContextV1::checked(context, input, batch, selected, contracts,
-                    static_claims, app_main, omitted)?.map(|context| context.with_field_array_accesses_v1(&field_array_access).with_read_values_v1(&read_value)).map(|context| context.for_point_premise());
-                let slot = context.declaration_slot();
-                let candidates = slot.and_then(|slot| candidates.get(&slot)).and_then(|rows| rows.as_ref().ok())
-                    .map(Vec::as_slice).unwrap_or(&[]);
-                let receiver = slot.and_then(|slot| contracts.iter().find(|row| row.owner == caller)
-                    .filter(|row| row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod)
-                    .and_then(|_| crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
-                        selected, batch, entry_home_loans.for_batch_slot(slot), slot)));
-                call.arguments.iter().map(|(ordinal, site, _)| {
-                    if let Some(source) = classify_returned_field_seed_v1(
-                        results, batch, selected, constructors, inventory,
-                        &OwnedExprSiteV1::new(caller, site.clone()),
-                    )? { return Ok(source); }
-                    if slot.is_none() {
-                        if let Some(origin) = new_seeds::stable_constructor_formal_v1(input, site, constructors) {
-                            return Ok(OriginalFormalActualSeedV1::Forward { origin, declared_constraint: None });
-                        }
-                    }
-                    Ok(classify_original_actual_seed_in_scope(input, batch, selected, results, caller,
-                        candidates, receiver, definitions, contracts, site,
-                        guarded.get(&(call.call.clone(), *ordinal)).map(|fact| (fact, &call.call, *ordinal)), Some(inventory), source_context.as_ref()))
-                }).collect::<Result<Vec<_>, String>>()
-            })??;
-        rows.push(OriginalCallSeedsV1 {
-            incoming: call.clone(),
-            legacy,
-            seeds: seeds.into_boxed_slice(),
-        });
-    }
     let mut new_calls = new_seeds::OriginalNewSeedsV1::default();
     for declaration in batch.declarations() {
         let slot = declaration.batch_slot();
@@ -234,6 +188,60 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     match observed {
         Ok(result) => result?,
         Err(_) => new_calls.missing_owner(),
+    }
+    let mut rows = Vec::new();
+    let mut seen = BTreeSet::new();
+    for (call, legacy) in inventory.source_rows_with_legacy_v1() {
+        if !seen.insert(call.call.clone()) {
+            return Err(freeze("borrowed-view/duplicate-original-call"));
+        }
+        let caller = call.call.owner();
+        let seeds = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
+            batch, constructors, caller, |context, input| -> Result<Vec<_>, String> {
+                let original = input.function().method_call(call.call.site())
+                    .ok_or_else(|| freeze("borrowed-view/original-call"))?;
+                context.constructor_key_for_call(&call.call, original)?;
+                if original.selector() != call.source.target().name()
+                    || original.arity() != call.source.target().arity()
+                    || original.arguments().iter().map(|argument| argument.site()).ne(call.source.argument_sites().iter())
+                { return Err(freeze("borrowed-view/original-call-identity")); }
+                let source_context = OriginalActualSourceContextV1::checked(context, input, batch, selected, contracts,
+                    static_claims, app_main, omitted)?.map(|context| context.with_field_array_accesses_v1(&field_array_access).with_read_values_v1(&read_value)).map(|context| context.for_point_premise());
+                let slot = context.declaration_slot();
+                let candidates = slot.and_then(|slot| candidates.get(&slot)).and_then(|rows| rows.as_ref().ok())
+                    .map(Vec::as_slice).unwrap_or(&[]);
+                let receiver = slot.and_then(|slot| contracts.iter().find(|row| row.owner == caller)
+                    .filter(|row| row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod)
+                    .and_then(|_| crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
+                        selected, batch, entry_home_loans.for_batch_slot(slot), slot)));
+                call.arguments.iter().map(|(ordinal, site, _)| {
+                    let actual = OwnedExprSiteV1::new(caller, site.clone());
+                    if let Some(construction) = input.function().expression_source().construction(site) {
+                        if call.source.accepts_fresh_take_source_v1(*ordinal, construction, contracts)
+                            && new_calls.nominal_class_at_v1(&actual) == Some(construction.class())
+                        {
+                            return Ok(OriginalFormalActualSeedV1::Class(construction.class().into()));
+                        }
+                    }
+                    if let Some(source) = classify_returned_field_seed_v1(
+                        results, batch, selected, constructors, inventory,
+                        &OwnedExprSiteV1::new(caller, site.clone()),
+                    )? { return Ok(source); }
+                    if slot.is_none() {
+                        if let Some(origin) = new_seeds::stable_constructor_formal_v1(input, site, constructors) {
+                            return Ok(OriginalFormalActualSeedV1::Forward { origin, declared_constraint: None });
+                        }
+                    }
+                    Ok(classify_original_actual_seed_in_scope(input, batch, selected, results, caller,
+                        candidates, receiver, definitions, contracts, site,
+                        guarded.get(&(call.call.clone(), *ordinal)).map(|fact| (fact, &call.call, *ordinal)), Some(inventory), source_context.as_ref()))
+                }).collect::<Result<Vec<_>, String>>()
+            })??;
+        rows.push(OriginalCallSeedsV1 {
+            incoming: call.clone(),
+            legacy,
+            seeds: seeds.into_boxed_slice(),
+        });
     }
     let mut product = OriginalFormalSeedProductV1 {
         original_uses: None,

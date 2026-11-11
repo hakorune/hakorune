@@ -546,6 +546,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
             claim,
             &consume,
             Some(&issue_static),
+            &[],
         );
         result
     }

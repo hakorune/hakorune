@@ -89,6 +89,10 @@ pub(crate) enum BorrowedFormalActualSourceV1 {
         acquisition: OwnedExprSiteV1,
         class: Box<str>,
     },
+    FreshTakenHome {
+        acquisition: OwnedExprSiteV1,
+        class: Box<str>,
+    },
     EntryReceiver {
         binding: BindingRefV1,
         root: BindingRefV1,

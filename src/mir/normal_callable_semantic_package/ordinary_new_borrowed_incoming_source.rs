@@ -133,6 +133,29 @@ impl BorrowedIncomingSourceV1 {
             Self::PendingStored(row) => row.reference.target_batch_slot,
         }
     }
+    /// Match the construction's original position and the callee's declared
+    /// take demand. This lends a class premise only, not an acquired Home.
+    pub(in crate::mir::normal_callable_semantic_package) fn accepts_fresh_take_source_v1(
+        &self,
+        ordinal: u32,
+        construction: &crate::mir::resolved_semantics::ResolvedNewExpressionSourceV1,
+        contracts: &[OwnedCallableParameterContractDeclarationV1],
+    ) -> bool {
+        if self.argument_sites().get(ordinal as usize) != Some(construction.site()) {
+            return false;
+        }
+        let mut declarations = contracts.iter().filter(|declaration| {
+            declaration.owner == self.callee_owner()
+                && declaration.batch_slot == self.target_batch_slot()
+        });
+        let Some(declaration) = declarations.next() else {
+            return false;
+        };
+        declarations.next().is_none() && declaration.parameters.get(ordinal as usize)
+            .is_some_and(|parameter| parameter.ordinal == ordinal
+                && parameter.takes_fresh_construction_v1(construction))
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn argument_sites(
         &self,
     ) -> &[SourceExprSiteV1] {

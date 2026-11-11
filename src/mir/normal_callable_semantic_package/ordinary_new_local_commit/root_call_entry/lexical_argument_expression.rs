@@ -186,6 +186,22 @@ impl LexicalCallArgumentProjectionV1 {
             packet.purpose_acquisition.is_some(),
         )
     }
+    /// Operations owed before Call entry. A taken New's obligation ends
+    /// at entry, so it does not join the post-entry temporary stack.
+    pub(in crate::mir) fn pre_entry_end_operations_v1(
+        &self,
+        call: &OwnedExprSiteV1,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<InvokeOperation>, String> {
+        if let Self::FreshTakenArgument { site, value, .. } = self {
+            let acquisition = OwnedExprSiteV1::new(call.owner(), site.clone());
+            return context.ledger().new_argument_object_cleanup_v1(&acquisition, *value)
+                .map(|(_, operations)| operations);
+        }
+        Ok(self.deferred_temporaries_v1(context)?.into_iter().rev()
+            .map(ExpressionOwnedTemporaryV1::end_operation).collect())
+    }
+
     /// Ownership-prefix corroboration only. Non-expression arguments add no
     /// retained stack; the enclosing materializer still checks every original
     /// actual tuple, including its formal, site and ordinal.
@@ -196,6 +212,12 @@ impl LexicalCallArgumentProjectionV1 {
         homes: &[LiveHomeV1],
         context: CallValidationContextV1<'_>,
     ) -> Result<(), String> {
+        if let Self::FreshTakenArgument { ordinal: position, site, .. } = self {
+            if *position as usize != ordinal || !site.is_argument_of(call.site(), *position) {
+                return Err(freeze("argument-expression/prefix-position"));
+            }
+            return Ok(());
+        }
         let Self::Expression(packet) = self else {
             return Ok(());
         };

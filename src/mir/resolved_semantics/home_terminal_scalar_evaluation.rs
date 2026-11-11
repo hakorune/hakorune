@@ -58,7 +58,26 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         &purpose,
         super::super::super::BorrowedCallActualRequestV1::CallEntryHomes(input),
     )?, Some(super::super::super::BorrowedCallArgumentsV1::CallEntryHomes { taken, instance_input: true, .. }) if !taken.is_empty());
+    let owned_parameter_receiver = input
+        .function()
+        .method_call_source_v1(value.site())
+        .is_some_and(|call| {
+            use crate::mir::resolved_semantics::{
+                BindingKindV1, ResolvedLexicalRefV1, ResolvedMethodCallReceiverSourceV1,
+            };
+            let ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding)) =
+                call.receiver()
+            else {
+                return false;
+            };
+            input
+                .function()
+                .binding(binding)
+                .is_some_and(|row| matches!(row.kind(), BindingKindV1::Parameter { .. }))
+                && homes.iter().any(|home| home.is_stable_binding(binding))
+        });
     let previous_scalar_candidate = stored_field
+        || owned_parameter_receiver
         || add
         || copy
         || bool_root

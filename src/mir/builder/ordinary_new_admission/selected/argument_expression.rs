@@ -123,6 +123,7 @@ pub(in crate::mir::builder) fn emit_with_checked_frame(
                 consume_receiver,
                 static_source,
                 nested_argument_frames,
+                inherited,
             )
         },
     )?;

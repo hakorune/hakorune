@@ -171,7 +171,7 @@ pub(crate) fn enforce_lifecycle_parameter_entry_backend_supported(
                 let expected_slots: BTreeSet<_> = tagged_slots.iter().copied().chain(take_objects.keys().copied()).collect();
                 if actual_slots != expected_slots || actual_slots.len() != actuals.len()
                     || actuals.iter().any(|actual| take_objects.contains_key(&(actual.ordinal as usize + receiver_offset))
-                        != actual.source.taken_home_v1().is_some()) {
+                        != actual.source.transfers_home_at_entry_v1()) {
                     return Err(format!(
                         "{} reason=ordinary-tagged-actual-drift function={symbol}",
                         LIFECYCLE_PARAMETER_ENTRY_CAPABILITY_MISSING_TAG

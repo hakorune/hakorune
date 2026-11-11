@@ -156,6 +156,7 @@ pub(in crate::mir::builder) fn emit_with_dynamic_and_argument_frames(
     consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
     static_source: Option<&StaticExpressionCallIssuerV1<'_>>,
     retained_argument_frames: &[std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>],
+    inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
 ) -> Result<ExpressionCallEmissionV1, String> {
     if !frame.calls().iter().any(|original| std::ptr::eq(original, call))
         || state.owner() != frame.source().owner() {
@@ -164,14 +165,14 @@ pub(in crate::mir::builder) fn emit_with_dynamic_and_argument_frames(
     if !matches!(call.result_source(), Some(
         crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::DynamicInvocation(_))) {
         return emit_with_prefix(builder, state, ledger, frame, call, acquired, values, bindings,
-            consume_receiver, static_source, None).map(ExpressionCallEmissionV1::Lexical);
+            consume_receiver, static_source, inherited).map(ExpressionCallEmissionV1::Lexical);
     }
 
     let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
     let owned_site = OwnedExprSiteV1::new(call.owner(), call.site().site().clone());
     let prefix = ExpressionCallPrefixV1 {
         kind: ExpressionCallPrefixKindV1::Evaluation(ExpressionCallTransientPrefixV1::from_evaluation(
-            frame, call, acquired, values, function, None)?),
+            frame, call, acquired, values, function, inherited)?),
         consume_receiver,
         static_source,
     };

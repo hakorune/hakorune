@@ -490,6 +490,35 @@ fn prepare_arguments_with_prefix(
                     _ if expression_only => {
                         return Err(freeze("lexical-i64/expression-source-required"));
                     }
+                    Source::FreshTakenHome { acquisition, class } => {
+                        if acquisition.owner() != owner
+                            || acquisition.site() != site
+                            || *ordinal as usize != position
+                        {
+                            return Err(freeze("taken-argument/source"));
+                        }
+                        let prefix = ExpressionCallTransientPrefixV1::for_prepared_call_argument(
+                            original.ok_or_else(|| freeze("taken-argument/call-source"))?,
+                            position, &arguments, CallValidationContextV1::Lowering(ledger),
+                            expression.and_then(|prefix| prefix.transient()),
+                        )?;
+                        let inherited = prefix.unwind_for_taken_new_v1(acquisition)?;
+                        let consumer = consume_receiver.ok_or_else(|| freeze("taken-argument/receiver-scope"))?;
+                        let record = ledger.with_fresh_taken_new_arity_v1(acquisition, row.call_site(), *ordinal, class)?;
+                        let claim = ledger.try_take_result(acquisition, class, record)
+                            .map_err(|error| format!("[freeze:contract][taken-argument/claim] {error:?}"))?
+                            .ok_or_else(|| freeze("taken-argument/claim"))?;
+                        ledger.prepare_result_new_emission(&claim)?
+                            .map_err(|error| format!("[freeze:contract][taken-argument/prepare] {error:?}"))?;
+                        let value = super::super::emit_result(
+                            builder, state, ledger, claim, consumer, static_source, &inherited,
+                        )?;
+                        ledger.complete_new_expression(acquisition, class, value)?;
+                        let bounds = ledger.taken_new_argument_bounds_v1(acquisition, row.call_site(), *ordinal, class, value)?;
+                        ArgumentProjection::FreshTakenArgument {
+                            ordinal: *ordinal, site: site.clone(), formal: actual.formal, value, bounds,
+                        }
+                    }
                     Source::Read(source) => {
                         let observed = crate::mir::builder::ordinary_new_admission::selected::read_argument::emit(
                             builder, state, ledger, row.call_site(), source, bindings,

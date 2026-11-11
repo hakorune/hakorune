@@ -76,6 +76,13 @@ pub(crate) enum LexicalCallArgumentProjectionV1 {
     Expression(Box<argument_projection::EmittedArgumentExpressionProjectionV1>),
     Scalar(ExactLexicalReadV1),
     CallResult(Box<EmittedLexicalCallProjectionV1>),
+    FreshTakenArgument {
+        ordinal: u32,
+        site: crate::mir::resolved_semantics::SourceExprSiteV1,
+        formal: crate::mir::resolved_semantics::BindingRefV1,
+        value: ValueId,
+        bounds: [Binding; 2],
+    },
     BorrowedLiteral {
         ordinal: u32,
         site: crate::mir::resolved_semantics::SourceExprSiteV1,
@@ -235,7 +242,8 @@ impl PreparedLexicalCallProjectionV1 {
                         require_recorded(bindings, binding, finishing)?;
                     }
                 }
-                LexicalCallArgumentProjectionV1::BorrowedRead { .. } => {}
+                LexicalCallArgumentProjectionV1::BorrowedRead { .. }
+                | LexicalCallArgumentProjectionV1::FreshTakenArgument { .. } => {}
                 LexicalCallArgumentProjectionV1::SelectedCanonicalRead { .. } => {}
                 LexicalCallArgumentProjectionV1::Scalar(_) => {}
                 LexicalCallArgumentProjectionV1::CallResult(inner) => {

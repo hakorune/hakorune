@@ -144,6 +144,28 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
 }
 
 impl PreparedBorrowedFormalIngressV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn has_original_fresh_take_v1(
+        &self,
+        call: &OwnedExprSiteV1,
+        ordinal: u32,
+        construction: &crate::mir::resolved_semantics::ResolvedNewExpressionSourceV1,
+        contracts: &[OwnedCallableParameterContractDeclarationV1],
+    ) -> Result<bool, String> {
+        let mut rows = self
+            .source_incoming
+            .source_rows_v1()
+            .filter(|row| &row.call == call);
+        let Some(row) = rows.next() else {
+            return Ok(false);
+        };
+        if rows.next().is_some() || !self.corroborated_original_v1() {
+            return Err(freeze("borrowed-formal/original-source-drift"));
+        }
+        Ok(row
+            .source
+            .accepts_fresh_take_source_v1(ordinal, construction, contracts))
+    }
+
     /// A SourceOnly row stays pending. This lends its original receiver source,
     /// not an instance ABI or a loan; executable selection remains with issuer.
     pub(in crate::mir::normal_callable_semantic_package) fn original_stored_receiver_for_target_v1(

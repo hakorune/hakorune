@@ -289,18 +289,20 @@ pub(in crate::mir) struct NewArgumentCleanupV1 {
     allocation: Binding,
     birth: Option<Binding>,
     continuation: BasicBlockId,
+    inherited: Box<[InvokeOperation]>,
 }
 impl NewArgumentCleanupV1 {
     pub(in crate::mir) fn new(
         allocation: Binding,
         birth: Option<Binding>,
         continuation: BasicBlockId,
+        inherited: Box<[InvokeOperation]>,
     ) -> Self {
-        Self {
-            allocation,
-            birth,
-            continuation,
-        }
+        Self { allocation, birth, continuation, inherited }
+    }
+
+    pub(super) fn inherited(&self) -> &[InvokeOperation] {
+        &self.inherited
     }
     pub(super) fn validate_v1(
         &self,
@@ -375,7 +377,8 @@ impl NewArgumentCleanupV1 {
                 ));
             }
         }
-        let pending: Vec<_> = ends.iter().cloned().chain(prior).collect();
+        let pending: Vec<_> = ends.iter().cloned()
+            .chain(self.inherited.iter().cloned()).chain(prior).collect();
         let (object, _) = ledger.new_argument_object_cleanup_v1(site, result)?;
         let expected_birth = {
             let rows = ledger.local_commits.borrow();
@@ -473,6 +476,7 @@ impl NewArgumentCleanupV1 {
                 .iter()
                 .cloned()
                 .chain(ends[step + 1..].iter().cloned())
+                .chain(self.inherited.iter().cloned())
                 .chain(homes.iter().cloned())
                 .collect();
             covered.extend(paths::pending_operations(

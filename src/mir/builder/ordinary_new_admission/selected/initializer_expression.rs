@@ -403,6 +403,7 @@ pub(in crate::mir::builder) fn emit(
                 consume_receiver,
                 static_source,
                 retained_argument_frames,
+                None,
             )
         },
     )?;

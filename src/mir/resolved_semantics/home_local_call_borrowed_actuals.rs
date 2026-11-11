@@ -28,6 +28,9 @@ pub(crate) enum BorrowedCallActualValueV1 {
     Binding(BindingRefV1),
     /// Exact original MethodCall membership; no result class or execution proof.
     MethodCall(std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>),
+    /// Original destination-less construction. The take contract and
+    /// completed acquisition are both checked by their existing owners.
+    FreshConstruction(crate::mir::resolved_semantics::ResolvedNewExpressionSourceV1),
     /// Original field spelling, without a live parent or execution proof.
     FieldAccess,
     /// The prefix still owns this exact definite received-call binding.
@@ -68,11 +71,14 @@ pub(crate) fn borrowed_actual_source_atom_v1(
                 Some(ResolvedLexicalRefV1::Local(binding)) => {
                     Some(BorrowedCallActualValueV1::Binding(binding))
                 }
-                _ => input.function().method_call_source_v1(site).map(|source| BorrowedCallActualValueV1::MethodCall(std::sync::Arc::clone(source)))
+                _ => source.construction(site)
+                    .filter(|row| row.field_initializers().is_empty())
+                    .cloned().map(BorrowedCallActualValueV1::FreshConstruction)
+                    .or_else(|| input.function().method_call_source_v1(site).map(|source| BorrowedCallActualValueV1::MethodCall(std::sync::Arc::clone(source)))
                     .or_else(|| matches!(input.body_shape().and_then(|shape| shape.expression_shape(site)),
                         Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }))
                         .then_some(BorrowedCallActualValueV1::FieldAccess))
-                    .or_else(|| source.binary(site).is_some().then_some(BorrowedCallActualValueV1::Expression)),
+                    .or_else(|| source.binary(site).is_some().then_some(BorrowedCallActualValueV1::Expression))),
             }),
     }
 }

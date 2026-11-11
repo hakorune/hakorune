@@ -3,6 +3,26 @@
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::BorrowedViewUseRequestV1;
 
+/// The enclosing call's original argument position selects an acquisition scope.
+pub(crate) fn issue_taken_new_fault_continuation_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+    call: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+    ordinal: u32,
+) -> Result<NewFaultContinuationV1, &'static str> {
+    let method = input.function().method_call_source_v1(call.site()).ok_or("call-source-missing")?;
+    if call.owner() != input.owner()
+        || method.owner() != input.owner()
+        || !site.site().is_argument_of(call.site(), ordinal)
+        || method.arguments().get(ordinal as usize).is_none_or(|argument|
+            argument.site() != site.site() || argument.ordinal() != ordinal)
+        || !matches!(input.source().expr_at(site).map_err(|_| "source-site-missing")?.node(), ASTNode::New { .. })
+    {
+        return Err("call-argument-new-source-mismatch");
+    }
+    issue_destinationless_new_fault_v1(input, site)
+}
+
 pub(crate) fn verify_function_completion_with_new_homes_and_argument_observations_v1<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     base_completion: Option<Result<VerifiedFunctionCompletionV1, FunctionCompletionVerificationErrorV1>>,

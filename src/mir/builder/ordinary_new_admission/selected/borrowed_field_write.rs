@@ -65,7 +65,7 @@ pub(in crate::mir::builder) fn emit_owned_rhs_v1(
         None, None, &mut |builder, state, call, acquired, values, bindings|
             terminal_call::emit_expression_call_with_dynamic_and_argument_frames(
                 builder, state, ledger, evaluation, call, acquired, values, bindings,
-                consume_receiver, Some(static_source), &[]))?;
+                consume_receiver, Some(static_source), &[], None))?;
     expression_value::materialize_text_root(builder, &mut expression,
         evaluation.owned_text_root_node_v1().is_none(), evaluation)?;
     let value = match expression.value.as_operand()? {

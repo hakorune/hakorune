@@ -4,6 +4,10 @@ use super::model::{ArgumentExpressionV1, BorrowedFormalActualSourceV1};
 use super::*;
 
 impl BorrowedFormalActualSourceV1 {
+    pub(crate) fn transfers_home_at_entry_v1(&self) -> bool {
+        self.taken_home_v1().is_some() || matches!(self, Self::FreshTakenHome { .. })
+    }
+
     pub(crate) fn taken_home_v1(&self) -> Option<(BindingRefV1, BindingRefV1, &OwnedExprSiteV1)> {
         match self {
             Self::TypedHome {
@@ -356,6 +360,18 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_take_homes_v1(
         }
         for (formal, candidate) in parameters.iter().zip(actuals) {
             if formal.demand != crate::mir::resolved_semantics::HomeDemandV1::Home {
+                continue;
+            }
+            if let BorrowedCallActualValueV1::FreshConstruction(construction) = &candidate.value {
+                if formal.ordinal != candidate.ordinal
+                    || construction.site() != &candidate.site
+                    || !candidate.site.is_argument_of(site.site(), formal.ordinal)
+                    || !formal.takes_fresh_construction_v1(construction)
+                {
+                    return Err(freeze("borrowed-actual/source-identity"));
+                }
+                // This list moves existing bindings. The acquisition is owned by
+                // the ordered argument and transfers through the call packet.
                 continue;
             }
             let source = ObjectActualHomeSourceV1::Candidates(candidates)

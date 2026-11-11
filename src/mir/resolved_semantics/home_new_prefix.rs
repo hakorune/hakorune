@@ -172,6 +172,7 @@ pub(crate) struct ResultNewHomePrefixV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ResultNewPurposeV1 {
     Return,
+    TakenArgument { call: OwnedExprSiteV1, ordinal: u32 },
     SharedPayload { shared_site: OwnedExprSiteV1, binding: BindingRefV1 },
 }
 

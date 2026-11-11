@@ -65,6 +65,16 @@ impl OrdinaryNewClaimLedgerV1 {
                     match purpose {
                         ResultNewPurposeV1::Return if returns == 1 => {},
                         ResultNewPurposeV1::Return => return Err(freeze("result-return-drift")),
+                        ResultNewPurposeV1::TakenArgument { ordinal, .. } => {
+                            let uses = function.blocks.values().flat_map(|block| block.all_instructions())
+                                .filter(|instruction| matches!(instruction, MirInstruction::Invoke {
+                                    operation: InvokeOperation::Call { call, .. }, ..
+                                } if call.args.get(*ordinal as usize) == Some(result)))
+                                .count();
+                            if uses != 1 || returns != 0 {
+                                return Err(freeze("taken-argument/transfer-drift"));
+                            }
+                        }
                         ResultNewPurposeV1::SharedPayload { shared_site, binding } => {
                             let rows = self.local_commits.borrow();
                             let Some(LocalCommitV1::Shared(shared)) = rows.get(shared_site) else { return Err(freeze("shared-fresh/commit-missing")); };
@@ -120,7 +130,8 @@ impl OrdinaryNewClaimLedgerV1 {
                     emitted.validate_field_array_read(function, projection)?;
                     if let Some(expression) = emitted.expression_v1() {
                         let inherited = crate::mir::normal_callable_semantic_package::ExpressionCallTransientPrefixV1::for_prepared_new_argument_v1(
-                            source, &arguments[..index], source_arguments)?;
+                            source, &arguments[..index], source_arguments,
+                            argument_cleanup.as_ref().map_or(&[], |cleanup| cleanup.inherited()))?;
                         expression.validate_v1(source, emitted.payload(),
                             context, function, projection, Some(&inherited))?;
                     } else { self.validate_argument_definition(function, source, emitted.value_only_v1()?)?; }

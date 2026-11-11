@@ -66,6 +66,7 @@ enum TransientPrefixOriginV1<'a> {
     NewArguments {
         current: &'a crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentV1,
         earlier: &'a [crate::mir::normal_callable_semantic_package::EmittedNewArgumentV1],
+        inherited: &'a [InvokeOperation],
     },
     Emitted {
         call: &'a EmittedLexicalCallProjectionV1,
@@ -92,6 +93,7 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
         current: &'a crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentV1,
         earlier: &'a [crate::mir::normal_callable_semantic_package::EmittedNewArgumentV1],
         rows: &[crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentV1],
+        inherited: &'a [InvokeOperation],
     ) -> Result<Self, String> {
         let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = current.kind()
             else { return Err(freeze("argument-source-drift")) };
@@ -121,7 +123,7 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
             packet.deferred_text_values_v1()?;
         }
         let prefix = Self {
-            origin: TransientPrefixOriginV1::NewArguments { current, earlier },
+            origin: TransientPrefixOriginV1::NewArguments { current, earlier, inherited },
             parent: None,
         };
         prefix.operations()?;
@@ -202,7 +204,7 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
                 call.prior_homes(),
                 context,
             )?;
-            packet.deferred_temporaries_v1(context)?;
+            packet.pre_entry_end_operations_v1(call.site(), context)?;
         }
         if let Some(parent) = parent {
             parent.unwind_for_call(call.site(), call.prior_homes())?;
@@ -243,6 +245,10 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
                     || matches!(call.arguments().get(*ordinal),
                     Some(LocalCallArgumentV1::CallResult(inner))
                         if inner.site() == site || in_arguments(inner.arguments(), site))
+                    || matches!(call.arguments().get(*ordinal),
+                    Some(LocalCallArgumentV1::BorrowedActual { ordinal, site: argument })
+                        if call.site().owner() == site.owner()
+                            && argument == site.site() && argument.is_argument_of(call.site().site(), *ordinal))
             }
         })
     }
@@ -276,11 +282,12 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
             InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value })
         };
         let mut operations: Vec<_> = match &self.origin {
-            TransientPrefixOriginV1::NewArguments { earlier, .. } => {
+            TransientPrefixOriginV1::NewArguments { earlier, inherited, .. } => {
                 let mut operations = Vec::new();
                 for packet in earlier.iter().rev() {
                     operations.extend(packet.deferred_text_values_v1()?.into_iter().rev().map(end));
                 }
+                operations.extend(inherited.iter().cloned());
                 operations
             }
             TransientPrefixOriginV1::Emitted { live, .. } => {
@@ -292,17 +299,11 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
                 .map(|(_, value)| end(*value))
                 .collect(),
             TransientPrefixOriginV1::Arguments {
-                earlier, context, ..
+                call, earlier, context, ..
             } => {
                 let mut operations = Vec::new();
                 for argument in earlier.iter().rev() {
-                    operations.extend(
-                        argument
-                            .deferred_temporaries_v1(*context)?
-                            .into_iter()
-                            .rev()
-                            .map(ExpressionOwnedTemporaryV1::end_operation),
-                    );
+                    operations.extend(argument.pre_entry_end_operations_v1(call.site(), *context)?);
                 }
                 operations
             }
@@ -316,7 +317,8 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
         let mut seen = std::collections::BTreeSet::new();
         for operation in &operations {
             if let InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value })
-                | InvokeOperation::DynamicCarrierEnd { carrier: value } = operation
+                | InvokeOperation::DynamicCarrierEnd { carrier: value }
+                | InvokeOperation::HomeRelease { value, .. } = operation
             {
                 if !seen.insert(*value) {
                     return Err(freeze("argument-expression/prefix-duplicate-acquisition"));
@@ -325,6 +327,22 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
         }
         Ok(operations)
     }
+    pub(in crate::mir) fn unwind_for_taken_new_v1(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Result<Vec<InvokeOperation>, String> {
+        let TransientPrefixOriginV1::Arguments { call, ordinal, .. } = &self.origin else {
+            return Err(freeze("taken-argument/prefix-position"));
+        };
+        if site.owner() != call.site().owner()
+            || !site.site().is_argument_of(call.site().site(), *ordinal as u32)
+            || !self.contains(site)?
+        {
+            return Err(freeze("taken-argument/prefix-position"));
+        }
+        self.operations()
+    }
+
     pub(in crate::mir) fn unwind_for_call(
         &self,
         site: &OwnedExprSiteV1,

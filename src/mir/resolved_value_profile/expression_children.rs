@@ -87,6 +87,28 @@ pub(crate) fn expression_children_v1(
         });
         Ok(())
     };
+    // A method actual shares the enclosing Call's ordered evaluation.
+    // A constructor's own actuals retain their separately issued New plan.
+    if let Some((Role::Argument(position), parent)) = root.node().segments().split_last() {
+        let parent = SourceExprSiteV1::from_node(
+            crate::mir::resolved_semantics::SourceNodeSiteV1::from_segments(parent.to_vec()),
+        );
+        if ledger.method_call(&parent).is_some_and(|call| {
+            call.arguments()
+                .get(*position as usize)
+                .is_some_and(|actual| actual.ordinal() == *position && actual.site() == root)
+        }) {
+            if let Some(construction) = ledger
+                .construction_source(root)
+                .filter(|row| row.field_initializers().is_empty())
+            {
+                for (ordinal, site) in construction.arguments().iter().enumerate() {
+                    add(Role::Argument(ordinal as u32), site, Always)?;
+                }
+                return Ok(ExpressionChildrenV1::Known(children));
+            }
+        }
+    }
     match source {
         ResolvedExpressionSourceV1::Binary(row) => {
             let [lhs, rhs] = binary_children_v1(root, row).ok_or(Issue::ChildIdentity)?;
@@ -171,7 +193,8 @@ pub(crate) fn expression_children_v1(
                 add(Role::Argument(ordinal as u32), site, Always)?;
             }
         }
-        ResolvedExpressionSourceV1::Literal(_) | ResolvedExpressionSourceV1::Reference(_)
+        ResolvedExpressionSourceV1::Literal(_)
+        | ResolvedExpressionSourceV1::Reference(_)
         | ResolvedExpressionSourceV1::ReceiverQualification(_) => {}
         ResolvedExpressionSourceV1::Shape(BodyExpressionShapeV1::FieldAccess {
             object, ..

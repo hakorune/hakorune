@@ -172,7 +172,7 @@ pub(super) fn emit_comparison_inputs_v1(builder: &mut MirBuilder, state: &mut Ca
         &mut |builder, state, call, acquired, values, bindings|
             super::terminal_call::emit_expression_call_with_dynamic_and_argument_frames(
                 builder, state, ledger, frame, call, acquired, values, bindings,
-                consume_receiver, None, retained_argument_frames,
+                consume_receiver, None, retained_argument_frames, None,
             ))
 }
 

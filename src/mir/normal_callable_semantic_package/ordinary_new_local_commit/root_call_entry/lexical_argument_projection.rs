@@ -316,6 +316,16 @@ impl EmittedLexicalCallProjectionV1 {
         }
         let mut covered = std::collections::BTreeSet::new();
         for (ordinal, argument) in self.prepared.arguments.iter().enumerate() {
+            if let LexicalCallArgumentProjectionV1::FreshTakenArgument { site, value, .. } = argument {
+                let acquisition = OwnedExprSiteV1::new(self.call_site().owner(), site.clone());
+                let prefix = ExpressionCallTransientPrefixV1::for_prepared_call_argument(
+                    original.ok_or_else(|| freeze("taken-argument/call-source"))?,
+                    ordinal, &self.prepared.arguments[..ordinal], context, inherited,
+                )?;
+                let expected = prefix.unwind_for_taken_new_v1(&acquisition)?;
+                context.ledger().require_taken_new_prefix_v1(&acquisition, *value, &expected)?;
+                continue;
+            }
             if let LexicalCallArgumentProjectionV1::Expression(packet) = argument {
                 let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call, ordinal: position, .. } = packet.frame.source().root()
                     else { return Err(freeze("argument-expression/source-purpose")) };
@@ -367,7 +377,7 @@ impl EmittedLexicalCallProjectionV1 {
                 });
                 let has_deferred = self.prepared.arguments[..ordinal]
                     .iter()
-                    .map(|argument| argument.deferred_temporaries_v1(context))
+                    .map(|argument| argument.pre_entry_end_operations_v1(self.call_site(), context))
                     .collect::<Result<Vec<_>, _>>()?
                     .iter()
                     .any(|values| !values.is_empty());
@@ -564,6 +574,7 @@ impl LexicalCallArgumentProjectionV1 {
                     .zip(packet.body.bindings.last().cloned()),
                 _ => return Err(freeze("expression/inline-delimiter-drift")),
             },
+            Self::FreshTakenArgument { bounds, .. } => Some((bounds[0].clone(), bounds[1].clone())),
             Self::CallResult(packet) => {
                 let mut entry = packet.invoke.clone();
                 for argument in &packet.prepared.arguments {
