@@ -185,6 +185,37 @@ impl PrefixLocalFlow<'_> {
         Ok(())
     }
 
+    /// Commit the evaluator's final responsibility set before installing a
+    /// destination. Name availability is checked separately in source order.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn commit_expression_end_v1(
+        &mut self,
+        evaluation: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+        homes: &mut HomesV1,
+    ) -> Result<(), HomePrefixUnavailableV1> {
+        let ownership = evaluation.ownership_v1();
+        if ownership.has_transfers() {
+            if evaluation.source().owner() != self.input.owner()
+                || &**homes != evaluation.prior_homes() {
+                return Err(HomePrefixUnavailableV1::SourceMismatch);
+            }
+            let root = OwnedExprSiteV1::new(self.input.owner(), evaluation.source().nodes()[0].site().clone());
+            self.validate_pending_call_uses_v1(&root, &[])?;
+            for entry in ownership.entries() {
+                if entry.taken.iter().any(|(_, root, acquisition)| self.home_acquisition(*root) != Some(acquisition)) {
+                    return Err(HomePrefixUnavailableV1::MoveUnsupported(entry.site.site().clone()));
+                }
+            }
+        }
+        for entry in ownership.entries() {
+            if !entry.preserves_reads || !entry.taken.is_empty() {
+                self.invalidate_declared_read_call_v1(evaluation.source().root().statement());
+            }
+            for (binding, _, _) in &entry.taken { self.consume_argument_home(*binding); }
+        }
+        if ownership.has_transfers() { homes.commit(HomesV1::snapshot(ownership.end())); }
+        Ok(())
+    }
+
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn commit_statement_takes_v1<E>(
         &mut self,
         statement: &SourceStmtSiteV1,
@@ -194,8 +225,17 @@ impl PrefixLocalFlow<'_> {
         port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>)
             -> Result<Option<BorrowedCallArgumentsV1>, E>,
     ) -> Result<(), E> {
+        let plans = self.expression_plans();
         let mut seen = BTreeSet::new();
         for call in calls.iter().filter(|call| call.statement() == statement) {
+            // These purpose installers commit their evaluation before acquiring
+            // a destination. Other expression owners retain their old boundary.
+            if plans.iter().any(|plan| (plan.initializer_frame().is_some()
+                || plan.rebind_frame().is_some() || plan.print_frame().is_some()
+                || plan.condition_frame().is_some()) && plan.evaluation().is_some_and(|evaluation|
+                    evaluation.source().owner() == call.owner()
+                        && evaluation.source().root().statement() == statement
+                        && evaluation.ownership_v1().contains_site(call.site()))) { continue; }
             if !seen.insert(call.site().clone()) { continue; }
             let entry = port(call.site(), BorrowedCallActualRequestV1::CallEntryHomes(self.input))?;
             let Some(BorrowedCallArgumentsV1::CallEntryHomes { taken, preserves_reads, .. }) = entry else {

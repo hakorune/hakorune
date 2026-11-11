@@ -273,3 +273,46 @@ fn raw_child_view_requires_public_nonnullable_field_and_closed_live_interval() {
     assert!(super::super::verify_ownership_ssa_with_module_v1(&parameter_clash, &parameter_abi, &valid).is_err(),
         "a borrowed view cannot redefine a parameter");
 }
+
+/// Object ownership delegates Text only for the same source module image.
+/// Affine String End checks remain in the mandatory independent String tests.
+#[test]
+fn source_module_text_domain_does_not_grant_standalone_or_carrier_permission() {
+    use crate::mir::instruction::{InvokeOperation as Op, StringInvokeOperand as Text, StringInvokeOperation as StringOp};
+    let (mut function, _) = function(&[], 5);
+    function.signature.return_type = MirType::Void;
+    function.get_block_mut(bb(0)).unwrap().add_instruction(MirInstruction::FaultFrameEnter {
+        dst: value(9), mode: crate::mir::instruction::FaultFrameMode::RootOwned,
+    });
+    invoke(&mut function, 0, Op::String(StringOp::Add {
+        left: Text::StaticText { utf8: "a".into() }, right: Text::StaticText { utf8: "b".into() },
+    }), 1, 2);
+    function.get_block_mut(bb(1)).unwrap().add_instruction(MirInstruction::InvokeNormalResult {
+        invoke_block: bb(0), dst: value(10),
+    });
+    invoke(&mut function, 1, Op::String(StringOp::End { value: value(10) }), 3, 4);
+    for block in [2, 3, 4] {
+        function.get_block_mut(bb(block)).unwrap().set_terminator(MirInstruction::Return { value: None });
+    }
+    let owner = crate::mir::resolved_semantics::FunctionOwnerIssuerV1::new_for_compilation().unwrap().issue().unwrap();
+    let abi = OwnershipFunctionAbiV1::new(OwnershipFunctionOwnerV1::source(owner), vec![], FunctionResultOwnershipV1::None);
+    assert!(matches!(verify_ownership_ssa_v1(&function, &abi), Err(OwnershipSsaErrorV1::InvalidAcquisition { .. })));
+    let name = function.signature.name.clone();
+    let mut module = crate::mir::MirModule::new("object-domain".into());
+    module.functions.insert(name.clone(), function);
+    let function = &module.functions[&name];
+    assert!(super::super::verify_ownership_ssa_with_module_v1(function, &abi, &module).is_ok());
+    let foreign = function.clone();
+    assert!(matches!(super::super::verify_ownership_ssa_with_module_v1(&foreign, &abi, &module),
+        Err(OwnershipSsaErrorV1::InvalidAcquisition { .. })));
+    let function = module.functions.get_mut(&name).unwrap();
+    if let Some(MirInstruction::Invoke { normal_landing, .. }) = &mut function.get_block_mut(bb(0)).unwrap().terminator {
+        *normal_landing = bb(3);
+    }
+    assert!(matches!(super::super::verify_ownership_ssa_with_module_v1(&module.functions[&name], &abi, &module),
+        Err(OwnershipSsaErrorV1::InvalidAcquisition { .. })));
+    let function = module.functions.get_mut(&name).unwrap();
+    invoke(function, 0, Op::DynamicCarrierSubI64 { carrier: value(7), rhs: value(8) }, 1, 2);
+    assert!(matches!(super::super::verify_ownership_ssa_with_module_v1(&module.functions[&name], &abi, &module),
+        Err(OwnershipSsaErrorV1::InvalidAcquisition { .. })));
+}

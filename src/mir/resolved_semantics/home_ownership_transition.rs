@@ -22,6 +22,24 @@ impl HomesV1 {
     pub(crate) fn entry(homes: Vec<LiveHomeV1>) -> Self {
         Self(homes)
     }
+    /// One Call-entry transfer law. Canonical source facts identify each
+    /// original Home; no consumer subtracts a different responsibility set.
+    pub(crate) fn after_call_entry_v1<'a>(
+        prior: &[LiveHomeV1],
+        taken: impl IntoIterator<Item = (BindingRefV1, BindingRefV1, &'a OwnedExprSiteV1)>,
+    ) -> Option<Self> {
+        let mut bindings = std::collections::BTreeSet::new();
+        for (binding, root, acquisition) in taken {
+            if binding.owner() != root.owner() || acquisition.owner() != binding.owner()
+                || !bindings.insert(binding)
+                || prior.iter().filter(|home| home.binding() == binding
+                    && home.stable_origin() == Some(root)).count() != 1 {
+                return None;
+            }
+        }
+        Some(Self(prior.iter().filter(|home| !bindings.contains(&home.binding())).cloned().collect()))
+    }
+
     /// A path-local copy of the current list; later changes stay on the copy until `commit`.
     pub(crate) fn snapshot(homes: &[LiveHomeV1]) -> Self {
         Self(homes.to_vec())
@@ -188,8 +206,8 @@ impl<'source> PrefixLocalFlow<'source> {
         self.install_text_rebind(std::rc::Rc::clone(frame));
     }
 
-    /// S3b-R2d: arguments of a call or `new` leave the frame on the Normal edge only;
-    /// the Fault edge keeps the list it was built from.
+    /// Arguments leave the caller at Call entry on both entered outcomes.
+    /// Preparation retains the pre-entry responsibility list for its Faults.
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn release_to_callee(
         &mut self,
         homes: &mut HomesV1,

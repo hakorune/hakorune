@@ -144,6 +144,21 @@ pub(super) fn observe_terminal_statement<'a, E>(
             local_calls.extend_from_slice(evaluation.calls());
         }
     }
+    let committed_expression = scalar_terminal
+        .as_ref()
+        .and_then(|result| result.as_ref().ok())
+        .and_then(|terminal| terminal.evaluation())
+        .cloned()
+        .or_else(|| {
+            value_terminal
+                .as_ref()
+                .and_then(|value| match value.returned() {
+                    TerminalReturnedSourceV1::TextExpression(evaluation) => {
+                        Some(std::rc::Rc::clone(evaluation))
+                    }
+                    _ => None,
+                })
+        });
     let mut static_terminal = None;
     if object_terminal.is_none() && scalar_terminal.is_none() && value_terminal.is_none() {
         if let Ok(value) = input
@@ -705,13 +720,19 @@ pub(super) fn observe_terminal_statement<'a, E>(
         maps,
         map_compatible,
     )?;
-    locals.commit_statement_takes_v1(
-        statement.site(),
-        local_calls,
-        homes,
-        unavailable,
-        borrowed_actuals,
-    )?;
+    if let Some(evaluation) = &committed_expression {
+        if let Err(issue) = locals.commit_expression_end_v1(evaluation, homes) {
+            unavailable.get_or_insert(issue);
+        }
+    } else {
+        locals.commit_statement_takes_v1(
+            statement.site(),
+            local_calls,
+            homes,
+            unavailable,
+            borrowed_actuals,
+        )?;
+    }
     let homes_row = match &*unavailable {
         Some(issue) => Err(issue.clone()),
         None if !scalar_return => Err(HomePrefixUnavailableV1::ReturnValueNotCovered(

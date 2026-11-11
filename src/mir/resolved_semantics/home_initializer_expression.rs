@@ -452,6 +452,9 @@ pub(crate) fn qualify_alias_null_initializer_v1(
     let evaluation = CheckedExpressionEvaluationV1 {
         source,
         prior_homes: homes.into(),
+        ownership: crate::mir::resolved_semantics::home_new_prefix::ExpressionOwnershipV1::entry(
+            homes,
+        ),
         order: order.into(),
         classes: classes.into(),
         calls: Box::new([]),

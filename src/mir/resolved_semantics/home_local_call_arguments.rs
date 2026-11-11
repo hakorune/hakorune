@@ -220,11 +220,14 @@ fn seal_argument_call<E>(
     else {
         return Ok(None);
     };
-    Ok(Some(ArgumentCallObservationV1::issue(
-        owned,
-        prior_homes.iter().cloned().collect(),
-        inner.into_boxed_slice(),
-    )))
+    let entry = crate::mir::resolved_semantics::home_new_prefix::expression_entry_facts_at_v1(
+        input, &owned, &inner, false, borrowed_arguments,
+    )?;
+    let mut observation = ArgumentCallObservationV1::issue(
+        owned, prior_homes.iter().cloned().collect(), inner.into_boxed_slice(),
+    );
+    observation.entry_ownership = entry;
+    Ok(Some(observation))
 }
 
 /// Issue a source-proved static scalar (I64 or Bool) continuation, preserving its original route.

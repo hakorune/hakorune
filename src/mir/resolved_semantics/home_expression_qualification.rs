@@ -127,13 +127,20 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_expression_ev
     }
     let owned_results =
         super::evaluation::owned_result_nodes(&order, &owned_results, &cores, &calls);
+    let calls: Box<[_]> = order.iter().filter_map(|node| calls.remove(node)).collect();
+    let ownership =
+        match ExpressionOwnershipV1::prepare(&source, &order, &transferred, &calls, &prior_homes) {
+            Ok(ownership) => ownership,
+            Err(reason) => return Ok(Err(reason)),
+        };
     let mut evaluation = CheckedExpressionEvaluationV1 {
         source,
+        ownership,
         prior_homes: prior_homes.into(),
         order: order.clone().into_boxed_slice(),
         classes: classes.into_boxed_slice(),
         references: reference_proofs,
-        calls: order.iter().filter_map(|node| calls.remove(node)).collect(),
+        calls,
         operations: operations.into_boxed_slice(),
         owned_results,
         cores,

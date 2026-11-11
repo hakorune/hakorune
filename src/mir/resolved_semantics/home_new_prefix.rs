@@ -200,6 +200,24 @@ impl ResultNewHomePrefixV1 {
             covered_statements: covered.to_vec().into_boxed_slice(),
         }
     }
+    /// The enclosing evaluator lends the responsibility set at this exact
+    /// acquisition. Construction retains its own completion/Fault contract.
+    pub(crate) fn at_taken_argument_state_v1(
+        &self, acquisition: &OwnedExprSiteV1, current: &[LiveHomeV1],
+    ) -> Result<Self, &'static str> {
+        let ResultNewPurposeV1::TakenArgument { call, ordinal } = &self.purpose else {
+            return Err("taken-argument/result-source");
+        };
+        if acquisition.owner() != call.owner()
+            || !acquisition.site().is_argument_of(call.site(), *ordinal)
+            || self.required_unwind() != acquisition || self.prior_homes != self.normal_homes {
+            return Err("taken-argument/result-source");
+        }
+        let mut projected = self.clone();
+        projected.prior_homes = HomesV1::snapshot(current).fault_order();
+        projected.normal_homes = projected.prior_homes.clone();
+        Ok(projected)
+    }
     pub(crate) fn purpose(&self) -> &ResultNewPurposeV1 { &self.purpose }
     pub(crate) fn normal_homes(&self) -> &[LiveHomeV1] {
         &self.normal_homes
@@ -226,6 +244,7 @@ pub(crate) use expression_plan::{
     qualify_print_expression_v1, BindingRebindDestinationV1, CheckedArgumentExpressionFrameV1,
     CheckedBindingRebindFrameV1, CheckedBoolConditionFrameV1, CheckedExpressionEvaluationV1,
     ComparisonExecutionKindV1, ComparisonExecutionPlanV1,
+    attach_expression_entry_facts_v1, expression_entry_facts_at_v1, ExpressionOwnershipV1, ExpressionCallEntryFactsV1,
     CheckedExpressionReferenceV1, CheckedExpressionOperationLoanV1, CheckedFieldWriteFrameV1, CheckedInitializerExpressionFrameV1,
     CheckedPrintExpressionFrameV1, CheckedScalarReferenceV1, ExpressionCallSourceV1,
     ExpressionFieldRequirementV1, ExpressionScalarOperationLoanV1, FieldWritePlanV1,

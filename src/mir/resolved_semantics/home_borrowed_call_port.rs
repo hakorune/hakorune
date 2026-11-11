@@ -125,6 +125,9 @@ pub(crate) enum BorrowedCallArgumentsV1 {
         taken: Box<[(super::BindingRefV1, super::BindingRefV1, super::OwnedExprSiteV1)]>,
         preserves_reads: bool,
         instance_input: bool,
+        contract_proved: bool,
+        fresh: Box<[(u32, super::OwnedExprSiteV1)]>,
+        arguments: Box<[std::rc::Rc<super::CheckedArgumentExpressionFrameV1>]>,
     },
     StoredMapGetSource(crate::mir::normal_callable_semantic_package::StoredMapGetSourceLoanV1),
     StoredMapSource(

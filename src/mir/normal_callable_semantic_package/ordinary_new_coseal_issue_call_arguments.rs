@@ -31,11 +31,14 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     completed: Option<&crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractBuilderV1>,
 ) -> Result<Option<BorrowedCallArgumentsV1>, OrdinaryNewCoSealIssueV1> {
     if let BorrowedCallActualRequestV1::CallEntryHomes(input) = request {
-        return super::super::lexical_instance_call::source_take_homes_v1(pending, site, candidates, contracts)
-            .map(|(instance_input, taken)| Some(BorrowedCallArgumentsV1::CallEntryHomes {
+        return super::super::lexical_instance_call::source_take_homes_v1(pending, site, candidates, contracts, input, source, targets)
+            .map(|(instance_input, contract_proved, taken, fresh, arguments)| Some(BorrowedCallArgumentsV1::CallEntryHomes {
                 preserves_reads: source.as_ref().is_ok_and(|source| source.call_preserves_read_loans_v1(input, batch, contracts, site)),
                 instance_input,
+                contract_proved,
                 taken,
+                fresh,
+                arguments,
             }))
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
     }
@@ -208,17 +211,6 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             });
     }
     if let BorrowedCallActualRequestV1::CompleteArgumentExpression { input, frame } = request {
-        for call in frame.evaluation().calls() {
-            let (_, taken) = super::super::lexical_instance_call::source_take_homes_v1(
-                pending, call.site(), candidates, contracts,
-            ).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue })?;
-            if !taken.is_empty() {
-                return Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
-                    site: site.clone(),
-                    issue: super::super::lexical_instance_call::freeze("expression/argument-entry-transition-unavailable"),
-                });
-            }
-        }
         return source
             .as_ref()
             .map_err(Clone::clone)

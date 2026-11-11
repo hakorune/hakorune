@@ -5,6 +5,7 @@
 //! resolver; this relation only records where the source places the returned
 //! value and which Homes were live before the call.
 
+use std::rc::Rc;
 use super::local_flow::{OrdinaryObservation, PrefixLocalFlow, SourceScalarKind};
 use super::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedLexicalRefV1,
@@ -84,6 +85,7 @@ pub(crate) enum LocalCallArgumentV1 {
 pub(crate) struct ArgumentCallObservationV1 {
     site: OwnedExprSiteV1,
     prior_homes: Box<[LiveHomeV1]>,
+    pub(super) entry_ownership: Option<Rc<crate::mir::resolved_semantics::home_new_prefix::ExpressionCallEntryFactsV1>>,
     arguments: Box<[LocalCallArgumentV1]>,
 }
 
@@ -96,6 +98,7 @@ impl ArgumentCallObservationV1 {
         Self {
             site,
             prior_homes,
+            entry_ownership: None,
             arguments,
         }
     }
@@ -132,6 +135,7 @@ pub(crate) struct LocalCallObservationV1 {
     site: OwnedExprSiteV1,
     destination: LocalCallDestinationV1,
     prior_homes: Box<[LiveHomeV1]>,
+    pub(super) entry_ownership: Option<Rc<crate::mir::resolved_semantics::home_new_prefix::ExpressionCallEntryFactsV1>>,
     arguments: Box<[LocalCallArgumentV1]>,
     result: LocalCallResultClassV1,
     field_alias: Option<super::FieldAliasPathV1>,
@@ -174,6 +178,7 @@ impl LocalCallObservationV1 {
                 binding: destination,
             },
             prior_homes,
+            entry_ownership: None,
             arguments,
             result,
             result_source: None,
@@ -422,6 +427,7 @@ pub(crate) fn issue_lexical_nullable_local_call<E>(
             binding: destination,
         },
         prior_homes: prior_homes.iter().cloned().collect(),
+        entry_ownership: None,
         arguments: arguments.into_boxed_slice(),
         result: LocalCallResultClassV1::Nullable,
         result_source: None,
@@ -537,6 +543,7 @@ fn issue_lexical_i64_call<E>(
         site: site.clone(),
         destination,
         prior_homes: prior_homes.iter().cloned().collect(),
+        entry_ownership: None,
         arguments: arguments.into_boxed_slice(),
         result: LocalCallResultClassV1::I64,
         result_source: None,

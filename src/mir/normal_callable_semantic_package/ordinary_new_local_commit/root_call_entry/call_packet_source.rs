@@ -585,15 +585,8 @@ impl CallPacketSourceLoanV1<'_> {
             }
             _ => self.borrowed_actuals_in_context(context)?.unwrap_or(&[]),
         };
-        let mut taken = std::collections::BTreeSet::new();
-        for actual in actuals {
-            let Some((binding, root, _)) = actual.source.taken_home_v1() else { continue; };
-            if !taken.insert(binding)
-                || prior.iter().filter(|home| home.binding() == binding
-                    && home.stable_origin() == Some(root)).count() != 1 {
-                return Err(freeze("borrowed-actual/source-identity"));
-            }
-        }
-        Ok(prior.iter().filter(|home| !taken.contains(&home.binding())).cloned().collect())
+        crate::mir::resolved_semantics::home_new_prefix::HomesV1::after_call_entry_v1(
+            prior, actuals.iter().filter_map(|actual| actual.source.taken_home_v1()),
+        ).map(|homes| homes.to_vec()).ok_or_else(|| freeze("borrowed-actual/source-identity"))
     }
 }

@@ -372,6 +372,7 @@ mod tests {
                 &mut locals,
                 &mut homes,
                 case != 6,
+                &mut None,
                 &mut calls,
                 &mut paths,
                 &mut |fields: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], _| {
@@ -425,7 +426,7 @@ mod tests {
             let body = input.source().root_body().unwrap();
             let statement = input.source().body_stmt(&body, 2).unwrap();
             let accepted = super::super::super::binding_rebind::observe::<()>(
-                input, &statement, &mut locals, &mut homes, true, &mut Vec::new(), &mut Default::default(),
+                input, &statement, &mut locals, &mut homes, true, &mut None, &mut Vec::new(), &mut Default::default(),
                 &mut |_: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], _| panic!("unsupported destination must not evaluate RHS"),
                 &mut |_, _| panic!("unsupported destination must not issue calls"),
             ).unwrap();

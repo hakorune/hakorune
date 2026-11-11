@@ -580,6 +580,7 @@ pub(super) fn observe<'a, E>(
             locals,
             homes,
             unavailable.is_none(),
+            unavailable,
             local_calls,
             path_calls,
             scalar_field,

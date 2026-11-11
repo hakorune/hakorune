@@ -464,7 +464,7 @@ fn complete_expression_installation_publishes_only_after_the_final_field_batch()
                 "{expression}"
             );
             assert_eq!(
-                matches!(result, ConditionInstallationV1::Installed),
+                matches!(result, ConditionInstallationV1::Installed(_)),
                 accepted && field_ok,
                 "{expression}"
             );

@@ -15,6 +15,7 @@ use std::collections::BTreeSet;
 pub(crate) struct CheckedExpressionEvaluationV1 {
     pub(super) source: Rc<ExpressionSourcePlanV1>,
     pub(super) prior_homes: Box<[LiveHomeV1]>,
+    pub(super) ownership: ExpressionOwnershipV1,
     pub(super) order: Box<[usize]>,
     pub(super) classes: Box<[ExpressionLeafClassV1]>,
     pub(super) calls: Box<[LocalCallObservationV1]>,
@@ -113,6 +114,10 @@ impl CheckedExpressionEvaluationV1 {
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> {
         &self.source
     }
+    pub(crate) fn ownership_v1(&self) -> &ExpressionOwnershipV1 {
+        &self.ownership
+    }
+
     pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] {
         &self.prior_homes
     }
@@ -716,3 +721,10 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) use value_preparation::p
 mod comparison_nodes;
 
 pub(crate) use comparison_nodes::{ComparisonExecutionKindV1, ComparisonExecutionPlanV1};
+
+#[path = "home_expression_ownership.rs"]
+mod ownership;
+pub(crate) use ownership::{
+    attach_expression_entry_facts_v1, expression_entry_facts_at_v1, ExpressionCallEntryFactsV1,
+    ExpressionOwnershipV1,
+};

@@ -51,6 +51,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue_static_i64_valu
         site: owned,
         destination: LocalCallDestinationV1::ExpressionValue,
         prior_homes: prior_homes.iter().cloned().collect(),
+        entry_ownership: None,
         arguments: Box::new([]),
         result: LocalCallResultClassV1::I64,
     }))
@@ -213,6 +214,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn project_current_owner
         site: owned,
         destination: LocalCallDestinationV1::ExpressionValue,
         prior_homes: prior_homes.iter().cloned().collect(),
+        entry_ownership: None,
         arguments,
         result: LocalCallResultClassV1::I64,
     }))

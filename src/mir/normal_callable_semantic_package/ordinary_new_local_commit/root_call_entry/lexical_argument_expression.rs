@@ -260,6 +260,26 @@ impl LexicalCallArgumentProjectionV1 {
         }
         Ok(())
     }
+    /// Lend the existing computed argument's full Normal schedule, including
+    /// its delimiter and purpose acquisition; never include its Fault suffix.
+    pub(in crate::mir) fn ordered_expression_bindings_v1(
+        &self,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<Binding>, String> {
+        let Self::Expression(packet) = self else {
+            return Ok(Vec::new());
+        };
+        packet.validate_source(context)?;
+        let mut ordered: Vec<_> = packet.body.entry.iter().cloned().collect();
+        ordered.extend(packet.expression().ordered_bindings_in_context(context)?);
+        if let Some(acquisition) = &packet.purpose_acquisition {
+            ordered.extend(acquisition.iter().cloned());
+        }
+        ordered.extend(packet.terminal.iter().cloned());
+        ordered.extend(packet.continuation.iter().cloned());
+        Ok(ordered)
+    }
+
     pub(in crate::mir) fn expression_bindings_v1(&self) -> &[Binding] {
         match self {
             Self::Expression(packet) => &packet.body.bindings,

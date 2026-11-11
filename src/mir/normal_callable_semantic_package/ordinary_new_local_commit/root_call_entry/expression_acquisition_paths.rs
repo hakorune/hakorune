@@ -24,7 +24,32 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         use std::collections::BTreeSet;
         let mut live = Vec::<ExpressionOwnedTemporaryV1>::new();
         let mut covered = BTreeSet::new();
-        let end_sequence = |live: &[ExpressionOwnedTemporaryV1]| {
+        let inherited_homes = inherited
+            .map(|prefix| prefix.for_argument(self.frame))
+            .transpose()?
+            .unwrap_or_default();
+        let project_homes = |current: &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1]| -> Result<Vec<InvokeOperation>, String> {
+            let mut unwind = inherited_homes.clone();
+            unwind.extend(context.ledger().expression_home_unwind_at_v1(self.frame, current, self.prior_home_unwind)?);
+            Ok(unwind)
+        };
+        let entry_site = self
+            .frame
+            .ownership_v1()
+            .first_site()
+            .cloned()
+            .unwrap_or_else(|| {
+                OwnedExprSiteV1::new(
+                    self.frame.source().owner(),
+                    self.frame.source().nodes()[0].site().clone(),
+                )
+            });
+        let entry = inherited
+            .map(|prefix| prefix.homes_before_site_v1(&entry_site, self.frame.prior_homes()))
+            .transpose()?
+            .unwrap_or(self.frame.prior_homes());
+        let mut current_homes = project_homes(entry)?;
+        let end_sequence = |live: &[ExpressionOwnedTemporaryV1], homes: &[InvokeOperation]| {
             live.iter()
                 .rev()
                 .copied()
@@ -88,8 +113,12 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                     .any(|binding| binding == &(*id, instruction.clone()))
             }) {
                 if validated_calls.insert(call.invoke_binding().0) {
+                    covered.extend(
+                        call.validate_taken_argument_scopes_v1(context, function, finishing)?,
+                    );
                     let prefix = ExpressionCallTransientPrefixV1 {
                         origin: TransientPrefixOriginV1::Emitted {
+                            frame: self.frame,
                             call,
                             live: &live,
                             prior_homes: self.frame.prior_homes(),
@@ -107,6 +136,24 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 }
                 if !effects.iter().all(|binding| covered.contains(&binding.0)) {
                     return Err(freeze("argument-expression/call-effect-uncovered"));
+                }
+                let actual_call = match finishing {
+                    Some(boundary) => boundary
+                        .binding(call.invoke_binding().0, &call.invoke_binding().1)?
+                        .ok_or_else(|| freeze("argument-expression/enclosing-invoke-removed"))?,
+                    None => call.invoke_binding().clone(),
+                };
+                if actual_call == (*id, instruction.clone()) {
+                    let current = self
+                        .frame
+                        .ownership_v1()
+                        .after_site(call.call_site())
+                        .ok_or_else(|| freeze("expression/argument-owner-unavailable"))?;
+                    let current = inherited
+                        .map(|prefix| prefix.homes_after_site_v1(call.call_site(), current))
+                        .transpose()?
+                        .unwrap_or(current);
+                    current_homes = project_homes(current)?;
                 }
                 if matches!(
                     operation.normal_result_kind(),
@@ -175,7 +222,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 covered.extend(paths::pending_operations(
                     function,
                     *fault_landing,
-                    &end_sequence(&live),
+                    &end_sequence(&live, &current_homes),
                     Some(fault_frame),
                 )?);
                 live.push(ExpressionOwnedTemporaryV1::DynamicCarrier(dst));
@@ -253,7 +300,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 covered.extend(paths::pending_operations(
                     function,
                     *fault_landing,
-                    &end_sequence(&live),
+                    &end_sequence(&live, &current_homes),
                     Some(fault_frame),
                 )?);
                 live.push(ExpressionOwnedTemporaryV1::DynamicCarrier(value));
@@ -263,7 +310,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             covered.extend(paths::pending_operations(
                 function,
                 *fault_landing,
-                &end_sequence(&live),
+                &end_sequence(&live, &current_homes),
                 Some(fault_frame),
             )?);
             if matches!(operation, InvokeOperation::String(operation) if operation.owns_normal_result())

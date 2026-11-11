@@ -299,7 +299,7 @@ fn take_pending_move_invalidates_direct_and_aliased_uses_before_entry() {
             &mut |site, request| -> Result<_, ()> {
                 assert_eq!(site, &rows[2].1);
                 assert!(matches!(request, Request::CallEntryHomes(_)));
-                Ok(Some(Arguments::CallEntryHomes { taken: vec![(*p, *p, acquisition.clone())].into_boxed_slice(), preserves_reads: false, instance_input: false }))
+                Ok(Some(Arguments::CallEntryHomes { contract_proved: true, fresh: Box::new([]), arguments: Box::new([]), taken: vec![(*p, *p, acquisition.clone())].into_boxed_slice(), preserves_reads: false, instance_input: false }))
             }).unwrap();
         if argument == "7" {
             assert!(unavailable.is_none());
@@ -313,7 +313,7 @@ fn take_pending_move_invalidates_direct_and_aliased_uses_before_entry() {
             flow.commit_statement_takes_v1(statement, &[call], &mut homes, &mut unavailable,
                 &mut |_, request| -> Result<_, ()> {
                     assert!(matches!(request, Request::CallEntryHomes(_)));
-                    Ok(Some(Arguments::CallEntryHomes { taken: Box::new([]), preserves_reads: false, instance_input: false }))
+                    Ok(Some(Arguments::CallEntryHomes { contract_proved: true, fresh: Box::new([]), arguments: Box::new([]), taken: Box::new([]), preserves_reads: false, instance_input: false }))
                 }).unwrap();
             assert!(matches!(unavailable, Some(Unavailable::UseAfterMove(site))
                 if input.function().variable_ref(&site) == Some(ResolvedLexicalRefV1::Local(rows[1].0))));

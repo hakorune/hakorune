@@ -90,6 +90,7 @@ fn nullable_outer_preserves_exact_nested_i64_result_membership() {
     let nested_site = OwnedExprSiteV1::new(input.owner(), nested_site.clone());
     for admitted in [false, true] {
         let mut consulted = Vec::new();
+        let mut ownership_consulted = 0;
         let row = call(
             input,
             &mut |candidate| {
@@ -98,16 +99,23 @@ fn nullable_outer_preserves_exact_nested_i64_result_membership() {
             },
             &mut |candidate, request| {
                 if candidate == &nested_site {
-                    assert!(matches!(
-                        request,
-                        BorrowedCallActualRequestV1::I64ResultArguments
-                    ));
+                    match request {
+                        BorrowedCallActualRequestV1::I64ResultArguments => {}
+                        BorrowedCallActualRequestV1::CallEntryHomes(original) => {
+                            assert_eq!(original.owner(), input.owner());
+                            ownership_consulted += 1;
+                        }
+                        _ => panic!("nested membership and ownership are separate source queries"),
+                    }
                 }
+                // This fixture grants result membership only, never an invented
+                // empty ownership contract for the unknown token.number target.
                 Ok(None)
             },
         )
         .unwrap();
         assert_eq!(consulted, vec![nested_site.clone()]);
+        assert_eq!(ownership_consulted, usize::from(admitted));
         if admitted {
             let row = row.unwrap();
             let [LocalCallArgumentV1::CallResult(inner)] = row.arguments() else {
@@ -115,6 +123,10 @@ fn nullable_outer_preserves_exact_nested_i64_result_membership() {
             };
             assert_eq!(inner.site(), &nested_site);
             assert_eq!(inner.arguments(), &[LocalCallArgumentV1::Integer(11)]);
+            assert!(
+                inner.entry_ownership_v1().is_none(),
+                "I64 membership cannot grant a no-take contract"
+            );
         } else {
             assert!(
                 row.is_none(),

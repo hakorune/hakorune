@@ -6,6 +6,7 @@ use std::collections::BTreeMap;
 pub(super) fn classify(
     function: &MirFunction,
     abi: &OwnershipFunctionAbiV1,
+    managed_string_checked_in_module: bool,
 ) -> Result<BTreeMap<ValueId, MirOwnershipKindV1>, OwnershipSsaErrorV1> {
     if function.params.len() != abi.parameter_kinds().len() {
         return Err(OwnershipSsaErrorV1::ParameterArity {
@@ -70,6 +71,27 @@ pub(super) fn classify(
                                 }
                             };
                             insert_kind(&mut kinds, *dst, kind)?;
+                        }
+                        Some(MirInstruction::Invoke {
+                            operation,
+                            normal_landing,
+                            ..
+                        }) if managed_string_checked_in_module
+                            && abi.owner().is_source()
+                            && operation.normal_result_kind()
+                                == Some(
+                                    crate::mir::instruction::InvokeNormalResultKind::OwnedString,
+                                ) =>
+                        {
+                            if *normal_landing != block.id {
+                                return Err(OwnershipSsaErrorV1::InvalidAcquisition {
+                                    block: block.id,
+                                });
+                            }
+                            // None is outside the OBJECT ownership domain, not
+                            // an unowned String. The same final module must pass
+                            // its independent affine String lifetime verifier.
+                            insert_kind(&mut kinds, *dst, MirOwnershipKindV1::None)?;
                         }
                         Some(MirInstruction::Invoke { operation, .. })
                             if matches!(

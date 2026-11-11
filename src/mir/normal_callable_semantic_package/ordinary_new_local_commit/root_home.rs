@@ -453,6 +453,18 @@ impl OrdinaryNewClaimLedgerV1 {
         homes: &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1],
         unwind: &mut Vec<InvokeOperation>,
     ) -> Result<(), String> {
+        self.with_loop_call_text_ends_at_state_v1(call, homes, homes, unwind)
+    }
+
+    /// The recorded prefix identifies the loop boundary, while only the
+    /// evaluation's current responsibilities contribute cleanup operations.
+    pub(crate) fn with_loop_call_text_ends_at_state_v1(
+        &self,
+        call: &OwnedExprSiteV1,
+        original: &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1],
+        current: &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1],
+        unwind: &mut Vec<InvokeOperation>,
+    ) -> Result<(), String> {
         let recorded = self.loop_call_text_ends.borrow();
         let Some((prior_len, ends)) = recorded.get(call) else {
             return Ok(());
@@ -460,13 +472,49 @@ impl OrdinaryNewClaimLedgerV1 {
         if crate::config::env::builder_debug_enabled() {
             eprintln!("[loop-call-ends] apply call={call:?} unwind={unwind:?}");
         }
-        let suffix = self.prior_home_unwind_for(homes.get(..*prior_len).ok_or_else(|| freeze("loop-call-text-ends/homes"))?)?;
+        let prefix = original.get(..*prior_len)
+            .ok_or_else(|| freeze("loop-call-text-ends/homes"))?;
+        let retained: Vec<_> = current.iter().filter(|home| prefix.contains(home)).cloned().collect();
+        let suffix = self.prior_home_unwind_for(&retained)?;
         if !unwind.ends_with(&suffix) {
             return Err(freeze("loop-call-text-ends/suffix"));
         }
         let at = unwind.len() - suffix.len();
         unwind.splice(at..at, ends.iter().cloned());
         Ok(())
+    }
+
+    /// Project source-owned responsibilities; the optional override retains
+    /// loop carrier cleanup, which is not an expression Home transfer.
+    pub(crate) fn expression_home_unwind_at_v1(
+        &self,
+        frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+        current: &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1],
+        override_unwind: Option<&[InvokeOperation]>,
+    ) -> Result<Vec<InvokeOperation>, String> {
+        if current.iter().any(|home| !frame.prior_homes().contains(home)) {
+            return Err(freeze("borrowed-actual/source-identity"));
+        }
+        if let Some(original) = override_unwind {
+            let mut projected = original.to_vec();
+            for home in frame.prior_homes().iter().filter(|home| !current.contains(home)) {
+                for operation in self.prior_home_unwind_for(std::slice::from_ref(home))? {
+                    let mut positions = projected.iter().enumerate()
+                        .filter_map(|(index, candidate)| (candidate == &operation).then_some(index));
+                    let position = positions.next().ok_or_else(|| freeze("borrowed-actual/source-identity"))?;
+                    if positions.next().is_some() { return Err(freeze("borrowed-actual/source-identity")); }
+                    projected.remove(position);
+                }
+            }
+            return Ok(projected);
+        }
+        let mut unwind = self.prior_home_unwind_for(current)?;
+        use crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1 as Root;
+        if let Root::CallArgument { call, .. } = frame.source().root() {
+            let site = OwnedExprSiteV1::new(frame.source().owner(), call.site().clone());
+            self.with_loop_call_text_ends_at_state_v1(&site, frame.prior_homes(), current, &mut unwind)?;
+        }
+        Ok(unwind)
     }
 
     /// Call-argument expressions Fault with their enclosing Call's carriers.

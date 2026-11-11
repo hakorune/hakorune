@@ -223,12 +223,20 @@ fn emit_lexical_i64_call(
         Some(prefix) => prefix.unwind(row.call_site(), prior_homes)?,
         None => Vec::new(),
     };
-    let entered_homes = row.entered_prior_homes_v1(CallValidationContextV1::Lowering(ledger), prior_homes)?;
+    let before_arguments = expression.map(|prefix| prefix.homes_before_site_v1(row.call_site(), prior_homes))
+        .transpose()?.unwrap_or(prior_homes);
+    let before_entry = expression.map(|prefix| prefix.homes_before_entry_v1(row.call_site(), before_arguments))
+        .transpose()?.unwrap_or(before_arguments);
+    let entered_homes = row.entered_prior_homes_v1(CallValidationContextV1::Lowering(ledger), before_entry)?;
+    if expression.map(|prefix| prefix.homes_after_site_v1(row.call_site(), &entered_homes))
+        .transpose()?.is_some_and(|planned| planned != entered_homes) {
+        return Err(freeze("borrowed-actual/source-identity"));
+    }
     let mut entered_unwind = unwind.clone();
     entered_unwind.extend(ledger.prior_home_unwind_for(&entered_homes)?);
-    ledger.with_loop_call_text_ends_v2(row.call_site(), prior_homes, &mut entered_unwind)?;
-    unwind.extend(ledger.prior_home_unwind_for(prior_homes)?);
-    ledger.with_loop_call_text_ends_v2(row.call_site(), prior_homes, &mut unwind)?;
+    ledger.with_loop_call_text_ends_at_state_v1(row.call_site(), prior_homes, &entered_homes, &mut entered_unwind)?;
+    unwind.extend(ledger.prior_home_unwind_for(before_arguments)?);
+    ledger.with_loop_call_text_ends_at_state_v1(row.call_site(), prior_homes, before_arguments, &mut unwind)?;
     if sealed_arguments.len() != row.argument_sites().len()
         || row.argument_sites().len() != row.target().arity() as usize
     {

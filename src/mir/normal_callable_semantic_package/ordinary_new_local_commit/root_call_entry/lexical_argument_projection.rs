@@ -644,6 +644,32 @@ impl EmittedLexicalCallProjectionV1 {
 }
 
 impl EmittedLexicalCallProjectionV1 {
+    pub(in crate::mir) fn validate_taken_argument_scopes_v1(
+        &self,
+        context: CallValidationContextV1<'_>,
+        function: &crate::mir::MirFunction,
+        finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
+    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
+        let mut covered = std::collections::BTreeSet::new();
+        for argument in &self.prepared.arguments {
+            match argument {
+                LexicalCallArgumentProjectionV1::TakenObjectArgument {
+                    ordinal, site, origin: TakenObjectArgumentOriginV1::Completed(_), ..
+                } => {
+                    borrowed_projection::value(argument, self.call_site().owner(), self.row.loan(), *ordinal, site, context)?;
+                    covered.extend(context.ledger().validate_taken_new_argument_scope_v1(
+                        &OwnedExprSiteV1::new(self.call_site().owner(), site.clone()), function, finishing, context,
+                    )?);
+                }
+                LexicalCallArgumentProjectionV1::CallResult(child) => {
+                    covered.extend(child.validate_taken_argument_scopes_v1(context, function, finishing)?);
+                }
+                _ => {}
+            }
+        }
+        Ok(covered)
+    }
+
     /// The source-checked completed New remains owned by this argument packet.
     pub(in crate::mir) fn taken_argument_scope_bindings_v1(
         &self, context: CallValidationContextV1<'_>,

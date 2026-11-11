@@ -664,7 +664,12 @@ pub(super) fn normal_order(function: &MirFunction, ordered: &[Binding]) -> Resul
                         {
                             *normal_landing
                         }
-                        _ => return Err(freeze("print-expression/source-order")),
+                        actual => {
+                            if crate::config::env::builder_debug_enabled() {
+                                eprintln!("[expression-normal-order] previous={initial:?}:{previous_index} next={id:?}:{index} expected={instruction:?} blocked_at={before:?} actual={actual:?}");
+                            }
+                            return Err(freeze("print-expression/source-order"));
+                        }
                     };
                 }
             }

@@ -279,13 +279,161 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_take_homes_v1(
     site: &OwnedExprSiteV1,
     candidates: &[super::super::super::candidate::OrdinaryNewCandidate],
     contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
-) -> Result<(bool, Box<[(BindingRefV1, BindingRefV1, OwnedExprSiteV1)]>), String> {
-    source_take_homes_with_source_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    prepared: &Result<PreparedBorrowedFormalIngressV1, String>,
+    targets: &super::super::PreparedLexicalInstanceCallSourceTargetsV1,
+) -> Result<
+    (
+        bool,
+        bool,
+        Box<[(BindingRefV1, BindingRefV1, OwnedExprSiteV1)]>,
+        Box<[(u32, OwnedExprSiteV1)]>,
+        Box<
+            [Rc<
+                crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1,
+            >],
+        >,
+    ),
+    String,
+> {
+    let (instance, taken, fresh) = source_take_homes_with_source_v1(
         pending,
         site,
         ObjectActualHomeSourceV1::Candidates(candidates),
         contracts,
-    )
+    )?;
+    let rows = pending
+        .get(site)
+        .map(|row| row.as_ref().map_err(Clone::clone))
+        .transpose()?;
+    let retained_contract = rows.is_some_and(|row| {
+        row.source_static_snapshot_v1().is_some()
+            || matches!(
+                row.phase,
+                BorrowedCallActualEvidencePhaseV1::SourceInstance(_)
+                    | BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(_)
+                    | BorrowedCallActualEvidencePhaseV1::SourceObject(_)
+                    | BorrowedCallActualEvidencePhaseV1::ExecutableSourceObject(_)
+            )
+    });
+    let proved =
+        retained_contract || exact_no_entry_transfer_v1(input, prepared, targets, contracts, site)?;
+    let mut children = Vec::new();
+    if let Some(rows) = rows {
+        let slots = if let Some(snapshot) = rows.source_static_snapshot_v1() {
+            match &snapshot.phase {
+                BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) => {
+                    Some(&identity.argument_sources)
+                }
+                _ => None,
+            }
+        } else {
+            match &rows.phase {
+                BorrowedCallActualEvidencePhaseV1::SourceInstance(identity)
+                | BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(identity) => {
+                    Some(&identity.argument_sources)
+                }
+                BorrowedCallActualEvidencePhaseV1::SourceObject(identity)
+                | BorrowedCallActualEvidencePhaseV1::ExecutableSourceObject(identity) => {
+                    Some(&identity.argument_sources)
+                }
+                _ => None,
+            }
+        };
+        for slot in slots.into_iter().flat_map(|slots| slots.values()) {
+            if let ArgumentExpressionV1::Qualified(frame) = slot {
+                children.push(Rc::clone(frame));
+            }
+        }
+        for actual in &rows.opaque_actuals {
+            if let BorrowedFormalActualSourceV1::Expression(source) = &actual.source {
+                if !children.iter().any(|old| Rc::ptr_eq(old, source.frame())) {
+                    children.push(Rc::clone(source.frame()));
+                }
+            }
+        }
+        children.sort_by_key(|frame| match frame.source().root() {
+            crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { ordinal, .. } => *ordinal,
+            _ => u32::MAX,
+        });
+        let mut ordinals = BTreeSet::new();
+        for frame in &children {
+            let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call, ordinal, .. } = frame.source().root() else {
+                return Err(freeze("borrowed-actual/argument-source-identity"));
+            };
+            if call.site() != site.site() || !ordinals.insert(*ordinal) {
+                return Err(freeze("borrowed-actual/argument-source-identity"));
+            }
+        }
+    }
+    Ok((instance, proved, taken, fresh, children.into_boxed_slice()))
+}
+
+/// A missing pending row is not a no-transfer proof. Lend only the original
+/// declaration contract of this exact retained Static/Instance source target.
+fn exact_no_entry_transfer_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    prepared: &Result<PreparedBorrowedFormalIngressV1, String>,
+    targets: &super::super::PreparedLexicalInstanceCallSourceTargetsV1,
+    contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    site: &OwnedExprSiteV1,
+) -> Result<bool, String> {
+    let Some(method) = input.function().method_call_source_v1(site.site()) else {
+        return Ok(false);
+    };
+    let target = match prepared
+        .as_ref()
+        .ok()
+        .map(|source| super::static_source::original_static_source_v1(source, site))
+        .transpose()?
+        .flatten()
+    {
+        Some(source) => {
+            if !std::sync::Arc::ptr_eq(source.method_source(), method) {
+                return Err(freeze("borrowed-actual/source-identity"));
+            }
+            Some((
+                source.callee_owner(),
+                source.target_batch_slot(),
+                source.argument_sites(),
+            ))
+        }
+        None => match super::super::original_lexical_target_at_v1(targets, site)? {
+            Some(target) => {
+                if input.owner() != site.owner() || !target.matches_receiver(input, method) {
+                    return Err(freeze("borrowed-actual/source-identity"));
+                }
+                Some((
+                    target.callee_owner(),
+                    target.target_batch_slot(),
+                    target.argument_sites(),
+                ))
+            }
+            None => None,
+        },
+    };
+    let Some((owner, slot, arguments)) = target else {
+        return Ok(false);
+    };
+    let mut matching = contracts.iter().filter(|row| row.owner == owner);
+    let Some(contract) = matching.next() else {
+        return Ok(false);
+    };
+    if matching.next().is_some()
+        || contract.batch_slot != slot
+        || arguments.len() != contract.parameters.len()
+        || arguments.len() != method.arguments().len()
+        || arguments
+            .iter()
+            .zip(method.arguments())
+            .any(|(site, actual)| site != actual.site())
+    {
+        return Err(freeze("borrowed-actual/source-identity"));
+    }
+    Ok(contract
+        .parameters
+        .iter()
+        .all(|formal| formal.demand != crate::mir::resolved_semantics::HomeDemandV1::Home))
 }
 
 fn source_take_homes_with_source_v1(
@@ -293,9 +441,16 @@ fn source_take_homes_with_source_v1(
     site: &OwnedExprSiteV1,
     source: ObjectActualHomeSourceV1<'_>,
     contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
-) -> Result<(bool, Box<[(BindingRefV1, BindingRefV1, OwnedExprSiteV1)]>), String> {
+) -> Result<
+    (
+        bool,
+        Box<[(BindingRefV1, BindingRefV1, OwnedExprSiteV1)]>,
+        Box<[(u32, OwnedExprSiteV1)]>,
+    ),
+    String,
+> {
     let Some(rows) = pending.get(site) else {
-        return Ok((false, Box::new([])));
+        return Ok((false, Box::new([]), Box::new([])));
     };
     let rows = rows.as_ref().map_err(Clone::clone)?;
     let instance_input = matches!(
@@ -372,6 +527,7 @@ fn source_take_homes_with_source_v1(
         }
     };
     let mut homes = Vec::new();
+    let mut fresh = Vec::new();
     if let Some((parameters, actuals)) = passive {
         if parameters.len() != actuals.len() {
             return Err(freeze("borrowed-actual/arity"));
@@ -388,8 +544,11 @@ fn source_take_homes_with_source_v1(
                 {
                     return Err(freeze("borrowed-actual/source-identity"));
                 }
-                // This list moves existing bindings. The acquisition is owned by
-                // the ordered argument and transfers through the call packet.
+                fresh.push((
+                    formal.ordinal,
+                    OwnedExprSiteV1::new(site.owner(), construction.site().clone()),
+                ));
+                // Completion and pre-entry cleanup stay with the original New.
                 continue;
             }
             let source = source
@@ -401,6 +560,18 @@ fn source_take_homes_with_source_v1(
             homes.push((binding, root, acquisition.clone()));
         }
     } else {
+        for actual in &rows.opaque_actuals {
+            if let BorrowedFormalActualSourceV1::FreshTakenHome { acquisition, .. } = &actual.source
+            {
+                if acquisition.owner() != site.owner()
+                    || acquisition.site() != &actual.site
+                    || !actual.site.is_argument_of(site.site(), actual.ordinal)
+                {
+                    return Err(freeze("borrowed-actual/source-identity"));
+                }
+                fresh.push((actual.ordinal, acquisition.clone()));
+            }
+        }
         homes.extend(
             rows.opaque_actuals
                 .iter()
@@ -408,15 +579,45 @@ fn source_take_homes_with_source_v1(
                 .map(|(binding, root, acquisition)| (binding, root, acquisition.clone())),
         );
     }
-    Ok((instance_input, homes.into_boxed_slice()))
+    Ok((
+        instance_input,
+        homes.into_boxed_slice(),
+        fresh.into_boxed_slice(),
+    ))
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    /// Complete source cleanup snapshots must match every ordered entry transfer.
-    pub(in crate::mir::normal_callable_semantic_package) fn validate_expression_entry_cleanup_v1(
+    /// Check only unconnected use boundaries. Connected consumers project the
+    /// evaluator's state; this gate never replays transfers from a snapshot.
+    pub(in crate::mir::normal_callable_semantic_package) fn validate_expression_ownership_uses_v1(
         &self,
-        contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
     ) -> Result<(), String> {
+        use crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1 as Root;
+        use crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1 as Role;
+        fn connected(
+            plan: &crate::mir::resolved_semantics::home_new_prefix::HomeExpressionPlanV1,
+            entries: &mut BTreeSet<OwnedExprSiteV1>,
+        ) {
+            if plan.initializer_frame().is_some()
+                || plan.rebind_frame().is_some()
+                || plan.print_frame().is_some()
+                || plan.condition_frame().is_some()
+            {
+                if let Some(evaluation) = plan.evaluation() {
+                    entries.extend(
+                        evaluation
+                            .ownership_v1()
+                            .entries()
+                            .map(|entry| entry.site.clone()),
+                    );
+                }
+            }
+            if let Some(product) = plan.loop_recipe_v2() {
+                for body in &product.source.body_expressions {
+                    connected(body, entries);
+                }
+            }
+        }
         let completions = self
             .completion_index
             .values()
@@ -428,23 +629,20 @@ impl OrdinaryNewClaimLedgerV1 {
                     .filter(|row| !self.completion_index.contains_key(&row.owner())),
             );
         for completion in completions {
-            let mut expression_calls = BTreeSet::new();
-            self.visit_expression_evaluations_v1(completion.owner(), &mut |evaluation| {
-                self.validate_evaluation_entry_cleanup_v1(evaluation, contracts)?;
-                expression_calls.extend(evaluation.calls().iter().map(|call| call.site().clone()));
-                Ok(true)
-            })?;
+            let mut entries = BTreeSet::new();
             if let Some(flow) = completion.cleanup().root_flow() {
+                for plan in flow.expression_plans() {
+                    connected(plan, &mut entries);
+                }
                 for frame in flow
                     .expression_plans()
                     .iter()
                     .filter_map(|plan| plan.argument_frame())
                 {
-                    let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call, ordinal, .. } = frame.source().root() else { continue; };
-                    let at = OwnedExprSiteV1::new(completion.owner(), call.site().clone());
-                    if expression_calls.contains(&at) {
+                    let Root::CallArgument { call, ordinal, .. } = frame.source().root() else {
                         continue;
-                    }
+                    };
+                    let at = OwnedExprSiteV1::new(completion.owner(), call.site().clone());
                     let root = frame
                         .source()
                         .nodes()
@@ -455,144 +653,41 @@ impl OrdinaryNewClaimLedgerV1 {
                     if !Rc::ptr_eq(frame, &canonical) {
                         return Err(freeze("expression/argument-source-drift"));
                     }
-                    for child in frame.evaluation().calls() {
-                        if self.call_takes_declared_home_v1(child.site(), contracts)? {
-                            return Err(freeze("expression/argument-owner-unavailable"));
-                        }
+                }
+            }
+            self.visit_expression_evaluations_v1(completion.owner(), &mut |evaluation| {
+                if matches!(
+                    evaluation.source().root(),
+                    Root::Statement {
+                        role: Role::ReturnValue,
+                        ..
                     }
+                ) {
+                    entries.extend(
+                        evaluation
+                            .ownership_v1()
+                            .entries()
+                            .map(|entry| entry.site.clone()),
+                    );
                 }
-            }
-        }
-        Ok(())
-    }
-
-    fn call_takes_declared_home_v1(
-        &self,
-        site: &OwnedExprSiteV1,
-        contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
-    ) -> Result<bool, String> {
-        if let Some(pending) = self.borrowed_formal_actuals.get(site) {
-            let pending = pending.as_ref().map_err(Clone::clone)?;
-            if pending
-                .opaque_actuals
-                .iter()
-                .any(|actual| actual.source.transfers_home_at_entry_v1())
-            {
-                return Ok(true);
-            }
-            if let Some(snapshot) = pending.source_static_snapshot_v1() {
-                let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &snapshot.phase
-                else {
-                    return Err(freeze("borrowed-actual/source-identity"));
-                };
-                if identity.source.call_site() != site {
-                    return Err(freeze("borrowed-actual/source-identity"));
+                Ok(true)
+            })?;
+            self.visit_expression_evaluations_v1(completion.owner(), &mut |evaluation| {
+                if !evaluation.ownership_v1().has_transfers() {
+                    return Ok(true);
                 }
-                return Ok(identity
-                    .source
-                    .parameters()
-                    .iter()
-                    .any(|parameter| parameter.takes_declared_object_v1()));
-            }
-        }
-        Ok(self
-            .borrowed_formal_source
-            .as_ref()
-            .and_then(|row| row.as_ref().ok())
-            .is_some_and(|prepared| {
-                prepared
-                    .source_incoming
-                    .exact_rows()
-                    .chain(prepared.source_incoming.source_rows_v1())
-                    .filter(|row| &row.call == site)
-                    .any(|row| {
-                        contracts.iter().any(|contract| {
-                            contract.owner == row.source.callee_owner()
-                                && contract.batch_slot == row.source.target_batch_slot()
-                                && contract
-                                    .parameters
-                                    .iter()
-                                    .any(|parameter| parameter.takes_declared_object_v1())
-                        })
-                    })
-            }))
-    }
-
-    fn validate_evaluation_entry_cleanup_v1(
-        &self,
-        evaluation: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
-        contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
-    ) -> Result<(), String> {
-        use crate::mir::resolved_value_profile::expression_plan::{
-            ExpressionNodeSourceV1, ExpressionPlanRootV1,
-        };
-        use crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1;
-        let mut transferred = BTreeSet::new();
-        let reject = || freeze("expression/take-cleanup-unavailable");
-        let still_owed = |transferred: &BTreeSet<_>| {
-            evaluation
-                .prior_homes()
-                .iter()
-                .any(|home| transferred.contains(&home.binding()))
-        };
-        for &index in evaluation.ordered_nodes() {
-            let node = &evaluation.source().nodes()[index];
-            let site = OwnedExprSiteV1::new(evaluation.source().owner(), node.site().clone());
-            let checked_field = self
-                .local_field_reads
-                .borrow()
-                .get(&site)
-                .map(|row| row.source.requires_checked_field_read_v1());
-            if evaluation.node_requires_fault_frame_v1(index, checked_field)
-                && still_owed(&transferred)
-            {
-                return Err(reject());
-            }
-            if !matches!(node.source(), ExpressionNodeSourceV1::MethodCall) {
-                continue;
-            }
-            if self.call_takes_declared_home_v1(&site, contracts)? {
-                let (_, taken) = source_take_homes_with_source_v1(
-                    &self.borrowed_formal_actuals,
-                    &site,
-                    ObjectActualHomeSourceV1::Ledger(self),
-                    contracts,
-                )?;
-                for (binding, root, _) in taken.iter().cloned() {
-                    if evaluation
-                        .prior_homes()
-                        .iter()
-                        .filter(|home| {
-                            home.binding() == binding && home.stable_origin() == Some(root)
-                        })
-                        .count()
-                        != 1
-                        || !transferred.insert(binding)
-                    {
-                        return Err(reject());
-                    }
+                if matches!(evaluation.source().root(), Root::NewArgument { .. }) {
+                    return Err(freeze("expression/argument-entry-transition-unavailable"));
                 }
-            }
-        }
-        if !transferred.is_empty()
-            && matches!(
-                evaluation.source().root(),
-                ExpressionPlanRootV1::IfCondition { .. }
-                    | ExpressionPlanRootV1::LoopCondition { .. }
-            )
-        {
-            return Err(freeze("expression/take-successor-unavailable"));
-        }
-        let destination_may_fault = !evaluation.owned_result_nodes().is_empty()
-            || matches!(
-                evaluation.source().root(),
-                ExpressionPlanRootV1::Statement {
-                    role: StatementExpressionRoleV1::PrintValue,
-                    ..
+                if evaluation
+                    .ownership_v1()
+                    .entries()
+                    .any(|entry| !entry.taken.is_empty() && !entries.contains(&entry.site))
+                {
+                    return Err(freeze("expression/argument-owner-unavailable"));
                 }
-            );
-        if destination_may_fault && still_owed(&transferred) {
-            return Err(reject());
+                Ok(true)
+            })?;
         }
         Ok(())
     }

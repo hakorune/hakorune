@@ -1,6 +1,7 @@
 //! Borrow exact original New and nullable acquisition source across affine take.
 //! This lends retained source fields, never physical completion permission.
 use super::*;
+type Binding = (BasicBlockId, MirInstruction);
 
 pub(in crate::mir::normal_callable_semantic_package) struct ResultNewSourceRefV1<'a> {
     pub(in crate::mir::normal_callable_semantic_package) site: &'a OwnedExprSiteV1,
@@ -22,6 +23,40 @@ pub(in crate::mir::normal_callable_semantic_package) struct ResultNewSourceRefV1
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Borrow the outermost retained source evaluation at an argument New.
+    /// Child frames retain original entry snapshots; they cannot overwrite a
+    /// preceding sibling's already composed transition.
+    pub(in crate::mir) fn expression_result_new_prefix_v1(
+        &self, acquisition: &OwnedExprSiteV1, original: &ResultNewHomePrefixV1,
+    ) -> Result<ResultNewHomePrefixV1, String> {
+        if !matches!(original.purpose(), crate::mir::resolved_semantics::home_new_prefix::ResultNewPurposeV1::TakenArgument { .. }) {
+            return Ok(original.clone());
+        }
+        let mut selected: Option<(usize, std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>, Vec<crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1>)> = None;
+        self.visit_expression_evaluations_v1(acquisition.owner(), &mut |evaluation| {
+            if !evaluation.ownership_v1().contains_site(acquisition) { return Ok(true); }
+            let root = evaluation.source().nodes()[0].site().node().segments();
+            if !acquisition.site().node().segments().starts_with(root) {
+                return Err(freeze("expression/argument-source-drift"));
+            }
+            let current = evaluation.ownership_v1().before_site(acquisition)
+                .ok_or_else(|| freeze("expression/argument-owner-unavailable"))?;
+            match &selected {
+                Some((depth, source, _)) if *depth == root.len()
+                    && !std::rc::Rc::ptr_eq(source, evaluation.source()) => {
+                    return Err(freeze("expression/argument-source-drift"));
+                }
+                Some((depth, _, _)) if *depth <= root.len() => {}
+                _ => selected = Some((root.len(), std::rc::Rc::clone(evaluation.source()), current.to_vec())),
+            }
+            Ok(true)
+        })?;
+        match selected {
+            Some((_, _, current)) => original.at_taken_argument_state_v1(acquisition, &current).map_err(freeze),
+            None => Ok(original.clone()),
+        }
+    }
+
     pub(in crate::mir) fn require_taken_new_prefix_v1(
         &self,
         site: &OwnedExprSiteV1,
@@ -141,6 +176,79 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("taken-argument/result-emission"));
         };
         Ok(bindings.to_vec())
+    }
+
+    /// Validate the construction owner's complete scope before its effects
+    /// participate in an enclosing expression's ordered coverage.
+    pub(in crate::mir) fn validate_taken_new_argument_scope_v1(
+        &self,
+        site: &OwnedExprSiteV1,
+        function: &MirFunction,
+        finishing: Option<&physical_boundary::FinishedBindings>,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
+        let rows = self.local_commits.borrow();
+        let Some(row @ LocalCommitV1::Result(_)) = rows.get(site) else {
+            return Err(freeze("taken-argument/result-source"));
+        };
+        self.validate_ordinary_new_row_emission_projected(site.owner(), site, row, function, finishing, context)?;
+        let LocalCommitV1::Result(row) = row else { unreachable!() };
+        let NewEmissionProgress::Emitted { bindings, .. } = &row.emission else {
+            return Err(freeze("taken-argument/result-emission"));
+        };
+        let mut covered = std::collections::BTreeSet::new();
+        for binding in bindings.iter().filter(|(_, instruction)| matches!(instruction, MirInstruction::Invoke { .. })) {
+            let actual = match finishing {
+                Some(boundary) => boundary.binding(binding.0, &binding.1)?
+                    .ok_or_else(|| freeze("taken-argument/result-emission"))?,
+                None => binding.clone(),
+            };
+            covered.insert(actual.0);
+        }
+        Ok(covered)
+    }
+
+    /// Original New scope, in executable Normal order. Bounds alone omit
+    /// constructor argument expressions and their post-Birth cleanup.
+    pub(in crate::mir) fn taken_new_argument_ordered_bindings_v1(
+        &self,
+        site: &OwnedExprSiteV1,
+        call: &OwnedExprSiteV1,
+        ordinal: u32,
+        value: ValueId,
+        bounds: &[Binding; 2],
+        context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<Binding>, String> {
+        self.taken_new_argument_bindings_v1(site, call, ordinal, value, bounds)?;
+        let rows = self.local_commits.borrow();
+        let Some(LocalCommitV1::Result(row)) = rows.get(site) else {
+            return Err(freeze("taken-argument/result-source"));
+        };
+        let NewEmissionProgress::Emitted { arguments, argument_cleanup, bindings, .. } = &row.emission else {
+            return Err(freeze("taken-argument/result-emission"));
+        };
+        let Some(cleanup) = argument_cleanup else { return Ok(bounds.to_vec()); };
+        let (mut ordered, stop) = cleanup.ordered_prefix_v1(arguments, context)?;
+        let mut block = match &bounds[1].1 {
+            MirInstruction::Invoke { normal_landing, .. } => *normal_landing,
+            MirInstruction::InvokeNormalResult { .. } => bounds[1].0,
+            _ => return Err(freeze("taken-argument/result-emission")),
+        };
+        let mut seen = std::collections::BTreeSet::new();
+        while block != stop {
+            if !seen.insert(block) { return Err(freeze("taken-argument/result-emission")); }
+            let mut terminals = bindings.iter().filter(|(id, instruction)| *id == block
+                && matches!(instruction, MirInstruction::Jump { .. } | MirInstruction::Invoke { .. }));
+            let terminal = terminals.next().ok_or_else(|| freeze("taken-argument/result-emission"))?;
+            if terminals.next().is_some() { return Err(freeze("taken-argument/result-emission")); }
+            block = match &terminal.1 {
+                MirInstruction::Jump { target, .. } => *target,
+                MirInstruction::Invoke { normal_landing, .. } => *normal_landing,
+                _ => unreachable!("selected Normal terminator"),
+            };
+            ordered.push(terminal.clone());
+        }
+        Ok(ordered)
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn with_result_new_source_v1<T>(

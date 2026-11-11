@@ -37,6 +37,31 @@ enum ExpressionCallPrefixKindV1<'a> {
     Bool { frame: &'a CheckedBoolConditionFrameV1, call: &'a LocalCallObservationV1 },
 }
 impl<'a> ExpressionCallPrefixV1<'a> {
+    fn homes_at_v1<'b>(
+        &'b self,
+        site: &OwnedExprSiteV1,
+        fallback: &'b [LiveHomeV1],
+        select: impl FnOnce(&'b crate::mir::resolved_semantics::home_new_prefix::ExpressionOwnershipV1,
+            &OwnedExprSiteV1) -> Option<&'b [LiveHomeV1]>,
+    ) -> Result<&'b [LiveHomeV1], String> {
+        let ownership = match &self.kind {
+            ExpressionCallPrefixKindV1::Evaluation(prefix) => prefix.ownership_at_v1(site),
+            ExpressionCallPrefixKindV1::Bool { frame, .. } => Some(frame.evaluation().ownership_v1()),
+        };
+        match ownership {
+            Some(ownership) => select(ownership, site).ok_or_else(|| freeze("expression/argument-owner-unavailable")),
+            None => Ok(fallback),
+        }
+    }
+    pub(super) fn homes_before_site_v1<'b>(&'b self, site: &OwnedExprSiteV1, fallback: &'b [LiveHomeV1]) -> Result<&'b [LiveHomeV1], String> {
+        self.homes_at_v1(site, fallback, |ownership, site| ownership.before_call(site))
+    }
+    pub(super) fn homes_before_entry_v1<'b>(&'b self, site: &OwnedExprSiteV1, fallback: &'b [LiveHomeV1]) -> Result<&'b [LiveHomeV1], String> {
+        self.homes_at_v1(site, fallback, |ownership, site| ownership.before_entry_call(site))
+    }
+    pub(super) fn homes_after_site_v1<'b>(&'b self, site: &OwnedExprSiteV1, fallback: &'b [LiveHomeV1]) -> Result<&'b [LiveHomeV1], String> {
+        self.homes_at_v1(site, fallback, |ownership, site| ownership.entered_call(site))
+    }
     pub(super) fn original_observation_v1(&self) -> Option<&LocalCallObservationV1> {
         match &self.kind {
             ExpressionCallPrefixKindV1::Evaluation(prefix) => prefix.original_observation_v1(),
@@ -246,7 +271,7 @@ pub(in crate::mir::builder) fn emit_with_dynamic_and_argument_frames(
         crate::mir::instruction::DynamicInvocationOperandV1::TaggedDynamic(receiver_value),
     )?;
     let mut unwind = prefix.unwind(&owned_site, call.prior_homes())?;
-    unwind.extend(ledger.prior_home_unwind_for(call.prior_homes())?);
+    unwind.extend(ledger.prior_home_unwind_for(prefix.homes_before_entry_v1(&owned_site, call.prior_homes())?)?);
     let fault_frame = state.borrow_fault_frame(builder)?;
     let shared_frame = fault_frame_binding(builder, state, fault_frame)?;
     if !bindings.contains(&shared_frame) { bindings.push(shared_frame); }

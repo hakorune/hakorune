@@ -11,7 +11,7 @@ use std::rc::Rc;
 pub(super) enum ConditionInstallationV1 {
     Unselected,
     Refused,
-    Installed,
+    Installed(Rc<CheckedBoolConditionFrameV1>),
 }
 
 /// Request the original verified walk even with no existing Home. This passive
@@ -428,10 +428,9 @@ pub(super) fn observe<E>(
         fields,
         actuals,
     )?;
-    Ok(if installed.is_some() {
-        ConditionInstallationV1::Installed
-    } else {
-        ConditionInstallationV1::Refused
+    Ok(match installed {
+        Some(frame) => ConditionInstallationV1::Installed(frame),
+        None => ConditionInstallationV1::Refused,
     })
 }
 

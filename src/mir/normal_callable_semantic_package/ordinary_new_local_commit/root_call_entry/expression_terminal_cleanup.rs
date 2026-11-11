@@ -211,13 +211,26 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             .map(|prefix| prefix.for_argument(self.frame))
             .transpose()?
             .unwrap_or_default();
-        match self.prior_home_unwind {
-            Some(unwind) => homes.extend_from_slice(unwind),
-            None => {
-                homes.extend(ledger.prior_home_unwind_for(self.frame.prior_homes())?);
-                ledger.with_loop_call_text_ends_for_frame_v2(self.frame, &mut homes)?;
-            }
-        }
+        let end_site = self
+            .frame
+            .ownership_v1()
+            .last_site()
+            .cloned()
+            .unwrap_or_else(|| {
+                OwnedExprSiteV1::new(
+                    self.frame.source().owner(),
+                    self.frame.source().nodes()[0].site().clone(),
+                )
+            });
+        let current = inherited
+            .map(|prefix| prefix.homes_after_site_v1(&end_site, self.frame.ownership_v1().end()))
+            .transpose()?
+            .unwrap_or_else(|| self.frame.ownership_v1().end());
+        homes.extend(ledger.expression_home_unwind_at_v1(
+            self.frame,
+            current,
+            self.prior_home_unwind,
+        )?);
         let (mut live, mut covered) = self.validate_acquisition_paths_v1(
             context,
             function,

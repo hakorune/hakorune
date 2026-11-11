@@ -1,6 +1,7 @@
 //! Normal completion of the same physical Call: a value projection or Unit.
 //! A Unit continuation never creates a ValueId or an InvokeNormalResult.
 use super::*;
+use crate::mir::resolved_semantics::OwnedExprSiteV1;
 use super::super::expression_projection::{ExpressionCallArgumentSourceV1, ExpressionCallTransientPrefixV1};
 use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 
@@ -182,6 +183,15 @@ impl EmittedLexicalCallProjectionV1 {
             ordered.extend(read.producer_bindings().into_iter().cloned());
         }
         for (argument, original) in self.prepared.arguments.iter().zip(source) {
+            ordered.extend(argument.ordered_expression_bindings_v1(context)?);
+            if let LexicalCallArgumentProjectionV1::TakenObjectArgument {
+                ordinal, site, value, origin: TakenObjectArgumentOriginV1::Completed(bounds), ..
+            } = argument {
+                borrowed_projection::value(argument, owner, self.row.loan(), *ordinal, site, context)?;
+                ordered.extend(context.ledger().taken_new_argument_ordered_bindings_v1(
+                    &OwnedExprSiteV1::new(owner, site.clone()), self.call_site(), *ordinal, *value, bounds, context,
+                )?);
+            }
             if let LexicalCallArgumentProjectionV1::CallResult(inner) = argument {
                 let LocalCallArgumentV1::CallResult(original) = original else {
                     return Err(freeze("lexical-i64/nested-source-missing"));
@@ -464,8 +474,16 @@ impl EmittedLexicalCallProjectionV1 {
         // Without an original observation no owned transfer can match a Home;
         // ordinary no-transfer packets retain their existing empty fast path.
         let prior_homes = original.map(|source| source.prior_homes()).unwrap_or(&[]);
-        let entered_homes = self.row.loan().entered_prior_homes_v1(context, prior_homes)?;
-        let has_takes = entered_homes.len() != prior_homes.len();
+        let before_arguments = inherited.map(|prefix| prefix.homes_before_site_v1(self.call_site(), prior_homes))
+            .transpose()?.unwrap_or(prior_homes);
+        let before_entry = inherited.map(|prefix| prefix.homes_before_entry_v1(self.call_site(), before_arguments))
+            .transpose()?.unwrap_or(before_arguments);
+        let entered_homes = self.row.loan().entered_prior_homes_v1(context, before_entry)?;
+        if inherited.map(|prefix| prefix.homes_after_site_v1(self.call_site(), &entered_homes))
+            .transpose()?.is_some_and(|planned| planned != entered_homes) {
+            return Err(freeze("borrowed-actual/source-identity"));
+        }
+        let has_takes = entered_homes.len() != before_arguments.len();
         if ends.is_empty() && inherited.is_none() && !checked_call && !has_takes {
             if self.argument_cleanup.is_some() {
                 return Err(freeze("call-argument/unexpected-cleanup"));
@@ -484,13 +502,13 @@ impl EmittedLexicalCallProjectionV1 {
             .unwrap_or_default();
         let mut entered_suffix = suffix.clone();
         entered_suffix.extend(context.ledger().prior_home_unwind_for(&entered_homes)?);
-        context.ledger().with_loop_call_text_ends_v2(self.call_site(), source.prior_homes(), &mut entered_suffix)?;
+        context.ledger().with_loop_call_text_ends_at_state_v1(self.call_site(), source.prior_homes(), &entered_homes, &mut entered_suffix)?;
         suffix.extend(
             context
                 .ledger()
-                .prior_home_unwind_for(source.prior_homes())?,
+                .prior_home_unwind_for(before_arguments)?,
         );
-        context.ledger().with_loop_call_text_ends_v2(self.call_site(), source.prior_homes(), &mut suffix)?;
+        context.ledger().with_loop_call_text_ends_at_state_v1(self.call_site(), source.prior_homes(), before_arguments, &mut suffix)?;
         let operations: Vec<_> = ends.iter().chain(&entered_suffix).cloned().collect();
         let mut seen = std::collections::BTreeSet::new();
         for operation in &operations {

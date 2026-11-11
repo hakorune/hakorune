@@ -263,14 +263,13 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             return Err(freeze("expression/reference-execution-pending"));
         }
     }
-    let mut homes = inherited.map(|prefix| prefix.for_argument(frame)).transpose()?.unwrap_or_default();
-    match prior_home_unwind {
-        Some(unwind) => homes.extend_from_slice(unwind),
-        None => {
-            homes.extend(ledger.prior_home_unwind_for(frame.prior_homes())?);
-            ledger.with_loop_call_text_ends_for_frame_v2(frame, &mut homes)?;
-        }
-    }
+    let inherited_homes = inherited.map(|prefix| prefix.for_argument(frame)).transpose()?.unwrap_or_default();
+    let project_homes = |current: &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1]| -> Result<Vec<InvokeOperation>, String> {
+        let mut unwind = inherited_homes.clone();
+        unwind.extend(ledger.expression_home_unwind_at_v1(frame, current, prior_home_unwind)?);
+        Ok(unwind)
+    };
+    let mut homes = project_homes(frame.prior_homes())?;
     let source = frame.source();
     let mut pending = Vec::new();
     let mut path_slots = std::collections::BTreeMap::new();
@@ -384,6 +383,13 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
         if frame.node_is_identity(index) && !matches!(node.source(), Node::Shape(
             crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })) { continue; }
         let site = OwnedExprSiteV1::new(owner, node.site().clone());
+        if frame.ownership_v1().has_transfers() || inherited.is_some() {
+            let current = frame.ownership_v1().before_site(&site)
+                .ok_or_else(|| freeze("expression/argument-owner-unavailable"))?;
+            let current = inherited.map(|prefix| prefix.homes_before_site_v1(&site, current))
+                .transpose()?.unwrap_or(current);
+            homes = project_homes(current)?;
+        }
         if let Some(path) = ledger.statement_field_path_v1(&site, crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(ledger))? {
             let base = if let Some(parent) = path.parent() {
                 source.nodes().iter().position(|node| node.site() == parent.site())
@@ -735,6 +741,13 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
     }
     crate::mir::normal_callable_semantic_package::validate_expression_acquisition_scope_v1(frame, comparison, None, &acquired, &values,
         builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
+    if frame.ownership_v1().has_transfers() || inherited.is_some() {
+        let site = frame.ownership_v1().last_site().cloned().unwrap_or_else(||
+            OwnedExprSiteV1::new(owner, frame.source().nodes()[0].site().clone()));
+        let current = inherited.map(|prefix| prefix.homes_after_site_v1(&site, frame.ownership_v1().end()))
+            .transpose()?.unwrap_or_else(|| frame.ownership_v1().end());
+        homes = project_homes(current)?;
+    }
     let inline_range = cleanup::finish_inline_scope_v1(builder, inline_start)?;
     Ok(EmittedExpressionBodyV1 { values, calls, dynamic_calls,
         path_reads: path_reads.into_values().collect(), reference_reads, acquired,

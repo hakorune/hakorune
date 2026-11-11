@@ -508,6 +508,7 @@ impl EmittedBoolConditionProjectionV1 {
                             producers.extend(self.expected_fault_inventory_v1(
                                 ledger,
                                 function,
+                                inner.call_site(),
                                 fault_frame,
                                 fault_landing,
                                 wrapper_suffix,
@@ -609,12 +610,15 @@ impl EmittedBoolConditionProjectionV1 {
         &self,
         ledger: &OrdinaryNewClaimLedgerV1,
         function: &MirFunction,
+        call: &OwnedExprSiteV1,
         fault_frame: &ValueId,
         fault_landing: &BasicBlockId,
         wrapper_suffix: &[Binding],
     ) -> Result<Vec<Binding>, String> {
         let mut producers = Vec::new();
-        let expected = ledger.prior_home_unwind_for(self.frame.prior_homes())?;
+        let current = self.frame.evaluation().ownership_v1().entered_call(call)
+            .ok_or_else(|| freeze("expression/argument-owner-unavailable"))?;
+        let expected = ledger.expression_home_unwind_at_v1(self.frame.evaluation(), current, None)?;
         let operations =
             super::super::super::super::root_cleanup_graph::ordered_paths::pending_operations(
                 function,

@@ -375,9 +375,15 @@ pub(super) fn observe_if_statement<'a, E>(
         )?;
         return if_refused(statement.site(), line!());
     }
+    if let super::condition::ConditionInstallationV1::Installed(frame) = &whole_condition {
+        if let Err(issue) = locals.commit_expression_end_v1(frame.evaluation(), homes) {
+            unavailable.get_or_insert(issue);
+            return if_refused(statement.site(), line!());
+        }
+    }
     let whole_selected = matches!(
         whole_condition,
-        super::condition::ConditionInstallationV1::Installed
+        super::condition::ConditionInstallationV1::Installed(_)
     );
     let condition_call = if whole_selected {
         local_call_flow::SourceScalarConditionCallV1::Unselected

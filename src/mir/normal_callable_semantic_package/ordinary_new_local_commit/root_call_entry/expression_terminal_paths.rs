@@ -69,6 +69,7 @@ enum TransientPrefixOriginV1<'a> {
         inherited: &'a [InvokeOperation],
     },
     Emitted {
+        frame: &'a CheckedExpressionEvaluationV1,
         call: &'a EmittedLexicalCallProjectionV1,
         live: &'a [ExpressionOwnedTemporaryV1],
         prior_homes: &'a [LiveHomeV1],
@@ -86,6 +87,45 @@ enum TransientPrefixOriginV1<'a> {
     },
 }
 impl<'a> ExpressionCallTransientPrefixV1<'a> {
+    /// The outer evaluation owns cumulative state across canonical child frames.
+    /// Snapshot equality remains a separate original-source check below.
+    fn ownership_frame_at_v1(&self, site: &OwnedExprSiteV1) -> Option<&CheckedExpressionEvaluationV1> {
+        if let Some(frame) = self.parent.and_then(|parent| parent.ownership_frame_at_v1(site)) { return Some(frame); }
+        let frame = match &self.origin {
+            TransientPrefixOriginV1::Evaluation { frame, .. }
+            | TransientPrefixOriginV1::Emitted { frame, .. } => *frame,
+            TransientPrefixOriginV1::NewArguments { current, .. } => {
+                let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = current.kind() else { return None; };
+                evaluation
+            }
+            TransientPrefixOriginV1::Arguments { .. } => return None,
+        };
+        (frame.ownership_v1().contains_site(site)
+            || frame.source().owner() == site.owner() && frame.source().nodes().iter().any(|node| node.site() == site.site()))
+            .then_some(frame)
+    }
+    pub(in crate::mir) fn ownership_at_v1(&self, site: &OwnedExprSiteV1)
+        -> Option<&crate::mir::resolved_semantics::home_new_prefix::ExpressionOwnershipV1> {
+        self.ownership_frame_at_v1(site).map(|frame| frame.ownership_v1())
+    }
+    pub(in crate::mir) fn homes_before_site_v1<'b>(&'b self, site: &OwnedExprSiteV1, fallback: &'b [LiveHomeV1]) -> Result<&'b [LiveHomeV1], String> {
+        match self.ownership_frame_at_v1(site) {
+            Some(frame) => frame.ownership_v1().before_site(site).ok_or_else(|| freeze("expression/argument-owner-unavailable")),
+            None => Ok(fallback),
+        }
+    }
+    pub(in crate::mir) fn homes_before_entry_v1<'b>(&'b self, site: &OwnedExprSiteV1, fallback: &'b [LiveHomeV1]) -> Result<&'b [LiveHomeV1], String> {
+        match self.ownership_frame_at_v1(site) {
+            Some(frame) => frame.ownership_v1().before_entry_call(site).ok_or_else(|| freeze("expression/argument-owner-unavailable")),
+            None => Ok(fallback),
+        }
+    }
+    pub(in crate::mir) fn homes_after_site_v1<'b>(&'b self, site: &OwnedExprSiteV1, fallback: &'b [LiveHomeV1]) -> Result<&'b [LiveHomeV1], String> {
+        match self.ownership_frame_at_v1(site) {
+            Some(frame) => frame.ownership_v1().after_site(site).ok_or_else(|| freeze("expression/argument-owner-unavailable")),
+            None => Ok(fallback),
+        }
+    }
     pub(in crate::mir) fn original_observation_v1(&self) -> Option<&LocalCallObservationV1> {
         match &self.origin { TransientPrefixOriginV1::Evaluation { call, .. } => Some(call), _ => None }
     }
