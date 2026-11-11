@@ -16,6 +16,9 @@ impl ExpressionReferenceReadV1 {
         match producer {
             ReferenceProducerV1::Definition(row) => dependencies.push(row),
             ReferenceProducerV1::Phi(point) => point.append_observed_bindings_v1(&mut dependencies),
+            ReferenceProducerV1::Branch(point) => point
+                .relation()
+                .append_observed_bindings_v1(&mut dependencies),
             ReferenceProducerV1::Entry(_) => {}
         }
         dependencies.extend_from_slice(read.original_copy_dependencies_v1()?);
@@ -35,6 +38,9 @@ impl ExpressionReferenceReadV1 {
         Ok(
             match prepare_scalar_binding_producer(binding, source, read, context, function)? {
                 ReferenceProducerV1::Phi(point) => Some(point),
+                ReferenceProducerV1::Branch(point) if point.relation().is_indexed_phi_v1() => {
+                    Some(std::rc::Rc::clone(point.relation()))
+                }
                 _ => None,
             },
         )
@@ -216,6 +222,9 @@ impl ScalarBindingReadProofV1 {
         match &self.producer {
             ReferenceProducerV1::Definition(row) => dependencies.push(row.clone()),
             ReferenceProducerV1::Phi(point) => point.append_observed_bindings_v1(&mut dependencies),
+            ReferenceProducerV1::Branch(point) => point
+                .relation()
+                .append_observed_bindings_v1(&mut dependencies),
             ReferenceProducerV1::Entry(_) => {}
         }
         dependencies.extend_from_slice(read.original_copy_dependencies_v1()?);

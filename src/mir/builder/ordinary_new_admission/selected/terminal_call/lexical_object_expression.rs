@@ -52,7 +52,7 @@ pub(in crate::mir::builder) fn emit(
     )?;
     bindings.push(invoke.clone());
     bindings.push(projection.clone());
-    let emitted = lexical_i64::finish_argument_cleanup_v1(builder, normal,
+    let emitted = lexical_i64::finish_argument_cleanup_v1(builder, ledger, normal,
         EmittedLexicalCallProjectionV1::new(row, prepared, invoke, projection), cleanup, bindings)?;
     // Reborrow the SAME Taken row after moving it into its immutable packet.
     let original = emitted.original_row()?;

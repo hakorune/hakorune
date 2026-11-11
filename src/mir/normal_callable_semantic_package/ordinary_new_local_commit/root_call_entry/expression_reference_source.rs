@@ -16,11 +16,14 @@ pub(super) fn prepare_scalar_binding_producer(
         return Err(freeze("expression/scalar-binding-observation"));
     }
     let producer = match source {
-        Producer::BranchNormal(_) | Producer::LoopHeader(_) | Producer::LoopAfter { .. } => {
-            ReferenceProducerV1::Phi(std::rc::Rc::clone(
-                read.loan_scalar_join_v1(source)?.relation(),
-            ))
-        }
+        Producer::BranchNormal(_) => ReferenceProducerV1::Branch(std::rc::Rc::clone(
+            read.loan_scalar_join_v1(source)?
+                .branch()
+                .ok_or_else(|| freeze("expression/scalar-producer-kind"))?,
+        )),
+        Producer::LoopHeader(_) | Producer::LoopAfter { .. } => ReferenceProducerV1::Phi(
+            std::rc::Rc::clone(read.loan_scalar_join_v1(source)?.relation()),
+        ),
         Producer::Initializer(frame) => {
             let value = initializer_value(source, read, context)?;
             if function.params.contains(&value) {
@@ -310,8 +313,8 @@ pub(super) fn reference_operand(
         }
         Reference::StaticText(original) => {
             let value = read
-                .loan_local_initializer_v1(original.definition_binding())?
-                .0;
+                .binding_observation_v2()
+                .loan_root_initializer_v1(original.definition_binding())?;
             if !matches!(producer, ReferenceProducerV1::Definition((_, MirInstruction::Const {
                 dst, value: ConstValue::String(text) })) if *dst == value && text == original.utf8())
             {
@@ -560,6 +563,18 @@ pub(super) fn validate_dependencies(
     context: CallValidationContextV1<'_>,
     function: &MirFunction,
 ) -> Result<(), String> {
+    validate_dependencies_with_branches_v1(read, producer, context, function, &mut |point| {
+        point.validate(context, function, None)
+    })
+}
+
+pub(super) fn validate_dependencies_with_branches_v1(
+    read: &BindingValueObservationV2,
+    producer: &ReferenceProducerV1,
+    context: CallValidationContextV1<'_>,
+    function: &MirFunction,
+    branches: &mut impl FnMut(&std::rc::Rc<BranchScalarPhiObservationV1>) -> Result<(), String>,
+) -> Result<(), String> {
     let definition = match producer {
         ReferenceProducerV1::Definition(binding) => Some(binding),
         ReferenceProducerV1::Entry(entry) => {
@@ -569,6 +584,10 @@ pub(super) fn validate_dependencies(
                 context,
                 function,
             )?;
+            None
+        }
+        ReferenceProducerV1::Branch(point) => {
+            branches(point)?;
             None
         }
         ReferenceProducerV1::Phi(point) => {

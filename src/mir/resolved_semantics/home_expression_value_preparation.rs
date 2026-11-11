@@ -25,6 +25,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_value_evaluat
         usize,
         crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1,
     >,
+    root_core: Option<crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1>,
     field_request: &mut impl FnMut(
         &SourceExprSiteV1,
     ) -> Option<super::super::super::LocalFieldReadRequestV1>,
@@ -41,10 +42,26 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_value_evaluat
     E,
 > {
     use crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1;
-    let Some(prepared) = crate::mir::resolved_semantics::home_new_prefix::expression_plan::prepare_expression_calls_v1(&source,
-        crate::mir::resolved_semantics::home_new_prefix::expression_plan::ExpressionLeafProfileV1::Print, field_seeds, homes,
-        &mut |site| super::super::super::local_call_flow::issue_source_expression_call_v1(input, &source, site, homes,
-            &mut |binding| locals.field_alias_call_path(binding), actuals))? else { return Ok(Err("call-preparation-declined")) };
+    let mut root_core = root_core;
+    let Some(prepared) = crate::mir::resolved_semantics::home_new_prefix::expression_plan::prepare_expression_calls_v1(
+        &source,
+        crate::mir::resolved_semantics::home_new_prefix::expression_plan::ExpressionLeafProfileV1::Print,
+        field_seeds,
+        homes,
+        &mut |site| {
+            if site == purpose_site {
+                if let Some(core) = root_core.take() {
+                    return Ok(Some(crate::mir::resolved_semantics::home_new_prefix::ExpressionCallSourceV1::Core(core)));
+                }
+            }
+            super::super::super::local_call_flow::issue_source_expression_call_v1(
+                input, &source, site, homes,
+                &mut |binding| locals.field_alias_call_path(binding), actuals,
+            )
+        },
+    )? else {
+        return Ok(Err("call-preparation-declined"));
+    };
     let mut initial = Vec::new();
     for (node, original) in source.nodes().iter().enumerate() {
         if !prepared.is_active_reference(node) {
@@ -83,10 +100,10 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_value_evaluat
             }));
         }
     }
-    let (evaluation, fields) = match crate::mir::resolved_semantics::home_new_prefix::expression_plan::qualify_statement_evaluation_v1(prepared, initial,
+    let (evaluation, fields, _) = match crate::mir::resolved_semantics::home_new_prefix::expression_plan::qualify_expression_evaluation_v1(prepared, initial,
         &mut |site| locals.static_text_reference(site), &mut |site| locals.text_reference(site),
         &mut |site| locals.loop_text_reference_v1(site, homes),
-        &mut |site| locals.current_scalar_read_v1(site, calls), field_request)? {
+        &mut |site| locals.current_scalar_read_v1(site, calls).map(crate::mir::resolved_semantics::home_new_prefix::CheckedScalarReferenceV1::Original), field_request)? {
             Ok(qualified) => qualified,
             Err(reason) => {
                 if std::env::var_os("HAKO_DEBUG_FIELD_TEXT_APPEND").is_some() {
@@ -95,7 +112,10 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_value_evaluat
                 return Ok(Err(reason));
             }
         };
-    if evaluation.root_class() != ExpressionLeafClassV1::Value(expected) {
+    if !crate::mir::resolved_semantics::home_new_prefix::expression_plan::admits_statement_value_v1(
+        &evaluation,
+    ) || evaluation.root_class() != ExpressionLeafClassV1::Value(expected)
+    {
         return Ok(Err("root-class-mismatch"));
     }
     Ok(Ok((std::rc::Rc::new(evaluation), fields)))

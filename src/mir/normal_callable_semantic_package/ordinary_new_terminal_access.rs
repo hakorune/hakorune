@@ -46,6 +46,12 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn return_expression_evaluation_v1(&self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
         site: &SourceStmtSiteV1,
     ) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>>, String> {
+        self.borrow_return_expression_evaluation_v1(owner, site).map(|source| source.cloned())
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn borrow_return_expression_evaluation_v1(
+        &self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1, site: &SourceStmtSiteV1,
+    ) -> Result<Option<&std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>>, String> {
         let (source, value_site) = match self.terminal_relation_for_owner_at(owner, site) {
             Some(TerminalRelationV1::Value(value)) => {
                 let crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1::TextExpression(source) = value.returned()
@@ -64,7 +70,7 @@ impl OrdinaryNewClaimLedgerV1 {
             || source.source().nodes().first().is_none_or(|node| node.site() != value_site) {
             return Err("[freeze:contract][expression/residence-original-pair]".into());
         }
-        Ok(Some(std::rc::Rc::clone(source)))
+        Ok(Some(source))
     }
 
     /// The retained relation at one exact source exit site for `owner`.

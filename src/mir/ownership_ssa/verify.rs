@@ -42,7 +42,12 @@ pub(super) fn verify(
             }
         }
     }
-    let mut kinds = classify(function, abi)?;
+    // Only the exact immutable function in the source module can delegate
+    // managed Text to the mandatory final module String lifetime verifier.
+    // Standalone functions and foreign/cloned module images stay fail-closed.
+    let managed_string_checked_in_module = module.and_then(|module|
+        module.functions.get(&function.signature.name)).is_some_and(|same| std::ptr::eq(same, function));
+    let mut kinds = classify(function, abi, managed_string_checked_in_module)?;
     let reachable = reachable_blocks(function);
     for block in function.blocks.keys().copied() {
         if !reachable.contains(&block) {

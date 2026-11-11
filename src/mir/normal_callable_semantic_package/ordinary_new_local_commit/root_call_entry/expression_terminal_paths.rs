@@ -66,8 +66,11 @@ enum TransientPrefixOriginV1<'a> {
     NewArguments {
         current: &'a crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentV1,
         earlier: &'a [crate::mir::normal_callable_semantic_package::EmittedNewArgumentV1],
+        inherited: &'a [InvokeOperation],
+        state_before: Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::ExpressionOwnershipStateV1>>,
     },
     Emitted {
+        frame: &'a CheckedExpressionEvaluationV1,
         call: &'a EmittedLexicalCallProjectionV1,
         live: &'a [ExpressionOwnedTemporaryV1],
         prior_homes: &'a [LiveHomeV1],
@@ -85,6 +88,68 @@ enum TransientPrefixOriginV1<'a> {
     },
 }
 impl<'a> ExpressionCallTransientPrefixV1<'a> {
+    /// The outer evaluation owns cumulative state across canonical child frames.
+    /// Snapshot equality remains a separate original-source check below.
+    fn ownership_frame_at_v1(&self, site: &OwnedExprSiteV1) -> Option<&CheckedExpressionEvaluationV1> {
+        if let Some(frame) = self.parent.and_then(|parent| parent.ownership_frame_at_v1(site)) { return Some(frame); }
+        let frame = match &self.origin {
+            TransientPrefixOriginV1::Evaluation { frame, .. }
+            | TransientPrefixOriginV1::Emitted { frame, .. } => *frame,
+            TransientPrefixOriginV1::NewArguments { current, .. } => {
+                let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = current.kind() else { return None; };
+                evaluation
+            }
+            TransientPrefixOriginV1::Arguments { .. } => return None,
+        };
+        (frame.ownership_v1().contains_site(site)
+            || frame.source().owner() == site.owner() && frame.source().nodes().iter().any(|node| node.site() == site.site()))
+            .then_some(frame)
+    }
+    fn new_argument_state_for_site_v1(&self, site: &OwnedExprSiteV1)
+        -> Option<&crate::mir::resolved_semantics::home_new_prefix::ExpressionOwnershipStateV1> {
+        if let Some(state) = self.parent.and_then(|parent| parent.new_argument_state_for_site_v1(site)) { return Some(state); }
+        let TransientPrefixOriginV1::NewArguments { current, state_before: Some(state), .. } = &self.origin else { return None; };
+        let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = current.kind() else { return None; };
+        (current.owner() == site.owner() && (current.new_site() == site
+            || evaluation.source().nodes().iter().any(|node| node.site() == site.site())))
+            .then_some(state.as_ref())
+    }
+
+    pub(in crate::mir) fn homes_before_site_v1<'b>(&'b self, site: &OwnedExprSiteV1, fallback: &'b [LiveHomeV1]) -> Result<&'b [LiveHomeV1], String> {
+        if let Some(state) = self.new_argument_state_for_site_v1(site) { return Ok(state.homes()); }
+        match self.ownership_frame_at_v1(site) {
+            Some(frame) => frame.ownership_v1().before_site(site).ok_or_else(|| freeze("expression/argument-owner-unavailable")),
+            None => Ok(fallback),
+        }
+    }
+    pub(in crate::mir) fn homes_before_entry_v1<'b>(&'b self, site: &OwnedExprSiteV1, fallback: &'b [LiveHomeV1]) -> Result<&'b [LiveHomeV1], String> {
+        if let Some(state) = self.new_argument_state_for_site_v1(site) { return Ok(state.homes()); }
+        match self.ownership_frame_at_v1(site) {
+            Some(frame) => frame.ownership_v1().before_entry_call(site).ok_or_else(|| freeze("expression/argument-owner-unavailable")),
+            None => Ok(fallback),
+        }
+    }
+    pub(in crate::mir) fn planned_homes_after_site_v1(&self, site: &OwnedExprSiteV1) -> Result<Option<&[LiveHomeV1]>, String> {
+        if let Some(state) = self.new_argument_state_for_site_v1(site) { return Ok(Some(state.homes())); }
+        self.ownership_frame_at_v1(site).map(|frame| frame.ownership_v1().after_site(site)
+            .ok_or_else(|| freeze("expression/argument-owner-unavailable"))).transpose()
+    }
+    pub(in crate::mir) fn homes_after_site_v1<'b>(&'b self, site: &OwnedExprSiteV1, fallback: &'b [LiveHomeV1]) -> Result<&'b [LiveHomeV1], String> {
+        Ok(self.planned_homes_after_site_v1(site)?.unwrap_or(fallback))
+    }
+    /// Bool Call nodes have no cross-node Text temporary prefix. They still
+    /// lend the same source responsibility state to receiver and arguments.
+    pub(in crate::mir) fn for_condition_v1(
+        frame: &'a CheckedExpressionEvaluationV1,
+        call: &'a LocalCallObservationV1,
+    ) -> Result<Self, String> {
+        if frame.source().owner() != call.owner() || frame.prior_homes() != call.prior_homes()
+            || !frame.calls().iter().any(|original| std::ptr::eq(original, call)) {
+            return Err(freeze("bool-condition-call/context-drift"));
+        }
+        Ok(Self { origin: TransientPrefixOriginV1::Evaluation { frame, call, acquired: &[] }, parent: None })
+    }
+
     pub(in crate::mir) fn original_observation_v1(&self) -> Option<&LocalCallObservationV1> {
         match &self.origin { TransientPrefixOriginV1::Evaluation { call, .. } => Some(call), _ => None }
     }
@@ -92,6 +157,8 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
         current: &'a crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentV1,
         earlier: &'a [crate::mir::normal_callable_semantic_package::EmittedNewArgumentV1],
         rows: &[crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentV1],
+        inherited: &'a [InvokeOperation],
+        context: CallValidationContextV1<'_>,
     ) -> Result<Self, String> {
         let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = current.kind()
             else { return Err(freeze("argument-source-drift")) };
@@ -120,8 +187,10 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
             }
             packet.deferred_text_values_v1()?;
         }
+        if evaluation.ownership_v1().has_transfers() { return Err(freeze("expression/argument-entry-transition-unavailable")); }
+        let state_before = context.ledger().expression_state_before_site_v1(current.new_site())?;
         let prefix = Self {
-            origin: TransientPrefixOriginV1::NewArguments { current, earlier },
+            origin: TransientPrefixOriginV1::NewArguments { current, earlier, inherited, state_before },
             parent: None,
         };
         prefix.operations()?;
@@ -202,7 +271,7 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
                 call.prior_homes(),
                 context,
             )?;
-            packet.deferred_temporaries_v1(context)?;
+            packet.pre_entry_end_operations_v1(call.site(), context)?;
         }
         if let Some(parent) = parent {
             parent.unwind_for_call(call.site(), call.prior_homes())?;
@@ -243,6 +312,10 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
                     || matches!(call.arguments().get(*ordinal),
                     Some(LocalCallArgumentV1::CallResult(inner))
                         if inner.site() == site || in_arguments(inner.arguments(), site))
+                    || matches!(call.arguments().get(*ordinal),
+                    Some(LocalCallArgumentV1::BorrowedActual { ordinal, site: argument })
+                        if call.site().owner() == site.owner()
+                            && argument == site.site() && argument.is_argument_of(call.site().site(), *ordinal))
             }
         })
     }
@@ -271,16 +344,50 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
         }
         Ok(())
     }
+    /// The physical prefix names completed arguments, while the source plan
+    /// alone decides which of those responsibilities are still caller-owned.
+    fn corroborate_fresh_before_v1(&self, site: &OwnedExprSiteV1) -> Result<(), String> {
+        let ambient = self.new_argument_state_for_site_v1(site);
+        let frame = self.ownership_frame_at_v1(site);
+        let local = frame.map(|frame| frame.ownership_v1().fresh_before_site(site));
+        let local = match (frame, local) {
+            (Some(_), Some(Some(local))) => local,
+            (Some(_), _) if ambient.is_none() => return Err(freeze("expression/argument-owner-unavailable")),
+            _ => &[],
+        };
+        if frame.is_none() && ambient.is_none() { return Ok(()); }
+        let mut expected = ambient.map(|state| state.fresh().to_vec()).unwrap_or_default();
+        expected.extend_from_slice(local);
+        expected.reverse();
+        let actual = self.fresh_prefix_sites_v1();
+        if expected != actual { return Err(freeze("argument-expression/prefix-duplicate-acquisition")); }
+        Ok(())
+    }
+    fn fresh_prefix_sites_v1(&self) -> Vec<OwnedExprSiteV1> {
+        let mut sites = match &self.origin {
+            TransientPrefixOriginV1::Arguments { call, earlier, .. } => earlier.iter().rev().filter_map(|argument| match argument {
+                LexicalCallArgumentProjectionV1::TakenObjectArgument { site, origin: TakenObjectArgumentOriginV1::Completed(_), .. } =>
+                    Some(OwnedExprSiteV1::new(call.site().owner(), site.clone())),
+                _ => None,
+            }).collect::<Vec<_>>(),
+            TransientPrefixOriginV1::NewArguments { state_before: Some(state), .. } => state.fresh().iter().rev().cloned().collect(),
+            _ => Vec::new(),
+        };
+        if let Some(parent) = self.parent { sites.extend(parent.fresh_prefix_sites_v1()); }
+        sites
+    }
+
     fn operations(&self) -> Result<Vec<InvokeOperation>, String> {
         let end = |value| {
             InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value })
         };
         let mut operations: Vec<_> = match &self.origin {
-            TransientPrefixOriginV1::NewArguments { earlier, .. } => {
+            TransientPrefixOriginV1::NewArguments { earlier, inherited, .. } => {
                 let mut operations = Vec::new();
                 for packet in earlier.iter().rev() {
                     operations.extend(packet.deferred_text_values_v1()?.into_iter().rev().map(end));
                 }
+                operations.extend(inherited.iter().cloned());
                 operations
             }
             TransientPrefixOriginV1::Emitted { live, .. } => {
@@ -292,17 +399,11 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
                 .map(|(_, value)| end(*value))
                 .collect(),
             TransientPrefixOriginV1::Arguments {
-                earlier, context, ..
+                call, earlier, context, ..
             } => {
                 let mut operations = Vec::new();
                 for argument in earlier.iter().rev() {
-                    operations.extend(
-                        argument
-                            .deferred_temporaries_v1(*context)?
-                            .into_iter()
-                            .rev()
-                            .map(ExpressionOwnedTemporaryV1::end_operation),
-                    );
+                    operations.extend(argument.pre_entry_end_operations_v1(call.site(), *context)?);
                 }
                 operations
             }
@@ -316,7 +417,8 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
         let mut seen = std::collections::BTreeSet::new();
         for operation in &operations {
             if let InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value })
-                | InvokeOperation::DynamicCarrierEnd { carrier: value } = operation
+                | InvokeOperation::DynamicCarrierEnd { carrier: value }
+                | InvokeOperation::HomeRelease { value, .. } = operation
             {
                 if !seen.insert(*value) {
                     return Err(freeze("argument-expression/prefix-duplicate-acquisition"));
@@ -325,20 +427,43 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
         }
         Ok(operations)
     }
-    pub(in crate::mir) fn unwind_for_call(
+    pub(in crate::mir) fn unwind_for_taken_new_v1(
         &self,
         site: &OwnedExprSiteV1,
-        homes: &[LiveHomeV1],
     ) -> Result<Vec<InvokeOperation>, String> {
-        if self.prior_homes() != homes || !self.contains(site)? {
+        let TransientPrefixOriginV1::Arguments { call, ordinal, .. } = &self.origin else {
+            return Err(freeze("taken-argument/prefix-position"));
+        };
+        if site.owner() != call.site().owner()
+            || !site.site().is_argument_of(call.site().site(), *ordinal as u32)
+            || !self.contains(site)?
+        {
+            return Err(freeze("taken-argument/prefix-position"));
+        }
+        self.corroborate_fresh_before_v1(site)?;
+        self.operations()
+    }
+
+    fn unwind_at_source_point_v1(
+        &self, original: &OwnedExprSiteV1, homes: &[LiveHomeV1], point: &OwnedExprSiteV1,
+    ) -> Result<Vec<InvokeOperation>, String> {
+        if self.prior_homes() != homes || !self.contains(original)? {
             return Err(freeze("expression-call/context-drift"));
         }
+        self.corroborate_fresh_before_v1(point)?;
         self.operations()
+    }
+    pub(in crate::mir) fn unwind_for_call(
+        &self, site: &OwnedExprSiteV1, homes: &[LiveHomeV1],
+    ) -> Result<Vec<InvokeOperation>, String> {
+        self.unwind_at_source_point_v1(site, homes, site)
     }
     pub(in crate::mir) fn for_argument(
         &self,
         frame: &CheckedExpressionEvaluationV1,
     ) -> Result<Vec<InvokeOperation>, String> {
+        let point = frame.ownership_v1().first_site().cloned().unwrap_or_else(||
+            OwnedExprSiteV1::new(frame.source().owner(), frame.source().nodes()[0].site().clone()));
         if let TransientPrefixOriginV1::NewArguments { current, .. } = &self.origin {
             let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = current.kind()
                 else { return Err(freeze("argument-source-drift")) };
@@ -346,7 +471,7 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
                 else {
                     let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call, .. } = frame.source().root()
                         else { return Err(freeze("argument-expression/transient-purpose")) };
-                    return self.unwind_for_call(&OwnedExprSiteV1::new(frame.source().owner(), call.site().clone()), frame.prior_homes());
+                    return self.unwind_at_source_point_v1(&OwnedExprSiteV1::new(frame.source().owner(), call.site().clone()), frame.prior_homes(), &point);
                 };
             if !std::ptr::eq(evaluation.as_ref(), frame)
                 || frame.source().owner() != current.owner()
@@ -356,7 +481,7 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
             {
                 return Err(freeze("argument-expression/prefix-current-frame"));
             }
-            return self.unwind_for_call(current.new_site(), frame.prior_homes());
+            return self.unwind_at_source_point_v1(current.new_site(), frame.prior_homes(), &point);
         }
         if let TransientPrefixOriginV1::Arguments {
             call,
@@ -388,9 +513,9 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
         }
         let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call, .. } = frame.source().root()
             else { return Err(freeze("argument-expression/transient-purpose")) };
-        self.unwind_for_call(
+        self.unwind_at_source_point_v1(
             &OwnedExprSiteV1::new(frame.source().owner(), call.site().clone()),
-            frame.prior_homes(),
+            frame.prior_homes(), &point,
         )
     }
 }

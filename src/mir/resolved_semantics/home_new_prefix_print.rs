@@ -5,9 +5,10 @@ use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
-    locals: &PrefixLocalFlow<'_>,
-    homes: &[LiveHomeV1],
+    locals: &mut PrefixLocalFlow<'_>,
+    homes: &mut HomesV1,
     prefix_known: bool,
+    unavailable: &mut Option<HomePrefixUnavailableV1>,
     local_calls: &mut Vec<LocalCallObservationV1>,
     path_calls: &mut BTreeSet<OwnedExprSiteV1>,
     fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
@@ -98,6 +99,10 @@ pub(super) fn observe<E>(
     installation.expect("approved Print installation").commit();
     path_calls.extend(calls.iter().map(|call| call.site().clone()));
     local_calls.extend_from_slice(calls);
+    if let Err(issue) = locals.commit_expression_end_v1(plan.print_frame().expect("Print qualifier retains its frame").evaluation(), homes) {
+        unavailable.get_or_insert(issue);
+        return Ok(true);
+    }
     Ok(true)
 }
 

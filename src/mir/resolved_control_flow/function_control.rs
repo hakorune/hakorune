@@ -550,6 +550,7 @@ pub(super) fn is_loop_control_exit(exit: &ResolvedExitRecordV1) -> bool {
 
 #[path = "function_control_new_homes.rs"]
 mod new_homes;
+pub(crate) use new_homes::issue_taken_new_fault_continuation_v1;
 #[path = "function_control_terminal.rs"]
 mod terminal;
 #[path = "function_control_declared_result.rs"]

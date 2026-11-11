@@ -11,7 +11,7 @@ use std::rc::Rc;
 pub(super) enum ConditionInstallationV1 {
     Unselected,
     Refused,
-    Installed,
+    Installed(Rc<CheckedBoolConditionFrameV1>),
 }
 
 /// Request the original verified walk even with no existing Home. This passive
@@ -20,8 +20,14 @@ fn requests_condition(
     input: ResolvedFunctionLoweringInputV1<'_>,
     condition: &SourceExprSiteV1,
 ) -> bool {
-    
-    if input.function().expression_source().unary(condition).is_some_and(|unary| unary.is_explicit_copy_v1()) { return true; }
+    if input
+        .function()
+        .expression_source()
+        .unary(condition)
+        .is_some_and(|unary| unary.is_explicit_copy_v1())
+    {
+        return true;
+    }
     input.function().method_call(condition).is_some_and(|call| {
         call.selector() == "has"
             && input.body_shape().is_some_and(|shape| {
@@ -38,7 +44,9 @@ fn requests_condition(
         .expression_source()
         .binary(condition)
         .is_some_and(|binary| {
-            { let operator = binary.operator(); super::scalar_expression::is_logical_operator_v1(operator) || super::scalar_expression::is_comparison_operator_v1(operator) }
+            let operator = binary.operator();
+            super::scalar_expression::is_logical_operator_v1(operator)
+                || super::scalar_expression::is_comparison_operator_v1(operator)
         })
 }
 pub(crate) fn requires_condition_expression_walk_v1(
@@ -52,7 +60,8 @@ pub(crate) fn requires_condition_expression_walk_v1(
         requests_condition(input, &condition) || has_unconditional_nested_call_v1(input, &statement)
     }) || input.function().loop_sites().any(|statement| {
         let condition = SourcePathV1::from_node(statement.node())
-            .child(SourcePathSegmentV1::LoopCondition).expr();
+            .child(SourcePathSegmentV1::LoopCondition)
+            .expr();
         // Pure Loop conditions need the same source packet and final-use
         // closure even when the function acquires no object Home.
         requests_condition(input, &condition)
@@ -139,11 +148,18 @@ fn selects(
     use crate::mir::resolved_semantics::{
         ResolvedBinaryOperatorV1 as Op, ResolvedLiteralSourceV1 as Literal,
     };
-    if source.contains_copy_v1() { return true; }
+    if source.contains_copy_v1() {
+        return true;
+    }
     fn supported(source: &ExpressionSourcePlanV1, index: usize) -> bool {
         let node = &source.nodes()[index];
         if let Some(binary) = node.binary() {
-            if !{ let operator = binary.operator(); super::scalar_expression::is_logical_operator_v1(operator) || super::scalar_expression::is_comparison_operator_v1(operator) || matches!(operator, Op::Add | Op::Subtract) } {
+            if !{
+                let operator = binary.operator();
+                super::scalar_expression::is_logical_operator_v1(operator)
+                    || super::scalar_expression::is_comparison_operator_v1(operator)
+                    || matches!(operator, Op::Add | Op::Subtract)
+            } {
                 return false;
             }
             return [binary.lhs(), binary.rhs()].into_iter().all(|site| {
@@ -382,33 +398,40 @@ pub(super) fn observe<E>(
     }
     let selected = (original_profile || nested_call_profile)
         && selects(input, &source, statement, locals, local_calls);
-    if entry_guard.is_empty()
-        && !contains_local_home_field(input, &source, locals)
-        && !selected
-    {
+    if entry_guard.is_empty() && !contains_local_home_field(input, &source, locals) && !selected {
+        if prefix_known {
+            if let Some(plan) =
+                observe_raw_null_condition_v1(&source, locals, homes, local_calls, path_calls)
+            {
+                let candidate =
+                    super::HomeExpressionPlanV1::observed_null_condition_v1(source, plan);
+                let mut pending = locals.expression_installation();
+                if !pending.approve(&candidate) {
+                    return Ok(ConditionInstallationV1::Refused);
+                }
+                pending.commit();
+            }
+        }
         return Ok(ConditionInstallationV1::Unselected);
     }
     if !prefix_known {
         return Ok(ConditionInstallationV1::Refused);
     }
     let installed = install_source(
-            input,
-            source,
-            &entry_guard,
-            locals,
-            homes,
-            local_calls,
-            path_calls,
-            fields,
-            actuals,
-        )?;
-    Ok(
-        if installed.is_some() {
-            ConditionInstallationV1::Installed
-        } else {
-            ConditionInstallationV1::Refused
-        },
-    )
+        input,
+        source,
+        &entry_guard,
+        locals,
+        homes,
+        local_calls,
+        path_calls,
+        fields,
+        actuals,
+    )?;
+    Ok(match installed {
+        Some(frame) => ConditionInstallationV1::Installed(frame),
+        None => ConditionInstallationV1::Refused,
+    })
 }
 
 pub(super) fn observe_loop<E>(
@@ -440,7 +463,10 @@ pub(super) fn observe_loop<E>(
         path_calls,
         fields,
         actuals,
-    )? else { return Ok(None); };
+    )?
+    else {
+        return Ok(None);
+    };
 
     // A LoopCondition's call nodes are retained by its BoolCondition owner,
     // while their argument purposes live as separate checked expression
@@ -452,10 +478,73 @@ pub(super) fn observe_loop<E>(
     for call in frame.calls() {
         let root = OwnedExprSiteV1::new(input.owner(), call.site().site().clone());
         super::local_call_flow::stage_argument_expressions(
-            input, &statement, &root, locals, true, homes, local_calls, path_calls, fields, actuals,
+            input,
+            &statement,
+            &root,
+            locals,
+            true,
+            homes,
+            local_calls,
+            path_calls,
+            fields,
+            actuals,
         )?;
     }
     Ok(Some(frame))
+}
+
+fn observe_raw_null_condition_v1(
+    source: &ExpressionSourcePlanV1,
+    locals: &PrefixLocalFlow<'_>,
+    homes: &[LiveHomeV1],
+    calls: &[LocalCallObservationV1],
+    path_calls: &BTreeSet<OwnedExprSiteV1>,
+) -> Option<super::ComparisonExecutionPlanV1> {
+    use crate::mir::resolved_semantics::ResolvedLiteralSourceV1 as Literal;
+    let binary = source.nodes().first()?.binary()?;
+    let index = |site| source.nodes().iter().position(|node| node.site() == site);
+    let [left, right] = [index(binary.lhs())?, index(binary.rhs())?];
+    let node = match (
+        source.nodes()[left].source(),
+        source.nodes()[right].source(),
+    ) {
+        (Node::Literal(Literal::Null), other) => (right, other),
+        (other, Node::Literal(Literal::Null)) => (left, other),
+        _ => return None,
+    };
+    match node.1 {
+        Node::Literal(Literal::Integer(_) | Literal::Bool(_)) => {}
+        Node::Reference(ResolvedLexicalRefV1::Local(_))
+            if matches!(
+                locals.observe(source.nodes()[node.0].site()),
+                Some(OrdinaryObservation::Null)
+            ) => {}
+        Node::Reference(ResolvedLexicalRefV1::Local(binding)) => {
+            let site = source.nodes()[node.0].site();
+            let fresh = locals
+                .direct_available_home(site)
+                .is_some_and(|(root, acquisition)| {
+                    root == *binding && acquisition.owner() == source.owner()
+                });
+            let nullable = locals
+                .received_call_observation(*binding, calls, path_calls)
+                .is_some_and(|call| call.result() == super::LocalCallResultClassV1::Nullable);
+            if !(fresh || nullable)
+                || homes
+                    .iter()
+                    .filter(|home| home.is_stable_binding(*binding))
+                    .count()
+                    != 1
+            {
+                return None;
+            }
+        }
+        _ => return None,
+    }
+    super::ComparisonExecutionPlanV1::observed_null_v1(
+        binary.operator().compare_op()?,
+        [left, right],
+    )
 }
 
 fn install_source<E>(
@@ -508,11 +597,7 @@ fn install_source<E>(
                 None => {}
             }
             if let Some(call) = local_call_flow::issue_source_static_scalar_frame_call_v1(
-                input,
-                &source,
-                site,
-                homes,
-                actuals,
+                input, &source, site, homes, actuals,
             )? {
                 return Ok(Some(ExpressionCallSourceV1::Ordinary(call)));
             }
@@ -529,7 +614,10 @@ fn install_source<E>(
     )?
     else {
         if crate::config::env::builder_debug_enabled() {
-            eprintln!("[condition] call preparation refused for {:?}", source.nodes()[0].site());
+            eprintln!(
+                "[condition] call preparation refused for {:?}",
+                source.nodes()[0].site()
+            );
         }
         return Ok(None);
     };
@@ -618,17 +706,27 @@ fn install_source<E>(
             true
         },
         &mut |requests, demand| {
-            Ok(fields.local_field_read(requests, demand)?.is_some_and(|results| {
-                results.len() == requests.len()
-                    && results.iter().all(|result| matches!(result,
-                        LocalFieldReadResultV1::Scalar | LocalFieldReadResultV1::BorrowedObject(_)
-                            | LocalFieldReadResultV1::ArrayField(_)))
-            }))
+            Ok(fields
+                .local_field_read(requests, demand)?
+                .is_some_and(|results| {
+                    results.len() == requests.len()
+                        && results.iter().all(|result| {
+                            matches!(
+                                result,
+                                LocalFieldReadResultV1::Scalar
+                                    | LocalFieldReadResultV1::BorrowedObject(_)
+                                    | LocalFieldReadResultV1::ArrayField(_)
+                            )
+                        })
+                }))
         },
     )?;
     let Some(plan) = plan else {
         if crate::config::env::builder_debug_enabled() {
-            eprintln!("[condition] qualification refused for {:?}", source.nodes()[0].site());
+            eprintln!(
+                "[condition] qualification refused for {:?}",
+                source.nodes()[0].site()
+            );
         }
         return Ok(None);
     };

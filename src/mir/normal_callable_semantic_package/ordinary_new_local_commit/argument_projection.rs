@@ -289,19 +289,44 @@ pub(in crate::mir) struct NewArgumentCleanupV1 {
     allocation: Binding,
     birth: Option<Binding>,
     continuation: BasicBlockId,
+    inherited: Box<[InvokeOperation]>,
 }
 impl NewArgumentCleanupV1 {
     pub(in crate::mir) fn new(
         allocation: Binding,
         birth: Option<Binding>,
         continuation: BasicBlockId,
+        inherited: Box<[InvokeOperation]>,
     ) -> Self {
-        Self {
-            allocation,
-            birth,
-            continuation,
-        }
+        Self { allocation, birth, continuation, inherited }
     }
+
+    pub(super) fn inherited(&self) -> &[InvokeOperation] {
+        &self.inherited
+    }
+    /// Lend the same Normal acquisition prefix to the enclosing expression.
+    /// The independent validator below still checks all Fault obligations.
+    pub(super) fn ordered_prefix_v1(
+        &self,
+        arguments: &[EmittedNewArgumentV1],
+        context: CallValidationContextV1<'_>,
+    ) -> Result<(Vec<Binding>, BasicBlockId), String> {
+        let mut ordered = Vec::new();
+        for argument in arguments {
+            if let Some(packet) = argument.expression_v1() {
+                ordered.extend(packet.entry.iter().cloned());
+                ordered.extend(packet.projection().ordered_bindings_in_context(context)?);
+                ordered.extend(packet.terminal.iter().cloned());
+                ordered.extend(packet.continuation.iter().cloned());
+            }
+        }
+        ordered.push(self.allocation.clone());
+        if let Some(birth) = &self.birth {
+            ordered.push(birth.clone());
+        }
+        Ok((ordered, self.continuation))
+    }
+
     pub(super) fn validate_v1(
         &self,
         context: CallValidationContextV1<'_>,
@@ -321,19 +346,7 @@ impl NewArgumentCleanupV1 {
                 None => Ok(row.clone()),
             }
         };
-        let mut ordered = Vec::new();
-        for argument in arguments {
-            if let Some(packet) = argument.expression_v1() {
-                ordered.extend(packet.entry.iter().cloned());
-                ordered.extend(packet.projection().ordered_bindings_in_context(context)?);
-                ordered.extend(packet.terminal.iter().cloned());
-                ordered.extend(packet.continuation.iter().cloned());
-            }
-        }
-        ordered.push(self.allocation.clone());
-        if let Some(birth) = &self.birth {
-            ordered.push(birth.clone());
-        }
+        let (ordered, _) = self.ordered_prefix_v1(arguments, context)?;
         let mut mapped = Vec::new();
         for row in ordered {
             let projected = finishing
@@ -375,7 +388,8 @@ impl NewArgumentCleanupV1 {
                 ));
             }
         }
-        let pending: Vec<_> = ends.iter().cloned().chain(prior).collect();
+        let pending: Vec<_> = ends.iter().cloned()
+            .chain(self.inherited.iter().cloned()).chain(prior).collect();
         let (object, _) = ledger.new_argument_object_cleanup_v1(site, result)?;
         let expected_birth = {
             let rows = ledger.local_commits.borrow();
@@ -473,6 +487,7 @@ impl NewArgumentCleanupV1 {
                 .iter()
                 .cloned()
                 .chain(ends[step + 1..].iter().cloned())
+                .chain(self.inherited.iter().cloned())
                 .chain(homes.iter().cloned())
                 .collect();
             covered.extend(paths::pending_operations(
@@ -511,10 +526,9 @@ impl OrdinaryNewClaimLedgerV1 {
                     .to_vec()
                 }
                 Some(LocalCommitV1::Result(row)) => {
-                    let source = row
-                        .home_prefix
-                        .as_ref()
+                    let source = row.home_prefix.as_ref()
                         .map_err(crate::mir::resolved_semantics::home_new_prefix::argument_source_unavailable_tag_v1)?;
+                    let source = self.expression_result_new_prefix_v1(site, source)?;
                     if normal {
                         source.normal_homes()
                     } else {

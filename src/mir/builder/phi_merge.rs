@@ -43,6 +43,19 @@ pub(super) fn reusable_join_values(
                 && dominance.dominates(*block, merge)))).then_some(*value)).collect()
 }
 
+/// Recheck the same physical eligibility used by the sole merge writer.
+/// Source joins still need their original incoming/branch observations.
+pub(in crate::mir) fn reusable_branch_value_v1(
+    function: &crate::mir::MirFunction,
+    merge: BasicBlockId,
+    exits: &[BasicBlockId],
+    value: ValueId,
+) -> bool {
+    reusable_join_values(function, Some(merge), exits,
+        &crate::mir::verification::utils::compute_def_blocks(function),
+        &crate::mir::verification::utils::compute_dominators(function)).contains(&value)
+}
+
 /// PHI Merge Helper - 統一PHI挿入ロジック（Conservative戦略）
 ///
 /// # Purpose

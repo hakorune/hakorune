@@ -242,6 +242,7 @@ fn result_observation_v1(
         site: site.clone(),
         destination,
         prior_homes: prior_homes.into(),
+        entry_ownership: None,
         arguments,
         result: loan.result(),
         result_source: Some(loan),
@@ -250,46 +251,6 @@ fn result_observation_v1(
         mixed: None,
         field_alias: None,
     }
-}
-
-pub(crate) fn issue_source_scalar_expression_call<E>(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    statement: &SourceStmtSiteV1,
-    site: &OwnedExprSiteV1,
-    prior_homes: &[LiveHomeV1],
-    receiver_path: &mut impl FnMut(BindingRefV1) -> Option<super::super::FieldAliasPathV1>,
-    borrowed_arguments: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        BorrowedCallActualRequestV1<'_>,
-    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
-) -> Result<Option<LocalCallObservationV1>, E> {
-    let SourceScalarDemandV1::Ready { loan, arguments } =
-        demand_v1(input, site, borrowed_arguments)?
-    else {
-        return Ok(None);
-    };
-    if loan.kind() != SourceScalarKind::Integer {
-        return Ok(None);
-    }
-    let field_alias = loan
-        .source()
-        .receiver_binding()
-        .ok()
-        .and_then(receiver_path);
-    Ok(Some(LocalCallObservationV1 {
-        owner: input.owner(),
-        statement: statement.clone(),
-        site: site.clone(),
-        destination: LocalCallDestinationV1::ExpressionValue,
-        prior_homes: prior_homes.into(),
-        arguments,
-        result: LocalCallResultClassV1::I64,
-        result_source: Some(LocalCallResultSourceV1::Scalar(loan)),
-        unit_source: None,
-        borrowed_nullable: None,
-        mixed: None,
-        field_alias,
-    }))
 }
 
 /// Selection keeps a refused original scalar demand distinct from absence.
@@ -407,6 +368,7 @@ pub(crate) fn issue_source_scalar_frame_call_v1<E>(
         arguments,
     );
     observation.field_alias = field_alias;
+    crate::mir::resolved_semantics::home_new_prefix::attach_expression_entry_facts_v1(input, &mut observation, actuals)?;
     Ok(Some(observation))
 }
 
@@ -477,7 +439,7 @@ pub(crate) fn issue_source_static_scalar_frame_call_v1<E>(
     {
         return Ok(None);
     }
-    Ok(Some(result_observation_v1(
+    let mut observation = result_observation_v1(
         input.owner(),
         statement,
         site,
@@ -485,7 +447,9 @@ pub(crate) fn issue_source_static_scalar_frame_call_v1<E>(
         prior_homes,
         loan,
         arguments,
-    )))
+    );
+    crate::mir::resolved_semantics::home_new_prefix::attach_expression_entry_facts_v1(input, &mut observation, port)?;
+    Ok(Some(observation))
 }
 
 /// One mutable callback lends either the original Core receipt or the existing
@@ -533,7 +497,7 @@ pub(crate) fn issue_source_expression_call_v1<E>(
             ) {
                 return expression_call_declined(site, 1);
             }
-            return Ok(Some(Call::Ordinary(result_observation_v1(
+            let mut observation = result_observation_v1(
                 input.owner(),
                 source.root().statement(),
                 site,
@@ -541,7 +505,9 @@ pub(crate) fn issue_source_expression_call_v1<E>(
                 prior_homes,
                 LocalCallResultSourceV1::DynamicInvocation(loan),
                 arguments,
-            ))));
+            );
+            crate::mir::resolved_semantics::home_new_prefix::attach_expression_entry_facts_v1(input, &mut observation, port)?;
+            return Ok(Some(Call::Ordinary(observation)));
         }
         Some(_) => return Ok(None),
         None => {}
@@ -599,6 +565,7 @@ pub(crate) fn issue_source_expression_call_v1<E>(
         arguments,
     );
     observation.field_alias = field_alias;
+    crate::mir::resolved_semantics::home_new_prefix::attach_expression_entry_facts_v1(input, &mut observation, port)?;
     Ok(Some(Call::Ordinary(observation)))
 }
 

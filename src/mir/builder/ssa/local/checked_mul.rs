@@ -179,7 +179,8 @@ fn freeze(reason: &str) -> String {
     format!("[freeze:contract][borrowed-mul/{reason}]")
 }
 
-/// Physical identity reuse only; the selected Mul source still owns typing.
+/// Physical identity reuse shared by Mul and source scalar writers. The
+/// selected operation's source proof continues to own its typing and effects.
 pub(super) fn reuse_same_block_operand(
     function: &MirFunction,
     block: BasicBlockId,

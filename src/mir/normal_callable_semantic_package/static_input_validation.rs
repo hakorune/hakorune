@@ -439,6 +439,29 @@ impl OrdinaryNewClaimLedgerV1 {
                 continue;
             }
             let actual = match &candidate.value {
+                BorrowedCallActualValueV1::FreshConstruction(construction) => {
+                    let acquisition = OwnedExprSiteV1::new(call.call.owner(), candidate.site.clone());
+                    let accepted = self.with_result_new_source_v1(&acquisition, |new| {
+                        use crate::mir::resolved_semantics::home_new_prefix::ResultNewPurposeV1;
+                        Ok(formal.takes_fresh_construction_v1(construction)
+                            && construction.site() == &candidate.site
+                            && new.class == construction.class()
+                            && new.construction.is_ok()
+                            && new.arguments.is_ok()
+                            && matches!(new.prefix.as_ref().map(|prefix| prefix.purpose()),
+                                Ok(ResultNewPurposeV1::TakenArgument { call: source, ordinal })
+                                    if source == &call.call && *ordinal == formal.ordinal))
+                    })?;
+                    if accepted != Some(true) {
+                        return Err(freeze("static-input/argument-frame-missing"));
+                    }
+                    PreparedBorrowedFormalActualV1 {
+                        ordinal: formal.ordinal, site: candidate.site.clone(), formal: formal.binding,
+                        source: BorrowedFormalActualSourceV1::FreshTakenHome {
+                            acquisition, class: construction.class().into(),
+                        },
+                    }
+                }
                 BorrowedCallActualValueV1::Home { .. } => PreparedBorrowedFormalActualV1 {
                     ordinal: formal.ordinal, site: candidate.site.clone(), formal: formal.binding,
                     source: object_source::ObjectActualHomeSourceV1::Ledger(self)

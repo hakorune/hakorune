@@ -476,6 +476,7 @@ pub(in crate::mir) mod ops;
 mod phi;
 mod phi_completion; // PHI0-S0: disconnected semantic completion vocabulary
 mod phi_merge;
+pub(in crate::mir) use phi_merge::reusable_branch_value_v1;
 mod phi_type_publication;
 mod port_aware_function_draft_impl;
 mod program_declaration_facts; // Normal Program source-only declaration facts

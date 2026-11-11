@@ -31,11 +31,14 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     completed: Option<&crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractBuilderV1>,
 ) -> Result<Option<BorrowedCallArgumentsV1>, OrdinaryNewCoSealIssueV1> {
     if let BorrowedCallActualRequestV1::CallEntryHomes(input) = request {
-        return super::super::lexical_instance_call::source_take_homes_v1(pending, site, candidates, contracts)
-            .map(|(instance_input, taken)| Some(BorrowedCallArgumentsV1::CallEntryHomes {
+        return super::super::lexical_instance_call::source_take_homes_v1(pending, site, candidates, contracts, input, source, targets)
+            .map(|(instance_input, contract_proved, taken, fresh, arguments)| Some(BorrowedCallArgumentsV1::CallEntryHomes {
                 preserves_reads: source.as_ref().is_ok_and(|source| source.call_preserves_read_loans_v1(input, batch, contracts, site)),
                 instance_input,
+                contract_proved,
                 taken,
+                fresh,
+                arguments,
             }))
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
     }
@@ -544,15 +547,20 @@ pub(super) fn borrowed_call_arguments_callback_v1(
                 .map(Some),
             (Some(_), Some(_)) => Err("dynamic-argument/duplicate-source-target".to_owned()),
             (None, Some(_)) => Err("dynamic-argument/duplicate-source-target".to_owned()),
-            (None, None) => super::super::lexical_instance_call::prepare_borrowed_call_actuals_v1(
-                source,
-                contracts,
-                site,
-                actuals,
-                candidates,
-                receiver,
-                nullable_class,
-            )
+            (None, None) => (|| {
+                let refined = source.as_ref().ok().map(|prepared| {
+                    prepared.refine_fresh_take_actuals_v1(input, site, contracts, actuals)
+                }).transpose()?;
+                super::super::lexical_instance_call::prepare_borrowed_call_actuals_v1(
+                    source,
+                    contracts,
+                    site,
+                    refined.as_deref().unwrap_or(actuals),
+                    candidates,
+                    receiver,
+                    nullable_class,
+                )
+            })()
             .and_then(|mut rows| {
                 super::super::lexical_instance_call::bind_argument_sources_v1(
                     input,

@@ -235,7 +235,7 @@ pub(super) fn encode_ordinary_call(
         if takes.contains_key(&(index + offset)) {
             let proof = proof.ok_or_else(|| fault("borrowed-carrier-ordinal-missing"))?;
             if carrier != Some(&Carrier::ExistingCallableI64) ||
-                !matches!(&proof.source, Source::TypedHome { moved: Some(_), .. }) {
+                !proof.source.transfers_home_at_entry_v1() {
                 return Err(fault("ordinary-argument-kind"));
             }
             consumed += 1;
@@ -511,6 +511,7 @@ fn encode_borrowed_actual_kind(source: &Source) -> Result<Value, String> {
         // A computed actual needs the descriptor from this SAME finalized Call
         // packet. Its source frame alone cannot manufacture a wire operand.
         Source::Expression(_) => return Err(fault("borrowed-expression/descriptor-missing")),
+        Source::FreshTakenHome { .. } => return Err(fault("ordinary-argument-kind")),
         // The exact `null` literal spells tag 0; the `value` field still
         // names the exact `const_null` producer, never a zero payload.
         Source::Null => json!(0),

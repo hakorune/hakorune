@@ -650,11 +650,14 @@ impl OrdinaryNewClaimLedgerV1 {
         // graph. Retain their source identity instead of claiming another
         // standalone prefix group for the same invocation.
         let mut expression_calls = std::collections::BTreeSet::new();
+        self.visit_expression_evaluations_v1(owner, &mut |evaluation| {
+            expression_calls.extend(evaluation.calls().iter().map(|call| call.site().clone()));
+            Ok(true)
+        })?;
         for terminal in self.terminal_relations_for_owner(owner) {
             let Some(evaluation) = self.return_expression_evaluation_v1(owner, terminal.return_site())? else { continue };
             for call in evaluation.calls() {
                 if !flow.local_calls().contains(call) { return Err(freeze("local-call-source-missing")); }
-                expression_calls.insert(call.site().clone());
             }
         }
         for frame in flow.expression_plans().iter().filter_map(|plan| plan.argument_frame()) {
@@ -669,7 +672,6 @@ impl OrdinaryNewClaimLedgerV1 {
             if frame.source().owner() != owner || !std::rc::Rc::ptr_eq(frame, &canonical) {
                 return Err(freeze("local-call-source-missing"));
             }
-            expression_calls.extend(frame.evaluation().calls().iter().map(|call| call.site().clone()));
         }
         prefixes.retain(|prefix| !matches!(prefix,
             LifecyclePrefixSourceV1::Call { site, .. } if expression_calls.contains(site)));

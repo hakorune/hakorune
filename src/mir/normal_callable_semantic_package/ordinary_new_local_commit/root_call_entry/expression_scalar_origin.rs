@@ -71,13 +71,16 @@ pub(in super::super) fn validate_scalar_origin(
     if let Producer::BranchNormal(basis) = source {
         context.ledger().require_branch_scalar_source_v1(basis)?;
         let point = read.loan_scalar_join_v1(source)?;
-        let ReferenceProducerV1::Phi(relation) = producer else {
+        let ReferenceProducerV1::Branch(branch) = producer else {
             return Err(freeze("expression/scalar-producer-kind"));
         };
-        if !std::rc::Rc::ptr_eq(point.relation(), relation) || point.branch().is_none() {
+        if point
+            .branch()
+            .is_none_or(|original| !std::rc::Rc::ptr_eq(original, branch))
+        {
             return Err(freeze("expression/scalar-producer-kind"));
         }
-        relation.require_completed_v1()?;
+        branch.relation().require_completed_v1()?;
         return Ok(value);
     }
     if matches!(source, Producer::LoopHeader(_) | Producer::LoopAfter { .. }) {
@@ -126,7 +129,7 @@ pub(in super::super) fn validate_scalar_origin(
         (Producer::SignedEntry(_), _) | (_, ReferenceProducerV1::Entry(_)) => {
             return Err(freeze("expression/scalar-producer-kind"))
         }
-        (_, ReferenceProducerV1::Phi(_)) => {
+        (_, ReferenceProducerV1::Phi(_) | ReferenceProducerV1::Branch(_)) => {
             return Err(freeze("expression/loop-point-source-kind"))
         }
         (original, ReferenceProducerV1::Definition(binding)) => {

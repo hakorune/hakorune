@@ -72,6 +72,57 @@ pub(super) fn value(
             site,
             context,
         ),
+        LexicalCallArgumentProjectionV1::TakenObjectArgument {
+            ordinal: observed,
+            site: observed_site,
+            formal,
+            value,
+            origin,
+        } if *observed == ordinal && observed_site == site && *formal == actual.formal => {
+            if !actual.source.transfers_home_at_entry_v1() {
+                return Err(freeze("taken-argument/source"));
+            }
+            match (&actual.source, origin) {
+                (
+                    Source::TypedHome {
+                        binding,
+                        moved: Some(_),
+                        ..
+                    },
+                    TakenObjectArgumentOriginV1::Read(read),
+                ) => {
+                    let at = actual.source.binding_read_site_v1(site)?;
+                    if read
+                        .value_for(owner, at.node(), *binding)
+                        .map_err(|error| {
+                            format!("[freeze:contract][taken-argument/read/{error:?}]")
+                        })?
+                        != *value
+                    {
+                        return Err(freeze("taken-argument/source"));
+                    }
+                }
+                (
+                    Source::FreshTakenHome { acquisition, class },
+                    TakenObjectArgumentOriginV1::Completed(bounds),
+                ) => {
+                    if acquisition.owner() != owner
+                        || acquisition.site() != site
+                        || &ledger.taken_new_argument_bounds_v1(
+                            acquisition,
+                            row.call_site(),
+                            ordinal,
+                            class,
+                            *value,
+                        )? != bounds
+                    {
+                        return Err(freeze("taken-argument/source"));
+                    }
+                }
+                _ => return Err(freeze("taken-argument/source")),
+            }
+            Ok(*value)
+        }
         LexicalCallArgumentProjectionV1::BorrowedReadArgument {
             ordinal: observed,
             site: observed_site,
@@ -170,6 +221,10 @@ pub(super) fn copies_in_context<'a>(
     row: CallPacketSourceLoanV1<'_>,
     context: CallValidationContextV1<'_>,
 ) -> Result<&'a [Binding], String> {
+    if let LexicalCallArgumentProjectionV1::TakenObjectArgument { ordinal, site, .. } = projection {
+        value(projection, owner, row, *ordinal, site, context)?;
+        return Ok(&[]);
+    }
     if let LexicalCallArgumentProjectionV1::BorrowedReadArgument {
         ordinal,
         site,

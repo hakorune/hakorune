@@ -91,9 +91,15 @@ impl FinalizedRootSourceHandoffV1 {
                 emission: &'a NewEmissionProgress,
                 same_site: bool,
             }
+            let result_prefix = match commits.get(actual.site()) {
+                Some(LocalCommitV1::Result(row)) => Some(self.ledger.expression_result_new_prefix_v1(
+                    actual.site(), row.home_prefix.as_ref().map_err(|_| freeze("received-birth/prefix"))?,
+                )?),
+                _ => None,
+            };
             let outer = match commits.get(actual.site()) {
                 Some(LocalCommitV1::Result(row)) if actual.destination().is_none() => {
-                    let prefix = row.home_prefix.as_ref().map_err(|_| freeze("received-birth/prefix"))?;
+                    let prefix = result_prefix.as_ref().ok_or_else(|| freeze("received-birth/prefix"))?;
                     Outer {
                         prior: prefix.prior_homes(), normal: prefix.normal_homes(),
                         rows: row.argument_rows.as_ref().map_err(|_| freeze("received-birth/source-arguments"))?,

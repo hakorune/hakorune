@@ -37,7 +37,6 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         .expression_source()
         .binary(value.site())
         .map(|row| row.operator());
-    let add = binary == Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Add);
     let copy = input
         .function()
         .expression_source()
@@ -58,12 +57,53 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         &purpose,
         super::super::super::BorrowedCallActualRequestV1::CallEntryHomes(input),
     )?, Some(super::super::super::BorrowedCallArgumentsV1::CallEntryHomes { taken, instance_input: true, .. }) if !taken.is_empty());
-    if !stored_field
-        && !add
-        && !copy
-        && !bool_root
-        && !owns_inputs
-        && binary != Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Subtract)
+    let owned_parameter_receiver = input
+        .function()
+        .method_call_source_v1(value.site())
+        .is_some_and(|call| {
+            use crate::mir::resolved_semantics::{
+                BindingKindV1, ResolvedLexicalRefV1, ResolvedMethodCallReceiverSourceV1,
+            };
+            let ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding)) =
+                call.receiver()
+            else {
+                return false;
+            };
+            input
+                .function()
+                .binding(binding)
+                .is_some_and(|row| matches!(row.kind(), BindingKindV1::Parameter { .. }))
+                && homes.iter().any(|home| home.is_stable_binding(binding))
+        });
+    let integer_source = input.body_shape().and_then(|shape| {
+        let ledger = input.forest().callable_source_ledger(input.owner()).ok()?;
+        let source = crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
+            &ledger, shape, statement.site()).ok()??;
+        use crate::mir::resolved_value_profile::{
+            expression_class::ExpressionValueClassV1 as Class,
+            expression_projection::{project_expression_class_v1, ExpressionLeafClassV1 as Leaf},
+        };
+        project_expression_class_v1(&source, |index| {
+            let node = &source.nodes()[index];
+            match locals.current_scalar_read_v1(node.site(), calls) {
+                Some(read) if read.kind() == crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer =>
+                    Leaf::Value(Class::I64),
+                _ => Leaf::Unresolved,
+            }
+        })
+    }) == Some(crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64);
+    let previous_scalar_candidate = stored_field
+        || owned_parameter_receiver
+        || integer_source
+        || binary.is_some()
+        || copy
+        || bool_root
+        || owns_inputs;
+    if !previous_scalar_candidate
+        && input
+            .function()
+            .method_call_source_v1(value.site())
+            .is_none()
     {
         return Ok(None);
     }
@@ -72,11 +112,18 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
             super::super::HomePrefixUnavailableV1::ReturnValueNotCovered(statement.site().clone()),
         ))
     };
+    let preselection_unavailable = || {
+        if previous_scalar_candidate {
+            refused()
+        } else {
+            None
+        }
+    };
     let Some(shape) = input.body_shape() else {
-        return Ok(refused());
+        return Ok(preselection_unavailable());
     };
     let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else {
-        return Ok(refused());
+        return Ok(preselection_unavailable());
     };
     let Ok(Some(source)) =
         crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
@@ -85,7 +132,58 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
             statement.site(),
         )
     else {
-        return Ok(refused());
+        return Ok(preselection_unavailable());
+    };
+    let mut root_argument_evaluation = false;
+    if !previous_scalar_candidate {
+        if let Some(call) = input.function().method_call_source_v1(value.site()) {
+            use crate::mir::resolved_semantics::home_new_prefix::{
+                BorrowedCallActualRequestV1, BorrowedCallArgumentsV1,
+            };
+            for argument in call.arguments() {
+                if let Some(BorrowedCallArgumentsV1::ArgumentExpressionSource(loan)) = actuals(
+                    &purpose,
+                    BorrowedCallActualRequestV1::ArgumentExpressionSource(
+                        input,
+                        argument.ordinal(),
+                    ),
+                )? {
+                    if !matches!(loan.plan().nodes().first().map(|node| node.source()),
+                        Some(crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Literal(_)
+                            | crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_)))
+                    { root_argument_evaluation = true; }
+                }
+            }
+        }
+    }
+    let root_core = if previous_scalar_candidate {
+        None
+    } else {
+        use crate::mir::core_method_result_kind::CoreMethodSemanticLawV2;
+        use crate::mir::resolved_semantics::home_new_prefix::{
+            BorrowedCallActualRequestV1, BorrowedCallArgumentsV1,
+        };
+        match actuals(
+            &purpose,
+            BorrowedCallActualRequestV1::ExpressionCoreSource {
+                input,
+                plan: &source,
+            },
+        )? {
+            Some(BorrowedCallArgumentsV1::ExpressionCoreSource(core))
+                if core.source().target().checked_code_point_law_v1()
+                    == Some(CoreMethodSemanticLawV2::CodePointCount) =>
+            {
+                Some(core)
+            }
+            None if root_argument_evaluation => None,
+            _ => return Ok(None),
+        }
+    };
+    let field_seeds = if root_core.is_some() {
+        super::super::super::field_read::text_field_seeds_v1(input, &source, locals, fields)
+    } else {
+        Default::default()
     };
     // The complete Return evaluation borrows its Call and field leaves from
     // their existing source issuers and retains their ordered cleanup proof.
@@ -103,7 +201,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         calls,
         actuals,
         None,
-        &std::collections::BTreeMap::new(),
+        &field_seeds,
+        root_core,
         &mut |site| {
             super::super::super::field_read::expression_field_read_request(
                 input, &source, site, locals,
@@ -122,20 +221,31 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
                     input.owner()
                 );
             }
-            return Ok(if add || bool_root { None } else { refused() });
+            return Ok(if integer_source { refused() } else { None });
         }
     };
-    // The pre-existing plain scalar kernel is still the consumer for pure
-    // arithmetic without field demand, explicit copy, or invocation. It has
-    // no lifecycle-root ABI demand; do not route it through a framed consumer.
-    if add
-        && requests.is_empty()
-        && !source.contains_copy_v1()
-        && evaluation.calls().is_empty()
-        && evaluation.cores().is_empty()
+    // A Return using the frame-free Core read does not acquire a Text Home.
+    // An expression requiring an acquisition or Fault frame keeps its terminal owner.
+    if !previous_scalar_candidate
+        && !root_argument_evaluation
+        && evaluation.requires_fault_frame_v1(true, |_| None)
     {
         return Ok(None);
     }
+    // A value already available at this point needs no new evaluation.
+    // Every computation uses the shared expression writer.
+    if evaluation.operations().is_empty()
+        && evaluation.calls().is_empty()
+        && evaluation.cores().is_empty()
+        && evaluation.owned_result_nodes().is_empty()
+        && requests.is_empty()
+        && matches!(source.nodes().first().map(|node| node.source()),
+            Some(crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Literal(_)
+                | crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_)))
+    {
+        return Ok(None);
+    }
+
     if stored_field {
         // Only an integer field belongs to this scalar lane; Text and others keep theirs.
         let probed = fields.local_field_read(

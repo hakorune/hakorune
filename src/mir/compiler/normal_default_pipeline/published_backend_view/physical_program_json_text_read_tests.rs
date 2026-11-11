@@ -60,7 +60,13 @@ fn text_field_reads_outside_the_listed_shapes_are_refused_by_name() {
 #[test]
 fn nullable_text_field_read_is_refused_by_name() {
     let error = compile("String?", "", "print(t.name)  return 0").unwrap_err();
-    assert!(error.contains("lexical-call-prior-home-unavailable") || error.contains("print-expression/source-unavailable"), "{error}");
+    // The same nullable Text contract may now refuse at source admission,
+    // before a read projection or a physical Birth is constructed.
+    let source_contract_refusal = error.contains("[mir/callable-semantic-package/issue]")
+        && error.contains("[ordinary-new/argument-source-unavailable]")
+        && error.contains("constructor Text formal contract is not connected");
+    assert!(source_contract_refusal || error.contains("lexical-call-prior-home-unavailable")
+        || error.contains("print-expression/source-unavailable"), "{error}");
 }
 
 /// A `take` birth whose source is spelled correctly but not connected is an unconnected form, not a

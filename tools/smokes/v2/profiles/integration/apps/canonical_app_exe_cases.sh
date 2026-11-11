@@ -61,21 +61,40 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# One source-issued take program exercises pre-entry and post-entry Faults.
-if [ -z "$ONLY_CASE" ] || [ "$ONLY_CASE" = ownership_take_entry ]; then
-  cat > "$TMP_ROOT.take.hako" <<'HAKO'
+# The first actual can be a moved local or a fresh construction. The second
+# actual may Fault before entry, and the callee may Fault after taking the Home.
+for take_case in ownership_take_entry ownership_take_fresh_entry; do
+  if [ -n "$ONLY_CASE" ] && [ "$ONLY_CASE" != "$take_case" ]; then
+    continue
+  fi
+  take_setup='local p = new Payload()'
+  take_actual='move p'
+  if [ "$take_case" = ownership_take_fresh_entry ]; then
+    take_setup=''
+    take_actual='new Payload()'
+  fi
+  cat > "$TMP_ROOT.$take_case.hako" <<HAKO
 box Payload {
   value: i64
   birth() { me.value = 7 }
 }
 static box Main {
-  later(): i64 { local scratch = new Payload() return 1 }
-  consume(take p: Payload, marker: i64): i64 { local scratch = new Payload() return 7 }
-  main() { local p = new Payload() return me.consume(move p, me.later()) }
+  later(): i64 {
+    local scratch = new Payload()
+    return 1
+  }
+  consume(take p: Payload, marker: i64): i64 {
+    local scratch = new Payload()
+    return 7
+  }
+  main() {
+    $take_setup
+    return me.consume($take_actual, me.later())
+  }
 }
 HAKO
-  CASES+=("ownership_take_entry|$TMP_ROOT.take.hako|7||")
-fi
+  CASES+=("$take_case|$TMP_ROOT.$take_case.hako|7||")
+done
 
 # `birth(take x: T)`: the moved Leaf is Ended once on Normal, on a Fault before the
 # constructor is entered (the caller Ends it), and on a Fault after entry (the constructor
@@ -208,7 +227,7 @@ run_case() {
   local name="$1" app="$HAKO_ROOT/apps/$2/main.hako" expected_rc="$3" expected_line="$4" flag="$5" profile="${6:-}"
   if [[ "$2" = /* ]]; then app="$2"; fi
   local extra_link=()
-  if [ "$name" = ownership_take_entry ] || [ "$name" = ownership_birth_take ]; then
+  if [ "$name" = ownership_take_entry ] || [ "$name" = ownership_take_fresh_entry ] || [ "$name" = ownership_birth_take ]; then
     local probe="$TMP_ROOT.take-probe.o"
     "${CC:-cc}" -DHAKO_TEST_OWNED_CALL_RESULT -c \
       "$HAKO_ROOT/lang/c-abi/tests/published_lifecycle_v4_runtime_probe.c" -o "$probe" || {
@@ -264,7 +283,7 @@ run_case() {
       "2||70||OWNED 2 1 1|COUNTS 1 1 1 0 1 1"
       "|2|70||OWNED 2 2 2|COUNTS 1 2 1 1 1 1")
   fi
-  if [ "$name" = ownership_take_entry ]; then
+  if [ "$name" = ownership_take_entry ] || [ "$name" = ownership_take_fresh_entry ]; then
     executions=("||7||OWNED 3 3 3|COUNTS 1 3 3 0 0 1"
       "2||70||OWNED 2 1 1|COUNTS 1 1 1 0 1 1"
       "3||70||OWNED 3 2 2|COUNTS 1 2 2 0 1 1")

@@ -25,8 +25,10 @@ pub(crate) fn verify_ownership_ssa_v1(
     verify::verify(function, abi, None)
 }
 
-/// Public module definitions enable a checked local child view; the path-sensitive
-/// verifier and all of its existing ownership checks remain the same owner.
+/// Public module definitions enable a checked local child view. Production
+/// supplies the exact final module after its mandatory strict String lifetime
+/// check; this verifies object responsibilities, not a second Text lifetime.
+/// The standalone API above does not grant that cross-domain delegation.
 pub(crate) fn verify_ownership_ssa_with_module_v1(
     function: &MirFunction,
     abi: &OwnershipFunctionAbiV1,

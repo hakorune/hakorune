@@ -39,10 +39,10 @@ use crate::mir::resolved_semantics::{
 #[path = "ordinary_new_coseal_issue_completion_seed.rs"]
 mod completion_seed;
 
-#[path = "ordinary_new_coseal_issue_lexical.rs"]
-mod lexical;
 #[path = "ordinary_new_coseal_issue_call_arguments.rs"]
 mod call_arguments;
+#[path = "ordinary_new_coseal_issue_lexical.rs"]
+mod lexical;
 use lexical::borrowed_call_arguments_callback_v1;
 #[path = "ordinary_new_coseal_issue_local_route.rs"]
 mod local_route;
@@ -56,7 +56,6 @@ mod walk_triggers;
 #[path = "ordinary_new_coseal_issue_route.rs"]
 mod route;
 use route::{OwnershipRouteV1, RouteFactsV1, ScanRequestV1, ScanRequestsV1};
-
 
 #[path = "ordinary_new_coseal_issue_source.rs"]
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) mod source_claims;
@@ -218,7 +217,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             .keys()
             .find(|key| selected.batch_slot(key) == Some(batch_slot))
             .and_then(|key| source_core_method_calls.get(key));
-        if !walk_triggers::needs_declaration_walk_v1(batch, selected, omitted_static_callers, app_main_batch_slot, batch_slot)? { continue; }
+        if !walk_triggers::needs_declaration_walk_v1(
+            batch,
+            selected,
+            omitted_static_callers,
+            app_main_batch_slot,
+            batch_slot,
+        )? {
+            continue;
+        }
         let seed_eligible = super::super::result_contract::preflight_declaration(
             declaration,
             selected,
@@ -237,7 +244,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     *result = program
                         .with_canonical_session_authority(|authority| {
                             super::super::physical_header::validate_declared_result(
-                                authority.completion(), owner, batch_slot,
+                                authority.completion(),
+                                owner,
+                                batch_slot,
                                 declaration.borrowed_result().map(|row| row.as_ref()),
                                 declaration.declared_result_box(),
                             )
@@ -273,11 +282,18 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let candidates = local_candidates.remove(&batch_slot)
                     .ok_or(OrdinaryNewCoSealIssueV1::BatchLoan)??;
                 let (result_resolutions, result_sites) =
-                    result_membership::issue_return_new_membership_v1(
+                    result_membership::issue_destinationless_new_membership_v1(
                         input,
                         &candidates,
                         batch,
                         instance_constructors,
+                        |call, ordinal, construction| {
+                            let Ok(source) = &borrowed_formal_source else {
+                                return Ok(false);
+                            };
+                            source.has_original_fresh_take_v1(call, ordinal, construction, parameter_contracts)
+                                .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: call.clone(), issue })
+                        },
                     )?;
                 let mut requests = ScanRequestsV1::default();
                 requests.require(ScanRequestV1::TypedStaticCall, typed_static_walk_owners.contains(&owner));
@@ -670,7 +686,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         result_claims.into_boxed_slice(),
         names,
     );
-    ledger.original_object_sources = Some(Rc::clone(instance_constructors.original_object_sources_v1()));
+    ledger.original_object_sources = Some(Rc::clone(
+        instance_constructors.original_object_sources_v1(),
+    ));
     ledger
         .retain_source_dynamic_member_calls_v1(dynamic_source_calls)
         .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;

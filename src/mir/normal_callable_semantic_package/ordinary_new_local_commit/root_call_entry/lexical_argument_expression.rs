@@ -186,6 +186,34 @@ impl LexicalCallArgumentProjectionV1 {
             packet.purpose_acquisition.is_some(),
         )
     }
+    /// Operations owed before Call entry. A taken New's obligation ends
+    /// at entry, so it does not join the post-entry temporary stack.
+    pub(in crate::mir) fn pre_entry_end_operations_v1(
+        &self,
+        call: &OwnedExprSiteV1,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<InvokeOperation>, String> {
+        if let Self::TakenObjectArgument {
+            site,
+            value,
+            origin: TakenObjectArgumentOriginV1::Completed(_),
+            ..
+        } = self
+        {
+            let acquisition = OwnedExprSiteV1::new(call.owner(), site.clone());
+            return context
+                .ledger()
+                .new_argument_object_cleanup_v1(&acquisition, *value)
+                .map(|(_, operations)| operations);
+        }
+        Ok(self
+            .deferred_temporaries_v1(context)?
+            .into_iter()
+            .rev()
+            .map(ExpressionOwnedTemporaryV1::end_operation)
+            .collect())
+    }
+
     /// Ownership-prefix corroboration only. Non-expression arguments add no
     /// retained stack; the enclosing materializer still checks every original
     /// actual tuple, including its formal, site and ordinal.
@@ -196,6 +224,17 @@ impl LexicalCallArgumentProjectionV1 {
         homes: &[LiveHomeV1],
         context: CallValidationContextV1<'_>,
     ) -> Result<(), String> {
+        if let Self::TakenObjectArgument {
+            ordinal: position,
+            site,
+            ..
+        } = self
+        {
+            if *position as usize != ordinal || !site.is_argument_of(call.site(), *position) {
+                return Err(freeze("argument-expression/prefix-position"));
+            }
+            return Ok(());
+        }
         let Self::Expression(packet) = self else {
             return Ok(());
         };
@@ -221,6 +260,26 @@ impl LexicalCallArgumentProjectionV1 {
         }
         Ok(())
     }
+    /// Lend the existing computed argument's full Normal schedule, including
+    /// its delimiter and purpose acquisition; never include its Fault suffix.
+    pub(in crate::mir) fn ordered_expression_bindings_v1(
+        &self,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<Binding>, String> {
+        let Self::Expression(packet) = self else {
+            return Ok(Vec::new());
+        };
+        packet.validate_source(context)?;
+        let mut ordered: Vec<_> = packet.body.entry.iter().cloned().collect();
+        ordered.extend(packet.expression().ordered_bindings_in_context(context)?);
+        if let Some(acquisition) = &packet.purpose_acquisition {
+            ordered.extend(acquisition.iter().cloned());
+        }
+        ordered.extend(packet.terminal.iter().cloned());
+        ordered.extend(packet.continuation.iter().cloned());
+        Ok(ordered)
+    }
+
     pub(in crate::mir) fn expression_bindings_v1(&self) -> &[Binding] {
         match self {
             Self::Expression(packet) => &packet.body.bindings,

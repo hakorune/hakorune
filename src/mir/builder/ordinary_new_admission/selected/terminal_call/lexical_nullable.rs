@@ -248,7 +248,7 @@ fn emit_object(
     bindings.push(emitted.invoke_binding().clone());
     bindings.push(emitted.outer_bindings()?.1.clone());
     let emitted = lexical_i64::finish_argument_cleanup_v1(
-        builder, normal_landing, emitted, cleanup, &mut bindings,
+        builder, ledger, normal_landing, emitted, cleanup, &mut bindings,
     )?;
     // The binding group is the finalized-call inventory — the exit
     // cleanup claims it in source order exactly like the scalar lane —

@@ -6,6 +6,7 @@ pub(crate) struct ExpressionScalarOperationLoanV1 {
     pub(super) plan: Rc<ExpressionSourcePlanV1>,
     pub(super) node: usize,
     pub(super) positive_divisor: Option<i64>,
+    pub(super) divisor_read: Option<super::super::CurrentScalarReadV1>,
 }
 impl ExpressionScalarOperationLoanV1 {
     /// The existing exact Local/root law; value-class qualification stays with
@@ -14,8 +15,9 @@ impl ExpressionScalarOperationLoanV1 {
         source: Rc<ExpressionSourcePlanV1>,
         binary: &ResolvedBinaryExpressionSourceV1,
         positive_divisor: Option<i64>,
+        divisor_read: Option<super::super::CurrentScalarReadV1>,
     ) -> Option<Rc<Self>> {
-        Self::issue_node_v1(source, 0, binary, positive_divisor)
+        Self::issue_node_v1(source, 0, binary, positive_divisor, divisor_read)
     }
 
     /// Retain the existing scalar integer law for one exact operation node in
@@ -26,6 +28,7 @@ impl ExpressionScalarOperationLoanV1 {
         node_index: usize,
         binary: &ResolvedBinaryExpressionSourceV1,
         positive_divisor: Option<i64>,
+        divisor_read: Option<super::super::CurrentScalarReadV1>,
     ) -> Option<Rc<Self>> {
         if source.has_opaque_obligations() {
             return None;
@@ -35,8 +38,7 @@ impl ExpressionScalarOperationLoanV1 {
         let original_value = match source.root() {
             crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
                 statement, call, ordinal,
-            } if positive_divisor.is_none()
-                && call.owner() == source.owner()
+            } if call.owner() == source.owner()
                 && call.arguments().get(*ordinal as usize).is_some_and(|argument|
                     argument.ordinal() == *ordinal && argument.site() == root.site())
                 && call.site().node().segments().starts_with(statement.node().segments()) => root.site(),
@@ -45,10 +47,10 @@ impl ExpressionScalarOperationLoanV1 {
                 if assignment.form() == crate::mir::resolved_semantics::ResolvedAssignmentFormV1::Plain => assignment.value_site(),
             crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
                 role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, value, ..
-            } if positive_divisor.is_none() => value,
+            } => value,
             crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::IfCondition { condition, .. }
             | crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LoopCondition { condition, .. }
-                if positive_divisor.is_none() => condition,
+                => condition,
             _ => return None,
         };
         if node.binary()? != binary || original_value != root.site() {
@@ -56,22 +58,38 @@ impl ExpressionScalarOperationLoanV1 {
         }
         let (_, needs_divisor) = Self::original_integer_operator_law_v1(binary.operator())?;
         if needs_divisor {
-            if !positive_divisor.is_some_and(|n| n > 0)
-                || !source.nodes().iter().any(|node| {
-                    node.site() == binary.rhs()
-                        && matches!(node.source(), ExpressionNodeSourceV1::Literal(
-                        ResolvedLiteralSourceV1::Integer(n)) if Some(*n) == positive_divisor)
-                })
+            let original_value = match divisor_read.as_ref() {
+                Some(read)
+                    if read.read() == binary.rhs() && read.binding().owner() == source.owner() =>
+                {
+                    read.exact_integer_value_v1()
+                }
+                Some(_) => None,
+                None => source.nodes().iter().find_map(|node| {
+                    (node.site() == binary.rhs())
+                        .then(|| match node.source() {
+                            ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Integer(
+                                value,
+                            )) => Some(*value),
+                            _ => None,
+                        })
+                        .flatten()
+                }),
+            };
+            if !positive_divisor.is_some_and(|value| value > 0)
+                || original_value != positive_divisor
             {
                 return None;
             }
-        } else if positive_divisor.is_some() {
+        } else if positive_divisor.is_some() || divisor_read.is_some() {
             return None;
         }
+
         let loan = Rc::new(Self {
             plan: Rc::clone(&source),
             node: node_index,
             positive_divisor,
+            divisor_read,
         });
         Some(loan)
     }

@@ -50,13 +50,19 @@ impl LocalSsaPhysicalRelationV1 {
     /// Lend only a real indexed Phi definition, retaining its writer-owned
     /// pending/completed/rollback state instead of cloning a provisional row.
     pub(in crate::mir) fn identity_phi_binding_v1(&self) -> Result<&PhysicalBinding, String> {
-        if self.from != self.to || self.target.is_some() || !matches!(self.step, Step::Identity) {
+        if !self.is_identity_v1() {
             return Err(reject("not-identity-phi"));
         }
         match &self.source {
             Definition::Phi(phi) => phi.current(),
             _ => Err(reject("not-indexed-phi")),
         }
+    }
+    pub(in crate::mir) fn is_identity_v1(&self) -> bool {
+        self.from == self.to && self.target.is_none() && matches!(self.step, Step::Identity)
+    }
+    pub(in crate::mir) fn is_indexed_phi_v1(&self) -> bool {
+        self.is_identity_v1() && matches!(self.source, Definition::Phi(_))
     }
     pub(in crate::mir) fn require_completed_v1(&self) -> Result<(), String> {
         if let Definition::Phi(phi) = &self.source { phi.require_completed()?; }
@@ -153,6 +159,15 @@ impl LocalSsaPhysicalRelationV1 {
             }
         }
         self.verify_shape()?;
+        if let (Definition::Instruction((_, MirInstruction::Copy { .. })), Some(target)) =
+            (&self.source, self.target.as_ref())
+        {
+            if let MirInstruction::Const { value: crate::mir::ConstValue::Integer(value), .. } = target.1 {
+                crate::mir::verification::utils::exact_integer_operand_origin(
+                    function, self.from, target, value,
+                ).ok_or_else(|| reject("copy-constant-origin"))?;
+            }
+        }
         if let Step::Append(children) = &self.step {
             for child in children {
                 child.verify(function)?;
@@ -276,6 +291,20 @@ impl LocalSsaPhysicalRelationV1 {
                             return Err(reject("copy-operand"));
                         }
                         Ok(())
+                    }
+                    (
+                        Definition::Instruction((_, MirInstruction::Copy { src, .. })),
+                        MirInstruction::Const { value: crate::mir::ConstValue::Integer(value), .. },
+                    ) if children.len() == 1 && children[0].from == *src => {
+                        let child = &children[0];
+                        let constant = child.target.as_ref().or_else(|| child.source.binding());
+                        if matches!(constant, Some((_, MirInstruction::Const {
+                            dst, value: crate::mir::ConstValue::Integer(actual),
+                        })) if *dst == child.to && actual == value) {
+                            Ok(())
+                        } else {
+                            Err(reject("copy-constant-child"))
+                        }
                     }
                     (_, MirInstruction::Copy { src, .. })
                         if *src == self.from && children.is_empty() =>

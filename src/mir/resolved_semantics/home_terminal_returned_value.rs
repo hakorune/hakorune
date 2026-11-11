@@ -436,6 +436,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
         actuals,
         None,
         &field_seeds,
+        None,
         &mut |site| {
             let request = super::super::field_read::expression_field_read_request(
                 input, &source, site, locals,

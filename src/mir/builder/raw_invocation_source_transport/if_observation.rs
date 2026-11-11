@@ -179,7 +179,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         let mut sources: Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>> = Vec::new();
         let mut text_sources: Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalTextSourceV1>> = Vec::new();
         if let (Some(claims), Some(owner), Some(node)) = (&self.ordinary_new_claim_ledger, self.callable_owner_v1(), self.current_source_site_v1()) {
-            for source in claims.branch_scalar_sources_v1(owner, &crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(node.clone())) {
+            for source in claims.branch_scalar_sources_v1(owner, &crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(node.clone()))? {
                 claims.require_branch_scalar_source_v1(&source)?;
                 if !sources.iter().any(|old| old.as_ref() == source.as_ref()) { sources.push(source); }
             }
@@ -200,7 +200,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         }
         if let (Some(owner), Some(claims), Some(node)) = (self.callable_owner_v1(), &self.ordinary_new_claim_ledger, self.current_source_site_v1()) {
             let statement = crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(node);
-            read_sources.extend(claims.branch_read_flow_sources_v1(owner, &statement).into_iter().map(ReadBranchSourceV1::Flow));
+            read_sources.extend(claims.branch_read_flow_sources_v1(owner, &statement)?.into_iter().map(ReadBranchSourceV1::Flow));
         }
         Ok(Some(Box::new(IfStateObserverV1 { state: Rc::clone(state), slots, sources, text_sources, read_sources,
             claims: self.ordinary_new_claim_ledger.clone(), pending: None, branch: None, baseline: None, arms: [None, None] })))

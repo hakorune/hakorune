@@ -200,6 +200,16 @@ pub(in crate::mir::builder) fn checked_scalar_arg(
     builder: &mut MirBuilder,
     value: ValueId,
 ) -> Result<(ValueId, std::rc::Rc<LocalSsaPhysicalRelationV1>), String> {
+    let function = builder.function_state.current_function.as_ref()
+        .ok_or_else(|| "[freeze:contract][scalar-original/function-missing]".to_owned())?;
+    let block = builder.function_state.current_block
+        .ok_or_else(|| "[freeze:contract][scalar-original/block-missing]".to_owned())?;
+    if checked_mul::reuse_same_block_operand(function, block, value)? {
+        let relation = builder.function_state.local_ssa_correspondence.loan(function, value, value)
+            .ok_or_else(|| "[freeze:contract][scalar-original/operand-correspondence]".to_owned())?;
+        relation.verify(function)?;
+        return Ok((value, relation));
+    }
     let returned = ensure_inner_with_policy(builder, value, LocalKind::Arg, false, true, true)?;
     let function = builder.function_state.current_function.as_ref()
         .ok_or_else(|| "[freeze:contract][scalar-original/function-missing]".to_owned())?;
@@ -207,6 +217,79 @@ pub(in crate::mir::builder) fn checked_scalar_arg(
         .ok_or_else(|| "[freeze:contract][scalar-original/operand-correspondence]".to_owned())?;
     relation.verify(function)?;
     Ok((returned, relation))
+}
+
+/// Materialize a source-proved positive divisor through the same exact
+/// LocalSSA correspondence. Copy inputs retain their original child proof.
+pub(in crate::mir::builder) fn checked_positive_divisor_arg(
+    builder: &mut MirBuilder,
+    value: ValueId,
+    expected: i64,
+) -> Result<(ValueId, std::rc::Rc<LocalSsaPhysicalRelationV1>), String> {
+    let reject = || "[freeze:contract][scalar-original/divisor-correspondence]".to_owned();
+    if expected <= 0 {
+        return Err(reject());
+    }
+    let chain = {
+        let function = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .ok_or_else(reject)?;
+        let block = builder.function_state.current_block.ok_or_else(reject)?;
+        let end = function
+            .blocks
+            .get(&block)
+            .ok_or_else(reject)?
+            .all_instructions()
+            .count();
+        crate::mir::verification::utils::exact_integer_operand_chain_at(
+            function, value, block, end, expected,
+        )
+        .ok_or_else(reject)?
+    };
+    let leaf = chain
+        .last()
+        .and_then(|(_, row)| row.dst_value())
+        .ok_or_else(reject)?;
+    let (mut target, mut relation) = checked_scalar_arg(builder, leaf)?;
+    for original in chain.into_iter().rev().skip(1) {
+        let crate::mir::MirInstruction::Copy { dst, src } = original.1 else {
+            return Err(reject());
+        };
+        let child = target;
+        let block = builder.function_state.current_block.ok_or_else(reject)?;
+        target = crate::mir::builder::emission::constant::emit_integer(builder, expected)?;
+        let function = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .ok_or_else(reject)?;
+        builder
+            .function_state
+            .local_ssa_correspondence
+            .record_append(
+                function,
+                dst,
+                Some(original),
+                target,
+                block,
+                Some(vec![(src, child)]),
+            );
+        relation = builder
+            .function_state
+            .local_ssa_correspondence
+            .loan(function, dst, target)
+            .ok_or_else(reject)?;
+    }
+    relation.verify(
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .ok_or_else(reject)?,
+    )?;
+    Ok((target, relation))
 }
 
 /// Selected checked Bool failures always propagate; unselected conditions keep

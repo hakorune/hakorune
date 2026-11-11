@@ -15,6 +15,7 @@ use std::collections::BTreeSet;
 pub(crate) struct CheckedExpressionEvaluationV1 {
     pub(super) source: Rc<ExpressionSourcePlanV1>,
     pub(super) prior_homes: Box<[LiveHomeV1]>,
+    pub(super) ownership: ExpressionOwnershipV1,
     pub(super) order: Box<[usize]>,
     pub(super) classes: Box<[ExpressionLeafClassV1]>,
     pub(super) calls: Box<[LocalCallObservationV1]>,
@@ -60,30 +61,63 @@ impl CheckedExpressionEvaluationV1 {
         {
             return true;
         }
-        for loan in self.operations.iter() {
-            if loan.scalar_copy_v1().is_none()
-                && loan.integer_operator_v1().is_none()
-                && !matches!(self.comparison_plan_v1(loan.node()), Ok(Some(plan)) if !plan.requires_fault_frame())
-            {
-                return true;
-            }
-        }
         self.order.iter().any(|&index| {
             let node = &self.source.nodes()[index];
-            matches!(
+            let checked = if matches!(
                 node.source(),
                 ExpressionNodeSourceV1::Shape(
                     crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }
                 )
-            ) && checked_field(&OwnedExprSiteV1::new(
-                self.source.owner(),
-                node.site().clone(),
-            )) != Some(false)
+            ) {
+                checked_field(&OwnedExprSiteV1::new(
+                    self.source.owner(),
+                    node.site().clone(),
+                ))
+            } else {
+                None
+            };
+            self.node_requires_fault_frame_v1(index, checked)
         })
     }
+
+    /// One node's retained operation law, shared by frame and cleanup admission.
+    pub(crate) fn node_requires_fault_frame_v1(
+        &self,
+        index: usize,
+        checked_field: Option<bool>,
+    ) -> bool {
+        let Some(node) = self.source.nodes().get(index) else {
+            return true;
+        };
+        if let Some(core) = self.cores.get(&index) {
+            return core.source().target().frame_free_read_law_v1().is_none();
+        }
+        if matches!(node.source(), ExpressionNodeSourceV1::MethodCall) {
+            return true;
+        }
+        if self.owned_results.contains(&index) {
+            return true;
+        }
+        if let Some(loan) = self.operations.iter().find(|loan| loan.node() == index) {
+            return loan.scalar_copy_v1().is_none()
+                && loan.integer_operator_v1().is_none()
+                && !matches!(self.comparison_plan_v1(index), Ok(Some(plan)) if !plan.requires_fault_frame());
+        }
+        matches!(
+            node.source(),
+            ExpressionNodeSourceV1::Shape(
+                crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }
+            )
+        ) && checked_field != Some(false)
+    }
+
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> {
         &self.source
     }
+    pub(crate) fn ownership_v1(&self) -> &ExpressionOwnershipV1 {
+        &self.ownership
+    }
+
     pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] {
         &self.prior_homes
     }
@@ -573,35 +607,6 @@ fn seed_reference_v1(
 
 /// Current Home references use the same original proof selection for every
 /// participating purpose. Purpose-specific entry loans remain with that issuer.
-pub(super) fn seed_current_expression_references_v1(
-    prepared: &mut super::leaves::PreparedExpressionCallsV1,
-    initial: Vec<(usize, CheckedExpressionReferenceV1)>,
-    order: &[usize],
-    static_reference: &mut impl FnMut(
-        &super::super::SourceExprSiteV1,
-    ) -> Option<super::super::StaticTextReadV1>,
-    residence_reference: &mut impl FnMut(
-        &super::super::SourceExprSiteV1,
-    ) -> Option<(
-        super::super::BindingRefV1,
-        super::super::BindingRefV1,
-        TextResidenceAcquisitionV1,
-    )>,
-    scalar_reference: &mut impl FnMut(
-        &super::super::SourceExprSiteV1,
-    ) -> Option<CheckedScalarReferenceV1>,
-) -> Option<std::collections::BTreeMap<usize, CheckedExpressionReferenceV1>> {
-    seed_current_expression_references_with_loop_text_v1(
-        prepared,
-        initial,
-        order,
-        static_reference,
-        residence_reference,
-        &mut |_| None,
-        scalar_reference,
-    )
-}
-
 pub(super) fn seed_current_expression_references_with_loop_text_v1(
     prepared: &mut super::leaves::PreparedExpressionCallsV1,
     initial: Vec<(usize, CheckedExpressionReferenceV1)>,
@@ -695,6 +700,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_text_evaluati
         actuals,
         field_text_source,
         &std::collections::BTreeMap::new(),
+        None,
         &mut |_| None,
     )? {
         Ok(prepared) => prepared,
@@ -715,3 +721,10 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) use value_preparation::p
 mod comparison_nodes;
 
 pub(crate) use comparison_nodes::{ComparisonExecutionKindV1, ComparisonExecutionPlanV1};
+
+#[path = "home_expression_ownership.rs"]
+mod ownership;
+pub(crate) use ownership::{
+    attach_expression_entry_facts_v1, expression_entry_facts_at_v1, ExpressionCallEntryFactsV1,
+    ExpressionOwnershipStateV1, ExpressionOwnershipV1,
+};

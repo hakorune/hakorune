@@ -174,6 +174,16 @@ impl OwnedCallableParameterContractV1 {
         Self::ordinary_source_input_cohort_v1(parameters)
             && parameters.iter().any(Self::takes_declared_object_v1)
     }
+    /// An exact construction of the declared class may satisfy take without a move.
+    pub(super) fn takes_fresh_construction_v1(
+        &self,
+        construction: &crate::mir::resolved_semantics::ResolvedNewExpressionSourceV1,
+    ) -> bool {
+        self.takes_declared_object_v1()
+            && construction.field_initializers().is_empty()
+            && matches!(&self.kind, CallableParameterContractKindV1::DeclaredObject(class)
+                if class.as_ref() == construction.class())
+    }
     pub(super) fn takes_declared_object_v1(&self) -> bool {
         self.demand == crate::mir::resolved_semantics::HomeDemandV1::Home
             && matches!(self.kind, CallableParameterContractKindV1::DeclaredObject(_))

@@ -13,11 +13,6 @@ use crate::mir::resolved_semantics::home_new_prefix::{
 use crate::mir::resolved_semantics::{OwnedExprSiteV1};
 use super::super::super::expression_value::ExpressionCallEmissionV1;
 
-fn in_arguments(arguments: &[LocalCallArgumentV1], site: &OwnedExprSiteV1) -> bool {
-    arguments.iter().any(|argument| matches!(argument, LocalCallArgumentV1::CallResult(inner)
-        if inner.site() == site || in_arguments(inner.arguments(), site)))
-}
-
 /// One expression-owned prefix for the same physical Call writer. Bool
 /// conditions own no String temporaries; their existing prior Homes still unwind.
 pub(in crate::mir::builder) type StaticExpressionCallIssuerV1<'a> = dyn Fn(
@@ -28,43 +23,33 @@ pub(in crate::mir::builder) type StaticExpressionCallIssuerV1<'a> = dyn Fn(
 ) -> Result<crate::mir::normal_callable_semantic_package::CallPacketSourceV1, String> + 'a;
 
 pub(super) struct ExpressionCallPrefixV1<'a> {
-    kind: ExpressionCallPrefixKindV1<'a>,
+    prefix: ExpressionCallTransientPrefixV1<'a>,
     static_source: Option<&'a StaticExpressionCallIssuerV1<'a>>,
     consume_receiver: &'a dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
 }
-enum ExpressionCallPrefixKindV1<'a> {
-    Evaluation(ExpressionCallTransientPrefixV1<'a>),
-    Bool { frame: &'a CheckedBoolConditionFrameV1, call: &'a LocalCallObservationV1 },
-}
 impl<'a> ExpressionCallPrefixV1<'a> {
+    pub(super) fn homes_before_site_v1<'b>(&'b self, site: &OwnedExprSiteV1, fallback: &'b [LiveHomeV1]) -> Result<&'b [LiveHomeV1], String> {
+        self.prefix.homes_before_site_v1(site, fallback)
+    }
+    pub(super) fn homes_before_entry_v1<'b>(&'b self, site: &OwnedExprSiteV1, fallback: &'b [LiveHomeV1]) -> Result<&'b [LiveHomeV1], String> {
+        self.prefix.homes_before_entry_v1(site, fallback)
+    }
+    pub(super) fn planned_homes_after_site_v1(&self, site: &OwnedExprSiteV1) -> Result<Option<&[LiveHomeV1]>, String> {
+        self.prefix.planned_homes_after_site_v1(site)
+    }
     pub(super) fn original_observation_v1(&self) -> Option<&LocalCallObservationV1> {
-        match &self.kind {
-            ExpressionCallPrefixKindV1::Evaluation(prefix) => prefix.original_observation_v1(),
-            ExpressionCallPrefixKindV1::Bool { call, .. } => Some(call),
-        }
+        self.prefix.original_observation_v1()
     }
     pub(super) fn for_argument(prefix: ExpressionCallTransientPrefixV1<'a>, consume_receiver: &'a dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>, static_source: Option<&'a StaticExpressionCallIssuerV1<'a>>) -> Self {
-        Self { kind: ExpressionCallPrefixKindV1::Evaluation(prefix), consume_receiver, static_source }
+        Self { prefix, consume_receiver, static_source }
     }
     pub(super) fn static_source(&self) -> Option<&StaticExpressionCallIssuerV1<'_>> { self.static_source }
-    pub(super) fn transient(&self) -> Option<&ExpressionCallTransientPrefixV1<'_>> {
-        match &self.kind { ExpressionCallPrefixKindV1::Evaluation(prefix) => Some(prefix), _ => None }
-    }
+    pub(super) fn transient(&self) -> Option<&ExpressionCallTransientPrefixV1<'_>> { Some(&self.prefix) }
     pub(super) fn consume_receiver(&self, row: &LexicalInstanceCallDispositionRowV1) -> Result<(), String> {
         (self.consume_receiver)(row)
     }
-    pub(super) fn unwind(&self, site: &OwnedExprSiteV1, prior_homes: &[LiveHomeV1])
-        -> Result<Vec<InvokeOperation>, String> {
-        match &self.kind {
-            ExpressionCallPrefixKindV1::Evaluation(prefix) => prefix.unwind_for_call(site, prior_homes),
-            ExpressionCallPrefixKindV1::Bool { frame, call } => {
-                if prior_homes != frame.prior_homes()
-                    || (site != call.site() && !in_arguments(call.arguments(), site)) {
-                    return Err(freeze("bool-condition-call/context-drift"));
-                }
-                Ok(Vec::new())
-            }
-        }
+    pub(super) fn unwind(&self, site: &OwnedExprSiteV1, prior_homes: &[LiveHomeV1]) -> Result<Vec<InvokeOperation>, String> {
+        self.prefix.unwind_for_call(site, prior_homes)
     }
 }
 
@@ -82,7 +67,7 @@ pub(in crate::mir::builder) fn emit_bool(
         || ledger.lexical_i64_call_source(call.site()) != Some(call)
         || state.owner() != frame.source().owner()
     { return Err(freeze("bool-condition-call/source-drift")); }
-    let prefix = ExpressionCallPrefixV1 { kind: ExpressionCallPrefixKindV1::Bool { frame, call }, consume_receiver, static_source };
+    let prefix = ExpressionCallPrefixV1 { prefix: ExpressionCallTransientPrefixV1::for_condition_v1(frame.evaluation(), call)?, consume_receiver, static_source };
     let source = match call.result_source() {
         Some(crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::Ordinary(loan)) if loan.static_source().is_some() =>
             static_source.ok_or_else(|| freeze("bool-condition-call/static-issuer-missing"))?(
@@ -125,8 +110,8 @@ pub(in crate::mir::builder) fn emit_with_prefix(
     inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
 ) -> Result<EmittedCall, String> {
     let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
-    let prefix = ExpressionCallPrefixV1 { kind: ExpressionCallPrefixKindV1::Evaluation(
-        ExpressionCallTransientPrefixV1::from_evaluation(frame, call, acquired, values, function, inherited)?), consume_receiver, static_source };
+    let prefix = ExpressionCallPrefixV1 { prefix:
+        ExpressionCallTransientPrefixV1::from_evaluation(frame, call, acquired, values, function, inherited)?, consume_receiver, static_source };
     if !frame.calls().iter().any(|original| std::ptr::eq(original, call))
         || state.owner() != frame.source().owner() {
         return Err(freeze("expression-call/source-drift"));
@@ -156,6 +141,7 @@ pub(in crate::mir::builder) fn emit_with_dynamic_and_argument_frames(
     consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
     static_source: Option<&StaticExpressionCallIssuerV1<'_>>,
     retained_argument_frames: &[std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>],
+    inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
 ) -> Result<ExpressionCallEmissionV1, String> {
     if !frame.calls().iter().any(|original| std::ptr::eq(original, call))
         || state.owner() != frame.source().owner() {
@@ -164,14 +150,14 @@ pub(in crate::mir::builder) fn emit_with_dynamic_and_argument_frames(
     if !matches!(call.result_source(), Some(
         crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::DynamicInvocation(_))) {
         return emit_with_prefix(builder, state, ledger, frame, call, acquired, values, bindings,
-            consume_receiver, static_source, None).map(ExpressionCallEmissionV1::Lexical);
+            consume_receiver, static_source, inherited).map(ExpressionCallEmissionV1::Lexical);
     }
 
     let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
     let owned_site = OwnedExprSiteV1::new(call.owner(), call.site().site().clone());
     let prefix = ExpressionCallPrefixV1 {
-        kind: ExpressionCallPrefixKindV1::Evaluation(ExpressionCallTransientPrefixV1::from_evaluation(
-            frame, call, acquired, values, function, None)?),
+        prefix: ExpressionCallTransientPrefixV1::from_evaluation(
+            frame, call, acquired, values, function, inherited)?,
         consume_receiver,
         static_source,
     };
@@ -245,7 +231,7 @@ pub(in crate::mir::builder) fn emit_with_dynamic_and_argument_frames(
         crate::mir::instruction::DynamicInvocationOperandV1::TaggedDynamic(receiver_value),
     )?;
     let mut unwind = prefix.unwind(&owned_site, call.prior_homes())?;
-    unwind.extend(ledger.prior_home_unwind_for(call.prior_homes())?);
+    unwind.extend(ledger.prior_home_unwind_for(prefix.homes_before_entry_v1(&owned_site, call.prior_homes())?)?);
     let fault_frame = state.borrow_fault_frame(builder)?;
     let shared_frame = fault_frame_binding(builder, state, fault_frame)?;
     if !bindings.contains(&shared_frame) { bindings.push(shared_frame); }

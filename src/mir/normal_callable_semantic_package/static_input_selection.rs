@@ -53,6 +53,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         value,
                     }
                 }).collect();
+                let actuals = prepared.refine_fresh_take_actuals_v1(input, site, contracts, &actuals)?;
                 // Only source atoms whose identity is stable without caller
                 // flow may be staged here. Bindings/fields remain owned by
                 // the ordinary prefix walk and cannot be guessed early.

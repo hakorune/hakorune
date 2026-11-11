@@ -13,19 +13,7 @@ impl HomeExpressionPlanV1 {
         if source.has_opaque_obligations() || source.root().initializer().is_none() {
             return None;
         }
-        let mut plan = prepared.unwrap_or_else(|| Self {
-            source: Rc::clone(&source),
-            scalar_operations: Vec::new(),
-            source_fields: Vec::new(),
-            print_frame: None,
-            argument_frame: None,
-            initializer_frame: None,
-            rebind_frame: None,
-            condition_frame: None,
-            loop_recipe: None,
-            field_write: None,
-            source_field_homes: None,
-        });
+        let mut plan = prepared.unwrap_or_else(|| Self::for_source(Rc::clone(&source)));
         if !Rc::ptr_eq(&plan.source, &source) || plan.source_field_homes.is_some() {
             return None;
         }
@@ -97,19 +85,7 @@ impl HomeExpressionPlanV1 {
         if !matches!(evaluation.source().root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
             role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. })
             || !evaluation.reference_coverage_is_exact() { return None; }
-        let plan = Self {
-            source: Rc::clone(evaluation.source()),
-            scalar_operations: Vec::new(),
-            source_fields: Vec::new(),
-            print_frame: None,
-            argument_frame: None,
-            initializer_frame: None,
-            rebind_frame: None,
-            condition_frame: None,
-            loop_recipe: None,
-            field_write: None,
-            source_field_homes: None,
-        };
+        let plan = Self::for_source(Rc::clone(evaluation.source()));
         let transferred = evaluation
             .ordered_nodes()
             .iter()
@@ -197,17 +173,8 @@ impl HomeExpressionPlanV1 {
         requests: &[LocalFieldReadRequestV1],
     ) -> Option<Self> {
         Self {
-            source,
-            scalar_operations: Vec::new(),
-            source_fields: Vec::new(),
-            print_frame: None,
-            argument_frame: None,
-            initializer_frame: None,
-            rebind_frame: None,
-            condition_frame: None,
-            loop_recipe: None,
-            field_write: None,
             source_field_homes: Some(Rc::from(homes)),
+            ..Self::for_source(source)
         }
         .with_source_field_requirements(requests)
     }

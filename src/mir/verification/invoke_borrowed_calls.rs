@@ -239,7 +239,7 @@ pub(super) fn original_call_slots(
             let mut take_actuals = BTreeMap::new();
             for actual in actuals {
                 if let Some(object) = takes.and_then(|rows| rows.get(&actual.ordinal)) {
-                    if !matches!(&actual.source, crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1::TypedHome { moved: Some(_), .. }) {
+                    if !actual.source.transfers_home_at_entry_v1() {
                         return Err("borrowed-source-actual-coverage".into());
                     }
                     let value = *call.args.get(actual.ordinal as usize).ok_or("borrowed-source-actual-coverage")?;

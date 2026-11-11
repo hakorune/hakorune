@@ -54,6 +54,7 @@ pub(crate) fn issue_mixed_local_call<E>(
             binding: destination,
         },
         prior_homes: prior_homes.iter().cloned().collect(),
+        entry_ownership: None,
         arguments,
         result: LocalCallResultClassV1::MixedObject,
         mixed: Some(Box::new(loan)),

@@ -202,6 +202,14 @@ pub(super) fn construct_borrowed_call_actuals_v1(
                     kind: *kind,
                 }
             }
+            BorrowedCallActualValueV1::FreshConstruction(construction)
+                if prepared.has_original_fresh_take_v1(call, actual.ordinal, construction, contracts)? =>
+            {
+                BorrowedFormalActualSourceV1::FreshTakenHome {
+                    acquisition: OwnedExprSiteV1::new(call.owner(), actual.site.clone()),
+                    class: construction.class().into(),
+                }
+            }
             BorrowedCallActualValueV1::Home { .. } => {
                 let Some(source) = homes.prepare_home_actual_v1(call, &contract.parameters[*ordinal as usize], actual)? else {
                     return Ok(None);
@@ -289,7 +297,7 @@ pub(super) fn construct_borrowed_call_actuals_v1(
             _ => return Err(freeze("borrowed-actual/unsupported-or-unavailable")),
         };
         if contract.parameters[*ordinal as usize].demand == crate::mir::resolved_semantics::HomeDemandV1::Home
-            && !matches!(&source, BorrowedFormalActualSourceV1::TypedHome { moved: Some(_), .. }) {
+            && !source.transfers_home_at_entry_v1() {
             return Err(freeze("borrowed-actual/source-identity"));
         }
         if let CallableParameterContractKindV1::DeclaredObject(expected) =
@@ -299,6 +307,7 @@ pub(super) fn construct_borrowed_call_actuals_v1(
                 BorrowedFormalActualSourceV1::Null => None,
                 BorrowedFormalActualSourceV1::Read(loan) => Some(loan.class()),
                 BorrowedFormalActualSourceV1::TypedHome { class, .. }
+                | BorrowedFormalActualSourceV1::FreshTakenHome { class, .. }
                 | BorrowedFormalActualSourceV1::EntryReceiver { class, .. }
                 | BorrowedFormalActualSourceV1::LocalObjectBinding { class, .. }
                 | BorrowedFormalActualSourceV1::ReceivedNullable { class, .. }

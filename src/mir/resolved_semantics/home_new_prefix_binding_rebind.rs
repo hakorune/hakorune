@@ -8,6 +8,7 @@ pub(super) fn observe<E>(
     locals: &mut PrefixLocalFlow<'_>,
     homes: &mut HomesV1,
     known: bool,
+    unavailable: &mut Option<HomePrefixUnavailableV1>,
     calls: &mut Vec<LocalCallObservationV1>,
     path_calls: &mut BTreeSet<OwnedExprSiteV1>,
     fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
@@ -120,6 +121,10 @@ pub(super) fn observe<E>(
             .map(|call| call.site().clone()),
     );
     calls.extend_from_slice(frame.evaluation().calls());
+    if let Err(issue) = locals.commit_expression_end_v1(frame.evaluation(), homes) {
+        unavailable.get_or_insert(issue);
+        return Ok(true);
+    }
     if let Some(read) = frame.declared_read_v1() {
         if !locals.install_declared_read_alias_v1(*target, read.read().site()) { return Ok(false); }
     } else if frame.is_text_residence() {

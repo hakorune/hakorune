@@ -222,9 +222,14 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Err(freeze("prepare-state-or-source-mismatch"));
         }
-        let prior_homes = claim
+        let prefix = claim
             .home_prefix()
+            .as_ref()
             .ok()
+            .map(|prefix| self.expression_result_new_prefix_v1(claim.site(), prefix))
+            .transpose()?;
+        let prior_homes = prefix
+            .as_ref()
             .map(|prefix| (prefix.prior_homes(), prefix.required_unwind()));
         let (mut next, mut selection) = self.compute_emission_prepare(
             &rows,

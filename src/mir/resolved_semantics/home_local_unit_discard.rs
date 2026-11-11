@@ -62,6 +62,7 @@ pub(super) fn demand_v1<E>(
         site: site.clone(),
         destination: LocalCallDestinationV1::Discard,
         prior_homes: prior_homes.into(),
+        entry_ownership: None,
         arguments,
         result: LocalCallResultClassV1::Unit,
         unit_source: Some(source),

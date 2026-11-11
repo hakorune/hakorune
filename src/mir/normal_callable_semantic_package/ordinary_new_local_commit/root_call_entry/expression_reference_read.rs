@@ -31,6 +31,18 @@ pub(in crate::mir) enum ReferenceProducerV1 {
     Definition(Binding),
     Entry(ValueId),
     Phi(std::rc::Rc<crate::mir::builder::LocalSsaPhysicalRelationV1>),
+    Branch(std::rc::Rc<BranchScalarPhiObservationV1>),
+}
+impl ReferenceProducerV1 {
+    pub(super) fn join_relation(
+        &self,
+    ) -> Option<&std::rc::Rc<crate::mir::builder::LocalSsaPhysicalRelationV1>> {
+        match self {
+            Self::Phi(point) => Some(point),
+            Self::Branch(point) => Some(point.relation()),
+            _ => None,
+        }
+    }
 }
 impl PartialEq for ReferenceProducerV1 {
     fn eq(&self, other: &Self) -> bool {
@@ -38,6 +50,7 @@ impl PartialEq for ReferenceProducerV1 {
             (Self::Definition(a), Self::Definition(b)) => a == b,
             (Self::Entry(a), Self::Entry(b)) => a == b,
             (Self::Phi(a), Self::Phi(b)) => std::rc::Rc::ptr_eq(a, b),
+            (Self::Branch(a), Self::Branch(b)) => std::rc::Rc::ptr_eq(a, b),
             _ => false,
         }
     }
@@ -109,7 +122,7 @@ impl ExpressionReferenceReadV1 {
                     .validate(context, function, finishing)?;
             }
         }
-        if let ReferenceProducerV1::Phi(point) = &self.producer {
+        if let Some(point) = self.producer.join_relation() {
             if let Some(projection) = finishing {
                 if matches!(context, CallValidationContextV1::Finalized(_)) {
                     point.require_completed_v1()?;
@@ -157,7 +170,7 @@ impl ExpressionReferenceReadV1 {
         function: &MirFunction,
         projection: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::physical_boundary::FinishedBindings,
     ) -> Result<(), String> {
-        if let ReferenceProducerV1::Phi(point) = &self.producer {
+        if let Some(point) = self.producer.join_relation() {
             point.require_completed_v1()?;
             point.verify_projected(function, &mut |row| {
                 projection.relation_binding(function, row)
@@ -196,8 +209,8 @@ impl ExpressionReferenceReadV1 {
             }
             Reference::StaticText(original) => {
                 let value = read
-                    .loan_local_initializer_v1(original.definition_binding())?
-                    .0;
+                    .binding_observation_v2()
+                    .loan_root_initializer_v1(original.definition_binding())?;
                 let mut rows = function
                     .blocks
                     .iter()
@@ -343,7 +356,7 @@ impl ExpressionReferenceReadV1 {
     }
     pub(in crate::mir) fn dependencies(&self) -> Result<std::vec::IntoIter<Binding>, String> {
         let mut rows: Vec<_> = self.definition().cloned().into_iter().collect();
-        if let ReferenceProducerV1::Phi(point) = &self.producer {
+        if let Some(point) = self.producer.join_relation() {
             point.append_observed_bindings_v1(&mut rows);
         }
         rows.extend_from_slice(self.read.original_copy_dependencies_v1()?);
@@ -361,7 +374,7 @@ impl ExpressionReferenceReadV1 {
             let mut borrowed = false;
             if matches!(binding.1, MirInstruction::Phi { .. }) {
                 for read in &reads {
-                    if let ReferenceProducerV1::Phi(point) = &read.producer {
+                    if let Some(point) = read.producer.join_relation() {
                         if point
                             .resolve_observed_binding_v1(&binding, false)?
                             .is_some()
@@ -428,7 +441,11 @@ impl ExpressionReferenceReadV1 {
                 Ok(self.producer.clone())
             }
             ReferenceProducerV1::Entry(entry) if *entry == value => Ok(self.producer.clone()),
-            ReferenceProducerV1::Phi(point) if point.values().0 == value => {
+            _ if self
+                .producer
+                .join_relation()
+                .is_some_and(|point| point.values().0 == value) =>
+            {
                 Ok(self.producer.clone())
             }
             _ => Err(freeze("rebind-expression/rhs-producer")),

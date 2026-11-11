@@ -4,7 +4,7 @@ use crate::mir::builder::normal_callable_semantic_lowering_state::ExactLexicalRe
 use crate::mir::normal_callable_semantic_package::{
     CallPacketSourceLoanV1 as SourceLoan, CallPacketSourceV1 as CallSource,
     EmittedLexicalCallProjectionV1 as EmittedCall,
-    LexicalCallArgumentProjectionV1 as ArgumentProjection,
+    LexicalCallArgumentProjectionV1 as ArgumentProjection, TakenObjectArgumentOriginV1,
     PreparedLexicalCallProjectionV1 as PreparedCall,
     ExpressionCallArgumentSourceV1 as ArgumentSource, ExpressionCallTransientPrefixV1, CallValidationContextV1,
 };
@@ -223,12 +223,23 @@ fn emit_lexical_i64_call(
         Some(prefix) => prefix.unwind(row.call_site(), prior_homes)?,
         None => Vec::new(),
     };
-    let entered_homes = row.entered_prior_homes_v1(CallValidationContextV1::Lowering(ledger), prior_homes)?;
+    let before_arguments = expression.map(|prefix| prefix.homes_before_site_v1(row.call_site(), prior_homes))
+        .transpose()?.unwrap_or(prior_homes);
+    let before_entry = expression.map(|prefix| prefix.homes_before_entry_v1(row.call_site(), before_arguments))
+        .transpose()?.unwrap_or(before_arguments);
+    let standalone_homes;
+    let entered_homes = match expression.map(|prefix| prefix.planned_homes_after_site_v1(row.call_site())).transpose()?.flatten() {
+        Some(planned) => planned,
+        None => {
+            standalone_homes = row.entered_prior_homes_v1(CallValidationContextV1::Lowering(ledger), before_entry)?;
+            &standalone_homes
+        }
+    };
     let mut entered_unwind = unwind.clone();
-    entered_unwind.extend(ledger.prior_home_unwind_for(&entered_homes)?);
-    ledger.with_loop_call_text_ends_v2(row.call_site(), prior_homes, &mut entered_unwind)?;
-    unwind.extend(ledger.prior_home_unwind_for(prior_homes)?);
-    ledger.with_loop_call_text_ends_v2(row.call_site(), prior_homes, &mut unwind)?;
+    entered_unwind.extend(ledger.prior_home_unwind_for(entered_homes)?);
+    ledger.with_loop_call_text_ends_at_state_v1(row.call_site(), prior_homes, entered_homes, &mut entered_unwind)?;
+    unwind.extend(ledger.prior_home_unwind_for(before_arguments)?);
+    ledger.with_loop_call_text_ends_at_state_v1(row.call_site(), prior_homes, before_arguments, &mut unwind)?;
     if sealed_arguments.len() != row.argument_sites().len()
         || row.argument_sites().len() != row.target().arity() as usize
     {
@@ -289,7 +300,7 @@ fn emit_lexical_i64_call(
         bindings.push(invoke.clone());
         EmittedCall::from_unit_source(original, prepared, invoke, normal_landing)?
     };
-    finish_argument_cleanup_v1(builder, normal_landing, packet, cleanup, bindings)
+    finish_argument_cleanup_v1(builder, ledger, normal_landing, packet, cleanup, bindings)
 }
 
 pub(super) type ArgumentCleanupV1 = super::super::root_graph::OperationCleanupV1;
@@ -307,7 +318,7 @@ pub(super) fn prepare_argument_cleanup_v1(
 }
 
 pub(super) fn finish_argument_cleanup_v1(
-    builder: &mut MirBuilder, normal_landing: BasicBlockId, packet: EmittedCall,
+    builder: &mut MirBuilder, ledger: &OrdinaryNewClaimLedgerV1, normal_landing: BasicBlockId, packet: EmittedCall,
     cleanup: Option<ArgumentCleanupV1>, bindings: &mut Vec<Binding>,
 ) -> Result<EmittedCall, String> {
     let packet = match cleanup {
@@ -321,7 +332,7 @@ pub(super) fn finish_argument_cleanup_v1(
         None => Ok(packet),
     }?;
     packet.validate_original_argument_order_v1(builder.function_state.current_function.as_ref()
-        .ok_or_else(|| freeze("no-function"))?)?;
+        .ok_or_else(|| freeze("no-function"))?, CallValidationContextV1::Lowering(ledger))?;
     Ok(packet)
 }
 
@@ -490,6 +501,42 @@ fn prepare_arguments_with_prefix(
                     _ if expression_only => {
                         return Err(freeze("lexical-i64/expression-source-required"));
                     }
+                    Source::FreshTakenHome { acquisition, class } => {
+                        if acquisition.owner() != owner
+                            || acquisition.site() != site
+                            || *ordinal as usize != position
+                        {
+                            return Err(freeze("taken-argument/source"));
+                        }
+                        let prefix = ExpressionCallTransientPrefixV1::for_prepared_call_argument(
+                            original.ok_or_else(|| freeze("taken-argument/call-source"))?,
+                            position, &arguments, CallValidationContextV1::Lowering(ledger),
+                            expression.and_then(|prefix| prefix.transient()),
+                        )?;
+                        let inherited = prefix.unwind_for_taken_new_v1(acquisition)?;
+                        let consumer = consume_receiver.ok_or_else(|| freeze("taken-argument/receiver-scope"))?;
+                        let record = ledger.with_fresh_taken_new_arity_v1(acquisition, row.call_site(), *ordinal, class)?;
+                        let claim = ledger.try_take_result(acquisition, class, record)
+                            .map_err(|error| format!("[freeze:contract][taken-argument/claim] {error:?}"))?
+                            .ok_or_else(|| freeze("taken-argument/claim"))?;
+                        ledger.prepare_result_new_emission(&claim)?
+                            .map_err(|error| format!("[freeze:contract][taken-argument/prepare] {error:?}"))?;
+                        let value = super::super::emit_result(
+                            builder, state, ledger, claim, consumer, static_source, &inherited,
+                        )?;
+                        ledger.complete_new_expression(acquisition, class, value)?;
+                        let bounds = ledger.taken_new_argument_bounds_v1(acquisition, row.call_site(), *ordinal, class, value)?;
+                        for binding in ledger.taken_new_argument_bindings_v1(
+                            acquisition, row.call_site(), *ordinal, value, &bounds,
+                        )? {
+                            if matches!(binding.1, MirInstruction::FaultFrameEnter { .. }) && bindings.contains(&binding) { continue; }
+                            bindings.push(binding);
+                        }
+                        ArgumentProjection::TakenObjectArgument {
+                            ordinal: *ordinal, site: site.clone(), formal: actual.formal, value,
+                            origin: TakenObjectArgumentOriginV1::Completed(bounds),
+                        }
+                    }
                     Source::Read(source) => {
                         let observed = crate::mir::builder::ordinary_new_admission::selected::read_argument::emit(
                             builder, state, ledger, row.call_site(), source, bindings,
@@ -590,12 +637,21 @@ fn prepare_arguments_with_prefix(
                             .map_err(|error| {
                                 format!("[freeze:contract][lexical-i64/borrowed-read/{error:?}]")
                             })?;
+                        if source.transfers_home_at_entry_v1() {
+                            let value = read.value_for(owner, read_site.node(), binding)
+                                .map_err(|error| format!("[freeze:contract][taken-argument/read/{error:?}]"))?;
+                            ArgumentProjection::TakenObjectArgument {
+                                ordinal: *ordinal, site: site.clone(), formal: actual.formal,
+                                value, origin: TakenObjectArgumentOriginV1::Read(read),
+                            }
+                        } else {
                         ArgumentProjection::BorrowedRead {
                             ordinal: *ordinal,
                             site: site.clone(),
                             formal: actual.formal,
                             read,
                             entry,
+                        }
                         }
                     }
                 }

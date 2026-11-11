@@ -144,17 +144,8 @@ impl HomeExpressionPlanV1 {
             receiver: FieldWriteReceiverV1::FormalBorrowed,
         });
         Some(Self {
-            source,
-            scalar_operations: Vec::new(),
-            source_fields: Vec::new(),
-            source_field_homes: None,
-            argument_frame: None,
-            initializer_frame: None,
-            rebind_frame: None,
-            print_frame: None,
-            condition_frame: None,
-            loop_recipe: None,
             field_write: Some(FieldWritePlanV1 { frame, rhs: None }),
+            ..Self::for_source(source)
         })
     }
 }

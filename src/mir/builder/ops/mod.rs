@@ -181,12 +181,25 @@ impl super::MirBuilder {
     pub(in crate::mir) fn build_source_scalar_from_values_recorded(
         &mut self, operator: BinaryOperator, lhs_raw: ValueId, rhs_raw: ValueId,
     ) -> Result<(CompletedOrdinaryBinaryV1, [std::rc::Rc<super::ssa::local::LocalSsaPhysicalRelationV1>; 2]), String> {
+        self.build_source_scalar_with_divisor_from_values_recorded(operator, lhs_raw, rhs_raw, None)
+    }
+
+    pub(in crate::mir) fn build_source_scalar_with_divisor_from_values_recorded(
+        &mut self, operator: BinaryOperator, lhs_raw: ValueId, rhs_raw: ValueId,
+        positive_divisor: Option<i64>,
+    ) -> Result<(CompletedOrdinaryBinaryV1, [std::rc::Rc<super::ssa::local::LocalSsaPhysicalRelationV1>; 2]), String> {
         let op = match converters::convert_binary_operator(operator)? {
             BinaryOpType::Arithmetic(op @ (crate::mir::BinaryOp::Add | crate::mir::BinaryOp::Sub | crate::mir::BinaryOp::Div | crate::mir::BinaryOp::Mod)) => op,
             _ => return Err("[freeze:contract][scalar-original/operator]".into()),
         };
+        if positive_divisor.is_some() && !matches!(op, crate::mir::BinaryOp::Div | crate::mir::BinaryOp::Mod) {
+            return Err("[freeze:contract][scalar-original/divisor-operator]".into());
+        }
         let (lhs, left_relation) = crate::mir::builder::ssa::local::checked_scalar_arg(self, lhs_raw)?;
-        let (rhs, right_relation) = crate::mir::builder::ssa::local::checked_scalar_arg(self, rhs_raw)?;
+        let (rhs, right_relation) = match positive_divisor {
+            Some(value) => crate::mir::builder::ssa::local::checked_positive_divisor_arg(self, rhs_raw, value)?,
+            None => crate::mir::builder::ssa::local::checked_scalar_arg(self, rhs_raw)?,
+        };
         let completed = arithmetic::build_arithmetic_op_recorded(self, op, lhs, rhs)?;
         Ok((CompletedOrdinaryBinaryV1::Arithmetic(completed), [left_relation, right_relation]))
     }

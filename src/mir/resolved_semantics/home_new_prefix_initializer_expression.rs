@@ -11,6 +11,7 @@ pub(super) fn observe<E>(
     locals: &mut PrefixLocalFlow<'_>,
     homes: &mut HomesV1,
     prefix_known: bool,
+    unavailable: &mut Option<HomePrefixUnavailableV1>,
     local_calls: &mut Vec<LocalCallObservationV1>,
     path_calls: &mut BTreeSet<OwnedExprSiteV1>,
     scalar_source: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
@@ -70,9 +71,8 @@ pub(super) fn observe<E>(
         ExpressionNodeSourceV1::Reference(_)
     );
     let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
-    let arithmetic_requested = source.nodes()[0].binary().is_some_and(|binary| super::scalar_expression::is_arithmetic_operator_v1(binary.operator()))
-        // A selected source Loop consumes a complete evaluation frame, too.
-        // This purpose does not classify leaves or grant executable input.
+    let arithmetic_requested = source.nodes()[0].binary().is_some_and(|binary|
+        super::scalar_expression::is_arithmetic_operator_v1(binary.operator()))
         && (locals.in_source_loop_v1() || scalar_source.requires_initializer_use_frame(&owned)?);
     // R16: any comparison root (the comparison table, not a list of operators).
     let root_compare = source.nodes()[0].binary().is_some_and(|binary| crate::mir::resolved_value_profile::expression_class::comparison_operator_family_v1(binary.operator()).is_some());
@@ -238,6 +238,10 @@ pub(super) fn observe<E>(
         .commit();
     path_calls.extend(calls.iter().map(|call| call.site().clone()));
     local_calls.extend_from_slice(calls);
+    if let Err(issue) = locals.commit_expression_end_v1(frame.evaluation(), homes) {
+        unavailable.get_or_insert(issue);
+        return Ok(true);
+    }
     if debug {
         eprintln!("[initializer-expression] statement={:?} installed i64={} dynamic_result={} dynamic_alias={} text={}",
             statement.site(), frame.is_i64(), frame.is_dynamic_invocation_result(), frame.is_dynamic_alias(), frame.is_text_residence());
@@ -313,6 +317,7 @@ pub(crate) fn observe_for_test<E>(
             &mut locals,
             &mut homes,
             known,
+            &mut None,
             &mut calls,
             &mut path,
             fields,

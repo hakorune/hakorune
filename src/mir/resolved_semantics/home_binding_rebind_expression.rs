@@ -116,7 +116,7 @@ pub(crate) fn qualify_binding_rebind_expression_v1<E>(
 
 pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
-    mut prepared: super::leaves::PreparedExpressionCallsV1,
+    prepared: super::leaves::PreparedExpressionCallsV1,
     destination: BindingRebindDestinationV1,
     static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
     residence_reference: &mut impl FnMut(
@@ -216,13 +216,9 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         }
         _ => {}
     }
-    let Ok(order) = source.ordered_postorder_v1() else {
-        reject_rebind!("postorder");
-    };
     if !source.children_always_known_v1() {
         reject_rebind!("conditional-expression-child");
     }
-    let reference_order: Vec<_> = (0..source.nodes().len()).collect();
     let mut initial_dynamic_references: std::collections::BTreeMap<_, _> = source
         .nodes()
         .iter()
@@ -262,36 +258,19 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
             return Ok(None);
         }
     }
-    let Some(mut reference_proofs) =
-        super::evaluation::seed_current_expression_references_with_loop_text_v1(
-            &mut prepared,
-            initial_dynamic_references.into_iter().collect(),
-            &reference_order,
-            static_reference,
-            residence_reference,
-            loop_text_reference,
-            &mut |site| {
-                scalar_reference(site).map(super::evaluation::CheckedScalarReferenceV1::Original)
-            },
-        )
-    else {
-        reject_rebind!("reference-seed");
-    };
-    let Ok(super::leaves::QualifiedExpressionLeavesV1 {
-        classes,
-        mut calls,
-        cores,
-        fields,
-        transferred,
-        references,
-    }) = super::leaves::qualify_expression_leaves_with_calls_v1::<E>(
+    let Ok((evaluation, fields, _)) = super::qualification::qualify_expression_evaluation_v1(
         prepared,
-        &mut |_| None,
-        &order,
+        initial_dynamic_references.into_iter().collect(),
+        static_reference,
+        residence_reference,
+        loop_text_reference,
+        &mut |site| {
+            scalar_reference(site).map(super::evaluation::CheckedScalarReferenceV1::Original)
+        },
         field_request,
     )?
     else {
-        reject_rebind!("leaf-qualification");
+        reject_rebind!("expression-qualification");
     };
     let class = match destination {
         BindingRebindDestinationV1::DeclaredRead(_) => Class::Opaque,
@@ -301,42 +280,13 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         _ => Class::String,
     };
     let text = class == Class::String;
-    if (class != Class::String && !references.is_empty())
-        || transferred.contains(&0)
-        || classes[0] != Leaf::Value(class)
-    {
+    if evaluation.transfers_node(0) || evaluation.root_class() != Leaf::Value(class) {
         reject_rebind!("root-class-or-transfer");
     }
-    let Some((operations, owned_results)) = super::operations::qualify_arithmetic_operations_v1(
-        &source,
-        &order,
-        &classes,
-        &transferred,
-    ) else {
-        reject_rebind!("arithmetic-operations");
-    };
-    let owned_results =
-        super::evaluation::owned_result_nodes(&order, &owned_results, &cores, &calls);
-    // The checked purpose materializes non-owning Text roots; evaluation keeps
-    // the original literal/read and its source acquisition set unchanged.
-    if !text && owned_results.contains(&0) {
+    // Rebinding a non-owning Text root keeps its original read and child
+    // acquisitions; the destination decides whether an owned root is legal.
+    if !text && evaluation.owned_result_nodes().contains(&0) {
         reject_rebind!("owned-result-destination");
-    }
-    reference_proofs.retain(|node, _| !transferred.contains(node));
-    let mut evaluation = CheckedExpressionEvaluationV1 {
-        source: Rc::clone(&source),
-        prior_homes: prior_homes.into(),
-        order: order.clone().into_boxed_slice(),
-        classes: classes.into_boxed_slice(),
-        references: reference_proofs,
-        calls: order.iter().filter_map(|node| calls.remove(node)).collect(),
-        operations: operations.into_boxed_slice(),
-        owned_results,
-        cores,
-        transferred_inputs: transferred,
-    };
-    if !evaluation.retain_core_text_entry_reads_v1() {
-        reject_rebind!("core-text-entry-reads");
     }
     let frame = Rc::new(CheckedBindingRebindFrameV1 {
         target: *target,
@@ -347,17 +297,8 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         reject_rebind!("reference-coverage");
     }
     let candidate = HomeExpressionPlanV1 {
-        source: Rc::clone(&source),
-        scalar_operations: Vec::new(),
-        source_fields: Vec::new(),
-        source_field_homes: None,
-        argument_frame: None,
-        initializer_frame: None,
         rebind_frame: Some(frame),
-        print_frame: None,
-        condition_frame: None,
-        loop_recipe: None,
-        field_write: None,
+        ..HomeExpressionPlanV1::for_source(Rc::clone(&source))
     };
     let Some(candidate) = candidate.with_source_field_requirements(&fields) else {
         reject_rebind!("field-requirements");
@@ -431,6 +372,7 @@ mod tests {
                 &mut locals,
                 &mut homes,
                 case != 6,
+                &mut None,
                 &mut calls,
                 &mut paths,
                 &mut |fields: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], _| {
@@ -484,7 +426,7 @@ mod tests {
             let body = input.source().root_body().unwrap();
             let statement = input.source().body_stmt(&body, 2).unwrap();
             let accepted = super::super::super::binding_rebind::observe::<()>(
-                input, &statement, &mut locals, &mut homes, true, &mut Vec::new(), &mut Default::default(),
+                input, &statement, &mut locals, &mut homes, true, &mut None, &mut Vec::new(), &mut Default::default(),
                 &mut |_: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], _| panic!("unsupported destination must not evaluate RHS"),
                 &mut |_, _| panic!("unsupported destination must not issue calls"),
             ).unwrap();

@@ -90,16 +90,45 @@ pub(super) fn scan_statement_flow<'a, E>(
         }
         locals.invalidate_dynamic_field_sources(&statement);
         local_call_flow::stage_statement_actuals(
-            input,
-            &statement,
-            locals,
-            unavailable.is_none(),
-            homes,
-            local_calls,
-            path_calls,
-            scalar_field,
-            borrowed_actuals,
+            input, &statement, locals, unavailable.is_none(), homes, result_sites,
+            local_calls, path_calls, scalar_field, borrowed_actuals,
         )?;
+        // Membership already proves the destination-less New belongs to a
+        // declared take argument. Every sink borrows that same acquisition.
+        let taken_news: Vec<_> = result_sites.iter().filter_map(|site| {
+            if site.owner() != input.owner()
+                || function.source_site_inventory().containing_statement(site.site()) != Some(statement.site())
+            { return None; }
+            let (last, parent) = site.site().node().segments().split_last()?;
+            let SourcePathSegmentV1::Argument(ordinal) = last else { return None; };
+            let call_site = SourceExprSiteV1::from_node(
+                crate::mir::resolved_semantics::SourceNodeSiteV1::from_segments(parent.to_vec()));
+            let call = function.method_call(&call_site)?;
+            if call.arguments().get(*ordinal as usize)?.site() != site.site() { return None; }
+            let construction = function.expression_source().construction(site.site())?;
+            Some((OwnedExprSiteV1::new(input.owner(), call_site), *ordinal,
+                site.clone(), construction.arguments().len()))
+        }).collect();
+        for (call, ordinal, site, arity) in taken_news {
+            let (observation, moved, issue) = super::new_local::observe_new_arguments_v1(
+                input, &site, arity, locals, homes, local_calls, scalar_field, borrowed_actuals,
+            )?;
+            let prefix = match (unavailable.as_ref(), issue, moved.is_empty()) {
+                (None, None, true) => crate::mir::resolved_control_flow::issue_taken_new_fault_continuation_v1(
+                    input, &site, &call, ordinal,
+                ).map_err(|_| HomePrefixUnavailableV1::SourceMismatch).map(|outward_fault|
+                    ResultNewHomePrefixV1::from_transition(
+                        ResultNewPurposeV1::TakenArgument { call, ordinal },
+                        homes, &[], outward_fault, covered_statements,
+                    )),
+                (prior, issue, _) => Err(prior.cloned().or(issue).unwrap_or(HomePrefixUnavailableV1::SourceMismatch)),
+            };
+            if argument_observations.insert(site.clone(), observation).is_some()
+                || result_prefixes.insert(site, prefix).is_some()
+            {
+                return Ok(false);
+            }
+        }
 
         if let Some(available) = locals.observe_source_loop_exit_v1(
             statement.site(),
@@ -196,6 +225,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 locals,
                 homes,
                 unavailable.is_none(),
+                unavailable,
                 local_calls,
                 path_calls,
                 scalar_field,
@@ -216,6 +246,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 locals,
                 homes,
                 unavailable.is_none(),
+                unavailable,
                 local_calls,
                 path_calls,
                 scalar_field,
@@ -269,6 +300,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                     locals,
                     homes,
                     unavailable.is_none(),
+                unavailable,
                     local_calls,
                     path_calls,
                     scalar_field,

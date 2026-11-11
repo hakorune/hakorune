@@ -143,6 +143,13 @@ impl CurrentScalarReadV1 {
     pub(crate) fn kind(&self) -> SourceScalarKind {
         self.kind
     }
+    /// A value proven at this exact read from an original integer definition.
+    pub(crate) fn exact_integer_value_v1(&self) -> Option<i64> {
+        match self.producer() {
+            CurrentScalarProducerV1::Integer { value, .. } => Some(*value),
+            _ => None,
+        }
+    }
     pub(crate) fn producer(&self) -> &CurrentScalarProducerV1 {
         &self.producer
     }
