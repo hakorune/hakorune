@@ -351,6 +351,71 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_finite_entry_read_v
 }
 
 impl PreparedBorrowedFormalIngressV1 {
+    /// Consumer demand follows the original reaching definitions, never producer classes.
+    pub(in crate::mir::normal_callable_semantic_package) fn shared_initializer_demand_v1(
+        &self,
+        input: ResolvedFunctionLoweringInputV1<'_>,
+    ) -> Option<std::collections::BTreeSet<SourceExprSiteV1>> {
+        use crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1;
+        use crate::mir::resolved_value_profile::{
+            expression_plan::{ExpressionNodeSourceV1 as Node, local_expression_source_plan_v1,
+                assignment_expression_source_plan_v1, statement_expression_source_plan_v1},
+            expression_class::ExpressionValueClassV1 as Class,
+            expression_projection::{project_expression_class_v1, ExpressionLeafClassV1 as Leaf},
+        };
+        let mut required = std::collections::BTreeSet::new();
+        let Some(shape) = input.body_shape() else { return Some(required); };
+        let ledger = input.forest().callable_source_ledger(input.owner()).ok()?;
+        let Some(flow) = input.function().expression_source().value_flow() else { return Some(required); };
+        let queue_reads = |plan: &ExpressionSourcePlanV1, pending: &mut Vec<SourceValueRefV1>| -> Option<()> {
+            for (_, node) in plan.nodes_outside_calls() {
+                if let Node::Reference(ResolvedLexicalRefV1::Local(binding)) = node.source() {
+                    pending.push(flow.read(node.site(), *binding)?);
+                }
+            }
+            Some(())
+        };
+        let mut pending = Vec::new();
+        for statement in shape.statements() {
+            if !matches!(statement, crate::mir::resolved_semantics::BodyStatementShapeV1::Return { value: Some(_), .. }) { continue; }
+            let Ok(Some(plan)) = statement_expression_source_plan_v1(&ledger, shape, statement.site()) else { continue; };
+            if matches!(plan.nodes().first().map(|node| node.source()), Some(Node::Literal(_) | Node::Reference(_))) { continue; }
+            if project_expression_class_v1(&plan, |index| {
+                let node = &plan.nodes()[index];
+                match node.source() {
+                    Node::Reference(ResolvedLexicalRefV1::Local(binding)) if self.lend_original_read_sum_v1(flow, node.site(), *binding).is_some_and(|sum| sum.signed_only()) => Leaf::Value(Class::I64),
+                    _ => Leaf::Unresolved,
+                }
+            }) == Some(Class::I64) { queue_reads(&plan, &mut pending)?; }
+        }
+        if pending.is_empty() { return Some(required); }
+        let mut plans = std::collections::BTreeMap::new();
+        for initializer in input.function().expression_source().initializers() {
+            if let Ok(plan) = local_expression_source_plan_v1(&ledger, Some(shape), initializer) {
+                if let Some(site) = plan.root().expression_site() { plans.insert(site.clone(), plan); }
+            }
+        }
+        for assignment in shape.assignment_sources() {
+            if let Ok(plan) = assignment_expression_source_plan_v1(&ledger, shape, assignment) {
+                if let Some(site) = plan.root().expression_site() { plans.insert(site.clone(), plan); }
+            }
+        }
+        let mut seen = std::collections::BTreeSet::new();
+        while let Some(value) = pending.pop() {
+            if !seen.insert(value) { continue; }
+            match flow.origin(value)? {
+                SourceValueOriginV1::Entry(_) => {},
+                SourceValueOriginV1::Join { incoming, .. } => pending.extend(incoming.iter().map(|(_, value)| *value)),
+                SourceValueOriginV1::Expression(site) => {
+                    required.insert(site.clone());
+                    queue_reads(plans.get(site)?, &mut pending)?;
+                }
+                SourceValueOriginV1::Unknown => return None,
+            }
+        }
+        Some(required)
+    }
+
     /// Select the existing Home walk for original initializer/Return value demands.
     /// This is a source demand only; the qualifier still proves the whole root,
     /// current state and acquisition. Call-owned inputs are not parent leaves.
@@ -416,48 +481,22 @@ impl PreparedBorrowedFormalIngressV1 {
                     }
                     let Ok(Some(plan)) = crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
                         &ledger, shape, statement.site()) else { return false };
-                    let Some(node) = plan.nodes().first() else { return false; };
-                    if node.binary().is_some_and(|row| row.operator()
-                        == crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Add)
-                        && plan.nodes_outside_calls().any(|(_, operand)| {
-                            let Node::Reference(ResolvedLexicalRefV1::Local(binding)) = operand.source() else {
-                                return false;
-                            };
-                            let source = input.function().expression_source();
-                            let origin = flow.read(operand.site(), *binding)
-                                .and_then(|value| flow.alias_origin(value, |site| input.function().variable_ref(site)))
-                                .and_then(|value| flow.origin(value));
-                            let Some(crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1::Expression(original)) = origin else {
-                                return false;
-                            };
-                            source.binary(original).is_some_and(|binary| {
-                                matches!(binary.operator(),
-                                    crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Divide
-                                        | crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Modulo)
-                                    && matches!(source.literal(binary.rhs()), Some(
-                                        crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Integer(divisor)
-                                    ) if *divisor > 0)
-                            }) || shape.assignment_sources().iter()
-                                .any(|assignment| assignment.value_site() == original)
-                        })
-                    {
-                        return true;
-                    }
-                    let Node::Reference(ResolvedLexicalRefV1::Local(binding)) = node.source() else { return false; };
-                    let original = flow.read(node.site(), *binding)
-                        .and_then(|value| flow.alias_origin(value, |site| input.function().variable_ref(site)))
-                        .and_then(|value| flow.origin(value));
-                    let Some(crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1::Expression(original)) = original else { return false; };
-                    let scalar = match input.function().expression_source().literal(original) {
-                        Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Integer(_)) => true,
-                        _ => input.function().expression_source().binary(original)
-                            .and_then(|binary| crate::mir::resolved_semantics::home_new_prefix::ExpressionScalarOperationLoanV1::original_integer_operator_law_v1(binary.operator())
-                                .map(|(_, needs_divisor)| !needs_divisor || matches!(input.function().expression_source().literal(binary.rhs()),
-                                    Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Integer(n)) if *n > 0)))
-                            .unwrap_or(false),
+                    use crate::mir::resolved_value_profile::{
+                        expression_class::ExpressionValueClassV1 as Class,
+                        expression_projection::{project_expression_class_v1, ExpressionLeafClassV1 as Leaf},
                     };
-                    scalar && self.lend_original_read_sum_v1(flow, node.site(), *binding)
-                        .is_some_and(|sum| sum.signed_only())
+                    if matches!(plan.nodes().first().map(|node| node.source()), Some(Node::Literal(_))) {
+                        return false;
+                    }
+                    project_expression_class_v1(&plan, |index| {
+                        let node = &plan.nodes()[index];
+                        match node.source() {
+                            Node::Reference(ResolvedLexicalRefV1::Local(binding))
+                                if self.lend_original_read_sum_v1(flow, node.site(), *binding)
+                                    .is_some_and(|sum| sum.signed_only()) => Leaf::Value(Class::I64),
+                            _ => Leaf::Unresolved,
+                        }
+                    }) == Some(Class::I64)
                 })
             }))
     }

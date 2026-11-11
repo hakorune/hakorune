@@ -64,6 +64,7 @@ pub(super) fn qualify_arithmetic_operations_v1(
     order: &[usize],
     classes: &[Leaf],
     transferred: &BTreeSet<usize>,
+    references: &std::collections::BTreeMap<usize, CheckedExpressionReferenceV1>,
 ) -> Option<(Vec<Rc<CheckedExpressionOperationLoanV1>>, Vec<usize>)> {
     let mut operations = Vec::new();
     let mut owned_results = Vec::new();
@@ -123,31 +124,34 @@ pub(super) fn qualify_arithmetic_operations_v1(
             {
                 return None;
             }
-            if binary.operator() != ResolvedBinaryOperatorV1::Subtract && index != 0 {
-                return None;
-            }
+            let divisor_read = source.nodes().iter().position(|node| node.site() == binary.rhs())
+                .and_then(|node| references.get(&node))
+                .and_then(|reference| match reference {
+                    CheckedExpressionReferenceV1::Scalar(read) => read.original_read(),
+                    _ => None,
+                })
+                .filter(|read| read.exact_integer_value_v1().is_some())
+                .cloned();
             let divisor = if matches!(
                 binary.operator(),
                 ResolvedBinaryOperatorV1::Divide | ResolvedBinaryOperatorV1::Modulo
             ) {
-                source.nodes().iter().find_map(|node| {
-                    (node.site() == binary.rhs())
-                        .then(|| match node.source() {
-                            ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Integer(
-                                value,
-                            )) => Some(*value),
+                match divisor_read.as_ref() {
+                    Some(read) => read.exact_integer_value_v1(),
+                    None => source.nodes().iter().find_map(|node| {
+                        (node.site() == binary.rhs()).then(|| match node.source() {
+                            ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Integer(value)) => Some(*value),
                             _ => None,
-                        })
-                        .flatten()
-                })
-            } else {
-                None
-            };
+                        }).flatten()
+                    }),
+                }
+            } else { None };
             let scalar = ExpressionScalarOperationLoanV1::issue_node_v1(
                 Rc::clone(source),
                 index,
                 binary,
                 divisor,
+                divisor.and(divisor_read),
             )?;
             operations.push(Rc::new(CheckedExpressionOperationLoanV1 {
                 plan: Rc::clone(source),

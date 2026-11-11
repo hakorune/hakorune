@@ -209,6 +209,59 @@ pub(in crate::mir::builder) fn checked_scalar_arg(
     Ok((returned, relation))
 }
 
+/// Materialize a source-proved positive divisor through the same exact
+/// LocalSSA correspondence. Copy inputs retain their original child proof.
+pub(in crate::mir::builder) fn checked_positive_divisor_arg(
+    builder: &mut MirBuilder,
+    value: ValueId,
+    expected: i64,
+) -> Result<(ValueId, std::rc::Rc<LocalSsaPhysicalRelationV1>), String> {
+    fn materialize(
+        builder: &mut MirBuilder,
+        value: ValueId,
+        expected: i64,
+        seen: &mut std::collections::BTreeSet<ValueId>,
+    ) -> Result<(ValueId, std::rc::Rc<LocalSsaPhysicalRelationV1>), String> {
+        let reject = || "[freeze:contract][scalar-original/divisor-correspondence]".to_owned();
+        if expected <= 0 || !seen.insert(value) {
+            return Err(reject());
+        }
+        let original = {
+            let function = builder.function_state.current_function.as_ref().ok_or_else(reject)?;
+            let block = builder.function_state.current_block.ok_or_else(reject)?;
+            let end = function.blocks.get(&block).ok_or_else(reject)?.all_instructions().count();
+            crate::mir::verification::utils::exact_integer_operand_origin_at(
+                function, value, block, end, expected,
+            ).ok_or_else(reject)?;
+            let mut definitions = function.blocks.iter().flat_map(|(block, body)| {
+                body.all_instructions().map(move |row| (*block, row))
+            }).filter(|(_, row)| row.dst_value() == Some(value));
+            let (block, instruction) = definitions.next().ok_or_else(reject)?;
+            if definitions.next().is_some() { return Err(reject()); }
+            (block, instruction.clone())
+        };
+        match original.1 {
+            crate::mir::MirInstruction::Const { value: crate::mir::ConstValue::Integer(actual), .. }
+                if actual == expected => checked_scalar_arg(builder, value),
+            crate::mir::MirInstruction::Copy { src, .. } => {
+                let (child, _) = materialize(builder, src, expected, seen)?;
+                let block = builder.function_state.current_block.ok_or_else(reject)?;
+                let target = crate::mir::builder::emission::constant::emit_integer(builder, expected)?;
+                let function = builder.function_state.current_function.as_ref().ok_or_else(reject)?;
+                builder.function_state.local_ssa_correspondence.record_append(
+                    function, value, Some(original), target, block, Some(vec![(src, child)]),
+                );
+                let relation = builder.function_state.local_ssa_correspondence
+                    .loan(function, value, target).ok_or_else(reject)?;
+                relation.verify(function)?;
+                Ok((target, relation))
+            }
+            _ => Err(reject()),
+        }
+    }
+    materialize(builder, value, expected, &mut std::collections::BTreeSet::new())
+}
+
 /// Selected checked Bool failures always propagate; unselected conditions keep
 /// their existing facade behavior.
 pub(in crate::mir::builder) fn try_cond(

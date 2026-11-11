@@ -218,6 +218,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_statement_eva
                 &inner_order,
                 &classes,
                 &transferred,
+                &reference_proofs,
             )
             .map(|(mut operations, owned)| {
                 operations.push(root);
@@ -225,7 +226,13 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_statement_eva
             })
         })
     } else {
-        super::operations::qualify_arithmetic_operations_v1(&source, &order, &classes, &transferred)
+        super::operations::qualify_arithmetic_operations_v1(
+            &source,
+            &order,
+            &classes,
+            &transferred,
+            &reference_proofs,
+        )
     }) else {
         return Ok(Err("arithmetic-operations-unproved"));
     };

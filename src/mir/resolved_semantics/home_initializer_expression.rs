@@ -387,6 +387,7 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
                 &inner_order,
                 &classes,
                 &transferred,
+                &reference_proofs,
             )
             .map(|(mut operations, owned)| {
                 operations.push(root);
@@ -394,7 +395,13 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
             })
         })
     } else {
-        super::operations::qualify_arithmetic_operations_v1(&source, &order, &classes, &transferred)
+        super::operations::qualify_arithmetic_operations_v1(
+            &source,
+            &order,
+            &classes,
+            &transferred,
+            &reference_proofs,
+        )
     }) else {
         return Ok(None);
     };

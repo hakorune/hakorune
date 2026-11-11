@@ -281,6 +281,7 @@ pub(crate) fn qualify_condition_expression_v1<E>(
                 index,
                 binary,
                 None,
+                None,
             ) else {
                 return Ok(None);
             };

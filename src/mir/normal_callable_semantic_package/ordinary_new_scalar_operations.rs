@@ -254,12 +254,12 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let divisor = match source.positive_divisor() {
             Some(expected) => {
-                let binding = unique_definition(function, children.1)?;
-                if !matches!(&binding.1, MirInstruction::Const { value: ConstValue::Integer(actual), .. } if *actual == expected && expected > 0)
-                {
+                if expected <= 0 {
                     return Err(reject("divisor-producer"));
                 }
-                Some(binding)
+                Some(crate::mir::verification::utils::exact_integer_operand_origin(
+                    function, children.1, original, expected,
+                ).ok_or_else(|| reject("divisor-producer"))?)
             }
             None => None,
         };

@@ -371,6 +371,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
                 plan: Rc::clone(&source),
                 node: index,
                 positive_divisor,
+                divisor_read: None,
             }));
         }
         if frame.is_some() {

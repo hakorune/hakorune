@@ -70,9 +70,8 @@ pub(super) fn observe<E>(
         ExpressionNodeSourceV1::Reference(_)
     );
     let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
-    let arithmetic_requested = source.nodes()[0].binary().is_some_and(|binary| super::scalar_expression::is_arithmetic_operator_v1(binary.operator()))
-        // A selected source Loop consumes a complete evaluation frame, too.
-        // This purpose does not classify leaves or grant executable input.
+    let arithmetic_requested = source.nodes()[0].binary().is_some_and(|binary|
+        super::scalar_expression::is_arithmetic_operator_v1(binary.operator()))
         && (locals.in_source_loop_v1() || scalar_source.requires_initializer_use_frame(&owned)?);
     // R16: any comparison root (the comparison table, not a list of operators).
     let root_compare = source.nodes()[0].binary().is_some_and(|binary| crate::mir::resolved_value_profile::expression_class::comparison_operator_family_v1(binary.operator()).is_some());

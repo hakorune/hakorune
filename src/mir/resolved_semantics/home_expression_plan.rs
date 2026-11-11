@@ -210,6 +210,7 @@ impl HomeExpressionPlanV1 {
             Rc::clone(&source),
             binary,
             positive_divisor,
+            None,
         )?;
         Some(Self {
             scalar_operations: vec![loan],

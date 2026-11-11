@@ -43,6 +43,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct
     read_context: field_reads::ReceivedFieldContextV1<'a>,
     core_calls: Option<&'a crate::mir::normal_callable_semantic_package::core_method_source::SourceCoreMethodCallRowsV1>,
     array_census: &'a BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
+    shared_initializer_demand: Option<Option<BTreeSet<SourceExprSiteV1>>>,
     staged_arguments: Option<&'a mut BTreeMap<OwnedExprSiteV1, field_reads::ArgumentFieldRead>>,
     staged_locals: Option<&'a mut BTreeMap<OwnedExprSiteV1, field_reads::LocalFieldRead>>,
 }
@@ -85,6 +86,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn fie
         read_context,
         core_calls,
         array_census,
+        shared_initializer_demand: None,
         staged_arguments,
         staged_locals,
     }
@@ -461,6 +463,22 @@ impl
         &mut self,
         site: &OwnedExprSiteV1,
     ) -> Result<bool, OrdinaryNewCoSealIssueV1> {
+        if self.shared_initializer_demand.is_none() {
+            self.shared_initializer_demand = Some(
+                self.ingress
+                    .as_ref()
+                    .ok()
+                    .and_then(|source| source.shared_initializer_demand_v1(self.input)),
+            );
+        }
+        if self
+            .shared_initializer_demand
+            .as_ref()
+            .and_then(|row| row.as_ref())
+            .is_some_and(|required| required.contains(site.site()))
+        {
+            return Ok(true);
+        }
         if self.writes.is_none() {
             return Ok(false);
         }

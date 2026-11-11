@@ -711,3 +711,23 @@ fn selected_scalar_rejects_reachable_nondominating_and_duplicate_producers_befor
             .is_none());
     }
 }
+
+#[test]
+fn positive_divisor_preserves_copy_origin_and_rejects_reordered_source() {
+    let (mut builder, source) = fixture();
+    let copied = builder.alloc_value_for_test();
+    builder.emit_instruction(MirInstruction::Copy { dst: copied, src: source }).unwrap();
+    let (_, relation) = super::super::checked_positive_divisor_arg(&mut builder, copied, 7).unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
+    relation.verify(function).unwrap();
+    let mut reordered = function.clone();
+    let block = reordered.blocks.get_mut(&reordered.entry_block).unwrap();
+    let original = block.instructions.iter().position(|row| row.dst_value() == Some(source)).unwrap();
+    let copy = block.instructions.iter().position(|row| row.dst_value() == Some(copied)).unwrap();
+    block.instructions.swap(original, copy);
+    assert!(relation.verify(&reordered).is_err());
+    builder.function_state.current_function = Some(reordered);
+    let before = builder.current_function_instructions().len();
+    assert!(super::super::checked_positive_divisor_arg(&mut builder, copied, 7).is_err());
+    assert_eq!(builder.current_function_instructions().len(), before);
+}

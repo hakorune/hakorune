@@ -64,15 +64,10 @@ pub(super) fn validate_selected_scalar_operations(
                     .source()
                     .positive_divisor()
                     .ok_or_else(|| fault("scalar-positive-divisor-missing"))?;
-                let mut definitions = function
-                    .blocks
-                    .values()
-                    .flat_map(|block| block.all_instructions())
-                    .filter(|row| row.dst_value() == Some(*rhs));
-                if !matches!(definitions.next(), Some(MirInstruction::Const {
-                    value: ConstValue::Integer(value), ..
-                }) if *value > 0 && *value == positive)
-                    || definitions.next().is_some()
+                if positive <= 0
+                    || crate::mir::verification::utils::exact_integer_operand_origin(
+                        function, *rhs, binding, positive,
+                    ).is_none()
                 {
                     return Err(fault("scalar-positive-divisor-drift"));
                 }

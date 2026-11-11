@@ -312,6 +312,7 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         &order,
         &classes,
         &transferred,
+        &reference_proofs,
     ) else {
         reject_rebind!("arithmetic-operations");
     };

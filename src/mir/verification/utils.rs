@@ -219,3 +219,80 @@ pub fn compute_reachable_blocks(function: &MirFunction) -> HashSet<BasicBlockId>
     }
     reachable
 }
+
+/// Prove the exact integer operand at a use through unique ordered Copy defs.
+/// The same check serves source append correspondence and finished MIR.
+pub(in crate::mir) fn exact_integer_operand_origin(
+    function: &MirFunction,
+    value: ValueId,
+    use_site: &(BasicBlockId, crate::mir::MirInstruction),
+    expected: i64,
+) -> Option<(BasicBlockId, crate::mir::MirInstruction)> {
+    let (use_block, use_index) = {
+        let body = function.blocks.get(&use_site.0)?;
+        let mut matches = body
+            .all_instructions()
+            .enumerate()
+            .filter(|(_, row)| *row == &use_site.1);
+        let (index, _) = matches.next()?;
+        if matches.next().is_some() {
+            return None;
+        }
+        (use_site.0, index)
+    };
+    exact_integer_operand_origin_at(function, value, use_block, use_index, expected)
+}
+
+/// The same proof at a writer's insertion point, before any instruction is emitted.
+pub(in crate::mir) fn exact_integer_operand_origin_at(
+    function: &MirFunction,
+    mut value: ValueId,
+    mut use_block: BasicBlockId,
+    mut use_index: usize,
+    expected: i64,
+) -> Option<(BasicBlockId, crate::mir::MirInstruction)> {
+    use crate::mir::{ConstValue, MirInstruction};
+    let mut seen = HashSet::new();
+    let mut dominators = None;
+    while seen.insert(value) {
+        let mut definitions = function
+            .blocks
+            .iter()
+            .flat_map(|(block, body)| {
+                body.all_instructions()
+                    .enumerate()
+                    .map(move |(index, row)| (*block, index, row))
+            })
+            .filter(|(_, _, row)| row.dst_value() == Some(value));
+        let (block, index, definition) = definitions.next()?;
+        if definitions.next().is_some() {
+            return None;
+        }
+        if block == use_block {
+            if index >= use_index {
+                return None;
+            }
+        } else {
+            let tree = dominators.get_or_insert_with(|| compute_dominators(function));
+            if !tree.is_reachable(block)
+                || !tree.is_reachable(use_block)
+                || !tree.dominates(block, use_block)
+            {
+                return None;
+            }
+        }
+        match definition {
+            MirInstruction::Const {
+                value: ConstValue::Integer(actual),
+                ..
+            } if *actual == expected => return Some((block, definition.clone())),
+            MirInstruction::Copy { src, .. } => {
+                value = *src;
+                use_block = block;
+                use_index = index;
+            }
+            _ => return None,
+        }
+    }
+    None
+}

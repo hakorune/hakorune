@@ -657,7 +657,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                                 Some(crate::mir::BinaryOp::Mod) => crate::ast::BinaryOperator::Modulo,
                                 _ => return Err(freeze("print-expression/operator-source-missing")),
                             };
-                            let (completed, relations) = builder.build_source_scalar_from_values_recorded(operator, lhs, rhs)?;
+                            let (completed, relations) = builder.build_source_scalar_with_divisor_from_values_recorded(operator, lhs, rhs, scalar.positive_divisor())?;
                             for relation in &relations {
                                 relation.append_materialization_chain_v1(&mut bindings);
                             }

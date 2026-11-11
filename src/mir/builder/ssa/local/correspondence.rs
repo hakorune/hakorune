@@ -153,6 +153,15 @@ impl LocalSsaPhysicalRelationV1 {
             }
         }
         self.verify_shape()?;
+        if let (Definition::Instruction((_, MirInstruction::Copy { .. })), Some(target)) =
+            (&self.source, self.target.as_ref())
+        {
+            if let MirInstruction::Const { value: crate::mir::ConstValue::Integer(value), .. } = target.1 {
+                crate::mir::verification::utils::exact_integer_operand_origin(
+                    function, self.from, target, value,
+                ).ok_or_else(|| reject("copy-constant-origin"))?;
+            }
+        }
         if let Step::Append(children) = &self.step {
             for child in children {
                 child.verify(function)?;
@@ -276,6 +285,20 @@ impl LocalSsaPhysicalRelationV1 {
                             return Err(reject("copy-operand"));
                         }
                         Ok(())
+                    }
+                    (
+                        Definition::Instruction((_, MirInstruction::Copy { src, .. })),
+                        MirInstruction::Const { value: crate::mir::ConstValue::Integer(value), .. },
+                    ) if children.len() == 1 && children[0].from == *src => {
+                        let child = &children[0];
+                        let constant = child.target.as_ref().or_else(|| child.source.binding());
+                        if matches!(constant, Some((_, MirInstruction::Const {
+                            dst, value: crate::mir::ConstValue::Integer(actual),
+                        })) if *dst == child.to && actual == value) {
+                            Ok(())
+                        } else {
+                            Err(reject("copy-constant-child"))
+                        }
                     }
                     (_, MirInstruction::Copy { src, .. })
                         if *src == self.from && children.is_empty() =>

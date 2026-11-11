@@ -428,6 +428,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
         &order,
         &classes,
         &transferred,
+        &scalar_proofs,
     ) else {
         if crate::config::env::builder_debug_enabled() {
             eprintln!("[argument-expression] operator envelope rejected classes={classes:?} binaries={:?}", source.nodes().iter().enumerate().filter_map(|(node, original)| original.binary().map(|binary| (node, binary.operator(), binary.lhs(), binary.rhs()))).collect::<Vec<_>>());

@@ -261,7 +261,11 @@ where
         }
         builder.build_borrowed_mul_from_values_recorded(left, right)?
     } else if matches!(&source, Some(SelectedBinarySourceV1::Scalar(_))) {
-        let (completed, relations) = builder.build_source_scalar_from_values_recorded(operator, left, right)?;
+        let positive = match &source {
+            Some(SelectedBinarySourceV1::Scalar(source)) => source.positive_divisor(),
+            _ => None,
+        };
+        let (completed, relations) = builder.build_source_scalar_with_divisor_from_values_recorded(operator, left, right, positive)?;
         scalar_relations = Some(relations);
         completed
     } else if let Some(plan) = comparison {
