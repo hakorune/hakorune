@@ -68,6 +68,14 @@ impl PendingStaticCallProjectionV1 {
     }
 }
 
+/// Exactly one physical origin of an original taken argument. This is not
+/// source classification or a Home permission; consumers recheck its source.
+#[derive(Debug)]
+pub(crate) enum TakenObjectArgumentOriginV1 {
+    Read(ExactLexicalReadV1),
+    Completed([Binding; 2]),
+}
+
 /// Physical observations of the original ordered argument tree. These rows
 /// cannot classify a source argument or choose a call target.
 #[derive(Debug)]
@@ -81,8 +89,7 @@ pub(crate) enum LexicalCallArgumentProjectionV1 {
         site: crate::mir::resolved_semantics::SourceExprSiteV1,
         formal: crate::mir::resolved_semantics::BindingRefV1,
         value: ValueId,
-        read: Option<ExactLexicalReadV1>,
-        bounds: Option<[Binding; 2]>,
+        origin: TakenObjectArgumentOriginV1,
     },
     BorrowedLiteral {
         ordinal: u32,

@@ -4,7 +4,7 @@ use crate::mir::builder::normal_callable_semantic_lowering_state::ExactLexicalRe
 use crate::mir::normal_callable_semantic_package::{
     CallPacketSourceLoanV1 as SourceLoan, CallPacketSourceV1 as CallSource,
     EmittedLexicalCallProjectionV1 as EmittedCall,
-    LexicalCallArgumentProjectionV1 as ArgumentProjection,
+    LexicalCallArgumentProjectionV1 as ArgumentProjection, TakenObjectArgumentOriginV1,
     PreparedLexicalCallProjectionV1 as PreparedCall,
     ExpressionCallArgumentSourceV1 as ArgumentSource, ExpressionCallTransientPrefixV1, CallValidationContextV1,
 };
@@ -523,7 +523,7 @@ fn prepare_arguments_with_prefix(
                         }
                         ArgumentProjection::TakenObjectArgument {
                             ordinal: *ordinal, site: site.clone(), formal: actual.formal, value,
-                            read: None, bounds: Some(bounds),
+                            origin: TakenObjectArgumentOriginV1::Completed(bounds),
                         }
                     }
                     Source::Read(source) => {
@@ -631,7 +631,7 @@ fn prepare_arguments_with_prefix(
                                 .map_err(|error| format!("[freeze:contract][taken-argument/read/{error:?}]"))?;
                             ArgumentProjection::TakenObjectArgument {
                                 ordinal: *ordinal, site: site.clone(), formal: actual.formal,
-                                value, read: Some(read), bounds: None,
+                                value, origin: TakenObjectArgumentOriginV1::Read(read),
                             }
                         } else {
                         ArgumentProjection::BorrowedRead {

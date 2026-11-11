@@ -196,8 +196,7 @@ impl LexicalCallArgumentProjectionV1 {
         if let Self::TakenObjectArgument {
             site,
             value,
-            read: None,
-            bounds: Some(_),
+            origin: TakenObjectArgumentOriginV1::Completed(_),
             ..
         } = self
         {

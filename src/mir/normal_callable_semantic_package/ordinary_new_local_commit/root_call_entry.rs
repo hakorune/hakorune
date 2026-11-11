@@ -664,7 +664,7 @@ pub(in crate::mir) use lexical_projection::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
     LexicalCallArgumentProjectionV1, PendingStaticCallProjectionV1,
     PreparedLexicalCallProjectionV1, PreparedSelectedStaticLoopCallProjectionV1,
-    StoredReceiverFaultV1, StoredReceiverReadV1,
+    StoredReceiverFaultV1, StoredReceiverReadV1, TakenObjectArgumentOriginV1,
 };
 
 #[path = "root_call_entry/local_binding_group.rs"]

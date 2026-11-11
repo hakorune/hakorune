@@ -673,7 +673,7 @@ pub(crate) use map_get_entry::{StoredMapGetReturnEmissionV1, StoredMapGetReadEmi
 
 pub(in crate::mir) use call_entry::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
-    LexicalCallArgumentProjectionV1, PendingStaticCallProjectionV1,
+    LexicalCallArgumentProjectionV1, TakenObjectArgumentOriginV1, PendingStaticCallProjectionV1,
     PreparedLexicalCallProjectionV1, StoredReceiverReadV1, StoredReceiverFaultV1, PreparedSelectedStaticLoopCallProjectionV1,
 };
 pub(in crate::mir) use call_entry::EmittedDynamicInvocationCallProjectionV1;

@@ -77,21 +77,19 @@ pub(super) fn value(
             site: observed_site,
             formal,
             value,
-            read,
-            bounds,
+            origin,
         } if *observed == ordinal && observed_site == site && *formal == actual.formal => {
             if !actual.source.transfers_home_at_entry_v1() {
                 return Err(freeze("taken-argument/source"));
             }
-            match (&actual.source, read, bounds) {
+            match (&actual.source, origin) {
                 (
                     Source::TypedHome {
                         binding,
                         moved: Some(_),
                         ..
                     },
-                    Some(read),
-                    None,
+                    TakenObjectArgumentOriginV1::Read(read),
                 ) => {
                     let at = actual.source.binding_read_site_v1(site)?;
                     if read
@@ -104,7 +102,10 @@ pub(super) fn value(
                         return Err(freeze("taken-argument/source"));
                     }
                 }
-                (Source::FreshTakenHome { acquisition, class }, None, Some(bounds)) => {
+                (
+                    Source::FreshTakenHome { acquisition, class },
+                    TakenObjectArgumentOriginV1::Completed(bounds),
+                ) => {
                     if acquisition.owner() != owner
                         || acquisition.site() != site
                         || &ledger.taken_new_argument_bounds_v1(
