@@ -160,18 +160,15 @@ impl OrdinaryNewClaimLedgerV1 {
             Ok(())
         };
         for source in flow.into_iter().flat_map(|flow| flow.scalar_operations()) { lend(source)?; }
-        for evaluation in flow.into_iter().flat_map(|flow| flow.expression_plans())
-            .filter_map(|plan| plan.evaluation())
-            .chain(self.terminal_relations_for_owner(owner).into_iter().filter_map(|row| match row {
-                TerminalRelationV1::Scalar(row) => row.evaluation().map(|frame| frame.as_ref()), _ => None,
-            })) {
+        self.visit_expression_evaluations_v1(owner, &mut |evaluation| {
             for operation in evaluation.operations() {
                 if let Some(source) = operation.scalar_source_v1() {
                     if !Rc::ptr_eq(source.plan(), evaluation.source()) { return Err(reject("source-membership")); }
                     lend(source)?;
                 }
             }
-        }
+            Ok(true)
+        })?;
         Ok(sources)
     }
     pub(in crate::mir) fn has_scalar_operation_source_v1(&self, owner: FunctionOwnerIdV1) -> Result<bool, String> {

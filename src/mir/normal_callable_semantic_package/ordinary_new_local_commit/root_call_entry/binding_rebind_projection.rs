@@ -263,7 +263,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         owner: FunctionOwnerIdV1,
         site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
-    ) -> Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>> {
+    ) -> Result<Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>>, String> {
         use crate::mir::resolved_semantics::home_new_prefix::{
             CheckedExpressionReferenceV1 as Reference, CurrentScalarProducerV1 as Producer,
         };
@@ -303,52 +303,21 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
             }
         }
-        fn visit_plan(
-            plan: &crate::mir::resolved_semantics::home_new_prefix::HomeExpressionPlanV1,
-            owner: FunctionOwnerIdV1,
-            site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
-            output: &mut Vec<
-                Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>,
-            >,
-        ) {
-            if let Some(evaluation) = plan.evaluation() {
-                visit_evaluation(evaluation, owner, site, output);
-            }
-            // Nested frames stay in the SAME retained Loop product; the outer
-            // flow does not flatten them into independent expression owners.
-            if let Some(product) = plan.loop_recipe_v2() {
-                visit_evaluation(product.source.condition.evaluation(), owner, site, output);
-                for plan in &product.source.body_expressions {
-                    visit_plan(plan, owner, site, output);
-                }
-            }
-        }
         let mut output = Vec::new();
-        if let Some(flow) = self
-            .completion_for_owner(owner)
-            .and_then(|row| row.cleanup().root_flow())
-        {
-            for plan in flow.expression_plans() {
-                visit_plan(plan, owner, site, &mut output);
-            }
-        }
-        for relation in self.terminal_relations_for_owner(owner) {
-            if let crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Scalar(row) = relation {
-                if let Some(evaluation) = row.evaluation() {
-                    visit_evaluation(evaluation, owner, site, &mut output);
-                }
-            }
-        }
+        self.visit_expression_evaluations_v1(owner, &mut |evaluation| {
+            visit_evaluation(evaluation, owner, site, &mut output);
+            Ok(true)
+        })?;
         for source in self.selected_source_loop_branch_joins_v2(owner, site) {
             visit(&Producer::BranchNormal(source), owner, site, &mut output);
         }
-        output
+        Ok(output)
     }
 
     /// Borrow graph facts from retained uses, not a new per-If registry.
     pub(in crate::mir) fn branch_read_flow_sources_v1(&self, owner: FunctionOwnerIdV1,
         statement: &crate::mir::resolved_semantics::SourceStmtSiteV1,
-    ) -> Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BorrowedReadFlowV1>> {
+    ) -> Result<Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BorrowedReadFlowV1>>, String> {
         use crate::mir::resolved_semantics::home_new_prefix::{DeclaredReadValueV1, NullableResultReferenceV1, CheckedExpressionReferenceV1};
         let mut output = Vec::new();
         let mut retain = |read: &DeclaredReadValueV1| {
@@ -357,15 +326,12 @@ impl OrdinaryNewClaimLedgerV1 {
             if source.binding().owner() == owner && source.statement() == statement
                 && !output.iter().any(|old| old == source) { output.push(Rc::clone(source)); }
         };
-        if let Some(flow) = self.completion_for_owner(owner).and_then(|row| row.cleanup().root_flow()) {
-            for plan in flow.expression_plans() {
-                if let Some(evaluation) = plan.evaluation() {
-                    for reference in evaluation.references().values() {
-                        if let CheckedExpressionReferenceV1::NullableResult(NullableResultReferenceV1::DeclaredFrom(read)) = reference { retain(read); }
-                    }
-                }
+        self.visit_expression_evaluations_v1(owner, &mut |evaluation| {
+            for reference in evaluation.references().values() {
+                if let CheckedExpressionReferenceV1::NullableResult(NullableResultReferenceV1::DeclaredFrom(read)) = reference { retain(read); }
             }
-        }
+            Ok(true)
+        })?;
         for row in self.local_field_reads.borrow().values() {
             if let Some(read) = row.source.received_root_source_v1().and_then(|source| source.borrowed_read_v1()) { retain(read); }
         }
@@ -373,7 +339,7 @@ impl OrdinaryNewClaimLedgerV1 {
             for read in actuals.declared_read_argument_sources_v1() { retain(read); }
             if let Some(receiver) = actuals.declared_receiver_read_v1() { retain(receiver.read()); }
         }
-        output
+        Ok(output)
     }
 
     pub(in crate::mir) fn branch_text_sources_v1(
@@ -402,7 +368,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         if !source.corroborates_original()
             || !self
-                .branch_scalar_sources_v1(source.binding().owner(), source.site())
+                .branch_scalar_sources_v1(source.binding().owner(), source.site())?
                 .iter()
                 .any(|original| original == source)
         {

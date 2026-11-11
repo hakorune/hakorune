@@ -595,6 +595,7 @@ fn scalar_source_retention_keeps_both_branch_inventories() {
             let crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1::BranchNormal(source) = read.producer() else { continue; };
             assert!(ledger
                 .branch_scalar_sources_v1(owner, source.site())
+                .unwrap()
                 .contains(source));
             ledger.require_branch_scalar_source_v1(source).unwrap();
             assert!(foreign

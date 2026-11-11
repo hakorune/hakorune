@@ -417,9 +417,6 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
     ) -> Result<(), String> {
-        use crate::mir::resolved_semantics::home_new_prefix::{
-            TerminalRelationV1, TerminalReturnedSourceV1,
-        };
         let completions = self
             .completion_index
             .values()
@@ -431,29 +428,12 @@ impl OrdinaryNewClaimLedgerV1 {
                     .filter(|row| !self.completion_index.contains_key(&row.owner())),
             );
         for completion in completions {
-            let ordinary = completion
-                .cleanup()
-                .root_flow()
-                .into_iter()
-                .flat_map(|flow| flow.expression_plans())
-                .filter_map(|plan| plan.evaluation());
-            let terminal = self
-                .terminal_relations_for_owner(completion.owner())
-                .into_iter()
-                .filter_map(|row| match row {
-                    TerminalRelationV1::Scalar(value) => {
-                        value.evaluation().map(|frame| frame.as_ref())
-                    }
-                    TerminalRelationV1::Value(value) => match value.returned() {
-                        TerminalReturnedSourceV1::TextExpression(frame) => Some(frame.as_ref()),
-                        _ => None,
-                    },
-                    _ => None,
-                });
-            let evaluations: Vec<_> = ordinary.chain(terminal).collect();
-            for evaluation in &evaluations {
+            let mut expression_calls = BTreeSet::new();
+            self.visit_expression_evaluations_v1(completion.owner(), &mut |evaluation| {
                 self.validate_evaluation_entry_cleanup_v1(evaluation, contracts)?;
-            }
+                expression_calls.extend(evaluation.calls().iter().map(|call| call.site().clone()));
+                Ok(true)
+            })?;
             if let Some(flow) = completion.cleanup().root_flow() {
                 for frame in flow
                     .expression_plans()
@@ -462,10 +442,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 {
                     let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call, ordinal, .. } = frame.source().root() else { continue; };
                     let at = OwnedExprSiteV1::new(completion.owner(), call.site().clone());
-                    if evaluations
-                        .iter()
-                        .any(|evaluation| evaluation.calls().iter().any(|call| call.site() == &at))
-                    {
+                    if expression_calls.contains(&at) {
                         continue;
                     }
                     let root = frame

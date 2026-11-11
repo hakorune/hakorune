@@ -513,7 +513,7 @@ impl Driver<'_, '_, '_, '_, '_> {
             }
             let claims = self.port.ordinary_new_claim_ledger.as_ref().ok_or_else(|| reject("claims-missing"))?;
             let site = self.product.schedule().frames()[condition].prefix().statement();
-            for source in claims.branch_scalar_sources_v1(self.source.owner(), site) {
+            for source in claims.branch_scalar_sources_v1(self.source.owner(), site)? {
                 let state = self.ledger.borrow();
                 let observation = state.observe_binding_value_v2(source.binding()).map_err(|error| error.to_string())?;
                 let point = observation.loan_scalar_join_v1(&crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1::BranchNormal(source))?;

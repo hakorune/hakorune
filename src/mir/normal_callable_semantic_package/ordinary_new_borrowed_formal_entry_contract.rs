@@ -30,11 +30,12 @@ impl OrdinaryNewClaimLedgerV1 {
         use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1 as Reference;
         use crate::mir::resolved_semantics::ResolvedLexicalRefV1;
         macro_rules! input_use_pending {
-            ($stage:literal) => {{
+            ($stage:literal) => { input_use_pending!($stage, None) };
+            ($stage:literal, $pending:expr) => {{
                 if crate::config::env::builder_debug_enabled() {
                     eprintln!("[entry-input-use] owner={:?} pending at {}", contract.owner, $stage);
                 }
-                return Ok(None);
+                return Ok($pending);
             }};
         }
         let parameters: Vec<_> = contract.parameters.iter().map(|row|
@@ -89,7 +90,6 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         let mut assignments = BTreeSet::new();
-        let mut evaluations: Vec<&crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1> = Vec::new();
         let mut evaluation_reads = BTreeSet::new();
         for plan in plans {
             if let Some(frame) = plan.rebind_frame() {
@@ -159,24 +159,10 @@ impl OrdinaryNewClaimLedgerV1 {
                     }
                 }
             }
-            if let Some(evaluation) = plan.evaluation() {
-                if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation)) { evaluations.push(evaluation); }
-            }
         }
-        let new_evaluations = self.new_input_evaluations_v1(
-            contract.owner,
-            uses,
-            &mut covered,
-        )?;
-        for evaluation in &new_evaluations {
-            if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation.as_ref())) { evaluations.push(evaluation); }
-        }
-        self.collect_terminal_input_evaluations_v1(contract.owner, uses, &origins, &mut covered, &mut evaluations)?;
-        for product in &loops {
-            let evaluation = product.source.condition.evaluation();
-            if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation)) { evaluations.push(evaluation); }
-        }
-        for evaluation in evaluations {
+        self.cover_new_input_uses_v1(contract.owner, uses, &mut covered)?;
+        self.cover_terminal_input_uses_v1(contract.owner, uses, &origins, &mut covered)?;
+        if !self.visit_expression_evaluations_v1(contract.owner, &mut |evaluation| {
             if crate::config::env::builder_debug_enabled() {
                 eprintln!("[entry-evaluation] owner={:?} order={:?} references={:?}", contract.owner, evaluation.ordered_nodes(),
                     evaluation.references().iter().map(|(node, reference)| (*node, std::mem::discriminant(reference), reference.binding())).collect::<Vec<_>>());
@@ -246,7 +232,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         return Err(freeze("static-input/entry-read-source"));
                     }
                 } else if origins.contains_key(&reference.binding()) && !source_scalar_entry {
-                    input_use_pending!("evaluation-entry-reference")
+                    input_use_pending!("evaluation-entry-reference", false)
                 }
                 // Nested call-argument evaluations may expose the same source
                 // reference as their containing expression evaluation. The
@@ -260,7 +246,8 @@ impl OrdinaryNewClaimLedgerV1 {
                     return Err(freeze("static-input/read-use-duplicate-or-foreign"));
                 }
             }
-        }
+            Ok(true)
+        })? { return Ok(None); }
         if let EntryStructureEvidenceV1::FiniteInput { incoming, .. } = &structure.evidence {
             if uses.cover_exact_bool_static_return_reads_v1(contract.owner, contract.batch_slot,
                 incoming, &origins, &mut covered)? == Some(false) { input_use_pending!("bool-static-return") }

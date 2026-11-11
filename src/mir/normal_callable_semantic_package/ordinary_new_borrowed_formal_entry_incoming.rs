@@ -326,64 +326,30 @@ impl OrdinaryNewClaimLedgerV1 {
     /// Exact local argument rows account only their lexical read; expression
     /// rows contribute their checked node references. Neither grants value
     /// type or execution authority.
-    pub(super) fn new_input_evaluations_v1(
+    pub(super) fn cover_new_input_uses_v1(
         &self,
         owner: FunctionOwnerIdV1,
         uses: &super::super::borrowed_formal_uses::OriginalFormalUseSourceV1,
         covered: &mut BTreeSet<(crate::mir::resolved_semantics::SourceExprSiteV1, BindingRefV1)>,
-    ) -> Result<Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>>, String> {
-        use crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1;
+    ) -> Result<(), String> {
         use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1 as ArgumentKind;
         use crate::mir::resolved_semantics::ResolvedLexicalRefV1;
-        let local = self.claims.borrow();
-        let returned = self.result_claims.borrow();
-        let taken = self.local_commits.borrow();
-        let mut sites = BTreeSet::new();
-        let mut evaluations = Vec::new();
-        for (site, rows) in local.values().map(|claim| (claim.site(), claim.argument_rows()))
-            .chain(returned.values().map(|claim| (claim.site(), claim.argument_rows())))
-            .chain(taken.iter().filter_map(|(site, row)| row.new_argument_rows().map(|rows| (site, rows.as_deref()))))
-            .filter(|(site, _)| site.owner() == owner) {
-            // The original row moves to its existing commit on take. Multiple
-            // locations violate that transfer even when evaluations are equal.
-            if !sites.insert(site) { return Err(freeze("static-input/qualified-use-identity")); }
-            // Unqualified rows lend nothing; original reads remain uncovered.
-            let Ok(rows) = rows else {
-                continue;
-            };
-            for (index, argument) in rows.iter().enumerate() {
-                if argument.owner() != owner || argument.new_site() != site
-                    || argument.ordinal() as usize != index {
-                    return Err(freeze("static-input/qualified-use-identity"));
-                }
-                match argument.kind() {
-                    ArgumentKind::Expression { evaluation } => {
-                        let ExpressionPlanRootV1::NewArgument { construction, ordinal, .. } = evaluation.source().root()
-                            else { return Err(freeze("static-input/qualified-use-identity")) };
-                        if evaluation.source().owner() != owner
-                            || construction.site() != site.site() || *ordinal != argument.ordinal()
-                            || construction.arguments().get(index) != Some(argument.site())
-                            || evaluation.source().nodes().first().map(|node| node.site()) != Some(argument.site()) {
-                            return Err(freeze("static-input/qualified-use-identity"));
-                        }
-                        if !evaluations.iter().any(|old| Rc::ptr_eq(old, evaluation)) {
-                            evaluations.push(Rc::clone(evaluation));
-                        }
+        self.visit_new_input_arguments_v1(owner, &mut |argument| {
+            match argument.kind() {
+                ArgumentKind::Local { binding }
+                | ArgumentKind::Handle { binding }
+                | ArgumentKind::BoundValue { binding } => {
+                    if !uses.reads().any(|(at, reference)| at == argument.site()
+                        && *reference == ResolvedLexicalRefV1::Local(*binding))
+                        || !covered.insert((argument.site().clone(), *binding)) {
+                        return Err(freeze("static-input/read-use-duplicate-or-foreign"));
                     }
-                    ArgumentKind::Local { binding }
-                    | ArgumentKind::Handle { binding }
-                    | ArgumentKind::BoundValue { binding } => {
-                        if !uses.reads().any(|(at, reference)| at == argument.site()
-                            && *reference == ResolvedLexicalRefV1::Local(*binding))
-                            || !covered.insert((argument.site().clone(), *binding)) {
-                            return Err(freeze("static-input/read-use-duplicate-or-foreign"));
-                        }
-                    }
-                    _ => {}
                 }
+                _ => {}
             }
-        }
-        Ok(evaluations)
+            Ok(true)
+        })?;
+        Ok(())
     }
 
     /// Original field roots belong to the same qualified Return field batch,
@@ -423,12 +389,11 @@ impl OrdinaryNewClaimLedgerV1 {
                         }
         Ok(())
     }
-    pub(super) fn collect_terminal_input_evaluations_v1<'a>(
-        &'a self, owner: FunctionOwnerIdV1,
+    pub(super) fn cover_terminal_input_uses_v1(
+        &self, owner: FunctionOwnerIdV1,
         uses: &super::super::borrowed_formal_uses::OriginalFormalUseSourceV1,
         origins: &BTreeMap<BindingRefV1, BindingRefV1>,
         covered: &mut BTreeSet<(crate::mir::resolved_semantics::SourceExprSiteV1, BindingRefV1)>,
-        evaluations: &mut Vec<&'a crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
     ) -> Result<(), String> {
         use crate::mir::resolved_semantics::ResolvedLexicalRefV1;
         use crate::mir::resolved_semantics::home_new_prefix::MapHomeObservation;
@@ -465,8 +430,6 @@ impl OrdinaryNewClaimLedgerV1 {
                     return Err(freeze("static-input/read-use-duplicate-or-foreign"));
                 }
             }
-            let evaluation = install.key().as_ref();
-            if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation)) { evaluations.push(evaluation); }
         }
         for get in flow.into_iter().flat_map(|flow| flow.maps()).filter_map(|row| match row {
             MapHomeObservation::FieldGet(frame) => Some(frame), _ => None,
@@ -478,7 +441,6 @@ impl OrdinaryNewClaimLedgerV1 {
                 || !covered.insert((field.receiver_site().clone(), field.receiver())) {
                 return Err(freeze("static-input/read-use-duplicate-or-foreign"));
             }
-            evaluations.push(get.key().as_ref());
         }
         for append in flow.into_iter().flat_map(|flow| flow.named_arrays()).filter_map(|row| match row {
             crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::FieldTextAppend(frame) => Some(frame), _ => None,
@@ -491,24 +453,20 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             let source = self.field_array_text_append_source_v1(append.source().call())?;
             if !source.matches_text_frame(append) { return Err(freeze("static-input/qualified-use-identity")); }
-            let evaluation = append.evaluation().as_ref();
-            if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation)) { evaluations.push(evaluation); }
         }
         for terminal in self.terminal_relations_for_owner(owner) {
             use crate::mir::resolved_semantics::home_new_prefix::{TerminalRelationV1, TerminalReturnedSourceV1};
             if let TerminalRelationV1::Scalar(row) = terminal {
                 if let Some(evaluation) = row.evaluation() {
                     self.cover_expression_field_roots_v1(flow, evaluation, uses, origins, covered)?;
-                    if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation.as_ref())) { evaluations.push(evaluation); }
                 }
             }
             if let TerminalRelationV1::Value(value) = terminal {
-                let evaluation = match value.returned() {
+                match value.returned() {
                     TerminalReturnedSourceV1::TextExpression(evaluation) => {
                         self.cover_expression_field_roots_v1(flow, evaluation, uses, origins, covered)?;
-                        Some(evaluation)
                     },
-                    TerminalReturnedSourceV1::StoredMapGet { source, key, receiver_read } => {
+                    TerminalReturnedSourceV1::StoredMapGet { source, receiver_read, .. } => {
                         let field = source.receiver();
                         field.require_entry_source_v1(self)?;
                         if origins.contains_key(&field.receiver())
@@ -518,7 +476,6 @@ impl OrdinaryNewClaimLedgerV1 {
                             || !covered.insert((receiver_read.clone(), field.receiver())) {
                             return Err(freeze("static-input/read-use-duplicate-or-foreign"));
                         }
-                        Some(key)
                     }
                     TerminalReturnedSourceV1::StoredMapInstalled(install) => {
                         if !flow.is_some_and(|flow| flow.maps().iter().any(|row|
@@ -536,15 +493,9 @@ impl OrdinaryNewClaimLedgerV1 {
                             || !covered.insert((value.value_site().clone(), binding)) {
                             return Err(freeze("static-input/read-use-duplicate-or-foreign"));
                         }
-                        None
                     }
-                    _ => None,
+                    _ => {},
                 };
-                if let Some(evaluation) = evaluation {
-                    if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation.as_ref())) {
-                        evaluations.push(evaluation);
-                    }
-                }
             }
         }
         Ok(())
