@@ -268,6 +268,26 @@ impl CheckedExpressionEvaluationV1 {
                     && (!allow_dynamic_call || !self.transfers_node(*node))
             })
             .collect();
+        // Eager Core projection needs ordinary receiver values. Identity-owned
+        // receivers retain their existing field/operation writer and descent.
+        if computed_scalar
+            && order
+                .iter()
+                .filter_map(|node| self.cores.get(node))
+                .any(|core| {
+                    self.source
+                        .nodes()
+                        .iter()
+                        .position(|node| node.site() == core.source().source().receiver_site())
+                        .is_none_or(|receiver| {
+                            self.node_is_identity(receiver)
+                                || self.transfers_node(receiver)
+                                || !order.contains(&receiver)
+                        })
+                })
+        {
+            return None;
+        }
         if allow_dynamic_call {
             let dynamic_positions: Vec<_> = order
                 .iter()
