@@ -66,8 +66,10 @@ pub(crate) use evaluation::{
 };
 #[path = "home_print_expression.rs"]
 mod print_expression;
-pub(super) use print_expression::qualify_statement_evaluation_v1;
+#[path = "home_expression_qualification.rs"]
+mod qualification;
 pub(crate) use print_expression::{qualify_print_expression_v1, CheckedPrintExpressionFrameV1};
+pub(super) use qualification::{admits_statement_value_v1, qualify_expression_evaluation_v1};
 
 #[path = "home_borrowed_field_write.rs"]
 mod field_write;

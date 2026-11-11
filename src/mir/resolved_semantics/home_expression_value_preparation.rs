@@ -100,10 +100,10 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_value_evaluat
             }));
         }
     }
-    let (evaluation, fields) = match crate::mir::resolved_semantics::home_new_prefix::expression_plan::qualify_statement_evaluation_v1(prepared, initial,
+    let (evaluation, fields) = match crate::mir::resolved_semantics::home_new_prefix::expression_plan::qualify_expression_evaluation_v1(prepared, initial,
         &mut |site| locals.static_text_reference(site), &mut |site| locals.text_reference(site),
         &mut |site| locals.loop_text_reference_v1(site, homes),
-        &mut |site| locals.current_scalar_read_v1(site, calls), field_request)? {
+        &mut |site| locals.current_scalar_read_v1(site, calls).map(crate::mir::resolved_semantics::home_new_prefix::CheckedScalarReferenceV1::Original), field_request)? {
             Ok(qualified) => qualified,
             Err(reason) => {
                 if std::env::var_os("HAKO_DEBUG_FIELD_TEXT_APPEND").is_some() {
@@ -112,7 +112,10 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_value_evaluat
                 return Ok(Err(reason));
             }
         };
-    if evaluation.root_class() != ExpressionLeafClassV1::Value(expected) {
+    if !crate::mir::resolved_semantics::home_new_prefix::expression_plan::admits_statement_value_v1(
+        &evaluation,
+    ) || evaluation.root_class() != ExpressionLeafClassV1::Value(expected)
+    {
         return Ok(Err("root-class-mismatch"));
     }
     Ok(Ok((std::rc::Rc::new(evaluation), fields)))
