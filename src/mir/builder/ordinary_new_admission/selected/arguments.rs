@@ -6,10 +6,9 @@ use super::{expression_value, freeze, terminal_call};
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::instruction::BirthArgumentV1;
 use crate::mir::normal_callable_semantic_package::{
-    EmittedNewArgumentV1, EmittedNewExpressionV1, ExpressionCallTransientPrefixV1,
-};
-use crate::mir::normal_callable_semantic_package::{
-    OrdinaryNewClaimLedgerV1, OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1,
+    CallValidationContextV1, EmittedNewArgumentV1, EmittedNewExpressionV1,
+    ExpressionCallTransientPrefixV1, OrdinaryNewClaimLedgerV1, OrdinaryNewTrivialArgumentKindV1,
+    OrdinaryNewTrivialArgumentV1,
 };
 use crate::mir::{MirBuilder, MirInstruction, MirType};
 use std::rc::Rc;
@@ -33,7 +32,11 @@ pub(super) fn materialize_arguments(
     for row in rows {
         if let OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = row.kind() {
             let inherited = ExpressionCallTransientPrefixV1::for_prepared_new_argument_v1(
-                row, &arguments, rows, inherited,
+                row,
+                &arguments,
+                rows,
+                inherited,
+                CallValidationContextV1::Lowering(ledger),
             )?;
             let mut expression = expression_value::emit_with_prefix(
                 builder,

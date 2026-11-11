@@ -244,7 +244,7 @@ pub(crate) use expression_plan::{
     qualify_print_expression_v1, BindingRebindDestinationV1, CheckedArgumentExpressionFrameV1,
     CheckedBindingRebindFrameV1, CheckedBoolConditionFrameV1, CheckedExpressionEvaluationV1,
     ComparisonExecutionKindV1, ComparisonExecutionPlanV1,
-    attach_expression_entry_facts_v1, expression_entry_facts_at_v1, ExpressionOwnershipV1, ExpressionCallEntryFactsV1,
+    attach_expression_entry_facts_v1, expression_entry_facts_at_v1, ExpressionOwnershipV1, ExpressionOwnershipStateV1, ExpressionCallEntryFactsV1,
     CheckedExpressionReferenceV1, CheckedExpressionOperationLoanV1, CheckedFieldWriteFrameV1, CheckedInitializerExpressionFrameV1,
     CheckedPrintExpressionFrameV1, CheckedScalarReferenceV1, ExpressionCallSourceV1,
     ExpressionFieldRequirementV1, ExpressionScalarOperationLoanV1, FieldWritePlanV1,

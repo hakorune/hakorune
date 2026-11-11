@@ -312,7 +312,7 @@ impl EmittedLexicalCallProjectionV1 {
             return Err(freeze("argument-expression/prefix-original-call"));
         }
         if finishing.is_none() {
-            self.validate_original_argument_order_v1(function)?;
+            self.validate_original_argument_order_v1(function, context)?;
         }
         let mut covered = std::collections::BTreeSet::new();
         for (ordinal, argument) in self.prepared.arguments.iter().enumerate() {
@@ -430,10 +430,11 @@ impl EmittedLexicalCallProjectionV1 {
     pub(in crate::mir) fn validate_original_argument_order_v1(
         &self,
         function: &crate::mir::MirFunction,
+        context: CallValidationContextV1<'_>,
     ) -> Result<(), String> {
         let mut previous = None;
         for argument in &self.prepared.arguments {
-            if let Some((entry, completion)) = argument.original_argument_boundaries_v1()? {
+            if let Some((entry, completion)) = argument.original_argument_boundaries_v1(self.row.loan(), context)? {
                 if let Some(previous) = previous {
                     super::super::expression_projection::normal_order(
                         function,
@@ -566,7 +567,9 @@ impl PreparedLexicalCallProjectionV1 {
 }
 
 impl LexicalCallArgumentProjectionV1 {
-    fn original_argument_boundaries_v1(&self) -> Result<Option<(Binding, Binding)>, String> {
+    fn original_argument_boundaries_v1(
+        &self, row: CallPacketSourceLoanV1<'_>, context: CallValidationContextV1<'_>,
+    ) -> Result<Option<(Binding, Binding)>, String> {
         Ok(match self {
             Self::Expression(packet) => match (&packet.body.entry, &packet.continuation) {
                 (Some(entry), Some(continuation)) => Some((entry.clone(), continuation.clone())),
@@ -574,12 +577,19 @@ impl LexicalCallArgumentProjectionV1 {
                     .zip(packet.body.bindings.last().cloned()),
                 _ => return Err(freeze("expression/inline-delimiter-drift")),
             },
-            Self::TakenObjectArgument { origin: TakenObjectArgumentOriginV1::Completed(bounds), .. } => Some((bounds[0].clone(), bounds[1].clone())),
+            Self::TakenObjectArgument { ordinal, site, value, origin: TakenObjectArgumentOriginV1::Completed(bounds), .. } => {
+                let owner = row.call_site().owner();
+                borrowed_projection::value(self, owner, row, *ordinal, site, context)?;
+                let ordered = context.ledger().taken_new_argument_ordered_bindings_v1(
+                    &OwnedExprSiteV1::new(owner, site.clone()), row.call_site(), *ordinal, *value, bounds, context,
+                )?;
+                ordered.first().cloned().zip(ordered.last().cloned())
+            },
             Self::TakenObjectArgument { origin: TakenObjectArgumentOriginV1::Read(_), .. } => None,
             Self::CallResult(packet) => {
                 let mut entry = packet.invoke.clone();
                 for argument in &packet.prepared.arguments {
-                    if let Some((first, _)) = argument.original_argument_boundaries_v1()? {
+                    if let Some((first, _)) = argument.original_argument_boundaries_v1(packet.row.loan(), context)? {
                         entry = first;
                         break;
                     }

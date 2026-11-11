@@ -726,5 +726,5 @@ pub(crate) use comparison_nodes::{ComparisonExecutionKindV1, ComparisonExecution
 mod ownership;
 pub(crate) use ownership::{
     attach_expression_entry_facts_v1, expression_entry_facts_at_v1, ExpressionCallEntryFactsV1,
-    ExpressionOwnershipV1,
+    ExpressionOwnershipStateV1, ExpressionOwnershipV1,
 };

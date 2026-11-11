@@ -62,7 +62,8 @@ mod evaluation;
 pub(crate) use evaluation::{
     attach_expression_entry_facts_v1, expression_entry_facts_at_v1, CheckedExpressionEvaluationV1,
     CheckedExpressionReferenceV1, CheckedScalarReferenceV1, ComparisonExecutionKindV1,
-    ComparisonExecutionPlanV1, ExpressionCallEntryFactsV1, ExpressionOwnershipV1,
+    ComparisonExecutionPlanV1, ExpressionCallEntryFactsV1, ExpressionOwnershipStateV1,
+    ExpressionOwnershipV1,
 };
 pub(super) use evaluation::{prepare_value_evaluation_v1, qualify_text_evaluation_v1};
 #[path = "home_print_expression.rs"]

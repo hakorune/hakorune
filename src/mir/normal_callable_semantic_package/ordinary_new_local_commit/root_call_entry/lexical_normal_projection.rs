@@ -478,11 +478,14 @@ impl EmittedLexicalCallProjectionV1 {
             .transpose()?.unwrap_or(prior_homes);
         let before_entry = inherited.map(|prefix| prefix.homes_before_entry_v1(self.call_site(), before_arguments))
             .transpose()?.unwrap_or(before_arguments);
-        let entered_homes = self.row.loan().entered_prior_homes_v1(context, before_entry)?;
-        if inherited.map(|prefix| prefix.homes_after_site_v1(self.call_site(), &entered_homes))
-            .transpose()?.is_some_and(|planned| planned != entered_homes) {
-            return Err(freeze("borrowed-actual/source-identity"));
-        }
+        let standalone_homes;
+        let entered_homes = match inherited.map(|prefix| prefix.planned_homes_after_site_v1(self.call_site())).transpose()?.flatten() {
+            Some(planned) => planned,
+            None => {
+                standalone_homes = self.row.loan().entered_prior_homes_v1(context, before_entry)?;
+                &standalone_homes
+            }
+        };
         let has_takes = entered_homes.len() != before_arguments.len();
         if ends.is_empty() && inherited.is_none() && !checked_call && !has_takes {
             if self.argument_cleanup.is_some() {
@@ -501,8 +504,8 @@ impl EmittedLexicalCallProjectionV1 {
             .transpose()?
             .unwrap_or_default();
         let mut entered_suffix = suffix.clone();
-        entered_suffix.extend(context.ledger().prior_home_unwind_for(&entered_homes)?);
-        context.ledger().with_loop_call_text_ends_at_state_v1(self.call_site(), source.prior_homes(), &entered_homes, &mut entered_suffix)?;
+        entered_suffix.extend(context.ledger().prior_home_unwind_for(entered_homes)?);
+        context.ledger().with_loop_call_text_ends_at_state_v1(self.call_site(), source.prior_homes(), entered_homes, &mut entered_suffix)?;
         suffix.extend(
             context
                 .ledger()

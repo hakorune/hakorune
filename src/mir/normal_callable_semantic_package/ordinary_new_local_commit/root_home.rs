@@ -517,20 +517,6 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(unwind)
     }
 
-    /// Call-argument expressions Fault with their enclosing Call's carriers.
-    pub(crate) fn with_loop_call_text_ends_for_frame_v2(
-        &self,
-        frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
-        unwind: &mut Vec<InvokeOperation>,
-    ) -> Result<(), String> {
-        use crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1 as Root;
-        if let Root::CallArgument { call, .. } = frame.source().root() {
-            let site = OwnedExprSiteV1::new(frame.source().owner(), call.site().clone());
-            self.with_loop_call_text_ends_v2(&site, frame.prior_homes(), unwind)?;
-        }
-        Ok(())
-    }
-
     /// Apply the recorded loop-return carrier Ends to `order`; validators
     /// rebuild their expected order through this same insertion.
     pub(in crate::mir::normal_callable_semantic_package) fn adopt_loop_return_text_ends_v1(

@@ -131,7 +131,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     if let Some(expression) = emitted.expression_v1() {
                         let inherited = crate::mir::normal_callable_semantic_package::ExpressionCallTransientPrefixV1::for_prepared_new_argument_v1(
                             source, &arguments[..index], source_arguments,
-                            argument_cleanup.as_ref().map_or(&[], |cleanup| cleanup.inherited()))?;
+                            argument_cleanup.as_ref().map_or(&[], |cleanup| cleanup.inherited()), context)?;
                         expression.validate_v1(source, emitted.payload(),
                             context, function, projection, Some(&inherited))?;
                     } else { self.validate_argument_definition(function, source, emitted.value_only_v1()?)?; }

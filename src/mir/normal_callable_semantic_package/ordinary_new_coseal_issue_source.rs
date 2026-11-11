@@ -162,6 +162,9 @@ pub(super) fn append_source_claims(
                     new_site: site.clone(),
                 })
             });
+        super::super::coseal_helpers::validate_selected_new_argument_contracts_v1(
+            &site, &argument_rows, birth_handoff.as_ref(),
+        )?;
         if let super::super::OrdinaryNewConstructorDispositionV1::Birth(_) = &constructor {
             if let Some(birth) = instance_constructors.birth_for(&box_source, arity).ok().flatten() {
                 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::candidate as take;
@@ -251,6 +254,9 @@ pub(super) fn append_source_claims(
                     new_site: site.clone(),
                 })
             });
+        super::super::coseal_helpers::validate_selected_new_argument_contracts_v1(
+            &site, &argument_rows, birth_handoff.as_ref(),
+        )?;
         if claims
             .iter()
             .any(|claim: &OrdinaryNewAdmissionClaimV1| claim.core.site == site)

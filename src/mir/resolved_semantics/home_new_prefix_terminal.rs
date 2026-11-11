@@ -108,10 +108,12 @@ pub(super) fn observe_terminal_statement<'a, E>(
     } else {
         None
     };
+    let mut committed_expression = None;
     if let Some(Ok(terminal)) = &scalar_terminal {
         if let Some(evaluation) = terminal.evaluation() {
             path_calls.extend(evaluation.calls().iter().map(|call| call.site().clone()));
             local_calls.extend_from_slice(evaluation.calls());
+            committed_expression = Some(std::rc::Rc::clone(evaluation));
         }
     }
     let value_terminal =
@@ -142,23 +144,9 @@ pub(super) fn observe_terminal_statement<'a, E>(
         if let TerminalReturnedSourceV1::TextExpression(evaluation) = value.returned() {
             path_calls.extend(evaluation.calls().iter().map(|call| call.site().clone()));
             local_calls.extend_from_slice(evaluation.calls());
+            committed_expression = Some(std::rc::Rc::clone(evaluation));
         }
     }
-    let committed_expression = scalar_terminal
-        .as_ref()
-        .and_then(|result| result.as_ref().ok())
-        .and_then(|terminal| terminal.evaluation())
-        .cloned()
-        .or_else(|| {
-            value_terminal
-                .as_ref()
-                .and_then(|value| match value.returned() {
-                    TerminalReturnedSourceV1::TextExpression(evaluation) => {
-                        Some(std::rc::Rc::clone(evaluation))
-                    }
-                    _ => None,
-                })
-        });
     let mut static_terminal = None;
     if object_terminal.is_none() && scalar_terminal.is_none() && value_terminal.is_none() {
         if let Ok(value) = input

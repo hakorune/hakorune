@@ -157,3 +157,35 @@ mod tests {
         }
     }
 }
+
+/// The same source Text demand required by the final Birth actual verifier.
+/// A declared String alone does not supply a connected borrowing contract.
+pub(super) fn validate_selected_new_argument_contracts_v1(
+    site: &OwnedExprSiteV1,
+    rows: &Result<Box<[OrdinaryNewTrivialArgumentV1]>, SelectedNewArgumentUnavailableV1>,
+    birth: Option<&super::super::BirthAbiHandoffV1>,
+) -> Result<(), OrdinaryNewCoSealIssueV1> {
+    use crate::mir::resolved_value_profile::{
+        expression_class::ExpressionValueClassV1 as V,
+        expression_projection::ExpressionLeafClassV1 as L,
+    };
+    let Ok(rows) = rows else { return Ok(()); };
+    for row in rows.iter() {
+        let OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = row.kind() else { continue; };
+        if evaluation.root_class() != L::Value(V::String) { continue; }
+        let demand = birth.map(|birth| birth.text_formal_source_v1(row.ordinal())).transpose()
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue })?
+            .flatten();
+        if demand.is_none() {
+            let issue = SelectedNewArgumentUnavailableV1::ArgumentNotTrivial {
+                new_site: site.clone(), site: row.site().clone(),
+                reason: Some("constructor Text formal contract is not connected"),
+            };
+            return Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(),
+                issue: crate::mir::resolved_semantics::home_new_prefix::argument_source_unavailable_tag_v1(&issue),
+            });
+        }
+    }
+    Ok(())
+}

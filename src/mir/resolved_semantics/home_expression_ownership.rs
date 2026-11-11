@@ -26,34 +26,70 @@ enum ArgumentEffectSourceV1<'a> {
     Call(&'a Rc<ExpressionCallEntryFactsV1>),
 }
 
+/// One immutable responsibility value, owned only by the expression plan.
+/// Completed temporary News have source identities, never fabricated bindings.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ExpressionOwnershipStateV1 {
+    homes: HomesV1,
+    fresh: Vec<OwnedExprSiteV1>,
+}
+impl ExpressionOwnershipStateV1 {
+    pub(crate) fn homes(&self) -> &[LiveHomeV1] {
+        &self.homes
+    }
+    pub(crate) fn fresh(&self) -> &[OwnedExprSiteV1] {
+        &self.fresh
+    }
+    /// Instantiate a no-bound-transfer constructor argument in its original
+    /// enclosing source context. This is ordered scope composition, not a join.
+    pub(crate) fn in_new_argument_context_v1(&self, outer: &Self) -> Result<Self, &'static str> {
+        if self.fresh.iter().any(|site| outer.fresh.contains(site)) {
+            return Err("expression/argument-source-drift");
+        }
+        let mut fresh = outer.fresh.clone();
+        fresh.extend_from_slice(&self.fresh);
+        Ok(Self {
+            homes: outer.homes.clone(),
+            fresh,
+        })
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum ExpressionOwnershipEffectV1 {
+    Observe,
+    AcquireFresh,
+    Enter(Rc<ExpressionCallEntryFactsV1>),
+}
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct ExpressionOwnershipPointV1 {
     site: OwnedExprSiteV1,
     argument_start: usize,
-    argument_entry: Rc<HomesV1>,
-    before_entry: Rc<HomesV1>,
-    entered: Rc<HomesV1>,
-    call: Option<Rc<ExpressionCallEntryFactsV1>>,
+    argument_entry: Rc<ExpressionOwnershipStateV1>,
+    before_entry: Rc<ExpressionOwnershipStateV1>,
+    entered: Rc<ExpressionOwnershipStateV1>,
+    effect: ExpressionOwnershipEffectV1,
 }
 
-/// Only this source plan folds the transitions. Each physical user projects it.
-/// The points borrow one immutable Home list until a transfer actually changes it.
+/// Only this source plan folds transitions. Physical consumers project it.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ExpressionOwnershipV1 {
-    initial: Rc<HomesV1>,
+    initial: Rc<ExpressionOwnershipStateV1>,
     points: Box<[ExpressionOwnershipPointV1]>,
-    end: Rc<HomesV1>,
+    end: Rc<ExpressionOwnershipStateV1>,
 }
 impl ExpressionOwnershipV1 {
     pub(crate) fn entry(homes: &[LiveHomeV1]) -> Self {
-        let initial = Rc::new(HomesV1::snapshot(homes));
+        let initial = Rc::new(ExpressionOwnershipStateV1 {
+            homes: HomesV1::snapshot(homes),
+            fresh: Vec::new(),
+        });
         Self {
             end: Rc::clone(&initial),
             initial,
             points: Box::new([]),
         }
     }
-
     pub(crate) fn prepare(
         source: &Rc<ExpressionSourcePlanV1>,
         order: &[usize],
@@ -90,7 +126,7 @@ impl ExpressionOwnershipV1 {
                     argument_entry: Rc::clone(&current),
                     before_entry: Rc::clone(&current),
                     entered: Rc::clone(&current),
-                    call: None,
+                    effect: ExpressionOwnershipEffectV1::Observe,
                 });
             }
         }
@@ -98,20 +134,23 @@ impl ExpressionOwnershipV1 {
         if points.iter().any(|point| !sites.insert(point.site.clone())) {
             return Err("expression/argument-source-drift");
         }
+        // Every temporary acquisition admitted here is an exact take actual;
+        // a completed expression cannot leave one without a destination.
+        if !current.fresh.is_empty() {
+            return Err("expression/argument-owner-unavailable");
+        }
         plan.points = points.into_boxed_slice();
         plan.end = current;
         Ok(plan)
     }
-
     fn append_call(
         source: &ExpressionSourcePlanV1,
         facts: &Rc<ExpressionCallEntryFactsV1>,
-        current: &mut Rc<HomesV1>,
+        current: &mut Rc<ExpressionOwnershipStateV1>,
         points: &mut Vec<ExpressionOwnershipPointV1>,
     ) -> Result<(), &'static str> {
         let argument_start = points.len();
         let argument_entry = Rc::clone(current);
-        // Ordinals belong to the retained source call, never physical IDs.
         let mut arguments: Vec<_> = facts.arguments.iter().map(|child| {
             let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { ordinal, .. } = child.source().root()
                 else { return Err("expression/argument-source-drift"); };
@@ -138,13 +177,15 @@ impl ExpressionOwnershipV1 {
             let offset = points.len();
             match effect {
                 ArgumentEffectSourceV1::Fresh(site) => {
+                    let before = Rc::clone(current);
+                    *current = Self::acquire_fresh(current, site)?;
                     points.push(ExpressionOwnershipPointV1 {
                         site: site.clone(),
                         argument_start: offset,
-                        argument_entry: Rc::clone(current),
-                        before_entry: Rc::clone(current),
+                        argument_entry: Rc::clone(&before),
+                        before_entry: before,
                         entered: Rc::clone(current),
-                        call: None,
+                        effect: ExpressionOwnershipEffectV1::AcquireFresh,
                     });
                 }
                 ArgumentEffectSourceV1::Call(nested) => {
@@ -165,7 +206,7 @@ impl ExpressionOwnershipV1 {
                                 argument_entry: Rc::clone(current),
                                 before_entry: Rc::clone(current),
                                 entered: Rc::clone(current),
-                                call: None,
+                                effect: ExpressionOwnershipEffectV1::Observe,
                             });
                         }
                     }
@@ -177,17 +218,25 @@ impl ExpressionOwnershipV1 {
                                 .ok_or("expression/argument-source-drift")?,
                         );
                         let before = Rc::clone(current);
-                        if let Some(entry) = &point.call {
-                            Self::check_reach(source, entry)?;
-                            *current = Self::enter(current, entry)?;
-                        }
+                        // Replay the retained source event, never a snapshot
+                        // difference. Ambient sibling responsibilities survive.
+                        *current = match &point.effect {
+                            ExpressionOwnershipEffectV1::Observe => Rc::clone(current),
+                            ExpressionOwnershipEffectV1::AcquireFresh => {
+                                Self::acquire_fresh(current, &point.site)?
+                            }
+                            ExpressionOwnershipEffectV1::Enter(entry) => {
+                                Self::check_reach(source, entry)?;
+                                Self::enter(current, entry)?
+                            }
+                        };
                         points.push(ExpressionOwnershipPointV1 {
                             site: point.site.clone(),
                             argument_start: offset + point.argument_start,
                             argument_entry,
                             before_entry: before,
                             entered: Rc::clone(current),
-                            call: point.call.clone(),
+                            effect: point.effect.clone(),
                         });
                         prefixes.push(Rc::clone(current));
                     }
@@ -203,11 +252,21 @@ impl ExpressionOwnershipV1 {
             argument_entry,
             before_entry,
             entered: Rc::clone(current),
-            call: Some(Rc::clone(facts)),
+            effect: ExpressionOwnershipEffectV1::Enter(Rc::clone(facts)),
         });
         Ok(())
     }
-
+    fn acquire_fresh(
+        current: &Rc<ExpressionOwnershipStateV1>,
+        site: &OwnedExprSiteV1,
+    ) -> Result<Rc<ExpressionOwnershipStateV1>, &'static str> {
+        if current.fresh.contains(site) {
+            return Err("expression/argument-source-drift");
+        }
+        let mut next = (**current).clone();
+        next.fresh.push(site.clone());
+        Ok(Rc::new(next))
+    }
     fn check_reach(
         source: &ExpressionSourcePlanV1,
         facts: &ExpressionCallEntryFactsV1,
@@ -227,11 +286,10 @@ impl ExpressionOwnershipV1 {
         }
         Ok(())
     }
-
     fn enter(
-        current: &Rc<HomesV1>,
+        current: &Rc<ExpressionOwnershipStateV1>,
         facts: &ExpressionCallEntryFactsV1,
-    ) -> Result<Rc<HomesV1>, &'static str> {
+    ) -> Result<Rc<ExpressionOwnershipStateV1>, &'static str> {
         if facts.taken.iter().any(|(binding, _, acquisition)| {
             binding.owner() != facts.site.owner() || acquisition.owner() != facts.site.owner()
         }) {
@@ -240,26 +298,40 @@ impl ExpressionOwnershipV1 {
         let mut fresh = std::collections::BTreeSet::new();
         for (ordinal, acquisition) in &facts.fresh {
             if acquisition.owner() != facts.site.owner()
-                || !fresh.insert(*ordinal)
+                || !fresh.insert(acquisition.clone())
                 || !acquisition
                     .site()
                     .is_argument_of(facts.site.site(), *ordinal)
+                || current
+                    .fresh
+                    .iter()
+                    .filter(|active| *active == acquisition)
+                    .count()
+                    != 1
             {
                 return Err("borrowed-actual/source-identity");
             }
         }
-        if facts.taken.is_empty() {
+        if facts.taken.is_empty() && fresh.is_empty() {
             return Ok(Rc::clone(current));
         }
-        HomesV1::after_call_entry_v1(
-            current,
+        let homes = HomesV1::after_call_entry_v1(
+            &current.homes,
             facts
                 .taken
                 .iter()
                 .map(|(binding, root, acquisition)| (*binding, *root, acquisition)),
         )
-        .map(Rc::new)
-        .ok_or("expression/take-cleanup-unavailable")
+        .ok_or("expression/take-cleanup-unavailable")?;
+        Ok(Rc::new(ExpressionOwnershipStateV1 {
+            homes,
+            fresh: current
+                .fresh
+                .iter()
+                .filter(|site| !fresh.contains(site))
+                .cloned()
+                .collect(),
+        }))
     }
     pub(crate) fn first_site(&self) -> Option<&OwnedExprSiteV1> {
         self.points.first().map(|point| &point.site)
@@ -268,49 +340,68 @@ impl ExpressionOwnershipV1 {
         self.points.last().map(|point| &point.site)
     }
     pub(crate) fn entries(&self) -> impl Iterator<Item = &ExpressionCallEntryFactsV1> {
-        self.points.iter().filter_map(|point| point.call.as_deref())
+        self.points.iter().filter_map(|point| match &point.effect {
+            ExpressionOwnershipEffectV1::Enter(entry) => Some(entry.as_ref()),
+            _ => None,
+        })
+    }
+    pub(crate) fn state_before_site(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Option<Rc<ExpressionOwnershipStateV1>> {
+        if self.points.is_empty() {
+            return Some(Rc::clone(&self.initial));
+        }
+        self.points
+            .iter()
+            .find(|row| &row.site == site)
+            .map(|row| Rc::clone(&row.argument_entry))
     }
     pub(crate) fn before_call(&self, site: &OwnedExprSiteV1) -> Option<&[LiveHomeV1]> {
         self.points
             .iter()
             .find(|row| &row.site == site)
-            .map(|row| &**row.argument_entry as &[LiveHomeV1])
+            .map(|row| row.argument_entry.homes())
     }
     pub(crate) fn before_entry_call(&self, site: &OwnedExprSiteV1) -> Option<&[LiveHomeV1]> {
         self.points
             .iter()
             .find(|row| &row.site == site)
-            .map(|row| &**row.before_entry as &[LiveHomeV1])
+            .map(|row| row.before_entry.homes())
     }
     pub(crate) fn entered_call(&self, site: &OwnedExprSiteV1) -> Option<&[LiveHomeV1]> {
         self.points
             .iter()
             .find(|row| &row.site == site)
-            .map(|row| &**row.entered as &[LiveHomeV1])
+            .map(|row| row.entered.homes())
+    }
+    pub(crate) fn fresh_before_site(&self, site: &OwnedExprSiteV1) -> Option<&[OwnedExprSiteV1]> {
+        if self.points.is_empty() {
+            return Some(self.initial.fresh());
+        }
+        self.points
+            .iter()
+            .find(|row| &row.site == site)
+            .map(|row| row.argument_entry.fresh())
     }
     pub(crate) fn before_site(&self, site: &OwnedExprSiteV1) -> Option<&[LiveHomeV1]> {
         if self.points.is_empty() {
-            return Some(&self.initial);
+            return Some(self.initial.homes());
         }
         self.before_call(site)
     }
     pub(crate) fn end(&self) -> &[LiveHomeV1] {
-        &self.end
+        self.end.homes()
     }
     pub(crate) fn has_transfers(&self) -> bool {
-        self.points.iter().any(|point| {
-            point
-                .call
-                .as_ref()
-                .is_some_and(|facts| !facts.taken.is_empty())
-        })
+        self.entries().any(|entry| !entry.taken.is_empty())
     }
     pub(crate) fn contains_site(&self, site: &OwnedExprSiteV1) -> bool {
         self.points.iter().any(|point| &point.site == site)
     }
     pub(crate) fn after_site(&self, site: &OwnedExprSiteV1) -> Option<&[LiveHomeV1]> {
         if self.points.is_empty() {
-            return Some(&self.end);
+            return Some(self.end.homes());
         }
         self.entered_call(site)
     }

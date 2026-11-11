@@ -23,36 +23,51 @@ pub(in crate::mir::normal_callable_semantic_package) struct ResultNewSourceRefV1
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    /// Borrow the outermost retained source evaluation at an argument New.
-    /// Child frames retain original entry snapshots; they cannot overwrite a
-    /// preceding sibling's already composed transition.
+    /// Borrow an already-composed source point. The outermost lexical owner
+    /// wins over child frames whose entry snapshots precede earlier siblings.
+    pub(in crate::mir) fn expression_state_before_site_v1(
+        &self, site: &OwnedExprSiteV1,
+    ) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::ExpressionOwnershipStateV1>>, String> {
+        use crate::mir::resolved_semantics::home_new_prefix::ExpressionOwnershipStateV1;
+        use crate::mir::resolved_value_profile::expression_plan::{ExpressionSourcePlanV1, ExpressionPlanRootV1};
+        use std::rc::Rc;
+        let mut selected: Option<(usize, Rc<ExpressionSourcePlanV1>, Rc<ExpressionOwnershipStateV1>, bool)> = None;
+        self.visit_expression_evaluations_v1(site.owner(), &mut |evaluation| {
+            if !evaluation.ownership_v1().contains_site(site) { return Ok(true); }
+            let root = evaluation.source().nodes()[0].site().node().segments();
+            if !site.site().node().segments().starts_with(root) { return Err(freeze("expression/argument-source-drift")); }
+            let current = evaluation.ownership_v1().state_before_site(site)
+                .ok_or_else(|| freeze("expression/argument-owner-unavailable"))?;
+            match &selected {
+                Some((depth, source, _, _)) if *depth == root.len() && !Rc::ptr_eq(source, evaluation.source()) =>
+                    return Err(freeze("expression/argument-source-drift")),
+                Some((depth, _, _, _)) if *depth <= root.len() => {}
+                _ => selected = Some((root.len(), Rc::clone(evaluation.source()), current, evaluation.ownership_v1().has_transfers())),
+            }
+            Ok(true)
+        })?;
+        let Some((_, source, current, takes)) = selected else { return Ok(None); };
+        if let ExpressionPlanRootV1::NewArgument { construction, .. } = source.root() {
+            let enclosing = OwnedExprSiteV1::new(source.owner(), construction.site().clone());
+            if takes || enclosing.site().node().segments().len() >= site.site().node().segments().len()
+                || !site.site().node().segments().starts_with(enclosing.site().node().segments()) {
+                return Err(freeze("expression/argument-entry-transition-unavailable"));
+            }
+            if let Some(outer) = self.expression_state_before_site_v1(&enclosing)? {
+                return current.in_new_argument_context_v1(&outer).map(|state| Some(Rc::new(state))).map_err(freeze);
+            }
+        }
+        Ok(Some(current))
+    }
+
     pub(in crate::mir) fn expression_result_new_prefix_v1(
         &self, acquisition: &OwnedExprSiteV1, original: &ResultNewHomePrefixV1,
     ) -> Result<ResultNewHomePrefixV1, String> {
         if !matches!(original.purpose(), crate::mir::resolved_semantics::home_new_prefix::ResultNewPurposeV1::TakenArgument { .. }) {
             return Ok(original.clone());
         }
-        let mut selected: Option<(usize, std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>, Vec<crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1>)> = None;
-        self.visit_expression_evaluations_v1(acquisition.owner(), &mut |evaluation| {
-            if !evaluation.ownership_v1().contains_site(acquisition) { return Ok(true); }
-            let root = evaluation.source().nodes()[0].site().node().segments();
-            if !acquisition.site().node().segments().starts_with(root) {
-                return Err(freeze("expression/argument-source-drift"));
-            }
-            let current = evaluation.ownership_v1().before_site(acquisition)
-                .ok_or_else(|| freeze("expression/argument-owner-unavailable"))?;
-            match &selected {
-                Some((depth, source, _)) if *depth == root.len()
-                    && !std::rc::Rc::ptr_eq(source, evaluation.source()) => {
-                    return Err(freeze("expression/argument-source-drift"));
-                }
-                Some((depth, _, _)) if *depth <= root.len() => {}
-                _ => selected = Some((root.len(), std::rc::Rc::clone(evaluation.source()), current.to_vec())),
-            }
-            Ok(true)
-        })?;
-        match selected {
-            Some((_, _, current)) => original.at_taken_argument_state_v1(acquisition, &current).map_err(freeze),
+        match self.expression_state_before_site_v1(acquisition)? {
+            Some(current) => original.at_taken_argument_state_v1(acquisition, current.homes()).map_err(freeze),
             None => Ok(original.clone()),
         }
     }

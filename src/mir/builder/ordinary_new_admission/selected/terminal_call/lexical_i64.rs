@@ -227,14 +227,17 @@ fn emit_lexical_i64_call(
         .transpose()?.unwrap_or(prior_homes);
     let before_entry = expression.map(|prefix| prefix.homes_before_entry_v1(row.call_site(), before_arguments))
         .transpose()?.unwrap_or(before_arguments);
-    let entered_homes = row.entered_prior_homes_v1(CallValidationContextV1::Lowering(ledger), before_entry)?;
-    if expression.map(|prefix| prefix.homes_after_site_v1(row.call_site(), &entered_homes))
-        .transpose()?.is_some_and(|planned| planned != entered_homes) {
-        return Err(freeze("borrowed-actual/source-identity"));
-    }
+    let standalone_homes;
+    let entered_homes = match expression.map(|prefix| prefix.planned_homes_after_site_v1(row.call_site())).transpose()?.flatten() {
+        Some(planned) => planned,
+        None => {
+            standalone_homes = row.entered_prior_homes_v1(CallValidationContextV1::Lowering(ledger), before_entry)?;
+            &standalone_homes
+        }
+    };
     let mut entered_unwind = unwind.clone();
-    entered_unwind.extend(ledger.prior_home_unwind_for(&entered_homes)?);
-    ledger.with_loop_call_text_ends_at_state_v1(row.call_site(), prior_homes, &entered_homes, &mut entered_unwind)?;
+    entered_unwind.extend(ledger.prior_home_unwind_for(entered_homes)?);
+    ledger.with_loop_call_text_ends_at_state_v1(row.call_site(), prior_homes, entered_homes, &mut entered_unwind)?;
     unwind.extend(ledger.prior_home_unwind_for(before_arguments)?);
     ledger.with_loop_call_text_ends_at_state_v1(row.call_site(), prior_homes, before_arguments, &mut unwind)?;
     if sealed_arguments.len() != row.argument_sites().len()
@@ -297,7 +300,7 @@ fn emit_lexical_i64_call(
         bindings.push(invoke.clone());
         EmittedCall::from_unit_source(original, prepared, invoke, normal_landing)?
     };
-    finish_argument_cleanup_v1(builder, normal_landing, packet, cleanup, bindings)
+    finish_argument_cleanup_v1(builder, ledger, normal_landing, packet, cleanup, bindings)
 }
 
 pub(super) type ArgumentCleanupV1 = super::super::root_graph::OperationCleanupV1;
@@ -315,7 +318,7 @@ pub(super) fn prepare_argument_cleanup_v1(
 }
 
 pub(super) fn finish_argument_cleanup_v1(
-    builder: &mut MirBuilder, normal_landing: BasicBlockId, packet: EmittedCall,
+    builder: &mut MirBuilder, ledger: &OrdinaryNewClaimLedgerV1, normal_landing: BasicBlockId, packet: EmittedCall,
     cleanup: Option<ArgumentCleanupV1>, bindings: &mut Vec<Binding>,
 ) -> Result<EmittedCall, String> {
     let packet = match cleanup {
@@ -329,7 +332,7 @@ pub(super) fn finish_argument_cleanup_v1(
         None => Ok(packet),
     }?;
     packet.validate_original_argument_order_v1(builder.function_state.current_function.as_ref()
-        .ok_or_else(|| freeze("no-function"))?)?;
+        .ok_or_else(|| freeze("no-function"))?, CallValidationContextV1::Lowering(ledger))?;
     Ok(packet)
 }
 
