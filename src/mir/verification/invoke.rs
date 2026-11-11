@@ -1,24 +1,25 @@
 //! Structural Normal/Fault verification, independent of compatibility env flags.
 //! Runtime admission remains closed until the common Fault ABI consumer lands.
 
-use super::{cfg, dom, ssa, utils};
+use super::geometry::{FunctionVerificationGeometry, ModuleGeometry};
+use super::{cfg, ssa};
 use crate::mir::instruction::{InvokeOperation, MapInvokeOperation};
 
 #[path = "invoke_borrowed_calls.rs"]
 mod borrowed_calls;
 #[path = "invoke_call_edge.rs"]
 mod call_edge;
-use call_edge::{check_call_edge, cataloged_call_target, cataloged_edge_key};
+use call_edge::{cataloged_call_target, cataloged_edge_key, check_call_edge};
 #[path = "invoke_map.rs"]
 mod map;
-#[path = "invoke_string.rs"]
-mod string;
-#[path = "invoke_owned_array.rs"]
-mod owned_array;
 #[path = "invoke_null_compare.rs"]
 mod null_compare;
 #[path = "invoke_object_end.rs"]
 mod object_end;
+#[path = "invoke_owned_array.rs"]
+mod owned_array;
+#[path = "invoke_string.rs"]
+mod string;
 use crate::mir::verification_types::VerificationError;
 use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction};
 
@@ -39,6 +40,7 @@ pub(super) fn check_module_with_source(
     module: &crate::mir::MirModule,
     edge_policy: CatalogedCallEdgePolicyV1,
     root: Option<&crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
+    geometries: &ModuleGeometry<'_>,
 ) -> Result<(), Vec<VerificationError>> {
     let image = borrowed_calls::original_call_slots(module, root).map_err(|reason| {
         vec![error(
@@ -53,16 +55,23 @@ pub(super) fn check_module_with_source(
     })?;
     let mut loans = image.slots;
     let mut errors = Vec::new();
-    if let Err(failures) = string::check_module_with_source(module, root) {
+    if let Err(failures) = string::check_module_with_source(module, root, geometries) {
         errors.extend(failures);
     }
-    for function in module.functions.values() {
+    for original in module.functions.values() {
+        let function = &geometries[&(original as *const MirFunction)];
         if let Err(reason) = string::check_source_uses(function, |block, row, ordinal, value| {
-            image.text.get(&(function.signature.name.clone(), block, row, ordinal)) == Some(&value)
-        }) { errors.push(error(function.entry_block, reason)); }
+            image
+                .text
+                .get(&(function.signature.name.clone(), block, row, ordinal))
+                == Some(&value)
+        }) {
+            errors.push(error(function.entry_block, reason));
+        }
 
         if let Err(reason) = owned_array::check_source_uses(function, |block, row, ordinal| {
-            loans.get(&(function.signature.name.clone(), block, row))
+            loans
+                .get(&(function.signature.name.clone(), block, row))
                 .is_some_and(|slots| slots.contains(&ordinal))
         }) {
             errors.push(error(function.entry_block, reason));
@@ -79,7 +88,11 @@ pub(super) fn check_module_with_source(
                             // Array reads require the same source packet and
                             // finished row; a declaration alone grants no read.
                             if module.canonical_array_field(*field)
-                                && image.field_reads.contains(&(function.signature.name.clone(), (*id, instruction.clone()))) {
+                                && image.field_reads.contains(&(
+                                    function.signature.name.clone(),
+                                    (*id, instruction.clone()),
+                                ))
+                            {
                                 return true;
                             }
                             match definition.declared_type_name.as_deref() {
@@ -106,7 +119,12 @@ pub(super) fn check_module_with_source(
                             }
                         })
                     {
-                        errors.push(explain(function, *id, instruction, "object-field-read-definition-invalid"));
+                        errors.push(explain(
+                            function,
+                            *id,
+                            instruction,
+                            "object-field-read-definition-invalid",
+                        ));
                     }
                 }
                 let call = match instruction {
@@ -117,8 +135,20 @@ pub(super) fn check_module_with_source(
                     } => Some(call),
                     _ => None,
                 };
-                if let MirInstruction::Invoke { operation: InvokeOperation::Call { call, result }, .. } = instruction {
-                    call_edge::check_call_result(module, function, *id, call, *result, edge_policy, &mut errors);
+                if let MirInstruction::Invoke {
+                    operation: InvokeOperation::Call { call, result },
+                    ..
+                } = instruction
+                {
+                    call_edge::check_call_result(
+                        module,
+                        function,
+                        *id,
+                        call,
+                        *result,
+                        edge_policy,
+                        &mut errors,
+                    );
                 }
                 if let Some(call) = call {
                     let slots = loans.remove(&(function.signature.name.clone(), *id, index));
@@ -129,18 +159,31 @@ pub(super) fn check_module_with_source(
                         call,
                         edge_policy,
                         slots.as_ref(),
-                        image.takes.get(&(function.signature.name.clone(), *id, index)),
+                        image
+                            .takes
+                            .get(&(function.signature.name.clone(), *id, index)),
                         root.is_some(),
                         &image.receiver_callees,
                         &mut errors,
                     );
                 }
-                if let MirInstruction::Invoke { operation: InvokeOperation::Birth(call), .. } = instruction {
-                    let target = module.canonical_callable_definition_symbol(&call.key)
+                if let MirInstruction::Invoke {
+                    operation: InvokeOperation::Birth(call),
+                    ..
+                } = instruction
+                {
+                    let target = module
+                        .canonical_callable_definition_symbol(&call.key)
                         .and_then(|symbol| module.functions.get(symbol));
                     if target.is_none_or(|target| target.params.len() != call.arguments.len() + 1)
-                        || (call.arguments.iter().any(|argument| matches!(argument, crate::mir::instruction::BirthArgumentV1::Text(_)))
-                            && !image.births.contains(&(function.signature.name.clone(), *id, index))) {
+                        || (call.arguments.iter().any(|argument| {
+                            matches!(argument, crate::mir::instruction::BirthArgumentV1::Text(_))
+                        }) && !image.births.contains(&(
+                            function.signature.name.clone(),
+                            *id,
+                            index,
+                        )))
+                    {
                         errors.push(error(*id, "call-result-contract-not-connected"));
                     }
                 }
@@ -312,19 +355,26 @@ pub(super) fn check_module_with_source(
 }
 
 pub(super) fn check_function(function: &MirFunction) -> Result<(), Vec<VerificationError>> {
+    check_function_with_geometry(&FunctionVerificationGeometry::new(function))
+}
+
+pub(super) fn check_function_with_geometry(
+    function: &FunctionVerificationGeometry<'_>,
+) -> Result<(), Vec<VerificationError>> {
     check_function_inner(function, None, true)
 }
 
 /// Module verification already performs the same String lifetime check with
 /// its source view. Keep the standalone function entry strict and source-less.
 pub(super) fn check_function_structure_in_module(
-    module: &crate::mir::MirModule, function: &MirFunction,
+    module: &crate::mir::MirModule,
+    function: &FunctionVerificationGeometry<'_>,
 ) -> Result<(), Vec<VerificationError>> {
     check_function_inner(function, Some(module), false)
 }
 
 fn check_function_inner(
-    function: &MirFunction,
+    function: &FunctionVerificationGeometry<'_>,
     module: Option<&crate::mir::MirModule>,
     check_string: bool,
 ) -> Result<(), Vec<VerificationError>> {
@@ -338,34 +388,55 @@ fn check_function_inner(
                     | MirInstruction::FaultFrameEnter { .. }
                     | MirInstruction::ArrayResidenceRelease { .. }
                     | MirInstruction::StringResidenceInstall { .. }
-
             )
         })
     });
-    let has_text_reads = function.blocks.values().any(|block|
-        block.all_instructions().any(|row| matches!(row, MirInstruction::StringLength { .. } | MirInstruction::StringIndexOf { .. } | MirInstruction::StringCompare { .. })));
-    let has_null_reads = function.blocks.values().any(|block| block.all_instructions()
-        .any(|row| matches!(row, MirInstruction::NullCompare { .. })));
+    let has_text_reads = function.blocks.values().any(|block| {
+        block.all_instructions().any(|row| {
+            matches!(
+                row,
+                MirInstruction::StringLength { .. }
+                    | MirInstruction::StringIndexOf { .. }
+                    | MirInstruction::StringCompare { .. }
+            )
+        })
+    });
+    let has_null_reads = function.blocks.values().any(|block| {
+        block
+            .all_instructions()
+            .any(|row| matches!(row, MirInstruction::NullCompare { .. }))
+    });
     if !has_control && !has_text_reads && !has_null_reads {
         return Ok(());
     }
-    let (definitions, mut errors) = ssa::definitions(function);
-    if let Err(mut found) = cfg::check_control_flow(function) { errors.append(&mut found); }
+    let definitions = function.definitions();
+    let mut errors = function.definition_errors();
+    if let Err(mut found) = cfg::check_control_flow(function) {
+        errors.append(&mut found);
+    }
     if has_null_reads {
-        if let Some((block, reason)) = null_compare::structural_failure(function, &errors) { errors.push(error(block, reason)); }
-    }
-    ssa::check_uses(function, &definitions, &mut errors);
-    if has_null_reads && errors.is_empty() {
-        if let Err((block, reason)) = null_compare::check_with_definitions(function, &definitions) { errors.push(error(block, reason)); }
-    }
-    if has_control { check_frame_entry(function, &mut errors); }
-    // Compute actual edges, not a potentially stale predecessor cache.
-    let mut predecessors = std::collections::BTreeMap::<_, Vec<_>>::new();
-    for (id, block) in &function.blocks {
-        for target in block.successors_from_terminator() {
-            predecessors.entry(target).or_default().push(*id);
+        if let Some((block, reason)) = null_compare::structural_failure(function, &errors) {
+            errors.push(error(block, reason));
         }
     }
+    // Preserve structural-error ordering while reusing the checked SSA image.
+    errors.extend(
+        function
+            .ssa_errors()
+            .iter()
+            .filter(|e| !matches!(e, VerificationError::MultipleDefinition { .. }))
+            .cloned(),
+    );
+    if has_null_reads && errors.is_empty() {
+        if let Err((block, reason)) = null_compare::check_with_definitions(function, &definitions) {
+            errors.push(error(block, reason));
+        }
+    }
+    if has_control {
+        check_frame_entry(function, &mut errors);
+    }
+    // Compute actual edges, not a potentially stale predecessor cache.
+    let predecessors = function.actual_predecessors();
     for (id, block) in &function.blocks {
         for instruction in &block.instructions {
             if matches!(
@@ -391,11 +462,15 @@ fn check_function_inner(
                 errors.push(error(*id, "normal-landing-before-invocation"));
             }
             if let InvokeOperation::Birth(call) = operation {
-                if call.key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::BirthConstructor
+                if call.key.namespace()
+                    != hakorune_mir_defs::SameModuleCallableNamespaceV1::BirthConstructor
                     || call.key.arity() as usize != call.arguments.len()
                     || call.receiver == crate::mir::ValueId::INVALID
-                    || call.arguments.iter().any(|argument| matches!(argument,
-                        crate::mir::instruction::BirthArgumentV1::Text(text) if !text.is_text())) {
+                    || call.arguments.iter().any(|argument| {
+                        matches!(argument,
+                        crate::mir::instruction::BirthArgumentV1::Text(text) if !text.is_text())
+                    })
+                {
                     errors.push(error(*id, "call-result-contract-not-connected"));
                 }
             }
@@ -410,21 +485,39 @@ fn check_function_inner(
                 };
                 let valid = match (&call.callee, result) {
                     (Callee::BirthConstructor { .. }, _) => false,
-                    (Callee::SameModuleInstance { key, .. }, ResultKind::BorrowedNullableHandle {
-                        access: crate::mir::instruction::BorrowedResultAccessV1::ReadOnly,
-                        support: crate::mir::instruction::BorrowedResultSupportV1::Receiver,
-                    }) => key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
-                        && key.arity() as usize == call.args.len(),
-                    (Callee::SameModuleInstance { key, .. }, ResultKind::BorrowedNullableHandle { access: _, support: crate::mir::instruction::BorrowedResultSupportV1::Formal(formal_ordinal) }
-                        | ResultKind::MixedHandle { formal_ordinal }) => {
+                    (
+                        Callee::SameModuleInstance { key, .. },
+                        ResultKind::BorrowedNullableHandle {
+                            access: crate::mir::instruction::BorrowedResultAccessV1::ReadOnly,
+                            support: crate::mir::instruction::BorrowedResultSupportV1::Receiver,
+                        },
+                    ) => {
                         key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
-                            && key.arity() as usize == call.args.len() && *formal_ordinal < key.arity()
-                    },
+                            && key.arity() as usize == call.args.len()
+                    }
+                    (
+                        Callee::SameModuleInstance { key, .. },
+                        ResultKind::BorrowedNullableHandle {
+                            access: _,
+                            support:
+                                crate::mir::instruction::BorrowedResultSupportV1::Formal(formal_ordinal),
+                        }
+                        | ResultKind::MixedHandle { formal_ordinal },
+                    ) => {
+                        key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
+                            && key.arity() as usize == call.args.len()
+                            && *formal_ordinal < key.arity()
+                    }
                     (
                         Callee::Global(
                             target @ Global::SameModule(SameModule::StaticBoxMethod { .. }),
                         ),
-                        ResultKind::I64 | ResultKind::Bool | ResultKind::Map | ResultKind::Handle | ResultKind::NullableHandle | ResultKind::OwnedString,
+                        ResultKind::I64
+                        | ResultKind::Bool
+                        | ResultKind::Map
+                        | ResultKind::Handle
+                        | ResultKind::NullableHandle
+                        | ResultKind::OwnedString,
                     ) => target
                         .arity()
                         .is_some_and(|arity| arity as usize == call.args.len()),
@@ -436,13 +529,27 @@ fn check_function_inner(
                     ) => target
                         .arity()
                         .is_some_and(|arity| arity as usize == call.args.len()),
-                    (Callee::SameModuleInstance { key, .. }, ResultKind::BorrowedNullableHandle {
-                        access: crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified,
-                        support: crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { field, key_ordinal, object },
-                    }) => key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
-                        && key.arity() as usize == call.args.len() && *key_ordinal < key.arity()
-                        && module.is_some_and(|module| module.canonical_field_definition(*field).is_some()
-                            && module.canonical_object_definition(*object).is_some()),
+                    (
+                        Callee::SameModuleInstance { key, .. },
+                        ResultKind::BorrowedNullableHandle {
+                            access:
+                                crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified,
+                            support:
+                                crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot {
+                                    field,
+                                    key_ordinal,
+                                    object,
+                                },
+                        },
+                    ) => {
+                        key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
+                            && key.arity() as usize == call.args.len()
+                            && *key_ordinal < key.arity()
+                            && module.is_some_and(|module| {
+                                module.canonical_field_definition(*field).is_some()
+                                    && module.canonical_object_definition(*object).is_some()
+                            })
+                    }
                     (
                         Callee::SameModuleInstance { key, .. },
                         ResultKind::Unit
@@ -501,15 +608,9 @@ fn check_function_inner(
         }
     }
     // Never let verify_allow_no_phi make a Fault-edge result use admissible.
-    let definitions = utils::compute_def_blocks(function);
-    let dominators = utils::compute_dominators(function);
-    if let Err(mut found) =
-        dom::check_dominance_with_policy(function, &definitions, &dominators, false)
-    {
-        errors.append(&mut found);
-    }
+    errors.extend_from_slice(function.dominance_errors());
     if check_string {
-        if let Err(reason) = string::check(function) {
+        if let Err(reason) = string::check_with_geometry(function) {
             errors.push(error(function.entry_block, reason));
         }
     }
@@ -595,18 +696,18 @@ fn check_frame_entry(function: &MirFunction, errors: &mut Vec<VerificationError>
     }
 }
 
-
-
-
-
-
-
-
-
 /// Default-off: name the function and instruction behind a field-read refusal.
-fn explain(function: &MirFunction, block: BasicBlockId, instruction: &MirInstruction, reason: &str) -> VerificationError {
+fn explain(
+    function: &MirFunction,
+    block: BasicBlockId,
+    instruction: &MirInstruction,
+    reason: &str,
+) -> VerificationError {
     if crate::config::env::builder_debug_enabled() {
-        eprintln!("[invoke-verify] {reason} function={} block={block:?} instruction={instruction:?}", function.signature.name);
+        eprintln!(
+            "[invoke-verify] {reason} function={} block={block:?} instruction={instruction:?}",
+            function.signature.name
+        );
     }
     error(block, reason)
 }
@@ -638,13 +739,26 @@ mod map_view_tests;
 mod call_tests;
 
 /// The original canonical declaration/layout, never a value's inferred MIR type.
-fn dynamic_field(module: &crate::mir::MirModule, field: hakorune_mir_defs::CanonicalFieldRefV1) -> bool {
+fn dynamic_field(
+    module: &crate::mir::MirModule,
+    field: hakorune_mir_defs::CanonicalFieldRefV1,
+) -> bool {
     module.canonical_dynamic_slot_field(field)
-        && module.canonical_object_definition(field.object()).and_then(|definition| definition.runtime_layout())
-            .is_some_and(|layout| layout.as_ref().is_ok_and(|layout|
-                layout.fields.get(field.declaration_ordinal() as usize).is_some_and(|slot|
-                    slot.slot == field.declaration_ordinal()
-                        && slot.storage == crate::mir::function::TypedObjectFieldStorage::Dynamic)))
+        && module
+            .canonical_object_definition(field.object())
+            .and_then(|definition| definition.runtime_layout())
+            .is_some_and(|layout| {
+                layout.as_ref().is_ok_and(|layout| {
+                    layout
+                        .fields
+                        .get(field.declaration_ordinal() as usize)
+                        .is_some_and(|slot| {
+                            slot.slot == field.declaration_ordinal()
+                                && slot.storage
+                                    == crate::mir::function::TypedObjectFieldStorage::Dynamic
+                        })
+                })
+            })
 }
 
 /// Whether a store of `tag` (None: exact slot or Map) fits the field's declared
@@ -658,11 +772,15 @@ fn text_slot_admits(
     use crate::mir::instruction::DynamicFieldValueTagV1 as Tag;
     match module.canonical_text_slot(field) {
         None => true,
-        Some(nullable) => matches!(tag, Some(Tag::Text)) || (nullable && matches!(tag, Some(Tag::Null))),
+        Some(nullable) => {
+            matches!(tag, Some(Tag::Text)) || (nullable && matches!(tag, Some(Tag::Null)))
+        }
     }
 }
 
 /// Selection belongs to the canonical physical program owner, never opcode guessing.
-pub(super) fn reject_canonical_legacy_null_comparisons(function: &MirFunction) -> Result<(), &'static str> {
+pub(super) fn reject_canonical_legacy_null_comparisons(
+    function: &MirFunction,
+) -> Result<(), &'static str> {
     null_compare::reject_legacy(function)
 }

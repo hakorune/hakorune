@@ -86,6 +86,13 @@ fn compute_reachable_rpo(function: &MirFunction) -> Vec<BasicBlockId> {
 
 pub fn compute_dominators(function: &MirFunction) -> DominatorTree {
     let preds = compute_predecessors(function);
+    compute_dominators_with_predecessors(function, &preds)
+}
+
+pub(in crate::mir) fn compute_dominators_with_predecessors(
+    function: &MirFunction,
+    preds: &HashMap<BasicBlockId, Vec<BasicBlockId>>,
+) -> DominatorTree {
     let reachable_rpo = compute_reachable_rpo(function);
     let mut index_of: HashMap<BasicBlockId, usize> = HashMap::new();
     for (i, bb) in reachable_rpo.iter().enumerate() {

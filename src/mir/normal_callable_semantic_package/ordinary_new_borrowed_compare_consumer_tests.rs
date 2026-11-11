@@ -51,24 +51,45 @@ fn fixture() -> (MirFunction, Binding, Vec<Binding>, Vec<Binding>) {
 #[test]
 fn borrowed_compare_consumer_requires_exact_bool_copy_and_real_branch() {
     let (function, original, copies, branches) = fixture();
-    check_group(&function, &original, &copies, &branches).unwrap();
-    assert!(check_group(&function, &original, &copies, &[])
-        .unwrap_err()
-        .contains("condition-missing"));
+    check_group(
+        &FunctionVerificationGeometry::new(&function),
+        &original,
+        &copies,
+        &branches,
+    )
+    .unwrap();
+    assert!(check_group(
+        &FunctionVerificationGeometry::new(&function),
+        &original,
+        &copies,
+        &[]
+    )
+    .unwrap_err()
+    .contains("condition-missing"));
     let mut changed = branches.clone();
     if let MirInstruction::Branch { condition, .. } = &mut changed[0].1 {
         *condition = ValueId(99);
     }
-    assert!(check_group(&function, &original, &copies, &changed)
-        .unwrap_err()
-        .contains("consumer-condition"));
+    assert!(check_group(
+        &FunctionVerificationGeometry::new(&function),
+        &original,
+        &copies,
+        &changed
+    )
+    .unwrap_err()
+    .contains("consumer-condition"));
     let mut changed = copies.clone();
     if let MirInstruction::Copy { src, .. } = &mut changed[0].1 {
         *src = ValueId(99);
     }
-    assert!(check_group(&function, &original, &changed, &branches)
-        .unwrap_err()
-        .contains("consumer-copy"));
+    assert!(check_group(
+        &FunctionVerificationGeometry::new(&function),
+        &original,
+        &changed,
+        &branches
+    )
+    .unwrap_err()
+    .contains("consumer-copy"));
 }
 
 #[test]
@@ -80,9 +101,14 @@ fn borrowed_compare_consumer_rejects_final_instruction_deletion_and_order_drift(
         .unwrap()
         .instructions
         .swap(0, 1);
-    assert!(check_group(&function, &original, &copies, &branches)
-        .unwrap_err()
-        .contains("consumer-order"));
+    assert!(check_group(
+        &FunctionVerificationGeometry::new(&function),
+        &original,
+        &copies,
+        &branches
+    )
+    .unwrap_err()
+    .contains("consumer-order"));
     function
         .blocks
         .get_mut(&original.0)
@@ -95,9 +121,14 @@ fn borrowed_compare_consumer_rejects_final_instruction_deletion_and_order_drift(
         .unwrap()
         .instructions
         .remove(0);
-    assert!(check_group(&function, &original, &copies, &branches)
-        .unwrap_err()
-        .contains("consumer-identity"));
+    assert!(check_group(
+        &FunctionVerificationGeometry::new(&function),
+        &original,
+        &copies,
+        &branches
+    )
+    .unwrap_err()
+    .contains("consumer-identity"));
 }
 
 #[test]
@@ -108,14 +139,24 @@ fn borrowed_compare_consumer_rejects_unreachable_branch_and_foreign_terminator()
     block.add_instruction(branches[0].1.clone());
     function.add_block(block);
     let moved = vec![(unreachable, branches[0].1.clone())];
-    assert!(check_group(&function, &original, &copies, &moved)
-        .unwrap_err()
-        .contains("consumer-dominance"));
+    assert!(check_group(
+        &FunctionVerificationGeometry::new(&function),
+        &original,
+        &copies,
+        &moved
+    )
+    .unwrap_err()
+    .contains("consumer-dominance"));
     function.blocks.get_mut(&original.0).unwrap().terminator = Some(MirInstruction::Jump {
         target: BasicBlockId(1),
         edge_args: None,
     });
-    assert!(check_group(&function, &original, &copies, &branches)
-        .unwrap_err()
-        .contains("consumer-identity"));
+    assert!(check_group(
+        &FunctionVerificationGeometry::new(&function),
+        &original,
+        &copies,
+        &branches
+    )
+    .unwrap_err()
+    .contains("consumer-identity"));
 }

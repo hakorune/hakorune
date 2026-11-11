@@ -343,6 +343,8 @@ impl OrdinaryNewClaimLedgerV1 {
             borrowed_formal_actuals: BTreeMap::new(),
             borrowed_i64_results: lexical_instance_call::BorrowedResultCohortV1::default(),
             borrowed_entry_values: RefCell::new(BTreeMap::new()),
+            physical_validation_scope: RefCell::new(None),
+            branch_source_scope: RefCell::new(None),
             scalar_operation_appends: RefCell::new(BTreeMap::new()),
             scalar_operation_consumers: RefCell::new(BTreeMap::new()),
             lexical_instance_calls: RefCell::new(BTreeMap::new()),

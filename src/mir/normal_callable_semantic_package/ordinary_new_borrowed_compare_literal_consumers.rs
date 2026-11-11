@@ -1,6 +1,7 @@
 //! Mandatory source-ordered literal-to-Compare correspondence.
-use super::*;
 use super::compare_consumers::precedes;
+use super::*;
+use crate::mir::verification::geometry::FunctionVerificationGeometry;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction};
 use std::rc::Rc;
 type Binding = (BasicBlockId, MirInstruction);
@@ -13,46 +14,48 @@ impl OrdinaryNewClaimLedgerV1 {
         function: &MirFunction,
         observations: impl Iterator<Item = (&'a Rc<Literal>, Vec<Binding>)>,
     ) -> Result<(), String> {
-        let observations: Vec<_> = observations.collect();
-        let mut entries = self.borrowed_entry_values.borrow_mut();
-        let Some(entry) = entries.get_mut(&owner) else {
-            return if observations.is_empty() {
-                Ok(())
-            } else {
-                Err(freeze("borrowed-literal/entry-missing"))
+        self.with_function_geometry_v1(function, |geometry| {
+            let observations: Vec<_> = observations.collect();
+            let mut entries = self.borrowed_entry_values.borrow_mut();
+            let Some(entry) = entries.get_mut(&owner) else {
+                return if observations.is_empty() {
+                    Ok(())
+                } else {
+                    Err(freeze("borrowed-literal/entry-missing"))
+                };
             };
-        };
-        if observations.len() != entry.integer_literals.len() {
-            return Err(freeze("borrowed-literal/reuse-coverage"));
-        }
-        let mut consumers = BTreeMap::new();
-        for (record, copies) in observations {
-            if record.owner() != owner
-                || entry
-                    .integer_literals
-                    .get(&record.value())
-                    .is_none_or(|r| !Rc::ptr_eq(r, record))
-                || consumers.insert(record.value(), copies).is_some()
-            {
-                return Err(freeze("borrowed-literal/reuse-identity"));
+            if observations.len() != entry.integer_literals.len() {
+                return Err(freeze("borrowed-literal/reuse-coverage"));
             }
-        }
-        if entry.literal_consumers.is_some() {
-            return Err(freeze("borrowed-literal/duplicate-handoff"));
-        }
-        drop(entries);
-        self.verify_literal_consumers(owner, function, Some(&consumers), |binding| {
-            Ok(binding.clone())
-        })?;
-        let mut entries = self.borrowed_entry_values.borrow_mut();
-        let entry = entries
-            .get_mut(&owner)
-            .ok_or_else(|| freeze("borrowed-literal/entry-missing"))?;
-        if entry.literal_consumers.is_some() {
-            return Err(freeze("borrowed-literal/duplicate-handoff"));
-        }
-        entry.literal_consumers = Some(consumers);
-        Ok(())
+            let mut consumers = BTreeMap::new();
+            for (record, copies) in observations {
+                if record.owner() != owner
+                    || entry
+                        .integer_literals
+                        .get(&record.value())
+                        .is_none_or(|r| !Rc::ptr_eq(r, record))
+                    || consumers.insert(record.value(), copies).is_some()
+                {
+                    return Err(freeze("borrowed-literal/reuse-identity"));
+                }
+            }
+            if entry.literal_consumers.is_some() {
+                return Err(freeze("borrowed-literal/duplicate-handoff"));
+            }
+            drop(entries);
+            self.verify_literal_consumers(owner, function, Some(&consumers), |binding| {
+                Ok(binding.clone())
+            })?;
+            let mut entries = self.borrowed_entry_values.borrow_mut();
+            let entry = entries
+                .get_mut(&owner)
+                .ok_or_else(|| freeze("borrowed-literal/entry-missing"))?;
+            if entry.literal_consumers.is_some() {
+                return Err(freeze("borrowed-literal/duplicate-handoff"));
+            }
+            entry.literal_consumers = Some(consumers);
+            Ok(())
+        })
     }
     pub(super) fn borrowed_compare_literal_bindings_v1(
         &self,
@@ -94,6 +97,8 @@ impl OrdinaryNewClaimLedgerV1 {
         staged: Option<&BTreeMap<ValueId, Vec<Binding>>>,
         mut project: impl FnMut(&Binding) -> Result<Binding, String>,
     ) -> Result<(), String> {
+        self.with_function_geometry_v1(function, |geometry| {
+
         let entries = self.borrowed_entry_values.borrow();
         let Some(entry) = entries.get(&owner) else {
             return Ok(());
@@ -150,7 +155,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     .map(&mut project)
                     .collect::<Result<Vec<_>, _>>()?;
                 let compare_binding = project(compare.original())?;
-                check_literal_group(function, &original, &copies, &compare_binding, side)?;
+                check_literal_group(geometry, &original, &copies, &compare_binding, side)?;
                 used.insert(child);
             }
         }
@@ -158,10 +163,12 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("borrowed-literal/operand-coverage"));
         }
         Ok(())
+
+        })
     }
 }
 fn check_literal_group(
-    function: &MirFunction,
+    function: &FunctionVerificationGeometry<'_>,
     root: &Binding,
     copies: &[Binding],
     compare: &Binding,

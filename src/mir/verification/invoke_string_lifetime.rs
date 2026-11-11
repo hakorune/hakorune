@@ -5,247 +5,12 @@ use super::*;
 #[path = "invoke_string_read.rs"]
 pub(super) mod read;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum Residence {
-    Home(ValueId),
-    Carrier(ValueId),
-}
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum Carrier {
-    Static,
-    Owned(ValueId),
-    Ended,
-}
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
-struct Live {
-    temporary: Vec<ValueId>,
-    homes: Vec<Residence>,
-    carriers: BTreeMap<ValueId, Carrier>,
-    replacement: Option<(ValueId, ValueId)>,
-    hold: Option<ValueId>,
-    call_pending: Option<ValueId>,
-}
-impl Live {
-    fn has_home(&self, value: ValueId) -> bool {
-        self.homes.contains(&Residence::Home(value))
-    }
-    fn contains(&self, value: &ValueId) -> bool {
-        self.temporary.contains(value) || self.has_home(*value)
-    }
-    fn active(&self, home: Residence) -> bool {
-        match home {
-            Residence::Home(_) => true,
-            Residence::Carrier(slot) => matches!(self.carriers.get(&slot), Some(Carrier::Owned(_))),
-        }
-    }
-    fn is_empty(&self) -> bool {
-        self.temporary.is_empty()
-            && !self.homes.iter().any(|home| self.active(*home))
-            && self
-                .carriers
-                .values()
-                .all(|state| !matches!(state, Carrier::Owned(_)))
-            && self.replacement.is_none()
-            && self.hold.is_none()
-            && self.call_pending.is_none()
-    }
-    fn compatible_join(&self, other: &Self, source: &TextSourceImage) -> bool {
-        let raw_homes = |homes: &[Residence]| {
-            homes
-                .iter()
-                .filter_map(|home| match home {
-                    Residence::Home(value) => Some(*value),
-                    Residence::Carrier(_) => None,
-                })
-                .collect::<Vec<_>>()
-        };
-        self.temporary == other.temporary
-            && raw_homes(&self.homes) == raw_homes(&other.homes)
-            && self.replacement == other.replacement
-            && self.hold == other.hold
-            && self.call_pending == other.call_pending
-            && self
-                .carriers
-                .keys()
-                .chain(other.carriers.keys())
-                .all(|slot| source.has_slot(*slot))
-    }
-    fn descriptor_live(&self, value: ValueId, source: &TextSourceImage) -> bool {
-        match source.origin(value) {
-            Some(Origin::Slot(slot)) => matches!(
-                self.carriers.get(&slot),
-                Some(Carrier::Static | Carrier::Owned(_))
-            ),
-            _ => false,
-        }
-    }
-    fn end(
-        &mut self,
-        value: ValueId,
-        faulted: bool,
-        retained: &[ValueId],
-        source: &TextSourceImage,
-    ) -> bool {
-        if let Some(top) = self.temporary.last() {
-            if *top != value {
-                return false;
-            }
-            self.temporary.pop();
-            if self
-                .call_pending
-                .is_some_and(|held| self.temporary.last() == Some(&held))
-            {
-                self.call_pending = None;
-            }
-            return true;
-        }
-        if let Some((new, old)) = self.replacement {
-            if !faulted {
-                if value != old || self.homes.last() != Some(&Residence::Home(new)) {
-                    return false;
-                }
-                let Some(index) = self
-                    .homes
-                    .iter()
-                    .position(|home| *home == Residence::Home(old))
-                else {
-                    return false;
-                };
-                self.homes.remove(index);
-                self.replacement = None;
-                return true;
-            }
-            if value == new {
-                self.replacement = None;
-            }
-        }
-        let mut keep = Vec::new();
-        if !faulted {
-            for retained in retained {
-                let home = match source.origin(*retained) {
-                    Some(Origin::Raw(raw)) if self.has_home(raw) => Residence::Home(raw),
-                    Some(Origin::Slot(slot))
-                        if matches!(self.carriers.get(&slot), Some(Carrier::Owned(_))) =>
-                    {
-                        Residence::Carrier(slot)
-                    }
-                    Some(Origin::Static) => continue,
-                    Some(Origin::Slot(slot))
-                        if self.carriers.get(&slot) == Some(&Carrier::Static) =>
-                    {
-                        continue
-                    }
-                    _ => return false,
-                };
-                if home == Residence::Home(value) {
-                    return false;
-                }
-                keep.push(home);
-            }
-        }
-        let index = self.homes.iter().rposition(|home| {
-            self.active(*home)
-                && !keep.contains(home)
-                && (faulted || !matches!(home, Residence::Home(value) if Some(*value) == self.hold))
-        });
-        let Some(index) = index else {
-            return false;
-        };
-        if self.homes[index] != Residence::Home(value) {
-            return false;
-        }
-        self.homes.remove(index);
-        if self.hold == Some(value) {
-            self.hold = None;
-        }
-        true
-    }
-    fn end_carrier(&mut self, value: ValueId, faulted: bool, source: &TextSourceImage) -> bool {
-        let Some(Origin::Slot(slot)) = source.origin(value) else {
-            return false;
-        };
-        let Some(state @ (Carrier::Static | Carrier::Owned(_))) = self.carriers.get(&slot).copied()
-        else {
-            return false;
-        };
-        if !self.temporary.is_empty() {
-            return false;
-        }
-        if let Some((new, old)) = self.replacement.filter(|_| !faulted) {
-            if old != value || self.homes.last() != Some(&Residence::Home(new)) {
-                return false;
-            }
-            self.replacement = None;
-        } else if matches!(state, Carrier::Owned(_))
-            && self.homes.iter().rev().find(|home| self.active(**home))
-                != Some(&Residence::Carrier(slot))
-        {
-            return false;
-        }
-        if matches!(state, Carrier::Owned(_)) {
-            self.carriers.insert(slot, Carrier::Ended);
-        }
-        true
-    }
-    fn edge(
-        &mut self,
-        predecessor: BasicBlockId,
-        target: BasicBlockId,
-        source: &TextSourceImage,
-    ) -> bool {
-        let Some(transfers) = source.edges.get(&(predecessor, target)) else {
-            return true;
-        };
-        // Resolve every incoming against the SAME predecessor state before any
-        // simultaneous Phi transfer can change another descriptor's meaning.
-        let mut pending = Vec::new();
-        for (slot, value) in transfers {
-            let Some(origin) = source.origin(*value) else {
-                return false;
-            };
-            let state = match origin {
-                Origin::Static => Carrier::Static,
-                Origin::Raw(value) if self.has_home(value) => Carrier::Owned(value),
-                Origin::Slot(previous) if previous == *slot => match self.carriers.get(&previous) {
-                    Some(state @ (Carrier::Static | Carrier::Owned(_))) => *state,
-                    _ => return false,
-                },
-                // Distinct source carrier lineages need an explicit affine
-                // forwarding proof; a matching payload never supplies it.
-                _ => return false,
-            };
-            pending.push((*slot, origin, state));
-        }
-        for (slot, origin, state) in pending {
-            if matches!(origin, Origin::Slot(previous) if previous == slot) {
-                continue;
-            }
-            if matches!(self.carriers.get(&slot), Some(Carrier::Owned(_))) {
-                return false;
-            }
-            self.homes.retain(|home| *home != Residence::Carrier(slot));
-            match origin {
-                Origin::Raw(value) => {
-                    let Some(index) = self
-                        .homes
-                        .iter()
-                        .position(|home| *home == Residence::Home(value))
-                    else {
-                        return false;
-                    };
-                    self.homes[index] = Residence::Carrier(slot);
-                }
-                Origin::Static => self.homes.push(Residence::Carrier(slot)),
-                Origin::Slot(_) => return false,
-            }
-            self.carriers.insert(slot, state);
-        }
-        true
-    }
-}
+#[path = "invoke_string_state.rs"]
+mod state;
+use state::{Carrier, Live, Residence};
 
 pub(super) fn check(
-    function: &MirFunction,
+    function: &super::super::FunctionVerificationGeometry<'_>,
     source: Option<&TextSourceImage>,
 ) -> Result<(), (BasicBlockId, &'static str, Option<String>)> {
     let mut site = function.entry_block;
@@ -282,8 +47,13 @@ pub(super) fn check(
             }
         }
         let selected = |instruction: &MirInstruction| {
-            matches!(instruction, MirInstruction::StringResidenceInstall { .. } | MirInstruction::StringLength { .. } | MirInstruction::StringIndexOf { .. } | MirInstruction::StringCompare { .. })
-                || matches!(
+            matches!(
+                instruction,
+                MirInstruction::StringResidenceInstall { .. }
+                    | MirInstruction::StringLength { .. }
+                    | MirInstruction::StringIndexOf { .. }
+                    | MirInstruction::StringCompare { .. }
+            ) || matches!(
             instruction, MirInstruction::Invoke { operation, .. }
                 if matches!(operation, InvokeOperation::FieldSet { mode, .. } if mode.has_owned_text_candidate_v1())
                     || matches!(operation, InvokeOperation::String(_)
@@ -340,7 +110,11 @@ pub(super) fn check(
                     } = operation
                     {
                         if !value.valid_for(*kind, *producer, *index) {
-                            return Err(domain_refusal("string-text-operand-domain", &site, operation));
+                            return Err(domain_refusal(
+                                "string-text-operand-domain",
+                                &site,
+                                operation,
+                            ));
                         }
                     }
                     if matches!(operation, InvokeOperation::FieldSet { mode, value, .. }
@@ -350,33 +124,55 @@ pub(super) fn check(
                     }
                     if let InvokeOperation::String(operation) = operation {
                         if !operation.valid_operand_domains() {
-                            return Err(domain_refusal(if matches!(operation, Op::Add { .. }) {
-                                "string-add-left-domain"
-                            } else {
-                                "string-text-operand-domain"
-                            }, &site, operation));
+                            return Err(domain_refusal(
+                                if matches!(operation, Op::Add { .. }) {
+                                    "string-add-left-domain"
+                                } else {
+                                    "string-text-operand-domain"
+                                },
+                                &site,
+                                operation,
+                            ));
                         }
                         if let Op::Substring { start, end, .. } = operation {
                             for operand in [start, end] {
                                 let Some(value) = operand.value() else {
-                                    return Err(domain_refusal("string-integer-domain", &site, operation));
+                                    return Err(domain_refusal(
+                                        "string-integer-domain",
+                                        &site,
+                                        operation,
+                                    ));
                                 };
                                 if results.contains_key(&value)
                                     || matches!(operand, Operand::NormalInteger(_)
                                 if check_borrowed_operand(function, value).is_ok())
                                 {
-                                    return Err(domain_refusal("string-integer-domain", &site, operation));
+                                    return Err(domain_refusal(
+                                        "string-integer-domain",
+                                        &site,
+                                        operation,
+                                    ));
                                 }
                                 if matches!(operand, Operand::Dynamic(_))
                                     && !is_tagged_dynamic_formal(function, value)
                                 {
-                                    return Err(domain_refusal("string-dynamic-source-domain", &site, operation));
+                                    return Err(domain_refusal(
+                                        "string-dynamic-source-domain",
+                                        &site,
+                                        operation,
+                                    ));
                                 }
                             }
                         }
                     }
-                    read::check_domains(function, source, &results, block.id, instruction,
-                        &text_operands(operation))?;
+                    read::check_domains(
+                        function,
+                        source,
+                        &results,
+                        block.id,
+                        instruction,
+                        &text_operands(operation),
+                    )?;
                     if matches!(operation, InvokeOperation::String(Op::End { value }) if !results.contains_key(value))
                     {
                         return Err("string-end-result-missing");
@@ -413,7 +209,16 @@ pub(super) fn check(
                     }
                 }
                 if let Some((dst, kind, operands)) = instruction.text_read_operands_v1() {
-                    read::check_text_read(function, source, &results, block.id, instruction, dst, &kind, &operands)?;
+                    read::check_text_read(
+                        function,
+                        source,
+                        &results,
+                        block.id,
+                        instruction,
+                        dst,
+                        &kind,
+                        &operands,
+                    )?;
                 }
                 // A pair cannot be copied, boxed, PHI-merged, returned, stored,
                 // passed to arbitrary calls or interpreted as one scalar word.
@@ -603,9 +408,14 @@ pub(super) fn check(
                     }
                 }
                 if let InvokeOperation::String(Op::End { value }) = operation {
-                    let before = crate::config::env::builder_debug_enabled().then(|| format!("{live:?}"));
+                    let before =
+                        crate::config::env::builder_debug_enabled().then(|| format!("{live:?}"));
                     if !live.end(*value, faulted, source.retained_for(id, term), source) {
-                        return Err(domain_refusal("string-end-order-or-not-live", &id, &(operation, faulted, before)));
+                        return Err(domain_refusal(
+                            "string-end-order-or-not-live",
+                            &id,
+                            &(operation, faulted, before),
+                        ));
                     }
                 }
             }
@@ -661,10 +471,17 @@ pub(super) fn check(
             let targets = block.successors_from_terminator();
             if targets.is_empty() && !live.is_empty() {
                 outstanding = Some(format!("outstanding={live:?}"));
-                let preds: Vec<_> = function.blocks.iter()
+                let preds: Vec<_> = function
+                    .blocks
+                    .iter()
                     .filter(|(_, other)| other.successors_from_terminator().contains(&id))
-                    .map(|(pred, other)| (pred, &other.instructions, &other.terminator)).collect();
-                return Err(domain_refusal("string-missing-end", &id, &(&block.instructions, term, preds)));
+                    .map(|(pred, other)| (pred, &other.instructions, &other.terminator))
+                    .collect();
+                return Err(domain_refusal(
+                    "string-missing-end",
+                    &id,
+                    &(&block.instructions, term, preds),
+                ));
             }
             for target in targets.into_iter().rev() {
                 let mut next = live.clone();
@@ -680,12 +497,24 @@ pub(super) fn check(
                     // A carrier replaced on Normal passes its slot to the new Home
                     // (older than Homes acquired later); a Fault of that End keeps
                     // acquisition order.
-                    if let (true, false, Some((new, old)), InvokeOperation::String(Op::EndIfOwned { value })) =
-                        (target == *normal_landing, faulted, displaced_replacement, operation)
-                    {
+                    if let (
+                        true,
+                        false,
+                        Some((new, old)),
+                        InvokeOperation::String(Op::EndIfOwned { value }),
+                    ) = (
+                        target == *normal_landing,
+                        faulted,
+                        displaced_replacement,
+                        operation,
+                    ) {
                         if *value == old {
                             if let Some(Origin::Slot(slot)) = source.origin(old) {
-                                if let Some(index) = next.homes.iter().position(|home| *home == Residence::Carrier(slot)) {
+                                if let Some(index) = next
+                                    .homes
+                                    .iter()
+                                    .position(|home| *home == Residence::Carrier(slot))
+                                {
                                     if next.homes.last() == Some(&Residence::Home(new)) {
                                         next.homes.pop();
                                         next.homes[index] = Residence::Home(new);
@@ -708,7 +537,9 @@ pub(super) fn check(
                             {
                                 return Err("string-borrow-not-live");
                             }
-                            if target == *normal_landing || mode.consumes_text_candidate_on_fault_v1() {
+                            if target == *normal_landing
+                                || mode.consumes_text_candidate_on_fault_v1()
+                            {
                                 next.temporary.pop();
                             }
                         }
@@ -752,7 +583,11 @@ pub(super) fn check(
 }
 
 /// Default-off: name the operation behind a static string-domain refusal.
-fn domain_refusal(reason: &'static str, block: &BasicBlockId, operation: &impl std::fmt::Debug) -> &'static str {
+fn domain_refusal(
+    reason: &'static str,
+    block: &BasicBlockId,
+    operation: &impl std::fmt::Debug,
+) -> &'static str {
     if crate::config::env::builder_debug_enabled() {
         eprintln!("[string-domain] {reason} block={block:?} operation={operation:?}");
     }

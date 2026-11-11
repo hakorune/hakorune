@@ -253,7 +253,11 @@ mod tests {
                     .count(),
                 2
             );
-            assert!(super::super::lifetime::check(&function, Some(&image)).is_ok());
+            assert!(super::super::lifetime::check(
+                &crate::mir::verification::geometry::FunctionVerificationGeometry::new(&function),
+                Some(&image)
+            )
+            .is_ok());
             for side in [0, 1] {
                 let mut ended = function.clone();
                 let mut image = TextSourceImage {
@@ -296,7 +300,12 @@ mod tests {
                     .retain(|(_, row)| row.text_read_operands_v1().is_none());
                 image.operations.push((BasicBlockId(3), read));
                 assert!(matches!(
-                    super::super::lifetime::check(&ended, Some(&image)),
+                    super::super::lifetime::check(
+                        &crate::mir::verification::geometry::FunctionVerificationGeometry::new(
+                            &ended
+                        ),
+                        Some(&image)
+                    ),
                     Err((_, "string-borrow-not-live", _))
                 ));
             }

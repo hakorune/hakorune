@@ -24,6 +24,7 @@ mod cfg;
 mod contract_carriers;
 pub(crate) mod dom;
 mod fastmem;
+pub(crate) mod geometry;
 mod hako_alloc_metadata;
 mod hako_alloc_page_lifecycle;
 mod inline_required;
@@ -95,7 +96,11 @@ impl MirVerifier {
         module: &MirModule,
         root: Option<&crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
     ) -> Result<(), Vec<VerificationError>> {
-        self.verify_module_with_call_edge_policy(module, invoke::CatalogedCallEdgePolicyV1::Document, root)
+        self.verify_module_with_call_edge_policy(
+            module,
+            invoke::CatalogedCallEdgePolicyV1::Document,
+            root,
+        )
     }
 
     /// Final source-bound gate; the pretransform report remains unchanged.
@@ -120,16 +125,29 @@ impl MirVerifier {
         root: Option<&crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
     ) -> Result<(), Vec<VerificationError>> {
         self.errors.clear();
+        let geometries: geometry::ModuleGeometry<'_> = module
+            .functions
+            .values()
+            .map(|f| {
+                (
+                    f as *const MirFunction,
+                    geometry::FunctionVerificationGeometry::new(f),
+                )
+            })
+            .collect();
 
         // Canonical Fault control is not a compatibility/dev verification lane.
         collect_errors!(
             self.errors,
-            invoke::check_module_with_source(module, edge_policy, root)
+            invoke::check_module_with_source(module, edge_policy, root, &geometries)
         );
         for function in module.functions.values() {
             collect_errors!(
                 self.errors,
-                invoke::check_function_structure_in_module(module, function)
+                invoke::check_function_structure_in_module(
+                    module,
+                    &geometries[&(function as *const MirFunction)]
+                )
             );
         }
         if !self.errors.is_empty() {
@@ -163,7 +181,9 @@ impl MirVerifier {
         );
 
         for (_name, function) in &module.functions {
-            if let Err(mut func_errors) = self.verify_function_body(function) {
+            if let Err(mut func_errors) =
+                self.verify_function_body(function, &geometries[&(function as *const MirFunction)])
+            {
                 // Dev-only trace: BreakFinderBox / LoopSSA 周辺のSSAバグを詳細に観測する。
                 //
                 // NYASH_BREAKFINDER_SSA_TRACE=1 のときだけ有効になり、
@@ -276,9 +296,14 @@ impl MirVerifier {
         function: &MirFunction,
     ) -> Result<(), Vec<VerificationError>> {
         let mut errors = Vec::new();
-        collect_errors!(errors, invoke::check_function(function));
-        collect_errors!(errors, self.verify_function_body(function));
-        if errors.is_empty() { Ok(()) } else { Err(errors) }
+        let geometry = geometry::FunctionVerificationGeometry::new(function);
+        collect_errors!(errors, invoke::check_function_with_geometry(&geometry));
+        collect_errors!(errors, self.verify_function_body(function, &geometry));
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(errors)
+        }
     }
 
     /// Module entry already checked Invoke structure with the actual module
@@ -287,33 +312,14 @@ impl MirVerifier {
     fn verify_function_body(
         &mut self,
         function: &MirFunction,
+        geometry: &geometry::FunctionVerificationGeometry<'_>,
     ) -> Result<(), Vec<VerificationError>> {
         let mut local_errors = Vec::new();
 
-        // Dominator computation is expensive; compute once per function and reuse.
         let skip_phi_checks = !self.strict_policy && crate::config::env::verify_allow_no_phi();
-        let (preds, def_block, dominators) = if skip_phi_checks {
-            (None, None, None)
-        } else {
-            (
-                Some(utils::compute_predecessors(function)),
-                Some(utils::compute_def_blocks(function)),
-                Some(utils::compute_dominators(function)),
-            )
-        };
-
-        // 1. Check SSA form
-        collect_errors!(local_errors, self.verify_ssa_form(function));
-
-        // 2. Check dominance relations
-        if let Some((def_block, dominators)) = def_block.as_ref().zip(dominators.as_ref()) {
-            if let Err(mut dom_errors) =
-                dom::check_dominance_with_policy(function, def_block, dominators, skip_phi_checks)
-            {
-                local_errors.append(&mut dom_errors);
-            }
-        } else if let Err(mut dom_errors) = self.verify_dominance(function) {
-            local_errors.append(&mut dom_errors);
+        local_errors.extend_from_slice(geometry.ssa_errors());
+        if !skip_phi_checks {
+            local_errors.extend_from_slice(geometry.dominance_errors());
         }
 
         // 3. Check control flow integrity
@@ -329,26 +335,18 @@ impl MirVerifier {
         }
 
         // Phase 257 P1-1: PHI predecessor validation
-        collect_errors!(local_errors, cfg::check_phi_predecessors(function));
-
-        // 4. Check merge-block value usage (ensure Phi is used)
-        if let Some((preds, def_block, dominators)) = preds
-            .as_ref()
-            .zip(def_block.as_ref())
-            .zip(dominators.as_ref())
-            .map(|((p, d), doms)| (p, d, doms))
-        {
-            if let Err(mut merge_errors) = cfg::check_merge_uses_with_policy(
+        collect_errors!(
+            local_errors,
+            cfg::check_phi_predecessors_with(
                 function,
-                preds,
-                def_block,
-                dominators,
-                skip_phi_checks,
-            ) {
-                local_errors.append(&mut merge_errors);
-            }
-        } else if let Err(mut merge_errors) = self.verify_merge_uses(function) {
-            local_errors.append(&mut merge_errors);
+                geometry.predecessors(),
+                geometry.reachable()
+            )
+        );
+
+        // Merge and PHI checks borrow the same immutable function geometry.
+        if !skip_phi_checks {
+            collect_errors!(local_errors, geometry.check_merge_uses());
         }
         // 5. Minimal checks for WeakRef/Barrier
         collect_errors!(local_errors, self.verify_weakref_and_barrier(function));
@@ -364,7 +362,10 @@ impl MirVerifier {
             && crate::config::env::mir_no_phi()
             && crate::config::env::verify_edge_copy_strict()
         {
-            collect_errors!(local_errors, self.verify_edge_copy_strict(function));
+            collect_errors!(
+                local_errors,
+                self.verify_edge_copy_strict(function, geometry)
+            );
         }
 
         // 10. Ret-block purity (optional, dev-only)
@@ -475,11 +476,11 @@ impl MirVerifier {
     fn verify_edge_copy_strict(
         &self,
         function: &MirFunction,
+        geometry: &geometry::FunctionVerificationGeometry<'_>,
     ) -> Result<(), Vec<VerificationError>> {
         let mut errors = Vec::new();
-        let preds = utils::compute_predecessors(function);
-        let def_block = utils::compute_def_blocks(function);
-        let dominators = utils::compute_dominators(function);
+        let preds = geometry.predecessors();
+        let dominators = geometry.dominators();
 
         for (merge_bid, merge_bb) in &function.blocks {
             let p = preds.get(merge_bid).cloned().unwrap_or_default();
@@ -497,7 +498,7 @@ impl MirVerifier {
 
             // For each used value that doesn't dominate the merge block, enforce edge-copy policy
             for &u in &used_values {
-                if let Some(&def_bb) = def_block.get(&u) {
+                if let Some(def_bb) = geometry.definition_block(u) {
                     // If the def dominates the merge block, edge copies are not required
                     let dominated = dominators.dominates(def_bb, *merge_bid);
                     if dominated && def_bb != *merge_bid {
@@ -635,25 +636,9 @@ impl MirVerifier {
         barrier::check_barrier_context(function)
     }
 
-    /// Verify SSA form properties
-    fn verify_ssa_form(&self, function: &MirFunction) -> Result<(), Vec<VerificationError>> {
-        ssa::check_ssa_form(function)
-    }
-
-    /// Verify dominance relations (def must dominate use across blocks)
-    fn verify_dominance(&self, function: &MirFunction) -> Result<(), Vec<VerificationError>> {
-        dom::check_dominance(function)
-    }
-
     /// Verify control flow graph integrity
     fn verify_control_flow(&self, function: &MirFunction) -> Result<(), Vec<VerificationError>> {
         cfg::check_control_flow(function)
-    }
-
-    /// Verify that blocks with multiple predecessors do not use predecessor-defined values directly.
-    /// In merge blocks, values coming from predecessors must be routed through Phi.
-    fn verify_merge_uses(&self, function: &MirFunction) -> Result<(), Vec<VerificationError>> {
-        cfg::check_merge_uses(function)
     }
 }
 
@@ -720,6 +705,8 @@ mod tests {
 }
 
 /// Validate selected canonical rows before serialization, without source-plan waivers.
-pub(crate) fn reject_canonical_legacy_null_comparisons(function: &MirFunction) -> Result<(), &'static str> {
+pub(crate) fn reject_canonical_legacy_null_comparisons(
+    function: &MirFunction,
+) -> Result<(), &'static str> {
     invoke::reject_canonical_legacy_null_comparisons(function)
 }

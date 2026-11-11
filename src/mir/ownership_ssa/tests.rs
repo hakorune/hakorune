@@ -49,12 +49,15 @@ fn invoke(
     normal: u32,
     fault: u32,
 ) {
-    function.get_block_mut(bb(block)).unwrap().set_terminator(MirInstruction::Invoke {
-        operation,
-        fault_frame: value(9),
-        normal_landing: bb(normal),
-        fault_landing: bb(fault),
-    });
+    function
+        .get_block_mut(bb(block))
+        .unwrap()
+        .set_terminator(MirInstruction::Invoke {
+            operation,
+            fault_frame: value(9),
+            normal_landing: bb(normal),
+            fault_landing: bb(fault),
+        });
 }
 
 fn branch(function: &mut MirFunction, source: u32, condition: u32, then_bb: u32, else_bb: u32) {
@@ -325,12 +328,35 @@ fn multiple_owned_phis_transfer_in_parallel() {
 
 #[test]
 fn unreachable_block_is_rejected() {
-    let (mut function, abi) = function(&[MirOwnershipKindV1::Owned], 2);
-    ret(&mut function, 0, 0);
-    ret(&mut function, 1, 0);
-    assert!(
-        matches!(verify_ownership_ssa_v1(&function, &abi), Err(OwnershipSsaErrorV1::UnreachableBlock { block }) if block == bb(1))
-    );
+    for catch in [false, true] {
+        let (mut function, abi) = function(&[MirOwnershipKindV1::Owned], 2);
+        ret(&mut function, 0, 0);
+        ret(&mut function, 1, 0);
+        if catch {
+            function
+                .get_block_mut(bb(0))
+                .unwrap()
+                .add_instruction(MirInstruction::Catch {
+                    exception_type: None,
+                    exception_value: value(100),
+                    handler_bb: bb(1),
+                });
+            phi(&mut function, 1, 10, &[(0, 0)]);
+            ret(&mut function, 1, 10);
+            let geometry =
+                crate::mir::verification::geometry::FunctionVerificationGeometry::new(&function);
+            assert!(geometry.reachable().contains(&bb(1)));
+            assert!(!geometry.predecessors().contains_key(&bb(1)));
+            let errors = crate::mir::verification::MirVerifier::new_strict()
+                .verify_function(&function)
+                .unwrap_err();
+            assert!(errors.iter().any(|error| matches!(error,
+                crate::mir::verification_types::VerificationError::InvalidPhi { block, .. } if *block == bb(1))));
+        }
+        // Catch setup cannot invent the owned value's handler entry state.
+        assert!(matches!(verify_ownership_ssa_v1(&function, &abi),
+            Err(OwnershipSsaErrorV1::UnreachableBlock { block }) if block == bb(1)));
+    }
 }
 
 #[test]
@@ -436,11 +462,7 @@ fn canonical_edge_arguments_are_rejected() {
 fn empty_carrier_edges_do_not_transfer_ownership() {
     let (mut function, abi) = function(&[], 2);
     function.signature.return_type = MirType::Void;
-    let abi = OwnershipFunctionAbiV1::new(
-        abi.owner(),
-        vec![],
-        FunctionResultOwnershipV1::None,
-    );
+    let abi = OwnershipFunctionAbiV1::new(abi.owner(), vec![], FunctionResultOwnershipV1::None);
     function
         .get_block_mut(bb(0))
         .unwrap()
@@ -692,7 +714,7 @@ fn copy_owned_from_trivial_value_is_rejected() {
     ));
 }
 
-#[path = "source_object_tests.rs"]
-mod source_object;
 #[path = "shared_tests.rs"]
 mod shared;
+#[path = "source_object_tests.rs"]
+mod source_object;

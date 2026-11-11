@@ -1,7 +1,7 @@
 //! Cataloged Call-edge ABI correspondence over original tagged and take slots.
 use super::{borrowed_calls, error, CatalogedCallEdgePolicyV1};
-use crate::mir::{BasicBlockId, MirFunction};
 use crate::mir::verification_types::VerificationError;
+use crate::mir::{BasicBlockId, MirFunction};
 
 /// The same-module call edges this verifier corroborates argument kinds on:
 /// static-box and free calls plus instance methods resolve to cataloged
@@ -39,12 +39,17 @@ pub(super) fn cataloged_call_target<'module>(
 /// Uncataloged callees are outside this relation's authority.
 pub(super) fn check_call_edge(
     module: &crate::mir::MirModule,
-    function: &MirFunction,
+    function: &super::FunctionVerificationGeometry<'_>,
     block: BasicBlockId,
     call: &crate::mir::definitions::MirCall,
     edge_policy: CatalogedCallEdgePolicyV1,
     borrowed_slots: Option<&std::collections::BTreeSet<usize>>,
-    take_slots: Option<&std::collections::BTreeMap<usize, (crate::mir::ValueId, hakorune_mir_defs::CanonicalObjectIdV1)>>,
+    take_slots: Option<
+        &std::collections::BTreeMap<
+            usize,
+            (crate::mir::ValueId, hakorune_mir_defs::CanonicalObjectIdV1),
+        >,
+    >,
     source_bound: bool,
     receiver_callees: &std::collections::BTreeSet<String>,
     errors: &mut Vec<VerificationError>,
@@ -52,7 +57,12 @@ pub(super) fn check_call_edge(
     let Some((callee, receiver_params)) = cataloged_call_target(module, call) else {
         return;
     };
-    if let Err(reason) = borrowed_calls::require_receiver_source(source_bound, &callee.signature.name, receiver_callees, borrowed_slots) {
+    if let Err(reason) = borrowed_calls::require_receiver_source(
+        source_bound,
+        &callee.signature.name,
+        receiver_callees,
+        borrowed_slots,
+    ) {
         errors.push(error(block, reason));
         return;
     }
@@ -87,10 +97,22 @@ pub(super) fn check_call_edge(
     {
         for kind in [crate::mir::MirType::Integer, crate::mir::MirType::Bool] {
             if super::string::has_scalar_read_origin(function, *argument, &kind)
-                && parameter != &kind && parameter != &crate::mir::MirType::Unknown {
-                let actual = if kind == crate::mir::MirType::Integer { "StringLength(I64)" } else { "TextRead(Bool)" };
-                errors.push(call_argument_drift(function, callee, block,
-                    format!("argument={index} value={argument:?} actual={actual} formal={parameter:?}")));
+                && parameter != &kind
+                && parameter != &crate::mir::MirType::Unknown
+            {
+                let actual = if kind == crate::mir::MirType::Integer {
+                    "StringLength(I64)"
+                } else {
+                    "TextRead(Bool)"
+                };
+                errors.push(call_argument_drift(
+                    function,
+                    callee,
+                    block,
+                    format!(
+                        "argument={index} value={argument:?} actual={actual} formal={parameter:?}"
+                    ),
+                ));
                 return;
             }
         }
@@ -172,7 +194,7 @@ pub(super) fn check_call_edge(
 /// declared return type is drift (the same edge the C shim corroborates).
 pub(super) fn check_call_result(
     module: &crate::mir::MirModule,
-    function: &MirFunction,
+    function: &super::FunctionVerificationGeometry<'_>,
     block: BasicBlockId,
     call: &crate::mir::definitions::MirCall,
     result: crate::mir::instruction::InvokeCallResultKind,

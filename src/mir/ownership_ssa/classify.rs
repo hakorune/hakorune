@@ -215,7 +215,7 @@ pub(super) fn classify(
 /// from public definitions and one readonly block interval, without type hints
 /// or generator loans. The caller still checks the owned root's current state.
 pub(super) fn local_field_borrow(
-    function: &MirFunction,
+    function: &crate::mir::verification::geometry::FunctionVerificationGeometry<'_>,
     module: &crate::mir::MirModule,
     block: crate::mir::BasicBlockId,
     value: ValueId,
@@ -242,17 +242,8 @@ pub(super) fn local_field_borrow(
         if function.params.contains(&view) {
             return Err(invalid());
         }
-        let mut definitions = function
-            .blocks
-            .iter()
-            .flat_map(|(id, rows)| {
-                rows.all_instructions()
-                    .enumerate()
-                    .map(move |(index, row)| (*id, index, row))
-            })
-            .filter(|(_, _, row)| row.dst_value() == Some(view));
-        let (origin, index, producer) = definitions.next().ok_or_else(invalid)?;
-        if definitions.next().is_some()
+        let (origin, index, producer) = function.definition(view).ok_or_else(invalid)?;
+        if function.ambiguous(view)
             || origin != block
             || index >= function.blocks[&block].instructions.len()
         {
@@ -265,19 +256,10 @@ pub(super) fn local_field_borrow(
         if view == value && consuming.object() != child {
             return Err(invalid());
         }
-        let mut parent_definitions = function
-            .blocks
-            .iter()
-            .flat_map(|(id, rows)| {
-                rows.all_instructions()
-                    .enumerate()
-                    .map(move |(index, row)| (*id, index, row))
-            })
-            .filter(|(_, _, row)| row.dst_value() == Some(*base));
-        let parent = parent_definitions.next();
-        if parent_definitions.next().is_some() {
+        if function.ambiguous(*base) {
             return Err(invalid());
         }
+        let parent = function.definition(*base);
         if let Some((
             parent_block,
             parent_index,

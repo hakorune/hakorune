@@ -93,6 +93,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .collect();
         let mut covered = BTreeSet::new();
         for owner in owners {
+            let _source_scope = self.branch_source_scope_v1(owner);
             let mut states = self.child_physical_validation.borrow_mut();
             let state = states
                 .get_mut(&owner)
@@ -112,6 +113,8 @@ impl OrdinaryNewClaimLedgerV1 {
             // Source consumers borrow only a completely checked physical
             // projection, including its exact dead-producer omissions.
             boundary.validate_complete(function, &mut projection, &bindings)?;
+            let _physical_scope =
+                self.physical_validation_scope_v1(function, Some(&projection), false);
             self.validate_new_emissions_projected(owner, function, Some(&projection))?;
             self.validate_field_reads_with_projection_v1(
                 owner,
@@ -169,6 +172,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 self.validate_artifact_lifecycle_coverage(owner, function, projection.recorded())?;
             }
+            drop(_physical_scope);
             *state = ChildPhysicalValidation::FinishingChecked {
                 symbol: symbol.clone(),
                 projection,
@@ -183,6 +187,8 @@ impl OrdinaryNewClaimLedgerV1 {
         function: &MirFunction,
         projection: Option<&super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
+        let _source_scope = self.branch_source_scope_v1(owner);
+        let _physical_scope = self.physical_validation_scope_v1(function, projection, false);
         self.validate_new_emissions_projected(owner, function, projection)?;
         self.validate_terminal_unit_return(owner, function)?;
         self.validate_root_home_exit(owner, function, projection)?;

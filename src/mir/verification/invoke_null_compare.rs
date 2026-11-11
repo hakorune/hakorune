@@ -311,18 +311,20 @@ pub(super) fn check(function: &MirFunction) -> Result<(), Failure> {
     }) {
         return Ok(());
     }
-    let (definitions, mut errors) = ssa::definitions(function);
+    let geometry = super::FunctionVerificationGeometry::new(function);
+    let definitions = geometry.definitions();
+    let mut errors = geometry.definition_errors();
     if let Err(mut found) = cfg::check_control_flow(function) {
         errors.append(&mut found);
     }
     if let Some(error) = structural_failure(function, &errors) {
         return Err(error);
     }
-    check_with_definitions(function, &definitions)
+    check_with_definitions(&geometry, definitions)
 }
 
 pub(super) fn check_with_definitions(
-    function: &MirFunction,
+    function: &super::FunctionVerificationGeometry<'_>,
     definitions: &Definitions,
 ) -> Result<(), Failure> {
     let mut completed = BTreeMap::new();
@@ -514,7 +516,9 @@ pub(super) fn check_with_definitions(
 /// Called only for functions already selected for canonical physical publication.
 /// Compatibility dumps do not obtain execution admission from this check.
 pub(super) fn reject_legacy(function: &MirFunction) -> Result<(), &'static str> {
-    let (definitions, mut errors) = ssa::definitions(function);
+    let geometry = super::FunctionVerificationGeometry::new(function);
+    let definitions = geometry.definitions();
+    let mut errors = geometry.definition_errors();
     if let Err(mut found) = cfg::check_control_flow(function) {
         errors.append(&mut found);
     }

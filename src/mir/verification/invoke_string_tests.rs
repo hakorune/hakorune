@@ -1,0 +1,1125 @@
+use super::*;
+use crate::mir::instruction::FaultFrameMode;
+use crate::mir::{BasicBlock, ConstValue, EffectMask, FunctionSignature, MirType};
+fn invoke(operation: Op, normal: u32, fault: u32) -> MirInstruction {
+    MirInstruction::Invoke {
+        operation: InvokeOperation::String(operation),
+        fault_frame: ValueId(0),
+        normal_landing: BasicBlockId(normal),
+        fault_landing: BasicBlockId(fault),
+    }
+}
+fn end(value: u32, normal: u32, fault: u32) -> MirInstruction {
+    invoke(
+        Op::End {
+            value: ValueId(value),
+        },
+        normal,
+        fault,
+    )
+}
+fn graph() -> MirFunction {
+    let mut function = MirFunction::new(
+        FunctionSignature {
+            name: "checked_string".into(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::CONTROL,
+        },
+        BasicBlockId(0),
+    );
+    let literal = |s: &str| Operand::StaticText { utf8: s.into() };
+    let mut rows = vec![
+        (
+            0,
+            invoke(
+                Op::Materialize {
+                    value: literal("猫\0"),
+                },
+                1,
+                90,
+            ),
+        ),
+        (
+            1,
+            invoke(
+                Op::Add {
+                    left: Operand::OwnedString(ValueId(2)),
+                    right: Operand::NormalInteger(ValueId(1)),
+                },
+                2,
+                10,
+            ),
+        ),
+        (
+            2,
+            invoke(
+                Op::Print {
+                    value: Operand::OwnedString(ValueId(3)),
+                },
+                3,
+                20,
+            ),
+        ),
+        (3, end(3, 4, 21)),
+        (4, end(2, 5, 90)),
+        (
+            5,
+            MirInstruction::Return {
+                value: Some(ValueId(1)),
+            },
+        ),
+        (10, end(2, 90, 91)),
+        (20, end(3, 21, 22)),
+        (21, end(2, 90, 91)),
+        (22, end(2, 90, 91)),
+    ];
+    for id in [90, 91] {
+        rows.push((
+            id,
+            MirInstruction::ReturnFault {
+                fault_frame: ValueId(0),
+            },
+        ));
+    }
+    // Every Invoke Normal landing is exclusive, including Unit cleanup.
+    // Fault cleanup may converge only after that owned landing.
+    let mut trampolines = Vec::new();
+    for (id, term) in &mut rows {
+        if let MirInstruction::Invoke {
+            operation,
+            normal_landing,
+            ..
+        } = term
+        {
+            if !matches!(operation, InvokeOperation::String(operation) if operation.owns_normal_result())
+            {
+                let target = *normal_landing;
+                *normal_landing = BasicBlockId(1000 + *id);
+                trampolines.push((
+                    1000 + *id,
+                    MirInstruction::Jump {
+                        target,
+                        edge_args: None,
+                    },
+                ));
+            }
+        }
+    }
+    rows.extend(trampolines);
+    for (id, term) in rows {
+        let mut block = BasicBlock::new(BasicBlockId(id));
+        if id == 0 {
+            block.add_instruction(MirInstruction::FaultFrameEnter {
+                dst: ValueId(0),
+                mode: FaultFrameMode::RootOwned,
+            });
+            block.add_instruction(MirInstruction::Const {
+                dst: ValueId(1),
+                value: ConstValue::Integer(7),
+            });
+        }
+        if id == 1 || id == 2 {
+            block.add_instruction(MirInstruction::InvokeNormalResult {
+                invoke_block: BasicBlockId(id - 1),
+                dst: ValueId(id + 1),
+            });
+        }
+        block.set_terminator(term);
+        function.add_block(block);
+    }
+    function
+}
+#[test]
+fn checked_string_normal_fault_prefixes_are_affine_and_do_not_escape() {
+    let mut good = graph();
+    good.blocks
+        .get_mut(&BasicBlockId(2))
+        .unwrap()
+        .instructions
+        .push(MirInstruction::KeepAlive {
+            values: vec![ValueId(3)],
+        });
+    let verified = super::super::check_function(&good);
+    assert!(verified.is_ok(), "{verified:?}");
+    assert_eq!(check(&good), Ok(()));
+    // Replacement takes the newest candidate on BOTH exits. The older
+    // temporary still follows its original Normal/Fault cleanup paths.
+    let mut replaced = good.clone();
+    let field = hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(
+        hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(0).unwrap(),
+        0,
+    )
+    .unwrap();
+    let contract = crate::mir::instruction::DynamicFieldSetContractV1::issue(
+        crate::mir::instruction::DynamicFieldWriteIntentV1::Replace,
+        crate::mir::instruction::DynamicFieldValueTagV1::Text,
+        crate::mir::instruction::DynamicFieldResidenceV1::TextHome,
+    )
+    .unwrap();
+    replaced
+        .blocks
+        .get_mut(&BasicBlockId(2))
+        .unwrap()
+        .set_terminator(MirInstruction::Invoke {
+            operation: InvokeOperation::FieldSet {
+                mode: crate::mir::instruction::FieldSetModeV1::DynamicValue(contract),
+                field,
+                base: ValueId(10),
+                value: ValueId(3),
+            },
+            fault_frame: ValueId(0),
+            normal_landing: BasicBlockId(1002),
+            fault_landing: BasicBlockId(21),
+        });
+    replaced
+        .blocks
+        .get_mut(&BasicBlockId(1002))
+        .unwrap()
+        .set_terminator(MirInstruction::Jump {
+            target: BasicBlockId(4),
+            edge_args: None,
+        });
+    assert_eq!(check(&replaced), Ok(()));
+    for normal in [true, false] {
+        let mut double_end = replaced.clone();
+        let Some(MirInstruction::Invoke {
+            normal_landing,
+            fault_landing,
+            ..
+        }) = double_end
+            .blocks
+            .get_mut(&BasicBlockId(2))
+            .unwrap()
+            .terminator
+            .as_mut()
+        else {
+            unreachable!()
+        };
+        if normal {
+            *normal_landing = BasicBlockId(3);
+        } else {
+            *fault_landing = BasicBlockId(20);
+        }
+        assert!(
+            check(&double_end).is_err(),
+            "candidate already consumed on normal={normal}"
+        );
+    }
+    let mut unproved_residency = good.clone();
+    let Some(MirInstruction::Invoke { operation, .. }) = unproved_residency
+        .blocks
+        .get_mut(&BasicBlockId(3))
+        .unwrap()
+        .terminator
+        .as_mut()
+    else {
+        panic!("original End")
+    };
+    *operation = InvokeOperation::String(Op::EndIfOwned { value: ValueId(3) });
+    assert_eq!(check(&unproved_residency), Err("string-owned-escape"));
+    // A function-level role check lends without transferring ownership.
+    // The mandatory module source gate separately checks each occurrence.
+    let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
+        "Values", "sink", 1,
+    );
+    let call = crate::mir::definitions::MirCall::global(
+        None,
+        key.canonical_global_target_v1().unwrap(),
+        vec![ValueId(3)],
+    );
+    let mut borrowed = good.clone();
+    let call_index = borrowed.blocks[&BasicBlockId(2)].instructions.len();
+    let Some(MirInstruction::Invoke { operation, .. }) = borrowed
+        .blocks
+        .get_mut(&BasicBlockId(2))
+        .unwrap()
+        .terminator
+        .as_mut()
+    else {
+        panic!("original Invoke")
+    };
+    *operation = InvokeOperation::Call {
+        call: call.clone(),
+        result: crate::mir::instruction::InvokeCallResultKind::Unit,
+    };
+    assert_eq!(check(&borrowed), Ok(()));
+    assert_eq!(
+        check_source_uses(&borrowed, |_, _, _, _| false),
+        Err("string-original-borrow-slot-missing")
+    );
+    let exact = |block, index, ordinal, value| {
+        block == BasicBlockId(2) && index == call_index && ordinal == 0 && value == ValueId(3)
+    };
+    assert_eq!(check_source_uses(&borrowed, exact), Ok(()));
+    let mut duplicated = borrowed.clone();
+    let Some(MirInstruction::Invoke {
+        operation:
+            InvokeOperation::Call {
+                call: duplicated_call,
+                ..
+            },
+        ..
+    }) = duplicated
+        .blocks
+        .get_mut(&BasicBlockId(2))
+        .unwrap()
+        .terminator
+        .as_mut()
+    else {
+        panic!("Call")
+    };
+    duplicated_call.args.push(ValueId(3));
+    assert_eq!(
+        check_source_uses(&duplicated, exact),
+        Err("string-original-borrow-slot-missing")
+    );
+    let mut plain = borrowed.clone();
+    plain.blocks.get_mut(&BasicBlockId(2)).unwrap().terminator = Some(MirInstruction::Call(call));
+    assert_eq!(check(&plain), Err("string-owned-escape"));
+    let mut after_end = borrowed.clone();
+    after_end
+        .blocks
+        .get_mut(&BasicBlockId(4))
+        .unwrap()
+        .terminator = borrowed.blocks[&BasicBlockId(2)].terminator.clone();
+    assert_eq!(check(&after_end), Err("string-call-borrow-not-live"));
+    // A source-backed lifecycle handoff preserves the pair, while moving
+    // its cleanup to the Home domain behind remaining expression children.
+    // A Text Call holds its result below its own argument suffix. The
+    // Normal and Call-Fault graphs retain distinct acquisition obligations.
+    let mut text_call = good.clone();
+    let mut returning_call = crate::mir::definitions::MirCall::global(
+        None,
+        key.canonical_global_target_v1().unwrap(),
+        vec![ValueId(2)],
+    );
+    returning_call.text_argument_cleanup = vec![ValueId(2)];
+    let Some(MirInstruction::Invoke { operation, .. }) = text_call
+        .blocks
+        .get_mut(&BasicBlockId(1))
+        .unwrap()
+        .terminator
+        .as_mut()
+    else {
+        panic!("Call")
+    };
+    *operation = InvokeOperation::Call {
+        call: returning_call.clone(),
+        result: crate::mir::instruction::InvokeCallResultKind::OwnedString,
+    };
+    // End argument first, then use and End the newly available result.
+    text_call
+        .blocks
+        .get_mut(&BasicBlockId(2))
+        .unwrap()
+        .terminator = Some(end(2, 1002, 23));
+    text_call
+        .blocks
+        .get_mut(&BasicBlockId(3))
+        .unwrap()
+        .terminator = Some(end(3, 1003, 90));
+    text_call
+        .blocks
+        .get_mut(&BasicBlockId(4))
+        .unwrap()
+        .terminator = Some(MirInstruction::Return {
+        value: Some(ValueId(1)),
+    });
+    let mut fault = crate::mir::BasicBlock::new(BasicBlockId(23));
+    fault.set_terminator(end(3, 90, 91));
+    text_call.add_block(fault);
+    assert_eq!(check(&text_call), Ok(()));
+    for suffix in [vec![ValueId(1)], vec![ValueId(2), ValueId(2)]] {
+        let mut wrong = text_call.clone();
+        let Some(MirInstruction::Invoke {
+            operation: InvokeOperation::Call { call, .. },
+            ..
+        }) = wrong
+            .blocks
+            .get_mut(&BasicBlockId(1))
+            .unwrap()
+            .terminator
+            .as_mut()
+        else {
+            unreachable!()
+        };
+        call.text_argument_cleanup = suffix;
+        assert!(check(&wrong).is_err());
+    }
+    let mut early_read = text_call.clone();
+    early_read
+        .blocks
+        .get_mut(&BasicBlockId(2))
+        .unwrap()
+        .terminator = good.blocks[&BasicBlockId(2)].terminator.clone();
+    assert!(
+        check(&early_read).is_err(),
+        "held result cannot be borrowed before argument End"
+    );
+    let mut installed = good.clone();
+    installed
+        .blocks
+        .get_mut(&BasicBlockId(2))
+        .unwrap()
+        .instructions
+        .push(MirInstruction::StringResidenceInstall {
+            value: ValueId(3),
+            replaces: None,
+            returning: false,
+        });
+    for (id, value) in [(3, 2), (4, 3), (20, 2), (21, 3), (22, 3)] {
+        let Some(MirInstruction::Invoke {
+            operation: InvokeOperation::String(Op::End { value: target }),
+            ..
+        }) = &mut installed
+            .blocks
+            .get_mut(&BasicBlockId(id))
+            .unwrap()
+            .terminator
+        else {
+            panic!("End")
+        };
+        *target = ValueId(value);
+    }
+    assert_eq!(check(&installed), Ok(()));
+    assert!(super::super::check_function(&installed).is_ok());
+    // Text Return transfers the same installed Home only after sibling
+    // cleanup; the original Fault suffix still Ends that residence.
+    let mut returned = installed.clone();
+    returned.signature.return_type = crate::mir::MirType::String;
+    returned
+        .blocks
+        .get_mut(&BasicBlockId(4))
+        .unwrap()
+        .terminator = Some(MirInstruction::Return {
+        value: Some(ValueId(3)),
+    });
+    returned.blocks.remove(&BasicBlockId(1004));
+    returned.blocks.remove(&BasicBlockId(5));
+    assert_eq!(check(&returned), Ok(()));
+    for (block, value) in [(4, 2), (20, 3)] {
+        let mut wrong = returned.clone();
+        wrong
+            .blocks
+            .get_mut(&BasicBlockId(block))
+            .unwrap()
+            .terminator = Some(MirInstruction::Return {
+            value: Some(ValueId(value)),
+        });
+        assert_eq!(check(&wrong), Err("string-owned-escape"));
+    }
+    let mut temporary_return = good.clone();
+    temporary_return.signature.return_type = crate::mir::MirType::String;
+    temporary_return
+        .blocks
+        .get_mut(&BasicBlockId(2))
+        .unwrap()
+        .terminator = Some(MirInstruction::Return {
+        value: Some(ValueId(3)),
+    });
+    assert_eq!(check(&temporary_return), Err("string-owned-escape"));
+    let mut both_homes = good.clone();
+    for (id, value) in [(1, 2), (2, 3)] {
+        both_homes
+            .blocks
+            .get_mut(&BasicBlockId(id))
+            .unwrap()
+            .instructions
+            .push(MirInstruction::StringResidenceInstall {
+                value: ValueId(value),
+                replaces: None,
+                returning: false,
+            });
+    }
+    assert_eq!(
+        check(&both_homes),
+        Ok(()),
+        "Home cleanup is reverse installation order"
+    );
+    // Hold the newer Home while ending the older one. If that End faults,
+    // the held Home is still the next original-rank unwind obligation.
+    let mut held_return = both_homes.clone();
+    held_return.signature.return_type = MirType::String;
+    held_return
+        .blocks
+        .get_mut(&BasicBlockId(2))
+        .unwrap()
+        .terminator = Some(MirInstruction::Jump {
+        target: BasicBlockId(3),
+        edge_args: None,
+    });
+    let hold = MirInstruction::StringResidenceInstall {
+        value: ValueId(3),
+        replaces: None,
+        returning: true,
+    };
+    held_return
+        .blocks
+        .get_mut(&BasicBlockId(3))
+        .unwrap()
+        .instructions
+        .push(hold.clone());
+    held_return
+        .blocks
+        .get_mut(&BasicBlockId(3))
+        .unwrap()
+        .terminator = Some(end(2, 1003, 20));
+    held_return
+        .blocks
+        .get_mut(&BasicBlockId(4))
+        .unwrap()
+        .terminator = Some(MirInstruction::Return {
+        value: Some(ValueId(3)),
+    });
+    held_return
+        .blocks
+        .get_mut(&BasicBlockId(20))
+        .unwrap()
+        .terminator = Some(end(3, 90, 91));
+    assert_eq!(check(&held_return), Ok(()));
+    for fault in [false, true] {
+        let mut wrong = held_return.clone();
+        if fault {
+            wrong.blocks.get_mut(&BasicBlockId(20)).unwrap().terminator = Some(end(2, 90, 91));
+        } else {
+            wrong
+                .blocks
+                .get_mut(&BasicBlockId(3))
+                .unwrap()
+                .instructions
+                .push(hold.clone());
+        }
+        assert!(
+            check(&wrong).is_err(),
+            "duplicate hold and skipped Fault End must refuse"
+        );
+    }
+
+    for (id, value) in [(2, 2), (2, 1), (2, 3), (10, 2)] {
+        let mut bad = installed.clone();
+        let rows = &mut bad.blocks.get_mut(&BasicBlockId(id)).unwrap().instructions;
+        let event = MirInstruction::StringResidenceInstall {
+            value: ValueId(value),
+            replaces: None,
+            returning: false,
+        };
+        if id == 2 && value == 2 {
+            rows.insert(1, event);
+        } else {
+            rows.push(event);
+        }
+        assert_eq!(
+            check(&bad),
+            Err(if value == 1 {
+                "string-residence-install-result-missing"
+            } else {
+                "string-residence-install-not-newest-temporary"
+            })
+        );
+    }
+    let mut early_home_end = good.clone();
+    early_home_end
+        .blocks
+        .get_mut(&BasicBlockId(2))
+        .unwrap()
+        .instructions
+        .push(MirInstruction::StringResidenceInstall {
+            value: ValueId(3),
+            replaces: None,
+            returning: false,
+        });
+    assert_eq!(check(&early_home_end), Err("string-end-order-or-not-live"));
+    let mut marker_only = MirFunction::new(good.signature.clone(), BasicBlockId(0));
+    let mut block = BasicBlock::new(BasicBlockId(0));
+    block.add_instruction(MirInstruction::StringResidenceInstall {
+        value: ValueId(99),
+        replaces: None,
+        returning: false,
+    });
+    block.set_terminator(MirInstruction::Return { value: None });
+    marker_only.add_block(block);
+    assert_eq!(
+        check(&marker_only),
+        Err("string-residence-install-result-missing")
+    );
+    for value in [3, 99] {
+        let mut disconnected = good.clone();
+        let mut block = BasicBlock::new(BasicBlockId(99));
+        block.add_instruction(MirInstruction::StringResidenceInstall {
+            value: ValueId(value),
+            replaces: None,
+            returning: false,
+        });
+        block.set_terminator(MirInstruction::Return { value: None });
+        disconnected.add_block(block);
+        assert_eq!(
+            check(&disconnected),
+            Err(if value == 3 {
+                "string-residence-install-unreachable"
+            } else {
+                "string-residence-install-result-missing"
+            })
+        );
+    }
+    let mut slice = good.clone();
+    if let Some(MirInstruction::Invoke { operation, .. }) =
+        &mut slice.blocks.get_mut(&BasicBlockId(1)).unwrap().terminator
+    {
+        *operation = InvokeOperation::String(Op::Substring {
+            value: Operand::OwnedString(ValueId(2)),
+            start: Operand::NormalInteger(ValueId(1)),
+            end: Operand::NormalInteger(ValueId(1)),
+        });
+    }
+    assert!(super::super::check_function(&slice).is_ok());
+    assert_eq!(
+        check(&slice),
+        Ok(()),
+        "substring has the same Normal acquisition and both Fault prefixes"
+    );
+    let mut bad_slice = slice.clone();
+    if let Some(MirInstruction::Invoke {
+        operation: InvokeOperation::String(Op::Substring { start, .. }),
+        ..
+    }) = &mut bad_slice
+        .blocks
+        .get_mut(&BasicBlockId(1))
+        .unwrap()
+        .terminator
+    {
+        *start = Operand::NormalInteger(ValueId(2));
+    }
+    assert_eq!(check(&bad_slice), Err("string-integer-domain"));
+    let mut read = good.clone();
+    read.blocks
+        .get_mut(&BasicBlockId(2))
+        .unwrap()
+        .instructions
+        .push(MirInstruction::StringIndexOf {
+            dst: ValueId(10),
+            value: Operand::OwnedString(ValueId(3)),
+            needle: Operand::StaticText { utf8: "界".into() },
+        });
+    assert!(super::super::check_function(&read).is_ok());
+    assert_eq!(
+        check(&read),
+        Ok(()),
+        "scalar reads borrow without acquisition or End"
+    );
+    let cases: Vec<(u32, MirInstruction, &str)> = vec![
+        (3, end(2, 4, 21), "string-end-order-or-not-live"),
+        (4, end(3, 5, 90), "string-end-order-or-not-live"),
+        (
+            10,
+            MirInstruction::ReturnFault {
+                fault_frame: ValueId(0),
+            },
+            "string-missing-end",
+        ),
+        (
+            20,
+            MirInstruction::ReturnFault {
+                fault_frame: ValueId(0),
+            },
+            "string-missing-end",
+        ),
+        (10, end(3, 90, 91), "string-end-order-or-not-live"),
+        (
+            10,
+            invoke(
+                Op::Print {
+                    value: Operand::OwnedString(ValueId(2)),
+                },
+                90,
+                91,
+            ),
+            "string-effect-after-fault",
+        ),
+        (
+            2,
+            invoke(
+                Op::Print {
+                    value: Operand::NormalInteger(ValueId(3)),
+                },
+                3,
+                20,
+            ),
+            "string-integer-domain",
+        ),
+        (
+            2,
+            MirInstruction::Return {
+                value: Some(ValueId(3)),
+            },
+            "string-owned-escape",
+        ),
+    ];
+    for (id, term, reason) in cases {
+        let mut bad = good.clone();
+        bad.blocks.get_mut(&BasicBlockId(id)).unwrap().terminator = Some(term);
+        assert_eq!(check(&bad), Err(reason), "mutated block {id}");
+    }
+    let mut escaped = good.clone();
+    escaped
+        .blocks
+        .get_mut(&BasicBlockId(2))
+        .unwrap()
+        .instructions
+        .push(MirInstruction::Copy {
+            dst: ValueId(9),
+            src: ValueId(3),
+        });
+    assert_eq!(check(&escaped), Err("string-owned-escape"));
+    let mut fault_projection = good.clone();
+    fault_projection
+        .blocks
+        .get_mut(&BasicBlockId(10))
+        .unwrap()
+        .instructions
+        .push(MirInstruction::InvokeNormalResult {
+            invoke_block: BasicBlockId(1),
+            dst: ValueId(9),
+        });
+    assert!(super::super::check_function(&fault_projection).is_err());
+    // One operation's operands survive SSA rewriting in original order;
+    // static bytes are not a fabricated ValueId or a C string.
+    let mut operation = Op::Add {
+        left: Operand::OwnedString(ValueId(2)),
+        right: Operand::NormalInteger(ValueId(1)),
+    };
+    operation.rewrite_values(|value| value.0 += 10);
+    assert_eq!(operation.used_values(), vec![ValueId(12), ValueId(11)]);
+    assert_eq!(
+        operation.normal_result_kind(),
+        Some(crate::mir::instruction::InvokeNormalResultKind::OwnedString)
+    );
+}
+#[test]
+fn string_length_rows_keep_domain_lifetime_and_definition_order() {
+    // One matrix covers both read arities and both positions of IndexOf.
+    for (comparison, needle_position) in [
+        (false, None),
+        (false, Some(false)),
+        (false, Some(true)),
+        (true, Some(false)),
+        (true, Some(true)),
+    ] {
+        let kind = if comparison {
+            MirType::Bool
+        } else {
+            MirType::Integer
+        };
+        let type_error = if comparison {
+            "string-read-bool-result-type"
+        } else {
+            "string-length-result-type"
+        };
+        let read = |dst, value: Operand| {
+            if comparison {
+                let literal = Operand::StaticText { utf8: "猫".into() };
+                let (left, right) = if needle_position == Some(true) {
+                    (literal, value)
+                } else {
+                    (value, literal)
+                };
+                MirInstruction::StringCompare {
+                    dst,
+                    op: crate::mir::CompareOp::Eq,
+                    left,
+                    right,
+                }
+            } else {
+                match needle_position {
+                    None => MirInstruction::StringLength { dst, value },
+                    Some(false) => MirInstruction::StringIndexOf {
+                        dst,
+                        value,
+                        needle: Operand::StaticText { utf8: "猫".into() },
+                    },
+                    Some(true) => MirInstruction::StringIndexOf {
+                        dst,
+                        needle: value,
+                        value: Operand::StaticText { utf8: "猫".into() },
+                    },
+                }
+            }
+        };
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "code_point_count".into(),
+                params: vec![],
+                return_type: kind.clone(),
+                effects: EffectMask::READ,
+            },
+            BasicBlockId(0),
+        );
+        let mut block = BasicBlock::new(BasicBlockId(0));
+        block.add_instruction(read(
+            ValueId(1),
+            Operand::StaticText {
+                utf8: "e\u{301}猫".into(),
+            },
+        ));
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId(1)),
+        });
+        function.add_block(block);
+        assert_eq!(check(&function), Ok(()));
+        assert!(super::super::check_function(&function).is_ok());
+        for value in [
+            Operand::NormalInteger(ValueId(4)),
+            Operand::NormalBool(ValueId(4)),
+            Operand::Dynamic(ValueId(4)),
+            Operand::DynamicCarrier(ValueId(4)),
+        ] {
+            let mut bad = function.clone();
+            bad.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions[0] = read(ValueId(1), value);
+            assert_eq!(check(&bad), Err("string-text-operand-domain"));
+        }
+        let mut terminal = function.clone();
+        let body = terminal.blocks.get_mut(&BasicBlockId(0)).unwrap();
+        body.instructions.clear();
+        body.terminator = Some(read(ValueId(1), Operand::StaticText { utf8: "x".into() }));
+        assert_eq!(
+            check(&terminal),
+            Err(if comparison {
+                "string-read-bool-terminator"
+            } else {
+                "string-length-terminator"
+            })
+        );
+        let mut bool_condition = function.clone();
+        bool_condition
+            .blocks
+            .get_mut(&BasicBlockId(0))
+            .unwrap()
+            .set_terminator(MirInstruction::Branch {
+                condition: ValueId(1),
+                then_bb: BasicBlockId(0),
+                else_bb: BasicBlockId(0),
+                then_edge_args: None,
+                else_edge_args: None,
+            });
+        assert_eq!(
+            check(&bool_condition),
+            if comparison { Ok(()) } else { Err(type_error) }
+        );
+        let mut borrowed = function.clone();
+        borrowed.params = vec![ValueId(10)];
+        borrowed.signature.params = vec![MirType::Integer];
+        borrowed.metadata.declared_param_decls = vec![crate::mir::function::MirParamDecl {
+            name: "text".into(),
+            declared_type_name: Some("String".into()),
+            implicit_receiver: false,
+        }];
+        borrowed.metadata.physical_param_carriers = Some(vec![
+        crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue].into_boxed_slice());
+        let body = borrowed.blocks.get_mut(&BasicBlockId(0)).unwrap();
+        body.instructions[0] = read(ValueId(1), Operand::BorrowedText(ValueId(11)));
+        body.instructions.insert(
+            0,
+            MirInstruction::Copy {
+                dst: ValueId(11),
+                src: ValueId(10),
+            },
+        );
+        assert_eq!(check(&borrowed), Ok(()));
+        let mut duplicate = borrowed.clone();
+        duplicate
+            .blocks
+            .get_mut(&BasicBlockId(0))
+            .unwrap()
+            .instructions
+            .insert(
+                0,
+                MirInstruction::Copy {
+                    dst: ValueId(11),
+                    src: ValueId(10),
+                },
+            );
+        assert_eq!(check(&duplicate), Err("string-borrowed-copy-duplicate"));
+        let mut nondominating = borrowed.clone();
+        let moved = nondominating
+            .blocks
+            .get_mut(&BasicBlockId(0))
+            .unwrap()
+            .instructions
+            .remove(0);
+        let mut other = BasicBlock::new(BasicBlockId(1));
+        other.add_instruction(moved);
+        other.set_terminator(MirInstruction::Return {
+            value: Some(ValueId(1)),
+        });
+        nondominating.add_block(other);
+        assert_eq!(check(&nondominating), Err("string-read-before-definition"));
+        borrowed
+            .blocks
+            .get_mut(&BasicBlockId(0))
+            .unwrap()
+            .instructions
+            .swap(0, 1);
+        assert_eq!(check(&borrowed), Err("string-read-before-definition"));
+        let mut bad_type = function.clone();
+        bad_type.metadata.value_types.insert(
+            ValueId(1),
+            if comparison {
+                MirType::Integer
+            } else {
+                MirType::Bool
+            },
+        );
+        assert_eq!(check(&bad_type), Err(type_error));
+        let mut unowned = function.clone();
+        unowned
+            .blocks
+            .get_mut(&BasicBlockId(0))
+            .unwrap()
+            .instructions[0] = read(ValueId(1), Operand::OwnedString(ValueId(9)));
+        assert_eq!(check(&unowned), Err("string-owned-result-missing"));
+        let mut forged = function.clone();
+        forged
+            .blocks
+            .get_mut(&BasicBlockId(0))
+            .unwrap()
+            .instructions[0] = read(ValueId(1), Operand::BorrowedText(ValueId(9)));
+        assert_eq!(check(&forged), Err("string-borrowed-origin"));
+        // Same-block order is checked independently of cached type metadata.
+        let mut owned = graph();
+        owned
+            .blocks
+            .get_mut(&BasicBlockId(1))
+            .unwrap()
+            .instructions
+            .insert(0, read(ValueId(45), Operand::OwnedString(ValueId(2))));
+        assert_eq!(check(&owned), Err("string-read-before-definition"));
+        // Surviving real Fault paths still forbid even a static read before cleanup.
+        for value in [
+            Operand::OwnedString(ValueId(3)),
+            Operand::StaticText {
+                utf8: "live".into(),
+            },
+        ] {
+            let mut faulted = graph();
+            faulted
+                .blocks
+                .get_mut(&BasicBlockId(20))
+                .unwrap()
+                .instructions
+                .push(read(ValueId(45), value));
+            assert_eq!(check(&faulted), Err("string-effect-after-fault"));
+        }
+        // A previously valid pair is not readable after its End.
+        let mut ended = graph();
+        ended
+            .blocks
+            .get_mut(&BasicBlockId(4))
+            .unwrap()
+            .instructions
+            .push(read(ValueId(45), Operand::OwnedString(ValueId(3))));
+        assert_eq!(check(&ended), Err("string-borrow-not-live"));
+    }
+}
+
+#[test]
+fn string_length_phi_preserves_i64_without_type_metadata() {
+    for mode in [0, 1, 2] {
+        let boolean = mode == 2;
+        let type_error = if boolean {
+            "string-read-bool-result-type"
+        } else {
+            "string-length-result-type"
+        };
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "count_phi".into(),
+                params: vec![],
+                return_type: if boolean {
+                    MirType::Bool
+                } else {
+                    MirType::Integer
+                },
+                effects: EffectMask::READ,
+            },
+            BasicBlockId(0),
+        );
+        let mut entry = BasicBlock::new(BasicBlockId(0));
+        let value = Operand::StaticText { utf8: "猫".into() };
+        entry.add_instruction(if boolean {
+            MirInstruction::StringCompare {
+                dst: ValueId(1),
+                op: crate::mir::CompareOp::Eq,
+                left: value,
+                right: Operand::StaticText { utf8: "猫".into() },
+            }
+        } else if mode == 1 {
+            MirInstruction::StringIndexOf {
+                dst: ValueId(1),
+                value,
+                needle: Operand::StaticText { utf8: "猫".into() },
+            }
+        } else {
+            MirInstruction::StringLength {
+                dst: ValueId(1),
+                value,
+            }
+        });
+        entry.add_instruction(MirInstruction::Const {
+            dst: ValueId(2),
+            value: ConstValue::Bool(true),
+        });
+        entry.add_instruction(MirInstruction::Const {
+            dst: ValueId(5),
+            value: if boolean {
+                ConstValue::Bool(false)
+            } else {
+                ConstValue::Integer(0)
+            },
+        });
+        entry.set_terminator(MirInstruction::Branch {
+            condition: ValueId(2),
+            then_bb: BasicBlockId(1),
+            else_bb: BasicBlockId(2),
+            then_edge_args: None,
+            else_edge_args: None,
+        });
+        function.add_block(entry);
+        for id in [1, 2] {
+            let mut branch = BasicBlock::new(BasicBlockId(id));
+            branch.set_terminator(MirInstruction::Jump {
+                target: BasicBlockId(3),
+                edge_args: None,
+            });
+            function.add_block(branch);
+        }
+        let mut join = BasicBlock::new(BasicBlockId(3));
+        join.add_instruction(MirInstruction::Phi {
+            dst: ValueId(4),
+            type_hint: None,
+            inputs: vec![(BasicBlockId(1), ValueId(1)), (BasicBlockId(2), ValueId(5))],
+        });
+        join.set_terminator(MirInstruction::Return {
+            value: Some(ValueId(4)),
+        });
+        function.add_block(join);
+        assert_eq!(check(&function), Ok(()));
+        assert!(super::super::check_function(&function).is_ok());
+        if boolean {
+            for op in [
+                crate::mir::CompareOp::Eq,
+                crate::mir::CompareOp::Ne,
+                crate::mir::CompareOp::Lt,
+            ] {
+                let mut changed = function.clone();
+                changed
+                    .blocks
+                    .get_mut(&BasicBlockId(3))
+                    .unwrap()
+                    .instructions
+                    .push(MirInstruction::Compare {
+                        dst: ValueId(7),
+                        op,
+                        lhs: ValueId(4),
+                        rhs: ValueId(2),
+                    });
+                assert_eq!(
+                    check(&changed),
+                    if op == crate::mir::CompareOp::Lt {
+                        Err(type_error)
+                    } else {
+                        Ok(())
+                    }
+                );
+            }
+            let mut arithmetic = function.clone();
+            arithmetic
+                .blocks
+                .get_mut(&BasicBlockId(3))
+                .unwrap()
+                .instructions
+                .push(MirInstruction::BinOp {
+                    dst: ValueId(7),
+                    op: crate::mir::BinaryOp::Add,
+                    lhs: ValueId(4),
+                    rhs: ValueId(2),
+                });
+            assert_eq!(check(&arithmetic), Err(type_error));
+            let mut mixed = function.clone();
+            mixed
+                .blocks
+                .get_mut(&BasicBlockId(0))
+                .unwrap()
+                .instructions
+                .push(MirInstruction::Const {
+                    dst: ValueId(8),
+                    value: ConstValue::Integer(1),
+                });
+            mixed
+                .blocks
+                .get_mut(&BasicBlockId(3))
+                .unwrap()
+                .instructions
+                .push(MirInstruction::Compare {
+                    dst: ValueId(7),
+                    op: crate::mir::CompareOp::Eq,
+                    lhs: ValueId(4),
+                    rhs: ValueId(8),
+                });
+            assert_eq!(check(&mixed), Err(type_error));
+        }
+        function
+            .blocks
+            .get_mut(&BasicBlockId(0))
+            .unwrap()
+            .instructions[2] = MirInstruction::Const {
+            dst: ValueId(5),
+            value: if boolean {
+                ConstValue::Integer(0)
+            } else {
+                ConstValue::Bool(false)
+            },
+        };
+        assert_eq!(check(&function), Err(type_error));
+    }
+}
+
+#[test]
+fn ordinary_text_search_repeated_owned_operand_is_a_read() {
+    for comparison in [false, true] {
+        let mut function = graph();
+        function
+            .blocks
+            .get_mut(&BasicBlockId(2))
+            .unwrap()
+            .instructions
+            .push(if comparison {
+                MirInstruction::StringCompare {
+                    dst: ValueId(45),
+                    op: crate::mir::CompareOp::Eq,
+                    left: Operand::OwnedString(ValueId(3)),
+                    right: Operand::OwnedString(ValueId(3)),
+                }
+            } else {
+                MirInstruction::StringIndexOf {
+                    dst: ValueId(45),
+                    value: Operand::OwnedString(ValueId(3)),
+                    needle: Operand::OwnedString(ValueId(3)),
+                }
+            });
+        assert_eq!(check(&function), Ok(()));
+        assert!(super::super::check_function(&function).is_ok());
+        if comparison {
+            if let Some(MirInstruction::Invoke { operation, .. }) = &mut function
+                .blocks
+                .get_mut(&BasicBlockId(2))
+                .unwrap()
+                .terminator
+            {
+                *operation = InvokeOperation::String(Op::Print {
+                    value: Operand::NormalInteger(ValueId(45)),
+                });
+            }
+            assert_eq!(check(&function), Err("string-integer-domain"));
+        }
+    }
+}

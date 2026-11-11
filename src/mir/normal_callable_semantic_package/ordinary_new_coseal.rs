@@ -74,6 +74,8 @@ pub(crate) use ordinary_new_arguments::{
 mod object_end;
 #[path = "ordinary_new_completion_index.rs"]
 mod completion_index;
+#[path = "ordinary_new_branch_source_index.rs"]
+mod branch_source_index;
 #[path = "ordinary_new_completion_lookup.rs"]
 mod completion_lookup;
 #[path = "ordinary_new_scalar_operations.rs"]
@@ -336,6 +338,8 @@ pub(crate) enum OrdinaryNewClaimTakeErrorV1 {
 
 #[derive(Debug)]
 pub(crate) struct OrdinaryNewClaimLedgerV1 {
+    physical_validation_scope: RefCell<Option<Rc<local_commit::PhysicalValidationState>>>,
+    branch_source_scope: RefCell<Option<branch_source_index::BranchSourceScope>>,
     claims: RefCell<BTreeMap<OwnedExprSiteV1, OrdinaryNewAdmissionClaimV1>>,
     scalar_operation_appends: RefCell<BTreeMap<OwnedExprSiteV1, Rc<OriginalScalarAppendV1>>>,
     scalar_operation_consumers:

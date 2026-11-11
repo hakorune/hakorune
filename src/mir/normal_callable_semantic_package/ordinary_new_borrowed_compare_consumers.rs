@@ -1,5 +1,6 @@
 //! SAME original checked execution and its mandatory physical Bool consumers.
 use super::*;
+use crate::mir::verification::geometry::FunctionVerificationGeometry;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction};
 use std::rc::Rc;
 
@@ -19,33 +20,35 @@ impl OrdinaryNewClaimLedgerV1 {
             ),
         >,
     ) -> Result<(), String> {
-        let observations: Vec<_> = observations.collect();
-        self.verify_borrowed_compare_reuse_v1(
-            owner,
-            observations.iter().map(|(record, _, _)| *record),
-        )?;
-        if observations.is_empty() {
-            return Ok(());
-        }
-        let mut consumers = BTreeMap::new();
-        for (record, copies, branches) in observations {
-            check_group(function, record.original(), &copies, &branches)?;
-            if consumers
-                .insert(record.value(), (copies, branches))
-                .is_some()
-            {
-                return Err(freeze("borrowed-compare/duplicate-consumer"));
+        self.with_function_geometry_v1(function, |geometry| {
+            let observations: Vec<_> = observations.collect();
+            self.verify_borrowed_compare_reuse_v1(
+                owner,
+                observations.iter().map(|(record, _, _)| *record),
+            )?;
+            if observations.is_empty() {
+                return Ok(());
             }
-        }
-        let mut entries = self.borrowed_entry_values.borrow_mut();
-        let entry = entries
-            .get_mut(&owner)
-            .ok_or_else(|| freeze("borrowed-compare/entry-missing"))?;
-        if entry.comparison_consumers.is_some() {
-            return Err(freeze("borrowed-compare/duplicate-consumer-handoff"));
-        }
-        entry.comparison_consumers = Some(consumers);
-        Ok(())
+            let mut consumers = BTreeMap::new();
+            for (record, copies, branches) in observations {
+                check_group(geometry, record.original(), &copies, &branches)?;
+                if consumers
+                    .insert(record.value(), (copies, branches))
+                    .is_some()
+                {
+                    return Err(freeze("borrowed-compare/duplicate-consumer"));
+                }
+            }
+            let mut entries = self.borrowed_entry_values.borrow_mut();
+            let entry = entries
+                .get_mut(&owner)
+                .ok_or_else(|| freeze("borrowed-compare/entry-missing"))?;
+            if entry.comparison_consumers.is_some() {
+                return Err(freeze("borrowed-compare/duplicate-consumer-handoff"));
+            }
+            entry.comparison_consumers = Some(consumers);
+            Ok(())
+        })
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn borrowed_compare_bindings_v1(
@@ -95,50 +98,52 @@ impl OrdinaryNewClaimLedgerV1 {
         function: &MirFunction,
         mut project: impl FnMut(&Binding) -> Result<Binding, String>,
     ) -> Result<(), String> {
-        let entries = self.borrowed_entry_values.borrow();
-        self.verify_borrowed_compare_reuse_v1(
-            owner,
-            entries
-                .get(&owner)
-                .into_iter()
-                .flat_map(|entry| entry.comparisons.values()),
-        )?;
-        let Some(entry) = entries.get(&owner) else {
-            return Ok(());
-        };
-        if entry.comparisons.is_empty() {
-            return Ok(());
-        }
-        let consumers = entry
-            .comparison_consumers
-            .as_ref()
-            .ok_or_else(|| freeze("borrowed-compare/consumer-handoff-missing"))?;
-        if !consumers.keys().eq(entry.comparisons.keys()) {
-            return Err(freeze("borrowed-compare/consumer-coverage"));
-        }
-        for (value, record) in &entry.comparisons {
-            let (copies, branches) = consumers
-                .get(value)
-                .ok_or_else(|| freeze("borrowed-compare/consumer-coverage"))?;
-            let original = project(record.original())?;
-            let copies = copies
-                .iter()
-                .map(&mut project)
-                .collect::<Result<Vec<_>, _>>()?;
-            let branches = branches
-                .iter()
-                .map(&mut project)
-                .collect::<Result<Vec<_>, _>>()?;
-            check_group(function, &original, &copies, &branches)?;
-        }
-        self.verify_finished_borrowed_compare_carriers_v1(owner, function, &mut project)?;
-        self.verify_finished_borrowed_compare_literals_v1(owner, function, project)?;
-        Ok(())
+        self.with_function_geometry_v1(function, |geometry| {
+            let entries = self.borrowed_entry_values.borrow();
+            self.verify_borrowed_compare_reuse_v1(
+                owner,
+                entries
+                    .get(&owner)
+                    .into_iter()
+                    .flat_map(|entry| entry.comparisons.values()),
+            )?;
+            let Some(entry) = entries.get(&owner) else {
+                return Ok(());
+            };
+            if entry.comparisons.is_empty() {
+                return Ok(());
+            }
+            let consumers = entry
+                .comparison_consumers
+                .as_ref()
+                .ok_or_else(|| freeze("borrowed-compare/consumer-handoff-missing"))?;
+            if !consumers.keys().eq(entry.comparisons.keys()) {
+                return Err(freeze("borrowed-compare/consumer-coverage"));
+            }
+            for (value, record) in &entry.comparisons {
+                let (copies, branches) = consumers
+                    .get(value)
+                    .ok_or_else(|| freeze("borrowed-compare/consumer-coverage"))?;
+                let original = project(record.original())?;
+                let copies = copies
+                    .iter()
+                    .map(&mut project)
+                    .collect::<Result<Vec<_>, _>>()?;
+                let branches = branches
+                    .iter()
+                    .map(&mut project)
+                    .collect::<Result<Vec<_>, _>>()?;
+                check_group(geometry, &original, &copies, &branches)?;
+            }
+            self.verify_finished_borrowed_compare_carriers_v1(owner, function, &mut project)?;
+            self.verify_finished_borrowed_compare_literals_v1(owner, function, project)?;
+            Ok(())
+        })
     }
 }
 
 fn check_group(
-    function: &MirFunction,
+    function: &FunctionVerificationGeometry<'_>,
     original: &Binding,
     copies: &[Binding],
     branches: &[Binding],
@@ -150,7 +155,7 @@ fn check_group(
     if branches.is_empty() {
         return Err(freeze("borrowed-compare/condition-missing"));
     }
-    let dominators = crate::mir::verification::utils::compute_dominators(function);
+    let dominators = function.dominators();
     let dominates = |source: &Binding, target: &Binding| -> Result<(), String> {
         if !dominators.is_reachable(source.0)
             || !dominators.is_reachable(target.0)
@@ -208,7 +213,10 @@ fn check_group(
     Ok(())
 }
 
-pub(super) fn exact(function: &MirFunction, binding: &Binding) -> Result<(), String> {
+pub(super) fn exact(
+    function: &FunctionVerificationGeometry<'_>,
+    binding: &Binding,
+) -> Result<(), String> {
     let count = function
         .blocks
         .get(&binding.0)
@@ -223,14 +231,7 @@ pub(super) fn exact(function: &MirFunction, binding: &Binding) -> Result<(), Str
         return Err(freeze("borrowed-compare/consumer-identity"));
     }
     if let Some(dst) = binding.1.dst_value() {
-        if function
-            .blocks
-            .values()
-            .flat_map(|block| block.all_instructions())
-            .filter(|row| row.dst_value() == Some(dst))
-            .count()
-            != 1
-        {
+        if function.instruction_definition_count(dst) != 1 {
             return Err(freeze("borrowed-compare/consumer-definition"));
         }
     }
@@ -239,10 +240,14 @@ pub(super) fn exact(function: &MirFunction, binding: &Binding) -> Result<(), Str
 
 /// `source` (or the function entry when absent) dominates `target`, and within one
 /// block comes strictly before it.
-pub(super) fn precedes<'a>(function: &MirFunction, source: impl Into<Option<&'a Binding>>, target: &Binding) -> Result<(), String> {
+pub(super) fn precedes<'a>(
+    function: &FunctionVerificationGeometry<'_>,
+    source: impl Into<Option<&'a Binding>>,
+    target: &Binding,
+) -> Result<(), String> {
     let source = source.into();
     let block = source.map_or(function.entry_block, |source| source.0);
-    let dominators = crate::mir::verification::utils::compute_dominators(function);
+    let dominators = function.dominators();
     if !dominators.is_reachable(block)
         || !dominators.is_reachable(target.0)
         || !dominators.dominates(block, target.0)

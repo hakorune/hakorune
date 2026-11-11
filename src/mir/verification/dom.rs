@@ -2,39 +2,12 @@ use crate::mir::function::MirFunction;
 use crate::mir::verification::utils;
 use crate::mir::verification_types::VerificationError;
 use crate::mir::{BasicBlockId, ValueId};
-use std::collections::HashMap;
 
-/// Verify dominance: def must dominate use across blocks (Phi inputs excluded)
-pub fn check_dominance(function: &MirFunction) -> Result<(), Vec<VerificationError>> {
-    if crate::config::env::verify_allow_no_phi() {
-        return Ok(());
-    }
-    let mut errors = Vec::new();
-    let def_block = utils::compute_def_blocks(function);
-    let dominators = utils::compute_dominators(function);
-    check_dominance_with(function, &def_block, &dominators).map_err(|mut e| {
-        errors.append(&mut e);
-        errors
-    })
-}
-
-pub fn check_dominance_with(
+pub(super) fn check_dominance_by(
     function: &MirFunction,
-    def_block: &HashMap<ValueId, BasicBlockId>,
     dominators: &utils::DominatorTree,
+    definition_block: impl Fn(ValueId) -> Option<BasicBlockId>,
 ) -> Result<(), Vec<VerificationError>> {
-    check_dominance_with_policy(function, def_block, dominators, true)
-}
-
-pub fn check_dominance_with_policy(
-    function: &MirFunction,
-    def_block: &HashMap<ValueId, BasicBlockId>,
-    dominators: &utils::DominatorTree,
-    respect_ambient_skip: bool,
-) -> Result<(), Vec<VerificationError>> {
-    if respect_ambient_skip && crate::config::env::verify_allow_no_phi() {
-        return Ok(());
-    }
     let mut errors = Vec::new();
     for (use_block_id, block) in &function.blocks {
         for sp in block.all_spanned_instructions() {
@@ -42,7 +15,7 @@ pub fn check_dominance_with_policy(
                 continue;
             }
             for used_value in sp.inst.used_values() {
-                if let Some(&def_bb) = def_block.get(&used_value) {
+                if let Some(def_bb) = definition_block(used_value) {
                     if def_bb != *use_block_id {
                         if !dominators.dominates(def_bb, *use_block_id) {
                             errors.push(VerificationError::DominatorViolation {
@@ -66,7 +39,7 @@ pub fn check_dominance_with_policy(
                 continue;
             };
             for (pred_bb, incoming) in inputs {
-                let Some(&def_bb) = def_block.get(incoming) else {
+                let Some(def_bb) = definition_block(*incoming) else {
                     continue;
                 };
                 if def_bb == *pred_bb {

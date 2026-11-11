@@ -1,6 +1,7 @@
 //! SAME source carrier loans, exact ordered consumers and mandatory bindings.
-use super::*;
 use super::compare_consumers::precedes;
+use super::*;
+use crate::mir::verification::geometry::FunctionVerificationGeometry;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction};
 use std::rc::Rc;
 type Binding = (BasicBlockId, MirInstruction);
@@ -14,34 +15,36 @@ impl OrdinaryNewClaimLedgerV1 {
         function: &MirFunction,
         observations: impl Iterator<Item = (&'a Rc<Loan>, Vec<Binding>)>,
     ) -> Result<(), String> {
-        let mut staged = Consumers::new();
-        for (loan, copies) in observations {
-            if loan.owner() != owner
-                || staged
-                    .insert(
-                        (loan.binary().clone(), loan.site().clone()),
-                        (Rc::clone(loan), copies),
-                    )
-                    .is_some()
-            {
-                return Err(freeze("borrowed-carrier/duplicate-loan"));
+        self.with_function_geometry_v1(function, |geometry| {
+            let mut staged = Consumers::new();
+            for (loan, copies) in observations {
+                if loan.owner() != owner
+                    || staged
+                        .insert(
+                            (loan.binary().clone(), loan.site().clone()),
+                            (Rc::clone(loan), copies),
+                        )
+                        .is_some()
+                {
+                    return Err(freeze("borrowed-carrier/duplicate-loan"));
+                }
             }
-        }
-        self.verify_carrier_consumers(owner, function, Some(&staged), |binding| {
-            Ok(binding.clone())
-        })?;
-        if staged.is_empty() {
-            return Ok(());
-        }
-        let mut entries = self.borrowed_entry_values.borrow_mut();
-        let entry = entries
-            .get_mut(&owner)
-            .ok_or_else(|| freeze("borrowed-carrier/entry-missing"))?;
-        if entry.carrier_consumers.is_some() {
-            return Err(freeze("borrowed-carrier/duplicate-handoff"));
-        }
-        entry.carrier_consumers = Some(staged);
-        Ok(())
+            self.verify_carrier_consumers(owner, function, Some(&staged), |binding| {
+                Ok(binding.clone())
+            })?;
+            if staged.is_empty() {
+                return Ok(());
+            }
+            let mut entries = self.borrowed_entry_values.borrow_mut();
+            let entry = entries
+                .get_mut(&owner)
+                .ok_or_else(|| freeze("borrowed-carrier/entry-missing"))?;
+            if entry.carrier_consumers.is_some() {
+                return Err(freeze("borrowed-carrier/duplicate-handoff"));
+            }
+            entry.carrier_consumers = Some(staged);
+            Ok(())
+        })
     }
     pub(in crate::mir::normal_callable_semantic_package) fn borrowed_compare_carrier_bindings_v1(
         &self,
@@ -83,67 +86,69 @@ impl OrdinaryNewClaimLedgerV1 {
         staged: Option<&Consumers>,
         mut project: impl FnMut(&Binding) -> Result<Binding, String>,
     ) -> Result<(), String> {
-        let entries = self.borrowed_entry_values.borrow();
-        let Some(entry) = entries.get(&owner) else {
-            return if staged.is_some_and(|staged| !staged.is_empty()) {
-                Err(freeze("borrowed-carrier/entry-missing"))
-            } else {
-                Ok(())
-            };
-        };
-        let consumers = staged.or(entry.carrier_consumers.as_ref());
-        let mut required = std::collections::BTreeSet::new();
-        for compare in entry.comparisons.values() {
-            let loans = self.borrow_compare_carrier_operands_v1(compare.source())?;
-            for expected in loans {
-                let key = (expected.binary().clone(), expected.site().clone());
-                if !required.insert(key.clone()) {
-                    return Err(freeze("borrowed-carrier/source-duplicate"));
-                }
-                let (loan, copies) = consumers
-                    .and_then(|rows| rows.get(&key))
-                    .ok_or_else(|| freeze("borrowed-carrier/coverage"))?;
-                self.verify_compare_carrier_operand_loan_v1(compare.source(), loan)?;
-                let (left, right) = compare.source().operand_sites();
-                let (child, side) = if loan.site() == left {
-                    (compare.children().0, 0)
-                } else if loan.site() == right {
-                    (compare.children().1, 1)
+        self.with_function_geometry_v1(function, |geometry| {
+            let entries = self.borrowed_entry_values.borrow();
+            let Some(entry) = entries.get(&owner) else {
+                return if staged.is_some_and(|staged| !staged.is_empty()) {
+                    Err(freeze("borrowed-carrier/entry-missing"))
                 } else {
-                    return Err(freeze("borrowed-carrier/side"));
+                    Ok(())
                 };
-                if child != loan.value() {
-                    return Err(freeze("borrowed-carrier/raw-child"));
+            };
+            let consumers = staged.or(entry.carrier_consumers.as_ref());
+            let mut required = std::collections::BTreeSet::new();
+            for compare in entry.comparisons.values() {
+                let loans = self.borrow_compare_carrier_operands_v1(compare.source())?;
+                for expected in loans {
+                    let key = (expected.binary().clone(), expected.site().clone());
+                    if !required.insert(key.clone()) {
+                        return Err(freeze("borrowed-carrier/source-duplicate"));
+                    }
+                    let (loan, copies) = consumers
+                        .and_then(|rows| rows.get(&key))
+                        .ok_or_else(|| freeze("borrowed-carrier/coverage"))?;
+                    self.verify_compare_carrier_operand_loan_v1(compare.source(), loan)?;
+                    let (left, right) = compare.source().operand_sites();
+                    let (child, side) = if loan.site() == left {
+                        (compare.children().0, 0)
+                    } else if loan.site() == right {
+                        (compare.children().1, 1)
+                    } else {
+                        return Err(freeze("borrowed-carrier/side"));
+                    };
+                    if child != loan.value() {
+                        return Err(freeze("borrowed-carrier/raw-child"));
+                    }
+                    let original = loan
+                        .original_copies()?
+                        .iter()
+                        .map(&mut project)
+                        .collect::<Result<Vec<_>, _>>()?;
+                    let copies = copies
+                        .iter()
+                        .map(&mut project)
+                        .collect::<Result<Vec<_>, _>>()?;
+                    let compare = project(compare.original())?;
+                    check_group(
+                        geometry,
+                        loan.entry_value(),
+                        loan.value(),
+                        &original,
+                        &copies,
+                        &compare,
+                        side,
+                    )?;
                 }
-                let original = loan
-                    .original_copies()?
-                    .iter()
-                    .map(&mut project)
-                    .collect::<Result<Vec<_>, _>>()?;
-                let copies = copies
-                    .iter()
-                    .map(&mut project)
-                    .collect::<Result<Vec<_>, _>>()?;
-                let compare = project(compare.original())?;
-                check_group(
-                    function,
-                    loan.entry_value(),
-                    loan.value(),
-                    &original,
-                    &copies,
-                    &compare,
-                    side,
-                )?;
             }
-        }
-        if consumers.map_or(0, |rows| rows.len()) != required.len() {
-            return Err(freeze("borrowed-carrier/coverage"));
-        }
-        Ok(())
+            if consumers.map_or(0, |rows| rows.len()) != required.len() {
+                return Err(freeze("borrowed-carrier/coverage"));
+            }
+            Ok(())
+        })
     }
 }
 fn check_group(
-    function: &MirFunction,
+    function: &FunctionVerificationGeometry<'_>,
     entry: ValueId,
     value: ValueId,
     originals: &[Binding],

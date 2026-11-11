@@ -26,6 +26,9 @@ use hakorune_mir_defs::CanonicalObjectIdV1;
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 use std::rc::Rc;
 
+#[path = "ordinary_new_local_commit/physical_validation_scope.rs"]
+mod physical_validation_scope;
+pub(super) use physical_validation_scope::PhysicalValidationState;
 use self::root_home::RootHomeExitEntry;
 pub(crate) use self::root_home::TerminalNullReturnSourceLoanV1;
 pub(crate) use self::root_home::PreparedRootLexicalCallBindingGroupV1;

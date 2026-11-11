@@ -2,6 +2,7 @@
 //! These records carry physical provenance only, never scalar/source authority.
 use crate::mir::normal_callable_semantic_package::OriginalScalarAppendV1;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
+use crate::mir::verification::geometry::FunctionVerificationGeometry;
 use std::collections::{BTreeMap, BTreeSet};
 use std::rc::Rc;
 
@@ -148,11 +149,14 @@ impl LocalSsaPhysicalRelationV1 {
         }
     }
     pub(in crate::mir) fn verify(&self, function: &MirFunction) -> Result<(), String> {
-        if definition(function, self.from).as_ref() != Some(&self.source.resolved()?) {
+        self.verify_with_geometry(&FunctionVerificationGeometry::new(function))
+    }
+    pub(in crate::mir) fn verify_with_geometry(&self, function: &FunctionVerificationGeometry<'_>) -> Result<(), String> {
+        if indexed_definition(function, self.from).as_ref() != Some(&self.source.resolved()?) {
             return Err(reject("original-producer"));
         }
         if let Some(target) = &self.target {
-            if definition(function, self.to).as_ref()
+            if indexed_definition(function, self.to).as_ref()
                 != Some(&Definition::Instruction(target.clone()))
             {
                 return Err(reject("materialized-producer"));
@@ -170,7 +174,7 @@ impl LocalSsaPhysicalRelationV1 {
         }
         if let Step::Append(children) = &self.step {
             for child in children {
-                child.verify(function)?;
+                child.verify_with_geometry(function)?;
             }
         }
         Ok(())
@@ -182,6 +186,14 @@ impl LocalSsaPhysicalRelationV1 {
         function: &MirFunction,
         project: &mut impl FnMut(&PhysicalBinding) -> Result<Option<PhysicalBinding>, String>,
     ) -> Result<(), String> {
+        self.verify_projected_with_geometry(&FunctionVerificationGeometry::new(function), project)
+    }
+
+    pub(in crate::mir) fn verify_projected_with_geometry(
+        &self,
+        function: &FunctionVerificationGeometry<'_>,
+        project: &mut impl FnMut(&PhysicalBinding) -> Result<Option<PhysicalBinding>, String>,
+    ) -> Result<(), String> {
         self.verify_shape()?;
         let mut verify_binding = |original: &PhysicalBinding, cloned_compare: bool| -> Result<(), String> {
             match project(original)? {
@@ -190,9 +202,9 @@ impl LocalSsaPhysicalRelationV1 {
                         .1
                         .dst_value()
                         .ok_or_else(|| reject("projected-dst"))?;
-                    if !matches!(definition(function, value), Some(Definition::Instruction(ref actual)) if actual == &mapped) {
+                    if !matches!(indexed_definition(function, value), Some(Definition::Instruction(ref actual)) if actual == &mapped) {
                         return Err(format!("{} function={} original={original:?} mapped={mapped:?} actual={:?}",
-                            reject("projected-producer"), function.signature.name, definition(function, value)));
+                            reject("projected-producer"), function.signature.name, indexed_definition(function, value)));
                     }
                 }
                 None if matches!(
@@ -213,7 +225,7 @@ impl LocalSsaPhysicalRelationV1 {
             Definition::Phi(_) => return Err(reject("unresolved-phi")),
             Definition::Parameter { value, index } => {
                 if function.params.get(*index) != Some(value)
-                    || definition(function, *value).as_ref() != Some(&self.source)
+                    || indexed_definition(function, *value).as_ref() != Some(&self.source)
                 {
                     return Err(reject("projected-parameter"));
                 }
@@ -224,7 +236,7 @@ impl LocalSsaPhysicalRelationV1 {
         }
         if let Step::Append(children) = &self.step {
             for child in children {
-                child.verify_projected(function, project)?;
+                child.verify_projected_with_geometry(function, project)?;
             }
         }
         Ok(())
@@ -600,43 +612,20 @@ impl LocalSsaPhysicalIndexV1 {
 }
 
 fn definition(function: &MirFunction, value: ValueId) -> Option<Definition> {
-    let has_instruction = function.blocks.values().any(|block| {
-        block
-            .all_instructions()
-            .any(|row| row.dst_value() == Some(value))
-    });
-    if has_instruction {
-        if function.params.contains(&value) {
-            return None;
-        }
-        return instruction(function, value).map(Definition::Instruction);
-    }
-    let mut rows = function
-        .params
-        .iter()
-        .enumerate()
-        .filter(|(_, parameter)| **parameter == value);
-    let (index, _) = rows.next()?;
-    if rows.next().is_some() {
-        return None;
-    }
-    Some(Definition::Parameter { value, index })
+    indexed_definition(&FunctionVerificationGeometry::new(function), value)
 }
-
-fn instruction(function: &MirFunction, value: ValueId) -> Option<PhysicalBinding> {
-    let mut rows = function
-        .blocks
-        .iter()
-        .flat_map(|(block, row)| {
-            row.all_instructions()
-                .map(move |instruction| (*block, instruction))
-        })
-        .filter(|(_, row)| row.dst_value() == Some(value));
-    let (block, row) = rows.next()?;
-    if rows.next().is_some() {
-        return None;
+fn indexed_definition(function: &FunctionVerificationGeometry<'_>, value: ValueId) -> Option<Definition> {
+    if function.ambiguous(value) { return None; }
+    if let Some(index) = function.params.iter().position(|parameter| *parameter == value) {
+        return Some(Definition::Parameter { value, index });
     }
-    Some((block, row.clone()))
+    function.definition(value).map(|(block, _, row)| Definition::Instruction((block, row.clone())))
+}
+fn instruction(function: &MirFunction, value: ValueId) -> Option<PhysicalBinding> {
+    match definition(function, value)? {
+        Definition::Instruction(row) => Some(row),
+        _ => None,
+    }
 }
 
 /// Open ancestor obligations of one child-Loop scope; closed exactly once.

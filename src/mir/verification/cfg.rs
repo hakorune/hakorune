@@ -40,40 +40,12 @@ pub fn check_control_flow(function: &MirFunction) -> Result<(), Vec<Verification
     }
 }
 
-/// Verify that merge blocks do not use predecessor-defined values directly (must go through Phi)
-pub fn check_merge_uses(function: &MirFunction) -> Result<(), Vec<VerificationError>> {
-    if crate::config::env::verify_allow_no_phi() {
-        return Ok(());
-    }
-    let mut errors = Vec::new();
-    let preds = utils::compute_predecessors(function);
-    let def_block = utils::compute_def_blocks(function);
-    let dominators = utils::compute_dominators(function);
-    check_merge_uses_with(function, &preds, &def_block, &dominators).map_err(|mut e| {
-        errors.append(&mut e);
-        errors
-    })
-}
-
-pub fn check_merge_uses_with(
+pub(super) fn check_merge_uses_by(
     function: &MirFunction,
     preds: &HashMap<BasicBlockId, Vec<BasicBlockId>>,
-    def_block: &HashMap<ValueId, BasicBlockId>,
     dominators: &utils::DominatorTree,
+    definition_block: impl Fn(ValueId) -> Option<BasicBlockId>,
 ) -> Result<(), Vec<VerificationError>> {
-    check_merge_uses_with_policy(function, preds, def_block, dominators, true)
-}
-
-pub fn check_merge_uses_with_policy(
-    function: &MirFunction,
-    preds: &HashMap<BasicBlockId, Vec<BasicBlockId>>,
-    def_block: &HashMap<ValueId, BasicBlockId>,
-    dominators: &utils::DominatorTree,
-    respect_ambient_skip: bool,
-) -> Result<(), Vec<VerificationError>> {
-    if respect_ambient_skip && crate::config::env::verify_allow_no_phi() {
-        return Ok(());
-    }
     let mut errors = Vec::new();
     let mut phi_dsts_in_block: HashMap<BasicBlockId, HashSet<ValueId>> = HashMap::new();
     for (bid, block) in &function.blocks {
@@ -97,7 +69,7 @@ pub fn check_merge_uses_with_policy(
                 continue;
             }
             for used in sp.inst.used_values() {
-                if let Some(&db) = def_block.get(&used) {
+                if let Some(db) = definition_block(used) {
                     if !dominators.dominates(db, *bid) {
                         let is_phi_dst = phi_dsts.map(|s| s.contains(&used)).unwrap_or(false);
                         if !is_phi_dst {
@@ -124,21 +96,13 @@ pub fn check_merge_uses_with_policy(
 /// Checks:
 /// 1. Each PHI input references an actual CFG predecessor (no phantom predecessors)
 /// 2. All reachable predecessors have corresponding PHI inputs (no missing inputs)
-pub(super) fn check_phi_predecessors(
-    function: &crate::mir::MirFunction,
-) -> Result<(), Vec<crate::mir::verification_types::VerificationError>> {
-    use crate::mir::verification::utils::compute_predecessors;
-    use crate::mir::verification_types::VerificationError;
+pub(super) fn check_phi_predecessors_with(
+    function: &MirFunction,
+    preds: &HashMap<BasicBlockId, Vec<BasicBlockId>>,
+    reachable: &HashSet<BasicBlockId>,
+) -> Result<(), Vec<VerificationError>> {
     use crate::mir::MirInstruction;
-    use std::collections::HashSet;
-
     let mut errors = Vec::new();
-    let preds = compute_predecessors(function);
-
-    // Compute reachable blocks to filter out unreachable ones
-    // (Unreachable blocks may have incomplete PHIs, which is OK)
-    let reachable = crate::mir::verification::utils::compute_reachable_blocks(function);
-
     for (block_id, block) in &function.blocks {
         // Skip unreachable blocks
         if !reachable.contains(block_id) {

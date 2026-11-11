@@ -75,8 +75,22 @@ fn borrowed_literal_consumer_preserves_both_orders_and_dominating_copy() {
     for side in [0, 1] {
         for cross in [false, true] {
             let (function, root, copies, compare) = fixture(side, cross);
-            check_literal_group(&function, &root, &copies, &compare, side).unwrap();
-            assert!(check_literal_group(&function, &root, &copies, &compare, 1 - side).is_err());
+            check_literal_group(
+                &FunctionVerificationGeometry::new(&function),
+                &root,
+                &copies,
+                &compare,
+                side,
+            )
+            .unwrap();
+            assert!(check_literal_group(
+                &FunctionVerificationGeometry::new(&function),
+                &root,
+                &copies,
+                &compare,
+                1 - side
+            )
+            .is_err());
         }
     }
 }
@@ -97,9 +111,15 @@ fn borrowed_literal_consumer_rejects_equal_payload_foreign_const_and_reordering(
         *rhs = ValueId(4);
     }
     function.blocks.get_mut(&root.0).unwrap().instructions[2] = compare.1.clone();
-    assert!(check_literal_group(&function, &root, &copies, &compare, 1)
-        .unwrap_err()
-        .contains("operand-identity"));
+    assert!(check_literal_group(
+        &FunctionVerificationGeometry::new(&function),
+        &root,
+        &copies,
+        &compare,
+        1
+    )
+    .unwrap_err()
+    .contains("operand-identity"));
     let (mut function, root, copies, compare) = fixture(1, false);
     function
         .blocks
@@ -107,9 +127,15 @@ fn borrowed_literal_consumer_rejects_equal_payload_foreign_const_and_reordering(
         .unwrap()
         .instructions
         .swap(0, 1);
-    assert!(check_literal_group(&function, &root, &copies, &compare, 1)
-        .unwrap_err()
-        .contains("order"));
+    assert!(check_literal_group(
+        &FunctionVerificationGeometry::new(&function),
+        &root,
+        &copies,
+        &compare,
+        1
+    )
+    .unwrap_err()
+    .contains("order"));
 }
 #[test]
 fn borrowed_literal_consumer_rejects_unreachable_copy_and_deleted_root() {
@@ -122,9 +148,15 @@ fn borrowed_literal_consumer_rejects_unreachable_copy_and_deleted_root() {
         .unwrap()
         .instructions
         .retain(|i| !matches!(i, MirInstruction::Jump { .. }));
-    assert!(check_literal_group(&function, &root, &copies, &compare, 1)
-        .unwrap_err()
-        .contains("dominance"));
+    assert!(check_literal_group(
+        &FunctionVerificationGeometry::new(&function),
+        &root,
+        &copies,
+        &compare,
+        1
+    )
+    .unwrap_err()
+    .contains("dominance"));
     let (mut function, root, copies, compare) = fixture(1, false);
     function
         .blocks
@@ -132,7 +164,14 @@ fn borrowed_literal_consumer_rejects_unreachable_copy_and_deleted_root() {
         .unwrap()
         .instructions
         .remove(0);
-    assert!(check_literal_group(&function, &root, &copies, &compare, 1).is_err());
+    assert!(check_literal_group(
+        &FunctionVerificationGeometry::new(&function),
+        &root,
+        &copies,
+        &compare,
+        1
+    )
+    .is_err());
 }
 
 #[test]

@@ -28,7 +28,7 @@ impl Live {
 }
 
 pub(super) fn check_domains(
-    function: &MirFunction,
+    function: &crate::mir::verification::geometry::FunctionVerificationGeometry<'_>,
     source: &TextSourceImage,
     results: &BTreeMap<ValueId, BasicBlockId>,
     id: BasicBlockId,
@@ -87,7 +87,7 @@ pub(super) fn check_domains(
 }
 
 pub(super) fn check_text_read(
-    function: &MirFunction,
+    function: &crate::mir::verification::geometry::FunctionVerificationGeometry<'_>,
     source: &TextSourceImage,
     results: &BTreeMap<ValueId, BasicBlockId>,
     id: BasicBlockId,
@@ -124,12 +124,12 @@ pub(super) fn check_text_read(
 /// Ordinary Text reads cannot be moved above their actual definitions, even
 /// within one block; generic block dominance alone does not prove that order.
 pub(in crate::mir::verification::invoke) fn check_available<'a>(
-    function: &'a MirFunction,
+    function: &'a crate::mir::verification::geometry::FunctionVerificationGeometry<'_>,
     mut id: BasicBlockId,
     mut at: &'a MirInstruction,
     mut value: ValueId,
 ) -> Result<(), &'static str> {
-    let dom = crate::mir::verification::utils::compute_dominators(function);
+    let dom = function.dominators();
     let mut seen = std::collections::BTreeSet::new();
     loop {
         if !seen.insert(value) {
@@ -138,19 +138,10 @@ pub(in crate::mir::verification::invoke) fn check_available<'a>(
         if function.params.contains(&value) {
             return Ok(());
         }
-        let mut definitions = function
-            .blocks
-            .iter()
-            .flat_map(|(block, body)| {
-                body.all_instructions()
-                    .enumerate()
-                    .map(move |(index, row)| (*block, index, row))
-            })
-            .filter(|(_, _, row)| row.dst_value() == Some(value));
-        let Some((block, index, row)) = definitions.next() else {
+        let Some((block, index, row)) = function.definition(value) else {
             return Err("string-read-definition-missing");
         };
-        if definitions.next().is_some() {
+        if function.ambiguous(value) {
             return Err("string-borrowed-copy-duplicate");
         }
         let use_index = function.blocks[&id]
@@ -172,12 +163,12 @@ pub(in crate::mir::verification::invoke) fn check_available<'a>(
 
 /// Derive the scalar result from actual definitions, never an absent type hint.
 pub(in crate::mir::verification) fn has_scalar_read_origin(
-    function: &MirFunction,
+    function: &crate::mir::verification::geometry::FunctionVerificationGeometry<'_>,
     value: ValueId,
     kind: &crate::mir::MirType,
 ) -> bool {
     fn walk(
-        function: &MirFunction,
+        function: &crate::mir::verification::geometry::FunctionVerificationGeometry<'_>,
         value: ValueId,
         kind: &crate::mir::MirType,
         seen: &mut std::collections::BTreeSet<ValueId>,
@@ -185,26 +176,27 @@ pub(in crate::mir::verification) fn has_scalar_read_origin(
         if !seen.insert(value) {
             return false;
         }
-        function
-            .blocks
-            .values()
-            .flat_map(|block| block.all_instructions())
-            .any(|row| match row {
-                row if row.dst_value() == Some(value)
-                    && row
-                        .scalar_read_result_v1()
-                        .is_some_and(|(dst, actual)| dst == value && &actual == kind) =>
-                {
-                    true
-                }
-                MirInstruction::Copy { dst, src } if *dst == value => {
-                    walk(function, *src, kind, seen)
-                }
-                MirInstruction::Phi { dst, inputs, .. } if *dst == value => inputs
-                    .iter()
-                    .any(|(_, incoming)| walk(function, *incoming, kind, seen)),
-                _ => false,
-            })
+        let Some((_, _, row)) = function.definition(value) else {
+            return false;
+        };
+        // Ambiguous definitions have already failed SSA; never authorize a
+        // scalar domain by choosing a convenient duplicate definition.
+        if function.ambiguous(value) {
+            return false;
+        }
+        match row {
+            row if row
+                .scalar_read_result_v1()
+                .is_some_and(|(dst, actual)| dst == value && &actual == kind) =>
+            {
+                true
+            }
+            MirInstruction::Copy { src, .. } => walk(function, *src, kind, seen),
+            MirInstruction::Phi { inputs, .. } => inputs
+                .iter()
+                .any(|(_, incoming)| walk(function, *incoming, kind, seen)),
+            _ => false,
+        }
     }
     walk(
         function,
@@ -222,7 +214,9 @@ fn result_type_refusal(kind: &crate::mir::MirType) -> &'static str {
     }
 }
 
-pub(super) fn check_scalar_results(function: &MirFunction) -> Result<(), &'static str> {
+pub(super) fn check_scalar_results(
+    function: &crate::mir::verification::geometry::FunctionVerificationGeometry<'_>,
+) -> Result<(), &'static str> {
     use crate::mir::MirType;
     // Do not walk origins repeatedly for a kind this function never reads.
     let present = [MirType::Integer, MirType::Bool].map(|kind| {
@@ -323,7 +317,7 @@ pub(super) fn check_scalar_results(function: &MirFunction) -> Result<(), &'stati
 /// Independent primitive definitions expose contradictions without upgrading
 /// unknown legacy values from cached type metadata. C checks complete PHI kinds.
 fn intrinsic_scalar_type(
-    function: &MirFunction,
+    function: &crate::mir::verification::geometry::FunctionVerificationGeometry<'_>,
     value: ValueId,
     seen: &mut std::collections::BTreeSet<ValueId>,
 ) -> Option<crate::mir::MirType> {
@@ -331,11 +325,10 @@ fn intrinsic_scalar_type(
     if !seen.insert(value) {
         return None;
     }
-    let definition = function
-        .blocks
-        .values()
-        .flat_map(|block| block.all_instructions())
-        .find(|row| row.dst_value() == Some(value));
+    if function.ambiguous(value) {
+        return None;
+    }
+    let definition = function.definition(value).map(|(_, _, row)| row);
     match definition {
         Some(
             MirInstruction::StringLength { .. }

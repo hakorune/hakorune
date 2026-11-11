@@ -90,7 +90,7 @@ fn borrowed_carrier_consumer_preserves_alias_chain_both_sides_and_dominating_cop
         for cross in [false, true] {
             let (function, originals, copies, compare) = fixture(side, cross);
             check_group(
-                &function,
+                &FunctionVerificationGeometry::new(&function),
                 ValueId(1),
                 ValueId(3),
                 &originals,
@@ -100,7 +100,7 @@ fn borrowed_carrier_consumer_preserves_alias_chain_both_sides_and_dominating_cop
             )
             .unwrap();
             assert!(check_group(
-                &function,
+                &FunctionVerificationGeometry::new(&function),
                 ValueId(1),
                 ValueId(3),
                 &originals,
@@ -138,7 +138,7 @@ fn borrowed_carrier_consumer_rejects_deleted_alias_parameter_and_order_drift() {
             }
         }
         assert!(check_group(
-            &function,
+            &FunctionVerificationGeometry::new(&function),
             ValueId(1),
             ValueId(3),
             &originals,
@@ -153,7 +153,7 @@ fn borrowed_carrier_consumer_rejects_deleted_alias_parameter_and_order_drift() {
 fn borrowed_carrier_consumer_rejects_missing_foreign_and_unreachable_copy() {
     let (function, originals, copies, compare) = fixture(1, true);
     assert!(check_group(
-        &function,
+        &FunctionVerificationGeometry::new(&function),
         ValueId(1),
         ValueId(3),
         &originals,
@@ -169,7 +169,7 @@ fn borrowed_carrier_consumer_rejects_missing_foreign_and_unreachable_copy() {
         src: ValueId(2),
     };
     assert!(check_group(
-        &function,
+        &FunctionVerificationGeometry::new(&function),
         ValueId(1),
         ValueId(3),
         &originals,
@@ -187,7 +187,7 @@ fn borrowed_carrier_consumer_rejects_missing_foreign_and_unreachable_copy() {
         .instructions
         .retain(|row| !matches!(row, MirInstruction::Jump { .. }));
     assert!(check_group(
-        &unreachable,
+        &FunctionVerificationGeometry::new(&unreachable),
         ValueId(1),
         ValueId(3),
         &originals,

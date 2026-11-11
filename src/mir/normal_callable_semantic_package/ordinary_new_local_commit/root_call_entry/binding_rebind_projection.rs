@@ -16,8 +16,10 @@ pub(crate) struct EmittedBindingRebindProjectionV1 {
     root: ReferenceProducerV1,
     install: Option<Binding>,
     purpose_acquisition: Option<[Binding; 2]>,
-    loop_residency: Option<(Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
-        crate::mir::builder::BindingValueObservationV2)>,
+    loop_residency: Option<(
+        Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+        crate::mir::builder::BindingValueObservationV2,
+    )>,
     values: Vec<Option<EvaluatedExpressionValueV1>>,
     calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
     path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
@@ -36,8 +38,16 @@ impl EmittedBindingRebindProjectionV1 {
         end: BasicBlockId,
         value: ValueId,
     ) -> Result<(), String> {
-        if self.value() != value { return Err(freeze("source-loop/binding-frame-correspondence")); }
-        self.expression().corroborate_outer_scope_v1(ledger, &self.entry, &self.continuation, entry, end)
+        if self.value() != value {
+            return Err(freeze("source-loop/binding-frame-correspondence"));
+        }
+        self.expression().corroborate_outer_scope_v1(
+            ledger,
+            &self.entry,
+            &self.continuation,
+            entry,
+            end,
+        )
     }
     pub(crate) fn frame(&self) -> &Rc<CheckedBindingRebindFrameV1> {
         &self.frame
@@ -98,8 +108,10 @@ impl EmittedBindingRebindProjectionV1 {
         terminal: Option<Binding>,
         continuation: Option<Binding>,
         purpose_acquisition: Option<[Binding; 2]>,
-        loop_residency: Option<(Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
-            crate::mir::builder::BindingValueObservationV2)>,
+        loop_residency: Option<(
+            Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+            crate::mir::builder::BindingValueObservationV2,
+        )>,
         original: Vec<Binding>,
         ledger: &OrdinaryNewClaimLedgerV1,
         function: &MirFunction,
@@ -167,7 +179,9 @@ impl EmittedBindingRebindProjectionV1 {
         )?;
         Ok(packet)
     }
-    pub(super) fn expression(&self) -> super::expression_projection::ExpressionPhysicalProjectionRefV1<'_> {
+    pub(super) fn expression(
+        &self,
+    ) -> super::expression_projection::ExpressionPhysicalProjectionRefV1<'_> {
         super::expression_projection::ExpressionPhysicalProjectionRefV1::new(
             self.frame.evaluation(),
             &self.values,
@@ -175,7 +189,8 @@ impl EmittedBindingRebindProjectionV1 {
             &self.path_reads,
             &self.reference_reads,
             &self.original,
-        ).with_inline_range_v1(self.inline_range)
+        )
+        .with_inline_range_v1(self.inline_range)
     }
     pub(super) fn validate_recorded(
         &self,
@@ -184,7 +199,8 @@ impl EmittedBindingRebindProjectionV1 {
     ) -> Result<(), String> {
         self.expression().validate_recorded(bindings, finishing)?;
         if [&self.entry, &self.terminal, &self.continuation]
-            .into_iter().flatten()
+            .into_iter()
+            .flatten()
             .any(|row| !self.original.contains(row))
         {
             return Err(freeze("rebind-expression/structural-membership"));
@@ -234,10 +250,19 @@ impl EmittedBindingRebindProjectionV1 {
         let (displaced, unwind) = match &self.loop_residency {
             Some((product, read)) => {
                 let (old, unwind) = context.ledger().loop_text_rebind_unwind_v2(
-                    &self.frame, product, read, context, function, finishing)?;
+                    &self.frame,
+                    product,
+                    read,
+                    context,
+                    function,
+                    finishing,
+                )?;
                 (Some(old), Some(unwind))
             }
-            None => (context.ledger().text_rebind_displaced_end_v1(&self.frame)?, None),
+            None => (
+                context.ledger().text_rebind_displaced_end_v1(&self.frame)?,
+                None,
+            ),
         };
         let expression = self.expression();
         let expression = match &unwind {
@@ -259,105 +284,60 @@ impl EmittedBindingRebindProjectionV1 {
     }
 }
 impl OrdinaryNewClaimLedgerV1 {
-    pub(in crate::mir) fn branch_scalar_sources_v1(
+    /// Borrow graph facts from retained uses, not a new per-If registry.
+    pub(in crate::mir) fn branch_read_flow_sources_v1(
         &self,
         owner: FunctionOwnerIdV1,
-        site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
-    ) -> Result<
-        Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>>,
-        String,
-    > {
-        use crate::mir::resolved_semantics::home_new_prefix::{
-            CheckedExpressionReferenceV1 as Reference, CurrentScalarProducerV1 as Producer,
-        };
-        fn visit(
-            source: &Producer,
-            owner: FunctionOwnerIdV1,
-            site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
-            output: &mut Vec<
-                Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>,
-            >,
-            seen: &mut Vec<
-                Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>,
-            >,
-        ) {
-            if let Producer::BranchNormal(basis) = source {
-                if seen.iter().any(|old| old == basis) {
-                    return;
-                }
-                seen.push(Rc::clone(basis));
-                if basis.binding().owner() == owner
-                    && basis.site() == site
-                    && !output.iter().any(|old| old == basis)
-                {
-                    output.push(Rc::clone(basis));
-                }
-                for (_, _, input) in basis.incoming() {
-                    visit(input, owner, site, output, seen);
-                }
-            }
-        }
-        fn visit_evaluation(
-            evaluation: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
-            owner: FunctionOwnerIdV1,
-            site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
-            output: &mut Vec<
-                Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>,
-            >,
-            seen: &mut Vec<
-                Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>,
-            >,
-        ) {
-            for reference in evaluation.references().values() {
-                if let Reference::Scalar(read) = reference {
-                    if let Some(read) = read.original_read() {
-                        visit(read.producer(), owner, site, output, seen);
-                    }
-                }
-            }
-        }
-        let mut output = Vec::new();
-        let mut seen = Vec::new();
-        self.visit_expression_evaluations_v1(owner, &mut |evaluation| {
-            visit_evaluation(evaluation, owner, site, &mut output, &mut seen);
-            Ok(true)
-        })?;
-        for source in self.selected_source_loop_branch_joins_v2(owner, site) {
-            visit(
-                &Producer::BranchNormal(source),
-                owner,
-                site,
-                &mut output,
-                &mut seen,
-            );
-        }
-        Ok(output)
-    }
-
-    /// Borrow graph facts from retained uses, not a new per-If registry.
-    pub(in crate::mir) fn branch_read_flow_sources_v1(&self, owner: FunctionOwnerIdV1,
         statement: &crate::mir::resolved_semantics::SourceStmtSiteV1,
-    ) -> Result<Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BorrowedReadFlowV1>>, String> {
-        use crate::mir::resolved_semantics::home_new_prefix::{DeclaredReadValueV1, NullableResultReferenceV1, CheckedExpressionReferenceV1};
+    ) -> Result<Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BorrowedReadFlowV1>>, String>
+    {
+        use crate::mir::resolved_semantics::home_new_prefix::{
+            CheckedExpressionReferenceV1, DeclaredReadValueV1, NullableResultReferenceV1,
+        };
         let mut output = Vec::new();
         let mut retain = |read: &DeclaredReadValueV1| {
-            let DeclaredReadValueV1::Flow(read) = read else { return; };
+            let DeclaredReadValueV1::Flow(read) = read else {
+                return;
+            };
             let source = read.source();
-            if source.binding().owner() == owner && source.statement() == statement
-                && !output.iter().any(|old| old == source) { output.push(Rc::clone(source)); }
+            if source.binding().owner() == owner
+                && source.statement() == statement
+                && !output.iter().any(|old| old == source)
+            {
+                output.push(Rc::clone(source));
+            }
         };
         self.visit_expression_evaluations_v1(owner, &mut |evaluation| {
             for reference in evaluation.references().values() {
-                if let CheckedExpressionReferenceV1::NullableResult(NullableResultReferenceV1::DeclaredFrom(read)) = reference { retain(read); }
+                if let CheckedExpressionReferenceV1::NullableResult(
+                    NullableResultReferenceV1::DeclaredFrom(read),
+                ) = reference
+                {
+                    retain(read);
+                }
             }
             Ok(true)
         })?;
         for row in self.local_field_reads.borrow().values() {
-            if let Some(read) = row.source.received_root_source_v1().and_then(|source| source.borrowed_read_v1()) { retain(read); }
+            if let Some(read) = row
+                .source
+                .received_root_source_v1()
+                .and_then(|source| source.borrowed_read_v1())
+            {
+                retain(read);
+            }
         }
-        for actuals in self.borrowed_formal_actuals.values().filter_map(|row| row.as_ref().ok()) {
-            for read in actuals.declared_read_argument_sources_v1() { retain(read); }
-            if let Some(receiver) = actuals.declared_receiver_read_v1() { retain(receiver.read()); }
+        for actuals in self
+            .borrowed_formal_actuals
+            .values()
+            .filter_map(|row| row.as_ref().ok())
+        {
+            for read in actuals.declared_read_argument_sources_v1() {
+                retain(read);
+            }
+            if let Some(receiver) = actuals.declared_receiver_read_v1() {
+                retain(receiver.read());
+            }
         }
         Ok(output)
     }
@@ -375,8 +355,10 @@ impl OrdinaryNewClaimLedgerV1 {
         source: &Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalTextSourceV1>,
     ) -> Result<(), String> {
         if !source.corroborates_original()
-            || !self.branch_text_sources_v1(source.binding().owner(), source.site())
-                .iter().any(|original| original == source)
+            || !self
+                .branch_text_sources_v1(source.binding().owner(), source.site())
+                .iter()
+                .any(|original| original == source)
         {
             return Err(freeze("source-loop/text-branch-obligation"));
         }

@@ -1,39 +1,6 @@
 use crate::mir::function::MirFunction;
 use crate::mir::verification_types::VerificationError;
 
-/// One shared definition index for SSA checks and domain verifiers.
-pub(super) fn definitions(
-    function: &MirFunction,
-) -> (
-    crate::mir::value_origin::ValueDefMap,
-    Vec<VerificationError>,
-) {
-    let (definitions, conflicts) = crate::mir::value_origin::indexed_value_definitions(function);
-    let errors = conflicts
-        .into_iter()
-        .map(
-            |(value, first_block, second_block)| VerificationError::MultipleDefinition {
-                value,
-                first_block,
-                second_block,
-            },
-        )
-        .collect();
-
-    (definitions, errors)
-}
-
-/// Verify SSA form: single assignment and all uses defined.
-pub fn check_ssa_form(function: &MirFunction) -> Result<(), Vec<VerificationError>> {
-    let (definitions, mut errors) = definitions(function);
-    check_uses(function, &definitions, &mut errors);
-    if errors.is_empty() {
-        Ok(())
-    } else {
-        Err(errors)
-    }
-}
-
 pub(super) fn check_uses(
     function: &MirFunction,
     definitions: &crate::mir::value_origin::ValueDefMap,
