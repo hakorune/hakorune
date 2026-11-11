@@ -544,15 +544,20 @@ pub(super) fn borrowed_call_arguments_callback_v1(
                 .map(Some),
             (Some(_), Some(_)) => Err("dynamic-argument/duplicate-source-target".to_owned()),
             (None, Some(_)) => Err("dynamic-argument/duplicate-source-target".to_owned()),
-            (None, None) => super::super::lexical_instance_call::prepare_borrowed_call_actuals_v1(
-                source,
-                contracts,
-                site,
-                actuals,
-                candidates,
-                receiver,
-                nullable_class,
-            )
+            (None, None) => (|| {
+                let refined = source.as_ref().ok().map(|prepared| {
+                    prepared.refine_fresh_take_actuals_v1(input, site, contracts, actuals)
+                }).transpose()?;
+                super::super::lexical_instance_call::prepare_borrowed_call_actuals_v1(
+                    source,
+                    contracts,
+                    site,
+                    refined.as_deref().unwrap_or(actuals),
+                    candidates,
+                    receiver,
+                    nullable_class,
+                )
+            })()
             .and_then(|mut rows| {
                 super::super::lexical_instance_call::bind_argument_sources_v1(
                     input,

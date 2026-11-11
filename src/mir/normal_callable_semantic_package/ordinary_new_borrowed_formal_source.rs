@@ -2,6 +2,10 @@
 //! These rows precede live-actual proof and never install a physical carrier.
 use super::borrowed_formal_uses::*;
 use super::*;
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+use crate::mir::resolved_semantics::home_new_prefix::{
+    BorrowedCallActualCandidateV1, BorrowedCallActualValueV1,
+};
 pub(in crate::mir) use source_seeds::{SourceValueSumV1, SourceValueAlternativeV1};
 pub(in crate::mir) use source_seeds::SourceValueClassFactsV1;
 use crate::mir::callable_parameter_contract::{
@@ -144,6 +148,35 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
 }
 
 impl PreparedBorrowedFormalIngressV1 {
+    /// Refine passive candidates only where the original callee demands take.
+    /// Normal borrowed actuals retain the passive observer's result.
+    pub(in crate::mir::normal_callable_semantic_package) fn refine_fresh_take_actuals_v1<'a>(
+        &self,
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        call: &OwnedExprSiteV1,
+        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        actuals: &'a [BorrowedCallActualCandidateV1],
+    ) -> Result<std::borrow::Cow<'a, [BorrowedCallActualCandidateV1]>, String> {
+        let mut refined = std::borrow::Cow::Borrowed(actuals);
+        for (index, actual) in actuals.iter().enumerate() {
+            if !matches!(actual.value, BorrowedCallActualValueV1::Unknown) {
+                continue;
+            }
+            let Some(construction) = input.function().expression_source().construction(&actual.site)
+            else {
+                continue;
+            };
+            if input.owner() == call.owner()
+                && actual.site.is_argument_of(call.site(), actual.ordinal)
+                && self.has_original_fresh_take_v1(call, actual.ordinal, construction, contracts)?
+            {
+                refined.to_mut()[index].value =
+                    BorrowedCallActualValueV1::FreshConstruction(construction.clone());
+            }
+        }
+        Ok(refined)
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn has_original_fresh_take_v1(
         &self,
         call: &OwnedExprSiteV1,

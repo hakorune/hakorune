@@ -96,16 +96,19 @@ pub(super) fn scan_statement_flow<'a, E>(
             locals,
             unavailable.is_none(),
             homes,
+            result_sites,
             local_calls,
             path_calls,
             scalar_field,
             &mut |call, request| {
                 if let BorrowedCallActualRequestV1::Observe(_, actuals, _) = request {
                     taken_news.extend(actuals.iter().filter_map(|actual| {
-                        let BorrowedCallActualValueV1::FreshConstruction(construction) = &actual.value
-                        else { return None; };
                         let site = OwnedExprSiteV1::new(input.owner(), actual.site.clone());
-                        result_sites.contains(&site).then(|| (call.clone(), actual.ordinal, site, construction.arguments().len()))
+                        if !result_sites.contains(&site) {
+                            return None;
+                        }
+                        let construction = function.expression_source().construction(&actual.site)?;
+                        Some((call.clone(), actual.ordinal, site, construction.arguments().len()))
                     }));
                 }
                 borrowed_actuals(call, request)

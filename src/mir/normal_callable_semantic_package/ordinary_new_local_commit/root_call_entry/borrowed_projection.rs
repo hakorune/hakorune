@@ -84,7 +84,13 @@ pub(super) fn value(
             };
             if acquisition.owner() != owner
                 || acquisition.site() != site
-                || &ledger.taken_new_argument_bounds_v1(acquisition, row.call_site(), ordinal, class, *value)? != bounds
+                || &ledger.taken_new_argument_bounds_v1(
+                    acquisition,
+                    row.call_site(),
+                    ordinal,
+                    class,
+                    *value,
+                )? != bounds
             {
                 return Err(freeze("taken-argument/source"));
             }

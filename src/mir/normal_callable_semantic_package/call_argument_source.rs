@@ -77,6 +77,9 @@ pub(super) fn bind_original_argument_plans_v1(
             input, read_site,
         );
         let same = match (&candidate.value, atom.as_ref()) {
+            (BorrowedCallActualValueV1::FreshConstruction(construction), None) => {
+                input.function().expression_source().construction(read_site) == Some(construction)
+            }
             (
                 BorrowedCallActualValueV1::DeclaredRead(read),
                 Some(BorrowedCallActualValueV1::Binding(original)),

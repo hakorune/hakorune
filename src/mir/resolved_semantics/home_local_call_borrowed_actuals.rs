@@ -71,14 +71,11 @@ pub(crate) fn borrowed_actual_source_atom_v1(
                 Some(ResolvedLexicalRefV1::Local(binding)) => {
                     Some(BorrowedCallActualValueV1::Binding(binding))
                 }
-                _ => source.construction(site)
-                    .filter(|row| row.field_initializers().is_empty())
-                    .cloned().map(BorrowedCallActualValueV1::FreshConstruction)
-                    .or_else(|| input.function().method_call_source_v1(site).map(|source| BorrowedCallActualValueV1::MethodCall(std::sync::Arc::clone(source)))
+                _ => input.function().method_call_source_v1(site).map(|source| BorrowedCallActualValueV1::MethodCall(std::sync::Arc::clone(source)))
                     .or_else(|| matches!(input.body_shape().and_then(|shape| shape.expression_shape(site)),
                         Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }))
                         .then_some(BorrowedCallActualValueV1::FieldAccess))
-                    .or_else(|| source.binary(site).is_some().then_some(BorrowedCallActualValueV1::Expression))),
+                    .or_else(|| source.binary(site).is_some().then_some(BorrowedCallActualValueV1::Expression)),
             }),
     }
 }
@@ -290,6 +287,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_statement_actua
     locals: &PrefixLocalFlow<'_>,
     prefix_known: bool,
     prior_homes: &[LiveHomeV1],
+    result_sites: &std::collections::BTreeSet<OwnedExprSiteV1>,
     local_calls: &mut Vec<LocalCallObservationV1>,
     path_calls: &mut std::collections::BTreeSet<OwnedExprSiteV1>,
     fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
@@ -308,6 +306,19 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_statement_actua
             };
             let Ok(Some(source)) = crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
                 &ledger, shape, statement.site()) else { return Ok(()); };
+            // An argument-position New becomes walkable only after its
+            // destination-less Home membership was issued for this call.
+            let has_unowned_construction = source.nodes().iter()
+                .filter_map(|node| input.function().method_call(node.site()))
+                .flat_map(|call| call.arguments())
+                .any(|argument| {
+                    let site = argument.site();
+                    input.function().expression_source().construction(site).is_some()
+                        && !result_sites.contains(&OwnedExprSiteV1::new(input.owner(), site.clone()))
+                });
+            if has_unowned_construction {
+                return Ok(());
+            }
             let _ = stage_expression_actuals_v1(
                 input,
                 statement,

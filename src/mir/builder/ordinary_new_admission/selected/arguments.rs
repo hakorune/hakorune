@@ -764,7 +764,11 @@ pub(super) fn finish_new_arguments_v1(
     let plan = super::FaultCleanupPlanV1::new_arguments(
         object_cleanup,
         normal,
-        inherited.iter().cloned().chain(ledger.new_argument_home_unwind_v1(site, true)?).collect(),
+        inherited
+            .iter()
+            .cloned()
+            .chain(ledger.new_argument_home_unwind_v1(site, true)?)
+            .collect(),
     )?;
     let mut writer = RawRootGraphWriterV1;
     let clean = writer.reserve_block(builder)?;

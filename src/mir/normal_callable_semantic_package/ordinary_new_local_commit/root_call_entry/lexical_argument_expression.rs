@@ -195,11 +195,17 @@ impl LexicalCallArgumentProjectionV1 {
     ) -> Result<Vec<InvokeOperation>, String> {
         if let Self::FreshTakenArgument { site, value, .. } = self {
             let acquisition = OwnedExprSiteV1::new(call.owner(), site.clone());
-            return context.ledger().new_argument_object_cleanup_v1(&acquisition, *value)
+            return context
+                .ledger()
+                .new_argument_object_cleanup_v1(&acquisition, *value)
                 .map(|(_, operations)| operations);
         }
-        Ok(self.deferred_temporaries_v1(context)?.into_iter().rev()
-            .map(ExpressionOwnedTemporaryV1::end_operation).collect())
+        Ok(self
+            .deferred_temporaries_v1(context)?
+            .into_iter()
+            .rev()
+            .map(ExpressionOwnedTemporaryV1::end_operation)
+            .collect())
     }
 
     /// Ownership-prefix corroboration only. Non-expression arguments add no
@@ -212,7 +218,12 @@ impl LexicalCallArgumentProjectionV1 {
         homes: &[LiveHomeV1],
         context: CallValidationContextV1<'_>,
     ) -> Result<(), String> {
-        if let Self::FreshTakenArgument { ordinal: position, site, .. } = self {
+        if let Self::FreshTakenArgument {
+            ordinal: position,
+            site,
+            ..
+        } = self
+        {
             if *position as usize != ordinal || !site.is_argument_of(call.site(), *position) {
                 return Err(freeze("argument-expression/prefix-position"));
             }

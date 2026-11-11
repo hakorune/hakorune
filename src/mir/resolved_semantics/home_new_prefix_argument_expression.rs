@@ -448,6 +448,7 @@ pub(crate) fn observe_for_test<E>(
         &locals,
         prefix_known,
         &[],
+        &BTreeSet::new(),
         &mut Vec::new(),
         &mut BTreeSet::new(),
         fields,
