@@ -100,9 +100,9 @@ pub(in crate::mir::builder) fn emit(
         expression_value::finish_value_continuation_v1(builder, &mut expression.body)?
     };
     let mut unique = Vec::new();
-    for row in &expression.body.bindings {
-        if !unique.contains(row) {
-            unique.push(row.clone());
+    for row in std::mem::take(&mut expression.body.bindings) {
+        if !unique.contains(&row) {
+            unique.push(row);
         }
     }
     expression.body.bindings = unique.clone();
