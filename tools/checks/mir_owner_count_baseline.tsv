@@ -1,0 +1,16 @@
+# AST production census; raising any count requires a user decision.
+# Raw operators include all domains; scan and opaque metrics are conservative candidates.
+# The census is a syntax ratchet, not semantic proof of sole ownership.
+evaluation_constructors	2
+finish_continuations	10
+emitted_projection_types	7
+dominator_calls	43
+predecessor_calls	8
+analysis_function_references	0
+raw_binop_constructors	70
+raw_compare_constructors	69
+raw_unaryop_constructors	19
+qualified_alias_constructor_candidates	2
+opaque_operator_forms	26
+opaque_owner_forms	0
+definition_scan_candidates	294
