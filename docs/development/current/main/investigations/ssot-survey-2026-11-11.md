@@ -642,3 +642,11 @@ worker 経路: `selected/argument_expression.rs` の `emit_with_checked_frame`�
 - S7: 元の source の検証（`stored_map_get_return_source_v1` ほか）は、保持の側の検査で置き換えない。
 - S8: 既存の拒否の条件・文言・優先順位は変えない。新しく拒否するのは新しい不正な組み合わせだけで、その文言だけを足す。
 - S9: 新しい型・classifier・段階の仕組みは作らない。9 つの腕の enum 化、可視性や path の整理、別の削除は混ぜない。
+
+#### Opus の確認と統合（2026-11-13）
+- main へ早送りした（`f5ddace5c9`）。Sonnet 5.5 が実装した。
+- `direct`・`scalar`・`stored_map_get` が 2 つ以上同時に入る状態を、保持の時（`retain_direct_source`・`retain_scalar_source`・新しい `retain_stored_map_get_source`）と、最終の検証の入口（`validate_direct_entry`）の両方で拒否する。新しい拒否の文言は `return-source-exclusive` と `stored-map-get-source-drift` の 2 つだけ。既存の拒否の条件・文言・優先順位は変えていない（新しい検査は既存の判定の後ろ）。
+- 行数: production +33、test +228（3 つの loan を作る helper と、3 組 × 2 つの向きの probe）。削減の回ではないので、純減の条件の外。
+- 実装者の検証: 1,866 本の MIR と拒否は差 0、927 入力・229 入力・apps 100 本・384 組・固定 suite も基準と同じ。全 lib の赤の名前は、古い基準の log の部分集合で、新しい赤は 0。
+- Opus の監査: 監査の入力 118 本と、`stored_map_get` の返却を通る `apps/json-stream-aggregator/main.hako` で、MIR と EXE の結果が前の main と全部同じ。見張り（基点 `ef0ebd2404`）も PASS。
+- 残り: `ingress_result_kind` と `bind_direct_result` の優先順位の読みはそのまま（排他が保証されたので、今は無害）。
