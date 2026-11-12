@@ -555,3 +555,42 @@ worker 経路: `selected/argument_expression.rs` の `emit_with_checked_frame`�
 - 4b（`new` の引数）と 4c（field の右辺）も、同じ理由で減らない見込み。
 - 実装者の案（未決）: `dynamic_calls`（Local・引数・field の右辺）と `purpose_acquisition`（Local・代入し直し・引数）を共通の record の欄にすれば、引数の契約が 3 欄になり、Local と引数の wrapper も消えて、純減に入る可能性がある。ただし 2a の規則 Y3 と、Pro の答えの「Dynamic などの固有の証拠を共通の本体へ混ぜない」に反するので、決めずに残す。
 - 次は、4b・4c を後回しにして、Pro の表の 6（Return の返却内容の排他的な保持）へ進む（Opus の判断。順番はユーザーが Opus に任せている）。
+
+## 式の道の一本化 6
+
+対象は `RootHomeCleanupOrderV1`（`normal_callable_semantic_package/ordinary_new_local_commit/root_home_cleanup_order.rs`）の、返却の種類ごとの `Option` の欄。排他な物を 1 つの和（`ReturnPayloadV1`）へ置き換え、共通の cleanup の欄はそのまま残す。全部を平らな enum にはしない。
+
+### 欄の表（main `757f7d24ce`、read-only の調べ。行は `ordinary_new_local_commit/` から）
+
+| 欄 | 書く所と時点 | 読む所 | 同時に要る物 |
+|---|---|---|---|
+| `direct` | `direct_result.rs:33-48`（prepare）。内側の値は `bind_direct_result`（Emitting） | `direct_result.rs`、`prepend_argument_maps` | `scalar` と排他（`retain_*` が拒否） |
+| `scalar` | `direct_result.rs:49-69`（prepare）。内側の値は Emitting | 同上 | `direct` と排他 |
+| `stored_map_get` | `root_home/prepare.rs:120`（prepare） | `direct_result.rs:23`（`ingress_result_kind`） | 返却元が `StoredMapGet` の時だけ。`direct`/`scalar` の返却元（Call）とは別の variant |
+| `installed_map_return` | `root_map_field_install.rs:520-553`（Prepared） | `record.rs:64`、`pending.rs`、`root_validation.rs`、`finalized_root_cleanup.rs` | 返却元が `StoredMapInstalled` の時だけ |
+| `null_return` | `root_home_null_return.rs:73-105`（Prepared） | `record.rs:46`、`finalized_*` | 返却元が `NullLiteral` の時だけ |
+| `return_expression` | `return_expression_emission.rs:267-341`（Prepared） | `received_return.rs`、`fresh_return.rs`、`return_expression_emission.rs` | TextExpression は `text_return_hold` と組。scalar の式は `text_return_hold` が無い（`received_return.rs:109`） |
+| `text_return_hold` | `received_return.rs:9-66`（Emitting） | `received_return.rs`、`root_home.rs:336`、`pending.rs:77` | TextExpression では `return_expression` と組。TextResidence では単独で、その時 `return_expression` は無い（`:255`） |
+| `return_read` | `root_home_cleanup_order.rs:713-789`（Prepared） | `root_scalar_read.rs`、`finalized_root_cleanup.rs:445-453` | declared な読みでは単独。plain scalar では `scalar_return_read` と組 |
+| `scalar_return_read` | `root_scalar_read.rs:7-62`（Prepared。`return_read` が先に要る） | `root_scalar_read.rs:87-99`、`finalized_root_cleanup.rs:451` | `return_read` と組 |
+| `original_frame`、`implicit_void` | `record.rs:6-17`、`implicit.rs:235-264`（Emitting） | `pending.rs`、`root_validation.rs`、`finalized_root_cleanup.rs` | 返却の種類とは別の責任（frame、暗黙の終わり）。共通側に残す |
+| `full`、`normal`、`acquisition_fault` | `from_sequences`、`replace_sequences` | 検証と graph の全部 | 共通の cleanup |
+
+- 準備の時点で空で、後で埋まる物: `direct`/`scalar` の内側の値、`text_return_hold`、`original_frame`、`implicit_void`。Prepared 前の書き込みは `root-exit-record-without-prepare` 系、Emitting 前の record は `root-exit-record-without-emission`、finalization 前の `Emitted` は `root-exit-unconsumed` で拒否される。
+- 明示的に排他と決まっている物は `direct`/`scalar` だけ。ほかは返却元の variant が違うので排他になるが、コードで検査していない。和にすると、取り違えは「別の腕が既に入っている」拒否になる。
+
+### 形
+- `ReturnPayloadV1`（排他な腕）: `Absent`、`Direct(source, Option<ValueId>)`、`Scalar(site, loan, Option<ValueId>)`、`StoredMapGet(loan)`、`InstalledMap(emission)`、`Null(producer)`、`Expression { emission, hold: Option<hold> }`、`Hold(hold)`、`Read { read, scalar: Option<proof> }`。
+- `Expression` の `hold` と `Direct`/`Scalar` の内側の値は、Emitting で後から埋まる。`Option` のまま残し、未完了を不正な `None` に潰さない。
+- `RootHomeCleanupOrderV1` は `payload`、`original_frame`、`implicit_void`、`full`、`normal`、`acquisition_fault` の 6 欄になる（14 → 6）。
+
+### 規則
+- R1: 返却内容は `ReturnPayloadV1` の 1 つの欄だけが持ち、同じ order に 2 つの腕は入らない。
+- R2: 組で使う証拠（`return_read` と `scalar_return_read`、`return_expression` と `text_return_hold`）は同じ腕の中に置き、別の腕へ分けない。
+- R3: 後で埋まる値は腕の中の `Option` のままにし、準備中と完了後を区別する拒否（上の error 文言）は変えない。
+- R4: 腕を書く関数は、既に別の内容が入っている時と、同じ腕が 2 度入る時に、今までと同じ文言で拒否する。
+- R5: 記録と検証の分岐は、腕ごとの 1 つにする。欄ごとの `is_some` の並びを残さない。
+- R6: `original_frame`、`implicit_void` と cleanup の 3 つの列は共通側に残し、腕へ入れない。
+- R7: 古い欄・accessor を同じ変更で消し、`tools/checks/mir_owner_retired_symbols.txt` に足す。腕を包むだけの旧型・alias・bool は作らない。
+- R8: 受理、Return/Local の選択、古い scalar、Bool 短絡、公開 MIR・ABI、暗黙の検証 context、`root_graph.rs`、順序を決める純粋な関数は変えない。
+- R9: 新しい型を含めた production が整形後に純減した時だけ完了とする。進行の段階を表す新しい仕組みで増える時は、排他がはっきりした腕だけに縮め、それでも減らない時は基盤を足さずに止める。
