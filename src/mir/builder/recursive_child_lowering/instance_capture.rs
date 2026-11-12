@@ -42,7 +42,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             let ledger = ledger.borrow();
             ledger.validate_finalized_construction_stores(&function)?;
             if let Some(news) = &self.ordinary_new_claim_ledger {
-                news.validate_new_emissions(ledger.owner(), &function)?;
+                news.validate_new_emissions(ledger.owner(), &function, None, None)?;
             }
         }
         Ok(function)

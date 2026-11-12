@@ -7,25 +7,6 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
         projection: Option<&super::super::physical_boundary::FinishedBindings>,
-    ) -> Result<(), String> {
-        self.validate_root_home_exit_view(owner, function, projection, None)
-    }
-
-    pub(in super::super) fn validate_root_home_exit_with_pending(
-        &self,
-        owner: FunctionOwnerIdV1,
-        function: &MirFunction,
-        projection: Option<&super::super::physical_boundary::FinishedBindings>,
-        pending: &super::super::PendingSelectedStaticLoopViewV1<'_, '_>,
-    ) -> Result<(), String> {
-        self.validate_root_home_exit_view(owner, function, projection, Some(pending))
-    }
-
-    fn validate_root_home_exit_view(
-        &self,
-        owner: FunctionOwnerIdV1,
-        function: &MirFunction,
-        projection: Option<&super::super::physical_boundary::FinishedBindings>,
         pending: Option<&super::super::PendingSelectedStaticLoopViewV1<'_, '_>>,
     ) -> Result<(), String> {
         self.validate_implicit_root_progress_v1(owner, function, projection)?;
@@ -76,11 +57,12 @@ impl OrdinaryNewClaimLedgerV1 {
                 {
                     return Err(freeze("root-exit-origin-order"));
                 }
-                self.validate_call_entry_with_pending(
+                self.validate_call_entry(
                     owner,
                     expected_exit,
                     function,
                     projection,
+                    None,
                     pending.map_or(&[][..], |pending| pending.excluded_routes()),
                     entry,
                     bindings,
@@ -314,5 +296,70 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         Ok(())
+    }
+}
+
+impl OrdinaryNewClaimLedgerV1 {
+    /// Every recorded lifecycle local-call binding group must be claimed by
+    /// at least one emitted exit entry, or sit on paths whose exits are all
+    /// retained `Unavailable`. A recorded-but-never-claimed site is physical
+    /// evidence nobody consumed — a violation, not a benign leftover.
+    pub(in crate::mir::normal_callable_semantic_package) fn local_call_bindings_consumed(
+        &self,
+    ) -> bool {
+        let pending = self.root_local_call_bindings.borrow();
+        let exits = self.root_exits.borrow();
+        pending.iter().all(|(owner, groups)| {
+            let _source_scope = self.branch_source_scope_v1(*owner);
+            groups.iter().all(|group| {
+                let site = group.site();
+                let Some(completion) = self.completion_for_owner(*owner) else {
+                    return false;
+                };
+                let Some(flow) = completion.cleanup().root_flow() else {
+                    return false;
+                };
+                let expected = match self.expected_local_call_binding_sources(*owner) {
+                    Ok(expected) => expected,
+                    Err(_) => return false,
+                };
+                let Some(source) = expected.iter().find(|source| group.matches_source(source))
+                else {
+                    return false;
+                };
+                let exits_to_check = completion
+                    .explicit_sites()
+                    .iter()
+                    .cloned()
+                    .map(RootHomeExitKeyV1::Explicit)
+                    .chain(
+                        completion
+                            .implicit_body_end()
+                            .map(|_| RootHomeExitKeyV1::ImplicitBodyEnd),
+                    )
+                    .collect::<Vec<_>>();
+                let consumed = exits_to_check.iter().any(|exit| {
+                    let covers = match &exit {
+                        RootHomeExitKeyV1::Explicit(site) => flow.exit_row(site),
+                        RootHomeExitKeyV1::ImplicitBodyEnd => flow.implicit_exit(),
+                    }
+                    .and_then(|row| row.ok())
+                    .is_some_and(|row| source.covered_by(row));
+                    if !covers {
+                        return false;
+                    }
+                    match exits.get(&(*owner, exit.clone())) {
+                        Some(RootHomeExitProgress::Emitted { entry, .. }) => entry
+                            .local_call_groups()
+                            .iter()
+                            .any(|group| group.site() == site),
+                        Some(RootHomeExitProgress::Unavailable)
+                        | Some(RootHomeExitProgress::Finalized(_)) => true,
+                        _ => false,
+                    }
+                });
+                consumed
+            })
+        })
     }
 }

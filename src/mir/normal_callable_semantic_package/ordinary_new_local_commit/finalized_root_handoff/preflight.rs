@@ -142,11 +142,27 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             let rebound = root && call_required;
             if rebound {
-                self.validate_rebound_call_entry(
-                    owner, exit, function, projection, entry, bindings,
+                self.validate_call_entry(
+                    owner,
+                    exit,
+                    function,
+                    None,
+                    Some(projection),
+                    &[],
+                    entry,
+                    bindings,
                 )?;
             } else {
-                self.validate_call_entry(owner, exit, function, Some(projection), entry, bindings)?;
+                self.validate_call_entry(
+                    owner,
+                    exit,
+                    function,
+                    Some(projection),
+                    None,
+                    &[],
+                    entry,
+                    bindings,
+                )?;
             }
             super::super::finalized_root_cleanup::validate_finished_cleanup_entry(
                 CallValidationContextV1::Lowering(self),
@@ -163,7 +179,14 @@ impl OrdinaryNewClaimLedgerV1 {
         for ((actual, exit), progress) in exits.iter().filter(|((actual, _), _)| *actual == owner) {
             let Some(exit) = exit.explicit_site() else {
                 if completion.implicit_body_end().is_none()
-                    || !matches!(progress, RootHomeExitProgress::Emitted { entry: RootHomeExitEntry::Plain { .. }, .. }) {
+                    || !matches!(
+                        progress,
+                        RootHomeExitProgress::Emitted {
+                            entry: RootHomeExitEntry::Plain { .. },
+                            ..
+                        }
+                    )
+                {
                     return Err(freeze("artifact-call-terminal-drift"));
                 }
                 continue; // The canonical source-end and full cleanup were checked above.

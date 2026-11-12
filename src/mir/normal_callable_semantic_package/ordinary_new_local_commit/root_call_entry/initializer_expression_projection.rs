@@ -358,6 +358,7 @@ impl EmittedInitializerExpressionProjectionV1 {
             original,
         };
         packet.validate_source(CallValidationContextV1::Lowering(ledger))?;
+        let _physical_scope = ledger.physical_validation_scope_v1(function, None, false);
         let covered =
             packet.validate_paths(CallValidationContextV1::Lowering(ledger), function, None)?;
         let mut ordered = packet

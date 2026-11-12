@@ -493,9 +493,9 @@ pub(super) fn validate_scalar_binding_observation_with_branches_v1(
         }
         if let ReferenceProducerV1::Phi(point) = producer {
             point.require_completed_v1()?;
-            point.verify_projected(function, &mut |row| {
-                projection.relation_binding(function, row)
-            })?;
+            context
+                .ledger()
+                .verify_relation_geometry_v1(point, function, Some(projection))?;
         }
         if let ReferenceProducerV1::Definition(row) = producer {
             projection.relation_binding(function, row)?;
@@ -558,6 +558,11 @@ impl ExpressionReferenceReadV1 {
         context: CallValidationContextV1<'_>,
         function: &MirFunction,
     ) -> Result<std::rc::Rc<BranchScalarPhiObservationV1>, String> {
+        let _physical_scope = context.ledger().physical_validation_scope_v1(
+            function,
+            None,
+            matches!(context, CallValidationContextV1::Finalized(_)),
+        );
         context.ledger().require_branch_scalar_source_v1(&source)?;
         let [Some(then_exit), Some(else_exit)] = exits else {
             return Err(freeze("expression/scalar-producer-kind"));

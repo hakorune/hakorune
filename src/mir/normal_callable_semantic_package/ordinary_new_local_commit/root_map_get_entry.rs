@@ -138,11 +138,12 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("map-get-binding-drift"));
             }
         }
-        self.check_local_call_binding_groups_in_context_v1(
+        self.check_local_call_binding_groups_with_projections_v1(
             context,
             owner,
             exit,
             function,
+            finishing,
             finishing,
             local_bindings,
             &[],
@@ -222,7 +223,8 @@ impl StoredMapGetReturnEmissionV1 {
         self.read
             .validate(context, function, finishing, invoke, projection)?;
         Ok(
-            crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle { access: crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified,
+            crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle {
+                access: crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified,
                 support: self.source.parts().0.result_support_v1(),
             },
         )
@@ -251,8 +253,17 @@ impl StoredMapGetReadEmissionV1 {
         ledger: &OrdinaryNewClaimLedgerV1,
         function: &MirFunction,
     ) -> Result<Self, String> {
-        let key_read = super::map_key_read::FieldMapKeyReadEmissionV1::issue(key, receiver, values, reads,
-            entry, terminal, continuation, original, ledger)?;
+        let key_read = super::map_key_read::FieldMapKeyReadEmissionV1::issue(
+            key,
+            receiver,
+            values,
+            reads,
+            entry,
+            terminal,
+            continuation,
+            original,
+            ledger,
+        )?;
         let read = Self { source, key_read };
         read.operation(CallValidationContextV1::Lowering(ledger), function)?;
         Ok(read)
@@ -302,11 +313,22 @@ impl StoredMapGetReadEmissionV1 {
             },
         ))
     }
-    fn validate(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
+    fn validate(
+        &self,
+        context: CallValidationContextV1<'_>,
+        function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
-        invoke: &(BasicBlockId, MirInstruction), projection: &(BasicBlockId, MirInstruction),
+        invoke: &(BasicBlockId, MirInstruction),
+        projection: &(BasicBlockId, MirInstruction),
     ) -> Result<ValueId, String> {
-        self.key_read.validate(context, function, finishing, &self.operation(context, function)?, invoke, projection)
+        self.key_read.validate(
+            context,
+            function,
+            finishing,
+            &self.operation(context, function)?,
+            invoke,
+            projection,
+        )
     }
 }
 
@@ -321,10 +343,21 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         let groups = self.map_read_bindings.borrow();
         for (_, bindings) in groups.get(&owner).into_iter().flatten() {
-            let mut keys = bindings.iter().filter(|(_, row)| matches!(row, MirInstruction::Invoke {
-                operation: crate::mir::instruction::InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldKeys { .. }), .. }));
+            let mut keys = bindings.iter().filter(|(_, row)| {
+                matches!(
+                    row,
+                    MirInstruction::Invoke {
+                        operation: crate::mir::instruction::InvokeOperation::Map(
+                            crate::mir::instruction::MapInvokeOperation::FieldKeys { .. }
+                        ),
+                        ..
+                    }
+                )
+            });
             let Some(keys) = keys.next() else { continue };
-            let mapped = finishing.binding(keys.0, &keys.1)?.ok_or_else(|| freeze("map-get-binding-missing"))?;
+            let mapped = finishing
+                .binding(keys.0, &keys.1)?
+                .ok_or_else(|| freeze("map-get-binding-missing"))?;
             if !finishing.recorded().contains(&mapped) {
                 return Err(freeze("keys-count-binding-unrecorded"));
             }
@@ -441,7 +474,8 @@ impl StoredMapGetLocalEmissionV1 {
     ) -> Result<Self, String> {
         let mut original = read.copy_dependencies()?;
         for row in read
-            .key_read.original
+            .key_read
+            .original
             .iter()
             .chain([&invoke, &normal, &copy])
             .chain(faults.iter())

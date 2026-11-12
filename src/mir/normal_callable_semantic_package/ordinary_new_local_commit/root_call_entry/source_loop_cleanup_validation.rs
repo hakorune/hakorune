@@ -40,8 +40,14 @@ impl SourceLoopCleanupPlanV2 {
             .ports
             .get(self.port)
             .ok_or_else(|| freeze("source-loop/cleanup-port"))?;
-        let homes: Vec<_> = self.product.port_fault_homes_v2(self.port)?.into_iter().rev().collect();
-        let expected = super::super::super::source_home_end_selection_v2(context.ledger(),
+        let homes: Vec<_> = self
+            .product
+            .port_fault_homes_v2(self.port)?
+            .into_iter()
+            .rev()
+            .collect();
+        let expected = super::super::super::source_home_end_selection_v2(
+            context.ledger(),
             &context.ledger().local_commits.borrow(),
             &homes,
             port.normal_ends(),
@@ -130,13 +136,9 @@ impl SourceLoopCleanupPlanV2 {
                 return Err(freeze("source-loop/cleanup-operands"));
             }
             for relation in &loan.operands {
-                if let Some(projection) = finishing {
-                    relation.verify_projected(function, &mut |row| {
-                        projection.relation_binding(function, row)
-                    })?;
-                } else {
-                    relation.verify(function)?;
-                }
+                context
+                    .ledger()
+                    .verify_relation_geometry_v1(relation, function, finishing)?;
                 let mut observed = Vec::new();
                 relation.append_observed_bindings_v1(&mut observed);
                 for row in observed.into_iter().filter(|row| row.0 == loan.binding.0) {

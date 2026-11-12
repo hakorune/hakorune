@@ -454,7 +454,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        self.validate_new_emissions(owner, function)?;
+        self.validate_new_emissions(owner, function, None, None)?;
         for row in self
             .local_commits
             .borrow_mut()
@@ -515,22 +515,22 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         self.seal_physical_observations_v1(owner)?;
         if let Some(view) = pending {
-            self.validate_new_emissions_with_pending(owner, function, view)?;
+            self.validate_new_emissions(owner, function, None, Some(view))?;
         } else {
-            self.validate_new_emissions(owner, function)?;
+            self.validate_new_emissions(owner, function, None, None)?;
         }
         self.validate_field_reads(owner, function)?;
         self.validate_terminal_scalar_literal_return(owner, function)?;
 
         let (bindings, selected_body_block) = if let Some(view) = pending {
-            self.validate_root_home_exit_with_pending(owner, function, None, view)?;
+            self.validate_root_home_exit(owner, function, None, Some(view))?;
             self.validate_root_cleanup_shape_with_pending(owner, function, view)?;
             (
                 self.lifecycle_bindings_with_pending(owner, view)?,
                 Some(view.body().original_invoke_binding().0),
             )
         } else {
-            self.validate_root_home_exit(owner, function, None)?;
+            self.validate_root_home_exit(owner, function, None, None)?;
             self.validate_root_cleanup_shape(owner, function)?;
             (self.lifecycle_bindings(owner)?, None)
         };

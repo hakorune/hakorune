@@ -1,6 +1,6 @@
 //! A coordinated old-caller cleanup cannot evade the retained New validator.
 use super::*;
-use crate::mir::instruction::{FaultFrameMode};
+use crate::mir::instruction::FaultFrameMode;
 use crate::mir::normal_callable_semantic_package::{
     ConstructionStoreRhsV1, OrdinaryNewConstructorDispositionV1,
 };
@@ -87,7 +87,11 @@ fn reclaim_rejects_coordinated_duplicate_field_cleanup_after_healthy_control() {
         panic!("Birth")
     };
     let call = crate::mir::instruction::BirthInvokeV1::from_value_arguments(
-        recipe.target_ref().clone(), result, vec![], recipe.physical_effect_mask());
+        recipe.target_ref().clone(),
+        result,
+        vec![],
+        recipe.physical_effect_mask(),
+    );
     let birth = MirInstruction::Invoke {
         operation: InvokeOperation::Birth(call),
         fault_frame: frame,
@@ -161,7 +165,7 @@ fn reclaim_rejects_coordinated_duplicate_field_cleanup_after_healthy_control() {
         )
         .unwrap();
     ledger
-        .validate_new_emissions(site.owner(), &function)
+        .validate_new_emissions(site.owner(), &function, None, None)
         .expect("healthy source-issued storage-only control");
 
     // Restore the old caller field cleanup in both retained bindings and MIR.
@@ -239,7 +243,7 @@ fn reclaim_rejects_coordinated_duplicate_field_cleanup_after_healthy_control() {
     }
     assert_eq!(
         ledger
-            .validate_new_emissions(site.owner(), &function)
+            .validate_new_emissions(site.owner(), &function, None, None)
             .unwrap_err(),
         "[freeze:contract][ordinary-new/local-commit/reclaim-duplicate-field-cleanup]"
     );

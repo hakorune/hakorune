@@ -338,12 +338,9 @@ impl DirectScalarCallProjectionV1 {
                     if require_completed {
                         relation.require_completed_v1()?;
                     }
-                    match finishing {
-                        Some(boundary) => relation.verify_projected(function, &mut |row| {
-                            boundary.relation_binding(function, row)
-                        })?,
-                        None => relation.verify(function)?,
-                    }
+                    context
+                        .ledger()
+                        .verify_relation_geometry_v1(relation, function, finishing)?;
                 }
                 projections.as_slice()
             }

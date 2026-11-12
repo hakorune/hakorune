@@ -97,7 +97,7 @@ fn map_callable_dependency_preserves_opaque_local_and_alias_identity() {
                 }
             }
             if changed { assert!(package.ordinary_new_claim_ledger
-                .validate_new_emissions(declaration.owner(), &drifted_value).is_err()); }
+                .validate_new_emissions(declaration.owner(), &drifted_value, None, None).is_err()); }
         }
         let mut drifted = function.clone();
         let mut changed = false;
@@ -117,7 +117,7 @@ fn map_callable_dependency_preserves_opaque_local_and_alias_identity() {
         assert!(changed);
         assert!(package
             .ordinary_new_claim_ledger
-            .validate_new_emissions(declaration.owner(), &drifted)
+            .validate_new_emissions(declaration.owner(), &drifted, None, None)
             .is_err());
 
         assert!(
@@ -551,7 +551,10 @@ fn map_literal_in_call_argument_position_stays_rejected() {
         main() { local a = new ArrayBox() a.push(%{\"a\" => 1}) return 30 }
     }";
     let error = issue(source).expect_err("call-argument map is not an admitted destination");
-    assert!(format!("{error:?}").contains("array-holder/append-source"), "{error:?}");
+    assert!(
+        format!("{error:?}").contains("array-holder/append-source"),
+        "{error:?}"
+    );
 }
 
 #[test]
@@ -616,7 +619,9 @@ fn map_physical_preflight_rejects_foreign_site_and_pending_install() {
                 )
                 .unwrap_err()
                 .contains("local-initializer-mismatch"));
-            assert!(!ledger.permits_installed_opaque_alias_v1(relation.binding(), value).unwrap());
+            assert!(!ledger
+                .permits_installed_opaque_alias_v1(relation.binding(), value)
+                .unwrap());
             assert!(!ledger.map_demands_consumed());
         })
         .unwrap();

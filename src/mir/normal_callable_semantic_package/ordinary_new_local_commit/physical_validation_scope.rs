@@ -85,6 +85,19 @@ impl OrdinaryNewClaimLedgerV1 {
             None => check(&FunctionVerificationGeometry::new(function)),
         }
     }
+    pub(in crate::mir) fn verify_relation_geometry_v1(
+        &self,
+        relation: &crate::mir::builder::LocalSsaPhysicalRelationV1,
+        function: &MirFunction,
+        projection: Option<&FinishedBindings>,
+    ) -> Result<(), String> {
+        self.with_function_geometry_v1(function, |geometry| match projection {
+            Some(projection) => relation.verify_projected_with_geometry(geometry, &mut |row| {
+                projection.relation_binding(function, row)
+            }),
+            None => relation.verify_with_geometry(geometry),
+        })
+    }
     pub(super) fn with_physical_geometry_v1<R>(
         &self,
         function: &MirFunction,

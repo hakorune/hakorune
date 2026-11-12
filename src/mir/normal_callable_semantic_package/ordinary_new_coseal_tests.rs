@@ -46,8 +46,11 @@ fn claim(site: OwnedExprSiteV1, arity: usize) -> OrdinaryNewAdmissionClaimV1 {
     let argument_rows = Err(SelectedNewArgumentUnavailableV1::SourceMismatch {
         new_site: site.clone(),
     });
-    let construction_source = package.instance_constructors
-        .construction_source_for(&box_source, 0).unwrap().clone();
+    let construction_source = package
+        .instance_constructors
+        .construction_source_for(&box_source, 0)
+        .unwrap()
+        .clone();
     OrdinaryNewAdmissionClaimV1 {
         core: OrdinaryNewClaimCoreV1 {
             allocation_execution: None,
@@ -479,7 +482,9 @@ fn installed_home_precedes_checked_and_failed_validation_preserves_progress() {
         .values()
         .all(|row| row.is_complete()));
     // Revalidation keeps checking the graph even when its progress is Checked.
-    assert!(ledger.validate_new_emissions(fixture.owner, &bad).is_err());
+    assert!(ledger
+        .validate_new_emissions(fixture.owner, &bad, None, None)
+        .is_err());
 }
 
 #[test]

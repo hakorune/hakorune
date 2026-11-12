@@ -113,14 +113,14 @@ impl ExpressionReferenceReadV1 {
                     return Err(freeze("source-loop/text-point-binding"));
                 }
                 let point = read.loan_text_join_v1(source)?;
-                if let Some(finishing) = finishing {
+                if finishing.is_some() {
                     point.relation().require_completed_v1()?;
-                    point.relation().verify_projected(function, &mut |row| {
-                        finishing.relation_binding(function, row)
-                    })?;
-                } else {
-                    point.relation().verify(function)?;
                 }
+                context.ledger().verify_relation_geometry_v1(
+                    point.relation(),
+                    function,
+                    finishing,
+                )?;
                 dependencies.push(point.relation().identity_phi_binding_v1()?.clone());
             }
             Source::BranchNormal(source) => {

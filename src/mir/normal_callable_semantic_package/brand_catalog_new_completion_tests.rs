@@ -1,6 +1,6 @@
 //! Source-issued New/Home progress and finishing coverage, including multiple Homes.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::issue_with_brand_catalog;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 #[test]
 fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
@@ -18,10 +18,16 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         .map(|claim| claim.home_prefix().unwrap())
         .collect();
     assert!(prefixes[0].prior_homes().is_empty());
-    assert_eq!(prefixes[1].prior_homes(), &[LiveHomeV1::Stable(prefixes[0].destination())]);
+    assert_eq!(
+        prefixes[1].prior_homes(),
+        &[LiveHomeV1::Stable(prefixes[0].destination())]
+    );
     assert_eq!(
         prefixes[2].prior_homes(),
-        &[LiveHomeV1::Stable(prefixes[1].destination()), LiveHomeV1::Stable(prefixes[0].destination())]
+        &[
+            LiveHomeV1::Stable(prefixes[1].destination()),
+            LiveHomeV1::Stable(prefixes[0].destination())
+        ]
     );
     assert_eq!(prefixes[2].covered_statements().len(), 4);
     let sites: Vec<_> = claims.iter().map(|claim| claim.site().clone()).collect();
@@ -133,7 +139,11 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
             panic!("source-issued Birth")
         };
         let call = crate::mir::instruction::BirthInvokeV1::from_value_arguments(
-            recipe.target_ref().clone(), initializer, vec![], recipe.physical_effect_mask());
+            recipe.target_ref().clone(),
+            initializer,
+            vec![],
+            recipe.physical_effect_mask(),
+        );
         let birth_id = crate::mir::BasicBlockId(200 + index as u32);
         let birth = crate::mir::MirInstruction::Invoke {
             operation: crate::mir::instruction::InvokeOperation::Birth(call),
@@ -190,7 +200,7 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         *value = ValueId(999);
     }
     assert!(ledger
-        .validate_new_emissions(sites[0].owner(), &reclaim_drift)
+        .validate_new_emissions(sites[0].owner(), &reclaim_drift, None, None)
         .unwrap_err()
         .contains("reclaim-origin-operation-drift"));
     ledger
@@ -220,9 +230,12 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
             .collect::<Vec<_>>(),
         vec![ValueId(5), ValueId(3), ValueId(1)]
     );
-    assert!(origins
-        .iter()
-        .all(|origin| origin.exit().explicit_site().expect("original explicit return").node() == &exit_site));
+    assert!(origins.iter().all(|origin| origin
+        .exit()
+        .explicit_site()
+        .expect("original explicit return")
+        .node()
+        == &exit_site));
     let exit_id = crate::mir::BasicBlockId::new(50);
     let result = ValueId(300);
     let literal = ledger
@@ -308,8 +321,14 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
             edge_args: None,
         });
     bindings.push((entry_id, entry_jump));
-    ledger.record_terminal_literal_producer_v1(sites[0].owner(), &exit_stmt_site,
-        (entry_id, physical.blocks[&entry_id].instructions[0].clone()), &physical).unwrap();
+    ledger
+        .record_terminal_literal_producer_v1(
+            sites[0].owner(),
+            &exit_stmt_site,
+            (entry_id, physical.blocks[&entry_id].instructions[0].clone()),
+            &physical,
+        )
+        .unwrap();
     ledger.check_pending_nonempty_home_order_for_test(
         sites[0].owner(),
         &exit_stmt_site,

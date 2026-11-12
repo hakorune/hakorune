@@ -307,12 +307,9 @@ impl SourceLoopPhysicalProofV2 {
             .filter_map(|effect| effect.result.as_ref().map(|(_, relation)| relation))
         {
             relation.require_completed_v1()?;
-            match finishing {
-                Some(projection) => relation.verify_projected(function, &mut |row| {
-                    projection.relation_binding(function, row)
-                })?,
-                None => relation.verify(function)?,
-            }
+            context
+                .ledger()
+                .verify_relation_geometry_v1(relation, function, finishing)?;
         }
         let mut phi_rows = Vec::new();
         for (id, phis) in self.points.phis() {
@@ -332,21 +329,28 @@ impl SourceLoopPhysicalProofV2 {
         crate::mir::builder::capture_exact_loop_phis_v2(function, &phi_rows)?;
         for returned in &self.graph.returns {
             let returned_value_matches = match (&returned.source.read, &returned.read) {
-                (Some(source_read), Some(read)) => read.validate_scalar_read_v2(
-                    &returned.source.source,
-                    source_read,
-                    context,
-                    function,
-                    finishing,
-                )? == returned.value,
+                (Some(source_read), Some(read)) => {
+                    read.validate_scalar_read_v2(
+                        &returned.source.source,
+                        source_read,
+                        context,
+                        function,
+                        finishing,
+                    )? == returned.value
+                }
                 (None, None) if returned.source.is_null_literal_v1() => {
                     let dominators = crate::mir::verification::utils::compute_dominators(function);
                     let mut constants = function.blocks.iter().flat_map(|(block_id, block)| {
-                        block.instructions.iter().filter_map(move |instruction| match instruction {
-                            MirInstruction::Const { dst, value: crate::mir::ConstValue::Null }
-                                if *dst == returned.value => Some(*block_id),
-                            _ => None,
-                        })
+                        block
+                            .instructions
+                            .iter()
+                            .filter_map(move |instruction| match instruction {
+                                MirInstruction::Const {
+                                    dst,
+                                    value: crate::mir::ConstValue::Null,
+                                } if *dst == returned.value => Some(*block_id),
+                                _ => None,
+                            })
                     });
                     constants.next().is_some_and(|block| {
                         constants.next().is_none()
@@ -354,15 +358,22 @@ impl SourceLoopPhysicalProofV2 {
                     })
                 }
                 (None, None) => {
-                    let literal = returned.source.integer_literal_value_v1()
+                    let literal = returned
+                        .source
+                        .integer_literal_value_v1()
                         .ok_or_else(|| freeze("source-loop/frame-source"))?;
                     let dominators = crate::mir::verification::utils::compute_dominators(function);
                     let mut constants = function.blocks.iter().flat_map(|(block_id, block)| {
-                        block.instructions.iter().filter_map(move |instruction| match instruction {
-                            MirInstruction::Const { dst, value: crate::mir::ConstValue::Integer(value) }
-                                if *dst == returned.value && *value == literal => Some(*block_id),
-                            _ => None,
-                        })
+                        block
+                            .instructions
+                            .iter()
+                            .filter_map(move |instruction| match instruction {
+                                MirInstruction::Const {
+                                    dst,
+                                    value: crate::mir::ConstValue::Integer(value),
+                                } if *dst == returned.value && *value == literal => Some(*block_id),
+                                _ => None,
+                            })
                     });
                     constants.next().is_some_and(|block| {
                         constants.next().is_none()
@@ -470,12 +481,9 @@ impl SourceLoopPhysicalProofV2 {
                 }
                 for relation in std::iter::once(&value.localized).chain(value.canonical.iter()) {
                     relation.require_completed_v1()?;
-                    match finishing {
-                        Some(projection) => relation.verify_projected(function, &mut |row| {
-                            projection.relation_binding(function, row)
-                        })?,
-                        None => relation.verify(function)?,
-                    }
+                    context
+                        .ledger()
+                        .verify_relation_geometry_v1(relation, function, finishing)?;
                 }
                 for dependency in &value.dependencies {
                     let mut resolved = match &source.producer {

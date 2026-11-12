@@ -64,7 +64,10 @@ pub(super) fn fixture() -> EmissionFixture {
         .try_take(&site, "Page", 2)
         .expect("claim take")
         .expect("selected claim");
-    assert!(ledger.prepare_new_emission(&claim).expect("prepare").is_ok());
+    assert!(ledger
+        .prepare_new_emission(&claim)
+        .expect("prepare")
+        .is_ok());
     let (_, reclaim) = ledger.begin_new_emission(&site).expect("begin emission");
     let reclaim = reclaim.expect("Birth reclaim origin");
     let mut function = crate::mir::MirFunction::new(
@@ -87,7 +90,12 @@ pub(super) fn fixture() -> EmissionFixture {
     let birth = crate::mir::MirInstruction::Invoke {
         operation: crate::mir::instruction::InvokeOperation::Birth(
             crate::mir::instruction::BirthInvokeV1::from_value_arguments(
-                target, RESULT, vec![INTEGER, BOOLEAN], EffectMask::PURE)),
+                target,
+                RESULT,
+                vec![INTEGER, BOOLEAN],
+                EffectMask::PURE,
+            ),
+        ),
         fault_frame: FRAME,
         normal_landing: BasicBlockId::new(0),
         fault_landing: BasicBlockId::new(0),
@@ -160,7 +168,7 @@ fn ordinary_new_finalizer_rejects_literal_order_and_birth_call_drift() {
     let fixture = fixture();
     fixture
         .ledger
-        .validate_new_emissions(fixture.owner, &fixture.function)
+        .validate_new_emissions(fixture.owner, &fixture.function, None, None)
         .expect("fixture validates");
 
     let mut literal = fixture.function.clone();
@@ -178,14 +186,13 @@ fn ordinary_new_finalizer_rejects_literal_order_and_birth_call_drift() {
     }
     assert!(fixture
         .ledger
-        .validate_new_emissions(fixture.owner, &literal)
+        .validate_new_emissions(fixture.owner, &literal, None, None)
         .unwrap_err()
         .contains("argument-literal-drift"));
 
     let mut order = fixture.function.clone();
     let Some(crate::mir::MirInstruction::Invoke {
-        operation:
-            crate::mir::instruction::InvokeOperation::Birth(birth_call),
+        operation: crate::mir::instruction::InvokeOperation::Birth(birth_call),
         ..
     }) = order
         .blocks
@@ -199,14 +206,13 @@ fn ordinary_new_finalizer_rejects_literal_order_and_birth_call_drift() {
     birth_call.arguments.swap(0, 1);
     assert!(fixture
         .ledger
-        .validate_new_emissions(fixture.owner, &order)
+        .validate_new_emissions(fixture.owner, &order, None, None)
         .unwrap_err()
         .contains("argument-call-drift"));
 
     let mut call = fixture.function.clone();
     let Some(crate::mir::MirInstruction::Invoke {
-        operation:
-            crate::mir::instruction::InvokeOperation::Birth(birth_call),
+        operation: crate::mir::instruction::InvokeOperation::Birth(birth_call),
         ..
     }) = call
         .blocks
@@ -220,7 +226,7 @@ fn ordinary_new_finalizer_rejects_literal_order_and_birth_call_drift() {
     birth_call.arguments = Box::new([]);
     assert!(fixture
         .ledger
-        .validate_new_emissions(fixture.owner, &call)
+        .validate_new_emissions(fixture.owner, &call, None, None)
         .unwrap_err()
         .contains("argument-call-drift"));
 }
@@ -252,7 +258,7 @@ fn ordinary_new_finalizer_rejects_residual_emission() {
         BasicBlockId::new(1),
     );
     assert!(ledger
-        .validate_new_emissions(owner, &function)
+        .validate_new_emissions(owner, &function, None, None)
         .unwrap_err()
         .contains("emission-residual"));
 }

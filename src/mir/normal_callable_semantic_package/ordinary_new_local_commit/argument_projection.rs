@@ -1,6 +1,9 @@
 //! The existing New emission keeps exact checked read/local Copy/actual loans.
-use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use super::*;
+#[path = "argument_cleanup.rs"]
+mod cleanup;
+use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
+pub(in crate::mir) use cleanup::NewArgumentCleanupV1;
 impl EmittedNewArgumentV1 {
     pub(super) fn validate_field_array_read(
         &self,
@@ -39,12 +42,12 @@ impl FinalizedRootSourceHandoffV1 {
                     return Err(freeze("argument-read-function-drift"));
                 }
                 self.ledger
-                    .validate_new_emissions_projected(owner, function, Some(projection))
+                    .validate_new_emissions(owner, function, Some(projection), None)
             })
     }
 }
 
-use crate::mir::instruction::{BirthArgumentV1};
+use crate::mir::instruction::BirthArgumentV1;
 use crate::mir::normal_callable_semantic_package::{
     CallValidationContextV1, EmittedLexicalCallProjectionV1, ExpressionCallTransientPrefixV1,
     ExpressionReferenceReadV1,
@@ -110,12 +113,15 @@ impl EmittedNewExpressionV1 {
             &self.path_reads,
             &self.reads,
             &self.original,
-        ).with_inline_range_v1(self.inline_range)
+        )
+        .with_inline_range_v1(self.inline_range)
     }
     pub(super) fn calls_v1(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
         self.calls.iter().map(Rc::as_ref)
     }
-    pub(super) fn with_call_node_v1<R>(&self, site: &OwnedExprSiteV1,
+    pub(super) fn with_call_node_v1<R>(
+        &self,
+        site: &OwnedExprSiteV1,
         read: impl FnOnce(&EmittedLexicalCallProjectionV1) -> Result<R, String>,
     ) -> Result<R, String> {
         let mut found = None;
@@ -130,8 +136,10 @@ impl EmittedNewExpressionV1 {
     }
     pub(super) fn visit_calls_v1(
         &self,
-        mut visit: impl FnMut(&EmittedLexicalCallProjectionV1,
-            &[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]) -> Result<(), String>,
+        mut visit: impl FnMut(
+            &EmittedLexicalCallProjectionV1,
+            &[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1],
+        ) -> Result<(), String>,
     ) -> Result<(), String> {
         if self.frame.calls().len() != self.calls.len() {
             return Err(freeze("print-expression/source-coverage"));
@@ -283,227 +291,6 @@ impl EmittedNewArgumentV1 {
     }
 }
 
-/// Recorded New phase boundaries, replayed against source-derived cleanup.
-#[derive(Debug)]
-pub(in crate::mir) struct NewArgumentCleanupV1 {
-    allocation: Binding,
-    birth: Option<Binding>,
-    continuation: BasicBlockId,
-    inherited: Box<[InvokeOperation]>,
-}
-impl NewArgumentCleanupV1 {
-    pub(in crate::mir) fn new(
-        allocation: Binding,
-        birth: Option<Binding>,
-        continuation: BasicBlockId,
-        inherited: Box<[InvokeOperation]>,
-    ) -> Self {
-        Self { allocation, birth, continuation, inherited }
-    }
-
-    pub(super) fn inherited(&self) -> &[InvokeOperation] {
-        &self.inherited
-    }
-    /// Lend the same Normal acquisition prefix to the enclosing expression.
-    /// The independent validator below still checks all Fault obligations.
-    pub(super) fn ordered_prefix_v1(
-        &self,
-        arguments: &[EmittedNewArgumentV1],
-        context: CallValidationContextV1<'_>,
-    ) -> Result<(Vec<Binding>, BasicBlockId), String> {
-        let mut ordered = Vec::new();
-        for argument in arguments {
-            if let Some(packet) = argument.expression_v1() {
-                ordered.extend(packet.entry.iter().cloned());
-                ordered.extend(packet.projection().ordered_bindings_in_context(context)?);
-                ordered.extend(packet.terminal.iter().cloned());
-                ordered.extend(packet.continuation.iter().cloned());
-            }
-        }
-        ordered.push(self.allocation.clone());
-        if let Some(birth) = &self.birth {
-            ordered.push(birth.clone());
-        }
-        Ok((ordered, self.continuation))
-    }
-
-    pub(super) fn validate_v1(
-        &self,
-        context: CallValidationContextV1<'_>,
-        site: &OwnedExprSiteV1,
-        result: ValueId,
-        arguments: &[EmittedNewArgumentV1],
-        function: &MirFunction,
-        finishing: Option<&physical_boundary::FinishedBindings>,
-    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
-        use super::root_cleanup_graph::ordered_paths as paths;
-        let ledger = context.ledger();
-        let map = |row: &Binding| -> Result<Binding, String> {
-            match finishing {
-                Some(boundary) => boundary
-                    .binding(row.0, &row.1)?
-                    .ok_or_else(|| freeze("emission-binding-drift")),
-                None => Ok(row.clone()),
-            }
-        };
-        let (ordered, _) = self.ordered_prefix_v1(arguments, context)?;
-        let mut mapped = Vec::new();
-        for row in ordered {
-            let projected = finishing
-                .map(|boundary| {
-                    if matches!(row.1, MirInstruction::Copy { .. }) {
-                        boundary.relation_binding(function, &row)
-                    } else {
-                        boundary.binding(row.0, &row.1)
-                    }
-                })
-                .transpose()?;
-            match projected {
-                Some(Some(actual)) => mapped.push(actual),
-                Some(None)
-                    if matches!(
-                        row.1,
-                        MirInstruction::Jump {
-                            edge_args: None,
-                            ..
-                        } | MirInstruction::Copy { .. }
-                    ) => {}
-                Some(None) => return Err(freeze("emission-binding-drift")),
-                None => mapped.push(row),
-            }
-        }
-        super::root_home::ExpressionPhysicalProjectionRefV1::validate_normal_order_v1(
-            function, &mapped,
-        )?;
-        let prior = ledger.new_argument_home_unwind_v1(site, false)?;
-        let mut ends = Vec::new();
-        let mut seen = std::collections::BTreeSet::new();
-        for argument in arguments.iter().rev() {
-            for value in argument.deferred_text_values_v1()?.into_iter().rev() {
-                if !seen.insert(value) {
-                    return Err(freeze("argument-expression/prefix-duplicate-acquisition"));
-                }
-                ends.push(InvokeOperation::String(
-                    crate::mir::instruction::StringInvokeOperation::End { value },
-                ));
-            }
-        }
-        let pending: Vec<_> = ends.iter().cloned()
-            .chain(self.inherited.iter().cloned()).chain(prior).collect();
-        let (object, _) = ledger.new_argument_object_cleanup_v1(site, result)?;
-        let expected_birth = {
-            let rows = ledger.local_commits.borrow();
-            match rows.get(site) {
-                Some(LocalCommitV1::Ordinary(row)) => row.birth_target.clone(),
-                Some(LocalCommitV1::Result(row)) => row.birth_target.clone(),
-                _ => return Err(freeze("argument-source-drift")),
-            }
-        };
-        let (allocation_block, allocation) = map(&self.allocation)?;
-        let MirInstruction::Invoke {
-            operation:
-                InvokeOperation::NewBox {
-                    object: actual_object,
-                },
-            fault_frame,
-            fault_landing,
-            normal_landing,
-        } = allocation
-        else {
-            return Err(freeze("emission-binding-drift"));
-        };
-        if actual_object != object
-            || !function.blocks.get(&normal_landing).is_some_and(|block| {
-                block.instructions.iter().any(|row| {
-                    matches!(row, MirInstruction::InvokeNormalResult { invoke_block, dst }
-                if *invoke_block == allocation_block && *dst == result)
-                })
-            })
-        {
-            return Err(freeze("emission-binding-drift"));
-        }
-        let mut covered =
-            paths::pending_operations(function, fault_landing, &pending, Some(fault_frame))?;
-        let normal = if let Some(birth) = &self.birth {
-            let (_, birth) = map(birth)?;
-            let MirInstruction::Invoke {
-                operation: InvokeOperation::Birth(call),
-                fault_frame: same,
-                fault_landing,
-                normal_landing: after,
-            } = birth
-            else {
-                return Err(freeze("argument-call-drift"));
-            };
-            if same != fault_frame
-                || expected_birth.as_ref() != Some(&call.key)
-                || call.receiver != result
-                || !call
-                    .arguments
-                    .iter()
-                    .eq(arguments.iter().map(|argument| argument.payload()))
-            {
-                return Err(freeze("argument-call-drift"));
-            }
-            let object = ledger.new_argument_object_cleanup_v1(site, result)?.0;
-            let reclaim = InvokeOperation::ReclaimUnpublished {
-                object,
-                value: result,
-            };
-            let head = paths::skip_until(function, fault_landing, None)?;
-            let (normal, fault) = paths::release(function, head, &reclaim, Some(fault_frame))?;
-            covered.extend(paths::pending_operations(
-                function,
-                normal,
-                &pending,
-                Some(fault_frame),
-            )?);
-            covered.extend(paths::pending_operations(
-                function,
-                fault,
-                &pending,
-                Some(fault_frame),
-            )?);
-            after
-        } else {
-            if expected_birth.is_some() {
-                return Err(freeze("argument-call-drift"));
-            }
-            normal_landing
-        };
-        let stop = match finishing {
-            Some(boundary) => boundary
-                .destination(self.continuation)
-                .ok_or_else(|| freeze("emission-binding-drift"))?,
-            None => self.continuation,
-        };
-        let mut normal = normal;
-        let (_, candidate) = ledger.new_argument_object_cleanup_v1(site, result)?;
-        let homes = ledger.new_argument_home_unwind_v1(site, true)?;
-        for (step, operation) in ends.iter().enumerate() {
-            normal = paths::skip_until(function, normal, Some(stop))?;
-            let (next, fault) = paths::release(function, normal, operation, Some(fault_frame))?;
-            let pending: Vec<_> = candidate
-                .iter()
-                .cloned()
-                .chain(ends[step + 1..].iter().cloned())
-                .chain(self.inherited.iter().cloned())
-                .chain(homes.iter().cloned())
-                .collect();
-            covered.extend(paths::pending_operations(
-                function,
-                fault,
-                &pending,
-                Some(fault_frame),
-            )?);
-            normal = next;
-        }
-        if paths::skip_until(function, normal, Some(stop))? != stop {
-            return Err(freeze("emission-binding-drift"));
-        }
-        Ok(covered)
-    }
-}
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir) fn new_argument_home_unwind_v1(
         &self,
@@ -579,28 +366,50 @@ impl FinalizedRootSourceHandoffV1 {
     /// Select only the original finished caller scope. This lends no actual
     /// execution proof and never guesses an owner from local physical IDs.
     pub(in crate::mir) fn birth_actual_belongs_to_function_v1(
-        &self, actual: &FinalizedBirthActualsV1, function: &MirFunction,
+        &self,
+        actual: &FinalizedBirthActualsV1,
+        function: &MirFunction,
     ) -> Result<bool, String> {
-        self.ledger.with_finished_projection(actual.owner(), |symbol, _|
-            Ok(symbol == function.signature.name))
+        self.ledger
+            .with_finished_projection(actual.owner(), |symbol, _| {
+                Ok(symbol == function.signature.name)
+            })
     }
 
     pub(in crate::mir) fn validate_birth_text_entry_v1(
-        &self, abi: &BirthAbiHandoffV1, function: &MirFunction,
+        &self,
+        abi: &BirthAbiHandoffV1,
+        function: &MirFunction,
     ) -> Result<(), String> {
         use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
-        let retained = self.construction.iter().find(|(key, _)| key == abi.target())
-            .map(|(_, retained)| retained).ok_or_else(|| freeze("argument-source-unavailable"))?;
-        if function.params.len() != abi.abi().physical_arity() { return Err(freeze("argument-source-drift")); }
-        let carriers = function.metadata.physical_param_carriers.as_deref().ok_or_else(|| freeze("argument-source-drift"))?;
-        if carriers.len() != function.params.len() || carriers.first() != Some(&Carrier::ExistingCallableI64) {
+        let retained = self
+            .construction
+            .iter()
+            .find(|(key, _)| key == abi.target())
+            .map(|(_, retained)| retained)
+            .ok_or_else(|| freeze("argument-source-unavailable"))?;
+        if function.params.len() != abi.abi().physical_arity() {
+            return Err(freeze("argument-source-drift"));
+        }
+        let carriers = function
+            .metadata
+            .physical_param_carriers
+            .as_deref()
+            .ok_or_else(|| freeze("argument-source-drift"))?;
+        if carriers.len() != function.params.len()
+            || carriers.first() != Some(&Carrier::ExistingCallableI64)
+        {
             return Err(freeze("argument-source-drift"));
         }
         for (ordinal, lane) in abi.parameters().iter().enumerate() {
             let expected = if abi.text_formal_source_v1(ordinal as u32)?.is_some() {
                 Carrier::BorrowedTaggedValue
-            } else { Carrier::ExistingCallableI64 };
-            if carriers.get(lane.physical_lane() as usize) != Some(&expected) { return Err(freeze("argument-source-drift")); }
+            } else {
+                Carrier::ExistingCallableI64
+            };
+            if carriers.get(lane.physical_lane() as usize) != Some(&expected) {
+                return Err(freeze("argument-source-drift"));
+            }
         }
         retained.require_birth_abi_source_v1(abi, function)
     }
@@ -608,21 +417,34 @@ impl FinalizedRootSourceHandoffV1 {
     /// Join original callee demands to this exact caller's typed New row. The
     /// two source products are distinct; physical Text bits never issue either.
     pub(in crate::mir) fn validate_birth_text_actuals_v1(
-        &self, abi: &BirthAbiHandoffV1, actual: &FinalizedBirthActualsV1, function: &MirFunction,
+        &self,
+        abi: &BirthAbiHandoffV1,
+        actual: &FinalizedBirthActualsV1,
+        function: &MirFunction,
     ) -> Result<(), String> {
         if actual.target() != abi.target() || actual.arguments().len() != abi.parameters().len() {
             return Err(freeze("argument-source-drift"));
         }
         for (ordinal, argument) in actual.arguments().iter().enumerate() {
-            if argument.source().ordinal() as usize != ordinal || argument.source().new_site() != actual.site()
-                || argument.source().owner() != actual.owner() { return Err(freeze("argument-source-drift")); }
+            if argument.source().ordinal() as usize != ordinal
+                || argument.source().new_site() != actual.site()
+                || argument.source().owner() != actual.owner()
+            {
+                return Err(freeze("argument-source-drift"));
+            }
             let formal = abi.text_formal_source_v1(ordinal as u32)?;
             match (argument.payload(), formal) {
                 (BirthArgumentV1::Text(_), Some(_)) => {
-                    let expression = argument.expression_v1().ok_or_else(|| freeze("argument-source-drift"))?;
-                    use crate::mir::resolved_value_profile::{expression_projection::ExpressionLeafClassV1 as L,
-                        expression_class::ExpressionValueClassV1 as V};
-                    if expression.frame.root_class() != L::Value(V::String) { return Err(freeze("argument-source-unavailable")); }
+                    let expression = argument
+                        .expression_v1()
+                        .ok_or_else(|| freeze("argument-source-drift"))?;
+                    use crate::mir::resolved_value_profile::{
+                        expression_class::ExpressionValueClassV1 as V,
+                        expression_projection::ExpressionLeafClassV1 as L,
+                    };
+                    if expression.frame.root_class() != L::Value(V::String) {
+                        return Err(freeze("argument-source-unavailable"));
+                    }
                     expression.require_source_v1(argument.source(), argument.payload())?;
                 }
                 (BirthArgumentV1::Value(_), None) => (),
@@ -661,8 +483,13 @@ impl FinalizedRootSourceHandoffV1 {
 impl FinalizedRootSourceHandoffV1 {
     /// Coordinates may be lent only by the original New argument's own packet.
     pub(super) fn finished_new_argument_call_binding_v1(
-        &self, owner: FunctionOwnerIdV1, new_site: &OwnedExprSiteV1, ordinal: u32,
-        node_site: &OwnedExprSiteV1, original: &Binding, function: &MirFunction,
+        &self,
+        owner: FunctionOwnerIdV1,
+        new_site: &OwnedExprSiteV1,
+        ordinal: u32,
+        node_site: &OwnedExprSiteV1,
+        original: &Binding,
+        function: &MirFunction,
         copy: bool,
     ) -> Result<(BasicBlockId, usize), String> {
         if new_site.owner() != owner || node_site.owner() != owner {
@@ -673,17 +500,24 @@ impl FinalizedRootSourceHandoffV1 {
             Some(NewEmissionProgress::Emitted { arguments, .. }) => arguments,
             _ => return Err(freeze("argument-source-unavailable")),
         };
-        let argument = arguments.get(ordinal as usize)
+        let argument = arguments
+            .get(ordinal as usize)
             .filter(|row| row.source().ordinal() == ordinal && row.source().new_site() == new_site)
             .ok_or_else(|| freeze("argument-source-drift"))?;
-        let expression = argument.expression_v1().ok_or_else(|| freeze("argument-source-drift"))?;
+        let expression = argument
+            .expression_v1()
+            .ok_or_else(|| freeze("argument-source-drift"))?;
         expression.require_source_v1(argument.source(), argument.payload())?;
         let mut found = None;
         for packet in expression.calls_v1() {
             let member = if copy {
-                packet.copy_dependencies_in_context(CallValidationContextV1::Finalized(self))?
-                    .iter().any(|(site, binding)| site == node_site && binding == original)
-            } else { packet.has_producer_at(node_site, original) };
+                packet
+                    .copy_dependencies_in_context(CallValidationContextV1::Finalized(self))?
+                    .iter()
+                    .any(|(site, binding)| site == node_site && binding == original)
+            } else {
+                packet.has_producer_at(node_site, original)
+            };
             if member && found.replace(packet).is_some() {
                 return Err(freeze("finished-copy/packet-duplicate"));
             }
@@ -702,33 +536,66 @@ impl FinalizedRootSourceHandoffV1 {
     /// One original New read and its SAME final Birth occurrence. This lends
     /// source meaning to final use validation and tagged ABI projection alike.
     pub(in crate::mir) fn finite_entry_birth_argument_v1(
-        &self, actual: &FinalizedBirthActualsV1, ordinal: u32, function: &MirFunction,
-    ) -> Result<Option<(crate::mir::normal_callable_semantic_package::BorrowedFormalDomainV1,
-        Binding, (BasicBlockId, usize))>, String> {
-        if !self.has_borrowed_ordinary_entry_v1(actual.owner()) { return Ok(None); }
-        let entry = self.borrowed_ordinary_entry_source_for_function_v1(actual.owner(), function)?;
-        let argument = actual.arguments().get(ordinal as usize)
+        &self,
+        actual: &FinalizedBirthActualsV1,
+        ordinal: u32,
+        function: &MirFunction,
+    ) -> Result<
+        Option<(
+            crate::mir::normal_callable_semantic_package::BorrowedFormalDomainV1,
+            Binding,
+            (BasicBlockId, usize),
+        )>,
+        String,
+    > {
+        if !self.has_borrowed_ordinary_entry_v1(actual.owner()) {
+            return Ok(None);
+        }
+        let entry =
+            self.borrowed_ordinary_entry_source_for_function_v1(actual.owner(), function)?;
+        let argument = actual
+            .arguments()
+            .get(ordinal as usize)
             .ok_or_else(|| freeze("argument-source-drift"))?;
-        if argument.source().ordinal() != ordinal || argument.source().owner() != actual.owner()
-            || argument.source().new_site() != actual.site() { return Err(freeze("argument-source-drift")); }
-        let Some((binding, domain)) = entry.finite_new_argument_domain_v1(argument.source())? else { return Ok(None); };
+        if argument.source().ordinal() != ordinal
+            || argument.source().owner() != actual.owner()
+            || argument.source().new_site() != actual.site()
+        {
+            return Err(freeze("argument-source-drift"));
+        }
+        let Some((binding, domain)) = entry.finite_new_argument_domain_v1(argument.source())?
+        else {
+            return Ok(None);
+        };
         // Read provenance is independent of the recorded Birth payload. Reuse
         // original entry/alias owners; an arbitrary matching MIR id is no loan.
         let expected = if binding == domain.binding() {
-            self.borrowed_ordinary_entry_values_v1(actual.owner())?.iter()
-                .find(|(index, formal, _)| *index == domain.ordinal() && *formal == domain.binding())
-                .map(|(_, _, value)| *value).ok_or_else(|| freeze("argument-binding-unavailable"))?
+            self.borrowed_ordinary_entry_values_v1(actual.owner())?
+                .iter()
+                .find(|(index, formal, _)| {
+                    *index == domain.ordinal() && *formal == domain.binding()
+                })
+                .map(|(_, _, value)| *value)
+                .ok_or_else(|| freeze("argument-binding-unavailable"))?
         } else {
             let mut expected = None;
-            self.with_borrowed_ordinary_alias_copies_v1(actual.owner(), function, |_, _, alias, formal, value, _| {
-                if alias == binding {
-                    if formal != domain.binding() || expected.replace(value).is_some() { return Err(freeze("argument-source-drift")); }
-                }
-                Ok(())
-            })?;
+            self.with_borrowed_ordinary_alias_copies_v1(
+                actual.owner(),
+                function,
+                |_, _, alias, formal, value, _| {
+                    if alias == binding {
+                        if formal != domain.binding() || expected.replace(value).is_some() {
+                            return Err(freeze("argument-source-drift"));
+                        }
+                    }
+                    Ok(())
+                },
+            )?;
             expected.ok_or_else(|| freeze("argument-binding-unavailable"))?
         };
-        if argument.value_only_v1()? != expected { return Err(freeze("argument-source-drift")); }
+        if argument.value_only_v1()? != expected {
+            return Err(freeze("argument-source-drift"));
+        }
         self.ledger.with_finished_projection(actual.owner(), |symbol, projection| {
             if symbol != function.signature.name { return Err(freeze("argument-read-function-drift")); }
             let rows = self.ledger.local_commits.borrow();

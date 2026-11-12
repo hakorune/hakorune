@@ -157,6 +157,7 @@ impl EmittedBindingRebindProjectionV1 {
             continuation,
             original,
         };
+        let _physical_scope = ledger.physical_validation_scope_v1(function, None, false);
         let context = CallValidationContextV1::Lowering(ledger);
         let covered = packet.validate_paths(context, function, None)?;
         let mut ordered = packet.expression().ordered_bindings_in_context(context)?;
@@ -284,64 +285,6 @@ impl EmittedBindingRebindProjectionV1 {
     }
 }
 impl OrdinaryNewClaimLedgerV1 {
-    /// Borrow graph facts from retained uses, not a new per-If registry.
-    pub(in crate::mir) fn branch_read_flow_sources_v1(
-        &self,
-        owner: FunctionOwnerIdV1,
-        statement: &crate::mir::resolved_semantics::SourceStmtSiteV1,
-    ) -> Result<Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BorrowedReadFlowV1>>, String>
-    {
-        use crate::mir::resolved_semantics::home_new_prefix::{
-            CheckedExpressionReferenceV1, DeclaredReadValueV1, NullableResultReferenceV1,
-        };
-        let mut output = Vec::new();
-        let mut retain = |read: &DeclaredReadValueV1| {
-            let DeclaredReadValueV1::Flow(read) = read else {
-                return;
-            };
-            let source = read.source();
-            if source.binding().owner() == owner
-                && source.statement() == statement
-                && !output.iter().any(|old| old == source)
-            {
-                output.push(Rc::clone(source));
-            }
-        };
-        self.visit_expression_evaluations_v1(owner, &mut |evaluation| {
-            for reference in evaluation.references().values() {
-                if let CheckedExpressionReferenceV1::NullableResult(
-                    NullableResultReferenceV1::DeclaredFrom(read),
-                ) = reference
-                {
-                    retain(read);
-                }
-            }
-            Ok(true)
-        })?;
-        for row in self.local_field_reads.borrow().values() {
-            if let Some(read) = row
-                .source
-                .received_root_source_v1()
-                .and_then(|source| source.borrowed_read_v1())
-            {
-                retain(read);
-            }
-        }
-        for actuals in self
-            .borrowed_formal_actuals
-            .values()
-            .filter_map(|row| row.as_ref().ok())
-        {
-            for read in actuals.declared_read_argument_sources_v1() {
-                retain(read);
-            }
-            if let Some(receiver) = actuals.declared_receiver_read_v1() {
-                retain(receiver.read());
-            }
-        }
-        Ok(output)
-    }
-
     pub(in crate::mir) fn branch_text_sources_v1(
         &self,
         owner: FunctionOwnerIdV1,

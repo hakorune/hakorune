@@ -1,9 +1,10 @@
-//! Query-local inventory of immutable original branch sources. Affine packet
+//! Function-local inventory of immutable original expression sources. Affine packet
 //! movement does not change their identity; no physical proof is cached here.
 use super::OrdinaryNewClaimLedgerV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
-    BranchNormalScalarSourceV1 as Branch, CheckedExpressionReferenceV1 as Reference,
-    CurrentScalarProducerV1 as Producer, ExpressionScalarOperationLoanV1 as Scalar,
+    BorrowedReadFlowV1 as ReadFlow, BranchNormalScalarSourceV1 as Branch,
+    CheckedExpressionReferenceV1 as Reference, CurrentScalarProducerV1 as Producer,
+    DeclaredReadValueV1, ExpressionScalarOperationLoanV1 as Scalar, NullableResultReferenceV1,
 };
 use crate::mir::resolved_semantics::source_value_flow::SourceValueRefV1;
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1, SourceStmtSiteV1};
@@ -15,10 +16,11 @@ type Key = (usize, SourceValueRefV1, BindingRefV1, SourceStmtSiteV1);
 pub(super) struct FunctionSourceInventory {
     seen: BTreeSet<Key>,
     by_site: BTreeMap<SourceStmtSiteV1, Vec<Rc<Branch>>>,
-    scalars: Vec<Rc<Scalar>>,
-    scalar_sites: BTreeMap<crate::mir::resolved_semantics::SourceExprSiteV1, usize>,
+    read_flows: BTreeMap<SourceStmtSiteV1, Vec<Rc<ReadFlow>>>,
+    scalars: BTreeMap<crate::mir::resolved_semantics::SourceExprSiteV1, Rc<Scalar>>,
     scalar_error: Option<String>,
     visitor_error: Option<String>,
+    expression_calls: BTreeSet<crate::mir::resolved_semantics::OwnedExprSiteV1>,
 }
 impl FunctionSourceInventory {
     fn retain(&mut self, source: &Producer, owner: FunctionOwnerIdV1) {
@@ -39,24 +41,20 @@ impl FunctionSourceInventory {
             pending.extend(source.incoming().iter().rev().map(|(_, _, source)| source));
         }
     }
-    fn retain_scalar(
-        &mut self,
-        source: &Rc<Scalar>,
-        owner: FunctionOwnerIdV1,
-    ) -> Result<(), String> {
-        if source.owner() != owner {
-            return Err(super::scalar_operations::reject("source-membership"));
+    fn retain_scalar(&mut self, source: &Rc<Scalar>, owner: FunctionOwnerIdV1, same_plan: bool) {
+        if self.scalar_error.is_some() {
+            return;
         }
-        if let Some(index) = self.scalar_sites.get(source.binary().site()) {
-            if !Rc::ptr_eq(&self.scalars[*index], source) {
-                return Err(super::scalar_operations::reject("source-membership"));
-            }
-        } else {
-            self.scalar_sites
-                .insert(source.binary().site().clone(), self.scalars.len());
-            self.scalars.push(Rc::clone(source));
+        let prior = self.scalars.get(source.binary().site());
+        if !same_plan
+            || source.owner() != owner
+            || prior.is_some_and(|prior| !Rc::ptr_eq(prior, source))
+        {
+            self.scalar_error = Some(super::scalar_operations::reject("source-membership"));
+        } else if prior.is_none() {
+            self.scalars
+                .insert(source.binary().site().clone(), Rc::clone(source));
         }
-        Ok(())
     }
     fn build(ledger: &OrdinaryNewClaimLedgerV1, owner: FunctionOwnerIdV1) -> Self {
         let mut index = Self::default();
@@ -65,34 +63,43 @@ impl FunctionSourceInventory {
             .and_then(|row| row.cleanup().root_flow())
         {
             for source in flow.scalar_operations() {
-                if let Err(error) = index.retain_scalar(source, owner) {
-                    index.scalar_error = Some(error);
-                    break;
-                }
+                index.retain_scalar(source, owner, true);
             }
         }
         index.visitor_error = ledger
             .visit_expression_evaluations_v1(owner, &mut |evaluation| {
+                index
+                    .expression_calls
+                    .extend(evaluation.calls().iter().map(|call| call.site().clone()));
                 for reference in evaluation.references().values() {
+                    if let Reference::NullableResult(NullableResultReferenceV1::DeclaredFrom(
+                        DeclaredReadValueV1::Flow(read),
+                    )) = reference
+                    {
+                        let source = read.source();
+                        if source.binding().owner() == owner {
+                            let rows = index
+                                .read_flows
+                                .entry(source.statement().clone())
+                                .or_default();
+                            if !rows.iter().any(|old| old == source) {
+                                rows.push(Rc::clone(source));
+                            }
+                        }
+                    }
                     if let Reference::Scalar(read) = reference {
                         if let Some(read) = read.original_read() {
                             index.retain(read.producer(), owner);
                         }
                     }
                 }
-                if index.scalar_error.is_none() {
-                    for operation in evaluation.operations() {
-                        if let Some(source) = operation.scalar_source_v1() {
-                            let result = if Rc::ptr_eq(source.plan(), evaluation.source()) {
-                                index.retain_scalar(source, owner)
-                            } else {
-                                Err(super::scalar_operations::reject("source-membership"))
-                            };
-                            if let Err(error) = result {
-                                index.scalar_error = Some(error);
-                                break;
-                            }
-                        }
+                for operation in evaluation.operations() {
+                    if let Some(source) = operation.scalar_source_v1() {
+                        index.retain_scalar(
+                            source,
+                            owner,
+                            Rc::ptr_eq(source.plan(), evaluation.source()),
+                        );
                     }
                 }
                 Ok(true)
@@ -100,7 +107,10 @@ impl FunctionSourceInventory {
             .err();
         index
     }
-    fn scalar_rows(&self) -> Result<&[Rc<Scalar>], String> {
+    fn scalar_rows(
+        &self,
+    ) -> Result<&BTreeMap<crate::mir::resolved_semantics::SourceExprSiteV1, Rc<Scalar>>, String>
+    {
         match self.scalar_error.as_ref().or(self.visitor_error.as_ref()) {
             Some(error) => Err(error.clone()),
             None => Ok(&self.scalars),
@@ -159,7 +169,11 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         owner: FunctionOwnerIdV1,
     ) -> Result<Vec<Rc<Scalar>>, String> {
-        self.with_source_inventory_v1(owner, |index| index.scalar_rows().map(<[_]>::to_vec))
+        self.with_source_inventory_v1(owner, |index| {
+            index
+                .scalar_rows()
+                .map(|rows| rows.values().cloned().collect())
+        })
     }
     pub(in crate::mir) fn has_scalar_operation_source_v1(
         &self,
@@ -180,17 +194,73 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(reject("owner"));
         }
         self.with_source_inventory_v1(owner, |index| {
-            index.scalar_rows()?;
-            let Some(position) = index.scalar_sites.get(site.site()) else {
+            let Some(row) = index.scalar_rows()?.get(site.site()) else {
                 return Ok(None);
             };
-            let row = &index.scalars[*position];
             if Some(source_operator(row)?) != operator {
                 return Err(reject("operator"));
             }
             Ok(Some(Rc::clone(row)))
         })
     }
+    pub(super) fn expression_call_sites_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<BTreeSet<crate::mir::resolved_semantics::OwnedExprSiteV1>, String> {
+        self.with_source_inventory_v1(owner, |index| match &index.visitor_error {
+            Some(error) => Err(error.clone()),
+            None => Ok(index.expression_calls.clone()),
+        })
+    }
+    /// Borrow graph facts from retained uses, not a new per-If registry.
+    pub(in crate::mir) fn branch_read_flow_sources_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        statement: &crate::mir::resolved_semantics::SourceStmtSiteV1,
+    ) -> Result<Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BorrowedReadFlowV1>>, String>
+    {
+        use crate::mir::resolved_semantics::home_new_prefix::DeclaredReadValueV1;
+        let mut output =
+            self.with_source_inventory_v1(owner, |index| match &index.visitor_error {
+                Some(error) => Err(error.clone()),
+                None => Ok(index.read_flows.get(statement).cloned().unwrap_or_default()),
+            })?;
+        let mut retain = |read: &DeclaredReadValueV1| {
+            let DeclaredReadValueV1::Flow(read) = read else {
+                return;
+            };
+            let source = read.source();
+            if source.binding().owner() == owner
+                && source.statement() == statement
+                && !output.iter().any(|old| old == source)
+            {
+                output.push(Rc::clone(source));
+            }
+        };
+        for row in self.local_field_reads.borrow().values() {
+            if let Some(read) = row
+                .source
+                .received_root_source_v1()
+                .and_then(|source| source.borrowed_read_v1())
+            {
+                retain(read);
+            }
+        }
+        for actuals in self
+            .borrowed_formal_actuals
+            .values()
+            .filter_map(|row| row.as_ref().ok())
+        {
+            for read in actuals.declared_read_argument_sources_v1() {
+                retain(read);
+            }
+            if let Some(receiver) = actuals.declared_receiver_read_v1() {
+                retain(receiver.read());
+            }
+        }
+        Ok(output)
+    }
+
     pub(in crate::mir) fn branch_scalar_sources_v1(
         &self,
         owner: FunctionOwnerIdV1,

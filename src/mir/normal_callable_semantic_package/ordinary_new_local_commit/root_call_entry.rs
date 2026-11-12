@@ -148,7 +148,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .borrow_mut()
             .remove(&owner)
             .ok_or_else(|| freeze("local-call-pool-missing"))?;
-        let result = self.validate_new_emissions(owner, function);
+        let result = self.validate_new_emissions(owner, function, None, None);
         self.root_local_call_bindings
             .borrow_mut()
             .insert(owner, groups);

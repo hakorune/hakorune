@@ -64,7 +64,7 @@ fn root_return_construction_propagates_original_completion_error_before_optional
         assert!(error.contains("construction-completion"), "{error}");
         assert!(error.contains("OwnerClosureMismatch"));
         let error = ledger
-            .validate_root_home_exit(owner, &function(), None)
+            .validate_root_home_exit(owner, &function(), None, None)
             .unwrap_err();
         assert!(error.contains("construction-completion"), "{error}");
         assert!(
@@ -85,7 +85,7 @@ fn root_return_construction_missing_original_index_does_not_borrow_root_fallback
     ledger.completion_index.remove(&owner);
     assert!(!ledger.prepare_root_home_exit(owner, exit.node()).unwrap());
     ledger
-        .validate_root_home_exit(owner, &function(), None)
+        .validate_root_home_exit(owner, &function(), None, None)
         .unwrap();
     assert!(ledger.root_exits.borrow().is_empty());
 }
@@ -105,7 +105,7 @@ fn root_return_construction_rejects_retained_exit_outside_original_completion() 
         .unwrap_err()
         .contains("construction-disposition-exit"));
     assert!(ledger
-        .validate_root_home_exit(owner, &function(), None)
+        .validate_root_home_exit(owner, &function(), None, None)
         .unwrap_err()
         .contains("construction-disposition-exit"));
     assert!(ledger.root_exits.borrow().is_empty());

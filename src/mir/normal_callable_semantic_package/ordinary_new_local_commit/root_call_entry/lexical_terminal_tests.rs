@@ -248,9 +248,13 @@ fn lexical_return_refuses_foreign_exit_lender_and_changed_original_producer() {
 fn lexical_return_finished_lender_preserves_original_coordinates_after_rebind() {
     let (ledger, exit, packet, mut arguments) = fixture();
     let scalar_argument_count = arguments.len();
-    arguments.push((BasicBlockId(0), MirInstruction::Jump {
-        target: BasicBlockId(10), edge_args: None,
-    }));
+    arguments.push((
+        BasicBlockId(0),
+        MirInstruction::Jump {
+            target: BasicBlockId(10),
+            edge_args: None,
+        },
+    ));
     let owner = packet.call_site().owner();
     let (original, frame, cleanup) = function(&packet, &arguments);
     let bindings: Vec<_> = arguments
@@ -305,7 +309,9 @@ fn lexical_return_finished_lender_preserves_original_coordinates_after_rebind() 
     };
     assert_eq!(invoke.0, BasicBlockId(0));
     assert_eq!(finished_arguments.len(), scalar_argument_count);
-    assert!(finished_arguments.iter().all(|(_, instruction)| !matches!(instruction, MirInstruction::Jump { .. })));
+    assert!(finished_arguments
+        .iter()
+        .all(|(_, instruction)| !matches!(instruction, MirInstruction::Jump { .. })));
     assert!(matches!(
         result.1,
         MirInstruction::InvokeNormalResult {
@@ -520,7 +526,7 @@ fn borrowed_terminal_call_frame_role_stays_bound_to_original_root_owner() {
         frame,
     };
     ledger
-        .validate_call_entry(owner, &exit, &function, None, &entry, &cleanup)
+        .validate_call_entry(owner, &exit, &function, None, None, &[], &entry, &cleanup)
         .unwrap();
     let RootHomeExitEntry::Call { frame, .. } = &mut entry else {
         unreachable!()
@@ -531,7 +537,7 @@ fn borrowed_terminal_call_frame_role_stays_bound_to_original_root_owner() {
     *mode = crate::mir::instruction::FaultFrameMode::Borrowed;
     function.blocks.get_mut(&frame.0).unwrap().instructions[0] = frame.1.clone();
     let error = ledger
-        .validate_call_entry(owner, &exit, &function, None, &entry, &cleanup)
+        .validate_call_entry(owner, &exit, &function, None, None, &[], &entry, &cleanup)
         .unwrap_err();
     assert!(error.contains("call-frame-drift"), "{error}");
 }
@@ -564,7 +570,7 @@ fn direct_terminal_missing_sealed_source_cannot_validate_plain_entry() {
         local_bindings: vec![],
     };
     assert!(ledger
-        .validate_call_entry(owner, &exit, &function, None, &entry, &[])
+        .validate_call_entry(owner, &exit, &function, None, None, &[], &entry, &[])
         .unwrap_err()
         .contains("direct-result-source-missing"));
 }

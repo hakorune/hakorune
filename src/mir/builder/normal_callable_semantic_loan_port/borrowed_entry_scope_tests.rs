@@ -4,18 +4,31 @@ use crate::mir::builder::module_lowering_invocation::ModuleLoweringInvocationV1;
 use crate::mir::builder::normal_callable_binding_materialization_port::{
     CallableBindingMaterializationPortV1, CallableEntryShapeV1,
 };
-use crate::mir::builder::raw_invocation_source_transport::{RawInvocationRootLineageV1, RawSourceTransportPortV1};
+use crate::mir::builder::raw_invocation_source_transport::{
+    RawInvocationRootLineageV1, RawSourceTransportPortV1,
+};
 use crate::mir::builder::recursive_child_lowering::RawInvocationChildPortV1;
 use crate::mir::builder::{
     CompilationContext, MirBuilder, NormalRootExecutionConsumerV1, SelectedNormalCallableKeyV1,
 };
-use crate::mir::normal_callable_semantic_package::{issue_normal_callable_semantic_package_with_selection_v1, PackagePhysicalSelectionV1};
+use crate::mir::normal_callable_semantic_package::{
+    issue_normal_callable_semantic_package_with_selection_v1, PackagePhysicalSelectionV1,
+};
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::mir::ValueId;
 use crate::parser::{NyashParser, ParserBuildConfig};
 use std::{collections::BTreeMap, rc::Rc};
 
-fn installed_source(text: &str, selection: PackagePhysicalSelectionV1) -> Result<(CompilationContext, crate::mir::normal_callable_semantic_package::InstalledNormalCallableSemanticPackageV1), String> {
+fn installed_source(
+    text: &str,
+    selection: PackagePhysicalSelectionV1,
+) -> Result<
+    (
+        CompilationContext,
+        crate::mir::normal_callable_semantic_package::InstalledNormalCallableSemanticPackageV1,
+    ),
+    String,
+> {
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
         text,
         ParserBuildConfig::default(),
@@ -35,7 +48,10 @@ fn installed_source(text: &str, selection: PackagePhysicalSelectionV1) -> Result
     let package = issue_normal_callable_semantic_package_with_selection_v1(
         &mut resolver,
         source,
-        Some(&brands), crate::mir::builder::LoopFactsPolicyFrameV1::from_environment(), &[], selection,
+        Some(&brands),
+        crate::mir::builder::LoopFactsPolicyFrameV1::from_environment(),
+        &[],
+        selection,
     )
     .map_err(|issue| format!("{issue:?}"))?;
     let mut context = CompilationContext::new();
@@ -112,15 +128,29 @@ fn scope(actual: &str) -> Result<(ValueId, ValueId), String> {
                     Some(owned_array_source),
                     None,
                     |inner, _transport| {
-                        inner.owned_array_source.as_ref().unwrap().require_same_ledger_v1(&ledger)?;
+                        inner
+                            .owned_array_source
+                            .as_ref()
+                            .unwrap()
+                            .require_same_ledger_v1(&ledger)?;
                         let (_, foreign) = installed_source(
-                            "static box Main { main() { return 0 } }", PackagePhysicalSelectionV1::AllSource)?;
-                        assert!(inner.owned_array_source.as_ref().unwrap()
-                            .require_same_ledger_v1(&foreign.ordinary_new_claim_ledger()).unwrap_err()
+                            "static box Main { main() { return 0 } }",
+                            PackagePhysicalSelectionV1::AllSource,
+                        )?;
+                        assert!(inner
+                            .owned_array_source
+                            .as_ref()
+                            .unwrap()
+                            .require_same_ledger_v1(&foreign.ordinary_new_claim_ledger())
+                            .unwrap_err()
                             .contains("foreign-source-scope"));
                         {
                             let child = inner.reborrow();
-                            child.owned_array_source.as_ref().unwrap().require_same_ledger_v1(&ledger)?;
+                            child
+                                .owned_array_source
+                                .as_ref()
+                                .unwrap()
+                                .require_same_ledger_v1(&ledger)?;
                         }
                         inner.adopt_callable_entry_values_v1(
                             builder,
@@ -154,7 +184,10 @@ fn scope(actual: &str) -> Result<(ValueId, ValueId), String> {
                     },
                 )
                 .unwrap();
-                assert!(inner.owned_array_source.is_none(), "scoped source borrow must not escape to its parent");
+                assert!(
+                    inner.owned_array_source.is_none(),
+                    "scoped source borrow must not escape to its parent"
+                );
             });
             owner
         })
@@ -210,54 +243,149 @@ fn selected_scope_adopts_existing_borrowed_formal_value() {
     assert_eq!(adopted, original);
     // The unchanged app exercises original get receiver/key -> checked writer,
     // independently of the outer Call/Return result ABI that remains pending.
-    let source = format!("{}\n{}",
-        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/lang/src/shared/common/string_helpers.hako")),
-        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/apps/json-stream-aggregator/main.hako")));
+    let source = format!(
+        "{}\n{}",
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/lang/src/shared/common/string_helpers.hako"
+        )),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/apps/json-stream-aggregator/main.hako"
+        ))
+    );
     // The second source keeps the same app protocol and independently checks
     // computed Text's argument lifetime; the unchanged source remains mandatory.
     let computed = source.replace("new UserStats(user)", "new UserStats(user + \"\")");
     assert_ne!(computed, source);
     for source in [&source, &computed] {
-        let (context, installed) = installed_source(&source, PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
+        let (context, installed) =
+            installed_source(&source, PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
         let ledger = installed.ordinary_new_claim_ledger();
         let mut selected = installed.begin_lowering(&context).unwrap();
         let arrays = selected.named_array_emission_collector();
         let owned = selected.owned_array_lifecycle_source_v1();
-        let key = SelectedNormalCallableKeyV1::Cataloged(hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method(
-            "JsonStreamAggregator", "statsFor", 1));
+        let key = SelectedNormalCallableKeyV1::Cataloged(
+            hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method(
+                "JsonStreamAggregator",
+                "statsFor",
+                1,
+            ),
+        );
         let mut builder = MirBuilder::new();
-        let mut invocation = ModuleLoweringInvocationV1::with_collector(&mut builder, ModuleDraftCollectorV1::default());
+        let mut invocation = ModuleLoweringInvocationV1::with_collector(
+            &mut builder,
+            ModuleDraftCollectorV1::default(),
+        );
         let cores = selected.take_source_core_method_calls(&key);
-        let result = selected.with_selected_lowering_input(&key, |input| {
-            let SelectedNormalCallableKeyV1::Cataloged(key) = input.selected_key() else { panic!("selected Instance") };
-            let lineage = RawInvocationRootLineageV1::Cataloged(key.clone());
-            let symbol = key.mir_symbol_projection();
-            let class = key.owner().to_owned();
-            let crate::ast::ASTNode::FunctionDeclaration { params, param_decls, return_type_name, body, uses, attrs, .. } = input.source().source().root()
-                else { panic!("original Instance declaration") };
-            let args = (params.clone(), param_decls.clone(), return_type_name.clone(), body.clone(), uses.clone(), attrs.clone());
-            invocation.with_module_port(|builder, port| {
-                let mut inner = RawInvocationChildPortV1::new(port);
-                with_selected_source_scope(&mut inner, lineage,
-                    input, cores, arrays, Rc::clone(&ledger), Some(owned), None, |inner, transport|
-                    inner.with_source_transport_v1(transport, |inner, ()|
-                        builder.build_instance_method_draft_with_port_v1(inner, symbol, class,
-                            args.0, args.1, args.2, args.3, args.4, args.5).map(|_| ())))
+        let result = selected
+            .with_selected_lowering_input(&key, |input| {
+                let SelectedNormalCallableKeyV1::Cataloged(key) = input.selected_key() else {
+                    panic!("selected Instance")
+                };
+                let lineage = RawInvocationRootLineageV1::Cataloged(key.clone());
+                let symbol = key.mir_symbol_projection();
+                let class = key.owner().to_owned();
+                let crate::ast::ASTNode::FunctionDeclaration {
+                    params,
+                    param_decls,
+                    return_type_name,
+                    body,
+                    uses,
+                    attrs,
+                    ..
+                } = input.source().source().root()
+                else {
+                    panic!("original Instance declaration")
+                };
+                let args = (
+                    params.clone(),
+                    param_decls.clone(),
+                    return_type_name.clone(),
+                    body.clone(),
+                    uses.clone(),
+                    attrs.clone(),
+                );
+                invocation.with_module_port(|builder, port| {
+                    let mut inner = RawInvocationChildPortV1::new(port);
+                    with_selected_source_scope(
+                        &mut inner,
+                        lineage,
+                        input,
+                        cores,
+                        arrays,
+                        Rc::clone(&ledger),
+                        Some(owned),
+                        None,
+                        |inner, transport| {
+                            inner.with_source_transport_v1(transport, |inner, ()| {
+                                builder
+                                    .build_instance_method_draft_with_port_v1(
+                                        inner, symbol, class, args.0, args.1, args.2, args.3,
+                                        args.4, args.5,
+                                    )
+                                    .map(|_| ())
+                            })
+                        },
+                    )
+                })
             })
-        }).unwrap();
+            .unwrap();
         drop(invocation);
-        let function = builder.function_state.current_function.as_ref().expect("actual Instance draft retained");
-        let gets = function.blocks.values().flat_map(|block| block.all_instructions()).filter(|row|
-            matches!(row, crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Map(
-                crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { .. }), .. })).count();
-        assert_eq!(gets, 1, "original get producer before the next incomplete boundary: {result:?}");
-        let appends = function.blocks.values().flat_map(|block| block.all_instructions()).filter(|row|
-            matches!(row, crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ArrayElementWrite {
-                value: crate::mir::instruction::ArrayElementWriteValueV1::Text(_), .. }, .. })).count();
-        assert_eq!(appends, 1, "original Text argument must reach the shared append writer: {result:?}");
-        assert_eq!(ledger.emitted_root_exit_count_for_test(), 2,
-            "original get and installed Return must both record: {result:?}");
-        result.expect("source-scoped draft completion is separate from final Map Call/Return publication");
+        let function = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .expect("actual Instance draft retained");
+        let gets = function
+            .blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
+            .filter(|row| {
+                matches!(
+                    row,
+                    crate::mir::MirInstruction::Invoke {
+                        operation: crate::mir::instruction::InvokeOperation::Map(
+                            crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { .. }
+                        ),
+                        ..
+                    }
+                )
+            })
+            .count();
+        assert_eq!(
+            gets, 1,
+            "original get producer before the next incomplete boundary: {result:?}"
+        );
+        let appends = function
+            .blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
+            .filter(|row| {
+                matches!(
+                    row,
+                    crate::mir::MirInstruction::Invoke {
+                        operation: crate::mir::instruction::InvokeOperation::ArrayElementWrite {
+                            value: crate::mir::instruction::ArrayElementWriteValueV1::Text(_),
+                            ..
+                        },
+                        ..
+                    }
+                )
+            })
+            .count();
+        assert_eq!(
+            appends, 1,
+            "original Text argument must reach the shared append writer: {result:?}"
+        );
+        assert_eq!(
+            ledger.emitted_root_exit_count_for_test(),
+            2,
+            "original get and installed Return must both record: {result:?}"
+        );
+        result.expect(
+            "source-scoped draft completion is separate from final Map Call/Return publication",
+        );
     }
 }
 
@@ -277,21 +405,35 @@ fn owned_array_original_construction_installs_real_claim_and_checks_fault_phases
     use crate::mir::resolved_semantics::{OwnedExprSiteV1, SourceBindingSiteV1};
     use crate::mir::MirInstruction;
     for (nullable, literal_null) in [(false, false), (true, false), (false, true), (true, true)] {
-        let result = if nullable { "if n > 0 { return new Token() } return null" } else { "return new Token()" };
+        let result = if nullable {
+            "if n > 0 { return new Token() } return null"
+        } else {
+            "return new Token()"
+        };
         let extra_append = if literal_null { "arr.push(null)" } else { "" };
         let slot_nullable = nullable || literal_null;
         let source = format!("box Token {{}} box Maker {{ make(n: i64) {{ {result} }} consume(value) {{ if value == null {{ return 0 }} return 1 }} ignored() {{ local marker = 0 local arr = new ArrayBox() arr.push(me.make(7)) {extra_append} me.consume(arr.get(0)) return me.consume(null) }} }} static box Main {{ main() {{ return 0 }} }}");
         // Replace one existing whole-compiler input with repeated execution;
         // the separate manual writer checks retain their straight-line scope.
         let full_source = if !nullable && !literal_null {
-            source.replace("arr.push(me.make(7))", "local i = 0 loop(i < 2) { arr.push(me.make(7)) i = i + 1 }")
-        } else { source.clone() };
+            source.replace(
+                "arr.push(me.make(7))",
+                "local i = 0 loop(i < 2) { arr.push(me.make(7)) i = i + 1 }",
+            )
+        } else {
+            source.clone()
+        };
         full_owned_array_compiler_probe(&full_source);
-        let (context, installed) = installed_source(&source, PackagePhysicalSelectionV1::AllSource).unwrap();
+        let (context, installed) =
+            installed_source(&source, PackagePhysicalSelectionV1::AllSource).unwrap();
         let ledger = installed.ordinary_new_claim_ledger();
         let mut selected = installed.begin_lowering(&context).unwrap();
         let loan = selected.owned_array_lifecycle_source_v1();
-        let key = SelectedNormalCallableKeyV1::Cataloged(hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method("Maker", "ignored", 0));
+        let key = SelectedNormalCallableKeyV1::Cataloged(
+            hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method(
+                "Maker", "ignored", 0,
+            ),
+        );
         selected.with_selected_lowering_input(&key, |input| {
             let source = input.source();
             let original = source.forest().callable_source_ledger(source.owner()).unwrap();
@@ -316,17 +458,17 @@ fn owned_array_original_construction_installs_real_claim_and_checks_fault_phases
             let SourceBindingSiteV1::Local { statement, ordinal } = relation.declaration_site() else { panic!("original LOCAL") };
             ledger.complete_local_installation(source.owner(), statement.node(), &[(relation.binding(), *ordinal, array, array)]).unwrap();
             let function = builder.function_state.current_function.as_mut().unwrap();
-            ledger.validate_new_emissions(source.owner(), function).unwrap();
+            ledger.validate_new_emissions(source.owner(), function, None, None).unwrap();
             let healthy = function.clone();
             let claim_block = function.blocks.iter().find_map(|(b, block)| block.all_instructions().any(|i| matches!(i, MirInstruction::Invoke { operation: InvokeOperation::OwnedArray(Array::Claim { .. }), .. })).then_some(*b)).unwrap();
             let instruction = function.blocks.get_mut(&claim_block).unwrap().terminator.as_mut().unwrap();
             let MirInstruction::Invoke { operation: InvokeOperation::OwnedArray(Array::Claim { descriptor, .. }), .. } = instruction else { panic!("Claim") };
             *descriptor = crate::mir::instruction::OwnedArraySlotDescriptorV1::new(descriptor.object(), !slot_nullable);
-            assert!(ledger.validate_new_emissions(source.owner(), function).is_err());
+            assert!(ledger.validate_new_emissions(source.owner(), function, None, None).is_err());
             *function = healthy.clone();
             let cleanup = function.blocks.values_mut().find_map(|block| block.instructions.iter_mut().find(|i| matches!(i, MirInstruction::ArrayResidenceRelease { .. }))).unwrap();
             *cleanup = MirInstruction::ArrayResidenceRelease { value: ValueId::new(array.0 + 1) };
-            assert!(ledger.validate_new_emissions(source.owner(), function).is_err());
+            assert!(ledger.validate_new_emissions(source.owner(), function, None, None).is_err());
             *function = healthy;
             ledger.complete_new_emissions(source.owner(), function).unwrap();
             state.install_single_local_for_test(statement.node(), relation.binding(), *ordinal, array, array).unwrap();
@@ -393,10 +535,19 @@ fn owned_array_original_construction_installs_real_claim_and_checks_fault_phases
 
 fn full_owned_array_compiler_probe(text: &str) {
     let _ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
-    let parsed = NyashParser::parse_normal_callable_program_with_build_config(text, ParserBuildConfig::default()).unwrap();
+    let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+        text,
+        ParserBuildConfig::default(),
+    )
+    .unwrap();
     let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
-        crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || crate::r#macro::transform_normal_callable_program_v1(parsed)).unwrap()
-        else { panic!("original compiler source") };
+        crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+            crate::r#macro::transform_normal_callable_program_v1(parsed)
+        })
+        .unwrap()
+    else {
+        panic!("original compiler source")
+    };
     let compiled = crate::mir::MirCompiler::with_options(false).compile_normal_with_published(
         crate::mir::NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default()),
         |view, _pretransform_report| {
@@ -440,6 +591,8 @@ fn full_owned_array_compiler_probe(text: &str) {
             Ok(())
         },
     ).expect("whole original Array program must publish through its production entry");
-    assert!(matches!(compiled, crate::mir::compiler::NormalPublishedCompileOutcome::Consumed(())));
-
+    assert!(matches!(
+        compiled,
+        crate::mir::compiler::NormalPublishedCompileOutcome::Consumed(())
+    ));
 }

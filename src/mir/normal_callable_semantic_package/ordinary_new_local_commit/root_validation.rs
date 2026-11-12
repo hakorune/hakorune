@@ -171,10 +171,10 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         let _source_scope = self.branch_source_scope_v1(owner);
         let _physical_scope = self.physical_validation_scope_v1(function, projection, false);
-        self.validate_new_emissions_projected(owner, function, projection)?;
+        self.validate_new_emissions(owner, function, projection, None)?;
         if !child {
             self.validate_terminal_unit_return(owner, function)?;
-            self.validate_root_home_exit(owner, function, projection)?;
+            self.validate_root_home_exit(owner, function, projection, None)?;
         }
         self.validate_field_reads_with_projection_v1(
             owner,
@@ -208,7 +208,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
         self.validate_terminal_scalar_literal_return_projected(owner, function, projection)?;
         if child {
-            self.validate_root_home_exit(owner, function, projection)?;
+            self.validate_root_home_exit(owner, function, projection, None)?;
         }
 
         Ok(())

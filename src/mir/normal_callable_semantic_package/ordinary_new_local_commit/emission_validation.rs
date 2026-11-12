@@ -40,12 +40,15 @@ impl OrdinaryNewClaimLedgerV1 {
                 | LocalCommitV1::OwnedArray(_)
                 | LocalCommitV1::CallReceived(_)
                 | LocalCommitV1::TextResidence(_)
-                | LocalCommitV1::DynamicCarrierResidence(_) | LocalCommitV1::Shared(_) => continue,
+                | LocalCommitV1::DynamicCarrierResidence(_)
+                | LocalCommitV1::Shared(_) => continue,
             };
             if parent_owner != site.owner() || parent_site.owner() != site.owner() {
                 continue;
             }
-            let Ok(arguments) = argument_rows else { continue };
+            let Ok(arguments) = argument_rows else {
+                continue;
+            };
             for argument in arguments.iter() {
                 if argument.owner() != site.owner()
                     || argument.new_site() != parent_site
@@ -87,10 +90,8 @@ impl OrdinaryNewClaimLedgerV1 {
             if loan.call() != site || loan.root().is_none() || loan.is_map_slot() {
                 continue;
             }
-            let current = self.checked_borrowed_nullable_return_source_v1(
-                site.owner(),
-                value.return_site(),
-            )?;
+            let current =
+                self.checked_borrowed_nullable_return_source_v1(site.owner(), value.return_site())?;
             if current != Some(loan.as_ref()) {
                 return Err(freeze("lexical-instance-call/i64-result-mismatch"));
             }
@@ -100,32 +101,6 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     pub(crate) fn validate_new_emissions(
-        &self,
-        owner: FunctionOwnerIdV1,
-        function: &MirFunction,
-    ) -> Result<(), String> {
-        self.validate_new_emissions_view(owner, function, None, None)
-    }
-
-    pub(super) fn validate_new_emissions_with_pending(
-        &self,
-        owner: FunctionOwnerIdV1,
-        function: &MirFunction,
-        pending: &super::PendingSelectedStaticLoopViewV1<'_, '_>,
-    ) -> Result<(), String> {
-        self.validate_new_emissions_view(owner, function, None, Some(pending))
-    }
-
-    pub(super) fn validate_new_emissions_projected(
-        &self,
-        owner: FunctionOwnerIdV1,
-        function: &MirFunction,
-        projection: Option<&super::physical_boundary::FinishedBindings>,
-    ) -> Result<(), String> {
-        self.validate_new_emissions_view(owner, function, projection, None)
-    }
-
-    fn validate_new_emissions_view(
         &self,
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
@@ -141,13 +116,27 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             match row {
                 LocalCommitV1::TextResidence(packet) => {
-                    self.validate_text_residence_home_v1(packet, CallValidationContextV1::Lowering(self))?;
-                    packet.validate_paths(CallValidationContextV1::Lowering(self), function, projection)?;
+                    self.validate_text_residence_home_v1(
+                        packet,
+                        CallValidationContextV1::Lowering(self),
+                    )?;
+                    packet.validate_paths(
+                        CallValidationContextV1::Lowering(self),
+                        function,
+                        projection,
+                    )?;
                     continue;
                 }
                 LocalCommitV1::DynamicCarrierResidence(packet) => {
-                    self.validate_dynamic_carrier_residence_home_v1(packet, CallValidationContextV1::Lowering(self))?;
-                    packet.validate_paths(CallValidationContextV1::Lowering(self), function, projection)?;
+                    self.validate_dynamic_carrier_residence_home_v1(
+                        packet,
+                        CallValidationContextV1::Lowering(self),
+                    )?;
+                    packet.validate_paths(
+                        CallValidationContextV1::Lowering(self),
+                        function,
+                        projection,
+                    )?;
                     continue;
                 }
                 LocalCommitV1::Shared(packet) => {
@@ -163,13 +152,25 @@ impl OrdinaryNewClaimLedgerV1 {
                     continue;
                 }
                 LocalCommitV1::CallReceived(_) => {
-                    self.validate_call_received_emission_with_intervals_v1(site, &intervals, projection, pending,
-                        CallValidationContextV1::Lowering(self))?;
+                    self.validate_call_received_emission_with_intervals_v1(
+                        site,
+                        &intervals,
+                        projection,
+                        pending,
+                        CallValidationContextV1::Lowering(self),
+                    )?;
                     continue;
                 }
                 LocalCommitV1::Ordinary(_) | LocalCommitV1::Result(_) => {}
             }
-            self.validate_ordinary_new_row_emission_projected(owner, site, row, function, projection, CallValidationContextV1::Lowering(self))?;
+            self.validate_ordinary_new_row_emission_projected(
+                owner,
+                site,
+                row,
+                function,
+                projection,
+                CallValidationContextV1::Lowering(self),
+            )?;
         }
         Ok(())
     }
@@ -181,17 +182,23 @@ impl OrdinaryNewClaimLedgerV1 {
     /// a `Nullable` result may carry the `Void` sentinel and owes exactly
     /// one checked `HomeReleaseIfLive` — never an unconditional release.
     pub(super) fn validate_call_received_emission_in_context_v1(
-        &self, site: &OwnedExprSiteV1, function: &MirFunction,
+        &self,
+        site: &OwnedExprSiteV1,
+        function: &MirFunction,
         projection: Option<&super::physical_boundary::FinishedBindings>,
         pending: Option<&super::PendingSelectedStaticLoopViewV1<'_, '_>>,
         context: CallValidationContextV1<'_>,
     ) -> Result<(), String> {
         let intervals = super::read_argument::IntervalViewV1::new(function);
-        self.validate_call_received_emission_with_intervals_v1(site, &intervals, projection, pending, context)
+        self.validate_call_received_emission_with_intervals_v1(
+            site, &intervals, projection, pending, context,
+        )
     }
 
     fn validate_call_received_emission_with_intervals_v1(
-        &self, site: &OwnedExprSiteV1, intervals: &super::read_argument::IntervalViewV1<'_>,
+        &self,
+        site: &OwnedExprSiteV1,
+        intervals: &super::read_argument::IntervalViewV1<'_>,
         projection: Option<&super::physical_boundary::FinishedBindings>,
         pending: Option<&super::PendingSelectedStaticLoopViewV1<'_, '_>>,
         context: CallValidationContextV1<'_>,
@@ -274,9 +281,18 @@ impl OrdinaryNewClaimLedgerV1 {
         // sealed the class.
         let (call_destination, expected_arity) = match row.release {
             CallReceivedReleaseV1::Mixed { .. } => {
-                let observation = self.mixed_call_source_v1(site).ok_or_else(|| freeze("mixed-call/observation-missing"))?;
-                (observation.local_binding().ok_or_else(|| freeze("mixed-call/destination-missing"))?.1,
-                    packet_arguments.ok_or_else(|| freeze("mixed-call/record-packet-missing"))?.len())
+                let observation = self
+                    .mixed_call_source_v1(site)
+                    .ok_or_else(|| freeze("mixed-call/observation-missing"))?;
+                (
+                    observation
+                        .local_binding()
+                        .ok_or_else(|| freeze("mixed-call/destination-missing"))?
+                        .1,
+                    packet_arguments
+                        .ok_or_else(|| freeze("mixed-call/record-packet-missing"))?
+                        .len(),
+                )
             }
             CallReceivedReleaseV1::Handle => {
                 let call = self
@@ -319,7 +335,9 @@ impl OrdinaryNewClaimLedgerV1 {
         let expected_result_kind = match row.release {
             CallReceivedReleaseV1::Handle => InvokeCallResultKind::Handle,
             CallReceivedReleaseV1::Nullable => InvokeCallResultKind::NullableHandle,
-            CallReceivedReleaseV1::Mixed { formal_ordinal } => InvokeCallResultKind::MixedHandle { formal_ordinal },
+            CallReceivedReleaseV1::Mixed { formal_ordinal } => {
+                InvokeCallResultKind::MixedHandle { formal_ordinal }
+            }
         };
         if row.binding != call_destination || row.local().is_none() {
             return Err(freeze("handle-local-incomplete"));
@@ -362,20 +380,32 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("handle-release-unproven"));
         }
         if let Some(packet) = packet {
-            let operations: Vec<_> = row.end_plan().into_vec().into_iter().map(|(_, operation)| operation).collect();
+            let operations: Vec<_> = row
+                .end_plan()
+                .into_vec()
+                .into_iter()
+                .map(|(_, operation)| operation)
+                .collect();
             let mut ends = Vec::new();
             for (id, block) in &function.blocks {
                 for instruction in block.all_instructions() {
-                    if matches!(instruction, MirInstruction::Invoke { operation, .. } if operations.contains(operation)) {
+                    if matches!(instruction, MirInstruction::Invoke { operation, .. } if operations.contains(operation))
+                    {
                         ends.push((*id, instruction.clone()));
                     }
                 }
             }
             if !matches!(row.release, CallReceivedReleaseV1::Mixed { .. })
-                && packet.validate_received_field_support_v1(context, Some((intervals, projection, &ends)))? != row.field_support_parents {
+                && packet.validate_received_field_support_v1(
+                    context,
+                    Some((intervals, projection, &ends)),
+                )? != row.field_support_parents
+            {
                 return Err(freeze("field-end/final-support-drift"));
             }
-        } else if row.field_support_parents.is_some() { return Err(freeze("field-end/packet-missing")); }
+        } else if row.field_support_parents.is_some() {
+            return Err(freeze("field-end/packet-missing"));
+        }
         // The binding owes every operation of its sealed teardown plan —
         // owned field residences then the Home release — once per exit
         // where it stays live, plus once per recorded fault-unwind chain
@@ -399,8 +429,13 @@ impl OrdinaryNewClaimLedgerV1 {
                 .count();
             let mut owed = 0usize;
             context.visit_exit_bindings_v1(row.owner, |bindings| {
-                owed += bindings.iter().filter(|(_, emitted)| matches!(emitted,
-                    MirInstruction::Invoke { operation: emitted, .. } if emitted == operation)).count();
+                owed += bindings
+                    .iter()
+                    .filter(|(_, emitted)| {
+                        matches!(emitted,
+                    MirInstruction::Invoke { operation: emitted, .. } if emitted == operation)
+                    })
+                    .count();
             })?;
             let owed_exit = owed;
             if let Some(view) = pending {
@@ -423,7 +458,9 @@ impl OrdinaryNewClaimLedgerV1 {
             let owed_pending = owed;
             owed += rows
                 .iter()
-                .filter(|(site, other)| other.owner() == row.owner && !shared_received.contains(site))
+                .filter(|(site, other)| {
+                    other.owner() == row.owner && !shared_received.contains(site)
+                })
                 .flat_map(|(_, other)| match other {
                     LocalCommitV1::Ordinary(_) | LocalCommitV1::Result(_) => {
                         match other.new_emission() {
@@ -439,7 +476,9 @@ impl OrdinaryNewClaimLedgerV1 {
                     },
                     LocalCommitV1::Map(other) => other.emitted_bindings(),
                     LocalCommitV1::OwnedArray(other) => other.emitted_bindings(),
-                    LocalCommitV1::TextResidence(_) | LocalCommitV1::DynamicCarrierResidence(_) | LocalCommitV1::Shared(_) => &[],
+                    LocalCommitV1::TextResidence(_)
+                    | LocalCommitV1::DynamicCarrierResidence(_)
+                    | LocalCommitV1::Shared(_) => &[],
                 })
                 .filter(|(_, instruction)| {
                     matches!(
@@ -456,12 +495,23 @@ impl OrdinaryNewClaimLedgerV1 {
             // discharges the binding exactly like a commit row's own
             // emitted unwind — both are recorded emissions, never
             // recounts of MIR shape.
-            owed += context.with_local_call_groups_v1(row.owner, |groups| Ok(groups.iter()
-                .flat_map(|group| group.bindings())
-                .filter(|(_, instruction)| matches!(instruction,
-                    MirInstruction::Invoke { operation: emitted, .. } if emitted == operation)).count()))?;
+            owed += context.with_local_call_groups_v1(row.owner, |groups| {
+                Ok(groups
+                    .iter()
+                    .flat_map(|group| group.bindings())
+                    .filter(|(_, instruction)| {
+                        matches!(instruction,
+                    MirInstruction::Invoke { operation: emitted, .. } if emitted == operation)
+                    })
+                    .count())
+            })?;
             if crate::config::env::builder_debug_enabled() && actual != owed {
-                eprintln!("[release-count] breakdown exit={owed_exit} pending={} rows={} groups={}", owed_pending - owed_exit, owed_rows - owed_pending, owed - owed_rows);
+                eprintln!(
+                    "[release-count] breakdown exit={owed_exit} pending={} rows={} groups={}",
+                    owed_pending - owed_exit,
+                    owed_rows - owed_pending,
+                    owed - owed_rows
+                );
             }
             // A release of the wrong shape is just as fatal as a missing
             // one: unconditional `HomeRelease` on a `Void`-carrying value
@@ -470,7 +520,10 @@ impl OrdinaryNewClaimLedgerV1 {
             if actual != owed {
                 if crate::config::env::builder_debug_enabled() {
                     eprintln!("[release-count] owner={:?} operation={operation:?} actual={actual} owed={owed} release={:?}", row.owner, row.release);
-                    eprintln!("[release-count] function:\n{}", crate::mir::MirPrinter::new().print_function(function));
+                    eprintln!(
+                        "[release-count] function:\n{}",
+                        crate::mir::MirPrinter::new().print_function(function)
+                    );
                 }
                 return Err(freeze(if actual < owed {
                     match row.release {
