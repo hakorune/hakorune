@@ -470,3 +470,27 @@ main へ早送りした。
 - Opus の監査の入力 118 本で、MIR と EXE の結果が前の main と全部同じ。見張り（基点 `e97e797700`）も PASS。退役した名前の一覧は 4 つになった。
 - ここまでの 3 つの段（1、2a、2b）で、同じ式本体を持つ記録の型は Print・Return・Local・代入し直しの 4 つ → 共通の 1 つ。production は合わせて −39、test は合わせて +755。
 - 次の段 3（移った使う所の builder の終わりの処理）の候補（実装者の調べ）: `expression_value/cleanup.rs:335–399` の `finish_body_continuation`・`finish_body_cleanup` へ呼ぶ側を揃える。`initializer_expression.rs:279–299` と `binding_rebind_expression.rs:172–186` の publication の後半、`print_expression.rs:102–108` と `cleanup.rs:396–398` の重複を除く処理。Return の root の cleanup の境界（`return_expression.rs:161–190`）は保つ。
+
+## 式の記録の一本化 3
+
+対象は共通recordへ移ったPrint/Return/Local/Rebindのbuilder終了処理。新しいcleanup算法を作らず、既存のbody cleanupとRawRootGraphWriterへ収束させる。
+
+| 消す物 | 移り先・残す境界 |
+|---|---|
+| Print専用のnext/clean予約、continuation、graph、sink後の継続とdedupの組立 | finish_body_cleanupから取り出す唯一のemit_body_continuation。planは既存FaultCleanupPlan、物理writerは既存RawRootGraphWriter |
+| Printとbody終了の重複dedup実装 | 最初の出現を保つ同じdeduplicate_body_bindings。呼ぶ時点と回数は変えない |
+| Local専用のfinish_residence_continuation転送 | 既存finish_residence_with_displaced_continuationへNoneを渡す |
+| Returnのroot cleanup/ingress回転 | return_expression.rsに保持。共有writerのroot_cleanup shortcutは従来どおり |
+| Rebindの旧値/Materialize/loop unwindとreceipt | 専用契約を保持。終了後のdestination再確認→prepare→state記録→commitを変えない |
+| Local/Rebind publicationの似た後半 | 今回は保持。LocalのCopyと即commit、Rebindのprepare後state記録は異なる責任であり、新factoryを作らない |
+
+- B1: next/clean予約→continuation追加→plan作成→graph→sink→next開始の順を唯一のwriterで実行する。
+- B2: Print/discardはNormalが空でも従来のgraphを作り、Value continuationは空なら作らない。block IDと辺も保存する。
+- B3: Printのoperand変換はgraph生成後。Printのacquisition Faultとbodyのdisplaced責任は、元のplan constructorで別々に保持する。
+- B4: no-frame/root_cleanup shortcutの検査・拒否・早期returnは変えず、従来なかったdedupを追加しない。frameless discardだけは元のdedupを保持する。
+- B5: sinkの閉じた型は継続/破棄/表示の最終JumpかInvokeだけを選ぶ。各腕にcleanup算法を残さず、式本体や旧packetを所有し直さない。
+- B6: Return rootの保持/所有移転/ingress、Rebind旧値EndとNormal/Fault順序を保つ。受理・旧scalar・Bool短絡・公開MIR/ABI・暗黙context・root_graphは変えない。
+- B7: 引数/New引数/field RHS/条件が使うfinish_scalar/dynamic/value/deferred/boolの入口と責任は保持する。Local専用転送だけを退役symbolへ追加する。
+- B8: 既存の4用途の変異・Fault/所有権/独立検証を再利用し、新しい共通部分とconsumerを含む整形後production純減で閉じる。純減しなければ基盤追加を止めて依存を報告する。
+
+read-only worker経路: 各selected emitter→expression_value/cleanup.rsのfinish_body_continuation/finish_body_cleanup→既存root_graph。Printだけが独自graph配線を持ち、他3用途は既にbody cleanupへ収束している。Local専用転送以外は引数/field/条件のcallerがあり、一括退役しない。元の4用途のrecord変異helperとcleanup/Fault試験を再利用する。実行の順序/回数は既存C observerをscratch source probeへリンクし、物理fixtureの証拠とsource接続の証拠を区別して記録する。
