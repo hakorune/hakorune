@@ -256,7 +256,9 @@ impl<'a> CallValidationContextV1<'a> {
         frame: &std::rc::Rc<
             crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1,
         >,
-        check: impl FnOnce(&EmittedBindingRebindProjectionV1) -> Result<R, String>,
+        check: impl FnOnce(
+            &ExpressionEmissionV1<BindingRebindExpressionContractV1>,
+        ) -> Result<R, String>,
     ) -> Result<R, String> {
         self.with_local_call_group_tree_v2(frame.source().owner(), |groups| {
             let mut found = None;

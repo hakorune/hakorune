@@ -99,3 +99,58 @@ fn shared_expression_records_reject_print_and_return_mutations() {
     root.visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| Ok(()))
         .unwrap();
 }
+
+// Temporarily detach duplicate views, mutate one owned original, and restore
+// every exact proof slot before validation. Affine receipts are never cloned.
+pub(in super::super) fn mutate_rebind_observation(
+    source: &mut FinalizedRootSourceHandoffV1,
+    site: &OwnedExprSiteV1,
+    mutate: impl FnOnce(
+        &mut ExpressionEmissionV1<binding_rebind_projection::BindingRebindExpressionContractV1>,
+    ),
+) {
+    let mut exits = source.ledger.root_exits.borrow_mut();
+    let mut groups: Vec<_> = source.local_calls.values_mut().flatten().collect();
+    let mut entries: Vec<_> = source
+        .call_entries
+        .values_mut()
+        .map(|(entry, _)| entry)
+        .collect();
+    entries.extend(exits.values_mut().filter_map(|progress| match progress {
+        RootHomeExitProgress::Emitted { entry, .. } => Some(entry),
+        _ => None,
+    }));
+    for entry in entries {
+        let (RootHomeExitEntry::Plain { local_bindings }
+        | RootHomeExitEntry::Call { local_bindings, .. }
+        | RootHomeExitEntry::MapGet { local_bindings, .. }) = entry;
+        groups.extend(local_bindings.iter_mut());
+    }
+    let mut original = None;
+    let mut selected = Vec::new();
+    for group in groups {
+        if group.site() != site {
+            continue;
+        }
+        let proof = std::mem::replace(&mut group.proof, PrefixPhysicalProofV1::Call(None));
+        let PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(packet)) =
+            proof
+        else {
+            panic!("original Rebind")
+        };
+        if let Some(first) = &original {
+            assert!(Rc::ptr_eq(first, &packet));
+        } else {
+            original = Some(packet);
+        }
+        selected.push(group);
+    }
+    let mut original = original.unwrap();
+    assert_eq!(Rc::strong_count(&original), 1);
+    mutate(Rc::get_mut(&mut original).unwrap());
+    for group in selected {
+        group.proof = PrefixPhysicalProofV1::EvaluatedBinding(
+            EvaluatedBindingProjectionV1::Rebind(Rc::clone(&original)),
+        );
+    }
+}

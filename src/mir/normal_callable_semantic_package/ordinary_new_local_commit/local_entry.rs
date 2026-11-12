@@ -440,7 +440,7 @@ impl OrdinaryNewClaimLedgerV1 {
 #[derive(Debug, Clone)]
 pub(in crate::mir::normal_callable_semantic_package) enum TextResidencePacketV1 {
     Initializer(std::rc::Rc<ExpressionEmissionV1<InitializerExpressionContractV1>>),
-    Rebind(std::rc::Rc<root_home::EmittedBindingRebindProjectionV1>),
+    Rebind(std::rc::Rc<ExpressionEmissionV1<root_home::BindingRebindExpressionContractV1>>),
 }
 impl TextResidencePacketV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn acquisition(

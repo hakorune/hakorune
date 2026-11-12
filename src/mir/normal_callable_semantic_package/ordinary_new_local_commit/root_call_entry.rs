@@ -737,7 +737,7 @@ mod publication;
 
 #[path = "root_call_entry/binding_rebind_projection.rs"]
 mod binding_rebind_projection;
-pub(crate) use binding_rebind_projection::EmittedBindingRebindProjectionV1;
+pub(crate) use binding_rebind_projection::BindingRebindExpressionContractV1;
 
 #[path = "root_call_entry/source_loop_projection.rs"]
 mod source_loop_projection;

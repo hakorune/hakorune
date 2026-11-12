@@ -41,7 +41,7 @@ enum PrefixPhysicalProofV1 {
 #[derive(Debug, Clone)]
 enum EvaluatedBindingProjectionV1 {
     Initializer(Rc<ExpressionEmissionV1<InitializerExpressionContractV1>>),
-    Rebind(Rc<binding_rebind_projection::EmittedBindingRebindProjectionV1>),
+    Rebind(Rc<ExpressionEmissionV1<binding_rebind_projection::BindingRebindExpressionContractV1>>),
 }
 
 impl RootLifecyclePrefixBindingGroupV1 {
@@ -551,7 +551,8 @@ impl RootLifecyclePrefixBindingGroupV1 {
 
     pub(in crate::mir) fn rebind(
         &self,
-    ) -> Option<&binding_rebind_projection::EmittedBindingRebindProjectionV1> {
+    ) -> Option<&ExpressionEmissionV1<binding_rebind_projection::BindingRebindExpressionContractV1>>
+    {
         match &self.proof {
             PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(
                 packet,
@@ -560,7 +561,9 @@ impl RootLifecyclePrefixBindingGroupV1 {
         }
     }
     pub(super) fn new_rebind(
-        packet: Rc<binding_rebind_projection::EmittedBindingRebindProjectionV1>,
+        packet: Rc<
+            ExpressionEmissionV1<binding_rebind_projection::BindingRebindExpressionContractV1>,
+        >,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<Self, String> {
         packet.validate_recorded(&bindings, None)?;
@@ -770,4 +773,4 @@ mod packets;
 
 #[cfg(test)]
 #[path = "expression_emission_tests.rs"]
-mod expression_emission_tests;
+pub(super) mod expression_emission_tests;

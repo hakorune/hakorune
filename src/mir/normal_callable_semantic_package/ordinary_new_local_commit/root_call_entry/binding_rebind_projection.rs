@@ -4,13 +4,12 @@ use super::expression_projection::{ExpressionReferenceReadV1, ReferenceProducerV
 use super::*;
 use crate::mir::builder::CompletedVariableAssignmentV1;
 use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
-use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1;
-use std::{collections::BTreeMap, rc::Rc};
+use std::rc::Rc;
 type Binding = (BasicBlockId, MirInstruction);
 
 #[derive(Debug)]
-pub(crate) struct EmittedBindingRebindProjectionV1 {
+pub(crate) struct BindingRebindExpressionContractV1 {
     frame: Rc<CheckedBindingRebindFrameV1>,
     receipt: CompletedVariableAssignmentV1,
     root: ReferenceProducerV1,
@@ -20,17 +19,15 @@ pub(crate) struct EmittedBindingRebindProjectionV1 {
         Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
         crate::mir::builder::BindingValueObservationV2,
     )>,
-    values: Vec<Option<EvaluatedExpressionValueV1>>,
-    calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
-    path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
-    reference_reads: BTreeMap<usize, ExpressionReferenceReadV1>,
-    entry: Option<Binding>,
-    inline_range: Option<(BasicBlockId, usize, usize, bool)>,
-    terminal: Option<Binding>,
-    continuation: Option<Binding>,
-    original: Vec<Binding>,
 }
-impl EmittedBindingRebindProjectionV1 {
+impl super::ExpressionEmissionSourceV1 for BindingRebindExpressionContractV1 {
+    fn evaluation(
+        &self,
+    ) -> &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1 {
+        self.frame.evaluation()
+    }
+}
+impl ExpressionEmissionV1<BindingRebindExpressionContractV1> {
     pub(super) fn corroborate_loop_frame_v2(
         &self,
         ledger: &OrdinaryNewClaimLedgerV1,
@@ -50,10 +47,10 @@ impl EmittedBindingRebindProjectionV1 {
         )
     }
     pub(crate) fn frame(&self) -> &Rc<CheckedBindingRebindFrameV1> {
-        &self.frame
+        &self.contract.frame
     }
     pub(crate) fn value(&self) -> ValueId {
-        self.receipt.assigned()
+        self.contract.receipt.assigned()
     }
     pub(in crate::mir) fn reference_read_v1(
         &self,
@@ -64,25 +61,25 @@ impl EmittedBindingRebindProjectionV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::root_home::call_entry) fn root_producer(
         &self,
     ) -> &ReferenceProducerV1 {
-        &self.root
+        &self.contract.root
     }
     fn validate_effective_root(&self) -> Result<(), String> {
         self.expression().validate_effective_root_v1(
             self.value(),
-            self.frame.is_text_residence(),
-            self.frame.materializes_root(),
-            self.purpose_acquisition.as_ref(),
+            self.contract.frame.is_text_residence(),
+            self.contract.frame.materializes_root(),
+            self.contract.purpose_acquisition.as_ref(),
         )
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn install_binding(
         &self,
     ) -> Option<&Binding> {
-        self.install.as_ref()
+        self.contract.install.as_ref()
     }
     pub(in crate::mir::normal_callable_semantic_package) fn has_text_home(&self) -> bool {
-        self.frame.is_text_residence() && self.receipt.rhs() == self.value()
-            && self.install.as_ref().is_some_and(|(_, row)| matches!(row,
+        self.contract.frame.is_text_residence() && self.contract.receipt.rhs() == self.value()
+            && self.contract.install.as_ref().is_some_and(|(_, row)| matches!(row,
                 MirInstruction::StringResidenceInstall { value, returning: false, .. } if *value == self.value()))
     }
     pub(in crate::mir::normal_callable_semantic_package) fn root_acquisition_binding_v1(
@@ -96,15 +93,10 @@ impl EmittedBindingRebindProjectionV1 {
     pub(crate) fn calls(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
         self.calls.iter().map(Rc::as_ref)
     }
-    pub(in crate::mir) fn new(
+    pub(in crate::mir) fn new_rebind_v1(
         frame: Rc<CheckedBindingRebindFrameV1>,
         receipt: CompletedVariableAssignmentV1,
-        values: Vec<Option<EvaluatedExpressionValueV1>>,
-        calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
-        path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
-        reference_reads: BTreeMap<usize, ExpressionReferenceReadV1>,
-        entry: Option<Binding>,
-        inline_range: Option<(BasicBlockId, usize, usize, bool)>,
+        body: crate::mir::builder::EmittedExpressionBodyV1,
         terminal: Option<Binding>,
         continuation: Option<Binding>,
         purpose_acquisition: Option<[Binding; 2]>,
@@ -112,20 +104,21 @@ impl EmittedBindingRebindProjectionV1 {
             Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
             crate::mir::builder::BindingValueObservationV2,
         )>,
-        original: Vec<Binding>,
         ledger: &OrdinaryNewClaimLedgerV1,
         function: &MirFunction,
     ) -> Result<Self, String> {
         if receipt.rhs() != receipt.assigned() {
             return Err(freeze("rebind-expression/assignment-result"));
         }
-        let root = if let Some(reference) = reference_reads
+        let root = if let Some(reference) = body
+            .reference_reads
             .get(&0)
             .filter(|_| purpose_acquisition.is_none())
         {
             reference.result_producer_v1(receipt.rhs())?
         } else {
-            let mut definitions = original
+            let mut definitions = body
+                .bindings
                 .iter()
                 .filter(|(_, row)| row.dst_value() == Some(receipt.rhs()));
             let root = definitions
@@ -136,35 +129,34 @@ impl EmittedBindingRebindProjectionV1 {
             }
             ReferenceProducerV1::Definition(root.clone())
         };
-        let install = original
+        let install = body
+            .bindings
             .iter()
             .find(|(_, row)| matches!(row, MirInstruction::StringResidenceInstall { .. }))
             .cloned();
-        let packet = Self {
-            frame,
-            receipt,
-            root,
-            install,
-            purpose_acquisition,
-            loop_residency,
-            values,
-            calls,
-            path_reads,
-            reference_reads,
-            entry,
-            inline_range,
+        let mut packet = Self::from_body(
+            BindingRebindExpressionContractV1 {
+                frame,
+                receipt,
+                root,
+                install,
+                purpose_acquisition,
+                loop_residency,
+            },
+            body,
             terminal,
             continuation,
-            original,
-        };
+        );
+        // Rebind's prior-home unwind is a destination contract, not a Return root Fault.
+        packet.root_fault = None;
         let _physical_scope = ledger.physical_validation_scope_v1(function, None, false);
         let context = CallValidationContextV1::Lowering(ledger);
         let covered = packet.validate_paths(context, function, None)?;
         let mut ordered = packet.expression().ordered_bindings_in_context(context)?;
-        if let Some(pair) = &packet.purpose_acquisition {
+        if let Some(pair) = &packet.contract.purpose_acquisition {
             ordered.extend(pair.iter().cloned());
         }
-        if let Some(install) = &packet.install {
+        if let Some(install) = &packet.contract.install {
             ordered.push(install.clone());
         }
         ordered.extend(packet.terminal.iter().cloned());
@@ -179,19 +171,6 @@ impl EmittedBindingRebindProjectionV1 {
             None,
         )?;
         Ok(packet)
-    }
-    pub(super) fn expression(
-        &self,
-    ) -> super::expression_projection::ExpressionPhysicalProjectionRefV1<'_> {
-        super::expression_projection::ExpressionPhysicalProjectionRefV1::new(
-            self.frame.evaluation(),
-            &self.values,
-            &self.calls,
-            &self.path_reads,
-            &self.reference_reads,
-            &self.original,
-        )
-        .with_inline_range_v1(self.inline_range)
     }
     pub(super) fn validate_recorded(
         &self,
@@ -217,21 +196,27 @@ impl EmittedBindingRebindProjectionV1 {
         let selected = context
             .ledger()
             .rebind_expression_frame_v1(
-                self.frame.source().owner(),
-                self.frame.source().root().statement().node(),
+                self.contract.frame.source().owner(),
+                self.contract.frame.source().root().statement().node(),
             )?
             .ok_or_else(|| freeze("rebind-expression/source-missing"))?;
-        let dynamic_root = self.frame.evaluation().root_class()
+        let dynamic_root = self.contract.frame.evaluation().root_class()
             == crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
                 crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic);
-        if dynamic_root != self.frame.is_dynamic_loop_carrier_v1() {
+        if dynamic_root != self.contract.frame.is_dynamic_loop_carrier_v1() {
             return Err(freeze("rebind-expression/dynamic-carrier-source"));
         }
         self.validate_effective_root()?;
-        if !Rc::ptr_eq(&selected, &self.frame) || self.receipt.rhs() != self.receipt.assigned() {
+        if !Rc::ptr_eq(&selected, &self.contract.frame)
+            || self.contract.receipt.rhs() != self.contract.receipt.assigned()
+        {
             return Err(freeze("rebind-expression/source-or-value"));
         }
-        if !self.receipt.matches_rebind_frame_v1(&self.frame) {
+        if !self
+            .contract
+            .receipt
+            .matches_rebind_frame_v1(&self.contract.frame)
+        {
             return Err(freeze("rebind-expression/target-name"));
         }
         self.expression().validate_source(context)?;
@@ -240,18 +225,20 @@ impl EmittedBindingRebindProjectionV1 {
             .iter()
             .filter(|(_, row)| matches!(row, MirInstruction::StringResidenceInstall { .. }))
             .count();
-        if installs != usize::from(self.frame.is_text_residence())
-            || self.frame.is_text_residence() && !self.has_text_home()
+        if installs != usize::from(self.contract.frame.is_text_residence())
+            || self.contract.frame.is_text_residence() && !self.has_text_home()
         {
             return Err(freeze("rebind-expression/install-census"));
         }
-        if self.frame.text_loop_carrier_v1().is_some() != self.loop_residency.is_some() {
+        if self.contract.frame.text_loop_carrier_v1().is_some()
+            != self.contract.loop_residency.is_some()
+        {
             return Err(freeze("rebind-expression/old-text-end"));
         }
-        let (displaced, unwind) = match &self.loop_residency {
+        let (displaced, unwind) = match &self.contract.loop_residency {
             Some((product, read)) => {
                 let (old, unwind) = context.ledger().loop_text_rebind_unwind_v2(
-                    &self.frame,
+                    &self.contract.frame,
                     product,
                     read,
                     context,
@@ -261,7 +248,9 @@ impl EmittedBindingRebindProjectionV1 {
                 (Some(old), Some(unwind))
             }
             None => (
-                context.ledger().text_rebind_displaced_end_v1(&self.frame)?,
+                context
+                    .ledger()
+                    .text_rebind_displaced_end_v1(&self.contract.frame)?,
                 None,
             ),
         };
@@ -277,9 +266,9 @@ impl EmittedBindingRebindProjectionV1 {
             &self.entry,
             &self.terminal,
             &self.continuation,
-            self.install.as_ref(),
+            self.contract.install.as_ref(),
             displaced.as_ref(),
-            self.purpose_acquisition.as_ref(),
+            self.contract.purpose_acquisition.as_ref(),
         )?;
         Ok(covered)
     }
@@ -364,96 +353,16 @@ impl OrdinaryNewClaimLedgerV1 {
     }
     pub(crate) fn prepare_rebind_expression_bindings(
         &self,
-        packet: Rc<EmittedBindingRebindProjectionV1>,
+        packet: Rc<ExpressionEmissionV1<BindingRebindExpressionContractV1>>,
         bindings: Vec<Binding>,
     ) -> Result<PreparedLifecyclePrefixBindingGroupV1<'_>, String> {
         self.prepare_local_call_binding_group(
-            packet.frame.source().owner(),
+            packet.contract.frame.source().owner(),
             RootLifecyclePrefixBindingGroupV1::new_rebind(packet, bindings)?,
         )
     }
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn scalar_rebind_keeps_assignment_and_alias_provenance_through_both_final_consumers() {
-        for rhs in ["x", "x + 1", "7", "(\"a\" + \"b\").length()"] {
-            let text = format!(
-                "static box Main {{ main() {{ local x = 0 local before = x
-            x = {rhs} local alias = x x = x local after = x
-            local text = \"\" + before + alias + after print(text) return 0 }} }}"
-            );
-            let (completed, ledger) =
-                crate::mir::builder::lexical_call_projection_document_completion_fixture(&text);
-            let (key, module, same, keys, cohort) =
-                completed.document_preflight_parts_for_test(true).unwrap();
-            assert!(Rc::ptr_eq(&same, &ledger));
-            let handoff = ledger
-                .seal_finalized_root_birth_handoff(key.clone(), &module, &keys, cohort, Vec::new())
-                .unwrap();
-            let root = handoff.root_source().unwrap();
-            root.visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| Ok(()))
-                .unwrap();
-            let packets: Vec<_> = root
-                .local_calls
-                .get(&root.owner())
-                .unwrap()
-                .iter()
-                .filter_map(|group| group.rebind())
-                .collect();
-            assert_eq!(
-                packets.len(),
-                2,
-                "both original rebinds remain mandatory: {rhs}"
-            );
-            assert_ne!(
-                packets[0].frame().source().root().statement(),
-                packets[1].frame().source().root().statement()
-            );
-            assert!(!packets[0]
-                .receipt
-                .matches_rebind_frame_v1(packets[1].frame()));
-            assert!(!packets[1]
-                .receipt
-                .matches_rebind_frame_v1(packets[0].frame()));
-            assert_eq!(
-                packets[0].value(),
-                packets[1].value(),
-                "self-assignment reuses RHS, never a fresh definition"
-            );
-            assert!(
-                !module
-                    .functions
-                    .get(&key)
-                    .unwrap()
-                    .blocks
-                    .values()
-                    .flat_map(|block| block.all_instructions())
-                    .any(|row| matches!(row, MirInstruction::ReleaseStrong { .. })),
-                "a scalar rebind owns no Home to release"
-            );
-            let mut changed = module.clone();
-            let mut count = 0;
-            for block in changed.functions.get_mut(&key).unwrap().blocks.values_mut() {
-                for row in &mut block.instructions {
-                    if let MirInstruction::Const {
-                        value: crate::mir::ConstValue::Integer(value),
-                        ..
-                    } = row
-                    {
-                        *value += 1;
-                        count += 1;
-                    }
-                }
-            }
-            assert!(count > 0);
-            assert!(
-                root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(()))
-                    .is_err(),
-                "changed producer: {rhs}"
-            );
-        }
-    }
-}
+#[path = "binding_rebind_projection_tests.rs"]
+mod tests;

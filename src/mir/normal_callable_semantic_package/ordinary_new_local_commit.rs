@@ -751,7 +751,7 @@ pub(in crate::mir) use root_home::{
     ExpressionReferenceReadV1,
 };
 pub(crate) use root_home::{
-    EmittedBindingRebindProjectionV1, EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1,
+    BindingRebindExpressionContractV1, EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1,
     ExpressionEmissionV1, FieldAppendTextProjectionV1, InitializerExpressionContractV1,
     OwnedArrayAppendCandidateV1,
 };

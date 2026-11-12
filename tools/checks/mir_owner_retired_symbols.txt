@@ -2,3 +2,4 @@
 EmittedPrintExpressionProjectionV1
 ReturnExpressionEmissionV1
 EmittedInitializerExpressionProjectionV1
+EmittedBindingRebindProjectionV1

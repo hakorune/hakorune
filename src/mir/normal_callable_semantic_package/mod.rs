@@ -295,7 +295,7 @@ pub(in crate::mir) use ordinary_new_coseal::{
     ExpressionReferenceReadV1,
 };
 pub(crate) use ordinary_new_coseal::{
-    EmittedBindingRebindProjectionV1, EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1,
+    BindingRebindExpressionContractV1, EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1,
     ExpressionEmissionV1, FieldAppendTextProjectionV1, InitializerExpressionContractV1,
     OwnedArrayAppendCandidateV1, RootLifecyclePrefixBindingGroupV1,
 };

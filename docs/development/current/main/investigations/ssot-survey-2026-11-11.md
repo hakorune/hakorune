@@ -456,3 +456,5 @@ main へ早送りした。
 
 read-only worker経路: home_binding_rebind_expression.rsの元評価/target→normal_callable_binding_materialization.rs→selected/binding_rebind_expression.rs（旧値を先に観測、共通評価、cleanup、receipt）→binding_rebind_projection.rs→local_binding_group.rs/call_validation_context.rs/local_entry.rs→finishingの最終consumer。cleanup writerと順序算法は変更しない。
 変異は既存の共通view helperと再代入試験を再利用し、Call順序・別source・保持/物理End±・finishing消失・記録不在に加えて、旧値End±・置換順序・receipt targetの責務を確認する。既存の安全性試験は保持する。
+
+追加証拠の配置: 再代入の元のinline試験と不足していた変異を `binding_rebind_projection_tests.rs` の同じtest familyへまとめる。既存試験の移動はproduction削減に数えず、同じsource owner・同じ値を持つ異なるtargetのreceipt、旧Endと一時Endの順序を区別して検査する。既存の共通view helperを再利用し、複数viewから同じ記録へ触るための補助もtest内だけに置く。
