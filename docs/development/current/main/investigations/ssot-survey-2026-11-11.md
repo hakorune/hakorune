@@ -458,3 +458,5 @@ read-only worker経路: home_binding_rebind_expression.rsの元評価/target→n
 変異は既存の共通view helperと再代入試験を再利用し、Call順序・別source・保持/物理End±・finishing消失・記録不在に加えて、旧値End±・置換順序・receipt targetの責務を確認する。既存の安全性試験は保持する。
 
 追加証拠の配置: 再代入の元のinline試験と不足していた変異を `binding_rebind_projection_tests.rs` の同じtest familyへまとめる。既存試験の移動はproduction削減に数えず、同じsource owner・同じ値を持つ異なるtargetのreceipt、旧Endと一時Endの順序を区別して検査する。既存の共通view helperを再利用し、複数viewから同じ記録へ触るための補助もtest内だけに置く。
+
+順序変異は命令の記録順でなく、最終install blockからJump/InvokeのNormal辺だけをたどり、旧End→別値の一時Endを確認して選ぶ。installを旧EndのNormal landingへ移す変異も加え、CFG辺と命令数を保った置換順序の破壊を拒否する。最初の全体確認後のworker指摘を反映した試験だけの修正であり、productionのcleanupは変えない。

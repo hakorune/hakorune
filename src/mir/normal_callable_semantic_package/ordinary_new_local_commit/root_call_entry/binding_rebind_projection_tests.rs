@@ -35,17 +35,62 @@ fn rebind_record_rejects_shared_and_replacement_mutations() {
             .text_rebind_displaced_end_v1(packet.frame())
             .unwrap()
             .unwrap();
-        let original = packet
-            .original
-            .iter()
-            .find(|(_, row)| {
-                matches!(row,
-            MirInstruction::Invoke { operation, .. } if operation == &old)
-            })
+        let (symbol, (install_id, install)) = ledger
+            .finished_binding_for_owner(
+                packet.frame().source().owner(),
+                packet.contract.install.as_ref().unwrap(),
+            )
             .unwrap();
-        let (symbol, (id, instruction)) = ledger
-            .finished_binding_for_owner(packet.frame().source().owner(), original)
-            .unwrap();
+        let function = module.get_function(&symbol).unwrap();
+        assert!(matches!(
+            install,
+            MirInstruction::StringResidenceInstall { .. }
+        ));
+        assert_eq!(
+            function.blocks[&install_id]
+                .instructions
+                .iter()
+                .filter(|row| **row == install)
+                .count(),
+            1
+        );
+        // Recording order also contains RHS Fault cleanup. Select execution
+        // order instead: both Ends must follow this install on its Normal path.
+        let mut current = install_id;
+        let mut visited = std::collections::BTreeSet::new();
+        let mut ends = Vec::new();
+        while ends.len() < 2 {
+            assert!(visited.insert(current), "acyclic replacement cleanup");
+            match function.blocks[&current].terminator.as_ref().unwrap() {
+                MirInstruction::Jump { target, .. } => current = *target,
+                instruction @ MirInstruction::Invoke {
+                    operation,
+                    normal_landing,
+                    ..
+                } => {
+                    assert!(
+                        matches!(
+                            operation,
+                            InvokeOperation::String(
+                                crate::mir::instruction::StringInvokeOperation::End { .. }
+                                    | crate::mir::instruction::StringInvokeOperation::EndIfOwned { .. }
+                            )
+                        ),
+                        "only End after install"
+                    );
+                    ends.push((current, instruction.clone()));
+                    current = *normal_landing;
+                }
+                _ => panic!("two sequential Ends after install"),
+            }
+        }
+        let (id, instruction) = &ends[0];
+        let MirInstruction::Invoke { operation, .. } = instruction else {
+            unreachable!()
+        };
+        assert_eq!(operation, &old, "displaced old value ends first");
+        let id = *id;
+        let instruction = instruction.clone();
         for duplicate in [false, true] {
             let mut changed = module.clone();
             let block = changed
@@ -68,12 +113,46 @@ fn rebind_record_rejects_shared_and_replacement_mutations() {
                 if duplicate { "duplicate" } else { "missing" }
             );
         }
-        let temporary = packet.original.iter().find(|(_, row)| matches!(row,
-            MirInstruction::Invoke { operation: InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { .. }), .. }
-                if !matches!(row, MirInstruction::Invoke { operation, .. } if operation == &old))).unwrap();
-        let (_, (other_id, other_instruction)) = ledger
-            .finished_binding_for_owner(packet.frame().source().owner(), temporary)
+        let mut changed = module.clone();
+        let function = changed.get_function_mut(&symbol).unwrap();
+        let block = function.blocks.get_mut(&install_id).unwrap();
+        let position = block
+            .instructions
+            .iter()
+            .position(|row| row == &install)
             .unwrap();
+        block.instructions.remove(position);
+        let MirInstruction::Invoke {
+            normal_landing,
+            fault_landing,
+            ..
+        } = &instruction
+        else {
+            unreachable!()
+        };
+        assert_ne!(*normal_landing, install_id);
+        assert_ne!(normal_landing, fault_landing);
+        function
+            .blocks
+            .get_mut(normal_landing)
+            .unwrap()
+            .instructions
+            .push(install.clone());
+        assert_eq!(
+            function
+                .blocks
+                .values()
+                .flat_map(|block| block.all_instructions())
+                .filter(|row| **row == install)
+                .count(),
+            1,
+            "move one exact install without duplication"
+        );
+        let error = root
+            .visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(()))
+            .unwrap_err();
+        eprintln!("EXPR_MUTATION\tRebind\tinstall-after-old-end\t{error}");
+        let (other_id, other_instruction) = ends[1].clone();
         let MirInstruction::Invoke {
             operation: other_operation,
             ..
@@ -81,6 +160,10 @@ fn rebind_record_rejects_shared_and_replacement_mutations() {
         else {
             panic!("temporary End")
         };
+        assert_ne!(
+            other_operation, old,
+            "the second End owns a different value"
+        );
         let mut changed = module.clone();
         let function = changed.get_function_mut(&symbol).unwrap();
         for (block_id, replacement) in [(id, other_operation), (other_id, old)] {
