@@ -36,6 +36,9 @@ impl<'a> FunctionVerificationGeometry<'a> {
             facts: std::rc::Rc::default(),
         }
     }
+    pub(in crate::mir) fn as_function(&self) -> &'a MirFunction {
+        self.function
+    }
     pub(in crate::mir) fn borrow(
         function: &'a MirFunction,
         facts: &std::rc::Rc<FunctionVerificationFacts>,
@@ -118,7 +121,7 @@ impl<'a> FunctionVerificationGeometry<'a> {
             .predecessors
             .get_or_init(|| utils::compute_predecessors(self.function))
     }
-    pub(super) fn actual_predecessors(&self) -> &BTreeMap<BasicBlockId, Vec<BasicBlockId>> {
+    pub(in crate::mir) fn actual_predecessors(&self) -> &BTreeMap<BasicBlockId, Vec<BasicBlockId>> {
         self.facts.actual_predecessors.get_or_init(|| {
             let mut result = BTreeMap::<_, Vec<_>>::new();
             for (id, block) in &self.function.blocks {

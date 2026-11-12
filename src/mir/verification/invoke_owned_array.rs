@@ -2,15 +2,14 @@
 //! on the original Recipe; a borrowed Get never creates a caller-owned lease.
 //! This checks affine outer resources, not child teardown completeness: the
 //! existing source/root cleanup correspondence must still prove complete End.
+use super::FunctionVerificationGeometry;
 use crate::mir::instruction::{
-    InvokeCallResultKind, InvokeOperation, OwnedArrayInvokeOperation as Op,
-    OwnedArraySlotDescriptorV1 as Descriptor,
-    DynamicCarrierArrayInvokeOperation as CarrierArray,
+    DynamicCarrierArrayInvokeOperation as CarrierArray, InvokeCallResultKind, InvokeOperation,
+    OwnedArrayInvokeOperation as Op, OwnedArraySlotDescriptorV1 as Descriptor,
 };
-use crate::mir::value_origin::{
-    build_value_def_map, resolve_value_origin, AcyclicUnanimousValueOrigins, ValueDefMap,
-};
-use crate::mir::{BasicBlockId, ConstValue, MirFunction, MirInstruction, ValueId};
+use crate::mir::value_origin::{trace_value_origin_with, AcyclicUnanimousValueOrigins};
+
+use crate::mir::{BasicBlockId, ConstValue, MirInstruction, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
@@ -22,9 +21,8 @@ struct State {
     carriers: BTreeSet<ValueId>,
 }
 
-struct Inventory<'a> {
-    function: &'a MirFunction,
-    defs: ValueDefMap,
+struct Inventory<'f, 'g> {
+    function: &'g FunctionVerificationGeometry<'f>,
     identities: AcyclicUnanimousValueOrigins,
     arrays: BTreeSet<ValueId>,
     candidates: BTreeMap<ValueId, BTreeSet<ValueId>>,
@@ -34,24 +32,29 @@ struct Inventory<'a> {
     borrows: BTreeMap<ValueId, (ValueId, Descriptor)>,
     results: BTreeMap<BasicBlockId, ValueId>,
 }
-impl<'a> Inventory<'a> {
+impl<'f, 'g> Inventory<'f, 'g> {
     fn origin(&self, value: ValueId) -> ValueId {
-        if let Some(root) = self.identities.origin(value).filter(|root| self.arrays.contains(root)) {
+        if let Some(root) = self
+            .identities
+            .origin(value)
+            .filter(|root| self.arrays.contains(root))
+        {
             return root;
         }
-        resolve_value_origin(self.function, &self.defs, value)
+        trace_value_origin_with(value, None, |value| self.definition(value)).0
     }
-    fn definition(&self, value: ValueId) -> Option<&'a MirInstruction> {
-        let (block, row) = self.defs.get(&value)?;
-        self.function.blocks.get(block)?.instructions.get(*row)
+    fn definition(&self, value: ValueId) -> Option<&'f MirInstruction> {
+        let (block, index, row) = self.function.definition(value)?;
+        (index < self.function.blocks.get(&block)?.instructions.len()).then_some(row)
     }
-    fn producer(&self, value: ValueId) -> Option<&'a InvokeOperation> {
+    fn producer(&self, value: ValueId) -> Option<&'f InvokeOperation> {
         let MirInstruction::InvokeNormalResult { invoke_block, .. } = self.definition(value)?
         else {
             return None;
         };
         let MirInstruction::Invoke { operation, .. } = self
             .function
+            .as_function()
             .blocks
             .get(invoke_block)?
             .terminator
@@ -70,23 +73,26 @@ impl<'a> Inventory<'a> {
             })
         )
     }
-    fn issue(function: &'a MirFunction) -> Result<Option<Self>, &'static str> {
+    fn issue(function: &'g FunctionVerificationGeometry<'f>) -> Result<Option<Self>, &'static str> {
         if !function.blocks.values().any(|b| {
             b.all_instructions().any(|i| {
                 matches!(
                     i,
                     MirInstruction::Invoke {
                         operation: InvokeOperation::OwnedArray(_)
-                            | InvokeOperation::DynamicCarrierArray(_), ..
+                            | InvokeOperation::DynamicCarrierArray(_),
+                        ..
                     }
                 )
             })
         }) {
             return Ok(None);
         }
+        if !function.conflicts().is_empty() {
+            return Err("owned-array-duplicate-result");
+        }
         let mut row = Self {
             function,
-            defs: build_value_def_map(function),
             identities: AcyclicUnanimousValueOrigins::new(function),
             arrays: BTreeSet::new(),
             candidates: BTreeMap::new(),
@@ -113,26 +119,41 @@ impl<'a> Inventory<'a> {
             else {
                 continue;
             };
-            let array = row.identities.origin(operation.array())
+            let array = row
+                .identities
+                .origin(operation.array())
                 .ok_or("carrier-array-holder-identity")?;
-            if !matches!(row.producer(array), Some(InvokeOperation::IntrinsicArrayNew)) {
+            if !matches!(
+                row.producer(array),
+                Some(InvokeOperation::IntrinsicArrayNew)
+            ) {
                 return Err("carrier-array-original-allocation");
             }
-            if function.blocks.values().any(|candidate| matches!(candidate.terminator.as_ref(),
+            if function.blocks.values().any(|candidate| {
+                matches!(candidate.terminator.as_ref(),
                 Some(MirInstruction::Invoke { operation: InvokeOperation::OwnedArray(owned), .. })
-                    if row.identities.origin(owned.array()) == Some(array))) {
+                    if row.identities.origin(owned.array()) == Some(array))
+            }) {
                 return Err("carrier-array-profile-overlap");
             }
             row.carrier_arrays.insert(array);
             row.arrays.insert(array);
             match operation {
                 CarrierArray::Append { carrier, .. } => {
-                    let carrier = row.identities.origin(*carrier)
+                    let carrier = row
+                        .identities
+                        .origin(*carrier)
                         .ok_or("carrier-array-candidate-identity")?;
-                    if !matches!(row.producer(carrier), Some(InvokeOperation::DynamicInvocation(_))) {
+                    if !matches!(
+                        row.producer(carrier),
+                        Some(InvokeOperation::DynamicInvocation(_))
+                    ) {
                         return Err("carrier-array-candidate-producer");
                     }
-                    row.carrier_candidates.entry(carrier).or_default().insert(array);
+                    row.carrier_candidates
+                        .entry(carrier)
+                        .or_default()
+                        .insert(array);
                 }
                 CarrierArray::Claim { .. } | CarrierArray::End { .. } => {}
             }
@@ -145,7 +166,9 @@ impl<'a> Inventory<'a> {
             else {
                 continue;
             };
-            let array = row.identities.origin(operation.array())
+            let array = row
+                .identities
+                .origin(operation.array())
                 .ok_or("owned-array-holder-identity")?;
             if !matches!(
                 row.producer(array),
@@ -286,9 +309,14 @@ impl<'a> Inventory<'a> {
                     || matches!(instruction, MirInstruction::ArrayResidenceRelease { value: released } if *released == value && state.outer.contains(&root));
                 if !allowed {
                     if crate::config::env::builder_mir_compile_trace() {
-                        let site = self.function.blocks.iter().find_map(|(id, block)|
-                            block.all_instructions().enumerate().find_map(|(index, row)|
-                                std::ptr::eq(row, instruction).then_some((*id, index))));
+                        let site = self.function.blocks.iter().find_map(|(id, block)| {
+                            block
+                                .all_instructions()
+                                .enumerate()
+                                .find_map(|(index, row)| {
+                                    std::ptr::eq(row, instruction).then_some((*id, index))
+                                })
+                        });
                         crate::runtime::get_global_ring0().log.debug(&format!(
                             "[owned-array/holder-use] function={} site={site:?} root=%{} instruction={instruction:?}",
                             self.function.signature.name, root.0));
@@ -327,7 +355,8 @@ impl<'a> Inventory<'a> {
                     || matches!(instruction, MirInstruction::Invoke {
                         operation: InvokeOperation::DynamicCarrierInteger { carrier }, ..
                     } if *carrier == value);
-                    let allowed = allowed || matches!(instruction, MirInstruction::Invoke {
+                let allowed = allowed
+                    || matches!(instruction, MirInstruction::Invoke {
                         operation: InvokeOperation::DynamicCarrierSubI64 { carrier, .. }, ..
                     } if *carrier == value);
                 if !allowed {
@@ -342,7 +371,7 @@ impl<'a> Inventory<'a> {
 /// Exact original Call coordinates are lent before the existing verifier
 /// consumes them. A cataloged callee or the new result tag is never authority.
 pub(super) fn check_source_uses(
-    function: &MirFunction,
+    function: &FunctionVerificationGeometry<'_>,
     original_slot: impl Fn(BasicBlockId, usize, usize) -> bool,
 ) -> Result<(), &'static str> {
     let Some(row) = Inventory::issue(function)? else {
@@ -370,7 +399,7 @@ pub(super) fn check_source_uses(
     Ok(())
 }
 
-pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
+pub(super) fn check(function: &FunctionVerificationGeometry<'_>) -> Result<(), &'static str> {
     let Some(row) = Inventory::issue(function)? else {
         return Ok(());
     };
@@ -476,7 +505,10 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                             return Err("carrier-array-holder-not-live");
                         }
                         let carrier = row.origin(*carrier);
-                        if !row.carrier_candidates.get(&carrier).is_some_and(|arrays| arrays.contains(&array))
+                        if !row
+                            .carrier_candidates
+                            .get(&carrier)
+                            .is_some_and(|arrays| arrays.contains(&array))
                             || !normal.carriers.remove(&carrier)
                         {
                             return Err("carrier-array-candidate-not-live");
@@ -484,8 +516,11 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                     }
                     CarrierArray::End { .. } => {
                         if !state.carrier_holders.contains(&array)
-                            || state.carriers.iter().any(|carrier|
-                                row.carrier_candidates.get(carrier).is_some_and(|arrays| arrays.contains(&array)))
+                            || state.carriers.iter().any(|carrier| {
+                                row.carrier_candidates
+                                    .get(carrier)
+                                    .is_some_and(|arrays| arrays.contains(&array))
+                            })
                         {
                             return Err("carrier-array-end-before-candidate-disposition");
                         }
@@ -497,10 +532,14 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                 mode: crate::mir::instruction::FieldSetModeV1::DynamicValue(contract),
                 value,
                 ..
-            } = operation {
-                if contract.intent() == crate::mir::instruction::DynamicFieldWriteIntentV1::Initialize
-                    && contract.value_tag() == crate::mir::instruction::DynamicFieldValueTagV1::Array
-                    && contract.residence() == crate::mir::instruction::DynamicFieldResidenceV1::EmptyArrayHome
+            } = operation
+            {
+                if contract.intent()
+                    == crate::mir::instruction::DynamicFieldWriteIntentV1::Initialize
+                    && contract.value_tag()
+                        == crate::mir::instruction::DynamicFieldValueTagV1::Array
+                    && contract.residence()
+                        == crate::mir::instruction::DynamicFieldResidenceV1::EmptyArrayHome
                 {
                     let array = row.origin(*value);
                     if !row.carrier_arrays.contains(&array)
@@ -566,7 +605,10 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                 }
             }
         }
-        if let MirInstruction::Return { value: Some(value), .. } = term {
+        if let MirInstruction::Return {
+            value: Some(value), ..
+        } = term
+        {
             let array = row.origin(*value);
             if row.carrier_arrays.contains(&array) {
                 if !state.carrier_holders.remove(&array) {
@@ -601,25 +643,36 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
     // backedges whose exact resource state already reached a fixed point:
     // claimed holders may survive an iteration, pending acquisitions may not.
     // A conditional normal exit is not a proof of termination.
-    let dominators = crate::mir::verification::utils::compute_dominators(function);
+    let dominators = function.dominators();
     // Dominators use the cached CFG; certificates require the same edges as
     // the terminators traversed by this independent lifetime check.
     let consistent_cfg = function.blocks.values().all(|block| {
         block.successors.iter().copied().collect::<BTreeSet<_>>()
-            == block.successors_from_terminator().into_iter().collect::<BTreeSet<_>>()
+            == block
+                .successors_from_terminator()
+                .into_iter()
+                .collect::<BTreeSet<_>>()
     });
-    let mut predecessors: BTreeMap<BasicBlockId, Vec<BasicBlockId>> = BTreeMap::new();
-    for (id, block) in &function.blocks {
-        for next in block.successors_from_terminator() { predecessors.entry(next).or_default().push(*id); }
-    }
+    let predecessors = function.actual_predecessors();
     let mut backedges = BTreeSet::new();
     for (tail, block) in &function.blocks {
-        if !consistent_cfg || !dominators.is_reachable(*tail) { continue; }
+        if !consistent_cfg || !dominators.is_reachable(*tail) {
+            continue;
+        }
         for header in block.successors_from_terminator() {
-            if !dominators.dominates(header, *tail) || seen.contains_key(&(header, true)) { continue; }
-            let Some(state) = seen.get(&(header, false)) else { continue; };
-            if state.holders.is_empty() && state.carrier_holders.is_empty() ||
-                !state.outer.is_empty() || !state.candidates.is_empty() || !state.carriers.is_empty() { continue; }
+            if !dominators.dominates(header, *tail) || seen.contains_key(&(header, true)) {
+                continue;
+            }
+            let Some(state) = seen.get(&(header, false)) else {
+                continue;
+            };
+            if state.holders.is_empty() && state.carrier_holders.is_empty()
+                || !state.outer.is_empty()
+                || !state.candidates.is_empty()
+                || !state.carriers.is_empty()
+            {
+                continue;
+            }
             let mut members = BTreeSet::from([header]);
             let mut pending = vec![*tail];
             while let Some(id) = pending.pop() {
@@ -627,13 +680,20 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                     pending.extend(predecessors.get(&id).into_iter().flatten().copied());
                 }
             }
-            if members.iter().any(|id| !dominators.is_reachable(*id) || !dominators.dominates(header, *id)) {
+            if members
+                .iter()
+                .any(|id| !dominators.is_reachable(*id) || !dominators.dominates(header, *id))
+            {
                 continue;
             }
-            let normal_exit = members.iter().any(|id| matches!(function.blocks[id].terminator.as_ref(),
+            let normal_exit = members.iter().any(|id| {
+                matches!(function.blocks[id].terminator.as_ref(),
                 Some(MirInstruction::Branch { then_bb, else_bb, .. })
-                    if members.contains(then_bb) != members.contains(else_bb)));
-            if normal_exit { backedges.insert((*tail, header)); }
+                    if members.contains(then_bb) != members.contains(else_bb))
+            });
+            if normal_exit {
+                backedges.insert((*tail, header));
+            }
         }
     }
     // Unknown, faulted, irreducible and post-End cycles keep the existing
@@ -662,7 +722,9 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
             .into_iter()
             .rev()
         {
-            if backedges.contains(&(id, next)) { continue; }
+            if backedges.contains(&(id, next)) {
+                continue;
+            }
             stack.push((next, false));
         }
     }

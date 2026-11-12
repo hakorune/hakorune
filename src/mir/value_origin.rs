@@ -105,8 +105,25 @@ pub(in crate::mir) fn trace_value_origin(
 fn walk_value_origin(
     function: &MirFunction,
     def_map: &ValueDefMap,
+    value: ValueId,
+    memo: Option<&HashMap<ValueId, ValueId>>,
+) -> (ValueId, Vec<ValueId>) {
+    trace_value_origin_with(value, memo, |value| {
+        let &(block, index) = def_map.get(&value)?;
+        let body = function.blocks.get(&block)?;
+        body.instructions.get(index).or_else(|| {
+            (index == body.instructions.len())
+                .then_some(body.terminator.as_ref())
+                .flatten()
+        })
+    })
+}
+
+/// The same Copy-only walk, with the caller's exact definition projection.
+pub(in crate::mir) fn trace_value_origin_with<'a>(
     mut value: ValueId,
     memo: Option<&HashMap<ValueId, ValueId>>,
+    mut definition: impl FnMut(ValueId) -> Option<&'a MirInstruction>,
 ) -> (ValueId, Vec<ValueId>) {
     let mut path = Vec::new();
     let mut visited = BTreeSet::new();
@@ -115,15 +132,7 @@ fn walk_value_origin(
             return (origin, path);
         }
         path.push(value);
-        let Some((bbid, idx)) = def_map.get(&value).copied() else {
-            break;
-        };
-        let Some(inst) = function
-            .blocks
-            .get(&bbid)
-            .and_then(|block| block.instructions.get(idx).or_else(||
-                (idx == block.instructions.len()).then_some(block.terminator.as_ref()).flatten()))
-        else {
+        let Some(inst) = definition(value) else {
             break;
         };
         match inst {
@@ -156,14 +165,18 @@ impl AcyclicUnanimousValueOrigins {
         let mut predecessors: BTreeMap<BasicBlockId, BTreeSet<BasicBlockId>> = BTreeMap::new();
         let mut parameters = BTreeSet::new();
         for value in &function.params {
-            if !parameters.insert(*value) { ambiguous.insert(*value); }
+            if !parameters.insert(*value) {
+                ambiguous.insert(*value);
+            }
         }
         for (id, block) in &function.blocks {
             for instruction in &block.instructions {
                 if let Some(dst) = instruction.dst_value() {
                     if definitions.insert(dst, (*id, instruction)).is_some()
                         || parameters.contains(&dst)
-                    { ambiguous.insert(dst); }
+                    {
+                        ambiguous.insert(dst);
+                    }
                 }
             }
             for target in block.successors_from_terminator() {
@@ -179,24 +192,42 @@ impl AcyclicUnanimousValueOrigins {
             active: &mut BTreeSet<ValueId>,
             roots: &mut HashMap<ValueId, Option<ValueId>>,
         ) -> Option<ValueId> {
-            if let Some(root) = roots.get(&value) { return *root; }
-            if ambiguous.contains(&value) || !active.insert(value) { return None; }
+            if let Some(root) = roots.get(&value) {
+                return *root;
+            }
+            if ambiguous.contains(&value) || !active.insert(value) {
+                return None;
+            }
             let result = (|| {
                 let Some((block, instruction)) = definitions.get(&value) else {
                     return parameters.contains(&value).then_some(value);
                 };
-                let mut child = |value| resolve(value, definitions, parameters, ambiguous,
-                    predecessors, active, roots);
+                let mut child = |value| {
+                    resolve(
+                        value,
+                        definitions,
+                        parameters,
+                        ambiguous,
+                        predecessors,
+                        active,
+                        roots,
+                    )
+                };
                 match instruction {
                     MirInstruction::Copy { src, .. } => child(*src),
                     MirInstruction::Phi { inputs, .. } => {
                         let incoming: BTreeSet<_> = inputs.iter().map(|(bb, _)| *bb).collect();
-                        if inputs.is_empty() || incoming.len() != inputs.len()
+                        if inputs.is_empty()
+                            || incoming.len() != inputs.len()
                             || predecessors.get(block) != Some(&incoming)
-                        { return None; }
+                        {
+                            return None;
+                        }
                         let root = child(inputs[0].1)?;
                         for (_, input) in inputs.iter().skip(1) {
-                            if child(*input) != Some(root) { return None; }
+                            if child(*input) != Some(root) {
+                                return None;
+                            }
                         }
                         Some(root)
                     }
@@ -210,8 +241,15 @@ impl AcyclicUnanimousValueOrigins {
         let mut roots = HashMap::new();
         let mut active = BTreeSet::new();
         for value in definitions.keys().chain(parameters.iter()).copied() {
-            resolve(value, &definitions, &parameters, &ambiguous, &predecessors,
-                &mut active, &mut roots);
+            resolve(
+                value,
+                &definitions,
+                &parameters,
+                &ambiguous,
+                &predecessors,
+                &mut active,
+                &mut roots,
+            );
         }
         Self { roots }
     }
