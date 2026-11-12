@@ -10,50 +10,84 @@ pub(crate) enum CallValidationContextV1<'a> {
 }
 impl<'a> CallValidationContextV1<'a> {
     /// Source preflight only: no physical execution or completion permission.
-    pub(in crate::mir) fn validate_source_loop_bool_frame_v2(self,
-        product: &std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>, index: usize,
-        frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1>,
+    pub(in crate::mir) fn validate_source_loop_bool_frame_v2(
+        self,
+        product: &std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+        index: usize,
+        frame: &std::rc::Rc<
+            crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1,
+        >,
     ) -> Result<(), String> {
-        use crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1 as Root;
         use crate::mir::resolved_semantics::home_new_prefix::LifecyclePrefixSourceV1 as Prefix;
-        let original = product.schedule().frames().get(index).ok_or_else(|| freeze("bool-condition/loop-frame-index"))?;
+        use crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1 as Root;
+        let original = product
+            .schedule()
+            .frames()
+            .get(index)
+            .ok_or_else(|| freeze("bool-condition/loop-frame-index"))?;
         if !matches!(original.prefix(), Prefix::BoolCondition { frame: source, .. } if std::rc::Rc::ptr_eq(source, frame))
-            || if index == 0 { !matches!(frame.source().root(), Root::LoopCondition { .. })
-                || !std::rc::Rc::ptr_eq(frame, &product.source.condition) }
-                else { !matches!(frame.source().root(), Root::IfCondition { .. }) } {
+            || if index == 0 {
+                !matches!(frame.source().root(), Root::LoopCondition { .. })
+                    || !std::rc::Rc::ptr_eq(frame, &product.source.condition)
+            } else {
+                !matches!(frame.source().root(), Root::IfCondition { .. })
+            }
+        {
             return Err(freeze("bool-condition/loop-source-purpose"));
         }
         self.require_original_source_loop_v2(product)
     }
     /// The same Loop remains in its existing affine group tree. A child may
     /// retain the immutable product, never an Rc back to its physical parent.
-    pub(super) fn require_original_source_loop_v2(self,
+    pub(super) fn require_original_source_loop_v2(
+        self,
         product: &std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
     ) -> Result<(), String> {
         self.require_source_loop_parent_v2(product, false)
     }
     /// Borrow the immutable source coordinate through its current affine parent.
     /// Header publication may precede completion; After and all final users may not.
-    pub(in crate::mir) fn source_loop_point_product_v2(self,
+    pub(in crate::mir) fn source_loop_point_product_v2(
+        self,
         source: &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1,
-    ) -> Result<std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>, String> {
+    ) -> Result<
+        std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+        String,
+    > {
         use crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1 as Producer;
         let (product, after) = match source {
             Producer::LoopHeader(basis) => {
-                let product = self.ledger().retained_source_loop_recipe_v2(basis.binding().owner(), basis.source().site())?
+                let product = self
+                    .ledger()
+                    .retained_source_loop_recipe_v2(basis.binding().owner(), basis.source().site())?
                     .ok_or_else(|| freeze("source-loop/header-product-missing"))?;
                 if !std::rc::Rc::ptr_eq(&product.source.source, basis.source())
-                    || product.source.headers.get(&basis.binding()).is_none_or(|original| !std::rc::Rc::ptr_eq(original, basis)) {
+                    || product
+                        .source
+                        .headers
+                        .get(&basis.binding())
+                        .is_none_or(|original| !std::rc::Rc::ptr_eq(original, basis))
+                {
                     return Err(freeze("source-loop/header-basis-drift"));
                 }
                 (std::rc::Rc::clone(product), false)
             }
             Producer::LoopAfter { product, binding } => {
-                let original = self.ledger().retained_source_loop_recipe_v2(binding.owner(), product.source.source.site())?
+                let original = self
+                    .ledger()
+                    .retained_source_loop_recipe_v2(binding.owner(), product.source.source.site())?
                     .ok_or_else(|| freeze("source-loop/after-product-missing"))?;
                 if !std::rc::Rc::ptr_eq(original, product)
-                    || product.source.incoming.as_ref().map_err(|_| freeze("source-loop/after-incoming"))?
-                        .iter().filter(|row| row.basis.binding() == *binding).count() != 1 {
+                    || product
+                        .source
+                        .incoming
+                        .as_ref()
+                        .map_err(|_| freeze("source-loop/after-incoming"))?
+                        .iter()
+                        .filter(|row| row.basis.binding() == *binding)
+                        .count()
+                        != 1
+                {
                     return Err(freeze("source-loop/after-source-drift"));
                 }
                 (std::rc::Rc::clone(product), true)
@@ -67,13 +101,19 @@ impl<'a> CallValidationContextV1<'a> {
     /// Borrow the same source product for a Text Header/After coordinate.
     /// Text remains a distinct source class: this path cannot issue a scalar
     /// read, and Static/Residence producers are not loop-point capabilities.
-    pub(in crate::mir) fn source_loop_text_point_product_v2(self,
+    pub(in crate::mir) fn source_loop_text_point_product_v2(
+        self,
         source: &crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1,
-    ) -> Result<std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>, String> {
+    ) -> Result<
+        std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+        String,
+    > {
         use crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1 as Producer;
         let (product, binding, after) = match source {
             Producer::Header(basis) => {
-                let product = self.ledger().retained_source_loop_recipe_v2(basis.binding().owner(), basis.source().site())?
+                let product = self
+                    .ledger()
+                    .retained_source_loop_recipe_v2(basis.binding().owner(), basis.source().site())?
                     .ok_or_else(|| freeze("source-loop/header-product-missing"))?;
                 if !std::rc::Rc::ptr_eq(&product.source.source, basis.source())
                     || product.source.headers.get(&basis.binding()).is_none_or(|original| !std::rc::Rc::ptr_eq(original, basis))
@@ -83,7 +123,9 @@ impl<'a> CallValidationContextV1<'a> {
                 (std::rc::Rc::clone(product), basis.binding(), false)
             }
             Producer::After { product, binding } => {
-                let original = self.ledger().retained_source_loop_recipe_v2(binding.owner(), product.source.source.site())?
+                let original = self
+                    .ledger()
+                    .retained_source_loop_recipe_v2(binding.owner(), product.source.source.site())?
                     .ok_or_else(|| freeze("source-loop/after-product-missing"))?;
                 if !std::rc::Rc::ptr_eq(original, product)
                     || product.source.headers.get(binding).is_none_or(|basis|
@@ -94,10 +136,16 @@ impl<'a> CallValidationContextV1<'a> {
                 }
                 (std::rc::Rc::clone(product), *binding, true)
             }
-            Producer::Static { .. } | Producer::Residence(_) | Producer::BranchNormal(_) => return Err(freeze("source-loop/point-purpose")),
+            Producer::Static { .. } | Producer::Residence(_) | Producer::BranchNormal(_) => {
+                return Err(freeze("source-loop/point-purpose"))
+            }
         };
-        if product.source.headers.get(&binding).is_none_or(|basis|
-            !matches!(basis.entry_producer(), crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Text(_))) {
+        if product.source.headers.get(&binding).is_none_or(|basis| {
+            !matches!(
+                basis.entry_producer(),
+                crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Text(_)
+            )
+        }) {
             return Err(freeze("source-loop/text-point-binding"));
         }
         self.require_source_loop_parent_v2(&product, after || matches!(self, Self::Finalized(_)))?;
@@ -107,44 +155,67 @@ impl<'a> CallValidationContextV1<'a> {
     /// Borrow the same source product for a tagged-Dynamic Header/After.
     /// Dynamic remains a pair-valued carrier; it never lends a scalar or Text
     /// view, and the original source SUM stays attached to the producer.
-    pub(in crate::mir) fn source_loop_dynamic_point_product_v2(self,
+    pub(in crate::mir) fn source_loop_dynamic_point_product_v2(
+        self,
         source: &crate::mir::resolved_semantics::home_new_prefix::SourceLoopDynamicProducerV1,
-    ) -> Result<std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>, String> {
+    ) -> Result<
+        std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+        String,
+    > {
         use crate::mir::resolved_semantics::home_new_prefix::{
-            SourceLoopDynamicProducerV1 as Producer,
-            SourceLoopValueProducerV1 as ValueProducer,
+            SourceLoopDynamicProducerV1 as Producer, SourceLoopValueProducerV1 as ValueProducer,
         };
         let (product, binding, after) = match source {
             Producer::Header(basis) => {
-                let product = self.ledger().retained_source_loop_recipe_v2(
-                    basis.binding().owner(), basis.source().site(),
-                )?.ok_or_else(|| freeze("source-loop/header-product-missing"))?;
+                let product = self
+                    .ledger()
+                    .retained_source_loop_recipe_v2(basis.binding().owner(), basis.source().site())?
+                    .ok_or_else(|| freeze("source-loop/header-product-missing"))?;
                 if !std::rc::Rc::ptr_eq(&product.source.source, basis.source())
-                    || product.source.headers.get(&basis.binding())
+                    || product
+                        .source
+                        .headers
+                        .get(&basis.binding())
                         .is_none_or(|original| !std::rc::Rc::ptr_eq(original, basis))
-                    || !matches!(basis.entry_producer(), ValueProducer::Dynamic(_)) {
+                    || !matches!(basis.entry_producer(), ValueProducer::Dynamic(_))
+                {
                     return Err(freeze("source-loop/dynamic-header-basis-drift"));
                 }
                 (std::rc::Rc::clone(product), basis.binding(), false)
             }
             Producer::After { product, binding } => {
-                let original = self.ledger().retained_source_loop_recipe_v2(
-                    binding.owner(), product.source.source.site(),
-                )?.ok_or_else(|| freeze("source-loop/after-product-missing"))?;
+                let original = self
+                    .ledger()
+                    .retained_source_loop_recipe_v2(binding.owner(), product.source.source.site())?
+                    .ok_or_else(|| freeze("source-loop/after-product-missing"))?;
                 if !std::rc::Rc::ptr_eq(original, product)
-                    || product.source.headers.get(binding).is_none_or(|basis|
-                        !matches!(basis.entry_producer(), ValueProducer::Dynamic(_)))
-                    || product.source.incoming.as_ref().map_err(|_| freeze("source-loop/after-incoming"))?
-                        .iter().filter(|row| row.basis.binding() == *binding).count() != 1 {
+                    || product.source.headers.get(binding).is_none_or(|basis| {
+                        !matches!(basis.entry_producer(), ValueProducer::Dynamic(_))
+                    })
+                    || product
+                        .source
+                        .incoming
+                        .as_ref()
+                        .map_err(|_| freeze("source-loop/after-incoming"))?
+                        .iter()
+                        .filter(|row| row.basis.binding() == *binding)
+                        .count()
+                        != 1
+                {
                     return Err(freeze("source-loop/dynamic-after-source-drift"));
                 }
                 (std::rc::Rc::clone(product), *binding, true)
             }
-            Producer::Source(_) | Producer::Initializer(_) | Producer::BindingRebind(_) =>
-                return Err(freeze("source-loop/dynamic-point-purpose")),
+            Producer::Source(_) | Producer::Initializer(_) | Producer::BindingRebind(_) => {
+                return Err(freeze("source-loop/dynamic-point-purpose"))
+            }
         };
-        if product.source.headers.get(&binding).is_none_or(|basis|
-            !matches!(basis.entry_producer(), ValueProducer::Dynamic(_))) {
+        if product
+            .source
+            .headers
+            .get(&binding)
+            .is_none_or(|basis| !matches!(basis.entry_producer(), ValueProducer::Dynamic(_)))
+        {
             return Err(freeze("source-loop/dynamic-point-binding"));
         }
         self.require_source_loop_parent_v2(&product, after || matches!(self, Self::Finalized(_)))?;
@@ -154,53 +225,82 @@ impl<'a> CallValidationContextV1<'a> {
     /// Borrow the same source-owned write after the packet pool's affine move.
     /// Membership is safe during read take; full RHS validation is a later phase.
     pub(in crate::mir::normal_callable_semantic_package) fn with_original_field_write_v1<R>(
-        self, frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedFieldWriteFrameV1>,
+        self,
+        frame: &std::rc::Rc<
+            crate::mir::resolved_semantics::home_new_prefix::CheckedFieldWriteFrameV1,
+        >,
         check: impl FnOnce(&EmittedBorrowedFieldWriteV1) -> Result<R, String>,
     ) -> Result<R, String> {
         self.with_local_call_group_tree_v2(frame.source().owner(), |groups| {
             let mut found = None;
             for group in groups {
-                let Some(packet) = group.borrowed_field_write() else { continue };
-                if !std::rc::Rc::ptr_eq(packet.source().frame(), frame) { continue; }
-                if group.site() != &packet.source().value_site() || found.replace(packet).is_some() {
+                let Some(packet) = group.borrowed_field_write() else {
+                    continue;
+                };
+                if !std::rc::Rc::ptr_eq(packet.source().frame(), frame) {
+                    continue;
+                }
+                if group.site() != &packet.source().value_site() || found.replace(packet).is_some()
+                {
                     return Err(freeze("field-write/packet-membership"));
                 }
-                if matches!(self, Self::Finalized(_)) { group.require_sealed_condition_v1()?; }
+                if matches!(self, Self::Finalized(_)) {
+                    group.require_sealed_condition_v1()?;
+                }
             }
             check(found.ok_or_else(|| freeze("field-write/original-packet-missing"))?)
         })
     }
-    pub(in crate::mir) fn with_original_rebind_v1<R>(self,
-        frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>,
+    pub(in crate::mir) fn with_original_rebind_v1<R>(
+        self,
+        frame: &std::rc::Rc<
+            crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1,
+        >,
         check: impl FnOnce(&EmittedBindingRebindProjectionV1) -> Result<R, String>,
     ) -> Result<R, String> {
         self.with_local_call_group_tree_v2(frame.source().owner(), |groups| {
             let mut found = None;
             for group in groups {
-                let Some(packet) = group.rebind() else { continue };
-                if !std::rc::Rc::ptr_eq(packet.frame(), frame) { continue; }
-                if found.replace(packet).is_some() { return Err(freeze("rebind-expression/packet-duplicate")); }
+                let Some(packet) = group.rebind() else {
+                    continue;
+                };
+                if !std::rc::Rc::ptr_eq(packet.frame(), frame) {
+                    continue;
+                }
+                if found.replace(packet).is_some() {
+                    return Err(freeze("rebind-expression/packet-duplicate"));
+                }
             }
             check(found.ok_or_else(|| freeze("rebind-expression/packet-missing"))?)
         })
     }
-    pub(in crate::mir) fn with_original_initializer_v1<R>(self,
-        frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedInitializerExpressionFrameV1>,
-        check: impl FnOnce(&EmittedInitializerExpressionProjectionV1) -> Result<R, String>,
+    pub(in crate::mir) fn with_original_initializer_v1<R>(
+        self,
+        frame: &std::rc::Rc<
+            crate::mir::resolved_semantics::home_new_prefix::CheckedInitializerExpressionFrameV1,
+        >,
+        check: impl FnOnce(&ExpressionEmissionV1<InitializerExpressionContractV1>) -> Result<R, String>,
     ) -> Result<R, String> {
         self.with_local_call_group_tree_v2(frame.source().owner(), |groups| {
             let mut found = None;
             for group in groups {
-                let Some(packet) = group.initializer() else { continue };
-                if !std::rc::Rc::ptr_eq(packet.frame(), frame) { continue; }
-                if found.replace(packet).is_some() { return Err(freeze("initializer-expression/packet-duplicate")); }
+                let Some(packet) = group.initializer() else {
+                    continue;
+                };
+                if !std::rc::Rc::ptr_eq(packet.frame(), frame) {
+                    continue;
+                }
+                if found.replace(packet).is_some() {
+                    return Err(freeze("initializer-expression/packet-duplicate"));
+                }
             }
             check(found.ok_or_else(|| freeze("initializer-expression/packet-missing"))?)
         })
     }
     /// Resolve a Text acquisition through its original source purpose. This
     /// borrows the existing packet and lexical loan; it issues no new Home.
-    pub(in crate::mir) fn with_text_residence_v1<R>(self,
+    pub(in crate::mir) fn with_text_residence_v1<R>(
+        self,
         acquisition: &crate::mir::resolved_semantics::home_new_prefix::TextResidenceAcquisitionV1,
         read: &crate::mir::builder::ExactLexicalReadV1,
         check: impl FnOnce(ValueId, &(BasicBlockId, MirInstruction)) -> Result<R, String>,
@@ -208,25 +308,32 @@ impl<'a> CallValidationContextV1<'a> {
         if let Some(frame) = acquisition.initializer_origin_v1() {
             return self.with_original_initializer_v1(frame, |packet| {
                 let home = self.text_home_for_acquisition_v1(acquisition)?;
-                let value = read.binding_observation_v2().loan_root_initializer_v1(acquisition.binding())?;
+                let value = read
+                    .binding_observation_v2()
+                    .loan_root_initializer_v1(acquisition.binding())?;
                 if value != packet.value() || home.local_value() != value {
                     return Err(freeze("expression/residence-original-pair"));
                 }
                 check(value, packet.root_acquisition_binding_v1()?)
             });
         }
-        let frame = acquisition.rebind_origin_v1().ok_or_else(|| freeze("expression/residence-origin"))?;
+        let frame = acquisition
+            .rebind_origin_v1()
+            .ok_or_else(|| freeze("expression/residence-origin"))?;
         self.with_original_rebind_v1(frame, |packet| {
             let home = self.text_home_for_acquisition_v1(acquisition)?;
             let value = read.loan_checked_rebind_v1(frame)?.0;
-            if value != packet.value() || home.local_value() != value { return Err(freeze("expression/residence-original-pair")); }
+            if value != packet.value() || home.local_value() != value {
+                return Err(freeze("expression/residence-original-pair"));
+            }
             check(value, packet.root_acquisition_binding_v1()?)
         })
     }
     /// Resolve an existing Text residence from the current immutable binding
     /// observation. This is used by Loop Entry verification where there is no
     /// additional lexical read site to consume.
-    pub(in crate::mir) fn with_text_residence_binding_v1<R>(self,
+    pub(in crate::mir) fn with_text_residence_binding_v1<R>(
+        self,
         acquisition: &crate::mir::resolved_semantics::home_new_prefix::TextResidenceAcquisitionV1,
         read: &crate::mir::builder::BindingValueObservationV2,
         check: impl FnOnce(ValueId, &(BasicBlockId, MirInstruction)) -> Result<R, String>,
@@ -248,28 +355,45 @@ impl<'a> CallValidationContextV1<'a> {
         }
         check(value, home.root_acquisition_binding_v1()?)
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn text_home_for_acquisition_v1(self,
+    pub(in crate::mir::normal_callable_semantic_package) fn text_home_for_acquisition_v1(
+        self,
         acquisition: &crate::mir::resolved_semantics::home_new_prefix::TextResidenceAcquisitionV1,
     ) -> Result<TextResidencePacketV1, String> {
         let rows = self.ledger().local_commits.borrow();
-        let home = crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Text(acquisition.clone());
+        let home =
+            crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Text(acquisition.clone());
         let LocalCommitV1::TextResidence(packet) = installed_source_home(&rows, &home)
-            .map_err(|_| freeze("expression/residence-published-home"))? else { return Err(freeze("expression/residence-published-home")) };
-        self.ledger().validate_text_residence_home_v1(packet, self)?;
+            .map_err(|_| freeze("expression/residence-published-home"))?
+        else {
+            return Err(freeze("expression/residence-published-home"));
+        };
+        self.ledger()
+            .validate_text_residence_home_v1(packet, self)?;
         Ok(packet.clone())
     }
 
     pub(in crate::mir) fn ledger(self) -> &'a OrdinaryNewClaimLedgerV1 {
-        match self { Self::Lowering(ledger) => ledger, Self::Finalized(source) => &source.ledger }
+        match self {
+            Self::Lowering(ledger) => ledger,
+            Self::Finalized(source) => &source.ledger,
+        }
     }
-    pub(in crate::mir) fn require_ledger(self, ledger: &OrdinaryNewClaimLedgerV1) -> Result<(), String> {
-        if !std::ptr::eq(self.ledger(), ledger) { return Err(freeze("call-validation/foreign-ledger")); }
+    pub(in crate::mir) fn require_ledger(
+        self,
+        ledger: &OrdinaryNewClaimLedgerV1,
+    ) -> Result<(), String> {
+        if !std::ptr::eq(self.ledger(), ledger) {
+            return Err(freeze("call-validation/foreign-ledger"));
+        }
         Ok(())
     }
     /// Source membership follows the exact affine slot state, without retrying pools.
     pub(in crate::mir::normal_callable_semantic_package) fn with_current_instance_source_v1<R>(
-        self, site: &OwnedExprSiteV1,
-        check: impl FnOnce(&crate::mir::normal_callable_semantic_package::LexicalInstanceCallSourceTargetV1) -> Result<R, String>,
+        self,
+        site: &OwnedExprSiteV1,
+        check: impl FnOnce(
+            &crate::mir::normal_callable_semantic_package::LexicalInstanceCallSourceTargetV1,
+        ) -> Result<R, String>,
     ) -> Result<R, String> {
         use super::super::lexical_instance_call::LexicalInstanceCallDispositionSlotV1 as Slot;
         let rows = self.ledger().lexical_instance_calls.borrow();
@@ -279,17 +403,23 @@ impl<'a> CallValidationContextV1<'a> {
             Some(Slot::Taken) => {
                 drop(rows);
                 self.with_taken_original_row_v1(site, |row| check(row.source_target()))
-            },
+            }
             None => Err(freeze("call-validation/original-instance-source-missing")),
         }
     }
     /// Borrow groups from their current affine owner; never retry another pool.
     pub(super) fn with_local_call_groups_v1<R>(
-        self, owner: FunctionOwnerIdV1,
+        self,
+        owner: FunctionOwnerIdV1,
         read: impl FnOnce(&[RootLifecyclePrefixBindingGroupV1]) -> Result<R, String>,
     ) -> Result<R, String> {
         let roots = match self {
-            Self::Lowering(ledger) => ledger.root_local_call_bindings.borrow().get(&owner).cloned().unwrap_or_default(),
+            Self::Lowering(ledger) => ledger
+                .root_local_call_bindings
+                .borrow()
+                .get(&owner)
+                .cloned()
+                .unwrap_or_default(),
             Self::Finalized(source) => source.local_calls.get(&owner).cloned().unwrap_or_default(),
         };
         read(&roots)
@@ -297,14 +427,18 @@ impl<'a> CallValidationContextV1<'a> {
 
     /// Packet lookup traverses nested groups. Instruction-owner censuses keep
     /// using the root groups, whose completed aggregate owns each binding once.
-    pub(super) fn with_local_call_group_tree_v2<R>(self, owner: FunctionOwnerIdV1,
+    pub(super) fn with_local_call_group_tree_v2<R>(
+        self,
+        owner: FunctionOwnerIdV1,
         read: impl FnOnce(&[RootLifecyclePrefixBindingGroupV1]) -> Result<R, String>,
     ) -> Result<R, String> {
         self.with_local_call_groups_v1(owner, |roots| {
             let groups = RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(roots);
             if matches!(self, Self::Finalized(_)) {
                 for group in &groups {
-                    if group.source_loop_rc().is_some() { group.require_sealed_condition_v1()?; }
+                    if group.source_loop_rc().is_some() {
+                        group.require_sealed_condition_v1()?;
+                    }
                 }
             }
             read(&groups)
@@ -313,45 +447,74 @@ impl<'a> CallValidationContextV1<'a> {
 
     /// Exit bindings move to the finalized root handoff exactly once.
     pub(super) fn visit_exit_bindings_v1(
-        self, owner: FunctionOwnerIdV1, mut visit: impl FnMut(&[(BasicBlockId, MirInstruction)]),
+        self,
+        owner: FunctionOwnerIdV1,
+        mut visit: impl FnMut(&[(BasicBlockId, MirInstruction)]),
     ) -> Result<(), String> {
         for ((exit_owner, site), progress) in self.ledger().root_exits.borrow().iter() {
-            if *exit_owner != owner { continue; }
+            if *exit_owner != owner {
+                continue;
+            }
             match progress {
-                RootHomeExitProgress::Emitted { bindings, order, .. } => {
+                RootHomeExitProgress::Emitted {
+                    bindings, order, ..
+                } => {
                     visit(bindings);
-                    if let Some(frame) = &order.original_frame { visit(std::slice::from_ref(frame)); }
+                    if let Some(frame) = &order.original_frame {
+                        visit(std::slice::from_ref(frame));
+                    }
                     // The return expression's own Fault chain also discharges live Homes.
                     visit(&order.return_value_bindings_v1(self)?);
                 }
                 RootHomeExitProgress::Finalized(_) => {
                     if let Self::Finalized(source) = self {
-                        let exit = site.explicit_site().ok_or_else(|| freeze("call-validation/finalized-exit-site"))?;
-                        if source.owner != owner { return Err(freeze("call-validation/finalized-exit-owner")); }
-                        let (_, bindings) = source.call_entries.get(exit)
+                        let exit = site
+                            .explicit_site()
+                            .ok_or_else(|| freeze("call-validation/finalized-exit-site"))?;
+                        if source.owner != owner {
+                            return Err(freeze("call-validation/finalized-exit-owner"));
+                        }
+                        let (_, bindings) = source
+                            .call_entries
+                            .get(exit)
                             .ok_or_else(|| freeze("call-validation/finalized-exit-missing"))?;
                         visit(bindings);
                     }
                 }
-                _ => {},
+                _ => {}
             }
         }
         Ok(())
     }
 
     pub(in crate::mir) fn with_taken_original_row_v1<R>(
-        self, site: &OwnedExprSiteV1,
+        self,
+        site: &OwnedExprSiteV1,
         check: impl FnOnce(&LexicalInstanceCallDispositionRowV1) -> Result<R, String>,
     ) -> Result<R, String> {
         self.with_taken_packet_v1(site, |packet| check(packet.original_row()?))
     }
 
-    pub(in crate::mir) fn declared_receiver_read_v1(self, row: &LexicalInstanceCallDispositionRowV1)
-        -> Result<Option<&'a crate::mir::resolved_semantics::home_new_prefix::DeclaredReadReceiverV1>, String> {
-        let Some(source) = row.source_target().declared_read_receiver_v1() else { return Ok(None); };
-        let read = self.ledger().borrowed_formal_actuals.get(row.call_site()).and_then(|actuals| actuals.as_ref().ok())
-            .and_then(|actuals| actuals.declared_receiver_read_v1()).ok_or_else(|| freeze("borrowed-return/original-contract"))?;
-        if !source.matches_value_v1(read.read()) || (!read.read().payload_nonnull() && read.exclusion().is_none()) {
+    pub(in crate::mir) fn declared_receiver_read_v1(
+        self,
+        row: &LexicalInstanceCallDispositionRowV1,
+    ) -> Result<
+        Option<&'a crate::mir::resolved_semantics::home_new_prefix::DeclaredReadReceiverV1>,
+        String,
+    > {
+        let Some(source) = row.source_target().declared_read_receiver_v1() else {
+            return Ok(None);
+        };
+        let read = self
+            .ledger()
+            .borrowed_formal_actuals
+            .get(row.call_site())
+            .and_then(|actuals| actuals.as_ref().ok())
+            .and_then(|actuals| actuals.declared_receiver_read_v1())
+            .ok_or_else(|| freeze("borrowed-return/original-contract"))?;
+        if !source.matches_value_v1(read.read())
+            || (!read.read().payload_nonnull() && read.exclusion().is_none())
+        {
             return Err(freeze("borrowed-return/original-contract"));
         }
         Ok(Some(read))
@@ -360,13 +523,16 @@ impl<'a> CallValidationContextV1<'a> {
     /// Borrow the payload's SAME producer Normal and original LocalSSA chain.
     /// The lifetime holder never supplies the payload value; no Home is issued.
     pub(in crate::mir) fn require_borrowed_receiver_v1(
-        self, row: &LexicalInstanceCallDispositionRowV1,
+        self,
+        row: &LexicalInstanceCallDispositionRowV1,
         read: &crate::mir::builder::ExactLexicalReadV1,
     ) -> Result<(), String> {
         if let Some(receiver) = self.declared_receiver_read_v1(row)? {
             let view = receiver.read();
-            if view.read().site() != row.receiver_site() || view.read().owner() != row.call_site().owner()
-                || view.declared_type() != row.source_target().target().owner() {
+            if view.read().site() != row.receiver_site()
+                || view.read().owner() != row.call_site().owner()
+                || view.declared_type() != row.source_target().target().owner()
+            {
                 return Err(freeze("borrowed-return/original-contract"));
             }
             self.declared_value_read_v1(view, read)?;
@@ -376,44 +542,66 @@ impl<'a> CallValidationContextV1<'a> {
             // The alias is the SAME original Map get Local: the receiver read must
             // be that packet's own LocalSSA copy, never another value.
             let owner = row.call_site().owner();
-            let receiver = read.value_for(owner, row.receiver_site().node(), direct.binding())
+            let receiver = read
+                .value_for(owner, row.receiver_site().node(), direct.binding())
                 .map_err(|_| freeze("borrowed-return/original-contract"))?;
             let locals = self.with_local_call_group_tree_v2(owner, |groups| {
-                Ok(groups.iter().filter_map(|group| group.stored_map_get())
+                Ok(groups
+                    .iter()
+                    .filter_map(|group| group.stored_map_get())
                     .filter(|packet| packet.frame().binding() == direct.binding())
-                    .map(|packet| packet.copy_receipt().0).collect::<Vec<_>>())
+                    .map(|packet| packet.copy_receipt().0)
+                    .collect::<Vec<_>>())
             })?;
-            return if locals.as_slice() == [receiver] { Ok(()) } else { Err(freeze("borrowed-return/original-contract")) };
+            return if locals.as_slice() == [receiver] {
+                Ok(())
+            } else {
+                Err(freeze("borrowed-return/original-contract"))
+            };
         }
         let Some(loan) = row.source_target().borrowed_call_receiver_source_v1() else {
             return if row.source_target().has_borrowed_receiver_source_v1() {
                 Err(freeze("borrowed-return/original-loan"))
-            } else { Ok(()) };
+            } else {
+                Ok(())
+            };
         };
         self.ledger().corroborate_unit_discard_v1(row)?;
-        let source = self.ledger().borrowed_nullable_call_source_v1(loan.call())
+        let source = self
+            .ledger()
+            .borrowed_nullable_call_source_v1(loan.call())
             .ok_or_else(|| freeze("borrowed-return/original-loan"))?;
         if source.borrowed_nullable() != Some(loan)
-            || source.local_binding().map(|(_, binding)| binding) != Some(loan.destination()) {
+            || source.local_binding().map(|(_, binding)| binding) != Some(loan.destination())
+        {
             return Err(freeze("borrowed-return/original-contract"));
         }
-        read.value_for(row.call_site().owner(), row.receiver_site().node(), loan.destination())
-            .map_err(|_| freeze("borrowed-return/original-contract"))?;
+        read.value_for(
+            row.call_site().owner(),
+            row.receiver_site().node(),
+            loan.destination(),
+        )
+        .map_err(|_| freeze("borrowed-return/original-contract"))?;
         let (initializer, _) = read.loan_local_initializer_v1(loan.destination())?;
         self.with_taken_packet_v1(loan.call(), |packet| {
             let original = packet.original_row()?;
             let result = loan.result_kind_v1();
             if original.source_target().borrowed_nullable_local_source() != Some(loan)
-                || self.ledger().corroborate_borrowed_nullable_call_v1(original)?
+                || self
+                    .ledger()
+                    .corroborate_borrowed_nullable_call_v1(original)?
                     != result
-                || packet.value_in_context_v1(source.owner(), source.arguments(), self)? != initializer {
+                || packet.value_in_context_v1(source.owner(), source.arguments(), self)?
+                    != initializer
+            {
                 return Err(freeze("borrowed-return/original-contract"));
             }
             Ok(())
         })
     }
 
-    pub(in crate::mir) fn original_scalar_call_result_v1(self,
+    pub(in crate::mir) fn original_scalar_call_result_v1(
+        self,
         source: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
     ) -> Result<ValueId, String> {
         if self.ledger().lexical_i64_call_source(source.site()) != Some(source) {
@@ -421,26 +609,41 @@ impl<'a> CallValidationContextV1<'a> {
         }
         self.with_local_call_group_tree_v2(source.owner(), |groups| {
             let mut matching = groups.iter().filter(|group| group.site() == source.site());
-            let group = matching.next().ok_or_else(|| freeze("scalar-call/group-missing"))?;
-            if matching.next().is_some() { return Err(freeze("scalar-call/group-duplicate")); }
+            let group = matching
+                .next()
+                .ok_or_else(|| freeze("scalar-call/group-missing"))?;
+            if matching.next().is_some() {
+                return Err(freeze("scalar-call/group-duplicate"));
+            }
             group.scalar_call_value_v1(source, self)
         })
     }
 
     pub(in crate::mir) fn with_taken_packet_v1<R>(
-        self, site: &OwnedExprSiteV1,
+        self,
+        site: &OwnedExprSiteV1,
         check: impl FnOnce(&EmittedLexicalCallProjectionV1) -> Result<R, String>,
     ) -> Result<R, String> {
         // Select the original source container before consulting any physical
         // state. A missing New packet must never retry the local-group pool.
         let rows = self.ledger().local_commits.borrow();
         let mut selected = None;
-        for (new_site, row) in rows.iter().filter(|(new_site, _)| new_site.owner() == site.owner()) {
-            let Some(Ok(arguments)) = row.new_argument_rows() else { continue };
+        for (new_site, row) in rows
+            .iter()
+            .filter(|(new_site, _)| new_site.owner() == site.owner())
+        {
+            let Some(Ok(arguments)) = row.new_argument_rows() else {
+                continue;
+            };
             for argument in arguments.iter() {
-                let super::super::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = argument.kind() else { continue };
+                let super::super::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } =
+                    argument.kind()
+                else {
+                    continue;
+                };
                 if evaluation.source().contains_call_site_v1(site)
-                    && selected.replace((new_site, row, argument)).is_some() {
+                    && selected.replace((new_site, row, argument)).is_some()
+                {
                     return Err(freeze("call-validation/duplicate-source-node"));
                 }
             }
@@ -450,11 +653,15 @@ impl<'a> CallValidationContextV1<'a> {
                 return Err(freeze("argument-source-drift"));
             }
             let argument = match row.new_emission() {
-                Some(NewEmissionProgress::Emitted { arguments, .. }) => arguments.get(source.ordinal() as usize)
+                Some(NewEmissionProgress::Emitted { arguments, .. }) => arguments
+                    .get(source.ordinal() as usize)
                     .filter(|argument| argument.source() == source),
                 _ => None,
-            }.ok_or_else(|| freeze("argument-source-unavailable"))?;
-            let expression = argument.expression_v1().ok_or_else(|| freeze("argument-source-drift"))?;
+            }
+            .ok_or_else(|| freeze("argument-source-unavailable"))?;
+            let expression = argument
+                .expression_v1()
+                .ok_or_else(|| freeze("argument-source-drift"))?;
             expression.require_source_v1(source, argument.payload())?;
             return expression.with_call_node_v1(site, check);
         }
@@ -464,7 +671,9 @@ impl<'a> CallValidationContextV1<'a> {
             for group in groups {
                 for packet in group.lexical_packets() {
                     if let Some(packet) = packet.retained_node_at_v1(site)? {
-                        if found.replace(packet).is_some() { return Err(freeze("mixed-result/borrowed-consumed-packet-duplicate")); }
+                        if found.replace(packet).is_some() {
+                            return Err(freeze("mixed-result/borrowed-consumed-packet-duplicate"));
+                        }
                     }
                 }
             }

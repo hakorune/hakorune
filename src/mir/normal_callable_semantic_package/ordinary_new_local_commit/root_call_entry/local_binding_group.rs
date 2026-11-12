@@ -40,7 +40,7 @@ enum PrefixPhysicalProofV1 {
 /// owns an evaluator, registry or independent traversal of expression semantics.
 #[derive(Debug, Clone)]
 enum EvaluatedBindingProjectionV1 {
-    Initializer(Rc<EmittedInitializerExpressionProjectionV1>),
+    Initializer(Rc<ExpressionEmissionV1<InitializerExpressionContractV1>>),
     Rebind(Rc<binding_rebind_projection::EmittedBindingRebindProjectionV1>),
 }
 
@@ -212,7 +212,9 @@ impl RootLifecyclePrefixBindingGroupV1 {
         match &self.proof {
             PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(
                 packet,
-            )) => packet.expression().permits_empty_bindings_v1(ledger),
+            )) => packet
+                .initializer_expression_v1()
+                .permits_empty_bindings_v1(ledger),
             PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(
                 packet,
             )) => packet.expression().permits_empty_bindings_v1(ledger),
@@ -473,7 +475,9 @@ impl RootLifecyclePrefixBindingGroupV1 {
         }
     }
 
-    pub(super) fn initializer_rc(&self) -> Option<&Rc<EmittedInitializerExpressionProjectionV1>> {
+    pub(super) fn initializer_rc(
+        &self,
+    ) -> Option<&Rc<ExpressionEmissionV1<InitializerExpressionContractV1>>> {
         match &self.proof {
             PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(
                 packet,
@@ -501,7 +505,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
         let expression = match &self.proof {
             PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(
                 packet,
-            )) => packet.expression(),
+            )) => packet.initializer_expression_v1(),
             PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(
                 packet,
             )) => packet.expression(),
@@ -522,11 +526,13 @@ impl RootLifecyclePrefixBindingGroupV1 {
         Ok(pair)
     }
 
-    pub(in crate::mir) fn initializer(&self) -> Option<&EmittedInitializerExpressionProjectionV1> {
+    pub(in crate::mir) fn initializer(
+        &self,
+    ) -> Option<&ExpressionEmissionV1<InitializerExpressionContractV1>> {
         self.initializer_rc().map(Rc::as_ref)
     }
     pub(super) fn new_initializer(
-        packet: Rc<EmittedInitializerExpressionProjectionV1>,
+        packet: Rc<ExpressionEmissionV1<InitializerExpressionContractV1>>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<Self, String> {
         packet.validate_recorded(&bindings, None)?;

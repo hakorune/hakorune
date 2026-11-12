@@ -54,6 +54,14 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         self.root_fault = root_fault;
         self
     }
+    /// Borrow destination-specific calls without storing them in the shared record.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn with_dynamic_calls_v1(
+        mut self,
+        calls: &'a [Rc<EmittedDynamicInvocationCallProjectionV1>],
+    ) -> Self {
+        self.dynamic_calls = calls;
+        self
+    }
     pub(super) fn permits_empty_bindings_v1(&self, ledger: &OrdinaryNewClaimLedgerV1) -> bool {
         self.original.is_empty()
             && self.inline_range.is_some()

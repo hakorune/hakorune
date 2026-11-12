@@ -23,7 +23,9 @@ fn scalar_initializer_inline_scope_keeps_complete_final_sequence() {
         .values()
         .flatten()
         .filter_map(|group| group.initializer())
-        .any(|packet| !ledger.expression_requires_fault_frame_v1(packet.frame.evaluation())));
+        .any(
+            |packet| !ledger.expression_requires_fault_frame_v1(packet.contract.frame.evaluation())
+        ));
     for mutation in ["insert", "duplicate", "remove", "reorder"] {
         let mut changed = module.clone();
         let function = changed.functions.get_mut("Main.calc/1").unwrap();
@@ -143,9 +145,9 @@ fn initializer_core_i64_final_consumer_rechecks_jumps_reads_local_and_cleanup() 
                 let mut changed = module.clone();
                 let changed_function = changed.functions.get_mut(&key).unwrap();
                 match mutation {
-                    "parameter-collision" => changed_function.params.push(packet.local),
+                    "parameter-collision" => changed_function.params.push(packet.contract.local),
                     "duplicate-local" => {
-                        let copy = packet.copy.as_ref().unwrap();
+                        let copy = packet.contract.copy.as_ref().unwrap();
                         let block = projection.destination(copy.0).unwrap();
                         // Even an omitted dead Copy cannot acquire new definitions.
                         changed_function
@@ -244,4 +246,141 @@ fn empty_scalar_rebind_keeps_original_source_and_finished_sequence() {
             .is_err(),
         "an empty evaluation never grants an unowned instruction"
     );
+}
+
+/// Copy only the closed fixture's observations; never reconstruct expected MIR.
+fn initializer_observation_copy(
+    packet: &ExpressionEmissionV1<InitializerExpressionContractV1>,
+) -> ExpressionEmissionV1<InitializerExpressionContractV1> {
+    assert!(packet.reference_reads.is_empty());
+    assert!(packet.contract.dynamic_calls.is_empty());
+    assert!(packet.contract.loop_residency.is_none());
+    ExpressionEmissionV1 {
+        contract: InitializerExpressionContractV1 {
+            frame: Rc::clone(packet.frame()),
+            value: packet.value(),
+            local: packet.local_value(),
+            copy: packet.contract.copy.clone(),
+            install: packet.contract.install.clone(),
+            dynamic_calls: Box::new([]),
+            loop_residency: None,
+            purpose_acquisition: packet.contract.purpose_acquisition.clone(),
+        },
+        values: packet.values.clone(),
+        calls: packet.calls.clone(),
+        path_reads: packet.path_reads.clone(),
+        reference_reads: Default::default(),
+        original: packet.original.clone(),
+        entry: packet.entry.clone(),
+        inline_range: packet.inline_range,
+        terminal: packet.terminal.clone(),
+        continuation: packet.continuation.clone(),
+        root_fault: None,
+    }
+}
+
+#[test]
+fn initializer_record_rejects_shared_and_destination_mutations() {
+    let text = "static box Values { read(a: i64): i64 { return copy a } }
+        static box Main { main() { local spare = Values.read(7) + 1
+            local n = (\"n=\" + Values.read(7)).length() + Values.read(7)
+            print(n) return 0 } }";
+    let (completed, ledger) =
+        crate::mir::builder::lexical_call_projection_document_completion_fixture(text);
+    let (key, module, same, keys, cohort) =
+        completed.document_preflight_parts_for_test(true).unwrap();
+    assert!(Rc::ptr_eq(&same, &ledger));
+    let handoff = ledger
+        .seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new())
+        .unwrap();
+    let root = handoff.root_source().unwrap();
+    root.visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| Ok(()))
+        .unwrap();
+    let context = CallValidationContextV1::Finalized(root);
+    let groups: Vec<_> = root
+        .local_calls
+        .values()
+        .flatten()
+        .filter(|group| group.initializer().is_some())
+        .collect();
+    let spare = groups
+        .iter()
+        .filter_map(|group| group.initializer())
+        .find(|packet| packet.calls().count() == 1)
+        .expect("another real i64 Local");
+    let mut count = 0;
+    for group in &groups {
+        let packet = group.initializer().unwrap();
+        if packet.calls().count() < 2 {
+            continue;
+        }
+        assert!(
+            super::super::expression_projection::mutation_evidence::check_observation_mutations(
+                "Local",
+                packet.initializer_expression_v1(),
+                context,
+                root,
+                &module
+            )
+        );
+        let original = initializer_observation_copy(packet);
+        original.validate_source(context).unwrap();
+        let mut changed = initializer_observation_copy(packet);
+        changed.contract.copy = None;
+        let error = changed.validate_source(context).unwrap_err();
+        eprintln!("EXPR_MUTATION\tLocal\tcopy-missing\t{error}");
+        let mut changed = initializer_observation_copy(packet);
+        assert_ne!(changed.local_value(), spare.local_value());
+        changed.contract.local = spare.local_value();
+        let error = changed.validate_source(context).unwrap_err();
+        eprintln!("EXPR_MUTATION\tLocal\tlocal-copy-mismatch\t{error}");
+        let mut changed = initializer_observation_copy(packet);
+        changed.contract.local = spare.local_value();
+        let (_, MirInstruction::Copy { dst, .. }) = changed.contract.copy.as_mut().unwrap() else {
+            panic!("scalar Copy");
+        };
+        *dst = spare.local_value();
+        changed.validate_source(context).unwrap();
+        ledger
+            .with_finished_projection(packet.frame().source().owner(), |symbol, projection| {
+                let error = changed
+                    .validate_paths(
+                        context,
+                        module.get_function(symbol).unwrap(),
+                        Some(projection),
+                    )
+                    .unwrap_err();
+                eprintln!("EXPR_MUTATION\tLocal\twrong-valid-local\t{error}");
+                Ok(())
+            })
+            .unwrap();
+        // Correct physical instructions with no initializer evidence are not a Local receipt.
+        let absent = RootLifecyclePrefixBindingGroupV1::new(
+            group.site().clone(),
+            group.bindings().to_vec(),
+            None,
+        )
+        .unwrap();
+        let expected = LifecyclePrefixSourceV1::InitializerExpression {
+            site: group.site().clone(),
+            frame: Rc::clone(packet.frame()),
+        };
+        assert!(group.matches_source(&expected));
+        assert!(!absent.matches_source(&expected));
+        eprintln!("EXPR_MUTATION\tLocal\trecord-absent\tsource-membership-rejected");
+        ledger
+            .with_finished_projection(packet.frame().source().owner(), |symbol, projection| {
+                let function = module.get_function(symbol).unwrap();
+                group.validate_recorded_in_context(context, function, Some(projection))?;
+                let error = group
+                    .with_bindings(vec![])
+                    .validate_recorded_in_context(context, function, Some(projection))
+                    .unwrap_err();
+                eprintln!("EXPR_MUTATION\tLocal\tincomplete-retention\t{error}");
+                Ok(())
+            })
+            .unwrap();
+        count += 1;
+    }
+    assert_eq!(count, 1, "one selected Local must run every mutation");
 }

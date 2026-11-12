@@ -1,3 +1,4 @@
 # Retired owning expression records; Git preserves their definitions.
 EmittedPrintExpressionProjectionV1
 ReturnExpressionEmissionV1
+EmittedInitializerExpressionProjectionV1

@@ -2,7 +2,7 @@
 use super::expression_value::{self, EmittedExpressionValueV1};
 use super::*;
 use crate::mir::normal_callable_semantic_package::{
-    EmittedInitializerExpressionProjectionV1, LexicalInstanceCallDispositionRowV1,
+    ExpressionEmissionV1, LexicalInstanceCallDispositionRowV1,
 };
 use crate::mir::resolved_semantics::home_new_prefix::CheckedInitializerExpressionFrameV1;
 use crate::mir::resolved_semantics::OwnedExprSiteV1;
@@ -281,23 +281,16 @@ impl PendingEvaluatedInitializerV1 {
         if let Some(copy) = receipt.copy() {
             bindings.push(copy.clone());
         }
-        let packet = Rc::new(EmittedInitializerExpressionProjectionV1::new(
+        let packet = Rc::new(ExpressionEmissionV1::new_initializer_v1(
             self.frame,
             receipt.initializer(),
             receipt.local(),
             receipt.copy().cloned(),
-            expression.body.values,
-            expression.body.calls,
-            expression.body.dynamic_calls,
-            expression.body.path_reads,
-            expression.body.reference_reads,
-            expression.body.entry,
-            expression.body.inline_range,
+            expression.body,
             self.terminal,
             self.continuation,
             self.loop_residency,
             expression.purpose_acquisition,
-            expression.body.bindings,
             ledger,
             function,
         )?);

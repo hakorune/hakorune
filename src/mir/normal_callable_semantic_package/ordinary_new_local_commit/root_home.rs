@@ -783,9 +783,9 @@ pub(in crate::mir) use call_entry::{
     ExpressionReferenceReadV1,
 };
 pub(crate) use call_entry::{
-    EmittedBindingRebindProjectionV1, EmittedFieldArrayAppendV1,
-    EmittedInitializerExpressionProjectionV1, EmittedOwnedArrayAppendV1, ExpressionEmissionV1,
-    FieldAppendTextProjectionV1, OwnedArrayAppendCandidateV1,
+    EmittedBindingRebindProjectionV1, EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1,
+    ExpressionEmissionV1, FieldAppendTextProjectionV1, InitializerExpressionContractV1,
+    OwnedArrayAppendCandidateV1,
 };
 
 pub(in crate::mir) use call_entry::{

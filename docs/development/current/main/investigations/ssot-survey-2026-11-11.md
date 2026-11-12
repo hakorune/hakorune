@@ -422,3 +422,5 @@ Local initializerの完成記録を既存の `ExpressionEmissionV1<InitializerEx
 - Y7: 全新規部分とconsumerを含む整形後production純減を満たさなければ基盤追加を止め、依存を報告する。
 
 worker経路: selected/initializer_expression.rs の prepare→PendingEvaluatedInitializerV1::publish→initializer_expression_projection.rs→local_binding_group.rs→local_entry.rs/finishing/finalized consumer。Local専用viewは既存new_with_dynamicと同じ借用情報を用い、Print/Returnの共通expression()は変更しない。
+
+追加証拠は既存initializer試験fileの1 testへ集約する。共通の変異helperを再利用し、LocalのCall順序・同値別source・End±・finishing消失・Copy欠落・実在する別Localへの整合したCopy宛先変更・記録不在を検査する。install欠落/重複は既存のpublication試験を維持して再利用する。基点で未対応の未注釈instance-call Localは受理を広げず、既にEXEまで動く型付きstatic-call fixtureで記録契約を検証する。

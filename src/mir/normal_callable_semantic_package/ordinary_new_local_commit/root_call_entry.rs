@@ -694,7 +694,7 @@ pub(in crate::mir) use expression_projection::{
     EvaluatedExpressionValueV1, ExpressionCallArgumentSourceV1, ExpressionCallTransientPrefixV1,
     ExpressionReferenceReadV1, ScalarBindingReadProofV1,
 };
-pub(crate) use initializer_expression_projection::EmittedInitializerExpressionProjectionV1;
+pub(crate) use initializer_expression_projection::InitializerExpressionContractV1;
 #[path = "root_call_entry/expression_emission.rs"]
 mod expression_emission;
 pub(crate) use expression_emission::{ExpressionEmissionSourceV1, ExpressionEmissionV1};

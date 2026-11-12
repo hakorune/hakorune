@@ -75,31 +75,28 @@ impl OrdinaryNewClaimLedgerV1 {
 
 /// The completed Local receipt and the sole original evaluation share one pool.
 #[derive(Debug)]
-pub(crate) struct EmittedInitializerExpressionProjectionV1 {
+pub(crate) struct InitializerExpressionContractV1 {
     frame: Rc<CheckedInitializerExpressionFrameV1>,
     value: ValueId,
     local: ValueId,
     copy: Option<Binding>,
     install: Option<Binding>,
-    values: Box<[Option<EvaluatedExpressionValueV1>]>,
-    calls: Box<[Rc<EmittedLexicalCallProjectionV1>]>,
     dynamic_calls: Box<[Rc<EmittedDynamicInvocationCallProjectionV1>]>,
-    path_reads: Box<[std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>]>,
-    reference_reads:
-        std::collections::BTreeMap<usize, super::expression_projection::ExpressionReferenceReadV1>,
-    entry: Option<Binding>,
-    inline_range: Option<(BasicBlockId, usize, usize, bool)>,
-    terminal: Option<Binding>,
-    continuation: Option<Binding>,
     loop_residency: Option<(
         Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
         Vec<crate::mir::builder::BindingValueObservationV2>,
     )>,
-    /// The `Materialize` pair when the Local owns a Text snapshot of an owned carrier.
+    /// The Materialize pair proves this Local owns a Text snapshot.
     purpose_acquisition: Option<[Binding; 2]>,
-    original: Vec<Binding>,
 }
-impl EmittedInitializerExpressionProjectionV1 {
+impl super::ExpressionEmissionSourceV1 for InitializerExpressionContractV1 {
+    fn evaluation(
+        &self,
+    ) -> &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1 {
+        self.frame.evaluation()
+    }
+}
+impl ExpressionEmissionV1<InitializerExpressionContractV1> {
     pub(super) fn corroborate_loop_frame_v2(
         &self,
         ledger: &OrdinaryNewClaimLedgerV1,
@@ -110,7 +107,7 @@ impl EmittedInitializerExpressionProjectionV1 {
         if self.value() != value {
             return Err(freeze("source-loop/binding-frame-correspondence"));
         }
-        self.expression().corroborate_outer_scope_v1(
+        self.initializer_expression_v1().corroborate_outer_scope_v1(
             ledger,
             &self.entry,
             &self.continuation,
@@ -119,10 +116,10 @@ impl EmittedInitializerExpressionProjectionV1 {
         )
     }
     pub(crate) fn frame(&self) -> &Rc<CheckedInitializerExpressionFrameV1> {
-        &self.frame
+        &self.contract.frame
     }
     pub(crate) fn value(&self) -> ValueId {
-        self.value
+        self.contract.value
     }
     pub(in crate::mir) fn reference_read_v1(
         &self,
@@ -131,32 +128,32 @@ impl EmittedInitializerExpressionProjectionV1 {
         self.reference_reads.get(&node)
     }
     pub(in crate::mir::normal_callable_semantic_package) fn local_value(&self) -> ValueId {
-        self.local
+        self.contract.local
     }
     pub(in crate::mir::normal_callable_semantic_package) fn install_binding(
         &self,
     ) -> Option<&Binding> {
-        self.install.as_ref()
+        self.contract.install.as_ref()
     }
     pub(in crate::mir::normal_callable_semantic_package) fn has_text_home(&self) -> bool {
-        self.frame.is_text_residence() && self.value == self.local && self.copy.is_none()
-            && self.install.as_ref().is_some_and(|(_, row)| matches!(row,
-                MirInstruction::StringResidenceInstall { value, replaces: None, returning: false } if *value == self.value))
+        self.frame().is_text_residence() && self.value() == self.contract.local && self.contract.copy.is_none()
+            && self.contract.install.as_ref().is_some_and(|(_, row)| matches!(row,
+                MirInstruction::StringResidenceInstall { value, replaces: None, returning: false } if *value == self.value()))
     }
     pub(in crate::mir::normal_callable_semantic_package) fn has_dynamic_carrier(&self) -> bool {
-        self.frame.is_dynamic_invocation_result()
-            && self.value == self.local
-            && self.copy.is_none()
-            && self.install.is_none()
-            && self.values.first() == Some(&Some(Operand::DynamicCarrier(self.value).into()))
+        self.frame().is_dynamic_invocation_result()
+            && self.value() == self.contract.local
+            && self.contract.copy.is_none()
+            && self.contract.install.is_none()
+            && self.values.first() == Some(&Some(Operand::DynamicCarrier(self.value()).into()))
     }
     pub(in crate::mir::normal_callable_semantic_package) fn has_dynamic_alias(&self) -> bool {
-        self.frame.is_dynamic_alias()
-            && self.install.is_none()
-            && self.values.first() == Some(&Some(Operand::Dynamic(self.value).into()))
-            && self.copy.as_ref().is_some_and(|(_, row)| {
+        self.frame().is_dynamic_alias()
+            && self.contract.install.is_none()
+            && self.values.first() == Some(&Some(Operand::Dynamic(self.value()).into()))
+            && self.contract.copy.as_ref().is_some_and(|(_, row)| {
                 matches!(row,
-                MirInstruction::Copy { dst, src } if *dst == self.local && *src == self.value)
+                MirInstruction::Copy { dst, src } if *dst == self.contract.local && *src == self.value())
             })
     }
     pub(in crate::mir::normal_callable_semantic_package) fn dynamic_read_binding_v1(
@@ -164,6 +161,7 @@ impl EmittedInitializerExpressionProjectionV1 {
     ) -> Result<&Binding, String> {
         if self.has_dynamic_alias() {
             return self
+                .contract
                 .copy
                 .as_ref()
                 .ok_or_else(|| freeze("initializer-expression/local-copy-receipt"));
@@ -178,11 +176,11 @@ impl EmittedInitializerExpressionProjectionV1 {
                 "initializer-expression/dynamic-carrier-local-handoff",
             ));
         }
-        let Some(root) = self.frame.source().nodes().first() else {
+        let Some(root) = self.frame().source().nodes().first() else {
             return Err(freeze("initializer-expression/dynamic-source-root"));
         };
         let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
-            self.frame.source().owner(),
+            self.frame().source().owner(),
             root.site().clone(),
         );
         let mut ordinary = self.calls.iter().filter(|call| {
@@ -193,6 +191,7 @@ impl EmittedInitializerExpressionProjectionV1 {
         if let Some(call) = ordinary.next() {
             if ordinary.next().is_some()
                 || self
+                    .contract
                     .dynamic_calls
                     .iter()
                     .any(|call| call.source().site() == &site)
@@ -200,16 +199,17 @@ impl EmittedInitializerExpressionProjectionV1 {
                 return Err(freeze("initializer-expression/dynamic-result-pair"));
             }
             let (_, normal) = call.outer_bindings()?;
-            if !matches!(normal.1, MirInstruction::InvokeNormalResult { dst, .. } if dst == self.value)
+            if !matches!(normal.1, MirInstruction::InvokeNormalResult { dst, .. } if dst == self.value())
             {
                 return Err(freeze("initializer-expression/dynamic-result-pair"));
             }
             return Ok(normal);
         }
         let mut calls = self
+            .contract
             .dynamic_calls
             .iter()
-            .filter(|call| call.source().site() == &site && call.value() == self.value);
+            .filter(|call| call.source().site() == &site && call.value() == self.value());
         let call = calls
             .next()
             .ok_or_else(|| freeze("initializer-expression/dynamic-result-pair"))?;
@@ -224,15 +224,15 @@ impl EmittedInitializerExpressionProjectionV1 {
         if !self.has_text_home() {
             return Err(freeze("initializer-expression/no-text-home"));
         }
-        self.expression().require_unique(|row| {
+        self.initializer_expression_v1().require_unique(|row| {
             matches!(row,
-            MirInstruction::InvokeNormalResult { dst, .. } if *dst == self.value)
+            MirInstruction::InvokeNormalResult { dst, .. } if *dst == self.value())
         })
     }
     pub(in crate::mir::normal_callable_semantic_package) fn receipt_copy_binding_v1(
         &self,
     ) -> Option<&Binding> {
-        self.copy.as_ref()
+        self.contract.copy.as_ref()
     }
     pub(crate) fn calls(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
         self.calls.iter().map(Rc::as_ref)
@@ -243,10 +243,10 @@ impl EmittedInitializerExpressionProjectionV1 {
         &self,
         context: CallValidationContextV1<'_>,
     ) -> Result<Vec<Binding>, String> {
-        if !self.frame.is_i64() && !self.frame.is_bool() {
+        if !self.frame().is_i64() && !self.frame().is_bool() {
             return Err(freeze("expression/scalar-entry-contract"));
         }
-        let expression = self.expression();
+        let expression = self.initializer_expression_v1();
         let mut source = expression.ordered_bindings_in_context(context)?;
         source.extend(expression.scalar_copy_dependencies_v1(context)?);
         for read in self.reference_reads.values() {
@@ -281,8 +281,14 @@ impl EmittedInitializerExpressionProjectionV1 {
         for read in self.reference_reads.values() {
             dependencies.extend(read.dependencies()?);
         }
-        dependencies.extend(self.expression().ordered_bindings_in_context(context)?);
-        dependencies.extend(self.expression().scalar_copy_dependencies_v1(context)?);
+        dependencies.extend(
+            self.initializer_expression_v1()
+                .ordered_bindings_in_context(context)?,
+        );
+        dependencies.extend(
+            self.initializer_expression_v1()
+                .scalar_copy_dependencies_v1(context)?,
+        );
         for call in self.calls() {
             dependencies.extend(call.source_loop_argument_bindings_in_context_v1(context)?);
             dependencies.extend(
@@ -291,12 +297,12 @@ impl EmittedInitializerExpressionProjectionV1 {
                     .map(|(_, binding)| binding),
             );
         }
-        for call in &self.dynamic_calls {
+        for call in &self.contract.dynamic_calls {
             dependencies.extend(call.scope_bindings_in_context_v1(context)?.1);
         }
-        for node in self.frame.source().nodes() {
+        for node in self.frame().source().nodes() {
             dependencies.extend(context.ledger().checked_field_copy_dependencies_v1(
-                &OwnedExprSiteV1::new(self.frame.source().owner(), node.site().clone()),
+                &OwnedExprSiteV1::new(self.frame().source().owner(), node.site().clone()),
                 context,
             )?);
         }
@@ -308,21 +314,12 @@ impl EmittedInitializerExpressionProjectionV1 {
         }
         Ok(unique)
     }
-    pub(in crate::mir) fn new(
+    pub(in crate::mir) fn new_initializer_v1(
         frame: Rc<CheckedInitializerExpressionFrameV1>,
         value: ValueId,
         local: ValueId,
         copy: Option<Binding>,
-        values: Vec<Option<EvaluatedExpressionValueV1>>,
-        calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
-        dynamic_calls: Vec<Rc<EmittedDynamicInvocationCallProjectionV1>>,
-        path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
-        reference_reads: std::collections::BTreeMap<
-            usize,
-            super::expression_projection::ExpressionReferenceReadV1,
-        >,
-        entry: Option<Binding>,
-        inline_range: Option<(BasicBlockId, usize, usize, bool)>,
+        mut body: crate::mir::builder::EmittedExpressionBodyV1,
         terminal: Option<Binding>,
         continuation: Option<Binding>,
         loop_residency: Option<(
@@ -330,48 +327,41 @@ impl EmittedInitializerExpressionProjectionV1 {
             Vec<crate::mir::builder::BindingValueObservationV2>,
         )>,
         purpose_acquisition: Option<[Binding; 2]>,
-        original: Vec<Binding>,
         ledger: &OrdinaryNewClaimLedgerV1,
         function: &MirFunction,
     ) -> Result<Self, String> {
-        let install = original
+        let install = body
+            .bindings
             .iter()
             .find(|(_, row)| matches!(row, MirInstruction::StringResidenceInstall { .. }))
             .cloned();
-        let packet = Self {
+        let contract = InitializerExpressionContractV1 {
             frame,
             value,
             local,
             copy,
             install,
-            values: values.into_boxed_slice(),
-            calls: calls.into_boxed_slice(),
-            dynamic_calls: dynamic_calls.into_boxed_slice(),
-            path_reads: path_reads.into_boxed_slice(),
-            reference_reads,
-            entry,
-            inline_range,
-            terminal,
-            continuation,
+            dynamic_calls: std::mem::take(&mut body.dynamic_calls).into_boxed_slice(),
             loop_residency,
             purpose_acquisition,
-            original,
         };
+        let mut packet = Self::from_body(contract, body, terminal, continuation);
+        packet.root_fault = None; // Local has no borrowed Return-root boundary.
         packet.validate_source(CallValidationContextV1::Lowering(ledger))?;
         let _physical_scope = ledger.physical_validation_scope_v1(function, None, false);
         let covered =
             packet.validate_paths(CallValidationContextV1::Lowering(ledger), function, None)?;
         let mut ordered = packet
-            .expression()
+            .initializer_expression_v1()
             .ordered_bindings_in_context(CallValidationContextV1::Lowering(ledger))?;
-        if let Some(pair) = &packet.purpose_acquisition {
+        if let Some(pair) = &packet.contract.purpose_acquisition {
             ordered.extend(pair.iter().cloned());
         }
-        if let Some(install) = &packet.install {
+        if let Some(install) = &packet.contract.install {
             ordered.push(install.clone());
         }
         ordered.extend(packet.terminal.iter().cloned());
-        packet.expression().validate_original_scope(
+        packet.initializer_expression_v1().validate_original_scope(
             CallValidationContextV1::Lowering(ledger),
             function,
             &covered,
@@ -394,8 +384,8 @@ impl EmittedInitializerExpressionProjectionV1 {
     ) -> Result<(), String> {
         use crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1 as Normal;
         use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1 as Reference;
-        let frame = self.frame.evaluation();
-        let expression = self.expression();
+        let frame = self.frame().evaluation();
+        let expression = self.initializer_expression_v1();
         for loan in frame.operations() {
             let index = loan.node();
             if frame.transfers_node(index) {
@@ -473,39 +463,31 @@ impl EmittedInitializerExpressionProjectionV1 {
         }
         Ok(())
     }
-    pub(super) fn expression(
+    pub(super) fn initializer_expression_v1(
         &self,
     ) -> super::expression_projection::ExpressionPhysicalProjectionRefV1<'_> {
-        super::expression_projection::ExpressionPhysicalProjectionRefV1::new_with_dynamic(
-            self.frame.evaluation(),
-            &self.values,
-            &self.calls,
-            &self.dynamic_calls,
-            &self.path_reads,
-            &self.reference_reads,
-            &self.original,
-        )
-        .with_inline_range_v1(self.inline_range)
+        self.expression()
+            .with_dynamic_calls_v1(&self.contract.dynamic_calls)
     }
     fn validate_source(&self, context: CallValidationContextV1<'_>) -> Result<(), String> {
         let selected = context
             .ledger()
             .initializer_expression_frame_v1(
-                self.frame.source().owner(),
-                self.frame.source().root().statement().node(),
+                self.frame().source().owner(),
+                self.frame().source().root().statement().node(),
             )?
             .ok_or_else(|| freeze("initializer-expression/source-missing"))?;
-        let expected = if self.frame.is_bool() {
-            EvaluatedExpressionValueV1::Bool(self.value)
-        } else if self.frame.is_i64() {
-            Operand::NormalInteger(self.value).into()
+        let expected = if self.frame().is_bool() {
+            EvaluatedExpressionValueV1::Bool(self.value())
+        } else if self.frame().is_i64() {
+            Operand::NormalInteger(self.value()).into()
         } else if self.has_dynamic_carrier() {
-            Operand::DynamicCarrier(self.value).into()
+            Operand::DynamicCarrier(self.value()).into()
         } else if self.has_dynamic_alias() {
-            Operand::Dynamic(self.value).into()
+            Operand::Dynamic(self.value()).into()
         } else if self.has_text_home() {
             // A snapshot Local keeps the original carrier as the evaluation root.
-            match &self.purpose_acquisition {
+            match &self.contract.purpose_acquisition {
                 Some([invoke, _]) => match &invoke.1 {
                     MirInstruction::Invoke {
                         operation:
@@ -523,23 +505,23 @@ impl EmittedInitializerExpressionProjectionV1 {
                     },
                     _ => return Err(freeze("initializer-expression/source-or-result")),
                 },
-                None => Operand::OwnedString(self.value),
+                None => Operand::OwnedString(self.value()),
             }
             .into()
         } else {
             return Err(freeze("initializer-expression/source-or-result"));
         };
-        if self.purpose_acquisition.is_some() != self.frame.materializes_root() {
+        if self.contract.purpose_acquisition.is_some() != self.frame().materializes_root() {
             return Err(freeze("initializer-expression/snapshot-root"));
         }
-        if let Some([invoke, normal]) = &self.purpose_acquisition {
+        if let Some([invoke, normal]) = &self.contract.purpose_acquisition {
             if !matches!(&invoke.1, MirInstruction::Invoke {
                     operation: InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::Materialize { .. }),
                     normal_landing, .. } if *normal_landing == normal.0)
                 || normal.1
                     != (MirInstruction::InvokeNormalResult {
                         invoke_block: invoke.0,
-                        dst: self.value,
+                        dst: self.value(),
                     })
                 || !self.original.contains(invoke)
                 || !self.original.contains(normal)
@@ -547,11 +529,11 @@ impl EmittedInitializerExpressionProjectionV1 {
                 return Err(freeze("initializer-expression/snapshot-pair"));
             }
         }
-        if !Rc::ptr_eq(&selected, &self.frame)
+        if !Rc::ptr_eq(&selected, self.frame())
             || self.values.first() != Some(&Some(expected))
             || context
                 .ledger()
-                .expression_requires_fault_frame_v1(self.frame.evaluation())
+                .expression_requires_fault_frame_v1(self.frame().evaluation())
                 && !matches!(
                     self.terminal.as_ref().map(|row| &row.1),
                     Some(MirInstruction::Jump {
@@ -561,7 +543,7 @@ impl EmittedInitializerExpressionProjectionV1 {
                 )
             || context
                 .ledger()
-                .expression_requires_fault_frame_v1(self.frame.evaluation())
+                .expression_requires_fault_frame_v1(self.frame().evaluation())
                 && !matches!(
                     self.continuation.as_ref().map(|row| &row.1),
                     Some(MirInstruction::Jump {
@@ -580,22 +562,22 @@ impl EmittedInitializerExpressionProjectionV1 {
         if installs != usize::from(self.has_text_home()) {
             return Err(freeze("initializer-expression/install-census"));
         }
-        if self.frame.is_dynamic_invocation_result() && !self.has_dynamic_carrier() {
+        if self.frame().is_dynamic_invocation_result() && !self.has_dynamic_carrier() {
             return Err(freeze(
                 "initializer-expression/dynamic-carrier-local-handoff",
             ));
         }
-        if (self.frame.is_i64() || self.frame.is_bool())
-            && self.copy.as_ref().is_none_or(|(_, row)| {
+        if (self.frame().is_i64() || self.frame().is_bool())
+            && self.contract.copy.as_ref().is_none_or(|(_, row)| {
                 !matches!(row, MirInstruction::Copy { dst, src }
-            if *dst == self.local && *src == self.value)
+            if *dst == self.contract.local && *src == self.value())
             })
         {
             return Err(freeze("initializer-expression/local-copy-receipt"));
         }
-        if let Some(sum) = self.frame.signed_root_sum() {
+        if let Some(sum) = self.frame().signed_root_sum() {
             let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::Scalar(read))
-                = self.frame.evaluation().references().get(&0) else { return Err(freeze("initializer-expression/source-or-result")); };
+                = self.frame().evaluation().references().get(&0) else { return Err(freeze("initializer-expression/source-or-result")); };
             let read = read
                 .original_read()
                 .ok_or_else(|| freeze("initializer-expression/source-or-result"))?;
@@ -609,23 +591,24 @@ impl EmittedInitializerExpressionProjectionV1 {
             let current = source
                 .lend_current_scalar_sum_v1(read)
                 .ok_or_else(|| freeze("initializer-expression/source-or-result"))?;
-            if !self.frame.is_i64()
-                || self.frame.owns_root()
+            if !self.frame().is_i64()
+                || self.frame().owns_root()
                 || !sum.signed_only()
                 || !Rc::ptr_eq(sum, &current)
-                || read.read() != self.frame.source().nodes()[0].site()
+                || read.read() != self.frame().source().nodes()[0].site()
             {
                 return Err(freeze("initializer-expression/source-or-result"));
             }
         }
-        self.expression().validate_source(context)
+        self.initializer_expression_v1().validate_source(context)
     }
     pub(super) fn validate_recorded(
         &self,
         bindings: &[Binding],
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
-        self.expression().validate_recorded(bindings, finishing)?;
+        self.initializer_expression_v1()
+            .validate_recorded(bindings, finishing)?;
         for expected in [&self.entry, &self.terminal, &self.continuation]
             .into_iter()
             .flatten()
@@ -636,6 +619,7 @@ impl EmittedInitializerExpressionProjectionV1 {
         }
         if finishing.is_none()
             && self
+                .contract
                 .copy
                 .as_ref()
                 .is_some_and(|copy| bindings.iter().filter(|row| *row == copy).count() != 1)
@@ -655,16 +639,17 @@ impl EmittedInitializerExpressionProjectionV1 {
             context,
             function,
             finishing,
-            self.value,
-            self.local,
-            self.copy.as_ref(),
+            self.value(),
+            self.contract.local,
+            self.contract.copy.as_ref(),
         )?;
         let unwind = self
+            .contract
             .loop_residency
             .as_ref()
             .map(|(product, reads)| {
                 context.ledger().loop_expression_text_unwind_v2(
-                    self.frame.evaluation(),
+                    self.frame().evaluation(),
                     product,
                     reads,
                     context,
@@ -673,13 +658,13 @@ impl EmittedInitializerExpressionProjectionV1 {
                 )
             })
             .transpose()?;
-        let expression = self.expression();
+        let expression = self.initializer_expression_v1();
         let expression = match &unwind {
             Some(unwind) => expression.with_prior_home_unwind(unwind),
             None => expression,
         };
         if self.has_dynamic_carrier() {
-            if self.dynamic_result_binding_v1()?.1.dst_value() != Some(self.value) {
+            if self.dynamic_result_binding_v1()?.1.dst_value() != Some(self.value()) {
                 return Err(freeze("initializer-expression/dynamic-result-drift"));
             }
             expression.validate_dynamic_local_handoff_continuation_v1(
@@ -689,7 +674,7 @@ impl EmittedInitializerExpressionProjectionV1 {
                 &self.entry,
                 &self.terminal,
                 &self.continuation,
-                self.value,
+                self.value(),
             )
         } else {
             expression.validate_local_continuation_with_purpose_v1(
@@ -699,9 +684,9 @@ impl EmittedInitializerExpressionProjectionV1 {
                 &self.entry,
                 &self.terminal,
                 &self.continuation,
-                self.install.as_ref(),
+                self.contract.install.as_ref(),
                 None,
-                self.purpose_acquisition.as_ref(),
+                self.contract.purpose_acquisition.as_ref(),
             )
         }
     }
@@ -709,11 +694,11 @@ impl EmittedInitializerExpressionProjectionV1 {
 impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn prepare_initializer_expression_bindings(
         &self,
-        packet: Rc<EmittedInitializerExpressionProjectionV1>,
+        packet: Rc<ExpressionEmissionV1<InitializerExpressionContractV1>>,
         bindings: Vec<Binding>,
     ) -> Result<PreparedLifecyclePrefixBindingGroupV1<'_>, String> {
         self.prepare_local_call_binding_group(
-            packet.frame.source().owner(),
+            packet.contract.frame.source().owner(),
             RootLifecyclePrefixBindingGroupV1::new_initializer(packet, bindings)?,
         )
     }
