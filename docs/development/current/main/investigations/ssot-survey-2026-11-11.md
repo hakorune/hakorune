@@ -594,3 +594,9 @@ worker 経路: `selected/argument_expression.rs` の `emit_with_checked_frame`�
 - R7: 古い欄・accessor を同じ変更で消し、`tools/checks/mir_owner_retired_symbols.txt` に足す。腕を包むだけの旧型・alias・bool は作らない。
 - R8: 受理、Return/Local の選択、古い scalar、Bool 短絡、公開 MIR・ABI、暗黙の検証 context、`root_graph.rs`、順序を決める純粋な関数は変えない。
 - R9: 新しい型を含めた production が整形後に純減した時だけ完了とする。進行の段階を表す新しい仕組みで増える時は、排他がはっきりした腕だけに縮め、それでも減らない時は基盤を足さずに止める。
+
+#### 6 の結果（Sonnet 5.5 実装、Opus 確認、2026-11-12）: 止めた
+- 試作（`RootHomeCleanupOrderV1` の返却の 9 つの `Option` の欄 → 9 つの腕を持つ `ReturnPayloadV1`）は build が通ったが、production は整形後 +28 だった。実装の commit はせず、試作の diff だけを作業 dir に保存した。main へ入ったのは、上の文書だけ。
+- 減らなかった理由（実装者の調べ）: struct の欄は 14 → 6 に減ったが、腕の定義（型の path が長く、1 つの腕が 3〜5 行）がほぼ相殺した。読む所 約 35 か所が `let … else` の形になり、1 か所ごとに 1〜3 行増えた。記録と検証の分岐は、欄の有無ではなく元の terminal の relation で決まっていて、書く関数ごとの拒否の文言も保つ必要があるので、Pro の見込んだ「分岐を腕ごとに 1 つ」の減りは無かった。
+- 実装者が見つけた弱さ: 排他を明示的に検査しているのは `direct` と `scalar` だけ。`root_home/prepare.rs:120` は `stored_map_get` を無条件で代入する（今は届かない組み合わせのはずだが、確かめていない）。
+- 4a と 6 の共通の教訓（実装者）: 「共通の型を足して古い欄を消す」形は、読む所が多く、長い `pub(in …)` と path で折り返しが増えるので、見込みほど減らない。次の段は、始める前に、分岐そのものを数えて減る見込みを見積もる。
