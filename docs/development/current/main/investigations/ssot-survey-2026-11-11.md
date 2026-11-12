@@ -359,3 +359,6 @@ Print と Return の式本体の保持形式を2種類から1種類へ置換す�
 - X7: 新規共通処理とconsumerを含む整形後production純減が成立しなければ基盤追加を止め、依存を報告する。
 
 worker経路: builder selected/expression_value.rs → selected/{print_expression,return_expression}.rs → local_commit/root_call_entry/print_expression_projection.rs と root_home_received_return.rs → expression_projection.rs の借用view → prefix pool / root exit → finishingと最終consumer。Local/Rebind/argument/field RHSと旧scalar laneは変更しない。
+
+実装境界: `ExpressionEmissionV1<C>` の C は元Print frameのRc、またはReturn固有契約だけであり、旧packetを包まない。Return固有の契約・照合は `return_expression_emission.rs` へ分け、整形後のfile上限を守る。Printの `ordered_bindings(ledger)` / `validate_paths(ledger, ...)` は同じcontext付き入口へ直接繋ぎ、冗長な転送だけを削除する。
+追加証拠の理由: 既存Print試験はframe・read/copy・保持の照合を守るが、両用途のCall ordinal、同値の別source、物理Endの欠落/重複、finishing後のproducer消失、Returnの未完保持を一緒に示していない。既存owner内の試験から共通の借用viewを変異させ、基点にも同じ試験を適用する。検証側へ期待命令生成器は足さない。

@@ -752,8 +752,8 @@ pub(in crate::mir) use root_home::{
 };
 pub(crate) use root_home::{
     EmittedBindingRebindProjectionV1, EmittedFieldArrayAppendV1,
-    EmittedInitializerExpressionProjectionV1, EmittedOwnedArrayAppendV1,
-    EmittedPrintExpressionProjectionV1, FieldAppendTextProjectionV1, OwnedArrayAppendCandidateV1,
+    EmittedInitializerExpressionProjectionV1, EmittedOwnedArrayAppendV1, ExpressionEmissionV1,
+    FieldAppendTextProjectionV1, OwnedArrayAppendCandidateV1,
 };
 pub(crate) use root_home::{
     MapFieldInstallEmissionV1, PreparedMapFieldInstallV1, RootLifecyclePrefixBindingGroupV1,

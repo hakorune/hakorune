@@ -296,9 +296,8 @@ pub(in crate::mir) use ordinary_new_coseal::{
 };
 pub(crate) use ordinary_new_coseal::{
     EmittedBindingRebindProjectionV1, EmittedFieldArrayAppendV1,
-    EmittedInitializerExpressionProjectionV1, EmittedOwnedArrayAppendV1,
-    EmittedPrintExpressionProjectionV1, FieldAppendTextProjectionV1, OwnedArrayAppendCandidateV1,
-    RootLifecyclePrefixBindingGroupV1,
+    EmittedInitializerExpressionProjectionV1, EmittedOwnedArrayAppendV1, ExpressionEmissionV1,
+    FieldAppendTextProjectionV1, OwnedArrayAppendCandidateV1, RootLifecyclePrefixBindingGroupV1,
 };
 pub(crate) use ordinary_new_coseal::{
     MapFieldInstallEmissionV1, PreparedMapFieldInstallV1, StoredMapGetLocalEmissionV1,

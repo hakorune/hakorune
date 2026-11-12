@@ -152,7 +152,12 @@ fn original_print_source_reaches_normal_compiler_and_finished_string_lifetimes()
         };
         publish_alias(
             DEEP_PROVIDER,
-            Some(std::env::temp_dir().join("hako-issued-print-deep-provider.json").to_str().unwrap()),
+            Some(
+                std::env::temp_dir()
+                    .join("hako-issued-print-deep-provider.json")
+                    .to_str()
+                    .unwrap(),
+            ),
         )
         .unwrap_or_else(|error| panic!("deep provider Print publication: {error}"));
         publish_alias(
@@ -160,7 +165,12 @@ fn original_print_source_reaches_normal_compiler_and_finished_string_lifetimes()
             box Parent { child: Leaf birth() { me.child = new Leaf() } }
             static box Main { main() { local p = new Parent() local alias = p.child
                 print(\"n=\" + alias.read()) return 0 } }",
-            Some(std::env::temp_dir().join("hako-issued-print-alias.json").to_str().unwrap()),
+            Some(
+                std::env::temp_dir()
+                    .join("hako-issued-print-alias.json")
+                    .to_str()
+                    .unwrap(),
+            ),
         )
         .unwrap();
         for text in [
@@ -1028,17 +1038,26 @@ fn literal_print_retains_original_frame_and_requires_physical_membership_without
         function.add_block(after);
         let values = vec![Some(operand.into())];
         let packet = Rc::new(
-            EmittedPrintExpressionProjectionV1::new(
+            ExpressionEmissionV1::new(
                 Rc::clone(&frame),
-                values.clone(),
-                vec![],
-                vec![],
-                Default::default(),
-                Some(entry.clone()),
-                None,
+                crate::mir::builder::EmittedExpressionBodyV1 {
+                    values: values.clone(),
+                    calls: vec![],
+                    path_reads: vec![],
+                    reference_reads: Default::default(),
+                    entry: Some(entry.clone()),
+                    inline_range: None,
+                    bindings: bindings.clone(),
+                    dynamic_calls: vec![],
+                    acquired: vec![],
+                    dynamic_carriers: vec![],
+                    temporary_order: vec![],
+                    homes: vec![],
+                    fault_frame: None,
+                    root_cleanup: None,
+                },
                 Some(print.clone()),
                 Some(continuation.clone()),
-                bindings.clone(),
                 ledger,
                 &function,
             )
@@ -1083,20 +1102,29 @@ fn literal_print_retains_original_frame_and_requires_physical_membership_without
                 RootLifecyclePrefixBindingGroupV1::new_print(Rc::clone(&packet), retained).is_err()
             );
         }
-        assert!(EmittedPrintExpressionProjectionV1::new(
-                frame,
-                vec![Some(Operand::StaticText { utf8: "別".into() }.into())],
-                vec![],
-                vec![],
-                Default::default(),
-                Some(entry.clone()),
-                None,
-                Some(print.clone()),
-                Some(continuation.clone()),
-                bindings.clone(),
-                ledger,
-                &function,
-            )
+        assert!(ExpressionEmissionV1::new(
+            frame,
+            crate::mir::builder::EmittedExpressionBodyV1 {
+                values: vec![Some(Operand::StaticText { utf8: "別".into() }.into())],
+                calls: vec![],
+                path_reads: vec![],
+                reference_reads: Default::default(),
+                entry: Some(entry.clone()),
+                inline_range: None,
+                bindings: bindings.clone(),
+                dynamic_calls: vec![],
+                acquired: vec![],
+                dynamic_carriers: vec![],
+                temporary_order: vec![],
+                homes: vec![],
+                fault_frame: None,
+                root_cleanup: None
+            },
+            Some(print.clone()),
+            Some(continuation.clone()),
+            ledger,
+            &function
+        )
         .is_err());
         let mut injected = function.clone();
         injected
@@ -1108,19 +1136,28 @@ fn literal_print_retains_original_frame_and_requires_physical_membership_without
                 value: crate::mir::ConstValue::Integer(123),
             });
         assert!(
-            EmittedPrintExpressionProjectionV1::new(
+            ExpressionEmissionV1::new(
                 Rc::clone(packet.frame()),
-                values.clone(),
-                vec![],
-                vec![],
-                Default::default(),
-                Some(entry.clone()),
-                None,
+                crate::mir::builder::EmittedExpressionBodyV1 {
+                    values: values.clone(),
+                    calls: vec![],
+                    path_reads: vec![],
+                    reference_reads: Default::default(),
+                    entry: Some(entry.clone()),
+                    inline_range: None,
+                    bindings: bindings.clone(),
+                    dynamic_calls: vec![],
+                    acquired: vec![],
+                    dynamic_carriers: vec![],
+                    temporary_order: vec![],
+                    homes: vec![],
+                    fault_frame: None,
+                    root_cleanup: None
+                },
                 Some(print.clone()),
                 Some(continuation.clone()),
-                bindings.clone(),
                 ledger,
-                &injected,
+                &injected
             )
             .is_err(),
             "unowned instruction inside expression scope"
@@ -1144,17 +1181,26 @@ fn literal_print_retains_original_frame_and_requires_physical_membership_without
                 .find(|binding| **binding == scalar)
                 .unwrap();
             original.0 = BasicBlockId(10);
-            let error = EmittedPrintExpressionProjectionV1::new(
+            let error = ExpressionEmissionV1::new(
                 Rc::clone(packet.frame()),
-                values.clone(),
-                vec![],
-                vec![],
-                Default::default(),
-                Some(entry.clone()),
-                None,
+                crate::mir::builder::EmittedExpressionBodyV1 {
+                    values: values.clone(),
+                    calls: vec![],
+                    path_reads: vec![],
+                    reference_reads: Default::default(),
+                    entry: Some(entry.clone()),
+                    inline_range: None,
+                    bindings: observed,
+                    dynamic_calls: vec![],
+                    acquired: vec![],
+                    dynamic_carriers: vec![],
+                    temporary_order: vec![],
+                    homes: vec![],
+                    fault_frame: None,
+                    root_cleanup: None,
+                },
                 Some(print.clone()),
                 Some(continuation.clone()),
-                observed,
                 ledger,
                 &outside,
             )
@@ -1194,7 +1240,13 @@ fn literal_print_retains_original_frame_and_requires_physical_membership_without
                     .set_terminator(MirInstruction::Return { value: None });
             }
             assert!(
-                packet.validate_paths(ledger, &changed, None).is_err(),
+                packet
+                    .validate_paths_in_context(
+                        CallValidationContextV1::Lowering(ledger),
+                        &changed,
+                        None
+                    )
+                    .is_err(),
                 "topology drift {mutation}"
             );
         }

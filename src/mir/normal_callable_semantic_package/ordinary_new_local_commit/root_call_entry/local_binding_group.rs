@@ -4,6 +4,7 @@ use super::*;
 use crate::mir::normal_callable_semantic_package::{
     CallValidationContextV1, MapFieldInstallEmissionV1, StoredMapGetLocalEmissionV1,
 };
+use crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1;
 use std::rc::Rc;
 #[path = "direct_scalar_call.rs"]
 mod direct_scalar;
@@ -29,7 +30,7 @@ enum PrefixPhysicalProofV1 {
     StoredMapGet(Rc<StoredMapGetLocalEmissionV1>),
     FieldMapInstall(Rc<MapFieldInstallEmissionV1>),
     BoolCondition(Rc<EmittedBoolConditionProjectionV1>),
-    PrintExpression(Rc<print_expression_projection::EmittedPrintExpressionProjectionV1>),
+    PrintExpression(Rc<ExpressionEmissionV1<Rc<CheckedPrintExpressionFrameV1>>>),
     OwnedArrayAppend(Rc<owned_array_append_projection::EmittedOwnedArrayAppendV1>),
     FieldArrayAppend(Rc<field_array_append_projection::EmittedFieldArrayAppendV1>),
     BorrowedFieldWrite(Rc<EmittedBorrowedFieldWriteV1>),
@@ -387,7 +388,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
     }
 
     pub(super) fn new_print(
-        packet: Rc<print_expression_projection::EmittedPrintExpressionProjectionV1>,
+        packet: Rc<ExpressionEmissionV1<Rc<CheckedPrintExpressionFrameV1>>>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<Self, String> {
         packet.validate_recorded(&bindings, None)?;
@@ -760,3 +761,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
 mod map_groups;
 #[path = "local_binding_group_packets.rs"]
 mod packets;
+
+#[cfg(test)]
+#[path = "expression_emission_tests.rs"]
+mod expression_emission_tests;

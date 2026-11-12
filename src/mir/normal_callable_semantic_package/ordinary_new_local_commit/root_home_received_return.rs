@@ -1,7 +1,6 @@
 //! Original Received destination joins its existing producer and exact Return.
 use super::super::physical_boundary::FinishedBindings;
 use super::*;
-use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use crate::mir::resolved_semantics::home_new_prefix::ObjectReturnAcquisitionV1;
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -38,7 +37,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     return Err(freeze("root-exit-record-without-emission"));
                 };
                 if !order.return_expression.as_ref().is_some_and(|row| {
-                    std::rc::Rc::ptr_eq(&row.source, source) && row.value == value
+                    std::rc::Rc::ptr_eq(&row.contract.source, source) && row.contract.value == value
                 }) {
                     return Err(freeze("expression/residence-original-pair"));
                 }
@@ -80,8 +79,17 @@ impl OrdinaryNewClaimLedgerV1 {
         return_projection: Option<&FinishedBindings>,
         function: Option<&MirFunction>,
     ) -> Result<Option<Vec<(BasicBlockId, MirInstruction)>>, String> {
-        if let Some(bindings) = self.validate_plain_scalar_return_read_v1(context, owner, exit, order,
-            entry, bindings, producer_projection, return_projection, function)? {
+        if let Some(bindings) = self.validate_plain_scalar_return_read_v1(
+            context,
+            owner,
+            exit,
+            order,
+            entry,
+            bindings,
+            producer_projection,
+            return_projection,
+            function,
+        )? {
             return Ok(Some(bindings));
         }
         if let Some(TerminalRelationV1::Scalar(terminal)) =
@@ -92,12 +100,12 @@ impl OrdinaryNewClaimLedgerV1 {
                     .return_expression
                     .as_ref()
                     .ok_or_else(|| freeze("expression/residence-original-pair"))?;
-                if !std::rc::Rc::ptr_eq(source, &row.source)
+                if !std::rc::Rc::ptr_eq(source, &row.contract.source)
                     || source.source().owner() != owner
                     || source.source().root().statement() != exit
                     || terminal.owner() != owner
                     || terminal.return_site() != exit
-                    || row.residence.is_some()
+                    || row.contract.residence.is_some()
                     || order.text_return_hold.is_some()
                     || !matches!(entry, RootHomeExitEntry::Plain { .. })
                 {
@@ -107,7 +115,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 if let Some(function) = function {
                     row.validate(context, function, producer_projection)?;
                     if function.blocks.values().flat_map(|block| block.all_instructions())
-                        .filter(|instruction| matches!(instruction, MirInstruction::Return { value: Some(value) } if *value == row.value))
+                        .filter(|instruction| matches!(instruction, MirInstruction::Return { value: Some(value) } if *value == row.contract.value))
                         .count() != 1 {
                         return Err(freeze("expression/residence-original-pair"));
                     }
@@ -123,27 +131,44 @@ impl OrdinaryNewClaimLedgerV1 {
                         _ => None,
                     })
                     .collect::<Vec<_>>()
-                    != vec![Some(row.value)]
+                    != vec![Some(row.contract.value)]
                 {
                     return Err(freeze("expression/residence-original-pair"));
                 }
                 if row.root_fault.is_some() {
-                    let continuation = row.continuation.as_ref().ok_or_else(|| freeze("expression/residence-original-pair"))?;
-                    let normal = bindings.last().and_then(|(_, instruction)| match instruction {
-                        MirInstruction::Jump { target, edge_args: None } => Some(*target), _ => None,
-                    }).ok_or_else(|| freeze("expression/residence-original-pair"))?;
+                    let continuation = row
+                        .continuation
+                        .as_ref()
+                        .ok_or_else(|| freeze("expression/residence-original-pair"))?;
+                    let normal = bindings
+                        .last()
+                        .and_then(|(_, instruction)| match instruction {
+                            MirInstruction::Jump {
+                                target,
+                                edge_args: None,
+                            } => Some(*target),
+                            _ => None,
+                        })
+                        .ok_or_else(|| freeze("expression/residence-original-pair"))?;
                     let coordinate = |block| match return_projection {
-                        Some(projection) => projection.destination(block).ok_or_else(|| freeze("expression/residence-original-pair")),
+                        Some(projection) => projection
+                            .destination(block)
+                            .ok_or_else(|| freeze("expression/residence-original-pair")),
                         None => Ok(block),
                     };
-                    if coordinate(normal)? != producer_projection.map_or(Ok(continuation.0), |projection|
-                        projection.destination(continuation.0).ok_or_else(|| freeze("expression/residence-original-pair")))? {
+                    if coordinate(normal)?
+                        != producer_projection.map_or(Ok(continuation.0), |projection| {
+                            projection
+                                .destination(continuation.0)
+                                .ok_or_else(|| freeze("expression/residence-original-pair"))
+                        })?
+                    {
                         return Err(freeze("expression/residence-original-pair"));
                     }
                 }
-                let producer = row
-                    .expression()
-                    .require_unique(|instruction| instruction.dst_value() == Some(row.value))?;
+                let producer = row.expression().require_unique(|instruction| {
+                    instruction.dst_value() == Some(row.contract.value)
+                })?;
                 let mandatory = match producer_projection {
                     Some(projection) => projection
                         .binding(producer.0, &producer.1)?
@@ -167,7 +192,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .return_expression
                 .as_ref()
                 .ok_or_else(|| freeze("expression/residence-original-pair"))?;
-            if !std::rc::Rc::ptr_eq(source, &row.source)
+            if !std::rc::Rc::ptr_eq(source, &row.contract.source)
                 || source.source().owner() != owner
                 || source.source().root().statement() != exit
                 || !matches!(entry, RootHomeExitEntry::Plain { .. })
@@ -175,6 +200,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("expression/residence-original-pair"));
             }
             let residence = row
+                .contract
                 .residence
                 .as_ref()
                 .ok_or_else(|| freeze("expression/residence-original-pair"))?;
@@ -187,7 +213,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .as_ref()
                 .ok_or_else(|| freeze("expression/residence-original-pair"))?;
             if !matches!(hold.1, MirInstruction::StringResidenceInstall { value, replaces: None, returning: true }
-                if value == row.value)
+                if value == row.contract.value)
                 || !matches!(bindings.last(), Some((block, MirInstruction::Jump { .. })) if *block == hold.0)
             {
                 return Err(freeze("expression/residence-original-pair"));
@@ -203,13 +229,13 @@ impl OrdinaryNewClaimLedgerV1 {
                     _ => None,
                 })
                 .collect::<Vec<_>>()
-                != vec![Some(row.value)]
+                != vec![Some(row.contract.value)]
             {
                 return Err(freeze("expression/residence-original-pair"));
             }
             let acquisition = row.expression().require_unique(|instruction| {
                 matches!(instruction,
-                MirInstruction::InvokeNormalResult { dst, .. } if *dst == row.value)
+                MirInstruction::InvokeNormalResult { dst, .. } if *dst == row.contract.value)
             })?;
             let mut mandatory = Vec::new();
             for (original, projection) in [
@@ -441,332 +467,51 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 }
 
-/// One Return-owned expression. Residence carries only its additional ownership
-/// events; scalar results reuse the same values, reads and independent replay.
-#[derive(Debug)]
-pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) struct ReturnExpressionEmissionV1 {
-    pub(super) source:
-        std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
-    pub(super) value: ValueId,
-    values: Vec<Option<EvaluatedExpressionValueV1>>,
-    calls: Vec<
-        std::rc::Rc<crate::mir::normal_callable_semantic_package::EmittedLexicalCallProjectionV1>,
-    >,
-    path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
-    reads: std::collections::BTreeMap<
-        usize,
-        crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
-    >,
-    entry: Option<(BasicBlockId, MirInstruction)>,
-    inline_range: Option<(BasicBlockId, usize, usize, bool)>,
-    terminal: Option<(BasicBlockId, MirInstruction)>,
-    continuation: Option<(BasicBlockId, MirInstruction)>,
-    residence: Option<ReturnExpressionResidenceV1>,
-    after_residency: Option<crate::mir::builder::BindingValueObservationV2>,
-    original: Vec<(BasicBlockId, MirInstruction)>,
-    root_fault: Option<BasicBlockId>,
-}
-#[derive(Debug)]
-struct ReturnExpressionResidenceV1 {
-    materialize: Option<[(BasicBlockId, MirInstruction); 2]>,
-    install: (BasicBlockId, MirInstruction),
-}
-impl ReturnExpressionEmissionV1 {
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn borrowed_root_boundary_v1(&self)
-        -> Option<(BasicBlockId, &[(BasicBlockId, MirInstruction)])> {
-        self.root_fault.map(|entry| (entry, self.original.as_slice()))
-    }
-
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn require_source_v1(
-        &self, owner: FunctionOwnerIdV1, exit: &SourceStmtSiteV1,
-    ) -> Result<(), String> {
-        if self.source.source().owner() != owner || self.source.source().root().statement() != exit {
-            return Err(freeze("finished-terminal-call/owner"));
-        }
-        Ok(())
-    }
-
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn visit_calls_v1(
-        &self, visit: impl FnMut(&crate::mir::normal_callable_semantic_package::EmittedLexicalCallProjectionV1,
-            &[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]) -> Result<(), String>,
-    ) -> Result<(), String> { self.expression().visit_calls_v1(visit) }
-
-    fn has_call_binding_v1(&self, context: CallValidationContextV1<'_>, site: &OwnedExprSiteV1,
-        original: &(BasicBlockId, MirInstruction), copy: bool,
-    ) -> Result<bool, String> {
-        let mut count = 0;
-        self.visit_calls_v1(|packet, arguments| packet.visit_original_nodes_in_context_v1(
-            site.owner(), arguments, context, &mut |node, _| {
-                if node.call_site() != site { return Ok(()); }
-                let matched = if copy {
-                    node.copy_dependencies_in_context(context)?.iter()
-                        .any(|(source, binding)| source == site && binding == original)
-                } else { node.has_producer_at(site, original) };
-                if matched { count += 1; }
-                Ok(())
-            }))?;
-        if count > 1 { return Err(freeze("final-call-visit/source-duplicate")); }
-        Ok(count == 1)
-    }
-
-    /// The body lends source correspondence only after the Return continuation checks.
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn array_operation_bindings_v1(
-        &self, operation: &std::rc::Rc<super::super::super::CheckedFieldArrayAccessSourceV1>,
-        context: CallValidationContextV1<'_>, function: &MirFunction, projection: &FinishedBindings,
-    ) -> Result<Option<((BasicBlockId, MirInstruction), (BasicBlockId, MirInstruction))>, String> {
-        let mut pair = self.expression().array_operation_bindings_v1(operation, context)?;
-        for call in &self.calls {
-            if let Some(argument) = call.array_argument_operation_bindings_v1(operation, context)? {
-                if pair.is_some() { return Err(freeze("finished-array-field/source-membership")); }
-                pair = Some(argument);
-            }
-        }
-        if pair.is_some() { self.validate(context, function, Some(projection))?; }
-        Ok(pair)
-    }
-
-    fn expression(&self) -> super::ExpressionPhysicalProjectionRefV1<'_> {
-        super::ExpressionPhysicalProjectionRefV1::new(
-            &self.source,
-            &self.values,
-            &self.calls,
-            &self.path_reads,
-            &self.reads,
-            &self.original,
-        ).with_inline_range_v1(self.inline_range).with_root_fault_v1(self.root_fault)
-    }
-    fn validate(
-        &self,
-        context: CallValidationContextV1<'_>,
-        function: &MirFunction,
-        projection: Option<&FinishedBindings>,
-    ) -> Result<(), String> {
-        let expected_after = self.residence.is_some()
-            && self.source.return_text_after_read_v2().map_err(freeze)?.is_some();
-        if expected_after != self.after_residency.is_some() {
-            return Err(freeze("expression/residence-original-pair"));
-        }
-        let (displaced, unwind) = match &self.after_residency {
-            Some(read) => {
-                let (old, unwind) = context.ledger().return_text_after_unwind_v2(
-                    &self.source, read, context, function, projection)?;
-                (Some(old), Some(unwind))
-            }
-            None => (None, None),
-        };
-        let expression = self.expression();
-        let expression = match &unwind {
-            Some(unwind) => expression.with_prior_home_unwind(unwind),
-            None => expression,
-        };
-        expression.validate_source(context)?;
-        expression.validate_effective_root_v1(
-            self.value,
-            self.residence.is_some(),
-            self.residence.is_some() && self.source.owned_text_root_node_v1().is_none(),
-            self.residence
-                .as_ref()
-                .and_then(|row| row.materialize.as_ref()),
-        )?;
-        let recorded = projection
-            .map(|projection| projection.bindings(&self.original))
-            .transpose()?;
-        expression.validate_recorded(recorded.as_deref().unwrap_or(&self.original), projection)?;
-        let covered = match &self.residence {
-            Some(row) => expression.validate_residence_continuation_v1(
-                context,
-                function,
-                projection,
-                &self.entry,
-                &self.terminal,
-                &self.continuation,
-                Some(&row.install),
-                displaced.as_ref(),
-                row.materialize.as_ref(),
-            )?,
-            None => expression.validate_scalar_continuation_v1(
-                context,
-                function,
-                projection,
-                &self.entry,
-                &self.terminal,
-                &self.continuation,
-                None,
-            )?,
-        };
-        if projection.is_none() {
-            let mut ordered = expression.ordered_bindings_in_context(context)?;
-            if let Some(row) = &self.residence {
-                if let Some(pair) = &row.materialize {
-                    ordered.extend(pair.iter().cloned());
-                }
-                ordered.push(row.install.clone());
-            }
-            ordered.extend(self.terminal.iter().cloned());
-            expression.validate_original_scope(
-                context,
-                function,
-                &covered,
-                &self.entry,
-                &self.terminal,
-                &self.continuation,
-                &ordered,
-                None,
-            )?;
-        }
-        Ok(())
-    }
-}
-impl RootHomeCleanupOrderV1 {
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn return_expression_v1(
-        &self,
-    ) -> Option<&ReturnExpressionEmissionV1> { self.return_expression.as_deref() }
-
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn return_value_bindings_v1(
-        &self,
-        context: CallValidationContextV1<'_>,
-    ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
-        let mut bindings = match &self.scalar_return_read {
-            Some(proof) => proof.dependencies(self.return_read.as_ref()
-                .ok_or_else(|| freeze("expression/scalar-binding-observation"))?)?,
-            None => Vec::new(),
-        };
-        let Some(expression) = &self.return_expression else { return Ok(bindings); };
-        bindings.extend_from_slice(&expression.original);
-        // Calls retain their source-qualified read adapters separately from
-        // the enclosing expression. Lend the same dependencies to capture,
-        // final validation and DCE; a Plain return has no direct Call entry.
-        expression.visit_calls_v1(|packet, _| {
-            for (_, binding) in packet.copy_dependencies_in_context(context)? {
-                if !bindings.contains(&binding) { bindings.push(binding); }
-            }
-            Ok(())
-        })?;
-        Ok(bindings)
-    }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn text_expression_install_v1(
-        &self,
-    ) -> Option<&(BasicBlockId, MirInstruction)> {
-        self.return_expression
-            .as_ref()
-            .and_then(|row| row.residence.as_ref())
-            .map(|row| &row.install)
-    }
-}
-impl OrdinaryNewClaimLedgerV1 {
-    pub(in crate::mir) fn retain_return_expression_v1(
-        &self,
-        source: std::rc::Rc<
-            crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
-        >,
-        value: ValueId,
-        values: Vec<Option<EvaluatedExpressionValueV1>>,
-        calls: Vec<
-            std::rc::Rc<
-                crate::mir::normal_callable_semantic_package::EmittedLexicalCallProjectionV1,
-            >,
-        >,
-        path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
-        reads: std::collections::BTreeMap<
-            usize,
-            crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
-        >,
-        entry: Option<(BasicBlockId, MirInstruction)>,
-        inline_range: Option<(BasicBlockId, usize, usize, bool)>,
-        terminal: Option<(BasicBlockId, MirInstruction)>,
-        continuation: Option<(BasicBlockId, MirInstruction)>,
-        root_fault: Option<BasicBlockId>,
-        materialize: Option<[(BasicBlockId, MirInstruction); 2]>,
-        after_residency: Option<crate::mir::builder::BindingValueObservationV2>,
-        original: Vec<(BasicBlockId, MirInstruction)>,
-        function: &MirFunction,
-    ) -> Result<(), String> {
-        let owner = source.source().owner();
-        let site = source.source().root().statement();
-        if self
-            .return_expression_evaluation_v1(owner, site)?
-            .is_none_or(|original| !std::rc::Rc::ptr_eq(&original, &source))
-        {
-            return Err(freeze("expression/residence-original-pair"));
-        }
-        let installs: Vec<_> = original
-            .iter()
-            .filter(|(_, row)| matches!(row, MirInstruction::StringResidenceInstall { .. }))
-            .collect();
-        use crate::mir::resolved_value_profile::{
-            expression_class::ExpressionValueClassV1 as Class,
-            expression_projection::ExpressionLeafClassV1 as Leaf,
-        };
-        let residence = match source.root_class() {
-            Leaf::Value(Class::String) => {
-                if installs.len() != 1
-                    || !matches!(installs[0].1, MirInstruction::StringResidenceInstall {
-                    value: installed, replaces, returning: false }
-                        if installed == value && replaces.is_some() == after_residency.is_some())
-                {
-                    return Err(freeze("expression/residence-original-pair"));
-                }
-                Some(ReturnExpressionResidenceV1 {
-                    install: (*installs[0]).clone(),
-                    materialize,
-                })
-            }
-            Leaf::Value(Class::I64 | Class::Bool) if installs.is_empty() && materialize.is_none() && after_residency.is_none() => None,
-            _ => return Err(freeze("expression/residence-original-pair")),
-        };
-        let packet = ReturnExpressionEmissionV1 {
-            residence,
-            after_residency,
-            source: source.clone(),
-            value,
-            values,
-            calls,
-            path_reads,
-            reads,
-            entry,
-            inline_range,
-            terminal,
-            continuation,
-            root_fault,
-            original,
-        };
-        packet.validate(CallValidationContextV1::Lowering(self), function, None)?;
-        let mut rows = self.root_exits.borrow_mut();
-        let Some(RootHomeExitProgress::Prepared(order)) =
-            rows.get_mut(&(owner, site.clone().into()))
-        else {
-            return Err(freeze("root-exit-record-without-prepare"));
-        };
-        if order.return_expression.is_some() {
-            return Err(freeze("expression/residence-original-pair"));
-        }
-        order.return_expression = Some(Box::new(packet));
-        Ok(())
-    }
-}
+#[path = "return_expression_emission.rs"]
+mod expression;
+pub(crate) use expression::ReturnExpressionContractV1;
 
 impl FinalizedRootSourceHandoffV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn finished_return_expression_call_binding_v1(
-        &self, owner: FunctionOwnerIdV1, exit: &SourceStmtSiteV1,
-        site: &OwnedExprSiteV1, original: &(BasicBlockId, MirInstruction),
-        function: &MirFunction, copy: bool,
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+        site: &OwnedExprSiteV1,
+        original: &(BasicBlockId, MirInstruction),
+        function: &MirFunction,
+        copy: bool,
     ) -> Result<Option<(BasicBlockId, usize)>, String> {
         let exits = self.ledger.root_exits.borrow();
         let order = match exits.get(&(owner, exit.clone().into())) {
-            Some(RootHomeExitProgress::Emitted { order, .. }) | Some(RootHomeExitProgress::Finalized(order)) => order,
+            Some(RootHomeExitProgress::Emitted { order, .. })
+            | Some(RootHomeExitProgress::Finalized(order)) => order,
             _ => return Err(freeze("finished-terminal-call/exit-missing")),
         };
-        let Some(expression) = &order.return_expression else { return Ok(None); };
+        let Some(expression) = &order.return_expression else {
+            return Ok(None);
+        };
         expression.require_source_v1(owner, exit)?;
         if site.owner() != owner
-            || !expression.has_call_binding_v1(CallValidationContextV1::Finalized(self), site, original, copy)? {
+            || !expression.has_call_binding_v1(
+                CallValidationContextV1::Finalized(self),
+                site,
+                original,
+                copy,
+            )?
+        {
             return Err(freeze("finished-terminal-call/original-producer"));
         }
         let (symbol, finished) = self.ledger.finished_binding_for_owner(owner, original)?;
         if copy {
-            super::super::finalized_source_projection::find_finished_copy(&symbol, &finished, function).map(Some)
+            super::super::finalized_source_projection::find_finished_copy(
+                &symbol, &finished, function,
+            )
+            .map(Some)
         } else {
-            super::super::finalized_source_projection::find_finished_producer(&symbol, &finished, function).map(Some)
+            super::super::finalized_source_projection::find_finished_producer(
+                &symbol, &finished, function,
+            )
+            .map(Some)
         }
     }
 }

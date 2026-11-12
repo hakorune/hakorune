@@ -754,3 +754,7 @@ pub(super) use effect_order::normal_order;
 pub(in crate::mir) use effect_order::{
     validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1,
 };
+
+#[cfg(test)]
+#[path = "expression_observation_mutation_tests.rs"]
+pub(super) mod mutation_evidence;

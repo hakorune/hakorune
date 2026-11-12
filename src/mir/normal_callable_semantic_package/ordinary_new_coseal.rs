@@ -720,9 +720,8 @@ pub(in crate::mir::normal_callable_semantic_package) use result_class_claim::sou
 
 pub(crate) use local_commit::{
     EmittedBindingRebindProjectionV1, EmittedFieldArrayAppendV1,
-    EmittedInitializerExpressionProjectionV1, EmittedOwnedArrayAppendV1,
-    EmittedPrintExpressionProjectionV1, FieldAppendTextProjectionV1, OwnedArrayAppendCandidateV1,
-    RootLifecyclePrefixBindingGroupV1,
+    EmittedInitializerExpressionProjectionV1, EmittedOwnedArrayAppendV1, ExpressionEmissionV1,
+    FieldAppendTextProjectionV1, OwnedArrayAppendCandidateV1, RootLifecyclePrefixBindingGroupV1,
 };
 
 pub(crate) use local_commit::EmittedOwnedArrayHolderV1;

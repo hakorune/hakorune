@@ -73,7 +73,9 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         let mut sites = std::collections::BTreeSet::new();
-        let mut lend = |packet: &EmittedLexicalCallProjectionV1, arguments: &[LocalCallArgumentV1], bindings: &[(BasicBlockId, MirInstruction)]| {
+        let mut lend = |packet: &EmittedLexicalCallProjectionV1,
+                        arguments: &[LocalCallArgumentV1],
+                        bindings: &[(BasicBlockId, MirInstruction)]| {
             packet.visit_original_nodes_v1(owner, arguments, self, &mut |node, arguments| {
                 if let Some(read) = node.stored_receiver_read_v1() {
                     if !sites.insert(node.call_site().clone()) {
@@ -87,16 +89,27 @@ impl OrdinaryNewClaimLedgerV1 {
             })
         };
         for ((actual_owner, exit), progress) in exits.iter() {
-            if *actual_owner != owner { continue; }
-            let RootHomeExitProgress::Emitted { order, .. } = progress else { continue };
-            let Some(expression) = order.return_expression_v1() else { continue };
-            let exit = exit.explicit_site().ok_or_else(|| freeze("implicit-exit/terminal-call-drift"))?;
+            if *actual_owner != owner {
+                continue;
+            }
+            let RootHomeExitProgress::Emitted { order, .. } = progress else {
+                continue;
+            };
+            let Some(expression) = order.return_expression_v1() else {
+                continue;
+            };
+            let exit = exit
+                .explicit_site()
+                .ok_or_else(|| freeze("implicit-exit/terminal-call-drift"))?;
             expression.require_source_v1(owner, exit)?;
-            if self.return_expression_evaluation_v1(owner, exit)?
-                .is_none_or(|original| !std::rc::Rc::ptr_eq(&original, &expression.source)) {
+            if self
+                .return_expression_evaluation_v1(owner, exit)?
+                .is_none_or(|original| !std::rc::Rc::ptr_eq(&original, &expression.contract.source))
+            {
                 return Err(freeze("local-stored-receiver/source-drift"));
             }
-            let bindings = order.return_value_bindings_v1(CallValidationContextV1::Lowering(self))?;
+            let bindings =
+                order.return_value_bindings_v1(CallValidationContextV1::Lowering(self))?;
             expression.visit_calls_v1(|packet, arguments| lend(packet, arguments, &bindings))?;
         }
         let groups = self.root_local_call_bindings.borrow();
