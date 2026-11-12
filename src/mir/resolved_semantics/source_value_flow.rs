@@ -63,7 +63,10 @@ impl VerifiedSourceValueFlowV1 {
         if !self.complete {
             return None;
         }
-        self.reads.get(site).copied().filter(|(binding, _)| binding.owner() == self.owner)
+        self.reads
+            .get(site)
+            .copied()
+            .filter(|(binding, _)| binding.owner() == self.owner)
     }
     pub(crate) fn read(
         &self,
@@ -82,19 +85,45 @@ impl VerifiedSourceValueFlowV1 {
     /// normalization may redirect reads while retaining this original node.
     /// This passive query never picks an incoming or grants a value class.
     pub(crate) fn loop_join(
-        &self, statement: &SourceStmtSiteV1, binding: BindingRefV1, kind: SourceValueJoinKindV1,
+        &self,
+        statement: &SourceStmtSiteV1,
+        binding: BindingRefV1,
+        kind: SourceValueJoinKindV1,
     ) -> Option<(SourceValueRefV1, &[(SourceValueEdgeV1, SourceValueRefV1)])> {
-        if !self.complete || binding.owner() != self.owner
-            || !matches!(kind, SourceValueJoinKindV1::LoopHeader | SourceValueJoinKindV1::LoopAfter) {
+        if !self.complete
+            || binding.owner() != self.owner
+            || !matches!(
+                kind,
+                SourceValueJoinKindV1::LoopHeader | SourceValueJoinKindV1::LoopAfter
+            )
+        {
             return None;
         }
         let site = SourceExprSiteV1::from_node(statement.node().clone());
-        let mut matching = self.nodes.iter().enumerate().filter_map(|(slot, origin)| match origin {
-            SourceValueOriginV1::Join { binding: original, site: original_site, kind: original_kind, incoming }
-                if *original == binding && original_site == &site && *original_kind == kind =>
-                    Some((SourceValueRefV1 { owner: self.owner, slot }, incoming.as_ref())),
-            _ => None,
-        });
+        let mut matching =
+            self.nodes
+                .iter()
+                .enumerate()
+                .filter_map(|(slot, origin)| match origin {
+                    SourceValueOriginV1::Join {
+                        binding: original,
+                        site: original_site,
+                        kind: original_kind,
+                        incoming,
+                    } if *original == binding
+                        && original_site == &site
+                        && *original_kind == kind =>
+                    {
+                        Some((
+                            SourceValueRefV1 {
+                                owner: self.owner,
+                                slot,
+                            },
+                            incoming.as_ref(),
+                        ))
+                    }
+                    _ => None,
+                });
         let result = matching.next()?;
         matching.next().is_none().then_some(result)
     }
@@ -103,17 +132,33 @@ impl VerifiedSourceValueFlowV1 {
     /// This is passive reaching-definition evidence; consumers still prove
     /// the producer and value class for both ordered arms.
     pub(crate) fn branch_join(
-        &self, statement: &SourceStmtSiteV1, binding: BindingRefV1,
+        &self,
+        statement: &SourceStmtSiteV1,
+        binding: BindingRefV1,
     ) -> Option<(SourceValueRefV1, &[(SourceValueEdgeV1, SourceValueRefV1)])> {
-        if !self.complete || binding.owner() != self.owner { return None; }
+        if !self.complete || binding.owner() != self.owner {
+            return None;
+        }
         let site = SourceExprSiteV1::from_node(statement.node().clone());
-        let mut matching = self.nodes.iter().enumerate().filter_map(|(slot, origin)| match origin {
-            SourceValueOriginV1::Join { binding: original, site: original_site,
-                kind: SourceValueJoinKindV1::BranchNormal, incoming }
-                if *original == binding && original_site == &site =>
-                    Some((SourceValueRefV1 { owner: self.owner, slot }, incoming.as_ref())),
-            _ => None,
-        });
+        let mut matching =
+            self.nodes
+                .iter()
+                .enumerate()
+                .filter_map(|(slot, origin)| match origin {
+                    SourceValueOriginV1::Join {
+                        binding: original,
+                        site: original_site,
+                        kind: SourceValueJoinKindV1::BranchNormal,
+                        incoming,
+                    } if *original == binding && original_site == &site => Some((
+                        SourceValueRefV1 {
+                            owner: self.owner,
+                            slot,
+                        },
+                        incoming.as_ref(),
+                    )),
+                    _ => None,
+                });
         let result = matching.next()?;
         matching.next().is_none().then_some(result)
     }
@@ -121,7 +166,8 @@ impl VerifiedSourceValueFlowV1 {
     /// Exact alias provenance only. Computed definitions, joins, unknowns and
     /// cycles cannot claim an entry origin from a convenient predecessor.
     pub(crate) fn alias_entry_origin(
-        &self, value: SourceValueRefV1,
+        &self,
+        value: SourceValueRefV1,
         reference: impl FnMut(&SourceExprSiteV1) -> Option<ResolvedLexicalRefV1>,
     ) -> Option<BindingRefV1> {
         match self.origin(self.alias_origin(value, reference)?)? {
@@ -132,7 +178,8 @@ impl VerifiedSourceValueFlowV1 {
     /// Follow only exact lexical aliases. Terminal expression identity is
     /// retained; branches, unknowns and cycles never select a predecessor.
     pub(crate) fn alias_origin(
-        &self, value: SourceValueRefV1,
+        &self,
+        value: SourceValueRefV1,
         reference: impl FnMut(&SourceExprSiteV1) -> Option<ResolvedLexicalRefV1>,
     ) -> Option<SourceValueRefV1> {
         self.alias_origin_with_expression_boundary(value, reference, |_| false)
@@ -141,26 +188,46 @@ impl VerifiedSourceValueFlowV1 {
     /// original flow remains the edge graph; this set grants no common type,
     /// lifetime, read permission, or representative predecessor.
     pub(crate) fn alias_origins_v1(
-        &self, value: SourceValueRefV1,
+        &self,
+        value: SourceValueRefV1,
         mut reference: impl FnMut(&SourceExprSiteV1) -> Option<ResolvedLexicalRefV1>,
     ) -> Option<BTreeSet<SourceValueRefV1>> {
         fn visit(
-            flow: &VerifiedSourceValueFlowV1, value: SourceValueRefV1,
+            flow: &VerifiedSourceValueFlowV1,
+            value: SourceValueRefV1,
             reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<ResolvedLexicalRefV1>,
             active: &mut BTreeSet<SourceValueRefV1>,
             complete: &mut BTreeMap<SourceValueRefV1, bool>,
             origins: &mut BTreeSet<SourceValueRefV1>,
         ) -> bool {
-            let Some(value) = flow.alias_terminal_with_expression_boundary(value, &mut *reference, |_| false)
-                else { return false; };
-            if let Some(valid) = complete.get(&value) { return *valid; }
-            if !active.insert(value) { return false; }
+            let Some(value) =
+                flow.alias_terminal_with_expression_boundary(value, &mut *reference, |_| false)
+            else {
+                return false;
+            };
+            if let Some(valid) = complete.get(&value) {
+                return *valid;
+            }
+            if !active.insert(value) {
+                return false;
+            }
             let valid = match flow.origin(value) {
                 Some(SourceValueOriginV1::Entry(_) | SourceValueOriginV1::Expression(_)) => {
-                    origins.insert(value); true
+                    origins.insert(value);
+                    true
                 }
-                Some(SourceValueOriginV1::Join { kind: SourceValueJoinKindV1::BranchNormal, incoming, .. })
-                    if matches!(incoming.as_ref(), [(SourceValueEdgeV1::ThenNormal, _), (SourceValueEdgeV1::ElseNormal, _)]) => {
+                Some(SourceValueOriginV1::Join {
+                    kind: SourceValueJoinKindV1::BranchNormal,
+                    incoming,
+                    ..
+                }) if matches!(
+                    incoming.as_ref(),
+                    [
+                        (SourceValueEdgeV1::ThenNormal, _),
+                        (SourceValueEdgeV1::ElseNormal, _)
+                    ]
+                ) =>
+                {
                     let left = visit(flow, incoming[0].1, reference, active, complete, origins);
                     let right = visit(flow, incoming[1].1, reference, active, complete, origins);
                     left && right
@@ -172,13 +239,21 @@ impl VerifiedSourceValueFlowV1 {
             valid
         }
         let mut origins = BTreeSet::new();
-        visit(self, value, &mut reference, &mut BTreeSet::new(), &mut BTreeMap::new(), &mut origins)
-            .then_some(origins)
+        visit(
+            self,
+            value,
+            &mut reference,
+            &mut BTreeSet::new(),
+            &mut BTreeMap::new(),
+            &mut origins,
+        )
+        .then_some(origins)
     }
     /// Opt-in alias equality uses the SAME complete-input traversal. Distinct
     /// terminal identities stay distinct even when their values compare equal.
     pub(crate) fn unanimous_alias_origin(
-        &self, value: SourceValueRefV1,
+        &self,
+        value: SourceValueRefV1,
         reference: impl FnMut(&SourceExprSiteV1) -> Option<ResolvedLexicalRefV1>,
     ) -> Option<SourceValueRefV1> {
         let mut origins = self.alias_origins_v1(value, reference)?.into_iter();
@@ -189,42 +264,56 @@ impl VerifiedSourceValueFlowV1 {
     /// This remains an alias-only walk: no join predecessor can be selected,
     /// and an expression identity alone grants no type/Home/physical evidence.
     pub(crate) fn alias_origin_with_expression_boundary(
-        &self, value: SourceValueRefV1,
+        &self,
+        value: SourceValueRefV1,
         reference: impl FnMut(&SourceExprSiteV1) -> Option<ResolvedLexicalRefV1>,
         preserve: impl FnMut(&SourceExprSiteV1) -> bool,
     ) -> Option<SourceValueRefV1> {
         let terminal = self.alias_terminal_with_expression_boundary(value, reference, preserve)?;
-        matches!(self.origin(terminal)?, SourceValueOriginV1::Entry(_) | SourceValueOriginV1::Expression(_))
-            .then_some(terminal)
+        matches!(
+            self.origin(terminal)?,
+            SourceValueOriginV1::Entry(_) | SourceValueOriginV1::Expression(_)
+        )
+        .then_some(terminal)
     }
 
     /// A join itself is an exact passive terminal, never a selected incoming.
     /// Consumers must independently prove its complete entry/update/exit law.
     pub(crate) fn alias_terminal_with_expression_boundary(
-        &self, value: SourceValueRefV1,
+        &self,
+        value: SourceValueRefV1,
         mut reference: impl FnMut(&SourceExprSiteV1) -> Option<ResolvedLexicalRefV1>,
         preserve: impl FnMut(&SourceExprSiteV1) -> bool,
     ) -> Option<SourceValueRefV1> {
-        self.alias_terminal_with_read_site(value, |site| {
-            reference(site).map(|reference| (site.clone(), reference))
-        }, preserve)
+        self.alias_terminal_with_read_site(
+            value,
+            |site| reference(site).map(|reference| (site.clone(), reference)),
+            preserve,
+        )
     }
 
     /// Follow an exact expression's read site, which may be a child operand.
     /// This remains passive provenance, never ownership authority.
     pub(crate) fn alias_terminal_with_read_site(
-        &self, mut value: SourceValueRefV1,
+        &self,
+        mut value: SourceValueRefV1,
         mut reference: impl FnMut(&SourceExprSiteV1) -> Option<(SourceExprSiteV1, ResolvedLexicalRefV1)>,
         mut preserve: impl FnMut(&SourceExprSiteV1) -> bool,
     ) -> Option<SourceValueRefV1> {
         let mut seen = BTreeSet::new();
         while seen.insert(value) {
             match self.origin(value)? {
-                SourceValueOriginV1::Entry(_) | SourceValueOriginV1::Join { .. } => return Some(value),
+                SourceValueOriginV1::Entry(_) | SourceValueOriginV1::Join { .. } => {
+                    return Some(value)
+                }
                 SourceValueOriginV1::Expression(site) => {
-                    if preserve(site) { return Some(value); }
+                    if preserve(site) {
+                        return Some(value);
+                    }
                     match reference(site) {
-                        Some((read, ResolvedLexicalRefV1::Local(binding))) => value = self.read(&read, binding)?,
+                        Some((read, ResolvedLexicalRefV1::Local(binding))) => {
+                            value = self.read(&read, binding)?
+                        }
                         None => return Some(value),
                         _ => return None,
                     }
@@ -445,23 +534,56 @@ impl SourceValueFlowDraftV1 {
     /// Compare all original reachable Loop snapshots, not a filtered join
     /// array. Nested readonly loops may lend only their already-proved reduction.
     fn invariant_loop_bindings(&self, frame: &LoopFrame) -> Vec<(Binding, SourceValueSlotV0)> {
-        if !self.complete { return Vec::new(); }
-        frame.head.iter().filter_map(|(binding, header)| {
-            let SourceValueOriginV1::Join { binding: original, site, kind: SourceValueJoinKindV1::LoopHeader, incoming } = self.nodes.get(header.0)? else { return None; };
-            if original != binding || site != &frame.site { return None; }
-            let mut entries = incoming.iter().filter(|(edge, _)| *edge == SourceValueEdgeV1::LoopEntry);
-            let (_, entry) = entries.next()?;
-            if entries.next().is_some() || entry.0 >= header.0 { return None; }
-            let anchor = canonical_slot(&self.invariant_values, *entry)?;
-            let mut edges = Vec::new();
-            for (edge, state) in frame.continues.iter().chain(frame.exits.iter()) {
-                let Some(state) = state else { continue; };
-                if edges.contains(edge) || canonical_slot(&self.invariant_values, *state.get(binding)?)? != *header { return None; }
-                edges.push(edge.clone());
-            }
-            if edges.iter().filter(|edge| **edge == SourceValueEdgeV1::ConditionFalse).count() != 1 { return None; }
-            Some((*binding, anchor))
-        }).collect()
+        if !self.complete {
+            return Vec::new();
+        }
+        frame
+            .head
+            .iter()
+            .filter_map(|(binding, header)| {
+                let SourceValueOriginV1::Join {
+                    binding: original,
+                    site,
+                    kind: SourceValueJoinKindV1::LoopHeader,
+                    incoming,
+                } = self.nodes.get(header.0)?
+                else {
+                    return None;
+                };
+                if original != binding || site != &frame.site {
+                    return None;
+                }
+                let mut entries = incoming
+                    .iter()
+                    .filter(|(edge, _)| *edge == SourceValueEdgeV1::LoopEntry);
+                let (_, entry) = entries.next()?;
+                if entries.next().is_some() || entry.0 >= header.0 {
+                    return None;
+                }
+                let anchor = canonical_slot(&self.invariant_values, *entry)?;
+                let mut edges = Vec::new();
+                for (edge, state) in frame.continues.iter().chain(frame.exits.iter()) {
+                    let Some(state) = state else {
+                        continue;
+                    };
+                    if edges.contains(edge)
+                        || canonical_slot(&self.invariant_values, *state.get(binding)?)? != *header
+                    {
+                        return None;
+                    }
+                    edges.push(edge.clone());
+                }
+                if edges
+                    .iter()
+                    .filter(|edge| **edge == SourceValueEdgeV1::ConditionFalse)
+                    .count()
+                    != 1
+                {
+                    return None;
+                }
+                Some((*binding, anchor))
+            })
+            .collect()
     }
     pub(super) fn finish_loop(&mut self, region: ShadowRegionIdV0) {
         let mut frame = self.loops.pop().expect("source Loop header exists");
@@ -520,8 +642,13 @@ impl SourceValueFlowDraftV1 {
         if !self.loops.is_empty() {
             return Err("source value flow has unfinished Loop");
         }
-        let invariant_values = if self.complete { self.invariant_values } else { BTreeMap::new() };
-        let canonical = |slot| canonical_slot(&invariant_values, slot).ok_or("cyclic source value reduction");
+        let invariant_values = if self.complete {
+            self.invariant_values
+        } else {
+            BTreeMap::new()
+        };
+        let canonical =
+            |slot| canonical_slot(&invariant_values, slot).ok_or("cyclic source value reduction");
         let count = self.nodes.len();
         let value_ref = |slot: SourceValueSlotV0| SourceValueRefV1 {
             owner,
@@ -609,12 +736,40 @@ impl SourceValueFlowDraftV1 {
 
 /// Every recorded anchor predates its Header/After, so substitution chains
 /// strictly decrease. Corrupted cycles never silently select a predecessor.
-fn canonical_slot(values: &BTreeMap<SourceValueSlotV0, SourceValueSlotV0>,
+fn canonical_slot(
+    values: &BTreeMap<SourceValueSlotV0, SourceValueSlotV0>,
     mut value: SourceValueSlotV0,
 ) -> Option<SourceValueSlotV0> {
     while let Some(next) = values.get(&value) {
-        if next.0 >= value.0 { return None; }
+        if next.0 >= value.0 {
+            return None;
+        }
         value = *next;
     }
     Some(value)
+}
+
+/// Existing source coordinates, named for query-local graph traversal only.
+pub(crate) type SourceBranchIdentityV1 = (usize, SourceValueRefV1, BindingRefV1, SourceStmtSiteV1);
+
+/// Share completed immutable node work; callers retain their domain checks.
+pub(crate) fn with_completed_source_node_v1<K: Ord + Clone, V: Clone, E>(
+    key: K,
+    active: &mut BTreeSet<K>,
+    completed: &mut BTreeMap<K, V>,
+    cycle: impl FnOnce() -> E,
+    evaluate: impl FnOnce(&mut BTreeSet<K>, &mut BTreeMap<K, V>) -> Result<V, E>,
+) -> Result<V, E> {
+    if !active.insert(key.clone()) {
+        return Err(cycle());
+    }
+    let result = match completed.get(&key) {
+        Some(value) => Ok(value.clone()),
+        None => evaluate(active, completed),
+    };
+    active.remove(&key);
+    if let Ok(value) = &result {
+        completed.insert(key, value.clone());
+    }
+    result
 }

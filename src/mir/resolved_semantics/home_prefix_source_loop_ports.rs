@@ -88,51 +88,113 @@ fn exact_edges(incoming: &[(Edge, SourceValueRefV1)], expected: &[Edge]) -> bool
         })
 }
 
+// Source coordinates identify recursive producers; retained witness identity
+// keeps separately issued frames distinct. Leaves are immutable borrowed rows.
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
+enum CoverageNodeV1 {
+    Branch(
+        crate::mir::resolved_semantics::source_value_flow::SourceBranchIdentityV1,
+        usize,
+    ),
+    Initializer(
+        BindingRefV1,
+        crate::mir::resolved_semantics::SourceNodeSiteV1,
+        usize,
+    ),
+    Rebind(
+        BindingRefV1,
+        crate::mir::resolved_semantics::SourceNodeSiteV1,
+        usize,
+    ),
+    Leaf(usize),
+}
 fn producer_is_covered(
     producer: &CurrentScalarProducerV1,
     port: &SourceLoopPortSnapshotV1,
 ) -> bool {
-    let evaluation = match producer {
-        CurrentScalarProducerV1::Initializer(frame) => frame.evaluation(),
-        CurrentScalarProducerV1::BindingRebind(frame) => frame.evaluation(),
-        CurrentScalarProducerV1::Call(call) => return port.calls.contains(call.site()),
-        CurrentScalarProducerV1::Operation(source) => {
-            return port.covered.contains(source.statement())
-                && !source.plan().has_opaque_obligations();
-        }
-        CurrentScalarProducerV1::FieldRead(source) => {
-            return port.covered.contains(source.statement_v1())
-        }
-        CurrentScalarProducerV1::Integer { .. }
-        | CurrentScalarProducerV1::SignedEntry(_)
-        | CurrentScalarProducerV1::LoopHeader(_) => return true,
-        CurrentScalarProducerV1::LoopAfter { product, .. } => {
-            return port.covered.contains(product.source.source.site())
-        }
+    producer_is_covered_in_query(producer, port, &mut BTreeSet::new(), &mut BTreeMap::new())
+}
+
+fn producer_is_covered_in_query(
+    producer: &CurrentScalarProducerV1,
+    port: &SourceLoopPortSnapshotV1,
+    active: &mut BTreeSet<CoverageNodeV1>,
+    completed: &mut BTreeMap<CoverageNodeV1, bool>,
+) -> bool {
+    let key = match producer {
         CurrentScalarProducerV1::BranchNormal(source) => {
-            return source.corroborates_original()
-                && port.covered.contains(source.site())
-                && source
-                    .incoming()
-                    .iter()
-                    .all(|(_, _, producer)| producer_is_covered(producer, port))
+            CoverageNodeV1::Branch(source.identity_v1(), Rc::as_ptr(source) as usize)
         }
+        CurrentScalarProducerV1::Initializer(frame) => CoverageNodeV1::Initializer(
+            frame.binding(),
+            frame.source().root().statement().node().clone(),
+            Rc::as_ptr(frame) as usize,
+        ),
+        CurrentScalarProducerV1::BindingRebind(frame) => CoverageNodeV1::Rebind(
+            frame.target(),
+            frame.source().root().statement().node().clone(),
+            Rc::as_ptr(frame) as usize,
+        ),
+        _ => CoverageNodeV1::Leaf(producer as *const _ as usize),
     };
-    port.covered
-        .contains(evaluation.source().root().statement())
-        && evaluation
-            .calls()
-            .iter()
-            .all(|call| port.calls.contains(call.site()))
-        && evaluation
-            .references()
-            .values()
-            .all(|reference| match reference {
-                super::super::super::CheckedExpressionReferenceV1::Scalar(reference) => reference
-                    .original_read()
-                    .is_some_and(|read| producer_is_covered(read.producer(), port)),
-                _ => true,
-            })
+    crate::mir::resolved_semantics::source_value_flow::with_completed_source_node_v1(
+        key,
+        active,
+        completed,
+        || (),
+        |active, completed| {
+            Ok((|| {
+                let evaluation = match producer {
+                    CurrentScalarProducerV1::Initializer(frame) => frame.evaluation(),
+                    CurrentScalarProducerV1::BindingRebind(frame) => frame.evaluation(),
+                    CurrentScalarProducerV1::Call(call) => return port.calls.contains(call.site()),
+                    CurrentScalarProducerV1::Operation(source) => {
+                        return port.covered.contains(source.statement())
+                            && !source.plan().has_opaque_obligations();
+                    }
+                    CurrentScalarProducerV1::FieldRead(source) => {
+                        return port.covered.contains(source.statement_v1())
+                    }
+                    CurrentScalarProducerV1::Integer { .. }
+                    | CurrentScalarProducerV1::SignedEntry(_)
+                    | CurrentScalarProducerV1::LoopHeader(_) => return true,
+                    CurrentScalarProducerV1::LoopAfter { product, .. } => {
+                        return port.covered.contains(product.source.source.site())
+                    }
+                    CurrentScalarProducerV1::BranchNormal(source) => {
+                        return source.corroborates_original()
+                            && port.covered.contains(source.site())
+                            && source.incoming().iter().all(|(_, _, producer)| {
+                                producer_is_covered_in_query(producer, port, active, completed)
+                            })
+                    }
+                };
+                port.covered
+                    .contains(evaluation.source().root().statement())
+                    && evaluation
+                        .calls()
+                        .iter()
+                        .all(|call| port.calls.contains(call.site()))
+                    && evaluation
+                        .references()
+                        .values()
+                        .all(|reference| match reference {
+                            super::super::super::CheckedExpressionReferenceV1::Scalar(
+                                reference,
+                            ) => reference.original_read().is_some_and(|read| {
+                                producer_is_covered_in_query(
+                                    read.producer(),
+                                    port,
+                                    active,
+                                    completed,
+                                )
+                            }),
+                            _ => true,
+                        })
+            })())
+        },
+    )
+    .unwrap_or(false)
 }
 
 fn text_producer_is_covered(
