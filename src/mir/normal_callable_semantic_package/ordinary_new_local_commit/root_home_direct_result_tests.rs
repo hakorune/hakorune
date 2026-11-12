@@ -223,45 +223,183 @@ fn scalar_loan(
     )
 }
 
+const STORED_SOURCE: &str = "box UserStats { init { name, bytes } birth(name) { me.name = name me.bytes = 0 } add(bytes) { me.bytes = me.bytes + bytes } } box Aggregator { init { stats } birth() { me.stats = new MapBox() } statsFor(user) { if me.stats.has(user) { return me.stats.get(user) } local stats = new UserStats(user) me.stats.set(user, stats) return stats } ingest(user, bytes) { local stats = me.statsFor(user) stats.add(bytes) return 0 } } static box Main { main() { local agg = new Aggregator() return agg.ingest(\"ana\", 10) } }";
+
+fn stored_loan(
+    ledger: &OrdinaryNewClaimLedgerV1,
+) -> (
+    crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    crate::mir::normal_callable_semantic_package::StoredMapGetReturnSourceLoanV1,
+) {
+    let indexed = ledger
+        .terminal_relation_index
+        .values()
+        .flat_map(|index| index.values());
+    ledger
+        .terminal_relation
+        .values()
+        .chain(indexed)
+        .find_map(|relation| {
+            ledger
+                .stored_map_get_return_source_v1(relation.owner(), relation.return_site())
+                .unwrap()
+                .map(|loan| (relation.owner(), loan))
+        })
+        .expect("original stored Map get Return")
+}
+
 #[test]
-fn final_validation_rejects_direct_and_scalar_injected_without_retention() {
-    // Contract proof the retention tests cannot give: an order built by writing the
-    // fields directly (bypassing retain_*) must not pass the final validator, in
-    // either setting order. A stored_map_get loan needs a selected stored Return
-    // owner that no unit-test source reaches, so that pair is not covered here.
+fn return_source_retention_accepts_each_single_source_and_none() {
+    let stored = issue_with_brand_catalog(STORED_SOURCE).unwrap();
+    let (_, get) = stored_loan(&stored.ordinary_new_claim_ledger);
+    let mut order = RootHomeCleanupOrderV1::ordinary(Vec::new()).unwrap();
+    assert!(order.direct.is_none() && order.scalar.is_none() && order.stored_map_get.is_none());
+    order.retain_stored_map_get_source(get).unwrap();
+    assert!(order.stored_map_get.is_some() && order.direct.is_none() && order.scalar.is_none());
+    let direct = package(false, false);
+    let mut order = RootHomeCleanupOrderV1::ordinary(Vec::new()).unwrap();
+    order.retain_direct_source(direct_source(&direct)).unwrap();
+    assert!(order.direct.is_some() && order.scalar.is_none() && order.stored_map_get.is_none());
+    let scalar = issue_with_brand_catalog(SCALAR_SOURCE).unwrap();
+    let (exit, loan) = scalar_loan(&scalar.ordinary_new_claim_ledger);
+    let mut order = RootHomeCleanupOrderV1::ordinary(Vec::new()).unwrap();
+    order.retain_scalar_source(exit, loan).unwrap();
+    assert!(order.scalar.is_some() && order.direct.is_none() && order.stored_map_get.is_none());
+}
+
+#[test]
+fn return_source_retention_rejects_pairs_in_both_orders_and_repeats() {
+    let stored = issue_with_brand_catalog(STORED_SOURCE).unwrap();
+    let (_, get) = stored_loan(&stored.ordinary_new_claim_ledger);
     let direct_package = package(false, false);
-    let ledger = &direct_package.ordinary_new_claim_ledger;
     let scalar_package = issue_with_brand_catalog(SCALAR_SOURCE).unwrap();
     let (scalar_exit, scalar) = scalar_loan(&scalar_package.ordinary_new_claim_ledger);
-    let (owner, exit) = ledger
+    let fresh = || RootHomeCleanupOrderV1::ordinary(Vec::new()).unwrap();
+    // stored first, then each other source
+    let mut order = fresh();
+    order.retain_stored_map_get_source(get.clone()).unwrap();
+    assert!(order
+        .retain_direct_source(direct_source(&direct_package))
+        .unwrap_err()
+        .contains(EXCLUSIVE));
+    assert!(order
+        .retain_scalar_source(scalar_exit.clone(), scalar.clone())
+        .unwrap_err()
+        .contains(EXCLUSIVE));
+    assert!(order.direct.is_none() && order.scalar.is_none());
+    // the same field retained twice is a different rejection from a mixed pair
+    assert!(order
+        .retain_stored_map_get_source(get.clone())
+        .unwrap_err()
+        .contains("stored-map-get-source-drift"));
+    // each other source first, then stored
+    let mut order = fresh();
+    order
+        .retain_direct_source(direct_source(&direct_package))
+        .unwrap();
+    assert!(order
+        .retain_stored_map_get_source(get.clone())
+        .unwrap_err()
+        .contains(EXCLUSIVE));
+    assert!(order.stored_map_get.is_none());
+    let mut order = fresh();
+    order
+        .retain_scalar_source(scalar_exit.clone(), scalar.clone())
+        .unwrap();
+    assert!(order
+        .retain_stored_map_get_source(get)
+        .unwrap_err()
+        .contains(EXCLUSIVE));
+    assert!(order.stored_map_get.is_none());
+    // existing direct/scalar rejections keep their own wording and priority
+    let mut order = fresh();
+    order
+        .retain_direct_source(direct_source(&direct_package))
+        .unwrap();
+    assert!(order
+        .retain_scalar_source(scalar_exit, scalar)
+        .unwrap_err()
+        .contains("scalar-result-source-drift"));
+    assert!(order
+        .retain_direct_source(direct_source(&direct_package))
+        .unwrap_err()
+        .contains("direct-result-source-drift"));
+}
+
+#[test]
+fn return_source_retention_rejects_a_loan_from_another_exit() {
+    let stored = issue_with_brand_catalog(STORED_SOURCE).unwrap();
+    let (_, get) = stored_loan(&stored.ordinary_new_claim_ledger);
+    let other = package(false, false);
+    let ledger = &other.ordinary_new_claim_ledger;
+    let (owner, other_exit) = ledger
         .normal_return_dispositions
         .as_ref()
         .unwrap()
         .keys()
         .next()
         .unwrap();
+    let view = ledger
+        .verified_direct_object_return_source_v1(*owner, other_exit)
+        .unwrap()
+        .unwrap();
+    let origin = RootHomeReleaseOriginV1 {
+        subject: RootHomeReleaseSubjectV1::ArgumentMap {
+            site: view.target().call_site().clone(),
+            ordinal: 0,
+        },
+        exit: other_exit.clone().into(),
+        operation: crate::mir::instruction::InvokeOperation::Map(
+            crate::mir::instruction::MapInvokeOperation::End { map: ValueId(1) },
+        ),
+    };
+    let mut order = RootHomeCleanupOrderV1::ordinary(vec![origin]).unwrap();
+    assert!(order
+        .retain_stored_map_get_source(get)
+        .unwrap_err()
+        .contains("stored-map-get-source-drift"));
+    assert!(order.stored_map_get.is_none());
+}
+
+#[test]
+fn final_validation_rejects_every_pair_injected_without_retention() {
+    // Contract proof the retention tests cannot give: an order built by writing the
+    // fields directly (bypassing retain_*) must not pass the final validator, in
+    // every pair and both setting orders.
+    let stored = issue_with_brand_catalog(STORED_SOURCE).unwrap();
+    let ledger = &stored.ordinary_new_claim_ledger;
+    let (owner, get) = stored_loan(ledger);
+    let exit = get.terminal().return_site().clone();
+    let direct_package = package(false, false);
+    let scalar_package = issue_with_brand_catalog(SCALAR_SOURCE).unwrap();
+    let (scalar_exit, scalar) = scalar_loan(&scalar_package.ordinary_new_claim_ledger);
     let entry = RootHomeExitEntry::Plain {
         local_bindings: Vec::new(),
     };
     let check = |order: &RootHomeCleanupOrderV1| {
-        order.validate_direct_entry(ledger, *owner, exit, &entry, &[], None)
+        order.validate_direct_entry(ledger, owner, &exit, &entry, &[], None)
     };
-    for direct_first in [true, false] {
-        let mut order = RootHomeCleanupOrderV1::ordinary(Vec::new()).unwrap();
-        let set_direct = |o: &mut RootHomeCleanupOrderV1| {
-            o.direct = Some((direct_source(&direct_package), None))
-        };
-        let set_scalar = |o: &mut RootHomeCleanupOrderV1| {
-            o.scalar = Some((scalar_exit.clone(), scalar.clone(), None))
-        };
-        if direct_first {
-            set_direct(&mut order);
-            set_scalar(&mut order);
-        } else {
-            set_scalar(&mut order);
-            set_direct(&mut order);
+    let set_direct =
+        |o: &mut RootHomeCleanupOrderV1| o.direct = Some((direct_source(&direct_package), None));
+    let set_scalar = |o: &mut RootHomeCleanupOrderV1| {
+        o.scalar = Some((scalar_exit.clone(), scalar.clone(), None))
+    };
+    let set_stored = |o: &mut RootHomeCleanupOrderV1| o.stored_map_get = Some(get.clone());
+    let setters: [&dyn Fn(&mut RootHomeCleanupOrderV1); 3] =
+        [&set_direct, &set_scalar, &set_stored];
+    for (a, first) in setters.iter().enumerate() {
+        for (b, second) in setters.iter().enumerate() {
+            if a == b {
+                continue;
+            }
+            let mut order = RootHomeCleanupOrderV1::ordinary(Vec::new()).unwrap();
+            first(&mut order);
+            second(&mut order);
+            assert!(
+                check(&order).unwrap_err().contains(EXCLUSIVE),
+                "pair {a}+{b}"
+            );
         }
-        assert!(check(&order).unwrap_err().contains(EXCLUSIVE));
     }
     let order = RootHomeCleanupOrderV1::ordinary(Vec::new()).unwrap();
     assert!(check(&order).is_ok(), "unselected order stays accepted");
