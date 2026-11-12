@@ -272,3 +272,35 @@ main へ早送りした（`6212cbb900`）。
   - `loop(j < 2) { if x > i { if me.leaf.v > 0 { a = a + i } } … }` の形。メモリは 50 MB で増えなくなったが、時間はまだ if 1 つごとに約 2 倍（k=12: 0.06 秒、k=14: 0.30 秒、k=16: 2.30 秒、k=20 は 40 秒を超える）。
   - この入力はもともと拒否される（`object-input/callee-exit`）が、拒否までに時間がかかる。
   - 原因の見立て: `resolved_semantics/home_prefix_source_loop_ports.rs:91-135` の `producer_is_covered` が、`BranchNormal` の incoming を、訪れた印なしで再帰的にたどる。2b で前の if の合流を共有するようにしたので、共有された DAG を道の数だけたどる（実装者も、この walk を次の候補に挙げていた）。
+
+## loop の中の walk（2026-11-12、基点 17c32b7a3c）
+
+入口は home_new_prefix_scan.rs:453 → home_new_prefix_source_loop.rs:7/134 → home_prefix_source_loop.rs:680/700 → ports::verify_incoming。ports.rs:330からproducer_is_covered (:91-135) がBranchNormalのincomingとInitializer/BindingRebind内のscalar参照をvisited無しで再帰し、DAGを経路の数だけ読む。
+
+| k | 問合せ数 | walk本体訪問 | 異なる保持objectの訪問合計 | 最大深さ |
+|---:|---:|---:|---:|---:|
+| 10 | 2 | 147,623 | 143 | 31 |
+| 12 | 2 | 1,328,603 | 195 | 37 |
+| 14 | 2 | 11,957,423 | 255 | 43 |
+| 16 | 2 | 107,616,803 | 323 | 49 |
+
+uniqueはquery内の保持Rc/参照objectのaddressを計数した値で、canonical IDの新設ではない。ifが2組増えるごとに本体訪問は約9倍、uniqueは小さく増える。Text coverage/tree4種・Recipe scalar/Text collector・Text unwindはこの拒否入力では全て0（Recipe/物理publication以前に止まる）。時間は一時計数無しの基準CLIで別に2回測る。計数hookはこのcommit前に撤去。
+
+| 監査したwalk | 基点の状況 |
+|---|---|
+| ports scalar coverage :91-135 | visited無し。frame参照と両incomingの双方が再帰 |
+| source_loop_v2.rs:333-338/381-387 | outputへ先に登録しshallow Eqでvisited済み。線形lookupだがbodyは1回。保持 |
+| initializer_home_publication.rs:362-391 | Text unwindを全incomingへ再帰。全候補Vec一致は保持する |
+| expression_reference_branch.rs:383-438 | Scalarはactive/completedと物理query境界あり。保持 |
+| 同:299-351 | Textは各edgeから再帰しcompleted無し。edge検査を保持しbodyを共有する |
+| source_loop.rs:89-165 / ports Text coverage :138-156 | Text witnessのcorroboration/owned/Header/containsが再帰。共通の1回のfoldへ |
+
+L1. 問い合わせは固定のport、source prefixまたは不変MIRとprojectionに閉じ、完了集合を更新後へ持ち越さない。
+L2. 同じsource座標とbindingの保持nodeは一回だけ評価し、別の証拠objectや物理receiptを同じnodeとして補わない。
+L3. activeを完成結果の参照前に確認し、全return経路で解除して循環を拒否する。
+L4. 全incomingの順序・元のedge/valueの照合・短絡する意味と元の拒否名を保持する。
+L5. TextのHeader条件は各BranchNormal子自身にもHeader存在を要求し、rootに一つあるだけで補わない。
+L6. Text unwindはqueryごとに全incomingの候補Vecの一致を確かめ、bindingごとの異なるunwindを混ぜない。
+L7. 物理Textは各read edgeのloan/receipt/dependency照合を保ち、同じsourceでも異なる物理observationを省略しない。
+L8. 共通化するのはqueryのactive/completed管理と同じText witness walkであり、sourceと生成後MIRの意味判定は統合しない。
+L9. 一時計数を撤去し、最終commitの最適化binaryで拒否/MIR/EXEと速度を確認する。
