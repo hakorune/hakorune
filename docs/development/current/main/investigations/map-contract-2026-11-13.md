@@ -29,3 +29,45 @@
 3. local の `set`・`has`・`size`・`delete`・`keys` と、`get` の結果の束縛。field 版と local 版の row の型を 1 つの語彙へ寄せる。
 4. 引数と Call の結果。`get` の結果の所有の型を 1 つへ寄せる。
 5. 別の回: 古い raw の `call_method MapBox.*` の道の退役（3b の範囲）。
+
+## 1 段目: 契約の行と、無い key の get の Fault（2026-11-13）
+
+この段は、`.hako` の契約の行に `get`・`set`・`delete`・`size` の法則を付け、生成物・`CoreMethodSemanticLawV2`・`core_method_instance_target` の腕・独立の検証へ投影する。あわせて、決定した Fault 114 を足して `checked_get_i64_v1` を変える。受理は広げない。
+
+### 規則（実装より先に書く）
+
+- K1. `get` の法則は `MapTextGetPresentOrFault`。key は Text 1 つで、あれば保存してある値を読む。
+- K2. K1 で key が無い時は Fault 114（`NYRT_FAULT_REASON_MAP_SCALAR_MISSING_V1`、details は `{0,0}`）にする。Normal にしない。
+- K3. 無い key の `get` は、`out` を書かず、Map を変えず、Map の lease も変えない。
+- K4. あるが i64 ではない値の `get` は、今のとおり Fault 104 のまま変えない。
+- K5. `set` の法則は `MapTextSetReplaceOrInsert`。key は Text 1 つで、あれば値を置き換え、無ければ足す。
+- K6. `set` の結果の種類は Dynamic のまま変えない（結果の使い道は、この段では決めない）。
+- K7. `delete`（別名 `remove`）の法則は `MapTextDeleteReportsPresence`。結果は Bool で、key があって外した時は true、無い時は false にする。
+- K8. 無い key の `delete` は Fault にしない。
+- K9. `size`（別名 `len`・`length`）の法則は `MapEntryCount`。結果は I64 で、入っている entry の数を返す。
+- K10. `size` は Fault しない。
+- K11. `has` の法則 `MapKeyPresence` は変えない。無い key の Fault を避けるには、先に `has` で確かめる。
+- K12. 公開 ABI は `nyash.map.checked_get_i64_v1` の 1 つだけを変える。symbol 名、引数、Normal の意味は変えない。
+- K13. `runtime_data.get_hh`・`slot_load_hh` は Fault の枠を持たないので、この段では変えない。無い key で 0 を返す所は、報告に残りとして書く。
+- K14. `checked_borrow_indexed_v1` の「無い key は 0」（null になれる借用）と、`checked_array_length_v1` の Fault 111 は変えない。
+- K15. VM の `MapBox.get`（文字列の返り値）と `MapBox.delete`（文字列の返り値）は、この段では変えない。VM は別の回にする。
+- K16. 法則の正本は `.hako` の行だけにする。Rust 側の法則の名前は、生成物から写す。
+- K17. 腕を足す所の target の側（`core_method_instance_target.rs`）は、行の法則・結果の種類・arity・receiver・effect を確かめて発行する。
+- K18. 独立の検証の側（`resolver_core_method_callable_contract.rs`）は、K17 と別の関数で、行から直接、法則・結果の種類・引数の種類を確かめる。K17 の関数を呼ばない。
+- K19. 新しい腕が発行する target は、この段では受理を広げない。`get`・`set`・`delete`・`size` の source 受理は、2 段目以降で足す。
+- K20. 新しい持ち主・型・公開 MIR・opcode・descriptor・JSON の形は足さない。Home の持ち主は `MapHomeFlow` のままにする。
+- K21. 「無い key の get は 0」に頼る test の期待は、K2 に合わせて変える。変えた test は名前と理由を報告に書く。
+- K22. 今のプログラムが「無い key の 0」に頼っていないことは、前と後の比べる組で確かめる。出力や exit が変わった物は全部報告する。
+
+### 見積もり（D − A − U。実装の前の数）
+
+- D（確実に消える）: `get_i64` の「無い key は 0 を書いて Normal」の腕（約 4 行）、`delete` の `result_dynamic()`（1 行）、4 つの行の `semantic_law_unprojected()`（4 行）。約 10 行。
+- A（要る追加、production）:
+  - `.hako`: 法則の getter 4 つと行の変更、約 10 行。
+  - codegen の法則の表 4 行、Rust の enum と名前 8 行。
+  - `core_method_instance_target.rs`: schema 4、abi profile 4、入口 4、表 4、腕 4 つ、パラメータの種類 1。約 90 行。
+  - `resolver_core_method_callable_contract.rs`: 表、腕、パラメータの期待。約 60 行。
+  - `ordinary.rs` の入口の選択 4 行、Fault 114 の定義と arm で約 12 行。
+  - 合わせて 約 190 行（production）。
+- U（読む側の差分）: 生成物（Rust と JSON）約 20 行。test と文書は別に数える。test は約 120 行の追加と、期待の変更 数行。
+- 見込み: production は約 +180 行。機能の回なので増えてよいが、報告に実際の数を並べる。
