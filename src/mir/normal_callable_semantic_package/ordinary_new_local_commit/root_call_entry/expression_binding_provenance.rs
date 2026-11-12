@@ -69,6 +69,26 @@ impl ExpressionReferenceReadV1 {
         function: &MirFunction,
         finishing: Option<&Finished>,
     ) -> Result<Vec<Binding>, String> {
+        Self::validate_text_binding_with_branches_v2(
+            binding,
+            source,
+            read,
+            context,
+            function,
+            finishing,
+            &mut |point| point.validate(context, function, finishing),
+        )
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_text_binding_with_branches_v2(
+        binding: crate::mir::resolved_semantics::BindingRefV1,
+        source: &crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1,
+        read: &BindingValueObservationV2,
+        context: CallValidationContextV1<'_>,
+        function: &MirFunction,
+        finishing: Option<&Finished>,
+        validate_child: &mut impl FnMut(&std::rc::Rc<BranchTextPhiObservationV1>) -> Result<(), String>,
+    ) -> Result<Vec<Binding>, String> {
         use crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1 as Source;
         if read.binding_value().0 != binding {
             return Err(freeze("source-loop/text-binding"));
@@ -127,7 +147,7 @@ impl ExpressionReferenceReadV1 {
                 context.ledger().require_branch_text_source_v1(source)?;
                 let point =
                     read.loan_text_branch_v1(&Source::BranchNormal(std::rc::Rc::clone(source)))?;
-                point.validate(context, function, finishing)?;
+                validate_child(&point)?;
                 dependencies.push(point.relation().identity_phi_binding_v1()?.clone());
             }
         }

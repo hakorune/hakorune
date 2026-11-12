@@ -3,6 +3,10 @@
 mod geometry;
 use super::*;
 use geometry::validate_branch_geometry_v1;
+type TextObservationKeyV1 = (
+    crate::mir::resolved_semantics::source_value_flow::SourceBranchIdentityV1,
+    usize,
+);
 
 /// The original IfForm observation and its sole indexed Phi. This belongs to
 /// the same value purpose; it is not another CFG writer or source registry.
@@ -319,34 +323,64 @@ impl BranchTextPhiObservationV1 {
         function: &MirFunction,
         finishing: Option<&Finished>,
     ) -> Result<(), String> {
-        context
-            .ledger()
-            .require_branch_text_source_v1(&self.source)?;
-        validate_branch_geometry_v1(
-            &self.pending,
-            &self.branch,
-            self.exits,
-            &self.jumps,
-            [
-                self.inputs[0].binding_value().1,
-                self.inputs[1].binding_value().1,
-            ],
-            &self.relation,
-            &crate::mir::verification::geometry::FunctionVerificationGeometry::new(function),
+        self.validate_in_query(
+            context,
+            function,
             finishing,
-            "expression/text-producer-kind",
-        )?;
-        for (index, (_, _, source)) in self.source.incoming().iter().enumerate() {
-            ExpressionReferenceReadV1::validate_text_binding_with_finishing_v2(
-                self.source.binding(),
-                source,
-                &self.inputs[index],
-                context,
-                function,
-                finishing,
-            )?;
-        }
-        Ok(())
+            &mut std::collections::BTreeSet::new(),
+            &mut std::collections::BTreeMap::new(),
+        )
+    }
+    fn validate_in_query(
+        &self,
+        context: CallValidationContextV1<'_>,
+        function: &MirFunction,
+        finishing: Option<&Finished>,
+        active: &mut std::collections::BTreeSet<TextObservationKeyV1>,
+        completed: &mut std::collections::BTreeMap<TextObservationKeyV1, ()>,
+    ) -> Result<(), String> {
+        // Same source alone cannot prove a different physical receipt.
+        crate::mir::resolved_semantics::source_value_flow::with_completed_source_node_v1(
+            (self.source.identity_v1(), self as *const _ as usize),
+            active,
+            completed,
+            || freeze("expression/text-producer-kind"),
+            |active, completed| {
+                context
+                    .ledger()
+                    .require_branch_text_source_v1(&self.source)?;
+                validate_branch_geometry_v1(
+                    &self.pending,
+                    &self.branch,
+                    self.exits,
+                    &self.jumps,
+                    [
+                        self.inputs[0].binding_value().1,
+                        self.inputs[1].binding_value().1,
+                    ],
+                    &self.relation,
+                    &crate::mir::verification::geometry::FunctionVerificationGeometry::new(
+                        function,
+                    ),
+                    finishing,
+                    "expression/text-producer-kind",
+                )?;
+                for (index, (_, _, source)) in self.source.incoming().iter().enumerate() {
+                    ExpressionReferenceReadV1::validate_text_binding_with_branches_v2(
+                        self.source.binding(),
+                        source,
+                        &self.inputs[index],
+                        context,
+                        function,
+                        finishing,
+                        &mut |child| {
+                            child.validate_in_query(context, function, finishing, active, completed)
+                        },
+                    )?;
+                }
+                Ok(())
+            },
+        )
     }
 }
 

@@ -304,3 +304,16 @@ L6. Text unwindはqueryごとに全incomingの候補Vecの一致を確かめ、b
 L7. 物理Textは各read edgeのloan/receipt/dependency照合を保ち、同じsourceでも異なる物理observationを省略しない。
 L8. 共通化するのはqueryのactive/completed管理と同じText witness walkであり、sourceと生成後MIRの意味判定は統合しない。
 L9. 一時計数を撤去し、最終commitの最適化binaryで拒否/MIR/EXEと速度を確認する。
+
+### loop walkの接続と再計数
+
+共通with_completed_source_node_v1はquery内のactive/成功結果だけを管理する。scalar coverageは同じ保持nodeのbodyを一回、Text witnessはcorroboration/owned/Headerを一つのfoldで計算。Text unwindはroot tree lawを閉じて全incomingの候補Vecを一致させる。物理Textは各edgeのloan/receipt/dependencyを保持し同じ物理observationのbodyだけ共有する。sourceの座標だけで別の保持証拠やreceiptを補わない。
+
+| k | coverage body 前→後 | unique保持node 前→後 | 問合せ 前→後 |
+|---:|---:|---:|---:|
+| 10 | 147,623 → 143 | 143 → 143 | 2 → 2 |
+| 12 | 1,328,603 → 195 | 195 → 195 | 2 → 2 |
+| 14 | 11,957,423 → 255 | 255 → 255 | 2 → 2 |
+| 16 | 107,616,803 → 323 | 323 → 323 | 2 → 2 |
+
+深さは不変、後のbody訪問数とunique保持node数は全kで一致。Text/Recipe/physicalの未到達walkのCPU寄与を測ったとは主張しない。2つのRecipe collectorは既にvisitedがあり、型別の元義務も異なるので既存のまま保持した。Textのproducer/witnessだけを既存source_loop ownerの子moduleへ責務移管し、意味の持ち主は増やしていない。一時計数hookは撤去済み。
