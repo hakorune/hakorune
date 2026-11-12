@@ -281,6 +281,8 @@ prefixの合流（2b、Codex実装・Opus監査、`6212cbb900`、2026-11-12、[�
 
 loopの中のwalk（2c、Codex実装・Opus監査、`80f2a162ee`、2026-11-12、[記録](ssot-survey-2026-11-11.md)）: 合流のDAGを再帰でたどる所を、1回の問い合わせの中で同じnodeを1回だけ訪れる形にした（k=16で1億回→323回）。受理されるloopにifを40個並べた形が、40秒超から0.23秒になった。productionは+271行。次は式の道の一本化の回（候補1と3）。
 
+式の道の一本化（ChatGPT Proに設計を相談、2026-11-12、[記録](ssot-survey-2026-11-11.md)の「式の道の一本化の設計」）: 段ごとに、消す物を先に名前で決め、新しい共通の部分を含めたproductionが純減した時だけmainへ入れる。古い型へ詰め直すadapterは禁止。1段目（Codex実装・Opus監査、`3101b5f5e9`）: PrintとReturnの式の記録を`ExpressionEmissionV1`1つにし、古い2つの型を退役（production −22行）。持ち主の数の見張りは、基点の基準と退役した名前の一覧も見る。次はLocalのinitializerの記録。
+
 徹底的な整理（ユーザー決定2026-11-09）: MirBuilderができたら徹底的に綺麗にする。時期は基本式の残り・`edit`・3bと旧経路の退役の後、`.hako` parserのparityとselfhostの前（前の「builderの調査」の枠）。数回の大きな回で行い、各回は実装者がsubagentで経路を上からたどる調査から始める。目標: 責務ごとに持ち主1つ、操作ごとにMIRの書き手1つ（W12〜W14の意味で数える）、形や文脈の名前のfamilyを作らない、退役した経路と互換のfallbackを残さない、productionのfileは800行以下、各回で整形後の行数を純減。既存のgateは保つ。
 
 ## 証明の作り（2026-11-06、ChatGPT Proの検討、Opusが引用を確認）

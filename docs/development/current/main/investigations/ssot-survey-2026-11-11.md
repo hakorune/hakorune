@@ -362,3 +362,36 @@ worker経路: builder selected/expression_value.rs → selected/{print_expressio
 
 実装境界: `ExpressionEmissionV1<C>` の C は元Print frameのRc、またはReturn固有契約だけであり、旧packetを包まない。Return固有の契約・照合は `return_expression_emission.rs` へ分け、整形後のfile上限を守る。Printの `ordered_bindings(ledger)` / `validate_paths(ledger, ...)` は同じcontext付き入口へ直接繋ぎ、冗長な転送だけを削除する。
 追加証拠の理由: 既存Print試験はframe・read/copy・保持の照合を守るが、両用途のCall ordinal、同値の別source、物理Endの欠落/重複、finishing後のproducer消失、Returnの未完保持を一緒に示していない。既存owner内の試験から共通の借用viewを変異させ、基点にも同じ試験を適用する。検証側へ期待命令生成器は足さない。
+
+## 式の道の一本化の設計（ChatGPT Pro への相談、2026-11-12）
+
+3 番目の回は大きいので、ユーザーは先に Pro に設計を相談する事を選んだ。要点:
+- 前の回の「`take` の回で 50〜150 行減る」という見込みを、Pro は撤回した。共通の状態を作る費用だけを見て、古い保持の場所・引数・完了の処理・検証の入口を退役させる費用まで数えていなかった。
+- 増え続けた主な理由: 状態の計算は 1 つにしたが、その状態へたどり着く道と、同じ観測の本体を使う所ごとに持つ記録は、1 つになっていなかった（`root_call_entry/expression_terminal_paths.rs`、`result_new_source.rs`、使う所ごとの `Emitted*` の記録）。
+- 頼み方の決まり:
+  - 消す型・欄・関数を、実装の前に名前で決める。
+  - 新しい共通の部分とつなぎ先も含めた production 全体で、整形後に純減した時だけ main へ入れる。純減しない時は、共通の基盤をさらに足さずに止める。
+  - 共通の記録から、古い使う所ごとの型へ詰め直す adapter と、古い型を包むだけの enum は禁止。元の source の契約を借りる薄い入口と、既にある唯一の writer への境界は許す。
+- 持ち主の数の見張りは、同じ tree の中の基準と実数の一致しか見ていなかった。基点の基準と比べる事と、退役した名前の一覧を足す。
+- 記録をやめて最終の MIR から探す案は採らない（source との対応は最終の MIR だけでは決まらない）。1 つの観測の本体を持つ record を作り、使う所には行き先の契約だけを残す。
+- 段の順番（各段は、追加分を含めて純減した時だけ入れる）:
+  1. Print と Return の式の記録
+  2. Local の initializer の記録、代入し直しの記録
+  3. 移った使う所の builder の終わりの処理
+  4. 普通の Call の引数、`new` の引数、field の右辺の式の記録
+  5. 物理検証の context の明示（要る時だけ）
+  6. Return の返却内容の排他的な保持（`RootHomeCleanupOrderV1`。全部の `Option` を平らな enum にはしない）
+  7. Local と Return の選択を、それぞれ 1 回にする（先着順の連鎖）
+  8. 古い scalar の道の、対応済みの責務を退役
+  9. 最後に Bool の比較の operand と条件の全体
+- 相談文と答えの全文は、Opus の作業 dir に保存した（repo には入れない）。
+
+### 1 段目: Print と Return の式の記録（Codex 実装・Opus 監査、`3101b5f5e9`、2026-11-12）
+
+main へ早送りした。
+- `EmittedPrintExpressionProjectionV1` と `ReturnExpressionEmissionV1` を退役させ、共通の `ExpressionEmissionV1<C>` に置き換えた。同じ観測の本体（値・Call・参照・元の命令列・入口・出口など 9 つの欄）を持つ完成の記録は、2 種類から 1 種類になった。
+- 行数: production は整形後 −22（新しい共通の部分を含む）。純減の条件は満たした（Pro の見込みは 40〜100 行の減り）。test は +284（Print と Return の変異の拒否を示す契約の証拠）。
+- 持ち主の数の見張りに、基点の基準との比較と、退役した名前の一覧（`tools/checks/mir_owner_retired_symbols.txt`）を足した。`emitted_projection_types` は 7 → 6。基準と実数を一緒に上げる変更、改名、別 file への移動が失敗する事を、実装者が試した。
+- 変異（Call の ordinal の入れ替え、別の source の同じ値の producer、End の欠落と重複、finishing での producer の消失、記録の不在）は、前と後で同じ文言で拒否される（18 件）。
+- Opus の監査の入力 118 本で、MIR と EXE の結果が前の main と全部同じ。Opus も見張り（基点 `ae144836c4`）を走らせて PASS。
+- 次の段は Local の initializer の記録。dynamic の Call、install と materialization、owned な root と結果の契約が要る（実装者の報告）。
