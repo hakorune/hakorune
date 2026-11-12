@@ -548,3 +548,10 @@ main へ早送りした。
 worker 経路: `selected/argument_expression.rs` の `emit_with_checked_frame`（`emit_with_dynamic_calls` → `materialize_text_root` → `finish_{dynamic_initializer,scalar,deferred_argument}_continuation`）→ `root_call_entry/lexical_argument_expression.rs` の `from_expression_v1`（completion の導出、構築、`validate`、`validate_original_scope`）→ `LexicalCallArgumentProjectionV1::Expression` → `lexical_argument_expression_validation.rs`（`validate_source`・`validate`・`scope_bindings`）→ 親の Call の `validate_expression_arguments_*`・`deferred_argument_ends_v1`・finishing・最終 consumer。record の欄の読み手は `lexical_argument_expression.rs`、`lexical_argument_expression_validation.rs`、`lexical_argument_projection.rs` の 3 file に閉じている。
 
 変異の証拠は、前の段の helper `check_observation_mutations`（`expression_observation_mutation_tests.rs`）を使い回す。引数にはまだ使っていないので、基点でも同じ test を先に流して、前と後の拒否を比べる。引数に固有の変異（ordinal の入れ替え、親の Call の取り違え、遅延の End の欠落と重複、入口の前後の End の位置の入れ替え）は、既存の test で示せない物だけ足し、理由を書く。
+
+#### 4a の結果（Sonnet 5.5 実装、Opus 確認、2026-11-12）: 止めた
+- 試作（`EmittedArgumentExpressionProjectionV1` → `ExpressionEmissionV1<ArgumentExpressionContractV1>`）は build が通ったが、production は整形後 +28 だった。着地の条件（純減）を満たさないので、実装の commit はせず、試作の diff だけを作業 dir に保存した。main へ入ったのは、上の文書だけ。
+- 減らなかった理由（実装者の調べ）: 引数に固有の欄が 5 つ（frame、completion、purpose_acquisition、retained_argument_frames、dynamic_calls）残り、契約の struct と trait の impl が、消せた欄より大きい。読み手 約 40 か所が契約を経由する形になり、折り返しも増える。Local（2a）と代入し直し（2b）が減ったのは、契約が小さかったから。
+- 4b（`new` の引数）と 4c（field の右辺）も、同じ理由で減らない見込み。
+- 実装者の案（未決）: `dynamic_calls`（Local・引数・field の右辺）と `purpose_acquisition`（Local・代入し直し・引数）を共通の record の欄にすれば、引数の契約が 3 欄になり、Local と引数の wrapper も消えて、純減に入る可能性がある。ただし 2a の規則 Y3 と、Pro の答えの「Dynamic などの固有の証拠を共通の本体へ混ぜない」に反するので、決めずに残す。
+- 次は、4b・4c を後回しにして、Pro の表の 6（Return の返却内容の排他的な保持）へ進む（Opus の判断。順番はユーザーが Opus に任せている）。
