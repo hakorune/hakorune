@@ -226,226 +226,251 @@ impl PrefixLocalFlow<'_> {
         value: SourceValueRefV1,
         calls: &[LocalCallObservationV1],
     ) -> Option<(SourceValueRefV1, CurrentScalarProducerV1)> {
-        self.scalar_producer_with_path_v1(binding, value, calls, &BTreeSet::new())
+        // Local classes, plans, calls and Loop evidence are fixed only for this
+        // query. Share completed producers by original coordinates within it.
+        self.scalar_producer_with_path_v1(
+            binding,
+            value,
+            calls,
+            &mut BTreeSet::new(),
+            &mut BTreeMap::new(),
+        )
     }
     fn scalar_producer_with_path_v1(
         &self,
         binding: BindingRefV1,
         value: SourceValueRefV1,
         calls: &[LocalCallObservationV1],
-        path: &BTreeSet<SourceValueRefV1>,
+        path: &mut BTreeSet<SourceValueRefV1>,
+        completed: &mut BTreeMap<
+            (BindingRefV1, SourceValueRefV1),
+            (SourceValueRefV1, CurrentScalarProducerV1),
+        >,
     ) -> Option<(SourceValueRefV1, CurrentScalarProducerV1)> {
-        let mut path = path.clone();
         if !path.insert(value) {
             return None;
         }
-        let Some(StoredLocal::Trivial(Some(kind))) = self.locals.get(&binding) else {
-            return None;
-        };
-        let kind = *kind;
-        if binding.owner() != self.input.owner() {
-            return None;
-        }
-        // Only Integer reads have literal/field/call/rebind producers; an
-        // exact Bool read is produced by its Local initializer frame alone.
-        let frame_class = |frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedInitializerExpressionFrameV1| match kind {
-            SourceScalarKind::Integer => frame.is_i64(),
-            SourceScalarKind::Bool => frame.is_bool(),
-        };
-        let function = self.input.function();
-        let flow = function.expression_source().value_flow()?;
-        // A completed source rebind is its own producer, including `x = x`.
-        // Preserve it before following aliases; it is never an initializer.
-        let rebind = |original: &SourceExprSiteV1| {
-            let plans = self.expression_plans.borrow();
-            let mut frames = plans
-                .iter()
-                .filter_map(|plan| plan.rebind_frame())
-                .filter(|frame| {
-                    frame.target().owner() == binding.owner()
-                        && frame
-                            .source()
-                            .nodes()
-                            .first()
-                            .is_some_and(|node| node.site() == original)
-                });
-            let frame = frames.next()?;
-            if frames.next().is_some() {
+        // Remove active membership on every early return, including failed
+        // incoming/alias checks. Failed or unfinished evidence is never reused.
+        let result = (|| {
+            if let Some(producer) = completed.get(&(binding, value)) {
+                return Some(producer.clone());
+            }
+            let Some(StoredLocal::Trivial(Some(kind))) = self.locals.get(&binding) else {
+                return None;
+            };
+            let kind = *kind;
+            if binding.owner() != self.input.owner() {
                 return None;
             }
-            Some(CurrentScalarProducerV1::BindingRebind(Rc::clone(frame)))
-        };
-        // A signed root-reference initializer records the original use/Copy,
-        // but forwards its producer rather than creating another value root.
-        let origin = flow.alias_terminal_with_expression_boundary(
-            value,
-            |site| function.variable_ref(site),
-            |site| {
-                rebind(site).is_some()
-                    || self
-                        .expression_plans
-                        .borrow()
+            // Only Integer reads have literal/field/call/rebind producers; an
+            // exact Bool read is produced by its Local initializer frame alone.
+            let frame_class = |frame: &CheckedInitializerExpressionFrameV1| match kind {
+                SourceScalarKind::Integer => frame.is_i64(),
+                SourceScalarKind::Bool => frame.is_bool(),
+            };
+            let function = self.input.function();
+            let flow = function.expression_source().value_flow()?;
+            // A completed source rebind is its own producer, including `x = x`.
+            // Preserve it before following aliases; it is never an initializer.
+            let rebind = |original: &SourceExprSiteV1| {
+                let plans = self.expression_plans.borrow();
+                let mut frames =
+                    plans
                         .iter()
-                        .filter_map(|plan| plan.initializer_frame())
-                        .any(|frame| {
-                            frame_class(frame)
-                                && frame.signed_root_sum().is_none()
+                        .filter_map(|plan| plan.rebind_frame())
+                        .filter(|frame| {
+                            frame.target().owner() == binding.owner()
                                 && frame
                                     .source()
                                     .nodes()
                                     .first()
-                                    .is_some_and(|node| node.site() == site)
-                        })
-            },
-        )?;
-        let producer = if let SourceValueOriginV1::Expression(site) = flow.origin(origin)? {
-            rebind(site)
-        } else {
-            None
-        };
-        let producer = if let Some(rebind) = producer {
-            rebind
-        } else {
-            match flow.origin(origin)? {
-                SourceValueOriginV1::Join {
-                    binding: original,
-                    site,
-                    kind: SourceValueJoinKindV1::BranchNormal,
-                    incoming,
-                } => {
-                    if incoming.len() != 2
-                        || !matches!(
-                            (&incoming[0].0, &incoming[1].0),
-                            (SourceValueEdgeV1::ThenNormal, SourceValueEdgeV1::ElseNormal)
-                        )
-                    {
-                        return None;
-                    }
-                    let inputs = incoming
-                        .iter()
-                        .map(|(edge, value)| {
-                            let (_, producer) =
-                                self.scalar_producer_with_path_v1(*original, *value, calls, &path)?;
-                            Some((edge.clone(), *value, producer))
-                        })
-                        .collect::<Option<Vec<_>>>()?;
-                    let basis = Rc::new(BranchNormalScalarSourceV1 {
-                        flow: Arc::clone(flow),
-                        value: origin,
-                        binding: *original,
-                        site: SourceStmtSiteV1::from_node(site.node().clone()),
-                        incoming: inputs.into_boxed_slice(),
-                    });
-                    if !basis.corroborates_original() {
-                        return None;
-                    }
-                    CurrentScalarProducerV1::BranchNormal(basis)
+                                    .is_some_and(|node| node.site() == original)
+                        });
+                let frame = frames.next()?;
+                if frames.next().is_some() {
+                    return None;
                 }
-                SourceValueOriginV1::Join { .. } => match self
-                    .source_loop
-                    .as_ref()
-                    .and_then(|active| active.header_for_value(flow, origin))
-                {
-                    Some(basis) if basis.entry_producer().scalar().is_some() => {
-                        CurrentScalarProducerV1::LoopHeader(Rc::clone(basis))
-                    }
-                    Some(_) => return None,
-                    None => self.source_loop_after_for_value_v2(flow, origin)?,
-                },
-                SourceValueOriginV1::Entry(root) if self.signed_formals.contains(root) => {
-                    CurrentScalarProducerV1::SignedEntry(*root)
-                }
-                SourceValueOriginV1::Expression(original) => {
-                    let mut definitions = function
-                        .expression_source()
-                        .initializers()
-                        .filter(|row| row.initializer_site() == Some(original));
-                    let initializer = definitions.next()?;
-                    if definitions.next().is_some()
-                        || initializer.binding().owner() != binding.owner()
-                        || !matches!(
-                            initializer.declaration_site(),
-                            super::super::SourceBindingSiteV1::Local { .. }
-                        )
-                    {
-                        return None;
-                    }
-                    if let Some(source) =
-                        self.scalar_field_read_source_v1(initializer.binding(), original)
-                    {
-                        CurrentScalarProducerV1::FieldRead(source)
-                    } else if let Some(ResolvedLiteralSourceV1::Integer(value)) =
-                        function.expression_source().literal(original)
-                    {
-                        CurrentScalarProducerV1::Integer {
-                            site: original.clone(),
-                            binding: initializer.binding(),
-                            value: *value,
-                        }
-                    } else {
-                        let plans = self.expression_plans.borrow();
-                        let mut operations = plans
+                Some(CurrentScalarProducerV1::BindingRebind(Rc::clone(frame)))
+            };
+            // A signed root-reference initializer records the original use/Copy,
+            // but forwards its producer rather than creating another value root.
+            let origin = flow.alias_terminal_with_expression_boundary(
+                value,
+                |site| function.variable_ref(site),
+                |site| {
+                    rebind(site).is_some()
+                        || self
+                            .expression_plans
+                            .borrow()
                             .iter()
-                            .flat_map(|plan| plan.scalar_operations())
-                            .filter(|operation| {
-                                operation.binary().site() == original
-                                    && operation
-                                        .initializer()
-                                        .is_some_and(|row| row.binding() == initializer.binding())
-                            });
-                        if let Some(operation) = operations.next() {
-                            if operations.next().is_some() {
-                                return None;
+                            .filter_map(|plan| plan.initializer_frame())
+                            .any(|frame| {
+                                frame_class(frame)
+                                    && frame.signed_root_sum().is_none()
+                                    && frame
+                                        .source()
+                                        .nodes()
+                                        .first()
+                                        .is_some_and(|node| node.site() == site)
+                            })
+                },
+            )?;
+            let producer = if let SourceValueOriginV1::Expression(site) = flow.origin(origin)? {
+                rebind(site)
+            } else {
+                None
+            };
+            let producer = if let Some(rebind) = producer {
+                rebind
+            } else {
+                match flow.origin(origin)? {
+                    SourceValueOriginV1::Join {
+                        binding: original,
+                        site,
+                        kind: SourceValueJoinKindV1::BranchNormal,
+                        incoming,
+                    } => {
+                        if incoming.len() != 2
+                            || !matches!(
+                                (&incoming[0].0, &incoming[1].0),
+                                (SourceValueEdgeV1::ThenNormal, SourceValueEdgeV1::ElseNormal)
+                            )
+                        {
+                            return None;
+                        }
+                        let inputs = incoming
+                            .iter()
+                            .map(|(edge, value)| {
+                                let (_, producer) = self.scalar_producer_with_path_v1(
+                                    *original, *value, calls, path, completed,
+                                )?;
+                                Some((edge.clone(), *value, producer))
+                            })
+                            .collect::<Option<Vec<_>>>()?;
+                        let basis = Rc::new(BranchNormalScalarSourceV1 {
+                            flow: Arc::clone(flow),
+                            value: origin,
+                            binding: *original,
+                            site: SourceStmtSiteV1::from_node(site.node().clone()),
+                            incoming: inputs.into_boxed_slice(),
+                        });
+                        if !basis.corroborates_original() {
+                            return None;
+                        }
+                        CurrentScalarProducerV1::BranchNormal(basis)
+                    }
+                    SourceValueOriginV1::Join { .. } => match self
+                        .source_loop
+                        .as_ref()
+                        .and_then(|active| active.header_for_value(flow, origin))
+                    {
+                        Some(basis) if basis.entry_producer().scalar().is_some() => {
+                            CurrentScalarProducerV1::LoopHeader(Rc::clone(basis))
+                        }
+                        Some(_) => return None,
+                        None => self.source_loop_after_for_value_v2(flow, origin)?,
+                    },
+                    SourceValueOriginV1::Entry(root) if self.signed_formals.contains(root) => {
+                        CurrentScalarProducerV1::SignedEntry(*root)
+                    }
+                    SourceValueOriginV1::Expression(original) => {
+                        let mut definitions = function
+                            .expression_source()
+                            .initializers()
+                            .filter(|row| row.initializer_site() == Some(original));
+                        let initializer = definitions.next()?;
+                        if definitions.next().is_some()
+                            || initializer.binding().owner() != binding.owner()
+                            || !matches!(
+                                initializer.declaration_site(),
+                                super::super::SourceBindingSiteV1::Local { .. }
+                            )
+                        {
+                            return None;
+                        }
+                        if let Some(source) =
+                            self.scalar_field_read_source_v1(initializer.binding(), original)
+                        {
+                            CurrentScalarProducerV1::FieldRead(source)
+                        } else if let Some(ResolvedLiteralSourceV1::Integer(value)) =
+                            function.expression_source().literal(original)
+                        {
+                            CurrentScalarProducerV1::Integer {
+                                site: original.clone(),
+                                binding: initializer.binding(),
+                                value: *value,
                             }
-                            CurrentScalarProducerV1::Operation(Rc::clone(operation))
                         } else {
-                            let mut frames = plans
+                            let plans = self.expression_plans.borrow();
+                            let mut operations = plans
                                 .iter()
-                                .filter_map(|plan| plan.initializer_frame())
-                                .filter(|frame| {
-                                    frame_class(frame)
-                                        && frame.binding() == initializer.binding()
-                                        && frame
-                                            .source()
-                                            .nodes()
-                                            .first()
-                                            .is_some_and(|node| node.site() == original)
+                                .flat_map(|plan| plan.scalar_operations())
+                                .filter(|operation| {
+                                    operation.binary().site() == original
+                                        && operation.initializer().is_some_and(|row| {
+                                            row.binding() == initializer.binding()
+                                        })
                                 });
-                            if let Some(frame) = frames.next() {
-                                if frames.next().is_some() {
+                            if let Some(operation) = operations.next() {
+                                if operations.next().is_some() {
                                     return None;
                                 }
-                                CurrentScalarProducerV1::Initializer(Rc::clone(frame))
+                                CurrentScalarProducerV1::Operation(Rc::clone(operation))
                             } else {
-                                let mut matching = calls.iter().filter(|call| {
-                                    call.owner() == self.input.owner()
-                                        && call.site().site() == original
-                                        && call.result() == LocalCallResultClassV1::I64
-                                        && call.local_binding()
-                                            == Some((
-                                                initializer.declaration_site(),
-                                                initializer.binding(),
-                                            ))
-                                });
-                                let call = matching.next()?;
-                                if matching.next().is_some() {
-                                    return None;
+                                let mut frames = plans
+                                    .iter()
+                                    .filter_map(|plan| plan.initializer_frame())
+                                    .filter(|frame| {
+                                        frame_class(frame)
+                                            && frame.binding() == initializer.binding()
+                                            && frame
+                                                .source()
+                                                .nodes()
+                                                .first()
+                                                .is_some_and(|node| node.site() == original)
+                                    });
+                                if let Some(frame) = frames.next() {
+                                    if frames.next().is_some() {
+                                        return None;
+                                    }
+                                    CurrentScalarProducerV1::Initializer(Rc::clone(frame))
+                                } else {
+                                    let mut matching = calls.iter().filter(|call| {
+                                        call.owner() == self.input.owner()
+                                            && call.site().site() == original
+                                            && call.result() == LocalCallResultClassV1::I64
+                                            && call.local_binding()
+                                                == Some((
+                                                    initializer.declaration_site(),
+                                                    initializer.binding(),
+                                                ))
+                                    });
+                                    let call = matching.next()?;
+                                    if matching.next().is_some() {
+                                        return None;
+                                    }
+                                    CurrentScalarProducerV1::Call(call.clone())
                                 }
-                                CurrentScalarProducerV1::Call(call.clone())
                             }
                         }
                     }
+                    _ => return None,
                 }
-                _ => return None,
+            };
+            // A Bool read is produced by its Local initializer frame alone; rebinds
+            // and joins have no Bool producer law.
+            if kind == SourceScalarKind::Bool
+                && !matches!(producer, CurrentScalarProducerV1::Initializer(_))
+            {
+                return None;
             }
-        };
-        // A Bool read is produced by its Local initializer frame alone; rebinds
-        // and joins have no Bool producer law.
-        if kind == SourceScalarKind::Bool
-            && !matches!(producer, CurrentScalarProducerV1::Initializer(_))
-        {
-            return None;
+            Some((origin, producer))
+        })();
+        path.remove(&value);
+        if let Some(producer) = &result {
+            completed.insert((binding, value), producer.clone());
         }
-        Some((origin, producer))
+        result
     }
 }

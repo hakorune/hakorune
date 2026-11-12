@@ -664,6 +664,16 @@ mod tests {
                 &frames[1]
             };
             assert!(Rc::ptr_eq(frame, expected));
+            let mut changed = locals.clone();
+            changed.install_uninitialized(read.binding());
+            assert!(
+                changed.current_scalar_read_v1(site, &[]).is_none(),
+                "a completed query cannot grant a producer after its local state changes"
+            );
+            assert!(
+                locals.current_scalar_read_v1(site, &[]).is_some(),
+                "a different path keeps its original state"
+            );
             count += 1;
         }
         assert_eq!(count, 3);
