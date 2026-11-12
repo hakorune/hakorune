@@ -434,3 +434,25 @@ main へ早送りした。
 - 変異（Call の ordinal、別の source の同じ値、End の欠落と重複、finishing での消失、Copy の欠落と不一致など）は、前と後で同じに拒否される（13 件）。
 - Opus の監査の入力 118 本で、MIR と EXE の結果が前の main と全部同じ。見張り（基点 `ed243bb025`）も PASS。退役した名前の一覧は 3 つになった。
 - 1 段目と 2a を合わせた production は −30。段ごとの減りは Pro の見込みより小さい。今の段は、行数より「同じ式本体を持つ記録の型が 1 つになる事」の方が大きな効果。
+
+## 式の記録の一本化 2b
+
+再代入の完成記録を既存の `ExpressionEmissionV1<BindingRebindExpressionContractV1>` へ移す。式本体は一度所有し、旧値と新値の責任は再代入の契約として保持する。
+
+| 消す物 | 移り先・保持する責務 |
+|---|---|
+| `EmittedBindingRebindProjectionV1` | 既存共通record＋再代入固有6欄の契約 |
+| values/calls/path_reads/reference_reads/entry/inline_range/terminal/continuation/original の9欄 | 共通recordの既存9欄。Vecの3列は既存のBox sliceへ移管 |
+| 旧expression()のview組立・constructorの9欄分解/再構築 | 共通expression()とfrom_body。builderから完成bodyを一度渡す |
+| frame/receipt/root/install/purpose_acquisition/loop_residency | 元Rc評価、正しいtargetと旧値、置換順序、assignment receipt、Materialize/設置、Loopの旧HomeとFault unwindの契約 |
+
+- Z1: 完成した式本体は共通recordだけが所有し、用途契約には固有6欄だけを残す。旧型を包むenum/再梱包adapterは作らない。
+- Z2: 評価は元Rc frameから借りる。同値の別sourceや別frameへの差替えを認めない。
+- Z3: 旧値の証拠と置換順序は変えない。RHS/Materialize、新residence install、旧値を含むcleanup、assignment receiptの既存順序を保持する。
+- Z4: prior-home unwindは既存の再代入契約から借用viewへ渡す。旧値のEndを式の一時値へ混ぜない。共通from_bodyのroot_faultは再代入の従来viewと同じNoneにする。
+- Z5: source/receipt target・取得/End・install・保持列・finishing・生成後の独立検証と診断を弱めない。受理、旧scalar、Bool短絡、公開MIR/ABI、暗黙context、他用途は変えない。
+- Z6: 旧型、重複欄とview組立、builderの分解を同じseriesで消し、退役symbol一覧へ登録する。
+- Z7: 全共通部分とconsumerを含む整形後production純減を条件にする。純減しなければ追加基盤を作らず、依存をfile:lineで報告する。cleanup順序の変更が必要なら止める。
+
+read-only worker経路: home_binding_rebind_expression.rsの元評価/target→normal_callable_binding_materialization.rs→selected/binding_rebind_expression.rs（旧値を先に観測、共通評価、cleanup、receipt）→binding_rebind_projection.rs→local_binding_group.rs/call_validation_context.rs/local_entry.rs→finishingの最終consumer。cleanup writerと順序算法は変更しない。
+変異は既存の共通view helperと再代入試験を再利用し、Call順序・別source・保持/物理End±・finishing消失・記録不在に加えて、旧値End±・置換順序・receipt targetの責務を確認する。既存の安全性試験は保持する。
