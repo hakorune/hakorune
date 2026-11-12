@@ -510,3 +510,41 @@ main へ早送りした。
 - 1・2a・2b・3 の段の production は合わせて −42。
 - 次の 4a（普通の Call の引数）への注意（実装者の調べ）: `root_call_entry/lexical_argument_projection.rs:177` の `EmittedArgumentExpressionProjectionV1` は、9 つの欄だけでなく式本体の全部を持つ。`argument_expression.rs:131–145` の OwnedText と DynamicCarrier の遅延は、親の Call まで生きる。共通の `from_body` へそのまま渡して、acquired・dynamic_carriers・temporary_order・homes・fault の frame を捨ててはいけない。親の Call・ordinal・保持の期限・入口での移転は契約の側に残す。
 - 実装者はここで交代する（ユーザー決定 2026-11-12）: 4a からは Sonnet 5.5 が実装し、Opus が監査する。
+
+## 式の記録の一本化 4a
+
+対象は普通の Call の引数の式の完成記録。既存の `ExpressionEmissionV1<C>` から式本体を借りる形にして、引数専用の記録型と、その `expression()` の組み立てを消す。引数に固有の契約だけを `C` の側へ残す。
+
+| 消す物 | 移り先・残す責務 |
+|---|---|
+| `EmittedArgumentExpressionProjectionV1` | `ExpressionEmissionV1<ArgumentExpressionContractV1>` |
+| 同型の `body`（builder の `EmittedExpressionBodyV1` を丸ごと保持）、`terminal`、`continuation` | 共通 record の values/calls/path_reads/reference_reads/original/entry/inline_range/terminal/continuation（追加の保持なし） |
+| 引数専用の `expression()` の view 組み立て | 共通の `expression()` に、契約の `dynamic_calls` を `with_dynamic_calls_v1` で添える（Local と同じ形） |
+| 完成記録に残っていた `acquired`・`dynamic_carriers`・`temporary_order`・`homes`・`fault_frame`・`root_cleanup` | 保持しない。生成中だけの作業状態で、完成後の reader が 0（遅延の End は values・frame・root・purpose_acquisition だけで決まる）。`from_body` の既存の扱いと同じ |
+| `EmittedExpressionBodyV1::ordered_owned_temporaries_v1(&self, …)` | values の slice を取る形へ変える。引数と field 右辺の 2 つの caller が 1 つの本体を使う |
+| `lexical_argument_projection.rs` の test が組み立てる旧型・body の literal | 新しい record の入口（`from_body`）で組み立てる |
+
+引数に固有で、契約 `ArgumentExpressionContractV1` に残す物:
+
+| 残す物 | 理由 |
+|---|---|
+| 元の `CheckedArgumentExpressionFrameV1`（親の Call・ordinal・source の根） | 親操作と ordinal の対応の根拠。frame の同一性で照合する |
+| `completion`（ScalarCompleted / OwnedTextDeferred / DynamicCarrierDeferred） | 遅延の End が親の Call まで生きるかを決める。frame から導かれる値だが、検証の独立した照合に使う |
+| `purpose_acquisition`（Materialize の対） | OwnedText の遅延の責任 |
+| `retained_argument_frames` | 保持の期限と、入口での移転の照合 |
+| `dynamic_calls` | Dynamic carrier の元 site と結果の照合。共通本体へは所有させない（Local と同じ） |
+
+同じ式本体（values/calls/path_reads/reference_reads/original/entry/inline_range/terminal/continuation）の完成記録を保持する型の、引数の経路での数: 2（共通 record と引数 record）→ 1。builder の生成中 body は生成作業であり、完成記録には数えない。field 右辺と `new` の引数の記録は、この段では変えない（4b、4c）。
+
+- A1: 引数の式本体の完成記録は共通 `ExpressionEmissionV1` だけが所有し、引数の契約は引数に固有の欄だけを持つ。
+- A2: 親の Call・ordinal・source の根は、元の checked frame から借りる。別の frame や同値の別 source で置き換えない。
+- A3: completion が決める遅延（OwnedText・DynamicCarrier は親の Call の入口まで、Scalar は完了済み）と、purpose_acquisition・retained_argument_frames の期限・入口での移転は変えない。callee の Fault の前後の責任は変えない。
+- A4: 生成中だけの作業状態（acquired・dynamic_carriers・temporary_order・homes・fault_frame・root_cleanup）は完成記録へ持ち込まない。引数の完成後にそれらを読む所は 0 であることを、全 caller で示す。
+- A5: 検証の独立性を保つ。生成側と検証側を、同じ「期待する命令の列を作る関数」にまとめない。拒否と文言は前と同じ。
+- A6: 共通 record から旧引数 packet へ詰め直す adapter、旧型を包む enum・alias、用途を分ける bool を作らない。旧型・旧欄・旧 `expression()` を同じ変更で消し、退役 symbol の一覧に足す。
+- A7: 受理の選択、古い scalar の道、Bool の短絡、公開 MIR・ABI、暗黙の検証 context、`new` の引数・field の右辺・条件の記録、Print・Return・Local・代入し直しの記録、cleanup の graph の writer は変えない。
+- A8: 新しい契約型・入口・つなぎ先を全部含めた production が、整形後に純減した時だけ完了とする。純減しない時は基盤を足さずに止め、残る依存と減らせない理由を file:line で報告する。
+
+worker 経路: `selected/argument_expression.rs` の `emit_with_checked_frame`（`emit_with_dynamic_calls` → `materialize_text_root` → `finish_{dynamic_initializer,scalar,deferred_argument}_continuation`）→ `root_call_entry/lexical_argument_expression.rs` の `from_expression_v1`（completion の導出、構築、`validate`、`validate_original_scope`）→ `LexicalCallArgumentProjectionV1::Expression` → `lexical_argument_expression_validation.rs`（`validate_source`・`validate`・`scope_bindings`）→ 親の Call の `validate_expression_arguments_*`・`deferred_argument_ends_v1`・finishing・最終 consumer。record の欄の読み手は `lexical_argument_expression.rs`、`lexical_argument_expression_validation.rs`、`lexical_argument_projection.rs` の 3 file に閉じている。
+
+変異の証拠は、前の段の helper `check_observation_mutations`（`expression_observation_mutation_tests.rs`）を使い回す。引数にはまだ使っていないので、基点でも同じ test を先に流して、前と後の拒否を比べる。引数に固有の変異（ordinal の入れ替え、親の Call の取り違え、遅延の End の欠落と重複、入口の前後の End の位置の入れ替え）は、既存の test で示せない物だけ足し、理由を書く。
