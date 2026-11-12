@@ -212,3 +212,32 @@ main へ早送りした（`67b78a4383`）。
 - k=10〜12 で速くなったのは、倍々の底が小さくなっただけで、倍々は消えていない。
 - perf（k=16）では、`source_value_flow` の `alias_terminal_with_expression_boundary`、`PrefixLocalFlow` の scalar の作り手、`BTreeMap` の丸ごとの複製と破棄が上位に来る。if ごとに、prefix の走査が状態を複製して両方の枝を別々にたどり、合流で 1 つにまとめていない疑いが高い（未確認）。
 - selfhost のコンパイラ自身には、field を読む if が多い。このままでは大きな関数でメモリが尽きる。
+
+## prefix の走査の倍々（2026-11-12、基点 084555a49f）
+
+### P1: 原因と変更前の実測
+
+入口は `home_new_prefix.rs:543` → `home_new_prefix_scan.rs:186` → `home_new_prefix_branch.rs:202`。枝のscalar要求は `home_new_prefix_binding_rebind.rs:94` から既存 `PrefixLocalFlow::scalar_producer_for_value_v1` へ届く。
+
+`home_prefix_scalar.rs:229/238/324-338` が、同じ元source IDの合流を両incomingから再帰的に作り直し、各訪問でpath集合を複製する。`BranchNormalScalarSourceV1`は既にflow/value/binding/siteによる同一性とRcを持つが、生成時に過去の合流を共有しないためDAGを木へ展開している。resolverは `source_value_flow.rs:335-372/525-529` で元のIDとincomingを保持済みであり、新しいID体系は不要。
+
+| k | PrefixLocalFlow複製 / locals行の合計 | scalar再帰 / alias照合 | join生成 / incoming | path複製要素合計 / 最大深さ | 秒2回 / 最大RSS KiB2回 |
+|---:|---:|---:|---:|---:|---|
+| 10 | 60 / 180 | 20,454 / 20,454 | 10,210 / 20,420 | 264,294 / 20 | 0.08 / 0.09 ; 64004 / 63768 |
+| 12 | 72 / 216 | 81,892 / 81,892 | 40,926 / 81,852 | 1,302,642 / 24 | 0.18 / 0.19 ; 87984 / 87496 |
+| 14 | 84 / 252 | 327,650 / 327,650 | 163,802 / 327,604 | 6,193,278 / 28 | 0.59 / 0.6 ; 210776 / 210180 |
+| 16 | 96 / 288 | 1,310,688 / 1,310,688 | 655,318 / 1,310,636 | 28,704,906 / 32 | 2.23 / 2.21 ; 701880 / 702296 |
+| 18 | 108 / 324 | 5,242,846 / 5,242,846 | 2,621,394 / 5,242,788 | 130,547,862 / 36 | 8.8 / 8.79 ; 2668628 / 2668452 |
+
+複製したlocal行は1状態3行で線形。null/field/nonnullのmap複製行はこの入力では0。対してjoin生成はkが2増えるごとに約4倍になる。alias照合はscalar再帰内の `alias_terminal_with_expression_boundary` の実呼出し数であり、他consumerの呼出しを含めない。clone行数は要素数で、内部型のbyte数ではない。時間/RSSは一時計測を入れていない基準CLIで測った。全実行に `ulimit -v 4000000` と35秒timeoutを付け、小さいkから測定。計数hookはこのcommit前に全撤去した。
+
+### J規則と接続先
+
+J1. 合流のsourceの持ち主は既存のPrefixLocalFlow scalar producerとし、resolverのsource IDと既存Rcを用いる。
+J2. 一回の不変なscalar照合の中で、bindingと元source IDが同じ完成済みのproducerだけを共有し、道を列挙しない。
+J3. 両incomingの順序・元edge/valueとの照合・Boolの制約を通るまで成功結果を登録しない。
+J4. activeなsource valueによる循環検出を保持し、失敗と未完成の結果は共有しない。
+J5. local class・calls・expression plans・loop状態が変わり得る照合の外へ成功を持ち越さない。
+J6. 枝ごとのHome/local状態は合流の既存の交差規則を保持し、片方の証拠で補わない。
+J7. restore_if_normal_values_v1のNoneと取得・移転・Endおよび独立検証の責務は変更しない。
+J8. 一時計数は撤去し、最終sourceのCLIでMIR・拒否・EXEの同一性と時間/RSSを確認する。
