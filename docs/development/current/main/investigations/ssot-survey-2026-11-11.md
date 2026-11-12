@@ -330,3 +330,32 @@ main へ早送りした（`80f2a162ee`）。
   - Opus の監査の入力 110 本で、MIR と EXE の結果が前の main と全部同じ。
 - **行数**: production は +271（純減ではない）。問い合わせの中の完成の表と active の管理、Text の 4 つの再帰を 1 つの fold にした分。新しい型は `CoverageNodeV1`・`TextBranchSummaryV1`・`TextObservationKeyV1`・`TextUnwindNodeV1`（ほかに既存の 4 つ組の alias `SourceBranchIdentityV1`）。持ち主の数の見張りの数は変わらない。
 - 2b と 2c で、prefix の走査の倍々は、Opus が試した形では無くなった。
+
+## 式の記録の一本化 1
+
+Print と Return の式本体の保持形式を2種類から1種類へ置換する。builderの生成中状態とfinishing照合用の受領poolは別責務として残す。
+
+| 消す物 | 移り先 |
+|---|---|
+| `EmittedPrintExpressionProjectionV1` | `ExpressionEmissionV1` と元のPrint frameの目的契約 |
+| `ReturnExpressionEmissionV1` | 同じrecordと `ReturnExpressionContractV1` |
+| 両旧型の values/calls/path_reads/reference_reads(original Return名 reads)/original/entry/inline_range/terminal(Print名 print)/continuation | 共通recordの各欄一箇所 |
+| Printの分解・再構築、Returnの長い物理欄引数列 | 生成完了bodyを共通recordへ一度だけ移す入口 |
+| 両旧型の expression() | 共通recordから借りる同じ ExpressionPhysicalProjectionRefV1 |
+
+保持欄の宣言箇所は、上記9欄それぞれ用途別2箇所から共通1箇所へ。生成中bodyの1箇所は生成作業であって完成記録ではない。Printのpool受領bindingsはfinishing照合に必要なので余剰として削除しない。
+
+| 用途 | 残す契約 |
+|---|---|
+| Print/discard | 原本Rc frameの同一性、表示かdiscard、操作命令、操作後の辺、元scopeと実CFG照合 |
+| Return | 原本Rc評価、owner/exitと宣言された結果、返却値、residence/materialization、after-read、root Fault、所有移転とcleanup |
+
+- X1: 式本体の完成記録は共通recordが一度だけ所有し、用途は固有契約だけを持つ。
+- X2: Print評価をcloneして原本を作り直さず、元のRc frameから借りる。
+- X3: 生成中の取得stack・homes等は完成記録へ持ち込まず、完成済みmaterializationとFault境界の証拠は保持する。
+- X4: 元評価の検証、物理観測の照合、生成後MIRの独立検証を統合して弱めない。
+- X5: 受理、拒否文言、cleanup責任と順序、公開MIRとABIは変えない。
+- X6: 旧型への再梱包を作らず、旧保持型と重複view構築を同じseriesで削除する。
+- X7: 新規共通処理とconsumerを含む整形後production純減が成立しなければ基盤追加を止め、依存を報告する。
+
+worker経路: builder selected/expression_value.rs → selected/{print_expression,return_expression}.rs → local_commit/root_call_entry/print_expression_projection.rs と root_home_received_return.rs → expression_projection.rs の借用view → prefix pool / root exit → finishingと最終consumer。Local/Rebind/argument/field RHSと旧scalar laneは変更しない。
