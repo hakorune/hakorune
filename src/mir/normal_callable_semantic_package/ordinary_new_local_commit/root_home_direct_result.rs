@@ -43,6 +43,9 @@ impl RootHomeCleanupOrderV1 {
         {
             return Err(freeze("direct-result-source-drift"));
         }
+        if self.stored_map_get.is_some() {
+            return Err(freeze("return-source-exclusive"));
+        }
         self.direct = Some((source, None));
         Ok(())
     }
@@ -64,7 +67,28 @@ impl RootHomeCleanupOrderV1 {
         {
             return Err(freeze("scalar-result-source-drift"));
         }
+        if self.stored_map_get.is_some() {
+            return Err(freeze("return-source-exclusive"));
+        }
         self.scalar = Some((exit, loan, None));
+        Ok(())
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn retain_stored_map_get_source(
+        &mut self,
+        loan: crate::mir::normal_callable_semantic_package::StoredMapGetReturnSourceLoanV1,
+    ) -> Result<(), String> {
+        if self.stored_map_get.is_some()
+            || self
+                .full
+                .iter()
+                .any(|origin| origin.exit() != loan.terminal().return_site())
+        {
+            return Err(freeze("stored-map-get-source-drift"));
+        }
+        if self.direct.is_some() || self.scalar.is_some() {
+            return Err(freeze("return-source-exclusive"));
+        }
+        self.stored_map_get = Some(loan);
         Ok(())
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn bind_direct_result(
@@ -116,6 +140,13 @@ impl RootHomeCleanupOrderV1 {
         bindings: &[(BasicBlockId, MirInstruction)],
         mapping: Option<&FinishedBindings>,
     ) -> Result<(), String> {
+        if usize::from(self.direct.is_some())
+            + usize::from(self.scalar.is_some())
+            + usize::from(self.stored_map_get.is_some())
+            > 1
+        {
+            return Err(freeze("return-source-exclusive"));
+        }
         self.validate_fresh_result_cleanup(ledger, owner, exit, entry)?;
         if let Some((original_exit, loan, value)) = &self.scalar {
             let current = ledger
