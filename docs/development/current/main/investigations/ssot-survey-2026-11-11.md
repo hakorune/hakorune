@@ -395,3 +395,30 @@ main へ早送りした。
 - 変異（Call の ordinal の入れ替え、別の source の同じ値の producer、End の欠落と重複、finishing での producer の消失、記録の不在）は、前と後で同じ文言で拒否される（18 件）。
 - Opus の監査の入力 118 本で、MIR と EXE の結果が前の main と全部同じ。Opus も見張り（基点 `ae144836c4`）を走らせて PASS。
 - 次の段は Local の initializer の記録。dynamic の Call、install と materialization、owned な root と結果の契約が要る（実装者の報告）。
+
+## 式の記録の一本化 2a
+
+Local initializerの完成記録を既存の `ExpressionEmissionV1<InitializerExpressionContractV1>` へ置換する。
+
+| 消す物 | 移り先・残す責務 |
+|---|---|
+| `EmittedInitializerExpressionProjectionV1` | 共通recordとLocal固有の契約 |
+| values/calls/path_reads/reference_reads/entry/inline_range/terminal/continuation/original の9欄 | 既存共通recordの9欄（追加の保持なし） |
+| Localの expression() の本体の再配布 | 共通recordから借り、Local契約のDynamic callだけを借用viewへ添える initializer_expression_v1 |
+| builderの9欄への分解と長いconstructor引数列 | 完成bodyを共通from_bodyへ一度だけ移管 |
+| frame/value/local/copy/install | 元Rc frame・正しいbinding/initializer/local・必要なCopyとresidence installのLocal契約 |
+| dynamic_calls | Local契約。Dynamic carrierの元site・結果handoff照合に必要であり共通本体へ所有させない |
+| loop_residency | Local契約。LoopのText carrierと当該LocalでのFault unwindの証拠 |
+| purpose_acquisition | Local契約。Local snapshotのMaterialize対とinstall責任。Returnの類似対も既にReturn固有のresidence契約にあり、共通本体へは混ぜない |
+
+完成recordの保持形式は共通＋旧Localの2種類から共通1種類へ、対象9欄は18宣言から9宣言へ。生成中bodyとfinishing用受領poolは別責務として保持する。
+
+- Y1: Localの式本体は共通recordだけが所有し、Local契約は行き先固有の8欄だけを持つ。
+- Y2: 元のinitializer Rc frameから評価を借り、同値の別frameを作り直さない。
+- Y3: Dynamic・alias・Copy・loopの固有証拠はLocal契約に留め、共有viewへ渡す時も借用だけにする。
+- Y4: Copy・install・元sourceとbindingの一致、Normal/Fault・finishing・独立検証の条件と拒否文言を保持する。
+- Y5: 受理選択、旧scalar、Bool短絡、公開MIR/ABI、RefCell context、他用途の記録は変えない。
+- Y6: 旧型・重複欄・再梱包を同じseriesで削除し、退役symbol検査へ追加する。
+- Y7: 全新規部分とconsumerを含む整形後production純減を満たさなければ基盤追加を止め、依存を報告する。
+
+worker経路: selected/initializer_expression.rs の prepare→PendingEvaluatedInitializerV1::publish→initializer_expression_projection.rs→local_binding_group.rs→local_entry.rs/finishing/finalized consumer。Local専用viewは既存new_with_dynamicと同じ借用情報を用い、Print/Returnの共通expression()は変更しない。
