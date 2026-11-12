@@ -616,3 +616,29 @@ worker 経路: `selected/argument_expression.rs` の `emit_with_checked_frame`�
   - 旧 scalar の道は、1 つの責務ごとに「共通側が既に担う事を確かめる → 旧実装と呼ぶ側の腕を消す」の順で退役させる。新しい振り分けの型を先に作らない。
   - 長い完全修飾の path を短くするのは正当な整理だが、「表記の整理」として、構造の整理とは別に数える。`pub(in …)` を狭めるのは可視性の境界の変更なので別の差分にする。一律に `pub(crate)` にするのは不可。
 - `dynamic_calls` と `purpose_acquisition`: 実際に起きた事の観測（Dynamic の Call、発行された Materialize と Normal の対）は、共通の record に置いてよい。許可や所有の方針（Materialize が要る理由、carrier の設置と終わりの責任）は、行き先の契約に残す。前の「固有の証拠を混ぜたら止める」は、「固有の許可や所有の方針を、共通の観測の存在だけで代用してはいけない」と読み替える。ただし、これを理由に今すぐ 4a を再開はしない。
+
+## Return の返却元の保持の境界（2026-11-12、基点 `ef0ebd2404`）
+
+削減の回ではなく、不変条件を補強する小さな正しさの回。対象は `RootHomeCleanupOrderV1`（`ordinary_new_local_commit/root_home_cleanup_order.rs`）の `direct`・`scalar`・`stored_map_get` の 3 欄だけ。
+
+### 書く所と読む所（read-only の調べ。行は `ordinary_new_local_commit/` から）
+
+| 欄 | 書く所 | 読む所 |
+|---|---|---|
+| `direct` | `root_home_direct_result.rs:33-48`（`retain_direct_source`。`direct`/`scalar` が入っていれば拒否）、値の束縛は `bind_direct_result` | `ingress_result_kind`、`bind_direct_result`、`validate_direct_entry`、`prepend_argument_maps` |
+| `scalar` | `root_home_direct_result.rs:49-69`（`retain_scalar_source`。同上） | 同上 |
+| `stored_map_get` | `root_home/prepare.rs:120` の直接の代入のみ（他の欄を確かめない） | `ingress_result_kind` だけ。最終の検証は読まない |
+
+- 優先順位で読み飛ばす所: `ingress_result_kind`（scalar → stored_map_get → direct の順に 1 つを選ぶ）、`bind_direct_result`（scalar があれば direct を束縛しない）、`validate_direct_entry`（scalar があれば direct を読まずに戻る。stored_map_get は読まない）。
+- 記録・検証の 4 つの経路（`record.rs`、`pending.rs`、`validation.rs`、`finalized_root_cleanup.rs`）は、どれも `validate_direct_entry` を通る。
+
+### 規則
+- S1: `direct`・`scalar`・`stored_map_get` は、同じ order に高々 1 つしか入らない。
+- S2: `stored_map_get` は、`retain_direct_source`・`retain_scalar_source` と同じ種類の保持の処理で入れ、先に S1 と同じ exit の不変条件を確かめてから代入する。
+- S3: `retain_direct_source` と `retain_scalar_source` は、既存の拒否の判定を先に行い、その後に `stored_map_get` が入っている時を拒否する。
+- S4: 最終の検証（`validate_direct_entry`）は、3 つのうち 2 つ以上が入った order を、優先順位で読み飛ばさずに拒否する。保持の処理を通らずに作られた order も同じ。
+- S5: 「未選択」（3 つとも空）と、「同じ欄の 2 回の保持」は別の物。getter が `None` を返すのは別の返却の source があってよい場合で、S1 の違反ではない。
+- S6: `return_read` と `scalar_return_read`、`return_expression` と `text_return_hold` など、組で使う証拠は S1 に混ぜない。
+- S7: 元の source の検証（`stored_map_get_return_source_v1` ほか）は、保持の側の検査で置き換えない。
+- S8: 既存の拒否の条件・文言・優先順位は変えない。新しく拒否するのは新しい不正な組み合わせだけで、その文言だけを足す。
+- S9: 新しい型・classifier・段階の仕組みは作らない。9 つの腕の enum 化、可視性や path の整理、別の削除は混ぜない。
