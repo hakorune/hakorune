@@ -31,142 +31,10 @@ pub(crate) enum SourceLoopValueProducerV1 {
     Text(SourceLoopTextProducerV1),
     Dynamic(SourceLoopDynamicProducerV1),
 }
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) enum SourceLoopTextProducerV1 {
-    Static {
-        binding: BindingRefV1,
-        definition: SourceExprSiteV1,
-        utf8: Box<str>,
-    },
-    Residence(TextResidenceAcquisitionV1),
-    Header(Rc<LoopHeaderValueBasisV1>),
-    After {
-        product: Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
-        binding: BindingRefV1,
-    },
-    BranchNormal(Rc<BranchNormalTextSourceV1>),
-}
+#[path = "home_prefix_source_loop_text_branch.rs"]
+mod text_branch;
+pub(crate) use text_branch::{BranchNormalTextSourceV1, SourceLoopTextProducerV1};
 
-/// Exact, ordered normal inputs of one source Text branch join. This carries
-/// source ownership only; it does not choose an arm or issue a physical value.
-#[derive(Debug, Clone)]
-pub(crate) struct BranchNormalTextSourceV1 {
-    flow: Arc<VerifiedSourceValueFlowV1>,
-    value: SourceValueRefV1,
-    binding: BindingRefV1,
-    site: SourceStmtSiteV1,
-    incoming: Box<[(Edge, SourceValueRefV1, SourceLoopTextProducerV1)]>,
-}
-impl PartialEq for BranchNormalTextSourceV1 {
-    fn eq(&self, other: &Self) -> bool {
-        Arc::ptr_eq(&self.flow, &other.flow) && self.value == other.value
-            && self.binding == other.binding && self.site == other.site
-    }
-}
-impl Eq for BranchNormalTextSourceV1 {}
-impl BranchNormalTextSourceV1 {
-    pub(crate) fn new(
-        flow: Arc<VerifiedSourceValueFlowV1>, value: SourceValueRefV1,
-        binding: BindingRefV1, site: SourceStmtSiteV1,
-        incoming: Box<[(Edge, SourceValueRefV1, SourceLoopTextProducerV1)]>,
-    ) -> Option<Rc<Self>> {
-        let source = Rc::new(Self { flow, value, binding, site, incoming });
-        source.corroborates_original().then_some(source)
-    }
-    pub(crate) fn binding(&self) -> BindingRefV1 { self.binding }
-    pub(crate) fn value(&self) -> SourceValueRefV1 { self.value }
-    pub(crate) fn site(&self) -> &SourceStmtSiteV1 { &self.site }
-    pub(crate) fn matches_source(
-        &self, flow: &Arc<VerifiedSourceValueFlowV1>, binding: BindingRefV1,
-        value: SourceValueRefV1,
-    ) -> bool {
-        Arc::ptr_eq(&self.flow, flow) && self.binding == binding && self.value == value
-            && self.corroborates_original()
-    }
-    pub(crate) fn incoming(&self) -> &[(Edge, SourceValueRefV1, SourceLoopTextProducerV1)] {
-        &self.incoming
-    }
-    pub(crate) fn is_owned_residence_tree_v1(&self) -> bool {
-        self.corroborates_original() && self.incoming.iter().all(|(_, _, producer)| {
-            match producer {
-                SourceLoopTextProducerV1::Residence(acquisition) =>
-                    acquisition.is_text_residence() && acquisition.owns_root(),
-                SourceLoopTextProducerV1::BranchNormal(source) => source.is_owned_residence_tree_v1(),
-                _ => false,
-            }
-        })
-    }
-    pub(crate) fn is_loop_header_or_owned_residence_tree_v1(
-        &self,
-        basis: &Rc<LoopHeaderValueBasisV1>,
-    ) -> bool {
-        self.binding == basis.binding
-            && self.corroborates_original()
-            && self.incoming.iter().all(|(_, _, producer)| match producer {
-                SourceLoopTextProducerV1::Header(actual) => Rc::ptr_eq(actual, basis),
-                SourceLoopTextProducerV1::Residence(acquisition) => {
-                    acquisition.binding() == basis.binding
-                        && acquisition.is_text_residence()
-                        && acquisition.owns_root()
-                }
-                SourceLoopTextProducerV1::BranchNormal(source) => {
-                    source.is_loop_header_or_owned_residence_tree_v1(basis)
-                }
-                _ => false,
-            })
-            && self.contains_loop_header_v1(basis)
-    }
-    fn contains_loop_header_v1(&self, basis: &Rc<LoopHeaderValueBasisV1>) -> bool {
-        self.incoming.iter().any(|(_, _, producer)| match producer {
-            SourceLoopTextProducerV1::Header(actual) => Rc::ptr_eq(actual, basis),
-            SourceLoopTextProducerV1::BranchNormal(source) => {
-                source.contains_loop_header_v1(basis)
-            }
-            _ => false,
-        })
-    }
-    pub(crate) fn corroborates_original(&self) -> bool {
-        self.flow.is_complete() && self.flow.owner() == self.binding.owner()
-            && matches!(self.flow.origin(self.value), Some(SourceValueOriginV1::Join {
-                binding, site, kind: Join::BranchNormal, incoming
-            }) if *binding == self.binding && site.node() == self.site.node()
-                && incoming.len() == 2 && self.incoming.len() == 2
-                && incoming.iter().zip(self.incoming.iter()).all(|((edge, value), (actual_edge, actual_value, producer))|
-                    edge == actual_edge && value == actual_value
-                        && Self::producer_matches(&self.flow, self.binding, *value, producer))
-                && matches!((&incoming[0].0, &incoming[1].0), (Edge::ThenNormal, Edge::ElseNormal)))
-    }
-    fn producer_matches(
-        flow: &Arc<VerifiedSourceValueFlowV1>, binding: BindingRefV1,
-        value: SourceValueRefV1, producer: &SourceLoopTextProducerV1,
-    ) -> bool {
-        match producer {
-            SourceLoopTextProducerV1::Header(basis) => {
-                Arc::ptr_eq(&basis.flow, flow) && basis.binding == binding
-                    && basis.header == value
-                    && basis.entry_producer().class()
-                        == crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String
-                    && flow.loop_join(basis.source.site(), binding, Join::LoopHeader)
-                        .is_some_and(|(header, _)| header == value)
-            }
-            SourceLoopTextProducerV1::Static { binding: source_binding, definition, .. } => {
-                *source_binding == binding
-                    && matches!(flow.origin(value), Some(SourceValueOriginV1::Expression(site)) if site == definition)
-            }
-            SourceLoopTextProducerV1::Residence(acquisition) => {
-                if acquisition.binding() != binding || !acquisition.is_text_residence()
-                    || acquisition.source().owner() != flow.owner() { return false; }
-                let Some(definition) = acquisition.source().nodes().first().map(|node| node.site()) else { return false; };
-                matches!(flow.origin(value), Some(SourceValueOriginV1::Expression(site)) if site == definition)
-            }
-            SourceLoopTextProducerV1::BranchNormal(source) => {
-                Arc::ptr_eq(&source.flow, flow) && source.binding == binding
-                    && source.value == value && source.corroborates_original()
-            }
-            _ => false,
-        }
-    }
-}
 impl SourceLoopValueProducerV1 {
     pub(crate) fn scalar(&self) -> Option<&CurrentScalarProducerV1> {
         match self {
@@ -401,9 +269,8 @@ impl PrefixLocalFlow<'_> {
         let flow = function.expression_source().value_flow()?;
         let value = flow.read(site, binding)?;
         let Some(active) = self.source_loop.as_ref() else {
-            return self.loop_after_terminal_return_text_reference_v1(
-                site, binding, value, flow, homes,
-            );
+            return self
+                .loop_after_terminal_return_text_reference_v1(site, binding, value, flow, homes);
         };
         let prefix = active.source.site().node().segments();
         let segments = site.node().segments();
@@ -555,7 +422,10 @@ impl PrefixLocalFlow<'_> {
                 if !homes.iter().any(|home| home.binding() == binding)
                     && source.matches_source(flow, binding, value) =>
             {
-                Some((value, SourceLoopTextProducerV1::BranchNormal(Rc::clone(source))))
+                Some((
+                    value,
+                    SourceLoopTextProducerV1::BranchNormal(Rc::clone(source)),
+                ))
             }
             _ => None,
         }
@@ -643,7 +513,8 @@ impl PrefixLocalFlow<'_> {
                     (origin, SourceLoopValueProducerV1::Text(producer))
                 }
                 StoredLocal::TaggedDynamic | StoredLocal::DynamicInvocationResult { .. } => {
-                    let (origin, producer) = self.dynamic_producer_for_value_v1(binding, entry, flow)?;
+                    let (origin, producer) =
+                        self.dynamic_producer_for_value_v1(binding, entry, flow)?;
                     (origin, SourceLoopValueProducerV1::Dynamic(producer))
                 }
                 _ => return None,
