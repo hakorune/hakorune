@@ -184,25 +184,48 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_dynamic_
     // Transport does not select dispatch. Ordinary nullable Text calls lend
     // their exact checked Call/Normal pair, just as dynamic producers do.
     let carrier_invoke = |binding: &Binding| {
-        if binding.0 != invoke_block { return false; }
-        let MirInstruction::Invoke { operation, normal_landing, .. } = &binding.1 else {
+        if binding.0 != invoke_block {
+            return false;
+        }
+        let MirInstruction::Invoke {
+            operation,
+            normal_landing,
+            ..
+        } = &binding.1
+        else {
             return false;
         };
-        if *normal_landing != projection.0 { return false; }
+        if *normal_landing != projection.0 {
+            return false;
+        }
         match operation {
             InvokeOperation::DynamicInvocation(_)
-                | InvokeOperation::DynamicArrayGet { .. }
-                | InvokeOperation::DynamicCarrierSubI64 { .. } => true,
-            InvokeOperation::Call { result: crate::mir::instruction::InvokeCallResultKind::DynamicCarrier, .. } => {
-                let mut packets = expression.body.calls.iter().filter(|packet|
-                    packet.original_source().result() == Some(crate::mir::instruction::InvokeCallResultKind::DynamicCarrier)
-                        && packet.outer_bindings().is_ok_and(|(invoke, normal)| invoke == binding && normal == &projection));
+            | InvokeOperation::DynamicArrayGet { .. }
+            | InvokeOperation::DynamicCarrierSubI64 { .. } => true,
+            InvokeOperation::Call {
+                result: crate::mir::instruction::InvokeCallResultKind::DynamicCarrier,
+                ..
+            } => {
+                let mut packets = expression.body.calls.iter().filter(|packet| {
+                    packet.original_source().result()
+                        == Some(crate::mir::instruction::InvokeCallResultKind::DynamicCarrier)
+                        && packet.outer_bindings().is_ok_and(|(invoke, normal)| {
+                            invoke == binding && normal == &projection
+                        })
+                });
                 packets.next().is_some() && packets.next().is_none()
             }
             _ => false,
         }
     };
-    if expression.body.bindings.iter().filter(|binding| carrier_invoke(binding)).count() != 1 {
+    if expression
+        .body
+        .bindings
+        .iter()
+        .filter(|binding| carrier_invoke(binding))
+        .count()
+        != 1
+    {
         return Err(freeze("initializer-expression/dynamic-carrier-invoke"));
     }
     expression.body.dynamic_carriers.pop();
@@ -214,24 +237,32 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_dynamic_
 
 /// I64 purpose completion retains the scalar result and ends only its child
 /// Text acquisitions. Prior Homes remain live on Normal and unwind on Fault.
-pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_scalar_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1)
-    -> Result<(Option<Binding>, Option<Binding>), String> {
+pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_scalar_continuation(
+    builder: &mut MirBuilder,
+    expression: &mut EmittedExpressionValueV1,
+) -> Result<(Option<Binding>, Option<Binding>), String> {
     finish_continuation(builder, expression, None, None, false)
 }
 
-/// The destination's original initializer frame is the sole issuer of this
-/// transfer. Child temporaries remain inside this expression's cleanup scope.
-pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_residence_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1)
-    -> Result<(Option<Binding>, Option<Binding>), String> {
-    finish_residence_with_displaced_continuation(builder, expression, None)
-}
-
-pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_residence_with_displaced_continuation(builder: &mut MirBuilder,
-    expression: &mut EmittedExpressionValueV1, displaced: Option<InvokeOperation>,
+pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_residence_with_displaced_continuation(
+    builder: &mut MirBuilder,
+    expression: &mut EmittedExpressionValueV1,
+    displaced: Option<InvokeOperation>,
 ) -> Result<(Option<Binding>, Option<Binding>), String> {
-    let Operand::OwnedString(root) = expression.value.as_operand()?.clone() else { return Err(freeze("expression/residence-root")); };
-    let materialized = expression.purpose_acquisition.as_ref().and_then(|pair| pair[1].1.dst_value());
-    if materialized != Some(root) && expression.body.acquired.last().is_none_or(|(_, value)| *value != root) {
+    let Operand::OwnedString(root) = expression.value.as_operand()?.clone() else {
+        return Err(freeze("expression/residence-root"));
+    };
+    let materialized = expression
+        .purpose_acquisition
+        .as_ref()
+        .and_then(|pair| pair[1].1.dst_value());
+    if materialized != Some(root)
+        && expression
+            .body
+            .acquired
+            .last()
+            .is_none_or(|(_, value)| *value != root)
+    {
         return Err(freeze("expression/residence-acquisition-order"));
     }
     finish_continuation(builder, expression, Some(root), displaced, false)
@@ -240,21 +271,42 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_residenc
 /// An owned argument lends its entire remaining stack to the enclosing Call.
 /// The newest root prevents earlier children from ending before that Call.
 pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_deferred_argument_continuation(
-    builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1,
+    builder: &mut MirBuilder,
+    expression: &mut EmittedExpressionValueV1,
 ) -> Result<(Option<Binding>, Option<Binding>), String> {
     let Operand::OwnedString(root) = expression.value.as_operand()?.clone() else {
         return Err(freeze("argument-expression/deferred-root"));
     };
-    let materialized = expression.purpose_acquisition.as_ref().and_then(|pair| pair[1].1.dst_value());
+    let materialized = expression
+        .purpose_acquisition
+        .as_ref()
+        .and_then(|pair| pair[1].1.dst_value());
     if materialized != Some(root) && expression.body.acquired.last() != Some(&(0, root)) {
         return Err(freeze("argument-expression/deferred-acquisition-order"));
     }
     let mut writer = RawRootGraphWriterV1;
     let next = writer.reserve_block(builder)?;
     let clean = writer.reserve_block(builder)?;
-    let continuation = (clean, MirInstruction::Jump { target: next, edge_args: None });
-    writer.append_terminated(builder, clean, continuation.1.clone(), &mut expression.body.bindings)?;
-    let terminal = writer.emit_current(builder, MirInstruction::Jump { target: clean, edge_args: None })?;
+    let continuation = (
+        clean,
+        MirInstruction::Jump {
+            target: next,
+            edge_args: None,
+        },
+    );
+    writer.append_terminated(
+        builder,
+        clean,
+        continuation.1.clone(),
+        &mut expression.body.bindings,
+    )?;
+    let terminal = writer.emit_current(
+        builder,
+        MirInstruction::Jump {
+            target: clean,
+            edge_args: None,
+        },
+    )?;
     expression.body.bindings.push(terminal.clone());
     builder.start_new_block(next)?;
     Ok((Some(terminal), Some(continuation)))
@@ -264,59 +316,110 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_deferred
 /// original operand table and node stack remain untouched for both final scans.
 /// Shared purpose acquisition; preserve the original evaluation operands.
 pub(in crate::mir::builder::ordinary_new_admission::selected) fn materialize_text_root(
-    builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1, required: bool,
+    builder: &mut MirBuilder,
+    expression: &mut EmittedExpressionValueV1,
+    required: bool,
     source: &CheckedExpressionEvaluationV1,
 ) -> Result<(), String> {
-    if !required { return Ok(()); }
+    if !required {
+        return Ok(());
+    }
     let operand = expression.value.as_operand()?;
     let snapshot = matches!(operand, Operand::DynamicCarrier(_))
-        && source.text_snapshot_root_v1().is_some_and(|node|
-            expression.body.values.get(node).and_then(Option::as_ref) == Some(&expression.value));
+        && source.text_snapshot_root_v1().is_some_and(|node| {
+            expression.body.values.get(node).and_then(Option::as_ref) == Some(&expression.value)
+        });
     if !(operand.is_text() || snapshot) || expression.purpose_acquisition.is_some() {
         return Err(freeze("rebind-expression/materialize-domain"));
     }
-    let pending = FaultCleanupPlanV1::pending(&expression.body.acquired, &expression.body.dynamic_carriers,
-        &expression.body.temporary_order, &expression.body.homes)?;
-    let (value, _, pair) = emit_scalar_operation_with_pending_v1(builder, &mut RawRootGraphWriterV1,
-        InvokeOperation::String(Operation::Materialize { value: expression.value.as_operand()?.clone() }), expression.body.required_fault_frame_v1()?,
-        &pending, &mut expression.body.bindings)?;
+    let pending = FaultCleanupPlanV1::pending(
+        &expression.body.acquired,
+        &expression.body.dynamic_carriers,
+        &expression.body.temporary_order,
+        &expression.body.homes,
+    )?;
+    let (value, _, pair) = emit_scalar_operation_with_pending_v1(
+        builder,
+        &mut RawRootGraphWriterV1,
+        InvokeOperation::String(Operation::Materialize {
+            value: expression.value.as_operand()?.clone(),
+        }),
+        expression.body.required_fault_frame_v1()?,
+        &pending,
+        &mut expression.body.bindings,
+    )?;
     expression.purpose_acquisition = Some(pair);
     expression.value = Operand::OwnedString(value).into();
     Ok(())
 }
 
-pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_rebind_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1,
+pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_rebind_continuation(
+    builder: &mut MirBuilder,
+    expression: &mut EmittedExpressionValueV1,
     frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1,
     displaced: Option<InvokeOperation>,
 ) -> Result<(Option<Binding>, Option<Binding>), String> {
     if frame.declared_read_v1().is_some() {
-        if !matches!(expression.value, EvaluatedExpressionValueV1::DeclaredRead(_)) { return Err(freeze("expression/scalar-continuation-result")); }
+        if !matches!(
+            expression.value,
+            EvaluatedExpressionValueV1::DeclaredRead(_)
+        ) {
+            return Err(freeze("expression/scalar-continuation-result"));
+        }
         return finish_body_continuation(builder, &mut expression.body, None, None, false);
     }
     if !frame.is_text_residence() {
-        return finish_continuation(builder, expression, None, None, frame.is_dynamic_loop_carrier_v1());
+        return finish_continuation(
+            builder,
+            expression,
+            None,
+            None,
+            frame.is_dynamic_loop_carrier_v1(),
+        );
     }
-    let Operand::OwnedString(root) = expression.value.as_operand()?.clone() else { return Err(freeze("expression/residence-root")); };
+    let Operand::OwnedString(root) = expression.value.as_operand()?.clone() else {
+        return Err(freeze("expression/residence-root"));
+    };
     if expression.purpose_acquisition.is_some() != frame.materializes_root()
-        || !frame.materializes_root() && expression.body.acquired.last() != Some(&(0, root)) { return Err(freeze("expression/residence-acquisition-order")); }
+        || !frame.materializes_root() && expression.body.acquired.last() != Some(&(0, root))
+    {
+        return Err(freeze("expression/residence-acquisition-order"));
+    }
     finish_continuation(builder, expression, Some(root), displaced, false)
 }
 
-fn finish_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1,
-    residence: Option<ValueId>, displaced: Option<InvokeOperation>, dynamic_loop_carrier: bool)
-    -> Result<(Option<Binding>, Option<Binding>), String> {
-    let scalar_result = matches!(expression.value,
-        EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(_)) | EvaluatedExpressionValueV1::Bool(_))
-        || dynamic_loop_carrier && matches!(expression.value,
-            EvaluatedExpressionValueV1::Operand(Operand::Dynamic(_) | Operand::DynamicCarrier(_)));
+fn finish_continuation(
+    builder: &mut MirBuilder,
+    expression: &mut EmittedExpressionValueV1,
+    residence: Option<ValueId>,
+    displaced: Option<InvokeOperation>,
+    dynamic_loop_carrier: bool,
+) -> Result<(Option<Binding>, Option<Binding>), String> {
+    let scalar_result = matches!(
+        expression.value,
+        EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(_))
+            | EvaluatedExpressionValueV1::Bool(_)
+    ) || dynamic_loop_carrier
+        && matches!(
+            expression.value,
+            EvaluatedExpressionValueV1::Operand(Operand::Dynamic(_) | Operand::DynamicCarrier(_))
+        );
     if residence.is_none() && !scalar_result {
         return Err(freeze("expression/scalar-continuation-result"));
     }
-    finish_body_continuation(builder, &mut expression.body, residence, displaced, expression.purpose_acquisition.is_some())
+    finish_body_continuation(
+        builder,
+        &mut expression.body,
+        residence,
+        displaced,
+        expression.purpose_acquisition.is_some(),
+    )
 }
 
-pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_value_continuation_v1(builder: &mut MirBuilder, body: &mut EmittedExpressionBodyV1)
-    -> Result<(Option<Binding>, Option<Binding>), String> {
+pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_value_continuation_v1(
+    builder: &mut MirBuilder,
+    body: &mut EmittedExpressionBodyV1,
+) -> Result<(Option<Binding>, Option<Binding>), String> {
     finish_body_continuation(builder, body, None, None, false)
 }
 
@@ -325,24 +428,41 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_bool_con
     body: &mut EmittedExpressionBodyV1,
     normal: Vec<InvokeOperation>,
 ) -> Result<(Option<Binding>, Option<Binding>), String> {
-    let fault = normal.iter().cloned().chain(body.homes.iter().cloned()).collect();
+    let fault = normal
+        .iter()
+        .cloned()
+        .chain(body.homes.iter().cloned())
+        .collect();
     finish_body_cleanup(builder, body, normal, fault, None)
 }
 
 /// Transfer the exact Normal Dynamic carrier result into its Local receipt.
 /// The carrier is intentionally left live here; its Local scope owner must
 /// later discharge it with DynamicCarrierEnd on every exit path.
-fn finish_body_continuation(builder: &mut MirBuilder, body: &mut EmittedExpressionBodyV1,
-    residence: Option<ValueId>, displaced: Option<InvokeOperation>, materialized: bool,
+fn finish_body_continuation(
+    builder: &mut MirBuilder,
+    body: &mut EmittedExpressionBodyV1,
+    residence: Option<ValueId>,
+    displaced: Option<InvokeOperation>,
+    materialized: bool,
 ) -> Result<(Option<Binding>, Option<Binding>), String> {
     if let Some(value) = residence {
-        let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
+        let block = builder
+            .function_state
+            .current_block
+            .ok_or_else(|| freeze("no-block"))?;
         let replaces = match displaced.as_ref() {
-            Some(InvokeOperation::String(Operation::End { value } | Operation::EndIfOwned { value })) => Some(*value),
+            Some(InvokeOperation::String(
+                Operation::End { value } | Operation::EndIfOwned { value },
+            )) => Some(*value),
             Some(_) => return Err(freeze("expression/residence-replacement-kind")),
             None => None,
         };
-        let install = MirInstruction::StringResidenceInstall { value, replaces, returning: false };
+        let install = MirInstruction::StringResidenceInstall {
+            value,
+            replaces,
+            returning: false,
+        };
         builder.emit_instruction(install.clone())?;
         body.bindings.push((block, install));
         if !materialized {
@@ -351,10 +471,22 @@ fn finish_body_continuation(builder: &mut MirBuilder, body: &mut EmittedExpressi
             }
         }
     }
-    let normal = FaultCleanupPlanV1::owed_operations(&body.acquired, &body.dynamic_carriers, &body.temporary_order, &[])?;
+    let normal = FaultCleanupPlanV1::owed_operations(
+        &body.acquired,
+        &body.dynamic_carriers,
+        &body.temporary_order,
+        &[],
+    )?;
     let mut homes = body.homes.clone();
-    if let Some(value) = residence { homes.insert(0, InvokeOperation::String(Operation::End { value })); }
-    let fault = FaultCleanupPlanV1::owed_operations(&body.acquired, &body.dynamic_carriers, &body.temporary_order, &homes)?;
+    if let Some(value) = residence {
+        homes.insert(0, InvokeOperation::String(Operation::End { value }));
+    }
+    let fault = FaultCleanupPlanV1::owed_operations(
+        &body.acquired,
+        &body.dynamic_carriers,
+        &body.temporary_order,
+        &homes,
+    )?;
     finish_body_cleanup(builder, body, normal, fault, displaced)
 }
 
@@ -365,76 +497,200 @@ fn finish_body_cleanup(
     fault: Vec<InvokeOperation>,
     displaced: Option<InvokeOperation>,
 ) -> Result<(Option<Binding>, Option<Binding>), String> {
+    if (body.fault_frame.is_none() || body.root_cleanup.is_some())
+        && (!normal.is_empty() || displaced.is_some())
+    {
+        return Err(freeze("expression/fault-frame-required"));
+    }
     let Some(fault_frame) = body.fault_frame else {
-        if !normal.is_empty() || displaced.is_some() {
-            return Err(freeze("expression/fault-frame-required"));
-        }
         return Ok((None, None));
     };
     if let Some((continuation, _)) = &body.root_cleanup {
-        if !normal.is_empty() || displaced.is_some() || fault != body.homes {
+        if fault != body.homes {
             return Err(freeze("expression/fault-frame-required"));
         }
-        let terminal = RawRootGraphWriterV1.emit_current(builder,
-            MirInstruction::Jump { target: continuation.0, edge_args: None })?;
+        let terminal = RawRootGraphWriterV1.emit_current(
+            builder,
+            MirInstruction::Jump {
+                target: continuation.0,
+                edge_args: None,
+            },
+        )?;
         body.bindings.push(terminal.clone());
         return Ok((Some(terminal), Some(continuation.clone())));
     }
+    emit_body_continuation(
+        builder,
+        body,
+        fault_frame,
+        |_| FaultCleanupPlanV1::body(normal, fault, displaced),
+        None,
+    )
+}
+
+impl EmittedExpressionValueV1 {
+    pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_statement(
+        &mut self,
+        builder: &mut MirBuilder,
+        frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1,
+    ) -> Result<(Option<Binding>, Option<Binding>), String> {
+        if let Some(fault_frame) = self.body.fault_frame {
+            emit_body_continuation(
+                builder,
+                &mut self.body,
+                fault_frame,
+                |body| {
+                    FaultCleanupPlanV1::temporaries_then_homes(
+                        &body.acquired,
+                        &body.dynamic_carriers,
+                        &body.temporary_order,
+                        &body.homes,
+                        !frame.is_discard(),
+                    )
+                },
+                Some((frame, &self.value)),
+            )
+        } else {
+            if !frame.is_discard() {
+                return Err(freeze("expression/fault-frame-required"));
+            }
+            let continuation = finish_value_continuation_v1(builder, &mut self.body)?;
+            deduplicate_body_bindings(&mut self.body);
+            Ok(continuation)
+        }
+    }
+}
+
+fn emit_body_continuation(
+    builder: &mut MirBuilder,
+    body: &mut EmittedExpressionBodyV1,
+    fault_frame: ValueId,
+    make_plan: impl FnOnce(&EmittedExpressionBodyV1) -> Result<FaultCleanupPlanV1, String>,
+    statement: Option<(
+        &crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1,
+        &EvaluatedExpressionValueV1,
+    )>,
+) -> Result<(Option<Binding>, Option<Binding>), String> {
     let mut writer = RawRootGraphWriterV1;
     let next = writer.reserve_block(builder)?;
     let clean = writer.reserve_block(builder)?;
-    let continuation = (clean, MirInstruction::Jump { target: next, edge_args: None });
+    let continuation = (
+        clean,
+        MirInstruction::Jump {
+            target: next,
+            edge_args: None,
+        },
+    );
     writer.append_terminated(builder, clean, continuation.1.clone(), &mut body.bindings)?;
-    let plan = FaultCleanupPlanV1::body(normal, fault, displaced)?;
-    let clean_entry = if plan.normal().is_empty() { clean } else {
-        root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, fault_frame, clean,
-            &plan, &mut body.bindings)?.clean
+    let plan = make_plan(body)?;
+    let instruction = if statement.is_some() || !plan.normal().is_empty() {
+        let graph = root_graph::emit_cleanup_suffixes_with_writer(
+            &mut writer,
+            builder,
+            fault_frame,
+            clean,
+            &plan,
+            &mut body.bindings,
+        )?;
+        match statement {
+            Some((frame, value)) if !frame.is_discard() => MirInstruction::Invoke {
+                operation: InvokeOperation::String(Operation::Print {
+                    value: value.as_operand()?.clone(),
+                }),
+                fault_frame,
+                normal_landing: graph.clean,
+                fault_landing: graph.acquisition_fault,
+            },
+            _ => MirInstruction::Jump {
+                target: graph.clean,
+                edge_args: None,
+            },
+        }
+    } else {
+        MirInstruction::Jump {
+            target: clean,
+            edge_args: None,
+        }
     };
-    let terminal = writer.emit_current(builder, MirInstruction::Jump { target: clean_entry, edge_args: None })?;
+    let terminal = writer.emit_current(builder, instruction)?;
     body.bindings.push(terminal.clone());
     builder.start_new_block(next)?;
-    let mut unique = Vec::new();
-    for binding in std::mem::take(&mut body.bindings) { if !unique.contains(&binding) { unique.push(binding); } }
-    body.bindings = unique;
+    deduplicate_body_bindings(body);
     Ok((Some(terminal), Some(continuation)))
+}
+
+fn deduplicate_body_bindings(body: &mut EmittedExpressionBodyV1) {
+    let mut unique = Vec::new();
+    for binding in std::mem::take(&mut body.bindings) {
+        if !unique.contains(&binding) {
+            unique.push(binding);
+        }
+    }
+    body.bindings = unique;
 }
 
 // Inline intervals begin before committed read copies. Only the existing
 // function owner can later insert the shared frame at the entry/Phi prefix.
 pub(super) fn begin_inline_scope_v1(
-    builder: &MirBuilder, state: &CallableSemanticLoweringState,
+    builder: &MirBuilder,
+    state: &CallableSemanticLoweringState,
 ) -> Result<(BasicBlockId, usize, bool), String> {
-    let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
-    let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
-    let offset = function.blocks.get(&block).ok_or_else(|| freeze("no-block"))?.instructions.len();
-    let had_entry_frame = block == function.entry_block
-        && state.observed_fault_frame_binding_v2(function)?.is_some();
+    let block = builder
+        .function_state
+        .current_block
+        .ok_or_else(|| freeze("no-block"))?;
+    let function = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .ok_or_else(|| freeze("no-function"))?;
+    let offset = function
+        .blocks
+        .get(&block)
+        .ok_or_else(|| freeze("no-block"))?
+        .instructions
+        .len();
+    let had_entry_frame =
+        block == function.entry_block && state.observed_fault_frame_binding_v2(function)?.is_some();
     Ok((block, offset, had_entry_frame))
 }
 
 pub(super) fn finish_inline_scope_v1(
-    builder: &MirBuilder, start: Option<(BasicBlockId, usize, bool)>,
+    builder: &MirBuilder,
+    start: Option<(BasicBlockId, usize, bool)>,
 ) -> Result<Option<(BasicBlockId, usize, usize, bool)>, String> {
-    start.map(|(block, start, had_entry_frame)| {
-        if builder.function_state.current_block != Some(block) {
-            return Err(freeze("expression/nonfault-control"));
-        }
-        let end = builder.function_state.current_function.as_ref()
-            .and_then(|function| function.blocks.get(&block))
-            .ok_or_else(|| freeze("no-block"))?.instructions.len();
-        Ok((block, start, end, had_entry_frame))
-    }).transpose()
+    start
+        .map(|(block, start, had_entry_frame)| {
+            if builder.function_state.current_block != Some(block) {
+                return Err(freeze("expression/nonfault-control"));
+            }
+            let end = builder
+                .function_state
+                .current_function
+                .as_ref()
+                .and_then(|function| function.blocks.get(&block))
+                .ok_or_else(|| freeze("no-block"))?
+                .instructions
+                .len();
+            Ok((block, start, end, had_entry_frame))
+        })
+        .transpose()
 }
 
 impl EmittedExpressionBodyV1 {
     pub(in crate::mir::builder::ordinary_new_admission::selected) fn complete_inline_range_v1(
-        &mut self, builder: &MirBuilder,
+        &mut self,
+        builder: &MirBuilder,
     ) -> Result<(), String> {
-        self.inline_range = finish_inline_scope_v1(builder,
-            self.inline_range.map(|(block, start, _, had_frame)| (block, start, had_frame)))?;
+        self.inline_range = finish_inline_scope_v1(
+            builder,
+            self.inline_range
+                .map(|(block, start, _, had_frame)| (block, start, had_frame)),
+        )?;
         Ok(())
     }
     pub(in crate::mir::builder) fn required_fault_frame_v1(&self) -> Result<ValueId, String> {
-        self.fault_frame.ok_or_else(|| freeze("expression/fault-frame-required"))
+        self.fault_frame
+            .ok_or_else(|| freeze("expression/fault-frame-required"))
     }
 }

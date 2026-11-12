@@ -488,9 +488,12 @@ main へ早送りした。
 - B2: Print/discardはNormalが空でも従来のgraphを作り、Value continuationは空なら作らない。block IDと辺も保存する。
 - B3: Printのoperand変換はgraph生成後。Printのacquisition Faultとbodyのdisplaced責任は、元のplan constructorで別々に保持する。
 - B4: no-frame/root_cleanup shortcutの検査・拒否・早期returnは変えず、従来なかったdedupを追加しない。frameless discardだけは元のdedupを保持する。
-- B5: sinkの閉じた型は継続/破棄/表示の最終JumpかInvokeだけを選ぶ。各腕にcleanup算法を残さず、式本体や旧packetを所有し直さない。
+- B5: 既存のchecked statement frameと評価値を借り、継続/破棄/表示の最終JumpかInvokeだけを選ぶ。frameの区分を新enumへ保持し直さず、分岐にcleanup算法や旧packetを残さない。
 - B6: Return rootの保持/所有移転/ingress、Rebind旧値EndとNormal/Fault順序を保つ。受理・旧scalar・Bool短絡・公開MIR/ABI・暗黙context・root_graphは変えない。
 - B7: 引数/New引数/field RHS/条件が使うfinish_scalar/dynamic/value/deferred/boolの入口と責任は保持する。Local専用転送だけを退役symbolへ追加する。
 - B8: 既存の4用途の変異・Fault/所有権/独立検証を再利用し、新しい共通部分とconsumerを含む整形後production純減で閉じる。純減しなければ基盤追加を止めて依存を報告する。
 
 read-only worker経路: 各selected emitter→expression_value/cleanup.rsのfinish_body_continuation/finish_body_cleanup→既存root_graph。Printだけが独自graph配線を持ち、他3用途は既にbody cleanupへ収束している。Local専用転送以外は引数/field/条件のcallerがあり、一括退役しない。元の4用途のrecord変異helperとcleanup/Fault試験を再利用する。実行の順序/回数は既存C observerをscratch source probeへリンクし、物理fixtureの証拠とsource接続の証拠を区別して記録する。
+
+実装時の整理: checked frameと同じ区分を保持する新sink enumは削除し、元の契約を借りる。no-frame/root_cleanupでNormalと旧値Endを持てない同じ検査も共通化する。Returnのbody一時変数は直接引数へ渡し、root cleanup/ingressは保持する。publicationのCopy/state境界は統合しない。
+整形の限定判断（ユーザー了承）: expression_value.rsは既存755行だが全体rustfmtで1,381行となる。この回は退役した再exportのuse項目だけを整形し、その他のbyte列と既存整形負債が変わらないことを比較する。全fileのfmtをPASS扱いせず、他の編集fileは全体rustfmt、物理800行上限と全意味/安全性検証は維持する。

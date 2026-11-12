@@ -17,8 +17,10 @@ type Binding = (BasicBlockId, MirInstruction);
 #[path = "expression_value/cleanup.rs"]
 mod cleanup;
 pub(super) use cleanup::{
-    bool_condition_temporary_operations_v1, finish_dynamic_initializer_continuation,
-    finish_scalar_continuation, finish_residence_continuation, finish_residence_with_displaced_continuation, finish_deferred_argument_continuation, materialize_text_root, finish_rebind_continuation, finish_value_continuation_v1, finish_bool_condition_continuation_v1,
+    bool_condition_temporary_operations_v1, finish_bool_condition_continuation_v1,
+    finish_deferred_argument_continuation, finish_dynamic_initializer_continuation,
+    finish_rebind_continuation, finish_residence_with_displaced_continuation,
+    finish_scalar_continuation, finish_value_continuation_v1, materialize_text_root,
 };
 
 #[path = "expression_value/invoke.rs"]

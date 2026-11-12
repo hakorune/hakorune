@@ -3,3 +3,4 @@ EmittedPrintExpressionProjectionV1
 ReturnExpressionEmissionV1
 EmittedInitializerExpressionProjectionV1
 EmittedBindingRebindProjectionV1
+finish_residence_continuation

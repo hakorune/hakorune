@@ -2,7 +2,7 @@
 # Raw operators include all domains; scan and opaque metrics are conservative candidates.
 # The census is a syntax ratchet, not semantic proof of sole ownership.
 evaluation_constructors	2
-finish_continuations	10
+finish_continuations	9
 emitted_projection_types	4
 dominator_calls	43
 predecessor_calls	8

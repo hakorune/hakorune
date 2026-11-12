@@ -411,7 +411,11 @@ pub(in crate::mir::builder) fn emit(
     } else if frame.is_dynamic_alias() {
         expression_value::finish_value_continuation_v1(builder, &mut expression.body)?
     } else if frame.is_text_residence() {
-        expression_value::finish_residence_continuation(builder, &mut expression)?
+        expression_value::finish_residence_with_displaced_continuation(
+            builder,
+            &mut expression,
+            None,
+        )?
     } else {
         expression_value::finish_scalar_continuation(builder, &mut expression)?
     };

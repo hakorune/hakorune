@@ -181,11 +181,10 @@ pub(in crate::mir::builder) fn emit(
         };
         root.bindings.push(ingress);
     }
-    let body = expression.body;
     ledger.retain_return_expression_v1(
         source,
         value,
-        body,
+        expression.body,
         terminal,
         continuation,
         expression.purpose_acquisition,
