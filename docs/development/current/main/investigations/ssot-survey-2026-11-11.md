@@ -424,3 +424,13 @@ Local initializerの完成記録を既存の `ExpressionEmissionV1<InitializerEx
 worker経路: selected/initializer_expression.rs の prepare→PendingEvaluatedInitializerV1::publish→initializer_expression_projection.rs→local_binding_group.rs→local_entry.rs/finishing/finalized consumer。Local専用viewは既存new_with_dynamicと同じ借用情報を用い、Print/Returnの共通expression()は変更しない。
 
 追加証拠は既存initializer試験fileの1 testへ集約する。共通の変異helperを再利用し、LocalのCall順序・同値別source・End±・finishing消失・Copy欠落・実在する別Localへの整合したCopy宛先変更・記録不在を検査する。install欠落/重複は既存のpublication試験を維持して再利用する。基点で未対応の未注釈instance-call Localは受理を広げず、既にEXEまで動く型付きstatic-call fixtureで記録契約を検証する。
+
+### 2 段目 a: Local の initializer の記録（Codex 実装・Opus 監査、`c17439c632`、2026-11-12）
+
+main へ早送りした。
+- `EmittedInitializerExpressionProjectionV1` を退役させ、`ExpressionEmissionV1<InitializerExpressionContractV1>` に置き換えた。同じ式本体の 9 つの欄の宣言は 18 → 9。
+- Local に固有の物（元の frame、initializer と local と binding、Copy、install、Dynamic の結果、loop の Text の carrier、snapshot の Materialize）は、契約の側に残した。共通の本体へは混ぜていない。
+- 行数: production は整形後 −8（純減の条件は満たした。Pro の見込みは 40〜100 行の減り）。test は +139（Local の変異の拒否の証拠）。整形していなかった file を整形したので、git の上の物理行は +355。
+- 変異（Call の ordinal、別の source の同じ値、End の欠落と重複、finishing での消失、Copy の欠落と不一致など）は、前と後で同じに拒否される（13 件）。
+- Opus の監査の入力 118 本で、MIR と EXE の結果が前の main と全部同じ。見張り（基点 `ed243bb025`）も PASS。退役した名前の一覧は 3 つになった。
+- 1 段目と 2a を合わせた production は −30。段ごとの減りは Pro の見込みより小さい。今の段は、行数より「同じ式本体を持つ記録の型が 1 つになる事」の方が大きな効果。
