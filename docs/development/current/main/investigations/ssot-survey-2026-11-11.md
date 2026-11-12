@@ -497,3 +497,16 @@ read-only worker経路: 各selected emitter→expression_value/cleanup.rsのfini
 
 実装時の整理: checked frameと同じ区分を保持する新sink enumは削除し、元の契約を借りる。no-frame/root_cleanupでNormalと旧値Endを持てない同じ検査も共通化する。Returnのbody一時変数は直接引数へ渡し、root cleanup/ingressは保持する。publicationのCopy/state境界は統合しない。
 整形の限定判断（ユーザー了承）: expression_value.rsは既存755行だが全体rustfmtで1,381行となる。この回は退役した再exportのuse項目だけを整形し、その他のbyte列と既存整形負債が変わらないことを比較する。全fileのfmtをPASS扱いせず、他の編集fileは全体rustfmt、物理800行上限と全意味/安全性検証は維持する。
+
+### 3 段目: 移った使う所の builder の終わりの処理（Codex 実装・Opus 監査、`2561922ce7`、2026-11-12）
+
+main へ早送りした。
+- Print だけが持っていた、cleanup の graph への自前の配線を、Return・Local・代入し直しが使う共通の終わりの writer（`expression_value/cleanup.rs` の `emit_body_continuation`）へつないだ。対象の graph の組み立てを持つ所は 2 → 1。
+- Local 専用の `finish_residence_continuation`、重複した dedup、Return の転送の一時変数を消した。持ち主の数の見張りの `finish_continuations` は 10 → 9。
+- Return の root と ingress の境界、代入し直しの旧値の後始末は保った。新しい enum は残していない（試作の sink の型は、元の checked の Print の frame と区分が重なるので捨てた）。
+- 行数: production は整形後 −3、test は 0（前の段の変異の helper を使い回し、49 件の結果が前後で一致）。
+- 整形の例外: `builder/ordinary_new_admission/selected/expression_value.rs` は今 757 行だが、全体を rustfmt すると 1,380 行になる。ユーザーが実装者に「変更した所だけ整形して進める」と了承したので、この file は変えた `use` だけを整形した。**詰めて書いた形で 800 行の上限の内側に見えているだけなので、責任で分ける仕事が残る。**
+- Opus の監査の入力 118 本で、MIR と EXE の結果が前の main と全部同じ。見張り（基点 `71f54d7d74`）も PASS。
+- 1・2a・2b・3 の段の production は合わせて −42。
+- 次の 4a（普通の Call の引数）への注意（実装者の調べ）: `root_call_entry/lexical_argument_projection.rs:177` の `EmittedArgumentExpressionProjectionV1` は、9 つの欄だけでなく式本体の全部を持つ。`argument_expression.rs:131–145` の OwnedText と DynamicCarrier の遅延は、親の Call まで生きる。共通の `from_body` へそのまま渡して、acquired・dynamic_carriers・temporary_order・homes・fault の frame を捨ててはいけない。親の Call・ordinal・保持の期限・入口での移転は契約の側に残す。
+- 実装者はここで交代する（ユーザー決定 2026-11-12）: 4a からは Sonnet 5.5 が実装し、Opus が監査する。
