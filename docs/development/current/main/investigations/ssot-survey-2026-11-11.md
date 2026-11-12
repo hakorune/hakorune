@@ -460,3 +460,13 @@ read-only worker経路: home_binding_rebind_expression.rsの元評価/target→n
 追加証拠の配置: 再代入の元のinline試験と不足していた変異を `binding_rebind_projection_tests.rs` の同じtest familyへまとめる。既存試験の移動はproduction削減に数えず、同じsource owner・同じ値を持つ異なるtargetのreceipt、旧Endと一時Endの順序を区別して検査する。既存の共通view helperを再利用し、複数viewから同じ記録へ触るための補助もtest内だけに置く。
 
 順序変異は命令の記録順でなく、最終install blockからJump/InvokeのNormal辺だけをたどり、旧End→別値の一時Endを確認して選ぶ。installを旧EndのNormal landingへ移す変異も加え、CFG辺と命令数を保った置換順序の破壊を拒否する。最初の全体確認後のworker指摘を反映した試験だけの修正であり、productionのcleanupは変えない。
+
+### 2 段目 b: 代入し直しの記録（Codex 実装・Opus 監査、`c6079948a5`、2026-11-12）
+
+main へ早送りした。
+- `EmittedBindingRebindProjectionV1` を退役させ、`ExpressionEmissionV1<BindingRebindExpressionContractV1>` に置き換えた。同じ式本体の 9 つの欄の宣言は 18 → 9。
+- 代入し直しに固有の物（元の評価、書き換え先、旧値と新値、Materialize と設置、loop の unwind、assignment receipt）は契約の側に残した。旧値の cleanup の順序（右辺と Materialize → 新しい residence の install → 旧値を含む cleanup → receipt）は変えていない。共通の record の root の Fault は、代入し直しには当てない（Return の root の Fault と、代入し直しの prior Home の unwind を混ぜない）。
+- 行数: production は整形後 −9（inline の test を test に数える方式。Opus の方式の −92 は、inline の test 83 行を test の file へ移した分を含む）。test は +332（代入し直しの変異の拒否と、1 つの Normal の道での置き換えの順序の証拠）。
+- Opus の監査の入力 118 本で、MIR と EXE の結果が前の main と全部同じ。見張り（基点 `e97e797700`）も PASS。退役した名前の一覧は 4 つになった。
+- ここまでの 3 つの段（1、2a、2b）で、同じ式本体を持つ記録の型は Print・Return・Local・代入し直しの 4 つ → 共通の 1 つ。production は合わせて −39、test は合わせて +755。
+- 次の段 3（移った使う所の builder の終わりの処理）の候補（実装者の調べ）: `expression_value/cleanup.rs:335–399` の `finish_body_continuation`・`finish_body_cleanup` へ呼ぶ側を揃える。`initializer_expression.rs:279–299` と `binding_rebind_expression.rs:172–186` の publication の後半、`print_expression.rs:102–108` と `cleanup.rs:396–398` の重複を除く処理。Return の root の cleanup の境界（`return_expression.rs:161–190`）は保つ。
