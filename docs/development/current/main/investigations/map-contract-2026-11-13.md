@@ -410,3 +410,11 @@ B4の関門（home_terminal_scalar_evaluation.rs:233–238）は、準備済みe
 D（消える）12–20行: Return法則名一覧、比較の写し、B4の不要な拒否条件。A（共通queryと説明）14–20行。U（使う側productionの結果型配線）8–16行。正味+2–24行程度、production3ファイルを想定し、同一rustfmtの増減とGit物理行差を別に報告する。testと文書は別に数える。完成済み評価だけを接続し、新しい持ち主・cleanup・MIR/ABIは作らない。
 
 段Bの実装途中の境界: loanの共通queryとReturn/比較の結果型配線を接続し、元sourceのreceiver/needle交換を拒否する既存moduleのtestを追加した（既存の独立型・生存行列ではsource順序を証明できないため）。B4を一般化する試作では一時receiverのlengthも拒否から成功になったため、承認範囲外のその部分は保留して元の関門を保持する。法則名でlengthだけを除外する腕は作らない。
+
+### 段 B の着地と残る境界
+
+- `scalar_read_result_class_v1`を1か所に置き、Returnと比較が借りる。Return根の法則名の一覧は1か所から0か所。Coreの結果を返却先から逆算せず、既存のFault枠・source対応・独立検証は保持した。
+- B4を保持した範囲の見積もりを修正: D=6行（旧法則import/判定の写し）、A=17行（共通query）、U=正味+3行（使う側の置換・結果型配線等）、整形後productionは+14行。testは独立検証では区別できない元sourceのoperand交換の証拠1件で+58行。
+- 新しいprobe112本は既存成功39本が同一、拒否維持34本、検索法則のReturn接続により成功へ39本（calleeや枝を含むprogramと既存find別名も含む）。負例2本の診断は宣言Bool/Stringと実際のI64の不一致へ移り、拒否を維持する。既存1866 dump・927入力・229入力・apps100・384組・監査292入力は差0、固定8/8、全libの既知失敗224名を維持、Mapの実行18ケースも成功。
+- B4の関門の一般化は未着地: 一時receiverのlengthも成功へ変わるため承認範囲外となり、元の関門を保持した。一時receiver/needle/両方を直接Returnする3形は拒否を維持する。法則名や引数数でこの差を隠さない。共通cleanupに閉じる受理範囲を追加承認した時に再開する。
+- static Callの直接Returnは未接続。0/1引数ともmainはroot-completion、通常関数はroot-exit-source-missing。calleeにFault可能な式を置く場合も同じ拒否で、Fault経路の実行成功とは数えない。普通の関数の明示Returnへ、選択CallとNormal結果・出口のsource relationを届ける別作業が要る。
