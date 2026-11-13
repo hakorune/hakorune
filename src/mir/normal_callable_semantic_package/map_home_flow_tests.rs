@@ -947,3 +947,18 @@ fn set_outside_the_literal_key_i64_rule_is_refused_at_the_statement() {
         );
     }
 }
+
+#[test]
+fn checked_get_on_a_named_local_map_is_a_shared_expression_operation() {
+    for body in [
+        "local m = new MapBox() m.set(\"k\", 5) local v = m.get(\"k\") return v",
+        "local m = new MapBox() m.set(\"a\", 2) m.set(\"b\", 3) return m.get(\"a\") + m.get(\"b\")",
+        "local m = %{\"a\" => 1} print(m.get(\"a\")) return 30",
+    ] {
+        let package = issue(&source(body)).unwrap();
+        let mut context = CompilationContext::new();
+        package
+            .prepare_install(&mut context)
+            .unwrap_or_else(|(_, error)| panic!("{body}: {error:?}"));
+    }
+}
