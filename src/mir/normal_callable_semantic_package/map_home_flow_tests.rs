@@ -1000,3 +1000,20 @@ fn checked_get_as_a_comparison_input_installs_with_the_same_map_home() {
         assert!(context.callable_declaration_catalog_vacant(), "{body}");
     }
 }
+
+#[test]
+fn an_uncovered_method_on_a_named_local_map_is_refused_as_that_call() {
+    // `size` has no shared Core operation yet. The refusal must name the
+    // uncovered Map call, not a missing `new` claim for an ordinary object.
+    let refused = match issue(&source("local m = new MapBox() m.set(\"k\", 3) return m.size()")) {
+        Err(error) => format!("{error:?}"),
+        Ok(package) => {
+            let mut context = CompilationContext::new();
+            match package.prepare_install(&mut context) {
+                Err((_, error)) => format!("{error:?}"),
+                Ok(_) => panic!("size on a named-local Map is not covered"),
+            }
+        }
+    };
+    assert!(refused.contains("root-instance-call-map-local-method-uncovered"), "{refused}");
+}

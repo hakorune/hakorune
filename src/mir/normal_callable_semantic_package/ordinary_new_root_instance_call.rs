@@ -212,6 +212,15 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 (claim.class().to_owned(), claim.object())
             } else {
+                // A sealed Map construction is a Map Home, not an ordinary object:
+                // a method call on it that no shared Core operation covers is the
+                // uncovered call itself, not a missing `new` claim.
+                if input.body_shape().is_some_and(|shape| matches!(
+                    shape.expression_shape(initializer_site),
+                    Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::MapLiteral { .. })
+                )) {
+                    return Err(freeze("root-instance-call-map-local-method-uncovered"));
+                }
                 if !super::coseal_helpers::is_direct_local_initializer(initializer_site.node().segments()) {
                     return Err(freeze("root-instance-call-new-missing"));
                 }
