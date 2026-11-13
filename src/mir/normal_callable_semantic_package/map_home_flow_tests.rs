@@ -885,12 +885,12 @@ fn argument_free_new_map_box_is_the_same_empty_map_home_as_a_literal() {
 #[test]
 fn new_map_box_home_refusal_names_the_uncovered_statement() {
     use crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1;
-    // `set` on a named local Map is not covered yet: the refusal must carry
+    // `delete` on a named local Map is not covered yet: the refusal must carry
     // the statement that stopped the Home walk, not only the owner.
-    let package = issue(&source("local m = new MapBox() m.set(\"k\", 5) return 30")).unwrap();
+    let package = issue(&source("local m = new MapBox() m.delete(\"k\") return 30")).unwrap();
     let mut context = CompilationContext::new();
     let Err((_, error)) = package.prepare_install(&mut context) else {
-        panic!("set is not covered");
+        panic!("delete is not covered");
     };
     assert!(matches!(
         error,
@@ -901,4 +901,49 @@ fn new_map_box_home_refusal_names_the_uncovered_statement() {
             }
         )
     ), "{error:?}");
+}
+
+#[test]
+fn literal_key_i64_set_on_a_named_local_map_is_one_entry_of_the_same_flow_row() {
+    for body in [
+        "local m = new MapBox() m.set(\"k\", 5) return 30",
+        "local m = new MapBox() m.set(\"k\", 5) m.set(\"k\", 7) return 30",
+        "local m = %{\"a\" => 1} m.set(\"b\", 2) return 30",
+        "local n = 4 local m = new MapBox() m.set(\"k\", n) return 30",
+    ] {
+        let package = issue(&source(body)).unwrap();
+        let mut context = CompilationContext::new();
+        package
+            .prepare_install(&mut context)
+            .unwrap_or_else(|(_, error)| panic!("{body}: {error:?}"));
+        assert!(context.callable_declaration_catalog_vacant(), "{body}");
+    }
+}
+
+#[test]
+fn set_outside_the_literal_key_i64_rule_is_refused_at_the_statement() {
+    use crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1;
+    for body in [
+        "local k = \"a\" local m = new MapBox() m.set(k, 5) return 30",
+        "local m = new MapBox() m.set(\"k\", \"text\") return 30",
+        "local m = new MapBox() m.set(\"k\", true) return 30",
+    ] {
+        let package = issue(&source(body)).unwrap();
+        let mut context = CompilationContext::new();
+        let Err((_, error)) = package.prepare_install(&mut context) else {
+            panic!("{body}: refused");
+        };
+        assert!(
+            matches!(
+                error,
+                super::install::NormalCallableSemanticPackageInstallIssueV1::MapObligationDescribe(
+                    super::map_lifecycle_undertaking::MapObligationDescribeIssueV1::OwnerTerminalHomesUnavailable {
+                        cause: Some(HomePrefixUnavailableV1::PrefixNotCovered(_)),
+                        ..
+                    }
+                )
+            ),
+            "{body}: {error:?}"
+        );
+    }
 }

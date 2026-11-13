@@ -22,21 +22,24 @@ fn issued_map_read_source_exe_probe_observes_get_contract_and_end() {
         // (source, exit, expected READ tail). The out-slot stays -1 when the
         // kernel records Fault — it writes only on Normal. A missing key is
         // Fault 114 and a present non-i64 payload is Fault 104.
-        let cases: [(&str, i32, &str, &str); 5] = [
+        let cases: [(&str, Option<&str>, i32, &str, &str); 9] = [
             (
                 "local m = %{\"k\" => 7} return m.get(\"k\")",
+                None,
                 7,
                 "7 1 1 1 1 1 1 READ k 1 7 0 1 2 1\n",
                 "",
             ),
             (
                 "local m = %{} return m.get(\"k\")",
+                None,
                 70,
                 "70 1 1 0 0 0 0 READ k 1 -1 1 1 2 1\n",
                 "REPORT 114 ",
             ),
             (
                 "local m = %{\"k\" => true} return m.get(\"k\")",
+                None,
                 70,
                 "70 1 1 1 1 1 1 READ k 1 -1 1 1 2 1\n",
                 "REPORT 104 ",
@@ -45,18 +48,50 @@ fn issued_map_read_source_exe_probe_observes_get_contract_and_end() {
             // `%{}`: a missing key Faults 114 and the one Map still Ends once.
             (
                 "local m = new MapBox() return m.get(\"k\")",
+                None,
                 70,
                 "70 1 1 0 0 0 0 READ k 1 -1 1 1 2 1\n",
                 "REPORT 114 ",
             ),
             (
                 "local m = new MapBox() return 7",
+                None,
                 7,
                 "7 1 1 0 0 0 0 READ  0 0 0 0 1 1\n",
                 "",
             ),
+            // A literal-key i64 `set` on the named local is one more entry of
+            // the same Map row: one Map still Ends once, replacement included.
+            (
+                "local m = new MapBox() m.set(\"k\", 5) return m.get(\"k\")",
+                None,
+                5,
+                "5 1 1 1 1 1 1 READ k 1 5 0 1 2 1\n",
+                "",
+            ),
+            (
+                "local m = new MapBox() m.set(\"k\", 5) m.set(\"k\", 7) return m.get(\"k\")",
+                None,
+                7,
+                "7 1 1 2 2 2 2 READ k 1 7 0 1 2 1\n",
+                "",
+            ),
+            (
+                "local m = new MapBox() m.set(\"k\", 5) return m.get(\"x\")",
+                None,
+                70,
+                "70 1 1 1 1 1 1 READ x 1 -1 1 1 2 1\n",
+                "REPORT 114 ",
+            ),
+            (
+                "local m = new MapBox() m.set(\"k\", 5) return m.get(\"k\")",
+                Some("prepare-fault"),
+                70,
+                "70 1 1 1 1 0 0 READ  0 0 0 0 1 1\n",
+                "REPORT 100 ",
+            ),
         ];
-        for (case, (body, expected_exit, expected_tail, expected_report)) in
+        for (case, (body, mode, expected_exit, expected_tail, expected_report)) in
             cases.iter().enumerate()
         {
             let source = format!("static box Main {{ main() {{ {body} }} }}");
@@ -104,10 +139,11 @@ fn issued_map_read_source_exe_probe_observes_get_contract_and_end() {
                             Some(&session),
                         )
                         .map_err(|error| format!("object: {error}"))?;
-                        assert_map_read_probe(
+                        assert_map_read_probe_with_mode(
                             &object,
                             session.runtime_archive(),
                             &dir,
+                            *mode,
                             *expected_exit,
                             expected_tail,
                             expected_report,

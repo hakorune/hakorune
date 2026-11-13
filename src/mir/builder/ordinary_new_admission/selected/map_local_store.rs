@@ -57,7 +57,12 @@ pub(in crate::mir::builder) fn emit(
     let value = match source {
         MapValueSource::Integer(n) => {
             let dst = crate::mir::builder::emission::constant::emit_integer(builder, *n)?;
-            record_literal(builder, dst, crate::mir::ConstValue::Integer(*n), &mut bindings)?;
+            record_literal(
+                builder,
+                dst,
+                crate::mir::ConstValue::Integer(*n),
+                &mut bindings,
+            )?;
             dst
         }
         MapValueSource::Local { binding, .. } => {

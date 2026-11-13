@@ -5,7 +5,9 @@
 //! the Homes live at the statement (for the Fault cleanup order) and the entry
 //! itself. No physical operation, ordinal or runtime policy is issued.
 use super::*;
-use crate::mir::core_method_result_kind::{lookup_core_method_result_row_v2, CoreMethodSemanticLawV2};
+use crate::mir::core_method_result_kind::{
+    lookup_core_method_result_row_v2, CoreMethodSemanticLawV2,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct MapLocalStoreV1 {
