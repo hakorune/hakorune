@@ -418,3 +418,20 @@ D（消える）12–20行: Return法則名一覧、比較の写し、B4の不�
 - 新しいprobe112本は既存成功39本が同一、拒否維持34本、検索法則のReturn接続により成功へ39本（calleeや枝を含むprogramと既存find別名も含む）。負例2本の診断は宣言Bool/Stringと実際のI64の不一致へ移り、拒否を維持する。既存1866 dump・927入力・229入力・apps100・384組・監査292入力は差0、固定8/8、全libの既知失敗224名を維持、Mapの実行18ケースも成功。
 - B4の関門の一般化は未着地: 一時receiverのlengthも成功へ変わるため承認範囲外となり、元の関門を保持した。一時receiver/needle/両方を直接Returnする3形は拒否を維持する。法則名や引数数でこの差を隠さない。共通cleanupに閉じる受理範囲を追加承認した時に再開する。
 - static Callの直接Returnは未接続。0/1引数ともmainはroot-completion、通常関数はroot-exit-source-missing。calleeにFault可能な式を置く場合も同じ拒否で、Fault経路の実行成功とは数えない。普通の関数の明示Returnへ、選択CallとNormal結果・出口のsource relationを届ける別作業が要る。
+
+### 段 B の Opus の確認と統合（2026-11-14）
+
+- main `784882224b`（`map-contract-b` を `--no-ff` で統合）。Codex 実装、Opus 監査。
+- 中身: Return の根で法則の名前を見る判定（`CodePointCount` か checked Fault read だけを受ける）を消した。Return と比較は `ExpressionCoreSourceLoanV1::scalar_read_result_class_v1` という 1 つの問いを使う。Core の根の結果型はこの問いから決め、返却先から逆算しない。Fault の枠の判定（`requires_fault_frame_v1`）と、入力の到達の確認（`home_bool_condition.rs`）は変えていない。
+- 行数: 整形後の production +14 行、test +58 行。`ordinary.rs` の Git 上の差 +85 行の大半は、前から整形されていなかった部分の rustfmt。`ordinary.rs` は 722 行。
+- Opus の確認:
+  - ビルド: 作業 tree で cargo を空で実行し、binary の SHA が報告と一致した（`e2706e15…`）。
+  - 入力: 3A の 283 本、前の probe 16 本（h01–h12、k01–k06）、Opus の新しい 15 本（q01–q15）を、3A の binary と比べた。変わったのは `return s.indexOf(..)` の形の 10 本だけで、全部「拒否 → 成功」、値も正しい。中身は banana の中の "nan"、local の needle、if-else の中、instance method の中、alias、絵文字、print の後、helper 経由。成功同士の MIR は全部同じ。
+  - 広げていない物は拒否のまま: `return ("ab" + "cd").length()`、`return s.indexOf("l" + "o")`、2 引数の `indexOf`、String field の `return me.name.indexOf(..)`。同じ式を local に置く形は、前と同じく成功する。
+  - `s.find(x)` も Return で通るようになった。`find` は前からある `indexOf` の別名（`core_method_contract_rows.rs`、同じ法則と引数の数）で、新しい許可ではない。
+  - 負例 2 本（宣言が Bool・String の関数で `return s.indexOf(..)`）は拒否のまま、診断が「宣言と結果 I64 の不一致」（`DeclaredResultDisagrees`）へ移った。返却の型の確認が正しい場所で効いた結果なので、受け入れる。
+  - 持ち主の数の見張り（基点 `549de8f790`）、pointer guard、`git diff --check`、private の走査は PASS。lib の失敗 224 名は 3A と同じ集合。stash は 2 件のまま。
+- 残る物:
+  - B4（一時値の関門）は保留。関門を一般にすると、承認の外の `return ("he" + "llo").length()` も通るため、Codex は元のままにして止めた。local では通る式が Return でだけ落ちる差は、まだ残っている。再開には、共通の cleanup で閉じる一時値（`length` を含む）を Return で受ける承認が要る。
+  - 関門の上のコメントが「承認されるまで」という作業の状態を書いている。B4 の時に直す。
+  - static 呼び出しの直接の `return`、String field の直接の Return、formal の Text は未接続（調査の表は上）。
