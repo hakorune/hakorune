@@ -125,10 +125,11 @@
 
 ### 2 段目の結果と止めた所（Sonnet 5.5 実装、2026-11-13）
 
-- 入った物: L1〜L4・L14 の Home の部分。引数の無い `new MapBox()` は、body shape の層（`is_empty_map_construction_v1`）で「keys が空の `MapLiteral` の行」として 1 回だけ封印する。Home の走査・`MapHomeFlow`・`acquire_map`・lifecycle の undertaking・物理の `Map::New` と End は、既にある `%{}` の道をそのまま使う。新しい持ち主・型・公開の形は足していない。
-- 拒否の診断: `OwnerTerminalHomesUnavailable` に `cause` を足し、Home の走査を止めた最初の文（`PrefixNotCovered(statement)`）を指す。
-- 通る物: `new MapBox()` だけ、`return m.get("k")`（無い key は Fault 114）。Normal で Map の new 1・end 1、`get` の Fault 114 でも new 1・end 1。
-- 通らない物（L5〜L9、止めた）: `set`・`has`・`size`・`delete` と、それに続く `local v = m.get(..)`・`+` の operand。理由:
-  - `has`・`size`・`delete`: named local の Map 用の物理操作が無い。`MapInvokeOperation` は field 用の `FieldHas`・`FieldDeleteIndexed` だけで、`size`・`delete` には runtime の export も無い。通すには新しい MIR の操作・C の emit・runtime の ABI が要り、L12（公開の形を足さない）に当たる。
-  - `set`: 物理の操作（`PrepareKey`・`InstallValue`・`EndOutcome`）は既にあるが、文としての install を Home の行・commit・fault の cleanup の packet・独立の検証へ通す道が field 版（`MapFieldInstallV1`・`MapFieldInstallEmissionV1`、約 1,300 行）にしか無い。local 版を並べて書くと、同じ責任の 2 つ目の道になる。3 段目の「field と local の row の語彙を 1 つへ」を先にしてから足すのが筋。
-  - 目標のうち `p01`・`p02`・`p03`・`p04`・`p08`・`p10`・`p11`・`p14`・`p15`・`p16` は、この理由で未達。
+- 入った物（L1〜L4・L14）: 引数の無い `new MapBox()` は、body shape の層（`is_empty_map_construction_v1`）で「keys が空の `MapLiteral` の行」として 1 回だけ封印する。Home の走査・`MapHomeFlow`・`acquire_map`・lifecycle の undertaking・物理の `Map::New` と End は、既にある `%{}` の道をそのまま使う。
+- 入った物（`set`、L5・L7 の一部）: named local の Map への `m.set("<literal>", <i64>)` の文は、同じ `MapHomeFlow` の行の `stores`（`MapLocalStoreV1`）に 1 件足す。受理の条件は、`.hako` の行の法則 `MapTextSetReplaceOrInsert`（method 名ではなく行）・key が文字列 literal・値が I64 の literal か I64 の local・receiver が live な Map の Home。物理は既にある `PrepareKey`・`InstallValue`・`EndOutcome` を、構築の emission と同じ検査（key の順・install の数・値の種類）に載せる。fault の cleanup は live な Home 全部の既存の unwind（`prior_home_unwind_for`）で、Map の End は 1 回。新しい持ち主・台帳・公開の形は無い。
+- 拒否の診断: `OwnerTerminalHomesUnavailable` に `cause` を足し、Home の走査を止めた最初の文を指す。
+- 通る物: `new MapBox()` だけ、`set`（上書きを含む）+ `return m.get("k")`（e12 は exit 5、無い key は Fault 114）、`%{}` の literal への `set`。
+- 通らない物（L5・L6・L8〜L10 の残り、止めた）:
+  - `has`・`size`・`delete`: named local の Map 用の物理操作が無い。`MapInvokeOperation` にあるのは field 用の `FieldHas`・`FieldDeleteIndexed` だけで、`size`・`delete` には runtime の export も無い。新しい MIR の操作・C の emit・runtime の ABI が要り、L12 に当たる。
+  - `local v = m.get(..)`・`m.get(..) + m.get(..)`: 式の評価の Core 経路が、Map の受け手を field に限っている（`field_map()` を読む所が 30 か所ほど。`core_method_source/ordinary.rs`、`ordinary_new_borrowed_actual_method_result.rs`、条件・scalar・bool の各 file）。named local の受け手を共通の Core の証拠にする仕事で、`set` と同じ小さな追加では済まない。使う所ごとに専用の判定を足すのは L6 に反するので、足していない。
+  - `Text`・`Bool` の値の `set`、`keys`: L7・L10 のとおり受けず、拒否は `PrefixNotCovered(その文)` を指す。
