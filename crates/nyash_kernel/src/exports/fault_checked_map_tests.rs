@@ -731,6 +731,56 @@ fn value_abi_borrowed_handle_never_claims_or_reads_back_the_target() {
     }
 }
 
+#[test]
+fn scalar_get_of_a_missing_key_records_fault_114_and_never_writes_out() {
+    let (mut f, mut m, mut k, mut o) = (
+        Slot::<FaultFrame>::new(),
+        Slot::<MapStorage>::new(),
+        Slot::<KeyStorage>::new(),
+        Slot::<OutcomeStorage>::new(),
+    );
+    unsafe {
+        let (f, m, k, o) = (f.ptr(), m.ptr(), k.ptr(), o.ptr());
+        assert_eq!(super::super::frame_init(f), 0);
+        assert_eq!(map_init(m), 0);
+        assert_eq!(allocate(f, 1, 1, m), 0);
+        // An empty map has no entry: Fault 114, `out` keeps its sentinel.
+        let mut out = MaybeUninit::<i64>::new(-1);
+        assert_eq!(
+            get_i64_export(f, 2, m, b"a".as_ptr(), 1, out.as_mut_ptr()),
+            1
+        );
+        assert_eq!((*f.cast::<FaultFrame>()).primary.reason, 114);
+        assert_eq!(out.assume_init(), -1);
+        assert_eq!(super::super::frame_dispose(f), 0);
+        // A stored 0 is a present value, not a missing key: Normal writes 0.
+        assert_eq!(super::super::frame_init(f), 0);
+        prepare(f, k, b"a");
+        assert_eq!(outcome_init(o), 0);
+        assert_eq!(value_export(f, 1, 3, m, k, MAP_VALUE_I64, 0, o), 0);
+        assert_eq!(outcome_end(f, 4, o), 0);
+        assert_eq!(outcome_dispose(o), 0);
+        assert_eq!(key_dispose(k), 0);
+        let mut out = MaybeUninit::<i64>::new(-1);
+        assert_eq!(
+            get_i64_export(f, 5, m, b"a".as_ptr(), 1, out.as_mut_ptr()),
+            0
+        );
+        assert_eq!(out.assume_init(), 0);
+        // A different key is still missing, and the map stays live.
+        let mut out = MaybeUninit::<i64>::new(-1);
+        assert_eq!(
+            get_i64_export(f, 6, m, b"b".as_ptr(), 1, out.as_mut_ptr()),
+            1
+        );
+        assert_eq!((*f.cast::<FaultFrame>()).primary.reason, 114);
+        assert_eq!(out.assume_init(), -1);
+        assert_eq!(map_end(f, 7, m), 0);
+        assert_eq!(map_dispose(m), 0);
+        assert_eq!(super::super::frame_dispose(f), 0);
+    }
+}
+
 fn text_child(value: CheckedMapPayload) -> Arc<CheckedMap> {
     let child = Arc::new(CheckedMap::unissued());
     child.acquire().unwrap();

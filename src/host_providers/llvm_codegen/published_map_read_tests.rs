@@ -20,25 +20,31 @@ fn issued_map_read_source_exe_probe_observes_get_contract_and_end() {
             materialize_normal_callable_program_v1, NormalCallableMaterializationOutcomeV1,
         };
         // (source, exit, expected READ tail). The out-slot stays -1 when the
-        // kernel records Fault — it writes only on Normal.
-        let cases: [(&str, i32, &str); 3] = [
+        // kernel records Fault — it writes only on Normal. A missing key is
+        // Fault 114 and a present non-i64 payload is Fault 104.
+        let cases: [(&str, i32, &str, &str); 3] = [
             (
                 "local m = %{\"k\" => 7} return m.get(\"k\")",
                 7,
                 "7 1 1 1 1 1 1 READ k 1 7 0 1 2 1\n",
+                "",
             ),
             (
                 "local m = %{} return m.get(\"k\")",
-                0,
-                "0 1 1 0 0 0 0 READ k 1 0 0 1 2 1\n",
+                70,
+                "70 1 1 0 0 0 0 READ k 1 -1 1 1 2 1\n",
+                "REPORT 114 ",
             ),
             (
                 "local m = %{\"k\" => true} return m.get(\"k\")",
                 70,
                 "70 1 1 1 1 1 1 READ k 1 -1 1 1 2 1\n",
+                "REPORT 104 ",
             ),
         ];
-        for (case, (body, expected_exit, expected_tail)) in cases.iter().enumerate() {
+        for (case, (body, expected_exit, expected_tail, expected_report)) in
+            cases.iter().enumerate()
+        {
             let source = format!("static box Main {{ main() {{ {body} }} }}");
             let NormalCallableMaterializationOutcomeV1::SourceBacked(source) =
                 materialize_normal_callable_program_v1(
@@ -89,6 +95,7 @@ fn issued_map_read_source_exe_probe_observes_get_contract_and_end() {
                             &dir,
                             *expected_exit,
                             expected_tail,
+                            expected_report,
                         )
                     },
                 )
@@ -187,6 +194,11 @@ fn issued_map_argument_source_exe_probe_observes_borrowed_read_and_caller_end() 
                             *mode,
                             *expected_exit,
                             expected_tail,
+                            if mode.is_some() {
+                                "REPORT 100 "
+                            } else {
+                                "REPORT 104 "
+                            },
                         )
                     },
                 )
@@ -202,8 +214,17 @@ fn assert_map_read_probe(
     dir: &Path,
     expected_exit: i32,
     expected_tail: &str,
+    expected_report: &str,
 ) -> Result<(), String> {
-    assert_map_read_probe_with_mode(object, archive, dir, None, expected_exit, expected_tail)
+    assert_map_read_probe_with_mode(
+        object,
+        archive,
+        dir,
+        None,
+        expected_exit,
+        expected_tail,
+        expected_report,
+    )
 }
 
 fn assert_map_read_probe_with_mode(
@@ -213,6 +234,7 @@ fn assert_map_read_probe_with_mode(
     mode: Option<&str>,
     expected_exit: i32,
     expected_tail: &str,
+    expected_report: &str,
 ) -> Result<(), String> {
     let exe = dir.join("fault-probe-map-read");
     let mut command = Command::new("cc");
@@ -268,12 +290,7 @@ fn assert_map_read_probe_with_mode(
     assert_eq!(result.status.code(), Some(expected_exit), "{result:?}");
     let stdout = String::from_utf8_lossy(&result.stdout);
     if expected_exit == 70 {
-        let reason = if mode.is_some() {
-            "REPORT 100 "
-        } else {
-            "REPORT 104 "
-        };
-        assert!(stdout.contains(reason), "{stdout}");
+        assert!(stdout.contains(expected_report), "{stdout}");
     }
     assert!(stdout.ends_with(expected_tail), "{stdout}");
     Ok(())

@@ -86,8 +86,8 @@ unsafe fn admit_read<'a>(
 
 /// Bounded scalar read for the borrowed-argument lane. The key arrives as
 /// caller-supplied UTF-8 input (validated before use, like install_text) —
-/// no key storage is prepared or consumed. Missing writes `0` and returns
-/// Normal; a present non-i64 payload records Fault; `out` is written only
+/// no key storage is prepared or consumed. A missing key records Fault 114
+/// and a present non-i64 payload records Fault 104; `out` is written only
 /// on Normal. The read consumes nothing and leaves the map live.
 #[export_name = "nyash.map.checked_get_i64_v1"]
 pub unsafe extern "C" fn get_i64(
@@ -103,10 +103,7 @@ pub unsafe extern "C" fn get_i64(
         Err(status) => return status,
     };
     match map.read_i64(&key) {
-        Ok(CheckedMapI64Read::Missing) => {
-            unsafe { out.write(0) };
-            Status::Normal as u32
-        }
+        Ok(CheckedMapI64Read::Missing) => unsafe { failed(frame, site, MAP_SCALAR_MISSING_REASON) },
         Ok(CheckedMapI64Read::Value(value)) => {
             unsafe { out.write(value) };
             Status::Normal as u32
@@ -123,6 +120,7 @@ pub unsafe extern "C" fn get_i64(
 
 
 // Scalar-read outcome reasons (mirrored in include/nyrt_fault_v1.h).
+const MAP_SCALAR_MISSING_REASON: u32 = 114;
 const MAP_ARRAY_LENGTH_MISSING_REASON: u32 = 111;
 const MAP_ARRAY_LENGTH_NON_ARRAY_REASON: u32 = 112;
 

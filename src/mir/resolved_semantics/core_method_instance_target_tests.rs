@@ -1,9 +1,15 @@
 use super::*;
+use crate::ast::ASTNode;
+use super::super::{
+    FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1,
+    ResolverCoreMethodCallableContractIssuerV1, ResolverCoreMethodCallableContractRejectV1,
+};
 use crate::mir::core_method_op::{CoreMethodLoweringTier, CoreMethodOp};
 use crate::mir::core_method_result_kind::{
     issue_core_method_manifest_row_ref_for_test, issue_core_method_manifest_row_ref_v2,
     issue_core_method_manifest_test_row_ref, CoreMethodContractRowV2, CoreMethodEffectV1,
-    CoreMethodResultKindV1, CoreMethodSemanticLawV2, CORE_METHOD_MANIFEST_BRAND_V2,
+    CoreMethodManifestRowRefV2, CoreMethodResultKindV1, CoreMethodSemanticLawV2,
+    CORE_METHOD_MANIFEST_BRAND_V2,
 };
 
 fn issuer() -> CoreMethodInstanceTargetIssuerV1 {
@@ -200,4 +206,321 @@ fn target_issuer_rejects_wrong_effect_and_result() {
         issuer().issue(wrong_result),
         Err(CoreMethodInstanceTargetRejectV1::ResultMismatch)
     ));
+}
+
+use CoreMethodHomeParameterRelationV1 as Param;
+use CoreMethodHomeResultRelationV1 as ResultRelation;
+
+/// (op, arity, selector, schema, parameters, result, abi, law, result kind)
+type MapContract = (
+    CoreMethodOp,
+    u32,
+    &'static str,
+    CoreMethodHomeSchemaV1,
+    &'static [Param],
+    ResultRelation,
+    CoreMethodHomeAbiProfileV1,
+    CoreMethodSemanticLawV2,
+    CoreMethodResultKindV1,
+);
+
+const MAP_CONTRACTS: [MapContract; 4] = [
+    (
+        CoreMethodOp::MapGet,
+        1,
+        "get",
+        CoreMethodHomeSchemaV1::MapTextGet,
+        &[Param::TextParameter],
+        ResultRelation::DynamicToCaller,
+        CoreMethodHomeAbiProfileV1::MapTextGetV1,
+        CoreMethodSemanticLawV2::MapTextGetPresentOrFault,
+        CoreMethodResultKindV1::Dynamic,
+    ),
+    (
+        CoreMethodOp::MapSet,
+        2,
+        "set",
+        CoreMethodHomeSchemaV1::MapTextSet,
+        &[Param::TextParameter, Param::ValueRetainedByReceiver],
+        ResultRelation::DynamicToCaller,
+        CoreMethodHomeAbiProfileV1::MapTextSetV1,
+        CoreMethodSemanticLawV2::MapTextSetReplaceOrInsert,
+        CoreMethodResultKindV1::Dynamic,
+    ),
+    (
+        CoreMethodOp::MapDelete,
+        1,
+        "delete",
+        CoreMethodHomeSchemaV1::MapTextDelete,
+        &[Param::TextParameter],
+        ResultRelation::BoolToCaller,
+        CoreMethodHomeAbiProfileV1::MapTextDeleteV1,
+        CoreMethodSemanticLawV2::MapTextDeleteReportsPresence,
+        CoreMethodResultKindV1::BoolValue,
+    ),
+    (
+        CoreMethodOp::MapLen,
+        0,
+        "size",
+        CoreMethodHomeSchemaV1::MapEntryCount,
+        &[],
+        ResultRelation::I64ToCaller,
+        CoreMethodHomeAbiProfileV1::MapEntryCountV1,
+        CoreMethodSemanticLawV2::MapEntryCount,
+        CoreMethodResultKindV1::I64Value,
+    ),
+];
+
+fn map_issuer(schema: CoreMethodHomeSchemaV1) -> CoreMethodInstanceTargetIssuerV1 {
+    let brand = CORE_METHOD_MANIFEST_BRAND_V2;
+    match schema {
+        CoreMethodHomeSchemaV1::MapTextGet => CoreMethodInstanceTargetIssuerV1::map_text_get(brand),
+        CoreMethodHomeSchemaV1::MapTextSet => CoreMethodInstanceTargetIssuerV1::map_text_set(brand),
+        CoreMethodHomeSchemaV1::MapTextDelete => {
+            CoreMethodInstanceTargetIssuerV1::map_text_delete(brand)
+        }
+        _ => CoreMethodInstanceTargetIssuerV1::map_entry_count(brand),
+    }
+    .expect("generated manifest brand should issue")
+}
+
+#[test]
+fn map_contract_rows_issue_their_exact_targets_and_laws() {
+    for (op, arity, _, schema, params, result, abi, law, _) in MAP_CONTRACTS {
+        let row = issue_core_method_manifest_row_ref_v2(op, arity).expect("generated Map row");
+        assert_eq!(row.semantic_law_for_arity(), Some(law), "{op:?}");
+        let target = map_issuer(schema).issue(row).expect("Map contract target");
+        assert_eq!(target.schema(), schema);
+        assert_eq!(
+            target.receiver(),
+            CoreMethodHomeReceiverRelationV1::MapReceiver
+        );
+        assert_eq!(target.parameters(), params);
+        assert_eq!(target.result(), result);
+        assert_eq!(target.abi_profile(), abi);
+    }
+    // Delete reports presence as a Bool, per the language reference.
+    let delete = issue_core_method_manifest_row_ref_v2(CoreMethodOp::MapDelete, 1).unwrap();
+    assert_eq!(delete.row().result_kind, CoreMethodResultKindV1::BoolValue);
+    // Another Map operation's row is not issuable under a different schema.
+    let get = issue_core_method_manifest_row_ref_v2(CoreMethodOp::MapGet, 1).unwrap();
+    assert!(matches!(
+        map_issuer(CoreMethodHomeSchemaV1::MapEntryCount).issue(get),
+        Err(CoreMethodInstanceTargetRejectV1::UnsupportedOperation { .. })
+    ));
+}
+
+#[test]
+fn map_contract_issuer_rejects_a_row_without_the_exact_law_or_result() {
+    macro_rules! forged {
+        ($op:expr, $name:literal, $arity:literal, $law:expr, $kind:expr, $effect:expr) => {{
+            static ROW: CoreMethodContractRowV2 = CoreMethodContractRowV2 {
+                receiver_box: "MapBox",
+                canonical: $name,
+                aliases: &[],
+                arities: &[$arity],
+                semantic_law: &[($arity, $law)],
+                op: $op,
+                result_kind: $kind,
+                effect: $effect,
+                lowering_tier: CoreMethodLoweringTier::ColdFallback,
+            };
+            issue_core_method_manifest_test_row_ref(&ROW, $arity, false)
+        }};
+    }
+    use CoreMethodSemanticLawV2 as Law;
+    let cases = [
+        (
+            CoreMethodHomeSchemaV1::MapTextGet,
+            forged!(
+                CoreMethodOp::MapGet,
+                "get",
+                1,
+                Law::Unprojected,
+                CoreMethodResultKindV1::Dynamic,
+                CoreMethodEffectV1::PureRead
+            ),
+        ),
+        (
+            CoreMethodHomeSchemaV1::MapTextSet,
+            forged!(
+                CoreMethodOp::MapSet,
+                "set",
+                2,
+                Law::MapKeyPresence,
+                CoreMethodResultKindV1::Dynamic,
+                CoreMethodEffectV1::MutatesSlot
+            ),
+        ),
+        (
+            CoreMethodHomeSchemaV1::MapTextDelete,
+            forged!(
+                CoreMethodOp::MapDelete,
+                "delete",
+                1,
+                Law::MapTextDeleteReportsPresence,
+                CoreMethodResultKindV1::Dynamic,
+                CoreMethodEffectV1::MutatesShape
+            ),
+        ),
+        (
+            CoreMethodHomeSchemaV1::MapEntryCount,
+            forged!(
+                CoreMethodOp::MapLen,
+                "size",
+                0,
+                Law::MapEntryCount,
+                CoreMethodResultKindV1::BoolValue,
+                CoreMethodEffectV1::PureRead
+            ),
+        ),
+    ];
+    for (schema, row) in cases {
+        assert!(matches!(
+            map_issuer(schema).issue(row),
+            Err(CoreMethodInstanceTargetRejectV1::ResultMismatch)
+        ));
+    }
+}
+
+fn map_call_tree(selector: &str, arguments: Vec<ASTNode>) -> ASTNode {
+    use crate::ast::{DeclarationAttrs, LiteralValue, Span};
+    let integer = |value| ASTNode::Literal {
+        value: LiteralValue::Integer(value),
+        span: Span::unknown(),
+    };
+    ASTNode::FunctionDeclaration {
+        name: "map_contract_fixture".into(),
+        params: Vec::new(),
+        param_decls: Vec::new(),
+        return_type_name: None,
+        body: vec![
+            ASTNode::Local {
+                variables: vec!["m".into()],
+                initial_values: vec![Some(Box::new(integer(7)))],
+                declared_type_names: vec![None],
+                span: Span::unknown(),
+            },
+            ASTNode::Return {
+                value: Some(Box::new(ASTNode::MethodCall {
+                    object: Box::new(ASTNode::Variable {
+                        name: "m".into(),
+                        span: Span::unknown(),
+                    }),
+                    method: selector.into(),
+                    arguments,
+                    span: Span::unknown(),
+                })),
+                span: Span::unknown(),
+            },
+        ],
+        uses: Vec::new(),
+        contracts: Vec::new(),
+        is_static: true,
+        is_override: false,
+        attrs: DeclarationAttrs::default(),
+        span: Span::unknown(),
+    }
+}
+
+/// The same operation under a row that carries no Map contract law.
+fn unprojected_map_row(op: CoreMethodOp) -> CoreMethodManifestRowRefV2 {
+    macro_rules! row {
+        ($op:expr, $name:literal, $arity:literal, $kind:expr, $effect:expr) => {{
+            static ROW: CoreMethodContractRowV2 = CoreMethodContractRowV2 {
+                receiver_box: "MapBox",
+                canonical: $name,
+                aliases: &[],
+                arities: &[$arity],
+                semantic_law: &[($arity, CoreMethodSemanticLawV2::Unprojected)],
+                op: $op,
+                result_kind: $kind,
+                effect: $effect,
+                lowering_tier: CoreMethodLoweringTier::ColdFallback,
+            };
+            issue_core_method_manifest_test_row_ref(&ROW, $arity, false)
+        }};
+    }
+    match op {
+        CoreMethodOp::MapGet => row!(CoreMethodOp::MapGet,
+            "get",
+            1,
+            CoreMethodResultKindV1::Dynamic,
+            CoreMethodEffectV1::PureRead
+        ),
+        CoreMethodOp::MapSet => row!(CoreMethodOp::MapSet,
+            "set",
+            2,
+            CoreMethodResultKindV1::Dynamic,
+            CoreMethodEffectV1::MutatesSlot
+        ),
+        CoreMethodOp::MapDelete => row!(CoreMethodOp::MapDelete,
+            "delete",
+            1,
+            CoreMethodResultKindV1::BoolValue,
+            CoreMethodEffectV1::MutatesShape
+        ),
+        _ => row!(
+            CoreMethodOp::MapLen,
+            "size",
+            0,
+            CoreMethodResultKindV1::I64Value,
+            CoreMethodEffectV1::PureRead
+        ),
+    }
+}
+
+/// The resolver-side verifier reads the generated row itself. A target whose
+/// recorded row, parameters or ABI drift from the Map contract is refused,
+/// even though the issuer-side checks are never consulted again.
+#[test]
+fn map_contract_verifier_independently_rejects_drifted_targets() {
+    use crate::ast::{LiteralValue, Span};
+    let key = || ASTNode::Literal {
+        value: LiteralValue::String("k".into()),
+        span: Span::unknown(),
+    };
+    let value = || ASTNode::Literal {
+        value: LiteralValue::Integer(5),
+        span: Span::unknown(),
+    };
+    for (op, arity, selector, schema, _, _, _, _, _) in MAP_CONTRACTS {
+        let arguments = match arity {
+            0 => vec![],
+            1 => vec![key()],
+            _ => vec![key(), value()],
+        };
+        let tree = map_call_tree(selector, arguments);
+        let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+        let forest = session
+            .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+            .unwrap();
+        let view = forest.callable_source_ledger(forest.roots()[0]).unwrap();
+        let (_, call) = view.method_calls().next().expect("one method call");
+        let row = issue_core_method_manifest_row_ref_v2(op, arity).unwrap();
+        let issue = |mutate: fn(&mut VerifiedCoreMethodInstanceTargetV1)| {
+            let mut target = map_issuer(schema).issue(row).unwrap();
+            mutate(&mut target);
+            ResolverCoreMethodCallableContractIssuerV1::issue_ordinary_source(&view, call, target)
+                .map(|_| ())
+        };
+        assert_eq!(issue(|_| {}), Ok(()), "{op:?}");
+        assert_eq!(
+            issue(|target| target.parameters = Box::new([Param::I64Parameter])),
+            Err(ResolverCoreMethodCallableContractRejectV1::TargetParameterMismatch),
+            "{op:?} parameters"
+        );
+        assert!(
+            matches!(
+                issue(|target| target.row = unprojected_map_row(target.row.row().op)),
+                Err(ResolverCoreMethodCallableContractRejectV1::TargetOperationMismatch { .. })
+            ),
+            "{op:?} law"
+        );
+        assert_eq!(
+            issue(|target| target.abi_profile = CoreMethodHomeAbiProfileV1::MapTextKeysV1),
+            Err(ResolverCoreMethodCallableContractRejectV1::TargetSchemaMismatch),
+            "{op:?} abi"
+        );
+    }
 }

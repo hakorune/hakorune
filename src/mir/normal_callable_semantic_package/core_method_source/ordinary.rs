@@ -119,6 +119,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_core_sour
     let mut issuer = match op {
         Op::MapHas => CoreMethodInstanceTargetIssuerV1::map_text_presence(operands.manifest().brand()),
         Op::MapKeys => CoreMethodInstanceTargetIssuerV1::map_text_keys(operands.manifest().brand()),
+        Op::MapGet => CoreMethodInstanceTargetIssuerV1::map_text_get(operands.manifest().brand()),
+        Op::MapSet => CoreMethodInstanceTargetIssuerV1::map_text_set(operands.manifest().brand()),
+        Op::MapDelete => {
+            CoreMethodInstanceTargetIssuerV1::map_text_delete(operands.manifest().brand())
+        }
+        Op::MapLen => {
+            CoreMethodInstanceTargetIssuerV1::map_entry_count(operands.manifest().brand())
+        }
         Op::ArrayLen => CoreMethodInstanceTargetIssuerV1::array_count(operands.manifest().brand()),
         Op::ArrayGet => CoreMethodInstanceTargetIssuerV1::array_dynamic_read(operands.manifest().brand()),
         _ => CoreMethodInstanceTargetIssuerV1::string_box_text(operands.manifest().brand()),

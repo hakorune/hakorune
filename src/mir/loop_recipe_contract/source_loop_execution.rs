@@ -154,7 +154,8 @@ fn evaluation(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, fram
                         Parameter::I64Parameter if core.dynamic_i64_operand_contains(argument.site()) => Class::Dynamic,
                         Parameter::I64Parameter => Class::I64,
                         Parameter::TextParameter => Class::String,
-                        Parameter::TextRetainedByReceiver => return true,
+                        Parameter::TextRetainedByReceiver
+                        | Parameter::ValueRetainedByReceiver => return true,
                     };
                     leaf(argument.site()) != Some(Leaf::Value(expected))
                 }) {

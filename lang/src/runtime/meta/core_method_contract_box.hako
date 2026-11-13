@@ -48,6 +48,10 @@ static box CoreMethodContractBox {
   semantic_law_unprojected() { return "Unprojected" }
   semantic_law_array_count() { return "ArrayCount" }
   semantic_law_map_key_presence() { return "MapKeyPresence" }
+  semantic_law_map_text_get_present_or_fault() { return "MapTextGetPresentOrFault" }
+  semantic_law_map_text_set_replace_or_insert() { return "MapTextSetReplaceOrInsert" }
+  semantic_law_map_text_delete_reports_presence() { return "MapTextDeleteReportsPresence" }
+  semantic_law_map_entry_count() { return "MapEntryCount" }
   semantic_law_map_text_keys_snapshot() { return "MapTextKeysSnapshot" }
   semantic_law_code_point_count() { return "CodePointCount" }
   semantic_law_code_point_half_open_clamped() { return "CodePointHalfOpenClamped" }
@@ -205,7 +209,7 @@ static box CoreMethodContractBox {
       "get",
       me._aliases0(),
       "1",
-      me._law1(me.semantic_law_unprojected()),
+      me._law1(me.semantic_law_map_text_get_present_or_fault()),
       me.effect_pure_read(),
       me.op_map_get(),
       me.result_dynamic(),
@@ -221,7 +225,7 @@ static box CoreMethodContractBox {
       "set",
       me._aliases0(),
       "2",
-      me._law2(me.semantic_law_unprojected()),
+      me._law2(me.semantic_law_map_text_set_replace_or_insert()),
       me.effect_mutates_slot(),
       me.op_map_set(),
       me.result_dynamic(),
@@ -253,10 +257,10 @@ static box CoreMethodContractBox {
       "delete",
       me._aliases1("remove"),
       "1",
-      me._law1(me.semantic_law_unprojected()),
+      me._law1(me.semantic_law_map_text_delete_reports_presence()),
       me.effect_mutates_shape(),
       me.op_map_delete(),
-      me.result_dynamic(),
+      me.result_bool_value(),
       me.tier_cold_fallback(),
       "nyash.map.delete_hh",
       me._runtime_owner_map()
@@ -285,7 +289,7 @@ static box CoreMethodContractBox {
       "size",
       me._aliases2("len", "length"),
       "0",
-      me._law0(me.semantic_law_unprojected()),
+      me._law0(me.semantic_law_map_entry_count()),
       me.effect_pure_read(),
       me.op_map_len(),
       me.result_i64_value(),

@@ -26,6 +26,10 @@ pub(crate) enum CoreMethodHomeSchemaV1 {
     ArrayDynamicRead,
     MapTextPresence,
     MapTextKeys,
+    MapTextGet,
+    MapTextSet,
+    MapTextDelete,
+    MapEntryCount,
     ArrayCount,
 }
 
@@ -43,6 +47,9 @@ pub(crate) enum CoreMethodHomeParameterRelationV1 {
     /// not retain it (distinct from `TextRetainedByReceiver`).
     TextParameter,
     TextRetainedByReceiver,
+    /// A value the receiver installs (replacing any old value); the Map owns
+    /// it afterward. Only the Map `set` contract names it.
+    ValueRetainedByReceiver,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -64,6 +71,10 @@ pub(crate) enum CoreMethodHomeAbiProfileV1 {
     NamedArrayReadV1,
     MapTextPresenceV1,
     MapTextKeysV1,
+    MapTextGetV1,
+    MapTextSetV1,
+    MapTextDeleteV1,
+    MapEntryCountV1,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -142,6 +153,26 @@ impl CoreMethodInstanceTargetIssuerV1 {
         -> Result<Self, CoreMethodInstanceTargetRejectV1> {
         Self::with_schema(manifest_brand, CoreMethodHomeSchemaV1::MapTextKeys)
     }
+    pub(crate) fn map_text_get(
+        manifest_brand: CoreMethodManifestBrandV2,
+    ) -> Result<Self, CoreMethodInstanceTargetRejectV1> {
+        Self::with_schema(manifest_brand, CoreMethodHomeSchemaV1::MapTextGet)
+    }
+    pub(crate) fn map_text_set(
+        manifest_brand: CoreMethodManifestBrandV2,
+    ) -> Result<Self, CoreMethodInstanceTargetRejectV1> {
+        Self::with_schema(manifest_brand, CoreMethodHomeSchemaV1::MapTextSet)
+    }
+    pub(crate) fn map_text_delete(
+        manifest_brand: CoreMethodManifestBrandV2,
+    ) -> Result<Self, CoreMethodInstanceTargetRejectV1> {
+        Self::with_schema(manifest_brand, CoreMethodHomeSchemaV1::MapTextDelete)
+    }
+    pub(crate) fn map_entry_count(
+        manifest_brand: CoreMethodManifestBrandV2,
+    ) -> Result<Self, CoreMethodInstanceTargetRejectV1> {
+        Self::with_schema(manifest_brand, CoreMethodHomeSchemaV1::MapEntryCount)
+    }
     pub(crate) fn array_count(manifest_brand: CoreMethodManifestBrandV2)
         -> Result<Self, CoreMethodInstanceTargetRejectV1> {
         Self::with_schema(manifest_brand, CoreMethodHomeSchemaV1::ArrayCount)
@@ -185,6 +216,26 @@ impl CoreMethodInstanceTargetIssuerV1 {
             ),
             CoreMethodHomeSchemaV1::MapTextPresence => (
                 "MapBox", CoreMethodEffectV1::PureRead, CoreMethodHomeAbiProfileV1::MapTextPresenceV1,
+            ),
+            CoreMethodHomeSchemaV1::MapTextGet => (
+                "MapBox",
+                CoreMethodEffectV1::PureRead,
+                CoreMethodHomeAbiProfileV1::MapTextGetV1,
+            ),
+            CoreMethodHomeSchemaV1::MapTextSet => (
+                "MapBox",
+                CoreMethodEffectV1::MutatesSlot,
+                CoreMethodHomeAbiProfileV1::MapTextSetV1,
+            ),
+            CoreMethodHomeSchemaV1::MapTextDelete => (
+                "MapBox",
+                CoreMethodEffectV1::MutatesShape,
+                CoreMethodHomeAbiProfileV1::MapTextDeleteV1,
+            ),
+            CoreMethodHomeSchemaV1::MapEntryCount => (
+                "MapBox",
+                CoreMethodEffectV1::PureRead,
+                CoreMethodHomeAbiProfileV1::MapEntryCountV1,
             ),
             CoreMethodHomeSchemaV1::StringBoxText => (
                 "StringBox",
@@ -240,6 +291,64 @@ impl CoreMethodInstanceTargetIssuerV1 {
                     vec![CoreMethodHomeParameterRelationV1::TextParameter].into_boxed_slice(),
                     CoreMethodHomeResultRelationV1::BoolToCaller)
             },
+            (CoreMethodOp::MapGet, 1) if self.schema == CoreMethodHomeSchemaV1::MapTextGet => {
+                use crate::mir::core_method_result_kind::CoreMethodSemanticLawV2 as Law;
+                if generated.result_kind != CoreMethodResultKindV1::Dynamic
+                    || row.semantic_law_for_arity() != Some(Law::MapTextGetPresentOrFault)
+                {
+                    return Err(CoreMethodInstanceTargetRejectV1::ResultMismatch);
+                }
+                (
+                    CoreMethodHomeReceiverRelationV1::MapReceiver,
+                    vec![CoreMethodHomeParameterRelationV1::TextParameter].into_boxed_slice(),
+                    CoreMethodHomeResultRelationV1::DynamicToCaller,
+                )
+            }
+            (CoreMethodOp::MapSet, 2) if self.schema == CoreMethodHomeSchemaV1::MapTextSet => {
+                use crate::mir::core_method_result_kind::CoreMethodSemanticLawV2 as Law;
+                if generated.result_kind != CoreMethodResultKindV1::Dynamic
+                    || row.semantic_law_for_arity() != Some(Law::MapTextSetReplaceOrInsert)
+                {
+                    return Err(CoreMethodInstanceTargetRejectV1::ResultMismatch);
+                }
+                (
+                    CoreMethodHomeReceiverRelationV1::MapReceiver,
+                    vec![
+                        CoreMethodHomeParameterRelationV1::TextParameter,
+                        CoreMethodHomeParameterRelationV1::ValueRetainedByReceiver,
+                    ]
+                    .into_boxed_slice(),
+                    CoreMethodHomeResultRelationV1::DynamicToCaller,
+                )
+            }
+            (CoreMethodOp::MapDelete, 1)
+                if self.schema == CoreMethodHomeSchemaV1::MapTextDelete =>
+            {
+                use crate::mir::core_method_result_kind::CoreMethodSemanticLawV2 as Law;
+                if generated.result_kind != CoreMethodResultKindV1::BoolValue
+                    || row.semantic_law_for_arity() != Some(Law::MapTextDeleteReportsPresence)
+                {
+                    return Err(CoreMethodInstanceTargetRejectV1::ResultMismatch);
+                }
+                (
+                    CoreMethodHomeReceiverRelationV1::MapReceiver,
+                    vec![CoreMethodHomeParameterRelationV1::TextParameter].into_boxed_slice(),
+                    CoreMethodHomeResultRelationV1::BoolToCaller,
+                )
+            }
+            (CoreMethodOp::MapLen, 0) if self.schema == CoreMethodHomeSchemaV1::MapEntryCount => {
+                use crate::mir::core_method_result_kind::CoreMethodSemanticLawV2 as Law;
+                if generated.result_kind != CoreMethodResultKindV1::I64Value
+                    || row.semantic_law_for_arity() != Some(Law::MapEntryCount)
+                {
+                    return Err(CoreMethodInstanceTargetRejectV1::ResultMismatch);
+                }
+                (
+                    CoreMethodHomeReceiverRelationV1::MapReceiver,
+                    Box::new([]) as Box<[_]>,
+                    CoreMethodHomeResultRelationV1::I64ToCaller,
+                )
+            }
             (CoreMethodOp::StringLen, 0) => {
                 if generated.result_kind != CoreMethodResultKindV1::I64Value {
                     return Err(CoreMethodInstanceTargetRejectV1::ResultMismatch);
@@ -277,6 +386,10 @@ impl CoreMethodInstanceTargetIssuerV1 {
                     }
                     CoreMethodHomeSchemaV1::MapTextPresence
                     | CoreMethodHomeSchemaV1::MapTextKeys
+                    | CoreMethodHomeSchemaV1::MapTextGet
+                    | CoreMethodHomeSchemaV1::MapTextSet
+                    | CoreMethodHomeSchemaV1::MapTextDelete
+                    | CoreMethodHomeSchemaV1::MapEntryCount
                     | CoreMethodHomeSchemaV1::ArrayCount
                     | CoreMethodHomeSchemaV1::ArrayDynamicRead
                     | CoreMethodHomeSchemaV1::StringBoxText => {

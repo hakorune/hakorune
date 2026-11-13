@@ -446,8 +446,9 @@ uint32_t nyrt_map_checked_install_borrowed_array_v1(void *, uint32_t, uint64_t, 
 #define NYRT_MAP_VALUE_BOOL 2u
 #define NYRT_MAP_VALUE_BORROWED_HANDLE 3u
 uint32_t nyrt_map_checked_install_value_v1(void *, uint32_t, uint64_t, void *, void *, uint32_t, int64_t, void *) __asm__("nyash.map.checked_install_value_v1");
-/* Checked Map scalar read: Normal writes the i64 to out; Missing writes 0.
- * A present non-i64 payload records Fault 104 and leaves out unchanged.
+/* Checked Map scalar read: Normal writes the i64 to out. A missing key
+ * records Fault 114 (details {0,0}) and a present non-i64 payload records
+ * Fault 104; both leave out unchanged.
  * The key is validated UTF-8 caller input — no key storage is consumed.
  * The read never ends, moves, or borrows the map lease. */
 uint32_t nyrt_map_checked_get_i64_v1(void *, uint64_t, void *, const uint8_t *, size_t, int64_t *) __asm__("nyash.map.checked_get_i64_v1");
@@ -492,6 +493,9 @@ typedef struct NyrtTextViewStorageV1 {
 /* MapGetText faults: missing=109, present non-text=110. */
 #define NYRT_FAULT_REASON_MAP_TEXT_MISSING_V1 109u
 #define NYRT_FAULT_REASON_MAP_TEXT_NON_TEXT_V1 110u
+/* Checked Map scalar read found no entry for the key; details = {0,0}.
+ * Check presence with checked_has_v1 first. (Decision 2026-11-13.) */
+#define NYRT_FAULT_REASON_MAP_SCALAR_MISSING_V1 114u
 /* ArrayLength faults: missing=111, present non-array=112. */
 #define NYRT_FAULT_REASON_MAP_ARRAY_LENGTH_MISSING_V1 111u
 #define NYRT_FAULT_REASON_MAP_ARRAY_LENGTH_NON_ARRAY_V1 112u

@@ -56,6 +56,10 @@ pub(crate) enum CoreMethodSemanticLawV2 {
     Unprojected,
     ArrayCount,
     MapKeyPresence,
+    MapTextGetPresentOrFault,
+    MapTextSetReplaceOrInsert,
+    MapTextDeleteReportsPresence,
+    MapEntryCount,
     MapTextKeysSnapshot,
     CodePointCount,
     CodePointHalfOpenClamped,
@@ -68,6 +72,10 @@ impl CoreMethodSemanticLawV2 {
             Self::Unprojected => "Unprojected",
             Self::ArrayCount => "ArrayCount",
             Self::MapKeyPresence => "MapKeyPresence",
+            Self::MapTextGetPresentOrFault => "MapTextGetPresentOrFault",
+            Self::MapTextSetReplaceOrInsert => "MapTextSetReplaceOrInsert",
+            Self::MapTextDeleteReportsPresence => "MapTextDeleteReportsPresence",
+            Self::MapEntryCount => "MapEntryCount",
             Self::MapTextKeysSnapshot => "MapTextKeysSnapshot",
             Self::CodePointCount => "CodePointCount",
             Self::CodePointHalfOpenClamped => "CodePointHalfOpenClamped",
@@ -261,12 +269,18 @@ mod tests {
             ("ArrayBox", "get", 1),
             ("MapBox", "get", 1),
             ("MapBox", "set", 2),
-            ("MapBox", "delete", 1),
             ("MapBox", "keys", 0),
         ] {
             let row = lookup_core_method_result_row_v2(receiver, method, arity).unwrap();
             assert_eq!(row.result_kind, CoreMethodResultKindV1::Dynamic);
         }
+    }
+
+    #[test]
+    fn map_delete_reports_presence_as_bool_per_the_language_reference() {
+        let row = lookup_core_method_result_row_v2("MapBox", "delete", 1).unwrap();
+        assert_eq!(row.result_kind, CoreMethodResultKindV1::BoolValue);
+        assert!(row.aliases.contains(&"remove"));
     }
 
     #[test]

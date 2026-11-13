@@ -117,7 +117,7 @@
       "aliases": [],
       "arity": "1",
       "semantic_law": {
-        "1": "Unprojected"
+        "1": "MapTextGetPresentOrFault"
       },
       "effect": "pure_read",
       "core_op": "MapGet",
@@ -135,7 +135,7 @@
       "aliases": [],
       "arity": "2",
       "semantic_law": {
-        "2": "Unprojected"
+        "2": "MapTextSetReplaceOrInsert"
       },
       "effect": "mutates_slot",
       "core_op": "MapSet",
@@ -173,11 +173,11 @@
       ],
       "arity": "1",
       "semantic_law": {
-        "1": "Unprojected"
+        "1": "MapTextDeleteReportsPresence"
       },
       "effect": "mutates_shape",
       "core_op": "MapDelete",
-      "result_kind": "Dynamic",
+      "result_kind": "BoolValue",
       "lowering_tier": "cold_fallback",
       "cold_lowering": "nyash.map.delete_hh",
       "runtime_owner": ".hako MapBox contract / Rust map substrate",
@@ -212,7 +212,7 @@
       ],
       "arity": "0",
       "semantic_law": {
-        "0": "Unprojected"
+        "0": "MapEntryCount"
       },
       "effect": "pure_read",
       "core_op": "MapLen",

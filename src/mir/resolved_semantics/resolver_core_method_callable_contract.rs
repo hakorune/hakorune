@@ -21,7 +21,9 @@ use super::{
     ResolvedMethodCallArgumentSourceV1,
 };
 use crate::mir::core_method_op::CoreMethodOp;
-use crate::mir::core_method_result_kind::{CoreMethodEffectV1, CORE_METHOD_MANIFEST_BRAND_V2};
+use crate::mir::core_method_result_kind::{
+    CoreMethodEffectV1, CoreMethodResultKindV1, CORE_METHOD_MANIFEST_BRAND_V2,
+};
 
 /// Fail-closed boundary for the bounded resolver contract.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -146,8 +148,18 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
     ) -> Result<VerifiedResolverOrdinaryCoreMethodSourceV1, ResolverCoreMethodCallableContractRejectV1> {
         let source = verify_source_identity(ledger, call)?;
         verify_arguments(call, &target)?;
-        if !matches!(target.schema(), CoreMethodHomeSchemaV1::StringBoxText | CoreMethodHomeSchemaV1::MapTextPresence
-            | CoreMethodHomeSchemaV1::MapTextKeys | CoreMethodHomeSchemaV1::ArrayCount | CoreMethodHomeSchemaV1::ArrayDynamicRead) {
+        if !matches!(
+            target.schema(),
+            CoreMethodHomeSchemaV1::StringBoxText
+                | CoreMethodHomeSchemaV1::MapTextPresence
+                | CoreMethodHomeSchemaV1::MapTextKeys
+                | CoreMethodHomeSchemaV1::ArrayCount
+                | CoreMethodHomeSchemaV1::ArrayDynamicRead
+                | CoreMethodHomeSchemaV1::MapTextGet
+                | CoreMethodHomeSchemaV1::MapTextSet
+                | CoreMethodHomeSchemaV1::MapTextDelete
+                | CoreMethodHomeSchemaV1::MapEntryCount
+        ) {
             return Err(ResolverCoreMethodCallableContractRejectV1::TargetSchemaMismatch);
         }
         verify_target(&target, call)?;
@@ -438,6 +450,30 @@ fn verify_target(
             CoreMethodHomeReceiverRelationV1::MapReceiver, CoreMethodEffectV1::PureRead,
             "MapBox", CoreMethodHomeAbiProfileV1::MapTextPresenceV1,
         ),
+        CoreMethodHomeSchemaV1::MapTextGet => (
+            CoreMethodHomeReceiverRelationV1::MapReceiver,
+            CoreMethodEffectV1::PureRead,
+            "MapBox",
+            CoreMethodHomeAbiProfileV1::MapTextGetV1,
+        ),
+        CoreMethodHomeSchemaV1::MapTextSet => (
+            CoreMethodHomeReceiverRelationV1::MapReceiver,
+            CoreMethodEffectV1::MutatesSlot,
+            "MapBox",
+            CoreMethodHomeAbiProfileV1::MapTextSetV1,
+        ),
+        CoreMethodHomeSchemaV1::MapTextDelete => (
+            CoreMethodHomeReceiverRelationV1::MapReceiver,
+            CoreMethodEffectV1::MutatesShape,
+            "MapBox",
+            CoreMethodHomeAbiProfileV1::MapTextDeleteV1,
+        ),
+        CoreMethodHomeSchemaV1::MapEntryCount => (
+            CoreMethodHomeReceiverRelationV1::MapReceiver,
+            CoreMethodEffectV1::PureRead,
+            "MapBox",
+            CoreMethodHomeAbiProfileV1::MapEntryCountV1,
+        ),
         CoreMethodHomeSchemaV1::StringBoxText => (
             CoreMethodHomeReceiverRelationV1::StringBoxReceiver,
             CoreMethodEffectV1::PureRead,
@@ -481,7 +517,39 @@ fn verify_target(
             ResolverCoreMethodCallableContractRejectV1::SelectorMismatch(call.selector().into()),
         );
     }
+    // Map contract laws are read from the generated row itself; the target
+    // issuer's own checks are not consulted.
+    use crate::mir::core_method_result_kind::CoreMethodSemanticLawV2 as Law;
+    let map_law = |schema, law, result_kind| {
+        target.schema() == schema
+            && target.row().semantic_law_for_arity() == Some(law)
+            && row.result_kind == result_kind
+    };
     match (row.op, target.row().arity(), target.result()) {
+        (CoreMethodOp::MapGet, 1, CoreMethodHomeResultRelationV1::DynamicToCaller)
+            if map_law(
+                CoreMethodHomeSchemaV1::MapTextGet,
+                Law::MapTextGetPresentOrFault,
+                CoreMethodResultKindV1::Dynamic,
+            ) => {}
+        (CoreMethodOp::MapSet, 2, CoreMethodHomeResultRelationV1::DynamicToCaller)
+            if map_law(
+                CoreMethodHomeSchemaV1::MapTextSet,
+                Law::MapTextSetReplaceOrInsert,
+                CoreMethodResultKindV1::Dynamic,
+            ) => {}
+        (CoreMethodOp::MapDelete, 1, CoreMethodHomeResultRelationV1::BoolToCaller)
+            if map_law(
+                CoreMethodHomeSchemaV1::MapTextDelete,
+                Law::MapTextDeleteReportsPresence,
+                CoreMethodResultKindV1::BoolValue,
+            ) => {}
+        (CoreMethodOp::MapLen, 0, CoreMethodHomeResultRelationV1::I64ToCaller)
+            if map_law(
+                CoreMethodHomeSchemaV1::MapEntryCount,
+                Law::MapEntryCount,
+                CoreMethodResultKindV1::I64Value,
+            ) => {}
         (CoreMethodOp::MapKeys, 0, CoreMethodHomeResultRelationV1::TextArrayToCaller)
             if target.checked_text_keys_law_v1() => {},
         (CoreMethodOp::ArrayLen, 0, CoreMethodHomeResultRelationV1::I64ToCaller)
@@ -500,13 +568,22 @@ fn verify_target(
     }
     use super::CoreMethodHomeParameterRelationV1 as Parameter;
     let expected_parameters: &[Parameter] = match row.op {
-        CoreMethodOp::StringLen | CoreMethodOp::MapKeys | CoreMethodOp::ArrayLen => &[],
+        CoreMethodOp::StringLen
+        | CoreMethodOp::MapKeys
+        | CoreMethodOp::ArrayLen
+        | CoreMethodOp::MapLen => &[],
+        CoreMethodOp::MapGet | CoreMethodOp::MapDelete => &[Parameter::TextParameter],
+        CoreMethodOp::MapSet => &[Parameter::TextParameter, Parameter::ValueRetainedByReceiver],
         CoreMethodOp::StringSubstring => &[Parameter::I64Parameter, Parameter::I64Parameter],
         CoreMethodOp::ArrayPush => match target.schema() {
             CoreMethodHomeSchemaV1::ArrayTextAppend => &[Parameter::TextRetainedByReceiver],
             CoreMethodHomeSchemaV1::ArrayIntegerAppend => &[Parameter::I64Parameter],
             CoreMethodHomeSchemaV1::MapTextPresence
             | CoreMethodHomeSchemaV1::MapTextKeys
+            | CoreMethodHomeSchemaV1::MapTextGet
+            | CoreMethodHomeSchemaV1::MapTextSet
+            | CoreMethodHomeSchemaV1::MapTextDelete
+            | CoreMethodHomeSchemaV1::MapEntryCount
             | CoreMethodHomeSchemaV1::ArrayCount
             | CoreMethodHomeSchemaV1::ArrayDynamicRead
             | CoreMethodHomeSchemaV1::StringBoxText => {
