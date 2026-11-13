@@ -128,8 +128,12 @@
 - 入った物（L1〜L4・L14）: 引数の無い `new MapBox()` は、body shape の層（`is_empty_map_construction_v1`）で「keys が空の `MapLiteral` の行」として 1 回だけ封印する。Home の走査・`MapHomeFlow`・`acquire_map`・lifecycle の undertaking・物理の `Map::New` と End は、既にある `%{}` の道をそのまま使う。
 - 入った物（`set`、L5・L7 の一部）: named local の Map への `m.set("<literal>", <i64>)` の文は、同じ `MapHomeFlow` の行の `stores`（`MapLocalStoreV1`）に 1 件足す。受理の条件は、`.hako` の行の法則 `MapTextSetReplaceOrInsert`（method 名ではなく行）・key が文字列 literal・値が I64 の literal か I64 の local・receiver が live な Map の Home。物理は既にある `PrepareKey`・`InstallValue`・`EndOutcome` を、構築の emission と同じ検査（key の順・install の数・値の種類）に載せる。fault の cleanup は live な Home 全部の既存の unwind（`prior_home_unwind_for`）で、Map の End は 1 回。新しい持ち主・台帳・公開の形は無い。
 - 拒否の診断: `OwnerTerminalHomesUnavailable` に `cause` を足し、Home の走査を止めた最初の文を指す。
-- 通る物: `new MapBox()` だけ、`set`（上書きを含む）+ `return m.get("k")`（e12 は exit 5、無い key は Fault 114）、`%{}` の literal への `set`。
-- 通らない物（L5・L6・L8〜L10 の残り、止めた）:
-  - `has`・`size`・`delete`: named local の Map 用の物理操作が無い。`MapInvokeOperation` にあるのは field 用の `FieldHas`・`FieldDeleteIndexed` だけで、`size`・`delete` には runtime の export も無い。新しい MIR の操作・C の emit・runtime の ABI が要り、L12 に当たる。
-  - `local v = m.get(..)`・`m.get(..) + m.get(..)`: 式の評価の Core 経路が、Map の受け手を field に限っている（`field_map()` を読む所が 30 か所ほど。`core_method_source/ordinary.rs`、`ordinary_new_borrowed_actual_method_result.rs`、条件・scalar・bool の各 file）。named local の受け手を共通の Core の証拠にする仕事で、`set` と同じ小さな追加では済まない。使う所ごとに専用の判定を足すのは L6 に反するので、足していない。
-  - `Text`・`Bool` の値の `set`、`keys`: L7・L10 のとおり受けず、拒否は `PrefixNotCovered(その文)` を指す。
+- 入った物（`get`、L5・L6・L8 の一部）: named local の Map への `m.get("<literal>")` は、`local v = ..`・`return`・`print`・`+` の operand のどこでも、共通の式の評価の Core operation として扱う。使う所ごとの判定は足していない。
+  - 源の側: `OriginalCoreOperandRequestV1` が、receiver の local の唯一の初期化子が封印済みの Map 構築（`MapLiteral` の行）で、行の op が `MapGet` の時だけ `local_map` を持つ。`checked_map_get_law_v1`（行の法則 `MapTextGetPresentOrFault` と形の検査）が受理の条件。
+  - Home の側: `prepare_expression_calls_v1` が、その Map が live な Home である事を確かめ、receiver の read を Core の呼び出しに属させる（Identity）。結果は `ExpressionCoreSourceLoanV1::result_class` が receiver の証拠を見て I64 にする（field の Map の `get` は object を返すので、target だけでは決めない）。
+  - 物理: receiver の read は alias と同じ `path_reads` の道で 1 回だけ取り、構築の emission の値と一致する事を ledger（`local_map_receiver_read_v1`）が確かめる。Invoke は既にある `CheckedGetI64` で、Fault は live な Home 全部の unwind（Map の End 1 回）。
+- 通る物: `new MapBox()` だけ、`set`（上書きを含む）、`get`（return・local・print・演算）、無い key は Fault 114（e12 は exit 5）。`%{}` の literal にも同じ。
+- 通らない物（止めた）:
+  - `has`・`size`・`delete`: named local の Map 用の物理操作が無い。`MapInvokeOperation` にあるのは field 用の `FieldHas`・`FieldDeleteIndexed` だけで、`size`・`delete` には runtime の export も無い。新しい MIR の操作・C の emit・runtime の ABI・物理 ABI の JSON の kind が要り、L12 に当たる。
+  - 条件の中の `get`（`if m.get("k") == 5`）: 条件の経路（`scalar_invoke_input_order_v1`・`comparison_input_order_v1`・`checked_scalar_base_operation_v1`）が Map の受け手を field に限っている。拒否は `PrefixNotCovered(その文)` を指す。
+  - `Text`・`Bool` の値の `set`、非 literal の key、`keys`: L7・L10 のとおり受けず、拒否は文を指す。
