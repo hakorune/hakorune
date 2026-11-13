@@ -200,7 +200,8 @@ storage/key/outcome lifecycle is:
 The three value tags are `NYRT_MAP_VALUE_I64=1`, `BOOL=2`, and
 `BORROWED_HANDLE=3`. A borrowed-handle entry never becomes an integer read;
 `nyrt_map_checked_get_i64_v1` records the existing type fault and leaves the
-output unchanged. Detailed storage, residence, fault, and lifetime rules stay
+output unchanged. A missing key records `NYRT_FAULT_REASON_MAP_SCALAR_MISSING_V1`
+(114) and also leaves the output unchanged. Detailed storage, residence, fault, and lifetime rules stay
 owned by the [checked-map opaque ABI contract](../runtime/runtime-data-dispatch.md#checked-map-opaque-abi-contract)
 and the [collection construction owner](../../development/current/main/design/collection-literal-construction-ssot.md#published-operand-projection-inventory).
 

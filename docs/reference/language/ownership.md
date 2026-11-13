@@ -663,6 +663,14 @@ Ending a detached obligation is scheduled outside storage locks by the physical
 cleanup owner; arbitrary host clone/Drop or last-thread destruction is not the
 source finalization policy.
 
+Decision (2026-11-13): `get` of a key the MapBox does not hold is a Fault, not a
+value. A stored `0` and an absent key are therefore never confused. Check with
+`has` first. The checked scalar read records Fault 114
+(`NYRT_FAULT_REASON_MAP_SCALAR_MISSING_V1`) and writes nothing to its output.
+`get` has no nullable result and no default value. `delete` reports presence as
+a Bool: true when the key was present and was detached, false when it was
+absent; an absent key is not a Fault. `size` counts entries and does not Fault.
+
 A source-authorized exact slot read may borrow only while its support remains
 valid. Such a read is not automatically admitted, and cannot be used beyond
 replacement/delete/Map end without a separate lifetime proof. It must not become

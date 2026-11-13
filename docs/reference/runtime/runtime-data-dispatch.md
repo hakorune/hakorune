@@ -410,7 +410,7 @@ checks for roles, identities, SSA, transfer, cleanup or temporary consumption.
 | checked indexed install | validate frame/Map/profile/Ready key/Unissued outcome and nonoverlap before consumption; move key, prepare indexed residence and install |
 | checked value install | validate kind and Bool bits before key consumption, then the same install state machine; I64/Bool occupy inline payloads, BorrowedHandle occupies a non-owning inline snapshot, never indexed identities |
 | checked text install | validate UTF-8 bytes and pointer separation before key consumption, then the same install state machine; Text occupies an owned inline payload, never an interned or shared handle |
-| checked scalar i64 get | validate frame/site/Live map/UTF-8 key bytes and pointer separation; Normal writes the i64 to `out` (Missing writes `0`); a present non-i64 payload records Fault 104 without writing `out`; consumes nothing and leaves the map live |
+| checked scalar i64 get | validate frame/site/Live map/UTF-8 key bytes and pointer separation; Normal writes the i64 to `out`; a missing key records Fault 114 and a present non-i64 payload records Fault 104, neither writing `out`; consumes nothing and leaves the map live |
 | detached end | move Ready payload and mark Consumed before child end; ReadyNoOld also consumes |
 | Map end | require Live; consume through Ending to Ended with first-Fault/best-effort cleanup |
 | key dispose | cancel Ready natively, or release Empty/Consumed bookkeeping |
@@ -520,9 +520,14 @@ and outcome publication protocol as the other install exports.
 The checked scalar-read entry uses `(frame, site:u64, map,
 bytes:*const u8, len:usize, out:*mut i64)->u32`. It requires a Live map and
 valid UTF-8 key bytes supplied by the caller — no key storage is prepared
-or consumed. A present `I64` payload writes the value and a missing key
-writes `0`, both Normal; a present non-i64 payload records Fault 104
-(`NYRT_FAULT_REASON_MAP_NON_SCALAR_READ_V1`) and leaves `out` unwritten.
+or consumed. A present `I64` payload writes the value and returns Normal. Decision
+(2026-11-13): a missing key records Fault 114
+(`NYRT_FAULT_REASON_MAP_SCALAR_MISSING_V1`, details `{0,0}`) and leaves `out`
+unwritten, so a stored `0` is never confused with an absent key; check
+presence with `checked_has_v1` first. A present non-i64 payload records
+Fault 104 (`NYRT_FAULT_REASON_MAP_NON_SCALAR_READ_V1`) and leaves `out`
+unwritten. The unchecked `runtime_data.get_hh` has no Fault channel and is
+not changed by this decision.
 The read installs nothing, borrows nothing and ends nothing: entry order
 and the lease are untouched, so borrowed `MapBox` formals can read without
 owning the map. The compiler's `map_checked_get` op pre-initializes `out`
@@ -545,6 +550,11 @@ identity check does not prove a source borrow lifetime. The original holder,
 field, key/entry and class must remain supported through the last use, with
 replacement/End excluded by the source and final consumers. These runtime
 entries alone open no general Call/Return or Map-held-result source permission.
+
+The generated `MapTextGetPresentOrFault`, `MapTextSetReplaceOrInsert`,
+`MapTextDeleteReportsPresence` and `MapEntryCount` laws record the `get`, `set`,
+`delete` (Bool) and `size` (I64, no Fault) contracts. Their Core targets are
+issued and independently verified; no source shape is admitted through them yet.
 
 The generated `MapKeyPresence` law records this kind-independent existence
 contract. Its checked Core schema borrows one Text key and yields Bool without
