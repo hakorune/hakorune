@@ -962,3 +962,22 @@ fn checked_get_on_a_named_local_map_is_a_shared_expression_operation() {
             .unwrap_or_else(|(_, error)| panic!("{body}: {error:?}"));
     }
 }
+
+#[test]
+fn a_declared_user_box_named_map_box_is_never_the_builtin_empty_map() {
+    // The shape layer seals `new MapBox()` as the builtin empty Map by class
+    // name alone; the first layer that knows the declarations must refuse the
+    // collision with a named issue instead of turning the user box into a Map.
+    let source = "box MapBox { init { x } } static box Main { main() { local m = new MapBox() return 7 } }";
+    let refused = match issue(source) {
+        Err(error) => format!("{error:?}"),
+        Ok(package) => {
+            let mut context = CompilationContext::new();
+            match package.prepare_install(&mut context) {
+                Err((_, error)) => format!("{error:?}"),
+                Ok(_) => panic!("a user box named MapBox must not install as a builtin Map"),
+            }
+        }
+    };
+    assert!(refused.contains("BuiltinMapNameShadowed"), "{refused}");
+}

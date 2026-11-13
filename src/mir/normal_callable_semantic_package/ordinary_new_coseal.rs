@@ -613,6 +613,13 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
         site: OwnedExprSiteV1,
         class: Box<str>,
     },
+    /// A declared user box named like the builtin Map: the shape layer seals
+    /// `new MapBox()` as the builtin empty Map, so the site cannot also be an
+    /// ordinary user `new`.
+    BuiltinMapNameShadowed {
+        site: OwnedExprSiteV1,
+        class: Box<str>,
+    },
     ConstructorLookup {
         site: OwnedExprSiteV1,
         class: Box<str>,

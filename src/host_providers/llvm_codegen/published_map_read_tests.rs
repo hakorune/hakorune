@@ -22,7 +22,7 @@ fn issued_map_read_source_exe_probe_observes_get_contract_and_end() {
         // (source, exit, expected READ tail). The out-slot stays -1 when the
         // kernel records Fault — it writes only on Normal. A missing key is
         // Fault 114 and a present non-i64 payload is Fault 104.
-        let cases: [(&str, Option<&str>, i32, &str, &str); 12] = [
+        let cases: [(&str, Option<&str>, i32, &str, &str); 15] = [
             (
                 "local m = %{\"k\" => 7} return m.get(\"k\")",
                 None,
@@ -89,6 +89,31 @@ fn issued_map_read_source_exe_probe_observes_get_contract_and_end() {
                 70,
                 "70 1 1 1 1 0 0 READ  0 0 0 0 1 1\n",
                 "REPORT 100 ",
+            ),
+            // The i64 result is the checked read's contract, not what the Map was
+            // written with: a present Text payload Faults 104 and the Map Ends once.
+            (
+                "local m = %{\"k\" => \"x\"} return m.get(\"k\")",
+                None,
+                70,
+                "70 1 1 1 1 1 1 READ k 1 -1 1 1 2 1\n",
+                "REPORT 104 ",
+            ),
+            // `set` install Fault: the attempt consumed its key, no entry was
+            // installed, and the one Map still Ends once.
+            (
+                "local m = new MapBox() m.set(\"k\", 5) return m.get(\"k\")",
+                Some("value-install-fault"),
+                70,
+                "70 1 1 1 1 1 1 READ  0 0 0 0 1 1\n",
+                "REPORT ",
+            ),
+            (
+                "local m = new MapBox() m.set(\"a\", 4) m.set(\"b\", 3) return m.get(\"a\")",
+                Some("value-install-fault"),
+                70,
+                "70 1 1 1 1 1 1 READ  0 0 0 0 1 1\n",
+                "REPORT ",
             ),
             // A checked get inside an expression is a shared Core operation: the
             // same single Map end on Normal and on a missing-key Fault.
@@ -334,6 +359,7 @@ fn assert_map_read_probe_with_mode(
         "checked_install_borrowed_array",
         "checked_install_empty_array",
         "checked_install_indexed_end",
+        "checked_install_value",
         "checked_array_length",
         "checked_array_index_map",
         "checked_get_text",

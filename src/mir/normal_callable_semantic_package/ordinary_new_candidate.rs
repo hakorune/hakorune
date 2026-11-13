@@ -69,6 +69,13 @@ impl OrdinaryNewCandidate {
             }
             return Err(OrdinaryNewCoSealIssueV1::OrdinaryBoxCoverageMissing { site, class });
         };
+        if crate::mir::resolved_semantics::is_builtin_empty_map_new_v1(
+            class.as_ref(),
+            arity,
+            usize::from(has_overrides),
+        ) {
+            return Err(OrdinaryNewCoSealIssueV1::BuiltinMapNameShadowed { site, class });
+        }
         let (object, destruction) =
             instance_constructors
                 .destruction_for(box_source)

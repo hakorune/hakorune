@@ -88,14 +88,27 @@ pub(crate) enum BodyExpressionShapeV1 {
     },
 }
 
-/// `new MapBox()` with no arguments and no field initializers is the same
-/// empty Map construction as `%{}`. The shape layer is the one place that says
-/// so; every Map consumer then reads the same sealed `MapLiteral` row.
+/// The builtin `MapBox` construction that is the same empty Map as `%{}`:
+/// no arguments and no field initializers. The shape layer is the one place
+/// that says so; every Map consumer then reads the same sealed `MapLiteral`
+/// row. A user box of the same name is not this: the first layer that knows
+/// the declarations (`ordinary_new_candidate`) refuses that collision.
+pub(crate) fn is_builtin_empty_map_new_v1(
+    class: &str,
+    arguments: usize,
+    field_initializers: usize,
+) -> bool {
+    class == "MapBox"
+        && crate::box_trait::is_builtin_box(class)
+        && arguments == 0
+        && field_initializers == 0
+}
+
 pub(crate) fn is_empty_map_construction_v1(node: &crate::ast::ASTNode) -> bool {
     matches!(
         node,
         crate::ast::ASTNode::New { class, arguments, field_initializers, .. }
-            if class == "MapBox" && arguments.is_empty() && field_initializers.is_empty()
+            if is_builtin_empty_map_new_v1(class, arguments.len(), field_initializers.len())
     )
 }
 

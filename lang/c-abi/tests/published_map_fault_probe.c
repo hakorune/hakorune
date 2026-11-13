@@ -181,6 +181,23 @@ uint32_t wrap_value(void* frame, uint32_t profile, uint64_t site, void* map,
 }
 #endif
 
+#if defined(HAKO_MAP_READ_PROBE) && !defined(HAKO_MAP_VALUE_PROBE)
+/* A named-local `set` installs through the shared value install. `value-install-fault`
+ * drives the real attempt-Fault transition, as the value probe does; no fake mutation. */
+extern uint32_t real_read_value(void*, uint32_t, uint64_t, void*, void*, uint32_t, int64_t, void*)
+    __asm__("__real_nyash.map.checked_install_value_v1");
+extern uint32_t real_read_indexed(void*, uint32_t, uint64_t, void*, void*, int64_t, int64_t, void*)
+    __asm__("__real_nyash.map.checked_install_indexed_v1");
+uint32_t wrap_read_value(void*, uint32_t, uint64_t, void*, void*, uint32_t, int64_t, void*)
+    __asm__("__wrap_nyash.map.checked_install_value_v1");
+uint32_t wrap_read_value(void* frame, uint32_t profile, uint64_t site, void* map,
+    void* key, uint32_t kind, int64_t value, void* out) {
+  if (is_mode("value-install-fault"))
+    return real_read_indexed(frame, profile, site, map, key, INT64_MAX, 900, out);
+  return real_read_value(frame, profile, site, map, key, kind, value, out);
+}
+#endif
+
 #if defined(HAKO_MAP_THREE_OWNER_PROBE) || defined(HAKO_MAP_FOUR_OWNER_PROBE) || defined(HAKO_MAP_FIVE_OWNER_PROBE) || defined(HAKO_MAP_CONSUMER_PROBE)
 static unsigned ordinal_mode(const char* prefix) {
   size_t length = strlen(prefix);

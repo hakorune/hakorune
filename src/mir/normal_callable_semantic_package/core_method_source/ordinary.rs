@@ -315,15 +315,19 @@ impl ExpressionCoreSourceLoanV1 {
         if self.is_array_dynamic_get_v1() && self.proves_text_result_v1() {
             return Some(crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String);
         }
-        // A checked scalar read of a named-local Map is an i64 value or a
-        // Fault; the target alone cannot say so (a field Map `get` returns
-        // objects), so the receiver evidence decides.
+        // The i64-or-Fault result comes from the checked read itself:
+        // `CheckedGetI64` Faults 114 on an absent key and 104 on a present
+        // non-i64 value (law `MapTextGetPresentOrFault`). It does not come from
+        // which values the Map was written with. The receiver evidence only
+        // selects this read: a field Map `get` is a different, object-returning
+        // read, so the target alone does not.
         if self.local_map().is_some() && self.source().target().checked_map_get_law_v1() {
             return Some(crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64);
         }
         self.source().target().expression_result_class_v1()
     }
-    /// The named-local Map this checked `get` reads.
+    /// Receiver evidence only: the live named-local Map this checked `get`
+    /// borrows. It says nothing about the type of the stored values.
     pub(crate) fn local_map(&self) -> Option<crate::mir::resolved_semantics::BindingRefV1> {
         self.original.operands.local_map()
     }
