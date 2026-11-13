@@ -369,3 +369,52 @@ D・A・U の実際（この回、`45827ec086..HEAD`、production は test と d
   - 構築子の本体の Map の local（宣言なしの `new MapBox()` と `get`）は、2d と同じく `map-completion` で拒否。Map を使う helper を `return me.make()` で呼ぶ形は、main から `StaticCallTargetAuthorityUnavailable` で拒否（static 呼び出しの穴と一緒に見る）。
   - `ordinary_new_local_commit/map.rs` は 857 行に戻ったが、800 行の上限は超えたまま。
 - 次: 段 B（Core の scalar の受理と結果型を発行の側で決める）は、tmux の Codex に送る（ユーザーの指示、2026-11-14）。受理が広がる法則と結果型（`return s.indexOf` など）は、送る前にユーザーの承認を取る。
+
+## 段 B: scalar Core の結果型を一つの問いから借りる（2026-11-14）
+
+基点 `549de8f790`。承認された拡張は既存の1引数String indexOf（CodePointSearchFromZero、Normal I64）のReturn根への接続だけ。static Call、Array receiver、Bool入口、2引数版は広げない。
+
+### 実装前の経路と責任（read-only worker と照合）
+
+| 基点の場所（src/mir/ 相対） | 分類 | 扱い |
+|---|---|---|
+| resolved_semantics/home_terminal_scalar_evaluation.rs:173–180 | (a) scalar readの適格性 | Returnの法則名一覧を削除し、loanの共通の結果型の問いへ |
+| resolved_semantics/home_expression_comparison_nodes.rs:251–252 | (a) scalar readの適格性 | 同じ問いへ、prefixとmatches_planは保持 |
+| resolved_semantics/home_expression_evaluation.rs:33–111 | (b) Fault枠 | frame_free_read_lawによる判定を保持、checked Map getの枠を消さない |
+| resolved_semantics/home_bool_condition.rs:215–247 | (c) 入力到達とowner | 比較の入力、field presence、直接Array receiverを保持 |
+| normal_callable_semantic_package/ordinary_new_local_commit/root_home.rs:308–316 | (b)(c) root cleanup借用 | shortcutの証拠を保持、一般評価の拒否と混ぜない |
+| builder/ordinary_new_admission/selected/arguments.rs:692–697 | (b) 既存testの命令形 | frame-free/Invokeの期待を保持 |
+| normal_callable_semantic_package/core_method_source/ordinary.rs:307–354 | (c) 元sourceの対応 | plan/site/receiver/operandの対応を保持 |
+| normal_callable_semantic_package/ordinary_new_local_commit/root_call_entry/expression_source_values.rs:604–659 | (c) 物理投影 | 元planとText domain、所有結果、既存writerを保持 |
+
+経路はobserve_scalar_return_expression_v1 → actuals(ExpressionCoreSource) → ExpressionCoreSourceLoanV1 → prepare_value_evaluation_v1（home_expression_value_preparation.rs:4–124、完成したroot class一致）→ TerminalScalarReturnV1 → selected/return_expression.rs:59–144 → 元source/finishing照合 → verification/invoke_string_read.rs:89–121。法則・Fault・receiverの別一覧は作らない。
+
+B4の関門（home_terminal_scalar_evaluation.rs:233–238）は、準備済みevaluationにFault枠が必要な時、元のterminal ownerへ戻す。新しいcleanupではなく、既存のqualificationとReturnのscalar continuationで閉じるCore根を接続する。Call/参照/fieldの証拠が完成しない一時値は未接続として保持する。indexOf名の例外や長さの互換一覧は足さない。長さ一時値も対照として測り、未承認の拡張が出れば止める。
+
+### 規則（実装前）
+
+- R1. loanのscalar_read_result_class_v1は既存frame-free law又はchecked Fault read、非所有結果、既存Normal結果型I64又はBoolを組み合わせて答える。
+- R2. Returnと比較のscalar適格性はR1だけを問い、元の法則名の一覧と条件の写しを削除する。
+- R3. Core根の結果型はR1からprepare_value_evaluation_v1へ渡し、返却先から逆向きに推測しない。
+- R4. 比較・論理根の既存型判定と、完成したevaluation・返却先の照合を保持する。
+- R5. Fault枠の要否、元plan/site/operand/receiver、比較入力owner、所有結果の対応はR1へ置き換えない。
+- R6. 取得と子の評価はsource順に一度だけ行い、既存のNormal/Fault cleanupと独立MIR検証で責任を閉じる。
+- R7. indexOf本体は二つのTextを借りるだけでsource Faultも取得もEndも増やさず、取得・他HomeのEndにだけ実在するFaultを観測する。
+- R8. ArrayCountは名指し除外せず、既存証拠でReturnだけ拒否する差が見つかった時は実装を止めて報告する。
+- R9. static Callは引数0/1以上、main/通常関数、Normal/Faultの証拠を調査するだけで接続しない。
+- R10. 成功同士のMIR/出力/exitを保持し、承認済み拡張・診断差・未承認の拡張を入力ごとに分類する。
+- R11. 独立検証は型・生存・Endを、元source照合はreceiver/needleの対応を守り、両者の証明を混同しない。
+
+### D・A・U の見積もり
+
+D（消える）12–20行: Return法則名一覧、比較の写し、B4の不要な拒否条件。A（共通queryと説明）14–20行。U（使う側productionの結果型配線）8–16行。正味+2–24行程度、production3ファイルを想定し、同一rustfmtの増減とGit物理行差を別に報告する。testと文書は別に数える。完成済み評価だけを接続し、新しい持ち主・cleanup・MIR/ABIは作らない。
+
+段Bの実装途中の境界: loanの共通queryとReturn/比較の結果型配線を接続し、元sourceのreceiver/needle交換を拒否する既存moduleのtestを追加した（既存の独立型・生存行列ではsource順序を証明できないため）。B4を一般化する試作では一時receiverのlengthも拒否から成功になったため、承認範囲外のその部分は保留して元の関門を保持する。法則名でlengthだけを除外する腕は作らない。
+
+### 段 B の着地と残る境界
+
+- `scalar_read_result_class_v1`を1か所に置き、Returnと比較が借りる。Return根の法則名の一覧は1か所から0か所。Coreの結果を返却先から逆算せず、既存のFault枠・source対応・独立検証は保持した。
+- B4を保持した範囲の見積もりを修正: D=6行（旧法則import/判定の写し）、A=17行（共通query）、U=正味+3行（使う側の置換・結果型配線等）、整形後productionは+14行。testは独立検証では区別できない元sourceのoperand交換の証拠1件で+58行。
+- 新しいprobe112本は既存成功39本が同一、拒否維持34本、検索法則のReturn接続により成功へ39本（calleeや枝を含むprogramと既存find別名も含む）。負例2本の診断は宣言Bool/Stringと実際のI64の不一致へ移り、拒否を維持する。既存1866 dump・927入力・229入力・apps100・384組・監査292入力は差0、固定8/8、全libの既知失敗224名を維持、Mapの実行18ケースも成功。
+- B4の関門の一般化は未着地: 一時receiverのlengthも成功へ変わるため承認範囲外となり、元の関門を保持した。一時receiver/needle/両方を直接Returnする3形は拒否を維持する。法則名や引数数でこの差を隠さない。共通cleanupに閉じる受理範囲を追加承認した時に再開する。
+- static Callの直接Returnは未接続。0/1引数ともmainはroot-completion、通常関数はroot-exit-source-missing。calleeにFault可能な式を置く場合も同じ拒否で、Fault経路の実行成功とは数えない。普通の関数の明示Returnへ、選択CallとNormal結果・出口のsource relationを届ける別作業が要る。

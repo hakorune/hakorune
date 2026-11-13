@@ -139,3 +139,61 @@ pub(in super::super::super) fn check_observation_mutations(
     }
     true
 }
+
+#[test]
+fn scalar_core_return_keeps_original_live_text_operand_order() {
+    // Both operands remain live Text after exchange. Only the original source
+    // correspondence, not a domain/lifetime check, distinguishes their roles.
+    let text = r#"
+static box Main {
+    main() {
+        local s = "hello"
+        return s.indexOf("l")
+    }
+}
+"#;
+    let (completed, ledger) =
+        crate::mir::builder::lexical_call_projection_document_completion_fixture(text);
+    let (key, module, _, keys, cohort) = completed.document_preflight_parts_for_test(true).unwrap();
+    let handoff = ledger
+        .seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new())
+        .unwrap();
+    let root = handoff.root_source().unwrap();
+    let context = CallValidationContextV1::Finalized(root);
+    let mut observations = 0;
+    for progress in ledger.root_exits.borrow().values() {
+        let order = match progress {
+            RootHomeExitProgress::Emitted { order, .. }
+            | RootHomeExitProgress::Finalized(order) => order,
+            _ => continue,
+        };
+        let Some(packet) = &order.return_expression else {
+            continue;
+        };
+        let row = packet.expression();
+        row.validate_source(context).unwrap();
+        let mut changed = row.original.to_vec();
+        let mut exchanged = 0;
+        for (_, instruction) in &mut changed {
+            if let MirInstruction::StringIndexOf { value, needle, .. } = instruction {
+                assert_ne!(value, needle);
+                std::mem::swap(value, needle);
+                exchanged += 1;
+            }
+        }
+        if exchanged == 0 {
+            continue;
+        }
+        assert_eq!(exchanged, 1);
+        let altered = ExpressionPhysicalProjectionRefV1 {
+            original: &changed,
+            ..row
+        };
+        assert!(altered.validate_source(context).is_err());
+        packet.expression().validate_source(context).unwrap();
+        observations += 1;
+    }
+    assert_eq!(observations, 1);
+    root.visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| Ok(()))
+        .unwrap();
+}
