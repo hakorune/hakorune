@@ -147,11 +147,9 @@ impl OrdinaryNewClaimLedgerV1 {
         self.map_call_source(site)
             .and_then(|call| call.local_binding().map(|(_, binding)| binding))
     }
-    /// The Home flow observed a Map (complete or not) at this exact site.
-    pub(crate) fn has_map_site(&self, site: &OwnedExprSiteV1) -> bool {
-        self.completion_for_owner(site.owner())
-            .and_then(|completion| completion.cleanup().root_flow())
-            .is_some_and(|flow| flow.maps().iter().any(|m| m.site() == site))
+    /// A user box of this name is declared in the source.
+    pub(crate) fn declares_ordinary_box(&self, name: &str) -> bool {
+        self.ordinary_box_names.iter().any(|declared| declared.as_ref() == name)
     }
     pub(crate) fn map_flow(&self, site: &OwnedExprSiteV1) -> Result<&MapHomeFlow, String> {
         let completion = self

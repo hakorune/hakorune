@@ -3,10 +3,24 @@
 //! the site, not from the shape row's name.
 
 use super::builtin_map_construction::is_builtin_empty_map_new_v1;
+use crate::mir::resolved_semantics::{project_source_node_v1, ProjectedSourceNodeV1};
 use super::tests::batch;
 use crate::mir::resolved_semantics::{BodyExpressionShapeV1, SourceExprSiteV1};
 
 /// (sites sealed as `MapLiteral`, sites left neutral as `Other`) of `main`.
+/// The source node at `site` is the builtin empty Map construction.
+fn is_map_construction(
+    owner_root: &crate::ast::ASTNode,
+    site: &SourceExprSiteV1,
+    coverage: &crate::parser::ParserOrdinaryBoxSourceCoverageV1,
+) -> bool {
+    matches!(
+        project_source_node_v1(owner_root, site.node()),
+        Some(ProjectedSourceNodeV1::Node(node))
+            if is_builtin_empty_map_new_v1(node, |name| coverage.contains_box(name))
+    )
+}
+
 fn rows(source: &str) -> (Vec<SourceExprSiteV1>, Vec<SourceExprSiteV1>, bool) {
     let batch = batch(source);
     let slot = batch
@@ -31,7 +45,7 @@ fn rows(source: &str) -> (Vec<SourceExprSiteV1>, Vec<SourceExprSiteV1>, bool) {
             let correspondence = others
                 .iter()
                 .chain(maps.iter())
-                .filter(|site| is_builtin_empty_map_new_v1(owner_root, site, coverage))
+                .filter(|site| is_map_construction(owner_root, site, coverage))
                 .count()
                 == maps.len();
             (maps, others, correspondence)
@@ -97,7 +111,7 @@ fn evidence_moved_to_another_new_site_is_refused_by_the_source_check() {
             others
                 .iter()
                 .filter(|site| {
-                    is_builtin_empty_map_new_v1(
+                    is_map_construction(
                         input.source().root(),
                         site,
                         batch.ordinary_box_coverage(),

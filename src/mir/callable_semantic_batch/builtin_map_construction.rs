@@ -9,8 +9,7 @@
 
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
-    project_source_node_v1, ProjectedSourceNodeV1, SourceExprSiteV1,
-    VerifiedResolvedBodyShapeInventoryV1,
+    project_source_node_v1, ProjectedSourceNodeV1, VerifiedResolvedBodyShapeInventoryV1,
 };
 use crate::parser::ParserOrdinaryBoxSourceCoverageV1;
 
@@ -20,27 +19,31 @@ pub(crate) fn seal_builtin_empty_map_constructions_v1(
     coverage: &ParserOrdinaryBoxSourceCoverageV1,
 ) -> VerifiedResolvedBodyShapeInventoryV1 {
     shape.with_empty_map_constructions_v1(|site| {
-        is_builtin_empty_map_new_v1(owner_root, site, coverage)
+        matches!(
+            project_source_node_v1(owner_root, site.node()),
+            Some(ProjectedSourceNodeV1::Node(node))
+                if is_builtin_empty_map_new_v1(node, |name| coverage.contains_box(name))
+        )
     })
 }
 
-/// The source node at `site` is an argument-less `new` of the builtin `MapBox`.
-pub(super) fn is_builtin_empty_map_new_v1(
-    owner_root: &ASTNode,
-    site: &SourceExprSiteV1,
-    coverage: &ParserOrdinaryBoxSourceCoverageV1,
-) -> bool {
-    let Some(ProjectedSourceNodeV1::Node(ASTNode::New {
+/// `node` is an argument-less `new` of the builtin `MapBox`: no arguments, no
+/// field initializers, and `declared` says no user box of that name exists.
+/// The one place that names the builtin Map; the issuer and the builder's
+/// lowering entry both ask it with the same declarations.
+pub(crate) fn is_builtin_empty_map_new_v1(node: &ASTNode, declared: impl Fn(&str) -> bool) -> bool {
+    let ASTNode::New {
         class,
         arguments,
         field_initializers,
         ..
-    })) = project_source_node_v1(owner_root, site.node())
+    } = node
     else {
         return false;
     };
     class == "MapBox"
         && arguments.is_empty()
         && field_initializers.is_empty()
-        && coverage.resolves_to_builtin_box(class)
+        && !declared(class)
+        && crate::box_trait::is_builtin_box(class)
 }

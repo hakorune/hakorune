@@ -763,7 +763,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         }
         if self.callable_ledger.is_some()
             && (matches!(input, ASTNode::MapLiteral { .. })
-                || self.is_observed_map_construction_v1(&input))
+                || self.is_builtin_empty_map_construction_v1(&input))
         {
             return self.lower_callable_map_v1(builder);
         }

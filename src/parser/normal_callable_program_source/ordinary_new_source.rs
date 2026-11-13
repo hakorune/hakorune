@@ -46,13 +46,6 @@ impl ParserOrdinaryBoxSourceCoverageV1 {
         self.rows.iter().any(|row| row.name.as_ref() == name)
     }
 
-    /// `name` resolves to the builtin box: no user declaration of that name
-    /// exists in this source and the builtin catalog has it. The one question
-    /// that tells a builtin construction from a user box of the same name.
-    pub(crate) fn resolves_to_builtin_box(&self, name: &str) -> bool {
-        !self.contains_box(name) && crate::box_trait::is_builtin_box(name)
-    }
-
     pub(crate) fn row_for(
         &self,
         name: &str,

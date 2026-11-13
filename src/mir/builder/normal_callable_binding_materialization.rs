@@ -525,25 +525,16 @@ impl RawInvocationChildPortV1<'_, '_> {
         Ok(completed)
     }
 
-    /// A `new` that the Home flow observed as a Map at the current site: the
-    /// declaration-aware decision was made once upstream, so a user box of the
-    /// same name has no Map observation and stays an ordinary construction.
-    pub(super) fn is_observed_map_construction_v1(&self, input: &ASTNode) -> bool {
-        if !matches!(input, ASTNode::New { .. }) {
-            return false;
-        }
-        let (Some(state), Some(claims), Ok(site)) = (
-            self.callable_ledger.as_ref(),
-            self.ordinary_new_claim_ledger.as_ref(),
-            self.current_callable_site_v1("map-site"),
-        ) else {
-            return false;
-        };
-        let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
-            state.borrow().owner(),
-            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site),
-        );
-        claims.has_map_site(&owned)
+    /// A `new` that is the builtin empty Map: the issuer's own question asked
+    /// with the same declarations (the ledger's ordinary-box names), so a user
+    /// box of the same name stays an ordinary construction.
+    pub(super) fn is_builtin_empty_map_construction_v1(&self, input: &ASTNode) -> bool {
+        self.ordinary_new_claim_ledger.as_ref().is_some_and(|claims| {
+            crate::mir::callable_semantic_batch::builtin_map_construction::is_builtin_empty_map_new_v1(
+                input,
+                |name| claims.declares_ordinary_box(name),
+            )
+        })
     }
 
     pub(super) fn lower_callable_map_v1(
