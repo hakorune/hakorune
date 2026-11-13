@@ -298,3 +298,15 @@ D・A・U の実際（この回、`45827ec086..HEAD`、production は test と d
   - named local の Map の `get` が通らない位置: loop の条件、呼び出しの引数。loop の中の `set` も通らない。`: MapBox` の引数と、関数が返した Map の local は、まだ `terminal_map_get` を通る。
   - production の file `ordinary_new_local_commit/map.rs` は main で 857 行、今は 861 行（800 行の上限を超えたまま）。test の file `map_home_flow_tests.rs` は 1,019 行。
   - Map の物理 test（`--ignored`）の 10 本は、C の file の wrapper と test の wrap 一覧の食い違いで main でも落ちる。Python v4 の 4 本は Bool の capture が無く実行できない。
+
+## 次の段の順番（ChatGPT Pro に相談、2026-11-14）
+
+ユーザーが ChatGPT Pro に聞いてきた（読んだ main は `0e524cb848`）。残りを 1 回でまとめず、証拠の境目ごとに分けて進める。
+- A: `static box` と同じ名前の `new` の決まりを決める。builder は構築先を問い直さず、発行した結果を受け取る。shape の行の書き換えは、確かめ付きの限定的な再発行の入口にする。
+- B: Core の scalar の受理と結果型を、発行側の 1 つの判断（結果型・Fault の扱い・受け手の読み方）にそろえる。Return・比較・条件は、それぞれの契約（返却の型・型の組・Bool）だけを確かめる。受理が広がる分（`return s.indexOf(...)` など）は、先に法則と結果型をユーザーが承認する。
+- C: array alias の受け手を、比較でも共通の path read の観測と検証までつなぐ。
+- D: 関数が返した Map の local、次に `: MapBox` の引数を共通の `get` へ移し、整数の `terminal_map_get` を退役する。field の中の object を借りる get は残す。
+- E: `get` を呼び出しの引数へつなぐ。F: `get` を loop の条件へつなぐ。loop の中の `set` は別にする。
+- その後に、`size`・`has`・`delete` を操作ごとにつなぐ。`delete` は、更新できる受け手と取り外した値の責任が要るので、読みの共通化だけでは完成しない。
+
+ユーザーの決定（2026-11-14）: `static box MapBox { ... }` の宣言は許し、`new MapBox()` は static box を作れないので拒否する（ほかの static box の `new` と同じ）。組込みへやり直さない。`%{}` は組込みの Map のまま。決まりの正本は `docs/reference/language/types.md` の「Builtin box names and user declarations」（`LANGUAGE_REFERENCE_2025.md` は昔の記録なので、参照だけを残した）。

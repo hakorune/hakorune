@@ -142,6 +142,25 @@ Design SSOT:
 - `docs/development/current/main/design/object-storage-plan-boundary-ssot.md`
 - `docs/development/current/main/phases/phase-296x/296x-734-AGG-STORAGE-PLAN-000.md`
 
+### Builtin box names and user declarations
+
+Decision (2026-11-14):
+
+- A builtin box name (`MapBox`, `ArrayBox`, `StringBox`, ...) is not a reserved
+  word. A program may declare a `box` or `static box` with the same name.
+- A name that resolves to a user declaration denotes that declaration. With
+  `box MapBox { ... }`, `new MapBox()` constructs the user box and `m.get(k)`
+  calls the user method.
+- With `static box MapBox { ... }`, `new MapBox()` is rejected because a static
+  box is not constructible, exactly as `new` of any other static box. The
+  compiler does not retry the builtin of the same name.
+- Builtin construction, operation, ownership and destruction contracts come only
+  from a reference that resolves to the builtin, or from syntax that carries the
+  builtin meaning directly (`%{}`). A user declaration of the same name inherits
+  none of them (see also the named Array provider in `ownership.md`).
+- Open: aligning name resolution in positions other than `new`, such as type
+  annotations.
+
 ### Numeric Substrate Vocabulary (M0)
 
 Decision: accepted for the type-name/storage lock only.
