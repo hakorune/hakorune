@@ -275,8 +275,14 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_expression_ca
                     return Ok(None);
                 };
                 leaves[index] = Leaf::Value(class);
+                // A named-local Map receiver must be a live Home here; its read
+                // belongs to the Core call, never a separate value.
+                if core.local_map().is_some_and(|binding| prior_homes.iter().all(|home| home.binding() != binding)) {
+                    return Ok(None);
+                }
                 let receiver = core.field_map().map(|field| field.field_site())
-                    .or_else(|| core.field_array_access_v1().map(|count| count.receiver().site()));
+                    .or_else(|| core.field_array_access_v1().map(|count| count.receiver().site()))
+                    .or_else(|| core.local_map().map(|_| core.source().source().receiver_site()));
                 if let Some(receiver) = receiver {
                     // Only this exact receiver projection belongs to the Core
                     // call. Key subtrees keep their own Text/read obligations.
@@ -471,6 +477,19 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
             _ => return Ok(Err("field-array-receiver-class-conflict")),
         }
     }
+    // A named-local Map receiver is read by its Core call alone; it is an
+    // Identity, never a scalar or Text operand of the expression.
+    for core in cores.values().filter(|core| core.local_map().is_some()) {
+        let receiver = core.source().source().receiver_site();
+        let Some(index) = source.nodes().iter().position(|node| node.site() == receiver) else {
+            return Ok(Err("local-map-receiver-outside-plan"));
+        };
+        match leaves[index] {
+            Leaf::Unresolved => leaves[index] = Leaf::Identity,
+            Leaf::Identity => {}
+            _ => return Ok(Err("local-map-receiver-class-conflict")),
+        }
+    }
     // A Core Text receiver read is a distinct source contract from the
     // expression's ordinary scalar leaves. Seed it before generic local
     // reference classification so the receiver is not incorrectly required
@@ -565,7 +584,7 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
                 .position(|node| node.site() == site)
                 .map(|node| classes[node])
         };
-        let expected_receiver = if core.field_map().is_some() || core.field_array_access_v1().is_some() {
+        let expected_receiver = if core.field_map().is_some() || core.field_array_access_v1().is_some() || core.local_map().is_some() {
             Leaf::Identity
         } else {
             Leaf::Value(Class::String)

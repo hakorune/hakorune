@@ -167,7 +167,7 @@ impl<'a> OriginalActualSourceContextV1<'a> {
                     if source.caller() != &self.caller || source.call().site() != method.site()
                         || !source.matches_original_call_v1(input) { return OriginalMethodResultResolutionV1::Unknown; }
                     return OriginalMethodResultResolutionV1::FieldArrayAccess {
-                        request: OriginalCoreOperandRequestV1 { manifest }, source,
+                        request: OriginalCoreOperandRequestV1 { manifest, local_map: None }, source,
                     };
                 }
                 Ok(None) => {},
@@ -429,6 +429,9 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 struct OriginalCoreOperandRequestV1
 {
     manifest: crate::mir::core_method_result_kind::CoreMethodManifestRowRefV2,
+    /// The Map local a checked `get` reads: its sole initializer is a sealed
+    /// Map construction. Source identity only; the live Home is checked later.
+    local_map: Option<crate::mir::resolved_semantics::BindingRefV1>,
 }
 impl OriginalCoreOperandRequestV1 {
     fn checked(
@@ -470,8 +473,30 @@ impl OriginalCoreOperandRequestV1 {
             .filter(|inner| inner.owner() == method.owner() && inner.result_site() == method.receiver_site())
             .and_then(|inner| lookup_core_method_result_row_v2("MapBox", inner.selector(), inner.arity()))
             .is_some_and(|row| row.op == CoreMethodOp::MapKeys);
+        let local_map = match method.receiver() {
+            Receiver::Lexical(ResolvedLexicalRefV1::Local(binding))
+                if lookup_core_method_result_row_v2("MapBox", method.selector(), method.arity())
+                    .is_some_and(|row| row.op == CoreMethodOp::MapGet)
+                    && input
+                        .function()
+                        .expression_source()
+                        .sole_initializer(binding)
+                        .and_then(|relation| relation.initializer_site())
+                        .zip(input.body_shape())
+                        .is_some_and(|(site, shape)| {
+                            matches!(
+                                shape.expression_shape(site),
+                                Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::MapLiteral { .. })
+                            )
+                        }) =>
+            {
+                Some(binding)
+            }
+            _ => None,
+        };
         let row = lookup_core_method_result_row_v2(
-            if receiver_core { "ArrayBox" }
+            if local_map.is_some() { "MapBox" }
+            else if receiver_core { "ArrayBox" }
             else if map_field && matches!(method.selector(), "has" | "keys") {
                 "MapBox"
             } else {
@@ -488,11 +513,17 @@ impl OriginalCoreOperandRequestV1 {
                 | (CoreMethodOp::MapHas, 1)
                 | (CoreMethodOp::MapKeys, 0)
                 | (CoreMethodOp::ArrayLen, 0)
+                | (CoreMethodOp::MapGet, 1)
         ) {
             return None;
         }
         let manifest = issue_core_method_manifest_row_ref_v2(row.op, method.arity())?;
-        std::ptr::eq(manifest.row(), row).then_some(Self { manifest })
+        std::ptr::eq(manifest.row(), row).then_some(Self { manifest, local_map })
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn local_map(
+        self,
+    ) -> Option<crate::mir::resolved_semantics::BindingRefV1> {
+        self.local_map
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn manifest(
         self,
@@ -509,12 +540,14 @@ impl OriginalCoreOperandRequestV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn text_ordinals(self) -> &'static [u32] {
         match self.manifest.row().op {
             crate::mir::core_method_op::CoreMethodOp::StringIndexOf
-            | crate::mir::core_method_op::CoreMethodOp::MapHas => &[0],
+            | crate::mir::core_method_op::CoreMethodOp::MapHas
+            | crate::mir::core_method_op::CoreMethodOp::MapGet => &[0],
             _ => &[],
         }
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn receiver_is_text(self) -> bool {
         !matches!(self.manifest.row().op, crate::mir::core_method_op::CoreMethodOp::MapHas
+            | crate::mir::core_method_op::CoreMethodOp::MapGet
             | crate::mir::core_method_op::CoreMethodOp::MapKeys | crate::mir::core_method_op::CoreMethodOp::ArrayLen | crate::mir::core_method_op::CoreMethodOp::ArrayGet)
     }
     fn representation(self) -> Option<VerifiedCallableResultRepresentationV1> {

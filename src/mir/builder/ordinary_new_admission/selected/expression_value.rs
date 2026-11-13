@@ -287,6 +287,16 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
         path_slots.insert(site.clone(), pending.len());
         pending.push(read);
     }
+    // A named-local Map receiver is read once, by its Core call, like an alias.
+    for core in frame.cores().values().filter(|core| order.contains(&core.node())) {
+        let Some(binding) = core.local_map() else { continue; };
+        let site = OwnedExprSiteV1::new(owner, core.source().source().receiver_site().clone());
+        if path_slots.contains_key(&site) { continue; }
+        let read = state.prepare_exact_lexical_read(owner, site.site().node(), binding)
+            .map_err(|error| error.to_string())?;
+        path_slots.insert(site, pending.len());
+        pending.push(read);
+    }
     // Fulfill every field-root read before any FaultFrame, CFG or value effect.
     // Reservation remains in original source order; binding nested receivers
     // still waits for the actual ancestor field writer below.
@@ -377,6 +387,14 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             .find(|access| access.receiver_alias_v1().is_some() && access.receiver().site() == node.site()) {
             let read = path_reads.get(access.receiver()).ok_or_else(|| freeze("expression-value/read-slot"))?;
             let (value, _) = ledger.array_alias_operation_read_v1(access, read, CallValidationContextV1::Lowering(ledger))?;
+            values[index] = Some(Operand::NormalInteger(value).into());
+            continue;
+        }
+        if let Some(core) = frame.cores().values().filter(|core| order.contains(&core.node()))
+            .find(|core| core.local_map().is_some() && core.source().source().receiver_site() == node.site()) {
+            let site = OwnedExprSiteV1::new(owner, node.site().clone());
+            let read = path_reads.get(&site).ok_or_else(|| freeze("expression-value/read-slot"))?;
+            let value = ledger.local_map_receiver_read_v1(core, read)?;
             values[index] = Some(Operand::NormalInteger(value).into());
             continue;
         }
@@ -588,6 +606,18 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                         dynamic_carriers.push((index, value));
                         temporary_order.push(index);
                         Operand::DynamicCarrier(value)
+                    }
+                    // A checked i64 read of a named-local Map: a normal scalar, no
+                    // owned temporary; a Fault unwinds the live Homes, Map included.
+                    operation @ InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::CheckedGetI64 { .. }) => {
+                        let pending = FaultCleanupPlanV1::pending(&acquired, &dynamic_carriers, &temporary_order,
+                            if root_cleanup.is_some() { &[] } else { &homes })?;
+                        let (value, result, _) = emit_scalar_operation_with_pending_v1(
+                            builder, &mut writer, operation, require_fault_frame()?, &pending, &mut bindings)?;
+                        if result != crate::mir::instruction::InvokeNormalResultKind::I64 {
+                            return Err(freeze("expression-core/map-get-result"));
+                        }
+                        Operand::NormalInteger(value)
                     }
                     _ => return Err(freeze("expression-core/operation-domain")),
                 };

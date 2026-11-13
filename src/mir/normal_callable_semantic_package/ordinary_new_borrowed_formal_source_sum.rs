@@ -279,6 +279,9 @@ impl ClosedOriginalCoreSourceV1 {
     ) -> crate::mir::core_method_result_kind::CoreMethodManifestRowRefV2 {
         self.request.manifest()
     }
+    /// The named-local Map a checked `get` reads, from the original request.
+    pub(in crate::mir::normal_callable_semantic_package) fn local_map(&self)
+        -> Option<crate::mir::resolved_semantics::BindingRefV1> { self.request.local_map() }
     pub(in crate::mir::normal_callable_semantic_package) fn field_map(&self)
     -> Option<&Rc<crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1>>{
         self.field_map.as_ref()
@@ -317,6 +320,7 @@ impl ClosedOriginalCoreSourceV1 {
                 _ => false,
             }
             && self.field_array_access == other.field_array_access
+            && self.local_map() == other.local_map()
             && match (&self.field_map, &other.field_map) {
                 (None, None) => true,
                 (Some(left), Some(right)) => left.matches_source(right),

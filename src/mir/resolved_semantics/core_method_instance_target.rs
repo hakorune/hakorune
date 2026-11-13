@@ -551,6 +551,16 @@ impl VerifiedCoreMethodInstanceTargetV1 {
         if self.checked_array_count_law_v1() { Some(Law::ArrayCount) }
         else { self.checked_code_point_law_v1().filter(|law| matches!(law, Law::CodePointCount | Law::CodePointSearchFromZero)) }
     }
+    /// A checked scalar read of one Text key: present i64 value, or Fault.
+    pub(crate) fn checked_map_get_law_v1(&self) -> bool {
+        self.schema == CoreMethodHomeSchemaV1::MapTextGet
+            && self.receiver == CoreMethodHomeReceiverRelationV1::MapReceiver
+            && self.abi_profile == CoreMethodHomeAbiProfileV1::MapTextGetV1
+            && self.row.row().op == CoreMethodOp::MapGet && self.row.arity() == 1
+            && self.result == CoreMethodHomeResultRelationV1::DynamicToCaller
+            && self.parameters() == [CoreMethodHomeParameterRelationV1::TextParameter]
+            && self.row.semantic_law_for_arity() == Some(crate::mir::core_method_result_kind::CoreMethodSemanticLawV2::MapTextGetPresentOrFault)
+    }
     pub(crate) fn checked_map_presence_law_v1(&self) -> bool {
         self.schema == CoreMethodHomeSchemaV1::MapTextPresence
             && self.receiver == CoreMethodHomeReceiverRelationV1::MapReceiver

@@ -447,6 +447,15 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 }
             }
         }
+        // A named-local Map receiver is one more original root, read by its Core call.
+        for core in self.frame.cores().values().filter(|core| self.node_selected(core.node())) {
+            if core.local_map().is_none() {
+                continue;
+            }
+            let receiver = OwnedExprSiteV1::new(source.owner(), core.source().source().receiver_site().clone());
+            let binding = core.local_map().ok_or_else(|| freeze("print-expression/path-root-source"))?;
+            roots.insert(receiver.clone(), (binding, receiver));
+        }
         for (index, _) in source
             .nodes()
             .iter()

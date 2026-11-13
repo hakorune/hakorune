@@ -51,6 +51,21 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             let value = read
                 .value_for(source.owner(), site.site().node(), *binding)
                 .map_err(|error| error.to_string())?;
+            if let Some(core) = self.frame.cores().values().find(|core| {
+                core.local_map().is_some()
+                    && core.source().source().receiver_site() == site.site()
+            }) {
+                let actual = ledger.local_map_receiver_read_v1(core, read)?;
+                let node = source
+                    .nodes()
+                    .iter()
+                    .position(|node| node.site() == site.site())
+                    .ok_or_else(|| freeze("print-expression/path-root-source"))?;
+                if actual != value || self.values[node] != Some(Operand::NormalInteger(value).into()) {
+                    return Err(freeze("print-expression/path-root-value"));
+                }
+                continue;
+            }
             if let Some(access) = self
                 .frame
                 .cores()
@@ -173,7 +188,16 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 .frame
                 .direct_array_receiver_v1(index)
                 .is_some_and(|core| self.node_selected(core.node()));
-            if self.frame.transfers_node(index) && !alias_receiver && !direct_receiver {
+            let map_receiver = self
+                .frame
+                .cores()
+                .values()
+                .filter(|core| self.node_selected(core.node()))
+                .any(|core| {
+                    core.local_map().is_some()
+                        && core.source().source().receiver_site() == node.site()
+                });
+            if self.frame.transfers_node(index) && !alias_receiver && !direct_receiver && !map_receiver {
                 if value.is_some() {
                     return Err(freeze("print-expression/transferred-value"));
                 }
@@ -273,7 +297,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     if utf8.as_str() == text.as_ref() => {}
                 (Node::Reference(_), Some(Operand::NormalInteger(_)))
                     if self.frame.node_is_identity(index)
-                        && self
+                        && (self
                             .frame
                             .cores()
                             .values()
@@ -281,7 +305,11 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                             .any(|access| {
                                 access.receiver_alias_v1().is_some()
                                     && access.receiver().site() == node.site()
-                            }) => {}
+                            })
+                            || self.frame.cores().values().any(|core| {
+                                core.local_map().is_some()
+                                    && core.source().source().receiver_site() == node.site()
+                            })) => {}
                 (Node::Reference(_), Some(value)) => {
                     let observed = self
                         .reference_reads
@@ -650,6 +678,15 @@ pub(crate) fn checked_expression_core_operation_v1(
                 index: *index,
             }
         }
+        (Core::MapGet, [Operand::StaticText { utf8 }]) if core.local_map().is_some() => {
+            let Operand::NormalInteger(map) = receiver else {
+                return Err(freeze("expression-core/map-receiver-domain"));
+            };
+            Invoke::Map(crate::mir::instruction::MapInvokeOperation::CheckedGetI64 {
+                map,
+                utf8: utf8.clone(),
+            })
+        }
         _ => return Err(freeze("expression-core/operand-domain")),
     };
     let result_kind = operation.normal_result_kind();
@@ -663,6 +700,9 @@ pub(crate) fn checked_expression_core_operation_v1(
     let operation_valid = match &operation {
         Invoke::String(operation) => operation.valid_operand_domains(),
         Invoke::DynamicArrayGet { .. } => core.is_array_dynamic_get_v1(),
+        Invoke::Map(crate::mir::instruction::MapInvokeOperation::CheckedGetI64 { .. }) => {
+            core.local_map().is_some() && core.source().target().checked_map_get_law_v1()
+        }
         _ => false,
     };
     if !operation_valid || result_kind.is_none() || owned_result != core.owns_result() {

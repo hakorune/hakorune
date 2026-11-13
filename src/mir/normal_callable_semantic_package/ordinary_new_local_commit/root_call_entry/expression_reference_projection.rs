@@ -105,6 +105,16 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 }
                 continue;
             }
+            // A named-local Map receiver is the constructing emission's own value,
+            // checked exactly by the ledger; it has no field read or copy chain.
+            if let Some(core) = self.frame.cores().values().find(|core| {
+                self.node_selected(core.node())
+                    && core.local_map().is_some()
+                    && core.source().source().receiver_site() == site.site()
+            }) {
+                context.ledger().local_map_receiver_read_v1(core, read)?;
+                continue;
+            }
             let (_, first) = roots
                 .get(&site)
                 .ok_or_else(|| freeze("print-expression/path-root-source"))?;

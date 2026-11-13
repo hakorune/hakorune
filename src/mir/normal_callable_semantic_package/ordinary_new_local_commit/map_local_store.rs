@@ -1,5 +1,5 @@
 //! Physical progress of the stores a named-local Map receives after its
-//! construction. A store is an entry of the Map's own `MapHomeFlow` row, so its
+//! construction, and the Map value a later checked read names. A store is an entry of the Map's own `MapHomeFlow` row, so its
 //! emitted blocks join that same Map progress row; no second ledger exists.
 use super::map::MapProgress;
 use super::*;
@@ -58,6 +58,31 @@ impl OrdinaryNewClaimLedgerV1 {
                 Ok(())
             }
             _ => Err(freeze("map-store-record-state")),
+        }
+    }
+
+    /// The Map value a checked `get` expression reads: the original receiver
+    /// read must name the local's own constructing emission, nothing else.
+    pub(crate) fn local_map_receiver_read_v1(
+        &self,
+        core: &crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1,
+        read: &crate::mir::builder::ExactLexicalReadV1,
+    ) -> Result<ValueId, String> {
+        let binding = core
+            .local_map()
+            .ok_or_else(|| freeze("map-read-receiver-source"))?;
+        let site = core.source().source().receiver_site();
+        let value = read
+            .value_for(core.source().source().owner(), site.node(), binding)
+            .map_err(|error| error.to_string())?;
+        let rows = self.local_commits.borrow();
+        let mut maps = rows.values().filter_map(|row| match row {
+            LocalCommitV1::Map(map) if map.binding == Some(binding) => map.emitted_value(),
+            _ => None,
+        });
+        match (maps.next(), maps.next()) {
+            (Some(emitted), None) if emitted == value => Ok(value),
+            _ => Err(freeze("map-read-receiver-drift")),
         }
     }
 }

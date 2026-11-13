@@ -136,6 +136,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_core_sour
         .issue(operands.manifest())
         .map_err(|error| format!("[freeze:contract][ordinary-core/target] {error:?}"))?;
     if target.checked_code_point_law_v1().is_none() && !target.checked_map_presence_law_v1()
+        && !(op == Op::MapGet && operands.local_map().is_some() && target.checked_map_get_law_v1())
         && !target.checked_text_keys_law_v1() && !target.checked_array_count_law_v1()
         && !(op == Op::ArrayGet && access.is_some_and(|source| source.is_dynamic_get())
             && target.schema() == crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::ArrayDynamicRead) {
@@ -284,6 +285,7 @@ impl ExpressionCoreSourceLoanV1 {
                     && matches!(row.source(), Node::MethodCall)
             })
             && (self.source().target().checked_code_point_law_v1().is_some()
+                || (self.local_map().is_some() && self.source().target().checked_map_get_law_v1())
                 || self.field_map().is_some_and(|field| {
                     (self.source().target().checked_map_presence_law_v1()
                         || self.source().target().checked_text_keys_law_v1()) && field.matches_plan(plan)
@@ -313,7 +315,17 @@ impl ExpressionCoreSourceLoanV1 {
         if self.is_array_dynamic_get_v1() && self.proves_text_result_v1() {
             return Some(crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String);
         }
+        // A checked scalar read of a named-local Map is an i64 value or a
+        // Fault; the target alone cannot say so (a field Map `get` returns
+        // objects), so the receiver evidence decides.
+        if self.local_map().is_some() && self.source().target().checked_map_get_law_v1() {
+            return Some(crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64);
+        }
         self.source().target().expression_result_class_v1()
+    }
+    /// The named-local Map this checked `get` reads.
+    pub(crate) fn local_map(&self) -> Option<crate::mir::resolved_semantics::BindingRefV1> {
+        self.original.operands.local_map()
     }
     /// A payload class only; the physical Get result remains an owned carrier.
     pub(crate) fn proves_text_result_v1(&self) -> bool {
