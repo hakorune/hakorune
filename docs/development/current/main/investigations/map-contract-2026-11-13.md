@@ -227,4 +227,4 @@ D・A・U の実際（この回、`45827ec086..HEAD`、production は test と d
 - N1〜N5・N8: 使う側の問いを、`OrdinaryCoreSourceCallV1` と `ExpressionCoreSourceLoanV1` の 2 つの性質の問い `checked_fault_read_v1`（Fault の扱い）と `borrows_receiver_by_path_read_v1`（受け手の読み方）に替えた。Fault の扱いは Return の受理と frame の免除・比較の計算入力・式の値の writer の検査・`result_class`・`matches_plan` が、受け手の読み方は比較の 3 か所（transfer の除外・eager な投影の除外・受け手のノードの skip）が問う。Map の get だと決めるのは `core_method_source/ordinary.rs` の `issues_checked_fault_read_v1` 1 つ。使う側から `is_checked_local_map_get_v1` は消えた。新しい型は無い。
 - N3: 受け手の読み方は `local_map` の証拠から答える（array alias は前と同じく問いに入らない）。
 - N7: `--dump-mir` 1,866 本・229 入力・apps 100 本・384 組・`$P` 61 本・未見の入力 40 本・固定 suite は、2 段目の続きの binary と同一。18 ケースの物理 test は通る。
-- 実際の production は +25 / −14（正味 +11、doc を含む）。見積もりの 0〜+10 より 1 行多い。
+- 実際の production は +36 / −25（正味 +11、doc を含む。10 か所の書き換えが +16 / −16、発行側が +25 / −14 のうち 2 つの性質の問いと doc）。見積もりの 0〜+10 より 1 行多い。
