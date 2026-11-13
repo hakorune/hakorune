@@ -137,3 +137,40 @@
   - `has`・`size`・`delete`: named local の Map 用の物理操作が無い。`MapInvokeOperation` にあるのは field 用の `FieldHas`・`FieldDeleteIndexed` だけで、`size`・`delete` には runtime の export も無い。新しい MIR の操作・C の emit・runtime の ABI・物理 ABI の JSON の kind が要り、L12 に当たる。
   - 条件の中の `get`（`if m.get("k") == 5`）: 条件の経路（`scalar_invoke_input_order_v1`・`comparison_input_order_v1`・`checked_scalar_base_operation_v1`）が Map の受け手を field に限っている。拒否は `PrefixNotCovered(その文)` を指す。
   - `Text`・`Bool` の値の `set`、非 literal の key、`keys`: L7・L10 のとおり受けず、拒否は文を指す。
+
+## 2 段目の続き: 統合の前の確かめと、named local の `get` を 1 本の道に（2026-11-13）
+
+ユーザーが ChatGPT Pro に相談して決めた（Pro の答えの要約）: この回では `has`・`size`・`delete` の公開の形（MIR の操作・JSON の kind・C の emit・runtime の export）を足さない。先に統合の前の確かめを閉じ、次に、同じ `m.get("k")` が置く場所で別の道を通る状態を終わらせる。
+
+### 経路をたどった結果（実装前、読むだけ。subagent 2 本）
+
+- `return m.get("k")` が共通の Core に入らない理由は、Return の入口の先着順ではなく Home の分類にある。`observe_terminal_statement` は共通 Core の `scalar_terminal` を先に試すが、`home_terminal_scalar_evaluation.rs` の `root_core` の match が CodePointCount の core だけを受け、`requires_fault_frame_v1` の拒否が frame を要る core を `terminal_map_get` に返す。`terminal_map_get` は `else` の中でだけ試される。`return m.get("k") + 1` は `previous_scalar_candidate` で共通の Core に入っている。
+- `terminal_map_get` の `OwnedLocal` は「Map の Home の local 全部」で、`%{}`・`new MapBox()` のほかに、関数が返した Map の local も含む。`BorrowedParameter`（`: MapBox` 引数）は Home を持たない。共通の Core の `local_map` は「唯一の初期化子が封印済みの Map 構築」の local だけを受ける。
+- 条件の中の `get` が通らない本体は、受け手が field かどうかではなく、`get` の core が比較の入力に置かれる事にある。条件の経路は core が条件の根（`has`）である事を前提にし、比較の入力に置ける core は frame を要らない読み（Array の count、code point）だけ。`comparison_input_order_v1`（frame-free のみ、Identity の受け手を除く）、`home_bool_condition.rs` の余りの core の拒否、`emit_scalar_condition_v1` の `path_reads` が空である事の確認、`Proof::ScalarInvocation` に `path_reads` の欄が無い事、の 4 か所。field の Map の `get` は core ではない（`MapGet` の core は named local だけ）ので、条件に `field_map() || local_map` を足す必要は元々無い。
+- 受け手の証拠は 4 種類（field の Map・named local の Map・array alias・keys の結果）で、運び方が別々。`path_reads` に載せる 4 か所（array alias・local の Map・statement field の root・direct array receiver）と、検証側の受け手ごとの分岐が、同じ形の写しになっている。
+
+### 規則（実装より先に書く）
+
+A. 統合の前の確かめ
+- M1. production の file は 800 行以下にする。足した hook は責任の名前の file へ移し、詰めて書かない。
+- M2. `new MapBox()` を空の Map にするのは、組込みの `MapBox` の時だけにする。利用者が `box MapBox` を宣言した時は、空の Map にしない。判定の持ち主は、利用者の宣言を知る既存の層（`ordinary_new_candidate` の組込み/利用者の判定）に置き、shape の層に名前の分岐を増やさない。
+- M3. 「受け手が live な Map の Home である」という証拠と、「`get` の結果が I64 である」根拠は別の物にする。結果の I64 は、checked な読み `CheckedGetI64` の契約（行の法則 `MapTextGetPresentOrFault`: 無い key は Fault 114、値が i64 でなければ Fault 104）で決める。Map へ書く値が今は I64 だけである事を、型の保証にしない。
+- M4. `set` の install の Fault（key を消費する attempt の Fault）で、Map の End は 1 回、key と outcome の数は合う。注入できない所は、確認済みと書かず、未確認の範囲に残す。
+- M5. 生成の側が新しい使い方を始めたので、C と runtime を変えていなくても、Python v4 の 21 本と Map の物理 test を流す。
+- M6. dump の 3 本（`plain/in/a5.hako`・`red-sort/in/mg.hako`・`audit-text-field/b_map.hako`）は、EXE の退行と分けて、名前と理由で並べる。「受理の退行 0」と書かず、ユーザーの承認を聞く。文の後ろに未対応の method がある時だけ古い raw の道へ戻す fallback は作らない。拒否の文言は、原因の所を指す。
+
+B. named local の `get` を 1 本の道に
+- M7. 同じ `m.get("k")`（named local の Map、literal key）は、`local` の初期化・`return`・`print`・算術の operand・比較の入力・条件のどこに置いても、共通の式評価の Core operation（元の Map 操作の法則 + その読みの点で有効な受け手の証拠 → 共通の get の計画 → 共通の MIR writer）として判定する。使う所は、結果の行き先だけを渡す。
+- M8. 受け手の証拠は、field の Map・named local の Map を 1 つの型で、Core の request から検証まで同じ形で渡す。使う所は受け手の種類を選び直さず、その型の問い（受け手の site・read の取り方・期待する Leaf の種類）に聞く。`field_map() || local_map` を条件の各所に足さない。
+- M9. 受け手の read を `path_reads` に載せる 4 か所の写し（array alias と named local の Map）は、同じ型の問いで 1 つにまとめる。まとめられない物（statement field の root・direct array receiver）は、残す理由を書く。
+- M10. named local の Map（`%{}` と `new MapBox()` の local）の `return m.get("k")` は、`terminal_map_get` ではなく、共通の Core の道（返却の scalar 評価）で扱う。`: MapBox` 引数と、関数が返した Map の local は Home の証拠が違うので、この回は専用の道のまま残し、残る理由を書く。caller が 0 になった部分は同じ series で消す。
+- M11. 条件の中の `get`（`if m.get("k") == 5`）は、比較の入力として同じ Core operation を評価する。受け手の read は式の道と同じ path read で 1 回だけ取り、検証側にも同じ形で渡す。無い key の `get` が条件の中で Fault 114 になる時、Map の End は 1 回（Home の unwind。二重も漏れも無い）。
+- M12. 既に通っている field の Map の `has` の条件（根の core。`apps/json-stream-aggregator` など）の MIR と出力は変えない。
+- M13. 公開 MIR・opcode・ABI・descriptor・C shim・JSON の形、新しい持ち主・台帳は足さない。`has`・`size`・`delete` の公開の形は、この回では入れない。
+
+### 見積もり（D − A − U。実装の前の数）
+
+- D（確実に消える）: 受け手の `local_map().is_some() && checked_map_get_law_v1()` の判定の写し 4〜5 か所を 1 つの問いに畳む分と、`path_reads` を載せる 2 つの loop を 1 つにする分で、約 −25 行。`terminal_map_get` 本体は、`: MapBox` 引数と関数が返した Map の local が使うので、D に入れない（経路の調査で、caller が 0 になる型・関数は無い。MapLiteral の初期化子の local 向けの test の期待が `MapGet` から共通の評価へ変わる）。
+- A（要る追加、production）: Return の受け口（`root_core` の match と frame の免除）約 15 行。条件（`comparison_input_order_v1`・`home_bool_condition`・`emit_scalar_condition_v1`・`ScalarInvocation` の `path_reads` と検証）約 90 行。受け手の証拠の型と問い 約 40 行。`new MapBox()` の衝突の判定 約 15 行。合わせて約 +160 行。
+- U（consumer の production の変更。test と文書は別）: 受け手の証拠の型へ置き換える読む側・検証側の約 15 か所の機械的な書き換え 約 +100 行。
+- 見込み: production は約 +160 − 25 + 100 ≒ +235 行（機能の回）。test 約 +120、文書約 +60。範囲が変わった時は、その時に見積もりを直す。
