@@ -316,8 +316,8 @@ fn owned_local_map_get_with_borrowed_handle_entry_reads_as_tagged_fault() {
 /// A call-returned map local (`local m = make_map()`) is readable: the
 /// callee could only have installed tagged payloads (borrowed entries
 /// cannot ride `ReturnHandoff`), so the seal admits the read and the
-/// checked get dispatches on the tag at runtime — `I64` value, `0`-Normal
-/// missing, Fault 104 for every other payload kind.
+/// checked get dispatches on the tag at runtime — `I64` value, Fault 114
+/// for a missing key, Fault 104 for every other payload kind.
 #[test]
 fn call_returned_map_get_issues_relation_and_installs() {
     let package = issue(

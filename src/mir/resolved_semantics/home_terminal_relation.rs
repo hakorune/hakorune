@@ -408,7 +408,7 @@ impl TerminalMapGetReturnV1 {
 /// Entry inspection is deliberately absent: every compilable map carries
 /// tagged payloads (`I64`/`Bool`/`Text`/`EmptyArray`/`Residence`/
 /// `BorrowedHandle`), so a checked read dispatches safely on any entry —
-/// `I64` reads back its value, a missing key reads `0`-Normal, and every
+/// `I64` reads back its value, a missing key records Fault 114, and every
 /// non-i64 payload records Fault 104. A call-returned map whose literal
 /// flow row lives in the callee is readable for the same reason: the
 /// callee could only have installed tagged payloads.
