@@ -775,7 +775,10 @@ impl RawInvocationChildPortV1<'_, '_> {
         {
             return self.lower_callable_binding_rebind_v1(builder, input);
         }
-        if self.callable_ledger.is_some() && matches!(input, ASTNode::MapLiteral { .. }) {
+        if self.callable_ledger.is_some()
+            && (matches!(input, ASTNode::MapLiteral { .. })
+                || crate::mir::resolved_semantics::is_empty_map_construction_v1(&input))
+        {
             return self.lower_callable_map_v1(builder);
         }
         if self.callable_ledger.is_some() && matches!(input, ASTNode::Variable { .. }) {

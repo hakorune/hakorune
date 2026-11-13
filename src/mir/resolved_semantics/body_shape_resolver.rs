@@ -45,6 +45,12 @@ impl<'ast, 'schema> super::shadow::resolver::ShadowResolverV0<'ast, 'schema> {
         site: SourceExprSiteV1,
     ) {
         let shape = match expression {
+            node if super::body_shape::is_empty_map_construction_v1(node) => {
+                ShadowExpressionShapeV0::MapLiteral {
+                    site: site.clone(),
+                    keys: Box::default(),
+                }
+            }
             crate::ast::ASTNode::MapLiteral { entries, .. } => {
                 ShadowExpressionShapeV0::MapLiteral {
                     site: site.clone(),

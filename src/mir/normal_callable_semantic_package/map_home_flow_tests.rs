@@ -865,3 +865,40 @@ fn stored_map_get_keeps_its_original_local_source() {
             "intervening call must not issue a passive get frame");
     }).unwrap();
 }
+
+#[test]
+fn argument_free_new_map_box_is_the_same_empty_map_home_as_a_literal() {
+    for body in [
+        "local m = new MapBox() return 30",
+        "local m = new MapBox() local alias = m local again = alias return 30",
+        "local a = new Page() local m = new MapBox() return 30",
+    ] {
+        let package = issue(&source(body)).unwrap();
+        let mut context = CompilationContext::new();
+        package
+            .prepare_install(&mut context)
+            .expect("ready source Map cohort");
+        assert!(context.callable_declaration_catalog_vacant(), "{body}");
+    }
+}
+
+#[test]
+fn new_map_box_home_refusal_names_the_uncovered_statement() {
+    use crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1;
+    // `set` on a named local Map is not covered yet: the refusal must carry
+    // the statement that stopped the Home walk, not only the owner.
+    let package = issue(&source("local m = new MapBox() m.set(\"k\", 5) return 30")).unwrap();
+    let mut context = CompilationContext::new();
+    let Err((_, error)) = package.prepare_install(&mut context) else {
+        panic!("set is not covered");
+    };
+    assert!(matches!(
+        error,
+        super::install::NormalCallableSemanticPackageInstallIssueV1::MapObligationDescribe(
+            super::map_lifecycle_undertaking::MapObligationDescribeIssueV1::OwnerTerminalHomesUnavailable {
+                cause: Some(HomePrefixUnavailableV1::PrefixNotCovered(_)),
+                ..
+            }
+        )
+    ), "{error:?}");
+}

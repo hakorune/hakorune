@@ -14,12 +14,12 @@
 //! set of owners whose completion happened to succeed — a failed completion
 //! must not silently shrink the undertaking.
 //!
-//! `new MapBox()` construction sites carry the same operation vocabulary but
-//! their evidence lives in OrdinaryNew claims, not `MapHomeFlow` rows; the
-//! claim-family describe arm is a separate bounded row.
+//! An argument-free `new MapBox()` is the same empty construction as `%{}`:
+//! the body-shape layer seals it as a `MapLiteral` row with no keys, so it is
+//! enumerated and described here like any other literal site.
 
 use crate::mir::resolved_semantics::home_new_prefix::{
-    MapDestinationV1, MapEntryBorrowKindV1, MapEntryStoreClassV1, MapHomeFlow, MapHomeObservation,
+    HomePrefixUnavailableV1, MapDestinationV1, MapEntryBorrowKindV1, MapEntryStoreClassV1, MapHomeFlow, MapHomeObservation,
     MapValueSource, TerminalRelationV1, TerminalReturnedSourceV1,
 };
 use crate::mir::resolved_semantics::{
@@ -200,7 +200,12 @@ pub(crate) enum MapObligationDescribeIssueV1 {
     },
     /// The owner's cleanup never reached a usable terminal Homes set —
     /// its completed Map rows cannot prove the exit they must survive.
-    OwnerTerminalHomesUnavailable { owner: FunctionOwnerIdV1 },
+    /// `cause` is the first uncovered source construct on an exit, so the
+    /// refusal names the statement that stopped the Home walk.
+    OwnerTerminalHomesUnavailable {
+        owner: FunctionOwnerIdV1,
+        cause: Option<HomePrefixUnavailableV1>,
+    },
     /// The owner has no sealed terminal relation at all — the exit the
     /// Map obligations must be ordered against does not exist.
     OwnerTerminalRelationMissing { owner: FunctionOwnerIdV1 },
@@ -530,7 +535,14 @@ impl super::VerifiedNormalCallableSemanticPackageV1 {
                 .root_flow()
                 .is_some_and(|flow| flow.all_exits_ready())
             {
-                return Err(MapObligationDescribeIssueV1::OwnerTerminalHomesUnavailable { owner });
+                let cause = completion
+                    .cleanup()
+                    .root_flow()
+                    .and_then(|flow| flow.first_exit_issue());
+                return Err(MapObligationDescribeIssueV1::OwnerTerminalHomesUnavailable {
+                    owner,
+                    cause,
+                });
             }
             let flow = completion
                 .cleanup()

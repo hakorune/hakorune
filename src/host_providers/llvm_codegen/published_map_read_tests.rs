@@ -22,7 +22,7 @@ fn issued_map_read_source_exe_probe_observes_get_contract_and_end() {
         // (source, exit, expected READ tail). The out-slot stays -1 when the
         // kernel records Fault — it writes only on Normal. A missing key is
         // Fault 114 and a present non-i64 payload is Fault 104.
-        let cases: [(&str, i32, &str, &str); 3] = [
+        let cases: [(&str, i32, &str, &str); 5] = [
             (
                 "local m = %{\"k\" => 7} return m.get(\"k\")",
                 7,
@@ -40,6 +40,20 @@ fn issued_map_read_source_exe_probe_observes_get_contract_and_end() {
                 70,
                 "70 1 1 1 1 1 1 READ k 1 -1 1 1 2 1\n",
                 "REPORT 104 ",
+            ),
+            // An argument-free `new MapBox()` is the same empty Map home as
+            // `%{}`: a missing key Faults 114 and the one Map still Ends once.
+            (
+                "local m = new MapBox() return m.get(\"k\")",
+                70,
+                "70 1 1 0 0 0 0 READ k 1 -1 1 1 2 1\n",
+                "REPORT 114 ",
+            ),
+            (
+                "local m = new MapBox() return 7",
+                7,
+                "7 1 1 0 0 0 0 READ  0 0 0 0 1 1\n",
+                "",
             ),
         ];
         for (case, (body, expected_exit, expected_tail, expected_report)) in
@@ -72,12 +86,13 @@ fn issued_map_read_source_exe_probe_observes_get_contract_and_end() {
                         assert!(verification.is_ok(), "{verification:?}");
                         let input = view.issue_lifecycle_physical_abi_input()?;
                         let json = emit_lifecycle_physical_abi_json(&input)?;
+                        let reads = usize::from(body.contains(".get("));
                         assert_eq!(
                             json.matches("\"kind\":\"map_checked_get\"").count(),
-                            1,
+                            reads,
                             "{json}"
                         );
-                        assert!(json.contains("\"utf8\":\"k\""), "{json}");
+                        assert_eq!(json.contains("\"utf8\":\"k\""), reads == 1, "{json}");
                         let runtime = Path::new("target/lifecycle-kernel/release");
                         let session = LifecycleRuntimeSessionV1::select(
                             runtime.join("libnyash_lifecycle_kernel.a"),

@@ -169,6 +169,12 @@ impl RootHomeFlow {
             && self.exits.values().all(|row| row.is_ok())
     }
 
+    /// The first source construct a Home walk could not cover, read from the
+    /// exit rows; `None` when every exit is ready.
+    pub(crate) fn first_exit_issue(&self) -> Option<HomePrefixUnavailableV1> {
+        self.exits.values().find_map(|row| row.as_ref().err().cloned())
+    }
+
     /// A source ownership violation or the bounded move surface's refusal is
     /// terminal. Other existing prefix failures keep their previous routing.
     pub(crate) fn explicit_ownership_failure(&self) -> Option<HomePrefixUnavailableV1> {

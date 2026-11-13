@@ -88,6 +88,17 @@ pub(crate) enum BodyExpressionShapeV1 {
     },
 }
 
+/// `new MapBox()` with no arguments and no field initializers is the same
+/// empty Map construction as `%{}`. The shape layer is the one place that says
+/// so; every Map consumer then reads the same sealed `MapLiteral` row.
+pub(crate) fn is_empty_map_construction_v1(node: &crate::ast::ASTNode) -> bool {
+    matches!(
+        node,
+        crate::ast::ASTNode::New { class, arguments, field_initializers, .. }
+            if class == "MapBox" && arguments.is_empty() && field_initializers.is_empty()
+    )
+}
+
 impl BodyExpressionShapeV1 {
     /// The exact source expression site this shape row claims.
     pub(crate) fn site(&self) -> &SourceExprSiteV1 {
