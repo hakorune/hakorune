@@ -30,9 +30,14 @@ impl OrdinaryCoreSourceCallV1 {
     ) -> &VerifiedResolverOrdinaryCoreMethodSourceV1 {
         &self.source
     }
-    /// The checked i64-or-Fault read of a named-local Map.
-    pub(in crate::mir::normal_callable_semantic_package) fn is_checked_local_map_get_v1(&self) -> bool {
-        is_checked_local_map_get_v1(&self.operands, self.source.target())
+    /// Fault handling: the read's law has a Fault, so the Home owner cleans up.
+    pub(in crate::mir::normal_callable_semantic_package) fn checked_fault_read_v1(&self) -> bool {
+        issues_checked_fault_read_v1(&self.operands, self.source.target())
+    }
+    /// Receiver reading: the receiver is borrowed by one shared path read,
+    /// never read as an ordinary receiver value.
+    pub(in crate::mir::normal_callable_semantic_package) fn borrows_receiver_by_path_read_v1(&self) -> bool {
+        self.operands.local_map().is_some()
     }
     pub(in crate::mir::normal_callable_semantic_package) fn operands(
         &self,
@@ -72,9 +77,11 @@ impl OrdinaryCoreSourceCallV1 {
 
 }
 
-/// Receiver evidence plus the row's law: a live named-local Map read by the
-/// checked `get`, whose result is an i64 or a Fault (114 absent, 104 non-i64).
-fn is_checked_local_map_get_v1(
+/// The one place that decides "this Core call is a Map get": receiver evidence
+/// plus the row's law, a live named-local Map read by the checked `get` whose
+/// result is an i64 or a Fault (114 absent, 104 non-i64). Users ask the two
+/// properties (Fault handling, receiver reading), never this name.
+fn issues_checked_fault_read_v1(
     operands: &ClosedOriginalCoreSourceV1,
     target: &crate::mir::resolved_semantics::VerifiedCoreMethodInstanceTargetV1,
 ) -> bool {
@@ -156,7 +163,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_core_sour
         .issue(operands.manifest())
         .map_err(|error| format!("[freeze:contract][ordinary-core/target] {error:?}"))?;
     if target.checked_code_point_law_v1().is_none() && !target.checked_map_presence_law_v1()
-        && !(op == Op::MapGet && is_checked_local_map_get_v1(operands, &target))
+        && !(op == Op::MapGet && issues_checked_fault_read_v1(operands, &target))
         && !target.checked_text_keys_law_v1() && !target.checked_array_count_law_v1()
         && !(op == Op::ArrayGet && access.is_some_and(|source| source.is_dynamic_get())
             && target.schema() == crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::ArrayDynamicRead) {
@@ -305,7 +312,7 @@ impl ExpressionCoreSourceLoanV1 {
                     && matches!(row.source(), Node::MethodCall)
             })
             && (self.source().target().checked_code_point_law_v1().is_some()
-                || self.is_checked_local_map_get_v1()
+                || self.checked_fault_read_v1()
                 || self.field_map().is_some_and(|field| {
                     (self.source().target().checked_map_presence_law_v1()
                         || self.source().target().checked_text_keys_law_v1()) && field.matches_plan(plan)
@@ -341,16 +348,20 @@ impl ExpressionCoreSourceLoanV1 {
         // which values the Map was written with. The receiver evidence only
         // selects this read: a field Map `get` is a different, object-returning
         // read, so the target alone does not.
-        if self.is_checked_local_map_get_v1() {
+        if self.checked_fault_read_v1() {
             return Some(crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64);
         }
         self.source().target().expression_result_class_v1()
     }
-    /// The checked i64-or-Fault read of a named-local Map (receiver evidence +
-    /// the `MapTextGetPresentOrFault` law). The single question every user of
-    /// the shared Core call asks; none re-derives it from the receiver kind.
-    pub(crate) fn is_checked_local_map_get_v1(&self) -> bool {
-        self.original.is_checked_local_map_get_v1()
+    /// Fault handling: a checked read whose law has a Fault (the Home owner
+    /// cleans up), as opposed to a frame-free read (`frame_free_read_law_v1`).
+    pub(crate) fn checked_fault_read_v1(&self) -> bool {
+        self.original.checked_fault_read_v1()
+    }
+    /// Receiver reading: borrowed by one shared path read (`path_read_receiver_v1`)
+    /// rather than read as an ordinary receiver value.
+    pub(crate) fn borrows_receiver_by_path_read_v1(&self) -> bool {
+        self.original.borrows_receiver_by_path_read_v1()
     }
     /// The receiver this Core call reads once through a shared path read: an
     /// array alias or a live named-local Map. Users prepare that one read
