@@ -276,3 +276,25 @@ D・A・U の実際（この回、`45827ec086..HEAD`、production は test と d
 - Q1: 「受け手を path read で借りるか」を array alias も含む 1 つの問い（`path_read_receiver_v1().is_some()`）にすると、alias の長さを条件にした入力の拒否の診断が変わる（`bool-condition/transferred-node-emitted` → `mir/invoke/[freeze:contract`）。入れず、条件が問う性質を `borrows_local_map_receiver_v1` に改名して、named local の Map の受け手だけを答えると doc に書いた。
 - Q2: Return の根の Core は `CodePointCount` と checked な Fault の読みだけを受け、比較は frame の要らない読み全部（`ArrayCount`・`CodePointCount`・`CodePointSearchFromZero`）と checked な Fault の読みを受ける。発行側の 1 つの問いに揃えると `return s.indexOf("l")`（局所の String）が拒否から exit 2 に変わる（受理の拡大）ので入れていない。2c の結果の「`has` を足す時、使う側は替えなくてよい」は誤り: frame の要らない local の `has` は Return では受理されず、足す時に Return の受理の決定が要る。
 - Q3: `get` の結果の I64 は、Fault がある事ではなく法則 `MapTextGetPresentOrFault`（`CheckedGetI64` の契約）から答える（`checked_read_result_class_v1`）。MIR は変わらない。
+
+### 2 段目の Opus の確認と統合（2026-11-14）
+- main へ早送りした（`6983bb5c19`）。Sonnet 5.5 が実装した（2 段目・続き・仕上げ・続き 2 の 25 commit）。
+- 入った物: 組込みへ解決された引数なしの `new MapBox()` と `%{}` の local は、同じ `MapHomeFlow` の空の Map の行になる。literal の key の I64 の `set` は、同じ行の `stores` に入る。named local の Map の `get` は、Local・Return・Print・算術・条件のどこでも、共通の Core operation `CheckedGetI64` の 1 本の道を通る。使う側は「Map の get か」を問わず、Fault の扱いと受け手の読み方の性質を問う。組込みの Map かは、宣言を知る batch の発行（`callable_semantic_batch/builtin_map_construction.rs`）の 1 つの関数で決める。
+- ChatGPT Pro への相談 2 回（ユーザーが聞いてきた）: (1) 2 段目の報告について。公開の操作（`has`・`size`・`delete`）はまだ足さず、統合の前の確かめを閉じ、同じ `m.get("k")` が置く場所で別の道を通る状態を先に終わらせる。(2) 組込みと同じ名前の利用者の box について。名前を予約せず shadowing を許したままにし、名前を指す拒否は統合せず、組込みかを宣言の分かる所で 1 回決める。
+- ユーザーの決定（2026-11-14）:
+  - 組込みと同じ名前の利用者の box は許す。組込みの契約は受け継がない。`LANGUAGE_REFERENCE_2025.md` の 2.1 に書いた（`static box` の同名と、`new` 以外の位置の名前解決は未決）。
+  - dump の 3 本を、限って承認する。どれも EXE は main でも拒否で、`--dump-mir` だけが古い raw の道で通っていた。今は dump も拒否する。文の形で raw に戻す fallback は作らない。
+    - `plain/in/a5.hako`（local の Map の `if m.has("k")`）: 拒否の文言は後段の CFG の検証の物で、`has` を指さない。local の Map の `has` の公開の形ができた時に解消する。
+    - `red-sort/in/mg.hako`（local の Map の `m.size()`）: 拒否は `size` の呼び出しを指す（`root-instance-call-map-local-method-uncovered`）。`size` の公開の形ができた時に解消する。
+    - `audit-text-field/b_map.hako`（`String` の field へ `new MapBox()` を入れる型の誤りの test）: 拒否は `map-completion` で、型の誤りを指さない。field の型の検査が Map の構築より先に効くようになった時に解消する。
+- 行数（`src/` の整形後、`5f985dc00b..6983bb5c19`）: production +902、test +379。ほかに C の test（`published_map_fault_probe.c`）+17。
+- 実装者の比べる組: 宣言の無い入力は、1,866 本の MIR、229 入力、apps 100 本、384 組、927 入力の EXE 608 本が、仕上げ（2c）の binary と差 0。Map の read probe の 18 ケースが通る。
+- Opus の監査: 監査の入力 222 本（ほかの段の 180 本、未見の 40 本、利用者の `MapBox` の 2 本）を、main と同じ source の binary、2b、2c、2d で流した。2d で変わったのは利用者の `MapBox` の 2 本だけで、どちらも main と同じ MIR に戻った。新しい未見の入力 12 本（今の書き方）では、利用者の `MapBox` の入力は main と同じ MIR か正しい値（利用者の method の 11 など）、宣言の無い `new MapBox()` は `print`・算術・条件で前と同じ値だった。持ち主の数の見張り（基点 `5f985dc00b`）は PASS。全 lib の赤の名前は 2c と同じ（2b より 1 本多い `raw_invocation_port_preserves_async_qmark_check_collection_and_print_children` は、main と同じ source の log でも落ちていて、単独では通る）。
+- 残り:
+  - Return の根の Core の受理（`CodePointCount` と checked な Fault の読み）と、比較の受理（frame の要らない読み全部と checked な Fault の読み）が違う。揃えると局所の String の `return s.indexOf("l")` が拒否から通るへ変わるので、この回では入れていない。local の Map の `has` を足す前に、Return の受理を決める。
+  - 比較は array alias の受け手を共通の path read で読まない（`direct_array_receiver_v1` の別の道）。揃えると拒否の診断が変わるので入れていない。
+  - builder の Map の lowering の入口は、発行と同じ関数を ledger の宣言の名前（同じ batch の coverage から作った写し）で問い直す。発行の結果そのものは builder へ渡っていない。
+  - `static box MapBox` を宣言して `new MapBox()` と書くと、組込みの Map になる（main の古い道も組込みとして作っていた）。仕様では static box はインスタンスを作らない箱なので、扱いは未決。
+  - named local の Map の `get` が通らない位置: loop の条件、呼び出しの引数。loop の中の `set` も通らない。`: MapBox` の引数と、関数が返した Map の local は、まだ `terminal_map_get` を通る。
+  - production の file `ordinary_new_local_commit/map.rs` は main で 857 行、今は 861 行（800 行の上限を超えたまま）。test の file `map_home_flow_tests.rs` は 1,019 行。
+  - Map の物理 test（`--ignored`）の 10 本は、C の file の wrapper と test の wrap 一覧の食い違いで main でも落ちる。Python v4 の 4 本は Bool の capture が無く実行できない。

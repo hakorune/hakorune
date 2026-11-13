@@ -159,6 +159,12 @@ box ClassName {
   - **弱フィールド**: 直接構文 `weak field_name`（Phase 285A1.2）
   - **その他**: `docs/reference/language/EBNF.md` の Unified Members（get/computed/once/birth_once）
 
+#### **組込みのBoxと同じ名前（shadowing、2026-11-14決定）**
+- 組込みのBoxの名前（`MapBox`・`ArrayBox`・`StringBox` など）は、それだけでは予約語ではありません。利用者は同じ名前の `box` を宣言できます。
+- 利用者の宣言へ解決された名前は、その利用者の型を指します。たとえば `box MapBox { ... }` があれば、`new MapBox()` は利用者のBoxを作り、`m.get(k)` は利用者のmethodを呼びます。
+- 組込みの構築・演算・所有・破棄の契約は、組込みへ解決された参照か、組込みの意味を直接持つ構文（`%{}` など）からだけ得ます。同じ名前の利用者の宣言は、組込みの契約を受け継ぎません（`ownership.md` の named Array の節も同じ）。
+- 未決: `static box` に組込みと同じ名前を付けた時の扱い（今のcompilerは、その名前の `new` を組込みとして作る）と、型注釈など `new` 以外の位置での名前解決のそろえ方。
+
 #### **デリゲーションBox**
 ```nyash
 box Child from Parent interface Comparable {
