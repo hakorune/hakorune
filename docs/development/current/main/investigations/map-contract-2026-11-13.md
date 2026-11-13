@@ -197,3 +197,28 @@ D・A・U の実際（この回、`45827ec086..HEAD`、production は test と d
 - D（確実に消えた）: path read の 2 つの loop を 1 つに −10、`local_map && law` の写し 4 → 1 で約 −6。`terminal_map_get` は 0。見積もりの −25 のうち約 −16 を達成。
 - U（consumer の production）: 見積もり約 +100 に対し +36 / −19（機械的な書き換えは、投影を残したので不要になった）。
 - test: +147 / −47（read probe 6 ケース・Home の test 3 本・`MapBox` の衝突・診断の test、`terminal_map_get` の test の書き換え）。docs: この節。
+
+## 2 段目の仕上げ: 使う側の「Map の get か」の問いを、性質の問いに（2026-11-13）
+
+2 段目の続きの監査で見つかった事。`is_checked_local_map_get_v1`（「named local の Map の checked な get か」）を、使う側が 10 か所（Return 2、条件の比較 5、式の値の writer 1、Core の発行側 3）で問っている。動きは正しいが、使う側が「Map の get という操作の名前」で分かれており、`has` や Text の値の `get` を足すたびに 10 か所へ `||` が増える（Pro の「条件用と Return 用の例外を積み増さない」の始まり）。この回は動きと MIR を変えない整理の回。
+
+### 経路をたどった結果（実装前、読むだけ）
+- 使う側が本当に要る性質は 2 つ。(P1) 受け手の読み方: その Core の受け手を、普通の受け手の値として読むか、共通の path read で借りるか。(P2) Fault の扱い: その Core の読みが、frame を要らない読み（`frame_free_read_law_v1`）か、法則に Fault がある checked な読み（Fault の後始末を、使う側の Home が持つ）か。
+- Return の `root_core` の受理と frame の免除、比較の計算入力の受理、式の値の writer の operation 検査、Core の `result_class`・`matches_plan` は P2。比較の受け手のノードの transfer の除外・eager な Core の投影の除外・受け手のノードの skip・`is_checked_map_receiver_v1` は P1。
+- P1 の持ち主は既にある `ExpressionCoreSourceLoanV1::path_read_receiver_v1` と `MapReceiverEvidenceV1`。P2 の持ち主は行の法則（`checked_map_get_law_v1`）で、使う側の frame の問い（`frame_free_read_law_v1`）の対になる。どちらも既にある型の method にする。
+
+### 規則（実装より先に書く）
+- N1. 使う側（Return・条件の比較・式の値の writer）は、Core の「受け手の読み方」と「Fault の扱い」という性質だけを問い、操作の名前（Map の get か）を問わない。
+- N2. 「これは Map の get だ」と決めるのは、Core を発行する `core_method_source/ordinary.rs` の 1 か所だけ。受け手の証拠と行の法則を合わせて決め、結果を 2 つの性質として Core の method に出す。
+- N3. 受け手の読み方（P1）は、Core が発行時に持つ受け手の証拠から答える。受け手が共通の path read で借りられる Core だけが「path read で借りる」と答え、普通の受け手の値として読む Core（Text の `len` など）と array alias の Core の答えは、前と同じにする。
+- N4. Fault の扱い（P2）は、行の法則から答える。法則に Fault がある checked な読み（無い key の Fault 114、i64 でない値の Fault 104）は、frame を要る読みとして Home が後始末を持つ。frame を要らない読みは `frame_free_read_law_v1` のまま。
+- N5. 性質の問いは、既にある `OrdinaryCoreSourceCallV1` と `ExpressionCoreSourceLoanV1` の method にする。新しい型・台帳・公開の形は足さない。
+- N6. 次に `has`・Text の値の `get`・`: MapBox` 引数の受け手を足す時は、Core の発行側が正しい性質を答えるようにするだけで、使う側の問いは変えない。
+- N7. 動きと MIR は変えない。`--dump-mir`（1,866 本・229 入力・apps 100 本・probe 61 本・未見の入力 40 本）と EXE の結果は、2 段目の続きの binary と同一にする。
+- N8. 使う側の名前の問い `is_checked_local_map_get_v1` は、発行側の 1 か所以外から消す。消した後に呼び出しが 0 の名前の問いを残さない。
+
+### 見積もり（D − A − U。実装の前の数）
+- D（確実に消える）: loan の `is_checked_local_map_get_v1` の写しと doc で約 −7、使う側 10 か所の「名前 + 法則」の重複は 1 対 1 で置き換わるので 0。
+- A（production）: 性質の問い 2 つ（P1・P2）を `OrdinaryCoreSourceCallV1` と loan に 約 +14（doc を含む）。
+- U（consumer の production）: 10 か所の問いの置き換え。行数は 0 に近い（1 行ずつの書き換え）。
+- 見込み: production の正味は 0〜+10 行。test と docs は別（性質の問いが前と同じ答えを返す unit test を 1〜2 本）。範囲が変わった時は、その時に見積もりを直す。
