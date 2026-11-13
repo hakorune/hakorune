@@ -63,8 +63,12 @@ impl OrdinaryNewCandidate {
             // Builtin/plugin constructors retain their existing
             // compatibility owner.  They are deliberately outside the
             // source-backed ordinary-Box claim ledger; only an unknown
-            // user Box is a coverage error here.
-            if crate::box_trait::is_builtin_box(class.as_ref()) {
+            // user Box is a coverage error here.  A name the user declared
+            // as a non-ordinary Box (`static`, ...) is a user declaration, so
+            // it never falls back to the builtin of the same name.
+            if crate::box_trait::is_builtin_box(class.as_ref())
+                && !batch.ordinary_box_coverage().declares_non_ordinary_box(class.as_ref())
+            {
                 return Ok(None);
             }
             return Err(OrdinaryNewCoSealIssueV1::OrdinaryBoxCoverageMissing { site, class });

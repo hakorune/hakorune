@@ -220,7 +220,7 @@ fn validate_array_relations(
 #[path = "body_shape_array_tests.rs"]
 mod array_tests;
 
-fn validate_map_relations(
+pub(super) fn validate_map_relations(
     expressions: &[BodyExpressionShapeV1],
     relations: &[BodyShapeRelationV1],
 ) -> Result<(), &'static str> {

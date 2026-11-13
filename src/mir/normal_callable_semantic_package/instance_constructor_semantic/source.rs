@@ -140,7 +140,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn capture_instance_constru
                         })?;
                     let shape = crate::mir::callable_semantic_batch::builtin_map_construction::seal_builtin_empty_map_constructions_v1(
                         shape, owner_syntax, source.ordinary_box_coverage(),
-                    );
+                    )
+                    .map_err(|_reason| InstanceConstructorSemanticBatchIssueV1::BuiltinMapReissue { _reason })?;
                     constructor_shapes.insert(owner, shape);
                 }
                 let object = object_sources.iter().find(|(own, _)| own.same_source_as(&box_source))

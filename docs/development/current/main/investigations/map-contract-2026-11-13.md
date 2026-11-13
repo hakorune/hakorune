@@ -330,7 +330,7 @@ D・A・U の実際（この回、`45827ec086..HEAD`、production は test と d
 - R3. method の無い空の `static box MapBox {}` でも同じに宣言として扱い、callable の行が無い事から宣言が無いと推測しない。
 - R4. 利用者が宣言した名前の `new` は、組込みの box の名前でも組込みへ解決しない。
 - R5. static box（作れない宣言）の `new MapBox()` は、`static box Foo` の `new Foo()` と同じ道と同じ診断（`OrdinaryBoxCoverageMissing`）で拒否し、組込みの Map へやり直さない。
-- R6. 宣言の宣言は許す。`static box MapBox` の static method の呼び出しと、同じ program の `%{}` は、今までどおり動く。
+- R6. 宣言は許す。`static box MapBox` の static method の呼び出しと、同じ program の `%{}` は、今までどおり動く。
 - R7. builder は構築先を問い直さず、発行済みの shape の行（`New` の site が空の `MapLiteral`）を読んで Map の lowering を選ぶ。
 - R8. builder が区別するのは、組込みの Map（用途の契約があれば Map の lowering、無ければその事で拒否）・利用者の box（ordinary の構築）・source の行の欠落（契約違反として拒否）の 4 つで、Home が無い事を組込みの Map ではなかったと解釈しない。
 - R9. 空の Map の構築への書き換えは、同じ owner の元の source の、引数も field の初期化子も無い `new` で、宣言の環境から組込みの Map へ解決された site だけに限る。

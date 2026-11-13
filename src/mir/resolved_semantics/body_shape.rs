@@ -467,15 +467,22 @@ impl VerifiedResolvedBodyShapeInventoryV1 {
         &self.assignment_sources
     }
 
-    /// Re-issue the neutral rows that the declaration-aware owner names as the
-    /// builtin empty Map construction as the empty `MapLiteral` row `%{}` has.
+    /// Re-issue, before publication, the neutral rows that the
+    /// declaration-aware owner names as the builtin empty Map construction as
+    /// the empty `MapLiteral` row `%{}` has. A `MapLiteral` row therefore means
+    /// either `%{...}` or a resolved builtin `new MapBox()` with no arguments.
     /// This layer knows neither declarations nor class names: it rewrites only
-    /// the rows at the sites `is_construction` accepts. Such a row has no
-    /// source children, so the relation validation is unchanged.
-    pub(crate) fn with_empty_map_constructions_v1(
+    /// `Other` rows at sites `is_construction` accepts. Its one caller is the
+    /// declaration-aware issuer (`callable_semantic_batch/builtin_map_construction.rs`),
+    /// which projects the original source `new` of the same owner for each site
+    /// first (no arguments, no field initializers, resolved to the builtin Map).
+    /// After the rewrite the Map relation invariants are checked again on the
+    /// new rows, so a rewritten row that has source children is refused.
+    pub(in crate::mir) fn with_empty_map_constructions_v1(
         mut self,
         mut is_construction: impl FnMut(&SourceExprSiteV1) -> bool,
-    ) -> Self {
+    ) -> Result<Self, &'static str> {
+        let mut rewritten = false;
         for row in self.expressions.iter_mut() {
             let BodyExpressionShapeV1::Other { site, .. } = row else {
                 continue;
@@ -486,9 +493,13 @@ impl VerifiedResolvedBodyShapeInventoryV1 {
                     site,
                     keys: Box::default(),
                 };
+                rewritten = true;
             }
         }
-        self
+        if rewritten {
+            seal::validate_map_relations(&self.expressions, &self.relations)?;
+        }
+        Ok(self)
     }
 }
 
@@ -738,4 +749,8 @@ pub(crate) fn duplicate_shadow_body_shape_relation_rejects_for_test(
 
 #[path = "body_shape_seal.rs"]
 mod seal;
+
+#[cfg(test)]
+#[path = "body_shape_map_reissue_tests.rs"]
+mod map_reissue_tests;
 pub(crate) use seal::seal_shadow_body_shape;
