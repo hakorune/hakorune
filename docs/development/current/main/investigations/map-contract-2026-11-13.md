@@ -352,3 +352,20 @@ D・A・U の実際（この回、`45827ec086..HEAD`、production は test と d
 - R9〜R11: `with_empty_map_constructions_v1` は `Result` を返し、書き換えの後に `validate_map_relations` をやり直す。呼び出しは `seal_builtin_empty_map_constructions_v1` だけで、そこが元の source の `new`（同じ owner、引数・field の初期化子なし、宣言の環境が組込みへ解決）を確かめてから呼ぶ。`MapLiteral` の行が `%{}` と解決済みの `new MapBox()` の両方を表す事を doc に書いた。
 - 受理の変化: `static box MapBox` の `new MapBox()` が、成功から拒否（`OrdinaryBoxCoverageMissing`）に変わる。`d07`（exit 2）・`d12`（exit 1）と、新しい `s01`・`s06`。ほかの入力は 2d と差 0（`--dump-mir` 1,866 本、927 入力の EXE 608 本、229 入力、apps 100 本、384 組、固定 suite 8/8、18 ケース）。
 - 全 lib の赤は 224 本で、2d の 225 本の部分集合（2d で落ちていた `raw_invocation_port_preserves_async_qmark_check_collection_and_print_children` は、今回は通り、単独でも通る）。
+
+### 3 段目 A の Opus の確認と統合（2026-11-14）
+- main へ merge した（`789c0a8ee9`、branch `map-contract-3` の 4 commit、Sonnet 5.5 実装）。
+- 行数（`src/` の整形後、`cfc97b3b94..8ea6948b40`）: production +95、test +239。
+- Opus の監査:
+  - binary: worktree で何も変えずに build し直して、作り直しが無く、実装者の `hakorune.final` と同じ SHA-256 だった。
+  - 入力 283 本を、2d の binary とこの回の binary で流した（2 段目の監査の 234 本、static の名前と static 呼び出しの 38 本、新しい未見の 11 本。今の書き方）。変わったのは 5 本で、どれも static box と同じ名前の組込みの box の `new` が `OrdinaryBoxCoverageMissing` の拒否になった物（`d07`・`d12`、新しい `f01`・`f02`・`f06`）。ほかの 278 本は、MIR も実行ファイルの結果も 2d と同じ。
+  - 決まりは Map だけの例外ではない（types.md の決まりどおり）。`static box StringBox` の `new StringBox("ab")`（`f01`。main では MIR を作れて、実行ファイルは作れなかった）と、`static box ArrayBox` の `new ArrayBox()`（`f02`。main では別の診断の拒否）も、同じ拒否になる。
+  - 構築子の本体の `new` を見る入力 9 本を足した。`static box MapBox` の時に構築子の本体で `new MapBox()` と書く形（`g09`・`g12`）は、`static box Foo` の `new Foo()`（`g15`）と同じ診断（`artifact-source-unavailable`、`NewEmissionUnavailable`）で拒否になった（2d では組込みの Map として `map-completion`）。宣言なし・利用者の `MapBox` の形は 2d と同じ。
+  - 持ち主の数の見張り（基点 `cfc97b3b94`）は PASS。`git diff --check` は問題なし。stash は 2 本のまま。全 lib の赤は 2d の部分集合で、新しい赤は 0。
+- 残り:
+  - 構築子の本体で static box を `new` すると、`--dump-mir` は通って `new Foo()` を出し、実行ファイルの道だけが拒否する。main からある、static box 全部に共通の穴（関数の本体では発行の所で拒否される）。拒否の場所をそろえるのは別の回。
+  - 書き換えの層（`with_empty_map_constructions_v1`）は、`Other` の行が `New` の行かを自分では確かめず、呼び出し側の確認に任せている。行の種類は型の無い文字列。B 以降で行の種類を読む所を 1 か所にする時に、一緒に直す。
+  - parser の compatibility の道（`compatibility_rows`）では、ordinary の box の名前も `non_ordinary_names` に入る。答え（`declares_box`）は正しいが、doc の「`static`・interface・record」とは合わない。
+  - 構築子の本体の Map の local（宣言なしの `new MapBox()` と `get`）は、2d と同じく `map-completion` で拒否。Map を使う helper を `return me.make()` で呼ぶ形は、main から `StaticCallTargetAuthorityUnavailable` で拒否（static 呼び出しの穴と一緒に見る）。
+  - `ordinary_new_local_commit/map.rs` は 857 行に戻ったが、800 行の上限は超えたまま。
+- 次: 段 B（Core の scalar の受理と結果型を発行の側で決める）は、tmux の Codex に送る（ユーザーの指示、2026-11-14）。受理が広がる法則と結果型（`return s.indexOf` など）は、送る前にユーザーの承認を取る。
