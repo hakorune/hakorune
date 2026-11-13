@@ -16,6 +16,11 @@ use value_flow::{map_value_leaf, observe_array_elements};
 pub(super) use value_flow::{observe_field_get_local_v1, observe_field_install_v1};
 pub(crate) use value_flow::{MapFieldGetLocalV1, MapFieldInstallV1};
 
+#[path = "home_map_local_store.rs"]
+mod local_store;
+pub(super) use local_store::observe_local_store_v1;
+pub(crate) use local_store::MapLocalStoreV1;
+
 /// One verified explicit exit's site-bound obligation: the live Homes this
 /// path must release (reverse live order) plus the local-call sites the
 /// path observed, for the consumer's per-exit binding-group expectation.
@@ -272,6 +277,7 @@ pub(crate) struct MapHomeFlow {
     target_function: RegionId,
     outer: Box<[MapOuterHome]>,
     entries: Box<[MapHomeEntry]>,
+    stores: Vec<MapLocalStoreV1>,
 }
 impl MapHomeFlow {
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
@@ -783,6 +789,7 @@ pub(super) fn observe_map<E>(
             target_function,
             outer: outer.into_boxed_slice(),
             entries: entries.into_boxed_slice(),
+            stores: Vec::new(),
         },
         remaining,
     )))

@@ -13,10 +13,10 @@ pub(in crate::mir::normal_callable_semantic_package) struct MapLocalProgress {
     pub(super) owner: FunctionOwnerIdV1,
     pub(super) binding: Option<BindingRefV1>,
     pub(super) declaration: Option<SourceBindingSiteV1>,
-    progress: MapProgress,
+    pub(super) progress: MapProgress,
 }
 #[derive(Debug)]
-enum MapProgress {
+pub(super) enum MapProgress {
     Emitting,
     Emitted {
         result: ValueId,
@@ -25,7 +25,7 @@ enum MapProgress {
     },
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum MapPhase {
+pub(super) enum MapPhase {
     ExpressionCompleted,
     Installed,
     Checked,
@@ -669,7 +669,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 _ => None,
             })
             .collect();
-        if keys != flow.entries().iter().map(|e| e.key()).collect::<Vec<_>>() {
+        if keys != flow.all_entries().map(|e| e.key()).collect::<Vec<_>>() {
             return Err(freeze("map-key-order"));
         }
         let installs: Vec<_> = bindings
@@ -689,10 +689,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 _ => None,
             })
             .collect();
-        if installs.len() != flow.entries().len() {
+        if installs.len() != flow.all_entries().count() {
             return Err(freeze("map-install-count"));
         }
-        for (entry, op) in flow.entries().iter().zip(installs) {
+        for (entry, op) in flow.all_entries().zip(installs) {
             match op {
                 Map::InstallIndexed {
                     map, object, value, ..

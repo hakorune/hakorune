@@ -318,7 +318,7 @@ fn describe_flow(flow: &MapHomeFlow, returned_local: bool) -> MapSiteObligationV
         }
     }
     let mut borrows = Vec::new();
-    for entry in flow.entries() {
+    for entry in flow.all_entries() {
         match entry.store_class() {
             MapEntryStoreClassV1::Borrowed => {}
             class => {

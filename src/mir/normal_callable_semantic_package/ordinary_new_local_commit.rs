@@ -184,6 +184,8 @@ mod result_new_source;
 
 #[path = "ordinary_new_local_commit/map.rs"]
 mod map;
+#[path = "ordinary_new_local_commit/map_local_store.rs"]
+mod map_local_store;
 use map::MapLocalProgress;
 
 #[path = "ordinary_new_local_commit/owned_array_read.rs"]

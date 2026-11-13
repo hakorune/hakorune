@@ -284,7 +284,7 @@ enum PendingInstall {
     BorrowedArray(Box<[ValueId]>),
 }
 
-fn record_literal(
+pub(super) fn record_literal(
     builder: &MirBuilder,
     dst: ValueId,
     value: crate::mir::ConstValue,
@@ -313,7 +313,7 @@ fn map_fault(
     cleanup_chain(builder, frame, &FaultCleanupPlanV1::unwind(operations), tail, bindings)
 }
 
-fn invoke(
+pub(super) fn invoke(
     builder: &mut MirBuilder,
     frame: ValueId,
     operation: Map,

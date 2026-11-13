@@ -255,6 +255,11 @@ pub(super) fn scan_statement_flow<'a, E>(
                 locals.record_source_loop_expression_v1(statement.site());
                 continue;
             }
+            if unavailable.is_none()
+                && map_flow::observe_local_store_v1(input, &statement, locals, homes, maps)
+            {
+                continue;
+            }
             if map_flow::observe_field_install_v1(
                 input,
                 &statement,

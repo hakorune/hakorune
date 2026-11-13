@@ -28,6 +28,8 @@ mod return_expression;
 pub(in crate::mir::builder) mod terminal_map_get;
 #[path = "selected/map_field_install.rs"]
 pub(in crate::mir::builder) mod map_field_install;
+#[path = "selected/map_local_store.rs"]
+pub(in crate::mir::builder) mod map_local_store;
 pub(in crate::mir::builder) use return_expression::emit as emit_return_expression_v1;
 #[path = "selected/binding_rebind_expression.rs"]
 pub(in crate::mir::builder) mod binding_rebind_expression;

@@ -610,6 +610,11 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
                     builder, &mut state.borrow_mut(), ledger, source)?;
                 return crate::mir::builder::emission::constant::emit_void(builder);
             }
+            if let Some((store, map_site)) = ledger.map_local_store_at_v1(&site)? {
+                crate::mir::builder::ordinary_new_admission::selected::map_local_store::emit(
+                    builder, &mut state.borrow_mut(), ledger, &store, &map_site)?;
+                return crate::mir::builder::emission::constant::emit_void(builder);
+            }
             if let Some(source) = ledger.field_array_text_append_at_v1(&site)? {
                 let frame = source.text_frame().ok_or("[freeze:contract][field-array-append/original-call]")?;
                 ledger.stage_source_array_receiver_v1(source_input, frame.source().receiver(), frame.source().field_name())?;
