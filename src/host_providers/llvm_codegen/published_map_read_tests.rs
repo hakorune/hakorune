@@ -22,7 +22,7 @@ fn issued_map_read_source_exe_probe_observes_get_contract_and_end() {
         // (source, exit, expected READ tail). The out-slot stays -1 when the
         // kernel records Fault — it writes only on Normal. A missing key is
         // Fault 114 and a present non-i64 payload is Fault 104.
-        let cases: [(&str, Option<&str>, i32, &str, &str); 9] = [
+        let cases: [(&str, Option<&str>, i32, &str, &str); 12] = [
             (
                 "local m = %{\"k\" => 7} return m.get(\"k\")",
                 None,
@@ -90,6 +90,29 @@ fn issued_map_read_source_exe_probe_observes_get_contract_and_end() {
                 "70 1 1 1 1 0 0 READ  0 0 0 0 1 1\n",
                 "REPORT 100 ",
             ),
+            // A checked get inside an expression is a shared Core operation: the
+            // same single Map end on Normal and on a missing-key Fault.
+            (
+                "local m = new MapBox() m.set(\"a\", 4) local v = m.get(\"a\") + 1 return v",
+                None,
+                5,
+                "5 1 1 1 1 1 1 READ a 1 4 0 1 2 1\n",
+                "",
+            ),
+            (
+                "local m = new MapBox() m.set(\"a\", 4) local v = m.get(\"k\") + 1 return v",
+                None,
+                70,
+                "70 1 1 1 1 1 1 READ k 1 -1 1 1 2 1\n",
+                "REPORT 114 ",
+            ),
+            (
+                "local m = new MapBox() m.set(\"a\", 4) m.set(\"b\", 3) return m.get(\"a\") + m.get(\"b\")",
+                None,
+                7,
+                "7 1 1 2 2 2 2 READ b 1 3 0 2 3 1\n",
+                "",
+            ),
         ];
         for (case, (body, mode, expected_exit, expected_tail, expected_report)) in
             cases.iter().enumerate()
@@ -121,13 +144,12 @@ fn issued_map_read_source_exe_probe_observes_get_contract_and_end() {
                         assert!(verification.is_ok(), "{verification:?}");
                         let input = view.issue_lifecycle_physical_abi_input()?;
                         let json = emit_lifecycle_physical_abi_json(&input)?;
-                        let reads = usize::from(body.contains(".get("));
+                        let reads = body.matches(".get(").count();
                         assert_eq!(
                             json.matches("\"kind\":\"map_checked_get\"").count(),
                             reads,
                             "{json}"
                         );
-                        assert_eq!(json.contains("\"utf8\":\"k\""), reads == 1, "{json}");
                         let runtime = Path::new("target/lifecycle-kernel/release");
                         let session = LifecycleRuntimeSessionV1::select(
                             runtime.join("libnyash_lifecycle_kernel.a"),
