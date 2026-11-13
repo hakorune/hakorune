@@ -159,7 +159,6 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     let root_core = if previous_scalar_candidate {
         None
     } else {
-        use crate::mir::core_method_result_kind::CoreMethodSemanticLawV2;
         use crate::mir::resolved_semantics::home_new_prefix::{
             BorrowedCallActualRequestV1, BorrowedCallArgumentsV1,
         };
@@ -170,18 +169,21 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
                 plan: &source,
             },
         )? {
-            Some(BorrowedCallArgumentsV1::ExpressionCoreSource(core))
-                if core.source().target().checked_code_point_law_v1()
-                    == Some(CoreMethodSemanticLawV2::CodePointCount)
-                    || core.checked_fault_read_v1() =>
-            {
-                Some(core)
+            Some(BorrowedCallArgumentsV1::ExpressionCoreSource(core)) => {
+                let Some(class) = core.scalar_read_result_class_v1() else {
+                    return Ok(None);
+                };
+                Some((core, class))
             }
             None if root_argument_evaluation => None,
             _ => return Ok(None),
         }
     };
-    let checked_fault_root = root_core.as_ref().is_some_and(|core| core.checked_fault_read_v1());
+    let core_result_class = root_core.as_ref().map(|(_, class)| *class);
+    let root_core = root_core.map(|(core, _)| core);
+    let checked_fault_root = root_core
+        .as_ref()
+        .is_some_and(|core| core.checked_fault_read_v1());
     let field_seeds = if root_core.is_some() {
         super::super::super::field_read::text_field_seeds_v1(input, &source, locals, fields)
     } else {
@@ -192,11 +194,11 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     let prepared = prepare_value_evaluation_v1(
         input,
         std::rc::Rc::clone(&source),
-        if bool_root {
+        core_result_class.unwrap_or(if bool_root {
             crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Bool
         } else {
             crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64
-        },
+        }),
         &purpose,
         locals,
         homes,
@@ -226,10 +228,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
             return Ok(if integer_source { refused() } else { None });
         }
     };
-    // A Return using the frame-free Core read does not acquire a Text Home.
-    // An expression requiring an acquisition or Fault frame keeps its terminal owner.
-    // A checked read whose law has a Fault owns this Return like
-    // the same read inside `m.get("k") + 1` does, with the Home's cleanup.
+    // Acquisition-bearing roots keep their existing terminal owner until the
+    // shared cleanup connection's acceptance scope is approved.
     if !previous_scalar_candidate
         && !root_argument_evaluation
         && !checked_fault_root

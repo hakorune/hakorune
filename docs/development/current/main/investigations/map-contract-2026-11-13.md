@@ -408,3 +408,5 @@ B4の関門（home_terminal_scalar_evaluation.rs:233–238）は、準備済みe
 ### D・A・U の見積もり
 
 D（消える）12–20行: Return法則名一覧、比較の写し、B4の不要な拒否条件。A（共通queryと説明）14–20行。U（使う側productionの結果型配線）8–16行。正味+2–24行程度、production3ファイルを想定し、同一rustfmtの増減とGit物理行差を別に報告する。testと文書は別に数える。完成済み評価だけを接続し、新しい持ち主・cleanup・MIR/ABIは作らない。
+
+段Bの実装途中の境界: loanの共通queryとReturn/比較の結果型配線を接続し、元sourceのreceiver/needle交換を拒否する既存moduleのtestを追加した（既存の独立型・生存行列ではsource順序を証明できないため）。B4を一般化する試作では一時receiverのlengthも拒否から成功になったため、承認範囲外のその部分は保留して元の関門を保持する。法則名でlengthだけを除外する腕は作らない。

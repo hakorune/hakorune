@@ -248,8 +248,7 @@ impl CheckedExpressionEvaluationV1 {
                     .segments()
                     .starts_with(prefix)
                     && core.matches_plan(&self.source, node)
-                    && (core.source().target().frame_free_read_law_v1().is_some()
-                        || core.checked_fault_read_v1())
+                    && core.scalar_read_result_class_v1().is_some()
             });
         if !computed_scalar
             && !matches!(plan.kind(), ComparisonExecutionKindV1::Text)
