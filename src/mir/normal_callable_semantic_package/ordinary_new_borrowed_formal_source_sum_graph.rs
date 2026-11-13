@@ -337,14 +337,17 @@ impl Graph<'_> {
                     .map(|seed| self.seed(seed))
                     .collect();
                 if let Some(request) = source.core_operand_request() {
-                    let field_map = if matches!(request.manifest().row().op,
+                    // One receiver evidence per Map operation: a field Map for
+                    // `has`/`keys`, the request's named local for the checked `get`.
+                    use crate::mir::normal_callable_semantic_package::core_method_source::MapReceiverEvidenceV1 as Evidence;
+                    let map_receiver = if matches!(request.manifest().row().op,
                         crate::mir::core_method_op::CoreMethodOp::MapHas | crate::mir::core_method_op::CoreMethodOp::MapKeys)
                     {
                         let proof = (self.map_receiver)(source.method());
                         row.invalid |= proof.is_none();
-                        proof
+                        proof.map(Evidence::Field)
                     } else {
-                        None
+                        request.local_map().map(Evidence::Local)
                     };
                     let field_array_access = source.field_array_access_v1().cloned();
                     if let Some(access) = &field_array_access {
@@ -367,7 +370,7 @@ impl Graph<'_> {
                     } else { None };
                     self.core_requests.push(CoreRequestNode {
                         node: id,
-                        field_map,
+                        map_receiver,
                         receiver_core,
                         field_array_access,
                         method: std::sync::Arc::clone(source.method()),
@@ -542,7 +545,7 @@ pub(super) fn project_graph_v1(
                     result: values[request.node].clone()?,
                     method: std::sync::Arc::clone(&request.method),
                     request: request.request,
-                    field_map: request.field_map.clone(),
+                    map_receiver: request.map_receiver.clone(),
                     receiver_core,
                     field_array_access: request.field_array_access.clone(),
                     text: request

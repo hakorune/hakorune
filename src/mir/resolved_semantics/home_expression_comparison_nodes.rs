@@ -223,6 +223,14 @@ impl CheckedExpressionEvaluationV1 {
 }
 
 impl CheckedExpressionEvaluationV1 {
+    /// The receiver node a checked named-local Map read takes by the shared
+    /// path read: it belongs to its Core call's inputs although it is an Identity.
+    fn is_checked_map_receiver_v1(&self, node: usize) -> bool {
+        self.cores.values().any(|core| {
+            core.is_checked_local_map_get_v1()
+                && core.source().source().receiver_site() == self.source.nodes()[node].site()
+        })
+    }
     pub(super) fn comparison_input_order_v1(
         &self,
         comparison: usize,
@@ -240,7 +248,8 @@ impl CheckedExpressionEvaluationV1 {
                     .segments()
                     .starts_with(prefix)
                     && core.matches_plan(&self.source, node)
-                    && core.source().target().frame_free_read_law_v1().is_some()
+                    && (core.source().target().frame_free_read_law_v1().is_some()
+                        || core.is_checked_local_map_get_v1())
             });
         if !computed_scalar
             && !matches!(plan.kind(), ComparisonExecutionKindV1::Text)
@@ -265,7 +274,9 @@ impl CheckedExpressionEvaluationV1 {
                         .node()
                         .segments()
                         .starts_with(prefix)
-                    && (!allow_dynamic_call || !self.transfers_node(*node))
+                    && (!allow_dynamic_call
+                        || !self.transfers_node(*node)
+                        || self.is_checked_map_receiver_v1(*node))
             })
             .collect();
         // Eager Core projection needs ordinary receiver values. Identity-owned
@@ -274,6 +285,9 @@ impl CheckedExpressionEvaluationV1 {
             && order
                 .iter()
                 .filter_map(|node| self.cores.get(node))
+                // A checked named-local Map read takes its receiver by the one
+                // shared path read, never as an ordinary receiver value.
+                .filter(|core| !core.is_checked_local_map_get_v1())
                 .any(|core| {
                     self.source
                         .nodes()
@@ -321,6 +335,10 @@ impl CheckedExpressionEvaluationV1 {
         }
         for &node in &order {
             let original = &self.source.nodes()[node];
+            // Its Core call reads it by the shared path read (see above).
+            if self.is_checked_map_receiver_v1(node) {
+                continue;
+            }
             if self.transfers_node(node)
                 || self.node_is_identity(node)
                 || !matches!(original.children(), crate::mir::resolved_value_profile::expression_children::ExpressionChildrenV1::Known(children)

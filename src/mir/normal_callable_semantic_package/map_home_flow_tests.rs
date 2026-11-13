@@ -981,3 +981,22 @@ fn a_declared_user_box_named_map_box_is_never_the_builtin_empty_map() {
     };
     assert!(refused.contains("BuiltinMapNameShadowed"), "{refused}");
 }
+
+#[test]
+fn checked_get_as_a_comparison_input_installs_with_the_same_map_home() {
+    // The checked get is one shared Core operation wherever it sits; a
+    // condition takes its inputs from the same Home and owes one End.
+    for body in [
+        "local m = new MapBox() m.set(\"k\", 5) if m.get(\"k\") == 5 { return 1 } return 0",
+        "local m = %{\"k\" => 5} if 5 == m.get(\"k\") { return 1 } else { return 2 }",
+        "local m = %{\"a\" => 3} local n = 2 if n < m.get(\"a\") { return 1 } return 0",
+        "local m = %{\"a\" => 3} if m.get(\"a\") > 1 && m.get(\"a\") < 9 { return 1 } return 0",
+    ] {
+        let package = issue(&source(body)).unwrap();
+        let mut context = CompilationContext::new();
+        package
+            .prepare_install(&mut context)
+            .unwrap_or_else(|(_, error)| panic!("{body}: {error:?}"));
+        assert!(context.callable_declaration_catalog_vacant(), "{body}");
+    }
+}

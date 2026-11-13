@@ -162,32 +162,27 @@ fn qualified_static_call_argument_stays_on_parked_opaque_lane() {
     ));
 }
 
+/// A named local built by a sealed Map construction returns its checked `get`
+/// through the shared Core scalar evaluation, not the dedicated MapGet
+/// relation (that one stays for borrowed and call-returned receivers). The
+/// Home still owes its End on the one exit.
 #[test]
-fn owned_local_map_get_issues_terminal_relation_and_keeps_cleanup() {
+fn owned_local_map_get_returns_through_the_shared_core_and_keeps_cleanup() {
     let package =
         issue("static box Main { main() { local m = %{\"k\" => 7} return m.get(\"k\") } }")
             .expect("owned map-get package");
-    // The AppMain root carries no result-contract row; its relation lives on
-    // the claim ledger keyed by the root owner.
     let ledger = &package.ordinary_new_claim_ledger;
     let completion = ledger.root_completion_for_test();
     let owner = completion.owner();
-    let Some(TerminalRelationV1::MapGet(relation)) = ledger.sole_terminal_relation_for_owner(owner)
-    else {
-        panic!("owned terminal map-get issues the MapGet relation");
-    };
-    assert_eq!(relation.owner(), owner);
-    assert_eq!(
-        relation.receiver_class(),
-        TerminalMapGetReceiverClassV1::OwnedLocal
+    assert!(
+        matches!(
+            ledger.sole_terminal_relation_for_owner(owner),
+            Some(TerminalRelationV1::Scalar(_))
+        ),
+        "the shared Core scalar return owns the checked get"
     );
-    assert_eq!(relation.key(), "k");
-    // The read does not consume the map; the owned local still owes its End.
     let flow = completion.cleanup().root_flow().expect("root flow");
-    assert!(flow
-        .terminal_homes()
-        .unwrap()
-        .contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(relation.receiver())));
+    assert_eq!(flow.terminal_homes().unwrap().len(), 1, "the Map Home owes its End");
     assert_install_admits(package);
 }
 
@@ -205,26 +200,13 @@ fn owned_local_map_get_in_child_owner_keeps_cleanup() {
         .find(|row| {
             matches!(
                 row.sole_terminal_relation(),
-                Some(TerminalRelationV1::MapGet(_))
-            )
+                Some(TerminalRelationV1::Scalar(_))
+            ) && row.completion().cleanup().root_flow().is_some_and(|flow| {
+                flow.terminal_homes().is_ok_and(|homes| homes.len() == 1)
+            })
         })
-        .expect("child contract row");
-    let Some(TerminalRelationV1::MapGet(relation)) = contract.sole_terminal_relation() else {
-        panic!("child terminal map-get issues the MapGet relation");
-    };
-    assert_eq!(
-        relation.receiver_class(),
-        TerminalMapGetReceiverClassV1::OwnedLocal
-    );
-    let flow = contract
-        .completion()
-        .cleanup()
-        .root_flow()
-        .expect("root flow");
-    assert!(flow
-        .terminal_homes()
-        .unwrap()
-        .contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(relation.receiver())));
+        .expect("child contract row: shared Core scalar return with the Map Home");
+    drop(contract);
 }
 
 #[test]
@@ -294,22 +276,19 @@ fn owned_local_map_get_with_borrowed_handle_entry_reads_as_tagged_fault() {
     )
     .expect("borrowed-entry map-get package");
     let contract = contract_for(&package, 1);
-    let Some(TerminalRelationV1::MapGet(relation)) = contract.sole_terminal_relation() else {
-        panic!("borrowed-entry map issues the MapGet relation");
-    };
-    assert_eq!(
-        relation.receiver_class(),
-        TerminalMapGetReceiverClassV1::OwnedLocal
+    assert!(
+        matches!(
+            contract.sole_terminal_relation(),
+            Some(TerminalRelationV1::Scalar(_))
+        ),
+        "the shared Core scalar return owns the checked get"
     );
     let flow = contract
         .completion()
         .cleanup()
         .root_flow()
         .expect("root flow");
-    assert!(flow
-        .terminal_homes()
-        .unwrap()
-        .contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(relation.receiver())));
+    assert_eq!(flow.terminal_homes().unwrap().len(), 1, "the Map Home owes its End");
     assert_install_admits(package);
 }
 

@@ -22,7 +22,7 @@ fn issued_map_read_source_exe_probe_observes_get_contract_and_end() {
         // (source, exit, expected READ tail). The out-slot stays -1 when the
         // kernel records Fault — it writes only on Normal. A missing key is
         // Fault 114 and a present non-i64 payload is Fault 104.
-        let cases: [(&str, Option<&str>, i32, &str, &str); 15] = [
+        let cases: [(&str, Option<&str>, i32, &str, &str); 18] = [
             (
                 "local m = %{\"k\" => 7} return m.get(\"k\")",
                 None,
@@ -114,6 +114,29 @@ fn issued_map_read_source_exe_probe_observes_get_contract_and_end() {
                 70,
                 "70 1 1 1 1 1 1 READ  0 0 0 0 1 1\n",
                 "REPORT ",
+            ),
+            // The same checked get as a comparison input of a condition is the
+            // same shared Core operation: one Map End on Normal and on Fault.
+            (
+                "local m = new MapBox() m.set(\"k\", 5) if m.get(\"k\") == 5 { return 1 } return 0",
+                None,
+                1,
+                "1 1 1 1 1 1 1 READ k 1 5 0 1 2 1\n",
+                "",
+            ),
+            (
+                "local m = new MapBox() m.set(\"k\", 5) if m.get(\"x\") == 5 { return 1 } return 0",
+                None,
+                70,
+                "70 1 1 1 1 1 1 READ x 1 -1 1 1 2 1\n",
+                "REPORT 114 ",
+            ),
+            (
+                "local m = %{} if m.get(\"k\") == 5 { return 1 } return 0",
+                None,
+                70,
+                "70 1 1 0 0 0 0 READ k 1 -1 1 1 2 1\n",
+                "REPORT 114 ",
             ),
             // A checked get inside an expression is a shared Core operation: the
             // same single Map end on Normal and on a missing-key Fault.

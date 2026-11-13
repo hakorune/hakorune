@@ -61,6 +61,8 @@ pub(in crate::mir) enum BoolConditionValueProofV1 {
             usize,
             super::expression_projection::ExpressionReferenceReadV1,
         >,
+        /// The receiver reads a Core input borrows through the shared path read.
+        path_reads: Box<[Rc<crate::mir::builder::ExactLexicalReadV1>]>,
         entry: Option<Binding>,
         terminal: Option<Binding>,
         continuation: Option<Binding>,
@@ -187,6 +189,7 @@ impl EmittedBoolConditionProjectionV1 {
             input_values,
             dynamic_calls,
             input_reads,
+            path_reads,
             bindings,
             receiver,
             inline_range,
@@ -200,7 +203,7 @@ impl EmittedBoolConditionProjectionV1 {
             input_values,
             &[],
             dynamic_calls,
-            &[],
+            path_reads,
             input_reads,
             bindings,
         )

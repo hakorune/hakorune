@@ -5,6 +5,7 @@ use crate::mir::resolved_semantics::{
     CoreMethodInstanceTargetIssuerV1, ResolverCoreMethodCallableContractIssuerV1,
     VerifiedResolverOrdinaryCoreMethodSourceV1,
 };
+use crate::mir::resolved_semantics::{BindingRefV1, OwnedExprSiteV1};
 use std::rc::Rc;
 
 #[derive(Debug)]
@@ -28,6 +29,10 @@ impl OrdinaryCoreSourceCallV1 {
         &self,
     ) -> &VerifiedResolverOrdinaryCoreMethodSourceV1 {
         &self.source
+    }
+    /// The checked i64-or-Fault read of a named-local Map.
+    pub(in crate::mir::normal_callable_semantic_package) fn is_checked_local_map_get_v1(&self) -> bool {
+        is_checked_local_map_get_v1(&self.operands, self.source.target())
     }
     pub(in crate::mir::normal_callable_semantic_package) fn operands(
         &self,
@@ -67,6 +72,15 @@ impl OrdinaryCoreSourceCallV1 {
 
 }
 
+/// Receiver evidence plus the row's law: a live named-local Map read by the
+/// checked `get`, whose result is an i64 or a Fault (114 absent, 104 non-i64).
+fn is_checked_local_map_get_v1(
+    operands: &ClosedOriginalCoreSourceV1,
+    target: &crate::mir::resolved_semantics::VerifiedCoreMethodInstanceTargetV1,
+) -> bool {
+    operands.local_map().is_some() && target.checked_map_get_law_v1()
+}
+
 pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_core_source_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     operands: &Rc<ClosedOriginalCoreSourceV1>,
@@ -87,8 +101,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_core_sour
         .map_err(|_| reject())?;
     use crate::mir::core_method_op::CoreMethodOp as Op;
     let op = operands.manifest().row().op;
-    let map = matches!(op, Op::MapHas | Op::MapKeys);
-    if map != operands.field_map().is_some() {
+    // Each Map row takes exactly the receiver evidence its operation reads:
+    // a field Map for `has`/`keys`, a named-local Map for the checked `get`.
+    let evidence_fits = match op {
+        Op::MapHas | Op::MapKeys => operands.field_map().is_some(),
+        Op::MapGet => operands.local_map().is_some() && operands.field_map().is_none(),
+        _ => operands.field_map().is_none() && operands.local_map().is_none(),
+    };
+    if !evidence_fits {
         return Err(reject());
     }
     let access = operands.field_array_access_v1();
@@ -136,7 +156,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_core_sour
         .issue(operands.manifest())
         .map_err(|error| format!("[freeze:contract][ordinary-core/target] {error:?}"))?;
     if target.checked_code_point_law_v1().is_none() && !target.checked_map_presence_law_v1()
-        && !(op == Op::MapGet && operands.local_map().is_some() && target.checked_map_get_law_v1())
+        && !(op == Op::MapGet && is_checked_local_map_get_v1(operands, &target))
         && !target.checked_text_keys_law_v1() && !target.checked_array_count_law_v1()
         && !(op == Op::ArrayGet && access.is_some_and(|source| source.is_dynamic_get())
             && target.schema() == crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::ArrayDynamicRead) {
@@ -285,7 +305,7 @@ impl ExpressionCoreSourceLoanV1 {
                     && matches!(row.source(), Node::MethodCall)
             })
             && (self.source().target().checked_code_point_law_v1().is_some()
-                || (self.local_map().is_some() && self.source().target().checked_map_get_law_v1())
+                || self.is_checked_local_map_get_v1()
                 || self.field_map().is_some_and(|field| {
                     (self.source().target().checked_map_presence_law_v1()
                         || self.source().target().checked_text_keys_law_v1()) && field.matches_plan(plan)
@@ -321,10 +341,27 @@ impl ExpressionCoreSourceLoanV1 {
         // which values the Map was written with. The receiver evidence only
         // selects this read: a field Map `get` is a different, object-returning
         // read, so the target alone does not.
-        if self.local_map().is_some() && self.source().target().checked_map_get_law_v1() {
+        if self.is_checked_local_map_get_v1() {
             return Some(crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64);
         }
         self.source().target().expression_result_class_v1()
+    }
+    /// The checked i64-or-Fault read of a named-local Map (receiver evidence +
+    /// the `MapTextGetPresentOrFault` law). The single question every user of
+    /// the shared Core call asks; none re-derives it from the receiver kind.
+    pub(crate) fn is_checked_local_map_get_v1(&self) -> bool {
+        self.original.is_checked_local_map_get_v1()
+    }
+    /// The receiver this Core call reads once through a shared path read: an
+    /// array alias or a live named-local Map. Users prepare that one read
+    /// without choosing between the two kinds.
+    pub(crate) fn path_read_receiver_v1(&self) -> Option<(OwnedExprSiteV1, BindingRefV1)> {
+        if let Some(access) = self.field_array_access_v1() {
+            return Some((access.receiver().clone(), access.receiver_alias_v1()?.binding()));
+        }
+        let source = self.source().source();
+        let site = OwnedExprSiteV1::new(source.owner(), source.receiver_site().clone());
+        Some((site, self.local_map()?))
     }
     /// Receiver evidence only: the live named-local Map this checked `get`
     /// borrows. It says nothing about the type of the stored values.
@@ -348,6 +385,39 @@ impl ExpressionCoreSourceLoanV1 {
     }
     pub(crate) fn is_array_dynamic_get_v1(&self) -> bool {
         self.original.is_array_dynamic_get_v1()
+    }
+}
+
+/// The one receiver evidence a Map Core call carries. It says which Map the
+/// read borrows, never what the Map holds: the result class comes from the
+/// operation's own checked contract.
+#[derive(Debug, Clone)]
+pub(crate) enum MapReceiverEvidenceV1 {
+    /// A Map field of `me`: the receiver read travels with the scalar invocation.
+    Field(Rc<FieldMapReceiverSourceV1>),
+    /// A named local whose sole initializer is a sealed Map construction. The
+    /// live Home is checked later; the read is one shared path read.
+    Local(crate::mir::resolved_semantics::BindingRefV1),
+}
+impl MapReceiverEvidenceV1 {
+    pub(crate) fn field(&self) -> Option<&Rc<FieldMapReceiverSourceV1>> {
+        match self {
+            Self::Field(field) => Some(field),
+            Self::Local(_) => None,
+        }
+    }
+    pub(crate) fn local(&self) -> Option<crate::mir::resolved_semantics::BindingRefV1> {
+        match self {
+            Self::Local(binding) => Some(*binding),
+            Self::Field(_) => None,
+        }
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn matches(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Field(left), Self::Field(right)) => left.matches_source(right),
+            (Self::Local(left), Self::Local(right)) => left == right,
+            _ => false,
+        }
     }
 }
 

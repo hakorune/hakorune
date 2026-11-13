@@ -701,7 +701,7 @@ pub(crate) fn checked_expression_core_operation_v1(
         Invoke::String(operation) => operation.valid_operand_domains(),
         Invoke::DynamicArrayGet { .. } => core.is_array_dynamic_get_v1(),
         Invoke::Map(crate::mir::instruction::MapInvokeOperation::CheckedGetI64 { .. }) => {
-            core.local_map().is_some() && core.source().target().checked_map_get_law_v1()
+            core.is_checked_local_map_get_v1()
         }
         _ => false,
     };

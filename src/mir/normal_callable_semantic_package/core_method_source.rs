@@ -8,7 +8,7 @@ mod collector;
 pub(in crate::mir::normal_callable_semantic_package) mod emission;
 mod field_append;
 mod ordinary;
-pub(crate) use ordinary::{ExpressionCoreSourceLoanV1, FieldMapReceiverSourceV1};
+pub(crate) use ordinary::{ExpressionCoreSourceLoanV1, FieldMapReceiverSourceV1, MapReceiverEvidenceV1};
 pub(super) use ordinary::{issue_ordinary_core_source_v1, OrdinaryCoreSourceCallV1};
 pub(crate) use field_append::FieldArrayAppendSourceLoanV1;
 pub(crate) use collector::NamedArrayEmissionCollectorV1;

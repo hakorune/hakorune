@@ -193,7 +193,7 @@ pub(in crate::mir::builder) fn emit_scalar_condition_v1(
     let mut body = super::expression_value::emit_comparison_inputs_v1(
         builder, state, ledger, frame.evaluation(), node, consume_receiver, retained_argument_frames,
     )?;
-    if !body.calls.is_empty() || !body.path_reads.is_empty() { return Err(freeze("bool-condition/text-operand-order")); }
+    if !body.calls.is_empty() { return Err(freeze("bool-condition/text-operand-order")); }
     let normal_temporaries = super::expression_value::bool_condition_temporary_operations_v1(
         frame.evaluation(), node, &body,
     )?;
@@ -208,7 +208,8 @@ pub(in crate::mir::builder) fn emit_scalar_condition_v1(
     body.complete_inline_range_v1(builder)?;
     Ok((value, Proof::ScalarInvocation { receiver,
         input_values: body.values.into_boxed_slice(), dynamic_calls: body.dynamic_calls.into_boxed_slice(),
-        input_reads: body.reference_reads, entry: body.entry, inline_range: body.inline_range,
+        input_reads: body.reference_reads, path_reads: body.path_reads.into_boxed_slice(),
+        entry: body.entry, inline_range: body.inline_range,
         terminal, continuation, bindings: body.bindings.into_boxed_slice() }))
 }
 pub(in crate::mir::builder) fn definition(function: &MirFunction, value: ValueId) -> Result<Option<Binding>, String> {

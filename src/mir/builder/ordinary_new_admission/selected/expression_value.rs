@@ -277,20 +277,10 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
     let mut path_slots = std::collections::BTreeMap::new();
     let mut reference_slots = std::collections::BTreeMap::new();
     let mut direct_fields = std::collections::BTreeMap::new();
+    // An array alias or a named-local Map receiver is read once, by its Core
+    // call, through one shared path read.
     for core in frame.cores().values().filter(|core| order.contains(&core.node())) {
-        let Some(access) = core.field_array_access_v1() else { continue; };
-        let Some(alias) = access.receiver_alias_v1() else { continue; };
-        let site = access.receiver();
-        if path_slots.contains_key(site) { continue; }
-        let read = state.prepare_exact_lexical_read(owner, site.site().node(), alias.binding())
-            .map_err(|error| error.to_string())?;
-        path_slots.insert(site.clone(), pending.len());
-        pending.push(read);
-    }
-    // A named-local Map receiver is read once, by its Core call, like an alias.
-    for core in frame.cores().values().filter(|core| order.contains(&core.node())) {
-        let Some(binding) = core.local_map() else { continue; };
-        let site = OwnedExprSiteV1::new(owner, core.source().source().receiver_site().clone());
+        let Some((site, binding)) = core.path_read_receiver_v1() else { continue; };
         if path_slots.contains_key(&site) { continue; }
         let read = state.prepare_exact_lexical_read(owner, site.site().node(), binding)
             .map_err(|error| error.to_string())?;

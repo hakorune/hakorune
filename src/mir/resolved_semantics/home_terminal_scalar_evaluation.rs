@@ -172,7 +172,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         )? {
             Some(BorrowedCallArgumentsV1::ExpressionCoreSource(core))
                 if core.source().target().checked_code_point_law_v1()
-                    == Some(CoreMethodSemanticLawV2::CodePointCount) =>
+                    == Some(CoreMethodSemanticLawV2::CodePointCount)
+                    || core.is_checked_local_map_get_v1() =>
             {
                 Some(core)
             }
@@ -180,6 +181,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
             _ => return Ok(None),
         }
     };
+    let checked_map_root = root_core.as_ref().is_some_and(|core| core.is_checked_local_map_get_v1());
     let field_seeds = if root_core.is_some() {
         super::super::super::field_read::text_field_seeds_v1(input, &source, locals, fields)
     } else {
@@ -226,8 +228,11 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     };
     // A Return using the frame-free Core read does not acquire a Text Home.
     // An expression requiring an acquisition or Fault frame keeps its terminal owner.
+    // A checked named-local Map read Faults by design: it owns this Return like
+    // the same read inside `m.get("k") + 1` does, with the Home's cleanup.
     if !previous_scalar_candidate
         && !root_argument_evaluation
+        && !checked_map_root
         && evaluation.requires_fault_frame_v1(true, |_| None)
     {
         return Ok(None);

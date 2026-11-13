@@ -256,7 +256,7 @@ struct ClosedOriginalCoreSourceV1 {
     result: SourceValueSumV1,
     method: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
     request: OriginalCoreOperandRequestV1,
-    field_map: Option<Rc<crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1>>,
+    map_receiver: Option<crate::mir::normal_callable_semantic_package::core_method_source::MapReceiverEvidenceV1>,
     receiver_core: Option<Rc<ClosedOriginalCoreSourceV1>>,
     field_array_access: Option<Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>>,
     text: Box<[SourceValueSumV1]>,
@@ -279,12 +279,17 @@ impl ClosedOriginalCoreSourceV1 {
     ) -> crate::mir::core_method_result_kind::CoreMethodManifestRowRefV2 {
         self.request.manifest()
     }
-    /// The named-local Map a checked `get` reads, from the original request.
+    /// The one receiver evidence of a Map operation; the two projections below
+    /// are the only questions callers ask of it.
+    pub(in crate::mir::normal_callable_semantic_package) fn map_receiver(&self)
+        -> Option<&crate::mir::normal_callable_semantic_package::core_method_source::MapReceiverEvidenceV1> {
+        self.map_receiver.as_ref()
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn local_map(&self)
-        -> Option<crate::mir::resolved_semantics::BindingRefV1> { self.request.local_map() }
+        -> Option<crate::mir::resolved_semantics::BindingRefV1> { self.map_receiver.as_ref().and_then(|map| map.local()) }
     pub(in crate::mir::normal_callable_semantic_package) fn field_map(&self)
     -> Option<&Rc<crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1>>{
-        self.field_map.as_ref()
+        self.map_receiver.as_ref().and_then(|map| map.field())
     }
     pub(in crate::mir::normal_callable_semantic_package) fn dynamic_i64_operand_contains(
         &self,
@@ -320,10 +325,9 @@ impl ClosedOriginalCoreSourceV1 {
                 _ => false,
             }
             && self.field_array_access == other.field_array_access
-            && self.local_map() == other.local_map()
-            && match (&self.field_map, &other.field_map) {
+            && match (&self.map_receiver, &other.map_receiver) {
                 (None, None) => true,
-                (Some(left), Some(right)) => left.matches_source(right),
+                (Some(left), Some(right)) => left.matches(right),
                 _ => false,
             }
     }
@@ -331,7 +335,7 @@ impl ClosedOriginalCoreSourceV1 {
 #[derive(Debug, Clone)]
 struct CoreRequestNode {
     node: usize,
-    field_map: Option<Rc<crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1>>,
+    map_receiver: Option<crate::mir::normal_callable_semantic_package::core_method_source::MapReceiverEvidenceV1>,
     receiver_core: Option<std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>>,
     field_array_access: Option<Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>>,
     text: Vec<usize>,
