@@ -122,3 +122,13 @@
   - 合わせて約 290 行（production）。
 - U（読む側の差分）: test 約 300 行、文書約 60 行。
 - 見込み: production は約 +290 行。機能の回なので増えてよい。報告に実際の数を並べる。
+
+### 2 段目の結果と止めた所（Sonnet 5.5 実装、2026-11-13）
+
+- 入った物: L1〜L4・L14 の Home の部分。引数の無い `new MapBox()` は、body shape の層（`is_empty_map_construction_v1`）で「keys が空の `MapLiteral` の行」として 1 回だけ封印する。Home の走査・`MapHomeFlow`・`acquire_map`・lifecycle の undertaking・物理の `Map::New` と End は、既にある `%{}` の道をそのまま使う。新しい持ち主・型・公開の形は足していない。
+- 拒否の診断: `OwnerTerminalHomesUnavailable` に `cause` を足し、Home の走査を止めた最初の文（`PrefixNotCovered(statement)`）を指す。
+- 通る物: `new MapBox()` だけ、`return m.get("k")`（無い key は Fault 114）。Normal で Map の new 1・end 1、`get` の Fault 114 でも new 1・end 1。
+- 通らない物（L5〜L9、止めた）: `set`・`has`・`size`・`delete` と、それに続く `local v = m.get(..)`・`+` の operand。理由:
+  - `has`・`size`・`delete`: named local の Map 用の物理操作が無い。`MapInvokeOperation` は field 用の `FieldHas`・`FieldDeleteIndexed` だけで、`size`・`delete` には runtime の export も無い。通すには新しい MIR の操作・C の emit・runtime の ABI が要り、L12（公開の形を足さない）に当たる。
+  - `set`: 物理の操作（`PrepareKey`・`InstallValue`・`EndOutcome`）は既にあるが、文としての install を Home の行・commit・fault の cleanup の packet・独立の検証へ通す道が field 版（`MapFieldInstallV1`・`MapFieldInstallEmissionV1`、約 1,300 行）にしか無い。local 版を並べて書くと、同じ責任の 2 つ目の道になる。3 段目の「field と local の row の語彙を 1 つへ」を先にしてから足すのが筋。
+  - 目標のうち `p01`・`p02`・`p03`・`p04`・`p08`・`p10`・`p11`・`p14`・`p15`・`p16` は、この理由で未達。
