@@ -83,3 +83,42 @@
   - unchecked の `runtime_data.get_hh` と `slot_load_hh` は、まだ無い key で 0 を返す（Fault の枠が無い道）。VM の `MapBox.get` と `delete` は文字列を返し、契約と食い違う。どちらも古い道の退役の時に扱う。
   - `tools/checks/core_method_contract_manifest_guard.sh` は、この回の前から main でも失敗する（`core_method_source/ordinary.rs` が「予期しない resolver の consumer」とされる）。Opus が main `cd4dcbab12` で確かめた。直すのは別の小さな仕事。
   - 2 段目への注意（実装者）: `core_method_source/ordinary.rs` の `map = matches!(op, MapHas | MapKeys)` と `checked_*_law_v1` を、受理と一緒に広げる必要がある。named local の `new MapBox()` は、`home_new_prefix_local_statement.rs` の `PrefixNotCovered` で止まる。
+
+## 2 段目: named local の `new MapBox()` と I64 の値の基本の method（2026-11-13）
+
+この段は、named local の `new MapBox()` を Map の Home として受け入れ、I64 の値の `set`・`get`・`has`・`size`（`len`・`length`）・`delete`（`remove`）を通す。
+
+### 経路をたどった結果（実装前、読むだけ）
+
+- 主因は前の段の証拠が無い事。`ordinary_new_candidate.rs` が builtin の `new` を除外するので、`new MapBox()` は `selected` にも Home の走査の要求（`has_map_v1`、`MapLiteral` の行だけを見る）にも入らず、`home_new_prefix_local_statement.rs` の連鎖の最後で `PrefixNotCovered` になる。`main-arguments/root-completion` はその離れた診断。
+- 副の原因は段の仕組みの欠け。named local の受け手を `core_method_source` が受けない（`map = matches!(op, MapHas | MapKeys)` と field の受け手だけ）。`checked_*_law_v1` は `has`・`keys` の分しか無い。`get` は `return m.get("lit")` だけが専用の recognizer（`terminal_map_get`）で通り、`%{}` の local でも `set`・`has`・`size`・`delete`・`local v = m.get(..)`・`+` の operand は通らない。
+- `map_lifecycle_undertaking.rs` の doc の「`new MapBox()` は未接続」は正しい。
+- つなぐ先の持ち主（新しく作らない）: Home は `MapHomeFlow`（`home_map_flow.rs`）と取得 `acquire_map`（`home_ownership_transition.rs`）、物理の new・End は既にある `LocalCommitV1::Map` と `lower_callable_map_v1`。`new MapBox()` は「空の `%{}`」と同じ流れに乗せる。method は共通の式の評価（`VerifiedResolvedMethodCallSourceV1` → `ClosedOriginalCoreSourceV1` → `OrdinaryCoreSourceCallV1` → `ExpressionCoreSourceLoanV1`）の Core operation として扱う。
+
+### 規則（実装より先に書く）
+
+- L1. 引数の無い `new MapBox()` を named local の初期化子に書いた時は、中身が空の Map として `MapHomeFlow` の 1 つの Home にする。空の `%{}` と同じ扱いにする。
+- L2. L1 の Map の責任は、確保が Normal の時だけ 1 つ取る。確保の Fault では、終える Map の責任は無い。
+- L3. L1 の Map は、Normal と Fault の全部の出口で End を 1 回だけ行う。End の順は `MapHomeFlow` の既存の出口の順に従う。
+- L4. 引数つき・field の初期化子・注釈つきの `new MapBox()` は受けない。拒否の診断は、local の初期化子の文を指す。
+- L5. L1 の Home に対する `get`・`set`・`has`・`size`・`delete` の呼び出しは、使う所に依らず、共通の式の評価の Core operation として判定する。
+- L6. 使う所（文、`local` の初期化、`return`、`+` の operand、条件）は、Map の method を判定せず、結果の行き先だけを共通の式の評価へ渡す。
+- L7. `set` の key は Text、値は I64 に限る。値が I64 以外（Text・Bool・object）は受けず、拒否の文言は値の種類を指す。
+- L8. `get` は I64 を返す。無い key は Fault 114（K2）。`has` は Bool、`size`（`len`・`length`）は I64、`delete`（`remove`）は Bool で、K7〜K10 のまま。
+- L9. 文として書いた `m.set(..)`・`m.delete(..)` の結果は捨てる。結果を捨てても End の数は変わらない。
+- L10. `keys` は受けない。拒否の文言は、結果の Array の所有を指す。
+- L11. 受理を広げる時は、`core_method_source/ordinary.rs` の Map の判定と `checked_*_law_v1` を、K17・K18 の行の法則で決める。method 名や入力の形を当てる分岐は書かない。
+- L12. 公開 MIR・opcode・ABI・descriptor・C shim・JSON の形は足さない。
+- L13. 古い raw の `call_method MapBox.*` の道は、この段では消さない。canonical の道で通る入力は、canonical の道で通る事を確かめる。
+- L14. Map の new と End の数は、Normal・`get` の Fault 114・`set` の key 確保の Fault（100・101）の道で、new 1 回に対し End 1 回にする。
+
+### 見積もり（D − A − U。実装の前の数）
+
+- D（確実に消える）: `home_new_prefix_local_statement.rs` で `PrefixNotCovered` になる場合の診断の言い換えで消える行は無い。`terminal_map_get` を共通の Core 経路へ寄せられた時だけ、その recognizer（約 50 行）が D になる。見込めるか、実装の途中で確かめる。D に確実に入れるのは 0〜数行。
+- A（要る追加、production）:
+  - Home の入口（走査の要求の拡張、`new MapBox()` の枝、物理 lowering の腕）: 約 80 行。
+  - named local の受け手の source、`ordinary.rs` と `checked_*_law_v1` の拡張、request の拡張: 約 150 行。
+  - 文としての `set`・`delete` の受理: 約 60 行。
+  - 合わせて約 290 行（production）。
+- U（読む側の差分）: test 約 300 行、文書約 60 行。
+- 見込み: production は約 +290 行。機能の回なので増えてよい。報告に実際の数を並べる。
