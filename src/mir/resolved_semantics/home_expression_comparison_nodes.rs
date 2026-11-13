@@ -227,7 +227,7 @@ impl CheckedExpressionEvaluationV1 {
     /// path read: it belongs to its Core call's inputs although it is an Identity.
     fn is_checked_map_receiver_v1(&self, node: usize) -> bool {
         self.cores.values().any(|core| {
-            core.borrows_receiver_by_path_read_v1()
+            core.borrows_local_map_receiver_v1()
                 && core.source().source().receiver_site() == self.source.nodes()[node].site()
         })
     }
@@ -287,7 +287,7 @@ impl CheckedExpressionEvaluationV1 {
                 .filter_map(|node| self.cores.get(node))
                 // A Core call that borrows its receiver by the one
                 // shared path read never reads it as an ordinary receiver value.
-                .filter(|core| !core.borrows_receiver_by_path_read_v1())
+                .filter(|core| !core.borrows_local_map_receiver_v1())
                 .any(|core| {
                     self.source
                         .nodes()

@@ -133,6 +133,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn capture_instance_constru
                             InstanceConstructorSemanticBatchIssueV1::BodyShapeOwnerMismatch,
                         );
                     }
+                    let owner_syntax = projection
+                        .owner_root(declaration, owner)
+                        .map_err(|error| InstanceConstructorSemanticBatchIssueV1::SourceProjection {
+                            _error: error.to_string(),
+                        })?;
+                    let shape = crate::mir::callable_semantic_batch::builtin_map_construction::seal_builtin_empty_map_constructions_v1(
+                        shape, owner_syntax, source.ordinary_box_coverage(),
+                    );
                     constructor_shapes.insert(owner, shape);
                 }
                 let object = object_sources.iter().find(|(own, _)| own.same_source_as(&box_source))

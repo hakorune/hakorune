@@ -14,8 +14,9 @@
 //! set of owners whose completion happened to succeed — a failed completion
 //! must not silently shrink the undertaking.
 //!
-//! An argument-free `new MapBox()` is the same empty construction as `%{}`:
-//! the body-shape layer seals it as a `MapLiteral` row with no keys, so it is
+//! An argument-free `new MapBox()` whose name has no user declaration is the
+//! same empty construction as `%{}`: the batch issuer, which knows the
+//! declarations, re-issues it as a `MapLiteral` row with no keys, so it is
 //! enumerated and described here like any other literal site.
 
 use crate::mir::resolved_semantics::home_new_prefix::{

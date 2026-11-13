@@ -14,7 +14,7 @@ use crate::mir::resolved_semantics::{
 };
 use crate::parser::ParserOrdinaryBoxSourceCoverageV1;
 
-pub(super) fn seal_builtin_empty_map_constructions_v1(
+pub(crate) fn seal_builtin_empty_map_constructions_v1(
     shape: VerifiedResolvedBodyShapeInventoryV1,
     owner_root: &ASTNode,
     coverage: &ParserOrdinaryBoxSourceCoverageV1,

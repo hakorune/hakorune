@@ -1,6 +1,6 @@
 //! Sole resolved owner for one retained parser callable-source batch.
 
-mod builtin_map_construction;
+pub(crate) mod builtin_map_construction;
 mod issuer;
 mod model;
 // I0 is intentionally caller-zero until the source-bound relation D0/I0

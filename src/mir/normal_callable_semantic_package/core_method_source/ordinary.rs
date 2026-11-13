@@ -34,9 +34,13 @@ impl OrdinaryCoreSourceCallV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn checked_fault_read_v1(&self) -> bool {
         issues_checked_fault_read_v1(&self.operands, self.source.target())
     }
-    /// Receiver reading: the receiver is borrowed by one shared path read,
-    /// never read as an ordinary receiver value.
-    pub(in crate::mir::normal_callable_semantic_package) fn borrows_receiver_by_path_read_v1(&self) -> bool {
+    /// Receiver reading: the receiver is a live named-local Map, borrowed by one
+    /// shared path read, never read as an ordinary receiver value. An array
+    /// alias receiver is also path-read (`path_read_receiver_v1`) but is not
+    /// answered here: the comparison nodes keep their own array-receiver
+    /// handling (`direct_array_receiver_v1`), and asking for both kinds changes
+    /// the diagnostic of an alias-length condition.
+    pub(in crate::mir::normal_callable_semantic_package) fn borrows_local_map_receiver_v1(&self) -> bool {
         self.operands.local_map().is_some()
     }
     pub(in crate::mir::normal_callable_semantic_package) fn operands(
@@ -86,6 +90,19 @@ fn issues_checked_fault_read_v1(
     target: &crate::mir::resolved_semantics::VerifiedCoreMethodInstanceTargetV1,
 ) -> bool {
     operands.local_map().is_some() && target.checked_map_get_law_v1()
+}
+
+/// The value class a checked Fault read's law returns on its Normal path.
+fn checked_read_result_class_v1(
+    target: &crate::mir::resolved_semantics::VerifiedCoreMethodInstanceTargetV1,
+) -> Option<crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1> {
+    use crate::mir::core_method_result_kind::CoreMethodSemanticLawV2 as Law;
+    match target.row().semantic_law_for_arity()? {
+        Law::MapTextGetPresentOrFault => {
+            Some(crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64)
+        }
+        _ => None,
+    }
 }
 
 pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_core_source_v1(
@@ -342,14 +359,15 @@ impl ExpressionCoreSourceLoanV1 {
         if self.is_array_dynamic_get_v1() && self.proves_text_result_v1() {
             return Some(crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String);
         }
-        // The i64-or-Fault result comes from the checked read itself:
-        // `CheckedGetI64` Faults 114 on an absent key and 104 on a present
-        // non-i64 value (law `MapTextGetPresentOrFault`). It does not come from
-        // which values the Map was written with. The receiver evidence only
-        // selects this read: a field Map `get` is a different, object-returning
-        // read, so the target alone does not.
+        // The result class of a checked read comes from its law, not from the
+        // read having a Fault: `CheckedGetI64` (law `MapTextGetPresentOrFault`)
+        // is an i64 or Fault 114 (absent key) / 104 (present non-i64 value).
+        // It does not come from which values the Map was written with. A Fault
+        // read of another law answers for itself.
         if self.checked_fault_read_v1() {
-            return Some(crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64);
+            if let Some(class) = checked_read_result_class_v1(self.source().target()) {
+                return Some(class);
+            }
         }
         self.source().target().expression_result_class_v1()
     }
@@ -358,10 +376,10 @@ impl ExpressionCoreSourceLoanV1 {
     pub(crate) fn checked_fault_read_v1(&self) -> bool {
         self.original.checked_fault_read_v1()
     }
-    /// Receiver reading: borrowed by one shared path read (`path_read_receiver_v1`)
-    /// rather than read as an ordinary receiver value.
-    pub(crate) fn borrows_receiver_by_path_read_v1(&self) -> bool {
-        self.original.borrows_receiver_by_path_read_v1()
+    /// Receiver reading: a live named-local Map receiver, borrowed by the shared
+    /// path read rather than read as an ordinary receiver value.
+    pub(crate) fn borrows_local_map_receiver_v1(&self) -> bool {
+        self.original.borrows_local_map_receiver_v1()
     }
     /// The receiver this Core call reads once through a shared path read: an
     /// array alias or a live named-local Map. Users prepare that one read
