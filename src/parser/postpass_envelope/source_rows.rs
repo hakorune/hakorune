@@ -13,11 +13,13 @@ pub(super) fn compatibility_rows(ast: &ASTNode) -> Box<[ParserBoxPostpassRowV1]>
         .iter()
         .enumerate()
         .filter_map(|(final_box_ordinal, statement)| {
-            matches!(statement, ASTNode::BoxDeclaration { .. }).then_some(
-                ParserBoxPostpassRowV1::AstOnlyCompatibility {
-                    _final_box_ordinal: final_box_ordinal,
-                },
-            )
+            let ASTNode::BoxDeclaration { name, .. } = statement else {
+                return None;
+            };
+            Some(ParserBoxPostpassRowV1::AstOnlyCompatibility {
+                _final_box_ordinal: final_box_ordinal,
+                name: name.as_str().into(),
+            })
         })
         .collect::<Vec<_>>()
         .into_boxed_slice()
@@ -68,7 +70,10 @@ pub(super) fn source_backed_compatibility_rows(
         .iter()
         .enumerate()
         .filter_map(|(final_box_ordinal, statement)| {
-            matches!(statement, ASTNode::BoxDeclaration { .. }).then(|| {
+            let ASTNode::BoxDeclaration { name, .. } = statement else {
+                return None;
+            };
+            Some(
                 sealed_by_statement[final_box_ordinal]
                     .take()
                     .map(|seal| ParserBoxPostpassRowV1::SourceSealedOrdinary {
@@ -77,8 +82,9 @@ pub(super) fn source_backed_compatibility_rows(
                     })
                     .unwrap_or(ParserBoxPostpassRowV1::AstOnlyCompatibility {
                         _final_box_ordinal: final_box_ordinal,
-                    })
-            })
+                        name: name.as_str().into(),
+                    }),
+            )
         })
         .collect::<Vec<_>>()
         .into_boxed_slice();

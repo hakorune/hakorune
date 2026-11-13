@@ -43,8 +43,12 @@ pub(super) enum ParserBoxPostpassRowV1 {
         final_box_ordinal: usize,
         seal: ParserBoxSourceSealV1,
     },
+    /// A declaration that is not a source-sealed ordinary Box (`static`,
+    /// interface, record). Only its name is kept: it is still a user
+    /// declaration of that name.
     AstOnlyCompatibility {
         _final_box_ordinal: usize,
+        name: Box<str>,
     },
 }
 
@@ -77,6 +81,7 @@ impl ParserBoxPostpassCoverageV1 {
     }
 
     pub(super) fn into_source_backed_ordinary_coverage(self) -> ParserOrdinaryBoxSourceCoverageV1 {
+        let mut non_ordinary_names = Vec::new();
         let rows = self
             .rows
             .into_vec()
@@ -94,10 +99,13 @@ impl ParserBoxPostpassCoverageV1 {
                             == super::source_authority::GeneratedBirthTriggerKindV1::StoredFieldInitializer)
                     }),
                 )),
-                ParserBoxPostpassRowV1::AstOnlyCompatibility { .. } => None,
+                ParserBoxPostpassRowV1::AstOnlyCompatibility { name, .. } => {
+                    non_ordinary_names.push(name);
+                    None
+                }
             })
             .collect();
-        ParserOrdinaryBoxSourceCoverageV1::issue(rows)
+        ParserOrdinaryBoxSourceCoverageV1::issue(rows, non_ordinary_names)
     }
 }
 

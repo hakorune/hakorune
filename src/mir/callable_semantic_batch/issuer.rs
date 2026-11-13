@@ -43,6 +43,9 @@ pub(crate) enum ResolvedCallableSemanticBatchIssueV1 {
     RootProfileMismatch,
     BodyShapeMissing,
     BodyShapeOwnerMismatch,
+    BuiltinMapReissue {
+        _reason: &'static str,
+    },
     BlockExprExpectation {
         _error: ResolvedBlockExpressionExpectationIssueV1,
     },
@@ -350,7 +353,8 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
                     })?;
                 let body_shape = super::builtin_map_construction::seal_builtin_empty_map_constructions_v1(
                     body_shape, root_syntax, coverage,
-                );
+                )
+                .map_err(|_reason| ResolvedCallableSemanticBatchIssueV1::BuiltinMapReissue { _reason })?;
                 // Keep every resolver-issued nested shape beside its original
                 // forest. Do not drop lambda/source obligations at root sealing.
                 let mut nested_body_shapes = std::collections::BTreeMap::new();
@@ -367,7 +371,8 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
                         })?;
                     let shape = super::builtin_map_construction::seal_builtin_empty_map_constructions_v1(
                         shape, nested_syntax, coverage,
-                    );
+                    )
+                    .map_err(|_reason| ResolvedCallableSemanticBatchIssueV1::BuiltinMapReissue { _reason })?;
                     nested_body_shapes.insert(nested, shape);
                 }
                 resolved.push(VerifiedResolvedCallableSemanticRowV1 {

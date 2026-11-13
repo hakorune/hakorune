@@ -31,13 +31,14 @@ pub(super) fn with_constructor_semantic_scope<R>(
     // resolves through inside this constructor's construction stores.
     state.lend_ordinary_new_claim_ledger(Rc::clone(&ordinary_new_claim_ledger));
     let state = Rc::new(RefCell::new(state));
-    let parent = inner.callable_ledger.replace(state.clone());
-    let parent_new_ledger = inner
-        .ordinary_new_claim_ledger
-        .replace(ordinary_new_claim_ledger);
-    let result = execute(inner);
-    inner.callable_ledger = parent;
-    inner.ordinary_new_claim_ledger = parent_new_ledger;
+    // The constructor body's issued source product (its body-shape rows)
+    // travels with its state, as for every other callable source scope.
+    let mut scoped = inner.reborrow();
+    scoped.callable_ledger = Some(state.clone());
+    scoped.ordinary_new_claim_ledger = Some(ordinary_new_claim_ledger);
+    scoped.source_input = Some(input);
+    let result = execute(&mut scoped);
+    drop(scoped);
     match result {
         Ok(value) => {
             Rc::try_unwrap(state)

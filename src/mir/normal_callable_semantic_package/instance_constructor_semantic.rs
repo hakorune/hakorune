@@ -49,6 +49,9 @@ pub(crate) enum InstanceConstructorSemanticBatchIssueV1 {
     RootProfileMismatch,
     BodyShapeMissing,
     BodyShapeOwnerMismatch,
+    BuiltinMapReissue {
+        _reason: &'static str,
+    },
     BodyShapeResidual,
     Completion {
         _issue: FunctionCompletionVerificationErrorV1,

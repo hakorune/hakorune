@@ -525,16 +525,25 @@ impl RawInvocationChildPortV1<'_, '_> {
         Ok(completed)
     }
 
-    /// A `new` that is the builtin empty Map: the issuer's own question asked
-    /// with the same declarations (the ledger's ordinary-box names), so a user
-    /// box of the same name stays an ordinary construction.
-    pub(super) fn is_builtin_empty_map_construction_v1(&self, input: &ASTNode) -> bool {
-        self.ordinary_new_claim_ledger.as_ref().is_some_and(|claims| {
-            crate::mir::callable_semantic_batch::builtin_map_construction::is_builtin_empty_map_new_v1(
-                input,
-                |name| claims.declares_ordinary_box(name),
-            )
-        })
+    /// Whether this `new` was issued as the builtin empty Map. The builder does
+    /// not decide the construction target: the batch issuer already did and
+    /// left the answer in the body-shape row of this site (`MapLiteral`, which a
+    /// `New` node only gets from that issuer). Any other row is a user
+    /// construction. A site without a row has no source answer, which is a
+    /// contract violation, not a reason to try another route.
+    pub(super) fn issued_builtin_empty_map_construction_v1(
+        &self,
+        input: &ASTNode,
+    ) -> Result<bool, String> {
+        if self.callable_ledger.is_none() || !matches!(input, ASTNode::New { .. }) {
+            return Ok(false);
+        }
+        let site = self.current_callable_site_v1("map-site")?;
+        crate::mir::callable_semantic_batch::builtin_map_construction::issued_builtin_empty_map_new_v1(
+            self.source_input.and_then(|input| input.body_shape()),
+            &crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site),
+        )
+        .map_err(freeze)
     }
 
     pub(super) fn lower_callable_map_v1(
