@@ -258,11 +258,19 @@ fn assert_map_read_probe_with_mode(
         "checked_install_indexed",
         "outcome_end",
         "checked_end",
+        "checked_install_borrowed_array",
+        "checked_install_empty_array",
+        "checked_install_indexed_end",
+        "checked_array_length",
+        "checked_array_index_map",
+        "checked_get_text",
     ] {
         command.arg(format!("-Wl,--wrap=nyash.map.{name}_v1"));
     }
     for name in [
         "object.home_release_plain_i64",
+        "object.checked_dynamic_replace",
+        "object.field_outcome_end",
         "fault.report_final",
         "fault.frame_dispose",
     ] {
