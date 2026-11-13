@@ -174,3 +174,26 @@ B. named local の `get` を 1 本の道に
 - A（要る追加、production）: Return の受け口（`root_core` の match と frame の免除）約 15 行。条件（`comparison_input_order_v1`・`home_bool_condition`・`emit_scalar_condition_v1`・`ScalarInvocation` の `path_reads` と検証）約 90 行。受け手の証拠の型と問い 約 40 行。`new MapBox()` の衝突の判定 約 15 行。合わせて約 +160 行。
 - U（consumer の production の変更。test と文書は別）: 受け手の証拠の型へ置き換える読む側・検証側の約 15 か所の機械的な書き換え 約 +100 行。
 - 見込み: production は約 +160 − 25 + 100 ≒ +235 行（機能の回）。test 約 +120、文書約 +60。範囲が変わった時は、その時に見積もりを直す。
+
+### 2 段目の続きの結果（Sonnet 5.5 実装、2026-11-13）
+
+A. 統合の前の確かめ
+- M1: 文の hook を `ledger_statement.rs` へ移し、`child_lowering_impl.rs` は 789 行（元は 808）。詰めて書いてはいない。
+- M2: 利用者が `box MapBox` を宣言して `new MapBox()` と書く入力は、W16（2 段目の前）では利用者の object として通り、2 段目では空の Map にされて内部の拒否（`MapObligationDescribe`）で止まっていた。shape の層は class の名前だけで封印するため、宣言を知る最初の層 `ordinary_new_candidate` が `BuiltinMapNameShadowed` で名前を指して拒否する。判定の式は `is_builtin_empty_map_new_v1` の 1 か所（shape の層と candidate が同じ式を使う）。W16 で通っていた「利用者の `MapBox` + 引数なしの `new MapBox()`」は今は拒否に変わる（ユーザーの承認が要る）。通すには shape の層へ宣言の情報を渡す必要がある（resolver の入口が約 7 か所、brand catalog の持ち回りが約 118 か所に及ぶため、この回では入れていない）。
+- M3: `get` の結果の I64 は `CheckedGetI64` の契約（行の法則 `MapTextGetPresentOrFault`）で決める。`%{"k" => "x"}` の `get` は Fault 104（EXE で確認。read probe にも 1 ケース）。受け手の証拠は「どの Map を借りるか」だけを示す。コメントと型の名前に区別を書いた。
+- M4: read probe に `value-install-fault` の注入点を足し（`checked_install_value` の wrap。実 runtime の attempt Fault をそのまま使う）、`set` の install が Fault した時に Map の End が 1 回、key と outcome の数が合う事を確認した（2 ケース）。
+- M5: Python v4 の 21 本は、最終の test binary で capture を作り直して流した。17 本が rc=0、4 本（add_view・checked_compare・new_argument・set_view）は Bool の capture が無く実行できない（基準の summary と同じ。PASS に数えない）。Map の物理 test（`--ignored`、17 本）は 7 本が通り、10 本は C の file の wrapper と test の wrap 一覧の食い違いによる link の失敗などで落ちる。落ちる 10 本は、2 段目の前の test binary でも同じで、この系列とは無関係。
+- M6: dump の 3 本の名前と理由は報告に並べた。`--dump-mir` の受理に頼る tools は、`tools/checks` の `--dump-mir` を使う 7 本の fixture に `new MapBox()` が無い事を grep で確認した範囲では見つからなかった。文の形による fallback は作っていない。拒否の文言は、`size` のような未対応の method を指すもの（`root-instance-call-map-local-method-uncovered`）に直した。条件の中の `has`（a5）と型の誤り（b_map）は、後段の物理検証が出す文言のままで、原因の文は指さない。
+
+B. named local の `get` を 1 本の道に
+- M7〜M9: 受け手の証拠を `MapReceiverEvidenceV1`（field の Map・named local の Map）1 つにし、Core の request から検証まで同じ形で渡す。`local_map()`・`field_map()` は、その型への問い（投影）。「checked な named-local の `get` か」は `is_checked_local_map_get_v1` 1 つの問い（以前は 4 か所の写し）。array alias と named local の受け手の read を `path_reads` に載せる 2 つの loop は、`path_read_receiver_v1` の問いで 1 つにした。statement field の root と direct array receiver の read は、物理の read の取り方が違う（field の root は祖先の field writer の後に束縛する）ので残した。
+- M10: named local の Map（`%{}` と `new MapBox()`）の `return m.get("k")` は共通の Core の返却の scalar 評価に移った（`home_terminal_scalar_evaluation.rs` の `root_core` と frame の要否の 2 点。MIR は専用の `MapGet` ingress から共通の writer の形に変わり、値と Fault は同じ）。`terminal_map_get` は、`: MapBox` 引数（Home を持たない）と、関数が返した Map の local（`StoredLocal::Map` の `OwnedLocal`）が使うので、型も関数も caller が 0 にならず、D は 0。`%{}` の local 向けの test 3 本は、共通の道を確かめる形に書き換えた。
+- M11: 条件の中の `get` は、比較の入力として同じ Core operation で評価する（`comparison_input_order_v1` が checked な get を計算入力として受け、受け手のノードを入力に含める。`ScalarInvocation` が `path_reads` を持ち、検証側へ渡す）。条件の各所に `field_map() || local_map` は足していない。無い key の `get` は条件の中で Fault 114、Map の End は 1 回（read probe の 3 ケース）。
+- M12: `apps/json-stream-aggregator` を含む apps 100 本、1,866 本の MIR、384 組、229 入力は、2 段目と差 0（拒否の文言 1 行を除く）。
+- 残り: 条件の比較入力に乗算を含む `m.get("a") * 2 == 6` は、`Mul` が条件の比較入力に置けない既存の制限で拒否のまま（`get` とは無関係）。`has`・`size`・`delete` の公開の形は入れていない。
+
+D・A・U の実際（この回、`45827ec086..HEAD`、production は test と docs を除く）
+- production: +230 / −69（正味 +161）。内訳: 800 行の移動 +45（新 file）/ −21（impl）、`MapBox` の判定 +31、受け手の証拠の型・問い +105 / −24、consumer（Return・条件・path read の統合）+36 / −19、診断 +9。
+- D（確実に消えた）: path read の 2 つの loop を 1 つに −10、`local_map && law` の写し 4 → 1 で約 −6。`terminal_map_get` は 0。見積もりの −25 のうち約 −16 を達成。
+- U（consumer の production）: 見積もり約 +100 に対し +36 / −19（機械的な書き換えは、投影を残したので不要になった）。
+- test: +147 / −47（read probe 6 ケース・Home の test 3 本・`MapBox` の衝突・診断の test、`terminal_map_get` の test の書き換え）。docs: この節。
