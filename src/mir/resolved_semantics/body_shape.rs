@@ -88,30 +88,6 @@ pub(crate) enum BodyExpressionShapeV1 {
     },
 }
 
-/// The builtin `MapBox` construction that is the same empty Map as `%{}`:
-/// no arguments and no field initializers. The shape layer is the one place
-/// that says so; every Map consumer then reads the same sealed `MapLiteral`
-/// row. A user box of the same name is not this: the first layer that knows
-/// the declarations (`ordinary_new_candidate`) refuses that collision.
-pub(crate) fn is_builtin_empty_map_new_v1(
-    class: &str,
-    arguments: usize,
-    field_initializers: usize,
-) -> bool {
-    class == "MapBox"
-        && crate::box_trait::is_builtin_box(class)
-        && arguments == 0
-        && field_initializers == 0
-}
-
-pub(crate) fn is_empty_map_construction_v1(node: &crate::ast::ASTNode) -> bool {
-    matches!(
-        node,
-        crate::ast::ASTNode::New { class, arguments, field_initializers, .. }
-            if is_builtin_empty_map_new_v1(class, arguments.len(), field_initializers.len())
-    )
-}
-
 impl BodyExpressionShapeV1 {
     /// The exact source expression site this shape row claims.
     pub(crate) fn site(&self) -> &SourceExprSiteV1 {
@@ -489,6 +465,30 @@ impl VerifiedResolvedBodyShapeInventoryV1 {
 
     pub(crate) fn assignment_sources(&self) -> &[ResolvedAssignmentSourceV1] {
         &self.assignment_sources
+    }
+
+    /// Re-issue the neutral rows that the declaration-aware owner names as the
+    /// builtin empty Map construction as the empty `MapLiteral` row `%{}` has.
+    /// This layer knows neither declarations nor class names: it rewrites only
+    /// the rows at the sites `is_construction` accepts. Such a row has no
+    /// source children, so the relation validation is unchanged.
+    pub(crate) fn with_empty_map_constructions_v1(
+        mut self,
+        mut is_construction: impl FnMut(&SourceExprSiteV1) -> bool,
+    ) -> Self {
+        for row in self.expressions.iter_mut() {
+            let BodyExpressionShapeV1::Other { site, .. } = row else {
+                continue;
+            };
+            if is_construction(site) {
+                let site = site.clone();
+                *row = BodyExpressionShapeV1::MapLiteral {
+                    site,
+                    keys: Box::default(),
+                };
+            }
+        }
+        self
     }
 }
 

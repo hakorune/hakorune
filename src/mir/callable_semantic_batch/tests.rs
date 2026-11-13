@@ -13,13 +13,13 @@ use super::{
     VerifiedResolvedCallableSemanticBatchV1,
 };
 
-fn batch(source: &str) -> VerifiedResolvedCallableSemanticBatchV1 {
+pub(super) fn batch(source: &str) -> VerifiedResolvedCallableSemanticBatchV1 {
     let source = final_source(source);
     let mut resolver = FunctionSemanticResolverSessionV1::new(71).unwrap();
     issue_resolved_callable_semantic_batch_v1(&mut resolver, source).unwrap()
 }
 
-fn final_source(source: &str) -> crate::parser::VerifiedFinalCallableProgramSourceV1 {
+pub(super) fn final_source(source: &str) -> crate::parser::VerifiedFinalCallableProgramSourceV1 {
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
         source,
         ParserBuildConfig::default(),

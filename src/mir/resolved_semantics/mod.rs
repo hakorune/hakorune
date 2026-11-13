@@ -11,7 +11,6 @@ mod body_effect_control_coverage;
 mod body_shape;
 #[cfg(test)]
 pub(crate) use body_shape::issue_resolved_method_call_sources_v1;
-pub(crate) use body_shape::{is_builtin_empty_map_new_v1, is_empty_map_construction_v1};
 mod body_shape_resolver;
 mod brand_source_relation;
 #[cfg(test)]

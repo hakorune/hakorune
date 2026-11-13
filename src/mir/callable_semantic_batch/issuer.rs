@@ -342,6 +342,15 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
                 .map_err(|error| {
                     ResolvedCallableSemanticBatchIssueV1::Projection { _error: error }
                 })?;
+                let coverage = source.ordinary_box_coverage();
+                let root_syntax = projection
+                    .owner_root(declaration, *owner)
+                    .map_err(|error| ResolvedCallableSemanticBatchIssueV1::Projection {
+                        _error: error,
+                    })?;
+                let body_shape = super::builtin_map_construction::seal_builtin_empty_map_constructions_v1(
+                    body_shape, root_syntax, coverage,
+                );
                 // Keep every resolver-issued nested shape beside its original
                 // forest. Do not drop lambda/source obligations at root sealing.
                 let mut nested_body_shapes = std::collections::BTreeMap::new();
@@ -351,6 +360,14 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
                     if shape.owner() != nested || shape.body_root() != &product.root_profile().body_root() {
                         return Err(ResolvedCallableSemanticBatchIssueV1::BodyShapeOwnerMismatch);
                     }
+                    let nested_syntax = projection
+                        .owner_root(declaration, nested)
+                        .map_err(|error| ResolvedCallableSemanticBatchIssueV1::Projection {
+                            _error: error,
+                        })?;
+                    let shape = super::builtin_map_construction::seal_builtin_empty_map_constructions_v1(
+                        shape, nested_syntax, coverage,
+                    );
                     nested_body_shapes.insert(nested, shape);
                 }
                 resolved.push(VerifiedResolvedCallableSemanticRowV1 {

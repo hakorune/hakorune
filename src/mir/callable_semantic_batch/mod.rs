@@ -1,5 +1,6 @@
 //! Sole resolved owner for one retained parser callable-source batch.
 
+mod builtin_map_construction;
 mod issuer;
 mod model;
 // I0 is intentionally caller-zero until the source-bound relation D0/I0
@@ -14,6 +15,8 @@ mod declared_instance_call_relation_tests;
 mod s6c_typed_input_tests;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod builtin_map_construction_tests;
 
 #[cfg(test)]
 pub(crate) use issuer::{

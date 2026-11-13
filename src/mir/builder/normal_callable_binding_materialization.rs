@@ -525,6 +525,27 @@ impl RawInvocationChildPortV1<'_, '_> {
         Ok(completed)
     }
 
+    /// A `new` that the Home flow observed as a Map at the current site: the
+    /// declaration-aware decision was made once upstream, so a user box of the
+    /// same name has no Map observation and stays an ordinary construction.
+    pub(super) fn is_observed_map_construction_v1(&self, input: &ASTNode) -> bool {
+        if !matches!(input, ASTNode::New { .. }) {
+            return false;
+        }
+        let (Some(state), Some(claims), Ok(site)) = (
+            self.callable_ledger.as_ref(),
+            self.ordinary_new_claim_ledger.as_ref(),
+            self.current_callable_site_v1("map-site"),
+        ) else {
+            return false;
+        };
+        let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+            state.borrow().owner(),
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site),
+        );
+        claims.has_map_site(&owned)
+    }
+
     pub(super) fn lower_callable_map_v1(
         &mut self,
         builder: &mut MirBuilder,
