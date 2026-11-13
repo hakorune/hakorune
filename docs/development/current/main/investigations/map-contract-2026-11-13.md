@@ -310,3 +310,37 @@ D・A・U の実際（この回、`45827ec086..HEAD`、production は test と d
 - その後に、`size`・`has`・`delete` を操作ごとにつなぐ。`delete` は、更新できる受け手と取り外した値の責任が要るので、読みの共通化だけでは完成しない。
 
 ユーザーの決定（2026-11-14）: `static box MapBox { ... }` の宣言は許し、`new MapBox()` は static box を作れないので拒否する（ほかの static box の `new` と同じ）。組込みへやり直さない。`%{}` は組込みの Map のまま。決まりの正本は `docs/reference/language/types.md` の「Builtin box names and user declarations」（`LANGUAGE_REFERENCE_2025.md` は昔の記録なので、参照だけを残した）。
+
+## 3 段目 A: 構築先の決定を宣言の環境で 1 回にし、builder は発行した結果を受け取る（2026-11-14）
+
+ユーザーが ChatGPT Pro に聞いた答えと、ユーザーの決定による。`static box MapBox { ... }` の宣言は許し、`new MapBox()` は static box を作れないので拒否する（ほかの static box の `new` と同じ）。拒否の後に組込みの Map へやり直さない。`%{}` は組込みの Map のまま。決まりの正本は `docs/reference/language/types.md` の「Builtin box names and user declarations」。
+
+### 経路をたどった結果（実装前、読むだけ。subagent 1 本 + 自分で確認）
+- 今の判定 `is_builtin_empty_map_new_v1` は、ordinary の box の coverage（`ParserOrdinaryBoxSourceCoverageV1`、`parser/normal_callable_program_source/ordinary_new_source.rs`）の `contains_box` だけを問う。coverage の行は source で封印された ordinary の box だけで、`static`・interface・record の box は `into_source_backed_ordinary_coverage`（`parser/postpass_envelope.rs:79`）で捨てられる（`AstOnlyCompatibility { _final_box_ordinal }`。名前は持たない）。coverage に無い事は、利用者の宣言が無い事を意味しない。
+- 全部の box の宣言を知る持ち主は、同じ parser の postpass の行（`ParserBoxPostpassRowV1`）で、`AstOnlyCompatibility` の行は `compatibility_rows` と `source_backed_compatibility_rows`（`postpass_envelope/source_rows.rs`）が AST の statement から作る。ここは statement を持つので名前も持てる。coverage はそこから `into_source_backed_ordinary_coverage` で作られる 1 つの持ち主。別の持ち主は作らない。
+- `static box Foo` の `new Foo()` は、`OrdinaryNewCandidate::resolve_site`（`ordinary_new_candidate.rs:47–71`）で、coverage に行が無く、`is_builtin_box("Foo")` も偽なので `OrdinaryBoxCoverageMissing` で拒否される。`static box MapBox` は `is_builtin_box` が真なので `Ok(None)`（組込みの対象外）になって抜け、さらに発行側が coverage に無い事から空の `MapLiteral` の行にしてしまう（2d の `d07`・`d12`）。子の初期化子の側（`ordinary_new_coseal_issue_source_owned_children.rs:400`）は既に `Ok(None)` を `OrdinaryBoxCoverageMissing` にしている。
+- builder の入口（`normal_callable_binding_materialization.rs:531`）は、発行と同じ関数を ledger の `ordinary_box_names`（coverage の写し）で問い直す。`declares_ordinary_box` の呼び出しはここ 1 か所だけ。coverage の問いが static を含む形に広がると、写しだけが古くなる。
+- builder は、batch の行の `Arc<VerifiedResolvedBodyShapeInventoryV1>` を `ResolvedFunctionLoweringInputV1.body_shape` 経由で既に受け取っている（`RawInvocationChildPortV1.source_input`）。`New` の AST に `MapLiteral` の行が付くのは、発行側が書き換えた時だけである。この発行済みの行を読めば、問い直さずに済む。
+- `with_empty_map_constructions_v1`（`resolved_semantics/body_shape.rs:475`）は `self` を取って、callback が受けた `Other` を空の `MapLiteral` にするだけで、Map の関係の検証（`validate_map_relations`、`body_shape_seal.rs`）を書き換えの後にやり直さない。呼び出しは `seal_builtin_empty_map_constructions_v1` の 1 か所で、root・nested・constructor の 3 つの発行点から呼ばれる。
+- 主因: 「宣言の環境が coverage の外の宣言（static など）を持たない」事と、「builder が発行の結果を受け取らず問い直す」事。新しい仕組みは要らず、既にある持ち主の情報を広げ、既にある行を使う。
+
+### 規則（実装より先に書く）
+- R1. 構築先（組込みの Map・利用者の box・作れない宣言）は、source の宣言の持ち主である parser の coverage だけに問い、Map の code に名前の一覧を作らない。
+- R2. coverage は、利用者が宣言した box の名前を種類（ordinary・それ以外）を問わず持ち、`static box`・interface・record の名前も宣言として答える。
+- R3. method の無い空の `static box MapBox {}` でも同じに宣言として扱い、callable の行が無い事から宣言が無いと推測しない。
+- R4. 利用者が宣言した名前の `new` は、組込みの box の名前でも組込みへ解決しない。
+- R5. static box（作れない宣言）の `new MapBox()` は、`static box Foo` の `new Foo()` と同じ道と同じ診断（`OrdinaryBoxCoverageMissing`）で拒否し、組込みの Map へやり直さない。
+- R6. 宣言の宣言は許す。`static box MapBox` の static method の呼び出しと、同じ program の `%{}` は、今までどおり動く。
+- R7. builder は構築先を問い直さず、発行済みの shape の行（`New` の site が空の `MapLiteral`）を読んで Map の lowering を選ぶ。
+- R8. builder が区別するのは、組込みの Map（用途の契約があれば Map の lowering、無ければその事で拒否）・利用者の box（ordinary の構築）・source の行の欠落（契約違反として拒否）の 4 つで、Home が無い事を組込みの Map ではなかったと解釈しない。
+- R9. 空の Map の構築への書き換えは、同じ owner の元の source の、引数も field の初期化子も無い `new` で、宣言の環境から組込みの Map へ解決された site だけに限る。
+- R10. 書き換えの後に Map の関係の不変条件を確かめ、合わなければ `Result` で拒否し、読む側の観測は書き換え後の行を使う。
+- R11. `MapLiteral` の行は、`%{}` に加えて、解決済みの空の組込みの `new MapBox()` も表す。producer と consumer の doc にそろえて書く。
+- R12. 新しい台帳・持ち主・公開の MIR・ABI・JSON の形は足さず、使われなくなった `declares_ordinary_box` と名前の写しを使う問いは消す。
+- R13. 宣言の無い入力の MIR と結果は、`static box` と組込みと同じ名前の入力を除いて 2d と同一にする。
+
+### 見積もり（D − A − U。実装の前の数）
+- D（消える）: `OrdinaryNewClaimLedgerV1::declares_ordinary_box`（−4）、builder の入口の名前の問い（約 −8）、`is_builtin_empty_map_new_v1` の closure の引数。約 −15。
+- A（足す）: parser の postpass の `AstOnlyCompatibility` に名前を持たせる（+6）、coverage の宣言の名前と `declares_box`（約 +14）、shape の限定的な再発行（`Result`・書き換え後の検証、約 +25）、発行の失敗の variant 2 つ（+6）、builder の発行済みの行の問い（約 +20）。約 +70。
+- U（使う側の production）: `resolve_site` の組込みの shortcut の条件（+3）、発行の 3 点で `?`（+6）、builder の入口 1 か所（+5）。約 +15。
+- 見込み: production の正味は +60〜+80 行。test と文書は別。範囲が変わった時は、その時に見積もりを直す。
