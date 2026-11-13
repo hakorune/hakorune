@@ -228,3 +228,44 @@ D・A・U の実際（この回、`45827ec086..HEAD`、production は test と d
 - N3: 受け手の読み方は `local_map` の証拠から答える（array alias は前と同じく問いに入らない）。
 - N7: `--dump-mir` 1,866 本・229 入力・apps 100 本・384 組・`$P` 61 本・未見の入力 40 本・固定 suite は、2 段目の続きの binary と同一。18 ケースの物理 test は通る。
 - 実際の production は +36 / −25（正味 +11、doc を含む。10 か所の書き換えが +16 / −16、発行側が +25 / −14 のうち 2 つの性質の問いと doc）。見積もりの 0〜+10 より 1 行多い。
+
+## 2 段目の続き 2（2d）: 空の `new MapBox()` が組込みの Map かを、宣言を知る所で 1 回決める（2026-11-13）
+
+ユーザーが ChatGPT Pro に聞いた答えで決まった事。利用者の box が組込みと同じ名前を使う事（shadowing）は今の main のとおり許し、`MapBox` を予約しない。利用者の宣言へ解決された `new MapBox()` は利用者の box の構築で、組込みの Map の契約（空の Map の Home・`CheckedGetI64`）は、組込みへ解決された構築か `%{}` からだけ得る。2c の `BuiltinMapNameShadowed` の拒否は main で通る入力の退行なので統合しない。
+
+### 経路をたどった結果（実装前、読むだけ。subagent 3 本）
+- 今、名前の文字列だけで決めている所は 3 つ。(1) shape の封印 `body_shape_resolver.rs:48` が `is_empty_map_construction_v1` で `MapLiteral` の行を作る。(2) builder の `child_lowering_impl.rs:766` が同じ名前の問いを繰り返して Map の lowering を選ぶ。(3) `ordinary_new_candidate.rs:72` が、利用者の宣言の行が見つかった後で同じ名前の問いを使って `BuiltinMapNameShadowed` で拒否する。
+- 宣言の環境（利用者の box の行）の持ち主は `ParserOrdinaryBoxSourceCoverageV1`（`parser/normal_callable_program_source/model.rs:392`）で、batch の `ordinary_box_coverage()`（`callable_semantic_batch/model.rs:149`）が委譲する。shape の封印（`ShadowResolverV0`）には届かない。shape の行と宣言の環境が最初に同じ所へ集まるのは、batch の発行（`callable_semantic_batch/issuer.rs`）で、ここで `body_shapes.remove(owner)` を行にし、同じ関数が `source.ordinary_box_coverage()` を読んでいる。
+- `selected`（`ordinary_new_coseal_issue.rs:304`）は local の初期化子の `new` だけ、`result_sites` は return・Shared の単項・taken の引数だけを見る。Map の要素の `new` などはどちらにも入らない。`resolve_site` の `Ok(None)` は「ordinary の box の対象外（宣言が無く `is_builtin_box`）」で、Map を特定しない。
+- `MapLiteral` の行を読む所は production で 20 か所以上ある（Home の `map_literal_keys` の 6 か所、`resolved_control_flow/map_control.rs`、`map_lifecycle_undertaking.rs`、`direct_call_*` など）。宣言の情報を各所へ持ち回す道は選ばない。読む所はそのままにして、行を作る所を 1 か所にする。
+- builder の `lower_callable_map_v1` は名前を見ず、claim ledger の `map_flow(site)`（`completion.cleanup().root_flow().maps()`）を読む。入口の判定 `child_lowering_impl.rs:766` だけが名前を見ている。
+- 主因は「shape の層が、宣言の環境が届く前に、名前だけで意味を確定している」事。
+
+### 選んだつなぎ方
+- shape の resolver は `new MapBox()` を main と同じ中立な行（`Other`）のままにする。
+- batch の発行（宣言の環境と shape の行が揃う最初の所）で、`Other` の行のうち「宣言が無く組込みの `MapBox` へ解決され、引数も field の初期化子も無い `new`」の site だけを、`%{}` と同じ空の `MapLiteral` の行にする。決めるのは 1 つの問い（宣言の持ち主である coverage の、「この名前は利用者の宣言が無く組込みの box か」）で、行を書き換える所は shape 側の 1 つの method にする。
+- 読む側（Home・control・builder の Map の lowering）は、行を読む点を変えない。builder の入口の名前の問いは、Home が観測した Map の site を ledger に問う形に替える。
+- 利用者の `MapBox` の宣言がある時は行を書き換えないので、main と同じ ordinary の `new` として通り、`BuiltinMapNameShadowed` は不要になって消える。
+
+### 規則（実装より先に書く）
+- P1. 空の `new MapBox()` が組込みの Map かは、利用者の宣言を知る batch の発行の 1 か所だけで決める。
+- P2. shape の resolver は `new` を名前で組込みの Map と封印せず、main と同じ中立な行のままにする。
+- P3. 組込みの Map と決める条件は、その名前に利用者の宣言が無く、組込みの box であり、引数が無く、field の初期化子が無い事の全部である。
+- P4. 組込みの Map と決めた site だけが、`%{}` と同じ空の `MapLiteral` の行になり、既にある MapHomeFlow・Home・writer を使う。
+- P5. 利用者の宣言へ解決された `new MapBox()` は、利用者の box の構築として ordinary の道を通り、引数の数が合わない時は既にある診断で拒否し、組込みへ再挑戦しない。
+- P6. 利用者の `MapBox` の method（`get`・`set` を含む）は利用者の method で、組込みの Map の操作（`CheckedGetI64`）の根拠にしない。
+- P7. builder は Map の lowering を、名前でなく Home が観測した Map の site で選ぶ。
+- P8. 宣言を知る問いは宣言の持ち主（coverage）に 1 つだけ置き、新しい台帳・別の box の一覧・Map 専用の名前解決・公開の MIR・ABI・JSON の形を足さない。
+- P9. この回で閉じられない時は、`new MapBox()` の新しい接続だけを series から外して main と同じ動きに戻し、名前の予約・一時の拒否・文の形を見る fallback で補わない。
+- P10. 宣言が無い入力の MIR と結果は 2c と同一にする。
+
+### 2c の直し（B）の規則
+- Q1. 「受け手を path read で借りるか」は 1 つの問いにするか、MIR が変わるなら変えずに名前と doc を実際に答えている事（named local の Map の受け手）に合わせる。
+- Q2. Return と比較の根の Core の受理は、発行側の 1 つの問いに揃える。MIR が変わるなら入れず、変わる入力を報告に並べる。
+- Q3. `get` の結果が I64 である根拠は `CheckedGetI64` の契約にし、「Fault がある」事を根拠にしない。決める所は発行側の 1 か所のまま。
+
+### 見積もり（D − A − U。実装の前の数）
+- D（消える）: shape の `is_empty_map_construction_v1` の封印の腕（6 行）と同名の関数、`ordinary_new_candidate.rs` の `BuiltinMapNameShadowed` の拒否（7 行）と enum の腕、builder の名前の問い（約 −3）。約 −25。
+- A（足す）: coverage の問い 1 つ、shape の行を書き換える method 1 つ、発行側の site の判定 1 つ、ledger の「Map の site があるか」の問い 1 つ。約 +60。
+- U（使う側の production）: builder の入口 1 か所の書き換え、batch 発行の 2 か所（root と nested の shape）。約 +10。
+- 見込み: production の正味は +30〜+50 行。test と文書は別。範囲が変わった時は、その時に見積もりを直す。
