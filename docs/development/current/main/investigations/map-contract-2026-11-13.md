@@ -222,3 +222,9 @@ D・A・U の実際（この回、`45827ec086..HEAD`、production は test と d
 - A（production）: 性質の問い 2 つ（P1・P2）を `OrdinaryCoreSourceCallV1` と loan に 約 +14（doc を含む）。
 - U（consumer の production）: 10 か所の問いの置き換え。行数は 0 に近い（1 行ずつの書き換え）。
 - 見込み: production の正味は 0〜+10 行。test と docs は別（性質の問いが前と同じ答えを返す unit test を 1〜2 本）。範囲が変わった時は、その時に見積もりを直す。
+
+### 2 段目の仕上げの結果（Sonnet 5.5 実装、2026-11-13）
+- N1〜N5・N8: 使う側の問いを、`OrdinaryCoreSourceCallV1` と `ExpressionCoreSourceLoanV1` の 2 つの性質の問い `checked_fault_read_v1`（Fault の扱い）と `borrows_receiver_by_path_read_v1`（受け手の読み方）に替えた。Fault の扱いは Return の受理と frame の免除・比較の計算入力・式の値の writer の検査・`result_class`・`matches_plan` が、受け手の読み方は比較の 3 か所（transfer の除外・eager な投影の除外・受け手のノードの skip）が問う。Map の get だと決めるのは `core_method_source/ordinary.rs` の `issues_checked_fault_read_v1` 1 つ。使う側から `is_checked_local_map_get_v1` は消えた。新しい型は無い。
+- N3: 受け手の読み方は `local_map` の証拠から答える（array alias は前と同じく問いに入らない）。
+- N7: `--dump-mir` 1,866 本・229 入力・apps 100 本・384 組・`$P` 61 本・未見の入力 40 本・固定 suite は、2 段目の続きの binary と同一。18 ケースの物理 test は通る。
+- 実際の production は +25 / −14（正味 +11、doc を含む）。見積もりの 0〜+10 より 1 行多い。
