@@ -344,3 +344,11 @@ D・A・U の実際（この回、`45827ec086..HEAD`、production は test と d
 - A（足す）: parser の postpass の `AstOnlyCompatibility` に名前を持たせる（+6）、coverage の宣言の名前と `declares_box`（約 +14）、shape の限定的な再発行（`Result`・書き換え後の検証、約 +25）、発行の失敗の variant 2 つ（+6）、builder の発行済みの行の問い（約 +20）。約 +70。
 - U（使う側の production）: `resolve_site` の組込みの shortcut の条件（+3）、発行の 3 点で `?`（+6）、builder の入口 1 か所（+5）。約 +15。
 - 見込み: production の正味は +60〜+80 行。test と文書は別。範囲が変わった時は、その時に見積もりを直す。
+
+### 3 段目 A の結果（Sonnet 5.5 実装、2026-11-14）
+- R1〜R5: parser の postpass の `AstOnlyCompatibility` 行が名前を持つようになり、`ParserOrdinaryBoxSourceCoverageV1` が `static`・interface・record の宣言名も答える（`declares_non_ordinary_box`、`declares_box`）。構築先の決定（`is_builtin_empty_map_new_v1`）は `declares_box` に 1 つだけ問う。`static box MapBox` の `new MapBox()` は、`resolve_site` の組込みの shortcut が `declares_non_ordinary_box` の時は効かず、`static box Foo` と同じ `OrdinaryBoxCoverageMissing` で拒否される。組込みへはやり直さない。
+- R6: `static box MapBox` の宣言だけ・`%{}` との同居・static method の呼び出しは、前と同じ結果。method の無い空の `static box MapBox {}` は coverage が宣言として答える（unit test）。ただし method も field も無い static box は、`new` が無くても main の前から別の段（`mir/normal-root/consume` の `IntegrityInvalid`）で拒否されるので、`.hako` の入力では構築先の判定まで届かない。
+- R7・R8: builder は `issued_builtin_empty_map_new_v1` で、発行済みの shape の行（`MapLiteral` なら組込みの Map の構築）を読む。他の行は利用者の構築。shape も行も無い時は契約違反の拒否。`declares_ordinary_box` と builder の名前の問いは消えた。builder への届け方は、構築子の semantic scope（`normal_instance_constructor_semantic_scope.rs`）が、持っていた入力を port の `source_input` へ置くようにした（他の source scope と同じ）。これが無いと構築子の本体の `new` で shape が届かず、20 本の `--dump-mir` の結果が変わった。
+- R9〜R11: `with_empty_map_constructions_v1` は `Result` を返し、書き換えの後に `validate_map_relations` をやり直す。呼び出しは `seal_builtin_empty_map_constructions_v1` だけで、そこが元の source の `new`（同じ owner、引数・field の初期化子なし、宣言の環境が組込みへ解決）を確かめてから呼ぶ。`MapLiteral` の行が `%{}` と解決済みの `new MapBox()` の両方を表す事を doc に書いた。
+- 受理の変化: `static box MapBox` の `new MapBox()` が、成功から拒否（`OrdinaryBoxCoverageMissing`）に変わる。`d07`（exit 2）・`d12`（exit 1）と、新しい `s01`・`s06`。ほかの入力は 2d と差 0（`--dump-mir` 1,866 本、927 入力の EXE 608 本、229 入力、apps 100 本、384 組、固定 suite 8/8、18 ケース）。
+- 全 lib の赤は 224 本で、2d の 225 本の部分集合（2d で落ちていた `raw_invocation_port_preserves_async_qmark_check_collection_and_print_children` は、今回は通り、単独でも通る）。
