@@ -269,3 +269,10 @@ D・A・U の実際（この回、`45827ec086..HEAD`、production は test と d
 - A（足す）: coverage の問い 1 つ、shape の行を書き換える method 1 つ、発行側の site の判定 1 つ、ledger の「Map の site があるか」の問い 1 つ。約 +60。
 - U（使う側の production）: builder の入口 1 か所の書き換え、batch 発行の 2 か所（root と nested の shape）。約 +10。
 - 見込み: production の正味は +30〜+50 行。test と文書は別。範囲が変わった時は、その時に見積もりを直す。
+
+### 2d の結果（Sonnet 5.5 実装、2026-11-13）
+- P1〜P8: 空の `new MapBox()` が組込みの Map かは、batch の発行（`callable_semantic_batch/builtin_map_construction.rs` の `is_builtin_empty_map_new_v1`）の 1 か所で決める。shape の resolver は `new` を中立な行のままにし、発行側が「宣言が無く組込みの box（coverage の `resolves_to_builtin_box`）で、引数も field の初期化子も無い」site の行だけを空の `MapLiteral` にする（root・nested・constructor の 3 つの shape の発行点が同じ関数を使う）。名前の文字列で決める所は 3 か所から 1 か所になった。builder は名前でなく Home が観測した Map の site（`has_map_site`）で Map の lowering を選ぶ。`BuiltinMapNameShadowed` は消え、利用者の `MapBox` は main と同じ ordinary の box として通る。
+- P10: 宣言が無い入力の `--dump-mir` は 1,866 本中 1 本（`audit-text-field/b_map.hako`、`me.name = new MapBox()` を String の field へ代入する型の誤り）が 2c と違う。2c は builder が名前だけで Map の lowering へ進んで `map-completion` で拒否していたが、Home が観測しない位置の `new MapBox()` は main と同じ raw の `new` に戻り、`--dump-mir` は main（`$W16`）と同じ MIR になる。EXE は main と同じく拒否のまま。ほかの 1,865 本、229 入力、apps 100 本、384 組、927 入力の EXE 608 本は 2c と同一。
+- Q1: 「受け手を path read で借りるか」を array alias も含む 1 つの問い（`path_read_receiver_v1().is_some()`）にすると、alias の長さを条件にした入力の拒否の診断が変わる（`bool-condition/transferred-node-emitted` → `mir/invoke/[freeze:contract`）。入れず、条件が問う性質を `borrows_local_map_receiver_v1` に改名して、named local の Map の受け手だけを答えると doc に書いた。
+- Q2: Return の根の Core は `CodePointCount` と checked な Fault の読みだけを受け、比較は frame の要らない読み全部（`ArrayCount`・`CodePointCount`・`CodePointSearchFromZero`）と checked な Fault の読みを受ける。発行側の 1 つの問いに揃えると `return s.indexOf("l")`（局所の String）が拒否から exit 2 に変わる（受理の拡大）ので入れていない。2c の結果の「`has` を足す時、使う側は替えなくてよい」は誤り: frame の要らない local の `has` は Return では受理されず、足す時に Return の受理の決定が要る。
+- Q3: `get` の結果の I64 は、Fault がある事ではなく法則 `MapTextGetPresentOrFault`（`CheckedGetI64` の契約）から答える（`checked_read_result_class_v1`）。MIR は変わらない。
