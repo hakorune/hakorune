@@ -472,15 +472,18 @@ impl PreparedBorrowedFormalIngressV1 {
                 self.requires_text_expression_plan_v1(input, &plan)
             })
             || (is_artifact_root && input.body_shape().is_some_and(|shape| {
-                let Some(flow) = input.function().expression_source().value_flow() else {
-                    return false;
-                };
                 shape.statements().iter().any(|statement| {
                     if !matches!(statement, crate::mir::resolved_semantics::BodyStatementShapeV1::Return { value: Some(_), .. }) {
                         return false;
                     }
                     let Ok(Some(plan)) = crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
                         &ledger, shape, statement.site()) else { return false };
+                    if self.requires_text_expression_plan_v1(input, &plan) {
+                        return true;
+                    }
+                    let Some(flow) = input.function().expression_source().value_flow() else {
+                        return false;
+                    };
                     use crate::mir::resolved_value_profile::{
                         expression_class::ExpressionValueClassV1 as Class,
                         expression_projection::{project_expression_class_v1, ExpressionLeafClassV1 as Leaf},
