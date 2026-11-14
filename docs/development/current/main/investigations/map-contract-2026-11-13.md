@@ -549,3 +549,13 @@ B5 追跡の確定: static の直接 Return は既存 `QualifiedTerminal` の元
 - R24. terminal の元入力契約は、既存 ordinary source cohort に加え、元 Qualified I64 結果かつ全 formal が既存 `is_i64_actual_v1` である契約（0引数を含む）。宣言名・arityの型紙では選ばない。
 - R25. R24 と元 ReturnValue site・元 source/cardinality の照合を共有する。既存 tagged-input finish の `is_static_terminal_source_v1` は旧 ordinary cohort のまま保ち、parameter0 の前提を壊さない。広い元 terminal query は actual 観測・Qualified source 引数要求・source 投影の既存3consumerだけが借りる。実行entryは既存の入力/完成/引数検証が決める。
 - R26. instance は既存 purpose 列挙へ ReturnValue を接続するだけとし、完成 Text の元結果照合と Dynamic の Local 限定は変えない。束外への影響は基準比較で判定する。
+
+
+B5 試行で R24–R25 の QualifiedTerminal 接続だけでは実行ownerが一致しない事を確認した。source資格は届くが、Local は既存 StaticExecution、legacy terminal は別の packet を要求する。試作は着地せず保持し、次の既存共通式ownerへの接続へ切り替える。
+
+- R27. scalar-only static の直接 Return は、元 Qualified I64 結果かつ全formalが宣言i64である場合に、既存の共通式評価へ接続する。新しい terminal packet/writer は作らない。
+- R28. 同じ元 Static source の検証済み実引数は、SourceStatic snapshot または既存 Executable の厳密な投影から借りる。Executable を SourceStatic に降格せず、元incoming/target/required-i64/引数順序を既存ownerで検査する。
+- R29. Return root の結果classは既存 Core receipt または元 Ordinary Call のscalar契約から借り、その同じ共通評価へ渡す。新しい opcode/result/source種類は足さない。
+- R30. 0引数も元calleeのCompletion・結果・signature・実引数証拠を要求する。空だからentryを許可せず、既存packet照合で閉じない場合はその束を保留する。
+
+instance目的接続は、非literalのTextResidence callee結果にも新受理を生じたためR23で保留。名前や形の除外を足さず、実装は基点へ戻した。
