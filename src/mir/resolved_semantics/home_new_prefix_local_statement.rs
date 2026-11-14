@@ -333,12 +333,11 @@ pub(super) fn observe<'a, E>(
             }
             continue;
         }
-        // A Call below an operation of the initializer is not a direct argument
-        // of the root Call; stage every Call in source order, as the other
-        // whole-expression consumers do.
+        // Local initializers share whole-expression call observation with other
+        // destinations. The source plan, not an operator shape, selects the
+        // common postorder staging owner and its existing reach checks.
         let whole = input.forest().callable_source_ledger(input.owner()).ok()
-            .and_then(|ledger| crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(&ledger, input.body_shape(), relation).ok())
-            .filter(|plan| plan.has_call_below_operation_v1());
+            .and_then(|ledger| crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(&ledger, input.body_shape(), relation).ok());
         let staged_whole = match &whole {
             Some(plan) => local_call_flow::stage_expression_actuals_v1(
                 input,
