@@ -527,7 +527,7 @@ D=限定filter 1行、A=0、U=終端semicolon 1箇所と同数3行の契約comme
 |---|---|---|
 | static Main 4組 | 元Call actual stagingとStaticExecutionは成功するが、plain root Completionはliteralのみ | 元Qualified I64結果・全formal i64のReturn需要を既存walkへ渡し、同CallのOrdinary result loanを共通式評価へ保持 |
 | static ordinary 4組 | Localと同じCall証拠がReturnの評価に届かず、exit sourceを保持できない | 同じ`stage_expression_actuals_v1`と`prepare_value_evaluation_v1`でScalar terminalを発行し、元Completion/exit/frameへ保持 |
-| instance literal 2組 | `source_ordinary_result_arguments_v1`のpurposeはLocalを許しReturnValueを含まない | 保留。purpose追加は非literalのTextResidence結果も新受理するため、束外の例外を作らず基点へ戻した |
+| instance literal 2組 | `source_ordinary_result_arguments_v1`のpurposeはLocalを許しReturnValueを含まない | 同じpurpose ownerへReturnValueを接続する。TextResidenceも同じ完成Text receiptと同じ不足なので同原因束。nullable Dynamic/不完全結果は広げない |
 
 ### 有効な規則
 
@@ -549,3 +549,6 @@ D=限定filter 1行、A=0、U=終端semicolon 1箇所と同数3行の契約comme
 QualifiedTerminalへ昇格するだけの試作（R24–R26）は、Localとは違うterminal packetを要求したため不採用。tagged入力の旧predicate・parameter0前提は変更していない。
 
 実装前見積もりは数十行だったが、0引数の完成証拠を同じzero ownerから借りる接続が必要だった。最終増減・検証・保留理由はB5報告で集計する。新しいsource/公開型/opcode/ABI/cleanup/writerは0。既存の独立End変異行列を再利用し、test/checker/fileを増やさない。
+
+
+B5のinstance試作は一度非literalを束外として保留したが、再監査で分類を訂正した。既存CompletedTextResultSourceはliteral/TextResidenceを同一のCompletion・terminal-map receiptで扱い、Localも同値で既に受理する。同じReturn purpose不足を閉じるだけなので、R23の同原因束として進める。新source/result/cleanup契約は追加しない。
