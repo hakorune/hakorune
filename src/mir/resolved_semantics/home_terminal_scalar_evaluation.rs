@@ -181,9 +181,6 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     };
     let core_result_class = root_core.as_ref().map(|(_, class)| *class);
     let root_core = root_core.map(|(core, _)| core);
-    let checked_fault_root = root_core
-        .as_ref()
-        .is_some_and(|core| core.checked_fault_read_v1());
     let field_seeds = if root_core.is_some() {
         super::super::super::field_read::text_field_seeds_v1(input, &source, locals, fields)
     } else {
@@ -228,11 +225,11 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
             return Ok(if integer_source { refused() } else { None });
         }
     };
-    // Acquisition-bearing roots keep their existing terminal owner until the
-    // shared cleanup connection's acceptance scope is approved.
+    // Qualified scalar Core operands keep their acquisition and Fault duties
+    // in the shared evaluation; other terminal owners retain their boundary.
     if !previous_scalar_candidate
         && !root_argument_evaluation
-        && !checked_fault_root
+        && core_result_class.is_none()
         && evaluation.requires_fault_frame_v1(true, |_| None)
     {
         return Ok(None);

@@ -608,6 +608,21 @@ fn checked_string_normal_fault_prefixes_are_affine_and_do_not_escape() {
         "scalar reads borrow without acquisition or End"
     );
     let cases: Vec<(u32, MirInstruction, &str)> = vec![
+        (
+            4,
+            MirInstruction::Jump {
+                target: BasicBlockId(1004),
+                edge_args: None,
+            },
+            "string-missing-end",
+        ),
+        (
+            3,
+            MirInstruction::Return {
+                value: Some(ValueId(1)),
+            },
+            "string-missing-end",
+        ),
         (3, end(2, 4, 21), "string-end-order-or-not-live"),
         (4, end(3, 5, 90), "string-end-order-or-not-live"),
         (
