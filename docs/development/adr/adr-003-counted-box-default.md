@@ -106,7 +106,11 @@ Scope: 普通の Box の所有を、非原子の参照カウントで持つ方�
 
 - 2026-11-15 段 B(Codex 実装、Opus 監査、統合済み): direct 配置の片付けが「数が 0 の時だけ中へ進む」形になった。alloc で header の 1 語目に 1 を入れ、release と End の root・子の入口で −1 する。0 になった時だけ parent と cursor を書く(時分割)。header 16 バイト、node 40 バイトのまま。MIR は変えていない。数は alloc の 1 だけなので、動作は前と同じ。
   - Opus の確認: 363 本の入力で結果と MIR が前と全部同じ。木の bench(direct 配置)を前と後の backend で作り、出力が同じ。機械語で、非原子の inline の減算と分岐を見た。lib の失敗 223 名は前と同じ集合。速さ(A40 との比 0.98〜1.00)、Fault の注入、数え上げは Codex が測った。
-  - 残る問い: 数の load と store に `volatile` が付いている。本物の code で要る理由を、段 C0 の回(実行中)で確かめている。
+  - `volatile` は要らないと分かり、段 C0 で外した。数の読み書きの間に外の呼び出しも再入も無く、外しても取得・解放・Fault の順は同じ。
+- 2026-11-15 段 C0(Codex 実装、Opus 監査、統合済み): 共通の式の結果が、型付きの Box の参照(借りか自分の物か、由来)を運ぶ。一時値の保存の列は 3 本から 1 本の順序付きの台帳になった。Box の持ち分の項目は場所だけあり、まだ取得する入力は無い。受理と MIR は変えていない。
+  - 整形後の production +255 行、test −8 行。production の file は最大 777 行。
+  - Opus の確認: 363 本の入力で結果と成功の MIR が前と全部同じ。木の bench の出力が同じ。機械語で `volatile` の無い非原子の減算を見た。lib の失敗 222 名は前の 223 名の部分集合。
+  - 段 C で足す所は 6 つの責務(資格の判定、持ち分の取得、Release の投影、source と物理の照合、行き先への移転、操作の実装と独立の検証)。
 - 操作と検証の設計: [counted-box-check-2026-11-15.md](../current/main/investigations/counted-box-check-2026-11-15.md)。**ユーザーが 2026-11-15 に承認した。** 決めた事:
   - 操作は `CountedBox::Retain` と `CountedBox::Release` の 2 つ。今ある Invoke の中に置く。
   - Retain は Fault しうる。数があふれる時は、足さずに Fault にする(wrap しない)。Fault の時は持ち分を得ない。
@@ -144,7 +148,7 @@ Scope: 普通の Box の所有を、非原子の参照カウントで持つ方�
 | 1 | Map の契約の残り: Return の直接の形(10 組)。[map-contract-2026-11-13.md](../current/main/investigations/map-contract-2026-11-13.md) の段 B5 | 済(`59bc68ecd0`) | Codex が作った。Opus が監査した | なし |
 | 2 | 数える場所の調査(読むだけ)。結果は「確認」の節 | 済(2026-11-14) | 読むだけの調査 | なし |
 | 2b | 操作と検証の設計(段 A)と、数が 0 の時だけ中へ進む片付け(段 B)。[counted-box-check-2026-11-15.md](../current/main/investigations/counted-box-check-2026-11-15.md) | 済(`d98a4491dc`、承認 2026-11-15) | 設計はユーザーが承認した。Codex が作った。Opus が監査した | 2 |
-| 3a | 共通の式の結果に、Box の参照と所有の区分を入れる(段 C0)。受理と MIR は変えない。所有の区分は値に付く data で、数える前提を場所の code に埋めない(ADR-002 へ戻る時も使える形)。持ち主は今ある物(`qualify_expression_evaluation_v1`、`emit_body_with_prefix`、`ExpressionEmissionV1`)。数の load・store の `volatile` が要るかも、この回で確かめる | 実行中(branch `counted-box-2`、未統合) | Codex が作る。Opus が監査する | 2b |
+| 3a | 共通の式の結果に、Box の参照と所有の区分を入れる(段 C0)。受理と MIR は変えない。所有の区分は値に付く data で、数える前提を場所の code に埋めない(ADR-002 へ戻る時も使える形)。持ち主は今ある物(`qualify_expression_evaluation_v1`、`emit_body_with_prefix`、`ExpressionEmissionV1`)。`volatile` は要らないと分かり、外した | 済(2026-11-15) | Codex が作る。Opus が監査する | 2b |
 | 3b | 「確認」の実装(段 C・D・E・F・G)。+1・−1 は 3a の 1 か所へ足す。範囲は `fini` も weak も無い型。通らなければ ADR-002 へ戻る | 待ち | 段 F の前に、Return の許可の境界をユーザーが確認する。新しい公開の形が要ると分かったら、止めてユーザーが決める。Codex が作る | 3a |
 | 3c | 残りの場所を共通の式の道へ移し、場所ごとの判定の列を消す。「共通が先に取る → 取られた判定を同じ回で消す」形。`is_scalar_return_source_v1` と使う 5 か所、残っている Return の穴(`return Main.sq(2) + 1` など)は、1 つずつ閉じず、ここでまとめて消す | 待ち | Codex が作る。Opus が監査する | 3b |
 | 4 | 本採用の記録。この ADR の「仮」を外すだけ。文法の文書は、まだ書き換えない | 待ち | ユーザーが決める | 3b(「確認」の条件の全部) |
