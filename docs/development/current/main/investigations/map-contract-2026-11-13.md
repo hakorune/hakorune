@@ -435,3 +435,36 @@ D（消える）12–20行: Return法則名一覧、比較の写し、B4の不�
   - B4（一時値の関門）は保留。関門を一般にすると、承認の外の `return ("he" + "llo").length()` も通るため、Codex は元のままにして止めた。local では通る式が Return でだけ落ちる差は、まだ残っている。再開には、共通の cleanup で閉じる一時値（`length` を含む）を Return で受ける承認が要る。
   - 関門の上のコメントが「承認されるまで」という作業の状態を書いている。B4 の時に直す。
   - static 呼び出しの直接の `return`、String field の直接の Return、formal の Text は未接続（調査の表は上）。
+
+## 段 B4: 一時値を持つReturnの根を共通評価へ接続する（2026-11-14）
+
+基点 `ef911fa5ea`。ユーザー承認: 基準でLocal版が同じ値で通る、一時receiverのlengthと1引数indexOf（receiver/needle/両方）をReturnの根でも受ける。比較は入力どうしで行いASTを書き換えない。
+
+### 実装前の関門の表（read-only workerと照合、src/mir相対の基点行）
+
+| 根 | 関門の現状 | 既存の責任と今回の扱い |
+|---|---|---|
+| scalar Core＋一時Text | home_terminal_scalar_evaluation.rs:231–238のFault枠要求で戻す | query成功・完成したevaluationを共通のscalar continuationへ通す |
+| checked Map get Core | checked_fault_root=trueで既に通る | core_result_classが存在する集合に含まれるので重複boolを削除する |
+| 非Coreの算術/比較/論理/copy/scalar field | previous_scalar_candidate=trueで既に通る | 共通qualificationとcleanupを保持、受理追加なし |
+| 非Core Call＋既存の複雑な引数評価 | root_argument_evaluation=trueなら既に通る | 選択Call/引数/Normal結果の証拠を保持、static Callを開けない |
+| Core loan不成立又はscalar query不適格 | 159–180行で既に戻る | この未接続境界は保持 |
+| 単なるliteral/reference | 102–108又は242–251行で既存ownerへ | 新しい評価を作らない境界を保持 |
+
+上流はobserve_scalar_return_expression_v1→ExpressionCoreSourceLoanV1→scalar_read_result_class_v1→prepare_value_evaluation_v1（home_expression_value_preparation.rs:46–121、root class一致）。一時取得はhome_expression_operations.rs:388–392、home_expression_qualification.rs:103–145、home_expression_evaluation.rs:363–375に保持される。root_home.rs:308–316は一時値がある時shortcutを使わず、selected/return_expression.rs:128,144の通常評価→finish_scalar_continuationへ進む。expression_value/cleanup.rs:474–490はNormalの一時値とFaultの一時値＋prior Homesを既存planへ渡す。独立検証はinvoke_string_read.rs:89–121、invoke_string_lifetime.rs:401–419,450–483。新writer・取得モデルは不要。
+
+### 規則（実装前）
+
+- R1. 完成したscalar Core根は既存queryのNormal classを持つ事で関門を通し、法則名・method名・引数数・入力の形で分けない。
+- R2. checked_fault_rootはcore_result_classの存在に包含されるので削除し、同じ判断を残さない。
+- R3. requires_fault_frame_v1は一切変更せず、枠が要るかとReturnのowner選択を別の責任に保つ。
+- R4. 非Core根の既存candidate/引数評価と、未発行のCore source・literal/referenceの境界は保持する。
+- R5. receiver→needleの一度の評価と、Normal/Faultの取得・移転・Endのidentity/順序は既存評価とcleanupが保持する。
+- R6. 新規成功は同じ入力のLocal版を基準binaryに通した成功・同値で確認し、承認文の外の成功は別表、基準Localが拒否又は値違いの成功は停止する。
+- R7. 成功同士のMIR/値/exitを保持し、短絡RHSの一時値・新receiver・static Call等の別責務を開けない。
+- R8. Faultは取得Add/Map Endへだけ注入し、検索/数え本体やString Endへ作り物のFaultを入れない。
+- R9. 既存の独立変異試験を再利用し、Normal End欠落とEndより先のI64 Returnの不足証拠だけを同じ行列へ足す。
+
+### D・A・U の見積もり
+
+D=4行（checked_fault_rootの定義3行＋旧gate条件1行）、A=1行（class存在の共通条件）、U=0行、production正味−3行を見込む。契約コメントは旧2行と同じ行数で置き換える。新しい型・関数・writer・公開MIR/ABI・cleanup・checkerは0。testは既存行列のNormal End欠落/早いI64 Returnの2腕だけ、約10–15行。変更対象はproduction1ファイルと既存の独立検証test1ファイル。
