@@ -493,3 +493,27 @@ B4実測補足: Fault関門だけの接続後、前置きのない一時値Retur
 - R16. literal calleeも実際のMaterializeを観測し、staticというsource表記からEnd0を仮定しない。Add取得/Fault、各identity EndとMap Endのprimary/suppressedを両destinationで比較する。
 
 D=限定filter 1行、A=0、U=終端semicolon 1箇所と同数3行の契約comment。意味あるproduction純減1行を見込む。has_call_below_operation_v1はrebind consumerが残るため削除しない。新owner/source種別/取得/cleanup/writer/公開MIR/ABIは0。既存の独立変異testを先に再利用し、足りない証拠だけ既存行列へ統合する。
+
+### 段 B4 の Opus の確認と統合（2026-11-14）
+
+- main `e262a81340`（`map-contract-b4` を `--no-ff` で統合）。Codex 実装、Opus 監査。3 回に分かれた（B4、B4b、B4c）。
+- ユーザーの決定（2026-11-14）:
+  - local で通る、一時値を含む読み（`length` と 1 引数の `indexOf` の、一時の receiver・needle・両方）を、return の根でも共通の後片付けで受ける。
+  - literal を receiver にした形も、local と同じ値なので return で受ける。
+  - 呼び出しの結果を receiver にした `length`・`indexOf` は、return を塞がず、local と return の両方で同じ持ち主を通して受ける。
+  - instance method が literal を返した結果の local の `length`・`indexOf` を受ける。
+  - 止める条件: return だけが通る・値が違う・成功が拒否に戻る時は止める。local だけが通り、return が前と同じ理由で拒否のままの形は、止めずに「残っている return の穴」に書く。
+- 中身:
+  - Return の根の関門は、Core の根が `scalar_read_result_class_v1` に答えたら元の持ち主へ戻さない。重なっていた `checked_fault_root` を消した。`requires_fault_frame_v1` は変えていない。
+  - Return の需要を、local と同じ `requires_text_expression_plan_v1` へつないだ。
+  - local の初期化の「演算の下の Call だけ」という絞り込みを消し、return と同じ `stage_expression_actuals_v1` へ式の全体を渡す。
+- 行数: 整形後の production −1 行、test +34 行（既にある独立の検証の行列に腕を足した）。
+- Opus の確認:
+  - ビルド: 作業 tree で cargo を空で実行し、binary の SHA が報告と一致した（`2aebaf77…`）。
+  - 入力: 段 B の 314 本と、Opus の新しい 17 本（r01–r11）を、段 B の binary と比べた。前からの 314 本で変わったのは 3 本だけで（`"xyz".length()` の直接の return、一時値の `length`、一時の needle）、全部「拒否 → 成功」で値が正しい。新しい 17 本は、一時値・呼び出しの結果・literal・if の中・instance method の中の形が、local と return で同じ値になった。2 引数の `indexOf` は拒否のまま。成功同士の MIR は全部同じ。
+  - 持ち主の数の見張り（基点 `ef911fa5ea`）、`git diff --check`、private の走査は PASS。lib の失敗 224 名は段 B と同じ集合。stash は 2 件のまま。
+  - End と Fault は、Codex が return と local の両方で実行して数えた（32 回の実行。値・回数・End の identity と順が一致）。Opus は数え直していない。
+- 残っている return の穴（local では通る。次の回で閉じる）:
+  - static の呼び出しの直接の return が 8 組（main は `root-completion`、普通の関数は `root-exit-source-missing`）。
+  - instance method が literal を返した結果を使う return が 2 組（`artifact-source-unavailable`）。
+  - これとは別に、前から変わらない local の側の差が 1 組ある（String field の読みを複数の return から local 経由に変えた形）。
