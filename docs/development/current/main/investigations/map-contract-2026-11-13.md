@@ -472,3 +472,24 @@ D（消える）12–20行: Return法則名一覧、比較の写し、B4の不�
 D=4行（checked_fault_rootの定義3行＋旧gate条件1行）、A=1行（class存在の共通条件）、U=0行、production正味−3行を見込む。契約コメントは旧2行と同じ行数で置き換える。新しい型・関数・writer・公開MIR/ABI・cleanup・checkerは0。testは既存行列のNormal End欠落/早いI64 Returnの2腕だけ、約10–15行。変更対象はproduction1ファイルと既存の独立検証test1ファイル。
 
 B4実測補足: Fault関門だけの接続後、前置きのない一時値ReturnはMain root-completion未保持で拒否された。Localの式需要判定をReturnにも再利用する（R10）。新しい取得/cleanupやplain Completionの穴埋めはせず、既存verified walkを選択する。追加3行、seriesのproduction正味0行を見込む。
+
+### B4b: Call結果の読みをLocal/Returnでそろえる（実装前、2026-11-14）
+
+基点ab4076de11。ユーザー承認: literal receiver 3本と、Call結果receiverのlength/1引数indexOfを両destinationで共通ownerへ接続する。直接static Call Returnの8本は別責務のまま。
+
+| 段（src/mir相対・基点行） | Local | Return/既存共有owner |
+|---|---|---|
+| 需要と観測入口 | resolved_semantics/home_new_prefix_local_statement.rs:339–341がBinary配下Callだけへ限定 | home_new_prefix_scan.rs:92→home_local_call_borrowed_actuals.rs:299–333はReturn計画全体 |
+| 欠けたsource | resolved_value_profile/expression_plan.rs:168–172はReceiver配下Callを拾わない | stage_expression_actuals_v1:391–433は元計画の全MethodCallをpostorderで観測 |
+| 従来の部分観測 | Local fallback:357–369→observe_borrowed_call_actuals:249–265は引数だけを再帰 | stage_argument_roots_v1:451–475が同siteを重複排除して既存Observeへ渡す |
+| loanの拒否 | normal_callable_semantic_package/ordinary_new_borrowed_call_result_source.rs:393–400でpending欠落 | 同:401–416が元source/契約/引数を照合して同じloanを貸す |
+| 後段 | home_new_prefix_initializer_expression.rs:104 | home_expression_value_preparation.rs:46。両方がissue_source_expression_call_v1を使用 |
+
+- R11. Localの元式計画も既存stage_expression_actuals_v1へ渡し、Binary配下に限るfilterを削除する。
+- R12. 共通ownerのowner/statement照合、Always child条件、postorder、同site重複排除と元Callのsource/契約/引数照合を保持する。
+- R13. 条件付き/欠落planの従来fallbackと直接static Call Returnの境界は保持し、名前やreceiver形で例外を足さない。
+- R14. Call結果の取得/移転とCore結果class、Normal/Fault cleanup、独立検証は既存ownerへ接続し、新しい仕組みは足さない。
+- R15. B4の170組と追加のCall receiver/needle・引数付き/instanceを対で測り、既知8本以外の片側成功は停止する。
+- R16. literal calleeも実際のMaterializeを観測し、staticというsource表記からEnd0を仮定しない。Add取得/Fault、各identity EndとMap Endのprimary/suppressedを両destinationで比較する。
+
+D=限定filter 1行、A=0、U=終端semicolon 1箇所と同数3行の契約comment。意味あるproduction純減1行を見込む。has_call_below_operation_v1はrebind consumerが残るため削除しない。新owner/source種別/取得/cleanup/writer/公開MIR/ABIは0。既存の独立変異testを先に再利用し、足りない証拠だけ既存行列へ統合する。
