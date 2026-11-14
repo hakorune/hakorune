@@ -22,7 +22,7 @@ use crate::mir::resolved_semantics::SourceBindingSiteV1;
 
 /// Find `(owner, call_site)` for the first method call carrying `selector`
 /// anywhere in the package. Each fixture keeps selectors unique.
-fn call_site_of(
+pub(super) fn call_site_of(
     package: &super::VerifiedNormalCallableSemanticPackageV1,
     selector: &str,
 ) -> (
