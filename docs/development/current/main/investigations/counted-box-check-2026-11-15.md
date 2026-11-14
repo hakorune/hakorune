@@ -292,3 +292,19 @@ Retain削除/Copy置換、Release欠落/二重/取得前、Fault片付け欠落�
 既存の独立検証で拒否させる。nullabilityと完全Endを元型/producerへ照合する。
 Releaseの物理投影は既存`hako_lifecycle_end_ID`→`hako_direct_end`へ一度委譲する。
 Retainはnull noop、u64上限なら加算前Fault、通常load/add/store（非原子、非volatile）。
+
+## 10. 段C試作の停止（2026-11-15）
+
+段Cは未達。field格納の接続だけで、操作・独立検証・汎用modelを除いた
+実在差分が整形後+426行（未整形+222行）になり、指示書の+150〜300行を超えた。
+両側を同じrustfmtで整形して既存の整形差を相殺した値。まだbirthの物理格納と
+独立検証が未接続なので、これを完成や性能の証拠にしない。指示書の規模停止条件を適用した。
+試作はscratchへpatchと新規fileを保存し、productionは基点へ戻した。実装commitは無い。
+
+再開時は、direct選択の共通計画への伝達、birth元storeの共通評価への投影、
+callerの暗黙move抑制を一つの既存計画で運ぶ形を先に整理する。
+Rustの独立検証は同worklistへborrowed formal/Normal token/格納済fieldの責任を接続する。
+Cはplain/takeをparameterの表現だけで区別できないが、新公開ABIが必要とは未確定。
+callee全出口とcallerの残る義務を照合し、Retain削除を元localの二重消費として拒否する道がある。
+Retain済fieldは旧caller-owned markerではなく実所有としてFault dischargeへ渡す必要がある。
+D/E/Fは未着手。停止報告に未検証項目と試作の再現情報をまとめる。
