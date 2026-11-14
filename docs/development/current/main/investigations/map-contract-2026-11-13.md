@@ -517,3 +517,28 @@ D=限定filter 1行、A=0、U=終端semicolon 1箇所と同数3行の契約comme
   - static の呼び出しの直接の return が 8 組（main は `root-completion`、普通の関数は `root-exit-source-missing`）。
   - instance method が literal を返した結果を使う return が 2 組（`artifact-source-unavailable`）。
   - これとは別に、前から変わらない local の側の差が 1 組ある（String field の読みを複数の return から local 経由に変えた形）。
+
+
+## 段 B5: Local と同じ Call 証拠を Return へ接続（実装前）
+
+基点は main `324058be00`。読むだけの worker で既存の入口から確認した。対象は B4c の残り10組（static Main 4・static ordinary 4・instance literal 2）と、同じ原因の束だけ。所有モデルの仮決定とは独立し、Home・移転・End の意味は変更しない。
+
+| 束 | Local が成功する道 | Return が外れる所 | つなぐ既存の持ち主 |
+|---|---|---|---|
+| static Main | `home_new_prefix_local_statement.rs:337–355` の共通 actual staging → `ordinary_new_coseal_issue_local_route.rs:68–75` の元 Qualified claim | `qualified_static_call_claim.rs:350–377,408–425` は scalar-only の元 Return Call を walk/terminal 需要として保持せず、plain Completion は整数 literal のみ | 同じ source Call の actual・result 証拠と homes-aware Completion/terminal の保持。plain seed の穴埋めはしない |
+| static ordinary | 同じ staging と source Call の Local 観測 | `home_static_value_call.rs:86–94,153–160` の terminal 資格に届かず、`ordinary_new_coseal_issue.rs:573–592` で有効な terminal を保持できない → `ordinary_new_normal_return_projection.rs:154–185` の exit source 不在 | source Call の証拠を既存 Return 評価へ渡し、同一 Call・同一 exit の Completion/terminal を保持する |
+| instance literal | 共通 staging → `source_ordinary_result_arguments_v1` の元 instance・完成 Text・実引数照合 | `ordinary_new_borrowed_call_result_source.rs:258–268` の purpose 列挙は Local を許し ReturnValue を含まない | 同じ purpose owner へ Return を接続し、元 target/callee/契約/phase 照合は保持。artifact gate は変えない |
+
+### 規則
+
+- R17. Local が受ける元 Call の証拠を Return も同じ持ち主から借り、source 順に一度だけ評価する。
+- R18. Return の actual staging は既存 `home_new_prefix_scan.rs:92` → `stage_statement_actuals` → `stage_expression_actuals_v1` を使い、二重に観測しない。
+- R19. static Call の元 target・結果・実引数の照合を保持し、既にある Completion と同一 return site の terminal を渡す。新しい Return writer・Completion 補完・source 種類は作らない。
+- R20. instance の元 source・完成 Text・retained target・callee・namespace・実引数 phase の照合は一つも外さない。
+- R21. 取得・移転・Home・Normal/Fault の End の回数・identity・順序を Local と一致させ、生成後の独立検証を保持する。
+- R22. 同じ判定を複製せず、既存の source-purpose / Call 証拠の持ち主へ集約する。builder の artifact gate は緩めない。
+- R23. 3束以外の新受理、片側だけの新成功、値/出力差、成功から拒否、新公開契約/cleanup が必要になった束は止めて一覧にする。入力名や形で塞がない。
+
+instance purpose の接続は、直接 Text Return・Text 連結・非literal callee にも影響し得るため、基準と比較する。追加の結果型や nullable Dynamic の Local 限定を広げない。
+
+見積もり D/A/U: 重複した purpose/terminal の判定を増やさず既存ownerの条件と接続を変更する。production は数十行以内の差分を想定（上限800行、単なる圧縮をしない）。新しい持ち主・公開型・writer・cleanup は0。独立 End 欠落/重複の既存行列を再利用し、新しい test/checker は既存証拠で不足する場合のみ理由を記録する。
