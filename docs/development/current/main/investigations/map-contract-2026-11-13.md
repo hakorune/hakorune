@@ -465,6 +465,10 @@ D（消える）12–20行: Return法則名一覧、比較の写し、B4の不�
 - R8. Faultは取得Add/Map Endへだけ注入し、検索/数え本体やString Endへ作り物のFaultを入れない。
 - R9. 既存の独立変異試験を再利用し、Normal End欠落とEndより先のI64 Returnの不足証拠だけを同じ行列へ足す。
 
+- R10. 前置きのLocalがないReturnも同じ式需要として既存text-expression-planのwalk選択へ接続し、value-flow依存の整数射影はその後に保持する。walk選択は受理権限を与えず、Core queryと完成したevaluationが引き続き受理を決める。
+
 ### D・A・U の見積もり
 
 D=4行（checked_fault_rootの定義3行＋旧gate条件1行）、A=1行（class存在の共通条件）、U=0行、production正味−3行を見込む。契約コメントは旧2行と同じ行数で置き換える。新しい型・関数・writer・公開MIR/ABI・cleanup・checkerは0。testは既存行列のNormal End欠落/早いI64 Returnの2腕だけ、約10–15行。変更対象はproduction1ファイルと既存の独立検証test1ファイル。
+
+B4実測補足: Fault関門だけの接続後、前置きのない一時値ReturnはMain root-completion未保持で拒否された。Localの式需要判定をReturnにも再利用する（R10）。新しい取得/cleanupやplain Completionの穴埋めはせず、既存verified walkを選択する。追加3行、seriesのproduction正味0行を見込む。
