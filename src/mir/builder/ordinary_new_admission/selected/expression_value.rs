@@ -30,85 +30,13 @@ pub(super) use invoke::emit_string_operation_v1;
 pub(super) use invoke::{emit_checked_scalar_condition_v1, emit_scalar_operation_with_pending_v1};
 pub(in crate::mir::builder) use invoke::emit_scalar_operation_to_landing_v1;
 
-/// No independent binding group is published here. Every retained original
-/// receipt and live temporary moves to the checked terminal consumer together.
-pub(super) struct EmittedExpressionValueV1 {
-    pub(super) value: EvaluatedExpressionValueV1,
-    pub(super) purpose_acquisition: Option<[Binding; 2]>,
-    pub(super) body: EmittedExpressionBodyV1,
-}
-
-/// One evaluated source scope. A comparison borrows its inputs without
-/// inventing a root value or re-rooting the original source expression.
-#[derive(Debug)]
-pub(in crate::mir) struct EmittedExpressionBodyV1 {
-    pub(in crate::mir) values: Vec<Option<EvaluatedExpressionValueV1>>,
-    pub(in crate::mir) calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
-    pub(in crate::mir) dynamic_calls: Vec<Rc<EmittedDynamicInvocationCallProjectionV1>>,
-    pub(in crate::mir) path_reads: Vec<Rc<crate::mir::builder::ExactLexicalReadV1>>,
-    pub(in crate::mir) reference_reads: std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
-    pub(in crate::mir) acquired: Vec<(usize, ValueId)>,
-    pub(in crate::mir) dynamic_carriers: Vec<(usize, ValueId)>,
-    pub(in crate::mir) temporary_order: Vec<usize>,
-    pub(in crate::mir) homes: Vec<InvokeOperation>,
-    pub(in crate::mir) fault_frame: Option<ValueId>,
-    pub(in crate::mir) entry: Option<Binding>,
-    pub(in crate::mir) inline_range: Option<(BasicBlockId, usize, usize, bool)>,
-    pub(in crate::mir) bindings: Vec<Binding>,
-    pub(in crate::mir) root_cleanup: Option<(Binding, Option<BasicBlockId>)>,
-}
-
-impl EmittedExpressionBodyV1 {
-    /// Borrow the same source-ordered acquisitions for an owned Text destination.
-    /// Callers first corroborate this body against its retained checked frame;
-    /// this view is not a second source or acquisition inventory.
-    pub(in crate::mir) fn ordered_owned_temporaries_v1(
-        &self, frame: &CheckedExpressionEvaluationV1, root: ValueId, materialized: bool,
-    ) -> Result<Vec<ExpressionOwnedTemporaryV1>, String> {
-        let mut values = Vec::new();
-        let mut seen = std::collections::BTreeSet::new();
-        for &node in frame.ordered_nodes() {
-            if !frame.owned_result_nodes().contains(&node) { continue; }
-            let temporary = match self.values.get(node).and_then(Option::as_ref)
-                .map(|value| value.as_operand()).transpose()? {
-                Some(Operand::OwnedString(value)) => ExpressionOwnedTemporaryV1::String(*value),
-                Some(Operand::DynamicCarrier(value)) => ExpressionOwnedTemporaryV1::DynamicCarrier(*value),
-                _ => return Err(freeze("argument-expression/deferred-value")),
-            };
-            if !seen.insert(temporary.value()) { return Err(freeze("argument-expression/deferred-duplicate")); }
-            values.push(temporary);
-        }
-        if materialized {
-            if !seen.insert(root) { return Err(freeze("argument-expression/deferred-duplicate")); }
-            values.push(ExpressionOwnedTemporaryV1::String(root));
-        }
-        let expected = ExpressionOwnedTemporaryV1::String(root);
-        if values.last() != Some(&expected) { return Err(freeze("argument-expression/deferred-root-order")); }
-        Ok(values)
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir) enum ExpressionOwnedTemporaryV1 {
-    String(ValueId),
-    DynamicCarrier(ValueId),
-}
-impl ExpressionOwnedTemporaryV1 {
-    pub(in crate::mir) fn end_operation(self) -> InvokeOperation {
-        match self {
-            Self::String(value) => InvokeOperation::String(
-                crate::mir::instruction::StringInvokeOperation::End { value },
-            ),
-            Self::DynamicCarrier(carrier) => InvokeOperation::DynamicCarrierEnd { carrier },
-        }
-    }
-    pub(in crate::mir) fn value(self) -> ValueId {
-        match self { Self::String(value) | Self::DynamicCarrier(value) => value }
-    }
-    pub(in crate::mir) fn is_string(self, value: ValueId) -> bool {
-        self == Self::String(value)
-    }
-}
+#[path = "expression_value/reads.rs"]
+mod reads;
+#[path = "expression_value/model.rs"]
+mod model;
+pub(super) use model::EmittedExpressionValueV1;
+use model::string_acquisitions_v1;
+pub(in crate::mir) use model::{EmittedExpressionBodyV1, ExpressionOwnedTemporaryV1};
 
 pub(in crate::mir::builder) enum ExpressionCallEmissionV1 {
     Lexical(EmittedLexicalCallProjectionV1),
@@ -273,83 +201,8 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
     };
     let mut homes = project_homes(frame.prior_homes())?;
     let source = frame.source();
-    let mut pending = Vec::new();
-    let mut path_slots = std::collections::BTreeMap::new();
-    let mut reference_slots = std::collections::BTreeMap::new();
-    let mut direct_fields = std::collections::BTreeMap::new();
-    // An array alias or a named-local Map receiver is read once, by its Core
-    // call, through one shared path read.
-    for core in frame.cores().values().filter(|core| order.contains(&core.node())) {
-        let Some((site, binding)) = core.path_read_receiver_v1() else { continue; };
-        if path_slots.contains_key(&site) { continue; }
-        let read = state.prepare_exact_lexical_read(owner, site.site().node(), binding)
-            .map_err(|error| error.to_string())?;
-        path_slots.insert(site, pending.len());
-        pending.push(read);
-    }
-    // Fulfill every field-root read before any FaultFrame, CFG or value effect.
-    // Reservation remains in original source order; binding nested receivers
-    // still waits for the actual ancestor field writer below.
-    for &index in &order {
-        if frame.transfers_node(index) && !frame.direct_array_receiver_v1(index)
-            .is_some_and(|core| order.contains(&core.node())) { continue; }
-        let node = &source.nodes()[index];
-        if frame.node_is_identity(index) && !matches!(node.source(), Node::Shape(
-            crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })) { continue; }
-        let site = OwnedExprSiteV1::new(owner, node.site().clone());
-        if let Some(original) = frame.references().get(&index) {
-            let read = state.prepare_exact_lexical_read(owner, node.site().node(), original.binding()).map_err(|error| error.to_string())?;
-            let producer = ExpressionReferenceReadV1::prepare(frame, index, read.observation_v1(), CallValidationContextV1::Lowering(ledger),
-                builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
-            reference_slots.insert(index, (pending.len(), producer));
-            pending.push(read);
-        }
-        if let Some(path) = ledger.statement_field_path_v1(&site, crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(ledger))? {
-            if !ledger.reserve_result_path_field_v1(&site, |binding| {
-                let root_site = OwnedExprSiteV1::new(owner, path.root_site().clone());
-                let slot = match path_slots.get(&root_site) {
-                    Some(slot) => *slot,
-                    None => {
-                        let read = state.prepare_exact_lexical_read(owner, path.root_site().node(), binding)
-                            .map_err(|error| error.to_string())?;
-                        let slot = pending.len();
-                        pending.push(read);
-                        path_slots.insert(root_site, slot);
-                        slot
-                    }
-                };
-                pending[slot].value_for(owner, path.root_site().node(), binding).map_err(|error| error.to_string())
-            })? { return Err(freeze("print-expression/path-source-missing")); }
-        } else if let Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, .. }) = node.source() {
-            let mut slot = None;
-            let (base, descriptor) = ledger.take_local_field_read(&site, |binding| {
-                let read = state.prepare_exact_lexical_read(owner, object.node(), binding).map_err(|error| error.to_string())?;
-                let value = read.value_for(owner, object.node(), binding).map_err(|error| error.to_string())?;
-                slot = Some(pending.len());
-                if frame.direct_array_receiver_v1(index).is_some() {
-                    let root_site = OwnedExprSiteV1::new(owner, object.clone());
-                    if path_slots.insert(root_site, pending.len()).is_some() {
-                        return Err(freeze("expression-value/read-slot"));
-                    }
-                }
-                pending.push(read);
-                Ok(value)
-            })?.ok_or_else(|| freeze("print-expression/field-source-missing"))?;
-            direct_fields.insert(index, (base, descriptor, slot.ok_or_else(|| freeze("print-expression/field-exact-read-missing"))?));
-        }
-    }
-    let needs_fault_frame = ledger.expression_requires_fault_frame_v1(frame);
-    let inline_start = (!needs_fault_frame)
-        .then(|| cleanup::begin_inline_scope_v1(builder, state)).transpose()?;
-    let mut reads: Vec<_> = state.commit_exact_lexical_reads(pending).map_err(|error| error.to_string())?
-        .into_iter().map(Some).collect();
-    let mut path_reads = std::collections::BTreeMap::new();
-    for (site, slot) in path_slots {
-        path_reads.insert(site, Rc::new(reads[slot].take().ok_or_else(|| freeze("expression-value/read-slot"))?));
-    }
-    let reference_reads = reference_slots.into_iter().map(|(node, (slot, producer))| {
-        Ok((node, producer.finish(reads[slot].take().ok_or_else(|| freeze("expression-value/reference-slot"))?)))
-    }).collect::<Result<std::collections::BTreeMap<_, _>, String>>()?;
+    let reads::ExpressionReadInputsV1 { mut reads, path_reads, reference_reads, mut direct_fields,
+        inline_start, needs_fault_frame } = reads::fulfill_v1(builder, state, ledger, frame, &order)?;
     let fault_frame = needs_fault_frame
         .then(|| state.borrow_fault_frame(builder)).transpose()?;
     let mut bindings = Vec::new();
@@ -365,9 +218,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
     let require_fault_frame = || fault_frame.ok_or_else(|| freeze("expression/fault-frame-required"));
     let mut values: Vec<Option<EvaluatedExpressionValueV1>> = vec![None; source.nodes().len()];
     let mut field_outputs: Vec<Option<ValueId>> = vec![None; source.nodes().len()];
-    let mut acquired = Vec::new();
-    let mut dynamic_carriers = Vec::new();
-    let mut temporary_order = Vec::new();
+    let mut temporaries = Vec::new();
     let mut calls = Vec::new();
     let mut dynamic_calls = Vec::new();
     for &index in &order {
@@ -413,7 +264,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             let path_text = matches!(descriptor.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Text(_));
             let value = if descriptor.requires_checked_field_read_v1() {
                 let normal = writer.reserve_block(builder)?;
-                let pending = FaultCleanupPlanV1::pending(&acquired, &dynamic_carriers, &temporary_order,
+                let pending = FaultCleanupPlanV1::pending(&temporaries,
                     if root_cleanup.is_some() { &[] } else { &homes })?;
                 let graph = root_graph::emit_cleanup_suffixes_with_parent_v1(&mut writer, builder, require_fault_frame()?,
                     normal, &pending, root_cleanup.as_ref().and_then(|(_, entry)| *entry), &mut bindings)?;
@@ -431,7 +282,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                 value
             } else {
                 let (value, binding) = builder.complete_exact_field_read_v1(base, descriptor.field(), &site, ledger,
-                    crate::mir::builder::fields::PreparedExactFieldReadClaimV1::Local(descriptor))?;
+                    crate::mir::builder::fields::PreparedExactFieldReadClaimV1::Local(Rc::clone(&descriptor)))?;
                 bindings.push(binding);
                 value
             };
@@ -439,12 +290,9 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             if !frame.node_is_identity(index) {
                 // A final Text hop is an independent copy the expression owns until End.
                 if path_text {
-                    acquired.push((index, value));
-                    temporary_order.push(index);
-                    values[index] = Some(Operand::OwnedString(value).into());
-                } else {
-                    values[index] = Some(Operand::NormalInteger(value).into());
-                }
+                    temporaries.push((index, ExpressionOwnedTemporaryV1::String(value)));
+                    }
+                values[index] = Some(EvaluatedExpressionValueV1::field_read_v1(value, &descriptor, frame, index));
             }
             continue;
         }
@@ -477,7 +325,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             crate::mir::resolved_semantics::home_new_prefix::NullableResultReferenceV1::DeclaredFrom(_)))) {
             let read = reference_reads.get(&index).ok_or_else(|| freeze("expression/reference-read-missing"))?;
             let value = read.declared_read_value_v1(frame, index, CallValidationContextV1::Lowering(ledger))?;
-            values[index] = Some(EvaluatedExpressionValueV1::DeclaredRead(value));
+            values[index] = Some(EvaluatedExpressionValueV1::borrowed_reference_v1(value, &frame.references()[&index])?);
             continue;
         }
         if let Node::Literal(Literal::Null) = node.source() {
@@ -498,7 +346,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             };
             builder.emit_instruction(instruction.clone())?;
             bindings.push((block, instruction));
-            values[index] = Some(EvaluatedExpressionValueV1::DeclaredRead(value));
+            values[index] = Some(EvaluatedExpressionValueV1::Null(value));
             continue;
         }
         if let Node::Literal(Literal::Bool(literal)) = node.source() {
@@ -524,7 +372,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                 let text = matches!(source.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Text(_));
                 let value = if source.requires_checked_field_read_v1() {
                     let normal = writer.reserve_block(builder)?;
-                    let pending = FaultCleanupPlanV1::pending(&acquired, &dynamic_carriers, &temporary_order,
+                    let pending = FaultCleanupPlanV1::pending(&temporaries,
                     if root_cleanup.is_some() { &[] } else { &homes })?;
                     let graph = root_graph::emit_cleanup_suffixes_with_parent_v1(&mut writer, builder, require_fault_frame()?,
                         normal, &pending, root_cleanup.as_ref().and_then(|(_, entry)| *entry), &mut bindings)?;
@@ -547,11 +395,10 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                     value
                 };
                 if text {
-                    acquired.push((index, value));
-                    temporary_order.push(index);
-                    Operand::OwnedString(value)
+                    temporaries.push((index, ExpressionOwnedTemporaryV1::String(value)));
                 }
-                else { Operand::NormalInteger(value) }
+                values[index] = Some(EvaluatedExpressionValueV1::field_read_v1(value, &source, frame, index));
+                continue;
             }
             Node::Reference(_) => {
                 let observed = reference_reads.get(&index).ok_or_else(|| freeze("expression/reference-read-missing"))?;
@@ -583,24 +430,23 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                 };
                 let value = match operation {
                     InvokeOperation::String(operation) => emit_string_value(builder, &mut writer, operation,
-                        index, require_fault_frame()?, &mut acquired, &mut dynamic_carriers, &mut temporary_order,
+                        index, require_fault_frame()?, &mut temporaries,
                         &homes, &mut bindings)?,
                     operation @ InvokeOperation::DynamicArrayGet { .. } => {
-                        let pending = FaultCleanupPlanV1::pending(&acquired, &dynamic_carriers, &temporary_order,
+                        let pending = FaultCleanupPlanV1::pending(&temporaries,
                     if root_cleanup.is_some() { &[] } else { &homes })?;
                         let (value, result, _) = emit_scalar_operation_with_pending_v1(
                             builder, &mut writer, operation, require_fault_frame()?, &pending, &mut bindings)?;
                         if result != crate::mir::instruction::InvokeNormalResultKind::DynamicCarrier {
                             return Err(freeze("expression-core/array-get-result"));
                         }
-                        dynamic_carriers.push((index, value));
-                        temporary_order.push(index);
+                        temporaries.push((index, ExpressionOwnedTemporaryV1::DynamicCarrier(value)));
                         Operand::DynamicCarrier(value)
                     }
                     // A checked i64 read of a named-local Map: a normal scalar, no
                     // owned temporary; a Fault unwinds the live Homes, Map included.
                     operation @ InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::CheckedGetI64 { .. }) => {
-                        let pending = FaultCleanupPlanV1::pending(&acquired, &dynamic_carriers, &temporary_order,
+                        let pending = FaultCleanupPlanV1::pending(&temporaries,
                             if root_cleanup.is_some() { &[] } else { &homes })?;
                         let (value, result, _) = emit_scalar_operation_with_pending_v1(
                             builder, &mut writer, operation, require_fault_frame()?, &pending, &mut bindings)?;
@@ -617,6 +463,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             Node::MethodCall => {
                 let call = frame.calls().iter().find(|call| call.site().site() == node.site())
                     .ok_or_else(|| freeze("print-expression/call-source-missing"))?;
+                let acquired = string_acquisitions_v1(&temporaries);
                 match emit_call(builder, state, call, &acquired, &values, &mut bindings)? {
                     ExpressionCallEmissionV1::Lexical(packet) => {
                         let packet = Rc::new(packet);
@@ -632,12 +479,10 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                             if call.dynamic_invocation_result_lifecycle_v1().is_none() {
                                 return Err(freeze("print-expression/call-source-missing"));
                             }
-                            dynamic_carriers.push((index, value));
-                            temporary_order.push(index);
+                            temporaries.push((index, ExpressionOwnedTemporaryV1::DynamicCarrier(value)));
                             Operand::DynamicCarrier(value)
                         } else if owned {
-                            acquired.push((index, value));
-                            temporary_order.push(index);
+                            temporaries.push((index, ExpressionOwnedTemporaryV1::String(value)));
                             Operand::OwnedString(value)
                         }
                         else { Operand::NormalInteger(value) }
@@ -649,15 +494,14 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                         }
                         let value = packet.value();
                         dynamic_calls.push(packet);
-                        dynamic_carriers.push((index, value));
-                        temporary_order.push(index);
+                        temporaries.push((index, ExpressionOwnedTemporaryV1::DynamicCarrier(value)));
                         Operand::DynamicCarrier(value)
                     }
                 }
             }
             Node::Binary(_) if frame.operations().iter().any(|operation|
                 operation.node() == index && operation.normal_result_v1() == Some(ResultKind::TrivialBool)) => {
-                let pending = FaultCleanupPlanV1::pending(&acquired, &dynamic_carriers, &temporary_order,
+                let pending = FaultCleanupPlanV1::pending(&temporaries,
                     if root_cleanup.is_some() { &[] } else { &homes })?;
                 let value = emit_checked_scalar_condition_v1(builder, frame, index, &values, None,
                     fault_frame, &pending, root_cleanup.as_ref().and_then(|(_, fault)| *fault), &mut bindings)?;
@@ -708,7 +552,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                     ResultKind::OwnedStringValue => {
                         let right = frame.string_add_right_operand_v1(binary.rhs(), right);
                         emit_string_value(builder, &mut writer, Operation::Add { left, right }, index,
-                            require_fault_frame()?, &mut acquired, &mut dynamic_carriers, &mut temporary_order,
+                            require_fault_frame()?, &mut temporaries,
                             &homes, &mut bindings)?
                     }
                     ResultKind::SelfContainedNonAliasingDynamicCarrier => {
@@ -734,7 +578,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                                 Operand::Dynamic(value)
                             }
                             OperatorFamily::Sub if frame.owned_result_nodes().contains(&index) => {
-                                let pending = FaultCleanupPlanV1::pending(&acquired, &dynamic_carriers, &temporary_order,
+                                let pending = FaultCleanupPlanV1::pending(&temporaries,
                     if root_cleanup.is_some() { &[] } else { &homes })?;
                                 let (value, result, _) = emit_scalar_operation_with_pending_v1(
                                     builder,
@@ -747,8 +591,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                                 if result != crate::mir::instruction::InvokeNormalResultKind::DynamicCarrier {
                                     return Err(freeze("print-expression/dynamic-sub-result"));
                                 }
-                                dynamic_carriers.push((index, value));
-                                temporary_order.push(index);
+                                temporaries.push((index, ExpressionOwnedTemporaryV1::DynamicCarrier(value)));
                                 Operand::DynamicCarrier(value)
                             }
                             _ => return Err(freeze("print-expression/dynamic-operator-contract")),
@@ -761,6 +604,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
         };
         values[index] = Some(value.into());
     }
+    let acquired = string_acquisitions_v1(&temporaries);
     crate::mir::normal_callable_semantic_package::validate_expression_acquisition_scope_v1(frame, comparison, None, &acquired, &values,
         builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
     if frame.ownership_v1().has_transfers() || inherited.is_some() {
@@ -772,6 +616,5 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
     }
     let inline_range = cleanup::finish_inline_scope_v1(builder, inline_start)?;
     Ok(EmittedExpressionBodyV1 { values, calls, dynamic_calls,
-        path_reads: path_reads.into_values().collect(), reference_reads, acquired,
-        dynamic_carriers, temporary_order, homes, fault_frame, entry, inline_range, bindings, root_cleanup })
+        path_reads: path_reads.into_values().collect(), reference_reads, temporaries, homes, fault_frame, entry, inline_range, bindings, root_cleanup })
 }

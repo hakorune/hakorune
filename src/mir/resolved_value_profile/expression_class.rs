@@ -16,6 +16,8 @@ pub(crate) enum ExpressionValueClassV1 {
     /// Sealed rows exist but no source class is proven: unannotated
     /// parameters, unproven call results, or non-value bindings.
     Opaque,
+    /// A source-qualified object reference, never an Integer operand.
+    BoxReference,
 }
 
 

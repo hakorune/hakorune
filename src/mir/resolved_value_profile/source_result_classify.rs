@@ -28,7 +28,7 @@ impl ExprClassV1 {
         match self {
             Self::I64 => Some(SourceResultClassV1::I64),
             Self::String => Some(SourceResultClassV1::String),
-            Self::Dynamic | Self::Bool | Self::Null | Self::Opaque => None,
+            Self::Dynamic | Self::Bool | Self::Null | Self::Opaque | Self::BoxReference => None,
         }
     }
 

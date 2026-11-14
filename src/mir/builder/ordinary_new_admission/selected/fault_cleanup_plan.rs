@@ -33,31 +33,15 @@ impl FaultCleanupPlanV1 {
 
     /// S3b-R5a: temporaries of an expression newest first, then the Homes that stay owed.
     pub(in crate::mir::builder) fn owed_operations(
-        acquired: &[(usize, ValueId)],
-        dynamic_carriers: &[(usize, ValueId)],
-        temporary_order: &[usize],
+        temporaries: &[(usize, ExpressionOwnedTemporaryV1)],
         homes: &[InvokeOperation],
     ) -> Result<Vec<InvokeOperation>, String> {
         let mut seen = std::collections::BTreeSet::new();
-        if acquired.len() + dynamic_carriers.len() != temporary_order.len()
-            || temporary_order.iter().any(|node| !seen.insert(*node))
-        {
+        if temporaries.iter().any(|(node, _)| !seen.insert(*node)) {
             return Err(freeze("expression/temporary-order"));
         }
-        let mut pending = Vec::with_capacity(temporary_order.len() + homes.len());
-        for node in temporary_order.iter().rev() {
-            let string = acquired.iter().find(|(candidate, _)| candidate == node);
-            let carrier = dynamic_carriers.iter().find(|(candidate, _)| candidate == node);
-            match (string, carrier) {
-                (Some((_, value)), None) => {
-                    pending.push(InvokeOperation::String(Operation::End { value: *value }))
-                }
-                (None, Some((_, carrier))) => {
-                    pending.push(InvokeOperation::DynamicCarrierEnd { carrier: *carrier })
-                }
-                _ => return Err(freeze("expression/temporary-coverage")),
-            }
-        }
+        let mut pending = temporaries.iter().rev().map(|(_, temporary)| temporary.end_operation())
+            .collect::<Result<Vec<_>, _>>()?;
         pending.extend(homes.iter().cloned());
         Ok(pending)
     }
@@ -70,25 +54,21 @@ impl FaultCleanupPlanV1 {
 
     /// The Fault-only suffix in front of one fallible operation of an expression.
     pub(in crate::mir::builder) fn pending(
-        acquired: &[(usize, ValueId)],
-        dynamic_carriers: &[(usize, ValueId)],
-        temporary_order: &[usize],
+        temporaries: &[(usize, ExpressionOwnedTemporaryV1)],
         homes: &[InvokeOperation],
     ) -> Result<Self, String> {
-        Ok(Self::unwind(Self::owed_operations(acquired, dynamic_carriers, temporary_order, homes)?))
+        Ok(Self::unwind(Self::owed_operations(temporaries, homes)?))
     }
 
     /// An expression statement: the temporaries end on the Normal edge; a Fault closes the
     /// temporaries and then the Homes. `entry_fault` adds the Fault of the statement's own Invoke.
     pub(in crate::mir::builder) fn temporaries_then_homes(
-        acquired: &[(usize, ValueId)],
-        dynamic_carriers: &[(usize, ValueId)],
-        temporary_order: &[usize],
+        temporaries: &[(usize, ExpressionOwnedTemporaryV1)],
         homes: &[InvokeOperation],
         entry_fault: bool,
     ) -> Result<Self, String> {
-        let normal = Self::owed_operations(acquired, dynamic_carriers, temporary_order, &[])?;
-        let fault = Self::owed_operations(acquired, dynamic_carriers, temporary_order, homes)?;
+        let normal = Self::owed_operations(temporaries, &[])?;
+        let fault = Self::owed_operations(temporaries, homes)?;
         Self::from_normal_prefix(normal, fault, if entry_fault { None } else { Some(Vec::new()) })
     }
 

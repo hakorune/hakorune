@@ -443,7 +443,7 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
                 Leaf::Value(Class::String)
             } else if matches!(profile, ExpressionLeafProfileV1::BoolCondition)
                 && request.is_nullable_object_comparison_v1(source) {
-                Leaf::Value(Class::Opaque)
+                Leaf::Value(Class::BoxReference)
             } else {
                 Leaf::Value(Class::I64)
             };

@@ -54,8 +54,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 .rev()
                 .copied()
                 .map(ExpressionOwnedTemporaryV1::end_operation)
-                .chain(homes.iter().cloned())
-                .collect::<Vec<_>>()
+                .collect::<Result<Vec<_>, _>>().map(|mut operations| { operations.extend_from_slice(homes); operations })
         };
         let calls = self
             .source_calls()
@@ -222,7 +221,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 covered.extend(paths::pending_operations(
                     function,
                     *fault_landing,
-                    &end_sequence(&live, &current_homes),
+                    &end_sequence(&live, &current_homes)?,
                     Some(fault_frame),
                 )?);
                 live.push(ExpressionOwnedTemporaryV1::DynamicCarrier(dst));
@@ -300,7 +299,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 covered.extend(paths::pending_operations(
                     function,
                     *fault_landing,
-                    &end_sequence(&live, &current_homes),
+                    &end_sequence(&live, &current_homes)?,
                     Some(fault_frame),
                 )?);
                 live.push(ExpressionOwnedTemporaryV1::DynamicCarrier(value));
@@ -310,7 +309,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             covered.extend(paths::pending_operations(
                 function,
                 *fault_landing,
-                &end_sequence(&live, &current_homes),
+                &end_sequence(&live, &current_homes)?,
                 Some(fault_frame),
             )?);
             if matches!(operation, InvokeOperation::String(operation) if operation.owns_normal_result())

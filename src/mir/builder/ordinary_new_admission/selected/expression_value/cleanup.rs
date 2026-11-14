@@ -1,4 +1,4 @@
-//! Exact cleanup stack construction for expression-owned values and carriers.
+//! Exact cleanup stack construction for the one typed acquisition ledger.
 use super::*;
 
 pub(in crate::mir::builder::ordinary_new_admission::selected) fn bool_condition_temporary_operations_v1(
@@ -14,42 +14,20 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn bool_condition_
         .copied()
         .filter(|node| frame.owned_result_nodes().contains(node))
         .collect();
-    if body.temporary_order.len() != expected.len()
-        || body
-            .temporary_order
-            .iter()
-            .copied()
-            .collect::<std::collections::BTreeSet<_>>()
-            != expected
-    {
+    let actual: std::collections::BTreeSet<_> =
+        body.temporaries.iter().map(|(node, _)| *node).collect();
+    if body.temporaries.len() != expected.len() || actual != expected {
         return Err(freeze("bool-condition/temporary-order-coverage"));
     }
-    if body
-        .dynamic_carriers
-        .iter()
-        .map(|(node, _)| *node)
-        .collect::<std::collections::BTreeSet<_>>()
-        .len()
-        != body.dynamic_carriers.len()
-    {
-        return Err(freeze("bool-condition/dynamic-temporary-duplicate"));
-    }
-    let mut operations = std::collections::BTreeMap::new();
-    for &(node, value) in &body.acquired {
-        if !expected.contains(&node)
-            || body
-                .values
-                .get(node)
-                .and_then(Option::as_ref)
-                .and_then(|value| value.as_operand().ok())
-                != Some(&Operand::OwnedString(value))
-            || operations
-                .insert(node, InvokeOperation::String(Operation::End { value }))
-                .is_some()
-        {
-            return Err(freeze("bool-condition/string-temporary-coverage"));
+    for &(node, temporary) in &body.temporaries {
+        if !temporary.matches_value_v1(body.values.get(node).and_then(Option::as_ref)) {
+            return Err(freeze(match temporary {
+                ExpressionOwnedTemporaryV1::String(_) => "bool-condition/string-temporary-coverage",
+                _ => "bool-condition/dynamic-core-temporary-coverage",
+            }));
         }
     }
+    let mut dynamic_call_nodes = std::collections::BTreeSet::new();
     for packet in &body.dynamic_calls {
         let call = packet.source();
         let node = frame
@@ -59,42 +37,34 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn bool_condition_
             .position(|row| row.site() == call.site().site())
             .ok_or_else(|| freeze("bool-condition/dynamic-call-node"))?;
         if !expected.contains(&node)
-            || !call.dynamic_invocation_result_lifecycle_v1().is_some()
+            || !dynamic_call_nodes.insert(node)
+            || call.dynamic_invocation_result_lifecycle_v1().is_none()
             || !frame.calls().iter().any(|original| original == call)
-            || !body.dynamic_carriers.contains(&(node, packet.value()))
-            || body
-                .values
-                .get(node)
-                .and_then(Option::as_ref)
-                .and_then(|value| value.as_operand().ok())
-                != Some(&Operand::DynamicCarrier(packet.value()))
-            || operations
-                .insert(
-                    node,
-                    InvokeOperation::DynamicCarrierEnd {
-                        carrier: packet.value(),
-                    },
-                )
-                .is_some()
+            || !body.temporaries.contains(&(
+                node,
+                ExpressionOwnedTemporaryV1::DynamicCarrier(packet.value()),
+            ))
+            || body.values.get(node).and_then(Option::as_ref)
+                != Some(&Operand::DynamicCarrier(packet.value()).into())
         {
             return Err(freeze("bool-condition/dynamic-temporary-coverage"));
         }
     }
-    for &(node, value) in &body.dynamic_carriers {
-        if operations.contains_key(&node) {
+    for &(node, temporary) in &body.temporaries {
+        let ExpressionOwnedTemporaryV1::DynamicCarrier(value) = temporary else {
+            continue;
+        };
+        if body.dynamic_calls.iter().any(|packet| {
+            packet.value() == value
+                && frame.source().nodes()[node].site() == packet.source().site().site()
+        }) {
             continue;
         }
-        let carrier_value_mismatch = body
-            .values
-            .get(node)
-            .and_then(Option::as_ref)
-            .and_then(|value| value.as_operand().ok())
-            != Some(&Operand::DynamicCarrier(value));
         let source_producer = if let Some(core) = frame.cores().get(&node) {
             matches!(
                 crate::mir::normal_callable_semantic_package::checked_expression_core_operation_v1(
                     core,
-                    &body.values,
+                    &body.values
                 )?,
                 std::ops::ControlFlow::Break(InvokeOperation::DynamicArrayGet { .. })
             )
@@ -110,33 +80,11 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn bool_condition_
         } else {
             false
         };
-        if !expected.contains(&node)
-            || carrier_value_mismatch
-            || !source_producer
-            || operations
-                .insert(node, InvokeOperation::DynamicCarrierEnd { carrier: value })
-                .is_some()
-        {
+        if !source_producer {
             return Err(freeze("bool-condition/dynamic-core-temporary-coverage"));
         }
     }
-    if operations
-        .keys()
-        .copied()
-        .collect::<std::collections::BTreeSet<_>>()
-        != expected
-    {
-        return Err(freeze("bool-condition/owned-temporary-coverage"));
-    }
-    body.temporary_order
-        .iter()
-        .rev()
-        .map(|node| {
-            operations
-                .remove(node)
-                .ok_or_else(|| freeze("bool-condition/temporary-order-operation"))
-        })
-        .collect()
+    FaultCleanupPlanV1::owed_operations(&body.temporaries, &[])
 }
 
 pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_dynamic_initializer_continuation(
@@ -167,12 +115,12 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_dynamic_
     {
         return Err(freeze("initializer-expression/dynamic-carrier-projection"));
     }
-    if !matches!(expression.body.dynamic_carriers.last(), Some((0, carrier)) if carrier == value)
+    if !matches!(expression.body.temporaries.last(), Some((0, ExpressionOwnedTemporaryV1::DynamicCarrier(carrier))) if carrier == value)
         || expression
             .body
-            .dynamic_carriers
+            .temporaries
             .iter()
-            .filter(|(_, carrier)| carrier == value)
+            .filter(|(_, temporary)| *temporary == ExpressionOwnedTemporaryV1::DynamicCarrier(*value))
             .count()
             != 1
     {
@@ -228,8 +176,7 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_dynamic_
     {
         return Err(freeze("initializer-expression/dynamic-carrier-invoke"));
     }
-    expression.body.dynamic_carriers.pop();
-    if expression.body.temporary_order.pop() != Some(0) {
+    if expression.body.temporaries.pop() != Some((0, ExpressionOwnedTemporaryV1::DynamicCarrier(*value))) {
         return Err(freeze("initializer-expression/dynamic-carrier-order"));
     }
     finish_body_continuation(builder, &mut expression.body, None, None, false)
@@ -259,7 +206,7 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_residenc
     if materialized != Some(root)
         && expression
             .body
-            .acquired
+            .string_acquisitions_v1()
             .last()
             .is_none_or(|(_, value)| *value != root)
     {
@@ -281,7 +228,7 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_deferred
         .purpose_acquisition
         .as_ref()
         .and_then(|pair| pair[1].1.dst_value());
-    if materialized != Some(root) && expression.body.acquired.last() != Some(&(0, root)) {
+    if materialized != Some(root) && expression.body.string_acquisitions_v1().last() != Some(&(0, root)) {
         return Err(freeze("argument-expression/deferred-acquisition-order"));
     }
     let mut writer = RawRootGraphWriterV1;
@@ -333,9 +280,7 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn materialize_tex
         return Err(freeze("rebind-expression/materialize-domain"));
     }
     let pending = FaultCleanupPlanV1::pending(
-        &expression.body.acquired,
-        &expression.body.dynamic_carriers,
-        &expression.body.temporary_order,
+        &expression.body.temporaries,
         &expression.body.homes,
     )?;
     let (value, _, pair) = emit_scalar_operation_with_pending_v1(
@@ -362,7 +307,7 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_rebind_c
     if frame.declared_read_v1().is_some() {
         if !matches!(
             expression.value,
-            EvaluatedExpressionValueV1::DeclaredRead(_)
+            EvaluatedExpressionValueV1::BoxReference(_)
         ) {
             return Err(freeze("expression/scalar-continuation-result"));
         }
@@ -381,7 +326,7 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_rebind_c
         return Err(freeze("expression/residence-root"));
     };
     if expression.purpose_acquisition.is_some() != frame.materializes_root()
-        || !frame.materializes_root() && expression.body.acquired.last() != Some(&(0, root))
+        || !frame.materializes_root() && expression.body.string_acquisitions_v1().last() != Some(&(0, root))
     {
         return Err(freeze("expression/residence-acquisition-order"));
     }
@@ -466,15 +411,13 @@ fn finish_body_continuation(
         builder.emit_instruction(install.clone())?;
         body.bindings.push((block, install));
         if !materialized {
-            if body.acquired.pop() != Some((0, value)) || body.temporary_order.pop() != Some(0) {
+            if body.temporaries.pop() != Some((0, ExpressionOwnedTemporaryV1::String(value))) {
                 return Err(freeze("expression/residence-acquisition-order"));
             }
         }
     }
     let normal = FaultCleanupPlanV1::owed_operations(
-        &body.acquired,
-        &body.dynamic_carriers,
-        &body.temporary_order,
+        &body.temporaries,
         &[],
     )?;
     let mut homes = body.homes.clone();
@@ -482,9 +425,7 @@ fn finish_body_continuation(
         homes.insert(0, InvokeOperation::String(Operation::End { value }));
     }
     let fault = FaultCleanupPlanV1::owed_operations(
-        &body.acquired,
-        &body.dynamic_carriers,
-        &body.temporary_order,
+        &body.temporaries,
         &homes,
     )?;
     finish_body_cleanup(builder, body, normal, fault, displaced)
@@ -541,9 +482,7 @@ impl EmittedExpressionValueV1 {
                 fault_frame,
                 |body| {
                     FaultCleanupPlanV1::temporaries_then_homes(
-                        &body.acquired,
-                        &body.dynamic_carriers,
-                        &body.temporary_order,
+                        &body.temporaries,
                         &body.homes,
                         !frame.is_discard(),
                     )
@@ -629,68 +568,6 @@ fn deduplicate_body_bindings(body: &mut EmittedExpressionBodyV1) {
     body.bindings = unique;
 }
 
-// Inline intervals begin before committed read copies. Only the existing
-// function owner can later insert the shared frame at the entry/Phi prefix.
-pub(super) fn begin_inline_scope_v1(
-    builder: &MirBuilder,
-    state: &CallableSemanticLoweringState,
-) -> Result<(BasicBlockId, usize, bool), String> {
-    let block = builder
-        .function_state
-        .current_block
-        .ok_or_else(|| freeze("no-block"))?;
-    let function = builder
-        .function_state
-        .current_function
-        .as_ref()
-        .ok_or_else(|| freeze("no-function"))?;
-    let offset = function
-        .blocks
-        .get(&block)
-        .ok_or_else(|| freeze("no-block"))?
-        .instructions
-        .len();
-    let had_entry_frame =
-        block == function.entry_block && state.observed_fault_frame_binding_v2(function)?.is_some();
-    Ok((block, offset, had_entry_frame))
-}
-
-pub(super) fn finish_inline_scope_v1(
-    builder: &MirBuilder,
-    start: Option<(BasicBlockId, usize, bool)>,
-) -> Result<Option<(BasicBlockId, usize, usize, bool)>, String> {
-    start
-        .map(|(block, start, had_entry_frame)| {
-            if builder.function_state.current_block != Some(block) {
-                return Err(freeze("expression/nonfault-control"));
-            }
-            let end = builder
-                .function_state
-                .current_function
-                .as_ref()
-                .and_then(|function| function.blocks.get(&block))
-                .ok_or_else(|| freeze("no-block"))?
-                .instructions
-                .len();
-            Ok((block, start, end, had_entry_frame))
-        })
-        .transpose()
-}
-
-impl EmittedExpressionBodyV1 {
-    pub(in crate::mir::builder::ordinary_new_admission::selected) fn complete_inline_range_v1(
-        &mut self,
-        builder: &MirBuilder,
-    ) -> Result<(), String> {
-        self.inline_range = finish_inline_scope_v1(
-            builder,
-            self.inline_range
-                .map(|(block, start, _, had_frame)| (block, start, had_frame)),
-        )?;
-        Ok(())
-    }
-    pub(in crate::mir::builder) fn required_fault_frame_v1(&self) -> Result<ValueId, String> {
-        self.fault_frame
-            .ok_or_else(|| freeze("expression/fault-frame-required"))
-    }
-}
+#[path = "inline.rs"]
+mod inline;
+pub(super) use inline::{begin_inline_scope_v1, finish_inline_scope_v1};

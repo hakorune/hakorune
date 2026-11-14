@@ -851,7 +851,7 @@ fn stored_map_get_keeps_its_original_local_source() {
                 if field.as_ref() == "value" => Some(OwnedExprSiteV1::new(input.owner(), site.clone())),
             _ => None,
         }).expect("original field read");
-        assert!(package.ordinary_new_claim_ledger.staged_local_field_source(&field_site).is_some(),
+        assert!(package.ordinary_new_claim_ledger.local_field_source_v1(&field_site).is_some(),
             "nonnull field read reaches the existing source consumer");
     }).unwrap();
     let changed = source.replace("if item == null", "me.add(key) if item == null");

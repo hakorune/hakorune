@@ -12,6 +12,9 @@ use crate::mir::normal_callable_semantic_package::{
 };
 use crate::mir::{MirBuilder, MirInstruction, MirType};
 use std::rc::Rc;
+#[path = "argument_cleanup.rs"]
+mod cleanup;
+pub(super) use cleanup::{finish_new_arguments_v1, temporary_ends_v1};
 
 pub(super) fn materialize_arguments(
     builder: &mut MirBuilder,
@@ -64,20 +67,21 @@ pub(super) fn materialize_arguments(
             {
                 return Err(freeze("argument-source-unavailable"));
             }
-            let (terminal, continuation) = if expression.body.acquired.is_empty() {
+            let (terminal, continuation) = if expression.body.string_acquisitions_v1().is_empty() {
                 expression_value::finish_value_continuation_v1(builder, &mut expression.body)?
             } else {
                 expression_value::finish_deferred_argument_continuation(builder, &mut expression)?
             };
             let payload = BirthArgumentV1::Text(expression.value.as_operand()?.clone());
             let body = expression.body;
+            let acquired = body.string_acquisitions_v1();
             let packet = Rc::new(EmittedNewExpressionV1::new(
                 Rc::clone(evaluation),
                 body.values,
                 body.calls,
                 body.path_reads,
                 body.reference_reads,
-                body.acquired,
+                acquired,
                 body.entry,
                 body.inline_range,
                 terminal,
@@ -642,10 +646,10 @@ mod tests {
                     }
                     let mut emitted = result.unwrap();
                     assert!(matches!(emitted.value.as_operand().unwrap(), Operand::OwnedString(_)));
-                    assert_eq!(emitted.body.acquired.len(), frame.evaluation().owned_result_nodes().len(), "all substring acquisitions survive; scalar Core readers acquire none");
+                    assert_eq!(emitted.body.string_acquisitions_v1().len(), frame.evaluation().owned_result_nodes().len(), "all substring acquisitions survive; scalar Core readers acquire none");
                     let function = builder.function_state.current_function.as_ref().unwrap();
                     for mutation in 0..5 {
-                        let mut acquired = emitted.body.acquired.clone();
+                        let mut acquired = emitted.body.string_acquisitions_v1().clone();
                         let mut values = emitted.body.values.clone();
                         let mut changed = function.clone();
                         match mutation {
@@ -715,10 +719,10 @@ mod tests {
                         let changed = ExpressionPhysicalProjectionRefV1::new(frame.evaluation(), &emitted.body.values, &emitted.body.calls, &reads, &emitted.body.reference_reads, &changed);
                         assert!(changed.validate_source(context).is_err(), "Core producer/projection mutation {mutation}");
                     }
-                    let retained = emitted.body.acquired.clone();
+                    let retained = emitted.body.string_acquisitions_v1().clone();
                     let (terminal, continuation) = super::super::expression_value::finish_deferred_argument_continuation(
                         &mut builder, &mut emitted).unwrap();
-                    assert_eq!(emitted.body.acquired, retained, "root and older children remain owned until Call");
+                    assert_eq!(emitted.body.string_acquisitions_v1(), retained, "root and older children remain owned until Call");
                     assert!(!emitted.body.bindings.iter().any(|(_, row)| matches!(row, MirInstruction::StringResidenceInstall { .. })),
                         "argument lifetime does not create a local Home");
                     let deferred = ExpressionPhysicalProjectionRefV1::new(frame.evaluation(), &emitted.body.values,
@@ -731,70 +735,4 @@ mod tests {
             ).unwrap();
         }
     }
-}
-
-/// Every actual is a synchronous loan through Birth. Computed Text stays owned
-/// by its argument packet; only the field's independent materialization moves.
-pub(super) fn temporary_ends_v1(
-    arguments: &[EmittedNewArgumentV1],
-) -> Result<Vec<crate::mir::instruction::InvokeOperation>, String> {
-    let mut operations = Vec::new();
-    let mut seen = std::collections::BTreeSet::new();
-    for argument in arguments.iter().rev() {
-        for value in argument.deferred_text_values_v1()?.into_iter().rev() {
-            if !seen.insert(value) {
-                return Err(freeze("argument-expression/prefix-duplicate-acquisition"));
-            }
-            operations.push(crate::mir::instruction::InvokeOperation::String(
-                crate::mir::instruction::StringInvokeOperation::End { value },
-            ));
-        }
-    }
-    Ok(operations)
-}
-
-pub(super) fn finish_new_arguments_v1(
-    builder: &mut MirBuilder,
-    ledger: &OrdinaryNewClaimLedgerV1,
-    site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
-    result: crate::mir::ValueId,
-    frame: crate::mir::ValueId,
-    arguments: &[EmittedNewArgumentV1],
-    inherited: &[crate::mir::instruction::InvokeOperation],
-    bindings: &mut Vec<(crate::mir::BasicBlockId, MirInstruction)>,
-) -> Result<(), String> {
-    use super::{RawRootGraphWriterV1, RootGraphWriterPortV1};
-    let normal = temporary_ends_v1(arguments)?;
-    if normal.is_empty() {
-        return Ok(());
-    }
-    let (_, object_cleanup) = ledger.new_argument_object_cleanup_v1(site, result)?;
-    let plan = super::FaultCleanupPlanV1::new_arguments(
-        object_cleanup,
-        normal,
-        inherited
-            .iter()
-            .cloned()
-            .chain(ledger.new_argument_home_unwind_v1(site, true)?)
-            .collect(),
-    )?;
-    let mut writer = RawRootGraphWriterV1;
-    let clean = writer.reserve_block(builder)?;
-    builder.ensure_block_exists(clean)?;
-    let graph = super::root_graph::emit_cleanup_suffixes_with_writer(
-        &mut writer,
-        builder,
-        frame,
-        clean,
-        &plan,
-        bindings,
-    )?;
-    bindings.push(writer.emit_current(
-        builder,
-        MirInstruction::Jump {
-            target: graph.clean,
-            edge_args: None,
-        },
-    )?);
-    builder.start_new_block(clean)
 }

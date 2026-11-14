@@ -2,6 +2,9 @@
 //! explicit exit site owns its own relation, result co-seal, and Home
 //! snapshot — every row lands in the site-keyed caller maps.
 use super::*;
+#[path = "home_terminal_exit.rs"]
+mod exit;
+use exit::note_terminal_unavailable;
 
 #[allow(clippy::too_many_arguments)]
 pub(super) fn observe_terminal_statement<'a, E>(
@@ -108,14 +111,6 @@ pub(super) fn observe_terminal_statement<'a, E>(
     } else {
         None
     };
-    let mut committed_expression = None;
-    if let Some(Ok(terminal)) = &scalar_terminal {
-        if let Some(evaluation) = terminal.evaluation() {
-            path_calls.extend(evaluation.calls().iter().map(|call| call.site().clone()));
-            local_calls.extend_from_slice(evaluation.calls());
-            committed_expression = Some(std::rc::Rc::clone(evaluation));
-        }
-    }
     let value_terminal =
         if object_terminal.is_none() && scalar_terminal.is_none() && unavailable.is_none() {
             if let Some(returned) = super::terminal_relation::observe_receiver_field_return_v1(
@@ -140,12 +135,14 @@ pub(super) fn observe_terminal_statement<'a, E>(
         } else {
             None
         };
-    if let Some(value) = &value_terminal {
-        if let TerminalReturnedSourceV1::TextExpression(evaluation) = value.returned() {
-            path_calls.extend(evaluation.calls().iter().map(|call| call.site().clone()));
-            local_calls.extend_from_slice(evaluation.calls());
-            committed_expression = Some(std::rc::Rc::clone(evaluation));
-        }
+    let committed_expression = scalar_terminal.as_ref().and_then(|row| row.as_ref().ok())
+        .and_then(|terminal| terminal.evaluation())
+        .or_else(|| value_terminal.as_ref().and_then(|value| match value.returned() {
+            TerminalReturnedSourceV1::TextExpression(evaluation) => Some(evaluation), _ => None,
+        })).map(std::rc::Rc::clone);
+    if let Some(evaluation) = &committed_expression {
+        path_calls.extend(evaluation.calls().iter().map(|call| call.site().clone()));
+        local_calls.extend_from_slice(evaluation.calls());
     }
     let mut static_terminal = None;
     if object_terminal.is_none() && scalar_terminal.is_none() && value_terminal.is_none() {
@@ -697,104 +694,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
             _ => false,
         }
     };
-    // Contained map literals inside the return value consume Homes
-    // during expression evaluation — observe them before the
-    // terminal transfer reads the remaining state.
-    map_descendant_flow::observe_descendant_maps(
-        input,
-        statement.site(),
-        locals,
-        homes,
-        maps,
-        map_compatible,
-    )?;
-    if let Some(evaluation) = &committed_expression {
-        if let Err(issue) = locals.commit_expression_end_v1(evaluation, homes) {
-            unavailable.get_or_insert(issue);
-        }
-    } else {
-        locals.commit_statement_takes_v1(
-            statement.site(),
-            local_calls,
-            homes,
-            unavailable,
-            borrowed_actuals,
-        )?;
-    }
-    let homes_row = match &*unavailable {
-        Some(issue) => Err(issue.clone()),
-        None if !scalar_return => Err(HomePrefixUnavailableV1::ReturnValueNotCovered(
-            statement.site().clone(),
-        )),
-        None if selected_seen.iter().any(|site| !results.contains_key(site)) => {
-            Err(HomePrefixUnavailableV1::SourceMismatch)
-        }
-        // Exit-boundary obligation: every surviving caller-owned Home is
-        // released here, newest first, together with the local-call sites
-        // evaluation on this exit's path could have covered.
-        None => Ok(RootHomeExitV1::from_live_v1(
-            homes,
-            path_calls.iter().cloned().collect(),
-            covered_statements.clone().into_boxed_slice(),
-        )),
-    };
-    if let Err(issue) = &homes_row {
-        note_terminal_unavailable(
-            input.owner(),
-            statement,
-            "terminal homes (the relation is dropped)",
-            issue,
-        );
-    }
-    if homes_row.is_err() {
-        // `return new <class>` is exact-site evidence: its own
-        // `ResultNewHomePrefixV1` — and thus the retained result
-        // claim — already records whatever flow gap made the
-        // terminal homes unavailable. Receiver-entry demands and
-        // other prefix gaps must not erase the construction proof
-        // a caller's handle-result edge reads from the child
-        // contract; every other returned source depends on this
-        // frame's local flow, so those still drop.
-        relation = relation.filter(|relation| {
-            matches!(
-                relation,
-                TerminalRelationV1::Value(row)
-                    if matches!(
-                        row.returned(),
-                        TerminalReturnedSourceV1::Construction(_)
-                    )
-            )
-        });
-    }
-    // Site-bound consumption: this Return's Home obligation and relation
-    // live under its own site, never a function-level slot.
-    exit_homes.insert(statement.site().clone(), homes_row);
-    if let Some(relation) = relation {
-        if crate::config::env::builder_debug_enabled() {
-            eprintln!(
-                "[terminal-relation] stored owner={:?} statement={:?}",
-                input.owner(),
-                statement.site()
-            );
-        }
-        terminal_relations.insert(statement.site().clone(), relation);
-    }
-    Ok(())
-}
-
-/// Default-off (builder debug flag): which terminal classification made a return unavailable.
-#[inline(never)]
-fn note_terminal_unavailable(
-    owner: FunctionOwnerIdV1,
-    statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
-    which: &str,
-    issue: &dyn std::fmt::Debug,
-) {
-    if crate::config::env::builder_debug_enabled() {
-        let issue: String = format!("{issue:?}").chars().take(300).collect();
-        eprintln!(
-            "[terminal-relation] owner={owner:?} statement={:?}: {which} unavailable: {issue}",
-            statement.site()
-        );
-    }
+    exit::finish_terminal_v1(input, statement, results, exit_homes, path_calls, maps,
+        terminal_relations, locals, homes, covered_statements, selected_seen, unavailable,
+        map_compatible, borrowed_actuals, local_calls, scalar_return, relation, committed_expression)
 }

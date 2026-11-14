@@ -248,3 +248,14 @@ volatileは現productionでは不要と判断。directはno-hook/非weak/非Arra
 load/sub/store/zero間に外部callがなく、再入・thread共有の保証にもならない。
 通常load/storeへ外し、数え上げ・Fault/free順序・機械語とA40交互12回を確認する。
 基準の結果が変わったら進めず報告する。
+
+C0実装の形: 既存EvaluatedExpressionValueにBoxReferenceとNullを分離して載せ、
+Boxの所有dataはBorrowed(元support) / Owned(後続段のSSA-slot token)と由来を保持する。
+元Alias/from/field証拠を参照し、canonical payloadの証拠が無い場合はlayoutをNoneのままにする。
+宣言名からcanonical IDを作らない。Box-owned temporaryの取得はまだ無く、End投影は名前付き未接続拒否。
+一つのsource順序台帳をFault/Normal/延期へ投影し、callbackの既存String-only契約には派生viewを渡す。
+Dynamic rootの移転・materializeの別phase・独立した公開命令照合を保持した。
+ReadInputsはexact readの束を渡すdataで、expression body/graph/cleanupのownerではない。
+条件のpacket/source照合は維持し、重複Dynamic packetも旧境界と同じく拒否する。
+既存test-only field source getterは、同じ不変descriptorを返すproduction投影へ改名して再利用した。
+800行だったargumentsは、構築後の既存cleanup適用を責務で分離した（移動は削減に数えない）。

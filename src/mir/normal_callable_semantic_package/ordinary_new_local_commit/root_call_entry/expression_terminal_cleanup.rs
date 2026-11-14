@@ -337,8 +337,8 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             .copied()
             .map(ExpressionOwnedTemporaryV1::end_operation)
             .chain(installed.map(|value| ExpressionOwnedTemporaryV1::String(value).end_operation()))
-            .chain(homes.iter().cloned())
-            .collect();
+            .chain(homes.iter().cloned().map(Ok))
+            .collect::<Result<Vec<_>, _>>()?;
         let mut normal_indices: Vec<_> = if defer_owned_argument {
             Vec::new()
         } else {

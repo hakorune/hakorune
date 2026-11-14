@@ -101,7 +101,7 @@ impl EmittedFieldWriteRhsV1 {
         if temporaries.pop() != Some(crate::mir::builder::ExpressionOwnedTemporaryV1::String(self.value)) {
             return Err(freeze("field-write-rhs/root-scope"));
         }
-        Ok(temporaries.into_iter().rev().map(crate::mir::builder::ExpressionOwnedTemporaryV1::end_operation).collect())
+        temporaries.into_iter().rev().map(crate::mir::builder::ExpressionOwnedTemporaryV1::end_operation).collect()
     }
     pub(in crate::mir) fn new(
         recipe: Rc<QualifiedFieldWriteRhsV1>,

@@ -98,7 +98,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             }
             if let (
                 Node::Literal(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Null),
-                Some(EvaluatedExpressionValueV1::DeclaredRead(value)),
+                Some(EvaluatedExpressionValueV1::Null(value)),
             ) = (source.nodes()[index].source(), self.values[index].as_ref())
             {
                 ordered.push(self.require_unique(|row| matches!(row,MirInstruction::Const {dst,value:crate::mir::ConstValue::Null} if dst==value))?.clone());

@@ -17,6 +17,7 @@ pub(super) enum CheckedExpressionOperationProofV1 {
         null: usize,
         binding: crate::mir::resolved_semantics::BindingRefV1,
         root: crate::mir::resolved_semantics::BindingRefV1,
+        class: Box<str>,
     },
     NullableFieldNull {
         reference: usize,
@@ -30,6 +31,9 @@ pub(super) enum CheckedExpressionOperationProofV1 {
     },
 }
 impl CheckedExpressionOperationLoanV1 {
+    pub(crate) fn alias_class_v1(&self) -> Option<&str> {
+        match &self.proof { CheckedExpressionOperationProofV1::NullableAliasNull { class, .. } => Some(class), _ => None }
+    }
     pub(crate) fn scalar_copy_v1(&self) -> Option<(usize, super::super::SourceScalarKind)> {
         let CheckedExpressionOperationProofV1::ScalarCopy(kind) = self.proof else {
             return None;
@@ -88,6 +92,7 @@ impl CheckedExpressionOperationLoanV1 {
             null,
             binding,
             root,
+            ..
         } = &self.proof
         else {
             return None;

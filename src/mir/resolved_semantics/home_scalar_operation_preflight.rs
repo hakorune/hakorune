@@ -60,7 +60,7 @@ pub(super) fn preflight<E>(
             let ResolvedLexicalRefV1::Local(binding) = input.function().variable_ref(value)? else {
                 return None;
             };
-            let local_flow::FieldReadReceiverV1::Alias { root, .. } =
+            let local_flow::FieldReadReceiverV1::Alias { class, root } =
                 locals.field_read_receiver(binding, None)?
             else {
                 return None;
@@ -75,9 +75,10 @@ pub(super) fn preflight<E>(
                 binding,
                 root,
                 direct_null,
+                class,
             ))
         };
-        if let Some((binding, root, direct_null)) =
+        if let Some((binding, root, direct_null, class)) =
             alias_null(row.lhs(), row.rhs()).or_else(|| alias_null(row.rhs(), row.lhs()))
         {
             // Stored null locals keep their existing scalar law. Only an
@@ -101,7 +102,7 @@ pub(super) fn preflight<E>(
                 let Ok(source) = crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(
                     ledger, input.body_shape(), initializer) else { return Ok(Err(HomePrefixUnavailableV1::SourceMismatch)); };
                 let Some(plan) = super::super::expression_plan::qualify_alias_null_initializer_v1(
-                    source, binding, root, homes,
+                    source, binding, root, class, homes,
                 ) else {
                     return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
                 };

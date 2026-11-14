@@ -31,7 +31,7 @@ pub(in crate::mir::builder) fn emit(
         &mut |_, _, _, _, _, _| Err(freeze("map-get-shape")),
     )?;
     if key.purpose_acquisition.is_some()
-        || !key.body.acquired.is_empty()
+        || !key.body.string_acquisitions_v1().is_empty()
         || !key.body.calls.is_empty()
         || !key.body.path_reads.is_empty()
     {

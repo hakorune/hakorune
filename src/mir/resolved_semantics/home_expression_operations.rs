@@ -164,7 +164,7 @@ pub(super) fn qualify_expression_operations_v1(
                                 let request = fields.iter().find(|request| {
                                     request.node_in_plan(source) == Some(reference)
                                 })?;
-                                (classes[reference] == Leaf::Value(Class::Opaque)
+                                (classes[reference] == Leaf::Value(Class::BoxReference)
                                     && classes[null] == Leaf::Value(Class::Null)
                                     && request.is_nullable_object_comparison_v1(source))
                                 .then(|| (reference, null, request.clone()))
@@ -194,7 +194,7 @@ pub(super) fn qualify_expression_operations_v1(
                                 else {
                                     return None;
                                 };
-                                (classes[reference] == Leaf::Value(Class::Opaque)
+                                (classes[reference] == Leaf::Value(match frame { NullableResultReferenceV1::DeclaredFrom(_) => Class::BoxReference, _ => Class::Opaque })
                                     && classes[null] == Leaf::Value(Class::Null))
                                 .then(|| (reference, null, frame.clone()))
                             });

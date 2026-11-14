@@ -275,8 +275,8 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(Some((base, source)))
     }
 
-    #[cfg(test)]
-    pub(crate) fn staged_local_field_source(
+    /// Original immutable declaration only; execution still needs exact read/CFG proof.
+    pub(crate) fn local_field_source_v1(
         &self,
         site: &OwnedExprSiteV1,
     ) -> Option<Rc<LocalFieldReadSourceV1>> {
@@ -295,7 +295,7 @@ impl OrdinaryNewClaimLedgerV1 {
         CanonicalFieldRefV1,
         crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1,
     )> {
-        self.staged_local_field_source(site)
+        self.local_field_source_v1(site)
             .map(|source| (source.field(), source.result().clone()))
     }
 
