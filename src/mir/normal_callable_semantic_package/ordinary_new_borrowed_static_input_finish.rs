@@ -88,8 +88,6 @@ pub(super) fn original_zero_input_source_v1<'a>(
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-
-
     pub(in crate::mir::normal_callable_semantic_package) fn finish_static_input_actuals_v1(
         &mut self,
         selected: &VerifiedSelectedCallableBatchMapV1,
@@ -118,7 +116,18 @@ impl OrdinaryNewClaimLedgerV1 {
             .source_rows_v1()
             .filter(|call| self.is_static_expression_input_owner_v1(source, call.callee))
             .map(|call| call.callee);
-        let owners: std::collections::BTreeSet<_> = zero.chain(qualified).collect();
+        let zero_returns =
+            source
+                .source_incoming
+                .source_rows_v1()
+                .filter_map(|call| match &call.source {
+                    super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(
+                        original,
+                    ) if self.has_static_zero_return_source_v1(original) => Some(call.callee),
+                    _ => None,
+                });
+        let owners: std::collections::BTreeSet<_> =
+            zero.chain(zero_returns).chain(qualified).collect();
         for owner in owners {
             let mut matching = contracts.iter().filter(|row| row.owner == owner);
             let contract = matching
@@ -179,24 +188,6 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         Ok(())
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     fn prepare_static_expression_input_owner_v1(
         &self,
@@ -385,15 +376,9 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Err(freeze("static-zero/contract-identity"));
         }
-        let owners = [owner].into_iter().collect();
-        let calls = match source.source_incoming.project(&owners) {
+        let calls = match self.static_zero_input_calls_v1(source, owner) {
             Ok(rows) => rows,
-            Err(issue) => {
-                return Ok(TypedInputClosureV1::Refused(format!(
-                    "{}: {issue:?}",
-                    freeze("borrowed-formal/incoming-coverage")
-                )))
-            }
+            Err(issue) => return Ok(TypedInputClosureV1::Refused(issue)),
         };
         let Some(completion) = self.completion_index.get(&owner) else {
             return Ok(TypedInputClosureV1::Pending);
@@ -458,7 +443,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if !actuals.opaque_actuals.is_empty() || !actuals.ordered_arguments.is_empty() {
                 return Err(freeze("static-zero/original-actuals"));
             }
-            match &actuals.phase {
+            let candidates = match &actuals.phase {
                 BorrowedCallActualEvidencePhaseV1::SourceStatic(staged) => {
                     if !Rc::ptr_eq(&staged.source, original)
                         || !staged.candidates.is_empty()
@@ -466,30 +451,23 @@ impl OrdinaryNewClaimLedgerV1 {
                     {
                         return Err(freeze("static-zero/original-actuals"));
                     }
-                    let finish = StaticInputFinishV1 {
-                        source: Rc::clone(original),
-                        completion: Rc::clone(completion),
-                        evidence: StaticInputEvidenceV1::Zero,
-                        text_result,
-                    };
-                    let regenerated = construct_borrowed_call_actuals_v1(
-                        source,
-                        call,
-                        std::slice::from_ref(contract),
-                        &call.call,
-                        &staged.candidates,
-                        object_source::ObjectActualHomeSourceV1::Candidates(&[]),
-                        None,
-                        &mut |_| None,
-                        Some(finish),
-                        None,
-                        &mut |_, _, _| Ok(None),
-                    )?
-                    .ok_or_else(|| freeze("static-zero/constructor-unavailable"))?;
-                    if regenerated.ordered_arguments != actuals.ordered_arguments {
-                        return Err(freeze("static-zero/argument-snapshot-drift"));
+                    staged.candidates.as_ref()
+                }
+                BorrowedCallActualEvidencePhaseV1::Executable
+                    if original.qualified_scalar_result_v1().is_some()
+                        && self.static_zero_input_uses_source_v1(source, owner) =>
+                {
+                    let arguments =
+                        super::static_source::checked_executable_qualified_arguments_v1(
+                            source,
+                            call,
+                            actuals,
+                            original.required_i64_arguments(),
+                        )?;
+                    if !arguments.is_empty() {
+                        return Err(freeze("static-zero/original-actuals"));
                     }
-                    replacements.push((call.call.clone(), regenerated));
+                    &[]
                 }
                 BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(finish) => {
                     if !finish.corroborates_source_v1(original)
@@ -498,9 +476,34 @@ impl OrdinaryNewClaimLedgerV1 {
                         return Err(freeze("static-zero/completion-drift"));
                     }
                     actuals.ordered_arguments_for_v1(call)?;
+                    continue;
                 }
                 _ => return Err(freeze("static-zero/actual-phase")),
+            };
+            let finish = StaticInputFinishV1 {
+                source: Rc::clone(original),
+                completion: Rc::clone(completion),
+                evidence: StaticInputEvidenceV1::Zero,
+                text_result,
+            };
+            let regenerated = construct_borrowed_call_actuals_v1(
+                source,
+                call,
+                std::slice::from_ref(contract),
+                &call.call,
+                candidates,
+                object_source::ObjectActualHomeSourceV1::Candidates(&[]),
+                None,
+                &mut |_| None,
+                Some(finish),
+                None,
+                &mut |_, _, _| Ok(None),
+            )?
+            .ok_or_else(|| freeze("static-zero/constructor-unavailable"))?;
+            if regenerated.ordered_arguments != actuals.ordered_arguments {
+                return Err(freeze("static-zero/argument-snapshot-drift"));
             }
+            replacements.push((call.call.clone(), regenerated));
         }
         Ok(if missing {
             TypedInputClosureV1::Pending

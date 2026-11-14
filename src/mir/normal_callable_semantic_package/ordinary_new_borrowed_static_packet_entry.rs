@@ -1,35 +1,49 @@
 //! Static packet actuals borrow the same complete checked incoming owner.
 //! Publication proves the result; it does not replace entry or actual proof.
-use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::LocalRouteWriterV1;
 use super::*;
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::LocalRouteWriterV1;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 use crate::mir::normal_callable_semantic_package::PreparedStaticTerminalRootRouteV1;
+use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
 use crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1;
 use std::rc::Rc;
-use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
 
 impl OrdinaryNewClaimLedgerV1 {
     /// Source-use closure borrows the same finite Static census without
     /// demanding completed actuals. Execution still belongs to the finisher.
     pub(super) fn original_static_input_use_source_v1(
-        &self, site: &OwnedExprSiteV1,
+        &self,
+        site: &OwnedExprSiteV1,
     ) -> Result<Option<Rc<StaticIncomingSourceV1>>, String> {
         let Some(original) = self.borrow_original_static_source_v1(site)? else {
             return self.source_required_static_scalar_call_v1(site);
         };
-        if self.finite_entry_for_owner_v1(original.callee_owner())?.is_none() {
+        if self
+            .finite_entry_for_owner_v1(original.callee_owner())?
+            .is_none()
+        {
             // The non-finite scalar family retains its existing source issuer.
             return self.source_required_static_scalar_call_v1(site);
         }
-        let source = self.borrowed_formal_source.as_ref()
-            .ok_or_else(|| freeze("borrowed-static/source-missing"))?.as_ref().map_err(Clone::clone)?;
-        let incoming = source.source_incoming.project_source_v1(&[original.callee_owner()].into_iter().collect())
+        let source = self
+            .borrowed_formal_source
+            .as_ref()
+            .ok_or_else(|| freeze("borrowed-static/source-missing"))?
+            .as_ref()
+            .map_err(Clone::clone)?;
+        let incoming = source
+            .source_incoming
+            .project_source_v1(&[original.callee_owner()].into_iter().collect())
             .map_err(|issue| format!("{}: {issue:?}", freeze("static-input/source-cohort-veto")))?;
         let mut matching = incoming.iter().filter(|row| &row.call == site);
-        let row = matching.next().ok_or_else(|| freeze("static-input/requested-incoming-missing"))?;
-        if matching.next().is_some() || row.callee != original.callee_owner()
+        let row = matching
+            .next()
+            .ok_or_else(|| freeze("static-input/requested-incoming-missing"))?;
+        if matching.next().is_some()
+            || row.callee != original.callee_owner()
             || !matches!(&row.source, super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(retained)
-                if Rc::ptr_eq(retained, original)) {
+                if Rc::ptr_eq(retained, original))
+        {
             return Err(freeze("static-input/requested-source-drift"));
         }
         self.verify_original_static_source_v1(original)?;
@@ -37,10 +51,13 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     /// Lend the canonical incoming source without exposing its inventory.
-    pub(in crate::mir::normal_callable_semantic_package)
-    fn borrow_original_static_source_v1(&self, site: &OwnedExprSiteV1)
-        -> Result<Option<&Rc<StaticIncomingSourceV1>>, String> {
-        let Some(source) = self.borrowed_formal_source.as_ref() else { return Ok(None) };
+    pub(in crate::mir::normal_callable_semantic_package) fn borrow_original_static_source_v1(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Result<Option<&Rc<StaticIncomingSourceV1>>, String> {
+        let Some(source) = self.borrowed_formal_source.as_ref() else {
+            return Ok(None);
+        };
         let source = source.as_ref().map_err(Clone::clone)?;
         super::super::borrowed_formal_actuals::original_static_source_v1(source, site)
     }
@@ -51,9 +68,11 @@ impl OrdinaryNewClaimLedgerV1 {
         original: &Rc<StaticIncomingSourceV1>,
     ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
         self.with_checked_static_scalar_packet_actuals_v1(original, |arguments, _| {
-            let Some(observation) = self.local_call_for_owner(
-                original.call_site().owner(), original.call_site().site(),
-            ) else { return Ok(false); };
+            let Some(observation) = self
+                .local_call_for_owner(original.call_site().owner(), original.call_site().site())
+            else {
+                return Ok(false);
+            };
             if observation.arguments() != arguments {
                 return Err(freeze("static-scalar/packet-ordered-arguments-drift"));
             }
@@ -64,8 +83,10 @@ impl OrdinaryNewClaimLedgerV1 {
     fn with_checked_static_scalar_packet_actuals_v1(
         &self,
         original: &Rc<StaticIncomingSourceV1>,
-        corroborate: impl FnOnce(&[LocalCallArgumentV1], &[PreparedBorrowedFormalActualV1])
-            -> Result<bool, String>,
+        corroborate: impl FnOnce(
+            &[LocalCallArgumentV1],
+            &[PreparedBorrowedFormalActualV1],
+        ) -> Result<bool, String>,
     ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
         let Some(Ok(source)) = self.borrowed_formal_source.as_ref() else {
             return Ok(None);
@@ -103,20 +124,35 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn prepare_provider_static_packet_v1(
         &self,
         provider: &Rc<crate::mir::normal_callable_semantic_package::ProviderStaticArgumentSourceV1>,
-    ) -> Result<Option<crate::mir::normal_callable_semantic_package::PreparedProviderStaticArgumentV1>, String> {
-        let Some(prepared) = self.borrowed_formal_source.as_ref() else { return Ok(None); };
+    ) -> Result<
+        Option<crate::mir::normal_callable_semantic_package::PreparedProviderStaticArgumentV1>,
+        String,
+    > {
+        let Some(prepared) = self.borrowed_formal_source.as_ref() else {
+            return Ok(None);
+        };
         let source = prepared.as_ref().map_err(Clone::clone)?;
-        let (caller, site, target, literals) = provider.original_call_v1()
+        let (caller, site, target, literals) = provider
+            .original_call_v1()
             .ok_or_else(|| freeze("provider-static/call-source-missing"))?;
         source.corroborate_original_provider_static_source_v1(provider)?;
-        if source.scalar_qualified_source_call_v1(&site)?.is_none() { return Ok(None); }
-        let original = source.source_incoming.static_observations().get(&site)
+        if source.scalar_qualified_source_call_v1(&site)?.is_none() {
+            return Ok(None);
+        }
+        let original = source
+            .source_incoming
+            .static_observations()
+            .get(&site)
             .ok_or_else(|| freeze("provider-static/incoming-missing"))?
-            .as_ref().map_err(Clone::clone)?;
+            .as_ref()
+            .map_err(Clone::clone)?;
         self.verify_original_static_packet_source_v1(original)?;
-        if original.caller() != caller || original.target() != target
-            || original.call_site() != &site || original.qualified_scalar_result_v1().is_none()
-            || original.argument_sites().len() != literals.len() {
+        if original.caller() != caller
+            || original.target() != target
+            || original.call_site() != &site
+            || original.qualified_scalar_result_v1().is_none()
+            || original.argument_sites().len() != literals.len()
+        {
             return Err(freeze("provider-static/packet-source-drift"));
         }
         let mut ordered = None;
@@ -147,26 +183,35 @@ impl OrdinaryNewClaimLedgerV1 {
             ordered = Some(arguments.to_vec().into_boxed_slice());
             Ok(true)
         })?.ok_or_else(|| freeze("provider-static/whole-input-unready"))?;
-        Ok(Some(crate::mir::normal_callable_semantic_package::PreparedProviderStaticArgumentV1 {
-            source: Rc::clone(provider), incoming: Rc::clone(original),
-            arguments: ordered.ok_or_else(|| freeze("provider-static/ordered-arguments-missing"))?,
-        }))
+        Ok(Some(
+            crate::mir::normal_callable_semantic_package::PreparedProviderStaticArgumentV1 {
+                source: Rc::clone(provider),
+                incoming: Rc::clone(original),
+                arguments: ordered
+                    .ok_or_else(|| freeze("provider-static/ordered-arguments-missing"))?,
+            },
+        ))
     }
 
     pub(crate) fn borrowed_provider_packet_actuals_v1(
         &self,
         packet: &crate::mir::normal_callable_semantic_package::PreparedProviderStaticArgumentV1,
     ) -> Result<&[PreparedBorrowedFormalActualV1], String> {
-        let checked = self.prepare_provider_static_packet_v1(packet.original_source())?
+        let checked = self
+            .prepare_provider_static_packet_v1(packet.original_source())?
             .ok_or_else(|| freeze("provider-static/final-source-unavailable"))?;
         if !Rc::ptr_eq(checked.incoming(), packet.incoming())
-            || checked.arguments() != packet.arguments() {
+            || checked.arguments() != packet.arguments()
+        {
             return Err(freeze("provider-static/final-source-drift"));
         }
         // The preceding original-source lender checked these same immutable rows.
-        let rows = self.borrowed_formal_actuals.get(packet.incoming().call_site())
+        let rows = self
+            .borrowed_formal_actuals
+            .get(packet.incoming().call_site())
             .ok_or_else(|| freeze("provider-static/final-actuals-missing"))?
-            .as_ref().map_err(Clone::clone)?;
+            .as_ref()
+            .map_err(Clone::clone)?;
         Ok(rows.opaque_actuals.as_ref())
     }
 
@@ -192,7 +237,11 @@ impl OrdinaryNewClaimLedgerV1 {
         if !Rc::ptr_eq(&selected, original) {
             return Err(freeze("static-terminal/route-drift"));
         }
-        if !self.lifecycle_local_call_sites.borrow().is_local(original.call_site()) {
+        if !self
+            .lifecycle_local_call_sites
+            .borrow()
+            .is_local(original.call_site())
+        {
             return Err(freeze("static-terminal/local-route-missing"));
         }
         Ok(PreparedStaticTerminalRootRouteV1 {
@@ -205,17 +254,24 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         original: &Rc<StaticIncomingSourceV1>,
     ) -> Result<(), String> {
-        use crate::mir::resolved_semantics::home_new_prefix::{TerminalRelationV1, TerminalReturnedSourceV1};
-        let unfinished = || format!("{}: call={:?}, callee={:?}, result={:?}, completion={}, text_exits={:?}",
+        use crate::mir::resolved_semantics::home_new_prefix::{
+            TerminalRelationV1, TerminalReturnedSourceV1,
+        };
+        let unfinished = || {
+            format!("{}: call={:?}, callee={:?}, result={:?}, completion={}, text_exits={:?}",
             freeze("ordinary-new/borrowed-entry/source-only-static-actuals"), original.call_site(), original.callee_owner(),
             original.source_result(), self.completion_for_owner(original.callee_owner()).is_some(),
             self.terminal_relations_for_owner(original.callee_owner()).iter().map(|relation|
                 matches!(relation, TerminalRelationV1::Value(value) if matches!(value.returned(),
-                    TerminalReturnedSourceV1::TextExpression(_) | TerminalReturnedSourceV1::TextResidence { .. }))).collect::<Vec<_>>());
+                    TerminalReturnedSourceV1::TextExpression(_) | TerminalReturnedSourceV1::TextResidence { .. }))).collect::<Vec<_>>())
+        };
         // A completed expression input retains the same whole incoming cohort,
         // signature, result and Completion for every supported result class.
         // I64 output does not turn its Text input into the scalar-only protocol.
-        if self.checked_completed_static_expression_input_v1(original)?.is_some() {
+        if self
+            .checked_completed_static_expression_input_v1(original)?
+            .is_some()
+        {
             return self.verify_original_static_source_v1(original);
         }
         if matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString)
@@ -246,19 +302,30 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn verify_original_static_execution_signature_v1(
-        &self, source: &Rc<StaticIncomingSourceV1>,
+        &self,
+        source: &Rc<StaticIncomingSourceV1>,
         signatures: &Rc<crate::mir::normal_callable_semantic_package::physical_signature::VerifiedCallablePhysicalSignatureCohortV1>,
     ) -> Result<(), String> {
         self.verify_original_static_source_v1(source)?;
-        let (selected, original) = self.original_instance_input_issuance.as_ref().ok_or_else(|| freeze("static-execution/issuance"))?;
-        if !Rc::ptr_eq(original, signatures) || !source.catalog_brand().is_same(selected.catalog_brand())
-            || selected.batch_slot(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(source.target().clone())) != Some(source.target_batch_slot()) {
+        let (selected, original) = self
+            .original_instance_input_issuance
+            .as_ref()
+            .ok_or_else(|| freeze("static-execution/issuance"))?;
+        if !Rc::ptr_eq(original, signatures)
+            || !source.catalog_brand().is_same(selected.catalog_brand())
+            || selected.batch_slot(
+                &crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
+                    source.target().clone(),
+                ),
+            ) != Some(source.target_batch_slot())
+        {
             return Err(freeze("static-execution/original-signature"));
         }
         Ok(())
     }
     pub(in crate::mir::normal_callable_semantic_package) fn verify_original_static_source_v1(
-        &self, original: &Rc<StaticIncomingSourceV1>,
+        &self,
+        original: &Rc<StaticIncomingSourceV1>,
     ) -> Result<(), String> {
         let source = self
             .borrowed_formal_source
@@ -266,8 +333,11 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-static/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        let retained = super::super::borrowed_formal_actuals::original_static_source_v1(source, original.call_site())?
-            .ok_or_else(|| freeze("borrowed-static/inventory-site"))?;
+        let retained = super::super::borrowed_formal_actuals::original_static_source_v1(
+            source,
+            original.call_site(),
+        )?
+        .ok_or_else(|| freeze("borrowed-static/inventory-site"))?;
         if !Rc::ptr_eq(retained, original) {
             return Err(freeze("borrowed-static/original-source-drift"));
         }
@@ -325,6 +395,18 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Ok(Some(rows));
             }
         }
+        if let Some(observation) = expression_observation {
+            if self.has_static_zero_return_source_v1(original) {
+                let Some(arguments) = self.checked_completed_static_zero_arguments_v1(original)?
+                else {
+                    return Ok(None);
+                };
+                if !arguments.is_empty() || observation.arguments() != arguments {
+                    return Err(freeze("static-zero/argument-snapshot-drift"));
+                }
+                return Ok(Some(&[]));
+            }
+        }
         // A nested call whose every formal is an exact i64 carries no borrowed
         // handle: its arguments live in the retained argument frame, so the
         // packet has no opaque actuals. Only an expression-origin call, whose
@@ -332,9 +414,11 @@ impl OrdinaryNewClaimLedgerV1 {
         if let Some(observation) = expression_observation {
             if original.qualified_scalar_result_v1().is_some()
                 && !original.parameters().is_empty()
-                && original.parameters().iter().all(|formal| formal.kind
+                && original.parameters().iter().all(|formal| {
+                    formal.kind
                     == CallableParameterContractKindV1::ExactTrivial(
-                        crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64))
+                        crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64)
+                })
                 && observation.arguments().len() == original.argument_sites().len()
             {
                 return Ok(Some(&[]));
@@ -379,7 +463,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 "borrowed-static/local-source-missing",
                 "borrowed-static/ordered-arguments-drift",
             )
-        }).map(Some)
+        })
+        .map(Some)
     }
 
     fn corroborate_static_packet_arguments_v1(
@@ -392,7 +477,8 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         let observation = match expression_observation {
             Some(observation) => observation,
-            None => self.local_call_for_owner(original.call_site().owner(), original.call_site().site())
+            None => self
+                .local_call_for_owner(original.call_site().owner(), original.call_site().site())
                 .ok_or_else(|| freeze(missing))?,
         };
         if observation.arguments() != arguments {

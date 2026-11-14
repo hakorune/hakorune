@@ -1,6 +1,6 @@
 //! Original input selection, passive source staging and closed domain queries.
+use super::static_input_finish::{StaticInputEvidenceV1, StaticInputFinishV1};
 use super::*;
-use super::static_input_finish::{StaticInputFinishV1, StaticInputEvidenceV1};
 use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -90,11 +90,62 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(super) fn checked_static_input_uses_v1(
         &self,
         contract: &OwnedCallableParameterContractDeclarationV1,
-    ) -> Result<Option<Option<Rc<super::borrowed_formal_uses::OriginalFormalUseSourceV1>>>, String> {
-        if contract.parameters.iter().all(|formal| formal.kind.is_i64_actual_v1()) {
+    ) -> Result<Option<Option<Rc<super::borrowed_formal_uses::OriginalFormalUseSourceV1>>>, String>
+    {
+        if contract
+            .parameters
+            .iter()
+            .all(|formal| formal.kind.is_i64_actual_v1())
+        {
             return Ok(Some(None));
         }
         Ok(self.checked_input_use_source_v1(contract)?.map(Some))
+    }
+
+    /// Borrow an existing Return frame; no statement or entry is synthesized.
+    pub(in crate::mir::normal_callable_semantic_package) fn has_static_zero_return_source_v1(
+        &self,
+        original: &Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
+    ) -> bool {
+        original.is_zeroarg_i64_v1() && self.terminal_relations_for_owner(original.call_site().owner())
+            .iter().any(|relation| matches!(relation,
+                crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Scalar(terminal)
+                    if terminal.evaluation().is_some_and(|frame|
+                        original.is_scalar_return_source_v1(frame.source()))))
+    }
+
+    pub(super) fn static_zero_input_uses_source_v1(
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
+    ) -> bool {
+        source
+            .source_incoming
+            .source_rows_v1()
+            .filter(|row| row.callee == owner)
+            .any(|row| {
+                matches!(&row.source,
+                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
+                    if self.has_static_zero_return_source_v1(original))
+            })
+    }
+
+    /// The finisher and its lender recheck the same original caller cohort.
+    /// Only a retained qualified Return demands source-only zero callers.
+    pub(super) fn static_zero_input_calls_v1(
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<Box<[super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1]>, String>
+    {
+        let owners = [owner].into_iter().collect();
+        let source_return = self.static_zero_input_uses_source_v1(source, owner);
+        let calls = if source_return {
+            source.source_incoming.project_source_v1(&owners)
+        } else {
+            source.source_incoming.project(&owners)
+        };
+        calls.map_err(|issue| format!("{}: {issue:?}", freeze("borrowed-formal/incoming-coverage")))
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn is_static_expression_input_owner_v1(

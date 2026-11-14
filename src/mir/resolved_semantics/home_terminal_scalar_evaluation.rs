@@ -156,7 +156,28 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
             }
         }
     }
-    let root_core = if previous_scalar_candidate {
+    let root_call_class = if previous_scalar_candidate {
+        None
+    } else {
+        match actuals(
+            &purpose,
+            super::super::super::BorrowedCallActualRequestV1::SourceResultArguments {
+                expression: Some(&source),
+            },
+        )? {
+            Some(super::super::super::BorrowedCallArgumentsV1::SourceResult {
+                loan: super::super::super::LocalCallResultSourceV1::Ordinary(loan),
+                ..
+            }) if loan
+                .static_source()
+                .is_some_and(|original| original.is_scalar_return_source_v1(&source)) =>
+            {
+                Some(loan.result())
+            }
+            _ => None,
+        }
+    };
+    let root_core = if previous_scalar_candidate || root_call_class.is_some() {
         None
     } else {
         use crate::mir::resolved_semantics::home_new_prefix::{
@@ -191,11 +212,15 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     let prepared = prepare_value_evaluation_v1(
         input,
         std::rc::Rc::clone(&source),
-        core_result_class.unwrap_or(if bool_root {
-            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Bool
-        } else {
-            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64
-        }),
+        core_result_class
+            .or(root_call_class.map(|_| {
+                crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64
+            }))
+            .unwrap_or(if bool_root {
+                crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Bool
+            } else {
+                crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64
+            }),
         &purpose,
         locals,
         homes,
@@ -230,6 +255,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     if !previous_scalar_candidate
         && !root_argument_evaluation
         && core_result_class.is_none()
+        && root_call_class.is_none()
         && evaluation.requires_fault_frame_v1(true, |_| None)
     {
         return Ok(None);
