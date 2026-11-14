@@ -330,6 +330,25 @@ fn checked_string_normal_fault_prefixes_are_affine_and_do_not_escape() {
     fault.set_terminator(end(3, 90, 91));
     text_call.add_block(fault);
     assert_eq!(check(&text_call), Ok(()));
+    for (block, terminator, reason) in [
+        (
+            3,
+            MirInstruction::Jump {
+                target: BasicBlockId(1003),
+                edge_args: None,
+            },
+            "string-missing-end",
+        ),
+        (4, end(3, 1004, 90), "string-end-order-or-not-live"),
+    ] {
+        let mut wrong = text_call.clone();
+        wrong
+            .blocks
+            .get_mut(&BasicBlockId(block))
+            .unwrap()
+            .terminator = Some(terminator);
+        assert_eq!(check(&wrong), Err(reason));
+    }
     for suffix in [vec![ValueId(1)], vec![ValueId(2), ValueId(2)]] {
         let mut wrong = text_call.clone();
         let Some(MirInstruction::Invoke {
