@@ -2,6 +2,7 @@
 
 Status: 設計方向を採用。2026-10-30に表面契約を決定（[ownership.md §0](../../reference/language/ownership.md)）。
 2026-10-31にShared・`sync box`・threadの実装方向を決定。step 1は限定的なlocal `move`のEXEと独立MIR検証、旧local planner退役まで着地。Sharedと一般ABIは未完、切替は未着手。2026-11-03に文法を凍結（行「凍結」）。
+**2026-11-14: 普通の Box を参照カウントで持つ方向を、仮に採用した（[ADR-003](adr-003-counted-box-default.md)、ユーザー決定）。`edit` の実装と 3b は始めない。ADR-003 の確認が通るまで、この ADR の本文は現行の決定として残し、書き換えない。確認が通らなければ、この ADR へ戻る。**
 Date: 2026-10-30（改訂 2026-11-03）
 Scope: 次期所有モデルの判断・未決点・移行タスクをここへ集約する。
 

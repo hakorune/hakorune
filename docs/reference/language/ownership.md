@@ -10,6 +10,13 @@ whole-root `release root` amendments accepted on 2026-08-05; bounded
 take/share contextual syntax accepted on 2026-08-09; successor surface (§0)
 decided on 2026-10-30, superseding the contextual `share` target.
 
+Direction under trial (2026-11-14, maintainer decision):
+[ADR-003](../../development/adr/adr-003-counted-box-default.md) provisionally
+adopts a non-atomic reference count for every ordinary Box, with no ownership
+mark at `=`, arguments, field stores or `return`. Nothing on this page changes
+until the ADR-003 check passes; the `edit` implementation and the 3b cutover
+are not started meanwhile. If the check fails, §0 stands as written.
+
 This page is the source-language authority for ownership, ordinary aliases,
 Home transfer, and the explicit boundary that adds an independent owner.
 
