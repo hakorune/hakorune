@@ -88,7 +88,13 @@ Scope: 普通の Box の所有を、非原子の参照カウントで持つ方�
 - 2026-11-15 段 B(Codex 実装、Opus 監査、統合済み): direct 配置の片付けが「数が 0 の時だけ中へ進む」形になった。alloc で header の 1 語目に 1 を入れ、release と End の root・子の入口で −1 する。0 になった時だけ parent と cursor を書く(時分割)。header 16 バイト、node 40 バイトのまま。MIR は変えていない。数は alloc の 1 だけなので、動作は前と同じ。
   - Opus の確認: 363 本の入力で結果と MIR が前と全部同じ。木の bench(direct 配置)を前と後の backend で作り、出力が同じ。機械語で、非原子の inline の減算と分岐を見た。lib の失敗 223 名は前と同じ集合。速さ(A40 との比 0.98〜1.00)、Fault の注入、数え上げは Codex が測った。
   - 残る問い: 数の load と store に `volatile` が付いている。本物の code で要る理由を、次の回で確かめる。
-- 操作と検証の設計の案: [counted-box-check-2026-11-15.md](../current/main/investigations/counted-box-check-2026-11-15.md)。**提案で、ユーザーの確認の前。**
+- 操作と検証の設計: [counted-box-check-2026-11-15.md](../current/main/investigations/counted-box-check-2026-11-15.md)。**ユーザーが 2026-11-15 に承認した。** 決めた事:
+  - 操作は `CountedBox::Retain` と `CountedBox::Release` の 2 つ。今ある Invoke の中に置く。
+  - Retain は Fault しうる。数があふれる時は、足さずに Fault にする(wrap しない)。Fault の時は持ち分を得ない。
+  - Release が、−1 と、0 になった時の片付けの両方を持つ。`ObjectEndIfOwned` を別に出して 2 回引く形にしない。
+  - Retain は値を返さない。今ある Copy で別の slot を作り、その slot の Normal の辺に持ち分を付ける。
+  - 残る確認: field から読んだ値を +1 して `return` する形(段 F)が、この形のままで閉じるかは未確認。新しい公開の形が要ると分かったら、そこで止めてユーザーが決める。
+  - 検証は実行時の数を見ない。持ち分(token)が、全部の Normal・Fault の道で、ちょうど 1 回、移るか Release される事を見る。
 
 ## 作業の順(2026-11-14、2026-11-15 に改訂)
 

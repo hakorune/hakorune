@@ -1,6 +1,6 @@
 # 数えるBoxの確認1: 操作・共通式・検証の設計案
 
-Status: **提案。操作名・Normal/Fault契約はユーザー確認前、未実装。**
+Status: **操作名・Normal/Fault契約をユーザーが承認（2026-11-15）: Unit Retain、overflow は Fault、Release が減算と最後の End を持つ。段 F の Return の許可境界は未確認のまま。段 B は統合済み、C0 以降は未実装。**
 Date: 2026-11-15
 Base: main `25e9d39bd0`。根拠: [ADR-003](../../../adr/adr-003-counted-box-default.md)。
 Scope: 段Aの設計案と段Bの物理Endだけ。C0〜G・既定切替・文法変更は実施しない。
