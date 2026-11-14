@@ -559,3 +559,10 @@ B5 試行で R24–R25 の QualifiedTerminal 接続だけでは実行ownerが一
 - R30. 0引数も元calleeのCompletion・結果・signature・実引数証拠を要求する。空だからentryを許可せず、既存packet照合で閉じない場合はその束を保留する。
 
 instance目的接続は、非literalのTextResidence callee結果にも新受理を生じたためR23で保留。名前や形の除外を足さず、実装は基点へ戻した。
+
+
+0引数の元source censusは実在し、最後の停止はexpression packetがlegacy incomingへ落ちる所だった。空actualの許可だけは足さず、次を既存zero-input ownerへ接続する。
+
+- R31. 元Scalar Return評価の同一root Callが要求するQualified zeroだけ、既存zero finisherで元source censusを投影し、全incoming・既存signature/result/Completion照合を行う。旧CurrentOwnerのcensusは維持する。
+- R32. 元Executable actualは既存の厳密な投影で空引数を照合した後、同じ既存constructorへ完成zero証拠を渡す。SourceStaticへ戻さず、元named Localのwriter/selectionは切り替えない。
+- R33. expression packetは、元zero-I64契約と既存checked-completed-zero-inputの両方が一致する時だけ空の借用actualを受ける。未完成の空引数をentry権限にしない。
