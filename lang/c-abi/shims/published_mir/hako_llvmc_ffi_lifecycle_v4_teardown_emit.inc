@@ -225,8 +225,9 @@ static int lv4_dynamic_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op,
 static void lv4_emit_direct_end(FILE* f, const hako_lv4_input* in) {
   if (!in->direct) return;
   fprintf(f, "define internal i32 @hako_direct_end(i64 %%word, i64 %%start) {\nentry:\n"
-      "  %%current = alloca ptr, align 8\n  %%root = inttoptr i64 %%word to ptr\n"
-      "  store ptr null, ptr %%root, align 8\n"
+      "  %%current = alloca ptr, align 8\n  %%root = inttoptr i64 %%word to ptr\n");
+  lv4_emit_direct_count_drop(f, "%root", "root", "root_zero", "done");
+  fprintf(f, "root_zero:\n  store ptr null, ptr %%root, align 8\n"
       "  %%root_cursor = getelementptr i8, ptr %%root, i64 8\n"
       "  store i64 %%start, ptr %%root_cursor, align 8\n  store ptr %%root, ptr %%current, align 8\n  br label %%walk\nwalk:\n"
       "  %%node = load ptr, ptr %%current, align 8\n"
@@ -256,7 +257,9 @@ static void lv4_emit_direct_end(FILE* f, const hako_lv4_input* in) {
       "  %%slot = getelementptr i8, ptr %%node, i64 %%offset\n  %%payload = load i64, ptr %%slot, align 8\n"
       "  store i64 0, ptr %%slot, align 8\n  %%present = icmp ne i64 %%payload, 0\n"
       "  br i1 %%present, label %%descend, label %%walk\ndescend:\n"
-      "  %%child_node = inttoptr i64 %%payload to ptr\n  store ptr %%node, ptr %%child_node, align 8\n"
+      "  %%child_node = inttoptr i64 %%payload to ptr\n");
+  lv4_emit_direct_count_drop(f, "%child_node", "child", "child_zero", "walk");
+  fprintf(f, "child_zero:\n  store ptr %%node, ptr %%child_node, align 8\n"
       "  %%child_id_ptr = getelementptr { i64, i32, i32, i32, ptr, ptr }, ptr %%child_desc, i32 0, i32 2\n"
       "  %%child_id = load i32, ptr %%child_id_ptr, align 4\n  %%child_id64 = zext i32 %%child_id to i64\n"
       "  %%child_high = shl i64 %%child_id64, 32\n"

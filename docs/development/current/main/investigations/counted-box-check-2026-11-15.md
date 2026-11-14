@@ -23,8 +23,12 @@ CanonicalObjectIdはmodule内の元型/layout座標であり、実objectや持�
 **RetainはUnit形式を第一案とする。** 共通式評価が既存Copyで別SSA参照slotを作り、
 RetainはそのslotのNormal辺にtokenを発行する。pointerそのものを作り直さず、
 既存producer/Copy chainを真の値由来として保持できる。Copyだけではtokenを増やさない。
-同じslotへの二重Retainは拒否し、別の持分には別のSSA slotを使う。
+同じ実行経路でlive tokenがあるslotへの二重Retainは拒否し、別の持分には別のSSA slotを使う。
+loopの別iterationや排他的なincoming辺を、静的な同slot二回として一律に拒否しない。
 Fault時にも参照のbitは存在し得るが、取得tokenは存在しない。
+pointer SSAの定義と辺ごとのtoken生存状態を分離し、Copy直後からglobal Ownedにはしない。
+Retain時点では元borrowのsupportが有効で、途中のcall等でfieldが無効化されていない事を検査する。
+Retain完了後の持分tokenは、元field/supportの破棄から独立する。
 これは新しい`InvokeNormalResult`/返却originを先行追加しないための案で、未実装。
 
 別案はRetainのNormal結果ValueIdを新tokenにする形。通常SSAとの対応は素直だが、
