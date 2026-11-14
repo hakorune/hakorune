@@ -126,21 +126,28 @@ impl QualifiedStaticCallClaimIndexV1 {
             .map(|main| inventory.closed_app_zero_incoming_static_keys(main))
             .unwrap_or_default();
         let targets = inventory.into_targets();
-        let results = VerifiedSameModuleCallableResultCatalogV1::verify_for_package(declarations, &targets)
-            .map_err(QualifiedStaticCallClaimIndexIssueV1::ResultCatalog)?;
+        let results =
+            VerifiedSameModuleCallableResultCatalogV1::verify_for_package(declarations, &targets)
+                .map_err(QualifiedStaticCallClaimIndexIssueV1::ResultCatalog)?;
         let (result_rows, call_result_rows, source_value_classes) = results.into_source_rows();
-        let result_catalog = std::rc::Rc::new(super::callee_result_kind::CalleeResultKindCatalogV1::new(result_rows, source_value_classes));
+        let result_catalog =
+            std::rc::Rc::new(super::callee_result_kind::CalleeResultKindCatalogV1::new(
+                result_rows,
+                source_value_classes,
+            ));
         let mut rows = BTreeMap::new();
         let mut current_owner_rows = BTreeMap::new();
         for ((caller, site), source_target) in targets.rows() {
             if let VerifiedSourceStaticCallTargetV1::CurrentOwnerStatic(route) = source_target {
-                let result = result_catalog.static_evidence(route.target()).ok_or_else(|| {
-                    QualifiedStaticCallClaimIndexIssueV1::ResultCatalog(
-                        CallableResultCatalogErrorV1::StableResultDrift {
-                            key: route.target().clone(),
-                        },
-                    )
-                })?;
+                let result = result_catalog
+                    .static_evidence(route.target())
+                    .ok_or_else(|| {
+                        QualifiedStaticCallClaimIndexIssueV1::ResultCatalog(
+                            CallableResultCatalogErrorV1::StableResultDrift {
+                                key: route.target().clone(),
+                            },
+                        )
+                    })?;
                 current_owner_rows.insert(
                     (caller.clone(), site.clone()),
                     CurrentOwnerStaticCallSourceV1 {
@@ -172,8 +179,10 @@ impl QualifiedStaticCallClaimIndexV1 {
                 ),
             );
         }
-        let call_result_rows = call_result_rows.into_iter()
-            .map(|(site, row)| (site, std::sync::Arc::new(row))).collect();
+        let call_result_rows = call_result_rows
+            .into_iter()
+            .map(|(site, row)| (site, std::sync::Arc::new(row)))
+            .collect();
         let source_targets = targets
             .rows()
             .map(|(site, target)| (site.clone(), target.clone()))
@@ -191,7 +200,9 @@ impl QualifiedStaticCallClaimIndexV1 {
         ))
     }
 
-    pub(super) fn result_catalog(&self) -> &std::rc::Rc<super::callee_result_kind::CalleeResultKindCatalogV1> {
+    pub(super) fn result_catalog(
+        &self,
+    ) -> &std::rc::Rc<super::callee_result_kind::CalleeResultKindCatalogV1> {
         &self.result_catalog
     }
 
@@ -211,13 +222,19 @@ impl QualifiedStaticCallClaimIndexV1 {
         caller: &CanonicalSameModuleCallableKeyV1,
         site: &SourceExprSiteV1,
     ) -> Option<&crate::mir::callable_result_representation::OwnedCallableResultCallSiteV1> {
-        self.call_result_rows.get(&(caller.clone(), site.clone())).map(std::sync::Arc::as_ref)
+        self.call_result_rows
+            .get(&(caller.clone(), site.clone()))
+            .map(std::sync::Arc::as_ref)
     }
 
     /// Borrow the SAME retained solver row, including original Core receiver fact.
     pub(in crate::mir::normal_callable_semantic_package) fn call_result_source_arc_v1(
-        &self, caller: &CanonicalSameModuleCallableKeyV1, site: &SourceExprSiteV1,
-    ) -> Option<&std::sync::Arc<crate::mir::callable_result_representation::OwnedCallableResultCallSiteV1>> {
+        &self,
+        caller: &CanonicalSameModuleCallableKeyV1,
+        site: &SourceExprSiteV1,
+    ) -> Option<
+        &std::sync::Arc<crate::mir::callable_result_representation::OwnedCallableResultCallSiteV1>,
+    > {
         self.call_result_rows.get(&(caller.clone(), site.clone()))
     }
 
@@ -338,30 +355,69 @@ pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predic
     selected: &'index super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     contracts: &'index [super::model::OwnedCallableParameterContractDeclarationV1],
     app_main: Option<&'index super::ordinary_new_coseal::BorrowedAppMainSourceLoanV1<'_>>,
-) -> Result<(
-    impl FnMut(
-            &crate::mir::resolved_semantics::OwnedExprSiteV1,
-        ) -> Result<
-            Option<StaticScalarCallClaimV1>,
-            super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1,
-        > + 'index,
-    bool,
-), super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1> {
+) -> Result<
+    (
+        impl FnMut(
+                &crate::mir::resolved_semantics::OwnedExprSiteV1,
+            ) -> Result<
+                Option<StaticScalarCallClaimV1>,
+                super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1,
+            > + 'index,
+        bool,
+    ),
+    super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1,
+> {
     let has_current_owner_i64_source = caller_key.as_ref().is_some_and(|key| {
         claims.current_owner_rows.keys().any(|(caller, site)| {
             caller == key && claims.current_owner_i64_source(caller, site).is_some()
         })
     });
     let mut has_qualified_terminal_source = false;
-    for (site, _) in input.function().method_calls() {
-        if claim_for_source_site_v1(
-            claims, caller_key.as_ref(), &input,
-            &crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), site.clone()),
-            selected, contracts, app_main,
-        )?.is_some_and(|claim| claim.is_qualified_terminal()) {
+    for (site, call) in input.function().method_calls() {
+        let owned =
+            crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), site.clone());
+        let Some(claim) = claim_for_source_site_v1(
+            claims,
+            caller_key.as_ref(),
+            &input,
+            &owned,
+            selected,
+            contracts,
+            app_main,
+        )?
+        else {
+            continue;
+        };
+        if claim.is_qualified_terminal() {
             has_qualified_terminal_source = true;
+            continue;
         }
+        if claim.qualified_claim().is_none()
+            || !input
+                .body_shape()
+                .is_some_and(|shape| shape.return_value_sites().any(|value| value == site))
+        {
+            continue;
+        }
+        let Some(key) = caller_key.as_ref() else {
+            continue;
+        };
+        let original = claims
+            .incoming_source(key, &owned, call, selected, contracts, app_main)
+            .map_err(|issue| {
+                super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                    site: owned.clone(),
+                    issue,
+                }
+            })?;
+        has_qualified_terminal_source |= original.is_some_and(|row| {
+            incoming_source::StaticIncomingSourceV1::exact_i64_input_result_v1(
+                &row.contract().parameters,
+                claim.result(),
+            )
+        });
     }
+
     Ok((
         move |site: &crate::mir::resolved_semantics::OwnedExprSiteV1| {
             claim_for_source_site_v1(
@@ -394,18 +450,25 @@ pub(in crate::mir::normal_callable_semantic_package) fn claim_for_source_site_v1
         return Ok(None);
     };
     if crate::config::env::builder_debug_enabled()
-        && input.body_shape().is_some_and(|shape|
-            shape.return_value_sites().any(|value| value == site.site())) {
+        && input
+            .body_shape()
+            .is_some_and(|shape| shape.return_value_sites().any(|value| value == site.site()))
+    {
         let target = claims.source_target(key, site.site());
-        eprintln!("[static-claim] site={site:?} target={:?} evidence={:?} kind={:?} claim={} current={}",
+        eprintln!(
+            "[static-claim] site={site:?} target={:?} evidence={:?} kind={:?} claim={} current={}",
             target.map(|target| target.target()),
             target.and_then(|target| claims.result_for_key(target.target())),
             target.and_then(|target| claims.result_catalog.kind(target.target())),
-            claims.claim(key, site.site()).is_some(), claims.current_owner_i64_source(key, site.site()).is_some());
+            claims.claim(key, site.site()).is_some(),
+            claims.current_owner_i64_source(key, site.site()).is_some()
+        );
     }
     if let Some(claim) = claims.claim(key, site.site()) {
         if site.owner() == input.owner()
-            && input.body_shape().is_some_and(|shape| shape.return_value_sites().any(|value| value == site.site()))
+            && input
+                .body_shape()
+                .is_some_and(|shape| shape.return_value_sites().any(|value| value == site.site()))
         {
             if let Some(call) = input.function().method_call(site.site()) {
                 let original = claims.incoming_source(key, site, call, selected, contracts, app_main)

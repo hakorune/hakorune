@@ -33,7 +33,9 @@ pub(crate) enum LocalCallResultClassV1 {
 impl LocalCallResultClassV1 {
     /// K1/K2: the one table from a call's result kind to its published call result. Classes that
     /// need more than a kind to publish (a borrowed or mixed result) answer `None`.
-    pub(crate) const fn invoke_result(self) -> Option<crate::mir::instruction::InvokeCallResultKind> {
+    pub(crate) const fn invoke_result(
+        self,
+    ) -> Option<crate::mir::instruction::InvokeCallResultKind> {
         use crate::mir::instruction::InvokeCallResultKind as Kind;
         match self {
             Self::I64 => Some(Kind::I64),
@@ -50,7 +52,9 @@ impl LocalCallResultClassV1 {
 
     /// R15 (K5): the scalar rows of the table. Only I64 and Bool are scalar; every other class
     /// answers `None`, so a Text or Handle result never passes a scalar gate.
-    pub(crate) const fn scalar_invoke_result(self) -> Option<crate::mir::instruction::InvokeCallResultKind> {
+    pub(crate) const fn scalar_invoke_result(
+        self,
+    ) -> Option<crate::mir::instruction::InvokeCallResultKind> {
         match self {
             Self::I64 | Self::Bool => self.invoke_result(),
             _ => None,
@@ -368,7 +372,11 @@ pub(crate) fn issue_source_scalar_frame_call_v1<E>(
         arguments,
     );
     observation.field_alias = field_alias;
-    crate::mir::resolved_semantics::home_new_prefix::attach_expression_entry_facts_v1(input, &mut observation, actuals)?;
+    crate::mir::resolved_semantics::home_new_prefix::attach_expression_entry_facts_v1(
+        input,
+        &mut observation,
+        actuals,
+    )?;
     Ok(Some(observation))
 }
 
@@ -400,7 +408,10 @@ pub(crate) fn issue_source_static_scalar_frame_call_v1<E>(
     };
     if source.owner() != input.owner()
         || site.owner() != source.owner()
-        || source.nodes().first().is_none_or(|node| node.site() != condition)
+        || source
+            .nodes()
+            .first()
+            .is_none_or(|node| node.site() != condition)
         || input
             .function()
             .with_if_region_for_condition(condition, |row| row.site().clone())
@@ -416,7 +427,9 @@ pub(crate) fn issue_source_static_scalar_frame_call_v1<E>(
     }
     let Some(BorrowedCallArgumentsV1::SourceResult { loan, arguments }) = port(
         site,
-        BorrowedCallActualRequestV1::SourceResultArguments { expression: Some(source) },
+        BorrowedCallActualRequestV1::SourceResultArguments {
+            expression: Some(source),
+        },
     )?
     else {
         return Ok(None);
@@ -430,12 +443,9 @@ pub(crate) fn issue_source_static_scalar_frame_call_v1<E>(
             && crate::mir::resolved_value_profile::expression_position::CallExecutorV1::at(site.site()).is_argument_frame(),
         _ => false,
     });
-    if !admitted || !result_matches_source_v1(input, site, &loan, &arguments)
-        || !super::lexical_local_call::corroborate_received_arguments_v1(
-            input,
-            site,
-            &arguments,
-        )
+    if !admitted
+        || !result_matches_source_v1(input, site, &loan, &arguments)
+        || !super::lexical_local_call::corroborate_received_arguments_v1(input, site, &arguments)
     {
         return Ok(None);
     }
@@ -448,7 +458,11 @@ pub(crate) fn issue_source_static_scalar_frame_call_v1<E>(
         loan,
         arguments,
     );
-    crate::mir::resolved_semantics::home_new_prefix::attach_expression_entry_facts_v1(input, &mut observation, port)?;
+    crate::mir::resolved_semantics::home_new_prefix::attach_expression_entry_facts_v1(
+        input,
+        &mut observation,
+        port,
+    )?;
     Ok(Some(observation))
 }
 
@@ -506,7 +520,11 @@ pub(crate) fn issue_source_expression_call_v1<E>(
                 LocalCallResultSourceV1::DynamicInvocation(loan),
                 arguments,
             );
-            crate::mir::resolved_semantics::home_new_prefix::attach_expression_entry_facts_v1(input, &mut observation, port)?;
+            crate::mir::resolved_semantics::home_new_prefix::attach_expression_entry_facts_v1(
+                input,
+                &mut observation,
+                port,
+            )?;
             return Ok(Some(Call::Ordinary(observation)));
         }
         Some(_) => return Ok(None),
@@ -533,6 +551,7 @@ pub(crate) fn issue_source_expression_call_v1<E>(
         LocalCallResultSourceV1::Ordinary(loan) if loan.static_source().is_some()
             && loan.result() == LocalCallResultClassV1::I64
             && (loan.has_ordinary_static_input_v1()
+                || loan.static_source().is_some_and(|original| original.is_scalar_return_source_v1(source))
                 || crate::mir::resolved_value_profile::expression_position::CallExecutorV1::at(site.site()).is_argument_frame()) => None,
         LocalCallResultSourceV1::Ordinary(loan) if loan.static_source().is_some() && loan.result() == LocalCallResultClassV1::Text && (plain_assignment || matches!(source.root(),
             crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. }
@@ -565,7 +584,11 @@ pub(crate) fn issue_source_expression_call_v1<E>(
         arguments,
     );
     observation.field_alias = field_alias;
-    crate::mir::resolved_semantics::home_new_prefix::attach_expression_entry_facts_v1(input, &mut observation, port)?;
+    crate::mir::resolved_semantics::home_new_prefix::attach_expression_entry_facts_v1(
+        input,
+        &mut observation,
+        port,
+    )?;
     Ok(Some(Call::Ordinary(observation)))
 }
 
@@ -580,8 +603,9 @@ fn expression_call_declined<T, E>(site: &OwnedExprSiteV1, gate: u32) -> Result<O
 impl LocalCallObservationV1 {
     /// Dispatch comes from the original source variant, independently of the
     /// result's opaque carrier transport and lifetime obligation.
-    pub(crate) fn dynamic_invocation_source_v1(&self)
-        -> Option<&crate::mir::dynamic_invocation_contract::DynamicInvocationSourceLoanV1> {
+    pub(crate) fn dynamic_invocation_source_v1(
+        &self,
+    ) -> Option<&crate::mir::dynamic_invocation_contract::DynamicInvocationSourceLoanV1> {
         match self.result_source() {
             Some(LocalCallResultSourceV1::DynamicInvocation(loan)) => Some(loan),
             _ => None,

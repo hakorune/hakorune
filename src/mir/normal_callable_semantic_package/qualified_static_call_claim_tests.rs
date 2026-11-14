@@ -124,7 +124,12 @@ fn qualified_static_call_claims_scalar_parameter_argument() {
         static box Main { main() { return Helpers.lookup(9) } }",
     )
     .expect("parameter-argument package");
-    let calls = local_calls(&package);
+    let (owner, site) = super::lexical_i64_local_call_tests::call_site_of(&package, "class_id");
+    let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site);
+    let calls: Vec<_> = local_calls(&package)
+        .into_iter()
+        .filter(|call| call.site() == &site)
+        .collect();
     let [call] = calls.as_slice() else {
         panic!("one qualified static-call claim, got {calls:?}")
     };
@@ -187,9 +192,14 @@ fn qualified_static_call_claim_resolves_import_alias() {
     )
     .expect("compound argument package");
     let calls = local_calls(&package);
-    let [call] = calls.as_slice() else { panic!("one claim, got {calls:?}") };
+    let [call] = calls.as_slice() else {
+        panic!("one claim, got {calls:?}")
+    };
     assert_eq!(call.result(), LocalCallResultClassV1::I64);
-    assert!(matches!(call.arguments(), [LocalCallArgumentV1::Expression { ordinal: 0, .. }]));
+    assert!(matches!(
+        call.arguments(),
+        [LocalCallArgumentV1::Expression { ordinal: 0, .. }]
+    ));
     assert!(new_claim_prefix_covered(&package));
 }
 
@@ -245,7 +255,9 @@ fn qualified_static_call_claim_carries_a_box_handle_as_a_handle_row() {
     )
     .expect("handle claim package");
     let calls = local_calls(&package);
-    let [call] = calls.as_slice() else { panic!("one claim, got {calls:?}") };
+    let [call] = calls.as_slice() else {
+        panic!("one claim, got {calls:?}")
+    };
     assert_eq!(call.result(), LocalCallResultClassV1::Handle);
     assert!(call.arguments().is_empty());
 }
@@ -271,7 +283,13 @@ fn qualified_static_call_claim_rejects_non_i64_evidence_at_required_ordinal() {
 #[test]
 fn static_call_claim_carries_exact_result_class_at_current_owner_boundary() {
     for (label, callee, expression, accepted, class) in [
-        ("zeroarg-i64", "word() { return 7 }", "me.word()", true, LocalCallResultClassV1::I64),
+        (
+            "zeroarg-i64",
+            "word() { return 7 }",
+            "me.word()",
+            true,
+            LocalCallResultClassV1::I64,
+        ),
         (
             "nonzeroarg-i64",
             "word(size: i64): i64 { return size }",
@@ -280,7 +298,13 @@ fn static_call_claim_carries_exact_result_class_at_current_owner_boundary() {
             LocalCallResultClassV1::I64,
         ),
         // Bool and Text results are claimed with their own exact class.
-        ("zeroarg-bool", "word() { return true }", "me.word()", true, LocalCallResultClassV1::Bool),
+        (
+            "zeroarg-bool",
+            "word() { return true }",
+            "me.word()",
+            true,
+            LocalCallResultClassV1::Bool,
+        ),
         (
             "zeroarg-text",
             "word() { return \"text\" }",
@@ -445,8 +469,14 @@ fn current_owner_source_retains_original_route_and_result_without_qualified_clai
     let claims = &package.source_static_claims_for_test;
     let need = CanonicalSameModuleCallableKeyV1::static_box_method("Layout", "need", 1);
     let text = CanonicalSameModuleCallableKeyV1::static_box_method("Layout", "text", 1);
-    assert!(matches!(claims.result_for_key(&need), Some(VerifiedCallableResultDispositionV1::ExactI64 { .. })));
-    assert_eq!(claims.result_for_key(&text), Some(&VerifiedCallableResultDispositionV1::ExactString));
+    assert!(matches!(
+        claims.result_for_key(&need),
+        Some(VerifiedCallableResultDispositionV1::ExactI64 { .. })
+    ));
+    assert_eq!(
+        claims.result_for_key(&text),
+        Some(&VerifiedCallableResultDispositionV1::ExactString)
+    );
     let mut checked = 0;
     package.batch().with_lowering_input(slot, |input| {
         for (site, call) in input.function().method_calls() {
@@ -503,7 +533,6 @@ fn current_owner_known_bool_actual_rejects_i64_formal() {
     assert!(format!("{issue:?}").contains("nonopaque-integer-unproved"));
 }
 
-
 #[test]
 fn box_class_survives_unproved_constructor_input_without_admitting_the_call() {
     use super::callee_result_kind::{CalleeResultKindV1, StaticInputRequirementsV1};
@@ -520,19 +549,41 @@ fn box_class_survives_unproved_constructor_input_without_admitting_the_call() {
             local page = new Page(0)
             return 0
         } }"#,
-    ).expect("source package retains the class and the refused input separately");
-    let key = |name| package.selected.keys().find_map(|selected| match selected {
-        SelectedNormalCallableKeyV1::Cataloged(key) if key.owner() == "Any" && key.name() == name => Some(key),
-        _ => None,
-    }).expect("selected source callable");
+    )
+    .expect("source package retains the class and the refused input separately");
+    let key = |name| {
+        package
+            .selected
+            .keys()
+            .find_map(|selected| match selected {
+                SelectedNormalCallableKeyV1::Cataloged(key)
+                    if key.owner() == "Any" && key.name() == name =>
+                {
+                    Some(key)
+                }
+                _ => None,
+            })
+            .expect("selected source callable")
+    };
     let catalog = package.source_static_claims_for_test.result_catalog();
-    assert_eq!(catalog.kind(key("wrap")), Some(CalleeResultKindV1::Handle("Page".into())));
-    assert!(matches!(catalog.static_input_requirements(key("wrap")),
-        StaticInputRequirementsV1::Unavailable));
+    assert_eq!(
+        catalog.kind(key("wrap")),
+        Some(CalleeResultKindV1::Handle("Page".into()))
+    );
+    assert!(matches!(
+        catalog.static_input_requirements(key("wrap")),
+        StaticInputRequirementsV1::Unavailable
+    ));
     assert!(matches!(catalog.static_evidence(key("wrap")),
         Some(crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::Unavailable(
             CallableResultUnavailableReasonV1::RequiredArgumentRepresentationUnavailable))));
-    assert!(matches!(catalog.static_input_requirements(key("make")), StaticInputRequirementsV1::Verified([0])));
-    assert!(local_calls(&package).is_empty(), "class knowledge grants no call admission");
+    assert!(matches!(
+        catalog.static_input_requirements(key("make")),
+        StaticInputRequirementsV1::Verified([0])
+    ));
+    assert!(
+        local_calls(&package).is_empty(),
+        "class knowledge grants no call admission"
+    );
     assert!(!new_claim_prefix_covered(&package));
 }

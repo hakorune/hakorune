@@ -55,6 +55,31 @@ pub(crate) struct StaticIncomingSourceV1 {
 }
 
 impl StaticIncomingSourceV1 {
+    /// Shared scalar contract; source membership is not executable authority.
+    pub(in crate::mir::normal_callable_semantic_package) fn exact_i64_input_result_v1(
+        parameters: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1],
+        result: crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1,
+    ) -> bool {
+        result == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64
+            && parameters
+                .iter()
+                .all(|formal| formal.kind.is_i64_actual_v1())
+    }
+
+    /// The original Call is the value carried by this Return expression.
+    pub(in crate::mir) fn is_scalar_return_source_v1(
+        &self,
+        plan: &crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
+    ) -> bool {
+        self.qualified_scalar_result_v1().is_some_and(|result|
+            Self::exact_i64_input_result_v1(self.parameters(), result))
+            && plan.owner() == self.call_site().owner()
+            && matches!(plan.root(),
+                crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
+                    role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. })
+            && plan.nodes().first().is_some_and(|node| node.site() == self.call_site().site())
+    }
+
     pub(in crate::mir) fn same_catalog_as(&self, other: &Self) -> bool {
         self.catalog_brand.is_same(&other.catalog_brand) && self.caller == other.caller
     }
@@ -67,10 +92,13 @@ impl StaticIncomingSourceV1 {
 
     /// Kind comes from the shared catalog; the original row still limits this
     /// source protocol to the previously admitted scalar evidence.
-    pub(in crate::mir::normal_callable_semantic_package) fn source_scalar_result_v1(&self)
-        -> Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1> {
+    pub(in crate::mir::normal_callable_semantic_package) fn source_scalar_result_v1(
+        &self,
+    ) -> Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1> {
         self.route.result().required_i64_arguments()?;
-        self.result_catalog.kind(&self.target).map(|kind| kind.local_class())
+        self.result_catalog
+            .kind(&self.target)
+            .map(|kind| kind.local_class())
     }
 
     /// The original qualified scalar lane (R12), not general route membership.
@@ -90,7 +118,10 @@ impl StaticIncomingSourceV1 {
         &self,
     ) -> Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1> {
         match self.route {
-            StaticIncomingRouteV1::Qualified { .. } => self.result_catalog.claim_row(&self.target).map(|(_, class)| class),
+            StaticIncomingRouteV1::Qualified { .. } => self
+                .result_catalog
+                .claim_row(&self.target)
+                .map(|(_, class)| class),
             StaticIncomingRouteV1::CurrentOwner(_) => None,
         }
     }
@@ -111,17 +142,21 @@ impl StaticIncomingSourceV1 {
     /// its i64 actuals; no formal needs a borrowed domain.
     pub(in crate::mir::normal_callable_semantic_package) fn is_i64_input_text_v1(&self) -> bool {
         self.parameters.len() == self.argument_sites.len()
-            && self.parameters.iter().all(|formal| formal.kind.is_i64_actual_v1())
-            && matches!(self.source_result(), VerifiedCallableResultDispositionV1::ExactString)
+            && self
+                .parameters
+                .iter()
+                .all(|formal| formal.kind.is_i64_actual_v1())
+            && matches!(
+                self.source_result(),
+                VerifiedCallableResultDispositionV1::ExactString
+            )
     }
     pub(in crate::mir::normal_callable_semantic_package) fn source_result(
         &self,
     ) -> &VerifiedCallableResultDispositionV1 {
         self.route.result()
     }
-    pub(in crate::mir) fn method_source(
-        &self,
-    ) -> &Arc<VerifiedResolvedMethodCallSourceV1> {
+    pub(in crate::mir) fn method_source(&self) -> &Arc<VerifiedResolvedMethodCallSourceV1> {
         &self.method_source
     }
     pub(in crate::mir::normal_callable_semantic_package) fn call_result_evidence(
@@ -199,7 +234,9 @@ impl StaticIncomingSourceV1 {
         &self,
         handoff: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
     ) -> bool {
-        let Some(representation) = self.source_result().representation() else { return false; };
+        let Some(representation) = self.source_result().representation() else {
+            return false;
+        };
         handoff.catalog_identity() == self.catalog_brand.identity()
             && handoff.caller() == &self.caller
             && handoff.site() == self.call.site()
@@ -208,7 +245,8 @@ impl StaticIncomingSourceV1 {
             && handoff.required_callee_i64_arguments() == self.required_i64_arguments()
     }
     pub(in crate::mir::normal_callable_semantic_package) fn corroborates_completed_text_publication_v1(
-        &self, handoff: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
+        &self,
+        handoff: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
         selected: &super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
         result: &super::super::result_contract::CompletedTextResultSourceV1,
     ) -> bool {
@@ -233,9 +271,7 @@ impl StaticIncomingSourceV1 {
     ) -> FunctionOwnerIdV1 {
         self.callee_owner
     }
-    pub(in crate::mir) fn argument_sites(
-        &self,
-    ) -> &[SourceExprSiteV1] {
+    pub(in crate::mir) fn argument_sites(&self) -> &[SourceExprSiteV1] {
         &self.argument_sites
     }
     pub(in crate::mir::normal_callable_semantic_package) fn parameters(
@@ -246,7 +282,10 @@ impl StaticIncomingSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn required_i64_arguments(
         &self,
     ) -> &[u32] {
-        self.result_catalog.static_input_requirements(&self.target).verified().unwrap_or(&[])
+        self.result_catalog
+            .static_input_requirements(&self.target)
+            .verified()
+            .unwrap_or(&[])
     }
 }
 
@@ -298,9 +337,7 @@ impl<'a> StaticIncomingSourceLoanV1<'a> {
                 .parameters()
                 .iter()
                 .zip(&self.contract.parameters)
-                .all(|(left, right)| {
-                    left == right
-                })
+                .all(|(left, right)| left == right)
             && retained.route == self.route
     }
 

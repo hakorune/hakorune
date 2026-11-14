@@ -1,6 +1,8 @@
 //! Recheck retained whole-input evidence against the same source and completion.
+use super::static_input_finish::{
+    original_zero_input_source_v1, StaticInputEvidenceV1, StaticInputFinishV1,
+};
 use super::*;
-use super::static_input_finish::{StaticInputFinishV1, StaticInputEvidenceV1, original_zero_input_source_v1};
 use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
 use crate::mir::normal_callable_semantic_package::{
     physical_signature::VerifiedCallablePhysicalSignatureCohortV1,
@@ -104,11 +106,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("static-zero/original-source-drift"));
         }
         let owner = original.callee_owner();
-        let owners = [owner].into_iter().collect();
-        let calls = source
-            .source_incoming
-            .project(&owners)
-            .map_err(|issue| format!("{}: {issue:?}", freeze("borrowed-formal/incoming-coverage")))?;
+        let calls = self.static_zero_input_calls_v1(source, owner)?;
         let Some(completion) = self.completion_index.get(&owner) else {
             return Ok(None);
         };
@@ -248,7 +246,9 @@ impl OrdinaryNewClaimLedgerV1 {
         original: &Rc<StaticIncomingSourceV1>,
         publication: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
     ) -> Result<bool, String> {
-        Ok(self.checked_completed_static_expression_input_v1(original)?.is_some()
+        Ok(self
+            .checked_completed_static_expression_input_v1(original)?
+            .is_some()
             && original.matches_publication_handoff_identity(publication))
     }
 
@@ -440,7 +440,8 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             let actual = match &candidate.value {
                 BorrowedCallActualValueV1::FreshConstruction(construction) => {
-                    let acquisition = OwnedExprSiteV1::new(call.call.owner(), candidate.site.clone());
+                    let acquisition =
+                        OwnedExprSiteV1::new(call.call.owner(), candidate.site.clone());
                     let accepted = self.with_result_new_source_v1(&acquisition, |new| {
                         use crate::mir::resolved_semantics::home_new_prefix::ResultNewPurposeV1;
                         Ok(formal.takes_fresh_construction_v1(construction)
@@ -456,14 +457,19 @@ impl OrdinaryNewClaimLedgerV1 {
                         return Err(freeze("static-input/argument-frame-missing"));
                     }
                     PreparedBorrowedFormalActualV1 {
-                        ordinal: formal.ordinal, site: candidate.site.clone(), formal: formal.binding,
+                        ordinal: formal.ordinal,
+                        site: candidate.site.clone(),
+                        formal: formal.binding,
                         source: BorrowedFormalActualSourceV1::FreshTakenHome {
-                            acquisition, class: construction.class().into(),
+                            acquisition,
+                            class: construction.class().into(),
                         },
                     }
                 }
                 BorrowedCallActualValueV1::Home { .. } => PreparedBorrowedFormalActualV1 {
-                    ordinal: formal.ordinal, site: candidate.site.clone(), formal: formal.binding,
+                    ordinal: formal.ordinal,
+                    site: candidate.site.clone(),
+                    formal: formal.binding,
                     source: object_source::ObjectActualHomeSourceV1::Ledger(self)
                         .prepare_home_actual_v1(&call.call, formal, candidate)?
                         .ok_or_else(|| freeze("static-input/argument-frame-missing"))?,

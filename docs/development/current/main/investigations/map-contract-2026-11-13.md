@@ -517,3 +517,40 @@ D=限定filter 1行、A=0、U=終端semicolon 1箇所と同数3行の契約comme
   - static の呼び出しの直接の return が 8 組（main は `root-completion`、普通の関数は `root-exit-source-missing`）。
   - instance method が literal を返した結果を使う return が 2 組（`artifact-source-unavailable`）。
   - これとは別に、前から変わらない local の側の差が 1 組ある（String field の読みを複数の return から local 経由に変えた形）。
+
+
+## 段 B5: Local と同じ Call 証拠を Return へ接続
+
+基点は main `324058be00`。実装前のworker追跡・規則はGit履歴に保持。対象はB4cの10組と同原因の束。所有方針・Home・move・Normal/FaultのEndは変えない。
+
+| 束 | Local の既存ownerと、Returnの欠落 | 接続・保持 |
+|---|---|---|
+| static Main 4組 | 元Call actual stagingとStaticExecutionは成功するが、plain root Completionはliteralのみ | 元Qualified I64結果・全formal i64のReturn需要を既存walkへ渡し、同CallのOrdinary result loanを共通式評価へ保持 |
+| static ordinary 4組 | Localと同じCall証拠がReturnの評価に届かず、exit sourceを保持できない | 同じ`stage_expression_actuals_v1`と`prepare_value_evaluation_v1`でScalar terminalを発行し、元Completion/exit/frameへ保持 |
+| instance literal 2組 | `source_ordinary_result_arguments_v1`のpurposeはLocalを許しReturnValueを含まない | 同じpurpose ownerへReturnValueを接続する。TextResidenceも同じ完成Text receiptと同じ不足なので同原因束。nullable Dynamic/不完全結果は広げない |
+
+### 有効な規則
+
+- R17. Localで受ける元Callの証拠をReturnも同じ持ち主から借り、source順に一度だけ評価する。
+- R18. Returnのactual stagingは既存`home_new_prefix_scan`→`stage_statement_actuals`→`stage_expression_actuals_v1`を使い、二重に観測しない。
+- R19. 元target・結果・実引数・同一return siteを照合し、新Return writer・Completion補完・source種類を作らない。
+- R20. instanceの元source・完成Text・retained target・callee・namespace・引数phaseと、artifact gateを保持する。
+- R21. 取得・移転・Home・Normal/FaultのEndの回数・identity・順序をLocalと一致させ、独立検証を保持する。
+- R22. 判定を複製せず、source-purposeと元Call証拠の既存ownerへ集約する。
+- R23. 束外の新受理、片側だけの新成功、値/出力差、成功から拒否、新公開契約/cleanupが必要になった束は止めて一覧にする。入力名・形で塞がない。
+- R27. scalar-only staticの直接Returnは、元Qualified I64結果かつ全formalが宣言i64である場合に既存共通式へ接続する。
+- R28. 実引数はSourceStatic snapshotまたは既存Executableの厳密な投影から借りる。ExecutableをSourceStaticに降格せず、元incoming/target/required-i64/引数順序を既存ownerで検査する。Executable借用は元scalar Return目的だけ。
+- R29. Return根のclassを元Ordinary Callの契約から借り、同じ共通評価へ渡す。Coreの法則や結果型を偽装しない。
+- R30. 0引数も元calleeのCompletion・結果・signature・実引数証拠を要求し、空だからentryを許可しない。
+- R31. 元Scalar Return frameが要求するQualified zeroだけ、既存zero finisherで元source censusを投影する。全incomingと既存signature/result/同一Completion照合を保持し、旧CurrentOwner censusは維持する。
+- R32. 同cohortのQualified zero peerの元Executable actualを既存投影で照合し、既存constructorへ完成zero証拠を渡す。元named Localのwriter/selectionは切り替えない。
+- R33. expression packetは、元zero-I64契約と既存checked-completed-zero-inputの両方が一致する時だけ借用actualなしを受ける。
+
+QualifiedTerminalへ昇格するだけの試作（R24–R26）は、Localとは違うterminal packetを要求したため不採用。tagged入力の旧predicate・parameter0前提は変更していない。
+
+実装前見積もりは数十行だったが、0引数の完成証拠を同じzero ownerから借りる接続が必要だった。最終増減・検証・保留理由はB5報告で集計する。新しいsource/公開型/opcode/ABI/cleanup/writerは0。既存の独立End変異行列を再利用し、test/checker/fileを増やさない。
+
+
+B5のinstance試作は一度非literalを束外として保留したが、再監査で分類を訂正した。既存CompletedTextResultSourceはliteral/TextResidenceを同一のCompletion・terminal-map receiptで扱い、Localも同値で既に受理する。同じReturn purpose不足を閉じるだけなので、R23の同原因束として進める。新source/result/cleanup契約は追加しない。
+
+R34. 全sourceのtarget censusと実行caller cohortは分ける。新zero Returnの全source検査は保持し、元selected mapと保持済root Completionのownerで実行callerを照合し、それ以外の明示的に省略されたcallerだけ実行finish要求から除く。選択済みcallerの観測欠落は従来どおり拒否する。既存testの対象claimはselectorから元owner/siteへ結び、package全体の件数で代用しない。
