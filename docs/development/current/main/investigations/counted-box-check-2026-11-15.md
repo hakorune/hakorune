@@ -259,3 +259,36 @@ ReadInputsはexact readの束を渡すdataで、expression body/graph/cleanupの
 条件のpacket/source照合は維持し、重複Dynamic packetも旧境界と同じく拒否する。
 既存test-only field source getterは、同じ不変descriptorを返すproduction投影へ改名して再利用した。
 800行だったargumentsは、構築後の既存cleanup適用を責務で分離した（移動は削減に数えない）。
+
+## 9. 段C: field格納・操作・独立検証の接続計画（2026-11-15）
+
+基点main `5d2c409940`。実装前にread-only worker3名と入口から再確認した。
+Cだけを実装し、D/E/Fの受理や返却契約は広げない。新しいowner/driver/writerは作らない。
+
+| 責務 | 元のownerと接続する道 |
+|---|---|
+| 資格・元型 | `home_field_write_expression.rs:95-125`だけではbirthに届かない。birthは`ConstructionStoreRhsV1::Parameter`のsite/binding/provided childとformal契約を持つ。既存qualificationのseedへ元証拠を運び、別classifierを作らない |
+| 持ち分の取得 | `expression_value.rs`の共通下降と`expression_value/model.rs`のBoxReference/typed temporary。Copyはpointer輸送のみ、RetainのNormalで別slotのtokenを取得 |
+| Release投影 | 同modelのBox End投影→`FaultCleanupPlanV1`→既存root graph。Releaseが既存complete Endを1回持ち、ObjectEndIfOwnedを後置しない |
+| source/物理照合 | construction stateの元storeと`expression_source_values.rs`、公開後の`verification/invoke.rs`/`ownership_ssa`、C indexed flow。生成側の証拠を独立検証の代用にしない |
+| 行き先への移転 | `normal_callable_construction_state/emission.rs:11,43-56,509-537`が実際のbirth store。local保持は`home_new_prefix_new_local.rs:84,190-222`と`home_call_entry_transfer.rs:137-141`の元Home移転にも関係する |
+| 操作・検証 | Invoke群→physical ABI/JSON→C schema/indexed flow/inline emit。`ownership_ssa::verify`の同worklistにtokenのNormal取得/両辺消費を接続し、Countedを含むBirthもNoHomes/OutsideModelへ逃がさない |
+
+意味が変わる見込み: direct対象のbare constructorへlocalを渡した後も元localを保持する。
+既存の暗黙moveと異なり、保存先の持ち分と元localのscope Endが別責任になる。
+対象入力とEnd回数/順の差を全件比較して報告し、意味差を未分類のままmainへ統合しない。
+明示move/take・fresh直接格納・null・未初期化parentのFault cleanupとの境界を保持する。
+旧ObjectFieldSetはFault時のin-flight childをframeが片付ける契約なので、
+Retain取得前Fault・取得後のstore Fault・Normal commitを同じtokenとして混同しない。
+
+配置の選択は現在`normal_default_pipeline.rs:600,650-654`のMIR完成後にある。
+`object_definition.rs:97-123`のno-hook/非weak/非Array/child閉包検査がdirect境界の正本。
+既存選択ownerで一度解決したcanonical選択を上流の共通計画へ運ぶ必要がある。
+source側でenvを再parse、型名の特例、完成MIRから元Homeを復活させる処理は入れない。
+
+Copyのpointer originと持ち分tokenは別軸。Rustのabi.aliasesとC indexのalias_rootへ
+Retain先slotを潰さず、取得はNormal辺だけ、Releaseは両辺で一度消費する。
+Retain削除/Copy置換、Release欠落/二重/取得前、Fault片付け欠落、Normal取得のFault使用を
+既存の独立検証で拒否させる。nullabilityと完全Endを元型/producerへ照合する。
+Releaseの物理投影は既存`hako_lifecycle_end_ID`→`hako_direct_end`へ一度委譲する。
+Retainはnull noop、u64上限なら加算前Fault、通常load/add/store（非原子、非volatile）。
