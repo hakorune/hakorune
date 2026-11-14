@@ -308,3 +308,134 @@ Cはplain/takeをparameterの表現だけで区別できないが、新公開ABI
 callee全出口とcallerの残る義務を照合し、Retain削除を元localの二重消費として拒否する道がある。
 Retain済fieldは旧caller-owned markerではなく実所有としてFault dischargeへ渡す必要がある。
 D/E/Fは未着手。停止報告に未検証項目と試作の再現情報をまとめる。
+
+## 11. 段Cの再設計案（2026-11-15、文書のみ・選択はユーザー待ち）
+
+基点main `7e86e9c6f7`とrepoの外に保存した試作を、read-only worker3名と比較した。
+productionは変更していない。以下の実測は退避試作の会計、見込みは未実装の設計値である。
+**推奨は、C1（操作＋独立検証）→C2（ウ: 条件・receiverのfield読み）を同じseriesで閉じる案。**
+格納側は後から接続し、当面は既存constructorの暗黙moveを保持する。
+これはADR-003の本採用でも、Rn-arg一致条件の達成でもない。順序変更にはユーザー判断が要る。
+
+### 11.1 +426行は何だったか
+
+old/new両方を同じrustfmtで整形し、既存書式の展開差を相殺した相互排他的な純増。
+
+| 役目 | 整形後の実測 | 主な試作の変更family |
+|---|---:|---|
+| canonical direct選択をMIR完成前へ運ぶ | 89 | normal_default_pipeline、object_definition、constructor batch、issuer |
+| callerの暗黙moveを止める契約の伝達 | 73 | constructor formal需要、field-source consult、Home walk |
+| constructorから共通frameを作り保持 | 95 | ConstructionPlan/execution、source-store finish |
+| 元formal証拠の再包装・read adapter | 129 | ConstructionParameterRead、Reference、typed value、exact entry read |
+| 共通評価入口・owned候補登録 | 40 | qualification、plan、re-export |
+| 合計 | **426** | 操作・汎用model・独立検証は別枠 |
+
+実際のRetain/Releaseは別枠+415側。field Normalへのtoken移転は未実装であり、
+426行を「完成した数え上げ」とは数えない。40行は取得需要の準備で、物理取得そのものではない。
+129行全部を無駄な再証明として消す事もできない。元source保持・境界照合を含む。
+
+確認できた重複は、既存writerが持つsource graphの再発行。
+`ordinary_new_field_write_claim.rs:118,353,439`は既に元inventory/indexと同じRcのgraphを持つが、
+試作の`instance_construction_body.rs:474-497`はassignmentからgraphを再発行した。
+その準備と再発行は整形後10行。代替queryにも費用があり、純減10行の証明ではない。
+formal需要にもsite→candidate→source→constructor→formalの再探索が増えていた。
+これらの再包装をまとめる純減50〜100行は**見込み**であり、129行全削除や300行以下を保証しない。
+
+### 11.2 最初の使い手の比較
+
+見込みはC1を除くsource接続のproduction純増。family数は責務群の概数でfile数ではない。
+
+| 案 | 変える責務群・見込み | 既存成功入力への影響 | 先に必要な検証 |
+|---|---|---|---|
+| ア: 後で使うlocalだけ保持 | 約7〜10群、+500〜1000行。うち後続use/必要寿命解析だけでも+150〜350以上の不確実性 | 旧moveを保つだけなら既存挙動は維持。ただし新しい後続use判定は受理/意味の規則になる | 全CFGの後続use・alias・loopと必要寿命、意味上のEnd/Fault順、elision時のoverflow不発の証明 |
+| イ: 格納で常に+1、localはscope末尾−1 | 約6〜9群、+350〜650行 | 旧bare引数のmoveがkeepへ変わる。Endの回数/順とOverflow Fault辺を意図的に変更 | sourceとplain/take、caller保持、Retain token、格納済field、Birth部分Faultの責任 |
+| ウ: fieldの読む側を先にする | 約4〜6群、+180〜350行 | constructorは不変。選択directの読取MIRに一時tokenとoverflow Fault辺を追加 | 元field/supportが取得まで有効、取得Normalのみtoken、式末尾/Fault prefixで逆順Release |
+
+現在のHome flowは前向きの消費と同一式の順序を持つだけで、関数全体のlast-use解析ではない
+（`home_expression_ownership.rs:32,93`、`home_call_entry_transfer.rs:137`）。
+アの「既存互換moveを当面維持」と「RC意味論に対する最適化」は分ける。
+後のreadが無い事だけでは、親が先に消える時の元localの寿命・fini順・weakからの観測を守れない。
+無印move elisionは、元の持分終端・fini/weak・全Fault経路・overflowの観測を変えない証明が必要。
+no-hook/nonweakのdirect閉包は今回の限定であり、一般の許可ではない。
+ADR-003:13の「足すか移す」だけを根拠に、:97,103のlocal保持契約をlast-useへ変更しない。
+アなら木のstore対は0となり、確認1のRn-arg一致条件も変更判断が要る。
+ウの途中比較はRb-arg相当の参考値にとどめ、格納をつなぐ前にRn-arg達成と数えない。
+
+### 11.3 C1とC2を分ける条件と費用
+
+C1は、sourceの受理を変えず、既存test内の手組みMIRを本物serializerとCのEXE経路へ渡す。
+`ownership_ssa/tests.rs:17,45` → `physical_program_json_composite_tests.rs:117`のencoder →
+`lang/c-abi/tests/published_lifecycle_v4_execution_test.py:29-54`のdriver/link/executeを再利用する。
+test用にproductionのsource publicationを迂回する入口は作らない。操作だけ別のJSONに手書きし直さない。
+
+Retain削除/Copy置換、Release欠落/二重/取得前、Fault片付け欠落、Normal tokenのFault使用を
+Rust/C両方で拒否し、null・overflow・最後のReleaseのEXEを確認する。
+Counted関数は`published_homes.rs:54-90`のNoHomes/OutsideModelやBirth除外へ逃がさない。
+未対応のmanaged形は名前付き拒否。source計画を独立検証の代わりにしない。
+
+別枠+415行のうち、再利用候補材料は119行（操作model/delegate62、physical17、schema13、
+C emit/index/helper18、構造guard9）。C flow68行は未完成、残り228行はmodel/End/source接続等。
+Rust token検証は試作に無く、Releaseのnull処理も未完。119行も動作確認済み部品ではない。
+C1はproduction **+450〜850行**、test **+150〜350行**の見込み。415行で完成すると見積もらない。
+plain/takeはRetainの存在から決めず、元契約とcallee全出口/caller義務を独立照合する。
+既存公開情報では不足すると判明した場合だけ、追加ABIを別の承認事項として提示する。
+
+「使い手なし」の例外として、同じ選択seriesで最初のC2まで続ける承認を条件とする。
+C1だけで製品完了を宣言せず、C2が成立せずseriesを閉じるなら、C1専用の操作・dispatch・
+schema受理・flow/emit・専用test・未接続glueを同じseriesで退役する。既存B/C0と既存安全性testは保持する。
+
+### 11.4 一つの計画で証拠を運ぶ
+
+格納側の結合点は既存`ConstructionPlanV1.execution`（`instance_construction.rs:175-219`）。
+新しいCounted専用plan ownerは作らない。constructor batchは元writer inventoryを既に持つ
+（`instance_constructor_semantic.rs:538,614`）。
+
+1. 既存object-definitionのcanonical selectorでdirectを一度解決し、その検証済結果を貸す。envの再parseや型名からの所属推測はしない。
+2. 同じwriter loanのRc source graphを、元store/fieldとformal ordinal・需要へ一度結ぶ。construction executionはその同じchecked frameを保持する。
+3. callerはNew siteごとに同じconstructor planのformal需要を借りる。argumentごとにsource/constructor/formalを探し直さない。
+   formal宣言の正本は既存BirthFormalContractのまま。field ordinalの需要列を引数ordinalとして流用せず、元formalとの対応を投影する。
+4. birth writerは同じstore executionを共通evaluatorへ渡す。値/所有dataと行き先だけで取得・移転を決め、元Parameterを再分類しない。
+5. source/physical対応は同じloan/frameを保持する。公開MIR/CFGからの独立検証は別に残す。
+
+frameのsupportが保持先のfinal planを参照し返すRc循環を避け、元source/writer loanへ向ける。
+50〜100行減っても試作の接続は約326〜376行で、未実装の格納consumerも残る。
+この案だけで旧150〜300行へ戻るとは約束しない。
+
+D/E/Fの共通単位はconstructor planそのものではなく、既存`CheckedExpressionEvaluationV1`、
+`EvaluatedBoxReferenceV1`、`EmittedExpressionBodyV1`と一つのordered temporaryである。
+Dは既存Field support、Eは既存Call-entryの評価順/取得済prefix、Fは同じOwned tokenと真の由来を渡す。
+場所ごとの新しい証明器やconstructor adapterのコピーは追加しない。
+Fの`finalized_object_return_outcomes.rs:146-151`のFresh/OwnedCall/Null制限は、別の許可判断が必要。
+新origin/ABIが必要と判明したら、その公開契約をユーザーに分けて提示する。
+
+### 11.5 段ごとの見込みと判断
+
+全て整形後productionの**純増見込み**。C1の検証と早期選択を一度だけ計上し、既存B/C0は含めない。
+
+| 段・推奨順 | 見込み | まだ確かめていない点 |
+|---|---:|---|
+| C1 操作・独立検証 | +450〜850 | 手組みMIR→同serializer→EXE、token slotとpointerの分離 |
+| C2=ウ（Dの最初の式内読み） | +180〜350 | 既存の条件とreceiverの各1経路で、同じField support・式末尾/Fault prefixを接続 |
+| Dの残り | +100〜250 | 枝/loop・複合式の既存支持関係まで一般化。最初のC2だけでD完了とは数えない |
+| Cの格納を後から接続 | +250〜550 | 選択/共通評価は上で計上済み。イのlocal保持・Birth field責任 |
+| E 引数とreceiver | +180〜400 | caller保持、後続引数の破壊/ Fault、callee保存 |
+| F Return | +300〜650 | 公開role×origin境界。追加契約が要るなら別承認 |
+| G local・共有・scope/loop | +200〜500 | 異なるtokenの合流、全出口、共有後の最後のEnd |
+| 3c 位置別判定の退役 | −100〜+350 | 追加200〜450/削除100〜300。純減保証ではない |
+
+C〜Gで約+1700〜3600行、3c込みで約+1600〜3900行、testは別に約+800〜1700行の見込み。
+これはdirect/no-hook/nonweakの確認と3cの費用であり、weak/fini・containerや旧配置へのRC・既定切替・selfhost移行は含まない。
+同じ処理を各段へ複製した場合の数字ではない。上限を新たに承認した表でもない。
+3cは`qualified_static_incoming_source.rs:70`と5consumer等を共通Call nodeが取る同seriesで消す。
+移動だけや検証削除で削減を数えない。
+
+前の150〜300行は、格納writerへの短い接続を中心に見積もり、MIR完成後にしか無かった配置選択、
+birthの別source表現、caller暗黙move、元formalと共通frameの境界費用を落としていた。
+さらにRust独立検証のNoHomes/Birthと格納済fieldの責任が未実装だった。RC加減算そのものより、
+意味と証拠を複数の既存境界へ運ぶ費用が支配していた。今回も削減量は実装で未検証である。
+
+続ける価値は**限定したC1→C2を一度確かめる範囲ではある**。成功やコンパイラ純減は未証明。
+同じowner/台帳で最初のfield読みも閉じなければ、無期限にadapterを増やさず確認不成立を検討する。
+やめる場合は自動配置の試作/C1専用品を外し、ADR-002でも使えるBの反復EndとC0の型付き参照・共通台帳を保持する。
+ユーザーが決める事: ウ先行、同series限定のC1先行例外、改訂費用で確認を続けるか。
+アへの意味変更・Fの公開契約・ADR本採用は、今回の推奨に含めて決定しない。
