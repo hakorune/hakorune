@@ -241,7 +241,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 }
                 continue;
             }
-            if let (Node::Reference(_), Some(EvaluatedExpressionValueV1::DeclaredRead(value))) =
+            if let (Node::Reference(_), Some(EvaluatedExpressionValueV1::BoxReference(value))) =
                 (node.source(), value)
             {
                 if !matches!(self.frame.references().get(&index), Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::Alias(_) | crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::NullableResult(
@@ -250,14 +250,14 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     .reference_reads
                     .get(&index)
                     .ok_or_else(|| freeze("expression/reference-source-node"))?;
-                if read.declared_read_value_v1(self.frame, index, context)? != *value {
+                if EvaluatedExpressionValueV1::borrowed_reference_v1(read.declared_read_value_v1(self.frame, index, context)?, &self.frame.references()[&index])? != EvaluatedExpressionValueV1::BoxReference(value.clone()) {
                     return Err(freeze("expression/reference-source-node"));
                 }
                 continue;
             }
             if let (
                 Node::Literal(Literal::Null),
-                Some(EvaluatedExpressionValueV1::DeclaredRead(value)),
+                Some(EvaluatedExpressionValueV1::Null(value)),
             ) = (node.source(), value)
             {
                 if !self.frame.operations().iter().any(|loan| {
@@ -290,6 +290,33 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     self.original,
                 )?;
                 continue;
+            }
+            if let (Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }), Some(value)) = (node.source(), value) {
+                if matches!(value, EvaluatedExpressionValueV1::BoxReference(_)
+                    | EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(_) | Operand::OwnedString(_))) {
+                    let site = OwnedExprSiteV1::new(source.owner(), node.site().clone());
+                    let emitted = ledger.expression_field_read_bindings_v1(&site, source, context)?;
+                    let boxed = self.frame.class(index) == Some(crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
+                        crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::BoxReference));
+                    if boxed != matches!(value, EvaluatedExpressionValueV1::BoxReference(_))
+                        || matches!(value, EvaluatedExpressionValueV1::Operand(Operand::OwnedString(_)))
+                            != self.frame.owned_result_nodes().contains(&index) {
+                        return Err(freeze("print-expression/field-source-value"));
+                    }
+                    if let EvaluatedExpressionValueV1::BoxReference(reference) = value {
+                        let descriptor = ledger.local_field_source_v1(&site)
+                            .ok_or_else(|| freeze("print-expression/field-source-value"))?;
+                        if reference.field_source().is_none_or(|original| !Rc::ptr_eq(original, &descriptor)) {
+                            return Err(freeze("print-expression/field-source-value"));
+                        }
+                    }
+                    if !matches!(emitted.last().map(|row| &row.1), Some(MirInstruction::ObjectFieldGet { dst, .. }
+                        | MirInstruction::InvokeNormalResult { dst, .. }) if Some(*dst) == value.value())
+                        || emitted.iter().any(|row| !self.original.contains(row)) {
+                        return Err(freeze("print-expression/field-source-value"));
+                    }
+                    continue;
+                }
             }
             let value = value.map(|value| value.as_operand()).transpose()?;
             match (node.source(), value) {
@@ -380,33 +407,6 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     if self.dynamic_calls().any(|packet| {
                         packet.source().site().site() == node.site() && packet.value() == *value
                     }) => {}
-                (
-                    Node::Shape(
-                        crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess {
-                            ..
-                        },
-                    ),
-                    Some(operand @ (Operand::NormalInteger(dst) | Operand::OwnedString(dst))),
-                ) => {
-                    if matches!(operand, Operand::OwnedString(_))
-                        != self.frame.owned_result_nodes().contains(&index)
-                    {
-                        return Err(freeze("print-expression/field-source-value"));
-                    }
-                    let emitted = ledger.expression_field_read_bindings_v1(
-                        &OwnedExprSiteV1::new(source.owner(), node.site().clone()),
-                        source,
-                        context,
-                    )?;
-                    if !matches!(emitted.last().map(|binding| &binding.1), Some(MirInstruction::ObjectFieldGet { dst: actual, .. }
-                        | MirInstruction::InvokeNormalResult { dst: actual, .. }) if actual == dst)
-                        || emitted
-                            .iter()
-                            .any(|binding| !self.original.contains(binding))
-                    {
-                        return Err(freeze("print-expression/field-source-value"));
-                    }
-                }
                 (Node::Binary(binary), Some(value)) => {
                     let left = find_value(binary.lhs())?;
                     let right = find_value(binary.rhs())?;

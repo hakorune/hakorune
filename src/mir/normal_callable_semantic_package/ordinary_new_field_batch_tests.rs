@@ -29,7 +29,7 @@ fn rows() -> Vec<(OwnedExprSiteV1, field_reads::LocalFieldRead)> {
                     let owned = OwnedExprSiteV1::new(declaration.owner(), site.clone());
                     let source = package
                         .ordinary_new_claim_ledger
-                        .staged_local_field_source(&owned)
+                        .local_field_source_v1(&owned)
                         .expect("staged read");
                     rows.push((
                         owned,

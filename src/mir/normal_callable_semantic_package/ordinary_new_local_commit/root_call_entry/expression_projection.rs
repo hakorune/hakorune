@@ -190,9 +190,9 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic) =>
                     EvaluatedExpressionValueV1::Operand(Operand::Dynamic(value)),
             crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
-                crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Opaque)
-                if matches!(self.frame.references().get(&0), Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::NullableResult(
-                    crate::mir::resolved_semantics::home_new_prefix::NullableResultReferenceV1::DeclaredFrom(_)))) => EvaluatedExpressionValueV1::DeclaredRead(value),
+                crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::BoxReference) =>
+                    EvaluatedExpressionValueV1::borrowed_reference_v1(value, self.frame.references().get(&0)
+                        .ok_or_else(|| freeze("expression/reference-source-node"))?)?,
             _ => (if text { Operand::OwnedString(value) } else { Operand::NormalInteger(value) }).into(),
         };
         match acquisition {

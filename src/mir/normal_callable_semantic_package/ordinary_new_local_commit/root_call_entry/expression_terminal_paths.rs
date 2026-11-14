@@ -391,7 +391,7 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
                 operations
             }
             TransientPrefixOriginV1::Emitted { live, .. } => {
-                live.iter().rev().map(|temporary| temporary.end_operation()).collect()
+                live.iter().rev().map(|temporary| temporary.end_operation()).collect::<Result<Vec<_>, _>>()?
             }
             TransientPrefixOriginV1::Evaluation { acquired, .. } => acquired
                 .iter()

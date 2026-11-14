@@ -7,30 +7,20 @@ pub(super) fn emit_string_value(
     operation: Operation,
     node: usize,
     fault_frame: ValueId,
-    acquired: &mut Vec<(usize, ValueId)>,
-    dynamic_carriers: &[(usize, ValueId)],
-    temporary_order: &mut Vec<usize>,
+    temporaries: &mut Vec<(usize, ExpressionOwnedTemporaryV1)>,
     homes: &[InvokeOperation],
     bindings: &mut Vec<Binding>,
 ) -> Result<Operand, String> {
-    let before = acquired.len();
     let (value, result) = emit_string_operation_v1(
         builder,
         writer,
         operation,
         node,
         fault_frame,
-        acquired,
-        dynamic_carriers,
-        temporary_order,
+        temporaries,
         homes,
         bindings,
     )?;
-    if acquired.len() == before + 1 {
-        temporary_order.push(node);
-    } else if acquired.len() != before {
-        return Err(freeze("expression/string-acquisition-count"));
-    }
     match result {
         crate::mir::instruction::InvokeNormalResultKind::OwnedString => {
             Ok(Operand::OwnedString(value))
@@ -48,13 +38,11 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn emit_string_ope
     operation: Operation,
     node: usize,
     fault_frame: ValueId,
-    acquired: &mut Vec<(usize, ValueId)>,
-    dynamic_carriers: &[(usize, ValueId)],
-    temporary_order: &[usize],
+    temporaries: &mut Vec<(usize, ExpressionOwnedTemporaryV1)>,
     homes: &[InvokeOperation],
     bindings: &mut Vec<Binding>,
 ) -> Result<(ValueId, crate::mir::instruction::InvokeNormalResultKind), String> {
-    let pending = FaultCleanupPlanV1::pending(acquired, dynamic_carriers, temporary_order, homes)?;
+    let pending = FaultCleanupPlanV1::pending(temporaries, homes)?;
     let (value, result, _) = emit_scalar_operation_with_pending_v1(
         builder,
         writer,
@@ -64,7 +52,7 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn emit_string_ope
         bindings,
     )?;
     if result == crate::mir::instruction::InvokeNormalResultKind::OwnedString {
-        acquired.push((node, value));
+        temporaries.push((node, ExpressionOwnedTemporaryV1::String(value)));
     }
     Ok((value, result))
 }

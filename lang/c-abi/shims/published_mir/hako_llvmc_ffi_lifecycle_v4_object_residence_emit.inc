@@ -1,14 +1,15 @@
 #include "../../../../include/nyrt_observe_v1.h"
 
 /* The live count shares word zero with the postorder parent only after zero.
- * Volatile, non-atomic accesses preserve the physical release boundary; no
- * thread sharing, runtime helper or measurement mode is introduced. */
+ * Ordinary non-atomic accesses suffice: direct types have no hooks/weak
+ * fields, and no call can observe or reenter between the count and zero test.
+ * Volatile would add neither ownership nor thread-safety guarantees. */
 static void lv4_emit_direct_count_drop(FILE* f, const char* pointer,
     const char* stem, const char* zero, const char* retained) {
   fprintf(f,
-      "  %%%s_rc_count = load volatile i64, ptr %s, align 8\n"
+      "  %%%s_rc_count = load i64, ptr %s, align 8\n"
       "  %%%s_rc_next = sub i64 %%%s_rc_count, 1\n"
-      "  store volatile i64 %%%s_rc_next, ptr %s, align 8\n"
+      "  store i64 %%%s_rc_next, ptr %s, align 8\n"
       "  %%%s_rc_is_zero = icmp eq i64 %%%s_rc_next, 0\n"
       "  br i1 %%%s_rc_is_zero, label %%%s, label %%%s\n",
       stem, pointer, stem, stem, stem, pointer, stem, stem, stem, zero, retained);

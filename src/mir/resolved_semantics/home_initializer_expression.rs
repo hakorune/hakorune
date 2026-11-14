@@ -416,6 +416,7 @@ pub(crate) fn qualify_alias_null_initializer_v1(
     source: Rc<ExpressionSourcePlanV1>,
     binding: BindingRefV1,
     root: BindingRefV1,
+    class: Box<str>,
     homes: &[LiveHomeV1],
 ) -> Option<HomeExpressionPlanV1> {
     source.root().initializer()?;
@@ -438,13 +439,14 @@ pub(crate) fn qualify_alias_null_initializer_v1(
             null,
             binding,
             root,
+            class,
         },
     });
     loan.nullable_alias_null_v1()?;
     let order = source.ordered_postorder_v1().ok()?;
     let mut classes = vec![Leaf::Unresolved; source.nodes().len()];
     classes[0] = Leaf::Value(Class::Bool);
-    classes[reference] = Leaf::Value(Class::Opaque);
+    classes[reference] = Leaf::Value(Class::BoxReference);
     classes[null] = Leaf::Value(Class::Null);
     if order.iter().any(|node| classes[*node] == Leaf::Unresolved) {
         return None;

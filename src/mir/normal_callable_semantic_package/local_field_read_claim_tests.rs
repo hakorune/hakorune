@@ -72,7 +72,7 @@ fn local_field_read_claims_scalar_on_selected_new_home() {
              static box Main {{ main() {{ local pool = new Pool() local n = pool.size return n }} }}",
         )).expect("existing numeric field profile");
         let site = field_access_site(&package, "size");
-        let source = package.ordinary_new_claim_ledger.staged_local_field_source(&site).unwrap();
+        let source = package.ordinary_new_claim_ledger.local_field_source_v1(&site).unwrap();
         assert_eq!(source.result(), &LocalFieldReadResultV1::Scalar);
         assert_eq!(source.declared_type_name(), Some(declared));
         assert_eq!(source.field().declaration_ordinal(), 0);

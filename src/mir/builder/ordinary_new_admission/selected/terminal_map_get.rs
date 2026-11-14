@@ -19,7 +19,7 @@ fn emit_read(builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState
     // The retained original key is passive. Do not materialize or transfer it.
     let expression = expression_value::emit(builder, state, ledger, key,
         &mut |_, _, _, _, _, _| Err(freeze("map-get-shape")))?;
-    if expression.purpose_acquisition.is_some() || !expression.body.acquired.is_empty()
+    if expression.purpose_acquisition.is_some() || !expression.body.string_acquisitions_v1().is_empty()
         || !expression.body.calls.is_empty() || !expression.body.path_reads.is_empty() {
         return Err(freeze("map-get-shape"));
     }

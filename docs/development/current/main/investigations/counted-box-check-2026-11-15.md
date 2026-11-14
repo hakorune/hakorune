@@ -204,3 +204,58 @@ non-directは`lv4_direct_layout`の別分岐。directの選択は
 
 計数時はzero判定直後を観測する。時分割後/free時のword0はparentであり、RCではない。
 計数専用の外部IRコピーで観測し、本番emitterへ実験hook/envを入れない。
+
+## 8. C0: main 047f764b21での再追跡と実装範囲（2026-11-15）
+
+操作案1〜4はユーザー承認済み。Returnのrole×origin境界は未承認のまま。
+この回は受理・成功MIR不変。Retain/Releaseは追加しない。
+
+| 現在の導線（read-only workerで確認） | C0で引き取る責務 / 残す照合 |
+|---|---|
+| `home_scalar_operation_preflight.rs:59-107` → `home_initializer_expression.rs:415-475` | Aliasの元class/rootを捨てず保持。既存alias/nullの元binding・source・順序を保持 |
+| `home_expression_evaluation.rs:381-510,544-608` → `home_expression_leaves.rs:433-448` | 型付きBox参照classとsource由来をdata化。所有/借りは別軸、Opaque/Integerへ推測しない |
+| `root_call_entry/expression_read_value.rs:40-88` → `selected/expression_value.rs:458-465,550-566` | DeclaredReadを型付き参照dataへ。exact read/definition/source/field/nullabilityの検査を保持 |
+| `selected/expression_value.rs:44-59,65-111` → `expression_value/invoke.rs:16-68` | acquired/carriers/orderの並列記録を一つのtyped ordered temporaryへ。取得Normalで一度記録 |
+| `fault_cleanup_plan.rs:35-63` → `expression_value/cleanup.rs:4-140` | 同じ台帳から逆順Endを投影。条件の選択node/packet/lifecycle/Core/Sub根拠は保持 |
+| `expression_value/cleanup.rs:318-353` → deferred/transient prefix | source temporaryとpurpose取得は別のphase。同じnodeをキーに上書きしない。Dynamic延期は終了済みの子を復活させない |
+| `root_call_entry/expression_acquisition_paths.rs` → terminal cleanup | 公開命令からの独立照合なので生成側の重複として削除しない |
+
+同じ回で消す候補（移動行は削減に数えない）:
+
+- `FaultCleanupPlanV1::owed_operations`のnode→String/Carrierの二重探索とcoverage再構成。
+- `ordered_owned_temporaries_v1`のvaluesからの種類再分類。台帳の同じ順序を借りる。
+- `bool_condition_temporary_operations_v1`の種類別End BTreeMapと順序再構成。
+- `emit_string_value`のacquired.len前後比較＋別order追記。取得をtyped entry一回にする。
+- terminalのscalar/Text評価後の重複登録。分類優先順位を保ち、共通評価の後で一度登録。
+
+型と台帳は既存familyに置く。Boxの型/由来/借りsupportは元sourceの証拠を保持し、
+SSA pointer定義とOwned tokenの辺ごとの生存を混同しない。Box-owned entryは表現のみ、
+C0では生成しない。Endを要求されたら未接続の名前付き拒否とし、Fresh/Sharedへ偽装しない。
+
+file責務の再編（新owner/driver/writerは追加しない）:
+
+- expression_value: 結果/台帳model、exact-read予約・commit、既存の順序付き下降。
+- home_new_prefix_terminal: 既存分類順を維持し、責任移転・exit snapshot適用を分離。
+- home_expression_evaluation: frame、参照のseed/照合、資格判定を既存family内で分離。
+- cleanup: 一時値の照合/移転、既存continuation graph適用、inline記録を責務で分離。
+
+数え方の基準: source graph owner=1、checked評価record=1、physical評価body=1。
+purpose wrapperと完成観測projectionは別欄で記録し、owner水増しに使わない。
+body内temporary保存列は3→1、既存typed enumは1→1の拡張。
+生成側の種類別再構築は上記3関数を同じ範囲で前後比較する。
+
+volatileは現productionでは不要と判断。directはno-hook/非weak/非Array閉包で、
+load/sub/store/zero間に外部callがなく、再入・thread共有の保証にもならない。
+通常load/storeへ外し、数え上げ・Fault/free順序・機械語とA40交互12回を確認する。
+基準の結果が変わったら進めず報告する。
+
+C0実装の形: 既存EvaluatedExpressionValueにBoxReferenceとNullを分離して載せ、
+Boxの所有dataはBorrowed(元support) / Owned(後続段のSSA-slot token)と由来を保持する。
+元Alias/from/field証拠を参照し、canonical payloadの証拠が無い場合はlayoutをNoneのままにする。
+宣言名からcanonical IDを作らない。Box-owned temporaryの取得はまだ無く、End投影は名前付き未接続拒否。
+一つのsource順序台帳をFault/Normal/延期へ投影し、callbackの既存String-only契約には派生viewを渡す。
+Dynamic rootの移転・materializeの別phase・独立した公開命令照合を保持した。
+ReadInputsはexact readの束を渡すdataで、expression body/graph/cleanupのownerではない。
+条件のpacket/source照合は維持し、重複Dynamic packetも旧境界と同じく拒否する。
+既存test-only field source getterは、同じ不変descriptorを返すproduction投影へ改名して再利用した。
+800行だったargumentsは、構築後の既存cleanup適用を責務で分離した（移動は削減に数えない）。

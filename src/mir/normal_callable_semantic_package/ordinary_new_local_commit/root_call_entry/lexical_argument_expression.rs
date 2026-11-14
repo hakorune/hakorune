@@ -206,12 +206,12 @@ impl LexicalCallArgumentProjectionV1 {
                 .new_argument_object_cleanup_v1(&acquisition, *value)
                 .map(|(_, operations)| operations);
         }
-        Ok(self
+        self
             .deferred_temporaries_v1(context)?
             .into_iter()
             .rev()
             .map(ExpressionOwnedTemporaryV1::end_operation)
-            .collect())
+            .collect()
     }
 
     /// Ownership-prefix corroboration only. Non-expression arguments add no

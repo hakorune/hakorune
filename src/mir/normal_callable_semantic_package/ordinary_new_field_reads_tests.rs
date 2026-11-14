@@ -206,7 +206,7 @@ fn local_field_declaration_descriptor_survives_emission_and_rejects_replacement(
         )).unwrap();
         let ledger = &package.ordinary_new_claim_ledger;
         let site = ledger.local_field_reads.borrow().keys().next().unwrap().clone();
-        let source = ledger.staged_local_field_source(&site).unwrap();
+        let source = ledger.local_field_source_v1(&site).unwrap();
         assert_eq!(source.declared_type_name(), Some(declared));
         let (base, taken) = ledger.take_local_field_read(&site, |_| Ok(ValueId(10))).unwrap().unwrap();
         assert!(Rc::ptr_eq(&source, &taken));
@@ -297,7 +297,7 @@ fn local_field_declaration_descriptor_survives_emission_and_rejects_replacement(
     let (base, source) = ledger.take_local_field_read(&site, |_| Ok(ValueId(10))).unwrap().unwrap();
     let crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(alias) = source.result() else { unreachable!() };
     assert!(alias.integer_requirement_v1().is_none());
-    let original = ledger.staged_local_field_source(&site).unwrap();
+    let original = ledger.local_field_source_v1(&site).unwrap();
     assert!(Rc::ptr_eq(&source, &original));
     for instruction in [
         MirInstruction::ObjectFieldGet { dst: ValueId(11), base, field: source.field() },

@@ -57,6 +57,8 @@ pub(crate) use binding_rebind_expression::{
     qualify_binding_rebind_expression_with_loop_dynamic_v1, BindingRebindDestinationV1,
     CheckedBindingRebindFrameV1,
 };
+#[path = "home_expression_references.rs"]
+mod references;
 #[path = "home_expression_evaluation.rs"]
 mod evaluation;
 pub(crate) use evaluation::{

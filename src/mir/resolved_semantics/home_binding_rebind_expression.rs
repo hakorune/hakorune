@@ -273,7 +273,7 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         reject_rebind!("expression-qualification");
     };
     let class = match destination {
-        BindingRebindDestinationV1::DeclaredRead(_) => Class::Opaque,
+        BindingRebindDestinationV1::DeclaredRead(_) => Class::BoxReference,
         BindingRebindDestinationV1::Integer => Class::I64,
         BindingRebindDestinationV1::Bool => Class::Bool,
         BindingRebindDestinationV1::DynamicLoopCarrier(_) => Class::Dynamic,

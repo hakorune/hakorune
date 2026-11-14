@@ -504,8 +504,7 @@ mod tests {
                 body: crate::mir::builder::EmittedExpressionBodyV1 {
                     values: Vec::new(), calls: Vec::new(), dynamic_calls: Vec::new(),
                     path_reads: Vec::new(), reference_reads: Default::default(),
-                    acquired: Vec::new(), dynamic_carriers: Vec::new(),
-                    temporary_order: Vec::new(), homes: Vec::new(), fault_frame: Some(crate::mir::ValueId(0)),
+                    temporaries: Vec::new(), homes: Vec::new(), fault_frame: Some(crate::mir::ValueId(0)),
                     inline_range: None,
                     entry: Some((BasicBlockId(1), MirInstruction::Jump { target: BasicBlockId(2), edge_args: None })),
                     bindings: Vec::new(),
@@ -562,7 +561,7 @@ impl PreparedLexicalCallProjectionV1 {
                 values.push(temporary);
             }
         }
-        Ok(values.into_iter().rev().map(ExpressionOwnedTemporaryV1::end_operation).collect())
+        values.into_iter().rev().map(ExpressionOwnedTemporaryV1::end_operation).collect()
     }
 }
 
