@@ -554,3 +554,20 @@ QualifiedTerminalへ昇格するだけの試作（R24–R26）は、Localとは�
 B5のinstance試作は一度非literalを束外として保留したが、再監査で分類を訂正した。既存CompletedTextResultSourceはliteral/TextResidenceを同一のCompletion・terminal-map receiptで扱い、Localも同値で既に受理する。同じReturn purpose不足を閉じるだけなので、R23の同原因束として進める。新source/result/cleanup契約は追加しない。
 
 R34. 全sourceのtarget censusと実行caller cohortは分ける。新zero Returnの全source検査は保持し、元selected mapと保持済root Completionのownerで実行callerを照合し、それ以外の明示的に省略されたcallerだけ実行finish要求から除く。選択済みcallerの観測欠落は従来どおり拒否する。既存testの対象claimはselectorから元owner/siteへ結び、package全体の件数で代用しない。
+
+### 段 B5 の Opus の確認と統合（2026-11-15）
+
+- Codex 実装、Opus 監査。`map-contract-b5` を `--no-ff` で統合した。
+- 中身: static の呼び出しの直接の return（main の中と、普通の関数の中）と、instance method が返した完成 Text を使う return が、local の形と同じ値で通る。Return は共通の評価（`prepare_value_evaluation_v1`）を通る。新しい writer・cleanup・公開の契約は無い。
+- 行数: 整形後の production +211 行、test +10 行。file は最大 637 行。
+- Opus の確認:
+  - ビルド: 作業 tree で cargo を空で実行し、binary の SHA が報告と一致した（`fcdb9e66…`）。
+  - 入力: B4 の 330 本と、Opus の新しい 33 本（t01–t18）を、B4 の binary と比べた。変わったのは 20 本。成功 → 拒否は 0 本、return だけ通る形は 0 本、成功同士の MIR は全部同じ。新しく通った値は正しい（`Main.sq(x)`、if の中、入れ子の呼び出し、再帰、loop の後、print の順）。
+  - lib の失敗 223 名は、B4 の 224 名の部分集合。`git diff --check`、private の走査、pointer guard は PASS。stash は 2 件のまま。
+  - End と Fault（112 回の実行）は Codex が数えた。Opus は数え直していない。
+- **閉じ方についての記録（ユーザーに相談して統合、2026-11-15）:** 判定 `is_scalar_return_source_v1`（結果が I64、formal が全部 i64 の宣言、呼び出しが return の根そのもの）を 1 つ足し、5 か所で使っている。消した判定は無い。持ち主は 1 つだが、場所と形に縛られた判定で、[ADR-003](../../../adr/adr-003-counted-box-default.md) の 3c（場所ごとの判定を消す回）で消す候補にする。
+- 残っている return の穴（local では通る。**もう 1 つずつは閉じない。ADR-003 の 3a〜3c でまとめて閉じる**）:
+  - `return Main.sq(2) + 1`（呼び出しの結果に演算を足した形。`main-arguments/root-completion`）。
+  - `return Foo.tri(3, 4, 5)` で、callee の中身が `a * b - c` の形（`published-lifecycle-program/scalar-source-coverage`）。除算を含む callee も同じ。
+  - 前からの local の側の差 `b-field-local` と、rebind の `has_call_below_operation_v1` は、変わっていない。
+
