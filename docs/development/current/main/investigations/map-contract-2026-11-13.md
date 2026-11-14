@@ -542,3 +542,10 @@ D=限定filter 1行、A=0、U=終端semicolon 1箇所と同数3行の契約comme
 instance purpose の接続は、直接 Text Return・Text 連結・非literal callee にも影響し得るため、基準と比較する。追加の結果型や nullable Dynamic の Local 限定を広げない。
 
 見積もり D/A/U: 重複した purpose/terminal の判定を増やさず既存ownerの条件と接続を変更する。production は数十行以内の差分を想定（上限800行、単なる圧縮をしない）。新しい持ち主・公開型・writer・cleanup は0。独立 End 欠落/重複の既存行列を再利用し、新しい test/checker は既存証拠で不足する場合のみ理由を記録する。
+
+
+B5 追跡の確定: static の直接 Return は既存 `QualifiedTerminal` の元 Call 資格へ接続する。共通式側の Core/whole-binding/result の3関門を別々に広げる案は、既存 statement-level scalar owner と二重になるため採らない。
+
+- R24. terminal の元入力契約は、既存 ordinary source cohort に加え、元 Qualified I64 結果かつ全 formal が既存 `is_i64_actual_v1` である契約（0引数を含む）。宣言名・arityの型紙では選ばない。
+- R25. R24 と元 ReturnValue site・元 source/cardinality の照合を共有する。既存 tagged-input finish の `is_static_terminal_source_v1` は旧 ordinary cohort のまま保ち、parameter0 の前提を壊さない。広い元 terminal query は actual 観測・Qualified source 引数要求・source 投影の既存3consumerだけが借りる。実行entryは既存の入力/完成/引数検証が決める。
+- R26. instance は既存 purpose 列挙へ ReturnValue を接続するだけとし、完成 Text の元結果照合と Dynamic の Local 限定は変えない。束外への影響は基準比較で判定する。
