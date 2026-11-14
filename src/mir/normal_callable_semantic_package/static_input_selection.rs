@@ -145,7 +145,35 @@ impl OrdinaryNewClaimLedgerV1 {
         } else {
             source.source_incoming.project(&owners)
         };
-        calls.map_err(|issue| format!("{}: {issue:?}", freeze("borrowed-formal/incoming-coverage")))
+        let calls = calls.map_err(|issue| {
+            format!("{}: {issue:?}", freeze("borrowed-formal/incoming-coverage"))
+        })?;
+        if !source_return {
+            return Ok(calls);
+        }
+        let (selected, _) = self
+            .original_instance_input_issuance
+            .as_ref()
+            .ok_or_else(|| freeze("static-zero/selected-key"))?;
+        // Keep every source target and validate its census above, but only
+        // selected callers carry executable obligations. An omitted caller's
+        // source-only row cannot lend (or demand) a finished execution input.
+        Ok(calls
+            .into_vec()
+            .into_iter()
+            .filter(|call| match &call.source {
+                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) => {
+                    selected
+                        .batch_slot(
+                            &crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
+                                original.caller().clone(),
+                            ),
+                        )
+                        .is_some()
+                }
+                _ => true,
+            })
+            .collect())
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn is_static_expression_input_owner_v1(

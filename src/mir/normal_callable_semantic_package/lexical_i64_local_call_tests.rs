@@ -136,7 +136,12 @@ fn lexical_i64_call_claims_parameter_argument() {
         static box Main { main() { return Helpers.lookup(9) } }",
     )
     .expect("parameter-argument package");
-    let calls = local_calls(&package);
+    let (owner, site) = call_site_of(&package, "allocate");
+    let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site);
+    let calls: Vec<_> = local_calls(&package)
+        .into_iter()
+        .filter(|call| call.site() == &site)
+        .collect();
     let [call] = calls.as_slice() else {
         panic!("one lexical i64 call claim, got {calls:?}")
     };
@@ -197,7 +202,12 @@ fn lexical_i64_call_claims_arithmetic_over_exact_i64_values() {
     // A computed i64 (`+ - *` over Integer literals and exact-i64 formals)
     // is a no-borrow scalar result: it joins the same lane as a literal or
     // formal return, with no instance-specific path.
-    for body in ["return x + 1", "return 1 + 2", "return x * x - 3", "return (x + 1) * 2"] {
+    for body in [
+        "return x + 1",
+        "return 1 + 2",
+        "return x * x - 3",
+        "return (x + 1) * 2",
+    ] {
         let source = format!(
             "box Calc {{ birth() {{ }}
                 add(x: i64): i64 {{ {body} }} }}
@@ -209,7 +219,9 @@ fn lexical_i64_call_claims_arithmetic_over_exact_i64_values() {
         );
         let package = issue(&source).unwrap_or_else(|issue| panic!("{body} package: {issue:?}"));
         assert!(
-            local_calls(&package).iter().any(|call| call.result() == LocalCallResultClassV1::I64),
+            local_calls(&package)
+                .iter()
+                .any(|call| call.result() == LocalCallResultClassV1::I64),
             "{body}: claims an i64 local-call row"
         );
         assert!(new_claim_prefix_covered(&package), "{body}: prefix covered");
@@ -218,7 +230,11 @@ fn lexical_i64_call_claims_arithmetic_over_exact_i64_values() {
 
 #[test]
 fn lexical_i64_call_claims_exact_i64_receiver_fields_in_arithmetic() {
-    for body in ["return me.base + x", "return me.base * 10 + x", "return me.base"] {
+    for body in [
+        "return me.base + x",
+        "return me.base * 10 + x",
+        "return me.base",
+    ] {
         let source = format!(
             "box Calc {{ base: i64
                 birth(base) {{ me.base = base }}
@@ -231,7 +247,9 @@ fn lexical_i64_call_claims_exact_i64_receiver_fields_in_arithmetic() {
         );
         let package = issue(&source).unwrap_or_else(|issue| panic!("{body} package: {issue:?}"));
         assert!(
-            local_calls(&package).iter().any(|call| call.result() == LocalCallResultClassV1::I64),
+            local_calls(&package)
+                .iter()
+                .any(|call| call.result() == LocalCallResultClassV1::I64),
             "{body}: claims an i64 local-call row"
         );
     }
@@ -253,7 +271,9 @@ fn lexical_i64_call_claims_exact_i64_receiver_fields_in_arithmetic() {
         );
         if let Ok(package) = issue(&source) {
             assert!(
-                local_calls(&package).iter().all(|call| call.result() != LocalCallResultClassV1::I64),
+                local_calls(&package)
+                    .iter()
+                    .all(|call| call.result() != LocalCallResultClassV1::I64),
                 "{label}: unclaimed"
             );
         }
@@ -291,7 +311,9 @@ fn lexical_i64_call_keeps_non_arithmetic_results_unclaimed() {
         );
         let package = issue(&source).unwrap_or_else(|issue| panic!("{label} package: {issue:?}"));
         assert!(
-            local_calls(&package).iter().all(|call| call.result() != LocalCallResultClassV1::I64),
+            local_calls(&package)
+                .iter()
+                .all(|call| call.result() != LocalCallResultClassV1::I64),
             "{label}: unclaimed call issues no i64 local-call row"
         );
     }
@@ -581,7 +603,9 @@ fn lexical_i64_call_follows_locals_to_their_initializer_class() {
         );
         let package = issue(&source).unwrap_or_else(|issue| panic!("{body} package: {issue:?}"));
         assert!(
-            local_calls(&package).iter().any(|call| call.result() == LocalCallResultClassV1::I64),
+            local_calls(&package)
+                .iter()
+                .any(|call| call.result() == LocalCallResultClassV1::I64),
             "{body}: claims an i64 local-call row"
         );
     }
@@ -593,6 +617,8 @@ fn lexical_i64_call_follows_locals_to_their_initializer_class() {
             return 0
         } }";
     if let Ok(package) = issue(source) {
-        assert!(local_calls(&package).iter().all(|call| call.result() != LocalCallResultClassV1::I64));
+        assert!(local_calls(&package)
+            .iter()
+            .all(|call| call.result() != LocalCallResultClassV1::I64));
     }
 }

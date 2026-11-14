@@ -552,3 +552,5 @@ QualifiedTerminalへ昇格するだけの試作（R24–R26）は、Localとは�
 
 
 B5のinstance試作は一度非literalを束外として保留したが、再監査で分類を訂正した。既存CompletedTextResultSourceはliteral/TextResidenceを同一のCompletion・terminal-map receiptで扱い、Localも同値で既に受理する。同じReturn purpose不足を閉じるだけなので、R23の同原因束として進める。新source/result/cleanup契約は追加しない。
+
+R34. 全sourceのtarget censusと実行caller cohortは分ける。新zero Returnの全source検査は保持し、元selected mapで明示的に省略されたcallerだけ実行finish要求から除く。選択済みcallerの観測欠落は従来どおり拒否する。既存testの対象claimはselectorから元owner/siteへ結び、package全体の件数で代用しない。
