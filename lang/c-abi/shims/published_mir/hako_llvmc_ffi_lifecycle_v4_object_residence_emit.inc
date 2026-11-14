@@ -1,5 +1,19 @@
 #include "../../../../include/nyrt_observe_v1.h"
 
+/* The live count shares word zero with the postorder parent only after zero.
+ * Volatile, non-atomic accesses preserve the physical release boundary; no
+ * thread sharing, runtime helper or measurement mode is introduced. */
+static void lv4_emit_direct_count_drop(FILE* f, const char* pointer,
+    const char* stem, const char* zero, const char* retained) {
+  fprintf(f,
+      "  %%%s_rc_count = load volatile i64, ptr %s, align 8\n"
+      "  %%%s_rc_next = sub i64 %%%s_rc_count, 1\n"
+      "  store volatile i64 %%%s_rc_next, ptr %s, align 8\n"
+      "  %%%s_rc_is_zero = icmp eq i64 %%%s_rc_next, 0\n"
+      "  br i1 %%%s_rc_is_zero, label %%%s, label %%%s\n",
+      stem, pointer, stem, stem, stem, pointer, stem, stem, stem, zero, retained);
+}
+
 /* Storage for the same admitted owning-field tuple. This projection issues
  * no source capability: Birth/flow already checked the original field edge.
  * Null/Fresh is the existing cohort; Forward remains unadmitted here. */
@@ -157,13 +171,17 @@ static void lv4_direct_globals(FILE* f, const hako_lv4_input* in) {
         "  br i1 %%failed, label %%allocation_fault, label %%allocated\nallocation_fault:\n"
         "  %%fault = call i32 @\"nyash.fault.record_static_v1\"(ptr %%frame, i32 100, i64 %%site, i64 0, i64 0)\n"
         "  ret i32 %%fault\nallocated:\n%s"
-        "  store ptr null, ptr %%allocation, align 8\n"
+        "  store i64 1, ptr %%allocation, align 8\n"
         "  %%cursor = getelementptr i8, ptr %%allocation, i64 8\n  store i64 %llu, ptr %%cursor, align 8\n"
-        "  %%word = ptrtoint ptr %%allocation to i64\n  store i64 %%word, ptr %%out, align 8\n  ret i32 0\n}\n"
-        "define internal i32 @hako_direct_release_%u(i64 %%word%s) {\nentry:\n"
-        "  %%allocation = inttoptr i64 %%word to ptr\n%s  call void @free(ptr %%allocation)\n%s  ret i32 0\n}\n",
+        "  %%word = ptrtoint ptr %%allocation to i64\n  store i64 %%word, ptr %%out, align 8\n  ret i32 0\n}\n",
         id, (unsigned long long)size, id, count, id, id, id, id, lv4_direct_event_ir(in, NYRT_OBSERVE_ALLOC),
-        (unsigned long long)(((uint64_t)id << 32) | count), id, in->observe_objects ? ", i32 %event" : "",
+        (unsigned long long)(((uint64_t)id << 32) | count));
+    fprintf(f, "define internal i32 @hako_direct_release_%u(i64 %%word%s) {\nentry:\n"
+        "  %%allocation = inttoptr i64 %%word to ptr\n",
+        id, in->observe_objects ? ", i32 %event" : "");
+    lv4_emit_direct_count_drop(f, "%allocation", "release", "release_zero", "release_retained");
+    fprintf(f, "release_zero:\n%s  call void @free(ptr %%allocation)\n%s"
+        "  ret i32 0\nrelease_retained:\n  ret i32 0\n}\n",
         in->observe_objects ? "  call void @\"nyash.observe.object_storage_event_v1\"(i32 1, i32 %event)\n" : "",
         lv4_direct_event_ir(in, NYRT_OBSERVE_FREE));
   }

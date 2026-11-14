@@ -313,6 +313,7 @@ static void* deep_node(void* left, void* right) {
   void* node = __real_malloc(V4_DEEP_SIZE);
   assert(node);
   memset(node, 0, V4_DEEP_SIZE);
+  *(uint64_t*)node = 1; /* Live count, matching generated direct allocation. */
   *(uint64_t*)((char*)node + V4_DEEP_LEFT) = (uint64_t)(uintptr_t)left;
   *(uint64_t*)((char*)node + V4_DEEP_RIGHT) = (uint64_t)(uintptr_t)right;
   return node;
