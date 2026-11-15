@@ -443,9 +443,6 @@ pub(in crate::mir) use condition_materialization::ConditionMaterializationV1;
 mod if_form;
 pub(in crate::mir) use if_form::IfConditionMaterializationV1;
 mod indexing; // indexing expression/assignment lowering
-mod raw_lambda_capture_lifecycle; // consuming raw Lambda capture/publication lifecycle
-mod raw_lambda_closure_emission; // source-neutral NewClosure/body publication terminal
-mod raw_lambda_lexical_observation; // source-only raw Lambda lexical observer
 mod weak_field_write;
 // Phase 29bq+: sealing 層中立化
 mod declaration_order; // Deterministic box-member traversal owner

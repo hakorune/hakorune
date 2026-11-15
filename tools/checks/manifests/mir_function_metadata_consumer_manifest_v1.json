@@ -757,7 +757,6 @@
      "src/mir/builder/phi_type_publication/connection.rs",
      "src/mir/builder/phi_type_publication/decision.rs",
      "src/mir/builder/raw_expression_dispatch/static_box_state.rs",
-     "src/mir/builder/raw_lambda_closure_emission.rs",
      "src/mir/builder/raw_root_body_exit.rs",
      "src/mir/builder/raw_root_body_lowering.rs",
      "src/mir/builder/record_helper_args.rs",
@@ -838,7 +837,7 @@
      "src/mir/array_receiver_proof.rs:121:value_types",
      "src/mir/builder/array_element_write.rs:24:value_types"
     ],
-    "count": 129
+    "count": 128
    },
    "backend_consumer": {
     "role": "selected_observed",

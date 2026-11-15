@@ -431,3 +431,10 @@ scalar scan/TextEqの専用corridorは採用しない。旧実装の参照: `935
 明示backend 3種（raw-vm-reference・normal-file-vm-reference・normal-file-canonical-core-vm-reference）と専有adapter/testを退役。共有VM本体・VM/Hako実行・raw compile request・source continuationを保持し、現役testが読むinteger_0 fixtureも保持した。
 最適化CLIで固定5,386入力のMIR/拒否/出力/exit差0（EXE生成1,471、timeout0）、focused22件PASS。featureの通る2構成はPASS、既存のvm-reference 1件とcli-no-plugins 11件のerror集合は不変。
 整形後Rustは本体6,225行/test3,126行の純減、Rust40file退役。登録名75件減・全件一意な旧定義に対応。旧段階名/anchorに依存する一部guardの既存不整合は保持し、基準を緩めない。F17のparser・AST・TryCatch carrier・catch/throw/cleanupは変更なし。
+
+### 段B F16: 古い lambda 生成の退役
+
+旧`fn(...) {...}`は元のexpression dispatcherで`LegacyLambdaSurfaceRetired`として拒否し、専有のcapture/closure生成器とfree-variable collectorを退役した。将来の`fn[captures](...): T`は予約のまま無効。公開NewClosure/ClosureBodyId・JSON reader・closure call独立検証・source capture情報を保持し、F17の面とcarrierは変更しない。
+固定5,386入力の差は承認済みの`phase29bq_selfhost_funcscanner_lambda_literal_min.hako`と`write-compare/t3_map_update.hako`だけ。両者は所定の拒否に変わり、残り5,384入力のMIR/拒否/出力/exitは不変。EXE成功1,471件を維持しtimeout0、dumpのみの後者も旧/新binaryでEXE未生成と補足確認した。
+focused23件PASS。旧生成成功testを同じ入力の名前付き拒否・命令/closure非公開・変数不変のtestへ置換し、専有test12件を削除（登録8734→8722、旧13名/新1名・未説明差0）。Hako parserのlambda-pair smokeはJSON解析の保証なので保持。整形後Rustは本体1,022行/test350行の純減、Rust4file退役。旧台帳は退役PASS12件と置換名/hashだけを更新し、FAIL集合を維持した。
+固定suite8/8、owner数・pointer guard・diff check PASS。全lib直列と全feature最終確認はseries最終で行う。

@@ -2179,7 +2179,7 @@ mir::builder::raw_expression_dispatch::static_box_state::tests::success_restores
 mir::builder::raw_expression_dispatch::tests::legacy_body_and_statement_facades_preserve_input_view_parity
 mir::builder::raw_expression_dispatch::tests::normal_nonmain_static_box_undecided_mode_freezes_before_registration
 mir::builder::raw_expression_dispatch::tests::prepared_integer_new_consumes_one_const_route
-mir::builder::raw_expression_dispatch::tests::raw_lambda_dispatches_once_with_source_ordered_captures
+mir::builder::raw_expression_dispatch::tests::raw_lambda_rejects_before_capture_or_closure_publication
 mir::builder::raw_expression_dispatch::tests::raw_legacy_explicit_root_compatibility_keeps_existing_order
 mir::builder::raw_expression_dispatch::tests::raw_legacy_nested_static_main_retires_before_effects
 mir::builder::raw_expression_dispatch::tests::raw_legacy_nested_static_main_retires_from_body_statement_and_expression_facades
@@ -2214,15 +2214,6 @@ mir::builder::raw_invocation_source_transport::tests::scalar_local::local_select
 mir::builder::raw_invocation_source_transport::tests::scalar_local::local_special_initializer_hooks_keep_exact_nested_sources
 mir::builder::raw_invocation_source_transport::tests::scalar_local::scalar_single_value_statements_keep_exact_parent_sites
 mir::builder::raw_invocation_source_transport::tests::scalar_local::scalar_statements_are_located_including_unsupported_targets
-mir::builder::raw_lambda_capture_lifecycle::tests::direct_me_requires_an_explicit_receiver_before_metadata_effect
-mir::builder::raw_lambda_capture_lifecycle::tests::emit_failure_does_not_publish_reserved_body
-mir::builder::raw_lambda_capture_lifecycle::tests::external_body_commits_only_after_closure_emission
-mir::builder::raw_lambda_capture_lifecycle::tests::selected_capture_receipt_uses_the_existing_closure_emitter
-mir::builder::raw_lambda_capture_lifecycle::tests::selected_script_lambda_capture_matches_legacy_lowering
-mir::builder::raw_lambda_capture_lifecycle::tests::unavailable_capture_fails_before_metadata_or_value_effect
-mir::builder::raw_lambda_lexical_observation::tests::direct_receiver_and_string_name_remain_distinct_demands
-mir::builder::raw_lambda_lexical_observation::tests::nested_owner_rejects_before_materialization
-mir::builder::raw_lambda_lexical_observation::tests::preserves_first_external_demand_order_and_local_initializer_timing
 mir::builder::raw_loop_child_entry::loop_true_tests::armed_loop_true_edge_lowers_through_the_source_port
 mir::builder::raw_loop_child_entry::tests::accepts_plain_loop_syntax_without_box_declaration
 mir::builder::raw_loop_child_entry::tests::armed_loop_cond_edge_lowers_through_the_source_port
@@ -2727,9 +2718,6 @@ mir::builder::vars::assignment_resolver::tests::parameter_observation_without_id
 mir::builder::vars::assignment_resolver::tests::reassignment_keeps_existing_lexical_identity
 mir::builder::vars::assignment_resolver::tests::rejects_value_publication_without_lexical_identity
 mir::builder::vars::assignment_resolver::tests::synthetic_pin_named_assignment_is_rejected
-mir::builder::vars::free_vars::tests::block_local_does_not_leak_to_outer_scope
-mir::builder::vars::free_vars::tests::local_initializer_is_counted_as_read_before_declare
-mir::builder::vars::free_vars::tests::scopebox_local_does_not_leak_to_outer_scope
 mir::builder::vars::lexical_scope::tests::declaration_and_shadowing_use_one_binding_allocator
 mir::builder::vars::lexical_scope::tests::local_binding_snapshot_restores_values_and_identity_together
 mir::builder::vars::lexical_scope::tests::scoped_transaction_restores_after_success_and_emits_keepalive

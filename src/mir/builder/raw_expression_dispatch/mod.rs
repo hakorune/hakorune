@@ -42,7 +42,6 @@ use super::ops::{
     RawLegacyBinaryInputV1, RawLegacyShortCircuitInputV1, ShortCircuitExpressionDescentPortV1,
 };
 use super::qmark_source_demand::QMarkPropagationSourceDemandPortV1;
-use super::raw_lambda_capture_lifecycle::RawLambdaCaptureDemandPortV1;
 use super::raw_structured_child_scope::RawStructuredChildScopePortV1;
 use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
 use super::recursive_child_lowering::{
@@ -93,7 +92,6 @@ pub(in crate::mir::builder) trait RawExpressionDispatchPortV1:
     + RecordLiteralSourceDemandPortV1
     + EnumVariantSourceDemandPortV1
     + EnumMatchSourceDemandPortV1
-    + RawLambdaCaptureDemandPortV1
     + QMarkPropagationSourceDemandPortV1
     + ExplicitExternSourcePortV1
     + BrandConstructorSourcePortV1
@@ -143,7 +141,6 @@ impl<Port> RawExpressionDispatchPortV1 for Port where
         + RecordLiteralSourceDemandPortV1
         + EnumVariantSourceDemandPortV1
         + EnumMatchSourceDemandPortV1
-        + RawLambdaCaptureDemandPortV1
         + QMarkPropagationSourceDemandPortV1
         + ExplicitExternSourcePortV1
         + BrandConstructorSourcePortV1
@@ -495,17 +492,10 @@ impl super::MirBuilder {
                 Ok(value)
             }
 
-            ASTNode::Lambda { params, body, .. } => {
-                if let Some(captures) = port.selected_lambda_captures_v1()? {
-                    return super::raw_lambda_capture_lifecycle::PreparedRawLambdaLexicalCaptureLifecycleV1::lower_with_selected_captures_v1(
-                        params, body, captures, self,
-                    );
-                }
-                super::raw_lambda_capture_lifecycle::PreparedRawLambdaLexicalCaptureLifecycleV1::prepare(
-                    params, body,
-                )?
-                .lower_with_builder_v1(self)
-            }
+            ASTNode::Lambda { .. } => Err(
+                "[freeze:contract][LegacyLambdaSurfaceRetired]: legacy fn(...) {...} expressions are retired; explicit-capture fn[captures](...): T remains reserved"
+                    .to_string(),
+            ),
 
             ASTNode::BoxDeclaration {
                 name,

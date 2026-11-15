@@ -20341,18 +20341,6 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/raw_lambda_lexical_observation.rs:281:mir_return",
-      "evidence": "ASTNode::Return { value, .. } => match value {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 281,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/raw_lambda_lexical_observation.rs",
-      "token": "mir_return"
-    },
-    {
       "control_flow_evidence_id": "control.return_unit.src/mir/builder/raw_required_condition_draft.rs:42:mir_return",
       "evidence": "entry.add_instruction(MirInstruction::Return { value: Some(value) });",
       "evidence_kind": "mir_return",
@@ -21730,18 +21718,6 @@
       "resolution": "Pending",
       "site_ref": null,
       "source_path": "src/mir/builder/stmts/task_scope_stmt.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/vars/free_vars.rs:190:mir_return",
-      "evidence": "ASTNode::Return { value, .. } => {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 190,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/vars/free_vars.rs",
       "token": "mir_return"
     },
     {

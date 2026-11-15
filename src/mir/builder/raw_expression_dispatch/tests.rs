@@ -437,7 +437,7 @@ fn raw_nonmain_static_box_failure_keeps_inner_state_and_primary_error() {
 }
 
 #[test]
-fn raw_lambda_dispatches_once_with_source_ordered_captures() {
+fn raw_lambda_rejects_before_capture_or_closure_publication() {
     let mut builder = MirBuilder::new();
     crate::test_support::with_env_vars(&crate::test_support::METHODIZE_SELECTOR_UNSET, || {
         builder.prepare_module()
@@ -465,32 +465,30 @@ fn raw_lambda_dispatches_once_with_source_ordered_captures() {
         body: vec![add(variable("first"), variable("second"))],
         span: Span::unknown(),
     };
+    let variables_before = builder.function_state.variable_ctx.variable_map.clone();
+    assert!(instructions(&builder).is_empty());
+    assert!(builder
+        .current_module
+        .as_ref()
+        .unwrap()
+        .metadata
+        .closure_bodies
+        .is_empty());
     let mut port = RawLegacyChildLoweringPortV1;
-    let dst = builder
+    let error = builder
         .build_expression_impl_with_port_v1(&mut port, lambda)
-        .unwrap();
-
-    let closure = instructions(&builder)
-        .into_iter()
-        .find(|instruction| matches!(instruction, MirInstruction::NewClosure { dst: actual, .. } if *actual == dst))
-        .expect("one closure instruction");
-    assert!(matches!(
-        closure,
-        MirInstruction::NewClosure {
-            body_id: Some(0),
-            captures,
-            me: None,
-            ..
-        } if captures == vec![("first".into(), ValueId(11)), ("second".into(), ValueId(12))]
-    ));
+        .unwrap_err();
+    assert!(error.starts_with("[freeze:contract][LegacyLambdaSurfaceRetired]"));
+    assert!(instructions(&builder).is_empty());
+    assert!(builder
+        .current_module
+        .as_ref()
+        .unwrap()
+        .metadata
+        .closure_bodies
+        .is_empty());
     assert_eq!(
-        builder
-            .current_module
-            .as_ref()
-            .unwrap()
-            .metadata
-            .closure_bodies
-            .len(),
-        1
+        builder.function_state.variable_ctx.variable_map,
+        variables_before
     );
 }

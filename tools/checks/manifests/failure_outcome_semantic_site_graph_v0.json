@@ -34,41 +34,41 @@
     },
     {
       "evidence": "RESULT-001. They use qualified constructors such as `Option::None` and",
-      "evidence_id": "docs/reference/language/EBNF.md:414:Option::None",
+      "evidence_id": "docs/reference/language/EBNF.md:416:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 414,
+      "line": 416,
       "source_path": "docs/reference/language/EBNF.md",
       "token": "Option::None"
     },
     {
       "evidence": "local r: Result<Handle, AllocError> = Result::Err(AllocError::ZeroSize)",
-      "evidence_id": "docs/reference/language/EBNF.md:842:Result::Err",
+      "evidence_id": "docs/reference/language/EBNF.md:844:Result::Err",
       "evidence_kind": "result_constructor",
-      "line": 842,
+      "line": 844,
       "source_path": "docs/reference/language/EBNF.md",
       "token": "Result::Err"
     },
     {
       "evidence": "Option::None",
-      "evidence_id": "docs/reference/language/EBNF.md:877:Option::None",
+      "evidence_id": "docs/reference/language/EBNF.md:879:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 877,
+      "line": 879,
       "source_path": "docs/reference/language/EBNF.md",
       "token": "Option::None"
     },
     {
       "evidence": "Result::Err(reason)",
-      "evidence_id": "docs/reference/language/EBNF.md:879:Result::Err",
+      "evidence_id": "docs/reference/language/EBNF.md:881:Result::Err",
       "evidence_kind": "result_constructor",
-      "line": 879,
+      "line": 881,
       "source_path": "docs/reference/language/EBNF.md",
       "token": "Result::Err"
     },
     {
       "evidence": "postfix_catch      := primary_expr 'catch' ( '(' ( IDENT IDENT | IDENT )? ')' )? block",
-      "evidence_id": "docs/reference/language/EBNF.md:988:postfix_catch",
+      "evidence_id": "docs/reference/language/EBNF.md:990:postfix_catch",
       "evidence_kind": "catch_profile_surface",
-      "line": 988,
+      "line": 990,
       "source_path": "docs/reference/language/EBNF.md",
       "token": "postfix_catch"
     },
@@ -5965,7 +5965,7 @@
       "current_carrier": "postfix_catch",
       "evidence_refs": [
         "docs/reference/constraints.md:46:postfix_catch",
-        "docs/reference/language/EBNF.md:988:postfix_catch"
+        "docs/reference/language/EBNF.md:990:postfix_catch"
       ],
       "layer": "reference",
       "migration_action": "",
@@ -6061,8 +6061,8 @@
       "backend_policy": "reference_only",
       "current_carrier": "Option::None",
       "evidence_refs": [
-        "docs/reference/language/EBNF.md:414:Option::None",
-        "docs/reference/language/EBNF.md:877:Option::None",
+        "docs/reference/language/EBNF.md:416:Option::None",
+        "docs/reference/language/EBNF.md:879:Option::None",
         "docs/reference/language/failure-outcome-relations.md:101:Option::None",
         "docs/reference/language/failure-outcome-relations.md:104:Option::None",
         "docs/reference/language/failure-outcome-relations.md:105:Option::None",
@@ -6110,8 +6110,8 @@
       "backend_policy": "reference_only",
       "current_carrier": "Result::Err",
       "evidence_refs": [
-        "docs/reference/language/EBNF.md:842:Result::Err",
-        "docs/reference/language/EBNF.md:879:Result::Err",
+        "docs/reference/language/EBNF.md:844:Result::Err",
+        "docs/reference/language/EBNF.md:881:Result::Err",
         "docs/reference/language/LANGUAGE_REFERENCE_2025.md:949:Result::Err",
         "docs/reference/language/failure-outcome-relations.md:100:Result::Err",
         "docs/reference/language/failure-outcome-relations.md:103:Result::Err",

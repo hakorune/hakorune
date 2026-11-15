@@ -180,8 +180,8 @@
       "backend_policy": "reference_only",
       "current_carrier": "Option::None",
       "evidence_refs": [
-        "docs/reference/language/EBNF.md:414:Option::None",
-        "docs/reference/language/EBNF.md:877:Option::None",
+        "docs/reference/language/EBNF.md:416:Option::None",
+        "docs/reference/language/EBNF.md:879:Option::None",
         "docs/reference/language/failure-outcome-relations.md:101:Option::None",
         "docs/reference/language/failure-outcome-relations.md:104:Option::None",
         "docs/reference/language/failure-outcome-relations.md:105:Option::None",
@@ -231,8 +231,8 @@
       "backend_policy": "reference_only",
       "current_carrier": "Result::Err",
       "evidence_refs": [
-        "docs/reference/language/EBNF.md:842:Result::Err",
-        "docs/reference/language/EBNF.md:879:Result::Err",
+        "docs/reference/language/EBNF.md:844:Result::Err",
+        "docs/reference/language/EBNF.md:881:Result::Err",
         "docs/reference/language/LANGUAGE_REFERENCE_2025.md:949:Result::Err",
         "docs/reference/language/failure-outcome-relations.md:100:Result::Err",
         "docs/reference/language/failure-outcome-relations.md:103:Result::Err",
