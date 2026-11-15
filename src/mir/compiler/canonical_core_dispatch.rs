@@ -183,19 +183,6 @@ pub(crate) enum CanonicalCoreInvocationFailureStageV1 {
     Publication,
 }
 
-impl CanonicalCoreInvocationFailureReportV1 {
-    pub(crate) const fn stage(&self) -> CanonicalCoreInvocationFailureStageV1 {
-        self.stage
-    }
-
-    pub(crate) const fn code(&self) -> &'static str {
-        self.code
-    }
-
-    pub(crate) fn detail(&self) -> &str {
-        &self.detail
-    }
-}
 
 impl From<RejectedCanonicalCorePublishedSourceEntryV1> for CanonicalCoreInvocationFailureReportV1 {
     fn from(rejected: RejectedCanonicalCorePublishedSourceEntryV1) -> Self {

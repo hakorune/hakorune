@@ -216,9 +216,6 @@ impl RejectedCanonicalSourceEntryPublicationV1 {
         self.stage
     }
 
-    pub(in crate::mir) fn cause(&self) -> &CanonicalSourceEntryPublicationErrorV1 {
-        &self.cause
-    }
 
     pub(in crate::mir) fn discard(self) {
         drop(self);
