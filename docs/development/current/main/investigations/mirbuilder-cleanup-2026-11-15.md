@@ -155,3 +155,35 @@ LLVM が測れる行 432,887 のうち:
 - つまり、builder の約 4 割は、今ある入力のどれも通らない。その 3 分の 2 は、test が支えている code である。
 - 次に決める事(ユーザー): test だけが使う code を、test と一緒に消すか。どれを残すか。
 
+## 整理2: 削除前の一覧（2026-11-15）
+
+本回は文書だけで、本体/test変更0。main `ad9091898f` と整理1最終codeは同じ。
+調査済み162塊・所有file957。CLI0の追加358fileを全て対応させた。現役file内部の未実行関数を全件読み切った意味ではない。
+
+|区分|塊|整形後production専有|支えるtest行|
+|---|---:|---:|---:|
+|ア|1|268|118|
+|イ|128|128393|51200|
+|ウ|21|18862|15640|
+|エ|12|7577|3335|
+
+アは旧generic_loop_canon/condition 3leafのみ、268行＋親の型/宣言8行、test118行/5関数の退役見込み。実際の削除は0行。
+入口0・CLI0・feature未使用・exact R1指定・旧caller削除6e88441c0bを確認。後発keepは配置先分類であり新callerではなかった。
+guard3本の旧path参照とreceipt/censusを同じseriesで更新し、現役loop_condition_shape/UpdateCanon/step/updateの検証は残す必要がある。
+
+安全性責務35項目を別表へ。範囲限定で現役検査・後継を確認18、潜在1、未確定16。確定した現役の穴の反例0は、全体安全性の保証ではない。
+元17検査はいずれもtestで実行されている。cleanup/portable PHIの後継完全同値は未証明なのでUNKNOWNへ保守化した。
+
+|selfhostの最初の壁（上位）|旧dump拒否file数|
+|---|---:|
+|CoreMethodSource/NamedArray(TextSourceMissing)|67|
+|OrdinaryNew/BatchLoan|65|
+|ordinary-new/borrowed-static/forward-source-missing|38|
+|LoopBreakSource/UnsupportedAncestor|24|
+|ordinary-new/borrowed-static/text-expression-execution-pending|9|
+
+旧dumpは488中176成功/311拒否/1timeout。現在のEXE入口15件は生成1/拒否14、非入口473は測れない。
+生成1はschema Mainのreturn0で、compiler.hako/compiler_stagebは拒否。selfhost達成とは数えない。
+所有の印はShared専用7Rust 1112整形行＋1C include70物理行と、move/take混在owner372整形行を分離。削減候補へ加えない。
+コードを消さず、ユーザーの判断用の全一覧・根拠・未確認範囲を日本語の整理2報告に保存した。
+
