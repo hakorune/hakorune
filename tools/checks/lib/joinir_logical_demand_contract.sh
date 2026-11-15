@@ -29,9 +29,6 @@ guard_joinir_logical_demand_contract() {
   local loop_route_policy_dir="$root_dir/src/mir/loop_route_policy"
   local route_registry_dir="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry"
   local generic_resolved_test_prefix="$route_registry_dir/generic_resolved_carrier_"
-  local loop_phi_materializer="$root_dir/src/mir/builder/control_flow/plan/loop_phi_materializer.rs"
-  local loop_phi_materializer_tests="$root_dir/src/mir/builder/control_flow/plan/loop_phi_materializer_tests.rs"
-  local loop_accum_physical_role_tests="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physical_role_plan_tests.rs"
   local loop_accum_binding_ssa_tests="$root_dir/src/mir/builder/control_flow/plan/loop_accum_binding_ssa_session_tests.rs"
   local loop_accum_emitter_tests="$root_dir/src/mir/builder/control_flow/plan/loop_accum_binding_ssa_emitter_tests.rs"
   local loop_recipe_producer_tests="$root_dir/src/mir/builder/control_flow/plan/loop_recipe_producer_facade_tests.rs"
@@ -62,8 +59,6 @@ guard_joinir_logical_demand_contract() {
 
   guard_require_files "$tag" "${files[@]}"
   guard_require_files "$tag" \
-    "$loop_phi_materializer" "$loop_phi_materializer_tests" \
-    "$loop_accum_physical_role_tests" \
     "$loop_accum_binding_ssa_tests" "$loop_accum_emitter_tests" \
     "$loop_physical_edge_path" "$direct_accum_issuer" "$direct_accum_capability" "$variable_accum_recipe_producer" \
     "$direct_accum_projection" "$direct_accum_observation_adapter" \
@@ -71,9 +66,6 @@ guard_joinir_logical_demand_contract() {
     "$loop_cond_source_projection" "$loop_cond_observation_adapter" "$nested_observation_source" \
     "$nested_observation_adapter" "$nested_observation_policy" "$nested_observation_tests" \
     "$generic_g0_observation_adapter"
-  if ! rg -q '^#!\[cfg\(test\)\]' "$loop_accum_physical_role_tests"; then
-    guard_fail "$tag" "physical role-plan observer must remain cfg(test)-only"
-  fi
   if ! rg -q '^#!\[cfg\(test\)\]' "$loop_accum_binding_ssa_tests"; then
     guard_fail "$tag" "Binding-SSA session proof must remain cfg(test)-only"
   fi
@@ -156,9 +148,6 @@ guard_joinir_logical_demand_contract() {
         "$root_dir/src/mir" || true; } \
       | awk \
           -v prefix="$portable_recipe_dir/" \
-          -v materializer="$loop_phi_materializer" \
-          -v materializer_tests="$loop_phi_materializer_tests" \
-          -v physical_role_tests="$loop_accum_physical_role_tests" \
           -v binding_ssa_tests="$loop_accum_binding_ssa_tests" \
           -v producer_tests="$loop_recipe_producer_tests" \
           -v nested_producer="$nested_predicate_producer" \
@@ -179,25 +168,10 @@ guard_joinir_logical_demand_contract() {
           -v physicalizer="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs" \
           -v physicalizer_session="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer/session.rs" \
           -v edge_path="$loop_physical_edge_path" \
-          'index($0, prefix) != 1 && $0 != materializer && $0 != materializer_tests  && $0 != physical_role_tests && $0 != binding_ssa_tests && $0 != producer_tests && $0 != nested_producer && $0 != nested_producer_tests && $0 != nested_topology && $0 != nested_topology_tests && $0 != nested_physical_input && $0 != nested_physical_input_tests && $0 != dynamic_physical_input && $0 != dynamic_semantic_tests && $0 != dynamic_recipe_tests && $0 != callable_recipe_coseal && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal && $0 != node_admission && $0 != if_continuation && $0 != physicalizer && $0 != physicalizer_session && $0 != edge_path'
+          'index($0, prefix) != 1 && $0 != binding_ssa_tests && $0 != producer_tests && $0 != nested_producer && $0 != nested_producer_tests && $0 != nested_topology && $0 != nested_topology_tests && $0 != nested_physical_input && $0 != nested_physical_input_tests && $0 != dynamic_physical_input && $0 != dynamic_semantic_tests && $0 != dynamic_recipe_tests && $0 != callable_recipe_coseal && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal && $0 != node_admission && $0 != if_continuation && $0 != physicalizer && $0 != physicalizer_session && $0 != edge_path'
   )
   if (( ${#join_sig_external_files[@]} != 0 )); then
     guard_fail "$tag" "caller-zero logical JoinSig symbols escaped the contract subtree"
-  fi
-  if rg -n \
-    'ssa::phi_input_materializer|for_pred|define_phi_final|materialize_all_phi_inputs|BindingSsaBuilderV1|compute_predecessors|update_cfg|RouteAttemptOutcome|RouteFn|CorePlan|CanonicalLoopFacts|ASTNode' \
-    "$loop_phi_materializer" >/dev/null; then
-    guard_fail "$tag" "Loop PHI materializer bypassed the JoinSig/PhiTxn boundary"
-  fi
-  local loop_phi_external_callers=()
-  mapfile -t loop_phi_external_callers < <(
-    { rg -l 'materialize_loop_phis\(' "$root_dir/src/mir" || true; } \
-      | awk -v materializer="$loop_phi_materializer" \
-          -v materializer_tests="$loop_phi_materializer_tests" \
-          '$0 != materializer && $0 != materializer_tests'
-  )
-  if (( ${#loop_phi_external_callers[@]} != 0 )); then
-    guard_fail "$tag" "caller-zero Loop PHI materializer acquired a production caller"
   fi
   local loop_structural_fact_files=()
   mapfile -t loop_structural_fact_files < <(
@@ -341,9 +315,6 @@ guard_joinir_logical_demand_contract() {
       | awk \
           -v recipe_prefix="$portable_recipe_dir/" \
           -v structural_prefix="$loop_structural_facts_dir/" \
-          -v materializer="$loop_phi_materializer" \
-          -v materializer_tests="$loop_phi_materializer_tests" \
-          -v physical_role_tests="$loop_accum_physical_role_tests" \
           -v binding_ssa_tests="$loop_accum_binding_ssa_tests" \
           -v producer_tests="$loop_recipe_producer_tests" \
           -v nested_producer="$root_dir/src/mir/compiler/nested_predicate_producer.rs" \
@@ -355,17 +326,10 @@ guard_joinir_logical_demand_contract() {
           -v dynamic_recipe_mod="$dynamic_recipe_mod" \
           -v dynamic_physical_input="$dynamic_physical_input" \
           -v generic_test_prefix="$generic_resolved_test_prefix" \
-          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1 && !(index($0, generic_test_prefix) == 1 && $0 ~ /_tests\.rs$/) && $0 != materializer && $0 != materializer_tests  && $0 != physical_role_tests && $0 != binding_ssa_tests && $0 != producer_tests && $0 != nested_producer && $0 != nested_producer_tests && $0 != callable_recipe_coseal && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal && $0 != dynamic_recipe_mod && $0 != dynamic_physical_input'
+          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1 && !(index($0, generic_test_prefix) == 1 && $0 ~ /_tests\.rs$/) && $0 != binding_ssa_tests && $0 != producer_tests && $0 != nested_producer && $0 != nested_producer_tests && $0 != callable_recipe_coseal && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal && $0 != dynamic_recipe_mod && $0 != dynamic_physical_input'
   )
   if (( ${#external_portable_source_files[@]} != 0 )); then
     guard_fail "$tag" "semantic or physical Loop consumer acquired source/provenance authority"
-  fi
-  local loop_phi_materializer_production
-  loop_phi_materializer_production="$(sed '/^#\[cfg(test)\]/,$d' "$loop_phi_materializer")"
-  if printf '%s\n' "$loop_phi_materializer_production" | rg -n \
-    'LoopRecipeArtifactV1|LoopRecipeVerifierV1|ASTNode|LoopSourcePath|LoopRecipeProvenanceV1|LoopRouteId' \
-    >/dev/null; then
-    guard_fail "$tag" "Loop PHI materializer production path acquired source/provenance authority"
   fi
   local external_resolved_source_files=()
   mapfile -t external_resolved_source_files < <(
