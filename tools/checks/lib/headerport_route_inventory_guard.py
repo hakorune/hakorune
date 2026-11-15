@@ -165,7 +165,6 @@ def verify_callable_batch_p0(
     card: str,
     state: str,
 ) -> None:
-    acyclic_path = root / "src/mir/compiler/acyclic_callable_module_plan/tests.rs"
     recursive_path = root / "src/mir/compiler/recursive_callable_module_plan/tests.rs"
     support_path = root / (
         "src/mir/compiler/callable_batch_correspondence_test_support.rs"
@@ -183,7 +182,6 @@ def verify_callable_batch_p0(
     )
     source_failure_path = root / "src/mir/compiler/resolved_callable_module_tests.rs"
     publication_path = root / "src/mir/function/tests.rs"
-    acyclic = acyclic_path.read_text()
     recursive = recursive_path.read_text()
     support = support_path.read_text()
     compiler_mod = compiler_mod_path.read_text()
@@ -194,7 +192,6 @@ def verify_callable_batch_p0(
     publication = publication_path.read_text()
 
     for path, text in (
-        (acyclic_path, acyclic),
         (recursive_path, recursive),
         (support_path, support),
         (transaction_path, transaction),
@@ -205,7 +202,7 @@ def verify_callable_batch_p0(
                 f"ROUTEINV-P0d source/proof must remain below 800 lines: {path}"
             )
 
-    for proof, label in ((acyclic, "acyclic"), (recursive, "recursive")):
+    for proof, label in ( (recursive, "recursive"),):
         for fragment in (
             "fn borrowed_batch_rows(",
             "let functions = module.functions_by_key();",
@@ -243,12 +240,6 @@ def verify_callable_batch_p0(
         "test-only callable-batch support registration",
     )
 
-    for fragment in (
-        "let nodes = plan.graph().nodes();",
-        "assert!(functions.keys().eq(nodes.iter()));",
-        "declaration_reorder_preserves_graph_and_typed_plan_keys",
-    ):
-        require(acyclic, fragment, "ROUTEINV-P0d acyclic exact set/reorder")
     for fragment in (
         "let inventory = plan.partition().inventory();",
         "component_members.sort();",
@@ -296,11 +287,6 @@ def verify_callable_batch_p0(
         "source/resolution failure owner",
     )
     require(
-        acyclic,
-        "rejects_one_function_zero_call_cycles_and_nontrivial_function_profiles",
-        "acyclic plan failure owner",
-    )
-    require(
         recursive,
         "rejects_zero_call_acyclic_and_nontrivial_profiles",
         "recursive plan failure owner",
@@ -324,23 +310,17 @@ def verify_route_matrix_g0(
     builder_mod: str,
     card: str,
 ) -> None:
-    proof_path = root / "src/mir/builder/module_wiring_route_matrix_p0e.rs"
     policy_path = root / "src/mir/module_invocation_policy.rs"
-    matrix_path = root / "src/mir/builder/module_invocation_route_matrix.rs"
     raw_port_path = root / "src/mir/builder/recursive_child_lowering.rs"
     raw_tests_path = root / "src/mir/builder/recursive_child_lowering_rawport_tests.rs"
     raw_header_tests_path = root / "src/mir/builder/recursive_child_lowering_rawport_header_tests.rs"
-    proof = proof_path.read_text()
     policy = policy_path.read_text()
-    matrix = matrix_path.read_text()
     raw_port = raw_port_path.read_text()
     raw_tests = raw_tests_path.read_text()
     raw_header_tests = raw_header_tests_path.read_text()
 
     for path, text in (
-        (proof_path, proof),
         (policy_path, policy),
-        (matrix_path, matrix),
         (raw_port_path, raw_port),
         (raw_tests_path, raw_tests),
         (raw_header_tests_path, raw_header_tests),
@@ -348,49 +328,7 @@ def verify_route_matrix_g0(
         if len(text.splitlines()) >= 800:
             raise AssertionError(f"ROUTEINV-P0e source/proof must remain below 800 lines: {path}")
 
-    for fragment in (
-        "InvocationRouteMatrixV1::rows()",
-        "ModuleInvocationPolicyV1::policy_for_family(family)",
-        "RouteAuthorityLaneV1::RawLedger",
-        "RouteAuthorityLaneV1::SingleOwnerHeader",
-        "RouteAuthorityLaneV1::CallableBatch",
-        "assert_eq!(policy_lane_counts, [4, 3, 1, 1]);",
-        "assert_eq!(projected.len(), 9);",
-        "assert_eq!(authority_counts, [4, 3, 2]);",
-        "route_matrix_projects_all_nine_rows_to_exactly_one_existing_authority",
-        "route_failure_and_publication_laws_remain_matrix_projections",
-    ):
-        require(proof, fragment, "ROUTEINV-P0e matrix projection")
-    for fragment in (
-        "struct RouteObservationV1",
-        "entered: bool",
-        "changed: bool",
-        "entered: true,\n            changed: false",
-        "entered: true,\n            changed: true",
-        "entered_and_changed_observations_are_independent_dimensions",
-    ):
-        require(proof, fragment, "ROUTEINV-P0e independent observation")
-    for fragment in (
-        "InvocationRouteMatrixRowV1 {",
-        "Vec<String>",
-        "BTreeMap",
-        "MirBuilder",
-        "MirModule",
-        "MirFunction",
-        "ModuleDraftCollectorV1",
-    ):
-        forbid(proof, fragment, f"P0e proof owns {fragment}")
-    require(
-        builder_mod,
-        "#[cfg(test)]\nmod module_wiring_route_matrix_p0e;",
-        "test-only P0e registration",
-    )
 
-    require(
-        matrix,
-        "pub(in crate::mir::builder) const fn rows()",
-        "route-matrix SSOT",
-    )
     require(policy, "fn policy_for_family(", "family policy projection")
     require(
         policy,
@@ -421,7 +359,7 @@ def verify_route_matrix_g0(
     for symbol in ("RouteAuthorityProjectionV1", "RouteObservationV1"):
         consumers = []
         for path in (root / "src/mir/builder").rglob("*.rs"):
-            if path in (proof_path, root / "src/mir/builder.rs"):
+            if path in ( root / "src/mir/builder.rs",):
                 continue
             if symbol in path.read_text():
                 consumers.append(str(path.relative_to(root)))

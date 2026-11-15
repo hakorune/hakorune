@@ -9,14 +9,12 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 FIXTURE="$ROOT_DIR/docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-rust-condition-numeric-compare-canon-authority-v0.json"
 SCAN_SHAPES="$ROOT_DIR/src/mir/builder/control_flow/plan/facts/scan_shapes.rs"
 LOOP_CONDITION="$ROOT_DIR/src/mir/builder/control_flow/plan/facts/loop_condition_shape.rs"
-COND_BOUND="$ROOT_DIR/src/mir/builder/control_flow/generic_loop_canon/condition/bound.rs"
-COND_MOD="$ROOT_DIR/src/mir/builder/control_flow/generic_loop_canon/condition/mod.rs"
 ORACLE="$ROOT_DIR/docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-condition-shape-rust-oracle-v0.json"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$FIXTURE" "$SCAN_SHAPES" "$LOOP_CONDITION" "$COND_BOUND" "$COND_MOD" "$ORACLE"
+guard_require_files "$TAG" "$FIXTURE" "$SCAN_SHAPES" "$LOOP_CONDITION" "$ORACLE"
 
-python3 - "$FIXTURE" "$SCAN_SHAPES" "$LOOP_CONDITION" "$COND_BOUND" "$COND_MOD" "$ORACLE" <<'PY'
+python3 - "$FIXTURE" "$SCAN_SHAPES" "$LOOP_CONDITION" "$ORACLE" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -24,9 +22,7 @@ from pathlib import Path
 fixture = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 scan_shapes = Path(sys.argv[2]).read_text(encoding="utf-8")
 loop_condition = Path(sys.argv[3]).read_text(encoding="utf-8")
-cond_bound = Path(sys.argv[4]).read_text(encoding="utf-8")
-cond_mod = Path(sys.argv[5]).read_text(encoding="utf-8")
-oracle = json.loads(Path(sys.argv[6]).read_text(encoding="utf-8"))
+oracle = json.loads(Path(sys.argv[4]).read_text(encoding="utf-8"))
 
 def need(condition, message):
     if not condition:
@@ -61,9 +57,6 @@ need("bound_from_numeric_expr" in loop_condition, "numeric bound helper missing"
 need("ConditionShape::VarCompareBound" in loop_condition, "loop condition shape emission missing")
 need("condition_shape_accepts_var_le_bound_var" in loop_condition, "var bound unit test missing")
 need("condition_shape_inverts_literal_ge_var" in loop_condition, "literal inversion unit test missing")
-need("extract_cmp_from_condition" in cond_bound, "generic loop cmp extractor missing")
-need("invert_cmp" in cond_bound, "generic loop cmp inversion missing")
-need("CondParam::Cmp" in cond_mod, "generic loop cond profile cmp param missing")
 
 oracle_rows = {row.get("case_id"): row for row in oracle.get("rows") or []}
 need(oracle_rows["accept_var_less_equal_bound_var"]["expected_shape"] == "VarCompareBound", "oracle var bound row drift")

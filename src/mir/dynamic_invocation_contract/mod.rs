@@ -3,7 +3,6 @@
 //! This module sits between the route-neutral source target catalog and any
 //! Recipe or physical consumer. See `README.md` for its authority boundary.
 
-mod catalog;
 mod model;
 
 pub(crate) use model::{
@@ -11,7 +10,6 @@ pub(crate) use model::{
     DynamicInvocationEffectV1, DynamicInvocationInputHomeV1, DynamicInvocationOrderingV1,
     DynamicInvocationOutcomeV1, DynamicInvocationSuspensionV1,
     DynamicInvocationSourceLoanV1,
-    VerifiedDynamicInvocationEnvelopeRefV1,
 };
 
 #[cfg(test)]

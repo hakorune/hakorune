@@ -80,13 +80,7 @@ impl<'ast> ParserBoxInstanceMethodSyntaxRowV1<'ast> {
         self.source_site
     }
 
-    pub(crate) const fn name(self) -> &'ast str {
-        self.name
-    }
 
-    pub(crate) const fn params(self) -> &'ast [String] {
-        self.params
-    }
 
     pub(crate) const fn body(self) -> &'ast [ASTNode] {
         self.body

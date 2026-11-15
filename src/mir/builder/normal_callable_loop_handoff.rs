@@ -407,7 +407,6 @@ impl VerifiedCallableSemanticLoopBindingScheduleV1 {
         Ok(CallableSemanticLoopHandoffPreEffectReceiptV1 { source: self.source })
     }
 
-    pub(super) fn loop_site(&self) -> &SourceNodeSiteV1 { self.source.loop_site() }
 
     pub(super) fn receipt_count(&self) -> usize {
         self.source.rows.iter().map(|row| row.receipts().len()).sum()

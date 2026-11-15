@@ -11,7 +11,7 @@ use super::module_invocation_collection::{
 };
 use super::module_invocation_identity::TestInvocationPreflightFactoryV1;
 use super::module_invocation_owner_chain::InvocationBranded;
-use super::module_invocation_route_matrix::InvocationRootFamilyV1;
+use super::module_invocation_identity::ModuleInvocationFamilyV1 as InvocationRootFamilyV1;
 use super::raw_expansion_receipt_ledger::{
     RawCallableMainCompatibilityDispositionV1, RawExpansionDraftRequestV1, RawExpansionDraftRoleV1,
     RawExpansionReceiptLedgerV1,

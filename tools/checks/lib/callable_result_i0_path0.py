@@ -7,10 +7,8 @@ import re
 import sys
 from pathlib import Path
 
-
 def fail(message: str) -> None:
     raise SystemExit(f"[callable-result-i0-path0] {message}")
-
 
 def read(root: Path, relative: str) -> str:
     path = root / relative
@@ -18,12 +16,10 @@ def read(root: Path, relative: str) -> str:
         fail(f"missing {relative}")
     return path.read_text(encoding="utf-8")
 
-
 def require_count(text: str, needle: str, expected: int, label: str) -> None:
     actual = text.count(needle)
     if actual != expected:
         fail(f"{label}: expected={expected} actual={actual}")
-
 
 def main() -> None:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
@@ -36,7 +32,6 @@ def main() -> None:
     shadow_block = read(root, "src/mir/resolved_semantics/shadow/block_expr.rs")
     result_expr = read(root, "src/mir/callable_result_representation/expression_proof.rs")
     result_function = read(root, "src/mir/callable_result_representation/function_proof.rs")
-    activation = read(root, "src/mir/callable_result_representation/activation.rs")
 
     require_count(policy, "enum ExprChildRoleV1", 1, "expression role owner")
     require_count(policy, "enum BodyChildRoleV1", 1, "body role owner")
@@ -68,18 +63,11 @@ def main() -> None:
         "all-observation selection and query",
     )
 
-    require_count(
-        activation,
-        "observe_method_calls_shadow_view_v0(",
-        1,
-        "A0 disconnected observer consumer",
-    )
     unexpected_consumers = 0
     for path in (root / "src").rglob("*.rs"):
         if (
             path.name.endswith("tests.rs")
             or path == root / "src/mir/resolved_semantics/shadow/resolver.rs"
-            or path == root / "src/mir/callable_result_representation/activation.rs"
         ):
             continue
         unexpected_consumers += path.read_text(encoding="utf-8").count(
@@ -117,9 +105,8 @@ def main() -> None:
 
     print(
         "[callable-result-i0-path0] ok: policy=1 walker=1 calls=15 "
-        "a0_consumers=1 runtime_consumers=0"
+        "retired_a0_consumers=0 runtime_consumers=0"
     )
-
 
 if __name__ == "__main__":
     main()

@@ -8,7 +8,6 @@ from pathlib import Path
 
 from callable_result_i0_site0_r0_expr0_spine0_loop0 import _production, _read
 
-
 BASE = "src/mir/builder/control_flow/plan/generic_loop/located_representation"
 MOD = f"{BASE}/mod.rs"
 PRODUCT = f"{BASE}/product.rs"
@@ -17,9 +16,7 @@ ERROR = f"{BASE}/error.rs"
 README = f"{BASE}/README.md"
 TESTS = f"{BASE}/tests.rs"
 PORT = "src/mir/builder/control_flow/plan/expression_port.rs"
-LEGACY = "src/mir/callable_result_representation/located_legacy.rs"
 EXTRACT = "src/mir/builder/control_flow/plan/generic_loop/facts/extract/v1.rs"
-
 
 def _count(text: str, token: str, expected: int, label: str) -> None:
     actual = text.count(token)
@@ -28,14 +25,12 @@ def _count(text: str, token: str, expected: int, label: str) -> None:
             f"LOOP0-P0b-O0-R0 {label} drift: expected={expected} actual={actual}"
         )
 
-
 def check_loop0_p0b_o0_r0(root: Path) -> str:
     module = _production(_read(root, MOD))
     product = _production(_read(root, PRODUCT))
     recipe = _production(_read(root, RECIPE))
     error = _production(_read(root, ERROR))
     port = _production(_read(root, PORT))
-    legacy = _production(_read(root, LEGACY))
     extract = _production(_read(root, EXTRACT))
     tests = _read(root, TESTS)
     readme = _read(root, README)
@@ -109,10 +104,6 @@ def check_loop0_p0b_o0_r0(root: Path) -> str:
         if forbidden in module + recipe + product:
             raise RuntimeError(f"LOOP0-P0b-O0-R0 second pairing authority: {forbidden}")
 
-    _count(port, "fn require_exact_stmt(", 1, "located stmt facade")
-    _count(port, "fn require_exact_body(", 1, "located body facade")
-    _count(legacy, "fn require_located_stmt_carrier(", 1, "stmt carrier validator")
-    _count(legacy, "fn require_located_body_carrier(", 1, "body carrier validator")
     if "body_exit_allowed.clone()" in extract:
         raise RuntimeError("LOOP0-P0b-O0-R0 ExitAllowed recipe ownership duplicated")
 
@@ -155,7 +146,7 @@ def check_loop0_p0b_o0_r0(root: Path) -> str:
             f"{production_calls}"
         )
 
-    touched = (MOD, PRODUCT, RECIPE, ERROR, README, TESTS, PORT, LEGACY, EXTRACT, __file__)
+    touched = (MOD, PRODUCT, RECIPE, ERROR, README, TESTS, PORT,  EXTRACT, __file__)
     oversized = []
     for path in touched:
         relative = str(path) if isinstance(path, str) else str(Path(path).relative_to(root))

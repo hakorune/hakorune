@@ -33,9 +33,6 @@ mod new_expression;
 mod normal_callable_binding_materialization;
 mod normal_callable_binding_materialization_port; // existing formal ValueId handoff
 mod normal_callable_catalog_owner_link; // exact catalog key/owner/source ingress co-seal
-mod normal_callable_dynamic_loop_prepare; // pre-effect Dynamic Loop ingress co-seal
-mod normal_callable_dynamic_loop_rebind; // exact-once Dynamic Add/rebind terminal
-mod normal_callable_dynamic_operation_source; // source-backed Dynamic Loop operation relations
 mod normal_callable_dynamic_origin; // source-backed Dynamic -> existing physical receipts
 mod normal_callable_dynamic_source; // source-backed untyped formal/Loop carrier authority
 mod normal_callable_loop_handoff; // callable Loop source/BindingRef S0 handoff
@@ -229,7 +226,6 @@ mod module_invocation_identity; // CUT0-I0-ID0-S0 disconnected identity/token
 #[cfg(test)]
 mod module_invocation_identity_p0; // CUT0-I0-ID0-S0 fixtures
 mod module_invocation_owner_chain; // CUT0-I0-ID0-P0 disconnected brand chain
-mod module_invocation_route_matrix;
 mod normal_module_transaction; // NORMAL-MODULE-TX0-L0 disconnected schema
 pub(in crate::mir) use canonical_physical_drain::{
     CanonicalDrainedCallablePhysicalV1, CanonicalDrainedSinglePhysicalV1,
@@ -331,8 +327,6 @@ mod module_lowering_invocation_legacy_term;
 #[cfg(test)]
 mod module_lowering_invocation_reentrant_tests;
 mod module_lowering_shell; // HEADERPORT0 I0-SHELL-S0 disconnected shell
-#[cfg(test)]
-mod module_wiring_route_matrix_p0e; // ROUTEINV-P0e test-only matrix closure
 mod nonmain_static_box_method_batch;
 mod raw_expansion_receipt_ledger; // ROUTEINV-P0b-RAWLEDGER-S0 disconnected owner
 #[cfg(test)]

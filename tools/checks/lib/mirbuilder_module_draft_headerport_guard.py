@@ -24,7 +24,6 @@ SIGNATURE_LOOKUP = ROOT / "src/mir/builder/function_signature_lookup.rs"
 PORT_AWARE_DRAFT = ROOT / "src/mir/builder/port_aware_function_draft.rs"
 MODULE_SHELL = ROOT / "src/mir/builder/module_lowering_shell.rs"
 INVOCATION_DRAIN = ROOT / "src/mir/builder/module_invocation_drain.rs"
-ROUTE_MATRIX = ROOT / "src/mir/builder/module_invocation_route_matrix.rs"
 MATRIX_CONSUMERS = ()
 INVOCATION_STATE = ROOT / "src/mir/builder/module_lowering_invocation_state.rs"
 PENDING_TERMINAL = ROOT / "src/mir/builder/calls/function_session/terminal.rs"
@@ -44,7 +43,6 @@ STATE_CUTOVER_DOC = ROOT / (
     "docs/development/current/main/investigations/"
     "mirbuilder-headerport-i0-production-cutover-consultation-2026-07-21.md"
 )
-ROUTE_MATRIX_P0E = ROOT / "src/mir/builder/module_wiring_route_matrix_p0e.rs"
 P0_DIRECT_HEADER_READER_FRAGMENTS = {
     "src/mir/builder/calls/annotation.rs": "builder\n        .current_module\n        .as_ref()",
     "src/mir/builder/calls/lowering.rs": "self.current_module.take()",
@@ -183,7 +181,6 @@ def main() -> int:
     port_aware_draft = read(PORT_AWARE_DRAFT)
     module_shell = read(MODULE_SHELL)
     invocation_drain = read(INVOCATION_DRAIN)
-    route_matrix = read(ROUTE_MATRIX)
     builder = read(BUILDER)
     method_index = read(METHOD_INDEX)
     compilation = read(COMPILATION)
@@ -219,21 +216,6 @@ def main() -> int:
     require(live_drain, "retained_construction_rejects_all_alternative_drain_preflights", "live drain refusal fixture")
     require(live_drain, "DuplicateManifestKey", "duplicate manifest key refusal")
     require(live_drain, "DuplicateManifestSymbol", "duplicate manifest symbol refusal")
-    for fragment in (
-        "InvocationRootFamilyV1",
-        "InvocationEntryV1",
-        "InvocationIdentityV1",
-        "InvocationFailureStageV1",
-        "InvocationFailureLawV1",
-        "InvocationRouteMatrixV1",
-        "p0_route_matrix_covers_every_root_and_child_family",
-        "p0_failure_matrix_forbids_retry_and_partial_publication",
-        "raw_main_root",
-        "canonical_a_plus_root",
-        "binding_ssa_acyclic_module",
-        "binding_ssa_recursive_module",
-    ):
-        require(route_matrix, fragment, "HEADERPORT0 I0-SHELL-I0-P0 route matrix")
     for fragment in (
         "shell: ModuleLoweringShellV1",
         "collector: ModuleDraftCollectorV1",
@@ -278,8 +260,6 @@ def main() -> int:
             INVOCATION_DRAIN,
             INVOCATION,
             MODULE_SHELL,
-            ROUTE_MATRIX,
-            ROUTE_MATRIX_P0E,
             *MATRIX_CONSUMERS,
             INVOCATION_STATE,
             MODULE_DRAFT,

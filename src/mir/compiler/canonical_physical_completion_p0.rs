@@ -287,43 +287,6 @@ fn physical_prepare_failure_leaves_live_builder_unchanged() {
     assert_eq!(compiler.builder.current_module.is_none(), live_before);
 }
 
-#[test]
-fn compiler_bridge_completion_retains_acyclic_capability_and_receipt() {
-    let source = program(vec![
-        function("caller", call("callee")),
-        function("callee", variable()),
-    ]);
-    let plan = super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
-        source.module(),
-    )
-    .unwrap();
-    let mut compiler = MirCompiler::new();
-    let package = compiler
-        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan))
-        .unwrap();
-    let complete = compiler
-        .begin_canonical_invocation(package, Some("acyclic.hako"), "acyclic".into())
-        .unwrap()
-        .lower()
-        .unwrap()
-        .collect()
-        .unwrap()
-        .complete()
-        .unwrap();
-    let drained = complete.prepare_drain().unwrap().drain();
-    match drained {
-        CanonicalDrainedInvocationV1::Callable(product) => {
-            assert_eq!(product.physical.module.functions.len(), 2);
-            assert!(product.physical.module.functions.contains_key("caller/1"));
-            assert!(product.physical.module.functions.contains_key("callee/1"));
-            assert_eq!(product.physical.receipt_brand(), product.token.brand());
-            assert_eq!(product.capability.brand(), product.token.brand());
-            assert_eq!(product.capability.family(), product.token.family());
-        }
-        CanonicalDrainedInvocationV1::Single(_) => panic!("acyclic route drained as single"),
-    }
-    assert!(compiler.builder.current_module.is_none());
-}
 
 #[test]
 fn compiler_bridge_completion_retains_recursive_capability_and_receipt() {
@@ -365,15 +328,15 @@ fn capability_brand_drift_is_not_misreported_as_foreign_physical_brand() {
     let mut compiler = MirCompiler::new();
     let first = program(vec![
         function("caller", call("callee")),
-        function("callee", variable()),
+        function("callee", call("callee")),
     ]);
     let first_plan =
-        super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
+        super::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1::verify(
             first.module(),
         )
         .unwrap();
     let first_package = compiler
-        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(first_plan))
+        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaRecursive(first_plan))
         .unwrap();
     let first_collected = compiler
         .begin_canonical_invocation(first_package, Some("first.hako"), "first".into())
@@ -385,15 +348,15 @@ fn capability_brand_drift_is_not_misreported_as_foreign_physical_brand() {
 
     let second = program(vec![
         function("caller", call("callee")),
-        function("callee", variable()),
+        function("callee", call("callee")),
     ]);
     let second_plan =
-        super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
+        super::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1::verify(
             second.module(),
         )
         .unwrap();
     let second_package = compiler
-        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(
+        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaRecursive(
             second_plan,
         ))
         .unwrap();

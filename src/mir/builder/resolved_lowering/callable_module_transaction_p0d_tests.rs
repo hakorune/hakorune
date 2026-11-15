@@ -4,7 +4,6 @@
 //! directly. It adds no production hook, collector, catalog, or key map.
 
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl, Span};
-use crate::mir::compiler::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1;
 use crate::mir::compiler::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1;
 use crate::mir::compiler::resolved_callable_module::VerifiedResolvedCallableModuleV1;
 use crate::mir::function::{FunctionSignature, MirFunction, MirModule};
@@ -79,43 +78,6 @@ fn fake_draft(name: &str, arity: usize, entry: u32) -> MirFunction {
     )
 }
 
-#[test]
-fn acyclic_late_draft_failure_keeps_candidate_publication_at_zero() {
-    let resolved = resolve(vec![
-        function("first", call("second")),
-        function("second", variable()),
-    ]);
-    let plan = VerifiedAcyclicCallableModulePlanV1::verify(&resolved).unwrap();
-    let mut builder = MirBuilder::new();
-    crate::test_support::with_env_vars(&crate::test_support::METHODIZE_SELECTOR_UNSET, || builder.prepare_module()).unwrap();
-    let mut completed = 0usize;
-
-    let error = VerifiedUnpublishedCallableDraftSetV1::collect_acyclic_with(plan, |key, plan| {
-        if key.name() == "second" {
-            return Err(CanonicalResolvedBuildErrorV1::BuilderContract(
-                "injected acyclic late failure".into(),
-            ));
-        }
-        let draft = builder.lower_resolved_trivial_function_draft(plan)?;
-        completed += 1;
-        Ok(draft)
-    })
-    .err()
-    .unwrap();
-
-    assert_eq!(completed, 1);
-    assert!(matches!(
-        error,
-        CallableModuleTransactionErrorV1::FunctionDraft { key, .. }
-            if key.name() == "second"
-    ));
-    assert!(builder
-        .current_module
-        .as_ref()
-        .unwrap()
-        .functions
-        .is_empty());
-}
 
 #[test]
 fn recursive_late_draft_failure_keeps_candidate_publication_at_zero() {
@@ -159,10 +121,10 @@ fn recursive_late_draft_failure_keeps_candidate_publication_at_zero() {
 fn atomic_publication_failure_preserves_the_preexisting_module_prefix() {
     let resolved = resolve(vec![
         function("first", call("second")),
-        function("second", variable()),
+        function("second", call("first")),
     ]);
-    let plan = VerifiedAcyclicCallableModulePlanV1::verify(&resolved).unwrap();
-    let drafts = VerifiedUnpublishedCallableDraftSetV1::collect_acyclic_with(plan, |key, _plan| {
+    let plan = VerifiedRecursiveCallableModulePlanV1::verify(&resolved).unwrap();
+    let drafts = VerifiedUnpublishedCallableDraftSetV1::collect_recursive_with(plan, |key, _plan| {
         let symbol = CanonicalCallableSymbolV1::from_name_arity(key.name(), key.arity() as usize);
         Ok(fake_draft(symbol.as_mir_name(), key.arity() as usize, 10))
     })

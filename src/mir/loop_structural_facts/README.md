@@ -93,9 +93,8 @@ private resolver/source brand borrowed from the canonical selector window, the
 typed S0C bundle, exact role/return `BindingRef` relations, target, and
 post-loop completion relation. This module owns the neutral handoff product;
 policy consumes it by value and retains it in the candidate observation. The
-handoff does not retain a second window lease. The older candidate-envelope
-witness remains a cfg(test)-only source lease witness and is not a second
-production authority. The handoff implementation is caller-zero and does not
+handoff does not retain a second window lease. The older cfg(test)-only source-lease/candidate-envelope prototype was
+retired; it is not a prerequisite or second production authority. The handoff implementation is caller-zero and does not
 open demand, Recipe, Builder/MIR, retry, fallback, or legacy deletion.
 
 The S3 demand witness is now a production-capable caller-zero seam in
@@ -315,10 +314,9 @@ resolver-issued AST-free candidate proof plus one-shot source/BindingRef lease
 may cross the future handoff. D4-S4-S0 is closed as `NoSafeSlice`.
 D4-S4-S0-D0 fixes the future move-only source lease, AST-free shape/candidate,
 policy observation, and Generic demand chain. GENERIC-SEMANTIC-SHAPE-SCHEMA-D1
-is now closed as the typed shape contract. The bounded cfg(test)-only
-source-lease witness is closed; this layer remains caller-zero. CarrierProof is
-also closed as a separate test-only consumer. Full role extension is a design
-stop and may not re-resolve roles or issue a selector input.
+is now closed as the typed shape contract. The old cfg(test)-only source-lease and CarrierProof witnesses were retired.
+The retained GenericG0 handoff remains the source/role contract; this layer
+must not reconstruct roles or create a second selector input.
 
 ## LoopTrue S1 design boundary
 

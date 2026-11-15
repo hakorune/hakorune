@@ -21,10 +21,10 @@ KIND = "MirR7LegacyCensusManifestV1"
 SCHEMA_VERSION = 1
 LEGACY_TOKEN = "LegacyCallV0"
 LEGACY_EXPECTED = 235
-LEGACY_FILES_EXPECTED = 124
+LEGACY_FILES_EXPECTED = 125
 ENV_EXPECTED = 4
-LOOP_EXPECTED = 4
-LOOP_LOC_EXPECTED = 1009
+LOOP_EXPECTED = 1
+LOOP_LOC_EXPECTED = 143
 
 DECL_RE = re.compile(
     r"^\s*(?:(?:pub)(?:\([^)]*\))?\s+)?"
@@ -32,16 +32,13 @@ DECL_RE = re.compile(
 )
 
 ENV_ANCHORS = (
-    ("src/host_providers/llvm_codegen/capi_transport.rs", 269, "compile_via_capi", "rust_capi"),
+    ("src/host_providers/llvm_codegen/capi_transport.rs", 309, "compile_via_capi", "rust_capi"),
     ("src/host_providers/llvm_codegen/static_invocation.rs", 6, "compile_published_static_v2", "rust_static"),
     ("lang/c-abi/shims/hako_llvmc_ffi_route.inc", 384, "hako_llvmc_forward_link_to_aot_without_ffi", "c_route"),
     ("lang/c-abi/shims/hako_llvmc_ffi_route.inc", 398, "hako_llvmc_forward_link_to_aot_v2_without_ffi", "c_route"),
 )
 
 LOOP_FILES = (
-    ("src/mir/builder/resolved_lowering/dynamic_loop_discard_tests.rs", 295, "dynamic_loop_discard_tests"),
-    ("src/mir/builder/resolved_lowering/dynamic_loop_phi_tests.rs", 266, "dynamic_loop_phi_tests"),
-    ("src/mir/builder/resolved_lowering/dynamic_loop_rebind_tests.rs", 305, "dynamic_loop_rebind_tests"),
     ("src/mir/global_call_route_plan/tests/void_sentinel/guards_and_loops/loop_scalar_phi_substring_void_sentinel_body.rs", 143, "loop_scalar_phi_substring_void_sentinel_body"),
 )
 
@@ -242,6 +239,41 @@ def require_anchor(root: Path, rel: str, line: int, symbol: str) -> tuple[list[s
 
 
 def env_rows(root: Path) -> list[dict[str, Any]]:
+    # Historical schema category; these anchors do not prove env mutation.
+    descriptions = {'compile_via_capi': {'token': 'OwnedPhysicalCompileContract -> explicit C compile options '
+                                   '(profile 1)',
+                          'disposition': 'invocation-owned validated compile options; tool settings '
+                                         'read once into owned configuration; no process environment '
+                                         'save/set/restore',
+                          'retire_when': 'retain while the selected C compile entry consumes the '
+                                         'explicit owned option contract'},
+     'compile_published_static_v2': {'token': 'OwnedPhysicalCompileContract -> explicit static V2 '
+                                              'options (profile 2)',
+                                     'disposition': 'invocation-owned static '
+                                                    'document/query/frame/compile configuration; no '
+                                                    'process environment save/set/restore',
+                                     'retire_when': 'retain while static V2 compilation consumes the '
+                                                    'explicit owned option contract'},
+     'hako_llvmc_forward_link_to_aot_without_ffi': {'token': 'AOT link COMPAT_V1 runtime archive '
+                                                             'resolution',
+                                                    'disposition': 'compatibility link configuration '
+                                                                   'lookup may read '
+                                                                   'NYASH_EMIT_EXE_NYRT; no process '
+                                                                   'environment save/set/restore',
+                                                    'retire_when': 'retire only with an explicit '
+                                                                   'compatibility-entry decision '
+                                                                   'preserving required archive '
+                                                                   'resolution and link behavior'},
+     'hako_llvmc_forward_link_to_aot_v2_without_ffi': {'token': 'AOT link EXPLICIT_V2 '
+                                                                'runtime_archive_path argument',
+                                                       'disposition': 'invocation-explicit runtime '
+                                                                      'archive and link arguments; no '
+                                                                      'process environment '
+                                                                      'save/set/restore',
+                                                       'retire_when': 'retain while the explicit V2 '
+                                                                      'link entry forwards '
+                                                                      'invocation-owned archive '
+                                                                      'arguments'}}
     rows: list[dict[str, Any]] = []
     for rel, line, symbol, family in ENV_ANCHORS:
         lines, digest = require_anchor(root, rel, line, symbol)
@@ -253,7 +285,7 @@ def env_rows(root: Path) -> list[dict[str, Any]]:
                 "path": rel,
                 "line": line,
                 "symbol": symbol,
-                "token": "compile-env save/set/restore",
+                "token": descriptions[symbol]["token"],
                 "line_text": lines[line - 1].strip(),
                 "source_sha256": digest,
                 "role": "environment_route",
@@ -262,9 +294,9 @@ def env_rows(root: Path) -> list[dict[str, Any]]:
                 "func_authority": "configuration_only",
                 "selected_corridor": False,
                 "owner": rel,
-                "disposition": "process-scoped environment observation; no semantic authority",
-                "retire_when": "replace only after invocation-owned settings preserve route and restoration semantics",
-                "reopen_trigger": "new save/set/restore helper or route family",
+                "disposition": descriptions[symbol]["disposition"],
+                "retire_when": descriptions[symbol]["retire_when"],
+                "reopen_trigger": "compile/link configuration transport contract changes",
             }
         )
     return rows
@@ -318,9 +350,9 @@ def build_manifest(root: Path) -> dict[str, Any]:
         "kind": KIND,
         "observed_commit": git_revision(root),
         "scope": {
-            "roots": ["src (Rust production scope)", "crates (Rust production scope)", "lang/c-abi route (fixed env anchors)"],
+            "roots": ["src (Rust production scope)", "crates (Rust production scope)", "lang/c-abi route (fixed compile/link configuration anchors)"],
             "excludes": ["tests and fixtures", "in-file #[cfg(test)] blocks and selected verified out-of-line test modules", "unrelated runtime/startup env", "runtime hook registry", "future VM/WASM parity"],
-            "classifier": "lexical LegacyCallV0 rows (not a complete module-reachability analysis) + fixed compile-env anchors + fixed test-only Loop-PHI files",
+            "classifier": "lexical LegacyCallV0 rows (not a complete module-reachability analysis) + fixed compile/link configuration transport anchors (historical compile_env label; not proof of env mutation) + fixed test-only Loop-PHI files",
             "scope_sha256": scope_digest,
         },
         "counts": {

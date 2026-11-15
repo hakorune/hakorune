@@ -187,6 +187,97 @@ guard3本の旧path参照とreceipt/censusを同じseriesで更新し、現役lo
 所有の印はShared専用7Rust 1112整形行＋1C include70物理行と、move/take混在owner372整形行を分離。削減候補へ加えない。
 コードを消さず、ユーザーの判断用の全一覧・根拠・未確認範囲を日本語の整理2報告に保存した。
 
+## Round 3: 未接続試作の退役と、次のfamily判断（2026-11-15）
+
+基点 `1db505eacb`。段1・2は受理を変えない退役、段3は判断用一覧のみ。sourceはarchiveや無効featureへ移さずGit履歴に残す。Rust production 8,640行・test 13,570行・78 filesを削除。登録testは9194→8993（純減201）、旧定義206件の除去には保持保証の移設・置換も含む。
+
+### 段1・2で消した物と、再検討の条件
+
+PH47: 旧AST条件抽出canonを退役。外部Rust caller 0を再確認し、現役loop_condition_shape、UpdateCanon、step/updateを保持。再検討は共通解析で扱えない具体的sourceが出た時。`ae0bb57633`。
+EX09: Raw callable source cursor。現役source解決から接続されず、source navigationを二重に保つ理由がない。
+再検討: 通常source解決で表現できない具体的要求が生じた時。参照commit `b2de75856b`。
+SC07: ny_main status adapter。EXE入口へつながらない将来adapterで、次selfhost壁と実callerを示せない。
+再検討: 選択済み入口とstatus契約が具体化した時。参照commit `eb9b6e0aae`。
+SC41: whole-module preflight。現役transactionとは別の未接続factoryで、次の製品結果を作らない。
+再検討: 実callerと共通admissionで足りない契約が示された時。参照commit `e3c49c111a`。
+EX04: SourceResult分類器。未接続の旧catalog/row分類を退役。現役expression-planの4testは既存test moduleへ保持。
+再検討: 現役共通式表現で扱えない結果契約が具体化した時。参照commit `f291d61f62、9ae6d5b748`。
+EX44: bounded body-effect coverage receipt。未接続のCall/Return専用witnessで、現役effect検査のauthorityではない。
+再検討: 実consumerと独立な責務が示された時。参照commit `ee7c7f44ee`。
+PH08: Generic source-lease模型。test内の段別witnessを現役解析へ接続する予定がない。実parameter型検証は保持。
+再検討: selfhost壁・実consumer・旧道削除まで一文で示せる時。参照commit `98e0857711`。
+PH27: 旧portable Loop PHI materializer。使い手の無い旧materializerと、同じ旧模型を試す子test/emitterを退役。現役SSA/PhiTxn/Recipe検証は保持。
+再検討: 共通SSAで不足する具体的なloop要件が出た時。参照commit `e4464ed5c4、8e87060978`。
+PH64: invocation route matrix。未接続のroute組合せ模型を退役し、現役family選択とvalidatorを保持。
+再検討: 実callerと共通familyでは足りない意味が明示された時。参照commit `43a66024c8`。
+EX06: Query body/conformance試作。未接続Queryチェーンを退役。DeclaredInstanceMethodIdentityV1は実effect/relationが使うので保持、Home ABI保証も保持。
+再検討: 実Query構文と共通解決からの接続が選択された時。参照commit `add38206f2`。
+EX31: Dynamic envelope catalog。未接続catalogと専用Refのみ退役。現役SourceLoan、effect/Home/lifecycle契約と二重発行拒否testは保持。
+再検討: 現役envelopeでは不足する利用者契約が示された時。参照commit `099421880a`。
+PH38: private Dynamic Loop canary。通常sourceから呼ばれない移行専用sessionを退役。現役physicalizer/SSAの失敗時保証は保持。
+再検討: 同じ仕事を共通loopが扱えない具体的sourceが出た時。参照commit `ba6d62f51a`。
+SC20: 旧result activation/claim-ledger/Located port。未接続のbatchと旧Located/Claimed形式を退役。raw/current port、SourcePublicationのtake-once/residual保証を保持。
+再検討: 現役結果契約に不足する本番source要求が示された時。参照commit `82c0f8e0f1`。
+SC25: typed acyclic module plan。未接続typed planだけ退役。現役NormalSourcePlanのgraph/SCCを保持し、publication/drain/foreign-brand保証を既存recursive fixtureへ残す。
+再検討: 共通graphから別typed planを要する実callerが示された時。参照commit `e87fa48b82`。
+
+専用helper・getter・reexportの閉包は `0022bca221`。guardは旧file/型/模型の肯定句・専用allowlistだけを同時に整理し、現役の禁止句・共有skip条件・独立検証の検査を保持した。混在guardを丸ごと無効化していない。観測記録の限定更新は `0e262d354f`。
+
+### 残した未接続物と、実際には現役だった物
+
+SC33 / PH03 / PH57 / EX01 / EX02 はS6C/common-V2の明示parkを保持。根拠は `docs/development/current/main/investigations/loop-production-selection-d0-2026-09-24.md:84`、`docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md:1684-1699`、`docs/development/current/main/investigations/s4-loop-survey-2026-11-08.md:86`。選択するproduction consumerとexclusive旧edge削除集合を決め、ユーザーが再開・破棄を判断するまで触らない。
+PH65はA4のraw collection/foreign-family模型を保持。根拠は `docs/development/current/main/investigations/app-boxtorrent-mini.md:88`。所有契約の後継と検査を決め、ユーザーが保留を解除するまで削除しない。
+EX03は誤分類を訂正して保持。`function_draft_entry.rs:319` が現役portable If mapperを呼び、selfhostの条件分岐を扱う。EX38も保持。`direct_accum_profile.rs:144` がeffect planを発行し、`direct_accum_lowerer.rs:90-94,134` のowner/frame照合へ渡す。将来の予定を理由に残したのではない。
+
+### 段3: 次にユーザーが判断する25 family
+
+行数は整形後の調査範囲上限で、削除保証ではない。混在file・共有部品・安全testは差し引く。今回は入口を閉じず、必要な言語機能も廃止しない。順位は入口の閉じやすさと依存の少なさを優先。
+
+|family / 利用者から見た機能|production / test 行|入口・影響形の例|selfhost要件 / 共通道|案|
+|---|---:|---|---|---|
+|F01 旧MIR→JoinIR oracle API|2,888 / 657|LoopToJoinLowerer API（通常loopは対象外）|loopは要る / GenericG0|退役する|
+|F07 文字列3連結の任意最適化|389 / 2|`a + b + c`|連結は要る / 通常String|退役する|
+|F06 純粋scalarの任意Core13道|247 / 0|`return 1 + 2`|計算は要る / 通常scalar|退役する|
+|F08 VM escape/barrier最適化|118 / 356|Box生成後のVM escape/barrier処理|最適化は任意 / VM保持|退役する|
+|F02 StepTree/ANF debug要求|2,131 / 1,177|debug/ANF shadowの明示要求|debug機能 / 本線保持|退役する|
+|F04 reference backendの明示要求3種|3,285 / 1,509|`--backend raw-vm-reference` 等3種|reference実行 / 共有VM保持|退役する|
+|F16 旧fn/lambda式|814 / 268|`fn(x) { ... }`|旧構文未観測 / 仕様判断|退役する|
+|F17 旧try/catch/throw|280 / 327|`try { ... } catch ...`|旧surface未観測 / Fault保持|退役する|
+|F10 fastmem/layout宣言|3,552 / 1,829|fastmem宣言内のload/store|compiler488内0、別allocatorに有 / 配置契約|分からない|
+|F11 Array<Text>観測・編集session|5,523 / 165|`arr.get(i)` を含むText走査loop|Array/Textは要る / collection共通道|退役する|
+|F15 静的u16表の添字load|74 / 69|`DATA[i]`（静的u16表）|compiler488内0 / 添字共通道|分からない|
+|F05 ProgramJSON v0 loop import|1,894 / 364|旧ProgramJSONのloop node|旧import API / 公開MIR保持|分からない|
+|F09 旧RC自動挿入pass|415 / 0|旧RC挿入最適化要求|明示所有/Sharedを保持|分からない|
+|F18 旧peek式|123 / 0|旧peek expression|compiler488内0 / canonical match保持|分からない|
+|F20 Resultの?伝播|91 / 0|`call()?`|字句?は型・三項と区別 / Result要件未確定|分からない|
+|F21 script-rootから静的call|1,496 / 1,325|script rootの `Box.method()`|静的callは要る / App静的call保持|分からない|
+|F03 旧loop AST助言解析|3,651 / 3,118|`loop(i < n) { ... }`|loopは要る / GenericG0|分からない|
+|F24 mainのcontinue/step loop|5,801 / 2,046|`loop(...) { continue }`|continueは要る / 共通loop|分からない|
+|F25 static BoxのText走査root|7,640 / 1,322|static box method内のText走査|Text走査は要る / instance/main共通道|分からない|
+|F22 callable内のloop|3,675 / 2,092|method内の累積loop|要る / callable共通loop|残す|
+|F23 入れ子loop|4,048 / 1,142|loop本体内のloop|要る / 共通nested loop|残す|
+|F19 Enum/Option/Result|716 / 211|enum variant / Option / Result|字句使用有 / enum共通道|残す|
+|F14 extern呼び出し|1,296 / 907|宣言済みextern call|2compiler fileで使用 / 共通extern|残す|
+|F13 Array/Map/String基本method|6,512 / 4,955|`arr.get(i)` / `map.get(k)` / `s.length()`|要る / sole method-route owner|残す|
+|F26 条件分岐Recipe|2,123 / 378|`if cond { ... } else { ... }|要る / 共通If owner|残す|
+
+25 familyは341 files、production 58,782 / test 24,219行（626 test関数）。残family 0。family化しなかった共有範囲は458 files、73,709 / 27,869行、主流ncsp/resolved内の別勘定21 filesは2,323 / 1,541行。既退役分は将来削減へ加算しない。
+旧F12はoptional Hako shadowではなく実際のdecisionを返すと判明し、F13へ統合。通常sourceの成功は旧family選択の証拠ではない。fastmemの未呼出helperを含むEXE成功はMemOp実行を意味しない。reference3種は実際のselectorを別々に測り、全て名前付きfeature-unavailable / exit2（feature有効buildは未測定）。
+sourceの字句探索は到達証明ではない。selfhostが使うloop・continue・Array/Map/String・条件分岐・externは要件として残し、旧専用道を閉じる前に共通道の受け入れへ接続する。ncsp/resolvedの未観測枝はfamily化せず、旧LLVM観測と現在sourceの行数を混同しない。
+
+### 段4: 残す入力・契約と、前から赤いtest
+
+固定入力は10群、重複をまとめた5,386入力のSHAを削除前に固定し、MIRは全5,386本、EXE比較は3,551本。群別所属は dumps1866 / exe927 / pairs229 / apps100 / pairs384 / b5pairs392 / b5extras58 / opus363 / selfhost488 / apps1307（所属が重なるため合算しない）。成功だけでなく拒否理由も固定し、途中で入力を減らさない。
+保持する契約: ①通常sourceから唯一の生成ownerへ進む入口と名前付き拒否、②実MIRの型/SSA/PHI/支配・借用・lifecycle独立検証、③全Normal/Fault経路の取得・移転・Endの一回性と順序、④from宣言・支持元・receiver・借用区間、⑤公開MIR/JSON/C ABIの形・意味・strict schema、⑥実strong所有が無くなった後のWeak不在。
+基点のlib赤222件は、旧内部配置期待110 / 今回退役実装だけ8 / 現契約の本物の不具合1 / UNKNOWN103 / flaky0。UNKNOWNを安全とも削除可とも扱わない。本物の不具合はTLS fresh-object cacheがArcを保持してWeakが生き残る例で、この掃除では直さず再現testを保持。
+
+### 最終検証
+
+source `0e262d354f`。最適化CLI build済み。featureは元から通る2構成PASS、元から落ちる2構成は同じerror集合。全lib直列は214 FAILで、基点222から今回退役8件だけを除いた名前集合と一致。ignored Map18件PASS。
+全5,386入力のMIR・拒否理由、およびEXE対象3,551本の生成/実行出力/exitは固定基準と差分0。生成成功1,471本、timeout 0。固定suiteは8行中7実EXEと1空marker、SKIP/timeoutなし。見張りはraw BinOp上限70→69・definition scan 294→292へ下降し基点1dbでPASS（3b36299375）、pointer/diffもPASS。Rust/C/言語入力7272件のhashは最終検証後も不変。
+既知の観測不整合は未修正: metadata field数130/131と旧anchor群、provider観測6/7のPython 2 FAIL。制御フローcensusは既存generatorで1865→1959へ再観測し整合PASS（以前からのdriftも含み、削減量に加算しない）。
+比較はcompiler/artifact/PIDの出所表示と、事前固定したsource0 witnessの完全MIR行集合照合だけを正規化。raw表示差1件を隠さず記録し、比較規則を追加して合わせていない。
+
 ## 捨てる掃除の決まり(ユーザー決定 2026-11-15)
 
 方針: **今の主流の道に対応している test だけを残す。つながっているだけで、誰も通らない物は、消す。** 整理 2 が 276 行しか「消せる」と言えなかったのは、「どんな入力からも使われない」と証明する仕事と、「この機能は今後提供しない」と決めて入口ごと消す仕事を、同じ審査にかけていたため。下の決まりで、2 つを分ける。

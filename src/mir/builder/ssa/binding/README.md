@@ -41,21 +41,7 @@ That route has exactly one `BindingSsaBuilderV1`; no old-map synchronization
 bridge is allowed. Non-admitted current canonical owners remain a separately
 selected whole-unit A+ route and never retry after a Binding-SSA failure.
 
-Dynamic Loop P2A exercises the same temporal rule in a migration-private
-caller-zero session: after exact Enter declaration adoption, the first read of
-the unsealed Header creates the sole provisional PHI before Compare/Add. The
-opaque P2A receipt does not expose the PHI lifecycle token or become a second
-reaching-value owner. P1R now consumes that whole receipt and emits Compare
-and Add from its Header current while retaining it in the Backedge handoff.
-P2B now defines the assignment exactly once, completes the reachable CFG
-cycle, and seals the Binding SSA blocks touched by this carrier. Header is
-sealed last from the canonical witness `{Enter, terminal Backedge}`; the
-existing MIR adapter verifies definition dominance and patches the sole
-provisional PHI to the exact entry and Add-result inputs. P2B does not expose
-the PHI token, select After, or finish/commit the whole function session.
-
-P2C injects failures with the PHI pending, with operations emitted, after a
-duplicate exact assignment claim, and after a successful patch. Correctness
-never depends on repairing the local SSA/PHI state: the whole unpublished
-function is discarded, the caller is restored once, and only a fresh session
-may repeat the semantic program.
+Current real-MIR adapter tests cover provisional PHI creation before exposure,
+exact predecessor completion and type publication, rejected non-dominating
+inputs, and late patch failure without draft repair. `phi_lifecycle_tests`
+separately covers transaction rollback and cleanup failure retention.

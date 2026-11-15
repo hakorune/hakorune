@@ -560,20 +560,6 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
                     builder.lower_resolved_generic_g0_function_draft(plan),
                 )
             }
-            ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan) => {
-                match builder.lower_acyclic_callable_drafts(plan) {
-                    Ok(drafts) => Ok(LoweredCanonicalPlanV1::Callable {
-                        token,
-                        continuation,
-                        drafts,
-                    }),
-                    Err(error) => Err(RejectedCanonicalLoweringV1 {
-                        token,
-                        continuation,
-                        error: CanonicalPlanLoweringErrorV1::Callable(error),
-                    }),
-                }
-            }
             ExactCanonicalPreflightPlanV1::BindingSsaRecursive(plan) => {
                 match builder.lower_recursive_callable_drafts(plan) {
                     Ok(drafts) => Ok(LoweredCanonicalPlanV1::Callable {

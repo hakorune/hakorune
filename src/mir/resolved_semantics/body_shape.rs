@@ -409,14 +409,6 @@ impl ResolvedFunctionBodyShapeProductV1 {
         &self.body_shape
     }
 
-    pub(crate) fn into_parts(
-        self,
-    ) -> (
-        Arc<VerifiedResolvedFunctionV1>,
-        VerifiedResolvedBodyShapeInventoryV1,
-    ) {
-        (self.function, self.body_shape)
-    }
 }
 
 impl VerifiedResolvedBodyShapeInventoryV1 {

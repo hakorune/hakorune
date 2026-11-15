@@ -1,6 +1,4 @@
-use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::dynamic_carrier_contract::DynamicCarrierLifecycleObligationV1;
-use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -81,14 +79,6 @@ impl VerifiedDynamicInvocationExecutionEnvelopeV1 {
     }
 }
 
-/// Borrow-scoped verified view of one exact Dynamic target plus the complete
-/// language-wide execution envelope.
-#[derive(Debug, Clone, Copy)]
-pub(crate) struct VerifiedDynamicInvocationEnvelopeRefV1<'catalog> {
-    pub(super) caller: &'catalog CanonicalSameModuleCallableKeyV1,
-    pub(super) site: &'catalog SourceExprSiteV1,
-    pub(super) target: &'catalog VerifiedSourceBoundDynamicMemberCallV1,
-}
 
 /// Exact source target plus the one language-wide invocation envelope.
 ///
@@ -141,23 +131,5 @@ impl DynamicInvocationSourceLoanV1 {
         &self,
     ) -> &'static VerifiedDynamicInvocationExecutionEnvelopeV1 {
         self.envelope
-    }
-}
-
-impl<'catalog> VerifiedDynamicInvocationEnvelopeRefV1<'catalog> {
-    pub(crate) const fn caller(&self) -> &'catalog CanonicalSameModuleCallableKeyV1 {
-        self.caller
-    }
-
-    pub(crate) const fn site(&self) -> &'catalog SourceExprSiteV1 {
-        self.site
-    }
-
-    pub(crate) const fn target(&self) -> &'catalog VerifiedSourceBoundDynamicMemberCallV1 {
-        self.target
-    }
-
-    pub(crate) const fn envelope(&self) -> &'static VerifiedDynamicInvocationExecutionEnvelopeV1 {
-        &LANGUAGE_WIDE_ENVELOPE
     }
 }

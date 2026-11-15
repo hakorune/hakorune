@@ -78,10 +78,6 @@ pub(in crate::mir::builder) mod loop_accum_physicalizer;
 #[cfg(test)]
 #[path = "loop_accum_physicalizer_tests.rs"]
 mod loop_accum_physicalizer_tests;
-pub(in crate::mir::builder) mod loop_phi_materializer;
-#[cfg(test)]
-pub(in crate::mir::builder) mod loop_phi_materializer_test_support;
-pub(in crate::mir::builder) mod loop_physical_edge_path;
 pub(in crate::mir::builder) mod loop_physical_input;
 // Phase 29bq P2: loop(true) break/continue coverage
 mod loop_true_break_continue;
@@ -149,7 +145,6 @@ pub(in crate::mir::builder) use self::core::{
 };
 pub(in crate::mir::builder) use self::effect::CoreEffectPlan;
 pub(in crate::mir::builder) use self::exit::CoreExitPlan;
-pub(in crate::mir::builder) use self::expression_port::LocatedLoopPlanExpressionPortV1;
 pub(in crate::mir::builder) use self::expression_port::LoopPlanExpressionPortErrorV1;
 pub(in crate::mir::builder) use self::expression_port::{
     LoopPlanExpressionPortV1, RawLoopPlanExpressionPortV1,

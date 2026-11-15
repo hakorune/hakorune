@@ -7,13 +7,10 @@ import re
 import sys
 from pathlib import Path
 
-
 TAG = "[callable-result-i0-site0-r0-expr0-l0]"
-
 
 def fail(message: str) -> None:
     raise SystemExit(f"{TAG} {message}")
-
 
 def read(root: Path, relative: str) -> str:
     path = root / relative
@@ -21,12 +18,10 @@ def read(root: Path, relative: str) -> str:
         fail(f"missing {relative}")
     return path.read_text(encoding="utf-8")
 
-
 def require_count(text: str, needle: str, expected: int, label: str) -> None:
     actual = text.count(needle)
     if actual != expected:
         fail(f"{label}: expected={expected} actual={actual}")
-
 
 def main() -> None:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
@@ -177,7 +172,6 @@ def main() -> None:
 
     touched = (
         session_path,
-        "src/mir/callable_result_representation/located_legacy.rs",
         "src/mir/callable_result_representation/tests/located_legacy_lowering.rs",
         "src/mir/builder/recursive_child_lowering.rs",
         "src/mir/builder/calls/method_call_terminal.rs",
@@ -191,7 +185,6 @@ def main() -> None:
         f"{TAG} ok: session=1 claim-before-child=1 inactive-proofs=3 "
         "production_callers=0 result_publication=0"
     )
-
 
 if __name__ == "__main__":
     main()

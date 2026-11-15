@@ -5,7 +5,6 @@
 
 pub(in crate::mir) mod a_prime_i64_physical_capability;
 pub(in crate::mir) mod acyclic_callable_graph;
-pub(in crate::mir) mod acyclic_callable_module_plan;
 pub(in crate::mir) mod callable_graph_inventory;
 #[cfg(test)]
 pub(crate) mod callable_loop_physical_canary;
@@ -208,7 +207,6 @@ pub(in crate::mir) mod raw_source_binding;
 pub(in crate::mir) mod recursive_callable_module_plan;
 pub(in crate::mir) mod resolved_callable_module;
 mod resolved_callable_module_input;
-pub(in crate::mir) mod resolved_callable_module_preflight;
 mod resolved_direct_accum_cutover;
 mod resolved_nested_predicate_cutover;
 mod resolved_generic_g0_cutover;
@@ -216,7 +214,6 @@ pub(in crate::mir) mod selected_dynamic_w6_activation;
 pub(in crate::mir) mod source_bound_package;
 pub(in crate::mir) mod source_bound_package_generic_g0;
 pub(in crate::mir) mod source_bound_plan;
-pub(in crate::mir) mod source_entry_ny_main;
 pub(in crate::mir) mod source_entry_physical;
 pub(in crate::mir) mod source_entry_projection;
 pub(in crate::mir) mod source_entry_published_invocation;

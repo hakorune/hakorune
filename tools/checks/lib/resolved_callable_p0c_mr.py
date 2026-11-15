@@ -150,6 +150,9 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
         root / "src/mir/builder/resolved_lowering/callable_module_transaction_p0d_tests.rs",
         root / "src/mir/compiler/canonical_bridge_fixture0_p0.rs",
         root / "src/mir/compiler/canonical_physical_completion_p0.rs",
+        root / "src/mir/compiler/canonical_drain_manifest_p0.rs",
+        root / "src/mir/compiler/canonical_finalization_p0.rs",
+        root / "src/mir/compiler/source_bound_package_p0.rs",
     }
     if actual_plan_callers != expected_plan_callers:
         fail(

@@ -13,11 +13,14 @@ fail() {
   exit 1
 }
 
-for path in "$BUILDER" "$CARRIER" "$LEDGER" "$CLAIM_BATCH"; do
+for path in "$BUILDER"; do
   [[ -f "$path" ]] || fail "missing retained file: ${path#"$ROOT_DIR/"}"
 done
 
 for deleted in \
+  "$CARRIER" \
+  "$LEDGER" \
+  "$CLAIM_BATCH" \
   "$ROOT_DIR/src/mir/builder/located_legacy_lowering.rs" \
   "$ROOT_DIR/src/mir/builder/located_legacy_assignment.rs" \
   "$ROOT_DIR/src/mir/builder/located_legacy_if.rs" \
@@ -39,16 +42,9 @@ if rg -n -F 'mod located_legacy_lowering;' "$ROOT_DIR/src/mir/callable_result_re
   fail "retired callable-result test module returned"
 fi
 
-# The source/claim carriers are intentionally retained for future canonical
-# ingress; deletion of those semantic contracts belongs to a separate row.
-rg -n -F 'LocatedLegacyBodySuffixV1' "$CARRIER" "$LEDGER" >/dev/null || \
-  fail "located source carrier/ledger boundary drift"
-rg -n -F 'CallableResultLoopClaimBatch' "$CLAIM_BATCH" >/dev/null || \
-  fail "loop-claim carrier boundary drift"
-
-for path in "$BUILDER" "$CARRIER" "$LEDGER" "$CLAIM_BATCH"; do
+for path in "$BUILDER"; do
   lines="$(wc -l < "$path" | tr -d '[:space:]')"
   (( lines < 800 )) || fail "800-line boundary exceeded: ${path#"$ROOT_DIR/"}=$lines"
 done
 
-printf '[%s] ok: located legacy lowering is retired, carriers remain, and retained files stay below 800 lines\n' "$TAG"
+printf '[%s] ok: located legacy lowering and carriers are retired; retained builder stays below 800 lines\n' "$TAG"

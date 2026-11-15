@@ -95,8 +95,6 @@ mod raw_source_binding_p0;
 #[cfg(test)]
 mod recursive_callable_module_activation_tests;
 #[cfg(test)]
-mod resolved_callable_module_preflight_tests;
-#[cfg(test)]
 mod resolved_callable_module_tests;
 #[cfg(test)]
 mod resolved_direct_accum_hardening_p0;

@@ -25,10 +25,11 @@ pub(crate) mod product;
 mod recipe_facts;
 mod recipe_mapper;
 mod recipe_source_paths;
-mod source_result;
 
 #[cfg(test)]
 mod direct_call_tests;
+#[cfg(test)]
+mod expression_argument_source_tests;
 #[cfg(test)]
 mod nested_recipe_tests;
 #[cfg(test)]
@@ -37,8 +38,6 @@ mod parameter_tests;
 mod recipe_call_tests;
 #[cfg(test)]
 mod return_tests;
-#[cfg(test)]
-mod source_result_tests;
 #[cfg(test)]
 mod tests;
 

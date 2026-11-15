@@ -13,7 +13,6 @@ from callable_result_i0_site0_r0_expr0_spine0_loop0 import (
     _read,
 )
 
-
 PORT_PATH = "src/mir/builder/control_flow/plan/expression_port.rs"
 HELPERS_VALUE_FACADE_PATH = (
     "src/mir/builder/control_flow/plan/normalizer/helpers_value/mod.rs"
@@ -33,22 +32,15 @@ P0A_TOUCHED_PATHS = (
     "src/mir/builder/control_flow/plan/normalizer/README.md",
     "src/mir/builder/control_flow/plan/expression_port_tests.rs",
     "src/mir/builder/control_flow/plan/mod.rs",
-    "src/mir/callable_result_representation/located_legacy.rs",
-)
-P0B_F0_FIXTURE_PATH = (
-    "src/mir/callable_result_representation/tests/actual_parser_add_fixture.rs"
 )
 P0B_F0_ENV_PATH = (
     "src/mir/builder/control_flow/plan/generic_loop/facts/extract/test_support.rs"
 )
 P0B_F0_TOUCHED_PATHS = (
-    P0B_F0_FIXTURE_PATH,
     P0B_F0_ENV_PATH,
     "src/mir/builder/control_flow/plan/generic_loop/facts/extract/mod.rs",
     "src/mir/callable_result_representation/mod.rs",
     "src/mir/callable_result_representation/tests/mod.rs",
-    "src/mir/callable_result_representation/tests/activation.rs",
-    "src/mir/callable_result_representation/tests/loop_claim_batch.rs",
     "src/mir/builder/control_flow/edgecfg/api/verify.rs",
     "src/mir/builder/control_flow/facts/loop_cond_return_in_body/tests.rs",
     "src/mir/builder/control_flow/plan/facts/loop_tests_parts/multi_candidate.rs",
@@ -69,7 +61,6 @@ P0B_F0_MODE_KEYS = (
     "NYASH_JOINIR_DEBUG",
 )
 
-
 def _function_body(text: str, name: str) -> str:
     matches = list(re.finditer(rf"\bfn\s+{re.escape(name)}(?:\s*<[^{{;]*>)?\s*\(", text))
     if len(matches) != 1:
@@ -81,7 +72,6 @@ def _function_body(text: str, name: str) -> str:
         raise RuntimeError(f"LOOP0-P0a function body missing: {name}")
     return text[opening:_matching_rust_brace(text, opening)]
 
-
 def _production_plan_sources(root: Path) -> dict[str, str]:
     result = {}
     plan_root = root / "src/mir/builder/control_flow/plan"
@@ -91,7 +81,6 @@ def _production_plan_sources(root: Path) -> dict[str, str]:
         relative = path.relative_to(root).as_posix()
         result[relative] = _production(path.read_text(encoding="utf-8"))
     return result
-
 
 def check_loop0_p0a(root: Path) -> str:
     port = _read(root, PORT_PATH)
@@ -104,7 +93,6 @@ def check_loop0_p0a(root: Path) -> str:
     owners = (
         ("trait LoopPlanExpressionPortV1", 1),
         ("struct RawLoopPlanExpressionPortV1", 1),
-        ("struct LocatedLoopPlanExpressionPortV1", 1),
     )
     for owner, expected in owners:
         actual = port.count(owner)
@@ -112,38 +100,8 @@ def check_loop0_p0a(root: Path) -> str:
             raise RuntimeError(
                 f"LOOP0-P0a port owner drift: owner={owner!r} expected={expected} actual={actual}"
             )
-    if port_production.count("struct LocatedLoopPlanExpressionPortV1") != 1:
-        raise RuntimeError("LOOP0-O0-R0 passive located port schema drift")
     if "#[cfg(test)]\nmod located" in port:
         raise RuntimeError("LOOP0-O0-R0 located port remained test-only")
-
-    for carrier in (
-        "VerifiedCallableResultLegacySourceViewV1",
-        "LegacyStmtInputV1",
-        "LegacyExprInputV1",
-        "LegacyBodyInputV1",
-    ):
-        if carrier not in port:
-            raise RuntimeError(f"LOOP0-P0a missing existing located carrier: {carrier}")
-        if carrier not in port_production:
-            raise RuntimeError(
-                f"LOOP0-O0-R0 passive located carrier missing from production schema: {carrier}"
-            )
-
-    located_input_owners = re.findall(
-        r"\benum\s+(LocatedLoopPlan(?:Expr|Stmt|Body)InputV1)\b", port
-    )
-    if sorted(located_input_owners) != sorted(
-        (
-            "LocatedLoopPlanExprInputV1",
-            "LocatedLoopPlanStmtInputV1",
-            "LocatedLoopPlanBodyInputV1",
-        )
-    ):
-        raise RuntimeError(
-            "LOOP0-P0a located input facade drift: "
-            f"owners={located_input_owners}"
-        )
 
     # PATH0 remains the sole path/role authority. Resolving an existing role
     # is permitted; constructing or comparing paths locally is not.
@@ -170,18 +128,8 @@ def check_loop0_p0a(root: Path) -> str:
 
     # The raw decision and exact located MethodCall source each remain one
     # passive production owner. No located execution root is connected here.
-    if port_production.count("CoreCallSourceV1::Unlocated") != 3:
+    if port_production.count("CoreCallSourceV1::Unlocated") != 1:
         raise RuntimeError("LOOP0-O0-R0 raw/located Unlocated decision drift")
-    if port_production.count("CoreCallSourceV1::LocatedMethodCall(") != 1:
-        raise RuntimeError("LOOP0-O0-R0 passive located source producer drift")
-    if port.count("CoreCallSourceV1::LocatedMethodCall(") != 1:
-        raise RuntimeError("LOOP0-P0a test-located source producer drift")
-    if port.count(".activation_site()") != 1:
-        raise RuntimeError("LOOP0-P0a located source must reuse one activation_site")
-    if port.count(".require_expr_carrier(input)") != 1:
-        raise RuntimeError("LOOP0-P0a located source must co-validate its view carrier")
-    if port.index(".require_expr_carrier(input)") > port.index(".activation_site()"):
-        raise RuntimeError("LOOP0-P0a located source read site before carrier validation")
 
     readme = _read(root, "src/mir/builder/control_flow/plan/normalizer/README.md")
     for phrase in (
@@ -212,34 +160,6 @@ def check_loop0_p0a(root: Path) -> str:
 
     # O0-R0 permits one analysis-only GenericLoop representation consumer and
     # still forbids composition, lowering, and every claim authority.
-    generic_loop_roots = (
-        root / "src/mir/builder/control_flow/plan/generic_loop",
-        root / "src/mir/builder/control_flow/plan/features",
-        root / "src/mir/builder/control_flow/plan/recipe_tree",
-    )
-    generic_loop_port_allowlist = {
-        "src/mir/builder/control_flow/plan/generic_loop/located_representation/mod.rs": 2,
-        "src/mir/builder/control_flow/plan/generic_loop/located_representation/direct_preflight.rs": 3,
-        "src/mir/builder/control_flow/plan/generic_loop/located_representation/lowering_view.rs": 9,
-        "src/mir/builder/control_flow/plan/generic_loop/located_representation/recipe_seal.rs": 4,
-        "src/mir/builder/control_flow/plan/features/generic_loop_located_composer.rs": 3,
-    }
-    observed_generic_loop_ports = {}
-    for directory in generic_loop_roots:
-        for path in directory.rglob("*.rs"):
-            if path.name == "tests.rs" or path.name.endswith("_tests.rs") or "tests" in path.parts:
-                continue
-            relative = path.relative_to(root).as_posix()
-            count = _production(path.read_text(encoding="utf-8")).count(
-                "LocatedLoopPlanExpressionPortV1"
-            )
-            if count:
-                observed_generic_loop_ports[relative] = count
-    if observed_generic_loop_ports != generic_loop_port_allowlist:
-        raise RuntimeError(
-            "LOOP0-O0-R0 passive GenericLoop located consumer drift: "
-            f"{observed_generic_loop_ports}"
-        )
     for forbidden in (
         "VerifiedCallableResultCallerLedgerV1",
         "ClaimedCallableResultActivationSiteV1",
@@ -254,7 +174,6 @@ def check_loop0_p0a(root: Path) -> str:
     plan_sources = _production_plan_sources(root)
     located_read_allowlist = {
         "src/mir/builder/control_flow/plan/located_loop.rs": 1,
-        PORT_PATH: 1,
         "src/mir/builder/control_flow/plan/lowerer/emission_port.rs": 1,
     }
     for path, text in plan_sources.items():
@@ -293,7 +212,6 @@ def check_loop0_p0a(root: Path) -> str:
 
     # P0b-F0 owns one actual ParserBox extraction/activation fixture and one
     # complete process-scoped mode lock. Later P0b rows must borrow both.
-    fixture = _read(root, P0B_F0_FIXTURE_PATH)
     actual_method_owners = []
     mir_root = root / "src/mir"
     for path in mir_root.rglob("*.rs"):
@@ -301,27 +219,11 @@ def check_loop0_p0a(root: Path) -> str:
             '.find("\\n  static_const_parse_add(text, pos) {")'
         )
         actual_method_owners.extend([path.relative_to(root).as_posix()] * count)
-    if actual_method_owners != [P0B_F0_FIXTURE_PATH]:
+    if actual_method_owners != []:
         raise RuntimeError(
             "LOOP0-P0b-F0 actual ParserBox extraction owner drift: "
             f"owners={actual_method_owners}"
         )
-    for owner in (
-        "source",
-        "selected_static_sites",
-        "plan",
-        "caller",
-    ):
-        definitions = re.findall(rf"\bpub\(crate\)\s+fn\s+{owner}\s*\(", fixture)
-        if len(definitions) != 1:
-            raise RuntimeError(
-                f"LOOP0-P0b-F0 shared fixture owner drift: {owner}"
-            )
-    sites = _function_body(fixture, "selected_static_sites")
-    site_segments = re.findall(
-        r"SourcePathSegmentV1::(?:Body\(\d+\)|LoopBody\(\d+\)|Value)",
-        sites,
-    )
     expected_segments = [
         "SourcePathSegmentV1::Body(3)",
         "SourcePathSegmentV1::Value",
@@ -329,11 +231,6 @@ def check_loop0_p0a(root: Path) -> str:
         "SourcePathSegmentV1::LoopBody(5)",
         "SourcePathSegmentV1::Value",
     ]
-    if sites.count("site(vec![") != 2 or site_segments != expected_segments:
-        raise RuntimeError(
-            "LOOP0-P0b-F0 exact selected-site drift: "
-            f"segments={site_segments}"
-        )
     callable_mod = _read(root, "src/mir/callable_result_representation/mod.rs")
     tests_mod = _read(root, "src/mir/callable_result_representation/tests/mod.rs")
     if tests_mod.count("pub(crate) mod actual_parser_add_fixture;") != 1:
@@ -408,12 +305,11 @@ def check_loop0_p0a(root: Path) -> str:
         )
 
     return (
-        "p0a_port_owners=1 raw_ports=1 passive_located_ports=1 "
+        "p0a_port_owners=1 raw_ports=1 retired_passive_located_ports=0 "
         "production_located_execution_callers=0 path_policy_owners=0 "
-        "production_located_producers=1 generic_loop_passive_consumers=1 "
-        "p0b_f0_actual_fixtures=1 p0b_f0_mode_locks=1"
+        "retired_located_producers=0 retired_generic_loop_passive_consumers=0 "
+        "retired_p0b_f0_actual_fixtures=0 p0b_f0_mode_locks=1"
     )
-
 
 def main() -> int:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
@@ -424,7 +320,6 @@ def main() -> int:
         return 1
     print(f"[callable-result-loop0-p0a-guard] ok: {result}")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

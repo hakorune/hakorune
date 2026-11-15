@@ -55,14 +55,6 @@ pub(super) fn seal_continuation<'a>(
                 )
             }
         },
-        ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan) => {
-            Ok(CanonicalSourceContinuationV1::Callable {
-                source: plan.module(),
-                policy: ModuleInvocationPolicyV1::policy_for_family(
-                    ModuleInvocationFamilyV1::BindingSsaAcyclic,
-                ),
-            })
-        }
         ExactCanonicalPreflightPlanV1::BindingSsaRecursive(plan) => {
             Ok(CanonicalSourceContinuationV1::Callable {
                 source: plan.module(),

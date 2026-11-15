@@ -205,52 +205,10 @@ or create a physical CFG/PHI owner. Production physicalization is deliberately
 outside this D0 profile and is gated by the nested execution task's D1/D2
 rows.
 
-## D7 source-result product
+## Expression projection
 
-`source_result` owns the first source-catalog result-class product for an
-exact catalog callable. The product retains the stable declaration-catalog
-brand alongside the callable key. `SourceResultClassV1` is semantic (`I64` or
-`String`) and does not project to `MirType`.
-
-The issuer consumes `ResolvedFunctionLoweringInputV1` — the co-sealed
-owner/forest/body-shape bundle — plus a `VerifiedSourceCallTargetCatalogV1`
-branded by the same declaration catalog. The input must have been resolved
-from the exact declaration node the catalog row sealed: name, parameters,
-return type, uses, attributes, and body are compared field-by-field before
-the ledger is consumed (a same-parameter-shape foreign declaration cannot
-compose). The declaration body supplies only
-the statement scaffold (`Local` / `Assignment` / `Return`); every expression
-classification goes through `CallableSemanticSourceLedgerView` rows:
-conditional, operator, literal, lexical-reference, method-call, and
-direct-call rows are never re-derived from raw AST. Expression-If consumers
-(`Value`, `Rhs`, `Initializer`) come from the sealed
-`ResolvedConditionalExpressionSourceV1` relation, and transparent `BlockExpr`
-wrappers are stepped through by the co-sealed `BodyExpressionShapeV1` rows,
-not by syntax. A `BlockExpr` is transparent only when its prelude is empty:
-the sealed statement inventory proves absence by checking for
-`BlockExprPrelude` children of the wrapper site, and a non-empty prelude
-rejects with `NonEmptyBlockExprPrelude` rather than silently dropping
-statement effects. It also records the exact `String/null` inequality fact
-used by a later conditional-value consumer. Pure binary class transfer lives
-in `expression_class.rs`; the row-driven, site-bound classifier lives in
-`source_result_classify.rs`; `source_result.rs` keeps the
-product vocabulary, the sealed-input identity checks, and issuance.
-
-Every observed call publishes one explicit `SourceCallDispositionV1`:
-`Static` only where the branded route catalog proves the same-module
-callable, `Dynamic` only where a source-bound dynamic member route exists,
-and `Absent` for every other observed call — including resolver-proven
-direct calls that carry no same-module catalog key. `Dynamic`/`Absent`
-results stay unproven wherever a `SourceResultClassV1` is required.
-
-The issuer fails before Builder effects on foreign callable keys, foreign or
-unbranded route catalogs, resolved inputs whose declaration node differs from
-the catalog row, missing ledger/body-shape inventories, consumer-site
-drift, missing branch rows, non-empty `BlockExpr` preludes, unsupported or
-mixed result classes, unproven call tails, and unknown expressions. Core-method placement/effect rows, recursive
-body closure, JoinSig, physical PHI construction, and production route
-selection remain owned by later slices. No result class is inferred from MIR
-or from a callable name.
+The unconnected D7 source-result catalog prototype was retired. Current
+expression planning and the source-result contracts in the callable pipeline remain.
 
 `expression_projection.rs` projects the SAME original plan using the shared
 binary-class transfer and caller-qualified leaf requirements. Every ordered

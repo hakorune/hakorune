@@ -153,16 +153,16 @@ fn canonical_source_binding_collect0_projects_callable_catalog_atomically() {
     let program = VerifiedResolvedCallableProgramV1::resolve(ASTNode::Program {
         statements: vec![
             callable_function("caller", call("callee", variable("x"))),
-            callable_function("callee", variable("x")),
+            callable_function("callee", call("callee", variable("x"))),
         ],
         span: Span::unknown(),
     })
     .unwrap();
-    let plan = super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
+    let plan = super::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1::verify(
         program.module(),
     )
     .unwrap();
-    let exact = ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan);
+    let exact = ExactCanonicalPreflightPlanV1::BindingSsaRecursive(plan);
     let mut compiler = MirCompiler::new();
     let package = compiler.bind_canonical_source(exact).unwrap();
     let package_brand = package.brand();

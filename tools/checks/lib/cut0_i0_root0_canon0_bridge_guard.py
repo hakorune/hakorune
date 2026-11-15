@@ -10,7 +10,6 @@ import re
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 SHARED = ROOT / "src/mir/module_invocation_identity.rs"
 BUILDER_ID = ROOT / "src/mir/builder/module_invocation_identity.rs"
-ROUTE = ROOT / "src/mir/builder/module_invocation_route_matrix.rs"
 SOURCE = ROOT / "src/mir/compiler/source_bound_package.rs"
 SOURCE_P0 = ROOT / "src/mir/compiler/source_bound_package_p0.rs"
 COMPLETION = ROOT / "src/mir/compiler/canonical_physical_completion.rs"
@@ -37,7 +36,6 @@ OWNER_TASK = ROOT / (
 MANIFEST = (
     SHARED,
     BUILDER_ID,
-    ROUTE,
     SOURCE,
     SOURCE_P0,
     COMPLETION,
@@ -77,7 +75,6 @@ def production_rust_files() -> list[pathlib.Path]:
 def main() -> int:
     shared = SHARED.read_text()
     builder_id = BUILDER_ID.read_text()
-    route = ROUTE.read_text()
     source = SOURCE.read_text()
     mir_mod = MIR_MOD.read_text()
     builder = BUILDER.read_text()
@@ -109,8 +106,6 @@ def main() -> int:
 
     if re.search(r"\b(struct|enum)\s+(CanonicalInvocationBrandV1|CanonicalInvocationTokenV1)", source):
         raise AssertionError("compiler-local identity structs remain")
-    if re.search(r"\benum\s+InvocationRootFamilyV1", route):
-        raise AssertionError("Builder-local family enum remains")
     require(builder_id, "pub(in crate::mir::builder) use crate::mir::module_invocation_identity", "Builder shared re-export")
 
     issued_calls = []
