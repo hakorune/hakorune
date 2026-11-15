@@ -1,12 +1,9 @@
 //! Retain the existing Direct emission and its completed argument descent.
 //! Physical dependencies corroborate that descent; they issue no source class.
 use super::*;
-use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 use crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1;
-use crate::mir::resolved_semantics::home_new_prefix::{
-    LocalCallObservationV1, LocalCallResultClassV1,
-};
+use crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1;
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 #[derive(Debug)]
 enum ScalarCallSourceV1 {

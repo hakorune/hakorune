@@ -18,9 +18,6 @@ pub enum CopyEmitReason {
     JoinIrBridgeNestedIfMergeThen,
     #[cfg(test)]
     JoinIrBridgeNestedIfMergeElse,
-    JoinIrBridgeJoinirBlockConverterConditionalMethodCall,
-    JoinIrMergeRewriterTailCallParamsContinuation,
-    JoinIrMergeRewriterTailCallParamsTailCall,
     JsonV0BridgeLoopformEmitCopy,
     #[cfg(test)]
     TestDceEdgeArgCopy,
@@ -60,15 +57,6 @@ impl CopyEmitReason {
             CopyEmitReason::JoinIrBridgeNestedIfMergeThen => "joinir_bridge/nested_if_merge/then",
             #[cfg(test)]
             CopyEmitReason::JoinIrBridgeNestedIfMergeElse => "joinir_bridge/nested_if_merge/else",
-            CopyEmitReason::JoinIrBridgeJoinirBlockConverterConditionalMethodCall => {
-                "joinir_bridge/joinir_block_converter:conditional_method_call"
-            }
-            CopyEmitReason::JoinIrMergeRewriterTailCallParamsContinuation => {
-                "joinir_merge_rewriter/tail_call_params:continuation"
-            }
-            CopyEmitReason::JoinIrMergeRewriterTailCallParamsTailCall => {
-                "joinir_merge_rewriter/tail_call_params:tail_call"
-            }
             CopyEmitReason::JsonV0BridgeLoopformEmitCopy => "json_v0_bridge/loopform/emit_copy",
             #[cfg(test)]
             CopyEmitReason::TestDceEdgeArgCopy => "test/dce:edge_arg_copy",

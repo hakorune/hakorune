@@ -35,7 +35,6 @@
 
 use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
-use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
 use crate::mir::loop_route_detection::support::condition_scope::LoopConditionScope;
 use crate::mir::ValueId;
 
@@ -46,9 +45,6 @@ pub struct DigitPosPromotionRequest<'a> {
 
     /// Condition scope analysis result
     pub cond_scope: &'a LoopConditionScope,
-
-    /// Loop structure metadata (for future use)
-    pub(crate) scope_shape: Option<&'a LoopScopeShape>,
 
     /// Break condition AST (`loop_break`: Some, `loop_continue_only`: None)
     pub break_cond: Option<&'a ASTNode>,
@@ -280,7 +276,6 @@ mod tests {
         let req = DigitPosPromotionRequest {
             loop_param_name: "p",
             cond_scope: &cond_scope,
-            scope_shape: None,
             break_cond: None,
             continue_cond: None,
             loop_body: &[],
@@ -320,7 +315,6 @@ mod tests {
         let req = DigitPosPromotionRequest {
             loop_param_name: "p",
             cond_scope: &cond_scope,
-            scope_shape: None,
             break_cond: Some(&break_cond),
             continue_cond: None,
             loop_body: &loop_body,
@@ -358,7 +352,6 @@ mod tests {
         let req = DigitPosPromotionRequest {
             loop_param_name: "p",
             cond_scope: &cond_scope,
-            scope_shape: None,
             break_cond: Some(&break_cond),
             continue_cond: None,
             loop_body: &loop_body,
@@ -396,7 +389,6 @@ mod tests {
         let req = DigitPosPromotionRequest {
             loop_param_name: "p",
             cond_scope: &cond_scope,
-            scope_shape: None,
             break_cond: Some(&break_cond),
             continue_cond: None,
             loop_body: &loop_body,
@@ -438,7 +430,6 @@ mod tests {
             let req = DigitPosPromotionRequest {
                 loop_param_name: "p",
                 cond_scope: &cond_scope,
-                scope_shape: None,
                 break_cond: Some(&break_cond),
                 continue_cond: None,
                 loop_body: &loop_body,
@@ -480,7 +471,6 @@ mod tests {
         let req = DigitPosPromotionRequest {
             loop_param_name: "p",
             cond_scope: &cond_scope,
-            scope_shape: None,
             break_cond: Some(&break_cond),
             continue_cond: None,
             loop_body: &loop_body,

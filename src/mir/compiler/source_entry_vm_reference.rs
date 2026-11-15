@@ -10,8 +10,7 @@ use super::canonical_core_dispatch::publication::CanonicalPublishedFamilyKindV1;
 use super::raw_root_publication::RawPublishedInvocationV1;
 use super::source_entry_projection::ProjectedSourceEntryV1;
 use super::source_entry_result::{
-    ProcessExitCodeV1, ProcessFaultV1, ProcessTerminationV1, SourceEntryResultKindV1,
-    SourceEntryResultV1, UnitOriginV1,
+    ProcessExitCodeV1, ProcessFaultV1, ProcessTerminationV1, SourceEntryResultV1, UnitOriginV1,
 };
 use super::source_entry_vm_diagnostic::{
     VmReferenceProcessDiagnosticAdapterV1, VmReferenceProcessDiagnosticReportV1,
@@ -76,17 +75,6 @@ impl VmSourceEntryDecodePlanV1 {
     }
 }
 
-impl VmSourceEntryDecodePlanV1 {
-    pub(in crate::mir) const fn result_kind(self) -> SourceEntryResultKindV1 {
-        match self {
-            Self::Unit { .. } => SourceEntryResultKindV1::Unit,
-            Self::Integer => SourceEntryResultKindV1::Integer,
-            Self::Bool => SourceEntryResultKindV1::Bool,
-            Self::Float => SourceEntryResultKindV1::Float,
-            Self::String => SourceEntryResultKindV1::String,
-        }
-    }
-}
 
 #[derive(Debug)]
 enum VmReferenceProjectedOwnerV1 {

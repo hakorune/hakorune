@@ -1,9 +1,6 @@
 //! Retained source-read obligations and seeding of the same checked evaluation.
 use super::*;
-use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::resolved_semantics::home_new_prefix::local_flow::PrefixLocalFlow;
-use crate::mir::resolved_semantics::home_new_prefix::{LiveHomeV1, LocalCallObservationV1};
-use crate::mir::resolved_semantics::{OwnedExprSiteV1, SourceExprSiteV1};
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 /// Existing purpose proofs live once, at the exact active source node. These
 /// obligations are not physical operands; entry/residence fulfillment is later.
 #[derive(Debug, Clone, PartialEq, Eq)]

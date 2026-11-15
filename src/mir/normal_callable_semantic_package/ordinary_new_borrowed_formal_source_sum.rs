@@ -279,12 +279,6 @@ impl ClosedOriginalCoreSourceV1 {
     ) -> crate::mir::core_method_result_kind::CoreMethodManifestRowRefV2 {
         self.request.manifest()
     }
-    /// The one receiver evidence of a Map operation; the two projections below
-    /// are the only questions callers ask of it.
-    pub(in crate::mir::normal_callable_semantic_package) fn map_receiver(&self)
-        -> Option<&crate::mir::normal_callable_semantic_package::core_method_source::MapReceiverEvidenceV1> {
-        self.map_receiver.as_ref()
-    }
     pub(in crate::mir::normal_callable_semantic_package) fn local_map(&self)
         -> Option<crate::mir::resolved_semantics::BindingRefV1> { self.map_receiver.as_ref().and_then(|map| map.local()) }
     pub(in crate::mir::normal_callable_semantic_package) fn field_map(&self)

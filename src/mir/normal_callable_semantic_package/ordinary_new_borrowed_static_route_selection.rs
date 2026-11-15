@@ -3,7 +3,6 @@
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::LocalRouteWriterV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
-use crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1;
 use std::rc::Rc;
 
 impl OrdinaryNewClaimLedgerV1 {

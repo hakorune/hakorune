@@ -139,9 +139,6 @@ pub(super) fn load_plugin(
 
     let loaded = super::super::types::LoadedPluginV2 {
         _lib: lib_arc.clone(),
-        box_types: lib_def.boxes.clone(),
-        typeboxes: HashMap::new(),
-        init_fn: None,
     };
     loader
         .plugins

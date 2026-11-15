@@ -481,8 +481,6 @@ impl VerifiedVariableAccumRecurrenceFactsV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum VariableAccumRecurrenceSourceDeclineV1 {
     NotVariableAccumRecurrenceShape,
-    UnsupportedOperator,
-    UnsupportedBodyShape,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

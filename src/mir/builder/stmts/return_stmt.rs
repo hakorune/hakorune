@@ -106,7 +106,7 @@ fn adopt_match_return_coreplan(
         .as_ref()
         .map(|func| func.signature.name.clone())
         .unwrap_or_else(|| "<unknown>".to_string());
-    let ctx = LoopRouteContext::new(&cond, &body, &func_name, false, false);
+    let ctx = LoopRouteContext::new(&cond, &body, &func_name, false);
 
     PlanLowerer::lower(builder, core_plan, &ctx)?;
     Ok(Some(return_value))

@@ -1,5 +1,4 @@
 //! Source-owned plain scalar Return reads share the existing exit and producer verifier.
-use super::root_home::*;
 use super::*;
 use crate::mir::MirModule;
 

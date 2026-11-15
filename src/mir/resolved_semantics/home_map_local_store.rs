@@ -20,9 +20,6 @@ pub(crate) struct MapLocalStoreV1 {
 }
 
 impl MapLocalStoreV1 {
-    pub(crate) fn statement(&self) -> &SourceStmtSiteV1 {
-        &self.statement
-    }
     pub(crate) fn call(&self) -> &OwnedExprSiteV1 {
         &self.call
     }

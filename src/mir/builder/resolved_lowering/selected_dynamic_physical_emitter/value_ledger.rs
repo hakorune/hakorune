@@ -71,7 +71,6 @@ pub(super) struct DynamicV2PhysicalValueViewV1 {
 /// the slot can never be reopened for a retry.
 pub(super) struct PendingDynamicV2PhysicalValuePublishV1<'ledger> {
     slot: &'ledger mut DynamicV2PhysicalValueSlotV1,
-    key: LoopValueKeyV1,
     committed: bool,
 }
 
@@ -214,7 +213,6 @@ impl DynamicV2PhysicalValueLedgerV1 {
                 ));
                 Ok(PendingDynamicV2PhysicalValuePublishV1 {
                     slot,
-                    key: result,
                     committed: false,
                 })
             }

@@ -6,15 +6,13 @@
 //! bindings — nothing is invented.
 
 use super::{
-    scan_new_home_flow, BorrowedCallActualRequestV1, BorrowedCallArgumentsV1, LocalCallRouteV1,
-    BorrowedViewUseRequestV1, CallerNewHomePrefixV1, HomeFieldSourceConsultV1,
-    HomePrefixUnavailableV1, LocalFieldReadDemandV1, LocalFieldReadRequestV1,
-    LocalFieldReadResultV1, ObjectReturnCallQualificationV1, ResultNewHomePrefixV1,
-    SelectedNewArgumentObservationV1,
+    scan_new_home_flow, BorrowedCallActualRequestV1, BorrowedCallArgumentsV1,
+    BorrowedViewUseRequestV1, CallerNewHomePrefixV1, HomePrefixUnavailableV1, LocalCallRouteV1,
+    ObjectReturnCallQualificationV1, ResultNewHomePrefixV1, SelectedNewArgumentObservationV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{
-    BindingRefV1, OwnedExprSiteV1, SourceExprSiteV1, VerifiedInstanceEntryHomeLoanV1,
+    BindingRefV1, OwnedExprSiteV1, VerifiedInstanceEntryHomeLoanV1,
 };
 use std::collections::{BTreeMap, BTreeSet};
 

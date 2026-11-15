@@ -3,7 +3,7 @@
 use crate::mir::builder::control_flow::plan::CoreLoopPlan;
 use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::MirBuilder;
-use crate::mir::{BasicBlockId, ValueId};
+use crate::mir::BasicBlockId;
 use std::cell::RefCell;
 use std::collections::{BTreeSet, BTreeMap};
 use std::rc::Rc;

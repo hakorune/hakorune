@@ -90,7 +90,7 @@ mod tests {
     use crate::mir::{ConstValue, MirInstruction};
 
     fn make_ctx<'a>(condition: &'a ASTNode, body: &'a [ASTNode]) -> LoopRouteContext<'a> {
-        LoopRouteContext::new(condition, body, "test_coreplan", false, false)
+        LoopRouteContext::new(condition, body, "test_coreplan", false)
     }
 
     #[test]

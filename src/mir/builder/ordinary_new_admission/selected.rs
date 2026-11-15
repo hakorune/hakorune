@@ -49,9 +49,7 @@ use crate::mir::normal_callable_semantic_package::{
     OrdinaryNewTrivialArgumentV1, PreparedTerminalMapGetReturnV1, RootHomeFaultSequencesV1, RootHomeReleaseOriginV1,
 };
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
-use crate::mir::{
-    BasicBlock, BasicBlockId, MirBuilder, MirFunction, MirInstruction, MirType, ValueId,
-};
+use crate::mir::{BasicBlockId, MirBuilder, MirFunction, MirInstruction, MirType, ValueId};
 use root_graph::{cleanup_step_with_writer, RawRootGraphWriterV1, RootGraphWriterPortV1};
 
 pub(in crate::mir::builder) trait RootExitFramePortV1 {

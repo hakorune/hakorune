@@ -3,22 +3,14 @@
 use super::*;
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
-    CallerNewHomePrefixV1, NamedArrayHomeObservationV1, RootHomeExitV1,
+    CallerNewHomePrefixV1, NamedArrayHomeObservationV1,
 };
 use crate::mir::resolved_semantics::{SourcePathSegmentV1, SourceStmtSiteV1};
 
 /// Source/producer preparation only. Acquisition, commit, live-read, physical
 /// End and independent final correspondence are still separate obligations.
 pub(in crate::mir::normal_callable_semantic_package) struct CheckedArrayHomeSourceV1<'a> {
-    pub(in crate::mir::normal_callable_semantic_package) source: &'a ArrayElementSourceLoanV1,
     pub(in crate::mir::normal_callable_semantic_package) producer: &'a Rc<ArrayProducerPlanV1>,
-    pub(in crate::mir::normal_callable_semantic_package) completion:
-        &'a VerifiedFunctionCompletionV1,
-    pub(in crate::mir::normal_callable_semantic_package) initializer: &'a CallerNewHomePrefixV1,
-    pub(in crate::mir::normal_callable_semantic_package) appends:
-        Box<[&'a NamedArrayHomeObservationV1]>,
-    pub(in crate::mir::normal_callable_semantic_package) ends:
-        Box<[(&'a SourceStmtSiteV1, &'a RootHomeExitV1)]>,
 }
 
 impl ArrayElementSourceLoanV1 {
@@ -117,7 +109,7 @@ impl ArrayElementSourceLoanV1 {
                 _ => {}
             }
         }
-        let Some(initializer) = initializer else {
+        let Some(_) = initializer else {
             return Ok(None);
         };
         if appends.len() != holder.appends().len() {
@@ -132,25 +124,15 @@ impl ArrayElementSourceLoanV1 {
         if !flow.all_exits_ready() {
             return Ok(None);
         }
-        let mut ends = Vec::new();
         for site in completion.explicit_sites() {
             let exit = flow
                 .exit_row(site)
                 .ok_or_else(|| freeze("array-home/exit-missing"))?
                 .map_err(|issue| format!("{}: {issue:?}", freeze("array-home/exit")))?;
             let count = exit.homes().iter().filter(|home| home.binding() == binding).count();
-            if self.validate_holder_exit_source_v1(site, count)? {
-                ends.push((site, exit));
-            }
+            self.validate_holder_exit_source_v1(site, count)?;
         }
-        Ok(Some(CheckedArrayHomeSourceV1 {
-            source: self,
-            producer,
-            completion,
-            initializer,
-            appends: appends.into_boxed_slice(),
-            ends: ends.into_boxed_slice(),
-        }))
+        Ok(Some(CheckedArrayHomeSourceV1 { producer }))
     }
 }
 

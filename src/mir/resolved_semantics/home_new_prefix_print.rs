@@ -1,6 +1,5 @@
 //! Install one whole Print from the original pre-statement Home/actual basis.
 use super::*;
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,

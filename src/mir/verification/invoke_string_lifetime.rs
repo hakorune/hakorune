@@ -7,7 +7,7 @@ pub(super) mod read;
 
 #[path = "invoke_string_state.rs"]
 mod state;
-use state::{Carrier, Live, Residence};
+use state::{Live, Residence};
 
 pub(super) fn check(
     function: &super::super::FunctionVerificationGeometry<'_>,

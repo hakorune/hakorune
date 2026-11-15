@@ -495,16 +495,6 @@ pub(in crate::mir::builder) fn with_common_v2_canonical_session_branded_finish(
     })
 }
 
-#[cfg(not(test))]
-pub(in crate::mir) fn with_common_v2_canonical_session<R>(
-    admission: LoopV2CanonicalSessionAdmissionRefV1<'_, '_, '_>,
-    invocation_brand: ModuleInvocationBrandV1,
-    callback: impl for<'source, 'envelope> FnOnce(
-        &mut CommonV2CanonicalSessionRefV1<'source, 'envelope>,
-    ) -> R,
-) -> Result<R, String> {
-    with_common_v2_canonical_session_branded(admission, invocation_brand, callback)
-}
 
 #[cfg(test)]
 pub(in crate::mir) fn with_common_v2_canonical_session<R>(

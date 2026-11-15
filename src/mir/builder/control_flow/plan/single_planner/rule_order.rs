@@ -26,18 +26,10 @@ define_plan_rules! {
     ScanWithInit;
     SplitScan;
 
-    // Phase 286 P3.2
-    LoopTrueEarlyExit;
-
     // Phase 29bq P2
-    LoopTrueBreak;
     LoopCondBreak;
-    LoopCondContinueOnly;
     LoopCondContinueWithReturn;
     LoopCondReturnInBody;
-
-    // Phase 286 P2.4
-    BoolPredicateScan;
 
     // Phase 286 P2.6
     IfPhiJoin;
@@ -45,14 +37,10 @@ define_plan_rules! {
     // Phase 286 P2
     LoopContinueOnly;
 
-    // Phase 286 P2.3
-    AccumConstLoop;
-
     // Phase 286 P3.1
     LoopBreakRecipe;
 
     // Phase 286 P2.1
-    LoopSimpleWhile;
 }
 
 /// Rule order used by single_planner recipe-entry selection.
@@ -74,11 +62,6 @@ pub(in crate::mir::builder) struct PlannerRuleLabels {
 /// remain semantic and pattern-number free.
 pub(in crate::mir::builder) const fn planner_rule_labels(id: PlanRuleId) -> PlannerRuleLabels {
     match id {
-        PlanRuleId::LoopSimpleWhile => PlannerRuleLabels {
-            tag_rule: "LoopSimpleWhile",
-            display_label: "LoopSimpleWhile",
-            route_label: "loop_simple_while",
-        },
         PlanRuleId::LoopBreakRecipe => PlannerRuleLabels {
             tag_rule: "LoopBreakRecipe",
             display_label: "LoopBreakRecipe",
@@ -94,11 +77,6 @@ pub(in crate::mir::builder) const fn planner_rule_labels(id: PlanRuleId) -> Plan
             display_label: "LoopContinueOnly",
             route_label: "loop_continue_only",
         },
-        PlanRuleId::LoopTrueEarlyExit => PlannerRuleLabels {
-            tag_rule: "LoopTrueEarlyExit",
-            display_label: "LoopTrueEarlyExit",
-            route_label: "loop_true_early_exit",
-        },
         PlanRuleId::ScanWithInit => PlannerRuleLabels {
             tag_rule: "ScanWithInit",
             display_label: "ScanWithInit",
@@ -109,30 +87,10 @@ pub(in crate::mir::builder) const fn planner_rule_labels(id: PlanRuleId) -> Plan
             display_label: "SplitScan",
             route_label: "split_scan",
         },
-        PlanRuleId::BoolPredicateScan => PlannerRuleLabels {
-            tag_rule: "BoolPredicateScan",
-            display_label: "BoolPredicateScan",
-            route_label: "bool_predicate_scan",
-        },
-        PlanRuleId::AccumConstLoop => PlannerRuleLabels {
-            tag_rule: "AccumConstLoop",
-            display_label: "AccumConstLoop",
-            route_label: "accum_const_loop",
-        },
-        PlanRuleId::LoopTrueBreak => PlannerRuleLabels {
-            tag_rule: "LoopTrueBreak",
-            display_label: "LoopTrueBreakContinue",
-            route_label: "loop_true_break_continue",
-        },
         PlanRuleId::LoopCondBreak => PlannerRuleLabels {
             tag_rule: "LoopCondBreak",
             display_label: "LoopExitIfBreakContinue",
             route_label: "loop_cond_break_continue",
-        },
-        PlanRuleId::LoopCondContinueOnly => PlannerRuleLabels {
-            tag_rule: "LoopCondContinueOnly",
-            display_label: "LoopContinueOnly",
-            route_label: "loop_cond_continue_only",
         },
         PlanRuleId::LoopCondContinueWithReturn => PlannerRuleLabels {
             tag_rule: "LoopCondContinueWithReturn",

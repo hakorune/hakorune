@@ -449,16 +449,6 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 
-    /// Place the recorded carrier Ends just before the loop's prior-Home
-    /// suffix of `unwind` (oldest-first `homes`, newest-first operations).
-    pub(crate) fn with_loop_call_text_ends_v2(
-        &self,
-        call: &OwnedExprSiteV1,
-        homes: &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1],
-        unwind: &mut Vec<InvokeOperation>,
-    ) -> Result<(), String> {
-        self.with_loop_call_text_ends_at_state_v1(call, homes, homes, unwind)
-    }
 
     /// The recorded prefix identifies the loop boundary, while only the
     /// evaluation's current responsibilities contribute cleanup operations.

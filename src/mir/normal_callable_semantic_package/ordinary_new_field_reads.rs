@@ -4,7 +4,7 @@ use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
     SelectedNewArgumentKindV1, SelectedNewArgumentObservationV1,
 };
-use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceStmtSiteV1};
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 use hakorune_mir_defs::CanonicalFieldRefV1;
 use std::collections::{BTreeMap, BTreeSet};

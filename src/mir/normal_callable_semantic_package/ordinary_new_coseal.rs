@@ -719,9 +719,8 @@ pub(in crate::mir) use local_commit::{
 pub(in crate::mir::normal_callable_semantic_package) use result_class_claim::source_result_facts_for_test;
 
 pub(crate) use local_commit::{
-    BindingRebindExpressionContractV1, EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1,
-    ExpressionEmissionV1, FieldAppendTextProjectionV1, InitializerExpressionContractV1,
-    OwnedArrayAppendCandidateV1, RootLifecyclePrefixBindingGroupV1,
+    EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1, ExpressionEmissionV1,
+    FieldAppendTextProjectionV1, OwnedArrayAppendCandidateV1, RootLifecyclePrefixBindingGroupV1,
 };
 
 pub(crate) use local_commit::EmittedOwnedArrayHolderV1;

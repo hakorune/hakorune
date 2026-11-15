@@ -80,18 +80,6 @@ fn with_common_v2_physical_entry_session_branded<R>(
     )
 }
 
-#[cfg(not(test))]
-pub(in crate::mir::builder) fn with_common_v2_physical_entry_session<R>(
-    builder: &mut MirBuilder,
-    prepared: InvocationBranded<PreparedPhysicalEntrySessionInputV1<'_, '_, '_>>,
-    expected_brand: ModuleInvocationBrandV1,
-    callback: impl FnOnce(
-        &mut super::common_v2_session::CommonV2CanonicalSessionRefV1<'_, '_>,
-        &mut MirBuilder,
-    ) -> Result<R, String>,
-) -> Result<R, String> {
-    with_common_v2_physical_entry_session_branded(builder, prepared, expected_brand, callback)
-}
 
 #[cfg(test)]
 pub(in crate::mir::builder) fn with_common_v2_physical_entry_session<R>(

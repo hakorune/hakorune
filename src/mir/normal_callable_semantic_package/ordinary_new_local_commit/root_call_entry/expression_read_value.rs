@@ -75,41 +75,6 @@ impl EvaluatedBoxReferenceV1 {
     pub(in crate::mir) fn value(&self) -> ValueId {
         self.value
     }
-    pub(in crate::mir) fn ownership(&self) -> &BoxReferenceOwnershipV1 {
-        &self.ownership
-    }
-    /// This is the original nominal source, not a layout inferred from a name.
-    pub(in crate::mir) fn declared_type(&self) -> Option<&str> {
-        use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1 as Field;
-        match &self.ownership {
-            BoxReferenceOwnershipV1::Borrowed(BoxReferenceSupportV1::Alias(loan)) => {
-                loan.alias_class_v1()
-            }
-            BoxReferenceOwnershipV1::Borrowed(BoxReferenceSupportV1::DeclaredFrom(read)) => {
-                Some(read.declared_type())
-            }
-            BoxReferenceOwnershipV1::Borrowed(BoxReferenceSupportV1::Field(source)) => {
-                match source.result() {
-                    Field::Alias(class) => Some(class),
-                    Field::BorrowedObject(child) => Some(child.child_class()),
-                    _ => None,
-                }
-            }
-            BoxReferenceOwnershipV1::Owned { .. } => None,
-        }
-    }
-    pub(in crate::mir) fn nullable(&self) -> bool {
-        match &self.ownership {
-            BoxReferenceOwnershipV1::Borrowed(BoxReferenceSupportV1::DeclaredFrom(read)) => {
-                !read.payload_nonnull()
-            }
-            BoxReferenceOwnershipV1::Borrowed(BoxReferenceSupportV1::Field(source)) => {
-                source.checked_object_nullable_v1()
-            }
-            BoxReferenceOwnershipV1::Borrowed(BoxReferenceSupportV1::Alias(_)) => true,
-            BoxReferenceOwnershipV1::Owned { nullable, .. } => *nullable,
-        }
-    }
     /// Only an existing canonical payload proof may supply layout membership.
     /// Alias/from declarations alone have no canonical layout at this phase.
     pub(in crate::mir) fn object(&self) -> Option<hakorune_mir_defs::CanonicalObjectIdV1> {

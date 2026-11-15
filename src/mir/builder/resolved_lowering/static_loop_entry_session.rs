@@ -58,7 +58,6 @@ pub(in crate::mir::builder) struct PreparedSelectedStaticLoopEntryV1<'builder, '
 pub(super) struct SelectedStaticRootGraphPhysicalV1 {
     pub(super) graph: RootGraphEmissionV1,
     pub(super) created: Vec<BasicBlockId>,
-    pub(super) deferred_return: (BasicBlockId, MirInstruction),
     pub(super) home_order: PreparedRootHomeOrderV1,
 }
 
@@ -97,7 +96,6 @@ pub(super) fn emit_selected_root_graph_v1(
     }
     Ok(SelectedStaticRootGraphPhysicalV1 {
         created: writer.created().to_vec(),
-        deferred_return: deferred_return.clone(),
         home_order: order,
         graph,
     })

@@ -40,17 +40,11 @@ pub(crate) struct LoopRouteContext<'a> {
     /// Loop condition AST node
     pub condition: &'a ASTNode,
 
-    /// Loop body statements
-    pub body: &'a [ASTNode],
-
     /// Current function name (for routing)
     pub func_name: &'a str,
 
     /// Debug logging enabled
     pub debug: bool,
-
-    /// In static box context? (affects scan-predicate route behavior)
-    pub in_static_box: bool,
 
     /// Phase 192: Loop route classification based on features.
     pub route_kind: LoopRouteKind,
@@ -59,10 +53,6 @@ pub(crate) struct LoopRouteContext<'a> {
     /// None if not available, Some(&[ASTNode]) if function body is accessible
     pub fn_body: Option<&'a [ASTNode]>,
 
-    /// Phase 188.3: Cached StepTree max_loop_depth for nested-loop minimal routes.
-    /// None if not computed, Some(depth) when nested-loop candidate is present.
-    /// Avoids re-building StepTree in lowering phase
-    pub step_tree_max_loop_depth: Option<u32>,
 }
 
 impl<'a> LoopRouteContext<'a> {
@@ -77,7 +67,6 @@ impl<'a> LoopRouteContext<'a> {
         body: &'a [ASTNode],
         func_name: &'a str,
         debug: bool,
-        in_static_box: bool,
     ) -> Self {
         // Phase 137-6-S1: Use SSOT route selection entry point
         use crate::mir::builder::control_flow::joinir::routing::choose_route_kind;
@@ -85,13 +74,10 @@ impl<'a> LoopRouteContext<'a> {
 
         Self {
             condition,
-            body,
             func_name,
             debug,
-            in_static_box,
             route_kind,
-            fn_body: None,                  // Phase 200-C: Default to None
-            step_tree_max_loop_depth: None, // Phase 188.3: Default to None
+            fn_body: None, // Phase 200-C: Default to None
         }
     }
 
@@ -101,10 +87,9 @@ impl<'a> LoopRouteContext<'a> {
         body: &'a [ASTNode],
         func_name: &'a str,
         debug: bool,
-        in_static_box: bool,
         fn_body: &'a [ASTNode],
     ) -> Self {
-        let mut ctx = Self::new(condition, body, func_name, debug, in_static_box);
+        let mut ctx = Self::new(condition, body, func_name, debug);
         ctx.fn_body = Some(fn_body);
         ctx
     }

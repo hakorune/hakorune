@@ -9,8 +9,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::expression_port::RawLoopPlanExpressionPortV1;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, ExitKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock,
-    RecipeBodies, RecipeItem,
+    BlockContractKind, ExitKind, IfContractKind, RecipeBlock, RecipeBodies, RecipeItem,
 };
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 use std::convert::Infallible;
@@ -214,12 +213,9 @@ impl<'source> RawPartsAssociatedBlockV1<'source> {
 }
 
 pub(in crate::mir::builder) struct RawPartsAssociatedLoopV0V1<'source> {
-    pub(in crate::mir::builder) source: &'source ASTNode,
-    pub(in crate::mir::builder) kind: LoopKindV0,
     pub(in crate::mir::builder) condition: &'source CondBlockView,
     pub(in crate::mir::builder) body_block: RawPartsAssociatedBlockV1<'source>,
     pub(in crate::mir::builder) body_contract: BlockContractKind,
-    pub(in crate::mir::builder) features: LoopV0Features,
 }
 
 pub(in crate::mir::builder) struct RawPartsAssociatedSourceV1<'source> {
@@ -352,21 +348,20 @@ impl<'source> PartsAssociatedSourceV1 for RawPartsAssociatedSourceV1<'source> {
             }
             RecipeItem::LoopV0 {
                 loop_stmt,
-                kind,
                 cond_view,
                 body_block,
                 body_contract,
-                features,
-            } => PartsAssociatedRecipeItemV1::RawLoopV0 {
-                loop_input: RawPartsAssociatedLoopV0V1 {
-                    source: self.statement(block, *loop_stmt)?,
-                    kind: *kind,
-                    condition: cond_view,
-                    body_block: RawPartsAssociatedBlockV1::new(self.arena, body_block),
-                    body_contract: *body_contract,
-                    features: *features,
-                },
-            },
+                ..
+            } => {
+                self.statement(block, *loop_stmt)?;
+                PartsAssociatedRecipeItemV1::RawLoopV0 {
+                    loop_input: RawPartsAssociatedLoopV0V1 {
+                        condition: cond_view,
+                        body_block: RawPartsAssociatedBlockV1::new(self.arena, body_block),
+                        body_contract: *body_contract,
+                    },
+                }
+            }
         };
         Ok(VerifiedPartsAssociatedItemV1::new(
             RawLoopPlanExpressionPortV1::new(),

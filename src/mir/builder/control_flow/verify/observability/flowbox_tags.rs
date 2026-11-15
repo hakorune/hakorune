@@ -6,14 +6,12 @@ use crate::mir::builder::control_flow::lower::{CorePlan, LoweredRecipe};
 #[derive(Clone, Copy)]
 pub(in crate::mir::builder) enum FlowboxVia {
     Shadow,
-    Release,
 }
 
 impl FlowboxVia {
     fn as_str(self) -> &'static str {
         match self {
             FlowboxVia::Shadow => "shadow",
-            FlowboxVia::Release => "release",
         }
     }
 }

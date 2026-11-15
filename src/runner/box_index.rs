@@ -1,9 +1,8 @@
 /*!
- * BoxIndex — minimal view over aliases and plugin box types
+ * BoxIndex — minimal view over plugin names and prefix metadata
  *
  * Purpose: allow using/namespace resolver to make decisions that depend
- * on plugin-visible type names (e.g., enforcing strict prefix rules) and
- * to surface aliases defined in nyash.toml/env.
+ * on plugin-visible type names (e.g., enforcing strict prefix rules).
  */
 
 use crate::config::env;
@@ -15,11 +14,7 @@ use std::time::SystemTime;
 
 #[derive(Clone, Default)]
 pub struct BoxIndex {
-    // ASTCLEAN-017: retained for strict-prefix alias diagnostics; active using resolution currently reads UsingContext directly.
-    pub aliases: HashMap<String, String>,
     pub plugin_boxes: HashSet<String>,
-    // ASTCLEAN-017: retained for plugin-prefix metadata queries via get_plugin_meta.
-    pub plugin_meta: HashMap<String, PluginMeta>,
     pub plugin_meta_by_box: HashMap<String, PluginMeta>,
     pub plugins_require_prefix_global: bool,
 }
@@ -113,9 +108,7 @@ impl BoxIndex {
         }
 
         Self {
-            aliases,
             plugin_boxes,
-            plugin_meta,
             plugin_meta_by_box,
             plugins_require_prefix_global,
         }

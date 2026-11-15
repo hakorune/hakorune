@@ -2,7 +2,6 @@
 //! the New-home prefix walk. No physical value, ABI, recipe, JSON, or backend
 //! authority is issued here.
 use super::local_flow::{OrdinaryObservation, PrefixLocalFlow};
-use super::LocalFieldReadRequestV1;
 use super::{
     BindingRefV1, ExprChildRoleV1, FunctionOwnerIdV1, HomePrefixUnavailableV1, OwnedExprSiteV1,
     ResolvedLexicalRefV1, ResolvedLiteralSourceV1, ResolvedMethodCallReceiverSourceV1,
@@ -381,9 +380,6 @@ impl TerminalMapGetReturnV1 {
     }
     pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 {
         &self.return_site
-    }
-    pub(crate) fn call_site(&self) -> &OwnedExprSiteV1 {
-        &self.call_site
     }
     pub(crate) fn receiver_site(&self) -> &SourceExprSiteV1 {
         &self.receiver_site

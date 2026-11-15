@@ -27,12 +27,9 @@ fn resolve_global_allow_compat_shim(type_id: u32) -> bool {
     route.allow_compat_shim
 }
 
-/// Loaded plugin information (library handle + exported addresses)
+/// Library backing retained for the registered plugin exports.
 pub struct LoadedPluginV2 {
     pub(super) _lib: Arc<libloading::Library>,
-    pub(super) box_types: Vec<String>,
-    pub(super) typeboxes: std::collections::HashMap<String, usize>,
-    pub(super) init_fn: Option<unsafe extern "C" fn() -> i32>,
 }
 
 #[derive(Clone)]
