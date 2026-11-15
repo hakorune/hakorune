@@ -1,7 +1,6 @@
 //! Static packet actuals borrow the same complete checked incoming owner.
 //! Publication proves the result; it does not replace entry or actual proof.
 use super::*;
-use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::LocalRouteWriterV1;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 use crate::mir::normal_callable_semantic_package::PreparedStaticTerminalRootRouteV1;
 use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;

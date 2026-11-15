@@ -7,9 +7,7 @@ use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
 use crate::mir::normal_callable_semantic_package::{
     physical_signature::{PhysicalCallableLaneRoleV1, VerifiedCallablePhysicalSignatureCohortV1},
     qualified_static_call_claim::incoming_source::StaticIncomingSourceV1,
-    result_contract::VerifiedCallableResultContractCohortV1,
     selected_mapping::VerifiedSelectedCallableBatchMapV1,
-    OrdinaryNewClaimLedgerV1,
 };
 use crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind;
 use crate::mir::resolved_semantics::SourceExprSiteV1;
