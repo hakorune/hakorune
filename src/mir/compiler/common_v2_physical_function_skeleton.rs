@@ -150,24 +150,6 @@ impl<'loan, 'source, 'join> PreparedPhysicalFunctionSkeletonV1<'loan, 'source, '
         &self.descriptors
     }
 
-    /// Move the retained cohort, detached shell, and descriptor rows into the
-    /// one compiler-only session transaction. No public caller can recover a
-    /// second shell after this handoff.
-    #[cfg(not(test))]
-    pub(crate) fn into_session_input(
-        self,
-        brand: crate::mir::module_invocation_identity::ModuleInvocationBrandV1,
-    ) -> InvocationBranded<PreparedPhysicalEntrySessionInputV1<'loan, 'source, 'join>> {
-        InvocationBranded::from_source(
-            brand,
-            PreparedPhysicalEntrySessionInputV1 {
-                loan: Some(self.loan),
-                function: Some(self.function),
-                descriptors: Some(self.descriptors),
-                stamp: Some(self.stamp),
-            },
-        )
-    }
 
     #[cfg(test)]
     pub(crate) fn into_session_input(
