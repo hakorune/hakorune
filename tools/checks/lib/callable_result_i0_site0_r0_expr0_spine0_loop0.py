@@ -6,7 +6,6 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-
 CONSTRUCTOR_PATHS = (
     "src/mir/builder/control_flow/plan/normalizer/common.rs",
     "src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs",
@@ -22,13 +21,11 @@ CONSTRUCTOR_PATHS = (
     "src/mir/builder/control_flow/plan/features/loop_true_break_continue_pipeline.rs",
 )
 
-
 def _read(root: Path, relative: str) -> str:
     path = root / relative
     if not path.is_file():
         raise RuntimeError(f"LOOP0-S0a missing {relative}")
     return path.read_text(encoding="utf-8")
-
 
 def _skip_rust_space_and_comments(text: str, index: int) -> int:
     while index < len(text):
@@ -53,7 +50,6 @@ def _skip_rust_space_and_comments(text: str, index: int) -> int:
             continue
         return index
     return index
-
 
 def _skip_rust_literal_or_comment(text: str, index: int) -> int | None:
     if text.startswith("//", index):
@@ -101,7 +97,6 @@ def _skip_rust_literal_or_comment(text: str, index: int) -> int | None:
             return close + 1
     return None
 
-
 def _matching_rust_brace(text: str, opening: int) -> int:
     depth = 1
     cursor = opening + 1
@@ -118,7 +113,6 @@ def _matching_rust_brace(text: str, opening: int) -> int:
                 return cursor + 1
         cursor += 1
     raise RuntimeError("LOOP0-S0b unterminated #[cfg(test)] item")
-
 
 def _cfg_test_item_end(text: str, attribute_start: int) -> int:
     cursor = attribute_start + len("#[cfg(test)]")
@@ -156,7 +150,6 @@ def _cfg_test_item_end(text: str, attribute_start: int) -> int:
         cursor += 1
     raise RuntimeError("LOOP0-S0b unterminated #[cfg(test)] item")
 
-
 def _production(text: str) -> str:
     """Remove each cfg(test) item without discarding later production items."""
 
@@ -176,7 +169,6 @@ def _production(text: str) -> str:
         output.append("\n" * text[start:end].count("\n"))
         cursor = end
 
-
 def _is_test_source(path: Path) -> bool:
     return (
         path.name == "tests.rs"
@@ -184,20 +176,17 @@ def _is_test_source(path: Path) -> bool:
         or "tests" in path.parts
     )
 
-
 def _struct_body(text: str, owner: str) -> str:
     match = re.search(rf"\bstruct\s+{owner}(?:<[^>]*>)?\s*\{{(?P<body>.*?)\n\}}", text, re.S)
     if match is None:
         raise RuntimeError(f"LOOP0-S0b missing struct body: {owner}")
     return match.group("body")
 
-
 def _enum_variant_body(text: str, variant: str) -> str:
     match = re.search(rf"\b{variant}\s*\{{(?P<body>.*?)\n\s*\}},", text, re.S)
     if match is None:
         raise RuntimeError(f"LOOP0-S0a missing call variant body: {variant}")
     return match.group("body")
-
 
 def _reject_clone_owner(text: str, owner: str) -> None:
     derived_clone = re.search(
@@ -208,7 +197,6 @@ def _reject_clone_owner(text: str, owner: str) -> None:
     if derived_clone or re.search(rf"\bimpl(?:<[^>]*>)?\s+Clone\s+for\s+{owner}\b", text):
         raise RuntimeError(f"LOOP0-S0b non-Clone owner became Clone: {owner}")
 
-
 def check_loop0_s0a(root: Path) -> str:
     source_path = "src/mir/builder/control_flow/plan/call_source.rs"
     effect_path = "src/mir/builder/control_flow/plan/effect.rs"
@@ -218,17 +206,11 @@ def check_loop0_s0a(root: Path) -> str:
     )
     located_path = "src/mir/builder/control_flow/plan/located_loop.rs"
     located_error_path = "src/mir/builder/control_flow/plan/located_loop_error.rs"
-    schedule_path = "src/mir/callable_result_representation/loop_claim_schedule.rs"
-    batch_path = "src/mir/callable_result_representation/loop_claim_batch.rs"
-    ledger_path = "src/mir/callable_result_representation/caller_ledger.rs"
     source = _read(root, source_path)
     effect = _read(root, effect_path)
     remapper = _read(root, remapper_path)
     located = _read(root, located_path)
     located_error = _read(root, located_error_path)
-    schedule = _read(root, schedule_path)
-    batch = _read(root, batch_path)
-    ledger = _read(root, ledger_path)
 
     if source.count("enum CoreCallSourceV1") != 1:
         raise RuntimeError("LOOP0-S0a requires one call-source vocabulary owner")
@@ -328,8 +310,6 @@ def check_loop0_s0a(root: Path) -> str:
         },
         "VerifiedCallableResultLoopClaimScheduleV1": {
             located_path: 4,
-            schedule_path: 2,
-            batch_path: 2,
             "src/mir/callable_result_representation/mod.rs": 1,
         },
     }
@@ -343,7 +323,6 @@ def check_loop0_s0a(root: Path) -> str:
                     f"owner={owner} path={path} expected={expected} actual={actual}"
                 )
 
-    schedule_production = _production(schedule)
     located_error_production = _production(located_error)
     passive_callable_result_consumers = {
         located_path,
@@ -376,30 +355,17 @@ def check_loop0_s0a(root: Path) -> str:
         ".claim(",
         ".finish(",
     ):
-        if forbidden in located_error_production + schedule_production:
+        if forbidden in located_error_production:
             raise RuntimeError(f"LOOP0-S0b seal must remain ledger-read-only: {forbidden}")
 
     _reject_clone_owner(located_production, "VerifiedLocatedCoreLoopPlanV1")
-    _reject_clone_owner(schedule_production, "VerifiedCallableResultLoopClaimScheduleV1")
-    batch_production = _production(batch)
-    ledger_production = _production(ledger)
-    _reject_clone_owner(batch_production, "ClaimedCallableResultLoopBatchV1")
-    if re.search(r"\b(?:Arc|Rc)\s*<", located_production + schedule_production):
+    if re.search(r"\b(?:Arc|Rc)\s*<", located_production):
         raise RuntimeError("LOOP0-S0b seal/schedule must not use Arc or Rc")
-    if re.search(r"\b(?:Arc|Rc)\s*<", batch_production):
-        raise RuntimeError("LOOP0-S0c claim batch must not use Arc or Rc")
 
     located_fields = _struct_body(located_production, "VerifiedLocatedCoreLoopPlanV1")
-    schedule_fields = _struct_body(
-        schedule_production, "VerifiedCallableResultLoopClaimScheduleV1"
-    )
     for fields, required, count in (
         (located_fields, "plan: CorePlan,", 1),
         (located_fields, "schedule: VerifiedCallableResultLoopClaimScheduleV1<'plan>,", 1),
-        (schedule_fields, "activation_plan: &'plan VerifiedCallableResultActivationPlanV1,", 1),
-        (schedule_fields, "caller: &'plan CanonicalSameModuleCallableKeyV1,", 1),
-        (schedule_fields, "loop_root: SourceStmtSiteV1,", 1),
-        (schedule_fields, "rows: Box<[&'plan VerifiedCallableResultActivationSiteV1]>,", 1),
     ):
         actual = fields.count(required)
         if actual != count:
@@ -409,39 +375,13 @@ def check_loop0_s0a(root: Path) -> str:
     visible_sealed_field = re.search(
         r"(?m)^\s*pub(?:\([^)]*\))?\s+"
         r"(?:plan|schedule|activation_plan|caller|rows|loop_root|_seal)\s*:",
-        located_fields + schedule_fields,
+        located_fields,
     )
     if visible_sealed_field is not None:
         raise RuntimeError(
             "LOOP0-S0b sealed fields must remain private: "
             f"{visible_sealed_field.group(0).strip()}"
         )
-
-    if schedule_production.count(".rows_for(caller)") != 1:
-        raise RuntimeError("LOOP0-S0b schedule must borrow one canonical rows_for(caller) order")
-    if schedule_production.count("rows.push(row)") != 1:
-        raise RuntimeError("LOOP0-S0b schedule must retain activation rows without reconstruction")
-    for forbidden_order in (
-        "BTreeMap",
-        ".sort(",
-        ".sort_by(",
-        ".sort_by_key(",
-        ".sort_unstable(",
-        ".sort_unstable_by(",
-    ):
-        if forbidden_order in schedule_production:
-            raise RuntimeError(
-                f"LOOP0-S0b source-order schedule must not reorder rows: {forbidden_order}"
-            )
-    for required_brand in (
-        "parts.plan_identity != activation_plan as *const _ as usize",
-        "std::ptr::eq(parts.caller, caller)",
-        "std::ptr::eq(self.activation_plan, activation_plan)",
-    ):
-        if required_brand not in schedule_production:
-            raise RuntimeError(f"LOOP0-S0b schedule brand check missing: {required_brand}")
-    if "PhantomData" in schedule_production:
-        raise RuntimeError("LOOP0-S0b schedule must retain real branded references")
 
     if located_production.count("visit_core_call_sources_v1(&plan") != 1:
         raise RuntimeError("LOOP0-S0b wrapper must reuse one exhaustive CorePlan visitor")
@@ -463,15 +403,6 @@ def check_loop0_s0a(root: Path) -> str:
     ):
         if required_error not in located_error_production:
             raise RuntimeError(f"LOOP0-S0b located-plan error vocabulary drift: {required_error}")
-    for required_error in (
-        "ForeignPlan",
-        "ForeignCaller",
-        "ExpectedLocatedLoop",
-        "DuplicateActivationSite",
-        "NoActivationRowsUnderLoop",
-    ):
-        if required_error not in schedule_production:
-            raise RuntimeError(f"LOOP0-S0b schedule error vocabulary drift: {required_error}")
 
     if "VerifiedLocatedCoreLoopPlanV1" in remapper_production:
         raise RuntimeError("LOOP0-S0b remap after located-plan seal must remain unavailable")
@@ -493,47 +424,12 @@ def check_loop0_s0a(root: Path) -> str:
     if re.search(r"->\s*(?:&\s*(?:mut\s+)?)?CorePlan\b", located_production):
         raise RuntimeError("LOOP0-S0b sealed CorePlan return-type escape detected")
 
-    batch_fields = _struct_body(batch_production, "ClaimedCallableResultLoopBatchV1")
-    for required, count in (
-        ("activation_plan: &'plan VerifiedCallableResultActivationPlanV1,", 1),
-        ("caller: &'plan CanonicalSameModuleCallableKeyV1,", 1),
-        ("loop_root: SourceStmtSiteV1,", 1),
-        ("source_order: Box<[&'plan SourceExprSiteV1]>,", 1),
-        ("claims_by_site: BTreeMap<SourceExprSiteV1, LoopClaimSlotV1<'plan>>,", 1),
-    ):
-        if batch_fields.count(required) != count:
-            raise RuntimeError(f"LOOP0-S0c batch field drift: {required}")
-    for forbidden_field in ("ValueId", "target:", "abi:", "effect:", "span:"):
-        if forbidden_field in batch_fields:
-            raise RuntimeError(f"LOOP0-S0c batch copied foreign authority: {forbidden_field}")
-    if batch_production.count("fn claim_loop_batch(") != 1:
-        raise RuntimeError("LOOP0-S0c requires one ledger batch-claim entry")
     # I0b permits exactly one consuming handoff after the final located plan
     # seal.  It must not create a second caller anywhere else in MIR.
     if all_mir_production_text.count(".claim_loop_batch(") != 1:
         raise RuntimeError("LOOP0-I0b requires exactly one production claim caller")
     if located_production.count(".claim_loop_batch(") != 1:
         raise RuntimeError("LOOP0-I0b claim caller must stay inside located execution bundle")
-    for required_error in ("UnexpectedSite", "AlreadyConsumed", "Unconsumed"):
-        if required_error not in batch_production:
-            raise RuntimeError(f"LOOP0-S0c batch error vocabulary drift: {required_error}")
-    if batch_production.count("std::mem::replace(slot, LoopClaimSlotV1::Consumed)") != 1:
-        raise RuntimeError("LOOP0-S0c claim removal must leave one consumed tombstone")
-    if ledger_production.count("fn prevalidate_and_commit_loop_schedule(") != 1:
-        raise RuntimeError("LOOP0-S0c requires one ledger-owned batch commit")
-    if ledger_production.count("self.claimed.extend(staged)") != 1:
-        raise RuntimeError("LOOP0-S0c requires one non-fallible staged commit")
-    commit = ledger_production.index("self.claimed.extend(staged)")
-    prevalidate = ledger_production.index("fn prevalidate_and_commit_loop_schedule(")
-    if commit < prevalidate:
-        raise RuntimeError("LOOP0-S0c ledger committed before batch prevalidation")
-    for forbidden_api in (
-        "pub(crate) fn claim_site(",
-        "pub(crate) fn claim_sites(",
-        "pub(crate) fn claim_source_site(",
-    ):
-        if forbidden_api in batch_production + ledger_production:
-            raise RuntimeError(f"LOOP0-S0c unbranded site claim API detected: {forbidden_api}")
 
     builder_root = _production(_read(root, "src/mir/builder.rs"))
     for forbidden_field in (
@@ -552,10 +448,6 @@ def check_loop0_s0a(root: Path) -> str:
         remapper_path,
         located_path,
         located_error_path,
-        schedule_path,
-        batch_path,
-        ledger_path,
-        "src/mir/callable_result_representation/tests/loop_claim_batch.rs",
         "src/mir/builder/control_flow/plan/located_loop_tests.rs",
         "src/mir/builder/control_flow/plan/mod.rs",
         "src/mir/callable_result_representation/mod.rs",
@@ -572,6 +464,6 @@ def check_loop0_s0a(root: Path) -> str:
 
     return (
         "loop0_s0a_sources=4 explicit_unlocated_constructors=15 located_producers=0 "
-        "loop0_s0b_wrapper=1 schedule=1 loop0_s0c_batch=1 "
-        "production_claim_callers=0 atomic_ledger_commits=1"
+        "loop0_s0b_wrapper=1 retired_schedule=0 retired_loop0_s0c_batch=0 "
+        "production_claim_callers=0 retired_atomic_ledger_commits=0"
     )

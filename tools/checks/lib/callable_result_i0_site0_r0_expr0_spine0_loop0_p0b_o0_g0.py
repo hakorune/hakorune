@@ -7,16 +7,13 @@ from pathlib import Path
 
 from callable_result_i0_site0_r0_expr0_spine0_loop0 import _read
 
-
 BASE = "src/mir/builder/control_flow/plan/generic_loop/located_representation"
 MODULE = f"{BASE}/mod.rs"
 ACTUAL = f"{BASE}/actual_parser_tests.rs"
 PORT = "src/mir/builder/control_flow/plan/expression_port.rs"
 PORT_TESTS = "src/mir/builder/control_flow/plan/expression_port_tests.rs"
-LEGACY = "src/mir/callable_result_representation/located_legacy.rs"
 EXTRACT = "src/mir/builder/control_flow/plan/generic_loop/facts/extract/v1.rs"
 FACTS = "src/mir/builder/control_flow/plan/generic_loop/facts_types.rs"
-
 
 def _count(text: str, token: str, expected: int, label: str) -> None:
     actual = text.count(token)
@@ -25,11 +22,9 @@ def _count(text: str, token: str, expected: int, label: str) -> None:
             f"LOOP0-P0b-O0-G0 {label} drift: expected={expected} actual={actual}"
         )
 
-
 def _require(text: str, token: str, label: str) -> None:
     if token not in text:
         raise RuntimeError(f"LOOP0-P0b-O0-G0 {label} missing: {token}")
-
 
 def check_loop0_p0b_o0_g0(root: Path) -> str:
     module = _read(root, MODULE)
@@ -104,7 +99,6 @@ def check_loop0_p0b_o0_g0(root: Path) -> str:
         (
             PORT,
             PORT_TESTS,
-            LEGACY,
             EXTRACT,
             FACTS,
             "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0.py",

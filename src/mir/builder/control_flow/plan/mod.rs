@@ -146,7 +146,6 @@ pub(in crate::mir::builder) use self::core::{
 };
 pub(in crate::mir::builder) use self::effect::CoreEffectPlan;
 pub(in crate::mir::builder) use self::exit::CoreExitPlan;
-pub(in crate::mir::builder) use self::expression_port::LocatedLoopPlanExpressionPortV1;
 pub(in crate::mir::builder) use self::expression_port::LoopPlanExpressionPortErrorV1;
 pub(in crate::mir::builder) use self::expression_port::{
     LoopPlanExpressionPortV1, RawLoopPlanExpressionPortV1,
