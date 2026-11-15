@@ -1,6 +1,6 @@
 # MirBuilder整理1: 実行経路の計測と未使用コードの整理
 
-Status: 段1計測済み、段2未着手。Date: 2026-11-15。基点main `9e3f19026e`（productionは`7a6771e805`と同じ）。
+Status: 段1完了、段2は確定できたfamilyを整理して終了。未判定候補・安全性検査は保持。Date: 2026-11-15。基点main `9e3f19026e`（productionは`7a6771e805`と同じ）。
 
 ## 段1: 変更前の実行経路
 
@@ -64,8 +64,8 @@ LLVMの可測行とは別分母。未mappingを不要コードとみなさず、
 | selfhost488 | 488 | 176 | 1 |
 | apps1307 | 1307 | 162 | 0 |
 
-上記6,114回に、EXE群の補足dump3,760回を追加。sourceは5,386本（群重複あり）。
-固定suiteは8/8、timeout/SKIPなし。全libは8,913 PASS/225 FAIL/56 ignored（4thread）。
+上記6,114回に、EXE群の補足dump3,760回を追加。sourceは群間重複を除いて5,386本。総CLIは補足dumpとsuite内38回を含め9,912回。
+固定suiteは8/8（空marker1件、実EXE smoke7件）、timeout/SKIPなし。全libは8,913 PASS/225 FAIL/56 ignored（4thread）。
 222基準との差3件は全て単独再実行PASS。並列時の揺れと分離し、基準を変更していない。
 selfhostの1本は180秒timeoutでprofile未保存。未観測部分を未実行と断定しない。
 
@@ -91,3 +91,42 @@ LLVMの同一source extentをまとめた数で、macro/derive/generic instantia
 完全なdirectory/prefix/file/function表とprofile・入力別成否はrepo外の計測成果物に保存した。
 静的test除外には非標準cfgや明示path moduleの解決限界があり、物理分母は近似のままとする。
 計測なしを理由に安全性検査・Fault cleanup・test専用品・feature専用品を削除しない。
+
+## 段2: 確定できた未使用コードの整理
+
+同じrustfmt条件で旧新を数え、MIR層はproduction −306行・test −17行（54file）。
+runner/runtimeの保存field整理 −13行（3file）を含む全体はproduction −319行・test −17行。
+未加工のsource差分は+56/−369（純減313行）。移動・改名・改行圧縮による削減は含まない。
+production関数/method13、未使用test helper1、variant17、field25、import40項目を削除。
+型全体/file削除0、新規Rust/test/checker/guard file0。test関数とassertionは削除していない。
+削除候補はdefault/test/featureの実consumerまで確認し、Fault/所有権/借用/独立検証は保持した。
+
+| 警告 | CLI前 | CLI後 | test前 | test後 |
+|---|---:|---:|---:|---:|
+| dead_code | 2,956 | 2,933 | 686 | 661 |
+| unused_imports | 119 | 97 | 39 | 15 |
+
+共通dead primary spanは681→630。残435fieldのうち421はDebugの実使用が未証明、2は所有した観測値の寿命が未証明、12は具体的な保持理由を確認した。
+残160variantと35その他は拒否・検証・feature等の保持理由を記録。共通unused_importsは0。
+本体のみwarningの4,594 spanを全てtest使用とは断定せず、今後の個別確認対象に残す。
+workspaceのallow(dead_code)48属性は理由あり9/なし39。削除条件を確定できず保持し、allow追加も行わなかった。
+これで未使用コード全体を整理し尽くしたとは主張しない。6時間の範囲で確定したfamilyを閉じた。
+
+### 最終確認
+
+source `b71ff229ff` の最適化CLIとtest binaryで確認した。sourceは最終検証後に変更していない。
+全libは8,916 PASS/222 FAIL/56 ignored、失敗名は基準と一致。並列だけの追加2件は単独PASS。
+通常群の3,691 dump・2,344 EXE入力で、記録した正規化後の受理・MIR・実行出力・exit差分0。ignored Map18ケースもPASS。
+既存の診断表示にはHashMapから選ぶwitnessと一時artifact名の揺れがある。
+同じMIRの全対象行集合・件数を検査して比較し、生の診断bytes一致とは区別した。
+固定suite8/8（空marker1件、実EXE smoke7件）、owner/pointer/diff guard PASS。
+feature2構成はPASS、既存失敗2構成は同じエラー集合を維持した。
+CLI sizeは89,942,184→89,897,208 bytes。build条件のcache状態が違うため速度改善率は出さない。
+
+### 次回の確認対象
+
+CLI未観測fileを削除候補へ直結させない。大きい候補はnested_predicate_producer（782行）、
+array_text_observer_region_contract/matcher（777行）、raw_root_decl_access（744行）などだが、
+testで使われている。責務の後継を確認してからtest専用経路を退役する判断が必要。
+本体buildで未使用と報告された安全性責務17件も保持し、本線の未接続理由と検査範囲を次回確認する。testから使うものも含む。
+詳細な一覧・コマンド・binary SHA・ログは日本語の整理1報告に集約した。
