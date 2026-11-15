@@ -62,7 +62,10 @@ fn parsed_box(source: &str) -> ASTNode {
 
 fn seeded_static_box_caller() -> MirBuilder {
     let mut builder = MirBuilder::new();
-    crate::test_support::with_env_vars(&crate::test_support::METHODIZE_SELECTOR_UNSET, || builder.prepare_module()).expect("module shell");
+    crate::test_support::with_env_vars(&crate::test_support::METHODIZE_SELECTOR_UNSET, || {
+        builder.prepare_module()
+    })
+    .expect("module shell");
     builder.root_is_app_mode = Some(false);
     builder.enter_function_for_test("static_box_parent/0".to_string());
     builder
@@ -217,7 +220,7 @@ fn raw_legacy_explicit_root_compatibility_keeps_existing_order() {
 
 #[test]
 fn prepared_integer_new_consumes_one_const_route() {
-    crate::test_support::with_env_var("NYASH_MIR_CORE13_PURE", "off", || {
+    {
         for through_dispatch in [false, true] {
             let mut builder = MirBuilder::new();
             builder.enter_function_for_test("prepared_integer_new/0".to_owned());
@@ -262,7 +265,7 @@ fn prepared_integer_new_consumes_one_const_route() {
                 .iter()
                 .any(|instruction| matches!(instruction, MirInstruction::NewBox { .. })));
         }
-    });
+    };
 }
 
 #[test]
@@ -436,7 +439,10 @@ fn raw_nonmain_static_box_failure_keeps_inner_state_and_primary_error() {
 #[test]
 fn raw_lambda_dispatches_once_with_source_ordered_captures() {
     let mut builder = MirBuilder::new();
-    crate::test_support::with_env_vars(&crate::test_support::METHODIZE_SELECTOR_UNSET, || builder.prepare_module()).expect("module shell");
+    crate::test_support::with_env_vars(&crate::test_support::METHODIZE_SELECTOR_UNSET, || {
+        builder.prepare_module()
+    })
+    .expect("module shell");
     builder.enter_function_for_test("raw_lambda_dispatch/0".to_string());
     builder
         .function_state

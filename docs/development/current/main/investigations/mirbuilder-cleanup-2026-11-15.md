@@ -414,3 +414,14 @@ scalar scan/TextEqの専用corridorは採用しない。旧実装の参照: `935
 
 段Aの着地検証: 最適化CLIで固定5,386入力のMIR/拒否/出力/exit差0（EXE生成1,471、timeout0）、固定suite 8/8、Map18、保持したC verifier/closure、owner数・pointer guard PASS。全lib直列は8,639 PASS/210 FAIL/56 ignoredで新規FAIL0。
 整形後Rustは本体11,604行/test6,378行の純減、Rust67file退役。登録名は89件消失・S6C保証移管1件追加（純減88）、未説明差0。metadata台帳の130/131件ずれとtransfer guardの既存欠落は基点からの不整合として保持し、基準は緩めない。
+
+### 段Bの旧pass・oracle・shadow退役
+
+- F08: optional VM barrier-elision passを退役し、実際のbarrierとVM本体は保持。
+- F07: optional concat3 rewriteと専用smokeを退役し、現役concat/Fault/End/runtime契約は保持。
+- F06: Pure専用New/Unary/WeakRef分岐と専用testを退役。通常経路・型情報・評価順・IntrinsicArray remap、混在VMのDebug/null比較は保持。exception/awaitのPure専用skipだけを除去し、F17の面とcarrierは変更しない。
+- F01: MIR→JoinIR逆lowering/oracle入口を退役し、現役のJoinIR境界・名前・source解析を保持。
+- F02: normalized-shadow/ANF模型と専用testを退役し、既存StepTree capability検査を元のcallerへ直接接続。strict/dev/planner-required境界を保持。
+
+最適化CLIで固定5,386入力のMIR/拒否/出力/exit差0（EXE生成1,471、timeout0）、focused24件、固定suite8/8、naming/owner数/pointer guard PASS。整形後Rustは本体9,601行/test3,043行の純減、Rust76file退役。登録旧名97件消失・IntrinsicArray保証移管1件追加（純減96）、全件一意な旧定義へ対応。全lib直列はseries最終で確認する。
+旧台帳は退役したPASS92件/ignored4件だけを削除し、残るFAIL集合は不変。corridor guardのconstructor旧anchor欠落は基点から同じで、検査を弱めない。F04/F16は次の塊、F17は今回の対象外。

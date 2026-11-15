@@ -22,10 +22,8 @@ static box Main {
     )
     .expect("parse");
     let mut compiler = MirCompiler::with_options(false);
-    let error = crate::test_support::with_env_vars(&[("NYASH_MIR_CORE13_PURE", None)], || {
-        compiler.compile(ast)
-    })
-    .expect_err("new Page on this lane hits the retired birth-global boundary");
+    let error = { compiler.compile(ast) }
+        .expect_err("new Page on this lane hits the retired birth-global boundary");
     assert!(
         error.contains("[freeze:contract][ordinary-new/birth-global-legacy-stopped]"),
         "{error}"
@@ -151,10 +149,8 @@ static box Main {
     )
     .expect("parse");
     let mut compiler = MirCompiler::with_options(false);
-    let error = crate::test_support::with_env_vars(&[("NYASH_MIR_CORE13_PURE", None)], || {
-        compiler.compile(ast)
-    })
-    .expect_err("new Page on this lane hits the retired birth-global boundary");
+    let error = { compiler.compile(ast) }
+        .expect_err("new Page on this lane hits the retired birth-global boundary");
     assert!(
         error.contains("[freeze:contract][ordinary-new/birth-global-legacy-stopped]"),
         "{error}"
@@ -181,10 +177,8 @@ static box Main {
     )
     .expect("parse");
     let mut compiler = MirCompiler::with_options(false);
-    let error = crate::test_support::with_env_vars(&[("NYASH_MIR_CORE13_PURE", None)], || {
-        compiler.compile(ast)
-    })
-    .expect_err("new ByteCell on this lane hits the retired birth-global boundary");
+    let error = { compiler.compile(ast) }
+        .expect_err("new ByteCell on this lane hits the retired birth-global boundary");
     assert!(
         error.contains("[freeze:contract][ordinary-new/birth-global-legacy-stopped]"),
         "{error}"

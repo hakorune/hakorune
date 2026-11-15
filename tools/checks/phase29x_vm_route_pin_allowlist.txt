@@ -1,7 +1,6 @@
 # Phase 29x X48: route pin allowlist
 # Keep `NYASH_VM_HAKO_PREFER_STRICT_DEV=0` pins limited to these shell entrypoints.
 
-tools/smokes/v2/profiles/integration/apps/phase21_5_concat3_assoc_contract_vm.sh
 tools/smokes/v2/profiles/integration/apps/phase29x_optimization_gate_vm.sh
 tools/smokes/v2/profiles/integration/apps/phase29x_optimization_parity_fixtures_vm.sh
 tools/smokes/v2/profiles/integration/apps/phase29x_vm_hako_s6_nop_promotion_vm.sh

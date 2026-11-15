@@ -96,30 +96,31 @@ pub(in crate::mir::builder) fn prepare_instance_method_draft_body_v1(
 }
 
 pub(in crate::mir::builder) fn run_function_body_step_tree_guard_v1(
-    builder: &mut MirBuilder,
+    _builder: &mut MirBuilder,
     body: &[ASTNode],
     function_name: &str,
 ) -> Result<(), String> {
-    let trace = crate::mir::builder::control_flow::joinir::trace::trace();
     let strict = crate::config::env::joinir_dev::strict_enabled();
     let dev = crate::config::env::joinir_dev_enabled();
-
-    struct TraceAdapter<'a> {
-        trace: &'a crate::mir::builder::control_flow::joinir::trace::JoinLoopTrace,
+    if !strict && !dev {
+        return Ok(());
     }
-    impl crate::mir::control_tree::normalized_shadow::dev_pipeline::DevTrace for TraceAdapter<'_> {
-        fn dev(&self, tag: &str, msg: &str) {
-            self.trace.dev(tag, msg)
-        }
+    let tree = crate::mir::control_tree::StepTreeBuilderBox::build_from_block(body);
+    if crate::config::env::joinir_dev::strict_planner_required_enabled() {
+        let message = format!("[phase132/gate] StepTree root for '{}'\n", function_name);
+        let _ = crate::runtime::get_global_ring0()
+            .io
+            .stderr_write(message.as_bytes());
     }
-
-    let adapter = TraceAdapter { trace: &trace };
-    crate::mir::control_tree::normalized_shadow::dev_pipeline::StepTreeDevPipelineBox::run(
-        builder,
-        body,
-        function_name,
-        strict,
-        dev,
-        &adapter,
-    )
+    if crate::config::env::joinir_dev::debug_enabled() {
+        crate::runtime::get_global_ring0().log.debug(&format!(
+            "[phase132/debug] StepTree root for '{}': {:?}",
+            function_name, tree.root
+        ));
+    }
+    if dev {
+        crate::mir::builder::control_flow::joinir::trace::trace()
+            .dev("control_tree/step_tree", &tree.to_compact_string());
+    }
+    crate::mir::builder::check_step_tree_capabilities(&tree, function_name, strict, dev)
 }

@@ -3,7 +3,7 @@
 //! This module owns only the legacy raw construction route. It does not issue
 //! semantic plans or alter the canonical Dynamic production path.
 
-use super::{ConstValue, EffectMask, MirBuilder, MirInstruction, ValueId};
+use super::{ConstValue, MirBuilder, MirInstruction, ValueId};
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
@@ -21,18 +21,31 @@ pub(in crate::mir::builder) enum OrdinaryNewClaimTakeV1 {
 impl OrdinaryNewClaimTakeV1 {
     /// The legacy route has no `move`, so an unplanned claim with an explicit-`move`
     /// argument has no route left: the refusal names why the plan was not made.
-    fn unplanned_move_refusal(&self, cause: crate::mir::normal_callable_semantic_package::NewEmissionUnavailableV1) -> Option<String> {
+    fn unplanned_move_refusal(
+        &self,
+        cause: crate::mir::normal_callable_semantic_package::NewEmissionUnavailableV1,
+    ) -> Option<String> {
         use crate::mir::normal_callable_semantic_package::NewEmissionUnavailableV1 as Cause;
         let (rows, home) = match self {
-            Self::Local(claim) => (claim.argument_rows(), claim.home_prefix().err().map(|r| format!("{r:?}"))),
-            Self::Result(claim) => (claim.argument_rows(), claim.home_prefix().err().map(|r| format!("{r:?}"))),
+            Self::Local(claim) => (
+                claim.argument_rows(),
+                claim.home_prefix().err().map(|r| format!("{r:?}")),
+            ),
+            Self::Result(claim) => (
+                claim.argument_rows(),
+                claim.home_prefix().err().map(|r| format!("{r:?}")),
+            ),
         };
-        rows.is_ok_and(|rows| rows.iter().any(|row| row.explicit_move())).then(|| format!(
-            "[freeze:contract][ordinary-new/move-argument-unplanned] cause={}",
-            match (cause, home) {
-                (Cause::HomePrefix, Some(home)) => home,
-                (cause, _) => format!("NewEmissionUnavailable({cause:?})"),
-            }))
+        rows.is_ok_and(|rows| rows.iter().any(|row| row.explicit_move()))
+            .then(|| {
+                format!(
+                    "[freeze:contract][ordinary-new/move-argument-unplanned] cause={}",
+                    match (cause, home) {
+                        (Cause::HomePrefix, Some(home)) => home,
+                        (cause, _) => format!("NewEmissionUnavailable({cause:?})"),
+                    }
+                )
+            })
     }
 
     fn constructor(
@@ -61,7 +74,9 @@ enum PreparedNewPlanV1 {
     /// Still the legacy route's by the entry rules (no ledger or site, a class outside
     /// the ledger, or a claim whose emission is not prepared, which stays legacy until
     /// 3b). It consumes the constructor disposition the claim or birth recipe carried.
-    Untargeted(Option<crate::mir::normal_callable_semantic_package::OrdinaryNewConstructorDispositionV1>),
+    Untargeted(
+        Option<crate::mir::normal_callable_semantic_package::OrdinaryNewConstructorDispositionV1>,
+    ),
 }
 
 enum SelectedNewPlanV1 {
@@ -70,7 +85,6 @@ enum SelectedNewPlanV1 {
 }
 
 enum PreparedRawNewExpressionRouteV1 {
-    Core13Pure { arguments: Vec<ASTNode> },
     IntegerLiteral { value: i64 },
     Ordinary { arguments: Vec<ASTNode> },
 }
@@ -81,13 +95,10 @@ impl PreparedRawNewExpressionV1 {
     /// Only evaluated expressions occupy the structured child demand queue.
     pub(in crate::mir::builder) fn evaluated_argument_count(&self) -> usize {
         match &self.route {
-            PreparedRawNewExpressionRouteV1::Core13Pure { arguments }
-            | PreparedRawNewExpressionRouteV1::Ordinary { arguments } => {
-                match self.plan {
-                    PreparedNewPlanV1::Selected(_) => 0,
-                    PreparedNewPlanV1::Untargeted(_) => arguments.len(),
-                }
-            }
+            PreparedRawNewExpressionRouteV1::Ordinary { arguments } => match self.plan {
+                PreparedNewPlanV1::Selected(_) => 0,
+                PreparedNewPlanV1::Untargeted(_) => arguments.len(),
+            },
             PreparedRawNewExpressionRouteV1::IntegerLiteral { .. } => 0,
         }
     }
@@ -110,9 +121,7 @@ impl PreparedRawNewExpressionV1 {
                 class
             ));
         }
-        let route = if crate::config::env::mir_core13_pure() {
-            PreparedRawNewExpressionRouteV1::Core13Pure { arguments }
-        } else if let [ASTNode::Literal {
+        let route = if let [ASTNode::Literal {
             value: LiteralValue::Integer(value),
             ..
         }] = arguments.as_slice()
@@ -149,13 +158,21 @@ impl PreparedRawNewExpressionV1 {
         let PreparedRawNewExpressionRouteV1::Ordinary { arguments } = &self.route else {
             return Ok(());
         };
-        if let Some(array) = port.prepare_owned_array_construction(&self.class, arguments.len(), self.field_initializers.len())? {
+        if let Some(array) = port.prepare_owned_array_construction(
+            &self.class,
+            arguments.len(),
+            self.field_initializers.len(),
+        )? {
             self.plan = PreparedNewPlanV1::Selected(SelectedNewPlanV1::OwnedArray(array));
             return Ok(());
         }
         let claim = port.try_take_ordinary_new_claim(&self.class, arguments.len())?;
         if let Some(Err(reason)) = claim.as_ref().map(|claim| claim.argument_rows()) {
-            return Err(crate::mir::resolved_semantics::home_new_prefix::argument_source_unavailable_tag_v1(&reason));
+            return Err(
+                crate::mir::resolved_semantics::home_new_prefix::argument_source_unavailable_tag_v1(
+                    &reason,
+                ),
+            );
         }
         // An unavailable argument co-seal stays a retained claim — truthfully
         // unavailable rather than a hard error at take time.
@@ -221,38 +238,7 @@ impl MirBuilder {
         } = prepared;
         let ordinary = matches!(&route, PreparedRawNewExpressionRouteV1::Ordinary { .. });
         // Phase 9.78a: Unified Box creation using NewBox instruction
-        // Core-13 pure mode: emit ExternCall(env.box.new) with type name const only
         let dst = match route {
-            PreparedRawNewExpressionRouteV1::Core13Pure { arguments } => {
-                // Emit Const String for type name（ConstantEmissionBox）
-                let ty_id =
-                    crate::mir::builder::emission::constant::emit_string(self, class.clone())?;
-                // Evaluate arguments (pass through to env.box.new shim)
-                let mut arg_vals: Vec<ValueId> = Vec::with_capacity(arguments.len());
-                for a in arguments {
-                    arg_vals.push(drive_legacy_expression_v1(self, port, a)?);
-                }
-                // Build arg list: [type, a1, a2, ...]
-                let mut args: Vec<ValueId> = Vec::with_capacity(1 + arg_vals.len());
-                args.push(ty_id);
-                args.extend(arg_vals);
-                // Call env.box.new
-                // 📦 Hotfix 3: Use next_value_id() to respect function parameter reservation
-                let dst = self.next_value_id();
-                self.emit_extern_call_with_effects(
-                    "env.box",
-                    "new",
-                    args,
-                    Some(dst),
-                    EffectMask::PURE,
-                )?;
-                // 型注釈（最小）
-                self.function_state
-                    .type_ctx
-                    .value_types
-                    .insert(dst, super::MirType::Box(class.clone()));
-                dst
-            }
             PreparedRawNewExpressionRouteV1::IntegerLiteral { value } => {
                 // Optimization: Primitive wrappers → emit Const directly when possible
                 let dst = self.next_value_id();
@@ -270,15 +256,19 @@ impl MirBuilder {
                 PreparedNewPlanV1::Selected(SelectedNewPlanV1::OwnedArray(array)) => {
                     port.emit_owned_array_construction(self, array)?
                 }
-                PreparedNewPlanV1::Selected(SelectedNewPlanV1::Claim(OrdinaryNewClaimTakeV1::Local(claim))) => {
-                    port.emit_ordinary_new_claim(self, claim)?
-                }
-                PreparedNewPlanV1::Selected(SelectedNewPlanV1::Claim(OrdinaryNewClaimTakeV1::Result(claim))) => {
-                    port.emit_result_new_claim(self, claim)?
-                }
+                PreparedNewPlanV1::Selected(SelectedNewPlanV1::Claim(
+                    OrdinaryNewClaimTakeV1::Local(claim),
+                )) => port.emit_ordinary_new_claim(self, claim)?,
+                PreparedNewPlanV1::Selected(SelectedNewPlanV1::Claim(
+                    OrdinaryNewClaimTakeV1::Result(claim),
+                )) => port.emit_result_new_claim(self, claim)?,
                 PreparedNewPlanV1::Untargeted(constructor) => {
                     super::ordinary_new_admission::lower_ordinary_raw_new_with_port_v1(
-                        self, port, &class, arguments, constructor,
+                        self,
+                        port,
+                        &class,
+                        arguments,
+                        constructor,
                     )?
                 }
             },

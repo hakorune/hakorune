@@ -211,25 +211,6 @@ impl MirOptimizer {
         module: &mut MirModule,
         stats: &mut OptimizationStats,
     ) {
-        // Opt-in string concat chain canonicalization.
-        if std::env::var("NYASH_MIR_CONCAT3_CANON").ok().as_deref() == Some("1") {
-            let concat3 =
-                crate::mir::passes::concat3_canonicalize::canonicalize_string_concat3(module);
-            if concat3 > 0 {
-                stats.intrinsic_optimizations += concat3;
-            }
-        }
-
-        // Optional Core-13 pure normalization stays late until a separate
-        // optimizer behavior card proves a different position is safe.
-        if crate::config::env::mir_core13_pure() {
-            stats.merge(
-                crate::mir::optimizer_passes::normalize_core13_pure::normalize_pure_core13(
-                    self, module,
-                ),
-            );
-        }
-
         if self.debug {
             get_global_ring0()
                 .log

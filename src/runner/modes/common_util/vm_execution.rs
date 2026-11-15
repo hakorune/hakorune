@@ -19,21 +19,9 @@ pub(crate) fn run_vm_compiled_module(
     emit_exe_nyrt: Option<&str>,
     emit_exe_libs: Option<&str>,
     verification_result: &Result<(), Vec<VerificationError>>,
-    mut module_vm: MirModule,
+    module_vm: MirModule,
     vm_user_factory: &VmUserFactoryState,
 ) -> ! {
-    // Optional barrier-elision for parity with fallback path
-    if crate::config::env::env_bool("NYASH_VM_ESCAPE_ANALYSIS") {
-        let removed = crate::mir::passes::escape::escape_elide_barriers_vm(&mut module_vm);
-        if removed > 0 {
-            crate::cli_v!(
-                "[{}] escape_elide_barriers: removed {} barriers",
-                route,
-                removed
-            );
-        }
-    }
-
     // CLI emit: MIR JSON / EXE
     // NOTE: These flags are CLI-level and should work regardless of selected backend.
     // Treat them as explicit proof/compat lanes and exit early.

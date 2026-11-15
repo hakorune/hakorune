@@ -8,14 +8,14 @@
   "counts": {
     "compile_env_families": 3,
     "compile_env_routes": 4,
-    "independent_rows": 240,
-    "legacy_files": 125,
-    "legacy_occurrences": 235,
+    "independent_rows": 236,
+    "legacy_files": 122,
+    "legacy_occurrences": 231,
     "loop_phi_files": 1,
     "loop_phi_loc": 143
   },
   "kind": "MirR7LegacyCensusManifestV1",
-  "observed_commit": "ee7c7f44ee093bfd56e70e4b55f1b5749d6077d1",
+  "observed_commit": "7e1b580df6ee6e509f7f3e96af7df53eb890acdc",
   "rows": [
     {
       "disposition": "production lexical surface",
@@ -642,25 +642,6 @@
       "selected_corridor": false,
       "source_sha256": "87d374ba4a852574d1ff430f78cff8d8bb5e0162e21d9a6b63bac82938c0b67f",
       "symbol": "lower_ordinary_raw_new_with_port_v1",
-      "token": "LegacyCallV0"
-    },
-    {
-      "disposition": "production lexical surface",
-      "func_authority": "not_present",
-      "id": "r7.legacy.a1a2cb8f9b1771f6",
-      "kind": "legacy_occurrence",
-      "line": 204,
-      "line_text": "MirInstruction::LegacyCallV0 {",
-      "owner": "src/mir/builder/resolved_lowering/common_v2_session/length_call.rs",
-      "path": "src/mir/builder/resolved_lowering/common_v2_session/length_call.rs",
-      "profile": "compatibility_surface",
-      "reachability": "production_scope",
-      "reopen_trigger": "new non-test constructor/reissuer or selected backend consumption",
-      "retire_when": "retain until an explicit replacement reaches caller-zero; do not infer deletion from this census",
-      "role": "production_surface",
-      "selected_corridor": false,
-      "source_sha256": "097e9e678e45a30a5f854f73c842ecd7437c67af8a9a4863ad5c63d1d54bbadd",
-      "symbol": "emit_length_call_result_from_segment_receipt",
       "token": "LegacyCallV0"
     },
     {
@@ -2832,25 +2813,6 @@
     {
       "disposition": "production lexical surface",
       "func_authority": "not_present",
-      "id": "r7.legacy.d0860649bab509ed",
-      "kind": "legacy_occurrence",
-      "line": 74,
-      "line_text": "MirInstruction::LegacyCallV0 {",
-      "owner": "src/mir/join_ir/lowering/common/cfg_shape.rs",
-      "path": "src/mir/join_ir/lowering/common/cfg_shape.rs",
-      "profile": "compatibility_surface",
-      "reachability": "production_scope",
-      "reopen_trigger": "new non-test constructor/reissuer or selected backend consumption",
-      "retire_when": "retain until an explicit replacement reaches caller-zero; do not infer deletion from this census",
-      "role": "production_surface",
-      "selected_corridor": false,
-      "source_sha256": "b0e44ec993209de18763b1a3cd9441efba7fac1946b8eb7fd91097135986d92a",
-      "symbol": "has_string_method",
-      "token": "LegacyCallV0"
-    },
-    {
-      "disposition": "production lexical surface",
-      "func_authority": "not_present",
       "id": "r7.legacy.00fffadb553b9e22",
       "kind": "legacy_occurrence",
       "line": 54,
@@ -2870,9 +2832,9 @@
     {
       "disposition": "non-executable reference",
       "func_authority": "carrier",
-      "id": "r7.legacy.0fade745bf60c066",
+      "id": "r7.legacy.fd078918853da5c0",
       "kind": "legacy_occurrence",
-      "line": 213,
+      "line": 210,
       "line_text": "/// - `MirInstruction::LegacyCallV0 { func, args, ... }` \u3092\u751f\u6210",
       "owner": "src/mir/join_ir/mod.rs",
       "path": "src/mir/join_ir/mod.rs",
@@ -2882,7 +2844,7 @@
       "retire_when": "retain until an explicit replacement reaches caller-zero; do not infer deletion from this census",
       "role": "comment_or_contract",
       "selected_corridor": false,
-      "source_sha256": "e6f4ec95a8cd07fa2e05b8c4a7574bf9842970f78877a71edee7fcffaefee415",
+      "source_sha256": "4be1252d63028a380ef965fde982491b2d7e12e551912c07d5c3a683396b90ba",
       "symbol": "JoinInst",
       "token": "LegacyCallV0"
     },
@@ -2927,9 +2889,9 @@
     {
       "disposition": "production lexical surface",
       "func_authority": "not_present",
-      "id": "r7.legacy.286d45861f63a448",
+      "id": "r7.legacy.f8c3ca86fc1704e6",
       "kind": "legacy_occurrence",
-      "line": 268,
+      "line": 249,
       "line_text": "MirInstruction::LegacyCallV0 {",
       "owner": "src/mir/optimizer/core.rs",
       "path": "src/mir/optimizer/core.rs",
@@ -2939,7 +2901,7 @@
       "retire_when": "retain until an explicit replacement reaches caller-zero; do not infer deletion from this census",
       "role": "production_surface",
       "selected_corridor": false,
-      "source_sha256": "977da0b3ae0bee4419e82d573a3f261860539c8ac5677e3b59223b5f575bb67a",
+      "source_sha256": "4aa122411b7f5e1dd35fb509a5fca2c926081c4c080873c8d978201a71931f17",
       "symbol": "instruction_to_key",
       "token": "LegacyCallV0"
     },
@@ -3207,44 +3169,6 @@
       "selected_corridor": true,
       "source_sha256": "356149c2c25d655b99be64f8a861c9ac6407cffe84daeacadc943a36d713e758",
       "symbol": "rewrite_method_receiver",
-      "token": "LegacyCallV0"
-    },
-    {
-      "disposition": "production lexical surface",
-      "func_authority": "not_present",
-      "id": "r7.legacy.45bd07255234c3e8",
-      "kind": "legacy_occurrence",
-      "line": 39,
-      "line_text": "MirInstruction::LegacyCallV0 {",
-      "owner": "src/mir/passes/concat3_canonicalize/analysis/stringish.rs",
-      "path": "src/mir/passes/concat3_canonicalize/analysis/stringish.rs",
-      "profile": "compatibility_surface",
-      "reachability": "production_scope",
-      "reopen_trigger": "new non-test constructor/reissuer or selected backend consumption",
-      "retire_when": "retain until an explicit replacement reaches caller-zero; do not infer deletion from this census",
-      "role": "production_surface",
-      "selected_corridor": false,
-      "source_sha256": "23bf2cb60df8c14b571ccd74e0b59b75bfbaf3e4358796749f6434c5f221878d",
-      "symbol": "infer_stringish_values",
-      "token": "LegacyCallV0"
-    },
-    {
-      "disposition": "production lexical surface",
-      "func_authority": "not_present",
-      "id": "r7.legacy.713efda93ca38e7d",
-      "kind": "legacy_occurrence",
-      "line": 44,
-      "line_text": "MirInstruction::LegacyCallV0 {",
-      "owner": "src/mir/passes/concat3_canonicalize/analysis/stringish.rs",
-      "path": "src/mir/passes/concat3_canonicalize/analysis/stringish.rs",
-      "profile": "compatibility_surface",
-      "reachability": "production_scope",
-      "reopen_trigger": "new non-test constructor/reissuer or selected backend consumption",
-      "retire_when": "retain until an explicit replacement reaches caller-zero; do not infer deletion from this census",
-      "role": "production_surface",
-      "selected_corridor": false,
-      "source_sha256": "23bf2cb60df8c14b571ccd74e0b59b75bfbaf3e4358796749f6434c5f221878d",
-      "symbol": "infer_stringish_values",
       "token": "LegacyCallV0"
     },
     {
@@ -4595,6 +4519,6 @@
       "crates (Rust production scope)",
       "lang/c-abi route (fixed compile/link configuration anchors)"
     ],
-    "scope_sha256": "be2b7a8218cff017820c90d77b082a565b630cc51cf631f29c02193cc388d581"
+    "scope_sha256": "0c1f8721fb51f85d48f4918b16cb8f2120cd18f98dacae2298b341ef0fee3ed8"
   }
 }

@@ -57,8 +57,6 @@ from mir_call_d1b_test_inventory_guard import (
     check_binding_shadow_dedup_r0,
     PLANNER_CONTEXT_ROW as TEST_INVENTORY_PLANNER_CONTEXT_ROW,
     check_planner_context_dedup_r0,
-    LOOP_IF_EXIT_ROW as TEST_INVENTORY_LOOP_IF_EXIT_ROW,
-    check_loop_if_exit_dedup_r0,
     LEGACY_TESTS_RETIRE_ROW,
     check_legacy_tests_retire_r0,
     LEXICAL_PARITY_MATRIX_ROW,
@@ -587,8 +585,6 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         check_binding_shadow_dedup_r0(state, card, root, api)
     elif row == TEST_INVENTORY_PLANNER_CONTEXT_ROW:
         check_planner_context_dedup_r0(state, card, root, api)
-    elif row == TEST_INVENTORY_LOOP_IF_EXIT_ROW:
-        check_loop_if_exit_dedup_r0(state, card, root, api)
     elif row == LEGACY_TESTS_RETIRE_ROW:
         check_legacy_tests_retire_r0(state, card, root, api)
     elif row == LEXICAL_PARITY_MATRIX_ROW:

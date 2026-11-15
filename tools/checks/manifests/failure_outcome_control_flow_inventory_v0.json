@@ -409,11 +409,11 @@
       "token": "catch_block"
     },
     {
-      "control_flow_evidence_id": "control.catchability.src/mir/compiler/tests/exception_control.rs:118:catch_block",
+      "control_flow_evidence_id": "control.catchability.src/mir/compiler/tests/exception_control.rs:108:catch_block",
       "evidence": "mir_dump.contains(\"catch\"),",
       "evidence_kind": "catch_block",
       "family": "catchability",
-      "line": 118,
+      "line": 108,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -421,11 +421,11 @@
       "token": "catch_block"
     },
     {
-      "control_flow_evidence_id": "control.catchability.src/mir/compiler/tests/exception_control.rs:119:catch_block",
+      "control_flow_evidence_id": "control.catchability.src/mir/compiler/tests/exception_control.rs:109:catch_block",
       "evidence": "\"MIR should contain catch instruction\"",
       "evidence_kind": "catch_block",
       "family": "catchability",
-      "line": 119,
+      "line": 109,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -445,35 +445,11 @@
       "token": "catch_block"
     },
     {
-      "control_flow_evidence_id": "control.catchability.src/mir/compiler/tests/exception_control.rs:70:catch_block",
-      "evidence": "// Core-13 pure \u30e2\u30fc\u30c9\u3067\u306f Try/Catch \u547d\u4ee4\u306f\u8a31\u5bb9\u96c6\u5408\u5916\u306e\u305f\u3081\u30b9\u30ad\u30c3\u30d7",
-      "evidence_kind": "catch_block",
-      "family": "catchability",
-      "line": 70,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/compiler/tests/exception_control.rs",
-      "token": "catch_block"
-    },
-    {
-      "control_flow_evidence_id": "control.catchability.src/mir/compiler/tests/exception_control.rs:76:catch_block",
-      "evidence": ".debug(\"[TEST] skip try/catch under Core-13 pure mode\");",
-      "evidence_kind": "catch_block",
-      "family": "catchability",
-      "line": 76,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/compiler/tests/exception_control.rs",
-      "token": "catch_block"
-    },
-    {
-      "control_flow_evidence_id": "control.catchability.src/mir/compiler/tests/exception_control.rs:96:catch_block",
+      "control_flow_evidence_id": "control.catchability.src/mir/compiler/tests/exception_control.rs:86:catch_block",
       "evidence": "value: LiteralValue::String(\"Catch block\".to_string()),",
       "evidence_kind": "catch_block",
       "family": "catchability",
-      "line": 96,
+      "line": 86,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -2170,18 +2146,6 @@
       "resolution": "Pending",
       "site_ref": null,
       "source_path": "src/mir/compiler/normal_default_pipeline/published_backend_view/compiled_entry_contract.rs",
-      "token": "cleanup"
-    },
-    {
-      "control_flow_evidence_id": "control.cleanup_precedence.src/mir/control_tree/normalized_shadow/entry/if_only.rs:7:cleanup",
-      "evidence": "//!   of this baseline contract. Do not silently \"fix\" them in cleanup cards.",
-      "evidence_kind": "cleanup",
-      "family": "cleanup_precedence",
-      "line": 7,
-      "pending_reason": "PrecedenceContractPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/control_tree/normalized_shadow/entry/if_only.rs",
       "token": "cleanup"
     },
     {
@@ -23123,30 +23087,6 @@
       "site_ref": null,
       "source_path": "src/mir/builder/control_flow/facts/loop_cond_continue_with_return.rs",
       "token": "top_level"
-    },
-    {
-      "control_flow_evidence_id": "control.top_level_normalization.src/mir/control_tree/normalized_shadow/common/return_value_lowerer_box.rs:25:outcome_normalize",
-      "evidence": "/// Box-First: Return value lowering for Normalized shadow",
-      "evidence_kind": "outcome_normalize",
-      "family": "top_level_normalization",
-      "line": 25,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/control_tree/normalized_shadow/common/return_value_lowerer_box.rs",
-      "token": "outcome_normalize"
-    },
-    {
-      "control_flow_evidence_id": "control.top_level_normalization.src/mir/control_tree/normalized_shadow/common/return_value_lowerer_box.rs:5:outcome_normalize",
-      "evidence": "//! Normalize return value syntax (`return` vs `return <expr>`) for Normalized shadow paths.",
-      "evidence_kind": "outcome_normalize",
-      "family": "top_level_normalization",
-      "line": 5,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/control_tree/normalized_shadow/common/return_value_lowerer_box.rs",
-      "token": "outcome_normalize"
     },
     {
       "control_flow_evidence_id": "control.top_level_normalization.src/runner/json_artifact/README.md:11:top_level",

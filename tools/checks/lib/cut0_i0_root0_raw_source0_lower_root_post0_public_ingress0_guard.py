@@ -342,7 +342,6 @@ def main() -> int:
     for fragment in (
         "struct PreparedRawNewExpressionV1",
         "enum PreparedRawNewExpressionRouteV1",
-        "PreparedRawNewExpressionRouteV1::Core13Pure",
         "PreparedRawNewExpressionRouteV1::IntegerLiteral",
         "PreparedRawNewExpressionRouteV1::Ordinary",
     ):
@@ -357,8 +356,8 @@ def main() -> int:
     new_lower = builder_build.split(
         "fn lower_prepared_raw_new_expression_with_port_v1", 1
     )[1]
-    if new_prepare.count("crate::config::env::mir_core13_pure()") != 1:
-        raise AssertionError("raw New mode route must be selected exactly once")
+    if "Core13Pure" in builder_build:
+        raise AssertionError("retired raw New pure route returned")
     for retired in (
         "crate::config::env::mir_core13_pure()",
         '("IntegerBox",',

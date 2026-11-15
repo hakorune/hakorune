@@ -1,51 +1,9 @@
-//! Unary Operations Module
+//! Raw unary source-operator projection.
 //!
-//! This module handles building unary operations (-, !, ~) with direct MIR
-//! emission and optional Core-13 pure expansion.
-//!
-//! ## Core-13 Pure Expansion
-//!
-//! When `mir_core13_pure()` gate is enabled, unary operations are expanded to
-//! Core-13 pure instructions:
-//! - `-x` → `Sub(0, x)` (negation via zero subtraction)
-//! - `!x` → `Compare(Eq, x, false)` (logical NOT via equality comparison)
-//! - `~x` → `BitXor(x, -1)` (bitwise NOT via XOR with all-ones)
-//!
-//! ## Type Tracking
-//!
-//! Each operator has a well-defined return type:
-//! - Negation (`-`): Integer
-//! - Logical NOT (`!`, `not`): Bool
-//! - Bitwise NOT (`~`): Integer
-//!
-//! ## Example Transformations
-//!
-//! ### Core-13 Pure Expansion
-//! ```ignore
-//! -x  →  %zero = Const(0)
-//!        %result = BinOp(Sub, %zero, x)
-//!
-//! !x  →  %false = Const(false)
-//!        %result = Compare(Eq, x, %false)
-//!
-//! ~x  →  %all_ones = Const(-1)
-//!        %result = BinOp(BitXor, x, %all_ones)
-//! ```
-//!
-//! ## Responsibilities
-//!
-//! - Evaluate operand expression
-//! - Use the compiler ingress policy to retire legacy operator-call routing
-//! - Apply Core-13 pure expansion when enabled
-//! - Emit appropriate MIR instruction (UnaryOp or expanded form)
-//! - Track result type in type context
-//!
-//! ## Integration Points
-//!
-//! - Called from: `exprs.rs` when handling UnaryOp AST pattern
-//! - Uses: `emission::constant` for Core-13 expansion constants
-//! - Uses: `emission::compare` for logical NOT expansion
-//! - Owns the typed source-operator projection used by every raw Unary route
+//! Integer literal negation is folded only when checked negation succeeds.
+//! Otherwise evaluate the operand once, emit its declared UnaryOp, and retain
+//! the result type. Borrowed/owned expression responsibilities stay with the
+//! existing recursive child port.
 
 use super::super::{MirInstruction, MirType, ValueId};
 use crate::ast::{ASTNode, UnaryOperator};
@@ -171,60 +129,6 @@ where
         }
     }
     let operand_val = drive_legacy_expression_v1(builder, port, operand)?;
-    // Core-13 純化: UnaryOp を直接 展開（Neg/Not/BitNot）
-    if crate::config::env::mir_core13_pure() {
-        match operator {
-            PreparedRawOrdinaryUnaryOperatorV1::Minus => {
-                let zero = crate::mir::builder::emission::constant::emit_integer(builder, 0)?;
-                let dst = builder.next_value_id();
-                builder.emit_instruction(MirInstruction::BinOp {
-                    dst,
-                    op: crate::mir::BinaryOp::Sub,
-                    lhs: zero,
-                    rhs: operand_val,
-                })?;
-                builder
-                    .function_state
-                    .type_ctx
-                    .value_types
-                    .insert(dst, return_type.clone());
-                return Ok(dst);
-            }
-            PreparedRawOrdinaryUnaryOperatorV1::Not => {
-                let f = crate::mir::builder::emission::constant::emit_bool(builder, false)?;
-                let dst = builder.next_value_id();
-                crate::mir::builder::emission::compare::emit_to(
-                    builder,
-                    dst,
-                    crate::mir::CompareOp::Eq,
-                    operand_val,
-                    f,
-                )?;
-                builder
-                    .function_state
-                    .type_ctx
-                    .value_types
-                    .insert(dst, return_type.clone());
-                return Ok(dst);
-            }
-            PreparedRawOrdinaryUnaryOperatorV1::BitNot => {
-                let all1 = crate::mir::builder::emission::constant::emit_integer(builder, -1)?;
-                let dst = builder.next_value_id();
-                builder.emit_instruction(MirInstruction::BinOp {
-                    dst,
-                    op: crate::mir::BinaryOp::BitXor,
-                    lhs: operand_val,
-                    rhs: all1,
-                })?;
-                builder
-                    .function_state
-                    .type_ctx
-                    .value_types
-                    .insert(dst, return_type.clone());
-                return Ok(dst);
-            }
-        }
-    }
     let dst = builder.next_value_id();
     let mir_op = operator.mir_operator();
     builder.emit_instruction(MirInstruction::UnaryOp {
@@ -278,7 +182,10 @@ mod tests {
         let routes = [
             route(PreparedRawUnaryV1::prepare(UnaryOperator::Weak, operand())),
             route(PreparedRawUnaryV1::prepare(UnaryOperator::Move, operand())),
-            route(PreparedRawUnaryV1::prepare(UnaryOperator::Shared, operand())),
+            route(PreparedRawUnaryV1::prepare(
+                UnaryOperator::Shared,
+                operand(),
+            )),
             route(PreparedRawUnaryV1::prepare(UnaryOperator::Minus, operand())),
             route(PreparedRawUnaryV1::prepare(UnaryOperator::Not, operand())),
             route(PreparedRawUnaryV1::prepare(
@@ -286,6 +193,16 @@ mod tests {
                 operand(),
             )),
         ];
-        assert_eq!(routes, ["weak", "move-unsupported", "shared-unsupported", "minus", "not", "bit-not"]);
+        assert_eq!(
+            routes,
+            [
+                "weak",
+                "move-unsupported",
+                "shared-unsupported",
+                "minus",
+                "not",
+                "bit-not"
+            ]
+        );
     }
 }

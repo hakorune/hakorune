@@ -544,7 +544,6 @@
     "owners": [
      "src/mir/basic_block.rs",
      "src/mir/builder/ssa/phi_input_materializer/legacy_candidate.rs",
-     "src/mir/control_tree/normalized_shadow/anf/plan_box.rs",
      "src/mir/function/display.rs",
      "src/mir/function/function_impl.rs",
      "src/mir/function/module_impl.rs",
@@ -563,7 +562,7 @@
     "anchors": [
      "src/mir/basic_block.rs:627:is_pure"
     ],
-    "count": 17
+    "count": 16
    },
    "backend_consumer": {
     "role": "none",
@@ -821,8 +820,6 @@
      "src/mir/ordered_map_origin_plan.rs",
      "src/mir/passes/callsite_canonicalize/helpers.rs",
      "src/mir/passes/callsite_canonicalize/pass.rs",
-     "src/mir/passes/concat3_canonicalize/analysis/stringish.rs",
-     "src/mir/passes/concat3_canonicalize/rewrite.rs",
      "src/mir/passes/cse.rs",
      "src/mir/passes/inline_soft_leaf.rs",
      "src/mir/passes/placement_effect_transform.rs",
@@ -857,7 +854,7 @@
      "src/mir/array_receiver_proof.rs:121:value_types",
      "src/mir/builder/array_element_write.rs:24:value_types"
     ],
-    "count": 131
+    "count": 129
    },
    "backend_consumer": {
     "role": "selected_observed",
