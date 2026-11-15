@@ -324,23 +324,17 @@ def verify_route_matrix_g0(
     builder_mod: str,
     card: str,
 ) -> None:
-    proof_path = root / "src/mir/builder/module_wiring_route_matrix_p0e.rs"
     policy_path = root / "src/mir/module_invocation_policy.rs"
-    matrix_path = root / "src/mir/builder/module_invocation_route_matrix.rs"
     raw_port_path = root / "src/mir/builder/recursive_child_lowering.rs"
     raw_tests_path = root / "src/mir/builder/recursive_child_lowering_rawport_tests.rs"
     raw_header_tests_path = root / "src/mir/builder/recursive_child_lowering_rawport_header_tests.rs"
-    proof = proof_path.read_text()
     policy = policy_path.read_text()
-    matrix = matrix_path.read_text()
     raw_port = raw_port_path.read_text()
     raw_tests = raw_tests_path.read_text()
     raw_header_tests = raw_header_tests_path.read_text()
 
     for path, text in (
-        (proof_path, proof),
         (policy_path, policy),
-        (matrix_path, matrix),
         (raw_port_path, raw_port),
         (raw_tests_path, raw_tests),
         (raw_header_tests_path, raw_header_tests),
@@ -348,49 +342,7 @@ def verify_route_matrix_g0(
         if len(text.splitlines()) >= 800:
             raise AssertionError(f"ROUTEINV-P0e source/proof must remain below 800 lines: {path}")
 
-    for fragment in (
-        "InvocationRouteMatrixV1::rows()",
-        "ModuleInvocationPolicyV1::policy_for_family(family)",
-        "RouteAuthorityLaneV1::RawLedger",
-        "RouteAuthorityLaneV1::SingleOwnerHeader",
-        "RouteAuthorityLaneV1::CallableBatch",
-        "assert_eq!(policy_lane_counts, [4, 3, 1, 1]);",
-        "assert_eq!(projected.len(), 9);",
-        "assert_eq!(authority_counts, [4, 3, 2]);",
-        "route_matrix_projects_all_nine_rows_to_exactly_one_existing_authority",
-        "route_failure_and_publication_laws_remain_matrix_projections",
-    ):
-        require(proof, fragment, "ROUTEINV-P0e matrix projection")
-    for fragment in (
-        "struct RouteObservationV1",
-        "entered: bool",
-        "changed: bool",
-        "entered: true,\n            changed: false",
-        "entered: true,\n            changed: true",
-        "entered_and_changed_observations_are_independent_dimensions",
-    ):
-        require(proof, fragment, "ROUTEINV-P0e independent observation")
-    for fragment in (
-        "InvocationRouteMatrixRowV1 {",
-        "Vec<String>",
-        "BTreeMap",
-        "MirBuilder",
-        "MirModule",
-        "MirFunction",
-        "ModuleDraftCollectorV1",
-    ):
-        forbid(proof, fragment, f"P0e proof owns {fragment}")
-    require(
-        builder_mod,
-        "#[cfg(test)]\nmod module_wiring_route_matrix_p0e;",
-        "test-only P0e registration",
-    )
 
-    require(
-        matrix,
-        "pub(in crate::mir::builder) const fn rows()",
-        "route-matrix SSOT",
-    )
     require(policy, "fn policy_for_family(", "family policy projection")
     require(
         policy,
@@ -421,7 +373,7 @@ def verify_route_matrix_g0(
     for symbol in ("RouteAuthorityProjectionV1", "RouteObservationV1"):
         consumers = []
         for path in (root / "src/mir/builder").rglob("*.rs"):
-            if path in (proof_path, root / "src/mir/builder.rs"):
+            if path in ( root / "src/mir/builder.rs",):
                 continue
             if symbol in path.read_text():
                 consumers.append(str(path.relative_to(root)))

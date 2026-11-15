@@ -2,7 +2,7 @@
 
 use super::module_invocation_brand0::ActiveModuleInvocationV1;
 use super::module_invocation_identity::TestInvocationPreflightFactoryV1;
-use super::module_invocation_route_matrix::InvocationRootFamilyV1;
+use super::module_invocation_identity::ModuleInvocationFamilyV1 as InvocationRootFamilyV1;
 use super::module_invocation_session::{
     BuilderCoreSeedPolicyV1, BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1,
 };

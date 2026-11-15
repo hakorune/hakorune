@@ -4,7 +4,7 @@ use super::module_invocation_identity::{
     ModuleInvocationFamilyV1, ModuleInvocationIdentityErrorV1, ModuleInvocationTokenV1,
     TestInvocationPreflightFactoryV1,
 };
-use super::module_invocation_route_matrix::InvocationRootFamilyV1;
+use super::module_invocation_identity::ModuleInvocationFamilyV1 as InvocationRootFamilyV1;
 
 const FAMILIES: [ModuleInvocationFamilyV1; 5] = [
     InvocationRootFamilyV1::Raw,
