@@ -34,10 +34,6 @@ catalog_tests = root / "src/mir/resolved_semantics/callable_catalog_tests.rs"
 callable_index_tests = root / "src/mir/resolved_semantics/callable_index_tests.rs"
 resolved_module = root / "src/mir/compiler/resolved_callable_module.rs"
 resolved_module_tests = root / "src/mir/compiler/resolved_callable_module_tests.rs"
-module_preflight = root / "src/mir/compiler/resolved_callable_module_preflight.rs"
-module_preflight_tests = (
-    root / "src/mir/compiler/resolved_callable_module_preflight_tests.rs"
-)
 compiler_mod = root / "src/mir/compiler/mod.rs"
 compiler_capability = root / "src/mir/compiler/capability.rs"
 finite_call_tests = root / "src/mir/compiler/finite_direct_call_tests.rs"
@@ -173,18 +169,6 @@ required = {
     resolved_module_tests: [
         "passive_module_carrier_exposes_only_the_canonical_keyed_primary_map",
         "passive_function_unit_keeps_site_forest_and_projection_together",
-    ],
-    module_preflight: [
-        "VerifiedCallableModulePreflightV1",
-        "CallableModulePreflightErrorV1",
-        "BTreeMap<CanonicalCallableKeyV1, CanonicalFirstFamilyPlanV1<'a>>",
-        "CanonicalLoweringPreflightV1::verify_function",
-        "CardinalityMismatch",
-    ],
-    module_preflight_tests: [
-        "seals_every_function_plan_before_publishing_the_module_preflight",
-        "declaration_order_does_not_change_the_canonical_preflight_key_set",
-        "one_late_function_failure_publishes_no_partial_preflight_product",
     ],
     callable_module_input: [
         "VerifiedResolvedCallableProgramV1",
@@ -370,15 +354,6 @@ for forbidden in ["MirBuilder", "MirInstruction", "ValueId", "BasicBlockId"]:
 if resolution_source_text.count("CallableCatalogResolutionSourceV1 {") != 2:
     fail("MP0-R0 consuming source view gained a second construction authority")
 
-module_preflight_text = module_preflight.read_text()
-for forbidden in [
-    "MirBuilder",
-    "MirInstruction",
-    "MirFunction",
-    "MirModule",
-]:
-    if forbidden in module_preflight_text:
-        fail(f"MP0-P0 preflight owns forbidden effect authority {forbidden!r}")
 
 module_transaction_text = module_transaction.read_text()
 for forbidden in [
@@ -410,7 +385,6 @@ for path in (root / "src").rglob("*.rs"):
         catalog_tests,
         resolved_module_tests,
         callable_module_input,
-        module_preflight_tests,
         root / "src/mir/builder/resolved_lowering/callable_module_transaction_p0d_tests.rs",
         root / "src/mir/resolved_semantics/mod.rs",
     }:
@@ -435,7 +409,6 @@ for path in (root / "src").rglob("*.rs"):
         catalog_tests,
         resolved_module_tests,
         callable_module_input,
-        module_preflight_tests,
         root / "src/mir/builder/resolved_lowering/callable_module_transaction_p0d_tests.rs",
         root / "src/mir/resolved_semantics/mod.rs",
     }:
@@ -459,7 +432,6 @@ for path in (root / "src").rglob("*.rs"):
         catalog_resolution_source,
         resolved_module,
         resolved_module_tests,
-        module_preflight_tests,
         root / "src/mir/resolved_semantics/mod.rs",
     }:
         continue
@@ -483,8 +455,6 @@ for path in (root / "src").rglob("*.rs"):
         resolved_module,
         resolved_module_tests,
         function_input,
-        module_preflight,
-        module_preflight_tests,
         module_transaction,
         callable_module_input,
         callable_graph_inventory,
@@ -691,8 +661,6 @@ for path in [
     resolved_module,
     resolved_module_tests,
     function_input,
-    module_preflight,
-    module_preflight_tests,
     callable_module_input,
     sibling_tests,
     compiler_mod,

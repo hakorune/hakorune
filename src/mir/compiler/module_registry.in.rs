@@ -208,7 +208,6 @@ pub(in crate::mir) mod raw_source_binding;
 pub(in crate::mir) mod recursive_callable_module_plan;
 pub(in crate::mir) mod resolved_callable_module;
 mod resolved_callable_module_input;
-pub(in crate::mir) mod resolved_callable_module_preflight;
 mod resolved_direct_accum_cutover;
 mod resolved_nested_predicate_cutover;
 mod resolved_generic_g0_cutover;
