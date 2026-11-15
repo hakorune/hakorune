@@ -336,6 +336,14 @@ LoopBreakの24件はすべて`ProgramBody(1)`のportable path欠落だった。r
 F16を閉じる時はEBNFの将来`fn[captures](...):T`を残し、旧`fn(x){...}`と分ける（EBNF:125、ownershipのcapture節）。拒否案は`LegacyLambdaSurfaceRetired`。F17は既に仕様で禁止されるcatchable try/catch/throwを閉じる案（quick-reference:44〜53、EBNF:21〜29/1088〜）。拒否案は`LegacyCatchableExceptionSurfaceRetired`、既存throw予約語拒否は保持。合法なcleanupだけのTryCatch carrier、Fault/End/fini/Result/?、現役callableの共有表現を一緒に消さない。
 全て固定した通常profileでの結果であり、reference feature有効buildや任意passを強制した範囲の証明ではない。計測用の遮断exit 86を、製品の名前付き拒否の実装とは扱わない。
 
+### Opus の確認と統合(Round 4、2026-11-16)
+
+- branch `cleanup-4` は文書だけ(1 commit)。main に統合した。
+- 読み方(Opus。決定ではない): 固定した 5,386 入力・既定の feature では、F22・F23・F25・F19・F26 は 1 度も選ばれていない。「機能は要るが、古い道にある」と見た 6 family のうち 5 つは、今の入力については、共通の道(SourceLoop V2、共通の If)だけで通っている。統合の決まりの 1 番(機能がもう共通の道だけで通るなら、後継を作らずに古い道を閉じて消す)の相手になる。既定でない feature と、Rust から直接呼ぶ API は、測っていない。
+- F24 は 12 入力で選ばれ、12 本とも前から失敗。選ぶ前に外すと、12 本とも今ある V2 で EXE まで進む(新しく受け付ける差。メンテナの承認が要る)。
+- 退役の候補 8 個のうち、7 個は閉じても変わる入力が 0。F16 だけ 2 入力が変わる(EXE の成功は減らない)。
+- 次に決める事: 退役する family、F24 の切り替え、保留の 6 塊(本体 10,663 行、test 5,538 行)。
+
 ## 捨てる掃除の決まり(ユーザー決定 2026-11-15)
 
 方針: **今の主流の道に対応している test だけを残す。つながっているだけで、誰も通らない物は、消す。** 整理 2 が 276 行しか「消せる」と言えなかったのは、「どんな入力からも使われない」と証明する仕事と、「この機能は今後提供しない」と決めて入口ごと消す仕事を、同じ審査にかけていたため。下の決まりで、2 つを分ける。
