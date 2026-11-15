@@ -20017,11 +20017,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/program_declaration_facts.rs:472:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/program_declaration_facts.rs:475:mir_return",
       "evidence": "vec![ASTNode::Return {",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 472,
+      "line": 475,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -20029,11 +20029,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/program_declaration_facts.rs:591:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/program_declaration_facts.rs:594:mir_return",
       "evidence": "vec![ASTNode::Return {",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 591,
+      "line": 594,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -20113,11 +20113,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/raw_expression_dispatch/statement_surface.rs:702:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/raw_expression_dispatch/statement_surface.rs:704:mir_return",
       "evidence": "ASTNode::Return { value: None, .. } => {",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 702,
+      "line": 704,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,

@@ -36,18 +36,20 @@ mod explicit_extern_call;
 mod expression_source;
 mod named_array_append_only_source;
 pub(crate) use named_array_append_only_source::{
-    NamedArrayAppendOnlySourceIssueV1, NamedArrayAppendOnlySourceV1, NamedArrayEmptyTransferSourceV1,
+    NamedArrayAppendOnlySourceIssueV1, NamedArrayAppendOnlySourceV1,
+    NamedArrayEmptyTransferSourceV1,
 };
 mod named_array_requirement;
 mod named_array_residence;
 pub(crate) use named_array_requirement::{
-    NamedArrayConstructionRequirementV1, NamedArrayConstructionSourceV1, NamedArrayRequirementIssueV1,
+    NamedArrayConstructionRequirementV1, NamedArrayConstructionSourceV1,
+    NamedArrayRequirementIssueV1,
 };
 pub(crate) use named_array_residence::{
     detect_field_residence_claim, resolve_birth_provider, seal_field_residence_requirement,
-    verify_field_residence_relations,
-    NamedArrayFieldResidenceIssueV1, NamedArrayFieldResidenceObjectV1,
-    NamedArrayFieldResidenceRequirementV1, NamedArrayRequirementV1, NamedArrayResultDemandV1,
+    verify_field_residence_relations, NamedArrayFieldResidenceIssueV1,
+    NamedArrayFieldResidenceObjectV1, NamedArrayFieldResidenceRequirementV1,
+    NamedArrayRequirementV1, NamedArrayResultDemandV1,
 };
 mod function_root;
 mod function_view;
@@ -93,9 +95,8 @@ pub(crate) use block_expr_expectation::{
 };
 pub(crate) use body_shape::{
     BodyEffectKindV1, BodyEffectShapeV1, BodyExpressionShapeV1, BodyMeReceiverV1,
-    BodyShapeRelationV1, BodyStatementShapeV1,
-    ResolvedMethodCallArgumentSourceV1, ResolvedMethodCallReceiverSourceV1,
-    ResolvedMethodCallSourceIssueV1,
+    BodyShapeRelationV1, BodyStatementShapeV1, ResolvedMethodCallArgumentSourceV1,
+    ResolvedMethodCallReceiverSourceV1, ResolvedMethodCallSourceIssueV1,
     VerifiedResolvedBodyShapeInventoryV1, VerifiedResolvedMethodCallSourceV1,
 };
 pub(crate) use brand_source_relation::{
@@ -139,13 +140,13 @@ pub(crate) use declared_instance_call_effect::{
     DeclaredInstanceCallEffectIssueV1, DeclaredInstanceCallEffectIssuerV1,
     DeclaredInstanceCallEffectSourceDispositionV1, DeclaredInstanceCallSemanticEffectV1,
 };
-pub(crate) use declared_instance_contract::DeclaredInstanceMethodIdentityV1;
 pub(crate) use declared_instance_call_relation::{
     DeclaredInstanceCallRelationIssueV1, DeclaredInstanceCallRelationIssuerV1,
     DeclaredInstanceCallSourceDispositionV1, DeclaredInstanceCallSourceRefV1,
     DeclaredInstanceMethodModeV1, DeclaredInstanceMethodSourceRefV1,
     VerifiedDeclaredInstanceCallRelationCatalogV1, VerifiedDeclaredInstanceCallRelationV1,
 };
+pub(crate) use declared_instance_contract::DeclaredInstanceMethodIdentityV1;
 pub(crate) use direct_call::{
     ResolvedDirectCallObservationV1, ResolvedDirectCallTargetV1,
     ResolvedDirectCallVerificationErrorV1,
@@ -154,13 +155,15 @@ pub(crate) use direct_call_inventory_gate::forest_has_unissued_direct_call_obser
 pub(crate) use enum_match_demand::{
     admit_direct_enum_match_v1, EnumMatchAdmissionV1, EnumMatchDemandV1,
 };
-pub(crate) use enum_variant_demand::{EnumVariantAdmissionV1, EnumVariantDemandV1};
+pub(crate) use enum_variant_demand::{
+    enum_variant_arguments_are_statically_nullish_v1, EnumVariantAdmissionV1, EnumVariantDemandV1,
+};
 pub(crate) use explicit_extern_call::ResolvedExplicitExternCallV1;
 pub(crate) use expression_source::{
     ResolvedBinaryExpressionSourceV1, ResolvedBinaryOperatorV1,
-    ResolvedConditionalExpressionSourceV1,
-    ResolvedExpressionSourceInventoryV1, ResolvedInitializerRelationV1, ResolvedLiteralSourceV1,
-    ResolvedNewExpressionSourceV1, ResolvedUnaryExpressionSourceV1, ResolvedUnaryOperatorV1,
+    ResolvedConditionalExpressionSourceV1, ResolvedExpressionSourceInventoryV1,
+    ResolvedInitializerRelationV1, ResolvedLiteralSourceV1, ResolvedNewExpressionSourceV1,
+    ResolvedUnaryExpressionSourceV1, ResolvedUnaryOperatorV1,
 };
 pub(crate) use function_root::ResolvedFunctionLoweringRootsV1;
 pub(crate) use function_view::FunctionSyntaxViewV1;
@@ -172,19 +175,19 @@ pub(crate) use home_abi::{
     VerifiedInstanceEntryHomeParameterV1,
 };
 pub(crate) use home_relation::{
-    HomeDemandV1, HomeRelationBrandIssuerV1, HomeRelationBrandV1,
-    HomeRelationRejectV1, HomeResultRelationV1,
+    HomeDemandV1, HomeRelationBrandIssuerV1, HomeRelationBrandV1, HomeRelationRejectV1,
+    HomeResultRelationV1,
 };
 pub(crate) use ids::FunctionOwnerIssuerV1;
 pub use ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId, UpvarRefV1};
 pub(crate) use if_region::{
     ResolvedIfConditionRegionRefV1, ResolvedIfRegionBundleV1, ResolvedIfRegionLookupErrorV1,
 };
-pub(crate) use instance_method_declaration::{ ResolverCatalogBrandV1, ResolverNominalBoxDeclarationInputV1,
-    ResolverNominalBoxTypeIdV1, ResolverNominalTypeEnvironmentIssueV1,
-    ResolverNominalTypeEnvironmentV1, ResolverSemanticValueTypeV1,
-    SemanticInstanceDeclarationIssuerV1, VerifiedInstanceMethodDeclarationCatalogV1,
-    VerifiedInstanceMethodDeclarationV1,
+pub(crate) use instance_method_declaration::{
+    ResolverCatalogBrandV1, ResolverNominalBoxDeclarationInputV1, ResolverNominalBoxTypeIdV1,
+    ResolverNominalTypeEnvironmentIssueV1, ResolverNominalTypeEnvironmentV1,
+    ResolverSemanticValueTypeV1, SemanticInstanceDeclarationIssuerV1,
+    VerifiedInstanceMethodDeclarationCatalogV1, VerifiedInstanceMethodDeclarationV1,
 };
 pub(crate) use loop_family_window::{
     LoopFamilyWindowLeaseIssueV1, VerifiedLoopFamilyWindowLeaseV1,
@@ -193,16 +196,13 @@ pub(crate) use loop_family_window::{
 pub(crate) use loop_region::loop_execution_frame_key_for_test;
 pub(crate) use loop_region::{
     LoopExecutionFrameKeyV1, ResolvedLoopPlacementV1, ResolvedLoopRegionBundleV1,
-    ResolvedLoopRegionLookupErrorV1, ResolvedLoopSourceForestRejectV1, VerifiedResolvedLoopSourceForestV1,
-    VerifiedResolvedLoopSourceV1,
+    ResolvedLoopRegionLookupErrorV1, ResolvedLoopSourceForestRejectV1,
+    VerifiedResolvedLoopSourceForestV1, VerifiedResolvedLoopSourceV1,
 };
 pub use normalized::NormalizedResolvedFunctionGraphV1;
-pub(crate) use normalized_callable_catalog::{ NormalizedCallableCatalogV1,
-};
+pub(crate) use normalized_callable_catalog::NormalizedCallableCatalogV1;
 pub(crate) use owner_forest::SemanticOwnerForestDraftV1;
-pub use owner_forest::{ UpvarAccessKindV1,
-    VerifiedSemanticOwnerForestV1,
-};
+pub use owner_forest::{UpvarAccessKindV1, VerifiedSemanticOwnerForestV1};
 pub(crate) use owner_forest_payload::VerifiedSemanticOwnerProductV1;
 pub(crate) use owner_resolver::{
     ResolveOwnerForestErrorV1, ResolveScriptForestOutcomeV1,
@@ -215,8 +215,7 @@ pub(crate) use owner_root_profile::SemanticOwnerRootProfileV1;
 pub use owner_source_kind::SemanticOwnerSourceKindV1;
 pub use product::VerifiedResolvedFunctionV1;
 pub(crate) use product::{
-    ResolvedScopeRegionLookupErrorV1, ResolvedScopeRegionPairV1,
-    VerifiedResolvedScriptV1,
+    ResolvedScopeRegionLookupErrorV1, ResolvedScopeRegionPairV1, VerifiedResolvedScriptV1,
 };
 pub(crate) use record_schema_demand::{
     FullyExplicitRecordLiteralAdmissionV1, RecordSchemaDemandV1,
@@ -224,8 +223,7 @@ pub(crate) use record_schema_demand::{
 pub use records::{
     BindingKindV1, BindingOriginV1, RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,
     ResolvedBindingRecordV1, ResolvedControlTransferV1, ResolvedExitOriginV1, ResolvedExitRecordV1,
-    ResolvedLexicalRefV1, ScopeKindV1,
-    ScopeOriginV1,
+    ResolvedLexicalRefV1, ScopeKindV1, ScopeOriginV1,
 };
 pub(crate) use resolver::{
     AppMainFreeStaticResolverIssueV1, FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1,
@@ -237,13 +235,12 @@ pub(crate) use resolver_core_method_callable_contract::{
 };
 pub(crate) use script_view::ScriptSyntaxViewV1;
 pub(crate) use selected_callable_deferred::{
-    SelectedCallableResolverDeferredBatchV1,
-    SelectedCallableResolverInputV1,
+    SelectedCallableResolverDeferredBatchV1, SelectedCallableResolverInputV1,
 };
 pub(in crate::mir) use shadow::{
     observe_method_calls_shadow_view_v0, observe_qualified_receiver_shadow_view_v0,
-    observe_script_method_calls_shadow_view_v0,
-    ShadowMethodCallReceiverV0, ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0,
+    observe_script_method_calls_shadow_view_v0, ShadowMethodCallReceiverV0,
+    ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0,
 };
 pub(crate) use shadow::{
     ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptResolverDeferredCauseV1,

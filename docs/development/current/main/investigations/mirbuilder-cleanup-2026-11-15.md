@@ -454,3 +454,8 @@ focused23件PASS。旧生成成功testを同じ入力の名前付き拒否・命
 元のstatic-child入口を閉じた最適化CLIで固定5,386入力のMIR/拒否/出力/exit差0（EXE1,471、timeout0）を確認。専用emitter/ABI/capabilityと、呼び手が消えたA-prime source view・physical demandを同じ塊で退役した。private ABI構造の削除であり、公開MIR/JSON/C ABIは変更しない。current package issuerが使うlogical/Fault/cleanup co-sealとrunnerのroot fenceは保持。
 削除後focused197件（Dynamic logical契約・external commit・targetless binding・独立検証・ownership）PASS、登録8666→8645・旧専有21件のみ削除。旧台帳はそのPASS21件だけ除きFAIL集合不変。整形後Rustは本体7,962行/test1,709行の純減、Rust32file退役。
 旧fixture生成CLIと専用guardを退役し、共有のSSA/比較/単一append検査を既存guardへ移管。移管block・wire/text guard・C provenance driverとPython33件PASS。F22由来の旧writer guard参照漏れもここで解消した。既存authority guardのloan-port旧anchor欠落（基点から0件）とDraftSeal raw drop件数2/2対期待1/1は緩めず保持し、全guardがgreenとはしない。owner数・pointer/diff検査を確認し、全入力/全lib/固定suiteの削除後最終確認はseries最終で行う。
+
+### 段C F19: 古い生の enum writer
+
+元のFromCall/EnumMatch入口を閉じた最適化CLIで固定5,386入力のMIR/拒否/出力/exit差0（EXE1,471、timeout0）を確認してから、旧Variant writerと専有adapterを退役。Option/Result/enumの表現・payload/網羅性・公開MIR/JSONを保持し、nullish/arityのsource preflightを本文不変で既存semantic ownerへ移した。
+ScopeBoxのno-retry/cleanup/temp binding保証3件は関数本文をbyte不変で現役ownerへ移管。旧writerとのparity2件のみ退役し、登録8645→8643、移管3組を含め未説明差0。削除後focused143件・owner数/pointer/diff検査PASS。整形後Rustは本体575行/test37行の純減。削除だけのstructured-child fileは未変更箇所の整形を保ち713行（全体rustfmtで827行へ膨らむ差分を加えない）。全入力/全lib/固定suiteの削除後確認はseries最終で行う。

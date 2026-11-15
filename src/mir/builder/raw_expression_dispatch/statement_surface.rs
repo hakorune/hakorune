@@ -12,7 +12,7 @@ use crate::mir::builder::control_flow::exception::{
     lower_prepared_raw_throw_with_port_v1, lower_prepared_raw_try_catch_with_port_v1,
     PreparedRawThrowV1, PreparedRawTryCatchV1,
 };
-use crate::mir::builder::exprs_enum_match::PreparedRawScopeBoxV1;
+use crate::mir::builder::enum_match_scopebox::PreparedRawScopeBoxV1;
 use crate::mir::builder::fields::{
     lower_prepared_raw_field_assignment_with_port_v1, PreparedRawFieldAssignmentV1,
 };
@@ -682,7 +682,9 @@ where
                 // function, so an unready sibling exit leaves this site on
                 // the generic lane where a yielded `Lowered` value inside a
                 // branch would silently merge instead of returning.
-                let emitted = crate::mir::builder::stmts::return_stmt::emit_return_from_value(builder, value)?;
+                let emitted = crate::mir::builder::stmts::return_stmt::emit_return_from_value(
+                    builder, value,
+                )?;
                 port.complete_terminal_scalar_literal_return(builder)?;
                 return Ok(emitted);
             }

@@ -346,7 +346,6 @@ mod raw_root_completion; // CUT0-I0-ROOT0-RAW0 retained raw root witness
 mod raw_root_completion_preflight; // ROOT-RETENTION0-PREFLIGHT borrowed owner checks
 mod root_batch_slot; // HEADERPORT0-I0-ROOTBATCH0-S0 identity SSOT
 pub(in crate::mir) use root_batch_slot::raw_main_entry_target;
-mod enum_match_source_demand;
 mod enum_variant_source_demand;
 mod qmark_source_demand;
 mod raw_expression_recursion_guard;

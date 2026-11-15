@@ -1370,6 +1370,9 @@ mir::builder::emission::value_lifecycle_definition::tests::referenced_pending_an
 mir::builder::emission::value_lifecycle_definition::tests::retention_priority_is_deterministic_and_preparation_cannot_publish_a_partial_product
 mir::builder::entry_materialization::tests::normal_receipt_normalizes_required_script_and_keeps_exact_app_target
 mir::builder::entry_materialization::tests::raw_receipt_preserves_script_required_rejection_and_source_target
+mir::builder::enum_match_scopebox::raw_scopebox_route_tests::guard_let_failure_never_retries_ordinary_or_runs_success_cleanup
+mir::builder::enum_match_scopebox::raw_scopebox_route_tests::guard_let_success_lowers_once_then_removes_only_the_temp_binding
+mir::builder::enum_match_scopebox::raw_scopebox_route_tests::raw_scopebox_route_is_disjoint_before_lowering
 mir::builder::exprs_check::select_type::tests::conflicting_exact_destination_rejects_before_publication
 mir::builder::exprs_check::select_type::tests::existing_integer_is_idempotent
 mir::builder::exprs_check::select_type::tests::missing_or_stored_unknown_prepares_integer_publication
@@ -1379,9 +1382,6 @@ mir::builder::exprs_check::tests::failed_item_stops_before_later_children_withou
 mir::builder::exprs_check::tests::failed_select_emission_leaves_its_destination_without_a_type_fact
 mir::builder::exprs_check::tests::normal_finalization_snapshots_the_transient_check_select_fact
 mir::builder::exprs_check::tests::selected_port_consumes_check_items_once_in_source_order
-mir::builder::exprs_enum_match::raw_scopebox_route_tests::guard_let_failure_never_retries_ordinary_or_runs_success_cleanup
-mir::builder::exprs_enum_match::raw_scopebox_route_tests::guard_let_success_lowers_once_then_removes_only_the_temp_binding
-mir::builder::exprs_enum_match::raw_scopebox_route_tests::raw_scopebox_route_is_disjoint_before_lowering
 mir::builder::fact_session::tests::abort_is_consuming_and_does_not_create_a_completed_draft
 mir::builder::fact_session::tests::foreign_completed_draft_is_rejected_before_collection
 mir::builder::fact_session::tests::function_seal_moves_every_transient_lane_with_its_draft
@@ -2005,9 +2005,7 @@ mir::builder::normal_script_semantic_source::call_retention_tests::script_functi
 mir::builder::normal_script_semantic_source::enum_declaration_tests::enum_declaration_completes_the_selected_script_with_void
 mir::builder::normal_script_semantic_source::enum_declaration_tests::enum_declaration_is_a_complete_script_transfer_boundary
 mir::builder::normal_script_semantic_source::enum_match_tests::direct_enum_match_seals_only_its_scrutinee_receipt
-mir::builder::normal_script_semantic_source::enum_match_tests::direct_enum_match_selected_pipeline_matches_legacy
 mir::builder::normal_script_semantic_source::enum_variant_tests::enum_variant_receipt_is_complete_and_projects_its_argument
-mir::builder::normal_script_semantic_source::enum_variant_tests::enum_variant_selected_pipeline_matches_legacy
 mir::builder::normal_script_semantic_source::enum_variant_tests::ordinary_from_call_stays_deferred
 mir::builder::normal_script_semantic_source::index_write_tests::non_array_or_rebound_index_write_stays_deferred
 mir::builder::normal_script_semantic_source::index_write_tests::prior_local_array_index_write_is_complete_and_matches_legacy

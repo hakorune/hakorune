@@ -27,9 +27,6 @@ use crate::mir::builder::calls::function_call_preflight_route::PreparedRawOrdina
 use crate::mir::builder::calls::{
     drive_call_arguments_v1, drive_call_arguments_with_expected_sites_v1,
 };
-use crate::mir::builder::exprs_enum_match::{
-    prepare_raw_enum_variant_header_v1, PreparedRawEnumVariantHeaderV1,
-};
 use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, DirectCallDispositionPortV1, RawAstChildLoweringPortV1,
     RawFunctionHeaderLookupPortV1,
@@ -44,12 +41,6 @@ pub(in crate::mir::builder) struct PreparedRawFromCallV1 {
 }
 
 enum PreparedRawFromCallRouteV1 {
-    EnumVariant {
-        parent: String,
-        method: String,
-        arguments: Vec<ASTNode>,
-        header: PreparedRawEnumVariantHeaderV1,
-    },
     Ordinary {
         parent: String,
         method: String,
@@ -64,19 +55,11 @@ impl PreparedRawFromCallV1 {
         method: String,
         arguments: Vec<ASTNode>,
     ) -> Result<Self, String> {
-        let route = match prepare_raw_enum_variant_header_v1(builder, &parent, &method, &arguments)?
-        {
-            Some(header) => PreparedRawFromCallRouteV1::EnumVariant {
-                parent,
-                method,
-                arguments,
-                header,
-            },
-            None => PreparedRawFromCallRouteV1::Ordinary {
-                parent,
-                method,
-                arguments,
-            },
+        let _ = builder;
+        let route = PreparedRawFromCallRouteV1::Ordinary {
+            parent,
+            method,
+            arguments,
         };
         Ok(Self { route })
     }
@@ -157,10 +140,14 @@ impl MirBuilder {
             format!("[freeze:contract][direct-call/lifecycle-consumer-missing] {error:?}")
         })?;
         let dst = self.next_value_id();
-        let instruction = emission.clone()
+        let instruction = emission
+            .clone()
             .materialize(dst, arg_values.clone())
             .map_err(|error| format!("[freeze:contract][direct-call/materialization] {error:?}"))?;
-        let block = self.function_state.current_block.ok_or_else(|| "[freeze:contract][direct-call/no-block]".to_owned())?;
+        let block = self
+            .function_state
+            .current_block
+            .ok_or_else(|| "[freeze:contract][direct-call/no-block]".to_owned())?;
         self.emit_instruction(instruction.clone())?;
         port.record_scalar_direct_call_v1(self, row, arg_values, (block, instruction))?;
         Ok(dst)
@@ -307,16 +294,6 @@ impl MirBuilder {
         Port: RawAstChildLoweringPortV1,
     {
         let (parent, method, arguments) = match prepared.route {
-            PreparedRawFromCallRouteV1::EnumVariant {
-                parent,
-                method,
-                arguments,
-                header,
-            } => {
-                return self.lower_prepared_raw_enum_variant_with_port_v1(
-                    port, parent, method, arguments, header,
-                )
-            }
             PreparedRawFromCallRouteV1::Ordinary {
                 parent,
                 method,
@@ -396,7 +373,7 @@ mod raw_from_route_tests {
         }
     }
 
-    fn prepare_error(result: Result<PreparedRawFromCallV1, String>) -> String {
+    fn prepare_error<T>(result: Result<T, String>) -> String {
         match result {
             Ok(_) => panic!("expected raw From preparation to fail"),
             Err(error) => error,
@@ -412,17 +389,16 @@ mod raw_from_route_tests {
             vec![variant("Ok", Some("T")), variant("Err", Some("E"))],
         );
 
-        let enum_route = PreparedRawFromCallV1::prepare(
-            &builder,
-            "Result".to_string(),
-            "Ok".to_string(),
-            vec![int(1)],
-        )
-        .expect("known enum variant must prepare");
-        assert!(matches!(
-            enum_route.route,
-            PreparedRawFromCallRouteV1::EnumVariant { .. }
-        ));
+        assert!(
+            crate::mir::builder::exprs_enum_match::prepare_raw_enum_variant_header_v1(
+                &builder,
+                "Result",
+                "Ok",
+                &[int(1)],
+            )
+            .expect("known enum source preflight")
+            .is_some()
+        );
 
         let ordinary_route = PreparedRawFromCallV1::prepare(
             &builder,
@@ -461,28 +437,34 @@ mod raw_from_route_tests {
             }],
         );
 
-        let record = prepare_error(PreparedRawFromCallV1::prepare(
-            &builder,
-            "RecordResult".to_string(),
-            "Ok".to_string(),
-            vec![],
-        ));
+        let record = prepare_error(
+            crate::mir::builder::exprs_enum_match::prepare_raw_enum_variant_header_v1(
+                &builder,
+                "RecordResult",
+                "Ok",
+                &[],
+            ),
+        );
         assert!(record.contains("record/tuple payload lowering"));
 
-        let arity = prepare_error(PreparedRawFromCallV1::prepare(
-            &builder,
-            "Option".to_string(),
-            "Some".to_string(),
-            vec![],
-        ));
+        let arity = prepare_error(
+            crate::mir::builder::exprs_enum_match::prepare_raw_enum_variant_header_v1(
+                &builder,
+                "Option",
+                "Some",
+                &[],
+            ),
+        );
         assert!(arity.contains("expects 1 arg(s), got 0"));
 
-        let nullish = prepare_error(PreparedRawFromCallV1::prepare(
-            &builder,
-            "Option".to_string(),
-            "Some".to_string(),
-            vec![null()],
-        ));
+        let nullish = prepare_error(
+            crate::mir::builder::exprs_enum_match::prepare_raw_enum_variant_header_v1(
+                &builder,
+                "Option",
+                "Some",
+                &[null()],
+            ),
+        );
         assert!(nullish.contains("nullish"));
     }
 

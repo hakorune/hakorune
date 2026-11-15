@@ -310,7 +310,10 @@ impl EnumVariantDemandV1 for EnumVariantDemandViewV1<'_> {
             || (crate::semantics::option_contract::requires_non_nullish_payload(
                 enum_name,
                 variant_name,
-            ) && crate::mir::builder::exprs_enum_match::enum_variant_arguments_are_statically_nullish_v1(arguments))
+            )
+                && crate::mir::resolved_semantics::enum_variant_arguments_are_statically_nullish_v1(
+                    arguments,
+                ))
         {
             return None;
         }

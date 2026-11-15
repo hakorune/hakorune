@@ -4,7 +4,7 @@
 //! has already selected the direct enum route. It does not receive diagnostics,
 //! mutable compilation state, or an ordinary `FromCall` fallback.
 
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, LiteralValue};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct EnumVariantAdmissionV1 {
@@ -60,5 +60,20 @@ impl EnumVariantDemandV1 for () {
         _arguments: &[ASTNode],
     ) -> Option<EnumVariantAdmissionV1> {
         None
+    }
+}
+
+pub(crate) fn enum_variant_arguments_are_statically_nullish_v1(arguments: &[ASTNode]) -> bool {
+    arguments.iter().any(ast_is_statically_nullish)
+}
+
+fn ast_is_statically_nullish(ast: &ASTNode) -> bool {
+    match ast {
+        ASTNode::Literal {
+            value: LiteralValue::Null | LiteralValue::Void,
+            ..
+        } => true,
+        ASTNode::BlockExpr { tail_expr, .. } => ast_is_statically_nullish(tail_expr),
+        _ => false,
     }
 }
