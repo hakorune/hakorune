@@ -108,3 +108,30 @@ fn home_abi_uses_a_fresh_relation_batch_for_each_issuance() {
         second.relation_batch_brand()
     );
 }
+
+#[test]
+fn query_carriage_does_not_change_home_abi_output() {
+    fn issue_home(source: &str) -> VerifiedDeclaredInstanceMethodHomeCatalogV1 {
+        let catalog = declaration_catalog(source, "TextLike");
+        let environment = ResolverHomeCapabilityEnvironmentV1::issue(&catalog)
+            .expect("Home environment should issue");
+        CallableHomeAbiIssuerV1::issue(catalog, environment).expect("Home ABI should issue")
+    }
+
+    let with_home =
+        issue_home("box TextLike { @rune CallableContract(query) length(): i64 { return 0 } }");
+    let without_home = issue_home("box TextLike { length(): i64 { return 0 } }");
+
+    assert_eq!(
+        with_home.home_abis()[0].receiver(),
+        without_home.home_abis()[0].receiver()
+    );
+    assert_eq!(
+        with_home.home_abis()[0].parameters(),
+        without_home.home_abis()[0].parameters()
+    );
+    assert_eq!(
+        with_home.home_abis()[0].result(),
+        without_home.home_abis()[0].result()
+    );
+}

@@ -27,7 +27,6 @@ mod core_method_instance_target;
 mod declared_instance_call_effect;
 mod declared_instance_call_relation;
 mod declared_instance_contract;
-mod declared_query_body_source;
 mod direct_call;
 mod direct_call_inventory_gate;
 mod direct_call_verifier;
@@ -58,10 +57,7 @@ pub(crate) mod home_new_prefix;
 mod home_relation;
 mod ids;
 mod if_region;
-mod instance_method_body_owner;
-mod instance_method_body_source;
 mod instance_method_declaration;
-mod instance_method_function_carrier;
 mod loop_family_window;
 #[cfg(test)]
 mod loop_family_window_tests;
@@ -76,10 +72,6 @@ mod owner_resolver;
 mod owner_root_profile;
 mod owner_source_kind;
 mod product;
-mod query_behavior;
-mod query_body_conformance;
-mod query_body_conformance_evidence;
-mod query_body_facts;
 mod record_schema_demand;
 mod records;
 mod resolver;
@@ -147,19 +139,12 @@ pub(crate) use declared_instance_call_effect::{
     DeclaredInstanceCallEffectIssueV1, DeclaredInstanceCallEffectIssuerV1,
     DeclaredInstanceCallEffectSourceDispositionV1, DeclaredInstanceCallSemanticEffectV1,
 };
+pub(crate) use declared_instance_contract::DeclaredInstanceMethodIdentityV1;
 pub(crate) use declared_instance_call_relation::{
     DeclaredInstanceCallRelationIssueV1, DeclaredInstanceCallRelationIssuerV1,
     DeclaredInstanceCallSourceDispositionV1, DeclaredInstanceCallSourceRefV1,
     DeclaredInstanceMethodModeV1, DeclaredInstanceMethodSourceRefV1,
     VerifiedDeclaredInstanceCallRelationCatalogV1, VerifiedDeclaredInstanceCallRelationV1,
-};
-pub(crate) use declared_instance_contract::{
-    DeclaredInstanceMethodContractIssueV1, DeclaredInstanceMethodContractIssuerV1,
-    DeclaredInstanceMethodContractRefV1, DeclaredInstanceMethodIdentityV1,
-    VerifiedDeclaredInstanceMethodContractCatalogV1,
-};
-pub(crate) use declared_query_body_source::{ DeclaredQueryBodySourceIssuerV1,
-    VerifiedDeclaredQueryBodySourceCatalogV1,
 };
 pub(crate) use direct_call::{
     ResolvedDirectCallObservationV1, ResolvedDirectCallTargetV1,
@@ -195,22 +180,11 @@ pub use ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId, UpvarRefV1};
 pub(crate) use if_region::{
     ResolvedIfConditionRegionRefV1, ResolvedIfRegionBundleV1, ResolvedIfRegionLookupErrorV1,
 };
-pub(in crate::mir) use instance_method_body_owner::{
-    InstanceMethodBodyOwnerBindingIssueV1, InstanceMethodBodyOwnerBindingIssuerV1,
-    VerifiedInstanceMethodBodyOwnerCatalogV1,
-};
-pub(crate) use instance_method_body_source::{ InstanceMethodBodySourceIssuerV1,
-    VerifiedInstanceMethodBodySourceCatalogV1, VerifiedInstanceMethodBodySourceRowV1,
-};
 pub(crate) use instance_method_declaration::{ ResolverCatalogBrandV1, ResolverNominalBoxDeclarationInputV1,
     ResolverNominalBoxTypeIdV1, ResolverNominalTypeEnvironmentIssueV1,
     ResolverNominalTypeEnvironmentV1, ResolverSemanticValueTypeV1,
     SemanticInstanceDeclarationIssuerV1, VerifiedInstanceMethodDeclarationCatalogV1,
     VerifiedInstanceMethodDeclarationV1,
-};
-pub(in crate::mir) use instance_method_function_carrier::{
-    InstanceMethodFunctionCarrierIssueV1, InstanceMethodFunctionCarrierIssuerV1,
-    VerifiedInstanceMethodFunctionCarrierCatalogV1, VerifiedInstanceMethodFunctionCarrierRowV1,
 };
 pub(crate) use loop_family_window::{
     LoopFamilyWindowLeaseIssueV1, VerifiedLoopFamilyWindowLeaseV1,
@@ -243,16 +217,6 @@ pub use product::VerifiedResolvedFunctionV1;
 pub(crate) use product::{
     ResolvedScopeRegionLookupErrorV1, ResolvedScopeRegionPairV1,
     VerifiedResolvedScriptV1,
-};
-pub(crate) use query_behavior::{
-    DeclaredQueryBehaviorIssuerV1, DeclaredQueryBehaviorV1, QueryBehaviorIssueV1,
-    VerifiedDeclaredQueryBehaviorCatalogV1, VerifiedDeclaredQueryBehaviorV1,
-};
-pub(in crate::mir) use query_body_conformance::{ QueryBodyConformanceIssuerV1,
-};
-pub(in crate::mir) use query_body_conformance_evidence::{
-    QueryBodyConformanceEvidenceIssuerV1, QueryBodyHomeTransferV1,
-    VerifiedQueryBodyConformanceEvidenceCatalogV1, VerifiedQueryBodyConformanceEvidenceV1,
 };
 pub(crate) use record_schema_demand::{
     FullyExplicitRecordLiteralAdmissionV1, RecordSchemaDemandV1,
@@ -323,8 +287,6 @@ mod callable_source_ledger_contract_tests;
 #[cfg(test)]
 mod callable_source_ledger_tests;
 #[cfg(test)]
-mod declared_instance_contract_tests;
-#[cfg(test)]
 mod explicit_parameter_type_map;
 #[cfg(test)]
 mod function_root_tests;
@@ -333,17 +295,11 @@ pub(crate) mod generic_resolved_carrier_provenance;
 #[cfg(test)]
 mod if_region_tests;
 #[cfg(test)]
-mod instance_method_body_owner_tests;
-#[cfg(test)]
-mod instance_method_function_carrier_tests;
-#[cfg(test)]
 mod loop_region_tests;
 #[cfg(test)]
 mod ordered_capture_tests;
 #[cfg(test)]
 mod owner_forest_tests;
-#[cfg(test)]
-mod query_behavior_tests;
 #[cfg(test)]
 mod resolver_tests;
 #[cfg(test)]
