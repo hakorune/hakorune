@@ -215,7 +215,6 @@ impl LoopBodyCondPromoter {
         let digitpos_request = DigitPosPromotionRequest {
             loop_param_name: req.loop_param_name,
             cond_scope: req.cond_scope,
-            scope_shape: req.scope_shape,
             break_cond: req.break_cond,
             continue_cond: req.continue_cond,
             loop_body: req.loop_body,
