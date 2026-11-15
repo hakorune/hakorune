@@ -381,9 +381,6 @@ impl TerminalMapGetReturnV1 {
     pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 {
         &self.return_site
     }
-    pub(crate) fn call_site(&self) -> &OwnedExprSiteV1 {
-        &self.call_site
-    }
     pub(crate) fn receiver_site(&self) -> &SourceExprSiteV1 {
         &self.receiver_site
     }
