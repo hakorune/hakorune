@@ -64,21 +64,18 @@ use super::properties::PropertyRegistry;
 use super::static_scalar_facts::{infer_static_scalar_method_fact, StaticScalarMethodFact};
 use super::type_registry::TypeRegistry;
 use hakorune_mir_builder::BoxCompilationContext;
-use std::sync::Arc;
 
 mod declarations;
 
 #[derive(Debug)]
 enum CallableDeclarationCatalogStorageV1 {
     Exclusive(VerifiedSameModuleCallableDeclarationCatalogV1),
-    Shared(Arc<VerifiedSameModuleCallableDeclarationCatalogV1>),
 }
 
 impl CallableDeclarationCatalogStorageV1 {
     fn catalog(&self) -> &VerifiedSameModuleCallableDeclarationCatalogV1 {
         match self {
             Self::Exclusive(catalog) => catalog,
-            Self::Shared(catalog) => catalog.as_ref(),
         }
     }
 }
@@ -350,17 +347,6 @@ impl CompilationContext {
             .ok_or(SameModuleCallableDeclarationCatalogSessionErrorV1::QueryBeforeInstall)
     }
 
-    #[cfg(test)]
-    pub(in crate::mir) fn callable_declaration_catalog_is_shared_with(
-        &self,
-        expected: &Arc<VerifiedSameModuleCallableDeclarationCatalogV1>,
-    ) -> bool {
-        matches!(
-            self.callable_declaration_catalog.as_ref(),
-            Some(CallableDeclarationCatalogStorageV1::Shared(installed))
-                if Arc::ptr_eq(installed, expected)
-        )
-    }
 
     pub(crate) fn callable_declaration(
         &self,
