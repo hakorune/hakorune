@@ -315,23 +315,6 @@ impl MirBuilder {
         let lowering = {
             let builder = session.builder_view_mut_for_lowering();
             (|| -> Result<_, (NormalFunctionDraftLoweringStageV1, String)> {
-                let recipe_preflight =
-                    produce_trivial_if_physical_input_v1(&profile, input.function()).map_err(
-                        |error| {
-                            (
-                                NormalFunctionDraftLoweringStageV1::BodyLowering,
-                                format!("[freeze:contract][if_recipe/producer] {error:?}"),
-                            )
-                        },
-                    )?;
-                let recipe_admission =
-                    admit_trivial_if_recipe_v1(recipe_preflight, input.function(), &if_control)
-                        .map_err(|error| {
-                            (
-                                NormalFunctionDraftLoweringStageV1::BodyLowering,
-                                format!("[freeze:contract][if_recipe/admission] {error:?}"),
-                            )
-                        })?;
                 builder
                     .function_state
                     .resolved_binding_state
@@ -356,7 +339,6 @@ impl MirBuilder {
                     completion,
                     profile,
                     block_expr_count,
-                    recipe_admission,
                 )
                 .map_err(|error| (NormalFunctionDraftLoweringStageV1::BodyLowering, error))?
                 .lower()

@@ -459,3 +459,8 @@ focused23件PASS。旧生成成功testを同じ入力の名前付き拒否・命
 
 元のFromCall/EnumMatch入口を閉じた最適化CLIで固定5,386入力のMIR/拒否/出力/exit差0（EXE1,471、timeout0）を確認してから、旧Variant writerと専有adapterを退役。Option/Result/enumの表現・payload/網羅性・公開MIR/JSONを保持し、nullish/arityのsource preflightを本文不変で既存semantic ownerへ移した。
 ScopeBoxのno-retry/cleanup/temp binding保証3件は関数本文をbyte不変で現役ownerへ移管。旧writerとのparity2件のみ退役し、登録8645→8643、移管3組を含め未説明差0。削除後focused143件・owner数/pointer/diff検査PASS。整形後Rustは本体575行/test37行の純減。削除だけのstructured-child fileは未変更箇所の整形を保ち713行（全体rustfmtで827行へ膨らむ差分を加えない）。全入力/全lib/固定suiteの削除後確認はseries最終で行う。
+
+### 段C F26: 選ばれていない If Recipe wire
+
+入口遮断時と専有wire/mapper/physicalizer削除後の最適化CLIで、固定5,386入力のMIR/拒否/出力/exit差0（EXE1,471、timeout0）を確認。共通Ifのsource/Bool/coverage/実際の前駆辺・PHI・原子的publication検証は保持し、未使用の専用observerとfactsだけを同じ塊で退役した。公開IfRecipeDTOとF17のcarrierは保持。
+既存nested source検証をsource path・原本binding・InlineI64の完全な組の照合へ統合。削除後focusedは161 PASS/既知1 FAIL・新規FAIL0、登録8643→8617（専有26件退役・保証5件改名、未説明差0）。vm-reference専用testをdefault実行の証拠とは数えない。整形後Rustは本体5,296行/test1,172行の純減。owner数・共通If guard・pointer/diff検査PASS。旧SSA guardの存在しないidentity.rs要求は基点からの不整合として保持し、変更したprofile-close検査は個別に実行した。全lib/固定suiteの最終確認はseries最終で行う。

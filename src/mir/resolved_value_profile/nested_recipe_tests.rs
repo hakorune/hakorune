@@ -1,12 +1,9 @@
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
-use crate::mir::if_recipe_contract::{
-    NestedIfJoinCompositionRoleV1, NestedIfJoinSigComposerV1, NestedIfSourceClaimRoleV1,
-};
 
 use super::{
-    analyze_trivial_canonical_with_mode_v1, map_nested_trivial_if_recipe_v1,
-    TrivialCanonicalAnalysisModeV1, TrivialCanonicalOwnerAnalysisV1,
+    analyze_trivial_canonical_with_mode_v1, TrivialCanonicalAnalysisModeV1,
+    TrivialCanonicalOwnerAnalysisV1,
 };
 
 fn literal(value: LiteralValue) -> ASTNode {
@@ -129,56 +126,68 @@ fn admitted<'a>(
     (product, input)
 }
 
-#[test]
-fn nested_depth_one_emits_separate_facts_artifact_and_composed_join_sig() {
-    let source = VerifiedResolvedSourceUnitV1::resolve_function(function(nested_body()))
-        .expect("resolve nested fixture");
-    let (product, input) = admitted(&source);
-    assert!(
-        product.recipe_facts().is_none(),
-        "fixed one-If V1 stays immutable"
-    );
-    let facts = product
-        .nested_recipe_facts()
-        .expect("depth-one nested facts");
-    assert_eq!(facts.outer().statement().node().segments().len(), 1);
-    assert_eq!(facts.inner().statement().node().segments().len(), 2);
-    assert_eq!(facts.inner().then_assignments().len(), 1);
-    assert_eq!(facts.inner().else_assignments().len(), 1);
-
-    let artifact = map_nested_trivial_if_recipe_v1(&product, input.function())
-        .expect("nested portable artifact");
-    let roles: Vec<_> = artifact
-        .artifact()
-        .source_binding
-        .claims
+// Match each merge to its original structural If and local declaration.
+fn assert_merge_sources(
+    product: &super::product::VerifiedTrivialCanonicalOwnerV1,
+    expected: Vec<(
+        Vec<crate::mir::resolved_semantics::SourcePathSegmentV1>,
+        u32,
+    )>,
+) {
+    use super::product::{TrivialBindingDefinitionOriginV1, TrivialRepresentationV1};
+    use crate::mir::resolved_semantics::{SourceBindingSiteV1, SourcePathSegmentV1::Body};
+    let mut expected = expected
+        .into_iter()
+        .map(|(path, local_index)| {
+            let declarations = product
+                .definitions()
+                .iter()
+                .filter(|row| {
+                    matches!(
+                        row.origin(), TrivialBindingDefinitionOriginV1::Declaration(
+                            SourceBindingSiteV1::Local { statement, ordinal: 0 }
+                        ) if statement.node().segments() == &[Body(local_index)]
+                    )
+                })
+                .collect::<Vec<_>>();
+            assert_eq!(declarations.len(), 1, "one original local declaration");
+            (
+                path,
+                declarations[0].binding(),
+                TrivialRepresentationV1::InlineI64,
+            )
+        })
+        .collect::<Vec<_>>();
+    let mut actual = product
+        .merge_profiles()
         .iter()
-        .map(|claim| claim.role)
-        .collect();
-    assert_eq!(
-        roles,
-        vec![
-            NestedIfSourceClaimRoleV1::OuterIfNode,
-            NestedIfSourceClaimRoleV1::OuterCondition,
-            NestedIfSourceClaimRoleV1::InnerIfNode,
-            NestedIfSourceClaimRoleV1::InnerCondition,
-            NestedIfSourceClaimRoleV1::InnerThenAssignment,
-            NestedIfSourceClaimRoleV1::InnerElseAssignment,
-            NestedIfSourceClaimRoleV1::OuterElseAssignment,
-            NestedIfSourceClaimRoleV1::ContinuationRead,
-        ]
-    );
-    let join = NestedIfJoinSigComposerV1::compose(&artifact).expect("nested JoinSig");
-    assert_eq!(
-        join.as_sig().composition.role,
-        NestedIfJoinCompositionRoleV1::InnerMergeToOuterThen
-    );
-    assert_eq!(join.as_sig().inner.node.raw(), 1);
-    assert_eq!(join.as_sig().outer.node.raw(), 0);
+        .map(|row| {
+            (
+                row.statement().node().segments().to_vec(),
+                row.binding(),
+                row.representation(),
+            )
+        })
+        .collect::<Vec<_>>();
+    actual.sort();
+    expected.sort();
+    assert_eq!(actual, expected);
 }
 
 #[test]
-fn nested_profile_rejects_depth_greater_than_one_before_mapping() {
+fn nested_source_depth_one_retains_both_merge_profiles() {
+    let source = VerifiedResolvedSourceUnitV1::resolve_function(function(nested_body()))
+        .expect("resolve nested fixture");
+    let (product, _) = admitted(&source);
+    use crate::mir::resolved_semantics::SourcePathSegmentV1::{Body, IfThen};
+    assert_merge_sources(
+        &product,
+        vec![(vec![Body(1)], 0), (vec![Body(1), IfThen(0)], 0)],
+    );
+}
+
+#[test]
+fn nested_source_depth_three_retains_all_merge_profiles() {
     let third = if_(
         binary(BinaryOperator::Less, variable("x"), int(2)),
         vec![assignment("x", int(1))],
@@ -199,13 +208,20 @@ fn nested_profile_rejects_depth_greater_than_one_before_mapping() {
         return_(variable("x")),
     ]))
     .expect("resolve depth-three fixture");
-    let (product, input) = admitted(&source);
-    assert!(product.nested_recipe_facts().is_none());
-    assert!(map_nested_trivial_if_recipe_v1(&product, input.function()).is_err());
+    let (product, _) = admitted(&source);
+    use crate::mir::resolved_semantics::SourcePathSegmentV1::{Body, IfThen};
+    assert_merge_sources(
+        &product,
+        vec![
+            (vec![Body(1)], 0),
+            (vec![Body(1), IfThen(0)], 0),
+            (vec![Body(1), IfThen(0), IfThen(0)], 0),
+        ],
+    );
 }
 
 #[test]
-fn nested_profile_rejects_implicit_child_else_and_multiple_bindings() {
+fn nested_source_implicit_child_else_and_multiple_bindings_remain_admitted() {
     let implicit_child = ASTNode::If {
         condition: Box::new(binary(BinaryOperator::Less, variable("x"), int(5))),
         then_body: vec![assignment("x", int(1))],
@@ -223,7 +239,11 @@ fn nested_profile_rejects_implicit_child_else_and_multiple_bindings() {
     ]))
     .expect("resolve implicit child fixture");
     let (implicit_product, _) = admitted(&implicit_source);
-    assert!(implicit_product.nested_recipe_facts().is_none());
+    use crate::mir::resolved_semantics::SourcePathSegmentV1::{Body, IfThen};
+    assert_merge_sources(
+        &implicit_product,
+        vec![(vec![Body(1)], 0), (vec![Body(1), IfThen(0)], 0)],
+    );
 
     let multi_source = VerifiedResolvedSourceUnitV1::resolve_function(function(vec![
         local("x", int(0)),
@@ -241,5 +261,13 @@ fn nested_profile_rejects_implicit_child_else_and_multiple_bindings() {
     ]))
     .expect("resolve multiple-binding fixture");
     let (multi_product, _) = admitted(&multi_source);
-    assert!(multi_product.nested_recipe_facts().is_none());
+    // Inner If updates x; the outer If reconciles both x and y.
+    assert_merge_sources(
+        &multi_product,
+        vec![
+            (vec![Body(2)], 0),
+            (vec![Body(2)], 1),
+            (vec![Body(2), IfThen(0)], 0),
+        ],
+    );
 }

@@ -26,7 +26,6 @@ mod generic_g0_physical_emitter_session;
 mod identity;
 pub(in crate::mir::builder) mod if_cfg_ready_bridge;
 mod if_materialization;
-mod if_recipe_adapter;
 mod located_if;
 mod lowerer;
 mod nested_predicate_adapter;
@@ -106,7 +105,6 @@ use super::calls::{
 use super::MirBuilder;
 use direct_accum_lowerer::CanonicalDirectAccumSsaLowererV1;
 use draft_seal_owner::{FunctionDraftSealStageV1, RejectedFunctionDraftSealV1};
-use if_recipe_adapter::{admit_trivial_if_recipe_v1, produce_trivial_if_physical_input_v1};
 use lowerer::CanonicalFunctionLowererV1;
 use trivial_ssa::{install_trivial_callable_abi_v1, CanonicalTrivialSsaLowererV1};
 

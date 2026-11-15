@@ -15,7 +15,7 @@
     "loop_phi_loc": 143
   },
   "kind": "MirR7LegacyCensusManifestV1",
-  "observed_commit": "08484878997e2ddcefc9459440260726844474fd",
+  "observed_commit": "25bf2a51769b98814ff3a1e8b21d5d3eed4fcdd8",
   "rows": [
     {
       "disposition": "production lexical surface",

@@ -20653,11 +20653,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/function_draft_entry.rs:384:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/function_draft_entry.rs:366:mir_return",
       "evidence": ".set_terminator(crate::mir::MirInstruction::Return { value: None });",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 384,
+      "line": 366,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -20917,11 +20917,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs:156:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs:148:mir_return",
       "evidence": "ASTNode::Return { .. } => {",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 156,
+      "line": 148,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -20929,11 +20929,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs:176:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs:168:mir_return",
       "evidence": "if matches!(statement.node(), ASTNode::Return { value: Some(_), .. }) {",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 176,
+      "line": 168,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
