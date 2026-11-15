@@ -31,9 +31,6 @@ pub(super) enum CheckedExpressionOperationProofV1 {
     },
 }
 impl CheckedExpressionOperationLoanV1 {
-    pub(crate) fn alias_class_v1(&self) -> Option<&str> {
-        match &self.proof { CheckedExpressionOperationProofV1::NullableAliasNull { class, .. } => Some(class), _ => None }
-    }
     pub(crate) fn scalar_copy_v1(&self) -> Option<(usize, super::super::SourceScalarKind)> {
         let CheckedExpressionOperationProofV1::ScalarCopy(kind) = self.proof else {
             return None;
