@@ -674,7 +674,6 @@
      "src/mir/builder/calls/resolver.rs",
      "src/mir/builder/calls/unified_emitter.rs",
      "src/mir/builder/control_flow/plan/loop_accum_physical_digest_test_support.rs",
-     "src/mir/builder/control_flow/plan/loop_phi_materializer_test_support.rs",
      "src/mir/builder/control_flow/plan/lowerer/emission_port.rs",
      "src/mir/builder/decls.rs",
      "src/mir/builder/emission/value_lifecycle_definition.rs",
@@ -726,7 +725,7 @@
      "src/mir/builder/array_element_write.rs:27:value_types",
      "src/mir/builder/calls/guard.rs:28:value_types"
     ],
-    "count": 54,
+    "count": 53,
     "kind": "observed_mutation"
    },
    "production_consumer": {
@@ -745,8 +744,6 @@
      "src/mir/builder/control_flow/joinir/merge/loop_header_phi_builder.rs",
      "src/mir/builder/control_flow/plan/features/generic_loop_body/cleanup.rs",
      "src/mir/builder/control_flow/plan/loop_accum_physical_digest_test_support.rs",
-     "src/mir/builder/control_flow/plan/loop_phi_materializer.rs",
-     "src/mir/builder/control_flow/plan/loop_phi_materializer_test_support.rs",
      "src/mir/builder/control_flow/plan/lowerer/effect_emission.rs",
      "src/mir/builder/control_flow/plan/lowerer/emission_port.rs",
      "src/mir/builder/control_flow/plan/normalizer/newbox.rs",
@@ -870,7 +867,7 @@
      "src/mir/array_receiver_proof.rs:121:value_types",
      "src/mir/builder/array_element_write.rs:24:value_types"
     ],
-    "count": 134
+    "count": 132
    },
    "backend_consumer": {
     "role": "selected_observed",
