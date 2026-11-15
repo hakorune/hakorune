@@ -150,8 +150,7 @@ pub(in crate::mir) use install::SelectedCallableSemanticRefV1;
 pub(crate) use install::{
     InstalledNormalCallableSemanticPackageV1, NormalCallableSemanticPackageInstallIssueV1,
     NormalCallableSemanticPackagePortV1, ResolvedCallablePhysicalSignatureLoanV1,
-    S6CCommonV2PreSessionLoanRefV1, SelectedCallableLoweringInputRefV1,
-    SelectedCatalogedCallableLoweringInputV1,
+    SelectedCallableLoweringInputRefV1, SelectedCatalogedCallableLoweringInputV1,
 };
 pub(in crate::mir) use issuer::issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1;
 pub(in crate::mir) use issuer::issue_normal_callable_semantic_package_with_selection_v1;

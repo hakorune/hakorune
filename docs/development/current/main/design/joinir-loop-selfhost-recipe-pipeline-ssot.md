@@ -2201,3 +2201,5 @@ whole-MIR block-argument rewrite or general immutable graph IR
 
 The portable recipe itself is intentionally symbolic at the control/role level;
 the parked item is a general symbolic MIR fragment rewrite of CorePlan/lowerer.
+
+2026-11-16 に、実装の保存を終えた。再開の条件は、お掃除の文書（mirbuilder-cleanup-2026-11-15.md のお掃除5）。

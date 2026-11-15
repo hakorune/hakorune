@@ -15,8 +15,6 @@ TASK = ROOT / (
 IDENTITY = ROOT / "src/mir/builder/module_invocation_identity.rs"
 FIXTURES = ROOT / "src/mir/builder/module_invocation_identity_p0.rs"
 BRAND_CHAIN = ROOT / "src/mir/builder/module_invocation_owner_chain.rs"
-COLLECTION = ROOT / "src/mir/builder/module_invocation_collection.rs"
-COLLECT_FIXTURE = ROOT / "src/mir/builder/module_invocation_collect0_s0_p0.rs"
 BUILDER = ROOT / "src/mir/builder.rs"
 SESSION = ROOT / "src/mir/builder/module_invocation_session.rs"
 SESSION_FIXTURE = ROOT / "src/mir/builder/module_invocation_session_p0.rs"
@@ -28,8 +26,6 @@ ALLOWED = {
     IDENTITY.relative_to(ROOT),
     FIXTURES.relative_to(ROOT),
     BRAND_CHAIN.relative_to(ROOT),
-    COLLECTION.relative_to(ROOT),
-    COLLECT_FIXTURE.relative_to(ROOT),
     BUILDER.relative_to(ROOT),
     SESSION.relative_to(ROOT),
     SESSION_FIXTURE.relative_to(ROOT),

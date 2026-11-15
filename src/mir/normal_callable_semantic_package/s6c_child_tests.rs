@@ -28,7 +28,7 @@ fn final_source(source: &str) -> VerifiedFinalCallableProgramSourceV1 {
 }
 
 #[test]
-fn installed_s6c_common_v2_loan_lends_one_cohort_exactly_once() {
+fn installed_s6c_child_lends_one_cohort_exactly_once() {
     let mut resolver = FunctionSemanticResolverSessionV1::new(602).expect("resolver");
     let package = issue_normal_callable_semantic_package_v1(&mut resolver, final_source(FIXTURE))
         .expect("same-cohort S6C child");
@@ -38,8 +38,7 @@ fn installed_s6c_common_v2_loan_lends_one_cohort_exactly_once() {
         .expect("vacant catalog")
         .commit();
     let mut port = installed.begin_lowering(&context).expect("same catalog");
-    port.with_s6c_common_v2_pre_session(|loan| {
-        let child = loan.callable();
+    port.with_s6c_child(|child| {
         assert_eq!(
             child.result(),
             crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1::I64
@@ -57,28 +56,6 @@ fn installed_s6c_common_v2_loan_lends_one_cohort_exactly_once() {
             crate::mir::EffectMask::READ
         );
         assert_eq!(child.physical_effects().external_call_count(), 2);
-        assert_eq!(loan.envelope().operations().operation_count(), 13);
-        assert_eq!(loan.envelope().control().control_count(), 2);
-        assert_eq!(loan.envelope().coverage().placement_count(), 15);
-        assert_eq!(
-            loan.envelope().after_boundary().relation(),
-            crate::mir::loop_recipe_contract::LoopV2AfterBoundaryRelationV1::RootAfter
-        );
-        assert_eq!(loan.envelope().after_boundary().owner(), child.owner());
-        let predicate = loan.envelope().predicate_branch();
-        assert_eq!(predicate.owner(), child.owner());
-        assert_eq!(
-            predicate.condition().class(),
-            crate::mir::loop_recipe_contract::LoopValueClassV2::Bool
-        );
-        assert_eq!(
-            predicate.true_target(),
-            loan.envelope().layout().loops()[0].body()
-        );
-        assert_eq!(
-            predicate.false_target(),
-            crate::mir::loop_recipe_contract::PreparedLoopV2PredicateFalseTargetV1::RootAfter
-        );
         child.with_completion_parity(|completion| {
             assert!(completion.cleanup_empty());
             assert_eq!(completion.explicit_exit_count(), 2);
@@ -86,7 +63,7 @@ fn installed_s6c_common_v2_loan_lends_one_cohort_exactly_once() {
     })
     .expect("first child loan");
     assert_eq!(
-        port.with_s6c_common_v2_pre_session(|_| ()),
+        port.with_s6c_child(|_| ()),
         Err(NormalCallableSemanticPackageInstallIssueV1::S6CChildAlreadyConsumed)
     );
     port.take_object_definitions(&context)

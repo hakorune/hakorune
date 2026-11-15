@@ -51,19 +51,23 @@ pub(in crate::mir) use normal_callable_loop_source_facts::{
     VerifiedStaticI64LoopSemanticV2,
 };
 mod normal_callable_loop_source_port; // source-aware callable-loop expression capability
-pub(in crate::mir) use normal_callable_loop_source_facts::{issue_preissued_callable_loop_source_plan_v1, PreissuedCallableLoopSourcePlanV1, RetainedCallableLoopSourceV1, VerifiedNoExitArrayHomeAfterV1, VerifiedNoExitIntegerExpressionV1};
+pub(in crate::mir) use normal_callable_loop_source_facts::{
+    issue_preissued_callable_loop_source_plan_v1, PreissuedCallableLoopSourcePlanV1,
+    RetainedCallableLoopSourceV1, VerifiedNoExitArrayHomeAfterV1,
+    VerifiedNoExitIntegerExpressionV1,
+};
 mod normal_callable_loop_source_route; // callable source-owned LoopCond route token
 mod normal_callable_package_bridge; // Builder-private package install boundary
 mod normal_callable_prepared_operation; // Builder-free full-demand ingress
-// Caller-zero until the Main0 canonical-root handoff wires the installed App
-// Main caller; recheck at the production-switch slice.
+                                        // Caller-zero until the Main0 canonical-root handoff wires the installed App
+                                        // Main caller; recheck at the production-switch slice.
 mod normal_main0_continue_prepared_operation; // Builder-free Main0 full-demand ingress
-// Caller-zero second bounded Main0 profile; same canonical-root handoff.
+                                              // Caller-zero second bounded Main0 profile; same canonical-root handoff.
 mod normal_main0_in_body_step_prepared_operation; // Builder-free Main0 full-demand ingress
-// Caller-zero third bounded Main0 profile; same canonical-root handoff.
-mod normal_main0_derived_predicate_prepared_operation; // Builder-free Main0 full-demand ingress
+                                                  // Caller-zero third bounded Main0 profile; same canonical-root handoff.
 mod normal_callable_semantic_loan_port; // Thin installed-package port adapter
-mod normal_callable_semantic_lowering_state; // Callable BindingRef-to-ValueId projection
+mod normal_callable_semantic_lowering_state;
+mod normal_main0_derived_predicate_prepared_operation; // Builder-free Main0 full-demand ingress // Callable BindingRef-to-ValueId projection
 pub(in crate::mir) use normal_callable_semantic_lowering_state::validate_map_local_annotation;
 mod function_fault_frame; // Shared physical frame; source owners select the role
 mod normal_callable_semantic_source; // Co-sealed selected callable source authority
@@ -131,8 +135,8 @@ mod nested_box_method_source;
 mod normal_instance_constructor_admission;
 mod normal_instance_constructor_demand_loan;
 mod normal_instance_constructor_semantic_scope;
-mod normal_root_execution;
 mod normal_main_arguments;
+mod normal_root_execution;
 mod normal_runtime_inputs; // selected normal ingress runtime snapshot
 mod normal_script_composite_partition;
 mod normal_script_direct_static_lookup;
@@ -187,6 +191,7 @@ pub(in crate::mir) use entry_materialization::{
     CallableMainMaterializationPolicyV1, CallableMainMaterializationTargetV1,
     NormalEntryMaterializationSourceReceiptV1, RawEntryMaterializationSourceReceiptV1,
 };
+pub(in crate::mir) use normal_main_arguments::MainArgumentsEmissionV1;
 #[cfg(test)]
 pub(in crate::mir) use normal_root_execution::NormalRootExecutionConsumerRejectV1;
 pub(in crate::mir) use normal_root_execution::{
@@ -194,7 +199,6 @@ pub(in crate::mir) use normal_root_execution::{
     NormalRootExecutionConsumerV1,
 };
 pub(in crate::mir) use normal_runtime_inputs::NormalRuntimeInputSnapshotV1;
-pub(in crate::mir) use normal_main_arguments::MainArgumentsEmissionV1;
 pub(in crate::mir) use raw_root_static_child_admission::PreparedRawRootStaticChildDraftV1;
 pub(in crate::mir) use raw_source_projection::{
     OwnedRawRootProjectionV1, OwnedRawSourceV1, RawSourceLocatorV1, RawSourceOriginV1,
@@ -273,9 +277,6 @@ pub(in crate::mir) use raw_root_physical::postprocess_terminal::{
     RawPostprocessParitySealV1, RawPostprocessPhysicalOwnerV1, RawPostprocessProgressV1,
     RawPostprocessedPhysicalV1,
 };
-#[cfg(test)]
-mod module_invocation_collect0_s0_p0; // CUT0-I0-COLLECT0-S0 fixtures
-mod module_invocation_collection; // CUT0-I0-COLLECT0-S0 co-seal terminal
 mod module_invocation_session; // Shared isolated Builder transaction
 mod pinned_text_invocation_binding; // Session-owned pinned-Text target/brand ingress
 pub(in crate::mir::builder) use module_invocation_session::UnpublishedCallableLoopRootScopeV1;
@@ -378,11 +379,17 @@ mod static_result_publication_ingress;
 mod variable_context; // Phase 136 follow-up (Step 5/7): VariableContext extraction // Method call handler separation (Phase 3) // call(expr)
                       // include lowering removed (using is handled in runner)
 mod control_flow; // thin wrappers to centralize control-flow entrypoints
+pub(in crate::mir) use control_flow::plan::lowerer::{
+    capture_exact_loop_phis_v2, EmittedSourceLoopGraphV2, VerifiedLoopCondAfterPhysicalRoleV1,
+};
 pub(in crate::mir) use emission::constant::CompletedConstV1;
-pub(in crate::mir) use control_flow::plan::lowerer::{VerifiedLoopCondAfterPhysicalRoleV1, EmittedSourceLoopGraphV2, capture_exact_loop_phis_v2};
-pub(in crate::mir) use normal_callable_loop_source_facts::{CompletedSourceLoopPhiPointsV2, PreparedSourceLoopPhiCompletionV2};
-pub(in crate::mir) use ordinary_new_admission::selected::{EmittedExpressionBodyV1, ExpressionOwnedTemporaryV1};
+pub(in crate::mir) use normal_callable_loop_source_facts::{
+    CompletedSourceLoopPhiPointsV2, PreparedSourceLoopPhiCompletionV2,
+};
 pub(in crate::mir) use ordinary_new_admission::selected::source_loop_cleanup::EmittedSourceLoopCleanupV2;
+pub(in crate::mir) use ordinary_new_admission::selected::{
+    EmittedExpressionBodyV1, ExpressionOwnedTemporaryV1,
+};
 #[cfg(test)]
 pub(crate) fn reset_loop_physical_effect_probe() {
     control_flow::reset_loop_physical_effect_probe();
@@ -426,12 +433,12 @@ pub(crate) fn check_step_tree_capabilities(
         planner_required,
     )
 }
+mod condition_materialization;
 mod exprs_peek; // peek expression
 mod exprs_qmark; // ?-propagate
 mod field_facts; // Field/property receiver facts and declared-type helpers
 mod field_receiver_provenance; // Bounded current-receiver Copy/Phi proof; one field-fact consumer
 mod fields; // field access/assignment lowering split
-mod condition_materialization;
 pub(in crate::mir) use condition_materialization::ConditionMaterializationV1;
 mod if_form;
 pub(in crate::mir) use if_form::IfConditionMaterializationV1;
@@ -498,8 +505,6 @@ pub(in crate::mir) mod resolved_lowering; // sealed source/product -> exact Bind
 pub(in crate::mir) use resolved_lowering::issue_selected_dynamic_v2_emission_plan;
 #[cfg(test)]
 pub(in crate::mir) use resolved_lowering::issue_selected_dynamic_v2_physical_capability_admission;
-#[cfg(test)]
-pub(in crate::mir) use resolved_lowering::with_common_v2_canonical_session;
 pub(in crate::mir) use resolved_lowering::CanonicalResolvedBuildErrorV1;
 mod rewrite; // P1: Known rewrite & special consolidation
 mod router; // RouterPolicyBox（Unified vs BoxCall）
@@ -602,7 +607,9 @@ impl Default for MirBuilder {
 #[path = "builder/builder_binding_id_tests.rs"]
 mod binding_id_tests;
 
-pub(in crate::mir) use normal_callable_semantic_lowering_state::{ExactLexicalReadV1, LocalProvenanceV1, BindingValueObservationV2};
+pub(in crate::mir) use normal_callable_semantic_lowering_state::{
+    BindingValueObservationV2, ExactLexicalReadV1, LocalProvenanceV1,
+};
 #[cfg(test)]
 mod lexical_call_projection_test_fixture;
 #[cfg(test)]

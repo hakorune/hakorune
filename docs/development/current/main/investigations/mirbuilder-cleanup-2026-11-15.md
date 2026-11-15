@@ -378,3 +378,39 @@ F16を閉じる時はEBNFの将来`fn[captures](...):T`を残し、旧`fn(x){...
 11. **loop は、設計を 1 つにして、受け付ける範囲を段で広げる。** 基本の反復(loop が順に並ぶ形も) → `continue`・`break`・`return` → 入れ子 → body の中の文字列・配列・Map・呼び出し。順は、family の番号ではなく、今の共通の道に足りない契約の順。main・static・instance で loop の実装を分けない。`continue` の時に、更新の位置を共通化の都合で動かさない。resolver が既に持つ loop の親子の関係から始める。
 12. **loop の統合を、selfhost より上の目的にしない。** 測って、止まる原因が loop でなければ(型を書いていない static 呼び出し、配列の出所など)、そこを先に直す。
 
+## お掃除5: 保存を終えた試作と再開条件（2026-11-16）
+
+現役の安全契約は共通ownerに保持し、保留のためだけの実装保存を終える。旧実装はGit履歴を参照し、再開時に並列の生成経路を復活させない。F17（catch/cleanup/TryCatch）は仕様確認中のため、この回の退役対象から除外する。
+
+### SC33
+
+common-V2専用のadmission/skeletonは採用しない。旧実装の参照: `6daa220107`。
+具体的なsource→entryの不足と既存owner、置換する旧writerが決まった時だけ再検討する。
+
+### PH03
+
+canonical sessionをもう一本開く代替実装は採用しない。旧実装の参照: `3e3d39d632`。
+実際のTextCallout不足を既存V2/SSA session内で解く時に再検討する。
+
+### PH57
+
+S6C専用のphysical Text/residence sidecarは採用しない。旧実装の参照: `f81180f8b6`。
+選択されたsourceのentry/residence不足が確認され、既存ownerと後継の安全性testが決まった時に再検討する。
+
+### PH65
+
+raw collectionの別co-seal模型は採用しない。旧実装の参照: `2dd06f9693`。
+現役collectorの所有契約に不足が確認され、既存root-publicationの検証へ保証を移す時に再検討する。
+
+### EX01
+
+特定Text走査のpre-session aggregate/論理planを一般反復へ持ち込まない。旧実装の参照: `3496bcf218`。
+共通表現で不足する元source→edgeの関係が測定され、旧writerの削除を同時に行える時に再検討する。
+
+### EX02
+
+scalar scan/TextEqの専用corridorは採用しない。旧実装の参照: `935377a0e8`。
+現役のsource/ABI不足を共通の意味計画で解く時に再検討する。
+
+段Aの着地検証: 最適化CLIで固定5,386入力のMIR/拒否/出力/exit差0（EXE生成1,471、timeout0）、固定suite 8/8、Map18、保持したC verifier/closure、owner数・pointer guard PASS。全lib直列は8,639 PASS/210 FAIL/56 ignoredで新規FAIL0。
+整形後Rustは本体11,604行/test6,378行の純減、Rust67file退役。登録名は89件消失・S6C保証移管1件追加（純減88）、未説明差0。metadata台帳の130/131件ずれとtransfer guardの既存欠落は基点からの不整合として保持し、基準は緩めない。

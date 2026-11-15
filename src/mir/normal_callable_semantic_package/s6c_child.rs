@@ -144,49 +144,6 @@ impl S6CSemanticChildRefV1<'_> {
     ) -> R {
         self.child.ingress.with_completion_parity(callback)
     }
-
-    /// Lend the source-owned scalar-scan relation without copying it out of
-    /// the installed ingress cohort.  The callback-scoped view carries no
-    /// physical value or runtime owner.
-    pub(crate) fn with_scalar_scan_source<R>(
-        &self,
-        callback: impl for<'a, 'rows, 'facts> FnOnce(
-            crate::mir::loop_recipe_contract::S6CScalarScanSourceRefV1<'a, 'rows, 'facts>,
-        ) -> Result<
-            R,
-            crate::mir::loop_recipe_contract::S6CScalarScanSourceRejectV1,
-        >,
-    ) -> Result<R, crate::mir::loop_recipe_contract::S6CScalarScanSourceRejectV1> {
-        self.child.ingress.with_scalar_scan_source(callback)
-    }
-
-    /// Issue the caller-zero common V2 sibling products while the installed
-    /// child still owns the retained source cohort.  The nested `Result`
-    /// keeps ingress rejection and common projection rejection distinct; no
-    /// source row is copied out of this HRTB loan.
-    pub(crate) fn with_common_v2_pre_session<R>(
-        &self,
-        callback: impl for<'source, 'join> FnOnce(
-            crate::mir::loop_recipe_contract::PreparedLoopV2PreSessionEnvelopeV1<'source, 'join>,
-        ) -> R,
-    ) -> Result<R, crate::mir::loop_recipe_contract::CommonV2IssuerRejectV1> {
-        let nested = self.child.ingress.with_ingress(|view| {
-            Ok(
-                crate::mir::loop_recipe_contract::issue_s6c_common_v2_pre_session_v1(
-                    view,
-                    self.child.owner,
-                )
-                .map(callback),
-            )
-        });
-        match nested {
-            Err(error) => {
-                Err(crate::mir::loop_recipe_contract::CommonV2IssuerRejectV1::Ingress(error))
-            }
-            Ok(Err(error)) => Err(error),
-            Ok(Ok(result)) => Ok(result),
-        }
-    }
 }
 pub(super) fn issue_s6c_semantic_child_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
@@ -285,8 +242,16 @@ fn issue_s6c_child_for_row(
             let contract_row = seeds
                 .take_main_child_row(map_row)
                 .ok_or(S6CSemanticChildIssueV1::MissingCompletionSeed)?;
-            let (batch_slot, owner, identity, role, _, completion, terminal_relations, top_level_input) =
-                contract_row.into_parts();
+            let (
+                batch_slot,
+                owner,
+                identity,
+                role,
+                _,
+                completion,
+                terminal_relations,
+                top_level_input,
+            ) = contract_row.into_parts();
             if top_level_input.is_some() {
                 return Err(S6CSemanticChildIssueV1::UnexpectedTopLevelSource);
             }

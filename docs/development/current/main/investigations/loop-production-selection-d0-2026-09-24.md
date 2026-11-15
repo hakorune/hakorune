@@ -216,3 +216,5 @@ time.
   opens under its own card/mode transition.
 - Pointer: `next_execution_card` updates to the manifest row at the
   next scheduler step; this card's Decision is its entry evidence.
+
+2026-11-16 に、実装の保存を終えた。再開の条件は、お掃除の文書（mirbuilder-cleanup-2026-11-15.md のお掃除5）。

@@ -69,7 +69,6 @@ impl ReadyFunctionDraftSealV1 {
 }
 
 impl FunctionDraftSealProjectionV1 {
-
     pub(in crate::mir::builder::resolved_lowering) fn project_from_builder_exit_set(
         builder: &MirBuilder,
         exit: PreparedFunctionExitSetV1,
@@ -81,18 +80,6 @@ impl FunctionDraftSealProjectionV1 {
         ),
     > {
         Self::project_from_builder_exit_set_with_finish(builder, exit, None)
-    }
-
-    #[cfg(test)]
-    pub(in crate::mir::builder::resolved_lowering) fn project_from_builder_pinned_text(
-        builder: &MirBuilder,
-        consumer: super::text_residence_ingress::PreparedPinnedTextResidenceDraftSealConsumerV1,
-        plans: &crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1,
-        frame: crate::mir::compiler::pinned_text_backend_frame::PinnedTextBackendFrameBorrowV1<'_>,
-    ) -> Result<Self, String> {
-        let (exit, finish) = consumer.into_projection_parts(plans, frame)?;
-        Self::project_from_builder_exit_set_with_finish(builder, exit, Some(finish))
-            .map_err(|(_, error)| format!("{error:?}"))
     }
 
     fn project_from_builder_exit_set_with_finish(

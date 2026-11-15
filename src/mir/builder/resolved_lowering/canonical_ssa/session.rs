@@ -5,7 +5,6 @@ mod control_borrow;
 
 use crate::mir::builder::MirBuilder;
 use crate::mir::checked_callout::{CheckedCallOutNormalResultProjectionV1, CheckedCallOutSiteIdV1};
-use crate::mir::compiler::common_v2_physical_function_skeleton::PhysicalFunctionEntryCohortStampV1;
 use crate::mir::compiler::dynamic_full_body_recipe::DynamicCanonicalSessionAuthorityRefV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::located::SourceBodySiteV1;
@@ -17,9 +16,7 @@ use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId};
 use crate::mir::{BasicBlockId, MirType, ValueId};
 
-use super::super::common_v2_segment_block_allocation::SegmentBlockAllocationBrandV1;
 use super::super::completion_consumption::ResolvedFunctionCompletionConsumptionV1;
-use super::super::physical_entry_lane_adoption::PhysicalTextEntryLaneSidecarV1;
 use super::super::semantic_stack::{ResolvedSemanticExpectedCountsV1, ResolvedSemanticStackV1};
 use super::identity::ResolvedSsaIdentityStateV2;
 
@@ -41,22 +38,6 @@ pub(in crate::mir::builder::resolved_lowering) use same_block_operand::{
 mod draft_seal_close;
 #[path = "session/generic_g0_entry_adoption.rs"]
 mod generic_g0_entry_adoption;
-#[path = "session/physical_entry_boundary.rs"]
-mod physical_entry_boundary;
-#[path = "session/physical_entry_lane_adoption.rs"]
-mod physical_entry_lane_adoption;
-#[path = "session/physical_entry_stamp.rs"]
-mod physical_entry_stamp;
-#[path = "session/pinned_text_plan.rs"]
-mod pinned_text_plan;
-#[path = "session/residence_lifecycle.rs"]
-mod residence_lifecycle;
-#[path = "session/s6c_state.rs"]
-mod s6c_state;
-#[path = "session/s6c_textref_plan.rs"]
-mod s6c_textref_plan;
-#[path = "session/segment_scope.rs"]
-mod segment_scope;
 
 pub(in crate::mir::builder::resolved_lowering) enum CanonicalIfControlConsumptionV1 {
     Resolved(FunctionIfControlUseLedgerV1),
@@ -103,14 +84,7 @@ pub(in crate::mir::builder::resolved_lowering) struct CanonicalSsaFunctionSessio
     control: std::cell::OnceCell<super::SharedFunctionControlV1>,
 
     pub(in crate::mir::builder::resolved_lowering) implicit_completion: bool,
-    physical_entry_sidecar: Option<PhysicalTextEntryLaneSidecarV1>,
-    physical_entry_execution: Option<physical_entry_boundary::PhysicalEntryExecutionBoundaryV1>,
-    physical_entry_seal_deferred: bool,
-    s6c_state: s6c_state::CanonicalSsaS6cStateV1,
-    physical_entry_stamp: Option<PhysicalFunctionEntryCohortStampV1>,
     generic_entry_adopted: bool,
-    segment_block_brand: SegmentBlockAllocationBrandV1,
-    segment_blocks_issued: bool,
 }
 
 /// One-shot evidence that a profile-specific ledger has closed before the
@@ -261,41 +235,6 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         )
     }
 
-    /// Common V2 session opener.  It consumes the one-shot admission parts,
-    /// projects the typed BlockExpr expectation here, and snapshots the
-    /// installed parent's Completion exactly once into the session-local
-    /// physical consumer.  It does not emit CFG, SSA, PHI, or DraftSeal work.
-    pub(in crate::mir) fn new_common_v2(
-        parts: crate::mir::compiler::common_v2_session_admission::LoopV2CanonicalSessionPartsV1<
-            'source,
-            '_,
-            '_,
-        >,
-    ) -> Result<Self, String> {
-        let (input, if_control, expectation, _envelope, completion) = parts.into_parts();
-        if expectation.owner() != input.owner()
-            || expectation.function_origin() != input.function().function_origin()
-            || expectation.body_root() != input.function().root_profile().body_root()
-        {
-            return Err(
-                "[freeze:contract][common_v2_session/typed_expectation_mismatch]".to_owned(),
-            );
-        }
-        let block_expr_count = usize::try_from(expectation.pair_count()).map_err(|_| {
-            "[freeze:contract][common_v2_session/block_expr_count_overflow]".to_owned()
-        })?;
-        let implicit_completion = completion.is_implicit_void();
-        let completion =
-            ResolvedFunctionCompletionConsumptionV1::new_borrowed(input.owner(), completion)?;
-        Self::from_consumption(
-            input,
-            if_control,
-            completion,
-            block_expr_count,
-            implicit_completion,
-        )
-    }
-
     fn from_consumption(
         input: ResolvedFunctionLoweringInputV1<'source>,
         if_control: VerifiedResolvedFunctionIfControlV1,
@@ -330,14 +269,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             control: std::cell::OnceCell::new(),
 
             implicit_completion,
-            physical_entry_sidecar: None,
-            physical_entry_execution: None,
-            physical_entry_seal_deferred: false,
-            s6c_state: s6c_state::CanonicalSsaS6cStateV1::new(),
-            physical_entry_stamp: None,
             generic_entry_adopted: false,
-            segment_block_brand: SegmentBlockAllocationBrandV1::new(),
-            segment_blocks_issued: false,
         })
     }
 
@@ -387,14 +319,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             control: std::cell::OnceCell::new(),
 
             implicit_completion,
-            physical_entry_sidecar: None,
-            physical_entry_execution: None,
-            physical_entry_seal_deferred: false,
-            s6c_state: s6c_state::CanonicalSsaS6cStateV1::new(),
-            physical_entry_stamp: None,
             generic_entry_adopted: false,
-            segment_block_brand: SegmentBlockAllocationBrandV1::new(),
-            segment_blocks_issued: false,
         })
     }
 
@@ -670,42 +595,6 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         Ok(value)
     }
 
-    pub(in crate::mir::builder) fn adopt_physical_entry_lanes(
-        &mut self,
-        builder: &mut MirBuilder,
-        descriptors: &[crate::mir::compiler::common_v2_physical_function_entry_input::
-            PhysicalCallableParameterDescriptorV1],
-    ) -> Result<(), String> {
-        physical_entry_lane_adoption::adopt(self, builder, descriptors)?;
-        self.bind_control(builder)
-    }
-
-    pub(in crate::mir::builder::resolved_lowering) fn with_exact_text_sidecar_row<R>(
-        &self,
-        binding: crate::mir::resolved_semantics::BindingRefV1,
-        logical_ordinal: u32,
-        callback: impl FnOnce(
-            &crate::mir::builder::resolved_lowering::physical_entry_lane_adoption::
-                PhysicalTextEntryLaneSidecarRowV1,
-        ) -> R,
-    ) -> Result<R, String> {
-        physical_entry_lane_adoption::with_exact_text_sidecar_row(
-            self,
-            binding,
-            logical_ordinal,
-            callback,
-        )
-    }
-
-    pub(in crate::mir::builder::resolved_lowering) fn physical_entry_sidecar_entry(
-        &self,
-    ) -> Result<BasicBlockId, String> {
-        self.physical_entry_sidecar
-            .as_ref()
-            .map(|sidecar| sidecar.entry())
-            .ok_or_else(|| "physical entry ExactText sidecar is missing".to_owned())
-    }
-
     pub(in crate::mir::builder) fn adopt_generic_g0_entry_lanes(
         &mut self,
         builder: &mut MirBuilder,
@@ -714,15 +603,6 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
     ) -> Result<(), String> {
         generic_g0_entry_adoption::adopt(self, builder, descriptors)?;
         self.bind_control(builder)
-    }
-
-    #[cfg(test)]
-    pub(in crate::mir::builder::resolved_lowering) fn physical_entry_sidecar_row_count(
-        &self,
-    ) -> usize {
-        self.physical_entry_sidecar
-            .as_ref()
-            .map_or(0, |sidecar| sidecar.rows().len())
     }
 }
 

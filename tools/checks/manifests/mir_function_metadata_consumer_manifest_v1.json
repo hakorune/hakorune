@@ -84,7 +84,6 @@
      "src/mir/builder/resolved_lowering/draft_seal_owner.rs"
     ],
     "anchors": [
-     "src/mir/builder/pinned_text_invocation_binding.rs:110:pinned_text_access_plans",
      "src/mir/builder/resolved_lowering/draft_seal_owner.rs:335:pinned_text_access_plans"
     ],
     "count": 2,
@@ -94,15 +93,12 @@
     "owners": [
      "src/mir/builder/module_lowering_invocation_resolved_loan.rs",
      "src/mir/builder/pinned_text_invocation_binding.rs",
-     "src/mir/builder/resolved_lowering/canonical_ssa/session/pinned_text_plan.rs",
-     "src/mir/builder/resolved_lowering/draft_seal_owner.rs",
-     "src/mir/builder/resolved_lowering/physical_entry_draftseal.rs"
+     "src/mir/builder/resolved_lowering/draft_seal_owner.rs"
     ],
     "anchors": [
-     "src/mir/builder/module_lowering_invocation_resolved_loan.rs:116:pinned_text_access_plans",
-     "src/mir/builder/pinned_text_invocation_binding.rs:110:pinned_text_access_plans"
+     "src/mir/builder/module_lowering_invocation_resolved_loan.rs:116:pinned_text_access_plans"
     ],
-    "count": 5
+    "count": 3
    },
    "backend_consumer": {
     "role": "none",
@@ -155,14 +151,12 @@
      "src/mir/builder/module_lowering_invocation_resolved_loan.rs",
      "src/mir/builder/pinned_text_invocation_binding.rs",
      "src/mir/builder/resolved_lowering/draft_seal_owner.rs",
-     "src/mir/builder/resolved_lowering/physical_entry_draftseal.rs",
      "src/mir/compiler/pinned_text_residence_backend_projection.rs"
     ],
     "anchors": [
-     "src/mir/builder/module_lowering_invocation_resolved_loan.rs:114:pinned_text_backend_frame_contract",
-     "src/mir/builder/pinned_text_invocation_binding.rs:103:pinned_text_backend_frame_contract"
+     "src/mir/builder/module_lowering_invocation_resolved_loan.rs:114:pinned_text_backend_frame_contract"
     ],
-    "count": 5
+    "count": 4
    },
    "backend_consumer": {
     "role": "none",
@@ -202,7 +196,6 @@
     "owners": [
      "src/mir/builder/resolved_lowering/draft_seal.rs",
      "src/mir/builder/resolved_lowering/draft_seal_owner.rs",
-     "src/mir/builder/resolved_lowering/physical_entry_draftseal.rs",
      "src/mir/compiler/pinned_text_residence_backend_projection.rs",
      "src/runner/mir_json_emit/metadata.rs",
      "src/runner/mir_json_emit/root.rs"
@@ -211,14 +204,13 @@
      "src/mir/builder/resolved_lowering/draft_seal.rs:520:pinned_text_residence_backend_carrier",
      "src/mir/builder/resolved_lowering/draft_seal_owner.rs:26:pinned_text_residence_backend_carrier"
     ],
-    "count": 6,
+    "count": 5,
     "kind": "observed_mutation"
    },
    "production_consumer": {
     "owners": [
      "src/mir/builder/resolved_lowering/draft_seal.rs",
      "src/mir/builder/resolved_lowering/draft_seal_owner.rs",
-     "src/mir/builder/resolved_lowering/physical_entry_draftseal.rs",
      "src/mir/compiler/module_registry.in.rs",
      "src/mir/compiler/pinned_text_residence_backend_projection.rs"
     ],
@@ -226,7 +218,7 @@
      "src/mir/builder/resolved_lowering/draft_seal.rs:520:pinned_text_residence_backend_carrier",
      "src/mir/builder/resolved_lowering/draft_seal_owner.rs:26:pinned_text_residence_backend_carrier"
     ],
-    "count": 5
+    "count": 4
    },
    "backend_consumer": {
     "role": "none",
@@ -360,7 +352,6 @@
      "src/mir/builder/module_lowering_shell.rs",
      "src/mir/builder/raw_root_environment_install.rs",
      "src/mir/builder/raw_root_physical.rs",
-     "src/mir/builder/resolved_lowering/common_v2_s6c_observation_fixture.rs",
      "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/observation_fixture.rs",
      "src/mir/compiler/canonical_bridge_fixture0_p0.rs",
      "src/mir/compiler/loop_candidate_abort_p0.rs",
@@ -385,7 +376,7 @@
      "src/mir/builder/builder_metadata.rs:49:source_file",
      "src/mir/builder/module_invocation_brand0.rs:229:source_file"
     ],
-    "count": 29
+    "count": 28
    },
    "backend_consumer": {
     "role": "selected_observed",
@@ -789,7 +780,6 @@
      "src/mir/builder/record_helper_args.rs",
      "src/mir/builder/record_values.rs",
      "src/mir/builder/resolved_lowering/canonical_ssa/session/generic_g0_entry_adoption.rs",
-     "src/mir/builder/resolved_lowering/canonical_ssa/session/physical_entry_lane_adoption.rs",
      "src/mir/builder/resolved_lowering/canonical_ssa/session.rs",
      "src/mir/builder/resolved_lowering/draft_seal/exit_projection.rs",
      "src/mir/builder/resolved_lowering/draft_seal/multi_site_exit.rs",
@@ -867,7 +857,7 @@
      "src/mir/array_receiver_proof.rs:121:value_types",
      "src/mir/builder/array_element_write.rs:24:value_types"
     ],
-    "count": 132
+    "count": 131
    },
    "backend_consumer": {
     "role": "selected_observed",
@@ -2715,7 +2705,6 @@
    "producer": {
     "owners": [
      "src/mir/builder/builder_metadata.rs",
-     "src/mir/compiler/common_v2_physical_function_skeleton.rs",
      "src/mir/effect_capability_plan.rs",
      "src/mir/inline_plan.rs",
      "src/mir/verification/inline_required.rs",
@@ -2727,10 +2716,9 @@
      "src/runner/json_v0_bridge/lowering.rs"
     ],
     "anchors": [
-     "src/mir/builder/builder_metadata.rs:58:runes",
-     "src/mir/compiler/common_v2_physical_function_skeleton.rs:266:runes"
+     "src/mir/builder/builder_metadata.rs:58:runes"
     ],
-    "count": 11,
+    "count": 10,
     "kind": "observed_mutation"
    },
    "production_consumer": {
@@ -2738,7 +2726,6 @@
      "src/macro/ast_json/joinir_compat/helpers.rs",
      "src/macro/ast_json/shared.rs",
      "src/mir/builder/builder_metadata.rs",
-     "src/mir/compiler/common_v2_physical_function_skeleton.rs",
      "src/mir/compiler/generic_g0_top_level_declaration_header.rs",
      "src/mir/compiler/mod.rs",
      "src/mir/compiler/raw_root_helper_coverage.rs",
@@ -2761,7 +2748,7 @@
      "src/macro/ast_json/joinir_compat/helpers.rs:6:runes",
      "src/macro/ast_json/shared.rs:207:runes"
     ],
-    "count": 21
+    "count": 20
    },
    "backend_consumer": {
     "role": "selected_observed",
@@ -2803,27 +2790,23 @@
    "class": "Contracts",
    "producer": {
     "owners": [
-     "src/mir/builder/builder_metadata.rs",
-     "src/mir/compiler/common_v2_physical_function_skeleton.rs"
+     "src/mir/builder/builder_metadata.rs"
     ],
     "anchors": [
-     "src/mir/builder/builder_metadata.rs:68:declared_capability_uses",
-     "src/mir/compiler/common_v2_physical_function_skeleton.rs:265:declared_capability_uses"
+     "src/mir/builder/builder_metadata.rs:68:declared_capability_uses"
     ],
-    "count": 2,
+    "count": 1,
     "kind": "observed_mutation"
    },
    "production_consumer": {
     "owners": [
      "src/mir/builder/builder_metadata.rs",
-     "src/mir/compiler/common_v2_physical_function_skeleton.rs",
      "src/mir/effect_capability_plan.rs"
     ],
     "anchors": [
-     "src/mir/builder/builder_metadata.rs:68:declared_capability_uses",
-     "src/mir/compiler/common_v2_physical_function_skeleton.rs:265:declared_capability_uses"
+     "src/mir/builder/builder_metadata.rs:68:declared_capability_uses"
     ],
-    "count": 3
+    "count": 2
    },
    "backend_consumer": {
     "role": "none",
@@ -6283,13 +6266,12 @@
     "owners": [
      "src/backend/mir_interpreter/exec/typed_array_contracts.rs",
      "src/mir/builder/builder_metadata.rs",
-     "src/mir/compiler/common_v2_physical_function_skeleton.rs",
      "src/mir/exact_numeric_value_facts.rs",
      "src/mir/parameter_entry_backend_capability.rs",
      "src/mir/typed_array_backend_capability.rs"
     ],
     "anchors": [],
-    "count": 6,
+    "count": 5,
     "kind": "observed_mutation"
    },
    "production_consumer": {
@@ -6297,7 +6279,6 @@
      "src/mir/builder/builder_metadata.rs",
      "src/mir/builder/field_receiver_provenance/mod.rs",
      "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs",
-     "src/mir/compiler/common_v2_physical_function_skeleton.rs",
      "src/mir/exact_numeric_value_facts.rs",
      "src/mir/parameter_entry_backend_capability.rs",
      "src/mir/type_contracts/parameter_entry.rs",
@@ -6308,7 +6289,7 @@
      "src/mir/builder/builder_metadata.rs:75:declared_param_decls",
      "src/mir/builder/field_receiver_provenance/mod.rs:40:declared_param_decls"
     ],
-    "count": 9
+    "count": 8
    },
    "backend_consumer": {
     "role": "reference_only",
@@ -6348,14 +6329,12 @@
    "class": "Contracts",
    "producer": {
     "owners": [
-     "src/mir/builder/builder_metadata.rs",
-     "src/mir/compiler/common_v2_physical_function_skeleton.rs"
+     "src/mir/builder/builder_metadata.rs"
     ],
     "anchors": [
-     "src/mir/builder/builder_metadata.rs:101:physical_param_carriers",
-     "src/mir/compiler/common_v2_physical_function_skeleton.rs:257:physical_param_carriers"
+     "src/mir/builder/builder_metadata.rs:101:physical_param_carriers"
     ],
-    "count": 2,
+    "count": 1,
     "kind": "observed_mutation"
    },
    "production_consumer": {
@@ -6545,7 +6524,6 @@
      "src/backend/mir_interpreter/exec/typed_array_contracts.rs",
      "src/mir/builder/builder_metadata.rs",
      "src/mir/builder/calls/skeleton_builder.rs",
-     "src/mir/compiler/common_v2_physical_function_skeleton.rs",
      "src/mir/exact_numeric_value_facts.rs",
      "src/mir/return_exit_backend_capability.rs",
      "src/mir/type_contracts/typed_array.rs",
@@ -6556,7 +6534,7 @@
     "anchors": [
      "src/backend/mir_interpreter/exec/typed_array_contracts.rs:226:declared_return_type_name"
     ],
-    "count": 10,
+    "count": 9,
     "kind": "observed_mutation"
    },
    "production_consumer": {
@@ -6564,7 +6542,6 @@
      "src/mir/builder/builder_metadata.rs",
      "src/mir/builder/calls/skeleton_builder.rs",
      "src/mir/builder/exprs_enum_match.rs",
-     "src/mir/compiler/common_v2_physical_function_skeleton.rs",
      "src/mir/compiler/source_view.rs",
      "src/mir/exact_numeric_value_facts.rs",
      "src/mir/resolved_control_flow/function_control.rs",
@@ -6579,7 +6556,7 @@
      "src/mir/builder/builder_metadata.rs:76:declared_return_type_name",
      "src/mir/builder/calls/skeleton_builder.rs:41:declared_return_type_name"
     ],
-    "count": 13
+    "count": 12
    },
    "backend_consumer": {
     "role": "reference_only",

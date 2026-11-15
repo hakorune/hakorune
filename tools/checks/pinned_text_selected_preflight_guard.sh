@@ -15,14 +15,13 @@ DISPATCH="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowerin
 SELECTED_DISPATCH="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pinned_text_selected_dispatch.inc"
 CARRIER="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pinned_text_residence_carrier.inc"
 FRAME="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pinned_text_backend_frame.inc"
-RUST_TEST="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg_tests.rs"
 SMOKE="$ROOT_DIR/tools/checks/pinned_text_selected_preflight_smoke.sh"
 VERIFIER_TEST="$ROOT_DIR/lang/c-abi/tests/pinned_text_selected_verifier_test.c"
 FINAL_CLOSURE_TEST="$ROOT_DIR/lang/c-abi/tests/pinned_text_final_module_closure_test.c"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$PURE" "$PREFLIGHT" "$LOWERING" "$TARGET_SESSION" "$FINAL_CLOSURE" "$GENERIC" "$DISPATCH" "$SELECTED_DISPATCH" "$CARRIER" "$FRAME" "$RUST_TEST" "$SMOKE" "$VERIFIER_TEST" "$FINAL_CLOSURE_TEST"
+guard_require_files "$TAG" "$PURE" "$PREFLIGHT" "$LOWERING" "$TARGET_SESSION" "$FINAL_CLOSURE" "$GENERIC" "$DISPATCH" "$SELECTED_DISPATCH" "$CARRIER" "$FRAME" "$SMOKE" "$VERIFIER_TEST" "$FINAL_CLOSURE_TEST"
 
 count_fixed() {
   local needle="$1"
@@ -48,12 +47,9 @@ fi
 if [[ "$(count_fixed '[freeze:contract][ptfc/textual-lowering-verified-target-closed]' "$LOWERING" "$SMOKE")" != "0" ]]; then
   guard_fail "$TAG" "landed TargetMachine handoff must retire the textual closed tag"
 fi
-if [[ "$(count_fixed 'HAKO_PINNED_TEXT_REAL_CANDIDATE_JSON_OUT' "$RUST_TEST" "$SMOKE")" != "2" ]]; then
-  guard_fail "$TAG" "smoke must consume one runtime-generated real-candidate witness"
-fi
 if [[ "$(count_fixed 'hako_llvmc_ptfc_count_integer_occurrences(' "$PREFLIGHT")" != "4" ]] ||
-   [[ "$(count_fixed 'scalar Branch sole-use mismatch' "$PREFLIGHT" "$SMOKE")" != "4" ]]; then
-  guard_fail "$TAG" "selected scalar Branch must retain exhaustive sole-use preflight and focused negatives"
+   [[ "$(count_fixed 'scalar Branch sole-use mismatch' "$PREFLIGHT")" != "1" ]]; then
+  guard_fail "$TAG" "selected scalar Branch must retain its exhaustive sole-use preflight"
 fi
 
 preflight_line="$(rg -n -m1 'hako_llvmc_ptfc_preflight_selected_candidate' "$PURE" | cut -d: -f1)"
@@ -111,7 +107,7 @@ if [[ "$(count_fixed 'pinned_text_final_module_closure_test.c' "$SMOKE")" != "1"
   guard_fail "$TAG" "final-module positive and attribute/Finish/call/EH negatives must remain focused"
 fi
 
-for file in "$PURE" "$PREFLIGHT" "$LOWERING" "$TARGET_SESSION" "$FINAL_CLOSURE" "$GENERIC" "$DISPATCH" "$SELECTED_DISPATCH" "$CARRIER" "$FRAME" "$RUST_TEST"; do
+for file in "$PURE" "$PREFLIGHT" "$LOWERING" "$TARGET_SESSION" "$FINAL_CLOSURE" "$GENERIC" "$DISPATCH" "$SELECTED_DISPATCH" "$CARRIER" "$FRAME"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 760 )); then
     guard_fail "$TAG" "selected preflight source reached the 760-line split trigger: ${file#"$ROOT_DIR/"}=$lines"
