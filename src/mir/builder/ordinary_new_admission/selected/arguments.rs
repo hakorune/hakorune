@@ -10,7 +10,7 @@ use crate::mir::normal_callable_semantic_package::{
     ExpressionCallTransientPrefixV1, OrdinaryNewClaimLedgerV1, OrdinaryNewTrivialArgumentKindV1,
     OrdinaryNewTrivialArgumentV1,
 };
-use crate::mir::{MirBuilder, MirInstruction, MirType};
+use crate::mir::{MirBuilder, MirInstruction};
 use std::rc::Rc;
 #[path = "argument_cleanup.rs"]
 mod cleanup;

@@ -5,8 +5,8 @@
  */
 
 use super::{
-    BasicBlock, BasicBlockId, CompareOp, ConstValue, Effect, EffectMask, FunctionSignature,
-    MirFunction, MirInstruction, MirModule, MirType, ValueId,
+    BasicBlockId, CompareOp, ConstValue, Effect, EffectMask, FunctionSignature, MirFunction,
+    MirInstruction, MirModule, MirType, ValueId,
 };
 pub(crate) use calls::CallTarget;
 use hakorune_mir_builder::CoreContext;
