@@ -69,7 +69,6 @@ guard_joinir_loop_compile_candidate_scope() {
   local nested_effect_plan="$root_dir/src/mir/compiler/nested_predicate_effect_plan.rs"
   local nested_effect_plan_tests="$root_dir/src/mir/compiler/nested_predicate_effect_plan_tests.rs"
   local nested_effect_adapter_tests="$root_dir/src/mir/builder/resolved_lowering/nested_predicate_effect_adapter_tests.rs"
-  local producer_facade="$root_dir/src/mir/builder/control_flow/plan/loop_recipe_producer_facade_tests.rs"
 
   guard_require_files "$tag" "$manifest" "$routing" "$router" "$raw_child" \
     "$recursive_child" "$normal" "$raw_compile" "$raw_open" "$raw_recipe" \
@@ -89,8 +88,7 @@ guard_joinir_loop_compile_candidate_scope() {
     "$nested_source_projection" "$nested_recipe_producer" \
     "$nested_source_handoff" "$nested_topology" "$nested_topology_tests" \
     "$nested_physical_input" "$nested_physical_input_tests" \
-    "$nested_effect_plan" "$nested_effect_plan_tests" "$nested_effect_adapter_tests" \
-    "$producer_facade"
+    "$nested_effect_plan" "$nested_effect_plan_tests" "$nested_effect_adapter_tests"
 
   local header=$'ingress_kind\tpublic_ingress\tcandidate_owner\tloop_reachability\tpublication_owner\tambient_write_policy'
   [[ "$(head -n1 "$manifest")" == "$header" ]] || \
@@ -660,22 +658,6 @@ guard_joinir_loop_compile_candidate_scope() {
   done
   if rg -n -F 'route_loop(' "$nested_effect_adapter_tests" >/dev/null; then
     guard_fail "$tag" "Nested Predicate effect adapter test acquired a route caller"
-  fi
-
-  for required in \
-    '#![cfg(test)]' \
-    'VerifiedLoopRecipeProducerFacadeV1' \
-    'nested_always_witness_binds_source_without_production_caller' \
-    'LoopRouteId::NestedLoopMinimal'
-  do
-    rg -n -F "$required" "$producer_facade" >/dev/null || \
-      guard_fail "$tag" "Nested Always caller-zero facade anchor missing: $required"
-  done
-  if rg -n -F 'VerifiedLoopRecipeProducerFacadeV1::consume(' "$root_dir/src" --glob '*.rs' \
-      | awk -F: '$1 !~ /loop_recipe_producer_facade_tests.rs$/ { found = 1 } END { exit found }'; then
-    :
-  else
-    guard_fail "$tag" "Nested Always Recipe facade escaped its caller-zero test boundary"
   fi
 
   if ! rg -n -F 'RawLocatedScalarStmtV1::Loop { .. }' "$raw_recipe" >/dev/null || \

@@ -29,9 +29,6 @@ guard_joinir_logical_demand_contract() {
   local loop_route_policy_dir="$root_dir/src/mir/loop_route_policy"
   local route_registry_dir="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry"
   local generic_resolved_test_prefix="$route_registry_dir/generic_resolved_carrier_"
-  local loop_accum_binding_ssa_tests="$root_dir/src/mir/builder/control_flow/plan/loop_accum_binding_ssa_session_tests.rs"
-  local loop_accum_emitter_tests="$root_dir/src/mir/builder/control_flow/plan/loop_accum_binding_ssa_emitter_tests.rs"
-  local loop_recipe_producer_tests="$root_dir/src/mir/builder/control_flow/plan/loop_recipe_producer_facade_tests.rs"
   local nested_predicate_producer="$root_dir/src/mir/compiler/nested_predicate_producer.rs"
   local nested_predicate_producer_tests="$root_dir/src/mir/compiler/nested_predicate_producer_tests.rs";
   # The accepted Dynamic physical-input co-seal is the only named consumer
@@ -58,30 +55,12 @@ guard_joinir_logical_demand_contract() {
 
   guard_require_files "$tag" "${files[@]}"
   guard_require_files "$tag" \
-    "$loop_accum_binding_ssa_tests" "$loop_accum_emitter_tests" \
     "$direct_accum_issuer" "$direct_accum_capability" "$variable_accum_recipe_producer" \
     "$direct_accum_projection" "$direct_accum_observation_adapter" \
     "$loop_true_source_projection" "$loop_true_observation_adapter" \
     "$loop_cond_source_projection" "$loop_cond_observation_adapter" "$nested_observation_source" \
     "$nested_observation_adapter" "$nested_observation_policy" "$nested_observation_tests" \
     "$generic_g0_observation_adapter"
-  if ! rg -q '^#!\[cfg\(test\)\]' "$loop_accum_binding_ssa_tests"; then
-    guard_fail "$tag" "Binding-SSA session proof must remain cfg(test)-only"
-  fi
-  if ! rg -q '^#!\[cfg\(test\)\]' "$loop_accum_emitter_tests"; then
-    guard_fail "$tag" "Binding-SSA emitter proof must remain cfg(test)-only"
-  fi
-  for binding_ssa_file in "$loop_accum_binding_ssa_tests" "$loop_accum_emitter_tests"; do
-    if rg -n \
-      'LoopPhiMaterializer|materialize_loop_phis|insert_phi_at_head|update_phi_instruction|CorePlan|PlanLowerer|RouteAttemptOutcome|Retry' \
-      "$binding_ssa_file" >/dev/null; then
-      guard_fail "$tag" "Binding-SSA proof bypassed canonical owner boundary: ${binding_ssa_file#"$root_dir/"}"
-    fi
-    if rg -n 'Option<' "$binding_ssa_file" | \
-      rg -v 'Option<(PhiTxn|CanonicalCfgSessionV1|BindingSsaBuilderV1)' >/dev/null; then
-      guard_fail "$tag" "Binding-SSA proof acquired retry/decline Option outside PHI transaction state: ${binding_ssa_file#"$root_dir/"}"
-    fi
-  done
   local portable_recipe_files=()
   mapfile -t portable_recipe_files < <(find "$portable_recipe_dir" -type f -name '*.rs' | sort)
   guard_require_files "$tag" \
@@ -147,8 +126,6 @@ guard_joinir_logical_demand_contract() {
         "$root_dir/src/mir" || true; } \
       | awk \
           -v prefix="$portable_recipe_dir/" \
-          -v binding_ssa_tests="$loop_accum_binding_ssa_tests" \
-          -v producer_tests="$loop_recipe_producer_tests" \
           -v nested_producer="$nested_predicate_producer" \
           -v nested_producer_tests="$nested_predicate_producer_tests" \
           -v nested_topology="$root_dir/src/mir/compiler/nested_predicate_topology.rs" \
@@ -166,7 +143,7 @@ guard_joinir_logical_demand_contract() {
           -v if_continuation="$root_dir/src/mir/builder/resolved_lowering/common_v2_if_continuation_target.rs" \
           -v physicalizer="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs" \
           -v physicalizer_session="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer/session.rs" \
-          'index($0, prefix) != 1 && $0 != binding_ssa_tests && $0 != producer_tests && $0 != nested_producer && $0 != nested_producer_tests && $0 != nested_topology && $0 != nested_topology_tests && $0 != nested_physical_input && $0 != nested_physical_input_tests && $0 != dynamic_physical_input && $0 != dynamic_semantic_tests && $0 != dynamic_recipe_tests && $0 != callable_recipe_coseal && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal && $0 != node_admission && $0 != if_continuation && $0 != physicalizer && $0 != physicalizer_session'
+          'index($0, prefix) != 1 && $0 != nested_producer && $0 != nested_producer_tests && $0 != nested_topology && $0 != nested_topology_tests && $0 != nested_physical_input && $0 != nested_physical_input_tests && $0 != dynamic_physical_input && $0 != dynamic_semantic_tests && $0 != dynamic_recipe_tests && $0 != callable_recipe_coseal && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal && $0 != node_admission && $0 != if_continuation && $0 != physicalizer && $0 != physicalizer_session'
   )
   if (( ${#join_sig_external_files[@]} != 0 )); then
     guard_fail "$tag" "caller-zero logical JoinSig symbols escaped the contract subtree"
@@ -313,8 +290,6 @@ guard_joinir_logical_demand_contract() {
       | awk \
           -v recipe_prefix="$portable_recipe_dir/" \
           -v structural_prefix="$loop_structural_facts_dir/" \
-          -v binding_ssa_tests="$loop_accum_binding_ssa_tests" \
-          -v producer_tests="$loop_recipe_producer_tests" \
           -v nested_producer="$root_dir/src/mir/compiler/nested_predicate_producer.rs" \
           -v nested_producer_tests="$root_dir/src/mir/compiler/nested_predicate_producer_tests.rs" \
           -v callable_recipe_coseal="$root_dir/src/mir/compiler/callable_single_loop_recipe_coseal.rs" \
@@ -324,7 +299,7 @@ guard_joinir_logical_demand_contract() {
           -v dynamic_recipe_mod="$dynamic_recipe_mod" \
           -v dynamic_physical_input="$dynamic_physical_input" \
           -v generic_test_prefix="$generic_resolved_test_prefix" \
-          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1 && !(index($0, generic_test_prefix) == 1 && $0 ~ /_tests\.rs$/) && $0 != binding_ssa_tests && $0 != producer_tests && $0 != nested_producer && $0 != nested_producer_tests && $0 != callable_recipe_coseal && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal && $0 != dynamic_recipe_mod && $0 != dynamic_physical_input'
+          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1 && !(index($0, generic_test_prefix) == 1 && $0 ~ /_tests\.rs$/) && $0 != nested_producer && $0 != nested_producer_tests && $0 != callable_recipe_coseal && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal && $0 != dynamic_recipe_mod && $0 != dynamic_physical_input'
   )
   if (( ${#external_portable_source_files[@]} != 0 )); then
     guard_fail "$tag" "semantic or physical Loop consumer acquired source/provenance authority"
