@@ -7,7 +7,6 @@
 
 mod assignment_source;
 mod block_expr_expectation;
-mod body_effect_control_coverage;
 mod body_shape;
 #[cfg(test)]
 pub(crate) use body_shape::issue_resolved_method_call_sources_v1;

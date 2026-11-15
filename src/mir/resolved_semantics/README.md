@@ -566,14 +566,8 @@ landed in `query_body_conformance_evidence.rs`. The issuer is limited to
 exact `return me` structural safety and a sibling Query Home no-transfer
 receipt. The facts catalog and evidence aggregate are not a general proof of
 no writes/Home escape/allocation/IO/FFI/failure/suspension/non-local control;
-any incomplete axis remains `NoSafeSlice`. The bounded
-`CALLABLE-BODY-EFFECT-CONTROL-I0` is now landed as a private
-`BodyEffectControlCoverageIssuerV1`: it consumes one existing
-`ResolvedFunctionBodyShapeProductV1` and issues a non-`Clone` borrowed
-receipt for exact root-direct `return me.invoke()` (one Call effect, one
-same-function Return exit, and exact source relations). Five focused tests
-pass; the receipt is not re-exported. It does not widen `BodyEffectKindV1`
-or open Home flow. The next design stop is
+any incomplete axis remains `NoSafeSlice`. The unconnected private body-effect/control receipt prototype was retired;
+current body-shape effects and execution verification remain independent. The next design stop is
 `OWN-HOME-SOURCE-EVENT-D0`: `release root` direction is accepted, while exact
 `take`/`share` syntax and the parser source-event issuer are not sealed. The
 general D0 defines four private
