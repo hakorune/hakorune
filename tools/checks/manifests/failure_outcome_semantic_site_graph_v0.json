@@ -2897,30 +2897,6 @@
       "token": "ConstValue::Void"
     },
     {
-      "evidence": "if requires_void && !matches!(value, VMValue::Void) {",
-      "evidence_id": "src/mir/compiler/source_entry_vm_invocation.rs:126:VMValue::Void",
-      "evidence_kind": "runtime_value_carrier",
-      "line": 126,
-      "source_path": "src/mir/compiler/source_entry_vm_invocation.rs",
-      "token": "VMValue::Void"
-    },
-    {
-      "evidence": "| VMValue::Void",
-      "evidence_id": "src/mir/compiler/source_entry_vm_invocation.rs:161:VMValue::Void",
-      "evidence_kind": "runtime_value_carrier",
-      "line": 161,
-      "source_path": "src/mir/compiler/source_entry_vm_invocation.rs",
-      "token": "VMValue::Void"
-    },
-    {
-      "evidence": "VMValue::Void => \"Void\",",
-      "evidence_id": "src/mir/compiler/source_entry_vm_invocation.rs:174:VMValue::Void",
-      "evidence_kind": "runtime_value_carrier",
-      "line": 174,
-      "source_path": "src/mir/compiler/source_entry_vm_invocation.rs",
-      "token": "VMValue::Void"
-    },
-    {
       "evidence": "function_with_extern_call(\"env.get/1\", vec![ValueId::new(1)], Some(ValueId::new(2)));",
       "evidence_id": "src/mir/extern_call_route_plan/route.rs:360:env.get",
       "evidence_kind": "provider_optional_or_missing",
@@ -5476,9 +5452,6 @@
       "backend_policy": "",
       "current_carrier": "VMValue::Void",
       "evidence_refs": [
-        "src/mir/compiler/source_entry_vm_invocation.rs:126:VMValue::Void",
-        "src/mir/compiler/source_entry_vm_invocation.rs:161:VMValue::Void",
-        "src/mir/compiler/source_entry_vm_invocation.rs:174:VMValue::Void",
         "src/mir/join_ir_ops.rs:279:VMValue::Void",
         "src/mir/join_ir_ops.rs:299:VMValue::Void",
         "src/mir/join_ir_ops.rs:312:VMValue::Void",

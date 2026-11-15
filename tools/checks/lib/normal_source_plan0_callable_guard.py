@@ -43,8 +43,6 @@ def check_callable_source(
     main_function_plan_path = source_dir / "main_function_plan.rs"
     main_function_plan_tests_path = source_dir / "main_function_plan_tests.rs"
     module_source_tests_path = source_dir / "tests.rs"
-    canonical_dispatch_path = root / "src/mir/compiler/canonical_core_dispatch.rs"
-    normal_frontdoor_path = root / "src/runner/reference/normal_file_vm_frontdoor.rs"
     capability_path = root / "src/mir/compiler/capability.rs"
     function_role_policy_path = root / "src/mir/compiler/capability/function_role_policy.rs"
     analyzer_policy_path = root / "src/mir/resolved_value_profile/analyzer_policy.rs"
@@ -81,8 +79,6 @@ def check_callable_source(
         main_function_plan_path,
         main_function_plan_tests_path,
         module_source_tests_path,
-        canonical_dispatch_path,
-        normal_frontdoor_path,
         capability_path,
         function_role_policy_path,
         analyzer_policy_path,
@@ -121,8 +117,6 @@ def check_callable_source(
     main_function_plan = main_function_plan_path.read_text()
     main_function_plan_tests = main_function_plan_tests_path.read_text()
     module_source_tests = module_source_tests_path.read_text()
-    canonical_dispatch = canonical_dispatch_path.read_text()
-    normal_frontdoor = normal_frontdoor_path.read_text()
     acyclic_graph = acyclic_graph_path.read_text()
     scc_partition = scc_partition_path.read_text()
     capability = capability_path.read_text()
@@ -259,15 +253,6 @@ def check_callable_source(
             raise AssertionError(
                 f"module-source owner gained lowering/retry authority: {forbidden}"
             )
-    for production_surface in (canonical_dispatch, normal_frontdoor):
-        for symbol in (
-            "VerifiedNormalModuleSourceV1",
-            "RejectedNormalModuleSourceV1",
-        ):
-            if symbol in production_surface:
-                raise AssertionError(
-                    f"disconnected module-source product gained production consumer: {symbol}"
-                )
     if "struct VerifiedSameModuleCallableDeclarationCatalogV1" in module_source:
         raise AssertionError("module-source owner duplicated callable catalog")
 
@@ -387,16 +372,6 @@ def check_callable_source(
     ):
         if retired in normal_plan_surface:
             raise AssertionError(f"retired concrete instance-plan authority remains: {retired}")
-    for production_surface in (canonical_dispatch, normal_frontdoor):
-        for symbol in (
-            "VerifiedNormalInstanceFunctionPlanV1",
-            "VerifiedNormalInstanceFunctionPlanSetV1",
-            "seal_instance_function_plans",
-        ):
-            if symbol in production_surface:
-                raise AssertionError(
-                    f"disconnected cumulative instance plan gained production consumer: {symbol}"
-                )
     for definition in (
         "struct VerifiedNormalMain0BridgePlanV1",
         "struct VerifiedNormalModuleFunctionPlanSetV1",
@@ -466,17 +441,6 @@ def check_callable_source(
     ):
         if forbidden in main0_bridge:
             raise AssertionError(f"Main0 bridge gained duplicate/lowering authority: {forbidden}")
-    for production_surface in (canonical_dispatch, normal_frontdoor):
-        for symbol in (
-            "VerifiedNormalMain0BridgePlanV1",
-            "VerifiedNormalModuleFunctionPlanSetV1",
-            "seal_main0_bridge",
-        ):
-            if symbol in production_surface:
-                raise AssertionError(
-                    f"disconnected Main0 bridge gained production consumer: {symbol}"
-                )
-
     for fragment in (
         "NORMAL-CALLABLE-MODULE0-R0-S0",
         "VerifiedCallableGraphInventoryV1 exactly once",

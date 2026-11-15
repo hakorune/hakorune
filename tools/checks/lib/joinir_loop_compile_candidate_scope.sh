@@ -13,7 +13,6 @@ guard_joinir_loop_compile_candidate_scope() {
   local raw_open="$root_dir/src/mir/compiler/raw_root_eligibility.rs"
   local raw_recipe="$root_dir/src/mir/compiler/raw_root_source_facts/recipe_projection.rs"
   local canonical="$root_dir/src/mir/compiler/source_bound_package.rs"
-  local canonical_dispatch="$root_dir/src/mir/compiler/canonical_core_dispatch.rs"
   local canonical_input="$root_dir/src/mir/compiler/lowering_input.rs"
   local capability="$root_dir/src/mir/compiler/capability.rs"
   local first_family_plan="$root_dir/src/mir/compiler/capability/first_family_plan.rs"
@@ -72,7 +71,7 @@ guard_joinir_loop_compile_candidate_scope() {
 
   guard_require_files "$tag" "$manifest" "$routing" "$router" "$raw_child" \
     "$recursive_child" "$normal" "$raw_compile" "$raw_open" "$raw_recipe" \
-    "$canonical" "$canonical_dispatch" "$canonical_input" "$m1_test" \
+    "$canonical" "$canonical_input" "$m1_test" \
     "$direct_accum_cutover" "$hardening_test" "$external_commit" \
     "$capability" "$first_family_plan" "$source_bound_plan" "$loop_region" \
     "$source_adapter" "$generic_g0_projection" "$generic_g0_handoff" "$generic_g0_projection_tests" \
@@ -145,8 +144,7 @@ guard_joinir_loop_compile_candidate_scope() {
     "$raw_open|ModuleBuilderInvocationSessionV1::open_for_token|1" \
     "$canonical|ModuleBuilderInvocationSessionV1::open_for_token|1" \
     "$direct_accum_cutover|pub(super) fn compile_direct_accum_source_bound(|1" \
-    "$canonical|lower_resolved_direct_accum_function_draft|1" \
-    "$canonical_dispatch|prepare_normal_main_module_transaction|1"
+    "$canonical|lower_resolved_direct_accum_function_draft|1"
   do
     local file="${required%%|*}"
     local rest="${required#*|}"

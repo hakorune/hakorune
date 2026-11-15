@@ -19,8 +19,8 @@ plugins-only = []
 builtin-filebox = []  # Enable built-in FileBox provider (SSOT)
 ## Silence check-cfg warnings for historical cfg guards (kept off by default)
 vm-legacy = []
-## Optional Raw VM-reference semantic/conformance lane. Default-off; enable
-## explicitly for the supported `--backend raw-vm-reference` route.
+## Optional VM reference execution support. Default-off; shared VM consumers
+## remain separate from the retired explicit reference CLI frontdoors.
 vm-reference = []
 phi-legacy = []
 ## JIT-direct only mode: disable legacy VM-arg fallback and plugin-builtins branches

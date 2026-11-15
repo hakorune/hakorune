@@ -101,15 +101,6 @@ impl RawPostprocessEvidenceV1 {
     }
 
     #[cfg(feature = "vm-reference")]
-    pub(in crate::mir) fn vm_decode_plan(
-        &self,
-    ) -> Result<super::source_entry_vm_reference::VmSourceEntryDecodePlanV1, ()> {
-        self.witness
-            .vm_decode_plan()
-            .map(super::source_entry_vm_reference::VmSourceEntryDecodePlanV1::from_builder)
-    }
-
-    #[cfg(feature = "vm-reference")]
     pub(in crate::mir) fn main_entry_target_matches(&self) -> bool {
         self.selected_entry()
             .target_matches(self.witness.main_entry_target())
@@ -224,10 +215,18 @@ pub(in crate::mir) enum RawPostprocessFailureStageV1 {
 
 #[derive(Debug)]
 pub(in crate::mir) enum RawPostprocessErrorV1 {
-    OptimizerDiagnostics { _count: usize },
-    ContractRefresh { _detail: String },
-    CarrierParity { _error: RawPostprocessCarrierParityErrorV1 },
-    FinalVerification { _errors: Box<[VerificationError]> },
+    OptimizerDiagnostics {
+        _count: usize,
+    },
+    ContractRefresh {
+        _detail: String,
+    },
+    CarrierParity {
+        _error: RawPostprocessCarrierParityErrorV1,
+    },
+    FinalVerification {
+        _errors: Box<[VerificationError]>,
+    },
 }
 
 #[derive(Debug)]

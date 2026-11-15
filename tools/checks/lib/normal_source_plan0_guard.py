@@ -35,16 +35,6 @@ MAIN_THUNK_TASK = ROOT / (
     "normal-main0-thunk0-s0-execution-task-2026-07-26.md"
 )
 MIR_ROOT = ROOT / "src/mir/mod.rs"
-FRONTDOOR = ROOT / "src/runner/reference/normal_file_vm_frontdoor.rs"
-FRONTDOOR_INPUT = (
-    ROOT
-    / "src/runner/reference/normal_file_vm_frontdoor/source_plan_input.rs"
-)
-FRONTDOOR_INPUT_TESTS = (
-    ROOT
-    / "src/runner/reference/normal_file_vm_frontdoor/source_plan_input_tests.rs"
-)
-CANONICAL_CORE_DISPATCH = ROOT / "src/mir/compiler/canonical_core_dispatch.rs"
 PRODUCTION_FILES = tuple(
     SOURCE_DIR / name
     for name in ("mod.rs", "product.rs", "inventory.rs", "classifier.rs", "rejection.rs")
@@ -128,9 +118,6 @@ def main() -> int:
     tests = (SOURCE_DIR / "tests.rs").read_text()
     compiler_mod = COMPILER_MOD.read_text()
     mir_root = MIR_ROOT.read_text()
-    frontdoor = FRONTDOOR.read_text()
-    frontdoor_input = FRONTDOOR_INPUT.read_text()
-    frontdoor_input_tests = FRONTDOOR_INPUT_TESTS.read_text()
     main_source = MAIN_SOURCE.read_text()
     main_source_tests = MAIN_SOURCE_TESTS.read_text()
     main_resolved_source = MAIN_RESOLVED_SOURCE.read_text()
@@ -280,52 +267,6 @@ def main() -> int:
         "non_program_root_is_rejected_at_root_surface",
     ):
         require(tests, f"fn {test_name}(", f"fixture {test_name}")
-
-    input_definitions = (
-        "struct PreparedNormalFileSourcePlanRequestV1",
-        "struct ClassifiedNormalFileSourcePlanV1",
-        "struct RejectedNormalFileSourcePlanningV1",
-    )
-    for definition in input_definitions:
-        require_count(frontdoor_input, definition, 1, f"sole INPUT0 definition {definition}")
-    for fragment in (
-        "fn prepare_source_plan_request(",
-        "PreparedNormalSourcePlanInputV1::new(ast, display_identity)",
-        "fn classify(",
-        "NormalSourcePlanClassifierV1::seal(input)",
-        "profile: SealedNormalEntryProfileV1",
-        "receipt: NormalFileSourceReceiptV1",
-        "fn stage(&self)",
-        "fn error(&self)",
-        "fn discard(self)",
-    ):
-        require(frontdoor_input, fragment, f"INPUT0 boundary {fragment}")
-    require_count(
-        frontdoor,
-        "mod source_plan_input;",
-        1,
-        "front-door child-module declaration",
-    )
-    require_count(
-        frontdoor,
-        "fn prepare_raw_vm_handoff(",
-        1,
-        "unchanged narrow handoff terminal",
-    )
-
-    for test_name in (
-        "parsed_empty_and_scalar_sources_become_script_plans_once",
-        "parsed_main_zero_becomes_scalar_main_plan_once",
-        "parsed_main_with_top_level_or_box_helper_becomes_callable_module",
-        "parsed_function_only_retains_missing_entry_rejection",
-        "parsed_script_plus_main_retains_mixed_family_rejection",
-        "parse_and_using_rejections_never_issue_source_plan_requests",
-    ):
-        require(
-            frontdoor_input_tests,
-            f"fn {test_name}(",
-            f"INPUT0 fixture {test_name}",
-        )
 
     for definition in (
         "enum NormalModuleDraftRoleV1",
@@ -656,25 +597,6 @@ def main() -> int:
             raise AssertionError(f"source owner gained forbidden operation: {forbidden}")
 
     for forbidden in (
-        "prepare_raw_vm_handoff",
-        "RawVmReference",
-        "into_downstream",
-        "match profile",
-        "std::fs::",
-        "NyashParser",
-        "parse_from_string",
-        ".clone()",
-        "retry",
-        "fallback",
-        "compile_with_source",
-        "build_module",
-    ):
-        if forbidden in frontdoor_input:
-            raise AssertionError(
-                f"INPUT0 gained forbidden route/profile/I/O authority: {forbidden}"
-            )
-
-    for forbidden in (
         "VerifiedMainExpansionV1",
         "VerifiedRawRootExpansionV1",
         "::from_program",
@@ -719,14 +641,10 @@ def main() -> int:
     allowed = set(ALL_FILES) | {
         COMPILER_MOD,
         MIR_ROOT,
-        FRONTDOOR,
-        FRONTDOOR_INPUT,
-        FRONTDOOR_INPUT_TESTS,
         CAPABILITY,
         VALUE_PROFILE_ANALYZER,
         VALUE_PROFILE_MOD,
         BUILDER_MOD,
-        CANONICAL_CORE_DISPATCH,
         *NORMAL_MODULE_TX_FILES,
         *callable_source_files,
         *script_physical_files,
@@ -742,14 +660,10 @@ def main() -> int:
 
     for path in (
         *ALL_FILES,
-        FRONTDOOR,
-        FRONTDOOR_INPUT,
-        FRONTDOOR_INPUT_TESTS,
         CAPABILITY,
         VALUE_PROFILE_ANALYZER,
         VALUE_PROFILE_MOD,
         BUILDER_MOD,
-        CANONICAL_CORE_DISPATCH,
         *NORMAL_MODULE_TX_FILES,
         *callable_source_files,
         Path(__file__),
@@ -763,7 +677,7 @@ def main() -> int:
     print(
         "[normal-source-plan0-guard] ok "
         "classifier=1 script=1 main0=1 callable=1 profile=0 "
-        "frontdoor_input=1 disconnected_consumer=1 production_consumer=0 "
+        "frontdoor_input=retired disconnected_consumer=1 production_consumer=0 "
         "main_source=1 reclassification=0 second_read_parse=0 "
         "main_role=1 main_f1=1 ordinary_main_admission=0 "
         "normal_module_schema=1 mutation=0 "

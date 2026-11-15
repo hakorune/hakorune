@@ -326,19 +326,15 @@
      "src/mir/compiler/raw_root_environment_manifest.rs",
      "src/mir/compiler/resolved_direct_accum_cutover.rs",
      "src/mir/compiler/resolved_nested_predicate_cutover.rs",
-     "src/mir/compiler/source_entry_vm_execution.rs",
      "src/mir/function/types.rs",
      "src/mir/printer.rs",
-     "src/mir/raw_vm_reference_contract.rs",
-     "src/runner/reference/cli_profile.rs",
-     "src/runner/reference/normal_file_vm_frontdoor.rs",
-     "src/runner/reference/raw_vm_reference_request.rs"
+     "src/mir/raw_vm_reference_contract.rs"
     ],
     "anchors": [
      "src/backend/mir_interpreter/exec/function_loop.rs:116:source_file",
      "src/backend/vm_types.rs:42:source_file"
     ],
-    "count": 26,
+    "count": 22,
     "kind": "observed_mutation"
    },
    "production_consumer": {
@@ -367,7 +363,6 @@
      "src/mir/compiler/raw_source_binding_p0.rs",
      "src/mir/compiler/resolved_direct_accum_cutover.rs",
      "src/mir/compiler/resolved_nested_predicate_cutover.rs",
-     "src/mir/compiler/source_entry_vm_execution.rs",
      "src/mir/function/types.rs",
      "src/mir/printer.rs",
      "src/mir/raw_vm_reference_contract.rs"
@@ -376,7 +371,7 @@
      "src/mir/builder/builder_metadata.rs:49:source_file",
      "src/mir/builder/module_invocation_brand0.rs:229:source_file"
     ],
-    "count": 28
+    "count": 27
    },
    "backend_consumer": {
     "role": "selected_observed",
@@ -400,20 +395,9 @@
     "count": 1
    },
    "non_selected_consumer": {
-    "owners": [
-     "src/runner/reference/cli_profile.rs",
-     "src/runner/reference/normal_file_canonical_core_request.rs",
-     "src/runner/reference/normal_file_vm_frontdoor/source_plan_input.rs",
-     "src/runner/reference/normal_file_vm_frontdoor.rs",
-     "src/runner/reference/normal_file_vm_request.rs",
-     "src/runner/reference/raw_vm_reference.rs",
-     "src/runner/reference/raw_vm_reference_request.rs"
-    ],
-    "anchors": [
-     "src/runner/reference/cli_profile.rs:13:source_file",
-     "src/runner/reference/normal_file_canonical_core_request.rs:48:source_file"
-    ],
-    "count": 7
+    "owners": [],
+    "anchors": [],
+    "count": 0
    },
    "egress": {
     "owners": [],

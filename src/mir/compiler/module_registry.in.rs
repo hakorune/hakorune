@@ -23,12 +23,9 @@ pub(crate) mod callable_single_loop_source_shapes;
 #[path = "callable_single_loop_static_fixture_tests.rs"]
 pub(crate) mod callable_single_loop_static_fixture_tests;
 pub(crate) mod callable_single_loop_syntax_facts;
-pub(crate) mod canonical_core_dispatch;
 mod canonical_drain_manifest;
 pub(in crate::mir) mod canonical_finalization;
 pub(in crate::mir) mod canonical_physical_completion;
-pub(crate) mod canonical_script_source_a_input;
-pub(crate) mod canonical_script_source_plan_envelope;
 pub(crate) mod canonical_source_identity;
 pub(in crate::mir) mod capability;
 pub(in crate::mir) mod common_v2_physical_function_entry_input;
@@ -210,24 +207,7 @@ pub(in crate::mir) mod selected_dynamic_w6_activation;
 pub(in crate::mir) mod source_bound_package;
 pub(in crate::mir) mod source_bound_package_generic_g0;
 pub(in crate::mir) mod source_bound_plan;
-pub(in crate::mir) mod source_entry_physical;
-pub(in crate::mir) mod source_entry_projection;
-pub(in crate::mir) mod source_entry_published_invocation;
-pub(in crate::mir) mod source_entry_reference;
-pub(in crate::mir) mod source_entry_result;
 pub(in crate::mir) mod source_entry_selection;
-pub(in crate::mir) mod source_entry_thunk;
-pub(in crate::mir) mod source_entry_vm_diagnostic;
-#[cfg(feature = "vm-reference")]
-pub(in crate::mir) mod source_entry_vm_execution;
-pub(in crate::mir) mod source_entry_vm_invocation;
-#[cfg(feature = "vm-reference")]
-pub(in crate::mir) mod source_entry_vm_raw_adapter;
-pub(in crate::mir) mod source_entry_vm_reference;
-#[cfg(test)]
-mod source_entry_vm_reference_p0;
-#[cfg(feature = "vm-reference")]
-pub(in crate::mir) mod source_entry_vm_runner_adapter;
 pub(in crate::mir) mod source_projection;
 pub(in crate::mir) mod source_view;
 pub(crate) mod target_capability;

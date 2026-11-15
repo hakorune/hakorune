@@ -425,3 +425,9 @@ scalar scan/TextEqの専用corridorは採用しない。旧実装の参照: `935
 
 最適化CLIで固定5,386入力のMIR/拒否/出力/exit差0（EXE生成1,471、timeout0）、focused24件、固定suite8/8、naming/owner数/pointer guard PASS。整形後Rustは本体9,601行/test3,043行の純減、Rust76file退役。登録旧名97件消失・IntrinsicArray保証移管1件追加（純減96）、全件一意な旧定義へ対応。全lib直列はseries最終で確認する。
 旧台帳は退役したPASS92件/ignored4件だけを削除し、残るFAIL集合は不変。corridor guardのconstructor旧anchor欠落は基点から同じで、検査を弱めない。F04/F16は次の塊、F17は今回の対象外。
+
+### 段Bの参照VM入口 F04 退役
+
+明示backend 3種（raw-vm-reference・normal-file-vm-reference・normal-file-canonical-core-vm-reference）と専有adapter/testを退役。共有VM本体・VM/Hako実行・raw compile request・source continuationを保持し、現役testが読むinteger_0 fixtureも保持した。
+最適化CLIで固定5,386入力のMIR/拒否/出力/exit差0（EXE生成1,471、timeout0）、focused22件PASS。featureの通る2構成はPASS、既存のvm-reference 1件とcli-no-plugins 11件のerror集合は不変。
+整形後Rustは本体6,225行/test3,126行の純減、Rust40file退役。登録名75件減・全件一意な旧定義に対応。旧段階名/anchorに依存する一部guardの既存不整合は保持し、基準を緩めない。F17のparser・AST・TryCatch carrier・catch/throw/cleanupは変更なし。
