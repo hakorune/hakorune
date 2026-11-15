@@ -7,10 +7,10 @@ emitted_projection_types	4
 dominator_calls	43
 predecessor_calls	8
 analysis_function_references	0
-raw_binop_constructors	70
+raw_binop_constructors	69
 raw_compare_constructors	69
 raw_unaryop_constructors	19
 qualified_alias_constructor_candidates	2
 opaque_operator_forms	26
 opaque_owner_forms	0
-definition_scan_candidates	294
+definition_scan_candidates	292
