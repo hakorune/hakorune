@@ -17,7 +17,6 @@ SOURCES = (
     SOURCE_DIR / "source_entry_thunk.rs",
     SOURCE_DIR / "source_entry_physical.rs",
     SOURCE_DIR / "source_entry_reference.rs",
-    SOURCE_DIR / "source_entry_ny_main.rs",
 )
 
 
@@ -59,7 +58,6 @@ def main() -> int:
         "SelectedSourceEntryV1",
         "SourceEntryThunkV1",
         "PhysicalSourceEntryCarrierV1",
-        "NyMainCapabilityAdapterV1",
     ):
         require(source, fragment, f"authority chain {fragment}")
     if source.count("pub(in crate::mir) fn project(") != 1:

@@ -216,7 +216,6 @@ pub(in crate::mir) mod selected_dynamic_w6_activation;
 pub(in crate::mir) mod source_bound_package;
 pub(in crate::mir) mod source_bound_package_generic_g0;
 pub(in crate::mir) mod source_bound_plan;
-pub(in crate::mir) mod source_entry_ny_main;
 pub(in crate::mir) mod source_entry_physical;
 pub(in crate::mir) mod source_entry_projection;
 pub(in crate::mir) mod source_entry_published_invocation;
