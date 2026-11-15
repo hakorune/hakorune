@@ -3,8 +3,6 @@
 //! This module owns the plan sum independently from the package that later
 //! binds a plan to a compiler domain and invocation token. Keeping the sum
 //! here makes the semantic body profile distinct from its lifecycle family.
-
-use super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1;
 use super::capability::{
     CanonicalCurrentAPlusPlanV1, CanonicalFirstFamilyPlanV1, CanonicalLoopFamilyPlanV1,
     CanonicalTrivialBindingSsaPlanV1,
@@ -51,7 +49,6 @@ pub(in crate::mir) enum ExactCanonicalPreflightPlanV1<'a> {
     BindingSsaTrivial(CanonicalTrivialBindingSsaPlanV1<'a>),
     /// Semantic Loop family; its external lifecycle reuses `BindingSsaTrivial`.
     Loop(CanonicalLoopFamilyPlanV1<'a>),
-    BindingSsaAcyclic(VerifiedAcyclicCallableModulePlanV1<'a>),
     BindingSsaRecursive(VerifiedRecursiveCallableModulePlanV1<'a>),
 }
 
@@ -69,7 +66,6 @@ impl<'a> ExactCanonicalPreflightPlanV1<'a> {
             Self::APlus(_) => CanonicalSourceRouteV1::APlus,
             Self::BindingSsaTrivial(_) => CanonicalSourceRouteV1::BindingSsaTrivial,
             Self::Loop(_) => CanonicalSourceRouteV1::BindingSsaTrivial,
-            Self::BindingSsaAcyclic(_) => CanonicalSourceRouteV1::BindingSsaAcyclic,
             Self::BindingSsaRecursive(_) => CanonicalSourceRouteV1::BindingSsaRecursive,
         }
     }

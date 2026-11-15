@@ -5,8 +5,6 @@
 //! activation remain outside this transaction.
 
 use std::collections::{BTreeMap, BTreeSet};
-
-use crate::mir::compiler::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1;
 use crate::mir::compiler::capability::CanonicalTrivialBindingSsaPlanV1;
 use crate::mir::compiler::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1;
 use crate::mir::compiler::resolved_callable_module::VerifiedResolvedCallableModuleV1;
@@ -88,16 +86,6 @@ impl<'a> VerifiedUnpublishedCallableDraftSetV1<'a> {
             .collect()
     }
 
-    fn collect_acyclic_with(
-        plan: VerifiedAcyclicCallableModulePlanV1<'a>,
-        lower: impl FnMut(
-            &CanonicalCallableKeyV1,
-            CanonicalTrivialBindingSsaPlanV1<'a>,
-        ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1>,
-    ) -> Result<Self, CallableModuleTransactionErrorV1> {
-        let (source, _graph, plans) = plan.into_parts();
-        Self::collect_typed_with(source, plans, lower)
-    }
 
     fn collect_recursive_with(
         plan: VerifiedRecursiveCallableModulePlanV1<'a>,
@@ -192,16 +180,6 @@ impl<'a> VerifiedUnpublishedCallableDraftSetV1<'a> {
 }
 
 impl MirBuilder {
-    /// LOWER0 draft-only callable consumer.  It lowers every verified plan
-    /// but does not prepare a module, install a recursive marker, or publish.
-    pub(in crate::mir) fn lower_acyclic_callable_drafts<'a>(
-        &mut self,
-        plan: VerifiedAcyclicCallableModulePlanV1<'a>,
-    ) -> Result<VerifiedUnpublishedCallableDraftSetV1<'a>, CallableModuleTransactionErrorV1> {
-        VerifiedUnpublishedCallableDraftSetV1::collect_acyclic_with(plan, |_key, plan| {
-            self.lower_resolved_trivial_function_draft(plan)
-        })
-    }
 
     /// LOWER0 draft-only recursive consumer.  Capability installation stays
     /// with the later RECURSIVE0 row.

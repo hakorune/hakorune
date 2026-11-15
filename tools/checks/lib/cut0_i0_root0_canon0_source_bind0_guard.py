@@ -63,7 +63,6 @@ def main() -> int:
         ("enum ExactCanonicalPreflightPlanV1", "exact plan enum"),
         ("APlus(CanonicalCurrentAPlusPlanV1", "A+ plan variant"),
         ("BindingSsaTrivial(CanonicalTrivialBindingSsaPlanV1", "trivial plan variant"),
-        ("BindingSsaAcyclic(VerifiedAcyclicCallableModulePlanV1", "acyclic plan variant"),
         ("BindingSsaRecursive(VerifiedRecursiveCallableModulePlanV1", "recursive plan variant"),
         ("struct SourceBoundCanonicalPackageV1", "source-bound package"),
         ("struct RejectedCanonicalSourceBindingV1", "rejected owner"),

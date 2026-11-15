@@ -5,7 +5,6 @@
 
 pub(in crate::mir) mod a_prime_i64_physical_capability;
 pub(in crate::mir) mod acyclic_callable_graph;
-pub(in crate::mir) mod acyclic_callable_module_plan;
 pub(in crate::mir) mod callable_graph_inventory;
 #[cfg(test)]
 pub(crate) mod callable_loop_physical_canary;

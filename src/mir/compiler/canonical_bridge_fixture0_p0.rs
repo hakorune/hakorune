@@ -198,12 +198,7 @@ fn callable_program(functions: Vec<ASTNode>) -> VerifiedResolvedCallableProgramV
     .unwrap()
 }
 
-fn acyclic_source() -> VerifiedResolvedCallableProgramV1 {
-    callable_program(vec![
-        typed_callable("caller", call("callee")),
-        typed_callable("callee", variable("x")),
-    ])
-}
+
 
 fn recursive_source() -> VerifiedResolvedCallableProgramV1 {
     callable_program(vec![typed_callable("loop", call("loop"))])
@@ -336,35 +331,6 @@ fn canonical_bridge_fixture0_four_route_aggregate() {
     );
     assert!(compiler.builder.current_module.is_none());
 
-    let acyclic = acyclic_source();
-    let plan = super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
-        acyclic.module(),
-    )
-    .unwrap();
-    let package = compiler
-        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan))
-        .unwrap();
-    let acyclic_brand = package.brand();
-    let completion = compiler
-        .begin_canonical_invocation(
-            package,
-            Some("fixture_acyclic.hako"),
-            "fixture_acyclic".into(),
-        )
-        .unwrap()
-        .lower()
-        .unwrap()
-        .collect()
-        .unwrap()
-        .complete()
-        .unwrap();
-    assert_callable_completion(
-        completion,
-        ModuleInvocationFamilyV1::BindingSsaAcyclic,
-        acyclic_brand,
-    );
-    assert!(compiler.builder.current_module.is_none());
-
     let recursive = recursive_source();
     let plan =
         super::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1::verify(
@@ -396,8 +362,7 @@ fn canonical_bridge_fixture0_four_route_aggregate() {
     assert!(compiler.builder.current_module.is_none());
 
     assert_ne!(a_plus_brand, trivial_brand);
-    assert_ne!(trivial_brand, acyclic_brand);
-    assert_ne!(acyclic_brand, recursive_brand);
+    assert_ne!(trivial_brand, recursive_brand);
 }
 
 #[test]
@@ -440,83 +405,6 @@ fn canonical_bridge_fixture0_foreign_pairing_is_rejected() {
     assert!(header.require_same_plan(&foreign_plan).is_err());
 }
 
-#[test]
-fn canonical_bridge_fixture0_recursive_acyclic_witness_parity() {
-    let mut compiler = MirCompiler::with_options(false);
-
-    let acyclic = acyclic_source();
-    let acyclic_plan =
-        super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
-            acyclic.module(),
-        )
-        .unwrap();
-    let acyclic_package = compiler
-        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(
-            acyclic_plan,
-        ))
-        .unwrap();
-    let acyclic_complete = compiler
-        .begin_canonical_invocation(
-            acyclic_package,
-            Some("witness_acyclic.hako"),
-            "witness_acyclic".into(),
-        )
-        .unwrap()
-        .lower()
-        .unwrap()
-        .collect()
-        .unwrap()
-        .complete()
-        .unwrap();
-    let CanonicalPhysicalCompleteInvocationV1::Callable(acyclic_product) = acyclic_complete else {
-        panic!("acyclic route did not produce callable completion")
-    };
-    assert_eq!(
-        acyclic_product.capability.brand(),
-        acyclic_product.token.brand()
-    );
-    assert_eq!(
-        acyclic_product.capability.family(),
-        ModuleInvocationFamilyV1::BindingSsaAcyclic
-    );
-
-    let recursive = recursive_source();
-    let recursive_plan =
-        super::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1::verify(
-            recursive.module(),
-        )
-        .unwrap();
-    let recursive_package = compiler
-        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaRecursive(
-            recursive_plan,
-        ))
-        .unwrap();
-    let recursive_complete = compiler
-        .begin_canonical_invocation(
-            recursive_package,
-            Some("witness_recursive.hako"),
-            "witness_recursive".into(),
-        )
-        .unwrap()
-        .lower()
-        .unwrap()
-        .collect()
-        .unwrap()
-        .complete()
-        .unwrap();
-    let CanonicalPhysicalCompleteInvocationV1::Callable(recursive_product) = recursive_complete
-    else {
-        panic!("recursive route did not produce callable completion")
-    };
-    assert_eq!(
-        recursive_product.capability.brand(),
-        recursive_product.token.brand()
-    );
-    assert_eq!(
-        recursive_product.capability.family(),
-        ModuleInvocationFamilyV1::BindingSsaRecursive
-    );
-}
 
 #[test]
 fn p0_r1_canonical_four_route_real_authority_chain() {
@@ -560,22 +448,6 @@ fn p0_r1_canonical_four_route_real_authority_chain() {
         .contains_key("trivial_fixture/0"));
     assert!(trivial_result.verification_result.is_ok());
 
-    let acyclic = acyclic_source();
-    let acyclic_plan =
-        super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
-            acyclic.module(),
-        )
-        .unwrap();
-    let (acyclic_brand, acyclic_result) = finish_canonical_route(
-        &mut compiler,
-        ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(acyclic_plan),
-        "p0_r1_acyclic.hako",
-        "p0_r1_acyclic",
-    );
-    assert!(acyclic_result.module.functions.contains_key("caller/1"));
-    assert!(acyclic_result.module.functions.contains_key("callee/1"));
-    assert!(acyclic_result.verification_result.is_ok());
-
     let recursive = recursive_source();
     let recursive_plan =
         super::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1::verify(
@@ -592,8 +464,7 @@ fn p0_r1_canonical_four_route_real_authority_chain() {
     assert!(recursive_result.verification_result.is_ok());
 
     assert_ne!(a_plus_brand, trivial_brand);
-    assert_ne!(trivial_brand, acyclic_brand);
-    assert_ne!(acyclic_brand, recursive_brand);
+    assert_ne!(trivial_brand, recursive_brand);
     assert!(compiler.builder.current_module.is_none());
 }
 
@@ -675,14 +546,14 @@ fn p0_r1_real_authority_drain_failure_keeps_commit_zero() {
 #[test]
 fn p0_r1_callable_capability_mismatch_stops_before_commit() {
     let mut compiler = MirCompiler::with_options(false);
-    let first_source = acyclic_source();
+    let first_source = recursive_source();
     let first_plan =
-        super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
+        super::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1::verify(
             first_source.module(),
         )
         .unwrap();
     let first_package = compiler
-        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(first_plan))
+        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaRecursive(first_plan))
         .unwrap();
     let first_collected = compiler
         .begin_canonical_invocation(
@@ -696,14 +567,14 @@ fn p0_r1_callable_capability_mismatch_stops_before_commit() {
         .collect()
         .unwrap();
 
-    let second_source = acyclic_source();
+    let second_source = recursive_source();
     let second_plan =
-        super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
+        super::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1::verify(
             second_source.module(),
         )
         .unwrap();
     let second_package = compiler
-        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(
+        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaRecursive(
             second_plan,
         ))
         .unwrap();

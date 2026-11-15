@@ -72,8 +72,12 @@ fn callable_program() -> VerifiedResolvedCallableProgramV1 {
             ),
             function(
                 "callee",
-                ASTNode::Variable {
-                    name: "x".into(),
+                ASTNode::FunctionCall {
+                    name: "callee".into(),
+                    arguments: vec![ASTNode::Variable {
+                        name: "x".into(),
+                        span: Span::unknown(),
+                    }],
                     span: Span::unknown(),
                 },
             ),
@@ -177,11 +181,11 @@ fn owner_retention0_finalizer_failure_keeps_complete_input() {
 #[test]
 fn final0_prepares_and_finalizes_callable_route() {
     let source = callable_program();
-    let plan = super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
+    let plan = super::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1::verify(
         source.module(),
     )
-    .expect("callable fixture must remain acyclic");
-    let plan = ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan);
+    .expect("callable fixture must be recursive");
+    let plan = ExactCanonicalPreflightPlanV1::BindingSsaRecursive(plan);
     let mut compiler = MirCompiler::new();
     let package = compiler.bind_canonical_source(plan).unwrap();
     let finalized = compiler
@@ -204,11 +208,11 @@ fn final0_prepares_and_finalizes_callable_route() {
         .unwrap();
     let finalized = CanonicalModuleFinalizerV1::finalize(finalized).unwrap();
     let CanonicalFinalizationInputV1::Callable(input) = finalized.input else {
-        panic!("acyclic finalization must remain callable route")
+        panic!("recursive finalization must remain callable route")
     };
     assert_eq!(
         input.token.family(),
-        crate::mir::module_invocation_identity::ModuleInvocationFamilyV1::BindingSsaAcyclic
+        crate::mir::module_invocation_identity::ModuleInvocationFamilyV1::BindingSsaRecursive
     );
     assert_eq!(input.builder.brand(), input.token.brand());
     assert_eq!(input.capability.brand(), input.token.brand());

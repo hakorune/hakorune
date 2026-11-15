@@ -165,7 +165,6 @@ def verify_callable_batch_p0(
     card: str,
     state: str,
 ) -> None:
-    acyclic_path = root / "src/mir/compiler/acyclic_callable_module_plan/tests.rs"
     recursive_path = root / "src/mir/compiler/recursive_callable_module_plan/tests.rs"
     support_path = root / (
         "src/mir/compiler/callable_batch_correspondence_test_support.rs"
@@ -183,7 +182,6 @@ def verify_callable_batch_p0(
     )
     source_failure_path = root / "src/mir/compiler/resolved_callable_module_tests.rs"
     publication_path = root / "src/mir/function/tests.rs"
-    acyclic = acyclic_path.read_text()
     recursive = recursive_path.read_text()
     support = support_path.read_text()
     compiler_mod = compiler_mod_path.read_text()
@@ -194,7 +192,6 @@ def verify_callable_batch_p0(
     publication = publication_path.read_text()
 
     for path, text in (
-        (acyclic_path, acyclic),
         (recursive_path, recursive),
         (support_path, support),
         (transaction_path, transaction),
@@ -205,7 +202,7 @@ def verify_callable_batch_p0(
                 f"ROUTEINV-P0d source/proof must remain below 800 lines: {path}"
             )
 
-    for proof, label in ((acyclic, "acyclic"), (recursive, "recursive")):
+    for proof, label in ( (recursive, "recursive"),):
         for fragment in (
             "fn borrowed_batch_rows(",
             "let functions = module.functions_by_key();",
@@ -243,12 +240,6 @@ def verify_callable_batch_p0(
         "test-only callable-batch support registration",
     )
 
-    for fragment in (
-        "let nodes = plan.graph().nodes();",
-        "assert!(functions.keys().eq(nodes.iter()));",
-        "declaration_reorder_preserves_graph_and_typed_plan_keys",
-    ):
-        require(acyclic, fragment, "ROUTEINV-P0d acyclic exact set/reorder")
     for fragment in (
         "let inventory = plan.partition().inventory();",
         "component_members.sort();",
@@ -294,11 +285,6 @@ def verify_callable_batch_p0(
         source_failure,
         "unknown_target_rejects_before_a_resolved_module_is_published",
         "source/resolution failure owner",
-    )
-    require(
-        acyclic,
-        "rejects_one_function_zero_call_cycles_and_nontrivial_function_profiles",
-        "acyclic plan failure owner",
     )
     require(
         recursive,

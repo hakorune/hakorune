@@ -1,6 +1,6 @@
 //! ROOT0-DRAIN0-MANIFEST0 focused source-projection proof.
 
-use super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1;
+use super::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1;
 use super::source_bound_package::ExactCanonicalPreflightPlanV1;
 use super::{MirCompiler, VerifiedResolvedCallableProgramV1, VerifiedResolvedSourceUnitV1};
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl, Span};
@@ -116,15 +116,15 @@ fn callable_manifest_projects_catalog_in_canonical_key_order() {
     let program = VerifiedResolvedCallableProgramV1::resolve(ASTNode::Program {
         statements: vec![
             callable_function("zeta", call("alpha", variable("x"))),
-            callable_function("alpha", variable("x")),
+            callable_function("alpha", call("zeta", variable("x"))),
         ],
         span: Span::unknown(),
     })
     .unwrap();
-    let plan = VerifiedAcyclicCallableModulePlanV1::verify(program.module()).unwrap();
+    let plan = VerifiedRecursiveCallableModulePlanV1::verify(program.module()).unwrap();
     let mut compiler = MirCompiler::new();
     let package = compiler
-        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan))
+        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaRecursive(plan))
         .unwrap();
     let manifest = package.project_drain_manifest().unwrap();
     assert_eq!(manifest.rows().len(), 2);
@@ -173,15 +173,15 @@ fn callable_source_manifest_keeps_canonical_key_order_across_handoff() {
     let program = VerifiedResolvedCallableProgramV1::resolve(ASTNode::Program {
         statements: vec![
             callable_function("zeta", call("alpha", variable("x"))),
-            callable_function("alpha", variable("x")),
+            callable_function("alpha", call("zeta", variable("x"))),
         ],
         span: Span::unknown(),
     })
     .unwrap();
-    let plan = VerifiedAcyclicCallableModulePlanV1::verify(program.module()).unwrap();
+    let plan = VerifiedRecursiveCallableModulePlanV1::verify(program.module()).unwrap();
     let mut compiler = MirCompiler::new();
     let package = compiler
-        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan))
+        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaRecursive(plan))
         .unwrap();
     let physical = package.project_drain_manifest().unwrap().into_physical();
     let rows = physical.callable_rows().expect("callable physical rows");

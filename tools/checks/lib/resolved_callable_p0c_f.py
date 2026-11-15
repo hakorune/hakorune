@@ -20,8 +20,6 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
     recursive_plan = root / "src/mir/compiler/recursive_callable_module_plan.rs"
     graph = root / "src/mir/compiler/acyclic_callable_graph.rs"
     graph_tests = root / "src/mir/compiler/acyclic_callable_graph/tests.rs"
-    plan = root / "src/mir/compiler/acyclic_callable_module_plan.rs"
-    plan_tests = root / "src/mir/compiler/acyclic_callable_module_plan/tests.rs"
     transaction = root / "src/mir/builder/resolved_lowering/callable_module_transaction.rs"
 
     allowed_by_pattern = {
@@ -34,14 +32,12 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
         r"verify_function_with_finite_direct_calls_v1": {
             compiler_capability,
             finite_call_tests,
-            plan,
             recursive_plan,
             root / "src/mir/compiler/normal_source_plan/normal_acyclic_module_plan.rs",
             root / "src/mir/compiler/normal_source_plan/normal_callable_transaction_handoff.rs",
         },
         r"VerifiedAcyclicCallableGraphV1::verify": {
             graph_tests,
-            plan,
             root / "src/mir/compiler/normal_source_plan/normal_acyclic_module_plan.rs",
         },
         r"VerifiedCallableGraphInventoryV1::verify": {
@@ -51,15 +47,6 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
             recursive_plan,
             root / "src/mir/compiler/normal_source_plan/normal_acyclic_module_plan.rs",
             root / "src/mir/compiler/normal_source_plan/normal_callable_transaction_handoff.rs",
-        },
-        r"VerifiedAcyclicCallableModulePlanV1::verify": {
-            plan_tests,
-            root / "src/mir/builder/resolved_lowering/callable_module_transaction_p0d_tests.rs",
-            root / "src/mir/compiler/canonical_bridge_fixture0_p0.rs",
-            root / "src/mir/compiler/canonical_drain_manifest_p0.rs",
-            root / "src/mir/compiler/canonical_finalization_p0.rs",
-            root / "src/mir/compiler/canonical_physical_completion_p0.rs",
-            root / "src/mir/compiler/source_bound_package_p0.rs",
         },
     }
     for pattern, allowed in allowed_by_pattern.items():
@@ -88,8 +75,6 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
         inventory_tests,
         graph,
         graph_tests,
-        plan,
-        plan_tests,
         transaction,
         root / "tools/checks/lib/resolved_callable_l0.py",
         root / "tools/checks/lib/resolved_callable_p0c_f.py",
@@ -103,7 +88,6 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
         finite_call_tests: 2,
         inventory_tests: 2,
         graph_tests: 3,
-        plan_tests: 3,
     }
     for path, expected in expected_tests.items():
         actual = path.read_text().count("#[test]")
@@ -179,27 +163,6 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
         if forbidden in graph_text:
             fail(f"P0c-MR-G0 acyclic proof retained inventory/other authority: {forbidden}")
 
-    plan_text = plan.read_text()
-    for marker in [
-        "VerifiedAcyclicCallableModulePlanV1",
-        "CanonicalTrivialBindingSsaPlanV1",
-        "verify_function_with_finite_direct_calls_v1",
-        "FunctionCallSiteCountMismatch",
-    ]:
-        if marker not in plan_text:
-            fail(f"P0c-F-V0 typed plan contract missing: {marker}")
-    for forbidden in [
-        "MirBuilder",
-        "MirInstruction",
-        "MirFunction",
-        "MirModule",
-        "CanonicalCallableSymbolV1",
-        "ConservativeBarrier",
-        "build_resolved_callable_module_candidate",
-        "try_add_functions_atomic",
-    ]:
-        if forbidden in plan_text:
-            fail(f"P0c-F-V0 typed plan owns a forbidden effect authority: {forbidden}")
 
     compiler_text = compiler_mod.read_text()
     for marker in [
