@@ -146,10 +146,6 @@ pub use hakorune_frontend_parser::migration_transport::{
 };
 pub use hakorune_frontend_parser::parser::ParseError;
 
-pub(crate) use body_source::{
-    ParserBoxBodySourceEnvelopeV1, ParserBoxInstanceMethodSyntaxLeaseV1,
-    ParserBoxMethodBodySourceRowV1,
-};
 pub(crate) use callable_contract_syntax::{
     CallableContractSourceDispositionV1, CallableContractSyntaxV1,
 };

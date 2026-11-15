@@ -1,5 +1,4 @@
 use crate::mir::dynamic_carrier_contract::DynamicCarrierLifecycleObligationV1;
-use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

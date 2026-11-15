@@ -154,17 +154,11 @@ pub(crate) struct VerifiedDeclaredInstanceMethodHomeCatalogV1 {
 }
 
 impl VerifiedDeclaredInstanceMethodHomeCatalogV1 {
-    pub(crate) const fn resolver_brand(&self) -> super::ResolverCatalogBrandV1 {
-        self.declarations.resolver_brand()
-    }
 
     pub(crate) fn declarations(&self) -> &[VerifiedInstanceMethodDeclarationV1] {
         self.declarations.declarations()
     }
 
-    pub(crate) fn parser_provenance(&self) -> &ResolverSourceInvocationProvenanceV1 {
-        self.declarations.parser_provenance()
-    }
 
     pub(crate) fn home_abis(&self) -> &[VerifiedHomeAbiV1] {
         &self.home_abis

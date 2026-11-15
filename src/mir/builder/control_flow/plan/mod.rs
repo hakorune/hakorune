@@ -78,7 +78,6 @@ pub(in crate::mir::builder) mod loop_accum_physicalizer;
 #[cfg(test)]
 #[path = "loop_accum_physicalizer_tests.rs"]
 mod loop_accum_physicalizer_tests;
-pub(in crate::mir::builder) mod loop_physical_edge_path;
 pub(in crate::mir::builder) mod loop_physical_input;
 // Phase 29bq P2: loop(true) break/continue coverage
 mod loop_true_break_continue;

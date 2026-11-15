@@ -254,9 +254,9 @@ pub(crate) use join_sig::{
     issue_sole_root_carrier_join_closure_v2,
     LoopJoinBranchArmTransferRefV2, LoopJoinBranchArmV2,
     LoopJoinBranchExitRefV2, LoopJoinBranchExitTargetV2, LoopJoinClosureRejectV2,
-    LoopJoinEdgeRoleV1, LoopJoinEdgeV1, LoopJoinEdgeV2,
+    LoopJoinEdgeRoleV1, LoopJoinEdgeV2,
     LoopJoinLogicalTransferRejectV2, LoopJoinLogicalTransferViewV2,
-    LoopJoinLoopV1, LoopJoinNextItemV1, LoopJoinPayloadV2, LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigElaboratorV1,
+    LoopJoinNextItemV1, LoopJoinPayloadV2, LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigElaboratorV1,
     LoopJoinSigRejectReasonV1, LoopJoinSigV1,
     VerifiedLoopJoinClosureV2, VerifiedLoopJoinSigV1,
 };
@@ -268,8 +268,7 @@ pub(crate) use loop_true_break_continue_producer::{
     produce_loop_true_break_continue_recipe_v1, LoopTrueBreakContinueRecipeProducerRejectV1,
     VerifiedLoopTrueBreakContinueRecipeProductV1,
 };
-pub(crate) use normalize::{ LoopRecipeDecodeErrorV2, LoopRecipeNormalizerV1,
-    LoopRecipeNormalizerV2,
+pub(crate) use normalize::{ LoopRecipeDecodeErrorV2, LoopRecipeNormalizerV2,
 };
 pub(crate) use operation_carrier_demand::PreparedLoopDerivedCarrierSeedRowV1;
 pub(crate) use operation_effect::{

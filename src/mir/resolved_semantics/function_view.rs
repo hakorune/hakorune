@@ -1,7 +1,7 @@
 //! Borrowed canonical function syntax seam used before Lower decomposes it.
 
 use crate::ast::ASTNode;
-use crate::mir::resolved_semantics::{SemanticOwnerRootProfileV1, SemanticOwnerSourceKindV1};
+use crate::mir::resolved_semantics::SemanticOwnerRootProfileV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum FunctionBodyOriginV1 {
@@ -94,9 +94,6 @@ impl<'a> FunctionSyntaxViewV1<'a> {
         self.body_origin
     }
 
-    pub(crate) const fn source_kind(self) -> SemanticOwnerSourceKindV1 {
-        self.root_profile().source_kind()
-    }
 
     pub(crate) const fn root_profile(self) -> SemanticOwnerRootProfileV1 {
         match self.body_origin {

@@ -1,5 +1,4 @@
 //! Argument purpose uses original topology, not an enclosing Print/Return root.
-use super::*;
 use crate::ast::ASTNode;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
