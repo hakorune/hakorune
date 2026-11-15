@@ -24,6 +24,7 @@ Design SSOT note (Scope Exit Semantics):
 - exception `finally` is rejected; standalone `cleanup {}` owns lexical exit.
 - typed Result-only postfix `?` is the accepted unchanged-propagation target;
   its grammar/verified consumer remains production 0.
+- 2026-11-16 ([ADR-004](../../development/adr/adr-004-failure-surface-catch-and-cleanup.md), maintainer decision): trailing `catch`/`cleanup` stay in the language as forms over `Result`; not built yet. `RecoverableFailure`, `throw` and exceptions stay rejected.
 - source catch and `RecoverableFailure` are rejected targets.
 - standalone `cleanup {}` is the sole lexical cleanup target; local/postfix
   cleanup and scope-position `fini` are retirement input.

@@ -43,6 +43,7 @@ Feature status and gates
   [callable contracts](callable-contracts.md).
 - `throw` is prohibited and parser-rejected with a stable freeze tag. It is not
   a feature that can be enabled by a compatibility toggle.
+- **2026-11-16 ([ADR-004](../../development/adr/adr-004-failure-surface-catch-and-cleanup.md), maintainer decision):** the trailing `catch` and `cleanup` forms stay in the language, redefined over `Result` (`catch` handles `Result::Err`, not exceptions). They are not built yet; `throw` and exceptions do not return. The next bullet describes the current rejection.
 - source `try`, `throw`, `catch`, exception `finally`, and
   `RecoverableFailure` are rejected target
   surfaces. Typed Result-only postfix `?` is the accepted unchanged-error

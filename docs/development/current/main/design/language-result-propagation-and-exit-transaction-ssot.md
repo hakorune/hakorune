@@ -13,6 +13,23 @@ Related:
 
 # Result Propagation and Exit Transaction SSOT
 
+> **Amended 2026-11-16 (maintainer decision, [ADR-004](../../../adr/adr-004-failure-surface-catch-and-cleanup.md)).**
+> The execution model below stands: `Result<T,E>` is the only recoverable
+> failure, postfix `?` propagates it, one exit transaction, Fault is not
+> catchable; `throw`, exceptions and `RecoverableFailure` do not return.
+> What changes: the trailing `catch` and `cleanup` forms **stay in the
+> language**. `catch` is redefined as a handler for `Result::Err` (not an
+> exception handler); trailing `cleanup` on methods and blocks stays next to
+> the standalone statement. They are built after `?`, standalone `cleanup` and
+> the exit transaction work; until then the trailing forms are a named
+> refusal with the spelling reserved. A discarded `Result` becomes a compile
+> error. Where this document lists source `catch`, handler-tail
+> `catch`/`cleanup` or postfix cleanup as "not Canonical v1" or "rejected",
+> read it as "not yet built; redefined by ADR-004". The legacy exception-shaped
+> implementation (`TryCatch`/`Catch`/`Throw` lowering) is still to retire, as
+> one family round that the maintainer starts; the sentence below that forbids
+> retirement while this workstream is parked is lifted by ADR-004.
+
 ## Decision
 
 Hakorune v1 uses one value-level recoverable-failure family and one explicit
