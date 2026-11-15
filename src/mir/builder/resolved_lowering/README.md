@@ -60,74 +60,39 @@ Invariants:
 - legacy statement/expression dispatch, Planner/CorePlan, Lambda, production
   Loop activation, Main, REPL, and ProgramV0 are outside this boundary.
 
-## Canonical Loop Compare operand boundary (C-prime P0)
+## Canonical Loop Compare operand boundary
 
-The caller-zero strict Compare lane admits an operand only after the Loop
-physicalizer has supplied one full `Published` value receipt and the canonical
-SSA session has reissued its own open-target witness. The session scans actual
-MIR for exactly one definition of the receipt's physical value, requires that
-definition to be in the exact target block, and requires `MirType::Integer`.
-Missing, duplicate, parameter, cross-block, foreign, and non-Integer cases
-reject before any Compare destination, ledger reservation, writer call, or MIR
-mutation. The neutral request and co-sealed witness do not resolve targets or
-perform dominance. The generic Loop physicalizer remains caller-zero; the
-selected Dynamic I9 handoff is the single bounded production consumer and
-passes its Dynamic-owned operand views directly to this canonical issuer.
+The shared strict Compare contract accepts owner/session-bound same-block
+Integer witnesses. Canonical SSA scans actual MIR for one exact definition in
+the target block and rejects missing, duplicate, parameter, cross-block,
+foreign and non-Integer operands before destination reservation or mutation.
+The generic Loop writer adapter retired in F22; the selected Dynamic I9
+emitter and its private result ledger retire in F25. Their old caller counts
+and physical ledgers are not current activation authorities.
 
-## Canonical Loop Compare result ledger P0
+## Shared canonical Compare preparation and append
 
-The selected Dynamic I9 result publication is owner-bound to
-`DynamicV2PhysicalValueLedgerV1`. A vacant V13 key is reserved by a private
-one-shot token holding only the exact slot. The token is co-sealed with the
-prepared strict Compare and session-bound Branch inside the private I9
-aggregate; its commit performs an infallible Published transition, while an
-uncommitted drop poisons the slot. There is no reset, retry, post-append
-duplicate check, MIR inspection, arbitrary definition pairing, or raw-
-`ValueId` reservation input. The generic Loop ledger remains caller-zero and
-outside this selected Dynamic handoff.
-
-## Canonical Loop Compare strict writer P0
-
-The caller-zero strict writer consumes only already-issued canonical witnesses:
+The retained owner is `canonical_compare_writer.rs` with
+`builder_emit_core.rs` preparation/commit:
 
 ```text
 open target + same-block Integer lhs/rhs + fresh destination + Bool plan
     -> PreparedCanonicalCompareAppendV1
-    -> one shared append_instruction_core mutation
-    -> CanonicalCompareDefinitionSourceV1
+    -> append_instruction_core in mir/ssot/cf_common.rs
+    -> non-Clone/non-Copy CanonicalCompareDefinitionSourceV1
 ```
 
-`builder_emit.rs` keeps the legacy repair-capable front door, while
-`builder_emit_core.rs` owns the one physical append point and the strict
-prepare/commit contract. The prepared Compare no longer retains a Builder
-borrow, so a caller can prepare a same-session Branch before reserving its
-result. The strict commit cannot create a block, change
-`current_block`, invoke `emit_instruction_at`, materialize LocalSSA/PHI state,
-infer a type, or perform a fallible post-append check. The definition source is
-non-Clone/non-Copy and is the only writer-to-ledger handoff shape. The selected
-Dynamic transaction reserves V13 only after Compare and Branch preparation.
+Preparation owns every fallible target/definition/type check. Commit does not
+create blocks, consult `current_block`, invoke a repair-capable emitter,
+materialize LocalSSA/PHI state, infer types or perform a fallible post-append
+check. The legacy `builder_emit.rs` front door delegates through canonical CFG;
+strict Compare delegates directly to the same shared append primitive.
 
-The strict writer is exercised by focused positive and rejection tests. Its
-generic Loop physicalizer caller count remains zero by design. Selected
-Dynamic I9 is the one named production caller, while legacy Loop operation
-dispatch and fallback remain outside this handoff. The reusable guard is
-`tools/checks/rust_mirbuilder_loop_compare_strict_writer_p0_guard.sh`.
-
-## Selected Dynamic I9 direct canonical handoff
-
-Selected Dynamic I9 keeps `DynamicV2PhysicalValueLedgerV1` as its sole result
-publication owner. It does not project V11/V12 into the generic
-`LoopOperationValueLedgerV1` and does not call the legacy Compare emitter.
-The Dynamic session brand carries the canonical `FunctionOwnerIdV1`; the two
-Dynamic value views are rebound through the canonical same-block Integer
-issuer, and V13 is reserved immediately before the strict writer append.
-The I9 path prepares the strict Compare and a session-bound Branch before its
-last-fallible V13 reservation. A private move-only aggregate then commits one
-Compare append, one Bool fact, one V13 publication, and one Branch. The
-pending token no longer accepts an arbitrary Compare definition or uses
-assert-based pairing. A dropped pending token poisons the slot, so the
-unpublished outer function session must be discarded; retry, fallback,
-post-append publication, and a second result ledger are forbidden.
+The existing `dynamic_v2_physical_input_authority_guard.sh` retains prepared
+append/definition-source and no-ambient-repair checks, exactly one direct span
+append at the shared owner, zero direct Builder span appends, canonical CFG
+delegation, source caps and the Builder split trigger. The old strict-writer/CONNECT0 guards
+retire with their adapters; their shared guarantees remain in this guard.
 
 ## Common V2 canonical session-open canary
 

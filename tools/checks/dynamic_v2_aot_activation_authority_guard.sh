@@ -39,16 +39,10 @@ CALLOUT_FACADE="$ROOT_DIR/src/mir/checked_callout.rs"
 CALLOUT_TESTS="$ROOT_DIR/src/mir/checked_callout/tests.rs"
 CALLOUT_CFG="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_cfg/session.rs"
 CALLOUT_SSA="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session.rs"
-SELECTED_CAPABILITY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs"
 SELECTED_IDENTITY="$ROOT_DIR/src/runner/modes/common_util/selected_dynamic_identity.rs"
 SELECTED_BUNDLE_OWNER="$ROOT_DIR/src/runner/modes/common_util/selected_dynamic_artifact_bundle.rs"
-SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
-CALLOUT_CORRIDOR="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/callout_corridor/mod.rs"
-CALLOUT_CORRIDOR_EMISSION="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/callout_corridor/emission.rs"
-SELECTED_LIFECYCLE="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/lifecycle_terminal.rs"
 SEAL_OWNER="$ROOT_DIR/src/mir/builder/resolved_lowering/draft_seal_owner.rs"
 CATALOGED_HANDOFF="$ROOT_DIR/src/mir/builder/cataloged_box_method_collector_handoff.rs"
-CATALOGED_HANDOFF_TESTS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/tests.rs"
 PACKAGE_INSTALL="$ROOT_DIR/src/mir/normal_callable_semantic_package/install.rs"
 PACKAGE_ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
 C1A_ROUTE="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_route.inc"
@@ -72,7 +66,7 @@ guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_command "$TAG" llvm-nm
-guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$LEASE_HEADER" "$NYRT_HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$LEASE_ADAPTER" "$LEASE_FFI_MOD" "$METADATA" "$HOOK" "$METADATA_TEST" "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST" "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST" "$RUST_METADATA" "$RUST_METADATA_TEST" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_IDENTITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$CALLOUT_CORRIDOR_EMISSION" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
+guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$LEASE_HEADER" "$NYRT_HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$LEASE_ADAPTER" "$LEASE_FFI_MOD" "$METADATA" "$HOOK" "$METADATA_TEST" "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST" "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST" "$RUST_METADATA" "$RUST_METADATA_TEST" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_IDENTITY" "$CATALOGED_HANDOFF" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
 guard_require_files "$TAG" "$C1A_ROUTE" "$C1A_PROGRAM_VIEW" "$C1A_LOWERING" "$C1A_HEADER" "$C1A_LAUNCH"
 guard_require_files "$TAG" "$C1_OWNER" "$C1_DISPATCH" "$C1_PRESCAN" "$C1_SHIM" "$C1_SMOKE" "$SELECTED_BUNDLE_OWNER" "$SEAL_OWNER"
 guard_require_files "$TAG" "$ARTIFACT_DESCRIPTOR_HEADER" "$ARTIFACT_DESCRIPTOR_EMITTER" "$ARTIFACT_DESCRIPTOR_OPEN"
@@ -126,7 +120,7 @@ for file in "$C1A_ROUTE" "$C1A_LOWERING" "$C1A_HEADER"; do
   fi
 done
 
-for file in "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" "$CALLOUT_CORRIDOR" "$CALLOUT_CORRIDOR_EMISSION"; do
+for file in "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" ; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 700 )); then
     guard_fail "$TAG" "W6-S source split file reached the mandatory 700-line gate: ${file#"$ROOT_DIR/"} has $lines"
@@ -228,46 +222,12 @@ for id in CheckedCallOutSiteIdV1 CheckedCallOutEntryIdV1 CheckedCallOutOutcomeSl
   guard_expect_fixed_in_file "$TAG" "struct $id(u32)" "$CALLOUT_OWNER" \
     "$id must have a private tuple field"
 done
-if rg -n 'CheckedCallOut(Site|Entry|OutcomeSlot|LeaseSlot)IdV1\(|\.(site_id|outcome_slot|lease_slot|admitted_entry)\.0\b' \
-  "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SELECTED_LIFECYCLE" \
-  "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/profile_close.rs"; then
-  guard_fail "$TAG" "selected physical consumers must borrow issued CheckedCallOut IDs"
-fi
 guard_expect_fixed_in_file "$TAG" "from_wire(value: u32)" "$CALLOUT_OWNER" \
   "CheckedCallOut JSON transport ingress must be explicit"
 guard_expect_fixed_in_file "$TAG" "from_admitted(value: u32)" "$CALLOUT_OWNER" \
   "admitted entry/lease projection must remain explicit"
-guard_expect_fixed_in_file "$TAG" "prepare_aot_activation" "$SELECTED_CAPABILITY" \
-  "selected capability admission must issue the site-plan transport"
-guard_expect_fixed_in_file "$TAG" "PreparedSelectedDynamicV2AotActivationV1" "$SELECTED_CAPABILITY" \
-  "site-plan transport must remain one move-only activation aggregate"
-guard_expect_fixed_in_file "$TAG" "consume_for_session" "$SELECTED_CAPABILITY" \
-  "the selected session must consume the activation aggregate exactly once"
-guard_expect_fixed_in_file "$TAG" "consume_for_unpublished_session" "$SELECTED_CAPABILITY" \
-  "the negative-only capability disposition must become a private unpublished-session fence"
-guard_expect_fixed_in_file "$TAG" "DynamicV2UnpublishedSessionReadinessV1" "$SELECTED_EMITTER" \
-  "the selected session must receive only the private unpublished-session fence"
-guard_expect_fixed_in_file "$TAG" "readiness.consume_before_open();" "$SELECTED_EMITTER" \
-  "the unpublished-session fence must be consumed at the Builder-open boundary"
-if rg -n 'DynamicV2PhysicalCapabilityDispositionV1|disposition:' "$SELECTED_EMITTER"; then
-  guard_fail "$TAG" "the physical session must not retain the negative-only capability disposition"
-fi
-guard_expect_fixed_in_file "$TAG" "install_checked_callout_site_plans" "$SELECTED_EMITTER" \
-  "the emitter must install admitted plans before corridor allocation"
-guard_expect_fixed_in_file "$TAG" "i6_site: CheckedCallOutSiteIdV1" "$CALLOUT_CORRIDOR" \
-  "the private corridor must retain the I6 site identity"
-guard_expect_fixed_in_file "$TAG" "self.i6_normal.matches(brand)" "$CALLOUT_CORRIDOR" \
-  "the private corridor must verify both I6 landing brands"
-guard_expect_fixed_in_file "$TAG" "site_pair_matches" "$CALLOUT_CORRIDOR" \
-  "the private corridor must reject lifecycle/site-pair drift"
-guard_expect_fixed_in_file "$TAG" "CheckedCallOutEnd" "$SELECTED_LIFECYCLE" \
-  "the selected lifecycle owner must project the typed End instruction"
-guard_expect_fixed_in_file "$TAG" "CheckedCallOutFault" "$SELECTED_LIFECYCLE" \
-  "the selected lifecycle owner must project the non-rejoining Fault terminal"
 guard_expect_fixed_in_file "$TAG" "fn parse_effect_mask" "$ROOT_DIR/src/runner/mir_json_v0/checked_callout.rs" \
   "CheckedCallOut JSON transport must reject unknown effect bits"
-guard_expect_fixed_in_file "$TAG" "lifecycle_terminal::DynamicV2PhysicalLifecycleTerminalPlanV1::issue" "$SELECTED_EMITTER" \
-  "the selected session must consume cleanup/site facts before Builder open"
 guard_expect_fixed_in_file "$TAG" "emit_checked_callout_fault" "$CALLOUT_CFG" \
   "canonical CFG must own the physical Fault terminal issuer"
 guard_expect_fixed_in_file "$TAG" "emit_checked_callout_end" "$CALLOUT_SSA" \
@@ -293,22 +253,8 @@ guard_expect_fixed_in_file "$TAG" "result_type: MirType" "$CALLOUT_SSA" \
   "canonical Normal-result issuer must co-seal the MIR type"
 guard_expect_fixed_in_file "$TAG" "publish_physical_value_type(builder, dst, result_type)" "$CALLOUT_SSA" \
   "Normal-result type publication must stay inside the canonical issuer"
-guard_expect_fixed_in_file "$TAG" "route_return_shape_value_type" "$CALLOUT_CORRIDOR_EMISSION" \
-  "selected callout types must reuse the existing route type projection"
-guard_expect_fixed_in_file "$TAG" "i6_result_type" "$CALLOUT_CORRIDOR_EMISSION" \
-  "I6 Normal result type must be preflighted before emission"
-guard_expect_fixed_in_file "$TAG" "i7_result_type" "$CALLOUT_CORRIDOR_EMISSION" \
-  "I7 Normal result type must be preflighted before emission"
-CALLOUT_CORRIDOR_CALL_REGION="$(sed -n '/let i6_normal =/,/let corridor =/p' "$CALLOUT_CORRIDOR_EMISSION")"
-if printf '%s\n' "$CALLOUT_CORRIDOR_CALL_REGION" | rg -n 'publish_physical_value_type'; then
-  guard_fail "$TAG" "callout corridor must not publish Normal-result types outside the canonical issuer"
-fi
 if [[ "$(rg -n 'commit_cataloged_box_method_completed\(' "$CATALOGED_HANDOFF" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "cataloged Box-method collector terminal definition must be unique"
-fi
-if [[ "$(rg -n 'commit_cataloged_box_method_completed\(' "$CATALOGED_HANDOFF_TESTS" | wc -l | tr -d '[:space:]')" -lt 1 ]] && \
-   ! rg -q 'assemble_unpublished_selected_dynamic_w6' "$CATALOGED_HANDOFF_TESTS"; then
-  guard_fail "$TAG" "cataloged Box-method collector terminal needs a focused test caller"
 fi
 if rg -n 'commit_cataloged_box_method_completed\(' "$ROOT_DIR/src/mir" \
   --glob '*.rs' --glob '!**/tests.rs' --glob '!**/*_tests.rs' \
@@ -316,8 +262,6 @@ if rg -n 'commit_cataloged_box_method_completed\(' "$ROOT_DIR/src/mir" \
   --glob '!**/selected_dynamic_physical_emitter/mod.rs'; then
   guard_fail "$TAG" "cataloged Box-method collector terminal must have no production caller before selected cutover"
 fi
-guard_expect_fixed_in_file "$TAG" "assemble_unpublished_selected_dynamic_w6" "$CATALOGED_HANDOFF_TESTS" \
-  "the focused canary must consume the private unpublished W6 orchestration"
 if [[ "$(rg -n 'pub\(crate\) fn with_selected_and_admission<R>\(' "$PACKAGE_INSTALL" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "selected cataloged input/admission loan issuer must be unique"
 fi
@@ -329,15 +273,12 @@ guard_expect_fixed_in_file "$TAG" "into_lowering_and_admission" "$PACKAGE_ADAPTE
 if rg -n 'with_selected_and_admission\([^)]*clone|selected_and_admission.*into_parts' "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"; then
   guard_fail "$TAG" "selected input/admission loan must not clone or expose split parts"
 fi
-for file in "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS"; do
+for file in "$CATALOGED_HANDOFF" ; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "cataloged collector handoff file reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
   fi
 done
-if rg -n 'ReleaseStrong|Throw|After|drop_handle|consume_end_authorized' "$SELECTED_LIFECYCLE"; then
-  guard_fail "$TAG" "selected lifecycle owner must not reclassify cleanup or execute runtime lease effects"
-fi
 if [[ "$(rg -n '\.verify_checked_callout_function\(function\)' "$CALLOUT_SSA" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "canonical finish must consume the CheckedCallOut function census exactly once"
 fi
@@ -564,14 +505,6 @@ if rg -n \
   guard_fail "$TAG" "I0-D1 metadata/hook must have zero production Python callers"
 fi
 projection_callers=()
-while IFS= read -r file; do
-  case "$file" in
-    "$SELECTED_EMITTER") projection_callers+=("$file") ;;
-    *_tests.rs|*/tests.rs) ;;
-    *) guard_fail "$TAG" "C0-B Rust metadata projection gained an unapproved caller: ${file#"$ROOT_DIR/"}" ;;
-  esac
-done < <(rg -l --glob '*.rs' --glob '!call_metadata.rs' \
-  'project_dynamic_v2_aot_call_metadata\(' "$ROOT_DIR/src" || true)
 if [[ "${#projection_callers[@]}" -ne 1 ]]; then
   guard_fail "$TAG" "C0-B Rust metadata projection must have exactly one selected-session caller"
 fi
@@ -721,7 +654,7 @@ fi
 if printf '%s\n' "$STRICT_BODY" | rg -n 'A_Prime|a_prime|Vm|Interpreter|lower_method_call|RuntimeExecutablePlan'; then
   guard_fail "$TAG" "strict leaf must not open VM, MIR, LLVM, or executable-plan routes"
 fi
-for file in "$STRICT_LEAF" "$LEASE" "$LEASE_IDENTITY" "$SELECTED_LIFECYCLE"; do
+for file in "$STRICT_LEAF" "$LEASE" "$LEASE_IDENTITY" ; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "I0-D strict leaf/lease file reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"

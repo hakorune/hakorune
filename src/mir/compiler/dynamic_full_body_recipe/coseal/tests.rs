@@ -1,8 +1,8 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::{
-    issue_catalog_callable_owner_link_v1, NormalCallableSemanticAdmissionV1,
-    SameModuleCallableNamespaceV1, VerifiedNormalCallableSemanticSourceV1,
-    VerifiedSameModuleCallableDeclarationCatalogV1, issue_source_backed_dynamic_callable_v1,
+    issue_catalog_callable_owner_link_v1, issue_source_backed_dynamic_callable_v1,
+    NormalCallableSemanticAdmissionV1, SameModuleCallableNamespaceV1,
+    VerifiedNormalCallableSemanticSourceV1, VerifiedSameModuleCallableDeclarationCatalogV1,
 };
 use crate::mir::loop_recipe_contract::{LoopItemKeyV1, LoopValueKeyV1};
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
@@ -71,8 +71,8 @@ pub(super) fn fixture(include_dynamic_targets: bool) -> CosealFixtureV2 {
         .into_parts();
     let input = ingress.input();
     let calls = if include_dynamic_targets {
-        let dynamic = issue_source_backed_dynamic_callable_v1(input)
-            .expect("source-backed Dynamic callable");
+        let dynamic =
+            issue_source_backed_dynamic_callable_v1(input).expect("source-backed Dynamic callable");
         issue_source_bound_dynamic_member_calls_v1(input, &dynamic)
             .expect("owned Dynamic call relations")
     } else {
@@ -130,68 +130,6 @@ fn unchanged_source_coseals_all_claims_and_two_owned_call_relations() {
     assert_eq!(local.declaration_statement(), statement);
     assert_eq!(local.binding().owner(), product.source().owner);
     assert_ne!(local.read().node(), local.declaration_statement().node());
-}
-
-#[test]
-fn a_prime_source_relation_borrows_only_verified_i64_facts() {
-    let fixture = fixture(true);
-    let product =
-        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, fixture.calls)
-            .expect("atomic source/Recipe/envelope co-seal");
-
-    let owner = product.source().owner;
-    let scope_region = product.source().scope_region;
-    let observed = product
-        .with_a_prime_source_relation(|view| {
-            assert_eq!(view.owner(), owner);
-            assert_eq!(view.scope_region(), scope_region);
-            assert_eq!(
-                view.pos_class(),
-                super::super::DynamicFullLoopParameterClassV2::I64
-            );
-            assert_eq!(
-                view.end_class(),
-                super::super::DynamicFullLoopParameterClassV2::I64
-            );
-            assert_eq!(
-                view.src_class(),
-                super::super::DynamicFullLoopParameterClassV2::Dynamic
-            );
-            assert_eq!(
-                view.pred_chars_class(),
-                super::super::DynamicFullLoopParameterClassV2::Dynamic
-            );
-            assert_eq!(view.src_binding().owner(), owner);
-            assert_eq!(view.pred_chars_binding().owner(), owner);
-            assert_eq!(view.pos_binding().owner(), owner);
-            assert_eq!(view.end_binding().owner(), owner);
-            assert_eq!(view.induction_binding().owner(), owner);
-            assert_eq!(
-                view.induction_key(),
-                crate::mir::loop_recipe_contract::LoopBindingKeyV1::new(0)
-            );
-            assert_eq!(
-                view.carrier_key(),
-                crate::mir::loop_recipe_contract::LoopCarrierKeyV1::new(0)
-            );
-            assert_eq!(view.entry_value(), LoopValueKeyV1::new(1));
-            assert_eq!(view.inner_return_value(), LoopValueKeyV1::new(14));
-            assert_eq!(
-                view.outer_tail_binding(),
-                crate::mir::loop_recipe_contract::LoopBindingKeyV1::new(0)
-            );
-            assert_eq!(view.completion_sites().len(), 2);
-            (
-                view.pos_binding(),
-                view.end_binding(),
-                view.induction_binding(),
-            )
-        })
-        .expect("A-prime source relation");
-
-    assert_eq!(observed.0.owner(), owner);
-    assert_eq!(observed.1.owner(), owner);
-    assert_eq!(observed.2.owner(), owner);
 }
 
 #[test]

@@ -7,28 +7,21 @@
 mod claims;
 mod coseal;
 mod mapping;
-mod physical_demand;
 
 pub(in crate::mir) use coseal::{
     issue_dynamic_exit_transaction_coseal_i0, issue_dynamic_full_loop_semantic_program_v2,
     issue_dynamic_full_loop_source_recipe_envelope_v2,
     issue_dynamic_invocation_carrier_lifecycle_program_v1,
-    issue_dynamic_invocation_cleanup_projection_i0,
-    DynamicAPrimeI64SourceRelationRejectV1, DynamicAPrimeI64SourceRelationViewV1,
-    DynamicCanonicalSessionAuthorityRefV1, DynamicExitTransactionCoSealRejectV1, DynamicFullLoopFaultFamilyV2, DynamicFullLoopOperationEffectV2,
-    DynamicFullLoopOperationPhysicalRefV2, DynamicFullLoopPhysicalInputRejectV2,
-    DynamicFullLoopPhysicalInputViewV2, DynamicFullLoopPhysicalItemKindV2,
-    DynamicFullLoopPhysicalItemPlacementV2, DynamicFullLoopSemanticProgramRejectV2,
-    DynamicFullLoopSourceRecipeEnvelopeRejectV2,
+    issue_dynamic_invocation_cleanup_projection_i0, DynamicCanonicalSessionAuthorityRefV1,
+    DynamicExitTransactionCoSealRejectV1, DynamicFullLoopFaultFamilyV2,
+    DynamicFullLoopOperationEffectV2, DynamicFullLoopOperationPhysicalRefV2,
+    DynamicFullLoopPhysicalItemKindV2, DynamicFullLoopPhysicalItemPlacementV2,
+    DynamicFullLoopSemanticProgramRejectV2, DynamicFullLoopSourceRecipeEnvelopeRejectV2,
     DynamicInvocationCarrierLifecycleProgramRejectV1, DynamicInvocationCleanupActionViewV1,
     DynamicInvocationCleanupCurrentDispositionV1, DynamicInvocationCleanupProjectionRejectV1,
-    DynamicInvocationCleanupRowKindV1, DynamicInvocationCleanupRowViewV1, DynamicLoopPhysicalArmV2, DynamicLoopPhysicalControlViewV2,
+    DynamicInvocationCleanupRowKindV1, DynamicInvocationCleanupRowViewV1, DynamicLoopPhysicalArmV2,
     VerifiedDynamicExitTransactionCoSealV1, DYNAMIC_FULL_LOOP_PHYSICAL_ITEM_COUNT_V2,
     DYNAMIC_FULL_LOOP_PHYSICAL_OPERATION_COUNT_V2,
-};
-pub(in crate::mir) use physical_demand::{
-    issue_dynamic_full_loop_operation_physical_demand_v2,
-    DynamicFullLoopPhysicalDemandRejectV2, PreparedDynamicLoopOperationProgramV2,
 };
 
 #[cfg(test)]

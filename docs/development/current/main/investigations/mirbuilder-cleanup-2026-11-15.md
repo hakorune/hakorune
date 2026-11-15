@@ -444,3 +444,13 @@ focused23件PASS。旧生成成功testを同じ入力の名前付き拒否・命
 元のcanonical/static-child入口を閉じた最適化CLIで固定5,386入力のMIR/拒否/出力/exit差0（EXE1,471、timeout0）を確認してから、専用のsource/Recipe/physicalizer24fileを退役した。現役のsource-shape helper、共有loan/receipt・typed completion・profile countを保持した。
 共有のowner/continuation/allocator/segment/recursive-after検査は既存GenericG0のverified fixtureへ移し、重複layout fixtureを既存test-supportへ集約。キーの発行権限を広げず、共有assertionを保持した。旧形式専有56testを削除し登録8722→8666・追加0・全名対応、旧台帳もそのPASS56件だけ除去しFAIL集合不変。
 削除後focused232件・owner数/pointer/diff検査を確認。整形後Rustは本体4,342行/test3,214行の純減。JoinSig guardのstatic_loop_body未許可は基点から同一の既存不整合として保持する。削除後の全入力・全lib・固定suite最終確認はseries最終で行う。
+
+### 段C F23: 差分検出による保持
+
+旧NestedPredicate入口を閉じた固定5,386入力の比較で、4入力のdump/EXE拒否診断に差が出た。exit1・EXE未生成と`RowUnresolved(DirectAccum)`は同じだが、診断のadmission行一覧から旧Nested行が消えた。差0の条件を広げず、このfamilyの変更を全て戻し、専用実装・test・共有検証を保持した。対象は`if_phi_join_min`、`phase118_pattern3_if_sum_min`、`phase264_p0_bundle_resolver_loop_min`、既存regress入力`coalesced-loop`。公開する診断情報の扱いが決まった時に再検討し、今回はF25へ進む。
+
+### 段C F25: selected Dynamic V2 専用物理経路
+
+元のstatic-child入口を閉じた最適化CLIで固定5,386入力のMIR/拒否/出力/exit差0（EXE1,471、timeout0）を確認。専用emitter/ABI/capabilityと、呼び手が消えたA-prime source view・physical demandを同じ塊で退役した。private ABI構造の削除であり、公開MIR/JSON/C ABIは変更しない。current package issuerが使うlogical/Fault/cleanup co-sealとrunnerのroot fenceは保持。
+削除後focused197件（Dynamic logical契約・external commit・targetless binding・独立検証・ownership）PASS、登録8666→8645・旧専有21件のみ削除。旧台帳はそのPASS21件だけ除きFAIL集合不変。整形後Rustは本体7,962行/test1,709行の純減、Rust32file退役。
+旧fixture生成CLIと専用guardを退役し、共有のSSA/比較/単一append検査を既存guardへ移管。移管block・wire/text guard・C provenance driverとPython33件PASS。F22由来の旧writer guard参照漏れもここで解消した。既存authority guardのloan-port旧anchor欠落（基点から0件）とDraftSeal raw drop件数2/2対期待1/1は緩めず保持し、全guardがgreenとはしない。owner数・pointer/diff検査を確認し、全入力/全lib/固定suiteの削除後最終確認はseries最終で行う。

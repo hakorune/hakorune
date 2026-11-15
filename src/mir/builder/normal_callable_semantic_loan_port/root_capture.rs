@@ -225,41 +225,6 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                 |input, signature, loop_break_take| {
                 validate_selected_cataloged_input(&input)?;
                 validate_selected_signature_loan(&input, &signature)?;
-                if matches!(
-                    input.selected().semantic(),
-                    crate::mir::normal_callable_semantic_package::SelectedCallableSemanticRefV1::Dynamic { .. }
-                ) {
-                    let (selected, admission, physical_header) =
-                        input.into_lowering_and_admission();
-                    let target_binding = target_binding.ok_or_else(|| {
-                        "[freeze:contract][mir/selected-dynamic/target-binding] missing"
-                            .to_owned()
-                    })?;
-                    let _collector_receipt =
-                        crate::mir::builder::resolved_lowering::assemble_unpublished_selected_dynamic_w6_from_parts(
-                            builder,
-                            inner.module_port,
-                            target_binding,
-                            &selected,
-                            admission,
-                            physical_header,
-                            |session, profile| {
-                                let mut state =
-                                    CallableSemanticLoweringState::from_exact_source_with_dynamic_source(
-                                        selected.source(),
-                                        Some(Rc::clone(session.dynamic_source())),
-                                    )?;
-                                session.observe_body_state(&mut state, profile)?;
-                                state.finish()
-                            },
-                        )
-                        .map_err(|error| {
-                            format!(
-                                "[freeze:contract][mir/selected-dynamic/production-handoff] {error}"
-                            )
-                        })?;
-                    return Ok(());
-                }
                 let (selected, admission, _physical_header) = input.into_lowering_and_admission();
                 if static_i64_entry::collect_if_selected(
                     builder,

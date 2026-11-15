@@ -348,7 +348,6 @@
      "src/mir/builder/module_lowering_shell.rs",
      "src/mir/builder/raw_root_environment_install.rs",
      "src/mir/builder/raw_root_physical.rs",
-     "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/observation_fixture.rs",
      "src/mir/compiler/canonical_bridge_fixture0_p0.rs",
      "src/mir/compiler/loop_candidate_abort_p0.rs",
      "src/mir/compiler/mod.rs",
@@ -371,7 +370,7 @@
      "src/mir/builder/builder_metadata.rs:49:source_file",
      "src/mir/builder/module_invocation_brand0.rs:229:source_file"
     ],
-    "count": 27
+    "count": 26
    },
    "backend_consumer": {
     "role": "selected_observed",
@@ -6258,7 +6257,6 @@
     "owners": [
      "src/mir/builder/builder_metadata.rs",
      "src/mir/builder/field_receiver_provenance/mod.rs",
-     "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs",
      "src/mir/exact_numeric_value_facts.rs",
      "src/mir/parameter_entry_backend_capability.rs",
      "src/mir/type_contracts/parameter_entry.rs",
@@ -6269,7 +6267,7 @@
      "src/mir/builder/builder_metadata.rs:75:declared_param_decls",
      "src/mir/builder/field_receiver_provenance/mod.rs:40:declared_param_decls"
     ],
-    "count": 8
+    "count": 7
    },
    "backend_consumer": {
     "role": "reference_only",
@@ -6429,8 +6427,6 @@
     "owners": [
      "src/box_callable/provider_admission/call_metadata.rs",
      "src/mir/builder/resolved_lowering/draft_seal_owner.rs",
-     "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/a_prime_receipt.rs",
-     "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/formal_header.rs",
      "src/mir/function/dynamic_metadata_observation.rs",
      "src/runner/mir_json_emit/a_prime_i64_capability.rs",
      "src/runner/mir_json_emit/dynamic_v2_aot_admission.rs"
@@ -6439,7 +6435,7 @@
      "src/box_callable/provider_admission/call_metadata.rs:15:a_prime_i64_physical_receipt",
      "src/mir/builder/resolved_lowering/draft_seal_owner.rs:11:a_prime_i64_physical_receipt"
     ],
-    "count": 7,
+    "count": 5,
     "kind": "observed_mutation"
    },
    "production_consumer": {
@@ -6447,8 +6443,6 @@
      "src/box_callable/provider_admission/call_metadata.rs",
      "src/mir/a_prime_i64_physical_receipt.rs",
      "src/mir/builder/resolved_lowering/draft_seal_owner.rs",
-     "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/a_prime_receipt.rs",
-     "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/formal_header.rs",
      "src/mir/function/dynamic_metadata_observation.rs",
      "src/mir/mod.rs"
     ],
@@ -6456,7 +6450,7 @@
      "src/box_callable/provider_admission/call_metadata.rs:15:a_prime_i64_physical_receipt",
      "src/mir/a_prime_i64_physical_receipt.rs:679:a_prime_i64_physical_receipt"
     ],
-    "count": 7
+    "count": 5
    },
    "backend_consumer": {
     "role": "selected_observed",
@@ -6651,7 +6645,6 @@
    "production_consumer": {
     "owners": [
      "src/mir/backend_capability.rs",
-     "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs",
      "src/mir/builder/resolved_lowering/trivial_ssa/direct_call.rs",
      "src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs",
      "src/mir/canonical_direct_static_call_backend_capability.rs"
@@ -6659,7 +6652,7 @@
     "anchors": [
      "src/mir/backend_capability.rs:200:canonical_direct_static_call_capabilities"
     ],
-    "count": 5
+    "count": 4
    },
    "backend_consumer": {
     "role": "none",

@@ -12,19 +12,17 @@ guard_require_files "$TAG" \
   "$ROOT_DIR/src/box_callable/provider_admission/seal.rs" \
   "$ROOT_DIR/src/box_callable/provider_admission/admitted_registry.rs" \
   "$ROOT_DIR/src/box_callable/provider_admission/aot_admission.rs" \
-  "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs" \
+  \
   "$ROOT_DIR/src/mir/normal_callable_semantic_package/issuer.rs" \
   "$ROOT_DIR/docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 
 BRAND_PORT="$ROOT_DIR/src/mir/builder/module_lowering_invocation.rs"
 RAW_CHILD="$ROOT_DIR/src/mir/builder/recursive_child_lowering.rs"
 COLLECTOR="$ROOT_DIR/src/mir/builder/module_draft_collector.rs"
-EMITTER_TESTS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/tests.rs"
-EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
 PRODUCTION_CALLER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
 FACADE="$ROOT_DIR/src/mir/builder/resolved_lowering/mod.rs"
-guard_require_files "$TAG" "$BRAND_PORT" "$RAW_CHILD" "$COLLECTOR" "$EMITTER_TESTS"
-guard_require_files "$TAG" "$EMITTER" "$PRODUCTION_CALLER" "$FACADE"
+guard_require_files "$TAG" "$BRAND_PORT" "$RAW_CHILD" "$COLLECTOR"
+guard_require_files "$TAG" "$PRODUCTION_CALLER" "$FACADE"
 
 PACKAGE_ISSUER="$ROOT_DIR/src/mir/normal_callable_semantic_package/issuer.rs"
 
@@ -46,12 +44,9 @@ fi
 if [[ "$(rg -n 'pub\(crate\) struct ProviderAdmissionSealV1' "$ADMISSION_DIR/seal.rs" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "ProviderAdmissionSeal must have exactly one issuer"
 fi
-if [[ "$(rg -n 'ProviderAdmissionSealV1::consume_text_scan' "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs" | wc -l | tr -d '[:space:]')" != 1 ]]; then
-  guard_fail "$TAG" "selected physical capability must consume the admission exactly once"
-fi
 if rg -n 'NonZeroU64|registry_generation[[:space:]]*:' \
   "$ADMISSION_DIR/seal.rs" \
-  "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs"; then
+  ; then
   guard_fail "$TAG" "admission must not accept an independent raw registry generation"
 fi
 if [[ "$(rg -n 'AdmittedTextScanRegistryV1::new' "$ADMISSION_DIR/seal.rs" | wc -l | tr -d '[:space:]')" != 1 ]]; then
@@ -70,37 +65,10 @@ if rg -n 'ModuleInvocationBrandV1::(legacy_test|test_with_ordinal)' \
   "$BRAND_PORT" "$RAW_CHILD" "$COLLECTOR"; then
   guard_fail "$TAG" "production brand transport must not mint a test brand"
 fi
-guard_expect_fixed_in_file "$TAG" ".with_invocation_brand(|brand|" "$EMITTER" \
-  "the unpublished W6 orchestrator must consume the collector-backed brand callback"
-guard_expect_fixed_in_file "$TAG" "issue_selected_dynamic_v2_physical_capability_admission_from_brand" "$EMITTER" \
-  "the W6 orchestrator must pass the collector brand into selected admission"
-guard_expect_fixed_in_file "$TAG" "capability.plan_stamp() != brand" "$EMITTER" \
-  "the W6 orchestrator must reject a PlanStamp/collector-brand mismatch"
-guard_expect_fixed_in_file "$TAG" "commit_cataloged_box_method_completed(completed)" "$EMITTER" \
-  "the W6 orchestrator must carry the completed draft to the branded collector terminal"
-guard_expect_fixed_in_file "$TAG" "assemble_unpublished_selected_dynamic_w6" "$EMITTER_TESTS" \
-  "the focused canary must consume the private W6 orchestrator"
-guard_expect_fixed_in_file "$TAG" "assemble_unpublished_selected_dynamic_w6" "$PRODUCTION_CALLER" \
-  "the selected package adapter must be the sole named production caller"
-guard_expect_fixed_in_file "$TAG" "assemble_unpublished_selected_dynamic_w6" "$FACADE" \
-  "the resolved-lowering facade must expose the single private orchestrator"
 guard_expect_fixed_in_file "$TAG" \
   "declaration.mode() != ResolvedCallableDeclarationModeV1::StaticBoxMethod" \
   "$PACKAGE_ISSUER" \
   "Dynamic admission must be gated by the resolved declaration mode"
-assembly_files=()
-while IFS= read -r file; do
-  [[ -z "$file" ]] && continue
-  case "$file" in
-    "$EMITTER"|"$EMITTER_TESTS"|"$PRODUCTION_CALLER") assembly_files+=("$file") ;;
-    "$FACADE") : ;; # crate facade re-export, not an invocation caller
-    *) guard_fail "$TAG" "the private W6 orchestrator gained an unexpected caller: $file" ;;
-  esac
-done < <(rg -l --glob '*.rs' -F 'assemble_unpublished_selected_dynamic_w6' "$ROOT_DIR/src/mir" || true)
-if [[ "${#assembly_files[@]}" -ne 3 ]]; then
-  guard_fail "$TAG" "the private W6 orchestrator must have exactly one definition, one focused caller, and one named production caller"
-fi
-
 if rg -n 'lookup_core_method|lookup_core_method_result_row|selector|lower_method_call|RuntimeExecutablePlan|function_address|image_digest|Vm|Interpreter' \
   "$ADMISSION_DIR"; then
   guard_fail "$TAG" "I0-C admission must not re-search generated rows, selectors, runtime plans, addresses, images, or VM lanes"
@@ -152,8 +120,5 @@ guard_expect_fixed_in_file "$TAG" 'ModuleInvocationBrandV1' \
 guard_expect_fixed_in_file "$TAG" "symbol: &'static str" \
   "$ADMISSION_DIR/aot_admission.rs" \
   "symbolic admission must retain the neutral export symbol"
-guard_expect_fixed_in_file "$TAG" 'RejectBeforeEffect' \
-  "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs" \
-  "pre-link admission must remain non-production/reject-only"
 
 echo "[$TAG] ok"

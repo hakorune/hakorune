@@ -1,6 +1,5 @@
 //! Sole atomic full-table source/Recipe/Dynamic-envelope co-seal.
 
-mod a_prime_source;
 mod calls;
 mod coverage;
 mod local;
@@ -14,17 +13,10 @@ use crate::mir::loop_recipe_contract::VerifiedLoopRecipeArtifactV2;
 use crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1;
 
 use super::{DynamicFullLoopRecipeCandidateV2, DynamicFullLoopRetainedSourceV1};
-pub(in crate::mir) use a_prime_source::{ DynamicAPrimeI64SourceRelationRejectV1,
-    DynamicAPrimeI64SourceRelationViewV1,
-};
-use calls::{
-    verify_dynamic_call_relations_v2, VerifiedDynamicFullLoopCallRelationsV2,
-};
 pub(in crate::mir) use calls::DynamicFullLoopCallRelationRejectV2;
-use coverage::{
-    verify_complete_claim_coverage_v2, VerifiedDynamicFullLoopClaimCoverageV2,
-};
+use calls::{verify_dynamic_call_relations_v2, VerifiedDynamicFullLoopCallRelationsV2};
 pub(in crate::mir) use coverage::DynamicFullLoopCoverageRejectV2;
+use coverage::{verify_complete_claim_coverage_v2, VerifiedDynamicFullLoopClaimCoverageV2};
 pub(in crate::mir) use local::DynamicIterationLocalValueRefV2;
 use local::{verify_iteration_local_relation_v2, DynamicIterationLocalRelationV2};
 use physical_evidence::issue_physical_evidence_v2;
@@ -41,14 +33,12 @@ pub(in crate::mir) use semantic_program::{
     issue_dynamic_exit_transaction_coseal_i0, issue_dynamic_full_loop_semantic_program_v2,
     issue_dynamic_invocation_carrier_lifecycle_program_v1,
     issue_dynamic_invocation_cleanup_projection_i0, DynamicCanonicalSessionAuthorityRefV1,
-    DynamicExitTransactionCoSealRejectV1,
-    DynamicFullLoopFaultCutPointCatalogRefV2,
-    DynamicFullLoopFaultFamilyV2, DynamicFullLoopPhysicalInputRejectV2,
-    DynamicFullLoopPhysicalInputViewV2, DynamicFullLoopSemanticProgramRejectV2,
+    DynamicExitTransactionCoSealRejectV1, DynamicFullLoopFaultCutPointCatalogRefV2,
+    DynamicFullLoopFaultFamilyV2, DynamicFullLoopSemanticProgramRejectV2,
     DynamicInvocationCarrierLifecycleProgramRejectV1, DynamicInvocationCleanupActionViewV1,
     DynamicInvocationCleanupCurrentDispositionV1, DynamicInvocationCleanupProjectionRejectV1,
     DynamicInvocationCleanupRowKindV1, DynamicInvocationCleanupRowViewV1,
-    DynamicLoopPhysicalControlViewV2, VerifiedDynamicExitTransactionCoSealV1,
+    VerifiedDynamicExitTransactionCoSealV1,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -75,13 +65,6 @@ pub(in crate::mir) struct VerifiedDynamicFullLoopSourceRecipeEnvelopeV2 {
 }
 
 impl VerifiedDynamicFullLoopSourceRecipeEnvelopeV2 {
-    pub(in crate::mir) fn with_a_prime_source_relation<R>(
-        &self,
-        callback: impl for<'program> FnOnce(DynamicAPrimeI64SourceRelationViewV1<'program>) -> R,
-    ) -> Result<R, DynamicAPrimeI64SourceRelationRejectV1> {
-        a_prime_source::issue(self, callback)
-    }
-
     pub(in crate::mir) fn iteration_local(&self) -> DynamicIterationLocalValueRefV2<'_> {
         self.iteration_local.borrow(&self.source)
     }

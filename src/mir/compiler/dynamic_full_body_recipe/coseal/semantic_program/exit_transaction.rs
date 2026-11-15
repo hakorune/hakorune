@@ -11,15 +11,9 @@
 
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId, SourceStmtSiteV1};
 
-use super::super::a_prime_source::{
-    DynamicAPrimeI64SourceRelationRejectV1, DynamicAPrimeI64SourceRelationViewV1,
-};
+use super::DynamicCanonicalSessionAuthorityRefV1;
 use super::DynamicInvocationCleanupRowViewV1;
 use super::VerifiedDynamicInvocationCleanupProjectionV1;
-use super::{
-    DynamicCanonicalSessionAuthorityRefV1, DynamicFullLoopPhysicalInputRejectV2,
-    DynamicFullLoopPhysicalInputViewV2,
-};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum DynamicExitTransactionCoSealRejectV1 {
@@ -79,27 +73,6 @@ impl VerifiedDynamicExitTransactionCoSealV1 {
         callback: impl FnOnce([DynamicInvocationCleanupRowViewV1; 4]) -> R,
     ) -> R {
         callback(self.cleanup.physical_rows())
-    }
-
-    pub(in crate::mir) fn with_physical_input<R>(
-        &self,
-        callback: impl for<'program> FnOnce(DynamicFullLoopPhysicalInputViewV2<'program>) -> R,
-    ) -> Result<R, DynamicFullLoopPhysicalInputRejectV2> {
-        self.cleanup
-            .with_semantic_program(|semantic| super::physical_input::issue(semantic, callback))
-    }
-
-    pub(in crate::mir) fn a_prime_source_relation_view(
-        &self,
-    ) -> Result<DynamicAPrimeI64SourceRelationViewV1<'_>, DynamicAPrimeI64SourceRelationRejectV1>
-    {
-        self.cleanup.a_prime_source_relation_view()
-    }
-
-    pub(in crate::mir) fn physical_input_view(
-        &self,
-    ) -> Result<DynamicFullLoopPhysicalInputViewV2<'_>, DynamicFullLoopPhysicalInputRejectV2> {
-        self.cleanup.physical_input_view()
     }
 
     #[cfg(test)]
@@ -172,7 +145,6 @@ mod tests {
         issue_dynamic_invocation_carrier_lifecycle_program_v1,
         issue_dynamic_invocation_cleanup_projection_i0,
     };
-    use crate::mir::compiler::dynamic_full_body_recipe::issue_dynamic_full_loop_operation_physical_demand_v2;
     use crate::mir::loop_recipe_contract::{
         LoopBlockKeyV1, LoopConditionV2, LoopExitKindV2, LoopItemKeyV1,
         LoopJoinBranchArmTransferRefV2, LoopNodeKeyV1, LoopValueKeyV1,
@@ -222,85 +194,6 @@ mod tests {
                 "forbidden term in exit transaction co-seal: {forbidden}"
             );
         }
-    }
-
-    #[test]
-    fn final_exit_coseal_lends_one_complete_physical_input_view() {
-        let transaction = exact_coseal();
-        transaction
-            .with_physical_input(|input| {
-                assert_eq!(input.placements().len(), 17);
-                assert_eq!(input.operations().len(), 15);
-                assert_eq!(
-                    input
-                        .operations()
-                        .iter()
-                        .filter(|row| row.call().is_some())
-                        .count(),
-                    2
-                );
-                assert_eq!(input.control().rows().len(), 1);
-                assert_eq!(input.control().logical().branches().len(), 1);
-                let control = &input.control().rows()[0];
-                assert_eq!(control.loop_key(), LoopNodeKeyV1::new(0));
-                assert_eq!(control.body_block(), LoopBlockKeyV1::new(1));
-                assert_eq!(
-                    control.condition(),
-                    LoopConditionV2::Predicate {
-                        block: LoopBlockKeyV1::new(0),
-                        value: LoopValueKeyV1::new(5),
-                    }
-                );
-                assert_eq!(control.branches().len(), 1);
-                let branch = &control.branches()[0];
-                assert_eq!(branch.owner_block(), LoopBlockKeyV1::new(1));
-                assert_eq!(branch.if_item(), LoopItemKeyV1::new(10));
-                assert_eq!(branch.condition(), LoopValueKeyV1::new(13));
-                assert_eq!(branch.then_block(), LoopBlockKeyV1::new(2));
-                assert_eq!(branch.else_block(), None);
-                assert_eq!(
-                    branch.then_arm(),
-                    crate::mir::compiler::dynamic_full_body_recipe::coseal::DynamicLoopPhysicalArmV2::Exit {
-                        item: LoopItemKeyV1::new(12),
-                        kind: LoopExitKindV2::Return {
-                            value: Some(LoopValueKeyV1::new(14)),
-                        },
-                    }
-                );
-                assert!(matches!(
-                    branch.else_arm(),
-                    crate::mir::compiler::dynamic_full_body_recipe::coseal::DynamicLoopPhysicalArmV2::Fallthrough
-                ));
-                let logical = &input.control().logical().branches()[0];
-                assert!(matches!(
-                    logical.then_arm,
-                    LoopJoinBranchArmTransferRefV2::Exit(_)
-                ));
-                assert_eq!(input.faults().rows().len(), 2);
-            })
-            .expect("final exit co-seal physical input");
-    }
-
-    #[test]
-    fn physical_demand_consumes_the_complete_view_inside_the_htrb_loan() {
-        let transaction = exact_coseal();
-        transaction
-            .with_physical_input(|input| {
-                let prepared = issue_dynamic_full_loop_operation_physical_demand_v2(input)
-                    .expect("complete physical demand")
-                    .prepare_all()
-                    .expect("complete physical demand coverage");
-                let coverage = prepared.coverage();
-                assert_eq!(coverage.operation_count(), 15);
-                assert_eq!(coverage.placement_count(), 17);
-                assert_eq!(coverage.control_count(), 1);
-                assert_eq!(coverage.fault_count(), 2);
-                assert_eq!(prepared.operation_rows().len(), 15);
-                assert_eq!(prepared.placement_rows().len(), 17);
-                assert_eq!(prepared.control().rows().len(), 1);
-                assert_eq!(prepared.faults().rows().len(), 2);
-            })
-            .expect("physical demand HRTB loan");
     }
 
     impl DynamicExitTransactionRouteV1 {

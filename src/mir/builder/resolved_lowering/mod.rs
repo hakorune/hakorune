@@ -32,9 +32,6 @@ mod lowerer;
 mod nested_predicate_adapter;
 mod nested_predicate_lowerer;
 mod nested_predicate_physicalizer;
-mod selected_dynamic_physical_abi;
-mod selected_dynamic_physical_capability;
-mod selected_dynamic_physical_emitter;
 mod semantic_stack;
 mod static_loop_body;
 mod static_loop_body_exit;
@@ -52,18 +49,6 @@ pub(in crate::mir::builder) use loop_recipe_physicalizer::{
     lower_main0_continue_function_draft_v1, lower_main0_derived_predicate_function_draft_v1,
     lower_main0_in_body_step_function_draft_v1,
 };
-pub(in crate::mir) use selected_dynamic_physical_abi::{
-    issue_selected_dynamic_v2_emission_plan, DynamicV2PhysicalScheduleSegmentV1,
-};
-#[cfg(test)]
-pub(in crate::mir) use selected_dynamic_physical_capability::issue_selected_dynamic_v2_physical_capability_admission;
-pub(in crate::mir::builder) use selected_dynamic_physical_capability::issue_selected_dynamic_v2_physical_capability_admission_from_brand;
-#[cfg(test)]
-pub(in crate::mir) use selected_dynamic_physical_capability::{
-    DynamicV2PhysicalCapabilityDispositionV1, DynamicV2PhysicalRepresentationV1,
-    DynamicV2ProducerFamilyV1, SelectedDynamicV2PhysicalCapabilityRejectV1,
-};
-pub(in crate::mir::builder) use selected_dynamic_physical_emitter::assemble_unpublished_selected_dynamic_w6_from_parts;
 pub(in crate::mir::builder) use static_loop_entry_session::{
     prepare_selected_static_loop_entry_v1, PreparedSelectedStaticLoopEntryV1,
 };

@@ -3,7 +3,6 @@
 // This file contains only Cargo/module topology. Semantic authorities and
 // compiler entry points remain in the sibling modules and in `mod.rs`.
 
-pub(in crate::mir) mod a_prime_i64_physical_capability;
 pub(in crate::mir) mod acyclic_callable_graph;
 pub(in crate::mir) mod callable_graph_inventory;
 pub(in crate::mir) mod callable_scc_partition;
