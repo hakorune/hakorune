@@ -376,7 +376,7 @@ pub(super) fn owned_result_nodes(
 }
 
 pub(crate) use super::references::{CheckedExpressionReferenceV1, CheckedScalarReferenceV1};
-pub(super) use super::references::{seed_expression_references_v1, seed_current_expression_references_with_loop_text_v1};
+pub(super) use super::references::seed_current_expression_references_with_loop_text_v1;
 
 /// Shared original Text evaluation for terminal values and passive Map keys.
 /// The purpose chooses the source root; this function grants no result/Home ABI.
