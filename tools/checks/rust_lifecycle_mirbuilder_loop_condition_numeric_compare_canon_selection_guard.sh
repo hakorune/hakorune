@@ -11,26 +11,22 @@ CARD="$ROOT_DIR/docs/development/current/main/phases/phase-296x/3257-MIRBUILDER-
 TASK_ORDER="$ROOT_DIR/docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 CURRENT_STATE="$ROOT_DIR/docs/development/current/main/CURRENT_STATE.toml"
 RUST_SHAPE="$ROOT_DIR/src/mir/builder/control_flow/plan/facts/loop_condition_shape.rs"
-COND_CANON="$ROOT_DIR/src/mir/builder/control_flow/generic_loop_canon/condition/candidates.rs"
-COND_BOUND="$ROOT_DIR/src/mir/builder/control_flow/generic_loop_canon/condition/bound.rs"
 PROGRAMJSON_SNAPSHOT="$ROOT_DIR/lang/src/compiler/mirbuilder/program_json_canonical_loop_facts_input_snapshot.hako"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$FIXTURE" "$CARD" "$TASK_ORDER" "$CURRENT_STATE" "$RUST_SHAPE" "$COND_CANON" "$COND_BOUND" "$PROGRAMJSON_SNAPSHOT"
+guard_require_files "$TAG" "$FIXTURE" "$CARD" "$TASK_ORDER" "$CURRENT_STATE" "$RUST_SHAPE" "$PROGRAMJSON_SNAPSHOT"
 
-python3 - "$FIXTURE" "$CARD" "$TASK_ORDER" "$CURRENT_STATE" "$RUST_SHAPE" "$COND_CANON" "$COND_BOUND" "$PROGRAMJSON_SNAPSHOT" <<'PY'
+python3 - "$FIXTURE" "$CARD" "$TASK_ORDER" "$CURRENT_STATE" "$RUST_SHAPE" "$PROGRAMJSON_SNAPSHOT" <<'PY'
 import json
 import sys
 from pathlib import Path
 
-fixture_path, card_path, task_order_path, current_state_path, rust_path, canon_path, bound_path, snapshot_path = sys.argv[1:]
+fixture_path, card_path, task_order_path, current_state_path, rust_path, snapshot_path = sys.argv[1:]
 fixture = json.loads(Path(fixture_path).read_text(encoding="utf-8"))
 card = Path(card_path).read_text(encoding="utf-8")
 task_order = Path(task_order_path).read_text(encoding="utf-8")
 current_state = Path(current_state_path).read_text(encoding="utf-8")
 rust_shape = Path(rust_path).read_text(encoding="utf-8")
-cond_canon = Path(canon_path).read_text(encoding="utf-8")
-cond_bound = Path(bound_path).read_text(encoding="utf-8")
 snapshot = Path(snapshot_path).read_text(encoding="utf-8")
 
 token = "MIRBUILDER-LOOP-CONDITION-NUMERIC-COMPARE-CANON-SELECTION-001"
@@ -129,21 +125,6 @@ for needle in [
 ]:
     if needle not in rust_shape:
         raise SystemExit(f"rust shape baseline missing: {needle}")
-for needle in [
-    "collect_candidates_from_top_level_comparison",
-    "is_supported_comparison_operator",
-    "BinaryOperator::GreaterEqual",
-]:
-    if needle not in cond_canon:
-        raise SystemExit(f"CondCanon candidate baseline missing: {needle}")
-for needle in [
-    "extract_bound_from_condition",
-    "bound_from_expr(left)",
-    "bound_from_expr(right)",
-    "BoundExpr::LiteralI64",
-]:
-    if needle not in cond_bound:
-        raise SystemExit(f"CondCanon bound baseline missing: {needle}")
 for needle in [
     "_read_var_lt_int",
     "unsupported_loop_cond",

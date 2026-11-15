@@ -12,14 +12,8 @@ update/:
   no lowering
 
 types.rs:
-  owns ConditionCanon, UpdateCanon, StepPlacement, and StepPlacementDecision
+  owns UpdateCanon, StepPlacement, and StepPlacementDecision
   old facts/plan type paths are compatibility facades
-
-condition/:
-  observes loop-condition candidates and bounds
-  builds facts-side ConditionCanon
-  no route selection
-  no lowering
 
 step_extract/:
   owns loop increment extraction order
@@ -39,7 +33,6 @@ The remaining older deep facts paths are facades while imports stay on the owner
 
 ```text
 facts/canon/generic_loop/update.rs
-facts/canon/generic_loop/condition.rs
 facts/canon/generic_loop/step/extract.rs
 facts/canon/generic_loop/step/placement/matcher.rs
 facts/canon/generic_loop/types.rs

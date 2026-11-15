@@ -24,9 +24,6 @@ src/mir/builder/control_flow/facts/loop_cond_return_in_body.rs	durable-productio
 src/mir/builder/control_flow/facts/loop_cond_return_in_body/tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
 src/mir/builder/control_flow/facts/route_shape_recognizers/infinite_loop.rs	durable-production	production caller: src/mir/builder/control_flow/facts/ast_feature_extractor.rs +1 more
 src/mir/builder/control_flow/generic_loop_canon/README.md	durable-production	module README — owner documentation
-src/mir/builder/control_flow/generic_loop_canon/condition/bound.rs	durable-production	production caller: src/mir/builder/control_flow/generic_loop_canon/condition/mod.rs
-src/mir/builder/control_flow/generic_loop_canon/condition/candidates.rs	durable-production	production caller: src/mir/builder/control_flow/generic_loop_canon/condition/bound.rs +4 more
-src/mir/builder/control_flow/generic_loop_canon/condition/mod.rs	durable-production	production caller: src/mir/builder/control_flow/generic_loop_canon/mod.rs +5 more
 src/mir/builder/control_flow/generic_loop_canon/mod.rs	durable-production	production caller: src/mir/builder/control_flow/plan/facts/loop_continue_only_facts.rs +12 more
 src/mir/builder/control_flow/generic_loop_canon/step_extract/complex_step.rs	durable-production	production caller: src/mir/builder/control_flow/generic_loop_canon/step_extract/mod.rs
 src/mir/builder/control_flow/generic_loop_canon/step_extract/mod.rs	durable-production	production caller: src/mir/builder/control_flow/generic_loop_canon/mod.rs +1 more

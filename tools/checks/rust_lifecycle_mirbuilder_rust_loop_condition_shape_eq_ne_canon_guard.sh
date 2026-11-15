@@ -8,22 +8,20 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 
 FIXTURE="$ROOT_DIR/docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-rust-loop-condition-shape-eq-ne-canon-v0.json"
 LOOP_CONDITION="$ROOT_DIR/src/mir/builder/control_flow/plan/facts/loop_condition_shape.rs"
-GENERIC_BOUND="$ROOT_DIR/src/mir/builder/control_flow/generic_loop_canon/condition/bound.rs"
 TASK_ORDER="$ROOT_DIR/docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" cargo
-guard_require_files "$TAG" "$FIXTURE" "$LOOP_CONDITION" "$GENERIC_BOUND" "$TASK_ORDER"
+guard_require_files "$TAG" "$FIXTURE" "$LOOP_CONDITION" "$TASK_ORDER"
 
-python3 - "$FIXTURE" "$LOOP_CONDITION" "$GENERIC_BOUND" "$TASK_ORDER" <<'PY'
+python3 - "$FIXTURE" "$LOOP_CONDITION" "$TASK_ORDER" <<'PY'
 import json
 import sys
 from pathlib import Path
 
 fixture = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 loop_condition = Path(sys.argv[2]).read_text(encoding="utf-8")
-generic_bound = Path(sys.argv[3]).read_text(encoding="utf-8")
-task_order = Path(sys.argv[4]).read_text(encoding="utf-8")
+task_order = Path(sys.argv[3]).read_text(encoding="utf-8")
 
 def need(condition, message):
     if not condition:
@@ -82,8 +80,6 @@ for test_name in [
 ]:
     need(test_name in loop_condition, f"unit test missing: {test_name}")
 
-need("BinaryOperator::Equal => Some(CmpOp::Eq)" in generic_bound, "generic Eq mapping missing")
-need("BinaryOperator::NotEqual => Some(CmpOp::Ne)" in generic_bound, "generic Ne mapping missing")
 for needle in [
     "MIRBUILDER-RUST-LOOP-CONDITION-SHAPE-EQ-NE-CANON-001",
     "MIRBUILDER-CONDSKELETON-IFCOND-CONSULTATION-001",

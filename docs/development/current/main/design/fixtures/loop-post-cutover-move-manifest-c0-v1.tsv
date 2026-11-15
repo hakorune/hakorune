@@ -29,9 +29,6 @@ src/mir/builder/control_flow/facts/loop_cond_return_in_body.rs	durable-productio
 src/mir/builder/control_flow/facts/loop_cond_return_in_body/tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
 src/mir/builder/control_flow/facts/route_shape_recognizers/infinite_loop.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
 src/mir/builder/control_flow/generic_loop_canon/README.md	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
-src/mir/builder/control_flow/generic_loop_canon/condition/bound.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
-src/mir/builder/control_flow/generic_loop_canon/condition/candidates.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
-src/mir/builder/control_flow/generic_loop_canon/condition/mod.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
 src/mir/builder/control_flow/generic_loop_canon/mod.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
 src/mir/builder/control_flow/generic_loop_canon/step_extract/complex_step.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
 src/mir/builder/control_flow/generic_loop_canon/step_extract/mod.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
