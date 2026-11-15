@@ -29,6 +29,8 @@ mod recipe_source_paths;
 #[cfg(test)]
 mod direct_call_tests;
 #[cfg(test)]
+mod expression_argument_source_tests;
+#[cfg(test)]
 mod nested_recipe_tests;
 #[cfg(test)]
 mod parameter_tests;

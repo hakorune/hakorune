@@ -171,13 +171,6 @@ impl VerifiedSourceCallTargetCatalogV1<'_> {
         }
     }
 
-    pub(crate) fn route_target(
-        &self,
-        caller: &CanonicalSameModuleCallableKeyV1,
-        site: &SourceExprSiteV1,
-    ) -> Option<&VerifiedSourceCallTargetV1> {
-        self.rows.get(&(caller.clone(), site.clone()))
-    }
 
     pub(crate) fn rows(
         &self,
