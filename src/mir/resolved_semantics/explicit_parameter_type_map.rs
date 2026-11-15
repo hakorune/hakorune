@@ -225,7 +225,6 @@ pub(crate) fn issue_explicit_parameter_type_map_v1(
 mod tests {
     use super::*;
     use crate::ast::{ASTNode, ParamDecl};
-    use crate::mir::resolved_semantics::generic_resolved_carrier_source_lease::tests as lease_tests;
     use crate::parser::NyashParser;
 
     const SOURCE: &str = r#"
@@ -233,6 +232,11 @@ function mixed(first: i64, second) {
     return first
 }
 "#;
+
+    fn resolve_parameter_fixture_unit(source: &str) -> VerifiedResolvedSourceUnitV1 {
+        VerifiedResolvedSourceUnitV1::resolve_function(function_ast(source))
+            .expect("parameter source fixture resolves")
+    }
 
     fn function_ast(source: &str) -> ASTNode {
         let root = NyashParser::parse_from_string(source).expect("parameter fixture parses");
@@ -267,7 +271,7 @@ function mixed(first: i64, second) {
 
     #[test]
     fn preserves_typed_and_untyped_parameter_annotations() {
-        let unit = lease_tests::unit(SOURCE);
+        let unit = resolve_parameter_fixture_unit(SOURCE);
         let map = issue_explicit_parameter_type_map_v1(source_receipt(&unit)).expect("map");
         assert_eq!(map.rows().len(), 2);
         assert_eq!(map.rows()[0].index(), 0);
@@ -279,7 +283,7 @@ function mixed(first: i64, second) {
 
     #[test]
     fn rejects_parameter_declaration_cardinality_without_fallback() {
-        let unit = lease_tests::unit(SOURCE);
+        let unit = resolve_parameter_fixture_unit(SOURCE);
         let mut ast = function_ast(SOURCE);
         let ASTNode::FunctionDeclaration { param_decls, .. } = &mut ast else {
             panic!("function fixture")
@@ -293,7 +297,7 @@ function mixed(first: i64, second) {
 
     #[test]
     fn rejects_parameter_name_mismatch_before_map_issue() {
-        let unit = lease_tests::unit(SOURCE);
+        let unit = resolve_parameter_fixture_unit(SOURCE);
         let mut ast = function_ast(SOURCE);
         let ASTNode::FunctionDeclaration { param_decls, .. } = &mut ast else {
             panic!("function fixture")
@@ -310,7 +314,7 @@ function mixed(first: i64, second) {
 
     #[test]
     fn rejects_extra_parameter_without_resolver_binding() {
-        let unit = lease_tests::unit(SOURCE);
+        let unit = resolve_parameter_fixture_unit(SOURCE);
         let mut ast = function_ast(SOURCE);
         let ASTNode::FunctionDeclaration {
             params,
@@ -333,8 +337,8 @@ function mixed(first: i64, second) {
 
     #[test]
     fn rejects_foreign_source_owner_receipt() {
-        let unit = lease_tests::unit(SOURCE);
-        let foreign = lease_tests::unit(SOURCE);
+        let unit = resolve_parameter_fixture_unit(SOURCE);
+        let foreign = resolve_parameter_fixture_unit(SOURCE);
         let source_input = unit.root_function_input().expect("source input");
         let input = foreign.root_function_input().expect("foreign input");
         let source = CallableFunctionSyntaxViewV1::from_function_ast(source_input.source().root())
