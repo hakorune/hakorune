@@ -12,7 +12,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::expression_port::LoopPlanExpressionPortV1;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies, RecipeItem,
+    BlockContractKind, RecipeBlock, RecipeBodies, RecipeItem,
 };
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
@@ -114,13 +114,11 @@ pub(in crate::mir::builder::control_flow::plan::parts) struct CallableLoopSource
 {
     pub(in crate::mir::builder::control_flow::plan::parts) source:
         CallableLoopSourceStmtInputV1<'view>,
-    pub(in crate::mir::builder::control_flow::plan::parts) kind: LoopKindV0,
     pub(in crate::mir::builder::control_flow::plan::parts) condition:
         CallableLoopSourceExprInputV1<'view>,
     pub(in crate::mir::builder::control_flow::plan::parts) body_block:
         CallableLoopSourcePartsBlockV1<'view>,
     pub(in crate::mir::builder::control_flow::plan::parts) body_contract: BlockContractKind,
-    pub(in crate::mir::builder::control_flow::plan::parts) features: LoopV0Features,
 }
 
 /// Source provider: projects recipe items into located port carriers.
@@ -357,11 +355,10 @@ impl<'view, 'ledger: 'view> PartsAssociatedSourceV1
             }
             RecipeItem::LoopV0 {
                 loop_stmt,
-                kind,
                 cond_view,
                 body_block,
                 body_contract,
-                features,
+                ..
             } => {
                 let source = self.statement(block, *loop_stmt)?;
                 let condition = self.child_expr(&source, ExprChildRoleV1::LoopCondition)?;
@@ -371,11 +368,9 @@ impl<'view, 'ledger: 'view> PartsAssociatedSourceV1
                 PartsAssociatedRecipeItemV1::RawLoopV0 {
                     loop_input: CallableLoopSourcePartsLoopV0V1 {
                         source,
-                        kind: *kind,
                         condition,
                         body_block,
                         body_contract: *body_contract,
-                        features: *features,
                     },
                 }
             }

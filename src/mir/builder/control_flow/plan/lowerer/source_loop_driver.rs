@@ -69,13 +69,12 @@ pub(in crate::mir) struct EmittedLoopEffectV2 {
     pub(in crate::mir) result: Option<(LoopValueKeyV1, Rc<LocalSsaPhysicalRelationV1>)>,
 }
 /// One child source Loop lowered by its own product between `entry` and the
-/// child's After block `end`; `outputs` are the After values it published.
+/// child's After block `end`; values stay in the shared ledger.
 pub(in crate::mir) struct EmittedLoopChildV2 {
     pub(in crate::mir) site: crate::mir::resolved_semantics::SourceStmtSiteV1,
     pub(in crate::mir) product: Rc<Product>,
     pub(in crate::mir) entry: BasicBlockId,
     pub(in crate::mir) end: BasicBlockId,
-    pub(in crate::mir) outputs: Vec<(LoopValueKeyV1, ValueId)>,
 }
 pub(in crate::mir) struct EmittedLoopReturnV2 {
     pub(in crate::mir) source: Rc<crate::mir::resolved_semantics::home_new_prefix::SourceLoopReturnV1>,
@@ -413,7 +412,6 @@ impl Driver<'_, '_, '_, '_, '_> {
                     obligations.close()?;
                     lowered?;
                     let end = builder.function_state.current_block.ok_or_else(|| reject("child-loop-end"))?;
-                    let mut published = Vec::new();
                     // Borrow each verified After value the child published; a
                     // carrier of this Loop advances its logical value, too.
                     for (binding, _, write, logical) in outputs {
@@ -422,7 +420,6 @@ impl Driver<'_, '_, '_, '_, '_> {
                         if self.values.insert(*logical, observation.binding_value().1).is_some() {
                             return Err(reject("child-loop-result-repeat"));
                         }
-                        published.push((*logical, observation.binding_value().1));
                         if write.is_some() {
                             let key = *self.product.bindings.get(binding).ok_or_else(|| reject("child-loop-binding"))?;
                             if self.logical.insert(key, *logical).is_none() {
@@ -430,7 +427,7 @@ impl Driver<'_, '_, '_, '_, '_> {
                             }
                         }
                     }
-                    self.children.push(EmittedLoopChildV2 { site: site.clone(), product: Rc::clone(product), entry, end, outputs: published });
+                    self.children.push(EmittedLoopChildV2 { site: site.clone(), product: Rc::clone(product), entry, end });
                     position += 1;
                 }
             }
