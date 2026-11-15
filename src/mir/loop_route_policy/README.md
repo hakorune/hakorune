@@ -238,17 +238,10 @@ The next implementation adds a separate `family_selector.rs` consuming only
 the common assembler's Ready window. Production selector, Recipe/key,
 Builder/MIR, retry/fallback, and Generic caller remain zero until that new
 consumer is independently verified.
-D4-S4-D0 records that a future `Selected(Generic)` must retain a real
-resolver source lease, candidate proof, and `BindingRef` roles; this selector
-must not feed a Recipe from its current marker-only outcome. D4-S4-S0 is now
-closed as `NoSafeSlice`: the shallow cfg(test)-only Generic candidate envelope
-exists, but no selected callsite or Generic demand exists. D4-S4-S0-D0 closes
-the future move-only lease -> shape ->
-observation -> selector -> demand chain; this policy module only moves opaque
-capabilities and never issues keys. GENERIC-SEMANTIC-SHAPE-SCHEMA-D1 is now
-closed as the typed shape contract, and the bounded cfg(test)-only
-source-lease/CarrierProof witnesses are closed. The next row is design-only
-shape role extension; selector and demand remain gated.
+The older cfg(test)-only source-lease/CarrierProof/candidate-envelope
+prototype chain was retired. The policy selector retains its current common
+window and opaque candidate contracts; it does not reconstruct source roles or
+issue Recipe keys from the removed witnesses.
 
 ## Family selector S2 implementation receipt (2026-08-06)
 
@@ -271,8 +264,7 @@ production call.
 Three focused selector tests cover all five candidate variants, retained
 `OutOfWindow` evidence, and overlap retention. The shared selector guard checks
 the caller-zero boundary and the <800-line source/test limit. This is a
-caller-zero semantic product only. The bounded
-`GENERIC-SELECTION-OPEN-D0-I0-R0` candidate-envelope witness is closed; the
+caller-zero semantic product only. The old cfg(test)-only candidate-envelope witness was retired; the
 `GENERIC-SELECTION-POLICY-HANDOFF-D0` design and its single I0/R0 caller-zero
 implementation are closed. The current accepted boundary is
 `GENERIC-G0-DEMAND-S3-D0` (see

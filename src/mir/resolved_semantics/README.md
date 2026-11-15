@@ -483,112 +483,22 @@ resolver-owned nominal/type environment, issues one fresh resolver catalog
 brand, and returns one non-`Clone` AST-free
 `VerifiedInstanceMethodDeclarationCatalogV1`.
 
-The catalog owns only exact Box/method source identity and semantic
-parameter/result classes (`I64` or `Unit`). Parser invocation provenance is
-retained as provenance; it is not reused as nominal type identity. The issuer
-does not clone rows through the parser inspection API or issue partial
-receipts. `CallableContractSyntaxV1` is carried as typed syntax only; the
-declared Query behavior D0 and bounded Query behavior I0 issuer are closed.
-The separate Query body-source projection is now landed. The
-non-`Clone` `VerifiedDeclaredQueryBehaviorCatalogV1` contains only the exact
-non-empty typed Query subset, resolver/declaration identity, normalized
-behavior, and optional rune provenance. It never copies Home demands/results,
-relation brands, body facts, `EffectMask`, or physical ABI. Body conformance,
-resolver targets, Recipe/CallSlot, Builder/MIR, and physical ABI remain
-separate unopened boundaries.
+The catalog retains exact Box/method identity and semantic parameter/result
+classes. Parser invocation provenance remains distinct from the resolver
+catalog brand, nominal type, and source coordinates. `CallableContractSyntaxV1`
+is retained as syntax; `home_abi.rs` owns the bounded declaration Home ABI.
 
-This I0 is a resolver semantic declaration receipt, not a production call
-path. `OWN-HOME-ABI0-S0` now issues the bounded semantic Home catalog through
-one non-`Clone` co-seal. The Home relation batch brand remains provenance only;
-the resolver catalog brand, nominal type, and exact source site remain the
-declaration identity. Query behavior, body conformance, targets, Recipe, and
-physical lowering remain unopened. The declared Query/Home aggregate I0 is
-now landed in `declared_instance_contract.rs`: it consumes the Home catalog
-(the declaration owner) and the selected Query catalog by value, then seals
-only same-brand/site/order coverage. The earlier design stop was
-`CALLABLE-BODY-SOURCE-AUTHORITY-D0`; that row is now closed. The current
-AST-free parser handoff does
-not carry a general instance-method body, and the declaration catalog has no
-exact body/function-owner co-seal. The first body-source issuer must cover the
-complete supported direct cohort without selecting Query behavior; a separate
-Query body-source projection then borrows the aggregate's selected view.
-Body conformance must wait for both that projection and the later owner link;
-it must not pair by name, inventory ordinal, Query re-selection, or MIR facts.
+`declared_instance_contract.rs` retains only
+`DeclaredInstanceMethodIdentityV1`, used by the current instance-call relation
+and effect owners. Its resolver brand, nominal Box, and exact method source
+coordinates are unchanged. The unconnected Query behavior/aggregate,
+body-source/carrier/owner-link, facts, and conformance prototypes were retired.
+This does not retire instance declaration/signature, parser provenance,
+neutral body-shape/source inventories, Home ABI, or the current call relations.
 
-The general body-source I0 fixes the parser-side boundary before any
-conformance issuer opens. The existing declaration handoff remains body-free. A private
-non-`Clone` `ParserResolverBodyTransactionV1` must decompose exactly once via
-`into_parts()` into the declaration handoff and a body envelope. The envelope
-retains normalized direct method sites, ordered body-item coverage, and a
-checked parser-invocation provenance token. The bounded resolver catalog
-exposes a `ResolverBoxMethodSourceSiteV1` coordinate covered by its resolver
-brand plus parser provenance; a bare ordinal, name, selected inventory
-placement, or map order cannot pair a body.
-Its resolver result is AST-free and borrows the already landed declaration
-catalog; it never consumes Home/Query again or mints a
-`FunctionOwnerIdV1`. `DeclaredInstanceMethodContractRefV1` is the
-aggregate-owned borrowed declaration/Home/Query relation view.
-`DeclaredQueryBodySourceIssuerV1` projects the general body catalog through
-that view into a borrowed
-`VerifiedDeclaredQueryBodySourceCatalogV1<'body, 'contract>`, preserving
-sparse source order and retaining the all-row catalog for future observers.
-It checks parser provenance and resolver brand once and emits no default
-non-Query row. A bare `VerifiedResolvedFunctionV1` is not enough for owner
-binding: it has no instance-method source identity or complete body coverage.
-The landed carrier boundary is a single transaction-scoped parser-private
-callback/lease: `ParserResolverBodyTransactionV1` keeps borrowed method
-parameters/body slices alive only while the resolver constructs
-`FunctionSyntaxViewV1`. The callback returns no AST or syntax pointer. The
-existing `FunctionSemanticResolverSessionV1` then issues an AST-free
-instance-method function carrier/catalog containing source identity,
-parser/resolver brands, nominal Box, owner-bearing forest/function, root/body
-receipt, and exact body coverage. The owner-link I0 is now closed: it consumes
-only the selected Query projection and existing carrier/catalog, borrows the
-exact carrier-root function, and issues no owner or second function product.
-The owner-link I0 and resolved-shape issuer I0 are closed. The bounded
-`CALLABLE-BODY-FACTS-QUERY-I0` is now landed in the dedicated
-`query_body_facts.rs` module. It consumes only selected Query owner rows and
-each carrier's neutral body-shape inventory, then emits one atomic private
-`VerifiedCallableQueryBodyFactsCatalogV1`. The first facts cohort is exact
-`return me`: one ordinary Return, one lexical receiver `Me` BindingRef, and
-one ReturnValue relation. It does not reselect Query, reissue Home/signature/
-ABI, infer types or contracts, or open conformance. `return 0`,
-empty/multiple-return bodies, local reads, field/state reads, calls, and
-unsupported control remain outside this cohort. A missing issuer/evidence is
-development `NoSafeSlice`; fully observed out-of-cohort shapes are `Declined`,
-opaque evidence is `Unresolved`, and identity/coverage mismatches are
-`Rejected`. The neutral shape issuer runs during the existing parser-private
-syntax lease and returns one AST-free inventory co-sealed to the exact
-owner/body root and source coverage; the carrier row co-seals parser
-provenance and resolver brand. Direct field/state authority and conformance
-remain separate. The complete-evidence D0 is accepted and its bounded I0 is
-landed in `query_body_conformance_evidence.rs`. The issuer is limited to
-exact `return me` structural safety and a sibling Query Home no-transfer
-receipt. The facts catalog and evidence aggregate are not a general proof of
-no writes/Home escape/allocation/IO/FFI/failure/suspension/non-local control;
-any incomplete axis remains `NoSafeSlice`. The unconnected private body-effect/control receipt prototype was retired;
-current body-shape effects and execution verification remain independent. The next design stop is
-`OWN-HOME-SOURCE-EVENT-D0`: `release root` direction is accepted, while exact
-`take`/`share` syntax and the parser source-event issuer are not sealed. The
-general D0 defines four private
- axis receipts or borrowed views—complete body
-coverage, effect events, control/exit events, and Home-flow events/state—then
-one same-root public execution-evidence co-seal. Existing body-shape effects are
-partial (Print/IO and unsupported control are not fully recorded), and
-`VerifiedHomeAbi` remains declaration-only. The bounded exact `return me` Query
-conformance I0 is landed; its issuer consumes the declared contract and
-evidence catalogs, compares the existing `ReceiverDirectReadNoEffects`
-behavior, and pairs by aggregate-owned identity. It does not use
-zip/name/ordinal pairing or reissue Query/Home/signature/ABI. General
-conformance, target, Recipe/CallSlot, Builder, MIR, and production remain
-separate and parked behind the accepted evidence D0. Unsupported/opaque/
-foreign shapes remain `NoSafeSlice` or `Rejected`.
-
-The neutral `Me` body shape distinguishes lexical instance receiver authority
-from `StaticCurrentOwner`. A selected static-Box method may therefore retain
-its exact `me.method()` source shape without fabricating a receiver
-`BindingRefV1`; Query/body-conformance consumers remain instance-only and
-match only the lexical arm.
+The neutral `Me` body shape still distinguishes a lexical instance receiver
+from `StaticCurrentOwner`; static-Box source never gains a fabricated receiver
+`BindingRefV1`.
 The homes-aware static I64 observer keeps the two source routes distinct.
 Qualified calls retain their required-argument/borrowed-first law; zeroarg
 CurrentOwner calls require the original index's typed incoming loan, matching
@@ -673,33 +583,11 @@ exact scalar relation. Nested arguments, loops and short-circuit call paths are
 not granted by this source connection. Executable input, affine handoff/Invoke,
 FinishedBindings and original call-child/Mul runtime closure remain separate
 requirements; a source observation cannot issue a Ready packet.
-The four axis receipts remain private or borrowed views; the only new public
-semantic owner is the body-root-scoped execution-evidence aggregate. Coverage
-borrows existing body-owner/carrier/shape/forest identity, `Await` belongs to
-effect/suspension rather than control, and Home flow requires an independent
-language event issuer with CFG-complete readiness.
-Missing issuer/evidence is `NoSafeSlice`, not a default body receipt. Body
-modules must be dedicated and must not grow
-`source_seal.rs`, `source_authority.rs`, or `parser/mod.rs` over the 760-line
-split trigger.
-
-`CALLABLE-BODY-OWNER-CARRIER-I0` is now closed. The landed carrier owns the
-existing `VerifiedSemanticOwnerForestV1`, exposes its single resolved root by
-borrow, records the root `FunctionOriginV1` only as a consistency receipt, and
-stores the resolver-issued body-root pair, neutral body-shape inventory, plus
-contiguous body-item coverage. The shape is produced by the same owner-tree
-walk; the carrier does not rescan syntax or reconstruct source identity.
-Its focused three-test slice proves direct-method success, empty-body source
-coverage, and foreign parser-provenance rejection. It does not perform Query
-selection or owner binding. The owner-link I0 is a separate, non-`Clone`
-relational co-seal over exactly two existing catalogs: the selected Query body
-projection and the carrier/catalog. It borrows the carrier root
-`VerifiedResolvedFunctionV1`; it accepts no second function array, issues no
-owner, and does not re-resolve. It checks parser provenance, resolver brand,
-nominal/source site, diagnostic name agreement, and exact ordered body
-coverage. Empty coverage is valid; non-Query carrier rows remain unselected
-extras. Body facts, conformance, targets, Recipe, and MIR remain closed behind
-the resolved-shape issuer design stop and its later Query projection.
+Neutral body topology, effects, and exits remain owned by the existing
+resolved source forest and body-shape inventories. The former Query-only
+body-carrier/evidence chain is not a current executable or ownership proof.
+Current source-event and Home checks must be supplied by their retained owners,
+not reconstructed from a retired receipt.
 
 ## Home relation vocabulary S0
 
@@ -1285,7 +1173,7 @@ The typed LoopRecipe V2 row is intentionally separate from callable target
 resolution. The current `VerifiedCallableIndexV1` is FreeStatic-only and the
 header source unit is function-header-only; it is not an instance-method
 target issuer. MIR `FunctionSignature`/`EffectMask` and the resolver semantic
-Home/Query products are not interchangeable resolver contracts.
+Home and declaration products are not interchangeable resolver contracts.
 
 Before adding `ResolvedInstanceMethodRefV1`, the resolver must consume the
 bounded ordinary-top-level Rust parser's non-Clone `ParserBoxSourceSealV1`
@@ -1296,11 +1184,9 @@ must then issue the exact nominal receiver plus a semantic parameter/result
 signature. It may not treat the selected/generated inventory ordinal as a
 method source site or use `ExactTrivial*Abi`/`MirType` as semantic type truth.
 
-The next aggregate design must co-seal the landed
-`VerifiedDeclaredQueryBehaviorCatalogV1` with the same-declaration
-`VerifiedDeclaredInstanceMethodHomeCatalogV1`. Query does not issue a second
-receiver Handle axis. The current bounded Home ABI owns its combined
-receiver/parameter/result relation. The common complete
+The bounded Home ABI keeps its combined receiver/parameter/result relation;
+the retired Query aggregate is not a prerequisite for current call admission.
+The common complete
 `VerifiedCallableParameterContractCatalogV1` is now issued for direct static
 and ordinary instance declarations from the Rust/Hako typed transfer source
 seal plus canonical resolved bindings. It retains both authorities and maps
@@ -1311,7 +1197,7 @@ or project the contract rows instead of reissuing parameter meaning. `Take`,
 owning demands, and normal-callable production consumption remain closed.
 Physical call ABI is deliberately downstream. The parser handoff is already
 closed for the bounded Rust cohort; a missing resolver semantic signature,
-nominal type authority, typed Query behavior, or Home ABI is `NoSafeSlice`, not
+nominal type authority or required Home evidence is unresolved, not
 an empty contract or a FreeStatic alias. The semantic issuer must consume the
 handoff by value and issue a fresh resolver catalog/type brand; parser and
 function-owner brands remain provenance/membership only.
@@ -1409,53 +1295,13 @@ planner-freeze, V0Only, and parsed Neither as distinct typed evidence and
 does not add resolver exports, independent coordinates, a family selector, or
 a production caller. D4-S3-S2 is now closed as a separate test-only neutral
 selector; it consumes no resolver coordinates or legacy policy fields.
-D4-S4-D0 fixes the next boundary: a future Generic selected capability must
-retain a resolver source lease and role-level BindingRefs, while current
-Generic labels/facts cannot be re-resolved into Recipe. D4-S4-S0 is closed as
-`NoSafeSlice`; the shallow cfg(test)-only candidate-envelope witness now
-exists, but no selected callsite or Generic demand exists. D4-S4-S0-D0
-fixes this resolver as the sole source-lease/BindingRef issuer, with the
-future shape projector consuming that brand and returning AST-free proof.
-GENERIC-SEMANTIC-SHAPE-SCHEMA-D1 is now closed as a docs-only typed
-Carrier/Condition/Step/BodyEffect/Coverage-Exit contract. The source-lease
-witness is also closed as cfg(test)-only: a bounded exact-two nested-carrier
-lease with five focused tests, resolver-derived forest/frames, and
-owner-branded role claims. The bounded `CarrierProof` witness is now closed:
-it proves only the NestedWrite -> PostLoopRead same-`BindingRef` relation and
-retains the lease brand. D4-S4-S2-S1 adds a cfg(test)-only
-`GenericShapeSourceLeaseV2` that consumes this handoff, derives only inner-loop
-Condition+Step paths, validates local BindingRef relations, and retains no
-AST/source lifetime. D4-S4-S3-D0 now fixes the split: resolver/source-view
-publishes AST-free as-written operator/literal facts, while policy owns type,
-overflow, monotonicity, and accepted-family decisions. D4-S4-S3-S0 is closed
-as a cfg(test)-only V2-consuming witness with six focused tests; the product
-remains outside selector, Recipe, and MIR, production caller remains zero, and
-no role is re-resolved by name. D4-S4-S3-D1 is closed by worker authority
-consensus: `numeric_substrate` owns exact type/range, a future resolver source
-bridge owns BindingRef-to-annotation provenance, and `loop_route_policy` owns
-  progression policy. D4-S4-S3-S1-D0 is closed as NoSafeSlice: TypedInteger and
-  resolver parameter types are not co-sealed. D4-S4-S3-S1-S0 is closed as a
-  cfg(test)-only exact source-unit receipt/map witness. S1-S1 is now closed by
-  the non-`Clone` co-sealed receipt witness: it checks owner/origin/source-kind
-  and BindingRef coverage while leaving numeric classification/range/overflow/
-  progression to later policy owners. Six focused tests are green; no selector,
-  demand, Recipe, Builder/MIR caller, retry, fallback, or public semantic row
-  was added. S1-S2-D0 fixed the two-stage boundary; S1-S2-S0 closed the
-  cfg(test)-only substrate projection from this receipt plus explicit
-  `NumericTarget`; S1-S2-S1-S1 now closes the policy witness with role-bearing
-  Condition-Rhs/Step-Rhs operands. Policy consumes the sealed projection once
-  and owns progression semantics only. The current design stop is
-  `GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0`: freeze the nested G0 source grammar,
-  the complete source→Facts→portable `LoopRecipeV1` mapping, the separate
-  post-loop tail envelope, and typed reject/unresolved outcomes before any
-  selector or Recipe implementation. See
-  `docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md`.
-  Every
-  implementation commit updates current state, workstream, pipeline SSOT, and
-  this README; production activation later requires the corresponding
-  `docs/reference/**` closeout. The gate is reached
-  only after handoff and pure-selector witnesses prove one opaque candidate and
-  exactly-one route; until then production selection remains zero.
+The cfg(test)-only Generic source-lease, CarrierProof, shape/numeric
+projection, and candidate-envelope prototype chain was retired. It is not an
+admission prerequisite or a second source authority for the retained GenericG0
+handoff. Existing resolver source identity and role-level `BindingRef`s remain
+authoritative; numeric type/range and progression policy remain with their
+current owners. The explicit parameter-source receipt/map tests remain with
+`explicit_parameter_type_map.rs`, independent of the retired test fixture.
 
 ## Loop-family window lease issuer S0
 

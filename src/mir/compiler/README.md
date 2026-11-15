@@ -755,9 +755,8 @@ an opaque resolver/source brand borrowed from the canonical selector window,
 the typed S0C bundle, exact role `BindingRef`s, numeric target, and post-loop
 return relation as one AST-free move-only product. The handoff does not retain
 a second window lease. Policy consumes and retains that product by value; it
-does not downgrade to a bare bundle or reread source. The former
-candidate-envelope witness remains cfg(test)-only evidence and is not wrapped
-or paired after the fact.
+does not downgrade to a bare bundle or reread source. The former cfg(test)-only candidate-envelope/source-lease prototype was
+retired; this handoff does not depend on that fixture chain.
 
 The `generic_g0_observation.rs` adapter remains test-only evidence. Focused G0
 observation/policy tests and the shared caller-zero guard are green. The
@@ -1057,15 +1056,16 @@ same compilation brand, and seals one exact source projection per function.
 The body-reading source view consumes the CAT0 source unit and keeps Program
 syntax and catalog inseparable until resolution finishes. MP0-R0 creates no
 Builder, MIR draft, backend capability, runtime effect, or module publication;
-whole-module preflight and publication remain MP0-P0/TX0 responsibilities.
+capability preflight and atomic publication remain with the retained plan and
+module-transaction boundaries.
 
 ## MP0-P0/TX0 module transaction
 
-`VerifiedCallableModulePreflightV1` seals one canonical-keyed plan for every
-resolved top-level function before any Builder effect. MP0-TX0 then lowers each
-plan through a restored function session which returns an unpublished
-`MirFunction`. The complete draft set checks catalog key, physical symbol,
-signature arity, and cardinality before one atomic candidate-module insertion.
+The unconnected aggregate module-preflight prototype was retired. Retained
+per-function capability checks and typed module transactions still lower admitted
+plans through restored function sessions into unpublished `MirFunction`s.
+The complete draft set checks catalog key, physical symbol, signature arity,
+and cardinality before one atomic candidate-module insertion.
 
 No successful earlier function is visible while a later function is lowering.
 Any lowering, verification, identity, or publication failure returns without a

@@ -4,15 +4,17 @@ This directory owns the atomic, selector-independent semantic execution
 envelope for exact source-bound Dynamic member targets.
 
 ```text
-VerifiedSourceCallTargetCatalogV1
-  -> VerifiedDynamicInvocationEnvelopeCatalogV1
+VerifiedSourceBoundDynamicMemberCallV1
+  -> DynamicInvocationSourceLoanV1
+  -> one VerifiedDynamicInvocationExecutionEnvelopeV1
 ```
 
-The envelope catalog owns the complete route-neutral target catalog. It does
-not copy Dynamic keys into a second authoritative map: each Dynamic arm has
-exactly one borrow-scoped envelope view, while Static arms remain retained and
-unselected. Missing and duplicate envelope rows are therefore impossible by
-construction after successful issue.
+`DynamicInvocationSourceLoanV1` retains the already-admitted target, exact
+call/argument sites, and the one language-wide execution envelope. It does
+not select a provider, physical CallSlot, executable address, or result
+representation. The disconnected per-catalog envelope wrapper was retired;
+source target admission and duplicate-source checks remain with their current
+source owners.
 
 The language-wide envelope is fixed by
 `docs/reference/language/dynamic-invocation.md`:

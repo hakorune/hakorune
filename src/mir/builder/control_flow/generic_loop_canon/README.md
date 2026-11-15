@@ -12,7 +12,7 @@ update/:
   no lowering
 
 types.rs:
-  owns UpdateCanon, StepPlacement, and StepPlacementDecision
+  owns the facts-side UpdateCanon value
   old facts/plan type paths are compatibility facades
 
 step_extract/:

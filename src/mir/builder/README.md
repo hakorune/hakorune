@@ -1083,95 +1083,17 @@ emit-family gap, not a semantic-lane blocker). The reusable structural
 gate lives in
 `tools/checks/mirbuilder_qualified_route_scope_guard.sh`.
 
-`normal_callable_dynamic_operation_source.rs` owns the next source-only S0
-co-seal. It combines the existing resolver ledger, source-backed Dynamic
-callable product, and R0 binding schedule to issue one move-only exact
-comparison/Add-rebind relation set. The production `skip_while/4` comparison
-has an explicit Bool result, while its Add-by-exact-I64 result remains Dynamic
-and targets the same carrier binding. The module does not import `MirType` or
-`ValueId`, mutate Builder state, relabel I64 Recipe operations, or claim the
-method-call/local/Return portions of the Loop.
+The unconnected private Dynamic Loop operation/prepare/Header-current/rebind/
+discard canary was retired. It is not an executable `skip_while` route or a
+second source/SSA owner. Retained callable source relations, Dynamic-origin
+tracking, execution envelopes, and independent verification remain unchanged.
 
-`normal_callable_dynamic_loop_prepare.rs` owns the P0 pre-effect co-seal. It
-consumes the exact Loop schedule and operation-source set, borrows the
-existing current-origin owner, and returns one move-only prepared ingress.
-Carrier and read-only entry bindings carry existing `ValueId`s plus opaque
-source-backed Dynamic representation receipts; iteration locals wait for
-their own materialization. The R0 extension also retains the selected
-carrier's exact local declaration site, completed initializer/local ValueIds,
-and Dynamic formal origin as one prepared Enter-definition row. This preserves
-the existing local terminal's relation for later canonical SSA adoption; it
-does not publish a value or declaration itself. The carrier also retains exact
-Enter/Backedge expectations. The issuer has no Builder/CFG handle, no raw
-Unknown representation arm, and no operation, PHI, backend, retry, fallback,
-or route authority.
-
-The P1 compiler-acceptance prerequisite is conservative at both common type
-owners: ordinary Add completion and final BinOp re-propagation require exact
-Integer evidence on both operands before publishing an Integer result.
-`Unknown + Integer` stays physically unknown. A source-backed Dynamic result
-is authorized only by the prepared operation relation; raw Unknown never
-becomes Dynamic, and production `.hako` source is not rewritten to fit the
-old inference shortcut.
-
-`normal_callable_dynamic_loop_rebind.rs` is the private exact-once P1
-operation/rebind canary. It consumes the complete prepared ingress, delegates
-Compare/Const/Add insertion to existing writers, and uses a prepare plus
-infallible commit to advance its bounded callable-current and Dynamic-origin
-projections together. It does not yet prove canonical repeated-Loop or After
-reaching-value semantics: the landed canary uses Enter as the operation input.
-The next design must open the canonical Header current before operation
-emission, correct this terminal to consume it, and close the PHI afterward
-through the one canonical CFG/Binding SSA/`PhiTxn` session. Its move-only
-output contains no second emitter, predecessor authority, PHI destination,
-retry/fallback, or production route.
-
-`dynamic_loop_phi.rs` owns the migration-private P2A Header-current opening
-boundary. One `CanonicalSsaFunctionSessionV2` adopts the already-emitted local
-Enter value through its exact resolver declaration site, allocates the bounded
-Enter/Header/body/terminal-Backedge/After placement through canonical CFG,
-and reads the still-unsealed Header through canonical Binding SSA. That read
-creates the sole provisional PHI before Compare/Add emission. The opaque
-result exposes no PHI token, raw predecessor vector, route-local writer, or
-second SSA owner.
-
-The corrected `normal_callable_dynamic_loop_rebind.rs` P1R terminal consumes
-that whole open product. It derives its Header and terminal-Backedge blocks
-from the sealed placement, emits both Compare and Add from the canonical
-Header current, and retains the same open product with the source-backed
-Dynamic Backedge receipt. It has no caller-chosen block/value seam and never
-rewrites an emitted operand. It also does not consume the source assignment or
-advance the legacy callable-current map. P2B must define the assignment once
-through canonical Binding SSA, complete the real
-Header-to-body-to-terminal-Backedge-to-Header path, and seal Enter, body,
-terminal Backedge, then Header through canonical CFG. The Header witness is
-exactly Enter plus terminal Backedge, and canonical Binding SSA uses it to
-patch the existing provisional PHI to `(Enter, entry)` and `(Backedge, Add)`.
-The resulting move-only close receipt contains no PHI token or predecessor
-authority. Loop After, publication, DraftSeal, backend activation, retry, and
-fallback remain closed.
-
-`dynamic_loop_discard_tests.rs` closes the P2C atomicity proof without a
-test branch in production code. Failures injected after open, after operation
-emission, after duplicate canonical assignment definition, and after PHI
-patch all discard the complete unpublished child and restore the exact caller
-once. Two later fresh sessions reproduce the same semantic CFG/instruction
-shape without comparing allocator IDs. Local PHI rollback is diagnostic
-hygiene; whole-session discard remains the correctness owner.
-
-The P2 series remains an unpublished-session carrier proof. It cannot be
-used as an executable `skip_while/4` route: that method's calls, iteration
-local, inner If/early return, Loop After, final return, Completion, DraftSeal,
-and collector are not yet consumed. The direct VM canary is `NoSafeSlice`.
-The compiler now issues the complete AST-free source inventory for the exact
-unchanged method. It must next add the route-disjoint source-bound Dynamic
-member target, then close V2 Dynamic
-Recipe/call relations, JoinSig-authorized If/Return transfers, set-aware
-multi-return Completion, and the full callable. The Builder must not infer a
-nominal receiver from method spelling. `ch` is iteration-local, not a carrier;
-source Completion already owns both Return sites. Production source must not
-be narrowed or rewritten. The exact task order is in
-`docs/development/current/main/investigations/generic-loop-dynamic-full-body-closure-d0-task-2026-08-10.md`.
+Canonical CFG, one function-owned Binding SSA, and `PhiTxn` remain the current
+physical ownership boundary. Ordinary Add completion and final BinOp
+re-propagation still require exact Integer evidence on both operands before
+publishing an Integer result; physical Unknown is not source-backed Dynamic
+proof. Production acceptance is determined by the current canonical path,
+not the retired canary or its earlier green tests.
 
 ## 原則（SSOT / Box-First）
 
@@ -1761,16 +1683,12 @@ registration or method descent. It never infers mode from names or uses
 outside this boundary. The finite state table and fail-fast evidence live in
 `mir-root-app-mode-undecided-failfast-d0-2026-08-21.md`.
 
-## Loop PHI observer boundary (M6-B)
+## Loop PHI owner boundary
 
-`LoopPhiMaterializerV1` under `control_flow/plan` is a caller-zero mechanical
-observer, not a second Builder or production PHI/SSA owner. It consumes only a
-verified Loop JoinSig and a sealed logical-to-physical edge/path map, then uses
-the existing `PhiTxn` lifecycle. It must not read AST/routes/CorePlan,
-recompute CFG, touch `variable_map`, infer Binding SSA, or add Retry/fallback.
-Canonical CFG plus one function-owned Binding SSA remains the production
-physicalization owner. The focused M6-B suite is 33/33 and the structural guard
-is green; the structural P1b edge-path task is closed. The bounded resolved
+The caller-zero portable Loop PHI materializer and role-plan observer were
+retired with their dedicated tests. Canonical CFG plus one function-owned
+Binding SSA and the existing `PhiTxn` lifecycle remain the physical PHI owners.
+The bounded resolved
 DirectAccum bridge now seals `After` before reading carrier keys 0/1 through
 `CanonicalDirectAccumBindingPort`, hands an owned
 `DirectAccumFinalBindingReceiptV1` to the candidate helper, and then finishes
