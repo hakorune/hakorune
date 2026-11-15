@@ -1702,17 +1702,20 @@ state retains the same source-keyed inventory and ownership.
 
 ## Main0 canonical root lifecycle (D0 production handoff)
 
+D1 retires the private InBodyStep selector and physical chain. Its frozen
+source fixtures now use the current common root route; the remaining bounded
+selectors below are Continue and DerivedPredicate.
+
 The sole production root-lowering funnel,
 `lower_prepared_program_root_with_callable_mode_v1`, classifies the App Main
 root *before* the legacy wrapper opens. `program_root_lowering/
 main0_root_route.rs` performs the observation-only selection against the
 installed semantic package; a selected `SelectedMain0RootProductV1`
-(`Continue`, `InBodyStep`, or `DerivedPredicate`) transports into
+(`Continue` or `DerivedPredicate`) transports into
 `decls.rs::build_selected_main0_root_with_port_v1`, which hands the
 one-shot root loan and product to the matching
 `normal_callable_semantic_loan_port/main0_root.rs` adapter
 (`lower_app_main0_continue_root_v1` /
-`lower_app_main0_in_body_step_root_v1` /
 `lower_app_main0_derived_predicate_root_v1`).
 Each adapter consumes the loan inside its callback, runs the verified
 ingress/session/lowerer, and admits one `ReadyFunctionDraftSealV1` under
@@ -1735,8 +1738,8 @@ stays as a test seam. Selected-profile reachability into the raw body/raw
 finish edges is therefore zero by construction; decline and non-installed
 callers keep the retained wrapper path.
 
-Production acceptance for the selected profiles runs through `--backend vm`
-with the expected results recorded on the active cards:
+Frozen source fixtures remain acceptance evidence through their current routes;
+retiring a private selector does not remove the input or its expected result:
 `apps/tests/phase29ca_generic_loop_continue_min.hako` (Main0 Continue, bound/
 guard, upper-bound, zero-iteration, guard-never, and renamed-locals variants),
 `apps/tests/phase29cb_generic_loop_in_body_step_min.hako` (Main0

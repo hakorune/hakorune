@@ -8,7 +8,6 @@
 
 use crate::mir::compiler::main0_continue_recipe_coseal::VerifiedMain0ContinueRecipeProductV1;
 use crate::mir::compiler::main0_derived_predicate_recipe_coseal::VerifiedMain0DerivedPredicateRecipeProductV1;
-use crate::mir::compiler::main0_in_body_step_recipe_coseal::VerifiedMain0InBodyStepRecipeProductV1;
 use crate::mir::normal_callable_semantic_package::NormalCallableSemanticPackagePortV1;
 
 use super::super::main_expansion::VerifiedRawRootExpansionV1;
@@ -20,7 +19,6 @@ use super::super::MirBuilder;
 #[derive(Debug)]
 pub(in crate::mir::builder) enum SelectedMain0RootProductV1 {
     Continue(VerifiedMain0ContinueRecipeProductV1),
-    InBodyStep(VerifiedMain0InBodyStepRecipeProductV1),
     DerivedPredicate(VerifiedMain0DerivedPredicateRecipeProductV1),
 }
 
@@ -38,11 +36,6 @@ impl MirBuilder {
             self.select_main0_continue_root_product_v1(package_port, expansion)?
         {
             return Ok(Some(SelectedMain0RootProductV1::Continue(product)));
-        }
-        if let Some(product) =
-            self.select_main0_in_body_step_root_product_v1(package_port, expansion)?
-        {
-            return Ok(Some(SelectedMain0RootProductV1::InBodyStep(product)));
         }
         if let Some(product) =
             self.select_main0_derived_predicate_root_product_v1(package_port, expansion)?

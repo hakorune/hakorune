@@ -18949,11 +18949,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/module_lifecycle.rs:541:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/module_lifecycle.rs:525:mir_return",
       "evidence": "block.add_instruction(MirInstruction::Return {",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 541,
+      "line": 525,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -19165,11 +19165,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_default_root_catalog_main_selection_tests.rs:192:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_default_root_catalog_main_selection_tests.rs:196:mir_return",
       "evidence": "Some(crate::mir::MirInstruction::Return { value: Some(_) })",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 192,
+      "line": 196,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -19177,11 +19177,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_default_root_catalog_main_selection_tests.rs:231:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_default_root_catalog_main_selection_tests.rs:236:mir_return",
       "evidence": "Some(crate::mir::MirInstruction::Return { value: Some(_) })",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 231,
+      "line": 236,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -19189,11 +19189,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_default_root_catalog_main_selection_tests.rs:282:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_default_root_catalog_main_selection_tests.rs:286:mir_return",
       "evidence": "Some(crate::mir::MirInstruction::Return { value: Some(_) })",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 282,
+      "line": 286,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -19201,11 +19201,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_default_root_catalog_main_selection_tests.rs:411:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_default_root_catalog_main_selection_tests.rs:379:mir_return",
       "evidence": "Some(crate::mir::MirInstruction::Return { value: Some(_) })",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 411,
+      "line": 379,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -20698,18 +20698,6 @@
       "resolution": "Pending",
       "site_ref": null,
       "source_path": "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_derived_predicate_lowerer_tests.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_in_body_step_lowerer_tests.rs:174:mir_return",
-      "evidence": "Some(crate::mir::MirInstruction::Return { value: Some(_) })",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 174,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_in_body_step_lowerer_tests.rs",
       "token": "mir_return"
     },
     {

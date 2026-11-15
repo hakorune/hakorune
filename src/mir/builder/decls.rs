@@ -121,9 +121,6 @@ impl super::MirBuilder {
             super::program_root_lowering::main0_root_route::SelectedMain0RootProductV1::Continue(
                 product,
             ) => port.lower_app_main0_continue_root_v1(self, &root_identity, product),
-            super::program_root_lowering::main0_root_route::SelectedMain0RootProductV1::InBodyStep(
-                product,
-            ) => port.lower_app_main0_in_body_step_root_v1(self, &root_identity, product),
             super::program_root_lowering::main0_root_route::SelectedMain0RootProductV1::DerivedPredicate(
                 product,
             ) => port.lower_app_main0_derived_predicate_root_v1(self, &root_identity, product),
@@ -334,7 +331,13 @@ impl super::MirBuilder {
             // source-backed App Main root gets one exact body-scope hook;
             // raw compatibility keeps the existing generic body route.
             let lowered = match root_identity {
-                Some(identity) => port.lower_app_main_root_body_v1(self, identity, &params, normal_runtime_inputs, body.clone()),
+                Some(identity) => port.lower_app_main_root_body_v1(
+                    self,
+                    identity,
+                    &params,
+                    normal_runtime_inputs,
+                    body.clone(),
+                ),
                 None => port.lower_body(self, body.clone()),
             };
 
@@ -354,59 +357,59 @@ impl super::MirBuilder {
     /// Explicit compatibility retains the existing argv injector; the installed
     /// normal source adapter owns its entry resource inside the source scope.
     pub(super) fn materialize_legacy_main_parameters_v1(
-        &mut self, params: &[String], script_args: &[String],
+        &mut self,
+        params: &[String],
+        script_args: &[String],
     ) -> Result<(), String> {
-            for p in params.iter() {
-                // Allocate a value ID using the current function's value generator
-                // This creates a local variable, not a parameter
-                let pid = self.next_value_id();
-                if p == "args" {
-                    // new ArrayBox() with no args
-                    self.emit_instruction(MirInstruction::NewBox {
-                        dst: pid,
-                        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
-                        args: vec![],
-                    })?;
-                    self.function_state
-                        .type_ctx
-                        .value_origin_newbox
-                        .insert(pid, "ArrayBox".to_string());
-                    self.function_state
-                        .type_ctx
-                        .value_types
-                        .insert(pid, super::MirType::Box("ArrayBox".to_string()));
-                    self.emit_constructor_birth_marker(pid, "ArrayBox")?;
-                    for arg in script_args.iter() {
-                        let val = crate::mir::builder::emission::constant::emit_string(
-                            self,
-                            arg.clone(),
-                        )?;
-                        self.emit_instruction(crate::mir::ssot::method_call::runtime_method_call(
-                            None,
-                            pid,
-                            "ArrayBox",
-                            "push",
-                            vec![val],
-                            super::EffectMask::MUT,
-                            crate::mir::definitions::call_unified::TypeCertainty::Known,
-                        ))?;
-                    }
-                } else {
-                    let v = crate::mir::builder::emission::constant::emit_void(self)?;
-                    // ensure pid holds the emitted const id
-                    self.emit_instruction(MirInstruction::Copy { dst: pid, src: v })?;
-                    crate::mir::builder::metadata::propagate::propagate(self, v, pid);
-                }
+        for p in params.iter() {
+            // Allocate a value ID using the current function's value generator
+            // This creates a local variable, not a parameter
+            let pid = self.next_value_id();
+            if p == "args" {
+                // new ArrayBox() with no args
+                self.emit_instruction(MirInstruction::NewBox {
+                    dst: pid,
+                    target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
+                    args: vec![],
+                })?;
                 self.function_state
-                    .variable_ctx
-                    .variable_map
-                    .insert(p.clone(), pid);
-                // 関数スコープ SlotRegistry にも登録しておくよ（観測専用）
-                if let Some(reg) = self.comp_ctx.current_slot_registry.as_mut() {
-                    let ty = self.function_state.type_ctx.value_types.get(&pid).cloned();
-                    reg.ensure_slot(p, ty);
+                    .type_ctx
+                    .value_origin_newbox
+                    .insert(pid, "ArrayBox".to_string());
+                self.function_state
+                    .type_ctx
+                    .value_types
+                    .insert(pid, super::MirType::Box("ArrayBox".to_string()));
+                self.emit_constructor_birth_marker(pid, "ArrayBox")?;
+                for arg in script_args.iter() {
+                    let val =
+                        crate::mir::builder::emission::constant::emit_string(self, arg.clone())?;
+                    self.emit_instruction(crate::mir::ssot::method_call::runtime_method_call(
+                        None,
+                        pid,
+                        "ArrayBox",
+                        "push",
+                        vec![val],
+                        super::EffectMask::MUT,
+                        crate::mir::definitions::call_unified::TypeCertainty::Known,
+                    ))?;
                 }
+            } else {
+                let v = crate::mir::builder::emission::constant::emit_void(self)?;
+                // ensure pid holds the emitted const id
+                self.emit_instruction(MirInstruction::Copy { dst: pid, src: v })?;
+                crate::mir::builder::metadata::propagate::propagate(self, v, pid);
             }
+            self.function_state
+                .variable_ctx
+                .variable_map
+                .insert(p.clone(), pid);
+            // 関数スコープ SlotRegistry にも登録しておくよ（観測専用）
+            if let Some(reg) = self.comp_ctx.current_slot_registry.as_mut() {
+                let ty = self.function_state.type_ctx.value_types.get(&pid).cloned();
+                reg.ensure_slot(p, ty);
+            }
+        }
         Ok(())
     }
 

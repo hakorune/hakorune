@@ -92,18 +92,6 @@ pub(in crate::mir::builder) trait RootCallableCapturePortV1:
         Err("[freeze:contract][mir/main0-continue-root/raw-port]".to_owned())
     }
 
-    /// Selected Main0 in-body-step roots carry the verified recipe product
-    /// into the same canonical draft handoff.  Raw and compatibility ports
-    /// never consume this product.
-    fn lower_app_main0_in_body_step_root_v1(
-        &mut self,
-        _builder: &mut super::MirBuilder,
-        _identity: &crate::parser::CallableDeclarationIdentityV1,
-        _product: crate::mir::compiler::main0_in_body_step_recipe_coseal::VerifiedMain0InBodyStepRecipeProductV1,
-    ) -> Result<(), String> {
-        Err("[freeze:contract][mir/main0-in-body-step-root/raw-port]".to_owned())
-    }
-
     /// Selected Main0 derived-predicate roots carry the verified recipe
     /// product into the same canonical draft handoff.  Raw and
     /// compatibility ports never consume this product.
@@ -415,9 +403,7 @@ impl super::MirBuilder {
         if self.function_state.current_function.is_some()
             || self.function_state.current_block.is_some()
         {
-            return Err(
-                "[freeze:contract][mir/main-wrapper/already-open]".to_owned(),
-            );
+            return Err("[freeze:contract][mir/main-wrapper/already-open]".to_owned());
         }
         let main_signature = FunctionSignature {
             name: "main".to_string(),
@@ -473,9 +459,7 @@ impl super::MirBuilder {
         if self.function_state.current_function.is_some()
             || self.function_state.current_block.is_some()
         {
-            return Err(
-                "[freeze:contract][mir/finalize-canonical/unfinished-function]".to_owned(),
-            );
+            return Err("[freeze:contract][mir/finalize-canonical/unfinished-function]".to_owned());
         }
         let mut module = self
             .current_module

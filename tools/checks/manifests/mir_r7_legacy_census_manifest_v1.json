@@ -15,7 +15,7 @@
     "loop_phi_loc": 143
   },
   "kind": "MirR7LegacyCensusManifestV1",
-  "observed_commit": "25bf2a51769b98814ff3a1e8b21d5d3eed4fcdd8",
+  "observed_commit": "83bcabe39d4cf5b537ab8ab4a504b212043de1c1",
   "rows": [
     {
       "disposition": "production lexical surface",
@@ -590,9 +590,9 @@
     {
       "disposition": "production lexical surface",
       "func_authority": "not_present",
-      "id": "r7.legacy.c576ac4fef464881",
+      "id": "r7.legacy.54225d6e110aa87d",
       "kind": "legacy_occurrence",
-      "line": 645,
+      "line": 629,
       "line_text": "MirInstruction::LegacyCallV0 {",
       "owner": "src/mir/builder/module_lifecycle.rs",
       "path": "src/mir/builder/module_lifecycle.rs",
@@ -602,16 +602,16 @@
       "retire_when": "retain until an explicit replacement reaches caller-zero; do not infer deletion from this census",
       "role": "production_surface",
       "selected_corridor": false,
-      "source_sha256": "917e96e4b10a8b9ed382b47789f1b4096084f8cd0ee13f41d0feb952351f6288",
+      "source_sha256": "5d420cbe4a9f0896719275e4e6a0fbdeee2401cb2cef1f5cf57df1ba64691303",
       "symbol": "finalize_module_with_root_validation",
       "token": "LegacyCallV0"
     },
     {
       "disposition": "production lexical surface",
       "func_authority": "carrier",
-      "id": "r7.legacy.455bc4dda2b35adc",
+      "id": "r7.legacy.859a0a4e4627a8c0",
       "kind": "legacy_occurrence",
-      "line": 666,
+      "line": 650,
       "line_text": "MirInstruction::LegacyCallV0 { func: _, .. } => {",
       "owner": "src/mir/builder/module_lifecycle.rs",
       "path": "src/mir/builder/module_lifecycle.rs",
@@ -621,7 +621,7 @@
       "retire_when": "retain until an explicit replacement reaches caller-zero; do not infer deletion from this census",
       "role": "production_surface",
       "selected_corridor": false,
-      "source_sha256": "917e96e4b10a8b9ed382b47789f1b4096084f8cd0ee13f41d0feb952351f6288",
+      "source_sha256": "5d420cbe4a9f0896719275e4e6a0fbdeee2401cb2cef1f5cf57df1ba64691303",
       "symbol": "finalize_module_with_root_validation",
       "token": "LegacyCallV0"
     },
@@ -4519,6 +4519,6 @@
       "crates (Rust production scope)",
       "lang/c-abi route (fixed compile/link configuration anchors)"
     ],
-    "scope_sha256": "0c1f8721fb51f85d48f4918b16cb8f2120cd18f98dacae2298b341ef0fee3ed8"
+    "scope_sha256": "7a7c991a90da39fc164f9e56e630915c55701df8e6ebc921a9e2c66755c0200d"
   }
 }

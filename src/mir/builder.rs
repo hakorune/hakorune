@@ -62,8 +62,7 @@ mod normal_callable_package_bridge; // Builder-private package install boundary
                                     // Main caller; recheck at the production-switch slice.
 mod normal_main0_continue_prepared_operation; // Builder-free Main0 full-demand ingress
                                               // Caller-zero second bounded Main0 profile; same canonical-root handoff.
-mod normal_main0_in_body_step_prepared_operation; // Builder-free Main0 full-demand ingress
-                                                  // Caller-zero third bounded Main0 profile; same canonical-root handoff.
+                                              // Caller-zero third bounded Main0 profile; same canonical-root handoff.
 mod normal_callable_semantic_loan_port; // Thin installed-package port adapter
 mod normal_callable_semantic_lowering_state;
 mod normal_main0_derived_predicate_prepared_operation; // Builder-free Main0 full-demand ingress // Callable BindingRef-to-ValueId projection

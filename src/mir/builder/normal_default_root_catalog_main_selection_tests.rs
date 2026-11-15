@@ -69,10 +69,14 @@ gate Build.test {
     // before semantic seal and retains the rejected owner so the
     // failing source stays inspectable — same preflight-retains-source
     // contract as the compatibility arm.
-    assert!(rejected
-        .error()
-        .to_string()
-        .contains("[mir/normal-root/consume]"), "{}", rejected.error());
+    assert!(
+        rejected
+            .error()
+            .to_string()
+            .contains("[mir/normal-root/consume]"),
+        "{}",
+        rejected.error()
+    );
     assert!(rejected.session.builder().current_module.is_none());
     assert!(matches!(
         rejected._source,
@@ -197,7 +201,8 @@ fn main0_continue_canonical_root_publishes_one_main_through_collector() {
     // PHI on the loop backedge proves the canonical physicalizer ran; the
     // legacy wrapper never produced a PHI for this fixture.
     assert!(main.blocks.values().any(|block| {
-        block.instructions
+        block
+            .instructions
             .iter()
             .any(|instruction| matches!(instruction, crate::mir::MirInstruction::Phi { .. }))
     }));
@@ -271,8 +276,7 @@ fn main0_in_body_step_canonical_root_publishes_one_main_through_collector() {
             .count(),
         1
     );
-    // The canonical draft sealed its own Return inside the session; raw
-    // finish must not have appended a second one.
+    // Root finalization must not append a second value Return.
     let returns = main
         .blocks
         .values()
@@ -284,10 +288,10 @@ fn main0_in_body_step_canonical_root_publishes_one_main_through_collector() {
         })
         .count();
     assert_eq!(returns, 1, "canonical main owns exactly one value Return");
-    // PHI on the loop backedge proves the canonical physicalizer ran; the
-    // legacy wrapper never produced a PHI for this fixture.
+    // Current loop lowering must retain a real backedge PHI.
     assert!(main.blocks.values().any(|block| {
-        block.instructions
+        block
+            .instructions
             .iter()
             .any(|instruction| matches!(instruction, crate::mir::MirInstruction::Phi { .. }))
     }));
@@ -297,8 +301,7 @@ fn main0_in_body_step_canonical_root_publishes_one_main_through_collector() {
 #[test]
 fn main0_in_body_step_bound_variant_stays_on_the_canonical_route() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
-    // The bound literal's value is not membership: `i < 2` keeps the same
-    // admitted shape and must still reach the canonical route.
+    // A different bound literal keeps the same source/PHI guarantees.
     let source = callable_source(
         r#"static box Main {
     main() {
@@ -323,47 +326,12 @@ fn main0_in_body_step_bound_variant_stays_on_the_canonical_route() {
     let (_, module, validate) = completed.into_parts();
     let main = module.get_function("main").expect("canonical root main");
     assert!(main.blocks.values().any(|block| {
-        block.instructions
+        block
+            .instructions
             .iter()
             .any(|instruction| matches!(instruction, crate::mir::MirInstruction::Phi { .. }))
     }));
     validate(&module).expect("bound variant passes final root validation");
-}
-
-#[test]
-fn main0_in_body_step_post_facts_disagreement_is_a_hard_reject() {
-    crate::runtime::ring0::ensure_global_ring0_initialized();
-    // Facts admit this shape (the tail is a variable read), but the source
-    // map proves the tail reads the write-only effect local, not the
-    // carrier.  Post-admission disagreement must reject the whole root
-    // lowering; it may never silently fall back to the legacy path.
-    let source = callable_source(
-        r#"static box Main {
-    main() {
-        local i = 0
-        local tmp = 0
-        loop(i < 3) {
-            i = i + 1
-            tmp = 1
-        }
-        return tmp
-    }
-}"#,
-        ParserBuildConfig::default(),
-    );
-    let rejected = session()
-        .complete_normal_default_program_root_catalog_lifecycle(
-            source,
-            CallableMainMaterializationPolicyV1::Omitted,
-            NormalRuntimeInputSnapshotV1::empty(),
-        )
-        .expect_err("tail/carrier disagreement must be a hard selection failure");
-    assert!(
-        rejected.error().to_string().contains("main0-selection"),
-        "{}",
-        rejected.error()
-    );
-    rejected.discard();
 }
 
 #[test]
@@ -416,7 +384,8 @@ fn main0_derived_predicate_canonical_root_publishes_one_main_through_collector()
     // PHI on the loop backedge proves the canonical physicalizer ran; the
     // legacy wrapper never produced a PHI for this fixture.
     assert!(main.blocks.values().any(|block| {
-        block.instructions
+        block
+            .instructions
             .iter()
             .any(|instruction| matches!(instruction, crate::mir::MirInstruction::Phi { .. }))
     }));
@@ -453,7 +422,8 @@ fn main0_derived_predicate_bound_variant_stays_on_the_canonical_route() {
     let (_, module, validate) = completed.into_parts();
     let main = module.get_function("main").expect("canonical root main");
     assert!(main.blocks.values().any(|block| {
-        block.instructions
+        block
+            .instructions
             .iter()
             .any(|instruction| matches!(instruction, crate::mir::MirInstruction::Phi { .. }))
     }));

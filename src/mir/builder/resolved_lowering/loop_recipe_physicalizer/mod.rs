@@ -23,9 +23,6 @@ mod main0_continue_lowerer;
 mod main0_continue_lowerer_tests;
 // Caller-zero until the same Main0 canonical-root handoff wires the second
 // profile; recheck at the production-switch slice.
-mod main0_in_body_step_lowerer;
-#[cfg(test)]
-mod main0_in_body_step_lowerer_tests;
 // Caller-zero until the same Main0 canonical-root handoff wires the third
 // profile; recheck at the production-switch slice.
 mod main0_derived_predicate_lowerer;
@@ -50,7 +47,6 @@ pub(in crate::mir::builder) use generic_lowerer::lower_generic_g0_function_draft
 // installed App Main caller; recheck at the production-switch slice.
 pub(in crate::mir::builder) use main0_continue_lowerer::lower_main0_continue_function_draft_v1;
 // Caller-zero re-export for the second bounded Main0 profile; same handoff.
-pub(in crate::mir::builder) use main0_in_body_step_lowerer::lower_main0_in_body_step_function_draft_v1;
 // Caller-zero re-export for the third bounded Main0 profile; same handoff.
 pub(in crate::mir::builder) use main0_derived_predicate_lowerer::lower_main0_derived_predicate_function_draft_v1;
 // Caller-zero re-export until the R0 route switch wires the node-level

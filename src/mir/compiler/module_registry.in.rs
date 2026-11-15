@@ -86,18 +86,6 @@ pub(crate) mod main0_continue_source_map_issue;
 pub(crate) mod main0_continue_syntax_facts;
 // Second bounded Main0 profile (in-body-step); same canonical-root handoff
 // and production caller switch as the continue profile.
-pub(crate) mod main0_in_body_step_recipe_coseal;
-#[cfg(test)]
-#[path = "main0_in_body_step_recipe_coseal_tests.rs"]
-mod main0_in_body_step_recipe_coseal_tests;
-pub(crate) mod main0_in_body_step_root_selection;
-#[cfg(test)]
-#[path = "main0_in_body_step_root_selection_tests.rs"]
-mod main0_in_body_step_root_selection_tests;
-pub(in crate::mir) mod main0_in_body_step_semantic_program;
-pub(crate) mod main0_in_body_step_source_map;
-pub(crate) mod main0_in_body_step_source_map_issue;
-pub(crate) mod main0_in_body_step_syntax_facts;
 // Third bounded Main0 profile (derived predicate); same canonical-root
 // handoff and production caller switch as the landed profiles.
 pub(crate) mod loop_true_break_continue_observation;

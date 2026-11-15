@@ -46,7 +46,6 @@ pub(in crate::mir) use callable_module_transaction::{
 };
 pub(in crate::mir::builder) use loop_recipe_physicalizer::{
     lower_main0_continue_function_draft_v1, lower_main0_derived_predicate_function_draft_v1,
-    lower_main0_in_body_step_function_draft_v1,
 };
 pub(in crate::mir::builder) use static_loop_entry_session::{
     prepare_selected_static_loop_entry_v1, PreparedSelectedStaticLoopEntryV1,

@@ -7,7 +7,6 @@ use crate::ast::ASTNode;
 use hakorune_mir_builder::BoxCompilationContext;
 
 use super::main_expansion::VerifiedRawRootExpansionV1;
-use main0_root_route::SelectedMain0RootProductV1;
 use super::module_draft_collector::ModuleDraftCollectorV1;
 use super::module_invocation_identity::ModuleInvocationBrandV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
@@ -28,6 +27,7 @@ use super::raw_invocation_source_transport::{
 use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::recursive_child_lowering_port::RecursiveChildLoweringPortV1;
 use crate::mir::normal_callable_semantic_package::NormalCallableSemanticPackagePortV1;
+use main0_root_route::SelectedMain0RootProductV1;
 
 use super::{
     MirBuilder, NormalEntryMaterializationSourceReceiptV1, RawEntryMaterializationSourceReceiptV1,
@@ -37,8 +37,6 @@ use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicat
 
 #[path = "program_root_lowering/main0_continue_route.rs"]
 mod main0_continue_route;
-#[path = "program_root_lowering/main0_in_body_step_route.rs"]
-mod main0_in_body_step_route;
 #[path = "program_root_lowering/main0_derived_predicate_route.rs"]
 mod main0_derived_predicate_route;
 #[path = "program_root_lowering/main0_root_route.rs"]
@@ -367,8 +365,7 @@ impl MirBuilder {
                 // Pre-wrapper route selection: a canonical Main0 route
                 // publishes its own `main` draft, so the legacy wrapper
                 // opens only when every bounded profile declines.
-                let main0_product =
-                    self.select_main0_root_product_v1(&package_port, expansion)?;
+                let main0_product = self.select_main0_root_product_v1(&package_port, expansion)?;
                 if main0_product.is_none() {
                     self.open_module_main_wrapper(runtime_inputs.entry_safepoint_enabled())?;
                 }
@@ -524,9 +521,9 @@ impl MirBuilder {
         )? {
             ProgramRootCompletionV1::WrapperBody(value) => Ok(value),
             // Raw compatibility never selects the canonical Main0 route.
-            ProgramRootCompletionV1::CanonicalMainDraft => Err(
-                "[freeze:contract][mir/program-root-work-plan/canonical-root-drift]".to_owned(),
-            ),
+            ProgramRootCompletionV1::CanonicalMainDraft => {
+                Err("[freeze:contract][mir/program-root-work-plan/canonical-root-drift]".to_owned())
+            }
         }
     }
 
