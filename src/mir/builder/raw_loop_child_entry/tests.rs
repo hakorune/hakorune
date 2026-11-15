@@ -735,7 +735,7 @@ fn identical_loops_keep_distinct_resolver_receipts() {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("main".to_owned());
         builder.function_state.compilation.fn_declaration_ast = Some(declaration.clone());
-        let context = LoopRouteContext::new(condition, body, "main", false, true);
+        let context = LoopRouteContext::new(condition, body, "main", false);
         let before = builder
             .function_state
             .current_function

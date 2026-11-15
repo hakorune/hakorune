@@ -527,7 +527,6 @@ impl MirBuilder {
                 }
             ),
         );
-        let in_static_box = self.comp_ctx.current_static_box.is_some();
         let ctx = if let Some(ref fn_body) = fn_body_clone {
             trace::trace().routing(
                 "router",
@@ -539,11 +538,10 @@ impl MirBuilder {
                 body,
                 &func_name,
                 debug,
-                in_static_box,
                 fn_body,
             )
         } else {
-            LoopRouteContext::new(condition, body, &func_name, debug, in_static_box)
+            LoopRouteContext::new(condition, body, &func_name, debug)
         };
 
         if let Some(msg) = take_step_tree_parity_error() {
