@@ -36,7 +36,6 @@ pub(crate) enum LoopCondTypedSourceMapRejectV1 {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) enum LoopCondTypedMapRoleV1 {
-    CarrierDeclaration,
     LoopConditionRead,
     LoopConditionOperator,
     LoopConditionBound,

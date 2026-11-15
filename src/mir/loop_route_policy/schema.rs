@@ -34,7 +34,4 @@ pub(crate) const CANONICAL_LOOP_ROUTE_ORDER_V1: [LoopRouteId; CANONICAL_LOOP_ROU
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum LoopRouteSourceUnavailableV1 {
     FactsAbsent,
-    SourceTopologyUnavailable,
-    ScopeBoxLineageUnsupported,
-    UnsupportedAncestry,
 }
