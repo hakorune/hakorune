@@ -30,19 +30,13 @@ impl<'a> PlanLoweringContext for LoopRouteContext<'a> {
 pub(in crate::mir::builder) struct CallableLoopPlanLoweringContextV1 {
     function_name: Box<str>,
     debug_enabled: bool,
-    in_static_box: bool,
 }
 
 impl CallableLoopPlanLoweringContextV1 {
-    pub(in crate::mir::builder) fn new(
-        function_name: &str,
-        debug_enabled: bool,
-        in_static_box: bool,
-    ) -> Self {
+    pub(in crate::mir::builder) fn new(function_name: &str, debug_enabled: bool) -> Self {
         Self {
             function_name: function_name.into(),
             debug_enabled,
-            in_static_box,
         }
     }
 }

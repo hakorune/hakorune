@@ -13,9 +13,6 @@ use std::fmt::Write;
 
 /// MIR printer for debug output and visualization
 pub struct MirPrinter {
-    /// Indentation level
-    indent_level: usize,
-
     /// Whether to show detailed information
     verbose: bool,
 
@@ -30,7 +27,6 @@ impl MirPrinter {
     /// Create a new MIR printer with default settings
     pub fn new() -> Self {
         Self {
-            indent_level: 0,
             verbose: false,
             show_line_numbers: true,
             show_effects_inline: false,
@@ -40,7 +36,6 @@ impl MirPrinter {
     /// Create a verbose MIR printer
     pub fn verbose() -> Self {
         Self {
-            indent_level: 0,
             verbose: true,
             show_line_numbers: true,
             show_effects_inline: false,

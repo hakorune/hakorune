@@ -432,11 +432,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 crate::mir::builder::control_flow::verify::PlanVerifier::verify(&plan)
                     .map_err(|error| format!("[freeze:contract][callable-loop/verify] {error}"))?;
                 let context = crate::mir::builder::control_flow::plan::lowering_context::
-                    CallableLoopPlanLoweringContextV1::new(
-                        function_name,
-                        debug,
-                        in_static_box,
-                    );
+                    CallableLoopPlanLoweringContextV1::new(function_name, debug);
                 return crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower_with_source_publication(
                     builder,
                     plan,
@@ -482,11 +478,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                             format!("[freeze:contract][callable-loop/verify] {error}")
                         })?;
                     let context = crate::mir::builder::control_flow::plan::lowering_context::
-                        CallableLoopPlanLoweringContextV1::new(
-                            function_name,
-                            debug,
-                            in_static_box,
-                        );
+                        CallableLoopPlanLoweringContextV1::new(function_name, debug);
                     return crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower_with_source_publication(
                         builder,
                         plan,
@@ -564,7 +556,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 let physical_input =
                     source_facts.into_physical_input(source_ledger, declared_instance_locator)?;
                 let context = crate::mir::builder::control_flow::plan::lowering_context::
-                    CallableLoopPlanLoweringContextV1::new(function_name, debug, in_static_box);
+                    CallableLoopPlanLoweringContextV1::new(function_name, debug);
                 loop_cond::lower(builder, &physical_input, &context, source_ledger, invocation)
             }
             CallableGenericLoopSourceFactsDispositionV1::LoopTrueReady(source_facts) => {
@@ -583,11 +575,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 crate::mir::builder::control_flow::verify::PlanVerifier::verify(&plan)
                     .map_err(|error| format!("[freeze:contract][callable-loop/verify] {error}"))?;
                 let context = crate::mir::builder::control_flow::plan::lowering_context::
-                    CallableLoopPlanLoweringContextV1::new(
-                        function_name,
-                        debug,
-                        in_static_box,
-                    );
+                    CallableLoopPlanLoweringContextV1::new(function_name, debug);
                 crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower_with_source_publication(
                     builder,
                     plan,
