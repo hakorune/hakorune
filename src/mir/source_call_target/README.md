@@ -121,37 +121,10 @@ declarations and targets remain intact, and AllSource selection is unchanged.
 This is physical-selection evidence, not declaration removal, entry permission
 or a transport proof; selected incoming/cohort vetoes still apply.
 
-## RAW-SOURCE-CURSOR0-S0 catalog-backed Raw navigation
+## Retired Raw cursor prototype
 
-`VerifiedRawCallableSourceViewV1` is the Raw route's thin, catalog-branded
-source-navigation adapter. It retains the exact declaration-catalog allocation,
-the embedded canonical caller key, and that declaration row. Its body,
-statement, and expression carriers are stack-scoped borrows of this one view.
-
-It does **not** introduce a second source-navigation engine. Child paths use
-the existing `SourcePathV1` and `ExprChildRoleV1` vocabularies, while every
-node projection delegates to `project_source_body_node_v1`. The canonical
-`FunctionSourceViewV1` remains independent because its carriers are branded by
-`FunctionOwnerIdV1`; Raw uses the declaration catalog's allocation identity
-instead.
-
-S0 is Builder-free and disconnected: it owns no raw dispatcher change, call
-route activation, `ValueId`, `MirType`, type publication, or runtime behavior.
-Later association must co-seal catalog allocation, embedded caller key, and
-exact `SourceExprSiteV1`; equal-looking catalogs or keys are not authority.
-
-## RAW-LOCATED-INSTANCE-METHOD-INPUT0-S0
-
-`RawLocatedMethodCallInputV1` is the next source-only boundary. Only the
-same `VerifiedRawCallableSourceViewV1` that issued a located expression may
-seal it, and only when that exact borrowed expression is `ASTNode::MethodCall`.
-It retains the view, embedded caller, exact `SourceExprSiteV1`, and borrowed
-receiver/method/argument syntax from the same catalog allocation.
-
-It is deliberately not `RawLegacyMethodCallInputV1`: it owns no Builder,
-`ValueId`, `MirType`, `type_ctx`, physical Call, result contract, or route
-selection. The later candidate-only descent will consume this input without
-re-scanning or matching by name; the default raw route remains unchanged.
+The unconnected catalog-branded Raw cursor and its method-input adapter were
+retired. Current source navigation remains in the shared resolved source owners.
 
 ## AST-BIND0-S0 exact source site
 

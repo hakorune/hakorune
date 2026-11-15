@@ -15,8 +15,6 @@ mod model;
 mod qualified;
 mod qualified_receiver_lexical;
 mod qualified_route_facts;
-mod raw_callable_source_view;
-mod raw_source_cursor_error;
 mod script_call_coverage;
 mod script_direct_static;
 mod source_method_call_site;
@@ -53,10 +51,6 @@ pub(crate) use qualified_receiver_lexical::{
 pub(crate) use qualified_route_facts::{
     QualifiedReceiverAdmissionV1, VerifiedQualifiedCallRouteFactsV1,
 };
-pub(crate) use raw_callable_source_view::{
-    VerifiedRawCallableSourceViewV1,
-};
-pub(crate) use raw_source_cursor_error::RawSourceCursorErrorV1;
 pub(crate) use script_call_coverage::{
     ScriptDirectStaticCallCoverageIssueV1, VerifiedScriptCallCoverageDispositionV1,
     VerifiedScriptCallCoverageRowV1, VerifiedScriptCallCoverageV1,
@@ -86,8 +80,6 @@ mod dynamic_member_tests;
 mod qualified_receiver_lexical_tests;
 #[cfg(test)]
 mod qualified_route_facts_tests;
-#[cfg(test)]
-mod raw_callable_source_view_tests;
 #[cfg(test)]
 mod script_direct_static_tests;
 #[cfg(test)]
