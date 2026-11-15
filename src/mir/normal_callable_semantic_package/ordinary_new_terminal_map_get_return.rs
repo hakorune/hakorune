@@ -7,12 +7,11 @@ use super::*;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceNodeSiteV1, SourceStmtSiteV1};
 use crate::mir::ValueId;
 
-/// One resolved terminal map-get: the call site is retained source
-/// evidence, `map` is the receiver binding's existing physical value, and
-/// `utf8` is the sealed literal key carried inline like a prepared key.
+/// One resolved terminal map-get: `return_site` selects the checked exit;
+/// call-site evidence stays in the canonical relation. `map` is the receiver
+/// binding's physical value and `utf8` is its sealed literal key.
 pub(crate) struct PreparedTerminalMapGetReturnV1 {
     pub(crate) return_site: SourceStmtSiteV1,
-    pub(crate) site: OwnedExprSiteV1,
     pub(crate) map: ValueId,
     pub(crate) utf8: String,
 }
@@ -40,7 +39,6 @@ impl OrdinaryNewClaimLedgerV1 {
         let map = resolve_binding(relation.receiver(), relation.receiver_site().node())?;
         Ok(Some(PreparedTerminalMapGetReturnV1 {
             return_site: stmt_site,
-            site: relation.call_site().clone(),
             map,
             utf8: relation.key().into(),
         }))
