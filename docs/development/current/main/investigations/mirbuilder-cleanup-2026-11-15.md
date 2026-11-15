@@ -286,6 +286,56 @@ source `0e262d354f`。最適化CLI build済み。featureは元から通る2構�
 - 見張りの変更は、上限を下げる向きと、消した旧 path の節を外す物だけ。
 - 次: 上の 25 family について、メンテナが「退役する・残す」を決める。保留の 6 塊(S6C の一族と A4 の境界)も、メンテナの決定を待つ。
 
+## お掃除4: 選択と生成の実測、最初の統合案（2026-11-16）
+
+この回は文書だけ。production/testの変更・削除は0。基点`cc553601d4`、default build・pure-first・compat replayなし。固定5,386入力path（内容SHAは5,210種類）を減らさず、MIR全件とEXE対象3,551件を計測した。事前固定した比較規則で、計測の印によるMIR・拒否理由・出力・exitの差は0、EXE生成1,471件、timeout 0。入力群の所属には重複がある。
+
+|専用family|選択イベント / 入力数|MIR生成完了イベント|strict公開EXE|専用道だけで成功する入力|
+|---|---:|---:|---:|---:|
+|F22 callable single loop|0 / 0|0|0|0|
+|F23 nested predicate（whole-functionと共通winner両方）|0 / 0|0|0|0|
+|F24 main0の3profile|24 / 12|24|0|0|
+|F25 selected Dynamic static callable|0 / 0|0|0|0|
+|F19 raw enum constructor/match|0 / 0|0|0|0|
+|F26 If Recipe|0 / 0|0|0|0|
+
+選択・生成イベントはdump/EXEの別実行を含む。F26のpreflight選択とadmission成功も0。候補関数の呼出しは選択に数えない。F24の12入力は全て元から`IncompleteOrdinaryNewCoverage`で失敗していた。旧F24を選択前に外すscratch実験では、同じ12入力が既存SourceLoop V2からEXEまで進み、strict公開に成功。通常exitは10件、残り2件は返値i64::MAXに対するEXE入口の範囲拒否（Fault reason 102）で、整数演算overflowとは別である。全固定入力でのF22/F24 bypass差はこの12件だけで、以前成功した物の後退0。新受理は次の変更で明示して審査する。
+
+共通側はSourceLoop V2の選択435/局所生成完了425、IfForm物理入口10,153/最初の命令append観測10,118。前者はloopの生成、後者は短絡条件の内部CFGも含む物理処理で、sourceのIf個数と同一ではない。公開完了はmoduleの結果と分け、physical function名が分かる行だけ最終moduleの保持名とも照合する。F23の共通winner→専用Recipe→共有physicalizerは構造として存在するが、今回の入力では未選択。F24→共有segment生成を、共通V2と旧道が同じloopを二度生成した事とは数えない。
+未選択はこの入力/profileでの事実であり、全featureで不要・機能が全て共通へ移ったとの主張ではない。特にF19はresolver手前の拒否を残し、共通VariantMakeの存在だけでenum matchの統合済みとはしない。
+
+### 次の最小単位（提案、まだ実装しない）
+
+**F24のin-body-stepを、既存SourceLoop V2へ切り替えてから専用道を消す。** 対象はInteger carrierの反復と、元の順で行う再代入・書くだけlocal。前後の文数、変数名、main/static/instance、関数内のloop数を新しい受理条件にしない。既存V2の表現を広げる必要は実験では見つからず、新しいproducer/Recipe/Loop基盤は作らない。
+- 広げ先は既存root選択→source Loop入口。新規productionは0〜80行の見込み（共有source identity/loan検査の保持が必要な場合のみ）。新しいLoop計画の追加は0。単独in-body-step入力も共通V2でEXE exit 3を実測した。
+- 専用候補11filesは整形後production 2,324/test 845行、test関数17。これは保証の移管前の候補上限で、全量削除の約束ではない。root route/reexportの専用glueも同seriesで退役し、兄弟profileが使う共有型は残す。
+- 合格は元の固定入力を保ち、新受理差を区別し、出力/exit・評価と更新の順・Normal/Fault・sourceとPHI/辺・独立MIR/ABI検証を守る事。切替範囲では旧selector/producer/lowererの実生成0、共通V2の生成と公開を確認し、不要な呼び手/本体/専用testまで消す。
+- 元owner/siteの拒否、BodyOnly/write-onlyの元source順、Header/break/backedgeとHome、非predecessor PHI拒否は既存のsource-route/handoff/initializer/ownership_ssa/typed_schema_v2のtestへ保証を集約する。旧内部配置だけの期待を写さない。
+
+### selfhostの不足は別に特定する
+
+488入力はdump成功176/失敗312。主なfirst-stopはNamedArray 67、BatchLoan 66、static forward-source-missing 38、LoopBreak UnsupportedAncestor 24。67を全て「文字列の出所だけの問題」、66を単一原因とは扱わない。
+LoopBreakの24件はすべて`ProgramBody(1)`のportable path欠落だった。resolverの親子forestは既にあり、足りないのは`LoopSourcePathStepV1`と既存adapter/source-binding verifierのbare lexical block表現。最初の拒否を閉じる見込みはproduction +6〜20行、即時削減の確認量0、後段EXEは未測定。Serde source DTOの追加判断を別単位で行い、ScopeBodyへの偽装や新しいnested lowererで埋めない。Loop全体の作り直しをselfhostより上位の目的にしない。
+
+### 保留6塊の照合（今回は全て保持）
+
+|塊|整形後production / test|最初のV2統合への案|
+|---|---:|---|
+|SC33|462 / 108|採らない。唯一loopのadmissionを持ち込まない|
+|PH03|4,253 / 3,495|採らない。既存V2/SSA sessionへもう一本を足さない|
+|PH57|2,261 / 901|採らない。S6C専用corridorを一般反復へ広げない|
+|EX01|2,496 / 667|採らない。特定Text走査のsource/Recipeを移植しない|
+|EX02|980 / 57|採らない。専用物理representationの切替を伴わせない|
+|PH65|211 / 310|採らない。旧ownership境界は別判断（専用test child246行も計数）|
+
+再開は、既存V2に無い具体的な意味・現役の接続先・消す重複を示せる時だけ。この案は削除承認ではなく、実装はユーザーの判断まで保持する。
+
+### 退役候補8族の閉鎖実験
+
+8族の入口をscratchで閉じ、全5,386入力を再計測。F01/F02/F04/F06/F07/F08/F17は変化0。F16は2入力が変わり、うち1入力は従来MIRが出ていた（EXEは`closure-body-wire-unavailable`で未生成）。もう1入力は元から別の拒否で、拒否段が変わる。EXE成功の喪失は0だが、F16を「影響0」としない。
+F16を閉じる時はEBNFの将来`fn[captures](...):T`を残し、旧`fn(x){...}`と分ける（EBNF:125、ownershipのcapture節）。拒否案は`LegacyLambdaSurfaceRetired`。F17は既に仕様で禁止されるcatchable try/catch/throwを閉じる案（quick-reference:44〜53、EBNF:21〜29/1088〜）。拒否案は`LegacyCatchableExceptionSurfaceRetired`、既存throw予約語拒否は保持。合法なcleanupだけのTryCatch carrier、Fault/End/fini/Result/?、現役callableの共有表現を一緒に消さない。
+全て固定した通常profileでの結果であり、reference feature有効buildや任意passを強制した範囲の証明ではない。計測用の遮断exit 86を、製品の名前付き拒否の実装とは扱わない。
+
 ## 捨てる掃除の決まり(ユーザー決定 2026-11-15)
 
 方針: **今の主流の道に対応している test だけを残す。つながっているだけで、誰も通らない物は、消す。** 整理 2 が 276 行しか「消せる」と言えなかったのは、「どんな入力からも使われない」と証明する仕事と、「この機能は今後提供しない」と決めて入口ごと消す仕事を、同じ審査にかけていたため。下の決まりで、2 つを分ける。
