@@ -33,9 +33,6 @@ mod new_expression;
 mod normal_callable_binding_materialization;
 mod normal_callable_binding_materialization_port; // existing formal ValueId handoff
 mod normal_callable_catalog_owner_link; // exact catalog key/owner/source ingress co-seal
-mod normal_callable_dynamic_loop_prepare; // pre-effect Dynamic Loop ingress co-seal
-mod normal_callable_dynamic_loop_rebind; // exact-once Dynamic Add/rebind terminal
-mod normal_callable_dynamic_operation_source; // source-backed Dynamic Loop operation relations
 mod normal_callable_dynamic_origin; // source-backed Dynamic -> existing physical receipts
 mod normal_callable_dynamic_source; // source-backed untyped formal/Loop carrier authority
 mod normal_callable_loop_handoff; // callable Loop source/BindingRef S0 handoff

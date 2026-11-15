@@ -282,26 +282,6 @@ impl CallableSemanticLoweringState {
             .collect()
     }
 
-    pub(super) fn prepare_source_backed_dynamic_loop_ingress(
-        &self,
-        schedule: super::normal_callable_loop_handoff::VerifiedCallableSemanticLoopBindingScheduleV1,
-        operations: super::normal_callable_dynamic_operation_source::VerifiedDynamicLoopOperationSourceSetV1,
-        parent_site: &SourceNodeSiteV1,
-        condition_site: &SourceNodeSiteV1,
-        body_site: &SourceNodeSiteV1,
-    ) -> Result<
-        super::normal_callable_dynamic_loop_prepare::PreparedSourceBackedDynamicLoopIngressV1,
-        super::normal_callable_dynamic_loop_prepare::DynamicLoopPrepareIssueV1,
-    > {
-        super::normal_callable_dynamic_loop_prepare::DynamicLoopPrepareIssuerV1::issue(
-            schedule,
-            operations,
-            &self.dynamic_origins,
-            parent_site,
-            condition_site,
-            body_site,
-        )
-    }
 
     pub(super) fn install_entry_values(
         &mut self,

@@ -30,8 +30,6 @@ pub(in crate::mir::builder) use draft_seal_owner::{
     CompletedCatalogedBoxCallableDraftV1, DiscardedFunctionDraftSealErrorV1,
     SelectedDynamicCandidateMetadataV1,
 };
-pub(in crate::mir::builder) mod dynamic_loop_phi;
-mod dynamic_loop_phi_close;
 mod flow_consumption;
 #[cfg(test)]
 mod generic_g0_physical_emitter_session;
@@ -129,12 +127,6 @@ mod completion_consumption_tests;
 mod completion_draft_seal_tests;
 #[cfg(test)]
 mod completion_test_support;
-#[cfg(test)]
-mod dynamic_loop_discard_tests;
-#[cfg(test)]
-mod dynamic_loop_phi_tests;
-#[cfg(test)]
-mod dynamic_loop_rebind_tests;
 #[cfg(test)]
 mod flow_consumption_tests;
 #[cfg(test)]
