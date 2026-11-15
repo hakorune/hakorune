@@ -1,5 +1,4 @@
 use super::*;
-use crate::mir::compiler::callable_single_loop_operation_effect::callable_operation_demand_parts_for_test;
 use crate::mir::loop_recipe_contract::generic_g0::generic_operation_demand_parts_for_test;
 use crate::mir::loop_recipe_contract::join_sig::{
     LoopJoinBoundaryTransferRefV1, LoopJoinBranchArmTransferRefV1, LoopJoinBranchExitRefV1,
@@ -23,16 +22,6 @@ fn transfer(
         condition,
         payload: &[],
     }
-}
-
-fn callable_layout() -> PreparedLoopPhysicalLayoutV1 {
-    let (effect, context, continuation) = callable_operation_demand_parts_for_test();
-    VerifiedLoopOperationPhysicalDemandV1::issue(context, effect, continuation)
-        .expect("callable demand")
-        .prepare_all()
-        .expect("callable program")
-        .prepare_physical_layout()
-        .expect("callable layout")
 }
 
 #[test]
@@ -236,33 +225,6 @@ fn generic_layout() -> PreparedLoopPhysicalLayoutV1 {
         .expect("generic program")
         .prepare_physical_layout()
         .expect("generic layout")
-}
-
-#[test]
-fn callable_layout_keeps_one_segment_per_logical_block() {
-    let layout = callable_layout();
-    assert_eq!(layout.coverage().item_count(), 7);
-    assert_eq!(layout.coverage().operation_count(), 7);
-    assert_eq!(layout.coverage().segment_count(), 2);
-    assert_eq!(layout.entry_segment(), layout.segments()[0].key());
-    assert_eq!(
-        layout.segments()[0].role(),
-        LoopPhysicalSegmentRoleV1::Header
-    );
-    assert_eq!(layout.segments()[1].role(), LoopPhysicalSegmentRoleV1::Body);
-    assert_eq!(
-        layout.segments()[0].operations(),
-        [
-            LoopItemKeyV1::new(0),
-            LoopItemKeyV1::new(1),
-            LoopItemKeyV1::new(2),
-        ]
-    );
-    assert_eq!(layout.segments()[1].operations().len(), 4);
-    assert!(matches!(
-        layout.segments()[0].transfer(),
-        LoopPhysicalTransferV1::Predicate { .. }
-    ));
 }
 
 #[test]
@@ -555,9 +517,12 @@ fn always_loop_fixture(
 #[test]
 fn always_loop_skips_dead_tail_and_routes_break_and_continue_arms() {
     let (recipe, transfers) = always_loop_fixture(LoopJoinEdgeRoleV1::Break);
-    let body_entry = LoopPhysicalSegmentKeyV1::new(LoopNodeKeyV1::new(0), LoopBlockKeyV1::new(0), 0);
-    let then_segment = LoopPhysicalSegmentKeyV1::new(LoopNodeKeyV1::new(0), LoopBlockKeyV1::new(1), 0);
-    let else_segment = LoopPhysicalSegmentKeyV1::new(LoopNodeKeyV1::new(0), LoopBlockKeyV1::new(2), 0);
+    let body_entry =
+        LoopPhysicalSegmentKeyV1::new(LoopNodeKeyV1::new(0), LoopBlockKeyV1::new(0), 0);
+    let then_segment =
+        LoopPhysicalSegmentKeyV1::new(LoopNodeKeyV1::new(0), LoopBlockKeyV1::new(1), 0);
+    let else_segment =
+        LoopPhysicalSegmentKeyV1::new(LoopNodeKeyV1::new(0), LoopBlockKeyV1::new(2), 0);
     let mut builder = LayoutBuilder::new(&recipe, &transfers);
     assert_eq!(builder.entry_key(LoopNodeKeyV1::new(0)), Ok(body_entry));
     builder
@@ -602,15 +567,17 @@ fn always_loop_rejects_return_arm_and_reachable_dead_tail() {
     let (mut recipe, transfers) = always_loop_fixture(LoopJoinEdgeRoleV1::Break);
     let tail_item = LoopItemKeyV1::new(3);
     recipe.blocks[0].items.push(tail_item);
-    recipe.items.push(super::super::schema::LoopRecipeItemRowV1 {
-        key: tail_item,
-        item: LoopRecipeItemV1::Operation {
-            operation: super::super::schema::LoopOperationV1::ConstI64 {
-                result: LoopValueKeyV1::new(1),
-                value: 1,
+    recipe
+        .items
+        .push(super::super::schema::LoopRecipeItemRowV1 {
+            key: tail_item,
+            item: LoopRecipeItemV1::Operation {
+                operation: super::super::schema::LoopOperationV1::ConstI64 {
+                    result: LoopValueKeyV1::new(1),
+                    value: 1,
+                },
             },
-        },
-    });
+        });
     let mut builder = LayoutBuilder::new(&recipe, &transfers);
     assert!(matches!(
         builder.build_loop(LoopNodeKeyV1::new(0), LoopPhysicalTargetV1::OpenRootAfter),

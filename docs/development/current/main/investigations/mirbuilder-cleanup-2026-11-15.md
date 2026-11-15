@@ -438,3 +438,9 @@ scalar scan/TextEqの専用corridorは採用しない。旧実装の参照: `935
 固定5,386入力の差は承認済みの`phase29bq_selfhost_funcscanner_lambda_literal_min.hako`と`write-compare/t3_map_update.hako`だけ。両者は所定の拒否に変わり、残り5,384入力のMIR/拒否/出力/exitは不変。EXE成功1,471件を維持しtimeout0、dumpのみの後者も旧/新binaryでEXE未生成と補足確認した。
 focused23件PASS。旧生成成功testを同じ入力の名前付き拒否・命令/closure非公開・変数不変のtestへ置換し、専有test12件を削除（登録8734→8722、旧13名/新1名・未説明差0）。Hako parserのlambda-pair smokeはJSON解析の保証なので保持。整形後Rustは本体1,022行/test350行の純減、Rust4file退役。旧台帳は退役PASS12件と置換名/hashだけを更新し、FAIL集合を維持した。
 固定suite8/8、owner数・pointer guard・diff check PASS。全lib直列と全feature最終確認はseries最終で行う。
+
+### 段C F22: CallableSingleLoop 専用経路
+
+元のcanonical/static-child入口を閉じた最適化CLIで固定5,386入力のMIR/拒否/出力/exit差0（EXE1,471、timeout0）を確認してから、専用のsource/Recipe/physicalizer24fileを退役した。現役のsource-shape helper、共有loan/receipt・typed completion・profile countを保持した。
+共有のowner/continuation/allocator/segment/recursive-after検査は既存GenericG0のverified fixtureへ移し、重複layout fixtureを既存test-supportへ集約。キーの発行権限を広げず、共有assertionを保持した。旧形式専有56testを削除し登録8722→8666・追加0・全名対応、旧台帳もそのPASS56件だけ除去しFAIL集合不変。
+削除後focused232件・owner数/pointer/diff検査を確認。整形後Rustは本体4,342行/test3,214行の純減。JoinSig guardのstatic_loop_body未許可は基点から同一の既存不整合として保持する。削除後の全入力・全lib・固定suite最終確認はseries最終で行う。

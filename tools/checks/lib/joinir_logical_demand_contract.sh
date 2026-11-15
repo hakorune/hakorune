@@ -135,14 +135,13 @@ guard_joinir_logical_demand_contract() {
           -v dynamic_physical_input="$dynamic_physical_input" \
           -v dynamic_semantic_tests="$dynamic_semantic_tests" \
           -v dynamic_recipe_tests="$dynamic_recipe_tests" \
-          -v callable_recipe_coseal="$root_dir/src/mir/compiler/callable_single_loop_recipe_coseal.rs" \
           -v main0_continue_coseal="$root_dir/src/mir/compiler/main0_continue_recipe_coseal.rs" \
           -v main0_derived_coseal="$root_dir/src/mir/compiler/main0_derived_predicate_recipe_coseal.rs" \
           -v main0_step_coseal="$root_dir/src/mir/compiler/main0_in_body_step_recipe_coseal.rs" \
           -v node_admission="$root_dir/src/mir/compiler/loop_node_physical_admission.rs" \
           -v physicalizer="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs" \
           -v physicalizer_session="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer/session.rs" \
-          'index($0, prefix) != 1 && $0 != nested_producer && $0 != nested_producer_tests && $0 != nested_topology && $0 != nested_topology_tests && $0 != nested_physical_input && $0 != nested_physical_input_tests && $0 != dynamic_physical_input && $0 != dynamic_semantic_tests && $0 != dynamic_recipe_tests && $0 != callable_recipe_coseal && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal && $0 != node_admission && $0 != physicalizer && $0 != physicalizer_session'
+          'index($0, prefix) != 1 && $0 != nested_producer && $0 != nested_producer_tests && $0 != nested_topology && $0 != nested_topology_tests && $0 != nested_physical_input && $0 != nested_physical_input_tests && $0 != dynamic_physical_input && $0 != dynamic_semantic_tests && $0 != dynamic_recipe_tests && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal && $0 != node_admission && $0 != physicalizer && $0 != physicalizer_session'
   )
   if (( ${#join_sig_external_files[@]} != 0 )); then
     guard_fail "$tag" "caller-zero logical JoinSig symbols escaped the contract subtree"
@@ -189,8 +188,6 @@ guard_joinir_logical_demand_contract() {
       -v p="$direct_accum_projection" -v l="$loop_true_source_projection" \
       -v t="$loop_true_observation_adapter" -v c="$loop_cond_source_projection" \
       -v d="$loop_cond_observation_adapter" -v g="$generic_g0_observation_adapter" \
-      -v q="$root_dir/src/mir/compiler/callable_single_loop_recipe_coseal.rs" \
-      -v m="$root_dir/src/mir/compiler/callable_single_loop_source_map.rs" \
       -v s="$root_dir/src/mir/loop_structural_facts/" \
       -v r="$root_dir/src/mir/resolved_semantics/" \
       -v b="$root_dir/src/mir/builder/normal_callable_loop_source_facts/" \
@@ -201,7 +198,7 @@ guard_joinir_logical_demand_contract() {
       -v x5="$root_dir/src/mir/compiler/main0_continue_source_map.rs" \
       -v x6="$root_dir/src/mir/compiler/main0_derived_predicate_source_map.rs" \
       -v x7="$root_dir/src/mir/compiler/main0_in_body_step_source_map.rs" \
-      '$0 != a && $0 != n && $0 != p && $0 != l && $0 != t && $0 != c && $0 != d && $0 != g && $0 != q && $0 != m && $0 != t2 && $0 != x2 && $0 != x3 && $0 != x4 && $0 != x5 && $0 != x6 && $0 != x7 && index($0,s) != 1 && index($0,r) != 1 && index($0,b) != 1 { found=1 } END { exit found }'; then
+      '$0 != a && $0 != n && $0 != p && $0 != l && $0 != t && $0 != c && $0 != d && $0 != g && $0 != t2 && $0 != x2 && $0 != x3 && $0 != x4 && $0 != x5 && $0 != x6 && $0 != x7 && index($0,s) != 1 && index($0,r) != 1 && index($0,b) != 1 { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "sealed resolved Loop source capability escaped its adapter boundary"
@@ -227,7 +224,6 @@ guard_joinir_logical_demand_contract() {
     { rg -l 'bind_resolved_loop_root_v1\(' "$root_dir/src/mir" || true; } \
       | awk -v prefix="$loop_structural_facts_dir/" -v producer="$direct_accum_recipe_producer" -v variable_producer="$variable_accum_recipe_producer" \
           -v projection="$loop_true_source_projection" \
-          -v callable_recipe_coseal="$root_dir/src/mir/compiler/callable_single_loop_recipe_coseal.rs" \
           -v dynamic_recipe_mod="$dynamic_recipe_mod" \
           -v wire_tests_prefix="$root_dir/src/mir/loop_recipe_contract/wire_parity_tests" \
           -v wire_route_tests="$root_dir/src/mir/loop_recipe_contract/wire_route_parity_tests.rs" \
@@ -235,7 +231,7 @@ guard_joinir_logical_demand_contract() {
           -v main0_continue_coseal="$root_dir/src/mir/compiler/main0_continue_recipe_coseal.rs" \
           -v main0_derived_coseal="$root_dir/src/mir/compiler/main0_derived_predicate_recipe_coseal.rs" \
           -v main0_step_coseal="$root_dir/src/mir/compiler/main0_in_body_step_recipe_coseal.rs" \
-          'index($0, prefix) != 1 && index($0, wire_tests_prefix) != 1 && $0 != producer && $0 != variable_producer && $0 != projection && $0 != callable_recipe_coseal && $0 != dynamic_recipe_mod && $0 != wire_route_tests && $0 != loopcond_issue && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal' \
+          'index($0, prefix) != 1 && index($0, wire_tests_prefix) != 1 && $0 != producer && $0 != variable_producer && $0 != projection && $0 != dynamic_recipe_mod && $0 != wire_route_tests && $0 != loopcond_issue && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal' \
       | wc -l \
       | tr -d '[:space:]'
   )"
@@ -291,14 +287,13 @@ guard_joinir_logical_demand_contract() {
           -v structural_prefix="$loop_structural_facts_dir/" \
           -v nested_producer="$root_dir/src/mir/compiler/nested_predicate_producer.rs" \
           -v nested_producer_tests="$root_dir/src/mir/compiler/nested_predicate_producer_tests.rs" \
-          -v callable_recipe_coseal="$root_dir/src/mir/compiler/callable_single_loop_recipe_coseal.rs" \
           -v main0_continue_coseal="$root_dir/src/mir/compiler/main0_continue_recipe_coseal.rs" \
           -v main0_derived_coseal="$root_dir/src/mir/compiler/main0_derived_predicate_recipe_coseal.rs" \
           -v main0_step_coseal="$root_dir/src/mir/compiler/main0_in_body_step_recipe_coseal.rs" \
           -v dynamic_recipe_mod="$dynamic_recipe_mod" \
           -v dynamic_physical_input="$dynamic_physical_input" \
           -v generic_test_prefix="$generic_resolved_test_prefix" \
-          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1 && !(index($0, generic_test_prefix) == 1 && $0 ~ /_tests\.rs$/) && $0 != nested_producer && $0 != nested_producer_tests && $0 != callable_recipe_coseal && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal && $0 != dynamic_recipe_mod && $0 != dynamic_physical_input'
+          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1 && !(index($0, generic_test_prefix) == 1 && $0 ~ /_tests\.rs$/) && $0 != nested_producer && $0 != nested_producer_tests && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal && $0 != dynamic_recipe_mod && $0 != dynamic_physical_input'
   )
   if (( ${#external_portable_source_files[@]} != 0 )); then
     guard_fail "$tag" "semantic or physical Loop consumer acquired source/provenance authority"
@@ -317,8 +312,6 @@ guard_joinir_logical_demand_contract() {
           -v loop_cond_projection="$loop_cond_source_projection" \
           -v loop_cond_observation_adapter="$loop_cond_observation_adapter" \
           -v generic_g0_observation_adapter="$generic_g0_observation_adapter" \
-          -v callable_recipe_coseal="$root_dir/src/mir/compiler/callable_single_loop_recipe_coseal.rs" \
-          -v callable_source_map="$root_dir/src/mir/compiler/callable_single_loop_source_map.rs" \
           -v dynamic_recipe_mod="$dynamic_recipe_mod" \
           -v dynamic_physical_input="$dynamic_physical_input" \
           -v callable_facts_prefix="$root_dir/src/mir/builder/normal_callable_loop_source_facts/" \
@@ -329,7 +322,7 @@ guard_joinir_logical_demand_contract() {
           -v main0_continue_map="$root_dir/src/mir/compiler/main0_continue_source_map.rs" \
           -v main0_derived_map="$root_dir/src/mir/compiler/main0_derived_predicate_source_map.rs" \
           -v main0_step_map="$root_dir/src/mir/compiler/main0_in_body_step_source_map.rs" \
-          'index($0, structural_prefix) != 1 && index($0, resolved_prefix) != 1 && index($0, callable_facts_prefix) != 1 && $0 != projection && $0 != observation_adapter && $0 != nested_observation_adapter && $0 != loop_true_projection && $0 != loop_true_observation_adapter && $0 != loop_cond_projection && $0 != loop_cond_observation_adapter && $0 != generic_g0_observation_adapter && $0 != callable_recipe_coseal && $0 != callable_source_map && $0 != dynamic_recipe_mod && $0 != dynamic_physical_input && $0 != s6c_tests && $0 != break_composite && $0 != break_source && $0 != window_probe_tests && $0 != main0_continue_map && $0 != main0_derived_map && $0 != main0_step_map'
+          'index($0, structural_prefix) != 1 && index($0, resolved_prefix) != 1 && index($0, callable_facts_prefix) != 1 && $0 != projection && $0 != observation_adapter && $0 != nested_observation_adapter && $0 != loop_true_projection && $0 != loop_true_observation_adapter && $0 != loop_cond_projection && $0 != loop_cond_observation_adapter && $0 != generic_g0_observation_adapter && $0 != dynamic_recipe_mod && $0 != dynamic_physical_input && $0 != s6c_tests && $0 != break_composite && $0 != break_source && $0 != window_probe_tests && $0 != main0_continue_map && $0 != main0_derived_map && $0 != main0_step_map'
   )
   if (( ${#external_resolved_source_files[@]} != 0 )); then
     guard_fail "$tag" "sealed resolved Loop source capability escaped its adapter boundary"

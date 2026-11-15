@@ -6,15 +6,7 @@
 //! and Generic G0 consumers are production-connected; broader GenericLoop
 //! physicalization remains closed.
 
-mod callable_canary;
-mod callable_lowerer;
-#[cfg(test)]
-mod callable_production_canary_tests;
 mod carrier_emitter;
-mod compare_i64_operands;
-mod compare_i64_writer;
-#[cfg(test)]
-mod compare_i64_writer_tests;
 #[cfg(test)]
 mod compare_result_ledger;
 mod generic_lowerer;
@@ -52,7 +44,6 @@ mod segment_topology;
 mod tail_completion;
 mod topology;
 
-pub(in crate::mir::builder) use callable_lowerer::lower_callable_single_loop_function_draft_v1;
 pub(in crate::mir::builder) use generic_lowerer::lower_generic_g0_function_draft_pending_v1;
 pub(in crate::mir::builder) use generic_lowerer::lower_generic_g0_function_draft_v1;
 // Caller-zero re-export until the Main0 canonical-root handoff wires the

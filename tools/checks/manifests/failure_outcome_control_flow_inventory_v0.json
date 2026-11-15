@@ -20809,30 +20809,6 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_production_canary_tests.rs:150:mir_return",
-      "evidence": "ASTNode::Return {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 150,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_production_canary_tests.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_production_canary_tests.rs:159:mir_return",
-      "evidence": "vec![ASTNode::Return {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 159,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_production_canary_tests.rs",
-      "token": "mir_return"
-    },
-    {
       "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_continue_lowerer_tests.rs:177:mir_return",
       "evidence": "Some(crate::mir::MirInstruction::Return { value: Some(_) })",
       "evidence_kind": "mir_return",

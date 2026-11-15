@@ -58,9 +58,8 @@ pub(in crate::mir) use normal_callable_loop_source_facts::{
 };
 mod normal_callable_loop_source_route; // callable source-owned LoopCond route token
 mod normal_callable_package_bridge; // Builder-private package install boundary
-mod normal_callable_prepared_operation; // Builder-free full-demand ingress
-                                        // Caller-zero until the Main0 canonical-root handoff wires the installed App
-                                        // Main caller; recheck at the production-switch slice.
+                                    // Caller-zero until the Main0 canonical-root handoff wires the installed App
+                                    // Main caller; recheck at the production-switch slice.
 mod normal_main0_continue_prepared_operation; // Builder-free Main0 full-demand ingress
                                               // Caller-zero second bounded Main0 profile; same canonical-root handoff.
 mod normal_main0_in_body_step_prepared_operation; // Builder-free Main0 full-demand ingress

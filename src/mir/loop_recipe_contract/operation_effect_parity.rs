@@ -87,22 +87,11 @@ fn validate_profile(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::compiler::callable_single_loop_operation_effect::callable_operation_effect_for_test;
     use crate::mir::loop_recipe_contract::generic_g0::generic_operation_effect_for_test;
     use crate::mir::loop_recipe_contract::{
         LoopOperationEffectRejectV1, LoopOperationSourceEvidenceV1,
         VerifiedLoopOperationEffectProductV1,
     };
-
-    #[test]
-    fn callable_and_generic_g0_share_neutral_operation_effect_contract() {
-        let callable = callable_operation_effect_for_test();
-        let generic = generic_operation_effect_for_test();
-        let receipt =
-            issue_operation_effect_parity_receipt_v1(&callable, &generic).expect("profile parity");
-        assert_eq!(receipt.callable_items(), 7);
-        assert_eq!(receipt.generic_items(), 15);
-    }
 
     #[test]
     fn profile_item_relabel_is_rejected_before_parity() {

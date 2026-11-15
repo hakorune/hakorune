@@ -49,8 +49,8 @@ pub(in crate::mir) use callable_module_transaction::{
     CallableModuleTransactionErrorV1, VerifiedUnpublishedCallableDraftSetV1,
 };
 pub(in crate::mir::builder) use loop_recipe_physicalizer::{
-    lower_callable_single_loop_function_draft_v1, lower_main0_continue_function_draft_v1,
-    lower_main0_derived_predicate_function_draft_v1, lower_main0_in_body_step_function_draft_v1,
+    lower_main0_continue_function_draft_v1, lower_main0_derived_predicate_function_draft_v1,
+    lower_main0_in_body_step_function_draft_v1,
 };
 pub(in crate::mir) use selected_dynamic_physical_abi::{
     issue_selected_dynamic_v2_emission_plan, DynamicV2PhysicalScheduleSegmentV1,

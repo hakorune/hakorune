@@ -10,7 +10,14 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         runtime_inputs: Option<&crate::mir::builder::NormalRuntimeInputSnapshotV1>,
         body: Vec<ASTNode>,
     ) -> Result<ValueId, String> {
-        main_root::lower_app_main_root_body_v1(self, builder, expected_identity, parameters, runtime_inputs, body)
+        main_root::lower_app_main_root_body_v1(
+            self,
+            builder,
+            expected_identity,
+            parameters,
+            runtime_inputs,
+            body,
+        )
     }
 
     fn lower_app_main0_continue_root_v1(
@@ -52,7 +59,6 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
     ) -> Result<(), String> {
         let (_symbol, params, param_decls, return_type_name, body, uses, attrs, declaration) =
             child.to_owned_lowering().into_parts();
-        let target_binding = self.target_binding.as_ref();
         let inner = &mut *self.inner;
         let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
         let owned_array_source = self.package.owned_array_lifecycle_source_v1();
@@ -71,34 +77,10 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                     ));
                 }
                 validate_selected_signature_loan_parts(&selected, &admission, &signature)?;
-                let target_capability = target_binding.map(|binding| binding.target_capability());
                 let lineage =
                     super::super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
                         admission.source_key().clone(),
                     );
-                // This bounded production edge owns only the existing
-                // CallableSingleLoop consumer. Other static-child shapes keep
-                // their prior source lowering until their own consumer is
-                // selected, so this adapter does not reclassify or open an
-                // unrelated canonical session.
-                if let Some(program) = try_prepare_callable_single_loop_program_v1(selected.source())?
-                {
-                    // The issued canonical program is the bypass evidence:
-                    // this exact owner's loan rows stay untouched on purpose
-                    // and close through the mark, never silently.
-                    if let Some(loans) = inner.direct_call_loans.as_deref_mut() {
-                        loans.mark_canonical_route_bypass(selected.source().owner());
-                    }
-                    return inner
-                        .lower_normal_cataloged_static_box_method_with_callable_single_loop_program_v1(
-                            builder,
-                            admission,
-                            signature,
-                            program,
-                            target_capability,
-                        )
-                        .map_err(|error| error.to_string());
-                }
                 with_selected_source_scope(
                     inner,
                     lineage,
@@ -319,15 +301,6 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                             admission,
                             signature,
                             plan,
-                            target_capability,
-                        )
-                        .map_err(|error| error.to_string()),
-                    CanonicalCallableRouteV1::CallableSingleLoop(program) => inner
-                        .lower_normal_cataloged_static_box_method_with_callable_single_loop_program_v1(
-                            builder,
-                            admission,
-                            signature,
-                            program,
                             target_capability,
                         )
                         .map_err(|error| error.to_string()),
