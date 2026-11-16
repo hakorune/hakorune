@@ -1,7 +1,6 @@
 //! Same-definition queries over one completed, immutable MIR function.
 //! Source sites and producer loans are deliberately not evidence here.
 use super::{cfg, geometry::FunctionVerificationGeometry, invoke};
-use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
 use crate::mir::verification_types::VerificationError;
 #[cfg(test)]
 use crate::mir::{BasicBlockId, MirFunction};
@@ -11,6 +10,8 @@ use std::collections::{HashMap, HashSet};
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum SameI64Definition {
     Same,
+    /// The value does not depend solely on the expected single base. This is
+    /// dependency identity, not a claim of unequal runtime integer values.
     Different,
     Unresolved,
 }
@@ -129,23 +130,10 @@ impl OriginQuery<'_, '_> {
             return false;
         }
         if let Some(index) = function.params.iter().position(|old| *old == value) {
-            return function.params.len() == function.signature.params.len()
-                && function.signature.params[index] == MirType::Integer
-                && function
-                    .metadata
-                    .physical_param_carriers
-                    .as_deref()
-                    .is_some_and(|rows| {
-                        rows.len() == function.params.len()
-                            && rows[index] == PhysicalCallableLaneCarrierV1::ExistingCallableI64
-                    })
-                && function
-                    .metadata
-                    .declared_param_decls
-                    .get(index)
-                    .is_some_and(|decl| {
-                        !decl.implicit_receiver && decl.declared_type_name.as_deref() == Some("i64")
-                    });
+            return crate::mir::type_contracts::parameter_entry::exact_i64_parameter_abi(
+                function, index,
+            )
+            .is_some();
         }
         let Some((block, _, instruction)) = self.geometry.definition(value) else {
             return false;
@@ -172,20 +160,9 @@ impl OriginQuery<'_, '_> {
     }
 
     fn i64_call(&self, call: &crate::mir::definitions::MirCall) -> bool {
-        let Some(module) = self.module else {
-            return false;
-        };
-        let Some((callee, receiver_count)) = invoke::cataloged_call_target(module, call) else {
-            return false;
-        };
-        callee.signature.return_type == MirType::Integer
-            && callee
-                .metadata
-                .declared_return_type_name
-                .as_deref()
-                .is_none_or(|declared| declared == "i64")
-            && callee.params.len() == callee.signature.params.len()
-            && call.args.len() + receiver_count == callee.params.len()
+        self.module
+            .and_then(|module| invoke::cataloged_i64_call_result(module, call))
+            .is_some()
     }
 
     /// A temporary value-dependency closure, not another CFG or proof ledger.

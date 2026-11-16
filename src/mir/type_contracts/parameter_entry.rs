@@ -143,5 +143,32 @@ pub(crate) fn validate_parameter_entry_contracts(function: &MirFunction) -> Resu
     Ok(())
 }
 
+/// Exact completed parameter ABI for i64-origin queries. This borrows the
+/// published declaration and lane; it neither creates nor requires entry rows.
+pub(crate) fn exact_i64_parameter_abi(
+    function: &MirFunction,
+    index: usize,
+) -> Option<crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1> {
+    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
+    use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
+    if function.params.len() != function.signature.params.len()
+        || function.signature.params.get(index) != Some(&crate::mir::MirType::Integer)
+    {
+        return None;
+    }
+    let carriers = function.metadata.physical_param_carriers.as_deref()?;
+    if carriers.len() != function.params.len()
+        || carriers.get(index) != Some(&PhysicalCallableLaneCarrierV1::ExistingCallableI64)
+    {
+        return None;
+    }
+    let declaration = function.metadata.declared_param_decls.get(index)?;
+    if declaration.implicit_receiver {
+        return None;
+    }
+    ExactTrivialParameterAbiV1::classify(declaration.declared_type_name.as_deref()?)
+        .filter(|abi| abi.is_i64())
+}
+
 #[cfg(test)]
 mod tests;

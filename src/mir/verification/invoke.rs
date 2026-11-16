@@ -9,7 +9,7 @@ use crate::mir::instruction::{InvokeOperation, MapInvokeOperation};
 mod borrowed_calls;
 #[path = "invoke_call_edge.rs"]
 mod call_edge;
-pub(super) use call_edge::cataloged_call_target;
+pub(super) use call_edge::{cataloged_call_target, cataloged_i64_call_result};
 use call_edge::{cataloged_edge_key, check_call_edge};
 #[path = "invoke_map.rs"]
 mod map;

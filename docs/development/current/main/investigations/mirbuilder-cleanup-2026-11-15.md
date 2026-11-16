@@ -685,3 +685,8 @@ PHIは前blockごと（仕様と(BasicBlockId,ValueId)表現）。Branchの二�
 公開境界の対象も旧契約どおりに限定する。全group/New引数に加え、explicit root exitと、Call entryまたはinitializer lifecycleを持つexplicit child exitだけを照合する。implicit cleanupやlifecycleを持たない子のplain returnへ新しいorigin義務を足さない。scopeの述語を既存cleanup ownerと共有する。ModuleGeometryは既存の独立verifierから借り、公開source/operand検査の後に専用origin照合を行う。
 moduleを貸すだけのwith_module中継10箇所（2file）とFinishing/Rechecking/Analyzed contextを退役。standalone helperはsource/operand/lifetime検証のままで、module全体のorigin封印はmandatory builder gateとpublic verifierで担う。元の巨大fileはnonnull guardとfinished exit validationの責務へ分け、変更file全体をrustfmtして800行以下にする。
 段2着地検証: focused42 PASS、全lib直列8375 PASS/既知205 FAIL/52 ignoredで失敗名一致。固定5386のMIR/拒否/出力/exit差0、timeout0。読みの多い入力は中央値50.9ms（基準58.7ms）、全件9分35.4秒（基準9分47.8秒）で全体の速度優位は未主張。整形後本体639716→640269（+553）、test348587→348587。full replayは外したが借用visitorを各既存holderへ繋ぐcodeが上回り、この段を行数削減とは数えない。関数ごとの構造照合は各gateの不変epochで一度、公開verifier自身の既存構造検証も保持する。
+
+### お掃除9 段3の規則
+
+出所queryは定義の一意性・到達性・Copy/PHI依存を保持し、exact i64の宣言/carrier条件は既存parameter/return/call-edge ownerへ移す。parameterはsignature/carrierの行数・Integer・非receiver・exact i64をすべて維持。Callは既存catalogで対象を解決し、Integer結果かつreturn宣言が未注釈またはexact i64、callee parameter数一致とreceiver込みactual数一致を維持する。広いnumeric契約validatorを代用せず、未要求の契約rowを要求せず、Integerだけにも緩めない。Differentは数値の不等ではなく、期待する一基点だけから来る依存ではない事を表す。
+段3着地検証: focused24 PASS、全lib直列8375 PASS/既知205 FAIL/52 ignoredで失敗名一致。固定5386はMIR/拒否/出力/exit差0、timeout0。読み51個の入力は中央値50.0ms、同MIR。整形後本体640269→640302（+33）、test348587→348588（test専用importへ移動）。段0〜3全体は本体639605→640302（+697、追加1622/削除925）、test348360→348588（+228、追加300/削除72）。移動も追加/削除へ数えており縮小完了とはしない。deferred_i64文字一致行18→22（census照合を追加）、旧producer helperの呼出し6→6。F22は保持、引数接続とF17は未選択。
