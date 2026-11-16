@@ -18,11 +18,18 @@ impl OrdinaryNewClaimLedgerV1 {
                     .ok_or_else(|| freeze("child-definition-missing"))?;
                 let _physical_scope =
                     self.physical_validation_scope_v1(function, Some(projection), false);
-                let context = CallValidationContextV1::Lowering(self).with_module(module);
-                for group in RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(roots) {
-                    group.validate_recorded_in_context(context, function, Some(projection))?;
-                }
-                Ok(())
+                self.with_function_geometry_v1(function, |geometry| {
+                    let analysis =
+                        crate::mir::verification::scalar_origin::FinishedI64OriginsV1::new(
+                            geometry,
+                            Some(module),
+                        );
+                    let context = CallValidationContextV1::Analyzed(self, &analysis);
+                    for group in RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(roots) {
+                        group.validate_recorded_in_context(context, function, Some(projection))?;
+                    }
+                    Ok(())
+                })
             };
             let root = self.root_validation.borrow();
             match &*root {

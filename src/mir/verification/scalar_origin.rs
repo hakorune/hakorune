@@ -18,57 +18,98 @@ pub(in crate::mir) enum SameI64Definition {
 /// No proof escapes this immutable function epoch. Construct fresh geometry:
 /// facts cached by an issuer while it was still writing the CFG are not valid.
 /// `expected` names an actual base definition, not a source position.
+#[cfg(test)]
 pub(in crate::mir) fn same_i64_definition(
     function: &MirFunction,
     module: Option<&MirModule>,
     value: ValueId,
     expected: ValueId,
 ) -> Result<SameI64Definition, Vec<VerificationError>> {
-    if !function.blocks.contains_key(&function.entry_block) {
-        return Err(vec![VerificationError::ControlFlowError {
-            block: function.entry_block,
-            reason: "Missing function entry block".into(),
-        }]);
-    }
-    // Guard the existing CFG helper's invariant before it reads terminators.
-    for (block, body) in &function.blocks {
-        if body
-            .terminator
-            .as_ref()
-            .is_some_and(|row| !body.is_terminator(row))
-            || body.instructions.iter().any(|row| body.is_terminator(row))
-        {
-            return Err(vec![VerificationError::ControlFlowError {
-                block: *block,
-                reason: "Invalid terminator placement".into(),
-            }]);
+    let geometry = FunctionVerificationGeometry::new(function);
+    FinishedI64OriginsV1::new(&geometry, module).same_definition(value, expected)
+}
+
+/// A borrowed immutable function/module epoch. Only structural validation is
+/// shared; a query's answer still depends on its own expected definition.
+/// Validation is lazy so a function with no origin obligations gains no gate.
+pub(in crate::mir) struct FinishedI64OriginsV1<'geometry, 'module> {
+    geometry: &'geometry FunctionVerificationGeometry<'module>,
+    module: Option<&'module MirModule>,
+    checked: std::cell::OnceCell<Result<(), Vec<VerificationError>>>,
+}
+impl<'geometry, 'module> FinishedI64OriginsV1<'geometry, 'module> {
+    pub(in crate::mir) fn new(
+        geometry: &'geometry FunctionVerificationGeometry<'module>,
+        module: Option<&'module MirModule>,
+    ) -> Self {
+        Self {
+            geometry,
+            module,
+            checked: std::cell::OnceCell::new(),
         }
     }
-    let geometry = FunctionVerificationGeometry::new(function);
-    cfg::check_control_flow(function)?;
-    let mut errors = geometry.ssa_errors().to_vec();
-    errors.extend_from_slice(geometry.dominance_errors());
-    if !errors.is_empty() {
-        return Err(errors);
+    pub(in crate::mir) fn geometry(&self) -> &FunctionVerificationGeometry<'module> {
+        self.geometry
     }
-    cfg::check_phi_predecessors_with(function, geometry.predecessors(), geometry.reachable())?;
-    if let Some(module) = module {
-        invoke::check_function_structure_in_module(module, &geometry)?;
-    } else {
-        invoke::check_function_with_geometry(&geometry)?;
+    pub(in crate::mir) fn module(&self) -> Option<&'module MirModule> {
+        self.module
     }
-    let query = OriginQuery {
-        geometry: &geometry,
-        module,
-        expected,
-    };
-    if !geometry.strict_edge_errors().is_empty() {
-        return Err(geometry.strict_edge_errors().to_vec());
+    pub(in crate::mir) fn same_definition(
+        &self,
+        value: ValueId,
+        expected: ValueId,
+    ) -> Result<SameI64Definition, Vec<VerificationError>> {
+        self.checked.get_or_init(|| self.check_function()).clone()?;
+        let query = OriginQuery {
+            geometry: self.geometry,
+            module: self.module,
+            expected,
+        };
+        if !query.is_base(expected) {
+            return Ok(SameI64Definition::Unresolved);
+        }
+        query.origin(value)
     }
-    if !query.is_base(expected) {
-        return Ok(SameI64Definition::Unresolved);
+    fn check_function(&self) -> Result<(), Vec<VerificationError>> {
+        let geometry = self.geometry;
+        let function = geometry.as_function();
+        if !function.blocks.contains_key(&function.entry_block) {
+            return Err(vec![VerificationError::ControlFlowError {
+                block: function.entry_block,
+                reason: "Missing function entry block".into(),
+            }]);
+        }
+        // Guard the existing CFG helper's invariant before it reads terminators.
+        for (block, body) in &function.blocks {
+            if body
+                .terminator
+                .as_ref()
+                .is_some_and(|row| !body.is_terminator(row))
+                || body.instructions.iter().any(|row| body.is_terminator(row))
+            {
+                return Err(vec![VerificationError::ControlFlowError {
+                    block: *block,
+                    reason: "Invalid terminator placement".into(),
+                }]);
+            }
+        }
+        cfg::check_control_flow(function)?;
+        let mut errors = geometry.ssa_errors().to_vec();
+        errors.extend_from_slice(geometry.dominance_errors());
+        if !errors.is_empty() {
+            return Err(errors);
+        }
+        cfg::check_phi_predecessors_with(function, geometry.predecessors(), geometry.reachable())?;
+        if let Some(module) = self.module {
+            invoke::check_function_structure_in_module(module, geometry)?;
+        } else {
+            invoke::check_function_with_geometry(geometry)?;
+        }
+        if !geometry.strict_edge_errors().is_empty() {
+            return Err(geometry.strict_edge_errors().to_vec());
+        }
+        Ok(())
     }
-    query.origin(value)
 }
 
 struct OriginQuery<'a, 'f> {

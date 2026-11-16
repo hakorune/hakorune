@@ -5,38 +5,64 @@ use super::*;
 impl ExpressionReferenceReadV1 {
     pub(super) fn validate_i64_origin_in_module_v1(
         &self,
-        module: &crate::mir::MirModule,
+        context: CallValidationContextV1<'_>,
         function: &MirFunction,
         projection: &Finished,
     ) -> Result<(), String> {
         if !self.deferred_i64 {
             return Ok(());
         }
-        let expected = self
-            .definition()
-            .ok_or_else(|| freeze("expression/scalar-producer-kind"))?;
-        // Existing expression/condition/argument checks still bind this exact
-        // read to their actual operands. Do not use its old Copy provenance to
-        // prove equality. Reopen the actual projected definitions instead.
-        let value = self.read.source_value().2;
-        let original = projection.captured_definition(value)?;
-        let Some(current) = projection.relation_binding(function, original)? else {
-            // This is the finisher's checked omission permission (no remaining
-            // definition or operand use), not an unresolved query succeeding.
-            return Ok(());
-        };
-        let current = current
-            .1
-            .dst_value()
-            .ok_or_else(|| freeze("expression/reference-dependency-dst"))?;
-        let expected = projection
-            .relation_binding(function, expected)?
-            .and_then(|row| row.1.dst_value())
-            .ok_or_else(|| freeze("expression/reference-dependency-missing"))?;
-        use crate::mir::verification::scalar_origin::{same_i64_definition, SameI64Definition};
-        match same_i64_definition(function, Some(module), current, expected) {
-            Ok(SameI64Definition::Same) => Ok(()),
-            _ => Err("[freeze:contract][local-read/initializer-missing]".into()),
+        let module = context
+            .module()
+            .ok_or_else(|| freeze("local-read/initializer-missing"))?;
+        let validate =
+            |analysis: &crate::mir::verification::scalar_origin::FinishedI64OriginsV1<'_, '_>| {
+                let geometry = analysis.geometry();
+                if !std::ptr::eq(geometry.as_function(), function)
+                    || analysis
+                        .module()
+                        .is_none_or(|actual| !std::ptr::eq(actual, module))
+                {
+                    return Err(freeze("local-read/initializer-missing"));
+                }
+                let expected = self
+                    .definition()
+                    .ok_or_else(|| freeze("expression/scalar-producer-kind"))?;
+                // Original membership and the actual consumer still belong to the
+                // existing projection. The shared index is only a lookup mechanism.
+                let value = self.read.source_value().2;
+                let original = projection.captured_definition(value)?;
+                let Some(current) =
+                    projection.relation_binding_with_geometry(geometry, original)?
+                else {
+                    return Ok(()); // existing checked no-definition/no-use omission
+                };
+                let current = current
+                    .1
+                    .dst_value()
+                    .ok_or_else(|| freeze("expression/reference-dependency-dst"))?;
+                let expected = projection
+                    .relation_binding_with_geometry(geometry, expected)?
+                    .and_then(|row| row.1.dst_value())
+                    .ok_or_else(|| freeze("expression/reference-dependency-missing"))?;
+                use crate::mir::verification::scalar_origin::SameI64Definition;
+                match analysis.same_definition(current, expected) {
+                    Ok(SameI64Definition::Same) => Ok(()),
+                    _ => Err("[freeze:contract][local-read/initializer-missing]".into()),
+                }
+            };
+        match context.i64_origins() {
+            Some(analysis) => validate(analysis),
+            None => context
+                .ledger()
+                .with_function_geometry_v1(function, |geometry| {
+                    validate(
+                        &crate::mir::verification::scalar_origin::FinishedI64OriginsV1::new(
+                            geometry,
+                            Some(module),
+                        ),
+                    )
+                }),
         }
     }
 }
@@ -93,8 +119,8 @@ impl ExpressionReferenceReadV1 {
         if self.deferred_i64 {
             let value =
                 validate_i64_read_source(plan, source, &self.read, &self.producer, context)?;
-            if let (Some(module), Some(projection)) = (context.module(), finishing) {
-                self.validate_i64_origin_in_module_v1(module, function, projection)?;
+            if let (Some(_), Some(projection)) = (context.module(), finishing) {
+                self.validate_i64_origin_in_module_v1(context, function, projection)?;
             }
             return Ok(value);
         }

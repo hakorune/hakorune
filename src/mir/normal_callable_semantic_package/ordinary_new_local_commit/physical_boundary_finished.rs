@@ -48,6 +48,16 @@ impl FinishedBindings {
         function: &MirFunction,
         original: &(BasicBlockId, MirInstruction),
     ) -> Result<Option<(BasicBlockId, MirInstruction)>, String> {
+        let geometry =
+            crate::mir::verification::geometry::FunctionVerificationGeometry::new(function);
+        self.relation_binding_with_geometry(&geometry, original)
+    }
+    pub(in super::super) fn relation_binding_with_geometry(
+        &self,
+        geometry: &crate::mir::verification::geometry::FunctionVerificationGeometry<'_>,
+        original: &(BasicBlockId, MirInstruction),
+    ) -> Result<Option<(BasicBlockId, MirInstruction)>, String> {
+        let function = geometry.as_function();
         let value = original
             .1
             .dst_value()
@@ -63,19 +73,20 @@ impl FinishedBindings {
             return Err(fault("relation-captured-membership"));
         }
         let Some(mapped) = self.binding(original.0, &original.1)? else {
-            return if self.borrowed_copies.may_omit(function, &original.1) {
+            return if self
+                .borrowed_copies
+                .may_omit_with_geometry(geometry, &original.1)
+            {
                 Ok(None)
             } else {
                 Err(fault("relation-destination"))
             };
         };
-        let definitions: Vec<_> = function
-            .blocks
-            .iter()
-            .flat_map(|(block, body)| body.all_instructions().map(move |row| (*block, row)))
-            .filter(|(_, row)| row.dst_value() == Some(value))
-            .collect();
-        if definitions.len() == 1 && definitions[0] == (mapped.0, &mapped.1) {
+        if geometry.instruction_definition_count(value) == 1
+            && geometry
+                .definition(value)
+                .is_some_and(|(block, _, row)| (block, row) == (mapped.0, &mapped.1))
+        {
             return Ok(Some(mapped));
         }
         let unused = function.blocks.values().all(|block| {
@@ -87,7 +98,7 @@ impl FinishedBindings {
                     .as_ref()
                     .is_none_or(|values| !values.contains(&value))
         });
-        if definitions.is_empty()
+        if geometry.instruction_definition_count(value) == 0
             && unused
             && matches!(
                 original.1,
@@ -99,6 +110,13 @@ impl FinishedBindings {
         {
             return Ok(None);
         }
+        // Preserve the existing diagnostic exactly; only failure needs the full scan.
+        let definitions: Vec<_> = function
+            .blocks
+            .iter()
+            .flat_map(|(block, body)| body.all_instructions().map(move |row| (*block, row)))
+            .filter(|(_, row)| row.dst_value() == Some(value))
+            .collect();
         Err(format!(
             "{} function={} original={original:?} mapped={mapped:?} actual={definitions:?}",
             fault("relation-finished-producer"),

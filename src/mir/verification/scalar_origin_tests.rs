@@ -105,6 +105,22 @@ fn copies_and_all_incoming_nested_phi_preserve_definition() {
 #[test]
 fn one_changed_incoming_or_binding_is_not_same_definition() {
     let mut f = diamond();
+    {
+        let geometry = FunctionVerificationGeometry::new(&f);
+        let analysis = FinishedI64OriginsV1::new(&geometry, None);
+        assert_eq!(
+            analysis.same_definition(ValueId(5), ValueId(0)).unwrap(),
+            Same
+        );
+        assert_eq!(
+            analysis.same_definition(ValueId(5), ValueId(1)).unwrap(),
+            Different
+        );
+        assert_eq!(
+            analysis.same_definition(ValueId(3), ValueId(0)).unwrap(),
+            Same
+        );
+    }
     block(&mut f, 2, vec![copy(4, 1)], jump(3));
     assert_eq!(answer(&f, 5, 0), Different);
     assert_eq!(answer(&f, 3, 1), Different);

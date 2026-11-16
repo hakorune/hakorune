@@ -672,3 +672,9 @@ owner指標は基準aa91632b9cと一致（定義走査候補286）、警告2291�
 読みのCopy除去後に元InvokeをJump＋同dstのConstへ替え、CFG cacheを更新して初期化Callの効果だけを失わせる負例も拒否。同calleeの独立した二Callの結果を、元PHIのincoming一つだけへ入れ替える負例も拒否。無基点のp=PHI(p)は既存query unitを再利用しUnresolved。production変更なし、問い合わせ13＋publication3＋F22二本のfocused18 PASS。
 PHIは前blockごと（仕様と(BasicBlockId,ValueId)表現）。Branchの二辺が同じ行き先でも、successorは集合化されるため表現できる。strict PHI検査も前block集合と照合し、同blockからの重複incomingを拒否するため、並行する二辺に別のPHI値は持たせられない。この回は変更しない。
 全lib直列は8375 PASS/既知205 FAIL/52 ignoredで赤の名前集合一致。productionは基点と同一（639605行）、testは独立したCopy消去/効果消去/同callee別結果の公開境界の証拠を既存familyへ統合して+201行。固定5386は同一production・同一最適化CLI SHAの既存結果を再利用して差0（再測定はしない）。
+
+### お掃除9 段1の規則
+
+完成後gateの関数scopeで既存geometryと不変moduleを借り、構造検証だけを最初の実queryで一度確認して共有する。対象readがない関数へ新gateを足さず、ValueId/期待基点ごとの回答は保存しない。scopeを出たら破棄する。
+原本/現在定義のrelation照合と省略のdefinition_countも同じ索引へ接続する。原本captured・parameter衝突・完全な命令一致・use/return_envの照合を保持し、失敗時は従来どおり全定義Vecを作って診断を変えない。省略側のuse走査とcaptured原本の探索は残す。後続のfinalized再検証の反復は、この段では残し、段2で専用走査と合わせて外す。
+段1着地検証: focused41 PASS、全lib直列8375 PASS/既知205 FAIL/52 ignoredで赤の集合一致。最適化CLIの固定5386はMIR/拒否/出力/exit差0、timeout0。50回ほどのCall結果readのcompile中央値（warmup除外5回）は58.7ms→52.5ms、MIR同一。全件測定は9分47.8秒→9分50.9秒で全体の高速化は主張しない。整形後本体639605→639716、test348561→348587。後続再検証はまだread毎、段2で対応する。新しい一時警告2件（test-only importと内部contextの可視性）は抑制せず段2の中継退役で解消する。

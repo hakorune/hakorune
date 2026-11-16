@@ -132,8 +132,8 @@ impl ExpressionReferenceReadV1 {
                 point.verify(function)?;
             }
         }
-        if let (Some(module), Some(projection)) = (context.module(), finishing) {
-            self.validate_i64_origin_in_module_v1(module, function, projection)?;
+        if let (Some(_), Some(projection)) = (context.module(), finishing) {
+            self.validate_i64_origin_in_module_v1(context, function, projection)?;
         }
         if let (Some(projection), true) = (finishing, context.is_finalized()) {
             return self.validate_finished_dependencies_v1(function, projection);
