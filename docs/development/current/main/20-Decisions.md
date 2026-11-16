@@ -35,6 +35,12 @@ Private Canonical Path: `docs/private/development/current/main/20-Decisions.md`
   `docs/development/current/main/design/mirbuilder-blueprint.md` is the design
   entry point. Only Resolve rejects source; loop families, routes and recipes
   do not decide acceptance; the builder is written as a recursion.
+- Language surface (maintainer decisions 2026-11-17, blueprint decisions 8-11):
+  a field cannot hold a value of a different declared type; a function cannot
+  return a value of a different declared type (no implicit conversion);
+  `birth_once` leaves the language; calling a parameter or local as a function
+  is a named rejection until the closure form is decided. These bind the new
+  builder's Resolve; the current default route is unchanged until replacement.
 - Ownership (maintainer decision 2026-11-14, provisional): ordinary Boxes are
   counted, `docs/development/adr/adr-003-counted-box-default.md`.
 - Failure surface (maintainer decision 2026-11-16):

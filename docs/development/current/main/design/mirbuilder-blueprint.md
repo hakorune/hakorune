@@ -267,6 +267,12 @@ v1 の大きさの「5〜9 万行」は、**設計の予算としての仮説**�
 | 5 | 進め方は 14 節(小さい別の入口で縦に作り、できた範囲から置き換えて、古い物を消す) |
 | 6 | 最初の範囲は、selfhost のコンパイラが使う機能と、それが要る runtime・所有・失敗の契約まで |
 | 7 | 古い builder の lib の test は、archive しないで消す(git の履歴が archive)。消す前に、言語の動きを見ている物を `.hako` と期待の出力へ取り出す。検証の負の例は残す。消すのは、置き換えの時に、古い code と同じ回(14 節) |
+| 8 | 宣言した型と違う値を、field に入れられない(`ArrayBox` と宣言した field に `new StringBox()` は、Resolve の compile error) |
+| 9 | 宣言した戻りの型と違う値を、返せない(`: i64` の method の `return true` も `return 1.5` も、Resolve の compile error)。暗黙の変換は、しない |
+| 10 | `birth_once` は、言語から外す(selfhost の source に、使用は 0)。新しい builder では、名前付きの拒否 |
+| 11 | 引数や `local` の値を関数として呼ぶ形(`pred(v)`)は、closure の形が決まるまで、名前付きの拒否 |
+
+決定 8〜11 は、新しい builder の Resolve の決まりである。今の builder(既定の道)の受け付ける範囲は、置き換えまで変えない。
 
 まだ確かめていない事: 決定 2 のために、selfhost の source に、型の無い引数と field がどのくらいあるかを数える。11 節の大きさは、仮の予算。
 
