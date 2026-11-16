@@ -735,3 +735,6 @@ fn pure_scalar_read_root_publishes_without_calls_and_rejects_return_drift() {
         assert!(called.get(), "source-certified root must reach the canonical consumer");
     });
 }
+
+#[path = "borrowed_source_publication_i64_origin_tests.rs"]
+mod i64_origin_tests;

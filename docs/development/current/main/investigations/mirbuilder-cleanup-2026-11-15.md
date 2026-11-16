@@ -573,3 +573,18 @@ boxtorrentは`BoxTorrentStore.release`（main.hako:100–113）のCall由来loca
 段1-bは`verification/scalar_origin.rs`（297行）へ実装した。既存CFG/SSA/Invoke検証とgeometryを再利用し、Copy・全incoming PHI・支配と順序・一意性を確認する。循環/不明/対応外は未解決、別の基点は別とする。型付きInvokeと実callee署名を照合し、raw Callの不明結果・tagged/u64/Boxは成功にしない。production callerは0。
 独立検証ownerの責務別test10件を追加した（新しい解析の正負境界で、既存検証の登録名・assertionは削除していない）。F22の既存二本もPASS。固定5,386入力はMIR・拒否・出力・exit差0/timeout0、全lib直列は8,369 PASS/既知205 FAIL/52 ignoredで新しい赤0。
 段1の増分は整形後production +296/test +382行。本体はcfg(test)除外で639,010→639,306、生のtest-file除外で680,043→680,342行。段2の切替とF22の穴1〜3はまだ実装していない。
+
+### 段2で選ぶ接続の規則
+
+- Source側はowner/site/binding・原本Call/引数/結果契約を先に確定する。i64 Call由来の式readは、元定義と現在のreadを保持し、Copy起源の証明だけを完成済みmoduleで必須検査する。別origin・未解決・不正CFGは拒否し、旧照合へのfallbackはしない。
+- 通常compile/document/artifact共通のRootValidationと、finalized sourceの再検証にmoduleを貸す。module情報の有無と、Lowering/Finalizedの権限は分け、source-only依存inventoryの確認を同値確認済みの許可にしない。
+- 既存operand correspondenceとfinisherの実定義照合を保持する。記録されたCopy一覧はinventoryとして借り、起源の証明にはしない。削除済みreadは、既存の省略許可・定義なし/useなしが成立した場合だけ扱う。単なる解析未解決は成功にしない。
+- 原本calleeの実Integer署名・宣言と実Callを照合し、未注釈の既存i64結果も同じ経路に置く。Returnの事実はcanonical terminal内で一度保持して共有し、read/Call/exitの一回限りの権限は複製しない。F22穴1〜3とCall plain-return選択は変更しない。
+- 完成MIRの厳格なuse/PHI edge検査は既存`uses::check`の一回の走査で計算し、geometryから借りる。旧SSA/dominance/mergeの結果と公開verifierの診断選択は変えず、queryだけが厳格結果を要求する。別の全命令走査は残さない。
+
+### 段2の着地
+
+i64 Call由来の対象readは、原本の意味契約を保持し、完成moduleの必須gateで実operand/Copy/非循環PHIの起源を検査する。事実はcanonical terminalの共有参照にし、一回の権限は複製しない。共有Copy helperには対象外callerが残るため全面退役とは数えない。
+固定5386入力のMIR・拒否・出力・exit差0、timeout0、新規受理0。固定集合外の入れ子if正例は以前のinitializer-missingから正規EXE・exit7へ。publicationのoperand/PHI入力/生きた定義の改変3負例も拒否する。
+全lib直列8370 PASS/既知205 FAIL/52 ignoredで赤の名前集合一致、suite8/8（空markerあり）とMap18 PASS。feature二構成はPASS、vm-referenceの既存1 error・cli-no-pluginsの既存11 errorsは基準内。owner全指標一致、definition-scan候補286のまま、基準変更なし。
+本体はcfg(test)除外・整形後639010→639544（+534）、test347774→348275（+501）。生のtest-file除外本体680043→680597。機能追加を含み純減とは主張しない。F22の穴1〜3とF17は未変更。

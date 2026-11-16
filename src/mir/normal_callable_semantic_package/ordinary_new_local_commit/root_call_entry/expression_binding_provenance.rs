@@ -172,12 +172,12 @@ impl ExpressionReferenceReadV1 {
 
 #[derive(Debug)]
 pub(in crate::mir) struct ScalarBindingReadProofV1 {
-    source: CurrentScalarReadV1,
+    source: std::rc::Rc<CurrentScalarReadV1>,
     producer: ReferenceProducerV1,
 }
 impl ScalarBindingReadProofV1 {
     pub(in crate::mir) fn prepare(
-        source: CurrentScalarReadV1,
+        source: std::rc::Rc<CurrentScalarReadV1>,
         read: &ExactLexicalReadV1,
         context: CallValidationContextV1<'_>,
         function: &MirFunction,

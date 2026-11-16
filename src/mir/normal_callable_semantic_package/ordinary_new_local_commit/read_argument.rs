@@ -296,7 +296,7 @@ impl EmittedReadArgumentV1 {
             || !matches!(&outer.1, MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. }
                 if call.args.get(ordinal as usize) == Some(&payload)) { return Err(freeze("field-argument/finished-argument-slot")); }
         let intervals = IntervalViewV1::new(function);
-        let CallValidationContextV1::Finalized(handoff) = context else { return Err(freeze("field-argument/source-missing")); };
+        let Some(handoff) = context.finalized_source() else { return Err(freeze("field-argument/source-missing")); };
         let mut edges = Vec::new();
         handoff.visit_finalized_call_structure_v1(module, |_, _, packet, _, caller, at, _| {
             let original = packet.original_source();

@@ -47,6 +47,7 @@ impl RootValidation {
                 } else {
                     ledger.validate_after_compiler_finishing(root)?;
                 }
+                ledger.validate_finished_i64_origins_v1(module)?;
                 Ok(covered)
             }
             Self::Script { entry, source, .. } => {

@@ -719,6 +719,8 @@ pub(in crate::mir) use call_validation_context::CallValidationContextV1;
 mod root_home;
 #[path = "ordinary_new_local_commit/root_validation.rs"]
 mod root_validation;
+#[path = "ordinary_new_local_commit/root_i64_origin_validation.rs"]
+mod root_i64_origin_validation;
 
 use reclaim::ReclaimUnpublishedEmissionV1;
 pub(crate) use reclaim::ReclaimUnpublishedOriginV1;

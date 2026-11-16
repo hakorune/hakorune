@@ -32,7 +32,7 @@ impl SourceLoopCleanupPlanV2 {
         context.require_original_source_loop_v2(&self.product)?;
         context.require_source_loop_parent_v2(
             &self.product,
-            matches!(context, CallValidationContextV1::Finalized(_)),
+            context.is_finalized(),
         )?;
         let port = self
             .product
@@ -67,7 +67,7 @@ impl SourceLoopCleanupPlanV2 {
             }
             return Ok(());
         }
-        let finalized = matches!(context, CallValidationContextV1::Finalized(_));
+        let finalized = context.is_finalized();
         let coordinate = |id| match finishing {
             Some(projection) => projection
                 .destination(id)

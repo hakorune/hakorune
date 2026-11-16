@@ -115,7 +115,7 @@ impl ExpressionEmissionV1<BindingRebindExpressionContractV1> {
             .get(&0)
             .filter(|_| purpose_acquisition.is_none())
         {
-            reference.result_producer_v1(receipt.rhs())?
+            reference.result_producer_v1(receipt.rhs(), function, CallValidationContextV1::Lowering(ledger))?
         } else {
             let mut definitions = body
                 .bindings

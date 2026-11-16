@@ -295,7 +295,7 @@ impl DirectScalarCallProjectionV1 {
         coordinates: Option<&Boundary>,
     ) -> Result<(), String> {
         self.validate_source(context)?;
-        if let (Some(boundary), CallValidationContextV1::Finalized(_)) = (finishing, context) {
+        if let (Some(boundary), true) = (finishing, context.is_finalized()) {
             boundary.validate_finished_sequences_v1(function)?;
         }
         if function.params != self.params
@@ -323,7 +323,7 @@ impl DirectScalarCallProjectionV1 {
             return Err(freeze("direct-scalar/recorded-membership"));
         }
         let require_completed =
-            finishing.is_some() || matches!(context, CallValidationContextV1::Finalized(_));
+            finishing.is_some() || context.is_finalized();
         let projections = match &self.origin {
             ScalarCallSourceV1::Direct(row) => row.argument_projections_v1().unwrap_or(&[]),
             ScalarCallSourceV1::Static {
@@ -376,21 +376,21 @@ impl DirectScalarCallProjectionV1 {
                             if boundary.captured_definition(dst)? != original {
                                 return Err(freeze("direct-scalar/captured-producer"));
                             }
-                            match context {
-                                CallValidationContextV1::Finalized(_) => {
+                            match context.is_finalized() {
+                                true => {
                                     boundary.relation_binding(function, original)?
                                 }
-                                CallValidationContextV1::Lowering(_) => continue,
+                                false => continue,
                             }
                         }
                         (Some(boundary), None)
                             if matches!(original.1, MirInstruction::Invoke { .. }) =>
                         {
-                            Some(match context {
-                                CallValidationContextV1::Finalized(_) => {
+                            Some(match context.is_finalized() {
+                                true => {
                                     boundary.required_effect_binding(function, original)?
                                 }
-                                CallValidationContextV1::Lowering(_) => {
+                                false => {
                                     boundary.captured_effect_binding(function, original)?
                                 }
                             })

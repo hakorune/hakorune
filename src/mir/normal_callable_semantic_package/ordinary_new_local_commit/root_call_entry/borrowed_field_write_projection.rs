@@ -181,7 +181,7 @@ impl EmittedBorrowedFieldWriteV1 {
             mode,
             self.source.frame().prior_homes(),
             &deferred,
-            matches!(context, CallValidationContextV1::Finalized(_)),
+            context.is_finalized(),
         )
     }
 }

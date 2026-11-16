@@ -3,7 +3,7 @@ use super::*;
 
 #[path = "expression_scalar_origin.rs"]
 mod scalar_origin;
-pub(super) use scalar_origin::{initializer_value, validate_scalar_origin};
+pub(super) use scalar_origin::{initializer_value, original_i64_call_value, validate_scalar_origin};
 
 pub(super) fn prepare_scalar_binding_producer(
     binding: crate::mir::resolved_semantics::BindingRefV1,
@@ -283,6 +283,7 @@ pub(super) fn reference_operand(
     node: usize,
     read: &ExactLexicalReadV1,
     producer: &ReferenceProducerV1,
+    deferred_i64: bool,
     context: CallValidationContextV1<'_>,
 ) -> Result<Operand, String> {
     let reference = original_reference(frame, node)?;
@@ -325,7 +326,11 @@ pub(super) fn reference_operand(
                 utf8: original.utf8().to_owned(),
             })
         }
-        Reference::Scalar(source) => Ok(Operand::NormalInteger(validate_source(
+        Reference::Scalar(source) => Ok(Operand::NormalInteger((if deferred_i64 {
+            validate_i64_call_read_source
+        } else {
+            validate_source
+        })(
             frame.source(),
             source
                 .original_read()
@@ -526,14 +531,13 @@ pub(super) fn signed_entry_layout(
         crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()))
 }
 
-pub(super) fn validate_source(
+pub(super) fn validate_source_identity(
     plan: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
     source: &CurrentScalarReadV1,
     read: &ExactLexicalReadV1,
-    producer: &ReferenceProducerV1,
     context: CallValidationContextV1<'_>,
 ) -> Result<ValueId, String> {
-    read.value_for(
+    let value = read.value_for(
         source.binding().owner(),
         source.read().node(),
         source.binding(),
@@ -550,6 +554,16 @@ pub(super) fn validate_source(
             return Err(freeze("expression/loop-header-source-scope"));
         }
     }
+    Ok(value)
+}
+pub(super) fn validate_source(
+    plan: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    source: &CurrentScalarReadV1,
+    read: &ExactLexicalReadV1,
+    producer: &ReferenceProducerV1,
+    context: CallValidationContextV1<'_>,
+) -> Result<ValueId, String> {
+    validate_source_identity(plan, source, read, context)?;
     validate_scalar_origin(
         source.binding(),
         source.producer(),
@@ -696,4 +710,24 @@ pub(super) fn validate_dependencies_for_entry(
         return Err(freeze("expression/scalar-entry-carrier"));
     }
     Ok(())
+}
+
+/// Original Call source/read correspondence; no producer-authored Copy chain.
+pub(super) fn validate_i64_call_read_source(
+    plan: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    source: &CurrentScalarReadV1,
+    read: &ExactLexicalReadV1,
+    producer: &ReferenceProducerV1,
+    context: CallValidationContextV1<'_>,
+) -> Result<ValueId, String> {
+    let value = validate_source_identity(plan, source, read, context)?;
+    let Producer::Call(call) = source.producer() else {
+        return Err(freeze("expression/scalar-producer-kind"));
+    };
+    if source.kind() != crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer
+        || !matches!(producer, ReferenceProducerV1::Definition(row)
+            if row.1.dst_value() == Some(original_i64_call_value(call, context)?)) {
+        return Err(freeze("expression/scalar-producer-value"));
+    }
+    Ok(value)
 }

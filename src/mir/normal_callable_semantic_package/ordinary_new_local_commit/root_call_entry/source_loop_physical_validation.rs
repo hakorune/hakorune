@@ -280,7 +280,7 @@ impl SourceLoopPhysicalProofV2 {
                 }
             }
         }
-        if let (CallValidationContextV1::Finalized(_), Some(projection)) = (context, finishing) {
+        if let (true, Some(projection)) = (context.is_finalized(), finishing) {
             for row in &self.owned {
                 match &row.1 {
                     MirInstruction::Jump {
@@ -413,7 +413,7 @@ impl SourceLoopPhysicalProofV2 {
                             projection.structural_jump_binding(
                                 function,
                                 binding,
-                                matches!(context, CallValidationContextV1::Finalized(_)),
+                                context.is_finalized(),
                             )?;
                         }
                         row if row.dst_value().is_some() => {
@@ -450,7 +450,7 @@ impl SourceLoopPhysicalProofV2 {
                 projection.structural_jump_binding(
                     function,
                     &jump,
-                    matches!(context, CallValidationContextV1::Finalized(_)),
+                    context.is_finalized(),
                 )?;
             }
             let original = self
@@ -553,7 +553,7 @@ impl SourceLoopPhysicalProofV2 {
                                     edge_args: None,
                                 },
                             ),
-                            matches!(context, CallValidationContextV1::Finalized(_)),
+                            context.is_finalized(),
                         )?;
                     }
                 }

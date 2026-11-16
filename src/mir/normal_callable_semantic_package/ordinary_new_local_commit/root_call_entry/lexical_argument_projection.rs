@@ -612,11 +612,11 @@ impl EmittedLexicalCallProjectionV1 {
         ordinal: u32,
         context: CallValidationContextV1<'_>,
     ) -> Result<Option<crate::mir::instruction::StringInvokeOperand>, String> {
-        let actuals = match context {
-            CallValidationContextV1::Finalized(source) => {
+        let actuals = match context.finalized_source() {
+            Some(source) => {
                 source.borrowed_packet_actuals_v1(self)?
             }
-            CallValidationContextV1::Lowering(_) => {
+            None => {
                 self.row.loan().borrowed_actuals_in_context(context)?
             }
         };

@@ -433,7 +433,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 let Some(field) = core.field_map() else {
                     continue;
                 };
-                if let CallValidationContextV1::Finalized(source) = context {
+                if let Some(source) = context.finalized_source() {
                     field.require_finished_birth_v1(source, module)?;
                 }
                 let BoolConditionValueProofV1::ScalarInvocation {

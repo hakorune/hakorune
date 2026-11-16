@@ -485,7 +485,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         }
         normal_order(function, &actual_order)?;
         if let Some(boundary) = finishing {
-            if matches!(context, CallValidationContextV1::Finalized(_)) {
+            if context.is_finalized() {
                 boundary.validate_finished_sequences_v1(function)?;
             }
         }

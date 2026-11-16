@@ -10,6 +10,7 @@ pub(super) struct FunctionUseErrors {
     pub(super) ssa: Vec<Error>,
     pub(super) dominance: Vec<Error>,
     pub(super) merge: Vec<Error>,
+    pub(super) strict_edges: Vec<Error>,
 }
 
 pub(super) fn check(
@@ -18,11 +19,13 @@ pub(super) fn check(
     initial_ssa: Vec<Error>,
     dominators: &super::utils::DominatorTree,
     predecessors: &HashMap<BasicBlockId, Vec<BasicBlockId>>,
+    actual_predecessors: &BTreeMap<BasicBlockId, Vec<BasicBlockId>>,
 ) -> FunctionUseErrors {
     let mut result = FunctionUseErrors {
         ssa: initial_ssa,
         dominance: Vec::new(),
         merge: Vec::new(),
+        strict_edges: Vec::new(),
     };
     let mut undefined = BTreeMap::<_, Vec<_>>::new();
     let mut phi_dominance = Vec::new();
@@ -33,6 +36,13 @@ pub(super) fn check(
             .filter(|block| *block != target && !dominators.dominates(*block, target))
     };
     for (block_id, block) in &function.blocks {
+        let reachable = dominators.is_reachable(*block_id);
+        if reachable && block.terminator.is_none() {
+            result.strict_edges.push(Error::ControlFlowError {
+                block: *block_id,
+                reason: "Same-definition query requires a closed CFG".into(),
+            });
+        }
         let mut phi_destinations = HashSet::new();
         let mut merge_candidates = Vec::new();
         let merge = predecessors
@@ -52,6 +62,53 @@ pub(super) fn check(
                             block: *block_id,
                             instruction_index: index,
                         });
+                }
+            }
+            // Query-only strict facts share this walk and definition index.
+            // They never alter the legacy buckets or their span policy below.
+            if reachable {
+                if let MirInstruction::Phi { dst, inputs, .. } = instruction {
+                    let incoming: HashSet<_> = inputs.iter().map(|(pred, _)| *pred).collect();
+                    if inputs.is_empty()
+                        || incoming.len() != inputs.len()
+                        || actual_predecessors
+                            .get(block_id)
+                            .is_none_or(|preds| incoming != preds.iter().copied().collect())
+                    {
+                        result.strict_edges.push(Error::InvalidPhi {
+                            phi_value: *dst,
+                            block: *block_id,
+                            reason: "PHI inputs must match each actual predecessor exactly once"
+                                .into(),
+                        });
+                    }
+                    for (pred, value) in inputs {
+                        if dominators.is_reachable(*pred) {
+                            if let Some(body) = function.blocks.get(pred) {
+                                strict_edge(
+                                    &mut result.strict_edges,
+                                    function,
+                                    definitions,
+                                    dominators,
+                                    *value,
+                                    *pred,
+                                    body.instructions.len(),
+                                );
+                            }
+                        }
+                    }
+                } else {
+                    for value in &values {
+                        strict_edge(
+                            &mut result.strict_edges,
+                            function,
+                            definitions,
+                            dominators,
+                            *value,
+                            *block_id,
+                            index,
+                        );
+                    }
                 }
             }
             // SSA historically saw every row; dom/merge used iter_spanned's
@@ -122,4 +179,35 @@ pub(super) fn check(
     }
     result.dominance.extend(phi_dominance);
     result
+}
+
+/// Same-block order and unspanned uses are mandatory for an origin query.
+/// This borrows the shared definition index; it never searches instructions.
+fn strict_edge(
+    errors: &mut Vec<Error>,
+    function: &MirFunction,
+    definitions: &ValueDefMap,
+    dominators: &super::utils::DominatorTree,
+    value: crate::mir::ValueId,
+    use_block: BasicBlockId,
+    before: usize,
+) {
+    let Some(&(definition, index)) = definitions.get(&value) else {
+        errors.push(Error::UndefinedValue {
+            value,
+            block: use_block,
+            instruction_index: before,
+        });
+        return;
+    };
+    let parameter = function.params.contains(&value);
+    if !dominators.dominates(definition, use_block)
+        || (definition == use_block && !parameter && index >= before)
+    {
+        errors.push(Error::DominatorViolation {
+            value,
+            use_block,
+            def_block: definition,
+        });
+    }
 }

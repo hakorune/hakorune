@@ -22,6 +22,12 @@ pub(in crate::mir) fn same_i64_definition(
     value: ValueId,
     expected: ValueId,
 ) -> Result<SameI64Definition, Vec<VerificationError>> {
+    if !function.blocks.contains_key(&function.entry_block) {
+        return Err(vec![VerificationError::ControlFlowError {
+            block: function.entry_block,
+            reason: "Missing function entry block".into(),
+        }]);
+    }
     // Guard the existing CFG helper's invariant before it reads terminators.
     for (block, body) in &function.blocks {
         if body
@@ -56,7 +62,9 @@ pub(in crate::mir) fn same_i64_definition(
         active: HashSet::new(),
         memo: HashMap::new(),
     };
-    query.validate_edges()?;
+    if !geometry.strict_edge_errors().is_empty() {
+        return Err(geometry.strict_edge_errors().to_vec());
+    }
     if !query.is_base(expected) {
         return Ok(SameI64Definition::Unresolved);
     }
@@ -110,20 +118,20 @@ impl OriginQuery<'_, '_> {
             return false;
         }
         match instruction {
-            MirInstruction::Call(call) => self.i64_call(call, false),
+            MirInstruction::Call(call) => self.i64_call(call),
             MirInstruction::InvokeNormalResult { invoke_block, .. } => {
                 use crate::mir::instruction::{InvokeCallResultKind, InvokeOperation};
                 matches!(self.geometry.blocks.get(invoke_block).and_then(|body| body.terminator.as_ref()),
                     Some(MirInstruction::Invoke {
                         operation: InvokeOperation::Call { call, result: InvokeCallResultKind::I64 },
                         normal_landing, ..
-                    }) if *normal_landing == block && self.i64_call(call, true))
+                    }) if *normal_landing == block && self.i64_call(call))
             }
             _ => false,
         }
     }
 
-    fn i64_call(&self, call: &crate::mir::definitions::MirCall, typed_invoke: bool) -> bool {
+    fn i64_call(&self, call: &crate::mir::definitions::MirCall) -> bool {
         let Some(module) = self.module else {
             return false;
         };
@@ -135,7 +143,7 @@ impl OriginQuery<'_, '_> {
                 .metadata
                 .declared_return_type_name
                 .as_deref()
-                .map_or(typed_invoke, |declared| declared == "i64")
+                .is_none_or(|declared| declared == "i64")
             && callee.params.len() == callee.signature.params.len()
             && call.args.len() + receiver_count == callee.params.len()
     }
@@ -206,89 +214,6 @@ impl OriginQuery<'_, '_> {
             }
             _ => Ok(SameI64Definition::Unresolved), // No numeric type hint promotes handles or heap reads.
         }
-    }
-
-    fn validate_edges(&self) -> Result<(), Vec<VerificationError>> {
-        if !self
-            .geometry
-            .blocks
-            .contains_key(&self.geometry.entry_block)
-        {
-            return Err(vec![VerificationError::ControlFlowError {
-                block: self.geometry.entry_block,
-                reason: "Missing function entry block".into(),
-            }]);
-        }
-        for (block, body) in &self.geometry.blocks {
-            if !self.geometry.reachable().contains(block) {
-                continue;
-            }
-            if body.terminator.is_none() {
-                return Err(vec![VerificationError::ControlFlowError {
-                    block: *block,
-                    reason: "Same-definition query requires a closed CFG".into(),
-                }]);
-            }
-            for (index, row) in body.all_instructions().enumerate() {
-                if let MirInstruction::Phi { dst, inputs, .. } = row {
-                    let actual = self.geometry.actual_predecessors().get(block);
-                    let incoming: HashSet<_> = inputs.iter().map(|(pred, _)| *pred).collect();
-                    if inputs.is_empty()
-                        || incoming.len() != inputs.len()
-                        || actual.is_none_or(|preds| incoming != preds.iter().copied().collect())
-                    {
-                        return Err(vec![VerificationError::InvalidPhi {
-                            phi_value: *dst,
-                            block: *block,
-                            reason: "PHI inputs must match each actual predecessor exactly once"
-                                .into(),
-                        }]);
-                    }
-                    for (pred, value) in inputs {
-                        if self.geometry.reachable().contains(pred) {
-                            self.check_edge(
-                                *value,
-                                *pred,
-                                self.geometry.blocks[pred].instructions.len(),
-                            )?;
-                        }
-                    }
-                } else {
-                    for value in row.used_values() {
-                        self.check_edge(value, *block, index)?;
-                    }
-                }
-            }
-        }
-        Ok(())
-    }
-
-    /// Existing dominance checks deliberately skip unspanned legacy rows and
-    /// same-block ordering. The query must not inherit those compatibility gaps.
-    fn check_edge(
-        &self,
-        value: ValueId,
-        use_block: BasicBlockId,
-        before: usize,
-    ) -> Result<(), Vec<VerificationError>> {
-        let Some(&(definition, index)) = self.geometry.definitions().get(&value) else {
-            return Err(vec![VerificationError::UndefinedValue {
-                value,
-                block: use_block,
-                instruction_index: before,
-            }]);
-        };
-        let parameter = self.geometry.params.contains(&value);
-        if !self.geometry.dominators().dominates(definition, use_block)
-            || (definition == use_block && !parameter && index >= before)
-        {
-            return Err(vec![VerificationError::DominatorViolation {
-                value,
-                use_block,
-                def_block: definition,
-            }]);
-        }
-        Ok(())
     }
 }
 

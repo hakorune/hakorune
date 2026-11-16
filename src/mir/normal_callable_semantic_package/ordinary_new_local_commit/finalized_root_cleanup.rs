@@ -308,7 +308,7 @@ impl FinalizedRootSourceHandoffV1 {
             let root = module.functions.get(symbol).ok_or_else(|| freeze("main-arguments/root-missing"))?;
             self.main_arguments_bindings_v1(module, root).map(|_| ())
         })?;
-        let context = CallValidationContextV1::Finalized(self);
+        let context = CallValidationContextV1::Finalized(self).with_module(module);
         let lifecycle_owners = self.initializer_lifecycle_owners_v1();
         for owner in &lifecycle_owners {
             context.with_local_call_group_tree_v2(*owner, |groups| {
@@ -370,7 +370,7 @@ impl FinalizedRootSourceHandoffV1 {
                                 .filter(|f| f.signature.name == symbol)
                                 .ok_or_else(|| freeze("final-cleanup/function-missing"))?;
                             validate_finished_cleanup_entry(
-                                CallValidationContextV1::Finalized(self),
+                                CallValidationContextV1::Finalized(self).with_module(module),
                                 *owner,
                                 exit,
                                 function,
@@ -402,7 +402,7 @@ impl FinalizedRootSourceHandoffV1 {
                                 .filter(|f| f.signature.name == symbol)
                                 .ok_or_else(|| freeze("final-cleanup/function-missing"))?;
                             validate_finished_cleanup_entry(
-                                CallValidationContextV1::Finalized(self),
+                                CallValidationContextV1::Finalized(self).with_module(module),
                                 *owner,
                                 exit,
                                 function,
@@ -451,7 +451,7 @@ pub(super) fn validate_finished_cleanup_entry(
         (None, Some(_)) if order.scalar_return_read.is_some() => {},
         _ => return Err(freeze("borrowed-return/source-kind")),
     }
-    if matches!(context, CallValidationContextV1::Finalized(_)) {
+    if context.is_finalized() {
         ledger.validate_local_call_binding_groups_for_key_v1(owner,
             &exit.clone().into(), entry.local_call_groups(), &[])?;
     }

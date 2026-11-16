@@ -245,6 +245,17 @@ fn cataloged_raw_call_is_a_distinct_actual_definition() {
         same_i64_definition(&f, None, ValueId(4), ValueId(2)).unwrap(),
         Unresolved
     );
+    let mut inferred = module.clone();
+    inferred
+        .functions
+        .get_mut("identity/2")
+        .unwrap()
+        .metadata
+        .declared_return_type_name = None;
+    assert_eq!(
+        same_i64_definition(&f, Some(&inferred), ValueId(4), ValueId(2)).unwrap(),
+        Same
+    );
 }
 #[test]
 fn invoke_normal_result_uses_actual_normal_edge_and_callee() {

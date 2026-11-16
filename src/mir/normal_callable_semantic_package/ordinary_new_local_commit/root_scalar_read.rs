@@ -16,7 +16,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(());
         };
         let Some(source) = terminal
-            .original_read_v1()
+            .original_read_shared_v1()
             .filter(|_| terminal.evaluation().is_none())
         else {
             return Ok(());
@@ -40,7 +40,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .as_ref()
                 .ok_or_else(|| freeze("expression/scalar-binding-observation"))?;
             let proof = super::call_entry::ScalarBindingReadProofV1::prepare(
-                source.clone(),
+                std::rc::Rc::clone(source),
                 read,
                 CallValidationContextV1::Lowering(self),
                 function,

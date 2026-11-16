@@ -380,7 +380,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     continue;
                 };
                 group.validate_recorded_in_context(context, function, Some(finishing))?;
-                if let CallValidationContextV1::Finalized(source) = context {
+                if let Some(source) = context.finalized_source() {
                     packet
                         .frame
                         .source()
@@ -415,7 +415,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let exit = exit
                 .explicit_site()
                 .ok_or_else(|| freeze("map-get-source-missing"))?;
-            if let CallValidationContextV1::Finalized(source) = context {
+            if let Some(source) = context.finalized_source() {
                 stored
                     .source
                     .get_source()

@@ -17,7 +17,7 @@ pub(crate) struct TerminalScalarReturnV1 {
     /// R16: the exit's scalar kind, from the stored local's kind or the evaluation's root class.
     kind: SourceScalarKind,
     entry_read: Option<crate::mir::normal_callable_semantic_package::FiniteEntryReadV1>,
-    original_read: Option<crate::mir::resolved_semantics::home_new_prefix::CurrentScalarReadV1>,
+    original_read: Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CurrentScalarReadV1>>,
     evaluation: Option<
         std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
     >,
@@ -68,10 +68,15 @@ impl TerminalScalarReturnV1 {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn with_original_read_v1(
         mut self, read: Option<crate::mir::resolved_semantics::home_new_prefix::CurrentScalarReadV1>,
     ) -> Self {
-        self.original_read = read;
+        self.original_read = read.map(std::rc::Rc::new);
         self
     }
     pub(crate) fn original_read_v1(&self) -> Option<&crate::mir::resolved_semantics::home_new_prefix::CurrentScalarReadV1> {
+        self.original_read.as_deref()
+    }
+    /// Immutable semantic facts shared by Return validation; no affine read or
+    /// Call emission permission lives in this reference.
+    pub(crate) fn original_read_shared_v1(&self) -> Option<&std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CurrentScalarReadV1>> {
         self.original_read.as_ref()
     }
     pub(crate) fn evaluation(
