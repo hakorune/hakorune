@@ -10,7 +10,7 @@ Status: 比較結果を記録。既定への切替・旧builderの退役は行�
 
 選択は実行前に `HAKO_MIR_BUILDER=blueprint`（比較実装）または `current`（既存）で行う。未設定は既存。拒否後の再試行はしない。
 
-手で期待出力/exitを決めた51入力は、すべて正規EXEで一致した。内側callの結果を引数に渡す形、3種類のcallの混在、if/loop越えの読み、入れ子loop、break/continue、短絡の非実行と評価順、再帰/相互再帰、Bool carrier、shadow、range境界の一度評価、wrapping演算を含む。
+手で期待出力/exitを決めた51入力は、すべて正規EXEで一致した。ただし当時のBool実引数はliteralとformalだけで、計算済みBoolを引数へ渡す範囲は未確認だった（1bで監査・修正）。内側callの結果を引数に渡す形、3種類のcallの混在、if/loop越えの読み、入れ子loop、break/continue、短絡の非実行と評価順、再帰/相互再帰、Bool carrier、shadow、range境界の一度評価、wrapping演算を含む。
 
 | 比較 | 件数 |
 |---|---:|
@@ -73,3 +73,21 @@ CLI負例15入力はすべて非zero exit・MIR成果物なし。12入力はReso
 series全体はproduction純増2,632行、test純増280行。旧コード削減は0。別実装なのでsrc/mir全体の縮小やv1予算の達成とは数えない。scalar専用moduleなら旧builder/package/loop familyを通らずに済むが、混合型moduleのcallerは残るため、現時点で物理削除可能と証明した旧ファイルは0。
 
 Box・所有・Fault・入れ物は次の比較の範囲。これらを通す前に、全面切替・速度の一般化・大規模退役の判断はしない。
+
+## 比較の実装1b: scalar ABIと組合せ表
+
+監査で計算済みBoolの実引数とrootのBool比較に不足が見つかった。scalar ABIの論理Bool判定、i64参照への投影、i1への復元を既存backendの一つのownerへ集約し、call実引数・比較・返却・formal/call結果の復元が利用する。handleもi64なので、物理i64だけではscalarと判定しない。既存Mapのkind/payloadは維持し、original scalar laneだけ同じownerへ寄せる。公開ABI/MIR/JSONは不変。
+
+7監査入力の期待exitはsourceから再計算して61/111/42/35/2/2/7、出力は空。修正後に全一致、前回51入力とCLI負例15入力も確認した。
+
+表はBool9カテゴリ/38variantとi64の7カテゴリ/52variantを、33 consumer列・関数内/entryの2文脈へ掛けた。coarse 1,056升、variant全5,940升。
+
+| 分類 | 升数 | この段の結果 |
+|---|---:|---|
+| 生成した正のEXE | 3,580 | 全て期待一致 |
+| 型/Div契約の負例 | 2,126 | 全て予定した名前付き拒否 |
+| native entryの引数/戻り型により構造上作れない升 | 234 | 理由つきNAとして保持 |
+
+値を作る側はliteral、比較、Not、And/Or、call、formal、if越えlocal、loop carrier、i64算術/符号反転。使う側は条件・実引数・return・比較の両側・Not・短絡の両側・local初期化・代入・算術の両側・range両端。source emitterとは別の小さいAST評価器で、wrapping i64、負数除算のゼロ方向丸め、短絡、左からの実行順とprintを期待として計算した。旧builderは期待値に使わない。
+
+この表は1bのABI段で確認したもの。PHI変更後と最終の既定経路比較は、続く検証で区別して記録する。
