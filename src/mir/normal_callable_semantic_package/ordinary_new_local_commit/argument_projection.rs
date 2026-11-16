@@ -626,3 +626,12 @@ impl FinalizedRootSourceHandoffV1 {
         })
     }
 }
+
+impl EmittedNewExpressionV1 {
+    pub(in crate::mir) fn visit_i64_origins_v1(
+        &self,
+        visit: &mut dyn FnMut(&ExpressionReferenceReadV1) -> Result<(), String>,
+    ) -> Result<(), String> {
+        self.projection().visit_i64_origins_v1(visit)
+    }
+}

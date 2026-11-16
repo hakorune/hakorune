@@ -4,8 +4,8 @@ use super::{cfg, geometry::FunctionVerificationGeometry, invoke};
 use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
 use crate::mir::verification_types::VerificationError;
 #[cfg(test)]
-use crate::mir::BasicBlockId;
-use crate::mir::{MirFunction, MirInstruction, MirModule, MirType, ValueId};
+use crate::mir::{BasicBlockId, MirFunction};
+use crate::mir::{MirInstruction, MirModule, MirType, ValueId};
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -50,9 +50,6 @@ impl<'geometry, 'module> FinishedI64OriginsV1<'geometry, 'module> {
     }
     pub(in crate::mir) fn geometry(&self) -> &FunctionVerificationGeometry<'module> {
         self.geometry
-    }
-    pub(in crate::mir) fn module(&self) -> Option<&'module MirModule> {
-        self.module
     }
     pub(in crate::mir) fn same_definition(
         &self,

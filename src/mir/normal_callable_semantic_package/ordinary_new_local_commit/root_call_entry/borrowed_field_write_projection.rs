@@ -29,8 +29,13 @@ impl EmittedBorrowedFieldWriteV1 {
     pub(crate) fn source(&self) -> &FieldWriteSourceLoanV1 {
         &self.source
     }
-    pub(in crate::mir) fn lexical_calls_v1(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
-        let rhs = match &self.value { FieldWriteValueV1::Expression(rhs) => Some(rhs), _ => None };
+    pub(in crate::mir) fn lexical_calls_v1(
+        &self,
+    ) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
+        let rhs = match &self.value {
+            FieldWriteValueV1::Expression(rhs) => Some(rhs),
+            _ => None,
+        };
         rhs.into_iter().flat_map(|rhs| rhs.lexical_calls_v1())
     }
     pub(crate) fn invoke_binding(&self) -> &Binding {
@@ -325,5 +330,19 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         Ok(rows)
+    }
+}
+
+impl EmittedBorrowedFieldWriteV1 {
+    pub(in crate::mir) fn visit_i64_origins_v1(
+        &self,
+        visit: &mut dyn FnMut(
+            &crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
+        match &self.value {
+            FieldWriteValueV1::Lexical(_) => Ok(()),
+            FieldWriteValueV1::Expression(value) => value.visit_i64_origins_v1(visit),
+        }
     }
 }

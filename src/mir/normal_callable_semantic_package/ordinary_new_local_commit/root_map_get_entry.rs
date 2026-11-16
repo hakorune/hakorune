@@ -632,3 +632,25 @@ impl CallValidationContextV1<'_> {
         })
     }
 }
+
+impl StoredMapGetLocalEmissionV1 {
+    pub(in crate::mir) fn visit_i64_origins_v1(
+        &self,
+        visit: &mut dyn FnMut(
+            &crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
+        self.read.key_read.expression().visit_i64_origins_v1(visit)
+    }
+}
+
+impl StoredMapGetReturnEmissionV1 {
+    pub(in crate::mir) fn visit_i64_origins_v1(
+        &self,
+        visit: &mut dyn FnMut(
+            &crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
+        self.read.key_read.expression().visit_i64_origins_v1(visit)
+    }
+}

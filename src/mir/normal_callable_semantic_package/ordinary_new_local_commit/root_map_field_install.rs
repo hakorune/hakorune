@@ -67,8 +67,12 @@ impl PreparedMapFieldInstallV1 {
         let set = match installed {
             Some((binding, construction, set))
                 if self.frame.binding() == Some(binding)
-                    && self.frame.acquisition().map(|site| site.site()) == Some(construction.site())
-                    && set.arguments().len() == 2 => set,
+                    && self.frame.acquisition().map(|site| site.site())
+                        == Some(construction.site())
+                    && set.arguments().len() == 2 =>
+            {
+                set
+            }
             None if self.frame.binding().is_none() => source
                 .deleted_v1(self.frame.site())
                 .filter(|call| call.arguments().len() == 1)
@@ -100,12 +104,17 @@ impl PreparedMapFieldInstallV1 {
             .ok_or_else(|| freeze("map-get-key-drift"))?;
         let field = source.receiver_v1().field();
         let object = source.payload_object_v1();
-        let (Some(candidate), Some(binding), Some(acquisition)) =
-            (&self.candidate, self.frame.binding(), self.frame.acquisition())
-        else {
+        let (Some(candidate), Some(binding), Some(acquisition)) = (
+            &self.candidate,
+            self.frame.binding(),
+            self.frame.acquisition(),
+        ) else {
             return Ok(InvokeOperation::Map(
                 crate::mir::instruction::MapInvokeOperation::FieldDeleteIndexed {
-                    field, base, key, object,
+                    field,
+                    base,
+                    key,
+                    object,
                 },
             ));
         };
@@ -124,7 +133,7 @@ impl PreparedMapFieldInstallV1 {
         let value = candidate
             .value_for(set.owner(), set.arguments()[1].site().node(), binding)
             .map_err(|error| error.to_string())?;
-Ok(InvokeOperation::Map(
+        Ok(InvokeOperation::Map(
             crate::mir::instruction::MapInvokeOperation::FieldInstallIndexed {
                 field,
                 base,
@@ -550,5 +559,16 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         order.installed_map_return = Some(packet);
         Ok(())
+    }
+}
+
+impl MapFieldInstallEmissionV1 {
+    pub(in crate::mir) fn visit_i64_origins_v1(
+        &self,
+        visit: &mut dyn FnMut(
+            &crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
+        self.prepared.key.expression().visit_i64_origins_v1(visit)
     }
 }

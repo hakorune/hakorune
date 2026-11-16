@@ -43,17 +43,18 @@ pub(super) fn check_module_with_source(
     root: Option<&crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
     geometries: &ModuleGeometry<'_>,
 ) -> Result<(), Vec<VerificationError>> {
-    let image = borrowed_calls::original_call_slots(module, root).map_err(|reason| {
-        vec![error(
-            module
-                .functions
-                .values()
-                .next()
-                .map(|f| f.entry_block)
-                .unwrap_or(crate::mir::BasicBlockId(0)),
-            &reason,
-        )]
-    })?;
+    let image =
+        borrowed_calls::original_call_slots(module, root, geometries).map_err(|reason| {
+            vec![error(
+                module
+                    .functions
+                    .values()
+                    .next()
+                    .map(|f| f.entry_block)
+                    .unwrap_or(crate::mir::BasicBlockId(0)),
+                &reason,
+            )]
+        })?;
     let mut loans = image.slots;
     let mut errors = Vec::new();
     if let Err(failures) = string::check_module_with_source(module, root, geometries) {

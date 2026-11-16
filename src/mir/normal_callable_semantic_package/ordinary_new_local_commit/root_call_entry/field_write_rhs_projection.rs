@@ -71,37 +71,82 @@ impl EmittedFieldWriteRhsV1 {
         }
     }
     pub(in crate::mir) fn from_owned_expression_v1(
-        recipe: Rc<QualifiedFieldWriteRhsV1>, body: crate::mir::builder::EmittedExpressionBodyV1,
-        value: crate::mir::ValueId, acquisition: Option<[Binding; 2]>,
-        terminal: Option<Binding>, continuation: Option<Binding>,
-        ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
+        recipe: Rc<QualifiedFieldWriteRhsV1>,
+        body: crate::mir::builder::EmittedExpressionBodyV1,
+        value: crate::mir::ValueId,
+        acquisition: Option<[Binding; 2]>,
+        terminal: Option<Binding>,
+        continuation: Option<Binding>,
+        ledger: &OrdinaryNewClaimLedgerV1,
+        function: &MirFunction,
     ) -> Result<Self, String> {
-        let result = Self { recipe, value, observations: FieldWriteRhsObservationsV1::Owned(
-            Box::new(OwnedFieldWriteRhsV1 { body, acquisition, terminal, continuation })) };
+        let result = Self {
+            recipe,
+            value,
+            observations: FieldWriteRhsObservationsV1::Owned(Box::new(OwnedFieldWriteRhsV1 {
+                body,
+                acquisition,
+                terminal,
+                continuation,
+            })),
+        };
         result.validate(CallValidationContextV1::Lowering(ledger), function, None)?;
         Ok(result)
     }
-    fn owned_expression_ref_v1<'a>(&'a self, owned: &'a OwnedFieldWriteRhsV1)
-        -> Result<super::super::expression_projection::ExpressionPhysicalProjectionRefV1<'a>, String> {
-        let evaluation = self.recipe.evaluation().ok_or_else(|| freeze("field-write-rhs/source-coverage"))?;
+    fn owned_expression_ref_v1<'a>(
+        &'a self,
+        owned: &'a OwnedFieldWriteRhsV1,
+    ) -> Result<super::super::expression_projection::ExpressionPhysicalProjectionRefV1<'a>, String>
+    {
+        let evaluation = self
+            .recipe
+            .evaluation()
+            .ok_or_else(|| freeze("field-write-rhs/source-coverage"))?;
         Ok(super::super::expression_projection::ExpressionPhysicalProjectionRefV1::new_with_dynamic(
             evaluation, &owned.body.values, &owned.body.calls, &owned.body.dynamic_calls,
             &owned.body.path_reads, &owned.body.reference_reads, &owned.body.bindings))
     }
-    pub(in crate::mir) fn deferred_child_ends_v1(&self, context: CallValidationContextV1<'_>)
-        -> Result<Vec<crate::mir::instruction::InvokeOperation>, String> {
-        let FieldWriteRhsObservationsV1::Owned(owned) = &self.observations else { return Ok(Vec::new()); };
-        if !self.recipe.is_consistent(self.recipe.source()) { return Err(freeze("field-write-rhs/source-coverage")); }
+    pub(in crate::mir) fn deferred_child_ends_v1(
+        &self,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<crate::mir::instruction::InvokeOperation>, String> {
+        let FieldWriteRhsObservationsV1::Owned(owned) = &self.observations else {
+            return Ok(Vec::new());
+        };
+        if !self.recipe.is_consistent(self.recipe.source()) {
+            return Err(freeze("field-write-rhs/source-coverage"));
+        }
         let view = self.owned_expression_ref_v1(owned)?;
         view.validate_source(context)?;
-        let materializes = self.recipe.evaluation().unwrap().owned_text_root_node_v1().is_none();
-        view.validate_effective_root_v1(self.value, true, materializes, owned.acquisition.as_ref())?;
+        let materializes = self
+            .recipe
+            .evaluation()
+            .unwrap()
+            .owned_text_root_node_v1()
+            .is_none();
+        view.validate_effective_root_v1(
+            self.value,
+            true,
+            materializes,
+            owned.acquisition.as_ref(),
+        )?;
         let mut temporaries = owned.body.ordered_owned_temporaries_v1(
-            self.recipe.evaluation().unwrap(), self.value, materializes)?;
-        if temporaries.pop() != Some(crate::mir::builder::ExpressionOwnedTemporaryV1::String(self.value)) {
+            self.recipe.evaluation().unwrap(),
+            self.value,
+            materializes,
+        )?;
+        if temporaries.pop()
+            != Some(crate::mir::builder::ExpressionOwnedTemporaryV1::String(
+                self.value,
+            ))
+        {
             return Err(freeze("field-write-rhs/root-scope"));
         }
-        temporaries.into_iter().rev().map(crate::mir::builder::ExpressionOwnedTemporaryV1::end_operation).collect()
+        temporaries
+            .into_iter()
+            .rev()
+            .map(crate::mir::builder::ExpressionOwnedTemporaryV1::end_operation)
+            .collect()
     }
     pub(in crate::mir) fn new(
         recipe: Rc<QualifiedFieldWriteRhsV1>,
@@ -118,9 +163,15 @@ impl EmittedFieldWriteRhsV1 {
         result.validate(CallValidationContextV1::Lowering(ledger), function, None)?;
         Ok(result)
     }
-    pub(in crate::mir) fn lexical_calls_v1(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
-        let body = match &self.observations { FieldWriteRhsObservationsV1::Owned(owned) => Some(&owned.body), _ => None };
-        body.into_iter().flat_map(|body| body.calls.iter().map(Rc::as_ref))
+    pub(in crate::mir) fn lexical_calls_v1(
+        &self,
+    ) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
+        let body = match &self.observations {
+            FieldWriteRhsObservationsV1::Owned(owned) => Some(&owned.body),
+            _ => None,
+        };
+        body.into_iter()
+            .flat_map(|body| body.calls.iter().map(Rc::as_ref))
     }
     pub(in crate::mir) fn value(&self) -> crate::mir::ValueId {
         self.value
@@ -219,28 +270,73 @@ impl EmittedFieldWriteRhsV1 {
     ) -> Result<(), String> {
         let source = self.recipe.source();
         if let FieldWriteRhsObservationsV1::Owned(owned) = &self.observations {
-            if !self.recipe.is_consistent(source) { return Err(freeze("field-write-rhs/source-coverage")); }
+            if !self.recipe.is_consistent(source) {
+                return Err(freeze("field-write-rhs/source-coverage"));
+            }
             let view = self.owned_expression_ref_v1(owned)?;
-            let materializes = self.recipe.evaluation().unwrap().owned_text_root_node_v1().is_none();
-            if owned.acquisition.is_some() != materializes { return Err(freeze("field-write-rhs/source-coverage")); }
-            view.validate_effective_root_v1(self.value, true, materializes, owned.acquisition.as_ref())?;
-            let covered = view.validate_deferred_owned_continuation_v1(context, function, finishing,
-                &owned.body.entry, &owned.terminal, &owned.continuation, None, owned.acquisition.as_ref())?;
+            let materializes = self
+                .recipe
+                .evaluation()
+                .unwrap()
+                .owned_text_root_node_v1()
+                .is_none();
+            if owned.acquisition.is_some() != materializes {
+                return Err(freeze("field-write-rhs/source-coverage"));
+            }
+            view.validate_effective_root_v1(
+                self.value,
+                true,
+                materializes,
+                owned.acquisition.as_ref(),
+            )?;
+            let covered = view.validate_deferred_owned_continuation_v1(
+                context,
+                function,
+                finishing,
+                &owned.body.entry,
+                &owned.terminal,
+                &owned.continuation,
+                None,
+                owned.acquisition.as_ref(),
+            )?;
             if finishing.is_none() && post_rhs_prefix.is_empty() {
                 let mut ordered = view.ordered_bindings_in_context(context)?;
-                if let Some(pair) = &owned.acquisition { ordered.extend(pair.iter().cloned()); }
+                if let Some(pair) = &owned.acquisition {
+                    ordered.extend(pair.iter().cloned());
+                }
                 ordered.extend(owned.terminal.iter().cloned());
-                view.validate_original_scope(context, function, &covered,
-                    &owned.body.entry, &owned.terminal, &owned.continuation, &ordered, None)?;
+                view.validate_original_scope(
+                    context,
+                    function,
+                    &covered,
+                    &owned.body.entry,
+                    &owned.terminal,
+                    &owned.continuation,
+                    &ordered,
+                    None,
+                )?;
             }
             return Ok(());
         }
-        if self.recipe.evaluation().is_some() { return Err(freeze("field-write-rhs/source-coverage")); }
+        if self.recipe.evaluation().is_some() {
+            return Err(freeze("field-write-rhs/source-coverage"));
+        }
         let expected_nodes = self.recipe.ordered_nodes().iter().copied().filter(|index|
             self.recipe.node_class(*index) != Some(crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Identity)
                 || self.recipe.owned_array().is_some());
-        if !self.recipe.is_consistent(source) || self.recursive_nodes().iter().map(|node| node.node).ne(expected_nodes)
-            || self.recursive_nodes().iter().find(|node| node.node == 0).map(|node| node.value) != Some(self.value) {
+        if !self.recipe.is_consistent(source)
+            || self
+                .recursive_nodes()
+                .iter()
+                .map(|node| node.node)
+                .ne(expected_nodes)
+            || self
+                .recursive_nodes()
+                .iter()
+                .find(|node| node.node == 0)
+                .map(|node| node.value)
+                != Some(self.value)
+        {
             return Err(freeze("field-write-rhs/source-coverage"));
         }
         let mut ordered = Vec::new();
@@ -251,12 +347,8 @@ impl EmittedFieldWriteRhsV1 {
                 }
                 Some(view) => Some(
                     match context.is_finalized() {
-                        false => {
-                            view.captured_effect_binding(function, row)
-                        }
-                        true => {
-                            view.required_effect_binding(function, row)
-                        }
+                        false => view.captured_effect_binding(function, row),
+                        true => view.required_effect_binding(function, row),
                     }
                     .map_err(|error| format!("{error} rhs-original={row:?}"))?,
                 ),
@@ -364,15 +456,21 @@ impl EmittedFieldWriteRhsV1 {
                     }
                 }
                 (
-                    Node::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)),
+                    Node::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(
+                        binding,
+                    )),
                     FieldWriteRhsProofV1::ArrayHomeRead { read, producer },
                 ) => {
-                    let array = self.recipe.owned_array()
+                    let array = self
+                        .recipe
+                        .owned_array()
                         .ok_or_else(|| freeze("field-write-rhs/array-home-source"))?;
                     if *binding != array.binding()
                         || array.binding().owner() != source.owner()
-                        || read.value_for(source.owner(), original.site().node(), *binding)
-                            .map_err(|issue| issue.to_string())? != node.value
+                        || read
+                            .value_for(source.owner(), original.site().node(), *binding)
+                            .map_err(|issue| issue.to_string())?
+                            != node.value
                     {
                         return Err(freeze("field-write-rhs/array-home-read"));
                     }
@@ -483,3 +581,40 @@ fn arithmetic_operator(operator: Operator) -> Result<crate::mir::BinaryOp, Strin
 #[cfg(test)]
 #[path = "field_write_rhs_projection_tests.rs"]
 mod tests;
+
+impl EmittedFieldWriteRhsV1 {
+    pub(in crate::mir) fn visit_i64_origins_v1(
+        &self,
+        visit: &mut dyn FnMut(
+            &crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
+        match &self.observations {
+            FieldWriteRhsObservationsV1::Owned(owned) => self
+                .owned_expression_ref_v1(owned)?
+                .visit_i64_origins_v1(visit),
+            FieldWriteRhsObservationsV1::Recursive(nodes) => {
+                let expected = self.recipe.ordered_nodes().iter().copied().filter(|index|
+                    self.recipe.node_class(*index) != Some(crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Identity)
+                        || self.recipe.owned_array().is_some());
+                if nodes.iter().map(|node| node.node).ne(expected) {
+                    return Err(freeze("field-write-rhs/source-coverage"));
+                }
+                for node in nodes.iter() {
+                    let Some(source) = self.recipe.reference_source(node.node) else {
+                        continue;
+                    };
+                    let FieldWriteRhsProofV1::Reference { signed, .. } = &node.proof else {
+                        return Err(freeze("field-write-rhs/reference-kind"));
+                    };
+                    match signed {
+                        Some(read) => read.visit_i64_origin_v1(self.recipe.source(), node.node, source, visit)?,
+                        None if !crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::source_requires_i64_origin_v1(source) => {},
+                        None => return Err(freeze("field-write-rhs/reference-kind")),
+                    }
+                }
+                Ok(())
+            }
+        }
+    }
+}

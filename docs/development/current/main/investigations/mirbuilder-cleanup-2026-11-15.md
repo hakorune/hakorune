@@ -678,3 +678,10 @@ PHIは前blockごと（仕様と(BasicBlockId,ValueId)表現）。Branchの二�
 完成後gateの関数scopeで既存geometryと不変moduleを借り、構造検証だけを最初の実queryで一度確認して共有する。対象readがない関数へ新gateを足さず、ValueId/期待基点ごとの回答は保存しない。scopeを出たら破棄する。
 原本/現在定義のrelation照合と省略のdefinition_countも同じ索引へ接続する。原本captured・parameter衝突・完全な命令一致・use/return_envの照合を保持し、失敗時は従来どおり全定義Vecを作って診断を変えない。省略側のuse走査とcaptured原本の探索は残す。後続のfinalized再検証の反復は、この段では残し、段2で専用走査と合わせて外す。
 段1着地検証: focused41 PASS、全lib直列8375 PASS/既知205 FAIL/52 ignoredで赤の集合一致。最適化CLIの固定5386はMIR/拒否/出力/exit差0、timeout0。50回ほどのCall結果readのcompile中央値（warmup除外5回）は58.7ms→52.5ms、MIR同一。全件測定は9分47.8秒→9分50.9秒で全体の高速化は主張しない。整形後本体639605→639716、test348561→348587。後続再検証はまだread毎、段2で対応する。新しい一時警告2件（test-only importと内部contextの可視性）は抑制せず段2の中継退役で解消する。
+
+### お掃除9 段2の規則
+
+完成後の出所gateはgroupの契約を再実行せず、既存のexpression/read、引数、Loopの子とreturn、New引数、exitの記録を借りて対象readだけを歩く。source由来の対象集合と保持read/flagの対応を照合し、義務が未登録だから成功する形を拒否する。実operand・source・Normal/Fault・寿命の既存検査は元のpreflight/publicationに残す。保存台帳やqueryの回答cacheは作らない。
+公開境界の対象も旧契約どおりに限定する。全group/New引数に加え、explicit root exitと、Call entryまたはinitializer lifecycleを持つexplicit child exitだけを照合する。implicit cleanupやlifecycleを持たない子のplain returnへ新しいorigin義務を足さない。scopeの述語を既存cleanup ownerと共有する。ModuleGeometryは既存の独立verifierから借り、公開source/operand検査の後に専用origin照合を行う。
+moduleを貸すだけのwith_module中継10箇所（2file）とFinishing/Rechecking/Analyzed contextを退役。standalone helperはsource/operand/lifetime検証のままで、module全体のorigin封印はmandatory builder gateとpublic verifierで担う。元の巨大fileはnonnull guardとfinished exit validationの責務へ分け、変更file全体をrustfmtして800行以下にする。
+段2着地検証: focused42 PASS、全lib直列8375 PASS/既知205 FAIL/52 ignoredで失敗名一致。固定5386のMIR/拒否/出力/exit差0、timeout0。読みの多い入力は中央値50.9ms（基準58.7ms）、全件9分35.4秒（基準9分47.8秒）で全体の速度優位は未主張。整形後本体639716→640269（+553）、test348587→348587。full replayは外したが借用visitorを各既存holderへ繋ぐcodeが上回り、この段を行数削減とは数えない。関数ごとの構造照合は各gateの不変epochで一度、公開verifier自身の既存構造検証も保持する。

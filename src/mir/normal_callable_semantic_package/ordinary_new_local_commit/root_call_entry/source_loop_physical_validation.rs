@@ -447,11 +447,7 @@ impl SourceLoopPhysicalProofV2 {
                 },
             );
             if let Some(projection) = finishing {
-                projection.structural_jump_binding(
-                    function,
-                    &jump,
-                    context.is_finalized(),
-                )?;
+                projection.structural_jump_binding(function, &jump, context.is_finalized())?;
             }
             let original = self
                 .graph
@@ -560,5 +556,45 @@ impl SourceLoopPhysicalProofV2 {
             }
         }
         Ok(())
+    }
+}
+
+impl SourceLoopPhysicalProofV2 {
+    pub(in crate::mir) fn visit_i64_origins_v1(
+        &self,
+        visit: &mut dyn FnMut(
+            &crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
+        for returned in &self.graph.returns {
+            match (&returned.source.read, &returned.read) {
+                (Some(source), Some(read)) => {
+                    read.visit_scalar_i64_origin_v1(&returned.source.source, source, visit)?
+                }
+                (None, None) => {} // literal return: the source owns no read
+                _ => return Err(freeze("source-loop/frame-source")),
+            }
+        }
+        Ok(())
+    }
+}
+impl EmittedSourceLoopProjectionV2 {
+    pub(in crate::mir) fn visit_i64_origins_v1(
+        &self,
+        visit: &mut dyn FnMut(
+            &crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
+        for child in self.children.borrow().iter() {
+            child.visit_i64_origins_v1(visit)?;
+        }
+        let role = self
+            .completion
+            .get()
+            .ok_or_else(|| freeze("source-loop/physical-closure-pending"))?;
+        let proof = role
+            .source_proof_v2()
+            .ok_or_else(|| freeze("source-loop/whole-proof-missing"))?;
+        proof.visit_i64_origins_v1(visit)
     }
 }

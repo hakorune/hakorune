@@ -6,45 +6,12 @@ use crate::mir::normal_callable_semantic_package::LexicalInstanceCallDisposition
 #[derive(Clone, Copy)]
 pub(crate) enum CallValidationContextV1<'a> {
     Lowering(&'a OrdinaryNewClaimLedgerV1),
-    Analyzed(
-        &'a OrdinaryNewClaimLedgerV1,
-        &'a crate::mir::verification::scalar_origin::FinishedI64OriginsV1<'a, 'a>,
-    ),
     Finalized(&'a FinalizedRootSourceHandoffV1),
-    Finishing(&'a OrdinaryNewClaimLedgerV1, &'a crate::mir::MirModule),
-    Rechecking(&'a FinalizedRootSourceHandoffV1, &'a crate::mir::MirModule),
 }
 impl<'a> CallValidationContextV1<'a> {
-    /// Module facts are borrowed for this validation epoch, never retained by
-    /// a source packet or confused with moving its affine authority.
-    pub(in crate::mir) fn with_module(self, module: &'a crate::mir::MirModule) -> Self {
-        match self {
-            Self::Lowering(ledger) | Self::Finishing(ledger, _) | Self::Analyzed(ledger, _) => {
-                Self::Finishing(ledger, module)
-            }
-            Self::Finalized(source) | Self::Rechecking(source, _) => {
-                Self::Rechecking(source, module)
-            }
-        }
-    }
-    pub(in crate::mir) fn module(self) -> Option<&'a crate::mir::MirModule> {
-        match self {
-            Self::Finishing(_, module) | Self::Rechecking(_, module) => Some(module),
-            Self::Analyzed(_, analysis) => analysis.module(),
-            _ => None,
-        }
-    }
-    pub(super) fn i64_origins(
-        self,
-    ) -> Option<&'a crate::mir::verification::scalar_origin::FinishedI64OriginsV1<'a, 'a>> {
-        match self {
-            Self::Analyzed(_, analysis) => Some(analysis),
-            _ => None,
-        }
-    }
     pub(in crate::mir) fn finalized_source(self) -> Option<&'a FinalizedRootSourceHandoffV1> {
         match self {
-            Self::Finalized(source) | Self::Rechecking(source, _) => Some(source),
+            Self::Finalized(source) => Some(source),
             _ => None,
         }
     }
@@ -419,10 +386,8 @@ impl<'a> CallValidationContextV1<'a> {
 
     pub(in crate::mir) fn ledger(self) -> &'a OrdinaryNewClaimLedgerV1 {
         match self {
-            Self::Lowering(ledger) | Self::Finishing(ledger, _) | Self::Analyzed(ledger, _) => {
-                ledger
-            }
-            Self::Finalized(source) | Self::Rechecking(source, _) => &source.ledger,
+            Self::Lowering(ledger) => ledger,
+            Self::Finalized(source) => &source.ledger,
         }
     }
     pub(in crate::mir) fn require_ledger(
@@ -461,17 +426,13 @@ impl<'a> CallValidationContextV1<'a> {
         read: impl FnOnce(&[RootLifecyclePrefixBindingGroupV1]) -> Result<R, String>,
     ) -> Result<R, String> {
         let roots = match self {
-            Self::Lowering(ledger) | Self::Finishing(ledger, _) | Self::Analyzed(ledger, _) => {
-                ledger
-                    .root_local_call_bindings
-                    .borrow()
-                    .get(&owner)
-                    .cloned()
-                    .unwrap_or_default()
-            }
-            Self::Finalized(source) | Self::Rechecking(source, _) => {
-                source.local_calls.get(&owner).cloned().unwrap_or_default()
-            }
+            Self::Lowering(ledger) => ledger
+                .root_local_call_bindings
+                .borrow()
+                .get(&owner)
+                .cloned()
+                .unwrap_or_default(),
+            Self::Finalized(source) => source.local_calls.get(&owner).cloned().unwrap_or_default(),
         };
         read(&roots)
     }
