@@ -546,3 +546,77 @@ F03の十本は旧advisory classifier自体のtestで、残る一本はdev parit
 - 確かめた事(Opus): 今の source から作り直した binary で、手元の 393 入力の結果と MIR が Round 5 と同じ。parser・AST・`MirInstruction` の定義に差が無い。stash は 2 つのまま。binary の SHA は、worker の段 A の時の値と一致しなかった(実験の build の後の作り直し。段 A の後の差は文書だけ)。
 - worker の log で読んだ事: 段 A の時、固定 5,386 入力の差 0、lib は 8,359 PASS / 205 FAIL / 52 ignored で、赤の名前は Round 5 と同じ。
 
+
+## お掃除7 段1-a: 二つの道と照合の時点（基点5c323061fc）
+
+数は以下で列挙した境界に限る。同じ関係を再確認する回数であり、安全検査の不要数ではない。
+F22は既存API二本のhelper定義一つを単位とする（bound 0/1/3は同じ道）。
+- 意味: `compiler/callable_single_loop_syntax_facts.rs:315`でownerと唯一のLoop、`callable_single_loop_source_map.rs:274`でorigin・frame・binding、`callable_single_loop_recipe_coseal.rs:261`でroleとRecipe/JoinSigを確定。
+- 意味/再確認: `builder/normal_callable_semantic_source.rs:297`、`normal_callable_prepared_operation.rs:112`、`normal_callable_semantic_loan_port.rs:163`で同じcontext/signatureを照合。
+- 作成/再確認: `builder/resolved_lowering/loop_recipe_physicalizer/callable_canary.rs:163`でheader/bindingを照合してprelude、`tail_completion.rs:183`でowner/binding/read siteを照合してtailを作る。さらに`normal_cataloged_box_method_lowering.rs:250`がprogramとphysical signatureのownerを照合する。以上の再確認境界は9。
+- 中継は3箇所の受渡し部分: loan portの`root_capture.rs:68`の選択・検査後のreturn transfer、prepared operation programの`into_parts`、`normal_cataloged_box_method_lowering.rs`の検査後のsession/admission受渡し。関数全体を純粋な中継に分類する意味ではなく、owner検査・失敗時discard等は除く。
+- 別collectionからの再検索は5境界: forest→source ledger、syntax→resolved loop、source→forest ledger、operation context→only loop、prelude→header indexとfunction binding。
+- 作成順は`callable_lowerer.rs:160–239`のprelude→loop→tail/session終了。source/context照合はCFG完成前、最後の独立検証は`compiler/normal_default_pipeline.rs:657`で完成したmoduleを読む。
+
+boxtorrentは`BoxTorrentStore.release`（main.hako:100–113）のCall由来localを読む経路を追った。
+- 意味: `resolved_semantics/home_prefix_scalar.rs`でその時点のbinding/site/producerを決め、`home_new_prefix_condition.rs:691`がOriginal scalar referenceを保持する。
+- 入口: `builder/raw_invocation_source_transport/bool_condition.rs:239`→`ordinary_new_local_commit/root_call_entry/expression_reference_read.rs:179`のprepare→同fileのscalar arm→`expression_reference_source.rs:8`。
+- 元定義: `expression_scalar_origin.rs:5`→`ordinary_new_local_commit/call_validation_context.rs:605`で原本Call/siteと唯一の既存groupを照合、`materialized_values.rs`のCopy-chain loanへ渡す。
+- このexpression prepare成功一回でinitializer照合3回（producer作成、producer検証、source検証）。各回で同じsource rowを二度引くためsource検索/比較6回、元group検索とCopy-chain照合は各3回。packet内部と後続再検証は数に含めない。
+- 純粋な中継はこの範囲で1境界（scalar observation→with-branchesの委譲）。Copy-chainのloanは検査があるため中継に数えない。
+- prepareはその式の命令発行前、親のbranch/PHIが未完成の時点で走る。依存列は初期化式の早期censusにも使う。照合を一行後ろへ移すだけでは済まない。
+- 完成後の既存フックはexpression readのfinished dependencies、groupのfinishing検証、最終strict verifier。sourceの束縛・期待定義・Call契約は早期に残し、物理同値性だけをここへ移せるかを段2で調べる。
+- 重要: 基点の`home_new_prefix_terminal.rs:527–532`はCallをplain returnのoriginal readから除外する。`return remain`で強い照合が走って壊れたのはお掃除6の試作であり、現行のreturn経路として数えない。F22の専用道も、この共通Copy照合とは別。
+
+段1-bの規則: 実CFG・SSA一意性・支配を検査した不変な関数で、i64の実定義を基点にCopyと循環のないPHIの全incomingをたどる。同じ／別の基点／未解決を区別し、Box・token・借用・heap読取・loopの循環へ拡張しない。段1ではtest以外から呼ばない。
+
+段1-bは`verification/scalar_origin.rs`（297行）へ実装した。既存CFG/SSA/Invoke検証とgeometryを再利用し、Copy・全incoming PHI・支配と順序・一意性を確認する。循環/不明/対応外は未解決、別の基点は別とする。型付きInvokeと実callee署名を照合し、raw Callの不明結果・tagged/u64/Boxは成功にしない。production callerは0。
+独立検証ownerの責務別test10件を追加した（新しい解析の正負境界で、既存検証の登録名・assertionは削除していない）。F22の既存二本もPASS。固定5,386入力はMIR・拒否・出力・exit差0/timeout0、全lib直列は8,369 PASS/既知205 FAIL/52 ignoredで新しい赤0。
+段1の増分は整形後production +296/test +382行。本体はcfg(test)除外で639,010→639,306、生のtest-file除外で680,043→680,342行。段2の切替とF22の穴1〜3はまだ実装していない。
+
+### 段2で選ぶ接続の規則
+
+- Source側はowner/site/binding・原本Call/引数/結果契約を先に確定する。i64 Call由来の式readは、元定義と現在のreadを保持し、Copy起源の証明だけを完成済みmoduleで必須検査する。別origin・未解決・不正CFGは拒否し、旧照合へのfallbackはしない。
+- 通常compile/document/artifact共通のRootValidationと、finalized sourceの再検証にmoduleを貸す。module情報の有無と、Lowering/Finalizedの権限は分け、source-only依存inventoryの確認を同値確認済みの許可にしない。
+- 既存operand correspondenceとfinisherの実定義照合を保持する。記録されたCopy一覧はinventoryとして借り、起源の証明にはしない。削除済みreadは、既存の省略許可・定義なし/useなしが成立した場合だけ扱う。単なる解析未解決は成功にしない。
+- 原本calleeの実Integer署名・宣言と実Callを照合し、未注釈の既存i64結果も同じ経路に置く。Returnの事実はcanonical terminal内で一度保持して共有し、read/Call/exitの一回限りの権限は複製しない。F22穴1〜3とCall plain-return選択は変更しない。
+- 完成MIRの厳格なuse/PHI edge検査は既存`uses::check`の一回の走査で計算し、geometryから借りる。旧SSA/dominance/mergeの結果と公開verifierの診断選択は変えず、queryだけが厳格結果を要求する。別の全命令走査は残さない。
+
+### 段2の着地
+
+i64 Call由来の対象readは、原本の意味契約を保持し、完成moduleの必須gateで実operand/Copy/非循環PHIの起源を検査する。事実はcanonical terminalの共有参照にし、一回の権限は複製しない。共有Copy helperには対象外callerが残るため全面退役とは数えない。
+固定5386入力のMIR・拒否・出力・exit差0、timeout0、新規受理0。固定集合外の入れ子if正例は以前のinitializer-missingから正規EXE・exit7へ。publicationのoperand/PHI入力/生きた定義の改変3負例も拒否する。
+全lib直列8370 PASS/既知205 FAIL/52 ignoredで赤の名前集合一致、suite8/8（空markerあり）とMap18 PASS。feature二構成はPASS、vm-referenceの既存1 error・cli-no-pluginsの既存11 errorsは基準内。owner全指標一致、definition-scan候補286のまま、基準変更なし。
+本体はcfg(test)除外・整形後639010→639544（+534）、test347774→348275（+501）。生のtest-file除外本体680043→680597。機能追加を含み純減とは主張しない。F22の穴1〜3とF17は未変更。
+
+### 段3下調べ（未実装）
+
+**穴1: 共通loop許可**
+特徴の一致数は診断に残すが、許可は同一owner/source site/一般loop契約に一つ、writerも一つにする。特徴の優先順位で選ばない。
+既存V2 productとgeneric issuerの接続を整理する。候補は数ファイル・数百行規模の仮見積で、実装前にsource portを追う。
+保存した5386入力ではzero-selected-family拒否76入力、特徴重複を明示する診断0。76は新規受理見積でも独立原因数でもなく、受理増の本数は未確定。
+
+**穴2: i64引数**
+literal/formal/local/Call結果を既存CheckedExpressionEvaluationV1の検査済み結果として同じ実引数へ渡す。
+local-call flow・引数封印・direct-call projectionを接続し、literal専用分岐を退役する。数owner・数百行規模の仮見積。
+左からの評価順、一回だけの発行、Normal/Faultの責任を保持する。MIRの形からsourceの型やcalleeを推測しない。
+
+**穴3: return/未呼出宣言**
+段2ではplain returnのCall producer選択を変えていない。このsource接続と、未呼出宣言の参加/membershipが残る。
+原本Call定義と現在のsource readを確定し、同値は完成CFGへ渡す。未呼出宣言には偽のCall edgeを作らない。
+terminal sourceとsealed definition inventoryの二責務で接続する。数ファイル・数百行規模の仮見積で、両方の保証確認後にF22専用routeを削除する。
+
+**循環PHI**
+Copy/PHIの循環成分について、外から入る全定義と全backedgeを実CFGで確認する案。
+全外部入力が同じ指定基点で循環内に値を変える演算がない場合だけ同値候補とする。基点なしの循環・別基点・演算更新は成功にしない。
+既存queryへ循環解決を加える別作業で、1〜2責務・百行単位の仮見積。source Call siteの一致を値の一致にしない。
+
+**診断案**
+sourceに初期化が無い場合と、初期化はあるが使用値との対応が証明できない場合を分ける。
+後者の候補はi64-origin-unproved、「この読みが元の定義と同じ値であると証明できません」。不正CFGは既存構造診断を維持する。
+未対応と意味違反も区別する。名前・文言の変更は別承認事項で、この回は変えない。
+
+**既存F22 API二本の保証**
+一つ目はbound 0/1/3、実counterのheader/backedge/条件と元Call結果のreturnを保持する。専用block配置や不要な命令数の固定は実pred/operand/結果の保証へ見直せる。
+二つ目はPairの正規公開と未呼出helperが共存して物理ABIへ届く保証。helper呼出しを入力に足して代用しない。
+Call一回発行・引数対応・Normal/Fault検証・return 0のRaw経路を保持する。未呼出宣言をどこまで検査/公開するかは独立契約として残す。

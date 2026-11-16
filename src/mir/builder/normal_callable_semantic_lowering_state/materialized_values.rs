@@ -255,6 +255,11 @@ impl LocalProvenanceV1 {
         self.loan_copies(point.binding(), point.value(), result)?;
         Ok(point)
     }
+    /// Recorded instructions only; callers must check actual MIR membership.
+    /// This inventory grants no Copy-origin, use or omission permission.
+    pub(in crate::mir) fn recorded_copy_inventory_v1(&self) -> &[(BasicBlockId, MirInstruction)] {
+        &self.copies
+    }
     pub(in crate::mir) fn original_copy_dependencies_v1(&self, result: ValueId)
         -> Result<&[(BasicBlockId, MirInstruction)], String> {
         self.loan_copies(self.root, self.root_value, result)

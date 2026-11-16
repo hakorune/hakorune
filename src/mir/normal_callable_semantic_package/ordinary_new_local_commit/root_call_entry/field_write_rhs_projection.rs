@@ -250,11 +250,11 @@ impl EmittedFieldWriteRhsV1 {
                     view.relation_binding(function, row)?
                 }
                 Some(view) => Some(
-                    match context {
-                        CallValidationContextV1::Lowering(_) => {
+                    match context.is_finalized() {
+                        false => {
                             view.captured_effect_binding(function, row)
                         }
-                        CallValidationContextV1::Finalized(_) => {
+                        true => {
                             view.required_effect_binding(function, row)
                         }
                     }

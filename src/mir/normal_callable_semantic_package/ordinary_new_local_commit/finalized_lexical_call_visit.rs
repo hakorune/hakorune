@@ -80,7 +80,7 @@ impl FinalizedRootSourceHandoffV1 {
                         .ok_or_else(|| freeze("final-call-visit/function-missing"))?;
                     for group in groups {
                         group.validate_recorded_in_context(
-                            CallValidationContextV1::Finalized(self),
+                            CallValidationContextV1::Finalized(self).with_module(module),
                             function,
                             Some(projection),
                         )?;
@@ -98,7 +98,7 @@ impl FinalizedRootSourceHandoffV1 {
             packet.visit_original_nodes_in_context_v1(
                 owner,
                 arguments,
-                CallValidationContextV1::Finalized(self),
+                CallValidationContextV1::Finalized(self).with_module(module),
                 &mut |node, args| {
                     if !source_sites.insert(node.call_site().clone()) {
                         return Err(freeze("final-call-visit/source-duplicate"));
@@ -134,7 +134,7 @@ impl FinalizedRootSourceHandoffV1 {
                     // visited separately, while exact shared prefixes are lent once.
                     let mut copies = Vec::new();
                     for (site, original) in
-                        node.copy_dependencies_in_context(CallValidationContextV1::Finalized(self))?
+                        node.copy_dependencies_in_context(CallValidationContextV1::Finalized(self).with_module(module))?
                     {
                         if &site != node.call_site()
                             || copies.iter().any(|(previous, _)| previous == &original)
@@ -177,7 +177,7 @@ impl FinalizedRootSourceHandoffV1 {
                     .filter(|function| function.signature.name == symbol)
                     .ok_or_else(|| freeze("final-call-visit/function-missing"))?;
                 self.ledger.validate_ordinary_new_row_emission_projected(site.owner(), site,
-                    row, function, Some(projection), CallValidationContextV1::Finalized(self))?;
+                    row, function, Some(projection), CallValidationContextV1::Finalized(self).with_module(module))?;
                 for argument in arguments.iter() {
                     if let Some(expression) = argument.expression_v1() {
                         expression.visit_calls_v1(|packet, original| walk(site.owner(),
@@ -190,7 +190,7 @@ impl FinalizedRootSourceHandoffV1 {
             })?;
         }
         for owner in self.local_calls.keys().copied() {
-            CallValidationContextV1::Finalized(self).with_local_call_group_tree_v2(
+            CallValidationContextV1::Finalized(self).with_module(module).with_local_call_group_tree_v2(
                 owner,
                 |groups| {
                     for group in groups {
@@ -280,7 +280,7 @@ impl FinalizedRootSourceHandoffV1 {
                     self.owner(),
                     exit,
                     packet,
-                    CallValidationContextV1::Finalized(self),
+                    CallValidationContextV1::Finalized(self).with_module(module),
                 )?;
                 walk(
                     self.owner(),
@@ -316,7 +316,7 @@ impl FinalizedRootSourceHandoffV1 {
                     *owner,
                     exit,
                     packet,
-                    CallValidationContextV1::Finalized(self),
+                    CallValidationContextV1::Finalized(self).with_module(module),
                 )?;
                 walk(
                     *owner,

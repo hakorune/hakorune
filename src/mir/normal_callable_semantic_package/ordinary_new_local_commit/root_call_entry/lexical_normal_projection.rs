@@ -493,7 +493,7 @@ impl EmittedLexicalCallProjectionV1 {
             }
             return Ok(receiver_covered);
         }
-        if matches!(context, CallValidationContextV1::Finalized(_)) {
+        if context.is_finalized() {
             finishing
                 .ok_or_else(|| freeze("call-argument/finished-boundary-missing"))?
                 .validate_finished_sequences_v1(function)?;
@@ -586,7 +586,7 @@ impl EmittedLexicalCallProjectionV1 {
                     boundary.structural_jump_binding(
                         function,
                         delimiter,
-                        matches!(context, CallValidationContextV1::Finalized(_)),
+                        context.is_finalized(),
                     )?;
                 }
                 None if function

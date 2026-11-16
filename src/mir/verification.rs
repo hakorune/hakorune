@@ -33,6 +33,7 @@ mod module_metadata;
 mod numeric_substrate;
 pub(crate) mod return_outcome;
 mod rune_contracts;
+pub(crate) mod scalar_origin;
 mod string_kernel;
 mod uses;
 pub(crate) mod utils; // Phase 257 P1-2: Made public for loop_header_phi_builder

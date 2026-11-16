@@ -7,8 +7,34 @@ use crate::mir::normal_callable_semantic_package::LexicalInstanceCallDisposition
 pub(crate) enum CallValidationContextV1<'a> {
     Lowering(&'a OrdinaryNewClaimLedgerV1),
     Finalized(&'a FinalizedRootSourceHandoffV1),
+    Finishing(&'a OrdinaryNewClaimLedgerV1, &'a crate::mir::MirModule),
+    Rechecking(&'a FinalizedRootSourceHandoffV1, &'a crate::mir::MirModule),
 }
 impl<'a> CallValidationContextV1<'a> {
+    /// Module facts are borrowed for this validation epoch, never retained by
+    /// a source packet or confused with moving its affine authority.
+    pub(in crate::mir) fn with_module(self, module: &'a crate::mir::MirModule) -> Self {
+        match self {
+            Self::Lowering(ledger) | Self::Finishing(ledger, _) => Self::Finishing(ledger, module),
+            Self::Finalized(source) | Self::Rechecking(source, _) => Self::Rechecking(source, module),
+        }
+    }
+    pub(in crate::mir) fn module(self) -> Option<&'a crate::mir::MirModule> {
+        match self {
+            Self::Finishing(_, module) | Self::Rechecking(_, module) => Some(module),
+            _ => None,
+        }
+    }
+    pub(in crate::mir) fn finalized_source(self) -> Option<&'a FinalizedRootSourceHandoffV1> {
+        match self {
+            Self::Finalized(source) | Self::Rechecking(source, _) => Some(source),
+            _ => None,
+        }
+    }
+    pub(in crate::mir) fn is_finalized(self) -> bool {
+        self.finalized_source().is_some()
+    }
+
     /// Source preflight only: no physical execution or completion permission.
     pub(in crate::mir) fn validate_source_loop_bool_frame_v2(
         self,
@@ -94,7 +120,7 @@ impl<'a> CallValidationContextV1<'a> {
             }
             _ => return Err(freeze("source-loop/point-purpose")),
         };
-        self.require_source_loop_parent_v2(&product, after || matches!(self, Self::Finalized(_)))?;
+        self.require_source_loop_parent_v2(&product, after || self.is_finalized())?;
         Ok(product)
     }
 
@@ -148,7 +174,7 @@ impl<'a> CallValidationContextV1<'a> {
         }) {
             return Err(freeze("source-loop/text-point-binding"));
         }
-        self.require_source_loop_parent_v2(&product, after || matches!(self, Self::Finalized(_)))?;
+        self.require_source_loop_parent_v2(&product, after || self.is_finalized())?;
         Ok(product)
     }
 
@@ -218,7 +244,7 @@ impl<'a> CallValidationContextV1<'a> {
         {
             return Err(freeze("source-loop/dynamic-point-binding"));
         }
-        self.require_source_loop_parent_v2(&product, after || matches!(self, Self::Finalized(_)))?;
+        self.require_source_loop_parent_v2(&product, after || self.is_finalized())?;
         Ok(product)
     }
 
@@ -244,7 +270,7 @@ impl<'a> CallValidationContextV1<'a> {
                 {
                     return Err(freeze("field-write/packet-membership"));
                 }
-                if matches!(self, Self::Finalized(_)) {
+                if self.is_finalized() {
                     group.require_sealed_condition_v1()?;
                 }
             }
@@ -376,8 +402,8 @@ impl<'a> CallValidationContextV1<'a> {
 
     pub(in crate::mir) fn ledger(self) -> &'a OrdinaryNewClaimLedgerV1 {
         match self {
-            Self::Lowering(ledger) => ledger,
-            Self::Finalized(source) => &source.ledger,
+            Self::Lowering(ledger) | Self::Finishing(ledger, _) => ledger,
+            Self::Finalized(source) | Self::Rechecking(source, _) => &source.ledger,
         }
     }
     pub(in crate::mir) fn require_ledger(
@@ -416,13 +442,15 @@ impl<'a> CallValidationContextV1<'a> {
         read: impl FnOnce(&[RootLifecyclePrefixBindingGroupV1]) -> Result<R, String>,
     ) -> Result<R, String> {
         let roots = match self {
-            Self::Lowering(ledger) => ledger
+            Self::Lowering(ledger) | Self::Finishing(ledger, _) => ledger
                 .root_local_call_bindings
                 .borrow()
                 .get(&owner)
                 .cloned()
                 .unwrap_or_default(),
-            Self::Finalized(source) => source.local_calls.get(&owner).cloned().unwrap_or_default(),
+            Self::Finalized(source) | Self::Rechecking(source, _) => {
+                source.local_calls.get(&owner).cloned().unwrap_or_default()
+            }
         };
         read(&roots)
     }
@@ -436,7 +464,7 @@ impl<'a> CallValidationContextV1<'a> {
     ) -> Result<R, String> {
         self.with_local_call_groups_v1(owner, |roots| {
             let groups = RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(roots);
-            if matches!(self, Self::Finalized(_)) {
+            if self.is_finalized() {
                 for group in &groups {
                     if group.source_loop_rc().is_some() {
                         group.require_sealed_condition_v1()?;
@@ -469,7 +497,7 @@ impl<'a> CallValidationContextV1<'a> {
                     visit(&order.return_value_bindings_v1(self)?);
                 }
                 RootHomeExitProgress::Finalized(_) => {
-                    if let Self::Finalized(source) = self {
+                    if let Some(source) = self.finalized_source() {
                         let exit = site
                             .explicit_site()
                             .ok_or_else(|| freeze("call-validation/finalized-exit-site"))?;

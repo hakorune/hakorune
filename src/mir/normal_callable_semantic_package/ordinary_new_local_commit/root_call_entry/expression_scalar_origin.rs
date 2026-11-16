@@ -9,13 +9,7 @@ pub(in super::super) fn initializer_value(
     let expected = match source {
         Producer::Integer { binding, .. } => Some(read.loan_root_initializer_v1(*binding)?),
         Producer::Call(call) => {
-            if context.ledger().lexical_i64_call_source(call.site()) != Some(call) {
-                return Err(freeze("expression/scalar-call-source"));
-            }
-            call.local_binding()
-                .ok_or_else(|| freeze("expression/scalar-call-local"))?;
-            let value = context.original_scalar_call_result_v1(call)?;
-            Some(value)
+            Some(original_i64_call_value(call, context)?)
         }
         Producer::FieldRead(source) => {
             let (_, instruction) = context
@@ -53,7 +47,7 @@ pub(in super::super) fn initializer_value(
     if let Producer::Operation(operation) = source {
         context.ledger().retain_scalar_operation_use_v1(
             operation,
-            matches!(context, CallValidationContextV1::Finalized(_)),
+            context.is_finalized(),
         )?;
     }
     Ok(value)
@@ -92,7 +86,7 @@ pub(in super::super) fn validate_scalar_origin(
         }
         context.source_loop_point_product_v2(source)?;
         if matches!(source, Producer::LoopAfter { .. })
-            || matches!(context, CallValidationContextV1::Finalized(_))
+            || context.is_finalized()
         {
             point.require_completed_v1()?;
         }
@@ -148,4 +142,17 @@ pub(in super::super) fn validate_scalar_origin(
         }
     }
     Ok(value)
+}
+
+/// Source selection only: this does not assert that the current read is a Copy
+/// of the result. That independent question belongs to the completed MIR.
+pub(in super::super) fn original_i64_call_value(
+    call: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
+    context: CallValidationContextV1<'_>,
+) -> Result<ValueId, String> {
+    if context.ledger().lexical_i64_call_source(call.site()) != Some(call) {
+        return Err(freeze("expression/scalar-call-source"));
+    }
+    call.local_binding().ok_or_else(|| freeze("expression/scalar-call-local"))?;
+    context.original_scalar_call_result_v1(call)
 }

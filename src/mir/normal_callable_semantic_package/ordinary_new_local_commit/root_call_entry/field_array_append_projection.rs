@@ -166,7 +166,7 @@ impl FieldAppendTextProjectionV1 {
             Some(p) => p.structural_jump_binding(
                 function,
                 &self.entry,
-                matches!(context, CallValidationContextV1::Finalized(_)),
+                context.is_finalized(),
             )?,
             None => Some(self.entry.clone()),
         };

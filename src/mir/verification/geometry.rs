@@ -162,6 +162,7 @@ impl<'a> FunctionVerificationGeometry<'a> {
                 self.definition_errors(),
                 self.dominators(),
                 self.predecessors(),
+                self.actual_predecessors(),
             )
         })
     }
@@ -170,6 +171,9 @@ impl<'a> FunctionVerificationGeometry<'a> {
     }
     pub(in crate::mir) fn dominance_errors(&self) -> &[VerificationError] {
         &self.use_errors().dominance
+    }
+    pub(in crate::mir) fn strict_edge_errors(&self) -> &[VerificationError] {
+        &self.use_errors().strict_edges
     }
     pub(super) fn merge_errors(&self) -> &[VerificationError] {
         &self.use_errors().merge

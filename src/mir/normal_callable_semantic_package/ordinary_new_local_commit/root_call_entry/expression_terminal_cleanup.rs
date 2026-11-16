@@ -183,7 +183,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                     boundary.structural_jump_binding(
                         function,
                         original,
-                        matches!(context, CallValidationContextV1::Finalized(_)),
+                        context.is_finalized(),
                     )?
                 }
                 Some(boundary) if original.1.dst_value().is_some() => {

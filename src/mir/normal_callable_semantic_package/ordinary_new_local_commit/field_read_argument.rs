@@ -168,7 +168,7 @@ pub(super) fn validate_map_field_v1(
     for (before, after) in [(&get_invoke, &get_normal), (&get_normal, &read), (&read, &normal), (&normal, &outer)] {
         intervals.require_before(before, after)?;
     }
-    let CallValidationContextV1::Finalized(view) = context else { return Err(freeze("field-argument/source-missing")); };
+    let Some(view) = context.finalized_source() else { return Err(freeze("field-argument/source-missing")); };
     validate_map_completion_effects_v1(view, module, function, coordinate,
         original.get.receiver().field(), original.field.field())?;
     let mut calls = std::collections::BTreeSet::new();
@@ -184,7 +184,7 @@ pub(super) fn validate_map_field_v1(
                 if !matches!(&invoke.1, MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. } if call == &expected) {
                     return Err(freeze("field-argument/finished-parent-link"));
                 }
-                let CallValidationContextV1::Finalized(view) = context else { return Err(freeze("field-argument/source-missing")); };
+                let Some(view) = context.finalized_source() else { return Err(freeze("field-argument/source-missing")); };
                 view.ledger.with_finished_projection(row.callee_owner(), |symbol, _| {
                     if symbol != row.target().mir_symbol_projection() { return Err(freeze("field-argument/source-missing")); }
                     let callee = module.functions.get(symbol).ok_or_else(|| freeze("field-argument/source-missing"))?;

@@ -263,7 +263,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(LocalCommitV1::CallReceived(received)) = commits.get(source.site()) else {
             return Err(freeze("source-loop/call-packet"));
         };
-        if matches!(context, CallValidationContextV1::Finalized(_)) {
+        if context.is_finalized() {
             received.checked_bindings()?;
         }
         let CallReceivedProgress::Emitted {
@@ -609,7 +609,7 @@ impl CallValidationContextV1<'_> {
                     "{} owner={:?} phase={} groups={}",
                     freeze("source-loop/original-group-membership"),
                     product.source.source.owner(),
-                    if matches!(self, Self::Finalized(_)) {
+                    if self.is_finalized() {
                         "Finalized"
                     } else {
                         "Lowering"

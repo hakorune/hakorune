@@ -157,6 +157,11 @@ impl BindingValueObservationV2 {
         self.provenance.as_ref().map_or(Ok(None), |provenance|
             provenance.source_dynamic_rebind_v1(root, self.value, site))
     }
+    /// Read-only inventory, independently checked by the completed-MIR owner.
+    pub(in crate::mir) fn recorded_copy_inventory_v1(&self)
+        -> &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)] {
+        self.provenance.as_ref().map_or(&[], |source| source.recorded_copy_inventory_v1())
+    }
     pub(in crate::mir) fn original_copy_dependencies_v1(&self)
         -> Result<&[(crate::mir::BasicBlockId, crate::mir::MirInstruction)], String> {
         match &self.provenance {

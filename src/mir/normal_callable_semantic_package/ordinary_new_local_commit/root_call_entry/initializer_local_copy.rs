@@ -17,11 +17,11 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 return Err(freeze("initializer-expression/local-copy-receipt"));
             }
-            let actual = match (finishing, context) {
-                (Some(boundary), CallValidationContextV1::Finalized(_)) => {
+            let actual = match (finishing, context.is_finalized()) {
+                (Some(boundary), true) => {
                     boundary.relation_binding(function, copy)?
                 }
-                (Some(boundary), CallValidationContextV1::Lowering(_)) => {
+                (Some(boundary), false) => {
                     if boundary.captured_definition(local)? != copy {
                         return Err(freeze("initializer-expression/local-copy-capture"));
                     }

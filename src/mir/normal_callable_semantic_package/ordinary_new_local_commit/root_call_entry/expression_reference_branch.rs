@@ -410,7 +410,7 @@ impl BranchScalarPhiObservationV1 {
         context.ledger().with_physical_geometry_v1(
             function,
             finishing,
-            matches!(context, CallValidationContextV1::Finalized(_)),
+            context.is_finalized(),
             |geometry, completed| {
                 // A query borrows exactly one immutable MIR/context/projection. Every
                 // read edge is checked; only completed shared observation bodies reuse
@@ -595,7 +595,7 @@ impl ExpressionReferenceReadV1 {
         let _physical_scope = context.ledger().physical_validation_scope_v1(
             function,
             None,
-            matches!(context, CallValidationContextV1::Finalized(_)),
+            context.is_finalized(),
         );
         context.ledger().require_branch_scalar_source_v1(&source)?;
         let [Some(then_exit), Some(else_exit)] = exits else {
