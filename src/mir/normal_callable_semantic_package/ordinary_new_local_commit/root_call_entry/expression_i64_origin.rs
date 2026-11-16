@@ -53,16 +53,19 @@ impl ExpressionReferenceReadV1 {
     ) -> Result<PreparedExpressionReferenceReadV1, String> {
         if source.kind()
             == crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer
+            && matches!(
+                source.producer(),
+                Producer::Call(_) | Producer::Integer { .. }
+            )
         {
-            if let Producer::Call(call) = source.producer() {
-                let expected = original_i64_call_value(call, context)?;
-                let producer = definition_for_initializer(expected, function, context)?;
-                validate_i64_call_read_source(plan, source, read, &producer, context)?;
-                return Ok(PreparedExpressionReferenceReadV1 {
-                    producer,
-                    deferred_i64: true,
-                });
-            }
+            let expected =
+                original_i64_read_value(source.producer(), read.binding_observation_v2(), context)?;
+            let producer = definition_for_initializer(expected, function, context)?;
+            validate_i64_read_source(plan, source, read, &producer, context)?;
+            return Ok(PreparedExpressionReferenceReadV1 {
+                producer,
+                deferred_i64: true,
+            });
         }
         let producer = prepare_scalar_binding_producer(
             source.binding(),
@@ -89,7 +92,7 @@ impl ExpressionReferenceReadV1 {
     ) -> Result<ValueId, String> {
         if self.deferred_i64 {
             let value =
-                validate_i64_call_read_source(plan, source, &self.read, &self.producer, context)?;
+                validate_i64_read_source(plan, source, &self.read, &self.producer, context)?;
             if let (Some(module), Some(projection)) = (context.module(), finishing) {
                 self.validate_i64_origin_in_module_v1(module, function, projection)?;
             }

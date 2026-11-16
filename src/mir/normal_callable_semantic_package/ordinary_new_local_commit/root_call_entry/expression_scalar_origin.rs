@@ -8,9 +8,7 @@ pub(in super::super) fn initializer_value(
 ) -> Result<ValueId, String> {
     let expected = match source {
         Producer::Integer { binding, .. } => Some(read.loan_root_initializer_v1(*binding)?),
-        Producer::Call(call) => {
-            Some(original_i64_call_value(call, context)?)
-        }
+        Producer::Call(call) => Some(original_i64_call_value(call, context)?),
         Producer::FieldRead(source) => {
             let (_, instruction) = context
                 .ledger()
@@ -45,10 +43,9 @@ pub(in super::super) fn initializer_value(
     };
     let value = read.loan_forwarded_initializer_v1(expected)?;
     if let Producer::Operation(operation) = source {
-        context.ledger().retain_scalar_operation_use_v1(
-            operation,
-            context.is_finalized(),
-        )?;
+        context
+            .ledger()
+            .retain_scalar_operation_use_v1(operation, context.is_finalized())?;
     }
     Ok(value)
 }
@@ -85,9 +82,7 @@ pub(in super::super) fn validate_scalar_origin(
             return Err(freeze("expression/loop-point-original-purpose"));
         }
         context.source_loop_point_product_v2(source)?;
-        if matches!(source, Producer::LoopAfter { .. })
-            || context.is_finalized()
-        {
+        if matches!(source, Producer::LoopAfter { .. }) || context.is_finalized() {
             point.require_completed_v1()?;
         }
         return Ok(value);
@@ -153,6 +148,20 @@ pub(in super::super) fn original_i64_call_value(
     if context.ledger().lexical_i64_call_source(call.site()) != Some(call) {
         return Err(freeze("expression/scalar-call-source"));
     }
-    call.local_binding().ok_or_else(|| freeze("expression/scalar-call-local"))?;
+    call.local_binding()
+        .ok_or_else(|| freeze("expression/scalar-call-local"))?;
     context.original_scalar_call_result_v1(call)
+}
+
+/// Required original definition; actual value correspondence is checked later.
+pub(in super::super) fn original_i64_read_value(
+    source: &Producer,
+    read: &BindingValueObservationV2,
+    context: CallValidationContextV1<'_>,
+) -> Result<ValueId, String> {
+    match source {
+        Producer::Call(call) => original_i64_call_value(call, context),
+        Producer::Integer { binding, .. } => read.recorded_root_initializer_v1(*binding),
+        _ => Err(freeze("expression/scalar-producer-kind")),
+    }
 }

@@ -3,7 +3,9 @@ use super::*;
 
 #[path = "expression_scalar_origin.rs"]
 mod scalar_origin;
-pub(super) use scalar_origin::{initializer_value, original_i64_call_value, validate_scalar_origin};
+pub(super) use scalar_origin::{
+    initializer_value, original_i64_read_value, validate_scalar_origin,
+};
 
 pub(super) fn prepare_scalar_binding_producer(
     binding: crate::mir::resolved_semantics::BindingRefV1,
@@ -327,7 +329,7 @@ pub(super) fn reference_operand(
             })
         }
         Reference::Scalar(source) => Ok(Operand::NormalInteger((if deferred_i64 {
-            validate_i64_call_read_source
+            validate_i64_read_source
         } else {
             validate_source
         })(
@@ -537,12 +539,13 @@ pub(super) fn validate_source_identity(
     read: &ExactLexicalReadV1,
     context: CallValidationContextV1<'_>,
 ) -> Result<ValueId, String> {
-    let value = read.value_for(
-        source.binding().owner(),
-        source.read().node(),
-        source.binding(),
-    )
-    .map_err(|error| error.to_string())?;
+    let value = read
+        .value_for(
+            source.binding().owner(),
+            source.read().node(),
+            source.binding(),
+        )
+        .map_err(|error| error.to_string())?;
     if plan.owner() != source.binding().owner() || !plan.nodes().iter().any(|node| node.site() == source.read()
         && matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(
             crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == source.binding())) {
@@ -712,8 +715,8 @@ pub(super) fn validate_dependencies_for_entry(
     Ok(())
 }
 
-/// Original Call source/read correspondence; no producer-authored Copy chain.
-pub(super) fn validate_i64_call_read_source(
+/// Original i64 source/read correspondence, independent of a recorded Copy chain.
+pub(super) fn validate_i64_read_source(
     plan: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
     source: &CurrentScalarReadV1,
     read: &ExactLexicalReadV1,
@@ -721,13 +724,22 @@ pub(super) fn validate_i64_call_read_source(
     context: CallValidationContextV1<'_>,
 ) -> Result<ValueId, String> {
     let value = validate_source_identity(plan, source, read, context)?;
-    let Producer::Call(call) = source.producer() else {
-        return Err(freeze("expression/scalar-producer-kind"));
-    };
+    let expected =
+        original_i64_read_value(source.producer(), read.binding_observation_v2(), context)?;
     if source.kind() != crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer
-        || !matches!(producer, ReferenceProducerV1::Definition(row)
-            if row.1.dst_value() == Some(original_i64_call_value(call, context)?)) {
+        || !matches!(producer, ReferenceProducerV1::Definition(row) if row.1.dst_value() == Some(expected))
+    {
         return Err(freeze("expression/scalar-producer-value"));
+    }
+    if let Producer::Integer {
+        value: expected, ..
+    } = source.producer()
+    {
+        if !matches!(producer, ReferenceProducerV1::Definition((_, MirInstruction::Const {
+            value: ConstValue::Integer(actual), .. })) if actual == expected)
+        {
+            return Err(freeze("expression/scalar-literal-producer"));
+        }
     }
     Ok(value)
 }
