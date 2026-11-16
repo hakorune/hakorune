@@ -30,6 +30,19 @@ pub(in crate::mir::verification) fn cataloged_call_target<'module>(
         .map(|callee| (callee, receiver_params))
 }
 
+/// Borrow the exact result ABI only after catalog target and current arity
+/// correspondence agree. No source spelling is interpreted by origin analysis.
+pub(in crate::mir::verification) fn cataloged_i64_call_result(
+    module: &crate::mir::MirModule,
+    call: &crate::mir::definitions::MirCall,
+) -> Option<crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1> {
+    let (callee, receiver_count) = cataloged_call_target(module, call)?;
+    let abi = crate::mir::type_contracts::return_exit::exact_i64_return_abi(callee)?;
+    (callee.params.len() == callee.signature.params.len()
+        && call.args.len() + receiver_count == callee.params.len())
+    .then_some(abi)
+}
+
 /// One scalar Call edge only carries i64 argument values. When the callee is
 /// a cataloged same-module definition, its published signature is the param
 /// authority: a non-scalar formal (for example a borrowed `MapBox` storage

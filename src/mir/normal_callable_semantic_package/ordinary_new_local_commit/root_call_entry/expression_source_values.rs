@@ -17,24 +17,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         {
             return Err(freeze("print-expression/source-coverage"));
         }
-        if self.reference_reads.len()
-            != self
-                .frame
-                .references()
-                .keys()
-                .filter(|node| self.node_selected(**node))
-                .count()
-            || self.reference_reads.keys().any(|node| {
-                !self.node_selected(*node) || !self.frame.references().contains_key(node)
-            })
-            || self
-                .values
-                .iter()
-                .enumerate()
-                .any(|(node, value)| !self.node_selected(node) && value.is_some())
-        {
-            return Err(freeze("expression/reference-read-census"));
-        }
+        self.validate_reference_census_v1()?;
         let roots = self.original_field_roots_v1(context)?;
         if roots.len() != self.path_reads.len() {
             return Err(freeze("print-expression/path-root-census"));
@@ -52,8 +35,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 .value_for(source.owner(), site.site().node(), *binding)
                 .map_err(|error| error.to_string())?;
             if let Some(core) = self.frame.cores().values().find(|core| {
-                core.local_map().is_some()
-                    && core.source().source().receiver_site() == site.site()
+                core.local_map().is_some() && core.source().source().receiver_site() == site.site()
             }) {
                 let actual = ledger.local_map_receiver_read_v1(core, read)?;
                 let node = source
@@ -61,7 +43,9 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     .iter()
                     .position(|node| node.site() == site.site())
                     .ok_or_else(|| freeze("print-expression/path-root-source"))?;
-                if actual != value || self.values[node] != Some(Operand::NormalInteger(value).into()) {
+                if actual != value
+                    || self.values[node] != Some(Operand::NormalInteger(value).into())
+                {
                     return Err(freeze("print-expression/path-root-value"));
                 }
                 continue;
@@ -197,7 +181,11 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     core.local_map().is_some()
                         && core.source().source().receiver_site() == node.site()
                 });
-            if self.frame.transfers_node(index) && !alias_receiver && !direct_receiver && !map_receiver {
+            if self.frame.transfers_node(index)
+                && !alias_receiver
+                && !direct_receiver
+                && !map_receiver
+            {
                 if value.is_some() {
                     return Err(freeze("print-expression/transferred-value"));
                 }
@@ -250,15 +238,17 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     .reference_reads
                     .get(&index)
                     .ok_or_else(|| freeze("expression/reference-source-node"))?;
-                if EvaluatedExpressionValueV1::borrowed_reference_v1(read.declared_read_value_v1(self.frame, index, context)?, &self.frame.references()[&index])? != EvaluatedExpressionValueV1::BoxReference(value.clone()) {
+                if EvaluatedExpressionValueV1::borrowed_reference_v1(
+                    read.declared_read_value_v1(self.frame, index, context)?,
+                    &self.frame.references()[&index],
+                )? != EvaluatedExpressionValueV1::BoxReference(value.clone())
+                {
                     return Err(freeze("expression/reference-source-node"));
                 }
                 continue;
             }
-            if let (
-                Node::Literal(Literal::Null),
-                Some(EvaluatedExpressionValueV1::Null(value)),
-            ) = (node.source(), value)
+            if let (Node::Literal(Literal::Null), Some(EvaluatedExpressionValueV1::Null(value))) =
+                (node.source(), value)
             {
                 if !self.frame.operations().iter().any(|loan| {
                     loan.nullable_alias_null_v1()
@@ -291,28 +281,48 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 )?;
                 continue;
             }
-            if let (Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }), Some(value)) = (node.source(), value) {
-                if matches!(value, EvaluatedExpressionValueV1::BoxReference(_)
-                    | EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(_) | Operand::OwnedString(_))) {
+            if let (
+                Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess {
+                    ..
+                }),
+                Some(value),
+            ) = (node.source(), value)
+            {
+                if matches!(
+                    value,
+                    EvaluatedExpressionValueV1::BoxReference(_)
+                        | EvaluatedExpressionValueV1::Operand(
+                            Operand::NormalInteger(_) | Operand::OwnedString(_)
+                        )
+                ) {
                     let site = OwnedExprSiteV1::new(source.owner(), node.site().clone());
-                    let emitted = ledger.expression_field_read_bindings_v1(&site, source, context)?;
+                    let emitted =
+                        ledger.expression_field_read_bindings_v1(&site, source, context)?;
                     let boxed = self.frame.class(index) == Some(crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
                         crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::BoxReference));
                     if boxed != matches!(value, EvaluatedExpressionValueV1::BoxReference(_))
-                        || matches!(value, EvaluatedExpressionValueV1::Operand(Operand::OwnedString(_)))
-                            != self.frame.owned_result_nodes().contains(&index) {
+                        || matches!(
+                            value,
+                            EvaluatedExpressionValueV1::Operand(Operand::OwnedString(_))
+                        ) != self.frame.owned_result_nodes().contains(&index)
+                    {
                         return Err(freeze("print-expression/field-source-value"));
                     }
                     if let EvaluatedExpressionValueV1::BoxReference(reference) = value {
-                        let descriptor = ledger.local_field_source_v1(&site)
+                        let descriptor = ledger
+                            .local_field_source_v1(&site)
                             .ok_or_else(|| freeze("print-expression/field-source-value"))?;
-                        if reference.field_source().is_none_or(|original| !Rc::ptr_eq(original, &descriptor)) {
+                        if reference
+                            .field_source()
+                            .is_none_or(|original| !Rc::ptr_eq(original, &descriptor))
+                        {
                             return Err(freeze("print-expression/field-source-value"));
                         }
                     }
                     if !matches!(emitted.last().map(|row| &row.1), Some(MirInstruction::ObjectFieldGet { dst, .. }
                         | MirInstruction::InvokeNormalResult { dst, .. }) if Some(*dst) == value.value())
-                        || emitted.iter().any(|row| !self.original.contains(row)) {
+                        || emitted.iter().any(|row| !self.original.contains(row))
+                    {
                         return Err(freeze("print-expression/field-source-value"));
                     }
                     continue;
@@ -709,4 +719,28 @@ pub(crate) fn checked_expression_core_operation_v1(
         return Err(freeze("expression-core/operand-domain"));
     }
     Ok(ControlFlow::Break(operation))
+}
+
+impl ExpressionPhysicalProjectionRefV1<'_> {
+    pub(super) fn validate_reference_census_v1(&self) -> Result<(), String> {
+        if self.reference_reads.len()
+            != self
+                .frame
+                .references()
+                .keys()
+                .filter(|node| self.node_selected(**node))
+                .count()
+            || self.reference_reads.keys().any(|node| {
+                !self.node_selected(*node) || !self.frame.references().contains_key(node)
+            })
+            || self
+                .values
+                .iter()
+                .enumerate()
+                .any(|(node, value)| !self.node_selected(node) && value.is_some())
+        {
+            return Err(freeze("expression/reference-read-census"));
+        }
+        Ok(())
+    }
 }

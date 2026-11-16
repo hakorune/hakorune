@@ -11,6 +11,8 @@ mod direct_scalar;
 #[path = "local_binding_source.rs"]
 mod source_match;
 use direct_scalar::DirectScalarCallProjectionV1;
+#[path = "local_binding_origin_obligations.rs"]
+mod origin_obligations;
 
 #[derive(Debug, Clone)]
 pub(crate) struct RootLifecyclePrefixBindingGroupV1 {

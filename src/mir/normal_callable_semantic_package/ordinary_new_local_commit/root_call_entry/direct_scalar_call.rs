@@ -322,8 +322,7 @@ impl DirectScalarCallProjectionV1 {
         if expected.as_slice() != bindings {
             return Err(freeze("direct-scalar/recorded-membership"));
         }
-        let require_completed =
-            finishing.is_some() || context.is_finalized();
+        let require_completed = finishing.is_some() || context.is_finalized();
         let projections = match &self.origin {
             ScalarCallSourceV1::Direct(row) => row.argument_projections_v1().unwrap_or(&[]),
             ScalarCallSourceV1::Static {
@@ -377,9 +376,7 @@ impl DirectScalarCallProjectionV1 {
                                 return Err(freeze("direct-scalar/captured-producer"));
                             }
                             match context.is_finalized() {
-                                true => {
-                                    boundary.relation_binding(function, original)?
-                                }
+                                true => boundary.relation_binding(function, original)?,
                                 false => continue,
                             }
                         }
@@ -387,12 +384,8 @@ impl DirectScalarCallProjectionV1 {
                             if matches!(original.1, MirInstruction::Invoke { .. }) =>
                         {
                             Some(match context.is_finalized() {
-                                true => {
-                                    boundary.required_effect_binding(function, original)?
-                                }
-                                false => {
-                                    boundary.captured_effect_binding(function, original)?
-                                }
+                                true => boundary.required_effect_binding(function, original)?,
+                                false => boundary.captured_effect_binding(function, original)?,
                             })
                         }
                         (Some(boundary), None) => boundary.binding(original.0, &original.1)?,
@@ -644,5 +637,23 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         self.prepare_local_call_binding_group(owner, group)?
             .commit()
+    }
+}
+
+impl DirectScalarCallProjectionV1 {
+    pub(in crate::mir) fn visit_i64_origins_v1(
+        &self,
+        visit: &mut dyn FnMut(
+            &crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
+        let projections = match &self.origin {
+            ScalarCallSourceV1::Direct(row) => row.argument_projections_v1().unwrap_or(&[]),
+            ScalarCallSourceV1::Static { projections, .. } => projections,
+        };
+        for argument in projections {
+            argument.visit_i64_origins_v1(visit)?;
+        }
+        Ok(())
     }
 }

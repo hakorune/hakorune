@@ -72,5 +72,21 @@ pub(crate) fn validate_return_exit_contract(function: &MirFunction) -> Result<()
     }
 }
 
+/// Exact completed result ABI for i64-origin queries. An unannotated Integer
+/// result keeps its existing ABI; explicit other scalar spellings do not.
+pub(crate) fn exact_i64_return_abi(
+    function: &MirFunction,
+) -> Option<crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1> {
+    use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
+    if function.signature.return_type != crate::mir::MirType::Integer {
+        return None;
+    }
+    match function.metadata.declared_return_type_name.as_deref() {
+        None => Some(ExactTrivialScalarAbiV1::I64),
+        Some(name) => ExactTrivialScalarAbiV1::classify(name)
+            .filter(|abi| *abi == ExactTrivialScalarAbiV1::I64),
+    }
+}
+
 #[cfg(test)]
 mod tests;

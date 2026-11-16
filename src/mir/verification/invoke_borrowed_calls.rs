@@ -3,16 +3,19 @@
 //! producer provenance, full use closure and the immutable module snapshot.
 use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
 use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
-use crate::mir::{BasicBlockId, MirModule, ValueId, MirInstruction};
 use crate::mir::instruction::{InvokeOperation, StringInvokeOperand};
 use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
+use crate::mir::{BasicBlockId, MirInstruction, MirModule, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
 
 type CallSlots = BTreeMap<(String, BasicBlockId, usize), BTreeSet<usize>>;
 #[derive(Default)]
 pub(super) struct OriginalCallSourceImageV1 {
     pub(super) slots: CallSlots,
-    pub(super) takes: BTreeMap<(String, BasicBlockId, usize), BTreeMap<usize, (ValueId, hakorune_mir_defs::CanonicalObjectIdV1)>>,
+    pub(super) takes: BTreeMap<
+        (String, BasicBlockId, usize),
+        BTreeMap<usize, (ValueId, hakorune_mir_defs::CanonicalObjectIdV1)>,
+    >,
     pub(super) receiver_callees: BTreeSet<String>,
     pub(super) text: BTreeMap<(String, BasicBlockId, usize, usize), ValueId>,
     pub(super) field_reads: Vec<(String, (BasicBlockId, MirInstruction))>,
@@ -23,6 +26,7 @@ pub(super) struct OriginalCallSourceImageV1 {
 pub(super) fn original_call_slots(
     module: &MirModule,
     root: Option<&FinalizedRootHandoffV1>,
+    geometries: &crate::mir::verification::geometry::ModuleGeometry<'_>,
 ) -> Result<OriginalCallSourceImageV1, String> {
     super::object_end::check_placements(module)?;
     // Source-less verification retains its existing sealed scalar policy.
@@ -51,8 +55,12 @@ pub(super) fn original_call_slots(
     source.validate_declared_read_uses_v1(module)?;
     let take_contracts = source.take_call_contracts_v1()?;
     for key in take_contracts.keys() {
-        selected.insert(module.canonical_callable_definition_symbol(key)
-            .ok_or("borrowed-source-target-missing")?.to_owned());
+        selected.insert(
+            module
+                .canonical_callable_definition_symbol(key)
+                .ok_or("borrowed-source-target-missing")?
+                .to_owned(),
+        );
     }
     // Validate source-declared entry correspondence before projecting any
     // incoming actuals. Malformed physical parameters should fail at their
@@ -75,70 +83,141 @@ pub(super) fn original_call_slots(
         source.borrowed_declaration_for_function_v1(owner, key, function)?;
     }
     let mut image = OriginalCallSourceImageV1::default();
-    source.visit_finished_array_field_reads_v1(module, root.named_arrays(), |function, binding, field| {
-        if !module.canonical_array_field(field)
-            || image.field_reads.contains(&(function.signature.name.clone(), binding.clone())) {
-            return Err("borrowed-source-coordinate-duplicate".into());
-        }
-        image.field_reads.push((function.signature.name.clone(), binding));
-        Ok(())
-    })?;
+    source.visit_finished_array_field_reads_v1(
+        module,
+        root.named_arrays(),
+        |function, binding, field| {
+            if !module.canonical_array_field(field)
+                || image
+                    .field_reads
+                    .contains(&(function.signature.name.clone(), binding.clone()))
+            {
+                return Err("borrowed-source-coordinate-duplicate".into());
+            }
+            image
+                .field_reads
+                .push((function.signature.name.clone(), binding));
+            Ok(())
+        },
+    )?;
     // Demand selects verification only; no opcode or declaration grants a loan.
     // Keep the old exact-slot verifier passive when no Dynamic view is requested.
-    let dynamic_fields = module.functions.values().flat_map(|function| function.blocks.values())
-        .flat_map(|body| body.all_instructions()).any(|row| match row {
-            MirInstruction::Invoke { operation: InvokeOperation::FieldGet { field, .. }
-                | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { field, .. })
-                | InvokeOperation::ObjectFieldBorrow { field, .. }, .. } =>
-                module.canonical_field_demands_dynamic_view(*field),
-            MirInstruction::Invoke { operation: InvokeOperation::FieldSet {
-                mode, .. }, .. } => *mode != crate::mir::instruction::FieldSetModeV1::ExactSlot,
+    let dynamic_fields = module
+        .functions
+        .values()
+        .flat_map(|function| function.blocks.values())
+        .flat_map(|body| body.all_instructions())
+        .any(|row| match row {
+            MirInstruction::Invoke {
+                operation:
+                    InvokeOperation::FieldGet { field, .. }
+                    | InvokeOperation::String(
+                        crate::mir::instruction::StringInvokeOperation::FieldMaterialize {
+                            field,
+                            ..
+                        },
+                    )
+                    | InvokeOperation::ObjectFieldBorrow { field, .. },
+                ..
+            } => module.canonical_field_demands_dynamic_view(*field),
+            MirInstruction::Invoke {
+                operation: InvokeOperation::FieldSet { mode, .. },
+                ..
+            } => *mode != crate::mir::instruction::FieldSetModeV1::ExactSlot,
             _ => false,
         });
     // Retained source owners select read verification, including typed scalar
     // reads. The emitted opcode cannot waive its original nullable guard.
     source.with_checked_field_read_functions_v1(module, |owner, function| {
         for binding in source.finished_received_field_reads_v1(owner, module, function)? {
-            image.field_reads.push((function.signature.name.clone(), binding));
+            image
+                .field_reads
+                .push((function.signature.name.clone(), binding));
         }
         Ok(())
     })?;
     if dynamic_fields {
         source.with_owned_field_write_functions_v1(module, |owner, function| {
             source.with_finished_owned_field_writes_v1(owner, function, |row| {
-                image.field_writes.push((function.signature.name.clone(), row.invoke.0));
+                image
+                    .field_writes
+                    .push((function.signature.name.clone(), row.invoke.0));
                 Ok(())
             })
         })?;
         source.visit_finished_construction_writes_v1(module, |function, row| {
             // Only the retained whole-constructor replay can distinguish this
             // formal from an ordinary borrowed entry with the same carrier.
-            if matches!(&row.1, MirInstruction::Invoke { operation: InvokeOperation::FieldSet {
-                mode: crate::mir::instruction::FieldSetModeV1::DYNAMIC_TEXT_INITIALIZE, .. }, .. }) {
+            if matches!(
+                &row.1,
+                MirInstruction::Invoke {
+                    operation: InvokeOperation::FieldSet {
+                        mode: crate::mir::instruction::FieldSetModeV1::DYNAMIC_TEXT_INITIALIZE,
+                        ..
+                    },
+                    ..
+                }
+            ) {
                 selected.remove(&function.signature.name);
             }
-            image.field_writes.push((function.signature.name.clone(), row));
+            image
+                .field_writes
+                .push((function.signature.name.clone(), row));
             Ok(())
         })?;
     }
     for function in module.functions.values() {
         for (block, body) in &function.blocks {
             for (index, row) in body.all_instructions().enumerate() {
-                let MirInstruction::Invoke { operation: InvokeOperation::Birth(call), .. } = row else { continue };
-                if !call.arguments.iter().any(|arg| matches!(arg, crate::mir::instruction::BirthArgumentV1::Text(_))) { continue; }
+                let MirInstruction::Invoke {
+                    operation: InvokeOperation::Birth(call),
+                    ..
+                } = row
+                else {
+                    continue;
+                };
+                if !call
+                    .arguments
+                    .iter()
+                    .any(|arg| matches!(arg, crate::mir::instruction::BirthArgumentV1::Text(_)))
+                {
+                    continue;
+                }
                 let mut actual = None;
-                for candidate in root.birth_actuals().into_iter().flatten().filter(|candidate|
-                    candidate.target() == &call.key && candidate.receiver() == call.receiver
-                        && candidate.arguments().iter().map(|arg| arg.payload()).eq(call.arguments.iter())) {
+                for candidate in root
+                    .birth_actuals()
+                    .into_iter()
+                    .flatten()
+                    .filter(|candidate| {
+                        candidate.target() == &call.key
+                            && candidate.receiver() == call.receiver
+                            && candidate
+                                .arguments()
+                                .iter()
+                                .map(|arg| arg.payload())
+                                .eq(call.arguments.iter())
+                    })
+                {
                     if source.birth_actual_belongs_to_function_v1(candidate, function)?
-                        && actual.replace(candidate).is_some() { return Err("borrowed-source-coordinate-duplicate".into()); }
+                        && actual.replace(candidate).is_some()
+                    {
+                        return Err("borrowed-source-coordinate-duplicate".into());
+                    }
                 }
                 let actual = actual.ok_or("call-result-contract-not-connected")?;
-                let mut abis = root.births().into_iter().flatten().filter(|abi| abi.target() == &call.key);
+                let mut abis = root
+                    .births()
+                    .into_iter()
+                    .flatten()
+                    .filter(|abi| abi.target() == &call.key);
                 let abi = abis.next().ok_or("call-result-contract-not-connected")?;
-                if abis.next().is_some() { return Err("borrowed-source-coordinate-duplicate".into()); }
+                if abis.next().is_some() {
+                    return Err("borrowed-source-coordinate-duplicate".into());
+                }
                 source.validate_birth_text_actuals_v1(abi, actual, function)?;
-                image.births.insert((function.signature.name.clone(), *block, index));
+                image
+                    .births
+                    .insert((function.signature.name.clone(), *block, index));
             }
         }
     }
@@ -282,21 +361,29 @@ pub(super) fn original_call_slots(
     // A closed typed receiver graph also covers root calls and zero-argument
     // packets. They owe an original coordinate without acquiring tagged slots.
     for (symbol, coordinate, arity, arguments) in nonborrowed_calls {
-        if !image.receiver_callees.contains(&symbol) { continue; }
-        if arity != 0 || arguments != 0 { return Err("borrowed-source-entry-coverage".into()); }
+        if !image.receiver_callees.contains(&symbol) {
+            continue;
+        }
+        if arity != 0 || arguments != 0 {
+            return Err("borrowed-source-entry-coverage".into());
+        }
         if image.slots.insert(coordinate, BTreeSet::new()).is_some() {
             return Err("borrowed-source-coordinate-duplicate".into());
         }
     }
     source.visit_finished_map_field_reads_v1(module, |function, binding| {
         let row = (function.signature.name.clone(), binding);
-        if image.field_reads.contains(&row) { return Err("borrowed-source-coordinate-duplicate".into()); }
+        if image.field_reads.contains(&row) {
+            return Err("borrowed-source-coordinate-duplicate".into());
+        }
         image.field_reads.push(row);
         Ok(())
     })?;
     source.visit_finished_map_field_installs_v1(module, |function, binding| {
         let row = (function.signature.name.clone(), binding);
-        if image.field_writes.contains(&row) { return Err("borrowed-source-coordinate-duplicate".into()); }
+        if image.field_writes.contains(&row) {
+            return Err("borrowed-source-coordinate-duplicate".into());
+        }
         image.field_writes.push(row);
         Ok(())
     })?;
@@ -319,7 +406,9 @@ pub(super) fn original_call_slots(
     }
     // Uncalled source-only declarations acquire no borrowed-entry protocol.
     // Any actual physical call still owes its original exact call slot below.
-    for symbol in source_only { selected.remove(&symbol); }
+    for symbol in source_only {
+        selected.remove(&symbol);
+    }
     // Declarations contribute only owner coverage, never fabricated call slots.
     callees.extend(selected.iter().cloned());
     if callees != selected || incoming != original {
@@ -337,37 +426,69 @@ pub(super) fn original_call_slots(
             )).collect::<Vec<_>>(),
         ));
     }
+    source.validate_finished_i64_origins_v1(module, geometries)?;
     Ok(image)
 }
 
 /// A typed borrow retains the canonical field/child mapping and Handle layout;
 /// the physical ABI maps this to I64 residence storage.
-pub(super) fn declared_object_field(module: &crate::mir::MirModule,
+pub(super) fn declared_object_field(
+    module: &crate::mir::MirModule,
     root: Option<&crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
     field: hakorune_mir_defs::CanonicalFieldRefV1,
-    child: hakorune_mir_defs::CanonicalObjectIdV1) -> bool {
-    let inventory_matches = root.and_then(|root| root.root_source())
-        .and_then(|source| source.owned_field_inventory_v1(field.object()).ok().flatten())
+    child: hakorune_mir_defs::CanonicalObjectIdV1,
+) -> bool {
+    let inventory_matches = root
+        .and_then(|root| root.root_source())
+        .and_then(|source| {
+            source
+                .owned_field_inventory_v1(field.object())
+                .ok()
+                .flatten()
+        })
         .is_some_and(|rows| {
             let mut matching = rows.iter().filter(|row| row.field == field);
-            matching.next().is_some_and(|row| row.kind == crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1::Object(child))
-                && matching.next().is_none()
+            matching.next().is_some_and(|row| {
+                row.kind
+                    == crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1::Object(
+                        child,
+                    )
+            }) && matching.next().is_none()
         });
     let declared = module.canonical_object_field_child_v1(field) == Some(child);
-    let layout = module.canonical_object_definition(field.object()).is_some_and(|definition|
-        definition.destruction_disposition().supports_static_object_fields()
-            && definition.runtime_layout().is_some_and(|layout| layout.as_ref().is_ok_and(|layout|
-                layout.fields.get(field.declaration_ordinal() as usize).is_some_and(|slot|
-                    slot.slot == field.declaration_ordinal()
-                        && slot.storage == crate::mir::function::TypedObjectFieldStorage::Handle))));
+    let layout = module
+        .canonical_object_definition(field.object())
+        .is_some_and(|definition| {
+            definition
+                .destruction_disposition()
+                .supports_static_object_fields()
+                && definition.runtime_layout().is_some_and(|layout| {
+                    layout.as_ref().is_ok_and(|layout| {
+                        layout
+                            .fields
+                            .get(field.declaration_ordinal() as usize)
+                            .is_some_and(|slot| {
+                                slot.slot == field.declaration_ordinal()
+                                    && slot.storage
+                                        == crate::mir::function::TypedObjectFieldStorage::Handle
+                            })
+                    })
+                })
+        });
     declared && inventory_matches && layout
 }
 
 /// Check before Document's early return and the argument loop: a zero-argument
 /// call still owes its exact original receiver packet.
-pub(super) fn require_receiver_source(source_bound: bool, callee: &str,
-    required: &BTreeSet<String>, slots: Option<&BTreeSet<usize>>) -> Result<(), &'static str> {
+pub(super) fn require_receiver_source(
+    source_bound: bool,
+    callee: &str,
+    required: &BTreeSet<String>,
+    slots: Option<&BTreeSet<usize>>,
+) -> Result<(), &'static str> {
     if source_bound && required.contains(callee) && slots.is_none() {
         Err("borrowed-source-call-coverage")
-    } else { Ok(()) }
+    } else {
+        Ok(())
+    }
 }

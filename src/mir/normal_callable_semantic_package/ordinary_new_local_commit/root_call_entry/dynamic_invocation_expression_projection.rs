@@ -75,7 +75,10 @@ impl EmittedDynamicInvocationCallProjectionV1 {
             .zip(arguments)
             .enumerate()
         {
-            let actual = source.arguments().get(index).ok_or_else(|| freeze("dynamic-expression/argument-source"))?;
+            let actual = source
+                .arguments()
+                .get(index)
+                .ok_or_else(|| freeze("dynamic-expression/argument-source"))?;
             if original.ordinal() as usize != index
                 || original.site() != site
                 || !matches!(actual, LocalCallArgumentV1::Expression { ordinal, site: actual_site }
@@ -83,7 +86,8 @@ impl EmittedDynamicInvocationCallProjectionV1 {
             {
                 return Err(freeze("dynamic-expression/argument-source"));
             }
-            let value = argument.value_for_source_v1(actual, source.owner(), site, None, Some(context))?;
+            let value =
+                argument.value_for_source_v1(actual, source.owner(), site, None, Some(context))?;
             operands.push(Operand::Integer(value));
         }
         Operation::from_source(loan, receiver, operands)
@@ -186,10 +190,7 @@ impl EmittedDynamicInvocationCallProjectionV1 {
         }
         let call_site = self.source.site();
         let mut ordered = Vec::new();
-        let mut copies = self
-            .receiver_read
-            .original_copy_dependencies_v1()?
-            .to_vec();
+        let mut copies = self.receiver_read.original_copy_dependencies_v1()?.to_vec();
         for (ordinal, ((site, actual), argument)) in loan
             .argument_sites()
             .iter()
@@ -204,11 +205,7 @@ impl EmittedDynamicInvocationCallProjectionV1 {
             }
             let (argument_ordered, argument_copies) = argument
                 .dynamic_call_argument_scope_bindings_v1(
-                    actual,
-                    call_site,
-                    ordinal,
-                    site,
-                    context,
+                    actual, call_site, ordinal, site, context,
                 )?;
             ordered.extend(argument_ordered);
             copies.extend(argument_copies);
@@ -325,4 +322,18 @@ fn unique_node(
 
 fn freeze(reason: &str) -> String {
     format!("[freeze:contract][ordinary-new/dynamic-expression/{reason}]")
+}
+
+impl EmittedDynamicInvocationCallProjectionV1 {
+    pub(in crate::mir) fn visit_i64_origins_v1(
+        &self,
+        visit: &mut dyn FnMut(
+            &crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
+        for argument in self.arguments.iter() {
+            argument.visit_i64_origins_v1(visit)?;
+        }
+        Ok(())
+    }
 }

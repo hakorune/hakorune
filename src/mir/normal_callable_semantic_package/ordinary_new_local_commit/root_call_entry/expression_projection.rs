@@ -29,6 +29,8 @@ mod source_values;
 pub(crate) use source_values::{checked_expression_core_operation_v1, FrameFreeExpressionReadV1};
 #[path = "expression_effect_order.rs"]
 mod effect_order;
+#[path = "expression_origin_obligations.rs"]
+mod origin_obligations;
 
 /// A view of the purpose's original observations, never a second packet pool.
 /// Successful correspondence grants no terminal, residence or cleanup rights.
@@ -448,12 +450,22 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             }
         }
         // A named-local Map receiver is one more original root, read by its Core call.
-        for core in self.frame.cores().values().filter(|core| self.node_selected(core.node())) {
+        for core in self
+            .frame
+            .cores()
+            .values()
+            .filter(|core| self.node_selected(core.node()))
+        {
             if core.local_map().is_none() {
                 continue;
             }
-            let receiver = OwnedExprSiteV1::new(source.owner(), core.source().source().receiver_site().clone());
-            let binding = core.local_map().ok_or_else(|| freeze("print-expression/path-root-source"))?;
+            let receiver = OwnedExprSiteV1::new(
+                source.owner(),
+                core.source().source().receiver_site().clone(),
+            );
+            let binding = core
+                .local_map()
+                .ok_or_else(|| freeze("print-expression/path-root-source"))?;
             roots.insert(receiver.clone(), (binding, receiver));
         }
         for (index, _) in source

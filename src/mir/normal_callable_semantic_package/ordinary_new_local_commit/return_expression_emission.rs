@@ -340,3 +340,37 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 }
+
+impl RootHomeCleanupOrderV1 {
+    pub(in crate::mir) fn visit_i64_origins_v1(
+        &self,
+        visit: &mut dyn FnMut(
+            &crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
+        if let Some(expression) = &self.return_expression {
+            expression.expression().visit_i64_origins_v1(visit)?;
+        }
+        if let Some(install) = &self.installed_map_return {
+            install.install().visit_i64_origins_v1(visit)?;
+        }
+        Ok(())
+    }
+}
+
+impl super::RootHomeExitEntry {
+    pub(in crate::mir) fn visit_i64_origins_v1(
+        &self,
+        visit: &mut dyn FnMut(
+            &crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
+        match self {
+            Self::Call { row, .. } => row.visit_i64_origins_v1(visit),
+            Self::MapGet {
+                stored: Some(read), ..
+            } => read.visit_i64_origins_v1(visit),
+            Self::Plain { .. } | Self::MapGet { stored: None, .. } => Ok(()),
+        }
+    }
+}

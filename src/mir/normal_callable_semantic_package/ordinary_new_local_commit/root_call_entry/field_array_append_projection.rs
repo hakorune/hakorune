@@ -163,11 +163,7 @@ impl FieldAppendTextProjectionV1 {
             return Err(freeze("field-array-append/physical-binding"));
         }
         let entry = match finishing {
-            Some(p) => p.structural_jump_binding(
-                function,
-                &self.entry,
-                context.is_finalized(),
-            )?,
+            Some(p) => p.structural_jump_binding(function, &self.entry, context.is_finalized())?,
             None => Some(self.entry.clone()),
         };
         // Source validation restricts this to a passive Text scope. Approved
@@ -654,5 +650,21 @@ impl OrdinaryNewClaimLedgerV1 {
             rows.push(crate::mir::normal_callable_semantic_package::core_method_source::emission::EmittedNamedArrayWriteV1::from_checked_text_v1(Rc::clone(packet))?);
         }
         Ok(rows)
+    }
+}
+
+impl EmittedFieldArrayAppendV1 {
+    pub(in crate::mir) fn visit_i64_origins_v1(
+        &self,
+        visit: &mut dyn FnMut(
+            &crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
+        match &self.argument {
+            FieldAppendArgumentV1::Integer(_) => Ok(()),
+            FieldAppendArgumentV1::Text(value) => {
+                value.expression(&self.source)?.visit_i64_origins_v1(visit)
+            }
+        }
     }
 }

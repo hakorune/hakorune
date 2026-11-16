@@ -147,12 +147,22 @@ impl OriginalBorrowedCopies {
     }
 
     pub(super) fn may_omit(&self, function: &MirFunction, instruction: &MirInstruction) -> bool {
+        let geometry =
+            crate::mir::verification::geometry::FunctionVerificationGeometry::new(function);
+        self.may_omit_with_geometry(&geometry, instruction)
+    }
+    pub(super) fn may_omit_with_geometry(
+        &self,
+        geometry: &crate::mir::verification::geometry::FunctionVerificationGeometry<'_>,
+        instruction: &MirInstruction,
+    ) -> bool {
+        let function = geometry.as_function();
         let Some(dst) = instruction.dst_value() else {
             return false;
         };
         let allowed = self.contains(instruction)
             && self.dead.contains(&dst)
-            && definition_count(function, dst) == 0
+            && geometry.definition_count(dst) == 0
             && !operand_used(function, dst);
         allowed
     }

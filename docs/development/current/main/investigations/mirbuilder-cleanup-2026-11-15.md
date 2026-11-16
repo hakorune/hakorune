@@ -665,3 +665,28 @@ owner指標は基準aa91632b9cと一致（定義走査候補286）、警告2291�
   - これは「形を 1 つ足す時に、何か所を直すか」の実測に当たる(未実装の見積もりで、20〜28 file)。**出所の持ち方だけを直しても、呼び出しの種類ごとに別の道がある事は残る**、という事が分かった。
 - 道はまだ 2 本(`deferred_i64` の行 18 → 18、古い照合の呼び出し 6 → 6)。問い合わせを関数ごとに 1 回にまとめる事も、まだ。F22 は残っている。
 - 次の進め方は、設計の相談の答えを見てから決める(段 B を 3 つに分ける案が、報告にある)。
+
+## お掃除9: 段0の境界
+
+公開handoff付きの既存publication testへ、実Compareから辿る全Copy（source snapshotとoperand wrapper）を消し、全useを別のCall結果へ置換する負例を追加。削除した定義/useは0、CFG/SSA/Invoke構造は有効のまま、全件を拒否した。元srcへ置換する正しいCopy除去も、このfixtureでは現在のcontrol-producer契約により拒否する（一般のCopy除去の禁止とはしない）。
+読みのCopy除去後に元InvokeをJump＋同dstのConstへ替え、CFG cacheを更新して初期化Callの効果だけを失わせる負例も拒否。同calleeの独立した二Callの結果を、元PHIのincoming一つだけへ入れ替える負例も拒否。無基点のp=PHI(p)は既存query unitを再利用しUnresolved。production変更なし、問い合わせ13＋publication3＋F22二本のfocused18 PASS。
+PHIは前blockごと（仕様と(BasicBlockId,ValueId)表現）。Branchの二辺が同じ行き先でも、successorは集合化されるため表現できる。strict PHI検査も前block集合と照合し、同blockからの重複incomingを拒否するため、並行する二辺に別のPHI値は持たせられない。この回は変更しない。
+全lib直列は8375 PASS/既知205 FAIL/52 ignoredで赤の名前集合一致。productionは基点と同一（639605行）、testは独立したCopy消去/効果消去/同callee別結果の公開境界の証拠を既存familyへ統合して+201行。固定5386は同一production・同一最適化CLI SHAの既存結果を再利用して差0（再測定はしない）。
+
+### お掃除9 段1の規則
+
+完成後gateの関数scopeで既存geometryと不変moduleを借り、構造検証だけを最初の実queryで一度確認して共有する。対象readがない関数へ新gateを足さず、ValueId/期待基点ごとの回答は保存しない。scopeを出たら破棄する。
+原本/現在定義のrelation照合と省略のdefinition_countも同じ索引へ接続する。原本captured・parameter衝突・完全な命令一致・use/return_envの照合を保持し、失敗時は従来どおり全定義Vecを作って診断を変えない。省略側のuse走査とcaptured原本の探索は残す。後続のfinalized再検証の反復は、この段では残し、段2で専用走査と合わせて外す。
+段1着地検証: focused41 PASS、全lib直列8375 PASS/既知205 FAIL/52 ignoredで赤の集合一致。最適化CLIの固定5386はMIR/拒否/出力/exit差0、timeout0。50回ほどのCall結果readのcompile中央値（warmup除外5回）は58.7ms→52.5ms、MIR同一。全件測定は9分47.8秒→9分50.9秒で全体の高速化は主張しない。整形後本体639605→639716、test348561→348587。後続再検証はまだread毎、段2で対応する。新しい一時警告2件（test-only importと内部contextの可視性）は抑制せず段2の中継退役で解消する。
+
+### お掃除9 段2の規則
+
+完成後の出所gateはgroupの契約を再実行せず、既存のexpression/read、引数、Loopの子とreturn、New引数、exitの記録を借りて対象readだけを歩く。source由来の対象集合と保持read/flagの対応を照合し、義務が未登録だから成功する形を拒否する。実operand・source・Normal/Fault・寿命の既存検査は元のpreflight/publicationに残す。保存台帳やqueryの回答cacheは作らない。
+公開境界の対象も旧契約どおりに限定する。全group/New引数に加え、explicit root exitと、Call entryまたはinitializer lifecycleを持つexplicit child exitだけを照合する。implicit cleanupやlifecycleを持たない子のplain returnへ新しいorigin義務を足さない。scopeの述語を既存cleanup ownerと共有する。ModuleGeometryは既存の独立verifierから借り、公開source/operand検査の後に専用origin照合を行う。
+moduleを貸すだけのwith_module中継10箇所（2file）とFinishing/Rechecking/Analyzed contextを退役。standalone helperはsource/operand/lifetime検証のままで、module全体のorigin封印はmandatory builder gateとpublic verifierで担う。元の巨大fileはnonnull guardとfinished exit validationの責務へ分け、変更file全体をrustfmtして800行以下にする。
+段2着地検証: focused42 PASS、全lib直列8375 PASS/既知205 FAIL/52 ignoredで失敗名一致。固定5386のMIR/拒否/出力/exit差0、timeout0。読みの多い入力は中央値50.9ms（基準58.7ms）、全件9分35.4秒（基準9分47.8秒）で全体の速度優位は未主張。整形後本体639716→640269（+553）、test348587→348587。full replayは外したが借用visitorを各既存holderへ繋ぐcodeが上回り、この段を行数削減とは数えない。関数ごとの構造照合は各gateの不変epochで一度、公開verifier自身の既存構造検証も保持する。
+
+### お掃除9 段3の規則
+
+出所queryは定義の一意性・到達性・Copy/PHI依存を保持し、exact i64の宣言/carrier条件は既存parameter/return/call-edge ownerへ移す。parameterはsignature/carrierの行数・Integer・非receiver・exact i64をすべて維持。Callは既存catalogで対象を解決し、Integer結果かつreturn宣言が未注釈またはexact i64、callee parameter数一致とreceiver込みactual数一致を維持する。広いnumeric契約validatorを代用せず、未要求の契約rowを要求せず、Integerだけにも緩めない。Differentは数値の不等ではなく、期待する一基点だけから来る依存ではない事を表す。
+段3着地検証: focused24 PASS、全lib直列8375 PASS/既知205 FAIL/52 ignoredで失敗名一致。固定5386はMIR/拒否/出力/exit差0、timeout0。読み51個の入力は中央値50.0ms、同MIR。整形後本体640269→640302（+33）、test348587→348588（test専用importへ移動）。段0〜3全体は本体639605→640302（+697、追加1622/削除925）、test348360→348588（+228、追加300/削除72）。移動も追加/削除へ数えており縮小完了とはしない。deferred_i64文字一致行18→22（census照合を追加）、旧producer helperの呼出し6→6。F22は保持、引数接続とF17は未選択。

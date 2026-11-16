@@ -1,16 +1,17 @@
 //! Same-definition queries over one completed, immutable MIR function.
 //! Source sites and producer loans are deliberately not evidence here.
 use super::{cfg, geometry::FunctionVerificationGeometry, invoke};
-use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
 use crate::mir::verification_types::VerificationError;
 #[cfg(test)]
-use crate::mir::BasicBlockId;
-use crate::mir::{MirFunction, MirInstruction, MirModule, MirType, ValueId};
+use crate::mir::{BasicBlockId, MirFunction};
+use crate::mir::{MirInstruction, MirModule, MirType, ValueId};
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum SameI64Definition {
     Same,
+    /// The value does not depend solely on the expected single base. This is
+    /// dependency identity, not a claim of unequal runtime integer values.
     Different,
     Unresolved,
 }
@@ -18,57 +19,95 @@ pub(in crate::mir) enum SameI64Definition {
 /// No proof escapes this immutable function epoch. Construct fresh geometry:
 /// facts cached by an issuer while it was still writing the CFG are not valid.
 /// `expected` names an actual base definition, not a source position.
+#[cfg(test)]
 pub(in crate::mir) fn same_i64_definition(
     function: &MirFunction,
     module: Option<&MirModule>,
     value: ValueId,
     expected: ValueId,
 ) -> Result<SameI64Definition, Vec<VerificationError>> {
-    if !function.blocks.contains_key(&function.entry_block) {
-        return Err(vec![VerificationError::ControlFlowError {
-            block: function.entry_block,
-            reason: "Missing function entry block".into(),
-        }]);
-    }
-    // Guard the existing CFG helper's invariant before it reads terminators.
-    for (block, body) in &function.blocks {
-        if body
-            .terminator
-            .as_ref()
-            .is_some_and(|row| !body.is_terminator(row))
-            || body.instructions.iter().any(|row| body.is_terminator(row))
-        {
-            return Err(vec![VerificationError::ControlFlowError {
-                block: *block,
-                reason: "Invalid terminator placement".into(),
-            }]);
+    let geometry = FunctionVerificationGeometry::new(function);
+    FinishedI64OriginsV1::new(&geometry, module).same_definition(value, expected)
+}
+
+/// A borrowed immutable function/module epoch. Only structural validation is
+/// shared; a query's answer still depends on its own expected definition.
+/// Validation is lazy so a function with no origin obligations gains no gate.
+pub(in crate::mir) struct FinishedI64OriginsV1<'geometry, 'module> {
+    geometry: &'geometry FunctionVerificationGeometry<'module>,
+    module: Option<&'module MirModule>,
+    checked: std::cell::OnceCell<Result<(), Vec<VerificationError>>>,
+}
+impl<'geometry, 'module> FinishedI64OriginsV1<'geometry, 'module> {
+    pub(in crate::mir) fn new(
+        geometry: &'geometry FunctionVerificationGeometry<'module>,
+        module: Option<&'module MirModule>,
+    ) -> Self {
+        Self {
+            geometry,
+            module,
+            checked: std::cell::OnceCell::new(),
         }
     }
-    let geometry = FunctionVerificationGeometry::new(function);
-    cfg::check_control_flow(function)?;
-    let mut errors = geometry.ssa_errors().to_vec();
-    errors.extend_from_slice(geometry.dominance_errors());
-    if !errors.is_empty() {
-        return Err(errors);
+    pub(in crate::mir) fn geometry(&self) -> &FunctionVerificationGeometry<'module> {
+        self.geometry
     }
-    cfg::check_phi_predecessors_with(function, geometry.predecessors(), geometry.reachable())?;
-    if let Some(module) = module {
-        invoke::check_function_structure_in_module(module, &geometry)?;
-    } else {
-        invoke::check_function_with_geometry(&geometry)?;
+    pub(in crate::mir) fn same_definition(
+        &self,
+        value: ValueId,
+        expected: ValueId,
+    ) -> Result<SameI64Definition, Vec<VerificationError>> {
+        self.checked.get_or_init(|| self.check_function()).clone()?;
+        let query = OriginQuery {
+            geometry: self.geometry,
+            module: self.module,
+            expected,
+        };
+        if !query.is_base(expected) {
+            return Ok(SameI64Definition::Unresolved);
+        }
+        query.origin(value)
     }
-    let query = OriginQuery {
-        geometry: &geometry,
-        module,
-        expected,
-    };
-    if !geometry.strict_edge_errors().is_empty() {
-        return Err(geometry.strict_edge_errors().to_vec());
+    fn check_function(&self) -> Result<(), Vec<VerificationError>> {
+        let geometry = self.geometry;
+        let function = geometry.as_function();
+        if !function.blocks.contains_key(&function.entry_block) {
+            return Err(vec![VerificationError::ControlFlowError {
+                block: function.entry_block,
+                reason: "Missing function entry block".into(),
+            }]);
+        }
+        // Guard the existing CFG helper's invariant before it reads terminators.
+        for (block, body) in &function.blocks {
+            if body
+                .terminator
+                .as_ref()
+                .is_some_and(|row| !body.is_terminator(row))
+                || body.instructions.iter().any(|row| body.is_terminator(row))
+            {
+                return Err(vec![VerificationError::ControlFlowError {
+                    block: *block,
+                    reason: "Invalid terminator placement".into(),
+                }]);
+            }
+        }
+        cfg::check_control_flow(function)?;
+        let mut errors = geometry.ssa_errors().to_vec();
+        errors.extend_from_slice(geometry.dominance_errors());
+        if !errors.is_empty() {
+            return Err(errors);
+        }
+        cfg::check_phi_predecessors_with(function, geometry.predecessors(), geometry.reachable())?;
+        if let Some(module) = self.module {
+            invoke::check_function_structure_in_module(module, geometry)?;
+        } else {
+            invoke::check_function_with_geometry(geometry)?;
+        }
+        if !geometry.strict_edge_errors().is_empty() {
+            return Err(geometry.strict_edge_errors().to_vec());
+        }
+        Ok(())
     }
-    if !query.is_base(expected) {
-        return Ok(SameI64Definition::Unresolved);
-    }
-    query.origin(value)
 }
 
 struct OriginQuery<'a, 'f> {
@@ -91,23 +130,10 @@ impl OriginQuery<'_, '_> {
             return false;
         }
         if let Some(index) = function.params.iter().position(|old| *old == value) {
-            return function.params.len() == function.signature.params.len()
-                && function.signature.params[index] == MirType::Integer
-                && function
-                    .metadata
-                    .physical_param_carriers
-                    .as_deref()
-                    .is_some_and(|rows| {
-                        rows.len() == function.params.len()
-                            && rows[index] == PhysicalCallableLaneCarrierV1::ExistingCallableI64
-                    })
-                && function
-                    .metadata
-                    .declared_param_decls
-                    .get(index)
-                    .is_some_and(|decl| {
-                        !decl.implicit_receiver && decl.declared_type_name.as_deref() == Some("i64")
-                    });
+            return crate::mir::type_contracts::parameter_entry::exact_i64_parameter_abi(
+                function, index,
+            )
+            .is_some();
         }
         let Some((block, _, instruction)) = self.geometry.definition(value) else {
             return false;
@@ -134,20 +160,9 @@ impl OriginQuery<'_, '_> {
     }
 
     fn i64_call(&self, call: &crate::mir::definitions::MirCall) -> bool {
-        let Some(module) = self.module else {
-            return false;
-        };
-        let Some((callee, receiver_count)) = invoke::cataloged_call_target(module, call) else {
-            return false;
-        };
-        callee.signature.return_type == MirType::Integer
-            && callee
-                .metadata
-                .declared_return_type_name
-                .as_deref()
-                .is_none_or(|declared| declared == "i64")
-            && callee.params.len() == callee.signature.params.len()
-            && call.args.len() + receiver_count == callee.params.len()
+        self.module
+            .and_then(|module| invoke::cataloged_i64_call_result(module, call))
+            .is_some()
     }
 
     /// A temporary value-dependency closure, not another CFG or proof ledger.

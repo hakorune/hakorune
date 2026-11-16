@@ -398,3 +398,20 @@ impl OrdinaryNewClaimLedgerV1 {
         .commit()
     }
 }
+
+impl EmittedOwnedArrayAppendV1 {
+    pub(in crate::mir) fn visit_i64_origins_v1(
+        &self,
+        visit: &mut dyn FnMut(
+            &crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
+        match &self.candidate {
+            OwnedArrayAppendCandidateV1::Null(_) => Ok(()),
+            OwnedArrayAppendCandidateV1::Call(packet) => packet.visit_i64_origins_v1(visit),
+            OwnedArrayAppendCandidateV1::DynamicExpression(argument) => {
+                argument.visit_i64_origins_v1(visit)
+            }
+        }
+    }
+}
