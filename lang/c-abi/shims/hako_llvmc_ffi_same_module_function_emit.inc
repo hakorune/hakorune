@@ -90,13 +90,7 @@
           char* out,
           size_t out_cap,
           long long reg) {
-        long long cv = 0;
-        long long base = resolve_copy_source_reg(reg);
-        if (has_const(base, &cv)) {
-          snprintf(out, out_cap, "%lld", cv);
-        } else {
-          snprintf(out, out_cap, "%%r%lld", base);
-        }
+        scalar_abi_format_i64_ref(out, out_cap, reg);
       }
 
       #include "hako_llvmc_ffi_same_module_method_views.inc"

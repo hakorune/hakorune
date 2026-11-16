@@ -588,19 +588,17 @@
           }
           if (strcmp(op, "ret")==0) {
             long long v=read_int(ins, "value"); long long cv;
-            if (has_const(v,&cv)) { EMIT("  ret i64 %lld\n", cv); }
-            else {
+            {
               int org = get_origin(v);
               long long base = resolve_copy_source_reg(v);
-              if (org == ORG_MAP_GET) {
+              if (org == ORG_MAP_GET && !has_const(v, &cv)) {
                 // Auto-unbox map.get result as Integer (minimal MVP)
                 EMIT("  %%map_get_unbox_%lld = call i64 @\"nyash.integer.get_h\"(i64 %%r%lld)\n", v, base);
                 EMIT("  ret i64 %%map_get_unbox_%lld\n", v);
-              } else if (get_type(v) == T_I1 || get_type(base) == T_I1) {
-                EMIT("  %%ret_zext_%lld = zext i1 %%r%lld to i64\n", v, base);
-                EMIT("  ret i64 %%ret_zext_%lld\n", v);
               } else {
-                EMIT("  ret i64 %%r%lld\n", base);
+                char value_ref[64];
+                scalar_abi_format_i64_ref(value_ref, sizeof(value_ref), v);
+                EMIT("  ret i64 %s\n", value_ref);
               }
             }
             continue;

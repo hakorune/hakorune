@@ -433,21 +433,9 @@
         return 1;
       }
       auto void emit_icmp(long long dst, const char* pred, long long lhs_reg, long long rhs_reg) {
-        long long operands[2] = {lhs_reg, rhs_reg};
         char refs[2][64];
-        for (size_t side = 0; side < 2; side++) {
-          long long base = resolve_copy_source_reg(operands[side]), value;
-          if (has_const(base, &value)) {
-            snprintf(refs[side], sizeof(refs[side]), "%lld", value);
-          } else if (get_type(base) == T_I1) {
-            /* The shared numeric comparison consumes logical Bool as 0/1,
-             * retaining the existing i64 comparison and signed ordering. */
-            snprintf(refs[side], sizeof(refs[side]), "%%cmp_bool_%lld_%zu", dst, side);
-            EMIT("  %s = zext i1 %%r%lld to i64\n", refs[side], base);
-          } else {
-            snprintf(refs[side], sizeof(refs[side]), "%%r%lld", base);
-          }
-        }
+        scalar_abi_format_i64_ref(refs[0], sizeof(refs[0]), lhs_reg);
+        scalar_abi_format_i64_ref(refs[1], sizeof(refs[1]), rhs_reg);
         EMIT("  %%r%lld = icmp %s i64 %s, %s\n", dst, pred, refs[0], refs[1]);
         set_type(dst, T_I1);
       }
@@ -492,6 +480,7 @@
       }
       auto int emit_dynamic_string_or_icmp(long long dst, const char* pred, long long lhs_reg, long long rhs_reg){
         if (!(pred && (!strcmp(pred, "eq") || !strcmp(pred, "ne")))) return 0;
+        if (scalar_abi_is_bool(lhs_reg) || scalar_abi_is_bool(rhs_reg)) return 0;
         long long lhs_base = resolve_copy_source_reg(lhs_reg);
         long long rhs_base = resolve_copy_source_reg(rhs_reg);
         long long vL, vR;

@@ -522,15 +522,8 @@
           EMIT("  ret i64 0\n");
           return 1;
         }
-        if (has_const(base, &cv)) {
-          EMIT("  ret i64 %lld\n", cv);
-        } else if (get_type(base) == T_I1) {
-          EMIT("  %%ret_zext_%lld_%lld = zext i1 %%r%lld to i64\n", bid, base, base);
-          EMIT("  ret i64 %%ret_zext_%lld_%lld\n", bid, base);
-        } else {
-          same_module_function_format_i64_ref(value_ref, sizeof(value_ref), v);
-          EMIT("  ret i64 %s\n", value_ref);
-        }
+        scalar_abi_format_i64_ref(value_ref, sizeof(value_ref), v);
+        EMIT("  ret i64 %s\n", value_ref);
         return 1;
       }
 
@@ -639,8 +632,11 @@
             yyjson_val* params = yyjson_obj_get(fn0, "params");
             for (size_t ai = 0; ai < yyjson_arr_size(params); ai++) {
               long long reg = (long long)yyjson_get_sint(yyjson_arr_get(params, ai));
-              if (get_type(reg) == T_I1)
-                EMIT("  %%r%lld = icmp ne i64 %%bool_arg_%lld, 0\n", reg, reg);
+              if (get_type(reg) == T_I1) {
+                char bits[64];
+                snprintf(bits, sizeof(bits), "%%bool_arg_%lld", reg);
+                scalar_abi_restore_bool(f, reg, bits);
+              }
             }
           }
           unsigned char skip_inst[block.instruction_count ? block.instruction_count : 1];
