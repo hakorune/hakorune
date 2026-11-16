@@ -17,3 +17,7 @@
 ## 現在の範囲
 
 最初の縦の入力は型注釈付きの `return 1 + 2`。宣言/Resolveの段から接続を始める。後続の受理範囲と結果は、実行確認後にここを書き換える。
+
+最初の縦の確認: `HAKO_MIR_BUILDER=blueprint --backend mir --emit-exe` で型注釈付きMain.mainの `return 1 + 2` がEXEまで到達し、exit 3。既存builderでも同じ結果。runtimeの既存表示を `NYASH_NYRT_SILENT_RESULT=1`、`HAKO_NYRT_PLUGIN_HOST=off` で静め、sourceの期待出力（空）も一致した。最初に観測したruntimeのResult表示とplugin警告は、プログラムのprintとは分ける。
+
+選択子は `HAKO_MIR_BUILDER=blueprint`（新経路）と `current`（既存経路）、未設定は既存経路。選択はsource preparationより前に一度だけ行い、既存経路を試してから切り替えない。backend用の二つのmetadata射影とcanonical JSON writerは既存処理を使い、旧builderそのものは変更しない。
