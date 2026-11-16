@@ -125,7 +125,8 @@ target_nullable_type := TYPE_REF '?'  (* Rust retains structure; box fields supp
 target_fn_type       := 'fn' '(' ( param_mode? TYPE_REF ( ',' param_mode? TYPE_REF )* )? ')' ':' TYPE_REF  (* decided 2026-11-03; parser-inactive *)
 target_closure       := 'fn' '[' capture ( ',' capture )* ']' '(' params? ')' ':' TYPE_REF block  (* decided 2026-11-03; parser-inactive *)
 (* Legacy fn(...) {...} expressions are retired at source admission: LegacyLambdaSurfaceRetired.
-   The future fn[captures](...): T form is separate and remains parser-inactive/reserved. *)
+   A new closure form is not built yet; its provisional direction is in ADR-003 (types written, no capture list).
+   The 2026-11-03 target_closure rule above predates that direction. *)
 capture              := IDENT("edit")? IDENT
 param_mode           := IDENT("edit") | IDENT("take")
 release_stmt         := IDENT("release") HSPACE IDENT stmt_end  (* parser/source live; semantic 0 *)

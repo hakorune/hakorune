@@ -496,3 +496,16 @@ F02の実消費者が消えた`loop_route_detection::support::function_scope`の
 
 最終全libは新規4 FAILを検出した。うちF22の通常API入力2件（Main.int_to_strのloop）は、固定5,386入力のcut差0だけでは拾えなかった本当の受理回帰。入力/期待値を変えず、必要な元のCallableSingleLoop経路・専用検証・pending helper/testを保持へ戻した。F22とE1のpending部分の先の削減値は最終実績から除く。Main0専用完了helperの退役、F25/D/Eの他の退役は維持する。
 残る旧Lambda拒否優先順位parityと旧raw enum writerの混在testは、廃止形式の部分だけを整理。local失敗後の同一compiler再利用、exact source/scrutinee・一度だけの評価・拒否時無変更/no-retryを現役ownerで保持し、正規enum payload/resultは既存bridgeの保証へ対応付けた。登録名を変えず、修正後focused50件PASS。旧PASS登録57件と復元ownerのmetadataだけを戻し、FAIL基準は変更しない。最終の全入力/全lib/固定suiteは再検証する。
+
+### Opus の確認と統合(Round 5、2026-11-16)
+
+- branch `cleanup-5`(14 commit)を main に統合した。worker は 8 時間の上限で止まり、最後の全件比較だけ、source を変えずに後から完走した。
+- 消した物: 保留の試作 6 個。family F01・F02・F04(入口だけ。VM の本体は残る)・F06・F07・F08・F16・F19・F25・F26。F24 の 3 つの profile(共通の SourceLoop V2 へ移した)。
+- **残した物**: F22(固定 5,386 入力では 1 度も選ばれないが、消すと lib の test 2 本が通らなくなった。通常の API から来る入力が使っている)。F23(閉じると 4 入力の拒否の文が変わる)。F17(触っていない。ADR-004 の「古い例外の形の family を消す回」で扱う)。
+- **学んだ事**: 「固定した入力で選ばれた回数が 0」は、「要らない」の証明にならなかった。入口を閉じる前に、通常の API から入る test も走らせる。
+- 大きさ: `src/mir` の本体は、`cfg(test)` を除いた整形後の行数で 687,829 → 640,103(test の file を除いただけの生の行数で 735,555 → 681,122)。`src` 全体の整形後の差は、本体 −58,092、test −11,202(inline の test の分け方が worker の表と違う。worker の表は 本体 −50,745、test −18,549)。Rust の file は 281 減った。
+- 確かめた事(Opus): binary の SHA が報告と一致し、今の source からの build が「変更なし」になる。手元の 393 入力は、結果も MIR も Round 3 と同じ。parser・AST・`MirInstruction` の定義に差が無い。stash は 2 つのまま。
+- worker の log で読んだ事: lib は 8,359 PASS / 205 FAIL / 52 ignored。205 は Round 3 の 214 の部分集合(退役 4、緑になった 5、新しい赤 0)。固定 5,386 入力の全件比較は、承認済みの差(F16 の 2 入力の拒否、F24 の 12 入力の新しい受け付け)だけ。feature の build は、通る 2 構成が通り、前から通らない 2 構成の error は同じ。
+- 確かめていない事: 既定でない feature の下での動き。Python の検査(v4)は、C 側を変えていないので走らせていない。
+- 次の候補: F22 を共通の loop へ移す(統合してから消す)。F23 の拒否の文を、共通の道で同じ内容にしてから消す。まだ決めていない 9 family(F03・F05・F09・F10・F11・F15・F18・F20・F21)。使い手のいなくなった共有の部品。
+
