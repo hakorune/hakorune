@@ -21,3 +21,11 @@
 最初の縦の確認: `HAKO_MIR_BUILDER=blueprint --backend mir --emit-exe` で型注釈付きMain.mainの `return 1 + 2` がEXEまで到達し、exit 3。既存builderでも同じ結果。runtimeの既存表示を `NYASH_NYRT_SILENT_RESULT=1`、`HAKO_NYRT_PLUGIN_HOST=off` で静め、sourceの期待出力（空）も一致した。最初に観測したruntimeのResult表示とplugin警告は、プログラムのprintとは分ける。
 
 選択子は `HAKO_MIR_BUILDER=blueprint`（新経路）と `current`（既存経路）、未設定は既存経路。選択はsource preparationより前に一度だけ行い、既存経路を試してから切り替えない。backend用の二つのmetadata射影とcanonical JSON writerは既存処理を使い、旧builderそのものは変更しない。
+
+## 共通のscalar制御と対応検証
+
+Resolveが型付き束縛、3種類の静的呼び出し、複合代入、if、条件/無条件/範囲loop、break/continue、短絡を同じ関数の契約へ解決する。sourceのoperator語彙は共通ASTのものをそのまま保持し、後段専用の別名へ詰め替えない。SSA作業場はBindingId×blockの1表、可視scopeに生存する全BindingId（shadowされた外側も含む）を合流させる。
+
+対応検証はResolvedFunctionから期待を読み、完成MIRの実cursorを歩いて全命令を一度ずつ確認する。ifの両枝、短絡のRHS/skip、loopの初期/戻り/continue/step/breakを分け、Phiは実際の終端blockとsourceから導いた値の全incomingを照合する。単純な命令数の一致では通さない。
+
+focused確認: 正負のResolve、指定8種類のMIR改変拒否、入れ子control/Phiとshadowed outer bindingの保持を確認（3test、全PASS）。8改変のうち7種類は既存の構造検証も通るMIRのまま、対応検証が拒否。loop戻りの付替えは対応検証を直接呼んで拒否を確認した。EXEの広い比較はこの後に行う。

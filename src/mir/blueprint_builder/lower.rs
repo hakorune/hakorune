@@ -1,38 +1,88 @@
-//! Mechanical emission from the resolved contract. No AST or source admission.
+//! One recursive expression/statement writer over Resolve's contract.
 use super::declaration_table::*;
+use crate::mir::definitions::MirCall;
 use crate::mir::{
-    BasicBlockId, BinaryOp, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
-    MirType, ValueId,
+    BasicBlock, BasicBlockId, BinaryOp, Callee, CompareOp, ConstValue, EffectMask,
+    FunctionSignature, MirFunction, MirInstruction, UnaryOp, ValueId,
 };
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
+#[path = "lower_control.rs"]
+mod control;
+#[path = "workspace.rs"]
+mod workspace;
 
+type Environment = BTreeMap<BindingId, ValueId>;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub(super) struct Cursor {
     pub block: BasicBlockId,
     pub index: usize,
 }
-
-/// Coordinates only: expected operations always come from ResolvedFunction.
-#[derive(Debug)]
-pub(super) struct Correspondence {
-    pub operations: BTreeMap<NodeId, Cursor>,
-    pub values: BTreeMap<NodeId, ValueId>,
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub(super) enum Role {
+    Value,
+    Control,
+    Compound,
+    RangeTest,
+    RangeOne,
+    RangeStep,
 }
-
+#[derive(Debug, Clone, Copy)]
+pub(super) struct LoopImage {
+    pub header: BasicBlockId,
+    pub body: BasicBlockId,
+    pub step: Option<BasicBlockId>,
+    pub exit: BasicBlockId,
+}
+/// Locations and source roles only; never expected operations or producer paths.
+#[derive(Debug, Default)]
+pub(super) struct Correspondence {
+    pub operations: BTreeMap<(NodeId, Role), Cursor>,
+    pub values: BTreeMap<NodeId, Option<ValueId>>,
+    pub nodes: BTreeSet<NodeId>,
+    pub joins: BTreeMap<NodeId, BasicBlockId>,
+    pub loops: BTreeMap<NodeId, LoopImage>,
+    pub phis: BTreeMap<(BasicBlockId, BindingId), ValueId>,
+}
 pub(super) struct Draft {
     pub declaration: DeclarationId,
     pub function: MirFunction,
     pub correspondence: Correspondence,
 }
-
-pub(super) fn mir_type(ty: Type) -> MirType {
-    match ty {
-        Type::I64 => MirType::Integer,
-        Type::Bool => MirType::Bool,
-        Type::Unit => MirType::Void,
+/// Blueprint §5: no nonexistent value escapes a terminated expression.
+enum ExpressionResult {
+    Continued {
+        block: BasicBlockId,
+        value: Option<ValueId>,
+        ty: Type,
+    },
+    Terminated,
+}
+impl ExpressionResult {
+    fn value(self) -> Result<Option<ValueId>, String> {
+        match self {
+            Self::Continued {
+                value: Some(value), ..
+            } => Ok(Some(value)),
+            Self::Terminated => Ok(None),
+            _ => Err("blueprint/internal/unit-operand".into()),
+        }
     }
 }
-
+struct LoopFrame {
+    id: NodeId,
+    image: LoopImage,
+    breaks: Vec<BasicBlockId>,
+    continues: Vec<BasicBlockId>,
+}
+struct Workspace<'a> {
+    source: &'a ResolvedFunction,
+    table: &'a DeclarationTable,
+    function: MirFunction,
+    current: Option<BasicBlockId>,
+    environments: BTreeMap<BasicBlockId, Environment>,
+    correspondence: Correspondence,
+    loops: Vec<LoopFrame>,
+}
 pub(super) fn module(source: &ResolvedModule) -> Result<Vec<Draft>, String> {
     source
         .functions
@@ -44,27 +94,39 @@ pub(super) fn module(source: &ResolvedModule) -> Result<Vec<Draft>, String> {
                 params: declaration
                     .parameters
                     .iter()
-                    .map(|(_, ty)| mir_type(*ty))
+                    .map(|(_, t)| t.mir())
                     .collect(),
-                return_type: mir_type(declaration.result),
-                effects: EffectMask::PURE,
-            };
-            let mut function = MirFunction::new(signature, BasicBlockId::new(0));
-            function.metadata.is_entry_point = declaration.key.name() == "main"
-                && (declaration.owner.as_deref() == Some("Main") || declaration.owner.is_none());
-            for (&value, (_, ty)) in function.params.iter().zip(&declaration.parameters) {
-                function.metadata.value_types.insert(value, mir_type(*ty));
-            }
-            let mut workspace = Workspace {
-                function,
-                block: BasicBlockId::new(0),
-                correspondence: Correspondence {
-                    operations: BTreeMap::new(),
-                    values: BTreeMap::new(),
+                return_type: declaration.result.mir(),
+                effects: if declaration.io {
+                    EffectMask::IO
+                } else {
+                    EffectMask::PURE
                 },
             };
-            for statement in &body.body {
-                workspace.statement(statement)?;
+            let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+            function.metadata.is_entry_point = declaration.id == source.entry;
+            let mut environment = Environment::new();
+            for (index, (&value, (_, ty))) in function
+                .params
+                .iter()
+                .zip(&declaration.parameters)
+                .enumerate()
+            {
+                function.metadata.value_types.insert(value, ty.mir());
+                environment.insert(BindingId(index), value);
+            }
+            let mut workspace = Workspace {
+                source: body,
+                table: &source.declarations,
+                function,
+                current: Some(BasicBlockId::new(0)),
+                environments: BTreeMap::from([(BasicBlockId::new(0), environment)]),
+                correspondence: Correspondence::default(),
+                loops: Vec::new(),
+            };
+            workspace.block(&body.body)?;
+            if workspace.current.is_some() {
+                return Err("blueprint/internal/unresolved-normal-exit".into());
             }
             Ok(Draft {
                 declaration: body.declaration,
@@ -74,94 +136,234 @@ pub(super) fn module(source: &ResolvedModule) -> Result<Vec<Draft>, String> {
         })
         .collect()
 }
-
-struct Workspace {
-    function: MirFunction,
-    block: BasicBlockId,
-    correspondence: Correspondence,
-}
-impl Workspace {
-    fn value(&mut self, ty: Type) -> ValueId {
-        let value = self.function.next_value_id();
-        self.function
-            .metadata
-            .value_types
-            .insert(value, mir_type(ty));
-        value
-    }
-    fn write(&mut self, id: NodeId, instruction: MirInstruction) -> Result<(), String> {
-        let body = self
-            .function
-            .blocks
-            .get_mut(&self.block)
-            .ok_or("blueprint/internal/missing-block")?;
-        if body.terminator.is_some() {
-            return Err("blueprint/internal/write-after-exit".into());
+impl Workspace<'_> {
+    fn expression(&mut self, source: &Expression) -> Result<ExpressionResult, String> {
+        if self.current.is_none() {
+            return Ok(ExpressionResult::Terminated);
         }
-        let cursor = Cursor {
-            block: self.block,
-            index: body.instructions.len(),
-        };
-        if self.correspondence.operations.insert(id, cursor).is_some() {
-            return Err("blueprint/internal/duplicate-operation".into());
-        }
-        body.add_instruction(instruction);
-        Ok(())
-    }
-    fn expression(&mut self, expression: &Expression) -> Result<ValueId, String> {
-        let value = self.value(expression.ty);
-        let instruction = match &expression.kind {
-            ExpressionKind::Integer(integer) => MirInstruction::Const {
-                dst: value,
-                value: ConstValue::Integer(*integer),
-            },
-            ExpressionKind::Bool(boolean) => MirInstruction::Const {
-                dst: value,
-                value: ConstValue::Bool(*boolean),
-            },
+        self.mark(source.id)?;
+        let value = match &source.kind {
+            ExpressionKind::Read(binding) => Some(self.read(*binding)?),
+            ExpressionKind::Integer(n) => {
+                let dst = self.value(Type::I64);
+                self.emit(
+                    source.id,
+                    Role::Value,
+                    MirInstruction::Const {
+                        dst,
+                        value: ConstValue::Integer(*n),
+                    },
+                )?;
+                Some(dst)
+            }
+            ExpressionKind::Bool(b) => {
+                let dst = self.value(Type::Bool);
+                self.emit(
+                    source.id,
+                    Role::Value,
+                    MirInstruction::Const {
+                        dst,
+                        value: ConstValue::Bool(*b),
+                    },
+                )?;
+                Some(dst)
+            }
+            ExpressionKind::Unary { operator, operand } => {
+                let Some(operand) = self.expression(operand)?.value()? else {
+                    return Ok(ExpressionResult::Terminated);
+                };
+                let op = match operator {
+                    Unary::Minus => UnaryOp::Neg,
+                    Unary::Not => UnaryOp::Not,
+                    _ => return Err("blueprint/internal/unresolved-unary".into()),
+                };
+                let dst = self.value(source.ty);
+                self.emit(
+                    source.id,
+                    Role::Value,
+                    MirInstruction::UnaryOp { dst, op, operand },
+                )?;
+                Some(dst)
+            }
             ExpressionKind::Binary {
-                op: Binary::Add,
+                operator,
+                left,
+                right,
+            } if matches!(operator, Binary::And | Binary::Or) => {
+                self.logical(source, left, right, matches!(operator, Binary::And))?
+            }
+            ExpressionKind::Binary {
+                operator,
                 left,
                 right,
             } => {
-                let lhs = self.expression(left)?;
-                let rhs = self.expression(right)?;
-                MirInstruction::BinOp {
-                    dst: value,
-                    op: BinaryOp::Add,
-                    lhs,
-                    rhs,
-                }
+                let Some(lhs) = self.expression(left)?.value()? else {
+                    return Ok(ExpressionResult::Terminated);
+                };
+                let Some(rhs) = self.expression(right)?.value()? else {
+                    return Ok(ExpressionResult::Terminated);
+                };
+                Some(self.binary(source.id, Role::Value, operator, source.ty, lhs, rhs)?)
+            }
+            ExpressionKind::Call(call) => self.call(source, call)?,
+        };
+        self.correspondence.values.insert(source.id, value);
+        Ok(ExpressionResult::Continued {
+            block: self.current.ok_or("blueprint/internal/lost-continuation")?,
+            value,
+            ty: source.ty,
+        })
+    }
+    /// All source call forms reach this writer after Resolve chose their target.
+    fn call(
+        &mut self,
+        source: &Expression,
+        call: &ResolvedCall,
+    ) -> Result<Option<ValueId>, String> {
+        if call.receiver.is_some() || call.may_fault {
+            return Err("blueprint/internal/unresolved-receiver".into());
+        }
+        let (target, io) = match call.target {
+            CallTarget::Print => (
+                hakorune_mir_defs::CanonicalGlobalTargetV1::builtin_print(),
+                true,
+            ),
+            CallTarget::Declaration(id) => {
+                let d = &self.table.entries[id.0];
+                (d.key.canonical_global_target_v1()?, d.io)
             }
         };
-        self.write(expression.id, instruction)?;
-        self.correspondence.values.insert(expression.id, value);
-        Ok(value)
-    }
-    fn statement(&mut self, statement: &Statement) -> Result<(), String> {
-        match &statement.kind {
-            StatementKind::Return(expression) => {
-                let value = self.expression(expression)?;
-                let body = self
-                    .function
-                    .blocks
-                    .get_mut(&self.block)
-                    .ok_or("blueprint/internal/missing-block")?;
-                let cursor = Cursor {
-                    block: self.block,
-                    index: body.instructions.len(),
-                };
-                if self
-                    .correspondence
-                    .operations
-                    .insert(statement.id, cursor)
-                    .is_some()
-                {
-                    return Err("blueprint/internal/duplicate-operation".into());
-                }
-                body.set_terminator(MirInstruction::Return { value: Some(value) });
-                Ok(())
-            }
+        let mut arguments = Vec::new();
+        for source in &call.arguments {
+            let Some(value) = self.expression(source)?.value()? else {
+                return Ok(None);
+            };
+            arguments.push(value);
         }
+        let result = if source.ty == Type::Unit {
+            None
+        } else {
+            Some(self.value(source.ty))
+        };
+        let mut operation = MirCall::new(result, Callee::Global(target), arguments);
+        operation.effects = if io { EffectMask::IO } else { EffectMask::PURE };
+        self.emit(source.id, Role::Value, MirInstruction::Call(operation))?;
+        Ok(result)
+    }
+    fn binary(
+        &mut self,
+        node: NodeId,
+        role: Role,
+        operator: &Binary,
+        ty: Type,
+        lhs: ValueId,
+        rhs: ValueId,
+    ) -> Result<ValueId, String> {
+        let dst = self.value(ty);
+        let instruction = match operator {
+            Binary::Add | Binary::Subtract | Binary::Multiply | Binary::Divide => {
+                let op = match operator {
+                    Binary::Add => BinaryOp::Add,
+                    Binary::Subtract => BinaryOp::Sub,
+                    Binary::Multiply => BinaryOp::Mul,
+                    _ => BinaryOp::Div,
+                };
+                MirInstruction::BinOp { dst, op, lhs, rhs }
+            }
+            Binary::Equal
+            | Binary::NotEqual
+            | Binary::Less
+            | Binary::LessEqual
+            | Binary::Greater => {
+                let op = match operator {
+                    Binary::Equal => CompareOp::Eq,
+                    Binary::NotEqual => CompareOp::Ne,
+                    Binary::Less => CompareOp::Lt,
+                    Binary::LessEqual => CompareOp::Le,
+                    _ => CompareOp::Gt,
+                };
+                MirInstruction::Compare { dst, op, lhs, rhs }
+            }
+            _ => return Err("blueprint/internal/unresolved-binary".into()),
+        };
+        self.emit(node, role, instruction)?;
+        Ok(dst)
+    }
+    fn block(&mut self, body: &[Statement]) -> Result<(), String> {
+        for row in body {
+            if self.current.is_none() {
+                break;
+            }
+            self.statement(row)?;
+        }
+        Ok(())
+    }
+    fn statement(&mut self, source: &Statement) -> Result<(), String> {
+        self.mark(source.id)?;
+        match &source.kind {
+            StatementKind::Local { binding, value } | StatementKind::Assign { binding, value } => {
+                if let Some(value) = self.expression(value)?.value()? {
+                    self.bind(*binding, value)?;
+                }
+            }
+            StatementKind::Compound {
+                binding,
+                operator,
+                value,
+            } => {
+                let lhs = self.read(*binding)?; // Evaluated Place old read precedes RHS.
+                if let Some(rhs) = self.expression(value)?.value()? {
+                    let result = self.binary(
+                        source.id,
+                        Role::Compound,
+                        operator,
+                        self.source.bindings[binding.0].ty,
+                        lhs,
+                        rhs,
+                    )?;
+                    self.bind(*binding, result)?;
+                }
+            }
+            StatementKind::Expression(value) => {
+                let _ = self.expression(value)?;
+            }
+            StatementKind::Return(value) => {
+                if let Some(value) = self.expression(value)?.value()? {
+                    self.terminate(
+                        Some((source.id, Role::Control)),
+                        MirInstruction::Return { value: Some(value) },
+                    )?;
+                }
+            }
+            StatementKind::If {
+                condition,
+                yes,
+                no,
+                carriers,
+            } => self.conditional(source.id, condition, yes, no, carriers)?,
+            StatementKind::Loop(contract) => self.loop_statement(source.id, contract)?,
+            StatementKind::Break(target) | StatementKind::Continue(target) => {
+                let is_break = matches!(source.kind, StatementKind::Break(_));
+                let position = self
+                    .loops
+                    .iter()
+                    .rposition(|f| f.id == *target)
+                    .ok_or("blueprint/internal/control-target")?;
+                let frame = &self.loops[position];
+                let destination = if is_break {
+                    frame.image.exit
+                } else {
+                    frame.image.step.unwrap_or(frame.image.header)
+                };
+                let predecessor = self.jump(Some((source.id, Role::Control)), destination)?;
+                if is_break {
+                    self.loops[position].breaks.push(predecessor);
+                } else {
+                    self.loops[position].continues.push(predecessor);
+                }
+            }
+            StatementKind::Scope(body) => self.block(body)?,
+        }
+        Ok(())
     }
 }

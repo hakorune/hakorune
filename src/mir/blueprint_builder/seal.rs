@@ -1,8 +1,9 @@
-//! Close physical functions; never select a source route or repair a contract.
+//! Close physical functions; no source admission or plan selection.
 use super::lower::Draft;
-
 pub(super) fn close(drafts: &mut [Draft]) -> Result<(), String> {
     for draft in drafts {
+        draft.function.update_cfg();
+        draft.function.prune_unreachable_blocks();
         if draft
             .function
             .blocks
