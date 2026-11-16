@@ -8,7 +8,7 @@
     "test": "node test.js"
   },
   "dependencies": {
-    "ws": "^8.16.0"
+    "ws": "^8.21.0"
   },
   "devDependencies": {},
   "author": "Nyash Team",
