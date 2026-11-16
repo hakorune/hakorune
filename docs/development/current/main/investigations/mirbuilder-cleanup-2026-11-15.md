@@ -665,3 +665,10 @@ owner指標は基準aa91632b9cと一致（定義走査候補286）、警告2291�
   - これは「形を 1 つ足す時に、何か所を直すか」の実測に当たる(未実装の見積もりで、20〜28 file)。**出所の持ち方だけを直しても、呼び出しの種類ごとに別の道がある事は残る**、という事が分かった。
 - 道はまだ 2 本(`deferred_i64` の行 18 → 18、古い照合の呼び出し 6 → 6)。問い合わせを関数ごとに 1 回にまとめる事も、まだ。F22 は残っている。
 - 次の進め方は、設計の相談の答えを見てから決める(段 B を 3 つに分ける案が、報告にある)。
+
+## お掃除9: 段0の境界
+
+公開handoff付きの既存publication testへ、実Compareから辿る全Copy（source snapshotとoperand wrapper）を消し、全useを別のCall結果へ置換する負例を追加。削除した定義/useは0、CFG/SSA/Invoke構造は有効のまま、全件を拒否した。元srcへ置換する正しいCopy除去も、このfixtureでは現在のcontrol-producer契約により拒否する（一般のCopy除去の禁止とはしない）。
+読みのCopy除去後に元InvokeをJump＋同dstのConstへ替え、CFG cacheを更新して初期化Callの効果だけを失わせる負例も拒否。同calleeの独立した二Callの結果を、元PHIのincoming一つだけへ入れ替える負例も拒否。無基点のp=PHI(p)は既存query unitを再利用しUnresolved。production変更なし、問い合わせ13＋publication3＋F22二本のfocused18 PASS。
+PHIは前blockごと（仕様と(BasicBlockId,ValueId)表現）。Branchの二辺が同じ行き先でも、successorは集合化されるため表現できる。strict PHI検査も前block集合と照合し、同blockからの重複incomingを拒否するため、並行する二辺に別のPHI値は持たせられない。この回は変更しない。
+全lib直列は8375 PASS/既知205 FAIL/52 ignoredで赤の名前集合一致。productionは基点と同一（639605行）、testは独立したCopy消去/効果消去/同callee別結果の公開境界の証拠を既存familyへ統合して+201行。固定5386は同一production・同一最適化CLI SHAの既存結果を再利用して差0（再測定はしない）。
