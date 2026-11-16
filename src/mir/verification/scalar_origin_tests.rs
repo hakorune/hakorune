@@ -156,13 +156,13 @@ fn duplicate_definitions_and_parameter_collision_are_errors() {
     }
 }
 #[test]
-fn cycle_unsupported_and_unreachable_do_not_claim_same() {
+fn grounded_cycle_and_distinct_integer_definitions_keep_their_identity() {
     let mut f = function();
     block(&mut f, 0, vec![], jump(1));
     block(&mut f, 1, vec![phi(2, &[(0, 0), (2, 3)])], branch(2, 3));
     block(&mut f, 2, vec![copy(3, 2)], jump(1));
     block(&mut f, 3, vec![], ret(2));
-    assert_eq!(answer(&f, 2, 0), Unresolved);
+    assert_eq!(answer(&f, 2, 0), Same);
     let mut f = function();
     block(
         &mut f,
@@ -173,7 +173,24 @@ fn cycle_unsupported_and_unreachable_do_not_claim_same() {
         }],
         ret(2),
     );
-    assert_eq!(answer(&f, 2, 0), Unresolved);
+    assert_eq!(answer(&f, 2, 0), Different);
+    assert_eq!(answer(&f, 2, 2), Same);
+    let mut second = f.clone();
+    second
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .instructions
+        .push(MirInstruction::Const {
+            dst: ValueId(3),
+            value: ConstValue::Integer(7),
+        });
+    second
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .set_terminator(ret(3));
+    assert_eq!(answer(&second, 3, 2), Different); // equal numbers, distinct definitions
     block(&mut f, 1, vec![copy(3, 0)], ret(3));
     assert_eq!(answer(&f, 3, 0), Unresolved);
 }
@@ -387,4 +404,70 @@ fn incomplete_cfg_and_stale_successors_are_rejected() {
         .successors
         .insert(BasicBlockId(1));
     assert!(same_i64_definition(&f, None, ValueId(2), ValueId(0)).is_err());
+}
+
+#[test]
+fn nested_loop_and_inner_if_carry_only_the_original_base() {
+    let mut f = function();
+    block(&mut f, 0, vec![], jump(1));
+    block(&mut f, 1, vec![phi(2, &[(0, 0), (5, 8)])], branch(2, 6));
+    block(&mut f, 2, vec![phi(3, &[(1, 2), (4, 7)])], branch(3, 5));
+    block(&mut f, 3, vec![], branch(7, 8));
+    block(&mut f, 7, vec![copy(4, 3)], jump(9));
+    block(&mut f, 8, vec![copy(5, 3)], jump(9));
+    block(&mut f, 9, vec![phi(6, &[(7, 4), (8, 5)])], jump(4));
+    block(&mut f, 4, vec![copy(7, 6)], jump(2));
+    block(&mut f, 5, vec![copy(8, 3)], jump(1));
+    block(&mut f, 6, vec![copy(9, 2)], ret(9));
+    for value in [2, 3, 6, 9] {
+        assert_eq!(answer(&f, value, 0), Same);
+    }
+    block(&mut f, 4, vec![copy(7, 1)], jump(2));
+    assert_eq!(answer(&f, 9, 0), Different); // only the backedge changes
+    block(
+        &mut f,
+        4,
+        vec![MirInstruction::BinOp {
+            dst: ValueId(7),
+            op: crate::mir::BinaryOp::Add,
+            lhs: ValueId(3),
+            rhs: ValueId(1),
+        }],
+        jump(2),
+    );
+    assert_eq!(answer(&f, 9, 0), Unresolved); // no arithmetic equivalence
+    block(&mut f, 2, vec![phi(3, &[(1, 2)])], branch(3, 5));
+    assert!(same_i64_definition(&f, None, ValueId(9), ValueId(0)).is_err());
+}
+
+#[test]
+fn every_external_entry_of_a_cycle_must_have_the_same_base() {
+    let mut f = function();
+    block(&mut f, 0, vec![], branch(1, 2));
+    block(&mut f, 1, vec![copy(2, 0)], jump(3));
+    block(&mut f, 2, vec![copy(3, 1)], jump(3));
+    block(
+        &mut f,
+        3,
+        vec![phi(4, &[(1, 2), (2, 3), (4, 5)])],
+        branch(4, 5),
+    );
+    block(&mut f, 4, vec![copy(5, 4)], jump(3));
+    block(&mut f, 5, vec![], ret(4));
+    assert_eq!(answer(&f, 4, 0), Different);
+    block(&mut f, 2, vec![copy(3, 0)], jump(3));
+    assert_eq!(answer(&f, 4, 0), Same);
+}
+
+#[test]
+fn an_ungrounded_cycle_stays_unresolved_even_beside_a_valid_base() {
+    let mut f = function();
+    block(&mut f, 0, vec![phi(2, &[(0, 2)])], branch(0, 1));
+    block(&mut f, 1, vec![], ret(2));
+    assert_eq!(answer(&f, 2, 0), Unresolved);
+    block(&mut f, 1, vec![], branch(2, 3));
+    block(&mut f, 2, vec![], jump(4));
+    block(&mut f, 3, vec![], jump(4));
+    block(&mut f, 4, vec![phi(3, &[(2, 2), (3, 0)])], ret(3));
+    assert_eq!(answer(&f, 3, 0), Unresolved);
 }

@@ -3,7 +3,9 @@
 use super::{cfg, geometry::FunctionVerificationGeometry, invoke};
 use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
 use crate::mir::verification_types::VerificationError;
-use crate::mir::{BasicBlockId, MirFunction, MirInstruction, MirModule, MirType, ValueId};
+#[cfg(test)]
+use crate::mir::BasicBlockId;
+use crate::mir::{MirFunction, MirInstruction, MirModule, MirType, ValueId};
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -55,12 +57,10 @@ pub(in crate::mir) fn same_i64_definition(
     } else {
         invoke::check_function_with_geometry(&geometry)?;
     }
-    let mut query = OriginQuery {
+    let query = OriginQuery {
         geometry: &geometry,
         module,
         expected,
-        active: HashSet::new(),
-        memo: HashMap::new(),
     };
     if !geometry.strict_edge_errors().is_empty() {
         return Err(geometry.strict_edge_errors().to_vec());
@@ -75,8 +75,6 @@ struct OriginQuery<'a, 'f> {
     geometry: &'a FunctionVerificationGeometry<'f>,
     module: Option<&'a MirModule>,
     expected: ValueId,
-    active: HashSet<ValueId>,
-    memo: HashMap<ValueId, SameI64Definition>,
 }
 impl OriginQuery<'_, '_> {
     fn is_base(&self, value: ValueId) -> bool {
@@ -118,6 +116,10 @@ impl OriginQuery<'_, '_> {
             return false;
         }
         match instruction {
+            MirInstruction::Const {
+                value: crate::mir::ConstValue::Integer(_),
+                ..
+            } => true,
             MirInstruction::Call(call) => self.i64_call(call),
             MirInstruction::InvokeNormalResult { invoke_block, .. } => {
                 use crate::mir::instruction::{InvokeCallResultKind, InvokeOperation};
@@ -148,72 +150,76 @@ impl OriginQuery<'_, '_> {
             && call.args.len() + receiver_count == callee.params.len()
     }
 
-    fn origin(&mut self, value: ValueId) -> Result<SameI64Definition, Vec<VerificationError>> {
-        if let Some(result) = self.memo.get(&value) {
-            return Ok(*result);
-        }
-        if !self.active.insert(value) {
-            return Ok(SameI64Definition::Unresolved); // Cyclic PHI is deliberately outside this query.
-        }
-        let result = self.trace(value);
-        self.active.remove(&value);
-        let result = result?;
-        self.memo.insert(value, result);
-        Ok(result)
-    }
-
-    fn trace(&mut self, value: ValueId) -> Result<SameI64Definition, Vec<VerificationError>> {
-        if self
-            .geometry
-            .metadata
-            .value_types
-            .get(&value)
-            .is_some_and(|kind| *kind != MirType::Integer)
-        {
-            return Ok(SameI64Definition::Unresolved);
-        }
-        if self.is_base(value) {
-            return Ok(if value == self.expected {
-                SameI64Definition::Same
-            } else {
-                SameI64Definition::Different
-            });
-        }
-        let Some((block, _, row)) = self.geometry.definition(value) else {
-            return Ok(SameI64Definition::Unresolved);
-        };
-        if !self.geometry.reachable().contains(&block) {
-            return Ok(SameI64Definition::Unresolved);
-        }
-        match row {
-            MirInstruction::Copy { src, .. } => self.origin(*src),
-            MirInstruction::Phi {
-                inputs, type_hint, ..
-            } => {
-                if type_hint
-                    .as_ref()
-                    .is_some_and(|kind| *kind != MirType::Integer)
-                {
-                    return Ok(SameI64Definition::Unresolved);
-                }
-                let mut result = SameI64Definition::Same;
-                for (pred, source) in inputs {
-                    if !self.geometry.reachable().contains(pred) {
-                        result = SameI64Definition::Unresolved;
-                        continue;
-                    }
-                    match self.origin(*source)? {
-                        SameI64Definition::Unresolved => result = SameI64Definition::Unresolved,
-                        SameI64Definition::Different if result == SameI64Definition::Same => {
-                            result = SameI64Definition::Different
-                        }
-                        _ => {}
-                    }
-                }
-                Ok(result)
+    /// A temporary value-dependency closure, not another CFG or proof ledger.
+    /// Every Copy/Phi node must reach a real base; a closed cycle has none.
+    fn origin(&self, value: ValueId) -> Result<SameI64Definition, Vec<VerificationError>> {
+        let mut pending = vec![value];
+        let mut nodes = HashSet::new();
+        let mut reverse = HashMap::<ValueId, Vec<ValueId>>::new();
+        let mut bases = Vec::new();
+        let mut different = false;
+        while let Some(current) = pending.pop() {
+            if !nodes.insert(current) {
+                continue;
             }
-            _ => Ok(SameI64Definition::Unresolved), // No numeric type hint promotes handles or heap reads.
+            if self
+                .geometry
+                .metadata
+                .value_types
+                .get(&current)
+                .is_some_and(|kind| *kind != MirType::Integer)
+            {
+                return Ok(SameI64Definition::Unresolved);
+            }
+            if self.is_base(current) {
+                different |= current != self.expected;
+                bases.push(current);
+                continue;
+            }
+            let Some((block, _, row)) = self.geometry.definition(current) else {
+                return Ok(SameI64Definition::Unresolved);
+            };
+            if !self.geometry.reachable().contains(&block) {
+                return Ok(SameI64Definition::Unresolved);
+            }
+            let inputs = match row {
+                MirInstruction::Copy { src, .. } => vec![*src],
+                MirInstruction::Phi {
+                    inputs, type_hint, ..
+                } => {
+                    if type_hint
+                        .as_ref()
+                        .is_some_and(|kind| *kind != MirType::Integer)
+                        || inputs
+                            .iter()
+                            .any(|(pred, _)| !self.geometry.reachable().contains(pred))
+                    {
+                        return Ok(SameI64Definition::Unresolved);
+                    }
+                    inputs.iter().map(|(_, source)| *source).collect()
+                }
+                _ => return Ok(SameI64Definition::Unresolved),
+            };
+            for input in inputs {
+                reverse.entry(input).or_default().push(current);
+                pending.push(input);
+            }
         }
+        let mut grounded = HashSet::new();
+        while let Some(current) = bases.pop() {
+            if grounded.insert(current) {
+                if let Some(parents) = reverse.get(&current) {
+                    bases.extend(parents.iter().copied());
+                }
+            }
+        }
+        Ok(if grounded.len() != nodes.len() {
+            SameI64Definition::Unresolved
+        } else if different {
+            SameI64Definition::Different
+        } else {
+            SameI64Definition::Same
+        })
     }
 }
 

@@ -640,3 +640,17 @@ Call一回発行・引数対応・Normal/Fault検証・return 0のRaw経路を�
   - 警告は 2,290 → 2,291(test からだけ使う import が 1 つ)。
 - 「正本を読むか、写しを作るか」の数(この回から数える): 値の関係を写して運ぶ所は、対象の読みで 1 つ減った(Copy の列を証拠にする呼び出し → 完成した MIR への問い合わせ)。事実の写しは 1 つ減った(`ScalarBindingReadProofV1.source` が複製から共有の参照へ)。持ち主の候補は 286 → 286。
 - F22 を消すには、穴 1〜3 と、循環する PHI の決まりが要る(上の「段3下調べ」)。見積もりは「数 file から複数の持ち主、数百行」で、確かな数ではない。
+
+## お掃除8: 段Aの規則
+
+- 完成MIRのCopy/PHIの全入力から値依存closureを作り、検証済みの実基点から逆到達する。全nodeが基点へ届き、全基点が指定定義の時だけSame。別基点はDifferent、対応外/基点のない閉循環はUnresolved。実CFG/支配/全前駆の検査は既存geometry/usesを使う。
+- Integer定数も実ValueIdの基点として扱う。同じ数値の別定義を同じ基点とはしない。循環の中の算術を計算して同値とみなさない。
+- 不変localの根拠は既存source role ReadOnlyOperandとentry producer。Carrierの現在Phi・更新責任は保持し、新しい不変flagやsource形分類を作らない。
+
+### お掃除8 段Aの着地
+
+Copy/PHIの循環を、全入力の値依存closureと全実基点からの逆到達で確認する。基点のない部分循環を、有効な基点の兄弟があっても成功にしない。異なる基点と未解決を区別し、演算の数値的な同値は扱わない。
+Call/Integer由来の不変localのexpression readは、元binding/ownerに結び付いた原定義locatorと完成MIR問い合わせへ統合。対象の旧Copy-chain照合は使わず、mutable carrier/source relation/Normal-Fault/operandの検査は保持。その他のi64 caller・deferred印・関数ごとの検査共有は段Eに残る。
+問い合わせtest13（入れ子loop・loop内if・異なるbackedge・加算・異なる二入口・入力欠落・無基点部分循環を含む）、既存publication改変testとF22二本でfocused16 PASS。旧cycle testのanchored cycleは新規則でSameへ変更し、無基点と加算の拒否を別の負例に保持した。同数の別ConstはDifferent。
+固定5386入力のMIR/拒否/出力/exit差0、timeout0、新規受理0。全lib直列8373 PASS/既知205 FAIL/52 ignored、赤の名前集合一致。通常loop/入れ子loopとお掃除7の正例も基準と同じexit。loop内ifのsource例には既存execution-root-purpose/variable-accum-recurrenceの拒否が残り、成功とは数えない。
+owner指標は基準aa91632b9cと一致（定義走査候補286）、警告2291→2290。触ったRust fileは全体をrustfmtし、LocalProvenanceの問い合わせを既存value-slot格納から責務分割、元の可視範囲を保持。整形後本体639544→639605（+61）、test348275→348360（+85）。生のtest-file除外本体680597→681146で、整形による物理行増と区別する。F22/F17は未変更。

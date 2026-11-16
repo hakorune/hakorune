@@ -59,111 +59,223 @@ pub(in crate::mir::builder) struct PreparedExactLexicalReadV1 {
 }
 impl PreparedExactLexicalReadV1 {
     /// Immutable pre-commit correspondence; lending it consumes no read site.
-    pub(in crate::mir::builder) fn observation_v1(&self) -> &ExactLexicalReadV1 { &self.read }
+    pub(in crate::mir::builder) fn observation_v1(&self) -> &ExactLexicalReadV1 {
+        &self.read
+    }
 
-    pub(in crate::mir::builder) fn loan_local_initializer_v1(&self, root: BindingRefV1)
-        -> Result<(ValueId, &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)]), String> {
+    pub(in crate::mir::builder) fn loan_local_initializer_v1(
+        &self,
+        root: BindingRefV1,
+    ) -> Result<
+        (
+            ValueId,
+            &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)],
+        ),
+        String,
+    > {
         self.read.loan_local_initializer_v1(root)
     }
     pub(in crate::mir::builder) fn value_for(
-        &self, owner: FunctionOwnerIdV1,
-        site: &crate::mir::resolved_semantics::SourceNodeSiteV1, binding: BindingRefV1,
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+        binding: BindingRefV1,
     ) -> Result<ValueId, ExactReceiverValueErrorV1> {
         self.read.value_for(owner, site, binding)
     }
 }
 
 impl BindingValueObservationV2 {
-    pub(in crate::mir) fn binding_value(&self) -> (BindingRefV1, ValueId) { (self.binding, self.value) }
-    pub(in crate::mir) fn loan_scalar_join_v1(&self,
+    pub(in crate::mir) fn binding_value(&self) -> (BindingRefV1, ValueId) {
+        (self.binding, self.value)
+    }
+    pub(in crate::mir) fn loan_scalar_join_v1(
+        &self,
         source: &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1,
     ) -> Result<&std::rc::Rc<super::materialized_values::ScalarJoinPointValueV1>, String> {
-        let point = self.provenance.as_ref().ok_or("[freeze:contract][local-read/loop-point-missing]")?
+        let point = self
+            .provenance
+            .as_ref()
+            .ok_or("[freeze:contract][local-read/loop-point-missing]")?
             .loan_scalar_join_v1(source, self.value)?;
-        if point.binding().owner() != self.owner { return Err("[freeze:contract][local-read/loop-point-owner]".into()); }
+        if point.binding().owner() != self.owner {
+            return Err("[freeze:contract][local-read/loop-point-owner]".into());
+        }
         Ok(point)
     }
-    pub(in crate::mir) fn loan_text_join_v1(&self,
+    pub(in crate::mir) fn loan_text_join_v1(
+        &self,
         source: &crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1,
     ) -> Result<&std::rc::Rc<super::materialized_values::TextJoinPointValueV1>, String> {
-        let point = self.provenance.as_ref().ok_or("[freeze:contract][local-read/text-loop-point-missing]")?
+        let point = self
+            .provenance
+            .as_ref()
+            .ok_or("[freeze:contract][local-read/text-loop-point-missing]")?
             .loan_text_join_v1(source, self.value)?;
-        if point.binding().owner() != self.owner { return Err("[freeze:contract][local-read/text-loop-point-owner]".into()); }
+        if point.binding().owner() != self.owner {
+            return Err("[freeze:contract][local-read/text-loop-point-owner]".into());
+        }
         Ok(point)
     }
-    pub(in crate::mir) fn loan_text_branch_v1(&self,
+    pub(in crate::mir) fn loan_text_branch_v1(
+        &self,
         source: &crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1,
-    ) -> Result<&std::rc::Rc<crate::mir::normal_callable_semantic_package::BranchTextPhiObservationV1>, String> {
-        let point = self.provenance.as_ref().ok_or("[freeze:contract][local-read/text-branch-missing]")?
+    ) -> Result<
+        &std::rc::Rc<crate::mir::normal_callable_semantic_package::BranchTextPhiObservationV1>,
+        String,
+    > {
+        let point = self
+            .provenance
+            .as_ref()
+            .ok_or("[freeze:contract][local-read/text-branch-missing]")?
             .loan_text_branch_v1(source, self.value)?;
         if point.source().binding().owner() != self.owner {
             return Err("[freeze:contract][local-read/text-branch-owner]".into());
         }
         Ok(point)
     }
-    pub(in crate::mir) fn loan_dynamic_join_v1(&self,
+    pub(in crate::mir) fn loan_dynamic_join_v1(
+        &self,
         source: &crate::mir::resolved_semantics::home_new_prefix::SourceLoopDynamicProducerV1,
     ) -> Result<&std::rc::Rc<super::materialized_values::DynamicJoinPointValueV1>, String> {
-        let point = self.provenance.as_ref().ok_or("[freeze:contract][local-read/dynamic-loop-point-missing]")?
+        let point = self
+            .provenance
+            .as_ref()
+            .ok_or("[freeze:contract][local-read/dynamic-loop-point-missing]")?
             .loan_dynamic_join_v1(source, self.value)?;
-        if point.binding().owner() != self.owner { return Err("[freeze:contract][local-read/dynamic-loop-point-owner]".into()); }
+        if point.binding().owner() != self.owner {
+            return Err("[freeze:contract][local-read/dynamic-loop-point-owner]".into());
+        }
         Ok(point)
     }
-    pub(in crate::mir) fn loan_local_initializer_v1(&self, root: BindingRefV1)
-        -> Result<(ValueId, &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)]), String> {
-        if root.owner() != self.owner { return Err("[freeze:contract][local-read/root-owner]".into()); }
-        self.provenance.as_ref().ok_or_else(|| "[freeze:contract][local-read/initializer-missing]".to_owned())?
+    pub(in crate::mir) fn loan_local_initializer_v1(
+        &self,
+        root: BindingRefV1,
+    ) -> Result<
+        (
+            ValueId,
+            &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)],
+        ),
+        String,
+    > {
+        if root.owner() != self.owner {
+            return Err("[freeze:contract][local-read/root-owner]".into());
+        }
+        self.provenance
+            .as_ref()
+            .ok_or_else(|| "[freeze:contract][local-read/initializer-missing]".to_owned())?
             .loan_initializer_v1(root, self.value)
     }
-    pub(in crate::mir) fn loan_root_initializer_v1(
-        &self, original: BindingRefV1,
+    /// Borrow only the original source-to-definition locator, not a Copy proof.
+    pub(in crate::mir) fn recorded_root_initializer_v1(
+        &self,
+        original: BindingRefV1,
     ) -> Result<ValueId, String> {
         if original.owner() != self.owner {
             return Err("[freeze:contract][forwarded-copy/owner]".into());
         }
-        self.provenance.as_ref()
+        self.provenance
+            .as_ref()
+            .ok_or_else(|| "[freeze:contract][local-read/initializer-missing]".to_owned())?
+            .recorded_root_value_v1(original)
+    }
+    pub(in crate::mir) fn loan_root_initializer_v1(
+        &self,
+        original: BindingRefV1,
+    ) -> Result<ValueId, String> {
+        if original.owner() != self.owner {
+            return Err("[freeze:contract][forwarded-copy/owner]".into());
+        }
+        self.provenance
+            .as_ref()
             .ok_or_else(|| "[freeze:contract][local-read/initializer-missing]".to_owned())?
             .loan_root_initializer_v1(original, self.value)
     }
     pub(in crate::mir) fn loan_forwarded_initializer_v1(
-        &self, expected_source_value: Option<ValueId>,
+        &self,
+        expected_source_value: Option<ValueId>,
     ) -> Result<ValueId, String> {
-        self.provenance.as_ref().ok_or_else(|| "[freeze:contract][local-read/initializer-missing]".to_owned())?
+        self.provenance
+            .as_ref()
+            .ok_or_else(|| "[freeze:contract][local-read/initializer-missing]".to_owned())?
             .loan_forwarded_initializer_v1(self.binding, self.value, expected_source_value)
     }
-    pub(in crate::mir) fn loan_checked_rebind_v1(&self,
-        frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>,
-    ) -> Result<(ValueId, &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)]), String> {
-        if frame.target().owner() != self.owner { return Err("[freeze:contract][local-read/rebind-owner]".into()); }
-        self.provenance.as_ref().ok_or_else(|| "[freeze:contract][local-read/rebind-missing]".to_owned())?
+    pub(in crate::mir) fn loan_checked_rebind_v1(
+        &self,
+        frame: &std::rc::Rc<
+            crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1,
+        >,
+    ) -> Result<
+        (
+            ValueId,
+            &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)],
+        ),
+        String,
+    > {
+        if frame.target().owner() != self.owner {
+            return Err("[freeze:contract][local-read/rebind-owner]".into());
+        }
+        self.provenance
+            .as_ref()
+            .ok_or_else(|| "[freeze:contract][local-read/rebind-missing]".to_owned())?
             .loan_checked_rebind_v1(frame, self.value)
     }
-    pub(in crate::mir) fn source_read_branch_v1(&self)
-        -> Result<Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::BranchReadPhiObservationV1>>, String> {
-        self.provenance.as_ref().map_or(Ok(None), |proof| proof.source_read_branch_v1(self.value))
+    pub(in crate::mir) fn source_read_branch_v1(
+        &self,
+    ) -> Result<
+        Option<
+            std::rc::Rc<crate::mir::normal_callable_semantic_package::BranchReadPhiObservationV1>,
+        >,
+        String,
+    > {
+        self.provenance
+            .as_ref()
+            .map_or(Ok(None), |proof| proof.source_read_branch_v1(self.value))
     }
-    pub(in crate::mir) fn source_declared_read_rebind_v1(&self)
-        -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>>, String> {
-        self.provenance.as_ref().map_or(Ok(None), |proof| proof.source_declared_read_rebind_v1(self.value))
+    pub(in crate::mir) fn source_declared_read_rebind_v1(
+        &self,
+    ) -> Result<
+        Option<
+            std::rc::Rc<
+                crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1,
+            >,
+        >,
+        String,
+    > {
+        self.provenance.as_ref().map_or(Ok(None), |proof| {
+            proof.source_declared_read_rebind_v1(self.value)
+        })
     }
     pub(in crate::mir) fn source_dynamic_rebind_v1(
         &self,
         root: BindingRefV1,
         site: &crate::mir::resolved_semantics::SourceExprSiteV1,
-    ) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>>, String> {
+    ) -> Result<
+        Option<
+            std::rc::Rc<
+                crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1,
+            >,
+        >,
+        String,
+    > {
         if root.owner() != self.owner || root != self.binding {
             return Err("[freeze:contract][local-read/dynamic-rebind-owner]".into());
         }
-        self.provenance.as_ref().map_or(Ok(None), |provenance|
-            provenance.source_dynamic_rebind_v1(root, self.value, site))
+        self.provenance.as_ref().map_or(Ok(None), |provenance| {
+            provenance.source_dynamic_rebind_v1(root, self.value, site)
+        })
     }
     /// Read-only inventory, independently checked by the completed-MIR owner.
-    pub(in crate::mir) fn recorded_copy_inventory_v1(&self)
-        -> &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)] {
-        self.provenance.as_ref().map_or(&[], |source| source.recorded_copy_inventory_v1())
+    pub(in crate::mir) fn recorded_copy_inventory_v1(
+        &self,
+    ) -> &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)] {
+        self.provenance
+            .as_ref()
+            .map_or(&[], |source| source.recorded_copy_inventory_v1())
     }
-    pub(in crate::mir) fn original_copy_dependencies_v1(&self)
-        -> Result<&[(crate::mir::BasicBlockId, crate::mir::MirInstruction)], String> {
+    pub(in crate::mir) fn original_copy_dependencies_v1(
+        &self,
+    ) -> Result<&[(crate::mir::BasicBlockId, crate::mir::MirInstruction)], String> {
         match &self.provenance {
             Some(source) => source.original_copy_dependencies_v1(self.value),
             None => Ok(&[]),
@@ -194,51 +306,103 @@ impl BindingValueObservationV2 {
             .loan_copies(formal, value, self.value)
     }
 
-    pub(in crate::mir) fn value_for(&self, owner: FunctionOwnerIdV1, binding: BindingRefV1)
-        -> Result<ValueId, ExactReceiverValueErrorV1> {
-        if self.owner != owner || binding.owner() != owner { return Err(ExactReceiverValueErrorV1::OwnerMismatch); }
-        if self.binding != binding { return Err(ExactReceiverValueErrorV1::SiteBindingMismatch); }
+    pub(in crate::mir) fn value_for(
+        &self,
+        owner: FunctionOwnerIdV1,
+        binding: BindingRefV1,
+    ) -> Result<ValueId, ExactReceiverValueErrorV1> {
+        if self.owner != owner || binding.owner() != owner {
+            return Err(ExactReceiverValueErrorV1::OwnerMismatch);
+        }
+        if self.binding != binding {
+            return Err(ExactReceiverValueErrorV1::SiteBindingMismatch);
+        }
         Ok(self.value)
     }
 }
 
 impl ExactLexicalReadV1 {
-    pub(in crate::mir) fn binding_observation_v2(&self) -> &BindingValueObservationV2 { &self.binding_value }
-    pub(in crate::mir) fn loan_scalar_join_v1(&self,
+    pub(in crate::mir) fn binding_observation_v2(&self) -> &BindingValueObservationV2 {
+        &self.binding_value
+    }
+    pub(in crate::mir) fn loan_scalar_join_v1(
+        &self,
         source: &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1,
     ) -> Result<&std::rc::Rc<super::materialized_values::ScalarJoinPointValueV1>, String> {
         self.binding_value.loan_scalar_join_v1(source)
     }
-    pub(in crate::mir) fn loan_local_initializer_v1(&self, root: BindingRefV1)
-        -> Result<(ValueId, &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)]), String> {
+    pub(in crate::mir) fn loan_local_initializer_v1(
+        &self,
+        root: BindingRefV1,
+    ) -> Result<
+        (
+            ValueId,
+            &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)],
+        ),
+        String,
+    > {
         self.binding_value.loan_local_initializer_v1(root)
     }
-    pub(in crate::mir) fn loan_checked_rebind_v1(&self,
-        frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>,
-    ) -> Result<(ValueId, &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)]), String> {
+    pub(in crate::mir) fn loan_checked_rebind_v1(
+        &self,
+        frame: &std::rc::Rc<
+            crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1,
+        >,
+    ) -> Result<
+        (
+            ValueId,
+            &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)],
+        ),
+        String,
+    > {
         self.binding_value.loan_checked_rebind_v1(frame)
     }
-    pub(in crate::mir) fn original_copy_dependencies_v1(&self)
-        -> Result<&[(crate::mir::BasicBlockId, crate::mir::MirInstruction)], String> {
+    pub(in crate::mir) fn original_copy_dependencies_v1(
+        &self,
+    ) -> Result<&[(crate::mir::BasicBlockId, crate::mir::MirInstruction)], String> {
         self.binding_value.original_copy_dependencies_v1()
     }
-    pub(in crate::mir) fn source_value(&self) -> (crate::mir::resolved_semantics::OwnedExprSiteV1, BindingRefV1, ValueId) {
-        (crate::mir::resolved_semantics::OwnedExprSiteV1::new(self.binding_value.owner,
-            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(self.site.clone())), self.binding_value.binding, self.binding_value.value)
+    pub(in crate::mir) fn source_value(
+        &self,
+    ) -> (
+        crate::mir::resolved_semantics::OwnedExprSiteV1,
+        BindingRefV1,
+        ValueId,
+    ) {
+        (
+            crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                self.binding_value.owner,
+                crate::mir::resolved_semantics::SourceExprSiteV1::from_node(self.site.clone()),
+            ),
+            self.binding_value.binding,
+            self.binding_value.value,
+        )
     }
-    pub(in crate::mir) fn proves_forwarded_entry(&self, formal: BindingRefV1, value: ValueId) -> bool {
+    pub(in crate::mir) fn proves_forwarded_entry(
+        &self,
+        formal: BindingRefV1,
+        value: ValueId,
+    ) -> bool {
         self.binding_value.proves_forwarded_entry(formal, value)
     }
-    pub(in crate::mir) fn loan_forwarded_copies(&self, formal: BindingRefV1, value: ValueId)
-        -> Result<&[(crate::mir::BasicBlockId, crate::mir::MirInstruction)], String> {
+    pub(in crate::mir) fn loan_forwarded_copies(
+        &self,
+        formal: BindingRefV1,
+        value: ValueId,
+    ) -> Result<&[(crate::mir::BasicBlockId, crate::mir::MirInstruction)], String> {
         self.binding_value.loan_forwarded_copies(formal, value)
     }
-    pub(in crate::mir) fn value_for(&self, owner: FunctionOwnerIdV1,
-        site: &crate::mir::resolved_semantics::SourceNodeSiteV1, binding: BindingRefV1,
+    pub(in crate::mir) fn value_for(
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+        binding: BindingRefV1,
     ) -> Result<ValueId, ExactReceiverValueErrorV1> {
         // Preserve owner-before-site diagnostic precedence.
         self.binding_value.value_for(owner, binding)?;
-        if &self.site != site { return Err(ExactReceiverValueErrorV1::SiteBindingMismatch); }
+        if &self.site != site {
+            return Err(ExactReceiverValueErrorV1::SiteBindingMismatch);
+        }
         Ok(self.binding_value.value)
     }
 }
@@ -281,12 +445,16 @@ impl fmt::Display for ExactBindingValueErrorV1 {
 impl CallableSemanticLoweringState {
     /// Keep terminal observations with their existing exit owner in both raw
     /// and expression-port lowering. Other lexical reads keep the same law.
-    pub(in crate::mir::builder) fn read_variable_retaining_return_v1(&mut self,
+    pub(in crate::mir::builder) fn read_variable_retaining_return_v1(
+        &mut self,
         site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
     ) -> Result<ValueId, String> {
         if let Some(claims) = self.ordinary_new_claim_ledger.clone() {
-            if let Some(value) = claims.emit_return_read_v1(self.owner, site,
-                || self.read_variable_with_source_v1(site))? { return Ok(value); }
+            if let Some(value) = claims
+                .emit_return_read_v1(self.owner, site, || self.read_variable_with_source_v1(site))?
+            {
+                return Ok(value);
+            }
         }
         self.read_variable(site)
     }
@@ -294,12 +462,20 @@ impl CallableSemanticLoweringState {
     /// Retain the SAME one-shot variable read, including its actual reaching
     /// provenance. Assignment-target reads keep read_variable's existing law.
     pub(in crate::mir::builder) fn read_variable_with_source_v1(
-        &mut self, site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+        &mut self,
+        site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
     ) -> Result<ExactLexicalReadV1, String> {
         let binding = self.source_read_binding(site)?;
         let value = self.read_variable(site)?;
-        Ok(ExactLexicalReadV1 { site: site.clone(), binding_value: BindingValueObservationV2 {
-            owner: self.owner, binding, value, provenance: self.values.provenance(&binding) } })
+        Ok(ExactLexicalReadV1 {
+            site: site.clone(),
+            binding_value: BindingValueObservationV2 {
+                owner: self.owner,
+                binding,
+                value,
+                provenance: self.values.provenance(&binding),
+            },
+        })
     }
 
     /// Read an already-materialized value by its owner-branded binding.
@@ -328,20 +504,37 @@ impl CallableSemanticLoweringState {
     }
 
     /// Observe the existing binding slot without creating/consuming a read site.
-    pub(in crate::mir::builder) fn observe_binding_value_v2(&self, binding: BindingRefV1)
-        -> Result<BindingValueObservationV2, ExactBindingValueErrorV1> {
+    pub(in crate::mir::builder) fn observe_binding_value_v2(
+        &self,
+        binding: BindingRefV1,
+    ) -> Result<BindingValueObservationV2, ExactBindingValueErrorV1> {
         let value = self.value_for_exact_binding(self.owner, binding)?;
-        Ok(BindingValueObservationV2 { owner: self.owner, binding, value,
-            provenance: self.values.provenance(&binding) })
+        Ok(BindingValueObservationV2 {
+            owner: self.owner,
+            binding,
+            value,
+            provenance: self.values.provenance(&binding),
+        })
     }
 
     /// Borrow one existing arm snapshot without fabricating a source read.
-    pub(in crate::mir::builder) fn observe_snapshot_binding_v1(&self,
-        snapshot: &super::materialized_values::MaterializedValuesV1, binding: BindingRefV1,
+    pub(in crate::mir::builder) fn observe_snapshot_binding_v1(
+        &self,
+        snapshot: &super::materialized_values::MaterializedValuesV1,
+        binding: BindingRefV1,
     ) -> Result<BindingValueObservationV2, ExactBindingValueErrorV1> {
-        if binding.owner() != self.owner { return Err(ExactBindingValueErrorV1::ForeignBinding); }
-        let value = *snapshot.get(&binding).ok_or(ExactBindingValueErrorV1::ValueUnavailable)?;
-        Ok(BindingValueObservationV2 { owner: self.owner, binding, value, provenance: snapshot.provenance(&binding) })
+        if binding.owner() != self.owner {
+            return Err(ExactBindingValueErrorV1::ForeignBinding);
+        }
+        let value = *snapshot
+            .get(&binding)
+            .ok_or(ExactBindingValueErrorV1::ValueUnavailable)?;
+        Ok(BindingValueObservationV2 {
+            owner: self.owner,
+            binding,
+            value,
+            provenance: snapshot.provenance(&binding),
+        })
     }
 
     /// Consume one exact receiver source site and read its already-materialized
@@ -418,17 +611,24 @@ impl CallableSemanticLoweringState {
                     ExactReceiverValueErrorV1::ReceiverBindingMismatch
                 }
             })?;
-        Ok(PreparedExactLexicalReadV1 { read: ExactLexicalReadV1 {
-            site: source_site.clone(),
-            binding_value: BindingValueObservationV2 { owner: expected_owner,
-                binding: expected_binding, value, provenance: self.values.provenance(&expected_binding) },
-        } })
+        Ok(PreparedExactLexicalReadV1 {
+            read: ExactLexicalReadV1 {
+                site: source_site.clone(),
+                binding_value: BindingValueObservationV2 {
+                    owner: expected_owner,
+                    binding: expected_binding,
+                    value,
+                    provenance: self.values.provenance(&expected_binding),
+                },
+            },
+        })
     }
 
     /// All checks finish before the first consumption. A late unavailable,
     /// changed or repeated read cannot leave an earlier site consumed.
     pub(in crate::mir::builder) fn commit_exact_lexical_reads(
-        &mut self, prepared: Vec<PreparedExactLexicalReadV1>,
+        &mut self,
+        prepared: Vec<PreparedExactLexicalReadV1>,
     ) -> Result<Vec<ExactLexicalReadV1>, ExactReceiverValueErrorV1> {
         let mut sites = std::collections::BTreeSet::new();
         for pending in &prepared {
@@ -436,30 +636,41 @@ impl CallableSemanticLoweringState {
             if !sites.insert(&read.site) {
                 return Err(ExactReceiverValueErrorV1::DuplicateReadSite);
             }
-            let current = self.prepare_exact_lexical_read(read.binding_value.owner, &read.site, read.binding_value.binding)?;
+            let current = self.prepare_exact_lexical_read(
+                read.binding_value.owner,
+                &read.site,
+                read.binding_value.binding,
+            )?;
             if current.read != *read {
                 return Err(ExactReceiverValueErrorV1::ReadSnapshotChanged);
             }
         }
-        Ok(prepared.into_iter().map(|pending| self.commit_prepared_read(pending)).collect())
+        Ok(prepared
+            .into_iter()
+            .map(|pending| self.commit_prepared_read(pending))
+            .collect())
     }
 
     pub(in crate::mir::builder) fn take_exact_lexical_read(
-        &mut self, expected_owner: FunctionOwnerIdV1,
+        &mut self,
+        expected_owner: FunctionOwnerIdV1,
         source_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
         expected_binding: BindingRefV1,
     ) -> Result<ExactLexicalReadV1, ExactReceiverValueErrorV1> {
-        let pending = self.prepare_exact_lexical_read(expected_owner, source_site, expected_binding)?;
+        let pending =
+            self.prepare_exact_lexical_read(expected_owner, source_site, expected_binding)?;
         // No state mutation or callback separates this prepare from commit.
         Ok(self.commit_prepared_read(pending))
     }
 
     fn commit_prepared_read(&mut self, pending: PreparedExactLexicalReadV1) -> ExactLexicalReadV1 {
         let inserted = self.consumed_variables.insert(pending.read.site.clone());
-        debug_assert!(inserted, "complete exact-read preflight precedes every commit");
+        debug_assert!(
+            inserted,
+            "complete exact-read preflight precedes every commit"
+        );
         pending.read
     }
-
 }
 
 #[cfg(test)]
@@ -473,9 +684,9 @@ impl BindingValueObservationV2 {
         claims: std::rc::Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
         product: &std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
     ) {
-        use crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1 as Producer;
-        use crate::mir::{MirInstruction, MirType, ConstValue};
         use crate::mir::builder::stmts::CompletedLocalBindingV1;
+        use crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1 as Producer;
+        use crate::mir::{ConstValue, MirInstruction, MirType};
         crate::runtime::ring0::ensure_global_ring0_initialized();
         let mut builder = crate::mir::builder::MirBuilder::new();
         builder.enter_function_for_test("checked_source_points/0".into());
@@ -483,15 +694,28 @@ impl BindingValueObservationV2 {
         state.entry_installed = true;
         state.lend_ordinary_new_claim_ledger(claims);
         for (&binding, basis) in &product.source.headers {
-            let Some(Producer::Integer { value, .. }) = basis.entry_producer().scalar() else { panic!("fixture has literal Entry"); };
+            let Some(Producer::Integer { value, .. }) = basis.entry_producer().scalar() else {
+                panic!("fixture has literal Entry");
+            };
             let value_id = builder.alloc_typed(MirType::Integer);
-            builder.emit_instruction(MirInstruction::Const { dst: value_id, value: ConstValue::Integer(*value) }).unwrap();
+            builder
+                .emit_instruction(MirInstruction::Const {
+                    dst: value_id,
+                    value: ConstValue::Integer(*value),
+                })
+                .unwrap();
             state.values.insert(binding, value_id);
             let local = CompletedLocalBindingV1::new(0, value_id, value_id);
-            let proof = super::materialized_values::MaterializedValuesV1::initializer_provenance(binding, &local);
+            let proof = super::materialized_values::MaterializedValuesV1::initializer_provenance(
+                binding, &local,
+            );
             state.values.attach_provenance(binding, proof);
             let name = state.binding_names[&binding].to_string();
-            builder.function_state.variable_ctx.variable_map.insert(name, value_id);
+            builder
+                .function_state
+                .variable_ctx
+                .variable_map
+                .insert(name, value_id);
         }
         crate::mir::builder::normal_callable_loop_source_facts::SourceLoopPhiSessionV1::assert_checked_points_for_test(
             &mut builder, &mut state, product);

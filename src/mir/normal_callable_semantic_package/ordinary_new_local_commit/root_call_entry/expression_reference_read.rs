@@ -11,10 +11,10 @@ use crate::mir::resolved_semantics::home_new_prefix::{
 use crate::mir::{ConstValue, ValueId};
 
 type Finished = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::physical_boundary::FinishedBindings;
-#[path = "expression_reference_nullable.rs"]
-mod nullable;
 #[path = "expression_i64_origin.rs"]
 mod i64_origin;
+#[path = "expression_reference_nullable.rs"]
+mod nullable;
 #[path = "expression_reference_source.rs"]
 mod source;
 use source::*;
@@ -272,7 +272,12 @@ impl ExpressionReferenceReadV1 {
         context: CallValidationContextV1<'_>,
     ) -> Result<Operand, String> {
         reference_operand(
-            frame, node, &self.read, &self.producer, self.deferred_i64, context,
+            frame,
+            node,
+            &self.read,
+            &self.producer,
+            self.deferred_i64,
+            context,
         )
     }
     pub(super) fn validate_layout(
@@ -358,7 +363,10 @@ impl ExpressionReferenceReadV1 {
         &self,
     ) -> Result<&[Binding], String> {
         if self.deferred_i64 {
-            Ok(self.read.binding_observation_v2().recorded_copy_inventory_v1())
+            Ok(self
+                .read
+                .binding_observation_v2()
+                .recorded_copy_inventory_v1())
         } else {
             self.read.original_copy_dependencies_v1()
         }
@@ -507,18 +515,18 @@ impl ExpressionReferenceReadV1 {
                 let producer = definition_for_initializer(initialized, function, context)?;
                 validate_dependencies(read.binding_observation_v2(), &producer, context, function)?;
                 Ok(PreparedExpressionReferenceReadV1 {
-            producer,
-            deferred_i64: false,
-        })
+                    producer,
+                    deferred_i64: false,
+                })
             }
             Reference::NullableResult(frame) => {
                 let (_, normal) = context.nullable_result_read_v1(frame, read, function, None)?;
                 let producer = ReferenceProducerV1::Definition(normal);
                 validate_dependencies(read.binding_observation_v2(), &producer, context, function)?;
                 Ok(PreparedExpressionReferenceReadV1 {
-            producer,
-            deferred_i64: false,
-        })
+                    producer,
+                    deferred_i64: false,
+                })
             }
             Reference::DynamicInvocationResult(initializer) => {
                 let (_, binding) = dynamic_initializer_result_producer_v1(
@@ -531,9 +539,9 @@ impl ExpressionReferenceReadV1 {
                 let producer = ReferenceProducerV1::Definition(binding);
                 validate_dependencies(read.binding_observation_v2(), &producer, context, function)?;
                 Ok(PreparedExpressionReferenceReadV1 {
-            producer,
-            deferred_i64: false,
-        })
+                    producer,
+                    deferred_i64: false,
+                })
             }
             Reference::Scalar(source) => Self::prepare_scalar_read_v2(
                 plan,
