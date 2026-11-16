@@ -87,6 +87,8 @@ commitは短い件名と必要な変更・検証・残件だけにする。通�
 - 証拠連番、ログpath、SHA一覧をcardへ積まない。必要なcommand/resultと一つの履歴参照に絞り、詳細はGitへ残す。`/tmp`だけを永続証拠にしない。
 - 既存の長い設計資料は必要時のreferenceとし、日々追記しない。未解決の意味契約は削除せず、一つのownerへ参照を保つ。
 - 通常更新はapp card、アプリ切替時のCSTATE、契約を変えたowner docsだけ。workstream等の鏡へ履歴を横展開しない。
+- **設計の気付きは、その回のうちに書く。** 会話や報告の中だけに置かない。設計は[設計図](current/main/design/mirbuilder-blueprint.md)へ、作業の決まりはこのRULESへ、順と回ごとの数は[作業の記録](current/main/investigations/mirbuilder-blueprint-work-2026-11-17.md)へ。次の作業者は、前の会話を覚えていない。
+- 作業の指示は「設計図のどの節の作業か」を書く。作業の単位は、nodeの種類の決まりか共通の操作で、「この形を一つ通す」にしない。
 - 置き場所は[DOCS_LAYOUT](current/main/DOCS_LAYOUT.md)。仕様変更は`docs/reference/**`を先に更新する。
 
 ## 8. コードの衛生

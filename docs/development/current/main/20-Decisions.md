@@ -31,6 +31,15 @@ Private Canonical Path: `docs/private/development/current/main/20-Decisions.md`
   frozen, and canonical-core activation uses a separately named profile.
   The durable task order is
   `docs/development/current/main/investigations/normal-source-plan0-design-stop-2026-07-26.md`.
+- MirBuilder design (maintainer decision 2026-11-17): the blueprint
+  `docs/development/current/main/design/mirbuilder-blueprint.md` is the design
+  entry point. Only Resolve rejects source; loop families, routes and recipes
+  do not decide acceptance; the builder is written as a recursion.
+- Ownership (maintainer decision 2026-11-14, provisional): ordinary Boxes are
+  counted, `docs/development/adr/adr-003-counted-box-default.md`.
+- Failure surface (maintainer decision 2026-11-16):
+  `docs/development/adr/adr-004-failure-surface-catch-and-cleanup.md` amends C′
+  below: trailing `catch`/`cleanup` forms stay in the language.
 - Language failure/exit C′ is accepted as
   `LANGUAGE-RESULT-EXIT-C-PRIME0-D0`: recoverable failure is `Result<T,E>`,
   unchanged propagation is typed Result-only postfix `?`, `Option ?`, source

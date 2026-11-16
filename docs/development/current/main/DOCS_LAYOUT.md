@@ -402,7 +402,7 @@ Rule:
 
 ここは「まず読む」入口を置く場所。SSOT を全部ここに置かない。
 
-- 入口（例）: `00-Overview.md`, `01-JoinIR-Selfhost-INDEX.md`, `10-Now.md`, `20-Decisions.md`, `30-Backlog.md`
+- 入口: `docs/development/RULES.md` → `CURRENT_STATE.toml` → その `latest_card_path` →(`src/mir` に触る時)設計図。`00-Overview.md`、`01-JoinIR-Selfhost-INDEX.md`、`30-Backlog.md` は古い記録(2026-11-17)。`10-Now.md`, `20-Decisions.md` は薄い入口。
 - `CURRENT_TASK.md` は root の machine-readable anchor、`10-Now.md` は docs 側の薄い mirror/dashboard。
 
 ### `docs/development/current/main/design/`（設計図・SSOT寄り）
@@ -411,6 +411,7 @@ Rule:
 
 - 原則: Phase 依存のログ/作業記録は置かない（それは phases へ）。
 - 例: JoinIR の設計、Boundary/ExitLine の契約、Loop パターン空間、runtime/box 解決の地図。
+- **MirBuilder(source → MIR)の設計は、最初に `docs/development/current/main/design/mirbuilder-blueprint.md`。** 所有と失敗の道は `docs/development/adr/`。`Status: Historical` の文書と `design/archive/` は、作業の根拠にしない。
 - よく参照する設計SSOT:
   - Join-Explicit CFG Construction（north star）: `docs/development/current/main/design/join-explicit-cfg-construction.md`
   - EdgeCFG Flow Fragments（Structured→CFG lowering SSOT）: `docs/development/current/main/design/edgecfg-fragments.md`
