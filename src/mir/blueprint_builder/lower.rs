@@ -298,13 +298,15 @@ impl Workspace<'_> {
             | Binary::NotEqual
             | Binary::Less
             | Binary::LessEqual
-            | Binary::Greater => {
+            | Binary::Greater
+            | Binary::GreaterEqual => {
                 let op = match operator {
                     Binary::Equal => CompareOp::Eq,
                     Binary::NotEqual => CompareOp::Ne,
                     Binary::Less => CompareOp::Lt,
                     Binary::LessEqual => CompareOp::Le,
-                    _ => CompareOp::Gt,
+                    Binary::Greater => CompareOp::Gt,
+                    _ => CompareOp::Ge,
                 };
                 MirInstruction::Compare { dst, op, lhs, rhs }
             }

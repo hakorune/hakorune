@@ -37,3 +37,7 @@ focused確認: 正負のResolve、指定8種類のMIR改変拒否、入れ子con
 修正後の47入力は、すべてEXEの期待出力/exitに一致（既存builderと同結果7、新builderのみ40）。単項Minusはoperand一度評価→Const0→wrapping Subとし、対応検証は両命令とoperand/順を独立照合する。generic CのBool formalは既存i64 ABIを維持し、関数入口でi1に復元する（戻り値側の既存変換と対）。新opcode/JSON/ABI追加なし。既定経路の全比較は最終確認時に実施する。負のCLI入力15本はすべて非zero exit/成果物なし。うちprintを式位置に置く例とtake/fromの3本は共通parserで拒否、残り12本はResolveの名前付き拒否。
 
 設計図mainの21/22節（2026-11-17追記）も適用する。Lowerの子の組合せ/深さ/場所/call form/app名による分岐は0、式/call/loop入口は各1。Resolveの既存Div literal安全契約1件とliteral trueの継続契約1件は、別に計上する。新しい専用経路とは数えず、全段で子kind検査0とは主張しない。
+
+## 演算子1種類を追加する費用
+
+`>=`を別commitで追加。productionはResolve::binary_type、Workspace::binary、Checker::binaryの3ファイル/3関数だけで、入口/型/専用経路の増加なし。追加前はUnsupportedOperator、追加後は元の入力がEXE exit6。focused3test PASS。追加で試したBool同士の比較は既存Cの共有icmpがi64固定だったため拒否され、51入力中50一致/1未到達。これを通ったことには数えず、別の共通backend境界修正で閉じる。

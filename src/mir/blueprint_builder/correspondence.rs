@@ -355,6 +355,7 @@ impl Checker<'_> {
                     Binary::Less => CompareOp::Lt,
                     Binary::LessEqual => CompareOp::Le,
                     Binary::Greater => CompareOp::Gt,
+                    Binary::GreaterEqual => CompareOp::Ge,
                     _ => return Err(bad("comparison-kind")),
                 };
                 (dst, lhs, rhs, op == expected)

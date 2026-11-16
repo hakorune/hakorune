@@ -391,7 +391,7 @@ impl Resolver<'_> {
                 require(right, left, span)?;
                 Ok(Type::Bool)
             }
-            Binary::Less | Binary::LessEqual | Binary::Greater => {
+            Binary::Less | Binary::LessEqual | Binary::Greater | Binary::GreaterEqual => {
                 require(left, Type::I64, span)?;
                 require(right, Type::I64, span)?;
                 Ok(Type::Bool)
