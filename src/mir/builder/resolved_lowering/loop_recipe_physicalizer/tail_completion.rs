@@ -1,8 +1,125 @@
-//! Observed operation counts shared by current loop physical profiles.
-use super::operation_dispatcher::{
-    CompletedLoopOperationDispatchV1, LoopOperationDispatchReceiptV1,
-};
+//! Callable Tail -> Completion handoff.
+//!
+//! The common Loop physicalizer stops at `ReadyLoopAfterContinuationV1`.
+//! This seam belongs to the outer callable profile: it reads the exact Tail
+//! binding through canonical identity, validates the declared trivial ABI,
+//! and consumes the existing Completion/return ledgers once.
 
+use super::operation_dispatcher::CompletedLoopOperationDispatchV1;
+use super::operation_dispatcher::LoopOperationDispatchReceiptV1;
+use super::operation_type::ensure_provisional_value_class;
+use super::recursive_after::ReadyLoopAfterContinuationV1;
+use super::segment_dispatcher::CompletedLoopSegmentProgramV1;
+use crate::mir::builder::resolved_lowering::canonical_ssa::{
+    CanonicalBindingReadReceiptV1, CanonicalSsaFunctionSessionV2,
+};
+use crate::mir::builder::MirBuilder;
+use crate::mir::compiler::callable_single_loop_recipe_coseal::VerifiedCallableTailV1;
+use crate::mir::compiler::loop_physical_prepare::VerifiedCallableTerminalCompatibilityV1;
+use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
+use crate::mir::loop_recipe_contract::{LoopOperationV1, LoopValueClassV1};
+use crate::mir::resolved_semantics::ResolvedExitSiteV1;
+use crate::mir::{BasicBlockId, MirType, ValueId};
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) enum CallableTailCompletionRejectV1 {
+    OwnerMismatch,
+    TailBindingMismatch,
+    HeaderConditionMissing,
+    HeaderConditionDuplicate,
+    HeaderReadMissing,
+    HeaderReadDuplicate,
+    HeaderBindingMismatch,
+    CurrentBlockMismatch {
+        expected: BasicBlockId,
+        found: BasicBlockId,
+    },
+    TailRead(String),
+    TailPhysicalBlockMismatch,
+    TailTypeMismatch {
+        expected: MirType,
+        found: Option<MirType>,
+    },
+    Completion(String),
+    Identity(String),
+}
+
+/// Borrow the existing Callable header-read relation from the complete
+/// dispatch.  The source binding comes from the prepared read row; the
+/// physical identity comes only from the matching dispatcher receipt.
+pub(super) fn validate_callable_header_read_relation_v1(
+    completed: &CompletedLoopSegmentProgramV1,
+) -> Result<CanonicalBindingReadReceiptV1, CallableTailCompletionRejectV1> {
+    let condition_inputs = completed
+        .layout
+        .program()
+        .operation_rows()
+        .iter()
+        .filter_map(|row| match row.operation() {
+            LoopOperationV1::CompareI64 { left, .. } => Some(left),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    let condition_input = match condition_inputs.as_slice() {
+        [condition] => *condition,
+        [] => return Err(CallableTailCompletionRejectV1::HeaderConditionMissing),
+        _ => return Err(CallableTailCompletionRejectV1::HeaderConditionDuplicate),
+    };
+    let read_rows = completed
+        .layout
+        .program()
+        .read_binding_rows()
+        .map_err(|_| CallableTailCompletionRejectV1::HeaderReadMissing)?;
+    let matching_rows = read_rows
+        .iter()
+        .filter(|row| row.result() == condition_input)
+        .collect::<Vec<_>>();
+    let source_row = match matching_rows.as_slice() {
+        [row] => *row,
+        [] => return Err(CallableTailCompletionRejectV1::HeaderReadMissing),
+        _ => return Err(CallableTailCompletionRejectV1::HeaderReadDuplicate),
+    };
+    let matching_reads = completed
+        .dispatch
+        .receipts()
+        .iter()
+        .filter_map(|receipt| match receipt {
+            LoopOperationDispatchReceiptV1::Read(read) if read.result() == condition_input => {
+                Some(*read)
+            }
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    let read = match matching_reads.as_slice() {
+        [read] => read,
+        [] => return Err(CallableTailCompletionRejectV1::HeaderReadMissing),
+        _ => return Err(CallableTailCompletionRejectV1::HeaderReadDuplicate),
+    };
+    let canonical = read.canonical();
+    if canonical.owner() != completed.layout.program().demand().context().owner()
+        || read.item() != source_row.item()
+        || canonical.binding() != source_row.source_binding()
+    {
+        return Err(CallableTailCompletionRejectV1::HeaderBindingMismatch);
+    }
+    Ok(canonical)
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(super) struct ReadyCallableLoopProfileCloseV1 {
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    terminal_block: BasicBlockId,
+    after_predecessor_count: usize,
+    operation_count: usize,
+    pure_count: usize,
+    read_count: usize,
+    write_count: usize,
+    condition_key: crate::mir::loop_recipe_contract::LoopValueKeyV1,
+}
+
+/// Derive the callable profile from the completed dispatch that production
+/// actually emitted.  The close contract still checks the expected profile,
+/// but it must receive observed counts rather than a duplicated literal.
 pub(super) fn profile_counts_from_dispatch(
     completed: &CompletedLoopOperationDispatchV1,
 ) -> (usize, usize, usize, usize) {
@@ -16,6 +133,151 @@ pub(super) fn profile_counts_from_dispatch(
         }
     }
     counts
+}
+
+impl ReadyCallableLoopProfileCloseV1 {
+    pub(super) fn finish(
+        self,
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        terminal_block: BasicBlockId,
+    ) -> Result<(), String> {
+        if self.owner != owner || self.terminal_block != terminal_block {
+            return Err("callable profile close owner/terminal mismatch".into());
+        }
+        if self.after_predecessor_count != 1
+            || (
+                self.operation_count,
+                self.pure_count,
+                self.read_count,
+                self.write_count,
+            ) != (7, 4, 2, 1)
+        {
+            return Err("callable profile close coverage mismatch".into());
+        }
+        let _condition_key = self.condition_key;
+        Ok(())
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(super) struct ReadyCallableTailCompletionV1 {
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    block: BasicBlockId,
+    value: ValueId,
+    abi: ExactTrivialReturnAbiV1,
+    profile_close: ReadyCallableLoopProfileCloseV1,
+}
+
+impl ReadyCallableTailCompletionV1 {
+    pub(super) const fn block(&self) -> BasicBlockId {
+        self.block
+    }
+
+    pub(super) fn into_profile_close(self) -> ReadyCallableLoopProfileCloseV1 {
+        self.profile_close
+    }
+}
+
+/// Consume the sealed After receipt exactly once at the callable boundary.
+/// No new CFG/SSA owner is created and no source meaning is rediscovered.
+pub(super) fn consume_callable_tail_completion_v1(
+    ready: ReadyLoopAfterContinuationV1,
+    header_current: CanonicalBindingReadReceiptV1,
+    profile_counts: (usize, usize, usize, usize),
+    condition_key: crate::mir::loop_recipe_contract::LoopValueKeyV1,
+    tail: &VerifiedCallableTailV1,
+    terminal: &VerifiedCallableTerminalCompatibilityV1,
+    builder: &mut MirBuilder,
+    session: &mut CanonicalSsaFunctionSessionV2<'_>,
+) -> Result<ReadyCallableTailCompletionV1, CallableTailCompletionRejectV1> {
+    let owner = ready.owner();
+    let after_predecessor_count = ready.predecessor_count();
+    if tail.owner() != owner || terminal.owner() != owner {
+        return Err(CallableTailCompletionRejectV1::OwnerMismatch);
+    }
+    if terminal.binding() != tail.binding() {
+        return Err(CallableTailCompletionRejectV1::TailBindingMismatch);
+    }
+    let after = ready.root_after();
+    if header_current.owner() != owner {
+        return Err(CallableTailCompletionRejectV1::HeaderBindingMismatch);
+    }
+    let current = builder.function_state.current_block.ok_or(
+        CallableTailCompletionRejectV1::CurrentBlockMismatch {
+            expected: after,
+            found: BasicBlockId::new(u32::MAX),
+        },
+    )?;
+    if current != after {
+        return Err(CallableTailCompletionRejectV1::CurrentBlockMismatch {
+            expected: after,
+            found: current,
+        });
+    }
+
+    session
+        .identity
+        .claim_variable_use_binding(tail.value_site(), tail.binding())
+        .map_err(CallableTailCompletionRejectV1::Identity)?;
+    let receipt = session
+        .identity
+        .read_entry_receipt(builder, after, tail.binding())
+        .map_err(CallableTailCompletionRejectV1::TailRead)?;
+    if receipt.owner() != owner || receipt.binding() != tail.binding() {
+        return Err(CallableTailCompletionRejectV1::OwnerMismatch);
+    }
+    if receipt.physical_block() != after {
+        return Err(CallableTailCompletionRejectV1::TailPhysicalBlockMismatch);
+    }
+    let value = receipt.physical_value();
+    let expected = terminal.abi().mir_type();
+    let found = builder.function_state.type_ctx.get_type(value).cloned();
+    if found.as_ref() != Some(&expected) {
+        if terminal.abi() != ExactTrivialReturnAbiV1::I64 {
+            return Err(CallableTailCompletionRejectV1::TailTypeMismatch { expected, found });
+        }
+        ensure_provisional_value_class(builder, value, LoopValueClassV1::I64).map_err(|_| {
+            CallableTailCompletionRejectV1::TailTypeMismatch {
+                expected,
+                found: builder.function_state.type_ctx.get_type(value).cloned(),
+            }
+        })?;
+    }
+
+    let after_current = session
+        .identity
+        .read_entry_receipt(builder, after, header_current.binding())
+        .map_err(CallableTailCompletionRejectV1::Identity)?;
+    session
+        .identity
+        .verify_single_predecessor_read_relation(builder, after_current, header_current)
+        .map_err(CallableTailCompletionRejectV1::Identity)?;
+
+    session
+        .completion
+        .claim_explicit_return(tail.statement(), terminal.target_function(), after, value)
+        .map_err(CallableTailCompletionRejectV1::Completion)?;
+    session
+        .identity
+        .mark_return(ResolvedExitSiteV1::Statement(tail.statement().clone()))
+        .map_err(CallableTailCompletionRejectV1::Identity)?;
+
+    Ok(ReadyCallableTailCompletionV1 {
+        owner,
+        block: after,
+        value,
+        abi: terminal.abi(),
+        profile_close: ReadyCallableLoopProfileCloseV1 {
+            owner,
+            terminal_block: after,
+            after_predecessor_count,
+            operation_count: profile_counts.0,
+            pure_count: profile_counts.1,
+            read_count: profile_counts.2,
+            write_count: profile_counts.3,
+            condition_key,
+        },
+    })
 }
 
 #[cfg(test)]

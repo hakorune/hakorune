@@ -44,6 +44,7 @@ mod trivial_ssa;
 pub(in crate::mir) use callable_module_transaction::{
     CallableModuleTransactionErrorV1, VerifiedUnpublishedCallableDraftSetV1,
 };
+pub(in crate::mir::builder) use loop_recipe_physicalizer::lower_callable_single_loop_function_draft_v1;
 pub(in crate::mir::builder) use static_loop_entry_session::{
     prepare_selected_static_loop_entry_v1, PreparedSelectedStaticLoopEntryV1,
 };
@@ -94,7 +95,10 @@ use crate::mir::compiler::direct_accum_profile::CanonicalDirectAccumPlanV1;
 use crate::mir::function::MirParamDecl;
 use crate::mir::{MirFunction, MirModule};
 
-use super::calls::{CanonicalFunctionSessionErrorV1, PendingFunctionSessionCloseV1};
+use super::calls::{
+    CanonicalFunctionLoweringSessionV1, CanonicalFunctionSessionErrorV1,
+    PendingFunctionSessionCloseV1,
+};
 use super::MirBuilder;
 use direct_accum_lowerer::CanonicalDirectAccumSsaLowererV1;
 use draft_seal_owner::{FunctionDraftSealStageV1, RejectedFunctionDraftSealV1};
@@ -110,6 +114,26 @@ pub(in crate::mir) enum CanonicalResolvedBuildErrorV1 {
             GenericG0PhysicalEmitterAdmissionRejectV1,
     ),
     GenericG0Lowerer(String),
+}
+
+/// Complete one CallableSingleLoop draft seal without restoring the captured
+/// parent until collector admission has consumed the pending draft.  The
+/// selected cataloged entry owns the function session; this helper only joins
+/// the ready physical result to the existing pending restoration terminal.
+pub(in crate::mir::builder) fn commit_callable_single_loop_ready_to_pending_v1(
+    session: CanonicalFunctionLoweringSessionV1<'_>,
+    ready: ReadyFunctionDraftSealV1,
+) -> Result<PendingFunctionSessionCloseV1<'_>, CanonicalFunctionSessionErrorV1> {
+    let open = ready.open(session);
+    let prepared = match open.prepare() {
+        Ok(prepared) => prepared,
+        Err(rejected) => {
+            return Err(CanonicalFunctionSessionErrorV1::DraftSeal(
+                rejected.into_discarded_error(),
+            ));
+        }
+    };
+    Ok(prepared.commit_pending())
 }
 
 impl From<String> for CanonicalResolvedBuildErrorV1 {

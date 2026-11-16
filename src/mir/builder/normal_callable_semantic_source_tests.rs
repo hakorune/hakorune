@@ -24,39 +24,9 @@ fn loop_program() -> crate::ast::ASTNode {
     .expect("callable loop source")
 }
 
-fn assert_callable_materialization_parity(source: &str) {
-    let legacy_error = MirCompiler::with_options(false)
-        .compile_with_source(
-            NyashParser::parse_from_string(source).unwrap(),
-            Some("callable-materialization.hako"),
-        )
-        .expect_err("legacy callable batch stays on the retired compat boundary");
-    assert!(
-        legacy_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/"),
-        "{legacy_error}"
-    );
-    let normal_error = MirCompiler::with_options(false)
-        .compile_normal(
-            NormalCompileRequestV1::for_mir_mode(
-                NyashParser::parse_from_string(source).unwrap(),
-                Some("callable-materialization.hako"),
-                std::collections::HashMap::new(),
-            )
-            .unwrap(),
-        )
-        .expect_err("normal callable batch stays on the retired compat boundary");
-    assert!(
-        normal_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/"),
-        "{normal_error}"
-    );
-}
-
 fn assert_retired_compat_batch(source: &str, hint: &str) {
     let legacy_error = MirCompiler::with_options(false)
-        .compile_with_source(
-            NyashParser::parse_from_string(source).unwrap(),
-            Some(hint),
-        )
+        .compile_with_source(NyashParser::parse_from_string(source).unwrap(), Some(hint))
         .expect_err("legacy callable batch stays on the retired compat boundary");
     assert!(
         legacy_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/"),
@@ -80,16 +50,8 @@ fn assert_retired_compat_batch(source: &str, hint: &str) {
 
 #[test]
 fn callable_entry_local_variable_and_rebind_materialization_keeps_parity() {
-    assert_callable_materialization_parity(
-        "function helper(x) { local y = x y += 1 return y }\n\
-             static box Tools { add(x) { local y = x y += 1 return y } }\n\
-             box Page { show(x) { local y = x y += 1 return y } }\n\
-             function capture(first, second) {\n\
-                 local f = fn(){ first + second }\n\
-                 return first\n\
-             }",
-    );
-
+    // Legacy Lambda refusal and no-publication are covered by raw dispatch;
+    // retain this owner's failed-local recovery and subsequent rebind lowering.
     let mut compiler = MirCompiler::with_options(false);
     assert!(compiler
         .compile_normal(

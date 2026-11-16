@@ -52,7 +52,10 @@ mod source_scope;
 mod static_i64_entry;
 use source_scope::with_selected_source_scope;
 
-pub(super) use canonical_route::{classify_canonical_callable_route, CanonicalCallableRouteV1};
+pub(super) use canonical_route::{
+    classify_canonical_callable_route, try_prepare_callable_single_loop_program_v1,
+    CanonicalCallableRouteV1,
+};
 
 pub(super) struct NormalCallableSemanticPackagePortAdapterV1<
     'package,

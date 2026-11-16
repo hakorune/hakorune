@@ -85,20 +85,3 @@ pub(crate) fn a_prime_receipt() -> APrimeI64PhysicalReceiptV1 {
     )
     .expect("valid A-prime test fixture")
 }
-
-/// A current verified layout shared by physical receipt and allocator tests.
-pub(crate) fn generic_loop_physical_layout(
-) -> super::loop_recipe_contract::PreparedLoopPhysicalLayoutV1 {
-    let (effect, context, continuation) =
-        super::loop_recipe_contract::generic_operation_demand_parts_for_test();
-    super::loop_recipe_contract::VerifiedLoopOperationPhysicalDemandV1::issue(
-        context,
-        effect,
-        continuation,
-    )
-    .expect("generic demand")
-    .prepare_all()
-    .expect("generic program")
-    .prepare_physical_layout()
-    .expect("generic layout")
-}

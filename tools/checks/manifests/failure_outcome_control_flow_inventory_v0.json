@@ -20569,6 +20569,18 @@
       "token": "mir_return"
     },
     {
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/completion_draft_seal_tests.rs:607:mir_return",
+      "evidence": ".set_terminator(MirInstruction::Return { value: None });",
+      "evidence_kind": "mir_return",
+      "family": "return_unit",
+      "line": 607,
+      "pending_reason": "ControlFlowOwnerPending",
+      "resolution": "Pending",
+      "site_ref": null,
+      "source_path": "src/mir/builder/resolved_lowering/completion_draft_seal_tests.rs",
+      "token": "mir_return"
+    },
+    {
       "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/completion_draft_seal_tests.rs:62:mir_return",
       "evidence": "Some(MirInstruction::Return { value: Some(id) }) if id == value",
       "evidence_kind": "mir_return",
@@ -20662,6 +20674,30 @@
       "resolution": "Pending",
       "site_ref": null,
       "source_path": "src/mir/builder/resolved_lowering/if_tests.rs",
+      "token": "mir_return"
+    },
+    {
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_production_canary_tests.rs:150:mir_return",
+      "evidence": "ASTNode::Return {",
+      "evidence_kind": "mir_return",
+      "family": "return_unit",
+      "line": 150,
+      "pending_reason": "ControlFlowOwnerPending",
+      "resolution": "Pending",
+      "site_ref": null,
+      "source_path": "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_production_canary_tests.rs",
+      "token": "mir_return"
+    },
+    {
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_production_canary_tests.rs:159:mir_return",
+      "evidence": "vec![ASTNode::Return {",
+      "evidence_kind": "mir_return",
+      "family": "return_unit",
+      "line": 159,
+      "pending_reason": "ControlFlowOwnerPending",
+      "resolution": "Pending",
+      "site_ref": null,
+      "source_path": "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_production_canary_tests.rs",
       "token": "mir_return"
     },
     {

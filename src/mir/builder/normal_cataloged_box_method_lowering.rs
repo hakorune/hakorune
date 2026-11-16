@@ -7,12 +7,16 @@ use super::calls::{
 };
 use super::module_lowering_invocation::ModuleLoweringPortChildErrorV1;
 use super::module_lowering_invocation::ResolvedChildDraftAdmissionV1;
+use super::normal_callable_prepared_operation::PreparedCallableLoopOperationProgramV1;
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use super::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceTransportV1, RawSourceTransportPortV1,
 };
 use super::recursive_child_lowering::{
     normalize_instance_box_method_input_v1, RawInvocationChildPortV1,
+};
+use super::resolved_lowering::{
+    commit_callable_single_loop_ready_to_pending_v1, lower_callable_single_loop_function_draft_v1,
 };
 use super::MirBuilder;
 use crate::mir::normal_callable_semantic_package::ResolvedCallablePhysicalSignatureLoanV1;
@@ -220,6 +224,54 @@ impl RawInvocationChildPortV1<'_, '_> {
                     )
                     .map_err(|error| format!("{error:?}"))
             })
+            .map_err(ModuleLoweringPortChildErrorV1::Session)?;
+        self.module_port.complete_resolved_child_with_physical_loan(
+            pending,
+            resolved,
+            signature,
+            target_capability,
+        )
+    }
+
+    /// Canonical consumer for the bounded source-bound CallableSingleLoop
+    /// profile. The existing semantic demand is consumed once by the shared
+    /// PHI/CFG physicalizer; no legacy body driver or source re-resolution is
+    /// reachable from this edge.
+    pub(in crate::mir::builder) fn lower_normal_cataloged_static_box_method_with_callable_single_loop_program_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
+        signature: ResolvedCallablePhysicalSignatureLoanV1<'_>,
+        program: PreparedCallableLoopOperationProgramV1<'_>,
+        target_capability: Option<
+            &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
+        >,
+    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+        if program.owner() != signature.owner() {
+            return Err(ModuleLoweringPortChildErrorV1::PhysicalSignatureMismatch);
+        }
+        let function_name = admission.physical_symbol().to_owned();
+        let resolved = ResolvedChildDraftAdmissionV1::cataloged_box_method(
+            signature.owner(),
+            admission.source_key().clone(),
+            function_name.clone(),
+            admission.physical_arity(),
+        );
+        let mut session = builder.open_resolved_function_draft_seal_session_v1(&function_name);
+        let ready = match lower_callable_single_loop_function_draft_v1(
+            &mut session,
+            program,
+            function_name.clone(),
+        ) {
+            Ok(ready) => ready,
+            Err(error) => {
+                session.discard_unpublished();
+                return Err(ModuleLoweringPortChildErrorV1::Session(
+                    CanonicalFunctionSessionErrorV1::Primary(error),
+                ));
+            }
+        };
+        let pending = commit_callable_single_loop_ready_to_pending_v1(session, ready)
             .map_err(ModuleLoweringPortChildErrorV1::Session)?;
         self.module_port.complete_resolved_child_with_physical_loan(
             pending,

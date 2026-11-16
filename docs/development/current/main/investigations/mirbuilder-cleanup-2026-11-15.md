@@ -490,3 +490,8 @@ ScopeBoxのno-retry/cleanup/temp binding保証3件は関数本文をbyte不変�
 
 F02の実消費者が消えた`loop_route_detection::support::function_scope`のCapturedEnv/Kind/Varを退役した。全Rustの同名/別名module参照を確認し、定義・自己test・再export以外の呼び手は0。別crateのCapturedVar、現役AST capture、F03の広いcanonicalizer/route検査は保持する。
 専用test5件も同じ変更で削除し、登録8564→8559・追加0・未説明差0。focused100件PASS、整形後Rustは本体107行/test69行の純減、Rust2file退役。pointer/diff検査PASS。この後はsourceを固定し、通常の最適化CLIと全lib/feature/固定suite/Map18/ownerで最終確認する。
+
+### 最終全libで判明した保持境界と混在testの修正
+
+最終全libは新規4 FAILを検出した。うちF22の通常API入力2件（Main.int_to_strのloop）は、固定5,386入力のcut差0だけでは拾えなかった本当の受理回帰。入力/期待値を変えず、必要な元のCallableSingleLoop経路・専用検証・pending helper/testを保持へ戻した。F22とE1のpending部分の先の削減値は最終実績から除く。Main0専用完了helperの退役、F25/D/Eの他の退役は維持する。
+残る旧Lambda拒否優先順位parityと旧raw enum writerの混在testは、廃止形式の部分だけを整理。local失敗後の同一compiler再利用、exact source/scrutinee・一度だけの評価・拒否時無変更/no-retryを現役ownerで保持し、正規enum payload/resultは既存bridgeの保証へ対応付けた。登録名を変えず、修正後focused50件PASS。旧PASS登録57件と復元ownerのmetadataだけを戻し、FAIL基準は変更しない。最終の全入力/全lib/固定suiteは再検証する。

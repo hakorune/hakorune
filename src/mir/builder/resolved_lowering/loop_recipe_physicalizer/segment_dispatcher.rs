@@ -404,9 +404,20 @@ mod tests {
     use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::topology::{
         LoopPhysicalBlockRoleV1, ReadyLoopEntryV1,
     };
+    use crate::mir::compiler::callable_single_loop_operation_effect::callable_operation_demand_parts_for_test;
+    use crate::mir::loop_recipe_contract::VerifiedLoopOperationPhysicalDemandV1;
     use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
-    use crate::mir::test_support::generic_loop_physical_layout as callable_layout;
     use crate::mir::BasicBlockId;
+
+    fn callable_layout() -> PreparedLoopPhysicalLayoutV1 {
+        let (effect, context, continuation) = callable_operation_demand_parts_for_test();
+        VerifiedLoopOperationPhysicalDemandV1::issue(context, effect, continuation)
+            .expect("callable demand")
+            .prepare_all()
+            .expect("callable program")
+            .prepare_physical_layout()
+            .expect("callable layout")
+    }
 
     fn receipt(
         layout: &PreparedLoopPhysicalLayoutV1,

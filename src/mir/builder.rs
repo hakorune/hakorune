@@ -62,6 +62,7 @@ mod normal_callable_package_bridge; // Builder-private package install boundary
                                     // Main caller; recheck at the production-switch slice.
                                     // Caller-zero second bounded Main0 profile; same canonical-root handoff.
                                     // Caller-zero third bounded Main0 profile; same canonical-root handoff.
+mod normal_callable_prepared_operation; // retained callable pipeline, F22 HOLD
 mod normal_callable_semantic_loan_port; // Thin installed-package port adapter
 mod normal_callable_semantic_lowering_state;
 pub(in crate::mir) use normal_callable_semantic_lowering_state::validate_map_local_annotation;

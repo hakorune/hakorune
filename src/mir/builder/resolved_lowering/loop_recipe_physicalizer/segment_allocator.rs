@@ -69,9 +69,20 @@ mod tests {
     use super::*;
     use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
     use crate::mir::builder::MirBuilder;
+    use crate::mir::compiler::callable_single_loop_operation_effect::callable_operation_demand_parts_for_test;
+    use crate::mir::loop_recipe_contract::VerifiedLoopOperationPhysicalDemandV1;
     use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
-    use crate::mir::test_support::generic_loop_physical_layout as callable_layout;
     use crate::mir::BasicBlockId;
+
+    fn callable_layout() -> PreparedLoopPhysicalLayoutV1 {
+        let (effect, context, continuation) = callable_operation_demand_parts_for_test();
+        VerifiedLoopOperationPhysicalDemandV1::issue(context, effect, continuation)
+            .expect("callable demand")
+            .prepare_all()
+            .expect("callable program")
+            .prepare_physical_layout()
+            .expect("callable layout")
+    }
 
     #[test]
     fn allocator_rejects_foreign_entry_owner_before_block_allocation() {
