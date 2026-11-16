@@ -118,9 +118,6 @@ impl super::MirBuilder {
                 )
             })?;
         match product {
-            super::program_root_lowering::main0_root_route::SelectedMain0RootProductV1::Continue(
-                product,
-            ) => port.lower_app_main0_continue_root_v1(self, &root_identity, product),
             super::program_root_lowering::main0_root_route::SelectedMain0RootProductV1::DerivedPredicate(
                 product,
             ) => port.lower_app_main0_derived_predicate_root_v1(self, &root_identity, product),

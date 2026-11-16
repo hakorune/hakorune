@@ -6,12 +6,12 @@ list_command = ["cargo", "test", "--profile", "quick", "--lib", "--", "--list"]
 environment = { RUST_MIN_STACK = "16777216", CARGO_BUILD_JOBS = "4", CARGO_INCREMENTAL = "0" }
 expected_status = "FAILED"
 expected_exit_code = 101
-expected_passed = 7846
+expected_passed = 7831
 expected_failed = 119
 expected_ignored = 52
 expected_measured = 0
 expected_filtered = 0
 inventory_file = "tools/checks/manifests/cargo_lib_red_baseline.tests.txt"
-inventory_sha256 = "6ec48ba781fb801a078ab048c43545276162f1fb870005e6dac8a848454bd367"
+inventory_sha256 = "c7e06ead75c68eff2a8423601fbc217d08df131e803c2059a8c3d3ee3cb7006d"
 failures_file = "tools/checks/manifests/cargo_lib_red_baseline.failures.txt"
 failures_sha256 = "c9122bbc0814bec16a741bcc4f95702b2cb6446e4c85d896b480a50b3230d7de"

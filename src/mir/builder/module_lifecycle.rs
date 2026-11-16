@@ -78,20 +78,6 @@ pub(in crate::mir::builder) trait RootCallableCapturePortV1:
         self.lower_body(builder, body)
     }
 
-    /// Selected Main0 Continue roots carry the verified recipe product into
-    /// the installed package's canonical draft handoff.  The adapter opens
-    /// the sole physical session, seals one `main` draft, and admits it to
-    /// the invocation collector; raw and compatibility ports never consume
-    /// this product.
-    fn lower_app_main0_continue_root_v1(
-        &mut self,
-        _builder: &mut super::MirBuilder,
-        _identity: &crate::parser::CallableDeclarationIdentityV1,
-        _product: crate::mir::compiler::main0_continue_recipe_coseal::VerifiedMain0ContinueRecipeProductV1,
-    ) -> Result<(), String> {
-        Err("[freeze:contract][mir/main0-continue-root/raw-port]".to_owned())
-    }
-
     /// Selected Main0 derived-predicate roots carry the verified recipe
     /// product into the same canonical draft handoff.  Raw and
     /// compatibility ports never consume this product.

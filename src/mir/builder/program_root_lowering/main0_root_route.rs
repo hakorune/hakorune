@@ -6,7 +6,6 @@
 //! one-shot loan unconsumed for the next arm, and a full decline returns
 //! `None` so the legacy wrapper path keeps its loan.
 
-use crate::mir::compiler::main0_continue_recipe_coseal::VerifiedMain0ContinueRecipeProductV1;
 use crate::mir::compiler::main0_derived_predicate_recipe_coseal::VerifiedMain0DerivedPredicateRecipeProductV1;
 use crate::mir::normal_callable_semantic_package::NormalCallableSemanticPackagePortV1;
 
@@ -18,7 +17,6 @@ use super::super::MirBuilder;
 /// a declined observation never produces a product.
 #[derive(Debug)]
 pub(in crate::mir::builder) enum SelectedMain0RootProductV1 {
-    Continue(VerifiedMain0ContinueRecipeProductV1),
     DerivedPredicate(VerifiedMain0DerivedPredicateRecipeProductV1),
 }
 
@@ -32,11 +30,6 @@ impl MirBuilder {
         package_port: &NormalCallableSemanticPackagePortV1<'_>,
         expansion: &VerifiedRawRootExpansionV1<'_>,
     ) -> Result<Option<SelectedMain0RootProductV1>, String> {
-        if let Some(product) =
-            self.select_main0_continue_root_product_v1(package_port, expansion)?
-        {
-            return Ok(Some(SelectedMain0RootProductV1::Continue(product)));
-        }
         if let Some(product) =
             self.select_main0_derived_predicate_root_product_v1(package_port, expansion)?
         {

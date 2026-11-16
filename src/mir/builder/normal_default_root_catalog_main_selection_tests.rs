@@ -185,8 +185,7 @@ fn main0_continue_canonical_root_publishes_one_main_through_collector() {
             .count(),
         1
     );
-    // The canonical draft sealed its own Return inside the session; raw
-    // finish must not have appended a second one.
+    // Root finalization must not append a second value Return.
     let returns = main
         .blocks
         .values()
@@ -198,8 +197,7 @@ fn main0_continue_canonical_root_publishes_one_main_through_collector() {
         })
         .count();
     assert_eq!(returns, 1, "canonical main owns exactly one value Return");
-    // PHI on the loop backedge proves the canonical physicalizer ran; the
-    // legacy wrapper never produced a PHI for this fixture.
+    // Current loop lowering must retain a real backedge PHI.
     assert!(main.blocks.values().any(|block| {
         block
             .instructions

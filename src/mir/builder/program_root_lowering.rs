@@ -35,8 +35,6 @@ use super::{
 };
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1;
 
-#[path = "program_root_lowering/main0_continue_route.rs"]
-mod main0_continue_route;
 #[path = "program_root_lowering/main0_derived_predicate_route.rs"]
 mod main0_derived_predicate_route;
 #[path = "program_root_lowering/main0_root_route.rs"]

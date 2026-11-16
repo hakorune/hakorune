@@ -62,25 +62,15 @@ mod loop_node_physical_admission_tests;
 // Caller-zero Main0 Continue co-seal issuer; sole owner is this row's source
 // front. Recheck at the Main0 canonical-root handoff / production caller
 // switch slice (active card generic-loop-mainline-source-front-d0).
-pub(crate) mod main0_continue_recipe_coseal;
-#[cfg(test)]
-#[path = "main0_continue_recipe_coseal_tests.rs"]
-mod main0_continue_recipe_coseal_tests;
 // Caller-zero until the same Main0 production caller switch; recheck at the
 // canonical-root handoff slice.
-pub(crate) mod main0_continue_root_selection;
-#[cfg(test)]
-#[path = "main0_continue_root_selection_tests.rs"]
-mod main0_continue_root_selection_tests;
 // Caller-zero until the same Main0 production caller switch; recheck at the
 // canonical-root handoff slice.
-pub(in crate::mir) mod main0_continue_semantic_program;
 // Caller-zero until the same Main0 production caller switch; recheck at the
 // canonical-root handoff slice.
 pub(crate) mod main0_continue_source_map;
 // Caller-zero until the same Main0 production caller switch; recheck at the
 // canonical-root handoff slice. Sole sealer of the source map product.
-pub(crate) mod main0_continue_source_map_issue;
 // Caller-zero until the same Main0 production caller switch; recheck at the
 // canonical-root handoff slice.
 pub(crate) mod main0_continue_syntax_facts;

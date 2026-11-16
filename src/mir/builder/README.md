@@ -1702,21 +1702,20 @@ state retains the same source-keyed inventory and ownership.
 
 ## Main0 canonical root lifecycle (D0 production handoff)
 
-D1 retires the private InBodyStep selector and physical chain. Its frozen
-source fixtures now use the current common root route; the remaining bounded
-selectors below are Continue and DerivedPredicate.
+D1/D2 retire the private InBodyStep and Continue selectors/physical chains.
+Their frozen fixtures use the current common root route. DerivedPredicate is
+the remaining bounded selector until its independently verified D3 retirement.
 
 The sole production root-lowering funnel,
 `lower_prepared_program_root_with_callable_mode_v1`, classifies the App Main
 root *before* the legacy wrapper opens. `program_root_lowering/
 main0_root_route.rs` performs the observation-only selection against the
 installed semantic package; a selected `SelectedMain0RootProductV1`
-(`Continue` or `DerivedPredicate`) transports into
+(`DerivedPredicate`) transports into
 `decls.rs::build_selected_main0_root_with_port_v1`, which hands the
 one-shot root loan and product to the matching
 `normal_callable_semantic_loan_port/main0_root.rs` adapter
-(`lower_app_main0_continue_root_v1` /
-`lower_app_main0_derived_predicate_root_v1`).
+(`lower_app_main0_derived_predicate_root_v1`).
 Each adapter consumes the loan inside its callback, runs the verified
 ingress/session/lowerer, and admits one `ReadyFunctionDraftSealV1` under
 `FunctionDraftKeyV1::Main` through the profile-neutral

@@ -1031,20 +1031,11 @@ tables used by earlier fixed-shape producers. The draft is an assembler only;
 symmetric: root loop, condition block, body block, condition seal, and else
 block each reject a second open/seal instead of silently replacing state.
 
-The first consumer is the caller-zero Main0 Continue source front
-(`compiler/main0_continue_*`), producer id `main0_continue_v1`, for the
-selected `Main.main/0` profile `local i, local n, loop(i<n) { if i==1
-{i+=1; continue} i+=1 } return i`. The chain is AST-free facts -> ledger
-join map (`main0_continue_source_map` schema + `main0_continue_source_map_issue`
-sole sealer) -> `main0_continue_recipe_coseal` (draft -> artifact -> verify
--> source claim -> Core -> inputs -> JoinSig -> continuation -> evidence) ->
-observation-only root selection -> prepared operation demand -> the shared
-physical lowerer producing one `ReadyFunctionDraftSealV1`. `n` is a
-loop-available carrier because JoinSig requires loop-body reads to be
-carrier-backed. This row owns no Builder route, production caller, retry,
-fallback, or legacy deletion; the Main0 canonical-root handoff remains a
-later explicit slice.
-
+The old Main0 Continue consumer retires in D2. `LoopRecipeDraftV1` and its
+shared verifier/source-binding contracts remain current; public producer IDs
+and existing wire fixtures do not require keeping a private producer alive.
+The neutral Continue fact/map fragments remain only for DerivedPredicate until
+its D3 retirement.
 
 ## Original recursive source Loop V2 projection
 

@@ -469,3 +469,8 @@ ScopeBoxのno-retry/cleanup/temp binding保証3件は関数本文をbyte不変�
 
 旧selectorを閉じた最適化CLIで固定5,386入力を比較し、差は承認済みin-body-step 1本のみ（EXE exit3、EXE成功1,472、timeout0）。同一binary/環境の計測あり・なし比較も差0。対象の旧selector/producer/physicalizerは0回、既存V2の実命令生成→独立検証→公開を確認してから専用12fileを退役した。追加production glue0。
 削除後の共有focused24件PASS、既存rootテストは8 PASS/残る既知3 FAIL・新規FAIL0。公開/PHI保証の正例2件は名前・source・assertionを変えず既知FAILからPASSへ改善した。旧tail-membership拒否だけの1件も専有testとして退役し、登録8617→8599（専有18件、未説明差0）。整形後Rustは本体2,487行/test892行の純減。計測印は全撤去、owner数/pointer/diff検査PASS。全lib/固定suiteと削除後の最適化CLI比較はseries最終で行う。
+
+### 段D continue: 更新位置を保って共通 V2 へ
+
+旧selector遮断後の最適化CLIで固定5,386入力の差は承認済みcontinue 7本だけ（累積EXE1,479、timeout0）。同一binary/環境の計測あり・なしは差0。上限2本のFault102/exit70を維持し、移管済み8本で対応する旧経路0回・共通V2の実命令生成/独立検証/公開を確認した。
+専用10fileと15testを退役し、derived-predicateが使うneutral facts/map型だけを同じownerに保持した。追加production glue0。削除後focused47 PASS/残る既知2 FAIL・新規FAIL0、公開正例の名前/source/assertionを保持したまま更に1件がPASSへ改善。登録8599→8584、整形後Rustは本体2,790行/test884行の純減。owner数/pointer/diff検査PASS。最終の全lib/固定suite/clean最適化CLI照合はseries最終で行う。
