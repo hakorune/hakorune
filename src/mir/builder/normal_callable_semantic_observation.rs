@@ -9,14 +9,6 @@ use crate::mir::ValueId;
 
 use super::CallableSemanticLoweringState;
 
-#[derive(Debug)]
-pub(in crate::mir::builder) struct PreparedCallableSourceBackedRebindV1 {
-    site: SourceNodeSiteV1,
-    binding: BindingRefV1,
-    result: ValueId,
-    consumes_target_read: bool,
-}
-
 impl CallableSemanticLoweringState {
     pub(in crate::mir::builder) fn record_completed_ordinary_new_local(
         &self,
@@ -112,7 +104,11 @@ impl CallableSemanticLoweringState {
         actual: &'a SourceNodeSiteV1,
         move_operand: &'a SourceNodeSiteV1,
     ) -> &'a SourceNodeSiteV1 {
-        if self.variables.contains_key(actual) { actual } else { move_operand }
+        if self.variables.contains_key(actual) {
+            actual
+        } else {
+            move_operand
+        }
     }
 
     pub(in crate::mir::builder) fn observe_variable_site(
@@ -181,57 +177,5 @@ impl CallableSemanticLoweringState {
             .source()
             .origin_for_binding(binding)
             .is_some()
-    }
-
-    pub(in crate::mir::builder) fn prepare_source_backed_static_rebind(
-        &self,
-        site: &SourceNodeSiteV1,
-        expected_binding: BindingRefV1,
-        expected_previous: ValueId,
-        result: ValueId,
-    ) -> Result<PreparedCallableSourceBackedRebindV1, String> {
-        let binding = self
-            .assignments
-            .get(site)
-            .copied()
-            .ok_or_else(|| super::freeze("missing-assignment-site"))?;
-        if binding != expected_binding || self.consumed_assignments.contains(site) {
-            return Err(super::freeze("static-rebind-assignment-mismatch"));
-        }
-        let consumes_target_read = match self.variables.get(site).copied() {
-            Some(read_binding)
-                if read_binding == binding && !self.consumed_variables.contains(site) =>
-            {
-                true
-            }
-            Some(_) => return Err(super::freeze("assignment-target-read-mismatch")),
-            None => false,
-        };
-        if self.values.get(&binding).copied() != Some(expected_previous) {
-            return Err(super::freeze("static-rebind-current-mismatch"));
-        }
-        if result == expected_previous {
-            return Err(super::freeze("static-rebind-result-reuses-current"));
-        }
-        Ok(PreparedCallableSourceBackedRebindV1 {
-            site: site.clone(),
-            binding,
-            result,
-            consumes_target_read,
-        })
-    }
-
-    pub(in crate::mir::builder) fn commit_source_backed_static_rebind(
-        &mut self,
-        prepared: PreparedCallableSourceBackedRebindV1,
-    ) {
-        debug_assert_ne!(self.values.get(&prepared.binding), Some(&prepared.result));
-        let inserted_assignment = self.consumed_assignments.insert(prepared.site.clone());
-        debug_assert!(inserted_assignment);
-        if prepared.consumes_target_read {
-            let inserted_read = self.consumed_variables.insert(prepared.site.clone());
-            debug_assert!(inserted_read);
-        }
-        self.values.insert(prepared.binding, prepared.result);
     }
 }

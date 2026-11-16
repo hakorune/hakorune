@@ -201,8 +201,7 @@
      "src/runner/mir_json_emit/root.rs"
     ],
     "anchors": [
-     "src/mir/builder/resolved_lowering/draft_seal.rs:520:pinned_text_residence_backend_carrier",
-     "src/mir/builder/resolved_lowering/draft_seal_owner.rs:26:pinned_text_residence_backend_carrier"
+     "src/mir/builder/resolved_lowering/draft_seal.rs:520:pinned_text_residence_backend_carrier"
     ],
     "count": 5,
     "kind": "observed_mutation"
@@ -215,8 +214,7 @@
      "src/mir/compiler/pinned_text_residence_backend_projection.rs"
     ],
     "anchors": [
-     "src/mir/builder/resolved_lowering/draft_seal.rs:520:pinned_text_residence_backend_carrier",
-     "src/mir/builder/resolved_lowering/draft_seal_owner.rs:26:pinned_text_residence_backend_carrier"
+     "src/mir/builder/resolved_lowering/draft_seal.rs:520:pinned_text_residence_backend_carrier"
     ],
     "count": 4
    },

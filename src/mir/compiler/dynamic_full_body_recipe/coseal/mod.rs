@@ -20,12 +20,9 @@ use coverage::{verify_complete_claim_coverage_v2, VerifiedDynamicFullLoopClaimCo
 pub(in crate::mir) use local::DynamicIterationLocalValueRefV2;
 use local::{verify_iteration_local_relation_v2, DynamicIterationLocalRelationV2};
 use physical_evidence::issue_physical_evidence_v2;
-use physical_evidence::issue_recipe_relations;
 pub(in crate::mir) use physical_evidence::{
-    DynamicFullLoopOperationEffectV2, DynamicFullLoopOperationPhysicalRefV2,
-    DynamicFullLoopPhysicalEvidenceRejectV2, DynamicFullLoopPhysicalItemKindV2,
-    DynamicFullLoopPhysicalItemPlacementV2, DynamicFullLoopPhysicalRecipeRelationsViewV2,
-    DynamicLoopPhysicalArmV2, DynamicLoopPhysicalControlRowV2,
+    DynamicFullLoopOperationEffectV2, DynamicFullLoopPhysicalEvidenceRejectV2,
+    DynamicFullLoopPhysicalItemKindV2, DynamicFullLoopPhysicalItemPlacementV2,
     VerifiedDynamicFullLoopPhysicalEvidenceV2, DYNAMIC_FULL_LOOP_PHYSICAL_ITEM_COUNT_V2,
     DYNAMIC_FULL_LOOP_PHYSICAL_OPERATION_COUNT_V2,
 };
@@ -71,15 +68,6 @@ impl VerifiedDynamicFullLoopSourceRecipeEnvelopeV2 {
 
     pub(in crate::mir) fn physical_evidence(&self) -> &VerifiedDynamicFullLoopPhysicalEvidenceV2 {
         &self.physical_evidence
-    }
-
-    pub(in crate::mir) fn physical_recipe_relations(
-        &self,
-    ) -> Result<
-        DynamicFullLoopPhysicalRecipeRelationsViewV2<'_>,
-        DynamicFullLoopPhysicalEvidenceRejectV2,
-    > {
-        issue_recipe_relations(&self.physical_evidence, self.artifact.recipe(), &self.calls)
     }
 
     #[cfg(test)]

@@ -27,7 +27,6 @@ mod parser_bound_policy;
 mod parser_bound_policy_tests;
 mod product;
 mod rejection;
-mod script_physical_entry;
 mod script_recipe;
 #[cfg(test)]
 mod test_support;
@@ -42,43 +41,35 @@ pub(crate) use compatibility_origin::{
     NormalCallableCompatibilityOriginErrorV1, NormalCallableCompatibilityOriginV1,
 };
 pub(in crate::mir::compiler) use instance_function_plan::{
-    GeneralFunctionPlanErrorV1, GeneralFunctionPlanStageV1,
-    VerifiedNormalInstanceFunctionPlanSetV1,
+    GeneralFunctionPlanErrorV1, GeneralFunctionPlanStageV1, VerifiedNormalInstanceFunctionPlanSetV1,
 };
-pub(crate) use main0_bridge::{
-    NormalMain0BridgeErrorV1, NormalMain0BridgeStageV1,
-};
+pub(crate) use main0_bridge::{NormalMain0BridgeErrorV1, NormalMain0BridgeStageV1};
 pub(crate) use main_direct_call_plan::{
-    NormalMainDirectCallPreflightV1,
-    RejectedNormalMainDirectCallPlanV1,
+    NormalMainDirectCallPreflightV1, RejectedNormalMainDirectCallPlanV1,
 };
 pub(crate) use main_direct_call_source::{
     RejectedNormalMainDirectCallSourceV1, VerifiedNormalMainDirectCallSourceUnitV1,
 };
-pub(crate) use main_function_plan::{
-    NormalMainFunctionPlanErrorV1, NormalMainFunctionPreflightV1,
-};
+pub(crate) use main_function_plan::{NormalMainFunctionPlanErrorV1, NormalMainFunctionPreflightV1};
 pub(crate) use main_resolved_source::{
-    NormalMainResolvedSourceErrorV1,
-    VerifiedNormalMainResolvedSourceUnitV1, VerifiedNormalMainRoleV1,
+    NormalMainResolvedSourceErrorV1, VerifiedNormalMainResolvedSourceUnitV1,
+    VerifiedNormalMainRoleV1,
 };
 pub(crate) use main_source::{
-    NormalMainFunctionSourceErrorV1,
-    VerifiedNormalMainFunctionSourceUnitV1,
+    NormalMainFunctionSourceErrorV1, VerifiedNormalMainFunctionSourceUnitV1,
 };
 pub(crate) use main_thunk_plan::{
-    seal_normal_main_physical_relation_v1, NormalMainThunkPlanErrorV1, VerifiedNormalMainEntryRelationV1,
-    VerifiedNormalMainPhysicalRelationV1, VerifiedNormalMainThunkPlanV1,
-    VerifiedNormalMainThunkResultV1,
+    seal_normal_main_physical_relation_v1, NormalMainThunkPlanErrorV1,
+    VerifiedNormalMainEntryRelationV1, VerifiedNormalMainPhysicalRelationV1,
+    VerifiedNormalMainThunkPlanV1, VerifiedNormalMainThunkResultV1,
 };
-pub(crate) use module_source::{ NormalModuleBoxSourceErrorV1, NormalModuleSourceErrorV1,
-    NormalModuleSourceStageV1, RejectedNormalModuleSourceV1,
-    VerifiedNormalModuleSourceV1,
+pub(crate) use module_source::{
+    NormalModuleBoxSourceErrorV1, NormalModuleSourceErrorV1, NormalModuleSourceStageV1,
+    RejectedNormalModuleSourceV1, VerifiedNormalModuleSourceV1,
 };
 pub(crate) use normal_acyclic_module_plan::{
     CompletedNormalMainHelperResolutionV1, NormalAcyclicCallableModuleErrorV1,
-    NormalMainHelperResolutionStageV1,
-    RejectedNormalMainHelperResolutionV1,
+    NormalMainHelperResolutionStageV1, RejectedNormalMainHelperResolutionV1,
     VerifiedNormalHelperTopologyPlanV1, VerifiedNormalRecursiveCallableModulePlanV1,
 };
 pub(crate) use normal_callable_transaction_handoff::{
@@ -92,20 +83,13 @@ pub(crate) use product::{
     PreparedNormalSourcePlanInputV1, SealedNormalCallableModuleSourceV1, SealedNormalMainSourceV1,
     SealedNormalScalarRootV1, SealedNormalScriptSourceV1, SealedNormalSourcePlanV1,
 };
+#[cfg(test)]
+pub(crate) use rejection::NormalUnsupportedTopLevelKindV1;
 pub(crate) use rejection::{
     NormalSourcePlanErrorV1, NormalSourcePlanIdentityFieldV1, NormalSourcePlanStageV1,
     RejectedNormalSourcePlanV1,
 };
-#[cfg(test)]
-pub(crate) use rejection::NormalUnsupportedTopLevelKindV1;
-pub(crate) use script_physical_entry::{
-    CompletedScriptPhysicalExitV1, OpenScriptPhysicalEntryV1,
-    RejectedNormalScriptPhysicalEntryV1,
-};
-pub(crate) use script_recipe::{
-    RetainedNormalScriptSourceV1,
-    VerifiedNormalScriptRecipeV1,
-};
+pub(crate) use script_recipe::{RetainedNormalScriptSourceV1, VerifiedNormalScriptRecipeV1};
 #[cfg(test)]
 pub(crate) use test_support::with_main_thunk_for_test;
 

@@ -509,3 +509,29 @@ F02の実消費者が消えた`loop_route_detection::support::function_scope`の
 - 確かめていない事: 既定でない feature の下での動き。Python の検査(v4)は、C 側を変えていないので走らせていない。
 - 次の候補: F22 を共通の loop へ移す(統合してから消す)。F23 の拒否の文を、共通の道で同じ内容にしてから消す。まだ決めていない 9 family(F03・F05・F09・F10・F11・F15・F18・F20・F21)。使い手のいなくなった共有の部品。
 
+
+## お掃除6 A: 使い手のいない準備部品（2026-11-16）
+
+基点はmain `6a5f2d453f`。既定・通るfeature二構成・testの警告を照合し、名前・登録・macro・feature側の参照を別に確認した。
+未接続のScript transactionとouter entry、static/Dynamic rebindの準備wrapper、Dynamic physical evidenceの未使用readout、Pinned Textの未使用Ingress/Lineage/install wrapperを削除した。
+現役のScript sessionとその破棄・復元、originの検査とtest、source coverage、frame/carrierの発行・投影・独立検証は保持した。失敗するfeatureだけでも使い手があるVMの表示・JSON arena・数値処理は残した。F17は変更していない。
+
+- 同じ整形条件でproduction **1,093行減**、test **18行減**、Rust file **2本減**。登録testは8,616件のまま。減ったtest行は未使用の準備wrapperであり、test関数・assertionの削除はない。
+- MIR層の本体は、生のtest-file除外で681,122→680,043行、整形・cfg(test)除外で640,103→639,010行。33万行の目標は未達。
+- 既定buildの警告は2,337→2,290件。警告を抑える属性や公開範囲の拡大はしていない。
+- 最適化CLIで固定5,386入力のMIR・拒否・出力・exitの差0、timeout 0。全lib直列は8,359 PASS / 205 FAIL / 52 ignoredで失敗名集合も登録名集合も不変。
+- 固定suite 8/8（空markerと実EXEのsmokeを区別）、ignored Map 18ケース、owner guard（承認基点6a5f2d453f）・pointer・差分checkはPASS。二featureはPASS、既存二FAIL構成はエラー集合を維持した。
+- 既存のScript physical guardは、基点から欠けている`into_recipe`の目印で前後同じFAIL。現役部分の検査を弱めず、消した準備部品だけの節を除いた。metadata台帳の既存130/131不一致と520行anchorのずれは修正対象へ混ぜていない。 projection guardも、既存provider観測7件に対する期待6件の不一致を前後とも保持した。
+
+
+## お掃除6 B/C/D: 保持した境界と単独閉鎖の調査（2026-11-16）
+
+F22の切替試作では、元のAPI test二本と既存のreturn-0保護が通り、実際にcalleeを呼ぶ二入力もEXEでexit 7/37になった。しかし固定入力の比較でboxtorrentの既存EXEに回帰が出たため、試作・追加入力は保持用patchへ退避し、変更を戻した。F22の削減は0行。
+原因は`release`の`local remain = chunk.release()`から、入れ子のIfを越えた`return remain`への対応。初期化時の証拠は存在するが、分岐入口と合流の正規PHIでSSA値が変わるため、Copyだけの原本Call証拠では足りない。実predecessor・全incoming・元Callを結ぶ共通join証拠が必要であり、到達性・支配関係の既存検査や必須initializer照合は弱めない。単純なAPI正例の成功を製品全体の成功と数えない。
+
+F23は四入力を新しく計測した。dump/EXEの八組とも、診断内の`NestedPredicate(Declined ... NotNestedPredicateShape ...)`というadmission要素一件（1,363 bytes）だけが消えた。exit 1、EXE未生成、`RowUnresolved(DirectAccum)`は同じ。一方、閉鎖した全libではNested profileの受理・検証・状態復元を含む八本が新FAILになった。診断が試行履歴であることだけでは退役を正当化できず、F23は残す。
+
+残る九familyは、一つのprocessでは一familyだけを閉じて調査した。全lib直列の新FAIL数はF03=11、F05=1、F09=1、F10=25、F11=11、F15=3、F18=4、F20=3、F21=0。未閉鎖の観測用binaryは8,359 PASS / 205 FAIL / 52 ignoredで基準と同じだった。
+F03の十本は旧advisory classifier自体のtestで、残る一本はdev parity。F11の十一件も専用metadata producerのtestであり、古いsubjectを退役する判断時には一緒に扱える。ただしF09の失敗順序、F15の評価・無公開、F18の現行MatchExpr、F20の正規Script/QMark、F10の共有sourceと復元、F05の公開JSON bridgeは移管先が必要。F21の閉鎖で新FAILがないことも、共有issuerの契約が不要という証明にはしない。
+
+全一時観測・閉鎖・機械的test変更は撤去した。九familyとF23の物理退役は行わず、F17にも触れていない。固定入力での選択・閉鎖差と最終検証の詳細は、この回の測定報告で確認する。

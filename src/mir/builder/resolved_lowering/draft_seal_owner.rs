@@ -23,8 +23,6 @@ use crate::mir::{BasicBlockId, MirBuilder, MirFunction};
 #[cfg(test)]
 use crate::mir::compiler::pinned_text_backend_frame::PinnedTextBackendFrameBorrowV1;
 #[cfg(test)]
-use crate::mir::compiler::pinned_text_residence_backend_carrier::PinnedTextResidenceBackendCarrierLineageV1;
-#[cfg(test)]
 use crate::mir::pinned_text_residence_lifecycle::PinnedTextResidenceFinishCapabilityV1;
 
 use super::completion_consumption::ReadyFunctionCompletionV1;
