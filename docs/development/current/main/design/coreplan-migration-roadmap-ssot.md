@@ -17,6 +17,8 @@ Related:
 
 # CorePlan Migration Roadmap (SSOT)
 
+> **Historical(2026-11-17、メンテナ決定):** この文書は、古い設計か作業の記録である。**新しい作業を選ぶ根拠にしない。** MirBuilder(source → MIR)の設計は [MirBuilder の設計図](mirbuilder-blueprint.md) を読む。食い違う時は、設計図が勝つ。
+
 目的: “JoinIR を CorePlan で組み立てる” 状態へ、仕様不変（release既定）で段階的に収束するための道筋を 1 枚に固定する。
 
 ## 0. 前提（守ること）

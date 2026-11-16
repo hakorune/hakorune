@@ -9,6 +9,8 @@ Related:
 
 # Recipe-first Entry Contract (SSOT)
 
+> **注意(2026-11-17、メンテナ決定):** この文書には、[MirBuilder の設計図](mirbuilder-blueprint.md) が上書きした所がある。特に「loop の家族・route・Recipe が、source を受け付けるかを決める」という記述と、段の順(`Facts -> RoutePolicy -> Recipe -> ...`)は、もう設計ではない。食い違う時は、設計図が勝つ。
+
 This document fixes the entry flow so that entry-route selection does not define semantics; semantics come from Facts → Recipe → Verifier.
 The whole-pipeline authority, including DraftSeal and atomic module publication,
 is owned by `mirbuilder-final-pipeline-ssot.md`; this document owns only its

@@ -3,14 +3,14 @@ shard_id = "8"
 
 [[documents]]
 path = "COREPLAN_GENERAL_LOOP_DECOMPOSITION_INQUIRY.md"
-role = "supporting"
+role = "superseded"
 owner = "coreplan-skeleton-feature-model.md"
 precedence_parent = "coreplan-skeleton-feature-model.md"
 classification_basis = "C2-singleton-al: external-review inquiry (questionnaire) on CorePlan unknown-loop decompose-vs-general-loop"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "owner-family review replaces or supersedes this support note"
+superseded_by = "archive/COREPLAN_GENERAL_LOOP_DECOMPOSITION_INQUIRY.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "INDEX.md"
@@ -102,14 +102,14 @@ retire_when = "this ledger/inventory is replaced by an explicit durable owner"
 
 [[documents]]
 path = "flowbox-fallback-observability-ssot.md"
-role = "supporting"
+role = "superseded"
 owner = "coreplan-skeleton-feature-model.md"
 precedence_parent = "coreplan-skeleton-feature-model.md"
 classification_basis = "C2-singleton-al: FlowBox fallback observability via flowbox/freeze codes (strict/dev only)"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "owner-family review replaces or supersedes this support note"
+superseded_by = "archive/flowbox-fallback-observability-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "generic-arity-checker-ssot.md"
@@ -300,14 +300,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "joinir-loop-scoped-nongeneric-cutover-ssot.md"
-role = "authority"
+role = "superseded"
 owner = "INDEX.md"
 precedence_parent = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
 classification_basis = "CURRENT_STATE:scoped non-Generic bridge and final atomic Loop cutover boundary"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "the scoped Loop bridge closes or the final atomic cutover replaces it"
+superseded_by = "archive/joinir-loop-scoped-nongeneric-cutover-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "joinir-smoke-legacy-stem-retirement-ssot.md"
@@ -399,14 +399,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "return-in-loop-minimal-ssot.md"
-role = "authority"
+role = "superseded"
 owner = "generic-loop-v1-acceptance-by-recipe-ssot.md"
 precedence_parent = "generic-loop-v1-acceptance-by-recipe-ssot.md"
 classification_basis = "C2-singleton-mz: minimal early-return-in-loop acceptance vocabulary (stdlib `is_integer` shape)"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "owner-family review explicitly replaces this authority"
+superseded_by = "archive/return-in-loop-minimal-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "selfhost-family-artifact-route-seam-ssot.md"

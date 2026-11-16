@@ -12,6 +12,8 @@ Related:
 
 # CorePlan FlowBox Interface (SSOT)
 
+> **注意(2026-11-17、メンテナ決定):** この文書には、[MirBuilder の設計図](mirbuilder-blueprint.md) が上書きした所がある。特に「loop の家族・route・Recipe が、source を受け付けるかを決める」という記述と、段の順(`Facts -> RoutePolicy -> Recipe -> ...`)は、もう設計ではない。食い違う時は、設計図が勝つ。
+
 目的: “箱理論（制御の箱）” を CorePlan に当てるとき、CorePlan node を **FlowBox（ports を持つ部品）**として定義し、
 post-phi / Exit / cleanup を **ports と合成規則**だけで完結させる。
 

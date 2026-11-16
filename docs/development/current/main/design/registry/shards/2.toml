@@ -124,14 +124,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "coreplan-purity-stage1-ssot.md"
-role = "status-ledger"
+role = "superseded"
 owner = "coreplan-skeleton-feature-model.md"
 precedence_parent = "coreplan-skeleton-feature-model.md"
 classification_basis = "C2-singleton-al: CorePlan purity Stage-1 (strict/dev fallback visibility target)"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "this ledger/inventory is replaced by an explicit durable owner"
+superseded_by = "archive/coreplan-purity-stage1-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "execution-lanes-migration-task-pack-ssot.md"

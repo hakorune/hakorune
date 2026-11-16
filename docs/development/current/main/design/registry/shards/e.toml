@@ -355,14 +355,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "recipe-file-naming-unification-ssot.md"
-role = "status-ledger"
+role = "superseded"
 owner = "recipe-tree-and-parts-ssot.md"
 precedence_parent = "recipe-tree-and-parts-ssot.md"
 classification_basis = "C2-singleton-mz: historical Pattern-number→Recipe/Lego file-naming mapping ledger"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "this ledger/inventory is replaced by an explicit durable owner"
+superseded_by = "archive/recipe-file-naming-unification-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "recipe-scope-effect-policy-ssot.md"

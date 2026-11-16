@@ -410,14 +410,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "selfhost-tools-loopless-subset-ssot.md"
-role = "authority"
+role = "superseded"
 owner = "selfhost-coreplan-unblocking-policy.md"
 precedence_parent = "selfhost-coreplan-unblocking-policy.md"
 classification_basis = "C2-singleton-mz: selfhost tooling loopless-subset policy under `NYASH_DISABLE_PLUGINS=1`"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "owner-family review explicitly replaces this authority"
+superseded_by = "archive/selfhost-tools-loopless-subset-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "stage2-optimization-debug-bundle-ssot.md"

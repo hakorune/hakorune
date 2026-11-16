@@ -432,14 +432,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "scope-manager-condition-binding-adapter-wiring-design.md"
-role = "supporting"
+role = "superseded"
 owner = "phi-lifecycle-ssot.md"
 precedence_parent = "phi-lifecycle-ssot.md"
 classification_basis = "C2-singleton-mz: (design) condition-binding identity adapter wiring/lookup support"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "owner-family review replaces or supersedes this support note"
+superseded_by = "archive/scope-manager-condition-binding-adapter-wiring-design.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "selfhost-language-v1-freeze-ssot.md"

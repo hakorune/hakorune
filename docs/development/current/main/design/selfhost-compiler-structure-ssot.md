@@ -18,6 +18,8 @@ Related:
 
 # Selfhost Compiler Structure (SSOT)
 
+> **注意(2026-11-17、メンテナ決定):** この文書には、[MirBuilder の設計図](mirbuilder-blueprint.md) が上書きした所がある。特に「loop の家族・route・Recipe が、source を受け付けるかを決める」という記述と、段の順(`Facts -> RoutePolicy -> Recipe -> ...`)は、もう設計ではない。食い違う時は、設計図が勝つ。
+
 ## Goal
 
 最終目標を `.hako` / Rust 横断で迷わず読めるようにする。

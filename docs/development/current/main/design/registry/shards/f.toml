@@ -135,14 +135,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "coreloop-stepmode-inline-in-body-ssot.md"
-role = "supporting"
+role = "superseded"
 owner = "coreplan-skeleton-feature-model.md"
 precedence_parent = "coreplan-skeleton-feature-model.md"
 classification_basis = "C2-singleton-al: StepPlacement/StepMode InlineInBody (no-rewrite loop expressivity)"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "owner-family review replaces or supersedes this support note"
+superseded_by = "archive/coreloop-stepmode-inline-in-body-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "decoded-utf8-byte-length-contract-v0.md"
@@ -179,14 +179,14 @@ retire_when = "Generic source-to-portable Recipe authority is replaced explicitl
 
 [[documents]]
 path = "generic-loop-v1-shape-ssot.md"
-role = "supporting"
+role = "superseded"
 owner = "generic-loop-v1-acceptance-by-recipe-ssot.md"
 precedence_parent = "generic-loop-v1-acceptance-by-recipe-ssot.md"
 classification_basis = "C2-singleton-al: JoinIR generic_loop_v1 ShapeId detection (hint-only)"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "owner-family review replaces or supersedes this support note"
+superseded_by = "archive/generic-loop-v1-shape-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "generic-type-annotation-metadata-capsule-ssot.md"
@@ -245,14 +245,14 @@ retire_when = "owner-family review replaces or supersedes this support note"
 
 [[documents]]
 path = "joinir-plan-frag-ssot.md"
-role = "authority"
+role = "superseded"
 owner = "joinir-design-map.md"
 precedence_parent = "joinir-design-map.md"
 classification_basis = "C2-singleton-al: Plan/Frag responsibilities, prohibitions, freeze points"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "owner-family review explicitly replaces this authority"
+superseded_by = "archive/joinir-plan-frag-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "joinir-port-task-pack-ssot.md"
@@ -465,11 +465,11 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "variable-context-carrier-phi-lifecycle-inventory.md"
-role = "status-ledger"
+role = "superseded"
 owner = "phi-lifecycle-ssot.md"
 precedence_parent = "phi-lifecycle-ssot.md"
 classification_basis = "C2-singleton-mz: carrier-sensitive `VariableContext.variable_map` consumer inventory"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "this ledger/inventory is replaced by an explicit durable owner"
+superseded_by = "archive/variable-context-carrier-phi-lifecycle-inventory.md"
+retire_when = "retire this stub after reachable-reference closure"

@@ -1,5 +1,7 @@
 # Condition-Binding Resolution Rewrite Design
 
+> **Historical(2026-11-17、メンテナ決定):** この文書は、古い設計か作業の記録である。**新しい作業を選ぶ根拠にしない。** MirBuilder(source → MIR)の設計は [MirBuilder の設計図](mirbuilder-blueprint.md) を読む。食い違う時は、設計図が勝つ。
+
 Status: design
 Scope: promoted condition identity consumption after proof probe.
 

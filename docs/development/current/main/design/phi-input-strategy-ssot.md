@@ -11,6 +11,8 @@ Related:
 
 # PhiInputStrategy (SSOT, design-only)
 
+> **Historical(2026-11-17、メンテナ決定):** この文書は、古い設計か作業の記録である。**新しい作業を選ぶ根拠にしない。** MirBuilder(source → MIR)の設計は [MirBuilder の設計図](mirbuilder-blueprint.md) を読む。食い違う時は、設計図が勝つ。
+
 目的: “PHI を作るときの入力パターン” を、文字列/コメント/その場の分岐ではなく **型で表現**して固定する。
 将来の BoxShape 作業で「同じ形の PHI が別ファイルで増殖する」事故を止める。
 

@@ -152,8 +152,8 @@ precedence_parent = "coreplan-skeleton-feature-model.md"
 classification_basis = "C2-singleton-al: Status Deprecated; replaced by FlowBox schema tags"
 sidecars = []
 supersedes = []
-superseded_by = "flowbox-tag-coverage-map-ssot.md"
-retire_when = "C3 supersession review retires this stub after reachable-reference closure"
+superseded_by = "archive/coreplan-shadow-adopt-tag-coverage-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "current-docs-update-policy-ssot.md"
@@ -311,14 +311,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "json-v0-bridge-lowering-split-ssot.md"
-role = "status-ledger"
+role = "superseded"
 owner = "selfhost-parser-mirbuilder-migration-order-ssot.md"
 precedence_parent = "selfhost-parser-mirbuilder-migration-order-ssot.md"
 classification_basis = "C2-singleton-al: json_v0_bridge/lowering.rs structure-cleanup responsibility map + split state (behavior-neutral)"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "this ledger/inventory is replaced by an explicit durable owner"
+superseded_by = "archive/json-v0-bridge-lowering-split-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "kernel-replacement-axis-ssot.md"
@@ -399,14 +399,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "planfrag-ssot-registry.md"
-role = "status-ledger"
+role = "superseded"
 owner = "joinir-design-map.md"
 precedence_parent = "joinir-design-map.md"
 classification_basis = "C2-singleton-mz: (Draft) JoinIR plan/frag SSOT-location registry table"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "this ledger/inventory is replaced by an explicit durable owner"
+superseded_by = "archive/planfrag-ssot-registry.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "route-physical-path-legacy-lane-ssot.md"

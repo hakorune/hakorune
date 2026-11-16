@@ -443,14 +443,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "selfhost-coreplan-unblocking-policy.md"
-role = "authority"
+role = "superseded"
 owner = "compiler-expressivity-first-policy.md"
 precedence_parent = "compiler-expressivity-first-policy.md"
 classification_basis = "C2-singleton-mz: policy: strengthen CorePlan instead of patching `.hako` on bringup stalls"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "owner-family review explicitly replaces this authority"
+superseded_by = "archive/selfhost-coreplan-unblocking-policy.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "stage2-aot-fast-lane-crossing-inventory.md"

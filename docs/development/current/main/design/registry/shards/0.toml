@@ -80,14 +80,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "coreloop-composer-v0-v1-boundary-ssot.md"
-role = "supporting"
+role = "superseded"
 owner = "coreplan-skeleton-feature-model.md"
 precedence_parent = "coreplan-skeleton-feature-model.md"
 classification_basis = "C2-singleton-al: CoreLoopComposer v0/v1 responsibility boundary (value_join_needed selection)"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "owner-family review replaces or supersedes this support note"
+superseded_by = "archive/coreloop-composer-v0-v1-boundary-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "coreloop-continue-target-slot-ssot.md"
@@ -102,25 +102,25 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "coreplan-purity-stage2-ssot.md"
-role = "status-ledger"
+role = "superseded"
 owner = "coreplan-skeleton-feature-model.md"
 precedence_parent = "coreplan-skeleton-feature-model.md"
 classification_basis = "C2-singleton-al: CorePlan purity Stage-2 (release-default CorePlan sole structural SSOT target)"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "this ledger/inventory is replaced by an explicit durable owner"
+superseded_by = "archive/coreplan-purity-stage2-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "coreplan-unknown-loop-strategy-ssot.md"
-role = "authority"
+role = "superseded"
 owner = "coreplan-skeleton-feature-model.md"
 precedence_parent = "coreplan-skeleton-feature-model.md"
 classification_basis = "C2-singleton-al: CorePlan/JoinIR unknown-loop decompose-and-compose strategy law"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "owner-family review explicitly replaces this authority"
+superseded_by = "archive/coreplan-unknown-loop-strategy-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "declared-uses-capability-plan-mapping-ssot.md"
@@ -465,14 +465,14 @@ retire_when = "tombstone removed after references to the old path are closed"
 
 [[documents]]
 path = "strict-nested-loop-guard-ssot.md"
-role = "authority"
+role = "superseded"
 owner = "planner-entry-guards-ssot.md"
 precedence_parent = "planner-entry-guards-ssot.md"
 classification_basis = "C2-singleton-mz: JoinIR composer `strict_nested_loop_guard` contract"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "owner-family review explicitly replaces this authority"
+superseded_by = "archive/strict-nested-loop-guard-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "usize-semantic-foundation-ssot.md"

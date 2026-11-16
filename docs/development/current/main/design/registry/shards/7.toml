@@ -388,14 +388,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "phi-carrier-lifecycle-consumer-inventory.md"
-role = "status-ledger"
+role = "superseded"
 owner = "phi-lifecycle-ssot.md"
 precedence_parent = "phi-lifecycle-ssot.md"
 classification_basis = "C2-singleton-mz: lifecycle-sensitive CarrierInfo PHI-carrier consumer inventory"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "this ledger/inventory is replaced by an explicit durable owner"
+superseded_by = "archive/phi-carrier-lifecycle-consumer-inventory.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "phi-input-strategy-ssot.md"
@@ -498,11 +498,11 @@ retire_when = "mutable status ledger is replaced by an explicit registry row"
 
 [[documents]]
 path = "substring-concat-len-closed-form-lowering-ssot.md"
-role = "authority"
+role = "superseded"
 owner = "string-canonical-mir-corridor-and-placement-pass-ssot.md"
 precedence_parent = "string-canonical-mir-corridor-and-placement-pass-ssot.md"
 classification_basis = "C2-singleton-mz: stable-length exact-route closed-form lowering decision"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "owner-family review explicitly replaces this authority"
+superseded_by = "archive/substring-concat-len-closed-form-lowering-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"

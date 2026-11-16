@@ -201,14 +201,14 @@ retire_when = "this proof row is explicitly replaced and its owned sidecars reti
 
 [[documents]]
 path = "joinir-loop-pre-effect-product-ssot.md"
-role = "authority"
+role = "superseded"
 owner = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
 precedence_parent = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
 classification_basis = "Loop pipeline: pre-effect product boundary"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "pre-effect product boundary is replaced explicitly"
+superseded_by = "archive/joinir-loop-pre-effect-product-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "kernel-observability-and-two-stage-pilot-ssot.md"
@@ -289,14 +289,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "post-phi-final-form-ssot.md"
-role = "authority"
+role = "superseded"
 owner = "phi-input-strategy-ssot.md"
 precedence_parent = "phi-input-strategy-ssot.md"
 classification_basis = "C2-singleton-mz: final representation + local verification of pred-varying join (PHI-equivalent) values"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "owner-family review explicitly replaces this authority"
+superseded_by = "archive/post-phi-final-form-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "provider-runtime-load-ssot.md"

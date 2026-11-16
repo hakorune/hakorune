@@ -14,6 +14,8 @@ Related:
 
 # generic_loop_v1 Acceptance by Recipe (SSOT)
 
+> **Historical(2026-11-17、メンテナ決定):** この文書は、古い設計か作業の記録である。**新しい作業を選ぶ根拠にしない。** MirBuilder(source → MIR)の設計は [MirBuilder の設計図](mirbuilder-blueprint.md) を読む。食い違う時は、設計図が勝つ。
+
 ## Problem
 
 - `RecipeBlock` は **再帰構造**（Seq/If/Loop/Exit/Stmt の合成）。

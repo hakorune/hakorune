@@ -14,6 +14,8 @@ Related:
 
 # Compiler cleanliness campaign (SSOT)
 
+> **Historical(2026-11-17、メンテナ決定):** この文書は、古い設計か作業の記録である。**新しい作業を選ぶ根拠にしない。** MirBuilder(source → MIR)の設計は [MirBuilder の設計図](mirbuilder-blueprint.md) を読む。食い違う時は、設計図が勝つ。
+
 目的: selfhost を “通す” ではなく、**compiler 側の表現力と構造**を「石橋を叩いて渡る」流儀で収束させる。
 
 ## 原則

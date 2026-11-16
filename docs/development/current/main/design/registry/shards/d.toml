@@ -245,14 +245,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "joinir-generic-post-effect-debt-classification-ssot.md"
-role = "authority"
+role = "superseded"
 owner = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
 precedence_parent = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
 classification_basis = "CURRENT_STATE: active Generic debt design stop"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "M4 Generic debt classification is closed and handed off"
+superseded_by = "archive/joinir-generic-post-effect-debt-classification-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "mimalloc-row-validation-cadence-ssot.md"
@@ -278,14 +278,14 @@ retire_when = "this ledger/inventory is replaced by an explicit durable owner"
 
 [[documents]]
 path = "mirbuilder-programjson-capability-batch-migration-policy-ssot.md"
-role = "authority"
+role = "superseded"
 owner = "selfhost-parser-mirbuilder-migration-order-ssot.md"
 precedence_parent = "selfhost-parser-mirbuilder-migration-order-ssot.md"
 classification_basis = "C2-singleton-mz: migration policy: replace `1 shape = 1 card` ProgramJSON cadence with capability batching; provisional parent pending consultation on mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "owner-family review explicitly replaces this authority"
+superseded_by = "archive/mirbuilder-programjson-capability-batch-migration-policy-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "record-and-packed-array-lowering-ssot.md"

@@ -1,39 +1,13 @@
----
-Status: SSOT
-Scope: loop 内 early return を吸うための最小語彙（stdlib `StringUtils.is_integer` 専用）
+Status: Historical
+Moved to: `docs/development/current/main/design/archive/return-in-loop-minimal-ssot.md`
 Related:
-- docs/development/current/main/phases/phase-29ar/README.md
-- docs/development/current/main/design/coreplan-flowbox-interface-ssot.md
-- docs/development/current/main/design/coreplan-skeleton-feature-model.md
-- docs/development/current/main/design/exitkind-cleanup-effect-contract-ssot.md
----
+- `docs/development/current/main/design/mirbuilder-blueprint.md`
+- `docs/development/current/main/design/archive/return-in-loop-minimal-ssot.md`
 
-# Return-in-loop minimal SSOT
+# Moved
 
-This document fixes the minimal vocabulary for early return inside a loop.
+This historical design doc moved to:
 
-## Scope
+- `docs/development/current/main/design/archive/return-in-loop-minimal-ssot.md`
 
-- Target: stdlib `StringUtils.is_integer` minimal shape only.
-- No nested loops, no multiple exits, no general return-heavy patterns.
-
-## Vocabulary (minimal)
-
-- `ExitIfReturn { cond, value }`
-  - Return-only; no generic ExitIf and no non-return kinds.
-  - `value` must match return payload contract (exactly one value).
-
-## Verification (strict/dev)
-
-- `ExitIfReturn` is only allowed in loop bodies (effect-only contexts).
-- `cond` must be a boolean expression.
-- `value` must be present and compatible with function return.
-
-## Lowering
-
-- Lower to `if cond { return value }` using existing CorePlan/Frag emission.
-- Do not bypass block_params or re-parse CorePlan structures.
-
-## Notes
-
-- Expansion to Break/Continue is out of scope for this phase.
+For the current MirBuilder design read `docs/development/current/main/design/mirbuilder-blueprint.md`.

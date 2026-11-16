@@ -1,6 +1,8 @@
 # MIR14 命令セット仕様（補助資料）
 
-Status: Supplemental (Profile spec)
+> **Historical(2026-11-17、メンテナ決定):** この文書は、古い設計か作業の記録である。**新しい作業を選ぶ根拠にしない。** MirBuilder(source → MIR)の設計は [MirBuilder の設計図](../../development/current/main/design/mirbuilder-blueprint.md) を読む。食い違う時は、設計図が勝つ。
+
+Status: Historical (was: Supplemental (Profile spec))
 SSOT: `docs/reference/mir/INSTRUCTION_SET.md`
 
 この文書は MIR14 プロファイルの補助説明だよ。実装語彙の最終値は `INSTRUCTION_SET.md` を正とする。

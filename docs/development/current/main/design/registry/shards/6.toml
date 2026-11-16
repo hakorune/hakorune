@@ -69,14 +69,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "control-tree-nested-loop-depth-ssot.md"
-role = "supporting"
+role = "superseded"
 owner = "coreplan-skeleton-feature-model.md"
 precedence_parent = "coreplan-skeleton-feature-model.md"
 classification_basis = "C2-singleton-al: JoinIR strict-mode StepTree nested-loop depth guard (max_loop_depth)"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "owner-family review replaces or supersedes this support note"
+superseded_by = "archive/control-tree-nested-loop-depth-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "coreloop-composer-single-entry-ssot.md"
@@ -86,8 +86,8 @@ precedence_parent = "coreplan-skeleton-feature-model.md"
 classification_basis = "C2-singleton-al: Status Retired; single-entry composer replaced by v0/v1 boundary"
 sidecars = []
 supersedes = []
-superseded_by = "coreloop-composer-v0-v1-boundary-ssot.md"
-retire_when = "C3 supersession review retires this stub after reachable-reference closure"
+superseded_by = "archive/coreloop-composer-single-entry-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "coreloop-generic-loop-v0-ssot.md"
@@ -388,14 +388,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "selfhost-g1-mir-compare-policy-ssot.md"
-role = "authority"
+role = "superseded"
 owner = "selfhost-lift-boundary-and-task-order-ssot.md"
 precedence_parent = "selfhost-lift-boundary-and-task-order-ssot.md"
 classification_basis = "C2-singleton-mz: (Active) selfhost G1 MIR compare policy"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "owner-family review explicitly replaces this authority"
+superseded_by = "archive/selfhost-g1-mir-compare-policy-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "source-selfhost-family-manifest-split-ssot.md"

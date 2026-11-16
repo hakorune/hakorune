@@ -1,5 +1,7 @@
 # Loop Canonicalizer（設計 SSOT）
 
+> **注意(2026-11-17、メンテナ決定):** この文書の、loop の形や家族の見分けは、**診断と最適化のため**の物である。source を受け付けるかは決めない([MirBuilder の設計図](mirbuilder-blueprint.md) 7 節)。
+
 Status: Phase 141 完了（ドキュメント充実）
 Scope: ループ形の組み合わせ爆発を抑えるための "前処理" の設計（fixture/shape guard/fail-fast と整合）
 Related:

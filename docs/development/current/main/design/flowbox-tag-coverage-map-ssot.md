@@ -11,6 +11,8 @@ Related:
 
 # FlowBox tag coverage map (SSOT)
 
+> **注意(2026-11-17、メンテナ決定):** この文書の、loop の形や家族の見分けは、**診断と最適化のため**の物である。source を受け付けるかは決めない([MirBuilder の設計図](mirbuilder-blueprint.md) 7 節)。
+
 ## Goal
 
 Fix a minimal, stable mapping from regression scenarios to FlowBox schema tags,

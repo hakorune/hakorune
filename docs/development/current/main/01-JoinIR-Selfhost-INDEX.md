@@ -1,6 +1,8 @@
 # JoinIR / Selfhost INDEX（読み始めガイド）
 
-Status: Active  
+> **Historical(2026-11-17、メンテナ決定):** この文書は、古い設計か作業の記録である。**新しい作業を選ぶ根拠にしない。** MirBuilder(source → MIR)の設計は [MirBuilder の設計図](design/mirbuilder-blueprint.md) を読む。食い違う時は、設計図が勝つ。
+
+Status: Historical (was: Active)
 Scope: JoinIR と Selfhost（Stage‑B/Stage‑1/Stage‑3）に関する「最初に読むべき現役ドキュメント」だけを集約した入口。
 
 このファイルは、JoinIR と Selfhost ラインの主戦場をすばやく把握するためのインデックスだよ。  

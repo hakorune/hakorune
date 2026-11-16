@@ -113,14 +113,14 @@ retire_when = "owner-family review replaces or supersedes this support note"
 
 [[documents]]
 path = "coreplan-migration-done-criteria-ssot.md"
-role = "status-ledger"
+role = "superseded"
 owner = "coreplan-skeleton-feature-model.md"
 precedence_parent = "coreplan-skeleton-feature-model.md"
 classification_basis = "C2-singleton-al: done criteria for CorePlan migration"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "this ledger/inventory is replaced by an explicit durable owner"
+superseded_by = "archive/coreplan-migration-done-criteria-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "coreplan-migration-roadmap-ssot.md"
@@ -168,14 +168,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "flowbox-adopt-tag-migration-ssot.md"
-role = "status-ledger"
+role = "superseded"
 owner = "coreplan-skeleton-feature-model.md"
 precedence_parent = "coreplan-skeleton-feature-model.md"
 classification_basis = "C2-singleton-al: migrate adopt/fallback observability to FlowBox schema (strict/dev)"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "this ledger/inventory is replaced by an explicit durable owner"
+superseded_by = "archive/flowbox-adopt-tag-migration-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "hako-alloc-allocator-comparison-c-mimalloc-result-explicit-runner-planning-pilot-ssot.md"

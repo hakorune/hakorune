@@ -1,0 +1,55 @@
+Status: Historical (was: SSOT)
+Scope: JoinIR composer `strict_nested_loop_guard` (Phase-agnostic)
+Related:
+- Entry: `docs/development/current/main/10-Now.md`
+- Debug contract: `docs/development/current/main/design/ai-handoff-and-debug-contract.md`
+
+# strict-nested-loop-guard SSOT
+
+> **Historical(2026-11-17、メンテナ決定):** この文書は、古い設計か作業の記録である。**新しい作業を選ぶ根拠にしない。** MirBuilder(source → MIR)の設計は [MirBuilder の設計図](../mirbuilder-blueprint.md) を読む。食い違う時は、設計図が勝つ。
+
+## Purpose
+
+Fail-fast when a nested loop is detected but there is no plan/composer support
+for that shape. This prevents silent fallback or mis-lowering in strict/dev modes.
+
+## Trigger (exact)
+
+Guard fires when **both** are true:
+
+1) `nested_loop == true` (from facts or `detect_nested_loop(ctx.body)`), and  
+2) `strict_nested_loop_guard` allowlist 判定に一致しない。
+
+## Responsibility (SSOT)
+
+Only `composer/shadow_adopt.rs` owns this guard. No other layer should duplicate
+its logic or maintain a separate allowlist.
+
+## Allowlist (actual contract)
+
+- `continue-only strict-nested route accept-min1` 形
+  - `route_kind` は `LoopContinueOnly`
+  - `exit_usage`: continueあり / breakなし / returnなし
+  - `continue-only` factsあり（legacy facts key is traceability-only）
+  - `carrier_updates.len() == 1`
+  - `condition`: `<loop_var> < <int>`
+  - `continue_condition`: `<loop_var> >= <int>`
+  - `continue_condition` の下限値 `> condition` の上限値（continue が到達不能）
+  - `loop_increment`: `<loop_var> + 1`
+
+Note:
+- `generic_loop_v0/v1` は shadow_adopt allowlist では扱わない。
+- generic route は registry recipe-first で扱い、そこで成立しない形は freeze で fail-fast とする。
+- generic-loop allowlist flags は廃止済みで、この guard は参照しない。
+
+## Log contract (dev/debug only)
+
+- Tag: `[plan/freeze:nested_loop_guard]`
+- Emitted only when `joinir_dev::debug_enabled()` is true.
+- Format (single line, stable fields):
+  - `func=<...> span=<...> recipe_contract=<...> route_kind=<...> depth=<...>`
+
+## Failure contract
+
+- Error: `[plan/freeze:unstructured] nested loop requires plan/composer support: <plan> not in strict_nested_loop_guard allowlist`
+- No fallback. The guard must remain fail-fast.

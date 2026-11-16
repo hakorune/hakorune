@@ -234,14 +234,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "joinir-pattern-selection-shadow-ssot.md"
-role = "supporting"
+role = "superseded"
 owner = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
 precedence_parent = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
 classification_basis = "Loop pipeline: route selection shadow evidence"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "route selection shadow evidence is retired or superseded"
+superseded_by = "archive/joinir-pattern-selection-shadow-ssot.md"
+retire_when = "retire this stub after reachable-reference closure"
 
 [[documents]]
 path = "lowering-plan-json-v0-ssot.md"

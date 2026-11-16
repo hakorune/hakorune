@@ -1,5 +1,7 @@
 # Resolved Semantics
 
+> **Read first (2026-11-17, maintainer decision):** the design of source → MIR lives in the [MirBuilder blueprint](../../../docs/development/current/main/design/mirbuilder-blueprint.md). This README describes the code as it is today and is largely a change record; do not use it as design authority. Where it says loop families, routes or recipes decide acceptance, or names a stage order other than `DeclarationTable -> Resolve -> Lower -> Seal -> Verify -> Publish`, the blueprint wins.
+
 This module family owns the passive, function-scoped semantic product that is
 constructed before Planner and Lower.
 

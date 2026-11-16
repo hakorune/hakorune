@@ -1,24 +1,13 @@
-# CoreLoopComposer v0/v1 boundary SSOT
+Status: Historical
+Moved to: `docs/development/current/main/design/archive/coreloop-composer-v0-v1-boundary-ssot.md`
+Related:
+- `docs/development/current/main/design/mirbuilder-blueprint.md`
+- `docs/development/current/main/design/archive/coreloop-composer-v0-v1-boundary-ssot.md`
 
-This document fixes the responsibility boundary between CoreLoopComposer v0 and v1.
+# Moved
 
-## Scope
+This historical design doc moved to:
 
-- v0 handles loops where `value_join_needed == false`.
-- v1 handles loops where `value_join_needed == true`.
-- The selection is made at the composer entrypoints (not in the router).
+- `docs/development/current/main/design/archive/coreloop-composer-v0-v1-boundary-ssot.md`
 
-## Gates (current minimal contract)
-
-- v0: `value_join_needed == false`, `skeleton_kind == Loop`, return-only exits, no cleanup.
-- v1: `value_join_needed == true`, `skeleton_kind == Loop`, return-only exits, no cleanup.
-
-## Behavior
-
-- If the gate fails, v0/v1 returns `Ok(None)` and the caller falls back to legacy paths.
-- In strict/dev shadow adopt, a `None` result is treated as fail-fast with a clear error.
-
-## Notes
-
-- ScanWithInit route currently has no v1 composition yet; v1 must return `None`.
-- Value-join routes are intended to live in v1 (`loop_break` / `if_phi_join` / `loop_true_early_exit` / `split_scan`; old numbered labels are traceability-only).
+For the current MirBuilder design read `docs/development/current/main/design/mirbuilder-blueprint.md`.
