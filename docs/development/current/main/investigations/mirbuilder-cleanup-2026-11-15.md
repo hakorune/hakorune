@@ -553,8 +553,8 @@ F03の十本は旧advisory classifier自体のtestで、残る一本はdev parit
 F22は既存API二本のhelper定義一つを単位とする（bound 0/1/3は同じ道）。
 - 意味: `compiler/callable_single_loop_syntax_facts.rs:315`でownerと唯一のLoop、`callable_single_loop_source_map.rs:274`でorigin・frame・binding、`callable_single_loop_recipe_coseal.rs:261`でroleとRecipe/JoinSigを確定。
 - 意味/再確認: `builder/normal_callable_semantic_source.rs:297`、`normal_callable_prepared_operation.rs:112`、`normal_callable_semantic_loan_port.rs:163`で同じcontext/signatureを照合。
-- 作成/再確認: `builder/resolved_lowering/loop_recipe_physicalizer/callable_canary.rs:163`でheader/bindingを照合してprelude、`tail_completion.rs:183`でowner/binding/read siteを照合してtailを作る。以上の再確認境界は8。
-- 中継は3境界: loan portの`root_capture.rs:68`、operation programの`into_parts`、`normal_cataloged_box_method_lowering.rs`のsession/admission受渡し。検査を行うconstructorは中継に数えない。
+- 作成/再確認: `builder/resolved_lowering/loop_recipe_physicalizer/callable_canary.rs:163`でheader/bindingを照合してprelude、`tail_completion.rs:183`でowner/binding/read siteを照合してtailを作る。さらに`normal_cataloged_box_method_lowering.rs:250`がprogramとphysical signatureのownerを照合する。以上の再確認境界は9。
+- 中継は3箇所の受渡し部分: loan portの`root_capture.rs:68`の選択・検査後のreturn transfer、prepared operation programの`into_parts`、`normal_cataloged_box_method_lowering.rs`の検査後のsession/admission受渡し。関数全体を純粋な中継に分類する意味ではなく、owner検査・失敗時discard等は除く。
 - 別collectionからの再検索は5境界: forest→source ledger、syntax→resolved loop、source→forest ledger、operation context→only loop、prelude→header indexとfunction binding。
 - 作成順は`callable_lowerer.rs:160–239`のprelude→loop→tail/session終了。source/context照合はCFG完成前、最後の独立検証は`compiler/normal_default_pipeline.rs:657`で完成したmoduleを読む。
 
@@ -569,3 +569,7 @@ boxtorrentは`BoxTorrentStore.release`（main.hako:100–113）のCall由来loca
 - 重要: 基点の`home_new_prefix_terminal.rs:527–532`はCallをplain returnのoriginal readから除外する。`return remain`で強い照合が走って壊れたのはお掃除6の試作であり、現行のreturn経路として数えない。F22の専用道も、この共通Copy照合とは別。
 
 段1-bの規則: 実CFG・SSA一意性・支配を検査した不変な関数で、i64の実定義を基点にCopyと循環のないPHIの全incomingをたどる。同じ／別の基点／未解決を区別し、Box・token・借用・heap読取・loopの循環へ拡張しない。段1ではtest以外から呼ばない。
+
+段1-bは`verification/scalar_origin.rs`（297行）へ実装した。既存CFG/SSA/Invoke検証とgeometryを再利用し、Copy・全incoming PHI・支配と順序・一意性を確認する。循環/不明/対応外は未解決、別の基点は別とする。型付きInvokeと実callee署名を照合し、raw Callの不明結果・tagged/u64/Boxは成功にしない。production callerは0。
+独立検証ownerの責務別test10件を追加した（新しい解析の正負境界で、既存検証の登録名・assertionは削除していない）。F22の既存二本もPASS。固定5,386入力はMIR・拒否・出力・exit差0/timeout0、全lib直列は8,369 PASS/既知205 FAIL/52 ignoredで新しい赤0。
+段1の増分は整形後production +296/test +382行。本体はcfg(test)除外で639,010→639,306、生のtest-file除外で680,043→680,342行。段2の切替とF22の穴1〜3はまだ実装していない。

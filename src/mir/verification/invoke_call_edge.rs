@@ -19,7 +19,7 @@ pub(super) fn cataloged_edge_key(
 
 /// Resolve the edge to its cataloged callee definition; `None` keeps the
 /// call outside this relation's authority (see `check_call_edge`).
-pub(super) fn cataloged_call_target<'module>(
+pub(in crate::mir::verification) fn cataloged_call_target<'module>(
     module: &'module crate::mir::MirModule,
     call: &crate::mir::definitions::MirCall,
 ) -> Option<(&'module MirFunction, usize)> {

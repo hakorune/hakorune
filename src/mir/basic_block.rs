@@ -131,7 +131,7 @@ impl BasicBlock {
     }
 
     /// Check if an instruction is a terminator
-    fn is_terminator(&self, instruction: &MirInstruction) -> bool {
+    pub(in crate::mir) fn is_terminator(&self, instruction: &MirInstruction) -> bool {
         matches!(
             instruction,
             MirInstruction::Branch { .. }
