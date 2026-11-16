@@ -5,6 +5,7 @@ navigation order must stay narrow and explicit.
 
 ## Read First
 
+0. **[MirBuilder の設計図](../../docs/development/current/main/design/mirbuilder-blueprint.md)**。設計はここ。下の README の多くは作業の記録で、今の code の説明として読む(設計の根拠にしない)。
 1. [`builder/README.md`](./builder/README.md)
 2. [`contracts/README.md`](./contracts/README.md)
 3. [`policies/README.md`](./policies/README.md)

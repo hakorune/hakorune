@@ -321,6 +321,17 @@ superseded_by = ""
 retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
+path = "mirbuilder-blueprint.md"
+role = "authority"
+owner = "mirbuilder-final-pipeline-ssot.md"
+precedence_parent = "mirbuilder-final-pipeline-ssot.md"
+classification_basis = "MirBuilder blueprint: stages, SSOT table, expression/call/place/ownership/verification; maintainer decision 2026-11-17"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "superseded by a later maintainer-approved blueprint"
+
+[[documents]]
 path = "mirbuilder-inplace-replacement-policy-ssot.md"
 role = "authority"
 owner = "INDEX.md"

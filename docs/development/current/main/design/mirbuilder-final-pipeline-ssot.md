@@ -20,6 +20,11 @@ Related:
 
 # MirBuilder Final Pipeline
 
+> **読む前に(2026-11-17、メンテナ決定):** MirBuilder の設計は、先に [MirBuilder の設計図](mirbuilder-blueprint.md) を読む。
+> この文書で今も有効なのは、段の順の考え方と 5 つの law(Meaning is decided once / Lower consumes verified products / Seal completes; it does not plan / Publication is all-or-nothing / Authority never flows backward)と、公開・検証・backend の境目である。
+> **上書きされた所:** 鎖の中の `Facts -> RoutePolicy -> RecipeComposer -> RecipeVerifier`。loop の家族・route・Recipe は、source を受け付けるかを決めない(設計図 7 節、13 節の決定 4)。式・呼び出し・所有・検証の線引きは、この文書には無く、設計図にある。
+> この文書の作業の記録(Current Capsule より後ろの、日付や row の付いた節)は歴史であり、新しい作業を選ぶ根拠にしない。
+
 ## Current Capsule
 
 - **Order:** source meaning and a verified logical plan precede physical effects;

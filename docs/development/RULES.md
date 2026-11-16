@@ -3,7 +3,7 @@
 Status: SSOT
 Date: 2026-10-21
 Scope: 作業選択・実装・検証・退役・再開の唯一の運用ルール。
-Related: [現在地](current/main/CURRENT_STATE.toml)、[最終pipeline](current/main/design/mirbuilder-final-pipeline-ssot.md)。
+Related: [現在地](current/main/CURRENT_STATE.toml)、[MirBuilder の設計図](current/main/design/mirbuilder-blueprint.md)、[所有 ADR-003](adr/adr-003-counted-box-default.md)、[失敗の道 ADR-004](adr/adr-004-failure-surface-catch-and-cleanup.md)、[順の正本(設計図の親)](current/main/design/mirbuilder-final-pipeline-ssot.md)。
 
 ## 0. 目的
 
@@ -11,7 +11,8 @@ Related: [現在地](current/main/CURRENT_STATE.toml)、[最終pipeline](current
 
 ## 1. 変えない設計原則
 
-- 一つの意味にownerと実行経路は一つ。`source -> Facts -> Recipe -> Verify -> sole physical owner -> publish`を守る。
+- 一つの意味にownerと実行経路は一つ。段の順は[MirBuilder の設計図](current/main/design/mirbuilder-blueprint.md)に従う: `DeclarationTable -> Resolve -> Lower -> Seal -> Verify -> Publish`(最適化はその外)。sourceの拒否を決めるのはResolveだけ。loopの家族・route・Recipeは、受理を決めない(2026-11-17、メンテナ決定)。
+- 設計図に無い部品を足す時は、先に設計図を直してメンテナの印をもらう。設計の文書どうしが食い違う時は設計図が勝つ。`Status: Historical`の文書と`design/archive/`は、作業の根拠にしない。
 - Fail-Fast。silent fallback、失敗後のlegacy retry、名前・MIR型・backend成功からの意味推測、AST rewriteは禁止。
 - `.hako`の書き換えでコンパイラの表現力不足を回避しない。
 - 受理形の追加と挙動不変の整理はcommitで区別する。FactsはRecipe keyやphysical IDを発行しない。
@@ -19,7 +20,7 @@ Related: [現在地](current/main/CURRENT_STATE.toml)、[最終pipeline](current
 
 ## 2. 作業の入口と単位
 
-- 毎回読むのはAGENTS、RULES、`CURRENT_STATE.toml`、その`latest_card_path`。合計400行以内を目標とする。
+- 毎回読むのはAGENTS、RULES、`CURRENT_STATE.toml`、その`latest_card_path`。合計400行以内を目標とする。MirBuilder(`src/mir`)に触る作業では、加えて設計図を読む。
 - `CURRENT_TASK.md`は任意の薄い入口。workstream・north-star・policy・過去cardは必要時の参照とし、毎回の必読にしない。
 - 固定製品acceptanceまでは一つのアプリに集中する。選択rowは`APP-<app-name>`。責務ごとのrow/cardやD0/S0等の接尾辞を増やさない。
 - 内部の責務分割はコードとcommitで行う。必要なentry・引数・結果・cleanup・publicationを最終consumerまで接続し、アプリが通るまで追う。
