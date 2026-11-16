@@ -14,14 +14,13 @@ pub(in crate::mir) use coseal::{
     issue_dynamic_invocation_carrier_lifecycle_program_v1,
     issue_dynamic_invocation_cleanup_projection_i0, DynamicCanonicalSessionAuthorityRefV1,
     DynamicExitTransactionCoSealRejectV1, DynamicFullLoopFaultFamilyV2,
-    DynamicFullLoopOperationEffectV2, DynamicFullLoopOperationPhysicalRefV2,
-    DynamicFullLoopPhysicalItemKindV2, DynamicFullLoopPhysicalItemPlacementV2,
-    DynamicFullLoopSemanticProgramRejectV2, DynamicFullLoopSourceRecipeEnvelopeRejectV2,
-    DynamicInvocationCarrierLifecycleProgramRejectV1, DynamicInvocationCleanupActionViewV1,
-    DynamicInvocationCleanupCurrentDispositionV1, DynamicInvocationCleanupProjectionRejectV1,
-    DynamicInvocationCleanupRowKindV1, DynamicInvocationCleanupRowViewV1, DynamicLoopPhysicalArmV2,
-    VerifiedDynamicExitTransactionCoSealV1, DYNAMIC_FULL_LOOP_PHYSICAL_ITEM_COUNT_V2,
-    DYNAMIC_FULL_LOOP_PHYSICAL_OPERATION_COUNT_V2,
+    DynamicFullLoopOperationEffectV2, DynamicFullLoopPhysicalItemKindV2,
+    DynamicFullLoopPhysicalItemPlacementV2, DynamicFullLoopSemanticProgramRejectV2,
+    DynamicFullLoopSourceRecipeEnvelopeRejectV2, DynamicInvocationCarrierLifecycleProgramRejectV1,
+    DynamicInvocationCleanupActionViewV1, DynamicInvocationCleanupCurrentDispositionV1,
+    DynamicInvocationCleanupProjectionRejectV1, DynamicInvocationCleanupRowKindV1,
+    DynamicInvocationCleanupRowViewV1, VerifiedDynamicExitTransactionCoSealV1,
+    DYNAMIC_FULL_LOOP_PHYSICAL_ITEM_COUNT_V2, DYNAMIC_FULL_LOOP_PHYSICAL_OPERATION_COUNT_V2,
 };
 
 #[cfg(test)]

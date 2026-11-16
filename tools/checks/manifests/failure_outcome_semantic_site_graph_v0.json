@@ -34,41 +34,41 @@
     },
     {
       "evidence": "RESULT-001. They use qualified constructors such as `Option::None` and",
-      "evidence_id": "docs/reference/language/EBNF.md:416:Option::None",
+      "evidence_id": "docs/reference/language/EBNF.md:418:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 416,
+      "line": 418,
       "source_path": "docs/reference/language/EBNF.md",
       "token": "Option::None"
     },
     {
       "evidence": "local r: Result<Handle, AllocError> = Result::Err(AllocError::ZeroSize)",
-      "evidence_id": "docs/reference/language/EBNF.md:844:Result::Err",
+      "evidence_id": "docs/reference/language/EBNF.md:846:Result::Err",
       "evidence_kind": "result_constructor",
-      "line": 844,
+      "line": 846,
       "source_path": "docs/reference/language/EBNF.md",
       "token": "Result::Err"
     },
     {
       "evidence": "Option::None",
-      "evidence_id": "docs/reference/language/EBNF.md:879:Option::None",
+      "evidence_id": "docs/reference/language/EBNF.md:881:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 879,
+      "line": 881,
       "source_path": "docs/reference/language/EBNF.md",
       "token": "Option::None"
     },
     {
       "evidence": "Result::Err(reason)",
-      "evidence_id": "docs/reference/language/EBNF.md:881:Result::Err",
+      "evidence_id": "docs/reference/language/EBNF.md:883:Result::Err",
       "evidence_kind": "result_constructor",
-      "line": 881,
+      "line": 883,
       "source_path": "docs/reference/language/EBNF.md",
       "token": "Result::Err"
     },
     {
       "evidence": "postfix_catch      := primary_expr 'catch' ( '(' ( IDENT IDENT | IDENT )? ')' )? block",
-      "evidence_id": "docs/reference/language/EBNF.md:990:postfix_catch",
+      "evidence_id": "docs/reference/language/EBNF.md:992:postfix_catch",
       "evidence_kind": "catch_profile_surface",
-      "line": 990,
+      "line": 992,
       "source_path": "docs/reference/language/EBNF.md",
       "token": "postfix_catch"
     },
@@ -450,17 +450,25 @@
     },
     {
       "evidence": "- `local opt: Option<T> = Option::Some(v)` / `Option::None`",
-      "evidence_id": "docs/reference/language/quick-reference.md:171:Option::None",
+      "evidence_id": "docs/reference/language/quick-reference.md:172:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 171,
+      "line": 172,
       "source_path": "docs/reference/language/quick-reference.md",
       "token": "Option::None"
     },
     {
       "evidence": "- `local res: Result<T,E> = Result::Ok(v)` / `Result::Err(e)`",
-      "evidence_id": "docs/reference/language/quick-reference.md:172:Result::Err",
+      "evidence_id": "docs/reference/language/quick-reference.md:173:Result::Err",
       "evidence_kind": "result_constructor",
-      "line": 172,
+      "line": 173,
+      "source_path": "docs/reference/language/quick-reference.md",
+      "token": "Result::Err"
+    },
+    {
+      "evidence": "- **2026-11-16 ([ADR-004](../../development/adr/adr-004-failure-surface-catch-and-cleanup.md), maintainer decision):** the trailing `catch` and `cleanup` forms stay in the language, redefined over `Result` (`catch` handles `Result::Err`, not exceptions). They are not built yet; `throw` and exceptions do not return. The next bullet describes the current rejection.",
+      "evidence_id": "docs/reference/language/quick-reference.md:46:Result::Err",
+      "evidence_kind": "result_constructor",
+      "line": 46,
       "source_path": "docs/reference/language/quick-reference.md",
       "token": "Result::Err"
     },
@@ -5902,7 +5910,7 @@
       "current_carrier": "postfix_catch",
       "evidence_refs": [
         "docs/reference/constraints.md:46:postfix_catch",
-        "docs/reference/language/EBNF.md:990:postfix_catch"
+        "docs/reference/language/EBNF.md:992:postfix_catch"
       ],
       "layer": "reference",
       "migration_action": "",
@@ -5998,8 +6006,8 @@
       "backend_policy": "reference_only",
       "current_carrier": "Option::None",
       "evidence_refs": [
-        "docs/reference/language/EBNF.md:416:Option::None",
-        "docs/reference/language/EBNF.md:879:Option::None",
+        "docs/reference/language/EBNF.md:418:Option::None",
+        "docs/reference/language/EBNF.md:881:Option::None",
         "docs/reference/language/failure-outcome-relations.md:101:Option::None",
         "docs/reference/language/failure-outcome-relations.md:104:Option::None",
         "docs/reference/language/failure-outcome-relations.md:105:Option::None",
@@ -6025,7 +6033,7 @@
         "docs/reference/language/option.md:136:Option::None",
         "docs/reference/language/option.md:168:Option::None",
         "docs/reference/language/option.md:66:Option::None",
-        "docs/reference/language/quick-reference.md:171:Option::None",
+        "docs/reference/language/quick-reference.md:172:Option::None",
         "docs/reference/language/semantic-kernel.md:50:Option::None",
         "docs/reference/language/types.md:379:Option::None",
         "docs/reference/language/types.md:384:Option::None"
@@ -6047,8 +6055,8 @@
       "backend_policy": "reference_only",
       "current_carrier": "Result::Err",
       "evidence_refs": [
-        "docs/reference/language/EBNF.md:844:Result::Err",
-        "docs/reference/language/EBNF.md:881:Result::Err",
+        "docs/reference/language/EBNF.md:846:Result::Err",
+        "docs/reference/language/EBNF.md:883:Result::Err",
         "docs/reference/language/LANGUAGE_REFERENCE_2025.md:949:Result::Err",
         "docs/reference/language/failure-outcome-relations.md:100:Result::Err",
         "docs/reference/language/failure-outcome-relations.md:103:Result::Err",
@@ -6070,7 +6078,8 @@
         "docs/reference/language/option.md:113:Result::Err",
         "docs/reference/language/option.md:68:Result::Err",
         "docs/reference/language/option.md:93:Result::Err",
-        "docs/reference/language/quick-reference.md:172:Result::Err",
+        "docs/reference/language/quick-reference.md:173:Result::Err",
+        "docs/reference/language/quick-reference.md:46:Result::Err",
         "docs/reference/language/semantic-kernel.md:50:Result::Err",
         "docs/reference/language/semantic-kernel.md:52:Result::Err",
         "docs/reference/language/semantic-kernel.md:56:Result::Err",

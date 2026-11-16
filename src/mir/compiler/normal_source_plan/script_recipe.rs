@@ -76,12 +76,6 @@ impl VerifiedNormalScriptRecipeV1 {
         self.source.input.identity().display_name()
     }
 
-    pub(crate) fn into_physical_parts(
-        self,
-    ) -> (RetainedNormalScriptSourceV1, RawScriptBodyRecipeV1) {
-        (self.source, self.recipe)
-    }
-
     #[cfg(test)]
     pub(crate) fn retained_source_statement_count(&self) -> usize {
         self.source.statements.len()

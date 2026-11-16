@@ -19,41 +19,6 @@ pub(crate) const PINNED_TEXT_BACKEND_FRAME_CONTRACT_ID_V1: &str =
     "hako.pinned_text_backend_frame@2";
 pub(crate) const PINNED_TEXT_BACKEND_FRAME_SCHEMA_REVISION_V1: u32 = 2;
 
-/// Pre-entry physical provenance for one pinned-Text frame.
-///
-/// This deliberately has no plan table and therefore cannot advertise a
-/// premature `plan_count`.  The canonical function owner consumes it only
-/// after its own plan table has been populated, then obtains the final frame
-/// contract by calling `finalize` exactly once.
-#[derive(Debug)]
-pub(crate) struct PinnedTextBackendFrameIngressV1<'target> {
-    residence: ResidenceAbiLayoutV1,
-    target: &'target PinnedTextCompileTargetCapabilityV1,
-}
-
-impl<'target> PinnedTextBackendFrameIngressV1<'target> {
-    pub(crate) fn prepare(
-        residence: ResidenceAbiLayoutV1,
-        target: &'target PinnedTextCompileTargetCapabilityV1,
-    ) -> Result<Self, PinnedTextBackendFrameContractIssueV1> {
-        validate_residence_target(residence, target)?;
-        Ok(Self { residence, target })
-    }
-
-    pub(crate) fn finalize(
-        self,
-        signature: &ResolvedCallablePhysicalSignatureLoanV1<'_>,
-        plans: &PinnedTextAccessPlanTableV1,
-    ) -> Result<PinnedTextBackendFrameContractV1, PinnedTextBackendFrameContractIssueV1> {
-        issue_pinned_text_backend_frame_contract_v1(
-            signature,
-            plans,
-            self.residence,
-            self.target,
-        )
-    }
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum PinnedTextBackendFrameContractIssueV1 {
     ResidenceRevisionMismatch,
@@ -445,8 +410,7 @@ fn validate_lanes(
                     .ok_or(PinnedTextBackendFrameContractIssueV1::RootCountMismatch)?;
                 index += 1;
             }
-            PhysicalCallableLaneRoleV1::OrdinaryScalar
-            | PhysicalCallableLaneRoleV1::CheckedMap => {
+            PhysicalCallableLaneRoleV1::OrdinaryScalar | PhysicalCallableLaneRoleV1::CheckedMap => {
                 if lane.logical_ordinal() != Some(ordinal) {
                     return Err(PinnedTextBackendFrameContractIssueV1::FormalOrdinalMismatch);
                 }
@@ -531,8 +495,14 @@ mod tests {
         let owned_json = contract.to_transport_json();
         let borrowed_json = {
             let borrow = contract.borrow();
-            assert_eq!(borrow.contract_id(), PINNED_TEXT_BACKEND_FRAME_CONTRACT_ID_V1);
-            assert_eq!(borrow.schema_revision(), PINNED_TEXT_BACKEND_FRAME_SCHEMA_REVISION_V1);
+            assert_eq!(
+                borrow.contract_id(),
+                PINNED_TEXT_BACKEND_FRAME_CONTRACT_ID_V1
+            );
+            assert_eq!(
+                borrow.schema_revision(),
+                PINNED_TEXT_BACKEND_FRAME_SCHEMA_REVISION_V1
+            );
             assert_eq!(borrow.owner(), owner);
             assert_eq!(borrow.invocation_ordinal(), 7);
             assert_eq!(borrow.source_logical_arity(), 2);
@@ -545,9 +515,15 @@ mod tests {
             assert_eq!(borrow.residence_abi_revision(), "text-formal-residence-v1");
             assert_eq!(borrow.frame_revision(), 1);
             assert_eq!(borrow.frame_size(), 64);
-            assert_eq!(borrow.target_profile_id(), "nyrt-text-residence-ptr64-as0-v1");
+            assert_eq!(
+                borrow.target_profile_id(),
+                "nyrt-text-residence-ptr64-as0-v1"
+            );
             assert_eq!(borrow.target_triple(), "x86_64-pc-linux-gnu");
-            assert_eq!(borrow.target_data_layout(), "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128");
+            assert_eq!(
+                borrow.target_data_layout(),
+                "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
+            );
             assert_eq!(borrow.target_pointer_width(), 64);
             assert_eq!(borrow.target_pointer_alignment(), 8);
             assert_eq!(borrow.consumer_abi_revision(), "hako-llvmc-pure-first-v2");
@@ -556,8 +532,14 @@ mod tests {
         };
         assert_eq!(owned_json, borrowed_json);
         let json = owned_json;
-        assert_eq!(json["contract_id"], PINNED_TEXT_BACKEND_FRAME_CONTRACT_ID_V1);
-        assert_eq!(json["schema_revision"], PINNED_TEXT_BACKEND_FRAME_SCHEMA_REVISION_V1);
+        assert_eq!(
+            json["contract_id"],
+            PINNED_TEXT_BACKEND_FRAME_CONTRACT_ID_V1
+        );
+        assert_eq!(
+            json["schema_revision"],
+            PINNED_TEXT_BACKEND_FRAME_SCHEMA_REVISION_V1
+        );
         assert_eq!(json["physical_callable_lane_count"], 5);
         assert_eq!(json["residence"]["derived_frame_size"], 64);
         assert_eq!(json["target"]["triple"], "x86_64-pc-linux-gnu");

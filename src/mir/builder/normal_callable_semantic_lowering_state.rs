@@ -14,10 +14,7 @@ use crate::mir::ValueId;
 
 use super::control_flow::plan::expression_port::ExactSourceMethodCallV1;
 use super::normal_callable_binding_materialization_port::PreparedCallableEntryValuesV1;
-use super::normal_callable_dynamic_origin::{
-    CallableDynamicOriginLoweringStateV1, CurrentDynamicBindingReceiptV1,
-    PreparedDynamicOriginRebindV1,
-};
+use super::normal_callable_dynamic_origin::CallableDynamicOriginLoweringStateV1;
 use super::normal_callable_dynamic_source::SourceBackedDynamicCallableIssuerV1;
 use crate::mir::normal_callable_semantic_package::LoopBreakSourcePackageLoanV1;
 use crate::mir::normal_callable_semantic_package::SelectedSourceCoreMethodCallV1;
@@ -28,7 +25,9 @@ pub(super) mod construction;
 mod fault;
 #[path = "normal_callable_semantic_receiver_crosswalk.rs"]
 mod normal_callable_semantic_receiver_crosswalk;
-pub(in crate::mir) use normal_callable_semantic_receiver_crosswalk::{ExactLexicalReadV1, BindingValueObservationV2};
+pub(in crate::mir) use normal_callable_semantic_receiver_crosswalk::{
+    BindingValueObservationV2, ExactLexicalReadV1,
+};
 #[path = "normal_callable_semantic_observation.rs"]
 mod observation;
 
@@ -60,8 +59,8 @@ pub(in crate::mir::builder) use source_loop_bridge::CallableLoopSourceBridgeTake
 
 #[path = "normal_callable_semantic_lowering_state/materialized_values.rs"]
 mod materialized_values;
-pub(in crate::mir::builder) use materialized_values::MaterializedValuesV1;
 pub(in crate::mir) use materialized_values::LocalProvenanceV1;
+pub(in crate::mir::builder) use materialized_values::MaterializedValuesV1;
 
 #[derive(Debug)]
 pub(in crate::mir) struct CallableSemanticLoweringState {
@@ -101,7 +100,8 @@ pub(in crate::mir) struct CallableSemanticLoweringState {
     consumed_source_core_method_calls: BTreeSet<crate::mir::resolved_semantics::SourceExprSiteV1>,
     source_loop_bridge: Option<source_loop_bridge::CallableLoopSourceBridgeV1>,
     loop_break_source: Option<LoopBreakSourcePackageLoanV1>,
-    named_array_reads: Vec<crate::mir::normal_callable_semantic_package::EmittedNamedArrayRequirementV1>,
+    named_array_reads:
+        Vec<crate::mir::normal_callable_semantic_package::EmittedNamedArrayRequirementV1>,
     named_array_writes:
         Vec<crate::mir::normal_callable_semantic_package::NamedArrayWriteEmissionPortV1>,
     /// Birth-side provider sites claimed by field-resident named-array
@@ -127,15 +127,6 @@ pub(in crate::mir) struct CallableSemanticLoweringState {
     /// ownership stays with the invocation scope.
     ordinary_new_claim_ledger:
         Option<Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>>,
-}
-
-#[derive(Debug)]
-pub(super) struct PreparedCallableDynamicRebindV1 {
-    site: SourceNodeSiteV1,
-    binding: BindingRefV1,
-    result: ValueId,
-    consumes_target_read: bool,
-    origin: PreparedDynamicOriginRebindV1,
 }
 
 impl CallableSemanticLoweringState {
@@ -282,7 +273,6 @@ impl CallableSemanticLoweringState {
             .collect()
     }
 
-
     pub(super) fn install_entry_values(
         &mut self,
         entry: &PreparedCallableEntryValuesV1,
@@ -361,7 +351,11 @@ impl CallableSemanticLoweringState {
             if source.is_none() {
                 if let Some(claims) = &self.ordinary_new_claim_ledger {
                     if let Some((plan, from, _)) = claims.move_initializer_v1(self.owner, site)? {
-                        if plan.root().initializer().is_none_or(|initializer| initializer.binding() != *binding) {
+                        if plan
+                            .root()
+                            .initializer()
+                            .is_none_or(|initializer| initializer.binding() != *binding)
+                        {
                             return Err(freeze("move-initializer/local-binding"));
                         }
                         source = Some(from);
@@ -369,16 +363,26 @@ impl CallableSemanticLoweringState {
                 }
             }
             let provenance = match source {
-                Some(source) => self.values.local_provenance(source, row)
+                Some(source) => self
+                    .values
+                    .local_provenance(source, row)
                     .and_then(|proof| proof.with_local_initializer_v1(*binding, row)),
-                None if relation.initializer_site().is_some() => materialized_values::MaterializedValuesV1::initializer_provenance(*binding, row),
+                None if relation.initializer_site().is_some() => {
+                    materialized_values::MaterializedValuesV1::initializer_provenance(*binding, row)
+                }
                 None => None,
             };
             if matches!(&self.borrowed_entry_formals, Some(Ok(Some(_)))) {
-                let formal = self.ordinary_new_claim_ledger.as_ref()
+                let formal = self
+                    .ordinary_new_claim_ledger
+                    .as_ref()
                     .ok_or_else(|| freeze("borrowed-alias/source-ledger-missing"))?
                     .record_borrowed_ordinary_alias_v1(
-                        self.owner, &relation, source, row.local(), provenance.as_ref(),
+                        self.owner,
+                        &relation,
+                        source,
+                        row.local(),
+                        provenance.as_ref(),
                     )?;
                 if row.copy().is_none() && row.local() == row.initializer() {
                     if let Some(formal) = formal {
@@ -387,17 +391,26 @@ impl CallableSemanticLoweringState {
                 }
             }
             if let Some(ledger) = &self.ordinary_new_claim_ledger {
-                ledger.record_field_alias_local_v1(self.owner, &relation,
-                    row.initializer(), row.local(), row.copy())?;
+                ledger.record_field_alias_local_v1(
+                    self.owner,
+                    &relation,
+                    row.initializer(),
+                    row.local(),
+                    row.copy(),
+                )?;
             }
             self.insert_value(*binding, row.local())?;
             self.values.attach_provenance(*binding, provenance);
         }
         let dynamic_completion = if borrowed_reuse.is_empty() {
-            self.dynamic_origins.record_local(site, &bindings, completed.bindings())
+            self.dynamic_origins
+                .record_local(site, &bindings, completed.bindings())
         } else {
             self.dynamic_origins.record_local_with_borrowed_reuse(
-                site, &bindings, completed.bindings(), &borrowed_reuse,
+                site,
+                &bindings,
+                completed.bindings(),
+                &borrowed_reuse,
             )
         };
         dynamic_completion.map_err(|error| error.to_string())?;
@@ -473,71 +486,6 @@ impl CallableSemanticLoweringState {
             .map_err(|error| error.to_string())?;
         self.values.insert(binding, value);
         Ok(())
-    }
-
-    pub(super) fn prepare_source_backed_dynamic_rebind(
-        &self,
-        site: &SourceNodeSiteV1,
-        expected_binding: BindingRefV1,
-        expected_previous: ValueId,
-        result: ValueId,
-        expected_origin: BindingRefV1,
-    ) -> Result<PreparedCallableDynamicRebindV1, String> {
-        let binding = self
-            .assignments
-            .get(site)
-            .copied()
-            .ok_or_else(|| freeze("missing-assignment-site"))?;
-        if binding != expected_binding || self.consumed_assignments.contains(site) {
-            return Err(freeze("dynamic-rebind-assignment-mismatch"));
-        }
-        let consumes_target_read = match self.variables.get(site).copied() {
-            Some(read_binding)
-                if read_binding == binding && !self.consumed_variables.contains(site) =>
-            {
-                true
-            }
-            Some(_) => return Err(freeze("assignment-target-read-mismatch")),
-            None => false,
-        };
-        if self.values.get(&binding).copied() != Some(expected_previous) {
-            return Err(freeze("dynamic-rebind-current-mismatch"));
-        }
-        let origin = self
-            .dynamic_origins
-            .prepare_current_rebind(binding, expected_previous, result, expected_origin)
-            .map_err(|error| error.to_string())?;
-        Ok(PreparedCallableDynamicRebindV1 {
-            site: site.clone(),
-            binding,
-            result,
-            consumes_target_read,
-            origin,
-        })
-    }
-
-    pub(super) fn commit_source_backed_dynamic_rebind(
-        &mut self,
-        prepared: PreparedCallableDynamicRebindV1,
-    ) -> CurrentDynamicBindingReceiptV1 {
-        debug_assert_eq!(
-            self.values.get(&prepared.binding),
-            Some(
-                &self
-                    .dynamic_origins
-                    .current_binding(prepared.binding)
-                    .expect("prepared Dynamic origin")
-                    .0
-            )
-        );
-        let inserted_assignment = self.consumed_assignments.insert(prepared.site.clone());
-        debug_assert!(inserted_assignment);
-        if prepared.consumes_target_read {
-            let inserted_read = self.consumed_variables.insert(prepared.site.clone());
-            debug_assert!(inserted_read);
-        }
-        self.values.insert(prepared.binding, prepared.result);
-        self.dynamic_origins.commit_current_rebind(prepared.origin)
     }
 
     pub(super) fn direct_lambda_captures(

@@ -13,12 +13,6 @@ pub(crate) enum PinnedTextResidenceBackendCarrierProjectionErrorV1 {
     FinishReturnOrderingMismatch,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum PinnedTextResidenceBackendCarrierInstallV1 {
-    Invalid(PinnedTextResidenceBackendCarrierProjectionErrorV1),
-    AlreadyInstalled,
-}
-
 /// Validate one source-issued transport carrier against the exact detached
 /// function receiving it. MIR is observed only here, at the projection seam;
 /// it never becomes a carrier issuance authority.
@@ -96,9 +90,7 @@ pub(crate) fn verify_pinned_text_residence_backend_carrier_v1(
             let MirInstruction::PinnedTextResidenceFinish { residence } = instruction else {
                 continue;
             };
-            if residence.owner() != view.owner
-                || residence.plan_stamp() != view.plan.plan_stamp()
-            {
+            if residence.owner() != view.owner || residence.plan_stamp() != view.plan.plan_stamp() {
                 return Err(PinnedTextResidenceBackendCarrierProjectionErrorV1::FinishSiteMismatch);
             }
             finish_count = finish_count.saturating_add(1);
@@ -143,21 +135,4 @@ impl PinnedTextResidenceBackendCarrierV1 {
     ) -> Result<(), PinnedTextResidenceBackendCarrierProjectionErrorV1> {
         verify_pinned_text_residence_backend_carrier_v1(self, function)
     }
-}
-
-pub(crate) fn install_pinned_text_residence_backend_carrier_v1(
-    carrier: PinnedTextResidenceBackendCarrierV1,
-    function: &mut MirFunction,
-) -> Result<(), PinnedTextResidenceBackendCarrierInstallV1> {
-    verify_pinned_text_residence_backend_carrier_v1(&carrier, function)
-        .map_err(PinnedTextResidenceBackendCarrierInstallV1::Invalid)?;
-    if function
-        .metadata
-        .pinned_text_residence_backend_carrier
-        .is_some()
-    {
-        return Err(PinnedTextResidenceBackendCarrierInstallV1::AlreadyInstalled);
-    }
-    function.metadata.pinned_text_residence_backend_carrier = Some(carrier);
-    Ok(())
 }

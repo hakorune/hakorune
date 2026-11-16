@@ -13,9 +13,7 @@ use crate::mir::compiler::pinned_text_backend_frame::{
 use crate::mir::normal_callable_semantic_package::{
     PhysicalCallableLaneRoleV1, PhysicalCallableSignatureRowRefV1,
 };
-use crate::mir::pinned_text_residence_lifecycle::{
-    PinnedTextResidencePlanIdV1, PreparedPinnedTextResidenceLifecycleV1,
-};
+use crate::mir::pinned_text_residence_lifecycle::PinnedTextResidencePlanIdV1;
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
 
 pub(crate) const PINNED_TEXT_RESIDENCE_BACKEND_CARRIER_CONTRACT_ID_V1: &str =
@@ -105,62 +103,6 @@ pub(super) struct PinnedTextResidenceBackendCarrierProjectionViewV1<'carrier> {
     pub(super) normal_exit_count: u32,
 }
 
-/// Move-only lineage retained before the canonical Enter consumes its
-/// lifecycle carrier.  It keeps the package-owned signature beside the exact
-/// physical placement, so DraftSeal can add the authoritative exit set
-/// without reconstructing plan or block identity from MIR.
-#[derive(Debug)]
-pub(crate) struct PinnedTextResidenceBackendCarrierLineageV1<'loan> {
-    signature: PhysicalCallableSignatureRowRefV1<'loan>,
-    plan: PinnedTextResidencePlanIdV1,
-    enter_source: BasicBlockId,
-    normal_landing: BasicBlockId,
-    trap_landing: BasicBlockId,
-}
-
-impl<'loan> PinnedTextResidenceBackendCarrierLineageV1<'loan> {
-    pub(crate) fn from_lifecycle(
-        signature: PhysicalCallableSignatureRowRefV1<'loan>,
-        enter_source: BasicBlockId,
-        lifecycle: &PreparedPinnedTextResidenceLifecycleV1,
-    ) -> Result<Self, PinnedTextResidenceBackendCarrierIssueV1> {
-        if signature.owner() != lifecycle.plan().owner() {
-            return Err(PinnedTextResidenceBackendCarrierIssueV1::OwnerMismatch);
-        }
-        if enter_source == lifecycle.normal_landing()
-            || enter_source == lifecycle.trap_landing()
-        {
-            return Err(PinnedTextResidenceBackendCarrierIssueV1::LandingBlocksMustDiffer);
-        }
-        Ok(Self {
-            signature,
-            plan: lifecycle.plan(),
-            enter_source,
-            normal_landing: lifecycle.normal_landing(),
-            trap_landing: lifecycle.trap_landing(),
-        })
-    }
-
-    pub(crate) fn issue(
-        self,
-        frame: PinnedTextBackendFrameBorrowV1<'_>,
-        finish_blocks: Box<[BasicBlockId]>,
-        normal_exit_count: u32,
-    ) -> Result<PinnedTextResidenceBackendCarrierV1, PinnedTextResidenceBackendCarrierIssueV1>
-    {
-        PinnedTextResidenceBackendCarrierV1::issue(
-            self.signature,
-            frame,
-            self.plan,
-            self.enter_source,
-            self.normal_landing,
-            self.trap_landing,
-            finish_blocks,
-            normal_exit_count,
-        )
-    }
-}
-
 impl PinnedTextResidenceBackendCarrierV1 {
     /// Issue one carrier from the package-owned signature and the existing
     /// frame/lifecycle products.  No lane or root relation is inferred.
@@ -242,17 +184,23 @@ impl PinnedTextResidenceBackendCarrierV1 {
                 }
                 PhysicalCallableLaneRoleV1::ExactTextSlot => {
                     let Some(generation) = lanes.get(index + 1).copied() else {
-                        return Err(PinnedTextResidenceBackendCarrierIssueV1::ExactTextPairMismatch);
+                        return Err(
+                            PinnedTextResidenceBackendCarrierIssueV1::ExactTextPairMismatch,
+                        );
                     };
                     if generation.role() != PhysicalCallableLaneRoleV1::ExactTextGeneration
                         || generation.index() != slot.index().saturating_add(1)
                         || generation.logical_ordinal() != slot.logical_ordinal()
                         || generation.binding() != slot.binding()
                     {
-                        return Err(PinnedTextResidenceBackendCarrierIssueV1::ExactTextPairMismatch);
+                        return Err(
+                            PinnedTextResidenceBackendCarrierIssueV1::ExactTextPairMismatch,
+                        );
                     }
                     let Some(logical_ordinal) = slot.logical_ordinal() else {
-                        return Err(PinnedTextResidenceBackendCarrierIssueV1::ExactTextPairMismatch);
+                        return Err(
+                            PinnedTextResidenceBackendCarrierIssueV1::ExactTextPairMismatch,
+                        );
                     };
                     if logical_ordinal != expected_ordinal {
                         return Err(PinnedTextResidenceBackendCarrierIssueV1::LaneIndexMismatch);

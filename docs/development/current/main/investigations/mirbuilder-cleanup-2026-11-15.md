@@ -509,3 +509,16 @@ F02の実消費者が消えた`loop_route_detection::support::function_scope`の
 - 確かめていない事: 既定でない feature の下での動き。Python の検査(v4)は、C 側を変えていないので走らせていない。
 - 次の候補: F22 を共通の loop へ移す(統合してから消す)。F23 の拒否の文を、共通の道で同じ内容にしてから消す。まだ決めていない 9 family(F03・F05・F09・F10・F11・F15・F18・F20・F21)。使い手のいなくなった共有の部品。
 
+
+## お掃除6 A: 使い手のいない準備部品（2026-11-16）
+
+基点はmain `6a5f2d453f`。既定・通るfeature二構成・testの警告を照合し、名前・登録・macro・feature側の参照を別に確認した。
+未接続のScript transactionとouter entry、static/Dynamic rebindの準備wrapper、Dynamic physical evidenceの未使用readout、Pinned Textの未使用Ingress/Lineage/install wrapperを削除した。
+現役のScript sessionとその破棄・復元、originの検査とtest、source coverage、frame/carrierの発行・投影・独立検証は保持した。失敗するfeatureだけでも使い手があるVMの表示・JSON arena・数値処理は残した。F17は変更していない。
+
+- 同じ整形条件でproduction **1,093行減**、test **18行減**、Rust file **2本減**。登録testは8,616件のまま。減ったtest行は未使用の準備wrapperであり、test関数・assertionの削除はない。
+- MIR層の本体は、生のtest-file除外で681,122→680,043行、整形・cfg(test)除外で640,103→639,010行。33万行の目標は未達。
+- 既定buildの警告は2,337→2,290件。警告を抑える属性や公開範囲の拡大はしていない。
+- 最適化CLIで固定5,386入力のMIR・拒否・出力・exitの差0、timeout 0。全lib直列は8,359 PASS / 205 FAIL / 52 ignoredで失敗名集合も登録名集合も不変。
+- 固定suite 8/8（空markerと実EXEのsmokeを区別）、ignored Map 18ケース、owner guard（承認基点6a5f2d453f）・pointer・差分checkはPASS。二featureはPASS、既存二FAIL構成はエラー集合を維持した。
+- 既存のScript physical guardは、基点から欠けている`into_recipe`の目印で前後同じFAIL。現役部分の検査を弱めず、消した準備部品だけの節を除いた。metadata台帳の既存130/131不一致と520行anchorのずれは修正対象へ混ぜていない。 projection guardも、既存provider観測7件に対する期待6件の不一致を前後とも保持した。
