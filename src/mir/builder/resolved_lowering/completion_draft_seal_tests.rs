@@ -559,62 +559,7 @@ fn open_draft_seal_rejection_discards_the_unpublished_session() {
         rejected.stage(),
         super::draft_seal_owner::FunctionDraftSealStageV1::Exit
     );
-    rejected.discard();
-    assert!(builder.function_state.current_function.is_none());
-    assert!(builder.function_state.current_block.is_none());
-}
-
-#[test]
-fn callable_pending_draft_seal_rejection_keeps_typed_error_and_restores_parent() {
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(
-        "callable_pending_draft_seal_reject",
-        Vec::new(),
-    ))
-    .unwrap();
-    let input = unit.root_function_input().unwrap();
-    let body = input.source().root_body().unwrap();
-    let target = input.function().lowering_roots().function_pair().region();
-    let completion = verify_function_completion_v1(input).unwrap();
-    let ready = ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion)
-        .unwrap()
-        .finish(body.site(), body.statements().len() as u32, target)
-        .unwrap();
-
-    let mut builder = MirBuilder::new();
-    let product = resolved_product("callable_pending_draft_seal_reject/0");
-    let owner = product.owner();
-    let mut session = builder
-        .open_resolved_function_draft_seal_session_v1("callable_pending_draft_seal_reject/0");
-    let builder_view = session.builder_view_mut_for_lowering();
-    builder_view
-        .function_state
-        .resolved_binding_state
-        .install(&product)
-        .unwrap();
-    builder_view
-        .function_state
-        .resolved_binding_state
-        .finish(owner)
-        .unwrap();
-    builder_view.enter_function_for_test("callable_pending_draft_seal_reject/0".into());
-    builder_view
-        .function_state
-        .current_function
-        .as_mut()
-        .unwrap()
-        .get_block_mut(BasicBlockId::new(0))
-        .unwrap()
-        .set_terminator(MirInstruction::Return { value: None });
-
-    let ready = ReadyFunctionDraftSealV1::new(ready, BasicBlockId::new(0));
-    let error = match super::commit_callable_single_loop_ready_to_pending_v1(session, ready) {
-        Ok(_) => panic!("preterminated pending draft unexpectedly prepared"),
-        Err(error) => error,
-    };
-    let crate::mir::builder::calls::CanonicalFunctionSessionErrorV1::DraftSeal(error) = error
-    else {
-        panic!("pending DraftSeal rejection lost its typed session variant")
-    };
+    let error = rejected.into_discarded_error();
     assert_eq!(
         error.stage(),
         super::draft_seal_owner::FunctionDraftSealStageV1::Exit
@@ -622,14 +567,20 @@ fn callable_pending_draft_seal_rejection_keeps_typed_error_and_restores_parent()
     assert!(matches!(
         error.error(),
         super::draft_seal_owner::FunctionDraftSealErrorV1::Projection {
-            _error: FunctionDraftSealProjectionErrorV1::ExitBlockAlreadyTerminated { .. }
-        }
+            _error: FunctionDraftSealProjectionErrorV1::ExitBlockAlreadyTerminated {
+                block
+            }
+        } if *block == BasicBlockId::new(0)
     ));
     assert!(builder.function_state.current_function.is_none());
     assert!(builder.function_state.current_block.is_none());
 
+    // Keep the old helper test's post-rejection session reuse guarantee.
+    // Pending success/abort/drop use their existing function-session tests.
     let fresh = builder.open_resolved_function_draft_seal_session_v1("fresh_after_reject/0");
     fresh.discard_unpublished();
+    assert!(builder.function_state.current_function.is_none());
+    assert!(builder.function_state.current_block.is_none());
 }
 
 #[test]

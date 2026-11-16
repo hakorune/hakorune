@@ -20569,18 +20569,6 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/completion_draft_seal_tests.rs:607:mir_return",
-      "evidence": ".set_terminator(MirInstruction::Return { value: None });",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 607,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/completion_draft_seal_tests.rs",
-      "token": "mir_return"
-    },
-    {
       "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/completion_draft_seal_tests.rs:62:mir_return",
       "evidence": "Some(MirInstruction::Return { value: Some(id) }) if id == value",
       "evidence_kind": "mir_return",

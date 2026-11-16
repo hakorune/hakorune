@@ -96,7 +96,7 @@
      "src/mir/builder/resolved_lowering/draft_seal_owner.rs"
     ],
     "anchors": [
-     "src/mir/builder/module_lowering_invocation_resolved_loan.rs:116:pinned_text_access_plans"
+     "src/mir/builder/module_lowering_invocation_resolved_loan.rs:86:pinned_text_access_plans"
     ],
     "count": 3
    },
@@ -140,7 +140,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/mir/builder/module_lowering_invocation_resolved_loan.rs:114:pinned_text_backend_frame_contract",
+     "src/mir/builder/module_lowering_invocation_resolved_loan.rs:84:pinned_text_backend_frame_contract",
      "src/runner/mir_json_emit/metadata.rs:518:pinned_text_backend_frame_contract"
     ],
     "count": 2,
@@ -154,7 +154,7 @@
      "src/mir/compiler/pinned_text_residence_backend_projection.rs"
     ],
     "anchors": [
-     "src/mir/builder/module_lowering_invocation_resolved_loan.rs:114:pinned_text_backend_frame_contract"
+     "src/mir/builder/module_lowering_invocation_resolved_loan.rs:84:pinned_text_backend_frame_contract"
     ],
     "count": 4
    },
