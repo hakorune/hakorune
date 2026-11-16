@@ -631,7 +631,10 @@
         for (size_t ai = 0; ai < argc; ai++) {
           yyjson_val* param = yyjson_arr_get(params, ai);
           long long reg = param ? (long long)yyjson_get_sint(param) : 0;
-          fprintf(f, "%si64 %%r%lld", ai ? ", " : "", reg);
+          if (get_type(reg) == T_I1)
+            fprintf(f, "%si64 %%bool_arg_%lld", ai ? ", " : "", reg);
+          else
+            fprintf(f, "%si64 %%r%lld", ai ? ", " : "", reg);
         }
         fprintf(f, ") alwaysinline {\n");
         return 1;

@@ -33,3 +33,7 @@ focused確認: 正負のResolve、指定8種類のMIR改変拒否、入れ子con
 ## EXE比較で見つかった物理境界
 
 既存C backendはValueId 0を未指定operandとして扱うため、新builderの物理IDは全関数で1から割り当てる。sourceの束縛ordinalは0始まりのまま。引数番号と物理IDは同一視しない。この修正後、手計算47入力中43入力でEXEの出力とexitが一致し、fib/引数返却の誤動作は解消。残り4入力はBool formalのi64→i1 ABI変換不足と、generic backendがUnary Negを受けない点。まだ全範囲の成功とは数えない。focusedの3test（8種類の改変拒否を含む）は全PASS。
+
+修正後の47入力は、すべてEXEの期待出力/exitに一致（既存builderと同結果7、新builderのみ40）。単項Minusはoperand一度評価→Const0→wrapping Subとし、対応検証は両命令とoperand/順を独立照合する。generic CのBool formalは既存i64 ABIを維持し、関数入口でi1に復元する（戻り値側の既存変換と対）。新opcode/JSON/ABI追加なし。既定経路の全比較は最終確認時に実施する。負のCLI入力15本はすべて非zero exit/成果物なし。うちprintを式位置に置く例とtake/fromの3本は共通parserで拒否、残り12本はResolveの名前付き拒否。
+
+設計図mainの21/22節（2026-11-17追記）も適用する。Lowerの子の組合せ/深さ/場所/call form/app名による分岐は0、式/call/loop入口は各1。Resolveの既存Div literal安全契約1件とliteral trueの継続契約1件は、別に計上する。新しい専用経路とは数えず、全段で子kind検査0とは主張しない。

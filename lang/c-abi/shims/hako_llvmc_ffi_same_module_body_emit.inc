@@ -633,6 +633,16 @@
             }
           }
           if (!emit_static_v2_phi_originals(block.id)) return 0;
+          /* Generic calls carry scalar arguments as i64. Restore the logical
+           * Bool once at entry; expanded Map signatures keep their own binder. */
+          if (bi == 0 && hako_static_v2_expanded_find(&invocation->static_v2, fn0) < 0) {
+            yyjson_val* params = yyjson_obj_get(fn0, "params");
+            for (size_t ai = 0; ai < yyjson_arr_size(params); ai++) {
+              long long reg = (long long)yyjson_get_sint(yyjson_arr_get(params, ai));
+              if (get_type(reg) == T_I1)
+                EMIT("  %%r%lld = icmp ne i64 %%bool_arg_%lld, 0\n", reg, reg);
+            }
+          }
           unsigned char skip_inst[block.instruction_count ? block.instruction_count : 1];
           struct SameModuleArraySlotDirectOpPlan array_direct_plan;
           struct SameModuleResultCapsuleResetBatchPlan result_capsule_reset_batch_plan;

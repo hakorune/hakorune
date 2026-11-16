@@ -256,23 +256,46 @@ impl Checker<'_> {
             }
             ExpressionKind::Unary { operator, operand } => {
                 let operand = self.operand(operand)?;
-                let expected = match operator {
-                    Unary::Minus => UnaryOp::Neg,
-                    Unary::Not => UnaryOp::Not,
-                    _ => return Err(bad("unresolved-unary")),
-                };
-                let MirInstruction::UnaryOp {
-                    dst,
-                    op,
-                    operand: actual,
-                } = self.take(Some((source.id, Role::Value)))?
-                else {
-                    return Err(bad("unary-kind"));
-                };
-                if op != expected || actual != operand {
-                    return Err(bad("unary-operands"));
+                if matches!(operator, Unary::Minus) {
+                    let MirInstruction::Const {
+                        dst: zero,
+                        value: ConstValue::Integer(0),
+                    } = self.take(Some((source.id, Role::UnaryZero)))?
+                    else {
+                        return Err(bad("unary-zero"));
+                    };
+                    self.typed(zero, Type::I64)?;
+                    let MirInstruction::BinOp {
+                        dst,
+                        op: BinaryOp::Sub,
+                        lhs,
+                        rhs,
+                    } = self.take(Some((source.id, Role::Value)))?
+                    else {
+                        return Err(bad("unary-minus-kind"));
+                    };
+                    if lhs != zero || rhs != operand {
+                        return Err(bad("unary-minus-operands"));
+                    }
+                    Some(dst)
+                } else {
+                    let expected = match operator {
+                        Unary::Not => UnaryOp::Not,
+                        _ => return Err(bad("unresolved-unary")),
+                    };
+                    let MirInstruction::UnaryOp {
+                        dst,
+                        op,
+                        operand: actual,
+                    } = self.take(Some((source.id, Role::Value)))?
+                    else {
+                        return Err(bad("unary-kind"));
+                    };
+                    if op != expected || actual != operand {
+                        return Err(bad("unary-operands"));
+                    }
+                    Some(dst)
                 }
-                Some(dst)
             }
             ExpressionKind::Binary {
                 operator,

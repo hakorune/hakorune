@@ -20,6 +20,7 @@ pub(super) struct Cursor {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub(super) enum Role {
     Value,
+    UnaryZero,
     Control,
     Compound,
     RangeTest,
@@ -177,17 +178,35 @@ impl Workspace<'_> {
                 let Some(operand) = self.expression(operand)?.value()? else {
                     return Ok(ExpressionResult::Terminated);
                 };
-                let op = match operator {
-                    Unary::Minus => UnaryOp::Neg,
-                    Unary::Not => UnaryOp::Not,
+                let dst = self.value(source.ty);
+                let instruction = match operator {
+                    Unary::Minus => {
+                        // Current-I64 negation is wrapping subtraction. The
+                        // existing generic backend accepts this raw operation.
+                        let zero = self.value(Type::I64);
+                        self.emit(
+                            source.id,
+                            Role::UnaryZero,
+                            MirInstruction::Const {
+                                dst: zero,
+                                value: ConstValue::Integer(0),
+                            },
+                        )?;
+                        MirInstruction::BinOp {
+                            dst,
+                            op: BinaryOp::Sub,
+                            lhs: zero,
+                            rhs: operand,
+                        }
+                    }
+                    Unary::Not => MirInstruction::UnaryOp {
+                        dst,
+                        op: UnaryOp::Not,
+                        operand,
+                    },
                     _ => return Err("blueprint/internal/unresolved-unary".into()),
                 };
-                let dst = self.value(source.ty);
-                self.emit(
-                    source.id,
-                    Role::Value,
-                    MirInstruction::UnaryOp { dst, op, operand },
-                )?;
+                self.emit(source.id, Role::Value, instruction)?;
                 Some(dst)
             }
             ExpressionKind::Binary {
