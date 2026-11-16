@@ -588,3 +588,35 @@ i64 Call由来の対象readは、原本の意味契約を保持し、完成modul
 固定5386入力のMIR・拒否・出力・exit差0、timeout0、新規受理0。固定集合外の入れ子if正例は以前のinitializer-missingから正規EXE・exit7へ。publicationのoperand/PHI入力/生きた定義の改変3負例も拒否する。
 全lib直列8370 PASS/既知205 FAIL/52 ignoredで赤の名前集合一致、suite8/8（空markerあり）とMap18 PASS。feature二構成はPASS、vm-referenceの既存1 error・cli-no-pluginsの既存11 errorsは基準内。owner全指標一致、definition-scan候補286のまま、基準変更なし。
 本体はcfg(test)除外・整形後639010→639544（+534）、test347774→348275（+501）。生のtest-file除外本体680043→680597。機能追加を含み純減とは主張しない。F22の穴1〜3とF17は未変更。
+
+### 段3下調べ（未実装）
+
+**穴1: 共通loop許可**
+特徴の一致数は診断に残すが、許可は同一owner/source site/一般loop契約に一つ、writerも一つにする。特徴の優先順位で選ばない。
+既存V2 productとgeneric issuerの接続を整理する。候補は数ファイル・数百行規模の仮見積で、実装前にsource portを追う。
+保存した5386入力ではzero-selected-family拒否76入力、特徴重複を明示する診断0。76は新規受理見積でも独立原因数でもなく、受理増の本数は未確定。
+
+**穴2: i64引数**
+literal/formal/local/Call結果を既存CheckedExpressionEvaluationV1の検査済み結果として同じ実引数へ渡す。
+local-call flow・引数封印・direct-call projectionを接続し、literal専用分岐を退役する。数owner・数百行規模の仮見積。
+左からの評価順、一回だけの発行、Normal/Faultの責任を保持する。MIRの形からsourceの型やcalleeを推測しない。
+
+**穴3: return/未呼出宣言**
+段2ではplain returnのCall producer選択を変えていない。このsource接続と、未呼出宣言の参加/membershipが残る。
+原本Call定義と現在のsource readを確定し、同値は完成CFGへ渡す。未呼出宣言には偽のCall edgeを作らない。
+terminal sourceとsealed definition inventoryの二責務で接続する。数ファイル・数百行規模の仮見積で、両方の保証確認後にF22専用routeを削除する。
+
+**循環PHI**
+Copy/PHIの循環成分について、外から入る全定義と全backedgeを実CFGで確認する案。
+全外部入力が同じ指定基点で循環内に値を変える演算がない場合だけ同値候補とする。基点なしの循環・別基点・演算更新は成功にしない。
+既存queryへ循環解決を加える別作業で、1〜2責務・百行単位の仮見積。source Call siteの一致を値の一致にしない。
+
+**診断案**
+sourceに初期化が無い場合と、初期化はあるが使用値との対応が証明できない場合を分ける。
+後者の候補はi64-origin-unproved、「この読みが元の定義と同じ値であると証明できません」。不正CFGは既存構造診断を維持する。
+未対応と意味違反も区別する。名前・文言の変更は別承認事項で、この回は変えない。
+
+**既存F22 API二本の保証**
+一つ目はbound 0/1/3、実counterのheader/backedge/条件と元Call結果のreturnを保持する。専用block配置や不要な命令数の固定は実pred/operand/結果の保証へ見直せる。
+二つ目はPairの正規公開と未呼出helperが共存して物理ABIへ届く保証。helper呼出しを入力に足して代用しない。
+Call一回発行・引数対応・Normal/Fault検証・return 0のRaw経路を保持する。未呼出宣言をどこまで検査/公開するかは独立契約として残す。
