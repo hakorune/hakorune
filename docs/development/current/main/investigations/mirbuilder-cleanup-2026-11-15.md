@@ -485,3 +485,8 @@ ScopeBoxのno-retry/cleanup/temp binding保証3件は関数本文をbyte不変�
 
 3 profileの呼び手が消えた`complete_main0_root_draft_v1`と`commit_callable_single_loop_ready_to_pending_v1`、専用test1件を退役。正確なExit/ExitBlockAlreadyTerminated（block0）、親状態の復元、fresh sessionのopen/discardを既存の拒否testへ統合した。現役pending/abort/dropの21件と、共有Main/policy/identity・collector安全検査は保持する。generic key経由の共有collector armは閉じ切れないため削除しない。
 統合後focused43件PASS、登録8565→8564・追加0・未説明差0。試案の追加fresh成功fixtureは新しいblockを固定IDで扱う誤りがあり採用せず、元の両testの保証を保持した。整形後Rustは本体53行/test49行の純減。pointer/diff検査PASS、最終の全入力/全lib/固定suite/owner確認はこの後に行う。
+
+### 段E: F02の旧capture補助型
+
+F02の実消費者が消えた`loop_route_detection::support::function_scope`のCapturedEnv/Kind/Varを退役した。全Rustの同名/別名module参照を確認し、定義・自己test・再export以外の呼び手は0。別crateのCapturedVar、現役AST capture、F03の広いcanonicalizer/route検査は保持する。
+専用test5件も同じ変更で削除し、登録8564→8559・追加0・未説明差0。focused100件PASS、整形後Rustは本体107行/test69行の純減、Rust2file退役。pointer/diff検査PASS。この後はsourceを固定し、通常の最適化CLIと全lib/feature/固定suite/Map18/ownerで最終確認する。

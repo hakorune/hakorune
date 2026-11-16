@@ -4485,11 +4485,6 @@ mir::loop_route_detection::support::condition_scope::var_analyzer::tests::test_i
 mir::loop_route_detection::support::condition_scope::var_analyzer::tests::test_is_outer_scope_variable_with_no_scope
 mir::loop_route_detection::support::condition_scope::var_analyzer::tests::test_scope_header_and_latch_variable
 mir::loop_route_detection::support::condition_scope::var_analyzer::tests::test_scope_priority_in_add_var
-mir::loop_route_detection::support::function_scope::types::tests::test_captured_env_add_and_get
-mir::loop_route_detection::support::function_scope::types::tests::test_captured_env_empty
-mir::loop_route_detection::support::function_scope::types::tests::test_captured_env_insert_explicit
-mir::loop_route_detection::support::function_scope::types::tests::test_captured_env_insert_pinned
-mir::loop_route_detection::support::function_scope::types::tests::test_captured_env_multiple_vars
 mir::loop_route_detection::support::locals::mutable_accumulator::tests::test_accumulator_with_literal_rhs
 mir::loop_route_detection::support::locals::mutable_accumulator::tests::test_complex_rhs_not_accumulator
 mir::loop_route_detection::support::locals::mutable_accumulator::tests::test_decrement_not_accumulator
