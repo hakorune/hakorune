@@ -18949,11 +18949,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/module_lifecycle.rs:511:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/module_lifecycle.rs:499:mir_return",
       "evidence": "block.add_instruction(MirInstruction::Return {",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 511,
+      "line": 499,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -19201,11 +19201,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_default_root_catalog_main_selection_tests.rs:377:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_default_root_catalog_main_selection_tests.rs:376:mir_return",
       "evidence": "Some(crate::mir::MirInstruction::Return { value: Some(_) })",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 377,
+      "line": 376,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -20674,18 +20674,6 @@
       "resolution": "Pending",
       "site_ref": null,
       "source_path": "src/mir/builder/resolved_lowering/if_tests.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_derived_predicate_lowerer_tests.rs:179:mir_return",
-      "evidence": "Some(crate::mir::MirInstruction::Return { value: Some(_) })",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 179,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_derived_predicate_lowerer_tests.rs",
       "token": "mir_return"
     },
     {

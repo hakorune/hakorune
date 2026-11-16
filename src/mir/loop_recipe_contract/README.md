@@ -1034,8 +1034,8 @@ block each reject a second open/seal instead of silently replacing state.
 The old Main0 Continue consumer retires in D2. `LoopRecipeDraftV1` and its
 shared verifier/source-binding contracts remain current; public producer IDs
 and existing wire fixtures do not require keeping a private producer alive.
-The neutral Continue fact/map fragments remain only for DerivedPredicate until
-its D3 retirement.
+D3 retires the last derived-only Continue fact/map fragments after their
+final consumer; shared Recipe draft/schema contracts remain.
 
 ## Original recursive source Loop V2 projection
 

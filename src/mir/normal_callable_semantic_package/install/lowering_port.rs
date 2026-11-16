@@ -57,31 +57,6 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         self.with_app_main_root_source_view(batch_slot, expected_identity, callback)
     }
 
-    /// Observe the same App Main root input without consuming the one-shot
-    /// loan.
-    ///
-    /// Pre-wrapper route selection uses this read-only borrow to classify the
-    /// source; the selected branch still performs the single consumption via
-    /// `with_app_main_root_lowering_input`, and a non-selected source leaves
-    /// the legacy hook's consumption intact.  The identical slot resolution
-    /// and source validation run here so the observed input is exactly the
-    /// one a later consumption would lend.
-    pub(crate) fn observe_app_main_root_source_v1<R>(
-        &self,
-        expected_key: &CanonicalSameModuleCallableKeyV1,
-        expected_identity: &CallableDeclarationIdentityV1,
-        callback: impl for<'source> FnOnce(
-            ResolvedFunctionLoweringInputV1<'source>,
-            crate::mir::callable_semantic_batch::VerifiedResolvedCallableSourceIdentityV1,
-        ) -> R,
-    ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
-        if self.main_root_consumed {
-            return Err(NormalCallableSemanticPackageInstallIssueV1::MainRootAlreadyConsumed);
-        }
-        let batch_slot = self.app_main_root_batch_slot(expected_key, expected_identity)?;
-        self.with_app_main_root_source_view(batch_slot, expected_identity, callback)
-    }
-
     fn app_main_root_batch_slot(
         &self,
         expected_key: &CanonicalSameModuleCallableKeyV1,

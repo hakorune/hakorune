@@ -366,8 +366,7 @@ fn main0_derived_predicate_canonical_root_publishes_one_main_through_collector()
             .count(),
         1
     );
-    // The canonical draft sealed its own Return inside the session; raw
-    // finish must not have appended a second one.
+    // Root finalization must not append a second value Return.
     let returns = main
         .blocks
         .values()
@@ -379,8 +378,7 @@ fn main0_derived_predicate_canonical_root_publishes_one_main_through_collector()
         })
         .count();
     assert_eq!(returns, 1, "canonical main owns exactly one value Return");
-    // PHI on the loop backedge proves the canonical physicalizer ran; the
-    // legacy wrapper never produced a PHI for this fixture.
+    // Current loop lowering must retain a real backedge PHI.
     assert!(main.blocks.values().any(|block| {
         block
             .instructions
@@ -393,9 +391,7 @@ fn main0_derived_predicate_canonical_root_publishes_one_main_through_collector()
 #[test]
 fn main0_derived_predicate_bound_variant_stays_on_the_canonical_route() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
-    // The bound local's initializer value is not membership: `local n = 2`
-    // keeps the same admitted shape and must still reach the canonical
-    // route.
+    // A different bound initializer keeps the same source/PHI guarantees.
     let source = callable_source(
         r#"static box Main {
     main() {
@@ -426,40 +422,4 @@ fn main0_derived_predicate_bound_variant_stays_on_the_canonical_route() {
             .any(|instruction| matches!(instruction, crate::mir::MirInstruction::Phi { .. }))
     }));
     validate(&module).expect("bound variant passes final root validation");
-}
-
-#[test]
-fn main0_derived_predicate_post_facts_disagreement_is_a_hard_reject() {
-    crate::runtime::ring0::ensure_global_ring0_initialized();
-    // Facts admit this shape (the tail is a variable read), but the source
-    // map proves the tail reads the read-only operand, not the carrier.
-    // Post-admission disagreement must reject the whole root lowering; it
-    // may never silently fall back to the legacy path.
-    let source = callable_source(
-        r#"static box Main {
-    main() {
-        local j = 0
-        local m = 0
-        local n = 3
-        loop(j + m <= n) {
-            j = j + 1
-        }
-        return m
-    }
-}"#,
-        ParserBuildConfig::default(),
-    );
-    let rejected = session()
-        .complete_normal_default_program_root_catalog_lifecycle(
-            source,
-            CallableMainMaterializationPolicyV1::Omitted,
-            NormalRuntimeInputSnapshotV1::empty(),
-        )
-        .expect_err("tail/carrier disagreement must be a hard selection failure");
-    assert!(
-        rejected.error().to_string().contains("main0-selection"),
-        "{}",
-        rejected.error()
-    );
-    rejected.discard();
 }

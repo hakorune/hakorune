@@ -42,8 +42,6 @@ mod canonical_route;
 mod cataloged_instance_scope;
 #[path = "normal_callable_semantic_loan_port/generic_g0.rs"]
 mod generic_g0;
-#[path = "normal_callable_semantic_loan_port/main0_root.rs"]
-mod main0_root;
 #[path = "normal_callable_semantic_loan_port/main_root.rs"]
 mod main_root;
 #[path = "normal_callable_semantic_loan_port/ordinary_new.rs"]

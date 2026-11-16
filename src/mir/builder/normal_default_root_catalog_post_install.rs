@@ -113,9 +113,7 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
             callable_loop_root_scope,
         )
         .map_err(|error| NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into()))?;
-    // The legacy wrapper opens inside the work-plan route; the canonical
-    // Main0 route leaves this slot empty because its draft publishes through
-    // the collector drain instead.
+    // The wrapper opens inside the work-plan route before root finalization.
     let root_entry = builder
         .function_state
         .current_function
@@ -125,65 +123,45 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
     let mut root_validation = RootValidation::Absent;
     let module = match completion {
         super::program_root_lowering::ProgramRootCompletionV1::WrapperBody(result_value) => builder
-            .finalize_module_with_root_validation(result_value, phi_source_ledger.as_deref(), |function| {
-                let observation = match &root_new_ledger {
-                    Some(ledger) => ledger.validate_finalized_new_root(function)?,
-                    None => crate::mir::function::RootOrdinaryNewObservation::NotIssued,
-                };
-                root_validation = match (script_source, root_new_ledger) {
-                    (Some(mut source), _) => {
-                        let Some(entry) = root_entry else {
-                            return Err(
-                                "[freeze:contract][script-source/root-missing]".into(),
-                            );
-                        };
-                        if function.entry_block != entry
-                            || !matches!(
-                                observation,
-                                crate::mir::function::RootOrdinaryNewObservation::NotIssued
-                            )
-                        {
-                            return Err(
-                                "[freeze:contract][script-source/root-owner-drift]".into(),
-                            );
+            .finalize_module_with_root_validation(
+                result_value,
+                phi_source_ledger.as_deref(),
+                |function| {
+                    let observation = match &root_new_ledger {
+                        Some(ledger) => ledger.validate_finalized_new_root(function)?,
+                        None => crate::mir::function::RootOrdinaryNewObservation::NotIssued,
+                    };
+                    root_validation = match (script_source, root_new_ledger) {
+                        (Some(mut source), _) => {
+                            let Some(entry) = root_entry else {
+                                return Err("[freeze:contract][script-source/root-missing]".into());
+                            };
+                            if function.entry_block != entry
+                                || !matches!(
+                                    observation,
+                                    crate::mir::function::RootOrdinaryNewObservation::NotIssued
+                                )
+                            {
+                                return Err(
+                                    "[freeze:contract][script-source/root-owner-drift]".into()
+                                );
+                            }
+                            source.bind_array_root(function)?;
+                            RootValidation::Script {
+                                key: function.signature.name.clone(),
+                                entry,
+                                source,
+                            }
                         }
-                        source.bind_array_root(function)?;
-                        RootValidation::Script {
+                        (None, Some(ledger)) => RootValidation::OrdinaryNew {
                             key: function.signature.name.clone(),
-                            entry,
-                            source,
-                        }
-                    }
-                    (None, Some(ledger)) => RootValidation::OrdinaryNew {
-                        key: function.signature.name.clone(),
-                        ledger,
-                    },
-                    (None, None) => RootValidation::Absent,
-                };
-                Ok(observation)
-            })
-            .map_err(|error| {
-                NormalDefaultRootCatalogLifecycleErrorV1::FinalizeModule(error.into())
-            })?,
-        super::program_root_lowering::ProgramRootCompletionV1::CanonicalMainDraft => builder
-            .finalize_module_with_canonical_root_v1(phi_source_ledger.as_deref(), |function| {
-                let observation = match &root_new_ledger {
-                    Some(ledger) => ledger.validate_finalized_new_root(function)?,
-                    None => crate::mir::function::RootOrdinaryNewObservation::NotIssued,
-                };
-                root_validation = match (script_source, root_new_ledger) {
-                    (None, Some(ledger)) => RootValidation::OrdinaryNew {
-                        key: function.signature.name.clone(),
-                        ledger,
-                    },
-                    _ => {
-                        return Err(
-                            "[freeze:contract][mir/main0-root/final-validation-drift]".into(),
-                        );
-                    }
-                };
-                Ok(observation)
-            })
+                            ledger,
+                        },
+                        (None, None) => RootValidation::Absent,
+                    };
+                    Ok(observation)
+                },
+            )
             .map_err(|error| {
                 NormalDefaultRootCatalogLifecycleErrorV1::FinalizeModule(error.into())
             })?,

@@ -224,3 +224,37 @@ fn unrelated_map_owner_with_plain_return_stays_admitted() {
         .prepare_install(&mut context)
         .expect("unrelated map owner install");
 }
+
+#[test]
+fn app_main_root_consumption_keeps_source_identity_and_is_one_shot() {
+    use super::NormalCallableSemanticPackageInstallIssueV1 as Issue;
+    use crate::mir::builder::{CanonicalSameModuleCallableKeyV1, CompilationContext};
+
+    let package = issue("static box Main { main() { return 0 } }").unwrap();
+    let mut context = CompilationContext::new();
+    let installed = package.prepare_install(&mut context).unwrap().commit();
+    let root = context
+        .callable_declaration_catalog()
+        .unwrap()
+        .source_backed_app_main()
+        .unwrap();
+    let key = root.catalog_key().clone();
+    let identity = root.parser_identity().clone();
+    let mut port = installed.begin_lowering(&context).unwrap();
+    let wrong_arity = CanonicalSameModuleCallableKeyV1::test_static_box_method("Main", "main", 1);
+    assert!(matches!(
+        port.with_app_main_root_lowering_input(&wrong_arity, &identity, |_, _| panic!(
+            "foreign relation callback"
+        )),
+        Err(Issue::MainRootRelationMismatch)
+    ));
+    port.with_app_main_root_lowering_input(&key, &identity, |input, source| {
+        assert_eq!(input.owner(), source.owner());
+        assert!(source.identity().same_as(&identity));
+    })
+    .unwrap();
+    assert!(matches!(
+        port.with_app_main_root_lowering_input(&key, &identity, |_, _| ()),
+        Err(Issue::MainRootAlreadyConsumed)
+    ));
+}

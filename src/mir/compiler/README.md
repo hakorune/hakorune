@@ -1267,8 +1267,8 @@ its own one-shot consumer before any A/Recipe/physical claim.
 ## Main0 Continue retirement
 
 D2 retires the private Continue classifier, co-seal, semantic program and
-physical route. The existing source-map site/target enums and initial/step/
-tail facts remain only for DerivedPredicate until D3. Shared resolver control
+physical route. D3 also retires the last derived-only source-map site/target enums and
+initial/step/tail fragments. Shared resolver control
 transfer identities, source binding and current common Loop verification stay.
 Public producer/schema identities and frozen inputs are retained independently
 of these private producers.

@@ -68,12 +68,10 @@ mod loop_node_physical_admission_tests;
 // canonical-root handoff slice.
 // Caller-zero until the same Main0 production caller switch; recheck at the
 // canonical-root handoff slice.
-pub(crate) mod main0_continue_source_map;
 // Caller-zero until the same Main0 production caller switch; recheck at the
 // canonical-root handoff slice. Sole sealer of the source map product.
 // Caller-zero until the same Main0 production caller switch; recheck at the
 // canonical-root handoff slice.
-pub(crate) mod main0_continue_syntax_facts;
 // Second bounded Main0 profile (in-body-step); same canonical-root handoff
 // and production caller switch as the continue profile.
 // Third bounded Main0 profile (derived predicate); same canonical-root
@@ -81,18 +79,6 @@ pub(crate) mod main0_continue_syntax_facts;
 pub(crate) mod loop_true_break_continue_observation;
 pub(in crate::mir) mod loop_true_break_continue_projection;
 mod lowering_input;
-pub(crate) mod main0_derived_predicate_recipe_coseal;
-#[cfg(test)]
-#[path = "main0_derived_predicate_recipe_coseal_tests.rs"]
-mod main0_derived_predicate_recipe_coseal_tests;
-pub(crate) mod main0_derived_predicate_root_selection;
-#[cfg(test)]
-#[path = "main0_derived_predicate_root_selection_tests.rs"]
-mod main0_derived_predicate_root_selection_tests;
-pub(in crate::mir) mod main0_derived_predicate_semantic_program;
-pub(crate) mod main0_derived_predicate_source_map;
-pub(crate) mod main0_derived_predicate_source_map_issue;
-pub(crate) mod main0_derived_predicate_syntax_facts;
 pub(in crate::mir) mod module_postprocess;
 pub(in crate::mir) mod module_postprocess_stages;
 mod module_session;

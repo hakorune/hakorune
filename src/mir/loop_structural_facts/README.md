@@ -345,6 +345,5 @@ evidence only and does not own selector, Recipe, Builder, or MIR products.
 ## Main0 Continue observer retirement
 
 D2 retires the private Main0 Continue observer and its fixed-shape admission.
-Current shared resolver/source/transfer checks stay. The small neutral fact
-and map fragments required by DerivedPredicate remain in compiler/ until D3;
-they do not select, issue a Recipe or own physical identities.
+Current shared resolver/source/transfer checks stay. D3 also retires the last neutral fact/map fragments after their final
+DerivedPredicate consumer; current common source identities remain.

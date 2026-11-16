@@ -64,7 +64,6 @@ mod normal_callable_package_bridge; // Builder-private package install boundary
                                     // Caller-zero third bounded Main0 profile; same canonical-root handoff.
 mod normal_callable_semantic_loan_port; // Thin installed-package port adapter
 mod normal_callable_semantic_lowering_state;
-mod normal_main0_derived_predicate_prepared_operation; // Builder-free Main0 full-demand ingress // Callable BindingRef-to-ValueId projection
 pub(in crate::mir) use normal_callable_semantic_lowering_state::validate_map_local_annotation;
 mod function_fault_frame; // Shared physical frame; source owners select the role
 mod normal_callable_semantic_source; // Co-sealed selected callable source authority

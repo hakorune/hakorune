@@ -27,18 +27,12 @@ use super::raw_invocation_source_transport::{
 use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::recursive_child_lowering_port::RecursiveChildLoweringPortV1;
 use crate::mir::normal_callable_semantic_package::NormalCallableSemanticPackagePortV1;
-use main0_root_route::SelectedMain0RootProductV1;
 
 use super::{
     MirBuilder, NormalEntryMaterializationSourceReceiptV1, RawEntryMaterializationSourceReceiptV1,
     UnpublishedCallableLoopRootScopeV1, ValueId,
 };
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1;
-
-#[path = "program_root_lowering/main0_derived_predicate_route.rs"]
-mod main0_derived_predicate_route;
-#[path = "program_root_lowering/main0_root_route.rs"]
-pub(super) mod main0_root_route;
 
 /// Scoped candidate context for one deferred non-Main static Box.
 ///
@@ -96,14 +90,10 @@ pub(super) enum NormalCallableSemanticPackageMode<'package> {
     Compatibility(Option<RawEntryMaterializationSourceReceiptV1>),
 }
 
-/// One finished program-root terminal.  A legacy wrapper body returns a raw
-/// result `ValueId` that module finalization turns into `Return`; the
-/// selected canonical Main0 root already sealed its own Return inside the
-/// draft published through the collector, so it carries no wrapper value.
+/// A finished wrapper body returns a value for the existing root finalizer.
 #[derive(Debug)]
 pub(in crate::mir::builder) enum ProgramRootCompletionV1 {
     WrapperBody(ValueId),
-    CanonicalMainDraft,
 }
 
 impl ProgramDeferredStaticBoxLifecycleV1 {
@@ -360,13 +350,7 @@ impl MirBuilder {
             NormalCallableSemanticPackageMode::Installed(package_port) => {
                 let mut work = work;
                 let constructor_manifest = work.constructor_demand_manifest.take();
-                // Pre-wrapper route selection: a canonical Main0 route
-                // publishes its own `main` draft, so the legacy wrapper
-                // opens only when every bounded profile declines.
-                let main0_product = self.select_main0_root_product_v1(&package_port, expansion)?;
-                if main0_product.is_none() {
-                    self.open_module_main_wrapper(runtime_inputs.entry_safepoint_enabled())?;
-                }
+                self.open_module_main_wrapper(runtime_inputs.entry_safepoint_enabled())?;
                 let mut loan = NormalCallableSemanticPackagePortAdapterV1::new(
                     port,
                     package_port,
@@ -380,7 +364,6 @@ impl MirBuilder {
                     materialization,
                     runtime_inputs,
                     declaration_facts,
-                    main0_product,
                     &mut loan,
                 )?;
                 loan.complete()?;
@@ -514,14 +497,9 @@ impl MirBuilder {
             materialization,
             runtime_inputs,
             work_plan_admission,
-            None,
             callables,
         )? {
             ProgramRootCompletionV1::WrapperBody(value) => Ok(value),
-            // Raw compatibility never selects the canonical Main0 route.
-            ProgramRootCompletionV1::CanonicalMainDraft => {
-                Err("[freeze:contract][mir/program-root-work-plan/canonical-root-drift]".to_owned())
-            }
         }
     }
 
@@ -533,7 +511,6 @@ impl MirBuilder {
         materialization: &NormalEntryMaterializationSourceReceiptV1,
         runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
         declaration_facts: PreparedNormalProgramDeclarationFactsV1,
-        main0_product: Option<SelectedMain0RootProductV1>,
         callables: &mut Port,
     ) -> Result<ProgramRootCompletionV1, String>
     where
@@ -555,7 +532,6 @@ impl MirBuilder {
             materialization,
             runtime_inputs,
             work_plan_admission,
-            main0_product,
             callables,
         )
     }
@@ -591,26 +567,11 @@ impl MirBuilder {
         materialization: &NormalEntryMaterializationSourceReceiptV1,
         runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
         work_plan_admission: ProgramRootWorkPlanAdmissionV1,
-        main0_product: Option<SelectedMain0RootProductV1>,
         callables: &mut Port,
     ) -> Result<ProgramRootCompletionV1, String>
     where
         Port: RootCallableCapturePortV1,
     {
-        // A verified canonical product may only reach the App Main terminal;
-        // dropping it on any other schedule would silently abandon the
-        // selected route's one-shot receipt.
-        if main0_product.is_some()
-            && !matches!(
-                work.terminal,
-                ProgramRootTerminalScheduleV1::VerifiedAppMain
-            )
-        {
-            return Err(
-                "[freeze:contract][mir/program-root-work-plan/canonical-product-terminal-drift]"
-                    .to_owned(),
-            );
-        }
         for immediate in work.immediate {
             immediate.lower_with_port_v1(self, callables)?;
         }
@@ -644,21 +605,15 @@ impl MirBuilder {
             (
                 ProgramRootTerminalScheduleV1::VerifiedAppMain,
                 VerifiedRawRootExpansionV1::App(main),
-            ) => match main0_product {
-                Some(product) => self
-                    .build_selected_main0_root_with_port_v1(callables, main, product)
-                    .map(|()| ProgramRootCompletionV1::CanonicalMainDraft)
-                    .map_err(|error| error.to_string()),
-                None => self
-                    .build_verified_static_main_box_with_port_v1(
-                        callables,
-                        main,
-                        materialization,
-                        runtime_inputs,
-                    )
-                    .map(ProgramRootCompletionV1::WrapperBody)
-                    .map_err(|error| error.to_string()),
-            },
+            ) => self
+                .build_verified_static_main_box_with_port_v1(
+                    callables,
+                    main,
+                    materialization,
+                    runtime_inputs,
+                )
+                .map(ProgramRootCompletionV1::WrapperBody)
+                .map_err(|error| error.to_string()),
             _ => Err("[freeze:contract][mir/program-root-work-plan/terminal-drift]".to_owned()),
         }
     }

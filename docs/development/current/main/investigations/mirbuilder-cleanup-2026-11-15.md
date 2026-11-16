@@ -474,3 +474,9 @@ ScopeBoxのno-retry/cleanup/temp binding保証3件は関数本文をbyte不変�
 
 旧selector遮断後の最適化CLIで固定5,386入力の差は承認済みcontinue 7本だけ（累積EXE1,479、timeout0）。同一binary/環境の計測あり・なしは差0。上限2本のFault102/exit70を維持し、移管済み8本で対応する旧経路0回・共通V2の実命令生成/独立検証/公開を確認した。
 専用10fileと15testを退役し、derived-predicateが使うneutral facts/map型だけを同じownerに保持した。追加production glue0。削除後focused47 PASS/残る既知2 FAIL・新規FAIL0、公開正例の名前/source/assertionを保持したまま更に1件がPASSへ改善。登録8599→8584、整形後Rustは本体2,790行/test884行の純減。owner数/pointer/diff検査PASS。最終の全lib/固定suite/clean最適化CLI照合はseries最終で行う。
+
+### 段D derived-predicate と最後の専用 root dispatcher
+
+最適化CLIの固定5,386入力比較で差は承認済みderived 4本のみ（累積12本、EXE1,483、timeout0）、計測あり・なしの差0。12本全てで旧3 familyのselector/producer/physicalizerは0回、共通V2の命令生成→独立検証→公開を確認。上限2本のFault102/exit70も保持した。
+最後の専用dispatcher/Option facade・Main0専用terminal・observer・共有残片を退役し、App Mainは元のNone分岐と同じ現役wrapper経路へ直接渡す。現役のroot loan APIへ原本owner/identity・不一致時の未消費・一度だけの消費を既存test owner内の1件へ移管した。追加production glue0、公開MIR/JSON/C ABIの変更なし。
+削除後focused31件PASS。公開正例5件は名前/source/assertionを保持し全てPASSへ改善、旧tail-membership拒否1件も専有testとして退役。登録8584→8565（旧20名退役・現役保証1名、未説明差0）。整形後Rustは本体3,047行/test951行の純減、Rust16file退役。計測印全撤去、owner数/pointer/diff検査PASS。共有collectorのMain/policy/identity契約は保持し、最終のclean全入力/全lib/固定suiteはこの後に確認する。
