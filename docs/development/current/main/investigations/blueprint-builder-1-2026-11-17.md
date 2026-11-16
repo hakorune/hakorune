@@ -41,3 +41,5 @@ focused確認: 正負のResolve、指定8種類のMIR改変拒否、入れ子con
 ## 演算子1種類を追加する費用
 
 `>=`を別commitで追加。productionはResolve::binary_type、Workspace::binary、Checker::binaryの3ファイル/3関数だけで、入口/型/専用経路の増加なし。追加前はUnsupportedOperator、追加後は元の入力がEXE exit6。focused3test PASS。追加で試したBool同士の比較は既存Cの共有icmpがi64固定だったため拒否され、51入力中50一致/1未到達。これを通ったことには数えず、別の共通backend境界修正で閉じる。
+
+共有icmpのoperand変換を1箇所へ集約し、Boolの非定数値だけzextで0/1のi64へ投影。i64同士のicmpは従来の出力を保つ。追加確認後の手計算51入力すべてでEXEの出力/exit一致（新旧同結果8、新builderのみ43、両方通って相違0、旧だけ0）。Bool比較/free main/wrapping符号反転も含む。共有backendへの変更なので、固定5,386入力で既定経路の差0をまだ確認する必要がある。

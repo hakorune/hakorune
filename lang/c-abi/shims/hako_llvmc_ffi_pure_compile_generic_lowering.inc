@@ -432,7 +432,25 @@
         }
         return 1;
       }
-      auto void emit_icmp(long long dst, const char* pred, long long lhs_reg, long long rhs_reg){ long long vL,vR; long long lhs_base=resolve_copy_source_reg(lhs_reg), rhs_base=resolve_copy_source_reg(rhs_reg); int lc=has_const(lhs_base,&vL), rc=has_const(rhs_base,&vR); EMIT("  %%r%lld = icmp %s i64 %s%lld%s, %s%lld%s\n", dst, pred, lc?"":"%r", lc?vL:lhs_base, lc?"":"", rc?"":"%r", rc?vR:rhs_base, rc?"":""); set_type(dst,T_I1); }
+      auto void emit_icmp(long long dst, const char* pred, long long lhs_reg, long long rhs_reg) {
+        long long operands[2] = {lhs_reg, rhs_reg};
+        char refs[2][64];
+        for (size_t side = 0; side < 2; side++) {
+          long long base = resolve_copy_source_reg(operands[side]), value;
+          if (has_const(base, &value)) {
+            snprintf(refs[side], sizeof(refs[side]), "%lld", value);
+          } else if (get_type(base) == T_I1) {
+            /* The shared numeric comparison consumes logical Bool as 0/1,
+             * retaining the existing i64 comparison and signed ordering. */
+            snprintf(refs[side], sizeof(refs[side]), "%%cmp_bool_%lld_%zu", dst, side);
+            EMIT("  %s = zext i1 %%r%lld to i64\n", refs[side], base);
+          } else {
+            snprintf(refs[side], sizeof(refs[side]), "%%r%lld", base);
+          }
+        }
+        EMIT("  %%r%lld = icmp %s i64 %s, %s\n", dst, pred, refs[0], refs[1]);
+        set_type(dst, T_I1);
+      }
       auto int should_emit_string_compare(yyjson_val* ins, long long lhs_reg, long long rhs_reg){
         const char* cmp_kind = read_str(ins, "cmp_kind");
         long long lhs_base = resolve_copy_source_reg(lhs_reg);
