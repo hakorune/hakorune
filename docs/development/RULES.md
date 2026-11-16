@@ -12,6 +12,7 @@ Related: [現在地](current/main/CURRENT_STATE.toml)、[MirBuilder の設計図
 ## 1. 変えない設計原則
 
 - 一つの意味にownerと実行経路は一つ。段の順は[MirBuilder の設計図](current/main/design/mirbuilder-blueprint.md)に従う: `DeclarationTable -> Resolve -> Lower -> Seal -> Verify -> Publish`(最適化はその外)。sourceの拒否を決めるのはResolveだけ。loopの家族・route・Recipeは、受理を決めない(2026-11-17、メンテナ決定)。
+- **MirBuilderは再帰で書く。** nodeの種類ごとに下ろす決まりは一つで、子は同じ入口で下ろす。「この形の時だけ」の分岐(子の組み合わせ・深さ・置かれた場所・呼び出しの種類・app名)と、種類×場所の表を作らない。書きたくなったら止めて報告する(設計図21節)。監査は入口の数と、形を一つ足す時に直す場所の数を毎回数える(設計図22節)。
 - 設計図に無い部品を足す時は、先に設計図を直してメンテナの印をもらう。設計の文書どうしが食い違う時は設計図が勝つ。`Status: Historical`の文書と`design/archive/`は、作業の根拠にしない。
 - Fail-Fast。silent fallback、失敗後のlegacy retry、名前・MIR型・backend成功からの意味推測、AST rewriteは禁止。
 - `.hako`の書き換えでコンパイラの表現力不足を回避しない。
