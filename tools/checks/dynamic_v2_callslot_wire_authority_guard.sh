@@ -14,9 +14,6 @@ WIRE_TEST="$ROOT_DIR/src/llvm_py/tests/test_dynamic_v2_callslot_wire.py"
 OLD_WIRE="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/call_slot_wire.rs"
 
 [[ ! -e "$OLD_WIRE" ]] || guard_fail "$TAG" "MIR-local wire copy still exists"
-if rg -n -F -q "mod call_slot_wire" "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"; then
-  guard_fail "$TAG" "MIR emitter still registers a wire schema module"
-fi
 
 guard_expect_fixed_in_file "$TAG" "DYNAMIC_V2_WIRE_REVISION_V2: u32 = 2" "$WIRE_RS" "Rust projection must use revision 2"
 guard_expect_fixed_in_file "$TAG" "HAKO_DYNAMIC_V2_WIRE_REVISION_V2 UINT32_C(2)" "$WIRE_C" "C header must own revision 2"

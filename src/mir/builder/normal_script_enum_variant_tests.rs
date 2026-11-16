@@ -95,26 +95,6 @@ fn enum_variant_receipt_is_complete_and_projects_its_argument() {
 }
 
 #[test]
-fn enum_variant_selected_pipeline_matches_legacy() {
-    let program = source();
-    let legacy_error = MirCompiler::with_options(false)
-        .compile_with_source(program.clone(), Some("script-enum-variant.hako"))
-        .expect_err("legacy enum variant stays on the unsupported-declaration boundary");
-    assert!(legacy_error.contains("EnumDeclaration"), "{legacy_error}");
-    let normal_error = MirCompiler::with_options(false)
-        .compile_normal(
-            NormalCompileRequestV1::for_mir_mode(
-                program,
-                Some("script-enum-variant.hako"),
-                HashMap::new(),
-            )
-            .expect("normal request"),
-        )
-        .expect_err("selected enum variant stays on the unsupported-declaration boundary");
-    assert!(normal_error.contains("EnumDeclaration"), "{normal_error}");
-}
-
-#[test]
 fn ordinary_from_call_stays_deferred() {
     let program = ASTNode::Program {
         statements: vec![ASTNode::FromCall {

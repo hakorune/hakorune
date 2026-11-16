@@ -67,16 +67,6 @@ fn test_loop_compilation() {
 
 #[test]
 fn test_try_catch_compilation() {
-    // Core-13 pure モードでは Try/Catch 命令は許容集合外のためスキップ
-    if crate::config::env::mir_core13_pure() {
-        if crate::config::env::joinir_dev::debug_enabled() {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0
-                .log
-                .debug("[TEST] skip try/catch under Core-13 pure mode");
-        }
-        return;
-    }
     let mut compiler = MirCompiler::new();
 
     let try_catch_ast = ASTNode::Program {

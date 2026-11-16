@@ -14,8 +14,7 @@ use crate::mir::loop_recipe_contract::{
     LoopJoinSigRejectReasonV1, LoopNodeKeyV1, LoopRecipeArtifactV1, LoopRecipeBindingRelationV1,
     LoopRecipeProducerIdV1, LoopRecipeProvenanceV1, LoopRecipeRejectReasonV1, LoopValueClassV1,
     LoopValueKeyV1, VerifiedLoopContinuationContractV1, VerifiedLoopCoreProductV1,
-    VerifiedLoopInitializedLocalInputSourceSetV1,
-    VerifiedLoopSemanticContextV1,
+    VerifiedLoopInitializedLocalInputSourceSetV1, VerifiedLoopSemanticContextV1,
 };
 use crate::mir::loop_structural_facts::bind_resolved_loop_root_v1;
 use crate::mir::resolved_semantics::{

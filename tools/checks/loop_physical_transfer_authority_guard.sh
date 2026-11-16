@@ -18,7 +18,6 @@ V2_DEMAND="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/m
 PHYSICAL_INPUT="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/semantic_program/physical_input.rs"
 S6C_INGRESS="$ROOT_DIR/src/mir/loop_recipe_contract/s6c_prephysical_ingress.rs"
 S6C_SOURCE_OUTPUT="$ROOT_DIR/src/mir/loop_recipe_contract/s6c_scan_with_init_joinir_output.rs"
-S6C_SITE="$ROOT_DIR/src/mir/loop_recipe_contract/s6c_text_eq_site_contract.rs"
 MAIN_ROLE="$ROOT_DIR/src/mir/builder/callable_declaration_catalog/selected_role.rs"
 MAIN_CATALOG="$ROOT_DIR/src/mir/builder/callable_declaration_catalog/source_backed.rs"
 MAIN_EXPANSION="$ROOT_DIR/src/mir/builder/main_expansion.rs"
@@ -46,7 +45,7 @@ guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$LAYOUT" "$TRANSFER" "$VIEW" "$ALLOCATOR" "$AFTER" \
   "$LEDGER" "$V1_DEMAND" "$V1_DISPATCH" "$V1_SEGMENT_DISPATCH" "$V2_DEMAND"
 guard_require_files "$TAG" "$PHYSICAL_INPUT"
-guard_require_files "$TAG" "$S6C_INGRESS" "$S6C_SOURCE_OUTPUT" "$S6C_SITE"
+guard_require_files "$TAG" "$S6C_INGRESS" "$S6C_SOURCE_OUTPUT"
 guard_require_files "$TAG" "$MAIN_ROLE" "$MAIN_CATALOG" "$MAIN_EXPANSION" "$MAIN_INSTALL" \
   "$MAIN_INSTALL_PORT" "$MAIN_MAPPING" "$MAIN_DECLS" "$MAIN_LIFECYCLE" "$MAIN_ADAPTER"
 guard_require_files "$TAG" "$PHYSICAL_HEADER" "$COMPLETION_SEED" "$ORDINARY_NEW_COSEAL" \
@@ -104,12 +103,6 @@ guard_expect_fixed_in_file "$TAG" \
 guard_expect_fixed_in_file "$TAG" \
   "with_s6c_scan_with_init_retained_logical_join_input" "$S6C_SOURCE_OUTPUT" \
   "S6C retained source projection must bypass semantic revalidation"
-guard_expect_fixed_in_file "$TAG" \
-  "issue_s6c_text_eq_source_binding_v1" "$S6C_SITE" \
-  "S6C TextEq site must have one parent-retaining issuer"
-guard_expect_fixed_in_file "$TAG" \
-  "with_text_eq_leaf" "$S6C_SITE" \
-  "S6C TextEq site must borrow the retained leaf"
 guard_expect_fixed_in_file "$TAG" \
   "with_main_static_child_lowering_input" "$MAIN_INSTALL_PORT" \
   "Main static children must use the role-bearing scoped Port loan"
@@ -217,37 +210,6 @@ if rg -n -F -- 'if owner == "Main"' "$MAIN_CATALOG" >/dev/null 2>&1; then
 fi
 if rg -n -F -- 'VerifiedRawRootExpansionV1::from_program' "$MAIN_INSTALL" >/dev/null 2>&1; then
   guard_fail "$TAG" "Main child Port reissues the Main expansion"
-fi
-
-for forbidden in \
-  'derive(Clone)' \
-  'into_parts' \
-  'take_ingress' \
-  'pub(crate) fn logical' \
-  'with_completion'
-do
-  if rg -n -F -- "$forbidden" "$S6C_SITE" >/dev/null 2>&1; then
-    guard_fail "$TAG" "S6C TextEq site exposes a detached or broad authority: $forbidden"
-  fi
-done
-
-site_product_block="$(awk '
-  /pub\(crate\) struct VerifiedS6CTextEqSourceBindingV1/ { in_product = 1 }
-  in_product { print }
-  in_product && /^}/ { exit }
-' "$S6C_SITE")"
-if printf '%s\n' "$site_product_block" | rg -n 'Clone|Default|into_parts|take_' >/dev/null 2>&1; then
-  guard_fail "$TAG" "S6C TextEq owned product is splittable or cloneable"
-fi
-site_issuer_count="$(rg -n -F 'issue_s6c_text_eq_source_binding_v1(' "$S6C_SITE" | wc -l | tr -d '[:space:]')"
-if [[ "$site_issuer_count" != 1 ]]; then
-  guard_fail "$TAG" "S6C TextEq site issuer count drifted: $site_issuer_count"
-fi
-site_non_test_callers="$(rg -l --glob '*.rs' -F 'issue_s6c_text_eq_source_binding_v1(' "$ROOT_DIR/src" \
-  | grep -v '/s6c_text_eq_site_contract.rs' \
-  | grep -v '_tests.rs' || true)"
-if [[ -n "$site_non_test_callers" ]]; then
-  guard_fail "$TAG" "S6C TextEq site gained a non-test caller: $site_non_test_callers"
 fi
 
 for forbidden in \
@@ -363,7 +325,7 @@ fi
 
 for file in "$LAYOUT" "$TRANSFER" "$VIEW" "$ALLOCATOR" "$AFTER" "$LEDGER" "$V1_DEMAND" \
   "$V1_DISPATCH" "$V1_SEGMENT_DISPATCH" "$V2_DEMAND" "$PHYSICAL_INPUT" \
-  "$S6C_INGRESS" "$S6C_SOURCE_OUTPUT" "$S6C_SITE" "$MAIN_ROLE" "$MAIN_CATALOG" \
+  "$S6C_INGRESS" "$S6C_SOURCE_OUTPUT" "$MAIN_ROLE" "$MAIN_CATALOG" \
   "$MAIN_EXPANSION" "$MAIN_INSTALL" "$MAIN_MAPPING" "$MAIN_DECLS" "$MAIN_LIFECYCLE" \
   "$MAIN_INSTALL_PORT" "$MAIN_ADAPTER" "$PHYSICAL_HEADER" "$COMPLETION_SEED" "$S6C_CHILD" \
   "$TEXT_FORMAL_ABI" "$TEXT_FORMAL_HOST" "$TEXT_FORMAL_CALL_LIFETIME" \

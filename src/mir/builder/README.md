@@ -1700,53 +1700,25 @@ Source call publication installation/consumption lives in
 `normal_callable_semantic_lowering_state/source_call_publication.rs`; the parent
 state retains the same source-keyed inventory and ownership.
 
-## Main0 canonical root lifecycle (D0 production handoff)
+## Current App Main root lifecycle after private profile retirement
 
-The sole production root-lowering funnel,
-`lower_prepared_program_root_with_callable_mode_v1`, classifies the App Main
-root *before* the legacy wrapper opens. `program_root_lowering/
-main0_root_route.rs` performs the observation-only selection against the
-installed semantic package; a selected `SelectedMain0RootProductV1`
-(`Continue`, `InBodyStep`, or `DerivedPredicate`) transports into
-`decls.rs::build_selected_main0_root_with_port_v1`, which hands the
-one-shot root loan and product to the matching
-`normal_callable_semantic_loan_port/main0_root.rs` adapter
-(`lower_app_main0_continue_root_v1` /
-`lower_app_main0_in_body_step_root_v1` /
-`lower_app_main0_derived_predicate_root_v1`).
-Each adapter consumes the loan inside its callback, runs the verified
-ingress/session/lowerer, and admits one `ReadyFunctionDraftSealV1` under
-`FunctionDraftKeyV1::Main` through the profile-neutral
-`module_lowering_invocation_resolved_loan.rs::complete_main0_root_draft_v1`
-with `DraftPublicationPolicyV1::CanonicalRejectDuplicate`. The normal
-collector drain accepts that arm only for the canonical policy plus an
-`Inserted` disposition, and
-`finalize_module_with_canonical_root_v1` finishes the module without raw
-Return inference or a wrapper value.
+D1/D2/D3 retire the InBodyStep, Continue and DerivedPredicate private selectors,
+products, prepared chains and physical root adapters. Their frozen sources
+remain acceptance evidence through the current common root/Loop route; no
+profile-specific refusal is a language restriction.
 
-`ProgramRootCompletionV1` distinguishes `WrapperBody(ValueId)` from
-`CanonicalMainDraft`; `prepare_normal_default_module()` now prepares only the
-catalog/module shell so `open_module_main_wrapper` is called solely on the
-decline or raw-compatibility arms. The raw-compatibility port path
-(`ProgramRootWorkPlanAdmissionV1::RawCompatibility`) never selects: it passes
-no product and freezes on `CanonicalMainDraft`. Its only remaining entry,
-`lower_program_root_with_callable_port_v1`, has zero production callers and
-stays as a test seam. Selected-profile reachability into the raw body/raw
-finish edges is therefore zero by construction; decline and non-installed
-callers keep the retained wrapper path.
+`lower_prepared_program_root_with_callable_mode_v1` retains the installed
+package/root relation and its one-shot consuming loan. It opens the existing
+Main wrapper and runs the former unselected/current-wrapper branch. The last
+SelectedMain0RootProduct/observer/dispatcher and CanonicalMainDraft-only
+completion arm disappear with their final producer; normal wrapper validation,
+collector publication, finalization and rollback remain.
 
-Production acceptance for the selected profiles runs through `--backend vm`
-with the expected results recorded on the active cards:
-`apps/tests/phase29ca_generic_loop_continue_min.hako` (Main0 Continue, bound/
-guard, upper-bound, zero-iteration, guard-never, and renamed-locals variants),
-`apps/tests/phase29cb_generic_loop_in_body_step_min.hako` (Main0
-in-body-step, bound, zero-iteration, and renamed-locals variants), and
-`apps/tests/generic_loop_carrier_type_v0_numeric_min.hako` (Main0
-derived-predicate: `j + m <= n` compare over three distinct locals — carried
-`j`, read-only operand `m`, bound `n` — bound, zero-iteration, and
-renamed-locals variants). Emitted
-MIR has one `define @main`, one loop-header PHI with its backedges, and one
-value-return terminator.
+Root evidence still checks exactly one Main definition and entry point, one
+value Return, real loop PHIs and the final root validator. Retired private
+selector names cannot justify fallback, duplicate publication or weaker
+source/ownership/Fault verification. Public Recipe producer IDs/schema and
+historical investigations remain independent evidence.
 
 Result-new diagnostic tracing uses the existing `NYASH_MIR_COMPILE_TRACE`
 flag, default off. The raw claim port observes its single affine take and

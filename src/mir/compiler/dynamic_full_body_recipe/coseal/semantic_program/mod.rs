@@ -7,7 +7,6 @@ mod exit_transaction;
 mod fault_cut_points;
 mod invocation_carrier_lifecycle;
 mod invocation_cleanup;
-mod physical_input;
 
 #[cfg(test)]
 mod tests;
@@ -20,9 +19,6 @@ use crate::mir::loop_recipe_contract::{
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId, SourceStmtSiteV1};
 
-use super::a_prime_source::{
-    DynamicAPrimeI64SourceRelationRejectV1, DynamicAPrimeI64SourceRelationViewV1,
-};
 use super::{DynamicIterationLocalValueRefV2, VerifiedDynamicFullLoopSourceRecipeEnvelopeV2};
 pub(in crate::mir) use exit_transaction::{
     issue_dynamic_exit_transaction_coseal_i0, DynamicExitTransactionCoSealRejectV1,
@@ -46,10 +42,6 @@ pub(in crate::mir) use invocation_cleanup::{
     DynamicInvocationCleanupCurrentDispositionV1, DynamicInvocationCleanupProjectionRejectV1,
     DynamicInvocationCleanupRowKindV1, DynamicInvocationCleanupRowViewV1,
     VerifiedDynamicInvocationCleanupProjectionV1,
-};
-pub(in crate::mir) use physical_input::{
-    DynamicFullLoopPhysicalInputRejectV2, DynamicFullLoopPhysicalInputViewV2,
-    DynamicLoopPhysicalControlViewV2,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -155,19 +147,6 @@ impl VerifiedDynamicInvocationCarrierLifecycleProgramV1 {
         self.program.after()
     }
 
-    pub(in crate::mir) fn a_prime_source_relation_view(
-        &self,
-    ) -> Result<DynamicAPrimeI64SourceRelationViewV1<'_>, DynamicAPrimeI64SourceRelationRejectV1>
-    {
-        self.program.a_prime_source_relation_view()
-    }
-
-    pub(in crate::mir) fn physical_input_view(
-        &self,
-    ) -> Result<DynamicFullLoopPhysicalInputViewV2<'_>, DynamicFullLoopPhysicalInputRejectV2> {
-        self.program.physical_input_view()
-    }
-
     pub(in crate::mir) fn fault_cut_points(&self) -> DynamicFullLoopFaultCutPointCatalogRefV2<'_> {
         self.program.fault_cut_points()
     }
@@ -183,19 +162,6 @@ impl VerifiedDynamicFullLoopSemanticProgramV2 {
             control: &self.control,
         };
         callback(authority)
-    }
-
-    pub(in crate::mir) fn a_prime_source_relation_view(
-        &self,
-    ) -> Result<DynamicAPrimeI64SourceRelationViewV1<'_>, DynamicAPrimeI64SourceRelationRejectV1>
-    {
-        super::a_prime_source::issue_view(&self.envelope)
-    }
-
-    pub(in crate::mir) fn physical_input_view(
-        &self,
-    ) -> Result<DynamicFullLoopPhysicalInputViewV2<'_>, DynamicFullLoopPhysicalInputRejectV2> {
-        physical_input::issue_view(self)
     }
 
     pub(in crate::mir) fn after(&self) -> DynamicFullLoopAfterRefV2<'_> {

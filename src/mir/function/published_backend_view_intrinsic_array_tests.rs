@@ -97,8 +97,8 @@ fn intrinsic_array_rejects_arguments_and_invalid_destination() {
 }
 
 #[test]
-fn intrinsic_array_survives_value_remap_and_core13_without_provider_name() {
-    let mut module = intrinsic_array_module();
+fn intrinsic_array_survives_value_remap_without_provider_name() {
+    let module = intrinsic_array_module();
     let before = module.functions["main"].blocks[&BasicBlockId::new(0)].instructions[0].clone();
     let mut remapper = crate::mir::builder::joinir_id_remapper::JoinIrIdRemapper::new();
     remapper.set_value(ValueId::new(0), ValueId::new(17));
@@ -109,14 +109,5 @@ fn intrinsic_array_survives_value_remap_and_core13_without_provider_name() {
             target: crate::mir::ConstructionTarget::IntrinsicArray,
             args: vec![],
         }
-    );
-    let mut optimizer = crate::mir::optimizer::MirOptimizer::new();
-    crate::mir::optimizer_passes::normalize_core13_pure::normalize_pure_core13(
-        &mut optimizer,
-        &mut module,
-    );
-    assert_eq!(
-        module.functions["main"].blocks[&BasicBlockId::new(0)].instructions[0],
-        before
     );
 }

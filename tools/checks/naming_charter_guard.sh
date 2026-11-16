@@ -197,10 +197,6 @@ PIPELINE_V2_STAGE_COMMENT_FILES=(
 JOINIR_LOWERING_STAGE_COMMENT_FILES=(
   "$ROOT_DIR/src/mir/join_ir/lowering/value_id_ranges.rs"
   "$ROOT_DIR/src/mir/join_ir/lowering/mod.rs"
-  "$ROOT_DIR/src/mir/join_ir/lowering/common/cfg_shape.rs"
-  "$ROOT_DIR/src/mir/join_ir/lowering/generic_case_a/mod.rs"
-  "$ROOT_DIR/src/mir/join_ir/lowering/loop_to_join/case_a_entrypoints.rs"
-  "$ROOT_DIR/src/mir/join_ir/lowering/loop_view_builder.rs"
 )
 STAGE1_BRIDGE_PHASE_COMMENT_FILES=(
   "$ROOT_DIR/src/runner/stage1_bridge/README.md"
@@ -1451,10 +1447,6 @@ NAMING_DIFF_ALLOWED_PATHS=(
   "lang/src/compiler/pipeline_v2/stage1_name_args_normalizer_box.hako"
   "src/mir/join_ir/lowering/value_id_ranges.rs"
   "src/mir/join_ir/lowering/mod.rs"
-  "src/mir/join_ir/lowering/common/cfg_shape.rs"
-  "src/mir/join_ir/lowering/generic_case_a/mod.rs"
-  "src/mir/join_ir/lowering/loop_to_join/case_a_entrypoints.rs"
-  "src/mir/join_ir/lowering/loop_view_builder.rs"
   "tools/selfhost/proof/run_stageb_compiler_vm.sh"
   "tools/checks/stageb_program_json_capture_caller_guard.sh"
   "tools/checks/stage1_emit_program_json_runtime_helper_guard.sh"

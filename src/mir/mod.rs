@@ -107,29 +107,16 @@ pub(crate) fn test_global_target<S: AsRef<str>>(
     hakorune_mir_defs::CanonicalGlobalTargetV1::new_free_function(base.into(), arity)
         .expect("test global target fixture must use a non-empty name")
 }
-pub(crate) use compiler::canonical_core_dispatch::{
-    CanonicalCallableDispatchStageV1, CanonicalCoreDispatchStageV1, CanonicalCoreSourcePlanCompileRequestV1,
-    NormalSourcePlanReceiptV1, VerifiedCanonicalCoreSourcePlanAdmissionV1,
-};
-pub(crate) use compiler::canonical_script_source_a_input::CanonicalScriptSourceAInputTransportV1;
 pub(crate) use compiler::canonical_source_identity::CanonicalSourceBytesDigestV1;
 pub(crate) use compiler::normal_source_plan;
-#[cfg(feature = "vm-reference")]
-pub(crate) use compiler::source_entry_vm_reference::RawVmReferenceRunReportV1;
-#[cfg(feature = "vm-reference")]
-pub(crate) use compiler::source_entry_vm_runner_adapter::RawVmReferenceInvocationFailureReportV1;
-pub(crate) use raw_vm_reference_contract::{
-    RawPublishedCompileRequestV1, RawVmReferenceInvocationV1, RawVmReferenceSupportProfileV1,
-};
-#[cfg(feature = "vm-reference")]
-pub(crate) use raw_vm_reference_contract::{
-    RawVmReferenceCallableMainProfileV1, RawVmReferenceExecutionProfileV1,
-    RawVmReferenceImportProfileV1, RawVmReferenceSourceProfileV1,
-};
+pub(crate) use raw_vm_reference_contract::RawPublishedCompileRequestV1;
+pub mod cfg_extractor; // Phase 154: CFG extraction for hako_check
 pub(crate) mod checked_callout; // canonical MIR-owned checked Normal/Fault callout vocabulary
 pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for temporary concat const-suffix micro seed bridge
 pub mod constructor_call_route_plan; // MIR-owned constructor call route plans
 pub mod contracts; // backend-core instruction contracts (SSOT)
+pub mod control_form;
+pub mod control_tree; // Phase 110: Structure-only SSOT (StepTree)
 pub mod core_method_op; // MIR-side CoreMethodOp carrier vocabulary
 pub(crate) mod core_method_result_kind; // generated neutral Core result-kind view
 pub(crate) mod declared_type_storage; // shared declared type-name -> storage classification
@@ -162,6 +149,7 @@ pub mod fastmem_layout_contract; // memory-profile FastMemory layout/table contr
 pub mod fastmem_table_length_fact; // FastMemory-owned table length facts
 pub mod fastpath_required_diagnostic; // source-syntax-free required FastPath diagnostics
 pub mod function;
+pub mod function_emission; // FunctionEmissionBox（MirFunction直編集の発行ヘルパ）
 pub(crate) mod generated; // checked-in generated MIR descriptor tables
 pub(crate) mod generic_method_route_facts; // reusable facts for generic-method route planners
 pub mod generic_method_route_plan; // MIR-owned generic method route policy plans
@@ -169,7 +157,6 @@ pub mod global_call_route_plan; // MIR-owned unsupported global user-call route 
 pub mod hako_alloc_aligned_small_packed_store_pilot; // MIR-owned C210 aligned-small metadata packed-store pilot
 pub mod hako_alloc_huge_page_packed_store_pilot; // MIR-owned C211 huge-page metadata packed-store pilot
 pub mod hotcore_method_summary; // MIR-owned summaries for selected direct-exact hot-core callees
-pub(crate) mod if_recipe_contract; // Builder-free fixed-shell If recipe wire
 pub mod indexof_search_micro_seed_plan; // MIR-owned route plan for temporary indexOf search micro seed bridge
 pub(crate) mod inline_leaf; // shared narrow leaf inline shape contract for optimizer/verifier
 pub mod inline_plan; // MIR-owned InlinePlan metadata derived from rune hints
@@ -177,9 +164,15 @@ pub(crate) mod instance_constructor_abi; // shared source N / physical N+1 const
 pub mod instruction;
 pub mod instruction_introspection; // Introspection helpers for tests (instruction names)
 pub mod instruction_kinds; // small kind-specific metadata (Const/BinOp)
+pub mod join_ir; // Phase 26-H: 関数正規化IR（JoinIR）
+pub mod join_ir_ops; // Phase 27.8: JoinIR 命令意味箱（ops box）
+pub mod local_fastpath_fact; // LocalFastPathFact aggregation owner
+pub(crate) mod local_slot_backend_capability; // exact-numeric local-slot backend gate
 pub mod loop_api; // Minimal LoopBuilder facade (adapter-ready)
 pub mod loop_canonicalizer; // Phase 1: Loop skeleton canonicalization (AST preprocessing)
+pub mod loop_form; // ControlForm::LoopShape の薄いエイリアス
 pub(crate) mod loop_recipe_contract; // Builder-free recursive Loop recipe wire
+pub mod loop_route_detection; // Active module surface for loop route-shape detection
 pub(crate) mod loop_route_policy; // frozen, non-authoritative Loop route observations
 pub(crate) mod loop_structural_facts; // resolved source -> portable Loop source binding
 pub mod map_lookup_fusion_plan; // MIR-owned MapGet/MapHas same-key fusion metadata
@@ -194,68 +187,55 @@ mod module_invocation_policy_tests;
 pub mod naming; // Static box / entry naming rules（NamingBox）
 pub(crate) mod numeric_substrate; // fixed-width/pointer-sized numeric type-name vocabulary
 pub mod optimizer;
-pub mod ordered_map_origin_plan; // focused OrderedMapBox get result-origin publication
-pub(crate) mod parameter_entry_backend_capability; // exact-numeric parameter-entry backend gate
-pub mod policies; // shared routing policies (SSOT)
-pub mod range_index_fact; // canonical loop range-index facts for fast-path consumers
-pub(crate) mod record_value_backend_capability; // record construction/update contract backend gate
-pub(crate) mod return_exit_backend_capability; // exact-numeric return-exit backend gate
-pub mod route_decision; // planner-owned fastpath-preferred selected route outcomes
-pub mod same_module_definition_plan; // MIR-owned same-module definition closure for C AOT
-pub mod source_packed_array_autouse_pilot; // MIR-owned source PackedArray<T> pilot metadata
-pub mod source_packed_array_direct_read_consumption; // MIR-owned source PackedArray<T> direct-read consumption metadata
-pub mod span_access_plan; // MIR-owned Span no-escape access plans
-pub mod ssot; // Shared helpers (SSOT) for instruction lowering
-pub(crate) mod strict_json_tree_backend_capability; // SnapshotV0 strict JSON tree preflight
-pub(crate) mod type_contracts; // Language v1 annotation guarantee matrix/proof vocabulary
-pub mod types; // core MIR enums (ConstValue, Ops, MirType)
-pub mod utils; // Phase 15 control flow utilities for root treatment
-pub mod cfg_extractor; // Phase 154: CFG extraction for hako_check
-pub mod control_form;
-pub mod control_tree; // Phase 110: Structure-only SSOT (StepTree)
-pub mod function_emission; // FunctionEmissionBox（MirFunction直編集の発行ヘルパ）
-pub mod join_ir; // Phase 26-H: 関数正規化IR（JoinIR）
-pub mod join_ir_ops; // Phase 27.8: JoinIR 命令意味箱（ops box）
-pub mod local_fastpath_fact; // LocalFastPathFact aggregation owner
-pub(crate) mod local_slot_backend_capability; // exact-numeric local-slot backend gate
-pub mod loop_form; // ControlForm::LoopShape の薄いエイリアス
-pub mod loop_route_detection; // Active module surface for loop route-shape detection
 pub mod optimizer_passes; // optimizer passes (normalize/diagnostics)
 pub mod optimizer_stats; // extracted stats struct
+pub mod ordered_map_origin_plan; // focused OrderedMapBox get result-origin publication
 pub(crate) mod ownership_backend_capability; // exact backend ownership lifecycle preflight
 pub(crate) mod ownership_ssa; // verified per-function Ownership SSA discipline
+pub(crate) mod parameter_entry_backend_capability; // exact-numeric parameter-entry backend gate
 pub mod passes;
 pub mod phi_core; // Phase 1 scaffold: unified PHI entry (re-exports only)
 pub(crate) mod phi_query; // generic PHI base-relation seam for later relation consumers
 pub(crate) mod pinned_text_access_plan; // transport-only stamped Text leaf plans
 pub(crate) mod pinned_text_residence_lifecycle; // affine physical Enter/Finish carriers
 pub mod placement_effect; // generic placement/effect owner seam folded from landed pilots
+pub mod policies; // shared routing policies (SSOT)
 pub mod printer;
 mod printer_helpers; // internal helpers extracted from printer.rs
 pub mod query; // Phase 26-G: MIR read/write/CFGビュー (MirQuery)
+pub mod range_index_fact; // canonical loop range-index facts for fast-path consumers
 pub(crate) mod raw_layout; // fixed raw-layout vocabulary for substrate metadata
 pub mod receiver_snapshot_publication_plan; // MIR-owned narrow mixed-base publication recipes
 pub mod record_layout_plan; // MIR-owned record layout plan metadata
 pub mod record_state_residence_plan; // metadata-only box-private record-state candidates
+pub(crate) mod record_value_backend_capability; // record construction/update contract backend gate
 pub mod region; // Phase 25.1l: Region/GC観測レイヤ（LoopForm v2 × RefKind）
 pub(crate) mod resolved_control_flow; // carrier-free exact coverage/topology contracts
 pub(crate) mod resolved_region_flow; // pre-Builder owner-closed control-flow products
 pub(crate) mod resolved_semantics; // pre-plan owner-scoped binding/scope/region semantic arena
 pub(crate) mod resolved_value_profile; // pre-Builder executable representation proofs
+pub(crate) mod return_exit_backend_capability; // exact-numeric return-exit backend gate
+pub mod route_decision; // planner-owned fastpath-preferred selected route outcomes
 pub(crate) mod route_dependency_graph; // typed shadow graph for route-family convergence
 pub mod route_fixpoint; // module-level route convergence owner
 pub mod route_value_type_publication;
 pub mod rune_plan_refresh; // SSOT refresh entry for rune-derived MIR plans
 pub(crate) mod same_module_body_shape; // shared body-shape facts for same-module route planners
+pub mod same_module_definition_plan; // MIR-owned same-module definition closure for C AOT
 pub mod same_module_fusion_plan; // MIR-owned same-module fusion window plans
 pub mod semantic_refresh; // MIR semantic metadata refresh owner (SSOT)
 pub mod slot_registry; // Phase 9.79b.1: method slot resolution (IDs)
 pub(crate) mod source_call_target; // pre-Builder canonical source-call target proofs
 pub(crate) mod source_core_receiver; // bounded source-only Core receiver representation proof
+pub mod source_packed_array_autouse_pilot; // MIR-owned source PackedArray<T> pilot metadata
+pub mod source_packed_array_direct_read_consumption; // MIR-owned source PackedArray<T> direct-read consumption metadata
+pub mod span_access_plan; // MIR-owned Span no-escape access plans
 mod spanned_instruction;
+pub mod ssot; // Shared helpers (SSOT) for instruction lowering
 pub mod static_data_plan; // MIR-owned static readonly table rows for backend emission
 pub(crate) mod static_table_backend_capability;
 pub mod storage_class; // primitive / user-box storage-class inventory + refresh helper
+pub(crate) mod strict_json_tree_backend_capability; // SnapshotV0 strict JSON tree preflight
 pub mod string_corridor; // string canonical corridor facts + refresh helper
 pub(crate) mod string_corridor_compat; // compat semantic recovery quarantined from canonical facts
 pub(crate) mod string_corridor_names; // helper-name vocabulary quarantine
@@ -274,14 +254,17 @@ pub mod sum_variant_project_seed_plan; // MIR-owned route plan for temporary Sum
 pub mod sum_variant_tag_seed_plan; // MIR-owned route plan for temporary Sum variant_tag exact seed bridge
 pub mod thin_entry; // thin-entry inventory for known local routes
 pub mod thin_entry_selection; // manifest-driven thin-entry selection pilot
+pub(crate) mod type_contracts; // Language v1 annotation guarantee matrix/proof vocabulary
 pub mod type_propagation; // Phase 279 P0: SSOT type propagation pipeline
 pub(crate) mod typed_array_backend_capability;
 pub mod typed_object_plan; // MIR-owned typed user-object layout plans for EXE lowering
+pub mod types; // core MIR enums (ConstValue, Ops, MirType)
 pub mod user_box_method_publication; // report-only publication classifier for user-box method fastpath candidates
 pub mod user_box_method_route_plan; // MIR-owned route plans for typed user-box method calls
 pub mod userbox_known_receiver_method_seed_plan; // MIR-owned route plan for temporary UserBox known-receiver method exact seeds
 pub mod userbox_local_scalar_seed_plan; // MIR-owned route plan for temporary UserBox local scalar exact seeds
 pub mod userbox_loop_micro_seed_plan; // MIR-owned route plan for temporary UserBox loop micro exact seeds
+pub mod utils; // Phase 15 control flow utilities for root treatment
 pub mod value_consumer; // generic consumer capability facts for backend emitters
 pub mod value_id;
 pub mod value_kind; // Phase 26-A: ValueId型安全化
@@ -375,8 +358,7 @@ pub use generic_method_route_plan::{
 };
 pub use instruction::{
     ArrayElementWriteKind, ArrayReadSiteId, ArrayWriteProducerKind, ArrayWriteSiteId,
-    ConstructionTarget,
-    MirInstruction, WeakFieldWriteSiteId,
+    ConstructionTarget, MirInstruction, WeakFieldWriteSiteId,
 };
 pub use map_lookup_fusion_plan::{
     refresh_function_map_lookup_fusion_routes, refresh_module_map_lookup_fusion_routes,

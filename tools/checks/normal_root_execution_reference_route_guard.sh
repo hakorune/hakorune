@@ -28,12 +28,6 @@ MACRO_TRANSFORM="$ROOT/src/macro/normal_callable_transform.rs"
 MACRO_TRANSFORM_TESTS="$ROOT/src/macro/normal_callable_transform_tests.rs"
 POLICY="$ROOT/src/mir/compiler/normal_source_plan/parser_bound_policy.rs"
 POLICY_TESTS="$ROOT/src/mir/compiler/normal_source_plan/parser_bound_policy_tests.rs"
-SOURCE_PLAN_ENTRY="$ROOT/src/runner/reference/normal_file_vm_frontdoor/source_plan_input.rs"
-PARSER_HANDOFF="$ROOT/src/runner/reference/normal_file_vm_frontdoor/parser_source_handoff.rs"
-RAW_HANDOFF="$ROOT/src/runner/reference/normal_file_vm_frontdoor/raw_source_handoff.rs"
-FRONTDOOR="$ROOT/src/runner/reference/normal_file_vm_frontdoor.rs"
-FRONTDOOR_TESTS="$ROOT/src/runner/reference/normal_file_vm_frontdoor/tests.rs"
-ATOMIC_CUTOVER_TESTS="$ROOT/src/runner/reference/normal_file_vm_frontdoor/atomic_root_cutover_tests.rs"
 BUILDER_CONSUMER="$ROOT/src/mir/builder/normal_root_execution/consumer.rs"
 BUILDER_MODEL="$ROOT/src/mir/builder/normal_root_execution/model.rs"
 BUILDER_TESTS="$ROOT/src/mir/builder/normal_root_execution/tests.rs"
@@ -52,9 +46,7 @@ FILES=(
   "$PRESERVATION" "$PRESERVATION_TESTS" "$FINAL_SOURCE_MODEL" "$FINAL_SOURCE_TESTS"
   "$TRANSFORM" "$POSTPASS" "$POSTPASS_PROGRAM" "$POSTPASS_ROWS"
   "$SOURCE_SEAL_FINALIZE" "$MACRO_TRANSFORM" "$MACRO_TRANSFORM_TESTS"
-  "$POLICY" "$POLICY_TESTS" "$SOURCE_PLAN_ENTRY"
-  "$PARSER_HANDOFF" "$RAW_HANDOFF" "$FRONTDOOR" "$FRONTDOOR_TESTS"
-  "$ATOMIC_CUTOVER_TESTS"
+  "$POLICY" "$POLICY_TESTS"
   "$BUILDER_CONSUMER" "$BUILDER_MODEL" "$BUILDER_TESTS" "$BUILDER_PROJECTION"
   "$PROGRAM_ROOT" "$LIFECYCLE"
   "$SEMANTIC_ISSUER" "$README" "$BUILDER_README" "$CARD" "$INDEX"
@@ -70,9 +62,6 @@ FILES=(
   "$ROOT/src/mir/builder/normal_root_execution/mod.rs"
   "$ROOT/src/mir/builder/normal_script_semantic_source.rs"
   "$ROOT/src/mir/callable_semantic_batch/model.rs"
-  "$ROOT/src/mir/compiler/canonical_core_dispatch.rs"
-  "$ROOT/src/mir/compiler/canonical_core_source_plan_request.rs"
-  "$ROOT/src/mir/compiler/canonical_script_source_a_input.rs"
   "$ROOT/src/mir/compiler/normal_source_plan/classifier.rs"
   "$ROOT/src/mir/compiler/normal_source_plan/main_source.rs"
   "$ROOT/src/mir/compiler/normal_source_plan/mod.rs"
@@ -113,10 +102,6 @@ FILES=(
   "$ROOT/src/parser/public_api.rs"
   "$ROOT/src/parser/source_seal/gate_projection.rs"
   "$ROOT/src/runner/modes/common_util/normal_callable.rs"
-  "$ROOT/src/runner/reference/normal_file_canonical_core_vm.rs"
-  "$ROOT/src/runner/reference/normal_file_vm.rs"
-  "$ROOT/src/runner/reference/normal_file_vm_frontdoor/script_source_input.rs"
-  "$ROOT/src/runner/reference/normal_file_vm_frontdoor/source_plan_input_tests.rs"
 )
 
 guard_require_command "$TAG" rg
@@ -179,12 +164,6 @@ expect_global_fixed_count 2 \
 expect_fixed_count 1 \
   "pub(crate) struct ParserNormalRootSourcePlanConsumerV1" \
   "$PLAN_CONSUMER" "source-plan consumer definition drifted"
-expect_fixed_count 1 \
-  "ParserNormalRootSourcePlanConsumerV1::consume_once(source, lineage)" \
-  "$SOURCE_PLAN_ENTRY" "canonical source-plan consumer must have one front-door caller"
-expect_fixed_count 1 \
-  "NormalSourcePlanClassifierV1::seal_parser_bound(input)" \
-  "$SOURCE_PLAN_ENTRY" "parser-bound policy must have one production caller"
 expect_fixed_count 1 \
   "pub(crate) fn observe_surface_once<R>(" \
   "$PLAN_CONSUMER" "source-plan surface must expose one consuming scoped loan"
@@ -249,7 +228,7 @@ guard_expect_fixed_in_file "$TAG" \
   "callback: impl for<'source> FnOnce(" "$RETAINED" \
   "retained scoped loan must remain consuming FnOnce"
 if rg -n 'pub\([^)]*\)?[[:space:]]+fn (into_parts|into_rows|into_bound)' \
-  "$PLAN_CONSUMER" "$PARSER_HANDOFF"; then
+  "$PLAN_CONSUMER" ; then
   guard_fail "$TAG" "opaque parser boundary leaked a general owned-parts escape"
 fi
 for accessor in bound surface callable_syntax callable_syntax_rows; do
@@ -339,21 +318,6 @@ expect_fixed_count 2 \
   "$LIFECYCLE" "compatibility retained projection/drift markers are missing"
 
 # Raw source-backed and explicit compatibility extraction are separate affine issuers.
-expect_fixed_count 1 \
-  "ParserNormalRootExecutionRawVmDiscardIssuerV1::issue_once(" \
-  "$RAW_HANDOFF" "source-backed Raw discard/extraction caller drifted"
-expect_fixed_count 1 \
-  "RawCompatibilitySourceExtractionIssuerV1::issue_once(" \
-  "$RAW_HANDOFF" "compatibility Raw extraction caller drifted"
-expect_fixed_count 1 \
-  "source.prepare_raw_vm_source_route()" \
-  "$RAW_HANDOFF" "Raw parser route must be consumed once"
-expect_global_fixed_count 1 \
-  "ParserNormalRootExecutionRawVmDiscardIssuerV1::issue_once(" \
-  "source-backed Raw issuer gained another caller"
-expect_global_fixed_count 1 \
-  "RawCompatibilitySourceExtractionIssuerV1::issue_once(" \
-  "compatibility Raw issuer gained another caller"
 for marker in \
   ReadySourceCannotBecomeCompatibility \
   SourceFailureCannotBecomeCompatibility \
@@ -407,7 +371,7 @@ expect_global_fixed_count 4 \
   "from_parser_bound_rejected(" \
   "rejected source-plan owner definition/caller census drifted"
 if rg -n 'PreparedNormalSourcePlanInputV1|NormalSourceSurfaceInventoryV1::collect|NormalSourcePlanClassifierV1::seal\(' \
-  "$SOURCE_PLAN_ENTRY" "$PARSER_HANDOFF" "$RAW_HANDOFF" "$BUILDER_CONSUMER"; then
+     "$BUILDER_CONSUMER"; then
   guard_fail "$TAG" "production reference route re-entered the AST-only source-plan fixture"
 fi
 
@@ -418,12 +382,12 @@ if rg -n "$OLD_PATTERN" "$ROOT/src" -g '*.rs'; then
 fi
 if rg -n 'fallback|retry|or_else|unwrap_or_else' \
   "$ROOT_ISSUER" "$ROOT_COMPAT" "$PLAN_CONSUMER" "$PRESERVATION" \
-  "$POLICY" "$SOURCE_PLAN_ENTRY" "$PARSER_HANDOFF" "$RAW_HANDOFF" \
+  "$POLICY"    \
   "$BUILDER_CONSUMER"; then
   guard_fail "$TAG" "canonical root route gained fallback or retry"
 fi
 if rg -n 'fn (into_source|retry)\b|\.retry\(' \
-  "$RAW_HANDOFF" "$PRODUCT" "$BUILDER_CONSUMER"; then
+   "$PRODUCT" "$BUILDER_CONSUMER"; then
   guard_fail "$TAG" "rejected Raw/Builder owner regained a retry edge"
 fi
 
@@ -545,22 +509,8 @@ for test_name in \
   guard_expect_fixed_in_file "$TAG" "$test_name" "$MACRO_TRANSFORM_TESTS" \
     "missing transform terminal evidence $test_name"
 done
-for test_name in \
-  source_using_rejects_after_authorized_raw_extraction \
-  consuming_handoff_keeps_the_existing_raw_profile_paired \
-  canonical_core_profile_rejects_raw_handoff_without_losing_source_owner; do
-  guard_expect_fixed_in_file "$TAG" "$test_name" "$FRONTDOOR_TESTS" \
-    "missing Raw/front-door evidence $test_name"
-done
-for test_name in \
-  raw_route_closes_parser_rows_without_canonical_co_seal \
-  raw_compatibility_route_extracts_once_only_after_typed_absence \
-  raw_source_failures_never_become_compatibility_extractions \
-  raw_route_is_a_typed_reject_at_the_canonical_policy_boundary \
-  canonical_route_is_a_typed_reject_at_the_raw_boundary; do
-  guard_expect_fixed_in_file "$TAG" "$test_name" "$ATOMIC_CUTOVER_TESTS" \
-    "missing atomic C0 route evidence $test_name"
-done
+
+
 
 guard_expect_fixed_in_file "$TAG" \
   "Parser SourceSurface" "$README" \

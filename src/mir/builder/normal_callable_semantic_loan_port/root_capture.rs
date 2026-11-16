@@ -10,38 +10,13 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         runtime_inputs: Option<&crate::mir::builder::NormalRuntimeInputSnapshotV1>,
         body: Vec<ASTNode>,
     ) -> Result<ValueId, String> {
-        main_root::lower_app_main_root_body_v1(self, builder, expected_identity, parameters, runtime_inputs, body)
-    }
-
-    fn lower_app_main0_continue_root_v1(
-        &mut self,
-        builder: &mut MirBuilder,
-        expected_identity: &crate::parser::CallableDeclarationIdentityV1,
-        product: crate::mir::compiler::main0_continue_recipe_coseal::VerifiedMain0ContinueRecipeProductV1,
-    ) -> Result<(), String> {
-        main0_root::lower_app_main0_continue_root_v1(self, builder, expected_identity, product)
-    }
-
-    fn lower_app_main0_in_body_step_root_v1(
-        &mut self,
-        builder: &mut MirBuilder,
-        expected_identity: &crate::parser::CallableDeclarationIdentityV1,
-        product: crate::mir::compiler::main0_in_body_step_recipe_coseal::VerifiedMain0InBodyStepRecipeProductV1,
-    ) -> Result<(), String> {
-        main0_root::lower_app_main0_in_body_step_root_v1(self, builder, expected_identity, product)
-    }
-
-    fn lower_app_main0_derived_predicate_root_v1(
-        &mut self,
-        builder: &mut MirBuilder,
-        expected_identity: &crate::parser::CallableDeclarationIdentityV1,
-        product: crate::mir::compiler::main0_derived_predicate_recipe_coseal::VerifiedMain0DerivedPredicateRecipeProductV1,
-    ) -> Result<(), String> {
-        main0_root::lower_app_main0_derived_predicate_root_v1(
+        main_root::lower_app_main_root_body_v1(
             self,
             builder,
             expected_identity,
-            product,
+            parameters,
+            runtime_inputs,
+            body,
         )
     }
 
@@ -243,41 +218,6 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                 |input, signature, loop_break_take| {
                 validate_selected_cataloged_input(&input)?;
                 validate_selected_signature_loan(&input, &signature)?;
-                if matches!(
-                    input.selected().semantic(),
-                    crate::mir::normal_callable_semantic_package::SelectedCallableSemanticRefV1::Dynamic { .. }
-                ) {
-                    let (selected, admission, physical_header) =
-                        input.into_lowering_and_admission();
-                    let target_binding = target_binding.ok_or_else(|| {
-                        "[freeze:contract][mir/selected-dynamic/target-binding] missing"
-                            .to_owned()
-                    })?;
-                    let _collector_receipt =
-                        crate::mir::builder::resolved_lowering::assemble_unpublished_selected_dynamic_w6_from_parts(
-                            builder,
-                            inner.module_port,
-                            target_binding,
-                            &selected,
-                            admission,
-                            physical_header,
-                            |session, profile| {
-                                let mut state =
-                                    CallableSemanticLoweringState::from_exact_source_with_dynamic_source(
-                                        selected.source(),
-                                        Some(Rc::clone(session.dynamic_source())),
-                                    )?;
-                                session.observe_body_state(&mut state, profile)?;
-                                state.finish()
-                            },
-                        )
-                        .map_err(|error| {
-                            format!(
-                                "[freeze:contract][mir/selected-dynamic/production-handoff] {error}"
-                            )
-                        })?;
-                    return Ok(());
-                }
                 let (selected, admission, _physical_header) = input.into_lowering_and_admission();
                 if static_i64_entry::collect_if_selected(
                     builder,

@@ -459,8 +459,10 @@ mod tests {
         let map = issue_callable_single_loop_source_map_v1(&ledger, syntax).unwrap();
         let recipe = issue_callable_single_loop_recipe_v1(&ledger, map).unwrap();
 
-        let program = crate::mir::compiler::callable_semantic_program::
-            issue_callable_semantic_program_v1(recipe)
+        let program =
+            crate::mir::compiler::callable_semantic_program::issue_callable_semantic_program_v1(
+                recipe,
+            )
             .expect("Callable parent should co-seal once");
         let prepared = program
             .into_prepared_operation_demand()

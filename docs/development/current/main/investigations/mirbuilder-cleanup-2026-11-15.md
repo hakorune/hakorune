@@ -379,3 +379,120 @@ F16を閉じる時はEBNFの将来`fn[captures](...):T`を残し、旧`fn(x){...
 11. **loop は、設計を 1 つにして、受け付ける範囲を段で広げる。** 基本の反復(loop が順に並ぶ形も) → `continue`・`break`・`return` → 入れ子 → body の中の文字列・配列・Map・呼び出し。順は、family の番号ではなく、今の共通の道に足りない契約の順。main・static・instance で loop の実装を分けない。`continue` の時に、更新の位置を共通化の都合で動かさない。resolver が既に持つ loop の親子の関係から始める。
 12. **loop の統合を、selfhost より上の目的にしない。** 測って、止まる原因が loop でなければ(型を書いていない static 呼び出し、配列の出所など)、そこを先に直す。
 
+## お掃除5: 保存を終えた試作と再開条件（2026-11-16）
+
+現役の安全契約は共通ownerに保持し、保留のためだけの実装保存を終える。旧実装はGit履歴を参照し、再開時に並列の生成経路を復活させない。F17（catch/cleanup/TryCatch）は仕様確認中のため、この回の退役対象から除外する。
+
+### SC33
+
+common-V2専用のadmission/skeletonは採用しない。旧実装の参照: `6daa220107`。
+具体的なsource→entryの不足と既存owner、置換する旧writerが決まった時だけ再検討する。
+
+### PH03
+
+canonical sessionをもう一本開く代替実装は採用しない。旧実装の参照: `3e3d39d632`。
+実際のTextCallout不足を既存V2/SSA session内で解く時に再検討する。
+
+### PH57
+
+S6C専用のphysical Text/residence sidecarは採用しない。旧実装の参照: `f81180f8b6`。
+選択されたsourceのentry/residence不足が確認され、既存ownerと後継の安全性testが決まった時に再検討する。
+
+### PH65
+
+raw collectionの別co-seal模型は採用しない。旧実装の参照: `2dd06f9693`。
+現役collectorの所有契約に不足が確認され、既存root-publicationの検証へ保証を移す時に再検討する。
+
+### EX01
+
+特定Text走査のpre-session aggregate/論理planを一般反復へ持ち込まない。旧実装の参照: `3496bcf218`。
+共通表現で不足する元source→edgeの関係が測定され、旧writerの削除を同時に行える時に再検討する。
+
+### EX02
+
+scalar scan/TextEqの専用corridorは採用しない。旧実装の参照: `935377a0e8`。
+現役のsource/ABI不足を共通の意味計画で解く時に再検討する。
+
+段Aの着地検証: 最適化CLIで固定5,386入力のMIR/拒否/出力/exit差0（EXE生成1,471、timeout0）、固定suite 8/8、Map18、保持したC verifier/closure、owner数・pointer guard PASS。全lib直列は8,639 PASS/210 FAIL/56 ignoredで新規FAIL0。
+整形後Rustは本体11,604行/test6,378行の純減、Rust67file退役。登録名は89件消失・S6C保証移管1件追加（純減88）、未説明差0。metadata台帳の130/131件ずれとtransfer guardの既存欠落は基点からの不整合として保持し、基準は緩めない。
+
+### 段Bの旧pass・oracle・shadow退役
+
+- F08: optional VM barrier-elision passを退役し、実際のbarrierとVM本体は保持。
+- F07: optional concat3 rewriteと専用smokeを退役し、現役concat/Fault/End/runtime契約は保持。
+- F06: Pure専用New/Unary/WeakRef分岐と専用testを退役。通常経路・型情報・評価順・IntrinsicArray remap、混在VMのDebug/null比較は保持。exception/awaitのPure専用skipだけを除去し、F17の面とcarrierは変更しない。
+- F01: MIR→JoinIR逆lowering/oracle入口を退役し、現役のJoinIR境界・名前・source解析を保持。
+- F02: normalized-shadow/ANF模型と専用testを退役し、既存StepTree capability検査を元のcallerへ直接接続。strict/dev/planner-required境界を保持。
+
+最適化CLIで固定5,386入力のMIR/拒否/出力/exit差0（EXE生成1,471、timeout0）、focused24件、固定suite8/8、naming/owner数/pointer guard PASS。整形後Rustは本体9,601行/test3,043行の純減、Rust76file退役。登録旧名97件消失・IntrinsicArray保証移管1件追加（純減96）、全件一意な旧定義へ対応。全lib直列はseries最終で確認する。
+旧台帳は退役したPASS92件/ignored4件だけを削除し、残るFAIL集合は不変。corridor guardのconstructor旧anchor欠落は基点から同じで、検査を弱めない。F04/F16は次の塊、F17は今回の対象外。
+
+### 段Bの参照VM入口 F04 退役
+
+明示backend 3種（raw-vm-reference・normal-file-vm-reference・normal-file-canonical-core-vm-reference）と専有adapter/testを退役。共有VM本体・VM/Hako実行・raw compile request・source continuationを保持し、現役testが読むinteger_0 fixtureも保持した。
+最適化CLIで固定5,386入力のMIR/拒否/出力/exit差0（EXE生成1,471、timeout0）、focused22件PASS。featureの通る2構成はPASS、既存のvm-reference 1件とcli-no-plugins 11件のerror集合は不変。
+整形後Rustは本体6,225行/test3,126行の純減、Rust40file退役。登録名75件減・全件一意な旧定義に対応。旧段階名/anchorに依存する一部guardの既存不整合は保持し、基準を緩めない。F17のparser・AST・TryCatch carrier・catch/throw/cleanupは変更なし。
+
+### 段B F16: 古い lambda 生成の退役
+
+旧`fn(...) {...}`は元のexpression dispatcherで`LegacyLambdaSurfaceRetired`として拒否し、専有のcapture/closure生成器とfree-variable collectorを退役した。将来の`fn[captures](...): T`は予約のまま無効。公開NewClosure/ClosureBodyId・JSON reader・closure call独立検証・source capture情報を保持し、F17の面とcarrierは変更しない。
+固定5,386入力の差は承認済みの`phase29bq_selfhost_funcscanner_lambda_literal_min.hako`と`write-compare/t3_map_update.hako`だけ。両者は所定の拒否に変わり、残り5,384入力のMIR/拒否/出力/exitは不変。EXE成功1,471件を維持しtimeout0、dumpのみの後者も旧/新binaryでEXE未生成と補足確認した。
+focused23件PASS。旧生成成功testを同じ入力の名前付き拒否・命令/closure非公開・変数不変のtestへ置換し、専有test12件を削除（登録8734→8722、旧13名/新1名・未説明差0）。Hako parserのlambda-pair smokeはJSON解析の保証なので保持。整形後Rustは本体1,022行/test350行の純減、Rust4file退役。旧台帳は退役PASS12件と置換名/hashだけを更新し、FAIL集合を維持した。
+固定suite8/8、owner数・pointer guard・diff check PASS。全lib直列と全feature最終確認はseries最終で行う。
+
+### 段C F22: CallableSingleLoop 専用経路
+
+元のcanonical/static-child入口を閉じた最適化CLIで固定5,386入力のMIR/拒否/出力/exit差0（EXE1,471、timeout0）を確認してから、専用のsource/Recipe/physicalizer24fileを退役した。現役のsource-shape helper、共有loan/receipt・typed completion・profile countを保持した。
+共有のowner/continuation/allocator/segment/recursive-after検査は既存GenericG0のverified fixtureへ移し、重複layout fixtureを既存test-supportへ集約。キーの発行権限を広げず、共有assertionを保持した。旧形式専有56testを削除し登録8722→8666・追加0・全名対応、旧台帳もそのPASS56件だけ除去しFAIL集合不変。
+削除後focused232件・owner数/pointer/diff検査を確認。整形後Rustは本体4,342行/test3,214行の純減。JoinSig guardのstatic_loop_body未許可は基点から同一の既存不整合として保持する。削除後の全入力・全lib・固定suite最終確認はseries最終で行う。
+
+### 段C F23: 差分検出による保持
+
+旧NestedPredicate入口を閉じた固定5,386入力の比較で、4入力のdump/EXE拒否診断に差が出た。exit1・EXE未生成と`RowUnresolved(DirectAccum)`は同じだが、診断のadmission行一覧から旧Nested行が消えた。差0の条件を広げず、このfamilyの変更を全て戻し、専用実装・test・共有検証を保持した。対象は`if_phi_join_min`、`phase118_pattern3_if_sum_min`、`phase264_p0_bundle_resolver_loop_min`、既存regress入力`coalesced-loop`。公開する診断情報の扱いが決まった時に再検討し、今回はF25へ進む。
+
+### 段C F25: selected Dynamic V2 専用物理経路
+
+元のstatic-child入口を閉じた最適化CLIで固定5,386入力のMIR/拒否/出力/exit差0（EXE1,471、timeout0）を確認。専用emitter/ABI/capabilityと、呼び手が消えたA-prime source view・physical demandを同じ塊で退役した。private ABI構造の削除であり、公開MIR/JSON/C ABIは変更しない。current package issuerが使うlogical/Fault/cleanup co-sealとrunnerのroot fenceは保持。
+削除後focused197件（Dynamic logical契約・external commit・targetless binding・独立検証・ownership）PASS、登録8666→8645・旧専有21件のみ削除。旧台帳はそのPASS21件だけ除きFAIL集合不変。整形後Rustは本体7,962行/test1,709行の純減、Rust32file退役。
+旧fixture生成CLIと専用guardを退役し、共有のSSA/比較/単一append検査を既存guardへ移管。移管block・wire/text guard・C provenance driverとPython33件PASS。F22由来の旧writer guard参照漏れもここで解消した。既存authority guardのloan-port旧anchor欠落（基点から0件）とDraftSeal raw drop件数2/2対期待1/1は緩めず保持し、全guardがgreenとはしない。owner数・pointer/diff検査を確認し、全入力/全lib/固定suiteの削除後最終確認はseries最終で行う。
+
+### 段C F19: 古い生の enum writer
+
+元のFromCall/EnumMatch入口を閉じた最適化CLIで固定5,386入力のMIR/拒否/出力/exit差0（EXE1,471、timeout0）を確認してから、旧Variant writerと専有adapterを退役。Option/Result/enumの表現・payload/網羅性・公開MIR/JSONを保持し、nullish/arityのsource preflightを本文不変で既存semantic ownerへ移した。
+ScopeBoxのno-retry/cleanup/temp binding保証3件は関数本文をbyte不変で現役ownerへ移管。旧writerとのparity2件のみ退役し、登録8645→8643、移管3組を含め未説明差0。削除後focused143件・owner数/pointer/diff検査PASS。整形後Rustは本体575行/test37行の純減。削除だけのstructured-child fileは未変更箇所の整形を保ち713行（全体rustfmtで827行へ膨らむ差分を加えない）。全入力/全lib/固定suiteの削除後確認はseries最終で行う。
+
+### 段C F26: 選ばれていない If Recipe wire
+
+入口遮断時と専有wire/mapper/physicalizer削除後の最適化CLIで、固定5,386入力のMIR/拒否/出力/exit差0（EXE1,471、timeout0）を確認。共通Ifのsource/Bool/coverage/実際の前駆辺・PHI・原子的publication検証は保持し、未使用の専用observerとfactsだけを同じ塊で退役した。公開IfRecipeDTOとF17のcarrierは保持。
+既存nested source検証をsource path・原本binding・InlineI64の完全な組の照合へ統合。削除後focusedは161 PASS/既知1 FAIL・新規FAIL0、登録8643→8617（専有26件退役・保証5件改名、未説明差0）。vm-reference専用testをdefault実行の証拠とは数えない。整形後Rustは本体5,296行/test1,172行の純減。owner数・共通If guard・pointer/diff検査PASS。旧SSA guardの存在しないidentity.rs要求は基点からの不整合として保持し、変更したprofile-close検査は個別に実行した。全lib/固定suiteの最終確認はseries最終で行う。
+
+### 段D in-body-step: 共通 SourceLoop V2 へ
+
+旧selectorを閉じた最適化CLIで固定5,386入力を比較し、差は承認済みin-body-step 1本のみ（EXE exit3、EXE成功1,472、timeout0）。同一binary/環境の計測あり・なし比較も差0。対象の旧selector/producer/physicalizerは0回、既存V2の実命令生成→独立検証→公開を確認してから専用12fileを退役した。追加production glue0。
+削除後の共有focused24件PASS、既存rootテストは8 PASS/残る既知3 FAIL・新規FAIL0。公開/PHI保証の正例2件は名前・source・assertionを変えず既知FAILからPASSへ改善した。旧tail-membership拒否だけの1件も専有testとして退役し、登録8617→8599（専有18件、未説明差0）。整形後Rustは本体2,487行/test892行の純減。計測印は全撤去、owner数/pointer/diff検査PASS。全lib/固定suiteと削除後の最適化CLI比較はseries最終で行う。
+
+### 段D continue: 更新位置を保って共通 V2 へ
+
+旧selector遮断後の最適化CLIで固定5,386入力の差は承認済みcontinue 7本だけ（累積EXE1,479、timeout0）。同一binary/環境の計測あり・なしは差0。上限2本のFault102/exit70を維持し、移管済み8本で対応する旧経路0回・共通V2の実命令生成/独立検証/公開を確認した。
+専用10fileと15testを退役し、derived-predicateが使うneutral facts/map型だけを同じownerに保持した。追加production glue0。削除後focused47 PASS/残る既知2 FAIL・新規FAIL0、公開正例の名前/source/assertionを保持したまま更に1件がPASSへ改善。登録8599→8584、整形後Rustは本体2,790行/test884行の純減。owner数/pointer/diff検査PASS。最終の全lib/固定suite/clean最適化CLI照合はseries最終で行う。
+
+### 段D derived-predicate と最後の専用 root dispatcher
+
+最適化CLIの固定5,386入力比較で差は承認済みderived 4本のみ（累積12本、EXE1,483、timeout0）、計測あり・なしの差0。12本全てで旧3 familyのselector/producer/physicalizerは0回、共通V2の命令生成→独立検証→公開を確認。上限2本のFault102/exit70も保持した。
+最後の専用dispatcher/Option facade・Main0専用terminal・observer・共有残片を退役し、App Mainは元のNone分岐と同じ現役wrapper経路へ直接渡す。現役のroot loan APIへ原本owner/identity・不一致時の未消費・一度だけの消費を既存test owner内の1件へ移管した。追加production glue0、公開MIR/JSON/C ABIの変更なし。
+削除後focused31件PASS。公開正例5件は名前/source/assertionを保持し全てPASSへ改善、旧tail-membership拒否1件も専有testとして退役。登録8584→8565（旧20名退役・現役保証1名、未説明差0）。整形後Rustは本体3,047行/test951行の純減、Rust16file退役。計測印全撤去、owner数/pointer/diff検査PASS。共有collectorのMain/policy/identity契約は保持し、最終のclean全入力/全lib/固定suiteはこの後に確認する。
+
+### 段E: F24退役後の完了 helper
+
+3 profileの呼び手が消えた`complete_main0_root_draft_v1`と`commit_callable_single_loop_ready_to_pending_v1`、専用test1件を退役。正確なExit/ExitBlockAlreadyTerminated（block0）、親状態の復元、fresh sessionのopen/discardを既存の拒否testへ統合した。現役pending/abort/dropの21件と、共有Main/policy/identity・collector安全検査は保持する。generic key経由の共有collector armは閉じ切れないため削除しない。
+統合後focused43件PASS、登録8565→8564・追加0・未説明差0。試案の追加fresh成功fixtureは新しいblockを固定IDで扱う誤りがあり採用せず、元の両testの保証を保持した。整形後Rustは本体53行/test49行の純減。pointer/diff検査PASS、最終の全入力/全lib/固定suite/owner確認はこの後に行う。
+
+### 段E: F02の旧capture補助型
+
+F02の実消費者が消えた`loop_route_detection::support::function_scope`のCapturedEnv/Kind/Varを退役した。全Rustの同名/別名module参照を確認し、定義・自己test・再export以外の呼び手は0。別crateのCapturedVar、現役AST capture、F03の広いcanonicalizer/route検査は保持する。
+専用test5件も同じ変更で削除し、登録8564→8559・追加0・未説明差0。focused100件PASS、整形後Rustは本体107行/test69行の純減、Rust2file退役。pointer/diff検査PASS。この後はsourceを固定し、通常の最適化CLIと全lib/feature/固定suite/Map18/ownerで最終確認する。
+
+### 最終全libで判明した保持境界と混在testの修正
+
+最終全libは新規4 FAILを検出した。うちF22の通常API入力2件（Main.int_to_strのloop）は、固定5,386入力のcut差0だけでは拾えなかった本当の受理回帰。入力/期待値を変えず、必要な元のCallableSingleLoop経路・専用検証・pending helper/testを保持へ戻した。F22とE1のpending部分の先の削減値は最終実績から除く。Main0専用完了helperの退役、F25/D/Eの他の退役は維持する。
+残る旧Lambda拒否優先順位parityと旧raw enum writerの混在testは、廃止形式の部分だけを整理。local失敗後の同一compiler再利用、exact source/scrutinee・一度だけの評価・拒否時無変更/no-retryを現役ownerで保持し、正規enum payload/resultは既存bridgeの保証へ対応付けた。登録名を変えず、修正後focused50件PASS。旧PASS登録57件と復元ownerのmetadataだけを戻し、FAIL基準は変更しない。最終の全入力/全lib/固定suiteは再検証する。

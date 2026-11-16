@@ -409,11 +409,11 @@
       "token": "catch_block"
     },
     {
-      "control_flow_evidence_id": "control.catchability.src/mir/compiler/tests/exception_control.rs:118:catch_block",
+      "control_flow_evidence_id": "control.catchability.src/mir/compiler/tests/exception_control.rs:108:catch_block",
       "evidence": "mir_dump.contains(\"catch\"),",
       "evidence_kind": "catch_block",
       "family": "catchability",
-      "line": 118,
+      "line": 108,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -421,11 +421,11 @@
       "token": "catch_block"
     },
     {
-      "control_flow_evidence_id": "control.catchability.src/mir/compiler/tests/exception_control.rs:119:catch_block",
+      "control_flow_evidence_id": "control.catchability.src/mir/compiler/tests/exception_control.rs:109:catch_block",
       "evidence": "\"MIR should contain catch instruction\"",
       "evidence_kind": "catch_block",
       "family": "catchability",
-      "line": 119,
+      "line": 109,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -445,35 +445,11 @@
       "token": "catch_block"
     },
     {
-      "control_flow_evidence_id": "control.catchability.src/mir/compiler/tests/exception_control.rs:70:catch_block",
-      "evidence": "// Core-13 pure \u30e2\u30fc\u30c9\u3067\u306f Try/Catch \u547d\u4ee4\u306f\u8a31\u5bb9\u96c6\u5408\u5916\u306e\u305f\u3081\u30b9\u30ad\u30c3\u30d7",
-      "evidence_kind": "catch_block",
-      "family": "catchability",
-      "line": 70,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/compiler/tests/exception_control.rs",
-      "token": "catch_block"
-    },
-    {
-      "control_flow_evidence_id": "control.catchability.src/mir/compiler/tests/exception_control.rs:76:catch_block",
-      "evidence": ".debug(\"[TEST] skip try/catch under Core-13 pure mode\");",
-      "evidence_kind": "catch_block",
-      "family": "catchability",
-      "line": 76,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/compiler/tests/exception_control.rs",
-      "token": "catch_block"
-    },
-    {
-      "control_flow_evidence_id": "control.catchability.src/mir/compiler/tests/exception_control.rs:96:catch_block",
+      "control_flow_evidence_id": "control.catchability.src/mir/compiler/tests/exception_control.rs:86:catch_block",
       "evidence": "value: LiteralValue::String(\"Catch block\".to_string()),",
       "evidence_kind": "catch_block",
       "family": "catchability",
-      "line": 96,
+      "line": 86,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -2029,30 +2005,6 @@
       "token": "defer"
     },
     {
-      "control_flow_evidence_id": "control.cleanup_precedence.src/mir/builder/resolved_lowering/canonical_ssa/session/physical_entry_boundary.rs:68:defer",
-      "evidence": "/// before the final frame and Residence Enter exist.  Defer only that",
-      "evidence_kind": "defer",
-      "family": "cleanup_precedence",
-      "line": 68,
-      "pending_reason": "PrecedenceContractPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/canonical_ssa/session/physical_entry_boundary.rs",
-      "token": "defer"
-    },
-    {
-      "control_flow_evidence_id": "control.cleanup_precedence.src/mir/builder/resolved_lowering/canonical_ssa/session/physical_entry_boundary.rs:74:defer",
-      "evidence": "return Err(\"cannot defer a missing physical execution entry\".to_owned());",
-      "evidence_kind": "defer",
-      "family": "cleanup_precedence",
-      "line": 74,
-      "pending_reason": "PrecedenceContractPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/canonical_ssa/session/physical_entry_boundary.rs",
-      "token": "defer"
-    },
-    {
       "control_flow_evidence_id": "control.cleanup_precedence.src/mir/compiler/dynamic_full_body_recipe/coseal/semantic_program/invocation_cleanup.rs:1:cleanup",
       "evidence": "//! Invocation-only cleanup projection for the mixed-I64 Dynamic Loop.",
       "evidence_kind": "cleanup",
@@ -2194,18 +2146,6 @@
       "resolution": "Pending",
       "site_ref": null,
       "source_path": "src/mir/compiler/normal_default_pipeline/published_backend_view/compiled_entry_contract.rs",
-      "token": "cleanup"
-    },
-    {
-      "control_flow_evidence_id": "control.cleanup_precedence.src/mir/control_tree/normalized_shadow/entry/if_only.rs:7:cleanup",
-      "evidence": "//!   of this baseline contract. Do not silently \"fix\" them in cleanup cards.",
-      "evidence_kind": "cleanup",
-      "family": "cleanup_precedence",
-      "line": 7,
-      "pending_reason": "PrecedenceContractPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/control_tree/normalized_shadow/entry/if_only.rs",
       "token": "cleanup"
     },
     {
@@ -7174,138 +7114,6 @@
       "resolution": "Pending",
       "site_ref": null,
       "source_path": "src/mir/builder/ordinary_new_admission/selected/fault_cleanup_plan.rs",
-      "token": "fault_surface"
-    },
-    {
-      "control_flow_evidence_id": "control.fault_and_throw.src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs:105:fault_surface",
-      "evidence": ".ok_or_else(|| reject(\"missing function while emitting I7 Fault\"))?;",
-      "evidence_kind": "fault_surface",
-      "family": "fault_and_throw",
-      "line": 105,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs",
-      "token": "fault_surface"
-    },
-    {
-      "control_flow_evidence_id": "control.fault_and_throw.src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs:30:fault_surface",
-      "evidence": "return Err(reject(\"Fault terminal has a foreign session brand\"));",
-      "evidence_kind": "fault_surface",
-      "family": "fault_and_throw",
-      "line": 30,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs",
-      "token": "fault_surface"
-    },
-    {
-      "control_flow_evidence_id": "control.fault_and_throw.src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs:43:fault_surface",
-      "evidence": ".ok_or_else(|| reject(\"missing function while emitting Fault terminal\"))?;",
-      "evidence_kind": "fault_surface",
-      "family": "fault_and_throw",
-      "line": 43,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs",
-      "token": "fault_surface"
-    },
-    {
-      "control_flow_evidence_id": "control.fault_and_throw.src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs:4:fault_surface",
-      "evidence": "//! callout landings.  I6 Fault stops without End; I7 Fault consumes the single",
-      "evidence_kind": "fault_surface",
-      "family": "fault_and_throw",
-      "line": 4,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs",
-      "token": "fault_surface"
-    },
-    {
-      "control_flow_evidence_id": "control.fault_and_throw.src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs:5:fault_surface",
-      "evidence": "//! I6/V10 lease slot before stopping.  No Fault edge rejoins `After`, and no",
-      "evidence_kind": "fault_surface",
-      "family": "fault_and_throw",
-      "line": 5,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs",
-      "token": "fault_surface"
-    },
-    {
-      "control_flow_evidence_id": "control.fault_and_throw.src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs:60:fault_surface",
-      "evidence": "return Err(reject(\"Fault corridor has a foreign session brand\"));",
-      "evidence_kind": "fault_surface",
-      "family": "fault_and_throw",
-      "line": 60,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs",
-      "token": "fault_surface"
-    },
-    {
-      "control_flow_evidence_id": "control.fault_and_throw.src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs:64:fault_surface",
-      "evidence": "\"Fault corridor site pair diverges from lifecycle plan\",",
-      "evidence_kind": "fault_surface",
-      "family": "fault_and_throw",
-      "line": 64,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs",
-      "token": "fault_surface"
-    },
-    {
-      "control_flow_evidence_id": "control.fault_and_throw.src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs:68:fault_surface",
-      "evidence": "// Consume both existing cleanup rows before any Fault or CallOut-End MIR",
-      "evidence_kind": "fault_surface",
-      "family": "fault_and_throw",
-      "line": 68,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs",
-      "token": "fault_surface"
-    },
-    {
-      "control_flow_evidence_id": "control.fault_and_throw.src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs:73:fault_surface",
-      "evidence": ".map_err(|error| reject(format!(\"I6 Fault cleanup claim: {error:?}\")))?;",
-      "evidence_kind": "fault_surface",
-      "family": "fault_and_throw",
-      "line": 73,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs",
-      "token": "fault_surface"
-    },
-    {
-      "control_flow_evidence_id": "control.fault_and_throw.src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs:76:fault_surface",
-      "evidence": ".map_err(|error| reject(format!(\"I7 Fault cleanup claim: {error:?}\")))?;",
-      "evidence_kind": "fault_surface",
-      "family": "fault_and_throw",
-      "line": 76,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs",
-      "token": "fault_surface"
-    },
-    {
-      "control_flow_evidence_id": "control.fault_and_throw.src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs:84:fault_surface",
-      "evidence": "return Err(reject(\"I7 Fault landing has a foreign session brand\"));",
-      "evidence_kind": "fault_surface",
-      "family": "fault_and_throw",
-      "line": 84,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/fault_terminals.rs",
       "token": "fault_surface"
     },
     {
@@ -19141,23 +18949,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/module_invocation_collect0_s0_p0.rs:170:mir_return",
-      "evidence": "vec![ASTNode::Return {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 170,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/module_invocation_collect0_s0_p0.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/module_lifecycle.rs:541:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/module_lifecycle.rs:499:mir_return",
       "evidence": "block.add_instruction(MirInstruction::Return {",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 541,
+      "line": 499,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -19369,11 +19165,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_default_root_catalog_main_selection_tests.rs:192:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_default_root_catalog_main_selection_tests.rs:195:mir_return",
       "evidence": "Some(crate::mir::MirInstruction::Return { value: Some(_) })",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 192,
+      "line": 195,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -19381,11 +19177,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_default_root_catalog_main_selection_tests.rs:231:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_default_root_catalog_main_selection_tests.rs:234:mir_return",
       "evidence": "Some(crate::mir::MirInstruction::Return { value: Some(_) })",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 231,
+      "line": 234,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -19393,11 +19189,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_default_root_catalog_main_selection_tests.rs:282:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_default_root_catalog_main_selection_tests.rs:284:mir_return",
       "evidence": "Some(crate::mir::MirInstruction::Return { value: Some(_) })",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 282,
+      "line": 284,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -19405,11 +19201,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_default_root_catalog_main_selection_tests.rs:411:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_default_root_catalog_main_selection_tests.rs:376:mir_return",
       "evidence": "Some(crate::mir::MirInstruction::Return { value: Some(_) })",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 411,
+      "line": 376,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -20221,11 +20017,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/program_declaration_facts.rs:472:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/program_declaration_facts.rs:475:mir_return",
       "evidence": "vec![ASTNode::Return {",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 472,
+      "line": 475,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -20233,11 +20029,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/program_declaration_facts.rs:591:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/program_declaration_facts.rs:594:mir_return",
       "evidence": "vec![ASTNode::Return {",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 591,
+      "line": 594,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -20317,11 +20113,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/raw_expression_dispatch/statement_surface.rs:702:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/raw_expression_dispatch/statement_surface.rs:704:mir_return",
       "evidence": "ASTNode::Return { value: None, .. } => {",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 702,
+      "line": 704,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -20410,18 +20206,6 @@
       "resolution": "Pending",
       "site_ref": null,
       "source_path": "src/mir/builder/raw_invocation_source_transport/tests/scalar_local.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/raw_lambda_lexical_observation.rs:281:mir_return",
-      "evidence": "ASTNode::Return { value, .. } => match value {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 281,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/raw_lambda_lexical_observation.rs",
       "token": "mir_return"
     },
     {
@@ -20725,42 +20509,6 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg_tests.rs:723:mir_return",
-      "evidence": "Some(MirInstruction::Return { value: Some(value) }) => Some(*value),",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 723,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg_tests.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg_tests.rs:730:mir_return",
-      "evidence": "MirInstruction::Return {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 730,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg_tests.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg_tests.rs:740:mir_return",
-      "evidence": ".terminator = Some(MirInstruction::Return { value: None });",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 740,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg_tests.rs",
-      "token": "mir_return"
-    },
-    {
       "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/completion_consumption.rs:359:mir_return",
       "evidence": "body: vec![ASTNode::Return {",
       "evidence_kind": "mir_return",
@@ -20869,11 +20617,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/draft_seal/exit_projection.rs:160:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/draft_seal/exit_projection.rs:147:mir_return",
       "evidence": ".add_instruction(MirInstruction::Return { value: Some(value) });",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 160,
+      "line": 147,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -20881,27 +20629,15 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/draft_seal/exit_projection.rs:183:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/draft_seal/exit_projection.rs:170:mir_return",
       "evidence": "block_data.add_instruction(MirInstruction::Return { value: Some(value) });",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 183,
+      "line": 170,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
       "source_path": "src/mir/builder/resolved_lowering/draft_seal/exit_projection.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/draft_seal/text_residence_ingress.rs:300:mir_return",
-      "evidence": "Some(crate::mir::MirInstruction::Return { value: Some(actual) })",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 300,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/draft_seal/text_residence_ingress.rs",
       "token": "mir_return"
     },
     {
@@ -20917,11 +20653,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/function_draft_entry.rs:384:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/function_draft_entry.rs:366:mir_return",
       "evidence": ".set_terminator(crate::mir::MirInstruction::Return { value: None });",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 384,
+      "line": 366,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -20962,42 +20698,6 @@
       "resolution": "Pending",
       "site_ref": null,
       "source_path": "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_production_canary_tests.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_continue_lowerer_tests.rs:177:mir_return",
-      "evidence": "Some(crate::mir::MirInstruction::Return { value: Some(_) })",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 177,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_continue_lowerer_tests.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_derived_predicate_lowerer_tests.rs:179:mir_return",
-      "evidence": "Some(crate::mir::MirInstruction::Return { value: Some(_) })",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 179,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_derived_predicate_lowerer_tests.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_in_body_step_lowerer_tests.rs:174:mir_return",
-      "evidence": "Some(crate::mir::MirInstruction::Return { value: Some(_) })",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 174,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_in_body_step_lowerer_tests.rs",
       "token": "mir_return"
     },
     {
@@ -21094,42 +20794,6 @@
       "resolution": "Pending",
       "site_ref": null,
       "source_path": "src/mir/builder/resolved_lowering/return_tests.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/selected_dynamic_physical_abi.rs:496:mir_return",
-      "evidence": "kind: LoopExitKindV2::Return { .. },",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 496,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/selected_dynamic_physical_abi.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/selected_dynamic_physical_abi.rs:595:mir_return",
-      "evidence": "Some(LoopExitKindV2::Return { .. })",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 595,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/selected_dynamic_physical_abi.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/observation_fixture.rs:38:mir_return",
-      "evidence": "entry.set_terminator(MirInstruction::Return { value: Some(value) });",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 38,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/observation_fixture.rs",
       "token": "mir_return"
     },
     {
@@ -21241,11 +20905,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs:156:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs:148:mir_return",
       "evidence": "ASTNode::Return { .. } => {",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 156,
+      "line": 148,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -21253,11 +20917,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs:176:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs:168:mir_return",
       "evidence": "if matches!(statement.node(), ASTNode::Return { value: Some(_), .. }) {",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 176,
+      "line": 168,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -21850,18 +21514,6 @@
       "resolution": "Pending",
       "site_ref": null,
       "source_path": "src/mir/builder/stmts/task_scope_stmt.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/vars/free_vars.rs:190:mir_return",
-      "evidence": "ASTNode::Return { value, .. } => {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 190,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/vars/free_vars.rs",
       "token": "mir_return"
     },
     {
@@ -23209,30 +22861,6 @@
       "token": "top_level"
     },
     {
-      "control_flow_evidence_id": "control.top_level_normalization.src/mir/control_tree/normalized_shadow/common/return_value_lowerer_box.rs:25:outcome_normalize",
-      "evidence": "/// Box-First: Return value lowering for Normalized shadow",
-      "evidence_kind": "outcome_normalize",
-      "family": "top_level_normalization",
-      "line": 25,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/control_tree/normalized_shadow/common/return_value_lowerer_box.rs",
-      "token": "outcome_normalize"
-    },
-    {
-      "control_flow_evidence_id": "control.top_level_normalization.src/mir/control_tree/normalized_shadow/common/return_value_lowerer_box.rs:5:outcome_normalize",
-      "evidence": "//! Normalize return value syntax (`return` vs `return <expr>`) for Normalized shadow paths.",
-      "evidence_kind": "outcome_normalize",
-      "family": "top_level_normalization",
-      "line": 5,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/control_tree/normalized_shadow/common/return_value_lowerer_box.rs",
-      "token": "outcome_normalize"
-    },
-    {
       "control_flow_evidence_id": "control.top_level_normalization.src/runner/json_artifact/README.md:11:top_level",
       "evidence": "- parsed top-level v1 bridge decides absent, supported, or unsupported",
       "evidence_kind": "top_level",
@@ -23398,42 +23026,6 @@
       "resolution": "Pending",
       "site_ref": null,
       "source_path": "src/runner/modes/common_util/source_hint.rs",
-      "token": "top_level"
-    },
-    {
-      "control_flow_evidence_id": "control.top_level_normalization.src/runner/reference/cli_profile.rs:175:top_level",
-      "evidence": "|| config.macro_top_level_allow",
-      "evidence_kind": "top_level",
-      "family": "top_level_normalization",
-      "line": 175,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/runner/reference/cli_profile.rs",
-      "token": "top_level"
-    },
-    {
-      "control_flow_evidence_id": "control.top_level_normalization.src/runner/reference/normal_file_vm_frontdoor/source_plan_input_tests.rs:605:top_level",
-      "evidence": "fn parsed_main_with_top_level_or_box_helper_becomes_callable_module() {",
-      "evidence_kind": "top_level",
-      "family": "top_level_normalization",
-      "line": 605,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/runner/reference/normal_file_vm_frontdoor/source_plan_input_tests.rs",
-      "token": "top_level"
-    },
-    {
-      "control_flow_evidence_id": "control.top_level_normalization.src/runner/reference/normal_file_vm_frontdoor/source_plan_input_tests.rs:609:top_level",
-      "evidence": "\"top-level-helper.hako\",",
-      "evidence_kind": "top_level",
-      "family": "top_level_normalization",
-      "line": 609,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/runner/reference/normal_file_vm_frontdoor/source_plan_input_tests.rs",
       "token": "top_level"
     },
     {

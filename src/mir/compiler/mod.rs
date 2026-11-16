@@ -31,8 +31,6 @@ mod canonical_physical_completion_p0;
 #[cfg(test)]
 mod capability_tests;
 #[cfg(test)]
-mod common_v2_session_admission_tests;
-#[cfg(test)]
 mod external_commit_p0;
 #[cfg(test)]
 mod finite_direct_call_tests;
@@ -133,8 +131,8 @@ pub use resolved_callable_module_input::{
 };
 use source_bound_package::{
     CanonicalPhysicalInvocationV1, ExactCanonicalPreflightPlanV1, InvocationIdentityIssuerV1,
-    RejectedCanonicalPhysicalOpenV1,
-    RejectedCanonicalSourceBindingV1, SourceBoundCanonicalPackageV1,
+    RejectedCanonicalPhysicalOpenV1, RejectedCanonicalSourceBindingV1,
+    SourceBoundCanonicalPackageV1,
 };
 
 /// Closed post-build schedule selected with the canonical lowering owner.

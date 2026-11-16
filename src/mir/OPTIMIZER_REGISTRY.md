@@ -14,7 +14,7 @@
 |---|---|---|---|---|
 | `optimizer/` | optimizer orchestration / pipeline owner。`MirOptimizer` schedule を所有し、全 wave（normalize → cleanup → late-call/inline → diagnostics）の順序を決める | — (orchestrator) | `MirOptimizer` 経由のみ | `src/mir/optimizer.rs`（sibling entry: `mod core; pub use core::{MirOptimizer, ...}`） |
 | `optimizer_passes/` | MirOptimizer 結合用 built-in pass composition layer。`MirOptimizer` の debug/state を必要とする正規化・診断・ピープホール群 | `(opt: &mut MirOptimizer, module: &mut MirModule)` | ❌ 外部非公開（消費者は `optimizer/core.rs` のみ） | `src/mir/optimizer_passes/mod.rs` |
-| `passes/` | reusable MIR transforms / analyses。optimizer に依存しない独立変換（DCE/CSE/escape/inlining/memory-effect 等）。runner/bin の外部消費者も持つ | `(module: &mut MirModule)` のみ | ✅ 外部再利用可 | `src/mir/passes/mod.rs` |
+| `passes/` | reusable MIR transforms / analyses。optimizer に依存しない独立変換（DCE/CSE/inlining/memory-effect 等）。runner/bin の外部消費者も持つ | `(module: &mut MirModule)` のみ | ✅ 外部再利用可 | `src/mir/passes/mod.rs` |
 | `phi_core/loopform/passes/` | loopform / PHI-specific lowering boundary。optimizer namespace の**外**（PHI 構築パス。最適化パスではない） | （loopform 固有） | loopform 内のみ | `src/mir/phi_core/loopform/passes/mod.rs` |
 
 ## 分類ルール（SSOT — coupling 軸）

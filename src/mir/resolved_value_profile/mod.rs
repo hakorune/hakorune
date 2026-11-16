@@ -9,22 +9,17 @@ mod consumption;
 mod coverage;
 mod direct_call;
 pub(crate) mod error;
-pub(crate) mod expression_source;
 pub(crate) mod expression_children;
-pub(crate) mod expression_root;
+pub(crate) mod expression_class;
 pub(crate) mod expression_plan;
 pub(crate) mod expression_position;
-pub(crate) mod expression_class;
 pub(crate) mod expression_projection;
+pub(crate) mod expression_root;
+pub(crate) mod expression_source;
 mod function_return;
-mod nested_recipe_facts;
-mod nested_recipe_mapper;
 mod operator;
 mod parameter_entry;
 pub(crate) mod product;
-mod recipe_facts;
-mod recipe_mapper;
-mod recipe_source_paths;
 
 #[cfg(test)]
 mod direct_call_tests;
@@ -59,9 +54,6 @@ pub(crate) fn analyze_trivial_canonical_with_mode_v1(
 pub(crate) use analyzer_mode::TrivialCanonicalAnalysisModeV1;
 pub(crate) use consumption::TrivialProfileConsumptionV1;
 pub(crate) use direct_call::VerifiedTrivialDirectCallV1;
-pub(crate) use nested_recipe_mapper::{map_nested_trivial_if_recipe_v1, NestedIfRecipeMapRejectV1};
-pub(crate) use recipe_facts::VerifiedTrivialIfRecipeFactsV1;
-pub(crate) use recipe_mapper::{map_trivial_if_recipe_v1, IfRecipeMapRejectV1};
 
 #[cfg(test)]
 fn analyze_closed_result_for_test(

@@ -16,8 +16,8 @@ use super::super::s6c_child::S6CSemanticChildRefV1;
 use super::{
     MainStaticChildLoweringInputV1, NormalCallableSemanticPackageInstallIssueV1,
     NormalCallableSemanticPackagePortV1, ResolvedCallablePhysicalSignatureLoanV1,
-    S6CCommonV2PreSessionLoanRefV1, S6CInstalledCallableLoanRefV1,
-    SelectedCallableLoweringInputRefV1, SelectedCatalogedCallableLoweringInputV1,
+    S6CInstalledCallableLoanRefV1, SelectedCallableLoweringInputRefV1,
+    SelectedCatalogedCallableLoweringInputV1,
 };
 
 impl NormalCallableSemanticPackagePortV1<'_> {
@@ -54,31 +54,6 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         }
         let batch_slot = self.app_main_root_batch_slot(expected_key, expected_identity)?;
         self.main_root_consumed = true;
-        self.with_app_main_root_source_view(batch_slot, expected_identity, callback)
-    }
-
-    /// Observe the same App Main root input without consuming the one-shot
-    /// loan.
-    ///
-    /// Pre-wrapper route selection uses this read-only borrow to classify the
-    /// source; the selected branch still performs the single consumption via
-    /// `with_app_main_root_lowering_input`, and a non-selected source leaves
-    /// the legacy hook's consumption intact.  The identical slot resolution
-    /// and source validation run here so the observed input is exactly the
-    /// one a later consumption would lend.
-    pub(crate) fn observe_app_main_root_source_v1<R>(
-        &self,
-        expected_key: &CanonicalSameModuleCallableKeyV1,
-        expected_identity: &CallableDeclarationIdentityV1,
-        callback: impl for<'source> FnOnce(
-            ResolvedFunctionLoweringInputV1<'source>,
-            crate::mir::callable_semantic_batch::VerifiedResolvedCallableSourceIdentityV1,
-        ) -> R,
-    ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
-        if self.main_root_consumed {
-            return Err(NormalCallableSemanticPackageInstallIssueV1::MainRootAlreadyConsumed);
-        }
-        let batch_slot = self.app_main_root_batch_slot(expected_key, expected_identity)?;
         self.with_app_main_root_source_view(batch_slot, expected_identity, callback)
     }
 
@@ -177,18 +152,6 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         &mut self,
         callback: impl for<'loan> FnOnce(S6CInstalledCallableLoanRefV1<'loan>) -> R,
     ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
-        self.with_s6c_common_v2_pre_session(|loan| callback(loan.callable))
-    }
-
-    /// Canonical installed-cohort handoff for the common V2 pre-session.
-    /// Selection, S6C child, physical signature, and the common envelope are
-    /// consumed once from one package port loan.
-    pub(crate) fn with_s6c_common_v2_pre_session<R>(
-        &mut self,
-        callback: impl for<'loan, 'source, 'join> FnOnce(
-            S6CCommonV2PreSessionLoanRefV1<'loan, 'source, 'join>,
-        ) -> R,
-    ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
         if self.s6c_child_consumed {
             return Err(NormalCallableSemanticPackageInstallIssueV1::S6CChildAlreadyConsumed);
         }
@@ -222,21 +185,13 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         let result = self
             .installed
             .with_selected_lowering_input(&key, |selected| {
-                let child_ref = S6CSemanticChildRefV1 { child };
-                child_ref
-                    .with_common_v2_pre_session(|envelope| {
-                        callback(S6CCommonV2PreSessionLoanRefV1 {
-                            callable: S6CInstalledCallableLoanRefV1 {
-                                selected,
-                                child: S6CSemanticChildRefV1 { child },
-                                signature,
-                                storage_header,
-                            },
-                            envelope,
-                        })
-                    })
-                    .map_err(NormalCallableSemanticPackageInstallIssueV1::S6CCommonV2)
-            })??;
+                callback(S6CInstalledCallableLoanRefV1 {
+                    selected,
+                    child: S6CSemanticChildRefV1 { child },
+                    signature,
+                    storage_header,
+                })
+            })?;
         self.consumed.insert(key);
         self.s6c_child_consumed = true;
         Ok(result)

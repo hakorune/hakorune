@@ -124,6 +124,8 @@ target_match_move    := 'match' HSPACE 'move' HSPACE expr '{' match_arm+ default
 target_nullable_type := TYPE_REF '?'  (* Rust retains structure; box fields support straightline formal/new/literal-null initialization and existing reads; source-order/observation refusals named; declaration defaults connected for explicit birth; no-birth initialization pending; other consumers named-reject; expression '?' is Result propagation *)
 target_fn_type       := 'fn' '(' ( param_mode? TYPE_REF ( ',' param_mode? TYPE_REF )* )? ')' ':' TYPE_REF  (* decided 2026-11-03; parser-inactive *)
 target_closure       := 'fn' '[' capture ( ',' capture )* ']' '(' params? ')' ':' TYPE_REF block  (* decided 2026-11-03; parser-inactive *)
+(* Legacy fn(...) {...} expressions are retired at source admission: LegacyLambdaSurfaceRetired.
+   The future fn[captures](...): T form is separate and remains parser-inactive/reserved. *)
 capture              := IDENT("edit")? IDENT
 param_mode           := IDENT("edit") | IDENT("take")
 release_stmt         := IDENT("release") HSPACE IDENT stmt_end  (* parser/source live; semantic 0 *)

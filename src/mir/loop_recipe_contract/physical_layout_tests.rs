@@ -555,9 +555,12 @@ fn always_loop_fixture(
 #[test]
 fn always_loop_skips_dead_tail_and_routes_break_and_continue_arms() {
     let (recipe, transfers) = always_loop_fixture(LoopJoinEdgeRoleV1::Break);
-    let body_entry = LoopPhysicalSegmentKeyV1::new(LoopNodeKeyV1::new(0), LoopBlockKeyV1::new(0), 0);
-    let then_segment = LoopPhysicalSegmentKeyV1::new(LoopNodeKeyV1::new(0), LoopBlockKeyV1::new(1), 0);
-    let else_segment = LoopPhysicalSegmentKeyV1::new(LoopNodeKeyV1::new(0), LoopBlockKeyV1::new(2), 0);
+    let body_entry =
+        LoopPhysicalSegmentKeyV1::new(LoopNodeKeyV1::new(0), LoopBlockKeyV1::new(0), 0);
+    let then_segment =
+        LoopPhysicalSegmentKeyV1::new(LoopNodeKeyV1::new(0), LoopBlockKeyV1::new(1), 0);
+    let else_segment =
+        LoopPhysicalSegmentKeyV1::new(LoopNodeKeyV1::new(0), LoopBlockKeyV1::new(2), 0);
     let mut builder = LayoutBuilder::new(&recipe, &transfers);
     assert_eq!(builder.entry_key(LoopNodeKeyV1::new(0)), Ok(body_entry));
     builder
@@ -602,15 +605,17 @@ fn always_loop_rejects_return_arm_and_reachable_dead_tail() {
     let (mut recipe, transfers) = always_loop_fixture(LoopJoinEdgeRoleV1::Break);
     let tail_item = LoopItemKeyV1::new(3);
     recipe.blocks[0].items.push(tail_item);
-    recipe.items.push(super::super::schema::LoopRecipeItemRowV1 {
-        key: tail_item,
-        item: LoopRecipeItemV1::Operation {
-            operation: super::super::schema::LoopOperationV1::ConstI64 {
-                result: LoopValueKeyV1::new(1),
-                value: 1,
+    recipe
+        .items
+        .push(super::super::schema::LoopRecipeItemRowV1 {
+            key: tail_item,
+            item: LoopRecipeItemV1::Operation {
+                operation: super::super::schema::LoopOperationV1::ConstI64 {
+                    result: LoopValueKeyV1::new(1),
+                    value: 1,
+                },
             },
-        },
-    });
+        });
     let mut builder = LayoutBuilder::new(&recipe, &transfers);
     assert!(matches!(
         builder.build_loop(LoopNodeKeyV1::new(0), LoopPhysicalTargetV1::OpenRootAfter),

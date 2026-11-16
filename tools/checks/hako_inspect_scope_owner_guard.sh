@@ -10,29 +10,23 @@ MODEL="$ROOT_DIR/tools/hako_check/inspect_scope_model.py"
 IDENTITY="$ROOT_DIR/tools/hako_check/inspect_scope_identity.py"
 SHAPE_MODEL="$ROOT_DIR/tools/hako_check/inspect_shape_model.py"
 SHAPE_CLI="$ROOT_DIR/tools/hako_check/inspect_shape.py"
-S6C_INGRESS="$ROOT_DIR/tools/hako_check/inspect_s6c_ingress.py"
 PROVENANCE_MODEL="$ROOT_DIR/tools/hako_check/inspect_provenance_model.py"
 TEST="$ROOT_DIR/tools/hako_check/tests/test_inspect_scope_dump.py"
 SHAPE_TEST="$ROOT_DIR/tools/hako_check/tests/test_inspect_shape.py"
-S6C_INGRESS_TEST="$ROOT_DIR/tools/hako_check/tests/test_inspect_s6c_ingress.py"
 PROVENANCE_TEST="$ROOT_DIR/tools/hako_check/tests/test_inspect_provenance_model.py"
 PROVENANCE_ISSUER="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pinned_text_lowering_provenance.inc"
 GENERIC_LOWERING="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering.inc"
 GENERIC_ACTIVE_WALK="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_active_walk.inc"
-S6C_FIXTURE="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_observation_fixture.rs"
-S6C_CURSOR_TEST="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg_tests.rs"
 
 guard_require_command "$TAG" rg
 guard_require_files "$TAG" "$ENTRY" "$MODEL" "$IDENTITY" "$SHAPE_MODEL" \
-  "$SHAPE_CLI" "$S6C_INGRESS" "$PROVENANCE_MODEL" "$TEST" "$SHAPE_TEST" \
-  "$S6C_INGRESS_TEST" "$PROVENANCE_TEST" "$PROVENANCE_ISSUER" \
-  "$GENERIC_LOWERING" "$GENERIC_ACTIVE_WALK" \
-  "$S6C_FIXTURE" "$S6C_CURSOR_TEST"
+  "$SHAPE_CLI" "$PROVENANCE_MODEL" "$TEST" "$SHAPE_TEST" \
+  "$PROVENANCE_TEST" "$PROVENANCE_ISSUER" \
+  "$GENERIC_LOWERING" "$GENERIC_ACTIVE_WALK"
 
 for file in "$ENTRY" "$MODEL" "$IDENTITY" "$SHAPE_MODEL" "$SHAPE_CLI" \
-  "$S6C_INGRESS" "$PROVENANCE_MODEL" "$PROVENANCE_ISSUER" \
-  "$GENERIC_LOWERING" "$GENERIC_ACTIVE_WALK" \
-  "$S6C_FIXTURE" "$S6C_CURSOR_TEST"; do
+  "$PROVENANCE_MODEL" "$PROVENANCE_ISSUER" \
+  "$GENERIC_LOWERING" "$GENERIC_ACTIVE_WALK"; do
   lines="$(wc -l <"$file" | tr -d '[:space:]')"
   (( lines < 760 )) || \
     guard_fail "$TAG" "source reached 760-line split trigger: $file=$lines"
@@ -84,6 +78,5 @@ fi
 
 python3 -m unittest tools.hako_check.tests.test_inspect_scope_dump \
   tools.hako_check.tests.test_inspect_shape \
-  tools.hako_check.tests.test_inspect_s6c_ingress \
   tools.hako_check.tests.test_inspect_provenance_model >/dev/null
 echo "[$TAG] ok (thin inspect entry + issuer-sealed MIR-to-LLVM provenance)"

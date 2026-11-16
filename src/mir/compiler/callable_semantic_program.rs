@@ -45,12 +45,9 @@ impl VerifiedCallableSemanticProgramV1 {
             prelude,
             tail,
         } = self;
-        let operation = VerifiedLoopOperationPhysicalDemandV1::issue(
-            context,
-            operation_effect,
-            continuation,
-        )?
-        .prepare_all()?;
+        let operation =
+            VerifiedLoopOperationPhysicalDemandV1::issue(context, operation_effect, continuation)?
+                .prepare_all()?;
         Ok(PreparedCallableOperationDemandV1 {
             input,
             operation,

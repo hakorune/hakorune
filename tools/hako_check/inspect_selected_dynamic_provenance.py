@@ -3,12 +3,10 @@
 
 from __future__ import annotations
 
-import argparse
 import hashlib
 import json
 import os
 import shutil
-import subprocess
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -26,10 +24,6 @@ from inspect_scope_identity import (
 
 PRODUCER_CONTRACT = "hako-inspect-selected-dynamic-producer-v1"
 FUNCTION = "ParserScanLoopBox.skip_while/4"
-TEST_NAME = (
-    "mir::builder::resolved_lowering::selected_dynamic_physical_emitter::tests::"
-    "combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_session"
-)
 SELECTED_DYNAMIC_PAYLOADS = (
     "producer.json", "source.full.hako", "mir.raw.json",
     "llvm.lowered-pre-opt.ir", "lowering.origins.tsv",
@@ -192,61 +186,3 @@ def seal_product(
     finally:
         if staging.exists():
             shutil.rmtree(staging)
-
-
-def _run(command: list[str], *, cwd: Path, env: dict[str, str] | None = None) -> None:
-    result = subprocess.run(command, cwd=cwd, env=env, text=True, capture_output=True)
-    if result.returncode:
-        raise SystemExit("selected Dynamic provenance command failed\n" + result.stderr)
-
-
-def _capture(command: list[str], *, cwd: Path) -> str:
-    result = subprocess.run(command, cwd=cwd, text=True, capture_output=True)
-    if result.returncode:
-        raise SystemExit("selected Dynamic provenance command failed\n" + result.stderr)
-    return result.stdout
-
-
-def run(args: argparse.Namespace) -> int:
-    root = args.repo_root.resolve()
-    with tempfile.TemporaryDirectory(prefix="hako_selected_dynamic_provenance.") as raw_tmp:
-        temporary = Path(raw_tmp)
-        producer = temporary / "producer"
-        env = os.environ.copy()
-        env["HAKO_INSPECT_SELECTED_DYNAMIC_PRODUCER_DIR"] = str(producer)
-        env.setdefault("CARGO_BUILD_JOBS", "4")
-        _run([
-            "cargo", "test", "--manifest-path", str(root / "Cargo.toml"),
-            "--profile", "quick", "--lib", "-q", TEST_NAME, "--", "--exact",
-        ], cwd=root, env=env)
-        _run([
-            str(args.driver.resolve()), str(producer / "real.json"),
-            str(temporary / "real.o"), str(temporary / "lowered.ll"),
-            str(temporary / "origins.tsv"),
-        ], cwd=root)
-        (temporary / "asm.s").write_text(
-            _capture([
-                os.environ.get("OBJDUMP", "objdump"), "-d",
-                f"--disassemble={FUNCTION}", str(temporary / "real.o"),
-            ], cwd=root),
-            encoding="utf-8",
-        )
-        identity = seal_product(
-            producer=producer, lowered=temporary / "lowered.ll",
-            raw=temporary / "origins.tsv", object_path=temporary / "real.o",
-            asm_path=temporary / "asm.s", out=args.out.resolve(),
-        )
-    print(identity["candidate_seal"])
-    return 0
-
-
-def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--repo-root", type=Path, required=True)
-    parser.add_argument("--driver", type=Path, required=True)
-    parser.add_argument("--out", type=Path, required=True)
-    return run(parser.parse_args(argv))
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())

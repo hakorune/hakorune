@@ -11,18 +11,11 @@ Current blockers:
 
 - `callsite_canonicalize.rs` still couples to `crate::ast::ASTNode` through
   closure-body metadata
-- `cse.rs`, `dce.rs`, and `escape.rs` still assume the main `crate::mir::*`
+- `cse.rs` and `dce.rs` still assume the main `crate::mir::*`
   surface and module layout
 - `rc_insertion.rs` / `rc_insertion_helpers.rs` still depend on AST, runtime,
   and config/env seams
-- `concat3_canonicalize/` is the only plausible future extraction candidate,
-  but it still depends on the same MIR surface for now
-- landed internal cleanup: `concat3_canonicalize/analysis/` now splits
-  `stringish.rs` and `def_use.rs` behind the current facade
-
-Next review target:
-
-- `concat3_canonicalize/` as the first real substrate-style extraction candidate
+The retired optional concat3 rewrite and VM barrier-elision passes are no longer extraction candidates.
 
 ## Read First
 

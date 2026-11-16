@@ -3,10 +3,8 @@
 // external reuse (runner/bin, LLVM backend). Boundary: see OPTIMIZER_REGISTRY.md
 
 pub mod callsite_canonicalize;
-pub mod concat3_canonicalize;
 pub mod cse;
 pub mod dce;
-pub mod escape;
 pub mod inline_soft_leaf;
 pub mod memory_effect;
 pub mod method_id_inject;

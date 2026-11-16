@@ -51,7 +51,10 @@ use super::{
 pub(in crate::mir) use loop_break_source::LoopBreakSourcePackageTakeHandle;
 pub(crate) use signature_loan::ResolvedCallablePhysicalSignatureLoanV1;
 mod owned_array;
-pub(crate) use owned_array::{OwnedArrayLifecycleSourceLoanV1, OwnedArrayAppendSourceLoanV1, OwnedArrayReadSourceLoanV1, PreparedOwnedArrayConstructionV1};
+pub(crate) use owned_array::{
+    OwnedArrayAppendSourceLoanV1, OwnedArrayLifecycleSourceLoanV1, OwnedArrayReadSourceLoanV1,
+    PreparedOwnedArrayConstructionV1,
+};
 pub(crate) use types::PreparedNormalCallableSemanticPackageInstallV1;
 pub(in crate::mir) use types::SelectedCallableSemanticRefV1;
 
@@ -101,7 +104,6 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     MainRootAlreadyConsumed,
     DeclaredInstanceLocatorNotConsumed,
     ObjectDefinitionsNotConsumed,
-    S6CCommonV2(crate::mir::loop_recipe_contract::CommonV2IssuerRejectV1),
 }
 
 #[derive(Debug)]
@@ -177,26 +179,6 @@ pub(crate) struct S6CInstalledCallableLoanRefV1<'loan> {
     storage_header: &'loan VerifiedS6CStorageHeaderProjectionV1,
 }
 
-/// One installed S6C callable loan plus the generic common-V2 products
-/// issued from that same retained source cohort.  The envelope is scoped to
-/// the callback and cannot be paired with another callable or Completion.
-pub(crate) struct S6CCommonV2PreSessionLoanRefV1<'loan, 'source, 'join> {
-    callable: S6CInstalledCallableLoanRefV1<'loan>,
-    envelope: crate::mir::loop_recipe_contract::PreparedLoopV2PreSessionEnvelopeV1<'source, 'join>,
-}
-
-impl S6CCommonV2PreSessionLoanRefV1<'_, '_, '_> {
-    pub(crate) fn callable(&self) -> &S6CInstalledCallableLoanRefV1<'_> {
-        &self.callable
-    }
-
-    pub(crate) fn envelope(
-        &self,
-    ) -> &crate::mir::loop_recipe_contract::PreparedLoopV2PreSessionEnvelopeV1<'_, '_> {
-        &self.envelope
-    }
-}
-
 impl S6CInstalledCallableLoanRefV1<'_> {
     pub(crate) fn selected(&self) -> &SelectedCallableLoweringInputRefV1<'_> {
         &self.selected
@@ -242,21 +224,6 @@ impl S6CInstalledCallableLoanRefV1<'_> {
         ) -> R,
     ) -> R {
         self.child.with_completion_parity(callback)
-    }
-
-    /// Forward the installed child’s callback-scoped source relation.  The
-    /// package loan remains the only source owner; no source view is
-    /// recoverable after the callback returns.
-    pub(crate) fn with_scalar_scan_source<R>(
-        &self,
-        callback: impl for<'a, 'rows, 'facts> FnOnce(
-            crate::mir::loop_recipe_contract::S6CScalarScanSourceRefV1<'a, 'rows, 'facts>,
-        ) -> Result<
-            R,
-            crate::mir::loop_recipe_contract::S6CScalarScanSourceRejectV1,
-        >,
-    ) -> Result<R, crate::mir::loop_recipe_contract::S6CScalarScanSourceRejectV1> {
-        self.child.with_scalar_scan_source(callback)
     }
 }
 
@@ -473,12 +440,22 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
         }
         let named_array_emissions = Rc::new(
             super::NamedArrayEmissionCollectorV1::from_source_rows(&source_core_method_calls)
-                .with_field_reads(ordinary_new_claim_ledger.field_array_read_recipes_v1().and_then(|recipes| {
-                    ordinary_new_claim_ledger.stage_field_array_index_reads_v1(&recipes)?;
-                    Ok(recipes)
-                }), &mut named_array_field_providers)
-                .with_field_appends(ordinary_new_claim_ledger.field_array_text_append_sources_v1(), &mut named_array_field_providers)
-                .with_owned_holders(ordinary_new_claim_ledger.owned_array_lifecycle_recipes_v1(&result_contracts)),
+                .with_field_reads(
+                    ordinary_new_claim_ledger
+                        .field_array_read_recipes_v1()
+                        .and_then(|recipes| {
+                            ordinary_new_claim_ledger.stage_field_array_index_reads_v1(&recipes)?;
+                            Ok(recipes)
+                        }),
+                    &mut named_array_field_providers,
+                )
+                .with_field_appends(
+                    ordinary_new_claim_ledger.field_array_text_append_sources_v1(),
+                    &mut named_array_field_providers,
+                )
+                .with_owned_holders(
+                    ordinary_new_claim_ledger.owned_array_lifecycle_recipes_v1(&result_contracts),
+                ),
         );
         let catalog_brand = catalog.catalog().brand().clone();
         self.context
@@ -574,16 +551,39 @@ impl InstalledNormalCallableSemanticPackageV1 {
         if !self.lowering_completed.get() {
             return Err(NormalCallableSemanticPackageInstallIssueV1::LoweringNotCompleted);
         }
-        self.named_array_emissions.recheck_reads(self.ordinary_new_claim_ledger.field_array_read_recipes_v1()
-            .map_err(|error| NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into()))?)
-            .map_err(|error| NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into()))?;
-        self.named_array_emissions.recheck_field_appends(self.ordinary_new_claim_ledger.field_array_text_append_sources_v1()
-            .map_err(|error| NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into()))?)
-            .map_err(|error| NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into()))?;
-        self.named_array_emissions.recheck_owned_holders(
-            self.ordinary_new_claim_ledger.owned_array_lifecycle_recipes_v1(&self.result_contracts)
-                .map_err(|error| NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into()))?)
-            .map_err(|error| NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into()))?;
+        self.named_array_emissions
+            .recheck_reads(
+                self.ordinary_new_claim_ledger
+                    .field_array_read_recipes_v1()
+                    .map_err(|error| {
+                        NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into())
+                    })?,
+            )
+            .map_err(|error| {
+                NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into())
+            })?;
+        self.named_array_emissions
+            .recheck_field_appends(
+                self.ordinary_new_claim_ledger
+                    .field_array_text_append_sources_v1()
+                    .map_err(|error| {
+                        NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into())
+                    })?,
+            )
+            .map_err(|error| {
+                NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into())
+            })?;
+        self.named_array_emissions
+            .recheck_owned_holders(
+                self.ordinary_new_claim_ledger
+                    .owned_array_lifecycle_recipes_v1(&self.result_contracts)
+                    .map_err(|error| {
+                        NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into())
+                    })?,
+            )
+            .map_err(|error| {
+                NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into())
+            })?;
         let rows = Rc::try_unwrap(self.named_array_emissions)
             .map_err(|_| {
                 NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(

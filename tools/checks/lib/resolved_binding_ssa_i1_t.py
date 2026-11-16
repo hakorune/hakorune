@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 import sys
 
 
@@ -130,13 +131,26 @@ def main() -> None:
         "TrivialProfileConsumptionV1",
         "CanonicalCfgSessionV1::new()",
         "PhiTxn::begin(",
-        "self.profile.finish()?",
         ".finish(function)",
         ".commit(self.builder)",
         "self.identity.finish()?",
         "self.profile.claim_direct_call(expression.site())?",
     ):
         require(text["lowerer"], anchor, "trivial whole-owner lowerer")
+
+    # The current shared session consumes profile closure before draft sealing.
+    # Check the Result-propagating closure, not merely an unused finish() call.
+    profile_close = (
+        r"finish_profile_close\(\s*self\.input\.owner\(\),\s*terminal_block,"
+        r"\s*\|\|\s*(?:\{\s*)?self\.profile\.finish\(\)(?:\s*\})?\s*,?\s*\)\?"
+    )
+    if re.search(profile_close, text["lowerer"]) is None:
+        fail("trivial whole-owner lowerer: missing Result-propagating profile close")
+    if re.search(
+        r"\.finish_for_draft_seal\(\s*self\.builder,\s*profile_close\s*\)",
+        text["lowerer"],
+    ) is None:
+        fail("trivial whole-owner lowerer: missing consumed profile-close seal")
 
     for anchor in (
         "VerifiedCanonicalDirectCallEmissionV1::from_verified_profile(row)",

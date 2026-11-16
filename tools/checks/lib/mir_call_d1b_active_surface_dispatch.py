@@ -57,8 +57,6 @@ from mir_call_d1b_test_inventory_guard import (
     check_binding_shadow_dedup_r0,
     PLANNER_CONTEXT_ROW as TEST_INVENTORY_PLANNER_CONTEXT_ROW,
     check_planner_context_dedup_r0,
-    LOOP_IF_EXIT_ROW as TEST_INVENTORY_LOOP_IF_EXIT_ROW,
-    check_loop_if_exit_dedup_r0,
     LEGACY_TESTS_RETIRE_ROW,
     check_legacy_tests_retire_r0,
     LEXICAL_PARITY_MATRIX_ROW,
@@ -121,7 +119,6 @@ RRF_COVERAGE_REEXPORT_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S1-RRF-COVERAGE-REEXP
 RCF_IFCONTROL_REEXPORT_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S1-RCF-IFCONTROL-LOCATED-REEXPORT-RETIRE-R0"
 RCF_IFCONTROL_COVERAGE_USE_REEXPORT_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S1-RCF-IFCONTROL-COVERAGE-USE-REEXPORT-RETIRE-R0"
 RCF_IFCONTROL_ERROR_REEXPORT_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S1-RCF-IFCONTROL-ERROR-REEXPORT-RETIRE-R0"
-T3_S0_CANONICAL_SESSION_LIFECYCLE_OBSERVER_RETIRE_ROW = "MIRBUILDER-CLEANUP-T3-S0-CANONICAL-SESSION-LIFECYCLE-OBSERVER-RETIRE-R0"
 T3_S0_LEXICAL_PUSH_TEST_FACADE_RETIRE_ROW = "MIRBUILDER-CLEANUP-T3-S0-LEXICAL-PUSH-TEST-FACADE-RETIRE-R0"
 T3_S0_DYNAMIC_V2_ADMISSION_GUARD_RETARGET_ROW = "MIRBUILDER-CLEANUP-DYNAMIC-V2-ADMISSION-GUARD-RETARGET-R0"
 T3_S0_DYNAMIC_V2_SCHEDULE_TEST_FACADE_RETIRE_ROW = "MIRBUILDER-CLEANUP-DYNAMIC-V2-SCHEDULE-TEST-FACADE-RETIRE-R0"
@@ -132,7 +129,6 @@ RAW_ROOT_CLEANUP = {
     RCF_IFCONTROL_REEXPORT_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s1_rcf_ifcontrol_located_reexport_retire_r0_2026_09_03", Path("tools/checks/resolved_if_control_structure_r0_guard.sh")),
     RCF_IFCONTROL_COVERAGE_USE_REEXPORT_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s1_rcf_ifcontrol_coverage_use_reexport_retire_r0_2026_09_03", Path("tools/checks/resolved_if_control_structure_r0_guard.sh")),
     RCF_IFCONTROL_ERROR_REEXPORT_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s1_rcf_ifcontrol_error_reexport_retire_r0_2026_09_03", Path("tools/checks/resolved_if_control_structure_r0_guard.sh")),
-    T3_S0_CANONICAL_SESSION_LIFECYCLE_OBSERVER_RETIRE_ROW: ("mirbuilder_cleanup_t3_s0_canonical_session_lifecycle_observer_retire_r0_2026_09_03", Path("tools/checks/common_v2_s6c_structure_guard.sh")),
     T3_S0_LEXICAL_PUSH_TEST_FACADE_RETIRE_ROW: ("mirbuilder_cleanup_t3_s0_lexical_push_test_facade_retire_r0_2026_09_03", Path("tools/checks/resolved_region_flow_r0_seam_guard.sh")),
     T3_S0_DYNAMIC_V2_ADMISSION_GUARD_RETARGET_ROW: ("mirbuilder_cleanup_dynamic_v2_admission_guard_retarget_r0_2026_09_03", Path("tools/checks/dynamic_v2_physical_input_authority_guard.sh")),
     T3_S0_DYNAMIC_V2_SCHEDULE_TEST_FACADE_RETIRE_ROW: ("mirbuilder_cleanup_dynamic_v2_schedule_test_facade_retire_r0_2026_09_03", Path("tools/checks/dynamic_v2_physical_input_authority_guard.sh")),
@@ -589,8 +585,6 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         check_binding_shadow_dedup_r0(state, card, root, api)
     elif row == TEST_INVENTORY_PLANNER_CONTEXT_ROW:
         check_planner_context_dedup_r0(state, card, root, api)
-    elif row == TEST_INVENTORY_LOOP_IF_EXIT_ROW:
-        check_loop_if_exit_dedup_r0(state, card, root, api)
     elif row == LEGACY_TESTS_RETIRE_ROW:
         check_legacy_tests_retire_r0(state, card, root, api)
     elif row == LEXICAL_PARITY_MATRIX_ROW:

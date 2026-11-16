@@ -168,28 +168,6 @@ impl VerifiedS6CPrephysicalIngressV2 {
         })
     }
 
-    /// Lend the complete source-backed scalar-scan relation through this
-    /// ingress. The view is callback-scoped and has no physical value,
-    /// runtime wire, or alternate source owner.
-    pub(crate) fn with_scalar_scan_source<R>(
-        &self,
-        callback: impl for<'a, 'rows, 'facts> FnOnce(
-            super::s6c_scalar_scan_corridor::S6CScalarScanSourceRefV1<'a, 'rows, 'facts>,
-        ) -> Result<
-            R,
-            super::s6c_scalar_scan_corridor::S6CScalarScanSourceRejectV1,
-        >,
-    ) -> Result<R, super::s6c_scalar_scan_corridor::S6CScalarScanSourceRejectV1> {
-        self.output.with_retained_prephysical_source(|source| {
-            let ingress = S6CPrephysicalIngressRefV2 {
-                source,
-                seal: &self.seal,
-            };
-            let source = super::s6c_scalar_scan_corridor::issue_s6c_scalar_scan_source_v1(ingress)?;
-            callback(source)
-        })
-    }
-
     pub(crate) fn with_completion<R>(
         &self,
         callback: impl for<'facts> FnOnce(S6CPrephysicalCompletionRefV2<'facts>) -> R,

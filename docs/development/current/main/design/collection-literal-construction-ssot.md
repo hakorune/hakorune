@@ -351,7 +351,7 @@ account for each touched match; unresolved reclassification blocks cutover.
 | control_flow/plan/lowerer/effect_emission.rs | Copy target unchanged. Existing known-array push branch emits ArrayElementWrite; materialized Script Loop remains a separate source Stop. |
 | control_flow/verify/verifier/effect_validators.rs; normalizer/cond_lowering_freshen/remapper.rs | Validate target-specific shape; remap values, not identity. |
 | builder/joinir_id_remapper.rs and joinir_id_remapper_values.rs | Preserve target and remap destination/args only. |
-| optimizer_passes/normalize_core13_pure.rs | Preserve IntrinsicArray verbatim; only Named can become name Const + env.box.new. Existing strict consumers reject unsupported remaining ops. |
+| function/published_backend_view_intrinsic_array_tests.rs | Current value-remapping and physical consumers preserve IntrinsicArray identity without a provider name. The optional Core13-pure rewrite was retired in cleanup 5. |
 | array_element_write.rs; array_receiver_proof.rs | Recognize intrinsic allocation directly; do not promote Named Array compatibility evidence into builtin identity. |
 | generic_method_route_facts; generic_method_route_plan origin_inference/flow_origin | Separate type observation from named authority. |
 | user_box_method_route_plan target_collection/origin_inference/origin_route_flow; typed_object_plan; storage_inference; route_decision/typed_object | Intrinsic cannot re-enter user named target selection. |

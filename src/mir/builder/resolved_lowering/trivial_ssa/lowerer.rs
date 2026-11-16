@@ -1,6 +1,5 @@
 //! Located materializer for the whole-owner trivial Binding SSA route.
 
-use super::super::if_recipe_adapter::CanonicalIfRecipeAdmissionDispositionV1;
 use super::super::MirBuilder;
 use super::operation::{emit_binary, mir_type};
 use super::parameter_entry::publish_parameter_entries_v1;
@@ -32,7 +31,6 @@ pub(in crate::mir::builder::resolved_lowering) struct CanonicalTrivialSsaLowerer
     input: ResolvedFunctionLoweringInputV1<'source>,
     session: CanonicalSsaFunctionSessionV2<'source>,
     profile: TrivialProfileConsumptionV1,
-    if_recipe: CanonicalIfRecipeAdmissionDispositionV1,
 }
 
 mod if_materialization;
@@ -45,7 +43,6 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         completion: VerifiedFunctionCompletionV1,
         profile: VerifiedTrivialCanonicalOwnerV1,
         block_expr_count: usize,
-        if_recipe: CanonicalIfRecipeAdmissionDispositionV1,
     ) -> Result<Self, String> {
         if !builder
             .function_state
@@ -80,7 +77,6 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             input,
             session,
             profile: TrivialProfileConsumptionV1::new(profile),
-            if_recipe,
         })
     }
 
@@ -104,12 +100,8 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         self.seal_current_if_needed()?;
 
         let terminal_block = self.current_block()?;
-        let profile_close = finish_profile_close(self.input.owner(), terminal_block, || {
-            self.profile.finish()?;
-            self.if_recipe
-                .finish()
-                .map_err(|error| format!("[freeze:contract][if_recipe/finish] {error:?}"))
-        })?;
+        let profile_close =
+            finish_profile_close(self.input.owner(), terminal_block, || self.profile.finish())?;
         self.session
             .finish_for_draft_seal(self.builder, profile_close)
             .map_err(|error| error.to_string())

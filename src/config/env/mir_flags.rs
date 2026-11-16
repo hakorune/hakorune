@@ -38,11 +38,6 @@ pub fn mir_array_boxcall() -> bool {
     std::env::var("NYASH_MIR_ARRAY_BOXCALL").ok().as_deref() == Some("1") || mir_core13()
 }
 
-/// Core-13 "pure" mode: only the 13 canonical ops are allowed (verifier rejects others).
-pub fn mir_core13_pure() -> bool {
-    env_bool("NYASH_MIR_CORE13_PURE")
-}
-
 // ---- Optimizer diagnostics ----
 pub fn opt_debug() -> bool {
     std::env::var("NYASH_OPT_DEBUG").is_ok()

@@ -342,13 +342,8 @@ next owner. The assembler S1 is now landed in `loop_route_policy` and consumes
 the lease plus five row envelopes; this facts layer remains identity/source
 evidence only and does not own selector, Recipe, Builder, or MIR products.
 
-## Main0 Continue observation (caller-zero, 2026-09-23)
+## Main0 Continue observer retirement
 
-The bounded Main0 Continue observer landed in `compiler/` as
-`main0_continue_syntax_facts.rs` (the Main0 front keeps its facts beside the
-co-seal issuer rather than in this directory). It admits exactly the
-`local i, local n, loop(i<n) { if i==1 { i+=1; continue } i+=1 } return i`
-shape as neutral AST-free facts — no Recipe keys, selectors, or physical
-IDs — and declines foreign shapes without consuming them. The ledger join,
-resolver disagreement, and residual boundaries are owned by the downstream
-map/co-seal cells, not this observer.
+D2 retires the private Main0 Continue observer and its fixed-shape admission.
+Current shared resolver/source/transfer checks stay. D3 also retires the last neutral fact/map fragments after their final
+DerivedPredicate consumer; current common source identities remain.

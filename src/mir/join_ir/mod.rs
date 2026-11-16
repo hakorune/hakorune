@@ -29,9 +29,6 @@ use crate::mir::MirType;
 // Phase 27.9: Lowering submodule
 pub mod lowering;
 
-// Re-export lowering functions for backward compatibility
-pub use lowering::{lower_funcscanner_trim_to_joinir, lower_skip_ws_to_joinir};
-
 // Phase 200-3: Contract verification functions are in merge/mod.rs (private module access)
 
 /// JoinIR 関数ID（MIR 関数とは別 ID でもよい）

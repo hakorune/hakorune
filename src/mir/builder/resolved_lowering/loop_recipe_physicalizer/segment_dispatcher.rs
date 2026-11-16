@@ -72,10 +72,7 @@ impl PreparedLoopSegmentOperationDispatchPlanV1 {
                     LoopInternalDeclarationModeV1::Activate => {
                         services
                             .identity
-                            .activate_declaration_exact(
-                                declaration.site(),
-                                declaration.binding(),
-                            )
+                            .activate_declaration_exact(declaration.site(), declaration.binding())
                             .map_err(|error| {
                                 LoopOperationDispatchPhysicalFailureV1::Declaration { item, error }
                             })?;
@@ -112,9 +109,9 @@ impl PreparedLoopSegmentOperationDispatchPlanV1 {
                         target.physical_block(),
                         physical,
                     )
-                    .map_err(|error| {
-                        LoopOperationDispatchPhysicalFailureV1::Declaration { item, error }
-                    })?;
+                    .map_err(
+                        |error| LoopOperationDispatchPhysicalFailureV1::Declaration { item, error },
+                    )?;
             }
             receipts.push(receipt);
         }

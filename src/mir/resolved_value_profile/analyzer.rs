@@ -31,7 +31,6 @@ use super::product::{
     TrivialBindingDefinitionOriginV1, TrivialProfileCoverageSubjectV1, TrivialRepresentationV1,
     TrivialTerminalProfileV1, VerifiedTrivialCanonicalOwnerV1,
 };
-use super::recipe_facts::{RecipeBranchV1, TrivialIfRecipeFactsDraftV1};
 use super::TrivialCanonicalOwnerAnalysisV1;
 
 #[path = "analyzer_branch.rs"]
@@ -79,13 +78,8 @@ fn analyze_with_policy(
     direct_call_policy: DirectCallPolicyV1,
     root_profile_policy: RootProfilePolicyV1,
 ) -> Result<TrivialCanonicalOwnerAnalysisV1, TrivialProfileContractErrorV1> {
-    match AnalyzerV1::new(
-        input,
-        if_control,
-        direct_call_policy,
-        root_profile_policy,
-    )
-    .and_then(|analyzer| analyzer.analyze(completion))
+    match AnalyzerV1::new(input, if_control, direct_call_policy, root_profile_policy)
+        .and_then(|analyzer| analyzer.analyze(completion))
     {
         Ok(product) => Ok(TrivialCanonicalOwnerAnalysisV1::Admitted(product)),
         Err(AnalysisFailureV1::Stop(stop)) => {
@@ -102,7 +96,6 @@ struct AnalyzerV1<'a> {
     draft: TrivialProfileDraftV1,
     terminal: Option<TrivialTerminalProfileV1>,
     fact_coverage: ResolvedFactCoverageDraftV1,
-    recipe_facts: TrivialIfRecipeFactsDraftV1,
     expected_if_sites: BTreeSet<SourceStmtSiteV1>,
     visited_if_sites: BTreeSet<SourceStmtSiteV1>,
     direct_call_policy: DirectCallPolicyV1,
@@ -125,7 +118,6 @@ impl<'a> AnalyzerV1<'a> {
             draft: TrivialProfileDraftV1::new(input.owner()),
             terminal: None,
             fact_coverage: ResolvedFactCoverageDraftV1::new(input.owner()),
-            recipe_facts: TrivialIfRecipeFactsDraftV1::default(),
             expected_if_sites: if_control.exact_if_sites().cloned().collect(),
             visited_if_sites: BTreeSet::new(),
             direct_call_policy,
@@ -191,8 +183,6 @@ impl<'a> AnalyzerV1<'a> {
         self.verify_if_control_coverage()?;
         self.fact_coverage.verify(self.input.function())?;
         let parts = self.draft.finish();
-        let nested_recipe_facts = self.recipe_facts.nested_candidate();
-        let recipe_facts = self.recipe_facts.finish();
         let function_return = seal_function_return_v1(
             self.input.owner(),
             requested_return,
@@ -209,8 +199,6 @@ impl<'a> AnalyzerV1<'a> {
             terminal,
             function_return,
             parts.coverage,
-            recipe_facts,
-            nested_recipe_facts,
         ))
     }
 
@@ -310,9 +298,6 @@ impl<'a> AnalyzerV1<'a> {
                 declared_type_names,
                 ..
             } => {
-                if self.recipe_facts.in_branch() {
-                    self.recipe_facts.mark_unsupported();
-                }
                 if variables.is_empty()
                     || variables.len() != initial_values.len()
                     || variables.len() != declared_type_names.len()
@@ -402,12 +387,7 @@ impl<'a> AnalyzerV1<'a> {
                     TrivialBindingDefinitionOriginV1::Assignment(target.site().clone()),
                     representation,
                 )?;
-                self.recipe_facts.record_assignment(
-                    statement.site().clone(),
-                    binding,
-                    value.site().clone(),
-                    representation,
-                );
+
                 Ok(())
             }
             ASTNode::If { else_body, .. } => {
@@ -417,11 +397,7 @@ impl<'a> AnalyzerV1<'a> {
                     .source()
                     .child_expr_from_stmt(statement, ExprChildRoleV1::IfCondition)
                     .map_err(|error| self.source_navigation(error))?;
-                self.recipe_facts.begin_if(
-                    statement.site().clone(),
-                    condition.site().clone(),
-                    else_body.is_some(),
-                );
+
                 let condition_representation =
                     self.analyze_expr(&condition, environment, writes)?;
                 if condition_representation != TrivialRepresentationV1::InlineBool {
@@ -446,14 +422,10 @@ impl<'a> AnalyzerV1<'a> {
                 } else {
                     None
                 };
-                self.recipe_facts.set_bodies(
-                    then_body.site().clone(),
-                    else_body.as_ref().map(|body| body.site().clone()),
-                );
-                let (then_environment, then_writes) =
-                    self.analyze_branch(&then_body, &baseline, RecipeBranchV1::Then)?;
+
+                let (then_environment, then_writes) = self.analyze_branch(&then_body, &baseline)?;
                 let (else_environment, else_writes) = if let Some(else_body) = else_body {
-                    self.analyze_branch(&else_body, &baseline, RecipeBranchV1::Else)?
+                    self.analyze_branch(&else_body, &baseline)?
                 } else {
                     (baseline.clone(), BTreeSet::new())
                 };
@@ -461,8 +433,7 @@ impl<'a> AnalyzerV1<'a> {
                     .union(&else_writes)
                     .copied()
                     .collect::<BTreeSet<_>>();
-                let merge_binding_list = merge_bindings.iter().copied().collect::<Vec<_>>();
-                self.recipe_facts.finish_if(&merge_binding_list, &baseline);
+
                 *environment = baseline;
                 for binding in merge_bindings.iter().copied() {
                     let then_representation = then_environment
@@ -580,11 +551,7 @@ impl<'a> AnalyzerV1<'a> {
     ) -> AnalysisResultV1<TrivialRepresentationV1> {
         let representation = match expression.node() {
             ASTNode::Literal { value, .. } => match derive_trivial_literal_profile_v1(value) {
-                Ok(profile) => {
-                    self.recipe_facts
-                        .record_literal(expression.site().clone(), value, profile);
-                    profile
-                }
+                Ok(profile) => profile,
                 Err(TrivialLiteralProfileStopV1::String) => {
                     return stop_expression(
                         expression,
@@ -600,8 +567,7 @@ impl<'a> AnalyzerV1<'a> {
                     .get(&binding)
                     .copied()
                     .ok_or(TrivialProfileContractErrorV1::MissingReachingProfile { binding })?;
-                self.recipe_facts
-                    .record_read(expression.site().clone(), binding, representation);
+
                 representation
             }
             ASTNode::BinaryOp { operator, .. } => {
@@ -632,17 +598,10 @@ impl<'a> AnalyzerV1<'a> {
                         )
                     }
                 };
-                self.recipe_facts.record_binary(
-                    expression.site().clone(),
-                    operator,
-                    left_expr.site().clone(),
-                    right_expr.site().clone(),
-                    representation,
-                );
+
                 representation
             }
             ASTNode::BlockExpr { .. } => {
-                self.recipe_facts.mark_unsupported();
                 self.input
                     .function()
                     .block_expr_scope_region_pair(expression.owner(), expression.site())
@@ -729,8 +688,7 @@ impl<'a> AnalyzerV1<'a> {
                     index,
                 )?;
                 self.draft.record_direct_call(row)?;
-                self.recipe_facts
-                    .record_direct_call(expression.site().clone());
+
                 return Ok(TrivialRepresentationV1::InlineI64);
             }
             _ => {

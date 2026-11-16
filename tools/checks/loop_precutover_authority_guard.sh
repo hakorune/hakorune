@@ -13,18 +13,14 @@ LOAN_PORT="$BUILDER_DIR/normal_callable_semantic_loan_port.rs"
 SOURCE_SCOPE="$BUILDER_DIR/normal_callable_semantic_loan_port/source_scope.rs"
 CATALOGED_INSTANCE_SCOPE="$BUILDER_DIR/normal_callable_semantic_loan_port/cataloged_instance_scope.rs"
 ROOT_LOWERING="$BUILDER_DIR/program_root_lowering.rs"
-DEMAND_ISSUER="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/issuer.rs"
 DEMAND_ROOT="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe"
-A_PRIME_ISSUER="$ROOT_DIR/src/mir/compiler/a_prime_i64_physical_capability/issuer.rs"
 ROUTING="$BUILDER_DIR/control_flow/joinir/routing.rs"
-EMITTER_DIR="$BUILDER_DIR/resolved_lowering/selected_dynamic_physical_emitter"
-EMITTER_ABI="$BUILDER_DIR/resolved_lowering/selected_dynamic_physical_abi.rs"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$RECURSIVE" "$RAW_LOOP" "$RAW_LOOP_PORT" "$LOAN_PORT" "$SOURCE_SCOPE" "$CATALOGED_INSTANCE_SCOPE" "$ROOT_LOWERING" \
-  "$DEMAND_ISSUER" "$A_PRIME_ISSUER" "$ROUTING" "$EMITTER_DIR/mod.rs" \
-  "$EMITTER_DIR/tests.rs"
+  "$ROUTING"  \
+
 
 guard_expect_fixed_in_file "$TAG" \
   "NormalCallableSemanticPackageMode::Installed" "$ROOT_LOWERING" \
@@ -41,12 +37,6 @@ guard_expect_fixed_in_file "$TAG" \
 guard_expect_fixed_in_file "$TAG" \
   "try_cf_loop_joinir" "$ROUTING" \
   "the current legacy physical route must remain identifiable"
-guard_expect_fixed_in_file "$TAG" \
-  "issue_dynamic_full_loop_operation_physical_demand_v2" "$DEMAND_ISSUER" \
-  "the new Dynamic demand must have one named issuer"
-guard_expect_fixed_in_file "$TAG" \
-  "issue_selected_a_prime_i64_physical_demand" "$A_PRIME_ISSUER" \
-  "the selected A-prime demand must have one named issuer"
 
 # The ordinary compatibility AST/JoinIR terminal remains explicit. Both
 # compatibility feeders reach the same route entry; route_loop owns its
@@ -68,21 +58,16 @@ if [[ "${#compatibility_callers[@]}" -ne 2 || "$saw_raw_loop_entry" -ne 1 || "$s
   guard_fail "$TAG" "compatibility route-entry callers drifted; expected raw_loop_child_entry.rs and raw_loop_child_port.rs"
 fi
 
-# W6-E opens one selected-Dynamic production handoff in the package adapter.
-# Lower-level issuer counts remain owned by the dedicated AOT activation guard.
-handoff_count="$(rg -F -o -- 'assemble_unpublished_selected_dynamic_w6_from_parts(' "$LOAN_PORT" | wc -l | tr -d '[:space:]')"
-if [[ "$handoff_count" -ne 1 ]]; then
-  guard_fail "$TAG" "selected Dynamic package-adapter handoff must have one production caller: found $handoff_count"
-fi
 guard_expect_fixed_in_file "$TAG" \
   'dynamic-instance-route' "$CATALOGED_INSTANCE_SCOPE" \
   "cataloged instance/Dynamic mismatch must fail before the ordinary route"
 
-for file in "$RECURSIVE" "$RAW_LOOP" "$RAW_LOOP_PORT" "$LOAN_PORT" "$SOURCE_SCOPE" "$CATALOGED_INSTANCE_SCOPE" "$ROOT_LOWERING" "$DEMAND_ISSUER" "$A_PRIME_ISSUER" "$ROUTING"; do
+
+for file in "$RECURSIVE" "$RAW_LOOP" "$RAW_LOOP_PORT" "$LOAN_PORT" "$SOURCE_SCOPE" "$CATALOGED_INSTANCE_SCOPE" "$ROOT_LOWERING" "$ROUTING"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "pre-cutover authority file reached 800-line boundary: ${file#"$ROOT_DIR/"}=$lines"
   fi
 done
 
-echo "[$TAG] ok (ordinary compatibility edge=1, selected Dynamic raw edge=0, adapter handoff=1)"
+echo "[$TAG] ok (current compatibility/source authority; private selected emitter retired)"

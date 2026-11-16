@@ -16,9 +16,6 @@ mod step_tree;
 mod step_tree_contract_box;
 mod step_tree_facts;
 
-// Phase 121: Normalized shadow lowering (dev-only)
-pub mod normalized_shadow;
-
 pub use step_tree::{
     AstSummary, ExitKind, StepCapability, StepNode, StepStmtKind, StepTree, StepTreeBuilderBox,
     StepTreeFeatures, StepTreeSignature,

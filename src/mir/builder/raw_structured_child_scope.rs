@@ -11,7 +11,6 @@ use crate::mir::{MirBuilder, ValueId};
 
 use crate::mir::resolved_semantics::ExprChildRoleV1;
 
-use super::enum_match_source_demand::EnumMatchSourceDemandPortV1;
 use super::normal_script_semantic_lowering_state::{
     ScriptDirectStaticClaimTakeV1, ScriptDirectStaticClaimedRowV1,
 };
@@ -706,15 +705,6 @@ where
 {
     fn has_qmark_propagation_receipt_v1(&self, qmark: &ASTNode) -> Result<bool, String> {
         self.child.has_qmark_propagation_receipt_v1(qmark)
-    }
-}
-
-impl<Port> EnumMatchSourceDemandPortV1 for RawStructuredChildScopePortV1<'_, Port>
-where
-    Port: EnumMatchSourceDemandPortV1,
-{
-    fn has_enum_match_scrutinee_receipt_v1(&self, expression: &ASTNode) -> Result<bool, String> {
-        self.child.has_enum_match_scrutinee_receipt_v1(expression)
     }
 }
 

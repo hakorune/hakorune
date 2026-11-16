@@ -135,15 +135,10 @@ guard_joinir_logical_demand_contract() {
           -v dynamic_physical_input="$dynamic_physical_input" \
           -v dynamic_semantic_tests="$dynamic_semantic_tests" \
           -v dynamic_recipe_tests="$dynamic_recipe_tests" \
-          -v callable_recipe_coseal="$root_dir/src/mir/compiler/callable_single_loop_recipe_coseal.rs" \
-          -v main0_continue_coseal="$root_dir/src/mir/compiler/main0_continue_recipe_coseal.rs" \
-          -v main0_derived_coseal="$root_dir/src/mir/compiler/main0_derived_predicate_recipe_coseal.rs" \
-          -v main0_step_coseal="$root_dir/src/mir/compiler/main0_in_body_step_recipe_coseal.rs" \
           -v node_admission="$root_dir/src/mir/compiler/loop_node_physical_admission.rs" \
-          -v if_continuation="$root_dir/src/mir/builder/resolved_lowering/common_v2_if_continuation_target.rs" \
           -v physicalizer="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs" \
           -v physicalizer_session="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer/session.rs" \
-          'index($0, prefix) != 1 && $0 != nested_producer && $0 != nested_producer_tests && $0 != nested_topology && $0 != nested_topology_tests && $0 != nested_physical_input && $0 != nested_physical_input_tests && $0 != dynamic_physical_input && $0 != dynamic_semantic_tests && $0 != dynamic_recipe_tests && $0 != callable_recipe_coseal && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal && $0 != node_admission && $0 != if_continuation && $0 != physicalizer && $0 != physicalizer_session'
+          'index($0, prefix) != 1 && $0 != nested_producer && $0 != nested_producer_tests && $0 != nested_topology && $0 != nested_topology_tests && $0 != nested_physical_input && $0 != nested_physical_input_tests && $0 != dynamic_physical_input && $0 != dynamic_semantic_tests && $0 != dynamic_recipe_tests && $0 != node_admission && $0 != physicalizer && $0 != physicalizer_session'
   )
   if (( ${#join_sig_external_files[@]} != 0 )); then
     guard_fail "$tag" "caller-zero logical JoinSig symbols escaped the contract subtree"
@@ -190,8 +185,6 @@ guard_joinir_logical_demand_contract() {
       -v p="$direct_accum_projection" -v l="$loop_true_source_projection" \
       -v t="$loop_true_observation_adapter" -v c="$loop_cond_source_projection" \
       -v d="$loop_cond_observation_adapter" -v g="$generic_g0_observation_adapter" \
-      -v q="$root_dir/src/mir/compiler/callable_single_loop_recipe_coseal.rs" \
-      -v m="$root_dir/src/mir/compiler/callable_single_loop_source_map.rs" \
       -v s="$root_dir/src/mir/loop_structural_facts/" \
       -v r="$root_dir/src/mir/resolved_semantics/" \
       -v b="$root_dir/src/mir/builder/normal_callable_loop_source_facts/" \
@@ -199,10 +192,7 @@ guard_joinir_logical_demand_contract() {
       -v x2="$root_dir/src/mir/compiler/loop_break_composite_source_projection.rs" \
       -v x3="$root_dir/src/mir/compiler/loop_break_source_projection.rs" \
       -v x4="$root_dir/src/mir/compiler/loop_family_window_probe_tests.rs" \
-      -v x5="$root_dir/src/mir/compiler/main0_continue_source_map.rs" \
-      -v x6="$root_dir/src/mir/compiler/main0_derived_predicate_source_map.rs" \
-      -v x7="$root_dir/src/mir/compiler/main0_in_body_step_source_map.rs" \
-      '$0 != a && $0 != n && $0 != p && $0 != l && $0 != t && $0 != c && $0 != d && $0 != g && $0 != q && $0 != m && $0 != t2 && $0 != x2 && $0 != x3 && $0 != x4 && $0 != x5 && $0 != x6 && $0 != x7 && index($0,s) != 1 && index($0,r) != 1 && index($0,b) != 1 { found=1 } END { exit found }'; then
+      '$0 != a && $0 != n && $0 != p && $0 != l && $0 != t && $0 != c && $0 != d && $0 != g && $0 != t2 && $0 != x2 && $0 != x3 && $0 != x4 && index($0,s) != 1 && index($0,r) != 1 && index($0,b) != 1 { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "sealed resolved Loop source capability escaped its adapter boundary"
@@ -228,15 +218,11 @@ guard_joinir_logical_demand_contract() {
     { rg -l 'bind_resolved_loop_root_v1\(' "$root_dir/src/mir" || true; } \
       | awk -v prefix="$loop_structural_facts_dir/" -v producer="$direct_accum_recipe_producer" -v variable_producer="$variable_accum_recipe_producer" \
           -v projection="$loop_true_source_projection" \
-          -v callable_recipe_coseal="$root_dir/src/mir/compiler/callable_single_loop_recipe_coseal.rs" \
           -v dynamic_recipe_mod="$dynamic_recipe_mod" \
           -v wire_tests_prefix="$root_dir/src/mir/loop_recipe_contract/wire_parity_tests" \
           -v wire_route_tests="$root_dir/src/mir/loop_recipe_contract/wire_route_parity_tests.rs" \
           -v loopcond_issue="$root_dir/src/mir/compiler/loop_cond_break_continue_typed_map_issue.rs" \
-          -v main0_continue_coseal="$root_dir/src/mir/compiler/main0_continue_recipe_coseal.rs" \
-          -v main0_derived_coseal="$root_dir/src/mir/compiler/main0_derived_predicate_recipe_coseal.rs" \
-          -v main0_step_coseal="$root_dir/src/mir/compiler/main0_in_body_step_recipe_coseal.rs" \
-          'index($0, prefix) != 1 && index($0, wire_tests_prefix) != 1 && $0 != producer && $0 != variable_producer && $0 != projection && $0 != callable_recipe_coseal && $0 != dynamic_recipe_mod && $0 != wire_route_tests && $0 != loopcond_issue && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal' \
+          'index($0, prefix) != 1 && index($0, wire_tests_prefix) != 1 && $0 != producer && $0 != variable_producer && $0 != projection && $0 != dynamic_recipe_mod && $0 != wire_route_tests && $0 != loopcond_issue' \
       | wc -l \
       | tr -d '[:space:]'
   )"
@@ -292,14 +278,10 @@ guard_joinir_logical_demand_contract() {
           -v structural_prefix="$loop_structural_facts_dir/" \
           -v nested_producer="$root_dir/src/mir/compiler/nested_predicate_producer.rs" \
           -v nested_producer_tests="$root_dir/src/mir/compiler/nested_predicate_producer_tests.rs" \
-          -v callable_recipe_coseal="$root_dir/src/mir/compiler/callable_single_loop_recipe_coseal.rs" \
-          -v main0_continue_coseal="$root_dir/src/mir/compiler/main0_continue_recipe_coseal.rs" \
-          -v main0_derived_coseal="$root_dir/src/mir/compiler/main0_derived_predicate_recipe_coseal.rs" \
-          -v main0_step_coseal="$root_dir/src/mir/compiler/main0_in_body_step_recipe_coseal.rs" \
           -v dynamic_recipe_mod="$dynamic_recipe_mod" \
           -v dynamic_physical_input="$dynamic_physical_input" \
           -v generic_test_prefix="$generic_resolved_test_prefix" \
-          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1 && !(index($0, generic_test_prefix) == 1 && $0 ~ /_tests\.rs$/) && $0 != nested_producer && $0 != nested_producer_tests && $0 != callable_recipe_coseal && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal && $0 != dynamic_recipe_mod && $0 != dynamic_physical_input'
+          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1 && !(index($0, generic_test_prefix) == 1 && $0 ~ /_tests\.rs$/) && $0 != nested_producer && $0 != nested_producer_tests && $0 != dynamic_recipe_mod && $0 != dynamic_physical_input'
   )
   if (( ${#external_portable_source_files[@]} != 0 )); then
     guard_fail "$tag" "semantic or physical Loop consumer acquired source/provenance authority"
@@ -318,8 +300,6 @@ guard_joinir_logical_demand_contract() {
           -v loop_cond_projection="$loop_cond_source_projection" \
           -v loop_cond_observation_adapter="$loop_cond_observation_adapter" \
           -v generic_g0_observation_adapter="$generic_g0_observation_adapter" \
-          -v callable_recipe_coseal="$root_dir/src/mir/compiler/callable_single_loop_recipe_coseal.rs" \
-          -v callable_source_map="$root_dir/src/mir/compiler/callable_single_loop_source_map.rs" \
           -v dynamic_recipe_mod="$dynamic_recipe_mod" \
           -v dynamic_physical_input="$dynamic_physical_input" \
           -v callable_facts_prefix="$root_dir/src/mir/builder/normal_callable_loop_source_facts/" \
@@ -327,10 +307,7 @@ guard_joinir_logical_demand_contract() {
           -v break_composite="$root_dir/src/mir/compiler/loop_break_composite_source_projection.rs" \
           -v break_source="$root_dir/src/mir/compiler/loop_break_source_projection.rs" \
           -v window_probe_tests="$root_dir/src/mir/compiler/loop_family_window_probe_tests.rs" \
-          -v main0_continue_map="$root_dir/src/mir/compiler/main0_continue_source_map.rs" \
-          -v main0_derived_map="$root_dir/src/mir/compiler/main0_derived_predicate_source_map.rs" \
-          -v main0_step_map="$root_dir/src/mir/compiler/main0_in_body_step_source_map.rs" \
-          'index($0, structural_prefix) != 1 && index($0, resolved_prefix) != 1 && index($0, callable_facts_prefix) != 1 && $0 != projection && $0 != observation_adapter && $0 != nested_observation_adapter && $0 != loop_true_projection && $0 != loop_true_observation_adapter && $0 != loop_cond_projection && $0 != loop_cond_observation_adapter && $0 != generic_g0_observation_adapter && $0 != callable_recipe_coseal && $0 != callable_source_map && $0 != dynamic_recipe_mod && $0 != dynamic_physical_input && $0 != s6c_tests && $0 != break_composite && $0 != break_source && $0 != window_probe_tests && $0 != main0_continue_map && $0 != main0_derived_map && $0 != main0_step_map'
+          'index($0, structural_prefix) != 1 && index($0, resolved_prefix) != 1 && index($0, callable_facts_prefix) != 1 && $0 != projection && $0 != observation_adapter && $0 != nested_observation_adapter && $0 != loop_true_projection && $0 != loop_true_observation_adapter && $0 != loop_cond_projection && $0 != loop_cond_observation_adapter && $0 != generic_g0_observation_adapter && $0 != dynamic_recipe_mod && $0 != dynamic_physical_input && $0 != s6c_tests && $0 != break_composite && $0 != break_source && $0 != window_probe_tests'
   )
   if (( ${#external_resolved_source_files[@]} != 0 )); then
     guard_fail "$tag" "sealed resolved Loop source capability escaped its adapter boundary"
@@ -408,165 +385,6 @@ guard_joinir_logical_demand_contract() {
       'MirBuilder|CorePlan|ValueId|BasicBlockId|MirInstruction|Phi|Frag|RouteFn|ComposeFn|try_execute_recipe_first_selection|select_recipe_first_routes|ENTRIES' \
       "$file" >/dev/null; then
       guard_fail "$tag" "logical loop demand/provenance acquired physical or selection authority: ${file#"$root_dir/"}"
-    fi
-  done
-}
-
-# The portable If contract shares this lane guard with the Loop contract.  The
-# D0-C seam permits exactly one named adapter outside the contract subtree;
-# every other logical/physical-input constructor remains caller-zero.
-guard_joinir_if_recipe_contract() {
-  local root_dir="$1"
-  local tag="$2"
-  local contract_dir="$root_dir/src/mir/if_recipe_contract"
-  local join_sig="$contract_dir/join_sig.rs"
-  local physical_input="$contract_dir/physical_input.rs"
-  local tests="$contract_dir/tests.rs"
-  local adapter="$root_dir/src/mir/builder/resolved_lowering/if_recipe_adapter.rs"
-  local physicalizer="$root_dir/src/mir/builder/resolved_lowering/trivial_ssa/if_recipe_physicalizer.rs"
-  local lowerer="$root_dir/src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs"
-  local materialization="$root_dir/src/mir/builder/resolved_lowering/trivial_ssa/lowerer/if_materialization.rs"
-  local files=(
-    "$contract_dir/README.md"
-    "$contract_dir/mod.rs"
-    "$contract_dir/error.rs"
-    "$contract_dir/ids.rs"
-    "$join_sig"
-    "$contract_dir/normalize.rs"
-    "$physical_input"
-    "$contract_dir/schema.rs"
-    "$contract_dir/source_binding.rs"
-    "$contract_dir/verify.rs"
-    "$tests"
-    "$adapter"
-    "$physicalizer"
-    "$lowerer"
-    "$materialization"
-  )
-  local file lines
-
-  guard_require_files "$tag" "${files[@]}"
-  for file in "${files[@]}"; do
-    lines="$(wc -l < "$file" | tr -d '[:space:]')"
-    if (( lines >= 800 )); then
-      guard_fail "$tag" "If recipe contract file exceeds boundary: ${file#"$root_dir/"} lines=$lines"
-    fi
-  done
-  if rg -n -w \
-    'ASTNode|MirBuilder|CorePlan|ValueId|BasicBlockId|IfCfgSessionV1|RouteAttemptOutcomeV1|Retry|CanonicalSsaFunctionSessionV2|PhiTxn|BindingSsaBuilderV1' \
-    "$adapter" >/dev/null; then
-    guard_fail "$tag" "D0-C If adapter acquired AST, Builder, route, or physical SSA authority"
-  fi
-
-  # `schema.rs` legitimately uses Option for the explicit/implicit else
-  # disposition.  The physical/logical proof files must not acquire it.
-  if rg -n -w \
-    'MirBuilder|CorePlan|ValueId|BasicBlockId|CanonicalCfgSession|PhiTxn|BindingSsaBuilderV1|ASTNode|RouteAttemptOutcomeV1|Retry|Option' \
-    "$join_sig" "$physical_input" >/dev/null; then
-    guard_fail "$tag" "If logical/physical-input proof acquired physical, AST, route, retry, or Option authority"
-  fi
-  if rg -n -w \
-    'ASTNode|MirBuilder|CorePlan|RouteAttemptOutcomeV1|Retry|Option|new_ssa|new_phi|lower_if_legacy_unselected|lower_if_materialization_core|ResolvedIfElsePortV1|else_port|Some\(true\)' \
-    "$physicalizer" >/dev/null; then
-    guard_fail "$tag" "If physicalizer acquired route, retry, raw AST, or a second physical owner"
-  fi
-  if ! rg -q 'lower_if_recipe_selected\(' "$physicalizer" || \
-     rg -n 'lower_if_legacy_unselected|lower_if_materialization_core|lower_if_materialization\(' \
-       "$physicalizer" >/dev/null; then
-    guard_fail "$tag" "selected If physicalizer must use only the named selected helper"
-  fi
-  if ! rg -q 'fn lower_if_recipe_selected\(' "$materialization" || \
-     ! rg -q 'fn lower_if_legacy_unselected\(' "$materialization" || \
-     ! rg -q 'IfMaterializationTopologyV1::Selected' "$materialization"; then
-    guard_fail "$tag" "If lowerer lost the selected/legacy shape-scoped helper split"
-  fi
-  if rg -n -U \
-    '#\[derive\([^)]*Clone[^)]*\)\][[:space:]]*\n[[:space:]]*(pub\(crate\)[[:space:]]+)?struct[[:space:]]+(VerifiedIfJoinSigV1|VerifiedIfPhysicalInputV1)' \
-    "$join_sig" "$physical_input" >/dev/null || \
-     rg -n 'impl[[:space:]]+Clone[[:space:]]+for[[:space:]]+(VerifiedIfJoinSigV1|VerifiedIfPhysicalInputV1)' \
-       "$join_sig" "$physical_input" >/dev/null; then
-    guard_fail "$tag" "verified If logical/physical-input wrappers must remain non-Clone"
-  fi
-  if rg -n 'pub[[:space:]]+(artifact|join_sig)[[:space:]]*:' "$physical_input" >/dev/null; then
-    guard_fail "$tag" "physical-input artifact/signature fields must remain private"
-  fi
-  if [[ "$(rg -c 'pub\(crate\) fn from_artifact\(' "$physical_input" || true)" != "1" ]]; then
-    guard_fail "$tag" "physical-input must have exactly one consuming from_artifact issuer"
-  fi
-  if rg -n 'pub\(crate\) fn (new|from_parts|from_signature|from_join)' "$physical_input" >/dev/null; then
-    guard_fail "$tag" "independent artifact/signature constructor appeared"
-  fi
-
-  local symbol_files=()
-  mapfile -t symbol_files < <(
-    { rg -l -w 'VerifiedIfJoinSigV1|VerifiedIfPhysicalInputV1|IfJoinSigElaboratorV1' \
-        "$root_dir/src/mir" || true; }
-  )
-  for file in "${symbol_files[@]}"; do
-    if [[ "$file" != "$contract_dir"/* && "$file" != "$adapter" && "$file" != "$physicalizer" ]]; then
-      guard_fail "$tag" "If logical/physical-input symbol escaped caller-zero subtree: ${file#"$root_dir/"}"
-    fi
-  done
-
-  local physical_callers=()
-  mapfile -t physical_callers < <(
-    { rg -l 'VerifiedIfPhysicalInputV1::from_artifact\(' "$root_dir/src/mir" || true; }
-  )
-  if (( ${#physical_callers[@]} != 2 )) || \
-     ! printf '%s\n' "${physical_callers[@]}" | rg -q "^${tests}$" || \
-     ! printf '%s\n' "${physical_callers[@]}" | rg -q "^${adapter}$"; then
-    guard_fail "$tag" "physical-input issuer must have only contract tests plus the named D0-C adapter"
-  fi
-  local mapper_callers=()
-  mapfile -t mapper_callers < <(
-    { rg -l 'map_trivial_if_recipe_v1\(' "$root_dir/src/mir" || true; } |
-      while IFS= read -r file; do
-        [[ "$file" == "$root_dir/src/mir/resolved_value_profile/recipe_mapper.rs" ]] && continue
-        [[ "$file" == *"/tests.rs" || "$file" == *"_tests.rs" ]] && continue
-        printf '%s\n' "$file"
-      done
-  )
-  if (( ${#mapper_callers[@]} != 1 )) || [[ "${mapper_callers[0]}" != "$adapter" ]]; then
-    guard_fail "$tag" "If recipe mapper must have exactly one production caller: the named D0-C adapter"
-  fi
-  local physicalizer_callers=()
-  mapfile -t physicalizer_callers < <(
-    { rg -l 'physicalize_if_recipe_v1\(' "$root_dir/src/mir" || true; } \
-      | awk -v physicalizer="$physicalizer" '$0 != physicalizer && $0 !~ /_tests\.rs$/'
-  )
-  if (( ${#physicalizer_callers[@]} != 1 )) || [[ "${physicalizer_callers[0]}" != "$materialization" ]]; then
-    guard_fail "$tag" "If physicalizer must have exactly one production caller: trivial SSA lowerer"
-  fi
-  local selected_helper_callers=()
-  mapfile -t selected_helper_callers < <(
-    { rg -l 'lower_if_recipe_selected\(' "$root_dir/src/mir" || true; } \
-      | awk -v materialization="$materialization" '$0 != materialization && $0 !~ /_tests\.rs$/'
-  )
-  if (( ${#selected_helper_callers[@]} != 1 )) || [[ "${selected_helper_callers[0]}" != "$physicalizer" ]]; then
-    guard_fail "$tag" "selected If helper must have exactly one production caller: physicalizer"
-  fi
-  if ! rg -q 'physical_input\.into_parts\(' "$physicalizer" || \
-     ! rg -q 'Result<CanonicalIfPhysicalSuccessV1' "$physicalizer"; then
-    guard_fail "$tag" "If physicalizer must consume the paired payload and return Result-only success"
-  fi
-  local physical_input_part_callers=()
-  mapfile -t physical_input_part_callers < <(
-    { rg -l 'physical_input\.into_parts\(' "$root_dir/src/mir" || true; } \
-      | awk -v physicalizer="$physicalizer" '$0 != physicalizer && $0 !~ /_tests\.rs$/'
-  )
-  if (( ${#physical_input_part_callers[@]} != 0 )); then
-    guard_fail "$tag" "If physical-input payload must be unpacked only by the named physicalizer"
-  fi
-  if rg -n 'claim_if\(|Pending\(_physical_input\)|drop\([^)]*physical_input' "$adapter" >/dev/null; then
-    guard_fail "$tag" "If selected demand payload was silently dropped or claim-only"
-  fi
-  local elaborator_callers=()
-  mapfile -t elaborator_callers < <(
-    { rg -l 'IfJoinSigElaboratorV1::elaborate\(' "$root_dir/src/mir" || true; }
-  )
-  for file in "${elaborator_callers[@]}"; do
-    if [[ "$file" != "$contract_dir"/* ]]; then
-      guard_fail "$tag" "If JoinSig elaborator acquired an external caller: ${file#"$root_dir/"}"
     fi
   done
 }

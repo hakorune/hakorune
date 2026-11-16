@@ -12,9 +12,6 @@ pub mod body_local;
 /// Condition-scope analysis support.
 pub mod condition_scope;
 
-/// Function-scope capture analysis support.
-pub mod function_scope;
-
 /// Local-variable analyzer support.
 pub mod locals;
 

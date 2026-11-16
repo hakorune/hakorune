@@ -488,9 +488,6 @@ OperatorBox の `apply` を「観測（observe）」から「採用（adopt）�
 
 | 変数 | デフォルト | 適用経路 | 説明 |
 | --- | --- | --- | --- |
-| `HAKO_ANF_DEV=1` | OFF | Any | ANF routing を dev-only で有効化。撤去条件: ANF が本線化した時に削除 |
-| `HAKO_ANF_ALLOW_PURE=1` | OFF | Any | PureOnly scope の ANF を許可（dev-only、`HAKO_ANF_DEV=1` 前提）。撤去条件: PureOnly ANF が本線化した時に削除 |
-| `HAKO_ANF_STRICT=1` | OFF | Any | ANF の fail-fast を有効化（dev-only）。撤去条件: fail-fast を常時化した時に削除 |
 
 補足: 実装は `src/config/env` に集約し、直読みはしない。
 
@@ -522,8 +519,6 @@ observation routeも退役済み。
 | 変数 | デフォルト | 説明 |
 | --- | --- | --- |
 | `NYASH_JOINIR_DEV` | OFF | DevOnly まとめて ON。 |
-| `NYASH_JOINIR_LOWER_FROM_MIR` | OFF | MIR ベース lowering 切替。 |
-| `NYASH_JOINIR_LOWER_GENERIC` | OFF | 関数名フィルタなし generic lowering。 |
 | `NYASH_JOINIR_MAINLINE_DEBUG` | OFF | Mainline 追加ログ。 |
 | `HAKO_JOINIR_PLANNER_REQUIRED` | OFF | Planner が None を返したとき legacy fallback を禁止する（single-case gate 用、既定OFF）。 |
 | `HAKO_JOINIR_PRINT_TOKENS_MAIN` | OFF | print_tokens main A/B。 |
@@ -573,7 +568,6 @@ env NYASH_FEATURES=stage3 ./target/release/hakorune program.hako
 | `NYASH_VERIFY_RET_PURITY=1` | OFF | Any | return ブロックの純粋性検証 |
 | `NYASH_ME_CALL_ARITY_STRICT=1` | ON (unset) | Any | me.method の header-backed arity 不一致を引数descent前にエラー。`=0` のみ明示的な互換遅延を許可 |
 | `NYASH_MIR_DISABLE_OPT=1` | OFF | Any | MIR Optimizer 全体を無効化（開発/診断用、`src/mir/optimizer.rs`） |
-| `NYASH_MIR_CONCAT3_CANON=1` | OFF | Any | MIR Pass 6.6 の concat3 正規化を有効化（`(a+b)+c` / `a+(b+c)` → `nyash.string.concat3_hhh`）。実験的opt-in。 |
 | `NYASH_TRACE_VARMAP=1` | OFF | Any | `MirBuilder.variable_map` の状態をトレース出力（`[varmap/<tag>] {name=ValueId(..),..}`）。JoinIR loop 統合のデバッグ用。 |
 | `NYASH_DCE_TRACE=1` | OFF | Any | DCE パスが削除した純粋命令を stderr にログ出力（`src/mir/passes/dce.rs`）。 |
 

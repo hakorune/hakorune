@@ -87,7 +87,6 @@ pub(crate) struct StepSyntaxFactsV1 {
 }
 
 impl StepSyntaxFactsV1 {
-
     pub(crate) fn target_site(&self) -> &SourceExprSiteV1 {
         &self.target_site
     }

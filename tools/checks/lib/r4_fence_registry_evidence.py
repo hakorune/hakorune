@@ -70,11 +70,9 @@ def validate_r4_fence_registry(
     for relative, anchor in RETIRED_NORMALIZED_MUTATION_ANCHORS:
         if anchor in (root / relative).read_text():
             raise AssertionError(f"retired normalized mutation anchor remains: {anchor}")
-    require(
-        (
-            root
-            / "src/mir/control_tree/normalized_shadow/dev_pipeline.rs"
-        ).read_text(),
-        "StepTreeDevPipelineBox",
-        "non-mutating normalized-shadow observer",
-    )
+    capability_guard = (
+        root / "src/mir/builder/calls/instance_method_draft_preparation.rs"
+    ).read_text()
+    require(capability_guard, "check_step_tree_capabilities", "source capability guard")
+    if "normalized_shadow" in capability_guard:
+        raise AssertionError("retired normalized shadow remains in source guard")

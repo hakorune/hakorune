@@ -509,35 +509,6 @@ impl ModuleBuilderInvocationSessionV1 {
         Ok(callback(binding))
     }
 
-    pub(in crate::mir) fn prepare_pinned_text_physical_entry_ingress<
-        'session,
-        'loan,
-        'source,
-        'join,
-    >(
-        &'session self,
-        prepared: super::InvocationBranded<
-            crate::mir::compiler::common_v2_physical_function_skeleton::
-                PreparedPhysicalEntrySessionInputV1<'loan, 'source, 'join>,
-        >,
-    ) -> Result<
-        super::pinned_text_invocation_binding::PreparedPinnedTextPhysicalEntryIngressV1<
-            'session,
-            'loan,
-            'source,
-            'join,
-        >,
-        super::pinned_text_invocation_binding::PinnedTextPhysicalEntryIngressRejectV1,
-    > {
-        let binding = self
-            .pinned_text_invocation_binding()
-            .map_err(
-                super::pinned_text_invocation_binding::PinnedTextPhysicalEntryIngressRejectV1::
-                    Invocation,
-            )?;
-        binding.prepare_physical_entry_ingress(prepared)
-    }
-
     pub(in crate::mir) const fn family(&self) -> ModuleInvocationFamilyV1 {
         self.family
     }

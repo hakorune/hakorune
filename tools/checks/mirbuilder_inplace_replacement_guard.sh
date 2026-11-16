@@ -192,8 +192,6 @@ $CALLS_BUILD|struct\\s+PreparedRawFromCallV1\\b|1|opaque prepared raw From route
 $CALLS_BUILD|enum\\s+PreparedRawFromCallRouteV1\\b|1|private raw From route vocabulary
 $CALLS_BUILD|fn\\s+lower_prepared_raw_from_call_with_port_v1\\s*<Port>|1|prepared raw From lowering owner
 $ENUM_MATCH|fn\\s+prepare_raw_enum_variant_header_v1\\s*\\(|1|single raw enum variant classifier
-$ENUM_MATCH|fn\\s+lower_prepared_raw_enum_variant_with_port_v1\\s*<Port>|1|prepared raw enum lowering owner
-$CALLS_BUILD|lower_prepared_raw_enum_variant_with_port_v1\\s*\\(|1|sole prepared raw enum caller
 $RAW_DISPATCH|PreparedRawFromCallV1::prepare\\s*\\(|1|sole raw From route issuer
 $RAW_DISPATCH|lower_prepared_raw_from_call_with_port_v1\\s*\\(|1|sole prepared raw From caller
 EOF
@@ -218,11 +216,6 @@ $INDEXING|enum\\s+PreparedRawIndexReadRouteV1\\b|1|private raw Index-read route 
 $INDEXING|fn\\s+lower_prepared_raw_index_read_with_port_v1\\s*<Port>|1|prepared raw Index-read lowering owner
 $RAW_DISPATCH|PreparedRawIndexReadV1::prepare\\s*\\(|1|sole raw Index-read route issuer
 $RAW_DISPATCH|lower_prepared_raw_index_read_with_port_v1\\s*\\(|1|sole prepared raw Index-read caller
-$ENUM_MATCH|struct\\s+PreparedRawEnumMatchV1\\b|1|opaque prepared raw EnumMatch route
-$ENUM_MATCH|enum\\s+PreparedRawEnumMatchRouteV1\\b|1|private raw EnumMatch route vocabulary
-$ENUM_MATCH|fn\\s+lower_prepared_raw_enum_match_with_port_v1\\s*<Port>|1|prepared raw EnumMatch lowering owner
-$RAW_DISPATCH|PreparedRawEnumMatchV1::prepare\\s*\\(|1|sole raw EnumMatch route issuer
-$RAW_DISPATCH|lower_prepared_raw_enum_match_with_port_v1\\s*\\(|2|sole dispatch owner has both scoped EnumMatch branches
 EOF
 if rg -n 'fn\s+try_build_guard_let_scopebox(?:_with_port_v1)?\s*\(' \
   "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
@@ -730,7 +723,7 @@ if rg -n -F '.clone()' <<<"$match_branch" >/dev/null ||
 fi
 if [[ "$(rg -o '\b(?:callee|arguments|expression|record_type_name|fields|base|updates)\.clone\s*\(' "$RAW_DISPATCH" | wc -l | tr -d '[:space:]')" != "2" ]]; then guard_fail "$TAG" "owned compound expression dispatcher clone count drift"; fi
 python3 "$GENERIC_LEGACY_GUARD" "$GENERIC_LEGACY_MANIFEST" "$ROOT_DIR" "$GENERIC_FRONT_RECEIPT" || guard_fail "$TAG" "Generic legacy corpus/front receipt failed"
-guard_joinir_logical_demand_contract "$ROOT_DIR" "$TAG"; guard_joinir_if_recipe_contract "$ROOT_DIR" "$TAG"; guard_joinir_loop_compile_candidate_scope "$ROOT_DIR" "$TAG"; guard_loop_family_observation_contract "$ROOT_DIR" "$TAG"; guard_generic_g0_observation_contract "$ROOT_DIR" "$TAG"; guard_loop_family_row_context_retention_contract "$ROOT_DIR" "$TAG"; guard_loop_family_window_lease_contract "$ROOT_DIR" "$TAG"; guard_loop_family_admission_contract "$ROOT_DIR" "$TAG"; guard_loop_family_selector_contract "$ROOT_DIR" "$TAG"
+guard_joinir_logical_demand_contract "$ROOT_DIR" "$TAG"; guard_joinir_loop_compile_candidate_scope "$ROOT_DIR" "$TAG"; guard_loop_family_observation_contract "$ROOT_DIR" "$TAG"; guard_generic_g0_observation_contract "$ROOT_DIR" "$TAG"; guard_loop_family_row_context_retention_contract "$ROOT_DIR" "$TAG"; guard_loop_family_window_lease_contract "$ROOT_DIR" "$TAG"; guard_loop_family_admission_contract "$ROOT_DIR" "$TAG"; guard_loop_family_selector_contract "$ROOT_DIR" "$TAG"
 for file in \
   "$LOWERING" \
   "$PORT_OWNER" \

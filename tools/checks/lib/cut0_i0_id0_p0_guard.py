@@ -15,8 +15,6 @@ SRC = ROOT / "src/mir/builder"
 BUILDER = SRC / ".." / "builder.rs"
 CHAIN = SRC / "module_invocation_owner_chain.rs"
 FIXTURE = SRC / "module_invocation_brand_p0.rs"
-COLLECTION = SRC / "module_invocation_collection.rs"
-COLLECT_FIXTURE = SRC / "module_invocation_collect0_s0_p0.rs"
 SESSION = SRC / "module_invocation_session.rs"
 SESSION_FIXTURE = SRC / "module_invocation_session_p0.rs"
 
@@ -37,8 +35,6 @@ def main() -> int:
     for path in (
         CHAIN,
         FIXTURE,
-        COLLECTION,
-        COLLECT_FIXTURE,
         SESSION,
         SESSION_FIXTURE,
         pathlib.Path(__file__),
@@ -72,8 +68,6 @@ def main() -> int:
     allowed = {
         CHAIN.relative_to(ROOT),
         FIXTURE.relative_to(ROOT),
-        COLLECTION.relative_to(ROOT),
-        COLLECT_FIXTURE.relative_to(ROOT),
         SESSION.relative_to(ROOT),
         SESSION_FIXTURE.relative_to(ROOT),
         BUILDER.resolve().relative_to(ROOT),

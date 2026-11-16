@@ -140,8 +140,8 @@ fn sorted_instruction_debug(builder: &MirBuilder) -> Vec<String> {
 fn collect_seed(invocation: &mut ModuleLoweringInvocationV1<'_>, symbol: &str) {
     invocation
         .with_module_port(|builder, port| {
-            let pending =
-                port.capture_legacy_pending(builder, symbol, Vec::new(), None, |_| Ok(draft(symbol)))?;
+            let pending = port
+                .capture_legacy_pending(builder, symbol, Vec::new(), None, |_| Ok(draft(symbol)))?;
             port.commit_legacy_pending(
                 pending,
                 LegacyChildDraftAdmissionV1::legacy_symbol(symbol.into(), 0),
@@ -181,7 +181,9 @@ fn pending_capture_ends_before_header_loan_and_commit() {
     invocation
         .with_module_port(|builder, port| {
             let pending = port
-                .capture_legacy_pending(builder, "inner/0", Vec::new(), None, |_| Ok(draft("inner/0")))
+                .capture_legacy_pending(builder, "inner/0", Vec::new(), None, |_| {
+                    Ok(draft("inner/0"))
+                })
                 .unwrap();
 
             port.with_headers(|headers| {
@@ -220,7 +222,9 @@ fn rejected_commit_restores_parent_without_collector_delta() {
 
     let result = invocation.with_module_port(|builder, port| {
         let pending = port
-            .capture_legacy_pending(builder, "inner/0", Vec::new(), None, |_| Ok(draft("inner/0")))
+            .capture_legacy_pending(builder, "inner/0", Vec::new(), None, |_| {
+                Ok(draft("inner/0"))
+            })
             .unwrap();
         port.commit_legacy_pending(
             pending,
@@ -298,9 +302,10 @@ fn raw_capture_commit_failure_matrix_preserves_prefix_and_reuse() {
     assert_parent_and_prefix(&mut invocation, &["prefix/0"]);
 
     let admission = invocation.with_module_port(|builder, port| {
-        let pending = port.capture_legacy_pending(builder, "admission/0", Vec::new(), None, |_| {
-            Ok(draft("admission/0"))
-        })?;
+        let pending =
+            port.capture_legacy_pending(builder, "admission/0", Vec::new(), None, |_| {
+                Ok(draft("admission/0"))
+            })?;
         port.commit_legacy_pending(
             pending,
             LegacyChildDraftAdmissionV1::legacy_symbol("wrong/0".into(), 0),
@@ -421,6 +426,12 @@ fn port_aware_capture_failure_restores_parent_without_collection() {
 
 #[test]
 fn located_enum_match_lowers_only_the_exact_scrutinee_and_keeps_result_shape() {
+    use super::raw_structured_child_scope::{
+        PreparedRawChildSourceV1, RawStructuredChildScopePortV1,
+    };
+    use super::recursive_child_lowering::RecursiveChildLoweringPortV1;
+    use crate::mir::resolved_semantics::{ExprChildRoleV1, SourcePathSegmentV1, SourcePathV1};
+
     let mut builder = MirBuilder::new();
     let mut invocation = seeded(&mut builder);
     let enum_match = || ASTNode::EnumMatchExpr {
@@ -459,60 +470,151 @@ fn located_enum_match_lowers_only_the_exact_scrutinee_and_keeps_result_shape() {
         span: Span::unknown(),
     };
 
+    // F19 retired the whole raw EnumMatch writer. Preserve its live source
+    // responsibility at the exact child-transport owner, without reopening it.
+    let original_scrutinee = match enum_match() {
+        ASTNode::EnumMatchExpr { scrutinee, .. } => *scrutinee,
+        _ => unreachable!(),
+    };
     let result = invocation
         .with_module_port(|builder, module_port| {
             let mut port = RawInvocationChildPortV1::new(module_port);
-            port.with_source_transport_v1(
+            let outer = port.current_source_context_v1();
+            let result = port.with_source_transport_v1(
                 RawInvocationSourceTransportV1::root(
                     enum_match(),
                     RawInvocationRootLineageV1::ScriptRoot,
                 ),
-                |port, enum_match| drive_legacy_expression_v1(builder, port, enum_match),
-            )
+                |port, parent| {
+                    let parent_context = port.current_source_context_v1();
+                    let source = port.prepare_expression_child_source_v1(
+                        &parent,
+                        ExprChildRoleV1::EnumMatchScrutinee,
+                    )?;
+                    let PreparedRawChildSourceV1::Exact(context) = &source else {
+                        panic!("enum scrutinee must keep its exact original source");
+                    };
+                    assert_eq!(
+                        context.site(),
+                        Some(
+                            &SourcePathV1::function_body()
+                                .child(SourcePathSegmentV1::EnumMatchScrutinee)
+                                .node()
+                        ),
+                    );
+                    assert_eq!(
+                        context.root_lineage(),
+                        Some(&RawInvocationRootLineageV1::ScriptRoot)
+                    );
+                    assert!(port
+                        .prepare_expression_child_source_v1(
+                            &parent,
+                            ExprChildRoleV1::MatchScrutinee,
+                        )
+                        .unwrap_err()
+                        .contains("[raw-invocation/expr-child-role]"));
+                    let ASTNode::EnumMatchExpr { scrutinee, .. } = parent else {
+                        unreachable!();
+                    };
+                    assert_eq!(*scrutinee, original_scrutinee);
+                    let mut scoped =
+                        RawStructuredChildScopePortV1::new(port, vec![source], Vec::new());
+                    let value = scoped.lower_expression(builder, *scrutinee)?;
+                    let before_overflow = format!("{:?}", builder.function_state.current_function);
+                    assert_eq!(
+                        scoped
+                            .lower_expression(builder, original_scrutinee.clone())
+                            .unwrap_err(),
+                        "[freeze:contract][raw-structured/expression-demand-overflow]",
+                    );
+                    assert_eq!(
+                        format!("{:?}", builder.function_state.current_function),
+                        before_overflow
+                    );
+                    scoped.complete_exact_demands_v1()?;
+                    assert_eq!(port.current_source_context_v1(), parent_context);
+                    Ok::<_, String>(value)
+                },
+            );
+            assert_eq!(port.current_source_context_v1(), outer);
+            result
         })
-        .expect("located EnumMatch");
-
-    let selected_instructions = invocation.with_header_port(|builder, _headers| {
+        .expect("located original EnumMatch scrutinee transport");
+    let selected_instructions = invocation.with_header_port(|builder, _| {
         builder
             .function_state
             .current_function
             .as_ref()
-            .expect("current function")
+            .unwrap()
             .blocks[&BasicBlockId::new(0)]
             .instructions
             .clone()
     });
-    assert!(selected_instructions
-        .iter()
-        .any(|row| matches!(row, MirInstruction::BinOp { .. })));
-    assert!(selected_instructions
-        .iter()
-        .any(|row| matches!(row, MirInstruction::VariantTag { .. })));
-    assert!(selected_instructions
-        .iter()
-        .any(|row| matches!(row, MirInstruction::Select { dst, .. } if *dst == result)));
+    assert_eq!(selected_instructions.iter().filter(|row| {
+        matches!(row, MirInstruction::BinOp { dst, op: crate::mir::types::BinaryOp::Add, .. } if *dst == result)
+    }).count(), 1);
+    assert!(
+        !selected_instructions.iter().any(|row| matches!(
+            row,
+            MirInstruction::VariantTag { .. }
+                | MirInstruction::Select { .. }
+                | MirInstruction::Const {
+                    value: crate::mir::ConstValue::Bool(_),
+                    ..
+                }
+        )),
+        "enum arms and retired parent completion must not execute as children"
+    );
 
-    // The selected scope carries exactly one receipt. Success therefore also
-    // proves that Enum arm/else syntax was observed only by the unchanged
-    // completion owner and never requested as a recursive child.
-    let mut legacy_builder = MirBuilder::new();
-    legacy_builder.enter_function_for_test("reentrant_parent/0".to_owned());
-    let legacy_result = drive_legacy_expression_v1(
-        &mut legacy_builder,
+    // The current child result and instruction sequence remain exactly equal
+    // to the same original expression lowered directly, not an enum oracle.
+    let mut direct = MirBuilder::new();
+    direct.enter_function_for_test("reentrant_parent/0".to_owned());
+    let direct_result = drive_legacy_expression_v1(
+        &mut direct,
         &mut RawLegacyChildLoweringPortV1,
-        enum_match(),
+        original_scrutinee,
     )
-    .expect("legacy EnumMatch oracle");
-    let legacy_instructions = legacy_builder
-        .function_state
-        .current_function
-        .as_ref()
-        .expect("legacy current function")
-        .blocks[&BasicBlockId::new(0)]
-        .instructions
-        .clone();
-    assert_eq!(result, legacy_result);
-    assert_eq!(selected_instructions, legacy_instructions);
+    .expect("current original scrutinee oracle");
+    assert_eq!(result, direct_result);
+    assert_eq!(
+        selected_instructions,
+        direct
+            .function_state
+            .current_function
+            .as_ref()
+            .unwrap()
+            .blocks[&BasicBlockId::new(0)]
+            .instructions
+    );
+
+    // A selected retired parent refuses before any recursive evaluation and
+    // restores the source scope. It cannot retry the child or legacy writer.
+    invocation.with_module_port(|builder, module_port| {
+        let before = format!("{:?}", builder.function_state.current_function);
+        let mut port = RawInvocationChildPortV1::new(module_port);
+        let outer = port.current_source_context_v1();
+        let error = port
+            .with_source_transport_v1(
+                RawInvocationSourceTransportV1::root(
+                    enum_match(),
+                    RawInvocationRootLineageV1::ScriptRoot,
+                ),
+                |port, parent| drive_legacy_expression_v1(builder, port, parent),
+            )
+            .unwrap_err();
+        assert!(
+            error.starts_with("Unsupported AST node type: EnumMatchExpr {"),
+            "{error}"
+        );
+        assert_eq!(
+            format!("{:?}", builder.function_state.current_function),
+            before
+        );
+        assert_eq!(port.current_source_context_v1(), outer);
+    });
+    // Actual enum payload/result shape is protected by the current JSON-v0
+    // sum_lane test (one VariantTag, exact Integer projection, PHI, no Box).
 }
 
 #[test]

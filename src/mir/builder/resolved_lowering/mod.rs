@@ -9,16 +9,6 @@ mod callable_module_transaction;
 pub(in crate::mir::builder) mod canonical_cfg;
 mod canonical_compare_writer;
 pub(in crate::mir) mod canonical_ssa;
-mod common_v2_after_block_allocation;
-mod common_v2_if_continuation_target;
-#[cfg(test)]
-mod common_v2_s6c_observation_fixture;
-mod common_v2_s6c_substring_callout_admission;
-mod common_v2_s6c_text_content_root_admission;
-mod common_v2_s6c_text_cursor_preheader;
-mod common_v2_s6c_textref_entry_bridge;
-mod common_v2_segment_block_allocation;
-mod common_v2_session;
 mod completion_consumption;
 mod direct_accum_adapter;
 mod direct_accum_lowerer;
@@ -36,17 +26,11 @@ mod generic_g0_physical_emitter_session;
 mod identity;
 pub(in crate::mir::builder) mod if_cfg_ready_bridge;
 mod if_materialization;
-mod if_recipe_adapter;
 mod located_if;
 mod lowerer;
 mod nested_predicate_adapter;
 mod nested_predicate_lowerer;
 mod nested_predicate_physicalizer;
-mod physical_entry_lane_adoption;
-mod physical_entry_session;
-mod selected_dynamic_physical_abi;
-mod selected_dynamic_physical_capability;
-mod selected_dynamic_physical_emitter;
 mod semantic_stack;
 mod static_loop_body;
 mod static_loop_body_exit;
@@ -60,48 +44,7 @@ mod trivial_ssa;
 pub(in crate::mir) use callable_module_transaction::{
     CallableModuleTransactionErrorV1, VerifiedUnpublishedCallableDraftSetV1,
 };
-pub(in crate::mir::builder) use common_v2_s6c_text_content_root_admission::{
-    issue_common_v2_s6c_text_content_root_admission_v1,
-    CommonV2S6CTextContentRootAdmissionRejectV1, CommonV2S6CTextContentRootAdmissionV1,
-    CommonV2S6CTextContentRootRoleV1, CommonV2S6CTextContentRootRowV1,
-};
-pub(in crate::mir::builder) use common_v2_s6c_text_cursor_preheader::issue_common_v2_s6c_text_cursor_preheader_v1;
-#[cfg(test)]
-pub(in crate::mir::builder) use common_v2_s6c_text_cursor_preheader::CommonV2S6CTextCursorPreheaderRejectV1;
-#[cfg(test)]
-pub(in crate::mir) use common_v2_session::with_common_v2_canonical_session;
-#[cfg(test)]
-pub(in crate::mir::builder) use common_v2_session::{
-    issue_common_v2_s6c_text_scalar_equality_leaf_v1, CommonV2S6CTextScalarEqualityLeafShapeV1,
-};
-pub(in crate::mir::builder) use loop_recipe_physicalizer::{
-    lower_callable_single_loop_function_draft_v1, lower_main0_continue_function_draft_v1,
-    lower_main0_derived_predicate_function_draft_v1, lower_main0_in_body_step_function_draft_v1,
-};
-#[cfg(test)]
-pub(in crate::mir::builder) use physical_entry_draftseal::with_common_v2_s6c_physical_entry_draft_seal;
-#[cfg(test)]
-pub(in crate::mir::builder) use physical_entry_draftseal::with_common_v2_s6c_pinned_text_physical_entry_draft_seal;
-#[cfg(test)]
-pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session;
-#[cfg(test)]
-pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session_expected_brand;
-#[cfg(test)]
-pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session_with_s6c_effects;
-#[cfg(test)]
-pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session_with_s6c_loan;
-pub(in crate::mir) use selected_dynamic_physical_abi::{
-    issue_selected_dynamic_v2_emission_plan, DynamicV2PhysicalScheduleSegmentV1,
-};
-#[cfg(test)]
-pub(in crate::mir) use selected_dynamic_physical_capability::issue_selected_dynamic_v2_physical_capability_admission;
-pub(in crate::mir::builder) use selected_dynamic_physical_capability::issue_selected_dynamic_v2_physical_capability_admission_from_brand;
-#[cfg(test)]
-pub(in crate::mir) use selected_dynamic_physical_capability::{
-    DynamicV2PhysicalCapabilityDispositionV1, DynamicV2PhysicalRepresentationV1,
-    DynamicV2ProducerFamilyV1, SelectedDynamicV2PhysicalCapabilityRejectV1,
-};
-pub(in crate::mir::builder) use selected_dynamic_physical_emitter::assemble_unpublished_selected_dynamic_w6_from_parts;
+pub(in crate::mir::builder) use loop_recipe_physicalizer::lower_callable_single_loop_function_draft_v1;
 pub(in crate::mir::builder) use static_loop_entry_session::{
     prepare_selected_static_loop_entry_v1, PreparedSelectedStaticLoopEntryV1,
 };
@@ -109,18 +52,6 @@ pub(in crate::mir) use static_loop_publication::SelectedStaticLoopPublicationBat
 
 #[cfg(test)]
 mod block_expr_tests;
-#[cfg(test)]
-mod common_v2_condition_bool_tests;
-#[cfg(test)]
-mod common_v2_if_continuation_target_tests;
-#[cfg(test)]
-mod common_v2_initial_index_seed_tests;
-#[cfg(test)]
-mod common_v2_return_read_tests;
-#[cfg(test)]
-mod common_v2_s6c_cursor_cfg_tests;
-#[cfg(test)]
-mod common_v2_s6c_operand_issuer_tests;
 #[cfg(test)]
 mod completion_consumption_tests;
 #[cfg(test)]
@@ -149,10 +80,6 @@ mod null_tests;
 #[cfg(test)]
 mod parameter_tests;
 #[cfg(test)]
-mod physical_entry_draftseal;
-#[cfg(test)]
-mod physical_entry_lane_adoption_tests;
-#[cfg(test)]
 mod return_tests;
 #[cfg(test)]
 mod semantic_stack_tests;
@@ -175,7 +102,6 @@ use super::calls::{
 use super::MirBuilder;
 use direct_accum_lowerer::CanonicalDirectAccumSsaLowererV1;
 use draft_seal_owner::{FunctionDraftSealStageV1, RejectedFunctionDraftSealV1};
-use if_recipe_adapter::{admit_trivial_if_recipe_v1, produce_trivial_if_physical_input_v1};
 use lowerer::CanonicalFunctionLowererV1;
 use trivial_ssa::{install_trivial_callable_abi_v1, CanonicalTrivialSsaLowererV1};
 

@@ -25,8 +25,6 @@ Scope: `src/mir/` の crate split を始める前の boundary inventory と entr
 - `hakorune_mir_joinir` package: `join_ir/ownership/types.rs`
 - `src/mir/join_ir/ownership/analyzer/` now groups the ProgramJSON analysis
   core as `mod.rs` / `core.rs` / `node_analysis.rs`
-- `src/mir/passes/concat3_canonicalize/analysis/` now groups
-  `stringish.rs` / `def_use.rs` behind the analysis facade
 - `compilation_context.rs` is parked: mixed ownership (`ASTNode` / `FunctionSlotRegistry` / `TypeRegistry`)
 - `src/mir/types.rs` and `src/mir/value_id.rs` are thin re-export wrappers
 - `src/mir/value_kind.rs` is a thin re-export wrapper
@@ -140,14 +138,10 @@ Current status:
 
 - docs-first only; no crate move yet
 - `callsite_canonicalize.rs` still couples to AST/closure-body metadata
-- `cse.rs`, `dce.rs`, and `escape.rs` still assume the main MIR surface/layout
+- `cse.rs` and `dce.rs` still assume the main MIR surface/layout
 - `rc_insertion.rs` / `rc_insertion_helpers.rs` still depend on AST, runtime,
   and config/env seams
-- `concat3_canonicalize/` is the only plausible future extraction candidate,
-  but it still depends on the same MIR surface for now
-- next safe cleanup is not packaging:
-  already landed: `concat3_canonicalize/analysis/` now splits `stringish.rs`
-  and `def_use.rs` behind the current facade
+- optional concat3 and VM barrier-elision passes were retired in cleanup 5; they are no longer extraction candidates
 
 ### Shared policy surface
 

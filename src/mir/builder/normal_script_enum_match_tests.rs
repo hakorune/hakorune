@@ -83,23 +83,3 @@ fn direct_enum_match_seals_only_its_scrutinee_receipt() {
         ]
     );
 }
-
-#[test]
-fn direct_enum_match_selected_pipeline_matches_legacy() {
-    let program = source();
-    let legacy_error = MirCompiler::with_options(false)
-        .compile_with_source(program.clone(), Some("script-enum-match.hako"))
-        .expect_err("legacy EnumMatch stays on the unsupported-declaration boundary");
-    assert!(legacy_error.contains("EnumDeclaration"), "{legacy_error}");
-    let normal_error = MirCompiler::with_options(false)
-        .compile_normal(
-            NormalCompileRequestV1::for_mir_mode(
-                program,
-                Some("script-enum-match.hako"),
-                std::collections::HashMap::new(),
-            )
-            .expect("normal request"),
-        )
-        .expect_err("selected EnumMatch stays on the unsupported-declaration boundary");
-    assert!(normal_error.contains("EnumDeclaration"), "{normal_error}");
-}

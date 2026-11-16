@@ -1,7 +1,7 @@
-//! Neutral contracts shared by the explicit Raw VM-reference runner and MIR.
+//! Compile-profile and request carriers for source-bound raw ingress.
 //!
-//! The runner selects these profiles once.  Compiler and execution owners
-//! consume the resulting requests; neither layer reconstructs NarrowV1 policy.
+//! Source, import and callable-main policies are selected once and travel
+//! with the AST to the current compiler-owned raw boundary.
 
 use crate::ast::ASTNode;
 
@@ -90,63 +90,5 @@ impl RawPublishedCompileRequestV1 {
             module_name: module_name.into(),
             profile,
         }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum RawVmReferenceExecutionProfileV1 {
-    CanonicalV1,
-}
-
-/// The closed downstream profile shared by supported Raw consumers.
-///
-/// This owner keeps compile and execution policy paired until a source owner
-/// has produced one exact AST. Consumers may issue an invocation from it, but
-/// may not reconstruct NarrowV1, entry, VM freshness, or process policy.
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) struct RawVmReferenceSupportProfileV1 {
-    compile: RawPublishedCompileProfileV1,
-    execution: RawVmReferenceExecutionProfileV1,
-}
-
-impl RawVmReferenceSupportProfileV1 {
-    pub(crate) const fn canonical_v1() -> Self {
-        Self {
-            compile: RawPublishedCompileProfileV1::narrow_v1(),
-            execution: RawVmReferenceExecutionProfileV1::CanonicalV1,
-        }
-    }
-
-    pub(crate) fn into_invocation(
-        self,
-        ast: ASTNode,
-        source_file: Option<Box<str>>,
-    ) -> RawVmReferenceInvocationV1 {
-        RawVmReferenceInvocationV1::new(
-            RawPublishedCompileRequestV1::new(ast, source_file, "main", self.compile),
-            self.execution,
-        )
-    }
-}
-
-#[derive(Debug)]
-pub(crate) struct RawVmReferenceInvocationV1 {
-    pub(crate) compile: RawPublishedCompileRequestV1,
-    pub(crate) execution: RawVmReferenceExecutionProfileV1,
-}
-
-impl RawVmReferenceInvocationV1 {
-    pub(crate) fn narrow_v1(ast: ASTNode, source_file: Option<&str>) -> Self {
-        RawVmReferenceSupportProfileV1::canonical_v1().into_invocation(
-            ast,
-            source_file.map(str::to_owned).map(String::into_boxed_str),
-        )
-    }
-
-    pub(crate) fn new(
-        compile: RawPublishedCompileRequestV1,
-        execution: RawVmReferenceExecutionProfileV1,
-    ) -> Self {
-        Self { compile, execution }
     }
 }
