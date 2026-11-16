@@ -546,3 +546,26 @@ F03の十本は旧advisory classifier自体のtestで、残る一本はdev parit
 - 確かめた事(Opus): 今の source から作り直した binary で、手元の 393 入力の結果と MIR が Round 5 と同じ。parser・AST・`MirInstruction` の定義に差が無い。stash は 2 つのまま。binary の SHA は、worker の段 A の時の値と一致しなかった(実験の build の後の作り直し。段 A の後の差は文書だけ)。
 - worker の log で読んだ事: 段 A の時、固定 5,386 入力の差 0、lib は 8,359 PASS / 205 FAIL / 52 ignored で、赤の名前は Round 5 と同じ。
 
+
+## お掃除7 段1-a: 二つの道と照合の時点（基点5c323061fc）
+
+数は以下で列挙した境界に限る。同じ関係を再確認する回数であり、安全検査の不要数ではない。
+F22は既存API二本のhelper定義一つを単位とする（bound 0/1/3は同じ道）。
+- 意味: `compiler/callable_single_loop_syntax_facts.rs:315`でownerと唯一のLoop、`callable_single_loop_source_map.rs:274`でorigin・frame・binding、`callable_single_loop_recipe_coseal.rs:261`でroleとRecipe/JoinSigを確定。
+- 意味/再確認: `builder/normal_callable_semantic_source.rs:297`、`normal_callable_prepared_operation.rs:112`、`normal_callable_semantic_loan_port.rs:163`で同じcontext/signatureを照合。
+- 作成/再確認: `builder/resolved_lowering/loop_recipe_physicalizer/callable_canary.rs:163`でheader/bindingを照合してprelude、`tail_completion.rs:183`でowner/binding/read siteを照合してtailを作る。以上の再確認境界は8。
+- 中継は3境界: loan portの`root_capture.rs:68`、operation programの`into_parts`、`normal_cataloged_box_method_lowering.rs`のsession/admission受渡し。検査を行うconstructorは中継に数えない。
+- 別collectionからの再検索は5境界: forest→source ledger、syntax→resolved loop、source→forest ledger、operation context→only loop、prelude→header indexとfunction binding。
+- 作成順は`callable_lowerer.rs:160–239`のprelude→loop→tail/session終了。source/context照合はCFG完成前、最後の独立検証は`compiler/normal_default_pipeline.rs:657`で完成したmoduleを読む。
+
+boxtorrentは`BoxTorrentStore.release`（main.hako:100–113）のCall由来localを読む経路を追った。
+- 意味: `resolved_semantics/home_prefix_scalar.rs`でその時点のbinding/site/producerを決め、`home_new_prefix_condition.rs:691`がOriginal scalar referenceを保持する。
+- 入口: `builder/raw_invocation_source_transport/bool_condition.rs:239`→`ordinary_new_local_commit/root_call_entry/expression_reference_read.rs:179`のprepare→同fileのscalar arm→`expression_reference_source.rs:8`。
+- 元定義: `expression_scalar_origin.rs:5`→`ordinary_new_local_commit/call_validation_context.rs:605`で原本Call/siteと唯一の既存groupを照合、`materialized_values.rs`のCopy-chain loanへ渡す。
+- このexpression prepare成功一回でinitializer照合3回（producer作成、producer検証、source検証）。各回で同じsource rowを二度引くためsource検索/比較6回、元group検索とCopy-chain照合は各3回。packet内部と後続再検証は数に含めない。
+- 純粋な中継はこの範囲で1境界（scalar observation→with-branchesの委譲）。Copy-chainのloanは検査があるため中継に数えない。
+- prepareはその式の命令発行前、親のbranch/PHIが未完成の時点で走る。依存列は初期化式の早期censusにも使う。照合を一行後ろへ移すだけでは済まない。
+- 完成後の既存フックはexpression readのfinished dependencies、groupのfinishing検証、最終strict verifier。sourceの束縛・期待定義・Call契約は早期に残し、物理同値性だけをここへ移せるかを段2で調べる。
+- 重要: 基点の`home_new_prefix_terminal.rs:527–532`はCallをplain returnのoriginal readから除外する。`return remain`で強い照合が走って壊れたのはお掃除6の試作であり、現行のreturn経路として数えない。F22の専用道も、この共通Copy照合とは別。
+
+段1-bの規則: 実CFG・SSA一意性・支配を検査した不変な関数で、i64の実定義を基点にCopyと循環のないPHIの全incomingをたどる。同じ／別の基点／未解決を区別し、Box・token・借用・heap読取・loopの循環へ拡張しない。段1ではtest以外から呼ばない。
