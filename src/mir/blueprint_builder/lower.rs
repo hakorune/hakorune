@@ -104,6 +104,11 @@ pub(super) fn module(source: &ResolvedModule) -> Result<Vec<Draft>, String> {
                 },
             };
             let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+            // The existing EXE serializer/backend reserves physical value 0 for
+            // an absent operand. Source binding ordinals remain zero-based.
+            let parameter_count = declaration.parameters.len() as u32;
+            function.params = (1..=parameter_count).map(ValueId::new).collect();
+            function.next_value_id = parameter_count + 1;
             function.metadata.is_entry_point = declaration.id == source.entry;
             let mut environment = Environment::new();
             for (index, (&value, (_, ty))) in function

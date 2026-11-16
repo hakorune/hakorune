@@ -29,3 +29,7 @@ Resolveが型付き束縛、3種類の静的呼び出し、複合代入、if、�
 対応検証はResolvedFunctionから期待を読み、完成MIRの実cursorを歩いて全命令を一度ずつ確認する。ifの両枝、短絡のRHS/skip、loopの初期/戻り/continue/step/breakを分け、Phiは実際の終端blockとsourceから導いた値の全incomingを照合する。単純な命令数の一致では通さない。
 
 focused確認: 正負のResolve、指定8種類のMIR改変拒否、入れ子control/Phiとshadowed outer bindingの保持を確認（3test、全PASS）。8改変のうち7種類は既存の構造検証も通るMIRのまま、対応検証が拒否。loop戻りの付替えは対応検証を直接呼んで拒否を確認した。EXEの広い比較はこの後に行う。
+
+## EXE比較で見つかった物理境界
+
+既存C backendはValueId 0を未指定operandとして扱うため、新builderの物理IDは全関数で1から割り当てる。sourceの束縛ordinalは0始まりのまま。引数番号と物理IDは同一視しない。この修正後、手計算47入力中43入力でEXEの出力とexitが一致し、fib/引数返却の誤動作は解消。残り4入力はBool formalのi64→i1 ABI変換不足と、generic backendがUnary Negを受けない点。まだ全範囲の成功とは数えない。focusedの3test（8種類の改変拒否を含む）は全PASS。
