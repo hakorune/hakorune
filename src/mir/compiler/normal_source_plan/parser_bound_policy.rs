@@ -36,15 +36,6 @@ enum ParserBoundNormalSourcePlanDecisionV1 {
 }
 
 impl NormalSourcePlanClassifierV1 {
-    pub(crate) fn reject_parser_bound(
-        source: SourcePlanBoundNormalCallableSourceV1,
-        error: NormalSourcePlanErrorV1,
-    ) -> RejectedNormalSourcePlanV1 {
-        RejectedNormalSourcePlanV1::from_owner(
-            NormalSourcePlanOwnerV1::from_parser_bound_rejected(source),
-            error,
-        )
-    }
 
     pub(crate) fn seal_parser_bound(
         source: SourcePlanBoundNormalCallableSourceV1,

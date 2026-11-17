@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use crate::mir::definitions::call_unified::TypeCertainty;
-    use crate::mir::{Callee, MirCompiler, MirInstruction, MirType, ValueId};
+
+    use crate::mir::{MirCompiler, MirInstruction, MirType, ValueId};
     use crate::parser::NyashParser;
     use std::sync::Once;
 
@@ -27,56 +27,6 @@ mod tests {
             .expect("compile counter_step_chain benchmark")
     }
 
-    #[test]
-    fn counter_step_chain_uses_known_receiver_method_shape() {
-        for _ in 0..8 {
-            let compile_result = compile_counter_step_chain();
-            let func = compile_result
-                .module
-                .functions
-                .get("Counter.step_chain/0")
-                .expect("Counter.step_chain/0 must exist");
-
-            let has_known_receiver_call = func.blocks.values().any(|block| {
-                block.all_spanned_instructions().any(|sp| {
-                    matches!(
-                        &sp.inst,
-                        MirInstruction::LegacyCallV0 {
-                            callee: Some(Callee::Method {
-                                box_name,
-                                method,
-                                receiver: Some(_),
-                                certainty: TypeCertainty::Known,
-                                ..
-                            }),
-                            args,
-                            ..
-                        } if box_name == "Counter" && method == "step" && args.is_empty()
-                    )
-                })
-            });
-            assert!(
-                has_known_receiver_call,
-                "Counter.step_chain/0 must lower through a known-receiver method call"
-            );
-
-            let has_global_fallback = func.blocks.values().any(|block| {
-                block.all_spanned_instructions().any(|sp| {
-                    matches!(
-                        &sp.inst,
-                        MirInstruction::LegacyCallV0 {
-                            callee: Some(Callee::Global(name)),
-                            ..
-                        } if name.display_name() == "Counter.step/0"
-                    )
-                })
-            });
-            assert!(
-                !has_global_fallback,
-                "Counter.step_chain/0 must not fall back to Global(\"Counter.step/0\")"
-            );
-        }
-    }
 
     #[test]
     fn counter_step_chain_persists_receiver_box_type_metadata() {

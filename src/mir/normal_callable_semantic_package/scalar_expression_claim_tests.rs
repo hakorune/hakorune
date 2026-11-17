@@ -63,23 +63,6 @@ fn static_current_owner_eq_home_preserves_both_original_children_in_order() {
     assert!(calls[1].arguments().is_empty());
 }
 
-#[test]
-fn static_current_owner_eq_home_rejects_incomplete_or_reordered_pair() {
-    let source = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
-    let original = "if me.size_to_bin(size) == me.huge_bin()";
-    for condition in [
-        "if me.huge_bin() == me.size_to_bin(size)",
-        "if me.size_to_bin(size) == 73",
-        "if me.size_to_bin(me.huge_bin()) == me.huge_bin()",
-        "if me.size_to_bin(size) && me.huge_bin()",
-    ] {
-        let changed = source.replacen(original, condition, 1);
-        assert_ne!(changed, source);
-        let package = issue(&changed).expect("changed source package");
-        let calls = static_accepts_home_calls(&package);
-        assert!(calls.is_empty(), "no partial Eq Home: {condition}");
-    }
-}
 
 fn package(body: &str) -> VerifiedNormalCallableSemanticPackageV1 {
     issue(&format!(

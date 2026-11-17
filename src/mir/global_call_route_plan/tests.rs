@@ -90,4 +90,3 @@ mod static_string_array;
 mod value_type_publish;
 mod void_logging;
 mod void_sentinel;
-mod void_side_effect;

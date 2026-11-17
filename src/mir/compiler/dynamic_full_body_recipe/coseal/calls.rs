@@ -75,22 +75,7 @@ impl VerifiedDynamicFullLoopCallRelationsV2 {
             .map(|row| row.item)
     }
 
-    pub(in crate::mir::compiler::dynamic_full_body_recipe::coseal) fn target_for_item(
-        &self,
-        item: LoopItemKeyV1,
-    ) -> Option<&VerifiedSourceBoundDynamicMemberCallV1> {
-        self.rows
-            .iter()
-            .find(|row| row.item == item)
-            .map(|row| &row.target)
-    }
 
-    pub(in crate::mir::compiler::dynamic_full_body_recipe::coseal) fn relation_for_item(
-        &self,
-        item: LoopItemKeyV1,
-    ) -> Option<&DynamicFullLoopCallRelationV2> {
-        self.rows.iter().find(|row| row.item == item)
-    }
 }
 
 pub(super) fn verify_dynamic_call_relations_v2(

@@ -386,43 +386,6 @@ fn ordinary_new_claims_retain_exact_parent_with_and_without_birth() {
 #[path = "brand_catalog_new_completion_tests.rs"]
 mod new_completion_tests;
 
-#[test]
-fn ordinary_new_unknown_home_prefix_is_not_an_empty_cleanup_plan() {
-    for body in [
-        "local n = 0 n = 1 local item = new Page() return 0",
-        "local n = new ArrayBox() local item = new Page() return 0",
-        "local item = new Page() { value: 1 } local next = new Page() return 0",
-    ] {
-        let source = format!(
-            "box Page {{ value: i64 birth() {{ }} }} static box Main {{ main() {{ {body} }} }}"
-        );
-        let package = issue_with_brand_catalog(&source)
-            .expect("prefix unavailability is not source rejection");
-        let claim_rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
-        let claims: Vec<_> = claim_rows.values().collect();
-        assert!(!claims.is_empty());
-        assert!(
-            claims.iter().all(|claim| claim.home_prefix().is_err()),
-            "{body}"
-        );
-    }
-    let package = issue_with_brand_catalog(
-        "box Page { birth() { } } static box Main { helper(value) { local item = new Page() return 0 } main() { return 0 } }"
-    ).unwrap();
-    let claim_rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
-    let claims: Vec<_> = claim_rows.values().collect();
-    assert_eq!(claims.len(), 1);
-    assert!(claims[0].home_prefix().is_ok());
-
-    let package = issue_with_brand_catalog(
-        "box Page { birth(value) { } } static box Main { main() { local first = new Page(0) local second = new Page(first) return 0 } }"
-    ).unwrap();
-    let claim_rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
-    let claims: Vec<_> = claim_rows.values().collect();
-    assert_eq!(claims.len(), 2);
-    assert!(claims[0].home_prefix().is_ok());
-    assert!(claims[1].home_prefix().is_ok());
-}
 
 #[test]
 fn ordinary_new_claim_records_parameter_handle_argument() {

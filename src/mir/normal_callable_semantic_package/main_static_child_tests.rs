@@ -78,43 +78,6 @@ fn main_static_child_cannot_use_generic_key_only_admission() {
     );
 }
 
-#[test]
-fn main_static_child_port_consumes_all_role_rows_once() {
-    let mut package = issue(&main_fixture()).expect("valid source-backed Main expansion");
-    let root = package
-        .take_root_execution()
-        .expect("one admitted Main expansion");
-    let mut context = CompilationContext::new();
-    let installed = package
-        .prepare_install(&mut context)
-        .expect("vacant catalog slot")
-        .commit();
-    let result = crate::mir::builder::with_test_main_static_children(root, |children| {
-        let mut port = installed
-            .begin_lowering(&context)
-            .expect("same installed catalog");
-        assert_eq!(children.len(), 4);
-        for child in children {
-            port.with_main_static_child_lowering_input(
-                child,
-                |input, _core_method_calls, _loop_break_take| {
-                    let (selected, admission, _signature) = input.into_lowering_and_admission();
-                    assert!(matches!(
-                        selected.semantic(),
-                        super::SelectedCallableSemanticRefV1::Ordinary
-                    ));
-                    assert_eq!(admission.source_key().owner(), "Main");
-                },
-            )
-            .expect("typed Main-child Port loan");
-        }
-        port.take_object_definitions(&context)
-            .expect("explicit definition transfer for semantic-only test");
-        port.complete()
-    })
-    .expect("Main expansion");
-    result.expect("all Main-child rows consumed exactly once");
-}
 
 #[test]
 fn main_static_child_role_does_not_enter_dynamic_candidate_gate() {

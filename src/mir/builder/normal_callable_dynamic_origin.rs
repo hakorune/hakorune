@@ -229,9 +229,6 @@ impl CallableDynamicOriginLoweringStateV1 {
         &self.source
     }
 
-    pub(super) fn current_binding(&self, binding: BindingRefV1) -> Option<(ValueId, BindingRefV1)> {
-        self.active_origins.get(&binding).copied()
-    }
 
     pub(super) fn local_entry(
         &self,

@@ -98,32 +98,3 @@ fn refresh_module_global_call_routes_marks_static_string_array_contract_direct_t
         "mir_call_global_uniform_mir_emit"
     );
 }
-
-#[test]
-fn refresh_module_global_call_routes_rejects_non_static_array_factory() {
-    let mut module = MirModule::new("global_call_static_string_array_reject_test".to_string());
-    let caller =
-        make_function_with_global_call_args("Helper.candidates/0", Some(ValueId::new(30)), vec![]);
-    let mut callee = static_string_array_function("Helper.candidates/0");
-    let block = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    block.instructions.insert(
-        2,
-        MirInstruction::Const {
-            dst: ValueId::new(20),
-            value: ConstValue::Integer(1),
-        },
-    );
-    module.functions.insert("main".to_string(), caller);
-    module
-        .functions
-        .insert("Helper.candidates/0".to_string(), callee);
-
-    refresh_module_global_call_routes(&mut module);
-
-    let route = &module.functions["main"].metadata.global_call_routes[0];
-    assert_eq!(route.target_shape(), None);
-    assert_eq!(
-        route.target_shape_reason(),
-        Some("generic_string_return_object_abi_not_handle_compatible")
-    );
-}

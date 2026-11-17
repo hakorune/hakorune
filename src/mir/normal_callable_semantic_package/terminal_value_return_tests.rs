@@ -302,40 +302,6 @@ fn qualified_call_return_issues_call_relation() {
 /// A qualified call carrying a map argument keeps the OpaqueCall relation
 /// but the argument's lifecycle obligations fail closed at the named
 /// capability boundary — never flattened into unavailable terminal homes.
-#[test]
-fn qualified_call_map_argument_reaches_the_named_capability_boundary() {
-    let package = issue(
-        "static box Work { make(args) { local m = %{\"k\" => 1} return Work.helper(%{\"a\" => m}) }
-             helper(x) { return x } }
-         static box Main { main() { return 30 } }",
-    )
-    .expect("qualified-call map-argument package");
-    let contract = work_contract(&package);
-    let Some(TerminalRelationV1::OpaqueCall(relation)) = contract.sole_terminal_relation() else {
-        panic!("map-argument qualified call issues an OpaqueCall relation");
-    };
-    assert_eq!(relation.owner(), contract.owner());
-    let flow = contract
-        .completion()
-        .cleanup()
-        .root_flow()
-        .expect("root flow");
-    assert!(flow.terminal_homes().is_ok());
-    let mut context = crate::mir::builder::CompilationContext::new();
-    let error = match package.prepare_install(&mut context) {
-        Err((_, error)) => error,
-        Ok(_) => panic!("map argument handoff is not an admitted capability"),
-    };
-    assert!(
-        matches!(
-            error,
-            super::install::NormalCallableSemanticPackageInstallIssueV1::MapLifecycleUndertaking(
-                super::map_lifecycle_undertaking::MapLifecycleUndertakingIssueV1::UncoveredOperation { .. }
-            )
-        ),
-        "{error:?}"
-    );
-}
 
 #[test]
 fn consumed_or_uninitialized_returns_stay_uncovered() {

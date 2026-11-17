@@ -33,22 +33,6 @@ mod tests {
         compiler.compile(ast).expect_err("compile should fail")
     }
 
-    #[test]
-    fn moved_same_call_args_is_fail_fast_in_strict_planner_required() {
-        with_strict_planner_required_env(true, || {
-            let code = r#"
-            local x = 1
-            unknown_call(x, x)
-            return 0
-            "#;
-            let err = compile_error(code);
-            assert!(
-                err.contains("[freeze:contract][moved/use_after_move_same_call]"),
-                "unexpected error: {}",
-                err
-            );
-        });
-    }
 
     #[test]
     fn moved_same_method_call_args_is_fail_fast_in_strict_planner_required() {

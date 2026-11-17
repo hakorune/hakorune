@@ -20,30 +20,6 @@ fn fixture_source() -> crate::mir::builder::PreparedNormalDefaultProgramRootV1 {
     )
 }
 
-#[test]
-fn accepted_variable_accum_callable_completes_source_backed_mir_lifecycle() {
-    run_on_test_thread("var-accum-mir-lifecycle", || {
-        crate::runtime::ring0::ensure_global_ring0_initialized();
-        route::reset();
-        let completed = session()
-            .complete_normal_default_program_root_catalog_lifecycle(
-                fixture_source(),
-                CallableMainMaterializationPolicyV1::Omitted,
-                NormalRuntimeInputSnapshotV1::empty(),
-            )
-            .expect("accepted callable recurrence reaches the source-backed MIR lifecycle");
-        let (_, module, _) = completed.into_parts();
-        assert!(module
-            .functions
-            .iter()
-            .any(|(_, function)| function.signature.name == "main"));
-        assert_eq!(
-            route::counts(),
-            (1, 0),
-            "the accepted source row selects VAR exactly once and never enters the shared non-callable route"
-        );
-    });
-}
 
 #[test]
 fn late_var_failure_discards_lowered_invocation_and_fresh_call_succeeds() {

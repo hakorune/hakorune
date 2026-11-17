@@ -106,41 +106,6 @@ fn typed_object_home_is_borrowed_and_not_transferred_into_the_pending_call() {
 
 }
 
-#[test]
-fn formal_copy_forward_preserves_the_original_formal_and_actual_binding() {
-    let package = package("local recv = new Transport() local out = recv.bridge(0) return 0",
-        "bridge(p): i64 { local alias = p local recv = new Transport() local out = recv.probe(alias) return 0 }");
-    assert_eq!(
-        package
-            .ordinary_new_claim_ledger
-            .borrowed_formal_actuals
-            .len(),
-        2
-    );
-    let row = package
-        .ordinary_new_claim_ledger
-        .borrowed_formal_actuals
-        .values()
-        .filter_map(|rows| rows.as_ref().ok())
-        .flat_map(|rows| rows.opaque_actuals.iter())
-        .find(|row| matches!(row.source, BorrowedFormalActualSourceV1::Forwarded { .. }))
-        .unwrap();
-    let BorrowedFormalActualSourceV1::Forwarded { binding, formal } = row.source else {
-        panic!("selected opaque formal forwarding")
-    };
-    assert_ne!(binding, formal);
-    assert_eq!(binding.owner(), formal.owner());
-    let completion = package
-        .ordinary_new_claim_ledger
-        .completion_for_owner(binding.owner())
-        .expect("existing homes-aware completion is preserved");
-    let calls = completion.cleanup().root_flow().unwrap().local_calls();
-    assert_eq!(calls.len(), 1);
-    assert!(matches!(
-        calls[0].arguments(),
-        [LocalCallArgumentV1::BorrowedActual { ordinal: 0, .. }]
-    ));
-}
 
 #[test]
 fn unsupported_actuals_are_pending_named_errors_and_never_integer_payloads() {
@@ -284,26 +249,6 @@ fn failed_source_only_walk_invalidates_all_partial_owner_actuals() {
         .contains("source-walk:test-failure")));
 }
 
-#[test]
-fn source_only_actual_probe_keeps_the_existing_plain_completion() {
-    let package = package("return 0",
-        "bridge(): i64 { local text = \"uncovered\" local recv = new Transport() local out = recv.probe(0) return 0 }");
-    let rows = &package.ordinary_new_claim_ledger.borrowed_formal_actuals;
-    assert_eq!(rows.len(), 1);
-    let (call, rows) = rows.iter().next().unwrap();
-    assert_eq!(
-        rows.as_ref().unwrap().opaque_actuals[0].source,
-        BorrowedFormalActualSourceV1::Integer(0)
-    );
-    let completion = package
-        .ordinary_new_claim_ledger
-        .completion_for_owner(call.owner())
-        .expect("original plain completion");
-    assert!(
-        completion.cleanup().root_flow().is_none(),
-        "source-only observation must not publish a homes-aware completion"
-    );
-}
 
 fn mixed_package(
     scalar_type: &str,

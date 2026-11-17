@@ -172,10 +172,4 @@ impl CallableSemanticLoweringState {
         Ok(())
     }
 
-    pub(in crate::mir::builder) fn has_dynamic_origin(&self, binding: BindingRefV1) -> bool {
-        self.dynamic_origins
-            .source()
-            .origin_for_binding(binding)
-            .is_some()
-    }
 }

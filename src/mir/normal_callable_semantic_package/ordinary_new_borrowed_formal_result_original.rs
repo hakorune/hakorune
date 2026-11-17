@@ -46,19 +46,6 @@ pub(super) fn exact_me_receiver_v1(
         && matches!(input.body_shape().and_then(|shape| shape.expression_shape(site)),
             Some(BodyExpressionShapeV1::Me { receiver: BodyMeReceiverV1::Lexical(original), .. }) if *original == receiver)
 }
-/// Passive re-demand detects requests even after a retained proof is lost.
-/// Fresh structural plans here are never substituted for the retained loan.
-pub(super) fn field_return_values_v1(
-    input: ResolvedFunctionLoweringInputV1<'_>, receiver: BindingRefV1,
-) -> Result<Vec<SourceExprSiteV1>, String> {
-    if input.function().declaration_sites().any(|site| matches!(site, SourceBindingSiteV1::Parameter { .. })) {
-        return Ok(Vec::new());
-    }
-    if receiver.owner() != input.owner() || input.function().binding(receiver)
-        .is_none_or(|binding| binding.kind() != BindingKindV1::Receiver)
-    { return Err(freeze("borrowed-result/original-return-receiver")); }
-    original_return_plans_v1(input, receiver).map(|(_, values)| values)
-}
 
 /// Capture each original Return tree once, then select passive field requests
 /// from those SAME plans. Numeric/Completion success cannot select this family.

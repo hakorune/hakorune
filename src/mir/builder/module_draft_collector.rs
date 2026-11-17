@@ -445,12 +445,6 @@ impl ModuleDraftCollectorV1 {
         Ok(row.draft)
     }
 
-    pub(in crate::mir::builder) fn key_for_symbol(
-        &self,
-        symbol: &str,
-    ) -> Option<&FunctionDraftKeyV1> {
-        self.key_by_symbol.get(symbol)
-    }
 }
 
 impl CompletedDraftSignatureViewV1 for ModuleDraftCollectorV1 {
