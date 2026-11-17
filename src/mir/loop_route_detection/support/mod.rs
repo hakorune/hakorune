@@ -4,7 +4,6 @@
 //! paths instead of reintroducing historical implementation names.
 
 /// Break-condition structural analysis support.
-pub mod break_condition;
 
 /// Loop-body local promotion support.
 pub mod body_local;
@@ -13,7 +12,6 @@ pub mod body_local;
 pub mod condition_scope;
 
 /// Local-variable analyzer support.
-pub mod locals;
 
 /// Trim-route support.
 pub mod trim;

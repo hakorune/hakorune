@@ -12,11 +12,8 @@ pub mod inline_boundary; // Phase 188-Impl-3: JoinIR→Host boundary
 #[cfg(test)]
 pub mod inline_boundary_builder; // Test-only builder pattern for JoinInlineBoundary
 pub mod join_value_space; // Phase 201: Unified JoinIR ValueId allocation
-pub(crate) mod loop_form_intake; // Internal loop form intake
-pub(crate) mod loop_route_validator; // Phase 33-23: Loop structure validation
 pub mod loop_scope_shape;
 pub mod loop_update_analyzer; // Phase 197: Update expression analyzer for carrier semantics
-pub mod type_inference; // Phase 65-2-A
 pub(crate) mod value_id_ranges; // Internal ValueId range management
 
 // Test-only inline boundary constructor
