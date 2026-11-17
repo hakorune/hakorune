@@ -186,11 +186,6 @@ impl ReadyFunctionDraftSealV1 {
         }
     }
 
-    pub(in crate::mir::builder::resolved_lowering) fn take_checked_callout_census(
-        &mut self,
-    ) -> Option<crate::mir::checked_callout::VerifiedCheckedCallOutFunctionV1> {
-        self.checked_callout_census.take()
-    }
 
     pub(super) fn prepare(
         self,

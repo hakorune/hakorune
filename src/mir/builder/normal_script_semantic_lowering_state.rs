@@ -203,9 +203,6 @@ impl ScriptSemanticLoweringState {
         self.projection().enum_variant_demand_at(site)
     }
 
-    pub(super) fn has_enum_match_scrutinee_receipt(&self, site: &SourceNodeSiteV1) -> bool {
-        self.projection().has_enum_match_scrutinee_receipt_at(site)
-    }
 
     pub(super) fn has_qmark_propagation_receipt(&self, site: &SourceNodeSiteV1) -> bool {
         self.projection().has_qmark_propagation_receipt_at(site)

@@ -57,15 +57,6 @@ impl RawPublishedInvocationCoreV1 {
 }
 
 impl RawPublishedInvocationV1 {
-    #[cfg(feature = "vm-reference")]
-    pub(in crate::mir) fn invocation_brand(
-        &self,
-    ) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
-        match self {
-            Self::Script(value) => value.core._token.brand(),
-            Self::App(value) => value.core._token.brand(),
-        }
-    }
 
     pub(in crate::mir) fn selected_entry(&self) -> &SelectedSourceEntryContinuationV1 {
         match self {

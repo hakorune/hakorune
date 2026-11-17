@@ -34,17 +34,6 @@ impl MirBuilder {
         self.function_state.variable_ctx.lookup(name)
     }
 
-    pub(in crate::mir) fn function_parameter_bindings(&self) -> Vec<(String, super::ValueId)> {
-        self.function_state
-            .scope
-            .function_param_names
-            .iter()
-            .filter_map(|name| {
-                self.current_variable(name)
-                    .map(|value| (name.clone(), value))
-            })
-            .collect()
-    }
 
     pub(in crate::mir) fn variable_bindings(&self) -> Vec<(String, super::ValueId)> {
         self.function_state

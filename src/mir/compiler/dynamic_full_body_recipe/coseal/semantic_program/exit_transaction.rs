@@ -12,7 +12,6 @@
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId, SourceStmtSiteV1};
 
 use super::DynamicCanonicalSessionAuthorityRefV1;
-use super::DynamicInvocationCleanupRowViewV1;
 use super::VerifiedDynamicInvocationCleanupProjectionV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -68,12 +67,6 @@ impl VerifiedDynamicExitTransactionCoSealV1 {
         self.cleanup.completion_sites()
     }
 
-    pub(in crate::mir) fn with_cleanup_physical_rows<R>(
-        &self,
-        callback: impl FnOnce([DynamicInvocationCleanupRowViewV1; 4]) -> R,
-    ) -> R {
-        callback(self.cleanup.physical_rows())
-    }
 
     #[cfg(test)]
     pub(in crate::mir) fn current(&self) -> super::DynamicInvocationCleanupCurrentDispositionV1 {
