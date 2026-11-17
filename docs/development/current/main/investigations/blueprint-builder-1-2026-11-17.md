@@ -90,4 +90,29 @@ Box・所有・Fault・入れ物は次の比較の範囲。これらを通す前
 
 値を作る側はliteral、比較、Not、And/Or、call、formal、if越えlocal、loop carrier、i64算術/符号反転。使う側は条件・実引数・return・比較の両側・Not・短絡の両側・local初期化・代入・算術の両側・range両端。source emitterとは別の小さいAST評価器で、wrapping i64、負数除算のゼロ方向丸め、短絡、左からの実行順とprintを期待として計算した。旧builderは期待値に使わない。
 
-この表は1bのABI段で確認したもの。PHI変更後と最終の既定経路比較は、続く検証で区別して記録する。
+PHI変更後の最終CLI/FFIでも、7監査入力・旧51入力・CLI負例15入力と、この表の5,706入力を確認した。234升の構造上のNAはEXE成功数に含めない。native entryのi64 returnはOSのexit下位8bitを比較し、関数内returnはprintでi64全幅を照合する。
+
+
+## 1b: loopの代入集合と残る段の違い
+
+ResolveがBindingIdの代入集合をloop契約に保持し、Lowerのheaderはその集合とrangeのindexだけをPHIにする。step/exitは従来の全carrierを保持する。cは集合と実際のPHI・incomingを照合し、集合外のcarrierが全backedgeで初期値を維持することも検査する。契約から代入を故意に落としたMIRは、構造/SSAが有効でもcが拒否する。
+
+`count(n)`で`i = 0; loop(i < n) { i += 1 }; return i + n`の例はheader PHIが2→1、`count(3)`の正規EXE exitは6。productionは+32行で、独立照合を弱めていない。
+
+設計図はSealでPHIを閉じるが、実装はLowerの一つの作業場が既知のpredecessorで閉じる。Sealは18行のCFG更新・到達不能整理・終端確認で、後段a/cが完全性を確認する。この境界は設計図との相違として残る。推奨案は、再帰の完了時に同じ作業場でincomingを確定し、Sealで未完了を許さない責務を明記すること。別の未完了台帳を足さずに済むが、設計変更はメンテナの判断が必要。本回はSeal/設計図を変更していない。
+
+文の拒否位置が1:1になる主因はparserがAssignment/CompoundAssignment、Local、LoopRange等に`Span::unknown()`を保存すること（parser/mod.rs、statements/variables.rs、statements/control_flow.rs）。ASTにspanはあるがunknownは1:1であり、Resolveはそれを引き継ぐ。位置の修正は本回では行わない。
+
+| 設計図22節・1aからの差 | 1a → 1b |
+|---|---|
+| 式 / call / loopのLower入口 | 1/1/1 → 1/1/1 |
+| 形だけのLower分岐 / 段階別の別ID語彙 / 設計図にない部品 | 0/0/0 → 0/0/0 |
+| 演算追加に触るfile/関数 | 今回は新演算なし（前回>=の3/3を変更せず） |
+| builder production / test（cfg(test)登録含む） | 2,527 / 280 → 2,559 / 321 |
+| 1b全変更のproduction / test純増 | +29 / +41 |
+
+共通C ABI ownerはprivate helper3関数。新しいRust型・公開ABI型は0。Cの置換は+61/−64行、Rust productionは+37/−5行。追加testは既存fileに代入契約欠落の独立拒否を1件、重なるケースは既存表で確認し新規test fileを作らない。旧builder物理退役は本回も0で、全体の縮小とは数えない。
+
+1bの最終CLI/FFIで既定経路の固定5,386入力を再比較し、MIR・拒否・出力・exitの差0、timeout0。5,386件を全部EXE成功と数えるのではなく、MIR dump成功2,687、EXE成功1,483、残りの拒否も比較に含めた。
+
+1b最終確認（2026-11-17）: 全lib直列8,379 PASS・205 FAIL・52 ignored、失敗名は基準205件と完全一致。4件のbuilder test（8種類のMIR改変拒否と代入集合欠落拒否を含む）も成功。固定suite8/8（94.02秒）、既存Map18ケースのEXE検証、C document検証24ケース、pointer/diff確認はすべて成功。最終確認中と以後にsourceは変更していない。owner guardの基準はユーザー決定どおり据え置き、1aで記した赤と所在は未達の比較結果として保持する。
