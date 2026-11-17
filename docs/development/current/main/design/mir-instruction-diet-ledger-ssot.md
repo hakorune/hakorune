@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Scope: MirInstruction の kept / lowered-away / removed 台帳（C7b）と lowered-away 実体0化フロー
 Decision: accepted (ledger + zero-state)
 Updated: 2026-06-23

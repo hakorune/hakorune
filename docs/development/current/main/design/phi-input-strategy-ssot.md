@@ -1,5 +1,5 @@
 ---
-Status: SSOT (design-only)
+Status: Historical (was SSOT (design-only))
 Scope: Loop header/step PHI の入力パターン（型で固定するための設計メモ）
 Related:
 - docs/development/current/main/design/feature-helper-boundary-ssot.md

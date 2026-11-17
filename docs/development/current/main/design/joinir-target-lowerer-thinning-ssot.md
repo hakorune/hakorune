@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Decision: accepted
 Date: 2026-07-30
 Scope: JoinIR target-specific lowerer thinning after compiler pipeline thinning.

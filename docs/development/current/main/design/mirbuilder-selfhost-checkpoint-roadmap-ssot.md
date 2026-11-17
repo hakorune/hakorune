@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Date: 2026-06-25
 Scope: MirBuilder Rust-to-Hako selfhost checkpoint roadmap.
 Related:

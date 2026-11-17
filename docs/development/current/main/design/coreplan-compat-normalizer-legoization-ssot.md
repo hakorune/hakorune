@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Date: 2026-06-14
 Scope: COREPLAN-FOUND-000/001 selection and first guard for compatibility
 normalizer lego-ization.

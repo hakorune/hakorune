@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Decision: provisional
 Date: 2026-03-19
 Scope: `substring -> concat3 -> length` hot chain を AOT backend 内でだけ boxless/native value に寄せる temporary pilot の境界と手順を固定する

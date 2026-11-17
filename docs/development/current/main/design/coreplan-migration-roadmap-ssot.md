@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Scope: JoinIR → PlanFrag → CorePlan への移行道筋（仕様不変で完了と言える条件）
 Related:
 - docs/development/current/main/10-Now.md

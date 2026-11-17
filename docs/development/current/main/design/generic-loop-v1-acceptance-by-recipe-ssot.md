@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Scope: generic_loop_v1 acceptance (Recipe-first, recursive; ShapeId is hint-only)
 Related:
 - `docs/development/current/main/design/recipe-tree-and-parts-ssot.md`

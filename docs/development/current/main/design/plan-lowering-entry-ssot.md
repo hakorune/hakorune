@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Scope: CorePlan → MIR の emission 入口（PlanLowerer entry）
 Related:
 - docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md

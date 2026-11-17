@@ -1,5 +1,5 @@
 ---
-Status: SSOT (navigation)
+Status: Historical (was SSOT (navigation))
 Scope: plan/features の helper 境界と “どこで何を作るか” の地図（cross-pipeline）
 Related:
 - docs/development/current/main/design/feature-helper-boundary-ssot.md

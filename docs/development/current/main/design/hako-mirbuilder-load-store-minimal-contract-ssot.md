@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Scope: `.hako` mirbuilder の Load/Store 受理を docs-first で固定する（B1）
 Decision: accepted (design-first before B2 implementation)
 Updated: 2026-02-10

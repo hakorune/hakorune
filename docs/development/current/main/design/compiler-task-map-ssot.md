@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Scope: Task ordering map (compiler cleanliness / recipe-first)
 Related:
 - docs/development/current/main/10-Now.md

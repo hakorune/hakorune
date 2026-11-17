@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Decision: provisional
 Date: 2026-03-19
 Scope: Shadow RepMIR pilot のために、`substring_concat` 周辺の current birth map を 1 枚で固定する

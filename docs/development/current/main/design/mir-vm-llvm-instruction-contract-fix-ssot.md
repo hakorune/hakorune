@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Scope: MIR命令契約（MIR enum → MIR JSON emit → VM → LLVM/fallback）の実装同期
 Decision: accepted
 Updated: 2026-02-10

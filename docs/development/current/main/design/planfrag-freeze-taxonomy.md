@@ -1,4 +1,4 @@
-Status: SSOT
+Status: Historical (was SSOT)
 Scope: JoinIR plan/normalize/lower freeze tag taxonomy (Phase-agnostic)
 Related:
 - AI handoff + debug contract: `docs/development/current/main/design/ai-handoff-and-debug-contract.md`

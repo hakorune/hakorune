@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Date: 2026-07-05
 Scope: MirBuilder authority-based Rust-to-Hako migration order.
 Related:

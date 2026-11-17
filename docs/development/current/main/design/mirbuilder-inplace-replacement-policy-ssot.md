@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Date: 2026-09-01
 Decision: MIRBUILDER-INPLACE-REPLACEMENT-POLICY-v1
 Scope: Rust MirBuilderを稼働させたまま、責務単位で本番内部を交換する

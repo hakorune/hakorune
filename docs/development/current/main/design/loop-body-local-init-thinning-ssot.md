@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Decision: accepted
 Date: 2026-06-13
 Scope: BoxShape-only cleanup for JoinIR loop body-local init lowering.

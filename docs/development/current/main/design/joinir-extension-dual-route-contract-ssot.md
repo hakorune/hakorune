@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Decision: provisional
 Date: 2026-03-02
 Scope: JoinIR 拡張を Rust reference route と `.hako` mainline route の同一契約で進める。

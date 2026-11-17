@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Historical (was Active)
 Decision: provisional
 Date: 2026-02-19
 Scope: lane A（Compiler Meaning）の JoinIR 移植を 1 blocker = 1 fixture = 1 smoke = 1 commit で進めるための固定順序。

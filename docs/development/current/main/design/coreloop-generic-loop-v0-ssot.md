@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Scope: CorePlan / FlowBox — generic structured loop v0 (decompose & compose)
 Related:
 - docs/development/current/main/design/coreplan-flowbox-interface-ssot.md

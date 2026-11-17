@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Date: 2026-05-14
 Scope: Loop-surface cleanup lane before resuming PACKED-001.
 Related:

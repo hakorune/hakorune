@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Scope: Phase 29bq 以降の「コンパイラーきれいきれい大作戦」運用（selfhost を目的化しない）
 Related:
 - docs/development/current/main/design/compiler-expressivity-first-policy.md

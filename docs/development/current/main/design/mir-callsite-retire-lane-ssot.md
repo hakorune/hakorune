@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Scope: post-canonical retire lane（RCL-0..3, BoxCount/BoxShape split）
 Decision: accepted
 Updated: 2026-02-12

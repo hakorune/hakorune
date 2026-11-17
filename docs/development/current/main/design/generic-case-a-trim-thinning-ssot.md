@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Historical (was SSOT)
 Decision: accepted
 Date: 2026-06-13
 Scope: BoxShape-only cleanup for Generic Case A trim JoinIR lowering.

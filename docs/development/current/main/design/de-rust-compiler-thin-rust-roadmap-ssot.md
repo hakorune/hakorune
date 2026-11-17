@@ -1,5 +1,5 @@
 ---
-Status: Active (docs-first)
+Status: Historical (was Active (docs-first))
 Scope: 脱Rust（compiler lane）として、Stage1 bridge の Rust 依存を薄くし、`.hako` compiler が Program/MIR を自力生成するまでの順序を固定する。
 Related:
   - CURRENT_TASK.md
