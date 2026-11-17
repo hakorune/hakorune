@@ -90,7 +90,13 @@
           char* out,
           size_t out_cap,
           long long reg) {
-        scalar_abi_format_i64_ref(out, out_cap, reg);
+        long long cv = 0;
+        long long base = resolve_copy_source_reg(reg);
+        if (has_const(base, &cv)) {
+          snprintf(out, out_cap, "%lld", cv);
+        } else {
+          snprintf(out, out_cap, "%%r%lld", base);
+        }
       }
 
       #include "hako_llvmc_ffi_same_module_method_views.inc"
@@ -625,10 +631,7 @@
         for (size_t ai = 0; ai < argc; ai++) {
           yyjson_val* param = yyjson_arr_get(params, ai);
           long long reg = param ? (long long)yyjson_get_sint(param) : 0;
-          if (get_type(reg) == T_I1)
-            fprintf(f, "%si64 %%bool_arg_%lld", ai ? ", " : "", reg);
-          else
-            fprintf(f, "%si64 %%r%lld", ai ? ", " : "", reg);
+          fprintf(f, "%si64 %%r%lld", ai ? ", " : "", reg);
         }
         fprintf(f, ") alwaysinline {\n");
         return 1;

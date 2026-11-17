@@ -389,7 +389,7 @@ fn with_retained_mir_path(err: String, json_path: &std::path::Path) -> String {
     format!("{}\nretained_mir={}", err, json_path.display())
 }
 
-pub(crate) fn emit_json_and_run_ny_llvmc_emit_exe(
+fn emit_json_and_run_ny_llvmc_emit_exe(
     emit_json: impl FnOnce(&std::path::Path) -> Result<(), String>,
     exe_out: &str,
     nyrt_dir: Option<&str>,

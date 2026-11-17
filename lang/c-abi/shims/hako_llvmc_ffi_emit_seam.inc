@@ -13,7 +13,7 @@
 
       auto void emit_jump(long long target){ EMIT("  br label %%bb%lld\n", target); }
 
-      auto void emit_ret(long long reg){ char ref[64]; scalar_abi_format_i64_ref(ref, sizeof(ref), reg); EMIT("  ret i64 %s\n", ref); }
+      auto void emit_ret(long long reg){ long long cv; long long base=resolve_copy_source_reg(reg); if (has_const(base,&cv)) EMIT("  ret i64 %lld\n", cv); else EMIT("  ret i64 %%r%lld\n", base); }
 
       auto void emit_call_assign(long long dst, const char* sym, const char* args){ EMIT("  %%r%lld = call i64 @\"%s\"(%s)\n", dst, sym, args); set_type(dst, T_I64); }
 

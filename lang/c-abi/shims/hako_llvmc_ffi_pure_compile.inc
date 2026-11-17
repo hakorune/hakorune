@@ -465,8 +465,6 @@ static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
       #include "hako_llvmc_ffi_array_string_window_policy.inc"
       #include "hako_llvmc_ffi_array_slot_emit.inc"
       #include "hako_llvmc_ffi_mir_call_need_vocab.inc"
-      FILE* f = NULL;
-      #include "hako_llvmc_ffi_scalar_abi.inc"
       #include "hako_llvmc_ffi_indexof_observer_lowering.inc"
       #include "hako_llvmc_ffi_observer_store_region_metadata.inc"
       #include "hako_llvmc_ffi_array_text_edit_metadata.inc"
@@ -503,6 +501,7 @@ static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
       #include "hako_llvmc_ffi_mir_call_shell.inc"
       #define HAKO_LLVM_READONLY_ATTRS " nounwind readonly willreturn"
       char llpath[1024] = {0};
+      FILE* f = NULL;
       auto int should_skip_string_const_box_for_known_len_use(
           size_t ii,
           size_t ilen,

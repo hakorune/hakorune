@@ -12,7 +12,6 @@ pub(crate) mod a_prime_i64_formal_representation; // opaque selected A-prime for
 pub(crate) mod a_prime_i64_physical_receipt; // sealed post-session A-prime LLVM capability
 pub mod agg_local_scalarization; // generic agg_local scalarization owner seam folded from landed pilots
 pub mod analysis; // analysis-only views (no AST rewrite)
-pub mod blueprint_builder; // explicit design comparison; never selected implicitly
 #[cfg(feature = "aot-plan-import")]
 pub mod aot_plan_import;
 pub(crate) mod array_element_write; // canonical Array mutation owner

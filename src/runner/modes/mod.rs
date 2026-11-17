@@ -1,7 +1,6 @@
 // Compatibility re-export surface after the runner folder recut.
 // `vm_fallback` here means the explicit runner keep lane, not kernel fallback.
 // bench module removed with vm-legacy
-mod blueprint;
 pub mod macro_child;
 pub mod mir;
 pub use crate::runner::keep::vm;

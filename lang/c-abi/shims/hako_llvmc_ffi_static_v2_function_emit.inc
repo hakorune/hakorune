@@ -7,15 +7,16 @@
         if (ei < 0) return 0;
         yyjson_val* target = index->expanded[ei].function;
         yyjson_val* params = yyjson_obj_get(target, "params");
-        char original_refs[row->arity ? row->arity : 1][64];
         for (size_t ai = 0; ai < row->arity; ai++) {
           uint32_t actual, formal;
           if (!hako_static_v2_u32(yyjson_arr_get(args, ai), &actual) ||
               !hako_static_v2_u32(yyjson_arr_get(params, ai), &formal)) return -1;
           int vi = hako_static_v2_value_find(index, target, formal);
           int original = vi < 0 || index->frame->values[vi].flags;
-          if (original)
-            scalar_abi_format_i64_ref(original_refs[ai], sizeof(original_refs[ai]), actual);
+          long long base = resolve_copy_source_reg(actual), bits;
+          if (original && !has_const(base, &bits) && get_type(base) == T_I1)
+            EMIT("  %%map_actual_%u_%u_%zu = zext i1 %%r%lld to i64\n",
+                row->block_id, row->instruction_index, ai, base);
         }
         if (dst) EMIT("  %%r%lld = ", dst);
         else EMIT("  ");
@@ -34,7 +35,12 @@
             first = 0;
           }
           if (vi < 0 || index->frame->values[vi].flags) {
-            EMIT("%si64 %s", first ? "" : ", ", original_refs[ai]);
+            long long base = resolve_copy_source_reg(actual), bits;
+            EMIT("%si64 ", first ? "" : ", ");
+            if (has_const(base, &bits)) EMIT("%lld", bits);
+            else if (get_type(base) == T_I1)
+              EMIT("%%map_actual_%u_%u_%zu", row->block_id, row->instruction_index, ai);
+            else EMIT("%%r%lld", base);
             first = 0;
           }
         }
