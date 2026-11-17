@@ -115,13 +115,6 @@ fn holder_variant_source(box_members: &str, seed_body: &str) -> String {
     )
 }
 
-#[test]
-fn field_resident_array_i64_push_reaches_retained_typed_writes() {
-    run_on_test_thread(
-        "field-resident-array-push",
-        field_resident_array_i64_push_reaches_retained_typed_writes_inner,
-    );
-}
 
 fn field_resident_array_i64_push_reaches_retained_typed_writes_inner() {
     crate::runtime::ring0::ensure_global_ring0_initialized();

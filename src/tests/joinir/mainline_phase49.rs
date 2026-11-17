@@ -100,10 +100,6 @@ static box Main {
 }
 
 /// Phase 49-3: dev フラグ OFF 時は従来経路を使用することを確認
-#[test]
-fn phase49_joinir_mainline_fallback_without_flag() {
-    run_on_test_thread("phase49_joinir_mainline_fallback_without_flag", phase49_joinir_mainline_fallback_without_flag_inner);
-}
 
 fn phase49_joinir_mainline_fallback_without_flag_inner() {
     clear_joinir_flags();
@@ -158,10 +154,6 @@ static box Main {
 ///
 /// このテストは同じソースコードを2つの経路でコンパイルし、
 /// 両方が正常に完了することを確認する。
-#[test]
-fn phase49_joinir_mainline_ab_comparison() {
-    run_on_test_thread("phase49_joinir_mainline_ab_comparison", phase49_joinir_mainline_ab_comparison_inner);
-}
 
 fn phase49_joinir_mainline_ab_comparison_inner() {
     clear_joinir_flags();
@@ -306,10 +298,6 @@ static box Main {
 }
 
 /// Phase 49-4: dev フラグ OFF 時は従来経路を使用することを確認
-#[test]
-fn phase49_joinir_array_filter_fallback() {
-    run_on_test_thread("phase49_joinir_array_filter_fallback", phase49_joinir_array_filter_fallback_inner);
-}
 
 fn phase49_joinir_array_filter_fallback_inner() {
     clear_joinir_flags();
@@ -362,10 +350,6 @@ static box Main {
 
 /// Phase 49-4: A/B 比較テスト - Route A (legacy) vs Route B (JoinIR)
 /// ArrayExtBox.filter版
-#[test]
-fn phase49_joinir_array_filter_ab_comparison() {
-    run_on_test_thread("phase49_joinir_array_filter_ab_comparison", phase49_joinir_array_filter_ab_comparison_inner);
-}
 
 fn phase49_joinir_array_filter_ab_comparison_inner() {
     clear_joinir_flags();

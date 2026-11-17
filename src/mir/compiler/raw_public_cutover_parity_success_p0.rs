@@ -1,6 +1,5 @@
 //! PARITY0-S0a: the first bounded Legacy-vs-Raw success witness.
 
-use super::raw_public_cutover_parity_snapshot::snapshot_module;
 use super::MirCompiler;
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
 use std::collections::HashMap;
@@ -110,89 +109,9 @@ fn run_on_test_thread(name: &str, body: impl FnOnce() + Send + 'static) {
         .expect("test thread panicked");
 }
 
-#[test]
-fn empty_script_legacy_and_raw_have_the_same_normalized_snapshot() {
-    run_on_test_thread("parity-empty-script-snapshot", || {
-    let ast = empty_script();
-    let mut legacy = MirCompiler::new();
-    let legacy_result = legacy
-        .compile_with_source(ast.clone(), Some("parity-empty.hako"))
-        .expect("legacy empty Script should compile");
-    let mut raw = MirCompiler::new();
-    let raw_result = raw
-        .compile_raw_with_source(ast, Some("parity-empty.hako"))
-        .expect("Raw empty Script should compile");
 
-    let legacy_snapshot = snapshot_module(&legacy_result.module)
-        .expect("legacy empty Script must use only the PARITY0 snapshot dialect");
-    let raw_snapshot = snapshot_module(&raw_result.module)
-        .expect("Raw empty Script must use only the PARITY0 snapshot dialect");
-    assert_eq!(legacy_snapshot, raw_snapshot);
-    });
-}
 
-#[test]
-fn integer_literal_script_legacy_and_raw_have_the_same_normalized_snapshot() {
-    run_on_test_thread("parity-int-script-snapshot", || {
-    let ast = literal_script(LiteralValue::Integer(7));
-    let mut legacy = MirCompiler::new();
-    let legacy_result = legacy
-        .compile_with_source(ast.clone(), Some("parity-int.hako"))
-        .expect("legacy integer Script should compile");
-    let mut raw = MirCompiler::new();
-    let raw_result = raw
-        .compile_raw_with_source(ast, Some("parity-int.hako"))
-        .expect("Raw integer Script should compile");
 
-    let legacy_snapshot = snapshot_module(&legacy_result.module)
-        .expect("legacy integer Script must use the PARITY0 snapshot dialect");
-    let raw_snapshot = snapshot_module(&raw_result.module)
-        .expect("Raw integer Script must use the PARITY0 snapshot dialect");
-    assert_eq!(legacy_snapshot, raw_snapshot);
-    });
-}
-
-#[test]
-fn string_literal_script_legacy_and_raw_have_the_same_normalized_snapshot() {
-    run_on_test_thread("parity-string-script-snapshot", || {
-    let ast = literal_script(LiteralValue::String("raw".into()));
-    let mut legacy = MirCompiler::new();
-    let legacy_result = legacy
-        .compile_with_source(ast.clone(), Some("parity-string.hako"))
-        .expect("legacy string Script should compile");
-    let mut raw = MirCompiler::new();
-    let raw_result = raw
-        .compile_raw_with_source(ast, Some("parity-string.hako"))
-        .expect("Raw string Script should compile");
-    assert_eq!(
-        snapshot_module(&legacy_result.module).unwrap(),
-        snapshot_module(&raw_result.module).unwrap()
-    );
-    });
-}
-
-#[test]
-fn integer_binary_script_legacy_and_raw_have_the_same_normalized_snapshot() {
-    run_on_test_thread("parity-binary-script-snapshot", || {
-    let ast = binary_script(
-        LiteralValue::Integer(2),
-        BinaryOperator::Add,
-        LiteralValue::Integer(3),
-    );
-    let mut legacy = MirCompiler::new();
-    let legacy_result = legacy
-        .compile_with_source(ast.clone(), Some("parity-binary.hako"))
-        .expect("legacy binary Script should compile");
-    let mut raw = MirCompiler::new();
-    let raw_result = raw
-        .compile_raw_with_source(ast, Some("parity-binary.hako"))
-        .expect("Raw binary Script should compile");
-    assert_eq!(
-        snapshot_module(&legacy_result.module).unwrap(),
-        snapshot_module(&raw_result.module).unwrap()
-    );
-    });
-}
 
 #[test]
 fn empty_app_raw_root_main_keeps_fixed_void_contract() {

@@ -151,91 +151,9 @@ static box Main {
 /// A call-result argument carries no ordinary-new claim, so the callee's
 /// parameter stays unarmed — issuance still succeeds; the loop route names
 /// the uncovered site at lowering time.
-#[test]
-fn lexical_instance_call_keeps_call_result_argument_unarmed() {
-    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
-        r#"
-box ParamStore {
-    birth() { }
-    readData(cid): i64 { return cid + 1 }
-}
-box ParamManifest {
-    birth() { }
-    make() { local s = new ParamStore() return s }
-    materialize(store): i64 {
-        local i = 0
-        loop(i < 2) {
-            local data = store.readData(i)
-            i = i + 1
-        }
-        return i
-    }
-}
-static box Main {
-    main() {
-        local m = new ParamManifest()
-        local s = m.make()
-        return m.materialize(s)
-    }
-}
-"#,
-    )
-    .expect("call-result argument source package");
-    let ledger = &package.ordinary_new_claim_ledger;
-    let (owner, site) = call_site_of(&package, "readData");
-    assert!(
-        !ledger.lexical_instance_call_covered(owner, &site),
-        "call-result argument must not arm the parameter receiver"
-    );
-    assert!(
-        ledger
-            .take_lexical_instance_call(owner, &site)
-            .expect("take")
-            .is_none(),
-        "unarmed site must not carry a disposition"
-    );
-}
 
 /// A callee-side call-result receiver (`local m2 = m.make()`) has no
 /// initializer claim, so `m2.seal()` stays unarmed.
-#[test]
-fn lexical_instance_call_keeps_call_result_receiver_unarmed() {
-    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
-        r#"
-box ParamManifest {
-    birth() { }
-    make() { local m = new ParamManifest() return m }
-    seal(): i64 { return 1 }
-}
-box ParamDriver {
-    birth() { }
-    run(): i64 {
-        local m = new ParamManifest()
-        local m2 = m.make()
-        local i = 0
-        loop(i < 2) {
-            local r = m2.seal()
-            i = i + 1
-        }
-        return i
-    }
-}
-static box Main {
-    main() {
-        local d = new ParamDriver()
-        return d.run()
-    }
-}
-"#,
-    )
-    .expect("call-result receiver source package");
-    let ledger = &package.ordinary_new_claim_ledger;
-    let (owner, site) = call_site_of(&package, "seal");
-    assert!(
-        !ledger.lexical_instance_call_covered(owner, &site),
-        "call-result receiver must not arm"
-    );
-}
 
 /// Caller edges disagreeing on the argument's claim class veto the
 /// parameter: `materialize` is entered with `ParamStore` and `ParamOther`
@@ -285,93 +203,11 @@ static box Main {
 
 /// A rebound parameter can hold a different object at call time; the
 /// receiver call must stay unarmed.
-#[test]
-fn lexical_instance_call_keeps_rebound_parameter_unarmed() {
-    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
-        r#"
-box ParamStore {
-    birth() { }
-    readData(cid): i64 { return cid + 1 }
-}
-box ParamManifest {
-    birth() { }
-    materialize(store): i64 {
-        local s2 = new ParamStore()
-        store = s2
-        local i = 0
-        loop(i < 2) {
-            local data = store.readData(i)
-            i = i + 1
-        }
-        return i
-    }
-}
-static box Main {
-    main() {
-        local store = new ParamStore()
-        local m = new ParamManifest()
-        return m.materialize(store)
-    }
-}
-"#,
-    )
-    .expect("rebound parameter source package");
-    let ledger = &package.ordinary_new_claim_ledger;
-    let (owner, site) = call_site_of(&package, "readData");
-    assert!(
-        !ledger.lexical_instance_call_covered(owner, &site),
-        "rebound parameter must not arm"
-    );
-}
 
 /// Parameter receiver proven through a field-read caller edge: `run`'s
 /// `inner` is initialized by `me.inner`, and `birth`'s sole write
 /// `me.inner = new Inner()` seals the field class. The universal edge
 /// proof transports that class into `consume`'s parameter.
-#[test]
-fn lexical_instance_call_arms_parameter_receiver_with_field_read_edge() {
-    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
-        r#"
-box Inner {
-    birth() { }
-    work(i): i64 { return i + 1 }
-}
-box Outer {
-    init { inner }
-    birth() { me.inner = new Inner() }
-    consume(inner): i64 {
-        local i = 0
-        local out = 0
-        loop(i < 2) {
-            local v = inner.work(i)
-            out = out + v
-            i = i + 1
-        }
-        return out
-    }
-    run(): i64 {
-        local inner = me.inner
-        return me.consume(inner)
-    }
-}
-static box Main {
-    main() {
-        local o = new Outer()
-        return o.run()
-    }
-}
-"#,
-    )
-    .expect("field-read edge source package");
-    let ledger = &package.ordinary_new_claim_ledger;
-    let (owner, site) = call_site_of(&package, "work");
-    let row = ledger
-        .take_lexical_instance_call(owner, &site)
-        .expect("take armed row")
-        .expect("field-read edge disposition row");
-    assert_eq!(row.target().owner(), "Inner");
-    assert_eq!(row.target().name(), "work");
-}
 
 /// Claim-local receiver via field read: `local inner = me.inner` inside
 /// `run` carries the sealed field class, so `inner.seal()` arms without

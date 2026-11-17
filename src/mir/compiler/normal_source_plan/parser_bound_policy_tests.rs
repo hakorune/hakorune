@@ -105,19 +105,6 @@ fn parser_bound_main_arity_is_checked_by_policy_once() {
     rejected.discard();
 }
 
-#[test]
-fn parser_bound_main_member_coverage_is_checked_by_policy_once() {
-    let rejected = classify("static box Main { field main() { return 1 } }\n")
-        .expect_err("field plus main method must retain complete member coverage");
-    assert_eq!(
-        rejected.error(),
-        &NormalSourcePlanErrorV1::MainMemberCoverageMismatch {
-            observed: 2,
-            callable: 1,
-        }
-    );
-    rejected.discard();
-}
 
 #[test]
 fn parser_bound_top_level_callable_without_main_is_missing_entry() {

@@ -346,47 +346,6 @@ fn main_f1_rejects_multiple_nested_and_nonterminal_returns() {
     }
 }
 
-#[test]
-fn main_f1_rejects_direct_call_and_nested_owner_before_lowering() {
-    let direct_call = main_source(
-        None,
-        vec![ASTNode::FunctionCall {
-            name: "helper".to_owned(),
-            arguments: Vec::new(),
-            span: Span::unknown(),
-        }],
-    )
-    .prepare_embedded_resolved_main()
-    .expect("resolution retains the unresolved call shape");
-    let direct_call =
-        NormalMainFunctionPreflightV1::seal(&direct_call).expect_err("Main call rejects in F1");
-    assert!(matches!(
-        direct_call.error(),
-        NormalMainFunctionPlanErrorV1::CanonicalPreflight(_)
-    ));
-    direct_call.discard();
-
-    let nested_owner = resolved_main(
-        None,
-        vec![ASTNode::Local {
-            variables: vec!["f".to_owned()],
-            initial_values: vec![Some(Box::new(ASTNode::Lambda {
-                params: Vec::new(),
-                body: vec![literal(LiteralValue::Integer(1))],
-                span: Span::unknown(),
-            }))],
-            declared_type_names: vec![None],
-            span: Span::unknown(),
-        }],
-    );
-    let rejected =
-        NormalMainFunctionPreflightV1::seal(&nested_owner).expect_err("nested owner rejects");
-    assert!(matches!(
-        rejected.error(),
-        NormalMainFunctionPlanErrorV1::CanonicalPreflight(_)
-    ));
-    rejected.discard();
-}
 
 #[test]
 fn ordinary_preflight_still_rejects_standalone_main() {

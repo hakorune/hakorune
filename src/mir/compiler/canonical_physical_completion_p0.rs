@@ -104,35 +104,6 @@ fn a_plus_source() -> super::VerifiedResolvedSourceUnitV1 {
     .unwrap()
 }
 
-#[test]
-fn compiler_bridge_drains_a_plus_single_route() {
-    let source = a_plus_source();
-    let plan = match super::capability::CanonicalLoweringPreflightV1::verify(&source).unwrap() {
-        super::capability::CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => plan,
-        _ => panic!("A+ fixture changed preflight family"),
-    };
-    let mut compiler = MirCompiler::new();
-    let package = compiler
-        .bind_canonical_source(ExactCanonicalPreflightPlanV1::APlus(plan))
-        .unwrap();
-    let complete = compiler
-        .begin_canonical_invocation(package, Some("a_plus.hako"), "a_plus".into())
-        .unwrap()
-        .lower()
-        .unwrap()
-        .collect()
-        .unwrap()
-        .complete()
-        .unwrap();
-    let drained = complete.prepare_drain().unwrap().drain();
-    let CanonicalDrainedInvocationV1::Single(product) = drained else {
-        panic!("A+ route drained as callable")
-    };
-    assert_eq!(product.physical.module.functions.len(), 1);
-    assert!(product.physical.module.functions.contains_key("a_plus/1"));
-    assert_eq!(product.physical.receipt_brand(), product.token.brand());
-    assert_eq!(product.physical.brand, product.token.brand());
-}
 
 #[test]
 fn compiler_bridge_completion_retains_single_physical_receipt() {

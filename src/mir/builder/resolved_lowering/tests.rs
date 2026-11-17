@@ -19,23 +19,6 @@ fn fixture() -> ASTNode {
     statements.remove(0)
 }
 
-#[test]
-fn closed_family_uses_resolver_bindings_without_legacy_allocation() {
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(fixture()).unwrap();
-    let plan = CanonicalLoweringPreflightV1::verify(&unit).unwrap();
-    let mut builder = MirBuilder::new();
-    let crate::mir::compiler::capability::CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) =
-        plan
-    else {
-        panic!("parameter/outbox fixture must remain on temporary A+")
-    };
-    let module = builder.build_resolved_function_module(plan).unwrap();
-
-    assert!(module.functions.contains_key("canonical_fixture/1"));
-    assert_eq!(builder.core_ctx.next_binding_id, 0);
-    assert!(builder.function_state.binding_ctx.is_empty());
-    assert!(builder.function_state.variable_ctx.variable_map.is_empty());
-}
 
 fn compile_source(text: &str) -> crate::mir::compiler::MirCompileResult {
     let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(

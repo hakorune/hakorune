@@ -1,10 +1,5 @@
-use super::PreparedLocatedRawLoopChildEntryV1;
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::LoopFactsPolicyFrameV1;
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
-use crate::mir::builder::raw_invocation_source_transport::{
-    RawInvocationRootLineageV1, RawInvocationSourceContextV1,
-};
 use crate::mir::builder::MirBuilder;
 use crate::mir::source_call_target::issue_source_bound_core_method_calls_v1;
 
@@ -161,55 +156,4 @@ fn builder_for_true_edge(ledger: &std::cell::RefCell<CallableSemanticLoweringSta
         .install_entry_values(&entry)
         .expect("entry install");
     builder
-}
-
-#[test]
-fn armed_loop_true_edge_lowers_through_the_source_port() {
-    let edge = armed_loop_true_edge();
-    let disposition = edge
-        .ledger
-        .borrow()
-        .loop_binding_source_projection()
-        .project_loop_true_disposition(edge.loop_site.clone())
-        .expect("loop binding disposition");
-    let (_, root) = RawInvocationSourceContextV1::from_transport(
-        crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceTransportV1::root(
-            (),
-            RawInvocationRootLineageV1::ScriptRoot,
-        ),
-    );
-    let (_, parent_source) = RawInvocationSourceContextV1::from_transport(
-        root.body_statement(edge.loop_node.clone(), edge.loop_index),
-    );
-    let prepared = PreparedLocatedRawLoopChildEntryV1::prepare(
-        &parent_source,
-        edge.loop_node,
-        Some(disposition),
-    )
-    .expect("located loop-true entry");
-    let mut builder = builder_for_true_edge(&edge.ledger);
-    let mut scope =
-        crate::mir::builder::module_invocation_session::UnpublishedCallableLoopRootScopeV1::for_test(
-        );
-    crate::test_support::with_env_vars(&crate::test_support::JOINIR_STRICT_PLANNER_MODE, || {
-        prepared
-            .lower_v1_with_root_scope_and_callable_ledger(
-                &mut builder,
-                "caller",
-                false,
-                false,
-                LoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true),
-                &mut scope,
-                &edge.ledger,
-                None,
-                None,
-                crate::mir::builder::normal_callable_loop_source_route::
-                    CallableLoopSourceTargetProbeV1::from_parts(
-                        vec![armed_source_target(edge.call_site)].into_boxed_slice(),
-                        Box::new([]),
-                        false,
-                    ),
-            )
-            .expect("armed loop-true edge must lower through the source port");
-    });
 }

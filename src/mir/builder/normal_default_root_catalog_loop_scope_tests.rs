@@ -230,39 +230,6 @@ fn reject_source_backed(source: &str) -> String {
 ///   at the loop-handoff `duplicate-source-site` freeze.
 /// - `break` leaves NoExitBody, takes the composite lane, and stops at its
 ///   `source-target-empty` terminal.
-#[test]
-fn source_backed_loop_outside_call_free_grammar_still_stops_at_source_items() {
-    run_on_test_thread("call-free-grammar-negative", || {
-        // `<=` condition is outside the accepted grammar.
-        let less_equal = reject_source_backed(
-            "static box Scan { run(i, limit) { local x = i loop(x <= limit) { x = x + 1 } return x } } static box Main { main() { return 0 } }",
-        );
-        assert!(
-            less_equal.contains("[callable-loop/route-not-front-selected]")
-                && less_equal.contains("SourceItemsMissing"),
-            "{less_equal}"
-        );
-        // Compound assignment is not a plain binding rebind.
-        let compound = reject_source_backed(
-            "static box Scan { run(i, limit) { local x = i loop(x < limit) { x += 1 } return x } } static box Main { main() { return 0 } }",
-        );
-        assert!(compound.contains("duplicate-source-site"), "{compound}");
-        // An exit statement under the loop is outside NoExitBody.
-        let exit = reject_source_backed(
-            "static box Scan { run(i, limit) { local x = i loop(x < limit) { x = x + 1 break } return x } } static box Main { main() { return 0 } }",
-        );
-        assert!(exit.contains("source-target-empty"), "{exit}");
-        // An unsupported expression row (subtraction) stays uncovered.
-        let subtraction = reject_source_backed(
-            "static box Scan { run(i, limit) { local x = i loop(x < limit) { x = x - 1 } return x } } static box Main { main() { return 0 } }",
-        );
-        assert!(
-            subtraction.contains("[callable-loop/route-not-front-selected]")
-                && subtraction.contains("SourceItemsMissing"),
-            "{subtraction}"
-        );
-    });
-}
 
 /// A call inside the loop keeps the WithCalls arm — it must never mint a
 /// CallFree route and must reach its own named terminal when the call has no

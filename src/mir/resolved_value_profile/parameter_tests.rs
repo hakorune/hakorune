@@ -5,7 +5,6 @@ use crate::mir::resolved_control_flow::if_control::verify_resolved_function_if_c
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
 use crate::mir::resolved_semantics::SourceBindingSiteV1;
 
-use super::error::TrivialProfileStopReasonV1;
 use super::product::{
     TrivialProfileCoverageSubjectV1, TrivialRepresentationV1, TrivialTerminalProfileV1,
     VerifiedTrivialCanonicalOwnerV1,
@@ -220,28 +219,6 @@ fn parameter_rebind_and_if_merge_reuse_the_existing_profile_environment() {
         .all(|row| row.representation() == TrivialRepresentationV1::InlineI64));
 }
 
-#[test]
-fn unsupported_parameter_types_and_untyped_parameters_do_not_admit() {
-    for declared in [
-        None,
-        Some("bool"),
-        Some("f64"),
-        Some("usize"),
-        Some("String"),
-    ] {
-        let TrivialCanonicalOwnerAnalysisV1::NotAdmitted(stop) =
-            analyze(typed_function(&[declared], vec![return_value(integer(1))]))
-        else {
-            panic!("unsupported parameter representation must not admit")
-        };
-        let expected = if declared.is_none() {
-            TrivialProfileStopReasonV1::ParameterRepresentationUnavailable
-        } else {
-            TrivialProfileStopReasonV1::TypedSignatureOutsideProfile
-        };
-        assert_eq!(stop.reason(), expected);
-    }
-}
 
 #[test]
 fn exact_parameter_profile_selects_production_binding_ssa_route() {

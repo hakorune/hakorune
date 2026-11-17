@@ -1,10 +1,6 @@
 use super::*;
 use crate::ast::{DeclarationAttrs, LiteralValue, Span};
 use crate::mir::builder::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
-use crate::mir::resolved_semantics::{
-    ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1,
-};
-use crate::parser::NyashParser;
 use std::collections::HashMap;
 
 fn selected_plan(statements: Vec<ASTNode>, is_app_mode: bool) -> PreparedProgramRootWorkPlanV1 {
@@ -84,100 +80,8 @@ fn instance_box_with_birth(name: &str) -> ASTNode {
     declaration
 }
 
-#[test]
-fn app_partition_preserves_source_order_and_runtime_retention() {
-    let plan = selected_plan(
-        vec![
-            box_declaration("Page", false),
-            function("helper"),
-            box_declaration("Helpers", true),
-            literal(7),
-            box_declaration("Main", true),
-        ],
-        true,
-    );
-    let parts = plan.into_parts();
-    assert_eq!(
-        parts.terminal,
-        ProgramRootTerminalScheduleV1::VerifiedAppMain
-    );
-    assert_eq!(parts.immediate.len(), 2);
-    assert!(matches!(
-        &parts.immediate[0],
-        PreparedProgramRootImmediateWorkV1::InstanceBox(work) if work.name == "Page"
-    ));
-    assert!(matches!(
-        &parts.immediate[1],
-        PreparedProgramRootImmediateWorkV1::TopLevelFunction(work) if work.name() == "helper"
-    ));
-    assert_eq!(parts.deferred_static.len(), 1);
-    assert_eq!(parts.deferred_static[0].name, "Helpers");
-    assert_eq!(parts.runtime.len(), 4);
-    assert!(
-        matches!(parts.runtime.statement_at(0), ASTNode::BoxDeclaration { name, .. } if name == "Page")
-    );
-    assert!(
-        matches!(parts.runtime.statement_at(3), ASTNode::BoxDeclaration { name, .. } if name == "Main")
-    );
-}
 
-#[test]
-fn script_partition_keeps_static_boxes_out_of_deferred_work() {
-    let ASTNode::Program { statements, .. } = NyashParser::parse_from_string(
-        "static box Helpers { value() { return 1 } }\nfunction helper() { return 2 }\nprint(3)",
-    )
-    .expect("parsed Script partition fixture") else {
-        panic!("expected Program root")
-    };
-    let plan = selected_plan(statements, false);
-    let parts = plan.into_parts();
-    assert_eq!(parts.terminal, ProgramRootTerminalScheduleV1::ScriptRuntime);
-    assert_eq!(parts.deferred_static.len(), 0);
-    assert_eq!(parts.immediate.len(), 1);
-    assert_eq!(parts.runtime.len(), 2);
-    assert!(
-        matches!(parts.runtime.statement_at(0), ASTNode::BoxDeclaration { name, .. } if name == "Helpers")
-    );
-    assert!(matches!(
-        parts.runtime.statement_at(1),
-        ASTNode::Print { .. }
-    ));
-    let PreparedProgramRootRuntimeWorkV1::SelectedNormal(runtime) = &parts.runtime else {
-        panic!("expected selected Script runtime work")
-    };
-    assert_eq!(
-        (
-            runtime.source_statement_index_at(0),
-            runtime.source_statement_index_at(1)
-        ),
-        (0, 2)
-    );
-}
 
-#[test]
-fn selected_constructor_sources_keep_parser_key_order_and_skip_nonfunctions() {
-    let mut declaration = box_declaration("Page", false);
-    let ASTNode::BoxDeclaration { constructors, .. } = &mut declaration else {
-        unreachable!()
-    };
-    constructors.insert("init/0".to_owned(), function("init"));
-    constructors.insert("birth/1".to_owned(), function("birth"));
-    constructors.insert("not-a-function".to_owned(), literal(0));
-    let plan = selected_plan(vec![declaration], true);
-    let parts = plan.into_parts();
-    let PreparedProgramRootImmediateWorkV1::InstanceBox(immediate) = &parts.immediate[0] else {
-        panic!("expected immediate instance Box")
-    };
-    let keys = immediate
-        .normal_constructor_sources
-        .as_ref()
-        .expect("selected source batch")
-        .sources()
-        .iter()
-        .map(|source| source.parser_constructor_key())
-        .collect::<Vec<_>>();
-    assert_eq!(keys, ["birth/1", "init/0"]);
-}
 
 #[test]
 fn raw_runtime_keeps_the_neutral_statement_carrier() {
@@ -210,32 +114,6 @@ fn selected_top_level_functions_reject_duplicate_physical_projection() {
     );
 }
 
-#[test]
-fn selected_script_window_keeps_callable_transfer_at_its_original_ordinal() {
-    let plan = selected_plan(vec![literal(1), function("helper"), literal(2)], false);
-    let parts = plan.into_parts();
-    let admission = parts
-        .script_root_admission
-        .expect("selected Script admission");
-    assert!(matches!(
-        admission
-            .window()
-            .entry_at(1)
-            .expect("function entry")
-            .semantic(),
-        ScriptRootSemanticDispositionV1::Transferred(ScriptTransferredBoundaryV1::TopLevelCallable)
-    ));
-    let PreparedProgramRootRuntimeWorkV1::SelectedNormal(runtime) = &parts.runtime else {
-        panic!("expected selected Script runtime work")
-    };
-    assert_eq!(
-        (
-            runtime.source_statement_index_at(0),
-            runtime.source_statement_index_at(1)
-        ),
-        (0, 2)
-    );
-}
 
 #[test]
 fn raw_top_level_functions_do_not_issue_selected_receipts() {

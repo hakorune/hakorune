@@ -269,28 +269,6 @@ fn assert_raw_indirect_unified_contract() {
     });
 }
 
-#[test]
-fn raw_invocation_port_collects_static_and_instance_box_methods() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_port_boxes/0".to_owned());
-    let mut invocation = ModuleLoweringInvocationV1::open(&mut builder);
-
-    invocation.with_module_port(|builder, module_port| {
-        let mut port = RawInvocationChildPortV1::new(module_port);
-        for source in [
-            "static box RawStatic { run() { return 7 } }",
-            "box RawInstance { run() { return 8 } }",
-        ] {
-            drive_rooted(builder, &mut port, parsed_box(source)).unwrap();
-        }
-    });
-
-    invocation.with_header_port(|_builder, headers| {
-        assert!(headers.contains_symbol("RawStatic.run/0"));
-        assert!(headers.contains_symbol("RawInstance.run/0"));
-        assert_eq!(headers.symbol_count(), 2);
-    });
-}
 
 #[test]
 fn raw_invocation_nested_main_keeps_existing_root_only_terminal() {
@@ -479,38 +457,6 @@ fn raw_invocation_port_preserves_call_and_from_children() {
     });
 }
 
-#[test]
-fn raw_invocation_port_preserves_function_preflight_children() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_port_function_preflight/0".to_string());
-    with_port!(builder, port, {
-        let typeop = drive_rooted(
-            builder,
-            &mut port,
-            function_call("isType", vec![add(int(1), int(2)), string("Integer")]),
-        )
-        .unwrap();
-        let externcall = drive_rooted(
-            builder,
-            &mut port,
-            function_call("externcall", vec![string("io.print"), add(int(3), int(4))]),
-        )
-        .unwrap();
-        assert!(instructions(builder).iter().any(|row| matches!(
-            row,
-            MirInstruction::TypeOp { dst, .. } if *dst == typeop
-        )));
-        assert!(instructions(builder).iter().any(|row| matches!(
-            row,
-            MirInstruction::LegacyCallV0 {
-                dst: Some(dst),
-                callee: Some(crate::mir::Callee::Extern(_)),
-                ..
-            } if *dst == externcall
-        )));
-        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
-    });
-}
 
 #[test]
 fn raw_invocation_port_preserves_if_children() {

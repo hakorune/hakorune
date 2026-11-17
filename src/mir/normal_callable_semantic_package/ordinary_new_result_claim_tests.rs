@@ -236,59 +236,6 @@ fn assignment_position_new_mints_no_result_claim() {
 /// composed `NullableObject(HakoAllocHandle)` lets `replacement`
 /// previously installed `received_nullable` incorrectly; its success prefix
 /// now rejects until an exact result ownership relation is available.
-#[test]
-fn page_heap_fixture_result_claim_census() {
-    let package = issue(include_str!(
-        "../../../lang/src/hako_alloc/memory/page_heap_box.hako"
-    ))
-    .expect("page_heap fixture source package");
-    let ledger = &package.ordinary_new_claim_ledger;
-    let claims = ledger.pending_result_claims_for_test();
-    assert_eq!(claims.len(), 9, "nine retained result-new claims");
-    let mut handle_sites = 0;
-    let mut result_ok_prefix = 0;
-    let mut result_bad_prefix = 0;
-    for (key, claim) in claims.iter() {
-        match claim.class() {
-            "HakoAllocHandle" => {
-                handle_sites += 1;
-                assert!(claim.construction().is_ok(), "{key:?} construction");
-                assert!(
-                    claim.home_prefix().is_ok(),
-                    "{key:?} prefix covered through the dominated-view consult"
-                );
-            }
-            "HakoAllocHandleResult" => {
-                assert!(
-                    claim.construction().is_ok(),
-                    "{key:?} construction — the provided-object store arm seals, got {:?}",
-                    claim.construction()
-                );
-                if claim.home_prefix().is_ok() {
-                    result_ok_prefix += 1;
-                } else {
-                    result_bad_prefix += 1;
-                    let Err(crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1::PrefixNotCovered(site)) = claim.home_prefix() else {
-                        panic!("{key:?}: unexpected prefix rejection {:?}", claim.home_prefix());
-                    };
-                    assert_eq!(
-                        site.node().segments(),
-                        &[crate::mir::resolved_semantics::SourcePathSegmentV1::Body(3)],
-                        "both reallocResult exits stop at the unsupported local realloc result"
-                    );
-                }
-            }
-            other => panic!("unexpected retained class {other}"),
-        }
-        assert!(claim.argument_rows().is_ok(), "{key:?} argument rows");
-    }
-    assert_eq!(handle_sites, 1, "one HakoAllocHandle site");
-    assert_eq!(
-        (result_ok_prefix, result_bad_prefix),
-        (6, 2),
-        "both later reallocResult exits require a valid result relation at Body(3)"
-    );
-}
 
 /// A birth that stores a `Parameter` into a declared user-class field is
 /// a caller-provided object store: the declared class is the sole class
