@@ -6,7 +6,6 @@ use crate::mir::resolved_semantics::{
     ScriptSyntaxViewV1, SourcePathSegmentV1, SourcePathV1, VerifiedScriptRootDemandEntryV1,
     VerifiedScriptRootDemandWindowV1,
 };
-use crate::mir::{MirCompiler, MirPrinter, NormalCompileRequestV1};
 
 fn integer(value: i64) -> ASTNode {
     ASTNode::Literal {
@@ -73,27 +72,6 @@ fn root_match_seals_all_child_sites_and_matches_legacy() {
             SourcePathSegmentV1::ProgramBody(0),
         ]
     );
-
-    let mut legacy = MirCompiler::with_options(false);
-    let legacy = legacy
-        .compile_with_source(program.clone(), Some("script-root-match.hako"))
-        .expect("legacy Match");
-    let normal = MirCompiler::with_options(false)
-        .compile_normal(
-            NormalCompileRequestV1::for_mir_mode(
-                program,
-                Some("script-root-match.hako"),
-                std::collections::HashMap::new(),
-            )
-            .expect("normal request"),
-        )
-        .expect("selected Match");
-    let printer = MirPrinter::new();
-    assert_eq!(
-        printer.print_module(&normal.module),
-        printer.print_module(&legacy.module)
-    );
-    assert_eq!(normal.verification_result, legacy.verification_result);
 }
 
 #[test]

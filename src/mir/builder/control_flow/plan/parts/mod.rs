@@ -29,7 +29,6 @@ pub(super) mod exit_kind_depth_view;
 pub(super) mod if_;
 pub(super) mod if_exit;
 mod if_exit_special;
-pub(super) mod if_general;
 pub(super) mod join_scope;
 mod loop_;
 

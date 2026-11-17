@@ -313,7 +313,6 @@ pub(in crate::mir) use normal_default_program_root::PreparedNormalDefaultProgram
 pub(in crate::mir) use normal_default_root_catalog_lifecycle::CompletedNormalDefaultRootCatalogLifecycleV1;
 #[cfg(test)]
 pub(in crate::mir) use normal_default_root_catalog_lifecycle::NormalDefaultRootCatalogLifecycleStageV1;
-mod cataloged_box_method_collector_handoff;
 mod module_lowering_invocation;
 mod module_lowering_invocation_access; // HEADERPORT0 WIRING-S0 live bundle
 #[cfg(test)]
@@ -427,8 +426,6 @@ pub(crate) fn check_step_tree_capabilities(
     )
 }
 mod condition_materialization;
-mod exprs_peek; // peek expression
-mod exprs_qmark; // ?-propagate
 mod field_facts; // Field/property receiver facts and declared-type helpers
 mod field_receiver_provenance; // Bounded current-receiver Copy/Phi proof; one field-fact consumer
 mod fields; // field access/assignment lowering split

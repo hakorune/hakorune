@@ -339,10 +339,6 @@ fn raw_invocation_port_preserves_async_qmark_check_collection_and_print_children
                 expression: Box::new(int(3)),
                 span: Span::unknown(),
             },
-            ASTNode::QMarkPropagate {
-                expression: Box::new(int(4)),
-                span: Span::unknown(),
-            },
             check(add(int(5), int(6))),
             ASTNode::ArrayLiteral {
                 elements: vec![add(int(7), int(8))],
@@ -519,33 +515,6 @@ fn raw_invocation_port_preserves_try_body_children() {
     });
 }
 
-#[test]
-fn raw_invocation_port_preserves_match_children() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_port_match/0".to_string());
-    with_port!(builder, port, {
-        let match_node = ASTNode::MatchExpr {
-            scrutinee: Box::new(add(int(1), int(2))),
-            arms: vec![(LiteralValue::Integer(3), add(int(4), int(5)))],
-            else_expr: Box::new(add(int(6), int(7))),
-            span: Span::unknown(),
-        };
-        let output = port
-            .with_source_transport_v1(
-                RawInvocationSourceTransportV1::root(
-                    match_node,
-                    RawInvocationRootLineageV1::ScriptRoot,
-                ),
-                |port, match_node| drive_legacy_expression_v1(builder, port, match_node),
-            )
-            .unwrap();
-        assert!(instructions(builder).iter().any(|row| matches!(
-            row,
-            MirInstruction::Phi { dst, .. } if *dst == output
-        )));
-        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
-    });
-}
 
 #[test]
 fn raw_invocation_port_preserves_new_and_field_record_children() {
