@@ -10,7 +10,7 @@ use crate::mir::raw_root_body_recipe::{
     RawRootBodyRecipeErrorV1, RawRootBodyRecipeV1, RawScriptBodyRecipeV1,
 };
 
-use super::raw_root_plan0::{RawPhysicalRootIdentityV1, RawRootKindV1, RawRootPlanV1};
+use super::raw_root_plan0::{RawPhysicalRootIdentityV1};
 
 mod recipe_projection;
 
@@ -262,75 +262,6 @@ impl RawRootSourceFactsV1 {
         }
     }
 
-    pub(in crate::mir) fn from_source(
-        source: &crate::mir::builder::OwnedRawSourceV1,
-        plan: &RawRootPlanV1,
-    ) -> Result<Self, RawRootSourceFactsErrorV1> {
-        let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(source.ast())
-            .map_err(|_| RawRootSourceFactsErrorV1::Catalog)?;
-        let ASTNode::Program { statements, .. } = source.ast() else {
-            return Err(RawRootSourceFactsErrorV1::RootNotProgram);
-        };
-        match plan.kind() {
-            RawRootKindV1::Script(_) => Ok(Self {
-                route: RawRootSourceRouteV1::Script,
-                physical: plan.physical(),
-                main: None,
-                helper_schedule: Box::new([]),
-                callable_catalog: catalog,
-                body: RawRootBodyFactV1::Script(classify_program(statements, &[])?),
-            }),
-            RawRootKindV1::App(app) => {
-                let Some(ASTNode::BoxDeclaration {
-                    name,
-                    methods,
-                    is_static,
-                    ..
-                }) = statements.get(app.main().top_level_statement())
-                else {
-                    return Err(RawRootSourceFactsErrorV1::MainLocatorDrift);
-                };
-                if name != "Main" || !*is_static {
-                    return Err(RawRootSourceFactsErrorV1::MainLocatorDrift);
-                }
-                let Some(ASTNode::FunctionDeclaration {
-                    body,
-                    params,
-                    param_decls,
-                    return_type_name,
-                    uses,
-                    contracts,
-                    attrs,
-                    ..
-                }) = methods.get_declaration(app.main().method_name())
-                else {
-                    return Err(RawRootSourceFactsErrorV1::MainLocatorDrift);
-                };
-                let metadata = RawAppMainMetadataFactsV1 {
-                    parameter_count: params.len(),
-                    parameter_decl_count: param_decls.len(),
-                    return_annotation_present: return_type_name.is_some(),
-                    uses_count: uses.len(),
-                    contract_count: contracts.len(),
-                    rune_count: attrs.runes.len(),
-                };
-                if !metadata.is_empty() {
-                    return Err(RawRootSourceFactsErrorV1::AppMainMetadata { metadata });
-                }
-                Ok(Self {
-                    route: RawRootSourceRouteV1::App,
-                    physical: plan.physical(),
-                    main: Some(app.main().clone()),
-                    helper_schedule: app.static_children().to_vec().into_boxed_slice(),
-                    callable_catalog: catalog,
-                    body: RawRootBodyFactV1::App {
-                        main: app.main().clone(),
-                        body: classify_program(body, &[])?,
-                    },
-                })
-            }
-        }
-    }
 }
 
 impl RawRootPostInstallFactsV1 {

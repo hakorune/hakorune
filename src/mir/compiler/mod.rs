@@ -62,32 +62,9 @@ mod nested_if_recipe_d2_tests;
 mod operator_call_retirement_tests;
 #[cfg(test)]
 mod prod_activation_p0_r1;
-#[cfg(test)]
-mod raw_public_cutover_parity_success_p0;
-#[cfg(test)]
-mod raw_public_ingress_p0;
-#[cfg(test)]
-mod raw_root_callable_main_p0;
-#[cfg(test)]
-mod raw_root_decl_access_p0;
-#[cfg(test)]
-mod raw_root_eligibility_p0;
 pub(in crate::mir) mod raw_root_environment_manifest;
-#[cfg(test)]
-mod raw_root_external_commit_p0;
-#[cfg(test)]
-mod raw_root_finalization_p0;
-pub(in crate::mir) mod raw_root_manifest_package;
 pub(in crate::mir) mod raw_root_plan0;
-#[cfg(test)]
-mod raw_root_postprocess_p0;
-#[cfg(test)]
-mod raw_root_publication_adapter_p0;
-#[cfg(test)]
-mod raw_root_publication_p0;
 pub(in crate::mir) mod raw_root_source_facts;
-#[cfg(test)]
-mod raw_source_binding_p0;
 #[cfg(test)]
 mod recursive_callable_module_activation_tests;
 #[cfg(test)]
@@ -119,10 +96,6 @@ pub use normal_default_pipeline::{
 pub(crate) use normal_default_pipeline::{
     NormalPublishedCompileOutcome, RejectedPostMacroWholeFileProgramV1,
     VerifiedPostMacroWholeFileProgramV1,
-};
-use raw_source_binding::{
-    RawCallableMainSelectionV1, RawIngressRequestV1, RejectedRawSourceBindingV1,
-    SourceBoundRawPackageV1,
 };
 pub use resolved_callable_module_input::{
     ResolvedCallableModuleLoweringInputV1, VerifiedResolvedCallableProgramV1,
@@ -321,43 +294,7 @@ impl MirCompiler {
         SourceBoundCanonicalPackageV1::bind(&mut self.invocation_identity, plan)
     }
 
-    /// RAW-SOURCE0-BIND0 disconnected source-bound Raw ingress.  The config
-    /// snapshot is taken before binding effects, and no Builder/collector/
-    /// ledger/session consumer is opened by this terminal.
-    pub(in crate::mir) fn bind_raw_source(
-        &mut self,
-        input: LegacyModuleLoweringInputV1,
-        source_file: Option<&str>,
-        module_name: impl Into<Box<str>>,
-        callable_main: RawCallableMainSelectionV1,
-    ) -> Result<SourceBoundRawPackageV1, RejectedRawSourceBindingV1> {
-        let config = BuilderInvocationConfigV1::snapshot_for_raw(&self.builder, source_file);
-        let request = RawIngressRequestV1::new(input, config, module_name, callable_main);
-        SourceBoundRawPackageV1::bind(&mut self.invocation_identity, request)
-    }
 
-    /// PUBLIC-INGRESS-CONFIG0: the NarrowV1 public request owns exact empty
-    /// imports while disconnected Raw fixtures retain their legacy snapshot.
-    pub(in crate::mir) fn bind_raw_source_for_public(
-        &mut self,
-        input: LegacyModuleLoweringInputV1,
-        source_file: Option<&str>,
-        module_name: impl Into<Box<str>>,
-        callable_main: RawCallableMainSelectionV1,
-        disposition: crate::mir::compiler::raw_public_ingress::RawPublicImportDispositionV1,
-    ) -> Result<SourceBoundRawPackageV1, RejectedRawSourceBindingV1> {
-        let config = match disposition {
-            crate::mir::compiler::raw_public_ingress::RawPublicImportDispositionV1::None => {
-                BuilderInvocationConfigV1::snapshot_for_raw_with_imports(
-                    &self.builder,
-                    source_file,
-                    std::collections::HashMap::new(),
-                )
-            }
-        };
-        let request = RawIngressRequestV1::new(input, config, module_name, callable_main);
-        SourceBoundRawPackageV1::bind(&mut self.invocation_identity, request)
-    }
 
     /// OWNER0's compiler-owned physical bridge.  The package is consumed only
     /// after one real session, shell, and collector have opened from its token.

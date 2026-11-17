@@ -69,7 +69,6 @@ pub(crate) mod normal_callable_semantic_package;
 pub(crate) mod raw_finalization_contract;
 pub(crate) mod raw_physical_drain;
 pub(crate) mod raw_root_body_recipe;
-pub(crate) mod raw_vm_reference_contract;
 #[cfg(test)]
 #[path = "shared_loop_source_window_tests.rs"]
 pub(crate) mod shared_loop_source_window;
@@ -109,7 +108,6 @@ pub(crate) fn test_global_target<S: AsRef<str>>(
 }
 pub(crate) use compiler::canonical_source_identity::CanonicalSourceBytesDigestV1;
 pub(crate) use compiler::normal_source_plan;
-pub(crate) use raw_vm_reference_contract::RawPublishedCompileRequestV1;
 pub mod cfg_extractor; // Phase 154: CFG extraction for hako_check
 pub(crate) mod checked_callout; // canonical MIR-owned checked Normal/Fault callout vocabulary
 pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for temporary concat const-suffix micro seed bridge
