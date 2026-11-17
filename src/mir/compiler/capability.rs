@@ -33,7 +33,6 @@ use super::source_view::{BodyChildRoleV1, ExprChildRoleV1};
 
 mod first_family_plan;
 mod function_role_policy;
-mod normal_main_binding;
 mod resolved_owner_header;
 mod trivial_plan;
 mod validation_errors;
@@ -42,7 +41,6 @@ pub(crate) use first_family_plan::{
     CanonicalGenericG0PlanV1, CanonicalLoopFamilyPlanV1,
 };
 use function_role_policy::{CanonicalFunctionRolePolicyV1, DirectCallAdmissionV1};
-pub(in crate::mir) use normal_main_binding::bind_sealed_normal_main_parts_v1;
 pub(crate) use resolved_owner_header::{
     ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
 };

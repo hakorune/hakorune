@@ -377,14 +377,6 @@ impl SealedNormalCallableModuleSourceV1 {
         }
     }
 
-    pub(crate) fn prepare_callable_source(
-        self,
-    ) -> Result<
-        super::callable_source::VerifiedNormalCallableSourceUnitV1,
-        super::callable_source::RejectedNormalCallableSourceV1,
-    > {
-        super::callable_source::prepare(self)
-    }
 
     pub(super) fn additional_callables(&self) -> &[NormalAdditionalCallableSiteV1] {
         &self.additional_callables

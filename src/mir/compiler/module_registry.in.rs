@@ -3,7 +3,6 @@
 // This file contains only Cargo/module topology. Semantic authorities and
 // compiler entry points remain in the sibling modules and in `mod.rs`.
 
-pub(in crate::mir) mod acyclic_callable_graph;
 pub(in crate::mir) mod callable_graph_inventory;
 #[cfg(test)]
 pub(crate) mod callable_loop_physical_canary;

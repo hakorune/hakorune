@@ -245,17 +245,6 @@ pub(in crate::mir) use module_invocation_brand0::{
 };
 pub(in crate::mir) use module_invocation_owner_chain::InvocationBranded;
 pub(in crate::mir) use module_lowering_shell::ModuleLoweringShellErrorV1;
-#[cfg(test)]
-pub(in crate::mir) use normal_module_transaction::completed_for_main_physical;
-pub(in crate::mir) use normal_module_transaction::{
-    CompletedNormalCallableCandidateV1, CompletedNormalCallableModuleEvidenceV1,
-    CompletedNormalMainModuleCandidateV1, CompletedNormalMainModuleEvidenceV1,
-    NormalCallableCandidateVerificationReceiptV1, NormalCanonicalModuleBatchErrorV1,
-    NormalCanonicalModuleBatchV1, NormalMainCandidateVerificationReceiptV1,
-    NormalMainModuleTransactionErrorV1, RejectedNormalCallableBatchV1,
-    RejectedNormalCallableCommitV1, RejectedNormalCallableMainPhysicalV1,
-    RejectedNormalHelperDraftPrefixV1,
-};
 pub(in crate::mir) use raw_root_physical::drain_terminal::{
     PreparedRawPhysicalDrainV1, RawDrainWitnessV1, RawDrainedPhysicalV1, RawPhysicalDrainErrorV1,
     RejectedRawPhysicalDrainV1,
