@@ -14,7 +14,6 @@ use crate::mir::resolved_semantics::ExprChildRoleV1;
 use super::normal_script_semantic_lowering_state::{
     ScriptDirectStaticClaimTakeV1, ScriptDirectStaticClaimedRowV1,
 };
-use super::qmark_source_demand::QMarkPropagationSourceDemandPortV1;
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
 use super::recursive_child_lowering::{
@@ -699,14 +698,6 @@ where
     }
 }
 
-impl<Port> QMarkPropagationSourceDemandPortV1 for RawStructuredChildScopePortV1<'_, Port>
-where
-    Port: QMarkPropagationSourceDemandPortV1,
-{
-    fn has_qmark_propagation_receipt_v1(&self, qmark: &ASTNode) -> Result<bool, String> {
-        self.child.has_qmark_propagation_receipt_v1(qmark)
-    }
-}
 
 #[cfg(test)]
 #[path = "raw_structured_child_scope_tests.rs"]

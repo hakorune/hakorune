@@ -8,7 +8,6 @@
 
 use super::{BasicBlockId, MirFunction, MirModule, ValueId};
 
-mod derive;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ArrayTextResidenceSessionScope {
@@ -479,11 +478,5 @@ pub fn refresh_module_array_text_residence_session_routes(module: &mut MirModule
 }
 
 pub fn refresh_function_array_text_residence_session_routes(function: &mut MirFunction) {
-    let routes = function
-        .metadata
-        .array_text_loopcarry_len_store_routes
-        .iter()
-        .filter_map(|route| derive::derive_loopcarry_session(function, route))
-        .collect();
-    function.metadata.array_text_residence_sessions = routes;
+    function.metadata.array_text_residence_sessions.clear();
 }

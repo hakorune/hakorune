@@ -261,20 +261,14 @@ fn destination_matches(
 #[path = "normal_script_direct_static_join_handoff_tests.rs"]
 mod tests;
 
-mod physical_input;
 mod required_argument_proof;
 mod scalar_operand_recipe;
 
-#[cfg(test)]
-pub(in crate::mir) use physical_input::VerifiedScriptDirectStaticPhysicalInputRowV1;
-pub(in crate::mir) use physical_input::VerifiedScriptDirectStaticPhysicalInputV1;
 pub(in crate::mir) use required_argument_proof::{
     RequiredArgumentProofArgumentV1, ScriptDirectStaticRequiredArgumentProofDispositionV1,
     VerifiedScriptDirectStaticRequiredArgumentProofV1,
 };
 pub(in crate::mir::builder) use scalar_operand_recipe::issue_node;
-#[cfg(test)]
-pub(in crate::mir) use scalar_operand_recipe::ScalarOperandRecipeArgumentV1;
 pub(in crate::mir) use scalar_operand_recipe::{
     ScalarBinaryOperatorV1, ScalarOperandRecipeNodeV1, ScalarUnaryOperatorV1,
 };

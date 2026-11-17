@@ -330,7 +330,6 @@ mod raw_root_completion_preflight; // ROOT-RETENTION0-PREFLIGHT borrowed owner c
 mod root_batch_slot; // HEADERPORT0-I0-ROOTBATCH0-S0 identity SSOT
 pub(in crate::mir) use root_batch_slot::raw_main_entry_target;
 mod enum_variant_source_demand;
-mod qmark_source_demand;
 mod raw_expression_recursion_guard;
 mod raw_invocation_body;
 mod raw_invocation_source_item_site;

@@ -8,11 +8,10 @@
 use std::collections::BTreeMap;
 
 use crate::mir::resolved_semantics::{
-    BodyShapeRelationV1, FunctionOwnerIdV1, SourceExprSiteV1, VerifiedSemanticOwnerProductV1,
+    BodyShapeRelationV1, FunctionOwnerIdV1, SourceExprSiteV1,
 };
 
 use super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
-use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 use super::normal_script_source_continuation::{
     ScriptSourceContinuationTerminalV1, VerifiedScriptSourceContinuationV1,
 };
@@ -137,83 +136,6 @@ impl VerifiedScriptDirectStaticResultPublicationOwnerV1 {
         }
     }
 
-    pub(super) fn issue(
-        source: &VerifiedScriptSemanticSourceV1<'_>,
-        bundle: &VerifiedScriptDirectStaticResultBundleV1,
-        continuation: &VerifiedScriptSourceContinuationV1,
-    ) -> Result<Self, ScriptDirectStaticResultPublicationOwnerIssueV1> {
-        let [root] = source.forest().roots() else {
-            return Err(ScriptDirectStaticResultPublicationOwnerIssueV1::ScriptRootCardinality);
-        };
-        let Some(product) = source
-            .forest()
-            .semantic_owner(*root)
-            .and_then(VerifiedSemanticOwnerProductV1::as_script)
-        else {
-            return Err(ScriptDirectStaticResultPublicationOwnerIssueV1::ScriptRootProduct);
-        };
-        if bundle.source_identity() != source.source() as *const _ as usize {
-            return Err(ScriptDirectStaticResultPublicationOwnerIssueV1::BundleSourceMismatch);
-        }
-        let source_owner = product.core().data().owner;
-        if source_owner != bundle.source_owner() {
-            return Err(ScriptDirectStaticResultPublicationOwnerIssueV1::BundleOwnerMismatch);
-        }
-        if source_owner != continuation.owner() {
-            return Err(ScriptDirectStaticResultPublicationOwnerIssueV1::ContinuationOwnerMismatch);
-        }
-
-        let mut rows = BTreeMap::new();
-        for (site, demand) in bundle.rows() {
-            let Some(destination) = continuation.row(site) else {
-                return Err(
-                    ScriptDirectStaticResultPublicationOwnerIssueV1::ContinuationMissing(
-                        site.clone(),
-                    ),
-                );
-            };
-            if destination.owner() != source_owner {
-                return Err(
-                    ScriptDirectStaticResultPublicationOwnerIssueV1::ContinuationRowOwnerMismatch(
-                        site.clone(),
-                    ),
-                );
-            }
-            if destination.call_site() != site {
-                return Err(
-                    ScriptDirectStaticResultPublicationOwnerIssueV1::ContinuationCallSiteMismatch(
-                        site.clone(),
-                    ),
-                );
-            }
-            let row = VerifiedScriptDirectStaticResultPublicationDemandV1 {
-                source_owner,
-                call_site: site.clone(),
-                receiver_site: demand.receiver_site().clone(),
-                argument_sites: demand.argument_sites().to_vec().into_boxed_slice(),
-                result_site: demand.result_site().clone(),
-                parent_relations: destination.parent_relations().to_vec().into_boxed_slice(),
-                terminal: destination.terminal().clone(),
-                target: demand.target().clone(),
-                representation: demand.representation().clone(),
-                required_callee_i64_arguments: demand
-                    .required_callee_i64_arguments()
-                    .to_vec()
-                    .into_boxed_slice(),
-            };
-            if rows.insert(site.clone(), row).is_some() {
-                return Err(
-                    ScriptDirectStaticResultPublicationOwnerIssueV1::DuplicateSite(site.clone()),
-                );
-            }
-        }
-
-        Ok(Self {
-            source_owner,
-            source_identity: source.source() as *const _ as usize,
-            rows,
-        })
-    }
 
     /// Project the already-issued C rows without reopening the AST or
     /// resolver forest. Continuation relations remain the only new input:
@@ -315,7 +237,3 @@ impl VerifiedScriptDirectStaticResultPublicationOwnerV1 {
         self.rows.len()
     }
 }
-
-#[cfg(test)]
-#[path = "normal_script_direct_static_result_publication_owner_tests.rs"]
-mod tests;

@@ -17,9 +17,8 @@ pub(in crate::mir) use coseal::{
     DynamicFullLoopOperationEffectV2, DynamicFullLoopPhysicalItemKindV2,
     DynamicFullLoopPhysicalItemPlacementV2, DynamicFullLoopSemanticProgramRejectV2,
     DynamicFullLoopSourceRecipeEnvelopeRejectV2, DynamicInvocationCarrierLifecycleProgramRejectV1,
-    DynamicInvocationCleanupActionViewV1, DynamicInvocationCleanupCurrentDispositionV1,
-    DynamicInvocationCleanupProjectionRejectV1, DynamicInvocationCleanupRowKindV1,
-    DynamicInvocationCleanupRowViewV1, VerifiedDynamicExitTransactionCoSealV1,
+    DynamicInvocationCleanupCurrentDispositionV1,
+    DynamicInvocationCleanupProjectionRejectV1, VerifiedDynamicExitTransactionCoSealV1,
     DYNAMIC_FULL_LOOP_PHYSICAL_ITEM_COUNT_V2, DYNAMIC_FULL_LOOP_PHYSICAL_OPERATION_COUNT_V2,
 };
 

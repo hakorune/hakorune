@@ -6,13 +6,9 @@
  * nested contract.
  */
 
-mod matcher;
 mod model;
 mod types;
 
-pub(crate) use matcher::{
-    derive_observer_store_len_sum_region_contract, derive_observer_store_region_contract,
-};
 pub use model::{ArrayTextObserverExecutorContract, ArrayTextObserverStoreRegionMapping};
 pub use types::{
     ArrayTextObserverExecutorCarrier, ArrayTextObserverExecutorConsumerCapability,

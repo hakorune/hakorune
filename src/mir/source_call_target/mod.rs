@@ -60,10 +60,6 @@ pub(crate) use script_direct_static::{
     ScriptDirectStaticCallLookupErrorV1, VerifiedScriptDirectStaticCallLookupRowV1,
     VerifiedScriptDirectStaticCallLookupV1,
 };
-#[cfg(test)]
-pub(crate) use script_direct_static::{
-    ScriptDirectStaticCallTargetErrorV1, VerifiedScriptDirectStaticCallTargetInventoryV1,
-};
 pub(crate) use source_method_call_site::VerifiedSourceMethodCallSiteV1;
 pub(crate) use whole_source_inventory::VerifiedWholeSourceStaticCallTargetInventoryV1;
 pub(crate) use whole_source_inventory_error::WholeSourceStaticCallTargetInventoryErrorV1;
@@ -80,8 +76,6 @@ mod dynamic_member_tests;
 mod qualified_receiver_lexical_tests;
 #[cfg(test)]
 mod qualified_route_facts_tests;
-#[cfg(test)]
-mod script_direct_static_tests;
 #[cfg(test)]
 mod source_method_call_site_tests;
 #[cfg(test)]

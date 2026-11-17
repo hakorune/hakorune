@@ -16,19 +16,7 @@ impl RawPhysicalRootIdentityV1 {
         }
     }
 
-    pub(in crate::mir) const fn main_symbol(&self) -> &'static str {
-        self.main_symbol
-    }
 
-    pub(in crate::mir) const fn main_arity(&self) -> usize {
-        self.main_arity
-    }
 
-    pub(in crate::mir) const fn condition_symbol(&self) -> &'static str {
-        self.condition_symbol
-    }
 
-    pub(in crate::mir) const fn condition_arity(&self) -> usize {
-        self.condition_arity
-    }
 }

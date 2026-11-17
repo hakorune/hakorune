@@ -17,7 +17,7 @@ mod draft_seal_owner;
 mod function_draft_entry;
 pub(in crate::mir::builder) use draft_seal::ReadyFunctionDraftSealV1;
 pub(in crate::mir::builder) use draft_seal_owner::{
-    CompletedCatalogedBoxCallableDraftV1, DiscardedFunctionDraftSealErrorV1,
+    DiscardedFunctionDraftSealErrorV1,
     SelectedDynamicCandidateMetadataV1,
 };
 mod flow_consumption;

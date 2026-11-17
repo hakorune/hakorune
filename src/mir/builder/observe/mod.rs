@@ -4,5 +4,4 @@
 //! - resolve: method resolution try/choose（既存呼び出しの置換は段階的に）
 
 pub mod resolve;
-pub mod ssa;
 pub mod types;

@@ -39,7 +39,6 @@ use super::ops::{
     lower_prepared_raw_unary_with_port_v1, BinaryExpressionDescentPortV1, PreparedRawUnaryV1,
     RawLegacyBinaryInputV1, RawLegacyShortCircuitInputV1, ShortCircuitExpressionDescentPortV1,
 };
-use super::qmark_source_demand::QMarkPropagationSourceDemandPortV1;
 use super::raw_structured_child_scope::RawStructuredChildScopePortV1;
 use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
 use super::recursive_child_lowering::{
@@ -89,7 +88,7 @@ pub(in crate::mir::builder) trait RawExpressionDispatchPortV1:
     + RawLoopChildEntryPortV1
     + RecordLiteralSourceDemandPortV1
     + EnumVariantSourceDemandPortV1
-    + QMarkPropagationSourceDemandPortV1
+
     + ExplicitExternSourcePortV1
     + BrandConstructorSourcePortV1
     + DirectCallDispositionPortV1
@@ -137,7 +136,7 @@ impl<Port> RawExpressionDispatchPortV1 for Port where
         + RawLoopChildEntryPortV1
         + RecordLiteralSourceDemandPortV1
         + EnumVariantSourceDemandPortV1
-        + QMarkPropagationSourceDemandPortV1
+
         + ExplicitExternSourcePortV1
         + BrandConstructorSourcePortV1
         + DirectCallDispositionPortV1

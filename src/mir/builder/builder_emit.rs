@@ -1,5 +1,5 @@
 use super::resolved_lowering::canonical_cfg::InstructionPlacementV1;
-use super::{observe, origin};
+use super::origin;
 use super::{BasicBlockId, MirBuilder, MirInstruction, ValueId};
 use crate::mir::diagnostics::{caller_string, mir_dump_value, FreezeContract};
 
@@ -179,13 +179,6 @@ impl MirBuilder {
                 instruction = MirInstruction::call(dst, new_callee, args.clone(), effects);
             }
         }
-
-        // The append consumes the instruction. Keep only the post-append Phi
-        // observation payload; non-Phi instructions need no whole-value clone.
-        let phi_observation = match &instruction {
-            MirInstruction::Phi { dst, inputs, .. } => Some((*dst, inputs.clone())),
-            _ => None,
-        };
 
         // Record caller only when emission succeeds.
         // If we record before validation/emit and the emit path returns Err, diagnostics may
@@ -470,9 +463,6 @@ impl MirBuilder {
         }
         if let Some((dst, prepared)) = prepared_phi_origin {
             origin::phi::commit_unanimous_origin(self, dst, prepared);
-        }
-        if let Some((dst, inputs)) = phi_observation {
-            observe::ssa::emit_phi(self, dst, &inputs);
         }
         Ok(())
     }
