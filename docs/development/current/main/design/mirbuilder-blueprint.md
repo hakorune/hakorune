@@ -264,7 +264,7 @@ v1 の大きさの「5〜9 万行」は、**設計の予算としての仮説**�
 | | 決めた事 |
 |---|---|
 | 1 | `local b = a` の意味は、ADR-003(数える Box。仮の採用)で設計する。ADR-003 の正式の採用の条件は、別に保つ |
-| 2 | 型の無い値を、黙って Dynamic にしない。「型の注釈が無い」と「型を推論できない」は分ける |
+| 2 | (2026-11-17 に置き換えた。下の 12)~~型の無い値を、黙って Dynamic にしない~~ |
 | 3 | この設計図は、古い正本(`mirbuilder-final-pipeline-ssot.md`)の下に、詳細の設計として置く |
 | 4 | loop の家族を、受け付ける条件から外す。一般の loop の契約は残す |
 | 5 | 進め方は 14 節(今ある MirBuilder を、責務ごとにまとめて、古い処理を消す。別の builder を横に作らない。2026-11-17 に書き直した) |
@@ -274,10 +274,16 @@ v1 の大きさの「5〜9 万行」は、**設計の予算としての仮説**�
 | 9 | 宣言した戻りの型と違う値を、返せない(`: i64` の method の `return true` も `return 1.5` も、Resolve の compile error)。暗黙の変換は、しない |
 | 10 | `birth_once` は、言語から外す(selfhost の source に、使用は 0)。Resolve の、名前付きの拒否 |
 | 11 | 引数や `local` の値を関数として呼ぶ形(`pred(v)`)は、closure の形が決まるまで、名前付きの拒否 |
+| 12 | **型の注釈が無い = Dynamic**(実行時に確かめる、と決めた型。「分からないから通す」ではない)。型の注釈は、必ず守る契約。未定義の名前や、所有の責任を、Dynamic にしない。正本は `docs/reference/language/types.md` の "Static contract checks" |
+| 13 | **「静的に分かる型」の出所は 4 つだけ**: リテラル、型の注釈のある束縛・仮引数・field、戻りの型を宣言した呼び出し、`new T(...)`。流れの解析や最適化の事実は、受ける・断るを決めない |
+| 14 | **型のある置き場と演算子に、同じ規則**: 満たす = 受ける / 明らかに違う = compile error / Dynamic に依る = 実行時の検査(失敗は TypeError の Fault)。`1 + true` は compile error。暗黙の変換は、しない |
+| 15 | **`local` は、必ず初期値あり。** `local x` だけは compile error(selfhost の source の 21 か所は `= null` に直す)。未初期化の状態は、言語に無い |
+| 16 | 無い field・無い method は、receiver の型が静的に分かる時は compile error、Dynamic の時は実行時。loop の外の `break`/`continue`、instance の外の `me` は compile error。無条件の top-level の `_` は `match` の網羅を満たす。型・宣言・制御の関係が要る検査は、parser ではなく Resolve |
+| 17 | 形の制限(入れ子の `if` は 1 段、loop をまたぐ書き込み)は、言語の決まりではない。拒否の表にも載せない。道と一緒に消す |
 
-決定 8〜11 は、Resolve の責務をまとめる時の決まりである。今の受け付ける範囲は、その回まで変えない(拒否が増える時は、その回で、変わる入力を全部一覧にする)。
+決定 8〜17 は、Resolve の責務をまとめる時の決まりである(12〜17 はメンテナ OK 2026-11-17。ChatGPT Pro と Gemini 4 に相談した)。**受ける範囲を広げる変更(Dynamic を通す)は、掃除とは別の回で、掃除の後にやる。**今の受け付ける範囲は、その回まで変えない(拒否が増える時は、その回で、変わる入力を全部一覧にする)。
 
-まだ確かめていない事: 決定 2 のために、selfhost の source に、型の無い引数と field がどのくらいあるかを数える。11 節の大きさは、仮の予算。
+数えた事(2026-11-17): selfhost の source は、仮引数の 95%、戻りの 87%、`local` の 99.5% に型の注釈が無い(field は 99% にある)。これを受けて、決定 2 を 12 に置き換えた。11 節の大きさは、仮の予算。
 
 ## 14. 進め方(決定 5。2026-11-17 に書き直した)
 
@@ -461,11 +467,11 @@ source → MIR の間で、program を断ってよい理由は、**この表に�
 - **表に無い拒否を消す時も、その場所が守っている不変の条件(今使う MIR の不正を防ぐ検査: 検証、SSA、所有の釣り合い)は、消さない。** 入力が通らなかった事は、その検査が要らない事の証明ではない。消すのは、source を受ける道・形を見分ける道・その包みである。
 - **固定入力の比較は、「拒否か成功か」だけでは足りない。失敗の種類を守る**(構文の誤り / program の誤り / まだ作っていない機能 / 対象・環境の制約 / コンパイラ内部の不整合 / 実行時の失敗)。source の拒否が panic や内部の誤りに変わったら、不合格。守らなくてよいのは、文言と内部の名前である。
 - 同じ理由を、道ごとの別の名前にしない。位置、型、引数の番号、member の名前は、data として渡す。拒否の名前ごとに test を足さない。
-- 決定 8〜11 に当たる行(A11、A24、A25、B05)は、13 節のとおり、Resolve の責務をまとめる回から効く。
+- 決定 8〜17 に当たる行は、13 節のとおり、Resolve の責務をまとめる回から効く。
 
 引用の略号: `L/` = `docs/reference/language/`、`BP` = この文書、`ADR3` = `docs/development/adr/adr-003-counted-box-default.md`、`ADR4` = `docs/development/adr/adr-004-failure-surface-catch-and-cleanup.md`。根拠の S は仕様が明記、I は直接の含意。行番号は 2026-11-17 の時点。
 
-### 23.1 program が間違っている(compile error。50 行)
+### 23.1 program が間違っている(compile error。53 行)
 
 | # | 名前(案) | 意味 | 根拠 | 引用 |
 |---|---|---|---|---|
@@ -483,9 +489,9 @@ source → MIR の間で、program を断ってよい理由は、**この表に�
 | A12 | `decl/fini-as-method` | `fini()` を普通の method として宣言する | S | `L/lifecycle.md:58-66` |
 | A13 | `decl/top-level-statement` | file mode の top-level に文(代入、`local`、式の文) | S | `L/repl.md:71-75` |
 | A14 | `decl/callable-contract-conflict` | `CallableContract` が宣言や本体と矛盾する | S | `L/callable-contracts.md:419-421` |
-| A15 | `call/target-missing` | 呼び出し先の宣言が無い・あいまい(無い関数、無い method) | S | `L/function-call-evaluation.md:119-120`、`:158-160` |
+| A15 | `call/target-missing` | 呼び出し先の宣言が無い・あいまい(無い関数。型が静的に分かる receiver の、無い method) | S | `L/function-call-evaluation.md:119-120`、`:158-160` |
 | A16 | `call/arity-mismatch` | 引数の数が宣言と違う(別の同名を探さない) | S | `L/callable-contracts.md:80-83`、`L/function-call-evaluation.md:82-84` |
-| A17 | `call/receiverless-me` | receiver の無い所の `me`、static の receiver・`this` | I | `L/function-call-evaluation.md:200-202`、`:119-121` |
+| A17 | `name/me-outside-instance` | instance の method・`birth`・`fini` の外の `me`(値として)。static の中の `me.field`、`me` を渡す事 | S | `L/semantic-kernel.md`(Control Boundaries の `me`) |
 | A18 | `call/direct-birth` | `obj.birth(...)` を直接呼ぶ | S | `L/lifecycle.md:124` |
 | A19 | `call/direct-fini` | `obj.fini()` を直接呼ぶ | S | `L/lifecycle.md:58-61` |
 | A20 | `call/new-static-box` | `static box` を `new` する | S | `L/types.md:154-156` |
@@ -496,8 +502,7 @@ source → MIR の間で、program を断ってよい理由は、**この表に�
 | A25 | `type/return-mismatch` | 宣言した戻りの型と違う値を返す(暗黙の変換なし) | S | `BP:273` |
 | A26 | `type/return-void-value` | `: void` の関数が値を返す | S | `L/function-exit-and-entry-result.md:257-260` |
 | A27 | `type/return-missing-value` | 戻りの型を書いた関数が、値なしで終わる(落ちる、裸の `return`、`return void`) | S | `L/function-exit-and-entry-result.md:254-255` |
-| A28 | `type/uninferable` | 型を決められない(黙って Dynamic にしない) | S | `BP:266`、`ADR3:44` |
-| A29 | `type/local-initializer-required` | 厳密な型を書いた `local` に初期値が無い | S | `L/types.md:399` |
+| A29 | `decl/local-initializer-required` | `local` に初期値が無い | S | `L/types.md` "Static contract checks" 6 |
 | A30 | `type/generic-arity` | 型引数の数が違う(`Meta<A, B>`) | S | `L/EBNF.md:799-828` |
 | A31 | `type/enum-context-required` | `local e = Option::None` のように、型引数が決まらない構築 | S | `L/option.md:111-114` |
 | A32 | `type/option-nullish-payload` | `Option::Some(null)`・`Some(void)`(compile 時に分かる時) | S | `L/option.md:119-125` |
@@ -510,7 +515,7 @@ source → MIR の間で、program を断ってよい理由は、**この表に�
 | A39 | `type/result-discarded` | 式の文で `Result` の値を捨てる | S | `ADR4:24` |
 | A40 | `match/non-exhaustive` | 既知の enum の `match` で variant が足りない | S | `L/option.md:101-104`、`L/EBNF.md:415` |
 | A41 | `match/unknown-variant` | pattern の大文字始まりの名前が、どの variant でもない | S | `L/EBNF.md:370-371`、`L/ownership.md:242-243` |
-| A42 | `control/break-continue-outside-loop` | loop の外の `break`・`continue` | I | `L/semantic-kernel.md:137`、`BP:368` |
+| A42 | `control/break-continue-outside-loop` | loop の外の `break`・`continue` | S | `L/semantic-kernel.md`(Control Boundaries) |
 | A43 | `control/exit-in-block-expression` | 式の位置の block の中の `return`・`break`・`continue` | S | `L/block-expressions-and-map-literals.md:83-84` |
 | A44 | `control/block-expression-no-tail` | 式の block が空、または文で終わる | S | `L/block-expressions-and-map-literals.md:37` |
 | A45 | `control/guard-let-else-fallthrough` | `guard let ... else { }` の else が普通に抜ける | S | `L/semantic-kernel.md:138-140`、`L/grammar-contract.md:55` |
@@ -519,10 +524,14 @@ source → MIR の間で、program を断ってよい理由は、**この表に�
 | A48 | `control/fini-hook-restriction` | `fini { }` の中の `return`・`break`・`continue`・`?`・`await`、`me` の保存・capture・逃がし | S | `L/lifecycle.md:489-501`、`ADR3:160` |
 | A49 | `assign/range-index-readonly` | `loop i in a..b` の `i` へ代入する | S | `L/EBNF.md:1146` |
 | A50 | `init/birth-receiver-escape` | `birth` の中で、公開の前に `me` を外へ出す(capture、転送、return、保存) | S | `L/lifecycle.md:126-130` |
+| A51 | `type/argument-mismatch` | 型を宣言した仮引数へ、静的に違う型の実引数を渡す | S | `L/types.md` "Static contract checks" 3 |
+| A52 | `type/local-store-mismatch` | 型を宣言した `local` へ、静的に違う型の値を入れる(初期値と代入) | S | 同 3 |
+| A53 | `type/operator-mismatch` | 演算子の両方の型が静的に分かっていて、合わない(`1 + true`) | S | 同 3、`L/types.md`(演算子の表) |
+| A54 | `name/unknown-field` | 型が静的に分かる receiver に、無い field を読む・書く | S | 同 5 |
 
-所有の拒否(`move` の後の使用、借りを通した書き込み、など 27 行の候補)は、まだ表に入れない。所有の model(今の規則、`L/ownership.md` の次の model、ADR-003 の仮の採用)のどれで行くかが決まった時に、その model の行だけを足す。
+所有の拒否: 次の model(`L/ownership.md` の 0 節)と HomeV1 の候補 27 行は、表に入れない。**今、有効な所有の規則が利用者に求めている物だけを、ここへ足して、凍結する**(Resolve の責務をまとめる回で、今出ている所有の拒否を、「利用者の違反 / まだ作っていない / 内部の不整合 / 古い道だけの証拠」に分けて、最初の 2 つだけを行にする)。ADR-003 が正式になった時は、行が減る。
 
-### 23.2 正しい言語だが、まだ作っていない(名前付きの拒否。38 行)
+### 23.2 正しい言語だが、まだ作っていない(名前付きの拒否。39 行)
 
 名前は `unsupported/<機能>` の 1 つの形にする。機能を作った回で、その行を消す。
 
@@ -566,6 +575,7 @@ source → MIR の間で、program を断ってよい理由は、**この表に�
 | B36 | `copy` の未接続の形(Bool・String・Box) | `L/EBNF.md:122` |
 | B37 | 低い層の予約(`unsafe(...)`、`sizeof`、`MaybeInit`、pointer の演算など) | `L/low-level-capabilities.md:702-716` |
 | B38 | 書き換えられない `local`(`const`) | `L/variables-and-scope.md:86-89` |
+| B39 | `Inline(required)`(必ず展開する、という要求。支えられる時まで、黙って無視せずに断る) | `L/runes.md:84-112` |
 
 ### 23.3 表に入れない物
 
@@ -574,16 +584,8 @@ source → MIR の間で、program を断ってよい理由は、**この表に�
 
 ### 23.4 仕様が黙っている・食い違っている所(決まるまで、表に入れない)
 
+2026-11-17 の決定 12〜17 で、型の検査の範囲、初期化の無い `local`、無い field、`break` の場所、`me`、`match` の `_`、形の制限、parser と Resolve の境目は、決まった。残りは次。
+
 | # | 事 | 引用 |
 |---|---|---|
-| G4 | `match` の `_` が網羅を満たすか: 「満たさない」と「満たす(2026-11-03 の目標)」 | `L/EBNF.md:415`、`L/option.md:102` ⇔ `L/EBNF.md:371-372`、`L/ownership.md:246` |
-| G5 | 初期化の前の `local` の読み: 「`local x` は `local x = null`」と「未初期化の slot。読むと Fault(目標)」。compile 時の拒否とは、どこにも書いていない | `L/variables-and-scope.md:27` ⇔ `L/failure-outcome-relations.md:212-224` |
-| G6 | 型の検査の範囲: 型の頁は「静的な型検査は無い」。設計図は field と戻り値だけを compile error と決めた。演算子(`1 + true`)・引数・`local` の注釈の不一致が compile 時か実行時かは、書いていない | `L/types.md:22-24`、`:45-48`、`:458` ⇔ `BP:272-273`、`BP:335` |
-| G7 | field の型: EBNF は「field への書き込みは型で強制しない」、設計図の決定 8 は compile error。ADR-003 は「field の型は必須」(仮)だが、EBNF は型なしの field を認める | `L/EBNF.md:997` ⇔ `BP:272`、`ADR3:45` |
-| G8 | 無い field の読み書き(`obj.nope`): 書いていない。あるのは `new T { }` の無い field だけ | `L/EBNF.md:634-635` |
 | G10 | 読むだけの物への代入: 範囲の loop の添字(A49)だけ。`const` の `local` は将来。static の表への書き込みは、書いていない | `L/EBNF.md:1146`、`L/variables-and-scope.md:86-89`、`L/types.md:274-275` |
-| G11 | loop の外の `break`・`continue`: 「一番近い loop へ」だけで、外の時の拒否は明記なし(A42 は含意) | `L/semantic-kernel.md:137` |
-| G12 | `me` の誤用: box の外の `me`、static box の中の `me.field` は、今の頁に無い(A17 は呼び出しだけ) | `L/function-call-evaluation.md:200-202` |
-| G13 | 仕様の中の「形で断る」記述が、設計図の決まりと当たる: 入れ子の `if` は 1 段の形だけ、範囲の loop の loop をまたぐ書き込みは fail-fast | `L/grammar-contract.md:36-41`、`L/EBNF.md:1146-1147` ⇔ `BP:176`、`BP:337-339` |
-| G17 | Resolve より後ろの拒否が、仕様にある: 検証が「検査の無い動的な厳密整数の field 書き込み」を断る、`Inline(required)` の不成立、未対応の backend は効果の前に断る | `L/types.md:210-212`、`L/runes.md:84-112`、`L/types.md:11-12` ⇔ `BP:366` |
-| G19 | `match` の網羅(A40)と `guard let`(A45)の tag は `parser/...` の名前だが、中身は enum の一覧や意味の契約に依る。持ち主が parser か Resolve かが揺れている | `L/grammar-contract.md:181-183`、`:188` ⇔ `L/semantic-kernel.md:140` |

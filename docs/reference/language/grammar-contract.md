@@ -33,12 +33,12 @@ language contract.
 ## Nested If production-profile boundary
 
 The language grammar admits an `if` statement whose bodies contain further
-statements, including another `if`. The resolved canonical nested-If recipe
-currently proved in production is intentionally narrower: exactly one outer
-and one inner explicit-`else` If, one shared trivial binding, pure fallthrough,
-and no calls/effects/returns. The recipe/JoinSig/PHI contract does not claim
-recursive-depth support beyond that profile; unsupported shapes must remain a
-typed pre-effect rejection or use a separately selected route.
+statements, including another `if`. Nesting depth and body shape are not
+language restrictions (decision 2026-11-17): the language does not accept or
+reject an `if` by its shape. Where the current builder still handles only a
+narrower profile, that is an implementation state to be removed when the `if`
+lowering is consolidated; it is not listed as a language rule or as a named
+unsupported feature.
 
 ## Four-Family Status
 

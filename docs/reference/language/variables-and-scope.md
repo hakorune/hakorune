@@ -10,7 +10,7 @@ For source ownership and aliasing, see
 
 ## Local Variables
 
-- Syntax: `local name` / `local name = expr`
+- Syntax: `local name = expr` (the initializer is required; `local name` alone is a compile error — decision 2026-11-17, SSOT: `docs/reference/language/types.md` "Static contract checks")
 - Scope: Block‑scoped. The variable is visible from its declaration to the end of the lexical block.
 - Redeclaration: Writing `local name = ...` inside a nested block creates a new shadowing binding. Same-scope redeclaration (`local name` twice in one lexical scope) is a compile-time error. Writing `name = ...` without `local` updates the nearest existing binding in an enclosing scope.
 - Mutability: Locals are mutable unless a narrower verified capability says
@@ -24,7 +24,7 @@ For source ownership and aliasing, see
 
 Notes:
 - `local` is part of the current surface.
-- `local x` is treated as `local x = null` (SSOT: `docs/reference/language/types.md`).
+- `local x` without an initializer is rejected; write `local x = null` (SSOT: `docs/reference/language/types.md`). Until the builder's Resolve round applies this, the current implementation still treats `local x` as `local x = null`.
 
 ## Assignment Resolution (Enclosing Scope Update)
 

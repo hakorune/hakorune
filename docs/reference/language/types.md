@@ -21,7 +21,49 @@ Coercion SSOT status:
 
 - Nyash is **dynamically typed**: runtime values carry a tag (Integer/Float/Bool/String/Void/BoxRef/Future).
 - `local` declares a variable; **re-assignment is allowed** (single keyword policy).
-- There is currently no static type checker. Some parts of MIR carry **type facts** as metadata for optimization / routing, not for semantics.
+- A binding, parameter, result, or field without a type annotation has the contract **Dynamic**: its type is checked at run time. A type annotation is a contract that is always kept. See "Static contract checks" below.
+- Some parts of MIR carry **type facts** as metadata for optimization / routing, not for semantics. They never decide acceptance.
+
+### Static contract checks
+
+Decision: accepted (maintainer, 2026-11-17). This replaces the earlier statements "there is no static type
+checker" and "a value is never Dynamic unless written so".
+
+1. **No annotation means Dynamic.** `local a = 1` gives `a` the contract
+   Dynamic, so `a = "x"` is allowed. Dynamic means "checked at run time"; it is
+   not "unknown, so accepted". An undefined name is still a compile error, and
+   ownership responsibilities are never Dynamic.
+2. **Statically known type.** The type of an expression is statically known
+   only from these sources: a literal; a binding, parameter, or field with a
+   type annotation; a call whose callee declares a result type; `new T(...)`.
+   Nothing else — in particular no flow analysis and no optimizer fact — makes
+   a type statically known. A smarter optimizer never changes what compiles.
+3. **One rule for every typed position and every operator.** For a field
+   store, an argument, a `return`, a typed `local`, and an operator operand:
+
+   | What the statically known types say | Result |
+   |---|---|
+   | the contract is satisfied | accepted |
+   | the contract is definitely violated | compile error |
+   | it depends on a Dynamic value | accepted with a run-time check; a failed check is a `TypeError` Fault |
+
+   So `1 + true` is a compile error, and `local c: i64 = a` (with `a` Dynamic)
+   compiles with a run-time check. Value-dependent faults such as `1 / 0` stay
+   run-time faults.
+4. **Checking is not converting.** No implicit `Bool` → `i64` or `String` →
+   number conversion. `T` and `T?` are different contracts. Knowing that a
+   value is a `Map` says nothing about the type of its elements.
+5. **Members.** If the receiver type is statically known and the Box declares
+   no such field or method, that is a compile error. If the receiver is
+   Dynamic, it is a run-time check. A write never creates a field. A typed
+   field keeps its contract when written through a Dynamic receiver.
+6. **`local` always has an initializer.** `local x` without `= expr` is a
+   compile error; write `local x = null` for a Dynamic binding that starts
+   empty. There is no uninitialized-local state.
+
+Enforcement: the builder applies these rules when its Resolve responsibility
+is consolidated (builder blueprint §13, §23). Until that round, current
+acceptance is unchanged.
 
 An ordinary call through an exact resolver-proven Dynamic receiver uses the
 single selector-independent contract in
@@ -395,9 +437,9 @@ Design SSOT:
 
 ## 2. Variables and Re-assignment
 
-- `local x` / `local x = expr` introduces a mutable local variable.
-- An active non-optional exact contract requires an initializer. The general
-  unannotated-local absence rule is decided by the Failure/Outcome row.
+- `local x = expr` introduces a mutable local variable.
+- Every `local` requires an initializer (decision 2026-11-17, "Static contract
+  checks" rule 6). `local x` alone is a compile error.
 - Re-assignment is always allowed: `x = expr`.
 - “Immutable locals” (let/const) are not part of the language today; they can be introduced later as lint/strict checks without changing core semantics.
 
@@ -455,7 +497,7 @@ conform to that contract; it is not the semantic authority.
   - `String + <any>` → `String` (the right operand is formatted by the runtime display table below)
   - `Void`/`Null` on either side → **TypeError** (fail-fast)
   - source-style note: new code should still prefer explicit `x.toString()` when stringify intent matters; broad `"" + x` residue is legacy compatibility still used by selfhost/compiler owners
-- Other combinations are `TypeError` (e.g., `Integer + Bool`, `Bool + Bool`, `BoxRef + ...`).
+- Other combinations are `TypeError` (e.g., `Integer + Bool`, `Bool + Bool`, `BoxRef + ...`): a compile error when both operand types are statically known ("Static contract checks" above), a run-time `TypeError` Fault when it depends on a Dynamic value.
   - Backends that do not implement `String + <any>` must fail-fast with a `TypeError`.
 
 #### Runtime display for `String + any`

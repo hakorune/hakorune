@@ -134,11 +134,19 @@ exact omitted count or unbounded diagnostic history is promised.
 
 ## Control Boundaries
 
-`Break` and `Continue` target the nearest loop in Canonical v1. Labels and
-depth are unsupported and reject before effects. `guard let ... else` requires
+`Break` and `Continue` target the nearest loop in Canonical v1. A `break` or
+`continue` with no enclosing loop is a compile error (decision 2026-11-17).
+Labels and depth are unsupported and reject before effects. `guard let ... else` requires
 the else block to satisfy `NoFallthrough`: it may yield `Return`, `Break`,
 `Continue`, or `Fault`, but not `Normal`. This is a semantic contract, not a
-requirement to expose a static `Never` type.
+requirement to expose a static `Never` type. It is checked by the builder's
+Resolve stage, not by the parser; the parser owns syntax only.
+
+`me` (decision 2026-11-17): `me` as a value (`me.field`, `f(me)`, `return me`,
+`me.method()` on an instance) is valid only inside an instance method, `birth`,
+or `fini` of a Box. Anywhere else it is a compile error. Inside a `static box`,
+`me.m()` is a namespace qualifier for a static method of that box; it is not
+an instance value, and `me.field` or passing `me` there is a compile error.
 
 ## Canonical Form and Evidence
 

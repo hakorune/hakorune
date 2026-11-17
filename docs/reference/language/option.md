@@ -98,10 +98,11 @@ This is still part of the `guard` / `match` family. Result-only postfix `?` is
 the separate accepted unchanged-error propagation surface; it does not add
 `try`, `throw`, or catch semantics.
 
-Prelude `Option` / `Result` matches must still name every variant explicitly.
-The `_` default arm does not satisfy known-enum exhaustiveness. Missing prelude
-arms fail with `[enum/missing-arm][prelude]` and name canonical constructors
-such as `Option::None` or `Result::Err`.
+Prelude `Option` / `Result` matches must cover every variant. An unconditional
+top-level `_` arm covers all remaining variants (decision 2026-11-17); a
+guarded `_` arm or `Some(_)` does not cover the others. Missing arms are a
+compile error that names canonical constructors such as `Option::None` or
+`Result::Err`.
 
 Prelude constructor payload arity errors fail with `[enum/payload][prelude]`.
 `Option::Some` / `Result::Ok` / `Result::Err` require one payload. `Option::None`

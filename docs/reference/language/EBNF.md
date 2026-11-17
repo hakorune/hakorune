@@ -412,7 +412,7 @@ Notes
 - Identifier keys in map literals are out of v1 scope (string keys only): use `%{"name" => v}`.
 - Pattern matching: `match` replaces legacy `peek`. MVP supports wildcard `_`, literals, simple type patterns, fixed/variadic array heads `[hd, ..tl]`, simple map key extract `{ "k": v, .. }`, OR patterns, and guards `if`.
 - Known-enum shorthand: `Some(v)` / `None` is accepted only when the arm set resolves to a known enum declaration in the current source inventory.
-- Known-enum exhaustiveness: shorthand enum matches must name every variant explicitly; `_` does not satisfy exhaustiveness for that lane.
+- Known-enum exhaustiveness (decision 2026-11-17): an unconditional top-level `_` arm (or a whole-value binding) covers every remaining value and satisfies exhaustiveness. A guarded `_ if cond` arm and a `_` inside a pattern (`Some(_)`) cover only what they match. Without such an arm, every variant must be named.
   RESULT-002C tags known-enum `_` exhaustiveness diagnostics.
 - `Option<T>` and `Result<T,E>` are built-in enum prelude surfaces in
   RESULT-001. They use qualified constructors such as `Option::None` and
@@ -994,7 +994,7 @@ postfix_cleanup    := primary_expr 'cleanup' block
 ```
 
 Semantics (summary)
-- stored: O(1) slot read; write via assignment. Bare stored fields are dynamic/untyped. Typed stored fields keep declared-type metadata for optimizers/verifiers and typed-object planning, but ordinary field writes are not type-enforced by this syntax.
+- stored: O(1) slot read; write via assignment. Bare stored fields are dynamic/untyped. Typed stored fields are contracts: a field write is checked against the declared type (compile error when definitely violated, run-time check when it depends on a Dynamic value; `types.md` "Static contract checks", decision 2026-11-17).
 - Untyped strong stored-slot initial state, checked reads, residence and replacement follow [ownership.md](ownership.md#untyped-strong-stored-slots). This accepted target does not claim current EXE coverage; never-written is `EmptyField`, not implicit null.
 - stored initializers: `name = expr` and `name: Type = expr` are accepted and lower to constructor prologue assignments equivalent to `me.name = expr`. The prologue runs before the user `birth` body, in field declaration order. Initializer expressions are evaluated for each construction, so `field: ArrayBox = new ArrayBox()` creates a per-instance value rather than a shared static default.
 - Box method names are unique within one nominal Box. A direct method,
@@ -1143,5 +1143,8 @@ Notes
 `loop i in start..end { ... }` is the canonical range-loop surface. Stage1 JSON
 v0 lowering supports the current route: `start` and `end` are captured once at
 entry, the index advances by fixed step `1`, `continue` routes to the step path,
-and `break` routes to exit. The index is read-only. Fresh body-local writes are
-accepted; loop-carried writes remain fail-fast under the current carrier policy.
+and `break` routes to exit. The index is read-only. Body-local and
+loop-carried writes are both part of the language (decision 2026-11-17: no
+shape-based restriction); where the current builder still rejects a
+loop-carried write, that is an implementation state to be removed when loop
+lowering is consolidated.

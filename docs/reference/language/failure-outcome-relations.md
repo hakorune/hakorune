@@ -211,17 +211,10 @@ suspension, opaque carrier-lifecycle, and separate Home boundary.
 
 ## Uninitialized Locals
 
-An uninitialized local is a slot state, not an implicit `Unit`, `None`, or
-`null` value:
-
-```text
-local x       -> UninitializedSlot
-x = value     -> Initialized(value)
-read before assignment -> Fault(Contract, uninitialized_local)
-```
-
-This is a target relation only in the first inventory slice. Existing default
-behavior remains an inventory finding until an activation card accepts it.
+Decision: accepted (maintainer, 2026-11-17). There is no uninitialized-local state. Every `local`
+requires an initializer (`types.md`, "Static contract checks" rule 6), so a
+read before assignment cannot be written. The earlier target relation
+(`UninitializedSlot` and `Fault(Contract, uninitialized_local)`) is withdrawn.
 
 ## Weak Upgrade
 

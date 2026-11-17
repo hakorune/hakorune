@@ -164,4 +164,4 @@ compilerの動くcodeは変更していない。coverage CLIは前回の同じbi
 
 ## まだ決めていない事
 
-- **型の注釈の無い source の扱い。** selfhost の source(`lang/src`)は、仮引数の 95%、戻り値の 87%、`local` の 99.5% に、型の注釈が無い(2026-11-17 に数えた)。設計図の決定 2(黙って Dynamic にしない)を、どう当てはめるかは、メンテナが決め直す。それまで、今の受け付けは変えない。
+- **型の注釈の無い source の扱い。** selfhost の source(`lang/src`)は、仮引数の 95%、戻り値の 87%、`local` の 99.5% に、型の注釈が無い(2026-11-17 に数えた)。**決まった(メンテナ 2026-11-17。設計図の決定 12〜17):注釈が無い = Dynamic。** 仕様は `docs/reference/language/types.md` の "Static contract checks"。受ける範囲を広げる回(Dynamic を通す)は、掃除の後に、別の回でやる。その時に、selfhost の source の、初期値の無い `local`(21 か所、5 file)を `= null` に直す。成果は、拒否が消えた数ではなく、正しい MIR・EXE まで行った入力の数で数える。
