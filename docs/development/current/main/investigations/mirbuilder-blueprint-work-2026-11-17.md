@@ -38,27 +38,20 @@ Related:
 - 分かった事: 数と Bool の範囲は、形ごとの道を作らずに、1 つの再帰と 1 つの作業場で書けた。式・呼び出し・loop の入口は各 1 つ、形を 1 つ足す費用は 3 file・3 関数だった。これは、今の MirBuilder を寄せて行く先の形の、根拠になる。
 - `birth` の途中の Fault の片付けの順(式の一時値 → `birth` の中の `local` → 初期化の済んだ field を宣言の逆順 → 呼んだ側が外側を回収)は、メンテナが承認した。reference への反映は、所有の回でやる。
 
-## 今の散らばり(読むだけの調査、2026-11-17)
+## 今の散らばり（測る回、2026-11-17・資源停止による部分記録）
 
-MirBuilder に当たる 3 つの場所を、責務で分けて数えた。割り当ては、module の説明と入口の関数の名前からの判断で、測った値ではない。build も実行もしていない。
+THIR取得のrustcがSIGKILLとなり、kernelにglobal OOM（rustc匿名RSS約23.4GiB）の記録があった。重いbuild・入力・test測定を停止。型付きmethod参照、A/B全件、test coverageは未測定で、0とは扱わない。compilerの動くcodeは変更していない。連続メモリ監視は事故後に追加した物で、当初のOOMを防いだとは主張しない。
 
-| 場所 | 本体 | test | 分かった事 |
-|---|---:|---:|---|
-| `src/mir/builder` | 187,327 | 98,039 | 形ごとの道が 63.7k、証拠の包みが 24.5k、中継が 10.1k。責務の持ち主に当たる物は、残り |
-| `src/mir/normal_callable_semantic_package` | 152,456 | 70,008 | 責務の持ち主と言えるのは約 14%。`ordinary_new_*` が 482 file・約 17.8 万行。拒否の名前が約 3,260 種類 |
-| `src/mir/compiler` | 54,306 | 41,173 | 形ごとの道が 34.3k。公開(backend への出力)が 13.1k |
+| 測定 | 実測できた範囲 | 未測定・限界 |
+|---|---|---|
+| 通常CLI対coverage CLI | 固定一覧から等間隔200入力、MIR・拒否差0／timeout0 | A5386本、B1192fileの全件coverageは未実施 |
+| 構文の一覧 | src/mirの3489 Rust file、関数定義32551。群258 | tree-sitterの構文解釈に制限がある8fileは範囲未確定。物理行・実行可能行を混ぜない |
+| M-2 compiler警告 | force-warn取得成功。定義識別子へ照合3230項目、通常警告に無い項目13 | 未照合348span、照合項目のうちLOC不明27。dead_codeはdefault cfgでの到達性の証拠で、直接caller数0とは違う |
+| M-4 HIR | 解決済み参照260967本のうちnamespace経由63286本を分離、項目参照197681本。検出した輪1、最大252群 | 336830参照は対象定義span等を未照合。外部crate等を含む。THIR未取得で完全な依存図ではない。検出した輪は下限 |
 
-同じ事を決めている所の数(設計図の目標は、各 1):
+式9・call12・loop12・if6という旧一覧は、独立writer・再入wrapper・複数定義の束を混ぜていた。測定watchlistは実在定義138個（expression22／call78／loop22／if16）へ展開し、roleの読取判断を別fieldにした。これは独立lowererの実測数ではない。入口別のA/B通過本数は未測定。
 
-| 物 | 今 |
-|---|---:|
-| 式を下ろす入口 | 9(一般 1 + 部分 8) |
-| 呼び出しを下ろす入口 | 12 |
-| loop を下ろす入口 | 12 |
-| `if` を下ろす入口 | 6(PHI を書く所は 4) |
-| source を断る所(`src/mir` の本体) | 拒否の名前が約 2,200 種類、拒否の型が 433 |
-
-test の中身: `builder` の test 約 9.8 万行のうち、source を書いて実行の結果を見ている物は、1,861 行。`semantic_package` の test 7 万行では、295 行。残りは、内部の形を見ている。
+地図は`src/mir/README.md`の上位60群の表。責務列は空、未測定升は未測定のまま。全群・関数・警告・HIRの具体的項目edgeと輪は`tools/mir_map/out/`（ignored）。取得済み記録からの再生成は`python3 tools/mir_map/run.py --work /mnt/workdisk/claude-scratch/measure-1 --stage render --write-docs`。新規の重い段は当該runのresource-stop記録で拒否する。
 
 ## タスクの一覧(上から順。1 つ終わるたびに、消した行数を書く)
 
@@ -70,10 +63,10 @@ test の中身: `builder` の test 約 9.8 万行のうち、source を書いて
 
 | # | 測る物 | 測り方 | 出る物 |
 |---|---|---|---|
-| M-1 | 実際に通る code | 実行の記録を取る build(coverage)で、固定の入力の全部と、selfhost の source(`lang/src`)の全部を compile する | 関数ごとの「通った入力の本数」。**どの入力も通らない code の一覧**。入口(式 9・呼び出し 12・loop 12・`if` 6)ごとの、通った本数 |
-| M-2 | 使い手の無い code | compiler の警告(`dead_code`、`unused`)を、`allow` を外して取る | 使い手が 0 の関数・型の一覧 |
-| M-3 | test が見ている物 | lib の test を同じ build で走らせて、M-1 と引き算する | **test だけが通る code の一覧** |
-| M-4 | 責務が分かれているか | module の群どうしの、実際の依存(誰が誰の名前を使うか)を、compiler の情報から取る | 群ごとの「外から使われている所の数」と、**互いに使い合っている群(輪)の一覧**。消そうとして消せない所は、ここに出る |
+| M-1 | 実際に通るcode | coverage CLI・200入力の一致確認まで取得 | **資源停止で未完**。A/B全件・入口別入力本数・未通過関数・未出現拒否名は未測定 |
+| M-2 | compilerのdead/unused警告 | sourceを変えずforce-warn取得 | **警告取得済み・照合部分完了**。3230項目／未照合348span、LOC不明27。直接caller数0の一覧ではない |
+| M-3 | testだけが通るcode | instrumented lib test | **未実施**。testのみ行数と155 FAIL名集合の再確認は未測定 |
+| M-4 | 群の依存 | compiler HIRのres/PerNSをstream解析 | **HIR部分取得**。項目参照197681、輪1・最大252群。THIR失敗、typed method等は未測定、全M-4完了ではない |
 
 - 地図は、script で作り直せる形にする。回が 1 つ終わるたびに作り直して、数の変化を記録する。
 - `src/mir/README.md` を、「directory → 責務 → 通る入力の本数」の表だけにする(D-2 と一緒)。
