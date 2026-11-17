@@ -175,3 +175,5 @@ consult-*.zip
 
 # Local Codex/Claude memory backup; durable project truth belongs in tracked SSOT docs.
 /.claude-memory-backup/
+
+/tools/mir_map/out/
