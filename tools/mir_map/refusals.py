@@ -64,7 +64,9 @@ def catalogue(inventory, destination):
 
 def summarize(work, catalog):
     rows, groups, observed = [], {}, set()
-    for group, expected in [('A', 5386), ('B', 1192)]:
+    for group in ['A', 'B']:
+        identity = work / group / 'identity.json'
+        expected = len(json.loads(identity.read_text())['rows']) if identity.exists() else None
         statuses, names, stages = Counter(), Counter(), Counter()
         compile_inputs, emitted = 0, 0
         for path in sorted((work / group).glob('[0-9][0-9][0-9][0-9]/result.json')):

@@ -1,0 +1,6 @@
+type Count = i64
+static box Main {
+    main() {
+        return 0
+    }
+}

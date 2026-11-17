@@ -1,0 +1,12 @@
+static box Helpers {
+    pass(): Result<i64, String> {
+        local r: Result<i64, String> = Result::Ok(7)
+        local n = r?
+        return Result::Ok(n)
+    }
+}
+static box Main {
+    main() {
+        return 0
+    }
+}

@@ -8,10 +8,16 @@ from inventory import group_for
 from support import write
 
 
-def inputs(folder, catalog, total):
+def inputs(folder, catalog, total=None):
     counts, group_counts, lines = Counter(), Counter(), defaultdict(set)
     results, unknown_symbols = [], Counter()
     expected = json.loads((folder / 'identity.json').read_text()) if (folder / 'identity.json').exists() else None
+    if expected is not None:
+        declared = len(expected['rows'])
+        assert declared > 0 and len({row['path'] for row in expected['rows']}) == declared
+        if total is not None:
+            assert total == declared, (total, declared)
+        total = declared
     missing, partial = 0, 0
     seen_ids = set()
     for path in sorted(folder.glob('[0-9][0-9][0-9][0-9]/result.json')):
@@ -40,7 +46,7 @@ def inputs(folder, catalog, total):
         for file, values in membership['lines'].items():
             lines[file].update(values)
     return dict(total=total, completed=len(results), missing_profiles=missing,
-                partial_profiles=partial, full=len(results) == total and missing == 0 and partial == 0 and seen_ids == set(range(total)),
+                partial_profiles=partial, full=expected is not None and total is not None and len(results) == total and missing == 0 and partial == 0 and seen_ids == set(range(total)),
                 counts=counts, group_counts=group_counts, lines=lines, results=results,
                 unknown_symbols=dict(unknown_symbols))
 
@@ -49,7 +55,7 @@ def summarize(work, prior, test_catalog=None, test_membership=None):
     catalog = json.loads((work / 'cli-catalog.json').read_text())
     inventory = json.loads((work / 'inventory.json').read_text())
     policy = json.loads((Path(__file__).parent / 'groups.json').read_text())['files']
-    A, B = inputs(work / 'A', catalog, 5386), inputs(work / 'B', catalog, 1192)
+    A, B = inputs(work / 'A', catalog), inputs(work / 'B', catalog)
     _, _, universe = read_lcov(prior / 'probe/coverage.lcov')
     test_rows = {}
     test_lines, test_hits, unmatched_test = defaultdict(set), set(), []

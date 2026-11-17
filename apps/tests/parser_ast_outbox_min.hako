@@ -1,0 +1,7 @@
+// Compatibility surface probe; not a canonical syntax recommendation.
+static box Main {
+    main() {
+        outbox payload
+        return 0
+    }
+}

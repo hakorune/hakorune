@@ -1,0 +1,6 @@
+static box Main {
+    main() {
+        context request_id: i64 = 7 { print(request_id) }
+        return 0
+    }
+}

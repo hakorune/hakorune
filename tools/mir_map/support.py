@@ -71,7 +71,9 @@ def run(command, log, env, timeout=180):
 def fixed_inputs(manifest):
     data = json.loads(Path(manifest).read_text())
     rows = sorted(data['rows'], key=lambda x: x['path'])
-    assert len(rows) == 5386, len(rows)
+    declared = data['unique_sources']
+    assert type(declared) is int and declared > 0, declared
+    assert len(rows) == len({row['path'] for row in rows}) == declared, len(rows)
     for row in rows:
         assert sha(row['path']) == row['sha256'], row['path']
     executables = {source for group in data['groups'].values()

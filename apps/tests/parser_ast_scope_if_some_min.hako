@@ -1,0 +1,12 @@
+// Compatibility surface probe; not a canonical syntax recommendation.
+static box Main {
+    main() {
+        local maybe: Option<i64> = Option::Some(7)
+        if some v = maybe {
+            print(v)
+        } else {
+            print(0)
+        }
+        return 0
+    }
+}
