@@ -5,6 +5,14 @@ use std::{fs, process};
 impl NyashRunner {
     /// Execute MIR compilation and processing mode (split)
     pub(crate) fn execute_mir_mode(&self, filename: &str) {
+        match super::blueprint::selected() {
+            Ok(true) => return super::blueprint::execute(self, filename),
+            Ok(false) => {}
+            Err(error) => {
+                eprintln!("{error}");
+                process::exit(1);
+            }
+        }
         let code = match fs::read_to_string(filename) {
             Ok(content) => content,
             Err(e) => {

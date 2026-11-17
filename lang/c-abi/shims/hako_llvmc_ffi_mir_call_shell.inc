@@ -231,13 +231,9 @@
               ii,
               view->target_symbol,
               args);
-          fprintf(
-              f,
-              "  %%r%lld = icmp ne i64 %%global_call_bool_raw_%lld_%zu, 0\n",
-              dst,
-              bid,
-              ii);
-          set_type(dst, T_I1);
+          char bits[96];
+          snprintf(bits, sizeof(bits), "%%global_call_bool_raw_%lld_%zu", bid, ii);
+          scalar_abi_restore_bool(f, dst, bits);
           return;
         }
         fprintf(f, "  %%r%lld = call i64 @\"%s\"(%s)\n", dst, view->target_symbol, args);

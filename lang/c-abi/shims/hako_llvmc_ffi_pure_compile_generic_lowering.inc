@@ -432,7 +432,13 @@
         }
         return 1;
       }
-      auto void emit_icmp(long long dst, const char* pred, long long lhs_reg, long long rhs_reg){ long long vL,vR; long long lhs_base=resolve_copy_source_reg(lhs_reg), rhs_base=resolve_copy_source_reg(rhs_reg); int lc=has_const(lhs_base,&vL), rc=has_const(rhs_base,&vR); EMIT("  %%r%lld = icmp %s i64 %s%lld%s, %s%lld%s\n", dst, pred, lc?"":"%r", lc?vL:lhs_base, lc?"":"", rc?"":"%r", rc?vR:rhs_base, rc?"":""); set_type(dst,T_I1); }
+      auto void emit_icmp(long long dst, const char* pred, long long lhs_reg, long long rhs_reg) {
+        char refs[2][64];
+        scalar_abi_format_i64_ref(refs[0], sizeof(refs[0]), lhs_reg);
+        scalar_abi_format_i64_ref(refs[1], sizeof(refs[1]), rhs_reg);
+        EMIT("  %%r%lld = icmp %s i64 %s, %s\n", dst, pred, refs[0], refs[1]);
+        set_type(dst, T_I1);
+      }
       auto int should_emit_string_compare(yyjson_val* ins, long long lhs_reg, long long rhs_reg){
         const char* cmp_kind = read_str(ins, "cmp_kind");
         long long lhs_base = resolve_copy_source_reg(lhs_reg);
@@ -474,6 +480,7 @@
       }
       auto int emit_dynamic_string_or_icmp(long long dst, const char* pred, long long lhs_reg, long long rhs_reg){
         if (!(pred && (!strcmp(pred, "eq") || !strcmp(pred, "ne")))) return 0;
+        if (scalar_abi_is_bool(lhs_reg) || scalar_abi_is_bool(rhs_reg)) return 0;
         long long lhs_base = resolve_copy_source_reg(lhs_reg);
         long long rhs_base = resolve_copy_source_reg(rhs_reg);
         long long vL, vR;
