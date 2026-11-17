@@ -102,11 +102,6 @@ fn build(root: ASTNode) -> crate::mir::MirModule {
             plan,
         ) => builder.build_resolved_function_module(plan).unwrap(),
         crate::mir::compiler::capability::CanonicalFirstFamilyPlanV1::Loop(
-            crate::mir::compiler::capability::CanonicalLoopFamilyPlanV1::DirectAccum(_),
-        ) => {
-            panic!("block-expression fixture must not admit DirectAccum")
-        }
-        crate::mir::compiler::capability::CanonicalFirstFamilyPlanV1::Loop(
             crate::mir::compiler::capability::CanonicalLoopFamilyPlanV1::GenericG0(_),
         ) => {
             panic!("block-expression fixture must not admit Generic G0")

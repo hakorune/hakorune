@@ -20,9 +20,6 @@ use crate::mir::resolved_value_profile::{
     TrivialCanonicalOwnerAnalysisV1,
 };
 
-use super::direct_accum_capability::{
-    probe_direct_accum_source_unit_v1, DirectAccumSourceUnitProbeV1,
-};
 use super::function_input::ResolvedFunctionLoweringInputV1;
 use super::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
 use super::lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1};
@@ -34,7 +31,7 @@ mod resolved_owner_header;
 mod trivial_plan;
 mod validation_errors;
 pub(crate) use first_family_plan::{
-    seal_direct_accum_owner_header_v1, CanonicalFirstFamilyPlanBrandV1, CanonicalFirstFamilyPlanV1,
+    CanonicalFirstFamilyPlanBrandV1, CanonicalFirstFamilyPlanV1,
     CanonicalGenericG0PlanV1, CanonicalLoopFamilyPlanV1,
 };
 use function_role_policy::{CanonicalFunctionRolePolicyV1, DirectCallAdmissionV1};
@@ -87,10 +84,7 @@ impl CanonicalLoweringPreflightV1 {
     pub(crate) fn verify(
         unit: &VerifiedResolvedSourceUnitV1,
     ) -> Result<CanonicalFirstFamilyPlanV1<'_>, CanonicalLoweringErrorV1> {
-        match probe_direct_accum_source_unit_v1(unit)? {
-            DirectAccumSourceUnitProbeV1::Candidate(plan) => Ok(plan),
-            DirectAccumSourceUnitProbeV1::NotCandidate(function) => Self::verify_function(function),
-        }
+        Self::verify_function(unit.root_function_input()?)
     }
 
     pub(crate) fn verify_function<'a>(
@@ -128,13 +122,6 @@ impl CanonicalLoweringPreflightV1 {
             Some(role),
         )? {
             CanonicalFirstFamilyPlanV1::Loop(
-                super::capability::CanonicalLoopFamilyPlanV1::DirectAccum(plan),
-            ) => unsupported(
-                "root",
-                plan.input().source().root(),
-                "direct_accum_not_normal_main",
-            ),
-            CanonicalFirstFamilyPlanV1::Loop(
                 super::capability::CanonicalLoopFamilyPlanV1::GenericG0(plan),
             ) => unsupported(
                 "root",
@@ -163,13 +150,6 @@ impl CanonicalLoweringPreflightV1 {
             CanonicalFunctionRolePolicyV1::NormalMainDirectCall0,
             Some(role),
         )? {
-            CanonicalFirstFamilyPlanV1::Loop(
-                super::capability::CanonicalLoopFamilyPlanV1::DirectAccum(plan),
-            ) => unsupported(
-                "root",
-                plan.input().source().root(),
-                "direct_accum_not_normal_main_direct_call",
-            ),
             CanonicalFirstFamilyPlanV1::Loop(
                 super::capability::CanonicalLoopFamilyPlanV1::GenericG0(plan),
             ) => unsupported(

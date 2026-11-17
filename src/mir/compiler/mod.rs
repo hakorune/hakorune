@@ -70,8 +70,6 @@ mod recursive_callable_module_activation_tests;
 #[cfg(test)]
 mod resolved_callable_module_tests;
 #[cfg(test)]
-mod resolved_direct_accum_hardening_p0;
-#[cfg(test)]
 mod source_bound_package_p0;
 #[cfg(test)]
 mod source_view_tests;
@@ -443,11 +441,6 @@ impl MirCompiler {
         // matching finish schedule through publication; a lowering error
         // returns directly and is never retried through the other owner.
         let (module_session, module, finish_schedule) = match plan {
-            CanonicalFirstFamilyPlanV1::Loop(CanonicalLoopFamilyPlanV1::DirectAccum(plan)) => {
-                return resolved_direct_accum_cutover::compile_direct_accum_source_bound(
-                    self, plan, config,
-                );
-            }
             CanonicalFirstFamilyPlanV1::Loop(CanonicalLoopFamilyPlanV1::GenericG0(plan)) => {
                 return resolved_generic_g0_cutover::compile_generic_g0_source_bound(
                     self, plan, config,

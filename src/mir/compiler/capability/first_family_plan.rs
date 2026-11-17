@@ -1,4 +1,3 @@
-use super::super::direct_accum_profile::CanonicalDirectAccumPlanV1;
 use super::super::function_input::ResolvedFunctionLoweringInputV1;
 use super::resolved_owner_header::{
     ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
@@ -10,7 +9,6 @@ use crate::mir::compiler::generic_g0_source_parent::VerifiedGenericG0SourceParen
 /// source/body product; the external lifecycle remains BindingSsaTrivial.
 #[derive(Debug)]
 pub(crate) enum CanonicalLoopFamilyPlanV1<'a> {
-    DirectAccum(CanonicalDirectAccumPlanV1<'a>),
     GenericG0(CanonicalGenericG0PlanV1<'a>),
 }
 
@@ -19,7 +17,6 @@ impl<'a> CanonicalLoopFamilyPlanV1<'a> {
         &self,
     ) -> super::super::function_input::ResolvedFunctionLoweringInputV1<'a> {
         match self {
-            Self::DirectAccum(plan) => plan.input(),
             Self::GenericG0(plan) => plan.source_input(),
         }
     }
@@ -118,17 +115,4 @@ impl<'a> CanonicalFirstFamilyPlanV1<'a> {
     ) -> Result<VerifiedResolvedOwnerHeaderV1, ResolvedOwnerHeaderSealErrorV1> {
         VerifiedResolvedOwnerHeaderV1::seal(self.brand(), self)
     }
-}
-
-/// DirectAccum reuses the closed resolved-owner header contract without
-/// pretending that its Loop body is the Trivial profile.
-pub(crate) fn seal_direct_accum_owner_header_v1(
-    plan: &CanonicalDirectAccumPlanV1<'_>,
-) -> Result<VerifiedResolvedOwnerHeaderV1, ResolvedOwnerHeaderSealErrorV1> {
-    VerifiedResolvedOwnerHeaderV1::seal_input(
-        CanonicalFirstFamilyPlanBrandV1::from_family(
-            ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa,
-        ),
-        plan.input(),
-    )
 }

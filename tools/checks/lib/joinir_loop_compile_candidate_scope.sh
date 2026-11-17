@@ -18,8 +18,6 @@ guard_joinir_loop_compile_candidate_scope() {
   local first_family_plan="$root_dir/src/mir/compiler/capability/first_family_plan.rs"
   local source_bound_plan="$root_dir/src/mir/compiler/source_bound_plan.rs"
   local m1_test="$root_dir/src/mir/compiler/loop_candidate_abort_p0.rs"
-  local direct_accum_cutover="$root_dir/src/mir/compiler/resolved_direct_accum_cutover.rs"
-  local hardening_test="$root_dir/src/mir/compiler/resolved_direct_accum_hardening_p0.rs"
   local external_commit="$root_dir/src/mir/compiler/external_commit.rs"
   local loop_region="$root_dir/src/mir/resolved_semantics/loop_region.rs"
   local source_adapter="$root_dir/src/mir/loop_structural_facts/resolved_source_adapter.rs"
@@ -68,7 +66,7 @@ guard_joinir_loop_compile_candidate_scope() {
   guard_require_files "$tag" "$manifest" "$routing" "$router" "$raw_child" \
     "$recursive_child" "$normal" "$raw_compile" "$raw_open" "$raw_recipe" \
     "$canonical" "$canonical_input" "$m1_test" \
-    "$direct_accum_cutover" "$hardening_test" "$external_commit" \
+    "$external_commit" \
     "$capability" "$first_family_plan" "$source_bound_plan" "$loop_region" \
     "$source_adapter" "$generic_g0_projection" "$generic_g0_handoff" "$generic_g0_projection_tests" \
     "$generic_g0_source_type" "$generic_g0_numeric" "$generic_g0_numeric_tests" \
@@ -90,14 +88,13 @@ guard_joinir_loop_compile_candidate_scope() {
   if ! awk -F '\t' '
     NR == 1 { next }
     NF != 6 { exit 1 }
-    $1 !~ /^(normal|repl|raw-public|raw-reference|vm-hako-reference|canonical-resolved|canonical-resolved-direct-accum|canonical-core-script|canonical-core-main)$/ { exit 1 }
+    $1 !~ /^(normal|repl|raw-public|raw-reference|vm-hako-reference|canonical-resolved|canonical-core-script|canonical-core-main)$/ { exit 1 }
     $3 !~ /(SessionV1|TransactionV1)$/ { exit 1 }
     $4 !~ /^(reachable|typed-unreachable)$/ { exit 1 }
     $6 !~ /^identity-monotonic\+diagnostic-scratch/ { exit 1 }
     ($1 ~ /^(normal|repl|vm-hako-reference)$/ && $4 != "reachable") { exit 1 }
-    ($1 ~ /^(raw-public|raw-reference|canonical-resolved|canonical-core-)/ && $1 != "canonical-resolved-direct-accum" && $4 != "typed-unreachable") { exit 1 }
-    ($1 == "canonical-resolved-direct-accum" && $4 != "reachable") { exit 1 }
-    END { if (NR != 10) exit 1 }
+    ($1 ~ /^(raw-public|raw-reference|canonical-resolved|canonical-core-)/ && $4 != "typed-unreachable") { exit 1 }
+    END { if (NR != 9) exit 1 }
   ' "$manifest"; then
     guard_fail "$tag" "Loop candidate scope manifest row contract failed"
   fi
@@ -137,9 +134,7 @@ guard_joinir_loop_compile_candidate_scope() {
     "$raw_compile|open_physical(&self.builder)|1" \
     "$raw_compile|prepare_external_commit|1" \
     "$raw_open|ModuleBuilderInvocationSessionV1::open_for_token|1" \
-    "$canonical|ModuleBuilderInvocationSessionV1::open_for_token|1" \
-    "$direct_accum_cutover|pub(super) fn compile_direct_accum_source_bound(|1" \
-    "$canonical|lower_resolved_direct_accum_function_draft|1"
+    "$canonical|ModuleBuilderInvocationSessionV1::open_for_token|1"
   do
     local file="${required%%|*}"
     local rest="${required#*|}"
@@ -352,7 +347,6 @@ guard_joinir_loop_compile_candidate_scope() {
   fi
   for required in \
     'CanonicalLoopFamilyPlanV1' \
-    'Loop(CanonicalLoopFamilyPlanV1::DirectAccum' \
     'CanonicalFirstFamilyPlanV1::Loop' \
     'ExactCanonicalPreflightPlanV1::Loop'
   do
@@ -648,15 +642,6 @@ guard_joinir_loop_compile_candidate_scope() {
   do
     rg -n -F "$required" "$m1_test" >/dev/null || \
       guard_fail "$tag" "M1 candidate-abort proof anchor missing: $required"
-  done
-
-  for required in \
-    'production_failure_after_prepare_discards_candidate_and_reuses_compiler' \
-    'successful_direct_accum_public_result_uses_final_barrier_contract' \
-    'compile_direct_accum_source_bound_with_prepared_failure_for_test'
-  do
-    rg -n -F "$required" "$hardening_test" "$direct_accum_cutover" >/dev/null || \
-      guard_fail "$tag" "resolved DirectAccum hardening proof anchor missing: $required"
   done
 
   rg -n -F 'project_canonical_verification_result' "$external_commit" >/dev/null || \
