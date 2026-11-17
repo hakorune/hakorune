@@ -274,17 +274,13 @@ impl super::MirBuilder {
 
             node @ ASTNode::FromCall { .. } => {
                 let receipt = port.enum_variant_admission_v1(&node)?;
-                let ASTNode::FromCall { parent, method, arguments, .. } = &node else {
+                let ASTNode::FromCall { parent, method, .. } = &node else {
                     unreachable!("FromCall match arm keeps its AST shape")
                 };
                 if receipt.is_some() {
                     return Err(unsupported_raw_ast_node_error_v1(&node));
                 }
                 if self.comp_ctx.resolve_enum_variant(parent, method).is_some() {
-                    // Retain existing payload/arity/nullish diagnostic precedence.
-                    super::exprs_enum_match::prepare_raw_enum_variant_header_v1(
-                        self, parent, method, arguments,
-                    )?;
                     return Err(unsupported_raw_ast_node_error_v1(&node));
                 }
                 let ASTNode::FromCall {
@@ -350,9 +346,6 @@ impl super::MirBuilder {
                 lower_prepared_raw_explicit_extern_call_with_port_v1(self, port, prepared)
             }
 
-            ASTNode::Call {
-                callee, arguments, ..
-            } => self.build_indirect_call_expression_with_port_v1(port, *callee, arguments),
 
             ASTNode::Lambda { .. } => Err(
                 "[freeze:contract][LegacyLambdaSurfaceRetired]: legacy fn(...) {...} expressions are retired; explicit-capture fn[captures](...): T remains reserved"

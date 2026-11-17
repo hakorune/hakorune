@@ -114,9 +114,7 @@ mod decls; // declarations lowering split
 mod emit_debug_policy;
 mod entry_materialization; // source-only callable Main materialization facts
 mod enum_match_scopebox;
-mod exprs_call;
 mod exprs_check; // CheckExpr lowering
-mod exprs_enum_match; // narrow direct-MIR enum match lowering for guard-let sugar
 mod fastmem; // fastmem source -> MIR MemOp metadata lowering
 mod fastmem_context; // FastMemory region context helpers
 mod function_lowering_state;

@@ -50,7 +50,7 @@ CALLS_MOD="$ROOT_DIR/src/mir/builder/calls/mod.rs"
 CALLS_BUILD="$ROOT_DIR/src/mir/builder/calls/build.rs"
 FUNCTION_CALL_ROUTE="$ROOT_DIR/src/mir/builder/calls/function_call_preflight_route.rs"
 FUNCTION_SPECIAL="$ROOT_DIR/src/mir/builder/calls/special_method_handlers.rs"
-FASTMEM_CALLS="$ROOT_DIR/src/mir/builder/fastmem/calls.rs"; ENUM_MATCH="$ROOT_DIR/src/mir/builder/exprs_enum_match.rs"
+FASTMEM_CALLS="$ROOT_DIR/src/mir/builder/fastmem/calls.rs"
 SCOPEBOX_ENUM="$ROOT_DIR/src/mir/builder/enum_match_scopebox.rs"; METHOD_CALL_HANDLERS="$ROOT_DIR/src/mir/builder/method_call_handlers.rs"
 PROPERTY_READS="$ROOT_DIR/src/mir/builder/property_reads.rs"
 FIELDS="$ROOT_DIR/src/mir/builder/fields.rs"
@@ -116,7 +116,6 @@ guard_require_files \
   "$FUNCTION_CALL_ROUTE" \
   "$FUNCTION_SPECIAL" \
   "$FASTMEM_CALLS" \
-  "$ENUM_MATCH" \
   "$SCOPEBOX_ENUM" \
   "$METHOD_CALL_HANDLERS" \
   "$PROPERTY_READS" \
@@ -191,7 +190,6 @@ guard_exact_counts <<EOF
 $CALLS_BUILD|struct\\s+PreparedRawFromCallV1\\b|1|opaque prepared raw From route
 $CALLS_BUILD|enum\\s+PreparedRawFromCallRouteV1\\b|1|private raw From route vocabulary
 $CALLS_BUILD|fn\\s+lower_prepared_raw_from_call_with_port_v1\\s*<Port>|1|prepared raw From lowering owner
-$ENUM_MATCH|fn\\s+prepare_raw_enum_variant_header_v1\\s*\\(|1|single raw enum variant classifier
 $RAW_DISPATCH|PreparedRawFromCallV1::prepare\\s*\\(|1|sole raw From route issuer
 $RAW_DISPATCH|lower_prepared_raw_from_call_with_port_v1\\s*\\(|1|sole prepared raw From caller
 EOF
@@ -771,7 +769,6 @@ for file in \
   "$FUNCTION_CALL_ROUTE" \
   "$FUNCTION_SPECIAL" \
   "$FASTMEM_CALLS" \
-  "$ENUM_MATCH" \
   "$SCOPEBOX_ENUM" \
   "$METHOD_CALL_HANDLERS" \
   "$PROPERTY_READS" \

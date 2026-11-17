@@ -346,7 +346,7 @@ impl MirBuilder {
 #[cfg(test)]
 mod raw_from_route_tests {
     use super::*;
-    use crate::ast::{EnumVariantDecl, FieldDecl, LiteralValue, Span};
+    use crate::ast::{LiteralValue, Span};
     use crate::mir::builder::calls::method_call_descent::RawLegacyMethodCallInputV1;
     use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
 
@@ -357,49 +357,12 @@ mod raw_from_route_tests {
         }
     }
 
-    fn null() -> ASTNode {
-        ASTNode::Literal {
-            value: LiteralValue::Null,
-            span: Span::unknown(),
-        }
-    }
 
-    fn variant(name: &str, payload_type_name: Option<&str>) -> EnumVariantDecl {
-        EnumVariantDecl {
-            name: name.to_string(),
-            payload_type_name: payload_type_name.map(str::to_string),
-            record_field_decls: vec![],
-            tuple_payload_type_names: vec![],
-        }
-    }
 
-    fn prepare_error<T>(result: Result<T, String>) -> String {
-        match result {
-            Ok(_) => panic!("expected raw From preparation to fail"),
-            Err(error) => error,
-        }
-    }
 
     #[test]
     fn raw_from_route_selects_enum_or_ordinary_once_before_lowering() {
         let mut builder = MirBuilder::new();
-        builder.comp_ctx.register_enum_decl(
-            "Result".to_string(),
-            vec!["T".to_string(), "E".to_string()],
-            vec![variant("Ok", Some("T")), variant("Err", Some("E"))],
-        );
-
-        assert!(
-            crate::mir::builder::exprs_enum_match::prepare_raw_enum_variant_header_v1(
-                &builder,
-                "Result",
-                "Ok",
-                &[int(1)],
-            )
-            .expect("known enum source preflight")
-            .is_some()
-        );
-
         let ordinary_route = PreparedRawFromCallV1::prepare(
             &builder,
             "Parent".to_string(),
@@ -413,60 +376,6 @@ mod raw_from_route_tests {
         ));
     }
 
-    #[test]
-    fn raw_enum_route_preserves_payload_arity_and_nullish_error_precedence() {
-        let mut builder = MirBuilder::new();
-        builder.comp_ctx.register_enum_decl(
-            "Option".to_string(),
-            vec!["T".to_string()],
-            vec![variant("None", None), variant("Some", Some("T"))],
-        );
-        builder.comp_ctx.register_enum_decl(
-            "RecordResult".to_string(),
-            vec![],
-            vec![EnumVariantDecl {
-                name: "Ok".to_string(),
-                payload_type_name: None,
-                record_field_decls: vec![FieldDecl {
-                    name: "value".to_string(),
-                    declared_type_name: Some("i64".to_string()),
-                    is_weak: false,
-                    default_value: None,
-                }],
-                tuple_payload_type_names: vec![],
-            }],
-        );
-
-        let record = prepare_error(
-            crate::mir::builder::exprs_enum_match::prepare_raw_enum_variant_header_v1(
-                &builder,
-                "RecordResult",
-                "Ok",
-                &[],
-            ),
-        );
-        assert!(record.contains("record/tuple payload lowering"));
-
-        let arity = prepare_error(
-            crate::mir::builder::exprs_enum_match::prepare_raw_enum_variant_header_v1(
-                &builder,
-                "Option",
-                "Some",
-                &[],
-            ),
-        );
-        assert!(arity.contains("expects 1 arg(s), got 0"));
-
-        let nullish = prepare_error(
-            crate::mir::builder::exprs_enum_match::prepare_raw_enum_variant_header_v1(
-                &builder,
-                "Option",
-                "Some",
-                &[null()],
-            ),
-        );
-        assert!(nullish.contains("nullish"));
-    }
 
     #[test]
     fn method_depth_overflow_restores_entry_depth_without_publication() {
