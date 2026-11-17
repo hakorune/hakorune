@@ -12,8 +12,19 @@ def merge(paths, destination):
         raise ValueError('no raw profile: absence is not zero coverage')
     listing = Path(str(destination) + '.inputs')
     listing.write_text('\n'.join(paths) + '\n')
-    subprocess.run([llvm('profdata'), 'merge', '-sparse', '-f', str(listing),
-                    '-o', str(destination)], check=True, capture_output=True)
+    guarded([llvm('profdata'), 'merge', '-sparse', '-f', str(listing),
+             '-o', str(destination)], Path(str(destination) + '.merge.log'))
+
+
+def guarded(command, output):
+    from resources import active
+    with Path(output).open('wb') as stream, Path(str(output) + '.stderr').open('wb') as err:
+        child = active().launch(command, stdout=stream, stderr=err)
+        code, timeout, stopped, peak = active().wait(child, 600)
+    if stopped:
+        raise MemoryError('resource supervisor stopped LLVM processing')
+    if code or timeout:
+        raise RuntimeError(f'LLVM processing failed: {command}; log={output}')
 
 
 def read_lcov(path):
@@ -54,7 +65,6 @@ def save_counts(raw_directory, stem, binary):
 
 
 def export(binary, profile, target, format='text'):
-    with Path(target).open('wb') as stream:
-        subprocess.run([llvm('cov'), 'export', str(binary),
-            '--instr-profile=' + str(profile), '--skip-expansions',
-            '--format=' + format], stdout=stream, check=True)
+    guarded([llvm('cov'), 'export', str(binary),
+             '--instr-profile=' + str(profile), '--skip-expansions',
+             '--format=' + format], target)

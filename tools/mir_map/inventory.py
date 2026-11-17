@@ -4,7 +4,7 @@ import json
 import re
 from support import ROOT, write
 
-KINDS = {'function_item', 'struct_item', 'enum_item', 'trait_item', 'type_item',
+KINDS = {'function_item', 'closure_expression', 'struct_item', 'enum_item', 'trait_item', 'type_item',
          'mod_item', 'enum_variant', 'field_declaration', 'const_item', 'static_item'}
 
 
@@ -47,14 +47,25 @@ def collect(output):
                     continue
                 texts = [re.sub(r'\s+', '', a.text.decode()) for a in attributes]
                 test = inherited_test or '#[cfg(test)]' in texts or '#[test]' in texts
+                prefix_end = None
+                # Rust attributes on a destructuring field may be an ERROR in this grammar.
+                # Limit that attribute to the first direct field, not all later siblings.
+                if test and not inherited_test and node.type == 'ERROR':
+                    tokens = list(node.children)
+                    comma = next((c for c in tokens if c.type == ','), None)
+                    if comma and any(c.type == ':' for c in tokens[:tokens.index(comma)]):
+                        prefix_end = comma.end_point.row + 1
+                        test = inherited_test
                 start = min([a.start_point.row for a in attributes] + [node.start_point.row]) + 1
                 end = node.end_point.row + (1 if node.end_point.column else 0)
+                if prefix_end is not None:
+                    files[file]['test_lines'].update(range(start, prefix_end + 1))
                 if test:
                     files[file]['test_lines'].update(range(start, end + 1))
                 name = node.child_by_field_name('name')
                 if node.type in KINDS:
                     items.append(dict(file=file, kind=node.type, name=name.text.decode() if name else None,
-                        start=start, end=end, start_byte=node.start_byte, end_byte=node.end_byte,
+                        start=start, end=end, declaration_line=node.start_point.row + 1, declaration_column=node.start_point.column + 1, start_byte=node.start_byte, end_byte=node.end_byte,
                         name_start=name.start_byte if name else None, name_end=name.end_byte if name else None,
                         local_test=test, group=files[file]['group']))
                 child_dir = module_dir
