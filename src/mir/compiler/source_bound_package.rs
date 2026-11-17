@@ -546,13 +546,6 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
                     builder.lower_resolved_direct_accum_function_draft(plan),
                 )
             }
-            ExactCanonicalPreflightPlanV1::Loop(CanonicalLoopFamilyPlanV1::NestedPredicate(
-                plan,
-            )) => lower_single(
-                token,
-                continuation,
-                builder.lower_resolved_nested_predicate_function_draft(plan),
-            ),
             ExactCanonicalPreflightPlanV1::Loop(CanonicalLoopFamilyPlanV1::GenericG0(plan)) => {
                 lower_single(
                     token,

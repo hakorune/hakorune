@@ -1,6 +1,5 @@
 use super::super::direct_accum_profile::CanonicalDirectAccumPlanV1;
 use super::super::function_input::ResolvedFunctionLoweringInputV1;
-use super::super::nested_predicate_profile::CanonicalNestedPredicatePlanV1;
 use super::resolved_owner_header::{
     ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
 };
@@ -12,7 +11,6 @@ use crate::mir::compiler::generic_g0_source_parent::VerifiedGenericG0SourceParen
 #[derive(Debug)]
 pub(crate) enum CanonicalLoopFamilyPlanV1<'a> {
     DirectAccum(CanonicalDirectAccumPlanV1<'a>),
-    NestedPredicate(CanonicalNestedPredicatePlanV1<'a>),
     GenericG0(CanonicalGenericG0PlanV1<'a>),
 }
 
@@ -22,7 +20,6 @@ impl<'a> CanonicalLoopFamilyPlanV1<'a> {
     ) -> super::super::function_input::ResolvedFunctionLoweringInputV1<'a> {
         match self {
             Self::DirectAccum(plan) => plan.input(),
-            Self::NestedPredicate(plan) => plan.input(),
             Self::GenericG0(plan) => plan.source_input(),
         }
     }

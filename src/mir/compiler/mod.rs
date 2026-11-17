@@ -448,11 +448,6 @@ impl MirCompiler {
                     self, plan, config,
                 );
             }
-            CanonicalFirstFamilyPlanV1::Loop(CanonicalLoopFamilyPlanV1::NestedPredicate(plan)) => {
-                return resolved_nested_predicate_cutover::compile_nested_predicate_source_bound(
-                    self, plan, config,
-                );
-            }
             CanonicalFirstFamilyPlanV1::Loop(CanonicalLoopFamilyPlanV1::GenericG0(plan)) => {
                 return resolved_generic_g0_cutover::compile_generic_g0_source_bound(
                     self, plan, config,

@@ -99,13 +99,11 @@ pub(in crate::mir) mod module_postprocess_stages;
 mod module_session;
 pub(in crate::mir) mod nested_predicate_effect_plan;
 pub(crate) mod nested_predicate_observation;
-pub(in crate::mir) mod nested_predicate_physical_input;
 pub(in crate::mir) mod nested_predicate_producer;
 #[cfg(test)]
 mod nested_predicate_producer_tests;
 pub(in crate::mir) mod nested_predicate_projection;
 pub(in crate::mir) mod nested_predicate_source_handoff;
-pub(in crate::mir) mod nested_predicate_topology;
 pub(in crate::mir) mod pinned_text_backend_frame;
 pub(in crate::mir) mod pinned_text_residence_backend_carrier;
 pub(crate) mod pinned_text_residence_backend_projection;
@@ -130,14 +128,7 @@ pub(crate) use loop_cond_break_continue_projection_tests::positive_function as l
 #[cfg(test)]
 mod nested_predicate_effect_plan_tests;
 #[cfg(test)]
-mod nested_predicate_physical_input_tests;
-pub(in crate::mir) mod nested_predicate_profile;
-#[cfg(test)]
-mod nested_predicate_profile_tests;
-#[cfg(test)]
 mod nested_predicate_projection_tests;
-#[cfg(test)]
-mod nested_predicate_topology_tests;
 mod normal_default_pipeline;
 pub(crate) mod normal_source_plan;
 pub(in crate::mir) mod publication_kernel;
@@ -147,7 +138,6 @@ pub(in crate::mir) mod resolved_callable_module;
 mod resolved_callable_module_input;
 mod resolved_direct_accum_cutover;
 mod resolved_generic_g0_cutover;
-mod resolved_nested_predicate_cutover;
 pub(in crate::mir) mod selected_dynamic_w6_activation;
 pub(in crate::mir) mod source_bound_package;
 pub(in crate::mir) mod source_bound_package_generic_g0;

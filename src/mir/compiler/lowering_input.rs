@@ -192,7 +192,6 @@ pub(in crate::mir) enum CanonicalResolvedCutoverStageErrorV1 {
 #[derive(Debug)]
 pub(in crate::mir) enum CanonicalResolvedCutoverFailureV1 {
     DirectAccum(CanonicalResolvedCutoverStageErrorV1),
-    NestedPredicate(CanonicalResolvedCutoverStageErrorV1),
 }
 
 /// The outer lowering error is part of the existing public compiler surface;

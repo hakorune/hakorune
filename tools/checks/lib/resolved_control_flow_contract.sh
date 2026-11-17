@@ -246,7 +246,7 @@ PY
 
   # CANONICAL-FUNCTION-FINISH-TERMINAL-R0 owns the common V2 close order.
   # Keep the compatibility constructor visible only at its one non-V2 caller;
-  # the three V2 lowerers must return through the typed terminal instead.
+  # the two V2 lowerers must return through the typed terminal instead.
   local canonical_session="$lowering/canonical_ssa/session.rs"
   local v2_finish_definition_count v2_finish_call_count non_v2_constructor_count
   v2_finish_definition_count="$(rg -n 'fn finish_for_draft_seal\(' "$canonical_session" | wc -l | tr -d '[:space:]')"
@@ -255,15 +255,13 @@ PY
   fi
   v2_finish_call_count="$(rg -n 'finish_for_draft_seal\(' \
     "$lowering/trivial_ssa/lowerer.rs" \
-    "$lowering/direct_accum_lowerer.rs" \
-    "$lowering/nested_predicate_lowerer.rs" | wc -l | tr -d '[:space:]')"
-  if [[ "$v2_finish_call_count" != "3" ]]; then
-    guard_fail "$tag" "canonical V2 lowerers must issue exactly three typed finish calls"
+    "$lowering/direct_accum_lowerer.rs" | wc -l | tr -d '[:space:]')"
+  if [[ "$v2_finish_call_count" != "2" ]]; then
+    guard_fail "$tag" "canonical V2 lowerers must issue exactly two typed finish calls"
   fi
   if rg -n 'ReadyFunctionDraftSealV1::new' \
     "$lowering/trivial_ssa/lowerer.rs" \
-    "$lowering/direct_accum_lowerer.rs" \
-    "$lowering/nested_predicate_lowerer.rs"; then
+    "$lowering/direct_accum_lowerer.rs"; then
     guard_fail "$tag" "V2 lowerers must not construct ReadyFunctionDraftSealV1 directly"
   fi
   non_v2_constructor_count="$(rg -n 'ReadyFunctionDraftSealV1::new' \
@@ -273,8 +271,7 @@ PY
   fi
   if rg -n 'session\.(semantics|if_control|identity|completion).*finish|session\.phis.*commit' \
     "$lowering/trivial_ssa/lowerer.rs" \
-    "$lowering/direct_accum_lowerer.rs" \
-    "$lowering/nested_predicate_lowerer.rs"; then
+    "$lowering/direct_accum_lowerer.rs"; then
     guard_fail "$tag" "V2 lowerers must not duplicate function-local finish ownership"
   fi
 

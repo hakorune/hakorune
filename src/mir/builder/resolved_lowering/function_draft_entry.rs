@@ -109,12 +109,6 @@ impl MirBuilder {
         self.lower_resolved_direct_accum_function_draft_inner(plan, false, Some(physical_name))
     }
 
-    pub(in crate::mir) fn lower_resolved_nested_predicate_function_draft(
-        &mut self,
-        plan: crate::mir::compiler::nested_predicate_profile::CanonicalNestedPredicatePlanV1<'_>,
-    ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
-        nested_predicate_lowerer::lower_nested_predicate_function_draft(self, plan)
-    }
 
     pub(in crate::mir) fn lower_resolved_generic_g0_function_draft(
         &mut self,

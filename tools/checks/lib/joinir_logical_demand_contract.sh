@@ -128,17 +128,13 @@ guard_joinir_logical_demand_contract() {
           -v prefix="$portable_recipe_dir/" \
           -v nested_producer="$nested_predicate_producer" \
           -v nested_producer_tests="$nested_predicate_producer_tests" \
-          -v nested_topology="$root_dir/src/mir/compiler/nested_predicate_topology.rs" \
-          -v nested_topology_tests="$root_dir/src/mir/compiler/nested_predicate_topology_tests.rs" \
-          -v nested_physical_input="$root_dir/src/mir/compiler/nested_predicate_physical_input.rs" \
-          -v nested_physical_input_tests="$root_dir/src/mir/compiler/nested_predicate_physical_input_tests.rs" \
           -v dynamic_physical_input="$dynamic_physical_input" \
           -v dynamic_semantic_tests="$dynamic_semantic_tests" \
           -v dynamic_recipe_tests="$dynamic_recipe_tests" \
           -v node_admission="$root_dir/src/mir/compiler/loop_node_physical_admission.rs" \
           -v physicalizer="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs" \
           -v physicalizer_session="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer/session.rs" \
-          'index($0, prefix) != 1 && $0 != nested_producer && $0 != nested_producer_tests && $0 != nested_topology && $0 != nested_topology_tests && $0 != nested_physical_input && $0 != nested_physical_input_tests && $0 != dynamic_physical_input && $0 != dynamic_semantic_tests && $0 != dynamic_recipe_tests && $0 != node_admission && $0 != physicalizer && $0 != physicalizer_session'
+          'index($0, prefix) != 1 && $0 != nested_producer && $0 != nested_producer_tests && $0 != dynamic_physical_input && $0 != dynamic_semantic_tests && $0 != dynamic_recipe_tests && $0 != node_admission && $0 != physicalizer && $0 != physicalizer_session'
   )
   if (( ${#join_sig_external_files[@]} != 0 )); then
     guard_fail "$tag" "caller-zero logical JoinSig symbols escaped the contract subtree"

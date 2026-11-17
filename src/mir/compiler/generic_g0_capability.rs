@@ -27,9 +27,6 @@ use super::located::LocatedStmtV1;
 use super::lowering_input::{
     CanonicalGenericG0BoundaryErrorV1, CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1,
 };
-use super::nested_predicate_profile::{
-    probe_nested_predicate_source_unit_v1, NestedPredicateSourceUnitProbeV1,
-};
 
 #[derive(Debug)]
 pub(crate) enum GenericG0SourceUnitProbe<'source> {
@@ -41,10 +38,6 @@ pub(crate) fn verify_with_generic_g0_mode_v1(
     unit: &VerifiedResolvedSourceUnitV1,
     mode: Option<GenericG0PolicyModeV1>,
 ) -> Result<CanonicalFirstFamilyPlanV1<'_>, CanonicalLoweringErrorV1> {
-    match probe_nested_predicate_source_unit_v1(unit)? {
-        NestedPredicateSourceUnitProbeV1::Candidate(plan) => return Ok(plan),
-        NestedPredicateSourceUnitProbeV1::NotCandidate => {}
-    }
     match probe_direct_accum_source_unit_v1(unit)? {
         DirectAccumSourceUnitProbeV1::Candidate(plan) => Ok(plan),
         DirectAccumSourceUnitProbeV1::NotCandidate(_) => {
