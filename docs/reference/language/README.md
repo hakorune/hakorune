@@ -125,8 +125,8 @@ Grammar (EBNF)
   [retirement SSOT](../../development/current/main/design/box-member-field-method-surface-ssot.md).
 - **Maintainer decisions 2026-11-17** (recorded in
   `docs/development/current/main/design/mirbuilder-blueprint.md`, decisions 8-11;
-  they bind the new builder's Resolve, the current route is unchanged until it
-  is replaced): `birth_once` leaves the language; a stored field cannot hold a
+  they apply when the Resolve responsibility is consolidated; current acceptance
+  is unchanged until that round): `birth_once` leaves the language; a stored field cannot hold a
   value of a different declared type; an explicit result annotation rejects a
   value of a different type (`: i64` with `return true` or `return 1.5`), with
   no implicit conversion; calling a parameter or local value as a function is

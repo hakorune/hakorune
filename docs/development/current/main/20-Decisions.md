@@ -39,8 +39,11 @@ Private Canonical Path: `docs/private/development/current/main/20-Decisions.md`
   a field cannot hold a value of a different declared type; a function cannot
   return a value of a different declared type (no implicit conversion);
   `birth_once` leaves the language; calling a parameter or local as a function
-  is a named rejection until the closure form is decided. These bind the new
-  builder's Resolve; the current default route is unchanged until replacement.
+  is a named rejection until the closure form is decided. They apply when the
+  Resolve responsibility is consolidated; current acceptance is unchanged until that round.
+- Maintainer decision 2026-11-17: no second builder beside the existing one. The existing
+  MirBuilder is split by responsibility; replaced code and its tests are deleted in the same
+  round (blueprint section 14, RULES section 8).
 - Ownership (maintainer decision 2026-11-14, provisional): ordinary Boxes are
   counted, `docs/development/adr/adr-003-counted-box-default.md`.
 - Failure surface (maintainer decision 2026-11-16):
