@@ -56,17 +56,8 @@ pub(crate) struct VerifiedNormalMainPhysicalRelationV1 {
 struct VerifiedNormalMainPhysicalRelationSealV1;
 
 impl VerifiedNormalMainPhysicalRelationV1 {
-    pub(crate) fn source_header(&self) -> &VerifiedResolvedOwnerHeaderV1 {
-        &self.source_header
-    }
 
-    pub(crate) const fn source_result(&self) -> VerifiedNormalMainThunkResultV1 {
-        self.source_result
-    }
 
-    pub(crate) fn entry(&self) -> &VerifiedNormalMainEntryRelationV1 {
-        &self.entry
-    }
 
     pub(in crate::mir) fn into_parts(
         self,
@@ -79,19 +70,6 @@ impl VerifiedNormalMainPhysicalRelationV1 {
     }
 }
 
-/// Seals the sole Main-to-physical relation from already-verified F1 facts.
-pub(crate) fn seal_normal_main_physical_relation_v1(
-    source_header: VerifiedResolvedOwnerHeaderV1,
-    completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
-    terminal: &TrivialTerminalProfileV1,
-) -> Result<VerifiedNormalMainPhysicalRelationV1, NormalMainThunkPlanErrorV1> {
-    seal_relation(
-        source_header,
-        completion,
-        terminal,
-        canonical_normal_main_entry_target(),
-    )
-}
 
 #[derive(Debug)]
 struct VerifiedNormalMainEntryRelationSealV1;
@@ -174,21 +152,6 @@ impl<'unit> VerifiedNormalMainThunkPlanV1<'unit> {
         self.source
     }
 
-    pub(in crate::mir) fn into_parts(
-        self,
-    ) -> (
-        VerifiedNormalMainFunctionPlanV1<'unit>,
-        VerifiedResolvedOwnerHeaderV1,
-        VerifiedNormalMainThunkResultV1,
-        VerifiedNormalMainEntryRelationV1,
-    ) {
-        (
-            self.source,
-            self.source_header,
-            self.source_result,
-            self.entry,
-        )
-    }
 }
 
 #[derive(Debug)]
@@ -206,14 +169,6 @@ impl<'unit> RejectedNormalMainThunkPlanV1<'unit> {
         drop(self);
     }
 
-    pub(in crate::mir) fn into_parts(
-        self,
-    ) -> (
-        VerifiedNormalMainFunctionPlanV1<'unit>,
-        NormalMainThunkPlanErrorV1,
-    ) {
-        (self.owner, self.error)
-    }
 
     #[cfg(test)]
     fn owner_for_test(&self) -> &VerifiedNormalMainFunctionPlanV1<'_> {

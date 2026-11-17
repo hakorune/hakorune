@@ -269,17 +269,8 @@ impl RawRootPostInstallFactsV1 {
         self.route
     }
 
-    pub(in crate::mir) const fn helper_count(&self) -> usize {
-        self.helper_schedule.len()
-    }
 
-    pub(in crate::mir) fn body_statement_count(&self) -> usize {
-        self.body_statement_count
-    }
 
-    pub(in crate::mir) fn callable_count(&self) -> usize {
-        self.callable_count
-    }
 
     pub(in crate::mir) fn into_linear_body_recipe(self) -> RawRootBodyRecipeV1 {
         self.body_recipe
@@ -288,36 +279,10 @@ impl RawRootPostInstallFactsV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum RawRootSourceFactsErrorV1 {
-    RootNotProgram,
-    MainLocatorDrift,
-    Catalog,
     Scalar { path: Box<[usize]> },
-    AppMainMetadata { metadata: RawAppMainMetadataFactsV1 },
 }
 
-/// Source facts already observed while checking the narrow `Main.main/0`
-/// contract.  Keeping them in the rejection avoids a second AST inspection.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir) struct RawAppMainMetadataFactsV1 {
-    parameter_count: usize,
-    parameter_decl_count: usize,
-    return_annotation_present: bool,
-    uses_count: usize,
-    contract_count: usize,
-    rune_count: usize,
-}
 
-impl RawAppMainMetadataFactsV1 {
-
-    const fn is_empty(self) -> bool {
-        self.parameter_count == 0
-            && self.parameter_decl_count == 0
-            && !self.return_annotation_present
-            && self.uses_count == 0
-            && self.contract_count == 0
-            && self.rune_count == 0
-    }
-}
 
 fn classify_program(
     nodes: &[ASTNode],
