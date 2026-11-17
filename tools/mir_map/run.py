@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # Measure-1b entry: no HIR/THIR dump is executed.
-# python3 tools/mir_map/run.py --work /mnt/workdisk/claude-scratch/measure-1b \
-#  --reuse /mnt/workdisk/claude-scratch/measure-1 --stage all \
-#  --manifest /path/frozen-inputs.json --template /path/configured-environment.json \
-#  --expected-failures /path/155-names.txt --write-docs
+# python3 tools/mir_map/run.py --work <work> \
+#  --reuse <reuse> --stage all \
+#  --manifest <manifest> --template <template> \
+#  --expected-failures <expected-failures> --write-docs
 # Existing SHA-verified coverage CLI and its 200-input equivalence receipt are reused.
 # Resource watch starts before child commands: MemAvailable6GiB/RSS16GiB/disk20GB.
 # M1 uses at most4 commands; M3 build2jobs, one guarded retry1job/CGU64; tests1thread.
@@ -78,7 +78,7 @@ def main():
             from batch import collect
             for group in ['A', 'B']:
                 watch.stage = 'M1-' + group
-                result = collect(work, binary, a.manifest, a.template, group, deadline, a.baseline_results)
+                result = collect(work, binary, a.manifest, a.template, group, deadline, a.baseline_results, normal_binary=reuse / 'hakorune.base')
                 if not result['full']:
                     finish(work, reuse, a.write_docs)
                     return

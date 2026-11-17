@@ -26,7 +26,7 @@ def result_kind(run_result, text):
                 terminal=line)
 
 
-def one(work, binary, template, folder, index, row, emit_exe, timeout=600, baseline=None):
+def one(work, binary, template, folder, index, row, emit_exe, timeout=600, baseline=None, normal_binary=None):
     destination = folder / f'{index:04d}'
     destination.mkdir(parents=True, exist_ok=True)
     record = destination / 'result.json'
@@ -47,7 +47,9 @@ def one(work, binary, template, folder, index, row, emit_exe, timeout=600, basel
                    __import__('hashlib').sha256(normalized).hexdigest() == expected['dump']['output_sha256'])
         comparison = dict(held_baseline_equal=matched)
         if not matched:
-            normal = Path('/mnt/workdisk/claude-scratch/measure-1/hakorune.base')
+            if normal_binary is None:
+                raise ValueError('normal comparison binary must be supplied from --reuse')
+            normal = Path(normal_binary)
             normal_env = configured_env(template, normal, work)
             normal_env.pop('LLVM_PROFILE_FILE', None)
             control = run([normal, '--dump-mir', row['path']], destination / 'normal-reference.log', normal_env, timeout)
@@ -87,7 +89,7 @@ def one(work, binary, template, folder, index, row, emit_exe, timeout=600, basel
     return result
 
 
-def collect(work, binary, manifest, template, group, deadline, baseline_path=None):
+def collect(work, binary, manifest, template, group, deadline, baseline_path=None, normal_binary=None):
     rows, exes = fixed_inputs(manifest)
     baseline = {r['source']:r for r in json.loads(Path(baseline_path).read_text())} if baseline_path else None
     if group == 'B':
@@ -108,7 +110,7 @@ def collect(work, binary, manifest, template, group, deadline, baseline_path=Non
             while len(pending) < 4 and next_index < len(rows) and time.time() < deadline:
                 row = rows[next_index]
                 future = pool.submit(one, work, binary, template, folder, next_index, row,
-                                     group == 'A' and row['path'] in exes, 600, baseline)
+                                     group == 'A' and row['path'] in exes, 600, baseline, normal_binary)
                 pending[future] = next_index
                 next_index += 1
             if not pending:

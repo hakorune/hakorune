@@ -62,7 +62,7 @@ compilerの動くcodeは変更していない。coverage CLIは前回の同じbi
 
 式9/call12/loop12/if6の旧一覧はwrapperと定義の束を含んでいた。実在定義のwatchlist138個（expression22/call78/loop22/if16）のA/B入力本数を記録し、全138定義を定義位置で照合した。独立lowererの数ではない。
 
-地図は`src/mir/README.md`の上位60群。全群・全関数・入力結果・未出現固定literalは`tools/mir_map/out/`（ignored）へ出す。入口は`python3 tools/mir_map/run.py --help`。取得済み記録の再生成は`python3 tools/mir_map/run.py --work /mnt/workdisk/claude-scratch/measure-1b --reuse /mnt/workdisk/claude-scratch/measure-1 --stage render --write-docs`。資源見張りは入力/LLVM/Cargo/testの起動前から有効、停止0回・最大子孫RSS16529964KiB。前回のTHIR OOM記録は残し、この回の監視で防いだとは主張しない。
+地図は`src/mir/README.md`の上位60群。全群・全関数・入力結果・未出現固定literalは`tools/mir_map/out/`（ignored）へ出す。入口は`python3 tools/mir_map/run.py --help`。取得済み記録の再生成は`python3 tools/mir_map/run.py --work <work> --reuse <reuse> --stage render --write-docs`。資源見張りは入力/LLVM/Cargo/testの起動前から有効、停止0回・最大子孫RSS16529964KiB。前回のTHIR OOM記録は残し、この回の監視で防いだとは主張しない。
 
 ## タスクの一覧(上から順。1 つ終わるたびに、消した行数を書く)
 
