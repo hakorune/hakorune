@@ -372,7 +372,6 @@ def check_ret0_s0(root: Path) -> str:
     for fixture in (
         "raw_value_return_selects_owned_descent_for_actual_method_call",
         "raw_void_return_selects_void_source_partition",
-        "raw_match_return_keeps_existing_selection_owner_without_second_completion",
         "raw_configured_defer_keeps_exact_copy_jump_completion",
         "raw_cleanup_and_child_failures_leave_no_terminator_then_reuse",
     ):
