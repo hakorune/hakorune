@@ -23,4 +23,3 @@ pub(super) const MAX_NESTED_LOOPS: usize = 8;
 
 // true_break_continue variant (flat file)
 pub(in crate::mir::builder) mod true_break_continue;
-pub(in crate::mir::builder) mod true_break_continue_helpers;
