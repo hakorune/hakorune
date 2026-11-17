@@ -27,7 +27,7 @@ if rg -n '#\[allow\(dead_code\)\]' src/mir/builder/scope_context.rs src/mir/buil
   exit 1
 fi
 
-for live in local_recv local_arg local_field_base local_cond local_ssa_ensure; do
+for live in local_recv local_arg local_field_base local_cond; do
   if ! rg -n "\b${live}\b" src/mir/builder/utils/local_ssa.rs >/dev/null; then
     echo "[astclean-mir-scope-local] expected LocalSSA wrapper missing: $live" >&2
     exit 1

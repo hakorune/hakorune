@@ -75,18 +75,6 @@ pub fn decode_static_method(func_name: &str) -> Option<(&str, &str, usize)> {
     Some((box_name, method, arity))
 }
 
-/// Check if a function name is a static box method.
-///
-/// Returns true if the name matches "BoxName.method/arity" format.
-///
-/// Examples:
-/// - "Main.main/0" → true
-/// - "Calculator.add/2" → true
-/// - "print" → false
-/// - "instance.method" → false (no arity)
-pub fn is_static_method_name(func_name: &str) -> bool {
-    decode_static_method(func_name).is_some()
-}
 
 // =========================================================================
 // Phase 1: StaticMethodId - 構造化された関数名表現
@@ -236,17 +224,3 @@ impl StaticMethodId {
 }
 
 // 既存関数のエイリアス（互換性維持）
-
-/// `StaticMethodId::parse()` のエイリアス
-///
-/// 互換性のために提供。新しいコードでは `StaticMethodId::parse()` を使用してください。
-pub fn parse_global_name(name: &str) -> Option<StaticMethodId> {
-    StaticMethodId::parse(name)
-}
-
-/// `StaticMethodId::format()` のエイリアス
-///
-/// 互換性のために提供。新しいコードでは `StaticMethodId::format()` を使用してください。
-pub fn format_global_name(id: &StaticMethodId) -> String {
-    id.format()
-}

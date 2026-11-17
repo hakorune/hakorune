@@ -92,9 +92,6 @@ impl OpenScriptPhysicalEntrySessionV1 {
         &self.candidate
     }
 
-    pub(in crate::mir) fn builder_mut(&mut self) -> &mut MirBuilder {
-        &mut self.candidate
-    }
 
     pub(in crate::mir) const fn entry_block(&self) -> BasicBlockId {
         self.entry_block
@@ -211,13 +208,7 @@ impl CompletedScriptPhysicalFunctionV1 {
         &self.draft
     }
 
-    pub(in crate::mir) fn target(&self) -> &CanonicalNormalMainEntryTargetV1 {
-        &self.target
-    }
 
-    pub(in crate::mir) fn exit(&self) -> &CompletedScriptPhysicalExitCoreV1 {
-        &self.exit
-    }
 
     pub(in crate::mir) fn into_parts(
         self,

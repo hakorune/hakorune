@@ -158,19 +158,7 @@ impl CarrierInfo {
         self.carriers.len()
     }
 
-    /// Phase 193-2: Check if this has multiple carriers
-    ///
-    /// Useful for pattern matching: "is this a multi-carrier loop?"
-    pub fn is_multi_carrier(&self) -> bool {
-        self.carriers.len() > 1
-    }
 
-    /// Phase 193-2: Find a carrier by name
-    ///
-    /// Lookup a specific carrier variable by name.
-    pub fn find_carrier(&self, name: &str) -> Option<&CarrierVar> {
-        self.carriers.iter().find(|c| c.name == name)
-    }
 
     /// Phase 171-C-4: Merge carriers from another CarrierInfo
     ///

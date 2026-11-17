@@ -87,24 +87,6 @@ impl CaseAContext {
         })
     }
 
-    /// 変数名から loop 関数内の ValueId を取得
-    pub fn get_loop_id(&self, name: &str) -> Option<ValueId> {
-        self.name_to_loop_id.get(name).copied()
-    }
 
-    /// pinned 変数の n 番目の名前を取得（なければ 0 番目を使う）
-    pub fn pinned_name_or_first(&self, index: usize) -> Option<String> {
-        self.ordered_pinned
-            .get(index)
-            .cloned()
-            .or_else(|| self.ordered_pinned.first().cloned())
-    }
 
-    /// carrier 変数の n 番目の名前を取得（なければ 0 番目を使う）
-    pub fn carrier_name_or_first(&self, index: usize) -> Option<String> {
-        self.ordered_carriers
-            .get(index)
-            .cloned()
-            .or_else(|| self.ordered_carriers.first().cloned())
-    }
 }

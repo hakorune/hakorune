@@ -30,9 +30,6 @@ impl MirBuilder {
             .collect()
     }
 
-    pub(in crate::mir) fn current_variable(&self, name: &str) -> Option<super::ValueId> {
-        self.function_state.variable_ctx.lookup(name)
-    }
 
 
     pub(in crate::mir) fn variable_bindings(&self) -> Vec<(String, super::ValueId)> {

@@ -156,9 +156,6 @@ impl VerifiedS6CTypedInputRelationV1 {
         &self.initializer
     }
 
-    pub(crate) const fn initializer_literal(&self) -> &ResolvedLiteralSourceV1 {
-        &self.initializer_literal
-    }
 
     pub(crate) const fn binaries(&self) -> &[S6CBinaryRelationV1; 4] {
         &self.binaries

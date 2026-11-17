@@ -178,9 +178,7 @@ pub(in crate::mir) use raw_root_physical::root_batch_terminal::{
 pub(in crate::mir) use raw_root_physical::RawRootBodyPhysicalErrorV1;
 pub(in crate::mir) use raw_root_physical::RawRootPhysicalStateV1;
 mod raw_root_child_work; // RAW-SOURCE0-LOWER0-ROOT0-CHILDREN0 source-bound helper work
-pub(in crate::mir) use raw_root_child_work::{
-    RawCallableMainWorkV1, RawRootStaticChildWorkErrorV1,
-};
+pub(in crate::mir) use raw_root_child_work::RawCallableMainWorkV1;
 mod raw_compat_runtime_box_fate;
 mod raw_compatibility_child_terminal;
 mod raw_root_static_child_admission;

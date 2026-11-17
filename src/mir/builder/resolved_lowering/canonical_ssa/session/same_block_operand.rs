@@ -185,9 +185,6 @@ impl<'source> super::CanonicalSsaFunctionSessionV2<'source> {
 }
 
 impl VerifiedCanonicalSameBlockIntegerOperandV1 {
-    pub(in crate::mir::builder) const fn target(self) -> VerifiedCanonicalOpenInstructionTargetV1 {
-        self.target
-    }
 
     pub(in crate::mir::builder) const fn owner(self) -> FunctionOwnerIdV1 {
         self.request.owner()

@@ -98,9 +98,6 @@ impl VerifiedS6CReturnSourceRecipeBindingV1 {
         self.recipe_return_item
     }
 
-    pub(crate) const fn recipe_return_block(&self) -> LoopBlockKeyV1 {
-        self.recipe_return_block
-    }
 
     pub(crate) const fn recipe_exit(&self) -> LoopExitKeyV1 {
         self.recipe_exit

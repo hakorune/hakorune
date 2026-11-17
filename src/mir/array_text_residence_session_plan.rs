@@ -332,27 +332,6 @@ impl ArrayTextResidenceExecutorContract {
         self.region_mapping.as_ref()
     }
 
-    fn loopcarry_len_store_single_region(
-        region_mapping: ArrayTextResidenceLoopRegionMapping,
-    ) -> Self {
-        Self {
-            execution_mode: ArrayTextResidenceExecutorExecutionMode::SingleRegionExecutor,
-            proof_region: ArrayTextResidenceSessionScope::LoopBackedgeSingleBody,
-            publication_boundary: "none",
-            carrier: ArrayTextResidenceExecutorCarrier::ArrayLaneTextCell,
-            effects: vec![
-                ArrayTextResidenceExecutorEffect::StoreCell,
-                ArrayTextResidenceExecutorEffect::LengthOnlyResultCarry,
-            ],
-            consumer_capabilities: vec![
-                ArrayTextResidenceExecutorConsumerCapability::SinkStore,
-                ArrayTextResidenceExecutorConsumerCapability::LengthOnly,
-            ],
-            materialization_policy:
-                ArrayTextResidenceExecutorMaterializationPolicy::TextResidentOrStringlikeSlot,
-            region_mapping: Some(region_mapping),
-        }
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

@@ -9,13 +9,6 @@ pub enum ValueRepresentationFact {
     BoxedSumHandle { abi_plan_id: u32 },
 }
 
-impl ValueRepresentationFact {
-    pub fn boxed_sum_plan_id(&self) -> u32 {
-        match self {
-            Self::BoxedSumHandle { abi_plan_id } => *abi_plan_id,
-        }
-    }
-}
 
 pub fn refresh_module_value_representation_facts(module: &mut MirModule) {
     let plans = module.metadata.boxed_sum_abi_plans.clone();

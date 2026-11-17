@@ -56,20 +56,6 @@ impl LoopRouteKind {
         }
     }
 
-    /// Semantic label without pattern numbering.
-    ///
-    /// Preferred for runtime diagnostics in planner/router paths.
-    pub fn semantic_label(&self) -> &'static str {
-        match self {
-            LoopRouteKind::LoopSimpleWhile => "LoopSimpleWhile",
-            LoopRouteKind::LoopBreak => "LoopBreakRecipe",
-            LoopRouteKind::IfPhiJoin => "IfPhiJoin",
-            LoopRouteKind::LoopContinueOnly => "LoopContinueOnly",
-            LoopRouteKind::LoopTrueEarlyExit => "LoopTrueEarlyExit",
-            LoopRouteKind::NestedLoopMinimal => "NestedLoopMinimal",
-            LoopRouteKind::Unknown => "UnknownLoopShape",
-        }
-    }
 
     /// Phase 193-3: Get historical numeric route ID
     ///
@@ -87,29 +73,6 @@ impl LoopRouteKind {
         }
     }
 
-    /// Phase 193-3: Check if this is a recognized route family
-    ///
-    /// Returns false only for Unknown.
-    pub fn is_recognized(&self) -> bool {
-        !matches!(self, LoopRouteKind::Unknown)
-    }
 
-    /// Phase 193-3: Check if route family has special control flow.
-    ///
-    /// Returns true if the route involves break or continue.
-    pub fn has_special_control_flow(&self) -> bool {
-        matches!(
-            self,
-            LoopRouteKind::LoopBreak
-                | LoopRouteKind::LoopContinueOnly
-                | LoopRouteKind::LoopTrueEarlyExit
-        )
-    }
 
-    /// Phase 193-3: Check if route family involves PHI merging
-    ///
-    /// Returns true if the route has if-else PHI merge.
-    pub fn has_phi_merge(&self) -> bool {
-        matches!(self, LoopRouteKind::IfPhiJoin)
-    }
 }

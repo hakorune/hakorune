@@ -22,11 +22,6 @@ impl FunctionMetadata {
         self.checked_callout_site_plans.get(site)
     }
 
-    pub(crate) fn checked_callout_site_plan_table(
-        &self,
-    ) -> &crate::mir::checked_callout::CheckedCallOutPlanTableV1 {
-        &self.checked_callout_site_plans
-    }
 
     pub(crate) fn verify_checked_callout_function(
         &self,

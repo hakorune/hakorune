@@ -20,21 +20,4 @@ impl super::super::MirBuilder {
         super::super::ssa::local::field_base(self, v)
     }
 
-    /// Local SSA: ensure a value has a definition in the current block and cache it per-block.
-    /// kind: 0 = recv (reserved for args in future)
-    pub(crate) fn local_ssa_ensure(
-        &mut self,
-        v: super::super::ValueId,
-        kind: u8,
-    ) -> super::super::ValueId {
-        use super::super::ssa::local::{ensure, LocalKind};
-        let lk = match kind {
-            0 => LocalKind::Recv,
-            1 => LocalKind::Arg,
-            2 => LocalKind::CompareOperand,
-            4 => LocalKind::Cond,
-            x => LocalKind::Other(x),
-        };
-        ensure(self, v, lk)
-    }
 }
