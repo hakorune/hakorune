@@ -161,12 +161,14 @@ impl Checker<'_> {
         }
         let initial = self.jump(None, image.header)?;
         let mut carriers = contract.carriers.clone();
+        let mut header_bindings = contract.assigned.clone();
         if let Some((index, _)) = range {
             carriers.push(index);
+            header_bindings.push(index);
         }
-        self.enter(image.header, Environment::new());
+        self.enter(image.header, initial.values.clone());
         let mut header_phis = Vec::new();
-        for binding in &carriers {
+        for binding in &header_bindings {
             let (value, inputs) = self.phi(image.header, *binding, None)?;
             self.bind(*binding, value)?;
             header_phis.push((*binding, inputs));
@@ -243,6 +245,15 @@ impl Checker<'_> {
                 self.typed(dst, Type::I64)?;
                 self.bind(index, dst)?;
                 backs.push(self.jump(None, image.header)?);
+            }
+        }
+        // A carrier omitted from header Phis must stay invariant on every
+        // backedge. Missing write information must not silently lose updates.
+        for binding in carriers.iter().filter(|b| !header_bindings.contains(b)) {
+            for state in &backs {
+                if state.values.get(binding) != initial.values.get(binding) {
+                    return Err(bad("unassigned-carrier-changed"));
+                }
             }
         }
         for (binding, actual) in header_phis {

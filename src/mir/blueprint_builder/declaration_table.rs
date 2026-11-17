@@ -96,6 +96,7 @@ pub(super) struct LoopContract {
     pub test: LoopTest,
     pub body: Vec<Statement>,
     pub carriers: Vec<BindingId>,
+    pub assigned: Vec<BindingId>,
 }
 #[derive(Debug)]
 pub(super) enum LoopTest {

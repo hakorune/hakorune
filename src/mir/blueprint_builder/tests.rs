@@ -276,3 +276,44 @@ static box Main {
             }
         ))));
 }
+
+#[test]
+fn loop_headers_only_carry_writes_and_reject_a_missing_write_contract() {
+    let code = "function count(n: i64): i64 {\nlocal i = 0\nloop(i < n) { i += 1 }\nreturn i + n\n}\nstatic box Main { main(): i64 { return count(3) } }";
+    let (mut source, candidate, _) = prepared(code);
+    let count = candidate.functions.get("count/1").unwrap();
+    assert_eq!(
+        count
+            .blocks
+            .values()
+            .flat_map(|b| &b.instructions)
+            .filter(|op| matches!(op, MirInstruction::Phi { .. }))
+            .count(),
+        1
+    );
+    let body = source
+        .functions
+        .iter_mut()
+        .find(|f| {
+            f.body
+                .iter()
+                .any(|s| matches!(s.kind, declaration_table::StatementKind::Loop(_)))
+        })
+        .unwrap();
+    let contract = body
+        .body
+        .iter_mut()
+        .find_map(|s| match &mut s.kind {
+            declaration_table::StatementKind::Loop(contract) => Some(contract),
+            _ => None,
+        })
+        .unwrap();
+    // Simulate an incomplete write contract. Its lowered CFG remains valid,
+    // but c must detect a changed invariant on the backedge independently.
+    contract.assigned.clear();
+    let (candidate, records) = lower_and_seal(&source).unwrap();
+    MirVerifier::new_strict()
+        .verify_document_module(&candidate)
+        .unwrap();
+    assert!(correspondence::verify(&source, &candidate, &records).is_err());
+}

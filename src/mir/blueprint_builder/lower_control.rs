@@ -98,8 +98,10 @@ impl Workspace<'_> {
         let initial = self.current()?;
         let incoming = self.environment()?;
         let mut carriers = contract.carriers.clone();
+        let mut header_bindings = contract.assigned.clone();
         if let Some((index, _)) = range {
             carriers.push(index);
+            header_bindings.push(index);
         }
         let header = self.new_block(incoming.clone());
         let body = self.new_block(Environment::new());
@@ -114,8 +116,8 @@ impl Workspace<'_> {
         self.correspondence.loops.insert(node, image);
         self.jump(None, header)?;
         self.current = Some(header);
-        let mut environment = Environment::new();
-        for binding in &carriers {
+        let mut environment = incoming.clone();
+        for binding in &header_bindings {
             let value = *incoming
                 .get(binding)
                 .ok_or("blueprint/internal/header-binding")?;
@@ -199,7 +201,7 @@ impl Workspace<'_> {
                 backedges.push(self.jump(None, header)?);
             }
         }
-        for binding in &carriers {
+        for binding in &header_bindings {
             let dst = self.correspondence.phis[&(header, *binding)];
             let mut inputs = vec![(initial, incoming[binding])];
             for predecessor in &backedges {

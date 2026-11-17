@@ -114,6 +114,7 @@ pub(super) fn module(ast: ASTNode) -> Result<ResolvedModule, Refusal> {
 struct Flow {
     normal: bool,
     breaks: BTreeSet<NodeId>,
+    writes: BTreeSet<BindingId>,
 }
 struct Resolver<'a> {
     table: &'a DeclarationTable,
@@ -181,6 +182,7 @@ impl Resolver<'_> {
             if flow.normal {
                 flow.normal = next.normal;
                 flow.breaks.extend(next.breaks);
+                flow.writes.extend(next.writes);
             }
         }
         if scope {
@@ -245,6 +247,7 @@ impl Resolver<'_> {
                 if self.bindings[binding.0].readonly {
                     return Err(reject("ReadonlyBinding", name, span));
                 }
+                flow.writes.insert(binding);
                 let value = self.expression(value)?;
                 require(value.ty, self.bindings[binding.0].ty, span)?;
                 if let ASTNode::CompoundAssignment { operator, .. } = node {
@@ -287,6 +290,7 @@ impl Resolver<'_> {
                 let (no, b) = self.block(else_body.as_deref().unwrap_or(&[]), true)?;
                 flow.normal = a.normal || b.normal;
                 flow.breaks = a.breaks.union(&b.breaks).copied().collect();
+                flow.writes = a.writes.union(&b.writes).copied().collect();
                 StatementKind::If {
                     condition,
                     yes,
@@ -306,6 +310,12 @@ impl Resolver<'_> {
                 self.loops.pop();
                 flow.normal = !always || next.breaks.contains(&id);
                 flow.breaks = next.breaks.into_iter().filter(|old| *old != id).collect();
+                let assigned = carriers
+                    .iter()
+                    .copied()
+                    .filter(|b| next.writes.contains(b))
+                    .collect();
+                flow.writes = next.writes;
                 StatementKind::Loop(LoopContract {
                     test: LoopTest::Condition {
                         expression: condition,
@@ -313,6 +323,7 @@ impl Resolver<'_> {
                     },
                     body,
                     carriers,
+                    assigned,
                 })
             }
             ASTNode::LoopRange {
@@ -334,10 +345,17 @@ impl Resolver<'_> {
                 self.loops.pop();
                 self.scopes.pop();
                 flow.breaks = next.breaks.into_iter().filter(|old| *old != id).collect();
+                let assigned = carriers
+                    .iter()
+                    .copied()
+                    .filter(|b| next.writes.contains(b))
+                    .collect();
+                flow.writes = next.writes;
                 StatementKind::Loop(LoopContract {
                     test: LoopTest::Range { index, start, end },
                     body,
                     carriers,
+                    assigned,
                 })
             }
             ASTNode::Break { .. } | ASTNode::Continue { .. } => {
