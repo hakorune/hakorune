@@ -1,5 +1,10 @@
 # design/
 
+> **今の進路(メンテナ決定 2026-11-17)。** 機能を保ちながら、今ある MirBuilder を責務に分けて、要らない code と test を消す。別の builder は作らない。
+> 作業の時に読むのは、次の 6 つだけ: `AGENTS.md`(または `CLAUDE.md`)、`docs/development/RULES.md`、`docs/development/current/main/CURRENT_STATE.toml`、`docs/development/current/main/design/mirbuilder-blueprint.md`(設計と、14 節の進め方)、`docs/development/current/main/investigations/mirbuilder-blueprint-work-2026-11-17.md`(今の順と、タスクの一覧)、`src/mir/README.md`。
+> **この file の下の一覧は、古い案内である。作業の根拠にしない。** 「active」「SSOT」「唯一」と書いてあっても、上の 6 つと食い違う時は、上の 6 つが正しい。
+
+
 `docs/development/current/main/design/` は、長期参照する設計図（SSOT 寄り）を置く場所。
 
 Membership / role / precedence の唯一のownerは `registry/`（V1 sharded

@@ -1,7 +1,7 @@
 # Hakorune 開発ルール
 
 Status: SSOT
-Date: 2026-10-21
+Date: 2026-11-17
 Scope: 作業選択・実装・検証・退役・再開の唯一の運用ルール。
 Related: [現在地](current/main/CURRENT_STATE.toml)、[MirBuilder の設計図](current/main/design/mirbuilder-blueprint.md)、[所有 ADR-003](adr/adr-003-counted-box-default.md)、[失敗の道 ADR-004](adr/adr-004-failure-surface-catch-and-cleanup.md)、[順の正本(設計図の親)](current/main/design/mirbuilder-final-pipeline-ssot.md)。
 
@@ -20,6 +20,8 @@ Related: [現在地](current/main/CURRENT_STATE.toml)、[MirBuilder の設計図
 - 仕様・所有権・Normal/Fault cleanup・独立した最終検証を保持する。詳細は既存owner契約を必要箇所だけ参照する。
 
 ## 2. 作業の入口と単位
+
+**今の作業(メンテナ決定 2026-11-17): MirBuilder の整理。** 機能を保ちながら、今ある MirBuilder を責務に分けて、要らない code と test を消す。別の builder は作らない。作業の単位は「1 つの責務の処理をまとめて、使い手を切り替えて、古い処理を消す」(設計図 14 節)。順とタスクは `current/main/investigations/mirbuilder-blueprint-work-2026-11-17.md`。**推測で進めない。** 消す物・まとめる物は、測った地図(`src/mir/README.md`)で決める。下の「アプリを 1 つ選んで通す」流れは、整理が閉じた後の、機能の作業の決まりである。整理の回では、アプリと固定の入力は、「前から通る物の出力と exit が変わらない」事の確認に使う。
 
 - 毎回読むのはAGENTS、RULES、`CURRENT_STATE.toml`、その`latest_card_path`。合計400行以内を目標とする。MirBuilder(`src/mir`)に触る作業では、加えて設計図を読む。
 - `CURRENT_TASK.md`は任意の薄い入口。workstream・north-star・policy・過去cardは必要時の参照とし、毎回の必読にしない。
