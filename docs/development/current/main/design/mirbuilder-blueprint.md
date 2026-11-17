@@ -17,6 +17,7 @@ Related:
 - 短く保つ。決まりだけを書く。作業の記録は、ここへ書かない。
 - 今の code は、まだこの設計図の形になっていない(12 節)。進め方は 14 節。
 - **作り方の決まりは 21 節(再帰で書く。形を見分けて道を作らない)。監査で数える物と、やめる線は 22 節。**
+- **断ってよい理由の正本は 23 節(拒否の表)。表に無い拒否は、道と一緒に消す。**
 
 ## 0. この文書の位置
 
@@ -445,3 +446,139 @@ MirBuilder の仕事は、source の木を、上から下へ再帰して下ろ�
 - 形を 1 つ足すのに直す場所が、回を追うごとに増えていく。
 - 設計図に無い部品が、毎回要る(設計図が、現実に合っていない)。
 - 置き換えた範囲で、古い code を消せない。
+
+## 23. 拒否の表(正本。メンテナ指示 2026-11-17)
+
+source → MIR の間で、program を断ってよい理由は、**この表にある物だけ**である。断るのは Resolve(段 2)だけ(2 節、18 節)。
+
+- この表は、言語の仕様から書いた。code の中の拒否の名前からは、拾っていない。
+- 表に無い名前の拒否は、言語の決まりではない。「この形は、この道では扱えない」という、道ごとの印である。**移さずに、その道をまとめる回で、道と一緒に消す。**
+- 行を足す・消すのは、言語の表面の決定なので、メンテナの印が要る。
+- 利用者に見える拒否の文言は、この表の名前へ変えてよい(メンテナ OK 2026-11-17)。固定入力で守るのは、出力と exit である。
+- 拒否の名前の数は、check で数える。**増えたら通さない。まとめる回のたびに、基準の数を下げる。**(check は、測る回の数え方を使って入れる)
+- 決定 8〜11 に当たる行(A11、A24、A25、B05)は、13 節のとおり、Resolve の責務をまとめる回から効く。
+
+引用の略号: `L/` = `docs/reference/language/`、`BP` = この文書、`ADR3` = `docs/development/adr/adr-003-counted-box-default.md`、`ADR4` = `docs/development/adr/adr-004-failure-surface-catch-and-cleanup.md`。根拠の S は仕様が明記、I は直接の含意。行番号は 2026-11-17 の時点。
+
+### 23.1 program が間違っている(compile error。50 行)
+
+| # | 名前(案) | 意味 | 根拠 | 引用 |
+|---|---|---|---|---|
+| A01 | `name/undeclared-assign` | 束縛が無い名前への代入 | S | `L/variables-and-scope.md:35` |
+| A02 | `name/unknown` | 無い名前を読む・使う | S | `BP:335`、`L/repl.md:112` |
+| A03 | `name/local-redeclared` | 同じ scope で `local` を 2 回 | S | `L/variables-and-scope.md:15` |
+| A04 | `name/unsupported-bare-builtin` | 裸の `error`・`now` を呼ぶ(提供元を推測しない) | S | `L/function-call-evaluation.md:48-55` |
+| A05 | `name/panic-reserved` | `panic` を宣言・上書きする。引数が 1 個でない、String でない | S | `L/failure-outcome-relations.md:151-156`、`L/quick-reference.md:77` |
+| A06 | `decl/method-name-duplicate` | 1 つの Box に同じ method 名が 2 つ(引数の数や static/instance が違っても) | S | `L/callable-contracts.md:77-78`、`L/EBNF.md:1000-1005` |
+| A07 | `decl/delegate-exposure-collision` | delegate の公開名が、host の method や別の公開名とぶつかる | S | `L/field-visibility-and-delegation.md:66-70`、`L/callable-contracts.md:105-106` |
+| A08 | `decl/free-function-duplicate` | 同じ `name/arity` の top-level 関数が 2 つ | S | `L/callable-contracts.md:88-89`、`L/function-call-evaluation.md:68-70` |
+| A09 | `decl/constructor-duplicate` | 同じ `birth/arity` の constructor が 2 つ | S | `L/EBNF.md:1007-1009` |
+| A10 | `decl/brand-duplicate` | 同じ名前の `brand` が 2 つ | S | `L/brands.md:17-18` |
+| A11 | `decl/birth-once-retired` | `birth_once` を書く(言語から外した) | S | `BP:274` |
+| A12 | `decl/fini-as-method` | `fini()` を普通の method として宣言する | S | `L/lifecycle.md:58-66` |
+| A13 | `decl/top-level-statement` | file mode の top-level に文(代入、`local`、式の文) | S | `L/repl.md:71-75` |
+| A14 | `decl/callable-contract-conflict` | `CallableContract` が宣言や本体と矛盾する | S | `L/callable-contracts.md:419-421` |
+| A15 | `call/target-missing` | 呼び出し先の宣言が無い・あいまい(無い関数、無い method) | S | `L/function-call-evaluation.md:119-120`、`:158-160` |
+| A16 | `call/arity-mismatch` | 引数の数が宣言と違う(別の同名を探さない) | S | `L/callable-contracts.md:80-83`、`L/function-call-evaluation.md:82-84` |
+| A17 | `call/receiverless-me` | receiver の無い所の `me`、static の receiver・`this` | I | `L/function-call-evaluation.md:200-202`、`:119-121` |
+| A18 | `call/direct-birth` | `obj.birth(...)` を直接呼ぶ | S | `L/lifecycle.md:124` |
+| A19 | `call/direct-fini` | `obj.fini()` を直接呼ぶ | S | `L/lifecycle.md:58-61` |
+| A20 | `call/new-static-box` | `static box` を `new` する | S | `L/types.md:154-156` |
+| A21 | `call/brand-arity` | brand の構築・`unwrap` の引数が 1 個でない。無い static method | S | `L/brands.md:28-34` |
+| A22 | `call/enum-payload-arity` | enum の構築の payload の数が違う | S | `L/option.md:106-108` |
+| A23 | `call/enum-dot-variant` | 既知の enum を `Result.Ok(..)` と書く(`::` が正) | S | `L/option.md:71-75`、`L/types.md:381` |
+| A24 | `type/field-store-mismatch` | 宣言した型と違う値を field に入れる | S | `BP:272` |
+| A25 | `type/return-mismatch` | 宣言した戻りの型と違う値を返す(暗黙の変換なし) | S | `BP:273` |
+| A26 | `type/return-void-value` | `: void` の関数が値を返す | S | `L/function-exit-and-entry-result.md:257-260` |
+| A27 | `type/return-missing-value` | 戻りの型を書いた関数が、値なしで終わる(落ちる、裸の `return`、`return void`) | S | `L/function-exit-and-entry-result.md:254-255` |
+| A28 | `type/uninferable` | 型を決められない(黙って Dynamic にしない) | S | `BP:266`、`ADR3:44` |
+| A29 | `type/local-initializer-required` | 厳密な型を書いた `local` に初期値が無い | S | `L/types.md:399` |
+| A30 | `type/generic-arity` | 型引数の数が違う(`Meta<A, B>`) | S | `L/EBNF.md:799-828` |
+| A31 | `type/enum-context-required` | `local e = Option::None` のように、型引数が決まらない構築 | S | `L/option.md:111-114` |
+| A32 | `type/option-nullish-payload` | `Option::Some(null)`・`Some(void)`(compile 時に分かる時) | S | `L/option.md:119-125` |
+| A33 | `type/record-field-set` | record の構築で field が足りない・余る。`with` に無い field | S | `L/EBNF.md:347`、`:654-655` |
+| A34 | `type/with-on-box` | Box に `with` を使う | S | `L/EBNF.md:655-656`、`L/types.md:137` |
+| A35 | `type/record-member-kind` | record に weak field・method・`fini`・継承を書く | S | `L/EBNF.md:551-552` |
+| A36 | `type/new-field-set` | `new T { f: x }` で field が重複・無い名前 | S | `L/EBNF.md:634-635`、`L/ownership.md:267-268` |
+| A37 | `type/static-table-contract` | `static const` の表: 要素が `u16` でない、値が 0..65535 の外、使えない演算 | S | `L/types.md:270-273` |
+| A38 | `type/result-qmark-mismatch` | `?` を Result 以外(Option を含む)に付ける。外が `Result<U,E>` でない。`E` が違う | S | `L/failure-outcome-relations.md:132-135`、`L/grammar-contract.md:56` |
+| A39 | `type/result-discarded` | 式の文で `Result` の値を捨てる | S | `ADR4:24` |
+| A40 | `match/non-exhaustive` | 既知の enum の `match` で variant が足りない | S | `L/option.md:101-104`、`L/EBNF.md:415` |
+| A41 | `match/unknown-variant` | pattern の大文字始まりの名前が、どの variant でもない | S | `L/EBNF.md:370-371`、`L/ownership.md:242-243` |
+| A42 | `control/break-continue-outside-loop` | loop の外の `break`・`continue` | I | `L/semantic-kernel.md:137`、`BP:368` |
+| A43 | `control/exit-in-block-expression` | 式の位置の block の中の `return`・`break`・`continue` | S | `L/block-expressions-and-map-literals.md:83-84` |
+| A44 | `control/block-expression-no-tail` | 式の block が空、または文で終わる | S | `L/block-expressions-and-map-literals.md:37` |
+| A45 | `control/guard-let-else-fallthrough` | `guard let ... else { }` の else が普通に抜ける | S | `L/semantic-kernel.md:138-140`、`L/grammar-contract.md:55` |
+| A46 | `control/return-at-script-root` | Script の root の `return` | S | `L/function-exit-and-entry-result.md:227-228` |
+| A47 | `control/cleanup-body-exit` | `cleanup { }` の中の `return`・`break`・`continue`・`?`・`await`・Home を消費する呼び出し | S | `L/scope-exit-semantics.md:107-113` |
+| A48 | `control/fini-hook-restriction` | `fini { }` の中の `return`・`break`・`continue`・`?`・`await`、`me` の保存・capture・逃がし | S | `L/lifecycle.md:489-501`、`ADR3:160` |
+| A49 | `assign/range-index-readonly` | `loop i in a..b` の `i` へ代入する | S | `L/EBNF.md:1146` |
+| A50 | `init/birth-receiver-escape` | `birth` の中で、公開の前に `me` を外へ出す(capture、転送、return、保存) | S | `L/lifecycle.md:126-130` |
+
+所有の拒否(`move` の後の使用、借りを通した書き込み、など 27 行の候補)は、まだ表に入れない。所有の model(今の規則、`L/ownership.md` の次の model、ADR-003 の仮の採用)のどれで行くかが決まった時に、その model の行だけを足す。
+
+### 23.2 正しい言語だが、まだ作っていない(名前付きの拒否。38 行)
+
+名前は `unsupported/<機能>` の 1 つの形にする。機能を作った回で、その行を消す。
+
+| # | 機能 | 引用 |
+|---|---|---|
+| B01 | `Result` を返す関数と、後ろの `?` | `BP:44`、`L/status-index.md:67` |
+| B02 | 単独の `cleanup { }` | `BP:44`、`L/status-index.md:70` |
+| B03 | `match` | `BP:44` |
+| B04 | 後ろに付ける `catch`・`cleanup`(綴りは予約。名前付きの拒否) | `BP:44`、`ADR4:22` |
+| B05 | 引数や `local` の値を関数として呼ぶ(`pred(v)`) | `BP:275` |
+| B06 | closure と関数の型(`fn(T): U`) | `L/EBNF.md:126-129`、`ADR3:56` |
+| B07 | payload が 2 つ以上の enum、record の variant の block 本体 | `BP:41`、`L/types.md:329` |
+| B08 | `panic(String)` | `L/status-index.md:64` |
+| B09 | 裸の `return` | `L/statements.md:22-23` |
+| B10 | Box の `fini { }` hook | `L/status-index.md:73` |
+| B11 | `release root` の意味(parser だけ通る) | `L/status-index.md:80` |
+| B12 | `delegate ... exposes` の転送 | `L/status-index.md:82`、`L/field-visibility-and-delegation.md:76-78` |
+| B13 | `@rune CallableContract(query)` | `L/status-index.md:81` |
+| B14 | `co`・`nowait`・`await` | `L/status-index.md:75` |
+| B15 | `Channel<T>`・`sync box`・`context`・`task_scope` | `L/status-index.md:76-77` |
+| B16 | `worker_scope`・`parallel`・`thread`・`lock<T>`・`worker_local` | `L/status-index.md:78` |
+| B17 | `edit`・`take` の宣言(引数、receiver)の実行 | `L/ownership.md:135-136`、`L/EBNF.md:115-116` |
+| B18 | 式の `take place`(配列・Map の要素を含む) | `L/ownership.md:223-224`、`L/status-index.md:573` |
+| B19 | 結果の `from`(1 つの支え、`from a, b`) | `L/ownership.md:288-291`、`L/EBNF.md:68-71` |
+| B20 | `Shared<T>` の引数・結果・field、`local r = h` の読みの借り | `L/ownership.md:95-101` |
+| B21 | selfhost が使わない Array・Map の API の拡張 | `L/ownership.md:202-203` |
+| B22 | 新しい引数・結果の型の表現(`T?` など) | `L/ownership.md:306-307` |
+| B23 | `T?` の field への、繰り返し・分岐の中の格納 | `L/ownership.md:311-313` |
+| B24 | `new T { field: move x }` | `L/ownership.md:275-276` |
+| B25 | const fn、const の参照、`u16` 以外の static の表 | `L/types.md:287-294` |
+| B26 | 幅を決めた整数の実行時の意味(`u64` の範囲など) | `L/types.md:238-249` |
+| B27 | 型付きの `Array<T>` の未対応の文脈、`PackedArray<T>` | `L/EBNF.md:406-409`、`:852`、`L/quick-reference.md:168` |
+| B28 | `Span<T>`・`interface`・`impl`・`where`・`comptime`・`const assert`・`cap {}` | `L/stage-profiles.md:146` |
+| B29 | `requires`・`ensures`・`invariant` | `L/stage-profiles.md:138` |
+| B30 | `transition Enum::A -> Enum::B` | `L/stage-profiles.md:139` |
+| B31 | `type Alias = Type` の意味 | `L/stage-profiles.md:124` |
+| B32 | label や深さを付けた `break`・`continue` | `L/semantic-kernel.md:137-138` |
+| B33 | `using` の別名を通した `new Alias.BoxName()` | `L/using.md:58-62` |
+| B34 | 範囲の loop の中の、loop をまたぐ書き込み(G13 と当たる) | `L/EBNF.md:1146-1147` |
+| B35 | 入れ子の `release` | `L/ownership.md:914-915` |
+| B36 | `copy` の未接続の形(Bool・String・Box) | `L/EBNF.md:122` |
+| B37 | 低い層の予約(`unsafe(...)`、`sizeof`、`MaybeInit`、pointer の演算など) | `L/low-level-capabilities.md:702-716` |
+| B38 | 書き換えられない `local`(`const`) | `L/variables-and-scope.md:86-89` |
+
+### 23.3 表に入れない物
+
+- **実行時の失敗**(Fault / TypeError): 条件に `null` や Box を使う、`+` や `<` の型が合わない、`null` への method 呼び出し、添字の範囲の外、`panic`、参照の数のあふれ、など。compile 時に断らない。
+- **parser の拒否**(構文): `throw`・`try`・`while`・`for`、区切りの抜け、`weak(expr)`、`gate` の誤り、など。builder の入口は parse 済みの AST なので(1 節)、この表の外である。
+
+### 23.4 仕様が黙っている・食い違っている所(決まるまで、表に入れない)
+
+| # | 事 | 引用 |
+|---|---|---|
+| G4 | `match` の `_` が網羅を満たすか: 「満たさない」と「満たす(2026-11-03 の目標)」 | `L/EBNF.md:415`、`L/option.md:102` ⇔ `L/EBNF.md:371-372`、`L/ownership.md:246` |
+| G5 | 初期化の前の `local` の読み: 「`local x` は `local x = null`」と「未初期化の slot。読むと Fault(目標)」。compile 時の拒否とは、どこにも書いていない | `L/variables-and-scope.md:27` ⇔ `L/failure-outcome-relations.md:212-224` |
+| G6 | 型の検査の範囲: 型の頁は「静的な型検査は無い」。設計図は field と戻り値だけを compile error と決めた。演算子(`1 + true`)・引数・`local` の注釈の不一致が compile 時か実行時かは、書いていない | `L/types.md:22-24`、`:45-48`、`:458` ⇔ `BP:272-273`、`BP:335` |
+| G7 | field の型: EBNF は「field への書き込みは型で強制しない」、設計図の決定 8 は compile error。ADR-003 は「field の型は必須」(仮)だが、EBNF は型なしの field を認める | `L/EBNF.md:997` ⇔ `BP:272`、`ADR3:45` |
+| G8 | 無い field の読み書き(`obj.nope`): 書いていない。あるのは `new T { }` の無い field だけ | `L/EBNF.md:634-635` |
+| G10 | 読むだけの物への代入: 範囲の loop の添字(A49)だけ。`const` の `local` は将来。static の表への書き込みは、書いていない | `L/EBNF.md:1146`、`L/variables-and-scope.md:86-89`、`L/types.md:274-275` |
+| G11 | loop の外の `break`・`continue`: 「一番近い loop へ」だけで、外の時の拒否は明記なし(A42 は含意) | `L/semantic-kernel.md:137` |
+| G12 | `me` の誤用: box の外の `me`、static box の中の `me.field` は、今の頁に無い(A17 は呼び出しだけ) | `L/function-call-evaluation.md:200-202` |
+| G13 | 仕様の中の「形で断る」記述が、設計図の決まりと当たる: 入れ子の `if` は 1 段の形だけ、範囲の loop の loop をまたぐ書き込みは fail-fast | `L/grammar-contract.md:36-41`、`L/EBNF.md:1146-1147` ⇔ `BP:176`、`BP:337-339` |
+| G17 | Resolve より後ろの拒否が、仕様にある: 検証が「検査の無い動的な厳密整数の field 書き込み」を断る、`Inline(required)` の不成立、未対応の backend は効果の前に断る | `L/types.md:210-212`、`L/runes.md:84-112`、`L/types.md:11-12` ⇔ `BP:366` |
+| G19 | `match` の網羅(A40)と `guard let`(A45)の tag は `parser/...` の名前だが、中身は enum の一覧や意味の契約に依る。持ち主が parser か Resolve かが揺れている | `L/grammar-contract.md:181-183`、`:188` ⇔ `L/semantic-kernel.md:140` |
