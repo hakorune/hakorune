@@ -38,27 +38,31 @@ Related:
 - 分かった事: 数と Bool の範囲は、形ごとの道を作らずに、1 つの再帰と 1 つの作業場で書けた。式・呼び出し・loop の入口は各 1 つ、形を 1 つ足す費用は 3 file・3 関数だった。これは、今の MirBuilder を寄せて行く先の形の、根拠になる。
 - `birth` の途中の Fault の片付けの順(式の一時値 → `birth` の中の `local` → 初期化の済んだ field を宣言の逆順 → 呼んだ側が外側を回収)は、メンテナが承認した。reference への反映は、所有の回でやる。
 
-## 今の散らばり(読むだけの調査、2026-11-17)
+## 今の散らばり（測る回1b、2026-11-17）
 
-MirBuilder に当たる 3 つの場所を、責務で分けて数えた。割り当ては、module の説明と入口の関数の名前からの判断で、測った値ではない。build も実行もしていない。
+compilerの動くcodeは変更していない。coverage CLIは前回の同じbinaryを再利用し、A全5386入力で保持した通常CLIのMIR・拒否と一致（timeout0）。A5386/B1192とも全件profileあり・途中trace0。testも完走し、8375 PASS・155 FAIL・52 ignored、FAIL名は既存155本と一致した。
 
-| 場所 | 本体 | test | 分かった事 |
-|---|---:|---:|---|
-| `src/mir/builder` | 187,327 | 98,039 | 形ごとの道が 63.7k、証拠の包みが 24.5k、中継が 10.1k。責務の持ち主に当たる物は、残り |
-| `src/mir/normal_callable_semantic_package` | 152,456 | 70,008 | 責務の持ち主と言えるのは約 14%。`ordinary_new_*` が 482 file・約 17.8 万行。拒否の名前が約 3,260 種類 |
-| `src/mir/compiler` | 54,306 | 41,173 | 形ごとの道が 34.3k。公開(backend への出力)が 13.1k |
+| 対象 | 計測artifactの本体行 | Aが通る | Bのみ | testのみ | いずれも通らない |
+|---|---:|---:|---:|---:|---:|
+| src/mir 全体 | 402826 | 247208 | 2543 | 90935 | 62140 |
+| builder | 120539 | 62773 | 966 | 29267 | 27533 |
+| semantic_package | 113487 | 94104 | 753 | 7713 | 10917 |
+| compiler | 34917 | 13333 | 0 | 17006 | 4578 |
+| そのほか | 133883 | 76998 | 824 | 36949 | 19112 |
 
-同じ事を決めている所の数(設計図の目標は、各 1):
+行の母集団は、CLIと完走したtest artifactの実行可能source行の和集合から明示cfg(test)行を除いたもの。物理本体603802行（コメント等込み）と単位を分ける。uninstrumented行を実測0に含めない。構文分類に限界のある8fileと、generated関数の定義LOCは未確定のまま。これは未使用・削除可能性の判定ではない。
 
-| 物 | 今 |
-|---|---:|
-| 式を下ろす入口 | 9(一般 1 + 部分 8) |
-| 呼び出しを下ろす入口 | 12 |
-| loop を下ろす入口 | 12 |
-| `if` を下ろす入口 | 6(PHI を書く所は 4) |
-| source を断る所(`src/mir` の本体) | 拒否の名前が約 2,200 種類、拒否の型が 433 |
+| 測定 | 実測できた範囲 | 未測定・限界 |
+|---|---|---|
+| M-1 | A5386/B1192全件。CLI収録の名前付き関数7631が両集合で未通過。watchlist138定義中53が両集合通過0 | generated descriptorを名前付き関数へ推測でまとめない。default CLI未収録はsourceの実測0と分ける |
+| 入力結果 | A: 所定dump/EXE生成段の成功2473・拒否2797・parser拒否116。B: dump成功222・拒否901・parser拒否69。timeout0 | EXE実行は測定範囲外。source固定literal catalogue1805名中未出現1762、未解決template131件のため全source拒否名の未出現総数は未測定 |
+| M-2 compiler警告（前回取得） | 定義識別子へ照合3230項目、通常警告に無い項目13 | 未照合348span、LOC不明27。直接caller数0とは違う |
+| M-3 | 全lib test coverage取得。A/B未通過の名前付き関数のうち5983をtestが通過。test通過・CLI未収録の名前付き関数104は別集計 | 未対応generated symbolのcross-artifact同一性は未確定。test-onlyを削除候補とは判定しない |
+| M-4 HIR（前回取得・下限） | 解決済み参照260967本からnamespace63286本を分離し項目参照197681本。輪1、最大252群 | 未照合336830参照（外部crate等含む）。typed method等未取得。新しいHIR/THIR dumpなし |
 
-test の中身: `builder` の test 約 9.8 万行のうち、source を書いて実行の結果を見ている物は、1,861 行。`semantic_package` の test 7 万行では、295 行。残りは、内部の形を見ている。
+式9/call12/loop12/if6の旧一覧はwrapperと定義の束を含んでいた。実在定義のwatchlist138個（expression22/call78/loop22/if16）のA/B入力本数を記録し、全138定義を定義位置で照合した。独立lowererの数ではない。
+
+地図は`src/mir/README.md`の上位60群。全群・全関数・入力結果・未出現固定literalは`tools/mir_map/out/`（ignored）へ出す。入口は`python3 tools/mir_map/run.py --help`。取得済み記録の再生成は`python3 tools/mir_map/run.py --work <work> --reuse <reuse> --stage render --write-docs`。資源見張りは入力/LLVM/Cargo/testの起動前から有効、停止0回・最大子孫RSS16529964KiB。前回のTHIR OOM記録は残し、この回の監視で防いだとは主張しない。
 
 ## タスクの一覧(上から順。1 つ終わるたびに、消した行数を書く)
 
@@ -66,14 +70,14 @@ test の中身: `builder` の test 約 9.8 万行のうち、source を書いて
 
 ### 最初に: 測って、地図を作る(メンテナ指示 2026-11-17「推測で開発しない。MirBuilder が、どうなっているかを、完全に分かる状態にする」)
 
-上の「今の散らばり」は、名前と説明を読んだ判断で、測った値ではない。次の 3 つを、測った物に置き換える。それまで、段 1 は始めない。
+上の「今の散らばり」は測る回1bの実測値。未測定と下限はそのまま区別し、段0/段1の内容はこの回では変えない。
 
 | # | 測る物 | 測り方 | 出る物 |
 |---|---|---|---|
-| M-1 | 実際に通る code | 実行の記録を取る build(coverage)で、固定の入力の全部と、selfhost の source(`lang/src`)の全部を compile する | 関数ごとの「通った入力の本数」。**どの入力も通らない code の一覧**。入口(式 9・呼び出し 12・loop 12・`if` 6)ごとの、通った本数 |
-| M-2 | 使い手の無い code | compiler の警告(`dead_code`、`unused`)を、`allow` を外して取る | 使い手が 0 の関数・型の一覧 |
-| M-3 | test が見ている物 | lib の test を同じ build で走らせて、M-1 と引き算する | **test だけが通る code の一覧** |
-| M-4 | 責務が分かれているか | module の群どうしの、実際の依存(誰が誰の名前を使うか)を、compiler の情報から取る | 群ごとの「外から使われている所の数」と、**互いに使い合っている群(輪)の一覧**。消そうとして消せない所は、ここに出る |
+| M-1 | 実際に通るcode | coverage CLIでA5386/B1192の全件を入力別記録 | **済み**。247208 A行・2543 Bのみ行。watchlist138中53定義が両集合通過0。全source拒否名の総数は未測定 |
+| M-2 | compilerのdead/unused警告 | sourceを変えずforce-warn取得 | **警告取得済み・照合部分完了**。3230項目／未照合348span、LOC不明27。直接caller数0の一覧ではない |
+| M-3 | testだけが通るcode | 監視下jobs2でbuild、thread1で全lib test | **済み**。testのみ90935行、155 FAIL名一致。generated symbolの同一性未確定は別欄 |
+| M-4 | 群の依存 | compiler HIRのres/PerNSをstream解析 | **HIR部分取得**。項目参照197681、輪1・最大252群。THIR失敗、typed method等は未測定、全M-4完了ではない |
 
 - 地図は、script で作り直せる形にする。回が 1 つ終わるたびに作り直して、数の変化を記録する。
 - `src/mir/README.md` を、「directory → 責務 → 通る入力の本数」の表だけにする(D-2 と一緒)。
