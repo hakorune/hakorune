@@ -8,10 +8,6 @@ use crate::ast::{ASTNode, AssignStmt};
 use crate::mir::builder::compound_assignment::{
     lower_prepared_raw_compound_assignment_with_port_v1, PreparedRawCompoundAssignmentV1,
 };
-use crate::mir::builder::control_flow::exception::{
-    lower_prepared_raw_throw_with_port_v1, lower_prepared_raw_try_catch_with_port_v1,
-    PreparedRawThrowV1, PreparedRawTryCatchV1,
-};
 use crate::mir::builder::enum_match_scopebox::PreparedRawScopeBoxV1;
 use crate::mir::builder::fields::{
     lower_prepared_raw_field_assignment_with_port_v1, PreparedRawFieldAssignmentV1,
@@ -394,64 +390,6 @@ where
             }
             Ok(StatementSurfaceDispatch::Lowered(
                 port.lower_loop(builder, loop_node)?,
-            ))
-        }
-        node @ ASTNode::TryCatch { .. } => {
-            use crate::mir::resolved_semantics::BodyChildRoleV1;
-
-            let try_source =
-                port.prepare_body_child_source_v1(&node, BodyChildRoleV1::TryBody)?;
-            let catch_source = match &node {
-                ASTNode::TryCatch { catch_clauses, .. } if !catch_clauses.is_empty() => Some(
-                    port.prepare_body_child_source_v1(
-                        &node,
-                        BodyChildRoleV1::FirstCatchBody,
-                    )?,
-                ),
-                _ => None,
-            };
-            let cleanup_source = match &node {
-                ASTNode::TryCatch {
-                    finally_body: Some(_),
-                    ..
-                } => Some(
-                    port.prepare_body_child_source_v1(
-                        &node,
-                        BodyChildRoleV1::CleanupBody,
-                    )?,
-                ),
-                _ => None,
-            };
-            let ASTNode::TryCatch {
-                try_body,
-                catch_clauses,
-                finally_body,
-                ..
-            } = node
-            else {
-                unreachable!("matched TryCatch")
-            };
-            let mut body_sources = vec![try_source];
-            body_sources.extend(catch_source);
-            body_sources.extend(cleanup_source);
-            let cleanup_exit_policy = port.cleanup_exit_policy_v1();
-            let mut scoped =
-                RawStructuredChildScopePortV1::new(port, Vec::new(), body_sources);
-            let prepared = PreparedRawTryCatchV1::prepare(
-                try_body,
-                catch_clauses,
-                finally_body,
-                cleanup_exit_policy,
-            );
-            let value =
-                lower_prepared_raw_try_catch_with_port_v1(builder, &mut scoped, prepared)?;
-            scoped.complete_exact_demands_v1()?;
-            Ok(StatementSurfaceDispatch::Lowered(value))
-        }
-        ASTNode::Throw { expression, .. } => {
-            let prepared = PreparedRawThrowV1::prepare(&builder.function_state, *expression)?;
-            Ok(StatementSurfaceDispatch::Lowered(
-                lower_prepared_raw_throw_with_port_v1(builder, port, prepared)?,
             ))
         }
         node @ ASTNode::Assignment { .. } => {

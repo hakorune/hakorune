@@ -46,7 +46,6 @@ pub(in crate::mir::builder) mod debug;
 pub(in crate::mir::builder) mod joinir;
 
 // Phase 5: Exception handling
-pub(in crate::mir::builder) mod exception;
 
 // Phase 264: EdgeCFG Fragment API (入口SSOT)
 pub(in crate::mir::builder) mod edgecfg;
