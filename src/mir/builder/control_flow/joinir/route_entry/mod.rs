@@ -33,21 +33,3 @@ pub(in crate::mir::builder) mod runtime_adjacent_shadow_guard;
 
 // Re-export router for convenience
 pub(in crate::mir::builder) use router::{route_loop, LoopRouteContext};
-
-// Phase 140-P4-A: Re-export skip_whitespace shape detection for loop_canonicalizer
-pub(crate) use crate::mir::builder::control_flow::facts::route_shape_recognizers::skip_whitespace::detect_skip_whitespace_shape;
-
-// Phase 104: Re-export read_digits(loop(true)) shape detection for loop_canonicalizer
-pub(crate) use crate::mir::builder::control_flow::facts::route_shape_recognizers::parse_number::detect_read_digits_loop_true_shape;
-
-// Phase 142-P1: Re-export continue shape detection for loop_canonicalizer
-pub(crate) use crate::mir::builder::control_flow::facts::route_shape_recognizers::parse_string::detect_continue_shape;
-
-// Phase 143-P0: Re-export parse_number / parse_string shape detection for loop_canonicalizer
-pub(crate) use crate::mir::builder::control_flow::facts::route_shape_recognizers::parse_number::detect_parse_number_shape;
-
-// Phase 143-P1:
-pub(crate) use crate::mir::builder::control_flow::facts::route_shape_recognizers::parse_string::detect_parse_string_shape;
-
-// Phase 91 P5b: Re-export escape skip shape detection for loop_canonicalizer
-pub(crate) use crate::mir::builder::control_flow::facts::escape_shape_recognizer::detect_escape_skip_shape;

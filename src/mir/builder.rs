@@ -393,17 +393,6 @@ pub(crate) fn take_loop_physical_effect_probe() -> usize {
 }
 mod weak_field_write_route;
 
-// Phase 140-P4-A: Re-export skip_whitespace shape detection for loop_canonicalizer
-pub(crate) use control_flow::detect_skip_whitespace_shape;
-// Phase 104: Re-export read_digits(loop(true)) shape detection for loop_canonicalizer
-pub(crate) use control_flow::detect_read_digits_loop_true_shape;
-// Phase 142-P1: Re-export continue shape detection for loop_canonicalizer
-pub(crate) use control_flow::detect_continue_shape;
-// Phase 143-P0: Re-export parse_number / parse_string shape detection for loop_canonicalizer
-pub(crate) use control_flow::detect_parse_number_shape;
-pub(crate) use control_flow::detect_parse_string_shape;
-// Phase 91 P5b: Re-export escape skip shape detection for loop_canonicalizer
-pub(crate) use control_flow::detect_escape_skip_shape;
 
 /// Phase 129: Public (crate) wrapper for StepTree capability guard.
 ///

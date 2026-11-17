@@ -167,7 +167,6 @@ pub mod join_ir_ops; // Phase 27.8: JoinIR 命令意味箱（ops box）
 pub mod local_fastpath_fact; // LocalFastPathFact aggregation owner
 pub(crate) mod local_slot_backend_capability; // exact-numeric local-slot backend gate
 pub mod loop_api; // Minimal LoopBuilder facade (adapter-ready)
-pub mod loop_canonicalizer; // Phase 1: Loop skeleton canonicalization (AST preprocessing)
 pub mod loop_form; // ControlForm::LoopShape の薄いエイリアス
 pub(crate) mod loop_recipe_contract; // Builder-free recursive Loop recipe wire
 pub mod loop_route_detection; // Active module surface for loop route-shape detection
