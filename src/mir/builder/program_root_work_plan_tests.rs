@@ -3,20 +3,6 @@ use crate::ast::{DeclarationAttrs, LiteralValue, Span};
 use crate::mir::builder::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use std::collections::HashMap;
 
-fn selected_plan(statements: Vec<ASTNode>, is_app_mode: bool) -> PreparedProgramRootWorkPlanV1 {
-    let root = ASTNode::Program {
-        statements: statements.clone(),
-        span: Span::unknown(),
-    };
-    let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root)
-        .expect("selected callable catalog");
-    PreparedProgramRootWorkPlanV1::prepare(
-        statements,
-        is_app_mode,
-        ProgramRootWorkPlanAdmissionV1::SelectedNormal,
-        Some(catalog.selected_source_inventory()),
-    )
-}
 
 fn literal(value: i64) -> ASTNode {
     ASTNode::Literal {

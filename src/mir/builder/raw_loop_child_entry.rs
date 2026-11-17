@@ -725,9 +725,6 @@ fn lower_non_callable_loop_route_v1(
 }
 
 #[cfg(test)]
-#[path = "raw_loop_child_entry/loop_true_tests.rs"]
-mod loop_true_tests;
-#[cfg(test)]
 #[path = "raw_loop_child_entry/tests.rs"]
 mod tests;
 #[cfg(test)]

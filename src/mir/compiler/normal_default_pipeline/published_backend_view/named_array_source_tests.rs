@@ -116,10 +116,6 @@ fn holder_variant_source(box_members: &str, seed_body: &str) -> String {
 }
 
 
-fn field_resident_array_i64_push_reaches_retained_typed_writes_inner() {
-    crate::runtime::ring0::ensure_global_ring0_initialized();
-    field_resident_env(field_resident_array_i64_push_reaches_retained_typed_writes_body);
-}
 
 /// Instance boxes without equals/toString would trigger DefaultDerive;
 /// the macro gate is orthogonal to this named-array seam. One process-state
@@ -139,40 +135,6 @@ fn field_resident_env(body: impl FnOnce()) {
     );
 }
 
-fn field_resident_array_i64_push_reaches_retained_typed_writes_body() {
-        for optimize in [false, true] {
-            let mut calls = 0;
-            // The enclosing box's construction plan only admits i64 stored
-            // fields today, so the artifact lane keeps the residence provider
-            // as `RetainedUnavailable`. The MIR-JSON document lane exercises
-            // the same named-array emission consumption, handoff validation
-            // and coverage checks without that upstream object admission.
-            MirCompiler::with_options(optimize).compile_normal_for_mir_json(
-                published_request(&holder_source(holder_seed_body())),
-                |view, verification| -> Result<(), String> {
-                    calls += 1;
-                    assert!(verification.is_ok(), "{verification:?}");
-                    assert_eq!(view.validated_named_arrays()?.len(), 4);
-                    let writes = view.module().functions.values().flat_map(|f| f.blocks.values())
-                        .flat_map(|b| b.all_instructions()).filter(|i| matches!(i,
-                            MirInstruction::ArrayElementWrite { kind: ArrayElementWriteKind::Push, dst: None, index: None, .. })).count();
-                    assert_eq!(writes, 4);
-                    let provider_allocations: usize = view.module().functions.values()
-                        .map(|f| f.metadata.named_array_field_allocations.len()).sum();
-                    assert_eq!(provider_allocations, 4, "all four field providers recorded");
-                    crate::runner::mir_json_emit::emit_published_view_body(view)?;
-                    let mut queries = 0;
-                    c_transport_v2::PublishedStaticMethodCFrameV2::from_view_with_query(view, |_, _, _| {
-                        queries += 1;
-                        Ok(Some(map_named_allocations::NamedAllocationConsumer::Array))
-                    })?;
-                    assert!(queries > 0);
-                    Ok(())
-                },
-            ).unwrap_or_else(|error| panic!("optimize={optimize}: {error:?}"));
-            assert_eq!(calls, 1);
-        }
-}
 
 #[test]
 fn field_resident_push_rejects_non_array_field() {

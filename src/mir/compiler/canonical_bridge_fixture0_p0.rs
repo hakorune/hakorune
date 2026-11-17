@@ -10,9 +10,7 @@ use super::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1
 use super::source_bound_package::ExactCanonicalPreflightPlanV1;
 use super::{MirCompiler, VerifiedResolvedCallableProgramV1, VerifiedResolvedSourceUnitV1};
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, ParamDecl, Span};
-use crate::mir::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationFamilyV1};
-use crate::mir::verification::MirVerifier;
-use crate::mir::{MirCompileResult, MirModule};
+use crate::mir::MirModule;
 
 fn literal(value: i64) -> ASTNode {
     ASTNode::Literal {
@@ -204,70 +202,8 @@ fn recursive_source() -> VerifiedResolvedCallableProgramV1 {
     callable_program(vec![typed_callable("loop", call("loop"))])
 }
 
-fn assert_single_completion(
-    completion: CanonicalPhysicalCompleteInvocationV1<'_>,
-    expected_family: ModuleInvocationFamilyV1,
-    expected_brand: ModuleInvocationBrandV1,
-) {
-    let CanonicalPhysicalCompleteInvocationV1::Single(product) = completion else {
-        panic!("canonical callable route unexpectedly entered single completion")
-    };
-    assert_eq!(product.token.family(), expected_family);
-    assert_eq!(product.token.brand(), expected_brand);
-    assert_eq!(product.session.brand(), expected_brand);
-    assert_eq!(product.physical.brand(), expected_brand);
-    assert_eq!(product.physical.receipt_brand(), expected_brand);
-}
 
-fn assert_callable_completion(
-    completion: CanonicalPhysicalCompleteInvocationV1<'_>,
-    expected_family: ModuleInvocationFamilyV1,
-    expected_brand: ModuleInvocationBrandV1,
-) {
-    let CanonicalPhysicalCompleteInvocationV1::Callable(product) = completion else {
-        panic!("canonical single route unexpectedly entered callable completion")
-    };
-    assert_eq!(product.token.family(), expected_family);
-    assert_eq!(product.token.brand(), expected_brand);
-    assert_eq!(product.session.brand(), expected_brand);
-    assert_eq!(product.physical.brand(), expected_brand);
-    assert_eq!(product.physical.receipt_brand(), expected_brand);
-    assert_eq!(product.capability.brand(), expected_brand);
-    assert_eq!(product.capability.family(), expected_family);
-}
 
-fn finish_canonical_route<'a>(
-    compiler: &mut MirCompiler,
-    plan: ExactCanonicalPreflightPlanV1<'a>,
-    source_file: &str,
-    module_name: &str,
-) -> (ModuleInvocationBrandV1, MirCompileResult) {
-    let package = compiler.bind_canonical_source(plan).unwrap();
-    let brand = package.brand();
-    let finalized = compiler
-        .begin_canonical_invocation(package, Some(source_file), module_name.to_owned())
-        .unwrap()
-        .lower()
-        .unwrap()
-        .collect()
-        .unwrap()
-        .complete()
-        .unwrap()
-        .prepare_drain()
-        .unwrap()
-        .drain()
-        .prepare_finalization()
-        .unwrap();
-    let finalized =
-        super::canonical_finalization::CanonicalModuleFinalizerV1::finalize(finalized).unwrap();
-    let mut verifier = MirVerifier::new();
-    let processed = super::module_postprocess::ModulePostprocessOwnerV1::new(&mut verifier, false)
-        .run(finalized)
-        .unwrap();
-    let prepared = compiler.prepare_module_external_commit(processed).unwrap();
-    let result = compiler.commit_prepared_module(prepared);
-    (brand, result)
-}
 
 
 #[test]

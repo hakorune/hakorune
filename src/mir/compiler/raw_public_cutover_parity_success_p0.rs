@@ -1,43 +1,11 @@
 //! PARITY0-S0a: the first bounded Legacy-vs-Raw success witness.
 
 use super::MirCompiler;
-use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
+use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use std::collections::HashMap;
 
-fn empty_script() -> ASTNode {
-    ASTNode::Program {
-        statements: Vec::new(),
-        span: Span::unknown(),
-    }
-}
 
-fn literal_script(value: LiteralValue) -> ASTNode {
-    ASTNode::Program {
-        statements: vec![ASTNode::Literal {
-            value,
-            span: Span::unknown(),
-        }],
-        span: Span::unknown(),
-    }
-}
 
-fn binary_script(left: LiteralValue, operator: BinaryOperator, right: LiteralValue) -> ASTNode {
-    ASTNode::Program {
-        statements: vec![ASTNode::BinaryOp {
-            operator,
-            left: Box::new(ASTNode::Literal {
-                value: left,
-                span: Span::unknown(),
-            }),
-            right: Box::new(ASTNode::Literal {
-                value: right,
-                span: Span::unknown(),
-            }),
-            span: Span::unknown(),
-        }],
-        span: Span::unknown(),
-    }
-}
 
 fn app_with_body(body: Vec<ASTNode>) -> ASTNode {
     let main = ASTNode::FunctionDeclaration {

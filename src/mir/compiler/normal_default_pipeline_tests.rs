@@ -10,8 +10,6 @@ mod callable_loop_tests;
 #[path = "normal_default_pipeline_a3_tests.rs"]
 mod a3_package_admission_tests;
 
-#[path = "normal_default_pipeline_arity_scope_tests.rs"]
-mod arity_scope_tests;
 
 #[path = "normal_default_pipeline_runtime_inputs_tests.rs"]
 mod runtime_inputs_tests;

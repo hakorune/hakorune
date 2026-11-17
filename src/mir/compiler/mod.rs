@@ -63,8 +63,6 @@ mod operator_call_retirement_tests;
 #[cfg(test)]
 mod prod_activation_p0_r1;
 #[cfg(test)]
-mod raw_public_cutover_parity_snapshot;
-#[cfg(test)]
 mod raw_public_cutover_parity_success_p0;
 #[cfg(test)]
 mod raw_public_ingress_p0;

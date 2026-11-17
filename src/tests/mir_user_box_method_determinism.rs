@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use crate::mir::definitions::call_unified::TypeCertainty;
-    use crate::mir::{Callee, MirCompiler, MirInstruction, MirType, ValueId};
+
+    use crate::mir::{MirCompiler, MirInstruction, MirType, ValueId};
     use crate::parser::NyashParser;
     use std::sync::Once;
 
