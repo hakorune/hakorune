@@ -5,7 +5,7 @@ mod enum_declaration_completion;
 
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::normal_script_direct_statement_owner::{
-    lower_direct_fastmem_region_v1, lower_direct_if_statement_v1,
+    lower_direct_fastmem_region_v1,
     lower_direct_port_aware_expression_v1, lower_direct_print_v1,
     lower_direct_selected_unsupported_statement_v1,
     lower_direct_static_const_runtime_completion_v1,
@@ -17,6 +17,7 @@ use super::normal_script_runtime_work::{
 };
 use super::recursive_child_lowering::drive_legacy_statement_v1;
 use super::stmts::block_driver::LegacyBlockDescentPortV1;
+use super::stmts::block_stmt::build_statement_with_port_v1;
 use super::MirBuilder;
 use crate::ast::ASTNode;
 use crate::mir::ValueId;
@@ -78,7 +79,7 @@ where
                     .port
                     .prepare_body_statement_source_v1(&statement, source_statement_index)?;
                 self.port.with_prepared_child_source_v1(source, |port| {
-                    lower_direct_if_statement_v1(builder, port, statement)
+                    build_statement_with_port_v1(builder, port, statement)
                 })
             }
             NormalScriptRuntimeStatementAdmissionV1::DirectFastMemRegion => {
