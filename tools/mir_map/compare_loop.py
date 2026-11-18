@@ -36,7 +36,15 @@ def compare(before, after, before_root=None, after_root=None):
     details = dict(before_kinds=a, after_kinds=b)
     if a != b or any(kind in {"timeout", "internal-verification-error", "environment-error"}
                      for kind in [*a.values(), *b.values()]):
-        return details | {"category": "different", "reason": "diagnostic kind or verification"}
+        unchanged = a == b and all(
+            before[phase]["exit"] == after[phase]["exit"]
+            and cleaned(before[phase], [before_root]) == cleaned(after[phase], [after_root])
+            for phase in phases if a[phase] != "success"
+        )
+        return details | {
+            "category": "different", "reason": "diagnostic kind or verification",
+            "baseline_failure_unchanged": unchanged,
+        }
     for phase in phases:
         if a[phase] == "unknown-refusal" and (
             cleaned(before[phase], [before_root]) != cleaned(after[phase], [after_root])
@@ -63,12 +71,16 @@ def compare(before, after, before_root=None, after_root=None):
     if old == new:
         return details | {"category": "same"}
     ln, rn = normalize(old), normalize(new)
-    if ln is not None and rn is not None and ln == rn:
+    same_module = old.splitlines()[0] == new.splitlines()[0]
+    if same_module and ln is not None and rn is not None and ln == rn:
         return details | {"category": "same-after-renumbering"}
     try:
         difference = locations(ln, rn) if ln is not None and rn is not None else locations(parse(old), parse(new))
     except ValueError:
         difference = []
+    if not same_module:
+        difference.insert(0, {"change": "module name", "before": old.splitlines()[0],
+                              "after": new.splitlines()[0]})
     return details | {
         "category": "different-execution-confirmed" if lrun is not None else "different-meaning-unconfirmed",
         "locations": difference,
