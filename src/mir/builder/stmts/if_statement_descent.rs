@@ -1,11 +1,10 @@
-//! Disconnected associated-input boundary for statement-position If control.
+//! Recursive descent for statement-position If.
 //!
 //! This box owns only exact If syntax observation, one condition demand,
 //! ordered branch-body carrier demand, and delegation to the existing IfForm
 //! owner. CFG layout, variable snapshots, PHIs, branch termination, JoinIR
 //! diagnostics, source location, and callable-result consumption remain
-//! outside the driver core. This module also exposes one thin success-only
-//! completion seam; the existing constant emitter remains the Void owner.
+//! outside the driver core.
 
 use crate::ast::ASTNode;
 use crate::mir::builder::if_form::IfBranchKindV1;
@@ -26,12 +25,12 @@ use super::super::recursive_child_lowering::{
 /// The adapter borrows the same raw child port through condition and branch
 /// descent. It therefore preserves the unknown-span Program wrapper without
 /// rebuilding a raw-recursion port at an If boundary.
-struct RawStatementIfPortV1<'port, Port> {
+pub(super) struct RawStatementIfPortV1<'port, Port> {
     child: &'port mut Port,
 }
 
 impl<'port, Port> RawStatementIfPortV1<'port, Port> {
-    const fn new(child: &'port mut Port) -> Self {
+    pub(super) const fn new(child: &'port mut Port) -> Self {
         Self { child }
     }
 }
@@ -333,41 +332,6 @@ where
         if armed { Some(&mut observers) } else { None },
     )?;
     Ok(())
-}
-
-/// Lower one raw statement-position If through an existing raw child port.
-///
-/// This owns no control-flow policy: it only preserves the historical Program
-/// branch shell while threading the caller's recursive descent capability.
-pub(in crate::mir::builder) fn drive_raw_if_statement_with_port_v1<Port>(
-    builder: &mut MirBuilder,
-    child: &mut Port,
-    condition: ASTNode,
-    then_body: Vec<ASTNode>,
-    else_body: Option<Vec<ASTNode>>,
-) -> Result<(), String>
-where
-    Port: RecursiveChildLoweringPortV1<
-        BodyInput = Vec<ASTNode>,
-        StatementInput = ASTNode,
-        ExpressionInput = ASTNode,
-    >,
-{
-    let input = RawLegacyIfStatementInputV1::new(condition, then_body, else_body);
-    let mut port = RawStatementIfPortV1::new(child);
-    drive_if_statement_v1(builder, &mut port, &input)
-}
-
-/// Publish the statement-position Void only after If control lowering succeeds.
-///
-/// Raw and located carriers share this completion so neither adapter owns a
-/// second success/failure policy.
-pub(in crate::mir::builder) fn complete_if_statement_v1(
-    builder: &mut MirBuilder,
-    lowering: Result<(), String>,
-) -> Result<ValueId, String> {
-    lowering?;
-    crate::mir::builder::emission::constant::emit_void(builder)
 }
 
 fn prepare_if_statement_condition_value_v1(
