@@ -46,7 +46,7 @@ impl BoolConditionEmissionV1 {
     pub(in crate::mir::builder) fn finish(self, value: ValueId, ledger: Rc<OrdinaryNewClaimLedgerV1>) -> Result<LoweredBoolConditionV1, String> {
         if !self.binary.is_empty() || !self.logical.is_empty() { return Err(freeze("bool-condition/unconsumed-writer-observation")); }
         Ok(LoweredBoolConditionV1 { value, ledger, frame: self.frame,
-            nodes: Some(self.nodes), entry: self.entry, seal: None })
+            nodes: Some(self.nodes), entry: self.entry, seal: None, source_loop: None, observed_if: None })
     }
 }
 
@@ -57,10 +57,21 @@ pub(in crate::mir::builder) struct LoweredBoolConditionV1 {
     nodes: Option<Vec<Node>>,
     entry: Binding,
     seal: Option<BoolConditionSealV1>,
+    source_loop: Option<(Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>, usize)>,
+    observed_if: Option<Rc<IfConditionMaterializationV1>>,
 }
 impl LoweredBoolConditionV1 {
     pub(in crate::mir::builder) fn value(&self) -> ValueId { self.value }
     pub(in crate::mir::builder) fn observer(&mut self) -> &mut dyn IfFormPhysicalObserverV1 { self }
+    pub(in crate::mir::builder) fn observe_source_loop_v2(&mut self,
+        product: Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>, index: usize,
+    ) -> &mut dyn IfFormPhysicalObserverV1 {
+        self.source_loop = Some((product, index));
+        self
+    }
+    pub(in crate::mir::builder) fn into_observed_if(self) -> Option<Rc<IfConditionMaterializationV1>> {
+        self.observed_if
+    }
 }
 impl LoweredBoolConditionV1 {
     fn take_projection_v2(&mut self, function: &MirFunction,
@@ -155,12 +166,21 @@ impl LoweredBoolConditionV1 {
 }
 impl IfFormPhysicalObserverV1 for LoweredBoolConditionV1 {
     fn before_branches(&mut self, function: &MirFunction, pending: Rc<IfConditionMaterializationV1>) -> Result<(), String> {
+        if let Some((product, index)) = self.source_loop.as_ref() {
+            return self.prepare_source_loop_branch_v2(function, Rc::clone(product), *index,
+                Rc::clone(pending.materialization()), pending.arms());
+        }
         let (nodes, prefix) = self.take_projection_v2(function, pending.materialization(), None)?;
         let (packet, seal) = EmittedBoolConditionProjectionV1::prepare(Rc::clone(&self.frame), nodes,
             self.entry.clone(), prefix, pending, &self.ledger, function)?;
         self.publish_projection_v2(packet, seal)
     }
     fn emitted_branch(&mut self, function: &MirFunction, pending: &Rc<IfConditionMaterializationV1>, branch: Binding) -> Result<(), String> {
+        if self.source_loop.is_some() {
+            self.seal_source_loop_branch_v2(function, pending.materialization(), branch)?;
+            self.observed_if = Some(Rc::clone(pending));
+            return Ok(());
+        }
         self.seal.take().ok_or_else(|| freeze("bool-condition/outer-writer-lease-missing"))?
             .seal(function, pending, branch)
     }

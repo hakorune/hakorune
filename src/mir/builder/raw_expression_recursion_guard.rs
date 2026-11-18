@@ -1,17 +1,17 @@
 //! Stack-depth guard shared by both raw expression ports.
 
 use crate::ast::ASTNode;
-use crate::mir::{MirBuilder, ValueId};
+use crate::mir::MirBuilder;
 
 const MAX_RAW_EXPRESSION_RECURSION_DEPTH: usize = 200;
 
-pub(in crate::mir::builder) fn with_legacy_expression_recursion_guard_v1<F>(
+pub(in crate::mir::builder) fn with_legacy_expression_recursion_guard_v1<T, F>(
     builder: &mut MirBuilder,
     node_kind: std::mem::Discriminant<ASTNode>,
     lower: F,
-) -> Result<ValueId, String>
+) -> Result<T, String>
 where
-    F: FnOnce(&mut MirBuilder) -> Result<ValueId, String>,
+    F: FnOnce(&mut MirBuilder) -> Result<T, String>,
 {
     builder.recursion_depth += 1;
     let current_depth = builder.recursion_depth;

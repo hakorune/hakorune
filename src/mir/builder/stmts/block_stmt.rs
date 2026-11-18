@@ -16,7 +16,7 @@
 //! - Called by: control_flow::cf_block, expression building code
 //! - Calls: build_statement and build_expression
 
-use super::block_driver::{drive_legacy_block_v1, LegacyBlockDescentPortV1};
+use super::block_driver::{drive_legacy_block_with_result_v1, legacy_block_value_v1, LegacyBlockDescentPortV1};
 use crate::ast::ASTNode;
 use crate::mir::builder::raw_expression_dispatch::{
     RawBodyInputViewV1, RawLegacyBodyInputV1, RawLegacyStatementInputV1, RawStatementInputViewV1,
@@ -76,8 +76,21 @@ pub(in crate::mir::builder) fn build_block_with_port_v1<Port>(
 where
     Port: RecursiveChildLoweringPortV1<StatementInput = ASTNode>,
 {
+    build_block_with_result_v1(builder, child, statements, legacy_block_value_v1)
+}
+
+pub(in crate::mir::builder) fn build_block_with_result_v1<Port, T>(
+    builder: &mut MirBuilder,
+    child: &mut Port,
+    statements: Vec<ASTNode>,
+    result: impl FnOnce(&mut MirBuilder, Option<ValueId>) -> Result<T, String>,
+) -> Result<T, String>
+where
+    Port: RecursiveChildLoweringPortV1<StatementInput = ASTNode>,
+    T: std::fmt::Debug,
+{
     let mut port = OwnedLegacyBlockPortV1 { statements, child };
-    drive_legacy_block_v1(builder, &mut port)
+    drive_legacy_block_with_result_v1(builder, &mut port, result)
 }
 
 struct OwnedLegacyBlockPortV1<'port, Port> {
@@ -167,7 +180,7 @@ where
         // Phase 212.5: Statement としての If 処理
         node @ ASTNode::If { .. } => {
             use super::if_statement_descent::{
-                drive_if_statement_v1, RawLegacyIfStatementInputV1, RawStatementIfPortV1,
+                drive_if_statement_v1, RawLegacyIfStatementInputV1,
             };
             use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
             let condition =
@@ -195,8 +208,7 @@ where
                     [Some(then_body), else_body].into_iter().flatten().collect(),
                 );
             let input = RawLegacyIfStatementInputV1::new(*condition_node, then_nodes, else_nodes);
-            let mut port = RawStatementIfPortV1::new(&mut scoped);
-            drive_if_statement_v1(builder, &mut port, &input)?;
+            drive_if_statement_v1(builder, &mut scoped, &input)?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
         ASTNode::StaticConstTable { .. } => {

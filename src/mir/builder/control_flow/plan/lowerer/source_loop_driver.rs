@@ -40,7 +40,7 @@ pub(in crate::mir) struct EmittedLoopFrameV2 {
     pub(in crate::mir) condition: Option<Rc<ConditionMaterializationV1>>,
     pub(in crate::mir) targets: Option<(BasicBlockId, BasicBlockId)>,
 }
-/// SAME schedule fork and actual arm ends, before any normal join is emitted.
+/// The original scheduled fork and the physical exits emitted by the common if.
 /// These records corroborate source control; they do not classify a new If.
 pub(in crate::mir) struct EmittedLoopForkV2 {
     pub(in crate::mir) condition: usize,
@@ -53,6 +53,22 @@ pub(in crate::mir) struct EmittedLoopForkV2 {
     pub(in crate::mir) condition_materialization: Rc<crate::mir::builder::IfConditionMaterializationV1>,
     pub(in crate::mir) joins: Vec<Rc<crate::mir::normal_callable_semantic_package::BranchScalarPhiObservationV1>>,
     pub(in crate::mir) text_joins: Vec<Rc<crate::mir::normal_callable_semantic_package::BranchTextPhiObservationV1>>,
+}
+impl EmittedLoopForkV2 {
+    pub(in crate::mir) fn normal_jumps(&self) -> impl Iterator<Item = (BasicBlockId, MirInstruction)> + '_ {
+        [(self.ends.0, self.normal.0), (self.ends.1, self.normal.1)]
+            .into_iter()
+            .filter_map(|(end, normal)| {
+                let target = self.join.filter(|_| normal)?;
+                Some((end, MirInstruction::Jump {
+                    target,
+                    edge_args: Some(crate::mir::EdgeArgs {
+                        layout: crate::mir::edge_args::JumpArgsLayout::CarriersOnly,
+                        values: Vec::new(),
+                    }),
+                }))
+            })
+    }
 }
 pub(in crate::mir) struct EmittedLoopBlockV2 {
     pub(in crate::mir) key: LoopBlockKeyV1,
@@ -439,75 +455,63 @@ impl Driver<'_, '_, '_, '_, '_> {
     )
         -> Result<bool, String> {
         use crate::mir::builder::if_form::IfBranchKindV1;
-        let yes_bb = builder.next_block_id();
-        let no_bb = builder.next_block_id();
-        let join = builder.next_block_id();
-        self.condition(builder, condition, (yes_bb, no_bb))?;
-        let materialization = self.frames[condition].condition.as_ref().ok_or_else(|| reject("condition-entry"))?;
-        let pending = crate::mir::builder::IfConditionMaterializationV1::from_materialization_v1(
-            Rc::clone(materialization), (yes_bb, no_bb), join)?;
-        let mut observer = super::source_loop_frames::prepare_if_observer(builder, self.port, &self.product, condition)?;
-        if let Some(observer) = observer.as_deref_mut() {
-            let function = builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?;
-            observer.before_branches(function, Rc::clone(&pending))?;
-            let branch = function.blocks.get(&pending.block()).and_then(|body| body.terminator.clone())
-                .ok_or_else(|| reject("condition-entry"))?;
-            observer.emitted_branch(function, &pending, (pending.block(), branch))?;
-        }
-        let entry_values = self.ledger.borrow().source_values_snapshot();
-        let no_cache = builder.snapshot_local_binding_state();
-        let join_cache = builder.snapshot_local_binding_state();
-        let entry_map = builder.function_state.variable_ctx.variable_map.clone();
+        use crate::mir::builder::stmts::if_statement_descent::IfObserversV1;
+
+        let entry = builder.function_state.current_block.ok_or_else(|| reject("condition-entry"))?;
+        let mut lowered = super::source_loop_frames::lower_condition(builder, self.port, &self.product, condition)?;
+        let condition_value = lowered.value();
+        self.frame(builder, condition, entry, condition_value, None, None)?;
+
         let entry_logical = self.logical.clone();
-        let entry_canonical_values = self.values.clone();
-        let dominating: BTreeSet<_> = entry_canonical_values.keys().copied().collect();
-        builder.start_new_block(yes_bb)?;
-        if let Some(observer) = observer.as_deref_mut() { observer.enter_branch(IfBranchKindV1::Then)?; }
-        let yes_normal = self.scoped_body(builder, yes)?;
-        if let Some(observer) = observer.as_deref_mut() { observer.finished_branch(IfBranchKindV1::Then)?; }
-        let yes_map = builder.function_state.variable_ctx.variable_map.clone();
-        let yes_logical = self.logical.clone();
-        let yes_canonical_values = self.values.clone();
-        let yes_values = self.ledger.borrow().source_values_snapshot();
-        let yes_cache = builder.snapshot_local_binding_state();
-        let yes_end = builder.function_state.current_block.ok_or_else(|| reject("then-end"))?;
-        if yes_normal { crate::mir::builder::emission::branch::emit_jump(builder, join)?; }
-        self.logical = entry_logical.clone();
-        self.values = entry_canonical_values.clone();
-        self.ledger.borrow_mut().restore_source_values(entry_values);
-        builder.restore_local_binding_state(no_cache);
-        builder.start_new_block(no_bb)?;
-        if let Some(observer) = observer.as_deref_mut() { observer.enter_branch(IfBranchKindV1::Else)?; }
-        let no_normal = match no { Some(key) => self.scoped_body(builder, key)?, None => true };
-        if let Some(observer) = observer.as_deref_mut() { observer.finished_branch(IfBranchKindV1::Else)?; }
-        let no_map = builder.function_state.variable_ctx.variable_map.clone();
-        let no_end = builder.function_state.current_block.ok_or_else(|| reject("else-end"))?;
-        if no_normal { crate::mir::builder::emission::branch::emit_jump(builder, join)?; }
-        match (yes_normal, no_normal) {
-            (false, false) => {},
-            (true, false) => {
-                self.logical = yes_logical;
-                self.values = yes_canonical_values;
-                self.ledger.borrow_mut().restore_source_values(yes_values);
-                builder.restore_local_binding_state(yes_cache);
-            }
-            (false, true) => {},
-            (true, true) => {
-                self.logical = entry_logical.clone();
-                self.values = entry_canonical_values.clone();
-                builder.restore_local_binding_state(join_cache);
-            }
+        let entry_values = self.values.clone();
+        let dominating: BTreeSet<_> = entry_values.keys().copied().collect();
+        let mut yes_values = None;
+        let state = super::source_loop_frames::prepare_if_observer(builder, self.port, &self.product, condition)?;
+        {
+            let mut observers = IfObserversV1 {
+                state,
+                condition: Some(lowered.observe_source_loop_v2(Rc::clone(&self.product), condition)),
+            };
+            builder.lower_if_form_for_effects_v1(condition_value, None, no.is_some(),
+                |builder, branch| {
+                    let key = match branch {
+                        IfBranchKindV1::Then => yes,
+                        IfBranchKindV1::Else => {
+                            self.logical.clone_from(&entry_logical);
+                            self.values.clone_from(&entry_values);
+                            no.ok_or_else(|| reject("else-end"))?
+                        }
+                    };
+                    let normal = self.scoped_body(builder, key)?;
+                    if normal && matches!(branch, IfBranchKindV1::Then) && no.is_some() {
+                        yes_values = Some((self.logical.clone(), self.values.clone()));
+                    }
+                    Ok(())
+                }, Some(&mut observers),
+            )?;
+        }
+        let pending = lowered.into_observed_if().ok_or_else(|| reject("condition-entry"))?;
+        let (yes_bb, no_bb) = pending.arms();
+        let join = pending.merge();
+        self.frames[condition].condition = Some(Rc::clone(pending.materialization()));
+        self.frames[condition].targets = Some((yes_bb, no_bb));
+        let arm = |key| self.blocks.iter().find(|row| row.key == key).map(|row| (row.end, row.normal));
+        let (yes_end, yes_normal) = arm(yes).ok_or_else(|| reject("then-end"))?;
+        let (no_end, no_normal) = match no {
+            Some(key) => arm(key).ok_or_else(|| reject("else-end"))?,
+            None => (no_bb, true),
+        };
+        if yes_normal && no_normal || no.is_none() {
+            self.logical.clone_from(&entry_logical);
+            self.values = entry_values;
+        } else if yes_normal {
+            (self.logical, self.values) = yes_values.ok_or_else(|| reject("then-end"))?;
+        } else if !no_normal {
+            builder.start_new_block(no_end)?;
         }
         let mut joins = Vec::new();
         let mut text_joins: Vec<Rc<crate::mir::normal_callable_semantic_package::BranchTextPhiObservationV1>> = Vec::new();
         if yes_normal || no_normal {
-            builder.suppress_next_entry_pin_copy();
-            builder.start_new_block(join)?;
-            builder.merge_modified_vars(yes_bb, no_bb, yes_normal.then_some(yes_end), no_normal.then_some(no_end),
-                &entry_map, &yes_map, &Some(no_map), None)?;
-            if let Some(observer) = observer.as_deref_mut() {
-                observer.completed_merge(builder, [yes_normal.then_some(yes_end), no_normal.then_some(no_end)])?;
-            }
             let claims = self.port.ordinary_new_claim_ledger.as_ref().ok_or_else(|| reject("claims-missing"))?;
             let site = self.product.schedule().frames()[condition].prefix().statement();
             for source in claims.branch_scalar_sources_v1(self.source.owner(), site)? {

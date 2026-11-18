@@ -285,6 +285,12 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         input: Self::BodyInput,
     ) -> Result<ValueId, String>;
 
+    fn lower_body_for_effects_v1(
+        &mut self, builder: &mut MirBuilder, input: Self::BodyInput,
+    ) -> Result<(), String> {
+        self.lower_body(builder, input).map(|_| ())
+    }
+
     fn lower_statement(
         &mut self,
         builder: &mut MirBuilder,

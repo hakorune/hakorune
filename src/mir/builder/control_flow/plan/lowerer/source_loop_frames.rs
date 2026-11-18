@@ -469,13 +469,12 @@ pub(super) fn emit_binding(
     }
 }
 
-pub(super) fn emit_condition(
+pub(super) fn lower_condition(
     builder: &mut MirBuilder,
     port: &mut RawInvocationChildPortV1<'_, '_>,
     product: &Rc<Product>,
     index: usize,
-    targets: (BasicBlockId, BasicBlockId),
-) -> Result<Rc<ConditionMaterializationV1>, String> {
+) -> Result<crate::mir::builder::ordinary_new_admission::selected::bool_condition::LoweredBoolConditionV1, String> {
     let input = input(port, product)?;
     let scheduled = product
         .schedule()
@@ -485,25 +484,34 @@ pub(super) fn emit_condition(
     let Prefix::BoolCondition { frame, .. } = scheduled.prefix() else {
         return Err(freeze("condition-frame-purpose"));
     };
-    if targets.0 == targets.1 {
-        return Err(freeze("condition-targets"));
-    }
     let claims = port
         .ordinary_new_claim_ledger
         .clone()
         .ok_or_else(|| freeze("claim-ledger-missing"))?;
     crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(&claims)
         .validate_source_loop_bool_frame_v2(product, index, frame)?;
-    claims.validate_bool_condition_source_v1(frame)?;
     let site = OwnedExprSiteV1::new(input.owner(), frame.source().nodes()[0].site().clone());
     let original = input
         .source()
         .expr_at(&site)
         .map_err(|error| format!("{error:?}"))?;
     let source = context(port, site.site().node())?;
-    let mut lowered = port.with_prepared_child_source_v1(source, |port| {
+    port.with_prepared_child_source_v1(source, |port| {
         port.lower_checked_bool_condition_v1(builder, Rc::clone(frame), original.node().clone())
-    })?;
+    })
+}
+
+pub(super) fn emit_condition(
+    builder: &mut MirBuilder,
+    port: &mut RawInvocationChildPortV1<'_, '_>,
+    product: &Rc<Product>,
+    index: usize,
+    targets: (BasicBlockId, BasicBlockId),
+) -> Result<Rc<ConditionMaterializationV1>, String> {
+    if targets.0 == targets.1 {
+        return Err(freeze("condition-targets"));
+    }
+    let mut lowered = lower_condition(builder, port, product, index)?;
     let capture = ConditionMaterializationCaptureV1::begin(builder, lowered.value())?;
     let mut value = crate::mir::builder::ssa::local::try_cond(builder, lowered.value())?;
     crate::mir::builder::ssa::local::finalize_branch_cond(builder, &mut value)?;

@@ -180,7 +180,7 @@ fn assert_simple_statement_if_shape(
 }
 
 #[test]
-fn production_statement_if_explicit_else_publishes_merge_phis_then_facade_void() {
+fn production_statement_if_explicit_else_publishes_binding_phi_and_facade_void() {
     let mut builder = builder("production_statement_if_explicit_else/0");
     let _scope = LexicalScopeGuard::new(&mut builder);
     super::block_stmt::build_statement(&mut builder, local("x", 0)).unwrap();
@@ -226,9 +226,8 @@ fn production_statement_if_explicit_else_publishes_merge_phis_then_facade_void()
             .collect::<BTreeSet<_>>(),
         BTreeSet::from([then_bb, else_bb])
     );
-    assert!(merge.instructions.iter().any(|instruction| {
-        matches!(instruction, MirInstruction::Phi { dst, inputs, .. }
-            if *dst != x_value && inputs.len() == 2)
+    assert!(!merge.instructions.iter().any(|instruction| {
+        matches!(instruction, MirInstruction::Phi { dst, .. } if *dst != x_value)
     }));
     assert_eq!(builder.function_state.variable_ctx.variable_map["stable"], stable);
     assert_eq!(builder.function_state.variable_ctx.variable_map[&pin_name], pinned);
@@ -252,30 +251,22 @@ fn production_statement_if_explicit_else_publishes_merge_phis_then_facade_void()
 }
 
 #[test]
-fn production_statement_if_implicit_else_keeps_internal_and_facade_void_distinct() {
-    let mut builder = builder("production_statement_if_implicit_else/0");
-    let _scope = LexicalScopeGuard::new(&mut builder);
+fn production_statement_if_empty_else_preserves_edges_and_only_returns_facade_void() {
+    for else_body in [None, Some(Vec::new())] {
+        let mut builder = builder("production_statement_if_empty_else/0");
+        let _scope = LexicalScopeGuard::new(&mut builder);
+        let output = super::block_stmt::build_statement(
+            &mut builder,
+            statement_if(bool_lit(true), vec![int_lit(1)], else_body),
+        )
+        .unwrap();
 
-    let output = super::block_stmt::build_statement(
-        &mut builder,
-        statement_if(bool_lit(true), vec![int_lit(1)], None),
-    )
-    .unwrap();
-
-    let (then_bb, else_bb, merge_bb) = assert_simple_statement_if_shape(&builder, false, false);
-    let voids = void_values(&builder);
-    let internal = voids
-        .iter()
-        .find(|(block, _)| *block == else_bb)
-        .expect("implicit false internal Void");
-    let facade = voids
-        .iter()
-        .find(|(block, value)| *block == merge_bb && *value == output)
-        .expect("statement facade Void");
-    assert_ne!(internal.1, facade.1);
-    let function = builder.function_state.current_function.as_ref().unwrap();
-    assert!(function.blocks[&then_bb].successors.contains(&merge_bb));
-    assert!(function.blocks[&else_bb].successors.contains(&merge_bb));
+        let (then_bb, else_bb, merge_bb) = assert_simple_statement_if_shape(&builder, false, false);
+        assert_eq!(void_values(&builder), vec![(merge_bb, output)]);
+        let function = builder.function_state.current_function.as_ref().unwrap();
+        assert!(function.blocks[&then_bb].successors.contains(&merge_bb));
+        assert!(function.blocks[&else_bb].successors.contains(&merge_bb));
+    }
 }
 
 #[test]

@@ -32,6 +32,28 @@ pub(in crate::mir::builder) fn drive_legacy_block_v1<Port>(
 where
     Port: LegacyBlockDescentPortV1,
 {
+    drive_legacy_block_with_result_v1(builder, port, legacy_block_value_v1)
+}
+
+pub(in crate::mir::builder) fn legacy_block_value_v1(
+    builder: &mut MirBuilder,
+    last: Option<ValueId>,
+) -> Result<ValueId, String> {
+    match last {
+        Some(value) => Ok(value),
+        None => crate::mir::builder::emission::constant::emit_void(builder),
+    }
+}
+
+pub(in crate::mir::builder) fn drive_legacy_block_with_result_v1<Port, T>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    result: impl FnOnce(&mut MirBuilder, Option<ValueId>) -> Result<T, String>,
+) -> Result<T, String>
+where
+    Port: LegacyBlockDescentPortV1,
+    T: std::fmt::Debug,
+{
     let trace = crate::mir::builder::control_flow::joinir::trace::trace();
     let scope_id = builder
         .function_state
@@ -39,7 +61,7 @@ where
         .map(|bb| bb.as_u32())
         .unwrap_or(0);
     builder.hint_scope_enter(scope_id);
-    try_with_lexical_scope(builder, |builder| -> Result<ValueId, String> {
+    try_with_lexical_scope(builder, |builder| -> Result<T, String> {
         let mut last_value = None;
         let total = port.len();
 
@@ -83,10 +105,7 @@ where
             }
         }
 
-        let output = match last_value {
-            Some(value) => value,
-            None => crate::mir::builder::emission::constant::emit_void(builder)?,
-        };
+        let output = result(builder, last_value)?;
         if index == total && !builder.is_current_block_terminated() {
             port.finish_fallthrough(builder, total)?;
         }

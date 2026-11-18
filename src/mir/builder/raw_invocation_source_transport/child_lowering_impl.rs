@@ -576,19 +576,17 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
     }
 
     fn lower_body(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: Self::BodyInput,
+        &mut self, builder: &mut MirBuilder, input: Self::BodyInput,
     ) -> Result<ValueId, String> {
-        self.prepare_function_control_v1(builder)?;
-        match self.current_source_context_v1() {
-            Some(context) => {
-                crate::mir::builder::raw_invocation_body::drive_located_invocation_body_v1(
-                    builder, self, input, context,
-                )
-            }
-            None => Err("[freeze:contract][raw-invocation/missing-root-body-receipt]".to_owned()),
-        }
+        self.lower_body_with_result_v1(
+            builder, input, crate::mir::builder::stmts::block_driver::legacy_block_value_v1,
+        )
+    }
+
+    fn lower_body_for_effects_v1(
+        &mut self, builder: &mut MirBuilder, input: Self::BodyInput,
+    ) -> Result<(), String> {
+        self.lower_body_with_result_v1(builder, input, |_, _| Ok(()))
     }
 
     fn lower_statement(

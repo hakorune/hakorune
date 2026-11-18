@@ -6,8 +6,8 @@
     "file": "src/mir/builder/stmts/block_stmt.rs",
     "sites": [
       {
-        "line": 199,
-        "code": "drive_if_statement_v1(builder, &mut port, &input)?;"
+        "line": 211,
+        "code": "drive_if_statement_v1(builder, &mut scoped, &input)?;"
       }
     ],
     "evidence": "ASTのIf腕が文の入口へ渡す"
@@ -19,8 +19,8 @@
     "file": "src/mir/builder/stmts/if_statement_descent.rs",
     "sites": [
       {
-        "line": 311,
-        "code": "builder.lower_if_form_with_physical_observer_v1("
+        "line": 222,
+        "code": "builder.lower_if_form_for_effects_v1("
       }
     ],
     "evidence": "条件と文のコールバックを共通ifへ渡す"
@@ -39,47 +39,30 @@
     "evidence": "式の条件と分岐のコールバックを共通ifへ渡す"
   },
   {
-    "id": "plain-if",
-    "category": "if",
-    "role": "forwarder",
-    "file": "src/mir/builder/if_form.rs",
-    "sites": [
-      {
-        "line": 66,
-        "code": "self.lower_if_form_with_physical_observer_v1(condition_val, condition_debug,"
-      }
-    ],
-    "evidence": "observerなしで共通ifへ渡す"
-  },
-  {
     "id": "ordinary-if",
     "category": "if",
     "role": "writer",
     "file": "src/mir/builder/if_form.rs",
     "sites": [
       {
-        "line": 257,
+        "line": 241,
         "code": "crate::mir::builder::emission::branch::emit_conditional_edgecfg("
       }
     ],
-    "evidence": "真偽、分岐出口、合流への辺を物理エミッタへ渡す。343行で束縛の合流"
+    "evidence": "条件・実際の正常出口・合流先を発行する。文と式で分岐を共有し、束縛の合流は結果の要求と独立。"
   },
   {
     "id": "direct-source-if",
     "category": "if",
-    "role": "writer",
+    "role": "forwarder",
     "file": "src/mir/builder/control_flow/plan/lowerer/source_loop_driver.rs",
     "sites": [
       {
-        "line": 444,
-        "code": "let join = builder.next_block_id();"
-      },
-      {
-        "line": 445,
-        "code": "self.condition(builder, condition, (yes_bb, no_bb))?;"
+        "line": 475,
+        "code": "builder.lower_if_form_for_effects_v1(condition_value, None, no.is_some(),"
       }
     ],
-    "evidence": "自分で真偽・joinを割り当て、条件のBranchを発行。506行で束縛を合流"
+    "evidence": "ループの予定表を腕のコールバックへ渡す。真偽・合流の発行は普通の if が担当。"
   },
   {
     "id": "core-plan-if",
@@ -169,7 +152,7 @@
     "file": "src/mir/builder/control_flow/plan/lowerer/source_loop_driver.rs",
     "sites": [
       {
-        "line": 194,
+        "line": 210,
         "code": "source.prepare_checked_phis_v2(builder, header, after)?;"
       }
     ],
@@ -299,7 +282,7 @@
     "file": "src/mir/builder/control_flow/plan/lowerer/source_loop_driver.rs",
     "sites": [
       {
-        "line": 390,
+        "line": 406,
         "code": "PortKind::Break(original) if original == site => Edge::Break(site.clone()),"
       }
     ],
@@ -312,7 +295,7 @@
     "file": "src/mir/builder/control_flow/plan/lowerer/source_loop_driver.rs",
     "sites": [
       {
-        "line": 391,
+        "line": 407,
         "code": "PortKind::Continue(original) if original == site => Edge::Continue(site.clone()),"
       }
     ],

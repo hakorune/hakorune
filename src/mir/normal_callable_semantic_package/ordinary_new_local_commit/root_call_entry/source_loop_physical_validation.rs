@@ -138,21 +138,8 @@ pub(super) fn validate_owned_v2(
         for point in &fork.text_joins {
             claim(point.relation().identity_phi_binding_v1()?, false)?;
         }
-        if let Some(join) = fork.join {
-            for (end, normal) in [(fork.ends.0, fork.normal.0), (fork.ends.1, fork.normal.1)] {
-                if normal {
-                    claim(
-                        &(
-                            end,
-                            MirInstruction::Jump {
-                                target: join,
-                                edge_args: None,
-                            },
-                        ),
-                        false,
-                    )?;
-                }
-            }
+        for row in fork.normal_jumps() {
+            claim(&row, false)?;
         }
     }
     for block in &graph.blocks {
@@ -283,9 +270,9 @@ impl SourceLoopPhysicalProofV2 {
         if let (true, Some(projection)) = (context.is_finalized(), finishing) {
             for row in &self.owned {
                 match &row.1 {
-                    MirInstruction::Jump {
-                        edge_args: None, ..
-                    } => {
+                    MirInstruction::Jump { edge_args, .. }
+                        if crate::mir::EdgeArgs::absent_or_empty_carriers(edge_args) =>
+                    {
                         projection.structural_jump_binding(function, row, true)?;
                     }
                     MirInstruction::KeepAlive { .. } => {
@@ -537,21 +524,9 @@ impl SourceLoopPhysicalProofV2 {
                 }
                 point.validate(context, function, finishing)?;
             }
-            if let (Some(join), Some(projection)) = (fork.join, finishing) {
-                for (end, normal) in [(fork.ends.0, fork.normal.0), (fork.ends.1, fork.normal.1)] {
-                    if normal {
-                        projection.structural_jump_binding(
-                            function,
-                            &(
-                                end,
-                                MirInstruction::Jump {
-                                    target: join,
-                                    edge_args: None,
-                                },
-                            ),
-                            context.is_finalized(),
-                        )?;
-                    }
+            if let Some(projection) = finishing {
+                for row in fork.normal_jumps() {
+                    projection.structural_jump_binding(function, &row, context.is_finalized())?;
                 }
             }
         }

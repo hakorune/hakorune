@@ -56,6 +56,21 @@ impl RecursiveChildLoweringPortV1 for RawLegacyChildLoweringPortV1 {
         super::super::stmts::block_stmt::build_block_with_port_v1(builder, self, input)
     }
 
+    fn lower_body_for_effects_v1(
+        &mut self, builder: &mut MirBuilder, input: Self::BodyInput,
+    ) -> Result<(), String> {
+        let span = crate::ast::Span::unknown();
+        let program = ASTNode::Program { statements: Vec::new(), span };
+        super::super::raw_expression_recursion_guard::with_legacy_expression_recursion_guard_v1(
+            builder, std::mem::discriminant(&program), |builder| {
+                builder.metadata_ctx.set_current_span(span);
+                super::super::stmts::block_stmt::build_block_with_result_v1(
+                    builder, self, input, |_, _| Ok(()),
+                )
+            },
+        )
+    }
+
     fn lower_statement(
         &mut self,
         builder: &mut MirBuilder,

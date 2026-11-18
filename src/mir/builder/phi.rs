@@ -180,132 +180,30 @@ impl MirBuilder {
         Ok(())
     }
 
-    /// Normalize Phi creation for if/else constructs.
-    /// This handles variable reassignment patterns and ensures a single exit value.
-    pub(super) fn normalize_if_else_phi(
+    /// Publish the value of an if expression from its normal exits.
+    pub(super) fn merge_if_result_v1(
         &mut self,
-        _then_block: BasicBlockId,
-        _else_block: BasicBlockId,
-        then_exit_block_opt: Option<BasicBlockId>,
-        else_exit_block_opt: Option<BasicBlockId>,
-        then_value_raw: ValueId,
-        else_value_raw: ValueId,
-        pre_if_var_map: &BTreeMap<String, ValueId>, // Phase 25.1: BTreeMap化
-        then_var_map_end: &BTreeMap<String, ValueId>, // Phase 25.1: BTreeMap化
-        else_var_map_end_opt: &Option<BTreeMap<String, ValueId>>, // Phase 25.1: BTreeMap化
-        pre_then_var_value: Option<ValueId>,
+        arms: [(Option<BasicBlockId>, ValueId); 2],
     ) -> Result<ValueId, String> {
-        // If only the then-branch assigns a variable (e.g., `if c { x = ... }`) and the else
-        // does not assign the same variable, bind that variable to a Phi of (then_value, pre_if_value).
-        // Phase 38: Pre-analysis removed (JoinIR AST lowering handles assignment detection)
-        let assigned_var_then: Option<String> = None;
-        let assigned_var_else: Option<String> = None;
-        let result_val = self.next_value_id();
-
-        // フェーズM: no_phi_mode分岐削除（常にPHI命令を使用）
-
-        if let Some(var_name) = assigned_var_then.clone() {
-            let else_assigns_same = assigned_var_else
-                .as_ref()
-                .map(|s| s == &var_name)
-                .unwrap_or(false);
-            // Resolve branch-end values for the assigned variable
-            let then_value_for_var = then_var_map_end
-                .get(&var_name)
-                .copied()
-                .unwrap_or(then_value_raw);
-            // Check if else branch actually modified the variable (even if not as last expression)
-            let else_modified_var = else_var_map_end_opt
-                .as_ref()
-                .and_then(|m| m.get(&var_name).copied());
-            let else_value_for_var = if else_assigns_same {
-                else_var_map_end_opt
-                    .as_ref()
-                    .and_then(|m| m.get(&var_name).copied())
-                    .unwrap_or(else_value_raw)
-            } else if let Some(else_modified) = else_modified_var {
-                // Else modifies the variable (even if not as the last expression)
-                else_modified
-            } else {
-                // Else doesn't modify the variable: use pre-if value if available
-                pre_then_var_value.unwrap_or(else_value_raw)
-            };
-            // Build inputs from reachable predecessors only
-            let mut inputs: Vec<(BasicBlockId, ValueId)> = Vec::new();
-            if let Some(tp) = then_exit_block_opt {
-                inputs.push((tp, then_value_for_var));
-            }
-            if let Some(ep) = else_exit_block_opt {
-                inputs.push((ep, else_value_for_var));
-            }
-            match inputs.len() {
-                0 => {}
-                1 => {
-                    // Direct bind (no PHI needed)
-                    self.function_state.variable_ctx.variable_map = pre_if_var_map.clone();
-                    self.function_state
-                        .variable_ctx
-                        .variable_map
-                        .insert(var_name, inputs[0].1);
-                    return Ok(inputs[0].1);
+        let result = self.next_value_id();
+        let inputs: Vec<_> = arms.into_iter()
+            .filter_map(|(exit, value)| exit.map(|block| (block, value)))
+            .collect();
+        match inputs.as_slice() {
+            [] => crate::mir::builder::emission::constant::emit_void(self),
+            [(_, value)] => Ok(*value),
+            _ => {
+                if let Some(function) = self.function_state.current_function.as_mut() {
+                    function.update_cfg();
                 }
-                _ => {
-                    if let Some(func) = self.function_state.current_function.as_mut() {
-                        func.update_cfg();
-                    }
-                    if let (Some(func), Some(cur_bb)) = (
-                        &self.function_state.current_function,
-                        self.function_state.current_block,
-                    ) {
-                        crate::mir::phi_core::common::debug_verify_phi_inputs(
-                            func, cur_bb, &inputs,
-                        );
-                    }
-                    self.insert_phi_with_dst(result_val, inputs)?;
+                if let (Some(function), Some(block)) = (
+                    &self.function_state.current_function, self.function_state.current_block,
+                ) {
+                    crate::mir::phi_core::common::debug_verify_phi_inputs(function, block, &inputs);
                 }
+                self.insert_phi_with_dst(result, inputs)?;
+                Ok(result)
             }
-            self.function_state.variable_ctx.variable_map = pre_if_var_map.clone();
-            self.function_state
-                .variable_ctx
-                .variable_map
-                .insert(var_name, result_val);
-        } else {
-            // No variable assignment pattern detected – just emit Phi for expression result
-            let mut inputs: Vec<(BasicBlockId, ValueId)> = Vec::new();
-            if let Some(tp) = then_exit_block_opt {
-                inputs.push((tp, then_value_raw));
-            }
-            if let Some(ep) = else_exit_block_opt {
-                inputs.push((ep, else_value_raw));
-            }
-            match inputs.len() {
-                0 => {
-                    /* leave result_val as fresh, but unused; synthesize void */
-                    let v = crate::mir::builder::emission::constant::emit_void(self)?;
-                    return Ok(v);
-                }
-                1 => {
-                    return Ok(inputs[0].1);
-                }
-                _ => {
-                    if let Some(func) = self.function_state.current_function.as_mut() {
-                        func.update_cfg();
-                    }
-                    if let (Some(func), Some(cur_bb)) = (
-                        &self.function_state.current_function,
-                        self.function_state.current_block,
-                    ) {
-                        crate::mir::phi_core::common::debug_verify_phi_inputs(
-                            func, cur_bb, &inputs,
-                        );
-                    }
-                    self.insert_phi_with_dst(result_val, inputs)?;
-                }
-            }
-            // Merge variable map conservatively to pre-if snapshot (no new bindings)
-            self.function_state.variable_ctx.variable_map = pre_if_var_map.clone();
         }
-
-        Ok(result_val)
     }
 }

@@ -4,7 +4,7 @@
 //! selected body and scopes each statement through that receipt.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::stmts::block_driver::{drive_legacy_block_v1, LegacyBlockDescentPortV1};
+use crate::mir::builder::stmts::block_driver::{drive_legacy_block_with_result_v1, LegacyBlockDescentPortV1};
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
@@ -12,23 +12,41 @@ use super::raw_expression_dispatch::RawExpressionDispatchPortV1;
 use super::raw_invocation_source_transport::{
     RawInvocationSourceContextV1, RawSourceTransportPortV1,
 };
-use super::recursive_child_lowering::RecursiveChildLoweringPortV1;
+use super::recursive_child_lowering::{RawInvocationChildPortV1, RecursiveChildLoweringPortV1};
 
-pub(in crate::mir::builder) fn drive_located_invocation_body_v1<Port>(
+fn drive_located_invocation_body_v1<Port, T>(
     builder: &mut MirBuilder,
     port: &mut Port,
     statements: Vec<ASTNode>,
     context: RawInvocationSourceContextV1,
-) -> Result<ValueId, String>
+    result: impl FnOnce(&mut MirBuilder, Option<ValueId>) -> Result<T, String>,
+) -> Result<T, String>
 where
     Port: RawSourceTransportPortV1 + RawExpressionDispatchPortV1,
+    T: std::fmt::Debug,
 {
     let mut body = LocatedInvocationBlockPortV1 {
         statements: statements.into_iter(),
         source: context,
         child: port,
     };
-    drive_legacy_block_v1(builder, &mut body)
+    drive_legacy_block_with_result_v1(builder, &mut body, result)
+}
+
+impl RawInvocationChildPortV1<'_, '_> {
+    pub(super) fn lower_body_with_result_v1<T: std::fmt::Debug>(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: Vec<ASTNode>,
+        result: impl FnOnce(&mut MirBuilder, Option<ValueId>) -> Result<T, String>,
+    ) -> Result<T, String> {
+        self.prepare_function_control_v1(builder)?;
+        let context = self.current_source_context_v1()
+            .ok_or_else(|| "[freeze:contract][raw-invocation/missing-root-body-receipt]".to_owned())?;
+        drive_located_invocation_body_v1(
+            builder, self, input, context, result,
+        )
+    }
 }
 
 struct LocatedInvocationBlockPortV1<'port, Port> {

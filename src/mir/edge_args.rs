@@ -21,6 +21,11 @@ pub struct EdgeArgs {
 }
 
 impl EdgeArgs {
+    /// Both structural edge spellings carry zero values.
+    pub(crate) fn absent_or_empty_carriers(args: &Option<Self>) -> bool {
+        args.as_ref().is_none_or(Self::is_empty_carriers)
+    }
+
     /// The canonical empty marker carries no value or ownership responsibility.
     pub(crate) fn is_empty_carriers(&self) -> bool {
         self.layout == JumpArgsLayout::CarriersOnly && self.values.is_empty()

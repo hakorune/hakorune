@@ -10,99 +10,10 @@ use crate::ast::ASTNode;
 use crate::mir::builder::if_form::IfBranchKindV1;
 use crate::mir::{MirBuilder, ValueId};
 
+use super::super::raw_structured_child_scope::RawStructuredChildScopePortV1;
 use super::super::recursive_child_lowering::{
-    drive_legacy_body_v1, drive_legacy_expression_v1, drive_legacy_statement_v1,
-    RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, RecursiveChildLoweringPortV1,
 };
-
-/// Raw statement-If adapter preserving the retired facade's branch Program shell.
-///
-/// The shared raw child port lowers a body directly. Statement-position If
-/// historically lowered each branch as an expression-position `Program` with
-/// an unknown span. Keeping that shell here preserves its recursion boundary
-/// and span publication without making the generic If driver own either law.
-///
-/// The adapter borrows the same raw child port through condition and branch
-/// descent. It therefore preserves the unknown-span Program wrapper without
-/// rebuilding a raw-recursion port at an If boundary.
-pub(super) struct RawStatementIfPortV1<'port, Port> {
-    child: &'port mut Port,
-}
-
-impl<'port, Port> RawStatementIfPortV1<'port, Port> {
-    pub(super) const fn new(child: &'port mut Port) -> Self {
-        Self { child }
-    }
-}
-
-impl<Port> RecursiveChildLoweringPortV1 for RawStatementIfPortV1<'_, Port>
-where
-    Port: RecursiveChildLoweringPortV1<
-        BodyInput = Vec<ASTNode>,
-        StatementInput = ASTNode,
-        ExpressionInput = ASTNode,
-    >,
-{
-    type BodyInput = Vec<ASTNode>;
-    type StatementInput = ASTNode;
-    type ExpressionInput = ASTNode;
-
-    fn prepare_borrowed_field_write_guard_observer_v1(&mut self)
-        -> Result<Option<Box<dyn crate::mir::builder::if_form::IfFormPhysicalObserverV1>>, String> {
-        self.child.prepare_borrowed_field_write_guard_observer_v1()
-    }
-
-    fn prepare_if_state_observer_v1(&mut self, builder: &MirBuilder)
-        -> Result<Option<Box<dyn crate::mir::builder::if_form::IfFormPhysicalObserverV1>>, String> {
-        self.child.prepare_if_state_observer_v1(builder)
-    }
-
-    fn prepare_checked_bool_condition_v1(&mut self) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1>>, String> {
-        self.child.prepare_checked_bool_condition_v1()
-    }
-    fn lower_checked_bool_condition_v1(&mut self, builder: &mut MirBuilder,
-        frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1>, condition: ASTNode,
-    ) -> Result<crate::mir::builder::ordinary_new_admission::selected::bool_condition::LoweredBoolConditionV1, String> {
-        self.child.lower_checked_bool_condition_v1(builder, frame, condition)
-    }
-
-    fn cleanup_exit_policy_v1(
-        &self,
-    ) -> crate::mir::builder::control_flow::cleanup::CleanupExitPolicyV1 {
-        self.child.cleanup_exit_policy_v1()
-    }
-
-    fn lower_body(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: Self::BodyInput,
-    ) -> Result<ValueId, String> {
-        drive_legacy_expression_v1(
-            builder,
-            self.child,
-            ASTNode::Program {
-                statements: input,
-                span: crate::ast::Span::unknown(),
-            },
-        )
-    }
-
-    fn lower_statement(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: Self::StatementInput,
-    ) -> Result<ValueId, String> {
-        drive_legacy_statement_v1(builder, self.child, input)
-    }
-
-    fn lower_expression(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: Self::ExpressionInput,
-    ) -> Result<ValueId, String> {
-        drive_legacy_expression_v1(builder, self.child, input)
-    }
-}
 
 pub(in crate::mir::builder) struct RawLegacyIfStatementInputV1 {
     condition: ASTNode,
@@ -191,7 +102,7 @@ pub(in crate::mir::builder) trait IfStatementDescentPortV1:
     fn if_else_body_input(&self, input: &Self::IfInput) -> Result<Self::BodyInput, String>;
 }
 
-impl<Port> IfStatementDescentPortV1 for RawStatementIfPortV1<'_, Port>
+impl<Port> IfStatementDescentPortV1 for RawStructuredChildScopePortV1<'_, Port>
 where
     Port: RecursiveChildLoweringPortV1<
         BodyInput = Vec<ASTNode>,
@@ -230,9 +141,9 @@ where
     }
 }
 
-struct IfObserversV1<'a> {
-    state: Option<Box<dyn crate::mir::builder::if_form::IfFormPhysicalObserverV1>>,
-    condition: Option<&'a mut dyn crate::mir::builder::if_form::IfFormPhysicalObserverV1>,
+pub(in crate::mir::builder) struct IfObserversV1<'a> {
+    pub(in crate::mir::builder) state: Option<Box<dyn crate::mir::builder::if_form::IfFormPhysicalObserverV1>>,
+    pub(in crate::mir::builder) condition: Option<&'a mut dyn crate::mir::builder::if_form::IfFormPhysicalObserverV1>,
 }
 impl crate::mir::builder::if_form::IfFormPhysicalObserverV1 for IfObserversV1<'_> {
     fn before_branches(&mut self, function: &crate::mir::MirFunction,
@@ -308,7 +219,7 @@ where
         },
     };
     let armed = observers.state.is_some() || observers.condition.is_some();
-    builder.lower_if_form_with_physical_observer_v1(
+    builder.lower_if_form_for_effects_v1(
         condition_value,
         condition_debug,
         has_explicit_else,
@@ -327,11 +238,10 @@ where
                     port.if_else_body_input(input)?
                 }
             };
-            drive_legacy_body_v1(builder, port, body)
+            port.lower_body_for_effects_v1(builder, body)
         },
         if armed { Some(&mut observers) } else { None },
-    )?;
-    Ok(())
+    )
 }
 
 fn prepare_if_statement_condition_value_v1(

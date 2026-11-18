@@ -684,7 +684,7 @@ fn if_driver_preserves_termination_and_variable_phi_shapes() {
 
         drive_if_statement_v1(&mut builder, &mut port, &input).unwrap();
 
-        let (then_bb, else_bb, merge_bb) =
+        let (_, _, merge_bb) =
             assert_simple_if_termination_shape(&builder, then_returns, else_returns);
         assert_eq!(
             terminators(&builder)
@@ -697,11 +697,8 @@ fn if_driver_preserves_termination_and_variable_phi_shapes() {
         );
         if label == "both_fallthrough" {
             let function = builder.function_state.current_function.as_ref().unwrap();
-            assert!(function.blocks[&merge_bb].instructions.iter().any(
-                |instruction| matches!(instruction, MirInstruction::Phi { inputs, .. }
-                    if inputs.iter().map(|(pred, _)| *pred).collect::<BTreeSet<_>>()
-                        == BTreeSet::from([then_bb, else_bb]))
-            ));
+            assert!(!function.blocks[&merge_bb].instructions.iter()
+                .any(|instruction| matches!(instruction, MirInstruction::Phi { .. })));
         }
     }
 

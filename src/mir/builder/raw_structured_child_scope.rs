@@ -381,6 +381,15 @@ where
             .with_prepared_child_source_v1(source, |child| child.lower_body(builder, input))
     }
 
+    fn lower_body_for_effects_v1(
+        &mut self, builder: &mut MirBuilder, input: Self::BodyInput,
+    ) -> Result<(), String> {
+        let source = self.next_body()?;
+        self.child.with_prepared_child_source_v1(source, |child| {
+            child.lower_body_for_effects_v1(builder, input)
+        })
+    }
+
     fn lower_statement(
         &mut self,
         builder: &mut MirBuilder,
