@@ -1,7 +1,7 @@
 //! Live associated-input owner for value-bearing Return statements.
 //!
 //! This box owns only the ordering between the existing cleanup preflight,
-//! match-return hook, one value-expression demand, and the existing Return
+//! match-return check, one value-expression demand, and the existing Return
 //! completion. Void returns, Match/CorePlan semantics, cleanup/defer policy,
 //! source location, and callable-result consumption remain outside it.
 
@@ -14,7 +14,7 @@ use crate::mir::{MirBuilder, ValueId};
 use super::super::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
-use super::return_stmt::{emit_return_from_value, try_apply_match_return_optimization};
+use super::return_stmt::{emit_return_from_value, check_match_return_before_value};
 
 pub(in crate::mir::builder) struct RawLegacyValueReturnInputV1 {
     statement: ASTNode,
@@ -67,12 +67,12 @@ pub(in crate::mir::builder) trait ReturnStatementDescentPortV1:
         input: &'input Self::ReturnInput,
     ) -> Result<ReturnStatementSyntaxViewV1<'input>, String>;
 
-    fn try_match_return_optimization(
+    fn check_match_return(
         &mut self,
         builder: &mut MirBuilder,
         input: &Self::ReturnInput,
         value: &ASTNode,
-    ) -> Result<Option<ValueId>, String>;
+    ) -> Result<(), String>;
 }
 
 impl<Port> ReturnStatementDescentPortV1 for Port
@@ -88,13 +88,13 @@ where
         Ok(ReturnStatementSyntaxViewV1::new(input.value()?))
     }
 
-    fn try_match_return_optimization(
+    fn check_match_return(
         &mut self,
         builder: &mut MirBuilder,
         _input: &Self::ReturnInput,
         value: &ASTNode,
-    ) -> Result<Option<ValueId>, String> {
-        try_apply_match_return_optimization(builder, Some(value), true)
+    ) -> Result<(), String> {
+        check_match_return_before_value(builder, value)
     }
 }
 
@@ -109,14 +109,8 @@ where
     LowerValue: FnOnce(&mut MirBuilder, &mut Port, Port::ReturnInput) -> Result<ValueId, String>,
 {
     ensure_cleanup_exit_allowed_v1(&builder.function_state, CleanupExitKindV1::Return)?;
-    let match_result = {
-        let value = port.return_value_syntax(&input)?.value();
-        port.try_match_return_optimization(builder, &input, value)?
-    };
-    if let Some(result) = match_result {
-        return Ok(result);
-    }
-
+    let value = port.return_value_syntax(&input)?.value();
+    port.check_match_return(builder, &input, value)?;
     let return_value = lower_value(builder, port, input)?;
     emit_return_from_value(builder, return_value)
 }

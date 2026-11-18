@@ -15,7 +15,6 @@ pub(in crate::mir::builder) mod loop_builder;
 pub(in crate::mir::builder) mod loop_condition_shape;
 pub(in crate::mir::builder) mod loop_scan_with_init;
 pub(in crate::mir::builder) mod loop_source_receipt;
-pub(in crate::mir::builder) mod loop_split_scan;
 pub(in crate::mir::builder) mod loop_step_shape;
 #[cfg(test)]
 pub(in crate::mir::builder) mod loop_tests;
@@ -62,4 +61,3 @@ pub(in crate::mir::builder) type LoopTrueEarlyExitFacts =
 pub(in crate::mir::builder) type BoolPredicateScanFacts =
     bool_predicate_scan_facts::BoolPredicateScanFacts;
 pub(in crate::mir::builder) type AccumConstLoopFacts = accum_const_loop_facts::AccumConstLoopFacts;
-pub(in crate::mir::builder) use match_return_facts::{MatchReturnFacts, MatchReturnScrutinee};

@@ -39,7 +39,6 @@ mod loop_continue_only_builder;
 mod loop_simple_while_builder;
 mod loop_true_early_exit_builder;
 mod scan_with_init_builder;
-mod split_scan_builder;
 
 mod contracts;
 mod matcher;

@@ -35,7 +35,6 @@ use crate::mir::builder::control_flow::plan::planner::{Freeze, PlannerContext};
 use super::loop_condition_shape::try_extract_condition_shape;
 use super::loop_scan_with_init::try_extract_scan_with_init_facts_with_projection;
 use super::loop_source_receipt::LoopSourceReceiptV1;
-use super::loop_split_scan::try_extract_split_scan_facts_with_projection;
 use super::loop_step_shape::try_extract_step_shape;
 use super::loop_types::LoopFacts;
 
@@ -79,8 +78,6 @@ fn try_build_loop_facts_inner(
         &step_shape,
         &source_projection,
     )?;
-    let split_scan =
-        try_extract_split_scan_facts_with_projection(condition, body, &source_projection)?;
     let loop_simple_while =
         try_extract_loop_simple_while_facts_with_projection(condition, body, &source_projection)?;
     let loop_char_map = try_extract_loop_char_map_facts_with_projection(
@@ -154,7 +151,6 @@ fn try_build_loop_facts_inner(
     let loop_break_body_local = try_extract_loop_break_body_local_facts(condition, body)?;
 
     let has_any = scan_with_init.is_some()
-        || split_scan.is_some()
         || loop_simple_while.is_some()
         || loop_char_map.is_some()
         || loop_array_join.is_some()
@@ -193,7 +189,6 @@ fn try_build_loop_facts_inner(
         skeleton,
         features,
         scan_with_init,
-        split_scan,
         loop_simple_while,
         loop_char_map,
         loop_array_join,

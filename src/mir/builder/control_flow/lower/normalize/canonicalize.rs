@@ -99,7 +99,6 @@ mod tests {
                 }),
             },
             scan_with_init: None,
-            split_scan: None,
             loop_simple_while: None,
             loop_char_map: None,
             loop_array_join: None,
@@ -151,7 +150,6 @@ mod tests {
             },
             features: LoopFeatureFacts::default(),
             scan_with_init: None,
-            split_scan: None,
             loop_simple_while: None,
             loop_char_map: None,
             loop_array_join: None,
@@ -188,7 +186,6 @@ mod tests {
             },
             features: LoopFeatureFacts::default(),
             scan_with_init: None,
-            split_scan: None,
             loop_simple_while: Some(
                 crate::mir::builder::control_flow::plan::facts::loop_simple_while_facts::LoopSimpleWhileFacts {
                     loop_var: "i".to_string(),

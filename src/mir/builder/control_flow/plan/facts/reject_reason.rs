@@ -96,11 +96,7 @@ pub enum RejectReason {
     MatchReturnScrutineeNotSupported => "match_return_scrutinee_not_supported",
     MatchReturnTooFewArms => "match_return_too_few_arms",
     MatchReturnElseNotLiteral => "match_return_else_not_literal",
-    MatchReturnElseLiteralTypeUnsupported => "match_return_else_literal_type_unsupported",
-    MatchReturnArmLabelNotSupported => "match_return_arm_label_not_supported",
     MatchReturnArmNotLiteral => "match_return_arm_not_literal",
-    MatchReturnArmLiteralTypeUnsupported => "match_return_arm_literal_type_unsupported",
-    MatchReturnLiteralProfileMismatch => "match_return_literal_profile_mismatch",
 }
 }
 
@@ -125,19 +121,7 @@ impl RejectReason {
             }
             Self::MatchReturnTooFewArms => "match return requires >= 2 arms",
             Self::MatchReturnElseNotLiteral => "match return else must be literal",
-            Self::MatchReturnElseLiteralTypeUnsupported => {
-                "match return else literal type unsupported"
-            }
-            Self::MatchReturnArmLabelNotSupported => {
-                "match return arm label must be int/bool/string literal"
-            }
             Self::MatchReturnArmNotLiteral => "match return arm must be literal",
-            Self::MatchReturnArmLiteralTypeUnsupported => {
-                "match return arm literal type unsupported"
-            }
-            Self::MatchReturnLiteralProfileMismatch => {
-                "match return literal profile is not supported"
-            }
             // Phase 29ca (generic_loop)
             Self::InBodyStepWithContinue => {
                 "generic loop v0.2: in-body step + continue is not allowed"
@@ -278,23 +262,11 @@ pub mod handoff_tables {
         }
     }
 
-    /// Handoff table for match_return_facts
-    ///
-    /// NOTE: match_return_facts rejects are currently all OutOfScope
-    /// (no specialized receiver yet).
-    pub fn for_match_return_facts(reason: RejectReason) -> HandoffTarget {
-        match reason {
-            RejectReason::MatchReturnScrutineeNotSupported => HandoffTarget::OutOfScope,
-            RejectReason::MatchReturnTooFewArms => HandoffTarget::OutOfScope,
-            RejectReason::MatchReturnElseNotLiteral => HandoffTarget::OutOfScope,
-            RejectReason::MatchReturnElseLiteralTypeUnsupported => HandoffTarget::OutOfScope,
-            RejectReason::MatchReturnArmLabelNotSupported => HandoffTarget::OutOfScope,
-            RejectReason::MatchReturnArmNotLiteral => HandoffTarget::OutOfScope,
-            RejectReason::MatchReturnArmLiteralTypeUnsupported => HandoffTarget::OutOfScope,
-            RejectReason::MatchReturnLiteralProfileMismatch => HandoffTarget::OutOfScope,
-            _ => HandoffTarget::OutOfScope,
-        }
+    /// Match-return diagnostics have no specialized receiver.
+    pub fn for_match_return_facts(_reason: RejectReason) -> HandoffTarget {
+        HandoffTarget::OutOfScope
     }
+
 }
 
 /// Emit structured reject log (only when HAKO_JOINIR_DEBUG=1)

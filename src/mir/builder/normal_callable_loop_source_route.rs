@@ -144,9 +144,6 @@ impl CallableLoopRouteMatchV1 {
         if pred_scan_with_init(facts) {
             matched.push(LoopRouteId::ScanWithInit);
         }
-        if pred_split_scan(facts) {
-            matched.push(LoopRouteId::SplitScan);
-        }
         if pred_bool_predicate_scan(facts) {
             matched.push(LoopRouteId::BoolPredicateScan);
         }

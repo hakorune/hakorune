@@ -24,7 +24,6 @@ macro_rules! define_plan_rules {
 define_plan_rules! {
     // Phase 273 (tag/label compatibility; planner order excludes these)
     ScanWithInit;
-    SplitScan;
 
     // Phase 29bq P2
     LoopCondBreak;
@@ -81,11 +80,6 @@ pub(in crate::mir::builder) const fn planner_rule_labels(id: PlanRuleId) -> Plan
             tag_rule: "ScanWithInit",
             display_label: "ScanWithInit",
             route_label: "scan_with_init",
-        },
-        PlanRuleId::SplitScan => PlannerRuleLabels {
-            tag_rule: "SplitScan",
-            display_label: "SplitScan",
-            route_label: "split_scan",
         },
         PlanRuleId::LoopCondBreak => PlannerRuleLabels {
             tag_rule: "LoopCondBreak",

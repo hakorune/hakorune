@@ -2,6 +2,7 @@
 from collections import Counter, defaultdict
 from pathlib import Path
 import gzip
+import hashlib
 import json
 from coverage import read_lcov
 from inventory import group_for
@@ -11,6 +12,7 @@ from support import write
 def inputs(folder, catalog, total=None):
     counts, group_counts, lines = Counter(), Counter(), defaultdict(set)
     results, unknown_symbols = [], Counter()
+    fingerprints = []
     expected = json.loads((folder / 'identity.json').read_text()) if (folder / 'identity.json').exists() else None
     if expected is not None:
         declared = len(expected['rows'])
@@ -30,25 +32,31 @@ def inputs(folder, catalog, total=None):
         results.append(row)
         if not row['profile_available']:
             missing += 1
+            fingerprints.append(dict(path=row['path'], function_set_sha256=None, complete_trace=False))
             continue
         partial += not row['complete_trace']
         with gzip.open(path.parent / 'membership.json.gz', 'rt') as stream:
             membership = json.load(stream)
-        hit = set()
+        hit, unmapped = set(), set()
         for symbol in membership['functions']:
             identity = catalog['symbols'].get(symbol)
             if identity is None:
                 unknown_symbols[symbol] += 1
+                unmapped.add(symbol)
             else:
                 hit.add(identity)
         counts.update(hit)  # generic instances are one membership per input
+        function_set = json.dumps([sorted(hit), sorted(unmapped)], separators=(',', ':'))
+        fingerprints.append(dict(path=row['path'],
+                                 function_set_sha256=hashlib.sha256(function_set.encode()).hexdigest(),
+                                 complete_trace=row['complete_trace']))
         group_counts.update({catalog['rows'][key]['group'] for key in hit})
         for file, values in membership['lines'].items():
             lines[file].update(values)
     return dict(total=total, completed=len(results), missing_profiles=missing,
                 partial_profiles=partial, full=expected is not None and total is not None and len(results) == total and missing == 0 and partial == 0 and seen_ids == set(range(total)),
                 counts=counts, group_counts=group_counts, lines=lines, results=results,
-                unknown_symbols=dict(unknown_symbols))
+                unknown_symbols=dict(unknown_symbols), fingerprints=fingerprints)
 
 
 def summarize(work, prior, test_catalog=None, test_membership=None):
@@ -56,6 +64,14 @@ def summarize(work, prior, test_catalog=None, test_membership=None):
     inventory = json.loads((work / 'inventory.json').read_text())
     policy = json.loads((Path(__file__).parent / 'groups.json').read_text())['files']
     A, B = inputs(work / 'A', catalog), inputs(work / 'B', catalog)
+    fingerprints = {}
+    for label, data in [('A', A), ('B', B)]:
+        rows = data.pop('fingerprints')
+        groups = Counter(row['function_set_sha256'] for row in rows if row['complete_trace'])
+        fingerprints[label] = dict(
+            full=data['full'], distinct_function_sets=len(groups),
+            group_sizes=dict(sorted(groups.items())), inputs=rows)
+    write(work / 'input-function-sets.json', fingerprints)
     _, _, universe = read_lcov(prior / 'probe/coverage.lcov')
     test_rows = {}
     test_lines, test_hits, unmatched_test = defaultdict(set), set(), []

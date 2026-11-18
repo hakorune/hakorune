@@ -24,7 +24,8 @@ def render(work, reuse, write_docs=False):
     data = summarize(work, reuse, test_catalog if measured else None, test_membership if measured else None)
     out = ROOT / 'tools/mir_map/out'
     out.mkdir(exist_ok=True)
-    for name in ['runtime-summary.json', 'functions.json', 'refusal-summary.json', 'refusal-catalogue.json']:
+    for name in ['runtime-summary.json', 'functions.json', 'input-function-sets.json',
+                 'refusal-summary.json', 'refusal-catalogue.json']:
         if (work / name).exists():
             shutil.copy2(work / name, out / name)
     graph = json.loads((reuse / 'graph.json').read_text())

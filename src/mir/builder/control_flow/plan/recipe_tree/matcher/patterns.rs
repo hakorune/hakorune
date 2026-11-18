@@ -11,7 +11,6 @@ use crate::mir::builder::control_flow::plan::recipe_tree::loop_continue_only_bui
 use crate::mir::builder::control_flow::plan::recipe_tree::loop_simple_while_builder::build_loop_simple_while_recipe;
 use crate::mir::builder::control_flow::plan::recipe_tree::loop_true_early_exit_builder::build_loop_true_early_exit_recipe;
 use crate::mir::builder::control_flow::plan::recipe_tree::scan_with_init_builder::build_scan_with_init_recipe;
-use crate::mir::builder::control_flow::plan::recipe_tree::split_scan_builder::build_split_scan_recipe;
 use crate::mir::builder::control_flow::plan::recipe_tree::BuiltRecipeTree;
 
 /// Recipe-first verification for loop-break.
@@ -392,49 +391,6 @@ pub(super) fn verify_scan_with_init_recipe(
         ring0
             .log
             .debug("[recipe:verify] route=scan_with_init status=ok");
-    }
-    Ok(())
-}
-
-/// Recipe-first verification for split-scan.
-pub(super) fn verify_split_scan_recipe(
-    split_scan_facts: &crate::mir::builder::control_flow::plan::facts::loop_types::SplitScanFacts,
-) -> Result<(), Freeze> {
-    use super::super::verified::check_block_contract;
-    use crate::ast::{ASTNode, Span};
-    use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
-    use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
-
-    let dummy_span = Span::new(0, 0, 0, 0);
-    let loop_condition = build_split_scan_loop_condition(split_scan_facts);
-    let loop_stmt = ASTNode::Loop {
-        condition: Box::new(loop_condition.clone()),
-        body: vec![],
-        span: dummy_span,
-    };
-
-    let loop_cond_view = CondBlockView::from_expr(&loop_condition);
-    let recipe = build_split_scan_recipe(&loop_stmt, loop_cond_view, split_scan_facts);
-
-    let Some(BuiltRecipeTree { arena, root }) = recipe else {
-        return Err(Freeze::contract(
-            "SplitScan recipe missing (planner_required)",
-        ));
-    };
-
-    check_block_contract(
-        &arena,
-        &root,
-        BlockContractKind::NoExit,
-        "split_scan_recipe",
-    )
-    .map_err(|e| Freeze::contract("SplitScan recipe verification failed").with_hint(&e))?;
-
-    if joinir_dev::debug_enabled() {
-        let ring0 = crate::runtime::get_global_ring0();
-        ring0
-            .log
-            .debug("[recipe:verify] route=split_scan status=ok");
     }
     Ok(())
 }
