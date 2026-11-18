@@ -121,6 +121,17 @@
         "diagnostic_contains": "OwnerTerminalHomesUnavailable"
       },
       "sha256": "b4727cd51d3c19bd8a545128cf7914dce7679d19cbb50f07c9ee0cf39ffae253"
+    },
+    {
+      "path": "apps/tests/loop_short_circuit_blockexpr_if.hako",
+      "covers": [
+        "loop-short-circuit-clones-nested-if-definitions"
+      ],
+      "expected": {
+        "exit": 0,
+        "stdout": "Result: 0\n"
+      },
+      "sha256": "3d603de074b02a02ed5f7dcf7974d6fa329e1b0dfff869cc3420b85bc065af1d"
     }
   ]
 }
