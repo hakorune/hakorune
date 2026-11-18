@@ -46,7 +46,7 @@ def configured_env(template, binary, work):
     env.update(HAKO_ROOT=str(ROOT), NYASH_ROOT=str(ROOT), NYASH_BIN=str(binary),
                RUST_MIN_STACK='67108864', TMPDIR=str(work / 'tmp'))
     env.pop('HAKO_MIR_BUILDER', None)
-    (work / 'tmp').mkdir(exist_ok=True)
+    (work / 'tmp').mkdir(parents=True, exist_ok=True)
     return env
 
 
