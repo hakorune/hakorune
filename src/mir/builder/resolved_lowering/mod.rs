@@ -4,7 +4,6 @@
 //! owns exact source traversal and BindingRef-based value publication; legacy
 //! statement/expression dispatch is intentionally not reachable from it.
 
-mod branch_transaction;
 mod callable_module_transaction;
 pub(in crate::mir::builder) mod canonical_cfg;
 mod canonical_compare_writer;
@@ -18,14 +17,9 @@ pub(in crate::mir::builder) use draft_seal_owner::{
     DiscardedFunctionDraftSealErrorV1,
     SelectedDynamicCandidateMetadataV1,
 };
-mod flow_consumption;
 #[cfg(test)]
 mod generic_g0_physical_emitter_session;
 mod identity;
-pub(in crate::mir::builder) mod if_cfg_ready_bridge;
-mod if_materialization;
-mod located_if;
-mod lowerer;
 mod semantic_stack;
 mod static_loop_body;
 mod static_loop_body_exit;
@@ -53,14 +47,6 @@ mod completion_consumption_tests;
 mod completion_draft_seal_tests;
 #[cfg(test)]
 mod completion_test_support;
-#[cfg(test)]
-mod flow_consumption_tests;
-#[cfg(test)]
-mod identity_separation_tests;
-#[cfg(test)]
-mod if_materialization_tests;
-#[cfg(test)]
-mod if_tests;
 pub(in crate::mir::builder) mod loop_recipe_physicalizer;
 
 pub(in crate::mir::builder::resolved_lowering) use canonical_compare_writer::{
@@ -84,9 +70,8 @@ mod tests;
 mod void_tests;
 
 use crate::mir::compiler::capability::{
-    CanonicalCurrentAPlusPlanV1, CanonicalGenericG0PlanV1, CanonicalTrivialBindingSsaPlanV1,
+    CanonicalGenericG0PlanV1, CanonicalTrivialBindingSsaPlanV1,
 };
-use crate::mir::function::MirParamDecl;
 use crate::mir::{MirFunction, MirModule};
 
 use super::calls::{
@@ -95,7 +80,6 @@ use super::calls::{
 };
 use super::MirBuilder;
 use draft_seal_owner::{FunctionDraftSealStageV1, RejectedFunctionDraftSealV1};
-use lowerer::CanonicalFunctionLowererV1;
 use trivial_ssa::{install_trivial_callable_abi_v1, CanonicalTrivialSsaLowererV1};
 
 #[derive(Debug, PartialEq, Eq)]

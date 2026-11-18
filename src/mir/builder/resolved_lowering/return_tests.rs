@@ -28,14 +28,6 @@ fn boolean(value: bool) -> ASTNode {
     }
 }
 
-fn assignment(name: &str, value: ASTNode) -> ASTNode {
-    ASTNode::Assignment {
-        target: Box::new(variable(name)),
-        value: Box::new(value),
-        span: Span::unknown(),
-    }
-}
-
 fn return_(value: Option<ASTNode>) -> ASTNode {
     ASTNode::Return {
         value: value.map(Box::new),
@@ -79,13 +71,16 @@ fn function(
 
 fn compile(root: ASTNode) -> crate::mir::compiler::MirCompileResult {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
-    assert!(matches!(
-        CanonicalLoweringPreflightV1::verify(&unit).unwrap(),
-        CanonicalFirstFamilyPlanV1::TrivialBindingSsa(_)
-    ));
-    crate::mir::MirCompiler::with_options(false)
-        .compile_resolved(unit.lowering_input(), Some("exact_i64_return.hako"))
-        .unwrap()
+    let CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) =
+        CanonicalLoweringPreflightV1::verify(&unit).unwrap()
+    else {
+        panic!("fixture must select trivial Binding SSA");
+    };
+    let module = crate::mir::MirBuilder::new()
+        .build_resolved_trivial_function_module(plan)
+        .unwrap();
+    let verification_result = crate::mir::MirVerifier::new().verify_module(&module);
+    crate::mir::compiler::MirCompileResult { module, verification_result }
 }
 
 #[test]
@@ -120,66 +115,6 @@ fn exact_i64_return_installs_one_verified_callable_boundary() {
 }
 
 #[test]
-fn exact_i64_parameter_phi_and_return_share_binding_ssa() {
-    let result = compile(function(
-        "choose",
-        &[Some("i64"), Some("i64")],
-        Some("i64"),
-        vec![
-            ASTNode::If {
-                condition: Box::new(boolean(true)),
-                then_body: vec![assignment("p0", variable("p1"))],
-                else_body: Some(vec![assignment("p0", integer(7))]),
-                span: Span::unknown(),
-            },
-            return_(Some(variable("p0"))),
-        ],
-    ));
-    let function = &result.module.functions["choose/2"];
-    let phi_dst = function
-        .blocks
-        .values()
-        .flat_map(|block| &block.instructions)
-        .find_map(|instruction| match instruction {
-            MirInstruction::Phi { dst, .. } => Some(*dst),
-            _ => None,
-        })
-        .expect("Binding SSA must define the joined parameter value");
-    let return_value = function
-        .blocks
-        .values()
-        .find_map(|block| match block.terminator.as_ref() {
-            Some(MirInstruction::Return { value: Some(value) }) => Some(*value),
-            _ => None,
-        })
-        .expect("typed function must return one value");
-    assert_eq!(return_value, phi_dst, "blocks={:?}", function.blocks);
-    assert_eq!(function.metadata.parameter_entry_contracts.len(), 2);
-    assert!(function.metadata.return_exit_contract.is_some());
-    assert!(function
-        .blocks
-        .values()
-        .all(
-            |block| block.instructions.iter().all(|instruction| !matches!(
-                instruction,
-                MirInstruction::CopyOwned { .. }
-                    | MirInstruction::DestroyOwned { .. }
-                    | MirInstruction::ReleaseStrong { .. }
-            ))
-        ));
-    assert_eq!(
-        MirInterpreter::new()
-            .execute_function_with_args(
-                &result.module,
-                "choose/2",
-                &[VMValue::Integer(1), VMValue::Integer(9)],
-            )
-            .unwrap(),
-        VMValue::Integer(9)
-    );
-}
-
-#[test]
 fn unsupported_typed_returns_fail_before_builder_and_never_retry() {
     for root in [
         function(
@@ -200,14 +135,6 @@ fn unsupported_typed_returns_fail_before_builder_and_never_retry() {
         let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
         assert!(matches!(
             CanonicalLoweringPreflightV1::verify(&unit),
-            Err(CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape {
-                reason: "typed_return_profile_not_activated",
-                ..
-            })
-        ));
-        let mut compiler = crate::mir::MirCompiler::with_options(false);
-        assert!(matches!(
-            compiler.compile_resolved(unit.lowering_input(), None),
             Err(CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape {
                 reason: "typed_return_profile_not_activated",
                 ..

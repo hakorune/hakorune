@@ -6,7 +6,7 @@ use crate::mir::compiler::source_view::ExprChildRoleV1;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::resolved_semantics::ResolvedScopeRegionLookupErrorV1;
 
-use super::identity::ResolvedIdentityStateV1;
+use super::canonical_ssa::ResolvedSsaIdentityStateV2;
 use super::semantic_stack::ResolvedSemanticStackV1;
 use super::MirBuilder;
 
@@ -90,23 +90,12 @@ fn returning(name: &str, expression: ASTNode) -> ASTNode {
 
 fn build(root: ASTNode) -> crate::mir::MirModule {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
-    let plan = CanonicalLoweringPreflightV1::verify(&unit).unwrap();
-    let mut builder = MirBuilder::new();
-    match plan {
-        crate::mir::compiler::capability::CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => {
-            builder
-                .build_resolved_trivial_function_module(plan)
-                .unwrap()
-        }
-        crate::mir::compiler::capability::CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(
-            plan,
-        ) => builder.build_resolved_function_module(plan).unwrap(),
-        crate::mir::compiler::capability::CanonicalFirstFamilyPlanV1::Loop(
-            crate::mir::compiler::capability::CanonicalLoopFamilyPlanV1::GenericG0(_),
-        ) => {
-            panic!("block-expression fixture must not admit Generic G0")
-        }
-    }
+    let crate::mir::compiler::capability::CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) =
+        CanonicalLoweringPreflightV1::verify(&unit).unwrap()
+    else {
+        panic!("BlockExpr fixture must retain its trivial SSA plan");
+    };
+    MirBuilder::new().build_resolved_trivial_function_module(plan).unwrap()
 }
 
 #[cfg(feature = "vm-reference")]
@@ -225,7 +214,7 @@ fn error_close_balances_scope_and_reconsumption_is_rejected() {
     let mut semantics =
         ResolvedSemanticStackV1::new(input.function(), input.function().lowering_roots(), 1)
             .unwrap();
-    let mut identity = ResolvedIdentityStateV1::new(input.function());
+    let mut identity = ResolvedSsaIdentityStateV2::new(input.function());
     let session = semantics.enter_block_expr(input.function(), pair).unwrap();
     semantics
         .close_scope_region_error(session, &mut identity)

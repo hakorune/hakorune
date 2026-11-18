@@ -20,7 +20,6 @@
 //! - join.rs: JoinPayload generation
 
 pub(super) mod associated_source;
-pub(super) mod conditional_update;
 mod dispatch;
 pub(in crate::mir::builder) mod entry;
 pub(super) mod exit;

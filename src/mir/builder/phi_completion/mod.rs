@@ -15,10 +15,8 @@ use crate::mir::builder::phi_type_publication::{
 use crate::mir::{BasicBlockId, MirType, ValueId};
 
 mod connection;
-mod resolved_if_connection;
 
 pub(in crate::mir::builder) use connection::{commit_for_builder, prepare_for_builder};
-pub(in crate::mir::builder) use resolved_if_connection::prepare_for_resolved_if;
 
 fn render_preparation_error(error: PhiCompletionPreparationErrorV1) -> String {
     match error {

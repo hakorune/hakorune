@@ -12,9 +12,7 @@ use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCa
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
 use crate::mir::compiler::source_view::{BodyChildRoleV1, ExprChildRoleV1};
-use crate::mir::resolved_control_flow::if_control::{
-    ResolvedIfControlMaterializationV1, VerifiedResolvedFunctionIfControlV1,
-};
+use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1;
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::{BindingKindV1, ResolvedExitSiteV1, SourceBindingSiteV1};
 use crate::mir::resolved_value_profile::product::{
@@ -32,8 +30,6 @@ pub(in crate::mir::builder::resolved_lowering) struct CanonicalTrivialSsaLowerer
     session: CanonicalSsaFunctionSessionV2<'source>,
     profile: TrivialProfileConsumptionV1,
 }
-
-mod if_materialization;
 
 impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
     pub(in crate::mir::builder::resolved_lowering) fn new(
@@ -89,7 +85,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             .source()
             .root_body()
             .map_err(|error| error.to_string())?;
-        self.lower_body(&body, None)?;
+        self.lower_body(&body)?;
         let body_end = u32::try_from(body.statements().len()).map_err(|_| {
             "[freeze:contract][canonical_binding_ssa/body_length_overflow]".to_string()
         })?;
@@ -110,7 +106,6 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
     fn lower_body(
         &mut self,
         body: &LocatedBodyV1<'source>,
-        mut coverage: Option<&mut ResolvedIfControlMaterializationV1>,
     ) -> Result<(), String> {
         for index in 0..body.statements().len() {
             let statement = self
@@ -118,7 +113,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                 .source()
                 .body_stmt(body, index)
                 .map_err(|error| error.to_string())?;
-            self.lower_stmt(&statement, coverage.as_deref_mut())?;
+            self.lower_stmt(&statement)?;
         }
         Ok(())
     }
@@ -126,25 +121,17 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
     fn lower_stmt(
         &mut self,
         statement: &LocatedStmtV1<'source>,
-        mut coverage: Option<&mut ResolvedIfControlMaterializationV1>,
     ) -> Result<(), String> {
         self.builder
             .metadata_ctx
             .set_current_span(statement.node().span());
-        if matches!(statement.node(), ASTNode::If { .. }) {
-            return self.lower_if(statement);
-        }
-        if let Some(row) = coverage.as_deref_mut() {
-            row.claim_statement(statement)
-                .map_err(|error| format!("[freeze:contract][if_control/statement] {error:?}"))?;
-        }
         match statement.node() {
             ASTNode::Local {
                 variables,
                 initial_values,
                 ..
-            } => self.lower_local(statement, variables, initial_values, coverage),
-            ASTNode::Assignment { .. } => self.lower_assignment(statement, coverage),
+            } => self.lower_local(statement, variables, initial_values),
+            ASTNode::Assignment { .. } => self.lower_assignment(statement),
             ASTNode::Return { .. } => {
                 if self.session.completion.returns_value() {
                     let value = self
@@ -152,7 +139,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                         .source()
                         .child_expr_from_stmt(statement, ExprChildRoleV1::ReturnValue)
                         .map_err(|error| error.to_string())?;
-                    let (return_value, _) = self.lower_expr(&value, coverage.as_deref_mut())?;
+                    let (return_value, _) = self.lower_expr(&value)?;
                     self.profile
                         .claim_terminal_explicit_value(statement.site(), value.site())?;
                     let block = self.builder.function_state.current_block.ok_or_else(|| {
@@ -171,7 +158,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                             .source()
                             .child_expr_from_stmt(statement, ExprChildRoleV1::ReturnValue)
                             .map_err(|error| error.to_string())?;
-                        self.lower_expr(&value, coverage.as_deref_mut())?;
+                        self.lower_expr(&value)?;
                     }
                     self.profile
                         .claim_terminal_explicit_no_value(statement.site())?;
@@ -194,7 +181,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                 .statement_expression(statement)
                 .map_err(|error| error.to_string())
                 .and_then(|expression| {
-                    self.lower_expr(&expression, coverage.as_deref_mut())
+                    self.lower_expr(&expression)
                         .map(|_| ())
                 }),
             _ => Err("[freeze:contract][canonical_binding_ssa/statement_outside_profile]".into()),
@@ -206,7 +193,6 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         statement: &LocatedStmtV1<'source>,
         variables: &[String],
         initial_values: &[Option<Box<ASTNode>>],
-        mut coverage: Option<&mut ResolvedIfControlMaterializationV1>,
     ) -> Result<(), String> {
         let mut pending = Vec::with_capacity(variables.len());
         for (ordinal, initial) in initial_values.iter().enumerate() {
@@ -220,7 +206,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                 .source()
                 .child_expr_from_stmt(statement, ExprChildRoleV1::LocalInitializer(ordinal as u32))
                 .map_err(|error| error.to_string())?;
-            let (value, representation) = self.lower_expr(&expression, coverage.as_deref_mut())?;
+            let (value, representation) = self.lower_expr(&expression)?;
             pending.push((ordinal, value, representation));
         }
         let block = self.current_block()?;
@@ -248,7 +234,6 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
     fn lower_assignment(
         &mut self,
         statement: &LocatedStmtV1<'source>,
-        mut coverage: Option<&mut ResolvedIfControlMaterializationV1>,
     ) -> Result<(), String> {
         let ASTNode::Assignment { target, .. } = statement.node() else {
             unreachable!("assignment helper requires assignment")
@@ -261,10 +246,6 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             .source()
             .child_expr_from_stmt(statement, ExprChildRoleV1::AssignmentTarget)
             .map_err(|error| error.to_string())?;
-        if let Some(row) = coverage.as_deref_mut() {
-            row.claim_expression(&target)
-                .map_err(|error| format!("[freeze:contract][if_control/target] {error:?}"))?;
-        }
         let binding = self
             .session
             .identity
@@ -274,7 +255,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             .source()
             .child_expr_from_stmt(statement, ExprChildRoleV1::AssignmentValue)
             .map_err(|error| error.to_string())?;
-        let (value, actual) = self.lower_expr(&value, coverage)?;
+        let (value, actual) = self.lower_expr(&value)?;
         let block = self.current_block()?;
         self.session.identity.define_assignment(
             self.builder,
@@ -290,15 +271,10 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
     fn lower_expr(
         &mut self,
         expression: &LocatedExprV1<'source>,
-        mut coverage: Option<&mut ResolvedIfControlMaterializationV1>,
     ) -> Result<(ValueId, TrivialRepresentationV1), String> {
         self.builder
             .metadata_ctx
             .set_current_span(expression.node().span());
-        if let Some(row) = coverage.as_deref_mut() {
-            row.claim_expression(expression)
-                .map_err(|error| format!("[freeze:contract][if_control/expression] {error:?}"))?;
-        }
         let (value, derived) = match expression.node() {
             ASTNode::Literal { value, .. } => (self.lower_literal(value)?, None),
             ASTNode::Variable { name, .. } => {
@@ -322,14 +298,14 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                     .source()
                     .child_expr_from_expr(expression, ExprChildRoleV1::BinaryRight)
                     .map_err(|error| error.to_string())?;
-                let (lhs, _) = self.lower_expr(&left, coverage.as_deref_mut())?;
-                let (rhs, _) = self.lower_expr(&right, coverage.as_deref_mut())?;
+                let (lhs, _) = self.lower_expr(&left)?;
+                let (rhs, _) = self.lower_expr(&right)?;
                 let expected = self.profile.claim_value(expression.site())?;
                 let value = emit_binary(self.builder, operator, lhs, rhs, expected)?;
                 return Ok((value, expected));
             }
             ASTNode::BlockExpr { .. } => {
-                let result = self.lower_block_expr(expression, coverage.as_deref_mut())?;
+                let result = self.lower_block_expr(expression)?;
                 (result.0, Some(result.1))
             }
             ASTNode::FunctionCall { arguments, .. } => {
@@ -347,7 +323,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                         .child_expr_from_expr(expression, ExprChildRoleV1::CallArgument(index))
                         .map_err(|error| error.to_string())?;
                     let (value, representation) =
-                        self.lower_expr(&argument, coverage.as_deref_mut())?;
+                        self.lower_expr(&argument)?;
                     require_representation(
                         representation,
                         TrivialRepresentationV1::InlineI64,
@@ -380,7 +356,6 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
     fn lower_block_expr(
         &mut self,
         expression: &LocatedExprV1<'source>,
-        mut coverage: Option<&mut ResolvedIfControlMaterializationV1>,
     ) -> Result<(ValueId, TrivialRepresentationV1), String> {
         let pair = self
             .input
@@ -397,34 +372,16 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             .source()
             .child_expr_from_expr(expression, ExprChildRoleV1::BlockExprTail)
             .map_err(|error| error.to_string())?;
-        if let Some(row) = coverage.as_deref_mut() {
-            row.claim_body(&prelude)
-                .map_err(|error| format!("[freeze:contract][if_control/body] {error:?}"))?;
-        }
         let session = self
             .session
             .semantics
             .enter_block_expr(self.input.function(), pair)?;
-        self.lower_body(&prelude, coverage.as_deref_mut())?;
-        let result = self.lower_expr(&tail, coverage)?;
+        self.lower_body(&prelude)?;
+        let result = self.lower_expr(&tail)?;
         self.session
             .semantics
             .close_scope_region_success(session, &mut self.session.identity)?;
         Ok(result)
-    }
-
-    fn emit_jump(&mut self, source: BasicBlockId, target: BasicBlockId) -> Result<(), String> {
-        let cfg = &self.session.cfg()?;
-        let function = self
-            .builder
-            .function_state
-            .current_function
-            .as_mut()
-            .ok_or_else(|| {
-                "[freeze:contract][canonical_binding_ssa/function_missing]".to_string()
-            })?;
-        cfg.emit_jump(function, source, target)
-            .map_err(|error| error.to_string())
     }
 
     fn seal_current_if_needed(&mut self) -> Result<(), String> {

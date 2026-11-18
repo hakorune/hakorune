@@ -133,7 +133,6 @@ pub(in crate::mir) mod raw_runtime_inputs;
 pub(in crate::mir) mod recursive_callable_module_plan;
 pub(in crate::mir) mod resolved_callable_module;
 mod resolved_callable_module_input;
-mod resolved_generic_g0_cutover;
 pub(in crate::mir) mod selected_dynamic_w6_activation;
 pub(in crate::mir) mod source_bound_package;
 pub(in crate::mir) mod source_bound_package_generic_g0;

@@ -77,10 +77,14 @@ fn compiler_bridge_completion_retains_single_physical_receipt() {
             span: Span::unknown(),
         })
         .unwrap();
-    let plan = super::capability::CanonicalLoweringPreflightV1::verify(&source).unwrap();
+    let super::capability::CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) =
+        super::capability::CanonicalLoweringPreflightV1::verify(&source).unwrap()
+    else {
+        panic!("fixture must select trivial Binding SSA");
+    };
     let mut compiler = MirCompiler::new();
     let package = compiler
-        .bind_canonical_source(ExactCanonicalPreflightPlanV1::from_first_family(plan))
+        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaTrivial(plan))
         .unwrap();
     let complete = compiler
         .begin_canonical_invocation(package, Some("complete.hako"), "complete".into())
@@ -127,10 +131,14 @@ fn physical_drain_accepts_canonical_condition_fn_spelling() {
             span: Span::unknown(),
         })
         .unwrap();
-    let plan = super::capability::CanonicalLoweringPreflightV1::verify(&source).unwrap();
+    let super::capability::CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) =
+        super::capability::CanonicalLoweringPreflightV1::verify(&source).unwrap()
+    else {
+        panic!("fixture must select trivial Binding SSA");
+    };
     let mut compiler = MirCompiler::new();
     let package = compiler
-        .bind_canonical_source(ExactCanonicalPreflightPlanV1::from_first_family(plan))
+        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaTrivial(plan))
         .unwrap();
     let drained = compiler
         .begin_canonical_invocation(package, Some("condition_fn.hako"), "condition_fn".into())
@@ -177,10 +185,14 @@ fn physical_prepare_failure_leaves_live_builder_unchanged() {
             span: Span::unknown(),
         })
         .unwrap();
-    let plan = super::capability::CanonicalLoweringPreflightV1::verify(&source).unwrap();
+    let super::capability::CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) =
+        super::capability::CanonicalLoweringPreflightV1::verify(&source).unwrap()
+    else {
+        panic!("fixture must select trivial Binding SSA");
+    };
     let mut compiler = MirCompiler::new();
     let package = compiler
-        .bind_canonical_source(ExactCanonicalPreflightPlanV1::from_first_family(plan))
+        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaTrivial(plan))
         .unwrap();
     let mut complete = compiler
         .begin_canonical_invocation(

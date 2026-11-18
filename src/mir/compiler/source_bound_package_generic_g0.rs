@@ -14,13 +14,6 @@ pub(super) fn seal_continuation<'a>(
     plan: &ExactCanonicalPreflightPlanV1<'a>,
 ) -> Result<CanonicalSourceContinuationV1<'a>, SourceBindingErrorV1> {
     match plan {
-        ExactCanonicalPreflightPlanV1::APlus(plan) => single(
-            plan.seal_resolved_owner_header_v1()
-                .map_err(SourceBindingErrorV1::Header)?,
-            ResolvedOwnerHeaderFamilyV1::CurrentCanonicalAPlus,
-            ModuleInvocationFamilyV1::CanonicalAPlus,
-            None,
-        ),
         ExactCanonicalPreflightPlanV1::BindingSsaTrivial(plan) => single(
             plan.seal_resolved_owner_header_v1()
                 .map_err(SourceBindingErrorV1::Header)?,

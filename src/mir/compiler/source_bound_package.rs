@@ -529,11 +529,6 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
         builder: &mut MirBuilder,
     ) -> Result<LoweredCanonicalPlanV1<'a>, RejectedCanonicalLoweringV1<'a>> {
         match plan {
-            ExactCanonicalPreflightPlanV1::APlus(plan) => lower_single(
-                token,
-                continuation,
-                builder.lower_resolved_function_draft(plan),
-            ),
             ExactCanonicalPreflightPlanV1::BindingSsaTrivial(plan) => lower_single(
                 token,
                 continuation,

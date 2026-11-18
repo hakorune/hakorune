@@ -77,8 +77,12 @@ fn callable_function(name: &str, body: ASTNode) -> ASTNode {
 fn single_manifest_projects_retained_header_without_physical_evidence() {
     let unit =
         VerifiedResolvedSourceUnitV1::resolve_function(first_family_function("owner")).unwrap();
-    let preflight = super::capability::CanonicalLoweringPreflightV1::verify(&unit).unwrap();
-    let exact = ExactCanonicalPreflightPlanV1::from_first_family(preflight);
+    let super::capability::CanonicalFirstFamilyPlanV1::TrivialBindingSsa(preflight) =
+        super::capability::CanonicalLoweringPreflightV1::verify(&unit).unwrap()
+    else {
+        panic!("fixture must select trivial Binding SSA");
+    };
+    let exact = ExactCanonicalPreflightPlanV1::BindingSsaTrivial(preflight);
     let mut compiler = MirCompiler::new();
     let package = compiler.bind_canonical_source(exact).unwrap();
     let brand = package.brand();
@@ -152,8 +156,12 @@ fn callable_manifest_projects_catalog_in_canonical_key_order() {
 fn source_manifest_consumes_into_neutral_physical_rows() {
     let unit =
         VerifiedResolvedSourceUnitV1::resolve_function(first_family_function("owner")).unwrap();
-    let preflight = super::capability::CanonicalLoweringPreflightV1::verify(&unit).unwrap();
-    let exact = ExactCanonicalPreflightPlanV1::from_first_family(preflight);
+    let super::capability::CanonicalFirstFamilyPlanV1::TrivialBindingSsa(preflight) =
+        super::capability::CanonicalLoweringPreflightV1::verify(&unit).unwrap()
+    else {
+        panic!("fixture must select trivial Binding SSA");
+    };
+    let exact = ExactCanonicalPreflightPlanV1::BindingSsaTrivial(preflight);
     let mut compiler = MirCompiler::new();
     let package = compiler.bind_canonical_source(exact).unwrap();
     let physical = package.project_drain_manifest().unwrap().into_physical();

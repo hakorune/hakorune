@@ -285,7 +285,7 @@ pub(crate) use compiler::{
 pub use compiler::{
     CanonicalLoweringErrorV1, MirCompileResult, MirCompiler, NormalCompileRequestV1,
     NormalProgramCompileRequestErrorV1, RejectedNormalProgramCompileRequestV1,
-    ResolvedCallableModuleLoweringInputV1, ResolvedModuleLoweringInputV1,
+    ResolvedCallableModuleLoweringInputV1,
     VerifiedResolvedCallableProgramV1, VerifiedResolvedSourceUnitV1,
 };
 pub(crate) use compiler::{
