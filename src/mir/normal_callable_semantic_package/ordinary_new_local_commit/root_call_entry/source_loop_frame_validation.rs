@@ -46,7 +46,7 @@ impl EmittedSourceLoopProjectionV2 {
                     || rows.next().is_some()
                     || !child.matches_source(expected)
                     || !child.same_effect_packet_v2(&row.packet)
-                    || row.result.as_ref().map(|(key, _)| key) != result.as_ref()
+                    || row.result.is_some() != result.is_some()
                 {
                     return Err(freeze("source-loop/call-source"));
                 }
@@ -54,7 +54,7 @@ impl EmittedSourceLoopProjectionV2 {
                     observation,
                     row.entry,
                     row.end,
-                    row.result.as_ref().map(|(_, relation)| relation.values().0),
+                    row.result.as_ref().map(|relation| relation.values().0),
                     context,
                     function,
                     finishing.is_none(),

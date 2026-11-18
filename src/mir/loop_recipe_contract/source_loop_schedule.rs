@@ -54,16 +54,12 @@ pub(crate) struct SourceLoopBranchPhiV2 {
     pub(crate) source: Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>,
     pub(crate) item: LoopItemKeyV1,
     pub(crate) result: LoopValueKeyV1,
-    pub(crate) binding: Option<LoopBindingKeyV1>,
-    pub(crate) write_item: Option<LoopItemKeyV1>,
 }
 #[derive(Debug, Clone)]
 pub(crate) struct SourceLoopTextBranchPhiV2 {
     pub(crate) source: Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalTextSourceV1>,
     pub(crate) item: LoopItemKeyV1,
     pub(crate) result: LoopValueKeyV1,
-    pub(crate) binding: Option<LoopBindingKeyV1>,
-    pub(crate) write_item: Option<LoopItemKeyV1>,
 }
 #[derive(Debug, Clone)]
 pub(crate) enum SourceLoopScheduledStepV2 {
@@ -86,7 +82,7 @@ pub(crate) enum SourceLoopScheduledStepV2 {
     ChildLoop { site: SourceStmtSiteV1,
         product: Rc<super::source_loop_v2::VerifiedSourceLoopRecipeProductV2>,
         inputs: Vec<(BindingRefV1, Option<LoopItemKeyV1>, LoopValueKeyV1)>,
-        outputs: Vec<(BindingRefV1, LoopItemKeyV1, Option<LoopItemKeyV1>, LoopValueKeyV1)> },
+        outputs: Vec<(BindingRefV1, LoopItemKeyV1, LoopValueKeyV1)> },
 }
 
 #[derive(Default, Clone)]
@@ -401,24 +397,9 @@ impl ScheduleCheck<'_, '_> {
                                 self.text_read(frame, *binding, *result)?;
                             }
                         }
-                        if let LoopOperationV2::WriteBinding { binding, value } = operation {
-                            if !matches!(frame.prefix(), Prefix::BindingRebind { frame: rebind, .. }
-                                if self.bindings.get(&rebind.target()) == Some(binding) && *value == frame.result
-                                    && position + offset + 1 == frame.items.end) {
-                                return Err(reject("schedule-write-purpose"));
-                            }
-                            self.control.push((frame.prefix.statement().clone(), *item));
-                        }
                         if let Some(result) = super::join_sig::operation_result_v2(operation) { available.insert(result); }
                     }
                             if !embedded_calls.is_empty() { return Err(reject("schedule-frame-call-census")); }
-                    if matches!(frame.prefix(), Prefix::BindingRebind { frame: rebind, .. }
-                        if self.bindings.get(&rebind.target()).is_some_and(|binding|
-                            self.recipe.carriers.iter().any(|row| row.binding == *binding))) && (frame.items.is_empty() || !matches!(block.items.get(frame.items.end.wrapping_sub(1))
-                        .and_then(|item| self.recipe.items.get(item.raw() as usize)).map(|row| &row.item),
-                        Some(LoopRecipeItemV2::Operation { operation: LoopOperationV2::WriteBinding { .. } }))) {
-                        return Err(reject("schedule-rebind-write-missing"));
-                    }
                     for (&node, reference) in frame.references() {
                         let super::source_loop_v2::Reference::Scalar(read) = reference else { continue; };
                         let Some(original) = read.original_read() else { continue; };
@@ -471,28 +452,6 @@ impl ScheduleCheck<'_, '_> {
                             return Err(reject("schedule-operation-source"));
                         }
                         position += 1;
-                        match (join.binding, join.write_item) {
-                            (Some(binding), Some(write_item)) => {
-                                let is_carrier = self.recipe.carriers.iter().any(|row|
-                                    row.owner_loop == self.recipe.root_loop && row.binding == binding
-                                        && row.class == LoopValueClassV2::I64);
-                                if self.bindings.get(&join.source.binding()) != Some(&binding)
-                                    || !self.source.headers.contains_key(&join.source.binding())
-                                    || !join.source.corroborates_original() || !is_carrier
-                                    || block.items.get(position) != Some(&write_item)
-                                    || !self.items.insert(write_item)
-                                    || self.draft.operations.contains_key(&write_item)
-                                    || !matches!(self.recipe.items[write_item.raw() as usize].item,
-                                        LoopRecipeItemV2::Operation { operation: LoopOperationV2::WriteBinding {
-                                            binding: actual_binding, value
-                                        } } if actual_binding == binding && value == join.result) {
-                                    return Err(reject("schedule-operation-source"));
-                                }
-                                position += 1;
-                            }
-                            (None, None) => {}
-                            _ => return Err(reject("schedule-operation-source")),
-                        }
                     }
                     for join in text_joins {
                         let [(_, _, then_source), (_, _, else_source)] = join.source.incoming() else {
@@ -520,27 +479,6 @@ impl ScheduleCheck<'_, '_> {
                             return Err(reject("schedule-text-operation-source"));
                         }
                         position += 1;
-                        match (join.binding, join.write_item) {
-                            (Some(binding), Some(write_item)) => {
-                                let is_carrier = self.recipe.carriers.iter().any(|row|
-                                    row.owner_loop == self.recipe.root_loop && row.binding == binding
-                                        && row.class == LoopValueClassV2::Text);
-                                if self.bindings.get(&join.source.binding()) != Some(&binding)
-                                    || !self.source.headers.contains_key(&join.source.binding())
-                                    || !is_carrier || block.items.get(position) != Some(&write_item)
-                                    || !self.items.insert(write_item)
-                                    || self.draft.operations.contains_key(&write_item)
-                                    || !matches!(self.recipe.items[write_item.raw() as usize].item,
-                                        LoopRecipeItemV2::Operation { operation: LoopOperationV2::WriteBinding {
-                                            binding: actual_binding, value
-                                        } } if actual_binding == binding && value == join.result) {
-                                    return Err(reject("schedule-text-operation-source"));
-                                }
-                                position += 1;
-                            }
-                            (None, None) => {}
-                            _ => return Err(reject("schedule-text-operation-source")),
-                        }
                     }
                     match (yes, no) {
                         (None, None) => alive = false,

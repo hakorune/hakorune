@@ -60,8 +60,18 @@ pub(crate) struct SourceLoopScanSummaryV1 {
 pub(crate) struct CheckedSourceLoopBindingIncomingV1 {
     pub(crate) basis: Rc<LoopHeaderValueBasisV1>,
     pub(crate) after: SourceValueRefV1,
-    pub(crate) header_incoming: Box<[CheckedSourceLoopIncomingValueV1]>,
-    pub(crate) after_incoming: Box<[CheckedSourceLoopIncomingValueV1]>,
+    header_incoming: Box<[CheckedSourceLoopIncomingValueV1]>,
+    after_incoming: Box<[CheckedSourceLoopIncomingValueV1]>,
+}
+
+impl CheckedSourceLoopBindingIncomingV1 {
+    pub(crate) fn header_incoming(&self) -> &[CheckedSourceLoopIncomingValueV1] {
+        &self.header_incoming
+    }
+
+    pub(crate) fn after_incoming(&self) -> &[CheckedSourceLoopIncomingValueV1] {
+        &self.after_incoming
+    }
 }
 
 #[derive(Debug)]

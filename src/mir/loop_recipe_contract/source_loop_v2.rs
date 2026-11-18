@@ -1,7 +1,7 @@
 //! One source-tree projector for the selected recursive Loop walk. Logical
 //! assembly retains original execution/cleanup obligations; it grants no Home
 //! After or physical execution permission by itself.
-use std::{collections::{BTreeMap, BTreeSet}, rc::Rc};
+use std::{collections::BTreeMap, rc::Rc};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::builder::CallableLoopSourceBindingClassV1 as Role;
 use crate::mir::resolved_semantics::{BindingRefV1, ResolvedLiteralSourceV1 as Literal,
@@ -14,13 +14,11 @@ pub(super) use crate::mir::resolved_semantics::home_new_prefix::{SourceLoopScanS
     SourceLoopDynamicProducerV1 as DynamicProducer};
 pub(super) use crate::mir::resolved_value_profile::{expression_plan::{ExpressionSourcePlanV1 as Source, ExpressionNodeSourceV1 as Node},
     expression_projection::ExpressionLeafClassV1 as Leaf, expression_class::ExpressionValueClassV1 as Value};
-use super::{ids::*, schema_v2::*, typed_schema_v2::{LoopRecipeVerifierV2, VerifiedLoopRecipeV2},
-    join_sig::{VerifiedLoopJoinClosureV2, VerifiedLoopAfterBinding}};
+use super::{ids::*, schema_v2::*, typed_schema_v2::{LoopRecipeVerifierV2, VerifiedLoopRecipeV2}};
 
 use super::source_loop_schedule::{SourceLoopScheduleDraftV2, VerifiedSourceLoopScheduleV2, SourceLoopScheduledStepV2};
 use crate::mir::resolved_semantics::home_new_prefix::LifecyclePrefixSourceV1 as Prefix;
 
-type Closure = VerifiedLoopJoinClosureV2<Box<[VerifiedLoopAfterBinding<LoopValueClassV2>]>>;
 #[path = "source_loop_v2_projector.rs"]
 mod projector;
 use projector::Projector;
@@ -46,7 +44,6 @@ pub(crate) struct VerifiedSourceLoopRecipeProductV2 {
     pub(crate) execution: Box<[super::source_loop_execution::SourceLoopEvaluationLifecycleV2]>,
     pub(super) returns: super::source_loop_execution::SourceLoopReturnCarriersV2,
     pub(crate) recipe: VerifiedLoopRecipeV2,
-    pub(crate) closure: Closure,
     pub(crate) values: Box<[SourceLoopValueV2]>,
     pub(crate) control: Box<[SourceLoopItemV2]>,
     pub(crate) bindings: BTreeMap<BindingRefV1, LoopBindingKeyV1>,
@@ -307,7 +304,7 @@ pub(super) fn producer_value_v2(producer: &Producer, source: &Summary, recipe: &
                 && matches!(node.source(), Node::Literal(Literal::Integer(_))))) .map(|row| row.value),
         Producer::LoopAfter { product, binding } => schedule.child_loops_v2().find_map(|step| match step {
             SourceLoopScheduledStepV2::ChildLoop { product: child, outputs, .. } if Rc::ptr_eq(child, product) =>
-                outputs.iter().find(|row| row.0 == *binding).map(|row| row.3),
+                outputs.iter().find(|row| row.0 == *binding).map(|row| row.2),
             _ => None,
         }),
         Producer::SignedEntry(binding) => recipe.read_only_inputs.iter()
@@ -360,7 +357,7 @@ pub(super) fn demanded_branch_joins_v2(source: &Summary)
         }
     }
     for carrier in source.incoming.as_ref().map_err(|reason| reject(reason))? {
-        for incoming in carrier.header_incoming.iter().chain(carrier.after_incoming.iter()) {
+        for incoming in carrier.header_incoming().iter().chain(carrier.after_incoming().iter()) {
             if matches!(incoming.edge,
                 crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1::LoopEntry
                     | crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1::ConditionFalse) {
@@ -402,7 +399,7 @@ pub(super) fn demanded_text_branch_joins_v2(source: &Summary)
         }
     }
     for carrier in source.incoming.as_ref().map_err(|reason| reject(reason))? {
-        for incoming in carrier.header_incoming.iter().chain(carrier.after_incoming.iter()) {
+        for incoming in carrier.header_incoming().iter().chain(carrier.after_incoming().iter()) {
             if matches!(incoming.edge,
                 crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1::LoopEntry
                     | crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1::ConditionFalse) {
@@ -606,186 +603,10 @@ pub(crate) fn produce_source_loop_recipe_v2(input: ResolvedFunctionLoweringInput
     projector.recipe.loops.push(LoopNodeV2 { key: root, parent: None,
         condition: LoopConditionV2::Predicate { block: condition_block, value: predicate }, body: body_block });
     let recipe = LoopRecipeVerifierV2::verify(projector.recipe).map_err(|reason| format!("{} {reason:?}", reject("typed")))?;
-    let closure = super::join_sig::issue_root_carrier_join_closure_v2(&recipe)
-        .map_err(|reason| format!("{} {reason:?}", reject("join")))?;
-    validate_incoming(&source, &recipe, &closure, &projector.schedule,
-        &projector.values, &projector.control, &projector.bindings)?;
     let schedule = projector.schedule.finish(input, &source, &recipe, &execution,
         &projector.values, &projector.control, &projector.bindings)?;
     let values = projector.values.into_boxed_slice();
     let control = projector.control.into_boxed_slice();
     let bindings = projector.bindings;
-    Ok(VerifiedSourceLoopRecipeProductV2 { source, schedule, execution, returns, recipe, closure, values, control, bindings })
-}
-
-/// Match every original incoming edge to the SAME JoinSig transfer and result.
-/// A carrier entry key is JoinSig's logical Header token, never a permission to
-/// substitute the pre-loop runtime value for a physical Header Phi.
-fn validate_incoming(source: &Summary, recipe: &VerifiedLoopRecipeV2, closure: &Closure,
-    schedule: &SourceLoopScheduleDraftV2, values: &[SourceLoopValueV2], control: &[SourceLoopItemV2],
-    bindings: &BTreeMap<BindingRefV1, LoopBindingKeyV1>,
-) -> Result<(), String> {
-    let view = closure.logical_transfer_view().map_err(|reason| format!("{} {reason:?}", reject("transfer-view")))?;
-    let incoming = source.incoming.as_ref().map_err(|reason| reject(reason))?;
-    let expected: BTreeSet<_> = source.source.bindings().bindings()
-        .filter_map(|(binding, role)| (role == crate::mir::builder::CallableLoopSourceBindingClassV1::Carrier).then_some(binding)).collect();
-    let mut actual = BTreeSet::new();
-    let mut logical = BTreeSet::new();
-    if expected != source.headers.keys().copied().collect()
-        || incoming.len() != expected.len() || incoming.len() != recipe.as_recipe().carriers.len()
-        || view.afters().len() != incoming.len() {
-        return Err(reject("incoming-carrier-census"));
-    }
-    for row in incoming.iter() {
-        let binding = row.basis.binding();
-        if !actual.insert(binding) || source.headers.get(&binding).is_none_or(|basis| !Rc::ptr_eq(basis, &row.basis)) {
-            return Err(reject("incoming-carrier-basis"));
-        }
-        let key = bindings.get(&binding).ok_or_else(|| reject("incoming-binding"))?;
-        if !logical.insert(*key) { return Err(reject("incoming-logical-binding-duplicate")); }
-    }
-    if actual != expected || logical != recipe.as_recipe().carriers.iter().filter_map(|row|
-        (row.owner_loop == recipe.root_loop()).then_some(row.binding)).collect() {
-        return Err(reject("incoming-carrier-membership"));
-    }
-    for source_row in incoming.iter() {
-        let binding = bindings.get(&source_row.basis.binding()).ok_or_else(|| reject("incoming-binding"))?;
-        let carrier = recipe.as_recipe().carriers.iter().find(|row| row.binding == *binding)
-            .ok_or_else(|| reject("incoming-carrier"))?;
-        if !view.afters().iter().any(|row| row.binding() == *binding && row.class() == carrier.class) {
-            return Err(reject("incoming-after-identity"));
-        }
-        for original in source_row.header_incoming.iter().chain(source_row.after_incoming.iter()) {
-            let expected = if original.producer == *source_row.basis.entry_producer() {
-                carrier.entry_value
-            } else { match &original.producer {
-                SourceProducer::Scalar(Producer::LoopHeader(basis)) if Rc::ptr_eq(basis, &source_row.basis) => carrier.entry_value,
-                SourceProducer::Scalar(Producer::Initializer(frame)) => values.iter().find(|row| row.node == 0 && Rc::ptr_eq(&row.source, frame.source()))
-                    .map(|row| row.value).ok_or_else(|| reject("incoming-initializer-result"))?,
-                SourceProducer::Scalar(Producer::BindingRebind(frame)) => values.iter().find(|row| row.node == 0 && Rc::ptr_eq(&row.source, frame.source()))
-                    .map(|row| row.value).ok_or_else(|| reject("incoming-rebind-result"))?,
-                SourceProducer::Scalar(Producer::BranchNormal(join)) => schedule.joins_v2()
-                    .find(|row| row.source == *join && row.binding == Some(*binding))
-                    .map(|row| row.result).ok_or_else(|| reject("incoming-branch-join-result"))?,
-                // A child Loop's verified After result, through its schedule step.
-                SourceProducer::Scalar(producer @ Producer::LoopAfter { binding: after, .. })
-                    if *after == source_row.basis.binding() => producer_value_v2(producer, source,
-                        recipe.as_recipe(), values, bindings, schedule).ok_or_else(|| reject("incoming-child-loop-result"))?,
-                SourceProducer::Text(TextProducer::Header(basis)) if Rc::ptr_eq(basis, &source_row.basis) => carrier.entry_value,
-                SourceProducer::Text(TextProducer::Residence(acquisition)) => {
-                    let source = acquisition.source();
-                    values.iter().find(|row| row.node == 0 && Rc::ptr_eq(&row.source, source))
-                        .map(|row| row.value).ok_or_else(|| reject("incoming-rebind-result"))?
-                }
-                SourceProducer::Text(TextProducer::Static { definition, .. }) => {
-                    values.iter().find(|row| row.source.nodes().get(row.node).is_some_and(|node| node.site() == definition))
-                        .map(|row| row.value).ok_or_else(|| reject("incoming-rebind-result"))?
-                }
-                SourceProducer::Text(TextProducer::BranchNormal(join))
-                    if join.binding() == source_row.basis.binding()
-                        && bindings.get(&join.binding()) == Some(binding) =>
-                {
-                    schedule.text_joins_v2().find(|row| row.source == *join && row.binding == Some(*binding))
-                        .map(|row| row.result).ok_or_else(|| reject("incoming-text-branch-join-result"))?
-                }
-                SourceProducer::Dynamic(DynamicProducer::Header(basis))
-                    if Rc::ptr_eq(basis, &source_row.basis) => carrier.entry_value,
-                SourceProducer::Dynamic(DynamicProducer::BindingRebind(frame)) => {
-                    if frame.target() != source_row.basis.binding() || !frame.is_dynamic_loop_carrier_v1() {
-                        return Err(reject("incoming-dynamic-source"));
-                    }
-                    values.iter().find(|row| row.node == 0 && Rc::ptr_eq(&row.source, frame.source()))
-                        .filter(|row| recipe.as_recipe().values.get(row.value.raw() as usize)
-                            .is_some_and(|value| value.class == LoopValueClassV2::Dynamic))
-                        .map(|row| row.value).ok_or_else(|| reject("incoming-dynamic-result"))?
-                }
-                SourceProducer::Dynamic(DynamicProducer::Source(point)) => {
-                    if point.binding() != source_row.basis.binding()
-                        || point.value() != original.value
-                        || !point.proves_source_value_v1(point.binding(), original.value)
-                    {
-                        return Err(reject("incoming-dynamic-source"));
-                    }
-                    let site = point.expression_site_v1().ok_or_else(|| reject("incoming-dynamic-origin"))?;
-                    let mut rows = values.iter().filter(|row| {
-                        row.source.owner() == source_row.basis.binding().owner()
-                            && row.source.nodes().get(row.node).is_some_and(|node| node.site() == site)
-                            && recipe.as_recipe().values.get(row.value.raw() as usize)
-                                .is_some_and(|value| value.class == LoopValueClassV2::Dynamic)
-                    });
-                    let row = rows.next().ok_or_else(|| reject("incoming-dynamic-result"))?;
-                    if rows.next().is_some() { return Err(reject("incoming-dynamic-result")); }
-                    row.value
-                }
-                _ => return Err(reject("incoming-producer")),
-            }};
-            with_incoming_payload_v2(recipe, closure, control, &original.edge, |payload|
-                validate_payload_value_v2(payload, *binding, expected, carrier.class, incoming.len()))?;
-        }
-    }
-    Ok(())
-}
-
-/// Borrow one exact executable JoinSig transfer; summary edges never execute.
-fn with_incoming_payload_v2<R>(recipe: &VerifiedLoopRecipeV2, closure: &Closure,
-    control: &[SourceLoopItemV2], edge: &crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1,
-    read: impl FnOnce(&[super::join_sig::LoopJoinPayloadV2]) -> Result<R, String>,
-) -> Result<R, String> {
-    use crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1 as Edge;
-    use super::join_sig::{LoopJoinEdgeRoleV1 as Role, LoopJoinBranchArmTransferRefV2 as Arm};
-    let view = closure.logical_transfer_view().map_err(|reason| format!("{} {reason:?}", reject("transfer-view")))?;
-    let payload = |edge: &Edge| -> Result<&[super::join_sig::LoopJoinPayloadV2], String> {
-        let role = match edge {
-            Edge::LoopEntry => Role::Enter,
-            Edge::ConditionFalse => Role::PredicateFalse,
-            Edge::Backedge => Role::Backedge,
-            Edge::Break(_) => Role::Break,
-            Edge::Continue(_) => Role::Continue,
-            _ => return Err(reject("incoming-edge-kind")),
-        };
-        if let Edge::Break(site) | Edge::Continue(site) = edge {
-            let mut items = control.iter().filter(|row| &row.site == site);
-            let item = items.next().ok_or_else(|| reject("incoming-exit-source"))?;
-            if items.next().is_some() { return Err(reject("incoming-exit-duplicate")); }
-            let mut exits = view.branches().iter().flat_map(|branch| [branch.then_arm, branch.else_arm])
-                .filter_map(|arm| match arm {
-                    Arm::Exit(exit) if exit.exit_item == item.item && exit.role == role => Some(exit.payload),
-                    _ => None,
-                });
-            let payload = exits.next().ok_or_else(|| reject("incoming-exit-transfer"))?;
-            if exits.next().is_some() { return Err(reject("incoming-exit-transfer-duplicate")); }
-            Ok(payload)
-        } else {
-            let mut edges = view.boundaries().iter().filter(|row| row.loop_key == recipe.root_loop() && row.role == role);
-            let row = edges.next().ok_or_else(|| reject("incoming-boundary"))?;
-            if edges.next().is_some() { return Err(reject("incoming-boundary-duplicate")); }
-            Ok(row.payload)
-        }
-    };
-    read(payload(edge)?)
-}
-
-fn validate_payload_value_v2(payload: &[super::join_sig::LoopJoinPayloadV2],
-    binding: LoopBindingKeyV1, expected: LoopValueKeyV1, class: LoopValueClassV2, count: usize,
-) -> Result<(), String> {
-    if payload.len() != count { return Err(reject("incoming-payload-census")); }
-    let mut rows = payload.iter().filter(|row| row.binding == binding);
-    let row = rows.next().ok_or_else(|| reject("incoming-payload-binding"))?;
-    if rows.next().is_some() || row.value != expected || row.class != class {
-        return Err(reject("incoming-payload-value"));
-    }
-    Ok(())
-}
-
-impl VerifiedSourceLoopRecipeProductV2 {
-    pub(in crate::mir) fn validate_incoming_value_v2(&self,
-        edge: &crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1,
-        source_binding: BindingRefV1, value: LoopValueKeyV1,
-    ) -> Result<(), String> {
-        let binding = *self.bindings.get(&source_binding).ok_or_else(|| reject("incoming-binding"))?;
-        let carrier = self.recipe.as_recipe().carriers.iter().find(|row| row.binding == binding)
-            .ok_or_else(|| reject("incoming-carrier"))?;
-        with_incoming_payload_v2(&self.recipe, &self.closure, &self.control, edge, |payload|
-            validate_payload_value_v2(payload, binding, value, carrier.class, self.source.headers.len()))
-    }
+    Ok(VerifiedSourceLoopRecipeProductV2 { source, schedule, execution, returns, recipe, values, control, bindings })
 }

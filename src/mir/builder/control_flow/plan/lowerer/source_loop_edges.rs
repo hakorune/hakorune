@@ -72,9 +72,9 @@ impl EmittedSourceLoopGraphV2 {
             .map_err(|reason| reject(reason))?;
         let first = original.first().ok_or_else(|| reject("empty-carriers"))?;
         let census: Vec<_> = first
-            .header_incoming
+            .header_incoming()
             .iter()
-            .chain(first.after_incoming.iter())
+            .chain(first.after_incoming().iter())
             .map(|row| &row.edge)
             .collect();
         if self.edges.len() != census.len()
@@ -141,8 +141,8 @@ impl EmittedSourceLoopGraphV2 {
         for source in original.iter() {
             let binding = source.basis.binding();
             for (block, source_rows) in [
-                (self.header, source.header_incoming.as_ref()),
-                (self.after, source.after_incoming.as_ref()),
+                (self.header, source.header_incoming()),
+                (self.after, source.after_incoming()),
             ] {
                 let mut predecessors = std::collections::BTreeSet::new();
                 for expected in source_rows {
@@ -168,21 +168,10 @@ impl EmittedSourceLoopGraphV2 {
                     if value.localized.values().0 != value.observation.binding_value().1 {
                         return Err(reject("localized-origin"));
                     }
-                    match (&edge.source, &value.canonical) {
-                        (Edge::LoopEntry, None) => {
-                            if entries.insert(binding, value.observation.clone()).is_some() {
-                                return Err(reject("entry-duplicate"));
-                            }
-                        }
-                        (Edge::LoopEntry, Some(_)) | (_, None) => {
-                            return Err(reject("entry-header-phase"))
-                        }
-                        (_, Some(canonical)) => {
-                            canonical.verify(function)?;
-                            if canonical.values().1 != value.localized.values().1 {
-                                return Err(reject("canonical-localized"));
-                            }
-                        }
+                    if matches!(edge.source, Edge::LoopEntry)
+                        && entries.insert(binding, value.observation.clone()).is_some()
+                    {
+                        return Err(reject("entry-duplicate"));
                     }
                     if !predecessors.insert(edge.predecessor) {
                         return Err(reject("predecessor-census"));

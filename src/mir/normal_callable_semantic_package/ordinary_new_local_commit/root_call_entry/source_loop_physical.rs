@@ -64,7 +64,7 @@ impl SourceLoopPhysicalProofV2 {
             let binding = source.basis.binding();
             let header = self.points.text_phi_v2(binding, self.header())?;
             let slot = header.1.dst_value().ok_or_else(|| freeze("source-loop/phi-kind"))?;
-            for (target, rows) in [(self.header(), source.header_incoming.as_ref()), (self.after(), source.after_incoming.as_ref())] {
+            for (target, rows) in [(self.header(), source.header_incoming()), (self.after(), source.after_incoming())] {
                 let phi = self.points.text_phi_v2(binding, target)?;
                 for expected in rows {
                     let mut edges = self.graph.edges.iter().filter(|edge| edge.source == expected.edge && edge.target == target);
@@ -78,14 +78,13 @@ impl SourceLoopPhysicalProofV2 {
                         if inputs.iter().filter(|(pred, incoming)| *pred == edge.predecessor && *incoming == payload).count() == 1) {
                         return Err(freeze("source-loop/phi-kind"));
                     }
-                    let relations: Vec<_> = std::iter::once(&value.localized).chain(value.canonical.iter()).collect();
                     let mut originals = value.dependencies.clone();
-                    for relation in &relations { relation.append_observed_bindings_v1(&mut originals); }
+                    value.localized.append_observed_bindings_v1(&mut originals);
                     let mut completed = Vec::new();
-                    for mut original in originals {
-                        for relation in &relations {
-                            if let Some(resolved) = relation.resolve_observed_binding_v1(&original, true)? { original = resolved; }
-                        }
+                    for original in originals {
+                        let original = value.localized
+                            .resolve_observed_binding_v1(&original, true)?
+                            .unwrap_or(original);
                         if !completed.contains(&original) { completed.push(original); }
                     }
                     let normal_ends = edge.cleanup.as_ref().map_or(&[][..], |cleanup| cleanup.normal_origins.as_slice());

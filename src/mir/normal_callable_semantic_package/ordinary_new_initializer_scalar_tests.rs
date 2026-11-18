@@ -487,17 +487,28 @@ pub(super) fn original_loop_header_body_break_and_backedge_keep_one_basis_and_ex
             assert!(matches!(&prefixes[0], crate::mir::resolved_semantics::home_new_prefix::LifecyclePrefixSourceV1::Loop { product: original, .. }
                 if Rc::ptr_eq(original, product)));
             product.assert_schedule_for_test(input);
-            // The physical input bridge borrows the SAME executable JoinSig
-            // payload, and cannot substitute another logical key or edge role.
-            for carrier in &product.recipe.as_recipe().carriers {
-                let binding = *product.bindings.iter().find(|(_, key)| **key == carrier.binding).unwrap().0;
-                use crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1 as Edge;
-                for edge in [Edge::LoopEntry, Edge::ConditionFalse] {
-                    product.validate_incoming_value_v2(&edge, binding, carrier.entry_value).unwrap();
-                    assert!(product.validate_incoming_value_v2(&edge, binding,
-                        crate::mir::loop_recipe_contract::LoopValueKeyV1::new(u32::MAX)).is_err());
+            // The physical input bridge borrows both predecessor lists
+            // from the original Resolve flow. Entry and false carry different
+            // definitions even when they share the same carrier and type.
+            use crate::mir::resolved_semantics::source_value_flow::{
+                SourceValueEdgeV1 as Edge, SourceValueJoinKindV1 as Join,
+            };
+            let original_flow = input.function().expression_source().value_flow().unwrap();
+            for carrier in product.source.incoming.as_ref().unwrap().iter() {
+                let binding = carrier.basis.binding();
+                let (_, header) = original_flow.loop_join(&site, binding, Join::LoopHeader).unwrap();
+                let (_, after) = original_flow.loop_join(&site, binding, Join::LoopAfter).unwrap();
+                for (observed, expected) in [
+                    (carrier.header_incoming(), header),
+                    (carrier.after_incoming(), after),
+                ] {
+                    assert!(observed.iter().map(|row| (&row.edge, row.value))
+                        .eq(expected.iter().map(|(edge, value)| (edge, *value))));
                 }
-                assert!(product.validate_incoming_value_v2(&Edge::ThenNormal, binding, carrier.entry_value).is_err());
+                assert_ne!(
+                    header.iter().find(|row| row.0 == Edge::LoopEntry).unwrap().1,
+                    after.iter().find(|row| row.0 == Edge::ConditionFalse).unwrap().1,
+                );
             }
             // The production selectors borrow the same shared source inventory
             // as the schedule; scoped execution must never fall back to raw.
