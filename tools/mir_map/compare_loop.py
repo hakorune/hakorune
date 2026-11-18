@@ -132,7 +132,9 @@ def main():
     results = []
     for lrow, rrow in zip(old, new, strict=True):
         assert lrow["path"] == rrow["path"] and lrow["sha256"] == rrow["sha256"]
-        result = compare(lrow, rrow, old_work.resolve(), new_work.resolve())
+        left_logs = Path(lrow["dump"]["stdout"]).parents[2]
+        right_logs = Path(rrow["dump"]["stdout"]).parents[2]
+        result = compare(lrow, rrow, left_logs, right_logs)
         results.append({"path": lrow["path"], "groups": lrow["groups"]} | result)
     counts = dict(Counter(row["category"] for row in results))
     write(args.work / "comparison.json", dict(counts=counts, rows=results))

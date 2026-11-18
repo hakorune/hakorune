@@ -93,8 +93,8 @@ def collect(binary, rows, template, work, jobs, ast=False, watch=None):
         held = json.loads(manifest.read_text())
         if any(held[key] != identity[key] for key in ("artifacts", "settings")):
             raise ValueError(f"measurement identity changed: {work}")
-        if held["rows"] != rows:
-            complete = work / "results.json"
+        complete = work / "results.json"
+        if held["rows"] != rows or complete.exists() and not ast:
             if not complete.exists():
                 raise ValueError(f"subset reuse requires a completed baseline: {work}")
             recorded = {row["path"]: row for row in json.loads(complete.read_text())}
