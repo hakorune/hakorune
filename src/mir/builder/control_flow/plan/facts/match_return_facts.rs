@@ -1,4 +1,4 @@
-//! Phase 29at P3: MatchReturnFacts (Return-only match subset)
+//! Legacy match-return diagnostics for strict JoinIR.
 
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::builder::control_flow::plan::facts::reject_reason::{
@@ -6,37 +6,10 @@ use crate::mir::builder::control_flow::plan::facts::reject_reason::{
 };
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
-#[derive(Debug, Clone)]
-pub(in crate::mir::builder) enum MatchReturnScrutinee {
-    Var(String),
-    Int(i64),
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder) enum MatchReturnLiteralProfileV1 {
-    LegacyIntegerBool,
-    StringDispatch,
-    IntegerToString,
-}
-
-#[derive(Debug, Clone)]
-pub(in crate::mir::builder) struct MatchReturnArmFacts {
-    pub label: LiteralValue,
-    pub return_value: LiteralValue,
-}
-
-#[derive(Debug, Clone)]
-pub(in crate::mir::builder) struct MatchReturnFacts {
-    pub scrutinee: MatchReturnScrutinee,
-    pub arms: Vec<MatchReturnArmFacts>,
-    pub else_value: LiteralValue,
-    pub literal_profile: MatchReturnLiteralProfileV1,
-}
-
-pub(in crate::mir::builder) fn try_extract_match_return_facts(
+pub(in crate::mir::builder) fn check_match_return_source(
     expr: &ASTNode,
     strict: bool,
-) -> Result<Option<MatchReturnFacts>, Freeze> {
+) -> Result<(), Freeze> {
     let ASTNode::MatchExpr {
         scrutinee,
         arms,
@@ -44,27 +17,22 @@ pub(in crate::mir::builder) fn try_extract_match_return_facts(
         ..
     } = expr
     else {
-        return Ok(None);
+        return Ok(());
     };
 
-    let _scrutinee = match scrutinee.as_ref() {
-        ASTNode::Variable { name, .. } => MatchReturnScrutinee::Var(name.clone()),
-        ASTNode::Literal {
-            value: LiteralValue::Integer(n),
-            ..
-        } => MatchReturnScrutinee::Int(*n),
-        _ => {
-            log_reject(
-                "match_return_facts",
-                RejectReason::MatchReturnScrutineeNotSupported,
-                handoff_tables::for_match_return_facts,
-            );
-            return reject_or_none(
-                strict,
-                RejectReason::MatchReturnScrutineeNotSupported.as_freeze_message(),
-            );
-        }
-    };
+    if !matches!(scrutinee.as_ref(), ASTNode::Variable { .. } | ASTNode::Literal {
+        value: LiteralValue::Integer(_), ..
+    }) {
+        log_reject(
+            "match_return_facts",
+            RejectReason::MatchReturnScrutineeNotSupported,
+            handoff_tables::for_match_return_facts,
+        );
+        return reject_if_strict(
+            strict,
+            RejectReason::MatchReturnScrutineeNotSupported.as_freeze_message(),
+        );
+    }
 
     if arms.len() < 2 {
         log_reject(
@@ -72,67 +40,44 @@ pub(in crate::mir::builder) fn try_extract_match_return_facts(
             RejectReason::MatchReturnTooFewArms,
             handoff_tables::for_match_return_facts,
         );
-        return reject_or_none(
+        return reject_if_strict(
             strict,
             RejectReason::MatchReturnTooFewArms.as_freeze_message(),
         );
     }
 
-    let _else_value = match literal_from_expr(else_expr.as_ref()) {
-        Some(value) => value,
-        None => {
-            log_reject(
-                "match_return_facts",
-                RejectReason::MatchReturnElseNotLiteral,
-                handoff_tables::for_match_return_facts,
-            );
-            return reject_or_none(
-                strict,
-                RejectReason::MatchReturnElseNotLiteral.as_freeze_message(),
-            );
-        }
-    };
-
-    let mut arm_facts = Vec::with_capacity(arms.len());
-    for (label, arm_expr) in arms {
-        let Some(return_value) = literal_from_expr(arm_expr) else {
-            log_reject(
-                "match_return_facts",
-                RejectReason::MatchReturnArmNotLiteral,
-                handoff_tables::for_match_return_facts,
-            );
-            return reject_or_none(
-                strict,
-                RejectReason::MatchReturnArmNotLiteral.as_freeze_message(),
-            );
-        };
-        arm_facts.push(MatchReturnArmFacts {
-            label: label.clone(),
-            return_value,
-        });
+    if !matches!(else_expr.as_ref(), ASTNode::Literal { .. }) {
+        log_reject(
+            "match_return_facts",
+            RejectReason::MatchReturnElseNotLiteral,
+            handoff_tables::for_match_return_facts,
+        );
+        return reject_if_strict(strict, RejectReason::MatchReturnElseNotLiteral.as_freeze_message());
     }
 
-    Ok(None)
-}
-
-fn literal_from_expr(expr: &ASTNode) -> Option<LiteralValue> {
-    if let ASTNode::Literal { value, .. } = expr {
-        return Some(value.clone());
+    if arms.iter().any(|(_, expr)| !matches!(expr, ASTNode::Literal { .. })) {
+        log_reject(
+            "match_return_facts",
+            RejectReason::MatchReturnArmNotLiteral,
+            handoff_tables::for_match_return_facts,
+        );
+        return reject_if_strict(strict, RejectReason::MatchReturnArmNotLiteral.as_freeze_message());
     }
-    None
+
+    Ok(())
 }
 
-fn reject_or_none(strict: bool, message: &str) -> Result<Option<MatchReturnFacts>, Freeze> {
+fn reject_if_strict(strict: bool, message: &str) -> Result<(), Freeze> {
     if strict {
         Err(Freeze::unsupported(message))
     } else {
-        Ok(None)
+        Ok(())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::try_extract_match_return_facts;
+    use super::check_match_return_source;
     use crate::ast::{ASTNode, LiteralValue, Span};
 
     fn lit_int(n: i64) -> ASTNode {
@@ -141,12 +86,6 @@ mod tests {
             span: Span::unknown(),
         }
     }
-
-
-
-
-
-
 
     #[test]
     fn match_return_facts_strict_rejects_non_literal_arm() {
@@ -161,13 +100,13 @@ mod tests {
                     name: "y".to_string(),
                     span: Span::unknown(),
                 },
-            )],
+            ), (LiteralValue::Integer(2), lit_int(2))],
             else_expr: Box::new(lit_int(0)),
             span: Span::unknown(),
         };
 
-        let err = try_extract_match_return_facts(&match_expr, true).unwrap_err();
-        assert!(err.to_string().contains("match return"));
+        let err = check_match_return_source(&match_expr, true).unwrap_err();
+        assert!(err.to_string().contains("match return arm must be literal"));
     }
 
     #[test]
@@ -188,7 +127,6 @@ mod tests {
             span: Span::unknown(),
         };
 
-        let facts = try_extract_match_return_facts(&match_expr, false).expect("Ok");
-        assert!(facts.is_none());
+        check_match_return_source(&match_expr, false).expect("Ok");
     }
 }

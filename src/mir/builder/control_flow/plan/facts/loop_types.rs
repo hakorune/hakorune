@@ -1,6 +1,6 @@
 //! Core types for LoopFacts
 //!
-//! Contains the main structs: LoopFacts, ScanWithInitFacts, SplitScanFacts
+//! Contains the main structs: LoopFacts and ScanWithInitFacts
 
 use super::accum_const_loop_facts::AccumConstLoopFacts;
 use super::bool_predicate_scan_facts::BoolPredicateScanFacts;
@@ -10,7 +10,6 @@ use super::loop_char_map_facts::LoopCharMapFacts;
 use super::loop_scan_with_init::ScanWithInitSourceTopologyV1;
 use super::loop_simple_while_facts::LoopSimpleWhileFacts;
 use super::loop_source_receipt::LoopSourceReceiptV1;
-use super::loop_split_scan::SplitScanSourceTopologyV1;
 use super::loop_true_early_exit_facts::LoopTrueEarlyExitFacts;
 use super::nested_loop_minimal_facts::NestedLoopMinimalFacts;
 use super::scan_shapes::StepShape;
@@ -35,7 +34,6 @@ pub(in crate::mir::builder) struct LoopFacts {
     pub skeleton: SkeletonFacts,
     pub features: LoopFeatureFacts,
     pub scan_with_init: Option<ScanWithInitFacts>,
-    pub split_scan: Option<SplitScanFacts>,
     pub loop_simple_while: Option<LoopSimpleWhileFacts>,
     pub loop_char_map: Option<LoopCharMapFacts>,
     pub loop_array_join: Option<LoopArrayJoinFacts>,
@@ -67,10 +65,6 @@ impl LoopFacts {
 
     pub fn scan_with_init(&self) -> Option<&ScanWithInitFacts> {
         self.scan_with_init.as_ref()
-    }
-
-    pub fn split_scan(&self) -> Option<&SplitScanFacts> {
-        self.split_scan.as_ref()
     }
 
     pub fn loop_simple_while(&self) -> Option<&LoopSimpleWhileFacts> {
@@ -149,16 +143,4 @@ pub(in crate::mir::builder) struct ScanWithInitFacts {
     /// Opaque source coordinates for only the statements observed by the
     /// scan extractor. This is deliberately not a complete-body claim.
     pub source_topology: Option<ScanWithInitSourceTopologyV1>,
-}
-
-#[derive(Debug, Clone)]
-pub(in crate::mir::builder) struct SplitScanFacts {
-    pub s_var: String,
-    pub sep_var: String,
-    pub result_var: String,
-    pub i_var: String,
-    pub start_var: String,
-    /// Opaque source coordinate for only the first accepted top-level split-if.
-    /// This deliberately does not claim complete body coverage or branch sites.
-    pub source_topology: Option<SplitScanSourceTopologyV1>,
 }

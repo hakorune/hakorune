@@ -16,13 +16,6 @@ enum EventV1 {
     ValueLower,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum MatchResultV1 {
-    Decline,
-    Select,
-    Fail,
-}
-
 struct ReturnInputV1 {
     value: ASTNode,
 }
@@ -32,7 +25,7 @@ struct RecordingReturnPortV1 {
     fail_syntax: bool,
     fail_input: bool,
     fail_lower: bool,
-    match_result: MatchResultV1,
+    fail_match: bool,
 }
 
 impl RecordingReturnPortV1 {
@@ -42,7 +35,7 @@ impl RecordingReturnPortV1 {
             fail_syntax: false,
             fail_input: false,
             fail_lower: false,
-            match_result: MatchResultV1::Decline,
+            fail_match: false,
         }
     }
 
@@ -100,19 +93,17 @@ impl ReturnStatementDescentPortV1 for RecordingReturnPortV1 {
         Ok(ReturnStatementSyntaxViewV1::new(&input.value))
     }
 
-    fn try_match_return_optimization(
+    fn check_match_return(
         &mut self,
-        builder: &mut MirBuilder,
+        _builder: &mut MirBuilder,
         _input: &Self::ReturnInput,
         _value: &ASTNode,
-    ) -> Result<Option<ValueId>, String> {
+    ) -> Result<(), String> {
         self.events.borrow_mut().push(EventV1::MatchProbe);
-        match self.match_result {
-            MatchResultV1::Decline => Ok(None),
-            MatchResultV1::Select => {
-                crate::mir::builder::emission::constant::emit_integer(builder, 99).map(Some)
-            }
-            MatchResultV1::Fail => Err("match-probe".to_string()),
+        if self.fail_match {
+            Err("match-probe".to_string())
+        } else {
+            Ok(())
         }
     }
 }
@@ -235,43 +226,13 @@ fn ordinary_value_probes_then_descends_once_and_completes_once() {
 }
 
 #[test]
-fn selected_match_bypasses_value_demand_and_ordinary_completion() {
-    let mut builder = builder("ret0_match_selected/0");
-    let input = ReturnInputV1 { value: integer(1) };
-    let mut port = RecordingReturnPortV1::accepting();
-    port.match_result = MatchResultV1::Select;
-
-    let selected = drive_value_return_statement_v1(
-        &mut builder,
-        &mut port,
-        input,
-        lower_recorded_value_after_probe_v1,
-    )
-    .unwrap();
-
-    assert_eq!(port.events(), vec![EventV1::Syntax, EventV1::MatchProbe]);
-    assert_eq!(return_count(&builder), 0);
-    assert!(matches!(
-        instructions(&builder).as_slice(),
-        [MirInstruction::Const {
-            dst,
-            value: ConstValue::Integer(99),
-        }] if *dst == selected
-    ));
-}
-
-#[test]
 fn syntax_match_input_and_child_failures_emit_no_return_completion() {
     for stage in ["syntax", "match", "input", "child"] {
         let mut builder = builder(&format!("ret0_failure_{stage}/0"));
         let input = ReturnInputV1 { value: integer(1) };
         let mut port = RecordingReturnPortV1::accepting();
         port.fail_syntax = stage == "syntax";
-        port.match_result = if stage == "match" {
-            MatchResultV1::Fail
-        } else {
-            MatchResultV1::Decline
-        };
+        port.fail_match = stage == "match";
         port.fail_input = stage == "input";
         port.fail_lower = stage == "child";
 

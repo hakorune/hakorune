@@ -132,8 +132,6 @@ impl RecipeMatcher {
         // Phase C14: scan_with_init verification (planner_required only)
         verify_route!(facts.facts.scan_with_init(), verify_scan_with_init_recipe);
 
-        // Phase C14: split_scan verification (planner_required only)
-        verify_route!(facts.facts.split_scan(), verify_split_scan_recipe);
 
         // Phase C14: bool_predicate_scan verification (planner_required only)
         if let Some(bool_predicate_scan) = facts.facts.bool_predicate_scan() {

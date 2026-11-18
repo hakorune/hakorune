@@ -8,7 +8,7 @@ use crate::mir::value_kind::MirValueKind;
 use crate::mir::{BasicBlockId, BindingId, MirBuilder, MirInstruction, MirType, ValueId};
 
 use super::return_stmt::{
-    build_void_return_statement, emit_return_from_value, try_apply_match_return_optimization,
+    build_void_return_statement, emit_return_from_value, check_match_return_before_value,
 };
 use super::{
     drive_value_return_statement_v1, lower_raw_value_return_after_probe_v1,
@@ -173,13 +173,8 @@ fn lower_pre_i0_return_reference(
         {
             return Err("return is not allowed inside cleanup block (enable NYASH_CLEANUP_ALLOW_RETURN=1 to permit)".to_string());
         }
-        if let Some(return_value) =
-            try_apply_match_return_optimization(builder, value.as_deref(), true)?
-        {
-            return Ok(return_value);
-        }
-
         let return_value = if let Some(expr) = value {
+            check_match_return_before_value(builder, &expr)?;
             drive_raw_legacy_expression_v1(builder, *expr)?
         } else {
             crate::mir::builder::emission::constant::emit_void(builder)?

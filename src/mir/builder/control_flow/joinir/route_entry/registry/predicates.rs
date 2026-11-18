@@ -21,7 +21,6 @@ pub(crate) fn pred_loop_simple_while(facts: &CanonicalLoopFacts) -> bool {
 pred_accessor!(pred_loop_char_map, loop_char_map);
 pred_accessor!(pred_loop_array_join, loop_array_join);
 pred_accessor!(pred_scan_with_init, scan_with_init);
-pred_accessor!(pred_split_scan, split_scan);
 pred_accessor!(pred_bool_predicate_scan, bool_predicate_scan);
 pred_accessor!(pred_accum_const_loop, accum_const_loop);
 
@@ -33,7 +32,7 @@ struct ScanFamilyPresence {
 
 impl ScanFamilyPresence {
     fn from_facts(facts: &CanonicalLoopFacts) -> Self {
-        let init = facts.facts.scan_with_init().is_some() || facts.facts.split_scan().is_some();
+        let init = facts.facts.scan_with_init().is_some();
         let predicate = pred_bool_predicate_scan(facts) || pred_accum_const_loop(facts);
         Self { init, predicate }
     }

@@ -48,14 +48,10 @@ mod tests {
     }
 
     #[test]
-    fn planner_first_tag_keeps_scan_split_compat_labels() {
+    fn planner_first_tag_keeps_scan_with_init_label() {
         assert_eq!(
             planner_first_tag(PlanRuleId::ScanWithInit),
             "[joinir/planner_first rule=ScanWithInit]"
-        );
-        assert_eq!(
-            planner_first_tag(PlanRuleId::SplitScan),
-            "[joinir/planner_first rule=SplitScan]"
         );
     }
 }

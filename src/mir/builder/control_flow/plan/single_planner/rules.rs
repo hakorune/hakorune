@@ -165,7 +165,6 @@ fn try_build_outcome_with_policy_parts(
         }
     } else if let Some(ref facts) = outcome.facts {
         if facts.facts.scan_with_init().is_some()
-            || facts.facts.split_scan().is_some()
             || facts.facts.loop_array_join().is_some()
             || facts.facts.loop_true_early_exit().is_some()
         {

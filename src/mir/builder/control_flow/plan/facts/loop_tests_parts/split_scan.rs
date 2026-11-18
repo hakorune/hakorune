@@ -77,5 +77,4 @@ fn loopfacts_ok_some_for_loop_cond_break_continue_when_split_scan_missing_else()
     let facts = facts.expect("Some");
     assert!(facts.loop_cond_break_continue.is_some());
     assert!(facts.scan_with_init.is_none());
-    assert!(facts.split_scan.is_none());
 }
