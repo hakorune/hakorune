@@ -1,0 +1,14 @@
+box Holder {
+value: i64
+birth() { me.value = 1 }
+name() {
+local s = "あ" + "い"
+return s
+}
+}
+static box Main {
+main() {
+local h = new Holder()
+return (h.name() + "う").length()
+}
+}

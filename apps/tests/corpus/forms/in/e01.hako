@@ -1,0 +1,6 @@
+box P { v: i64
+  birth(v: i64) { me.v = v }
+}
+static box Main { bump(edit q: P) { q.v = q.v + 1
+  return 0 }
+ main() { return 0 } }

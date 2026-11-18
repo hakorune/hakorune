@@ -1,0 +1,12 @@
+static box Main {
+  f(x: String): Bool {
+    return true
+  }
+  main() {
+    local a = Main.f("s")
+    if a {
+      return 1
+    }
+    return 0
+  }
+}

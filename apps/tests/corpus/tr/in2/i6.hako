@@ -1,0 +1,4 @@
+box Tag { v: i64
+  birth(v: i64) { me.v = v }
+}
+static box Main { main() { local t = new Tag(5)  local n = t.v  return n } }

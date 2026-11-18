@@ -1,0 +1,3 @@
+box Tag { name
+  birth(name) { me.name = name } }
+static box Main { main() { local t = new Tag("abc") print(t.name) return 7 } }

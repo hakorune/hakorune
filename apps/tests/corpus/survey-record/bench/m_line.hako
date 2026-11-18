@@ -1,0 +1,62 @@
+box Pt {
+    left: Pt
+    right: Pt
+    x: i64
+
+    birth(left, right, x) {
+        me.left = left
+        me.right = right
+        me.x = x
+    }
+
+    itemCheck() {
+        if me.left == null {
+            return me.x
+        }
+        return me.x + me.left.itemCheck() - me.right.itemCheck()
+    }
+}
+
+box Maker {
+    make(depth, value) {
+        local left = new Pt(null, null, value)
+        local right = new Pt(null, null, depth)
+        return new Pt(left, right, value)
+    }
+}
+
+box Bench {
+    builder: Maker
+    n: i64
+
+    birth() {
+        me.builder = new Maker()
+        me.n = 10000000
+    }
+
+    run(): i64 {
+        local builder = me.builder
+        local n = me.n
+        local check = me.iterationCheck(builder, 0, n)
+        print("check=" + check)
+        return 0
+    }
+
+    iterationCheck(builder, depth, iterations) {
+        local i = 1
+        local sum = 0
+        loop(i <= iterations) {
+            local positive = builder.make(depth, i)
+            sum = sum + positive.itemCheck()
+            i = i + 1
+        }
+        return sum
+    }
+}
+
+static box Main {
+    main(args) {
+        local bench = new Bench()
+        return bench.run()
+    }
+}

@@ -1,0 +1,9 @@
+static box Main {
+    helper() {
+        return 3
+    }
+    main() {
+        local x = me.helper()
+        return x
+    }
+}

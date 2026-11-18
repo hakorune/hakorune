@@ -1,0 +1,14 @@
+box Calc {
+  base: i64
+  birth(base) { me.base = base }
+  add(x: i64): i64 {
+    if x > 0 { return x } return 0
+  }
+}
+static box Main {
+  main() {
+    local c = new Calc(5)
+    local r = c.add(3)
+    return r
+  }
+}

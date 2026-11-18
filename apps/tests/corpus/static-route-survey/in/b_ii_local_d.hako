@@ -1,0 +1,9 @@
+static box Main {
+  f(v: i64): i64 {
+    return v + 1
+  }
+  main() {
+    local a = f(5)
+    return 0
+  }
+}

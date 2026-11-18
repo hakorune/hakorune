@@ -1,0 +1,15 @@
+static box MapBox {
+    ping() {
+        return 3
+    }
+}
+static box Main {
+    make() {
+        local m = new MapBox()
+        m.set("k", 2)
+        return m.get("k")
+    }
+    main() {
+        return me.make()
+    }
+}

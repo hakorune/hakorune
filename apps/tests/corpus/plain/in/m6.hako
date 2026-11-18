@@ -1,0 +1,1 @@
+box H { birth() { } } static box Main { main() { local h = new H() if h != null { print(1) } return 0 } }

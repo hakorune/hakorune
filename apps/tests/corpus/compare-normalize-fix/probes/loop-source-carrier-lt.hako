@@ -1,0 +1,11 @@
+box Probe {
+ birth() {}
+ run(pos) {
+  local i = pos
+  loop(i < 3) { i = i + 1 }
+  return 7
+ }
+}
+static box Main {
+ main() { local p = new Probe(); return p.run(0) }
+}

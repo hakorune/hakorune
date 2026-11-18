@@ -1,0 +1,10 @@
+static box Layout {
+  class_id(p) { return 1 }
+}
+static box Main {
+  main() {
+    local k = Layout.class_id(7)
+    print(k)
+    return 0
+  }
+}

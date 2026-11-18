@@ -1,0 +1,14 @@
+box Bag { items: ArrayBox
+  birth() { me.items = new ArrayBox() }
+  add(x: i64) { me.items.push(x)
+    return 0 }
+  count(): i64 { return me.items.length() }
+}
+static box Main {
+  main() {
+    local b = new Bag()
+    b.add(1)
+    b.add(2)
+    return b.count()
+  }
+}

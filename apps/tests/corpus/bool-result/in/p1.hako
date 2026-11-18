@@ -1,0 +1,1 @@
+static box Main { main() { local b = 4 > 1  if b { print(1) } else { print(0) }  return 0 } }

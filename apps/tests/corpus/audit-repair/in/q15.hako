@@ -1,0 +1,1 @@
+box P { birth() { } } static box Main { main() { local p = new P() local r = Main.a(p) print(r) return 0 } a(q: P): i64 { return 1 } }

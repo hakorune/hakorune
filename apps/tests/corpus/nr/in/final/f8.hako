@@ -1,0 +1,2 @@
+box Node { next: MapBox  v: i64  birth(take next: MapBox, v: i64) { me.next = move next  me.v = v } }
+static box Main { main() { local s = new MapBox()  local n = new Node(move s, 5)  return n.v } }

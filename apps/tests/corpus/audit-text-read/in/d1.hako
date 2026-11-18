@@ -1,0 +1,6 @@
+box N { n: i64
+  birth(n: i64) { me.n = n }
+}
+static box Main { main() { local t = new N(4)
+  print(t.n + "x")
+  return 0 } }

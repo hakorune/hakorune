@@ -1,0 +1,17 @@
+box Ctx {
+  birth() {
+  }
+}
+static box Main {
+  f(x: String): Bool {
+    return true
+  }
+  main() {
+    local z = new Ctx()
+    local a = Main.f("s")
+    if a {
+      return 1
+    }
+    return 0
+  }
+}

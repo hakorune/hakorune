@@ -1,0 +1,1 @@
+static box Main { f(s) { return s.length() } main() { local r = Main.f("abc") print(r) return 0 } }

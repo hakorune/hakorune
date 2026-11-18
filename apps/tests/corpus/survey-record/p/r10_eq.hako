@@ -1,0 +1,7 @@
+record P { x: i64 }
+static box Main { main(): i64 {
+  local a = P { x: 1 }
+  local b = P { x: 1 }
+  print(a == b)
+  return 0
+} }

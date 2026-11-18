@@ -1,0 +1,23 @@
+box Item {
+  init { n }
+  birth(n) {
+    me.n = n
+  }
+}
+box Holder {
+  init { m }
+  birth() {
+    me.m = new MapBox()
+  }
+  put(user) {
+    local it = new Item(7)
+    me.m.set(user, it)
+    return 0
+  }
+}
+static box Main {
+  main() {
+    local h = new Holder()
+    return h.put("x")
+  }
+}

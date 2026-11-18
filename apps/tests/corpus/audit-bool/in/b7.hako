@@ -1,0 +1,15 @@
+static box P {
+  t(s): i64 {
+    if s == "a" {
+      return true
+    }
+    return 0
+  }
+}
+static box Main {
+  main() {
+    local b = P.t("a")
+    print(b)
+    return 0
+  }
+}

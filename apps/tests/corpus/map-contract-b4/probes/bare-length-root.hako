@@ -1,0 +1,5 @@
+static box Main {
+ main() {
+return ("ab" + "cd").length()
+ }
+}

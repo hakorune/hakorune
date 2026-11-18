@@ -1,0 +1,12 @@
+static box Search {
+ find(n: i64): i64 {
+local s = "A😀B"
+local b4ret0 = s.indexOf("B"); return b4ret0
+ }
+}
+static box Main {
+ main() {
+if Search.find(0) == 2 { local b4ret1 = 0; return b4ret1}
+local b4ret2 = 1; return b4ret2
+ }
+}

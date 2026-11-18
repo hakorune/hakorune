@@ -1,0 +1,10 @@
+static box Foo {
+    ping(): i64 {
+        return 3
+    }
+}
+static box Main {
+    main() {
+        return Foo.ping()
+    }
+}

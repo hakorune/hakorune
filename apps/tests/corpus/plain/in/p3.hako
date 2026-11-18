@@ -1,0 +1,1 @@
+box C { birth() { } skip(src, i) { return i + 1 } } static box Main { f(ctx, s) { return ctx.skip(s, 1) } main() { local c = new C() local r = Main.f(c, "abc") print(r) return 0 } }

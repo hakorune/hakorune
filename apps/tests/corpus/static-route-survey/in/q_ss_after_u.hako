@@ -1,0 +1,10 @@
+static box Main {
+  f(x) {
+    return "abc"
+  }
+  main() {
+    local a = Main.f("s")
+    print(a + "x")
+    return 0
+  }
+}

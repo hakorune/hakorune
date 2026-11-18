@@ -1,0 +1,12 @@
+static box Readings {
+read(n: i64): i64 {
+local s = "hello"
+return ("あ" + "いう").indexOf("" + "う")
+}
+}
+static box Main {
+main() {
+if Readings.read(0) == 2 { return 0 }
+return 1
+}
+}

@@ -1,0 +1,7 @@
+static box Main {
+main() {
+local s = "あい"
+if s.length() > 2 { return 7 }
+return 0
+}
+}

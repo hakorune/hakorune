@@ -1,0 +1,90 @@
+// T1: AST with required and nullable children. `match` on a node and return a child as a borrow.
+// PAPER ONLY. Written against ownership.md §0 and ADR-002. This file was never compiled.
+// Tags: RULE-OK = accepted by a written rule; GAP = the rules do not settle it.
+
+record Span {
+    start: i64
+    end: i64
+}
+
+box NumNode {
+    span: Span
+    value: i64
+}
+
+box VarNode {
+    span: Span
+    name: String
+}
+
+box NegNode {
+    span: Span
+    body: Expr       // required child (non-null by default, ADR 型検査)
+
+    // RULE-OK: ownership.md rule 4 and ADR 構文と借用 (getter with declared support)
+    body_ref(): Expr from me {
+        return me.body
+    }
+}
+
+box IfNode {
+    span: Span
+    cond: Expr       // required child
+    then_e: Expr     // required child
+    else_e: Expr?    // nullable child. GAP: EBNF TYPE_REF has no `?` production
+
+    else_ref(): Expr? from me {
+        return me.else_e
+    }
+}
+
+// GAP: whether a recursive enum with an owned Box payload is allowed is the open
+// "aggregate recursive ownership classification" (ADR 型検査, 後続).
+enum Expr {
+    Num(NumNode)
+    Var(VarNode)
+    Neg(NegNode)
+    If(IfNode)
+}
+
+static box Ast {
+    // RULE-OK: ADR 構文と借用 accepts match with `from` when every arm is a projection of
+    // the support; a null arm carries no support. Arm bindings are read borrows (ADR 型検査).
+    // The natural spelling `first_child(): Expr? from me { return match me {...} }` in
+    // ADR 構文と借用 is not writable: enum_decl has no methods (EBNF enum_decl). So this is
+    // a static helper taking the enum as a read parameter.
+    first_child(e: Expr): Expr? from e {
+        return match e {
+            Num(n) => null
+            Var(n) => null
+            Neg(n) => n.body
+            If(n) => n.cond
+        }
+    }
+
+    // Nullable child. `_ => null` would not satisfy known-enum exhaustiveness (EBNF notes),
+    // so `guard let` is used to avoid listing three null arms.
+    else_of(e: Expr): Expr? from e {
+        guard let Expr::If(n) = e else {
+            return null
+        }
+        return n.else_e
+    }
+}
+
+static box Main {
+    main(): i64 {
+        local root = Expr::If(new IfNode {
+            span: Span { start: 0, end: 9 },
+            cond: Expr::Num(new NumNode { span: Span { start: 3, end: 4 }, value: 1 }),
+            then_e: Expr::Var(new VarNode { span: Span { start: 5, end: 6 }, name: "x" }),
+            else_e: null
+        })
+        local c = Ast.first_child(root)
+        local e = Ast.else_of(root)
+        if c == null || e != null {
+            return 1
+        }
+        return 0
+    }
+}

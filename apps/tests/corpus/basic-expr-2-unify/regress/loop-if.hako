@@ -1,0 +1,6 @@
+static box Main {
+
+ main() {
+local s = 3 local i = 0 loop i < 3 { if i > 0 { s = s + i } i = i + 1 } return s * 2
+ }
+}

@@ -1,0 +1,5 @@
+box Tag { f: String
+  birth(f: String) { me.f = f }
+}
+static box Main { main() { local t = new Tag("abc")
+  return t.f.length() } }

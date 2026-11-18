@@ -1,0 +1,16 @@
+box Page { id: i64 = 0
+ birth() { }
+}
+box Pool { size: i64 = 0
+ page: Page = new Page()
+ birth() { }
+}
+static box Main { main() {
+local pool = new Pool()
+local l = pool.page
+local z = null
+local c = l == z
+local later = new Page()
+if c { return 7 }
+return 9
+} }

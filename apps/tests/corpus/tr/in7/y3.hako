@@ -1,0 +1,6 @@
+box Node {
+  name: String
+  v: i64
+  birth(name: String, v: i64) { me.name = name  me.v = v }
+}
+static box Main { main() { local n = new Node("abc", 7)  return n.v } }

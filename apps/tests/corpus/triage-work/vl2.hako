@@ -1,0 +1,4 @@
+box Page { block_used: ArrayBox = new ArrayBox()
+birth() { }
+probe() { me.block_used.set(0, 1) local item = new Page() return me.block_used.get(0) } }
+static box Main { main() { local p = new Page() return p.probe() } }

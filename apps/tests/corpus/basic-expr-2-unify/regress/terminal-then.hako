@@ -1,0 +1,6 @@
+static box Main {
+
+ main() {
+local a = 5 if a > 3 { return 8 } else { a = 2 } return a + 1
+ }
+}

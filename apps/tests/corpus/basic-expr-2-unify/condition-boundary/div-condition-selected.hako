@@ -1,0 +1,1 @@
+static box Main { main() { local s = "x" + "y" local a = 4 local result = 0 if a / 2 > 1 { result = 7 } print(s) return result } }

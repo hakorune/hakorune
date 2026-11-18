@@ -1,0 +1,115 @@
+box Leaf {
+    v: i64
+    birth(v) {
+        me.v = v
+    }
+}
+box Holder {
+    leaf: Leaf
+    birth(leaf) {
+        me.leaf = leaf
+    }
+    probe(x): i64 {
+        local a = 0
+        if x > 1 {
+            a = a + 1
+        }
+        if x > 2 {
+            a = a + 2
+        }
+        if x > 3 {
+            a = a + 3
+        }
+        if x > 4 {
+            a = a + 4
+        }
+        if x > 5 {
+            a = a + 5
+        }
+        if x > 6 {
+            a = a + 6
+        }
+        if x > 7 {
+            a = a + 7
+        }
+        if x > 8 {
+            a = a + 8
+        }
+        if x > 9 {
+            a = a + 9
+        }
+        if x > 10 {
+            a = a + 10
+        }
+        if x > 11 {
+            a = a + 11
+        }
+        if x > 12 {
+            a = a + 12
+        }
+        if x > 13 {
+            a = a + 13
+        }
+        if x > 14 {
+            a = a + 14
+        }
+        if x > 15 {
+            a = a + 15
+        }
+        if x > 16 {
+            a = a + 16
+        }
+        if x > 17 {
+            a = a + 17
+        }
+        if x > 18 {
+            a = a + 18
+        }
+        if x > 19 {
+            a = a + 19
+        }
+        if x > 20 {
+            a = a + 20
+        }
+        if x > 21 {
+            a = a + 21
+        }
+        if x > 22 {
+            a = a + 22
+        }
+        if x > 23 {
+            a = a + 23
+        }
+        if x > 24 {
+            a = a + 24
+        }
+        if x > 25 {
+            a = a + 25
+        }
+        if x > 26 {
+            a = a + 26
+        }
+        if x > 27 {
+            a = a + 27
+        }
+        if x > 28 {
+            a = a + 28
+        }
+        if x > 29 {
+            a = a + 29
+        }
+        if x > 30 {
+            a = a + 30
+        }
+        if me.leaf == null {
+            return a
+        }
+        return a + 1
+    }
+}
+static box Main {
+  main() {
+    local h = new Holder(null)
+    return h.probe(3)
+  }
+}

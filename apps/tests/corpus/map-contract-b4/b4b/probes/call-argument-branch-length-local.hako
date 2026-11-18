@@ -1,0 +1,10 @@
+static box Main {
+pick(n: i64) {
+if n == 1 { return "あい" }
+return "う"
+}
+main() {
+local b4result = Main.pick(1).length()
+return b4result
+}
+}

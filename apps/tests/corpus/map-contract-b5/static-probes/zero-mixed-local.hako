@@ -1,0 +1,11 @@
+static box Foo {
+pick(): i64 { return 7 }
+}
+static box Main {
+main() {
+local x = Foo.pick()
+print(x)
+local n = Foo.pick()
+return n
+}
+}

@@ -10,7 +10,7 @@ import sys
 from loop_measurement import collect, read_manifest, stream_text
 from loop_mir_text import extract, locations, normalize, parse, self_test
 from resources import activate
-from support import write
+from support import CORPUS_MANIFEST, write
 
 
 def cleaned(status, roots=()):
@@ -110,7 +110,7 @@ def main():
         print(json.dumps(self_test(), sort_keys=True))
         return
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--manifest", type=Path, required=True)
+    parser.add_argument("--manifest", type=Path, default=CORPUS_MANIFEST)
     parser.add_argument("--template", type=Path, required=True,
                         help="JSON runtime settings used for both binaries")
     parser.add_argument("--work", type=Path, required=True)

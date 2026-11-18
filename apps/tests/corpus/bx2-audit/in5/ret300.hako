@@ -1,0 +1,6 @@
+static box Main {
+  main() {
+    local a = 300
+    return a
+  }
+}

@@ -1,0 +1,23 @@
+box ParamStore {
+    birth() { }
+    readData(cid): i64 { return cid + 1 }
+}
+box ParamManifest {
+    birth() { }
+    make() { local s = new ParamStore() return s }
+    materialize(store): i64 {
+        local i = 0
+        loop(i < 2) {
+            local data = store.readData(i)
+            i = i + 1
+        }
+        return i
+    }
+}
+static box Main {
+    main() {
+        local m = new ParamManifest()
+        local s = m.make()
+        return m.materialize(s)
+    }
+}

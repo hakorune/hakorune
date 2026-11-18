@@ -1,0 +1,9 @@
+static box Main {
+ main() {
+local a = "x" == "x"
+local b = "a" < "b"
+print(a)
+print(b)
+return 0
+ }
+}

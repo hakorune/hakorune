@@ -1,0 +1,11 @@
+static box Main {
+
+  main() {
+    local m = %{"k" => 5}
+    local n = 1
+    if n == 1 {
+      return m.get("k")
+    }
+    return m.get("k") + 1
+  }
+}

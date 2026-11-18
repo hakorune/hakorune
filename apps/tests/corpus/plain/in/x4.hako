@@ -1,0 +1,12 @@
+static box Main {
+  method main(args) {
+    local x = me._e("a")
+    print(x)
+    return 0
+  }
+  _e(t) {
+    local out = "{" + t
+    out = out + "}"
+    return out
+  }
+}

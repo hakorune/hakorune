@@ -1,0 +1,12 @@
+static box Main {
+  z(n: i64): Bool {
+    if n == 0 { return true }
+    local k = Main.z(n - 1)
+    return k
+  }
+  main() {
+    local b = Main.z(3)
+    if b { print(1) } else { print(0) }
+    return 0
+  }
+}

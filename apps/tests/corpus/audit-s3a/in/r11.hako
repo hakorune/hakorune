@@ -1,0 +1,4 @@
+static box Main {
+  a(x: i64): i64 { local y = x local i = 0 loop(i < 3) { y = y + 1 i = i + 1 } return y }
+  main() { print(Main.a(4)) return 0 }
+}

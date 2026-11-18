@@ -1,0 +1,11 @@
+box ParamStore {
+    birth() { }
+    readData(cid: i64): i64 { return cid + 1 }
+}
+static box Main {
+    main() {
+        local store = new ParamStore()
+        local out = store.readData(1)
+        return out
+    }
+}

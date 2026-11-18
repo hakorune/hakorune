@@ -1,0 +1,12 @@
+static box Main {
+  main() {
+    local n = 10
+    local acc = 1
+    loop(n >= 7) {
+      acc = acc * 2
+      n = n - 1
+    }
+    print(acc)
+    return 0
+  }
+}

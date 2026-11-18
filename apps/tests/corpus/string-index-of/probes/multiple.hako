@@ -1,0 +1,15 @@
+box Search { seed: i64
+ birth() { me.seed = 0 }
+ run(): i64 {
+local value = "aé界z"
+local a = value.indexOf("é")
+local b = value.indexOf("界")
+local result = a + b
+return result
+ }
+}
+static box Main { main() {
+ local search = new Search()
+ print(search.run())
+ return 0
+} }

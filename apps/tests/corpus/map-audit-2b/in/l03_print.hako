@@ -1,0 +1,8 @@
+static box Main {
+
+  main() {
+    local m = %{"k" => 5}
+    print(m.get("k"))
+    return 0
+  }
+}

@@ -1,0 +1,4 @@
+static box Main { main() { local take = 5
+  local x = 2
+  local y = take x
+  return y } }

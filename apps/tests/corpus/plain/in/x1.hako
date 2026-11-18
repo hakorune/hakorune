@@ -1,0 +1,16 @@
+static box Main {
+  method main(args) {
+    local profile = "canonical"
+    local batch = 0
+    local i = 0
+    if args != null {
+      loop(i < args.length()) {
+        local token = "" + args.get(i)
+        if token == "--batch" { batch = 1 }
+        i = i + 1
+      }
+    }
+    print(batch)
+    return 0
+  }
+}

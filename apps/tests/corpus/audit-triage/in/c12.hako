@@ -1,0 +1,1 @@
+box H { birth() { } add(x: i64): i64 { return x + 1 } } box G { h: H birth(take h: H) { me.h = move h } go(): i64 { return me.h.add(1) } } static box Main { main() { local h = new H() local g = new G(move h) return g.go() } }

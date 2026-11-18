@@ -1,0 +1,7 @@
+static box Main {
+make() { return "あい" }
+main() {
+print(Main.make().length())
+return 0
+}
+}

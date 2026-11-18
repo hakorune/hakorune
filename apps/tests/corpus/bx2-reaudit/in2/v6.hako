@@ -1,0 +1,10 @@
+static box Main {
+  main() {
+    local a = 5
+    local b = 2
+    if a > 3 {
+      b = b + 1
+    }
+    return a + b
+  }
+}

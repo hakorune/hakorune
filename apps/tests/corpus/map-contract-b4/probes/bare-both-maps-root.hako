@@ -1,0 +1,7 @@
+static box Main {
+ main() {
+local a = %{"a" => 1}
+local b = %{"b" => 2}
+return ("he" + "llo").indexOf("" + "l")
+ }
+}

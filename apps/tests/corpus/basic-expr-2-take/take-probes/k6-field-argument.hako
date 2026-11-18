@@ -1,0 +1,5 @@
+box Leaf { value: i64 birth(v: i64) { me.value = v } get(): i64 { return me.value } }
+static box Main {
+ eat(take p: Leaf): i64 { return p.get() }
+ main() { local source = new Leaf(3) return Main.eat(new Leaf(source.value)) * Main.eat(new Leaf(source.value)) }
+}

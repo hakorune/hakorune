@@ -1,0 +1,6 @@
+static box Main {
+  main() {
+    local s = "m"
+    if s < "c" { return 1 } else if s < "n" { return 2 } else { return 3 }
+  }
+}

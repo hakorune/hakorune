@@ -1,0 +1,22 @@
+box Leaf {
+  value: i64
+  birth(value: i64) {
+    me.value = value
+  }
+  get(): i64 {
+    return me.value
+  }
+}
+static box Main {
+  f(p: Leaf): Bool {
+    return true
+  }
+  main() {
+    local o = new Leaf(1)
+    local a = Main.f(o)
+    if a {
+      return 1
+    }
+    return 0
+  }
+}

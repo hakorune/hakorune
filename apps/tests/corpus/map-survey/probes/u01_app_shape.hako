@@ -1,0 +1,28 @@
+box Item {
+  init { n }
+  birth(n) {
+    me.n = n
+  }
+}
+box Holder {
+  init { m }
+  birth() {
+    me.m = new MapBox()
+  }
+  op(user) {
+    if me.m.has(user) {
+      return me.m.get(user)
+    }
+    local it = new Item(7)
+    me.m.set(user, it)
+    return it
+  }
+}
+static box Main {
+  main() {
+    local h = new Holder()
+    local a = h.op("x")
+    local b = h.op("x")
+    return b.n
+  }
+}

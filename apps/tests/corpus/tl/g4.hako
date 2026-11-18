@@ -1,0 +1,12 @@
+static function count_up(i: i64): i64 {
+    loop(i < 3) {
+        i = i + 1
+    }
+    return i
+}
+
+static box Main {
+    main() {
+        return count_up(0)
+    }
+}

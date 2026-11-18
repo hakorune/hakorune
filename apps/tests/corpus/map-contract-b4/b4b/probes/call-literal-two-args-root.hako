@@ -1,0 +1,7 @@
+static box Main {
+make() { return "あい" }
+needle() { return "い" }
+main() {
+return Main.make().indexOf("い", 0)
+}
+}

@@ -1,0 +1,211 @@
+static box Main {
+  main() {
+    local x = 3
+    local a = 0
+    local j = 0
+    loop(j < 2) {
+      if x > 1 {
+        a = a + 1
+      } else {
+        a = a - 1
+      }
+      if x > 2 {
+        a = a + 2
+      } else {
+        a = a - 1
+      }
+      if x > 3 {
+        a = a + 3
+      } else {
+        a = a - 1
+      }
+      if x > 4 {
+        a = a + 4
+      } else {
+        a = a - 1
+      }
+      if x > 0 {
+        a = a + 5
+      } else {
+        a = a - 1
+      }
+      if x > 1 {
+        a = a + 6
+      } else {
+        a = a - 1
+      }
+      if x > 2 {
+        a = a + 7
+      } else {
+        a = a - 1
+      }
+      if x > 3 {
+        a = a + 8
+      } else {
+        a = a - 1
+      }
+      if x > 4 {
+        a = a + 9
+      } else {
+        a = a - 1
+      }
+      if x > 0 {
+        a = a + 10
+      } else {
+        a = a - 1
+      }
+      if x > 1 {
+        a = a + 11
+      } else {
+        a = a - 1
+      }
+      if x > 2 {
+        a = a + 12
+      } else {
+        a = a - 1
+      }
+      if x > 3 {
+        a = a + 13
+      } else {
+        a = a - 1
+      }
+      if x > 4 {
+        a = a + 14
+      } else {
+        a = a - 1
+      }
+      if x > 0 {
+        a = a + 15
+      } else {
+        a = a - 1
+      }
+      if x > 1 {
+        a = a + 16
+      } else {
+        a = a - 1
+      }
+      if x > 2 {
+        a = a + 17
+      } else {
+        a = a - 1
+      }
+      if x > 3 {
+        a = a + 18
+      } else {
+        a = a - 1
+      }
+      if x > 4 {
+        a = a + 19
+      } else {
+        a = a - 1
+      }
+      if x > 0 {
+        a = a + 20
+      } else {
+        a = a - 1
+      }
+      if x > 1 {
+        a = a + 21
+      } else {
+        a = a - 1
+      }
+      if x > 2 {
+        a = a + 22
+      } else {
+        a = a - 1
+      }
+      if x > 3 {
+        a = a + 23
+      } else {
+        a = a - 1
+      }
+      if x > 4 {
+        a = a + 24
+      } else {
+        a = a - 1
+      }
+      if x > 0 {
+        a = a + 25
+      } else {
+        a = a - 1
+      }
+      if x > 1 {
+        a = a + 26
+      } else {
+        a = a - 1
+      }
+      if x > 2 {
+        a = a + 27
+      } else {
+        a = a - 1
+      }
+      if x > 3 {
+        a = a + 28
+      } else {
+        a = a - 1
+      }
+      if x > 4 {
+        a = a + 29
+      } else {
+        a = a - 1
+      }
+      if x > 0 {
+        a = a + 30
+      } else {
+        a = a - 1
+      }
+      if x > 1 {
+        a = a + 31
+      } else {
+        a = a - 1
+      }
+      if x > 2 {
+        a = a + 32
+      } else {
+        a = a - 1
+      }
+      if x > 3 {
+        a = a + 33
+      } else {
+        a = a - 1
+      }
+      if x > 4 {
+        a = a + 34
+      } else {
+        a = a - 1
+      }
+      if x > 0 {
+        a = a + 35
+      } else {
+        a = a - 1
+      }
+      if x > 1 {
+        a = a + 36
+      } else {
+        a = a - 1
+      }
+      if x > 2 {
+        a = a + 37
+      } else {
+        a = a - 1
+      }
+      if x > 3 {
+        a = a + 38
+      } else {
+        a = a - 1
+      }
+      if x > 4 {
+        a = a + 39
+      } else {
+        a = a - 1
+      }
+      if x > 0 {
+        a = a + 40
+      } else {
+        a = a - 1
+      }
+      j = j + 1
+    }
+    return a
+  }
+}

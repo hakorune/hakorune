@@ -1,0 +1,7 @@
+box P { v: i64
+  birth(v: i64) { me.v = v }
+}
+static box Main { main() { local a = new P(1)
+  local b = new P(1)
+  if a == b { return 1 }
+  return 0 } }

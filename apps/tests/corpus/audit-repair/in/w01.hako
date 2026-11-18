@@ -1,0 +1,1 @@
+box T { birth() { } probe(p) { return p } } static box Main { main() { local r = new T() local a = r.probe(0) print(a) return 0 } }

@@ -1,0 +1,14 @@
+box T {
+  f: String
+  birth(f: String) {
+    me.f = f
+  }
+}
+static box Main {
+  main() {
+    local t = new T("hey")
+    local s = t.f
+    print(s)
+    return 0
+  }
+}

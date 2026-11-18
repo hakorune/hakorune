@@ -1,0 +1,12 @@
+box P { v: i64
+  birth(v: i64) { me.v = v }
+}
+box H { s: ArrayBox
+  birth() { me.s = new ArrayBox()
+    me.s.push(new P(1)) }
+  bump(edit q: P) { q.v = 9
+    return 0 }
+  go() { return me.bump(edit me.s[0]) }
+}
+static box Main { main() { local h = new H()
+  return h.go() } }

@@ -1,0 +1,5 @@
+box Node { v: i64  next: Node?  birth(v) { me.v = v  me.next = new Node2() } }
+box Node2 { x: i64 birth() { me.x = 3 } }
+static box Main {
+  main() { local n = new Node(7)  return 0 }
+}

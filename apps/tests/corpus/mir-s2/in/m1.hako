@@ -1,0 +1,3 @@
+static box Main { main() { local root_map = %{"root" => 1} local first = Main.helper(10) return Main.other(20) }
+  helper(value: i64): i64 { local m = %{"first" => value} return 30 }
+  other(value: i64): i64 { local m = %{"second" => value} return 30 } }

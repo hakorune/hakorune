@@ -1,0 +1,12 @@
+box Tag { name: String
+  birth(name: String) { me.name = name }
+  get() { return me.name }
+}
+box H { birth() { }
+  make() { local t = new Tag("abc")
+    return t.get() }
+}
+static box Main { main() { local h = new H()
+  local s = h.make()
+  print(s)
+  return 0 } }

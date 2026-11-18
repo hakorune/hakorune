@@ -1,0 +1,11 @@
+static box Main {
+  put(m: MapBox, k, v) {
+    m.set(k, v)
+    return 0
+  }
+  main() {
+    local m = new MapBox()
+    Main.put(m, "k", 9)
+    return m.get("k")
+  }
+}

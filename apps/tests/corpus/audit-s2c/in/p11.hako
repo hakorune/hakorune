@@ -1,0 +1,9 @@
+static box Main {
+  a(x: i64): i64 { return x }
+  b(x: i64, y: i64): i64 { return x - y }
+  main() {
+    local k = Main.a(3)
+    if Main.a(k) == 3 { print(k) } else { print(0) }
+    return 0
+  }
+}

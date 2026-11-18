@@ -1,0 +1,4 @@
+static box Main {
+  t(x: i64) { return x > 1 }
+  main() { local i = 0  loop(i < 3) { if Main.t(i) { print(1) } else { print(0) }  i = i + 1 }  return 0 }
+}

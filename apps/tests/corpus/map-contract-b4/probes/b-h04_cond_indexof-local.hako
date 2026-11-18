@@ -1,0 +1,9 @@
+static box Main {
+    main() {
+        local s = "hello"
+        if s.indexOf("l") == 2 {
+            local b4ret0 = 1; return b4ret0
+        }
+        local b4ret1 = 0; return b4ret1
+    }
+}

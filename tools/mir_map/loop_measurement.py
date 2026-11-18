@@ -7,7 +7,7 @@ import re
 import time
 
 from resources import activate
-from support import ROOT, configured_env, sha, write
+from support import ROOT, configured_env, read_manifest, sha, write
 
 VERIFIED = "✅ MIR verification passed!"
 DIAGNOSTIC = {
@@ -39,25 +39,6 @@ def diagnostic_kind(status, text):
         if re.search(pattern, text):
             return kind
     return "unknown-refusal"
-
-
-def read_manifest(path):
-    data = json.loads(path.read_text())
-    unique = {}
-    for row in data["rows"]:
-        source = Path(row["path"])
-        source = (ROOT / source).resolve()
-        digest = sha(source)
-        if row.get("sha256", digest) != digest:
-            raise ValueError(f"input changed: {source}")
-        groups = set(row.get("groups", ()))
-        key = str(source)
-        if key not in unique:
-            unique[key] = {"path": key, "sha256": digest, "groups": []}
-        unique[key]["groups"] = sorted(set(unique[key]["groups"]) | groups)
-    if not unique:
-        raise ValueError("empty input manifest")
-    return list(unique.values())
 
 
 def command(watch, args, directory, label, env, timeout):

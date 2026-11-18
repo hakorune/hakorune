@@ -1,0 +1,7 @@
+static box Main {
+  main() {
+    local s = "m"
+    if not (s == "m") { return 17 }
+    return 18
+  }
+}

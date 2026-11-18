@@ -1,0 +1,5 @@
+box B { f: Bool
+  birth(f: Bool) { me.f = f }
+}
+static box Main { main() { local t = new B(true)
+  return 0 } }

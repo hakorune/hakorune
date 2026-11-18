@@ -1,0 +1,1 @@
+static box Main { main() { local s = "x" local t = "" if s != "" { t = s + "y" } print(t) return 0 } }

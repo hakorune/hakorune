@@ -1,0 +1,6 @@
+box P { v: i64
+  birth(v: i64) { me.v = v }
+}
+static box Main { use(h: Shared<P>) { return 3 }
+ main() { local h = share new P(3)
+  return me.use(h) } }

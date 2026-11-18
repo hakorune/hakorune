@@ -1,0 +1,1 @@
+static box Main { main() { local flag = false flag = 1 == 1 if flag { return 7 } return 0 } }

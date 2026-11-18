@@ -1,0 +1,13 @@
+box Calc {
+  add(x: i64): i64 {
+    local y = x
+    return y
+  }
+}
+static box Main {
+  main() {
+    local c = new Calc()
+    local r = c.add(3)
+    return r
+  }
+}

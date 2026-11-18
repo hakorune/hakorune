@@ -1,0 +1,7 @@
+static box Main {
+    main() {
+        local s = "a"
+        local t = "b"
+        local b4ret0 = s < t; return b4ret0
+    }
+}

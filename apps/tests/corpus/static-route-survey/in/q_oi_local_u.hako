@@ -1,0 +1,18 @@
+box Leaf {
+  value: i64
+  birth(value: i64) {
+    me.value = value
+  }
+  get(): i64 {
+    return me.value
+  }
+}
+static box Main {
+  f(v) {
+    return new Leaf(v)
+  }
+  main() {
+    local a = Main.f(5)
+    return 0
+  }
+}

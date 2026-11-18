@@ -1,0 +1,201 @@
+// json-stream-aggregator
+// Purpose: deterministic JSONL-style stream aggregation real app.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box JsonLine {
+    find(text, needle, start) {
+        local n = text.length()
+        local m = needle.length()
+        local i = start
+        if m == 0 {
+            return start
+        }
+
+        loop(i + m <= n) {
+            if text.substring(i, i + m) == needle {
+                return i
+            }
+            i = i + 1
+        }
+        return -1
+    }
+
+    stringField(line, key) {
+        local needle = "\"" + key + "\":\""
+        local pos = JsonLine.find(line, needle, 0)
+        if pos < 0 {
+            return ""
+        }
+
+        local start = pos + needle.length()
+        local end = JsonLine.find(line, "\"", start)
+        if end < 0 {
+            return ""
+        }
+        return line.substring(start, end)
+    }
+
+    intField(line, key) {
+        local needle = "\"" + key + "\":"
+        local pos = JsonLine.find(line, needle, 0)
+        if pos < 0 {
+            return 0
+        }
+
+        local start = pos + needle.length()
+        local end = start
+        local n = line.length()
+        loop(end < n) {
+            local ch = line.substring(end, end + 1)
+            if ch < "0" || ch > "9" {
+                break
+            }
+            end = end + 1
+        }
+        return StringHelpers.to_i64(line.substring(start, end))
+    }
+
+    boolField(line, key) {
+        local needle = "\"" + key + "\":"
+        local pos = JsonLine.find(line, needle, 0)
+        if pos < 0 {
+            return false
+        }
+
+        local start = pos + needle.length()
+        if line.substring(start, start + 4) == "true" {
+            return true
+        }
+        return false
+    }
+}
+
+box UserStats {
+    init { name, bytes, ok_count, fail_count }
+
+    birth(name) {
+        me.name = name
+        me.bytes = 0
+        me.ok_count = 0
+        me.fail_count = 0
+    }
+
+    add(bytes, ok) {
+        me.bytes = me.bytes + bytes
+        if ok {
+            me.ok_count = me.ok_count + 1
+        } else {
+            me.fail_count = me.fail_count + 1
+        }
+    }
+}
+
+box JsonStreamAggregator {
+    init { stats, users, events, total_bytes, ok_count, fail_count }
+
+    birth() {
+        me.stats = new MapBox()
+        me.users = new ArrayBox()
+        me.events = 0
+        me.total_bytes = 0
+        me.ok_count = 0
+        me.fail_count = 0
+    }
+
+    statsFor(user) {
+        if me.stats.has(user) {
+            return me.stats.get(user)
+        }
+
+        local stats = new UserStats(user)
+        me.stats.set(user, stats)
+        me.users.push(user)
+        return stats
+    }
+
+    ingestLine(line) {
+        if line == "" {
+            return false
+        }
+
+        local user = JsonLine.stringField(line, "user")
+        if user == "" {
+            return false
+        }
+
+        local bytes = JsonLine.intField(line, "bytes")
+        local ok = JsonLine.boolField(line, "ok")
+        local stats = me.statsFor(user)
+        stats.add(bytes, ok)
+
+        me.events = me.events + 1
+        me.total_bytes = me.total_bytes + bytes
+        if ok {
+            me.ok_count = me.ok_count + 1
+        } else {
+            me.fail_count = me.fail_count + 1
+        }
+        return true
+    }
+
+    ingest(stream) {
+        local start = 0
+        local n = stream.length()
+        loop(start < n) {
+            local end = JsonLine.find(stream, "\n", start)
+            if end < 0 {
+                end = n
+            }
+
+            me.ingestLine(stream.substring(start, end))
+            start = end + 1
+        }
+    }
+
+    userCount() {
+        return me.users.length()
+    }
+
+    reportUser(user) {
+        local stats = me.stats.get(user)
+        if stats == null {
+            return user + "_bytes=0 ok=0 fail=0"
+        }
+        return user + "_bytes=" + stats.bytes + " ok=" + stats.ok_count + " fail=" + stats.fail_count
+    }
+}
+
+static box Main {
+    main(args) {
+        local agg = new JsonStreamAggregator()
+        agg.ingest(Main.sampleStream())
+
+        print("json-stream-aggregator")
+        print("events=" + agg.events)
+        print("users=" + agg.userCount())
+        print(agg.reportUser("ana"))
+        print(agg.reportUser("bob"))
+        print(agg.reportUser("cy"))
+        print("total_bytes=" + agg.total_bytes)
+        print("ok=" + agg.ok_count + " fail=" + agg.fail_count)
+
+        if agg.events == 5 && agg.userCount() == 3 && agg.total_bytes == 78 && agg.ok_count == 4 && agg.fail_count == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+
+    sampleStream() {
+        local out = ""
+        out = out + "{\"user\":\"ana\",\"bytes\":10,\"ok\":true}\n"
+        out = out + "{\"user\":\"bob\",\"bytes\":7,\"ok\":false}\n"
+        out = out + "{\"user\":\"ana\",\"bytes\":32,\"ok\":true}\n"
+        out = out + "{\"user\":\"cy\",\"bytes\":9,\"ok\":true}\n"
+        out = out + "{\"user\":\"bob\",\"bytes\":20,\"ok\":true}\n"
+        return out
+    }
+}

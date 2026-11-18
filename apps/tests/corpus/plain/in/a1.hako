@@ -1,0 +1,1 @@
+static box Main { main() { local a = new ArrayBox() a.push(1) a.push(2) local n = a.size() print(n) return 0 } }

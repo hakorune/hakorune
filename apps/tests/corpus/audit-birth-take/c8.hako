@@ -1,0 +1,16 @@
+box Leaf {
+  value: i64
+  birth(value) { me.value = value }
+  get(): i64 { return me.value }
+}
+box Other {
+  value: i64
+  birth(value) { me.value = value }
+}
+box Node {
+  next: Leaf
+  v: i64
+  birth(take next: Leaf, v: i64) { me.next = next  me.v = v }
+}
+box Holder { child: Leaf  birth() { me.child = new Leaf(2) }  make(): i64 { local n = new Node(move me.child, 5)  return n.v } }
+static box Main { main() { local h = new Holder()  return h.make() } }

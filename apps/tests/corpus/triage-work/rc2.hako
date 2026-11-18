@@ -1,0 +1,8 @@
+box Page { birth() { } }
+box Holder { inner: Page
+birth() { me.inner = new Page() }
+run(): i64 { return 0 } }
+static box Main { main() {
+local holder = new Holder()
+local r = holder.run()
+return r } }

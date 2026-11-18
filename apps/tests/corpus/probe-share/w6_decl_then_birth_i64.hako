@@ -1,0 +1,12 @@
+box Pair {
+    a: i64 = 3
+    birth(a) {
+        me.a = a
+    }
+}
+static box Main {
+  main() {
+    local p = new Pair(5)
+    return p.a
+  }
+}

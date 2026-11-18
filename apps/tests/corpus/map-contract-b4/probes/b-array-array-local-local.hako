@@ -1,0 +1,16 @@
+box Holder {
+ items: ArrayBox
+ birth() {
+ me.items = new ArrayBox()
+ }
+ probe() {
+local n = me.items.length()
+local b4ret0 = n; return b4ret0
+ }
+}
+static box Main {
+ main() {
+local h = new Holder()
+local b4ret1 = h.probe(); return b4ret1
+ }
+}

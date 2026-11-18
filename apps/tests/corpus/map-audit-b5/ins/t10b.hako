@@ -1,0 +1,11 @@
+static box Main {
+sq(a: i64): i64 {
+print("in")
+return a * a
+}
+main() {
+print("before")
+local r = Main.sq(5)
+return r
+}
+}

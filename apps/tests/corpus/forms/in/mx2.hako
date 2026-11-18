@@ -1,0 +1,12 @@
+box P { v: i64
+  birth(v: i64) { me.v = v }
+}
+box B { s: String
+  p: P
+  birth(s: String, take p: P) { me.s = s
+    me.p = move p }
+}
+static box Main { main() { local x = new P(1)
+  local t = new B("a", move x)
+  print(t.s)
+  return 0 } }

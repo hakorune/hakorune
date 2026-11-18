@@ -1,0 +1,12 @@
+static box Main {
+  f(): Bool {
+    return true
+  }
+  main(args) {
+    local a = Main.f()
+    if a {
+      return 1
+    }
+    return 0
+  }
+}

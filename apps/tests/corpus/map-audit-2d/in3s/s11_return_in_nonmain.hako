@@ -1,0 +1,16 @@
+static box Foo {
+    ping() {
+        return 3
+    }
+}
+static box Bar {
+    run() {
+        return Foo.ping()
+    }
+}
+static box Main {
+    main() {
+        local x = Bar.run()
+        return x
+    }
+}

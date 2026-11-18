@@ -1,0 +1,4 @@
+static box Main {
+  a(x: i64): i64 { local y = x return y }
+  main() { print(Main.a(4)) return 0 }
+}

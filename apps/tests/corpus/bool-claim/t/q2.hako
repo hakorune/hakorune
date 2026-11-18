@@ -1,0 +1,12 @@
+static box Main {
+  t(x: i64, y: i64): Bool {
+    return x < y
+  }
+  main() {
+    local b = Main.t(1, 2)
+    if b { print(1) } else { print(0) }
+    local c = Main.t(3, 2)
+    if c { print(1) } else { print(0) }
+    return 0
+  }
+}

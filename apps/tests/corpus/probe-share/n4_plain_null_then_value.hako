@@ -1,0 +1,4 @@
+box Node { v: i64  next: Node  birth(v) { me.v = v  me.next = null } }
+static box Main {
+  main() { local n = new Node(7)  n.next = new Node(8)  if n.next == null { return 1 }  return n.next.v }
+}

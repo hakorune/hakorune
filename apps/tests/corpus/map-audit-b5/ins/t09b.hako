@@ -1,0 +1,9 @@
+static box Main {
+name(a: i64): String {
+return "ab"
+}
+main() {
+local n = Main.name(1).length()
+return n
+}
+}

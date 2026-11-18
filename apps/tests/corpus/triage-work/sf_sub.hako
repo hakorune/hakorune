@@ -1,0 +1,5 @@
+box Page { left: i64 right: i64
+birth() { me.left = 4 me.right = 9 } }
+static box Main { main() {
+local first = new Page() local second = new Page() return first.left - second.right
+} }

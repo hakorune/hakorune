@@ -1,0 +1,12 @@
+static box Main {
+  f(v) {
+    return v + 1
+  }
+  g() {
+    return Main.f(5)
+  }
+  main() {
+    local a = Main.g()
+    return 0
+  }
+}

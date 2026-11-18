@@ -1,0 +1,12 @@
+box Tag {
+  name: String
+  n: i64
+  birth(name: String, n: i64) { me.name = name  me.n = n }
+  big(): i64 { local k = me.name.length()  if k > 3 { return 1 }  return 0 }
+}
+static box Main {
+  main() {
+    local t = new Tag("abcde", 3)
+    print(t.big())  return 0
+  }
+}

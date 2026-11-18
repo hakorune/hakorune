@@ -1,0 +1,31 @@
+box UserStats {
+  init { n }
+  birth(n) {
+    me.n = n
+  }
+}
+box Agg {
+  init { stats }
+  birth() {
+    me.stats = new MapBox()
+  }
+  statsFor(user) {
+    if me.stats.has(user) {
+      return me.stats.get(user)
+    }
+    local s = new UserStats(1)
+    me.stats.set(user, s)
+    return s
+  }
+  ingest(line) {
+    local user = line.substring(0, 3)
+    local s = me.statsFor(user)
+    return s.n
+  }
+}
+static box Main {
+  main(args) {
+    local agg = new Agg()
+    return agg.ingest("anabob")
+  }
+}

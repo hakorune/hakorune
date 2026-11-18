@@ -1,0 +1,8 @@
+box Leaf { v: i64  birth(v: i64) { me.v = v } }
+box Node {
+  name: String
+  next: Leaf
+  v: i64
+  birth(name: String, take next: Leaf, v: i64) { me.name = name  me.next = move next  me.v = v }
+}
+static box Main { main() { local l = new Leaf(1)  local n = new Node("abc", move l, 7)  return 7 } }

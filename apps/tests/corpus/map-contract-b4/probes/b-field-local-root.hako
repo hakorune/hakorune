@@ -1,0 +1,14 @@
+box TextHolder {
+text: String
+birth() { me.text = "hello" }
+find(): i64 {
+local r = me.text.indexOf("l")
+return r
+}
+}
+static box Main {
+main() {
+local h = new TextHolder()
+return h.find() + 0
+}
+}

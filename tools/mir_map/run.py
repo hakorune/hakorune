@@ -50,7 +50,8 @@ def main():
     p.add_argument('--work', type=Path, required=True)
     p.add_argument('--reuse', type=Path, required=True)
     p.add_argument('--stage', choices=['all', 'coverage', 'test', 'render'], default='all')
-    p.add_argument('--manifest', type=Path)
+    from support import CORPUS_MANIFEST
+    p.add_argument('--manifest', type=Path, default=CORPUS_MANIFEST)
     p.add_argument('--template', type=Path)
     p.add_argument('--expected-failures', type=Path)
     p.add_argument('--baseline-results', type=Path)
@@ -73,8 +74,6 @@ def main():
         p.error('--template is required for measured stages')
     try:
         if a.stage in ['all', 'coverage']:
-            if a.manifest is None:
-                p.error('--manifest is required')
             from batch import collect
             for group in ['A', 'B']:
                 watch.stage = 'M1-' + group

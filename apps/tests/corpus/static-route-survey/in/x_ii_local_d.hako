@@ -1,0 +1,11 @@
+static box Other {
+  f(v: i64): i64 {
+    return v + 1
+  }
+}
+static box Main {
+  main() {
+    local a = Other.f(5)
+    return 0
+  }
+}

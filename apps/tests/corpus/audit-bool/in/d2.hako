@@ -1,0 +1,11 @@
+static box Main {
+  f(): i64 {
+    local s = "abc"
+    local k = s.length()
+    return k
+  }
+  main() {
+    print(Main.f())
+    return 0
+  }
+}

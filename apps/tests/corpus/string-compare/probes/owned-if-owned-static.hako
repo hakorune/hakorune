@@ -1,0 +1,7 @@
+static box Main {
+ main() {
+local s = "a" + "é"
+if s == "aé" { return 7 }
+return 9
+ }
+}

@@ -1,0 +1,10 @@
+static box Main {
+  t(): Bool {
+    return 1 > 0
+  }
+  main() {
+    local b = Main.t()
+    if b { print(1) } else { print(0) }
+    return 0
+  }
+}

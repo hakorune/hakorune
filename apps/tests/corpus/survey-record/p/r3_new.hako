@@ -1,0 +1,7 @@
+record Point { x: i64
+ y: i64 }
+static box Main { main(): i64 {
+  local p = new Point(3, 4)
+  print(p.x + p.y)
+  return 0
+} }

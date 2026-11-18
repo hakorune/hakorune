@@ -1,0 +1,14 @@
+box Leaf {
+    value: i64
+    birth(v: i64) { me.value = v }
+    get(): i64 { return me.value }
+}
+static box Main {
+    eat(take x: Leaf): i64 { return x.get() }
+    echo(n: i64): i64 { return n }
+    main() {
+
+local r = Main.eat(new Leaf(4))
+return r
+}
+}

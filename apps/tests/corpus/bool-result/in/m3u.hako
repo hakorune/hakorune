@@ -1,0 +1,5 @@
+static box Main {
+  t(x: i64) { if x > 1 { return true } return false }
+  run(x: i64) { local b = me.t(x)  if b { print(1) } else { print(0) }  return 0 }
+  main() { Main.run(4)  return 0 }
+}

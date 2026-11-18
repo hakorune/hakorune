@@ -1,0 +1,22 @@
+box Holder {
+  init { m }
+  birth() {
+    me.m = new MapBox()
+  }
+  put(k, v) {
+    me.m.set(k, v)
+    return 0
+  }
+  first() {
+    local k = me.m.keys()
+    return k.get(0)
+  }
+}
+static box Main {
+  main() {
+    local h = new Holder()
+    h.put("a", 4)
+    print(h.first())
+    return 0
+  }
+}

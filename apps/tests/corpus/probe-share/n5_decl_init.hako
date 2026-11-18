@@ -1,0 +1,4 @@
+box Node { v: i64  w: i64 = 9  birth(v) { me.v = v } }
+static box Main {
+  main() { local n = new Node(7)  return n.w }
+}

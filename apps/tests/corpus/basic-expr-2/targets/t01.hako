@@ -1,0 +1,22 @@
+box Leaf {
+  value: i64
+  birth(value: i64) {
+    me.value = value
+  }
+  get(): i64 {
+    return me.value
+  }
+}
+box Sink {
+  n: i64
+  birth(take x: Leaf) {
+    me.n = x.get()
+  }
+}
+static box Main {
+  main() {
+    local a = new Leaf(4)
+    local s = new Sink(move a)
+    return s.n
+  }
+}

@@ -1,0 +1,10 @@
+box Leaf {
+ value: i64
+ birth(v: i64) { me.value = v }
+ get(): i64 { return me.value }
+}
+static box Main {
+ later(): i64 { local scratch = new Leaf(1) return 1 }
+ triple(take first: Leaf, marker: i64, take last: Leaf): i64 { local scratch = new Leaf(1) return 7 }
+ main() { return Main.triple(new Leaf(2), Main.later(), new Leaf(3)) }
+}

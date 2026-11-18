@@ -1,0 +1,11 @@
+box Leaf {
+  value: i64
+  birth(value) { me.value = value }
+  get(): i64 { return me.value }
+}
+box Other {
+  value: i64
+  birth(value) { me.value = value }
+}
+box Pair { a: Leaf  b: Leaf  v: i64  birth(take a: Leaf, b, v: i64) { me.a = move a  me.b = b  me.v = v } }
+static box Main { main() { local x = new Leaf(1)  local y = new Leaf(2)  local p = new Pair(move x, y, 5)  return p.v } }

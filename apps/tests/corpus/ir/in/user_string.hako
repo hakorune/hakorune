@@ -1,0 +1,5 @@
+box String { v: i64
+  birth(v) { me.v = v } }
+box Holder { s: String
+  birth(s) { me.s = s } }
+static box Main { main() { local a = new String(3)  local h = new Holder(a)  return 5 } }

@@ -1,0 +1,10 @@
+box Leaf {
+  value: i64
+  birth(value) { me.value = value }
+  get(): i64 { return me.value }
+}
+box Holder { l: Leaf  birth(take l: Leaf) { me.l = move l } }
+box Node { next: Leaf  v: i64  birth(take next: Leaf, v: i64) { me.next = move next  me.v = v } }
+box Plain { next: Leaf  v: i64  birth(next, v) { me.next = next  me.v = v } }
+box Cell { v: i64  birth(v) { me.v = v }  see(l: Leaf): i64 { return 3 } }
+static box Main { main() { local leaf = new Leaf(1)  local c = new Cell(2)  return c.see(5) } }

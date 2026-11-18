@@ -1,0 +1,15 @@
+box Holder {
+value: i64
+birth() { me.value = 1 }
+name(n: i64) {
+if n == 0 { return "あい" }
+return null
+}
+}
+static box Main {
+main() {
+local h = new Holder()
+local r = h.name(0).indexOf("い", 0)
+return r
+}
+}

@@ -1,0 +1,5 @@
+box P { v: i64
+  birth(v: i64) { me.v = v }
+}
+static box Main { run(f: fn(P): Bool) { return 0 }
+ main() { return 0 } }

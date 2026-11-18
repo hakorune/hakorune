@@ -1,0 +1,10 @@
+box V { x: i64 = 0 }
+static box Main { main(): i64 {
+  local a = new ArrayBox()
+  local v = new V()
+  v.x = 3
+  a.push(v)
+  local w = a.get(0)
+  print(w.x)
+  return 0
+} }

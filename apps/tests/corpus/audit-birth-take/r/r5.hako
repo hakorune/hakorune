@@ -1,0 +1,4 @@
+box Tail { v: i64  birth(v: i64) { me.v = v } }
+box Node { next: Tail  v: i64  birth(take next: Tail, v: i64) { me.next = next  me.v = v } }
+box Top { next: Node  v: i64  birth(take next: Node, v: i64) { me.next = next  me.v = v } }
+static box Main { main() { local t = new Tail(1)  local n = new Node(move t, 2)  local p = new Top(move n, 3)  return p.v } }

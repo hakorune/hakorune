@@ -1,0 +1,9 @@
+box V { x: i64 = 0 
+  birth(n: i64) { me.x = n } }
+static box Main { 
+ mk(n: i64): V { return new V(n) }
+ main(): i64 {
+  local v = me.mk(5)
+  print(v.x)
+  return 0
+} }

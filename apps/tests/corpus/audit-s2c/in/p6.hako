@@ -1,0 +1,7 @@
+static box Main {
+  down(n: i64): i64 { if n < 1 { return 7 } return Main.down(n - 1) }
+  main() {
+    print(Main.down(5))
+    return 0
+  }
+}

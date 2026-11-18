@@ -1,0 +1,4 @@
+static box Main {
+  t(x: i64) { return "ab" }
+  main() { local s = Main.t(1) print(s) return 0 }
+}

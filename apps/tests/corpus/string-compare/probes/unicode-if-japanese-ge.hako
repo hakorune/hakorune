@@ -1,0 +1,6 @@
+static box Main {
+ main() {
+if "猫" >= "犬" { return 7 }
+return 9
+ }
+}

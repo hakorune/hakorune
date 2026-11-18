@@ -1,0 +1,6 @@
+box Leaf { v: i64
+  birth(v) { me.v = v } }
+box Tag { name: String
+  birth() { me.name = new Leaf(1) }
+  size() { return 5 } }
+static box Main { main() { local t = new Tag() return t.size() } }

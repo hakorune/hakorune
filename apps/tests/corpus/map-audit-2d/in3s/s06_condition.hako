@@ -1,0 +1,13 @@
+static box Foo {
+    ping() {
+        return 3
+    }
+}
+static box Main {
+    main() {
+        if Foo.ping() == 3 {
+            return 1
+        }
+        return 0
+    }
+}

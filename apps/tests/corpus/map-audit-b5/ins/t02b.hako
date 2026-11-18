@@ -1,0 +1,10 @@
+static box Main {
+sq(a: i64): i64 {
+return a * a
+}
+main() {
+local x = 6
+local r = Main.sq(x)
+return r
+}
+}

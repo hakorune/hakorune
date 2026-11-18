@@ -1,0 +1,1 @@
+box Inner { value: i64 = 0 birth(v) { } } box Holder { capacity: i64 = 0 inner: Inner = new Inner(me.capacity) birth() { } seed() { } } static box Main { main() { return 1 } }

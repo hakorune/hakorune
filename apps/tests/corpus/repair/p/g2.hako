@@ -1,0 +1,1 @@
+box Holder { inner: Holder = new Holder() birth() { } seed() { } } static box Main { main() { return 1 } }

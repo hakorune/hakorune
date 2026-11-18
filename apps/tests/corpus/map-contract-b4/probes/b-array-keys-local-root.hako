@@ -1,0 +1,16 @@
+box Holder {
+ items: MapBox
+ birth() {
+ me.items = new MapBox()
+ }
+ probe() {
+local n = me.items.keys().length()
+return n
+ }
+}
+static box Main {
+ main() {
+local h = new Holder()
+return h.probe()
+ }
+}

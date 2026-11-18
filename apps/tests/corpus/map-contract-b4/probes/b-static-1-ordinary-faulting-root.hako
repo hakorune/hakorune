@@ -1,0 +1,19 @@
+static box Foo {
+a(n: i64): i64 {
+local s = "hello"
+local t = s.substring(8, 1)
+return copy n
+}
+}
+static box Search {
+find(n: i64): i64 {
+return Foo.a(5)
+}
+}
+static box Main {
+ main() {
+local v = Search.find(0)
+print(v)
+return 0
+ }
+}

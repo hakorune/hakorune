@@ -1,0 +1,7 @@
+static box Main {
+main() {
+local s = "he" + "llo"
+if true || (s.indexOf("" + "l") == 2) { return 7 }
+return 3
+}
+}

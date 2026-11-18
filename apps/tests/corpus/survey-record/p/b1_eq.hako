@@ -1,0 +1,9 @@
+box P { x: i64 = 0 }
+static box Main { main(): i64 {
+  local a = new P { x: 1 }
+  local b = new P { x: 1 }
+  local c = a
+  print(a == b)
+  print(a == c)
+  return 0
+} }

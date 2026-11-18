@@ -1,0 +1,8 @@
+static box Main {
+zero(): i64 {
+return 9
+}
+main() {
+return Main.zero() - Main.zero()
+}
+}

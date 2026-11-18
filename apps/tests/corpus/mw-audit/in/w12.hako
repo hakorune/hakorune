@@ -1,0 +1,12 @@
+static box Calc {
+  f(x: i64): i64 {
+    return x * 3 - 1
+  }
+}
+static box Main {
+  main() {
+    local r = Calc.f(4)
+    print(r)
+    return r
+  }
+}

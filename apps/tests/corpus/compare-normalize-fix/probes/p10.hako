@@ -1,0 +1,55 @@
+box Leaf {
+    v: i64
+    birth(v) {
+        me.v = v
+    }
+}
+box Holder {
+    leaf: Leaf
+    birth(leaf) {
+        me.leaf = leaf
+    }
+    probe(x): i64 {
+        local a = 0
+        if x > 1 {
+            a = a + 1
+        }
+        if x > 2 {
+            a = a + 2
+        }
+        if x > 3 {
+            a = a + 3
+        }
+        if x > 4 {
+            a = a + 4
+        }
+        if x > 5 {
+            a = a + 5
+        }
+        if x > 6 {
+            a = a + 6
+        }
+        if x > 7 {
+            a = a + 7
+        }
+        if x > 8 {
+            a = a + 8
+        }
+        if x > 9 {
+            a = a + 9
+        }
+        if x > 10 {
+            a = a + 10
+        }
+        if me.leaf == null {
+            return a
+        }
+        return a + 1
+    }
+}
+static box Main {
+  main() {
+    local h = new Holder(null)
+    return h.probe(3)
+  }
+}

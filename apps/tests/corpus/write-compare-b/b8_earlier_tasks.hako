@@ -1,0 +1,142 @@
+// T8 Design B: earlier T4b (required-child rewrite) under the frozen grammar, an in-place span
+// update, and a TypeId newtype. PAPER ONLY. Never compiled. Uses b0_common.hako and b2_parser.hako.
+// Expr gains one variant here: Cond(CondNode).
+
+box CondNode {
+    span: Span
+    cond: Expr
+    thenE: Expr
+    elseE: Expr?
+}
+
+static box Q {
+    intOf(e: Expr): i64? {
+        return match e {
+            Num(n) => n.value
+            _ => null
+        }
+    }
+}
+
+static box Folder {
+    fold(take e: Expr): Expr {
+        return match move e {
+            Unary(n) => Folder.foldUnary(move n)
+            Binary(n) => Folder.foldBinary(move n)
+            Cond(n) => Folder.foldCond(move n)
+            other => move other
+        }
+    }
+
+    foldUnary(take n: UnaryNode): Expr {
+        n.operand = Folder.fold(move n.operand)
+        local v = Q.intOf(n.operand)
+        if v != null && n.op == UnOp::Neg {
+            return Expr::Num(new NumNode { span: move n.span, value: -v })
+        }
+        return Folder.dropDoubleNeg(move n)
+    }
+
+    dropDoubleNeg(take n: UnaryNode): Expr {
+        return match move n.operand {
+            Unary(u) if u.op == n.op => move u.operand
+            other => Expr::Unary(new UnaryNode { span: move n.span, op: n.op, operand: move other })
+        }
+    }
+
+    foldBinary(take n: BinaryNode): Expr {
+        n.left = Folder.fold(move n.left)
+        n.right = Folder.fold(move n.right)
+        local l = Q.intOf(n.left)
+        local r = Q.intOf(n.right)
+        if l != null && r != null && n.op == BinOp::Add {
+            return Expr::Num(new NumNode { span: move n.span, value: l + r })
+        }
+        return Expr::Binary(move n)
+    }
+
+    foldCond(take n: CondNode): Expr {
+        n.cond = Folder.fold(move n.cond)
+        n.thenE = Folder.fold(move n.thenE)
+        local c = Q.intOf(n.cond)
+        if c == null {
+            return Expr::Cond(move n)
+        }
+        if c != 0 {
+            return move n.thenE
+        }
+        local f = take n.elseE
+        if f != null {
+            return Folder.fold(move f)
+        }
+        return Expr::Num(new NumNode { span: move n.span, value: 0 })
+    }
+}
+
+static box InPlace {
+    // Rule 12 is the same in both designs and no span is involved.
+    unwrapNeg(edit e: Expr): void {
+        match e {
+            Unary(n) if n.op == UnOp::Neg => {
+                e = move n.operand
+            }
+            _ => void
+        }
+    }
+
+    extendEnd(edit n: BinaryNode, last: i64): void {
+        n.span.end = last
+    }
+
+    widen(edit n: BinaryNode, other: Span): void {
+        n.span = n.span.merge(other)
+    }
+}
+
+// TypeId as a box. Each stored id needs `copy`, and `==` means identity.
+// WRONG: changing `ty: i64` to `ty: TypeId` keeps every `a.ty == b.ty` compiling with a new
+//        meaning: identity. Only two separately owned locals get the compile error.
+box TypeId {
+    raw: i64
+
+    equals(o: TypeId): Bool {
+        return me.raw == o.raw
+    }
+}
+
+static box TypeIds {
+    INT: TypeId = new TypeId { raw: 1 }
+    BOOL: TypeId = new TypeId { raw: 2 }
+}
+
+box TypedId {
+    ty: TypeId
+    span: Span
+}
+
+box TypeTable {
+    names: Map<String, TypeId> = new Map<String, TypeId>()
+    next: i64 = 3
+
+    edit intern(name: String): TypeId {
+        local found = me.names.get(name)
+        if found != null {
+            // OWNED: return found   (a borrow of me.names returned as an owned TypeId)
+            return copy found
+        }
+        local id = new TypeId { raw: me.next }
+        me.next += 1
+        me.names.set(copy name, copy id)
+        return id
+    }
+
+    unify(a: TypedId, b: TypedId, edit sink: DiagSink): TypedId {
+        // WRONG: if a.ty == b.ty {   (read borrows: compiles, false unless the same object)
+        if a.ty.equals(b.ty) {
+            return new TypedId { ty: copy a.ty, span: a.span.merge(b.span) }
+        }
+        sink.errorWith(a.span, b.span, "type mismatch")
+        // OWNED: return a   (a read parameter returned as an owned TypedId)
+        return copy a
+    }
+}

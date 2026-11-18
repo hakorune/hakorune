@@ -1,0 +1,8 @@
+box T {
+  f: String
+  birth(f) { me.f = f }
+  get(): String from me { return me.f }
+}
+static box Main {
+  main() { local t = new T("abc") print(t.get()) return 0 }
+}

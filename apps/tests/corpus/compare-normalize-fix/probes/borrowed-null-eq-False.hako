@@ -1,0 +1,11 @@
+static box Probe {
+ check(p): i64 {
+if p == null { return 7 }
+return 9
+ }
+}
+static box Main {
+ main() {
+return Probe.check(null)
+ }
+}

@@ -1,0 +1,1 @@
+static box Main { main() { if ("a" + "b") == "ab" { return 7 } return 0 } }

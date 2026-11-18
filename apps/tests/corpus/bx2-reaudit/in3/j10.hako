@@ -1,0 +1,16 @@
+box P {
+  v: i64
+  birth(v: i64) {
+    me.v = v
+  }
+}
+static box Main {
+  main() {
+    local p = new P(3)
+    local a = 0
+    if p.v > 1 {
+      a = p.v
+    }
+    return a + p.v
+  }
+}

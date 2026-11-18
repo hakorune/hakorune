@@ -1,0 +1,12 @@
+box Probe {
+ birth() { }
+ run(s: String): i64 {
+return s.length()
+}
+}
+static box Main {
+ main() {
+local p = new Probe()
+return p.run("あい")
+}
+}

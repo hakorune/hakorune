@@ -1,0 +1,15 @@
+static box Main {
+  ev(n: i64): Bool {
+    if n == 0 { return true }
+    local k = Main.od(n - 1)
+    return k
+  }
+  od(n: i64): Bool {
+    return n != 0
+  }
+  main() {
+    local b = Main.ev(3)
+    if b { print(1) } else { print(0) }
+    return 0
+  }
+}

@@ -1,0 +1,1 @@
+static box Main { main() { local first = "a" + "b" local text = first.length() print(text) return 0 } }

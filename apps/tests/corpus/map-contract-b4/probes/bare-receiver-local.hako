@@ -1,0 +1,6 @@
+static box Main {
+ main() {
+local b4result = ("he" + "llo").indexOf("l")
+return b4result
+ }
+}

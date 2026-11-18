@@ -1,0 +1,8 @@
+box B { s: String
+  n: i64
+  birth(s: String, n: i64) { me.s = s
+    me.n = n }
+}
+static box Main { main() { local t = new B("a", 3)
+  print(t.s)
+  return t.n } }

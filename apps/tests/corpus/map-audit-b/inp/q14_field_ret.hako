@@ -1,0 +1,15 @@
+box Holder {
+    name: StringBox
+    birth() {
+        me.name = "abc"
+    }
+    probe() {
+        return me.name.indexOf("c")
+    }
+}
+static box Main {
+    main() {
+        local h = new Holder()
+        return h.probe()
+    }
+}

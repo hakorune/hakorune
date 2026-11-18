@@ -1,0 +1,13 @@
+static box Main {
+  t(x: i64): Bool {
+    return x > 1
+  }
+  main() {
+    local k = 7
+    local a = Main.t(k * 0)
+    if a { print(1) } else { print(0) }
+    local b = Main.t(k)
+    if b { print(1) } else { print(0) }
+    return 0
+  }
+}

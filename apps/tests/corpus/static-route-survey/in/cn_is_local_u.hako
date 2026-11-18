@@ -1,0 +1,14 @@
+box Ctx {
+  birth() {
+  }
+}
+static box Main {
+  f(x) {
+    return 7
+  }
+  main() {
+    local z = new Ctx()
+    local a = Main.f("s")
+    return 0
+  }
+}

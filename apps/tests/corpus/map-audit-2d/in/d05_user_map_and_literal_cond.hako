@@ -1,0 +1,19 @@
+box MapBox {
+    x: i64
+    birth() {
+        me.x = 11
+    }
+    val() {
+        return me.x
+    }
+}
+static box Main {
+    main() {
+        local m = %{"k" => 4}
+        local u = new MapBox()
+        if m.get("k") == 4 {
+            return u.val()
+        }
+        return 0
+    }
+}

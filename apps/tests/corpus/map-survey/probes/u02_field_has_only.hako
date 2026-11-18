@@ -1,0 +1,30 @@
+box Item {
+  init { n }
+  birth(n) {
+    me.n = n
+  }
+}
+box Holder {
+  init { m }
+  birth() {
+    me.m = new MapBox()
+  }
+  put(user) {
+    local it = new Item(7)
+    me.m.set(user, it)
+    return 0
+  }
+  has_it(user) {
+    if me.m.has(user) {
+      return 1
+    }
+    return 0
+  }
+}
+static box Main {
+  main() {
+    local h = new Holder()
+    h.put("x")
+    return h.has_it("x")
+  }
+}

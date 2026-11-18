@@ -1,0 +1,9 @@
+static box Main {
+  main() {
+    local a = 4
+    if a > 2 {
+      a = a * 3
+    }
+    return a - 1
+  }
+}

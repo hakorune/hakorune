@@ -1,0 +1,7 @@
+static box Main {
+  main() {
+    local a = new ArrayBox()
+    print(a)
+    return 0
+  }
+}

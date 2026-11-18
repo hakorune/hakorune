@@ -1,0 +1,11 @@
+static box Readings {
+read(n: i64): Bool {
+local b4ret0 = ("ab" + "cd").length(); return b4ret0
+}
+}
+static box Main {
+main() {
+if Readings.read(0) == 4 { local b4ret1 = 0; return b4ret1}
+local b4ret2 = 1; return b4ret2
+}
+}

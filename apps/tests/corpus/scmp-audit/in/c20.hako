@@ -1,0 +1,8 @@
+static box Main {
+  main() {
+    local a = "abc"
+    local b = "abd"
+    if a.substring(0, 2) == b.substring(0, 2) { return 31 }
+    return 32
+  }
+}

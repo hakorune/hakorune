@@ -1,0 +1,1 @@
+static box Main { f(src, i) { return src.substring(i, i+1) } main() { local r = Main.f("abc", 1) print(r) return 0 } }

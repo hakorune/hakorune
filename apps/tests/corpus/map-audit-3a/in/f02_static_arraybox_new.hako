@@ -1,0 +1,12 @@
+static box ArrayBox {
+    ping() {
+        return 3
+    }
+}
+static box Main {
+    main() {
+        local a = new ArrayBox()
+        a.push(4)
+        return a.length()
+    }
+}

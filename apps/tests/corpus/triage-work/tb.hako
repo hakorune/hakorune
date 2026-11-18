@@ -1,0 +1,5 @@
+static box Values {
+  caller(key, other) { local needle = "x" + key print(needle) return 0 }
+  seed() { return Values.caller(true, "spare") }
+}
+static box Main { main() { return Values.seed() } }

@@ -1,0 +1,10 @@
+record Point { x: i64
+ y: i64 }
+static box Main {
+ mk(): Point { local p = Point { x: 1, y: 2 }
+   return p }
+ main(): i64 {
+  local p = me.mk()
+  print(p.x)
+  return 0
+} }

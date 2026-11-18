@@ -1,0 +1,4 @@
+static box Main {
+  even(n: i64) { if n == 0 { return true } else { return Main.even(n - 2) } }
+  main() { print(Main.even(10))  return 0 }
+}

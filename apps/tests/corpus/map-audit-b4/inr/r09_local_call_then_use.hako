@@ -1,0 +1,10 @@
+static box Main {
+    word() {
+        return "hello"
+    }
+    main() {
+        local n = Main.word().length()
+        local m = Main.word().indexOf("l")
+        return n * 10 + m
+    }
+}

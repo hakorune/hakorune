@@ -1,0 +1,121 @@
+// Design B, shared declarations used by every task. PAPER ONLY. Never compiled.
+// Markers and readings A1-A7: see r0_common.hako. A8 does not apply: a box read borrows.
+//   B1 `copy x` on `T?` is not in the design statement. It is written here with a null branch.
+//   B2 A box with methods, field initializers and no birth or fini still satisfies `copy`.
+
+enum TokKind {
+    Ident
+    Int
+    Str
+    KwFn
+    KwLet
+    KwReturn
+    KwIf
+    KwElse
+    Plus
+    Minus
+    Star
+    Slash
+    Bang
+    Assign
+    EqEq
+    BangEq
+    Lt
+    Gt
+    LParen
+    RParen
+    LBrace
+    RBrace
+    Comma
+    Colon
+    Semi
+    Bad
+    Eof
+}
+
+enum Severity {
+    Error
+    Warning
+}
+
+// No birth and no fini, or `copy` stops working at every use site.
+box Span {
+    start: i64
+    end: i64
+
+    merge(o: Span): Span {
+        return new Span { start: Math.min(me.start, o.start), end: Math.max(me.end, o.end) }
+    }
+
+    // `==` on a box is identity, so content equality is this ordinary method.
+    equals(o: Span): Bool {
+        return me.start == o.start && me.end == o.end
+    }
+
+    cmp(o: Span): i64 {
+        if me.start != o.start {
+            return me.start - o.start
+        }
+        return me.end - o.end
+    }
+}
+
+box Pos {
+    line: i64
+    col: i64
+}
+
+static box Spans {
+    eqOpt(a: Span?, b: Span?): Bool {
+        if a == null || b == null {
+            return a == null && b == null
+        }
+        return a.equals(b)
+    }
+
+    // B1: `copy a` on Span? is not stated, so the null branch is written out.
+    copyOpt(a: Span?): Span? {
+        if a == null {
+            return null
+        }
+        return copy a
+    }
+
+    at(xs: Array<Span>, i: i64): Span from xs {
+        local s = xs.get(i)
+        guard s != null else {
+            panic("span index out of range")
+        }
+        return s
+    }
+}
+
+box Token {
+    kind: TokKind
+    span: Span
+    text: String
+}
+
+box Diagnostic {
+    severity: Severity
+    span: Span
+    related: Span?
+    message: String
+}
+
+box DiagSink {
+    items: Array<Diagnostic> = []
+
+    edit error(sp: Span, take message: String): void {
+        me.items.push(new Diagnostic { severity: Severity::Error, span: copy sp, message: move message })
+    }
+
+    edit errorWith(sp: Span, related: Span, take message: String): void {
+        me.items.push(new Diagnostic {
+            severity: Severity::Error,
+            span: copy sp,
+            related: copy related,
+            message: move message
+        })
+    }
+}

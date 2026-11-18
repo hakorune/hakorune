@@ -1,0 +1,121 @@
+// T4c: the rewrite when the node is only available through a `mut` borrow.
+// PAPER ONLY. Never compiled.
+// `mut p: T` is spelled by analogy with `take p: T`; no grammar or parser row exists for it.
+
+// === COMMON ===
+box LetStmt {
+    init: Lit      // required child
+    hint: Lit?     // nullable child
+}
+
+box Lit {
+    value: i64
+}
+
+// === nullable through mut ===
+static box NullableMut {
+    // RULE-OK: ownership.md rule 8 ("mutation permission on the field path").
+    rewrite(mut s: LetStmt): void {
+        s.hint = me.fold_opt(take s.hint)
+    }
+
+    fold(take l: Lit): Lit {
+        l.value = l.value + 1
+        return l
+    }
+
+    fold_opt(take l: Lit?): Lit? {
+        if l == null {
+            return null
+        }
+        return me.fold(move l)
+    }
+}
+
+// === required through mut ===
+static box RequiredMut {
+    // First drafts, each rejected:
+    //   s.init = me.fold(move s.init)
+    //     EBNF.md:278 `move` takes IDENT. The candidate excludes a `mut` parent explicitly
+    //     (ADR 前置きの所有操作: "`mut`借用の親とShared handle経由は不可", and its last
+    //     sentence says the candidate does not solve this case).
+    //   s.init = me.fold(take s.init)
+    //     ownership.md rule 8 rejects a non-nullable T field.
+    //   local old = replace s.init, new Lit { value: 0 }
+    //     `replace` is deferred (rule 8), and it needs a dummy, which the gate forbids.
+    //
+    // Decided form A: read to fresh. The subtree is rebuilt, not reused.
+    rebuild(mut s: LetStmt): void {
+        s.init = me.fold_read(s.init)
+    }
+
+    fold_read(l: Lit): Lit {
+        return new Lit { value: l.value + 1 }
+    }
+
+    // Decided form B: mutate in place by passing the field place to a `mut` parameter.
+    // No move at all, but the child's identity cannot change: the rewrite cannot replace
+    // the node or change its variant.
+    in_place(mut s: LetStmt): void {
+        me.bump(s.init)
+    }
+
+    bump(mut l: Lit): void {
+        l.value = l.value + 1
+    }
+}
+
+// === whole node through mut ===
+static box WholeMut {
+    // First draft, not settled:
+    //   rewrite(mut node: Lit): void { node = new Lit { value: 0 } }
+    // GAP: assignment to a `mut` parameter has no written meaning. It could rebind the local,
+    // write through to the caller's slot or be rejected. ownership.md:1001-1012 leaves local
+    // reassignment open and §0 does not close it. `move node` is rejected either way, because
+    // a `mut` borrow owns nothing.
+    // The only written way is to go through the holder's field, as in the sections above.
+    rewrite_through_holder(mut s: LetStmt): void {
+        s.init = new Lit { value: 0 }
+    }
+}
+
+// === enum child through mut ===
+enum Expr {
+    Num(Lit)
+    Neg(NegBox)
+}
+
+box NegBox {
+    body: Expr
+}
+
+static box EnumMut {
+    // First draft, rejected:
+    //   visit(mut e: Expr): void { match e { Num(l) => { l.value = 0 }  Neg(n) => me.visit(n.body) } }
+    // Arm bindings are read borrows (ADR 型検査: "Unique payloadはeに支持されたread借用").
+    // No rule lets a binding inherit `mut` from the scrutinee, so an enum payload cannot be
+    // mutated through a `mut` borrow, and no `mut` descent passes an enum at all.
+    // Only read-to-fresh remains:
+    visit(mut holder: NegBox): void {
+        holder.body = me.rebuild(holder.body)
+    }
+
+    rebuild(e: Expr): Expr {
+        return match e {
+            Num(l) => Expr::Num(new Lit { value: 0 })
+            Neg(n) => Expr::Neg(new NegBox { body: me.rebuild(n.body) })
+        }
+    }
+}
+
+// === caller ===
+static box Main {
+    main(): i64 {
+        local st = new LetStmt { init: new Lit { value: 1 }, hint: new Lit { value: 2 } }
+        NullableMut.rewrite(st)
+        RequiredMut.rebuild(st)
+        RequiredMut.in_place(st)
+        WholeMut.rewrite_through_holder(st)
+        return st.init.value
+    }
+}

@@ -1,0 +1,9 @@
+box Leaf {
+ value: i64
+ birth(v: i64) { me.value = v }
+ get(): i64 { return me.value }
+}
+static box Main {
+ textarg(take p: Leaf, text): i64 { local n = text.length() return p.get() + n }
+ main() { local a = new Leaf(4) return Main.textarg(move a, "a" + "b") }
+}

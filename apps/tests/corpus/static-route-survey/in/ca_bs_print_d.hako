@@ -1,0 +1,9 @@
+static box Main {
+  f(x: String): Bool {
+    return true
+  }
+  main(args) {
+    print(Main.f("s"))
+    return 0
+  }
+}

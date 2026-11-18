@@ -1,0 +1,1 @@
+static box Main { main() { local r = Main.a("x") print(r) return 0 } a(s: String): i64 { return 1 } }

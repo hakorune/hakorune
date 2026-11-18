@@ -1,0 +1,8 @@
+static box Main {
+make() { return "あい" }
+needle() { return "い" }
+main() {
+local b4result = Main.make().length()
+return b4result
+}
+}

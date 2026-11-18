@@ -1,0 +1,6 @@
+box K { n: i64
+  birth() { me.n = 0 }
+  take(x: i64) { return x }
+}
+static box Main { main() { local k = new K()
+  return k.take(3) } }

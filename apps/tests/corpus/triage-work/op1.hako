@@ -1,0 +1,2 @@
+box Transport { birth() { } probe(p) { return p } }
+static box Main { main() { local recv = new Transport() local out = recv.probe(7) return out } }

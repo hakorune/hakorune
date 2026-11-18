@@ -1,0 +1,12 @@
+static box Foo {
+ping(): i64 {
+local s = "hello"
+local t = s.substring(8, 1)
+local b4ret0 = 7; return b4ret0
+}
+}
+static box Main {
+ main() {
+local b4ret1 = Foo.ping(); return b4ret1
+ }
+}

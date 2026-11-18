@@ -1,0 +1,9 @@
+box Payload {
+  value: i64
+  birth() { me.value = 7 }
+}
+static box Main {
+  later(): i64 { local scratch = new Payload() return 1 }
+  consume(take p: Payload, marker: i64, take q: Payload): i64 { local scratch = new Payload() return 7 }
+  main() { return me.consume(new Payload(), me.later(), new Payload()) }
+}

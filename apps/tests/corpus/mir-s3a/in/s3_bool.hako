@@ -1,0 +1,12 @@
+box Calc {
+  f(x: i64): bool {
+    return true
+  }
+}
+static box Main {
+  main() {
+    local c = new Calc()
+    local r = c.f(3)
+    return 0
+  }
+}

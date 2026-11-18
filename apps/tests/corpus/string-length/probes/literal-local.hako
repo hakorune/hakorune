@@ -1,0 +1,7 @@
+static box Main {
+main() {
+local n = "あい".length()
+print(n)
+return n
+}
+}

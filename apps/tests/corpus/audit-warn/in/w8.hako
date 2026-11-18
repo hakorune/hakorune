@@ -1,0 +1,12 @@
+box Tag {
+  name: String
+  n: i64
+  birth(name: String, n: i64) { me.name = name  me.n = n }
+  cnt(): i64 { local i = 0  local k = me.name.length()  loop(i < k) { i = i + 1 }  return i }
+}
+static box Main {
+  main() {
+    local t = new Tag("abcde", 3)
+    print(t.cnt())  return 0
+  }
+}

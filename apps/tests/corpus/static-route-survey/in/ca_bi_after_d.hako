@@ -1,0 +1,12 @@
+static box Main {
+  f(v: i64): Bool {
+    return v > 1
+  }
+  main(args) {
+    local a = Main.f(5)
+    if a {
+      return 1
+    }
+    return 0
+  }
+}

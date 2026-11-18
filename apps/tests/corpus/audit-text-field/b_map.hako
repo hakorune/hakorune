@@ -1,0 +1,4 @@
+box Tag { name: String
+  birth() { me.name = new MapBox() }
+  size() { return 5 } }
+static box Main { main() { local t = new Tag() return t.size() } }

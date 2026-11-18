@@ -1,0 +1,1 @@
+static box Main { main() { local n = 3 local i = 0 local out = "" loop(i < n) { local x = "a" out = out + x i = i + 1 } print(out) return 0 } }

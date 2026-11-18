@@ -1,0 +1,8 @@
+static box Main {
+  main() {
+    local s = "あ"
+    local t = "い"
+    if s != t && s < t && t > s && s <= s && t >= t { return 29 }
+    return 30
+  }
+}

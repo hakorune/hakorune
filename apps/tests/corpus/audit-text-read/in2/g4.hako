@@ -1,0 +1,10 @@
+box Leaf { birth() { } }
+box N { name: String
+  next
+  birth(name: String, next) { me.name = name
+    me.next = next }
+}
+static box Main { main() { local l = new Leaf()
+  local t = new N("abc", l)
+  print(t.name)
+  return 0 } }

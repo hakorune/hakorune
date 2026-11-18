@@ -1,0 +1,9 @@
+box Token { birth() {} }
+static box Main {
+  a(x: i64): i64 { return 10 / x }
+  main() {
+    local t = new Token()
+    if Main.a(0) < 3 { print(1) } else { print(2) }
+    return 0
+  }
+}

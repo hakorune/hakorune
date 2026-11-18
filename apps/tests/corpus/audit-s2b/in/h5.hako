@@ -1,0 +1,11 @@
+box P { v: i64  birth() { me.v = 1 } }
+static box Main {
+  b(x: i64): i64 { return x + 1 }
+  main() {
+    local p = new P()
+    local x = 5
+    local r = Main.b(10 - x)
+    print(r + p.v)
+    return 0
+  }
+}

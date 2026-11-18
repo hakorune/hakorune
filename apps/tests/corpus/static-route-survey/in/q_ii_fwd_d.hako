@@ -1,0 +1,12 @@
+static box Main {
+  f(v: i64): i64 {
+    return v + 1
+  }
+  g(): i64 {
+    return Main.f(5)
+  }
+  main() {
+    local a = Main.g()
+    return 0
+  }
+}

@@ -1,0 +1,11 @@
+static box Foo {
+    ping() {
+        return 3
+    }
+}
+static box Main {
+    main() {
+        local f = new Foo()
+        return 1
+    }
+}

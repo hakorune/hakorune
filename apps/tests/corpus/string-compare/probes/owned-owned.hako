@@ -1,0 +1,6 @@
+static box Main {
+ main() {
+print(("a" + "é") == ("" + "aé"))
+return 0
+ }
+}

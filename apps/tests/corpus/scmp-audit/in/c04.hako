@@ -1,0 +1,11 @@
+static box Cmp {
+  pick(a: String, b: String): i64 {
+    if a <= b { return 1 }
+    return 2
+  }
+}
+static box Main {
+  main() {
+    return Cmp.pick("zeta", "alpha") + Cmp.pick("a", "a") * 10
+  }
+}

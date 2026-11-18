@@ -1,0 +1,12 @@
+static box Readings {
+read(n: i64): i64 {
+local s = "hello"
+local b4ret0 = ("he" + "llo").indexOf("l"); return b4ret0
+}
+}
+static box Main {
+main() {
+if Readings.read(0) == 2 { local b4ret1 = 0; return b4ret1}
+local b4ret2 = 1; return b4ret2
+}
+}

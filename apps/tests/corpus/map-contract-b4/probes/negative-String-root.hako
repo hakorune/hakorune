@@ -1,0 +1,11 @@
+static box Readings {
+read(n: i64): String {
+return ("ab" + "cd").length()
+}
+}
+static box Main {
+main() {
+if Readings.read(0) == 4 { return 0 }
+return 1
+}
+}

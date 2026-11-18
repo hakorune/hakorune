@@ -1,0 +1,8 @@
+box P { v: i64
+  birth(v: i64) { me.v = v }
+}
+static box Main { pick(a: P, b: P): P from a { return a }
+ main() { local a = new P(6)
+  local b = new P(1)
+  local r = me.pick(a, b)
+  return 6 } }

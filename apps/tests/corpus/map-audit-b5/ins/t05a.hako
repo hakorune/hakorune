@@ -1,0 +1,11 @@
+static box Main {
+sq(a: i64): i64 {
+return a * a
+}
+twice(a: i64): i64 {
+return Main.sq(a)
+}
+main() {
+return Main.twice(3)
+}
+}

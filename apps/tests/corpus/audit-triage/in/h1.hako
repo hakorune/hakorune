@@ -1,0 +1,1 @@
+box Inner { items: ArrayBox = new ArrayBox() birth() { } } box Holder { inner: Inner = new Inner() birth() { } seed() { } } static box Main { main() { local h = new Holder() return 1 } }

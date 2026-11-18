@@ -1,0 +1,6 @@
+static box Main {
+ main() {
+print("é" == "界")
+return 0
+ }
+}

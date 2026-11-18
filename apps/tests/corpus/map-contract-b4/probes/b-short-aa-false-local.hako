@@ -1,0 +1,7 @@
+static box Main {
+ main() {
+local s = "he" + "llo"
+if false && (s.indexOf("l") == 2) { local b4ret0 = 7; return b4ret0}
+local b4ret1 = 3; return b4ret1
+ }
+}

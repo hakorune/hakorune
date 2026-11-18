@@ -1,0 +1,1 @@
+box H { items birth() { me.items = new ArrayBox() } add(x: i64) { me.items.push(x) } } static box Main { main() { local h = new H() h.add(1) print(0) return 0 } }

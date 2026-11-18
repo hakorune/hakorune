@@ -1,0 +1,12 @@
+static box Main {
+  main() {
+    local x = 7
+    local y = 0
+    if x > 5 {
+      y = x - 5
+    } else {
+      y = 5 - x
+    }
+    return y * y * y
+  }
+}

@@ -1,0 +1,8 @@
+box P { x: i64 = 0 }
+box Q { 
+  init { x }
+  birth() { me.x = 1 }
+}
+static box Main { main(): i64 {
+  return 0
+} }

@@ -1,0 +1,14 @@
+static box Main {
+  main() {
+    local x = 4
+    local a = 1
+    if x > 5 {
+      a = 2
+    } else {
+      if x > 2 {
+        a = 3
+      }
+    }
+    return a * 10
+  }
+}

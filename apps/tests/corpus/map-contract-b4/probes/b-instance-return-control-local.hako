@@ -1,0 +1,12 @@
+box Holder {
+    value: i64
+    birth() { me.value = 7 }
+    helper(): i64 { local b4ret0 = me.value; return b4ret0}
+    probe(): i64 { local b4ret1 = me.helper(); return b4ret1}
+}
+static box Main {
+    main() {
+        local h = new Holder()
+        local b4ret2 = h.probe(); return b4ret2
+    }
+}

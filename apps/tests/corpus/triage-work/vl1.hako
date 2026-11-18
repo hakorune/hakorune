@@ -1,0 +1,6 @@
+box Page {
+    v: i64
+    birth(v) { me.v = v }
+    via_local() { local page = new Page(3) return page }
+}
+static box Main { main() { local p = new Page(0) local q = p.via_local() return q.v } }

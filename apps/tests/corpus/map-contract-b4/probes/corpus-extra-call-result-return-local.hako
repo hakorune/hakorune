@@ -1,0 +1,6 @@
+static box Main {
+make() { return "あい" }
+main() {
+local b4ret = Main.make().length(); return b4ret
+}
+}

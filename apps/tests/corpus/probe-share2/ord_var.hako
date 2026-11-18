@@ -1,0 +1,7 @@
+static box Main {
+  main() {
+    local share = 7
+    local b = share + 1
+    return b
+  }
+}

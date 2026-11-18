@@ -1,0 +1,12 @@
+box Tag {
+  name: String
+  n: i64
+  birth(name: String, n: i64) { me.name = name  me.n = n }
+  set(): i64 { me.name = 5  return 0 }
+}
+static box Main {
+  main() {
+    local t = new Tag("abc", 3)
+    print(t.name)  return 0
+  }
+}

@@ -1,0 +1,8 @@
+static box Main {
+  main() {
+    local s = "x"
+    local t = "y"
+    if s == "x" && t != "z" { return 5 }
+    return 6
+  }
+}

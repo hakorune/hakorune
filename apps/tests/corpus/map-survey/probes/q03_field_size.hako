@@ -1,0 +1,21 @@
+box Holder {
+  init { m }
+  birth() {
+    me.m = new MapBox()
+  }
+  put(k, v) {
+    me.m.set(k, v)
+    return 0
+  }
+  count() {
+    return me.m.size()
+  }
+}
+static box Main {
+  main() {
+    local h = new Holder()
+    h.put("a", 4)
+    h.put("b", 5)
+    return h.count()
+  }
+}

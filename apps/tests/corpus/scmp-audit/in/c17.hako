@@ -1,0 +1,11 @@
+static box Name {
+  get(): String {
+    return "neko"
+  }
+}
+static box Main {
+  main() {
+    if Name.get() == "neko" { return 27 }
+    return 28
+  }
+}

@@ -1,0 +1,9 @@
+static box Main {
+  main() {
+    local a = 9
+    if a > 3 {
+      a = a + 3
+    }
+    return a / 4 + a % 4
+  }
+}

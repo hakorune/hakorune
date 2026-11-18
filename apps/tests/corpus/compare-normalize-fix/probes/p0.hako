@@ -1,0 +1,25 @@
+box Leaf {
+    v: i64
+    birth(v) {
+        me.v = v
+    }
+}
+box Holder {
+    leaf: Leaf
+    birth(leaf) {
+        me.leaf = leaf
+    }
+    probe(x): i64 {
+        local a = 0
+        if me.leaf == null {
+            return a
+        }
+        return a + 1
+    }
+}
+static box Main {
+  main() {
+    local h = new Holder(null)
+    return h.probe(3)
+  }
+}

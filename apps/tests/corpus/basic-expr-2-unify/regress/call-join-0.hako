@@ -1,0 +1,7 @@
+static box Main {
+ left(n: i64): i64 { return n + 3 }
+ right(n: i64): i64 { return n * 2 }
+ main() {
+local a = 5 local flag = 0 if flag == 1 { a = Main.left(2) } else { a = Main.right(3) } return a + 1
+ }
+}

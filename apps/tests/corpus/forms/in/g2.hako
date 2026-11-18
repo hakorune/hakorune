@@ -1,0 +1,7 @@
+box P { v: i64
+  birth(v: i64) { me.v = v }
+}
+static box Main { main() { local delta = 1
+  local total = 0
+  local f = fn[delta, edit total](c: P): i64 { return 0 }
+  return 0 } }

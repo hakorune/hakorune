@@ -1,0 +1,7 @@
+box C {
+  birth() { }
+  t(x: i64) { return "ab" }
+}
+static box Main {
+  main() { local c = new C() local s = c.t(1) print(s) return 0 }
+}

@@ -1,0 +1,9 @@
+static box Main {
+    main() {
+        local s = "k"
+        if s.length() == 1 {
+            return ("a" + s).length()
+        }
+        return 9
+    }
+}

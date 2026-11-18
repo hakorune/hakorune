@@ -1,0 +1,13 @@
+box Tag {
+  name: String
+  n: i64
+  birth(name: String, n: i64) { me.name = name  me.n = n }
+  cnt(): i64 { local a = new ArrayBox()  a.push(1)  a.push(2)  local k = a.length()  return k }
+}
+static box Main {
+
+  main() {
+    local t = new Tag("abcde", 3)
+    print(t.cnt())  return 0
+  }
+}

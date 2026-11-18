@@ -1,0 +1,4 @@
+box Tag { name
+  birth(name) { me.name = "abc" }
+}
+static box Main { main() { local t = new Tag("abc")  return t.name.length() } }

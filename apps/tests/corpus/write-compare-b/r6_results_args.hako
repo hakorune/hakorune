@@ -1,0 +1,120 @@
+// T6 Design R: results returning one owned and one small value; an argument bundle of six values.
+// PAPER ONLY. Never compiled. Uses r0_common.hako and r2_parser.hako. Rect here is its own four-field type.
+
+// UNNATURAL: return (move e, sp)   There are no tuples, so each two-value result is a named box.
+// It cannot be a record because it holds an owned Expr.
+box Parsed {
+    expr: Expr
+    span: Span
+}
+
+// Two small values do fit a record.
+record Scanned {
+    next: i64
+    span: Span
+}
+
+box NamedResult {
+    name: String
+    count: i64
+}
+
+static box Results {
+    atom(start: i64): Parsed {
+        local sp = Span { start: start, end: start + 1 }
+        return new Parsed { expr: Expr::Num(NumNode { span: sp, value: start }), span: sp }
+    }
+
+    scan(start: i64): Scanned {
+        return Scanned { next: start + 1, span: Span { start: start, end: start + 1 } }
+    }
+
+    wrap(take p: Parsed): Expr {
+        return Expr::Unary(new UnaryNode { span: p.span, op: UnOp::Neg, operand: move p.expr })
+    }
+
+    // Unbundling: the small value and the owned value leave separately (rule 9).
+    useBoth(edit sink: DiagSink, take p: Parsed): Expr {
+        local sp = p.span
+        local e = move p.expr
+        sink.error(sp, "seen")
+        return e
+    }
+
+    countNames(names: Array<String>, prefix: String): NamedResult {
+        local n = 0
+        local last = ""
+        loop i in 0..names.length() {
+            local s = names.get(i)
+            guard s != null else {
+                continue
+            }
+            if s.startsWith(prefix) {
+                n += 1
+                last = copy s
+            }
+        }
+        return new NamedResult { name: move last, count: n }
+    }
+}
+
+// Six values, all numbers: a record with `with`.
+record LayoutArgs {
+    x: i64
+    y: i64
+    width: i64
+    height: i64
+    depth: i64 = 0
+    flags: i64 = 0
+}
+
+record Rect {
+    x: i64
+    y: i64
+    width: i64
+    height: i64
+}
+
+static box Layout {
+    place(a: LayoutArgs, edit out: Array<Rect>): void {
+        out.push(Rect { x: a.x, y: a.y, width: a.width, height: a.height })
+        if a.depth >= 3 {
+            return
+        }
+        Layout.place(a with { x: a.x + 4, width: a.width - 8, depth: a.depth + 1 }, edit out)
+        Layout.place(a with { y: a.y + a.height, depth: a.depth + 1 }, edit out)
+    }
+
+    start(width: i64, height: i64): Array<Rect> {
+        local out: Array<Rect> = []
+        Layout.place(LayoutArgs { x: 0, y: 0, width: width, height: height }, edit out)
+        return out
+    }
+}
+
+// The same bundle with one String. It must become a box in this design, so `with` is gone and
+// no `copy` is available either: every field is written again. The other 5 fields are numbers.
+// Any existing LayoutArgs code would change: each literal gains `new`, each `with` is rewritten
+// by hand, and each `local x = a` flips from copy to borrow.
+box StyledArgs {
+    font: String
+    x: i64
+    y: i64
+    width: i64
+    height: i64
+    flags: i64 = 0
+}
+
+static box Styled {
+    // WRONG: omit `flags: a.flags` below   (the default 0 applies silently: compiles)
+    indented(a: StyledArgs, by: i64): StyledArgs {
+        return new StyledArgs {
+            font: copy a.font,
+            x: a.x + by,
+            y: a.y,
+            width: a.width - by * 2,
+            height: a.height,
+            flags: a.flags
+        }
+    }
+}

@@ -1,0 +1,1 @@
+static box Main { name(): String { return "abc" } main() { local r = Main.name() print(r) return 0 } }

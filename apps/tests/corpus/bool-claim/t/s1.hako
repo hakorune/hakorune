@@ -1,0 +1,11 @@
+static box Main {
+  sum(n: i64): i64 {
+    if n == 0 { return 0 }
+    return n + Main.sum(n - 1)
+  }
+  main() {
+    local b = Main.sum(4)
+    print(b)
+    return 0
+  }
+}

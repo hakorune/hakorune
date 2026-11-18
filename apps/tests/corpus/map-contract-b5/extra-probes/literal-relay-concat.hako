@@ -1,0 +1,16 @@
+box Holder {
+value: i64
+birth() { me.value = 1 }
+name() {
+return "あい"
+}
+relay() {
+return me.name() + "う"
+}
+}
+static box Main {
+main() {
+local h = new Holder()
+return h.relay().length()
+}
+}

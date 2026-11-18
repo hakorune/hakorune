@@ -1,0 +1,7 @@
+static box Main {
+  b(x: i64, y: i64): i64 { return x - y }
+  main() {
+    print(Main.b(5, 2))
+    return 0
+  }
+}

@@ -1,0 +1,2 @@
+box Counter { n: i64 other: i64 birth() { me.n = 7 me.other = 0 } read() { return me.n } echo(p) { return me.read() } plain(p) { return p } }
+static box Main { main() { local c = new Counter() print("arg=" + c.echo(9)) return 0 } }

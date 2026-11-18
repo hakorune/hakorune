@@ -1,0 +1,26 @@
+static box P {
+  t(s): Bool {
+    if s == "a" {
+      return true
+    }
+    return false
+  }
+  u(s): Bool {
+    local r = P.t(s)
+    if r {
+      return false
+    }
+    return true
+  }
+}
+static box Main {
+  main() {
+    local b = P.u("a")
+    if b {
+      print(1)
+    } else {
+      print(0)
+    }
+    return 0
+  }
+}

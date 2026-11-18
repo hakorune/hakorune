@@ -1,0 +1,12 @@
+box MapBox {
+    x: i64
+    get(k) {
+        return 77
+    }
+}
+static box Main {
+    main() {
+        local m = new MapBox()
+        return m.get("k")
+    }
+}

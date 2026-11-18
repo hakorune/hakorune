@@ -1,0 +1,10 @@
+box Token { birth() {} }
+static box Main {
+  a(x: i64): i64 { return 10 / x }
+  main() {
+    local t = new Token()
+    local r = Main.a(0)
+    print(r)
+    return 0
+  }
+}

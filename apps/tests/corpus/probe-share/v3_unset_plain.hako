@@ -1,0 +1,21 @@
+box TreeNode {
+    left: TreeNode
+    value: i64
+    birth(value) {
+
+        me.value = value
+    }
+    check(): i64 {
+        if me.left == null {
+            return 1
+        }
+        return 2
+    }
+}
+static box Main {
+  main() {
+    local n = new TreeNode(5)
+    local v = n.check()
+    return v
+  }
+}

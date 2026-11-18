@@ -1,0 +1,21 @@
+box Pair {
+  left: i64
+  right: i64
+
+  birth(left, right) {
+    me.left = left
+    me.right = right
+  }
+}
+
+static box Main {
+  main() {
+    local pair = new Pair(10, 20)
+    local first = share move pair
+    local fresh = share new Pair(30, 40)
+    local copy = share first
+    local moved = move copy
+    local value = moved.left
+    return value
+  }
+}

@@ -1,0 +1,9 @@
+record V { x: i64 }
+record S { a: V
+ b: V }
+static box Main { main(): i64 {
+  local v = V { x: 1 }
+  local s = S { a: V { x: 1 }, b: V { x: 2 } }
+  print(s.a.x)
+  return 0
+} }

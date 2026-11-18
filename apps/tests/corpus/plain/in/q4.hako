@@ -1,0 +1,1 @@
+static box Main { main() { local x = 1 print(x) return 0 } }

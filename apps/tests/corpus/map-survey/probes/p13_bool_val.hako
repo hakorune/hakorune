@@ -1,0 +1,8 @@
+static box Main {
+  main() {
+    local m = new MapBox()
+    m.set("k", true)
+    if m.get("k") { return 1 }
+    return 0
+  }
+}

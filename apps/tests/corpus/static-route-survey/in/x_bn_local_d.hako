@@ -1,0 +1,11 @@
+static box Other {
+  f(): Bool {
+    return true
+  }
+}
+static box Main {
+  main() {
+    local a = Other.f()
+    return 0
+  }
+}

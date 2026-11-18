@@ -1,0 +1,1 @@
+static box Main {{ main() {{ {main} }} helper(value: i64): i64 {{ {helper} }} }}

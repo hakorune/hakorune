@@ -1,0 +1,6 @@
+static box Main {
+ bad(): i64 { local s = "a" local start = 0 - 1 local t = s.substring(start, 1) return t.length() }
+ main() {
+local a = 2 if a > 0 { a = Main.bad() } else { a = 3 } return a + 1
+ }
+}

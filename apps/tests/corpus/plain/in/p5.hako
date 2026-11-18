@@ -1,0 +1,1 @@
+static box Main { main() { local s = "a,b" local at = s.indexOf(",") if at < 0 { print(0) } else { print(at) } return 0 } }

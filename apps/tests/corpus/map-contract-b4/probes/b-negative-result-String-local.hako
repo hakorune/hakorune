@@ -1,0 +1,11 @@
+static box Search {
+ find(n: i64): String {
+local s = "hello"
+local b4ret0 = s.indexOf("l"); return b4ret0
+ }
+}
+static box Main {
+ main() {
+local b4ret1 = Search.find(0) + 0; return b4ret1
+ }
+}

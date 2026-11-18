@@ -1,0 +1,15 @@
+static box Main {
+  t(x: i64): Bool {
+    return x > 1
+  }
+  u(x: i64): Bool {
+    return Main.t(x)
+  }
+  main() {
+    local b = Main.u(4)
+    if b { print(1) } else { print(0) }
+    local c = Main.u(0)
+    if c { print(1) } else { print(0) }
+    return 0
+  }
+}

@@ -1,0 +1,1 @@
+static box Main { main() { local s = "abc" local n = s.length() print(n) return 0 } }

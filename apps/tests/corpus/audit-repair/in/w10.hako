@@ -1,0 +1,1 @@
+box Page { init { v } birth(v) { me.v = v } via_local() { local page = new Page(3) return page } mixed_local(flag) { if flag == 0 { return new Page(4) } local page = new Page(5) return page } null_only() { return null } } static box Main { main() { local p = new Page(0) local q = p.mixed_local(0) print(1) return 0 } }

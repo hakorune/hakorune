@@ -1,0 +1,142 @@
+// hako-alloc-provider-call-noop-execution-seam-pilot-proof
+// Purpose: prove MIMAP-390A provider-call no-op execution seam pilot.
+
+using selfhost.hako_alloc.memory.provider_call_execution_capability_preflight_box as HakoAllocProviderCallExecutionCapabilityPreflight
+using selfhost.hako_alloc.memory.provider_call_noop_execution_seam_pilot_box as HakoAllocProviderCallNoopExecutionSeamPilot
+
+static box Main {
+    makePreflight(): HakoAllocProviderCallExecutionCapabilityPreflightReport {
+        local report = new HakoAllocProviderCallExecutionCapabilityPreflightReport {
+            accepted: 1,
+            reason: 0,
+            preflight_present: 1,
+            modeled_open_present: 1,
+            modeled_open_accepted: 1,
+            modeled_open_reason: 0,
+            provider_call_modeled_open: 1,
+            provider_call_model_active: 1,
+            provider_call_inactive: 0,
+            provider_call_execution_closed: 1,
+            provider_call_capability_present: 1,
+            provider_call_capability_valid: 1,
+            provider_call_execution_capability_present: 1,
+            provider_call_execution_capability_valid: 1,
+            provider_call_execution_ready: 1,
+            host_replacement_inactive: 1,
+            hooks_inactive: 1,
+            backend_matcher_inactive: 1,
+            preflight_count: 1,
+            accepted_count: 1,
+            reject_count: 0,
+            missing_model_reject_count: 0,
+            inactive_model_reject_count: 0,
+            missing_capability_reject_count: 0,
+            invalid_capability_reject_count: 0,
+            closed_execution_reject_count: 0,
+            closed_host_replacement_reject_count: 0,
+            closed_hook_reject_count: 0,
+            closed_backend_matcher_reject_count: 0,
+            last_reason: 0,
+            would_activate_provider: 1,
+            would_call_provider: 1,
+            would_replace_host_allocator: 0,
+            would_install_hook: 0,
+            would_add_backend_matcher: 0,
+            would_run_thread: 0
+        }
+        return report
+    }
+
+    main(args) {
+        local owner = new HakoAllocProviderCallNoopExecutionSeamPilot()
+        local preflight = Main.makePreflight()
+        local executed = owner.executeProviderCallNoopSeam(preflight)
+
+        local missing_preflight = new HakoAllocProviderCallExecutionCapabilityPreflightReport()
+        local missing = owner.executeProviderCallNoopSeam(missing_preflight)
+
+        local rejected_preflight = Main.makePreflight()
+        rejected_preflight.accepted = 0
+        rejected_preflight.reason = 4
+        local rejected = owner.executeProviderCallNoopSeam(rejected_preflight)
+
+        local not_ready = Main.makePreflight()
+        not_ready.provider_call_execution_ready = 0
+        local not_ready_result = owner.executeProviderCallNoopSeam(not_ready)
+
+        local execution_leak = Main.makePreflight()
+        execution_leak.provider_call_execution_closed = 0
+        local execution_rejected = owner.executeProviderCallNoopSeam(execution_leak)
+
+        local host_leak = Main.makePreflight()
+        host_leak.would_replace_host_allocator = 1
+        local host_rejected = owner.executeProviderCallNoopSeam(host_leak)
+
+        local hook_leak = Main.makePreflight()
+        hook_leak.would_install_hook = 1
+        local hook_rejected = owner.executeProviderCallNoopSeam(hook_leak)
+
+        local matcher_leak = Main.makePreflight()
+        matcher_leak.would_add_backend_matcher = 1
+        local matcher_rejected = owner.executeProviderCallNoopSeam(matcher_leak)
+
+        local ok = check "mimap390a provider call no-op execution seam pilot" {
+            "accepted": executed.accepted == 1
+            "reason": executed.reason == 0
+            "seam present": executed.noop_execution_seam_present == 1
+            "preflight present": executed.preflight_present == 1
+            "preflight accepted": executed.preflight_accepted == 1
+            "ready": executed.provider_call_execution_ready == 1
+            "cap present": executed.provider_call_execution_capability_present == 1
+            "cap valid": executed.provider_call_execution_capability_valid == 1
+            "execution closed": executed.provider_call_execution_closed == 1
+            "noop open": executed.provider_call_noop_execution_open == 1
+            "noop executed": executed.provider_call_noop_executed == 1
+            "api not executed": executed.provider_api_call_executed == 0
+            "host inactive": executed.host_replacement_inactive == 1
+            "hooks inactive": executed.hooks_inactive == 1
+            "matcher inactive": executed.backend_matcher_inactive == 1
+            "owner count": owner.seam_count == 8
+            "owner accepted": owner.accepted_count == 1
+            "owner rejected": owner.reject_count == 7
+            "owner missing": owner.missing_preflight_reject_count == 1
+            "owner rejected preflight": owner.rejected_preflight_reject_count == 1
+            "owner not ready": owner.not_ready_reject_count == 1
+            "owner execution closed": owner.closed_execution_reject_count == 1
+            "owner host closed": owner.closed_host_replacement_reject_count == 1
+            "owner hook closed": owner.closed_hook_reject_count == 1
+            "owner matcher closed": owner.closed_backend_matcher_reject_count == 1
+            "last reason": owner.last_reason == 7
+            "missing reason": missing.reason == 1
+            "rejected reason": rejected.reason == 2
+            "not ready reason": not_ready_result.reason == 3
+            "execution reason": execution_rejected.reason == 4
+            "host reason": host_rejected.reason == 5
+            "hook reason": hook_rejected.reason == 6
+            "matcher reason": matcher_rejected.reason == 7
+            "would activate": executed.would_activate_provider == 1
+            "would call": executed.would_call_provider == 1
+            "would api": executed.would_execute_provider_api == 0
+            "would host": executed.would_replace_host_allocator == 0
+            "would hook": executed.would_install_hook == 0
+            "would matcher": executed.would_add_backend_matcher == 0
+            "would thread": executed.would_run_thread == 0
+        }
+
+        print("hako-alloc-provider-call-noop-execution-seam-pilot-proof")
+        print("noop=" + executed.accepted + "," + executed.reason + "," + executed.noop_execution_seam_present + "," + executed.provider_call_noop_execution_open + "," + executed.provider_call_noop_executed + "," + executed.provider_api_call_executed)
+        print("preflight=" + executed.preflight_present + "," + executed.preflight_accepted + "," + executed.preflight_reason + "," + executed.provider_call_execution_ready + "," + executed.provider_call_execution_capability_present + "," + executed.provider_call_execution_capability_valid + "," + executed.provider_call_execution_closed)
+        print("owner=" + owner.seam_count + "," + owner.accepted_count + "," + owner.reject_count + "," + owner.missing_preflight_reject_count + "," + owner.rejected_preflight_reject_count + "," + owner.not_ready_reject_count + "," + owner.closed_execution_reject_count + "," + owner.closed_host_replacement_reject_count + "," + owner.closed_hook_reject_count + "," + owner.closed_backend_matcher_reject_count + "," + owner.last_reason)
+        print("closed=" + executed.host_replacement_inactive + "," + executed.hooks_inactive + "," + executed.backend_matcher_inactive + "," + executed.would_activate_provider + "," + executed.would_call_provider + "," + executed.would_execute_provider_api + "," + executed.would_replace_host_allocator + "," + executed.would_install_hook + "," + executed.would_add_backend_matcher + "," + executed.would_run_thread)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + not_ready_result.reason + "," + execution_rejected.reason + "," + host_rejected.reason + "," + hook_rejected.reason + "," + matcher_rejected.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -1,0 +1,6 @@
+box Bag { items: ArrayBox
+  birth() { me.items = new ArrayBox() }
+  get(i: i64): ArrayBox? from me { return me.items }
+}
+static box Main { main() { local b = new Bag()
+  return 0 } }

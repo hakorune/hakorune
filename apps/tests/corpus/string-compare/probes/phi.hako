@@ -1,0 +1,12 @@
+static box Main {
+ main() {
+local b = false
+if "a" < "b" {
+ b = "x" == "x"
+} else {
+ b = "x" != "x"
+}
+print(b)
+return 0
+ }
+}

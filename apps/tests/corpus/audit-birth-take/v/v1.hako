@@ -1,0 +1,6 @@
+box Leaf {
+  value: i64
+  birth(value) { me.value = value }
+  get(): i64 { return me.value }
+}
+static box Main { consume(take p: Leaf, marker: i64): i64 { return 7 }  main() { local p = new Leaf(1)  return me.consume(move p, p.value) } }

@@ -1,0 +1,3 @@
+box Tag { name: String  birth() { me.name = new Other(1) } }
+box Other { value: i64  birth(value) { me.value = value } }
+static box Main { main() { local t = new Tag()  return 5 } }

@@ -1,0 +1,19 @@
+static box Main {
+  gt(n: i64, k: i64): Bool {
+    if n == 0 {
+      return false
+    }
+    if n > k {
+      return true
+    }
+    local r = Main.gt(n - 1, k)
+    return r
+  }
+  main() {
+    local a = Main.gt(5, 3)
+    if a { print(1) } else { print(0) }
+    local b = Main.gt(3, 5)
+    if b { print(1) } else { print(0) }
+    return 0
+  }
+}

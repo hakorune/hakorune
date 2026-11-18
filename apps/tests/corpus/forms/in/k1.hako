@@ -1,0 +1,5 @@
+box R { a: i64
+  b: i64
+}
+static box Main { main() { local r = new R { a: 1, b: 2 }
+  return 0 } }

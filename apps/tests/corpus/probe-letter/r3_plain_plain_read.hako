@@ -1,0 +1,16 @@
+box Pair {
+  left: i64
+  right: i64
+
+  birth(left, right) {
+    me.left = left
+    me.right = right
+  }
+}
+static box Main {
+  main() {
+    local p = new Pair(4, 5)
+    local v = p.right
+    return v
+  }
+}

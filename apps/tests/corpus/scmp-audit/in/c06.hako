@@ -1,0 +1,7 @@
+static box Main {
+  main() {
+    local s = "hello"
+    if s.length() == 5 { return 13 }
+    return 14
+  }
+}

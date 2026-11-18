@@ -1,0 +1,21 @@
+box Node {
+  next: Node?
+  value: i64
+  birth(next, value) {
+    me.next = next
+    me.value = value
+  }
+  check(): i64 {
+    if me.next == null {
+      return 1
+    }
+    return 2
+  }
+}
+static box Main {
+  main() {
+    local n = new Node(null, 5)
+    local v = n.check()
+    return v
+  }
+}

@@ -1,0 +1,19 @@
+box C {
+  n: i64
+  birth() { me.n = 0 }
+  t(x: i64): Bool {
+    return x > 1
+  }
+  run(): i64 {
+    local b = me.t(4)
+    if b { return 1 }
+    return 0
+  }
+}
+static box Main {
+  main() {
+    local c = new C()
+    print(c.run())
+    return 0
+  }
+}

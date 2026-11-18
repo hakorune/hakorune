@@ -1,0 +1,10 @@
+static box Main {
+  a(x: i64): i64 { return x }
+  main() {
+    local x = 5
+    local r = 0
+    if x > 1 { r = Main.a(x) }
+    print(r)
+    return 0
+  }
+}

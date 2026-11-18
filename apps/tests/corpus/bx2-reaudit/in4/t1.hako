@@ -1,0 +1,19 @@
+box Leaf {
+  value: i64
+  birth(value: i64) {
+    me.value = value
+  }
+  get(): i64 {
+    return me.value
+  }
+}
+static box Main {
+  eat2(take a: Leaf, take b: Leaf): i64 {
+    return a.get() + b.get()
+  }
+  main() {
+    local a = new Leaf(2)
+    local b = new Leaf(3)
+    return Main.eat2(move a, move b)
+  }
+}

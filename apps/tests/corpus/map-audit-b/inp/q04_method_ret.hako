@@ -1,0 +1,14 @@
+box Holder {
+    birth() {
+    }
+    probe() {
+        local s = "hello world"
+        return s.indexOf("o w")
+    }
+}
+static box Main {
+    main() {
+        local h = new Holder()
+        return h.probe()
+    }
+}

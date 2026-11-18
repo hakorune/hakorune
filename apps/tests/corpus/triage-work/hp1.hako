@@ -1,0 +1,1 @@
+box Page { value: i64 birth() { } } static box Main { main() { local n = 0 n = 1 local item = new Page() return 0 } }

@@ -1,0 +1,9 @@
+static box Probe {
+  run(src) {
+    if src == "ab" { return 1 }
+    return 0
+  }
+}
+static box Main {
+  main() { return Probe.run(4) }
+}

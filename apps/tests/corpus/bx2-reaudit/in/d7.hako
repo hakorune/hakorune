@@ -1,0 +1,10 @@
+static box Main {
+  main() {
+    local d = 2
+    local a = 9
+    if a > 50 {
+      d = 0
+    }
+    return a % d
+  }
+}

@@ -1,0 +1,12 @@
+static box Main {
+  w(x: i64, y: i64): Bool {
+    return x > 1 && y < 3
+  }
+  main() {
+    local b = Main.w(4, 2)
+    if b { print(1) } else { print(0) }
+    local c = Main.w(4, 5)
+    if c { print(1) } else { print(0) }
+    return 0
+  }
+}

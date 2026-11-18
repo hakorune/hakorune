@@ -1,0 +1,6 @@
+box U { v
+  birth(v) { me.v = v }
+}
+static box Main { main() { local a = new U("s")
+  print(a.v)
+  return 0 } }

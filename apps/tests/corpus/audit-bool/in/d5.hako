@@ -1,0 +1,17 @@
+box Tag {
+  name: String
+  birth(name: String) {
+    me.name = name
+  }
+  calc(): i64 {
+    local k = me.name.substring(0, 2).length()
+    return k
+  }
+}
+static box Main {
+  main() {
+    local t = new Tag("abcde")
+    print(t.calc())
+    return 0
+  }
+}

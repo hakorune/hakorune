@@ -1,0 +1,4 @@
+static box Main {
+  mk() { local m = new MapBox() m.set("k", 4) return m }
+  main() { local m = mk() print(m.get("k")) return 0 }
+}

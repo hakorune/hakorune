@@ -1,0 +1,13 @@
+static box Readings {
+read(n: i64): i64 {
+local s = "hello"
+if n == 1 { return 7 }
+return ("ab" + "cd").length()
+}
+}
+static box Main {
+main() {
+if Readings.read(0) == 4 { return 0 }
+return 1
+}
+}

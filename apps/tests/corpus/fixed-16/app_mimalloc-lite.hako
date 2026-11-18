@@ -1,0 +1,59 @@
+// mimalloc-lite
+// Purpose: allocator-shaped page/free-list/reuse simulation.
+//
+// The allocator policy/state now lives under the public hako_alloc seam. This
+// app remains a deterministic real-app contract over that seam.
+
+using selfhost.hako_alloc.memory.page_heap_box as HakoAllocPageHeap
+
+box MiWorkload {
+    run(): i64 {
+        local heap = new HakoAllocHeap()
+        local handles = new ArrayBox()
+
+        handles.push(heap.allocate(8))
+        handles.push(heap.allocate(16))
+        handles.push(heap.allocate(24))
+        handles.push(heap.allocate(16))
+        handles.push(heap.allocate(8))
+        handles.push(heap.allocate(32))
+
+        handles.push(heap.allocate(48))
+        handles.push(heap.allocate(64))
+        handles.push(heap.allocate(40))
+
+        heap.release(handles.get(0))
+        heap.release(handles.get(2))
+        heap.release(handles.get(4))
+        heap.release(handles.get(7))
+
+        handles.push(heap.allocate(24))
+        handles.push(heap.allocate(8))
+        handles.push(heap.allocate(16))
+        handles.push(heap.allocate(56))
+
+        local small = heap.small_page
+        local medium = heap.medium_page
+
+        print("mimalloc-lite")
+        print("small_allocs=" + small.alloc_count + " frees=" + small.free_count + " reused=" + small.reuse_count + " peak=" + small.peak_used + " free=" + small.freeCount())
+        print("medium_allocs=" + medium.alloc_count + " frees=" + medium.free_count + " reused=" + medium.reuse_count + " peak=" + medium.peak_used + " free=" + medium.freeCount())
+        print("requested_bytes=" + heap.requestedBytes())
+        print("outstanding=" + heap.outstandingBlocks())
+
+        if small.alloc_count == 9 && small.free_count == 3 && small.reuse_count == 3 && small.peak_used == 6 && small.freeCount() == 2 && medium.alloc_count == 4 && medium.free_count == 1 && medium.reuse_count == 1 && medium.peak_used == 3 && medium.freeCount() == 1 && heap.requestedBytes() == 360 && heap.outstandingBlocks() == 9 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
+
+static box Main {
+    main(args) {
+        local workload = new MiWorkload()
+        return workload.run()
+    }
+}

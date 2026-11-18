@@ -1,0 +1,2 @@
+box Page { value
+birth() { me.value = 1 } } static box Main { main() { local p = new Page() print(p.value) return 0 } }

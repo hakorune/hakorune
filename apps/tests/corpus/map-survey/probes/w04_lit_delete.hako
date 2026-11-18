@@ -1,0 +1,7 @@
+static box Main {
+  main() {
+    local m = %{"a" => 1}
+    m.delete("a")
+    return 0
+  }
+}

@@ -1,0 +1,15 @@
+box T {
+  f: String
+  birth(f: String) {
+    me.f = f
+  }
+}
+static box Main {
+  main() {
+    local t = new T("hey")
+    if t.f == "hey" {
+      return 1
+    }
+    return 0
+  }
+}

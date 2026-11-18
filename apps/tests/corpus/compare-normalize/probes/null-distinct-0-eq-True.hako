@@ -1,0 +1,6 @@
+static box Main {
+ main() {
+if null == 0 { return 7 }
+return 9
+ }
+}

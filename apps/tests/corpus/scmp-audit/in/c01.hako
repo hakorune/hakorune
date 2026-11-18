@@ -1,0 +1,8 @@
+static box Main {
+  main() {
+    local s = "ab" + "c"
+    local t = s.substring(0, 2)
+    if t < "b" { return 3 }
+    return 4
+  }
+}

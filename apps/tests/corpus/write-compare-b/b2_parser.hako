@@ -1,0 +1,556 @@
+// T2 Design B: recursive descent parser. Every node keeps a span. Errors recover to a
+// statement or item boundary and record Diagnostic values.
+// PAPER ONLY. Never compiled. Uses b0_common.hako and b1_tokenizer.hako.
+// `bump()` returns a fresh Span so the `copy` lives in one place. Without it, each span kept
+// across me.bump() would need its own `copy me.peek().span`.
+
+enum UnOp {
+    Neg
+    Not
+}
+
+enum BinOp {
+    Add
+    Sub
+    Mul
+    Div
+    Eq
+    Ne
+    Lt
+    Gt
+}
+
+box NumNode {
+    span: Span
+    value: i64
+}
+
+box NameNode {
+    span: Span
+    name: String
+}
+
+box UnaryNode {
+    span: Span
+    op: UnOp
+    operand: Expr
+}
+
+box BinaryNode {
+    span: Span
+    opSpan: Span
+    op: BinOp
+    left: Expr
+    right: Expr
+}
+
+box CallNode {
+    span: Span
+    calleeSpan: Span
+    callee: String
+    args: Array<Expr>
+}
+
+enum Expr {
+    Num(NumNode)
+    Name(NameNode)
+    Unary(UnaryNode)
+    Binary(BinaryNode)
+    Call(CallNode)
+    Bad(Span)
+}
+
+box LetStmt {
+    span: Span
+    nameSpan: Span
+    name: String
+    init: Expr
+}
+
+box ReturnStmt {
+    span: Span
+    value: Expr?
+}
+
+box IfStmt {
+    span: Span
+    cond: Expr
+    thenBlock: Block
+    elseBlock: Block?
+}
+
+box ExprStmt {
+    span: Span
+    expr: Expr
+}
+
+enum Stmt {
+    Let(LetStmt)
+    Return(ReturnStmt)
+    If(IfStmt)
+    ExprS(ExprStmt)
+    Bad(Span)
+}
+
+box Block {
+    span: Span
+    stmts: Array<Stmt>
+}
+
+box Param {
+    span: Span
+    name: String
+    typeName: String
+}
+
+box FnDecl {
+    span: Span
+    nameSpan: Span
+    name: String
+    params: Array<Param>
+    retType: String?
+    body: Block
+}
+
+box Module {
+    span: Span
+    fns: Array<FnDecl>
+}
+
+static box Ast {
+    // The enum projection through `match` with `from e` is ADR 構文と借用's accepted design,
+    // and that row says the current MIR has no accepted evidence for arbitrary enum projection
+    // or borrowed PHI. Design R does not need this path for spans.
+    spanOf(e: Expr): Span from e {
+        return match e {
+            Num(n) => n.span
+            Name(n) => n.span
+            Unary(n) => n.span
+            Binary(n) => n.span
+            Call(n) => n.span
+            Bad(sp) => sp
+        }
+    }
+
+    stmtSpan(s: Stmt): Span from s {
+        return match s {
+            Let(n) => n.span
+            Return(n) => n.span
+            If(n) => n.span
+            ExprS(n) => n.span
+            Bad(sp) => sp
+        }
+    }
+}
+
+static box Prec {
+    of(k: TokKind): i64 {
+        return match k {
+            EqEq | BangEq => 1
+            Lt | Gt => 2
+            Plus | Minus => 3
+            Star | Slash => 4
+            _ => 0
+        }
+    }
+
+    binOp(k: TokKind): BinOp {
+        return match k {
+            EqEq => BinOp::Eq
+            BangEq => BinOp::Ne
+            Lt => BinOp::Lt
+            Gt => BinOp::Gt
+            Plus => BinOp::Add
+            Minus => BinOp::Sub
+            Star => BinOp::Mul
+            Slash => BinOp::Div
+            _ => panic("not a binary operator")
+        }
+    }
+}
+
+box Parser {
+    tokens: Array<Token>
+    diags: DiagSink
+    pos: i64 = 0
+
+    peek(): Token from me {
+        local t = me.tokens.get(me.pos)
+        guard t != null else {
+            panic("parser ran past Eof")
+        }
+        return t
+    }
+
+    at(k: TokKind): Bool {
+        return me.peek().kind == k
+    }
+
+    prevSpan(): Span from me {
+        local t = me.tokens.get(me.pos - 1)
+        guard t != null else {
+            panic("no previous token")
+        }
+        return t.span
+    }
+
+    edit bump(): Span {
+        // CONFLICT: local sp = me.peek().span   (peek reads all of me, so this borrow overlaps
+        // me.pos += 1, and a borrow cannot be returned as an owned `: Span`)
+        local sp = copy me.peek().span
+        if me.pos + 1 < me.tokens.length() {
+            me.pos += 1
+        }
+        return sp
+    }
+
+    edit eat(k: TokKind): Bool {
+        if !me.at(k) {
+            return false
+        }
+        me.bump()
+        return true
+    }
+
+    edit errorHere(take message: String): void {
+        // CONFLICT: me.diags.error(me.peek().span, move message)
+        // me.peek() reads all of me, and that read is alive while me.diags is under edit.
+        me.diags.error(copy me.peek().span, move message)
+    }
+
+    edit expect(k: TokKind, take what: String): Bool {
+        if me.eat(k) {
+            return true
+        }
+        me.errorHere("expected " + what + ", found '" + me.peek().text + "'")
+        return false
+    }
+
+    atStmtBoundary(): Bool {
+        local k = me.peek().kind
+        return k == TokKind::Semi || k == TokKind::RBrace || k == TokKind::Eof
+            || k == TokKind::KwFn || k == TokKind::KwLet || k == TokKind::KwReturn || k == TokKind::KwIf
+    }
+
+    edit syncToStmt(): void {
+        loop !me.atStmtBoundary() {
+            me.bump()
+        }
+        me.eat(TokKind::Semi)
+    }
+
+    edit syncToItem(): void {
+        loop !me.at(TokKind::Eof) && !me.at(TokKind::KwFn) {
+            me.bump()
+        }
+    }
+
+    edit endStmt(): void {
+        if !me.expect(TokKind::Semi, "';'") {
+            me.syncToStmt()
+        }
+    }
+
+    edit parseModule(): Module {
+        // CONFLICT: local start = me.peek().span   (borrow of me, then edit me in the loop)
+        local start = copy me.peek().span
+        local fns: Array<FnDecl> = []
+        loop !me.at(TokKind::Eof) {
+            if !me.at(TokKind::KwFn) {
+                me.errorHere("expected 'fn' at top level")
+                me.bump()
+                me.syncToItem()
+                continue
+            }
+            local f = me.parseFn()
+            if f != null {
+                fns.push(move f)
+            }
+        }
+        return new Module { span: start.merge(me.peek().span), fns: move fns }
+    }
+
+    edit parseFn(): FnDecl? {
+        local start = me.bump()
+        if !me.at(TokKind::Ident) {
+            me.errorHere("expected function name after 'fn'")
+            me.syncToItem()
+            return null
+        }
+        // CONFLICT: local name = me.peek().text   (String borrow from me, then me.bump())
+        local name = copy me.peek().text
+        local nameSp = me.bump()
+        if !me.expect(TokKind::LParen, "'('") {
+            me.syncToItem()
+            return null
+        }
+        local params = me.parseParams()
+        local ret = me.parseOptRetType()
+        if !me.at(TokKind::LBrace) {
+            me.diags.error(nameSp, "function '" + name + "' has no body")
+            me.syncToItem()
+            return null
+        }
+        local body = me.parseBlock()
+        return new FnDecl {
+            span: start.merge(body.span),
+            nameSpan: move nameSp,
+            name: move name,
+            params: move params,
+            retType: move ret,
+            body: move body
+        }
+    }
+
+    edit parseParams(): Array<Param> {
+        local out: Array<Param> = []
+        loop !me.at(TokKind::RParen) && !me.at(TokKind::Eof) {
+            if me.at(TokKind::Ident) {
+                out.push(me.parseParam())
+            } else {
+                me.errorHere("expected parameter name")
+                me.bump()
+            }
+            if !me.eat(TokKind::Comma) {
+                break
+            }
+        }
+        me.expect(TokKind::RParen, "')'")
+        return out
+    }
+
+    edit parseParam(): Param {
+        // CONFLICT: local name = me.peek().text   (String borrow from me, then me.bump())
+        local name = copy me.peek().text
+        local sp = me.bump()
+        local ty = "<error>"
+        if me.expect(TokKind::Colon, "':'") {
+            ty = me.parseTypeName()
+        }
+        return new Param { span: sp.merge(me.prevSpan()), name: move name, typeName: move ty }
+    }
+
+    edit parseTypeName(): String {
+        if !me.at(TokKind::Ident) {
+            me.errorHere("expected type name")
+            return "<error>"
+        }
+        // CONFLICT: local name = me.peek().text   (String borrow from me, then me.bump())
+        local name = copy me.peek().text
+        me.bump()
+        return name
+    }
+
+    edit parseOptRetType(): String? {
+        if !me.eat(TokKind::Colon) {
+            return null
+        }
+        return me.parseTypeName()
+    }
+
+    edit parseBlock(): Block {
+        // CONFLICT: local start = me.peek().span   (borrow of me, then me.expect edits me)
+        local start = copy me.peek().span
+        me.expect(TokKind::LBrace, "'{'")
+        local stmts: Array<Stmt> = []
+        loop !me.at(TokKind::RBrace) && !me.at(TokKind::Eof) {
+            stmts.push(me.parseStmt())
+        }
+        me.expect(TokKind::RBrace, "'}'")
+        return new Block { span: start.merge(me.prevSpan()), stmts: move stmts }
+    }
+
+    edit parseStmt(): Stmt {
+        local k = me.peek().kind
+        return match k {
+            KwLet => me.parseLet()
+            KwReturn => me.parseReturn()
+            KwIf => me.parseIf()
+            _ => me.parseExprStmt()
+        }
+    }
+
+    edit parseLet(): Stmt {
+        local start = me.bump()
+        if !me.at(TokKind::Ident) {
+            me.errorHere("expected variable name after 'let'")
+            me.syncToStmt()
+            return Stmt::Bad(start.merge(me.prevSpan()))
+        }
+        // CONFLICT: local name = me.peek().text   (String borrow from me, then me.bump())
+        local name = copy me.peek().text
+        local nameSp = me.bump()
+        if !me.expect(TokKind::Assign, "'='") {
+            me.syncToStmt()
+            return Stmt::Bad(start.merge(nameSp))
+        }
+        local init = me.parseExpr()
+        me.endStmt()
+        return Stmt::Let(new LetStmt {
+            span: start.merge(me.prevSpan()),
+            nameSpan: move nameSp,
+            name: move name,
+            init: move init
+        })
+    }
+
+    edit parseOptExpr(): Expr? {
+        if me.at(TokKind::Semi) || me.at(TokKind::RBrace) {
+            return null
+        }
+        return me.parseExpr()
+    }
+
+    edit parseReturn(): Stmt {
+        local start = me.bump()
+        local value = me.parseOptExpr()
+        me.endStmt()
+        return Stmt::Return(new ReturnStmt { span: start.merge(me.prevSpan()), value: move value })
+    }
+
+    edit parseOptElse(): Block? {
+        if !me.eat(TokKind::KwElse) {
+            return null
+        }
+        return me.parseBlock()
+    }
+
+    edit parseIf(): Stmt {
+        local start = me.bump()
+        local cond = me.parseExpr()
+        local thenBlock = me.parseBlock()
+        local elseBlock = me.parseOptElse()
+        return Stmt::If(new IfStmt {
+            span: start.merge(me.prevSpan()),
+            cond: move cond,
+            thenBlock: move thenBlock,
+            elseBlock: move elseBlock
+        })
+    }
+
+    edit parseExprStmt(): Stmt {
+        local e = me.parseExpr()
+        me.endStmt()
+        return Stmt::ExprS(new ExprStmt { span: copy Ast.spanOf(e), expr: move e })
+    }
+
+    edit parseExpr(): Expr {
+        return me.parseBinary(1)
+    }
+
+    edit parseBinary(minPrec: i64): Expr {
+        local left = me.parseUnary()
+        loop {
+            local k = me.peek().kind
+            local prec = Prec.of(k)
+            if prec == 0 || prec < minPrec {
+                break
+            }
+            local opSp = me.bump()
+            local right = me.parseBinary(prec + 1)
+            left = Expr::Binary(new BinaryNode {
+                span: Ast.spanOf(left).merge(Ast.spanOf(right)),
+                opSpan: move opSp,
+                op: Prec.binOp(k),
+                left: move left,
+                right: move right
+            })
+        }
+        return left
+    }
+
+    edit parseUnary(): Expr {
+        local k = me.peek().kind
+        if k != TokKind::Minus && k != TokKind::Bang {
+            return me.parsePrimary()
+        }
+        local opSp = me.bump()
+        local operand = me.parseUnary()
+        local op = UnOp::Neg
+        if k == TokKind::Bang {
+            op = UnOp::Not
+        }
+        return Expr::Unary(new UnaryNode {
+            span: opSp.merge(Ast.spanOf(operand)),
+            op: op,
+            operand: move operand
+        })
+    }
+
+    edit parsePrimary(): Expr {
+        local k = me.peek().kind
+        return match k {
+            Int => me.parseInt()
+            Ident => me.parseNameOrCall()
+            LParen => me.parseParen()
+            _ => me.recoverExpr()
+        }
+    }
+
+    edit parseInt(): Expr {
+        local value = me.peek().text.toIntOrNull()
+        local sp = me.bump()
+        if value == null {
+            me.diags.error(sp, "integer literal out of range")
+            return Expr::Bad(move sp)
+        }
+        return Expr::Num(new NumNode { span: move sp, value: value })
+    }
+
+    edit parseNameOrCall(): Expr {
+        // CONFLICT: local name = me.peek().text   (String borrow from me, then me.bump())
+        local name = copy me.peek().text
+        local nameSp = me.bump()
+        if !me.eat(TokKind::LParen) {
+            return Expr::Name(new NameNode { span: move nameSp, name: move name })
+        }
+        local args: Array<Expr> = []
+        loop !me.at(TokKind::RParen) && !me.at(TokKind::Eof) {
+            args.push(me.parseExpr())
+            if !me.eat(TokKind::Comma) {
+                break
+            }
+        }
+        me.expect(TokKind::RParen, "')'")
+        return Expr::Call(new CallNode {
+            span: nameSp.merge(me.prevSpan()),
+            calleeSpan: move nameSp,
+            callee: move name,
+            args: move args
+        })
+    }
+
+    edit parseParen(): Expr {
+        me.bump()
+        local inner = me.parseExpr()
+        if !me.expect(TokKind::RParen, "')'") {
+            me.syncToStmt()
+        }
+        return inner
+    }
+
+    edit recoverExpr(): Expr {
+        local t = me.peek()
+        // CONFLICT: local sp = t.span   (borrow of me through t, alive at me.diags.error and bump)
+        local sp = copy t.span
+        local message = "unexpected '" + t.text + "' in expression"
+        me.diags.error(sp, move message)
+        if !me.atStmtBoundary() {
+            me.bump()
+        }
+        return Expr::Bad(move sp)
+    }
+}
+
+box ParseOutput {
+    module: Module
+    diags: DiagSink
+}
+
+static box Front {
+    parse(take lx: Lexer): ParseOutput {
+        local p = new Parser { tokens: move lx.tokens, diags: move lx.diags }
+        local m = p.parseModule()
+        return new ParseOutput { module: move m, diags: move p.diags }
+    }
+}

@@ -1,0 +1,8 @@
+record Point { x: i64
+ y: i64 }
+static box Main { main(): i64 {
+  local p = Point { x: 1, y: 2 }
+  local a = new ArrayBox()
+  a.push(p)
+  return 0
+} }

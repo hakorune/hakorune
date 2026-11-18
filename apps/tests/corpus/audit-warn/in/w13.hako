@@ -1,0 +1,12 @@
+box Bag {
+  xs: ArrayBox
+  birth() { me.xs = new ArrayBox()  me.xs.push(4)  me.xs.push(5) }
+  cnt(): i64 { local k = me.xs.length()  return k }
+}
+static box Main {
+  main() {
+    local b = new Bag()
+    print(b.cnt())
+    return 0
+  }
+}

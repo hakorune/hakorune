@@ -1,0 +1,10 @@
+box Leaf {
+ value: i64
+ birth(v: i64) { me.value = v }
+ get(): i64 { return me.value }
+}
+static box Main {
+ later(): i64 { local scratch = new Leaf(1) return 1 }
+ consume(take p: Leaf, marker: i64): i64 { local scratch = new Leaf(1) return p.get() + marker }
+ main() { local a = new Leaf(4) return Main.consume(move a, Main.later()) }
+}

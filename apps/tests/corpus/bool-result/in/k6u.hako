@@ -1,0 +1,3 @@
+box C { k: i64  birth(k: i64) { me.k = k }
+  t(x: i64) { if x > me.k { return true } return false } }
+static box Main { main() { local c = new C(1)  if c.t(4) { print(1) } else { print(0) }  return 0 } }

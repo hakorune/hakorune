@@ -1,0 +1,13 @@
+box Pair {
+  a: String
+  b: String
+  birth(a: String, b: String) { me.a = a  me.b = b }
+  total(): i64 { local x = me.a.length()  local y = me.b.length()  return x + y }
+}
+static box Main {
+  main() {
+    local p = new Pair("ab", "cde")
+    print(p.total())
+    return 0
+  }
+}

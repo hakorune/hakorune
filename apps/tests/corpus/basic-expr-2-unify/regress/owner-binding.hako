@@ -1,0 +1,6 @@
+static box Main {
+ f(n: i64): i64 { local a = n if n > 0 { a = a + 1 } return a * 2 }
+ main() {
+return Main.f(3)
+ }
+}

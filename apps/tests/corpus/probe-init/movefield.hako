@@ -1,0 +1,12 @@
+box Leaf { v: i64  birth() { me.v = 7 } }
+box Holder {
+    child: Leaf
+    n: i64
+}
+static box Main {
+  main() {
+    local c = new Leaf()
+    local h = new Holder { child: move c, n: 0 }
+    return h.n + 7
+  }
+}

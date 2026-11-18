@@ -1,0 +1,7 @@
+box Payload {
+  value: i64
+  birth() { me.value = 7 }
+  get(): i64 { return me.value }
+}
+box Node { next: Payload  birth(take next: Payload) { me.next = move next } }
+static box Main { main() { local p = new Payload()  local n = new Node(move p)  local q = p  return 5 } }

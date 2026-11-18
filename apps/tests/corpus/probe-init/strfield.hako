@@ -1,0 +1,10 @@
+box Tok {
+    kind: i64
+    text: String
+}
+static box Main {
+  main() {
+    local t = new Tok { kind: 2, text: "abc" }
+    return t.kind + 5
+  }
+}

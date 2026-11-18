@@ -1,0 +1,41 @@
+static box Main {
+  main() {
+    local x = 3
+    local a = 0
+    local j = 0
+    loop(j < 2) {
+      if x > 1 {
+        a = a + 1
+      }
+      if x > 2 {
+        a = a + 2
+      }
+      if x > 3 {
+        a = a + 3
+      }
+      if x > 4 {
+        a = a + 4
+      }
+      if x > 0 {
+        a = a + 5
+      }
+      if x > 1 {
+        a = a + 6
+      }
+      if x > 2 {
+        a = a + 7
+      }
+      if x > 3 {
+        a = a + 8
+      }
+      if x > 4 {
+        a = a + 9
+      }
+      if x > 0 {
+        a = a + 10
+      }
+      j = j + 1
+    }
+    return a
+  }
+}

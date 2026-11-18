@@ -1,0 +1,13 @@
+static box Readings {
+read(n: i64): i64 {
+local s = "hello"
+if n == 0 { local b4ret0 = ("あ" + "いう").indexOf("" + "う"); return b4ret0}
+local b4ret1 = 7; return b4ret1
+}
+}
+static box Main {
+main() {
+if Readings.read(0) == 2 { local b4ret2 = 0; return b4ret2}
+local b4ret3 = 1; return b4ret3
+}
+}

@@ -1,0 +1,8 @@
+static box Main {
+isz(a: i64): bool {
+return a == 0
+}
+main() {
+return Main.isz(0)
+}
+}

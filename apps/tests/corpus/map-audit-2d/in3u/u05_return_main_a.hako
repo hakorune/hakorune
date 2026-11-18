@@ -1,0 +1,11 @@
+static box Main {
+    a(x: i64): i64 {
+        return x
+    }
+    p(): i64 {
+        return 3
+    }
+    main() {
+        return Main.a(5)
+    }
+}

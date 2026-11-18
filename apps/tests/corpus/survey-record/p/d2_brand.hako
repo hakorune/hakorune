@@ -1,0 +1,5 @@
+brand PageId: i64
+static box Main { main(): i64 {
+  local p = PageId(1)
+  return PageId.unwrap(p)
+} }

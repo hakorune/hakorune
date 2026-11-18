@@ -1,0 +1,25 @@
+box Item {
+  init { n }
+  birth(n) {
+    me.n = n
+  }
+}
+box Holder {
+  init { m }
+  birth() {
+    me.m = new MapBox()
+  }
+  has_missing(user) {
+    local s = me.m.get(user)
+    if s == null {
+      return 1
+    }
+    return 2
+  }
+}
+static box Main {
+  main() {
+    local h = new Holder()
+    return h.has_missing("nokey")
+  }
+}

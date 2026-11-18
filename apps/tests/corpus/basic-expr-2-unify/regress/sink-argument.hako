@@ -1,0 +1,8 @@
+static box Main {
+ id(p: i64): i64 { return p }
+ main() {
+ local a = 5
+ if a > 3 { a = a + 1 }
+return Main.id(a + 1)
+ }
+}

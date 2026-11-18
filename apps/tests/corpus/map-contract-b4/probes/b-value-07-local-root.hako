@@ -1,0 +1,7 @@
+static box Main {
+ main() {
+local s = "あいう"
+local r = s.indexOf("う")
+return r
+ }
+}

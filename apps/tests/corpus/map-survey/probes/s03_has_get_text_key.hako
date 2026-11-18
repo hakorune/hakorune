@@ -1,0 +1,18 @@
+box Holder {
+  init { m }
+  birth() {
+    me.m = new MapBox()
+  }
+  op(user) {
+    if me.m.has(user) {
+      return me.m.get(user)
+    }
+    return 0
+  }
+}
+static box Main {
+  main() {
+    local h = new Holder()
+    return h.op("a")
+  }
+}
