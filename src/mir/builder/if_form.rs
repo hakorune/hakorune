@@ -1,4 +1,4 @@
-use super::{MirBuilder, ValueId};
+use super::{BasicBlockId, MirBuilder, ValueId};
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::loop_api::LoopBuilderApi; // for current_block()
 
@@ -53,27 +53,44 @@ pub(in crate::mir::builder) trait IfFormPhysicalObserverV1 {
 }
 
 impl MirBuilder {
-    pub(super) fn lower_if_form_with_condition_value_and_branch_lowerer<LowerBranch>(
+    pub(in crate::mir::builder) fn lower_if_form_with_physical_observer_v1<LowerBranch>(
+        &mut self, condition_val: ValueId, condition_debug: Option<ASTNode>,
+        has_explicit_else: bool, lower_branch: LowerBranch,
+        observer: Option<&mut dyn IfFormPhysicalObserverV1>,
+    ) -> Result<ValueId, String>
+    where LowerBranch: FnMut(&mut MirBuilder, IfBranchKindV1) -> Result<ValueId, String>,
+    {
+        self.lower_if_form_v1(
+            condition_val, condition_debug, has_explicit_else, lower_branch,
+            crate::mir::builder::emission::constant::emit_void,
+            Self::merge_if_result_v1, observer,
+        )
+    }
+
+    pub(in crate::mir::builder) fn lower_if_form_for_effects_v1(
         &mut self,
         condition_val: ValueId,
         condition_debug: Option<ASTNode>,
         has_explicit_else: bool,
-        lower_branch: LowerBranch,
-    ) -> Result<ValueId, String>
-    where
-        LowerBranch: FnMut(&mut MirBuilder, IfBranchKindV1) -> Result<ValueId, String>,
-    {
-        self.lower_if_form_with_physical_observer_v1(condition_val, condition_debug,
-            has_explicit_else, lower_branch, None)
+        lower_branch: impl FnMut(&mut MirBuilder, IfBranchKindV1) -> Result<(), String>,
+        observer: Option<&mut dyn IfFormPhysicalObserverV1>,
+    ) -> Result<(), String> {
+        self.lower_if_form_v1(
+            condition_val, condition_debug, has_explicit_else, lower_branch,
+            |_| Ok(()), |_, _| Ok(()), observer,
+        )
     }
 
-    pub(in crate::mir::builder) fn lower_if_form_with_physical_observer_v1<LowerBranch>(
-        &mut self, condition_val: ValueId, condition_debug: Option<ASTNode>,
-        has_explicit_else: bool, mut lower_branch: LowerBranch,
+    fn lower_if_form_v1<T>(
+        &mut self,
+        condition_val: ValueId,
+        condition_debug: Option<ASTNode>,
+        has_explicit_else: bool,
+        mut lower_branch: impl FnMut(&mut MirBuilder, IfBranchKindV1) -> Result<T, String>,
+        implicit_else: fn(&mut MirBuilder) -> Result<T, String>,
+        merge_result: fn(&mut MirBuilder, [(Option<BasicBlockId>, T); 2]) -> Result<T, String>,
         mut observer: Option<&mut dyn IfFormPhysicalObserverV1>,
-    ) -> Result<ValueId, String>
-    where LowerBranch: FnMut(&mut MirBuilder, IfBranchKindV1) -> Result<ValueId, String>,
-    {
+    ) -> Result<T, String> {
         // Unarmed callers keep the exact existing path and acquire no packet.
         let cursor = if observer.is_some() {
             Some(super::condition_materialization::ConditionMaterializationCaptureV1::begin(self, condition_val)?)
@@ -189,59 +206,26 @@ impl MirBuilder {
         // Scope enter for else-branch
         self.hint_scope_enter(0);
         if let Some(observer) = observer.as_deref_mut() { observer.enter_branch(IfBranchKindV1::Else)?; }
-        let (else_value_raw, else_var_map_end_opt) = if has_explicit_else {
-            // Materialize all variables at block entry via single-pred Phi (correctness-first)
-            crate::mir::builder::emission::phi::materialize_vars_single_pred_at_entry(
-                self,
-                pre_branch_bb,
-                &pre_if_var_map,
-                "if_form/else",
-            )?;
-            if trace_if {
-                for (name, &pre_v) in pre_if_var_map.iter() {
-                    if let Some(&phi_val) = self.function_state.variable_ctx.variable_map.get(name)
-                    {
-                        let ring0 = crate::runtime::get_global_ring0();
-                        ring0.log.debug(&format!(
-                            "[if-trace] else-entry phi var={} pre={:?} -> dst={:?}",
-                            name, pre_v, phi_val
-                        ));
-                    }
+        crate::mir::builder::emission::phi::materialize_vars_single_pred_at_entry(
+            self, pre_branch_bb, &pre_if_var_map, "if_form/else",
+        )?;
+        if trace_if {
+            for (name, &pre_v) in pre_if_var_map.iter() {
+                if let Some(&phi_val) = self.function_state.variable_ctx.variable_map.get(name) {
+                    let ring0 = crate::runtime::get_global_ring0();
+                    ring0.log.debug(&format!(
+                        "[if-trace] else-entry phi var={} pre={:?} -> dst={:?}",
+                        name, pre_v, phi_val
+                    ));
                 }
             }
-            let val = lower_branch(self, IfBranchKindV1::Else)?;
-            (
-                val,
-                Some(self.function_state.variable_ctx.variable_map.clone()),
-            )
+        }
+        let else_value_raw = if has_explicit_else {
+            lower_branch(self, IfBranchKindV1::Else)?
         } else {
-            // No else branch: materialize PHI nodes for the empty else block
-            crate::mir::builder::emission::phi::materialize_vars_single_pred_at_entry(
-                self,
-                pre_branch_bb,
-                &pre_if_var_map,
-                "if_form/empty_else",
-            )?;
-            if trace_if {
-                for (name, &pre_v) in pre_if_var_map.iter() {
-                    if let Some(&phi_val) = self.function_state.variable_ctx.variable_map.get(name)
-                    {
-                        let ring0 = crate::runtime::get_global_ring0();
-                        ring0.log.debug(&format!(
-                            "[if-trace] else-entry phi var={} pre={:?} -> dst={:?}",
-                            name, pre_v, phi_val
-                        ));
-                    }
-                }
-            }
-            let void_val = crate::mir::builder::emission::constant::emit_void(self)?;
-            // Phase 25.1c/k: Pass PHI-renamed variable_map for empty else branch
-            // This ensures merge_modified_vars uses correct ValueIds after PHI renaming
-            (
-                void_val,
-                Some(self.function_state.variable_ctx.variable_map.clone()),
-            )
+            implicit_else(self)?
         };
+        let else_var_map_end = self.function_state.variable_ctx.variable_map.clone();
         if let Some(observer) = observer.as_deref_mut() { observer.finished_branch(IfBranchKindV1::Else)?; }
         let else_exit_block = self.current_block()?;
         let else_reaches_merge = !self.is_current_block_terminated();
@@ -293,79 +277,33 @@ impl MirBuilder {
         self.debug_push_region(format!("join#{}", join_id) + "/join");
         self.push_if_merge(merge_block);
 
-        // Phase 38: Pre-analysis hints removed (JoinIR AST lowering handles assignment detection)
-        let assigned_then_pre: Option<String> = None;
-        let assigned_else_pre: Option<String> = None;
-        let pre_then_var_value: Option<ValueId> = None;
+        let normal_exits = [
+            then_reaches_merge.then_some(then_exit_block),
+            else_reaches_merge.then_some(else_exit_block),
+        ];
+        let result = merge_result(self, [
+            (normal_exits[0], then_value_raw),
+            (normal_exits[1], else_value_raw),
+        ])?;
 
-        let result_val = self.normalize_if_else_phi(
-            then_block,
-            else_block,
-            if then_reaches_merge {
-                Some(then_exit_block)
-            } else {
-                None
-            },
-            if else_reaches_merge {
-                Some(else_exit_block)
-            } else {
-                None
-            },
-            then_value_raw,
-            else_value_raw,
-            &pre_if_var_map,
-            &then_var_map_end,
-            &else_var_map_end_opt,
-            pre_then_var_value,
-        )?;
-
-        // Hint: join result variable(s)
-        // 1) Primary: if both branches assign to the same variable name, emit a hint for that name
-        if let (Some(tn), Some(en)) = (assigned_then_pre.as_deref(), assigned_else_pre.as_deref()) {
-            if tn == en {
-                self.hint_join_result(tn);
+        if then_reaches_merge && else_reaches_merge {
+            self.function_state.variable_ctx.variable_map = pre_if_var_map.clone();
+        }
+        for name in then_var_map_end.keys() {
+            if else_var_map_end.contains_key(name.as_str()) {
+                self.hint_join_result(name.as_str());
             }
         }
-        // 2) Secondary: if both branches assign multiple variables, hint全件（制限なし）
-        if let Some(ref else_map_end) = else_var_map_end_opt {
-            for name in then_var_map_end.keys() {
-                if Some(name.as_str()) == assigned_then_pre.as_deref() {
-                    continue;
-                }
-                if else_map_end.contains_key(name) {
-                    self.hint_join_result(name.as_str());
-                }
-            }
-        }
-
-        // Merge other modified variables (skip the primary assignment if any)
-        let skip_name = assigned_then_pre.as_deref();
         self.merge_modified_vars(
-            then_block,
-            else_block,
-            if then_reaches_merge {
-                Some(then_exit_block)
-            } else {
-                None
-            },
-            if else_reaches_merge {
-                Some(else_exit_block)
-            } else {
-                None
-            },
-            &pre_if_var_map,
-            &then_var_map_end,
-            &else_var_map_end_opt,
-            skip_name,
+            then_block, else_block, normal_exits[0], normal_exits[1],
+            &pre_if_var_map, &then_var_map_end, &Some(else_var_map_end), None,
         )?;
-
         if let Some(observer) = observer.as_deref_mut() {
-            observer.completed_merge(self, [then_reaches_merge.then_some(then_exit_block),
-                else_reaches_merge.then_some(else_exit_block)])?;
+            observer.completed_merge(self, normal_exits)?;
         }
         self.pop_if_merge();
         // Pop merge debug region
         self.debug_pop_region();
-        Ok(result_val)
+        Ok(result)
     }
 }
