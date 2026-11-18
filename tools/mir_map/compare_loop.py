@@ -111,6 +111,7 @@ def main():
         return
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", type=Path, default=CORPUS_MANIFEST)
+    parser.add_argument("--all-inputs", action="store_true", help="include the future coverage group")
     parser.add_argument("--template", type=Path, required=True,
                         help="JSON runtime settings used for both binaries")
     parser.add_argument("--work", type=Path, required=True)
@@ -121,7 +122,8 @@ def main():
     parser.add_argument("--jobs", type=int, choices=range(1, 5), default=4)
     parser.add_argument("--ast", action="store_true", help="retain parser JSON during collection")
     args = parser.parse_args()
-    manifest = read_manifest(args.manifest)
+    manifest = [row for row in read_manifest(args.manifest)
+                if args.all_inputs or row.get('cadence') != 'future']
     old_work = args.before_baseline or args.work / "before"
     watch = activate(args.work, "loop-compare")
     old = collect(args.before, manifest, args.template, old_work, args.jobs, args.ast, watch)
