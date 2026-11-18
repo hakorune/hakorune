@@ -46,6 +46,9 @@ fn collect_definition_value_ids_recursive(plan: &LoweredRecipe, defs: &mut BTree
             for phi in &loop_plan.phis {
                 defs.insert(phi.dst);
             }
+            for params in loop_plan.frag.block_params.values() {
+                defs.extend(params.params.iter().copied());
+            }
             // Recurse into body
             for p in &loop_plan.body {
                 collect_definition_value_ids_recursive(p, defs);
@@ -131,10 +134,18 @@ fn collect_effect_definitions(effect: &CoreEffectPlan, defs: &mut BTreeSet<Value
         CoreEffectPlan::LocalContractWrite { dst, .. } => {
             defs.insert(*dst);
         }
+        CoreEffectPlan::IfEffect {
+            then_effects,
+            else_effects,
+            ..
+        } => {
+            for effect in then_effects.iter().chain(else_effects.iter().flatten()) {
+                collect_effect_definitions(effect, defs);
+            }
+        }
         CoreEffectPlan::NamedArrayPush { .. }
         | CoreEffectPlan::MapLiteralEntryWrite { .. }
         | CoreEffectPlan::FieldSet { .. }
-        | CoreEffectPlan::ExitIf { .. }
-        | CoreEffectPlan::IfEffect { .. } => {} // No dst
+        | CoreEffectPlan::ExitIf { .. } => {} // No dst
     }
 }
