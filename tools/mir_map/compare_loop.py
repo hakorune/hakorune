@@ -34,16 +34,33 @@ def compare(before, after, before_root=None, after_root=None):
     a = {phase: before[phase]["kind"] for phase in phases}
     b = {phase: after[phase]["kind"] for phase in phases}
     details = dict(before_kinds=a, after_kinds=b)
+    lrun, rrun = runtime_observation(before), runtime_observation(after)
     if a != b or any(kind in {"timeout", "internal-verification-error", "environment-error"}
                      for kind in [*a.values(), *b.values()]):
-        unchanged = a == b and all(
+        unchanged = a == b and lrun == rrun and all(
             before[phase]["exit"] == after[phase]["exit"]
             and cleaned(before[phase], [before_root]) == cleaned(after[phase], [after_root])
             for phase in phases if a[phase] != "success"
         )
+        compared_mir = next(
+            (phase for phase in ("dump", "executable_mir")
+             if all(row.get(phase, {}).get("kind") == "success" for row in (before, after))),
+            None,
+        )
+        changes = []
+        if compared_mir:
+            old, new = (extract(stream_text(row[compared_mir])) for row in (before, after))
+            if old != new:
+                unchanged = False
+                if old is not None and new is not None:
+                    try:
+                        changes = locations(parse(old), parse(new))
+                    except ValueError:
+                        pass
         return details | {
             "category": "different", "reason": "diagnostic kind or verification",
-            "baseline_failure_unchanged": unchanged,
+            "baseline_failure_unchanged": unchanged, "runtime_result_changed": lrun != rrun,
+            "locations": changes,
         }
     for phase in phases:
         if a[phase] == "unknown-refusal" and (
@@ -52,7 +69,6 @@ def compare(before, after, before_root=None, after_root=None):
         ):
             return details | {"category": "different", "reason": "changed unclassified diagnostic"}
 
-    lrun, rrun = runtime_observation(before), runtime_observation(after)
     if (lrun is None) != (rrun is None) or (
         lrun is not None and (lrun != rrun or lrun[1] != "executed")
     ):
