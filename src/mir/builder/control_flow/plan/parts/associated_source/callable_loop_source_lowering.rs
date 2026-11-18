@@ -197,7 +197,13 @@ impl<'view, 'ledger: 'view>
     ) -> Result<Self::Output, String> {
         reseal_branch_bindings(self.builder, self.current_bindings);
         if matches!(contract, IfContractKind::Join) {
-            return self.lower_join_if_source(port, condition, then_block, else_block);
+            return self.lower_join_if_source_with_mode(
+                port,
+                condition,
+                then_block,
+                else_block,
+                PartsAssociatedBlockModeV1::NoExit,
+            );
         }
         let (policy, then_mode, else_mode) = match contract {
             IfContractKind::ExitOnly {
@@ -587,25 +593,6 @@ impl CallableLoopSourcePartsLoweringHooksV1<'_> {
             Some(else_block),
             PartsAssociatedBlockModeV1::ExitAllowed,
         )?))
-    }
-
-    /// Join-bearing `IfV2` inside a `NoExit` block: branch snapshots and join
-    /// materialization stay in `lower_if_join_state_core`; the located branch
-    /// blocks recurse through this same provider in `NoExit` mode.
-    fn lower_join_if_source<'view, 'ledger: 'view>(
-        &mut self,
-        port: CallableLoopSourceExpressionPortV1<'ledger>,
-        condition: CallableLoopSourceExprInputV1<'view>,
-        then_block: CallableLoopSourcePartsBlockV1<'view>,
-        else_block: Option<CallableLoopSourcePartsBlockV1<'view>>,
-    ) -> Result<Vec<LoweredRecipe>, String> {
-        self.lower_join_if_source_with_mode(
-            port,
-            condition,
-            then_block,
-            else_block,
-            PartsAssociatedBlockModeV1::NoExit,
-        )
     }
 
     fn lower_join_if_source_with_mode<'view, 'ledger: 'view>(
