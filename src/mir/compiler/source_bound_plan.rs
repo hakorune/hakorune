@@ -4,7 +4,7 @@
 //! binds a plan to a compiler domain and invocation token. Keeping the sum
 //! here makes the semantic body profile distinct from its lifecycle family.
 use super::capability::{
-    CanonicalCurrentAPlusPlanV1, CanonicalFirstFamilyPlanV1, CanonicalLoopFamilyPlanV1,
+    CanonicalLoopFamilyPlanV1,
     CanonicalTrivialBindingSsaPlanV1,
 };
 use super::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1;
@@ -45,7 +45,6 @@ fn route_for_family(family: ModuleInvocationFamilyV1) -> CanonicalSourceRouteV1 
 /// Raw remains on the closed RAW0 chain and is intentionally not rewrapped.
 #[derive(Debug)]
 pub(in crate::mir) enum ExactCanonicalPreflightPlanV1<'a> {
-    APlus(CanonicalCurrentAPlusPlanV1<'a>),
     BindingSsaTrivial(CanonicalTrivialBindingSsaPlanV1<'a>),
     /// Semantic Loop family; its external lifecycle reuses `BindingSsaTrivial`.
     Loop(CanonicalLoopFamilyPlanV1<'a>),
@@ -53,17 +52,8 @@ pub(in crate::mir) enum ExactCanonicalPreflightPlanV1<'a> {
 }
 
 impl<'a> ExactCanonicalPreflightPlanV1<'a> {
-    pub(crate) fn from_first_family(plan: CanonicalFirstFamilyPlanV1<'a>) -> Self {
-        match plan {
-            CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => Self::APlus(plan),
-            CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => Self::BindingSsaTrivial(plan),
-            CanonicalFirstFamilyPlanV1::Loop(plan) => Self::Loop(plan),
-        }
-    }
-
     pub(crate) fn route(&self) -> CanonicalSourceRouteV1 {
         match self {
-            Self::APlus(_) => CanonicalSourceRouteV1::APlus,
             Self::BindingSsaTrivial(_) => CanonicalSourceRouteV1::BindingSsaTrivial,
             Self::Loop(_) => CanonicalSourceRouteV1::BindingSsaTrivial,
             Self::BindingSsaRecursive(_) => CanonicalSourceRouteV1::BindingSsaRecursive,

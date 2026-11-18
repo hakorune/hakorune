@@ -28,14 +28,6 @@ fn boolean(value: bool) -> ASTNode {
     }
 }
 
-fn assignment(name: &str, value: ASTNode) -> ASTNode {
-    ASTNode::Assignment {
-        target: Box::new(variable(name)),
-        value: Box::new(value),
-        span: Span::unknown(),
-    }
-}
-
 fn return_(value: Option<ASTNode>) -> ASTNode {
     ASTNode::Return {
         value: value.map(Box::new),
@@ -79,13 +71,16 @@ fn function(
 
 fn compile(root: ASTNode) -> crate::mir::compiler::MirCompileResult {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
-    assert!(matches!(
-        CanonicalLoweringPreflightV1::verify(&unit).unwrap(),
-        CanonicalFirstFamilyPlanV1::TrivialBindingSsa(_)
-    ));
-    crate::mir::MirCompiler::with_options(false)
-        .compile_resolved(unit.lowering_input(), Some("exact_i64_return.hako"))
-        .unwrap()
+    let CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) =
+        CanonicalLoweringPreflightV1::verify(&unit).unwrap()
+    else {
+        panic!("fixture must select trivial Binding SSA");
+    };
+    let module = crate::mir::MirBuilder::new()
+        .build_resolved_trivial_function_module(plan)
+        .unwrap();
+    let verification_result = crate::mir::MirVerifier::new().verify_module(&module);
+    crate::mir::compiler::MirCompileResult { module, verification_result }
 }
 
 #[test]
@@ -140,14 +135,6 @@ fn unsupported_typed_returns_fail_before_builder_and_never_retry() {
         let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
         assert!(matches!(
             CanonicalLoweringPreflightV1::verify(&unit),
-            Err(CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape {
-                reason: "typed_return_profile_not_activated",
-                ..
-            })
-        ));
-        let mut compiler = crate::mir::MirCompiler::with_options(false);
-        assert!(matches!(
-            compiler.compile_resolved(unit.lowering_input(), None),
             Err(CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape {
                 reason: "typed_return_profile_not_activated",
                 ..

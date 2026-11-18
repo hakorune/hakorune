@@ -68,8 +68,12 @@ fn call(name: &str, argument: ASTNode) -> ASTNode {
 #[test]
 fn canonical_source_binding_owner0_uses_one_physical_owner() {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(function("owner0")).unwrap();
-    let plan = super::capability::CanonicalLoweringPreflightV1::verify(&unit).unwrap();
-    let exact = ExactCanonicalPreflightPlanV1::from_first_family(plan);
+    let super::capability::CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) =
+        super::capability::CanonicalLoweringPreflightV1::verify(&unit).unwrap()
+    else {
+        panic!("fixture must select trivial Binding SSA");
+    };
+    let exact = ExactCanonicalPreflightPlanV1::BindingSsaTrivial(plan);
     let mut compiler = MirCompiler::new();
     let package = compiler.bind_canonical_source(exact).unwrap();
     let package_brand = package.brand();
@@ -92,8 +96,12 @@ fn canonical_source_binding_owner0_uses_one_physical_owner() {
 #[test]
 fn canonical_source_binding_collect0_retains_same_brand_and_receipt() {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(function("collect0")).unwrap();
-    let plan = super::capability::CanonicalLoweringPreflightV1::verify(&unit).unwrap();
-    let exact = ExactCanonicalPreflightPlanV1::from_first_family(plan);
+    let super::capability::CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) =
+        super::capability::CanonicalLoweringPreflightV1::verify(&unit).unwrap()
+    else {
+        panic!("fixture must select trivial Binding SSA");
+    };
+    let exact = ExactCanonicalPreflightPlanV1::BindingSsaTrivial(plan);
     let mut compiler = MirCompiler::new();
     let package = compiler.bind_canonical_source(exact).unwrap();
     let package_brand = package.brand();

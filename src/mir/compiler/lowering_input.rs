@@ -107,22 +107,6 @@ impl VerifiedResolvedSourceUnitV1 {
     ) -> Option<&VerifiedResolvedBodyShapeInventoryV1> {
         self.body_shapes.get(&owner)
     }
-
-    pub fn lowering_input(&self) -> ResolvedModuleLoweringInputV1<'_> {
-        ResolvedModuleLoweringInputV1 { source_unit: self }
-    }
-}
-
-/// Canonical module input. It cannot be assembled from a bare AST.
-#[derive(Debug, Clone, Copy)]
-pub struct ResolvedModuleLoweringInputV1<'a> {
-    source_unit: &'a VerifiedResolvedSourceUnitV1,
-}
-
-impl<'a> ResolvedModuleLoweringInputV1<'a> {
-    pub fn source_unit(self) -> &'a VerifiedResolvedSourceUnitV1 {
-        self.source_unit
-    }
 }
 
 /// Explicit provenance for inputs that do not carry canonical source identity.
@@ -341,25 +325,6 @@ mod tests {
     }
 
     #[test]
-    fn verified_unit_is_the_only_resolved_input_factory() {
-        let root = function();
-        let unit = verified_source_unit_for_test(root);
-        let input = unit.lowering_input();
-
-        assert!(matches!(
-            input.source_unit().syntax_root(),
-            ASTNode::FunctionDeclaration { .. }
-        ));
-        assert_eq!(input.source_unit().forest().owner_count(), 1);
-        let root_owner = input.source_unit().forest().roots()[0];
-        let body_shape = input
-            .source_unit()
-            .body_shape(root_owner)
-            .expect("resolver body-shape product");
-        assert_eq!(body_shape.owner(), root_owner);
-    }
-
-    #[test]
     fn bare_constructor_does_not_fabricate_a_body_shape() {
         let root = function();
         let unit = verified_source_unit_for_test(root);
@@ -372,46 +337,4 @@ mod tests {
         assert!(input.body_shape().is_none());
     }
 
-    #[test]
-    fn resolved_entry_activates_only_the_closed_first_family() {
-        let root = function();
-        let unit = verified_source_unit_for_test(root);
-        let mut compiler = crate::mir::MirCompiler::with_options(false);
-
-        let result = compiler
-            .compile_resolved(unit.lowering_input(), Some("fixture.hako"))
-            .unwrap();
-
-        assert!(result.module.functions.contains_key("fixture/0"));
-        assert!(compiler.builder.current_module.is_none());
-    }
-
-    #[test]
-    fn unsupported_shape_fails_before_builder_effects_without_legacy_retry() {
-        let mut root = function();
-        let ASTNode::FunctionDeclaration { body, .. } = &mut root else {
-            unreachable!()
-        };
-        body.push(ASTNode::Loop {
-            condition: Box::new(ASTNode::Literal {
-                value: LiteralValue::Bool(true),
-                span: Span::unknown(),
-            }),
-            body: Vec::new(),
-            span: Span::unknown(),
-        });
-        let unit = verified_source_unit_for_test(root);
-        let mut compiler = crate::mir::MirCompiler::with_options(false);
-
-        let error = compiler
-            .compile_resolved(unit.lowering_input(), Some("unsupported.hako"))
-            .unwrap_err();
-
-        assert!(matches!(
-            error,
-            CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape { .. }
-        ));
-        assert!(compiler.builder.current_module.is_none());
-        assert_eq!(compiler.builder.core_ctx.next_binding_id, 0);
-    }
 }

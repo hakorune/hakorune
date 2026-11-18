@@ -1,4 +1,4 @@
-use super::builder::{CanonicalResolvedBuildErrorV1, MirBuilder};
+use super::builder::MirBuilder;
 use super::function::DynamicV2MetadataPairObservation;
 use super::function::MirModule;
 use super::optimizer::MirOptimizer;
@@ -72,11 +72,8 @@ mod source_view_tests;
 #[cfg(test)]
 mod static_result_target_only_emission_tests;
 use crate::mir::builder::BuilderInvocationConfigV1;
-use capability::{CanonicalFirstFamilyPlanV1, CanonicalLoopFamilyPlanV1};
 pub(in crate::mir) use lowering_input::LegacyModuleLoweringInputV1;
-pub use lowering_input::{
-    CanonicalLoweringErrorV1, ResolvedModuleLoweringInputV1, VerifiedResolvedSourceUnitV1,
-};
+pub use lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1};
 use module_session::CanonicalModuleLoweringSessionV1;
 pub(in crate::mir) use normal_default_pipeline::published_backend_view;
 pub(crate) use normal_default_pipeline::{
@@ -109,7 +106,6 @@ use source_bound_package::{
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum CanonicalFinishScheduleV1 {
     TrivialBindingSsa,
-    CurrentCanonicalAPlus,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -131,9 +127,7 @@ impl MirFinishScheduleV1 {
             Self::Canonical(CanonicalFinishScheduleV1::TrivialBindingSsa) => {
                 LegacyRcInsertionScheduleV1::Skip
             }
-            Self::Canonical(CanonicalFinishScheduleV1::CurrentCanonicalAPlus) | Self::Legacy => {
-                LegacyRcInsertionScheduleV1::Run
-            }
+            Self::Legacy => LegacyRcInsertionScheduleV1::Run,
             Self::SelectedDynamic => LegacyRcInsertionScheduleV1::Skip,
         }
     }
@@ -181,29 +175,6 @@ fn require_canonical_verification(
             .collect::<Vec<_>>()
             .into_boxed_slice(),
     })
-}
-
-fn map_canonical_build_error(error: CanonicalResolvedBuildErrorV1) -> CanonicalLoweringErrorV1 {
-    match error {
-        CanonicalResolvedBuildErrorV1::BuilderContract(detail) => {
-            CanonicalLoweringErrorV1::BuilderContract { detail }
-        }
-        CanonicalResolvedBuildErrorV1::DuplicateFunctionPublication { function_name } => {
-            CanonicalLoweringErrorV1::DuplicateFunctionPublication { function_name }
-        }
-        CanonicalResolvedBuildErrorV1::GenericG0Admission(error) => {
-            CanonicalLoweringErrorV1::GenericG0(
-                super::compiler::lowering_input::CanonicalGenericG0BoundaryErrorV1::Admission(
-                    error,
-                ),
-            )
-        }
-        CanonicalResolvedBuildErrorV1::GenericG0Lowerer(detail) => {
-            CanonicalLoweringErrorV1::GenericG0(
-                super::compiler::lowering_input::CanonicalGenericG0BoundaryErrorV1::Lowerer(detail),
-            )
-        }
-    }
 }
 
 fn set_candidate_source_hint(candidate: &mut MirBuilder, source_file: Option<&str>) {
@@ -363,21 +334,6 @@ impl MirCompiler {
         self.compile_normal(request)
     }
 
-    /// Compile syntax that carries a verified canonical source-unit seal.
-    ///
-    /// SA3-B activates one closed non-main static/free function family. The
-    /// whole source unit is rejected before Builder effects if it is outside
-    /// that capability.
-    pub fn compile_resolved(
-        &mut self,
-        input: ResolvedModuleLoweringInputV1<'_>,
-        source_file: Option<&str>,
-    ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
-        validate_builder_operator_call_ingress_once_v1()
-            .map_err(map_operator_call_ingress_error)?;
-        self.compile_resolved_first_family(input, source_file)
-    }
-
     /// Compile one exact P0c-MR recursive callable Program.
     ///
     /// This explicit ingress never probes the acyclic, self-call, or legacy
@@ -413,64 +369,6 @@ impl MirCompiler {
             candidate,
             CanonicalFinishScheduleV1::TrivialBindingSsa,
         )?;
-        module_session.commit(&mut self.builder);
-        Ok(result)
-    }
-
-    fn compile_resolved_first_family(
-        &mut self,
-        input: ResolvedModuleLoweringInputV1<'_>,
-        source_file: Option<&str>,
-    ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
-        if self.builder.repl_mode {
-            return Err(CanonicalLoweringErrorV1::UnsupportedCanonicalOwnerKind);
-        }
-        let config = BuilderInvocationConfigV1::snapshot_for_canonical(&self.builder, source_file);
-        let plan = generic_g0_capability::verify_with_generic_g0_mode_v1(
-            input.source_unit(),
-            config.generic_g0_policy_mode_v1(),
-        )?;
-
-        let stage_start = Instant::now();
-        // The sealed whole-unit plan is matched exactly once after preflight
-        // and before the candidate session is opened. Each owner carries its
-        // matching finish schedule through publication; a lowering error
-        // returns directly and is never retried through the other owner.
-        let (module_session, module, finish_schedule) = match plan {
-            CanonicalFirstFamilyPlanV1::Loop(CanonicalLoopFamilyPlanV1::GenericG0(plan)) => {
-                return resolved_generic_g0_cutover::compile_generic_g0_source_bound(
-                    self, plan, config,
-                );
-            }
-            CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => {
-                let mut session = CanonicalModuleLoweringSessionV1::open(&self.builder);
-                set_candidate_source_hint(session.builder_mut(), source_file);
-                let module = session
-                    .builder_mut()
-                    .build_resolved_trivial_function_module(plan)
-                    .map_err(map_canonical_build_error)?;
-                (
-                    session,
-                    module,
-                    CanonicalFinishScheduleV1::TrivialBindingSsa,
-                )
-            }
-            CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => {
-                let mut session = CanonicalModuleLoweringSessionV1::open(&self.builder);
-                set_candidate_source_hint(session.builder_mut(), source_file);
-                let module = session
-                    .builder_mut()
-                    .build_resolved_function_module(plan)
-                    .map_err(map_canonical_build_error)?;
-                (
-                    session,
-                    module,
-                    CanonicalFinishScheduleV1::CurrentCanonicalAPlus,
-                )
-            }
-        };
-        super::compile_timing::trace_stage("build_resolved_module", stage_start.elapsed());
-        let result = self.finish_built_canonical_module(module, finish_schedule)?;
         module_session.commit(&mut self.builder);
         Ok(result)
     }

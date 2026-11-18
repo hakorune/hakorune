@@ -4,7 +4,6 @@ use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::resolved_semantics::{BindingKindV1, SourceBindingSiteV1};
 use crate::mir::{MirInstruction, MirType};
 
-use super::identity::ResolvedIdentityStateV1;
 use super::*;
 
 const FIXTURE_SOURCE: &str = "static function canonical_fixture(arg) { local x = arg + 1\n x = x + 1\n outbox result\n return x }";
@@ -104,22 +103,6 @@ fn trivial_comparison_route_keeps_the_profile_sealed_bool_result() {
 }
 
 #[test]
-fn incomplete_identity_coverage_cannot_finish() {
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(fixture()).unwrap();
-    let input = unit.root_function_input().unwrap();
-    let mut state = ResolvedIdentityStateV1::new(input.function());
-    state
-        .publish_declaration(
-            &SourceBindingSiteV1::Parameter { index: 0 },
-            BindingKindV1::Parameter { index: 0 },
-            "arg",
-            crate::mir::ValueId::new(0),
-        )
-        .unwrap();
-    assert!(state.finish().is_err());
-}
-
-#[test]
 fn installed_product_structurally_vetoes_legacy_binding_allocator() {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(fixture()).unwrap();
     let input = unit.root_function_input().unwrap();
@@ -133,31 +116,6 @@ fn installed_product_structurally_vetoes_legacy_binding_allocator() {
     let error = builder.allocate_binding_id().unwrap_err();
     assert!(error.contains("legacy_allocation_forbidden"));
     assert_eq!(builder.core_ctx.next_binding_id, 0);
-}
-
-#[test]
-fn duplicate_exact_declaration_materialization_is_rejected() {
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(fixture()).unwrap();
-    let input = unit.root_function_input().unwrap();
-    let mut state = ResolvedIdentityStateV1::new(input.function());
-    let site = SourceBindingSiteV1::Parameter { index: 0 };
-    state
-        .publish_declaration(
-            &site,
-            BindingKindV1::Parameter { index: 0 },
-            "arg",
-            crate::mir::ValueId::new(0),
-        )
-        .unwrap();
-
-    assert!(state
-        .publish_declaration(
-            &site,
-            BindingKindV1::Parameter { index: 0 },
-            "arg",
-            crate::mir::ValueId::new(1),
-        )
-        .is_err());
 }
 
 #[test]

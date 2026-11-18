@@ -4,7 +4,6 @@ use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
 use crate::backend::{MirInterpreter, VMValue};
 use crate::mir::compiler::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
 use crate::mir::compiler::{MirCompileResult, VerifiedResolvedSourceUnitV1};
-use crate::mir::{ConstValue, MirInstruction, MirType};
 
 fn literal(value: LiteralValue) -> ASTNode {
     ASTNode::Literal {
@@ -58,14 +57,6 @@ fn assignment(name: &str, value: ASTNode) -> ASTNode {
     }
 }
 
-fn block_expr(prelude: Vec<ASTNode>, tail: ASTNode) -> ASTNode {
-    ASTNode::BlockExpr {
-        prelude_stmts: prelude,
-        tail_expr: Box::new(tail),
-        span: Span::unknown(),
-    }
-}
-
 fn if_(condition: ASTNode, then_body: Vec<ASTNode>, else_body: Option<Vec<ASTNode>>) -> ASTNode {
     ASTNode::If {
         condition: Box::new(condition),
@@ -101,14 +92,16 @@ fn returning(name: &str, mut body: Vec<ASTNode>, value: ASTNode) -> ASTNode {
 
 fn compile(root: ASTNode) -> MirCompileResult {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
-    let plan = CanonicalLoweringPreflightV1::verify(&unit).unwrap();
-    assert!(matches!(
-        plan,
-        CanonicalFirstFamilyPlanV1::TrivialBindingSsa(_)
-    ));
-    crate::mir::MirCompiler::with_options(false)
-        .compile_resolved(unit.lowering_input(), Some("explicit_void.hako"))
-        .unwrap()
+    let CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) =
+        CanonicalLoweringPreflightV1::verify(&unit).unwrap()
+    else {
+        panic!("fixture must select trivial Binding SSA");
+    };
+    let module = crate::mir::MirBuilder::new()
+        .build_resolved_trivial_function_module(plan)
+        .unwrap();
+    let verification_result = crate::mir::MirVerifier::new().verify_module(&module);
+    crate::mir::compiler::MirCompileResult { module, verification_result }
 }
 
 fn execute(root: ASTNode, function_name: &str) -> (MirCompileResult, VMValue) {

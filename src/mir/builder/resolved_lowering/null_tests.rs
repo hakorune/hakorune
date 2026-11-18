@@ -1,10 +1,8 @@
 #![cfg(feature = "vm-reference")]
 
-use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
-use crate::backend::{MirInterpreter, VMValue};
+use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::compiler::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
-use crate::mir::compiler::{MirCompileResult, VerifiedResolvedSourceUnitV1};
-use crate::mir::{ConstValue, MirInstruction, MirType};
+use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 
 fn literal(value: LiteralValue) -> ASTNode {
     ASTNode::Literal {
@@ -58,14 +56,6 @@ fn assignment(name: &str, value: ASTNode) -> ASTNode {
     }
 }
 
-fn block_expr(prelude: Vec<ASTNode>, tail: ASTNode) -> ASTNode {
-    ASTNode::BlockExpr {
-        prelude_stmts: prelude,
-        tail_expr: Box::new(tail),
-        span: Span::unknown(),
-    }
-}
-
 fn if_(condition: ASTNode, then_body: Vec<ASTNode>, else_body: Option<Vec<ASTNode>>) -> ASTNode {
     ASTNode::If {
         condition: Box::new(condition),
@@ -93,29 +83,6 @@ fn function(name: &str, mut body: Vec<ASTNode>, result: ASTNode) -> ASTNode {
         attrs: DeclarationAttrs::default(),
         span: Span::unknown(),
     }
-}
-
-fn compile(root: ASTNode) -> MirCompileResult {
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
-    let plan = CanonicalLoweringPreflightV1::verify(&unit).unwrap();
-    assert!(matches!(
-        plan,
-        CanonicalFirstFamilyPlanV1::TrivialBindingSsa(_)
-    ));
-    crate::mir::MirCompiler::with_options(false)
-        .compile_resolved(unit.lowering_input(), Some("null_sentinel.hako"))
-        .unwrap()
-}
-
-fn execute_bool(root: ASTNode, function_name: &str) -> (MirCompileResult, bool) {
-    let result = compile(root);
-    let value = MirInterpreter::new()
-        .execute_function_with_args(&result.module, function_name, &[])
-        .unwrap();
-    let VMValue::Bool(value) = value else {
-        panic!("expected Bool result, got {value:?}")
-    };
-    (result, value)
 }
 
 #[test]

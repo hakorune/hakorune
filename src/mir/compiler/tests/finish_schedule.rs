@@ -12,12 +12,7 @@ fn trivial_binding_ssa_finish_schedule_skips_legacy_rc() {
 }
 
 #[test]
-fn current_canonical_and_legacy_finish_schedules_keep_legacy_rc() {
-    assert_eq!(
-        MirFinishScheduleV1::Canonical(CanonicalFinishScheduleV1::CurrentCanonicalAPlus)
-            .legacy_rc_insertion(),
-        LegacyRcInsertionScheduleV1::Run
-    );
+fn legacy_finish_schedule_keeps_legacy_rc() {
     assert_eq!(
         MirFinishScheduleV1::Legacy.legacy_rc_insertion(),
         LegacyRcInsertionScheduleV1::Run

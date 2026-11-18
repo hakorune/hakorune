@@ -508,22 +508,6 @@ fn preflight_preserves_root_return_error_priority_and_rejects_outer_loop() {
 }
 
 #[test]
-fn compile_resolved_preflight_error_leaves_builder_unopened() {
-    let unit = unsupported_branch(ASTNode::Return {
-        value: Some(Box::new(literal(1))),
-        span: Span::unknown(),
-    });
-    let mut compiler = MirCompiler::with_options(false);
-
-    assert!(compiler.builder.current_module.is_none());
-    assert!(matches!(
-        compiler.compile_resolved(unit.lowering_input(), None),
-        Err(CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape { .. })
-    ));
-    assert!(compiler.builder.current_module.is_none());
-}
-
-#[test]
 fn sealed_unit_set_with_implicit_end_stays_outside_the_canonical_route() {
     // `if (x) { return void }` seals a single-site
     // `ExplicitUnitSetWithImplicitEnd` completion, but the canonical
@@ -555,14 +539,6 @@ fn sealed_unit_set_with_implicit_end_stays_outside_the_canonical_route() {
 
     assert!(matches!(
         CanonicalLoweringPreflightV1::verify(&unit),
-        Err(CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape {
-            reason: "return_not_allowed_here",
-            ..
-        })
-    ));
-    let mut compiler = MirCompiler::with_options(false);
-    assert!(matches!(
-        compiler.compile_resolved(unit.lowering_input(), None),
         Err(CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape {
             reason: "return_not_allowed_here",
             ..

@@ -12,7 +12,7 @@ use crate::mir::loop_route_policy::{
 };
 use crate::mir::numeric_substrate::NumericTarget;
 
-use super::capability::{CanonicalGenericG0PlanV1, CanonicalFirstFamilyPlanV1};
+use super::capability::CanonicalGenericG0PlanV1;
 use super::function_input::ResolvedFunctionLoweringInputV1;
 use super::generic_g0_projection::handoff::{
     issue_generic_g0_policy_handoff_with_window_v1, GenericG0PolicyHandoffIssueV1,
@@ -22,43 +22,8 @@ use super::generic_g0_source_parent::{
 };
 use super::located::LocatedStmtV1;
 use super::lowering_input::{
-    CanonicalGenericG0BoundaryErrorV1, CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1,
+    CanonicalGenericG0BoundaryErrorV1, CanonicalLoweringErrorV1,
 };
-
-#[derive(Debug)]
-pub(crate) enum GenericG0SourceUnitProbe<'source> {
-    NotCandidate(ResolvedFunctionLoweringInputV1<'source>),
-    Candidate(CanonicalFirstFamilyPlanV1<'source>),
-}
-
-pub(crate) fn verify_with_generic_g0_mode_v1(
-    unit: &VerifiedResolvedSourceUnitV1,
-    mode: Option<GenericG0PolicyModeV1>,
-) -> Result<CanonicalFirstFamilyPlanV1<'_>, CanonicalLoweringErrorV1> {
-    match probe_generic_g0_source_unit_v1(unit, mode)? {
-        GenericG0SourceUnitProbe::Candidate(plan) => Ok(plan),
-        GenericG0SourceUnitProbe::NotCandidate(function) => {
-            super::capability::CanonicalLoweringPreflightV1::verify_function(function)
-        }
-    }
-}
-
-/// Probe the production G0 source shape. A marked shape is never handed back
-/// to a generic fallback: every failure below is a typed canonical rejection.
-pub(crate) fn probe_generic_g0_source_unit_v1(
-    unit: &VerifiedResolvedSourceUnitV1,
-    mode: Option<GenericG0PolicyModeV1>,
-) -> Result<GenericG0SourceUnitProbe<'_>, CanonicalLoweringErrorV1> {
-    let input = unit.root_function_input()?;
-    match probe_generic_g0_function_v1(input, mode)? {
-        Some(plan) => Ok(GenericG0SourceUnitProbe::Candidate(
-            CanonicalFirstFamilyPlanV1::Loop(
-                super::capability::CanonicalLoopFamilyPlanV1::GenericG0(plan),
-            ),
-        )),
-        None => Ok(GenericG0SourceUnitProbe::NotCandidate(input)),
-    }
-}
 
 /// Probe one exact package-borrowed function input for the production G0
 /// shape. The normal package uses this sibling directly; it must not rebuild a

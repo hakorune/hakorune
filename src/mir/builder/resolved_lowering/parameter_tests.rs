@@ -20,21 +20,6 @@ fn integer(value: i64) -> ASTNode {
     }
 }
 
-fn boolean(value: bool) -> ASTNode {
-    ASTNode::Literal {
-        value: LiteralValue::Bool(value),
-        span: Span::unknown(),
-    }
-}
-
-fn assignment(name: &str, value: ASTNode) -> ASTNode {
-    ASTNode::Assignment {
-        target: Box::new(variable(name)),
-        value: Box::new(value),
-        span: Span::unknown(),
-    }
-}
-
 fn return_(value: ASTNode) -> ASTNode {
     ASTNode::Return {
         value: Some(Box::new(value)),
@@ -78,13 +63,16 @@ fn typed_function(
 
 fn compile(root: ASTNode) -> crate::mir::compiler::MirCompileResult {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
-    assert!(matches!(
-        CanonicalLoweringPreflightV1::verify(&unit).unwrap(),
-        CanonicalFirstFamilyPlanV1::TrivialBindingSsa(_)
-    ));
-    crate::mir::MirCompiler::with_options(false)
-        .compile_resolved(unit.lowering_input(), Some("parameter_entry.hako"))
-        .unwrap()
+    let CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) =
+        CanonicalLoweringPreflightV1::verify(&unit).unwrap()
+    else {
+        panic!("fixture must select trivial Binding SSA");
+    };
+    let module = crate::mir::MirBuilder::new()
+        .build_resolved_trivial_function_module(plan)
+        .unwrap();
+    let verification_result = crate::mir::MirVerifier::new().verify_module(&module);
+    crate::mir::compiler::MirCompileResult { module, verification_result }
 }
 
 #[test]
