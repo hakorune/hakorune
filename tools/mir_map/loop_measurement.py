@@ -18,6 +18,12 @@ DIAGNOSTIC = {
         r"\[ordinary-new/local-commit/physical-boundary/"
     ),
     "environment-error": r"MIR VM reference execution is not available|Error reading file|Failed to load runtime",
+    "named-source-refusal": (
+        r"observation: Located \{ cause: (?:UnresolvedName|UnsupportedStatement|UnsupportedExpression)\b|"
+        r"\[ownership/move-not-supported\]|"
+        r"\[ordinary-new/borrowed-compare/integer-source-unproved\]|"
+        r"using: duplicate import of|\[using/lineage\]\[DuplicateCanonicalPath\]"
+    ),
 }
 PANIC = re.compile(r"(?m)^(?:thread .* (?:panicked at|has overflowed its stack)|fatal runtime error:|internal compiler error:)")
 
