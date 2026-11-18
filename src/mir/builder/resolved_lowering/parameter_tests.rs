@@ -154,38 +154,6 @@ fn exact_i64_parameter_adopts_reserved_value_and_executes() {
 }
 
 #[test]
-fn parameter_assignment_and_if_use_the_same_binding_ssa_owner() {
-    let root = typed_function(
-        "parameter_if",
-        &[Some("i64"), Some("i64")],
-        None,
-        vec![
-            ASTNode::If {
-                condition: Box::new(boolean(true)),
-                then_body: vec![assignment("p0", variable("p1"))],
-                else_body: Some(vec![assignment("p0", integer(7))]),
-                span: Span::unknown(),
-            },
-            return_(variable("p0")),
-        ],
-    );
-    let result = compile(root);
-    let value = MirInterpreter::new()
-        .execute_function_with_args(
-            &result.module,
-            "parameter_if/2",
-            &[VMValue::Integer(1), VMValue::Integer(9)],
-        )
-        .unwrap();
-    assert_eq!(value, VMValue::Integer(9));
-    assert!(result.module.functions["parameter_if/2"]
-        .blocks
-        .values()
-        .flat_map(|block| &block.instructions)
-        .any(|instruction| matches!(instruction, MirInstruction::Phi { .. })));
-}
-
-#[test]
 fn final_callee_rejects_wrong_type_and_arity_before_execution() {
     let result = compile(typed_function(
         "parameter_identity",

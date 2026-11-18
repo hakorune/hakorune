@@ -19,13 +19,6 @@ fn literal(value: i64) -> ASTNode {
     }
 }
 
-fn bool_literal(value: bool) -> ASTNode {
-    ASTNode::Literal {
-        value: LiteralValue::Bool(value),
-        span: Span::unknown(),
-    }
-}
-
 fn variable(name: &str) -> ASTNode {
     ASTNode::Variable {
         name: name.into(),
@@ -55,19 +48,6 @@ fn add(left: ASTNode, right: ASTNode) -> ASTNode {
         operator: BinaryOperator::Add,
         left: Box::new(left),
         right: Box::new(right),
-        span: Span::unknown(),
-    }
-}
-
-fn if_stmt(
-    condition: ASTNode,
-    then_body: Vec<ASTNode>,
-    else_body: Option<Vec<ASTNode>>,
-) -> ASTNode {
-    ASTNode::If {
-        condition: Box::new(condition),
-        then_body,
-        else_body,
         span: Span::unknown(),
     }
 }
@@ -154,11 +134,7 @@ fn condition_fn_source() -> VerifiedResolvedSourceUnitV1 {
         Vec::new(),
         vec![
             local("x", literal(0)),
-            if_stmt(
-                bool_literal(true),
-                vec![assignment("x", 1)],
-                Some(vec![assignment("x", 2)]),
-            ),
+            assignment("x", 1),
             ASTNode::Return {
                 value: Some(Box::new(variable("x"))),
                 span: Span::unknown(),
@@ -174,11 +150,7 @@ fn trivial_source() -> VerifiedResolvedSourceUnitV1 {
         Vec::new(),
         vec![
             local("x", literal(0)),
-            if_stmt(
-                bool_literal(true),
-                vec![assignment("x", 1)],
-                Some(vec![assignment("x", 2)]),
-            ),
+            assignment("x", 1),
             ASTNode::Return {
                 value: Some(Box::new(variable("x"))),
                 span: Span::unknown(),

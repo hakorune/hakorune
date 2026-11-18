@@ -13,7 +13,6 @@ use crate::mir::resolved_semantics::{
 use crate::mir::ValueId;
 
 use super::branch_transaction::{AuthorizedBranchRebindV1, BranchValueStoreV1};
-use super::if_materialization::{DefinedJoinPublishV1, DefinedJoinValueStoreV1};
 use super::semantic_stack::ResolvedScopeRetirementV1;
 use ledger::ResolvedIdentityLedgerV2;
 use value_environment::PreSsaValueEnvironmentV1;
@@ -141,31 +140,6 @@ impl BranchValueStoreV1 for ResolvedIdentityStateV1<'_> {
     ) -> Result<ValueId, String> {
         self.values
             .rebind(authorization.binding(), authorization.value())
-    }
-}
-
-impl DefinedJoinValueStoreV1 for ResolvedIdentityStateV1<'_> {
-    fn defined_join_current_value(&self, binding: BindingRefV1) -> Result<ValueId, String> {
-        self.current_value(binding)
-    }
-
-    fn publish_defined_join_batch(
-        &mut self,
-        publishes: Vec<DefinedJoinPublishV1>,
-    ) -> Result<(), String> {
-        for publish in &publishes {
-            let actual = self.current_value(publish.binding())?;
-            if actual != publish.expected_entry() {
-                return Err(format!(
-                    "[freeze:contract][canonical_if/join_entry_changed_during_publish] binding={:?}",
-                    publish.binding()
-                ));
-            }
-        }
-        for publish in publishes {
-            self.values.rebind(publish.binding(), publish.value())?;
-        }
-        Ok(())
     }
 }
 

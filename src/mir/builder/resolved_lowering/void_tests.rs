@@ -129,60 +129,7 @@ fn assert_a_plus(root: ASTNode) {
 }
 
 #[test]
-fn explicit_void_blockexpr_and_homogeneous_if_use_void_typed_ssa() {
-    let root = returning(
-        "void_two_sided",
-        vec![
-            local(
-                "x",
-                block_expr(vec![local("inner", void())], variable("inner")),
-            ),
-            if_(
-                boolean(true),
-                vec![assignment("x", void())],
-                Some(vec![assignment("x", void())]),
-            ),
-        ],
-        variable("x"),
-    );
-    let (result, value) = execute(root, "void_two_sided/0");
-    assert!(matches!(value, VMValue::Void));
-    assert!(result.verification_result.is_ok());
-
-    let function = &result.module.functions["void_two_sided/0"];
-    let mut void_values = Vec::new();
-    let mut phi_values = Vec::new();
-    for instruction in function
-        .blocks
-        .values()
-        .flat_map(|block| &block.instructions)
-    {
-        match instruction {
-            MirInstruction::Const {
-                dst,
-                value: ConstValue::Void,
-            } => void_values.push(*dst),
-            MirInstruction::Phi { dst, .. } => phi_values.push(*dst),
-            MirInstruction::ReleaseStrong { .. }
-            | MirInstruction::CopyOwned { .. }
-            | MirInstruction::DestroyOwned { .. } => {
-                panic!("ExplicitVoidValue emitted ownership instruction: {instruction:?}")
-            }
-            _ => {}
-        }
-    }
-    assert!(!void_values.is_empty());
-    assert!(!phi_values.is_empty());
-    for value in void_values.into_iter().chain(phi_values) {
-        assert_eq!(
-            function.metadata.value_types.get(&value),
-            Some(&MirType::Void)
-        );
-    }
-}
-
-#[test]
-fn void_comparison_nested_flow_and_no_value_completion_execute_exactly() {
+fn void_comparison_and_no_value_completion_execute_exactly() {
     let cases = [
         (
             returning(
@@ -201,22 +148,6 @@ fn void_comparison_nested_flow_and_no_value_completion_execute_exactly() {
             ),
             "void_not_equal/0",
             VMValue::Bool(false),
-        ),
-        (
-            returning(
-                "void_nested",
-                vec![
-                    local("x", void()),
-                    if_(
-                        boolean(true),
-                        vec![if_(boolean(false), vec![assignment("x", void())], None)],
-                        Some(vec![assignment("x", void())]),
-                    ),
-                ],
-                variable("x"),
-            ),
-            "void_nested/0",
-            VMValue::Void,
         ),
         (
             function(

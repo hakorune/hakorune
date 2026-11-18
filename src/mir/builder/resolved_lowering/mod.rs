@@ -22,9 +22,6 @@ mod flow_consumption;
 #[cfg(test)]
 mod generic_g0_physical_emitter_session;
 mod identity;
-pub(in crate::mir::builder) mod if_cfg_ready_bridge;
-mod if_materialization;
-mod located_if;
 mod lowerer;
 mod semantic_stack;
 mod static_loop_body;
@@ -57,10 +54,6 @@ mod completion_test_support;
 mod flow_consumption_tests;
 #[cfg(test)]
 mod identity_separation_tests;
-#[cfg(test)]
-mod if_materialization_tests;
-#[cfg(test)]
-mod if_tests;
 pub(in crate::mir::builder) mod loop_recipe_physicalizer;
 
 pub(in crate::mir::builder::resolved_lowering) use canonical_compare_writer::{

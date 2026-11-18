@@ -9,7 +9,7 @@ use crate::mir::compiler::dynamic_full_body_recipe::DynamicCanonicalSessionAutho
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::located::SourceBodySiteV1;
 use crate::mir::resolved_control_flow::if_control::{
-    FunctionIfControlUseErrorV1, FunctionIfControlUseLedgerV1, ResolvedIfControlMaterializationV1,
+    FunctionIfControlUseErrorV1, FunctionIfControlUseLedgerV1,
     VerifiedResolvedFunctionIfControlV1,
 };
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
@@ -49,16 +49,6 @@ pub(in crate::mir::builder::resolved_lowering) enum CanonicalIfControlConsumptio
 }
 
 impl CanonicalIfControlConsumptionV1 {
-    fn claim(
-        &mut self,
-        statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
-    ) -> Result<ResolvedIfControlMaterializationV1, FunctionIfControlUseErrorV1> {
-        match self {
-            Self::Resolved(ledger) => ledger.claim(statement),
-            Self::DynamicProfileOwned => Err(FunctionIfControlUseErrorV1::Unexpected),
-        }
-    }
-
     fn finish(self) -> Result<(), FunctionIfControlUseErrorV1> {
         match self {
             Self::Resolved(ledger) => ledger.finish(),
@@ -321,13 +311,6 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             implicit_completion,
             generic_entry_adopted: false,
         })
-    }
-
-    pub(in crate::mir::builder::resolved_lowering) fn claim_if_control(
-        &mut self,
-        statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
-    ) -> Result<ResolvedIfControlMaterializationV1, FunctionIfControlUseErrorV1> {
-        self.if_control.claim(statement)
     }
 
     pub(in crate::mir::builder::resolved_lowering) const fn completion_is_implicit(&self) -> bool {

@@ -173,7 +173,9 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
             } => self.lower_local(statement, variables, initial_values),
             ASTNode::Outbox { variables, .. } => self.lower_outbox(statement, variables),
             ASTNode::Assignment { .. } => self.lower_assignment(statement),
-            ASTNode::If { .. } => self.lower_statement_if(statement),
+            ASTNode::If { .. } => {
+                Err("[freeze:contract][canonical_binding_ssa/statement_outside_profile]".into())
+            }
             ASTNode::Return { .. } => {
                 if self.completion.returns_value() {
                     let value = self

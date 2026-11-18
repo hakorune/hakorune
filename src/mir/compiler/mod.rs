@@ -45,8 +45,6 @@ mod generic_g0_projection_tests;
 #[cfg(test)]
 mod generic_g0_source_parent_tests;
 #[cfg(test)]
-mod if_recipe_candidate_abort_d2_tests;
-#[cfg(test)]
 mod legacy_candidate_session_tests;
 #[cfg(test)]
 mod loop_candidate_abort_p0;
@@ -56,8 +54,6 @@ mod module_postprocess_failure_p0;
 mod module_postprocess_p0;
 #[cfg(test)]
 mod module_session_borrow_p0_tests;
-#[cfg(test)]
-mod nested_if_recipe_d2_tests;
 #[cfg(test)]
 mod operator_call_retirement_tests;
 #[cfg(test)]
