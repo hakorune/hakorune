@@ -19,7 +19,28 @@ impl ports::SourceLoopScanSummaryV1 {
         {
             return Err("source Loop condition identity");
         }
-        self.incoming.as_ref().map_err(|reason| *reason)?;
+        let incoming = self.incoming.as_ref().map_err(|reason| *reason)?;
+        let flow = input
+            .function()
+            .expression_source()
+            .value_flow()
+            .ok_or("source Loop value flow missing")?;
+        if incoming.len() != self.headers.len() {
+            return Err("source Loop carrier census mismatch");
+        }
+        // The issuer seals the complete edge/producer rows against this
+        // immutable flow. Corroborate the enclosing carrier and join identity
+        // before lending those rows to Recipe and the physical writer.
+        for ((&binding, basis), row) in self.headers.iter().zip(incoming.iter()) {
+            if !Rc::ptr_eq(basis, &row.basis)
+                || !Rc::ptr_eq(&basis.source, &self.source)
+                || !Arc::ptr_eq(&basis.flow, flow)
+                || flow.loop_join(self.source.site(), binding, Join::LoopAfter)
+                    .is_none_or(|(after, _)| after != row.after)
+            {
+                return Err("source Loop predecessor census mismatch");
+            }
+        }
         let conditions = self
             .bool_expressions
             .as_ref()

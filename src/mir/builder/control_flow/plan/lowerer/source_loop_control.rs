@@ -91,10 +91,10 @@ impl EmittedSourceLoopGraphV2 {
                 let row = rows.next().ok_or_else(|| reject("call-missing"))?;
                 if rows.next().is_some() || row.entry != cursor
                     || row.packet.site() != observation.site()
-                    || row.result.as_ref().map(|(key, _)| key) != result.as_ref() {
+                    || row.result.is_some() != result.is_some() {
                     return Err(reject("call-sequence"));
                 }
-                if let Some((_, relation)) = &row.result { relation.verify(function)?; }
+                if let Some(relation) = &row.result { relation.verify(function)?; }
                 // The packet owner validates the original continuation and
                 // ordered arguments in both Lowering and final projection.
                 cursor = row.end;

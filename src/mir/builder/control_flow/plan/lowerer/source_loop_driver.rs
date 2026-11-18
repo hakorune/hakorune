@@ -9,20 +9,19 @@ use crate::mir::builder::recursive_child_lowering::RawInvocationChildPortV1;
 use crate::mir::builder::ordinary_new_admission::selected::source_loop_cleanup::{self, EmittedSourceLoopCleanupV2};
 use crate::mir::builder::vars::lexical_scope::{try_with_lexical_scope_with_receipt_v2, LocalBindingStateSnapshot, LexicalScopeCloseReceiptV2};
 use crate::mir::loop_recipe_contract::{VerifiedSourceLoopRecipeProductV2 as Product,
-    SourceLoopScheduledStepV2 as Step, SourceLoopBranchPhiV2, LoopBlockKeyV1, LoopBindingKeyV1, LoopValueKeyV1};
+    SourceLoopScheduledStepV2 as Step, SourceLoopBranchPhiV2, LoopBlockKeyV1};
 use crate::mir::resolved_semantics::{BindingRefV1, home_new_prefix::{LifecyclePrefixSourceV1 as Prefix,
     SourceLoopPortKindV1 as PortKind}};
-use crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1 as Edge;
+use crate::mir::resolved_semantics::source_value_flow::{SourceValueEdgeV1 as Edge, SourceValueRefV1};
 use crate::mir::{BasicBlockId, ValueId, MirInstruction, MirFunction};
 
 pub(in crate::mir) struct EmittedLoopIncomingV2 {
     pub(in crate::mir) binding: BindingRefV1,
-    pub(in crate::mir) logical: LoopValueKeyV1,
+    pub(in crate::mir) original_value: SourceValueRefV1,
     pub(in crate::mir) observation: BindingValueObservationV2,
     pub(in crate::mir) dependencies: Vec<(BasicBlockId, MirInstruction)>,
     pub(in crate::mir) joins: Vec<Rc<LocalSsaPhysicalRelationV1>>,
     pub(in crate::mir) localized: Rc<LocalSsaPhysicalRelationV1>,
-    pub(in crate::mir) canonical: Option<Rc<LocalSsaPhysicalRelationV1>>,
 }
 pub(in crate::mir) struct EmittedLoopEdgeV2 {
     pub(in crate::mir) source: Edge,
@@ -82,7 +81,7 @@ pub(in crate::mir) struct EmittedLoopEffectV2 {
     pub(in crate::mir) entry: BasicBlockId,
     pub(in crate::mir) end: BasicBlockId,
     pub(in crate::mir) packet: crate::mir::normal_callable_semantic_package::RootLifecyclePrefixBindingGroupV1,
-    pub(in crate::mir) result: Option<(LoopValueKeyV1, Rc<LocalSsaPhysicalRelationV1>)>,
+    pub(in crate::mir) result: Option<Rc<LocalSsaPhysicalRelationV1>>,
 }
 /// One child source Loop lowered by its own product between `entry` and the
 /// child's After block `end`; values stay in the shared ledger.
@@ -208,25 +207,10 @@ pub(in crate::mir) fn emit(builder: &mut MirBuilder, port: &mut RawInvocationChi
     let false_exit = builder.next_block_id();
     let after = builder.next_block_id();
     source.prepare_checked_phis_v2(builder, header, after)?;
-    let mut logical = BTreeMap::new();
-    let mut values = BTreeMap::new();
     let recipe = product.recipe.as_recipe();
-    for carrier in &recipe.carriers {
-        let (&binding, _) = product.bindings.iter().find(|(_, key)| **key == carrier.binding)
-            .ok_or_else(|| reject("carrier-source-binding"))?;
-        logical.insert(carrier.binding, carrier.entry_value);
-        values.insert(carrier.entry_value, source.checked_header_point_v2(binding)?.relation().values().0);
-    }
-    for input in &recipe.read_only_inputs {
-        let (&binding, _) = product.bindings.iter().find(|(_, key)| **key == input.binding)
-            .ok_or_else(|| reject("readonly-source-binding"))?;
-        logical.insert(input.binding, input.entry_value);
-        values.insert(input.entry_value, ledger.borrow().value_for_exact_binding(source.owner(), binding)
-            .map_err(|error| error.to_string())?);
-    }
     let body_key = recipe.loops.first().ok_or_else(|| reject("root-loop-missing"))?.body;
     let mut driver = Driver { port, source, product: Rc::clone(&product), ledger, header, after,
-        logical, values, returns: Vec::new(), edges: Vec::new(), frames: Vec::new(), effects: Vec::new(), forks: Vec::new(), blocks: Vec::new(), children: Vec::new() };
+        returns: Vec::new(), edges: Vec::new(), frames: Vec::new(), effects: Vec::new(), forks: Vec::new(), blocks: Vec::new(), children: Vec::new() };
     driver.edge(builder, Edge::LoopEntry, None)?;
     for &binding in product.source.headers.keys() {
         let name = driver.ledger.borrow().source_loop_binding_name(binding,
@@ -272,8 +256,6 @@ struct Driver<'a, 'port, 'collector, 'input, 'ledger> {
     ledger: Rc<RefCell<CallableSemanticLoweringState>>,
     header: BasicBlockId,
     after: BasicBlockId,
-    logical: BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
-    values: BTreeMap<LoopValueKeyV1, ValueId>,
     returns: Vec<EmittedLoopReturnV2>,
     edges: Vec<EmittedLoopEdgeV2>,
     frames: Vec<EmittedLoopFrameV2>,
@@ -287,21 +269,10 @@ impl Driver<'_, '_, '_, '_, '_> {
         condition: Option<Rc<ConditionMaterializationV1>>, targets: Option<(BasicBlockId, BasicBlockId)>,
     ) -> Result<(), String> {
         if self.frames.len() != index { return Err(reject("frame-order")); }
-        let frame = &self.product.schedule().frames()[index];
-        let canonical = *self.values.entry(frame.result()).or_insert(value);
         let function = builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?;
-        let relation = builder.function_state.local_ssa_correspondence.loan(function, canonical, value)
+        let relation = builder.function_state.local_ssa_correspondence.loan(function, value, value)
             .ok_or_else(|| reject("frame-alias-correspondence"))?;
         relation.verify(function)?;
-        if canonical != value { self.values.insert(frame.result(), value); }
-        if let Prefix::BindingRebind { frame: original, .. } = frame.prefix() {
-            if let Some(binding) = self.product.bindings.get(&original.target()) {
-                if self.product.recipe.as_recipe().carriers.iter().any(|row| row.binding == *binding)
-                    && self.logical.insert(*binding, frame.result()).is_none() {
-                    return Err(reject("rebind-before-logical-entry"));
-                }
-            }
-        }
         let end = builder.function_state.current_block.ok_or_else(|| reject("frame-end"))?;
         self.frames.push(EmittedLoopFrameV2 { index, entry, end, value, canonical: relation, condition, targets });
         Ok(())
@@ -327,18 +298,17 @@ impl Driver<'_, '_, '_, '_, '_> {
                 Step::Call { site, observation, result, .. } => {
                     let entry = builder.function_state.current_block.ok_or_else(|| reject("call-entry"))?;
                     let (packet, actual) = super::source_loop_frames::emit_call(builder, self.port, &self.product, site, observation)?;
-                    let result = match (result, actual) {
-                        (Some(logical), Some((value, local))) => {
+                    let result = match (result.is_some(), actual) {
+                        (true, Some((value, local))) => {
                             // Later source reads name the Local writer's result;
                             // retain initializer -> local separately as evidence.
-                            if self.values.insert(*logical, local).is_some() { return Err(reject("call-result-repeat")); }
                             let function = builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?;
                             let relation = builder.function_state.local_ssa_correspondence.loan(function, value, local)
                                 .ok_or_else(|| reject("call-local-correspondence"))?;
                             relation.verify(function)?;
-                            Some((*logical, relation))
+                            Some(relation)
                         }
-                        (None, Some((value, local))) if matches!(observation.result(),
+                        (false, Some((value, local))) if matches!(observation.result(),
                             crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Handle
                             | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Nullable) => {
                             let claims = self.port.ordinary_new_claim_ledger.as_ref()
@@ -349,7 +319,7 @@ impl Driver<'_, '_, '_, '_, '_> {
                             }
                             None
                         }
-                        (None, None) => None,
+                        (false, None) => None,
                         _ => return Err(reject("call-result-source")),
                     };
                     let end = builder.function_state.current_block.ok_or_else(|| reject("call-end"))?;
@@ -382,15 +352,10 @@ impl Driver<'_, '_, '_, '_, '_> {
                         position += 1;
                     }
                 }
-                Step::Return { source, exit, .. } => {
+                Step::Return { source, .. } => {
                     if position + 1 != steps.len() { return Err(reject("schedule-after-exit")); }
-                    let crate::mir::loop_recipe_contract::LoopExitKindV2::Return { value: Some(logical) }
-                        = self.product.recipe.as_recipe().exits[exit.raw() as usize].kind else { return Err(reject("exit-source-role")); };
                     let entry = builder.function_state.current_block.ok_or_else(|| reject("body-entry"))?;
                     let (value, read, bindings) = super::source_loop_frames::emit_return(builder, self.port, &self.product, source)?;
-                    if let Some(previous) = self.values.insert(logical, value) {
-                        if previous != value { return Err(reject("call-result-source")); }
-                    }
                     let end = builder.function_state.current_block.ok_or_else(|| reject("body-end"))?;
                     let mut terminals = bindings.iter().filter(|(_, row)| matches!(row, MirInstruction::Return { .. }));
                     let terminal = terminals.next().cloned().ok_or_else(|| reject("exit-cursor"))?;
@@ -412,7 +377,7 @@ impl Driver<'_, '_, '_, '_, '_> {
                     return Ok(false);
                 }
                 Step::If { .. } => return Err(reject("if-without-condition-frame")),
-                Step::ChildLoop { site, product, outputs, .. } => {
+                Step::ChildLoop { site, product, .. } => {
                     let entry = builder.function_state.current_block.ok_or_else(|| reject("child-loop-entry"))?;
                     // This Loop's Header/After Phis are still pending while the
                     // child completes; lend them as ancestor obligations only.
@@ -428,21 +393,6 @@ impl Driver<'_, '_, '_, '_, '_> {
                     obligations.close()?;
                     lowered?;
                     let end = builder.function_state.current_block.ok_or_else(|| reject("child-loop-end"))?;
-                    // Borrow each verified After value the child published; a
-                    // carrier of this Loop advances its logical value, too.
-                    for (binding, _, write, logical) in outputs {
-                        let observation = self.ledger.borrow().observe_binding_value_v2(*binding)
-                            .map_err(|error| error.to_string())?;
-                        if self.values.insert(*logical, observation.binding_value().1).is_some() {
-                            return Err(reject("child-loop-result-repeat"));
-                        }
-                        if write.is_some() {
-                            let key = *self.product.bindings.get(binding).ok_or_else(|| reject("child-loop-binding"))?;
-                            if self.logical.insert(key, *logical).is_none() {
-                                return Err(reject("child-loop-before-logical-entry"));
-                            }
-                        }
-                    }
                     self.children.push(EmittedLoopChildV2 { site: site.clone(), product: Rc::clone(product), entry, end });
                     position += 1;
                 }
@@ -462,10 +412,6 @@ impl Driver<'_, '_, '_, '_, '_> {
         let condition_value = lowered.value();
         self.frame(builder, condition, entry, condition_value, None, None)?;
 
-        let entry_logical = self.logical.clone();
-        let entry_values = self.values.clone();
-        let dominating: BTreeSet<_> = entry_values.keys().copied().collect();
-        let mut yes_values = None;
         let state = super::source_loop_frames::prepare_if_observer(builder, self.port, &self.product, condition)?;
         {
             let mut observers = IfObserversV1 {
@@ -477,15 +423,10 @@ impl Driver<'_, '_, '_, '_, '_> {
                     let key = match branch {
                         IfBranchKindV1::Then => yes,
                         IfBranchKindV1::Else => {
-                            self.logical.clone_from(&entry_logical);
-                            self.values.clone_from(&entry_values);
                             no.ok_or_else(|| reject("else-end"))?
                         }
                     };
-                    let normal = self.scoped_body(builder, key)?;
-                    if normal && matches!(branch, IfBranchKindV1::Then) && no.is_some() {
-                        yes_values = Some((self.logical.clone(), self.values.clone()));
-                    }
+                    self.scoped_body(builder, key)?;
                     Ok(())
                 }, Some(&mut observers),
             )?;
@@ -501,12 +442,7 @@ impl Driver<'_, '_, '_, '_, '_> {
             Some(key) => arm(key).ok_or_else(|| reject("else-end"))?,
             None => (no_bb, true),
         };
-        if yes_normal && no_normal || no.is_none() {
-            self.logical.clone_from(&entry_logical);
-            self.values = entry_values;
-        } else if yes_normal {
-            (self.logical, self.values) = yes_values.ok_or_else(|| reject("then-end"))?;
-        } else if !no_normal {
+        if !yes_normal && !no_normal {
             builder.start_new_block(no_end)?;
         }
         let mut joins = Vec::new();
@@ -541,33 +477,20 @@ impl Driver<'_, '_, '_, '_, '_> {
                 }
             }
             if yes_normal && no_normal {
-                if self.logical.values().any(|key| !dominating.contains(key)) {
-                    if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
-                        eprintln!("[loop-join-debug] non-dominating logical={:?} entry={:?}", self.logical, entry_logical);
-                    }
-                    return Err(reject("if-logical-join-not-canonical"));
-                }
-                if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
-                    eprintln!("[loop-join-debug] scheduled={:?} observed={:?} logical={:?}",
-                        source_joins.iter().map(|row| (row.source.binding(), row.result, row.binding, row.write_item)).collect::<Vec<_>>(),
-                        joins.iter().map(|row| row.source().binding()).collect::<Vec<_>>(), self.logical);
-                }
-                self.publish_join_sources(
+                Self::verify_join_sources(
                     builder,
                     source_joins
                         .iter()
-                        .map(|row| (&row.source, row.binding, row.result)),
+                        .map(|row| &row.source),
                     joins.iter().map(|row| (row.source(), row.relation())),
-                    &entry_logical,
                     "if-logical-join-not-canonical",
                 )?;
-                let consumed_text = self.publish_join_sources(
+                let consumed_text = Self::verify_join_sources(
                     builder,
                     source_text_joins
                         .iter()
-                        .map(|row| (&row.source, row.binding, row.result)),
+                        .map(|row| &row.source),
                     text_joins.iter().map(|row| (row.source(), row.relation())),
-                    &entry_logical,
                     "if-text-join-not-canonical",
                 )?;
                 if consumed_text != text_joins.len() || text_joins.len() != source_text_joins.len()
@@ -590,18 +513,16 @@ impl Driver<'_, '_, '_, '_, '_> {
         Ok(yes_normal || no_normal)
     }
     /// Scalar and Text keep distinct typed source identities; their physical
-    /// join correspondence and logical writeback obey the same contract.
-    fn publish_join_sources<'a, T: 'a>(
-        &mut self,
+    /// join correspondence uses the same physical proof.
+    fn verify_join_sources<'a, T: 'a>(
         builder: &MirBuilder,
-        scheduled: impl Iterator<Item = (&'a Rc<T>, Option<LoopBindingKeyV1>, LoopValueKeyV1)>,
+        scheduled: impl Iterator<Item = &'a Rc<T>>,
         observed: impl Iterator<Item = (&'a Rc<T>, &'a Rc<LocalSsaPhysicalRelationV1>)>,
-        entry: &BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
         reason: &str,
     ) -> Result<usize, String> {
         let observed: Vec<_> = observed.collect();
         let mut consumed = BTreeSet::new();
-        for (source, binding, result) in scheduled {
+        for source in scheduled {
             let mut matching = observed
                 .iter()
                 .enumerate()
@@ -616,18 +537,6 @@ impl Driver<'_, '_, '_, '_, '_> {
                 .as_ref()
                 .ok_or_else(|| reject("function-missing"))?;
             relation.verify(function)?;
-            if self.values.insert(result, relation.values().0).is_some() {
-                return Err(reject(reason));
-            }
-            if let Some(binding) = binding {
-                let previous = self
-                    .logical
-                    .insert(binding, result)
-                    .ok_or_else(|| reject(reason))?;
-                if entry.get(&binding) != Some(&previous) {
-                    return Err(reject(reason));
-                }
-            }
         }
         Ok(consumed.len())
     }
@@ -647,7 +556,7 @@ impl Driver<'_, '_, '_, '_, '_> {
         let context = crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(claims);
         for row in incoming.iter() {
             let binding = row.basis.binding();
-            let expected = row.header_incoming.iter().chain(row.after_incoming.iter()).find(|row| row.edge == source)
+            let expected = row.header_incoming().iter().chain(row.after_incoming().iter()).find(|row| row.edge == source)
                 .ok_or_else(|| reject("source-edge-carrier-missing"))?;
             let observation = self.ledger.borrow().observe_binding_value_v2(binding).map_err(|error| error.to_string())?;
             let before = observation.binding_value().1;
@@ -665,16 +574,7 @@ impl Driver<'_, '_, '_, '_, '_> {
             let localized = builder.function_state.local_ssa_correspondence.loan(function, before, value)
                 .ok_or_else(|| reject("edge-localization"))?;
             localized.verify(function)?;
-            let key = *self.product.bindings.get(&binding).ok_or_else(|| reject("edge-logical-binding"))?;
-            let logical = *self.logical.get(&key).ok_or_else(|| reject("edge-logical-value"))?;
-            let canonical = if matches!(source, Edge::LoopEntry) { None } else {
-                let from = *self.values.get(&logical).ok_or_else(|| reject("edge-canonical-value"))?;
-                let relation = builder.function_state.local_ssa_correspondence.loan(function, from, value)
-                    .ok_or_else(|| reject("edge-canonical-correspondence"))?;
-                relation.verify(function)?;
-                Some(relation)
-            };
-            values.push(EmittedLoopIncomingV2 { binding, logical, observation, dependencies, joins, localized, canonical });
+            values.push(EmittedLoopIncomingV2 { binding, original_value: expected.value, observation, dependencies, joins, localized });
         }
         crate::mir::builder::emission::branch::emit_jump(builder, target)?;
         self.edges.push(EmittedLoopEdgeV2 { source, predecessor, target, cleanup, values });

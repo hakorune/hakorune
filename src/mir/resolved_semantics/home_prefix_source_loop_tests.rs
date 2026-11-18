@@ -222,17 +222,17 @@ pub(crate) fn assert_original_loop_source_walk_for_test<E: std::fmt::Debug>(
             .0,
         incoming.after
     );
-    assert_eq!(incoming.header_incoming.len(), 2);
-    assert_eq!(incoming.after_incoming.len(), 2);
+    assert_eq!(incoming.header_incoming().len(), 2);
+    assert_eq!(incoming.after_incoming().len(), 2);
     let backedge = incoming
-        .header_incoming
+        .header_incoming()
         .iter()
         .find(|row| row.edge == Edge::Backedge)
         .unwrap();
     assert!(
         matches!(backedge.producer.scalar(), Some(Producer::BindingRebind(frame)) if frame.target() == basis.binding())
     );
-    for edge in incoming.after_incoming.iter() {
+    for edge in incoming.after_incoming().iter() {
         assert_eq!(edge.value, basis.header());
         assert_eq!(edge.origin, basis.header());
         assert!(
@@ -448,7 +448,7 @@ pub(crate) fn assert_original_loop_source_walk_for_test<E: std::fmt::Debug>(
     summary.incoming = incoming;
     summary.validate_for_recipe_v1(input).unwrap();
     let product = crate::mir::loop_recipe_contract::produce_source_loop_recipe_v2(input, summary)
-        .expect("same complete source tree reaches typed V2 and all-carrier JoinSig");
+        .expect("same complete source tree reaches the typed source Loop");
     assert!(Rc::ptr_eq(&product.source.source, &source));
     let recipe = product.recipe.as_recipe();
     assert_eq!(
@@ -596,16 +596,13 @@ pub(crate) fn assert_original_loop_source_walk_for_test<E: std::fmt::Debug>(
         weak.upgrade().is_none(),
         "completed product must not own its own inventory slot"
     );
-    // A pre-loop source producer cannot stand in for the actual backedge update.
+    // Sealed predecessor producers cannot be reassigned. An enclosing join
+    // cannot redirect the sealed After rows to an earlier definition either.
     let mut candidate = product.source;
     let row = &mut candidate.incoming.as_mut().unwrap()[0];
-    let backedge = row
-        .header_incoming
-        .iter_mut()
-        .find(|row| row.edge == Edge::Backedge)
-        .unwrap();
-    backedge.producer = row.basis.entry_producer().clone();
+    let entry = row.header_incoming().iter().find(|row| row.edge == Edge::LoopEntry).unwrap().value;
+    row.after = entry;
     let error = crate::mir::loop_recipe_contract::produce_source_loop_recipe_v2(input, candidate)
         .unwrap_err();
-    assert!(error.contains("incoming-payload-value"), "{error}");
+    assert!(error.contains("source Loop predecessor census mismatch"), "{error}");
 }

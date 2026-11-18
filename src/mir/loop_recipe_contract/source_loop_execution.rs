@@ -405,7 +405,7 @@ fn verify_text_carrier_port(input: ResolvedFunctionLoweringInputV1<'_>, source: 
     for (binding, state) in text_carriers {
         let mut rows = incoming.iter().filter(|row| row.basis.binding() == *binding
             && Rc::ptr_eq(&row.basis, &state.basis)).flat_map(|row| {
-                if after { row.after_incoming.iter() } else { row.header_incoming.iter() }
+                if after { row.after_incoming().iter() } else { row.header_incoming().iter() }
             }).filter(|row| row.edge == edge);
         let row = rows.next().ok_or_else(|| reject("execution-text-edge-missing"))?;
         if rows.next().is_some() { return Err(reject("execution-text-edge-duplicate")); }
@@ -706,7 +706,7 @@ impl super::source_loop_v2::VerifiedSourceLoopRecipeProductV2 {
         let incoming = self.source.incoming.as_ref().map_err(|reason| reject(reason))?;
         let mut selected = Vec::new();
         for carrier in incoming.iter() {
-            let mut rows = carrier.header_incoming.iter().chain(carrier.after_incoming.iter())
+            let mut rows = carrier.header_incoming().iter().chain(carrier.after_incoming().iter())
                 .filter(|row| row.edge == edge);
             let row = rows.next().ok_or_else(|| reject("execution-text-edge-missing"))?;
             if rows.next().is_some() { return Err(reject("execution-text-edge-duplicate")); }

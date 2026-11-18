@@ -46,7 +46,6 @@ pub(crate) struct VerifiedSourceLoopRecipeProductV2 {
     pub(crate) execution: Box<[super::source_loop_execution::SourceLoopEvaluationLifecycleV2]>,
     pub(super) returns: super::source_loop_execution::SourceLoopReturnCarriersV2,
     pub(crate) recipe: VerifiedLoopRecipeV2,
-    pub(crate) closure: Closure,
     pub(crate) values: Box<[SourceLoopValueV2]>,
     pub(crate) control: Box<[SourceLoopItemV2]>,
     pub(crate) bindings: BTreeMap<BindingRefV1, LoopBindingKeyV1>,
@@ -360,7 +359,7 @@ pub(super) fn demanded_branch_joins_v2(source: &Summary)
         }
     }
     for carrier in source.incoming.as_ref().map_err(|reason| reject(reason))? {
-        for incoming in carrier.header_incoming.iter().chain(carrier.after_incoming.iter()) {
+        for incoming in carrier.header_incoming().iter().chain(carrier.after_incoming().iter()) {
             if matches!(incoming.edge,
                 crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1::LoopEntry
                     | crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1::ConditionFalse) {
@@ -402,7 +401,7 @@ pub(super) fn demanded_text_branch_joins_v2(source: &Summary)
         }
     }
     for carrier in source.incoming.as_ref().map_err(|reason| reject(reason))? {
-        for incoming in carrier.header_incoming.iter().chain(carrier.after_incoming.iter()) {
+        for incoming in carrier.header_incoming().iter().chain(carrier.after_incoming().iter()) {
             if matches!(incoming.edge,
                 crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1::LoopEntry
                     | crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1::ConditionFalse) {
@@ -615,7 +614,7 @@ pub(crate) fn produce_source_loop_recipe_v2(input: ResolvedFunctionLoweringInput
     let values = projector.values.into_boxed_slice();
     let control = projector.control.into_boxed_slice();
     let bindings = projector.bindings;
-    Ok(VerifiedSourceLoopRecipeProductV2 { source, schedule, execution, returns, recipe, closure, values, control, bindings })
+    Ok(VerifiedSourceLoopRecipeProductV2 { source, schedule, execution, returns, recipe, values, control, bindings })
 }
 
 /// Match every original incoming edge to the SAME JoinSig transfer and result.
@@ -655,7 +654,7 @@ fn validate_incoming(source: &Summary, recipe: &VerifiedLoopRecipeV2, closure: &
         if !view.afters().iter().any(|row| row.binding() == *binding && row.class() == carrier.class) {
             return Err(reject("incoming-after-identity"));
         }
-        for original in source_row.header_incoming.iter().chain(source_row.after_incoming.iter()) {
+        for original in source_row.header_incoming().iter().chain(source_row.after_incoming().iter()) {
             let expected = if original.producer == *source_row.basis.entry_producer() {
                 carrier.entry_value
             } else { match &original.producer {
@@ -775,17 +774,4 @@ fn validate_payload_value_v2(payload: &[super::join_sig::LoopJoinPayloadV2],
         return Err(reject("incoming-payload-value"));
     }
     Ok(())
-}
-
-impl VerifiedSourceLoopRecipeProductV2 {
-    pub(in crate::mir) fn validate_incoming_value_v2(&self,
-        edge: &crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1,
-        source_binding: BindingRefV1, value: LoopValueKeyV1,
-    ) -> Result<(), String> {
-        let binding = *self.bindings.get(&source_binding).ok_or_else(|| reject("incoming-binding"))?;
-        let carrier = self.recipe.as_recipe().carriers.iter().find(|row| row.binding == binding)
-            .ok_or_else(|| reject("incoming-carrier"))?;
-        with_incoming_payload_v2(&self.recipe, &self.closure, &self.control, edge, |payload|
-            validate_payload_value_v2(payload, binding, value, carrier.class, self.source.headers.len()))
-    }
 }

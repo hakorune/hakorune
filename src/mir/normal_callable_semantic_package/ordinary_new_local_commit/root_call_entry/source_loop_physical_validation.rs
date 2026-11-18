@@ -77,7 +77,7 @@ pub(super) fn validate_owned_v2(
         }
     }
     for effect in &graph.effects {
-        if let Some((_, relation)) = &effect.result {
+        if let Some(relation) = &effect.result {
             let mut dependencies = Vec::new();
             relation.append_observed_bindings_v1(&mut dependencies);
             for row in &dependencies {
@@ -109,15 +109,13 @@ pub(super) fn validate_owned_v2(
             }
         }
         for value in &edge.values {
-            for relation in std::iter::once(&value.localized).chain(value.canonical.iter()) {
-                let mut dependencies = Vec::new();
-                relation.append_observed_bindings_v1(&mut dependencies);
-                for row in &dependencies {
-                    let current = relation
-                        .resolve_observed_binding_v1(row, true)?
-                        .unwrap_or_else(|| row.clone());
-                    claim(&current, false)?;
-                }
+            let mut dependencies = Vec::new();
+            value.localized.append_observed_bindings_v1(&mut dependencies);
+            for row in dependencies {
+                let current = value.localized
+                    .resolve_observed_binding_v1(&row, true)?
+                    .unwrap_or(row);
+                claim(&current, false)?;
             }
         }
         claim(
@@ -190,16 +188,11 @@ impl SourceLoopPhysicalProofV2 {
         }
         for edge in &self.graph.edges {
             for value in &edge.values {
-                let relations: Vec<_> = std::iter::once(&value.localized)
-                    .chain(value.canonical.iter())
-                    .collect();
                 let mut dependencies = value.dependencies.clone();
-                for relation in &relations {
-                    relation.append_observed_bindings_v1(&mut dependencies);
-                }
+                value.localized.append_observed_bindings_v1(&mut dependencies);
                 for dependency in dependencies {
                     let mut current = dependency;
-                    for relation in relations.iter().copied().chain(&value.joins) {
+                    for relation in std::iter::once(&value.localized).chain(&value.joins) {
                         if let Some(resolved) =
                             relation.resolve_observed_binding_v1(&current, true)?
                         {
@@ -219,7 +212,7 @@ impl SourceLoopPhysicalProofV2 {
                 self.graph
                     .effects
                     .iter()
-                    .filter_map(|effect| effect.result.as_ref().map(|(_, relation)| relation)),
+                    .filter_map(|effect| effect.result.as_ref()),
             )
             .chain(
                 self.graph
@@ -291,7 +284,7 @@ impl SourceLoopPhysicalProofV2 {
             .graph
             .effects
             .iter()
-            .filter_map(|effect| effect.result.as_ref().map(|(_, relation)| relation))
+            .filter_map(|effect| effect.result.as_ref())
         {
             relation.require_completed_v1()?;
             context
@@ -444,30 +437,25 @@ impl SourceLoopPhysicalProofV2 {
                 .as_ref()
                 .map_err(|_| freeze("source-loop/source-incoming"))?;
             for value in &edge.values {
-                self.graph.product.validate_incoming_value_v2(
-                    &edge.source,
-                    value.binding,
-                    value.logical,
-                )?;
                 let source = original
                     .iter()
                     .find(|row| row.basis.binding() == value.binding)
                     .and_then(|row| {
-                        row.header_incoming
+                        row.header_incoming()
                             .iter()
-                            .chain(row.after_incoming.iter())
+                            .chain(row.after_incoming().iter())
                             .find(|row| row.edge == edge.source)
                     })
                     .ok_or_else(|| freeze("source-loop/source-carrier"))?;
-                if value.localized.values().0 != value.observation.binding_value().1 {
+                if value.original_value != source.value
+                    || value.localized.values().0 != value.observation.binding_value().1
+                {
                     return Err(freeze("source-loop/incoming-observation"));
                 }
-                for relation in std::iter::once(&value.localized).chain(value.canonical.iter()) {
-                    relation.require_completed_v1()?;
-                    context
-                        .ledger()
-                        .verify_relation_geometry_v1(relation, function, finishing)?;
-                }
+                value.localized.require_completed_v1()?;
+                context
+                    .ledger()
+                    .verify_relation_geometry_v1(&value.localized, function, finishing)?;
                 for dependency in &value.dependencies {
                     let mut resolved = match &source.producer {
                         LoopProducer::Scalar(producer @ (Producer::LoopHeader(_) | Producer::LoopAfter { .. })) =>
