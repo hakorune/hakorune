@@ -4,6 +4,7 @@ import json
 import shutil
 from aggregate import summarize
 from catalog import ensure as catalogue
+from control_watch import markdown_counts
 from support import ROOT, write, sha
 
 
@@ -43,5 +44,6 @@ def render(work, reuse, write_docs=False):
             b = count(group['B_inputs']) if data['B']['full'] or group['B_inputs'] is None else '>=' + str(group['B_inputs'])
             cycle = '検出' if name in cyclic else '未確定'
             table.append(f"| `{name}` | {group['instrumented_lines']} | | {a} | {b} | {group['A_lines']} | {group['B_only_lines']} | {count(group['T_only_lines'])} | {count(group['known_zero_lines'])} | {numbers} | {cycle} |")
+        table.extend(markdown_counts(data['control_flow_watchlist']))
         (ROOT / 'src/mir/README.md').write_text('\n'.join(table) + '\n')
     return data

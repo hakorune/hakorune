@@ -5,12 +5,14 @@ import gzip
 import hashlib
 import json
 from coverage import read_lcov
+from control_watch import hits as control_hits, summary as control_summary, watchlist as control_watchlist
 from inventory import group_for
 from support import write
 
 
-def inputs(folder, catalog, total=None):
+def inputs(folder, catalog, total=None, control_sites=()):
     counts, group_counts, lines = Counter(), Counter(), defaultdict(set)
+    control_watch_counts = Counter()
     results, unknown_symbols = [], Counter()
     fingerprints = []
     expected = json.loads((folder / 'identity.json').read_text()) if (folder / 'identity.json').exists() else None
@@ -37,6 +39,7 @@ def inputs(folder, catalog, total=None):
         partial += not row['complete_trace']
         with gzip.open(path.parent / 'membership.json.gz', 'rt') as stream:
             membership = json.load(stream)
+        control_watch_counts.update(control_hits(membership, control_sites))
         hit, unmapped = set(), set()
         for symbol in membership['functions']:
             identity = catalog['symbols'].get(symbol)
@@ -56,14 +59,17 @@ def inputs(folder, catalog, total=None):
     return dict(total=total, completed=len(results), missing_profiles=missing,
                 partial_profiles=partial, full=expected is not None and total is not None and len(results) == total and missing == 0 and partial == 0 and seen_ids == set(range(total)),
                 counts=counts, group_counts=group_counts, lines=lines, results=results,
-                unknown_symbols=dict(unknown_symbols), fingerprints=fingerprints)
+                unknown_symbols=dict(unknown_symbols), fingerprints=fingerprints,
+                control_watch_counts=control_watch_counts)
 
 
 def summarize(work, prior, test_catalog=None, test_membership=None):
     catalog = json.loads((work / 'cli-catalog.json').read_text())
     inventory = json.loads((work / 'inventory.json').read_text())
     policy = json.loads((Path(__file__).parent / 'groups.json').read_text())['files']
-    A, B = inputs(work / 'A', catalog), inputs(work / 'B', catalog)
+    control_sites = control_watchlist()
+    A = inputs(work / 'A', catalog, control_sites=control_sites)
+    B = inputs(work / 'B', catalog, control_sites=control_sites)
     fingerprints = {}
     for label, data in [('A', A), ('B', B)]:
         rows = data.pop('fingerprints')
@@ -142,6 +148,7 @@ def summarize(work, prior, test_catalog=None, test_membership=None):
         for identity, descriptor in test_rows.items() if identity in all_test_hits and
         not catalog['rows'].get(identity, {}).get('represented', False) and
         descriptor['start'] not in inventory['files'].get(descriptor['file'], {}).get('test_lines', [])]
+    control_watch = control_summary(control_sites, universe, A, B)
     watch = []
     for entry in json.loads((Path(__file__).parent / 'entries.json').read_text()):
         candidates = [row for row in rows if row['file'] == entry['file'] and
@@ -156,7 +163,7 @@ def summarize(work, prior, test_catalog=None, test_membership=None):
         A={k: v for k, v in A.items() if k not in ['counts', 'group_counts', 'lines', 'results']},
         B={k: v for k, v in B.items() if k not in ['counts', 'group_counts', 'lines', 'results']},
         test_measured=test_measured, unmatched_test_functions=unmatched_test, groups=group_rows,
-        files=file_rows, watchlist=watch)
+        files=file_rows, watchlist=watch, control_flow_watchlist=control_watch)
     write(work / 'runtime-summary.json', result)
     write(work / 'functions.json', dict(functions=rows, observed_never_A_or_B=never,
                                       test_only_qualified=only_test, observed_test_absent_cli=observed_test_absent_cli, complete_A_B=A['full'] and B['full']))
