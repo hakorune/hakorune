@@ -13,8 +13,8 @@ MAX_JOBS = 12
 # These paths are consumed only by this corpus/measurement work, outside
 # compilation, backend selection, runtime and link. Unclassified paths force
 # a full comparison. Include both sides of a rename through --no-renames.
-COMPARISON_ONLY = ('apps/tests/corpus/', 'tools/mir_map/')
-COMPARISON_ONLY_FILES = {'src/mir/README.md'}
+COMPARISON_ONLY = ('tools/mir_map/',)
+COMPARISON_ONLY_FILES = {'apps/tests/corpus/manifest.json', 'src/mir/README.md'}
 
 
 def harmless_paths(paths):
@@ -44,7 +44,7 @@ def auto_jobs(log, available_kib):
     with Path(log).open() as lines:
         peak = max((json.loads(line)['peak_rss_kib'] for line in lines if line.strip()), default=0)
     if peak <= 0:
-        raise ValueError('RSS evidence contains no positive command peak')
+        return 1, None
     return max(1, min(MAX_JOBS, available_kib // (4 * peak))), peak
 
 

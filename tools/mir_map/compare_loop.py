@@ -142,18 +142,21 @@ def test_comparison():
             return git('rev-parse', 'HEAD')
         git('init', '-q')
         before = commit('docs/example.md')
-        after = commit('apps/tests/corpus/example.hako')
+        after = commit('apps/tests/corpus/manifest.json')
         assert downstream_unchanged(before, after, root)
         assert not downstream_unchanged(before, 'unresolvable-ref', root)
         untracked = root / 'untracked.hako'
         untracked.write_text('untracked')
         assert not downstream_unchanged(before, after, root)
         untracked.unlink()
+        dependency = commit('apps/tests/corpus/dependency.hako')
+        assert not downstream_unchanged(after, dependency, root)
         runtime = commit('crates/runtime/example.rs')
-        assert not downstream_unchanged(after, runtime, root)
+        assert not downstream_unchanged(dependency, runtime, root)
         assert not downstream_unchanged(before, after, root)
     return self_test(exact_mir) | {"downstream_edit_blocks_skip": True, "unknown_revision_blocks_skip": True,
-                                   "wrong_checkout_blocks_skip": True, "untracked_input_blocks_skip": True}
+                                   "wrong_checkout_blocks_skip": True, "untracked_input_blocks_skip": True,
+                                   "possible_dependency_edit_blocks_skip": True}
 
 
 def main():
