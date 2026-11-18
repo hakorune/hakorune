@@ -153,7 +153,7 @@ def locations(before, after):
         return []
 
 
-def self_test():
+def self_test(check_exact=None):
     original = """; MIR Module: sample
 define i64 @main(i1 %0) {
 bb0:
@@ -213,7 +213,12 @@ bb5:
     }
     held = normalize(original)
     assert held is not None and held == normalize(equivalent)
+    if check_exact:
+        assert check_exact(original, original)
+        assert not check_exact(original, equivalent)
     for name, (before, after) in changes.items():
+        if check_exact:
+            assert not check_exact(before, after), name
         base, mutated = normalize(before), normalize(after)
         assert base is not None and mutated is not None and mutated != base, name
         assert locations(base, mutated), name
