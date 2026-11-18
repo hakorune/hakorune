@@ -54,19 +54,15 @@
   {
     "id": "direct-source-if",
     "category": "if",
-    "role": "writer",
+    "role": "forwarder",
     "file": "src/mir/builder/control_flow/plan/lowerer/source_loop_driver.rs",
     "sites": [
       {
-        "line": 444,
-        "code": "let join = builder.next_block_id();"
-      },
-      {
-        "line": 445,
-        "code": "self.condition(builder, condition, (yes_bb, no_bb))?;"
+        "line": 475,
+        "code": "builder.lower_if_form_for_effects_v1(condition_value, None, no.is_some(),"
       }
     ],
-    "evidence": "自分で真偽・joinを割り当て、条件のBranchを発行。506行で束縛を合流"
+    "evidence": "ループの予定表を腕のコールバックへ渡す。真偽・合流の発行は普通の if が担当。"
   },
   {
     "id": "core-plan-if",
@@ -156,7 +152,7 @@
     "file": "src/mir/builder/control_flow/plan/lowerer/source_loop_driver.rs",
     "sites": [
       {
-        "line": 194,
+        "line": 210,
         "code": "source.prepare_checked_phis_v2(builder, header, after)?;"
       }
     ],
@@ -286,7 +282,7 @@
     "file": "src/mir/builder/control_flow/plan/lowerer/source_loop_driver.rs",
     "sites": [
       {
-        "line": 390,
+        "line": 406,
         "code": "PortKind::Break(original) if original == site => Edge::Break(site.clone()),"
       }
     ],
@@ -299,7 +295,7 @@
     "file": "src/mir/builder/control_flow/plan/lowerer/source_loop_driver.rs",
     "sites": [
       {
-        "line": 391,
+        "line": 407,
         "code": "PortKind::Continue(original) if original == site => Edge::Continue(site.clone()),"
       }
     ],

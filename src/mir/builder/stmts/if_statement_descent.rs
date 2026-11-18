@@ -141,9 +141,9 @@ where
     }
 }
 
-struct IfObserversV1<'a> {
-    state: Option<Box<dyn crate::mir::builder::if_form::IfFormPhysicalObserverV1>>,
-    condition: Option<&'a mut dyn crate::mir::builder::if_form::IfFormPhysicalObserverV1>,
+pub(in crate::mir::builder) struct IfObserversV1<'a> {
+    pub(in crate::mir::builder) state: Option<Box<dyn crate::mir::builder::if_form::IfFormPhysicalObserverV1>>,
+    pub(in crate::mir::builder) condition: Option<&'a mut dyn crate::mir::builder::if_form::IfFormPhysicalObserverV1>,
 }
 impl crate::mir::builder::if_form::IfFormPhysicalObserverV1 for IfObserversV1<'_> {
     fn before_branches(&mut self, function: &crate::mir::MirFunction,

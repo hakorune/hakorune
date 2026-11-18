@@ -172,9 +172,10 @@ impl EmittedSourceLoopGraphV2 {
                     None if row.starts.1 == row.ends.1 && row.normal.1 => {},
                     _ => return Err(reject("implicit-else")),
                 }
-                for (end, normal) in [(row.ends.0, row.normal.0), (row.ends.1, row.normal.1)] {
-                    if normal && function.blocks.get(&end).and_then(|block| block.terminator.as_ref())
-                        != row.join.as_ref().map(|target| MirInstruction::Jump { target: *target, edge_args: None }).as_ref() {
+                for (end, expected) in row.normal_jumps() {
+                    if function.blocks.get(&end).and_then(|block| block.terminator.as_ref())
+                        != Some(&expected)
+                    {
                         return Err(reject("normal-join"));
                     }
                 }

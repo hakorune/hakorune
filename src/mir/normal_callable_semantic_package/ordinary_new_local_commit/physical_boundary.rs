@@ -34,9 +34,7 @@ type Incoming = BTreeMap<
 >;
 
 fn same_finished_instruction(actual: &MirInstruction, expected: &MirInstruction) -> bool {
-    let empty_carriers = |args: &Option<EdgeArgs>| {
-        args.as_ref().is_none_or(EdgeArgs::is_empty_carriers)
-    };
+    let empty_carriers = EdgeArgs::absent_or_empty_carriers;
     match (actual, expected) {
         (
             MirInstruction::Branch {

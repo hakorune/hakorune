@@ -221,11 +221,14 @@ impl FinishedBindings {
     ) -> Result<Option<(BasicBlockId, MirInstruction)>, String> {
         let MirInstruction::Jump {
             target,
-            edge_args: None,
+            ref edge_args,
         } = original.1
         else {
             return Err(fault("structural-jump-shape"));
         };
+        if !EdgeArgs::absent_or_empty_carriers(edge_args) {
+            return Err(fault("structural-jump-shape"));
+        }
         if self.captured.iter().filter(|row| *row == original).count() != 1 {
             return Err(fault("structural-jump-capture"));
         }
@@ -466,8 +469,9 @@ impl FinishedBindings {
             .destinations
             .get(&id)
             .ok_or_else(|| fault("unrecorded-binding"))?;
-        if matches!(instruction, MirInstruction::Jump { target, edge_args: None }
-            if self.destinations.get(target) == Some(&destination))
+        if matches!(instruction, MirInstruction::Jump { target, edge_args }
+            if EdgeArgs::absent_or_empty_carriers(edge_args)
+                && self.destinations.get(target) == Some(&destination))
         {
             return Ok(None);
         }
