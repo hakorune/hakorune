@@ -22,11 +22,13 @@ impl SourceLoopScheduleDraftV2 {
             || self.operations.len() + self.blocks.values().flatten()
                 .filter(|step| matches!(step, SourceLoopScheduledStepV2::OwnedArrayAppend { .. } | SourceLoopScheduledStepV2::Call { .. })).count()
                 + self.joins_v2().count()
+                + self.joins_v2().filter(|join| join.write_item.is_some()).count()
                 + self.text_joins_v2().count()
+                + self.text_joins_v2().filter(|join| join.write_item.is_some()).count()
                 + self.blocks.values().flatten().map(|step| match step {
                     SourceLoopScheduledStepV2::ChildLoop { inputs, outputs, .. } =>
                         inputs.iter().filter(|row| row.1.is_some()).count()
-                            + outputs.len(),
+                            + outputs.iter().map(|row| 1 + usize::from(row.2.is_some())).sum::<usize>(),
                     _ => 0,
                 }).sum::<usize>()
                 != recipe.items.iter().filter(|row| matches!(row.item, LoopRecipeItemV2::Operation { .. })).count() {

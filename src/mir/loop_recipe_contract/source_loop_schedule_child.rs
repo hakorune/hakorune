@@ -7,7 +7,7 @@ impl ScheduleCheck<'_, '_> {
         available: &mut BTreeSet<LoopValueKeyV1>, site: &SourceStmtSiteV1,
         product: &Rc<super::super::source_loop_v2::VerifiedSourceLoopRecipeProductV2>,
         inputs: &[(BindingRefV1, Option<LoopItemKeyV1>, LoopValueKeyV1)],
-        outputs: &[(BindingRefV1, LoopItemKeyV1, LoopValueKeyV1)],
+        outputs: &[(BindingRefV1, LoopItemKeyV1, Option<LoopItemKeyV1>, LoopValueKeyV1)],
     ) -> Result<(), String> {
         let (expected_inputs, expected_outputs) = super::super::source_loop_v2::child_loop_boundary_v2(product)?;
         if super::super::source_loop_v2::source_child_loop_v2(self.source, site).is_none_or(|original| !Rc::ptr_eq(original, product))
@@ -49,7 +49,7 @@ impl ScheduleCheck<'_, '_> {
             }
         }
         let input_values: Vec<_> = inputs.iter().map(|row| row.2).collect();
-        for ((binding, after, result), (expected, class)) in outputs.iter().zip(&expected_outputs) {
+        for ((binding, after, write, result), (expected, class)) in outputs.iter().zip(&expected_outputs) {
             if binding != expected || block.items.get(*position) != Some(after) || !self.items.insert(*after)
                 || self.draft.operations.contains_key(after)
                 || !matches!(&self.recipe.items[after.raw() as usize].item,
@@ -58,6 +58,17 @@ impl ScheduleCheck<'_, '_> {
                 return Err(reject("schedule-child-loop-output"));
             }
             *position += 1;
+            if let Some(write) = write {
+                let key = self.bindings.get(binding).copied();
+                if block.items.get(*position) != Some(write) || !self.items.insert(*write)
+                    || self.draft.operations.contains_key(write)
+                    || key.is_none_or(|key| !matches!(&self.recipe.items[write.raw() as usize].item,
+                        LoopRecipeItemV2::Operation { operation: LoopOperationV2::WriteBinding { binding: actual, value } }
+                            if *actual == key && value == result)) {
+                    return Err(reject("schedule-child-loop-output"));
+                }
+                *position += 1;
+            }
             available.insert(*result);
         }
         let first_item = block.items.get(first).copied().ok_or_else(|| reject("schedule-child-loop-empty"))?;

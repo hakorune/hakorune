@@ -1052,12 +1052,12 @@ its normal result. Internal Bool merges never create source If/Exit rows.
 `source_loop_v2.rs` consumes the existing recursive source walk's whole summary
 and exact statement/If/Exit tree. It issues canonical logical keys once, uses
 original Carrier/ReadOnlyOperand/IterationLocal roles, projects the same checked
-I64 operations and Core source loans, then invokes the existing typed verifier.
-Body locals retain initializer SSA results, and Residence reads use the same
-acquisition frame. Resolve owns the Header/After predecessor lists and their
-original producers. Before completing the PHIs, the physical verifier matches
-each source edge to its actual predecessor and verifies the localized value
-against the original producer.
+I64 operations and Core source loans, then checks the typed Recipe and its
+JoinSig transfer coverage before issuing the product. Body locals retain
+initializer SSA results, and Residence reads use the same acquisition frame.
+Resolve owns the Header/After predecessor lists and their original producers.
+Before completing the PHIs, the physical verifier matches each source edge to
+its actual predecessor and verifies the localized value against that producer.
 
 The consuming result is retained once in the same selected source-plan row and
 original condition slot. `source_loop_execution.rs` co-seals canonical Core

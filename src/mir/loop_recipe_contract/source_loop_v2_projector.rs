@@ -408,12 +408,18 @@ impl Projector<'_> {
                         let result = self.value(class);
                         let after = self.item(block, LoopRecipeItemV2::Operation {
                             operation: LoopOperationV2::ChildLoopAfter { inputs: input_values.clone(), class, result } });
-                        match role_of(binding) {
-                            Some(Role::Carrier) => { self.binding(binding, class)?; }
-                            Some(Role::IterationLocal) => {}
+                        // A carrier of this Loop is written; an iteration local
+                        // keeps the result as its current value only.
+                        let write = match role_of(binding) {
+                            Some(Role::Carrier) => {
+                                let key = self.binding(binding, class)?;
+                                Some(self.item(block, LoopRecipeItemV2::Operation {
+                                    operation: LoopOperationV2::WriteBinding { binding: key, value: result } }))
+                            }
+                            Some(Role::IterationLocal) => None,
                             _ => return Err(reject("child-loop-output-role")),
-                        }
-                        output_rows.push((binding, after, result));
+                        };
+                        output_rows.push((binding, after, write, result));
                     }
                     let first = *self.recipe.blocks[block.raw() as usize].items.get(start)
                         .ok_or_else(|| reject("child-loop-boundary-empty"))?;
@@ -433,7 +439,7 @@ impl Projector<'_> {
                         item, site: site.clone(), observation: observation.clone(),
                     });
                 }
-                Statement::Expression { frame, .. } => {
+                Statement::Expression { site, frame } => {
                     let start = self.recipe.blocks[block.raw() as usize].items.len();
                     let prefix_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(frame.source().owner(), frame.source().nodes()[0].site().clone());
                     if let Some(initializer) = frame.initializer_frame() {
@@ -454,6 +460,8 @@ impl Projector<'_> {
                                         row.binding == binding && row.class == LoopValueClassV2::Text) {
                                         return Err(reject("text-rebind-carrier-class"));
                                     }
+                                    let item = self.operation(block, rebind.source(), LoopOperationV2::WriteBinding { binding, value });
+                                    self.control.push(SourceLoopItemV2 { site: site.clone(), item });
                                 }
                                 Role::IterationLocal => {},
                                 _ => return Err(reject("text-rebind-role")),
@@ -461,16 +469,10 @@ impl Projector<'_> {
                         } else if role == Role::Carrier {
                             let binding = self.bindings.get(&rebind.target()).copied().ok_or_else(|| reject("rebind-carrier"))?;
                             if !self.recipe.carriers.iter().any(|row| row.binding == binding) { return Err(reject("rebind-readonly")); }
+                            let item = self.operation(block, rebind.source(), LoopOperationV2::WriteBinding { binding, value });
+                            self.control.push(SourceLoopItemV2 { site: site.clone(), item });
                         } else if role != Role::IterationLocal {
                             return Err(reject("rebind-readonly"));
-                        }
-                        if role == Role::Carrier {
-                            let binding = self.bindings[&rebind.target()];
-                            if self.recipe.bindings[binding.raw() as usize].class
-                                != self.recipe.values[value.raw() as usize].class
-                            {
-                                return Err(reject("typed"));
-                            }
                         }
                         self.schedule.frame(Prefix::BindingRebind { site: prefix_site, frame: Rc::clone(rebind) },
                             block, start..self.recipe.blocks[block.raw() as usize].items.len(), value);
@@ -506,8 +508,14 @@ impl Projector<'_> {
                         let phi = self.item(block, LoopRecipeItemV2::Operation {
                             operation: LoopOperationV2::BranchPhi { source_if: item, then_value, else_value, result },
                         });
+                        let binding = self.source.headers.contains_key(&source.binding())
+                            .then(|| self.bindings.get(&source.binding()).copied())
+                            .flatten();
+                        let write_item = binding.map(|binding| self.item(block, LoopRecipeItemV2::Operation {
+                            operation: LoopOperationV2::WriteBinding { binding, value: result },
+                        }));
                         joins.push(super::super::source_loop_schedule::SourceLoopBranchPhiV2 {
-                            source, item: phi, result,
+                            source, item: phi, result, binding, write_item,
                         });
                     }
                     let mut text_joins = Vec::new();
@@ -533,8 +541,14 @@ impl Projector<'_> {
                                 source_if: item, then_value, else_value, result,
                             },
                         });
+                        let binding = self.source.headers.contains_key(&source.binding())
+                            .then(|| self.bindings.get(&source.binding()).copied()).flatten();
+                        let write_item = binding.map(|binding| self.item(block,
+                            LoopRecipeItemV2::Operation { operation: LoopOperationV2::WriteBinding {
+                                binding, value: result,
+                            } }));
                         text_joins.push(super::super::source_loop_schedule::SourceLoopTextBranchPhiV2 {
-                            source, item: phi, result,
+                            source, item: phi, result, binding, write_item,
                         });
                     }
                     self.schedule.step(block, SourceLoopScheduledStepV2::If { item, site: site.clone(), bundle: *bundle,

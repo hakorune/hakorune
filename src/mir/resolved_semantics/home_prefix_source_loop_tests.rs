@@ -484,6 +484,20 @@ pub(crate) fn assert_original_loop_source_walk_for_test<E: std::fmt::Debug>(
             .filter(|row| matches!(
                 row.item,
                 Item::Operation {
+                    operation: Operation::WriteBinding { .. }
+                }
+            ))
+            .count(),
+        1,
+        "substring local is an SSA result, not another carried binding"
+    );
+    assert_eq!(
+        recipe
+            .items
+            .iter()
+            .filter(|row| matches!(
+                row.item,
+                Item::Operation {
                     operation: Operation::CallSlot { .. }
                 }
             ))
