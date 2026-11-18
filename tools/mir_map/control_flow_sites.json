@@ -1,0 +1,608 @@
+[
+  {
+    "id": "ordinary-stmt",
+    "category": "if",
+    "role": "forwarder",
+    "file": "src/mir/builder/stmts/block_stmt.rs",
+    "sites": [
+      {
+        "line": 199,
+        "code": "drive_if_statement_v1(builder, &mut port, &input)?;"
+      }
+    ],
+    "evidence": "ASTのIf腕が文の入口へ渡す"
+  },
+  {
+    "id": "ordinary-descent",
+    "category": "if",
+    "role": "forwarder",
+    "file": "src/mir/builder/stmts/if_statement_descent.rs",
+    "sites": [
+      {
+        "line": 311,
+        "code": "builder.lower_if_form_with_physical_observer_v1("
+      }
+    ],
+    "evidence": "条件と文のコールバックを共通ifへ渡す"
+  },
+  {
+    "id": "expression-if",
+    "category": "if",
+    "role": "forwarder",
+    "file": "src/mir/builder/control_flow/mod.rs",
+    "sites": [
+      {
+        "line": 116,
+        "code": "self.lower_if_form_with_physical_observer_v1("
+      }
+    ],
+    "evidence": "式の条件と分岐のコールバックを共通ifへ渡す"
+  },
+  {
+    "id": "plain-if",
+    "category": "if",
+    "role": "forwarder",
+    "file": "src/mir/builder/if_form.rs",
+    "sites": [
+      {
+        "line": 66,
+        "code": "self.lower_if_form_with_physical_observer_v1(condition_val, condition_debug,"
+      }
+    ],
+    "evidence": "observerなしで共通ifへ渡す"
+  },
+  {
+    "id": "ordinary-if",
+    "category": "if",
+    "role": "writer",
+    "file": "src/mir/builder/if_form.rs",
+    "sites": [
+      {
+        "line": 257,
+        "code": "crate::mir::builder::emission::branch::emit_conditional_edgecfg("
+      }
+    ],
+    "evidence": "真偽、分岐出口、合流への辺を物理エミッタへ渡す。343行で束縛の合流"
+  },
+  {
+    "id": "direct-source-if",
+    "category": "if",
+    "role": "writer",
+    "file": "src/mir/builder/control_flow/plan/lowerer/source_loop_driver.rs",
+    "sites": [
+      {
+        "line": 444,
+        "code": "let join = builder.next_block_id();"
+      },
+      {
+        "line": 445,
+        "code": "self.condition(builder, condition, (yes_bb, no_bb))?;"
+      }
+    ],
+    "evidence": "自分で真偽・joinを割り当て、条件のBranchを発行。506行で束縛を合流"
+  },
+  {
+    "id": "core-plan-if",
+    "category": "if",
+    "role": "writer",
+    "file": "src/mir/builder/control_flow/plan/lowerer/plan_lowering.rs",
+    "sites": [
+      {
+        "line": 194,
+        "code": "emit_conditional(builder, condition_val, then_bb, else_bb)?;"
+      }
+    ],
+    "evidence": "CoreIfPlanの真偽・合流のブロックを自分で確保。218行で合流"
+  },
+  {
+    "id": "core-effect-if",
+    "category": "if",
+    "role": "writer",
+    "file": "src/mir/builder/control_flow/plan/lowerer/body_processing.rs",
+    "sites": [
+      {
+        "line": 60,
+        "code": "emit_conditional("
+      }
+    ],
+    "evidence": "IfEffectの真偽の行き先を決めてBranchを出す"
+  },
+  {
+    "id": "core-exit-if",
+    "category": "if",
+    "role": "writer",
+    "file": "src/mir/builder/control_flow/plan/lowerer/effect_emission.rs",
+    "sites": [
+      {
+        "line": 451,
+        "code": "emit_conditional(builder, cond_val, return_bb, fallthrough_target)?;"
+      },
+      {
+        "line": 463,
+        "code": "emit_conditional(builder, cond_val, frame.break_target, fallthrough_target)?;"
+      },
+      {
+        "line": 480,
+        "code": "emit_conditional(builder, cond_val, frame.break_target, fallthrough_target)?;"
+      },
+      {
+        "line": 485,
+        "code": "emit_conditional(builder, cond_val, frame.continue_target, fallthrough_target)?;"
+      },
+      {
+        "line": 516,
+        "code": "emit_conditional(builder, cond_val, frame.continue_target, fallthrough_target)?;"
+      }
+    ],
+    "evidence": "早期リターン／ループ出口と継続の真偽の行き先を決める"
+  },
+  {
+    "id": "static-recipe-if",
+    "category": "if",
+    "role": "writer",
+    "file": "src/mir/builder/resolved_lowering/static_loop_body.rs",
+    "sites": [
+      {
+        "line": 274,
+        "code": ".emit_branch(function, normal, predicate, then_block, step_block)"
+      }
+    ],
+    "evidence": "静的callable loopの条件付き本体をthenまたはstepへ分岐"
+  },
+  {
+    "id": "recursive-recipe-if",
+    "category": "if",
+    "role": "writer",
+    "file": "src/mir/loop_recipe_contract/physical_layout.rs",
+    "sites": [
+      {
+        "line": 547,
+        "code": "transfer: LoopPhysicalTransferV1::Predicate {"
+      }
+    ],
+    "evidence": "recipeのIfを真偽の転送へ変換。recursive_after.rs:287で物理化"
+  },
+  {
+    "id": "source-header-visitor",
+    "category": "loop-header-phi",
+    "role": "forwarder",
+    "file": "src/mir/builder/control_flow/plan/lowerer/source_loop_driver.rs",
+    "sites": [
+      {
+        "line": 194,
+        "code": "source.prepare_checked_phis_v2(builder, header, after)?;"
+      }
+    ],
+    "evidence": "checked入力とheader/afterを既存のPHI予定処理へ渡す"
+  },
+  {
+    "id": "source-header-facts",
+    "category": "loop-header-phi",
+    "role": "forwarder",
+    "file": "src/mir/builder/normal_callable_loop_source_facts/loop_cond.rs",
+    "sites": [
+      {
+        "line": 71,
+        "code": "self.source_port.prepare_checked_phis_v2(&self.phi_session, builder, Rc::clone(product), header, after)"
+      }
+    ],
+    "evidence": "型付きsource portへ予約を渡す"
+  },
+  {
+    "id": "source-header-port",
+    "category": "loop-header-phi",
+    "role": "forwarder",
+    "file": "src/mir/builder/normal_callable_loop_source_port.rs",
+    "sites": [
+      {
+        "line": 73,
+        "code": "session.prepare_checked(builder, product, &self.ledger.borrow(), header, after)"
+      }
+    ],
+    "evidence": "ledgerのchecked予約へ渡す"
+  },
+  {
+    "id": "checked-source-header",
+    "category": "loop-header-phi",
+    "role": "writer",
+    "file": "src/mir/builder/normal_callable_loop_source_facts/loop_cond_phi_session.rs",
+    "sites": [
+      {
+        "line": 225,
+        "code": "shared.borrow_mut().reserve("
+      }
+    ],
+    "evidence": "checked carrierからHeader/After点のPHIを予約"
+  },
+  {
+    "id": "plan-loop-cond-header",
+    "category": "loop-header-phi",
+    "role": "writer",
+    "file": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs",
+    "sites": [
+      {
+        "line": 50,
+        "code": "let phi_dst = builder.alloc_typed(ty.clone());"
+      }
+    ],
+    "evidence": "carrierの束縛と入場値からheader/step/afterのIDを割り当てる"
+  },
+  {
+    "id": "plan-loop-true-header",
+    "category": "loop-header-phi",
+    "role": "writer",
+    "file": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs",
+    "sites": [
+      {
+        "line": 39,
+        "code": "let phi_dst = builder.alloc_typed(ty.clone());"
+      }
+    ],
+    "evidence": "LoopTrue carrierのheader/stepを割り当てる"
+  },
+  {
+    "id": "plan-core-header",
+    "category": "loop-header-phi",
+    "role": "writer",
+    "file": "src/mir/builder/control_flow/plan/features/coreloop_frame.rs",
+    "sites": [
+      {
+        "line": 156,
+        "code": "phis.push(loop_carriers::build_loop_phi_info("
+      }
+    ],
+    "evidence": "preheader値とstep値からCoreLoopのheader PHI情報を作る"
+  },
+  {
+    "id": "static-recipe-header",
+    "category": "loop-header-phi",
+    "role": "writer",
+    "file": "src/mir/builder/resolved_lowering/static_loop_header.rs",
+    "sites": [
+      {
+        "line": 148,
+        "code": "let read = canonical.identity.read_entry_receipt_with_deferred_entry("
+      }
+    ],
+    "evidence": "静的callableのheader carrierを既存のidentity ledgerで読む"
+  },
+  {
+    "id": "recursive-recipe-header",
+    "category": "loop-header-phi",
+    "role": "writer",
+    "file": "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/carrier_emitter.rs",
+    "sites": [
+      {
+        "line": 105,
+        "code": ".read_entry_receipt(services.builder, block, prepared.binding)"
+      }
+    ],
+    "evidence": "recursive recipeのcarrier seedを既存のidentity ledgerへ渡して物理PHIを準備"
+  },
+  {
+    "id": "direct-accum-header",
+    "category": "loop-header-phi",
+    "role": "writer",
+    "file": "src/mir/builder/control_flow/plan/loop_accum_physicalizer/session.rs",
+    "sites": [
+      {
+        "line": 213,
+        "code": "let value = self.read(binding, self.roles.block(LoopPhysicalRoleV1::Header))?;"
+      }
+    ],
+    "evidence": "accumulatorのhelperがheader PHIを確保する経路"
+  },
+  {
+    "id": "checked-source-break",
+    "category": "loop-break",
+    "role": "writer",
+    "file": "src/mir/builder/control_flow/plan/lowerer/source_loop_driver.rs",
+    "sites": [
+      {
+        "line": 390,
+        "code": "PortKind::Break(original) if original == site => Edge::Break(site.clone()),"
+      }
+    ],
+    "evidence": "元のBreakポートを認定。633行でDriver.afterへ写す"
+  },
+  {
+    "id": "checked-source-continue",
+    "category": "loop-continue",
+    "role": "writer",
+    "file": "src/mir/builder/control_flow/plan/lowerer/source_loop_driver.rs",
+    "sites": [
+      {
+        "line": 391,
+        "code": "PortKind::Continue(original) if original == site => Edge::Continue(site.clone()),"
+      }
+    ],
+    "evidence": "元のContinueポートを認定。632行でDriver.headerへ写す"
+  },
+  {
+    "id": "core-plan-break",
+    "category": "loop-break",
+    "role": "writer",
+    "file": "src/mir/builder/control_flow/plan/lowerer/exit_lowering.rs",
+    "sites": [
+      {
+        "line": 52,
+        "code": "target: frame.break_target,"
+      },
+      {
+        "line": 90,
+        "code": "target: frame.break_target,"
+      }
+    ],
+    "evidence": "CoreExitPlanでLoopFrameを深さ解決し、break_targetに値なし／PHI付きで飛ぶ"
+  },
+  {
+    "id": "core-plan-continue",
+    "category": "loop-continue",
+    "role": "writer",
+    "file": "src/mir/builder/control_flow/plan/lowerer/exit_lowering.rs",
+    "sites": [
+      {
+        "line": 106,
+        "code": "target: frame.continue_target,"
+      },
+      {
+        "line": 157,
+        "code": "target: frame.continue_target,"
+      }
+    ],
+    "evidence": "CoreExitPlanでLoopFrameを深さ解決し、continue_targetに値なし／PHI付きで飛ぶ"
+  },
+  {
+    "id": "core-exit-if-break",
+    "category": "loop-break",
+    "role": "writer",
+    "file": "src/mir/builder/control_flow/plan/lowerer/effect_emission.rs",
+    "sites": [
+      {
+        "line": 463,
+        "code": "emit_conditional(builder, cond_val, frame.break_target, fallthrough_target)?;"
+      },
+      {
+        "line": 480,
+        "code": "emit_conditional(builder, cond_val, frame.break_target, fallthrough_target)?;"
+      }
+    ],
+    "evidence": "ExitIfの真の行き先をLoopFrameのbreak_targetから決める"
+  },
+  {
+    "id": "core-exit-if-continue",
+    "category": "loop-continue",
+    "role": "writer",
+    "file": "src/mir/builder/control_flow/plan/lowerer/effect_emission.rs",
+    "sites": [
+      {
+        "line": 485,
+        "code": "emit_conditional(builder, cond_val, frame.continue_target, fallthrough_target)?;"
+      },
+      {
+        "line": 516,
+        "code": "emit_conditional(builder, cond_val, frame.continue_target, fallthrough_target)?;"
+      }
+    ],
+    "evidence": "ExitIfの真の行き先をLoopFrameのcontinue_targetから決める"
+  },
+  {
+    "id": "recursive-recipe-break",
+    "category": "loop-break",
+    "role": "writer",
+    "file": "src/mir/loop_recipe_contract/physical_layout.rs",
+    "sites": [
+      {
+        "line": 689,
+        "code": "LoopJoinEdgeRoleV1::Break => {"
+      },
+      {
+        "line": 698,
+        "code": "transfer: LoopPhysicalTransferV1::Jump { target },"
+      }
+    ],
+    "evidence": "target_loopのafter_targetsを独自に解決"
+  },
+  {
+    "id": "recursive-recipe-continue",
+    "category": "loop-continue",
+    "role": "writer",
+    "file": "src/mir/loop_recipe_contract/physical_layout.rs",
+    "sites": [
+      {
+        "line": 681,
+        "code": "let entry = builder.entry_key(exit.target_loop)?;"
+      },
+      {
+        "line": 684,
+        "code": "target: LoopPhysicalTargetV1::Segment(entry),"
+      }
+    ],
+    "evidence": "owner loopの予定上の入口を解決"
+  },
+  {
+    "id": "expression-if-dispatch",
+    "category": "if",
+    "role": "forwarder",
+    "file": "src/mir/builder/raw_expression_dispatch/statement_surface.rs",
+    "sites": [
+      {
+        "line": 378,
+        "code": "Ok(StatementSurfaceDispatch::Lowered(builder.cf_if_with_port_v1("
+      }
+    ],
+    "evidence": "式のIfを共通ifの受け口へ渡す"
+  },
+  {
+    "id": "plan-break-source-port",
+    "category": "loop-break",
+    "role": "forwarder",
+    "file": "src/mir/builder/control_flow/plan/parts/exit.rs",
+    "sites": [
+      {
+        "line": 58,
+        "code": "build_break_with_phi_args(break_phi_dsts, current_bindings, error_prefix)?,"
+      },
+      {
+        "line": 98,
+        "code": "build_break_with_phi_args(break_phi_dsts, current_bindings, error_prefix)?,"
+      }
+    ],
+    "evidence": "sourceのbreakを深さ付きCoreExitPlanへ渡す"
+  },
+  {
+    "id": "plan-continue-source-port",
+    "category": "loop-continue",
+    "role": "forwarder",
+    "file": "src/mir/builder/control_flow/plan/parts/exit.rs",
+    "sites": [
+      {
+        "line": 61,
+        "code": "build_continue_with_phi_args("
+      },
+      {
+        "line": 101,
+        "code": "build_continue_with_phi_args("
+      }
+    ],
+    "evidence": "sourceのcontinueを深さ付きCoreExitPlanへ渡す"
+  },
+  {
+    "id": "ssa-adopt-provisional",
+    "category": "loop-header-phi",
+    "role": "shared",
+    "file": "src/mir/builder/resolved_lowering/canonical_ssa/function_control.rs",
+    "sites": [
+      {
+        "line": 162,
+        "code": ".define_provisional_phi(builder, block, value, tag)?;"
+      },
+      {
+        "line": 164,
+        "code": ".get_or_insert_with(|| BindingSsaBuilderV1::with_keys(self.owner))"
+      }
+    ],
+    "evidence": "指定済み予約を空のPHIとして共有SSAに登録"
+  },
+  {
+    "id": "plan-phi-reservation",
+    "category": "loop-header-phi",
+    "role": "shared",
+    "file": "src/mir/builder/resolved_lowering/canonical_ssa/function_control.rs",
+    "sites": [
+      {
+        "line": 197,
+        "code": "pub(in crate::mir::builder) fn reserve_plan_phis("
+      }
+    ],
+    "evidence": "選択済みCorePlanのPHIを予約。分岐合流も流れる"
+  },
+  {
+    "id": "ssa-on-demand-phi",
+    "category": "loop-header-phi",
+    "role": "shared",
+    "file": "src/mir/builder/ssa/binding/mod.rs",
+    "sites": [
+      {
+        "line": 322,
+        "code": "let (value, token) = ir.define_provisional_phi(block).map_err(|detail| {"
+      }
+    ],
+    "evidence": "読み出し時の未完成PHI。ループ以外の利用も含む"
+  },
+  {
+    "id": "plan-break-frame",
+    "category": "loop-break",
+    "role": "forwarder",
+    "file": "src/mir/builder/control_flow/plan/lowerer/loop_lowering.rs",
+    "sites": [
+      {
+        "line": 70,
+        "code": "break_target: loop_plan.after_bb,"
+      }
+    ],
+    "evidence": "作られたafterの番号をCoreExitへ渡す"
+  },
+  {
+    "id": "plan-continue-frame",
+    "category": "loop-continue",
+    "role": "forwarder",
+    "file": "src/mir/builder/control_flow/plan/lowerer/loop_lowering.rs",
+    "sites": [
+      {
+        "line": 71,
+        "code": "continue_target: loop_plan.continue_target,"
+      }
+    ],
+    "evidence": "計画のcontinue_targetをCoreExitへ渡す"
+  },
+  {
+    "id": "plan-loopcond-continue-frame",
+    "category": "loop-continue",
+    "role": "writer",
+    "file": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs",
+    "sites": [
+      {
+        "line": 70,
+        "code": "let continue_target = if use_header_continue_target {"
+      }
+    ],
+    "evidence": "LoopCondのheader/stepのどちらへcontinueするか決める"
+  },
+  {
+    "id": "plan-composite-continue-frame",
+    "category": "loop-continue",
+    "role": "writer",
+    "file": "src/mir/builder/control_flow/plan/features/coreloop_frame.rs",
+    "sites": [
+      {
+        "line": 113,
+        "code": "continue_target: step_bb, // StepBb mode: always step_bb"
+      }
+    ],
+    "evidence": "複合CoreLoopの続きにstepを指定する"
+  },
+  {
+    "id": "plan-looptrue-continue-frame",
+    "category": "loop-continue",
+    "role": "writer",
+    "file": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_source.rs",
+    "sites": [
+      {
+        "line": 160,
+        "code": "continue_target: step_bb,"
+      }
+    ],
+    "evidence": "LoopTrueのcontinue先をstepに決める"
+  },
+  {
+    "id": "checked-array-append",
+    "category": "specialization",
+    "role": "writer",
+    "file": "src/mir/builder/control_flow/plan/lowerer/source_loop_frames.rs",
+    "sites": [
+      {
+        "line": 176,
+        "code": "port.with_prepared_child_source_v1(source, |port| {"
+      },
+      {
+        "line": 181,
+        "code": "argument_frame,"
+      }
+    ],
+    "evidence": "checked owned-array appendの個別物理処理"
+  },
+  {
+    "id": "static-i64-loop",
+    "category": "specialization",
+    "role": "writer",
+    "file": "src/mir/builder/resolved_lowering/static_loop_body.rs",
+    "sites": [
+      {
+        "line": 274,
+        "code": ".emit_branch(function, normal, predicate, then_block, step_block)"
+      }
+    ],
+    "evidence": "静的i64 callableの制約付き本体を物理化"
+  }
+]

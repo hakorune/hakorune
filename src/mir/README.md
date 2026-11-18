@@ -60,3 +60,14 @@
 | `builder/control_flow/plan/loop_break/` | 1973 | | 552 | 139 | 1457 | 0 | 111 | 405 | 4/4 | 検出 |
 | `mir/callable_result_representation` | 1958 | | 5074 | 928 | 1635 | 9 | 129 | 185 | 30/6 | 検出 |
 | `normal_callable_semantic_package/ONLC/root_call_entry/field_write+append_*` | 1937 | | 3218 | 288 | 1660 | 1 | 30 | 246 | 12/22 | 検出 |
+
+## 制御フローの定義数
+
+| 対象 | 受け口 | 独立の定義 | 共通部品 |
+|---|---:|---:|---:|
+| if | 5 | 7 | 0 |
+| loop header PHI | 3 | 7 | 3 |
+| break | 2 | 4 | 0 |
+| continue | 2 | 7 | 0 |
+
+発行・転送の根拠は `tools/mir_map/control_flow_sites.json`、入力ごとの到達から集計した A/B 件数は生成結果の `control_flow_watchlist`。
