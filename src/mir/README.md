@@ -1,21 +1,21 @@
 | 群 | 本体行(計測artifact実行可能) | 責務 | A入力 | B file | A行 | Bのみ行 | testのみ行 | 実測0行 | 入/出(HIR下限) | HIR輪 |
 |---|---:|---|---:|---:|---:|---:|---:|---:|---:|---|
-| `mir/resolved_semantics` | 35225 | | 5242 | 1063 | 28944 | 63 | 3235 | 2983 | 126/31 | 検出 |
-| `mir/top-level` | 23756 | | 5260 | 1070 | 9155 | 299 | 9322 | 4980 | 168/59 | 検出 |
+| `mir/resolved_semantics` | 35225 | | 5242 | 1063 | 28944 | 63 | 3235 | 2983 | 124/31 | 検出 |
+| `mir/top-level` | 23756 | | 5260 | 1070 | 9155 | 299 | 9322 | 4980 | 166/59 | 検出 |
 | `mir/loop_recipe_contract` | 14207 | | 864 | 433 | 10495 | 0 | 2352 | 1360 | 32/14 | 検出 |
-| `normal_callable_semantic_package/ONLC/root_call_entry/expression_*+initializer_*` | 7659 | | 3262 | 155 | 6225 | 39 | 370 | 1025 | 19/32 | 検出 |
+| `normal_callable_semantic_package/ONLC/root_call_entry/expression_*+initializer_*` | 7659 | | 3262 | 155 | 6225 | 39 | 369 | 1026 | 19/32 | 検出 |
 | `compiler/03 normal_default_pipeline/published_backend_view` | 7375 | | 1539 | 0 | 5635 | 0 | 1188 | 552 | 5/22 | 検出 |
 | `builder/ordinary_new_admission/` | 6850 | | 3121 | 216 | 5955 | 0 | 223 | 672 | 20/48 | 検出 |
 | `normal_callable_semantic_package/ONLC (rest: entry, emission, call, read_argument, validation)` | 6315 | | 3637 | 351 | 4911 | 33 | 559 | 812 | 36/40 | 検出 |
-| `mir/verification` | 6180 | | 3538 | 446 | 3901 | 100 | 1318 | 861 | 37/12 | 検出 |
+| `mir/verification` | 6180 | | 3538 | 446 | 3901 | 100 | 1318 | 861 | 36/12 | 検出 |
 | `mir/global_call_route_plan` | 6106 | | 2751 | 222 | 2817 | 12 | 2423 | 854 | 5/5 | 検出 |
 | `normal_callable_semantic_package/ONLC/finalized_*` | 5752 | | 1862 | 0 | 4796 | 0 | 396 | 560 | 7/37 | 検出 |
 | `builder/calls/` | 5677 | | 2741 | 468 | 3043 | 46 | 1377 | 1211 | 25/45 | 検出 |
 | `normal_callable_semantic_package/ordinary_new_coseal* (hub + issue walk)` | 5147 | | 4585 | 695 | 4513 | 7 | 178 | 449 | 62/60 | 検出 |
-| `builder/control_flow/plan/parts/` | 5087 | | 572 | 415 | 1418 | 0 | 1747 | 1922 | 7/19 | 検出 |
 | `normal_callable_semantic_package/ordinary_new_borrowed (rest: array*, call*, field*, alias, text, incoming)` | 4914 | | 4585 | 695 | 4411 | 0 | 140 | 363 | 29/41 | 検出 |
-| `mir/passes` | 4669 | | 2842 | 262 | 2095 | 8 | 1940 | 626 | 9/9 | 検出 |
-| `builder/control_flow/plan/normalizer/` | 4418 | | 24 | 5 | 1094 | 16 | 1290 | 2018 | 7/22 | 検出 |
+| `mir/passes` | 4669 | | 2842 | 262 | 2094 | 8 | 1940 | 627 | 9/9 | 検出 |
+| `builder/control_flow/plan/parts/` | 4629 | | 572 | 415 | 1418 | 0 | 1384 | 1827 | 7/19 | 検出 |
+| `builder/control_flow/plan/normalizer/` | 4418 | | 24 | 5 | 1094 | 16 | 1271 | 2037 | 7/22 | 検出 |
 | `normal_callable_semantic_package/ordinary_new_borrowed_static*` | 4418 | | 4576 | 695 | 2994 | 607 | 404 | 413 | 14/27 | 検出 |
 | `normal_callable_semantic_package/ordinary_new_*field*` | 4412 | | 4727 | 845 | 3887 | 0 | 223 | 302 | 30/33 | 検出 |
 | `normal_callable_semantic_package/ordinary_new_borrowed_formal (rest: actual*, incoming*, candidate, profile...)` | 4379 | | 4578 | 695 | 3843 | 1 | 191 | 344 | 21/32 | 検出 |
@@ -27,10 +27,10 @@
 | `builder/control_flow/plan/lowerer/` | 3630 | | 232 | 13 | 1941 | 0 | 307 | 1382 | 8/42 | 検出 |
 | `normal_callable_semantic_package/ordinary_new_borrowed_formal_result*` | 3394 | | 4578 | 695 | 3078 | 1 | 141 | 174 | 13/30 | 検出 |
 | `builder/normal_callable_loop_source_facts/` | 3378 | | 4726 | 845 | 2292 | 2 | 83 | 1001 | 14/36 | 検出 |
-| `compiler/08 generic_g0_*` | 2975 | | 87 | 23 | 1983 | 0 | 551 | 441 | 9/13 | 検出 |
 | `normal_callable_semantic_package/ONLC/map* + owned_array* + root_map*` | 2949 | | 3610 | 346 | 2342 | 0 | 240 | 367 | 8/18 | 検出 |
 | `builder/control_flow/plan/facts/` | 2945 | | 5242 | 1063 | 2180 | 5 | 257 | 503 | 20/14 | 検出 |
 | `normal_callable_semantic_package/ordinary_new_return*/normal_return*/root_*/object_packet*` | 2909 | | 3803 | 366 | 2276 | 5 | 321 | 307 | 19/26 | 検出 |
+| `compiler/08 generic_g0_*` | 2872 | | 87 | 23 | 1983 | 0 | 506 | 383 | 8/8 | 検出 |
 | `normal_callable_semantic_package/instance_construct*/constructor*/entry_home + birth_abi` | 2857 | | 5074 | 923 | 2632 | 0 | 72 | 153 | 30/22 | 検出 |
 | `normal_callable_semantic_package/ordinary_new_borrowed_formal_entry*` | 2828 | | 4320 | 600 | 2393 | 19 | 119 | 297 | 11/24 | 検出 |
 | `normal_callable_semantic_package/package core (mod, model, issuer*, install*, selected_*)` | 2795 | | 5074 | 930 | 2041 | 6 | 400 | 348 | 50/55 | 検出 |
@@ -44,7 +44,7 @@
 | `builder/top: normal_callable_loop_*` | 2391 | | 663 | 176 | 1849 | 96 | 201 | 245 | 10/23 | 検出 |
 | `normal_callable_semantic_package/ONLC/root_call_entry/bool_condition_*` | 2314 | | 2999 | 308 | 2020 | 0 | 42 | 252 | 10/21 | 検出 |
 | `mir/loop_structural_facts` | 2304 | | 908 | 456 | 1459 | 0 | 687 | 158 | 15/8 | 検出 |
-| `mir/resolved_value_profile` | 2284 | | 4654 | 749 | 1560 | 31 | 464 | 229 | 41/6 | 検出 |
+| `mir/resolved_value_profile` | 2284 | | 4654 | 749 | 1560 | 31 | 446 | 247 | 41/6 | 検出 |
 | `compiler/14 dynamic_full_body_* / selected_dynamic` | 2227 | | 217 | 263 | 1924 | 0 | 201 | 102 | 4/11 | 検出 |
 | `normal_callable_semantic_package/ONLC/root_call_entry (rest: packet, direct_scalar_call, validation, borrowed_projection)` | 2190 | | 2929 | 116 | 1672 | 0 | 95 | 423 | 15/29 | 検出 |
 | `normal_callable_semantic_package/ordinary_new_lexical*` | 2183 | | 4578 | 695 | 1906 | 8 | 102 | 167 | 29/32 | 検出 |
