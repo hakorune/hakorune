@@ -159,11 +159,9 @@ impl EmittedSourceLoopGraphV2 {
                     if values.next().is_some() {
                         return Err(reject("incoming-binding-duplicate"));
                     }
-                    self.product.validate_incoming_value_v2(
-                        &edge.source,
-                        binding,
-                        value.logical,
-                    )?;
+                    if value.original_value != expected.value {
+                        return Err(reject("incoming-binding"));
+                    }
                     crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_loop_binding_v2(
                         binding, &expected.producer, &value.observation, context, function)?;
                     value.localized.verify(function)?;

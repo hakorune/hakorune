@@ -12,12 +12,12 @@ use crate::mir::loop_recipe_contract::{VerifiedSourceLoopRecipeProductV2 as Prod
     SourceLoopScheduledStepV2 as Step, SourceLoopBranchPhiV2, LoopBlockKeyV1, LoopBindingKeyV1, LoopValueKeyV1};
 use crate::mir::resolved_semantics::{BindingRefV1, home_new_prefix::{LifecyclePrefixSourceV1 as Prefix,
     SourceLoopPortKindV1 as PortKind}};
-use crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1 as Edge;
+use crate::mir::resolved_semantics::source_value_flow::{SourceValueEdgeV1 as Edge, SourceValueRefV1};
 use crate::mir::{BasicBlockId, ValueId, MirInstruction, MirFunction};
 
 pub(in crate::mir) struct EmittedLoopIncomingV2 {
     pub(in crate::mir) binding: BindingRefV1,
-    pub(in crate::mir) logical: LoopValueKeyV1,
+    pub(in crate::mir) original_value: SourceValueRefV1,
     pub(in crate::mir) observation: BindingValueObservationV2,
     pub(in crate::mir) dependencies: Vec<(BasicBlockId, MirInstruction)>,
     pub(in crate::mir) joins: Vec<Rc<LocalSsaPhysicalRelationV1>>,
@@ -674,7 +674,7 @@ impl Driver<'_, '_, '_, '_, '_> {
                 relation.verify(function)?;
                 Some(relation)
             };
-            values.push(EmittedLoopIncomingV2 { binding, logical, observation, dependencies, joins, localized, canonical });
+            values.push(EmittedLoopIncomingV2 { binding, original_value: expected.value, observation, dependencies, joins, localized, canonical });
         }
         crate::mir::builder::emission::branch::emit_jump(builder, target)?;
         self.edges.push(EmittedLoopEdgeV2 { source, predecessor, target, cleanup, values });

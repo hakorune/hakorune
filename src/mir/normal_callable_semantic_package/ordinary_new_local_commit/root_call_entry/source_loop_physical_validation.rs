@@ -444,11 +444,6 @@ impl SourceLoopPhysicalProofV2 {
                 .as_ref()
                 .map_err(|_| freeze("source-loop/source-incoming"))?;
             for value in &edge.values {
-                self.graph.product.validate_incoming_value_v2(
-                    &edge.source,
-                    value.binding,
-                    value.logical,
-                )?;
                 let source = original
                     .iter()
                     .find(|row| row.basis.binding() == value.binding)
@@ -459,7 +454,9 @@ impl SourceLoopPhysicalProofV2 {
                             .find(|row| row.edge == edge.source)
                     })
                     .ok_or_else(|| freeze("source-loop/source-carrier"))?;
-                if value.localized.values().0 != value.observation.binding_value().1 {
+                if value.original_value != source.value
+                    || value.localized.values().0 != value.observation.binding_value().1
+                {
                     return Err(freeze("source-loop/incoming-observation"));
                 }
                 for relation in std::iter::once(&value.localized).chain(value.canonical.iter()) {
