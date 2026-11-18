@@ -204,9 +204,6 @@ impl ScriptSemanticLoweringState {
     }
 
 
-    pub(super) fn has_qmark_propagation_receipt(&self, site: &SourceNodeSiteV1) -> bool {
-        self.projection().has_qmark_propagation_receipt_at(site)
-    }
 
     pub(super) fn explicit_extern_symbol(&self, site: &SourceNodeSiteV1) -> Option<&str> {
         self.projection().explicit_extern_symbol_at(site)

@@ -46,7 +46,6 @@ pub(in crate::mir::builder) mod debug;
 pub(in crate::mir::builder) mod joinir;
 
 // Phase 5: Exception handling
-pub(in crate::mir::builder) mod exception;
 
 // Phase 264: EdgeCFG Fragment API (入口SSOT)
 pub(in crate::mir::builder) mod edgecfg;
@@ -82,21 +81,10 @@ pub(crate) fn take_loop_physical_effect_probe() -> usize {
     plan::take_loop_physical_effect_probe()
 }
 
-// Phase 140-P4-A: Re-export skip_whitespace shape detection for loop_canonicalizer
-pub(crate) use joinir::detect_skip_whitespace_shape;
 
-// Phase 104: Re-export read_digits(loop(true)) shape detection for loop_canonicalizer
-pub(crate) use joinir::detect_read_digits_loop_true_shape;
 
-// Phase 142-P1: Re-export continue shape detection for loop_canonicalizer
-pub(crate) use joinir::detect_continue_shape;
 
-// Phase 143-P0: Re-export parse_number / parse_string shape detection for loop_canonicalizer
-pub(crate) use joinir::detect_parse_number_shape;
-pub(crate) use joinir::detect_parse_string_shape;
 
-// Phase 91 P5b: Re-export escape skip pattern detection for loop_canonicalizer
-pub(crate) use joinir::detect_escape_skip_shape;
 
 impl super::MirBuilder {
 

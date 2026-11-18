@@ -45,7 +45,6 @@
 //! let carrier_type = helper.carrier_type(); // "Bool"
 //! ```
 
-use crate::mir::loop_route_detection::support::body_local::carrier::TrimRouteInfo;
 
 /// Helper for trim-route lowering
 ///
@@ -77,36 +76,6 @@ pub struct TrimLoopHelper {
 }
 
 impl TrimLoopHelper {
-    /// Create TrimLoopHelper from TrimRouteInfo
-    ///
-    /// # Arguments
-    ///
-    /// * `info` - The TrimRouteInfo from LoopBodyCarrierPromoter
-    ///
-    /// # Returns
-    ///
-    /// A new TrimLoopHelper with the same information
-    ///
-    /// # Example
-    ///
-    /// ```ignore
-    /// let trim_info = TrimRouteInfo {
-    ///     var_name: "ch".to_string(),
-    ///     comparison_literals: vec![" ".to_string(), "\t".to_string()],
-    ///     carrier_name: "is_whitespace".to_string(),
-    /// };
-    ///
-    /// let helper = TrimLoopHelper::from_route_info(&trim_info);
-    /// assert_eq!(helper.original_var, "ch");
-    /// assert_eq!(helper.carrier_name, "is_whitespace");
-    /// ```
-    pub fn from_route_info(info: &TrimRouteInfo) -> Self {
-        TrimLoopHelper {
-            original_var: info.var_name.clone(),
-            carrier_name: info.carrier_name.clone(),
-            whitespace_chars: info.comparison_literals.clone(),
-        }
-    }
 
     /// Get the carrier type (always Bool for Trim route)
     ///
@@ -303,22 +272,6 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_from_route_info() {
-        let trim_info = TrimRouteInfo {
-            var_name: "ch".to_string(),
-            comparison_literals: vec![" ".to_string(), "\t".to_string()],
-            carrier_name: "is_ch_match".to_string(),
-        };
-
-        let helper = TrimLoopHelper::from_route_info(&trim_info);
-
-        assert_eq!(helper.original_var, "ch");
-        assert_eq!(helper.carrier_name, "is_ch_match");
-        assert_eq!(helper.whitespace_chars.len(), 2);
-        assert!(helper.whitespace_chars.contains(&" ".to_string()));
-        assert!(helper.whitespace_chars.contains(&"\t".to_string()));
-    }
 
     #[test]
     fn test_carrier_type() {

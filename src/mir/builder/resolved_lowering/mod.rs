@@ -10,14 +10,12 @@ pub(in crate::mir::builder) mod canonical_cfg;
 mod canonical_compare_writer;
 pub(in crate::mir) mod canonical_ssa;
 mod completion_consumption;
-mod direct_accum_adapter;
-mod direct_accum_lowerer;
 mod draft_seal;
 mod draft_seal_owner;
 mod function_draft_entry;
 pub(in crate::mir::builder) use draft_seal::ReadyFunctionDraftSealV1;
 pub(in crate::mir::builder) use draft_seal_owner::{
-    CompletedCatalogedBoxCallableDraftV1, DiscardedFunctionDraftSealErrorV1,
+    DiscardedFunctionDraftSealErrorV1,
     SelectedDynamicCandidateMetadataV1,
 };
 mod flow_consumption;
@@ -28,9 +26,6 @@ pub(in crate::mir::builder) mod if_cfg_ready_bridge;
 mod if_materialization;
 mod located_if;
 mod lowerer;
-mod nested_predicate_adapter;
-mod nested_predicate_lowerer;
-mod nested_predicate_physicalizer;
 mod semantic_stack;
 mod static_loop_body;
 mod static_loop_body_exit;
@@ -91,7 +86,6 @@ mod void_tests;
 use crate::mir::compiler::capability::{
     CanonicalCurrentAPlusPlanV1, CanonicalGenericG0PlanV1, CanonicalTrivialBindingSsaPlanV1,
 };
-use crate::mir::compiler::direct_accum_profile::CanonicalDirectAccumPlanV1;
 use crate::mir::function::MirParamDecl;
 use crate::mir::{MirFunction, MirModule};
 
@@ -100,7 +94,6 @@ use super::calls::{
     PendingFunctionSessionCloseV1,
 };
 use super::MirBuilder;
-use direct_accum_lowerer::CanonicalDirectAccumSsaLowererV1;
 use draft_seal_owner::{FunctionDraftSealStageV1, RejectedFunctionDraftSealV1};
 use lowerer::CanonicalFunctionLowererV1;
 use trivial_ssa::{install_trivial_callable_abi_v1, CanonicalTrivialSsaLowererV1};

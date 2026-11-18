@@ -63,7 +63,6 @@ def check_ret0_s0(root: Path) -> str:
     admission_path = (
         "src/mir/builder/control_flow/cleanup/exit_admission.rs"
     )
-    throw_path = "src/mir/builder/control_flow/exception/throw.rs"
     stmts_root_path = "src/mir/builder/stmts/mod.rs"
     readme_path = "src/mir/builder/stmts/README.md"
     helper_path = (
@@ -81,7 +80,6 @@ def check_ret0_s0(root: Path) -> str:
     located_session = _read(root, located_session_path)
     owner = _read(root, owner_path)
     admission = _read(root, admission_path)
-    throw = _read(root, throw_path)
     stmts_root = _read(root, stmts_root_path)
     readme = _read(root, readme_path)
 
@@ -346,55 +344,6 @@ def check_ret0_s0(root: Path) -> str:
         ("NYASH_CLEANUP_ALLOW_THROW=1", 1, "exact Throw diagnostic"),
     ):
         _require_count(admission_production, needle, expected, label)
-    throw_production = throw.split("#[cfg(test)]", 1)[0]
-    _require_count(
-        throw_production,
-        "ensure_cleanup_exit_allowed_v1(state, CleanupExitKindV1::Throw)?;",
-        1,
-        "Throw cleanup admission",
-    )
-    for needle, expected, label in (
-        ("struct PreparedRawThrowV1", 1, "prepared Throw owner"),
-        ("fn lower_prepared_raw_throw_with_port_v1", 1, "prepared Throw terminal"),
-        ("MirInstruction::Throw {", 1, "physical Throw completion"),
-    ):
-        _require_count(throw_production, needle, expected, label)
-    _require_order(
-        throw_production,
-        (
-            "ensure_cleanup_exit_allowed_v1(state, CleanupExitKindV1::Throw)?;",
-            "drive_legacy_expression_v1(builder, port, prepared.expression)?",
-        ),
-        "Throw admission/child",
-    )
-    _require_order(
-        surface,
-        (
-            "PreparedRawThrowV1::prepare(&builder.function_state, *expression)?",
-            "lower_prepared_raw_throw_with_port_v1(builder, port, prepared)?",
-        ),
-        "Throw prepare/lower",
-    )
-    throw_lower = throw_production[
-        throw_production.index("fn lower_prepared_raw_throw_with_port_v1") :
-    ]
-    for retired in ("builder_disable_throw", "ensure_cleanup_exit_allowed_v1"):
-        if retired in throw_lower:
-            _fail(f"prepared Throw lower retained route redecision: {retired}")
-    for retired in (
-        "builder_disable_throw",
-        "RawThrowCompletionRouteV1",
-        "DebugTraceCompatibility",
-        "env.debug",
-        "Effect::Debug",
-        "function_state.in_cleanup_block",
-        "function_state.cleanup_allow_throw",
-        "NYASH_CLEANUP_ALLOW_THROW=1",
-        "fn cf_throw(",
-        "fn cf_throw_with_port_v1",
-    ):
-        if retired in throw_production:
-            _fail(f"Throw retained duplicate cleanup admission: {retired}")
     for source, label in (
         (raw_tests, "raw Return tests"),
         (parity_tests, "Return parity tests"),
@@ -423,7 +372,6 @@ def check_ret0_s0(root: Path) -> str:
     for fixture in (
         "raw_value_return_selects_owned_descent_for_actual_method_call",
         "raw_void_return_selects_void_source_partition",
-        "raw_match_return_keeps_existing_selection_owner_without_second_completion",
         "raw_configured_defer_keeps_exact_copy_jump_completion",
         "raw_cleanup_and_child_failures_leave_no_terminator_then_reuse",
     ):
@@ -489,7 +437,6 @@ def check_ret0_s0(root: Path) -> str:
         located_session_path,
         owner_path,
         admission_path,
-        throw_path,
         stmts_root_path,
         readme_path,
         helper_path,

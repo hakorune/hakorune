@@ -253,15 +253,6 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                             target_capability,
                         )
                         .map_err(|error| error.to_string()),
-                    CanonicalCallableRouteV1::DirectAccum(plan) => inner
-                        .lower_normal_cataloged_static_box_method_with_canonical_direct_accum_plan_v1(
-                            builder,
-                            admission,
-                            signature,
-                            plan,
-                            target_capability,
-                        )
-                        .map_err(|error| error.to_string()),
                     CanonicalCallableRouteV1::CallableSingleLoop(program) => inner
                         .lower_normal_cataloged_static_box_method_with_callable_single_loop_program_v1(
                             builder,

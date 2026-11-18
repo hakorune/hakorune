@@ -29,20 +29,6 @@ pub(super) fn seal_continuation<'a>(
             None,
         ),
         ExactCanonicalPreflightPlanV1::Loop(plan) => match plan {
-            CanonicalLoopFamilyPlanV1::DirectAccum(plan) => single(
-                plan.seal_resolved_owner_header_v1()
-                    .map_err(SourceBindingErrorV1::Header)?,
-                ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa,
-                ModuleInvocationFamilyV1::BindingSsaTrivial,
-                None,
-            ),
-            CanonicalLoopFamilyPlanV1::NestedPredicate(plan) => single(
-                plan.seal_resolved_owner_header_v1()
-                    .map_err(SourceBindingErrorV1::Header)?,
-                ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa,
-                ModuleInvocationFamilyV1::BindingSsaTrivial,
-                None,
-            ),
             CanonicalLoopFamilyPlanV1::GenericG0(plan) => {
                 let physical_arity = usize::try_from(plan.physical_callable_lane_count())
                     .map_err(|_| SourceBindingErrorV1::PhysicalArityOverflow)?;

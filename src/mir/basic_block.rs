@@ -438,10 +438,6 @@ impl BasicBlock {
             .map(|(inst, span)| SpannedInstRef { inst, span: *span })
     }
 
-    /// Get span for terminator instruction
-    pub fn terminator_span(&self) -> Option<Span> {
-        self.terminator_span
-    }
 
     /// Get terminator together with its span.
     pub fn terminator_spanned(&self) -> Option<SpannedInstRef<'_>> {

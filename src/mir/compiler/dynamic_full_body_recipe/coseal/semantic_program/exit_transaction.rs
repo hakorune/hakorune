@@ -63,9 +63,6 @@ impl VerifiedDynamicExitTransactionCoSealV1 {
             .with_semantic_program(|semantic| semantic.with_canonical_session_authority(callback))
     }
 
-    pub(in crate::mir) fn completion_sites(&self) -> Option<[SourceStmtSiteV1; 2]> {
-        self.cleanup.completion_sites()
-    }
 
 
     #[cfg(test)]

@@ -1,106 +1,9 @@
 use super::*;
-
-use crate::ast::ASTNode;
 use crate::mir::builder::normal_script_direct_static_recipe::VerifiedScriptDirectStaticRecipeDemandV1;
-use crate::mir::builder::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
 use crate::mir::builder::normal_script_direct_static_result_publication_owner::VerifiedScriptDirectStaticResultPublicationDemandV1;
-use crate::mir::builder::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 use crate::mir::builder::normal_script_source_continuation::ScriptSourceContinuationTerminalV1;
-use crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1;
-use crate::mir::resolved_semantics::{
-    FunctionOwnerIssuerV1, FunctionSemanticResolverSessionV1, ResolveScriptOutcomeV1,
-    ScriptRootResolvedDemandV1, ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1,
-    ScriptSyntaxViewV1, SourcePathSegmentV1, SourcePathV1, VerifiedScriptRootDemandEntryV1,
-    VerifiedScriptRootDemandWindowV1,
-};
-use crate::mir::source_call_target::{
-    VerifiedScriptDirectStaticCallLookupV1, VerifiedScriptDirectStaticCallTargetInventoryV1,
-    VerifiedStaticImportAliasViewV1, VerifiedWholeSourceStaticCallTargetInventoryV1,
-};
-use crate::parser::NyashParser;
+use crate::mir::resolved_semantics::{FunctionOwnerIssuerV1, SourcePathSegmentV1, SourcePathV1};
 use std::collections::BTreeMap;
-
-fn recipe_and_owner(
-    root: ASTNode,
-    window: VerifiedScriptRootDemandWindowV1,
-) -> (
-    VerifiedScriptDirectStaticRecipeV1,
-    VerifiedScriptDirectStaticResultPublicationOwnerV1,
-) {
-    let prepared = Box::leak(Box::new(
-        crate::mir::builder::PreparedNormalDefaultProgramRootV1::seal(root)
-            .expect("prepared source"),
-    ));
-    let declaration_root =
-        NyashParser::parse_from_string("static box Helpers { run(x) { return x } }")
-            .expect("declaration fixture");
-    let declarations = Box::leak(Box::new(
-        VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&declaration_root)
-            .expect("declaration catalog"),
-    ));
-    let imports = Box::leak(Box::new(
-        VerifiedStaticImportAliasViewV1::seal(declarations, std::iter::empty()).expect("imports"),
-    ));
-    let target_inventory = VerifiedScriptDirectStaticCallTargetInventoryV1::issue(
-        prepared.source_ast(),
-        &window,
-        declarations,
-        imports,
-    )
-    .expect("target inventory");
-    let mut resolver = FunctionSemanticResolverSessionV1::new(4701).expect("resolver");
-    let owner = match resolver
-        .resolve_script(
-            ScriptSyntaxViewV1::from_program(prepared.source_ast()).expect("Script view"),
-            &window,
-        )
-        .expect("Script resolution")
-    {
-        ResolveScriptOutcomeV1::Complete(owner) => owner,
-        ResolveScriptOutcomeV1::Deferred(_) => panic!("fixture must complete"),
-    };
-    let source =
-        VerifiedScriptSemanticSourceV1::seal(prepared, owner, &window).expect("semantic source");
-    let whole = VerifiedWholeSourceStaticCallTargetInventoryV1::verify(declarations, imports)
-        .expect("whole target inventory");
-    let targets = whole.into_targets();
-    let results = crate::mir::callable_result_representation::
-        VerifiedSameModuleCallableResultCatalogV1::verify(declarations, &targets)
-        .expect("result catalog");
-    let lookup =
-        VerifiedScriptDirectStaticCallLookupV1::from_test_inventory(&target_inventory, &results);
-    let bundle = VerifiedScriptDirectStaticResultBundleV1::issue(&source, &window, lookup)
-        .expect("result bundle");
-    let publication_owner = VerifiedScriptDirectStaticResultPublicationOwnerV1::issue(
-        &source,
-        &bundle,
-        source.continuation(),
-    )
-    .expect("publication owner");
-    let recipe = VerifiedScriptDirectStaticRecipeV1::issue(&publication_owner, &window)
-        .expect("empty recipe");
-    (recipe, publication_owner)
-}
-
-fn empty_recipe_and_owner() -> (
-    VerifiedScriptDirectStaticRecipeV1,
-    VerifiedScriptDirectStaticResultPublicationOwnerV1,
-) {
-    let root = NyashParser::parse_from_string("0").expect("Script fixture");
-    let site = SourcePathV1::program_body()
-        .child(SourcePathSegmentV1::ProgramBody(0))
-        .stmt();
-    let window = VerifiedScriptRootDemandWindowV1::seal(
-        vec![VerifiedScriptRootDemandEntryV1::new(
-            site,
-            ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::LexicalCore),
-            ScriptRootRuntimeDispositionV1::RetainedExistingTerminal,
-        )],
-        1,
-    )
-    .expect("complete Script window");
-    recipe_and_owner(root, window)
-}
 
 fn synthetic_non_empty_pair() -> (
     VerifiedScriptDirectStaticRecipeV1,
@@ -166,21 +69,19 @@ fn synthetic_non_empty_pair() -> (
     (recipe, publication_owner)
 }
 
-#[test]
-fn empty_recipe_emits_empty_join_handoff() {
-    let (recipe, publication_owner) = empty_recipe_and_owner();
-    let handoff = VerifiedScriptDirectStaticJoinHandoffV1::issue(&recipe, &publication_owner)
-        .expect("empty join handoff");
-    assert_eq!(handoff.len(), 0);
-    assert_eq!(handoff.source_owner(), recipe.source_owner());
-    assert_eq!(handoff.source_identity(), recipe.source_identity());
-    assert!(handoff.rows().next().is_none());
-}
 
 #[test]
 fn join_handoff_rejects_a_foreign_source_owner() {
-    let (left_recipe, _) = empty_recipe_and_owner();
-    let (_, right_publication_owner) = empty_recipe_and_owner();
+    let (left_recipe, owner) = synthetic_non_empty_pair();
+    let right_publication_owner =
+        VerifiedScriptDirectStaticResultPublicationOwnerV1::from_parts_for_test(
+            owner.source_owner(),
+            42,
+            owner
+                .rows()
+                .map(|(site, demand)| (site.clone(), demand.clone()))
+                .collect(),
+        );
     assert_eq!(
         VerifiedScriptDirectStaticJoinHandoffV1::issue(&left_recipe, &right_publication_owner),
         Err(ScriptDirectStaticJoinHandoffIssueV1::SourceIdentityMismatch)

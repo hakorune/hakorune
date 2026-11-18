@@ -22,8 +22,6 @@
 //! maintaining backward compatibility through dual-path lookup.
 
 mod carrier_info_impl;
-mod carrier_var;
-mod exit_meta;
 mod types;
 
 #[cfg(test)]

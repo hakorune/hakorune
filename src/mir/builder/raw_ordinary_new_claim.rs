@@ -291,26 +291,9 @@ impl super::RawInvocationChildPortV1<'_, '_> {
         let append = source
             .prepare_append_v1(&site)?
             .ok_or("[freeze:contract][array-append/source-missing]")?;
-        let derived_argument_frames = if append.dynamic_carrier_source().is_some()
-            && argument_frame.is_none()
-        {
-            Some(
-                ledger
-                    .dynamic_carrier_array_append_argument_frames_v1(&site)?
-                    .ok_or("[freeze:contract][array-append/dynamic-argument-frame-missing]")?,
-            )
-        } else {
-            None
-        };
-        let argument_frame = argument_frame.or_else(|| {
-            derived_argument_frames
-                .as_ref()
-                .map(|(frame, _)| std::rc::Rc::clone(frame))
-        });
-        let nested_argument_frames = derived_argument_frames
-            .as_ref()
-            .map(|(_, frames)| frames.as_slice())
-            .unwrap_or(nested_argument_frames);
+        if append.dynamic_carrier_source().is_some() && argument_frame.is_none() {
+            return Err("[freeze:contract][array-append/dynamic-argument-frame-missing]".into());
+        }
         self.check_new_emission_scope(&site)?;
         if crate::boxes::array::ArrayMethodId::from_name_and_arity(method, arity)
             != Some(crate::boxes::array::ArrayMethodId::Push)

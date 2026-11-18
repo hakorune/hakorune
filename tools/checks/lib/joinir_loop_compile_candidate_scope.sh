@@ -18,8 +18,6 @@ guard_joinir_loop_compile_candidate_scope() {
   local first_family_plan="$root_dir/src/mir/compiler/capability/first_family_plan.rs"
   local source_bound_plan="$root_dir/src/mir/compiler/source_bound_plan.rs"
   local m1_test="$root_dir/src/mir/compiler/loop_candidate_abort_p0.rs"
-  local direct_accum_cutover="$root_dir/src/mir/compiler/resolved_direct_accum_cutover.rs"
-  local hardening_test="$root_dir/src/mir/compiler/resolved_direct_accum_hardening_p0.rs"
   local external_commit="$root_dir/src/mir/compiler/external_commit.rs"
   local loop_region="$root_dir/src/mir/resolved_semantics/loop_region.rs"
   local source_adapter="$root_dir/src/mir/loop_structural_facts/resolved_source_adapter.rs"
@@ -61,10 +59,6 @@ guard_joinir_loop_compile_candidate_scope() {
   local nested_source_projection="$root_dir/src/mir/compiler/nested_predicate_projection.rs"
   local nested_recipe_producer="$root_dir/src/mir/compiler/nested_predicate_producer.rs"
   local nested_source_handoff="$root_dir/src/mir/compiler/nested_predicate_source_handoff.rs"
-  local nested_topology="$root_dir/src/mir/compiler/nested_predicate_topology.rs"
-  local nested_topology_tests="$root_dir/src/mir/compiler/nested_predicate_topology_tests.rs"
-  local nested_physical_input="$root_dir/src/mir/compiler/nested_predicate_physical_input.rs"
-  local nested_physical_input_tests="$root_dir/src/mir/compiler/nested_predicate_physical_input_tests.rs"
   local nested_effect_plan="$root_dir/src/mir/compiler/nested_predicate_effect_plan.rs"
   local nested_effect_plan_tests="$root_dir/src/mir/compiler/nested_predicate_effect_plan_tests.rs"
   local nested_effect_adapter_tests="$root_dir/src/mir/builder/resolved_lowering/nested_predicate_effect_adapter_tests.rs"
@@ -72,7 +66,7 @@ guard_joinir_loop_compile_candidate_scope() {
   guard_require_files "$tag" "$manifest" "$routing" "$router" "$raw_child" \
     "$recursive_child" "$normal" "$raw_compile" "$raw_open" "$raw_recipe" \
     "$canonical" "$canonical_input" "$m1_test" \
-    "$direct_accum_cutover" "$hardening_test" "$external_commit" \
+    "$external_commit" \
     "$capability" "$first_family_plan" "$source_bound_plan" "$loop_region" \
     "$source_adapter" "$generic_g0_projection" "$generic_g0_handoff" "$generic_g0_projection_tests" \
     "$generic_g0_source_type" "$generic_g0_numeric" "$generic_g0_numeric_tests" \
@@ -85,8 +79,7 @@ guard_joinir_loop_compile_candidate_scope() {
     "$join_sig_facade" "$join_sig_model" "$join_sig_port" \
     "$join_sig_visibility" "$join_sig_flow" \
     "$nested_source_projection" "$nested_recipe_producer" \
-    "$nested_source_handoff" "$nested_topology" "$nested_topology_tests" \
-    "$nested_physical_input" "$nested_physical_input_tests" \
+    "$nested_source_handoff" \
     "$nested_effect_plan" "$nested_effect_plan_tests" "$nested_effect_adapter_tests"
 
   local header=$'ingress_kind\tpublic_ingress\tcandidate_owner\tloop_reachability\tpublication_owner\tambient_write_policy'
@@ -95,14 +88,13 @@ guard_joinir_loop_compile_candidate_scope() {
   if ! awk -F '\t' '
     NR == 1 { next }
     NF != 6 { exit 1 }
-    $1 !~ /^(normal|repl|raw-public|raw-reference|vm-hako-reference|canonical-resolved|canonical-resolved-direct-accum|canonical-core-script|canonical-core-main)$/ { exit 1 }
+    $1 !~ /^(normal|repl|raw-public|raw-reference|vm-hako-reference|canonical-resolved|canonical-core-script|canonical-core-main)$/ { exit 1 }
     $3 !~ /(SessionV1|TransactionV1)$/ { exit 1 }
     $4 !~ /^(reachable|typed-unreachable)$/ { exit 1 }
     $6 !~ /^identity-monotonic\+diagnostic-scratch/ { exit 1 }
     ($1 ~ /^(normal|repl|vm-hako-reference)$/ && $4 != "reachable") { exit 1 }
-    ($1 ~ /^(raw-public|raw-reference|canonical-resolved|canonical-core-)/ && $1 != "canonical-resolved-direct-accum" && $4 != "typed-unreachable") { exit 1 }
-    ($1 == "canonical-resolved-direct-accum" && $4 != "reachable") { exit 1 }
-    END { if (NR != 10) exit 1 }
+    ($1 ~ /^(raw-public|raw-reference|canonical-resolved|canonical-core-)/ && $4 != "typed-unreachable") { exit 1 }
+    END { if (NR != 9) exit 1 }
   ' "$manifest"; then
     guard_fail "$tag" "Loop candidate scope manifest row contract failed"
   fi
@@ -142,9 +134,7 @@ guard_joinir_loop_compile_candidate_scope() {
     "$raw_compile|open_physical(&self.builder)|1" \
     "$raw_compile|prepare_external_commit|1" \
     "$raw_open|ModuleBuilderInvocationSessionV1::open_for_token|1" \
-    "$canonical|ModuleBuilderInvocationSessionV1::open_for_token|1" \
-    "$direct_accum_cutover|pub(super) fn compile_direct_accum_source_bound(|1" \
-    "$canonical|lower_resolved_direct_accum_function_draft|1"
+    "$canonical|ModuleBuilderInvocationSessionV1::open_for_token|1"
   do
     local file="${required%%|*}"
     local rest="${required#*|}"
@@ -357,7 +347,6 @@ guard_joinir_loop_compile_candidate_scope() {
   fi
   for required in \
     'CanonicalLoopFamilyPlanV1' \
-    'Loop(CanonicalLoopFamilyPlanV1::DirectAccum' \
     'CanonicalFirstFamilyPlanV1::Loop' \
     'ExactCanonicalPreflightPlanV1::Loop'
   do
@@ -376,7 +365,7 @@ guard_joinir_loop_compile_candidate_scope() {
   done
   if rg -n -F 'resolved_loop_source_forest(' "$root_dir/src" --glob '*.rs' \
       | awk -F: -v generic_g0_projection="$generic_g0_projection" \
-          '$1 != generic_g0_projection && $1 !~ /resolved_semantics\/loop_region\.rs$/ && $1 !~ /compiler\/nested_predicate_profile\.rs$/ && $1 !~ /compiler\/nested_predicate_projection\.rs$/ && $1 !~ /compiler\/generic_g0_source_parent\.rs$/ && $1 !~ /compiler\/loop_cond_break_continue_projection\.rs$/ && $1 !~ /_tests?\.rs$/ && $1 !~ /\/tests\.rs$/ { found = 1 } END { exit found }'; then
+          '$1 != generic_g0_projection && $1 !~ /resolved_semantics\/loop_region\.rs$/ && $1 !~ /compiler\/nested_predicate_projection\.rs$/ && $1 !~ /compiler\/generic_g0_source_parent\.rs$/ && $1 !~ /compiler\/loop_cond_break_continue_projection\.rs$/ && $1 !~ /_tests?\.rs$/ && $1 !~ /\/tests\.rs$/ { found = 1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Nested source forest escaped its caller-zero resolver boundary"
@@ -559,42 +548,19 @@ guard_joinir_loop_compile_candidate_scope() {
   done
   for required in \
     'VerifiedNestedPhysicalSourceHandoffV1' \
-    'VerifiedNestedPhysicalTopologyV1' \
-    'VerifiedNestedPhysicalEmissionInputV1' \
-    'issue_nested_predicate_physical_emission_input_v1' \
-    'NestedParentResumePortV1' \
-    'NestedLogicalExpansionV1' \
-    'VerifiedNestedTopologyPredecessorSealV1' \
-    'NestedCarrierDestinationV1' \
-    'into_topology_input' \
-    'VerifiedNestedPhysicalBlockProjectionV1' \
-    'VerifiedNestedPhysicalCandidateInputV1'
+    'into_topology_input'
   do
-    rg -n -F "$required" "$nested_source_handoff" "$nested_topology" "$nested_recipe_producer" "$nested_physical_input" >/dev/null || \
+    rg -n -F "$required" "$nested_source_handoff" "$nested_recipe_producer" >/dev/null || \
       guard_fail "$tag" "Nested Predicate topology handoff/topology anchor missing: $required"
   done
   for forbidden in \
     'ASTNode' 'MirBuilder' 'ValueId' 'BasicBlockId' 'PhiTxn' \
     'BindingSsaBuilderV1' 'CanonicalSsaFunctionSessionV2' 'Retry' 'route_loop('
   do
-    if rg -n -F "$forbidden" "$nested_source_handoff" "$nested_topology" >/dev/null; then
+    if rg -n -F "$forbidden" "$nested_source_handoff" >/dev/null; then
       guard_fail "$tag" "Nested Predicate topology crossed physical/route authority: $forbidden"
     fi
   done
-  for forbidden in \
-    'ASTNode' 'MirBuilder' 'PhiTxn' 'BindingSsaBuilderV1' \
-    'CanonicalSsaFunctionSessionV2' 'Retry' 'route_loop('
-  do
-    if rg -n -F "$forbidden" "$nested_physical_input" >/dev/null; then
-      guard_fail "$tag" "Nested Predicate physical input crossed emission authority: $forbidden"
-    fi
-  done
-  local nested_topology_refs
-  nested_topology_refs="$(rg -n -F 'issue_nested_predicate_physical_emission_input_v1(' "$root_dir/src" --glob '*.rs' || true)"
-  if [[ "$(printf '%s\n' "$nested_topology_refs" \
-      | awk -F: '$1 !~ /compiler\/nested_predicate_topology\.rs$/ && $1 !~ /compiler\/nested_predicate_topology_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_profile\.rs$/ && $1 !~ /compiler\/nested_predicate_physical_input_tests\.rs$/ && $1 != "" { count += 1 } END { print count + 0 }')" != "0" ]]; then
-    guard_fail "$tag" "Nested Predicate topology issuer escaped caller-zero boundary"
-  fi
   for forbidden in \
     'ASTNode' 'FunctionSourceViewV1' 'Located' 'MirBuilder' 'ValueId' \
     'BasicBlockId' 'CanonicalCfgSessionV1' 'BindingSsaBuilderV1' 'PhiTxn' \
@@ -607,7 +573,7 @@ guard_joinir_loop_compile_candidate_scope() {
   local nested_producer_refs
   nested_producer_refs="$(rg -n -F 'produce_nested_predicate_recipe_v1(' "$root_dir/src" --glob '*.rs' || true)"
   if [[ "$(printf '%s\n' "$nested_producer_refs" \
-      | awk -F: '$1 !~ /compiler\/nested_predicate_producer\.rs$/ && $1 !~ /compiler\/nested_predicate_producer_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_topology_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_profile\.rs$/ && $1 !~ /compiler\/loop_node_winner_spine\.rs$/ && $1 !~ /compiler\/nested_predicate_physical_input_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_effect_plan_tests\.rs$/ && $1 !~ /resolved_lowering\/nested_predicate_effect_adapter_tests\.rs$/ && $1 !~ /_tests\.rs$/ && $1 != "" { count += 1 } END { print count + 0 }')" != "0" ]]; then
+      | awk -F: '$1 !~ /compiler\/nested_predicate_producer\.rs$/ && $1 !~ /compiler\/nested_predicate_producer_tests\.rs$/ && $1 !~ /compiler\/loop_node_winner_spine\.rs$/ && $1 !~ /compiler\/nested_predicate_effect_plan_tests\.rs$/ && $1 !~ /resolved_lowering\/nested_predicate_effect_adapter_tests\.rs$/ && $1 !~ /_tests\.rs$/ && $1 != "" { count += 1 } END { print count + 0 }')" != "0" ]]; then
     guard_fail "$tag" "Nested Predicate Recipe producer escaped caller-zero boundary"
   fi
   for required in \
@@ -630,8 +596,8 @@ guard_joinir_loop_compile_candidate_scope() {
   done
   local nested_effect_plan_refs
   nested_effect_plan_refs="$(rg -l -F 'issue_nested_binding_execution_claims_v1(' "$root_dir/src" --glob '*.rs' || true)"
-  if printf '%s\n' "$nested_effect_plan_refs" | awk -v issuer="$nested_effect_plan" -v tests="$nested_effect_plan_tests" -v adapter="$nested_effect_adapter_tests" -v profile="$root_dir/src/mir/compiler/nested_predicate_profile.rs" \
-      '$0 != issuer && $0 != tests && $0 != adapter && $0 != profile && $0 != "" { found = 1 } END { exit found }'; then
+  if printf '%s\n' "$nested_effect_plan_refs" | awk -v issuer="$nested_effect_plan" -v tests="$nested_effect_plan_tests" -v adapter="$nested_effect_adapter_tests" \
+      '$0 != issuer && $0 != tests && $0 != adapter && $0 != "" { found = 1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Nested Predicate resolver effect-plan issuer escaped caller-zero boundary"
@@ -676,15 +642,6 @@ guard_joinir_loop_compile_candidate_scope() {
   do
     rg -n -F "$required" "$m1_test" >/dev/null || \
       guard_fail "$tag" "M1 candidate-abort proof anchor missing: $required"
-  done
-
-  for required in \
-    'production_failure_after_prepare_discards_candidate_and_reuses_compiler' \
-    'successful_direct_accum_public_result_uses_final_barrier_contract' \
-    'compile_direct_accum_source_bound_with_prepared_failure_for_test'
-  do
-    rg -n -F "$required" "$hardening_test" "$direct_accum_cutover" >/dev/null || \
-      guard_fail "$tag" "resolved DirectAccum hardening proof anchor missing: $required"
   done
 
   rg -n -F 'project_canonical_verification_result' "$external_commit" >/dev/null || \

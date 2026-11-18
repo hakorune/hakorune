@@ -91,30 +91,8 @@ impl MirBuilder {
         Ok(prepared.commit().consume_non_authority_evidence())
     }
 
-    /// Caller-zero DirectAccum draft consumer. The plan is lowered only on a
-    /// private function session; the outer candidate remains the sole abort
-    /// boundary and no route scheduler is reachable from this method.
-    pub(in crate::mir) fn lower_resolved_direct_accum_function_draft(
-        &mut self,
-        plan: CanonicalDirectAccumPlanV1<'_>,
-    ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
-        self.lower_resolved_direct_accum_function_draft_inner(plan, false, None)
-    }
 
-    pub(in crate::mir) fn lower_resolved_direct_accum_function_draft_with_physical_name_v1(
-        &mut self,
-        plan: CanonicalDirectAccumPlanV1<'_>,
-        physical_name: String,
-    ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
-        self.lower_resolved_direct_accum_function_draft_inner(plan, false, Some(physical_name))
-    }
 
-    pub(in crate::mir) fn lower_resolved_nested_predicate_function_draft(
-        &mut self,
-        plan: crate::mir::compiler::nested_predicate_profile::CanonicalNestedPredicatePlanV1<'_>,
-    ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
-        nested_predicate_lowerer::lower_nested_predicate_function_draft(self, plan)
-    }
 
     pub(in crate::mir) fn lower_resolved_generic_g0_function_draft(
         &mut self,
@@ -146,90 +124,7 @@ impl MirBuilder {
         )
     }
 
-    #[cfg(test)]
-    pub(in crate::mir) fn lower_resolved_direct_accum_function_draft_with_seal_failure_for_test(
-        &mut self,
-        plan: CanonicalDirectAccumPlanV1<'_>,
-    ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
-        self.lower_resolved_direct_accum_function_draft_inner(plan, true, None)
-    }
 
-    fn lower_resolved_direct_accum_function_draft_inner(
-        &mut self,
-        plan: CanonicalDirectAccumPlanV1<'_>,
-        _inject_seal_failure: bool,
-        physical_name: Option<String>,
-    ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
-        let input = plan.input();
-        let crate::ast::ASTNode::FunctionDeclaration {
-            name,
-            params,
-            body,
-            return_type_name,
-            attrs,
-            uses,
-            ..
-        } = input.source().root()
-        else {
-            return Err(CanonicalResolvedBuildErrorV1::BuilderContract(
-                "[freeze:contract][direct_accum/root_not_function]".into(),
-            ));
-        };
-        let function_name = physical_name.unwrap_or_else(|| format!("{}/{}", name, params.len()));
-        let mut session = self.open_resolved_function_draft_seal_session_v1(&function_name);
-        let lowering = {
-            let builder = session.builder_view_mut_for_lowering();
-            (|| {
-                builder
-                    .function_state
-                    .resolved_binding_state
-                    .install(input.function())?;
-                builder.create_function_skeleton(function_name, params, body)?;
-                builder.set_current_function_declared_signature(
-                    params
-                        .iter()
-                        .map(|name| MirParamDecl {
-                            name: name.clone(),
-                            declared_type_name: None,
-                            implicit_receiver: false,
-                        })
-                        .collect(),
-                    return_type_name.clone(),
-                );
-                builder.set_current_function_runes(attrs);
-                builder.set_current_function_declared_capability_uses(uses);
-                let (ready, final_receipt) =
-                    CanonicalDirectAccumSsaLowererV1::new(builder, plan)?.lower()?;
-                final_receipt.consume_for_candidate()?;
-                #[cfg(test)]
-                if _inject_seal_failure {
-                    let current_block = builder.function_state.current_block.ok_or_else(|| {
-                        "[freeze:contract][direct_accum/current_block_missing]".to_string()
-                    })?;
-                    builder
-                        .function_state
-                        .current_function
-                        .as_mut()
-                        .and_then(|function| function.get_block_mut(current_block))
-                        .ok_or_else(|| {
-                            "[freeze:contract][direct_accum/test_failure_block_missing]".to_string()
-                        })?
-                        .set_terminator(crate::mir::MirInstruction::Return { value: None });
-                }
-                Ok::<_, String>(ready)
-            })()
-        };
-        let ready = match lowering {
-            Ok(ready) => ready,
-            Err(error) => {
-                session.discard_unpublished();
-                return Err(error.into());
-            }
-        };
-        let open = ready.open(session);
-        let prepared = open.prepare().map_err(reject_draft_seal)?;
-        Ok(prepared.commit().consume_non_authority_evidence())
-    }
 
     pub(in crate::mir) fn build_resolved_trivial_function_module(
         &mut self,

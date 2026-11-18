@@ -43,17 +43,6 @@ fn void_return() -> ASTNode {
     }
 }
 
-fn accepted_match() -> ASTNode {
-    ASTNode::MatchExpr {
-        scrutinee: Box::new(integer(2)),
-        arms: vec![
-            (LiteralValue::Integer(1), integer(10)),
-            (LiteralValue::Integer(2), integer(20)),
-        ],
-        else_expr: Box::new(integer(30)),
-        span: Span::unknown(),
-    }
-}
 
 fn builder(name: &str) -> MirBuilder {
     let mut builder = MirBuilder::new();
@@ -139,27 +128,6 @@ fn raw_void_return_selects_void_source_partition() {
     ));
 }
 
-#[test]
-fn raw_match_return_keeps_existing_selection_owner_without_second_completion() {
-    let mut builder = builder("ret0_i0_match/0");
-
-    let result =
-        drive_raw_legacy_expression_v1(&mut builder, value_return(accepted_match())).unwrap();
-    let rows = instructions(&builder);
-
-    assert!(rows.iter().any(|row| matches!(
-        row,
-        MirInstruction::Const {
-            dst,
-            value: ConstValue::Integer(30),
-        } if *dst == result
-    )));
-    assert_eq!(return_count(&builder), 3);
-    assert!(!rows
-        .iter()
-        .any(|row| matches!(row, MirInstruction::Phi { .. })));
-    assert_eq!(builder.recursion_depth, 0);
-}
 
 #[test]
 fn raw_configured_defer_keeps_exact_copy_jump_completion() {

@@ -90,23 +90,6 @@ impl ArrayTextObserverStoreRegionMapping {
         }
     }
 
-    pub(super) fn with_len_sum_payload(
-        mut self,
-        row_index_value: ValueId,
-        row_modulus_value: ValueId,
-        row_modulus_const: i64,
-        length_result_value: ValueId,
-        accumulator_phi_value: ValueId,
-        accumulator_next_value: ValueId,
-    ) -> Self {
-        self.row_index_value = Some(row_index_value);
-        self.row_modulus_value = Some(row_modulus_value);
-        self.row_modulus_const = Some(row_modulus_const);
-        self.length_result_value = Some(length_result_value);
-        self.accumulator_phi_value = Some(accumulator_phi_value);
-        self.accumulator_next_value = Some(accumulator_next_value);
-        self
-    }
 
     pub fn array_root_value(&self) -> ValueId {
         self.array_root_value
@@ -265,49 +248,5 @@ impl ArrayTextObserverExecutorContract {
         self.region_mapping.as_ref()
     }
 
-    pub(crate) fn conditional_suffix_store_single_region(
-        region_mapping: ArrayTextObserverStoreRegionMapping,
-    ) -> Self {
-        Self {
-            execution_mode: ArrayTextObserverExecutorExecutionMode::SingleRegionExecutor,
-            proof_region: ArrayTextObserverExecutorProofRegion::LoopBackedgeSingleBody,
-            publication_boundary: ArrayTextObserverPublicationBoundary::None,
-            carrier: ArrayTextObserverExecutorCarrier::ArrayLaneTextCell,
-            effects: vec![
-                ArrayTextObserverExecutorEffect::ObserveIndexOf,
-                ArrayTextObserverExecutorEffect::StoreCell,
-            ],
-            consumer_capabilities: vec![
-                ArrayTextObserverExecutorConsumerCapability::CompareOnly,
-                ArrayTextObserverExecutorConsumerCapability::SinkStore,
-            ],
-            materialization_policy:
-                ArrayTextObserverExecutorMaterializationPolicy::TextResidentOrStringlikeSlot,
-            region_mapping: Some(region_mapping),
-        }
-    }
 
-    pub(crate) fn conditional_suffix_store_len_sum_single_region(
-        region_mapping: ArrayTextObserverStoreRegionMapping,
-    ) -> Self {
-        Self {
-            execution_mode: ArrayTextObserverExecutorExecutionMode::SingleRegionExecutor,
-            proof_region: ArrayTextObserverExecutorProofRegion::LoopBackedgeSingleBody,
-            publication_boundary: ArrayTextObserverPublicationBoundary::None,
-            carrier: ArrayTextObserverExecutorCarrier::ArrayLaneTextCell,
-            effects: vec![
-                ArrayTextObserverExecutorEffect::ObserveIndexOf,
-                ArrayTextObserverExecutorEffect::StoreCell,
-                ArrayTextObserverExecutorEffect::LengthResultCarry,
-                ArrayTextObserverExecutorEffect::ScalarAccumulator,
-            ],
-            consumer_capabilities: vec![
-                ArrayTextObserverExecutorConsumerCapability::CompareOnly,
-                ArrayTextObserverExecutorConsumerCapability::SinkStoreLenSum,
-            ],
-            materialization_policy:
-                ArrayTextObserverExecutorMaterializationPolicy::TextResidentOrStringlikeSlot,
-            region_mapping: Some(region_mapping),
-        }
-    }
 }

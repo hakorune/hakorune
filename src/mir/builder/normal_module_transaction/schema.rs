@@ -84,17 +84,11 @@ impl NormalModuleDraftExpectationV1 {
         &self.role
     }
 
-    pub(in crate::mir::builder) fn key(&self) -> &FunctionDraftKeyV1 {
-        &self.key
-    }
 
     pub(in crate::mir::builder) fn symbol(&self) -> &str {
         &self.symbol
     }
 
-    pub(in crate::mir::builder) const fn arity(&self) -> usize {
-        self.arity
-    }
 
     #[cfg(test)]
     pub(super) fn from_unchecked_parts_for_test(
@@ -133,25 +127,10 @@ impl NormalModuleEntryRelationV1 {
         }
     }
 
-    pub(in crate::mir::builder) const fn source_main_owner(&self) -> FunctionOwnerIdV1 {
-        self.source_main_owner
-    }
 
-    pub(in crate::mir::builder) fn source_main_symbol(&self) -> &str {
-        &self.source_main_symbol
-    }
 
-    pub(in crate::mir::builder) const fn source_main_arity(&self) -> usize {
-        self.source_main_arity
-    }
 
-    pub(in crate::mir::builder) fn physical_symbol(&self) -> &str {
-        &self.physical_symbol
-    }
 
-    pub(in crate::mir::builder) const fn physical_arity(&self) -> usize {
-        self.physical_arity
-    }
 }
 
 #[derive(Debug)]

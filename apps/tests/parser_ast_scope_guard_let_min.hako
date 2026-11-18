@@ -1,0 +1,12 @@
+enum Choice {
+    One(i64)
+    Empty
+}
+static box Main {
+    main() {
+        local c: Choice = Choice::One(7)
+        guard let Choice::One(v) = c else { return 0 }
+        print(v)
+        return 0
+    }
+}

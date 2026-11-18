@@ -31,9 +31,6 @@ impl VerifiedNormalMainRoleV1 {
         }
     }
 
-    pub(super) fn seal_for_direct_call() -> Self {
-        Self::seal()
-    }
 }
 
 #[derive(Debug)]
@@ -90,9 +87,6 @@ impl VerifiedNormalMainResolvedSourceUnitV1 {
         self.role
     }
 
-    pub(in crate::mir) fn into_source(self) -> VerifiedNormalMainFunctionSourceUnitV1 {
-        self.source
-    }
 
     #[cfg(test)]
     fn source_function_for_test(&self) -> &crate::ast::ASTNode {
@@ -106,17 +100,6 @@ pub(crate) struct RejectedNormalMainResolvedSourceV1 {
     error: NormalMainResolvedSourceErrorV1,
 }
 
-impl RejectedNormalMainResolvedSourceV1 {
-
-    pub(in crate::mir) fn into_parts(
-        self,
-    ) -> (
-        VerifiedNormalMainFunctionSourceUnitV1,
-        NormalMainResolvedSourceErrorV1,
-    ) {
-        (self.owner, self.error)
-    }
-}
 
 pub(super) fn resolve_normal_main_loan_v1(
     function: &NormalMainFunctionSourceViewV1<'_>,

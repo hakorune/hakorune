@@ -2,22 +2,10 @@ use super::{classify_canonical_callable_route, CanonicalCallableRouteV1};
 use crate::ast::ASTNode;
 use crate::mir::compiler::{
     callable_single_loop_static_fixture_tests::static_fixture_for_test,
-    direct_accum_projection::direct_accum_function_for_test, VerifiedResolvedSourceUnitV1,
+    VerifiedResolvedSourceUnitV1,
 };
 use crate::parser::NyashParser;
 
-#[test]
-fn direct_accum_selection_uses_the_canonical_route() {
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(direct_accum_function_for_test())
-        .expect("DirectAccum fixture must resolve");
-    let input = unit.root_function_input().expect("root function input");
-    let route = classify_canonical_callable_route(
-        input,
-        Some(crate::mir::loop_route_policy::GenericG0PolicyModeV1::Release),
-    )
-    .expect("canonical preflight");
-    assert!(matches!(route, CanonicalCallableRouteV1::DirectAccum(_)));
-}
 
 #[test]
 fn callable_single_loop_selection_uses_the_source_bound_route() {

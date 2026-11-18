@@ -9,11 +9,6 @@ guard_joinir_logical_demand_contract() {
   local loop_structural_facts_dir="$root_dir/src/mir/loop_structural_facts"
   local direct_accum_recipe_producer="$portable_recipe_dir/direct_accum_producer.rs"
   local variable_accum_recipe_producer="$portable_recipe_dir/variable_accum_recurrence_producer.rs";
-  # The compiler-owned DirectAccum profile is the sole disconnected issuer of
-  # the portable producer. It is not a downstream production consumer; the
-  # guard must distinguish this issuer from an accidental route caller.
-  local direct_accum_issuer="$root_dir/src/mir/compiler/direct_accum_profile.rs"
-  local direct_accum_capability="$root_dir/src/mir/compiler/direct_accum_capability.rs"
   local direct_accum_projection="$root_dir/src/mir/compiler/direct_accum_projection.rs"
   local direct_accum_observation_adapter="$root_dir/src/mir/compiler/direct_accum_observation.rs"
   local nested_observation_source="$root_dir/src/mir/loop_structural_facts/nested_predicate_observation.rs"
@@ -55,7 +50,7 @@ guard_joinir_logical_demand_contract() {
 
   guard_require_files "$tag" "${files[@]}"
   guard_require_files "$tag" \
-    "$direct_accum_issuer" "$direct_accum_capability" "$variable_accum_recipe_producer" \
+    "$variable_accum_recipe_producer" \
     "$direct_accum_projection" "$direct_accum_observation_adapter" \
     "$loop_true_source_projection" "$loop_true_observation_adapter" \
     "$loop_cond_source_projection" "$loop_cond_observation_adapter" "$nested_observation_source" \
@@ -128,17 +123,13 @@ guard_joinir_logical_demand_contract() {
           -v prefix="$portable_recipe_dir/" \
           -v nested_producer="$nested_predicate_producer" \
           -v nested_producer_tests="$nested_predicate_producer_tests" \
-          -v nested_topology="$root_dir/src/mir/compiler/nested_predicate_topology.rs" \
-          -v nested_topology_tests="$root_dir/src/mir/compiler/nested_predicate_topology_tests.rs" \
-          -v nested_physical_input="$root_dir/src/mir/compiler/nested_predicate_physical_input.rs" \
-          -v nested_physical_input_tests="$root_dir/src/mir/compiler/nested_predicate_physical_input_tests.rs" \
           -v dynamic_physical_input="$dynamic_physical_input" \
           -v dynamic_semantic_tests="$dynamic_semantic_tests" \
           -v dynamic_recipe_tests="$dynamic_recipe_tests" \
           -v node_admission="$root_dir/src/mir/compiler/loop_node_physical_admission.rs" \
           -v physicalizer="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs" \
           -v physicalizer_session="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer/session.rs" \
-          'index($0, prefix) != 1 && $0 != nested_producer && $0 != nested_producer_tests && $0 != nested_topology && $0 != nested_topology_tests && $0 != nested_physical_input && $0 != nested_physical_input_tests && $0 != dynamic_physical_input && $0 != dynamic_semantic_tests && $0 != dynamic_recipe_tests && $0 != node_admission && $0 != physicalizer && $0 != physicalizer_session'
+          'index($0, prefix) != 1 && $0 != nested_producer && $0 != nested_producer_tests && $0 != dynamic_physical_input && $0 != dynamic_semantic_tests && $0 != dynamic_recipe_tests && $0 != node_admission && $0 != physicalizer && $0 != physicalizer_session'
   )
   if (( ${#join_sig_external_files[@]} != 0 )); then
     guard_fail "$tag" "caller-zero logical JoinSig symbols escaped the contract subtree"
@@ -232,31 +223,12 @@ guard_joinir_logical_demand_contract() {
   local direct_accum_production_callers=()
   mapfile -t direct_accum_production_callers < <(
     { rg -l 'produce_direct_accum_recipe_v1\(' "$root_dir/src/mir" || true; } \
-      | awk -v producer="$direct_accum_recipe_producer" -v issuer="$direct_accum_issuer" \
+      | awk -v producer="$direct_accum_recipe_producer" \
           -v spine="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
-          '$0 != producer && $0 != issuer && $0 != spine && $0 !~ /_tests\.rs$/'
+          '$0 != producer && $0 != spine && $0 !~ /_tests\.rs$/'
   )
   if (( ${#direct_accum_production_callers[@]} != 0 )); then
     guard_fail "$tag" "Direct Accum Recipe producer acquired a production caller"
-  fi
-  local direct_accum_issuer_calls
-  direct_accum_issuer_calls="$(
-    { rg -o 'produce_direct_accum_recipe_v1\(' "$direct_accum_issuer" || true; } \
-      | wc -l \
-      | tr -d '[:space:]'
-  )"
-  if [[ "$direct_accum_issuer_calls" != "1" ]]; then
-    guard_fail "$tag" "Direct Accum issuer call count drift: count=$direct_accum_issuer_calls expected=1"
-  fi
-  local direct_accum_source_probe_callers=()
-  mapfile -t direct_accum_source_probe_callers < <(
-    { rg -l 'probe_direct_accum_source_unit_v1\(' "$root_dir/src/mir" || true; } \
-      | awk -v capability="$direct_accum_capability" '$0 != capability && $0 !~ /_tests\.rs$/'
-  )
-  if (( ${#direct_accum_source_probe_callers[@]} != 2 )) || \
-     ! printf '%s\n' "${direct_accum_source_probe_callers[@]}" | rg -q -x "$root_dir/src/mir/compiler/capability.rs" || \
-     ! printf '%s\n' "${direct_accum_source_probe_callers[@]}" | rg -q -x "$root_dir/src/mir/compiler/generic_g0_capability.rs"; then
-    guard_fail "$tag" "Direct Accum source-unit probe caller set drifted"
   fi
   local direct_accum_physicalizer_production_callers=()
   mapfile -t direct_accum_physicalizer_production_callers < <(
@@ -264,9 +236,8 @@ guard_joinir_logical_demand_contract() {
       | awk -v physicalizer="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs" \
           '$0 != physicalizer && $0 !~ /_tests\.rs$/'
   )
-  if (( ${#direct_accum_physicalizer_production_callers[@]} != 1 )) || \
-     [[ "${direct_accum_physicalizer_production_callers[0]}" != "$root_dir/src/mir/builder/resolved_lowering/direct_accum_lowerer.rs" ]]; then
-    guard_fail "$tag" "Direct Accum physicalizer caller drifted: expected resolved direct lowerer only"
+  if (( ${#direct_accum_physicalizer_production_callers[@]} != 0 )); then
+    guard_fail "$tag" "Direct Accum physicalizer acquired an external production caller after whole-unit retirement"
   fi
   local external_portable_source_files=()
   mapfile -t external_portable_source_files < <(

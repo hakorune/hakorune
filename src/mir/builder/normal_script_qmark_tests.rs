@@ -7,7 +7,6 @@ use crate::mir::resolved_semantics::{
     SourcePathSegmentV1, SourcePathV1, VerifiedScriptRootDemandEntryV1,
     VerifiedScriptRootDemandWindowV1,
 };
-use crate::mir::{MirCompiler, MirPrinter, NormalCompileRequestV1};
 
 fn integer(value: i64) -> ASTNode {
     ASTNode::Literal {
@@ -78,27 +77,6 @@ fn root_qmark_await_seals_the_exact_operand_and_matches_legacy() {
         receipts[0].2,
         super::ScriptQMarkPropagationTargetV1::CurrentScriptOwner
     ));
-
-    let mut legacy = MirCompiler::with_options(false);
-    let legacy = legacy
-        .compile_with_source(program.clone(), Some("script-root-qmark.hako"))
-        .expect("legacy QMark");
-    let normal = MirCompiler::with_options(false)
-        .compile_normal(
-            NormalCompileRequestV1::for_mir_mode(
-                program,
-                Some("script-root-qmark.hako"),
-                std::collections::HashMap::new(),
-            )
-            .expect("normal request"),
-        )
-        .expect("selected QMark");
-    let printer = MirPrinter::new();
-    let rendered = printer.print_module(&normal.module);
-    assert!(rendered.contains("RuntimeDataBox.isOk"), "{rendered}");
-    assert!(rendered.contains("RuntimeDataBox.getValue"), "{rendered}");
-    assert_eq!(rendered, printer.print_module(&legacy.module));
-    assert_eq!(normal.verification_result, legacy.verification_result);
 }
 
 #[test]
@@ -122,44 +100,4 @@ fn root_qmark_with_an_unsafe_operand_defers_before_child_semantics() {
             .expect("deferred QMark resolution"),
         ResolveScriptOutcomeV1::Deferred(_)
     ));
-}
-
-#[test]
-fn root_qmark_missing_operand_keeps_root_lower_diagnostic_and_fresh_reuse() {
-    let failing = ASTNode::Program {
-        statements: vec![root_qmark(ASTNode::Variable {
-            name: "missing".to_owned(),
-            span: Span::unknown(),
-        })],
-        span: Span::unknown(),
-    };
-    let mut compiler = MirCompiler::with_options(false);
-    let error = compiler
-        .compile_normal(
-            NormalCompileRequestV1::for_mir_mode(
-                failing,
-                Some("script-root-qmark-missing.hako"),
-                std::collections::HashMap::new(),
-            )
-            .expect("normal request"),
-        )
-        .expect_err("missing QMark operand must remain RootLower-owned");
-    assert!(error.contains("Undefined variable: missing"), "{error}");
-
-    compiler
-        .compile_normal(
-            NormalCompileRequestV1::for_mir_mode(
-                ASTNode::Program {
-                    statements: vec![root_qmark(ASTNode::AwaitExpression {
-                        expression: Box::new(integer(42)),
-                        span: Span::unknown(),
-                    })],
-                    span: Span::unknown(),
-                },
-                Some("script-root-qmark-reuse.hako"),
-                std::collections::HashMap::new(),
-            )
-            .expect("fresh normal request"),
-        )
-        .expect("fresh QMark request must not reuse rejected semantic state");
 }

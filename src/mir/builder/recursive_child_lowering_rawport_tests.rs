@@ -12,7 +12,7 @@ use super::raw_invocation_source_transport::{
 use super::recursive_child_lowering::{
     drive_legacy_body_v1, drive_legacy_expression_v1, RawInvocationChildPortV1,
 };
-use crate::ast::{ASTNode, BinaryOperator, CatchClause, CheckItem, FieldDecl, LiteralValue, Span};
+use crate::ast::{ASTNode, BinaryOperator, CheckItem, FieldDecl, LiteralValue, Span};
 use crate::mir::resolved_semantics::{SourceNodeSiteV1, SourcePathSegmentV1};
 use crate::mir::{
     BasicBlockId, BindingId, Effect, EffectMask, FunctionSignature, MirBuilder, MirFunction,
@@ -207,67 +207,6 @@ fn drive_rooted(
     )
 }
 
-fn assert_raw_indirect_unified_contract() {
-    crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "off", || {
-        let mut builder = MirBuilder::new();
-        builder.enter_function_for_test("raw_indirect_unified_off/0".to_string());
-        let before = instructions(&builder);
-        let before_next_value_id = builder
-            .function_state
-            .current_function
-            .as_ref()
-            .expect("current function")
-            .next_value_id;
-        with_port!(builder, port, {
-            let error = builder
-                .build_indirect_call_expression_with_port_v1(
-                    &mut port,
-                    add(int(1), int(2)),
-                    vec![add(int(3), int(4))],
-                )
-                .expect_err("unified-off indirect calls must stop before descent");
-            assert_eq!(
-                error,
-                "[freeze:contract][raw-indirect/unified-disabled-before-descent]"
-            );
-        });
-        assert_eq!(instructions(&builder), before);
-        assert_eq!(
-            builder
-                .function_state
-                .current_function
-                .as_ref()
-                .expect("current function")
-                .next_value_id,
-            before_next_value_id
-        );
-    });
-
-    crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
-        let mut builder = MirBuilder::new();
-        builder.enter_function_for_test("raw_indirect_unified_on/0".to_string());
-        with_port!(builder, port, {
-            let indirect = ASTNode::Call {
-                callee: Box::new(add(int(1), int(2))),
-                arguments: vec![add(int(3), int(4))],
-                span: Span::unknown(),
-            };
-            port.with_source_transport_v1(
-                RawInvocationSourceTransportV1::root(
-                    indirect,
-                    RawInvocationRootLineageV1::ScriptRoot,
-                ),
-                |port, indirect| drive_legacy_expression_v1(builder, port, indirect),
-            )
-            .expect("unified-on indirect call should use the typed path");
-            assert!(instructions(builder).iter().any(|row| matches!(
-                row,
-                MirInstruction::Call(call)
-                    if matches!(call.callee, crate::mir::Callee::Value(_))
-            )));
-        });
-    });
-}
 
 
 #[test]
@@ -337,10 +276,6 @@ fn raw_invocation_port_preserves_async_qmark_check_collection_and_print_children
             },
             ASTNode::AwaitExpression {
                 expression: Box::new(int(3)),
-                span: Span::unknown(),
-            },
-            ASTNode::QMarkPropagate {
-                expression: Box::new(int(4)),
                 span: Span::unknown(),
             },
             check(add(int(5), int(6))),
@@ -433,16 +368,9 @@ fn raw_invocation_port_preserves_assignment_and_compound_children() {
 }
 #[test]
 fn raw_invocation_port_preserves_call_and_from_children() {
-    assert_raw_indirect_unified_contract();
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("raw_port_calls/0".to_string());
     with_port!(builder, port, {
-        let indirect = ASTNode::Call {
-            callee: Box::new(add(int(1), int(2))),
-            arguments: vec![add(int(3), int(4))],
-            span: Span::unknown(),
-        };
-        drive_rooted(builder, &mut port, indirect).unwrap();
         let from = ASTNode::FromCall {
             parent: "Parent".to_string(),
             method: "build".to_string(),
@@ -478,74 +406,7 @@ fn raw_invocation_port_preserves_if_children() {
     });
 }
 
-#[test]
-fn raw_invocation_port_preserves_try_body_children() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_port_trycatch/0".to_string());
-    with_port!(builder, port, {
-        let try_node = ASTNode::TryCatch {
-            try_body: vec![add(int(1), int(2))],
-            catch_clauses: vec![
-                CatchClause {
-                    exception_type: Some("Error".into()),
-                    variable_name: None,
-                    body: vec![add(int(3), int(4))],
-                    span: Span::unknown(),
-                },
-                CatchClause {
-                    exception_type: Some("Ignored".into()),
-                    variable_name: None,
-                    body: vec![add(int(99), int(100))],
-                    span: Span::unknown(),
-                },
-            ],
-            finally_body: Some(vec![add(int(5), int(6))]),
-            span: Span::unknown(),
-        };
-        port.with_source_transport_v1(
-            RawInvocationSourceTransportV1::root(try_node, RawInvocationRootLineageV1::ScriptRoot),
-            |port, try_node| drive_legacy_expression_v1(builder, port, try_node),
-        )
-        .unwrap();
-        assert_eq!(
-            instructions(builder)
-                .iter()
-                .filter(|row| matches!(row, MirInstruction::BinOp { .. }))
-                .count(),
-            3,
-            "try, first catch, and cleanup must each descend once"
-        );
-        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
-    });
-}
 
-#[test]
-fn raw_invocation_port_preserves_match_children() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_port_match/0".to_string());
-    with_port!(builder, port, {
-        let match_node = ASTNode::MatchExpr {
-            scrutinee: Box::new(add(int(1), int(2))),
-            arms: vec![(LiteralValue::Integer(3), add(int(4), int(5)))],
-            else_expr: Box::new(add(int(6), int(7))),
-            span: Span::unknown(),
-        };
-        let output = port
-            .with_source_transport_v1(
-                RawInvocationSourceTransportV1::root(
-                    match_node,
-                    RawInvocationRootLineageV1::ScriptRoot,
-                ),
-                |port, match_node| drive_legacy_expression_v1(builder, port, match_node),
-            )
-            .unwrap();
-        assert!(instructions(builder).iter().any(|row| matches!(
-            row,
-            MirInstruction::Phi { dst, .. } if *dst == output
-        )));
-        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
-    });
-}
 
 #[test]
 fn raw_invocation_port_preserves_new_and_field_record_children() {
@@ -578,24 +439,6 @@ fn raw_invocation_port_preserves_new_and_field_record_children() {
     });
 }
 
-#[test]
-fn raw_invocation_port_preserves_throw_child() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_port_throw/0".to_string());
-    with_port!(builder, port, {
-        drive_rooted(
-            builder,
-            &mut port,
-            ASTNode::Throw {
-                expression: Box::new(add(int(1), int(2))),
-                span: Span::unknown(),
-            },
-        )
-        .unwrap();
-        assert!(builder.is_current_block_terminated());
-        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
-    });
-}
 
 #[test]
 fn raw_invocation_port_descends_nested_program_body_once() {

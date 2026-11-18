@@ -238,10 +238,8 @@ mod tests {
     use crate::mir::compiler::capability::{
         CanonicalFirstFamilyPlanV1, CanonicalLoopFamilyPlanV1, CanonicalLoweringPreflightV1,
     };
-    use crate::mir::compiler::direct_accum_capability::DirectAccumSourceUnitProbeV1;
     use crate::mir::compiler::nested_function_for_p3_test;
-    use crate::mir::compiler::CanonicalLoweringErrorV1;
-    use crate::mir::compiler::{direct_accum_capability, direct_accum_projection};
+    use crate::mir::compiler::direct_accum_projection;
 
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     enum TestLoopObservationModeV1 {
@@ -549,10 +547,6 @@ mod tests {
                 .expect("canonical DirectAccum loop");
             assert_eq!(canonical_loop.site(), resolved.site());
 
-            let probe =
-                direct_accum_capability::probe_direct_accum_source_unit_v1(resolved.source_unit())
-                    .expect("exact DirectAccum envelope must be admitted");
-            assert!(matches!(probe, DirectAccumSourceUnitProbeV1::Candidate(_)));
         });
     }
 
@@ -593,10 +587,6 @@ mod tests {
         receipt.with_views(|raw, resolved| {
             assert_eq!(raw.body().len(), 1);
             assert_eq!(raw.site(), resolved.site());
-            assert!(matches!(
-                direct_accum_capability::probe_direct_accum_source_unit_v1(resolved.source_unit()),
-                Err(CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape { .. })
-            ));
         });
     }
 }

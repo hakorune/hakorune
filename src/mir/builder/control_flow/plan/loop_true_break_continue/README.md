@@ -16,7 +16,6 @@ multiple `if(cond) break/continue` and effect statements.
 - Carrier merge: per-continue carrier values are joined in `step_bb` via `ContinueWithPhiArgs` (no single "next_val" assumption)
 - Not for release default; used only when planner_required is enabled
 - Facts are implemented in `src/mir/builder/control_flow/plan/loop_cond/true_break_continue.rs`
-- Nested-loop condition helpers live in `src/mir/builder/control_flow/plan/loop_cond/true_break_continue_helpers.rs`
 
 ## Fail-fast carrier boundary
 

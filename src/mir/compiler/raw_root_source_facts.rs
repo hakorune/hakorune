@@ -10,7 +10,7 @@ use crate::mir::raw_root_body_recipe::{
     RawRootBodyRecipeErrorV1, RawRootBodyRecipeV1, RawScriptBodyRecipeV1,
 };
 
-use super::raw_root_plan0::{RawPhysicalRootIdentityV1, RawRootKindV1, RawRootPlanV1};
+use super::raw_root_plan0::{RawPhysicalRootIdentityV1};
 
 mod recipe_projection;
 
@@ -262,75 +262,6 @@ impl RawRootSourceFactsV1 {
         }
     }
 
-    pub(in crate::mir) fn from_source(
-        source: &crate::mir::builder::OwnedRawSourceV1,
-        plan: &RawRootPlanV1,
-    ) -> Result<Self, RawRootSourceFactsErrorV1> {
-        let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(source.ast())
-            .map_err(|_| RawRootSourceFactsErrorV1::Catalog)?;
-        let ASTNode::Program { statements, .. } = source.ast() else {
-            return Err(RawRootSourceFactsErrorV1::RootNotProgram);
-        };
-        match plan.kind() {
-            RawRootKindV1::Script(_) => Ok(Self {
-                route: RawRootSourceRouteV1::Script,
-                physical: plan.physical(),
-                main: None,
-                helper_schedule: Box::new([]),
-                callable_catalog: catalog,
-                body: RawRootBodyFactV1::Script(classify_program(statements, &[])?),
-            }),
-            RawRootKindV1::App(app) => {
-                let Some(ASTNode::BoxDeclaration {
-                    name,
-                    methods,
-                    is_static,
-                    ..
-                }) = statements.get(app.main().top_level_statement())
-                else {
-                    return Err(RawRootSourceFactsErrorV1::MainLocatorDrift);
-                };
-                if name != "Main" || !*is_static {
-                    return Err(RawRootSourceFactsErrorV1::MainLocatorDrift);
-                }
-                let Some(ASTNode::FunctionDeclaration {
-                    body,
-                    params,
-                    param_decls,
-                    return_type_name,
-                    uses,
-                    contracts,
-                    attrs,
-                    ..
-                }) = methods.get_declaration(app.main().method_name())
-                else {
-                    return Err(RawRootSourceFactsErrorV1::MainLocatorDrift);
-                };
-                let metadata = RawAppMainMetadataFactsV1 {
-                    parameter_count: params.len(),
-                    parameter_decl_count: param_decls.len(),
-                    return_annotation_present: return_type_name.is_some(),
-                    uses_count: uses.len(),
-                    contract_count: contracts.len(),
-                    rune_count: attrs.runes.len(),
-                };
-                if !metadata.is_empty() {
-                    return Err(RawRootSourceFactsErrorV1::AppMainMetadata { metadata });
-                }
-                Ok(Self {
-                    route: RawRootSourceRouteV1::App,
-                    physical: plan.physical(),
-                    main: Some(app.main().clone()),
-                    helper_schedule: app.static_children().to_vec().into_boxed_slice(),
-                    callable_catalog: catalog,
-                    body: RawRootBodyFactV1::App {
-                        main: app.main().clone(),
-                        body: classify_program(body, &[])?,
-                    },
-                })
-            }
-        }
-    }
 }
 
 impl RawRootPostInstallFactsV1 {
@@ -338,17 +269,8 @@ impl RawRootPostInstallFactsV1 {
         self.route
     }
 
-    pub(in crate::mir) const fn helper_count(&self) -> usize {
-        self.helper_schedule.len()
-    }
 
-    pub(in crate::mir) fn body_statement_count(&self) -> usize {
-        self.body_statement_count
-    }
 
-    pub(in crate::mir) fn callable_count(&self) -> usize {
-        self.callable_count
-    }
 
     pub(in crate::mir) fn into_linear_body_recipe(self) -> RawRootBodyRecipeV1 {
         self.body_recipe
@@ -357,36 +279,10 @@ impl RawRootPostInstallFactsV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum RawRootSourceFactsErrorV1 {
-    RootNotProgram,
-    MainLocatorDrift,
-    Catalog,
     Scalar { path: Box<[usize]> },
-    AppMainMetadata { metadata: RawAppMainMetadataFactsV1 },
 }
 
-/// Source facts already observed while checking the narrow `Main.main/0`
-/// contract.  Keeping them in the rejection avoids a second AST inspection.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir) struct RawAppMainMetadataFactsV1 {
-    parameter_count: usize,
-    parameter_decl_count: usize,
-    return_annotation_present: bool,
-    uses_count: usize,
-    contract_count: usize,
-    rune_count: usize,
-}
 
-impl RawAppMainMetadataFactsV1 {
-
-    const fn is_empty(self) -> bool {
-        self.parameter_count == 0
-            && self.parameter_decl_count == 0
-            && !self.return_annotation_present
-            && self.uses_count == 0
-            && self.contract_count == 0
-            && self.rune_count == 0
-    }
-}
 
 fn classify_program(
     nodes: &[ASTNode],

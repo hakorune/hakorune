@@ -8,18 +8,9 @@
 //! - `context`: generic_case_a 用の共通コンテキスト
 //! - `structural`: ループの構造的性質解析（Phase 48-5.5）
 
-mod builder;
-mod case_a;
-mod case_a_lowering_shape;
 mod context;
 mod shape;
-mod structural;
 
-pub(crate) use case_a::{
-    case_a_minimal_target_name, find_case_a_minimal_target, is_case_a_minimal_target,
-    CaseAMinimalTargetKind,
-};
-pub(crate) use case_a_lowering_shape::CaseALoweringShape;
 pub(crate) use context::CaseAContext;
 pub(crate) use shape::LoopScopeShape;
 

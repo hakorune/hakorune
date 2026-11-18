@@ -61,17 +61,6 @@ fn normal_ingress_rejects_retired_selector_before_builder_effects_and_reuses() {
     });
 }
 
-#[test]
-fn raw_ingress_rejects_malformed_selector_before_source_binding() {
-    with_selectors(None, Some(" 1 "), None, || {
-        let mut compiler = MirCompiler::new();
-        let error = compiler
-            .compile_raw_with_source(empty_program(), Some("operator-invalid.hako"))
-            .expect_err("malformed Builder selector must fail closed");
-        assert!(error.contains("operator-call-ingress-rejected"));
-        assert!(compiler.builder.current_module.is_none());
-    });
-}
 
 #[test]
 fn normal_ingress_rejects_non_unicode_selector_before_candidate_open() {

@@ -69,7 +69,6 @@ pub(crate) mod normal_callable_semantic_package;
 pub(crate) mod raw_finalization_contract;
 pub(crate) mod raw_physical_drain;
 pub(crate) mod raw_root_body_recipe;
-pub(crate) mod raw_vm_reference_contract;
 #[cfg(test)]
 #[path = "shared_loop_source_window_tests.rs"]
 pub(crate) mod shared_loop_source_window;
@@ -109,7 +108,6 @@ pub(crate) fn test_global_target<S: AsRef<str>>(
 }
 pub(crate) use compiler::canonical_source_identity::CanonicalSourceBytesDigestV1;
 pub(crate) use compiler::normal_source_plan;
-pub(crate) use raw_vm_reference_contract::RawPublishedCompileRequestV1;
 pub mod cfg_extractor; // Phase 154: CFG extraction for hako_check
 pub(crate) mod checked_callout; // canonical MIR-owned checked Normal/Fault callout vocabulary
 pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for temporary concat const-suffix micro seed bridge
@@ -169,7 +167,6 @@ pub mod join_ir_ops; // Phase 27.8: JoinIR 命令意味箱（ops box）
 pub mod local_fastpath_fact; // LocalFastPathFact aggregation owner
 pub(crate) mod local_slot_backend_capability; // exact-numeric local-slot backend gate
 pub mod loop_api; // Minimal LoopBuilder facade (adapter-ready)
-pub mod loop_canonicalizer; // Phase 1: Loop skeleton canonicalization (AST preprocessing)
 pub mod loop_form; // ControlForm::LoopShape の薄いエイリアス
 pub(crate) mod loop_recipe_contract; // Builder-free recursive Loop recipe wire
 pub mod loop_route_detection; // Active module surface for loop route-shape detection

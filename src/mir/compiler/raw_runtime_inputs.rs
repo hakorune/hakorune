@@ -15,14 +15,6 @@ pub(in crate::mir) enum RawScriptArgsSnapshotV1 {
     Present(Box<[String]>),
 }
 
-impl RawScriptArgsSnapshotV1 {
-    pub(in crate::mir) fn values(&self) -> Option<&[String]> {
-        match self {
-            Self::Absent => None,
-            Self::Present(values) => Some(values),
-        }
-    }
-}
 
 /// Entry-safepoint policy captured through the existing config/env SSOT.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -31,11 +23,6 @@ pub(in crate::mir) enum RawEntrySafepointV1 {
     Enabled,
 }
 
-impl RawEntrySafepointV1 {
-    pub(in crate::mir) const fn is_enabled(self) -> bool {
-        matches!(self, Self::Enabled)
-    }
-}
 
 /// One immutable ingress snapshot retained by the Raw source continuation.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -80,9 +67,6 @@ impl RawRuntimeInputSnapshotV1 {
         &self.script_args
     }
 
-    pub(in crate::mir) const fn entry_safepoint(&self) -> RawEntrySafepointV1 {
-        self.entry_safepoint
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

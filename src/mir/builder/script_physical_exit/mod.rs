@@ -5,7 +5,6 @@
 //! and commit are added by later cells in this module; Raw lifecycle remains
 //! outside this boundary.
 
-mod direct_static_entry_kernel;
 mod entry_session;
 mod exit;
 mod terminal;

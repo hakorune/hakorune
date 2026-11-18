@@ -34,8 +34,6 @@ pub mod mir_move_contract;
 pub mod mir_outbox_contract;
 #[path = "../mir_parameter_binding_identity.rs"]
 pub mod mir_parameter_binding_identity;
-#[path = "../mir_peek_lower.rs"]
-pub mod mir_peek_lower;
 #[cfg(feature = "vm-reference")]
 #[path = "../mir_pure_e2e_vm.rs"]
 pub mod mir_pure_e2e_vm;

@@ -42,17 +42,7 @@ impl MirPrinter {
         }
     }
 
-    /// Set verbose mode
-    pub fn set_verbose(&mut self, verbose: bool) -> &mut Self {
-        self.verbose = verbose;
-        self
-    }
 
-    /// Set line number display
-    pub fn set_show_line_numbers(&mut self, show: bool) -> &mut Self {
-        self.show_line_numbers = show;
-        self
-    }
 
     /// Show per-instruction effect category (pure/readonly/side)
     pub fn set_show_effects_inline(&mut self, show: bool) -> &mut Self {

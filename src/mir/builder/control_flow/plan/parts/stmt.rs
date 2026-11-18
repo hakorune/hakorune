@@ -21,7 +21,6 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::{Effect, EffectMask, ValueId};
 use std::collections::BTreeMap;
 
-use super::stmt_debug::debug_log_stmt_binop_lit3;
 use super::stmt_shape::{
     stmt_has_loop_stmt_recursive, tail_is_exit, value_has_blockexpr_prelude_loop,
 };
@@ -315,7 +314,7 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
                 value,
                 error_prefix,
             )?;
-            debug_log_stmt_binop_lit3(builder, &effects, "assignment");
+
             let plans = effects_to_plans(effects);
             if let Some((name, value_id)) = binding {
                 publish_defined_binding(builder, branch_bindings, name, value_id);
@@ -395,7 +394,7 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
                 initial_values,
                 error_prefix,
             )?;
-            debug_log_stmt_binop_lit3(builder, &effects, "local");
+
             let mut plans = effects_to_plans(effects);
             for (index, (name, value_id)) in inits.into_iter().enumerate() {
                 let declared_type = declared_type_names
@@ -447,13 +446,13 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
                 args: vec![value_id],
                 effects: EffectMask::PURE.add(Effect::Io),
             });
-            debug_log_stmt_binop_lit3(builder, &effects, "print");
+
             Ok(effects_to_plans(effects))
         }
         ASTNode::Call { .. } => {
             let (_value_id, effects) =
                 PlanNormalizer::lower_value_ast(stmt, builder, branch_bindings)?;
-            debug_log_stmt_binop_lit3(builder, &effects, "call");
+
             Ok(effects_to_plans(effects))
         }
         ASTNode::If {

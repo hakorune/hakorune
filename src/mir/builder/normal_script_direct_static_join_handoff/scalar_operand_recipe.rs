@@ -4,11 +4,8 @@
 //! This module never opens the retained AST and never creates a ValueId,
 //! physical type, or call target.
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 
-use crate::mir::builder::normal_script_direct_static_recipe::ScriptDirectStaticRecipeKeyV1;
-#[cfg(test)]
-use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::resolved_semantics::{
     ResolvedBinaryOperatorV1, ResolvedExpressionSourceInventoryV1, ResolvedLiteralSourceV1,
     ResolvedUnaryOperatorV1, SourceExprSiteV1,
@@ -59,39 +56,7 @@ impl ScalarOperandRecipeNodeV1 {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir) struct ScalarOperandRecipeArgumentV1 {
-    ordinal: u32,
-    site: SourceExprSiteV1,
-    tree: ScalarOperandRecipeNodeV1,
-}
 
-impl ScalarOperandRecipeArgumentV1 {
-    #[cfg(test)]
-    pub(in crate::mir) fn from_parts_for_test(
-        ordinal: u32,
-        site: SourceExprSiteV1,
-        tree: ScalarOperandRecipeNodeV1,
-    ) -> Self {
-        Self {
-            ordinal,
-            site,
-            tree,
-        }
-    }
-
-    pub(in crate::mir) const fn ordinal(&self) -> u32 {
-        self.ordinal
-    }
-
-    pub(in crate::mir) const fn site(&self) -> &SourceExprSiteV1 {
-        &self.site
-    }
-
-    pub(in crate::mir) const fn tree(&self) -> &ScalarOperandRecipeNodeV1 {
-        &self.tree
-    }
-}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum VerifiedScriptDirectStaticScalarOperandRecipeIssueV1 {
@@ -119,68 +84,7 @@ pub(in crate::mir) enum VerifiedScriptDirectStaticScalarOperandRecipeIssueV1 {
     UnsupportedBinary(SourceExprSiteV1),
 }
 
-#[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir) struct VerifiedScriptDirectStaticScalarOperandRecipeV1 {
-    source_owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
-    source_identity: usize,
-    rows: BTreeMap<ScriptDirectStaticRecipeKeyV1, Box<[ScalarOperandRecipeArgumentV1]>>,
-}
 
-impl VerifiedScriptDirectStaticScalarOperandRecipeV1 {
-    #[cfg(test)]
-    pub(in crate::mir) fn from_parts_for_test(
-        source_owner: FunctionOwnerIdV1,
-        source_identity: usize,
-        rows: BTreeMap<ScriptDirectStaticRecipeKeyV1, Box<[ScalarOperandRecipeArgumentV1]>>,
-    ) -> Self {
-        Self {
-            source_owner,
-            source_identity,
-            rows,
-        }
-    }
-
-    #[cfg(test)]
-    pub(in crate::mir) fn with_source_identity_for_test(mut self, source_identity: usize) -> Self {
-        self.source_identity = source_identity;
-        self
-    }
-
-    #[cfg(test)]
-    pub(in crate::mir) fn with_argument_site_for_test(
-        mut self,
-        key: ScriptDirectStaticRecipeKeyV1,
-        site: SourceExprSiteV1,
-    ) -> Self {
-        if let Some(arguments) = self.rows.get_mut(&key) {
-            if let Some(argument) = arguments.first_mut() {
-                argument.site = site;
-            }
-        }
-        self
-    }
-
-    pub(in crate::mir) const fn source_owner(
-        &self,
-    ) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
-        self.source_owner
-    }
-
-    pub(in crate::mir) const fn source_identity(&self) -> usize {
-        self.source_identity
-    }
-
-    pub(in crate::mir) fn row(
-        &self,
-        key: ScriptDirectStaticRecipeKeyV1,
-    ) -> Option<&[ScalarOperandRecipeArgumentV1]> {
-        self.rows.get(&key).map(Box::as_ref)
-    }
-
-    pub(in crate::mir) fn len(&self) -> usize {
-        self.rows.len()
-    }
-}
 
 pub(in crate::mir) fn issue_node(
     inventory: &ResolvedExpressionSourceInventoryV1,

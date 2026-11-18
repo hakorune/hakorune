@@ -11,7 +11,6 @@ use super::{
     array_text_observer_region_contract::ArrayTextObserverExecutorContract, BasicBlockId, ValueId,
 };
 
-mod diagnostic;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ArrayTextObserverKind {

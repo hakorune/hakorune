@@ -114,9 +114,7 @@ mod decls; // declarations lowering split
 mod emit_debug_policy;
 mod entry_materialization; // source-only callable Main materialization facts
 mod enum_match_scopebox;
-mod exprs_call;
 mod exprs_check; // CheckExpr lowering
-mod exprs_enum_match; // narrow direct-MIR enum match lowering for guard-let sugar
 mod fastmem; // fastmem source -> MIR MemOp metadata lowering
 mod fastmem_context; // FastMemory region context helpers
 mod function_lowering_state;
@@ -178,9 +176,7 @@ pub(in crate::mir) use raw_root_physical::root_batch_terminal::{
 pub(in crate::mir) use raw_root_physical::RawRootBodyPhysicalErrorV1;
 pub(in crate::mir) use raw_root_physical::RawRootPhysicalStateV1;
 mod raw_root_child_work; // RAW-SOURCE0-LOWER0-ROOT0-CHILDREN0 source-bound helper work
-pub(in crate::mir) use raw_root_child_work::{
-    RawCallableMainWorkV1, RawRootStaticChildWorkErrorV1,
-};
+pub(in crate::mir) use raw_root_child_work::RawCallableMainWorkV1;
 mod raw_compat_runtime_box_fate;
 mod raw_compatibility_child_terminal;
 mod raw_root_static_child_admission;
@@ -245,17 +241,6 @@ pub(in crate::mir) use module_invocation_brand0::{
 };
 pub(in crate::mir) use module_invocation_owner_chain::InvocationBranded;
 pub(in crate::mir) use module_lowering_shell::ModuleLoweringShellErrorV1;
-#[cfg(test)]
-pub(in crate::mir) use normal_module_transaction::completed_for_main_physical;
-pub(in crate::mir) use normal_module_transaction::{
-    CompletedNormalCallableCandidateV1, CompletedNormalCallableModuleEvidenceV1,
-    CompletedNormalMainModuleCandidateV1, CompletedNormalMainModuleEvidenceV1,
-    NormalCallableCandidateVerificationReceiptV1, NormalCanonicalModuleBatchErrorV1,
-    NormalCanonicalModuleBatchV1, NormalMainCandidateVerificationReceiptV1,
-    NormalMainModuleTransactionErrorV1, RejectedNormalCallableBatchV1,
-    RejectedNormalCallableCommitV1, RejectedNormalCallableMainPhysicalV1,
-    RejectedNormalHelperDraftPrefixV1,
-};
 pub(in crate::mir) use raw_root_physical::drain_terminal::{
     PreparedRawPhysicalDrainV1, RawDrainWitnessV1, RawDrainedPhysicalV1, RawPhysicalDrainErrorV1,
     RejectedRawPhysicalDrainV1,
@@ -313,7 +298,6 @@ pub(in crate::mir) use normal_default_program_root::PreparedNormalDefaultProgram
 pub(in crate::mir) use normal_default_root_catalog_lifecycle::CompletedNormalDefaultRootCatalogLifecycleV1;
 #[cfg(test)]
 pub(in crate::mir) use normal_default_root_catalog_lifecycle::NormalDefaultRootCatalogLifecycleStageV1;
-mod cataloged_box_method_collector_handoff;
 mod module_lowering_invocation;
 mod module_lowering_invocation_access; // HEADERPORT0 WIRING-S0 live bundle
 #[cfg(test)]
@@ -342,7 +326,6 @@ mod raw_root_completion_preflight; // ROOT-RETENTION0-PREFLIGHT borrowed owner c
 mod root_batch_slot; // HEADERPORT0-I0-ROOTBATCH0-S0 identity SSOT
 pub(in crate::mir) use root_batch_slot::raw_main_entry_target;
 mod enum_variant_source_demand;
-mod qmark_source_demand;
 mod raw_expression_recursion_guard;
 mod raw_invocation_body;
 mod raw_invocation_source_item_site;
@@ -394,17 +377,6 @@ pub(crate) fn take_loop_physical_effect_probe() -> usize {
 }
 mod weak_field_write_route;
 
-// Phase 140-P4-A: Re-export skip_whitespace shape detection for loop_canonicalizer
-pub(crate) use control_flow::detect_skip_whitespace_shape;
-// Phase 104: Re-export read_digits(loop(true)) shape detection for loop_canonicalizer
-pub(crate) use control_flow::detect_read_digits_loop_true_shape;
-// Phase 142-P1: Re-export continue shape detection for loop_canonicalizer
-pub(crate) use control_flow::detect_continue_shape;
-// Phase 143-P0: Re-export parse_number / parse_string shape detection for loop_canonicalizer
-pub(crate) use control_flow::detect_parse_number_shape;
-pub(crate) use control_flow::detect_parse_string_shape;
-// Phase 91 P5b: Re-export escape skip shape detection for loop_canonicalizer
-pub(crate) use control_flow::detect_escape_skip_shape;
 
 /// Phase 129: Public (crate) wrapper for StepTree capability guard.
 ///
@@ -427,8 +399,6 @@ pub(crate) fn check_step_tree_capabilities(
     )
 }
 mod condition_materialization;
-mod exprs_peek; // peek expression
-mod exprs_qmark; // ?-propagate
 mod field_facts; // Field/property receiver facts and declared-type helpers
 mod field_receiver_provenance; // Bounded current-receiver Copy/Phi proof; one field-fact consumer
 mod fields; // field access/assignment lowering split

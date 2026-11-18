@@ -172,28 +172,7 @@ pub(in crate::mir) enum CanonicalGenericG0BoundaryErrorV1 {
     ExternalCommit(ExternalCommitPreparationErrorV1),
 }
 
-/// Transport-only stage classification for the resolved cutover bridges.
-/// The payloads stay owned by their existing rejection authorities.
-#[derive(Debug)]
-pub(in crate::mir) enum CanonicalResolvedCutoverStageErrorV1 {
-    Header(ResolvedOwnerHeaderSealErrorV1),
-    SourceBinding(SourceBindingErrorV1),
-    PhysicalOpen(CanonicalPhysicalOpenErrorV1),
-    PhysicalLower(CanonicalPlanLoweringErrorV1),
-    PhysicalCollection(CanonicalPhysicalCollectionErrorV1),
-    PhysicalCompletion(CanonicalPhysicalCompletionErrorV1),
-    PhysicalDrain(CanonicalDrainPrepareErrorV1),
-    FinalizationPrepare(CanonicalFinalizationErrorV1),
-    Finalization(CanonicalFinalizationErrorV1),
-    Postprocess(ModulePostprocessErrorV1),
-    ExternalCommit(ExternalCommitPreparationErrorV1),
-}
 
-#[derive(Debug)]
-pub(in crate::mir) enum CanonicalResolvedCutoverFailureV1 {
-    DirectAccum(CanonicalResolvedCutoverStageErrorV1),
-    NestedPredicate(CanonicalResolvedCutoverStageErrorV1),
-}
 
 /// The outer lowering error is part of the existing public compiler surface;
 /// this stage payload intentionally stays MIR-internal so typed reject owners
@@ -240,7 +219,6 @@ pub enum CanonicalLoweringErrorV1 {
         function_name: String,
     },
     GenericG0(CanonicalGenericG0BoundaryErrorV1),
-    ResolvedCutover(CanonicalResolvedCutoverFailureV1),
     BuilderContract {
         detail: String,
     },
@@ -313,10 +291,6 @@ impl fmt::Display for CanonicalLoweringErrorV1 {
             Self::GenericG0(error) => write!(
                 formatter,
                 "[freeze:contract][canonical_lowering/generic_g0] stage={error:?}"
-            ),
-            Self::ResolvedCutover(error) => write!(
-                formatter,
-                "[freeze:contract][canonical_lowering/resolved_cutover] stage={error:?}"
             ),
             Self::BuilderContract { detail } => write!(
                 formatter,

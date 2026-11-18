@@ -13,9 +13,6 @@ use crate::mir::loop_route_policy::{
 use crate::mir::numeric_substrate::NumericTarget;
 
 use super::capability::{CanonicalGenericG0PlanV1, CanonicalFirstFamilyPlanV1};
-use super::direct_accum_capability::{
-    probe_direct_accum_source_unit_v1, DirectAccumSourceUnitProbeV1,
-};
 use super::function_input::ResolvedFunctionLoweringInputV1;
 use super::generic_g0_projection::handoff::{
     issue_generic_g0_policy_handoff_with_window_v1, GenericG0PolicyHandoffIssueV1,
@@ -26,9 +23,6 @@ use super::generic_g0_source_parent::{
 use super::located::LocatedStmtV1;
 use super::lowering_input::{
     CanonicalGenericG0BoundaryErrorV1, CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1,
-};
-use super::nested_predicate_profile::{
-    probe_nested_predicate_source_unit_v1, NestedPredicateSourceUnitProbeV1,
 };
 
 #[derive(Debug)]
@@ -41,26 +35,16 @@ pub(crate) fn verify_with_generic_g0_mode_v1(
     unit: &VerifiedResolvedSourceUnitV1,
     mode: Option<GenericG0PolicyModeV1>,
 ) -> Result<CanonicalFirstFamilyPlanV1<'_>, CanonicalLoweringErrorV1> {
-    match probe_nested_predicate_source_unit_v1(unit)? {
-        NestedPredicateSourceUnitProbeV1::Candidate(plan) => return Ok(plan),
-        NestedPredicateSourceUnitProbeV1::NotCandidate => {}
-    }
-    match probe_direct_accum_source_unit_v1(unit)? {
-        DirectAccumSourceUnitProbeV1::Candidate(plan) => Ok(plan),
-        DirectAccumSourceUnitProbeV1::NotCandidate(_) => {
-            match probe_generic_g0_source_unit_v1(unit, mode)? {
-                GenericG0SourceUnitProbe::Candidate(plan) => Ok(plan),
-                GenericG0SourceUnitProbe::NotCandidate(function) => {
-                    super::capability::CanonicalLoweringPreflightV1::verify_function(function)
-                }
-            }
+    match probe_generic_g0_source_unit_v1(unit, mode)? {
+        GenericG0SourceUnitProbe::Candidate(plan) => Ok(plan),
+        GenericG0SourceUnitProbe::NotCandidate(function) => {
+            super::capability::CanonicalLoweringPreflightV1::verify_function(function)
         }
     }
 }
 
-/// Probe the exact production G0 source shape after the existing nested and
-/// direct loop probes have declined. A marked shape is never handed back to a
-/// generic fallback: every failure below is a typed canonical rejection.
+/// Probe the production G0 source shape. A marked shape is never handed back
+/// to a generic fallback: every failure below is a typed canonical rejection.
 pub(crate) fn probe_generic_g0_source_unit_v1(
     unit: &VerifiedResolvedSourceUnitV1,
     mode: Option<GenericG0PolicyModeV1>,

@@ -14,10 +14,6 @@ use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
-use super::if_exit_special::{
-    try_lower_else_nested_exit_if_view, try_lower_nested_exit_if_view,
-    try_lower_return_before_continue_view,
-};
 
 /// View-first exit-if lowering (SSOT).
 pub(in crate::mir::builder) fn lower_if_exit_stmt_view(
@@ -64,52 +60,6 @@ pub(in crate::mir::builder) fn lower_if_exit_stmt_with_break_phi_args_view(
     )
 }
 
-/// ASTNode-based wrapper (delegates to view-first SSOT).
-pub(in crate::mir::builder) fn lower_if_exit_stmt(
-    builder: &mut MirBuilder,
-    current_bindings: &BTreeMap<String, crate::mir::ValueId>,
-    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    condition: &ASTNode,
-    then_body: &[ASTNode],
-    else_body: Option<&Vec<ASTNode>>,
-    error_prefix: &str,
-) -> Result<Vec<LoweredRecipe>, String> {
-    let cond_view = CondBlockView::from_expr(condition);
-    lower_if_exit_stmt_view(
-        builder,
-        current_bindings,
-        carrier_step_phis,
-        &cond_view,
-        then_body,
-        else_body,
-        error_prefix,
-    )
-}
-
-/// ASTNode-based wrapper with break PHI args (delegates to view-first SSOT).
-pub(in crate::mir::builder) fn lower_if_exit_stmt_with_break_phi_args(
-    builder: &mut MirBuilder,
-    current_bindings: &BTreeMap<String, crate::mir::ValueId>,
-    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
-    condition: &ASTNode,
-    then_body: &[ASTNode],
-    else_body: Option<&Vec<ASTNode>>,
-    error_prefix: &str,
-) -> Result<Vec<LoweredRecipe>, String> {
-    let cond_view = CondBlockView::from_expr(condition);
-    lower_if_exit_stmt_with_break_phi_args_view(
-        builder,
-        current_bindings,
-        carrier_step_phis,
-        break_phi_dsts,
-        &cond_view,
-        then_body,
-        else_body,
-        error_prefix,
-    )
-}
-
 fn lower_if_exit_stmt_impl_view(
     builder: &mut MirBuilder,
     current_bindings: &BTreeMap<String, crate::mir::ValueId>,
@@ -120,42 +70,6 @@ fn lower_if_exit_stmt_impl_view(
     else_body: Option<&Vec<ASTNode>>,
     error_prefix: &str,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    if let Some(plans) = try_lower_return_before_continue_view(
-        builder,
-        current_bindings,
-        carrier_step_phis,
-        break_phi_dsts,
-        cond_view,
-        then_body,
-        else_body,
-        error_prefix,
-    )? {
-        return Ok(plans);
-    }
-    if let Some(plans) = try_lower_nested_exit_if_view(
-        builder,
-        current_bindings,
-        carrier_step_phis,
-        break_phi_dsts,
-        cond_view,
-        then_body,
-        else_body,
-        error_prefix,
-    )? {
-        return Ok(plans);
-    }
-    if let Some(plans) = try_lower_else_nested_exit_if_view(
-        builder,
-        current_bindings,
-        carrier_step_phis,
-        break_phi_dsts,
-        cond_view,
-        then_body,
-        else_body,
-        error_prefix,
-    )? {
-        return Ok(plans);
-    }
     let (then_prelude, then_exit, then_is_return) = split_exit_branch(then_body, error_prefix)?;
     if then_is_return && !then_prelude.is_empty() && else_body.is_some() {
         return Err(format!(

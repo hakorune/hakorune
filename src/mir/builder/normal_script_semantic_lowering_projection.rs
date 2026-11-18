@@ -282,9 +282,6 @@ impl VerifiedScriptLoweringProjectionV1 {
         self.enum_match_scrutinee_receipts.contains(site)
     }
 
-    pub(super) fn has_qmark_propagation_receipt_at(&self, site: &SourceNodeSiteV1) -> bool {
-        self.qmark_propagation_receipts.contains(site)
-    }
 }
 
 fn freeze(detail: &str) -> String {

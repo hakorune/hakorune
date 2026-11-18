@@ -150,63 +150,6 @@ pub(in crate::mir::builder) fn choose_route_kind(
     // Phase 192: Classify route kind based on features (既存の router 結果)
     let router_choice = loop_route_detection::classify(&features);
 
-    // Phase 137-6-S2: dev-only で Canonicalizer の提案を取得
-    if crate::config::env::joinir_dev_enabled() {
-        use crate::ast::Span;
-        use crate::mir::loop_canonicalizer::canonicalize_loop_expr;
-
-        let loop_ast = ASTNode::Loop {
-            condition: Box::new(condition.clone()),
-            body: body.to_vec(),
-            span: Span::unknown(),
-        };
-
-        if let Ok((_skeleton, decision)) = canonicalize_loop_expr(&loop_ast) {
-            if let Some(canonical_choice) = decision.chosen {
-                // parity check
-                if canonical_choice != router_choice {
-                    let msg = format!(
-                        "[choose_route_kind/PARITY] router={}, canonicalizer={}",
-                        router_choice.semantic_label(),
-                        canonical_choice.semantic_label()
-                    );
-
-                    if crate::config::env::joinir_dev::strict_enabled() {
-                        // strict mode: 不一致は Fail-Fast
-                        panic!("{}", msg);
-                    } else {
-                        // debug mode: ログのみ
-                        trace::trace().dev("choose_route_kind/parity", &msg);
-                    }
-                } else {
-                    // Route kinds match - success!
-                    trace::trace().dev(
-                        "choose_route_kind/parity",
-                        &format!(
-                            "[choose_route_kind/PARITY] OK: canonical and actual agree on {}",
-                            canonical_choice.semantic_label()
-                        ),
-                    );
-                }
-
-                // TODO (Phase 137-6-S3): ここで canonical_choice を返す
-                // 現時点では router_choice を維持（既定挙動不変）
-                //
-                // 有効化条件（将来実装）:
-                // 1. joinir_dev_enabled() && 新フラグ（例: canonicalizer_preferred()）
-                // 2. または joinir_dev_enabled() をそのまま使用
-                //
-                // 注意: 有効化時は全 route kind の parity が green であること
-                //
-                // 有効化後のコード例:
-                // ```rust
-                // if crate::config::env::canonicalizer_preferred() {
-                //     return canonical_choice;
-                // }
-                // ```
-            }
-        }
-    }
 
     router_choice
 }
@@ -433,81 +376,6 @@ impl MirBuilder {
             crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         >,
     ) -> Result<Option<ValueId>, String> {
-        // Phase 137-2/137-4: Dev-only observation via Loop Canonicalizer
-        if crate::config::env::joinir_dev_enabled() {
-            use crate::ast::Span;
-            use crate::mir::loop_canonicalizer::canonicalize_loop_expr;
-
-            // Reconstruct loop AST for canonicalizer
-            let loop_ast = ASTNode::Loop {
-                condition: Box::new(condition.clone()),
-                body: body.to_vec(),
-                span: Span::unknown(),
-            };
-
-            match canonicalize_loop_expr(&loop_ast) {
-                Ok((skeleton, decision)) => {
-                    trace::trace().dev("loop_canonicalizer", &format!("Function: {}", func_name));
-                    trace::trace().dev(
-                        "loop_canonicalizer",
-                        &format!("  Skeleton steps: {}", skeleton.steps.len()),
-                    );
-                    trace::trace().dev(
-                        "loop_canonicalizer",
-                        &format!("  Carriers: {}", skeleton.carriers.len()),
-                    );
-                    trace::trace().dev(
-                        "loop_canonicalizer",
-                        &format!("  Has exits: {}", skeleton.exits.has_any_exit()),
-                    );
-                    trace::trace().dev(
-                        "loop_canonicalizer",
-                        &format!(
-                            "  Decision: {}",
-                            if decision.is_success() {
-                                "SUCCESS"
-                            } else {
-                                "FAIL_FAST"
-                            }
-                        ),
-                    );
-                    if let Some(route_kind) = decision.chosen {
-                        trace::trace().dev(
-                            "loop_canonicalizer",
-                            &format!("  Chosen route kind: {}", route_kind.semantic_label()),
-                        );
-                    }
-                    trace::trace().dev(
-                        "loop_canonicalizer",
-                        &format!("  Missing caps: {:?}", decision.missing_caps),
-                    );
-                    if decision.is_fail_fast() {
-                        trace::trace().dev(
-                            "loop_canonicalizer",
-                            &format!("  Reason: {}", decision.notes.join("; ")),
-                        );
-                    }
-
-                    // Phase 137-4: Router parity verification
-                    if let Some(canonical_route_kind) = decision.chosen {
-                        // Get actual route kind from router (determined by LoopRouteContext).
-                        // We need to defer this check until after ctx is created
-                        // Store decision for later parity check
-                        trace::trace().debug(
-                            "canonicalizer",
-                            &format!(
-                                "Phase 137-4: Canonical route kind chosen: {} (parity check pending)",
-                                canonical_route_kind.semantic_label()
-                            ),
-                        );
-                    }
-                }
-                Err(e) => {
-                    trace::trace().dev("loop_canonicalizer", &format!("Function: {}", func_name));
-                    trace::trace().dev("loop_canonicalizer", &format!("  Error: {}", e));
-                }
-            }
-        }
 
         // Phase 194: Use table-driven router instead of if/else chain
         use super::route_entry::{route_loop, LoopRouteContext};
@@ -551,11 +419,6 @@ impl MirBuilder {
 
         // Phase 137-4: Router parity verification (after ctx is created)
         // Phase 92 P1-0: Skeleton setting removed - patterns retrieve skeleton internally if needed
-        if crate::config::env::joinir_dev_enabled() {
-            let (result, _skeleton_opt) =
-                self.verify_router_parity(condition, body, func_name, &ctx);
-            result?;
-        }
 
         if let Some(result) = route_loop(self, &ctx, site, source_input)? {
             trace::trace().routing("router", func_name, "Loop router succeeded");

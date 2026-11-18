@@ -4,24 +4,16 @@
 //! facts used by the later root/body lane and is moved through CHILDREN0 and
 //! CALLMAIN0 without reconstruction.
 
-use super::raw_root_plan0::RawRootPlanV1;
 use super::raw_root_source_facts::{
-    RawRootPostInstallFactsV1, RawRootSourceFactsErrorV1, RawRootSourceFactsV1,
+    RawRootPostInstallFactsV1, RawRootSourceFactsV1,
     RawRootSourceRouteV1,
 };
 use super::raw_runtime_inputs::RawRuntimeInputSnapshotV1;
 use crate::mir::builder::{
-    BuilderInvocationConfigV1, OwnedRawSourceV1, VerifiedSameModuleCallableDeclarationCatalogV1,
+    VerifiedSameModuleCallableDeclarationCatalogV1,
 };
 use crate::mir::builder::{RawRootEnvironmentInstallRouteV1, RawRootEnvironmentProjectionV1};
 
-#[derive(Debug)]
-pub(in crate::mir) struct RawRootEnvironmentManifestV1 {
-    facts: RawRootPostInstallFactsV1,
-    catalog: VerifiedSameModuleCallableDeclarationCatalogV1,
-    runtime_inputs: RawRuntimeInputSnapshotV1,
-    config: BuilderInvocationConfigV1,
-}
 
 #[derive(Debug)]
 pub(in crate::mir) struct RawRootPhysicalManifestV1 {
@@ -39,70 +31,6 @@ pub(in crate::mir) struct RawRootPostInstallManifestV1 {
     runtime_inputs: RawRuntimeInputSnapshotV1,
 }
 
-impl RawRootEnvironmentManifestV1 {
-    #[cfg(test)]
-    pub(in crate::mir) fn from_test(route: RawRootSourceRouteV1) -> Self {
-        let (facts, catalog) = RawRootSourceFactsV1::empty_for_test(route)
-            .into_post_install_parts()
-            .expect("test body recipe");
-        let current = crate::mir::builder::MirBuilder::new();
-        let config = BuilderInvocationConfigV1::snapshot_for_raw(&current, None);
-        Self {
-            facts,
-            catalog,
-            runtime_inputs: RawRuntimeInputSnapshotV1::capture().expect("test env snapshot"),
-            config,
-        }
-    }
-
-    pub(in crate::mir) fn from_facts(
-        facts: RawRootSourceFactsV1,
-        runtime_inputs: RawRuntimeInputSnapshotV1,
-        config: BuilderInvocationConfigV1,
-    ) -> Result<Self, crate::mir::raw_root_body_recipe::RawRootBodyRecipeErrorV1> {
-        let (facts, catalog) = facts.into_post_install_parts()?;
-        Ok(Self {
-            facts,
-            catalog,
-            runtime_inputs,
-            config,
-        })
-    }
-
-    pub(in crate::mir) fn source_facts(
-        source: &OwnedRawSourceV1,
-        plan: &RawRootPlanV1,
-    ) -> Result<RawRootSourceFactsV1, RawRootSourceFactsErrorV1> {
-        RawRootSourceFactsV1::from_source(source, plan)
-    }
-
-    pub(in crate::mir::compiler) fn into_physical_parts(
-        self,
-    ) -> (RawRootPhysicalManifestV1, BuilderInvocationConfigV1) {
-        let Self {
-            facts,
-            catalog,
-            runtime_inputs,
-            config,
-        } = self;
-        (
-            RawRootPhysicalManifestV1 {
-                facts,
-                catalog,
-                runtime_inputs,
-            },
-            config,
-        )
-    }
-
-    pub(in crate::mir) fn facts(&self) -> &RawRootPostInstallFactsV1 {
-        &self.facts
-    }
-
-    pub(in crate::mir) const fn route(&self) -> super::raw_root_source_facts::RawRootSourceRouteV1 {
-        self.facts.route()
-    }
-}
 
 impl RawRootPhysicalManifestV1 {
     #[cfg(test)]
@@ -140,17 +68,5 @@ impl RawRootPhysicalManifestV1 {
                 runtime_inputs,
             },
         )
-    }
-}
-
-impl RawRootPostInstallManifestV1 {
-
-    pub(in crate::mir) fn into_body_parts(
-        self,
-    ) -> (
-        crate::mir::raw_root_body_recipe::RawRootBodyRecipeV1,
-        RawRuntimeInputSnapshotV1,
-    ) {
-        (self.facts.into_linear_body_recipe(), self.runtime_inputs)
     }
 }

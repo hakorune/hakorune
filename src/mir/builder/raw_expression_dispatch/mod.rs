@@ -39,7 +39,6 @@ use super::ops::{
     lower_prepared_raw_unary_with_port_v1, BinaryExpressionDescentPortV1, PreparedRawUnaryV1,
     RawLegacyBinaryInputV1, RawLegacyShortCircuitInputV1, ShortCircuitExpressionDescentPortV1,
 };
-use super::qmark_source_demand::QMarkPropagationSourceDemandPortV1;
 use super::raw_structured_child_scope::RawStructuredChildScopePortV1;
 use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
 use super::recursive_child_lowering::{
@@ -89,7 +88,7 @@ pub(in crate::mir::builder) trait RawExpressionDispatchPortV1:
     + RawLoopChildEntryPortV1
     + RecordLiteralSourceDemandPortV1
     + EnumVariantSourceDemandPortV1
-    + QMarkPropagationSourceDemandPortV1
+
     + ExplicitExternSourcePortV1
     + BrandConstructorSourcePortV1
     + DirectCallDispositionPortV1
@@ -137,7 +136,7 @@ impl<Port> RawExpressionDispatchPortV1 for Port where
         + RawLoopChildEntryPortV1
         + RecordLiteralSourceDemandPortV1
         + EnumVariantSourceDemandPortV1
-        + QMarkPropagationSourceDemandPortV1
+
         + ExplicitExternSourcePortV1
         + BrandConstructorSourcePortV1
         + DirectCallDispositionPortV1
@@ -275,17 +274,13 @@ impl super::MirBuilder {
 
             node @ ASTNode::FromCall { .. } => {
                 let receipt = port.enum_variant_admission_v1(&node)?;
-                let ASTNode::FromCall { parent, method, arguments, .. } = &node else {
+                let ASTNode::FromCall { parent, method, .. } = &node else {
                     unreachable!("FromCall match arm keeps its AST shape")
                 };
                 if receipt.is_some() {
                     return Err(unsupported_raw_ast_node_error_v1(&node));
                 }
                 if self.comp_ctx.resolve_enum_variant(parent, method).is_some() {
-                    // Retain existing payload/arity/nullish diagnostic precedence.
-                    super::exprs_enum_match::prepare_raw_enum_variant_header_v1(
-                        self, parent, method, arguments,
-                    )?;
                     return Err(unsupported_raw_ast_node_error_v1(&node));
                 }
                 let ASTNode::FromCall {
@@ -351,79 +346,6 @@ impl super::MirBuilder {
                 lower_prepared_raw_explicit_extern_call_with_port_v1(self, port, prepared)
             }
 
-            ASTNode::Call {
-                callee, arguments, ..
-            } => self.build_indirect_call_expression_with_port_v1(port, *callee, arguments),
-
-            node @ ASTNode::QMarkPropagate { .. } => {
-                let receipt_backed = port.has_qmark_propagation_receipt_v1(&node)?;
-                let source = receipt_backed
-                    .then(|| {
-                        port.prepare_expression_child_source_v1(
-                            &node,
-                            ExprChildRoleV1::QMarkOperand,
-                        )
-                    })
-                    .transpose()?;
-                let ASTNode::QMarkPropagate { expression, .. } = node else {
-                    unreachable!("qmark receipt query keeps its AST shape");
-                };
-                if let Some(source) = source {
-                    port.with_prepared_child_source_v1(source, |port| {
-                        self.build_qmark_propagate_expression_with_port_v1(port, *expression)
-                    })
-                } else {
-                    self.build_qmark_propagate_expression_with_port_v1(port, *expression)
-                }
-            }
-
-            node @ ASTNode::MatchExpr { .. } => {
-                use crate::mir::resolved_semantics::ExprChildRoleV1;
-
-                let arm_count = match &node {
-                    ASTNode::MatchExpr { arms, .. } => arms.len(),
-                    _ => unreachable!(),
-                };
-                let mut sources = Vec::with_capacity(arm_count + 2);
-                sources.push(
-                    port.prepare_expression_child_source_v1(
-                        &node,
-                        ExprChildRoleV1::MatchScrutinee,
-                    )?,
-                );
-                for index in 0..arm_count {
-                    sources.push(port.prepare_expression_child_source_v1(
-                        &node,
-                        ExprChildRoleV1::MatchArm(index as u32),
-                    )?);
-                }
-                sources.push(
-                    port.prepare_expression_child_source_v1(&node, ExprChildRoleV1::MatchElse)?,
-                );
-                let ASTNode::MatchExpr {
-                    scrutinee,
-                    arms,
-                    else_expr,
-                    ..
-                } = node
-                else {
-                    unreachable!()
-                };
-                let mut scoped =
-                    super::raw_structured_child_scope::RawStructuredChildScopePortV1::new(
-                        port,
-                        sources,
-                        Vec::new(),
-                    );
-                let value = self.build_peek_expression_with_port_v1(
-                    &mut scoped,
-                    *scrutinee,
-                    arms,
-                    *else_expr,
-                )?;
-                scoped.complete_exact_demands_v1()?;
-                Ok(value)
-            }
 
             ASTNode::Lambda { .. } => Err(
                 "[freeze:contract][LegacyLambdaSurfaceRetired]: legacy fn(...) {...} expressions are retired; explicit-capture fn[captures](...): T remains reserved"

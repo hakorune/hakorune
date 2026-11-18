@@ -54,21 +54,9 @@ impl DynamicFullLoopPhysicalItemPlacementV2 {
         }
     }
 
-    pub(in crate::mir) const fn item(&self) -> LoopItemKeyV1 {
-        self.item
-    }
 
-    pub(in crate::mir) const fn owner_loop(&self) -> LoopNodeKeyV1 {
-        self.owner_loop
-    }
 
-    pub(in crate::mir) const fn block(&self) -> LoopBlockKeyV1 {
-        self.block
-    }
 
-    pub(in crate::mir) const fn kind(&self) -> DynamicFullLoopPhysicalItemKindV2 {
-        self.kind
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -92,25 +80,10 @@ pub(in crate::mir) struct DynamicFullLoopOperationSourceEffectV2 {
 }
 
 impl DynamicFullLoopOperationSourceEffectV2 {
-    pub(in crate::mir) const fn item(&self) -> LoopItemKeyV1 {
-        self.item
-    }
 
-    pub(in crate::mir) const fn owner_loop(&self) -> LoopNodeKeyV1 {
-        self.owner_loop
-    }
 
-    pub(in crate::mir) const fn block(&self) -> LoopBlockKeyV1 {
-        self.block
-    }
 
-    pub(in crate::mir) const fn source_role(&self) -> DynamicFullBodySourceRoleV1 {
-        self.source_role
-    }
 
-    pub(in crate::mir) fn source_site(&self) -> &SourceExprSiteV1 {
-        &self.source_site
-    }
 
     pub(in crate::mir) const fn effect(&self) -> DynamicFullLoopOperationEffectV2 {
         self.effect

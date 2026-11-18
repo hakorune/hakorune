@@ -7,7 +7,6 @@
 pub(crate) mod ast_feature_extractor;
 pub(in crate::mir::builder) mod block_policies;
 pub(in crate::mir::builder) mod canon;
-pub(in crate::mir::builder) mod escape_shape_recognizer;
 pub(in crate::mir::builder) mod expr_bool;
 mod expr_value;
 pub(in crate::mir::builder) mod extractors;

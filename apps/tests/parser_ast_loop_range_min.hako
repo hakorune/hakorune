@@ -1,0 +1,6 @@
+static box Main {
+    main() {
+        loop i in 0..1 { print(i) }
+        return 0
+    }
+}

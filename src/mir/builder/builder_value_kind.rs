@@ -31,17 +31,5 @@ impl MirBuilder {
             .unwrap_or(false)
     }
 
-    /// 型安全なローカル変数判定（ValueIdベース）
-    pub fn is_value_local(&self, id: ValueId) -> bool {
-        self.get_value_kind(id)
-            .map(|kind| kind.is_local())
-            .unwrap_or(false)
-    }
 
-    /// 型安全なLoopCarrier判定（ValueIdベース）
-    pub fn is_value_loop_carrier(&self, id: ValueId) -> bool {
-        self.get_value_kind(id)
-            .map(|kind| kind.is_loop_carrier())
-            .unwrap_or(false)
-    }
 }

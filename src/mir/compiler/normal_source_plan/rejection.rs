@@ -124,17 +124,6 @@ impl RejectedNormalSourcePlanV1 {
         }
     }
 
-    pub(super) fn from_owner(
-        owner: NormalSourcePlanOwnerV1,
-        error: NormalSourcePlanErrorV1,
-    ) -> Self {
-        let stage = error.stage();
-        Self {
-            owner,
-            stage,
-            error,
-        }
-    }
 
     pub(crate) fn stage(&self) -> &NormalSourcePlanStageV1 {
         &self.stage

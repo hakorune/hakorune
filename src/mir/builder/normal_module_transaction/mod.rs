@@ -5,51 +5,12 @@
 //! exposes one consuming opaque publication terminal. Source-entry selection,
 //! VM result decoding, process projection, and runner policy remain outside.
 
-mod callable_batch;
-mod callable_commit;
-mod callable_draft_prefix;
-mod callable_main_physical;
-mod canonical_batch;
 mod entry_target;
-mod main_transaction;
-mod physical_thunk;
 mod rejection;
-mod result_type;
 mod schema;
-mod source_draft;
 
-#[cfg(test)]
-pub(super) use callable_batch::reject_normal_callable_batch_for_test;
-#[cfg(test)]
-pub(in crate::mir) use callable_batch::NormalCallableBatchErrorV1;
-pub(in crate::mir) use callable_batch::RejectedNormalCallableBatchV1;
-#[cfg(test)]
-pub(super) use callable_commit::reject_normal_callable_commit_for_test;
-#[cfg(test)]
-pub(in crate::mir) use callable_commit::NormalCallableCommitErrorV1;
-pub(in crate::mir) use callable_commit::{
-    CompletedNormalCallableCandidateV1, CompletedNormalCallableModuleEvidenceV1,
-    NormalCallableCandidateVerificationReceiptV1, RejectedNormalCallableCommitV1,
-};
-#[cfg(test)]
-pub(in crate::mir) use callable_draft_prefix::completed_for_main_physical;
-pub(in crate::mir) use callable_draft_prefix::RejectedNormalHelperDraftPrefixV1;
-pub(in crate::mir) use callable_main_physical::RejectedNormalCallableMainPhysicalV1;
-#[cfg(test)]
-pub(super) use callable_main_physical::{
-    reject_normal_callable_main_physical_at_stage_for_test, NormalCallableMainPhysicalTestStageV1,
-};
-pub(in crate::mir) use canonical_batch::{
-    NormalCanonicalModuleBatchErrorV1, NormalCanonicalModuleBatchV1,
-};
 pub(in crate::mir) use entry_target::{
     canonical_normal_main_entry_target, CanonicalNormalMainEntryTargetV1,
-};
-#[cfg(test)]
-pub(in crate::mir) use main_transaction::NormalMainModuleTransactionStageV1;
-pub(in crate::mir) use main_transaction::{
-    CompletedNormalMainModuleCandidateV1, CompletedNormalMainModuleEvidenceV1,
-    NormalMainCandidateVerificationReceiptV1, NormalMainModuleTransactionErrorV1,
 };
 pub(in crate::mir::builder) use rejection::NormalModuleTransactionSchemaErrorV1;
 #[cfg(test)]
@@ -61,15 +22,5 @@ pub(in crate::mir::builder) use schema::{
     NormalModuleTransactionSchemaV1,
 };
 
-#[cfg(test)]
-mod callable_batch_tests;
-#[cfg(test)]
-mod callable_commit_tests;
-#[cfg(test)]
-mod callable_main_physical_tests;
-#[cfg(test)]
-mod canonical_batch_tests;
-#[cfg(test)]
-mod main_transaction_tests;
 #[cfg(test)]
 mod tests;

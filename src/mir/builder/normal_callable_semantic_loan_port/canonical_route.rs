@@ -20,7 +20,6 @@ use crate::mir::compiler::callable_single_loop_syntax_facts::{
 use crate::mir::compiler::capability::{
     CanonicalFirstFamilyPlanV1, CanonicalGenericG0PlanV1, CanonicalLoweringPreflightV1,
 };
-use crate::mir::compiler::direct_accum_capability::probe_direct_accum_function_v1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::generic_g0_capability::probe_generic_g0_function_v1;
 use crate::mir::compiler::CanonicalLoweringErrorV1;
@@ -32,7 +31,6 @@ use crate::mir::loop_route_policy::GenericG0PolicyModeV1;
 /// by an existing owner in the parent adapter.
 pub(in crate::mir::builder) enum CanonicalCallableRouteV1<'source> {
     Ready(crate::mir::compiler::capability::CanonicalTrivialBindingSsaPlanV1<'source>),
-    DirectAccum(crate::mir::compiler::direct_accum_profile::CanonicalDirectAccumPlanV1<'source>),
     CallableSingleLoop(PreparedCallableLoopOperationProgramV1<'source>),
     GenericG0(CanonicalGenericG0PlanV1<'source>),
     Outside,
@@ -42,20 +40,6 @@ pub(in crate::mir::builder) fn classify_canonical_callable_route(
     input: ResolvedFunctionLoweringInputV1<'_>,
     mode: Option<GenericG0PolicyModeV1>,
 ) -> Result<CanonicalCallableRouteV1<'_>, String> {
-    if let Some(plan) = probe_direct_accum_function_v1(input).map_err(|error| {
-        format!("[freeze:contract][mir/callable-direct-accum-preflight] {error:?}")
-    })? {
-        if let CanonicalFirstFamilyPlanV1::Loop(
-            crate::mir::compiler::capability::CanonicalLoopFamilyPlanV1::DirectAccum(plan),
-        ) = plan
-        {
-            return Ok(CanonicalCallableRouteV1::DirectAccum(plan));
-        }
-        return Err(
-            "[freeze:contract][mir/callable-direct-accum-preflight] unexpected plan family"
-                .to_owned(),
-        );
-    }
     if let Some(program) = try_prepare_callable_single_loop_program_v1(input)? {
         return Ok(CanonicalCallableRouteV1::CallableSingleLoop(program));
     }

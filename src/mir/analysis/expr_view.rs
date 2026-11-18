@@ -172,16 +172,6 @@ pub fn match_sub_by_const<'expr, 'name>(
     None
 }
 
-/// Match `var_name + step` (commutative if allowed) or `var_name - step` (non-commutative).
-pub fn match_self_update_by_const<'expr, 'name>(
-    expr: &'expr ASTNode,
-    var_name: &'name str,
-    step: i64,
-    allow_commutative_add: bool,
-) -> Option<SelfUpdateByConstView<'name>> {
-    match_add_by_const(expr, var_name, step, allow_commutative_add)
-        .or_else(|| match_sub_by_const(expr, var_name, step))
-}
 
 fn blockexpr_prelude_is_allowed(prelude_stmts: &[ASTNode]) -> bool {
     prelude_stmts.iter().all(|stmt| {
@@ -192,69 +182,7 @@ fn blockexpr_prelude_is_allowed(prelude_stmts: &[ASTNode]) -> bool {
     })
 }
 
-fn collect_self_update_assign_matches<'a>(
-    node: &'a ASTNode,
-    target_var: &'a str,
-    step: i64,
-    allow_commutative_add: bool,
-    out: &mut Vec<SelfUpdateAssignByConstView<'a>>,
-) {
-    if let Some((name, rhs)) = match_assignment_to_var(node) {
-        if name == target_var {
-            if let Some(rhs_view) =
-                match_self_update_by_const(rhs, target_var, step, allow_commutative_add)
-            {
-                out.push(SelfUpdateAssignByConstView {
-                    target_var,
-                    rhs: rhs_view,
-                });
-                return;
-            }
-        }
-    }
 
-    if let Some(block) = match_blockexpr(node) {
-        if !blockexpr_prelude_is_allowed(block.prelude_stmts) {
-            return;
-        }
-        for stmt in block.prelude_stmts {
-            collect_self_update_assign_matches(stmt, target_var, step, allow_commutative_add, out);
-        }
-        collect_self_update_assign_matches(
-            block.tail_expr,
-            target_var,
-            step,
-            allow_commutative_add,
-            out,
-        );
-    }
-}
-
-/// Find exactly one `target_var = target_var ± step` update in `stmts`.
-///
-/// - Supports `BlockExpr` wrappers conservatively (see `blockexpr_prelude_is_allowed`).
-/// - Does not recurse into general control-flow nodes (If/Loop) except for BlockExpr parts.
-pub fn find_single_self_update_assign_by_const<'a>(
-    stmts: &'a [ASTNode],
-    target_var: &'a str,
-    step: i64,
-    allow_commutative_add: bool,
-) -> Option<SelfUpdateAssignByConstView<'a>> {
-    let mut matches: Vec<SelfUpdateAssignByConstView<'a>> = Vec::new();
-    for stmt in stmts {
-        collect_self_update_assign_matches(
-            stmt,
-            target_var,
-            step,
-            allow_commutative_add,
-            &mut matches,
-        );
-        if matches.len() > 1 {
-            return None;
-        }
-    }
-    matches.pop()
-}
 
 fn collect_self_update_assign_matches_any_target<'a>(
     node: &'a ASTNode,

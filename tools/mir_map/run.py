@@ -93,8 +93,8 @@ def main():
                 target.symlink_to(reuse / 'target', target_is_directory=True)
             from aggregate import inputs
             catalog = json.loads((work / 'cli-catalog.json').read_text())
-            for group, total in [('A', 5386), ('B', 1192)]:
-                trace = inputs(work / group, catalog, total)
+            for group in ['A', 'B']:
+                trace = inputs(work / group, catalog)
                 if not trace['full']:
                     write(work / 'M1-trace-limit.json', dict(group=group, missing=trace['missing_profiles'], partial=trace['partial_profiles']))
                     print('M1 has incomplete profiles; unknowns remain explicit', flush=True)

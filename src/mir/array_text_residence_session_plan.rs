@@ -8,7 +8,6 @@
 
 use super::{BasicBlockId, MirFunction, MirModule, ValueId};
 
-mod derive;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ArrayTextResidenceSessionScope {
@@ -333,27 +332,6 @@ impl ArrayTextResidenceExecutorContract {
         self.region_mapping.as_ref()
     }
 
-    fn loopcarry_len_store_single_region(
-        region_mapping: ArrayTextResidenceLoopRegionMapping,
-    ) -> Self {
-        Self {
-            execution_mode: ArrayTextResidenceExecutorExecutionMode::SingleRegionExecutor,
-            proof_region: ArrayTextResidenceSessionScope::LoopBackedgeSingleBody,
-            publication_boundary: "none",
-            carrier: ArrayTextResidenceExecutorCarrier::ArrayLaneTextCell,
-            effects: vec![
-                ArrayTextResidenceExecutorEffect::StoreCell,
-                ArrayTextResidenceExecutorEffect::LengthOnlyResultCarry,
-            ],
-            consumer_capabilities: vec![
-                ArrayTextResidenceExecutorConsumerCapability::SinkStore,
-                ArrayTextResidenceExecutorConsumerCapability::LengthOnly,
-            ],
-            materialization_policy:
-                ArrayTextResidenceExecutorMaterializationPolicy::TextResidentOrStringlikeSlot,
-            region_mapping: Some(region_mapping),
-        }
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -479,11 +457,5 @@ pub fn refresh_module_array_text_residence_session_routes(module: &mut MirModule
 }
 
 pub fn refresh_function_array_text_residence_session_routes(function: &mut MirFunction) {
-    let routes = function
-        .metadata
-        .array_text_loopcarry_len_store_routes
-        .iter()
-        .filter_map(|route| derive::derive_loopcarry_session(function, route))
-        .collect();
-    function.metadata.array_text_residence_sessions = routes;
+    function.metadata.array_text_residence_sessions.clear();
 }

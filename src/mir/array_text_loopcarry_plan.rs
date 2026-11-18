@@ -104,9 +104,6 @@ impl ArrayTextLoopCarryLenStoreRoute {
         self.proof.as_str()
     }
 
-    pub fn covered_instruction_indices(&self) -> impl Iterator<Item = usize> + '_ {
-        std::iter::once(self.instruction_index).chain(self.skip_instruction_indices.iter().copied())
-    }
 }
 
 fn root(function: &MirFunction, def_map: &ValueDefMap, value: ValueId) -> ValueId {

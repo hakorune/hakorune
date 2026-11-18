@@ -3,7 +3,6 @@
 // This file contains only Cargo/module topology. Semantic authorities and
 // compiler entry points remain in the sibling modules and in `mod.rs`.
 
-pub(in crate::mir) mod acyclic_callable_graph;
 pub(in crate::mir) mod callable_graph_inventory;
 #[cfg(test)]
 pub(crate) mod callable_loop_physical_canary;
@@ -28,10 +27,7 @@ pub(in crate::mir) mod canonical_physical_completion;
 pub(crate) mod canonical_source_identity;
 pub(in crate::mir) mod capability;
 pub(in crate::mir) mod common_v2_physical_function_entry_input;
-pub(in crate::mir) mod direct_accum_capability;
 pub(crate) mod direct_accum_observation;
-pub(in crate::mir) mod direct_accum_prefix;
-pub(in crate::mir) mod direct_accum_profile;
 pub(in crate::mir) mod direct_accum_projection;
 pub(in crate::mir) mod dynamic_full_body_recipe;
 pub(in crate::mir) mod dynamic_full_body_source;
@@ -100,13 +96,11 @@ pub(in crate::mir) mod module_postprocess_stages;
 mod module_session;
 pub(in crate::mir) mod nested_predicate_effect_plan;
 pub(crate) mod nested_predicate_observation;
-pub(in crate::mir) mod nested_predicate_physical_input;
 pub(in crate::mir) mod nested_predicate_producer;
 #[cfg(test)]
 mod nested_predicate_producer_tests;
 pub(in crate::mir) mod nested_predicate_projection;
 pub(in crate::mir) mod nested_predicate_source_handoff;
-pub(in crate::mir) mod nested_predicate_topology;
 pub(in crate::mir) mod pinned_text_backend_frame;
 pub(in crate::mir) mod pinned_text_residence_backend_carrier;
 pub(crate) mod pinned_text_residence_backend_projection;
@@ -131,46 +125,19 @@ pub(crate) use loop_cond_break_continue_projection_tests::positive_function as l
 #[cfg(test)]
 mod nested_predicate_effect_plan_tests;
 #[cfg(test)]
-mod nested_predicate_physical_input_tests;
-pub(in crate::mir) mod nested_predicate_profile;
-#[cfg(test)]
-mod nested_predicate_profile_tests;
-#[cfg(test)]
 mod nested_predicate_projection_tests;
-#[cfg(test)]
-mod nested_predicate_topology_tests;
 mod normal_default_pipeline;
 pub(crate) mod normal_source_plan;
 pub(in crate::mir) mod publication_kernel;
-pub(in crate::mir) mod raw_public_ingress;
-pub(in crate::mir) mod raw_published_compile;
-pub(in crate::mir) mod raw_root_callable_main;
-pub(in crate::mir) mod raw_root_children;
-pub(in crate::mir) mod raw_root_decl_access;
-pub(in crate::mir) mod raw_root_drain;
-pub(in crate::mir) mod raw_root_eligibility;
-pub(in crate::mir) mod raw_root_eligibility_classifier;
-pub(in crate::mir) mod raw_root_eligibility_prepare;
-pub(in crate::mir) mod raw_root_external_commit;
-pub(in crate::mir) mod raw_root_finalization;
-pub(in crate::mir) mod raw_root_helper_coverage;
-pub(in crate::mir) mod raw_root_package;
-pub(in crate::mir) mod raw_root_postprocess;
-pub(in crate::mir) mod raw_root_publication;
-pub(in crate::mir) mod raw_root_publication_adapter;
 pub(in crate::mir) mod raw_runtime_inputs;
-pub(in crate::mir) mod raw_source_binding;
 pub(in crate::mir) mod recursive_callable_module_plan;
 pub(in crate::mir) mod resolved_callable_module;
 mod resolved_callable_module_input;
-mod resolved_direct_accum_cutover;
 mod resolved_generic_g0_cutover;
-mod resolved_nested_predicate_cutover;
 pub(in crate::mir) mod selected_dynamic_w6_activation;
 pub(in crate::mir) mod source_bound_package;
 pub(in crate::mir) mod source_bound_package_generic_g0;
 pub(in crate::mir) mod source_bound_plan;
-pub(in crate::mir) mod source_entry_selection;
 pub(in crate::mir) mod source_projection;
 pub(in crate::mir) mod source_view;
 pub(crate) mod target_capability;

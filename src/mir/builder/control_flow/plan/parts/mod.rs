@@ -28,8 +28,6 @@ pub(super) mod exit_branch;
 pub(super) mod exit_kind_depth_view;
 pub(super) mod if_;
 pub(super) mod if_exit;
-mod if_exit_special;
-pub(super) mod if_general;
 pub(super) mod join_scope;
 mod loop_;
 
@@ -43,7 +41,6 @@ pub(crate) fn take_loop_physical_effect_probe() -> usize {
     loop_::test_probe::take()
 }
 pub(super) mod stmt;
-mod stmt_debug;
 mod stmt_shape;
 pub(in crate::mir::builder::control_flow::plan) mod var_map_scope;
 pub(super) mod verify;

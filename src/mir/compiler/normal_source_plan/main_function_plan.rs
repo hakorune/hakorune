@@ -63,9 +63,6 @@ pub(super) fn verify_normal_main0_input_v1<'source>(
 }
 
 impl<'unit> VerifiedNormalMainFunctionPlanV1<'unit> {
-    pub(crate) const fn source_unit(&self) -> &'unit VerifiedNormalMainResolvedSourceUnitV1 {
-        self.unit
-    }
 
     pub(crate) fn completion(&self) -> &VerifiedFunctionCompletionV1 {
         self.lowering.completion()
@@ -110,9 +107,6 @@ impl RejectedNormalMainFunctionPlanV1<'_> {
         drop(self);
     }
 
-    pub(in crate::mir) fn into_error(self) -> NormalMainFunctionPlanErrorV1 {
-        self.error
-    }
 
     #[cfg(test)]
     fn owner_for_test(&self) -> &VerifiedNormalMainResolvedSourceUnitV1 {
