@@ -1,4 +1,0 @@
-box Tag { name: String?
-  birth(n) { me.name = n }
-  size(): i64 { return 5 } }
-static box Main { main() { local t = new Tag("abc")  return t.size() } }

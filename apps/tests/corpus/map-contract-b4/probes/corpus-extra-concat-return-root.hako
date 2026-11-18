@@ -1,5 +1,0 @@
-static box Main {
-main() {
-return ("あ" + "い").length()
-}
-}

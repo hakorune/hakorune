@@ -1,6 +1,0 @@
-static box Main {
-make() { return "あい" }
-main() {
-return Main.make().length()
-}
-}

@@ -4458,14 +4458,6 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/audit-birth-take/d1.hako",
-      "sha256": "e342df3e2693e83307ea750524f3f423b69bffd84133e29ba2f68a05a278b4ef",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/audit-birth-take/d2.hako",
       "sha256": "bc84a409a8419e4e1f39180a177de8bde7c344825f0911386ab70d7323b1dc23",
       "groups": [
@@ -4492,14 +4484,6 @@
     {
       "path": "apps/tests/corpus/audit-birth-take/d5.hako",
       "sha256": "ae4fda0412a9eced505bd61f7dcffed802324a31b4c9973b4c52c654d3a101cd",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/audit-birth-take/d6.hako",
-      "sha256": "bb710e83e36be6ef5fce7e150eb05adadb42d480dc14e1126e5e3befcd151bf2",
       "groups": [
         "A"
       ],
@@ -4658,22 +4642,6 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/audit-birth-take/fix/d9.hako",
-      "sha256": "e21d665b17cda803fad0f0c015641b1995431034aa57e31a6dee1a4abef4ba5f",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/audit-birth-take/fix/m3.hako",
-      "sha256": "ca825b42ea4295fabdffeaba507667f8c0db63bdecc7fe934398ef059e16bace",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/audit-birth-take/fix/p1.hako",
       "sha256": "f2a03d85b217329952b4876f3907b9ef0cfd42d35bb0c9b8f6e91cc199fa7a05",
       "groups": [
@@ -4732,22 +4700,6 @@
     {
       "path": "apps/tests/corpus/audit-birth-take/fix/p8.hako",
       "sha256": "8eb043decab5bb0061a7f8b4f48dde506da2e058ba5130e5061d3f3a3dcb1540",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/audit-birth-take/fix/s2.hako",
-      "sha256": "4f3d058be5dd71d117b3d6e5747e329e153b3c6c6bcf4100bddea98577a606e9",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/audit-birth-take/fix/v3.hako",
-      "sha256": "3f6a0a7c901d81779db076be9cc7b5f7e78b9a8685cd02bbe89c6533b26e9d52",
       "groups": [
         "A"
       ],
@@ -5466,14 +5418,6 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/audit-birth-take/x/h2.hako",
-      "sha256": "f6ba59ae8b98e792f3af9423316618d6220ece12a7b2d24817470d5142dfe4c3",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/audit-birth-take/x/m1.hako",
       "sha256": "41b31daf93a4a94805f0bc4877b8d9152a32ba8141ee0c93a2ad6e8e0aeb6503",
       "groups": [
@@ -5548,30 +5492,6 @@
     {
       "path": "apps/tests/corpus/audit-birth-take/x/m9.hako",
       "sha256": "6debc27167b9e84357da6105555ba2a68291631bac52db1504714ef60b0623ae",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/audit-birth-take/x/t1.hako",
-      "sha256": "b97676927184e1e801562061370a50e73699e811af2d9f93404460972dca95f4",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/audit-birth-take/x/t2.hako",
-      "sha256": "28136604a015217d8772bc4e1ce251064eb5f007a203a54e368c55f3c429e87b",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/audit-birth-take/x/t3.hako",
-      "sha256": "7c8d898e93b8462075ff21c1ceec004a5fc9f2c26614455c5c5c6e98f61df125",
       "groups": [
         "A"
       ],
@@ -8802,22 +8722,6 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/basic-expr-2-take/take-probes/k6.hako",
-      "sha256": "e4f3c6f055031e73887cb58b70cfc1306a6f2d7290c810ab34f2045a1f9b27ea",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/basic-expr-2-take/take-probes/k7.hako",
-      "sha256": "61b7e58a4f10d75625bfdd6b9637de9d81b91bccf6d6da9667bb8af9360f0a38",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/basic-expr-2-take/take-probes/local-after-take.hako",
       "sha256": "a51853bc018276f2c0c3866cffb7d7b9229130d07773131ce59e49a0dfce183c",
       "groups": [
@@ -9202,14 +9106,6 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/basic-expr-2-unify/regress/p07.hako",
-      "sha256": "08a3950076c6aca9702e3e9712211baed40daf474564c6e4331a93779692eef9",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/basic-expr-2-unify/regress/self-rebind.hako",
       "sha256": "296a4bb12b4208194cd3c76d516df98781823b4707eee19e975f29202d422941",
       "groups": [
@@ -9298,22 +9194,6 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/basic-expr-2-unify/regress/stress-if-18.hako",
-      "sha256": "9d3621951c337150a1d29adc1adfcd8c64106b3687c93c7aa33cb24221cd98b5",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/basic-expr-2-unify/regress/stress-if-60.hako",
-      "sha256": "f18c9c00a9d210ab1b38554fbbc514d969561da062cab86b0d7592e0bdb568b5",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/basic-expr-2-unify/regress/terminal-arm.hako",
       "sha256": "67c4b42093b1c90db1616597dee8a9dc0de010659095dad34f2f118e5ed51511",
       "groups": [
@@ -9324,22 +9204,6 @@
     {
       "path": "apps/tests/corpus/basic-expr-2-unify/regress/terminal-then.hako",
       "sha256": "46a073d1515fea40d714450d90db45b40d897d4497d59825c109e90049370f79",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/basic-expr-2-unify/regress/v2.hako",
-      "sha256": "10118b28dee9b395bceb84892ce4b7fa6560cf7c5d01089c85c7453f6550ef1e",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/basic-expr-2-unify/regress/v6.hako",
-      "sha256": "c3a6f939b87f3cfcf4aae4d716efa068037ad5605f6b936eb2e30877f78c7982",
       "groups": [
         "A"
       ],
@@ -9396,14 +9260,6 @@
     {
       "path": "apps/tests/corpus/basic-expr-2/targets/e07.hako",
       "sha256": "6c085773c4031901e1470def9baec90ea88ba2056f93549a3b6651242fe26ab2",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/basic-expr-2/targets/e08.hako",
-      "sha256": "bff9a7a71fc774e159d1356fb4a18d1cf72716350cff8d5110c7698d498ae6ea",
       "groups": [
         "A"
       ],
@@ -12402,134 +12258,6 @@
       "coverage_exe": false
     },
     {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/alias-direct-null-0.hako",
-      "sha256": "2d823d73a5eb450c1b565197973aae204dd6fdaff4158566dac11dbaa4523046",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/alias-direct-null-1.hako",
-      "sha256": "7a03d85ab6e982260d2d3d80d2dae95f67e9c61162ca318fbf4966c914cc0dee",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/alias-direct-null-2.hako",
-      "sha256": "7e6aa79924ed604d966b91cb1544dcca04550c2389e84bbfd09ebc029a5ae945",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/alias-direct-null-3.hako",
-      "sha256": "1c28d5c39c54a42e0a713b59ea0a17b1feb23ddb4dcfaddb6aadc91a238a4158",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/alias-direct-null-dead-copy.hako",
-      "sha256": "67391103bca90c5be24682f769c72848e9c73570d0c80029b14640055e784dcf",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/alias-direct-null-overwritten.hako",
-      "sha256": "f422100f132ef07d4fd94fb78a44d5aa9dde40609f7504fcfe8f8f0d6d1d9f9b",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/alias-direct-null-unreachable-use.hako",
-      "sha256": "9c66744747fad7ec113ea6f889565dbf07d76ccf3693f859e4949621492270c1",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/alias-direct-null-used-0.hako",
-      "sha256": "c72ebd58879640ddc32804fe884f54f4dab929d5b7883221feab3b915c4f998e",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/alias-direct-null-used-1.hako",
-      "sha256": "36c48c0b4ad43c097239a52ac793af6744adbb8f6000a904101813f6f3d24cb0",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/alias-direct-null-used-2.hako",
-      "sha256": "19726357a59c78cd1b2305ac48a5f8fce0a88c8c0a235eab67bab0246cd1fe34",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/alias-direct-null-used-3.hako",
-      "sha256": "114aa3c8aa8fbd1daa5b9f16abb2bb27bd0f8d7966a098fbe33c02d458862236",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/alias-null-local-0.hako",
-      "sha256": "8234c83d2966044ea717bb2a9a5381f85da0d16c6d4acb98c23e5ebe52b0987e",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/alias-null-local-1.hako",
-      "sha256": "f2d61ba1e298a0db882cb606c6d0c5530137c82054538bcdf3fb9adb2becf314",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/alias-null-local-2.hako",
-      "sha256": "1002878ddddb907efaea2f2a3d334141961ec4652378eeb17704525100acb387",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/alias-null-local-3.hako",
-      "sha256": "de08c53ca7105b70cb3483f498a6a6a075e609d9684af2dbd8c96fc16125546f",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/alias-null-local-used.hako",
-      "sha256": "b4d019de93241ed9a021a99add346dfd7f37fc97c6253aafeb029066a9b7a5cd",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/compare-normalize-fix/probes/alias-overwrite-before.hako",
       "sha256": "6cfaf4272add17aed428cd91dc0b698b4185d2c9d8abc2caeab097e33c377d28",
       "groups": [
@@ -12556,510 +12284,6 @@
     {
       "path": "apps/tests/corpus/compare-normalize-fix/probes/alias-shadow-after.hako",
       "sha256": "0775be4a9015050481594a85e4146ec55aae975ce2812c37be695b2ccc1f0739",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/and-reach.hako",
-      "sha256": "b0685a36edcaaae16cd29e2bf067af0e86c42ec2442d27b306b47c500b6280e8",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/and-skip.hako",
-      "sha256": "baaa333eab0f02ad5636bc6b3146cd822b28ae28f67a4c859cea5749cc4608ff",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/bool-eq-false-true.hako",
-      "sha256": "84d641b7671180d931a2c0ece5dc5fd65b4a5293c4511581036e3161958e5528",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/bool-eq-true-false.hako",
-      "sha256": "c49fdff297b27044f74fa0e8a456f89ca46e392138486a9b5def0f1a2278aa03",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/bool-ge-false-true.hako",
-      "sha256": "7744ea98e264a7684ef2fb07592ab1dbf75157aa9b9819a1cb2ba2dde99ec3d5",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/bool-ge-true-false.hako",
-      "sha256": "3a7f6fde037c0159cbab27bbe397e41c926f7785d9f6318fea896b235e8b26e1",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/bool-lt-false-true.hako",
-      "sha256": "f8ec92de26c2101267de877f33462a56192c125dfc9c6141c7f0d15ffce396f6",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/bool-lt-true-false.hako",
-      "sha256": "4d42593c3dfc3679ba5523e0e2d7850478ddc7ddbd11e6c6e4070aac04210dd2",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/bool-ne-false-true.hako",
-      "sha256": "8015dda8296e112af734526d378233a21c9674f30ecba5cd8b1e9c92e174a378",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/bool-ne-true-false.hako",
-      "sha256": "116f71b8349b9442549f54067a4c5ddcfd0678fb52384121b17ec28100bc92cf",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/borrowed-null-eq-False.hako",
-      "sha256": "9d63c0ccf8f08d232b5be7b473b4f9792a20473709bde8766ca7a85ea78d70eb",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/borrowed-null-eq-True.hako",
-      "sha256": "b831c9e64402651f6a27fd5b4aac8220f4364867f96ba595a65f58bf73ce04b7",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/borrowed-null-ne-False.hako",
-      "sha256": "aa111cfa2b9ae84b8d5a87436baae419898c7a0fe3a6f341746ad3f5f2f257f3",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/borrowed-null-ne-True.hako",
-      "sha256": "7f89fb1f88abc00c87f158d6ab774270785afb5c38dac3d8f433ccf1bd14e40e",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-bool-eq-False.hako",
-      "sha256": "05cc181906ce8a4b62d48880ce9c1b7693c9ac06ef7ab7c2140f2909847dbb03",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-bool-eq-True.hako",
-      "sha256": "f7a359797ae8913e6221652703a33882c39d414b27442b4f99f5af8cd1778bfa",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-bool-ge-False.hako",
-      "sha256": "c4b73c6e98b2b1557a6d7713739404542278a02f1faf9d5ddb02c6879c87ce49",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-bool-ge-True.hako",
-      "sha256": "1544865a7aeb77f98a55fc07915478961aa248e05fee30bc0c1aedb69043b225",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-bool-lt-False.hako",
-      "sha256": "1208dd08b3f400170256c1b9175044249c746784d64776592cf2df67e97d47ef",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-bool-lt-True.hako",
-      "sha256": "4f8b8c2e7d5ba44293a73074838dbee928154a6f5a952f01cf670eec32a2eb60",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-bool-ne-False.hako",
-      "sha256": "4fa9c4f581013e150b302c00f6fdd0f932fd741d2fa938e89372fd12525bbac9",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-bool-ne-True.hako",
-      "sha256": "4ea7057124dfcfad2cfdbb5384daa88a9311970fc511fb775af334ec530b8a29",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-i64-eq-3-7.hako",
-      "sha256": "5e1e984a4139397509414b43138c2e4530d05d6df3495dbdee0b9d2b3a92e30e",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-i64-eq-7-3.hako",
-      "sha256": "78b3aa03b7164b656746f90ca36f61bc6128d27ba7a256db2b331ef51f923f12",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-i64-eq-7-7.hako",
-      "sha256": "d2e65fef617ce872703e8c39aa06e070b9cb6798692462b48ced465cb03a264e",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-i64-ge-3-7.hako",
-      "sha256": "af13371586ea25d9f571116ff270670f0dd2a70265d910867b9ce64c37f56312",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-i64-ge-7-3.hako",
-      "sha256": "c22a6fed52f3627a7a7028d2cdfabbe8b2c9139af0700c61657f73e238d6e650",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-i64-ge-7-7.hako",
-      "sha256": "1fb6a6c6b217992f056bbd157d17905ae0dbd33bc57e6099f389a23e1a9aa99d",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-i64-gt-3-7.hako",
-      "sha256": "328d6f7f2cb0a58e0ee534fc74c509da0a6d08fd0c64de91ac0517a361b9bd7f",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-i64-gt-7-3.hako",
-      "sha256": "6d425b1088a230ef7e26be612ec1af0af949bbdcec8c8252482489caca61703d",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-i64-gt-7-7.hako",
-      "sha256": "3dff56651cd0d42b9d19d305f471dce392173d05fbfff08c5f5d4d05afe0c9ae",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-i64-le-3-7.hako",
-      "sha256": "829221c95040fcf6e0a40b3c8b456ef3614060453a3a7abd495535f6921be811",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-i64-le-7-3.hako",
-      "sha256": "271b0d08518e02f0a5e25ee93fe922943897cc699ad94168267f029ed07ee00a",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-i64-le-7-7.hako",
-      "sha256": "17880f6f43efa8834ce4aed74175354dff12f2b89f1e5198144f854c78763165",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-i64-lt-3-7.hako",
-      "sha256": "e74db90ebeff67007096d40855d9eb1ef3084435aa31205b08023e42293001eb",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-i64-lt-7-3.hako",
-      "sha256": "710787578567d086b023b1b138171d4241c38588c071a202bbb2fb90f86bdd13",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-i64-lt-7-7.hako",
-      "sha256": "0c827706457baa55e6296b1bcfe34f20cfeee97005af817e9d0ec33ed5019b7a",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-i64-ne-3-7.hako",
-      "sha256": "1ee0b3ed67170b2118481a444875014f87810a8a97c8d5bf0b839c1913bcc5fe",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-i64-ne-7-3.hako",
-      "sha256": "9c786010982b4f86580d99bdf7239846f5482e3a4c6709d942600d011a235b7c",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/boxed-i64-ne-7-7.hako",
-      "sha256": "f0cf84ab8dafa8d0d7d5097fe170ff1981cfb61d08137cd5e0c4f7a96c44006c",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/copy-phi.hako",
-      "sha256": "823403583774101d966c7da7b5a9235fbf348719a308da06310a0c1f0038fbd1",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/existing-nullable-field-eq-False.hako",
-      "sha256": "1df1f21deaffd7296f80fd10f9e848385c81647afe7a17d704d4f392422b0522",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/existing-nullable-field-eq-True.hako",
-      "sha256": "32b5b65655b633e8c5f3d76d1cf0e45370d98766c02a8d209dc339a2efc99eca",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/existing-nullable-field-ne-False.hako",
-      "sha256": "755ac1adb9e7eb44bbd370e350ab5c34ef72adcb0b5952d3bcec069d714948f7",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/existing-nullable-field-ne-True.hako",
-      "sha256": "1e27ec21982759f004f485d8099cae36eac51da100be5d295f35a92ee460b03d",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/i64-eq-3-7.hako",
-      "sha256": "1adc4be47e20c0c98e9e758d5cbf84939637afc51fb7822e5eea9673da75478d",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/i64-eq-7-3.hako",
-      "sha256": "90c10938d5ff4047a502f5a9019c32a44286a59bb10140bc96c4f92a616323c3",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/i64-eq-7-7.hako",
-      "sha256": "fd97833dfe684af5c1f337d91badb09f791ec06056649f1f670f7d0bd0e4602d",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/i64-ge-3-7.hako",
-      "sha256": "e5f466a26d36818959d5ccae3e2aadefa25441330c04e496af517362dcf50eb1",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/i64-ge-7-3.hako",
-      "sha256": "e784ff8b29a9cebf7cd2958fb97e0e3cea41e247363568670895f4ab1ddd2cfe",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/i64-ge-7-7.hako",
-      "sha256": "c439c9258b597233aedfd6ba29f9f02523c01f57fabe055e5437fdd530938434",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/i64-gt-3-7.hako",
-      "sha256": "6c647021ac01f29e9aa917f08a74f871b08cd3c9a490bbea59871318eef6fafb",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/i64-gt-7-3.hako",
-      "sha256": "21d323ef77fcbcfa3ea745f2a9796eb003a3f9a421719e4fef3e7ee8ca19aa85",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/i64-gt-7-7.hako",
-      "sha256": "bcc871c625209811dcc6e56581c6364439b6d463a695aaab0ca1e3d61d6ca26b",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/i64-le-3-7.hako",
-      "sha256": "94195c1f1c8f2778d37fb1f10913d5178e6f34bef586cd20bdaaafc68a33c94a",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/i64-le-7-3.hako",
-      "sha256": "c012be0804a9e3b312716053d0534019f62bf2d3dc1008dd54d4001ba62746ac",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/i64-le-7-7.hako",
-      "sha256": "a92105d236adb82cac039dac66eb08c6bae6fd833805e781bf107d80fd6b0e1d",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/i64-lt-3-7.hako",
-      "sha256": "97782792664601aa144b8ac1d4b92619d269faaaeb9a9cb476ee8c9406d3c04a",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/i64-lt-7-3.hako",
-      "sha256": "bde85b7ff08e634e6c2a46075284b473538b8f5ce05aae1e997f406a678781f1",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/i64-lt-7-7.hako",
-      "sha256": "83491f5d97ad5aa5a45ae561ddc515cff38ba97f52901c6b58659c3fdee47446",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/i64-ne-3-7.hako",
-      "sha256": "9afe5865c73c43252513112aa1e7e7494808d30bae71941e14bee2d16327cf92",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/i64-ne-7-3.hako",
-      "sha256": "d92d6c49f11246e625db90d65634cf359d1f1267ca1b72f06ffd88e022833c34",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/i64-ne-7-7.hako",
-      "sha256": "1f88839ac3a2e92e74673cef78a2ccf1c329adbd7bb9a1a51814f93b99d89e02",
       "groups": [
         "A"
       ],
@@ -13658,118 +12882,6 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/null-distinct-0-eq-False.hako",
-      "sha256": "2611a904b85b523604e21ee86beb89c97ba61bffd552c023afe87efb815cfc13",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/null-distinct-0-eq-True.hako",
-      "sha256": "542e6f82225f2a77a2314aabe807ae44164392859d51d4196d917158196bb902",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/null-distinct-0-ne-False.hako",
-      "sha256": "1dc07bd25ef959058ed2e3e2d4137815c8b4636cc95cbbf90c7b27b5273647b5",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/null-distinct-0-ne-True.hako",
-      "sha256": "6fc4343ee4f34d939a6069c370c130c64c9a5f6ae77e44d4820f1317834dac26",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/null-distinct-false-eq-False.hako",
-      "sha256": "c6ab5966727d00b94fb56c05a0c68bad36f9c0bee65984b9b13f5cfdd115307e",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/null-distinct-false-eq-True.hako",
-      "sha256": "0d276c9c24dd52e0391fa71c9a70aa72c088c381a029bd7996b674656e86e548",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/null-distinct-false-ne-False.hako",
-      "sha256": "de99d9d469c7357a28120b7adfe0711e7d2b7e3fa21f00b0df710c67a3a2d08d",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/null-distinct-false-ne-True.hako",
-      "sha256": "290005fe4c753bc321ddf37843d74efd6087761bd83a7fd7b388b6c809f9550f",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/nullable-field-eq-False.hako",
-      "sha256": "1ae2f624409e1f3df5b2b7a1a59544a2e28139bffb1c503cfece06accb63fb7f",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/nullable-field-eq-True.hako",
-      "sha256": "7a6c11c6434084a39a51bfc24345521de7c38a38518c7e1b7576c8199c6b56e3",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/nullable-field-ne-False.hako",
-      "sha256": "6dd6db45ba6be5886612daebcce77d71d26cf52006ad5cb8108502442c88a073",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/nullable-field-ne-True.hako",
-      "sha256": "b8b622eb779364db83ead12f5c240fce15041643f46fdfb0974ff7a6010d0455",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/or-reach.hako",
-      "sha256": "d4a355436ff23ca19f38d8c2dbf12563f2e0f4a90266d8924c6aa7d098189253",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/or-skip.hako",
-      "sha256": "e5971146a70b04ec5447114167734840f81ef2982e32a56248bc6f5cd7af88f2",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/compare-normalize-fix/probes/p0.hako",
       "sha256": "3e4d6ad4e57d55cfa22b25c45ec8556842544678fe1e295baf972de32db99d57",
       "groups": [
@@ -13836,14 +12948,6 @@
     {
       "path": "apps/tests/corpus/compare-normalize-fix/probes/q20.hako",
       "sha256": "92819b06eec6c4a3407d426631eefb5c842ab0af1e8bd5207f6cd4b96e758c18",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/compare-normalize-fix/probes/text-after-move.hako",
-      "sha256": "6d30c8a36d47ab2f02d1ead648fd328744bf70388f411565a37bbb12dc30ebd0",
       "groups": [
         "A"
       ],
@@ -14306,14 +13410,6 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/compare-normalize/probes/existing-nullable-field-eq-False.hako",
-      "sha256": "1df1f21deaffd7296f80fd10f9e848385c81647afe7a17d704d4f392422b0522",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/compare-normalize/probes/existing-nullable-field-eq-True.hako",
       "sha256": "32b5b65655b633e8c5f3d76d1cf0e45370d98766c02a8d209dc339a2efc99eca",
       "groups": [
@@ -14596,134 +13692,6 @@
     {
       "path": "apps/tests/corpus/compare-normalize/probes/text-after-move.hako",
       "sha256": "6d30c8a36d47ab2f02d1ead648fd328744bf70388f411565a37bbb12dc30ebd0",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/fixed-16/app_allocator-stress.hako",
-      "sha256": "9ce97be74bbe747d95d40ef0471ed44c4043b5be3f3dd9143a2b12954ef8f94f",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/fixed-16/app_binary-trees.hako",
-      "sha256": "eb0bba2db3e2d8adfa93a164f5a278f9cf5b008ae7a8430b8e1e25e3e90b3567",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/fixed-16/app_boxtorrent-mini.hako",
-      "sha256": "0c22fe686c826f718889e6ac1ff96ff3f8a3ff22628401c4d7f93d75ebbf1ae7",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/fixed-16/app_json-stream-aggregator.hako",
-      "sha256": "b5d4461b43a9b1b9e975192d1b701d5468524e61c5bc353303e62c7ece58e370",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/fixed-16/app_mimalloc-lite.hako",
-      "sha256": "33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/fixed-16/app_ownership-child-typed-min.hako",
-      "sha256": "d56b2131058022b52f8935ebdd815b3d2e881523744fa149f3dfe1baf612b997",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/fixed-16/app_ownership-shared-min.hako",
-      "sha256": "f453cb0a41280bb267cb4642043d434733b1c3f6e14a06de59d9aad68d9f7633",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/fixed-16/app_typed-object-untyped-field-min.hako",
-      "sha256": "456e7de7f583b9cbc36f3b5abfb479fd64baec822259631a581ce68f442febdb",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/fixed-16/child_provider.hako",
-      "sha256": "d868c4d9328c11a0ff1963b01a8b81589d04336226926a5c8da632cdd4e5cb49",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/fixed-16/dyn_i64.hako",
-      "sha256": "700caed7a58b14f46f1b0b1d3859571117b83dff04fa45e7fffb4bfecba4931b",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/fixed-16/move_child.hako",
-      "sha256": "342551ee60a5025fc5e4cdce81414d816f2f30645786132cb7f0676536cc861f",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/fixed-16/text_birth_string.hako",
-      "sha256": "22c63d5f386cc8f819f8de8a9b6edea91c85115f952b3f7c0be7c6dc96fa22cf",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/fixed-16/text_literal.hako",
-      "sha256": "84be264910782e514fce62ef13ff02244ccc3c68bf8d78d70d0c773b26dd8050",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/fixed-16/text_nullable.hako",
-      "sha256": "a9fbc4150bf3913a39d840fbd4dcf7426601bdb921a1bdbcec3ceea55bc4c88f",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/fixed-16/text_untyped.hako",
-      "sha256": "8d934a552f2dcf4fbc0f57135df707d6b6a09dcf9c1df35b60c8fe6aca65668a",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/fixed-16/user_string.hako",
-      "sha256": "ee9740e98d707e2b037037cd57d511fecc011c62b80834beef9e6852e3787e95",
       "groups": [
         "A"
       ],
@@ -15922,70 +14890,6 @@
       "coverage_exe": false
     },
     {
-      "path": "apps/tests/corpus/ir/in/app_allocator-stress.hako",
-      "sha256": "9ce97be74bbe747d95d40ef0471ed44c4043b5be3f3dd9143a2b12954ef8f94f",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/ir/in/app_binary-trees.hako",
-      "sha256": "eb0bba2db3e2d8adfa93a164f5a278f9cf5b008ae7a8430b8e1e25e3e90b3567",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/ir/in/app_boxtorrent-mini.hako",
-      "sha256": "0c22fe686c826f718889e6ac1ff96ff3f8a3ff22628401c4d7f93d75ebbf1ae7",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/ir/in/app_json-stream-aggregator.hako",
-      "sha256": "b5d4461b43a9b1b9e975192d1b701d5468524e61c5bc353303e62c7ece58e370",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/ir/in/app_mimalloc-lite.hako",
-      "sha256": "33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/ir/in/app_ownership-child-typed-min.hako",
-      "sha256": "d56b2131058022b52f8935ebdd815b3d2e881523744fa149f3dfe1baf612b997",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/ir/in/app_ownership-shared-min.hako",
-      "sha256": "f453cb0a41280bb267cb4642043d434733b1c3f6e14a06de59d9aad68d9f7633",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/ir/in/app_typed-object-untyped-field-min.hako",
-      "sha256": "456e7de7f583b9cbc36f3b5abfb479fd64baec822259631a581ce68f442febdb",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/ir/in/child_provider.hako",
       "sha256": "d868c4d9328c11a0ff1963b01a8b81589d04336226926a5c8da632cdd4e5cb49",
       "groups": [
@@ -16626,30 +15530,6 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/map-audit-2d/in2/e05_static_foo_control.hako",
-      "sha256": "105b9ce55d7f129d53532f72ee786c360e122c83125e18ec992976200a8ff388",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/map-audit-2d/in2/e06_static_foo_local.hako",
-      "sha256": "7c5d26d3b1b2c751fd1b5690445462a1f5ccd90a836140b61582491e9dfdb30c",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/map-audit-2d/in2/e07_static_foo_print.hako",
-      "sha256": "7eedb3c44cacb3beb5358201f25d3db251ebe2226bb711598f62ff8d3bcd8fb1",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/map-audit-2d/in2/e08_static_mapbox_local_own.hako",
       "sha256": "a5a5f73b7b79b491c3b146ca8e294ca28b2cc07e7521333fa403d2613b80b775",
       "groups": [
@@ -16828,14 +15708,6 @@
     {
       "path": "apps/tests/corpus/map-audit-2d/in3t/s08_print_local_typed.hako",
       "sha256": "3666cc920540f8a9a3e6a1e902fcf8580fd78779a8afe7d004df4cd3fe43f9c9",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/map-audit-2d/in3t/s09_me_call_return_typed.hako",
-      "sha256": "5c629cccee519776029974c2228c66e770e2dbf4bdccb3f14f2c6c5f117c25fc",
       "groups": [
         "A"
       ],
@@ -18434,24 +17306,8 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/map-contract-b4/probes/b-h01_return_indexof-root.hako",
-      "sha256": "f3384f733c1ed15ff2a7d942c3541204ef268037530fb1f4440902c0134e2056",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/map-contract-b4/probes/b-h02_local_indexof-local.hako",
       "sha256": "2f13b074c9162adf2e67b22ac052c80d012fc6b98f469bb4666d22055b84ab87",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/map-contract-b4/probes/b-h02_local_indexof-root.hako",
-      "sha256": "c5a41d740fc16cad1acbff2a45b416c9979e38d624f6101796dca882f6136dd1",
       "groups": [
         "A"
       ],
@@ -18466,24 +17322,8 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/map-contract-b4/probes/b-h03_print_indexof-root.hako",
-      "sha256": "c5f94b6897ae07696266f0c3e7e985dce694a60004ec0f67d1db3ed6185dedfe",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/map-contract-b4/probes/b-h04_cond_indexof-local.hako",
       "sha256": "5651f31527db1803281ea2a2829ad7f3e292cc01a1c4273ec9519d492ed4b377",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/map-contract-b4/probes/b-h04_cond_indexof-root.hako",
-      "sha256": "f29b1a111772fc5b01d5b42e65b50ec73a9a3062e676f6002adb8c4683ace6ae",
       "groups": [
         "A"
       ],
@@ -18498,24 +17338,8 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/map-contract-b4/probes/b-h05_return_array_length-root.hako",
-      "sha256": "83234eb6211da1e778fee07d4f70da37423f664ab7e1f9217fbd4f1e4c1fa0c5",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/map-contract-b4/probes/b-h06_local_array_length-local.hako",
       "sha256": "8d8f2e330c68d07cfc609bec9edb78ae6641f133db3d449d0bdc0f9663edcc1b",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/map-contract-b4/probes/b-h06_local_array_length-root.hako",
-      "sha256": "ae36313bff60c004901aaf2823c64e31acb13f4ff9364e4e281f5f00a87db66c",
       "groups": [
         "A"
       ],
@@ -18530,24 +17354,8 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/map-contract-b4/probes/b-h07_cond_array_length-root.hako",
-      "sha256": "609887ee72e48248197c99f074b19af6e46fb004f5293c2dea80dd4a62c82db6",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/map-contract-b4/probes/b-h08_return_length-local.hako",
       "sha256": "7a90ac229561fd3df8d92dbae240c086c0d579615cfb47477b4a8ef1d6bec2ce",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/map-contract-b4/probes/b-h08_return_length-root.hako",
-      "sha256": "49ebe5144894ea16f87e406abde9d551a1537e4db1d9068590cdbdcd29c07b1c",
       "groups": [
         "A"
       ],
@@ -18562,24 +17370,8 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/map-contract-b4/probes/b-h09_return_indexof_unicode-root.hako",
-      "sha256": "5ab18e099a3ed305fce4aefe3432051e5d2e77924422f6b8b09500d0a9412dd5",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/map-contract-b4/probes/b-h10_return_indexof_missing-local.hako",
       "sha256": "7af494088105c0900520961b7f61fe29801093e325930afa5de4a1fd0000364d",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/map-contract-b4/probes/b-h10_return_indexof_missing-root.hako",
-      "sha256": "d54cdbabbd330b7cc55aec218ca7644f377778f32b1c09a79cfde56dfe4f7df5",
       "groups": [
         "A"
       ],
@@ -18594,24 +17386,8 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/map-contract-b4/probes/b-h11_operand_indexof-root.hako",
-      "sha256": "5685fecd865edb6c0ab67646f0907ffdabae215c921c1e09ad8294560baf95d0",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/map-contract-b4/probes/b-h12_return_text_compare-local.hako",
       "sha256": "ad5035aa3eefd627dd47b864393d8e16bc6aa12abe54e4508c736b286646d1d5",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/map-contract-b4/probes/b-h12_return_text_compare-root.hako",
-      "sha256": "4c9854e8e46de3b7cd32b2dfe0b6431a9422874561e2cb5ae08fb5cb5526518b",
       "groups": [
         "A"
       ],
@@ -18642,24 +17418,8 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/map-contract-b4/probes/b-k01_field_array_len_return-root.hako",
-      "sha256": "1a1526464366f1ef6348cfb17ec087a3f024322982054afc5b066d9c1195bc5b",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/map-contract-b4/probes/b-k02_field_array_len_cond-local.hako",
       "sha256": "eb4110519665fe52d391510c623689b35cc8d4a34c65eba7fdecd1c6ddeb0357",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/map-contract-b4/probes/b-k02_field_array_len_cond-root.hako",
-      "sha256": "77f5f740ae7bc5257a43ffabdf3ac9fd1063115a350b3248e8f3bf387fc845f2",
       "groups": [
         "A"
       ],
@@ -18674,24 +17434,8 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/map-contract-b4/probes/b-k03_field_array_len_local-root.hako",
-      "sha256": "029ce58a6ce3dd1466f55d740984a9c695140f2b76e3b73d12f6843ba4885242",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/map-contract-b4/probes/b-k06_field_array_len_operand-local.hako",
       "sha256": "9d0dd8cb8b3b7067686c4fb2f689c76d55c1bc384249b0859006bcabcbab52c8",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/map-contract-b4/probes/b-k06_field_array_len_operand-root.hako",
-      "sha256": "900831596e59c8c4d7a36566ce923f093189953de4504113f13c5a98139c4c5b",
       "groups": [
         "A"
       ],
@@ -20066,24 +18810,8 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/map-contract-b4/probes/corpus-0-root.hako",
-      "sha256": "fe94adf37ecb6de693af1ff38309a6ff894461a7bc012094b4cf22fb334dfc69",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/map-contract-b4/probes/corpus-extra-call-result-return-local.hako",
       "sha256": "556216b16bbe77173247ddccd0a7dce1030a1cc1c289a4657f8b1381b9093a11",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/map-contract-b4/probes/corpus-extra-call-result-return-root.hako",
-      "sha256": "a64020c0d0cf3ce3bae3e0c75422e2a33bac0496368bc37bcffad7006dd7c513",
       "groups": [
         "A"
       ],
@@ -20098,14 +18826,6 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/map-contract-b4/probes/corpus-extra-concat-return-root.hako",
-      "sha256": "5bcf0b7289eaab471bbf5531f1e63f1234459b1397a9709a77aa022fa79395ae",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/map-contract-b4/probes/corpus-extra-literal-return-local.hako",
       "sha256": "b8f6a5afef4b0fe1da47b628bac70dd6020c4187548ce9548d9086128c623af2",
       "groups": [
@@ -20114,24 +18834,8 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/map-contract-b4/probes/corpus-extra-literal-return-root.hako",
-      "sha256": "fe4f7a7b2ea7f27b79cbceeac1044b4b7f6b3724b8a9365651fc73af36e1c391",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/map-contract-b4/probes/corpus-extra-q05-local.hako",
       "sha256": "c31aca9e6427a413ea09f520d631799a5035824186d24ce5ea1a3e4bb32afb3b",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/map-contract-b4/probes/corpus-extra-q05-root.hako",
-      "sha256": "d52ad5f7a4736ef6800baff8bbf157a47dc705a0a60bd8a4fb4f89d908775d89",
       "groups": [
         "A"
       ],
@@ -21226,14 +19930,6 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/corpus/map-survey/probes/p01_local_set_get.hako",
-      "sha256": "6b9661fdbe0320db11c5d877a9b8c6e9b64fae71a2e78fecd9d23bd99e0b69c0",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/corpus/map-survey/probes/p02_local_has.hako",
       "sha256": "e9b2d8c5825372b6d486b0fdef331eb8b327aaadd4c48cc65a3db912a0d37c62",
       "groups": [
@@ -21284,14 +19980,6 @@
     {
       "path": "apps/tests/corpus/map-survey/probes/p08_overwrite.hako",
       "sha256": "aa3449c39f8a9c561d4c60cfd1b4af6a72d471c930ef7c556e7d01fe41f0defe",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/map-survey/probes/p09_get_print.hako",
-      "sha256": "736812ea1a635bb8b0149425ef844f80e827e83b94cc2ddc13485a399304f555",
       "groups": [
         "A"
       ],
@@ -21572,14 +20260,6 @@
     {
       "path": "apps/tests/corpus/map-survey/probes/s04_get_only_lit_key.hako",
       "sha256": "6d9b9a4c3bfd6f9ec7b0b95b1ab3baa8302f3aec509613d70d7a6adf354904a9",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/corpus/map-survey/probes/t01_json_stream_app.hako",
-      "sha256": "b5d4461b43a9b1b9e975192d1b701d5468524e61c5bc353303e62c7ece58e370",
       "groups": [
         "A"
       ],
@@ -24772,14 +23452,6 @@
     {
       "path": "apps/tests/corpus/probe-from2/two_returns.hako",
       "sha256": "1bb5d9b728cbd12dba678681fc8eaf06b092998f713e909860883311ba528ba4",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": false
-    },
-    {
-      "path": "apps/tests/corpus/probe-init/existing.hako",
-      "sha256": "062a6dca5360e717fc3a33f25951c251f9742f7071d7f1b31205b1b583775a28",
       "groups": [
         "A"
       ],
@@ -34698,14 +33370,6 @@
       "coverage_exe": true
     },
     {
-      "path": "apps/tests/phase269_p0_pattern8_frag_min.hako",
-      "sha256": "21a45aba88e0308c12f87937caa0d781cd1be49c7352a71065ce4778c9f91f86",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
       "path": "apps/tests/phase269_p1_2_this_method_in_loop_min.hako",
       "sha256": "9260eee01981c0580cf3551c1a9943b5b4098d1da88b6963a05835637d287b5d",
       "groups": [
@@ -35220,78 +33884,6 @@
     {
       "path": "apps/tests/phase29ab_pattern2_seg_notapplicable_min.hako",
       "sha256": "d1ad13a7a70a85dac390a3a4e00cfcf625caaa91f459dd4672e9e307395c3b5c",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/phase29ab_pattern6_matchscan_contract_min.hako",
-      "sha256": "136c6bc6b3f27aadf8873a30f1af9bb5046a8b0a4cc7188903287d70eb612f6f",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/phase29ab_pattern6_matchscan_ok_min.hako",
-      "sha256": "f4dd10b1df87097b41a48dcf085aedfac21e497a9421459011d89b003afef1c0",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/phase29ab_pattern6_reverse_contract_min.hako",
-      "sha256": "5f5037b3e649927c36320c4de62b96cabb358669747e3466bd2f397c4ce9a99a",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/phase29ab_pattern6_reverse_ok_min.hako",
-      "sha256": "4ac20dd804de354652396b22541222651a4392bed1366d1949631bf17a0790cf",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/phase29ab_pattern6_scan_with_init_contract_min.hako",
-      "sha256": "de11f8bb047f51f183b3158af7cd3f7aa5d54e60276876b2b8049e74d94c4c4d",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/phase29ab_pattern6_scan_with_init_ok_min.hako",
-      "sha256": "594e0a35f661ca8df92da1c7cfdc1165c2b653ce2c39622d84a5fe9050fec1b9",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/phase29ab_pattern7_splitscan_contract_min.hako",
-      "sha256": "67c6cc420ed5a4fff9b524f80e6ba5cd002630a396be5ecc0c3db6411a71c5e8",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/phase29ab_pattern7_splitscan_nearmiss_ok_min.hako",
-      "sha256": "5890f4f5164f9c7190d4bb204e2fb1c486691b822814f5ade8291c757fb3b33d",
-      "groups": [
-        "A"
-      ],
-      "coverage_exe": true
-    },
-    {
-      "path": "apps/tests/phase29ab_pattern7_splitscan_ok_min.hako",
-      "sha256": "24b4253e29924ef44d4aed162bafb4884e1dd2a9a74519ef5ed336d5f7fcd2f4",
       "groups": [
         "A"
       ],

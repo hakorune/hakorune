@@ -1,8 +1,0 @@
-static box Main {
- main() {
-local answer = false
-if 1 < 2 { answer = 3 == 3 } else { answer = 3 != 3 }
-if answer { return 7 }
-return 9
- }
-}

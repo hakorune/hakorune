@@ -1,7 +1,0 @@
-static box Main {
-    main() {
-        local s = "a"
-        local t = "b"
-        return s < t
-    }
-}

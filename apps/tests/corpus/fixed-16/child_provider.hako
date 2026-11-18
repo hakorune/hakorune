@@ -1,8 +1,0 @@
-box Leaf { value: i64
-  birth(value) { me.value = value } }
-box Node {
-  next: Leaf?
-  birth(v) { me.next = new Leaf(1) }
-  check(): i64 { if me.next == null { return 7 } return 5 }
-}
-static box Main { main() { local n = new Node(5)  return n.check() } }

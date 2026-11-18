@@ -1,6 +1,0 @@
-static box Main {
- main() {
-if false >= true { return 7 }
-return 9
- }
-}

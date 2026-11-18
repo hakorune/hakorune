@@ -1,8 +1,0 @@
-static box Main {
-    helper() {
-        return 3
-    }
-    main() {
-        return me.helper()
-    }
-}
