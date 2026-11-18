@@ -28,10 +28,12 @@ def downstream_unchanged(before, after, root=ROOT):
     try:
         def git(*args):
             return subprocess.check_output(['git', '-C', str(root), *args], stderr=subprocess.DEVNULL)
-        if git('status', '--porcelain=v1', '--untracked-files=no'):
+        if git('status', '--porcelain=v1'):
             return False
         endpoints = [git('rev-parse', '--verify', '--end-of-options', f'{ref}^{{commit}}').strip().decode()
                      for ref in (before, after)]
+        if git('rev-parse', 'HEAD').strip().decode() != endpoints[1]:
+            return False
         paths = git('diff', '--name-only', '-z', '--no-renames', *endpoints, '--').decode()
         return harmless_paths(paths.rstrip('\0').split('\0') if paths else [])
     except (OSError, UnicodeError, subprocess.CalledProcessError):

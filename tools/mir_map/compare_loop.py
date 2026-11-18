@@ -143,11 +143,17 @@ def test_comparison():
         git('init', '-q')
         before = commit('docs/example.md')
         after = commit('apps/tests/corpus/example.hako')
-        runtime = commit('crates/runtime/example.rs')
         assert downstream_unchanged(before, after, root)
-        assert not downstream_unchanged(after, runtime, root)
         assert not downstream_unchanged(before, 'unresolvable-ref', root)
-    return self_test(exact_mir) | {"downstream_edit_blocks_skip": True, "unknown_revision_blocks_skip": True}
+        untracked = root / 'untracked.hako'
+        untracked.write_text('untracked')
+        assert not downstream_unchanged(before, after, root)
+        untracked.unlink()
+        runtime = commit('crates/runtime/example.rs')
+        assert not downstream_unchanged(after, runtime, root)
+        assert not downstream_unchanged(before, after, root)
+    return self_test(exact_mir) | {"downstream_edit_blocks_skip": True, "unknown_revision_blocks_skip": True,
+                                   "wrong_checkout_blocks_skip": True, "untracked_input_blocks_skip": True}
 
 
 def main():
