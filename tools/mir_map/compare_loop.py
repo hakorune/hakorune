@@ -9,6 +9,7 @@ import sys
 
 from loop_measurement import collect, read_manifest, stream_text
 from loop_mir_text import extract, locations, normalize, parse, self_test
+from resources import activate
 from support import write
 
 
@@ -94,11 +95,12 @@ def main():
     args = parser.parse_args()
     manifest = read_manifest(args.manifest)
     old_work = args.before_baseline or args.work / "before"
-    old = collect(args.before, manifest, args.template, old_work, args.jobs, args.ast)
+    watch = activate(args.work, "loop-compare")
+    old = collect(args.before, manifest, args.template, old_work, args.jobs, args.ast, watch)
     if args.after is None:
         return
     new_work = args.work / "after"
-    new = collect(args.after, manifest, args.template, new_work, args.jobs, args.ast)
+    new = collect(args.after, manifest, args.template, new_work, args.jobs, args.ast, watch)
     results = []
     for lrow, rrow in zip(old, new, strict=True):
         assert lrow["path"] == rrow["path"] and lrow["sha256"] == rrow["sha256"]

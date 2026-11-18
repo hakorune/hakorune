@@ -78,7 +78,7 @@ def parse_evidence(status, phase):
     return dict(kind=kind, verified=VERIFIED in text)
 
 
-def collect(binary, rows, template, work, jobs, ast=False):
+def collect(binary, rows, template, work, jobs, ast=False, watch=None):
     binary, work = binary.resolve(), work.resolve()
     work.mkdir(parents=True, exist_ok=True)
     env = configured_env(template, binary, work)
@@ -89,11 +89,16 @@ def collect(binary, rows, template, work, jobs, ast=False):
     identity = dict(artifacts={str(p): sha(p) for p in artifacts}, rows=rows, ast=ast,
                     settings={k:v for k,v in env.items() if k.startswith(("HAKO_", "NYASH_"))})
     manifest = work / "identity.json"
-    if manifest.exists() and json.loads(manifest.read_text()) != identity:
-        raise ValueError(f"measurement identity changed: {work}")
+    if manifest.exists():
+        held = json.loads(manifest.read_text())
+        if {k: v for k, v in held.items() if k != "ast"} != {
+            k: v for k, v in identity.items() if k != "ast"
+        }:
+            raise ValueError(f"measurement identity changed: {work}")
     if not manifest.exists():
         write(manifest, identity)
-    watch = activate(work, "loop-compare")
+    if watch is None:
+        watch = activate(work, "loop-compare")
 
     def ensure_executable_mir(result, source, directory, receipt):
         # The closed executable route can accept source refused by the
@@ -116,12 +121,15 @@ def collect(binary, rows, template, work, jobs, ast=False):
             exe.unlink(missing_ok=True)
 
     def auxiliary(result, source, directory, receipt):
-        if ast and "data" not in result.get("ast", {}):
-            data = directory / "parser.json"
-            data.unlink(missing_ok=True)
-            result["ast"] = command(watch, [binary, "--emit-ast-json", data, source],
-                                    directory, "parser", env, 30)
-            result["ast"]["data"] = str(data)
+        if ast and not ("data" in result.get("ast", {}) or result.get("ast", {}).get("excluded")):
+            if not re.search(rb"\bloop\b", Path(source).read_bytes()):
+                result["ast"] = {"excluded": "source contains no loop token"}
+            else:
+                data = directory / "parser.json"
+                data.unlink(missing_ok=True)
+                result["ast"] = command(watch, [binary, "--emit-ast-json", data, source],
+                                        directory, "parser", env, 30)
+                result["ast"]["data"] = str(data)
             write(receipt, result)
         return ensure_executable_mir(result, source, directory, receipt)
 
