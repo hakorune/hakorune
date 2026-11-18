@@ -1,0 +1,13 @@
+static box Main {
+    main() {
+        local total = 0
+        loop i in 0..4 {
+            if i == 1 {
+                continue
+            }
+            total = total + i
+        }
+        print(total)
+        return 0
+    }
+}

@@ -1,0 +1,126 @@
+{
+  "rows": [
+    {
+      "path": "apps/tests/generic_loop_carrier_type_v0_numeric_zero_iter.hako",
+      "covers": [
+        "zero-iterations"
+      ],
+      "expected": {
+        "exit": 0,
+        "stdout": "Result: 0\n"
+      },
+      "sha256": "1bb7485c8910c05e1c57ff5379f8a9bb58f0fce35ac8d472a0642554e5f1f7dd"
+    },
+    {
+      "path": "apps/tests/phase29bq_conditional_update_join_min.hako",
+      "covers": [
+        "one-iteration"
+      ],
+      "expected": {
+        "exit": 0,
+        "stdout": "0\nResult: 0\n"
+      },
+      "sha256": "94cc5ecde75200b3b980edf9b8c2a863b0c52925bc9ac5954371b9f9621194e4"
+    },
+    {
+      "path": "apps/tests/phase29bq_generic_loop_v1_nested_if_min.hako",
+      "covers": [
+        "multiple-iterations",
+        "one-sided-write-followed-by-false"
+      ],
+      "expected": {
+        "exit": 0,
+        "stdout": "10\nResult: 0\n"
+      },
+      "sha256": "3fab9c337ba58e0f7605ba41ca3957fe3b2fc32a56275f9a4e1de7b64f35b8a0"
+    },
+    {
+      "path": "apps/tests/test_pattern5b_simple.hako",
+      "covers": [
+        "different-write-per-arm"
+      ],
+      "expected": {
+        "exit": 0,
+        "stdout": "4\nResult: 0\n"
+      },
+      "sha256": "a676c13793a30495bc67693470734e078421791d6d498263d634bf571d1e75b3"
+    },
+    {
+      "path": "apps/tests/phase29bq_continue_target_header_min.hako",
+      "covers": [
+        "continue-skips-write"
+      ],
+      "expected": {
+        "exit": 0,
+        "stdout": "33\nResult: 0\n"
+      },
+      "sha256": "0a7c01ad3848145cf1e7dd9777aeb5915c60894ec3863c1bd2a92c29e4667506"
+    },
+    {
+      "path": "apps/tests/loop_prep_range_continue.hako",
+      "covers": [
+        "range-continue-increments-once"
+      ],
+      "expected": {
+        "compile_exit": 1,
+        "diagnostic_contains": "UnsupportedStatement { kind: \"LoopRange\" }"
+      },
+      "sha256": "14b6052debdfb5550ba739b06752fb0448a840005082ef3772ddfd37b7c8bb82"
+    },
+    {
+      "path": "apps/tests/loop_prep_distinct_break_values.hako",
+      "covers": [
+        "two-break-values"
+      ],
+      "expected": {
+        "exit": 0,
+        "stdout": "7\n9\nResult: 0\n"
+      },
+      "sha256": "d8ef81f1a7ae6c067a59ba914d14648b7ee5d5215eb330c2802ae998b32cd9f4"
+    },
+    {
+      "path": "apps/tests/phase29bq_selfhost_blocker_parse_program2_loop_if_return_min.hako",
+      "covers": [
+        "return-inside-loop"
+      ],
+      "expected": {
+        "exit": 0,
+        "stdout": "Result: 0\n"
+      },
+      "sha256": "986878a8845dca8839a72bf0bde96b44539e6eb9879a04cfe4cf4b711c261c62"
+    },
+    {
+      "path": "apps/tests/nested_loop_inner_break_isolated.hako",
+      "covers": [
+        "inner-break-keeps-outer-write"
+      ],
+      "expected": {
+        "exit": 6,
+        "stdout": "Result: 6\n"
+      },
+      "sha256": "65ff416fa0d5dfb26322b665aa9cec2df9417eb8ce3da323c4839f1507f1b715"
+    },
+    {
+      "path": "benchmarks/bench_box_create_destroy_small.hako",
+      "covers": [
+        "per-iteration-owned-box"
+      ],
+      "expected": {
+        "compile_exit": 1,
+        "diagnostic_contains": "source-loop/v2/source Loop has an unavailable path"
+      },
+      "sha256": "a2b03376a81d57a7d4fdd52694c1c89c62285876d1d3559e254ab23651894765"
+    },
+    {
+      "path": "apps/tests/loop_prep_body_fault.hako",
+      "covers": [
+        "fault-inside-loop"
+      ],
+      "expected": {
+        "compile_exit": 1,
+        "diagnostic_contains": "OwnerTerminalHomesUnavailable"
+      },
+      "sha256": "b4727cd51d3c19bd8a545128cf7914dce7679d19cbb50f07c9ee0cf39ffae253"
+    }
+  ]
+}
