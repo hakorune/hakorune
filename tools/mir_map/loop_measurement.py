@@ -91,11 +91,21 @@ def collect(binary, rows, template, work, jobs, ast=False, watch=None):
     manifest = work / "identity.json"
     if manifest.exists():
         held = json.loads(manifest.read_text())
-        if {k: v for k, v in held.items() if k != "ast"} != {
-            k: v for k, v in identity.items() if k != "ast"
-        }:
+        if any(held[key] != identity[key] for key in ("artifacts", "settings")):
             raise ValueError(f"measurement identity changed: {work}")
-    if not manifest.exists():
+        if held["rows"] != rows:
+            complete = work / "results.json"
+            if not complete.exists():
+                raise ValueError(f"subset reuse requires a completed baseline: {work}")
+            recorded = {row["path"]: row for row in json.loads(complete.read_text())}
+            selected = []
+            for row in rows:
+                cached = recorded.get(row["path"])
+                if not cached or cached["sha256"] != row["sha256"] or ast and "ast" not in cached:
+                    raise ValueError(f"baseline lacks matching observations: {row['path']}")
+                selected.append(cached | row)
+            return selected
+    else:
         write(manifest, identity)
     if watch is None:
         watch = activate(work, "loop-compare")
