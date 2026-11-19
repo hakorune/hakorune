@@ -111,6 +111,11 @@ compilerの動くcodeは変更していない。coverage CLIは前回の同じbi
 - 1-2 より下は、言語の決め事(型の注釈の無い source の扱い、決定 8〜11)が要る所が出る。出た所で、メンテナに聞く。
 - 所有の規則(`ordinary_new_admission` の中)は、「選ばれた `new`」の形からしか届かない。1-5 の後で、1 つの持ち主に寄せる。
 
+### loop 段 5（設計図 24.2c、2026-11-19）
+
+- SizeClassBox.bin_size の移行を試し、元アプリの検証付き EXE は一致。後続の print 3 例と単純な return 6 例で拒否から成功へ変わったため試作を破棄した。
+- plan の loop 入口 4 → 4。MIR 本体・test の行増減は各 0。bc、複合、直の loop-break、loop-true の退役はこの境界が決まってから進める。
+
 ### 文書
 
 | # | やる事 | 状態 |
