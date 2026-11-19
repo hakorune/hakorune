@@ -67,6 +67,10 @@ def parse_evidence(status, phase):
     return dict(kind=kind, verified=VERIFIED in text)
 
 
+class MeasurementIdentityChanged(ValueError):
+    """A completed observation belongs to a different measured configuration."""
+
+
 def measurement_configuration(binary, template, work):
     env = configured_env(template, binary, work)
     runtime = Path(env["NYASH_EMIT_EXE_NYRT"])
@@ -100,7 +104,7 @@ def collect(binary, rows, template, work, jobs, ast=False, watch=None, *, exe_ba
         if (any(held[key] != identity[key] for key in ("artifacts", "settings"))
                 or held.get("exe_baseline") != identity.get("exe_baseline")
                 or ("execution_env" in held and held["execution_env"] != identity["execution_env"])):
-            raise ValueError(f"measurement identity changed: {work}")
+            raise MeasurementIdentityChanged(f"measurement identity changed: {work}")
         complete = work / "results.json"
         if held["rows"] != rows or complete.exists() and not ast:
             if not complete.exists():

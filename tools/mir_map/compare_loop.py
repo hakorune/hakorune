@@ -10,7 +10,7 @@ import time
 
 from comparison_policy import (MAX_JOBS, auto_jobs, can_reuse_exe, downstream_unchanged,
                                eligible_rows, env_fingerprint, exact_mir, summarize_skip)
-from loop_measurement import (artifact_hashes, collect, measurement_configuration,
+from loop_measurement import (MeasurementIdentityChanged, artifact_hashes, collect, measurement_configuration,
                               read_manifest, stream_text)
 from loop_mir_text import extract, locations, normalize, parse, self_test
 from resources import activate, available_memory_kib
@@ -204,7 +204,16 @@ def main():
     print(json.dumps({"jobs": jobs, "sample_peak_rss_kib": peak}), flush=True)
 
     start = time.monotonic()
-    old = collect(args.before, manifest, args.template, old_work, jobs, args.ast, watch)
+    try:
+        old = collect(args.before, manifest, args.template, old_work, jobs, args.ast, watch)
+    except MeasurementIdentityChanged:
+        if args.before_baseline is None:
+            raise
+        # Keep the incompatible archive intact; create measurements that share
+        # this comparison's execution configuration.
+        old_work = args.work / "before-current"
+        print("Baseline configuration differs; measuring again in the current work directory.", flush=True)
+        old = collect(args.before, manifest, args.template, old_work, jobs, args.ast, watch)
     before_seconds = time.monotonic() - start
     if args.after is None:
         write(args.work / "collection-summary.json", dict(jobs=jobs, seconds=before_seconds, rows=len(old)))
