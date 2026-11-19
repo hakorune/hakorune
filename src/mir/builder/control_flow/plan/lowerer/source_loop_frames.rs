@@ -259,7 +259,7 @@ pub(super) fn emit_call(
         let original = input.source().exact_stmt(statement).map_err(|error| format!("{error:?}"))?;
         let source = context(port, statement.node())?;
         let completed = port.with_prepared_child_source_v1(source, |port|
-            port.lower_callable_local_with_receipt_v2(builder, original.node().clone()))?;
+            port.lower_source_local_v1(builder, original.node().clone()))?;
         let receipt = completed.bindings().iter().find(|row| row.ordinal() == *ordinal)
             .ok_or_else(|| freeze("call-completed-local"))?;
         if receipt.initializer() != receipt.local() {
@@ -430,7 +430,7 @@ pub(super) fn emit_binding(
             let completed = port.with_source_loop_product_v2(Rc::clone(product), |port| {
                 let source = context(port, statement.node())?;
                 port.with_prepared_child_source_v1(source, |port| {
-                    port.lower_callable_local_with_receipt_v2(builder, original.node().clone())
+                    port.lower_source_local_v1(builder, original.node().clone())
                 })
             })?;
             // The sole Local owner already installed state and consumed/published

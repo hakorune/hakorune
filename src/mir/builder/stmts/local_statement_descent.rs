@@ -66,18 +66,6 @@ impl RawLegacyLocalInputV1 {
         }
     }
 
-    pub(in crate::mir::builder) fn with_initializer_observer(
-        statement: ASTNode,
-        initializer_observer: LocalInitializerObservationSinkV1,
-    ) -> Self {
-        Self {
-            statement,
-            initializer_observer: Some(initializer_observer),
-            annotation_source: LocalAnnotationSourceV1::RawCompatibility,
-            selected_initializers: Vec::new(),
-        }
-    }
-
     pub(in crate::mir::builder) fn from_script_relation(
         statement: ASTNode,
         relation: ResolvedInitializerRelationV1,
@@ -121,13 +109,8 @@ impl RawLegacyLocalInputV1 {
             _ => return Err(drift()),
         }
         Ok(Self {
-            statement,
-            initializer_observer: None,
-            annotation_source: LocalAnnotationSourceV1::Script {
-                relation,
-                array_recipe,
-            },
-            selected_initializers: Vec::new(),
+            annotation_source: LocalAnnotationSourceV1::Script { relation, array_recipe },
+            ..Self::new(statement)
         })
     }
 
@@ -442,7 +425,10 @@ pub(in crate::mir::builder) fn drive_local_statement_v1<Port>(
 where
     Port: LocalStatementDescentPortV1,
 {
-    drive_local_statement_with_receipt_v1(builder, port, input).map(|receipt| receipt.result)
+    drive_local_statement_with_placement_v1(builder, port, input, |_, _| {
+        Ok(super::variable_stmt::LocalValuePlacement::Copy)
+    })
+    .map(|receipt| receipt.result)
 }
 
 pub(in crate::mir::builder) struct CompletedLocalStatementV1 {
@@ -530,19 +516,6 @@ impl CompletedLocalStatementV1 {
     pub(in crate::mir::builder) fn bindings(&self) -> &[CompletedLocalBindingV1] {
         &self.bindings
     }
-}
-
-pub(in crate::mir::builder) fn drive_local_statement_with_receipt_v1<Port>(
-    builder: &mut MirBuilder,
-    port: &mut Port,
-    input: Port::LocalInput,
-) -> Result<CompletedLocalStatementV1, String>
-where
-    Port: LocalStatementDescentPortV1,
-{
-    drive_local_statement_with_placement_v1(builder, port, input, |_, _| {
-        Ok(super::variable_stmt::LocalValuePlacement::Copy)
-    })
 }
 
 pub(in crate::mir::builder) fn drive_local_statement_with_placement_v1<Port>(

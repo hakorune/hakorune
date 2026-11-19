@@ -32,6 +32,7 @@ mod map_read_physical_consumer; // source-issued Map read Facts to typed MIR ope
 mod new_expression;
 mod normal_callable_binding_materialization;
 mod normal_callable_binding_materialization_port; // existing formal ValueId handoff
+mod normal_local_materialization;
 mod normal_callable_catalog_owner_link; // exact catalog key/owner/source ingress co-seal
 mod normal_callable_dynamic_origin; // source-backed Dynamic -> existing physical receipts
 mod normal_callable_dynamic_source; // source-backed untyped formal/Loop carrier authority

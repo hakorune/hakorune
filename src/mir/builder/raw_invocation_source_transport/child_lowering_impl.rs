@@ -602,12 +602,12 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         if let Some(emitted) = self.emit_ledger_statement_v1(builder)? {
             return Ok(emitted);
         }
-        if self.callable_ledger.is_some() && matches!(input, ASTNode::Local { .. }) {
-            return self.lower_callable_local_v1(builder, input);
-        }
+        let input = match self.lower_source_local_if_present_v1(builder, input)? {
+            std::ops::ControlFlow::Break(value) => return Ok(value),
+            std::ops::ControlFlow::Continue(input) => input,
+        };
         if self.semantic_ledger.is_some() {
             return match input {
-                local @ ASTNode::Local { .. } => self.lower_script_local_v1(builder, local),
                 nowait @ ASTNode::Nowait { .. } => self.lower_script_nowait_v1(builder, nowait),
                 outbox @ ASTNode::Outbox { .. } => self.lower_script_outbox_v1(builder, outbox),
                 other => crate::mir::builder::stmts::block_stmt::build_statement_with_port_v1(
@@ -729,12 +729,10 @@ impl RawInvocationChildPortV1<'_, '_> {
         if self.semantic_ledger.is_some() && matches!(input, ASTNode::Return { .. }) {
             return self.lower_script_return_v1(builder, input);
         }
-        if self.semantic_ledger.is_some() && matches!(input, ASTNode::Local { .. }) {
-            return self.lower_script_local_v1(builder, input);
-        }
-        if self.callable_ledger.is_some() && matches!(input, ASTNode::Local { .. }) {
-            return self.lower_callable_local_v1(builder, input);
-        }
+        let input = match self.lower_source_local_if_present_v1(builder, input)? {
+            std::ops::ControlFlow::Break(value) => return Ok(value),
+            std::ops::ControlFlow::Continue(input) => input,
+        };
         if self.semantic_ledger.is_some() && matches!(input, ASTNode::Nowait { .. }) {
             return self.lower_script_nowait_v1(builder, input);
         }

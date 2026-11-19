@@ -4,7 +4,6 @@
 //! materialization remain outside this authority.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::stmts::{drive_local_statement_with_placement_v1, RawLegacyLocalInputV1};
 use crate::mir::resolved_semantics::ExprChildRoleV1;
 use crate::mir::{MirBuilder, ValueId};
 
@@ -456,75 +455,6 @@ impl RawInvocationChildPortV1<'_, '_> {
         .map(Some);
         result
     }
-    pub(super) fn lower_callable_local_v1(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: ASTNode,
-    ) -> Result<ValueId, String> {
-        self.lower_callable_local_with_receipt_v2(builder, input)
-            .map(|completed| completed.result())
-    }
-
-    /// The sole Local writer and publication tail return their real receipt.
-    /// Checked initializer leases have been consumed before the caller observes
-    /// it; source-scheduled callers must not recreate or republish those leases.
-    pub(in crate::mir::builder) fn lower_callable_local_with_receipt_v2(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: ASTNode,
-    ) -> Result<crate::mir::builder::stmts::CompletedLocalStatementV1, String> {
-        let ledger = self
-            .callable_ledger
-            .clone()
-            .expect("callable local lowering requires its scoped ledger");
-        let site = self.current_callable_site_v1("local-site")?;
-        let claims_for_placement = self.ordinary_new_claim_ledger.clone();
-        let mut completed = drive_local_statement_with_placement_v1(
-            builder,
-            self,
-            RawLegacyLocalInputV1::with_initializer_observer(
-                input,
-                self.local_initializer_observation_sink(),
-            ),
-            |ordinal, value| match &claims_for_placement {
-                Some(claims) => ledger
-                    .borrow()
-                    .local_placement(&site, ordinal, value, claims),
-                None => Ok(crate::mir::builder::stmts::variable_stmt::LocalValuePlacement::Copy),
-            },
-        )?;
-        ledger
-            .borrow_mut()
-            .record_completed_local(&site, &completed)?;
-        if let Some(claims) = self.ordinary_new_claim_ledger.as_ref() {
-            ledger
-                .borrow()
-                .record_completed_ordinary_new_local(&site, &completed, claims)?;
-        }
-        let pending = completed.take_checked_initializers();
-        if let Some(claims) = self.ordinary_new_claim_ledger.as_ref() {
-            for emission in pending {
-                let receipt = completed
-                    .bindings()
-                    .iter()
-                    .find(|row| row.ordinal() == emission.ordinal())
-                    .ok_or_else(|| freeze("initializer-expression/completed-ordinal"))?;
-                emission.publish(
-                    receipt,
-                    claims,
-                    builder
-                        .function_state
-                        .current_function
-                        .as_ref()
-                        .ok_or_else(|| freeze("no-function"))?,
-                )?;
-            }
-        } else if !pending.is_empty() {
-            return Err(freeze("initializer-expression/claim-ledger-missing"));
-        }
-        Ok(completed)
-    }
-
     /// Whether this `new` was issued as the builtin empty Map. The builder does
     /// not decide the construction target: the batch issuer already did and
     /// left the answer in the body-shape row of this site (`MapLiteral`, which a
@@ -618,7 +548,7 @@ impl RawInvocationChildPortV1<'_, '_> {
     }
 }
 
-fn freeze(reason: &str) -> String {
+pub(super) fn freeze(reason: &str) -> String {
     format!("[freeze:contract][callable-semantic-lowering/{reason}]")
 }
 
