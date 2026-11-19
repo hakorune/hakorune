@@ -196,7 +196,7 @@ pub(in crate::mir) fn emit(builder: &mut MirBuilder, port: &mut RawInvocationChi
     source.validate_for_source_port()?;
     let product = Rc::clone(source.checked_source_recipe_v2().ok_or_else(|| reject("source-product-missing"))?);
     super::source_loop_frames::input(port, &product)?;
-    let ledger = port.callable_ledger.clone().ok_or_else(|| reject("state-missing"))?;
+    let ledger = port.source_ledger.callable_ledger().cloned().ok_or_else(|| reject("state-missing"))?;
     let function = builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?;
     let before_frame = ledger.borrow().observed_fault_frame_binding_v2(function)?;
     let before = function.blocks.iter().map(|(id, block)| (*id, (block.instructions.clone(), block.terminator.clone()))).collect();

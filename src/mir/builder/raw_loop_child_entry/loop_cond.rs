@@ -15,7 +15,7 @@ pub(super) fn lower(builder: &mut MirBuilder, source: &SourceLoopCondPhysicalInp
     let result = (|| {
         if let Some(port) = invocation.as_deref_mut() {
             if port.callable_loop_root_scope.is_none()
-                || port.callable_ledger.as_ref().is_none_or(|actual| !Rc::ptr_eq(actual, ledger))
+                || port.source_ledger.callable_ledger().is_none_or(|actual| !Rc::ptr_eq(actual, ledger))
                 || port.source_input.is_none_or(|input| input.owner() != source.owner())
                 || port.active_source.as_ref().is_none_or(|actual| actual.site() != source.parent_source().site()
                     || !actual.shares_root_lineage(source.parent_source())) {

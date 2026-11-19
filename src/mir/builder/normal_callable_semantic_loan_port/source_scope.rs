@@ -76,7 +76,7 @@ pub(super) fn with_selected_source_scope<'port, 'collector, R>(
             .transpose()?,
         move |inner, transport| {
             {
-                let state = inner.callable_ledger.as_ref().ok_or_else(|| {
+                let state = inner.source_ledger.callable_ledger().ok_or_else(|| {
                     "[freeze:contract][borrowed-entry/callable-state-missing]".to_owned()
                 })?;
                 state
@@ -126,8 +126,8 @@ pub(super) fn with_callable_source_scope<'port, 'collector, 'source, R>(
     state.lend_ordinary_new_claim_ledger(Rc::clone(&ordinary_new_claim_ledger));
     let state = Rc::new(RefCell::new(state));
     let mut scoped_inner = inner.reborrow();
-    scoped_inner.semantic_ledger = None;
-    scoped_inner.callable_ledger = Some(state.clone());
+    scoped_inner.source_ledger =
+        crate::mir::builder::recursive_child_lowering::SourceLedgerV1::Callable(state.clone());
     scoped_inner.source_input = Some(input);
     if let Some(source) = owned_array_source {
         source.require_same_ledger_v1(&ordinary_new_claim_ledger)?;

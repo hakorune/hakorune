@@ -32,7 +32,7 @@ pub(super) fn emit_return(
     let claims = port.ordinary_new_claim_ledger.clone().ok_or_else(|| freeze("claim-ledger-missing"))?;
     let mut exit_prepared = false;
     let (value, read) = if let Some(source_read) = &source.read {
-        let state = port.callable_ledger.clone().ok_or_else(|| freeze("state-missing"))?;
+        let state = port.source_ledger.callable_ledger().cloned().ok_or_else(|| freeze("state-missing"))?;
         let mut state = state.borrow_mut();
         let prepared = state.prepare_exact_lexical_read(input.owner(), source_read.read().node(), source_read.binding())
             .map_err(|error| error.to_string())?;
@@ -75,7 +75,7 @@ pub(super) fn emit_return(
         (value, None)
     };
     if !exit_prepared && !claims.prepare_root_home_exit(input.owner(), source.site.node())? { return Err(freeze("call-source-missing")); }
-    let state = port.callable_ledger.clone().ok_or_else(|| freeze("state-missing"))?;
+    let state = port.source_ledger.callable_ledger().cloned().ok_or_else(|| freeze("state-missing"))?;
     let mut state = state.borrow_mut();
     // Text carriers not owned as Homes (Header/branch/transferred Residence) still owe
     // their End here; the Ends join the exit order before it is emitted.
@@ -243,7 +243,7 @@ pub(super) fn emit_call(
     let claims = port.ordinary_new_claim_ledger.clone().ok_or_else(|| freeze("claim-ledger-missing"))?;
     {
         // The Call's Fault unwind also owes the live Text carriers' Ends.
-        let state = port.callable_ledger.clone().ok_or_else(|| freeze("state-missing"))?;
+        let state = port.source_ledger.callable_ledger().cloned().ok_or_else(|| freeze("state-missing"))?;
         let state = state.borrow();
         let ends = text_carrier_ends(&claims, &state, product.call_text_carriers_v2(observation.site())?,
             &observation.prior_homes().iter().map(|home| home.binding()).collect::<Vec<_>>())?;
@@ -311,8 +311,7 @@ pub(super) fn input<'source>(
         .as_ref()
         .ok_or_else(|| freeze("claim-ledger-missing"))?;
     let state = port
-        .callable_ledger
-        .as_ref()
+        .source_ledger.callable_ledger()
         .ok_or_else(|| freeze("state-missing"))?;
     if port.callable_loop_root_scope.is_none()
         || input.owner() != product.source.source.owner()

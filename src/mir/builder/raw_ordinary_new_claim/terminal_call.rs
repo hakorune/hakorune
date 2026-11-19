@@ -22,7 +22,7 @@ pub(super) fn emit_terminal_i64_call_exit(
     }
     if let Some(source) = ledger.return_expression_evaluation_v1(owner, &stmt_site)? {
         let consume = port.lexical_self_receiver_locator_consumer_v1()?;
-        let state = std::rc::Rc::clone(port.callable_ledger.as_ref()
+        let state = std::rc::Rc::clone(port.source_ledger.callable_ledger()
             .ok_or("[freeze:contract][terminal-call/state-missing]")?);
         let ledger = std::rc::Rc::clone(ledger);
         let port = std::cell::RefCell::new(port);
@@ -40,8 +40,7 @@ pub(super) fn emit_terminal_i64_call_exit(
     if let Some(row) = ledger.take_borrowed_lexical_call_for_return_v1(owner, &stmt_site)? {
         port.consume_lexical_self_receiver_locator_v1(&row)?;
         let state = port
-            .callable_ledger
-            .as_ref()
+            .source_ledger.callable_ledger()
             .ok_or("[freeze:contract][terminal-call/state-missing]")?;
         return crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_borrowed_return(
             builder, &mut state.borrow_mut(), ledger, owner, &stmt_site, row,
@@ -52,8 +51,7 @@ pub(super) fn emit_terminal_i64_call_exit(
         .map_err(|error| format!("[freeze:contract][terminal-call/{error}]"))?
     {
         let state = port
-            .callable_ledger
-            .as_ref()
+            .source_ledger.callable_ledger()
             .ok_or("[freeze:contract][terminal-call/state-missing]")?;
         let receiver = state
             .borrow_mut()
@@ -84,7 +82,7 @@ pub(super) fn emit_terminal_i64_call_exit(
                 take_terminal_static_publication_v1, StaticResultPublicationIngressV1,
             };
             let consume_receiver = port.lexical_self_receiver_locator_consumer_v1()?;
-            let state = std::rc::Rc::clone(port.callable_ledger.as_ref()
+            let state = std::rc::Rc::clone(port.source_ledger.callable_ledger()
                 .ok_or("[freeze:contract][static-terminal/state-missing]")?);
             let port = std::cell::RefCell::new(port);
             let ingress = take_terminal_static_publication_v1(
@@ -140,8 +138,7 @@ pub(super) fn emit_terminal_i64_call_exit(
         return Ok(None);
     };
     let state = port
-        .callable_ledger
-        .as_ref()
+        .source_ledger.callable_ledger()
         .ok_or("[freeze:contract][terminal-call/state-missing]")?;
     crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit(
         builder,

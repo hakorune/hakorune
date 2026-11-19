@@ -27,13 +27,13 @@ impl ExplicitExternSourcePortV1 for RawInvocationChildPortV1<'_, '_> {
             .current_source_context_v1()
             .and_then(|context| context.site().cloned())
             .ok_or_else(|| "[freeze:contract][explicit-extern/missing-source-site]".to_owned())?;
-        if let Some(ledger) = &self.semantic_ledger {
+        if let Some(ledger) = self.source_ledger.script_ledger() {
             return Ok(ledger
                 .borrow()
                 .explicit_extern_symbol(&site)
                 .map(Into::into));
         }
-        if let Some(ledger) = &self.callable_ledger {
+        if let Some(ledger) = self.source_ledger.callable_ledger() {
             return Ok(ledger
                 .borrow()
                 .explicit_extern_symbol(&site)

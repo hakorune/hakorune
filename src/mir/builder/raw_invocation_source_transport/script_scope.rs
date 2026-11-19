@@ -21,8 +21,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             _ => return Err("[freeze:contract][script-lexical/rebind-source-drift]".to_owned()),
         };
         let ledger = self
-            .semantic_ledger
-            .clone()
+            .source_ledger.script_ledger().cloned()
             .expect("script rebind lowering requires semantic ledger");
         let target_site = self
             .current_source_context_v1()
@@ -50,8 +49,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             .and_then(|context| context.site().cloned())
             .ok_or_else(|| "[freeze:contract][script-array/return-source-site]".to_owned())?;
         let ledger = self
-            .semantic_ledger
-            .as_ref()
+            .source_ledger.script_ledger()
             .expect("selected Script return ledger")
             .clone();
         let recipe = ledger.borrow_mut().take_array_return_recipe(&site)?;
@@ -91,14 +89,14 @@ impl RawInvocationChildPortV1<'_, '_> {
             source.into_lowering_input(),
         )?));
         let finish_state = Rc::clone(&state);
-        let parent = std::mem::replace(&mut self.semantic_ledger, Some(state));
+        let parent = std::mem::replace(&mut self.source_ledger, crate::mir::builder::recursive_child_lowering::SourceLedgerV1::Script(state));
         let result = self.with_source_transport_v1(
             RawInvocationSourceTransportV1::script_semantic_root(()),
             |port, ()| execute(port),
         );
         // Restore the enclosing scope before propagating any finish error.
         // The completed payload moves out; no shared mutable source survives.
-        self.semantic_ledger = parent;
+        self.source_ledger = parent;
         let value = result?;
         let mut state = Rc::try_unwrap(finish_state)
             .map_err(|_| "[freeze:contract][script-source/retained-scope-alias]".to_owned())?

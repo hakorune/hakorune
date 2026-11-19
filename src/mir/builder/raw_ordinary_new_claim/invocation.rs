@@ -28,7 +28,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
             self.emit_checked_print_value_v1(builder, frame)?;
             return Ok(true);
         }
-        let constructor = match &self.callable_ledger {
+        let constructor = match self.source_ledger.callable_ledger() {
             Some(state) => state.borrow().has_next_constructor_call_v1(&site)?,
             None => false,
         };
@@ -42,8 +42,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
             }
             self.consume_lexical_self_receiver_locator_v1(&row)?;
             let state = self
-                .callable_ledger
-                .as_ref()
+                .source_ledger.callable_ledger()
                 .ok_or("[freeze:contract][constructor-unit/state-missing]")?;
             state
                 .borrow_mut()
@@ -70,8 +69,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         self.consume_lexical_self_receiver_locator_v1(&row)?;
         let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
         let state = std::rc::Rc::clone(
-            self.callable_ledger
-                .as_ref()
+            self.source_ledger.callable_ledger()
                 .ok_or("[freeze:contract][unit-call/state-missing]")?,
         );
         let ledger = std::rc::Rc::clone(ledger);
@@ -129,8 +127,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         );
 
         let state = self
-            .callable_ledger
-            .as_ref()
+            .source_ledger.callable_ledger()
             .ok_or("[ordinary-field-read/state-missing]")?;
         let resolve = |binding| {
             state
@@ -320,8 +317,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
             .current_source_site_v1()
             .ok_or("[ordinary-map-get-return/site-missing]")?;
         let state = self
-            .callable_ledger
-            .as_ref()
+            .source_ledger.callable_ledger()
             .ok_or("[ordinary-map-get-return/state-missing]")?;
         if let Some(source) = ledger.stored_map_get_return_source_v1(
             owner,
@@ -378,8 +374,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
             .current_source_site_v1()
             .ok_or("[root-home-exit/site-missing]")?;
         let state = self
-            .callable_ledger
-            .as_ref()
+            .source_ledger.callable_ledger()
             .ok_or("[root-home-exit/state-missing]")?;
         let ledger = self
             .ordinary_new_claim_ledger
@@ -404,8 +399,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
             .current_source_site_v1()
             .ok_or("[root-home-unit-exit/site-missing]")?;
         let state = self
-            .callable_ledger
-            .as_ref()
+            .source_ledger.callable_ledger()
             .ok_or("[root-home-unit-exit/state-missing]")?;
         let ledger = self
             .ordinary_new_claim_ledger
@@ -446,8 +440,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
             .expect("checked ledger")
             .clone();
         let state = self
-            .callable_ledger
-            .as_ref()
+            .source_ledger.callable_ledger()
             .expect("checked state")
             .clone();
         let consume = self.lexical_self_receiver_locator_consumer_v1()?;
@@ -526,8 +519,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
             .expect("checked ledger")
             .clone();
         let state = self
-            .callable_ledger
-            .as_ref()
+            .source_ledger.callable_ledger()
             .expect("checked state")
             .clone();
         let consume = self.lexical_self_receiver_locator_consumer_v1()?;
@@ -588,8 +580,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
             return Err("[freeze:contract][owned-array/construction-syntax-drift]".into());
         }
         let relation = self
-            .callable_ledger
-            .as_ref()
+            .source_ledger.callable_ledger()
             .ok_or("[freeze:contract][owned-array/callable-state-missing]")?
             .borrow()
             .expression_initializer(site.site().node())?;
@@ -618,8 +609,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         crate::mir::builder::ordinary_new_admission::selected::owned_array::emit_construction(
             builder,
             &mut self
-                .callable_ledger
-                .as_ref()
+                .source_ledger.callable_ledger()
                 .expect("checked callable state")
                 .borrow_mut(),
             self.ordinary_new_claim_ledger
@@ -631,7 +621,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
 
     fn validate_named_array_construction_route(&self, named_route: bool) -> Result<(), String> {
         let (Some(ledger), Some(site)) =
-            (self.callable_ledger.as_ref(), self.current_source_site_v1())
+            (self.source_ledger.callable_ledger(), self.current_source_site_v1())
         else {
             return Ok(());
         };
@@ -703,7 +693,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         let Some(site) = self.current_source_site_v1() else {
             return Ok(None);
         };
-        let Some(ledger) = self.callable_ledger.as_ref() else {
+        let Some(ledger) = self.source_ledger.callable_ledger() else {
             return Ok(None);
         };
         let site = crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site);

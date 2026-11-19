@@ -81,7 +81,7 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
             admission_observation,
         )?;
         if self.callable_loop_root_scope.is_some() {
-            let callable_ledger = self.callable_ledger.clone().ok_or_else(|| {
+            let callable_ledger = self.source_ledger.callable_ledger().cloned().ok_or_else(|| {
                 "[freeze:contract][raw-loop-child-entry/callable-ledger-missing]".to_owned()
             })?;
             let consume_publication = source.site().map(|site| {
@@ -471,7 +471,7 @@ static function mixed_loop(x: i64): i64 {
                 crate::mir::builder::control_flow::cleanup::CleanupExitPolicyV1::default(),
                 &mut scope,
             );
-        port.callable_ledger = Some(ledger);
+        port.source_ledger = crate::mir::builder::recursive_child_lowering::SourceLedgerV1::Callable(ledger);
         port.active_source = Some(RawInvocationSourceContextV1::Located {
             root: RawInvocationRootLineageV1::ScriptRoot,
             site: nested_site,

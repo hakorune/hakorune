@@ -30,7 +30,7 @@ impl EnumVariantSourceDemandPortV1 for RawInvocationChildPortV1<'_, '_> {
         &self,
         expression: &ASTNode,
     ) -> Result<Option<EnumVariantAdmissionV1>, String> {
-        let Some(ledger) = &self.semantic_ledger else {
+        let Some(ledger) = self.source_ledger.script_ledger() else {
             return Ok(None);
         };
         if !matches!(expression, ASTNode::FromCall { .. }) {

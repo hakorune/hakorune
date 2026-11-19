@@ -56,8 +56,7 @@ impl CallableBindingMaterializationPortV1 for RawInvocationChildPortV1<'_, '_> {
             return Ok(None);
         };
         let state = self
-            .callable_ledger
-            .as_ref()
+            .source_ledger.callable_ledger()
             .ok_or_else(|| freeze("implicit-end-state-missing"))?;
         super::port_aware_function_draft_impl::ImplicitCallableEndV1::new(
             owner,
@@ -72,7 +71,7 @@ impl CallableBindingMaterializationPortV1 for RawInvocationChildPortV1<'_, '_> {
         builder: &mut MirBuilder,
         shape: CallableEntryShapeV1,
     ) -> Result<(), String> {
-        let Some(ledger) = self.callable_ledger.clone() else {
+        let Some(ledger) = self.source_ledger.callable_ledger().cloned() else {
             return Ok(());
         };
         let has_physical_formals = shape.has_physical_formals();
@@ -150,7 +149,7 @@ impl RawInvocationChildPortV1<'_, '_> {
     ) -> Result<ValueId, String> {
         if let (Some(claims), Some(state)) = (
             self.ordinary_new_claim_ledger.clone(),
-            self.callable_ledger.clone(),
+            self.source_ledger.callable_ledger().cloned(),
         ) {
             let site = self.current_callable_site_v1("rebind-expression/statement-site")?;
             let frame = claims.rebind_expression_frame_v1(state.borrow().owner(), &site)?;
@@ -221,8 +220,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             .clone()
             .ok_or_else(|| "[freeze:contract][print-expression/ledger-missing]".to_owned())?;
         let state = self
-            .callable_ledger
-            .clone()
+            .source_ledger.callable_ledger().cloned()
             .ok_or_else(|| "[freeze:contract][print-expression/state-missing]".to_owned())?;
         let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
         let port = std::cell::RefCell::new(self);
@@ -251,7 +249,7 @@ impl RawInvocationChildPortV1<'_, '_> {
     ) -> Result<Option<super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1>, String>{
         let (Some(claims), Some(state)) = (
             self.ordinary_new_claim_ledger.clone(),
-            self.callable_ledger.clone(),
+            self.source_ledger.callable_ledger().cloned(),
         ) else {
             return Ok(None);
         };
@@ -465,7 +463,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         &self,
         input: &ASTNode,
     ) -> Result<bool, String> {
-        if self.callable_ledger.is_none() || !matches!(input, ASTNode::New { .. }) {
+        if self.source_ledger.callable_ledger().is_none() || !matches!(input, ASTNode::New { .. }) {
             return Ok(false);
         }
         let site = self.current_callable_site_v1("map-site")?;
@@ -482,8 +480,7 @@ impl RawInvocationChildPortV1<'_, '_> {
     ) -> Result<ValueId, String> {
         use crate::mir::resolved_semantics::home_new_prefix::MapDestinationV1;
         let state = self
-            .callable_ledger
-            .clone()
+            .source_ledger.callable_ledger().cloned()
             .ok_or_else(|| freeze("map-no-state"))?;
         let claims = self
             .ordinary_new_claim_ledger
@@ -519,8 +516,7 @@ impl RawInvocationChildPortV1<'_, '_> {
 
     pub(super) fn read_callable_variable_v1(&self) -> Result<ValueId, String> {
         let ledger = self
-            .callable_ledger
-            .as_ref()
+            .source_ledger.callable_ledger()
             .expect("callable variable lowering requires its scoped ledger");
         let site = self.current_callable_site_v1("variable-site")?;
         ledger.borrow_mut().read_variable_retaining_return_v1(&site)
@@ -531,8 +527,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
         value: ValueId,
     ) -> Result<(), String> {
-        self.callable_ledger
-            .as_ref()
+        self.source_ledger.callable_ledger()
             .expect("callable rebind lowering requires its scoped ledger")
             .borrow_mut()
             .rebind(site, value)

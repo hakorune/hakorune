@@ -87,14 +87,14 @@ impl BrandConstructorSourcePortV1 for RawInvocationChildPortV1<'_, '_> {
             return Ok(RawBrandCallAuthorityV1::UnclassifiedSource);
         };
         let context = self.current_source_context_v1();
-        if self.semantic_ledger.is_some()
+        if self.source_ledger.script_ledger().is_some()
             && context
                 .as_ref()
                 .is_some_and(is_semantic_script_root_compatibility_context_v1)
         {
             return Ok(RawBrandCallAuthorityV1::ScriptRootParkedCompatibility);
         }
-        if self.semantic_ledger.is_none() && self.callable_ledger.is_none() {
+        if self.source_ledger.script_ledger().is_none() && self.source_ledger.callable_ledger().is_none() {
             if context
                 .as_ref()
                 .is_some_and(is_raw_script_root_compatibility_context_v1)
@@ -108,7 +108,7 @@ impl BrandConstructorSourcePortV1 for RawInvocationChildPortV1<'_, '_> {
                 return Ok(RawBrandCallAuthorityV1::RawRootMainParkedCompatibility);
             }
         }
-        let Some(ledger) = self.callable_ledger.clone() else {
+        let Some(ledger) = self.source_ledger.callable_ledger().cloned() else {
             return Ok(RawBrandCallAuthorityV1::UnclassifiedSource);
         };
         let context = context

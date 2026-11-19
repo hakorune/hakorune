@@ -18,8 +18,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         input: ASTNode,
     ) -> Result<ValueId, String> {
         let ledger = self
-            .semantic_ledger
-            .clone()
+            .source_ledger.script_ledger().cloned()
             .expect("script nowait lowering requires semantic ledger");
         let site = self
             .current_source_context_v1()
@@ -48,8 +47,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         input: ASTNode,
     ) -> Result<ValueId, String> {
         let ledger = self
-            .semantic_ledger
-            .clone()
+            .source_ledger.script_ledger().cloned()
             .expect("script Outbox lowering requires semantic ledger");
         let site = self
             .current_source_context_v1()

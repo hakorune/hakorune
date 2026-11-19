@@ -55,7 +55,7 @@ impl RawInvocationChildPortV1<'_, '_> {
     ) -> Result<ScriptDirectStaticClaimIngressV1, String> {
         let context = self.current_source_context_v1();
         classify_script_direct_static_claim_ingress_v1(
-            self.semantic_ledger.is_some(),
+            self.source_ledger.script_ledger().is_some(),
             context.as_ref(),
         )
     }
@@ -67,7 +67,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         _receiver: &ASTNode,
         arguments: &[ASTNode],
     ) -> Result<ScriptDirectStaticClaimTakeV1, String> {
-        let Some(ledger) = self.semantic_ledger.clone() else {
+        let Some(ledger) = self.source_ledger.script_ledger().cloned() else {
             return Ok(ScriptDirectStaticClaimTakeV1::Unavailable);
         };
         let Some(context) = self.current_source_context_v1() else {
@@ -140,7 +140,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         &mut self,
         claimed: ScriptDirectStaticClaimedRowV1,
     ) -> Result<(), ScriptDirectStaticClaimCompletionErrorV1> {
-        let Some(ledger) = self.semantic_ledger.clone() else {
+        let Some(ledger) = self.source_ledger.script_ledger().cloned() else {
             return Err(ScriptDirectStaticClaimCompletionErrorV1::Unavailable);
         };
         let result = ledger

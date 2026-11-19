@@ -6,9 +6,7 @@ use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::ExprChildRoleV1;
 
 use super::normal_callable_binding_materialization::freeze;
-use super::raw_invocation_source_transport::{
-    RawInvocationRootLineageV1, RawInvocationSourceContextV1,
-};
+use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use super::recursive_child_lowering::{RawInvocationChildPortV1, RecursiveChildLoweringPortV1};
 use super::stmts::variable_stmt::LocalValuePlacement;
 use super::stmts::{
@@ -24,7 +22,7 @@ impl RawInvocationChildPortV1<'_, '_> {
     ) -> Result<ControlFlow<ValueId, ASTNode>, String> {
         match input {
             local @ ASTNode::Local { .. }
-                if self.callable_ledger.is_some() || self.semantic_ledger.is_some() =>
+                if self.source_ledger.callable_ledger().is_some() || self.source_ledger.script_ledger().is_some() =>
             {
                 Ok(ControlFlow::Break(
                     self.lower_source_local_v1(builder, local)?.result(),
@@ -42,15 +40,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         input: ASTNode,
     ) -> Result<CompletedLocalStatementV1, String> {
         let source = self.active_source.as_ref();
-        let script_root = matches!(
-            source.and_then(RawInvocationSourceContextV1::root_lineage),
-            Some(RawInvocationRootLineageV1::ScriptRoot)
-        );
-        let callable = self
-            .callable_ledger
-            .as_ref()
-            .filter(|_| !script_root || self.semantic_ledger.is_none())
-            .cloned();
+        let callable = self.source_ledger.callable_ledger().cloned();
         let site = source
             .and_then(RawInvocationSourceContextV1::site)
             .cloned()
@@ -60,8 +50,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             })?;
         let (input, script_local) = if callable.is_none() {
             let ledger = self
-                .semantic_ledger
-                .clone()
+                .source_ledger.script_ledger().cloned()
                 .expect("script local lowering requires semantic ledger");
             let relation = ledger
                 .borrow()

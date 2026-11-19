@@ -10,7 +10,7 @@ impl RawInvocationChildPortV1<'_, '_> {
     ) -> Result<Option<ValueId>, String> {
         let (Some(ledger), Some(state), Some(source_input), Some(node)) = (
             &self.ordinary_new_claim_ledger,
-            &self.callable_ledger,
+            self.source_ledger.callable_ledger(),
             self.source_input,
             self.current_source_site_v1(),
         ) else {
