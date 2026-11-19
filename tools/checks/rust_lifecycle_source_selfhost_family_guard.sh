@@ -14,6 +14,7 @@ INDEX="$ROOT/docs/tools/check-scripts-index.md"
 python3 "$SPLIT_TOOL" --check
 python3 - "$ROOT" "$MANIFEST" "$HISTORY" "$LEGACY_MANIFEST" "$SPLIT_PROVENANCE" "$STATE" "$POLICY" "$INDEX" <<'PY'
 import json
+import subprocess
 import sys
 from pathlib import Path
 import tomllib
@@ -117,7 +118,15 @@ for row in [*rows, *history_rows]:
             die(f"fixture missing kind: {fixture}")
     legacy_guard = row.get("legacy_guard") or ""
     if legacy_guard and not (root / legacy_guard).exists():
-        die(f"legacy guard missing: {legacy_guard}")
+        # Frozen history retains original paths after a guard is retired.
+        if token in active_by_token:
+            die(f"legacy guard missing: {legacy_guard}")
+        latest_change = subprocess.check_output(
+            ["git", "-C", str(root), "log", "-1", "--format=", "--name-status", "--", legacy_guard],
+            text=True,
+        ).strip()
+        if latest_change != f"D\t{legacy_guard}":
+            die(f"historical guard missing without a recorded deletion: {legacy_guard}")
 
 for key, expected in (manifest.get("forbidden_claims") or {}).items():
     if expected != 0:
