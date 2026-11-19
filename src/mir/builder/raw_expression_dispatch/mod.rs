@@ -19,6 +19,10 @@ pub(in crate::mir::builder) fn unsupported_raw_ast_node_error_v1(ast: &ASTNode) 
     format!("Unsupported AST node type: {:?}", ast)
 }
 
+pub(in crate::mir::builder) fn legacy_lambda_surface_retired_v1() -> String {
+    "[freeze:contract][LegacyLambdaSurfaceRetired]: legacy fn(...) {...} expressions are retired; explicit-capture fn[captures](...): T remains reserved".to_owned()
+}
+
 use self::block_expr::{lower_prepared_raw_block_expr_with_port_v1, PreparedRawBlockExprV1};
 use self::explicit_extern_source_port::ExplicitExternSourcePortV1;
 pub(in crate::mir::builder) use self::nonmain_static_box_lifecycle::PreparedRawNonMainStaticBoxLifecycleV1;
@@ -347,10 +351,7 @@ impl super::MirBuilder {
             }
 
 
-            ASTNode::Lambda { .. } => Err(
-                "[freeze:contract][LegacyLambdaSurfaceRetired]: legacy fn(...) {...} expressions are retired; explicit-capture fn[captures](...): T remains reserved"
-                    .to_string(),
-            ),
+            ASTNode::Lambda { .. } => Err(legacy_lambda_surface_retired_v1()),
 
             ASTNode::BoxDeclaration {
                 name,

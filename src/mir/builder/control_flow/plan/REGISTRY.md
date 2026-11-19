@@ -139,7 +139,7 @@ Rejected bypasses:
 - new `plan/mod.rs` public exports need an owner, consumer, and retire/promote
   note in this registry.
 
-## Source-backed handoff surfaces (2026-09-21 census)
+## Source-backed Loop handoff
 
 The source-backed loop handoff is one associated-source family. These recent
 files are named here so the code-side registry does not confuse a new physical
@@ -147,9 +147,9 @@ surface with a new route or semantic issuer:
 
 | Surface | Role | Current disposition |
 |---|---|---|
-| `features/loop_break_source.rs` | LoopBreak source physical adapter | direct row parked; composite owner is `NoSafeSlice` |
+| `features/loop_break_composite_source.rs` | Composite LoopBreak adapter | active for the remaining compound source inputs |
 | `features/loop_cond_bc_source.rs` | LoopCond source item adapter | consumes the existing LoopCond owner |
-| `features/loop_true_break_continue_source.rs` | LoopTrue source physical adapter | landed bounded consumer |
+| `lowerer/source_loop_driver.rs` | Checked Loop writer | lowers the retained source plan |
 | `parts/associated_source/callable_loop_source.rs` | associated-source input owner | shared source handoff owner |
 | `parts/associated_source/callable_loop_source_items.rs` | source item bindings | shared source handoff part |
 | `parts/associated_source/callable_loop_source_lowering.rs` | source item lowering seam | shared source handoff part |
@@ -163,10 +163,9 @@ not authorize a second Recipe, route, or fallback.
 ## Notes (avoid box explosion)
 
 - Canon (analysis-only) lives in `src/mir/builder/control_flow/generic_loop_canon/`; the former plan-side forwarding shelf is retired.
-- Skeletons (blocks/frags) live in `src/mir/builder/control_flow/plan/skeletons/`.
 - Features (delta apply) live in `src/mir/builder/control_flow/plan/features/`.
-- Oracle `features/*_pipeline.rs` entries (generic_loop / loop_true_break_continue / loop_cond_break_continue / loop_cond_continue_only / loop_cond_continue_with_return / loop_cond_return_in_body / scan_with_init / split_scan) and the `recipe_tree/*_composer.rs` facade methods were retired with the ordered scheduler / oracle chain (R0 + M12-R2B). Live loop lowering is source-backed: `raw_loop_child_entry.rs` → source lowerers (`features/loop_true_break_continue_source.rs`, `features/loop_cond_bc_source.rs`, `loop_break_*_source.rs`) → retained helpers (`loop_true_break_continue_{cleanup,phi_materializer,verifier}`, `loop_cond_bc_*`).
-- `loop_true_early_exit`: skeleton=`plan/skeletons/loop_true.rs`, recipe=`plan/recipe_tree/loop_true_early_exit_builder.rs` (semantic route=`loop_true_early_exit`).
+- Oracle `features/*_pipeline.rs` entries (generic_loop / loop_true_break_continue / loop_cond_break_continue / loop_cond_continue_only / loop_cond_continue_with_return / loop_cond_return_in_body / scan_with_init / split_scan) and the `recipe_tree/*_composer.rs` facade methods were retired with the ordered scheduler / oracle chain (R0 + M12-R2B). The remaining source-backed Plan writers are the bc and composite adapters. Checked source uses the direct driver.
+- The remaining `loop_true_early_exit` Recipe is built by `plan/recipe_tree/loop_true_early_exit_builder.rs`.
 - loop phis are attached via `features/loop_carriers.rs::with_loop_carriers` (ops must not set `phis` directly).
 - carrier collection is centralized in `features/carriers.rs`.
 - JoinFeature (if-join PHI insertion) is `src/mir/builder/control_flow/plan/features/if_join.rs`.
@@ -206,7 +205,6 @@ SSOT: `docs/development/current/main/design/coreplan-skeleton-feature-model.md`
 - `scan_with_init` / `split_scan`: アルゴリズム意図（scan/split）と LoopSkeleton を分離
 - `loop_true_early_exit`: `loop(true)` skeleton + exit_if + carrier update に分離（Phase 29bw: pipeline 化済み）
 - `if_phi_join`: IfSkeleton + JoinFeature（CoreIfJoin）の pred 収集を1箇所に集約
-- `loop_true_break_continue`: LoopTrueSkeleton + ExitIfMapFeature + NestedLoopFeature(depth<=1) に寄せ、planner-required exception 条件は planner 側の slot へ
 - `loop_true_break_continue` の旧正規化ロジックは削除済み（feature 経由の入口のみ）。
 - `loop_cond_break_continue`: LoopCondSkeleton + (ExitIfMap/ConditionalUpdate/CarrierMerge/GuardBreak) を Feature 化して肥大化を防ぐ
 - `ExitBranch`（planned）: If/BranchN/Loop 内の “exit 付きブランチ” を共通 feature として抽出し、exit_if/match/loop の重複を減らす（“例外パターンの堆積” を防ぐ）

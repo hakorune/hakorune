@@ -34,7 +34,6 @@ mod bool_predicate_scan_builder;
 mod char_map_builder;
 mod if_phi_join_builder;
 mod loop_break_builder;
-pub(in crate::mir::builder) use loop_break_builder::build_loop_break_source_recipe;
 mod loop_continue_only_builder;
 mod loop_simple_while_builder;
 mod loop_true_early_exit_builder;

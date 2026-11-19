@@ -12,7 +12,6 @@ use crate::mir::builder::normal_callable_loop_source_facts::composite::VerifiedC
 use crate::mir::builder::normal_callable_loop_source_port::CallableLoopSourceExpressionPortV1;
 use crate::mir::builder::normal_callable_loop_source_route::{
     CallableLoopSourceItemBindingV1, CallableLoopSourceItemDispositionV1,
-    CallableLoopSourceTargetProbeV1,
 };
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceContextV1;
@@ -60,7 +59,7 @@ impl<'source, 'ledger> SourceLoopBreakCompositePhysicalInputV1<'source, 'ledger>
         body: Vec<ASTNode>,
         binding_product: CallableLoopReadyBodyOnlyProductV1,
         source_items: Box<[CallableLoopSourceItemBindingV1]>,
-        source_target_probe: CallableLoopSourceTargetProbeV1,
+        source_dispositions: Box<[CallableLoopSourceItemDispositionV1]>,
         source_ledger: &'ledger Rc<RefCell<CallableSemanticLoweringState>>,
         preissued_source_plan: Option<crate::mir::builder::PreissuedCallableLoopSourcePlanV1>,
         loop_facts_policy: crate::mir::builder::control_flow::plan::LoopFactsPolicyFrameV1,
@@ -90,16 +89,6 @@ impl<'source, 'ledger> SourceLoopBreakCompositePhysicalInputV1<'source, 'ledger>
                 source_kind,
                 loop_facts_policy,
             )?;
-        }
-        let source_dispositions = source_target_probe
-            .into_item_dispositions(&source_items)
-            .map_err(|error| {
-                format!("[freeze:contract][callable-loop/composite/source-target] {error:?}")
-            })?;
-        if source_items.is_empty() || source_dispositions.is_empty() {
-            return Err(
-                "[freeze:contract][callable-loop/composite/source-target-empty]".to_owned(),
-            );
         }
         binding_product
             .consume_pre_effect(
@@ -261,7 +250,7 @@ impl VerifiedCallableLoopBreakCompositeSourceCandidateV1 {
         body: Vec<ASTNode>,
         binding_product: CallableLoopReadyBodyOnlyProductV1,
         source_items: Box<[CallableLoopSourceItemBindingV1]>,
-        source_target_probe: CallableLoopSourceTargetProbeV1,
+        source_dispositions: Box<[CallableLoopSourceItemDispositionV1]>,
         source_ledger: &'ledger Rc<RefCell<CallableSemanticLoweringState>>,
         preissued_source_plan: Option<crate::mir::builder::PreissuedCallableLoopSourcePlanV1>,
         loop_facts_policy: crate::mir::builder::control_flow::plan::LoopFactsPolicyFrameV1,
@@ -280,7 +269,7 @@ impl VerifiedCallableLoopBreakCompositeSourceCandidateV1 {
             body,
             binding_product,
             source_items,
-            source_target_probe,
+            source_dispositions,
             source_ledger,
             preissued_source_plan,
             loop_facts_policy,

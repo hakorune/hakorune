@@ -107,14 +107,6 @@ impl VerifiedLoopBreakSourceProjectionV1 {
         self.owner
     }
 
-    pub(crate) fn function_origin(&self) -> FunctionOriginV1 {
-        self.function_origin
-    }
-
-    pub(crate) const fn source_kind(&self) -> SemanticOwnerSourceKindV1 {
-        self.source_kind
-    }
-
     pub(crate) fn loop_site(&self) -> &SourceStmtSiteV1 {
         &self.loop_site
     }
@@ -143,16 +135,6 @@ impl VerifiedLoopBreakSourceProjectionV1 {
         &self.step_site
     }
 
-    pub(crate) fn matches_source_identity(
-        &self,
-        function_origin: FunctionOriginV1,
-        source_kind: SemanticOwnerSourceKindV1,
-        site: &SourceStmtSiteV1,
-    ) -> bool {
-        self.function_origin == function_origin
-            && self.source_kind == source_kind
-            && &self.loop_site == site
-    }
 }
 
 pub(crate) fn issue_loop_break_source_projection_v1(

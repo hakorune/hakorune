@@ -14,8 +14,6 @@ mod generic;
 mod loop_break;
 #[path = "normal_callable_loop_source_facts/loop_cond.rs"]
 mod loop_cond;
-#[path = "normal_callable_loop_source_facts/loop_true.rs"]
-mod loop_true;
 #[path = "normal_callable_loop_source_facts/static_i64_v2.rs"]
 mod static_i64_v2;
 

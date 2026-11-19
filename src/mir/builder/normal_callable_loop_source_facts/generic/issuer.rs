@@ -121,29 +121,7 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
             };
         }
         if selection.sole_family() == Some(CallableLoopSoleFamilyV1::LoopTrueBreakContinue) {
-            return match loop_true::issue(
-                owner,
-                parent_source,
-                condition_source,
-                body_source,
-                condition,
-                body,
-                binding_product,
-                function_origin,
-                source_kind,
-                outcome,
-                selection,
-                source_projection,
-                source_items,
-                source_target_probe,
-            ) {
-                Ok(source_facts) => {
-                    CallableGenericLoopSourceFactsDispositionV1::LoopTrueReady(source_facts)
-                }
-                Err(error) => {
-                    CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(error)
-                }
-            };
+            return CallableGenericLoopSourceFactsDispositionV1::FactsAbsent;
         }
         CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(
             CallableGenericLoopSourceFactsRouteErrorV1::NonGenericOrOverlapping {
