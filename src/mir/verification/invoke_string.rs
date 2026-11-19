@@ -10,7 +10,7 @@ use std::collections::BTreeMap;
 
 /// Structural role/lifetime checks are also used before the final source
 /// handoff. Module verification separately demands every exact Call occurrence.
-pub(super) fn check_source_uses(
+pub(in crate::mir) fn check_source_uses(
     function: &MirFunction,
     original: impl Fn(BasicBlockId, usize, usize, ValueId) -> bool,
 ) -> Result<(), &'static str> {

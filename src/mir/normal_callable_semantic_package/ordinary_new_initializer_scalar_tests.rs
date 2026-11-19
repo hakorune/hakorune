@@ -557,7 +557,7 @@ pub(super) fn original_loop_header_body_break_and_backedge_keep_one_basis_and_ex
                 "body/If slots cannot borrow this Loop condition's attachment");
             assert!(Rc::ptr_eq(&product.source.source, ledger.retained_loop_source_v1(input.owner(), &site).unwrap().unwrap()));
             let policy = crate::mir::builder::LoopFactsPolicyFrameV1::from_values(false, false, false, false, false, true);
-            let foreign = crate::mir::builder::issue_preissued_callable_loop_source_plan_v1(input, &site, policy).unwrap();
+            let foreign = crate::mir::builder::issue_preissued_callable_loop_source_plan_v1(input, &site, policy, false).unwrap();
             assert!(foreign.validate_source_recipe_attachment_v2(product).is_err(),
                 "equal source reissued by another planner cannot borrow this product");
             let mut paired = ledger.take_preissued_loop_source_handoff_v2(input.owner(), &site).unwrap().unwrap();

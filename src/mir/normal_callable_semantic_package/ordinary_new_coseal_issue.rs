@@ -67,9 +67,7 @@ mod result_membership;
 #[path = "ordinary_new_coseal_issue_loop.rs"]
 mod loop_issue;
 pub(crate) use loop_issue::RetainedSourceLoopProductV1;
-pub(super) use loop_issue::{
-    LoopProductUnavailableV1, SelectedLoopProductRowV1, SelectedLoopProductV1,
-};
+pub(super) use loop_issue::SelectedLoopProductV1;
 
 pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_cohort_v1(
     brands: Option<&crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1>,

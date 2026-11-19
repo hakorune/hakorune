@@ -44,27 +44,37 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
         let trace_name = std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some()
             .then(|| function_name.clone());
 
-        let planned = match retained {
-            Some(retained) => parent_source.site().ok_or_else(|| "[freeze:contract][preissued-loop/parent-missing]".to_owned())
-                .and_then(|site| retained.into_planned(owner, site, function_origin, source_kind, policy)),
-            None => PlannedSourceLoopV1::issue(&condition, &body, policy, function_name, debug).map(|plan| (plan, None)),
-        };
-        let (PlannedSourceLoopV1 { outcome, selection }, source_recipe) = match planned {
-            Ok(planned) => planned,
+        let retained = retained.map(|retained| {
+            parent_source.site().ok_or_else(|| "[freeze:contract][preissued-loop/parent-missing]".to_owned())
+                .and_then(|site| retained.into_issuance(owner, site, function_origin, source_kind, policy))
+        }).transpose();
+        let (planned, source_recipe) = match retained {
+            Ok(retained) => retained.unwrap_or((None, None)),
             Err(error) => return CallableGenericLoopSourceFactsDispositionV1::FactsRejected(error.into_boxed_str()),
         };
-        if let Some(function_name) = trace_name {
-            eprintln!("[local-call-bindings] loop-route owner={owner:?} function={function_name} family={:?} product={}",
-                selection.as_ref().and_then(|selection| selection.sole_family()), source_recipe.is_some());
+        if let Some(product) = source_recipe {
+            if variable_accum_recurrence.is_some() || planned.is_some() {
+                return CallableGenericLoopSourceFactsDispositionV1::FactsRejected(
+                    "[freeze:contract][source-loop/product-route-drift]".into());
+            }
+            return match loop_cond::issue(owner, parent_source, condition_source, body_source,
+                condition, body, binding_product, function_origin, source_kind, None,
+                source_projection, source_items, source_target_probe, call_free, Some(product)) {
+                Ok(source_facts) => CallableGenericLoopSourceFactsDispositionV1::LoopCondReady(source_facts),
+                Err(error) => CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(error),
+            };
         }
-        // A retained verified source product cannot be dropped into another
-        // family, absent selection or the unretained planner/accumulation path.
-        if source_recipe.is_some() && (variable_accum_recurrence.is_some()
-            || !matches!(selection.as_ref().and_then(|selection| selection.sole_family()),
-                Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue | CallableLoopSoleFamilyV1::LoopCondReturnInBody
-                    | CallableLoopSoleFamilyV1::LoopTrueBreakContinue))) {
-            return CallableGenericLoopSourceFactsDispositionV1::FactsRejected(
-                "[freeze:contract][source-loop/product-route-drift]".into());
+        let planned = match planned {
+            Some(planned) => planned,
+            None => match PlannedSourceLoopV1::issue(&condition, &body, policy, function_name, debug) {
+                Ok(planned) => planned,
+                Err(error) => return CallableGenericLoopSourceFactsDispositionV1::FactsRejected(error.into_boxed_str()),
+            },
+        };
+        let PlannedSourceLoopV1 { outcome, selection } = planned;
+        if let Some(function_name) = trace_name {
+            eprintln!("[local-call-bindings] loop-route owner={owner:?} function={function_name} family={:?}",
+                selection.as_ref().and_then(|selection| selection.sole_family()));
         }
         let Some(selection) = selection else {
             return match variable_accum_recurrence {
@@ -84,9 +94,7 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
                 product,
             );
         }
-        if selection.sole_family() == Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue)
-            || matches!(selection.sole_family(), Some(CallableLoopSoleFamilyV1::LoopCondReturnInBody | CallableLoopSoleFamilyV1::LoopTrueBreakContinue))
-                && source_recipe.is_some() {
+        if selection.sole_family() == Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue) {
             return match loop_cond::issue(
                 owner,
                 parent_source,
@@ -97,13 +105,12 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
                 binding_product,
                 function_origin,
                 source_kind,
-                outcome,
-                selection,
+                Some((outcome, selection)),
                 source_projection,
                 source_items,
                 source_target_probe,
                 call_free,
-                source_recipe,
+                None,
             ) {
                 Ok(source_facts) => {
                     CallableGenericLoopSourceFactsDispositionV1::LoopCondReady(source_facts)

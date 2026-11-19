@@ -43,7 +43,7 @@ pub(crate) fn assert_original_loop_source_walk_for_test<E: std::fmt::Debug>(
     );
     let loop_site = SourcePathV1::root_body(3).stmt();
     let plan = crate::mir::builder::issue_preissued_callable_loop_source_plan_v1(
-        input, &loop_site, policy,
+        input, &loop_site, policy, false,
     )
     .unwrap();
     let source = Rc::clone(plan.original_source_v1());

@@ -216,8 +216,7 @@ impl CallableLoopRouteMatchV1 {
 pub(in crate::mir::builder) struct CallableLoopSourceRouteTokenV1 {
     owner: FunctionOwnerIdV1,
     parent_site: SourceNodeSiteV1,
-    outcome: PlanBuildOutcome,
-    selection: CallableLoopRouteMatchV1,
+    legacy: Option<(PlanBuildOutcome, CallableLoopRouteMatchV1)>,
     projection: VerifiedLoopCondBreakContinueSourceForestProjectionV1,
     source_items: Box<[CallableLoopSourceItemBindingV1]>,
     source_coverage: Option<CallableLoopSourceCallCoverageV1>,
@@ -233,46 +232,48 @@ impl CallableLoopSourceRouteTokenV1 {
         selection: CallableLoopRouteMatchV1,
         projection: Option<VerifiedLoopCondBreakContinueSourceForestProjectionV1>,
     ) -> Result<Self, CallableLoopSourceRouteRejectV1> {
-        Self::issue_base(owner, parent_site, function_origin, source_kind, outcome, selection, projection, None)
+        let facts = outcome.facts.as_ref().ok_or(CallableLoopSourceRouteRejectV1::FactsMissing)?;
+        if facts.facts.loop_cond_break_continue().is_none() {
+            return Err(CallableLoopSourceRouteRejectV1::LoopCondFactsMissing);
+        }
+        if selection.sole_family() != Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue) {
+            return Err(CallableLoopSourceRouteRejectV1::RouteNotExclusive {
+                routes: selection.matched_routes().into(),
+            });
+        }
+        let mut token = Self::issue_source(owner, parent_site, function_origin, source_kind, projection)?;
+        token.legacy = Some((outcome, selection));
+        Ok(token)
     }
 
     pub(in crate::mir::builder) fn issue_checked_recipe_v2(
         owner: FunctionOwnerIdV1, parent_site: SourceNodeSiteV1, function_origin: FunctionOriginV1,
-        source_kind: SemanticOwnerSourceKindV1, outcome: PlanBuildOutcome, selection: CallableLoopRouteMatchV1,
+        source_kind: SemanticOwnerSourceKindV1,
         projection: Option<VerifiedLoopCondBreakContinueSourceForestProjectionV1>,
         product: std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
         items: Box<[CallableLoopSourceItemBindingV1]>, probe: CallableLoopSourceTargetProbeV1,
         call_free: Option<VerifiedCallableLoopCallFreeCoverageV1>,
     ) -> Result<Self, CallableLoopSourceRouteRejectV1> {
-        Self::issue_base(owner, parent_site, function_origin, source_kind, outcome, selection, projection, Some(&product))?
-            .with_checked_recipe_v2(product, items, probe, call_free)
+        if !product.source.source.matches_identity_v1(owner, &parent_site, function_origin, source_kind) {
+            return Err(CallableLoopSourceRouteRejectV1::ProjectionIdentityMismatch);
+        }
+        let mut token = Self::issue_source(owner, parent_site, function_origin, source_kind, projection)?;
+        if call_free.as_ref().is_some_and(|coverage| !items.is_empty()
+            || coverage.owner() != owner || coverage.loop_site().node() != &token.parent_site)
+        {
+            return Err(CallableLoopSourceRouteRejectV1::SourceCallResidualEvidence);
+        }
+        CallableLoopSourceCallCoverageV1::validate_checked_recipe_v2(&product, owner, &token.parent_site, &items)?;
+        probe.consume_for_checked_recipe_v2(&items, &product)?;
+        token.source_items = items;
+        token.source_coverage = Some(CallableLoopSourceCallCoverageV1::CheckedRecipe(product));
+        Ok(token)
     }
 
-    fn issue_base(owner: FunctionOwnerIdV1, parent_site: SourceNodeSiteV1, function_origin: FunctionOriginV1,
-        source_kind: SemanticOwnerSourceKindV1, outcome: PlanBuildOutcome, selection: CallableLoopRouteMatchV1,
+    fn issue_source(owner: FunctionOwnerIdV1, parent_site: SourceNodeSiteV1, function_origin: FunctionOriginV1,
+        source_kind: SemanticOwnerSourceKindV1,
         projection: Option<VerifiedLoopCondBreakContinueSourceForestProjectionV1>,
-        checked: Option<&crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
     ) -> Result<Self, CallableLoopSourceRouteRejectV1> {
-        let facts = outcome
-            .facts
-            .as_ref()
-            .ok_or(CallableLoopSourceRouteRejectV1::FactsMissing)?;
-        let checked_return = checked.is_some_and(|product|
-            product.source.source.matches_identity_v1(owner, &parent_site, function_origin, source_kind)
-                && match selection.sole_family() {
-                    Some(CallableLoopSoleFamilyV1::LoopCondReturnInBody) =>
-                        facts.facts.loop_cond_return_in_body().is_some() && product.schedule().returns_v2().next().is_some(),
-                    Some(CallableLoopSoleFamilyV1::LoopTrueBreakContinue) => facts.facts.loop_true_break_continue().is_some(),
-                    _ => false,
-                });
-        if !checked_return && facts.facts.loop_cond_break_continue().is_none() {
-            return Err(CallableLoopSourceRouteRejectV1::LoopCondFactsMissing);
-        }
-        if !checked_return && selection.sole_family() != Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue) {
-            return Err(CallableLoopSourceRouteRejectV1::RouteNotExclusive {
-                routes: selection.matched_routes().into(),
-            });
-        }
         let projection = projection.ok_or(CallableLoopSourceRouteRejectV1::ProjectionMissing)?;
         if projection.owner() != owner {
             return Err(CallableLoopSourceRouteRejectV1::ProjectionOwnerMismatch);
@@ -284,30 +285,11 @@ impl CallableLoopSourceRouteTokenV1 {
         Ok(Self {
             owner,
             parent_site,
-            outcome,
-            selection,
+            legacy: None,
             projection,
             source_items: Box::new([]),
             source_coverage: None,
         })
-    }
-
-    pub(in crate::mir::builder) fn with_checked_recipe_v2(
-        mut self,
-        product: std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
-        items: Box<[CallableLoopSourceItemBindingV1]>, probe: CallableLoopSourceTargetProbeV1,
-        call_free: Option<VerifiedCallableLoopCallFreeCoverageV1>,
-    ) -> Result<Self, CallableLoopSourceRouteRejectV1> {
-        if call_free.as_ref().is_some_and(|coverage| !items.is_empty()
-            || coverage.owner() != self.owner || coverage.loop_site().node() != &self.parent_site)
-            || self.source_coverage.is_some() || !self.source_items.is_empty() {
-            return Err(CallableLoopSourceRouteRejectV1::SourceCallResidualEvidence);
-        }
-        CallableLoopSourceCallCoverageV1::validate_checked_recipe_v2(&product, self.owner, &self.parent_site, &items)?;
-        probe.consume_for_checked_recipe_v2(&items, &product)?;
-        self.source_items = items;
-        self.source_coverage = Some(CallableLoopSourceCallCoverageV1::CheckedRecipe(product));
-        Ok(self)
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -403,12 +385,14 @@ impl CallableLoopSourceRouteTokenV1 {
         &self.parent_site
     }
 
+    #[cfg(test)]
     pub(in crate::mir::builder) fn outcome(&self) -> &PlanBuildOutcome {
-        &self.outcome
+        &self.legacy.as_ref().unwrap().0
     }
 
+    #[cfg(test)]
     pub(in crate::mir::builder) fn selection(&self) -> &CallableLoopRouteMatchV1 {
-        &self.selection
+        &self.legacy.as_ref().unwrap().1
     }
 
     pub(in crate::mir::builder) fn projection(
@@ -443,8 +427,7 @@ impl CallableLoopSourceRouteTokenV1 {
         (
             FunctionOwnerIdV1,
             SourceNodeSiteV1,
-            PlanBuildOutcome,
-            CallableLoopRouteMatchV1,
+            Option<PlanBuildOutcome>,
             VerifiedLoopCondBreakContinueSourceForestProjectionV1,
             Box<[CallableLoopSourceItemBindingV1]>,
             CallableLoopSourceCallCoverageV1,
@@ -454,8 +437,7 @@ impl CallableLoopSourceRouteTokenV1 {
         let Self {
             owner,
             parent_site,
-            outcome,
-            selection,
+            legacy,
             projection,
             source_items,
             source_coverage,
@@ -480,26 +462,10 @@ impl CallableLoopSourceRouteTokenV1 {
                 }
             }
         }
-        let checked_return = matches!(&source_coverage, CallableLoopSourceCallCoverageV1::CheckedRecipe(product)
-            if product.source.source.owner() == owner && product.source.source.site().node() == &parent_site
-                && match selection.sole_family() {
-                    Some(CallableLoopSoleFamilyV1::LoopCondReturnInBody) =>
-                        outcome.facts.as_ref().is_some_and(|facts| facts.facts.loop_cond_return_in_body().is_some())
-                            && product.schedule().returns_v2().next().is_some(),
-                    Some(CallableLoopSoleFamilyV1::LoopTrueBreakContinue) =>
-                        outcome.facts.as_ref().is_some_and(|facts| facts.facts.loop_true_break_continue().is_some()),
-                    _ => false,
-                });
-        if !checked_return && selection.sole_family() != Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue) {
-            return Err(CallableLoopSourceRouteRejectV1::RouteNotExclusive {
-                routes: selection.matched_routes().into(),
-            });
-        }
         Ok((
             owner,
             parent_site,
-            outcome,
-            selection,
+            legacy.map(|(outcome, _)| outcome),
             projection,
             source_items,
             source_coverage,

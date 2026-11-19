@@ -81,6 +81,15 @@ impl VerifiedSourceValueFlowV1 {
             .filter(|(original, _)| *original == binding)
             .map(|(_, value)| *value)
     }
+    /// Whether this exact generation reaches a read or a subsequent join.
+    pub(crate) fn has_consumer_v1(&self, value: SourceValueRefV1) -> bool {
+        self.complete && value.owner == self.owner
+            && (self.reads.values().any(|(_, read)| *read == value)
+                || self.nodes.iter().any(|node| matches!(node,
+                    SourceValueOriginV1::Join { incoming, .. }
+                        if incoming.iter().any(|(_, input)| *input == value))))
+    }
+
     /// Original Loop join and its complete predecessor census. Readonly
     /// normalization may redirect reads while retaining this original node.
     /// This passive query never picks an incoming or grants a value class.

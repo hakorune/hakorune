@@ -40,6 +40,28 @@ impl ports::SourceLoopScanSummaryV1 {
             {
                 return Err("source Loop predecessor census mismatch");
             }
+            use SourceLoopTextProducerV1 as Text;
+            let detached_text_home = |producer: &SourceLoopValueProducerV1| {
+                match producer {
+                    SourceLoopValueProducerV1::Text(Text::Residence(acquisition)) =>
+                        !self.condition.prior_homes().iter().any(|home|
+                            matches!(home, LiveHomeV1::Text(entry) if acquisition.same_source(entry))),
+                    SourceLoopValueProducerV1::Text(Text::BranchNormal(branch)) =>
+                        branch.is_owned_residence_tree_v1(),
+                    SourceLoopValueProducerV1::Text(Text::After { .. }) => true,
+                    _ => false,
+                }
+            };
+            // A carried Text Home outside the ordinary scope ledger needs a
+            // real continuation consumer. An unused After has no End owner.
+            if (detached_text_home(basis.entry_producer())
+                || row.header_incoming().iter().chain(row.after_incoming())
+                    .any(|edge| detached_text_home(&edge.producer)))
+                && !row.after_incoming().is_empty()
+                && !flow.has_consumer_v1(row.after)
+            {
+                return Err("source Loop Text After cleanup unavailable");
+            }
         }
         let conditions = self
             .bool_expressions

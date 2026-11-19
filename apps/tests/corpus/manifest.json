@@ -16841,6 +16841,123 @@
       "cadence": "every"
     },
     {
+      "path": "apps/tests/corpus/loop-after/i-0.hako",
+      "sha256": "80f84d8878d3a07bd2d69f8e6173731e65d707ab732170ff8fcb059e0777740d",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every",
+      "expected": {
+        "exit": 0,
+        "stdout": "Result: 0\n"
+      }
+    },
+    {
+      "path": "apps/tests/corpus/loop-after/i-1.hako",
+      "sha256": "a90301115aa9f3d20d5ffd23f28ddd3fa0e32a7452974cb0667c3b947e4db368",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every",
+      "expected": {
+        "exit": 1,
+        "stdout": "Result: 1\n"
+      }
+    },
+    {
+      "path": "apps/tests/corpus/loop-after/i-3.hako",
+      "sha256": "b0d5e5650ce2094b914a0a13b4b9148d0b1bf9f2a5076d38f97bb8a4c06eceb2",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every",
+      "expected": {
+        "exit": 3,
+        "stdout": "Result: 3\n"
+      }
+    },
+    {
+      "path": "apps/tests/corpus/loop-after/print-0.hako",
+      "sha256": "af220d4d9c581a4a82513dba4dc05fa2fd699f8ad98eb5fe2ad3cd39119bdca2",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every",
+      "expected": {
+        "exit": 16,
+        "stdout": "1\n0\nResult: 16\n"
+      }
+    },
+    {
+      "path": "apps/tests/corpus/loop-after/print-1.hako",
+      "sha256": "822c29bc4db0203275d05356806abcc9e39464b657254416ab3e34eb49a662ae",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every",
+      "expected": {
+        "exit": 33,
+        "stdout": "2\n1\nResult: 33\n"
+      }
+    },
+    {
+      "path": "apps/tests/corpus/loop-after/print-3.hako",
+      "sha256": "fe0618bbfa061a28278698b21d3a20dd5d5c7355b20b7cefc05a64197473634d",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every",
+      "expected": {
+        "exit": 131,
+        "stdout": "8\n3\nResult: 131\n"
+      }
+    },
+    {
+      "path": "apps/tests/corpus/loop-after/scale-0.hako",
+      "sha256": "b2bc9b7db86469292dab1fbeffbd7974db4a71b048b0f10e6befbb99cbf541c0",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every",
+      "expected": {
+        "exit": 1,
+        "stdout": "Result: 1\n"
+      }
+    },
+    {
+      "path": "apps/tests/corpus/loop-after/scale-1.hako",
+      "sha256": "00325b5fa41df1b771ba88c753aa0970ebc425238be9e3425e67688a36116bc6",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every",
+      "expected": {
+        "exit": 2,
+        "stdout": "Result: 2\n"
+      }
+    },
+    {
+      "path": "apps/tests/corpus/loop-after/scale-3.hako",
+      "sha256": "d8e850af21b9ededc3a52d5d2726f23b52d4904e6a351e91f8566f6821f81b13",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every",
+      "expected": {
+        "exit": 8,
+        "stdout": "Result: 8\n"
+      }
+    },
+    {
       "path": "apps/tests/corpus/lp/l01_sum_acc.hako",
       "sha256": "b19038435de599640171973baa061472eda0c3e14ad2d2230898898d79c92278",
       "groups": [
