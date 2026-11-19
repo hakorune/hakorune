@@ -333,7 +333,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 }
             }
         }
-        let (function_origin, source_kind, mut source_projection, source_items, call_free) =
+        let (function_origin, source_kind, source_projection, source_items, call_free) =
             if let Some(callable_ledger) = callable_ledger {
                 let Some(parent_site) = parent_source.site() else {
                     return Err(
@@ -369,7 +369,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             } else {
                 (None, None, None, Box::default(), None)
             };
-        let (loop_break_candidate, composite_loop_break_candidate) =
+        let (direct_candidate, composite_loop_break_candidate) =
             match (callable_ledger, parent_source.site()) {
                 (Some(callable_ledger), Some(parent_site)) => {
                     let mut state = callable_ledger.borrow_mut();
@@ -404,110 +404,59 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             };
         if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
             eprintln!("[local-call-bindings] raw-loop-routes function={function_name} checked={checked_source_selected} variable-accum={} loop-break={} composite-break={}",
-                variable_accum_recurrence.is_some(), loop_break_candidate.is_some(), composite_loop_break_candidate.is_some());
+                variable_accum_recurrence.is_some(), direct_candidate.is_some(), composite_loop_break_candidate.is_some());
         }
-        match loop_break_candidate {
-            Some(candidate) => {
-                let callable_ledger = callable_ledger.ok_or_else(|| {
-                    "[freeze:contract][callable-loop/loop-break/source-port-ledger-missing]"
-                        .to_owned()
+        if direct_candidate.is_some() {
+            return Err("[freeze:contract][callable-loop/facts-absent]".to_owned());
+        }
+        if let Some(candidate) = composite_loop_break_candidate {
+            // A composite writer is eligible only when every original
+            // call already has a selected disposition.
+            let source_dispositions = source_target_probe
+                .into_item_dispositions(&source_items)
+                .map_err(|error| {
+                    format!("[freeze:contract][callable-loop/composite/source-target] {error:?}")
                 })?;
-                let forest_projection = source_projection.take().ok_or_else(|| {
-                    "[freeze:contract][callable-loop/loop-break/source-forest-missing]".to_owned()
-                })?;
-                let retained = ledger_bridge::take_preissued_source_plan_v1(
-                    Some(callable_ledger),
-                    owner,
-                    parent_source.site(),
-                )?;
-                let physical_input = candidate.into_physical_input(
-                    parent_source,
-                    loop_node,
-                    condition_source,
-                    body_source,
-                    condition,
-                    body,
-                    binding_product,
-                    forest_projection,
-                    source_items,
-                    source_target_probe,
-                    callable_ledger,
-                    retained,
-                    policy,
-                    declared_instance_locator,
-                )?;
-                let plan = crate::mir::builder::control_flow::plan::features::
-                    loop_break_source::lower_loop_break_source(builder, &physical_input)?;
-                crate::mir::builder::control_flow::verify::PlanVerifier::verify(&plan)
-                    .map_err(|error| format!("[freeze:contract][callable-loop/verify] {error}"))?;
-                let context = crate::mir::builder::control_flow::plan::lowering_context::
-                    CallableLoopPlanLoweringContextV1::new(function_name, debug);
-                return crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower_with_source_publication(
-                    builder,
-                    plan,
-                    &context,
-                    std::rc::Rc::clone(callable_ledger),
-                )
-                .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?
-                .ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned());
+            if source_items.is_empty() || source_dispositions.is_empty() {
+                return Err("[freeze:contract][callable-loop/composite/source-target-empty]".to_owned());
             }
-            None => {
-                if let Some(candidate) = composite_loop_break_candidate {
-                    // A composite writer is eligible only when every original
-                    // call already has a selected disposition.
-                    let source_dispositions = source_target_probe
-                        .into_item_dispositions(&source_items)
-                        .map_err(|error| {
-                            format!("[freeze:contract][callable-loop/composite/source-target] {error:?}")
-                        })?;
-                    if source_items.is_empty() || source_dispositions.is_empty() {
-                        return Err("[freeze:contract][callable-loop/composite/source-target-empty]".to_owned());
-                    }
-                    let callable_ledger = callable_ledger.ok_or_else(|| {
-                        "[freeze:contract][callable-loop/composite/source-port-ledger-missing]"
-                            .to_owned()
-                    })?;
-                    let retained = ledger_bridge::take_preissued_source_plan_v1(
-                        Some(callable_ledger),
-                        owner,
-                        parent_source.site(),
-                    )?;
-                    let physical_input = candidate.into_physical_input(
-                        parent_source,
-                        loop_node,
-                        condition_source,
-                        body_source,
-                        condition,
-                        body,
-                        binding_product,
-                        source_items,
-                        source_dispositions,
-                        callable_ledger,
-                        retained,
-                        policy,
-                        declared_instance_locator,
-                    )?;
-                    let plan = crate::mir::builder::control_flow::plan::features::
-                        loop_break_composite_source::lower_loop_break_composite_source(
-                            builder,
-                            &physical_input,
-                        )?;
-                    crate::mir::builder::control_flow::verify::PlanVerifier::verify(&plan)
-                        .map_err(|error| {
-                            format!("[freeze:contract][callable-loop/verify] {error}")
-                        })?;
-                    let context = crate::mir::builder::control_flow::plan::lowering_context::
-                        CallableLoopPlanLoweringContextV1::new(function_name, debug);
-                    return crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower_with_source_publication(
-                        builder,
-                        plan,
-                        &context,
-                        std::rc::Rc::clone(callable_ledger),
-                    )
-                    .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?
-                    .ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned());
-                }
-            }
+            let callable_ledger = callable_ledger.ok_or_else(|| {
+                "[freeze:contract][callable-loop/composite/source-port-ledger-missing]".to_owned()
+            })?;
+            let retained = ledger_bridge::take_preissued_source_plan_v1(
+                Some(callable_ledger),
+                owner,
+                parent_source.site(),
+            )?;
+            let physical_input = candidate.into_physical_input(
+                parent_source,
+                loop_node,
+                condition_source,
+                body_source,
+                condition,
+                body,
+                binding_product,
+                source_items,
+                source_dispositions,
+                callable_ledger,
+                retained,
+                policy,
+                declared_instance_locator,
+            )?;
+            let plan = crate::mir::builder::control_flow::plan::features::
+                loop_break_composite_source::lower_loop_break_composite_source(builder, &physical_input)?;
+            crate::mir::builder::control_flow::verify::PlanVerifier::verify(&plan)
+                .map_err(|error| format!("[freeze:contract][callable-loop/verify] {error}"))?;
+            let context = crate::mir::builder::control_flow::plan::lowering_context::
+                CallableLoopPlanLoweringContextV1::new(function_name, debug);
+            return crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower_with_source_publication(
+                builder,
+                plan,
+                &context,
+                std::rc::Rc::clone(callable_ledger),
+            )
+            .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?
+            .ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned());
         }
         let canonical_loop_node = loop_node.clone();
         let prepared = Self {
@@ -577,32 +526,6 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 let context = crate::mir::builder::control_flow::plan::lowering_context::
                     CallableLoopPlanLoweringContextV1::new(function_name, debug);
                 loop_cond::lower(builder, &physical_input, &context, source_ledger, invocation)
-            }
-            CallableGenericLoopSourceFactsDispositionV1::LoopTrueReady(source_facts) => {
-                let source_ledger = callable_ledger.ok_or_else(|| {
-                    "[freeze:contract][callable-loop/loop-true/source-port-ledger-missing]"
-                        .to_owned()
-                })?;
-                let physical_input =
-                    source_facts.into_physical_input(source_ledger, declared_instance_locator)?;
-                physical_input.validate_for_source_port()?;
-                let plan = crate::mir::builder::control_flow::plan::features::
-                    loop_true_break_continue_source::lower_loop_true_break_continue_source(
-                        builder,
-                        &physical_input,
-                    )?;
-                crate::mir::builder::control_flow::verify::PlanVerifier::verify(&plan)
-                    .map_err(|error| format!("[freeze:contract][callable-loop/verify] {error}"))?;
-                let context = crate::mir::builder::control_flow::plan::lowering_context::
-                    CallableLoopPlanLoweringContextV1::new(function_name, debug);
-                crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower_with_source_publication(
-                    builder,
-                    plan,
-                    &context,
-                    std::rc::Rc::clone(source_ledger),
-                )
-                .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?
-                .ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned())
             }
             CallableGenericLoopSourceFactsDispositionV1::SourceUnavailable(error) => Err(format!(
                 "[freeze:contract][callable-loop/source-unavailable] {error:?}"

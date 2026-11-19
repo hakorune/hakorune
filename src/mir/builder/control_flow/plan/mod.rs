@@ -54,7 +54,6 @@ mod trace;
 // route 形状認識の分解スロット
 // Phase 29bt P0: Skeletons + Features (decomposition slots)
 pub(in crate::mir::builder) mod features;
-mod skeletons;
 
 // Layer 4: Route-Specific (形状固有)
 // 各 route の固有処理（一部 helper には historical file 名が残る）

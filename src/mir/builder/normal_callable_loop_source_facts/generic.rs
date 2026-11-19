@@ -5,7 +5,7 @@
 //! select a route, or provide a fallback path.  Its only production caller is
 //! the Ready branch in `raw_loop_child_entry`.
 //!
-//! The retained callable families are LoopCond and LoopTrue. The ordered
+//! The retained callable plan family is LoopCond. The ordered
 //! registry's GenericLoop arm retired with the route scheduler; unmatched
 //! profiles end at `RouteNotFrontSelected` instead of a second lowering path.
 
@@ -32,9 +32,6 @@ mod home_after;
 pub(in crate::mir) use home_after::{VerifiedNoExitArrayHomeAfterV1, VerifiedNoExitIntegerExpressionV1};
 use super::loop_cond;
 use super::loop_cond::CallableLoopCondSourceFactsV1;
-use super::loop_true;
-use super::loop_true::CallableLoopTrueSourceFactsV1;
-pub(in crate::mir::builder) use super::loop_true::SourceLoopTruePhysicalInputV1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsSourceErrorV1 {
@@ -66,7 +63,6 @@ pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsRouteErrorV1 {
     },
     VariableAccumRecurrenceProducer(Box<str>),
     LoopCondRouteRejected(CallableLoopSourceRouteRejectV1),
-    LoopTrueRouteRejected(CallableLoopSourceRouteRejectV1),
 }
 
 #[derive(Debug)]
@@ -79,7 +75,6 @@ pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsDispositionV1<'so
         crate::mir::loop_recipe_contract::VerifiedVariableAccumRecurrenceRecipeProductV1,
     ),
     LoopCondReady(CallableLoopCondSourceFactsV1<'source>),
-    LoopTrueReady(CallableLoopTrueSourceFactsV1<'source>),
 }
 
 #[path = "generic/issuer.rs"]

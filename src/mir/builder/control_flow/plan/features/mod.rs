@@ -15,12 +15,7 @@ pub(in crate::mir::builder) mod coreloop_frame;
 
 pub(in crate::mir::builder) mod carrier_merge;
 pub(in crate::mir::builder) mod exit_if_map;
-pub(in crate::mir::builder) mod loop_true_break_continue_cleanup;
 pub(in crate::mir::builder) mod loop_break_composite_source;
-pub(in crate::mir::builder) mod loop_break_source;
-pub(in crate::mir::builder) mod loop_true_break_continue_phi_materializer;
-pub(in crate::mir::builder) mod loop_true_break_continue_source;
-pub(in crate::mir::builder) mod loop_true_break_continue_verifier;
 pub(in crate::mir::builder) mod step_mode;
 
 // Flattened from loop_cond_break_continue_pipeline/

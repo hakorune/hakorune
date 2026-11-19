@@ -211,19 +211,6 @@
     "evidence": "carrierの束縛と入場値からheader/step/afterのIDを割り当てる"
   },
   {
-    "id": "plan-loop-true-header",
-    "category": "loop-header-phi",
-    "role": "writer",
-    "file": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs",
-    "sites": [
-      {
-        "line": 39,
-        "code": "let phi_dst = builder.alloc_typed(ty.clone());"
-      }
-    ],
-    "evidence": "LoopTrue carrierのheader/stepを割り当てる"
-  },
-  {
     "id": "plan-core-header",
     "category": "loop-header-phi",
     "role": "writer",
@@ -544,19 +531,6 @@
       }
     ],
     "evidence": "複合CoreLoopの続きにstepを指定する"
-  },
-  {
-    "id": "plan-looptrue-continue-frame",
-    "category": "loop-continue",
-    "role": "writer",
-    "file": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_source.rs",
-    "sites": [
-      {
-        "line": 160,
-        "code": "continue_target: step_bb,"
-      }
-    ],
-    "evidence": "LoopTrueのcontinue先をstepに決める"
   },
   {
     "id": "checked-array-append",
