@@ -7631,7 +7631,11 @@
         "A"
       ],
       "coverage_exe": false,
-      "cadence": "every"
+      "cadence": "every",
+      "expected": {
+        "exit": 0,
+        "stdout": "3\nResult: 0\n"
+      }
     },
     {
       "path": "apps/tests/corpus/audit-s2c/in/p6.hako",
@@ -25586,7 +25590,11 @@
         "A"
       ],
       "coverage_exe": false,
-      "cadence": "every"
+      "cadence": "every",
+      "expected": {
+        "exit": 0,
+        "stdout": "2\nResult: 0\n"
+      }
     },
     {
       "path": "apps/tests/corpus/plain/in/c6.hako",

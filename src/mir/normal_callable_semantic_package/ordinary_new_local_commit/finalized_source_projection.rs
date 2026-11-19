@@ -73,7 +73,7 @@ impl FinalizedRootSourceHandoffV1 {
             return Err(freeze("finished-local-call/owner"));
         }
         CallValidationContextV1::Finalized(self).with_local_call_group_tree_v2(owner, |groups| {
-            let mut groups = groups.iter().filter(|group| group.site() == group_site);
+            let mut groups = groups.iter().filter(|group| group.matches_lexical_site_v1(group_site));
             let group = groups
                 .next()
                 .ok_or_else(|| freeze("finished-local-call/group-missing"))?;
@@ -167,7 +167,7 @@ impl FinalizedRootSourceHandoffV1 {
             return Err(freeze("finished-copy/owner"));
         }
         CallValidationContextV1::Finalized(self).with_local_call_group_tree_v2(owner, |groups| {
-            let mut groups = groups.iter().filter(|group| group.site() == group_site);
+            let mut groups = groups.iter().filter(|group| group.matches_lexical_site_v1(group_site));
             let group = groups.next().ok_or_else(|| freeze("finished-copy/group"))?;
             if groups.next().is_some() {
                 return Err(freeze("finished-copy/group-duplicate"));

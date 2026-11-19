@@ -131,7 +131,7 @@ pub(super) fn stage_unobserved_statement_actuals<E>(
 /// Stage every outermost call under a source site prefix — a call
 /// nested inside another call's argument subtree rides the enclosing
 /// observation; identical re-staging is a no-op.
-fn stage_subtree_call_actuals<E>(
+pub(super) fn stage_subtree_call_actuals<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
     locals: &PrefixLocalFlow<'_>,

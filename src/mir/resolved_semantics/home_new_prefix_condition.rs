@@ -453,6 +453,17 @@ pub(super) fn observe_loop<E>(
     let Some(condition) = source.condition_source_v1(input) else {
         return Ok(None);
     };
+    // Lend original actuals at the verified Header before lending the Call
+    // result. Effectful argument frames and path calls are committed only
+    // after the condition has been selected.
+    if condition.children_always_known_v1() {
+        let root = condition.root().expression_site();
+        if let Some(root) = root {
+            super::branch::stage_subtree_call_actuals(
+                input, root.node(), locals, true, homes, actuals,
+            )?;
+        }
+    }
     let Some(frame) = install_source(
         input,
         Rc::clone(condition),

@@ -81,7 +81,7 @@ impl CallableLoopSourceTargetProbeV1 {
             let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(product.source.source.owner(), site.clone());
             let item = items.iter().find(|item| item.call_site() == site)
                 .ok_or(CallableLoopSourceRouteRejectV1::SourceItemForeign)?;
-            let expected = delegated_result(product, site);
+            let expected = delegated_result(product, &owned, relation.target());
             if !product.delegates_call_v2(&owned) || !seen.insert(site.clone())
                 || relation.target().is_none_or(|target|
                     target.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
@@ -225,23 +225,50 @@ fn observe_dynamic_call_v2(
     Ok(())
 }
 
-fn delegated_result(product: &crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2,
-    site: &SourceExprSiteV1,
+fn delegated_result(
+    product: &crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2,
+    site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+    target: Option<&CanonicalSameModuleCallableKeyV1>,
 ) -> Option<VerifiedCallableResultRepresentationV1> {
-    use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1 as Result;
+    use crate::mir::resolved_semantics::home_new_prefix::{
+        LocalCallResultClassV1 as Result, LocalCallResultSourceV1 as Source,
+    };
     use crate::mir::resolved_value_profile::{expression_class::ExpressionValueClassV1 as Class,
         expression_projection::ExpressionLeafClassV1 as Leaf};
     for step in product.schedule().calls_v2() {
         if let crate::mir::loop_recipe_contract::SourceLoopScheduledStepV2::Call { observation, .. } = step {
-            if observation.site().site() == site { return match observation.result() {
+            if observation.site() == site { return match observation.result() {
                 Result::I64 => Some(VerifiedCallableResultRepresentationV1::ExactI64),
                 Result::Bool => Some(VerifiedCallableResultRepresentationV1::ExactBool),
                 _ => None,
             }; }
         }
     }
+    // A call evaluated by a checked expression already carries its original
+    // static result loan. Use that same proof for publication correspondence.
+    let mut expression_calls = product.checked_expression_evaluations_v2()
+        .flat_map(|evaluation| evaluation.calls())
+        .filter(|observation| observation.site() == site);
+    if let Some(call) = expression_calls.next() {
+        if expression_calls.any(|other| other != call) {
+            return None;
+        }
+        let Source::Ordinary(original) = call.result_source()? else {
+            return None;
+        };
+        let source = original.static_source()?;
+        if source.call_site() != site || Some(source.target()) != target {
+            return None;
+        }
+        return match call.result() {
+            Result::I64 => Some(VerifiedCallableResultRepresentationV1::ExactI64),
+            Result::Bool => Some(VerifiedCallableResultRepresentationV1::ExactBool),
+            Result::Text => Some(VerifiedCallableResultRepresentationV1::ExactString),
+            _ => None,
+        };
+    }
     product.scheduled_call_arguments_v2().find_map(|frame| frame.source().nodes().iter().enumerate()
-        .find(|(_, node)| node.site() == site).and_then(|(node, _)| match frame.evaluation().class(node) {
+        .find(|(_, node)| node.site() == site.site()).and_then(|(node, _)| match frame.evaluation().class(node) {
             Some(Leaf::Value(Class::I64)) => Some(VerifiedCallableResultRepresentationV1::ExactI64),
             Some(Leaf::Value(Class::Bool)) => Some(VerifiedCallableResultRepresentationV1::ExactBool),
             Some(Leaf::Value(Class::String)) => Some(VerifiedCallableResultRepresentationV1::ExactString),
