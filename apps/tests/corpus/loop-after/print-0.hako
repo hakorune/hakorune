@@ -1,0 +1,14 @@
+static box Main {
+    main(): i64 {
+        local shift_count = 0
+        local scale = 1
+        local i = 0
+        loop(i < shift_count) {
+            scale = scale * 2
+            i = i + 1
+        }
+        print(scale)
+        print(i)
+        return scale * 16 + i
+    }
+}

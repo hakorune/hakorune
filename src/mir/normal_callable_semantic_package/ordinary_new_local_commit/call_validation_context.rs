@@ -620,7 +620,7 @@ impl<'a> CallValidationContextV1<'a> {
             return Err(freeze("scalar-call/original-source"));
         }
         self.with_local_call_group_tree_v2(source.owner(), |groups| {
-            let mut matching = groups.iter().filter(|group| group.site() == source.site());
+            let mut matching = groups.iter().filter(|group| group.matches_lexical_site_v1(source.site()));
             let group = matching
                 .next()
                 .ok_or_else(|| freeze("scalar-call/group-missing"))?;

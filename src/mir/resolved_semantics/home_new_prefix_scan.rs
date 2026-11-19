@@ -396,16 +396,6 @@ pub(super) fn scan_statement_flow<'a, E>(
                                 }
                             }
                         }
-                        Some(SelectedLoopHomeLoanV1::VariableAccumAfter(loan)) => {
-                            // Re-observe at this same point: the callback does
-                            // not mutate Home state before installing carriers.
-                            if let Some(current) = locals.loop_i64_prestate(statement.site(), homes)
-                            {
-                                if locals.install_loop_i64_after(current, loan) {
-                                    continue;
-                                }
-                            }
-                        }
                         Some(SelectedLoopHomeLoanV1::StaticI64Search(source)) => {
                             if let Some(current) = locals.loop_i64_prestate(statement.site(), homes)
                             {

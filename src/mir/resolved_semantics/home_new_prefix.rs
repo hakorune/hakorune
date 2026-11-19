@@ -17,12 +17,10 @@ use super::{
 };
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::loop_recipe_contract::VerifiedLoopHomeAfterLoanV1;
 
 /// Source walk permission from one selected verifier. The search role is a
 /// source-only view of the same Static V2 product consumed after Home.
 pub(crate) enum SelectedLoopHomeLoanV1 {
-    VariableAccumAfter(VerifiedLoopHomeAfterLoanV1),
     NoExitArrayAfter(std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>),
     StaticI64Search(crate::mir::builder::VerifiedStaticI64LoopHomeSourceV2),
     SourceObservation(

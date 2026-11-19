@@ -23,7 +23,6 @@ mod selected_demand;
 mod types;
 mod variable_accum_recurrence;
 mod variable_accum_recurrence_validation;
-mod variable_bound_mul;
 
 pub(crate) use resolved_source_adapter::{
     bind_resolved_loop_root_v1, bind_resolved_loop_source_forest_v1, LoopRootSourceBindingRejectV1,
@@ -114,10 +113,6 @@ pub(crate) use variable_accum_recurrence::{
     VerifiedVariableAccumRecurrenceSourceAttemptV1,
 };
 pub(crate) use variable_accum_recurrence_validation::source_coherence_is_exact;
-pub(crate) use variable_bound_mul::{
-    issue_variable_bound_mul_facts_v1, VariableBoundMulFactsIssueV1,
-    VerifiedVariableBoundMulFactsV1,
-};
 
 #[cfg(test)]
 pub(crate) use selected_demand::verified_loop_structural_facts_for_test_with_frame;

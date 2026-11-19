@@ -14,7 +14,7 @@ use crate::mir::builder::normal_callable_loop_handoff::CallableSemanticLoopHando
 use crate::mir::builder::normal_callable_loop_source_facts::CallableGenericLoopSourceFactsRouteErrorV1;
 use crate::mir::builder::normal_callable_loop_source_port::CallableLoopSourceExpressionPortV1;
 use crate::mir::builder::normal_callable_loop_source_route::{
-    CallableLoopRouteMatchV1, CallableLoopSoleFamilyV1, CallableLoopSourceCallCoverageV1,
+    CallableLoopRouteMatchV1, CallableLoopSourceCallCoverageV1,
     CallableLoopSourceItemBindingV1, CallableLoopSourceRouteRejectV1,
     CallableLoopSourceRouteTokenV1, CallableLoopSourceTargetProbeV1,
     VerifiedCallableLoopCallFreeCoverageV1,
@@ -48,8 +48,7 @@ pub(in crate::mir) struct SourceLoopCondPhysicalInputV1<'source, 'ledger> {
     condition: ASTNode,
     body: Vec<ASTNode>,
     pre_effect: CallableSemanticLoopHandoffPreEffectReceiptV1,
-    outcome: PlanBuildOutcome,
-    selection: CallableLoopRouteMatchV1,
+    outcome: Option<PlanBuildOutcome>,
     projection: VerifiedLoopCondBreakContinueSourceForestProjectionV1,
     source_items: Box<[CallableLoopSourceItemBindingV1]>,
     source_coverage: CallableLoopSourceCallCoverageV1,
@@ -148,9 +147,8 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
     pub(in crate::mir::builder) fn loop_cond_facts(
         &self,
     ) -> Result<&LoopCondBreakContinueFacts, String> {
-        self.outcome
-            .facts
-            .as_ref()
+        self.outcome.as_ref()
+            .and_then(|outcome| outcome.facts.as_ref())
             .and_then(|facts| facts.facts.loop_cond_break_continue())
             .ok_or_else(|| "[freeze:contract][callable-loop/loop-cond/facts-missing]".to_owned())
     }
@@ -350,19 +348,6 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
             .map_err(|error| {
                 format!("[freeze:contract][callable-loop/loop-cond/source-port] {error}")
             })?;
-        if !checked_source_shape_v2(&self.outcome, &self.selection, self.source_recipe.as_deref(), &self.condition, &self.body) {
-            return Err(
-                "[freeze:contract][callable-loop/loop-cond/recipe-source-mismatch]".to_owned(),
-            );
-        }
-        if self.selection.sole_family() != Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue)
-            && !(self.source_recipe.is_some() && matches!(self.selection.sole_family(),
-                Some(CallableLoopSoleFamilyV1::LoopCondReturnInBody | CallableLoopSoleFamilyV1::LoopTrueBreakContinue)))
-        {
-            return Err(
-                "[freeze:contract][callable-loop/loop-cond/route-selection-mismatch]".to_owned(),
-            );
-        }
         Ok(())
     }
 
@@ -379,11 +364,7 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
             &self.body,
             &self.body_source,
         )?;
-        // A retained LoopTrue product is lowered from its checked recipe; the
-        // LoopCond exit-if items below belong to the facts-driven lowerer only.
-        if self.source_recipe.is_some()
-            && self.selection.sole_family() == Some(CallableLoopSoleFamilyV1::LoopTrueBreakContinue)
-        {
+        if self.source_recipe.is_some() {
             return Ok(());
         }
         let facts = self.loop_cond_facts()?;
@@ -593,7 +574,7 @@ impl<'source> CallableLoopCondSourceFactsV1<'source> {
             route_token,
             source_recipe,
         } = self;
-        let (owner, parent_site, outcome, selection, projection, source_items, source_coverage) =
+        let (owner, parent_site, outcome, projection, source_items, source_coverage) =
             route_token.into_physical_parts().map_err(|error| {
                 format!("[freeze:contract][callable-loop/loop-cond/input] {error:?}")
             })?;
@@ -606,10 +587,11 @@ impl<'source> CallableLoopCondSourceFactsV1<'source> {
             source_ledger,
             declared_instance_locator,
         );
-        if !checked_source_shape_v2(&outcome, &selection, source_recipe.as_deref(), &_condition, &_body) {
-            return Err(
-                "[freeze:contract][callable-loop/loop-cond/source-facts-shape-mismatch]".to_owned(),
-            );
+        if let Some(outcome) = &outcome {
+            if !outcome.facts.as_ref().and_then(|facts| facts.facts.loop_cond_break_continue())
+                .is_some_and(|facts| super::generic::corroborate_loop_cond_recipe_source(facts, &_condition, &_body)) {
+                return Err("[freeze:contract][callable-loop/loop-cond/source-facts-shape-mismatch]".into());
+            }
         }
         let condition = _condition;
         let body = _body;
@@ -656,7 +638,6 @@ impl<'source> CallableLoopCondSourceFactsV1<'source> {
             body,
             pre_effect,
             outcome,
-            selection,
             projection,
             source_items,
             source_coverage,
@@ -665,26 +646,6 @@ impl<'source> CallableLoopCondSourceFactsV1<'source> {
             phi_session: SourceLoopPhiSessionV1::default(),
             source_recipe,
         })
-    }
-}
-
-/// Corroborate the original planner's source for this transport only. Legacy
-/// BC item/ExitIf consumers keep their narrower facts and writer gates.
-fn checked_source_shape_v2(outcome: &PlanBuildOutcome, selection: &CallableLoopRouteMatchV1,
-    checked: Option<&crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
-    condition: &ASTNode, body: &[ASTNode],
-) -> bool {
-    let Some(facts) = outcome.facts.as_ref() else { return false };
-    match selection.sole_family() {
-        Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue) => facts.facts.loop_cond_break_continue()
-            .is_some_and(|facts| super::generic::corroborate_loop_cond_recipe_source(facts, condition, body)),
-        Some(CallableLoopSoleFamilyV1::LoopCondReturnInBody) => checked.is_some_and(|product| product.schedule().returns_v2().next().is_some())
-            && facts.facts.loop_cond_return_in_body().is_some_and(|facts|
-                &facts.condition == condition && facts.recipe.body.body.as_slice() == body),
-        Some(CallableLoopSoleFamilyV1::LoopTrueBreakContinue) => checked.is_some()
-            && matches!(condition, ASTNode::Literal { value: crate::ast::LiteralValue::Bool(true), .. })
-            && facts.facts.loop_true_break_continue().is_some_and(|facts| facts.recipe.body.body.as_slice() == body),
-        _ => false,
     }
 }
 
@@ -699,8 +660,7 @@ pub(super) fn issue<'source>(
     binding_product: CallableLoopReadyBodyOnlyProductV1,
     function_origin: Option<FunctionOriginV1>,
     source_kind: Option<SemanticOwnerSourceKindV1>,
-    outcome: PlanBuildOutcome,
-    selection: CallableLoopRouteMatchV1,
+    legacy: Option<(PlanBuildOutcome, CallableLoopRouteMatchV1)>,
     projection: Option<VerifiedLoopCondBreakContinueSourceForestProjectionV1>,
     source_items: Box<[CallableLoopSourceItemBindingV1]>,
     source_target_probe: CallableLoopSourceTargetProbeV1,
@@ -722,21 +682,17 @@ pub(super) fn issue<'source>(
             CallableLoopSourceRouteRejectV1::SourceParentMissing,
         )
     })?;
-    let route_token = if let Some(product) = &source_recipe {
-        CallableLoopSourceRouteTokenV1::issue_checked_recipe_v2(owner, parent_site, function_origin, source_kind,
-            outcome, selection, projection, Rc::clone(product), source_items, source_target_probe, call_free)
-    } else { CallableLoopSourceRouteTokenV1::issue_with_source_relations(
-        owner,
-        parent_site,
-        function_origin,
-        source_kind,
-        outcome,
-        selection,
-        projection,
-        source_items,
-        source_target_probe,
-        call_free,
-    ) }
+    let route_token = match (&source_recipe, legacy) {
+        (Some(product), None) => CallableLoopSourceRouteTokenV1::issue_checked_recipe_v2(
+            owner, parent_site, function_origin, source_kind, projection,
+            Rc::clone(product), source_items, source_target_probe, call_free,
+        ),
+        (None, Some((outcome, selection))) => CallableLoopSourceRouteTokenV1::issue_with_source_relations(
+            owner, parent_site, function_origin, source_kind, outcome, selection, projection,
+            source_items, source_target_probe, call_free,
+        ),
+        _ => Err(CallableLoopSourceRouteRejectV1::FactsMissing),
+    }
     .map_err(CallableGenericLoopSourceFactsRouteErrorV1::LoopCondRouteRejected)?;
     Ok(CallableLoopCondSourceFactsV1 {
         _owner: owner,

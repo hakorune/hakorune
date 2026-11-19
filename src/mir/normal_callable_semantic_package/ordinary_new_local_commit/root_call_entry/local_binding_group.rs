@@ -207,6 +207,14 @@ impl RootLifecyclePrefixBindingGroupV1 {
         }
     }
 
+    /// Lexical packets belong to the concrete group at the source site.
+    /// A Loop aggregate lenses the instructions of its child groups, including
+    /// the condition group that uses the same site.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit)
+    fn matches_lexical_site_v1(&self, site: &OwnedExprSiteV1) -> bool {
+        self.site() == site && self.source_loop_rc().is_none()
+    }
+
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
         &self.site
     }

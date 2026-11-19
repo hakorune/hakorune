@@ -21,6 +21,7 @@ mod object_end;
 mod owned_array;
 #[path = "invoke_string.rs"]
 mod string;
+pub(in crate::mir) use string::check_source_uses as check_string_call_source_uses;
 use crate::mir::verification_types::VerificationError;
 use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction};
 

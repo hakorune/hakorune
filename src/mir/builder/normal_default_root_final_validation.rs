@@ -96,6 +96,12 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
             let _callables = self.callables;
             let mut root_validation = self.root_validation;
             let _ = root_validation.validate(module, false)?;
+            // The bare-MIR result drops the original Call argument proofs.
+            // Do not publish an owned Text borrow that needs one of them.
+            for function in module.functions.values() {
+                crate::mir::verification::check_string_call_source_uses(function, |_, _, _, _| false)
+                    .map_err(|reason| format!("[freeze:contract][bare-mir/{reason}]"))?;
+            }
             for (key, validation) in self.construction {
                 let definition = module
                     .canonical_callable_definition_symbol(&key)

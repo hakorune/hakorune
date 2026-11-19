@@ -10,7 +10,6 @@ use super::{
 };
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::loop_recipe_contract::VerifiedLoopHomeAfterLoanV1;
 use std::collections::{BTreeMap, BTreeSet};
 #[path = "home_call_entry_transfer.rs"]
 mod call_entry_transfer;
@@ -277,32 +276,6 @@ pub(super) struct PrefixEntryReceiverV1 {
 }
 
 impl<'source> PrefixLocalFlow<'source> {
-    /// Install a complete verified root After, never a single convenient
-    /// carrier. The current walk point and both live I64 prestates must match
-    /// before either local is changed.
-    pub(super) fn install_loop_i64_after(
-        &mut self,
-        prestate: LoopI64PreStateRequestV1,
-        loan: VerifiedLoopHomeAfterLoanV1,
-    ) -> bool {
-        let [scale, induction] = loan.carriers();
-        if prestate.owner() != self.input.owner()
-            || loan.owner() != prestate.owner()
-            || loan.site() != prestate.site()
-            || scale == induction
-            || !prestate.proves_integer(scale)
-            || !prestate.proves_integer(induction)
-        {
-            return false;
-        }
-        self.store(scale, StoredLocal::Trivial(Some(SourceScalarKind::Integer)));
-        self.store(
-            induction,
-            StoredLocal::Trivial(Some(SourceScalarKind::Integer)),
-        );
-        true
-    }
-
     /// Only a resolver-owned Loop at the current walk point can borrow these
     /// classes. Rebinding/branch joins already update `locals` before this
     /// snapshot; an untyped or invalidated binding is absent.

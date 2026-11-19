@@ -313,8 +313,48 @@ pub(crate) fn issue_source_scalar_condition_call_v1<E>(
     Ok(SourceScalarConditionCallV1::Ready(observation))
 }
 
-/// A whole original If frame borrows both primitive scalar result kinds from
-/// the same canonical demand. Print and direct-Bool entry policies stay exact.
+/// Borrow the exact resolved condition root and its original method call.
+fn condition_call_source_v1<'a>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    source: &'a crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
+    site: &OwnedExprSiteV1,
+) -> Option<(&'a SourceStmtSiteV1, &'a SourceExprSiteV1)> {
+    use crate::mir::resolved_value_profile::expression_plan::{
+        ExpressionNodeSourceV1 as Node, ExpressionPlanRootV1 as Root,
+    };
+    let (statement, condition) = match source.root() {
+        Root::IfCondition { statement, condition, bundle } => {
+            let exact = input.function().with_if_region_for_condition(condition, |row|
+                row.site() == statement && row.bundle() == *bundle
+            ).ok()?;
+            if !exact { return None; }
+            (statement, condition)
+        }
+        Root::LoopCondition { statement, condition, bundle, frame } => {
+            let ledger = input.forest().callable_source_ledger(input.owner()).ok()?;
+            let membership = ledger.resolved_loop_source(statement).ok()?;
+            if input.function().loop_region_bundle(statement).ok() != Some(bundle)
+                || !membership.source().matches_identity(
+                    input.function().function_origin(), input.function().source_kind(), statement)
+                || membership.scope_region() != bundle.loop_pair()
+                || !membership.frame().matches(frame)
+            {
+                return None;
+            }
+            (statement, condition)
+        }
+        _ => return None,
+    };
+    (source.owner() == input.owner()
+        && site.owner() == source.owner()
+        && source.nodes().first().is_some_and(|root| root.site() == condition)
+        && source.nodes().iter().any(|node|
+            node.site() == site.site() && matches!(node.source(), Node::MethodCall)))
+        .then_some((statement, condition))
+}
+
+/// A whole original condition borrows both primitive scalar result kinds
+/// from the same canonical demand. Print and direct-Bool entry policies stay exact.
 pub(crate) fn issue_source_scalar_frame_call_v1<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     source: &std::rc::Rc<
@@ -328,32 +368,9 @@ pub(crate) fn issue_source_scalar_frame_call_v1<E>(
         BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<Option<LocalCallObservationV1>, E> {
-    use crate::mir::resolved_value_profile::expression_plan::{
-        ExpressionNodeSourceV1, ExpressionPlanRootV1,
-    };
-    let ExpressionPlanRootV1::IfCondition {
-        statement,
-        condition,
-        ..
-    } = source.root()
-    else {
+    let Some((statement, _)) = condition_call_source_v1(input, source, site) else {
         return Ok(None);
     };
-    if source.owner() != input.owner()
-        || site.owner() != source.owner()
-        || input
-            .function()
-            .with_if_region_for_condition(condition, |row| row.site().clone())
-            .ok()
-            .as_ref()
-            != Some(statement)
-        || !source.nodes().iter().any(|node| {
-            node.site() == site.site()
-                && matches!(node.source(), ExpressionNodeSourceV1::MethodCall)
-        })
-    {
-        return Ok(None);
-    }
     let SourceScalarDemandV1::Ready { loan, arguments } = demand_v1(input, site, actuals)? else {
         return Ok(None);
     };
@@ -381,7 +398,7 @@ pub(crate) fn issue_source_scalar_frame_call_v1<E>(
 }
 
 /// Borrow an original static Bool result, or a qualified exact-i64 result at an
-/// argument-frame position, into the same whole-If expression frame. The static result and its original arguments remain owned by the
+/// argument-frame position, into the same whole-condition expression frame. The static result and its original arguments remain owned by the
 /// sealed source-result loan; this creates no alternate Bool inference path.
 pub(crate) fn issue_source_static_scalar_frame_call_v1<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
@@ -395,36 +412,9 @@ pub(crate) fn issue_source_static_scalar_frame_call_v1<E>(
         BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<Option<LocalCallObservationV1>, E> {
-    use crate::mir::resolved_value_profile::expression_plan::{
-        ExpressionNodeSourceV1, ExpressionPlanRootV1,
-    };
-    let ExpressionPlanRootV1::IfCondition {
-        statement,
-        condition,
-        ..
-    } = source.root()
-    else {
+    let Some((statement, condition)) = condition_call_source_v1(input, source, site) else {
         return Ok(None);
     };
-    if source.owner() != input.owner()
-        || site.owner() != source.owner()
-        || source
-            .nodes()
-            .first()
-            .is_none_or(|node| node.site() != condition)
-        || input
-            .function()
-            .with_if_region_for_condition(condition, |row| row.site().clone())
-            .ok()
-            .as_ref()
-            != Some(statement)
-        || !source.nodes().iter().any(|node| {
-            node.site() == site.site()
-                && matches!(node.source(), ExpressionNodeSourceV1::MethodCall)
-        })
-    {
-        return Ok(None);
-    }
     let Some(BorrowedCallArgumentsV1::SourceResult { loan, arguments }) = port(
         site,
         BorrowedCallActualRequestV1::SourceResultArguments {

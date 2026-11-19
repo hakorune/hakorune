@@ -62,7 +62,7 @@ fn issue_with_source_relations_admits_verified_call_free_coverage() {
             .and_then(|coverage| coverage.as_call_free())
             .is_some()
     );
-    let (_, _, _, _, _, items, coverage) = token
+    let (_, _, _, _, items, coverage) = token
         .into_physical_parts()
         .expect("call-free coverage reaches the physical boundary");
     assert!(items.is_empty());

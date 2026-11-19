@@ -298,8 +298,17 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             }
         }
         let checked_source_selected = ledger_bridge::has_checked_source_selection_v2(callable_ledger, owner, parent_source.site())?;
-        if checked_source_selected && source_input.is_none_or(|input| input.owner() != owner) {
-            return Err("[freeze:contract][callable-loop/selected-source-input-owner]".into());
+        if checked_source_selected {
+            let input = source_input.filter(|input| input.owner() == owner)
+                .ok_or("[freeze:contract][callable-loop/selected-source-input-owner]")?;
+            let site = parent_source.site()
+                .ok_or("[freeze:contract][callable-loop/loop-cond/parent-site-missing]")?;
+            let site = crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone());
+            let original = input.source().exact_stmt(&site)
+                .map_err(|error| format!("[freeze:contract][callable-loop/loop-cond/input] {error:?}"))?;
+            if original.node() != &loop_node {
+                return Err("[freeze:contract][callable-loop/loop-cond/source-facts-shape-mismatch]".into());
+            }
         }
         let variable_accum_recurrence = match source_input {
             Some(_) if checked_source_selected => None,
