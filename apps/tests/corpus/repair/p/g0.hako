@@ -1,0 +1,1 @@
+box Holder { free_stack: ArrayBox = new StringBox() birth() { } seed() { } } static box Main { main() { return 1 } }

@@ -1,0 +1,4 @@
+static box Main {
+  t(x: i64): Bool { if x > 1 { return true } return false }
+  main() { print(Main.t(4))  return 0 }
+}

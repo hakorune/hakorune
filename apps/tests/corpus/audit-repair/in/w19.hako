@@ -1,0 +1,1 @@
+box Work { birth() { } } static box U { helper(x) { return x } run() { return U.helper(0) } } static box Main { main() { local r = U.run() print(r) return 0 } }

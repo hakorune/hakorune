@@ -1,0 +1,9 @@
+static box Main {
+  a(x: i64): i64 { return x }
+  main() {
+    local r = 0
+    if Main.a(5) < 3 { r = 1 } else { r = 2 }
+    print(r)
+    return 0
+  }
+}

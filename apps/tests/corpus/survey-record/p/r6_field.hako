@@ -1,0 +1,9 @@
+record Point { x: i64
+ y: i64 }
+box H { p: Point }
+static box Main { main(): i64 {
+  local h = new H()
+  h.p = Point { x: 1, y: 2 }
+  print(h.p.x)
+  return 0
+} }

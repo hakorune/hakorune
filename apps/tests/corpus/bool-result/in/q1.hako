@@ -1,0 +1,5 @@
+static box Main {
+  t(x: i64) { return x > 1 }
+  u(x: i64): i64 { if Main.t(x) { return 1 } return 0 }
+  main() { print(Main.u(4))  return 0 }
+}

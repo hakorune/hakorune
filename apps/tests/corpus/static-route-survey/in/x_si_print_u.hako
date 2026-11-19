@@ -1,0 +1,11 @@
+static box Other {
+  f(v) {
+    return "abc"
+  }
+}
+static box Main {
+  main() {
+    print(Other.f(5))
+    return 0
+  }
+}

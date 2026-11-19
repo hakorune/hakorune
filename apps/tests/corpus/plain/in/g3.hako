@@ -1,0 +1,1 @@
+static box Main { method main(args) { local i = 0 print(i) return 0 } }

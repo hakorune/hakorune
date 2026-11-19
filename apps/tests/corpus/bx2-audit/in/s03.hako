@@ -1,0 +1,27 @@
+box P {
+  v: i64
+  birth(v: i64) {
+    me.v = v
+  }
+}
+box F {
+  birth() { }
+  find(x: i64) {
+    if x > 0 {
+      return new P(x)
+    }
+    return null
+  }
+}
+static box Main {
+  main() {
+    local f = new F()
+    local p = f.find(0)
+    if p == null {
+      print(9)
+    } else {
+      print(p.v)
+    }
+    return 0
+  }
+}

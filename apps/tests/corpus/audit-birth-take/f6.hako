@@ -1,0 +1,2 @@
+box Node { next: StringBox  v: i64  birth(take next: StringBox, v: i64) { me.next = next  me.v = v } }
+static box Main { main() { local s = "abc"  local n = new Node(move s, 5)  return n.v } }

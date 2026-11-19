@@ -1,0 +1,9 @@
+static box Main {
+  main() {
+    try {
+      return 3
+    } catch (e) {
+      return 4
+    }
+  }
+}

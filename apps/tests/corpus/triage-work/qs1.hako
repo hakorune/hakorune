@@ -1,0 +1,9 @@
+box Page { birth() { } }
+static box LayoutBox { class_id(size) { return size } }
+static box Main { main() {
+    local nine = 9
+    local page = new Page()
+    local x = LayoutBox.class_id(nine + 1)
+    local page2 = new Page()
+    return x
+} }

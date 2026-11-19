@@ -1,0 +1,8 @@
+static box Main {
+sq(a: i64): i64 {
+return a * a
+}
+main() {
+return Main.sq(2) + 1
+}
+}

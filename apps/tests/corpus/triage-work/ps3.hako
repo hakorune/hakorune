@@ -1,0 +1,17 @@
+box ParamStore {
+    birth() { }
+    readData(cid: i64): i64 { return cid + 1 }
+}
+box ParamManifest {
+    birth() { }
+    materialize(store: ParamStore): i64 {
+        return store.readData(1)
+    }
+}
+static box Main {
+    main() {
+        local store = new ParamStore()
+        local manifest = new ParamManifest()
+        return manifest.materialize(store)
+    }
+}

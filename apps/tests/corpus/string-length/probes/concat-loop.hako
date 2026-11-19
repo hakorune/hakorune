@@ -1,0 +1,7 @@
+static box Main {
+main() {
+local i = 0
+loop(("あ" + "い").length() > i) { i = i + 1 }
+return i
+}
+}

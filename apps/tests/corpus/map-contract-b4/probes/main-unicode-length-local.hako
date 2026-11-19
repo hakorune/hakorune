@@ -1,0 +1,6 @@
+static box Main {
+main() {
+local s = "hello"
+local b4ret0 = ("A😀" + "B").length(); return b4ret0
+}
+}

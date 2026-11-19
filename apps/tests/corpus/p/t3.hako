@@ -1,0 +1,22 @@
+box TreeNode {
+    left: TreeNode
+    right: TreeNode
+    value: i64
+    birth(left, right, value) {
+        me.left = left
+        me.right = right
+        me.value = value
+    }
+    sum(): i64 {
+        local l = me.left
+        if l == null { return me.value }
+        return me.value + l.sum()
+    }
+}
+static box Main {
+  main() {
+    local a = new TreeNode(null, null, 6)
+    local n = new TreeNode(a, null, 5)
+    return n.sum()
+  }
+}

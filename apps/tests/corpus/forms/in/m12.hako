@@ -1,0 +1,10 @@
+box P { v: i64
+  birth(v: i64) { me.v = v }
+}
+box N { left: N?
+  birth() { me.left = null }
+}
+static box Main { rep(edit e: N?) { e = move e.left
+  return 0 }
+ main() { local n: N? = new N()
+  return me.rep(edit n) } }

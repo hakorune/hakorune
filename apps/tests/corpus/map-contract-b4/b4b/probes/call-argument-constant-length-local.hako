@@ -1,0 +1,9 @@
+static box Main {
+pick(n: i64) {
+return "あ" + "い"
+}
+main() {
+local b4result = Main.pick(1).length()
+return b4result
+}
+}

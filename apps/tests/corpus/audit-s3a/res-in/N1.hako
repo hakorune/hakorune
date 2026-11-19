@@ -1,0 +1,8 @@
+box P {
+  v: i64
+  birth(v) { me.v = v }
+}
+static box Main {
+  find(x: i64) { if x > 0 { return new P(x) } return null }
+  main() { local p = Main.find(3) if p != null { print(p.v) } else { print(0) } return 0 }
+}

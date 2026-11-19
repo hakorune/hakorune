@@ -1,0 +1,8 @@
+static box Main {
+ main() {
+local a = 7
+local b = 7
+if a <= b { return 7 }
+return 9
+ }
+}

@@ -1,0 +1,1 @@
+static box Helper { add(x: i64): i64 { return x + 1 } } static box Main { main() { local y = 2 local r = Helper.add(y) print(r) return 0 } }

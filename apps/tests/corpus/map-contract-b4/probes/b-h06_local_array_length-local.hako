@@ -1,0 +1,9 @@
+static box Main {
+    main() {
+        local a = new ArrayBox()
+        a.push(1)
+        a.push(2)
+        local n = a.length()
+        local b4ret0 = n; return b4ret0
+    }
+}

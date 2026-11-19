@@ -1,0 +1,18 @@
+box Tag {
+  name: String
+  birth(name: String) {
+    me.name = name
+  }
+  calc(): i64 {
+    local s = "hello"
+    local k = s.indexOf("l") + s.length()
+    return k
+  }
+}
+static box Main {
+  main() {
+    local t = new Tag("ab")
+    print(t.calc())
+    return 0
+  }
+}

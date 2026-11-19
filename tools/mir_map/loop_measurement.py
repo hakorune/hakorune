@@ -6,13 +6,15 @@ import json
 import re
 import time
 
+from comparison_policy import env_fingerprint, exact_mir
 from resources import activate
-from support import ROOT, configured_env, sha, write
+from support import ROOT, configured_env, read_manifest, sha, write
 
 VERIFIED = "✅ MIR verification passed!"
 DIAGNOSTIC = {
     "parser-refusal": r"(?:Parse error|Parser error|using prelude parse)",
     "internal-verification-error": (
+        r"Control flow error in block bb\d+|"
         r"MIR verification failed|\[mir/verify:|/direct-verify\]|mir_verification_failed|"
         r"\[published-lifecycle-(?:program|physical-abi)/|IntegrityInvalid|"
         r"\[ordinary-new/local-commit/physical-boundary/"
@@ -41,25 +43,6 @@ def diagnostic_kind(status, text):
     return "unknown-refusal"
 
 
-def read_manifest(path):
-    data = json.loads(path.read_text())
-    unique = {}
-    for row in data["rows"]:
-        source = Path(row["path"])
-        source = (ROOT / source).resolve()
-        digest = sha(source)
-        if row.get("sha256", digest) != digest:
-            raise ValueError(f"input changed: {source}")
-        groups = set(row.get("groups", ()))
-        key = str(source)
-        if key not in unique:
-            unique[key] = {"path": key, "sha256": digest, "groups": []}
-        unique[key]["groups"] = sorted(set(unique[key]["groups"]) | groups)
-    if not unique:
-        raise ValueError("empty input manifest")
-    return list(unique.values())
-
-
 def command(watch, args, directory, label, env, timeout):
     out, err = (directory / f"{label}.{suffix}" for suffix in ("out", "err"))
     started = time.monotonic()
@@ -84,21 +67,44 @@ def parse_evidence(status, phase):
     return dict(kind=kind, verified=VERIFIED in text)
 
 
-def collect(binary, rows, template, work, jobs, ast=False, watch=None):
-    binary, work = binary.resolve(), work.resolve()
-    work.mkdir(parents=True, exist_ok=True)
+class MeasurementIdentityChanged(ValueError):
+    """A completed observation belongs to a different measured configuration."""
+
+
+def measurement_configuration(binary, template, work):
     env = configured_env(template, binary, work)
     runtime = Path(env["NYASH_EMIT_EXE_NYRT"])
-    artifacts = [binary, runtime / "libnyash_kernel.a",
-                 Path(env.get("HAKO_LIFECYCLE_NYRT", str(runtime))) / "libnyash_lifecycle_kernel.a",
-                 Path(env["HAKO_AOT_FFI_LIB"]), Path(env["NYASH_NY_LLVM_COMPILER"])]
-    identity = dict(artifacts={str(p): sha(p) for p in artifacts}, rows=rows, ast=ast,
+    artifacts = {"compiler": binary, "kernel": runtime / "libnyash_kernel.a",
+                 "lifecycle": Path(env.get("HAKO_LIFECYCLE_NYRT", str(runtime))) / "libnyash_lifecycle_kernel.a",
+                 "ffi": Path(env["HAKO_AOT_FFI_LIB"]), "llvm": Path(env["NYASH_NY_LLVM_COMPILER"])}
+    return env, runtime, artifacts
+
+
+def artifact_hashes(artifacts):
+    return {str(path): sha(path) for path in artifacts.values()}
+
+
+def collect(binary, rows, template, work, jobs, ast=False, watch=None, *, exe_baseline=None):
+    binary, work = binary.resolve(), work.resolve()
+    work.mkdir(parents=True, exist_ok=True)
+    env, runtime, artifacts = measurement_configuration(binary, template, work)
+    hashes = artifact_hashes(artifacts)
+    identity = dict(artifacts=hashes, rows=rows, ast=ast,
+                    cli_sha256=hashes[str(binary)], execution_env=env_fingerprint(env),
+                    artifact_roles={name: hashes[str(path)] for name, path in artifacts.items()},
                     settings={k:v for k,v in env.items() if k.startswith(("HAKO_", "NYASH_"))})
+    if exe_baseline is not None:
+        reuse_rows, baseline_id = exe_baseline
+        identity['exe_baseline'] = baseline_id
+    else:
+        reuse_rows = {}
     manifest = work / "identity.json"
     if manifest.exists():
         held = json.loads(manifest.read_text())
-        if any(held[key] != identity[key] for key in ("artifacts", "settings")):
-            raise ValueError(f"measurement identity changed: {work}")
+        if (any(held[key] != identity[key] for key in ("artifacts", "settings"))
+                or held.get("exe_baseline") != identity.get("exe_baseline")
+                or ("execution_env" in held and held["execution_env"] != identity["execution_env"])):
+            raise MeasurementIdentityChanged(f"measurement identity changed: {work}")
         complete = work / "results.json"
         if held["rows"] != rows or complete.exists() and not ast:
             if not complete.exists():
@@ -114,7 +120,7 @@ def collect(binary, rows, template, work, jobs, ast=False, watch=None):
     else:
         write(manifest, identity)
     if watch is None:
-        watch = activate(work, "loop-compare")
+        watch = activate(work, "loop-compare", max_children=jobs)
 
     def ensure_executable_mir(result, source, directory, receipt):
         # The closed executable route can accept source refused by the
@@ -161,6 +167,14 @@ def collect(binary, rows, template, work, jobs, ast=False, watch=None):
         dump = command(watch, [binary, "--backend", "mir", "--dump-mir", "--verify", source],
                        directory, "dump", env, 180)
         dump.update(parse_evidence(dump, "dump"))
+        prior = reuse_rows.get(source)
+        if (prior and prior['sha256'] == row['sha256'] and dump['kind'] == 'success'
+                and exact_mir(stream_text(prior['dump']), stream_text(dump))):
+            result = row | dict(dump=dump, compile=prior['compile'], run=prior['run'],
+                                exe_skipped="identical MIR")
+            write(receipt, result)
+            return auxiliary(result, source, directory, receipt)
+
         exe = directory / "program"
         exe.unlink(missing_ok=True)
         compile_result = command(
@@ -187,7 +201,7 @@ def collect(binary, rows, template, work, jobs, ast=False, watch=None):
             results.append(result)
             if len(results) % 100 == 0:
                 print(f"{work.name}: {len(results)}/{len(rows)}", flush=True)
-    if identity["artifacts"] != {str(p): sha(p) for p in artifacts}:
+    if identity["artifacts"] != artifact_hashes(artifacts):
         raise ValueError("compiler/runtime changed during measurement")
     write(work / "results.json", results)
     return results

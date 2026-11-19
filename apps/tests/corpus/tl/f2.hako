@@ -1,0 +1,8 @@
+static box Main {
+    add(a, b) {
+        return a + b
+    }
+    main() {
+        return Main.add(40, 2)
+    }
+}

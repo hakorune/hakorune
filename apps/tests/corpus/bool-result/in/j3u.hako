@@ -1,0 +1,6 @@
+box C {
+  k: i64
+  birth() { me.k = 0 }
+  t(s) { if s == "a" { return true } return false }
+}
+static box Main { main() { local c = new C()  local b = c.t("a")  if b { print(1) } else { print(0) }  return 0 } }

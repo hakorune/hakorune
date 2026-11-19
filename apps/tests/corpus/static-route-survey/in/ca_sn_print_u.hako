@@ -1,0 +1,9 @@
+static box Main {
+  f() {
+    return "abc"
+  }
+  main(args) {
+    print(Main.f())
+    return 0
+  }
+}

@@ -1,0 +1,5 @@
+static box Main {
+main() {
+local b4ret0 = ("あ" + "い").length(); return b4ret0
+}
+}

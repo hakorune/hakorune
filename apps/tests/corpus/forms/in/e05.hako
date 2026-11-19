@@ -1,0 +1,9 @@
+box P { v: i64
+  birth(v: i64) { me.v = v }
+  val() { return me.v }
+}
+static box Main { reset(edit q: P) { q = new P(9)
+  return 0 }
+ main() { local x = new P(1)
+  me.reset(edit x)
+  return x.val() } }

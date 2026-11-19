@@ -1,0 +1,1 @@
+static box Main { main() { local s = "abc" local out = "[" + s + "]" print(out) return 0 } }

@@ -1,0 +1,25 @@
+
+box ParamManifest {
+    birth() { }
+    make() { local m = new ParamManifest() return m }
+    seal(): i64 { return 1 }
+}
+box ParamDriver {
+    birth() { }
+    run(): i64 {
+        local m = new ParamManifest()
+        local m2 = m.make()
+        local i = 0
+        loop(i < 2) {
+            local r = m2.seal()
+            i = i + 1
+        }
+        return i
+    }
+}
+static box Main {
+    main() {
+        local d = new ParamDriver()
+        return d.run()
+    }
+}

@@ -1,0 +1,9 @@
+static box Main {
+  f() {
+    return true
+  }
+  main() {
+    local a = f()
+    return 0
+  }
+}

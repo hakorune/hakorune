@@ -1,0 +1,8 @@
+static box Main {
+  main() {
+    local s = "ab"
+    local t = s + "c"
+    print(t)
+    return 0
+  }
+}

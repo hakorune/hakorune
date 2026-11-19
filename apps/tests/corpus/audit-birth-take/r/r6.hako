@@ -1,0 +1,3 @@
+box Node { next: Node?  v: i64  birth(v: i64) { me.next = null  me.v = v } }
+box Wrap { head: Node  birth(take head: Node) { me.head = head } }
+static box Main { main() { local a = new Node(1)  local w = new Wrap(move a)  return 5 } }

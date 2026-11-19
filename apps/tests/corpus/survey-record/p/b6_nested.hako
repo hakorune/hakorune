@@ -1,0 +1,8 @@
+box V { x: i64 = 0 }
+box H { v: V = new V() }
+static box Main { main(): i64 {
+  local h = new H()
+  h.v.x = 3
+  print(h.v.x)
+  return 0
+} }

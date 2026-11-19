@@ -1,0 +1,140 @@
+// T8 Design R: earlier T4b (required-child rewrite) under the frozen grammar, an in-place span
+// update, and a TypeId newtype. PAPER ONLY. Never compiled. Uses r0_common.hako and r2_parser.hako.
+// Expr gains one variant here: Cond(CondNode).
+
+box CondNode {
+    span: Span
+    cond: Expr
+    thenE: Expr
+    elseE: Expr?
+}
+
+static box Q {
+    intOf(e: Expr): i64? {
+        return match e {
+            Num(n) => n.value
+            _ => null
+        }
+    }
+}
+
+static box Folder {
+    fold(take e: Expr): Expr {
+        return match move e {
+            Unary(n) => Folder.foldUnary(move n)
+            Binary(n) => Folder.foldBinary(move n)
+            Cond(n) => Folder.foldCond(move n)
+            other => move other
+        }
+    }
+
+    foldUnary(take n: UnaryNode): Expr {
+        n.operand = Folder.fold(move n.operand)
+        local v = Q.intOf(n.operand)
+        if v != null && n.op == UnOp::Neg {
+            return Expr::Num(NumNode { span: n.span, value: -v })
+        }
+        return Folder.dropDoubleNeg(move n)
+    }
+
+    dropDoubleNeg(take n: UnaryNode): Expr {
+        return match move n.operand {
+            Unary(u) if u.op == n.op => move u.operand
+            other => Expr::Unary(new UnaryNode { span: n.span, op: n.op, operand: move other })
+        }
+    }
+
+    foldBinary(take n: BinaryNode): Expr {
+        n.left = Folder.fold(move n.left)
+        n.right = Folder.fold(move n.right)
+        local l = Q.intOf(n.left)
+        local r = Q.intOf(n.right)
+        if l != null && r != null && n.op == BinOp::Add {
+            return Expr::Num(NumNode { span: n.span, value: l + r })
+        }
+        return Expr::Binary(move n)
+    }
+
+    foldCond(take n: CondNode): Expr {
+        n.cond = Folder.fold(move n.cond)
+        n.thenE = Folder.fold(move n.thenE)
+        local c = Q.intOf(n.cond)
+        if c == null {
+            return Expr::Cond(move n)
+        }
+        if c != 0 {
+            return move n.thenE
+        }
+        local f = take n.elseE
+        if f != null {
+            return Folder.fold(move f)
+        }
+        return Expr::Num(NumNode { span: n.span, value: 0 })
+    }
+}
+
+static box InPlace {
+    // Rule 12 is the same in both designs and no span is involved.
+    unwrapNeg(edit e: Expr): void {
+        match e {
+            Unary(n) if n.op == UnOp::Neg => {
+                e = move n.operand
+            }
+            _ => void
+        }
+    }
+
+    // A node's span changes in place. `n.span.end = last` is rejected: a record field has no
+    // mutation (record-box SSOT), so the whole value is replaced.
+    extendEnd(edit n: BinaryNode, last: i64): void {
+        n.span = n.span with { end: last }
+    }
+
+    widen(edit n: BinaryNode, other: Span): void {
+        n.span = Spans.merge(n.span, other)
+    }
+}
+
+// TypeId as a record. It copies freely, and `==` is a compile error at every site, so a change
+// from i64 to TypeId cannot silently change what a comparison means.
+record TypeId {
+    raw: i64
+}
+
+static box TypeIds {
+    INT: TypeId = TypeId { raw: 1 }
+    BOOL: TypeId = TypeId { raw: 2 }
+
+    eq(a: TypeId, b: TypeId): Bool {
+        return a.raw == b.raw
+    }
+}
+
+record TypedId {
+    ty: TypeId
+    span: Span
+}
+
+box TypeTable {
+    names: Map<String, TypeId> = new Map<String, TypeId>()
+    next: i64 = 3
+
+    edit intern(name: String): TypeId {
+        local found = me.names.get(name)
+        if found != null {
+            return found
+        }
+        local id = TypeId { raw: me.next }
+        me.next += 1
+        me.names.set(copy name, id)
+        return id
+    }
+
+    unify(a: TypedId, b: TypedId, edit sink: DiagSink): TypedId {
+        if TypeIds.eq(a.ty, b.ty) {
+            return a with { span: Spans.merge(a.span, b.span) }
+        }
+        sink.errorWith(a.span, b.span, "type mismatch")
+        return a
+    }
+}

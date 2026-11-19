@@ -1,0 +1,6 @@
+static box P {
+  t(s): Bool { if s == "a" { return true } return 5 }
+}
+box R { n: i64  birth() { me.n = 0 }
+  run(line) { local b = P.t(line)  if b { me.n = 1 }  return true } }
+static box Main { main() { local r = new R()  r.run("a")  print(r.n)  return 0 } }

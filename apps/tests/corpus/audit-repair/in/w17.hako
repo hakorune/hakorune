@@ -1,0 +1,1 @@
+box Pair { left: i64 right: i64 birth(l, r) { me.left = l me.right = r } } static box Main { main() { local first = new Pair(5, 1) local second = new Pair(1, 2) return first.left - second.right } }

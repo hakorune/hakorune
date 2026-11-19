@@ -1,0 +1,9 @@
+static box Main {
+  inc(x) {
+    return x + 1
+  }
+  main() {
+    local a = me.inc(3)
+    return a
+  }
+}

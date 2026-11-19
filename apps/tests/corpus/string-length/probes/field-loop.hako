@@ -1,0 +1,12 @@
+box T {
+ text: String
+ birth() { me.text = "あい" }
+}
+static box Main {
+main() {
+local p = new T()
+local i = 0
+loop(p.text.length() > i) { i = i + 1 }
+return i
+}
+}

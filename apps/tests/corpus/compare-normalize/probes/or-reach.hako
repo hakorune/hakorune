@@ -1,0 +1,6 @@
+static box Main {
+ main() {
+if false || (3 < 7) { return 7 }
+return 9
+ }
+}

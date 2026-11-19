@@ -1,0 +1,8 @@
+static box Main {
+ main() {
+local s = "x" + "y"
+local t = move s
+if s == "xy" { return 7 }
+return 9
+ }
+}

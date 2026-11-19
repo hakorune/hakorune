@@ -1,0 +1,17 @@
+box TreeNode {
+    left: TreeNode
+    right: TreeNode
+    value: i64
+    birth(left, right, value) {
+        me.left = left
+        me.right = right
+        me.value = value
+    }
+}
+static box Main {
+  main() {
+    local n = new TreeNode(null, null, 5)
+    n.left = new TreeNode(null, null, 6)
+    return n.value
+  }
+}

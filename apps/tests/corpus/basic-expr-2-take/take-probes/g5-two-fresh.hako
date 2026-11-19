@@ -1,0 +1,17 @@
+box Payload {
+  value: i64
+  birth(n: i64) {
+    me.value = n
+  }
+  get(): i64 {
+    return me.value
+  }
+}
+static box Main {
+  consume(take first: Payload, take second: Payload): i64 {
+    return first.get() + second.get()
+  }
+  main() {
+    return Main.consume(new Payload(1), new Payload(2))
+  }
+}

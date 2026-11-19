@@ -1,0 +1,14 @@
+box Pool {
+            size: i64 = 0
+            birth() { }
+        }
+        static box Helpers {
+            probe(p): i64 {
+                local n = p.size
+                return n
+            }
+        }
+        static box Main { main() {
+            local pool = new Pool()
+            return Helpers.probe(pool)
+        } }

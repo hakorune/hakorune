@@ -1,0 +1,1 @@
+box Leaf { items: ArrayBox = new ArrayBox() birth() { } } box Inner { leaf: Leaf = new Leaf() birth() { } } box Holder { inner: Inner = new Inner() birth() { } seed() { } } static box Main { main() { return 1 } }

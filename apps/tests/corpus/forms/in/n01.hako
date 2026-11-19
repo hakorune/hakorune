@@ -1,0 +1,9 @@
+box P { v: i64
+  birth(v: i64) { me.v = v }
+}
+box H { c: P?
+  birth(take c: P?) { me.c = move c }
+}
+static box Main { main() { local z = new P(1)
+  local h = new H(move z)
+  return 0 } }

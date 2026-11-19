@@ -1,0 +1,26 @@
+box Leaf {
+  value: i64
+  birth() {
+    me.value = 7
+  }
+}
+box Parent {
+    child: Leaf
+  value: i64
+  birth() {
+    me.child = new Leaf()
+    me.value = 5
+  }
+  check(): i64 {
+    if me.child == null {
+      return me.value
+    }
+    return 2
+  }
+}
+static box Main {
+  main() {
+    local p = new Parent()
+    return p.check()
+  }
+}

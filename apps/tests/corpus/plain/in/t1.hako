@@ -1,0 +1,1 @@
+static box Main { main() { local s = "ab" + "cd" print(s) return 0 } }

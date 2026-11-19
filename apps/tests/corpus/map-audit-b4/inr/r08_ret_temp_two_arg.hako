@@ -1,0 +1,5 @@
+static box Main {
+    main() {
+        return ("ab" + "cab").indexOf("a", 1)
+    }
+}

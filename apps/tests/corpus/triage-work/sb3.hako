@@ -1,0 +1,2 @@
+box Counter { n: i64 birth() { me.n = 7 } read() { return me.n } bump(): i64 { return me.read() + 1 } }
+static box Main { main() { local c = new Counter() return c.bump() } }

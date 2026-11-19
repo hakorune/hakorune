@@ -1,0 +1,12 @@
+box Holder {
+  init { m }
+  birth() {
+    me.m = new MapBox()
+  }
+}
+static box Main {
+  main() {
+    local h = new Holder()
+    return 0
+  }
+}

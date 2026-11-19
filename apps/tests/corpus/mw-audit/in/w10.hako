@@ -1,0 +1,15 @@
+static box Main {
+  main() {
+    local a = 5
+    local b = 7
+    if a < b {
+      print("lt")
+    } else {
+      print("ge")
+    }
+    if a != b {
+      return 1
+    }
+    return 2
+  }
+}

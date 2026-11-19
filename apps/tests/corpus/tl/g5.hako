@@ -1,0 +1,14 @@
+static box Main {
+    sum_to(n: i64): i64 {
+        local i = 0
+        local s = 0
+        loop(i < n) {
+            s = s + i
+            i = i + 1
+        }
+        return s
+    }
+    main() {
+        return Main.sum_to(5)
+    }
+}

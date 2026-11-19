@@ -1,0 +1,11 @@
+static box Main {
+  t(x: i64): Bool {
+    return x > 1
+  }
+  main() {
+    local b = Main.t(4)
+    local n = b + 1
+    print(n)
+    return 0
+  }
+}

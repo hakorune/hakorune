@@ -1,0 +1,132 @@
+// Design R, shared declarations used by every task. PAPER ONLY. Never compiled.
+//
+// Comment markers used in all files (counted by count.py):
+//   CONFLICT   the natural first draft of the next line, rejected by a borrow rule
+//   WRONG      a line that compiles and gives a wrong result
+//   OWNED      the natural first draft, rejected because a borrow cannot be stored, returned
+//              as owned, or written through. Not an overlap, so not counted as CONFLICT.
+//   UNNATURAL  a form this design cannot write naturally
+//
+// Readings of the rules assumed in both designs (none is confirmed by a compiler):
+//   A1 `==` on a unit enum is value equality (types.md 4.3 does not list enums).
+//   A2 Array has `edit set(i, take v: T)` (EBNF ARRAY-001 lists it, ownership.md rule 11 does not).
+//   A3 An edit loan starts at call entry after the arguments are evaluated, so a fresh or
+//      copied argument read from the receiver is accepted: `xs.set(j, copy xs.get(k))`.
+//      A read borrow still alive at entry overlaps and is rejected.
+//   A4 A borrow lives to its last use (ADR 固定した文法: 最後の必要な使用まで).
+//   A5 String literals, `a + b` on strings and substring results are fresh owned Strings.
+//   A6 Reading an array element in range without a null check has no decided form:
+//      only `get(i): T? from me` is decided, so every read goes through get plus guard.
+//   A7 `static box` has no `me` (LANGUAGE_REFERENCE_2025), so calls are `Name.f()`.
+//   A8 A record in a read position copies: `local p = pts.get(i)` holds no borrow.
+//   A9 `get` out of range gives null (rule 11 gives `T?`; ADR 型検査 says existing Faults stay).
+
+enum TokKind {
+    Ident
+    Int
+    Str
+    KwFn
+    KwLet
+    KwReturn
+    KwIf
+    KwElse
+    Plus
+    Minus
+    Star
+    Slash
+    Bang
+    Assign
+    EqEq
+    BangEq
+    Lt
+    Gt
+    LParen
+    RParen
+    LBrace
+    RBrace
+    Comma
+    Colon
+    Semi
+    Bad
+    Eof
+}
+
+enum Severity {
+    Error
+    Warning
+}
+
+record Span {
+    start: i64
+    end: i64
+}
+
+record Pos {
+    line: i64
+    col: i64
+}
+
+// UNNATURAL: Span.merge(a, b)   A record has no methods (types.md Record vs Box), and `Span`
+// already names the record, so a static box with another name holds the operations.
+static box Spans {
+    merge(a: Span, b: Span): Span {
+        return Span { start: Math.min(a.start, b.start), end: Math.max(a.end, b.end) }
+    }
+
+    // `==` on a record is not defined in this design, so content equality is by field.
+    eq(a: Span, b: Span): Bool {
+        return a.start == b.start && a.end == b.end
+    }
+
+    eqOpt(a: Span?, b: Span?): Bool {
+        if a == null || b == null {
+            return a == null && b == null
+        }
+        return Spans.eq(a, b)
+    }
+
+    cmp(a: Span, b: Span): i64 {
+        if a.start != b.start {
+            return a.start - b.start
+        }
+        return a.end - b.end
+    }
+
+    at(xs: Array<Span>, i: i64): Span {
+        local s = xs.get(i)
+        guard s != null else {
+            panic("span index out of range")
+        }
+        return s
+    }
+}
+
+box Token {
+    kind: TokKind
+    span: Span
+    text: String
+}
+
+box Diagnostic {
+    severity: Severity
+    span: Span
+    related: Span?
+    message: String
+}
+
+box DiagSink {
+    items: Array<Diagnostic> = []
+
+    edit error(sp: Span, take message: String): void {
+        me.items.push(new Diagnostic { severity: Severity::Error, span: sp, message: move message })
+    }
+
+    edit errorWith(sp: Span, related: Span, take message: String): void {
+        me.items.push(new Diagnostic {
+            severity: Severity::Error,
+            span: sp,
+            related: related,
+            message: move message
+        })
+    }
+}

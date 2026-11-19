@@ -1,0 +1,1 @@
+static box Main { f(x: i64): bool { return x < 3 } main() { local r = Main.f(1) if r { print(1) } return 0 } }

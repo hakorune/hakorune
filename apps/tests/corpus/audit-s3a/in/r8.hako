@@ -1,0 +1,8 @@
+box C {
+  v
+  birth(v) { me.v = v }
+  f(x: i64): i64 { local y = me.v return y + x }
+}
+static box Main {
+  main() { local c = new C(3) print(c.f(5)) return 0 }
+}

@@ -1,0 +1,1 @@
+box S { birth() { } get(): i64 { return 2 } } box M { birth() { } read(o: S): i64 { return o.get() } } static box Main { main() { local s = new S() local m = new M() return m.read(s) } }

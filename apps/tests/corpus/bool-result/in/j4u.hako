@@ -1,0 +1,7 @@
+box C {
+  k: i64
+  birth() { me.k = 0 }
+  t(s) { if s == "a" { return true } return false }
+  run(line) { if me.t(line) { me.k = me.k + 1 } else { me.k = me.k + 10 }  return true }
+}
+static box Main { main() { local c = new C()  c.run("a")  c.run("b")  print(c.k)  return 0 } }

@@ -1,0 +1,14 @@
+box Holder {
+    birth() {
+    }
+    name() {
+        return "abcd"
+    }
+}
+static box Main {
+    main() {
+        local h = new Holder()
+        local n = h.name().length()
+        return n
+    }
+}

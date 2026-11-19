@@ -1,0 +1,7 @@
+static box Main {
+  main() {
+    local m = %{"a" => 1}
+    m.set("b", 2)
+    return m.get("b")
+  }
+}

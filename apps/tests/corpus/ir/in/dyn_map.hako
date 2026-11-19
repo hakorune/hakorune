@@ -1,0 +1,3 @@
+box M { m
+  birth() { me.m = %{"a" => 1} } }
+static box Main { main() { local m = new M()  return 0 } }

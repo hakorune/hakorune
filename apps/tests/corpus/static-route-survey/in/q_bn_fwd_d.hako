@@ -1,0 +1,12 @@
+static box Main {
+  f(): Bool {
+    return true
+  }
+  g(): Bool {
+    return Main.f()
+  }
+  main() {
+    local a = Main.g()
+    return 0
+  }
+}

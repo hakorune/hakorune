@@ -1,0 +1,8 @@
+box Tag { name: String
+  birth(name: String) { me.name = name }
+}
+static box Main { main() { local t = new Tag("abc")
+  local i = 0
+  loop(i < 3) { print(t.name)
+    i = i + 1 }
+  return 0 } }

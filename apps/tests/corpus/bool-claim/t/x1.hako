@@ -1,0 +1,10 @@
+static box Layout {
+  class_id(p) { return true }
+}
+static box Main {
+  main() {
+    local k = Layout.class_id(7)
+    if k { print(1) } else { print(0) }
+    return 0
+  }
+}

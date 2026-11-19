@@ -1,0 +1,6 @@
+static box Main {
+main() {
+local s = "hello"
+return ("he" + "llo").indexOf("l" + "o")
+}
+}

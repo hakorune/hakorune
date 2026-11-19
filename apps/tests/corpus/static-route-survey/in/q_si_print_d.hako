@@ -1,0 +1,9 @@
+static box Main {
+  f(v: i64): String {
+    return "abc"
+  }
+  main() {
+    print(Main.f(5))
+    return 0
+  }
+}

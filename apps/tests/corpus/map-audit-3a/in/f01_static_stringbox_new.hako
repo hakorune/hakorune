@@ -1,0 +1,11 @@
+static box StringBox {
+    ping() {
+        return 3
+    }
+}
+static box Main {
+    main() {
+        local s = new StringBox("ab")
+        return 1
+    }
+}

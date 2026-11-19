@@ -1,0 +1,1 @@
+static box Main { main() { local i = 0 local first = 1 loop(i < 3) { if first == 0 { print(9) } else { first = 0 } i = i + 1 } print(i) return 0 } }

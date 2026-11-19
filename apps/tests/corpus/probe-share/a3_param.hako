@@ -1,0 +1,5 @@
+box Pair { left: i64  birth(l) { me.left = l } }
+static box Main {
+  read(x: Shared<Pair>): i64 { return x.left }
+  main() { local s = Shared(new Pair(5))  return Main.read(s) }
+}

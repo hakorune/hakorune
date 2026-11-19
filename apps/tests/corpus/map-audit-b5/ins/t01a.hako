@@ -1,0 +1,10 @@
+static box Foo {
+tri(a: i64, b: i64, c: i64): i64 {
+return a * b - c
+}
+}
+static box Main {
+main() {
+return Foo.tri(3, 4, 5)
+}
+}

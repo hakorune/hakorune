@@ -1,0 +1,9 @@
+box Leaf {
+ value: i64
+ birth(v: i64) { me.value = v }
+ get(): i64 { return me.value }
+}
+static box Main {
+ eat(take p: Leaf): i64 { return p.get() }
+ main() { local a = new Leaf(4) if false && Main.eat(move a) > 0 { return 9 } return 7 }
+}

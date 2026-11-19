@@ -1,0 +1,5 @@
+box C { v: i64  birth() { me.v = 3 } get(): i64 { return me.v } }
+static box Main {
+  make() { local m = %{"a" => 1}  return new C() }
+  main() { local x = Main.make()  return 0 }
+}

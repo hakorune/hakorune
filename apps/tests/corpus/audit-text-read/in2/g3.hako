@@ -1,0 +1,9 @@
+box M { name: String
+  v: i64
+  birth(name: String, v: i64) { me.name = name
+    me.v = v }
+}
+static box Main { main() { local t = new M("abc", 5)
+  print(t.name)
+  local k = t.v
+  return k } }

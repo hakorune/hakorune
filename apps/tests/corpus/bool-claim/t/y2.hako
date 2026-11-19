@@ -1,0 +1,12 @@
+box Store {
+  limit: i64
+  birth() { me.limit = 10 }
+  release(p) { return 0 }
+}
+static box Main {
+  main() {
+    local s = new Store()
+    local b = true
+    return b
+  }
+}

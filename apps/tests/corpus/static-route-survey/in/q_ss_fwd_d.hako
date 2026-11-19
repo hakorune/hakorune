@@ -1,0 +1,12 @@
+static box Main {
+  f(x: String): String {
+    return "abc"
+  }
+  g(): String {
+    return Main.f("s")
+  }
+  main() {
+    local a = Main.g()
+    return 0
+  }
+}

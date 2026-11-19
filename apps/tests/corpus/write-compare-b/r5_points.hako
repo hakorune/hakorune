@@ -1,0 +1,174 @@
+// T5 Design R: Point and Color, one million elements, updating some, bounding box, helpers.
+// PAPER ONLY. Never compiled. Standalone.
+
+record Point {
+    x: i64
+    y: i64
+}
+
+record Color {
+    r: i64
+    g: i64
+    b: i64
+    a: i64
+}
+
+record Pixel {
+    at: Point
+    color: Color
+}
+
+record Rect {
+    min: Point
+    max: Point
+}
+
+// UNNATURAL: a.add(b)   A record has no methods, so every operation is a static helper.
+static box Geo {
+    add(a: Point, b: Point): Point {
+        return Point { x: a.x + b.x, y: a.y + b.y }
+    }
+
+    scale(p: Point, k: i64): Point {
+        return Point { x: p.x * k, y: p.y * k }
+    }
+
+    mid(a: Point, b: Point): Point {
+        return Point { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
+    }
+
+    dist2(a: Point, b: Point): i64 {
+        local dx = a.x - b.x
+        local dy = a.y - b.y
+        return dx * dx + dy * dy
+    }
+
+    farther(a: Point, b: Point, origin: Point): Point {
+        if Geo.dist2(a, origin) >= Geo.dist2(b, origin) {
+            return a
+        }
+        return b
+    }
+
+    same(a: Point, b: Point): Bool {
+        return a.x == b.x && a.y == b.y
+    }
+
+    grow(r: Rect, p: Point): Rect {
+        return Rect {
+            min: Point { x: Math.min(r.min.x, p.x), y: Math.min(r.min.y, p.y) },
+            max: Point { x: Math.max(r.max.x, p.x), y: Math.max(r.max.y, p.y) }
+        }
+    }
+
+    blend(a: Color, b: Color): Color {
+        return Color { r: (a.r + b.r) / 2, g: (a.g + b.g) / 2, b: (a.b + b.b) / 2, a: a.a }
+    }
+
+    // WRONG: nudge(p: Pixel, d: Point): void { p = p with { at: Geo.add(p.at, d) } }
+    //        Without `edit`, `=` re-points a read parameter (rule 5). It compiles and the caller
+    //        sees no change. Design B rejects the same mistake (`p.x += d.x` on a read borrow).
+    // UNNATURAL: Geo.nudge(edit pixels[9].at, d)   A record field is not a mutation place
+    // (record-box SSOT: no field mutation), so the loan is on the whole Pixel.
+    nudge(edit p: Pixel, d: Point): void {
+        p = p with { at: Geo.add(p.at, d) }
+    }
+}
+
+static box Scene {
+    build(n: i64): Array<Pixel> {
+        local out: Array<Pixel> = []
+        loop i in 0..n {
+            out.push(Pixel {
+                at: Point { x: i, y: i * 2 },
+                color: Color { r: i % 256, g: 0, b: 0, a: 255 }
+            })
+        }
+        return out
+    }
+
+    shiftSome(edit pixels: Array<Pixel>, d: Point): void {
+        local i = 0
+        loop i < pixels.length() {
+            local p = pixels.get(i)
+            guard p != null else {
+                break
+            }
+            // WRONG: p = p with { at: Geo.add(p.at, d) }   (no write back: compiles, nothing changes)
+            pixels.set(i, p with { at: Geo.add(p.at, d) })
+            i += 1000
+        }
+    }
+
+    fadeSome(edit pixels: Array<Pixel>): void {
+        local i = 0
+        loop i < pixels.length() {
+            local p = pixels.get(i)
+            guard p != null else {
+                break
+            }
+            pixels.set(i, p with { color: p.color with { a: p.color.a / 2 } })
+            i += 500
+        }
+    }
+
+    tintOne(edit pixels: Array<Pixel>, i: i64, tint: Color): void {
+        local p = pixels.get(i)
+        guard p != null else {
+            return
+        }
+        pixels.set(i, p with { color: Geo.blend(p.color, tint) })
+    }
+
+    bounds(pixels: Array<Pixel>): Rect? {
+        local first = pixels.get(0)
+        if first == null {
+            return null
+        }
+        local r = Rect { min: first.at, max: first.at }
+        loop i in 1..pixels.length() {
+            local p = pixels.get(i)
+            guard p != null else {
+                continue
+            }
+            r = Geo.grow(r, p.at)
+        }
+        return r
+    }
+
+    inside(pixels: Array<Pixel>, r: Rect): Array<Pixel> {
+        local out: Array<Pixel> = []
+        loop i in 0..pixels.length() {
+            local p = pixels.get(i)
+            guard p != null else {
+                continue
+            }
+            if p.at.x >= r.min.x && p.at.x <= r.max.x && p.at.y >= r.min.y && p.at.y <= r.max.y {
+                out.push(p)
+            }
+        }
+        return out
+    }
+}
+
+static box Main {
+    main(): i64 {
+        local pixels = Scene.build(1000000)
+        local origin = Point { x: 0, y: 0 }
+        Scene.shiftSome(edit pixels, Point { x: 3, y: 4 })
+        Scene.fadeSome(edit pixels)
+        Scene.tintOne(edit pixels, 7, Color { r: 255, g: 255, b: 255, a: 255 })
+        Geo.nudge(edit pixels[9], Point { x: 1, y: 1 })
+        local r = Scene.bounds(pixels)
+        guard r != null else {
+            return 1
+        }
+        local center = Geo.mid(r.min, r.max)
+        local far = Geo.farther(center, Geo.scale(r.max, 2), origin)
+        local some = Scene.inside(pixels, r with { max: center })
+        if Geo.same(far, origin) {
+            return 2
+        }
+        return some.length() + far.x
+    }
+}

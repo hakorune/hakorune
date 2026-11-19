@@ -1,0 +1,14 @@
+box Item {
+    init { name }
+    birth(n) { me.name = n }
+    getName() { return me.name }
+}
+
+static box Main {
+    main(args) {
+        local it = new Item("abc")
+        local s = it.getName()
+        print(s)
+        return 0
+    }
+}

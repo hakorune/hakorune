@@ -1,0 +1,21 @@
+box Probe {
+ birth() {}
+ run(a) {
+  local x = a.get(0)
+  local n = 0
+  loop(n < 2) {
+   x = x + 1
+   if x < 3 { return 7 }
+   n = n + 1
+  }
+  return 9
+ }
+}
+static box Main {
+ main() {
+  local a = new ArrayBox()
+  a.push(0)
+  local p = new Probe()
+  return p.run(a)
+ }
+}

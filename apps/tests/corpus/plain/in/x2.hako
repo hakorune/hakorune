@@ -1,0 +1,16 @@
+static box Main {
+  method main(args) {
+    local observations = "["
+    local i = 0
+    local count = 2
+    loop(i < count) {
+      local suffix = "" + i
+      local observation = "o"
+      if i > 0 { observations = observations + "," }
+      observations = observations + observation
+      i = i + 1
+    }
+    print(observations)
+    return 0
+  }
+}

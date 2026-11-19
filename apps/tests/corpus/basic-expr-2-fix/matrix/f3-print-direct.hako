@@ -1,0 +1,8 @@
+static box Main {
+echo(n: i64): i64 { return n }
+main() {
+local t = "é猫🙂z"
+print(t.length())
+return 0
+}
+}

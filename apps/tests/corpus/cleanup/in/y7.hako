@@ -1,0 +1,1 @@
+static box Main { main() { local p = new P() local r = 5 print(r) return 0 } } box P { birth() { } }

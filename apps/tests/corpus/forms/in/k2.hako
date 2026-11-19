@@ -1,0 +1,6 @@
+box R { a: i64
+  b: i64
+  birth(a: i64) { me.a = a }
+}
+static box Main { main() { local r = new R(1) { b: 2 }
+  return 0 } }

@@ -1,0 +1,12 @@
+static box Main {
+make() { return "あい" }
+needle() { return "い" }
+read(): i64 {
+return Main.make().length()
+}
+main() {
+local value = Main.read()
+if value == 2 { return 0 }
+return 1
+}
+}

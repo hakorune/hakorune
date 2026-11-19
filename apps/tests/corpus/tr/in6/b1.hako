@@ -1,0 +1,6 @@
+box Tag {
+  n: i64
+  m: i64
+  birth(n: i64, m: i64) { me.n = n  me.m = m }
+}
+static box Main { main() { local t = new Tag(3, 4)  print(t.n)  print(t.m)  return t.n } }

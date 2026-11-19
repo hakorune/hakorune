@@ -1,0 +1,12 @@
+static box Main {
+  main() {
+    local i = 0
+    loop(i < 10) {
+      if i == 4 {
+        return i
+      }
+      i = i + 1
+    }
+    return 99
+  }
+}

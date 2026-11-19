@@ -1,0 +1,153 @@
+// T4 Design B: merge spans, compare spans for equality, sort and dedupe diagnostics by span.
+// PAPER ONLY. Never compiled. Uses b0_common.hako and b2_parser.hako.
+
+static box SpanPass {
+    insertSorted(edit xs: Array<Span>, s: Span): void {
+        xs.push(copy s)
+        local j = xs.length() - 1
+        loop j > 0 {
+            local prev = Spans.at(xs, j - 1)
+            if prev.cmp(s) <= 0 {
+                break
+            }
+            xs.set(j, copy prev)
+            j -= 1
+        }
+        xs.set(j, copy s)
+    }
+
+    // Coalesce overlapping or touching ranges, for example unreachable regions before reporting.
+    coalesce(spans: Array<Span>): Array<Span> {
+        local sorted: Array<Span> = []
+        loop i in 0..spans.length() {
+            SpanPass.insertSorted(edit sorted, Spans.at(spans, i))
+        }
+        local out: Array<Span> = []
+        loop i in 0..sorted.length() {
+            local cur = Spans.at(sorted, i)
+            local last = out.get(out.length() - 1)
+            if last != null && last.end >= cur.start {
+                out.set(out.length() - 1, last.merge(cur))
+            } else {
+                out.push(copy cur)
+            }
+        }
+        return out
+    }
+
+    widenBlock(edit b: Block): void {
+        loop i in 0..b.stmts.length() {
+            local s = b.stmts.get(i)
+            guard s != null else {
+                continue
+            }
+            b.span = b.span.merge(Ast.stmtSpan(s))
+        }
+    }
+
+    paramsSpan(f: FnDecl): Span? {
+        // GAP: rule 5 fixes borrow or owner at the first assignment, and `null` does not say
+        // which. This line must mean owner for the next two assignments to work.
+        local out: Span? = null
+        loop i in 0..f.params.length() {
+            local p = f.params.get(i)
+            guard p != null else {
+                continue
+            }
+            if out == null {
+                out = copy p.span
+            } else {
+                out = out.merge(p.span)
+            }
+        }
+        return out
+    }
+
+    countSame(spans: Array<Span>, target: Span): i64 {
+        local n = 0
+        loop i in 0..spans.length() {
+            // WRONG: if Spans.at(spans, i) == target {   (box identity: compiles, stays 0)
+            if Spans.at(spans, i).equals(target) {
+                n += 1
+            }
+        }
+        return n
+    }
+}
+
+static box DiagPass {
+    // WRONG: a.span == b.span   (box identity: compiles, false for every separately built span)
+    // WRONG: a.related == b.related   (true when both are null, so tests with no related pass)
+    same(a: Diagnostic, b: Diagnostic): Bool {
+        return a.severity == b.severity
+            && a.span.equals(b.span)
+            && Spans.eqOpt(a.related, b.related)
+            && a.message == b.message
+    }
+
+    indexOfMin(ds: Array<Diagnostic>): i64 {
+        local best = 0
+        loop i in 1..ds.length() {
+            local a = ds.get(i)
+            local b = ds.get(best)
+            guard a != null && b != null else {
+                continue
+            }
+            if a.span.cmp(b.span) < 0 {
+                best = i
+            }
+        }
+        return best
+    }
+
+    // UNNATURAL: ds.swap(i, j)   No swap and no sort API (ownership.md rule 11). `set` needs an
+    // owned value and `take ds[i]` needs Array<T?>. remove(i) is the only decided way out of an
+    // Array<Diagnostic>, so the sort is selection sort into a second array.
+    sortBySpan(take ds: Array<Diagnostic>): Array<Diagnostic> {
+        local out: Array<Diagnostic> = []
+        loop ds.length() > 0 {
+            out.push(ds.remove(DiagPass.indexOfMin(ds)))
+        }
+        return out
+    }
+
+    dedupe(take ds: Array<Diagnostic>): Array<Diagnostic> {
+        local out: Array<Diagnostic> = []
+        loop ds.length() > 0 {
+            local d = ds.remove(0)
+            local last = out.get(out.length() - 1)
+            if last == null || !DiagPass.same(last, d) {
+                out.push(move d)
+            }
+        }
+        return out
+    }
+
+    mergeOverlapping(take ds: Array<Diagnostic>): Array<Diagnostic> {
+        local out: Array<Diagnostic> = []
+        loop ds.length() > 0 {
+            local d = ds.remove(0)
+            local last = out.get(out.length() - 1)
+            if last != null && last.message == d.message && last.span.end >= d.span.start {
+                out[out.length() - 1].span = last.span.merge(d.span)
+            } else {
+                out.push(move d)
+            }
+        }
+        return out
+    }
+
+    // UNNATURAL: copy d   A String field blocks `copy`, so a whole Diagnostic is cloned by hand.
+    clone(d: Diagnostic): Diagnostic {
+        return new Diagnostic {
+            severity: d.severity,
+            span: copy d.span,
+            related: Spans.copyOpt(d.related),
+            message: copy d.message
+        }
+    }
+
+    run(take ds: Array<Diagnostic>): Array<Diagnostic> {
+        return DiagPass.mergeOverlapping(DiagPass.dedupe(DiagPass.sortBySpan(move ds)))
+    }
+}

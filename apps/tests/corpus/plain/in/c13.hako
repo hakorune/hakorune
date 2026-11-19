@@ -1,0 +1,1 @@
+box H { birth() { } a(x: i64): i64 { return x + 1 } } static box Main { f(h: H): i64 { return h.a(1) } main() { local h = new H() local r = Main.f(h) print(r) return 0 } }

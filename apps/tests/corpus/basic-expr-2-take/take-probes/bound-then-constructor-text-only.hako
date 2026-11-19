@@ -1,0 +1,7 @@
+box Leaf { value: i64 birth(v: i64) { me.value = v } get(): i64 { return me.value } }
+box Label { value: i64 birth(text: String) { me.value = 2 } }
+static box Main {
+ eat(take x: Leaf): i64 { return x.get() }
+ label(take x: Label): i64 { return 2 }
+ main() { local a = new Leaf(4) return Main.eat(move a) + Main.label(new Label("a" + "b")) }
+}

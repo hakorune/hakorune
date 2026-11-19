@@ -1,0 +1,17 @@
+box Holder {
+    v: i64
+    birth() {
+        local m = new MapBox()
+        m.set("k", 7)
+        me.v = m.get("k")
+    }
+    value() {
+        return me.v
+    }
+}
+static box Main {
+    main() {
+        local h = new Holder()
+        return h.value()
+    }
+}

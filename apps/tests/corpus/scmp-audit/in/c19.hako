@@ -1,0 +1,10 @@
+static box Main {
+  main() {
+    local s = "x"
+    local r = 0
+    if s == "x" { r = r + 1 }
+    if s == "y" { r = r + 10 }
+    if s != "y" { r = r + 100 }
+    return r
+  }
+}

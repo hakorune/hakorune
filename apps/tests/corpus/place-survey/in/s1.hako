@@ -1,0 +1,2 @@
+box Named { name: String  birth(name: String) { me.name = name } }
+static box Main { main() { local n = new Named("hi")  local s = n.name  return 1 } }

@@ -1,0 +1,1 @@
+static box Main { main() { local a = new ArrayBox() a.push(7) a.set(0, 9) local v = a.get(0) print(v) return 0 } }

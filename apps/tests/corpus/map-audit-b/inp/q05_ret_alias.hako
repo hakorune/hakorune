@@ -1,0 +1,7 @@
+static box Main {
+    main() {
+        local s = "abc"
+        local t = s
+        return t.indexOf("c")
+    }
+}

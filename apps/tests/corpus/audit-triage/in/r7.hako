@@ -1,0 +1,1 @@
+box P { birth() { } } static box Helper { add(x: i64): i64 { return x + 1 } } static box Main { main() { local p = new P() local r = Helper.add(1) return r } }

@@ -1,0 +1,6 @@
+box Tag {
+  a: String
+  b: String
+  birth(a: String, b: String) { me.a = a  me.b = b }
+}
+static box Main { main() { local t = new Tag("abc", "de")  print(t.a)  print(t.b + "x")  return 0 } }

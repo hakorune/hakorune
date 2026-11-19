@@ -1,0 +1,11 @@
+box Tag {
+  name: String
+  birth(name: String) { me.name = name }
+  get() { return me.name + "x" }
+}
+static box Main {
+  main() {
+    local t = new Tag("abc")
+    print(t.get())  return 0
+  }
+}

@@ -1,0 +1,6 @@
+box P { v: i64
+  birth(v: i64) { me.v = v }
+}
+static box Main { f(take p: P) { return 5 }
+ main() { local x = new P(1)
+  return me.f(move x) } }

@@ -1,0 +1,28 @@
+box Leaf {
+  value: i64
+  birth(value) {
+    me.value = value
+  }
+}
+box Node {
+  next: Leaf
+  value: i64
+  birth(next, value) {
+    me.next = next
+    me.value = value
+  }
+  check(): i64 {
+    if me.next == null {
+      return 1
+    }
+    return 2
+  }
+}
+static box Main {
+  main() {
+    local c = new Leaf(1)
+    local n = new Node(c, 5)
+    local v = n.check()
+    return v
+  }
+}

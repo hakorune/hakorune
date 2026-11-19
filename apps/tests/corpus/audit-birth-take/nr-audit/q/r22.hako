@@ -1,0 +1,7 @@
+box Leaf {
+  value: i64
+  birth(value) { me.value = value }
+  get(): i64 { return me.value }
+}
+box T { a: Leaf  b: Leaf  birth(take x: Leaf, take y: Leaf) { me.a = move x  me.b = move x } }
+static box Main { main() { local l = new Leaf(4)  local m = new Leaf(3)  local t = new T(move l, move m)  return 7 } }

@@ -1,0 +1,9 @@
+static box Main {
+  main() {
+    local s = "abc"
+    if s == "abc" {
+      return 1
+    }
+    return 0
+  }
+}

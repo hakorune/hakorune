@@ -1,0 +1,9 @@
+static box Main {
+  main() {
+    local x = 0
+    if x == null {
+      return 1
+    }
+    return 2
+  }
+}

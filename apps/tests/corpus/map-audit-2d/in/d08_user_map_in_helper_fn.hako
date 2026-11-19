@@ -1,0 +1,18 @@
+box MapBox {
+    x: i64
+    birth() {
+        me.x = 21
+    }
+    val() {
+        return me.x
+    }
+}
+static box Main {
+    make() {
+        local m = new MapBox()
+        return m.val()
+    }
+    main() {
+        return me.make()
+    }
+}

@@ -1,0 +1,10 @@
+static box Main {
+    main() {
+        local s = "xyz"
+        if s.length() == 3 {
+            return s.indexOf("z")
+        } else {
+            return 9
+        }
+    }
+}

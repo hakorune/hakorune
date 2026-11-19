@@ -1,0 +1,7 @@
+box Tag { name: String
+  birth(name: String) { me.name = name }
+}
+static box Main { main() { local t = new Tag("abc")
+  local s = t.name.substring(0, 1)
+  print(s)
+  return 0 } }

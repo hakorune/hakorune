@@ -1,0 +1,9 @@
+static box Main {
+    pos() {
+        local t = "abcdef"
+        return t.indexOf("de")
+    }
+    main() {
+        return me.pos()
+    }
+}

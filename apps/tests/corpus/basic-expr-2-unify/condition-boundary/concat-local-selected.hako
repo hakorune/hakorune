@@ -1,0 +1,1 @@
+static box Main { main() { local s = "x" + "y" local flag = ("a" + "b") == "ab" print(s) if flag { return 7 } return 0 } }

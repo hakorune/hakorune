@@ -1,0 +1,9 @@
+static box Main {
+  main() {
+    local k = "abc".length()
+    local n = 0
+    if k == 3 { n = k } else { n = 1 }
+    print(n)
+    return n
+  }
+}

@@ -1,0 +1,11 @@
+static box Main {
+  t(x: i64, y: i64): i64 {
+    local s = x * y
+    return s + 1
+  }
+  main() {
+    local a = Main.t(2, 5)
+    print(a)
+    return 0
+  }
+}

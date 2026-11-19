@@ -1,0 +1,16 @@
+box Holder {
+birth() {
+}
+name() {
+return "hello"
+}
+}
+static box Main {
+main() {
+local h = new Holder()
+if h.name().length() > 3 {
+return h.name().length()
+}
+return 0
+}
+}

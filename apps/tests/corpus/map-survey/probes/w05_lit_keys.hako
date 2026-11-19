@@ -1,0 +1,7 @@
+static box Main {
+  main() {
+    local m = %{"a" => 1}
+    local k = m.keys()
+    return k.size()
+  }
+}

@@ -1,0 +1,12 @@
+box Cmp {
+flag: Bool = true
+birth() {}
+check(): i64 {
+if me.flag == false { return 7 }
+return 9
+}
+}
+static box Main { main() {
+local p = new Cmp()
+return p.check()
+} }

@@ -1,0 +1,18 @@
+box Search { seed: i64
+ birth() { me.seed = 0 }
+ run(): i64 {
+local value = "ab"
+local i = 0
+loop(i < 2) {
+ local pos = value.indexOf(value)
+ value = value + "x"
+ i = i + 1
+}
+return i
+ }
+}
+static box Main { main() {
+ local search = new Search()
+ print(search.run())
+ return 0
+} }

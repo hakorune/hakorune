@@ -1,0 +1,1 @@
+box Counter { limit: usize total: usize birth() { me.limit = 10 me.total = 0 } check(requested): i64 { if requested > me.limit { return 0 } me.total = me.total + requested return 1 } } static box Main { main() { local c = new Counter() return c.check(5) } }

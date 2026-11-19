@@ -1,0 +1,16 @@
+box Holder {
+  init { m }
+  birth() {
+    me.m = new MapBox()
+  }
+  put(user) {
+    me.m.set(user, 3)
+    return 0
+  }
+}
+static box Main {
+  main() {
+    local h = new Holder()
+    return h.put("x")
+  }
+}

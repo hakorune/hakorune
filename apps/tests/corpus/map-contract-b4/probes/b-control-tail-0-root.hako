@@ -1,0 +1,12 @@
+static box Search {
+ find(n: i64): i64 {
+ local s = "hello"
+return s.indexOf("l")
+ }
+}
+static box Main {
+ main() {
+if Search.find(0) == 2 { return 0 }
+return 1
+ }
+}

@@ -1,0 +1,6 @@
+box Tag { name: String
+  birth(name: String) { me.name = name }
+}
+static box Main { main() { local t = new Tag("abc")
+  if 1 < 2 { print(t.name) }
+  return 0 } }

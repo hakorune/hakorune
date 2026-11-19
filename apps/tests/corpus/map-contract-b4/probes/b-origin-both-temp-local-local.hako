@@ -1,0 +1,9 @@
+static box Main {
+ main() {
+local s = "he" + "llo"
+local t = "" + "l"
+local a = s
+local r = ("he" + "llo").indexOf("" + "l")
+local b4ret0 = r; return b4ret0
+ }
+}

@@ -1,0 +1,6 @@
+record T { s: String }
+static box Main { main(): i64 {
+  local t = T { s: "a" }
+  print(t.s)
+  return 0
+} }

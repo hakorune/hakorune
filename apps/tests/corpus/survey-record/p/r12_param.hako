@@ -1,0 +1,11 @@
+record P { x: i64 }
+box Foo { 
+  go(): i64 { local p = P { x: 1 }
+    return me.h(p) }
+  h(p: P): i64 { return p.x }
+}
+static box Main { main(): i64 {
+  local f = new Foo()
+  print(f.go())
+  return 0
+} }

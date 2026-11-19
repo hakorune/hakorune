@@ -1,0 +1,7 @@
+box P { v: i64
+  birth(v: i64) { me.v = v }
+}
+static box Main { main() { local a = new ArrayBox()
+  a.push(new P(1))
+  local y = take a[0]
+  return 0 } }

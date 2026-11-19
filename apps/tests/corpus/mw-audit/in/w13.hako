@@ -1,0 +1,10 @@
+box Name { s: String
+  birth(s: String) { me.s = s }
+}
+static box Main {
+  main() {
+    local n = new Name("ab")
+    print(n.s)
+    return 0
+  }
+}

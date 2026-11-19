@@ -1,0 +1,13 @@
+box Item {
+  name: String
+  birth(n: String) {
+    me.name = n
+  }
+}
+static box Main {
+  main() {
+    local it = new Item("pen")
+    if it.name == "pen" { return 11 }
+    return 12
+  }
+}

@@ -1,0 +1,17 @@
+box Compare { seed: i64
+ birth() { me.seed = 0 }
+ run(): i64 {
+ local s = "a" + "é"
+ local i = 0
+ loop(i < 3) {
+ if s == s { i = i + 1 } else { i = i + 10 }
+ }
+ return i
+ }
+}
+static box Main {
+ main() {
+local c = new Compare()
+return c.run()
+ }
+}

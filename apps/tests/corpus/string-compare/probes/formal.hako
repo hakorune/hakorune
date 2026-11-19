@@ -1,0 +1,12 @@
+static box Compare {
+ check(s): Bool {
+ if s == "" { return false }
+ return s < "界"
+ }
+}
+static box Main {
+ main() {
+if Compare.check("é") { return 7 }
+return 9
+ }
+}

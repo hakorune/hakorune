@@ -1,0 +1,1 @@
+box Pair { east west } static box Main { main() { local pair = new Pair() local n = 5 pair.east = n + 5 pair.west = 20 pair.east = 30 return 0 } }

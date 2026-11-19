@@ -1,0 +1,6 @@
+static box Main {
+ main() {
+if "a" >= "aa" { return 7 }
+return 9
+ }
+}

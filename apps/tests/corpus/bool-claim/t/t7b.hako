@@ -1,0 +1,19 @@
+static box Main {
+  even(n: i64): Bool {
+    if n == 0 { return true }
+    local k = Main.odd(n - 1)
+    return k
+  }
+  odd(n: i64): Bool {
+    if n == 0 { return false }
+    local k = Main.even(n - 1)
+    return k
+  }
+  main() {
+    local b = Main.even(10)
+    if b { print(1) } else { print(0) }
+    local c = Main.even(7)
+    if c { print(1) } else { print(0) }
+    return 0
+  }
+}

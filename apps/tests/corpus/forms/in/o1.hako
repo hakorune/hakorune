@@ -1,0 +1,10 @@
+box P { v: i64
+  birth(v: i64) { me.v = v }
+}
+box H { keep: P
+  birth(take k: P) { me.keep = move k }
+}
+static box Main { main() { local l = new P(7)
+  local h = new H(move l)
+  local x = h.keep
+  return 7 } }

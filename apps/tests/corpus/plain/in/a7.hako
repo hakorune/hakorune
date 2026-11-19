@@ -1,0 +1,1 @@
+static box Main { f(a: ArrayBox): i64 { return a.size() } main() { local a = new ArrayBox() a.push(1) local r = Main.f(a) print(r) return 0 } }

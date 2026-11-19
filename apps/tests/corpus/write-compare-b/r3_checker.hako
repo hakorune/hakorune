@@ -1,0 +1,272 @@
+// T3 Design R: type-checker walk. Reads spans from nodes, records diagnostics, returns a type
+// id plus a span. PAPER ONLY. Never compiled. Uses r0_common.hako and r2_parser.hako.
+
+static box Ty {
+    ERROR: i64 = 0
+    INT: i64 = 1
+    BOOL: i64 = 2
+    VOID: i64 = 3
+
+    ofName(name: String?): i64 {
+        if name == null {
+            return Ty.VOID
+        }
+        return match name {
+            "int" => Ty.INT
+            "bool" => Ty.BOOL
+            "void" => Ty.VOID
+            _ => Ty.ERROR
+        }
+    }
+
+    name(t: i64): String {
+        return match t {
+            1 => "int"
+            2 => "bool"
+            3 => "void"
+            _ => "<error>"
+        }
+    }
+
+    operand(op: BinOp): i64 {
+        return match op {
+            Add | Sub | Mul | Div | Lt | Gt => Ty.INT
+            Eq | Ne => Ty.ERROR
+        }
+    }
+
+    result(op: BinOp): i64 {
+        return match op {
+            Add | Sub | Mul | Div => Ty.INT
+            Eq | Ne | Lt | Gt => Ty.BOOL
+        }
+    }
+}
+
+record Typed {
+    ty: i64
+    span: Span
+}
+
+record LocalInfo {
+    ty: i64
+    span: Span
+}
+
+box FnSig {
+    params: Array<i64>
+    ret: i64
+    span: Span
+}
+
+box Checker {
+    fns: Map<String, FnSig> = new Map<String, FnSig>()
+    locals: Map<String, LocalInfo> = new Map<String, LocalInfo>()
+    diags: DiagSink = new DiagSink()
+    retTy: i64 = 0
+    retSpan: Span = Span { start: 0, end: 0 }
+
+    edit collect(m: Module): void {
+        loop i in 0..m.fns.length() {
+            local f = m.fns.get(i)
+            guard f != null else {
+                continue
+            }
+            local prev = me.fns.get(f.name)
+            if prev != null {
+                me.diags.errorWith(f.nameSpan, prev.span, "function '" + f.name + "' is already defined")
+                continue
+            }
+            me.fns.set(copy f.name, Sigs.of(f))
+        }
+    }
+
+    edit checkModule(m: Module): void {
+        me.collect(m)
+        loop i in 0..m.fns.length() {
+            local f = m.fns.get(i)
+            guard f != null else {
+                continue
+            }
+            me.checkFn(f)
+        }
+    }
+
+    edit checkFn(f: FnDecl): void {
+        me.locals = new Map<String, LocalInfo>()
+        me.retTy = Ty.ofName(f.retType)
+        me.retSpan = f.nameSpan
+        loop i in 0..f.params.length() {
+            local p = f.params.get(i)
+            guard p != null else {
+                continue
+            }
+            me.declare(p.name, Ty.ofName(p.typeName), p.span)
+        }
+        me.checkBlock(f.body)
+    }
+
+    edit declare(name: String, ty: i64, sp: Span): void {
+        local prev = me.locals.get(name)
+        if prev != null {
+            me.diags.errorWith(sp, prev.span, "'" + name + "' is already defined")
+            return
+        }
+        me.locals.set(copy name, LocalInfo { ty: ty, span: sp })
+    }
+
+    edit checkBlock(b: Block): void {
+        loop i in 0..b.stmts.length() {
+            local s = b.stmts.get(i)
+            guard s != null else {
+                continue
+            }
+            me.checkStmt(s)
+        }
+    }
+
+    edit checkStmt(s: Stmt): void {
+        match s {
+            Let(n) => me.checkLet(n)
+            Return(n) => me.checkReturn(n)
+            If(n) => me.checkIf(n)
+            ExprS(n) => {
+                me.checkExpr(n.expr)
+            }
+            Bad(sp) => void
+        }
+    }
+
+    edit checkLet(s: LetStmt): void {
+        local t = me.checkExpr(s.init)
+        me.declare(s.name, t.ty, s.nameSpan)
+    }
+
+    edit checkReturn(s: ReturnStmt): void {
+        if s.value == null {
+            if me.retTy != Ty.VOID {
+                me.diags.errorWith(s.span, me.retSpan, "missing return value")
+            }
+            return
+        }
+        local t = me.checkExpr(s.value)
+        if t.ty != me.retTy && t.ty != Ty.ERROR {
+            me.diags.errorWith(t.span, me.retSpan, "return type mismatch: found " + Ty.name(t.ty))
+        }
+    }
+
+    edit checkIf(s: IfStmt): void {
+        local c = me.checkExpr(s.cond)
+        if c.ty != Ty.BOOL && c.ty != Ty.ERROR {
+            me.diags.error(c.span, "condition must be bool, found " + Ty.name(c.ty))
+        }
+        me.checkBlock(s.thenBlock)
+        if s.elseBlock != null {
+            me.checkBlock(s.elseBlock)
+        }
+    }
+
+    edit checkExpr(e: Expr): Typed {
+        return match e {
+            Num(n) => Typed { ty: Ty.INT, span: n.span }
+            Name(n) => me.checkName(n)
+            Unary(n) => me.checkUnary(n)
+            Binary(n) => me.checkBinary(n)
+            Call(n) => me.checkCall(n)
+            Bad(sp) => Typed { ty: Ty.ERROR, span: sp }
+        }
+    }
+
+    edit checkName(n: NameNode): Typed {
+        local info = me.locals.get(n.name)
+        if info == null {
+            me.diags.error(n.span, "unknown name '" + n.name + "'")
+            return Typed { ty: Ty.ERROR, span: n.span }
+        }
+        return Typed { ty: info.ty, span: n.span }
+    }
+
+    edit checkUnary(n: UnaryNode): Typed {
+        local t = me.checkExpr(n.operand)
+        local want = match n.op {
+            Neg => Ty.INT
+            Not => Ty.BOOL
+        }
+        if t.ty == Ty.ERROR {
+            return Typed { ty: Ty.ERROR, span: n.span }
+        }
+        if t.ty != want {
+            me.diags.error(t.span, "operator expects " + Ty.name(want) + ", found " + Ty.name(t.ty))
+            return Typed { ty: Ty.ERROR, span: n.span }
+        }
+        return Typed { ty: want, span: n.span }
+    }
+
+    edit checkBinary(n: BinaryNode): Typed {
+        local l = me.checkExpr(n.left)
+        local r = me.checkExpr(n.right)
+        if l.ty == Ty.ERROR || r.ty == Ty.ERROR {
+            return Typed { ty: Ty.ERROR, span: n.span }
+        }
+        local want = Ty.operand(n.op)
+        if want == Ty.ERROR {
+            want = l.ty
+        }
+        if l.ty != want {
+            me.diags.errorWith(l.span, n.opSpan, "left operand: expected " + Ty.name(want))
+            return Typed { ty: Ty.ERROR, span: n.span }
+        }
+        if r.ty != want {
+            me.diags.errorWith(r.span, n.opSpan, "right operand: expected " + Ty.name(want))
+            return Typed { ty: Ty.ERROR, span: n.span }
+        }
+        return Typed { ty: Ty.result(n.op), span: n.span }
+    }
+
+    edit checkCall(n: CallNode): Typed {
+        // CONFLICT: local sig = me.fns.get(n.callee) before this loop: sig borrows me.fns and is
+        // live across me.checkExpr (edit me). The arguments are checked first.
+        local args: Array<Typed> = []
+        loop i in 0..n.args.length() {
+            local a = n.args.get(i)
+            guard a != null else {
+                continue
+            }
+            args.push(me.checkExpr(a))
+        }
+        local sig = me.fns.get(n.callee)
+        if sig == null {
+            me.diags.error(n.calleeSpan, "unknown function '" + n.callee + "'")
+            return Typed { ty: Ty.ERROR, span: n.span }
+        }
+        if sig.params.length() != args.length() {
+            me.diags.errorWith(n.span, sig.span, "wrong number of arguments")
+            return Typed { ty: Ty.ERROR, span: n.span }
+        }
+        loop i in 0..args.length() {
+            local got = args.get(i)
+            local want = sig.params.get(i)
+            guard got != null && want != null else {
+                continue
+            }
+            if got.ty != want && got.ty != Ty.ERROR {
+                me.diags.errorWith(got.span, sig.span, "argument type mismatch: found " + Ty.name(got.ty))
+            }
+        }
+        return Typed { ty: sig.ret, span: n.span }
+    }
+}
+
+static box Sigs {
+    of(f: FnDecl): FnSig {
+        local params: Array<i64> = []
+        loop i in 0..f.params.length() {
+            local p = f.params.get(i)
+            guard p != null else {
+                continue
+            }
+            params.push(Ty.ofName(p.typeName))
+        }
+        return new FnSig { params: move params, ret: Ty.ofName(f.retType), span: f.nameSpan }
+    }
+}

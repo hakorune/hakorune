@@ -1,0 +1,7 @@
+box P { x: i64
+  y: i64 }
+static box Main { main(): i64 {
+  local a = new P { x: 1, y: 2 }
+  print(a.x + a.y)
+  return 0
+} }

@@ -1,0 +1,8 @@
+box P { v: i64
+  birth(v: i64) { me.v = v }
+}
+box H { c: P?
+  birth() { me.c = null }
+}
+static box Main { main() { local h = new H()
+  return 0 } }

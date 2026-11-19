@@ -1,0 +1,20 @@
+box Holder {
+    items: ArrayBox
+    birth() {
+        me.items = new ArrayBox()
+        me.items.push(1)
+        me.items.push(2)
+    }
+    probe() {
+        if me.items.length() == 2 {
+            local b4ret0 = 1; return b4ret0
+        }
+        local b4ret1 = 0; return b4ret1
+    }
+}
+static box Main {
+    main() {
+        local h = new Holder()
+        local b4ret2 = h.probe(); return b4ret2
+    }
+}

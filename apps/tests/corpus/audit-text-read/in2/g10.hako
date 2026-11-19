@@ -1,0 +1,8 @@
+box Tag { name: String
+  birth(name: String) { me.name = name }
+  same(o) { return 1 }
+}
+static box Main { main() { local t = new Tag("abc")
+  local u = new Tag(t.name)
+  print(u.name)
+  return 0 } }

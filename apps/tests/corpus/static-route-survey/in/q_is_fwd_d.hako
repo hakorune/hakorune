@@ -1,0 +1,12 @@
+static box Main {
+  f(x: String): i64 {
+    return 7
+  }
+  g(): i64 {
+    return Main.f("s")
+  }
+  main() {
+    local a = Main.g()
+    return 0
+  }
+}

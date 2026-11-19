@@ -1,0 +1,10 @@
+static box Foo {
+a(n: i64): i64 {
+local b4ret0 = copy n; return b4ret0
+}
+}
+static box Main {
+ main() {
+local b4ret1 = Foo.a(5); return b4ret1
+ }
+}

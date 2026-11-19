@@ -1,0 +1,196 @@
+// T1 Design B: tokenizer with line table, comments, strings and error tokens.
+// PAPER ONLY. Never compiled. Uses b0_common.hako.
+
+static box Chars {
+    isDigit(c: String): Bool {
+        return c >= "0" && c <= "9"
+    }
+
+    isIdentStart(c: String): Bool {
+        return (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") || c == "_"
+    }
+
+    isIdentPart(c: String): Bool {
+        return Chars.isIdentStart(c) || Chars.isDigit(c)
+    }
+
+    keyword(word: String): TokKind {
+        return match word {
+            "fn" => TokKind::KwFn
+            "let" => TokKind::KwLet
+            "return" => TokKind::KwReturn
+            "if" => TokKind::KwIf
+            "else" => TokKind::KwElse
+            _ => TokKind::Ident
+        }
+    }
+
+    single(c: String): TokKind {
+        return match c {
+            "+" => TokKind::Plus
+            "-" => TokKind::Minus
+            "*" => TokKind::Star
+            "/" => TokKind::Slash
+            "<" => TokKind::Lt
+            ">" => TokKind::Gt
+            "(" => TokKind::LParen
+            ")" => TokKind::RParen
+            "{" => TokKind::LBrace
+            "}" => TokKind::RBrace
+            "," => TokKind::Comma
+            ":" => TokKind::Colon
+            ";" => TokKind::Semi
+            _ => TokKind::Bad
+        }
+    }
+}
+
+box Lexer {
+    src: String
+    pos: i64 = 0
+    tokens: Array<Token> = []
+    lineStarts: Array<i64> = [0]
+    diags: DiagSink = new DiagSink()
+
+    charAt(i: i64): String {
+        if i >= me.src.length() {
+            return ""
+        }
+        return me.src.substring(i, i + 1)
+    }
+
+    edit run(): void {
+        loop {
+            me.skipTrivia()
+            if me.pos >= me.src.length() {
+                break
+            }
+            me.scanToken()
+        }
+        me.emit(TokKind::Eof, me.pos, me.pos)
+    }
+
+    edit skipTrivia(): void {
+        loop me.pos < me.src.length() {
+            local c = me.charAt(me.pos)
+            if c == "\n" {
+                me.lineStarts.push(me.pos + 1)
+                me.pos += 1
+            } else if c == " " || c == "\t" || c == "\r" {
+                me.pos += 1
+            } else if c == "/" && me.charAt(me.pos + 1) == "/" {
+                loop me.pos < me.src.length() && me.charAt(me.pos) != "\n" {
+                    me.pos += 1
+                }
+            } else {
+                break
+            }
+        }
+    }
+
+    edit emit(k: TokKind, start: i64, end: i64): void {
+        me.pos = end
+        me.tokens.push(new Token {
+            kind: k,
+            span: new Span { start: start, end: end },
+            text: me.src.substring(start, end)
+        })
+    }
+
+    edit scanToken(): void {
+        local start = me.pos
+        local c = me.charAt(start)
+        if Chars.isDigit(c) {
+            me.scanInt(start)
+        } else if Chars.isIdentStart(c) {
+            me.scanWord(start)
+        } else if c == "\"" {
+            me.scanString(start)
+        } else if c == "=" || c == "!" {
+            me.scanEquals(start, c)
+        } else {
+            me.scanSingle(start, c)
+        }
+    }
+
+    edit scanInt(start: i64): void {
+        local end = start + 1
+        loop Chars.isDigit(me.charAt(end)) {
+            end += 1
+        }
+        if Chars.isIdentStart(me.charAt(end)) {
+            me.diags.error(new Span { start: start, end: end + 1 }, "invalid digit in number")
+        }
+        me.emit(TokKind::Int, start, end)
+    }
+
+    edit scanWord(start: i64): void {
+        local end = start + 1
+        loop Chars.isIdentPart(me.charAt(end)) {
+            end += 1
+        }
+        me.emit(Chars.keyword(me.src.substring(start, end)), start, end)
+    }
+
+    edit scanString(start: i64): void {
+        local end = start + 1
+        loop end < me.src.length() && me.charAt(end) != "\"" {
+            if me.charAt(end) == "\n" {
+                me.diags.error(new Span { start: start, end: end }, "newline in string literal")
+                me.emit(TokKind::Bad, start, end)
+                return
+            }
+            end += 1
+        }
+        if end >= me.src.length() {
+            me.diags.error(new Span { start: start, end: end }, "unterminated string literal")
+            me.emit(TokKind::Bad, start, end)
+            return
+        }
+        me.emit(TokKind::Str, start, end + 1)
+    }
+
+    edit scanEquals(start: i64, c: String): void {
+        if me.charAt(start + 1) == "=" {
+            local two = TokKind::EqEq
+            if c == "!" {
+                two = TokKind::BangEq
+            }
+            me.emit(two, start, start + 2)
+        } else if c == "=" {
+            me.emit(TokKind::Assign, start, start + 1)
+        } else {
+            me.emit(TokKind::Bang, start, start + 1)
+        }
+    }
+
+    edit scanSingle(start: i64, c: String): void {
+        local k = Chars.single(c)
+        if k == TokKind::Bad {
+            me.diags.error(new Span { start: start, end: start + 1 }, "unexpected character '" + c + "'")
+        }
+        me.emit(k, start, start + 1)
+    }
+
+    posOf(offset: i64): Pos {
+        local line = 0
+        local lineStart = 0
+        loop i in 0..me.lineStarts.length() {
+            local s = me.lineStarts.get(i)
+            guard s != null && s <= offset else {
+                break
+            }
+            line = i
+            lineStart = s
+        }
+        return new Pos { line: line + 1, col: offset - lineStart + 1 }
+    }
+}
+
+static box Lex {
+    tokenize(take src: String): Lexer {
+        local lx = new Lexer { src: move src }
+        lx.run()
+        return lx
+    }
+}

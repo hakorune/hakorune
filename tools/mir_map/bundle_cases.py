@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+"""Build and check one generated bundle of isolated Hakorune Main methods."""
+import argparse
+import json
+from pathlib import Path
+import re
+
+from support import ROOT, sha, write
+
+
+# The token spans preserve the original method text. Braces inside comments or
+# strings do not delimit a method.
+TOKENS = re.compile(r'//[^\n]*|#[^\n]*|/\*[\s\S]*?\*/|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|[A-Za-z_]\w*|[0-9][0-9_]*|[^\s]')
+MARKER = 'HAKORUNE_CORPUS_CASE_'
+# Native EXE entry (crates/nyash_kernel/src/entry.rs) prints a single
+# process footer. The case wrapper emits each individual result separately.
+NATIVE_RESULT = re.compile(r'^Result: (-?\d+)\n\Z', re.MULTILINE)
+
+
+def method(text):
+    spans = [m for m in TOKENS.finditer(text) if not m[0].startswith(('//', '/*', '#'))]
+    tokens = [m[0] for m in spans]
+    if any(token in ('"', "'", chr(96)) for token in tokens) or any(
+        left[0]=='/' and right[0]=='*' and left.end()==right.start()
+        for left,right in zip(spans,spans[1:])
+    ):
+        raise ValueError('cannot safely tokenize quoted text or a block comment')
+    if tokens[:7] != ['static', 'box', 'Main', '{', 'main', '(', ')']:
+        raise ValueError('requires a single static Main and zero-argument main')
+    if any(t in ('Main', 'main', 'using') for t in tokens[7:]):
+        raise ValueError('references an entry name or import')
+    try:
+        opening = tokens.index('{', 7)
+    except ValueError as error:
+        raise ValueError('entry body missing') from error
+    declared = tokens[7:opening]
+    if declared not in ([], [':', 'i64']):
+        raise ValueError('bundle return must have an i64 result')
+    depth = 0
+    last_return = None
+    for index in range(opening, len(tokens)):
+        depth += (tokens[index] == '{') - (tokens[index] == '}')
+        if not declared and tokens[index] == 'return':
+            # An unannotated entry has a special entry ABI. The generated
+            # method needs a declared result; infer it only from source
+            # literal returns, with an unconditional final return.
+            literal = index+1
+            negative = tokens[literal] == '-'
+            literal += negative
+            if not re.fullmatch(r'[0-9]+', tokens[literal]) or int(tokens[literal]) > 2**63-1+negative:
+                raise ValueError('unannotated entry return is not a signed integer literal')
+            delimiter = tokens[literal+1]
+            if delimiter not in (';', '}'):
+                raise ValueError('unannotated entry return is not a standalone literal')
+            if depth == 1:
+                last_return = literal+1+(delimiter == ';')
+        if depth == 0:
+            if tokens[index+1:] == ['}']:
+                result = text[spans[4].end():spans[index].end()]
+                if declared:
+                    return result
+                if last_return != index:
+                    raise ValueError('unannotated entry has no unconditional final literal return')
+                close = spans[6].end()-spans[4].end()
+                return result[:close]+': i64'+result[close:]
+            break
+    raise ValueError('has other declarations or an unclosed entry body')
+
+
+def build(sources, baseline, output, expected):
+    rows = {row['path']:row for row in json.loads(baseline.read_text())}
+    cases, excluded, bodies = [], [], []
+    for source in sources:
+        source = (ROOT / source).resolve()
+        display = source.relative_to(ROOT).as_posix()
+        row = rows.get(str(source))
+        if row is None or row['sha256'] != sha(source) or row['compile']['kind'] != 'success' or row.get('run', {}).get('kind') != 'executed':
+            excluded.append(dict(path=display, reason='no matching confirmed executable run'))
+            continue
+        try:
+            body = method(source.read_bytes().decode('utf-8'))
+            stdout = Path(row['run']['stdout']).read_bytes().decode('utf-8')
+            stderr = Path(row['run']['stderr']).read_bytes().decode('utf-8')
+            if MARKER in stdout:
+                raise ValueError('output uses the bundle marker prefix')
+            footer = NATIVE_RESULT.search(stdout)
+            if footer is None or int(footer[1]) % 256 != row['run']['exit']:
+                raise ValueError('no matching native EXE result footer')
+            return_value = int(footer[1])
+        except (UnicodeError, ValueError) as error:
+            excluded.append(dict(path=display, reason=str(error)))
+            continue
+        index = len(cases)+1
+        bodies.append(f'    case_{index}{body}')
+        cases.append(dict(index=index, path=display, sha256=row['sha256'],
+                          stdout=stdout, body_stdout=stdout[:footer.start()], stderr=stderr,
+                          exit=row['run']['exit'], return_value=return_value))
+    if not cases:
+        raise ValueError('no eligible bundle cases')
+    header = ['// Generated by tools/mir_map/bundle_cases.py. Sources:']
+    header.extend(f"// {c['index']} {json.dumps(c['path'], ensure_ascii=False)}" for c in cases)
+    wrapper = ['    main() {']
+    for case in cases:
+        index = case['index']
+        marker = f'{MARKER}{index}'
+        wrapper.extend([f'        print("{marker}_BEGIN")',
+                        f'        local result_{index} = Main.case_{index}()',
+                        f'        print("{marker}_RETURN")',
+                        f'        print(result_{index})'])
+    wrapper.extend(['        return 0', '    }', '}'])
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text('\n'.join(header+['static box Main {']+bodies+wrapper)+'\n')
+    write(expected, dict(cases=cases, excluded=excluded))
+    return dict(cases=len(cases), excluded=len(excluded))
+
+
+def verify(expected, stdout):
+    cases = json.loads(expected.read_text())['cases']
+    rest = stdout.read_bytes().decode('utf-8')
+    failures = []
+    for case in cases:
+        index = case['index']
+        begin = f'{MARKER}{index}_BEGIN\n'
+        end = f'{MARKER}{index}_RETURN\n'
+        context = dict(index=index,path=case['path'])
+        if not rest.startswith(begin) or end not in rest:
+            failures.append(context | dict(reason='missing or out-of-order case markers'))
+            return failures
+        observed, _, rest = rest[len(begin):].partition(end)
+        result, newline, rest = rest.partition('\n')
+        if observed != case['body_stdout']:
+            failures.append(context | dict(reason='stdout mismatch', expected=case['body_stdout'], observed=observed))
+        if not newline or not re.fullmatch(r'-?\d+', result) or int(result) != case['return_value']:
+            failures.append(context | dict(reason='return mismatch', expected=case['return_value'], observed=result))
+    if rest != 'Result: 0\n':
+        failures.append(dict(reason='bundle process result footer mismatch', observed=rest))
+    return failures
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    commands = parser.add_subparsers(dest='command', required=True)
+    make = commands.add_parser('make')
+    make.add_argument('--baseline', type=Path, required=True)
+    make.add_argument('--output', type=Path, required=True)
+    make.add_argument('--expected', type=Path, required=True)
+    make.add_argument('sources', nargs='+', type=Path)
+    compare = commands.add_parser('verify')
+    compare.add_argument('--expected', type=Path, required=True)
+    compare.add_argument('--stdout', type=Path, required=True)
+    args = parser.parse_args()
+    if args.command == 'make':
+        result = build(args.sources, args.baseline, args.output, args.expected)
+    else:
+        result = verify(args.expected, args.stdout)
+    print(json.dumps(result, ensure_ascii=False))
+    raise SystemExit(bool(result) if args.command == 'verify' else 0)
+
+
+if __name__ == '__main__':
+    main()

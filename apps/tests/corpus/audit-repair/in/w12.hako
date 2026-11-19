@@ -1,0 +1,1 @@
+box Pair { east west } static box Main { main() { local pair = new Pair() print(1) return 0 } }

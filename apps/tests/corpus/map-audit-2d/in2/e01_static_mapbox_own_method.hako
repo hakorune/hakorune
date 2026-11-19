@@ -1,0 +1,10 @@
+static box MapBox {
+    ping() {
+        return 3
+    }
+}
+static box Main {
+    main() {
+        return MapBox.ping()
+    }
+}

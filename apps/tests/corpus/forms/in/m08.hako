@@ -1,0 +1,8 @@
+box P { v: i64
+  birth(v: i64) { me.v = v }
+  val() { return me.v }
+}
+static box Main { mk() { local x = new P(6)
+  return move x }
+ main() { local r = me.mk()
+  return r.val() } }

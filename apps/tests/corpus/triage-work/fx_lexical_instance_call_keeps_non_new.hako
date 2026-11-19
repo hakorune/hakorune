@@ -1,0 +1,36 @@
+
+box TreeNode {
+    init { v }
+    birth(v) { me.v = v }
+    check(): i64 { return 1 }
+}
+box TreeMaker {
+    init { spare }
+    birth() { me.spare = new TreeNode(0) }
+    make(i) { return me.spare }
+}
+box Driver {
+    init { maker }
+    birth() { me.maker = new TreeMaker() }
+    go(maker): i64 {
+        local i = 0
+        local out = 0
+        loop(i < 2) {
+            local node = maker.make(i)
+            local v = node.check()
+            out = out + v
+            i = i + 1
+        }
+        return out
+    }
+    run(): i64 {
+        local maker = me.maker
+        return me.go(maker)
+    }
+}
+static box Main {
+    main() {
+        local d = new Driver()
+        return d.run()
+    }
+}

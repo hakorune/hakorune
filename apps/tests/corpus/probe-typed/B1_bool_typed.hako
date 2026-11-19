@@ -1,0 +1,12 @@
+box Flag {
+  on: Bool
+  birth(on: Bool) {
+    me.on = on
+  }
+}
+static box Main {
+  main() {
+    local f = new Flag(true)
+    return 3
+  }
+}

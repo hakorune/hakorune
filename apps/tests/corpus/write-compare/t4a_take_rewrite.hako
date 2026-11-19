@@ -1,0 +1,133 @@
+// T4a: tree rewrite with nullable children using `take`, including `node = fold(move node)`.
+// PAPER ONLY. Never compiled.
+// Rewrites: -(lit) => lit, -(-x) => x, lit + lit => lit.
+
+// === COMMON ===
+enum Op {
+    Lit
+    Neg
+    Add
+}
+
+box Term {
+    op: Op
+    value: i64
+    lhs: Term?
+    rhs: Term?
+}
+
+// === nullable children ===
+static box Folder {
+    // RULE-OK: ownership.md rule 8. `take` result is an owned T?; passing it directly is the
+    // "fresh value" case of rule 1. No helper local, because fold_opt accepts T?.
+    fold(take node: Term): Term {
+        node.lhs = me.fold_opt(take node.lhs)
+        node.rhs = me.fold_opt(take node.rhs)
+        // `Lit => node` is rejected: the return shorthand covers `return x` only and is not
+        // extended to block or arm tails (ADR 採用する方向 item 5).
+        // GAP: does the scrutinee borrow of node.op stay live in an arm that moves node?
+        // No payload is bound, so only a last-use reading accepts this. Not stated.
+        return match node.op {
+            Lit => move node
+            Neg => me.simplify_neg(move node)
+            Add => me.simplify_add(move node)
+        }
+    }
+
+    // Helper forced by T? => T: fold takes Term, the field is Term?. Rust has the same shape.
+    // GAP: `move child` of a narrowed T? passed to `take x: T`. Narrowing "does not add
+    // ownership" (ADR 型検査), but no rule says `move` keeps the narrowed type.
+    fold_opt(take child: Term?): Term? {
+        if child == null {
+            return null
+        }
+        return me.fold(move child)
+    }
+
+    simplify_neg(take node: Term): Term {
+        local inner = take node.lhs
+        if inner == null {
+            return node
+        }
+        if inner.op == Op::Lit {
+            inner.value = -inner.value
+            return inner
+        }
+        if inner.op == Op::Neg {
+            local x = take inner.lhs
+            if x != null {
+                return x
+            }
+        }
+        // Forced put-back: the child was taken before the shape was known. Rust is the same.
+        // On a Fault between `take` and here the child stays with `inner` (rule 8).
+        node.lhs = move inner
+        return node
+    }
+
+    simplify_add(take node: Term): Term {
+        local a = node.lhs
+        local b = node.rhs
+        if a != null && b != null && a.op == Op::Lit && b.op == Op::Lit {
+            return new Term { op: Op::Lit, value: a.value + b.value, lhs: null, rhs: null }
+        }
+        // a and b are implicit `from node` borrows (rule 5). `return node` needs them dead.
+        // RULE-OK only under last-use liveness (variables-and-scope.md "may end earlier at
+        // its last use"). ownership.md rule 4 says "while the borrow is live" without
+        // defining live.
+        return node
+    }
+}
+
+// === array children ===
+box Call {
+    callee: String
+    args: Array<Term>
+}
+
+static box ArgFolder {
+    // First draft, rejected:
+    //   loop i in 0..call.args.length() { call.args[i] = Folder.fold(take call.args[i]) }
+    // Array elements are a named rejection for `take` (ownership.md rule 8). There is no
+    // written Array pop/remove contract returning ownership, and removal is rejected for
+    // the admitted object-slot family (ownership.md "Named Array append-only").
+    // Forced: rebuild the list from read borrows with a hand-written deep copy.
+    // `get` is read as `T? from me` (ownership.md "borrowed nullable get"), so a null test.
+    fold_args(mut call: Call): void {
+        local next: Array<Term> = []
+        loop i in 0..call.args.length() {
+            local a = call.args.get(i)
+            if a != null {
+                next.push(Folder.fold(me.clone_term(a)))
+            }
+        }
+        call.args = move next
+    }
+
+    clone_term(t: Term): Term {
+        local c = new Term { op: copy t.op, value: t.value, lhs: null, rhs: null }
+        if t.lhs != null {
+            c.lhs = me.clone_term(t.lhs)
+        }
+        if t.rhs != null {
+            c.rhs = me.clone_term(t.rhs)
+        }
+        return c
+    }
+}
+
+// === caller ===
+static box Main {
+    main(): i64 {
+        local lit = new Term { op: Op::Lit, value: 7, lhs: null, rhs: null }
+        local neg = new Term { op: Op::Neg, value: 0, lhs: move lit, rhs: null }
+        local root = new Term { op: Op::Neg, value: 0, lhs: move neg, rhs: null }
+        // RULE-OK: ownership.md Decided list `x = f(move x)`. Backedge carries one owner.
+        local rounds = 0
+        loop(rounds < 2) {
+            root = Folder.fold(move root)
+            rounds = rounds + 1
+        }
+        return root.value
+    }
+}

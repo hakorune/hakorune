@@ -1,0 +1,15 @@
+box Holder {
+    m: MapBox
+    birth() {
+        me.m = new MapBox()
+    }
+    size_of() {
+        return 1
+    }
+}
+static box Main {
+    main() {
+        local h = new Holder()
+        return h.size_of()
+    }
+}

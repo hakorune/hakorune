@@ -1,0 +1,8 @@
+static box Main {
+  main() {
+    local s = "a"
+    local t = "b"
+    if (s < t) < (t < s) { return 23 }
+    return 24
+  }
+}

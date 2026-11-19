@@ -1,0 +1,5 @@
+sync box C { n: i64
+  birth() { me.n = 0 }
+}
+static box Main { main() { local c = new C()
+  return 0 } }

@@ -1,0 +1,177 @@
+// T5 Design B: Point and Color, one million elements, updating some, bounding box, helpers.
+// PAPER ONLY. Never compiled. Standalone.
+// Structural fact, not a speed claim: this source asks for one object per Point, Color and
+// Pixel, each with identity. Whether a compiler can flatten them is untested.
+// `pixels[i].at.x += d.x` relies on assign_target in the EBNF; ownership.md section 0 does not
+// discuss an assignment through an indexed path.
+
+box Point {
+    x: i64
+    y: i64
+
+    add(o: Point): Point {
+        return new Point { x: me.x + o.x, y: me.y + o.y }
+    }
+
+    scale(k: i64): Point {
+        return new Point { x: me.x * k, y: me.y * k }
+    }
+
+    mid(o: Point): Point {
+        return new Point { x: (me.x + o.x) / 2, y: (me.y + o.y) / 2 }
+    }
+
+    dist2(o: Point): i64 {
+        local dx = me.x - o.x
+        local dy = me.y - o.y
+        return dx * dx + dy * dy
+    }
+
+    // WRONG: a == b at any call with read parameters or borrows (identity, compiles).
+    equals(o: Point): Bool {
+        return me.x == o.x && me.y == o.y
+    }
+
+}
+
+box Color {
+    r: i64
+    g: i64
+    b: i64
+    a: i64
+
+    blend(o: Color): Color {
+        return new Color { r: (me.r + o.r) / 2, g: (me.g + o.g) / 2, b: (me.b + o.b) / 2, a: me.a }
+    }
+}
+
+box Pixel {
+    at: Point
+    color: Color
+}
+
+box Rect {
+    min: Point
+    max: Point
+
+    edit grow(p: Point): void {
+        me.min.x = Math.min(me.min.x, p.x)
+        me.min.y = Math.min(me.min.y, p.y)
+        me.max.x = Math.max(me.max.x, p.x)
+        me.max.y = Math.max(me.max.y, p.y)
+    }
+
+    contains(p: Point): Bool {
+        return p.x >= me.min.x && p.x <= me.max.x && p.y >= me.min.y && p.y <= me.max.y
+    }
+}
+
+static box Geo {
+    nudge(edit p: Point, d: Point): void {
+        p.x += d.x
+        p.y += d.y
+    }
+
+    // `: Point from a, b` is decided but named-rejected for now (ownership.md 2026-11-02 list),
+    // so this returns an owned copy on both paths.
+    // OWNED: return a   (a read parameter cannot be returned as an owned Point)
+    farther(a: Point, b: Point, origin: Point): Point {
+        if a.dist2(origin) >= b.dist2(origin) {
+            return copy a
+        }
+        return copy b
+    }
+}
+
+static box Scene {
+    build(n: i64): Array<Pixel> {
+        local out: Array<Pixel> = []
+        loop i in 0..n {
+            out.push(new Pixel {
+                at: new Point { x: i, y: i * 2 },
+                color: new Color { r: i % 256, g: 0, b: 0, a: 255 }
+            })
+        }
+        return out
+    }
+
+    shiftSome(edit pixels: Array<Pixel>, d: Point): void {
+        local i = 0
+        loop i < pixels.length() {
+            pixels[i].at.x += d.x
+            pixels[i].at.y += d.y
+            i += 1000
+        }
+    }
+
+    fadeSome(edit pixels: Array<Pixel>): void {
+        local i = 0
+        loop i < pixels.length() {
+            pixels[i].color.a /= 2
+            i += 500
+        }
+    }
+
+    tintOne(edit pixels: Array<Pixel>, i: i64, tint: Color): void {
+        local p = pixels.get(i)
+        guard p != null else {
+            return
+        }
+        // OWNED: p.color = p.color.blend(tint)   (p is a read borrow; `get` never gives edit)
+        pixels[i].color = p.color.blend(tint)
+    }
+
+    bounds(pixels: Array<Pixel>): Rect? {
+        local first = pixels.get(0)
+        if first == null {
+            return null
+        }
+        local r = new Rect { min: copy first.at, max: copy first.at }
+        loop i in 1..pixels.length() {
+            local p = pixels.get(i)
+            guard p != null else {
+                continue
+            }
+            r.grow(p.at)
+        }
+        return r
+    }
+
+    inside(pixels: Array<Pixel>, r: Rect): Array<Pixel> {
+        local out: Array<Pixel> = []
+        loop i in 0..pixels.length() {
+            local p = pixels.get(i)
+            guard p != null else {
+                continue
+            }
+            if r.contains(p.at) {
+                out.push(copy p)
+            }
+        }
+        return out
+    }
+}
+
+static box Main {
+    main(): i64 {
+        local pixels = Scene.build(1000000)
+        local origin = new Point { x: 0, y: 0 }
+        Scene.shiftSome(edit pixels, new Point { x: 3, y: 4 })
+        Scene.fadeSome(edit pixels)
+        Scene.tintOne(edit pixels, 7, new Color { r: 255, g: 255, b: 255, a: 255 })
+        Geo.nudge(edit pixels[9].at, new Point { x: 1, y: 1 })
+        local r = Scene.bounds(pixels)
+        guard r != null else {
+            return 1
+        }
+        local center = r.min.mid(r.max)
+        local far = Geo.farther(center, r.max.scale(2), origin)
+        local half = copy r
+        half.max = copy center
+        local some = Scene.inside(pixels, half)
+        if far.equals(origin) {
+            return 2
+        }
+        return some.length() + far.x
+    }
+}

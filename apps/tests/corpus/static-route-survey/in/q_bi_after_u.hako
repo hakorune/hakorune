@@ -1,0 +1,12 @@
+static box Main {
+  f(v) {
+    return v > 1
+  }
+  main() {
+    local a = Main.f(5)
+    if a {
+      return 1
+    }
+    return 0
+  }
+}

@@ -1,0 +1,21 @@
+box Foo {
+    x: i64
+    birth() {
+        me.x = 1
+    }
+    get_x() {
+        return me.x
+    }
+}
+static box MapBox {
+    ping() {
+        return 3
+    }
+}
+static box Main {
+    main() {
+        local f = new Foo()
+        local m = %{"k" => 4}
+        return m.get("k") + f.get_x()
+    }
+}

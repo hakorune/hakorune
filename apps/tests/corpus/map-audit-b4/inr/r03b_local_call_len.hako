@@ -1,0 +1,9 @@
+static box Main {
+    word() {
+        return "こんにちは"
+    }
+    main() {
+        local n = Main.word().length()
+        return n
+    }
+}

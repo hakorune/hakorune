@@ -1,0 +1,6 @@
+box Tag {
+  name: String
+  birth(name: String) { me.name = name }
+  get(): String { return me.name }
+}
+static box Main { main() { local t = new Tag("abc")  local s = t.get()  return s.length() } }

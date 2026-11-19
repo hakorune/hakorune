@@ -1,0 +1,13 @@
+static box Main {
+  f(x: i64): i64 {
+    return x + 1
+  }
+  u(x: i64): i64 {
+    return Main.f(x)
+  }
+  main() {
+    local b = Main.u(4)
+    print(b)
+    return 0
+  }
+}

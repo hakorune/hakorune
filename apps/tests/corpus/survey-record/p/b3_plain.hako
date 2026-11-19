@@ -1,0 +1,9 @@
+box P { x: i64 = 0 }
+static box Main { main(): i64 {
+  local a = new P()
+  a.x = 1
+  local b = new P()
+  b.x = 1
+  print(a.x + b.x)
+  return 0
+} }

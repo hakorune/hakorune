@@ -1,0 +1,13 @@
+box Pair {
+    a: i64
+    b: i64
+}
+static box Main {
+  main() {
+    local p = new Pair { a: 3, b: 4 }
+    local x = p.a
+    local y = p.b
+    local r = x + y
+    return r
+  }
+}

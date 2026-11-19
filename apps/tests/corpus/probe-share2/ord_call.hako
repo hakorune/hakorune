@@ -1,0 +1,9 @@
+static box Main {
+  share(x) {
+    return x + 1
+  }
+  main() {
+    local a = me.share(3)
+    return a
+  }
+}

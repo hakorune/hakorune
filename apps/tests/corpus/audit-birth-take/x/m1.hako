@@ -1,0 +1,9 @@
+box Payload {
+  value: i64
+  birth() { me.value = 7 }
+  get(): i64 { return me.value }
+}
+static box Main {
+  consume(take p: Payload, marker: i64): i64 { return 7 }
+  main() { local p = new Payload()  local r = me.consume(move p, 1)  return p.get() }
+}

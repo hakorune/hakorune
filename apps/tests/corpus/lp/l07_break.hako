@@ -1,0 +1,19 @@
+box T {
+    run(n) {
+        local i = 0
+        loop(true) {
+            if i >= n {
+                break
+            }
+            i = i + 1
+        }
+        return i
+    }
+}
+
+static box Main {
+    main(args) {
+        local t = new T()
+        return t.run(5)
+    }
+}

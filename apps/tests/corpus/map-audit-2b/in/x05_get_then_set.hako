@@ -1,0 +1,10 @@
+static box Main {
+
+  main() {
+    local m = new MapBox()
+    m.set("k", 5)
+    local v = m.get("k")
+    m.set("k", 7)
+    return v * 10 + m.get("k")
+  }
+}

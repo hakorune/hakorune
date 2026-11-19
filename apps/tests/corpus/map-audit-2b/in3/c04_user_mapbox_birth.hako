@@ -1,0 +1,15 @@
+box MapBox {
+  x: i64
+  birth() {
+    me.x = 3
+  }
+  get(k) {
+    return me.x
+  }
+}
+static box Main {
+  main() {
+    local m = new MapBox()
+    return 7
+  }
+}

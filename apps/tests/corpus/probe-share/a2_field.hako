@@ -1,0 +1,5 @@
+box Pair { left: i64  birth(l) { me.left = l } }
+box Holder { p: Shared<Pair>  birth(x) { me.p = x } }
+static box Main {
+  main() { local s = Shared(new Pair(5))  local h = new Holder(move s)  return 0 }
+}

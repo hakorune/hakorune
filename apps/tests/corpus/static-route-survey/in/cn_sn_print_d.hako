@@ -1,0 +1,14 @@
+box Ctx {
+  birth() {
+  }
+}
+static box Main {
+  f(): String {
+    return "abc"
+  }
+  main() {
+    local z = new Ctx()
+    print(Main.f())
+    return 0
+  }
+}

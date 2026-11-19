@@ -1,0 +1,7 @@
+static box Main {
+ main() {
+local answer = "é" > "界"
+print(answer)
+return 0
+ }
+}

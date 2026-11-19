@@ -1,0 +1,9 @@
+box B { s: String
+  u
+  birth(s: String, u) { me.s = s
+    me.u = u }
+}
+static box Main { main() { local t = new B("a", "b")
+  print(t.s)
+  print(t.u)
+  return 0 } }

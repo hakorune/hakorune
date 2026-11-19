@@ -1,0 +1,11 @@
+static box Main {
+    helper(i: i64): i64 {
+        loop(i < 3) {
+            i = i + 1
+        }
+        return i
+    }
+    main() {
+        return Main.helper(0)
+    }
+}

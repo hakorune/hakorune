@@ -1,0 +1,1 @@
+static box Main { main() { local r = Main.a(1) print(r) return 0 } a(x) { return x } b(x) { return x } }

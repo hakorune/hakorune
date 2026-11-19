@@ -1,0 +1,10 @@
+static box Main {
+  id(x: i64): i64 {
+    return x
+  }
+  main() {
+    local m = new MapBox()
+    m.set("k", 5)
+    return Main.id(m.get("k"))
+  }
+}

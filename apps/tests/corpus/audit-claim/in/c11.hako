@@ -1,0 +1,19 @@
+static box Main {
+  t(x: i64): Bool {
+    return x > 1
+  }
+  f(x: i64): i64 {
+    local b = Main.t(x)
+    if b {
+      return 10
+    }
+    return 20
+  }
+  main() {
+    local a = Main.f(4)
+    print(a)
+    local c = Main.f(0)
+    print(c)
+    return 0
+  }
+}

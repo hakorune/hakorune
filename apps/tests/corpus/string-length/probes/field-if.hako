@@ -1,0 +1,11 @@
+box T {
+ text: String
+ birth() { me.text = "あい" }
+}
+static box Main {
+main() {
+local p = new T()
+if p.text.length() > 2 { return 7 }
+return 0
+}
+}

@@ -1,0 +1,12 @@
+box Pair {
+    a: i64
+    b: i64
+    birth(a: i64, b: i64) { me.a = a  me.b = b }
+    sum(): i64 { return me.a + me.b }
+}
+static box Main {
+  main() {
+    local p = new Pair(3, 4)
+    return p.sum()
+  }
+}

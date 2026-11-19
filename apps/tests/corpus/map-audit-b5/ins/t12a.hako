@@ -1,0 +1,13 @@
+box Holder {
+birth() {
+}
+name() {
+return "hello"
+}
+}
+static box Main {
+main() {
+local h = new Holder()
+return h.name().indexOf("l")
+}
+}

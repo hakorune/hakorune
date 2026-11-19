@@ -1,0 +1,17 @@
+static box Main {
+    main() {
+        local m = new MapBox()
+        m.set("k", 5)
+        return m.get("k")
+    }
+}
+box MapBox {
+    x: i64
+    set(k, v: i64) {
+        me.x = v
+        return 0
+    }
+    get(k) {
+        return me.x + 2
+    }
+}

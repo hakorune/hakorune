@@ -1,0 +1,14 @@
+box Helper {
+    y: i64
+    run() {
+        local m = new MapBox()
+        m.set("a", 3)
+        return m.get("a")
+    }
+}
+static box Main {
+    main() {
+        local h = new Helper()
+        return h.run()
+    }
+}

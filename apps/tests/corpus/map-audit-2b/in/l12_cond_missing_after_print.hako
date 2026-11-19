@@ -1,0 +1,11 @@
+static box Main {
+
+  main() {
+    local m = %{"k" => 5}
+    print(1)
+    if m.get("zz") == 1 {
+      return 2
+    }
+    return 3
+  }
+}

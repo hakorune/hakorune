@@ -8,6 +8,7 @@ import subprocess
 import time
 
 ROOT = Path(__file__).resolve().parents[2]
+CORPUS_MANIFEST = ROOT / 'apps/tests/corpus/manifest.json'
 FLAGS = '-C instrument-coverage -C link-arg=-fuse-ld=lld -C codegen-units=4'
 
 
@@ -45,7 +46,7 @@ def configured_env(template, binary, work):
     env.update(HAKO_ROOT=str(ROOT), NYASH_ROOT=str(ROOT), NYASH_BIN=str(binary),
                RUST_MIN_STACK='67108864', TMPDIR=str(work / 'tmp'))
     env.pop('HAKO_MIR_BUILDER', None)
-    (work / 'tmp').mkdir(exist_ok=True)
+    (work / 'tmp').mkdir(parents=True, exist_ok=True)
     return env
 
 
@@ -68,14 +69,41 @@ def run(command, log, env, timeout=180):
                 seconds=time.monotonic() - start, log=str(log), peak_rss_kib=peak)
 
 
+def manifest_rows(data):
+    """Resolve and verify both the portable corpus and existing measurement manifests."""
+    portable = data.get('version') == 1
+    unique = {}
+    for row in data['rows']:
+        path = Path(row['path'])
+        source = (ROOT / path).resolve()
+        if portable and (path.is_absolute() or '..' in path.parts or not source.is_relative_to(ROOT)):
+            raise ValueError(f'corpus input must be relative to the repository: {path}')
+        digest = sha(source)
+        if row.get('sha256', digest) != digest or portable and 'sha256' not in row:
+            raise ValueError(f'input changed: {source}')
+        key = str(source)
+        if portable and key in unique:
+            raise ValueError(f'duplicate corpus path: {path}')
+        record = unique.setdefault(key, dict(row, path=key, sha256=digest, groups=[]))
+        record['groups'] = sorted(set(record['groups']) | set(row.get('groups', ())))
+    if not unique:
+        raise ValueError('empty input manifest')
+    return list(unique.values())
+
+
+def read_manifest(manifest):
+    return manifest_rows(json.loads(Path(manifest).read_text()))
+
+
 def fixed_inputs(manifest):
     data = json.loads(Path(manifest).read_text())
-    rows = sorted(data['rows'], key=lambda x: x['path'])
+    rows = sorted(manifest_rows(data), key=lambda row: row['path'])
+    if data.get('version') == 1:
+        rows = [row for row in rows if 'A' in row['groups']]
+        return rows, {row['path'] for row in rows if row['coverage_exe']}
     declared = data['unique_sources']
-    assert type(declared) is int and declared > 0, declared
-    assert len(rows) == len({row['path'] for row in rows}) == declared, len(rows)
-    for row in rows:
-        assert sha(row['path']) == row['sha256'], row['path']
-    executables = {source for group in data['groups'].values()
+    if type(declared) is not int or not 0 < declared == len(rows) == len(data['rows']):
+        raise ValueError(f'invalid fixed input count: {declared}')
+    executables = {str((ROOT / source).resolve()) for group in data['groups'].values()
                    if group['mode'] == 'exe' for source in group['sources']}
     return rows, executables

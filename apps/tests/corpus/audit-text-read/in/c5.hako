@@ -1,0 +1,6 @@
+box G { birth() { }
+  get(): String { return "abc" }
+}
+static box Main { main() { local g = new G()
+  print(g.get())
+  return 0 } }

@@ -1,0 +1,9 @@
+static box Main {
+  f() {
+    return 7
+  }
+  main() {
+    print(f())
+    return 0
+  }
+}

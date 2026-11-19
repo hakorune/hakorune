@@ -1,0 +1,10 @@
+static box Main {
+  t(s: String, n: i64): Bool {
+    return s.length() > n
+  }
+  main() {
+    local a = Main.t("abc", 2)
+    if a { print(1) } else { print(0) }
+    return 0
+  }
+}

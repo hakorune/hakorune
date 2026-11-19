@@ -1,0 +1,123 @@
+// T7 Design B: symbol table storing a position per name, lookup returning a borrowed entry.
+// PAPER ONLY. Never compiled. Uses b0_common.hako.
+// `edit me.scopes[d]` is the decided way to lend one element. A method call on an indexed
+// place (`me.scopes[d].entries.set(...)`) has no grammar row, so a static helper takes the loan.
+
+box Entry {
+    name: String
+    pos: Pos
+    ty: i64
+    uses: i64 = 0
+    lastUse: Pos?
+}
+
+box Scope {
+    entries: Map<String, Entry> = new Map<String, Entry>()
+}
+
+static box ScopeOps {
+    add(edit s: Scope, take e: Entry): void {
+        s.entries.set(copy e.name, move e)
+    }
+
+    touch(edit s: Scope, name: String, at: Pos): Bool {
+        return s.entries.update(name, fn[at](edit e: Entry): void {
+            e.uses += 1
+            e.lastUse = copy at
+        })
+    }
+}
+
+box SymbolTable {
+    scopes: Array<Scope> = []
+
+    edit enter(): void {
+        me.scopes.push(new Scope())
+    }
+
+    edit leave(): void {
+        me.scopes.pop()
+    }
+
+    lookupAt(depth: i64, name: String): Entry? from me {
+        local s = me.scopes.get(depth)
+        if s == null {
+            return null
+        }
+        return s.entries.get(name)
+    }
+
+    lookup(name: String): Entry? from me {
+        local i = me.scopes.length() - 1
+        loop i >= 0 {
+            local e = me.lookupAt(i, name)
+            if e != null {
+                return e
+            }
+            i -= 1
+        }
+        return null
+    }
+
+    depthOf(name: String): i64 {
+        local i = me.scopes.length() - 1
+        loop i >= 0 {
+            if me.lookupAt(i, name) != null {
+                return i
+            }
+            i -= 1
+        }
+        return -1
+    }
+
+    // Returns the earlier position when the name is already defined in this scope.
+    edit define(name: String, pos: Pos, ty: i64): Pos? {
+        local top = me.scopes.length() - 1
+        local prev = me.lookupAt(top, name)
+        if prev != null {
+            // OWNED: return prev.pos   (a borrow of me returned as an owned Pos?)
+            return copy prev.pos
+        }
+        ScopeOps.add(edit me.scopes[top], new Entry { name: copy name, pos: copy pos, ty: ty })
+        return null
+    }
+
+    edit markUsed(name: String, at: Pos): Bool {
+        local depth = me.depthOf(name)
+        if depth < 0 {
+            return false
+        }
+        return ScopeOps.touch(edit me.scopes[depth], name, at)
+    }
+}
+
+box Binder {
+    table: SymbolTable = new SymbolTable()
+    lines: Lexer
+    diags: DiagSink = new DiagSink()
+
+    edit bindLet(name: String, sp: Span, ty: i64): void {
+        local prev = me.table.define(name, me.lines.posOf(sp.start), ty)
+        if prev != null {
+            me.diags.error(sp, "'" + name + "' already defined at line " + prev.line.toString())
+        }
+    }
+
+    edit bindUse(name: String, sp: Span): i64 {
+        local e = me.table.lookup(name)
+        if e == null {
+            me.diags.error(sp, "unknown name '" + name + "'")
+            return 0
+        }
+        // The entry's position and type are read, then the table is edited.
+        // CONFLICT: local declared = e.pos   (borrow of me.table, alive at me.table.markUsed)
+        local declared = copy e.pos
+        local ty = e.ty
+        local at = me.lines.posOf(sp.start)
+        me.table.markUsed(name, at)
+        if declared.line == at.line {
+            me.diags.error(sp, "'" + name + "' used on the line it is declared")
+        }
+        return ty
+    }
+}

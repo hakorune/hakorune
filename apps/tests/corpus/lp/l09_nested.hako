@@ -1,0 +1,22 @@
+box T {
+    run(n) {
+        local i = 0
+        local s = 0
+        loop(i < n) {
+            local j = 0
+            loop(j < n) {
+                s = s + 1
+                j = j + 1
+            }
+            i = i + 1
+        }
+        return s
+    }
+}
+
+static box Main {
+    main(args) {
+        local t = new T()
+        return t.run(5)
+    }
+}

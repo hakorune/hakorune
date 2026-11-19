@@ -1,0 +1,19 @@
+static box P {
+  t(s) {
+    if s == "a" {
+      return true
+    }
+    return false
+  }
+}
+static box Main {
+  main() {
+    local b = P.t("a")
+    if !b {
+      print(1)
+    } else {
+      print(0)
+    }
+    return 0
+  }
+}

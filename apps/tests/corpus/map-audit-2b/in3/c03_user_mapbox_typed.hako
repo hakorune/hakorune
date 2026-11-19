@@ -1,0 +1,9 @@
+box MapBox {
+  x: i64
+}
+static box Main {
+  main() {
+    local m = new MapBox()
+    return 7
+  }
+}

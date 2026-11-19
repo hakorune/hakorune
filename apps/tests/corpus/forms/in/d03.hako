@@ -1,0 +1,9 @@
+box P { v: i64
+  birth(v: i64) { me.v = v }
+}
+box K { n: i64
+  birth() { me.n = 0 }
+  eat(take p: P) { return 1 }
+}
+static box Main { main() { local k = new K()
+  return k.eat(new P(2)) } }

@@ -1,0 +1,7 @@
+box Token {} box Wrapper { child: Token birth(child) { me.child = child } }
+        box Maker { make() { return new Token() }
+            seed() { local h = me.make() return new Wrapper(h) }
+            consume(h) { if h == null { return new Token() } return new Token() }
+            qualified(h) { if h == null { return new Token() } return me.consume(h) }
+            probe() { local a = me.seed() local b = me.consume(a.child) return 0 } }
+        static box Main { main() { return 0 } }

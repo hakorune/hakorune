@@ -1,0 +1,12 @@
+box P {
+  v: i64
+  birth(v) { me.v = v }
+}
+box F {
+  birth() { }
+  make(x: i64) { return new P(x) }
+  run() { local p = me.make(4) print(p.v) return 0 }
+}
+static box Main {
+  main() { local f = new F() f.run() return 0 }
+}

@@ -1,0 +1,16 @@
+static box Main {
+    helper(a: i64, b: i64): i64 {
+        local i = a
+        local j = b
+        loop(i < 3) {
+            loop(j < 3) {
+                j = j + 1
+            }
+            i = i + 1
+        }
+        return j
+    }
+    main() {
+        return Main.helper(0, 0)
+    }
+}

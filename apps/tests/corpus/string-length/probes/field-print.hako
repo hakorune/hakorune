@@ -1,0 +1,11 @@
+box T {
+ text: String
+ birth() { me.text = "あい" }
+}
+static box Main {
+main() {
+local p = new T()
+print(p.text.length())
+return 0
+}
+}

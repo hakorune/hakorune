@@ -1,0 +1,12 @@
+box Leaf {
+  value: i64
+  birth() { me.value = 7 }
+  a(p: Leaf): Leaf from p { return p }
+  b(p: Leaf): Leaf from p { return p }
+  pick(n: i64, p: Leaf): Leaf from p {
+    return me.a(p)
+  }
+}
+static box Main {
+  main() { local p = new Leaf() local q = p.pick(1, p) return q.value }
+}

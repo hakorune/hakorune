@@ -1,0 +1,18 @@
+box T {
+    run(n) {
+        local i = 0
+        local c = 0
+        loop(i < n) {
+            c = c + 1
+            i = i + 1
+        }
+        return c
+    }
+}
+
+static box Main {
+    main(args) {
+        local t = new T()
+        return t.run(5)
+    }
+}

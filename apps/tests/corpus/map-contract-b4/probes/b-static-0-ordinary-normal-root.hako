@@ -1,0 +1,17 @@
+static box Foo {
+ping(): i64 {
+return 7
+}
+}
+static box Search {
+find(n: i64): i64 {
+return Foo.ping()
+}
+}
+static box Main {
+ main() {
+local v = Search.find(0)
+print(v)
+return 0
+ }
+}

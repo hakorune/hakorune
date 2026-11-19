@@ -1,0 +1,4 @@
+static box Main {
+  t(): i64 { return 1 > 0 }
+  main() { print(Main.t())  return 0 }
+}

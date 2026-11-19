@@ -1,0 +1,9 @@
+static box Main {
+  rd(m: MapBox) {
+    return m.get("a")
+  }
+  main() {
+    local m = %{"a" => 6}
+    return Main.rd(m)
+  }
+}

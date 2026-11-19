@@ -1,0 +1,6 @@
+static box Main {
+ main() {
+local s = "A😀B"
+local b4ret0 = s.indexOf("B"); return b4ret0
+ }
+}

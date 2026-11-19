@@ -1,0 +1,11 @@
+static box Main {
+fact(n: i64): i64 {
+if n < 2 {
+return 1
+}
+return n * Main.fact(n - 1)
+}
+main() {
+return Main.fact(5)
+}
+}

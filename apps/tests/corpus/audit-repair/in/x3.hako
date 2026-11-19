@@ -1,0 +1,1 @@
+box Page { birth() { } } box Holder { init { inner } birth() { me.inner = new Page() } run(): i64 { return 0 } } static box Main { main() { local holder = new Holder() print(1) return 0 } }

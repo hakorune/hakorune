@@ -1,0 +1,126 @@
+// T6 Design B: results returning one owned and one small value; an argument bundle of six values.
+// PAPER ONLY. Never compiled. Uses b0_common.hako and b2_parser.hako. Rect here is its own four-field type.
+
+// UNNATURAL: return (move e, sp)   There are no tuples, so each two-value result is a named box.
+box Parsed {
+    expr: Expr
+    span: Span
+}
+
+box Scanned {
+    next: i64
+    span: Span
+}
+
+box NamedResult {
+    name: String
+    count: i64
+}
+
+static box Results {
+    atom(start: i64): Parsed {
+        local sp = new Span { start: start, end: start + 1 }
+        return new Parsed { expr: Expr::Num(new NumNode { span: copy sp, value: start }), span: move sp }
+    }
+
+    scan(start: i64): Scanned {
+        return new Scanned { next: start + 1, span: new Span { start: start, end: start + 1 } }
+    }
+
+    wrap(take p: Parsed): Expr {
+        return Expr::Unary(new UnaryNode { span: move p.span, op: UnOp::Neg, operand: move p.expr })
+    }
+
+    // Unbundling: rule 9 keeps the sibling field readable after `move p.expr`, so this borrow
+    // is accepted in this reading. Storing `sp` afterwards would need `copy sp` or `move p.span`.
+    useBoth(edit sink: DiagSink, take p: Parsed): Expr {
+        local sp = p.span
+        local e = move p.expr
+        sink.error(sp, "seen")
+        return e
+    }
+
+    countNames(names: Array<String>, prefix: String): NamedResult {
+        local n = 0
+        local last = ""
+        loop i in 0..names.length() {
+            local s = names.get(i)
+            guard s != null else {
+                continue
+            }
+            if s.startsWith(prefix) {
+                n += 1
+                last = copy s
+            }
+        }
+        return new NamedResult { name: move last, count: n }
+    }
+}
+
+// Six values, all numbers. `copy` plus field edits replaces `with`.
+box LayoutArgs {
+    x: i64
+    y: i64
+    width: i64
+    height: i64
+    depth: i64 = 0
+    flags: i64 = 0
+}
+
+box Rect {
+    x: i64
+    y: i64
+    width: i64
+    height: i64
+}
+
+static box Layout {
+    place(a: LayoutArgs, edit out: Array<Rect>): void {
+        out.push(new Rect { x: a.x, y: a.y, width: a.width, height: a.height })
+        if a.depth >= 3 {
+            return
+        }
+        // OWNED: local inner = a   (a read borrow: the next line's write is rejected)
+        local inner = copy a
+        inner.x += 4
+        inner.width -= 8
+        inner.depth += 1
+        Layout.place(inner, edit out)
+        local below = copy a
+        below.y += a.height
+        below.depth += 1
+        Layout.place(below, edit out)
+    }
+
+    start(width: i64, height: i64): Array<Rect> {
+        local out: Array<Rect> = []
+        Layout.place(new LayoutArgs { x: 0, y: 0, width: width, height: height }, edit out)
+        return out
+    }
+}
+
+// The same bundle with one String. `copy` stops working because a String is not an
+// automatic-copy value, so every field is written again, as in Design R. Existing LayoutArgs
+// code changes only at its `copy` sites, which fail to compile; the reads do not change.
+box StyledArgs {
+    font: String
+    x: i64
+    y: i64
+    width: i64
+    height: i64
+    flags: i64 = 0
+}
+
+static box Styled {
+    // WRONG: omit `flags: a.flags` below   (the default 0 applies silently: compiles)
+    indented(a: StyledArgs, by: i64): StyledArgs {
+        return new StyledArgs {
+            font: copy a.font,
+            x: a.x + by,
+            y: a.y,
+            width: a.width - by * 2,
+            height: a.height,
+            flags: a.flags
+        }
+    }
+}

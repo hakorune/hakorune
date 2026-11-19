@@ -1,0 +1,38 @@
+box Leaf {
+  value: i64
+  birth(value: i64) {
+    me.value = value
+  }
+  get(): i64 {
+    return me.value
+  }
+}
+box Node {
+  next: Leaf
+  v: i64
+  birth(take next: Leaf, v: i64) {
+    me.next = move next
+    me.v = v
+  }
+  total(): i64 {
+    return me.v + 1
+  }
+}
+box Pair {
+  a: Leaf
+  b: Leaf
+  birth(take a: Leaf, take b: Leaf) {
+    me.a = move a
+    me.b = move b
+  }
+}
+static box Main {
+  main() {
+    local a = new Leaf(1)
+    local b = new Leaf(2)
+    local c = move b
+    local d = move a
+    local p = new Pair(move c, move d)
+    return 9
+  }
+}

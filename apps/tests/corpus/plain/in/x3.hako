@@ -1,0 +1,8 @@
+static box Main {
+  method main(args) {
+    local x = env.get("HAKO_X")
+    if x == null { x = "d" }
+    print(x)
+    return 0
+  }
+}

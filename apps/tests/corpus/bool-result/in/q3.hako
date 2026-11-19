@@ -1,0 +1,9 @@
+box C {
+  n: i64
+  birth(n: i64) { me.n = n }
+  t(x: i64) { return x > me.n }
+  u(x: i64): i64 { if me.t(x) { return 1 } return 0 }
+}
+static box Main {
+  main() { local c = new C(1)  print(c.u(4))  if c.t(3) { print(5) } else { print(6) }  return 0 }
+}

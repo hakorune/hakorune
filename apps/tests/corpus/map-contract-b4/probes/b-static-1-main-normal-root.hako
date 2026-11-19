@@ -1,0 +1,10 @@
+static box Foo {
+a(n: i64): i64 {
+return copy n
+}
+}
+static box Main {
+ main() {
+return Foo.a(5)
+ }
+}

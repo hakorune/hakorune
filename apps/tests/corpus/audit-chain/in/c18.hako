@@ -1,0 +1,8 @@
+box P {
+  v: i64
+  birth(v) { me.v = v }
+}
+static box Main {
+  mk() { local m = new MapBox() m.set("k", 1) return new P(7) }
+  main() { local p = mk() print(p.v) return 0 }
+}

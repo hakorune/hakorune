@@ -1,0 +1,10 @@
+box Leaf {
+ value: i64
+ birth(v: i64) { me.value = v }
+ get(): i64 { return me.value }
+}
+static box Main {
+ eat(take p: Leaf): i64 { return p.get() }
+ echo(n: i64): i64 { return n }
+ main() { local a = new Leaf(4) return Main.echo(Main.eat(move a) + 1) }
+}

@@ -1,0 +1,8 @@
+static box Main {
+  main() {
+    local a = new ArrayBox()
+    a.push("x")
+    if a.get(0) == "x" { return 15 }
+    return 16
+  }
+}

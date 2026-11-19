@@ -1,0 +1,11 @@
+box Leaf { v: i64
+  birth(v: i64) { me.v = v }
+  val(): i64 { return me.v }
+}
+box T { keep: Leaf
+  birth(take k: Leaf) { me.keep = move k }
+}
+static box Main { main() { local n = new Leaf(7)
+  local r = n
+  local t = new T(move n)
+  return r.val() } }

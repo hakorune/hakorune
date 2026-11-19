@@ -1,0 +1,6 @@
+static box Main {
+ main() {
+print("同じ" >= "同じ")
+return 0
+ }
+}

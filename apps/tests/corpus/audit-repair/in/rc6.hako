@@ -1,0 +1,1 @@
+static box Main { main() { local r = Main.a(1000000) print(r) return 0 } a(x: i64): i64 { if x < 1 { return 0 } local z = x - 1 local y = Main.a(z) return y } }

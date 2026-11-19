@@ -1,0 +1,6 @@
+static box Main {
+main() {
+local s = "あい"
+return s.length()
+}
+}

@@ -1,0 +1,5 @@
+static box Main {
+main() {
+return "hello".indexOf("l")
+}
+}

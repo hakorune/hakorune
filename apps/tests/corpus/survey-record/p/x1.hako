@@ -1,0 +1,21 @@
+record RFields { accepted: i64 = 0
+  reason: i64 = 0 }
+box R { accepted: i64 = 0
+  reason: i64 = 0 }
+box Owner {
+  mk(fields: RFields): R {
+    local r = new R { accepted: fields.accepted, reason: fields.reason }
+    return r
+  }
+  go(reason: i64): R {
+    local fields = RFields {}
+    fields = fields with { reason, accepted: 1 }
+    return me.mk(fields)
+  }
+}
+static box Main { main(): i64 {
+  local o = new Owner()
+  local r = o.go(3)
+  print(r.reason)
+  return 0
+} }

@@ -1,0 +1,9 @@
+box Leaf { v: i64
+  birth(v: i64) { me.v = v }
+}
+static box Main {
+  main() {
+    local l = new Leaf(8)
+    return l.v
+  }
+}

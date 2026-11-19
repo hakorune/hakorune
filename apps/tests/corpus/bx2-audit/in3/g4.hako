@@ -1,0 +1,9 @@
+static box Main {
+  main() {
+    local a = 7
+    local d = 2
+    local b = a % d
+    local c = a / d
+    return b + c
+  }
+}

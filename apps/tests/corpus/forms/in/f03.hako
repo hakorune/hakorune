@@ -1,0 +1,5 @@
+box P { v: i64
+  birth(v: i64) { me.v = v }
+}
+static box Main { pick(a: P, b: P): P from a, b { return a }
+ main() { return 0 } }

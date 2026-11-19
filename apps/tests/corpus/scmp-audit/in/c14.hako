@@ -1,0 +1,7 @@
+static box Main {
+  main() {
+    local s = "o" + "k"
+    if s == s { return 25 }
+    return 26
+  }
+}

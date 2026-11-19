@@ -1,0 +1,7 @@
+box Calc {
+  birth() { }
+  f(x: i64): i64 { local y = x + 1 return y * 2 }
+}
+static box Main {
+  main() { local c = new Calc() local q = c.f(1) local r = c.f(q) print(r) return r }
+}

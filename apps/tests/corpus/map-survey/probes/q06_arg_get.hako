@@ -1,0 +1,10 @@
+static box Main {
+  rd(m, k) {
+    return m.get(k)
+  }
+  main() {
+    local m = new MapBox()
+    m.set("k", 9)
+    return Main.rd(m, "k")
+  }
+}

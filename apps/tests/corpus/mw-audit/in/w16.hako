@@ -1,0 +1,9 @@
+static box Main {
+  main() {
+    local a = 17
+    local q = a / 5
+    local r = a % 5
+    print(q)
+    return r + q
+  }
+}

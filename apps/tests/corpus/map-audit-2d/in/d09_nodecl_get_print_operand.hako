@@ -1,0 +1,12 @@
+static box Main {
+    main() {
+        local m = new MapBox()
+        m.set("k", 6)
+        print(m.get("k"))
+        local y = m.get("k") + 1
+        if m.get("k") == 6 {
+            return y
+        }
+        return 0
+    }
+}

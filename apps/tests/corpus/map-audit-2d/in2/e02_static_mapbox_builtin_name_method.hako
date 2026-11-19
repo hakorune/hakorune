@@ -1,0 +1,10 @@
+static box MapBox {
+    size() {
+        return 42
+    }
+}
+static box Main {
+    main() {
+        return MapBox.size()
+    }
+}

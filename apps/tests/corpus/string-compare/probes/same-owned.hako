@@ -1,0 +1,8 @@
+static box Main {
+ main() {
+local s = "a" + "é"
+print(s == s)
+print(s < s)
+return 0
+ }
+}

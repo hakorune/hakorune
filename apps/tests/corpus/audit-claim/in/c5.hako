@@ -1,0 +1,16 @@
+static box Main {
+  sq(x: i64): i64 {
+    return x * x
+  }
+  t(x: i64): Bool {
+    local s = Main.sq(x)
+    return s > 10
+  }
+  main() {
+    local a = Main.t(4)
+    if a { print(1) } else { print(0) }
+    local b = Main.t(3)
+    if b { print(1) } else { print(0) }
+    return 0
+  }
+}

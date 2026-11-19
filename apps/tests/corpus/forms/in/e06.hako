@@ -1,0 +1,8 @@
+box P { v: i64
+  birth(v: i64) { me.v = v }
+}
+static box Main { fold(take q: P) { return new P(1) }
+ step(edit e: P) { e = me.fold(move e)
+  return 0 }
+ main() { local x = new P(1)
+  return me.step(edit x) } }

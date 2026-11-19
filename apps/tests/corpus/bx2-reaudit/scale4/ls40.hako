@@ -1,0 +1,131 @@
+static box Main {
+  main() {
+    local x = 3
+    local a = 0
+    local j = 0
+    loop(j < 2) {
+      if x > 1 {
+        a = a + 1
+      }
+      if x > 2 {
+        a = a + 2
+      }
+      if x > 3 {
+        a = a + 3
+      }
+      if x > 4 {
+        a = a + 4
+      }
+      if x > 0 {
+        a = a + 5
+      }
+      if x > 1 {
+        a = a + 6
+      }
+      if x > 2 {
+        a = a + 7
+      }
+      if x > 3 {
+        a = a + 8
+      }
+      if x > 4 {
+        a = a + 9
+      }
+      if x > 0 {
+        a = a + 10
+      }
+      if x > 1 {
+        a = a + 11
+      }
+      if x > 2 {
+        a = a + 12
+      }
+      if x > 3 {
+        a = a + 13
+      }
+      if x > 4 {
+        a = a + 14
+      }
+      if x > 0 {
+        a = a + 15
+      }
+      if x > 1 {
+        a = a + 16
+      }
+      if x > 2 {
+        a = a + 17
+      }
+      if x > 3 {
+        a = a + 18
+      }
+      if x > 4 {
+        a = a + 19
+      }
+      if x > 0 {
+        a = a + 20
+      }
+      if x > 1 {
+        a = a + 21
+      }
+      if x > 2 {
+        a = a + 22
+      }
+      if x > 3 {
+        a = a + 23
+      }
+      if x > 4 {
+        a = a + 24
+      }
+      if x > 0 {
+        a = a + 25
+      }
+      if x > 1 {
+        a = a + 26
+      }
+      if x > 2 {
+        a = a + 27
+      }
+      if x > 3 {
+        a = a + 28
+      }
+      if x > 4 {
+        a = a + 29
+      }
+      if x > 0 {
+        a = a + 30
+      }
+      if x > 1 {
+        a = a + 31
+      }
+      if x > 2 {
+        a = a + 32
+      }
+      if x > 3 {
+        a = a + 33
+      }
+      if x > 4 {
+        a = a + 34
+      }
+      if x > 0 {
+        a = a + 35
+      }
+      if x > 1 {
+        a = a + 36
+      }
+      if x > 2 {
+        a = a + 37
+      }
+      if x > 3 {
+        a = a + 38
+      }
+      if x > 4 {
+        a = a + 39
+      }
+      if x > 0 {
+        a = a + 40
+      }
+      j = j + 1
+    }
+    return a
+  }
+}

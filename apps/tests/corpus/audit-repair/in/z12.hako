@@ -1,0 +1,1 @@
+static box Main { main() { local r = Main.helper(1) print(r) return 0 } helper(x: i64): i64 { return x } }

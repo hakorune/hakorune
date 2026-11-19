@@ -1,0 +1,2 @@
+box Node { next: ArrayBox  v: i64  birth(take next: ArrayBox, v: i64) { me.next = move next  me.v = v } }
+static box Main { main() { local s = new ArrayBox()  local n = new Node(move s, 5)  return n.v } }

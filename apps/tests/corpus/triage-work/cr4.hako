@@ -1,0 +1,6 @@
+box Transport { birth() { }
+ leaf(p) { return 7 }
+ bridge(p) { local recv = new Transport() local out = recv.bridge(p) return out }
+ wrap(p) { local recv = new Transport() local out = recv.bridge(p) return out }
+}
+static box Main { main() { local recv = new Transport() local out = recv.wrap(null) return 0 } }

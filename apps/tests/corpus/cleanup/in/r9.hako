@@ -1,0 +1,1 @@
+static box Main { main() { local r = Main.a(1) local t = Main.b(2) print(r) print(t) return 0 } a(x: i64): i64 { return x } b(x: i64): i64 { return x } }

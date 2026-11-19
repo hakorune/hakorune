@@ -1,0 +1,7 @@
+static box Main {
+  main() {
+    local m = new MapBox()
+    if m.has("q") { return 1 }
+    return 0
+  }
+}

@@ -1,0 +1,1 @@
+static box Main { main() { local s = "abc" local i = 0 local out = "" loop(i < s.length()) { out = out + s.substring(i, i+1) i = i + 1 } print(out) return 0 } }

@@ -1,0 +1,8 @@
+box P { x: i64 = 0
+  birth(n: i64) { me.x = n } }
+static box Main { main(): i64 {
+  local a = new P(1)
+  local b = new P(2)
+  if a.equals(b) { return 1 }
+  return 0
+} }

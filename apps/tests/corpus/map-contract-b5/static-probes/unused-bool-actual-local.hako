@@ -1,0 +1,11 @@
+static box Foo {
+pick(a: i64): i64 {
+return 7
+}
+}
+static box Main {
+main() {
+local n = Foo.pick(true)
+return n
+}
+}

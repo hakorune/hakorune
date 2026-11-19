@@ -1,0 +1,11 @@
+static box Main {
+    main() {
+        local m = %{"k" => 6}
+        return m.get("k")
+    }
+}
+static box MapBox {
+    ping() {
+        return 3
+    }
+}

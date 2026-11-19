@@ -1,0 +1,7 @@
+static box Main {
+  main() {
+    local s = "q"
+    if s == "p" || s >= "q" { return 7 }
+    return 8
+  }
+}

@@ -11,6 +11,11 @@ import time
 _ACTIVE = None
 
 
+def available_memory_kib():
+    return next(int(line.split()[1]) for line in Path('/proc/meminfo').read_text().splitlines()
+                if line.startswith('MemAvailable:'))
+
+
 def descendants_rss(pid):
     pending, seen, total = [pid], set(), 0
     while pending:
@@ -32,8 +37,9 @@ def descendants_rss(pid):
 
 
 class Watch:
-    def __init__(self, work, stage="calibration"):
+    def __init__(self, work, stage="calibration", *, max_children=4):
         self.stage = stage
+        self.max_children = max_children
         self.work = Path(work)
         self.work.mkdir(parents=True, exist_ok=True)
         self.lock = threading.RLock()
@@ -46,8 +52,7 @@ class Watch:
 
     def check(self):
         with self.lock:
-            available = next(int(x.split()[1]) for x in Path('/proc/meminfo').read_text().splitlines()
-                             if x.startswith('MemAvailable:'))
+            available = available_memory_kib()
             disk = shutil.disk_usage(self.work).free
             aggregate = 0
             for pid, entry in self.children.items():
@@ -89,8 +94,8 @@ class Watch:
             self.check()
             if self.failure:
                 raise MemoryError('measurement resource supervisor stopped this stage')
-            if len(self.children) >= 4:
-                raise RuntimeError('at most four active measured commands')
+            if len(self.children) >= self.max_children:
+                raise RuntimeError(f'at most {self.max_children} active measured commands')
             child = subprocess.Popen(command, start_new_session=True, **kwargs)
             self.children[child.pid] = dict(command=list(map(str, command)), stage=self.stage, pid=child.pid,
                                             start=time.time(), peak_rss_kib=0)
@@ -120,11 +125,11 @@ class Watch:
         return child.returncode, timed_out, bool(self.failure), row['peak_rss_kib']
 
 
-def activate(work, stage="calibration"):
+def activate(work, stage="calibration", *, max_children=4):
     global _ACTIVE
     if _ACTIVE is not None:
         raise RuntimeError('resource supervisor already active')
-    _ACTIVE = Watch(work, stage)
+    _ACTIVE = Watch(work, stage, max_children=max_children)
     return _ACTIVE
 
 

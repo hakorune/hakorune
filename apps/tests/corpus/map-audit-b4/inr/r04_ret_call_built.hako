@@ -1,0 +1,8 @@
+static box Main {
+    word() {
+        return "ab" + "cde"
+    }
+    main() {
+        return Main.word().indexOf("d")
+    }
+}

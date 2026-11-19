@@ -1,0 +1,13 @@
+box Holder {
+    birth() {
+    }
+    probe() {
+        return ("ab" + "cd").indexOf("c")
+    }
+}
+static box Main {
+    main() {
+        local h = new Holder()
+        return h.probe()
+    }
+}

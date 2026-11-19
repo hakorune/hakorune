@@ -1,0 +1,6 @@
+static box Main {
+main() {
+local x = 7
+local b4ret0 = x.indexOf("l"); return b4ret0
+}
+}

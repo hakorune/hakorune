@@ -1,0 +1,7 @@
+box Leaf {
+  value: i64
+  birth(value) { me.value = value }
+  get(): i64 { return me.value }
+}
+box Cell { v: i64  birth(v) { me.v = v }  rd(): i64 { return me.v } }
+static box Main { main() { local c = new Cell(2)  return 1 } }

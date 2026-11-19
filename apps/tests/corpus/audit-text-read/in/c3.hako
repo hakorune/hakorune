@@ -1,0 +1,2 @@
+static box Main { main() { local a = "abc"
+  return a.length() } }

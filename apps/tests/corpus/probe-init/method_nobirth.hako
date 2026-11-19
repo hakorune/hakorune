@@ -1,0 +1,11 @@
+box Pair {
+    a: i64
+    sum(): i64 { return me.a }
+}
+static box Main {
+  main() {
+    local p = new Pair()
+    p.a = 7
+    return p.sum()
+  }
+}

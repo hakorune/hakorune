@@ -1,0 +1,9 @@
+static box Main {
+  f(): i64 {
+    return 7
+  }
+  main(args) {
+    local a = Main.f()
+    return a + 1
+  }
+}

@@ -1,0 +1,9 @@
+static box Main {
+div(a: i64, b: i64): i64 {
+return a / b
+}
+main() {
+local r = Main.div(7, 0)
+return r
+}
+}

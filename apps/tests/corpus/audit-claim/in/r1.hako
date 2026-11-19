@@ -1,0 +1,14 @@
+static box Main {
+  f(n: i64): i64 {
+    if n == 0 {
+      return 0
+    }
+    local r = Main.f(n - 1)
+    return r + 1
+  }
+  main() {
+    local a = Main.f(5)
+    print(a)
+    return 0
+  }
+}

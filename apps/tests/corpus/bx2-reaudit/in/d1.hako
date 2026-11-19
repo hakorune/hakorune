@@ -1,0 +1,6 @@
+static box Main {
+  main() {
+    local z = 0
+    return 5 / z
+  }
+}

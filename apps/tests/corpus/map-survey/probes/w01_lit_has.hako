@@ -1,0 +1,7 @@
+static box Main {
+  main() {
+    local m = %{"a" => 1}
+    if m.has("a") { return 1 }
+    return 0
+  }
+}

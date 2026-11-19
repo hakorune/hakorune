@@ -1,0 +1,16 @@
+static box P {
+  t(s): Bool {
+    return true
+  }
+}
+static box Main {
+  main() {
+    local b = P.t("a")
+    if b {
+      print(1)
+    } else {
+      print(0)
+    }
+    return 0
+  }
+}

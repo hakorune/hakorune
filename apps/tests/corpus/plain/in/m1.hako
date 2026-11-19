@@ -1,0 +1,1 @@
+static box Main { main() { local a = [1, 2] print(a.size()) return 0 } }

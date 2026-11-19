@@ -1,0 +1,11 @@
+static box Main {
+  main() {
+    local s = 0
+    local i = 0
+    loop(i < 4) {
+      s = s + i
+      i = i + 1
+    }
+    return s * 2
+  }
+}

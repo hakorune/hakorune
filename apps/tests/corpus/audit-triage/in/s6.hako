@@ -1,0 +1,1 @@
+static box Main { len(x: String): i64 { return x.length() } main() { local r = Main.len("abc") print(r) return 0 } }

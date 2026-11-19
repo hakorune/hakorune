@@ -1,0 +1,1 @@
+box F { birth() { } f(n: i64): i64 { if n < 1 { return 0 } local r = me.f(n - 1) return r + 1 } } static box Main { main() { local a = new F() local r = a.f(3) print(r) return 0 } }

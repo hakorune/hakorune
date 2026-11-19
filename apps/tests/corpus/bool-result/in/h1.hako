@@ -1,0 +1,9 @@
+static box P {
+  t(s): i64 { if s == "a" { return true } return false }
+}
+box R {
+  n: i64
+  birth() { me.n = 0 }
+  run(line) { local b = P.t(line)  if b { me.n = me.n + 1 } else { me.n = me.n + 10 }  return true }
+}
+static box Main { main() { local r = new R()  r.run("a")  r.run("b")  print(r.n)  return 0 } }

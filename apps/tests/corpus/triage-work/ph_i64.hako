@@ -1,0 +1,330 @@
+// page_heap_box.hako — Hako Alloc page/free-list policy-state prototype
+// Responsibility: fixed-size page heap model used by real-app allocator bringup.
+// This is allocator policy/state, not native allocator metal or a VM feature owner.
+
+using selfhost.hako_alloc.memory.layout_box as LayoutBox
+
+box HakoAllocHandle {
+    page_id: i64
+    block_id: i64
+    requested_size: i64
+
+    birth(page_id, block_id, requested_size) {
+        me.page_id = page_id
+        me.block_id = block_id
+        me.requested_size = requested_size
+    }
+}
+
+box HakoAllocHandleResult {
+    // Result status and reason stay in the scalar i64 lane for M190:
+    // ok=1/reason=0 means success.
+    // reason=1 null handle, 2 invalid size, 3 invalid/stale handle,
+    // reason=4 allocation failed or unsupported size.
+    ok: i64 = 0
+    reason: i64 = 0
+    handle: HakoAllocHandle
+
+    birth(ok, reason, handle) {
+        me.ok = ok
+        me.reason = reason
+        me.handle = handle
+    }
+}
+
+box HakoAllocPage {
+    page_id: i64
+    block_size: i64
+    capacity: i64
+    free_stack: ArrayBox = new ArrayBox()
+    block_used: ArrayBox = new ArrayBox()
+    use_counts: ArrayBox = new ArrayBox()
+    requested_sizes: ArrayBox = new ArrayBox()
+    free_top: i64
+    alloc_count: i64 = 0
+    free_count: i64 = 0
+    reuse_count: i64 = 0
+    current_used: i64 = 0
+    peak_used: i64 = 0
+    requested_bytes: i64 = 0
+
+    birth(page_id, block_size, capacity) {
+        me.page_id = page_id
+        me.block_size = block_size
+        me.capacity = capacity
+        me.free_top = capacity
+    }
+
+    seedBlocks() {
+        local free_stack = me.free_stack
+        local block_used = me.block_used
+        local use_counts = me.use_counts
+        local requested_sizes = me.requested_sizes
+        local capacity = me.capacity
+        local i = 0
+        loop(i < capacity) {
+            free_stack.push(i)
+            block_used.push(0)
+            use_counts.push(0)
+            requested_sizes.push(0)
+            i = i + 1
+        }
+    }
+
+    allocate(requested_size) {
+        if requested_size > me.block_size {
+            return null
+        }
+
+        if me.free_top == 0 {
+            return null
+        }
+
+        me.free_top = me.free_top - 1
+        local block_id = me.free_stack.get(me.free_top)
+        local use_count = me.use_counts.get(block_id)
+
+        if use_count > 0 {
+            me.reuse_count = me.reuse_count + 1
+        }
+
+        me.block_used.set(block_id, 1)
+        me.use_counts.set(block_id, use_count + 1)
+        me.requested_sizes.set(block_id, requested_size)
+        me.alloc_count = me.alloc_count + 1
+        me.current_used = me.current_used + 1
+        me.requested_bytes = me.requested_bytes + requested_size
+
+        if me.current_used > me.peak_used {
+            me.peak_used = me.current_used
+        }
+
+        return new HakoAllocHandle(me.page_id, block_id, requested_size)
+    }
+
+    release(handle) {
+        if handle == null {
+            return false
+        }
+
+        local used = me.block_used.get(handle.block_id)
+        if used == 0 {
+            return false
+        }
+
+        me.block_used.set(handle.block_id, 0)
+        me.requested_sizes.set(handle.block_id, 0)
+        me.free_stack.set(me.free_top, handle.block_id)
+        me.free_top = me.free_top + 1
+        me.free_count = me.free_count + 1
+        me.current_used = me.current_used - 1
+        return true
+    }
+
+    isLiveHandle(handle): i64 {
+        // Returns scalar 1/0 status, not a Bool lane, to keep EXE proof ABI stable.
+        if handle == null {
+            return 0
+        }
+
+        if handle.page_id != me.page_id {
+            return 0
+        }
+
+        if handle.block_id < 0 {
+            return 0
+        }
+
+        if handle.block_id >= me.capacity {
+            return 0
+        }
+
+        return me.block_used.get(handle.block_id)
+    }
+
+    resizeInPlace(handle, requested_size) {
+        if handle == null {
+            return null
+        }
+
+        if requested_size <= 0 {
+            return null
+        }
+
+        if requested_size > me.block_size {
+            return null
+        }
+
+        if handle.page_id != me.page_id {
+            return null
+        }
+
+        if handle.block_id < 0 {
+            return null
+        }
+
+        if handle.block_id >= me.capacity {
+            return null
+        }
+
+        if me.block_used.get(handle.block_id) == 0 {
+            return null
+        }
+
+        me.requested_sizes.set(handle.block_id, requested_size)
+        handle.requested_size = requested_size
+        return handle
+    }
+
+    freeCount() {
+        return me.free_top
+    }
+}
+
+box HakoAllocHeap {
+    small_page: HakoAllocPage = new HakoAllocPage(
+        0,
+        LayoutBox.class_size(0),
+        LayoutBox.class_capacity(0)
+    )
+    medium_page: HakoAllocPage = new HakoAllocPage(
+        1,
+        LayoutBox.class_size(1),
+        LayoutBox.class_capacity(1)
+    )
+
+    birth() {
+        me.small_page.seedBlocks()
+        me.medium_page.seedBlocks()
+    }
+
+    allocate(size) {
+        local class_id = LayoutBox.class_id(size)
+        if class_id == 0 {
+            return me.small_page.allocate(size)
+        }
+
+        if class_id == 1 {
+            return me.medium_page.allocate(size)
+        }
+
+        return null
+    }
+
+    allocateResult(size) {
+        if size <= 0 {
+            return new HakoAllocHandleResult(0, 2, null)
+        }
+
+        local handle = me.allocate(size)
+        if handle == null {
+            return new HakoAllocHandleResult(0, 4, null)
+        }
+
+        return new HakoAllocHandleResult(1, 0, handle)
+    }
+
+    release(handle) {
+        if handle == null {
+            return false
+        }
+
+        if handle.page_id == 0 {
+            return me.small_page.release(handle)
+        }
+
+        if handle.page_id == 1 {
+            return me.medium_page.release(handle)
+        }
+
+        return false
+    }
+
+    isLiveHandle(handle): i64 {
+        // Returns scalar 1/0 status, not a Bool lane, to keep EXE proof ABI stable.
+        if handle == null {
+            return 0
+        }
+
+        if handle.page_id == 0 {
+            return me.small_page.isLiveHandle(handle)
+        }
+
+        if handle.page_id == 1 {
+            return me.medium_page.isLiveHandle(handle)
+        }
+
+        return 0
+    }
+
+    realloc(handle: HakoAllocHandle, requested_size) {
+        if handle == null {
+            return null
+        }
+
+        if requested_size <= 0 {
+            return null
+        }
+
+        if me.isLiveHandle(handle) == 0 {
+            return null
+        }
+
+        if handle.page_id == 0 {
+            local same = me.small_page.resizeInPlace(handle, requested_size)
+            if same != null {
+                return same
+            }
+        }
+
+        if handle.page_id == 1 {
+            local same = me.medium_page.resizeInPlace(handle, requested_size)
+            if same != null {
+                return same
+            }
+        }
+
+        local replacement = me.allocate(requested_size)
+        if replacement == null {
+            return null
+        }
+
+        if me.release(handle) {
+            return replacement
+        }
+
+        me.release(replacement)
+        return null
+    }
+
+    reallocResult(handle: HakoAllocHandle, requested_size) {
+        if handle == null {
+            return new HakoAllocHandleResult(0, 1, null)
+        }
+
+        if requested_size <= 0 {
+            return new HakoAllocHandleResult(0, 2, null)
+        }
+
+        if me.isLiveHandle(handle) == 0 {
+            return new HakoAllocHandleResult(0, 3, null)
+        }
+
+        local replacement = me.realloc(handle, requested_size)
+        if replacement == null {
+            return new HakoAllocHandleResult(0, 4, null)
+        }
+
+        return new HakoAllocHandleResult(1, 0, replacement)
+    }
+
+    requestedBytes() {
+        return me.small_page.requested_bytes + me.medium_page.requested_bytes
+    }
+
+    outstandingBlocks() {
+        return me.small_page.current_used + me.medium_page.current_used
+    }
+}
+
+static box Main { main() { return 0 } }

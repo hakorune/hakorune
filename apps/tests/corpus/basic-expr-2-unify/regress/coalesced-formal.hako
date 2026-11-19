@@ -1,0 +1,1 @@
+static box Main { f(a:i64):i64 {if a>0 {a=a}else{a=a} return a+1} main(){return Main.f(5)} }

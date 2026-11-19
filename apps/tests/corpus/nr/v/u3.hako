@@ -1,0 +1,3 @@
+box Leaf { value: i64  birth(value) { me.value = value } }
+box Node { next: Leaf?  v: i64  birth(take next: Leaf, v: i64) { me.next = move next  me.v = v } }
+static box Main { main() { local a = new Leaf(1)  local b = new Node(move a, 2)  return b.v } }

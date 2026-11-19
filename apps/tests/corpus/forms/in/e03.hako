@@ -1,0 +1,9 @@
+box P { v: i64
+  birth(v: i64) { me.v = v }
+  edit inc() { me.v = me.v + 1
+    return 0 }
+  val() { return me.v }
+}
+static box Main { main() { local x = new P(4)
+  x.inc()
+  return x.val() } }

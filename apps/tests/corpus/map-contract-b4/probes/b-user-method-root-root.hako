@@ -1,0 +1,11 @@
+box UserSearch {
+value: i64
+birth() { me.value = 9 }
+indexOf(n: i64): i64 { return me.value }
+}
+static box Main {
+main() {
+local x = new UserSearch()
+return x.indexOf(1)
+}
+}

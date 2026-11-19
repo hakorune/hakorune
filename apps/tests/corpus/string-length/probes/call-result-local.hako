@@ -1,0 +1,8 @@
+static box Main {
+make() { return "あい" }
+main() {
+local n = Main.make().length()
+print(n)
+return n
+}
+}
