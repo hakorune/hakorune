@@ -8,7 +8,7 @@ import subprocess
 from loop_mir_text import extract
 from support import ROOT
 
-MAX_JOBS = 12
+MAX_JOBS = 14
 
 # These paths are consumed only by this corpus/measurement work, outside
 # compilation, backend selection, runtime and link. Unclassified paths force
