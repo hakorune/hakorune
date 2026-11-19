@@ -453,6 +453,16 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             }
             None => {
                 if let Some(candidate) = composite_loop_break_candidate {
+                    // A composite writer is eligible only when every original
+                    // call already has a selected disposition.
+                    let source_dispositions = source_target_probe
+                        .into_item_dispositions(&source_items)
+                        .map_err(|error| {
+                            format!("[freeze:contract][callable-loop/composite/source-target] {error:?}")
+                        })?;
+                    if source_items.is_empty() || source_dispositions.is_empty() {
+                        return Err("[freeze:contract][callable-loop/composite/source-target-empty]".to_owned());
+                    }
                     let callable_ledger = callable_ledger.ok_or_else(|| {
                         "[freeze:contract][callable-loop/composite/source-port-ledger-missing]"
                             .to_owned()
@@ -471,7 +481,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                         body,
                         binding_product,
                         source_items,
-                        source_target_probe,
+                        source_dispositions,
                         callable_ledger,
                         retained,
                         policy,

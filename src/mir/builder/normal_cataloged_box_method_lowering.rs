@@ -5,7 +5,7 @@ use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 use super::calls::{
     CanonicalFunctionSessionErrorV1, LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1,
 };
-use super::module_lowering_invocation::ModuleLoweringPortChildErrorV1;
+use super::module_lowering_invocation::{ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1};
 use super::module_lowering_invocation::ResolvedChildDraftAdmissionV1;
 use super::normal_callable_prepared_operation::PreparedCallableLoopOperationProgramV1;
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
@@ -258,6 +258,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
         >,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+        ModuleLoweringPortV1::pinned_text_backend_target_v1(&signature, target_capability)?;
         let function_name = admission.physical_symbol().to_owned();
         let session_name = function_name.clone();
         let box_name = admission.source_key().owner().to_owned();

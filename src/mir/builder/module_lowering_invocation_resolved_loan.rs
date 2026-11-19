@@ -32,6 +32,22 @@ impl PendingDraftTerminal for LegacyFunctionPendingSessionV1<'_> {
 }
 
 impl ModuleLoweringPortV1<'_> {
+    /// The target is a prerequisite of the selected signature and can be
+    /// checked before issuing a body. Access-plan agreement needs the draft.
+    pub(in crate::mir::builder) fn pinned_text_backend_target_v1<'target>(
+        loan: &ResolvedCallablePhysicalSignatureLoanV1<'_>,
+        target: Option<&'target crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1>,
+    ) -> Result<
+        Option<&'target crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1>,
+        ModuleLoweringPortChildErrorV1,
+    > {
+        if loan.has_exact_text_formal() {
+            target.map(Some).ok_or(ModuleLoweringPortChildErrorV1::PinnedTextBackendFrameContractMismatch)
+        } else {
+            Ok(None)
+        }
+    }
+
     /// Consume a package-owned physical-signature sibling loan while the
     /// resolved draft closes. The module/collector never retains the loan.
     pub(in crate::mir::builder) fn complete_resolved_child_with_physical_loan<'loan>(
@@ -70,14 +86,7 @@ impl ModuleLoweringPortV1<'_> {
         if loan.owner() != admission.owner() {
             return Err(ModuleLoweringPortChildErrorV1::PhysicalSignatureMismatch);
         }
-        let backend_target =
-            if loan.has_exact_text_formal() {
-                Some(target_capability.ok_or(
-                    ModuleLoweringPortChildErrorV1::PinnedTextBackendFrameContractMismatch,
-                )?)
-            } else {
-                None
-            };
+        let backend_target = Self::pinned_text_backend_target_v1(&loan, target_capability)?;
         let (key, symbol, arity) = admission.collector_parts();
         pending.complete_with(|mut draft| {
             let backend_contract = if let Some(target) = backend_target {
