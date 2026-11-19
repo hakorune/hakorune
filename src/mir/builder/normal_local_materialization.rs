@@ -1,6 +1,6 @@
 //! Lower an already located local declaration and publish its completed binding.
 
-use std::{cell::RefCell, ops::ControlFlow, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::ExprChildRoleV1;
@@ -12,26 +12,9 @@ use super::stmts::variable_stmt::LocalValuePlacement;
 use super::stmts::{
     drive_local_statement_with_placement_v1, CompletedLocalStatementV1, RawLegacyLocalInputV1,
 };
-use super::{MirBuilder, ValueId};
+use super::MirBuilder;
 
 impl RawInvocationChildPortV1<'_, '_> {
-    pub(super) fn lower_source_local_if_present_v1(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: ASTNode,
-    ) -> Result<ControlFlow<ValueId, ASTNode>, String> {
-        match input {
-            local @ ASTNode::Local { .. }
-                if self.source_ledger.callable_ledger().is_some() || self.source_ledger.script_ledger().is_some() =>
-            {
-                Ok(ControlFlow::Break(
-                    self.lower_source_local_v1(builder, local)?.result(),
-                ))
-            }
-            other => Ok(ControlFlow::Continue(other)),
-        }
-    }
-
     /// The source frame owns the binding. An enclosing Script can retain its
     /// ledger while a constructor lowers a distinct function-body site.
     pub(in crate::mir::builder) fn lower_source_local_v1(
@@ -40,7 +23,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         input: ASTNode,
     ) -> Result<CompletedLocalStatementV1, String> {
         let source = self.active_source.as_ref();
-        let callable = self.source_ledger.callable_ledger().cloned();
+        let callable = self.source_ledger.callable().cloned();
         let site = source
             .and_then(RawInvocationSourceContextV1::site)
             .cloned()
@@ -50,7 +33,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             })?;
         let (input, script_local) = if callable.is_none() {
             let ledger = self
-                .source_ledger.script_ledger().cloned()
+                .source_ledger.script().cloned()
                 .expect("script local lowering requires semantic ledger");
             let relation = ledger
                 .borrow()

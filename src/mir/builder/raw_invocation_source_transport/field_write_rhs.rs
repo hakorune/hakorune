@@ -34,7 +34,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         let ledger = self.ordinary_new_claim_ledger.clone().ok_or("[freeze:contract][field-write-rhs/no-ledger]")?;
         source.require_current_execution(crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(&ledger))?;
         if recipe.evaluation().is_some() {
-            let state = self.source_ledger.callable_ledger().cloned().ok_or("[freeze:contract][field-write-rhs/no-state]")?;
+            let state = self.source_ledger.callable().cloned().ok_or("[freeze:contract][field-write-rhs/no-state]")?;
             let consume = self.lexical_self_receiver_locator_consumer_v1()?;
             let port = RefCell::new(self);
             let issue_static = |builder: &mut MirBuilder,
@@ -76,7 +76,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         let site = SourceExprSiteV1::from_node(self.current_source_site_v1().ok_or("[freeze:contract][field-write-rhs/node-site]")?);
         let index = source.nodes().iter().position(|node| node.site() == &site).ok_or("[freeze:contract][field-write-rhs/foreign-node]")?;
         let entry = cursor(builder)?;
-        let state = self.source_ledger.callable_ledger().cloned().ok_or("[freeze:contract][field-write-rhs/no-state]")?;
+        let state = self.source_ledger.callable().cloned().ok_or("[freeze:contract][field-write-rhs/no-state]")?;
         let ledger = self.ordinary_new_claim_ledger.clone().ok_or("[freeze:contract][field-write-rhs/no-ledger]")?;
         let (value, proof) = match source.nodes()[index].source() {
             Node::Literal(_) => {

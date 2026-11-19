@@ -230,7 +230,7 @@ pub(in crate::mir::builder) enum SourceLedgerV1 {
 }
 
 impl SourceLedgerV1 {
-    pub(in crate::mir::builder) fn script_ledger(
+    pub(in crate::mir::builder) fn script(
         &self,
     ) -> Option<&Rc<RefCell<ScriptSemanticLoweringState>>> {
         match self {
@@ -239,7 +239,7 @@ impl SourceLedgerV1 {
         }
     }
 
-    pub(in crate::mir::builder) fn callable_ledger(
+    pub(in crate::mir::builder) fn callable(
         &self,
     ) -> Option<&Rc<RefCell<CallableSemanticLoweringState>>> {
         match self {
@@ -525,7 +525,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site),
         );
         let ledger = self
-            .source_ledger.callable_ledger()
+            .source_ledger.callable()
             .ok_or_else(|| "[freeze:contract][declared-instance/state-unavailable]".to_owned())?;
         let locator = self
             .declared_instance_locator
@@ -616,7 +616,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
     pub(in crate::mir::builder) fn callable_owner_v1(
         &self,
     ) -> Option<crate::mir::resolved_semantics::FunctionOwnerIdV1> {
-        self.source_ledger.callable_ledger()
+        self.source_ledger.callable()
             .map(|ledger| ledger.borrow().owner())
     }
 
@@ -659,7 +659,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
                         let function = child_port.with_headers(|headers| {
                             builder.finalize_function_draft_with_headers(prepared, headers)
                         })?;
-                        if let Some(state) = child_port.source_ledger.callable_ledger() {
+                        if let Some(state) = child_port.source_ledger.callable() {
                             let state = state.borrow();
                             state.validate_finalized_construction_stores(&function)?;
                             if let Some(news) = &child_port.ordinary_new_claim_ledger {

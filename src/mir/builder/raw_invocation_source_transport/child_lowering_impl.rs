@@ -1,3 +1,5 @@
+use std::ops::ControlFlow;
+
 use super::*;
 use crate::mir::builder::recursive_child_lowering_port::{
     DeclaredInstanceReceiverIngressV1, ScriptDirectStaticClaimCompletionErrorV1,
@@ -55,7 +57,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
     fn complete_field_array_read_v1(&mut self, recipe: std::rc::Rc<crate::mir::normal_callable_semantic_package::FieldArrayReadRecipeV1>, read: crate::mir::ArrayReadSiteId, receiver: ValueId, operation: crate::mir::instruction::ArrayReadOperationV1, dst: ValueId) -> Result<(), String> {
         let node = self.current_source_site_v1().ok_or_else(|| "[freeze:contract][named-array/read-source-missing]".to_owned())?;
         if self.callable_owner_v1() != Some(recipe.owner()) || recipe.call_site() != &crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node) { return Err("[freeze:contract][named-array/read-source-drift]".into()); }
-        self.source_ledger.callable_ledger().ok_or_else(|| "[freeze:contract][named-array/read-state-missing]".to_owned())?.borrow_mut().record_field_array_read_v1(recipe, read, receiver, operation, dst)
+        self.source_ledger.callable().ok_or_else(|| "[freeze:contract][named-array/read-state-missing]".to_owned())?.borrow_mut().record_field_array_read_v1(recipe, read, receiver, operation, dst)
     }
 
     fn emit_field_keys_count_v1(&mut self, builder: &mut MirBuilder, method: &str, arity: usize) -> Result<Option<ValueId>, String> {
@@ -66,7 +68,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         if crate::boxes::array::ArrayMethodId::from_name_and_arity(method, arity) != Some(crate::boxes::array::ArrayMethodId::Length) {
             return Err("[freeze:contract][named-array/read-call-shape]".into());
         }
-        let state = self.source_ledger.callable_ledger().cloned().ok_or_else(|| "[freeze:contract][named-array/read-state-missing]".to_owned())?;
+        let state = self.source_ledger.callable().cloned().ok_or_else(|| "[freeze:contract][named-array/read-state-missing]".to_owned())?;
         let mut state = state.borrow_mut();
         super::super::ordinary_new_admission::selected::terminal_map_get::emit_keys_count(builder, &mut state, &ledger, &recipe).map(Some)
     }
@@ -365,7 +367,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
     }
 
     fn take_construction_store_v1(&mut self) -> Result<Option<crate::mir::builder::normal_callable_semantic_lowering_state::construction::TakenConstructionStore>, String>{
-        let Some(ledger) = self.source_ledger.callable_ledger() else {
+        let Some(ledger) = self.source_ledger.callable() else {
             return Ok(None);
         };
         let site = self
@@ -381,7 +383,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         provider_value: Option<ValueId>,
     ) -> Result<ValueId, String> {
         let ledger = self
-            .source_ledger.callable_ledger()
+            .source_ledger.callable()
             .ok_or("[freeze:contract][construction-store/no-ledger]")?;
         if let crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1::ProviderConstruction {
             caller,
@@ -462,7 +464,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         if has_selected_scalar && self.ordinary_new_claim_ledger.is_none() {
             return Err("[freeze:contract][scalar-original/ledger-missing]".into());
         }
-        let Some(ledger) = self.source_ledger.callable_ledger() else {
+        let Some(ledger) = self.source_ledger.callable() else {
             if has_selected_scalar {
                 return Err("[freeze:contract][scalar-original/entry-missing]".into());
             }
@@ -562,7 +564,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
     }
 
     fn lower_me_expression_v1(&mut self, builder: &mut MirBuilder) -> Result<ValueId, String> {
-        if self.source_ledger.callable_ledger().is_some() {
+        if self.source_ledger.callable().is_some() {
             return self.read_callable_variable_v1();
         }
         crate::mir::builder::stmts::variable_stmt::build_me_expression(builder)
@@ -601,20 +603,12 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         if let Some(emitted) = self.emit_ledger_statement_v1(builder)? {
             return Ok(emitted);
         }
-        let input = match self.lower_source_local_if_present_v1(builder, input)? {
-            std::ops::ControlFlow::Break(value) => return Ok(value),
-            std::ops::ControlFlow::Continue(input) => input,
-        };
-        if self.source_ledger.script_ledger().is_some() {
-            return match input {
-                nowait @ ASTNode::Nowait { .. } => self.lower_script_nowait_v1(builder, nowait),
-                outbox @ ASTNode::Outbox { .. } => self.lower_script_outbox_v1(builder, outbox),
-                other => crate::mir::builder::stmts::block_stmt::build_statement_with_port_v1(
-                    builder, self, other,
-                ),
-            };
+        match self.lower_source_node_v1(builder, input, SourceNodePosition::Statement)? {
+            ControlFlow::Break(value) => Ok(value),
+            ControlFlow::Continue(input) => {
+                crate::mir::builder::stmts::block_stmt::build_statement_with_port_v1(builder, self, input)
+            }
         }
-        crate::mir::builder::stmts::block_stmt::build_statement_with_port_v1(builder, self, input)
     }
 
     fn lower_expression(
@@ -725,60 +719,11 @@ impl RawInvocationChildPortV1<'_, '_> {
                 "[freeze:contract][raw-invocation/missing-expression-source-receipt]".to_owned(),
             );
         }
-        if self.source_ledger.script_ledger().is_some() && matches!(input, ASTNode::Return { .. }) {
-            return self.lower_script_return_v1(builder, input);
+        match self.lower_source_node_v1(builder, input, SourceNodePosition::Expression)? {
+            ControlFlow::Break(value) => Ok(value),
+            ControlFlow::Continue(input) => {
+                lower_raw_expression_with_recursion_guard_v1(builder, self, input)
+            }
         }
-        let input = match self.lower_source_local_if_present_v1(builder, input)? {
-            std::ops::ControlFlow::Break(value) => return Ok(value),
-            std::ops::ControlFlow::Continue(input) => input,
-        };
-        if self.source_ledger.script_ledger().is_some() && matches!(input, ASTNode::Nowait { .. }) {
-            return self.lower_script_nowait_v1(builder, input);
-        }
-        if self.source_ledger.script_ledger().is_some() && matches!(input, ASTNode::Outbox { .. }) {
-            return self.lower_script_outbox_v1(builder, input);
-        }
-        if self.source_ledger.script_ledger().is_some()
-            && (matches!(
-                &input,
-                ASTNode::Assignment { target, .. } | ASTNode::CompoundAssignment { target, .. }
-                    if matches!(target.as_ref(), ASTNode::Variable { .. })
-            ) || matches!(&input, ASTNode::GroupedAssignmentExpr { .. }))
-        {
-            return self.lower_script_binding_rebind_v1(builder, input);
-        }
-        if self.source_ledger.callable_ledger().is_some()
-            && (matches!(
-                &input,
-                ASTNode::Assignment { target, .. } | ASTNode::CompoundAssignment { target, .. }
-                    if matches!(target.as_ref(), ASTNode::Variable { .. })
-            ) || matches!(&input, ASTNode::GroupedAssignmentExpr { .. }))
-        {
-            return self.lower_callable_binding_rebind_v1(builder, input);
-        }
-        if self.source_ledger.callable_ledger().is_some()
-            && (matches!(input, ASTNode::MapLiteral { .. })
-                || self.issued_builtin_empty_map_construction_v1(&input)?)
-        {
-            return self.lower_callable_map_v1(builder);
-        }
-        if self.source_ledger.callable_ledger().is_some() && matches!(input, ASTNode::Variable { .. }) {
-            return self.read_callable_variable_v1();
-        }
-        if let (Some(ledger), ASTNode::Variable { .. }) = (self.source_ledger.script_ledger(), &input) {
-            let site = self
-                .current_source_context_v1()
-                .and_then(|context| context.site().cloned())
-                .ok_or_else(|| "[freeze:contract][script-lexical/variable-site]".to_owned())?;
-            let binding = ledger
-                .borrow()
-                .variable_binding(&site)
-                .ok_or_else(|| "[freeze:contract][script-lexical/variable-binding]".to_owned())?;
-            return ledger
-                .borrow()
-                .value(binding)
-                .ok_or_else(|| "[freeze:contract][script-lexical/variable-value]".to_owned());
-        }
-        lower_raw_expression_with_recursion_guard_v1(builder, self, input)
-        }
+    }
 }

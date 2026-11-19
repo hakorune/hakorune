@@ -5,23 +5,10 @@ impl RawInvocationChildPortV1<'_, '_> {
         &mut self,
         builder: &mut MirBuilder,
         input: ASTNode,
+        role: ExprChildRoleV1,
     ) -> Result<ValueId, String> {
-        let role = match &input {
-            ASTNode::Assignment { target, .. }
-                if matches!(target.as_ref(), ASTNode::Variable { .. }) =>
-            {
-                ExprChildRoleV1::AssignmentTarget
-            }
-            ASTNode::CompoundAssignment { target, .. }
-                if matches!(target.as_ref(), ASTNode::Variable { .. }) =>
-            {
-                ExprChildRoleV1::CompoundAssignmentTarget
-            }
-            ASTNode::GroupedAssignmentExpr { .. } => ExprChildRoleV1::GroupedAssignmentTarget,
-            _ => return Err("[freeze:contract][script-lexical/rebind-source-drift]".to_owned()),
-        };
         let ledger = self
-            .source_ledger.script_ledger().cloned()
+            .source_ledger.script().cloned()
             .expect("script rebind lowering requires semantic ledger");
         let target_site = self
             .current_source_context_v1()
@@ -49,7 +36,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             .and_then(|context| context.site().cloned())
             .ok_or_else(|| "[freeze:contract][script-array/return-source-site]".to_owned())?;
         let ledger = self
-            .source_ledger.script_ledger()
+            .source_ledger.script()
             .expect("selected Script return ledger")
             .clone();
         let recipe = ledger.borrow_mut().take_array_return_recipe(&site)?;

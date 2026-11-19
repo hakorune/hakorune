@@ -183,7 +183,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         }
         let entry = physical::cursor(builder)?;
         let state = self
-            .source_ledger.callable_ledger().cloned()
+            .source_ledger.callable().cloned()
             .ok_or("[freeze:contract][bool-condition/no-state]")?;
         let ledger = self
             .ordinary_new_claim_ledger

@@ -174,7 +174,7 @@ impl IfFormPhysicalObserverV1 for IfStateObserverV1 {
 }
 impl RawInvocationChildPortV1<'_, '_> {
     pub(super) fn if_state_observer_v1(&self, builder: &MirBuilder) -> Result<Option<Box<dyn IfFormPhysicalObserverV1>>, String> {
-        let Some(state) = self.source_ledger.callable_ledger() else { return Ok(None) };
+        let Some(state) = self.source_ledger.callable() else { return Ok(None) };
         let slots = state.borrow().source_if_value_slots_v1(&builder.function_state.variable_ctx.variable_map)?;
         let mut sources: Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>> = Vec::new();
         let mut text_sources: Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalTextSourceV1>> = Vec::new();

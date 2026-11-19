@@ -76,7 +76,7 @@ pub(super) fn with_selected_source_scope<'port, 'collector, R>(
             .transpose()?,
         move |inner, transport| {
             {
-                let state = inner.source_ledger.callable_ledger().ok_or_else(|| {
+                let state = inner.source_ledger.callable().ok_or_else(|| {
                     "[freeze:contract][borrowed-entry/callable-state-missing]".to_owned()
                 })?;
                 state

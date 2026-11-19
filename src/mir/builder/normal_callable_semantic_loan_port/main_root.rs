@@ -93,7 +93,7 @@ pub(super) fn lower_app_main_root_body_v1(
                         }
                         inner.prepare_function_control_v1(builder)?;
                         inner
-                            .source_ledger.callable_ledger()
+                            .source_ledger.callable()
                             .ok_or_else(|| {
                                 "[freeze:contract][mir/callable-main/ledger-missing]".to_owned()
                             })?
@@ -125,7 +125,7 @@ pub(super) fn lower_app_main_root_body_v1(
                         let runtime = runtime_inputs.ok_or_else(||
                             "[freeze:contract][main-arguments/runtime-snapshot-missing]".to_owned())?;
                         let frame = if argument_source.requires_lifecycle() {
-                            let state = inner.source_ledger.callable_ledger().ok_or_else(||
+                            let state = inner.source_ledger.callable().ok_or_else(||
                                 "[freeze:contract][main-arguments/ledger-missing]".to_owned())?;
                             state.borrow_mut().borrow_fault_frame(builder)?;
                             Some(state.borrow().fault_frame_binding(builder.function_state.current_function.as_ref()
@@ -146,7 +146,7 @@ pub(super) fn lower_app_main_root_body_v1(
                             },
                         )?;
                         main_arguments.corroborate_adoption(builder,
-                            &inner.source_ledger.callable_ledger().ok_or_else(||
+                            &inner.source_ledger.callable().ok_or_else(||
                                 "[freeze:contract][main-arguments/ledger-missing]".to_owned())?.borrow())?;
                         // The canonical qualified-methods route only serves
                         // arity-0 mains with qualified (unbound-receiver)

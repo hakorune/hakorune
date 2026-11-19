@@ -30,7 +30,7 @@ impl RecordLiteralSourceDemandPortV1 for RawInvocationChildPortV1<'_, '_> {
         &self,
         literal: &ASTNode,
     ) -> Result<Option<u32>, String> {
-        let Some(ledger) = self.source_ledger.script_ledger() else {
+        let Some(ledger) = self.source_ledger.script() else {
             return Ok(None);
         };
         if !matches!(literal, ASTNode::RecordLiteral { .. }) {

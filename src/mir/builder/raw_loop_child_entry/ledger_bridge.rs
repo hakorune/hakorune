@@ -18,7 +18,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         invocation: &mut crate::mir::builder::recursive_child_lowering::RawInvocationChildPortV1<'_, '_>,
         source_target_probe: CallableLoopSourceTargetProbeV1,
     ) -> Result<ValueId, String> {
-        let ledger = invocation.source_ledger.callable_ledger().cloned()
+        let ledger = invocation.source_ledger.callable().cloned()
             .ok_or("[freeze:contract][raw-loop-child-entry/callable-ledger-missing]")?;
         let locator = invocation.declared_instance_locator;
         let input = invocation.source_input.ok_or("[freeze:contract][raw-loop-child-entry/source-input-missing]")?;

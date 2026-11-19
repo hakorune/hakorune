@@ -9,7 +9,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             CallableLoopBindingProjectionDispositionV1>,
         String,
     >{
-        let Some(ledger) = self.source_ledger.callable_ledger() else {
+        let Some(ledger) = self.source_ledger.callable() else {
             return Ok(None);
         };
         let loop_site = self

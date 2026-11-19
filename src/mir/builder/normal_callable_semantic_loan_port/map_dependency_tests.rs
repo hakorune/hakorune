@@ -78,7 +78,7 @@ impl MirBuilder {
                 |inner, transport| {
                     inner.with_source_transport_v1(transport, |inner, ()| {
                         inner
-                            .source_ledger.callable_ledger()
+                            .source_ledger.callable()
                             .unwrap()
                             .borrow_mut()
                             .select_root_fault_frame()?;

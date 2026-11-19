@@ -329,7 +329,7 @@ pub(in crate::mir::builder) fn take_terminal_static_publication_v1(
 ) -> Result<StaticResultPublicationIngressV1, StaticResultPublicationIngressErrorV1> {
     let source = classify_source_context_v1(
         port.current_source_context_v1().as_ref(),
-        port.source_ledger.callable_ledger().is_some(),
+        port.source_ledger.callable().is_some(),
         declarations,
         target.owner(),
         target.name(),
@@ -388,7 +388,7 @@ impl StaticResultPublicationIngressPortV1 for RawInvocationChildPortV1<'_, '_> {
     ) -> Result<StaticResultPublicationIngressV1, StaticResultPublicationIngressErrorV1> {
         let source = classify_source_context_v1(
             self.current_source_context_v1().as_ref(),
-            self.source_ledger.callable_ledger().is_some(),
+            self.source_ledger.callable().is_some(),
             declarations,
             owner,
             method,

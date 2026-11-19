@@ -27,7 +27,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             || matches!(input, ASTNode::Me { .. }) && entry_receiver) || self.callable_owner_v1() != Some(site.owner())
             || self.current_source_site_v1().as_ref() != Some(site.site().node())
         { return Err("[freeze:contract][borrowed-field-write/read-source]".into()); }
-        let state = self.source_ledger.callable_ledger().ok_or("[freeze:contract][borrowed-field-write/state]")?;
+        let state = self.source_ledger.callable().ok_or("[freeze:contract][borrowed-field-write/state]")?;
         let read = if entry_receiver {
             state.borrow_mut().take_exact_receiver_read(site.owner(), site.site().node(), binding)
                 .map_err(|issue| issue.to_string())?
@@ -43,7 +43,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             || &SourceStmtSiteV1::from_node(node) != source.frame().source().root().statement()
         { return Err("[freeze:contract][borrowed-field-write/statement-drift]".into()); }
         let ledger = self.ordinary_new_claim_ledger.as_ref().ok_or("[freeze:contract][borrowed-field-write/ledger]")?;
-        let state = self.source_ledger.callable_ledger().ok_or("[freeze:contract][borrowed-field-write/state]")?;
+        let state = self.source_ledger.callable().ok_or("[freeze:contract][borrowed-field-write/state]")?;
         super::super::ordinary_new_admission::selected::borrowed_field_write::emit(builder, &mut state.borrow_mut(), ledger, source, field, reads)
     }
 }

@@ -245,7 +245,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             .as_ref()
             .ok_or_else(|| freeze("claim-ledger-missing"))?;
         let state = self
-            .source_ledger.callable_ledger()
+            .source_ledger.callable()
             .ok_or_else(|| freeze("callable-state-missing"))?;
         let mut state = state.borrow_mut();
         let value = match row.result() {
