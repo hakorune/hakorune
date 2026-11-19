@@ -79,7 +79,7 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         if self.callable_owner_v1() != Some(call.owner()) { return Err("[freeze:contract][argument-expression/owner]".into()); }
         let ledger = std::rc::Rc::clone(self.ordinary_new_claim_ledger.as_ref()
             .ok_or("[freeze:contract][argument-expression/ledger]")?);
-        let state = std::rc::Rc::clone(self.callable_ledger.as_ref()
+        let state = std::rc::Rc::clone(self.source_ledger.callable()
             .ok_or("[freeze:contract][argument-expression/state]")?);
         let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
         let port = std::cell::RefCell::new(self);
@@ -118,7 +118,7 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         self.validate_current_call_argument_site_v1(site)?;
         let owner = self.callable_owner_v1().ok_or("[freeze:contract][static-execution/argument-read-owner]")?;
         if binding.owner() != owner { return Err("[freeze:contract][static-execution/argument-binding-owner]".into()); }
-        self.callable_ledger.as_ref().ok_or("[freeze:contract][static-execution/argument-read-state]")?
+        self.source_ledger.callable().ok_or("[freeze:contract][static-execution/argument-read-state]")?
             .borrow_mut().take_exact_lexical_read(owner, site.node(), binding)
             .map_err(|error| format!("[freeze:contract][static-execution/argument-read/{error:?}]"))
     }
@@ -186,8 +186,7 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
             return Ok(None);
         }
         let state = self
-            .callable_ledger
-            .as_ref()
+            .source_ledger.callable()
             .ok_or_else(|| "[freeze:contract][local-call/state-missing]".to_owned())?;
         let value =
             crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_local(
@@ -249,8 +248,7 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
             &ledger,
         )?;
         let state = self
-            .callable_ledger
-            .as_ref()
+            .source_ledger.callable()
             .ok_or_else(|| "[freeze:contract][borrowed-static/local-state-missing]".to_owned())?
             .clone();
         let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
@@ -329,8 +327,7 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         self.consume_lexical_self_receiver_locator_v1(&row)?;
         let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
         let state = std::rc::Rc::clone(self
-            .callable_ledger
-            .as_ref()
+            .source_ledger.callable()
             .ok_or_else(|| "[freeze:contract][lexical-instance-call/state-missing]".to_owned())?);
         let mut state = state.borrow_mut();
         let value = if nullable || (handle && ledger.uses_object_packet_protocol_v1(&row)?) {
@@ -407,8 +404,7 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
             let read =
                 read.ok_or_else(|| "[freeze:contract][receiver-object/read-missing]".to_owned())?;
             let state = self
-                .callable_ledger
-                .as_ref()
+                .source_ledger.callable()
                 .ok_or_else(|| "[freeze:contract][receiver-object/state-missing]".to_owned())?;
             let value = crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_receiver_object(
                 builder, &mut state.borrow_mut(), ledger, owner, &site, row, key, receiver, read,

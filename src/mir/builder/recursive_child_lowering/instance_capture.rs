@@ -38,7 +38,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         let function = self.with_headers(|headers| {
             builder.finalize_function_draft_with_headers(prepared, headers)
         })?;
-        if let Some(ledger) = &self.callable_ledger {
+        if let Some(ledger) = self.source_ledger.callable() {
             let ledger = ledger.borrow();
             ledger.validate_finalized_construction_stores(&function)?;
             if let Some(news) = &self.ordinary_new_claim_ledger {
@@ -124,7 +124,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                         uses,
                         attrs,
                     )?;
-                    let validation = match &child.callable_ledger {
+                    let validation = match child.source_ledger.callable() {
                         Some(ledger) => ledger
                             .borrow_mut()
                             .take_finalized_construction_validation(&function)?,

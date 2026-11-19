@@ -32,7 +32,7 @@ use super::raw_invocation_source_statement_classification::{
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::recursive_child_lowering::{
     lower_raw_expression_with_recursion_guard_v1, RawInvocationChildPortV1,
-    RecursiveChildLoweringPortV1,
+    RecursiveChildLoweringPortV1, SourceLedgerV1,
 };
 use super::recursive_child_lowering_port::ScriptDirectStaticClaimIngressV1;
 use super::{CanonicalSameModuleCallableKeyV1, RawSourceLocatorV1};
@@ -48,6 +48,9 @@ mod context;
 mod ledger_statement;
 mod lineage;
 mod script_scope;
+mod source_node;
+pub(super) use source_node::binding_rebind_target_role_v1;
+use source_node::SourceNodePosition;
 mod transport_port;
 
 pub(in crate::mir::builder) use context::RawInvocationSourceContextV1;

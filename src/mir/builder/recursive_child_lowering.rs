@@ -222,6 +222,33 @@ where
     port.lower_expression(builder, input)
 }
 
+#[derive(Clone)]
+pub(in crate::mir::builder) enum SourceLedgerV1 {
+    None,
+    Script(Rc<RefCell<ScriptSemanticLoweringState>>),
+    Callable(Rc<RefCell<CallableSemanticLoweringState>>),
+}
+
+impl SourceLedgerV1 {
+    pub(in crate::mir::builder) fn script(
+        &self,
+    ) -> Option<&Rc<RefCell<ScriptSemanticLoweringState>>> {
+        match self {
+            SourceLedgerV1::Script(ledger) => Some(ledger),
+            _ => None,
+        }
+    }
+
+    pub(in crate::mir::builder) fn callable(
+        &self,
+    ) -> Option<&Rc<RefCell<CallableSemanticLoweringState>>> {
+        match self {
+            SourceLedgerV1::Callable(ledger) => Some(ledger),
+            _ => None,
+        }
+    }
+}
+
 /// Stack-owned raw-recursion capability for one module-lowering invocation.
 ///
 /// Ordinary root lowering now uses this carrier for body, statement, and
@@ -237,8 +264,7 @@ where
 pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
     pub(in crate::mir::builder) module_port: &'port mut ModuleLoweringPortV1<'collector>,
     pub(in crate::mir::builder) active_source: Option<RawInvocationSourceContextV1>,
-    pub(in crate::mir::builder) semantic_ledger: Option<Rc<RefCell<ScriptSemanticLoweringState>>>,
-    pub(in crate::mir::builder) callable_ledger: Option<Rc<RefCell<CallableSemanticLoweringState>>>,
+    pub(in crate::mir::builder) source_ledger: SourceLedgerV1,
     /// Borrowed only for the matching callable source-scope callback. This is
     /// the original resolver input used to issue exact loop membership; it is
     /// copied as a view into nested frames and restored when that scope exits.
@@ -366,8 +392,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         Self {
             module_port,
             active_source: None,
-            semantic_ledger: None,
-            callable_ledger: None,
+            source_ledger: SourceLedgerV1::None,
             source_input: None,
             active_source_loop_product: None,
             owned_array_source: None,
@@ -394,8 +419,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         RawInvocationChildPortV1 {
             module_port: &mut *self.module_port,
             active_source: self.active_source.clone(),
-            semantic_ledger: self.semantic_ledger.clone(),
-            callable_ledger: self.callable_ledger.clone(),
+            source_ledger: self.source_ledger.clone(),
             source_input: self.source_input,
             active_source_loop_product: self.active_source_loop_product.clone(),
             owned_array_source: self.owned_array_source,
@@ -501,8 +525,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site),
         );
         let ledger = self
-            .callable_ledger
-            .as_ref()
+            .source_ledger.callable()
             .ok_or_else(|| "[freeze:contract][declared-instance/state-unavailable]".to_owned())?;
         let locator = self
             .declared_instance_locator
@@ -593,8 +616,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
     pub(in crate::mir::builder) fn callable_owner_v1(
         &self,
     ) -> Option<crate::mir::resolved_semantics::FunctionOwnerIdV1> {
-        self.callable_ledger
-            .as_ref()
+        self.source_ledger.callable()
             .map(|ledger| ledger.borrow().owner())
     }
 
@@ -637,7 +659,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
                         let function = child_port.with_headers(|headers| {
                             builder.finalize_function_draft_with_headers(prepared, headers)
                         })?;
-                        if let Some(state) = &child_port.callable_ledger {
+                        if let Some(state) = child_port.source_ledger.callable() {
                             let state = state.borrow();
                             state.validate_finalized_construction_stores(&function)?;
                             if let Some(news) = &child_port.ordinary_new_claim_ledger {

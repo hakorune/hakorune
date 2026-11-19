@@ -210,8 +210,7 @@ impl super::RawInvocationChildPortV1<'_, '_> {
         claim_site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
     ) -> Result<(), String> {
         let state = self
-            .callable_ledger
-            .as_ref()
+            .source_ledger.callable()
             .ok_or("[freeze:contract][raw-ordinary-new/callable-state-missing]")?;
         let node = self
             .current_source_site_v1()
@@ -237,7 +236,7 @@ impl super::RawInvocationChildPortV1<'_, '_> {
         destination: crate::mir::ValueId,
     ) -> Result<(), String> {
         if let (Some(ledger), Some(site)) =
-            (self.callable_ledger.as_ref(), self.current_source_site_v1())
+            (self.source_ledger.callable(), self.current_source_site_v1())
         {
             ledger.borrow_mut().record_named_array_allocation(
                 &crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site),
@@ -316,8 +315,7 @@ impl super::RawInvocationChildPortV1<'_, '_> {
             crate::mir::builder::ordinary_new_admission::selected::owned_array::emit_append(
                 builder,
                 &mut self
-                    .callable_ledger
-                    .as_ref()
+                    .source_ledger.callable()
                     .expect("checked source state")
                     .borrow_mut(),
                 ledger,

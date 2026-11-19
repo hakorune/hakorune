@@ -313,7 +313,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                         let function = child_port.with_headers(|headers| {
                             builder.finalize_function_draft_with_headers(prepared, headers)
                         })?;
-                        if let Some(state) = &child_port.callable_ledger {
+                        if let Some(state) = child_port.source_ledger.callable() {
                             state
                                 .borrow()
                                 .validate_finalized_construction_stores(&function)?;

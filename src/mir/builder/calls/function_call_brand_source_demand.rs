@@ -12,7 +12,7 @@ use crate::mir::builder::raw_invocation_source_transport::{
 };
 use crate::mir::builder::raw_structured_child_scope::RawStructuredChildScopePortV1;
 use crate::mir::builder::recursive_child_lowering::{
-    RawInvocationChildPortV1, RawLegacyChildLoweringPortV1,
+    RawInvocationChildPortV1, RawLegacyChildLoweringPortV1, SourceLedgerV1,
 };
 use crate::mir::resolved_semantics::SourceNodeSiteV1;
 
@@ -87,29 +87,19 @@ impl BrandConstructorSourcePortV1 for RawInvocationChildPortV1<'_, '_> {
             return Ok(RawBrandCallAuthorityV1::UnclassifiedSource);
         };
         let context = self.current_source_context_v1();
-        if self.semantic_ledger.is_some()
-            && context
-                .as_ref()
-                .is_some_and(is_semantic_script_root_compatibility_context_v1)
-        {
-            return Ok(RawBrandCallAuthorityV1::ScriptRootParkedCompatibility);
-        }
-        if self.semantic_ledger.is_none() && self.callable_ledger.is_none() {
-            if context
-                .as_ref()
-                .is_some_and(is_raw_script_root_compatibility_context_v1)
-            {
+        let lineage = context.as_ref().and_then(compatibility_root_lineage);
+        let ledger = match (&self.source_ledger, lineage) {
+            (SourceLedgerV1::Script(_), Some(RawInvocationRootLineageV1::ScriptRoot)) => {
+                return Ok(RawBrandCallAuthorityV1::ScriptRootParkedCompatibility);
+            }
+            (SourceLedgerV1::None, Some(RawInvocationRootLineageV1::ScriptRoot)) => {
                 return Ok(RawBrandCallAuthorityV1::RawScriptRootParkedCompatibility);
             }
-            if context
-                .as_ref()
-                .is_some_and(is_raw_root_main_compatibility_context_v1)
-            {
+            (SourceLedgerV1::None, Some(RawInvocationRootLineageV1::Main(_))) => {
                 return Ok(RawBrandCallAuthorityV1::RawRootMainParkedCompatibility);
             }
-        }
-        let Some(ledger) = self.callable_ledger.clone() else {
-            return Ok(RawBrandCallAuthorityV1::UnclassifiedSource);
+            (SourceLedgerV1::Callable(ledger), _) => ledger.clone(),
+            _ => return Ok(RawBrandCallAuthorityV1::UnclassifiedSource),
         };
         let context = context
             .ok_or_else(|| "[freeze:contract][callable-brand/missing-source-context]".to_owned())?;
@@ -139,47 +129,14 @@ impl BrandConstructorSourcePortV1 for RawInvocationChildPortV1<'_, '_> {
     }
 }
 
-fn is_semantic_script_root_compatibility_context_v1(
+fn compatibility_root_lineage(
     context: &RawInvocationSourceContextV1,
-) -> bool {
+) -> Option<&RawInvocationRootLineageV1> {
     match context {
-        RawInvocationSourceContextV1::Located {
-            root: RawInvocationRootLineageV1::ScriptRoot,
-            ..
-        } => true,
+        RawInvocationSourceContextV1::Located { root, .. } => Some(root),
         RawInvocationSourceContextV1::UnlocatedCompatibility {
-            expected_lineage: Some(RawInvocationRootLineageV1::ScriptRoot),
-            ..
-        } => true,
-        _ => false,
-    }
-}
-
-fn is_raw_script_root_compatibility_context_v1(context: &RawInvocationSourceContextV1) -> bool {
-    match context {
-        RawInvocationSourceContextV1::Located {
-            root: RawInvocationRootLineageV1::ScriptRoot,
-            ..
-        }
-        | RawInvocationSourceContextV1::UnlocatedCompatibility {
-            expected_lineage: Some(RawInvocationRootLineageV1::ScriptRoot),
-            ..
-        } => true,
-        _ => false,
-    }
-}
-
-fn is_raw_root_main_compatibility_context_v1(context: &RawInvocationSourceContextV1) -> bool {
-    match context {
-        RawInvocationSourceContextV1::Located {
-            root: RawInvocationRootLineageV1::Main(_),
-            ..
-        }
-        | RawInvocationSourceContextV1::UnlocatedCompatibility {
-            expected_lineage: Some(RawInvocationRootLineageV1::Main(_)),
-            ..
-        } => true,
-        _ => false,
+            expected_lineage, ..
+        } => expected_lineage.as_ref(),
     }
 }
 
@@ -227,35 +184,29 @@ mod script_root_context_tests {
 
     #[test]
     fn only_script_root_lineage_is_named_script_compatibility() {
-        assert!(is_semantic_script_root_compatibility_context_v1(&located(
-            RawInvocationRootLineageV1::ScriptRoot,
+        use RawInvocationRootLineageV1::{Main, ScriptRoot};
+        let script = located(ScriptRoot);
+        assert_eq!(compatibility_root_lineage(&script), Some(&ScriptRoot));
+        let expected_script = RawInvocationSourceContextV1::UnlocatedCompatibility {
+            reason: RawUnlocatedPortalV1::CallObject,
+            expected_lineage: Some(ScriptRoot),
+        };
+        assert_eq!(
+            compatibility_root_lineage(&expected_script),
+            Some(&ScriptRoot)
+        );
+        let no_lineage = RawInvocationSourceContextV1::UnlocatedCompatibility {
+            reason: RawUnlocatedPortalV1::CallObject,
+            expected_lineage: None,
+        };
+        assert_eq!(compatibility_root_lineage(&no_lineage), None);
+        let main = located(Main(crate::mir::builder::RawSourceLocatorV1::for_test(
+            0,
+            "Main",
+            "main",
+            "Main.main/0",
+            0,
         )));
-        assert!(is_semantic_script_root_compatibility_context_v1(
-            &RawInvocationSourceContextV1::UnlocatedCompatibility {
-                reason: RawUnlocatedPortalV1::CallObject,
-                expected_lineage: Some(RawInvocationRootLineageV1::ScriptRoot),
-            }
-        ));
-        assert!(!is_semantic_script_root_compatibility_context_v1(
-            &RawInvocationSourceContextV1::UnlocatedCompatibility {
-                reason: RawUnlocatedPortalV1::CallObject,
-                expected_lineage: None,
-            }
-        ));
-        assert!(is_raw_script_root_compatibility_context_v1(&located(
-            RawInvocationRootLineageV1::ScriptRoot,
-        )));
-        assert!(is_raw_root_main_compatibility_context_v1(&located(
-            RawInvocationRootLineageV1::Main(crate::mir::builder::RawSourceLocatorV1::for_test(
-                0,
-                "Main",
-                "main",
-                "Main.main/0",
-                0,
-            )),
-        )));
-        assert!(!is_raw_root_main_compatibility_context_v1(&located(
-            RawInvocationRootLineageV1::ScriptRoot,
-        )));
+        assert!(matches!(compatibility_root_lineage(&main), Some(Main(_))));
     }
 }

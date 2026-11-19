@@ -56,8 +56,7 @@ impl CallableBindingMaterializationPortV1 for RawInvocationChildPortV1<'_, '_> {
             return Ok(None);
         };
         let state = self
-            .callable_ledger
-            .as_ref()
+            .source_ledger.callable()
             .ok_or_else(|| freeze("implicit-end-state-missing"))?;
         super::port_aware_function_draft_impl::ImplicitCallableEndV1::new(
             owner,
@@ -72,7 +71,7 @@ impl CallableBindingMaterializationPortV1 for RawInvocationChildPortV1<'_, '_> {
         builder: &mut MirBuilder,
         shape: CallableEntryShapeV1,
     ) -> Result<(), String> {
-        let Some(ledger) = self.callable_ledger.clone() else {
+        let Some(ledger) = self.source_ledger.callable().cloned() else {
             return Ok(());
         };
         let has_physical_formals = shape.has_physical_formals();
@@ -147,10 +146,11 @@ impl RawInvocationChildPortV1<'_, '_> {
         &mut self,
         builder: &mut MirBuilder,
         input: ASTNode,
+        role: Option<ExprChildRoleV1>,
     ) -> Result<ValueId, String> {
         if let (Some(claims), Some(state)) = (
             self.ordinary_new_claim_ledger.clone(),
-            self.callable_ledger.clone(),
+            self.source_ledger.callable().cloned(),
         ) {
             let site = self.current_callable_site_v1("rebind-expression/statement-site")?;
             let frame = claims.rebind_expression_frame_v1(state.borrow().owner(), &site)?;
@@ -176,20 +176,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                 );
             }
         }
-        let role = match &input {
-            ASTNode::Assignment { target, .. }
-                if matches!(target.as_ref(), ASTNode::Variable { .. }) =>
-            {
-                ExprChildRoleV1::AssignmentTarget
-            }
-            ASTNode::CompoundAssignment { target, .. }
-                if matches!(target.as_ref(), ASTNode::Variable { .. }) =>
-            {
-                ExprChildRoleV1::CompoundAssignmentTarget
-            }
-            ASTNode::GroupedAssignmentExpr { .. } => ExprChildRoleV1::GroupedAssignmentTarget,
-            _ => return Err(freeze("rebind-source-drift")),
-        };
+        let role = role.ok_or_else(|| freeze("rebind-source-drift"))?;
         let target_site = self
             .current_source_context_v1()
             .ok_or_else(|| freeze("rebind-parent-site"))?
@@ -221,8 +208,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             .clone()
             .ok_or_else(|| "[freeze:contract][print-expression/ledger-missing]".to_owned())?;
         let state = self
-            .callable_ledger
-            .clone()
+            .source_ledger.callable().cloned()
             .ok_or_else(|| "[freeze:contract][print-expression/state-missing]".to_owned())?;
         let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
         let port = std::cell::RefCell::new(self);
@@ -251,7 +237,7 @@ impl RawInvocationChildPortV1<'_, '_> {
     ) -> Result<Option<super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1>, String>{
         let (Some(claims), Some(state)) = (
             self.ordinary_new_claim_ledger.clone(),
-            self.callable_ledger.clone(),
+            self.source_ledger.callable().cloned(),
         ) else {
             return Ok(None);
         };
@@ -461,13 +447,7 @@ impl RawInvocationChildPortV1<'_, '_> {
     /// `New` node only gets from that issuer). Any other row is a user
     /// construction. A site without a row has no source answer, which is a
     /// contract violation, not a reason to try another route.
-    pub(super) fn issued_builtin_empty_map_construction_v1(
-        &self,
-        input: &ASTNode,
-    ) -> Result<bool, String> {
-        if self.callable_ledger.is_none() || !matches!(input, ASTNode::New { .. }) {
-            return Ok(false);
-        }
+    pub(super) fn issued_builtin_empty_map_construction_v1(&self) -> Result<bool, String> {
         let site = self.current_callable_site_v1("map-site")?;
         crate::mir::callable_semantic_batch::builtin_map_construction::issued_builtin_empty_map_new_v1(
             self.source_input.and_then(|input| input.body_shape()),
@@ -482,8 +462,7 @@ impl RawInvocationChildPortV1<'_, '_> {
     ) -> Result<ValueId, String> {
         use crate::mir::resolved_semantics::home_new_prefix::MapDestinationV1;
         let state = self
-            .callable_ledger
-            .clone()
+            .source_ledger.callable().cloned()
             .ok_or_else(|| freeze("map-no-state"))?;
         let claims = self
             .ordinary_new_claim_ledger
@@ -519,8 +498,7 @@ impl RawInvocationChildPortV1<'_, '_> {
 
     pub(super) fn read_callable_variable_v1(&self) -> Result<ValueId, String> {
         let ledger = self
-            .callable_ledger
-            .as_ref()
+            .source_ledger.callable()
             .expect("callable variable lowering requires its scoped ledger");
         let site = self.current_callable_site_v1("variable-site")?;
         ledger.borrow_mut().read_variable_retaining_return_v1(&site)
@@ -531,8 +509,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
         value: ValueId,
     ) -> Result<(), String> {
-        self.callable_ledger
-            .as_ref()
+        self.source_ledger.callable()
             .expect("callable rebind lowering requires its scoped ledger")
             .borrow_mut()
             .rebind(site, value)

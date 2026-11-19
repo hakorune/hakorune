@@ -15,11 +15,13 @@ impl RawInvocationChildPortV1<'_, '_> {
     pub(in crate::mir::builder) fn lower_script_nowait_v1(
         &mut self,
         builder: &mut MirBuilder,
-        input: ASTNode,
+        variable: String,
+        expression: ASTNode,
     ) -> Result<ValueId, String> {
         let ledger = self
-            .semantic_ledger
-            .clone()
+            .source_ledger
+            .script()
+            .cloned()
             .expect("script nowait lowering requires semantic ledger");
         let site = self
             .current_source_context_v1()
@@ -29,15 +31,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             .borrow()
             .nowait_binding(&site)
             .ok_or_else(|| "[freeze:contract][script-lexical/nowait-binding]".to_owned())?;
-        let ASTNode::Nowait {
-            variable,
-            expression,
-            ..
-        } = input
-        else {
-            unreachable!("script nowait lowering only receives Nowait")
-        };
-        let value = build_nowait_statement_with_port_v1(builder, self, variable, *expression)?;
+        let value = build_nowait_statement_with_port_v1(builder, self, variable, expression)?;
         ledger.borrow_mut().record(binding, value)?;
         Ok(value)
     }
@@ -45,19 +39,17 @@ impl RawInvocationChildPortV1<'_, '_> {
     pub(in crate::mir::builder) fn lower_script_outbox_v1(
         &mut self,
         builder: &mut MirBuilder,
-        input: ASTNode,
+        variables: Vec<String>,
     ) -> Result<ValueId, String> {
         let ledger = self
-            .semantic_ledger
-            .clone()
+            .source_ledger
+            .script()
+            .cloned()
             .expect("script Outbox lowering requires semantic ledger");
         let site = self
             .current_source_context_v1()
             .and_then(|context| context.site().cloned())
             .ok_or_else(|| "[freeze:contract][script-lexical/outbox-site]".to_owned())?;
-        let ASTNode::Outbox { variables, .. } = input else {
-            unreachable!("script Outbox lowering only receives Outbox")
-        };
         if ledger.borrow().outbox_binding_count(&site)? != variables.len() {
             return Err("[freeze:contract][script-lexical/outbox-source-drift]".to_owned());
         }

@@ -32,7 +32,7 @@ pub(super) fn emit_return(
     let claims = port.ordinary_new_claim_ledger.clone().ok_or_else(|| freeze("claim-ledger-missing"))?;
     let mut exit_prepared = false;
     let (value, read) = if let Some(source_read) = &source.read {
-        let state = port.callable_ledger.clone().ok_or_else(|| freeze("state-missing"))?;
+        let state = port.source_ledger.callable().cloned().ok_or_else(|| freeze("state-missing"))?;
         let mut state = state.borrow_mut();
         let prepared = state.prepare_exact_lexical_read(input.owner(), source_read.read().node(), source_read.binding())
             .map_err(|error| error.to_string())?;
@@ -75,7 +75,7 @@ pub(super) fn emit_return(
         (value, None)
     };
     if !exit_prepared && !claims.prepare_root_home_exit(input.owner(), source.site.node())? { return Err(freeze("call-source-missing")); }
-    let state = port.callable_ledger.clone().ok_or_else(|| freeze("state-missing"))?;
+    let state = port.source_ledger.callable().cloned().ok_or_else(|| freeze("state-missing"))?;
     let mut state = state.borrow_mut();
     // Text carriers not owned as Homes (Header/branch/transferred Residence) still owe
     // their End here; the Ends join the exit order before it is emitted.
@@ -243,7 +243,7 @@ pub(super) fn emit_call(
     let claims = port.ordinary_new_claim_ledger.clone().ok_or_else(|| freeze("claim-ledger-missing"))?;
     {
         // The Call's Fault unwind also owes the live Text carriers' Ends.
-        let state = port.callable_ledger.clone().ok_or_else(|| freeze("state-missing"))?;
+        let state = port.source_ledger.callable().cloned().ok_or_else(|| freeze("state-missing"))?;
         let state = state.borrow();
         let ends = text_carrier_ends(&claims, &state, product.call_text_carriers_v2(observation.site())?,
             &observation.prior_homes().iter().map(|home| home.binding()).collect::<Vec<_>>())?;
@@ -311,8 +311,7 @@ pub(super) fn input<'source>(
         .as_ref()
         .ok_or_else(|| freeze("claim-ledger-missing"))?;
     let state = port
-        .callable_ledger
-        .as_ref()
+        .source_ledger.callable()
         .ok_or_else(|| freeze("state-missing"))?;
     if port.callable_loop_root_scope.is_none()
         || input.owner() != product.source.source.owner()
@@ -461,7 +460,9 @@ pub(super) fn emit_binding(
             port.with_source_loop_product_v2(Rc::clone(product), |port| {
                 let source = context(port, statement.node())?;
                 port.with_prepared_child_source_v1(source, |port| {
-                    port.lower_callable_binding_rebind_v1(builder, original.node().clone())
+                    let node = original.node();
+                    let role = crate::mir::builder::raw_invocation_source_transport::binding_rebind_target_role_v1(node);
+                    port.lower_callable_binding_rebind_v1(builder, node.clone(), role)
                 })
             })
         }
