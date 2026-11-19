@@ -258,7 +258,27 @@ impl RawInvocationChildPortV1<'_, '_> {
             &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
         >,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
-        ModuleLoweringPortV1::pinned_text_backend_target_v1(&signature, target_capability)?;
+        if let Err(unavailable) =
+            ModuleLoweringPortV1::pinned_text_backend_target_v1(&signature, target_capability)
+        {
+            // Source admission takes precedence over an unavailable backend.
+            // Resolve already recorded the nested owners of this method.
+            if self.source_input.is_some_and(|input| {
+                input.forest().owners().any(|(owner, function)| {
+                    function.source_kind()
+                        == crate::mir::resolved_semantics::SemanticOwnerSourceKindV1::Lambda
+                        && input.forest().parent(owner).is_some_and(|edge| edge.parent_owner() == input.owner())
+                })
+            }) {
+                let error = super::vars::lexical_scope::LexicalScopeTransactionErrorV1::Body(
+                    super::raw_expression_dispatch::legacy_lambda_surface_retired_v1(),
+                );
+                return Err(ModuleLoweringPortChildErrorV1::Session(
+                    CanonicalFunctionSessionErrorV1::Primary(error.to_string()),
+                ));
+            }
+            return Err(unavailable);
+        }
         let function_name = admission.physical_symbol().to_owned();
         let session_name = function_name.clone();
         let box_name = admission.source_key().owner().to_owned();
