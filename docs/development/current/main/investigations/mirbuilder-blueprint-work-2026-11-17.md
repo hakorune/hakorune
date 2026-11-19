@@ -116,6 +116,27 @@ compilerの動くcodeは変更していない。coverage CLIは前回の同じbi
 - SizeClassBox.bin_size の移行を試し、元アプリの検証付き EXE は一致。後続の print 3 例と単純な return 6 例で拒否から成功へ変わったため試作を破棄した。
 - plan の loop 入口 4 → 4。MIR 本体・test の行増減は各 0。bc、複合、直の loop-break、loop-true の退役はこの境界が決まってから進める。
 
+### loop 段 6・7(2026-11-19〜20)
+
+- 段 6(`890896d144`): 検査済みの loop を、古い planner の家族なしで、残した source から下ろす。家族の再照合 9 → 0、本体 −886 行。拒否 → 成功 40 本は全部、期待の値と一致(決定 22)。`--dump-mir` だけで失敗の種類が変わった 65 本は、メンテナが承認。
+- 段 7(`beeb34e635`): 使い手 0 の直の loop-break と LoopTrue の plan の書き手を消した。plan の loop 入口 4 → 2、本体 568,945 → 567,325、拒否の名前 1,644 → 1,602。成功 → 拒否 0、失敗の種類の変化 0(廃止した `fn(...) {...}` の拒否が、Text の backend の前の検査より先に出る順へ戻した)。
+- 残る入口 2 つ(bc、複合)の使い手と理由:
+  - `HakoAllocPage.seedBlocks` の借りた field への `push`: 既存の field append の loan が、完成した RootFlow / Completion を要求し、その完成にはこの文の効果が先に要る(循環)。
+  - 型の注釈の無い値との比較(`Stage1UsingResolver` の `loop(i < n)`、`release_source` の `!= 1`): 決定 14 の実行時の検査が、まだ無い。
+  - 複合の拒否の使い手(`parser_literal_box`、`json_cur`、`json_loader` など): loop を下ろした後の、別の所で断られる。
+- 決定 14 の下調べ(実装していない): loop の外でも、型の注釈の無い値と整数を、確かめずに比べる MIR がある(固定入力 66 か所、selfhost 15 か所。順序 36 / 6、等値 30 / 9)。既存の `DynamicCarrierInteger` の Invoke と検査付き整数の ABI は、登録済みの token を検査する物。注釈の無い仮引数の型の印と値を使う所まで運び、正常 / TypeError / 後始末を表す輸送が足りない。新しい命令が要るかは未確定。**メンテナの判断が要る。**
+- 廃止した書き方の拒否は、今は 2 か所で決めている(raw dispatcher と、Text の backend の前の検査)。設計図 23 節のとおり、Resolve へ寄せる時に 1 つにする。
+
+### 正規化(設計図の決定 23、25 節。2026-11-20〜)
+
+| # | やる事 | 状態 |
+|---|---|---|
+| N-1 | `local x = e` の入口を 1 つにする。最初に、script と callable の 2 つの台帳が同時にありうるかを確かめる | 次 |
+| N-2 | N-1 の結果で、変数の読み取りか、再束縛へ | N-1 の後 |
+
+- 道案内: `design/mirbuilder-route-guide.md`。
+- 確かめ方: 編集中は、変えた所を通る入力だけ。main に入れる前に 1 度、全入力の比較・全 lib・固定 suite。**到達の地図の取り直しは、毎回はしない**(道をまとめて消した回か、数回に 1 度)。
+
 ### 文書
 
 | # | やる事 | 状態 |

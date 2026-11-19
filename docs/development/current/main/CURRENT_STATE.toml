@@ -1,9 +1,9 @@
-date = "2026-11-17"
+date = "2026-11-20"
 development_branch_ssot = "main"
 work_mode = "closeout"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "Maintainer course 2026-11-17: keep features working, split the existing MirBuilder by responsibility, delete unneeded code and tests. No second builder (the comparison builder tried on 2026-11-17 was removed). How to proceed: design/mirbuilder-blueprint.md section 14 (design, replace, audit; replaced code and its tests are deleted in the same round) and docs/development/RULES.md section 8 (deleting is safe under git; a cleanup round that does not shrink is not merged). Order and counts: investigations/mirbuilder-blueprint-work-2026-11-17.md. Cleanup rounds 1-9 landed; round 10 is delete-only. src/mir production is 640,302 lines without cfg(test); target at most 330k (ADR-003). Open: how untyped selfhost source is typed. Counted Box is provisionally adopted (ADR-003); its check is paused after stage C0. Known red: the core-method manifest guard fails on main."
+current_blocker_token = "Maintainer course (2026-11-17, kept): restructure the existing MirBuilder by responsibility and delete old routes; no second builder (design/mirbuilder-blueprint.md section 14, RULES.md section 8). Goal 2026-11-20: for each construct, one place decides the meaning, one writes MIR, one checks it independently (blueprint decision 23 and section 25; current routes in design/mirbuilder-route-guide.md). Loop: the direct driver owns loops; plan loop entries 4 -> 2 at beeb34e635; the remaining two wait on a RootFlow cycle and on decision 14 runtime checks for unannotated comparisons (maintainer decision pending). Next: normalization N-1, one entry for local x = e. Work order and counts: investigations/mirbuilder-blueprint-work-2026-11-17.md. src/mir production 567,325 lines (loop step 7 count); target at most 330k (ADR-003). Counted Box is provisionally adopted (ADR-003)."
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-blueprint.md"
@@ -17,11 +17,7 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini fixed8/8 on main at b71d33b1a4. Integrated the Sonnet stack (Opus audited): typed i64 Birth formals, new T(move x), birth(take x: T) with me.f = move x, typed String fields, one new-expression route with kept refusal causes.
-String field reads connected: print(t.f), t.f + "x", local n = t.f.length(), unannotated get() { return me.f }. Each read materializes one copy; a Fault ends field and copy once each (measured with a scratch probe, repo test owed).
-Refused for now: local s = t.f, return x.length() (Text locals too), comparing a field, String?, a : String result, String next to a typed object field, a take parameter left unstored in birth or given a fresh new (other non-storing take landed 2026-11-09). Ownership forms measured: 34 of the 129 forms the grammar accepts reach an EXE (status-index.md).
-Existing reds on main (a9aea1065e, measured): cohort 84 names, published_backend_view 12, Python v4 PASS 17 / FAIL 0 / unrunnable 4 (Bool and object actuals to untyped formals are refused), vm-reference debug build. cargo-deny waits on branch security-step1.
-Next (user order 2026-11-06, investigations/selfhost-call-order-consult-2026-11-06.md and the MirBuilder structure queue): S1 1de52b773a; S2 662b84ffa0, S2b da20665f36, S2c 44eae090aa; red-test sort 4e3bc7318d; S3a 54d389986e; chain removal bd1f3fd5ed; warn-clean b02d363920; result-contract base ef0cc09982, speed 9c3999f384, Bool claim 22a5713013, S3b B/A 421b82d74c, route f862402e71, move e1ce026a83, String 61be0127f8, object 1ba243ec53, route survey df2d91cb61, context 9c15e3b59c, result kind d54780a8aa, String entry 54181cfffd, result-kind SSOT f60b74e371, nullable b4ba7283b6, S4 loops aafc0a2abd, basic expr 1 d46b93c69b, MIR writer c3df413562, normalization 1 a303a0cc1d, String length acebaf066b, no-Fault survey 78ca1419c9, mixed equality 297ea922b3, field-read 097ba0fff4, String indexOf 5e5bf4881a, String compare 61bdc5f6b7, comparison normalization 72040b9178, basic expr 30a8e64d2b, verifier 67b78a4383, prefix join 6212cbb900, loop walk 80f2a162ee, then ssot-survey-2026-11-11.md.
+APP-boxtorrent-mini fixed suite 8/8 on main. Its earlier detail and the 2026-11-06 order list are in Git history; the current work order is current_blocker_token and investigations/mirbuilder-blueprint-work-2026-11-17.md.
 """
 next_design_card = "none"
 next_design_card_path = "none"
