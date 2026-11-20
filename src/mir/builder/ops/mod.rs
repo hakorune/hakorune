@@ -123,6 +123,7 @@ mod binary_expression_parity_tests;
 #[cfg(test)]
 mod binary_expression_raw_tests;
 pub(super) mod comparison;
+pub(in crate::mir::builder) use comparison::CompletedOrdinaryComparisonV1;
 pub(super) mod converters;
 pub(super) mod logical_shortcircuit;
 pub(in crate::mir) use logical_shortcircuit::CompletedLogicalShortCircuitV1;

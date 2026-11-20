@@ -106,6 +106,21 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         self.emit_checked_print_value_v1(builder, frame)
     }
 
+    fn borrowed_integer_comparison_source(
+        &self,
+    ) -> Result<Option<crate::mir::resolved_semantics::borrowed_integer_comparison::BorrowedIntegerComparisonSourceV1>, String> {
+        self.borrowed_integer_comparison_at_site()
+    }
+
+    fn emit_borrowed_integer_comparison(
+        &mut self,
+        builder: &mut MirBuilder,
+        source: crate::mir::resolved_semantics::borrowed_integer_comparison::BorrowedIntegerComparisonSourceV1,
+        children: (ValueId, ValueId),
+    ) -> Result<super::super::ops::CompletedOrdinaryComparisonV1, String> {
+        self.lower_borrowed_integer_comparison(builder, source, children)
+    }
+
     fn comparison_execution_plan_v1(&mut self) -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionPlanV1>, String> {
         self.source_comparison_plan_v1()
     }

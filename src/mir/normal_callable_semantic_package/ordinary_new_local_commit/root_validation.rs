@@ -669,6 +669,7 @@ impl OrdinaryNewClaimLedgerV1 {
         result.extend(self.original_borrowed_field_write_guard_bindings_v1(owner)?);
         result.extend(self.original_borrowed_array_set_bindings_v1(owner)?);
         result.extend(self.borrowed_compare_bindings_v1(owner)?);
+        self.append_borrowed_integer_checks(owner, &mut result);
         result.extend(self.borrowed_mul_bindings_v1(owner)?);
         result.extend(self.scalar_operation_bindings_v1(owner)?);
         result.extend(self.original_checked_field_bindings_v1(owner)?);

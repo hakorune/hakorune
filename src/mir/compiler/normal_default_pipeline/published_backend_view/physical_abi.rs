@@ -56,6 +56,7 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     DynamicInvocation,
     DynamicArrayGet,
     DynamicCarrierInteger,
+    DynamicBorrowedInteger,
     DynamicCarrierSubI64,
     DynamicCarrierEnd,
     DynamicCarrierArrayClaim,
@@ -132,6 +133,7 @@ impl PublishedLifecycleCheckedOperationKindV1 {
             InvokeOperation::DynamicInvocation(_) => Some(Self::DynamicInvocation),
             InvokeOperation::DynamicArrayGet { .. } => Some(Self::DynamicArrayGet),
             InvokeOperation::DynamicCarrierInteger { .. } => Some(Self::DynamicCarrierInteger),
+            InvokeOperation::DynamicBorrowedInteger { .. } => Some(Self::DynamicBorrowedInteger),
             InvokeOperation::DynamicCarrierSubI64 { .. } => Some(Self::DynamicCarrierSubI64),
             InvokeOperation::DynamicCarrierEnd { .. } => Some(Self::DynamicCarrierEnd),
             InvokeOperation::DynamicCarrierArray(operation) => Some(match operation {
@@ -718,6 +720,7 @@ fn referenced_objects(
                         | InvokeOperation::DynamicInvocation(_)
                         | InvokeOperation::DynamicArrayGet { .. }
                         | InvokeOperation::DynamicCarrierInteger { .. }
+                        | InvokeOperation::DynamicBorrowedInteger { .. }
                         | InvokeOperation::DynamicCarrierSubI64 { .. }
                         | InvokeOperation::DynamicCarrierEnd { .. }
                         | InvokeOperation::DynamicCarrierArray(_) => {}

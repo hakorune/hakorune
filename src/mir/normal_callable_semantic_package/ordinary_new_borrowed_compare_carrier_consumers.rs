@@ -109,6 +109,13 @@ impl OrdinaryNewClaimLedgerV1 {
                         .ok_or_else(|| freeze("borrowed-carrier/coverage"))?;
                     self.verify_compare_carrier_operand_loan_v1(compare.source(), loan)?;
                     let (left, right) = compare.source().operand_sites();
+                    if let Some(check) = crate::mir::verification::borrowed_integer_comparison::ComparisonBinding
+                        ::for_result(function, compare.value())
+                    {
+                        if check.source.site() != loan.binary() || check.source.read() != loan.site().site() {
+                            return Err(freeze("borrowed-carrier/checked-source"));
+                        }
+                    }
                     let (child, side) = if loan.site() == left {
                         (compare.children().0, 0)
                     } else if loan.site() == right {
@@ -199,11 +206,15 @@ fn check_group(
         compare_consumers::exact(function, copy)?;
         precedes(function, previous, copy)?;
     }
-    let MirInstruction::Compare { lhs, rhs, .. } = compare.1 else {
+    let MirInstruction::Compare { dst, lhs, rhs, .. } = compare.1 else {
         return Err(freeze("borrowed-carrier/compare-kind"));
     };
     compare_consumers::exact(function, compare)?;
     let operand = if side == 0 { lhs } else { rhs };
+    let operand = match crate::mir::verification::borrowed_integer_comparison::ComparisonBinding::for_result(function, dst) {
+        Some(comparison) if operand == comparison.extracted && comparison.tagged == entry => comparison.observed,
+        _ => operand,
+    };
     let definition = definitions
         .get(&operand)
         .ok_or_else(|| freeze("borrowed-carrier/operand"))?;

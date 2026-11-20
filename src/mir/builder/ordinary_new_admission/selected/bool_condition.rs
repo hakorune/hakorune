@@ -115,6 +115,9 @@ impl LoweredBoolConditionV1 {
                 Proof::ScheduledSourceLoopCall { .. } => {},
                 Proof::Binary { append, operands } => {
                     prefix.push(append.clone());
+                    if let Some(comparison) = crate::mir::verification::borrowed_integer_comparison::ComparisonBinding::for_result(function, node.value) {
+                        prefix.extend(comparison.support.iter().cloned());
+                    }
                     for relation in operands { relation.append_observed_bindings_v1(&mut prefix); }
                 },
                 Proof::ScalarInvocation { bindings, .. } => prefix.extend_from_slice(bindings),

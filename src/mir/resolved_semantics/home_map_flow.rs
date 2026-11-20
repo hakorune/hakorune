@@ -122,6 +122,7 @@ pub(crate) struct RootHomeFlow {
     pub(super) maps: Vec<MapHomeObservation>,
     pub(super) local_calls: Vec<LocalCallObservationV1>,
     pub(super) expression_plans: Vec<HomeExpressionPlanV1>,
+    pub(super) comparison_prefix_homes: crate::mir::resolved_semantics::borrowed_integer_comparison::ComparisonPrefixHomes,
 }
 impl RootHomeFlow {
     pub(crate) fn field_array_loop_sources(

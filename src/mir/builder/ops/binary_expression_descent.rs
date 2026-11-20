@@ -232,6 +232,7 @@ where
         ));
     }
 
+    let borrowed_integer = port.borrowed_integer_comparison_source()?;
     let comparison = port.comparison_execution_plan_v1()?;
     let source = match (
         port.prepare_binary_source_v1(&operator)?,
@@ -242,9 +243,7 @@ where
         (None, Some(mul), None) => Some(SelectedBinarySourceV1::Mul(mul)),
         (None, None, Some(scalar)) => Some(SelectedBinarySourceV1::Scalar(scalar)),
         (None, None, None) => None,
-        _ => {
-            return Err("[freeze:contract][borrowed-binary/source-overlap]".into())
-        }
+        _ => return Err("[freeze:contract][borrowed-binary/source-overlap]".into()),
     };
     let left_input = port.binary_left_input(input)?;
     let left = drive_legacy_expression_v1(builder, port, left_input)?;
@@ -255,7 +254,11 @@ where
         port.prepare_binary_operands_v1(builder, source, (left, right))?;
     }
     let mut scalar_relations = None;
-    let completed = if matches!(&source, Some(SelectedBinarySourceV1::Mul(_))) {
+    let completed = if let Some(proof) = borrowed_integer {
+        super::CompletedOrdinaryBinaryV1::Comparison(
+            port.emit_borrowed_integer_comparison(builder, proof, (left, right))?,
+        )
+    } else if matches!(&source, Some(SelectedBinarySourceV1::Mul(_))) {
         if operator != BinaryOperator::Multiply {
             return Err("[freeze:contract][borrowed-mul/operator-drift]".into());
         }

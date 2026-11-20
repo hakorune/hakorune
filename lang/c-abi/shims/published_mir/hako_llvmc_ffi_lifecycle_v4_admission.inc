@@ -118,6 +118,12 @@ static yyjson_val* lv4_borrowed_formal_parameter(hako_lv4_function_index* fn, ha
   }
   return NULL;
 }
+/* Integer extraction uses the original parameter's two incoming lanes. */
+static int lv4_original_borrowed_formal(hako_lv4_function_index* fn, uint32_t id) {
+  yyjson_val* param = lv4_borrowed_formal_parameter(fn, lv4_index_value(fn, id));
+  return param && lv4_u(param, "value") == id;
+}
+
 static int lv4_borrowed_formal_domain(hako_lv4_function_index* fn, hako_lv4_value* value, int text) {
   yyjson_val* param = lv4_borrowed_formal_parameter(fn, value);
   return value && value->kind == LV4_TAGGED && param && yyjson_is_true(yyjson_obj_get(param, "text_view")) == text;

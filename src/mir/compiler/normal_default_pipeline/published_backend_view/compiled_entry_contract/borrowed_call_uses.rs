@@ -61,6 +61,7 @@ struct FunctionUses {
     /// Source-Loop occurrences keep their full finished image in both scans.
     /// They do not establish the legacy numeric dominance cone.
     loop_compares: BTreeMap<Coordinate, MirInstruction>,
+    borrowed_integer_reads: BTreeMap<Coordinate, (ValueId, Option<(Coordinate, usize)>)>,
     mul_expected: BTreeMap<(Coordinate, usize), mul::MulOperandUse>,
     /// Dominated `+` operand admissions per formal under the same source
     /// draft; each admits exactly one distinct operand value per scan.
@@ -347,6 +348,19 @@ impl FunctionUses {
         if field_write::observe(self, tracked, views, coordinate, instruction, definitions, dominates)? { return Ok(()); }
         if array_set::observe(self, tracked, views, coordinate, instruction, definitions, dominates)? { return Ok(()); }
         match instruction {
+            MirInstruction::Invoke {
+                operation: InvokeOperation::DynamicBorrowedInteger { tagged },
+                fault_frame, ..
+            } if self.borrowed_integer_reads.get(&coordinate).is_some_and(|row| row.0 == *tagged) => {
+                if !tracked.contains_key(tagged) || tracked.contains_key(fault_frame)
+                    || views.views.contains_key(fault_frame)
+                {
+                    return Err(fault("borrowed-use/callee-or-fault-frame"));
+                }
+                if let Some(occurrence) = self.borrowed_integer_reads[&coordinate].1 {
+                    definitions.compare_uses.entry(tracked[tagged]).or_default().insert(occurrence);
+                }
+            }
             MirInstruction::Invoke { operation: InvokeOperation::HomeRelease { object, value }, fault_frame, .. }
                 if tracked.get(value).is_some_and(|formal| self.owned_formals.contains(formal)) => {
                 let formal = tracked[value];

@@ -98,13 +98,84 @@ impl super::super::MirBuilder {
             original,
         })
     }
+
+    pub(in crate::mir::builder) fn build_borrowed_integer_comparison(
+        &mut self,
+        source: crate::mir::resolved_semantics::borrowed_integer_comparison::BorrowedIntegerComparisonSourceV1,
+        tagged: ValueId,
+        observed: ValueId,
+        other: ValueId,
+        frame: ValueId,
+        unwind: Vec<crate::mir::instruction::InvokeOperation>,
+    ) -> Result<CompletedOrdinaryComparisonV1, String> {
+        use crate::mir::builder::ordinary_new_admission::selected::{
+            emit_scalar_operation_to_landing_v1,
+            root_graph::{prepare_operation_cleanup_v1, RawRootGraphWriterV1},
+        };
+        let outward = self.next_block_id();
+        let normal = self.next_block_id();
+        let mut bindings = Vec::new();
+        let (fault, _) = prepare_operation_cleanup_v1(
+            self,
+            frame,
+            outward,
+            Vec::new(),
+            unwind.clone(),
+            &[],
+            &mut bindings,
+        )?;
+        self.metadata_ctx.set_current_span(source.span());
+        let (integer, _, _) = emit_scalar_operation_to_landing_v1(
+            self,
+            &mut RawRootGraphWriterV1,
+            crate::mir::instruction::InvokeOperation::DynamicBorrowedInteger { tagged },
+            frame,
+            normal,
+            fault,
+            &mut bindings,
+        )?;
+        let dst = self.next_value_id();
+        let (lhs, rhs) = if source.tagged_on_left() {
+            (integer, other)
+        } else {
+            (other, integer)
+        };
+        let original = crate::mir::builder::emission::compare::emit_to_recorded(
+            self,
+            dst,
+            source.operator(),
+            lhs,
+            rhs,
+        )?;
+        let function = self
+            .function_state
+            .current_function
+            .as_mut()
+            .ok_or("[freeze:contract][borrowed-integer/function]")?;
+        function.metadata.borrowed_integer_comparisons.push(
+            crate::mir::verification::borrowed_integer_comparison::ComparisonBinding {
+                source,
+                tagged,
+                observed,
+                extracted: integer,
+                other,
+                result: dst,
+                support: bindings,
+                unwind,
+            },
+        );
+        Ok(CompletedOrdinaryComparisonV1 {
+            value: dst,
+            original,
+        })
+    }
 }
 
 /// Immutable physical append observation; not a semantic or source receipt.
 #[derive(Debug)]
 pub(in crate::mir) struct CompletedOrdinaryComparisonV1 {
-    pub(super) value: ValueId,
-    original: (crate::mir::BasicBlockId, MirInstruction),
+    pub(in crate::mir::builder) value: ValueId,
+    pub(in crate::mir::builder) original: (crate::mir::BasicBlockId, MirInstruction),
 }
 impl CompletedOrdinaryComparisonV1 {
     pub(in crate::mir::builder) fn original(&self) -> &(crate::mir::BasicBlockId, MirInstruction) {

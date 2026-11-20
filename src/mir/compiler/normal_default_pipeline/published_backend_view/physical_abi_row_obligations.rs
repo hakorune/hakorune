@@ -89,6 +89,12 @@ pub(super) fn issue_diagnostic_sites(
     for (function_ordinal, physical_function) in program.functions().iter().enumerate() {
         let function =
             u32::try_from(function_ordinal).map_err(|_| fault("site-function-overflow"))?;
+        let mut borrowed_compares = crate::mir::verification::borrowed_integer_comparison
+            ::verified_sites(physical_function.function())
+            .map_err(|_| fault("site-borrowed-comparison-source"))?
+            .into_iter()
+            .map(|(coordinate, _)| coordinate)
+            .collect::<BTreeSet<_>>();
         for block in physical_function.blocks() {
             for row in block
                 .instructions()
@@ -101,6 +107,11 @@ pub(super) fn issue_diagnostic_sites(
                 else {
                     continue;
                 };
+                if matches!(row.instruction(), MirInstruction::Invoke {
+                    operation: crate::mir::instruction::InvokeOperation::DynamicBorrowedInteger { .. }, ..
+                }) && !borrowed_compares.remove(&(block.id(), row.index() as usize)) {
+                    return Err(fault("site-borrowed-comparison-coordinate"));
+                }
                 let coordinate = (function, block.id().0, row.index());
                 if !coordinates.insert(coordinate) {
                     return Err(fault("site-coordinate-duplicate"));
@@ -114,6 +125,9 @@ pub(super) fn issue_diagnostic_sites(
                     site,
                 });
             }
+        }
+        if !borrowed_compares.is_empty() {
+            return Err(fault("site-borrowed-comparison-unpublished"));
         }
     }
     // Ordinary Calls may require this ABI without any checked operation.

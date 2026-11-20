@@ -628,6 +628,10 @@ pub struct FunctionMetadata {
         >,
     >,
 
+    /// Resolved comparison sites matched against the finished Invoke and Compare.
+    pub(in crate::mir) borrowed_integer_comparisons:
+        Vec<crate::mir::verification::borrowed_integer_comparison::ComparisonBinding>,
+
     /// Executable parameter-entry semantic contracts rebuilt from declaration
     /// evidence during semantic refresh.
     pub parameter_entry_contracts: Vec<ParameterEntryContract>,

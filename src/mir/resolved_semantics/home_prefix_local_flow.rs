@@ -10,6 +10,7 @@ use super::{
 };
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+use crate::mir::resolved_semantics::borrowed_integer_comparison;
 use std::collections::{BTreeMap, BTreeSet};
 #[path = "home_call_entry_transfer.rs"]
 mod call_entry_transfer;
@@ -264,6 +265,8 @@ pub(super) struct PrefixLocalFlow<'source> {
     nonnull: std::collections::BTreeSet<BindingRefV1>,
     // Branch clones share source inventory, never the path-sensitive local classes.
     expression_plans: std::rc::Rc<std::cell::RefCell<Vec<super::HomeExpressionPlanV1>>>,
+    comparison_sources: std::rc::Rc<borrowed_integer_comparison::SourcesByStatement>,
+    comparison_prefix_homes: std::rc::Rc<std::cell::RefCell<borrowed_integer_comparison::ComparisonPrefixHomes>>,
     source_value_class_facts: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::SourceValueClassFactsV1>>,
 }
 
@@ -322,8 +325,24 @@ impl<'source> PrefixLocalFlow<'source> {
             scalar_field_reads: BTreeMap::new(),
             nonnull: std::collections::BTreeSet::new(),
             expression_plans: Default::default(),
+            comparison_sources: std::rc::Rc::new(borrowed_integer_comparison::sources_by_statement(input)),
+            comparison_prefix_homes: Default::default(),
             source_value_class_facts,
         }
+    }
+
+    pub(super) fn observe_comparison_prefix_homes(
+        &self, statement: &SourceStmtSiteV1, homes: &[LiveHomeV1],
+    ) {
+        if let Some(comparisons) = self.comparison_sources.get(statement) {
+            borrowed_integer_comparison::record_prefix_homes(
+                comparisons, homes, &mut self.comparison_prefix_homes.borrow_mut(),
+            );
+        }
+    }
+
+    pub(super) fn comparison_prefix_homes(&self) -> borrowed_integer_comparison::ComparisonPrefixHomes {
+        self.comparison_prefix_homes.borrow().clone()
     }
 
     pub(super) fn expression_installation(
@@ -550,3 +569,11 @@ mod named_array;
 mod received_call;
 #[path = "home_prefix_local_flow_shared.rs"]
 mod shared;
+
+impl super::RootHomeFlow {
+    pub(crate) fn comparison_prefix(
+        &self, site: &OwnedExprSiteV1,
+    ) -> Option<&crate::mir::resolved_semantics::borrowed_integer_comparison::ComparisonPrefix> {
+        self.comparison_prefix_homes.get(site)?.as_ref()
+    }
+}

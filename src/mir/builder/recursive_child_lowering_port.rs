@@ -159,6 +159,21 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         Err("[freeze:contract][print-expression/consumer-unavailable]".into())
     }
 
+    fn borrowed_integer_comparison_source(
+        &self,
+    ) -> Result<Option<crate::mir::resolved_semantics::borrowed_integer_comparison::BorrowedIntegerComparisonSourceV1>, String> {
+        Ok(None)
+    }
+
+    fn emit_borrowed_integer_comparison(
+        &mut self,
+        _builder: &mut MirBuilder,
+        _source: crate::mir::resolved_semantics::borrowed_integer_comparison::BorrowedIntegerComparisonSourceV1,
+        _children: (ValueId, ValueId),
+    ) -> Result<super::ops::CompletedOrdinaryComparisonV1, String> {
+        Err("[freeze:contract][borrowed-integer/lowering-port]".into())
+    }
+
     fn comparison_execution_plan_v1(&mut self) -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionPlanV1>, String> { Ok(None) }
 
     fn prepare_ordinary_scalar_source_v1(

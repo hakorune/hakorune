@@ -439,6 +439,12 @@ impl EmittedBoolConditionProjectionV1 {
                         }
                         _ => return Err(freeze("bool-condition/operator-append")),
                     };
+                    let (a, b) = match crate::mir::verification::borrowed_integer_comparison::ComparisonBinding::for_result(function, node.value) {
+                        Some(comparison) if comparison.source.site().site() == original.site() =>
+                            comparison.original_operands(),
+                        Some(_) => return Err(freeze("bool-condition/operator-source")),
+                        None => (a, b),
+                    };
                     if operands[0].values() != (lhs, a) || operands[1].values() != (rhs, b) {
                         return Err(freeze("bool-condition/ordered-operands"));
                     }
