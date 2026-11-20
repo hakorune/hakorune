@@ -3,9 +3,7 @@
 //! These products carry identity and sealed physical topology only. They do
 //! not resolve source names, allocate MIR values, create blocks, or write PHI.
 
-use crate::mir::loop_recipe_contract::{
-    LoopBindingKeyV1, LoopValueKeyV1, VerifiedLoopPhysicalInputV1,
-};
+use crate::mir::loop_recipe_contract::{LoopBindingKeyV1, LoopValueKeyV1};
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
 use crate::mir::BasicBlockId;
 #[cfg(test)]
@@ -171,15 +169,6 @@ impl VerifiedLoopPhysicalRolePlanV1 {
     pub(in crate::mir::builder) fn rows(&self) -> &[(LoopPhysicalRoleV1, BasicBlockId)] {
         &self.rows
     }
-}
-
-pub(in crate::mir::builder) fn direct_accum_physical_input_with_relations(
-    product: crate::mir::loop_recipe_contract::VerifiedDirectAccumRecipeProductV1,
-) -> (
-    VerifiedLoopPhysicalInputV1,
-    Box<[crate::mir::loop_recipe_contract::VerifiedLoopRecipeBindingRelationV1]>,
-) {
-    VerifiedLoopPhysicalInputV1::from_direct_accum_with_relations(product)
 }
 
 #[cfg(test)]

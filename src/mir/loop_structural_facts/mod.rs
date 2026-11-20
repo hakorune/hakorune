@@ -2,13 +2,10 @@
 //!
 //! See `README.md` for the authority and caller-zero contract.
 
-mod direct_accum_effect_plan;
 mod direct_accum_exclusivity;
 mod direct_accum_observation;
 pub(crate) mod generic_g0;
 mod generic_g0_observation;
-#[cfg(test)]
-mod generic_resolved_carrier_facts_snapshot;
 mod loop_cond_break_continue_observation;
 mod loop_cond_break_continue_source;
 mod loop_true_break_continue_observation;
@@ -32,10 +29,6 @@ pub(crate) use resolved_source_adapter::{
 #[cfg(test)]
 pub(crate) use resolved_source_adapter::projection_for_test;
 
-pub(crate) use direct_accum_effect_plan::{
-    DirectAccumBindingEffectEntryV1, DirectAccumBindingEffectRoleV1,
-    VerifiedDirectAccumBindingEffectPlanV1,
-};
 pub(crate) use direct_accum_exclusivity::DirectAccumDisjointnessRejectV1;
 pub(crate) use direct_accum_observation::{
     DirectAccumObservationCoverageV1, DirectAccumObservationModeV1,
@@ -46,10 +39,6 @@ pub(crate) use generic_g0_observation::{
     GenericG0ObservationCoverageV1, GenericG0ObservationModeV1, GenericG0SourceAttemptOutcomeV1,
     GenericG0SourceDeclineV1, GenericG0SourceIdentityV1, GenericG0SourceRejectV1,
     GenericG0SourceUnresolvedV1, VerifiedGenericG0SourceAttemptV1,
-};
-#[cfg(test)]
-pub(crate) use generic_resolved_carrier_facts_snapshot::{
-    issue_generic_resolved_carrier_facts_v1, ResolvedCarrierDispositionV1,
 };
 pub(crate) use loop_cond_break_continue_observation::{
     LoopCondObservationCoverageV1, LoopCondObservationModeV1, LoopCondSourceAttemptOutcomeV1,

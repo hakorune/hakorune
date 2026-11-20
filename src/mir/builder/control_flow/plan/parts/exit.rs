@@ -152,18 +152,6 @@ pub(in crate::mir::builder) fn lower_return_stmt_with_effects(
     Ok(plans)
 }
 
-/// Build a CoreExitPlan::Return (for ExitIf / low-level usage).
-pub(in crate::mir::builder) fn build_return_exit_plan(
-    value_id: crate::mir::ValueId,
-) -> CoreExitPlan {
-    CoreExitPlan::Return(Some(value_id))
-}
-
-/// Build a return-only exit plan (no prelude).
-pub(in crate::mir::builder) fn build_return_only(value_id: crate::mir::ValueId) -> LoweredRecipe {
-    CorePlan::Exit(build_return_exit_plan(value_id))
-}
-
 #[track_caller]
 pub(in crate::mir::builder) fn build_continue_with_phi_args<K: Ord + std::fmt::Display>(
     builder: &MirBuilder,
