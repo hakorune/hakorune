@@ -6,8 +6,8 @@ use nyash_rust::runtime::dynamic_invocation::{
 };
 use std::{ffi::c_void, mem::size_of};
 
-const TAGGED: u32 = 1;
-const INTEGER: u32 = 2;
+pub(super) const TAGGED: u32 = 1;
+pub(super) const INTEGER: u32 = 2;
 const BOOL: u32 = 3;
 const CARRIER: u32 = 4;
 const DYNAMIC_INVOCATION_FAULT: u32 = 400;
@@ -20,7 +20,7 @@ pub(super) struct Operand {
     pub payload: u64,
 }
 
-unsafe fn frame<'a>(storage: *mut c_void) -> Result<&'a mut FaultFrame, Status> {
+pub(super) unsafe fn frame<'a>(storage: *mut c_void) -> Result<&'a mut FaultFrame, Status> {
     if storage.is_null() || !storage.cast::<FaultFrame>().is_aligned() {
         return Err(Status::InvalidContract);
     }
@@ -32,7 +32,7 @@ unsafe fn frame<'a>(storage: *mut c_void) -> Result<&'a mut FaultFrame, Status> 
     Ok(frame)
 }
 
-fn record_failure(frame: &mut FaultFrame, site: u64, failure: DynamicInvocationFailureV1) -> u32 {
+pub(super) fn record_failure(frame: &mut FaultFrame, site: u64, failure: DynamicInvocationFailureV1) -> u32 {
     let code = match failure {
         DynamicInvocationFailureV1::InvalidCarrier => 1,
         DynamicInvocationFailureV1::MissingProvider => 2,
@@ -78,7 +78,7 @@ unsafe fn decode(value: &Operand) -> Result<DynamicInvocationValueV1, Status> {
     }
 }
 
-unsafe fn operand<'a>(value: *const Operand) -> Result<&'a Operand, Status> {
+pub(super) unsafe fn operand<'a>(value: *const Operand) -> Result<&'a Operand, Status> {
     if value.is_null() || !value.is_aligned() {
         return Err(Status::InvalidContract);
     }

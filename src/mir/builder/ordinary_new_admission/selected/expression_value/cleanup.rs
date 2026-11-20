@@ -298,6 +298,35 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn materialize_tex
     Ok(())
 }
 
+/// A typed destination checks the original Dynamic result without consuming
+/// the carrier. The common cleanup still owns its End on both edges.
+pub(in crate::mir::builder::ordinary_new_admission::selected) fn check_i64_destination_v1(
+    builder: &mut MirBuilder,
+    expression: &mut EmittedExpressionValueV1,
+) -> Result<(), String> {
+    let Operand::DynamicCarrier(carrier) = expression.value.as_operand()? else {
+        return Err(freeze("expression/scalar-continuation-result"));
+    };
+    if expression.purpose_acquisition.is_some() {
+        return Err(freeze("expression/scalar-continuation-result"));
+    }
+    let pending = FaultCleanupPlanV1::pending(&expression.body.temporaries, &expression.body.homes)?;
+    let (value, result, pair) = emit_scalar_operation_with_pending_v1(
+        builder,
+        &mut RawRootGraphWriterV1,
+        InvokeOperation::DynamicCarrierInteger { carrier: *carrier },
+        expression.body.required_fault_frame_v1()?,
+        &pending,
+        &mut expression.body.bindings,
+    )?;
+    if result != crate::mir::instruction::InvokeNormalResultKind::I64 {
+        return Err(freeze("expression/scalar-continuation-result"));
+    }
+    expression.purpose_acquisition = Some(pair);
+    expression.value = Operand::NormalInteger(value).into();
+    Ok(())
+}
+
 pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_rebind_continuation(
     builder: &mut MirBuilder,
     expression: &mut EmittedExpressionValueV1,
@@ -357,7 +386,7 @@ fn finish_continuation(
         &mut expression.body,
         residence,
         displaced,
-        expression.purpose_acquisition.is_some(),
+        residence.is_some() && expression.purpose_acquisition.is_some(),
     )
 }
 

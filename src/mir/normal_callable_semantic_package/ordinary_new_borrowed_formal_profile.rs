@@ -102,6 +102,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
     app_main_slot: Option<u32>,
     app_main: Option<&BorrowedAppMainSourceLoanV1<'_>>,
     dynamic_slot: Option<u32>,
+    dynamic_source_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
     entry_home_loans: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
     local_candidates: &BTreeMap<
         u32,
@@ -404,7 +405,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         constructors,
         callable_result_classes,
         array_i64_fields,
-        &original_inventory, field_write_claims, original_returns.clone(),
+        &original_inventory, field_write_claims, original_returns.clone(), dynamic_source_calls,
     );
     if needs.is_ok() {
         let max_steps = match &needs { Ok(rows) => rows.len(), Err(_) => 0 };
@@ -416,7 +417,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 original_inventory = build_original_inventory(&needs);
                 if recheck_source_graphs(&mut needs, &mut original_inventory) {
                     pending = prepare_pending_results_v1(batch, selected, contracts, &definitions, &needs, constructors,
-                        callable_result_classes, array_i64_fields, &original_inventory, field_write_claims, original_returns.clone());
+                        callable_result_classes, array_i64_fields, &original_inventory, field_write_claims, original_returns.clone(), dynamic_source_calls);
                 }
                 // This graph has not joined the previous graph's summaries.
                 previous.clear();
@@ -453,7 +454,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 array_i64_fields,
                 &original_inventory,
                 field_write_claims,
-                original_returns.clone(),
+                original_returns.clone(), dynamic_source_calls,
             );
         }
     }

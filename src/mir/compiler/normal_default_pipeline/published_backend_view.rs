@@ -181,6 +181,7 @@ pub(crate) struct PublishedMirBackendView<'module> {
     has_lifecycle_instructions: bool,
     pub(super) has_non_lifecycle_unsupported: bool,
     pub(super) lifecycle_storage_profile: Option<&'module PublishedObjectStorageProfileV1>,
+    program_dispatch: Option<std::rc::Rc<physical_program::dispatch::ProgramDispatchV1>>,
 }
 
 impl<'module> PublishedMirBackendView<'module> {
@@ -422,6 +423,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 has_lifecycle_instructions,
                 has_non_lifecycle_unsupported,
                 lifecycle_storage_profile: None,
+                program_dispatch: None,
             });
         }
         if static_method_calls.is_empty()
@@ -446,6 +448,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 has_lifecycle_instructions,
                 has_non_lifecycle_unsupported,
                 lifecycle_storage_profile: None,
+                program_dispatch: None,
             });
         }
         Ok(Self {
@@ -462,6 +465,7 @@ impl<'module> PublishedMirBackendView<'module> {
             has_lifecycle_instructions,
             has_non_lifecycle_unsupported,
             lifecycle_storage_profile: None,
+            program_dispatch: None,
         })
     }
 

@@ -116,6 +116,9 @@ pub(crate) fn emit_lifecycle_physical_abi_json(
 ) -> Result<String, String> {
     let mut root = emit_lifecycle_physical_program_value(input.program(), Some(input))?;
     let object = root.as_object_mut().ok_or_else(|| fault("program-root"))?;
+    if let Some(rows) = input.program().dynamic_dispatch_wire_v1(input.has_program_dispatch_layouts_v1())? {
+        object.insert("dynamic_dispatch".into(), Value::Array(rows));
+    }
     object.insert(
         "process_result_site".into(),
         json!(input.process_result_site()),

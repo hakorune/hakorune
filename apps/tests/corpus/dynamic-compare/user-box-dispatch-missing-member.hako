@@ -1,0 +1,36 @@
+box First {
+  birth() { }
+  score(value: i64): i64 {
+    print(11)
+    return value + 100
+  }
+}
+
+box Second {
+  birth() { }
+  score(value: i64) {
+    print(22)
+    return value + 200
+  }
+}
+
+box Dispatch {
+  birth() { }
+  forward(receiver): i64 {
+    return receiver.score(40)
+  }
+}
+
+box Missing {
+  birth() { }
+}
+
+static box Main {
+  main() {
+    local dispatcher = new Dispatch()
+    local third = new Missing()
+    local result = dispatcher.forward(third)
+    print(result)
+    return 0
+  }
+}

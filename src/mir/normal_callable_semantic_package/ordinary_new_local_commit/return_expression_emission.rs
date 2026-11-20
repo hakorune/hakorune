@@ -9,6 +9,7 @@ pub(crate) struct ReturnExpressionContractV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) value:
         ValueId,
     pub(super) residence: Option<ReturnExpressionResidenceV1>,
+    checked_scalar: Option<[(BasicBlockId, MirInstruction); 2]>,
     after_residency: Option<crate::mir::builder::BindingValueObservationV2>,
 }
 impl super::call_entry::ExpressionEmissionSourceV1 for ReturnExpressionContractV1 {
@@ -52,6 +53,12 @@ impl super::ExpressionEmissionV1<ReturnExpressionContractV1> {
         ) -> Result<(), String>,
     ) -> Result<(), String> {
         self.expression().visit_calls_v1(visit)
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn checked_scalar_operation_v1(
+        &self,
+    ) -> Option<&(BasicBlockId, MirInstruction)> {
+        self.contract.checked_scalar.as_ref().map(|pair| &pair[0])
     }
 
     pub(super) fn has_call_binding_v1(
@@ -124,7 +131,7 @@ impl super::ExpressionEmissionV1<ReturnExpressionContractV1> {
         Ok(pair)
     }
 
-    pub(super) fn validate(
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate(
         &self,
         context: CallValidationContextV1<'_>,
         function: &MirFunction,
@@ -167,7 +174,7 @@ impl super::ExpressionEmissionV1<ReturnExpressionContractV1> {
             self.contract
                 .residence
                 .as_ref()
-                .and_then(|row| row.materialize.as_ref()),
+                .and_then(|row| row.materialize.as_ref()).or(self.contract.checked_scalar.as_ref()),
         )?;
         let recorded = projection
             .map(|projection| projection.bindings(&self.original))
@@ -185,7 +192,7 @@ impl super::ExpressionEmissionV1<ReturnExpressionContractV1> {
                 displaced.as_ref(),
                 row.materialize.as_ref(),
             )?,
-            None => expression.validate_scalar_continuation_v1(
+            None => expression.validate_local_continuation_with_purpose_v1(
                 context,
                 function,
                 projection,
@@ -193,6 +200,8 @@ impl super::ExpressionEmissionV1<ReturnExpressionContractV1> {
                 &self.terminal,
                 &self.continuation,
                 None,
+                None,
+                self.contract.checked_scalar.as_ref(),
             )?,
         };
         if projection.is_none() {
@@ -202,6 +211,9 @@ impl super::ExpressionEmissionV1<ReturnExpressionContractV1> {
                     ordered.extend(pair.iter().cloned());
                 }
                 ordered.push(row.install.clone());
+            }
+            if let Some(pair) = &self.contract.checked_scalar {
+                ordered.extend(pair.iter().cloned());
             }
             ordered.extend(self.terminal.iter().cloned());
             expression.validate_original_scope(
@@ -264,6 +276,21 @@ impl RootHomeCleanupOrderV1 {
     }
 }
 impl OrdinaryNewClaimLedgerV1 {
+    /// Bare MIR may discard this ledger only if its calls have no checked
+    /// Dynamic receiver loan that must reach the source-bound verifier.
+    pub(in crate::mir) fn has_dynamic_receiver_source_uses_v1(&self) -> bool {
+        self.root_exits.borrow().values().any(|progress| {
+            let order = match progress {
+                RootHomeExitProgress::Emitted { order, .. }
+                | RootHomeExitProgress::Finalized(order) => order,
+                _ => return false,
+            };
+            order.return_expression_v1().is_some_and(|expression| {
+                expression.dynamic_calls_v1().next().is_some()
+            })
+        })
+    }
+
     pub(in crate::mir) fn retain_return_expression_v1(
         &self,
         source: std::rc::Rc<
@@ -294,6 +321,11 @@ impl OrdinaryNewClaimLedgerV1 {
             expression_class::ExpressionValueClassV1 as Class,
             expression_projection::ExpressionLeafClassV1 as Leaf,
         };
+        let checked_scalar = if source.root_class() == Leaf::Value(Class::Dynamic) {
+            materialize.clone()
+        } else {
+            None
+        };
         let residence = match source.root_class() {
             Leaf::Value(Class::String) => {
                 if installs.len() != 1
@@ -308,6 +340,8 @@ impl OrdinaryNewClaimLedgerV1 {
                     materialize,
                 })
             }
+            Leaf::Value(Class::Dynamic)
+                if installs.is_empty() && checked_scalar.is_some() && after_residency.is_none() => None,
             Leaf::Value(Class::I64 | Class::Bool)
                 if installs.is_empty() && materialize.is_none() && after_residency.is_none() =>
             {
@@ -318,6 +352,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let packet = super::ExpressionEmissionV1::from_body(
             ReturnExpressionContractV1 {
                 residence,
+                checked_scalar,
                 after_residency,
                 source: source.clone(),
                 value,

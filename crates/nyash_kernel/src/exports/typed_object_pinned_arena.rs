@@ -242,6 +242,7 @@ impl DirectSlotObjectV0Box {
             fields.push(cell.to_typed_slot()?);
         }
         Some(TypedSlotObject {
+            dispatch: None,
             type_id: header.type_id,
             fields,
         })

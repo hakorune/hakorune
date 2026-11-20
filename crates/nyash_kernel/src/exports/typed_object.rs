@@ -7,7 +7,7 @@ mod types;
 pub(crate) use types::{
     default_layout_fields, field_get_hii_dispatch, field_set_hii_dispatch, handle_to_index,
     normalize_field_count, normalize_slot, typed_layouts, TypedSlot, TypedSlotLayout,
-    TypedSlotObject, TypedSlotStorage, TypedSlotValue, ObjectResidenceOutcomeV1,
+    DispatchResidence, TypedSlotObject, TypedSlotStorage, TypedSlotValue, ObjectResidenceOutcomeV1,
     DynamicFieldValueV1, DynamicFieldStoredV1, DynamicFieldEndDescriptorV1,
 };
 
@@ -92,7 +92,7 @@ pub extern "C" fn nyash_object_new_typed_hi(type_id: i64, field_count: i64) -> i
         .into_iter()
         .map(TypedSlot::new)
         .collect();
-    backend_new_typed_object(TypedSlotObject { type_id, fields }).unwrap_or(0)
+    backend_new_typed_object(TypedSlotObject { type_id, fields, dispatch: None }).unwrap_or(0)
 }
 
 #[export_name = "nyash.object.new_typed_h"]

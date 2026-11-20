@@ -15,6 +15,7 @@ pub(crate) struct ExpressionEmissionV1<C> {
         Box<[Option<EvaluatedExpressionValueV1>]>,
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) calls:
         Box<[Rc<EmittedLexicalCallProjectionV1>]>,
+    dynamic_calls: Box<[Rc<crate::mir::normal_callable_semantic_package::EmittedDynamicInvocationCallProjectionV1>]>,
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) path_reads:
         Box<[Rc<crate::mir::builder::ExactLexicalReadV1>]>,
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) reference_reads:
@@ -52,6 +53,7 @@ impl<C: ExpressionEmissionSourceV1> ExpressionEmissionV1<C> {
             contract,
             values: body.values.into_boxed_slice(),
             calls: body.calls.into_boxed_slice(),
+            dynamic_calls: body.dynamic_calls.into_boxed_slice(),
             path_reads: body.path_reads.into_boxed_slice(),
             reference_reads: body.reference_reads,
             original: body.bindings,
@@ -62,6 +64,12 @@ impl<C: ExpressionEmissionSourceV1> ExpressionEmissionV1<C> {
             root_fault: body.root_cleanup.and_then(|(_, fault)| fault),
         }
     }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn dynamic_calls_v1(
+        &self,
+    ) -> impl Iterator<Item = &crate::mir::normal_callable_semantic_package::EmittedDynamicInvocationCallProjectionV1> {
+        self.dynamic_calls.iter().map(Rc::as_ref)
+    }
+
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn expression(
         &self,
     ) -> super::expression_projection::ExpressionPhysicalProjectionRefV1<'_> {
@@ -73,6 +81,7 @@ impl<C: ExpressionEmissionSourceV1> ExpressionEmissionV1<C> {
             &self.reference_reads,
             &self.original,
         )
+        .with_dynamic_calls_v1(&self.dynamic_calls)
         .with_inline_range_v1(self.inline_range)
         .with_root_fault_v1(self.root_fault)
     }

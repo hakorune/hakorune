@@ -56,7 +56,7 @@ impl<'module> PublishedMirBackendView<'module> {
                     );
                 }
             }
-            for key in participants.keys() {
+            for key in participants.keys().chain(self.dynamic_provider_keys_v1()) {
                 let symbol = self
                     .module()
                     .canonical_callable_definition_symbol(key)
@@ -145,6 +145,12 @@ impl<'module> PublishedMirBackendView<'module> {
                 }
                 std::collections::btree_map::Entry::Occupied(entry) if entry.get() == result => {}
                 _ => return Err(fault("ordinary-participant-result-drift")),
+            }
+        }
+        for key in self.dynamic_provider_keys_v1() {
+            if ordinary_results.insert(key.clone(), InvokeCallResultKind::I64)
+                .is_some_and(|prior| prior != InvokeCallResultKind::I64) {
+                return Err(fault("dynamic-dispatch-result-conflict"));
             }
         }
         for (key, result) in &ordinary_results {
@@ -308,6 +314,7 @@ impl<'module> PublishedMirBackendView<'module> {
         Ok(PublishedLifecyclePhysicalProgramV1 {
             functions: functions.into_boxed_slice(),
             handoff,
+            dispatch: self.program_dispatch.clone(),
         })
     }
 }

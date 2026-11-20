@@ -113,12 +113,16 @@ pub unsafe extern "C" fn borrowed_integer_payload(
         Ok(frame) => frame,
         Err(status) => return status as u32,
     };
-    let result = if tag == 4 && payload != 0 && payload % std::mem::align_of::<Operand>() as u64 == 0 {
-        // This borrow-only V4 tag denotes a live Text descriptor, which the
-        // older substring integer operand wire format does not carry.
-        Err(IntegerOperandFailure::TypeError)
-    } else {
-        tagged_integer(tag, payload)
+    let result = match tag {
+        // The V4 borrowed formal carries Text and program-owned Objects in
+        // addition to the tags in the substring operand descriptor.
+        4 if payload != 0 && payload % std::mem::align_of::<Operand>() as u64 == 0 => {
+            Err(IntegerOperandFailure::TypeError)
+        }
+        super::checked_program_dispatch::TYPED_STORE_BORROW if (payload as i64) < 0 => {
+            Err(IntegerOperandFailure::TypeError)
+        }
+        _ => tagged_integer(tag, payload),
     };
     match result {
         Ok(value) => {

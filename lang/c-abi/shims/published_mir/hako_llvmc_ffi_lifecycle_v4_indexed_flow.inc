@@ -318,11 +318,8 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           !index || index->kind != LV4_I64) return 0;
       normal[bi] = LV4_DYNAMIC_CARRIER_LIVE;
     } else if (lv4_is(op, "kind", "dynamic_invoke")) {
-      yyjson_val* arguments = yyjson_obj_get(op, "arguments");
       if ((fi && !ordinary && !birth) || birth || faulted || state[bi] ||
-          !lv4_dynamic_operand_live(fn, yyjson_obj_get(op, "receiver"), state)) return 0;
-      for (size_t i = 0; i < yyjson_arr_size(arguments); i++)
-        if (!lv4_dynamic_operand_live(fn, yyjson_arr_get(arguments, i), state)) return 0;
+          !lv4_dynamic_invoke_operands_live(in, fn, op, state)) return 0;
       normal[bi] = LV4_DYNAMIC_CARRIER_LIVE;
     } else if (lv4_is(op, "kind", "dynamic_carrier_integer")) {
       hako_lv4_value* carrier = lv4_index_value(fn, lv4_u(op, "carrier"));

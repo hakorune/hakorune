@@ -65,6 +65,9 @@ static int lv4_invocation_operand_emit(FILE* f, yyjson_val* operand,
   } else if (lv4_is(operand, "kind", "tagged_dynamic")) {
     kind = 1; snprintf(tag_value, sizeof(tag_value), "%%k%u", value); tag = tag_value;
     snprintf(payload_value, sizeof(payload_value), "%%v%u", value); payload = payload_value;
+  } else if (lv4_is(operand, "kind", "borrowed_typed_object")) {
+    kind = 1; tag = "5";
+    snprintf(payload_value, sizeof(payload_value), "%%v%u", value); payload = payload_value;
   } else if (lv4_is(operand, "kind", "dynamic_carrier")) {
     kind = 4; snprintf(payload_value, sizeof(payload_value), "%%v%u", value); payload = payload_value;
   } else return 0;
@@ -79,7 +82,7 @@ static int lv4_invocation_operand_emit(FILE* f, yyjson_val* operand,
 }
 
 /* -1 is another operation family, 0 is invalid, 1 emits both MIR edges. */
-static int lv4_invocation_emit(FILE* f, yyjson_val* op, size_t function,
+static int lv4_invocation_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op, size_t function,
     uint32_t block, const char* normal, const char* fault) {
   unsigned long long site;
   if (!(lv4_is(op, "kind", "dynamic_invoke") ||
@@ -108,10 +111,12 @@ static int lv4_invocation_emit(FILE* f, yyjson_val* op, size_t function,
     }
     fprintf(f,
         "  %%dynselector%u = getelementptr inbounds [%zu x i8], ptr @dynsel_%zu_%u, i64 0, i64 0\n"
-        "  %%dynstatus%u = call i32 @\"nyash.dynamic.checked_invoke_v1\"(ptr %%frame, i64 %llu, ptr %%dynrecv%u, ptr %%dynselector%u, i64 %zu, ptr %s, i64 %zu, ptr %%dynout%u)\n"
+        "  %%dynstatus%u = call i32 @\"%s\"(ptr %%frame, i64 %llu, %sptr %%dynrecv%u, ptr %%dynselector%u, i64 %zu, ptr %s, i64 %zu, ptr %%dynout%u)\n"
         "  switch i32 %%dynstatus%u, label %%invalid [ i32 0, label %%dynnormal%u i32 1, label %%%s ]\ndynnormal%u:\n"
         "  br label %%%s\n",
-        block, len, function, block, block, site, block, block, len,
+        block, len, function, block, block,
+        in->dispatch ? "nyash.dynamic.checked_invoke_program_v1" : "nyash.dynamic.checked_invoke_v1",
+        site, in->dispatch ? "ptr @dispatch_program, " : "", block, block, len,
         argument_array, count, block, block, block, fault, block, normal);
     return !ferror(f);
   }
@@ -178,7 +183,7 @@ static void lv4_emit_call_operand_preparation(FILE* f, const hako_lv4_input* in,
           lv4_string_operand_emit(f, yyjson_obj_get(arg, "operand"), fi, b, (unsigned)i);
           fprintf(f, "  %%textbits%u_%zu = ptrtoint ptr %%strarg%u_%zu to i64\n", b,i,b,i);
         }
-        lv4_emit_nullable_actual_tags(f, args, b);
+        lv4_emit_nullable_actual_tags(f, in, args, b);
         yyjson_val* callee = yyjson_arr_get(in->functions, lv4_u(call, "target"));
         yyjson_val* formals = yyjson_obj_get(callee, "params");
         for (size_t i = 0; i < yyjson_arr_size(args); i++) {

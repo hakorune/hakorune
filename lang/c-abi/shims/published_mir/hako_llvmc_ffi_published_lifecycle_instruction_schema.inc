@@ -100,7 +100,8 @@ static int hako_physical_dynamic_operand(yyjson_val* function, yyjson_val* opera
   if (!(hako_physical_string(yyjson_obj_get(operand, "kind"), "integer") ||
       hako_physical_string(yyjson_obj_get(operand, "kind"), "bool") ||
       hako_physical_string(yyjson_obj_get(operand, "kind"), "tagged_dynamic") ||
-      hako_physical_string(yyjson_obj_get(operand, "kind"), "dynamic_carrier"))) return 0;
+      hako_physical_string(yyjson_obj_get(operand, "kind"), "dynamic_carrier") ||
+      hako_physical_string(yyjson_obj_get(operand, "kind"), "borrowed_typed_object"))) return 0;
   return hako_physical_exact_keys(operand, value_keys, 2) &&
       hako_physical_u32(yyjson_obj_get(operand, "value"), &value) &&
       hako_physical_value_available_at(function, value, block, index);

@@ -700,6 +700,37 @@ Implementation/acceptance ownership:
 Retained ArraySet and ordered Add/result-destination contracts are separate;
 this Decision does not activate them or claim whole-app completion.
 
+### Closed EXE user-box Dynamic dispatch
+
+The V4 program may publish a `dynamic_dispatch` table. Each row binds
+`(object_id, selector, arity)` to ordered parameter contracts and one published
+function ordinal. The compiler issues rows from the original callable declarations
+and completed Normal returns. The C backend checks the physical receiver,
+parameter representations and I64 returns before generating an internal thunk.
+
+The Dynamic invocation wire uses `kind = 1, tag = 5` for a borrowed typed-store
+handle. The live handle comes from the exact source-backed borrow, and its
+allocation must carry the address of the current program descriptor. The
+existing tagged host/weak domain uses tag 3. Within the selected compiler
+transport the C encoder emits tag 5 for an original typed-store actual and
+preserves it when forwarding the original pair.
+
+The [Dynamic invocation header](../../../include/nyrt_dynamic_invocation_v1.h) defines
+`nyash.object.checked_new_in_program_v1` and
+`nyash.dynamic.checked_invoke_program_v1`. In a selected image the allocation
+entry stamps the handle during insertion into the existing SafeMutex store.
+The checked invoke finds the live same-image receiver and acquires its pin under
+the store lock. The thunk runs after unlock. Its return releases the pin on
+both Normal and Fault. End checks the pin before changing the store. Normal
+returns one End-authorized I64 carrier, and Fault preserves the previous out
+value. A Fault from the thunk retains its original diagnostic.
+
+The invocation diagnostic uses reason 400 with detail 2 for an absent provider
+or detail 4 for an incompatible invocation argument. Integer comparison uses
+the existing checked tagged-integer read. A valid typed-store borrow in that
+position records reason 302 at the verified comparison site, with zero detail
+words.
+
 ### Accepted task-4 null/object-view extension (actuals landed; field view pending)
 
 Decision (2026-10-03): extend only the selected compiler-private

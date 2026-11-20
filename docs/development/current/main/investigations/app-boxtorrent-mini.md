@@ -53,7 +53,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - Copy検証: 最適化target/quick CLI（cargo quick-build --bin hakorune、3分47秒）＋同runtime/再build C shimで固定suite8/8（136.49秒、SKIP/timeoutなし）、cohort1808 PASS/既知115失敗名完全一致。focused family 3 PASS＋既存forwarded-copy/root FAIL 1件（10/30の同名・同理由あり、115件の外で保持）、C既存family24 PASS（Bool定数Copy分岐の両結果を実行）。共通表現、production +190/−24（純増166）・test/acceptance +74行。新契約の正負・同型別値への改変拒否を既存familyへ統合し、新checker/test fileなし。純増の退役条件: scalar operationの発行/投影が共通operation visitorへ移る時に重複dispatchを同時削除、安全なsource照合は保持。
 - T?確認（実装なし、前回の一括説明を訂正）: (a)birth未代入は既存Null install一回で足り、宣言由来Init origin/Null RHS/完了・Fault prefixのsource接続が必要（推定production400–800/test150–300行）。(b)未観測のexact-onceは初回代入だけをinstallにでき、順序/escape証明が必要（直線形300–600/150–250行、共通部分は重複）。(c)分岐だけならpathごとのassigned/defaultNull一回のproofで済む場合があり、先行read/観測可能escape後のwriteは実置換が要る。当面は名前付き拒否。(d)現在のtyped residenceとsource writerは所有子の公開後置換を実行できない。DynamicValue Object Replaceのwire/schemaは既存だがC flow/emitterが未対応なので、新keys/opcode/ABIが不可避とは断定しない。承認済みPlaceのslot遷移/takeと統合しT?専用契約・暗黙Dynamic fallbackを作らない。
 - edit案Aはユーザー受理済み（ADR-002凍結、実装は別goal）。段階4の報告に指示書4bを含め、呼ぶ側のedit、rule12の`e = move n.left`一体置換、local/edit引数/配列要素のtakeをPlace案で表せるか、不足契約・ABI・費用を比較する（実装しない）。T?状態遷移も同じPlaceへ統合し、NullのHome/Fresh偽装・未設定slotのnull読み・単一install緩和は禁止。
-
+- UBD-1b: 結果だけを返す Dynamic provider の全 Normal 出口を既存の結果契約で証明する。従来の正例は print が走査を起動していたため、その起動点を含まない固定入力で 140 / 240 と exit 0 を確認。
 ## 完了したboxtorrent接続
 - nullable Text/Bool/loop cleanup・field/借用Callの接続詳細と既定OFF診断はGit履歴 `9342c2ae58` の同cardへ集約。残る共有ownerの退役条件は以下に保持する。
 

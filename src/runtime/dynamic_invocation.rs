@@ -289,17 +289,11 @@ pub fn plan_dynamic_invocation_v1(
         CarrierPayloadV1::Weak(_) | CarrierPayloadV1::Null
         | CarrierPayloadV1::Integer(_) | CarrierPayloadV1::Bool(_) => None,
     };
-    let mut matches = PROVIDERS_V1.iter().filter(|entry| {
+    let provider = select_unique_provider_v1(PROVIDERS_V1.iter().filter(|entry| {
         runtime_object.is_some_and(|value| (entry.matches_runtime_class)(value))
             && entry.selector == selector
             && entry.arity == arguments.len()
-    });
-    let provider = matches
-        .next()
-        .ok_or(DynamicInvocationFailureV1::MissingProvider)?;
-    if matches.next().is_some() {
-        return Err(DynamicInvocationFailureV1::AmbiguousProvider);
-    }
+    }))?;
     let arguments = arguments
         .into_iter()
         .map(DynamicInvocationValueV1::resolve)
@@ -312,11 +306,23 @@ pub fn plan_dynamic_invocation_v1(
     })
 }
 
+/// Both host and per-program tables require one exact match.
+pub fn select_unique_provider_v1<T>(
+    mut matches: impl Iterator<Item = T>,
+) -> Result<T, DynamicInvocationFailureV1> {
+    let provider = matches.next().ok_or(DynamicInvocationFailureV1::MissingProvider)?;
+    if matches.next().is_some() {
+        return Err(DynamicInvocationFailureV1::AmbiguousProvider);
+    }
+    Ok(provider)
+}
+
 static NEXT_CARRIER: AtomicU64 = AtomicU64::new(1);
 static CARRIERS: OnceLock<Mutex<HashMap<NonZeroU64, PublishedCarrierV1>>> = OnceLock::new();
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum CarrierOwnerV1 {
+    Reserved,
     Caller,
     Array(usize),
 }
@@ -330,31 +336,63 @@ fn carriers() -> &'static Mutex<HashMap<NonZeroU64, PublishedCarrierV1>> {
     CARRIERS.get_or_init(|| Mutex::new(HashMap::new()))
 }
 
+/// A private vacant result slot. The token cannot be read, transferred or
+/// ended by a caller until Normal publication consumes this reservation.
+pub struct DynamicCarrierReservationV1(Option<NonZeroU64>);
+
+impl DynamicCarrierReservationV1 {
+    pub fn reserve_v1() -> Result<Self, DynamicInvocationFailureV1> {
+        let raw = NEXT_CARRIER
+            .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |current| {
+                current.checked_add(1).filter(|next| *next < CARRIER_TOKEN_BRAND)
+            })
+            .map_err(|_| DynamicInvocationFailureV1::CarrierSpaceExhausted)?;
+        let token = NonZeroU64::new(CARRIER_TOKEN_BRAND | raw)
+            .ok_or(DynamicInvocationFailureV1::CarrierSpaceExhausted)?;
+        let mut table = carriers().lock().expect("Dynamic carrier mutex poisoned");
+        table.try_reserve(1).map_err(|_| DynamicInvocationFailureV1::CarrierSpaceExhausted)?;
+        match table.entry(token) {
+            Entry::Vacant(entry) => {
+                entry.insert(PublishedCarrierV1 {
+                    payload: CarrierPayloadV1::Null,
+                    owner: CarrierOwnerV1::Reserved,
+                });
+                Ok(Self(Some(token)))
+            }
+            Entry::Occupied(_) => Err(DynamicInvocationFailureV1::CarrierSpaceExhausted),
+        }
+    }
+
+    fn publish(mut self, payload: CarrierPayloadV1) -> DynamicCarrierTokenV1 {
+        let token = self.0.take().expect("affine Dynamic carrier reservation");
+        let mut table = carriers().lock().expect("Dynamic carrier mutex poisoned");
+        let slot = table.get_mut(&token).expect("reserved Dynamic carrier slot");
+        assert_eq!(slot.owner, CarrierOwnerV1::Reserved);
+        slot.payload = payload;
+        slot.owner = CarrierOwnerV1::Caller;
+        DynamicCarrierTokenV1(token)
+    }
+
+    pub fn publish_integer_v1(self, result: i64) -> DynamicCarrierTokenV1 {
+        self.publish(CarrierPayloadV1::Integer(result))
+    }
+}
+
+impl Drop for DynamicCarrierReservationV1 {
+    fn drop(&mut self) {
+        if let Some(token) = self.0.take() {
+            let mut table = carriers().lock().expect("Dynamic carrier mutex poisoned");
+            if table.get(&token).is_some_and(|slot| slot.owner == CarrierOwnerV1::Reserved) {
+                table.remove(&token);
+            }
+        }
+    }
+}
+
 fn publish_carrier_v1(
     payload: CarrierPayloadV1,
 ) -> Result<DynamicCarrierTokenV1, DynamicInvocationFailureV1> {
-    let raw = NEXT_CARRIER
-        .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |current| {
-            current
-                .checked_add(1)
-                .filter(|next| *next < CARRIER_TOKEN_BRAND)
-        })
-        .map_err(|_| DynamicInvocationFailureV1::CarrierSpaceExhausted)?;
-    let token = NonZeroU64::new(CARRIER_TOKEN_BRAND | raw)
-        .ok_or(DynamicInvocationFailureV1::CarrierSpaceExhausted)?;
-    let mut table = carriers().lock().expect("Dynamic carrier mutex poisoned");
-    match table.entry(token) {
-        Entry::Vacant(entry) => {
-            entry.insert(PublishedCarrierV1 {
-                payload,
-                owner: CarrierOwnerV1::Caller,
-            });
-        }
-        Entry::Occupied(_) => {
-            return Err(DynamicInvocationFailureV1::CarrierSpaceExhausted);
-        }
-    }
-    Ok(DynamicCarrierTokenV1(token))
+    Ok(DynamicCarrierReservationV1::reserve_v1()?.publish(payload))
 }
 
 fn string_length_v1(

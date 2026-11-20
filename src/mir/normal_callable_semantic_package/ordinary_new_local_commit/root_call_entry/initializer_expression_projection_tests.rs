@@ -255,8 +255,9 @@ fn initializer_observation_copy(
     assert!(packet.reference_reads.is_empty());
     assert!(packet.contract.dynamic_calls.is_empty());
     assert!(packet.contract.loop_residency.is_none());
-    ExpressionEmissionV1 {
-        contract: InitializerExpressionContractV1 {
+    assert!(packet.dynamic_calls_v1().next().is_none());
+    ExpressionEmissionV1::from_body(
+        InitializerExpressionContractV1 {
             frame: Rc::clone(packet.frame()),
             value: packet.value(),
             local: packet.local_value(),
@@ -266,17 +267,23 @@ fn initializer_observation_copy(
             loop_residency: None,
             purpose_acquisition: packet.contract.purpose_acquisition.clone(),
         },
-        values: packet.values.clone(),
-        calls: packet.calls.clone(),
-        path_reads: packet.path_reads.clone(),
-        reference_reads: Default::default(),
-        original: packet.original.clone(),
-        entry: packet.entry.clone(),
-        inline_range: packet.inline_range,
-        terminal: packet.terminal.clone(),
-        continuation: packet.continuation.clone(),
-        root_fault: None,
-    }
+        crate::mir::builder::EmittedExpressionBodyV1 {
+            values: packet.values.to_vec(),
+            calls: packet.calls.to_vec(),
+            dynamic_calls: Vec::new(),
+            path_reads: packet.path_reads.to_vec(),
+            reference_reads: Default::default(),
+            temporaries: Vec::new(),
+            homes: Vec::new(),
+            fault_frame: None,
+            entry: packet.entry.clone(),
+            inline_range: packet.inline_range,
+            bindings: packet.original.clone(),
+            root_cleanup: None,
+        },
+        packet.terminal.clone(),
+        packet.continuation.clone(),
+    )
 }
 
 #[test]

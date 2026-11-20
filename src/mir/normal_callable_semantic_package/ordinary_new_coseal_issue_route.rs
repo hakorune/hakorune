@@ -11,7 +11,7 @@ pub(super) enum ScanRequestV1 {
     TypedStaticCall,
     /// A Map literal, as a value or as an actual.
     MapLiteral,
-    /// An integer `return` that the borrowed source cohort needs a walk for.
+    /// Original I64 return evidence required by a call contract.
     IntegerReturn,
     /// A read of a borrowed formal's field.
     FormalFieldRead,

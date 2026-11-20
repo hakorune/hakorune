@@ -692,31 +692,7 @@ impl VerifiedCallableResultContractCohortV1 {
         selected.key_for_batch_slot(row.batch_slot)
     }
 
-    /// Resolve an already-selected catalog key to its invocation-local owner.
-    /// This is a correspondence lookup for physical caller attribution; it
-    /// does not issue or reconstruct a source key.
-    pub(crate) fn owner_for_canonical_key(
-        &self,
-        key: &CanonicalSameModuleCallableKeyV1,
-    ) -> Option<FunctionOwnerIdV1> {
-        let (selected, _) = self.completed_context.as_ref()?;
-        match key.namespace() {
-            hakorune_mir_defs::SameModuleCallableNamespaceV1::FreeFunction => {
-                let mut matches = self.rows.iter().filter(|row| {
-                    row.top_level_input
-                        .as_ref()
-                        .is_some_and(|input| input.matches_canonical_key(key))
-                });
-                let row = matches.next()?;
-                (matches.next().is_none()).then_some(row.owner())
-            }
-            _ => {
-                let selected_key = SelectedNormalCallableKeyV1::Cataloged(key.clone());
-                let batch_slot = selected.batch_slot(&selected_key)?;
-                self.row(batch_slot).map(|row| row.owner())
-            }
-        }
-    }
+
 }
 
 #[cfg(test)]
@@ -772,6 +748,9 @@ impl VerifiedCallableResultContractCohortV1 {
         std::mem::take(&mut self.named_array_emissions)
     }
 }
+
+#[path = "result_contract_callable_keys.rs"]
+mod callable_keys;
 
 #[path = "result_contract_top_level.rs"]
 mod top_level;

@@ -41,11 +41,20 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_value_evaluat
     >,
     E,
 > {
+    use crate::mir::resolved_semantics::home_new_prefix::expression_plan::ExpressionLeafProfileV1;
+    use crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1;
     use crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1;
+    // The Dynamic source value must survive to the checked destination.
+    let checked_dynamic = expected == ExpressionValueClassV1::Dynamic;
+    let profile = if checked_dynamic {
+        ExpressionLeafProfileV1::CheckedScalarDestination
+    } else {
+        ExpressionLeafProfileV1::Print
+    };
     let mut root_core = root_core;
     let Some(prepared) = crate::mir::resolved_semantics::home_new_prefix::expression_plan::prepare_expression_calls_v1(
         &source,
-        crate::mir::resolved_semantics::home_new_prefix::expression_plan::ExpressionLeafProfileV1::Print,
+        profile,
         field_seeds,
         homes,
         &mut |site| {
@@ -112,9 +121,11 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_value_evaluat
                 return Ok(Err(reason));
             }
         };
-    if !crate::mir::resolved_semantics::home_new_prefix::expression_plan::admits_statement_value_v1(
-        &evaluation,
-    ) || evaluation.root_class() != ExpressionLeafClassV1::Value(expected)
+    if evaluation.root_class() != ExpressionLeafClassV1::Value(expected)
+        || (!checked_dynamic
+            && !crate::mir::resolved_semantics::home_new_prefix::expression_plan::admits_statement_value_v1(
+                &evaluation,
+            ))
     {
         return Ok(Err("root-class-mismatch"));
     }

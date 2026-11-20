@@ -246,6 +246,7 @@ fn source_result_pending(
     field_claims: &super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     callable_result_classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     owner: FunctionOwnerIdV1,
+    dynamic_source_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
 ) -> Result<BorrowedI64ResultSourceV1, String> {
     let mut matches = contracts.iter().filter(|row| row.owner == owner);
     let contract = matches
@@ -290,7 +291,13 @@ fn source_result_pending(
                     && row.kind == CallableParameterContractKindV1::ExactTrivial(ExactTrivialParameterAbiV1::I64)));
             let checked_return = draft.map(|draft| draft.integer_return_at(input, &OwnedExprSiteV1::new(owner, site.clone())))
                 .transpose().map_err(|_| freeze("borrowed-result/checked-return-source-identity"))?.flatten().is_some();
-            let site_class = if integer || exact || checked_return { BorrowedResultClassV1::I64 }
+            // The checked Return gains I64 only on the Normal edge of its
+            // destination check. Dynamic remains the original call's result.
+            let checked_dynamic_destination = input.declares_i64_result_v1()
+                && dynamic_source_calls.iter().filter(|call| {
+                    call.owner() == owner && call.call_site() == site && call.result_site() == site
+                }).count() == 1;
+            let site_class = if integer || exact || checked_return || checked_dynamic_destination { BorrowedResultClassV1::I64 }
             else if let Some(product) = draft.map(|draft| mul_result::capture_mul_return(input, draft, site)).transpose()?.flatten() {
                 multiplications.push(product); BorrowedResultClassV1::I64
             } else if let Some(field) = draft.and_then(|draft| capture_field(input, contract, draft, site)) {
@@ -363,6 +370,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     original: &Result<super::super::borrowed_formal_source::OriginalBorrowedFormalSourceV1, String>,
     field_claims: &super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     original_returns: original::OriginalReturnsV1,
+    dynamic_source_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
 ) -> BorrowedResultCohortV1 {
     let mut results = BorrowedResultCohortV1::from_original_returns_v1(original_returns);
     results.retain_declared_borrowed_results_v1(batch);
@@ -408,7 +416,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 constructors,
                 proven_fields,
                 &field_candidates, original.as_ref().ok(), request.as_ref(), field_claims, callable_result_classes,
-                *owner,
+                *owner, dynamic_source_calls,
             ))
             .and_then(|mut proof| {
                 if let BorrowedResultSourcePhaseV1::Pending { fields, .. } = &mut proof.phase {
