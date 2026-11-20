@@ -7,6 +7,15 @@
 
 use crate::box_trait::{IntegerBox, NyashBox, StringBox};
 
+/// Compare a signed Integer and Float without rounding the Integer to f64.
+pub fn int_float_eq(integer: i64, float: f64) -> bool {
+    const I64_EXCLUSIVE_UPPER_BOUND: f64 = 9_223_372_036_854_775_808.0; // 2^63
+    float.is_finite()
+        && float.fract() == 0.0
+        && (-I64_EXCLUSIVE_UPPER_BOUND..I64_EXCLUSIVE_UPPER_BOUND).contains(&float)
+        && integer == float as i64
+}
+
 /// Runtime tags accepted by `String + any`; source and physical owners must
 /// retain the tag and borrow the value until this synchronous display finishes.
 pub enum StringAddDisplayValue<'a> {
