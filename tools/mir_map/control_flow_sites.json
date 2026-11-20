@@ -80,15 +80,15 @@
   {
     "id": "core-effect-if",
     "category": "if",
-    "role": "writer",
+    "role": "forwarder",
     "file": "src/mir/builder/control_flow/plan/lowerer/body_processing.rs",
     "sites": [
       {
-        "line": 60,
-        "code": "emit_conditional("
+        "line": 41,
+        "code": "let result = builder.lower_if_form_for_effects_v1("
       }
     ],
-    "evidence": "IfEffectの真偽の行き先を決めてBranchを出す"
+    "evidence": "事前に確定した効果列を腕のコールバックに渡す。分岐と正常合流は共通の if が発行する。"
   },
   {
     "id": "static-recipe-if",

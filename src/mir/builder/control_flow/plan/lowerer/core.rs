@@ -94,7 +94,7 @@ impl super::PlanLowerer {
                 if loop_stack.is_empty() {
                     port.emit_effect(builder, &effect)?;
                 } else {
-                    Self::emit_effect_in_loop(builder, &effect, loop_stack, port)?;
+                    Self::emit_effect_in_loop(builder, &effect, port)?;
                 }
                 Ok(None)
             }

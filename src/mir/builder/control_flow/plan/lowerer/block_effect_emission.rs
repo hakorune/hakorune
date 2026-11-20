@@ -86,13 +86,7 @@ pub fn emit_all_block_effects(
                 ));
             }
             if let Some(ref effects) = body_effects {
-                emit_body_effects_from_lowerer(
-                    builder,
-                    effects,
-                    loop_plan.step_bb,
-                    loop_stack,
-                    port,
-                )?;
+                super::PlanLowerer::emit_body_effects(builder, effects, loop_plan.step_bb, port)?;
             } else {
                 emit_loop_body_plans(
                     builder,
@@ -267,19 +261,6 @@ fn emit_loop_body_plans(
     use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
 
     PlanLowerer::lower_loop_body_plans(builder, body, ctx, loop_stack, step_bb, port)
-}
-
-/// Emit body effects (delegates to PlanLowerer::emit_body_effects)
-fn emit_body_effects_from_lowerer(
-    builder: &mut MirBuilder,
-    effects: &[CoreEffectPlan],
-    step_bb: BasicBlockId,
-    loop_stack: &mut Vec<LoopFrame>,
-    port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
-) -> Result<(), String> {
-    use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
-
-    PlanLowerer::emit_body_effects(builder, effects, step_bb, loop_stack, port)
 }
 
 /// Emit effect (delegates to PlanLowerer::emit_effect)
