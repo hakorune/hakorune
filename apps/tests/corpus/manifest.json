@@ -15684,6 +15684,24 @@
       "cadence": "every"
     },
     {
+      "path": "apps/tests/corpus/dynamic-compare/user-box-dispatch-missing-member.hako",
+      "sha256": "4ae63597e0f791a6c7abc4d0e9b127cd68dd814e70ef0260d1788ae61c44a0be",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/user-box-dispatch-two-receivers.hako",
+      "sha256": "0aab4aea956e25e21854391ed33de6aaa01b583b14c48822a11e4aedc055d1b5",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
       "path": "apps/tests/corpus/forms/in/b1.hako",
       "sha256": "0a72a971225fb4abd2f40ad1ef00e150fc2d2475978d679b0353c3367767a3e8",
       "groups": [
