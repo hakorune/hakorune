@@ -366,6 +366,22 @@ fn checked_comparisons_refuse_every_other_operand_domain() {
     ] {
         for left in classes {
             for right in classes {
+                if matches!(
+                    (left, right),
+                    (DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::I64)
+                        | (DynamicOperatorValueClassV1::I64, DynamicOperatorValueClassV1::Dynamic)
+                ) && matches!(family, DynamicOperatorFamilyV1::Less | DynamicOperatorFamilyV1::Greater
+                    | DynamicOperatorFamilyV1::LessEqual | DynamicOperatorFamilyV1::GreaterEqual)
+                {
+                    let envelope = issue(family, left, right).unwrap();
+                    assert_eq!(envelope.domain(), DynamicOperatorDomainV1::new(family, left, right));
+                    assert_eq!(envelope.normal_result(), DynamicOperatorNormalResultV1::TrivialBool);
+                    assert_eq!(envelope.input_access(), DynamicOperatorInputAccessV1::BorrowedNoEscapeForOperation);
+                    assert_eq!(envelope.fault(), DynamicOperatorFaultV1::TypeErrorBeforeResultNoOperandMutationNoRebind);
+                    assert_eq!(envelope.suspension(), DynamicOperatorSuspensionV1::MaySuspend);
+                    assert_eq!(envelope.lifecycle(), None);
+                    continue;
+                }
                 if matches!(left, DynamicOperatorValueClassV1::NormalInteger | DynamicOperatorValueClassV1::I64 | DynamicOperatorValueClassV1::String) && right == left {
                     continue;
                 }
@@ -387,13 +403,7 @@ fn checked_comparisons_refuse_every_other_operand_domain() {
                             | (DynamicOperatorValueClassV1::String, DynamicOperatorValueClassV1::Dynamic)))
                     || (family == DynamicOperatorFamilyV1::Less
                         && left == DynamicOperatorValueClassV1::Dynamic
-                        && matches!(right, DynamicOperatorValueClassV1::Dynamic | DynamicOperatorValueClassV1::I64))
-                    || (family == DynamicOperatorFamilyV1::Less
-                        && left == DynamicOperatorValueClassV1::I64
                         && right == DynamicOperatorValueClassV1::Dynamic)
-                    || (family == DynamicOperatorFamilyV1::Greater
-                        && left == DynamicOperatorValueClassV1::Dynamic
-                        && right == DynamicOperatorValueClassV1::I64)
                 {
                     assert_ne!(issue(family, left, right).unwrap().domain().left(),
                         DynamicOperatorValueClassV1::NormalInteger);

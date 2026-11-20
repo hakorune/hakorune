@@ -51,6 +51,8 @@ impl BorrowedIntegerComparisonSourceV1 {
         } else {
             (right, Class::I64, Class::Dynamic)
         };
+        // The mixed signed-ordering envelope admits the original operand order.
+        // The exact formal-borrow proof below is still required for extraction.
         issue_dynamic_operator_execution_envelope_v1(DynamicOperatorDomainV1::new(
             family, lhs, rhs,
         ))
