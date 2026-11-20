@@ -144,7 +144,8 @@ compilerの動くcodeは変更していない。coverage CLIは前回の同じbi
 | DC-1c | 順序比較の残り 5 組(`Dynamic <= I64`・`Dynamic >= I64`・`I64 > Dynamic`・`I64 <= Dynamic`・`I64 >= Dynamic`)を DC-1 の形で検査つきにする | 済(`4faaa82292`)。新しい ABI なし。整数 15/15、Bool 5/5 で比較の site に TypeError 302。DC-2 の未照合 68・I64 証明待ち 5 は残る |
 | DC-3 | `Dynamic != I64`(4.3 の適用。等値の否定)と、戻りの型が無い呼び出しの結果(`release_source`) | 3a 済(`fef17df98e`): Int と Float の等値の 2^63 の境界を直した。呼び出しの借用 Home を通した(拒否→成功 4、値一致)。元の `release_source` の呼び出しは、user box の受け手を実行時に解決する契約が無く止まる。混合等値の ABI は保留。続きは UBD-1(決定 25) |
 | DC-4 | 古い plan の入口(bc・複合)の使い手を移し、入口と中の `if` の書き手を消す | DC-1〜3 の後 |
-| UBD-1 | ユーザーの box の Dynamic 呼び出しを、program ごとの表で選ぶ(決定 25)。最初は型付きの受け手・整数の引数・I64 の結果。入力形 1、tag 1、metadata 1、C ABI 2、kernel export 2 | 次 |
+| UBD-1 | ユーザーの box の Dynamic 呼び出しを、program ごとの表で選ぶ(決定 25)。型付きの受け手・整数の引数・I64 の結果。入力形 1、tag 1、metadata 1、C ABI 2、kernel export 2 | 済(`ac50c423b2`): 拒否→成功 3(値一致)、成功→拒否 0。3 つ目の class で MirBuilder 差分 0。MIR 本体 +約 630 |
+| UBD-2 以降 | `release_source` まで: Text の引数(BorrowedText)、plain でない受け手の後始末、loop の止まり(`UnsupportedAncestor`) | 次(順はメンテナと決める) |
 
 - 道案内: `design/mirbuilder-route-guide.md`。
 - 確かめ方: 編集中は、変えた所を通る入力だけ。main に入れる前に 1 度、全入力の比較・全 lib・固定 suite。**到達の地図の取り直しは、毎回はしない**(道をまとめて消した回か、数回に 1 度)。
