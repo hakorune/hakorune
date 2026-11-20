@@ -168,6 +168,17 @@ Missing, ambiguous, malformed, unavailable, or failed execution is one
 terminal Fault. There is no by-name repair, arity retry, fallback provider,
 second plan, or result-carrier fabrication.
 
+User-box provider table (maintainer Decision 2026-11-20, MirBuilder blueprint
+decision 25): the compiler publishes one immutable provider table per program
+that maps (declared type, selector, arity) to a verified method entry. The
+runtime receiver selects exactly one row; builtin and user rows use the same
+selection rule. MirBuilder only expresses the invocation and never branches on
+class or selector names. The first activation admits typed user-box receivers,
+integer arguments, and I64 results. A truly missing row is the existing
+MissingProvider Fault; a declared method the adapter cannot carry is refused at
+publication. Tag numbers, the C entry shapes, and the pin protocol belong to
+the ABI documentation.
+
 ## Activation Boundary
 
 The language Decision is accepted. The canonical caller-zero semantic issuer
