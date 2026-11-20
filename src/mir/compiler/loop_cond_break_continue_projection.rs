@@ -6,7 +6,6 @@
 
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::loop_structural_facts::{
-    bind_resolved_loop_source_forest_v1, LoopSourceForestBindingRejectV1,
     VerifiedLoopCondBreakContinueSourceForestProjectionV1,
     VerifiedLoopCondBreakContinueSourceProjectionV1, VerifiedLoopCondBreakContinueSourceShapeV1,
     VerifiedLoopCondSourceExitV1,
@@ -38,7 +37,6 @@ pub(crate) enum LoopCondBreakContinueProjectionRejectV1 {
 pub(crate) enum LoopCondBreakContinueForestProjectionRejectV1 {
     ForeignOwner,
     ForestLookup,
-    ForestBinding(LoopSourceForestBindingRejectV1),
     ForestEmpty,
     RootIdentity,
     MemberNotLoop,
@@ -62,18 +60,16 @@ pub(crate) fn issue_loop_cond_break_continue_source_forest_projection_v1(
     let forest = function
         .resolved_loop_source_forest(root_loop.site())
         .map_err(|_| LoopCondBreakContinueForestProjectionRejectV1::ForestLookup)?;
-    let member_sites = forest
-        .members()
-        .iter()
-        .map(|member| member.source().site().clone())
-        .collect::<Vec<_>>();
-    let Some(root_site) = member_sites.first() else {
+    let Some(root) = forest.members().first() else {
         return Err(LoopCondBreakContinueForestProjectionRejectV1::ForestEmpty);
     };
+    let root_site = root.source().site();
+    let root_frame_key = root.source().frame_key();
     if root_site != root_loop.site() {
         return Err(LoopCondBreakContinueForestProjectionRejectV1::RootIdentity);
     }
-    for site in &member_sites {
+    for member in forest.members() {
+        let site = member.source().site();
         let located = input
             .source()
             .exact_stmt(site)
@@ -98,17 +94,9 @@ pub(crate) fn issue_loop_cond_break_continue_source_forest_projection_v1(
         exits.push(VerifiedLoopCondSourceExitV1::new(site.clone(), *record));
     }
 
-    let root_source = function
-        .resolved_loop_source(root_site)
-        .map_err(|_| LoopCondBreakContinueForestProjectionRejectV1::ForestLookup)?;
-    let root_frame_key = root_source.frame_key();
-    let forest_binding = bind_resolved_loop_source_forest_v1(forest)
-        .map_err(LoopCondBreakContinueForestProjectionRejectV1::ForestBinding)?;
-
     Ok(VerifiedLoopCondBreakContinueSourceForestProjectionV1::new(
         input.owner(),
-        forest_binding,
-        member_sites.into_boxed_slice(),
+        forest,
         exits.into_boxed_slice(),
         function.function_origin(),
         function.source_kind(),

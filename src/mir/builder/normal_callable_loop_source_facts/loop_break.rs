@@ -19,9 +19,6 @@ use crate::mir::resolved_semantics::{FunctionOriginV1, FunctionOwnerIdV1};
 
 use super::super::control_flow::plan::single_planner::{self, CallableLoopFactsPlannerInputV1};
 use super::super::control_flow::plan::LoopFactsPolicyFrameV1;
-use crate::mir::loop_structural_facts::{
-    LoopRootSourceBindingRejectV1, LoopSourceForestBindingRejectV1,
-};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir) enum CallableLoopBreakSourceFactsIssueV1 {
@@ -168,15 +165,6 @@ fn unsupported_shape(error: &LoopBreakSourceProjectionRejectV1) -> bool {
             crate::mir::compiler::loop_cond_break_continue_projection::
                 LoopCondBreakContinueForestProjectionRejectV1::ForestLookup,
         )
-            | LoopBreakSourceProjectionRejectV1::Forest(
-                crate::mir::compiler::loop_cond_break_continue_projection::
-                    LoopCondBreakContinueForestProjectionRejectV1::ForestBinding(
-                        LoopSourceForestBindingRejectV1::Source {
-                            reason: LoopRootSourceBindingRejectV1::UnsupportedAncestor { .. },
-                            ..
-                        },
-                    ),
-            )
             | LoopBreakSourceProjectionRejectV1::ScopeBox
             | LoopBreakSourceProjectionRejectV1::BodyArity
             | LoopBreakSourceProjectionRejectV1::BreakIfShape

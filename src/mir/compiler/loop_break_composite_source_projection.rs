@@ -126,7 +126,7 @@ pub(crate) fn issue_loop_break_composite_source_projection_v1(
     let forest = issue_loop_cond_break_continue_source_forest_projection_v1(input, loop_stmt)
         .map_err(LoopBreakCompositeSourceProjectionRejectV1::Forest)?;
     if forest.owner() != input.owner()
-        || forest.member_sites().first() != Some(loop_stmt.site())
+        || forest.members().first().map(|member| member.source().site()) != Some(loop_stmt.site())
     {
         return Err(LoopBreakCompositeSourceProjectionRejectV1::SourceLookup);
     }
@@ -391,7 +391,7 @@ mod tests {
         assert_eq!(projection.body_inventory().root(), loop_stmt.site());
         assert_eq!(projection.body_inventory().statements().len(), 5);
         assert_eq!(projection.body_inventory().nested_loops().len(), 1);
-        assert_eq!(projection.forest().member_sites().len(), 2);
+        assert_eq!(projection.forest().members().len(), 2);
         assert_eq!(projection.forest().exits().len(), 2);
         assert_eq!(projection.body_roles().root().count_loops(), 2);
         assert_eq!(projection.body_roles().root().count_exits(), 2);
@@ -415,7 +415,7 @@ mod tests {
             resolved,
         )
         .expect("single structured projection");
-        assert_eq!(projection.forest().member_sites().len(), 1);
+        assert_eq!(projection.forest().members().len(), 1);
         assert!(projection.body_roles().root().contains_control());
         crate::mir::builder::issue_composite_source_candidate_v1(
             input,
@@ -573,7 +573,7 @@ mod tests {
         let projection =
             issue_loop_break_composite_source_projection_v1(input, &loop_stmt, resolved)
                 .expect("return-in-body composite projection");
-        assert_eq!(projection.forest().member_sites().len(), 1);
+        assert_eq!(projection.forest().members().len(), 1);
         assert_eq!(projection.forest().exits().len(), 1);
         assert!(projection.body_roles().root().contains_control());
         crate::mir::builder::issue_composite_source_candidate_v1(

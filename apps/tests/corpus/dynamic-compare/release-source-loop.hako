@@ -1,0 +1,18 @@
+// Expected exit: 1. The loop skips the first space, then breaks at x.
+static box Main {
+  main() {
+    local src = " x"
+    local j = 0
+    if j == 0 {
+      {
+        local n = src.length()
+        loop(j < n) {
+          local ch = src.substring(j, j+1)
+          if ch == " " { } else { break }
+          j = j + 1
+        }
+      }
+    }
+    return j
+  }
+}

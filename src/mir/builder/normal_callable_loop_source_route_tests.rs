@@ -129,7 +129,7 @@ fn source_loop_cond_route_token_requires_exclusive_registry_route() {
     .expect("exclusive source route token");
     assert_eq!(token.owner(), input.owner());
     assert_eq!(token.parent_site(), &root.site().node().clone());
-    assert_eq!(token.projection().member_sites().len(), 1);
+    assert_eq!(token.projection().members().len(), 1);
     assert_eq!(token.selection().matched_routes().len(), 1);
     assert!(token.outcome().facts.is_some());
 }

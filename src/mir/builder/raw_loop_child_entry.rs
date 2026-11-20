@@ -362,8 +362,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                             })?;
                         (Some(projection), items, call_free)
                     }
-                    CallableLoopSourceBridgeTakeV1::Unarmed
-                    | CallableLoopSourceBridgeTakeV1::BridgeAbsent => (None, Box::default(), None),
+                    CallableLoopSourceBridgeTakeV1::BridgeAbsent => (None, Box::default(), None),
                 };
                 (function_origin, source_kind, projection, items, call_free)
             } else {
