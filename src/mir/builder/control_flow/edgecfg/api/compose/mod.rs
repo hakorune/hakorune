@@ -14,9 +14,7 @@
  *
  * ## Entry Points (Composition Operations)
  *
- * - `seq(a, b)`: Sequential composition (Normal wiring)
  * - `if_(header, cond, t, e, join_frag)`: Conditional composition (Branch wiring)
- * - `loop_(loop_id, header, after, body)`: Loop composition (Break/Continue wiring)
  * - `cleanup(body, cleanup)`: Cleanup composition (TODO: Phase 280+)
  *
  * ## Composition Contract (Invariants)
@@ -32,24 +30,6 @@
  * 1. **Normalizer** (Tier 1): Allocates blocks/values, route-specific knowledge
  * 2. **Composition** (Tier 2): Rearranges exits/wires/branches, route-agnostic
  * 3. **Lowerer** (Tier 3): Emits MIR terminators via the function CFG `emit_and_seal()`
- *
- * ## Usage Example
- *
- * ```rust
- * // Tier 1: Normalizer allocates blocks
- * let header_bb = builder.next_block_id();
- * let body_bb = builder.next_block_id();
- * let after_bb = builder.next_block_id();
- *
- * // Build Frags for body
- * let body_frag = Frag { /* body CFG */ };
- *
- * // Tier 2: Composition wires exits (no allocation)
- * let loop_frag = compose::loop_(loop_id, header_bb, after_bb, body_frag);
- *
- * // Tier 3: Lowerer emits terminators
- * session.emit_and_seal(func, &loop_frag)?;
- * ```
  *
  * ## References
  *
@@ -72,14 +52,8 @@ use crate::mir::BasicBlockId;
 
 mod cleanup;
 mod if_;
-mod loop_;
-mod seq;
 
 pub(crate) use if_::if_;
-#[cfg(test)]
-pub(crate) use loop_::loop_;
-#[cfg(test)]
-pub(crate) use seq::seq;
 
 pub(super) fn merge_block_params(
     target: &mut BTreeMap<BasicBlockId, BlockParams>,

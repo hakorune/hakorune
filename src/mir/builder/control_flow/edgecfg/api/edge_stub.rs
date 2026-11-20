@@ -39,7 +39,7 @@ pub struct EdgeStub {
     /// 配線先ブロック（Phase 265 P1）
     ///
     /// - `None`: 未配線（上位へ伝搬する exit）
-    /// - `Some(block_id)`: 配線済み（compose::loop_ 等で確定）
+    /// - `Some(block_id)`: 配線済み
     pub target: Option<BasicBlockId>,
 
     /// エッジ引数（Phase 260 EdgeArgs SSOT）
