@@ -179,6 +179,18 @@ MissingProvider Fault; a declared method the adapter cannot carry is refused at
 publication. Tag numbers, the C entry shapes, and the pin protocol belong to
 the ABI documentation.
 
+Argument kinds (maintainer Decision 2026-11-21, MirBuilder blueprint decision
+26): arguments keep their original value kind; the compiler never treats every
+argument as an integer. An unannotated formal forwards the tag and payload it
+received. A value proven to be Text is lent with the `BorrowedText` input form,
+which carries the existing Text tag; no new tag or kernel export is added. The
+loan lasts from its evaluation until the call's Normal or Fault outcome is
+settled; a callee that stores or returns the loan is outside this activation.
+After one row is selected, each actual is checked once against that method's
+formal contract. A sound value that does not match an annotated formal is the
+existing ArgumentTypeMismatch Fault at the original call site, before the body
+runs; a malformed ABI input stays an invalid contract.
+
 ## Activation Boundary
 
 The language Decision is accepted. The canonical caller-zero semantic issuer
