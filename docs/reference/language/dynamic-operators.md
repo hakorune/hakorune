@@ -354,5 +354,14 @@ shared carrier vocabulary
 -> physical execution
 ```
 
+Narrow early activation (maintainer Decision 2026-11-20, MirBuilder blueprint
+decision 24): a checked comparison may be physically executed before the
+carrier rebind and flow stages when Resolve proves that each Dynamic operand
+is a borrow of the original unannotated parameter for the whole operation,
+with no rebind and no escape. The operand is still borrowed on both Normal and
+Fault, and a failed check is a TypeError Fault at the comparison site.
+Syntactic position (inside an `if`, inside a loop) never selects this path.
+Other Dynamic operands keep the order above.
+
 Unsupported or incomplete source relations fail closed. There is no
 name-based repair, runtime inference, retry, or fallback.

@@ -131,8 +131,18 @@ compilerの動くcodeは変更していない。coverage CLIは前回の同じbi
 
 | # | やる事 | 状態 |
 |---|---|---|
-| N-1 | `local x = e` の入口を 1 つにする。最初に、script と callable の 2 つの台帳が同時にありうるかを確かめる | 次 |
-| N-2 | N-1 の結果で、変数の読み取りか、再束縛へ | N-1 の後 |
+| N-1 | `local x = e` の入口を 1 つにする | 済み(`2273fa9e95`)。MIR の差 0 |
+| N-2 | 2 つの台帳を 1 つの `SourceLedgerV1` にし、文と式の選択を `source_node.rs` の 1 か所にする | 済み(`6d7c40c702`)。constructor の site が Script 側へ行く誤りを 3 か所直した |
+| N-3 | `if` の書き手を `if_form.rs` へ寄せる | 済み(`38be6ea11d`)。外の書き手 5 → 3(古い plan、static recipe、recursive recipe。理由は道案内) |
+
+### Dynamic の比較(設計図の決定 24。2026-11-20〜)
+
+| # | やる事 | 状態 |
+|---|---|---|
+| DC-1 | `run(x) { x < 3 }`(`x` は注釈なし仮引数)を、検査つきの比較にする。`run(2)` は true、`run(true)` は比較の位置の TypeError、後始末は 1 度 | 次 |
+| DC-2 | Resolve で Dynamic に依ると確かめた、残りの raw `icmp` を直す(挙動の直し。commit を分ける) | DC-1 の後 |
+| DC-3 | `Dynamic != I64`(4.3 の適用。等値の否定)と、戻りの型が無い呼び出しの結果(`release_source`) | 後 |
+| DC-4 | 古い plan の入口(bc・複合)の使い手を移し、入口と中の `if` の書き手を消す | DC-1〜3 の後 |
 
 - 道案内: `design/mirbuilder-route-guide.md`。
 - 確かめ方: 編集中は、変えた所を通る入力だけ。main に入れる前に 1 度、全入力の比較・全 lib・固定 suite。**到達の地図の取り直しは、毎回はしない**(道をまとめて消した回か、数回に 1 度)。
