@@ -15414,6 +15414,24 @@
       "cadence": "every"
     },
     {
+      "path": "apps/tests/corpus/dynamic-compare/run-bool.hako",
+      "sha256": "f73f8d58b4c4269d388e5ed3ad78ad3169a0e1fa5b7d219612dd46eb6fa3fc01",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/run-integer.hako",
+      "sha256": "62f26a3b217df7629d2aa09d4ab949706fe8eb357f0f6724d310e2780cb18d86",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
       "path": "apps/tests/corpus/forms/in/b1.hako",
       "sha256": "0a72a971225fb4abd2f40ad1ef00e150fc2d2475978d679b0353c3367767a3e8",
       "groups": [
