@@ -2,6 +2,7 @@ use super::*;
 
 fn object_with_fields(fields: &[TypedSlotStorage]) -> TypedSlotObject {
     TypedSlotObject {
+        dispatch: None,
         type_id: 7,
         fields: fields.iter().copied().map(TypedSlot::new).collect(),
     }

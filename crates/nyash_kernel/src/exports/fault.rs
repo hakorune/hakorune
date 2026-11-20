@@ -19,6 +19,8 @@ mod checked_string;
 
 #[path = "fault_checked_dynamic.rs"]
 mod checked_dynamic;
+#[path = "fault_checked_program_dispatch.rs"]
+mod checked_program_dispatch;
 
 #[path = "fault_checked_shared.rs"]
 mod checked_shared;

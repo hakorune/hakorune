@@ -123,8 +123,44 @@ pub unsafe extern "C" fn allocate(
     count: usize,
     out: *mut i64,
 ) -> u32 {
+    unsafe { allocate_indexed(storage, profile, site, type_id, layout, count, out, None) }
+}
+
+#[export_name = "nyash.object.checked_new_in_program_v1"]
+pub unsafe extern "C" fn allocate_in_program(
+    storage: *mut c_void,
+    profile: u32,
+    site: u64,
+    program: *const super::checked_program_dispatch::DispatchProgramV1,
+    type_id: i64,
+    layout: *const u32,
+    count: usize,
+    out: *mut i64,
+) -> u32 {
+    use super::checked_program_dispatch::program_type_stamp;
+    if profile != 1 {
+        return Status::InvalidContract as u32;
+    }
+    let Some(stamp) = (unsafe { program_type_stamp(program, type_id, layout, count) }) else {
+        return Status::InvalidContract as u32;
+    };
+    let dispatch = crate::exports::typed_object::DispatchResidence { stamp, pins: 0 };
+    unsafe { allocate_indexed(storage, profile, site, type_id, layout, count, out, Some(dispatch)) }
+}
+
+unsafe fn allocate_indexed(
+    storage: *mut c_void,
+    profile: u32,
+    site: u64,
+    type_id: i64,
+    layout: *const u32,
+    count: usize,
+    out: *mut i64,
+    dispatch: Option<crate::exports::typed_object::DispatchResidence>,
+) -> u32 {
     if out.is_null()
-        || (count != 0 && layout.is_null())
+        || !out.is_aligned()
+        || (count != 0 && (layout.is_null() || !layout.is_aligned()))
         || i64::try_from(count)
             .ok()
             .and_then(crate::exports::typed_object::normalize_field_count)
@@ -141,7 +177,7 @@ pub unsafe extern "C" fn allocate(
     } else {
         unsafe { std::slice::from_raw_parts(layout, count) }
     };
-    match store::new_checked_wire_indexed(profile, type_id, layout) {
+    match store::new_checked_wire_indexed(profile, type_id, layout, dispatch) {
         Ok(handle) => {
             unsafe {
                 out.write(handle);

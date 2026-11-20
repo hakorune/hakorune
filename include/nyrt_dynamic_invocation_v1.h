@@ -14,12 +14,43 @@
 #define NYRT_DYNAMIC_INVOCATION_BOOL_V1 3u
 #define NYRT_DYNAMIC_INVOCATION_CARRIER_V1 4u
 #define NYRT_FAULT_REASON_DYNAMIC_INVOCATION_V1 400u
+#define NYRT_DYNAMIC_TAG_TYPED_STORE_BORROW_V1 5u
 
 typedef struct NyrtDynamicInvocationOperandV1 {
     uint32_t kind;
     uint32_t tag;
     uint64_t payload;
 } NyrtDynamicInvocationOperandV1;
+
+/* Only an address-significant, process-lifetime static image may issue a
+ * program descriptor. Typed-store payloads require an allocation stamped
+ * with the exact descriptor address. All lengths count elements, not bytes. */
+typedef uint32_t (*NyrtDispatchThunkV1)(void *, int64_t,
+    const NyrtDynamicInvocationOperandV1 *, size_t, int64_t *);
+
+typedef struct NyrtDispatchTypeV1 {
+    int64_t type_id;
+    const uint32_t *layout;
+    size_t layout_count;
+} NyrtDispatchTypeV1;
+
+typedef struct NyrtDispatchProviderV1 {
+    int64_t type_id;
+    const uint8_t *selector;
+    size_t selector_len;
+    size_t arity;
+    const uint32_t *parameters; /* 0 = Dynamic, 1 = declared I64. */
+    NyrtDispatchThunkV1 thunk;
+} NyrtDispatchProviderV1;
+
+typedef struct NyrtDispatchProgramV1 {
+    uint32_t version;
+    uint32_t reserved;
+    const NyrtDispatchTypeV1 *types;
+    size_t type_count;
+    const NyrtDispatchProviderV1 *rows;
+    size_t row_count;
+} NyrtDispatchProgramV1;
 
 #if defined(__cplusplus)
 static_assert(sizeof(NyrtDynamicInvocationOperandV1) == 16, "Dynamic invocation operand size");
@@ -40,6 +71,16 @@ uint32_t nyrt_dynamic_checked_invoke_v1(void *, uint64_t,
     const NyrtDynamicInvocationOperandV1 *, const uint8_t *, size_t,
     const NyrtDynamicInvocationOperandV1 *, size_t, uint64_t *)
     __asm__("nyash.dynamic.checked_invoke_v1");
+/* Program-aware checked call and allocation. Fault preserves the out-slot.
+ * The invocation pins only a live same-program SafeMutex receiver. The thunk
+ * runs after releasing the store lock and retains no borrowed inputs. */
+uint32_t nyrt_dynamic_checked_invoke_program_v1(void *, uint64_t,
+    const NyrtDispatchProgramV1 *, const NyrtDynamicInvocationOperandV1 *,
+    const uint8_t *, size_t, const NyrtDynamicInvocationOperandV1 *, size_t,
+    uint64_t *) __asm__("nyash.dynamic.checked_invoke_program_v1");
+uint32_t nyrt_object_checked_new_in_program_v1(void *, uint32_t, uint64_t,
+    const NyrtDispatchProgramV1 *, int64_t, const uint32_t *, size_t, int64_t *)
+    __asm__("nyash.object.checked_new_in_program_v1");
 /* ArrayBox Get semantics; Normal publishes one independent opaque carrier. */
 uint32_t nyrt_dynamic_checked_array_get_v1(void *, uint64_t, int64_t, int64_t, uint64_t *)
     __asm__("nyash.dynamic.checked_array_get_v1");

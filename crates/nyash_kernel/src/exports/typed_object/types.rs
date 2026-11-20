@@ -368,6 +368,13 @@ pub(crate) struct TypedSlotLayout {
 pub(crate) struct TypedSlotObject {
     pub(crate) type_id: i64,
     pub(crate) fields: Vec<TypedSlot>,
+    pub(crate) dispatch: Option<DispatchResidence>,
+}
+
+#[derive(Debug)]
+pub(crate) struct DispatchResidence {
+    pub(crate) stamp: std::num::NonZeroUsize,
+    pub(crate) pins: usize,
 }
 
 static TYPED_OBJECT_LAYOUTS: OnceLock<Mutex<BTreeMap<i64, TypedSlotLayout>>> = OnceLock::new();

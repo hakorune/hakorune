@@ -49,6 +49,7 @@ mod tests {
         fields: Vec<(TypedSlotStorage, TypedSlotValue)>,
     ) -> TypedSlotObject {
         TypedSlotObject {
+            dispatch: None,
             type_id,
             fields: fields
                 .into_iter()
