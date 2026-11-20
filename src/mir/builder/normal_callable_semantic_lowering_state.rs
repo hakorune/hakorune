@@ -488,30 +488,6 @@ impl CallableSemanticLoweringState {
         Ok(())
     }
 
-    pub(super) fn direct_lambda_captures(
-        &mut self,
-        site: &SourceNodeSiteV1,
-    ) -> Result<Vec<(String, ValueId)>, String> {
-        let captures = self
-            .direct_lambda_captures
-            .get(site)
-            .ok_or_else(|| freeze("missing-direct-lambda-site"))?;
-        if !self.consumed_direct_lambdas.insert(site.clone()) {
-            return Err(freeze("duplicate-direct-lambda-consumption"));
-        }
-        captures
-            .iter()
-            .map(|(name, binding)| {
-                let value = self
-                    .values
-                    .get(binding)
-                    .copied()
-                    .ok_or_else(|| freeze("direct-lambda-capture-before-materialization"))?;
-                Ok((name.to_string(), value))
-            })
-            .collect()
-    }
-
     fn insert_value(&mut self, binding: BindingRefV1, value: ValueId) -> Result<(), String> {
         if self.values.insert(binding, value).is_some() {
             return Err(freeze("duplicate-value"));

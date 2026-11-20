@@ -123,26 +123,6 @@ impl TrivialProfileConsumptionV1 {
         )
     }
 
-    pub(crate) fn claim_if_merges(
-        &mut self,
-        statement: &SourceStmtSiteV1,
-    ) -> Result<Box<[(BindingRefV1, TrivialRepresentationV1)]>, String> {
-        let rows = self
-            .product
-            .merge_profiles()
-            .iter()
-            .filter(|row| row.statement() == statement)
-            .map(|row| (row.binding(), row.representation()))
-            .collect::<Vec<_>>();
-        for (binding, _) in rows.iter().copied() {
-            self.claim(TrivialProfileCoverageSubjectV1::IfMergeProfile {
-                statement: statement.clone(),
-                binding,
-            })?;
-        }
-        Ok(rows.into_boxed_slice())
-    }
-
     pub(crate) fn claim_terminal_explicit_value(
         &mut self,
         statement: &SourceStmtSiteV1,

@@ -37,8 +37,7 @@ impl EvaluatedExpressionValueV1 {
     }
 }
 
-/// Ownership is value data, separate from its source origin. C0 constructs
-/// Borrowed only; Owned reserves the existing SSA-slot token for later stages.
+/// Ownership is value data, separate from its source origin.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct EvaluatedBoxReferenceV1 {
     value: ValueId,
@@ -48,22 +47,12 @@ pub(crate) struct EvaluatedBoxReferenceV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BoxReferenceOwnershipV1 {
     Borrowed(BoxReferenceSupportV1),
-    // Filled only after the approved Retain/owned-result connection in C onward.
-    #[allow(dead_code)]
-    Owned {
-        token: ValueId,
-        object: hakorune_mir_defs::CanonicalObjectIdV1,
-        nullable: bool,
-    },
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum BoxReferenceOriginV1 {
     Local,
     Field,
     Call,
-    // Source provenance of later owned construction, not another ownership mode.
-    #[allow(dead_code)]
-    Fresh,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BoxReferenceSupportV1 {
@@ -88,7 +77,6 @@ impl EvaluatedBoxReferenceV1 {
                 loans.all(|loan| loan.map_payload_v1().is_some_and(|(_, object)| object == first)).then_some(first)
             }
             BoxReferenceOwnershipV1::Borrowed(BoxReferenceSupportV1::Alias(_)) => None,
-            BoxReferenceOwnershipV1::Owned { object, .. } => Some(*object),
         }
     }
     pub(in crate::mir) fn field_source(

@@ -278,10 +278,6 @@ impl VerifiedScriptLoweringProjectionV1 {
             .find_map(|(candidate, demand)| (candidate == site).then_some(demand))
     }
 
-    pub(super) fn has_enum_match_scrutinee_receipt_at(&self, site: &SourceNodeSiteV1) -> bool {
-        self.enum_match_scrutinee_receipts.contains(site)
-    }
-
 }
 
 fn freeze(detail: &str) -> String {

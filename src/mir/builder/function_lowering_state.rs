@@ -66,22 +66,6 @@ impl ReturnDeferTransientStateV1 {
         };
     }
 
-    pub(super) fn deactivate_for_cleanup(&mut self) {
-        let retained_destination = match self {
-            Self::Inactive {
-                retained_destination,
-                ..
-            } => *retained_destination,
-            Self::Active { destination, .. } => Some(*destination),
-            #[cfg(test)]
-            Self::InvalidActiveForTest => None,
-        };
-        *self = Self::Inactive {
-            retained_destination,
-            emitted: self.emitted(),
-        };
-    }
-
     pub(super) fn is_active(&self) -> bool {
         match self {
             Self::Active { .. } => true,

@@ -8,94 +8,6 @@
 use super::frag::Frag;
 use std::collections::BTreeMap;
 
-/// Frag の不変条件を検証（Phase 265 P2: wires/exits 分離契約）
-///
-/// # 検証項目
-/// - Phase 265 P0: exits が空でないか（最低限の健全性）
-/// - Phase 265 P2: wires/exits 分離契約（警告のみ、Err化は Phase 266）
-/// - Phase 266+: EdgeStub.from の有効性、edge-args の整合性
-///
-/// # 戻り値
-/// - Ok(()): 検証成功
-/// - Err(String): 検証失敗（エラーメッセージ）
-///
-/// # Phase 265 P2
-/// - wires/exits 分離契約の「置き場所」確保
-/// - 警告出力のみ、Err 化は Phase 266 で実施
-#[cfg(test)]
-pub fn verify_frag_invariants(frag: &Frag) -> Result<(), String> {
-    // Phase 265 P2: exits と wires の両方が空の場合は警告
-    if frag.exits.is_empty() && frag.wires.is_empty() {
-        #[cfg(debug_assertions)]
-        {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[verify_frag] Warning: Frag entry={:?} has no exits and no wires (dead end?)",
-                frag.entry
-            ));
-        }
-    }
-
-    // 2. entry の有効性（デバッグビルドのみ）
-    #[cfg(debug_assertions)]
-    {
-        if crate::config::env::is_joinir_debug() {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[verify_frag] Frag entry={:?}, exits={} kinds, wires={} stubs",
-                frag.entry,
-                frag.exits.len(),
-                frag.wires.len()
-            ));
-            for (kind, stubs) in &frag.exits {
-                ring0.log.debug(&format!(
-                    "[verify_frag]   exits[{:?}]: {} stubs",
-                    kind,
-                    stubs.len()
-                ));
-            }
-        }
-    }
-
-    // Phase 265 P2: wires/exits 分離契約の検証
-    #[cfg(debug_assertions)]
-    {
-        if crate::config::env::is_joinir_debug() {
-            let ring0 = crate::runtime::get_global_ring0();
-            // exits 内に target = Some がいたら警告（Phase 266+ で Err 化）
-            for (kind, stubs) in &frag.exits {
-                for stub in stubs {
-                    if stub.target.is_some() {
-                        ring0.log.debug(&format!(
-                            "[verify_frag] ERROR: exits[{:?}] contains wired stub (target={:?}) - should be in wires",
-                            kind, stub.target
-                        ));
-                        // Phase 266+: return Err(format!("exits[{:?}] contains wired stub", kind))
-                    }
-                }
-            }
-
-            // wires 内に target = None がいたら警告（Phase 266+ で Err 化）
-            for stub in &frag.wires {
-                if stub.target.is_none() {
-                    ring0.log.debug(&format!(
-                        "[verify_frag] ERROR: wires contains unwired stub (from={:?}, kind={:?}) - should be in exits",
-                        stub.from, stub.kind
-                    ));
-                    // Phase 266+: return Err(format!("wires contains unwired stub (from={:?})", stub.from))
-                }
-            }
-        }
-    }
-
-    // P2/Phase 266+: より厳格な検証を追加
-    // - EdgeStub.from の有効性（実際のブロックID範囲チェック）
-    // - edge-args の長さ一致
-    // - terminator 語彙との整合性
-
-    Ok(())
-}
-
 /// Frag の不変条件を厳格検証（Phase 266: strict 版、警告→Err 化）
 ///
 /// # 検証項目
@@ -110,10 +22,6 @@ pub fn verify_frag_invariants(frag: &Frag) -> Result<(), String> {
 /// # 使用箇所
 /// - Phase 266 の emit_wires() と PoC テストのみ
 /// - Phase 267+ で段階的に既存コードへ適用
-///
-/// # Phase 266 の設計判断
-/// - 既存の `verify_frag_invariants()` は警告のまま維持（段階導入を壊さない）
-/// - 新規に `verify_frag_invariants_strict()` を追加し、P266 の PoC/emit 側だけ strict を使う
 pub fn verify_frag_invariants_strict(frag: &Frag) -> Result<(), String> {
     use super::exit_kind::ExitKind;
     use crate::mir::control_form::LoopId;
@@ -298,24 +206,6 @@ mod tests {
     use crate::mir::ValueId;
     use crate::mir::{BasicBlockId, EdgeArgs};
     use std::collections::BTreeMap;
-
-    #[test]
-    fn test_verify_frag_basic() {
-        // Basic smoke test: verify doesn't panic
-        let header = BasicBlockId(10);
-        let exits = BTreeMap::new();
-
-        let frag = Frag {
-            entry: header,
-            block_params: BTreeMap::new(),
-            exits,
-            wires: vec![],
-            branches: vec![],
-        };
-
-        // P1: Always returns Ok(())
-        assert!(verify_frag_invariants(&frag).is_ok());
-    }
 
     fn strict_env_guard() -> crate::test_support::ScopedTestConfig {
         crate::test_support::ScopedTestConfig::apply(&[("NYASH_JOINIR_STRICT", Some("1"))])

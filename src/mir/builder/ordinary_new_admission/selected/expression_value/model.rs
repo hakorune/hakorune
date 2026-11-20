@@ -79,12 +79,6 @@ impl EmittedExpressionBodyV1 {
 pub(in crate::mir) enum ExpressionOwnedTemporaryV1 {
     String(ValueId),
     DynamicCarrier(ValueId),
-    /// Reserved typed ownership slot. C0 mints no Box acquisition; C connects Release.
-    #[allow(dead_code)]
-    Box {
-        value: ValueId,
-        object: hakorune_mir_defs::CanonicalObjectIdV1,
-    },
 }
 impl ExpressionOwnedTemporaryV1 {
     pub(in crate::mir) fn end_operation(self) -> Result<InvokeOperation, String> {
@@ -93,12 +87,11 @@ impl ExpressionOwnedTemporaryV1 {
                 crate::mir::instruction::StringInvokeOperation::End { value },
             )),
             Self::DynamicCarrier(carrier) => Ok(InvokeOperation::DynamicCarrierEnd { carrier }),
-            Self::Box { .. } => Err(freeze("expression/box-temporary-unconnected")),
         }
     }
     pub(in crate::mir) fn value(self) -> ValueId {
         match self {
-            Self::String(value) | Self::DynamicCarrier(value) | Self::Box { value, .. } => value,
+            Self::String(value) | Self::DynamicCarrier(value) => value,
         }
     }
     pub(in crate::mir) fn matches_value_v1(
@@ -114,8 +107,6 @@ impl ExpressionOwnedTemporaryV1 {
                 Self::DynamicCarrier(expected),
                 Some(EvaluatedExpressionValueV1::Operand(Operand::DynamicCarrier(actual))),
             ) => expected == *actual,
-            // No Box-owned entry is produced before the C-stage operation is connected.
-            (Self::Box { .. }, _) => false,
             _ => false,
         }
     }

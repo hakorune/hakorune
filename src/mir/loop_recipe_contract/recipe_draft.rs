@@ -35,8 +35,6 @@ use super::source_bound_core::{
     LoopRecipeBindingRelationV1,
 };
 
-#[path = "recipe_draft_read_only.rs"]
-mod read_only;
 
 #[derive(Debug)]
 struct DraftLoopV1 {
