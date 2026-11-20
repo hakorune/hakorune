@@ -11,6 +11,7 @@ pub enum DynamicInvocationOperandV1 {
     Integer(ValueId),
     Bool(ValueId),
     TaggedDynamic(ValueId),
+    BorrowedTypedObject(ValueId),
     Carrier(ValueId),
 }
 
@@ -22,6 +23,9 @@ impl serde::Serialize for DynamicInvocationOperandV1 {
             Self::Bool(value) => serde_json::json!({"kind":"bool", "value":value.as_u32()}),
             Self::TaggedDynamic(value) => {
                 serde_json::json!({"kind":"tagged_dynamic", "value":value.as_u32()})
+            }
+            Self::BorrowedTypedObject(value) => {
+                serde_json::json!({"kind":"borrowed_typed_object", "value":value.as_u32()})
             }
             Self::Carrier(value) => {
                 serde_json::json!({"kind":"dynamic_carrier", "value":value.as_u32()})
@@ -38,6 +42,7 @@ impl DynamicInvocationOperandV1 {
             Self::Integer(value)
             | Self::Bool(value)
             | Self::TaggedDynamic(value)
+            | Self::BorrowedTypedObject(value)
             | Self::Carrier(value) => Some(*value),
         }
     }
@@ -48,6 +53,7 @@ impl DynamicInvocationOperandV1 {
             Self::Integer(value)
             | Self::Bool(value)
             | Self::TaggedDynamic(value)
+            | Self::BorrowedTypedObject(value)
             | Self::Carrier(value) => rewrite(value),
         }
     }

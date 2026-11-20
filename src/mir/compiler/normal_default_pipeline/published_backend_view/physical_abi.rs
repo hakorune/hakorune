@@ -25,7 +25,7 @@ use super::{
 };
 
 /// Physical-program.v2 field storage tag; mirrored by the C ABI header.
-const HAKO_LLVMC_LIFECYCLE_STORAGE_I64: u32 = 1;
+pub(super) const HAKO_LLVMC_LIFECYCLE_STORAGE_I64: u32 = 1;
 const HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC: u32 = 12;
 
 /// Runtime diagnostic operation kinds admitted by the selected lifecycle ABI.
@@ -642,7 +642,7 @@ impl<'module> PublishedMirBackendView<'module> {
 fn referenced_objects(
     program: &PublishedLifecyclePhysicalProgramV1<'_>,
 ) -> Result<BTreeSet<u32>, String> {
-    let mut ids = BTreeSet::new();
+    let mut ids = program.dynamic_dispatch_layout_ids_v1().collect::<BTreeSet<_>>();
     for function in program.functions() {
         for block in function.blocks() {
             for row in block

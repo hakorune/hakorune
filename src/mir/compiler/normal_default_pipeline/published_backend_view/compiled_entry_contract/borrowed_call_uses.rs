@@ -51,6 +51,7 @@ struct FunctionUses {
     copies: BTreeMap<ValueId, (Binding, Option<Coordinate>)>,
     arguments: BTreeMap<(BasicBlockId, usize, usize), BindingRefV1>,
     receivers: BTreeMap<Coordinate, arguments::CompletedReceiverUse>,
+    dynamic_receivers: BTreeMap<Coordinate, (BindingRefV1, MirInstruction)>,
     /// Checked-compare view admissions per formal, proved by the original
     /// source draft. Each admitted operand use must be observed through
     /// exactly one physical instruction coordinate and operand side per use.
@@ -96,6 +97,7 @@ struct Scan {
     coordinates: BTreeSet<Coordinate>,
     arguments: BTreeSet<(BasicBlockId, usize, usize)>,
     receivers: BTreeSet<Coordinate>,
+    dynamic_receivers: BTreeSet<Coordinate>,
     /// Exact operand occurrences, including both sides of shared carriers.
     compare_uses: BTreeMap<BindingRefV1, BTreeSet<(Coordinate, usize)>>,
     mul_uses: BTreeSet<(Coordinate, usize)>,
@@ -347,6 +349,9 @@ impl FunctionUses {
         if self.finite_scalar_operand_v1(tracked, views, coordinate, instruction) { return Ok(()); }
         if field_write::observe(self, tracked, views, coordinate, instruction, definitions, dominates)? { return Ok(()); }
         if array_set::observe(self, tracked, views, coordinate, instruction, definitions, dominates)? { return Ok(()); }
+        if self.observe_dynamic_receiver_v1(tracked, views, coordinate, instruction, definitions)? {
+            return Ok(());
+        }
         match instruction {
             MirInstruction::Invoke {
                 operation: InvokeOperation::DynamicBorrowedInteger { tagged },
@@ -725,6 +730,9 @@ impl FunctionUses {
         }
         if self.receivers.keys().copied().collect::<BTreeSet<_>>() != definitions.receivers {
             return Err(fault("borrowed-use/argument-missing"));
+        }
+        if !self.dynamic_receivers.keys().copied().eq(definitions.dynamic_receivers.iter().copied()) {
+            return Err(fault("borrowed-use/dynamic-receiver"));
         }
         null_compare::coverage(&definitions.null_uses, &self.null_admissions)?;
         object_field::coverage(&definitions.field_uses, &self.field_admissions)?;

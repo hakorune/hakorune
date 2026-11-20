@@ -32,7 +32,9 @@ pub(super) fn admit_lifecycle<'module>(
         .retained_root()
         .map(|root| root.signature.name.as_str());
     let retained_births = view.retained_birth_abi().unwrap_or_default();
+    view.retain_program_dispatch_v1()?;
     let mut ordinary_names = ordinary_call_names(view.module())?;
+    ordinary_names.extend(view.dynamic_provider_keys_v1().map(|key| key.mir_symbol_projection()));
     ordinary_names.extend(
         view.retained_borrowed_participants_v1()?
             .keys()

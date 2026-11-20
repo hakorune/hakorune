@@ -93,6 +93,7 @@ impl TerminalScalarReturnV1 {
         evaluation: std::rc::Rc<
             crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
         >,
+        checked_dynamic_result: bool,
     ) -> Option<Self> {
         use crate::mir::resolved_value_profile::{
             expression_class::ExpressionValueClassV1, expression_plan::ExpressionPlanRootV1,
@@ -104,12 +105,11 @@ impl TerminalScalarReturnV1 {
             || !matches!(evaluation.source().root(), ExpressionPlanRootV1::Statement {
                 statement, role: StatementExpressionRoleV1::ReturnValue, value,
             } if statement == &self.return_site && value == &self.value_site)
-            || !matches!(
-                evaluation.root_class(),
-                ExpressionLeafClassV1::Value(
-                    ExpressionValueClassV1::I64 | ExpressionValueClassV1::Bool
-                )
-            )
+            || !match evaluation.root_class() {
+                ExpressionLeafClassV1::Value(ExpressionValueClassV1::I64 | ExpressionValueClassV1::Bool) => !checked_dynamic_result,
+                ExpressionLeafClassV1::Value(ExpressionValueClassV1::Dynamic) => checked_dynamic_result,
+                _ => false,
+            }
             || !evaluation.reference_coverage_is_exact()
         {
             return None;

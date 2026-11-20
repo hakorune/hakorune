@@ -18,12 +18,14 @@ pub(in crate::mir::builder) fn emit(
     let site = source.source().root().statement().clone();
     use crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1 as Class;
     // R16: a scalar root is an i64 or a Bool; only the operand spelling differs.
+    let dynamic_root = matches!(source.root_class(),
+        crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(Class::Dynamic));
     let (text, bool_root) = match source.root_class() {
         crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
             Class::String,
         ) => (true, false),
         crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
-            Class::I64,
+            Class::I64 | Class::Dynamic,
         ) => (false, false),
         crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
             Class::Bool,
@@ -92,7 +94,17 @@ pub(in crate::mir::builder) fn emit(
                 static_source,
             )
         };
-    let mut expression = if let Some((root, _)) = &prepared_root {
+    let mut expression = if dynamic_root {
+        expression_value::emit_with_dynamic_calls(
+            builder, state, ledger, &source, None, None,
+            &mut |builder, state, call, acquired, values, bindings| {
+                terminal_call::emit_expression_call_with_dynamic_and_argument_frames(
+                    builder, state, ledger, &source, call, acquired, values, bindings,
+                    consume_receiver, static_source, &[], None,
+                )
+            },
+        )?
+    } else if let Some((root, _)) = &prepared_root {
         let continuation = root
             .bindings
             .iter()
@@ -128,6 +140,9 @@ pub(in crate::mir::builder) fn emit(
             None => expression_value::emit(builder, state, ledger, &source, &mut emit_call)?,
         }
     };
+    if dynamic_root {
+        expression_value::check_i64_destination_v1(builder, &mut expression)?;
+    }
     let (terminal, continuation) = if text {
         expression_value::materialize_text_root(
             builder,

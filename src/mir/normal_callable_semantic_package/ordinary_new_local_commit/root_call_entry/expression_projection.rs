@@ -177,60 +177,6 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
     }
     /// Shared purpose-acquisition correspondence. The source evaluation's root
     /// remains unchanged when a destination materializes its independent Text.
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_effective_root_v1(
-        &self,
-        value: ValueId,
-        text: bool,
-        materializes: bool,
-        acquisition: Option<&[Binding; 2]>,
-    ) -> Result<(), String> {
-        let expected = match self.frame.root_class() {
-            crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
-                crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Bool) =>
-                    EvaluatedExpressionValueV1::Bool(value),
-            crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
-                crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic) =>
-                    EvaluatedExpressionValueV1::Operand(Operand::Dynamic(value)),
-            crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
-                crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::BoxReference) =>
-                    EvaluatedExpressionValueV1::borrowed_reference_v1(value, self.frame.references().get(&0)
-                        .ok_or_else(|| freeze("expression/reference-source-node"))?)?,
-            _ => (if text { Operand::OwnedString(value) } else { Operand::NormalInteger(value) }).into(),
-        };
-        match acquisition {
-            Some([invoke, normal]) if materializes && text => {
-                let Some(Some(input)) = self.values.first() else {
-                    return Err(freeze("rebind-expression/materialize-input"));
-                };
-                let input = input.as_operand()?;
-                let snapshot = matches!(input, Operand::DynamicCarrier(_))
-                    && self.frame.text_snapshot_root_v1().is_some_and(|node| {
-                        self.values
-                            .get(node)
-                            .and_then(Option::as_ref)
-                            .and_then(|value| value.as_operand().ok())
-                            == Some(input)
-                    });
-                if !(input.is_text() || snapshot)
-                    || !matches!(&invoke.1, MirInstruction::Invoke {
-                    operation: InvokeOperation::String(Operation::Materialize { value }), normal_landing, .. }
-                        if value == input && *normal_landing == normal.0)
-                    || normal.1
-                        != (MirInstruction::InvokeNormalResult {
-                            invoke_block: invoke.0,
-                            dst: value,
-                        })
-                    || !self.original.contains(invoke)
-                    || !self.original.contains(normal)
-                {
-                    return Err(freeze("rebind-expression/materialize-result"));
-                }
-            }
-            None if !materializes && self.values.first() == Some(&Some(expected)) => {}
-            _ => return Err(freeze("rebind-expression/purpose-result")),
-        }
-        Ok(())
-    }
 
     fn node_selected(&self, node: usize) -> bool {
         self.comparison.is_none_or(|(root, _)| {

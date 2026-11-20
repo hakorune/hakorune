@@ -14,6 +14,7 @@ use std::collections::{BTreeMap, BTreeSet};
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::resolved_semantics::home_new_prefix) enum ExpressionLeafProfileV1 {
     Print,
+    CheckedScalarDestination,
     BoolCondition,
     Argument,
     LocalInitializer,
@@ -317,6 +318,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_expression_ca
                     ExpressionLeafProfileV1::BoolCondition
                         | ExpressionLeafProfileV1::Argument
                         | ExpressionLeafProfileV1::LocalInitializer
+                        | ExpressionLeafProfileV1::CheckedScalarDestination
                 ) =>
             {
                 Class::Dynamic

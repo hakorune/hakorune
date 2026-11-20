@@ -184,6 +184,18 @@ impl<'a> ResolvedFunctionLoweringInputV1<'a> {
         self
     }
 
+    /// The annotation names the Return destination's contract. It supplies no
+    /// proof of the source expression or its physical value.
+    pub(crate) fn declares_i64_result_v1(self) -> bool {
+        use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
+        crate::mir::resolved_semantics::CallableFunctionSyntaxViewV1::from_function_ast(
+            self.source().root(),
+        )
+        .and_then(|syntax| {
+            syntax.header().return_type_name().and_then(ExactTrivialScalarAbiV1::classify_result)
+        }) == Some(ExactTrivialScalarAbiV1::I64)
+    }
+
     pub(crate) const fn callable_index(self) -> Option<&'a VerifiedCallableIndexV1> {
         self.callable_index
     }

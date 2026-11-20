@@ -23,6 +23,9 @@ use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
 #[path = "physical_program_projection.rs"]
 mod projection;
 
+#[path = "physical_program_dispatch.rs"]
+pub(super) mod dispatch;
+
 #[path = "physical_program_scalar.rs"]
 mod scalar;
 #[path = "physical_program_object_end.rs"]
@@ -178,9 +181,18 @@ impl<'module> PublishedLifecyclePhysicalFunctionV1<'module> {
 pub(crate) struct PublishedLifecyclePhysicalProgramV1<'module> {
     functions: Box<[PublishedLifecyclePhysicalFunctionV1<'module>]>,
     handoff: &'module FinalizedRootHandoffV1,
+    dispatch: Option<std::rc::Rc<dispatch::ProgramDispatchV1>>,
 }
 
 impl<'module> PublishedLifecyclePhysicalProgramV1<'module> {
+    pub(super) fn dynamic_dispatch_wire_v1(&self, eligible_layouts: bool) -> Result<Option<Vec<serde_json::Value>>, String> {
+        self.dispatch.as_ref().map(|plan| plan.wire(self.functions(), eligible_layouts)).transpose().map(Option::flatten)
+    }
+
+    pub(super) fn dynamic_dispatch_layout_ids_v1(&self) -> impl Iterator<Item = u32> + '_ {
+        self.dispatch.iter().flat_map(|plan| plan.objects())
+    }
+
     pub(crate) fn handoff(&self) -> &'module FinalizedRootHandoffV1 {
         self.handoff
     }
@@ -444,6 +456,7 @@ fn issue_function_with_module<'module>(
             && owned_array_bindings.iter().flat_map(|rows| rows.iter())
                 .any(|(bound_block, bound)| *bound_block == block && bound == instruction)
     };
+    let dynamic_operations = dispatch::published_operations_v1(selected_view, function, &role)?;
     let mut ids: Vec<_> = function.blocks.keys().copied().collect();
     ids.sort();
     if ids.is_empty() || !function.blocks.contains_key(&function.entry_block) {
@@ -516,7 +529,10 @@ fn issue_function_with_module<'module>(
         let terminator_index = block.instructions.len();
         let terminator_field_ref =
             prepare_field_ref(module, function, block.id, terminator_index, terminator, &source_field_reads)?;
-        if !source_end_binding(id, terminator) && !source_shared_binding(id, terminator) && !main_argument_binding(id, terminator) && !source_array_binding(id, terminator) {
+        if !dynamic_operations.contains(&(id, terminator_index))
+            && !source_end_binding(id, terminator) && !source_shared_binding(id, terminator)
+            && !main_argument_binding(id, terminator) && !source_array_binding(id, terminator)
+        {
             validate_instruction_with_context(
                 terminator_field_ref,
                 terminator,

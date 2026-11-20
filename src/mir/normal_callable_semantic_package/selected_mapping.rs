@@ -28,9 +28,14 @@ struct SelectedCallableBatchMapRowV1 {
 pub(super) struct VerifiedSelectedCallableBatchMapV1 {
     catalog_brand: crate::mir::builder::SameModuleCallableCatalogBrandV1,
     rows: Box<[SelectedCallableBatchMapRowV1]>,
+    declared_instance_keys: Box<[hakorune_mir_defs::CanonicalSameModuleCallableKeyV1]>,
 }
 
 impl VerifiedSelectedCallableBatchMapV1 {
+    pub(super) fn declared_instance_keys(&self) -> &[hakorune_mir_defs::CanonicalSameModuleCallableKeyV1] {
+        &self.declared_instance_keys
+    }
+
     /// The original catalog token retained by this same selected-map issuer.
     pub(super) fn catalog_brand(&self) -> &crate::mir::builder::SameModuleCallableCatalogBrandV1 {
         &self.catalog_brand
@@ -172,5 +177,8 @@ pub(super) fn issue_selected_callable_batch_map_v1(
     Ok(VerifiedSelectedCallableBatchMapV1 {
         catalog_brand: catalog.catalog().brand().clone(),
         rows: rows.into_boxed_slice(),
+        declared_instance_keys: catalog.catalog().keys()
+            .filter(|key| key.namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod)
+            .cloned().collect(),
     })
 }

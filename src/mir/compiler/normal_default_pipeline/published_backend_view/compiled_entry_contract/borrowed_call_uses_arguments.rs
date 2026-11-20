@@ -113,6 +113,14 @@ impl BorrowedCallUses {
         source.with_borrowed_ordinary_compare_carrier_copies_v1(owner, function, |copy, coordinate| {
             state.copy(copy, Some(coordinate))
         })?;
+        source.with_finished_dynamic_receiver_uses_v1(owner, function, |formal, coordinate, instruction, copies, _| {
+            if !entry_values.iter().any(|(_, binding, _)| *binding == formal)
+                || state.dynamic_receivers.insert(coordinate, (formal, instruction)).is_some()
+            {
+                return Err(fault("borrowed-use/dynamic-receiver"));
+            }
+            state.retain_rooted_copies_v1(state.roots.keys().copied().collect(), &copies)
+        })?;
         guarded_arguments::entry(state, source, owner, function, &compare_sites)?;
         field_write::entry(state, source, owner, function, &compare_sites)?;
         array_set::entry(state, source, owner, function, &compare_sites)?;
@@ -525,5 +533,34 @@ impl FunctionUses {
             }
         }
         Ok(())
+    }
+}
+
+impl FunctionUses {
+    pub(super) fn observe_dynamic_receiver_v1(
+        &self,
+        tracked: &BTreeMap<ValueId, BindingRefV1>,
+        views: &ViewScan,
+        coordinate: Coordinate,
+        instruction: &MirInstruction,
+        definitions: &mut Scan,
+    ) -> Result<bool, String> {
+        if let Some((formal, expected)) = self.dynamic_receivers.get(&coordinate) {
+            let MirInstruction::Invoke { operation: InvokeOperation::DynamicInvocation(call), fault_frame, .. } = instruction else {
+                return Err(fault("borrowed-use/dynamic-receiver"));
+            };
+            let crate::mir::instruction::DynamicInvocationOperandV1::TaggedDynamic(receiver) = call.receiver() else {
+                return Err(fault("borrowed-use/dynamic-receiver"));
+            };
+            let borrowed = |value| tracked.contains_key(&value) || views.views.contains_key(&value);
+            if instruction != expected || tracked.get(receiver) != Some(formal)
+                || borrowed(*fault_frame) || call.arguments().iter().filter_map(|arg| arg.value()).any(borrowed)
+            {
+                return Err(fault("borrowed-use/dynamic-receiver"));
+            }
+            definitions.dynamic_receivers.insert(coordinate);
+            return Ok(true);
+        }
+        Ok(false)
     }
 }

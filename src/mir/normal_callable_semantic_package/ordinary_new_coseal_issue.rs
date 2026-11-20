@@ -174,6 +174,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         app_main_batch_slot,
         app_main.as_ref(),
         dynamic_slot,
+        dynamic_source_calls,
         entry_home_loans,
         &field_write_claims,
         &callable_result_classes,

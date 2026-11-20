@@ -175,6 +175,10 @@ impl EmittedDynamicInvocationCallProjectionV1 {
         [self.invoke.clone(), self.projection.clone()]
     }
 
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn receiver_copy_dependencies_v1(&self) -> Result<&[Binding], String> {
+        self.receiver_read.original_copy_dependencies_v1()
+    }
+
     pub(crate) fn scope_bindings_in_context_v1(
         &self,
         context: CallValidationContextV1<'_>,
@@ -190,7 +194,7 @@ impl EmittedDynamicInvocationCallProjectionV1 {
         }
         let call_site = self.source.site();
         let mut ordered = Vec::new();
-        let mut copies = self.receiver_read.original_copy_dependencies_v1()?.to_vec();
+        let mut copies = self.receiver_copy_dependencies_v1()?.to_vec();
         for (ordinal, ((site, actual), argument)) in loan
             .argument_sites()
             .iter()

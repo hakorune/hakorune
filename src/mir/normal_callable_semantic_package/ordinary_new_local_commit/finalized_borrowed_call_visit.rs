@@ -226,6 +226,61 @@ impl FinalizedRootSourceHandoffV1 {
         })
     }
 
+    /// Lend the original checked receiver and its finalized operation to the
+    /// borrowed-formal verifier. The expression already owns source identity.
+    pub(in crate::mir) fn with_finished_dynamic_receiver_uses_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+        mut visit: impl FnMut(
+            BindingRefV1,
+            (BasicBlockId, usize),
+            MirInstruction,
+            Vec<((BasicBlockId, MirInstruction), (BasicBlockId, usize))>,
+            Option<(BasicBlockId, usize)>,
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
+        self.ledger.with_finished_projection(owner, |symbol, projection| {
+            if symbol != function.signature.name {
+                return Err(freeze("finished-terminal-call/owner"));
+            }
+            let context = CallValidationContextV1::Finalized(self);
+            let exits = self.ledger.root_exits.borrow();
+            for ((exit_owner, key), progress) in exits.iter().filter(|((exit_owner, _), _)| *exit_owner == owner) {
+                let order = match progress {
+                    RootHomeExitProgress::Emitted { order, .. }
+                    | RootHomeExitProgress::Finalized(order) => order,
+                    _ => continue,
+                };
+                let Some(expression) = order.return_expression_v1() else { continue; };
+                let mut packets = expression.dynamic_calls_v1().peekable();
+                if packets.peek().is_none() { continue; }
+                let exit = key.explicit_site().ok_or_else(|| freeze("finished-terminal-call/exit-missing"))?;
+                expression.require_source_v1(*exit_owner, exit)?;
+                expression.validate(context, function, Some(projection))?;
+                let checked_scalar = expression.checked_scalar_operation_v1().map(|original| {
+                    let row = projection.required_effect_binding(function, original)?;
+                    super::finalized_source_projection::find_finished_producer(symbol, &row, function)
+                }).transpose()?;
+                for packet in packets {
+                    let loan = packet.source().dynamic_invocation_source_v1()
+                        .ok_or_else(|| freeze("dynamic-expression/source-loan"))?;
+                    let finished = projection.required_effect_binding(function, packet.invoke_binding())?;
+                    let coordinate = super::finalized_source_projection::find_finished_producer(symbol, &finished, function)?;
+                    let mut copies = Vec::new();
+                    for original in packet.receiver_copy_dependencies_v1()? {
+                        if let Some(row) = projection.relation_binding(function, original)? {
+                            let at = super::finalized_source_projection::find_finished_producer(symbol, &row, function)?;
+                            copies.push((row, at));
+                        }
+                    }
+                    visit(loan.target().dynamic_origin(), coordinate, finished.1, copies, checked_scalar)?;
+                }
+            }
+            Ok(())
+        })
+    }
+
     /// Original tagged String operands remain tied to their operation and side.
     pub(in crate::mir) fn with_finished_tagged_text_operands_v1(
         &self, owner: FunctionOwnerIdV1, function: &MirFunction,
