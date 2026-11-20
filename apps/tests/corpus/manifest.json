@@ -15693,6 +15693,15 @@
       "cadence": "every"
     },
     {
+      "path": "apps/tests/corpus/dynamic-compare/user-box-dispatch-return-only.hako",
+      "sha256": "d2ad60c57900871dc0ceada47dacf62a24df58fd2ccf90fed7f865ab2c19bb7b",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
       "path": "apps/tests/corpus/dynamic-compare/user-box-dispatch-two-receivers.hako",
       "sha256": "0aab4aea956e25e21854391ed33de6aaa01b583b14c48822a11e4aedc055d1b5",
       "groups": [

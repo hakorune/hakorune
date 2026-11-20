@@ -100,6 +100,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
 > {
     let app_main = super::lexical_instance_call::borrow_app_main_source_v1(batch, app_main_source)?;
     let app_main_batch_slot = app_main.as_ref().map(|main| main.batch_slot());
+    let dynamic_selectors: BTreeSet<_> = dynamic_source_calls
+        .iter()
+        .map(|call| (call.dispatch().selector(), call.dispatch().arity()))
+        .collect();
     let mut claims = Vec::new();
     let mut result_claims = Vec::new();
     let mut seeds = super::super::result_contract::VerifiedCallableResultContractBuilderV1::new();
@@ -341,8 +345,19 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let has_borrowed_source_calls = borrowed_formal_source.as_ref().is_ok_and(|rows| {
                     rows.incoming_calls_for_owner(input.owner())
                 });
-                requests.require(ScanRequestV1::IntegerReturn, borrowed_formal_source.as_ref().is_ok_and(|rows|
-                    rows.integer_return_target(owner) || rows.integer_mul_return_target(input)));
+                // Dynamic provider publication needs the same verified terminal
+                // rows as other I64 result consumers, even for a plain completion.
+                let needs_dynamic_result = matches!(
+                    selected.key_for_batch_slot(batch_slot),
+                    Some(SelectedNormalCallableKeyV1::Cataloged(key))
+                        if key.namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+                            && dynamic_selectors.contains(&(key.name(), key.arity()))
+                );
+                requests.require(
+                    ScanRequestV1::IntegerReturn,
+                    needs_dynamic_result || borrowed_formal_source.as_ref().is_ok_and(|rows|
+                        rows.integer_return_target(owner) || rows.integer_mul_return_target(input)),
+                );
                 requests.require(ScanRequestV1::FormalFieldRead, borrowed_formal_source.as_ref().is_ok_and(|rows| {
                     rows.formal_field_read_target(input.owner())
                 }));
