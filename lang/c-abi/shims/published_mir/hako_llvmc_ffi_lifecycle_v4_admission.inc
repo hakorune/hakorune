@@ -223,21 +223,8 @@ static int lv4_string_indexed_integer_operand(hako_lv4_function_index* fn,
       value->kind == LV4_TAGGED && lv4_borrowed_tagged_formal(fn, value);
 }
 
-static int lv4_dynamic_operand_live(hako_lv4_function_index* fn, yyjson_val* operand,
-    const hako_lv4_state* state) {
-  if (lv4_is(operand, "kind", "null")) return 1;
-  hako_lv4_value* value = lv4_index_value(fn, lv4_u(operand, "value"));
-  if (!value) return 0;
-  if (lv4_is(operand, "kind", "integer")) return value->kind == LV4_I64;
-  if (lv4_is(operand, "kind", "bool")) return value->kind == LV4_BOOL;
-  if (lv4_is(operand, "kind", "tagged_dynamic"))
-    return value->kind == LV4_TAGGED && lv4_borrowed_tagged_formal(fn, value) &&
-        !(hako_physical_finite_domain(lv4_borrowed_formal_parameter(fn, value)) & (1u << 4));
-  return lv4_is(operand, "kind", "dynamic_carrier") &&
-      value->kind == LV4_DYNAMIC_CARRIER && value->origin >= 0 &&
-      state[value->origin] == LV4_DYNAMIC_CARRIER_LIVE;
-}
-
+static int lv4_dynamic_invoke_operands_live(const hako_lv4_input* in,
+    hako_lv4_function_index* fn, yyjson_val* op, const hako_lv4_state* state);
 
 #include "hako_llvmc_ffi_lifecycle_v4_indexed_flow.inc"
 
