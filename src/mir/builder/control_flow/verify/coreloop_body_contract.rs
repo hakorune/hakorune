@@ -28,7 +28,7 @@ pub(in crate::mir::builder) fn has_control_flow_effect(effects: &[CoreEffectPlan
     effects.iter().any(|effect| {
         matches!(
             effect,
-            CoreEffectPlan::ExitIf { .. } | CoreEffectPlan::IfEffect { .. }
+            CoreEffectPlan::IfEffect { .. }
         )
     })
 }

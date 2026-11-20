@@ -80,44 +80,15 @@
   {
     "id": "core-effect-if",
     "category": "if",
-    "role": "writer",
+    "role": "forwarder",
     "file": "src/mir/builder/control_flow/plan/lowerer/body_processing.rs",
     "sites": [
       {
-        "line": 60,
-        "code": "emit_conditional("
+        "line": 41,
+        "code": "let result = builder.lower_if_form_for_effects_v1("
       }
     ],
-    "evidence": "IfEffectの真偽の行き先を決めてBranchを出す"
-  },
-  {
-    "id": "core-exit-if",
-    "category": "if",
-    "role": "writer",
-    "file": "src/mir/builder/control_flow/plan/lowerer/effect_emission.rs",
-    "sites": [
-      {
-        "line": 451,
-        "code": "emit_conditional(builder, cond_val, return_bb, fallthrough_target)?;"
-      },
-      {
-        "line": 463,
-        "code": "emit_conditional(builder, cond_val, frame.break_target, fallthrough_target)?;"
-      },
-      {
-        "line": 480,
-        "code": "emit_conditional(builder, cond_val, frame.break_target, fallthrough_target)?;"
-      },
-      {
-        "line": 485,
-        "code": "emit_conditional(builder, cond_val, frame.continue_target, fallthrough_target)?;"
-      },
-      {
-        "line": 516,
-        "code": "emit_conditional(builder, cond_val, frame.continue_target, fallthrough_target)?;"
-      }
-    ],
-    "evidence": "早期リターン／ループ出口と継続の真偽の行き先を決める"
+    "evidence": "事前に確定した効果列を腕のコールバックに渡す。分岐と正常合流は共通の if が発行する。"
   },
   {
     "id": "static-recipe-if",
@@ -321,40 +292,6 @@
       }
     ],
     "evidence": "CoreExitPlanでLoopFrameを深さ解決し、continue_targetに値なし／PHI付きで飛ぶ"
-  },
-  {
-    "id": "core-exit-if-break",
-    "category": "loop-break",
-    "role": "writer",
-    "file": "src/mir/builder/control_flow/plan/lowerer/effect_emission.rs",
-    "sites": [
-      {
-        "line": 463,
-        "code": "emit_conditional(builder, cond_val, frame.break_target, fallthrough_target)?;"
-      },
-      {
-        "line": 480,
-        "code": "emit_conditional(builder, cond_val, frame.break_target, fallthrough_target)?;"
-      }
-    ],
-    "evidence": "ExitIfの真の行き先をLoopFrameのbreak_targetから決める"
-  },
-  {
-    "id": "core-exit-if-continue",
-    "category": "loop-continue",
-    "role": "writer",
-    "file": "src/mir/builder/control_flow/plan/lowerer/effect_emission.rs",
-    "sites": [
-      {
-        "line": 485,
-        "code": "emit_conditional(builder, cond_val, frame.continue_target, fallthrough_target)?;"
-      },
-      {
-        "line": 516,
-        "code": "emit_conditional(builder, cond_val, frame.continue_target, fallthrough_target)?;"
-      }
-    ],
-    "evidence": "ExitIfの真の行き先をLoopFrameのcontinue_targetから決める"
   },
   {
     "id": "recursive-recipe-break",

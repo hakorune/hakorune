@@ -17,7 +17,7 @@
 use super::{effect_validators, primitives};
 use crate::mir::builder::control_flow::edgecfg::api::ExitKind;
 use crate::mir::builder::control_flow::lower::{
-    CoreEffectPlan, CoreExitPlan, CoreLoopPlan, CorePlan, LoopStepMode, LoweredRecipe,
+    CoreExitPlan, CoreLoopPlan, CorePlan, LoopStepMode, LoweredRecipe,
 };
 
 /// Phase 273 P3: Verify loop with generalized fields
@@ -244,36 +244,13 @@ fn plan_contains_depth1_continue_at_current_loop(plan: &LoweredRecipe) -> bool {
                     .is_some_and(|plans| contains_depth1_continue_at_current_loop(plans))
         }
         CorePlan::Loop(_) => false,
-        CorePlan::Effect(effect) => effect_contains_depth1_continue(effect),
+        CorePlan::Effect(_) => false,
         CorePlan::Exit(CoreExitPlan::Continue(1))
         | CorePlan::Exit(CoreExitPlan::ContinueWithPhiArgs { depth: 1, .. }) => true,
         CorePlan::Exit(_) => false,
     }
 }
 
-fn effect_contains_depth1_continue(effect: &CoreEffectPlan) -> bool {
-    match effect {
-        CoreEffectPlan::ExitIf {
-            exit: CoreExitPlan::Continue(1),
-            ..
-        }
-        | CoreEffectPlan::ExitIf {
-            exit: CoreExitPlan::ContinueWithPhiArgs { depth: 1, .. },
-            ..
-        } => true,
-        CoreEffectPlan::IfEffect {
-            then_effects,
-            else_effects,
-            ..
-        } => {
-            then_effects.iter().any(effect_contains_depth1_continue)
-                || else_effects
-                    .as_ref()
-                    .is_some_and(|effects| effects.iter().any(effect_contains_depth1_continue))
-        }
-        _ => false,
-    }
-}
 
 fn verify_inline_explicit_step_backedge_contract(
     loop_plan: &CoreLoopPlan,

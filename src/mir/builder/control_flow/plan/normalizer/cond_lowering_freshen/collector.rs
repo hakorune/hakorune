@@ -145,7 +145,6 @@ fn collect_effect_definitions(effect: &CoreEffectPlan, defs: &mut BTreeSet<Value
         }
         CoreEffectPlan::NamedArrayPush { .. }
         | CoreEffectPlan::MapLiteralEntryWrite { .. }
-        | CoreEffectPlan::FieldSet { .. }
-        | CoreEffectPlan::ExitIf { .. } => {} // No dst
+        | CoreEffectPlan::FieldSet { .. } => {} // No dst
     }
 }

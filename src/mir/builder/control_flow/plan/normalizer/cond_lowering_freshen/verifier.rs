@@ -504,13 +504,6 @@ fn find_unremapped_value_id_effect(
             }
             None
         }
-        CoreEffectPlan::ExitIf { cond, exit } => {
-            if let Some(&new) = value_map.get(cond) {
-                return Some((*cond, new, "Effect::ExitIf.cond"));
-            }
-            let exit_plan: LoweredRecipe = CorePlan::Exit(exit.clone());
-            find_unremapped_value_id_plan(&exit_plan, value_map)
-        }
         CoreEffectPlan::IfEffect {
             cond,
             then_effects,

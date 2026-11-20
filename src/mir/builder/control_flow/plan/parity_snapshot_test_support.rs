@@ -183,10 +183,6 @@ pub(in crate::mir::builder) enum NormalizedEffectV1 {
         then_val: ValueId,
         else_val: ValueId,
     },
-    ExitIf {
-        cond: ValueId,
-        exit: NormalizedExitV1,
-    },
     IfEffect {
         cond: ValueId,
         then_effects: Vec<NormalizedEffectV1>,
@@ -468,10 +464,6 @@ fn normalize_effect(effect: &CoreEffectPlan) -> Result<NormalizedEffectV1, &'sta
             cond: *cond,
             then_val: *then_val,
             else_val: *else_val,
-        },
-        CoreEffectPlan::ExitIf { cond, exit } => NormalizedEffectV1::ExitIf {
-            cond: *cond,
-            exit: normalize_exit(exit),
         },
         CoreEffectPlan::IfEffect {
             cond,

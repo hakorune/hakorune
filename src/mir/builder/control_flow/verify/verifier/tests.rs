@@ -130,36 +130,7 @@ mod tests {
         assert!(result.is_ok());
     }
 
-    #[test]
-    fn test_verify_loop_body_if_effect_exit_fails() {
-        let if_effect = CoreEffectPlan::IfEffect {
-            cond: ValueId(1),
-            then_effects: vec![CoreEffectPlan::ExitIf {
-                cond: ValueId(2),
-                exit: CoreExitPlan::Return(Some(ValueId(3))),
-            }],
-            else_effects: None,
-        };
-        let plan = CorePlan::Loop(make_loop_plan(vec![CorePlan::Effect(if_effect)]));
-        let result = PlanVerifier::verify(&plan);
-        assert!(result.is_err());
-        assert!(result.unwrap_err().contains("[V12]"));
-    }
 
-    #[test]
-    fn test_verify_loop_body_if_effect_continue_ok() {
-        let if_effect = CoreEffectPlan::IfEffect {
-            cond: ValueId(1),
-            then_effects: vec![CoreEffectPlan::ExitIf {
-                cond: ValueId(1),
-                exit: CoreExitPlan::Continue(1),
-            }],
-            else_effects: None,
-        };
-        let plan = CorePlan::Loop(make_loop_plan(vec![CorePlan::Effect(if_effect)]));
-        let result = PlanVerifier::verify(&plan);
-        assert!(result.is_ok());
-    }
 
     #[test]
     fn test_verify_loop_body_if_ok() {

@@ -3,19 +3,20 @@
 //! # Responsibilities
 //!
 //! - Process loop body effects with fallthrough tracking
-//! - Handle IfEffect and ExitIf in loop bodies
+//! - Lower IfEffect arms through the ordinary if writer
 //! - Flatten Seq plans into effect lists
 //! - Emit body effects with or without control flow
 //!
 //! # Design
 //!
-//! - Fallthrough state management for effect chains
+//! - Forward normal loop body completion to the step block
 //! - Recursive calls to lower_with_stack for non-effect plans
 //! - Control flow detection for optimization decisions
 
 use super::LoopFrame;
 use crate::mir::builder::control_flow::plan::lowering_context::PlanLoweringContext;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
+use crate::mir::builder::if_form::IfBranchKindV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, MirInstruction, ValueId};
 use std::collections::HashSet;
@@ -27,71 +28,38 @@ use helpers::{
 };
 
 impl super::PlanLowerer {
-    pub(super) fn emit_if_effect(
+    fn emit_if_effect(
         builder: &mut MirBuilder,
-        cond: crate::mir::ValueId,
+        condition: ValueId,
         then_effects: &[CoreEffectPlan],
         else_effects: Option<&[CoreEffectPlan]>,
-        fallthrough_target: BasicBlockId,
-        loop_stack: &mut [LoopFrame],
         port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<(), String> {
-        use crate::mir::builder::emission::branch::emit_conditional;
-
-        let _pre_branch_bb = builder
-            .function_state
-            .current_block
-            .ok_or_else(|| "[lowerer] No current block for IfEffect".to_string())?;
-
-        let then_bb = builder.next_block_id();
-        builder.ensure_block_exists(then_bb)?;
-        builder.ensure_block_exists(fallthrough_target)?;
-
-        let mut cond_val = cond;
-        crate::mir::builder::ssa::local::finalize_branch_cond(builder, &mut cond_val)?;
-
-        let else_bb = if else_effects.is_some() {
-            let else_bb = builder.next_block_id();
-            builder.ensure_block_exists(else_bb)?;
-            Some(else_bb)
-        } else {
-            None
-        };
-        emit_conditional(
-            builder,
-            cond_val,
-            then_bb,
-            else_bb.unwrap_or(fallthrough_target),
-        )?;
-
-        builder.start_new_block(then_bb)?;
-        Self::emit_effects_with_fallthrough(
-            builder,
-            then_effects,
-            fallthrough_target,
-            loop_stack,
-            port,
-        )?;
-
-        if let (Some(else_bb), Some(else_effects)) = (else_bb, else_effects) {
-            builder.start_new_block(else_bb)?;
-            Self::emit_effects_with_fallthrough(
-                builder,
-                else_effects,
-                fallthrough_target,
-                loop_stack,
-                port,
-            )?;
-        }
-
-        Ok(())
+        // The plan has already resolved each operand to a ValueId. Its variable
+        // cache can name destinations that the following effects still define.
+        let bindings = std::mem::take(&mut builder.function_state.variable_ctx.variable_map);
+        let result = builder.lower_if_form_for_effects_v1(
+            condition,
+            None,
+            else_effects.is_some(),
+            |builder, branch| {
+                let effects = match branch {
+                    IfBranchKindV1::Then => then_effects,
+                    IfBranchKindV1::Else => {
+                        else_effects.expect("if_form visits explicit else arms only")
+                    }
+                };
+                Self::emit_effects(builder, effects, port)
+            },
+            None,
+        );
+        builder.function_state.variable_ctx.variable_map = bindings;
+        result
     }
 
-    pub(super) fn emit_effects_with_fallthrough(
+    fn emit_effects(
         builder: &mut MirBuilder,
         effects: &[CoreEffectPlan],
-        fallthrough_target: BasicBlockId,
-        loop_stack: &mut [LoopFrame],
         port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<(), String> {
         let strict_planner_required = crate::config::env::joinir_dev::strict_enabled()
@@ -110,65 +78,23 @@ impl super::PlanLowerer {
         } else {
             None
         };
-        let mut idx = 0;
-        let mut terminated = false;
-        while idx < effects.len() {
-            let effect = &effects[idx];
+        for (idx, effect) in effects.iter().enumerate() {
             if let CoreEffectPlan::Const { dst, value } = effect {
                 debug_log_literal_plan(builder, "body_fallthrough", *dst, value);
             }
             match effect {
-                CoreEffectPlan::ExitIf { cond, exit } => {
-                    let has_more = idx + 1 < effects.len();
-                    let fallthrough = if has_more {
-                        let next_bb = builder.next_block_id();
-                        builder.ensure_block_exists(next_bb)?;
-                        Some(next_bb)
-                    } else {
-                        None
-                    };
-                    Self::emit_exit_if(
-                        builder,
-                        *cond,
-                        exit,
-                        fallthrough.unwrap_or(fallthrough_target),
-                        loop_stack,
-                    )?;
-                    if let Some(next_bb) = fallthrough {
-                        builder.start_new_block(next_bb)?;
-                        terminated = false;
-                    } else {
-                        terminated = true;
-                    }
-                }
                 CoreEffectPlan::IfEffect {
                     cond,
                     then_effects,
                     else_effects,
                 } => {
-                    let has_more = idx + 1 < effects.len();
-                    let fallthrough = if has_more {
-                        let next_bb = builder.next_block_id();
-                        builder.ensure_block_exists(next_bb)?;
-                        Some(next_bb)
-                    } else {
-                        None
-                    };
                     Self::emit_if_effect(
                         builder,
                         *cond,
                         then_effects,
                         else_effects.as_deref(),
-                        fallthrough.unwrap_or(fallthrough_target),
-                        loop_stack,
                         port,
                     )?;
-                    if let Some(next_bb) = fallthrough {
-                        builder.start_new_block(next_bb)?;
-                        terminated = false;
-                    } else {
-                        terminated = true;
-                    }
                 }
                 _ => {
                     if strict_planner_required {
@@ -249,17 +175,8 @@ impl super::PlanLowerer {
                             defined_values.insert(def_value);
                         }
                     }
-                    terminated = false;
                 }
             }
-            idx += 1;
-        }
-
-        if !terminated {
-            builder.emit_instruction(MirInstruction::Jump {
-                target: fallthrough_target,
-                edge_args: None,
-            })?;
         }
         Ok(())
     }
@@ -268,7 +185,6 @@ impl super::PlanLowerer {
         builder: &mut MirBuilder,
         effects: &[CoreEffectPlan],
         fallthrough_target: BasicBlockId,
-        loop_stack: &mut [LoopFrame],
         port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<(), String> {
         let has_control_flow =
@@ -377,22 +293,22 @@ impl super::PlanLowerer {
             return Ok(());
         }
 
-        Self::emit_effects_with_fallthrough(builder, effects, fallthrough_target, loop_stack, port)
+        Self::emit_effects(builder, effects, port)?;
+        if !builder.is_current_block_terminated() {
+            builder.emit_instruction(MirInstruction::Jump {
+                target: fallthrough_target,
+                edge_args: None,
+            })?;
+        }
+        Ok(())
     }
 
     pub(super) fn emit_effect_in_loop(
         builder: &mut MirBuilder,
         effect: &CoreEffectPlan,
-        loop_stack: &mut [LoopFrame],
         port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<(), String> {
         match effect {
-            CoreEffectPlan::ExitIf { cond, exit } => {
-                let fallthrough_target = builder.next_block_id();
-                builder.ensure_block_exists(fallthrough_target)?;
-                Self::emit_exit_if(builder, *cond, exit, fallthrough_target, loop_stack)?;
-                builder.start_new_block(fallthrough_target)?;
-            }
             CoreEffectPlan::IfEffect {
                 cond,
                 then_effects,
@@ -402,18 +318,7 @@ impl super::PlanLowerer {
                 if let Some(else_effects) = else_effects.as_deref() {
                     validate_effects_binop_operands(builder, else_effects, "if_effect_else")?;
                 }
-                let fallthrough_target = builder.next_block_id();
-                builder.ensure_block_exists(fallthrough_target)?;
-                Self::emit_if_effect(
-                    builder,
-                    *cond,
-                    then_effects,
-                    else_effects.as_deref(),
-                    fallthrough_target,
-                    loop_stack,
-                    port,
-                )?;
-                builder.start_new_block(fallthrough_target)?;
+                Self::emit_if_effect(builder, *cond, then_effects, else_effects.as_deref(), port)?;
             }
             _ => {
                 // This path emits a single effect (not a list). If a BinOp operand is undefined here,

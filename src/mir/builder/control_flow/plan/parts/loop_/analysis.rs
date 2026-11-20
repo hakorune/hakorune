@@ -49,7 +49,7 @@ fn plans_have_non_local_exit(plans: &[LoweredRecipe]) -> bool {
 fn plan_has_non_local_exit(plan: &LoweredRecipe) -> bool {
     match plan {
         CorePlan::Exit(_) => true,
-        CorePlan::Effect(effect) => effect_has_non_local_exit(effect),
+        CorePlan::Effect(_) => false,
         CorePlan::If(if_plan) => {
             plans_have_non_local_exit(&if_plan.then_plans)
                 || if_plan
@@ -74,10 +74,6 @@ fn plan_has_non_local_exit(plan: &LoweredRecipe) -> bool {
 
 fn loop_has_non_local_exit(loop_plan: &CoreLoopPlan) -> bool {
     plans_in_loop_body_have_non_local_exit(&loop_plan.body)
-        || loop_plan
-            .block_effects
-            .iter()
-            .any(|(_, effects)| effects.iter().any(effect_has_non_local_exit))
 }
 
 fn plans_in_loop_body_have_non_local_exit(plans: &[LoweredRecipe]) -> bool {
@@ -87,7 +83,7 @@ fn plans_in_loop_body_have_non_local_exit(plans: &[LoweredRecipe]) -> bool {
 fn plan_in_loop_body_has_non_local_exit(plan: &LoweredRecipe) -> bool {
     match plan {
         CorePlan::Exit(exit) => exit_escapes_enclosing_loop(exit),
-        CorePlan::Effect(effect) => effect_has_non_local_exit(effect),
+        CorePlan::Effect(_) => false,
         CorePlan::If(if_plan) => {
             plans_in_loop_body_have_non_local_exit(&if_plan.then_plans)
                 || if_plan
@@ -119,22 +115,6 @@ fn exit_escapes_enclosing_loop(exit: &CoreExitPlan) -> bool {
     }
 }
 
-fn effect_has_non_local_exit(effect: &CoreEffectPlan) -> bool {
-    match effect {
-        CoreEffectPlan::ExitIf { .. } => true,
-        CoreEffectPlan::IfEffect {
-            then_effects,
-            else_effects,
-            ..
-        } => {
-            then_effects.iter().any(effect_has_non_local_exit)
-                || else_effects
-                    .as_ref()
-                    .is_some_and(|effects| effects.iter().any(effect_has_non_local_exit))
-        }
-        _ => false,
-    }
-}
 
 fn collect_defined_values_from_effect(effect: &CoreEffectPlan, out: &mut BTreeSet<ValueId>) {
     match effect {
@@ -174,7 +154,6 @@ fn collect_defined_values_from_effect(effect: &CoreEffectPlan, out: &mut BTreeSe
         }
         CoreEffectPlan::NamedArrayPush { .. }
         | CoreEffectPlan::MapLiteralEntryWrite { .. }
-        | CoreEffectPlan::FieldSet { .. }
-        | CoreEffectPlan::ExitIf { .. } => {}
+        | CoreEffectPlan::FieldSet { .. } => {}
     }
 }

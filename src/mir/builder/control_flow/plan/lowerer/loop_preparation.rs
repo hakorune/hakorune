@@ -77,7 +77,7 @@ pub fn prepare_loop_entry(
     // Flatten body effects and check for control flow
     let body_effects = try_flatten_body_effects(&loop_plan.body)?;
     let body_has_control_flow = match body_effects.as_ref() {
-        Some(effects) => has_control_flow_effect(effects),
+        Some(effects) => crate::mir::builder::control_flow::verify::coreloop_body_contract::has_control_flow_effect(effects),
         None => true,
     };
 
@@ -145,16 +145,4 @@ fn try_flatten_body_effects(body: &[LoweredRecipe]) -> Result<Option<Vec<CoreEff
     }
 
     Ok(Some(effects))
-}
-
-/// Check if effects contain control flow (ExitIf/IfEffect)
-fn has_control_flow_effect(effects: &[CoreEffectPlan]) -> bool {
-    use crate::mir::builder::control_flow::plan::CoreEffectPlan;
-
-    effects.iter().any(|e| {
-        matches!(
-            e,
-            CoreEffectPlan::ExitIf { .. } | CoreEffectPlan::IfEffect { .. }
-        )
-    })
 }
