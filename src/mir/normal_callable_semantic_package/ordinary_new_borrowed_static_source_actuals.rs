@@ -382,13 +382,24 @@ pub(super) fn prepare_static_source_actuals_v1(
             BorrowedCallActualValueV1::Integer(_) => true,
             BorrowedCallActualValueV1::FreshConstruction(construction)
                 if prepared.has_original_fresh_take_v1(call, actual.ordinal, construction, contracts)? => false,
-            BorrowedCallActualValueV1::Home { binding, root, acquisition, moved: Some(moved) }
-                if formal.demand == crate::mir::resolved_semantics::HomeDemandV1::Home
-                    && binding.owner() == call.owner() && root.owner() == call.owner()
-                    && acquisition.owner() == call.owner() && moved.site() == &actual.site && moved.is_move() =>
+            BorrowedCallActualValueV1::Home { binding, root, acquisition, moved }
+                if binding.owner() == call.owner()
+                    && root.owner() == call.owner()
+                    && acquisition.owner() == call.owner()
+                    && match moved {
+                        Some(moved) => {
+                            formal.demand == crate::mir::resolved_semantics::HomeDemandV1::Home
+                                && moved.site() == &actual.site
+                                && moved.is_move()
+                        }
+                        None => {
+                            formal.demand == crate::mir::resolved_semantics::HomeDemandV1::Handle
+                                && formal.kind.is_ordinary_borrowed_handle()
+                        }
+                    } =>
             {
-                // Original owned source only. The common actual constructor
-                // still proves its acquisition/class before entry adoption.
+                // Retain the original read. The common actual constructor
+                // proves its acquisition and keeps the caller's Home for a borrow.
                 false
             }
             BorrowedCallActualValueV1::Expression

@@ -486,8 +486,24 @@ impl EmittedBoolConditionProjectionV1 {
                         .iter()
                         .find(|call| call.site() == packet.call_site())
                         .ok_or_else(|| freeze("bool-condition/call-observation"))?;
+                    let owner = self.frame.source().owner();
+                    let context = CallValidationContextV1::Lowering(ledger);
+                    let prefix = ExpressionCallTransientPrefixV1::for_condition_v1(
+                        self.frame.evaluation(),
+                        observation,
+                    )?;
+                    let verified = packet.validate_expression_arguments_at_source_v1(
+                        context,
+                        function,
+                        None,
+                        bindings,
+                        None,
+                        Some(&prefix),
+                        Some(ExpressionCallArgumentSourceV1::from_local(observation)),
+                        &[],
+                    )?;
                     packet.visit_original_nodes_v1(
-                        self.frame.source().owner(),
+                        owner,
                         observation.arguments(),
                         ledger,
                         &mut |inner, _| {
@@ -502,29 +518,29 @@ impl EmittedBoolConditionProjectionV1 {
                                 bindings
                                     .iter()
                                     .filter(|binding| {
-                                        inner.has_producer_at(inner.call_site(), binding)
+                                        inner.has_original_scope_binding_at(inner.call_site(), binding)
                                     })
                                     .cloned(),
                             );
-                            let MirInstruction::Invoke {
-                                fault_frame,
-                                fault_landing,
-                                ..
-                            } = &inner.invoke_binding().1
-                            else {
-                                return Err(freeze("bool-condition/call-invoke"));
-                            };
-                            producers.extend(self.expected_fault_inventory_v1(
-                                ledger,
-                                function,
-                                inner.call_site(),
-                                fault_frame,
-                                fault_landing,
-                                wrapper_suffix,
-                            )?);
                             Ok(())
                         },
                     )?;
+                    // Allow the exact operations whose argument lifetimes were
+                    // proved above, including End on the Normal path of a Call
+                    // and its already verified residual Fault path.
+                    for binding in packet.ordered_call_bindings_in_context_v1(
+                        owner, observation.arguments(), context,
+                    )? {
+                        if let MirInstruction::Invoke { fault_frame, fault_landing, .. } = &binding.1 {
+                            if verified.contains(&binding.0) {
+                                producers.extend(self.checked_fault_bindings_v1(
+                                    ledger, function, fault_frame, fault_landing,
+                                    &verified, wrapper_suffix,
+                                )?);
+                                producers.push(binding);
+                            }
+                        }
+                    }
                     producers.extend(
                         packet
                             .copy_dependencies(ledger)?
@@ -614,27 +630,18 @@ impl EmittedBoolConditionProjectionV1 {
 }
 
 impl EmittedBoolConditionProjectionV1 {
-    /// One source Home unwind inventory for both Call and String operations.
-    fn expected_fault_inventory_v1(
+    /// Collect only Fault effects already covered by the argument-lifetime proof
+    /// and verify the shared wrapper/diagnostic frame.
+    fn checked_fault_bindings_v1(
         &self,
         ledger: &OrdinaryNewClaimLedgerV1,
         function: &MirFunction,
-        call: &OwnedExprSiteV1,
         fault_frame: &ValueId,
         fault_landing: &BasicBlockId,
+        operations: &BTreeSet<BasicBlockId>,
         wrapper_suffix: &[Binding],
     ) -> Result<Vec<Binding>, String> {
         let mut producers = Vec::new();
-        let current = self.frame.evaluation().ownership_v1().entered_call(call)
-            .ok_or_else(|| freeze("expression/argument-owner-unavailable"))?;
-        let expected = ledger.expression_home_unwind_at_v1(self.frame.evaluation(), current, None)?;
-        let operations =
-            super::super::super::super::root_cleanup_graph::ordered_paths::pending_operations(
-                function,
-                *fault_landing,
-                &expected,
-                Some(*fault_frame),
-            )?;
         // Empty routing/ReturnFault nodes are structural; every
         // effectful Fault node must be in the source unwind.
         let mut pending = vec![*fault_landing];
