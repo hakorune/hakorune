@@ -96,16 +96,14 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
             let _callables = self.callables;
             let mut root_validation = self.root_validation;
             let _ = root_validation.validate(module, false)?;
-            // The bare-MIR result drops original borrowed call proofs.
+            // Bare MIR drops the finalized call loans. Check their retained
+            // source products, rather than the opcodes that also occur in Loops.
+            if matches!(&root_validation, RootValidation::OrdinaryNew { ledger, .. }
+                if ledger.has_dynamic_receiver_source_uses_v1())
+            {
+                return Err(fault("dynamic-receiver-source-handoff-required"));
+            }
             for function in module.functions.values() {
-                use crate::mir::instruction::{DynamicInvocationOperandV1, InvokeOperation};
-                use crate::mir::MirInstruction;
-                if function.blocks.values().any(|block| matches!(block.terminator.as_ref(),
-                    Some(MirInstruction::Invoke { operation: InvokeOperation::DynamicInvocation(call), .. })
-                        if matches!(call.receiver(), DynamicInvocationOperandV1::TaggedDynamic(_)
-                            | DynamicInvocationOperandV1::BorrowedTypedObject(_)))) {
-                    return Err(fault("dynamic-receiver-source-handoff-required"));
-                }
                 crate::mir::verification::check_string_call_source_uses(function, |_, _, _, _| false)
                     .map_err(|reason| format!("[freeze:contract][bare-mir/{reason}]"))?;
             }

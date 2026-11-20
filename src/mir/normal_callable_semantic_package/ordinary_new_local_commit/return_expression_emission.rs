@@ -276,6 +276,21 @@ impl RootHomeCleanupOrderV1 {
     }
 }
 impl OrdinaryNewClaimLedgerV1 {
+    /// Bare MIR may discard this ledger only if its calls have no checked
+    /// Dynamic receiver loan that must reach the source-bound verifier.
+    pub(in crate::mir) fn has_dynamic_receiver_source_uses_v1(&self) -> bool {
+        self.root_exits.borrow().values().any(|progress| {
+            let order = match progress {
+                RootHomeExitProgress::Emitted { order, .. }
+                | RootHomeExitProgress::Finalized(order) => order,
+                _ => return false,
+            };
+            order.return_expression_v1().is_some_and(|expression| {
+                expression.dynamic_calls_v1().next().is_some()
+            })
+        })
+    }
+
     pub(in crate::mir) fn retain_return_expression_v1(
         &self,
         source: std::rc::Rc<
