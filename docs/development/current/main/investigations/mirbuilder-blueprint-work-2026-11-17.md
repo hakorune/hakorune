@@ -141,6 +141,7 @@ compilerの動くcodeは変更していない。coverage CLIは前回の同じbi
 |---|---|---|
 | DC-1 | `run(x) { x < 3 }`(注釈なし仮引数)を検査つきの比較にする | 済(`0724d671e5`)。Invoke の入力形 `DynamicBorrowedInteger` と kernel 関数 1 つ(決定 24 の追記)。`Dynamic < I64`・`Dynamic > I64`・`I64 < Dynamic`。非整数は TypeError 302 を比較の site に。持ち主は route guide の比較の行。全 5,936 入力で新しい拒否 0、MIR 差 14(実行同じ 13、TypeError 1) |
 | DC-2 | Resolve で Dynamic に依ると確かめた、残りの raw `icmp` を直す(挙動の直し。commit を分ける) | 済(2026-11-20、code の変更なし)。契約のある比較で検査の抜けは 0。契約の無い演算子・向きの raw 比較は 1,606(Eq 1,533、Ne 46、Le 26、Ge 1)。注釈なし仮引数の `x <= 3` は、整数で正しく、Bool では診断なしの exit 70。C の test 4 本は、元の Bool 入力がまだ compile できず止まる |
+| DC-1c | 順序比較の残り 5 組(`Dynamic <= I64`・`Dynamic >= I64`・`I64 > Dynamic`・`I64 <= Dynamic`・`I64 >= Dynamic`)を DC-1 の形で検査つきにする。契約は dynamic-operators.md に追加(メンテナの判断 2026-11-20)。新しい ABI なし | 次 |
 | DC-3 | `Dynamic != I64`(4.3 の適用。等値の否定)と、戻りの型が無い呼び出しの結果(`release_source`) | 後 |
 | DC-4 | 古い plan の入口(bc・複合)の使い手を移し、入口と中の `if` の書き手を消す | DC-1〜3 の後 |
 

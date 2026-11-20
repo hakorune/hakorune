@@ -46,6 +46,16 @@ DynamicLess(I64, Dynamic):
   outcome     = Normal(TrivialBool) | Fault(TypeError)
   lifecycle   = none
 
+DynamicLessEqual/DynamicGreaterEqual(Dynamic, I64):
+DynamicGreater/DynamicLessEqual/DynamicGreaterEqual(I64, Dynamic):
+  (maintainer Decision 2026-11-20; the meaning is types.md section 4.2)
+  same effect/order/suspension/control/operand law
+  the Dynamic operand must contain a signed I64
+  operands are evaluated once each in source order; the source operator
+  and operand order are kept (no rewriting `3 >= x` into `x <= 3`)
+  outcome     = Normal(TrivialBool) | Fault(TypeError)
+  lifecycle   = none
+
 Dynamic/String comparison:
   Equal/NotEqual(Dynamic, String) | (String, Dynamic):
     Normal(TrivialBool); a well-formed non-String Dynamic tag compares unequal
