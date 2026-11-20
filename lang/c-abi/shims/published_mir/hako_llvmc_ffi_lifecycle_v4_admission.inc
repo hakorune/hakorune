@@ -1,6 +1,6 @@
 /* Physical cohort admission only. Source names never participate. */
 typedef struct {
-  yyjson_val *root, *functions;
+  yyjson_val *root, *functions, *dispatch;
   uint32_t profile;
   int native;
   int direct;
@@ -12,6 +12,12 @@ typedef struct {
   size_t layout_count;
   hako_llvmc_lifecycle_measurement* measurement;
 } hako_lv4_input;
+
+/* Numeric JSON kind 3 is the existing proven typed-object actual. In a
+ * program with a descriptor it becomes a typed-store pair on the ABI. */
+static unsigned lv4_typed_store_tag(const hako_lv4_input* in) {
+  return in->dispatch ? NYRT_DYNAMIC_TAG_TYPED_STORE_BORROW_V1 : 3u;
+}
 
 enum {
   LV4_BAD, LV4_I64, LV4_HANDLE, LV4_FRAME, LV4_UNIT, LV4_TEXT, LV4_BOOL,
@@ -438,9 +444,12 @@ static int lv4_indexed_admit(hako_lv4_input* in, char** error) {
   return 1;
 }
 
+#include "hako_llvmc_ffi_lifecycle_v4_dispatch_admission.inc"
+
 static int lv4_admit(yyjson_val* root, hako_lv4_input* out, char** error) {
   int result;
   out->root = root; out->functions = yyjson_obj_get(root, "functions");
+  out->dispatch = yyjson_obj_get(root, "dynamic_dispatch");
   out->native = yyjson_obj_get(root, "runtime_requirements") != NULL;
   out->result_site = yyjson_get_uint(yyjson_obj_get(root, "process_result_site"));
   out->profile = lv4_u(root, "storage_profile");
@@ -451,6 +460,8 @@ static int lv4_admit(yyjson_val* root, hako_lv4_input* out, char** error) {
   if (out->direct) out->profile = 1; /* Explicit fallback store for unselected IDs, never selected pointers. */
   result = out->native ? lv4_native_admit(out) : lv4_indexed_admit(out, error);
   if (result) {
+    if (out->dispatch && !lv4_dispatch_admit(out))
+      return set_err_owned(error, "[freeze:contract][published-lifecycle-v4/dynamic-dispatch]");
     if (result == LV4_FLOW_RECEIVER_MISMATCH)
       return set_err_owned(error,
           "[freeze:contract][published-lifecycle-v4/receiver-object-mismatch]");

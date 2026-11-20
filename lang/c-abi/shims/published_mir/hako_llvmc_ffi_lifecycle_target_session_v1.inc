@@ -1,5 +1,6 @@
 /* Lifecycle-only LLVM target observation. No pinned-text contract enters here. */
 #include "../../../../include/nyrt_fault_v1.h"
+#include "../../../../include/nyrt_dynamic_invocation_v1.h"
 
 typedef void (*hako_lts_init_fn)(void);
 typedef void (*hako_lts_dispose_message_fn)(char*);

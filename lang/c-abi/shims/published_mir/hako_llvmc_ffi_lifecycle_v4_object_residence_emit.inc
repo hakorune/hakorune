@@ -245,6 +245,10 @@ static int lv4_emit_scalar_write(FILE* f, const hako_lv4_input* in, yyjson_val* 
 static void lv4_emit_object_allocation_call(FILE* f, const hako_lv4_input* in, yyjson_val* op, unsigned long long site, uint32_t b) {
         if (lv4_direct_layout(in, lv4_u(op, "object_id"))) {
           fprintf(f, "@hako_direct_new_%u(ptr %%frame, i64 %llu, ptr %%new%u)\n", lv4_u(op, "object_id"), site, b);
+        } else if (in->dispatch) {
+          fprintf(f, "@\"nyash.object.checked_new_in_program_v1\"(ptr %%frame, i32 %u, i64 %llu, ptr @dispatch_program, i64 %lld, ptr @hako_lifecycle_layout_%u, i64 %u, ptr %%new%u)\n",
+              in->profile, site, (long long)lv4_type_id(in, op), lv4_u(op, "object_id"),
+              lv4_u(lv4_layout(in, lv4_u(op, "object_id")), "field_count"), b);
         } else fprintf(f, "@\"nyash.object.checked_new_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %lld, ptr @hako_lifecycle_layout_%u, i64 %u, ptr %%new%u)\n",
             in->profile, site, (long long)lv4_type_id(in, op), lv4_u(op, "object_id"),
             lv4_u(lv4_layout(in, lv4_u(op, "object_id")), "field_count"), b);

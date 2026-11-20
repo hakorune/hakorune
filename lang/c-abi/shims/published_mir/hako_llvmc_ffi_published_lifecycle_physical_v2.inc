@@ -705,12 +705,14 @@ static int hako_physical_validate_function(yyjson_val* function, yyjson_val* fun
 
 static int hako_llvmc_validate_published_lifecycle_physical_v2_doc(yyjson_val* root, char** err_out) {
   static const char* const object_keys[] = {"schema", "functions", "fault_abi_version", "storage_profile", "layouts", "process_result_site"};
+  static const char* const dispatch_keys[] = {"schema", "functions", "fault_abi_version", "storage_profile", "layouts", "process_result_site", "dynamic_dispatch"};
   static const char* const native_keys[] = {"schema", "functions", "fault_abi_version", "runtime_requirements", "process_result_site"};
   static const char* const requirement_keys[] = {"kind", "abi_version"};
   yyjson_val *functions, *layouts, *requirements = yyjson_obj_get(root, "runtime_requirements");
   int native = requirements != NULL;
+  int dispatch = yyjson_obj_get(root, "dynamic_dispatch") != NULL;
   uint64_t process_result_site;
-  if (!hako_physical_exact_keys(root, native ? native_keys : object_keys, native ? 5 : 6) ||
+  if ((native && dispatch) || !hako_physical_exact_keys(root, native ? native_keys : dispatch ? dispatch_keys : object_keys, native ? 5 : dispatch ? 7 : 6) ||
       !hako_physical_string(yyjson_obj_get(root, "schema"), HAKO_PHYSICAL_SCHEMA))
     return hako_physical_fail(err_out, "schema");
   if (native && (!hako_physical_exact_keys(requirements, requirement_keys, 2) ||

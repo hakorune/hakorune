@@ -98,12 +98,12 @@ static int lv4_emit_object_return_outcome(FILE* f, const hako_lv4_input* in,
     uint32_t value = lv4_u(term, "value");
     fprintf(f,
         "  %%return_nonnull%u = icmp ne i64 %%v%u, 0\n"
-        "  %%return_tag%u = select i1 %%return_nonnull%u, i32 3, i32 0\n"
+        "  %%return_tag%u = select i1 %%return_nonnull%u, i32 %u, i32 0\n"
         "  %%return_pair%u = icmp eq i32 %%k%u, %%return_tag%u\n"
         "  br i1 %%return_pair%u, label %%return_borrowed%u, label %%invalid\nreturn_borrowed%u:\n"
         "  %%return_outcome%u = select i1 %%return_nonnull%u, i32 2, i32 0\n"
         "  store i32 %%return_outcome%u, ptr %%out_outcome, align 4\n",
-        block,value, block,block, block,value,block, block,block,block, block,block, block);
+        block,value, block,block,lv4_typed_store_tag(in), block,value,block, block,block,block, block,block, block);
   }
   else if (lv4_is(origin, "kind", "owned_call") || lv4_is(origin, "kind", "borrowed_call")) {
     hako_lv4_function_index* fn = NULL;
@@ -118,13 +118,13 @@ static int lv4_emit_object_return_outcome(FILE* f, const hako_lv4_input* in,
 
 /* A nullable forwarded formal has the object/null domain even without a
  * concrete class constraint. Validate it before the first callee effect. */
-static void lv4_emit_borrowed_result_formal_guard(FILE* f, uint32_t v) {
+static void lv4_emit_borrowed_result_formal_guard(FILE* f, const hako_lv4_input* in, uint32_t v) {
   fprintf(f,
       "  %%arg_zero%u = icmp eq i64 %%v%u, 0\n"
-      "  %%arg_expected%u = select i1 %%arg_zero%u, i32 0, i32 3\n"
+      "  %%arg_expected%u = select i1 %%arg_zero%u, i32 0, i32 %u\n"
       "  %%arg_ok%u = icmp eq i32 %%k%u, %%arg_expected%u\n"
       "  br i1 %%arg_ok%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
-      v,v, v,v, v,v,v, v,v,v);
+      v,v, v,v,lv4_typed_store_tag(in), v,v,v, v,v,v);
 }
 
 /* Validate finite membership without converting a mixed input to one class. */
@@ -191,7 +191,7 @@ static void lv4_emit_borrowed_parameter_guard(FILE* f, const hako_lv4_input* in,
           "arg_object_check%u:\n", v,v,v,v,v,v,v,v,v,v,v);
       }
       fprintf(f,
-          "  %%arg_object%u = icmp eq i32 %%k%u, 3\n"
+          "  %%arg_object%u = icmp eq i32 %%k%u, %u\n"
           "  %%arg_nonzero%u = icmp ne i64 %%v%u, 0\n"
           "  %%arg_live%u = and i1 %%arg_object%u, %%arg_nonzero%u\n"
           "  br i1 %%arg_live%u, label %%arg_type_check%u, label %%invalid\n"
@@ -199,14 +199,14 @@ static void lv4_emit_borrowed_parameter_guard(FILE* f, const hako_lv4_input* in,
           "  %%arg_type%u = call i64 @\"nyash.object.type_id_h\"(i64 %%v%u)\n"
           "  %%arg_class%u = icmp eq i64 %%arg_type%u, %u\n"
           "  br i1 %%arg_class%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
-          v,v,v,v,v,v,v,v,v,v,v,v,v,v,runtime_type,v,v,v);
+          v,v,lv4_typed_store_tag(in),v,v,v,v,v,v,v,v,v,v,v,v,runtime_type,v,v,v);
       return;
     }
     if ((lv4_is(fn, "role", "ordinary_borrowed_nullable_handle") ||
         lv4_is(fn, "role", "ordinary_mixed_handle")) &&
         hako_physical_u32(yyjson_obj_get(fn, "result_formal_ordinal"), NULL) &&
         i == lv4_u(fn, "result_formal_ordinal")) {
-      lv4_emit_borrowed_result_formal_guard(f, v);
+      lv4_emit_borrowed_result_formal_guard(f, in, v);
       return;
     }
     if (yyjson_is_true(yyjson_obj_get(param, "text_view"))) {
@@ -228,7 +228,7 @@ static void lv4_emit_borrowed_parameter_guard(FILE* f, const hako_lv4_input* in,
         "  %%arg_bit%u = icmp ule i64 %%v%u, 1\n"
         "  %%arg_valid_bool%u = and i1 %%arg_bool%u, %%arg_bit%u\n"
         "  %%arg_scalar%u = or i1 %%arg_int%u, %%arg_valid_bool%u\n"
-        "  %%arg_object%u = icmp eq i32 %%k%u, 3\n"
+        "  %%arg_object%u = icmp eq i32 %%k%u, %u\n"
         "  %%arg_nonzero%u = icmp ne i64 %%v%u, 0\n"
         "  %%arg_live%u = and i1 %%arg_object%u, %%arg_nonzero%u\n"
         "  %%arg_null%u = icmp eq i32 %%k%u, 0\n"
@@ -237,5 +237,5 @@ static void lv4_emit_borrowed_parameter_guard(FILE* f, const hako_lv4_input* in,
         "  %%arg_pre%u = or i1 %%arg_scalar%u, %%arg_live%u\n"
         "  %%arg_ok%u = or i1 %%arg_pre%u, %%arg_nulok%u\n"
         "  br i1 %%arg_ok%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
-        v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v);
+        v,v,v,v,v,v,v,v,v,v,v,v,v,v,lv4_typed_store_tag(in),v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v);
 }

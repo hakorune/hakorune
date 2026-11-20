@@ -1,21 +1,23 @@
 /* Shared pair transport for ordinary borrows and Normal-only Birth moves. */
-static void lv4_emit_nullable_actual_tags(FILE* f, yyjson_val* args, uint32_t b) {
+static void lv4_emit_nullable_actual_tags(FILE* f, const hako_lv4_input* in, yyjson_val* args, uint32_t b) {
         for (size_t i = 0; i < yyjson_arr_size(args); i++) {
           yyjson_val* arg = yyjson_arr_get(args, i);
           uint32_t value = lv4_u(arg, "value");
           if (lv4_is(arg, "kind", "nullable_typed_object"))
             fprintf(f,
                 "  %%nol%u_%u_%zu = icmp ne i64 %%v%u, 0\n"
-                "  %%nok%u_%u_%zu = select i1 %%nol%u_%u_%zu, i32 3, i32 0\n",
-                value, b, i, value, value, b, i, value, b, i);
+                "  %%nok%u_%u_%zu = select i1 %%nol%u_%u_%zu, i32 %u, i32 0\n",
+                value, b, i, value, value, b, i, value, b, i, lv4_typed_store_tag(in));
         }
 
 }
-static int lv4_emit_pair_actual(FILE* f, yyjson_val* arg, uint32_t b, size_t i) {
+static int lv4_emit_pair_actual(FILE* f, const hako_lv4_input* in, yyjson_val* arg, uint32_t b, size_t i) {
   uint32_t value = lv4_u(arg, "value");
   yyjson_val* tag = yyjson_obj_get(arg, "kind");
-  if (yyjson_is_uint(tag))
-    fprintf(f, ", i32 %u, i64 %%v%u", (uint32_t)yyjson_get_uint(tag), value);
+  if (yyjson_is_uint(tag)) {
+    uint32_t raw = (uint32_t)yyjson_get_uint(tag);
+    fprintf(f, ", i32 %u, i64 %%v%u", raw == 3 ? lv4_typed_store_tag(in) : raw, value);
+  }
   else if (lv4_is(arg, "kind", "borrowed_text"))
     fprintf(f, ", i32 4, i64 %%textbits%u_%zu", b, i);
   else if (lv4_is(arg, "kind", "tagged"))
@@ -58,6 +60,7 @@ static int lv4_edge_label(char label[64], const hako_lv4_input* in, size_t fi,
 #include "hako_llvmc_ffi_lifecycle_v4_map_emit.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_string_emit.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_invocation_emit.inc"
+#include "hako_llvmc_ffi_lifecycle_v4_dispatch.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_script_arguments_emit.inc"
 
 #include "hako_llvmc_ffi_lifecycle_v4_object_result_emit.inc"
@@ -457,7 +460,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         lv4_string_emit(f, in, op, fi, b, normal_label, fault_label);
         continue;
       }
-      int invocation = lv4_invocation_emit(f, op, fi, b, normal_label, fault_label);
+      int invocation = lv4_invocation_emit(f, in, op, fi, b, normal_label, fault_label);
       if (invocation == 0) return 0;
       if (invocation == 1) continue;
       if (hako_physical_map_kind(yyjson_get_str(yyjson_obj_get(op, "kind")))) {
@@ -510,7 +513,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           fprintf(f, ", i64 %%v%u", lv4_u(call, "receiver"));
         for (size_t i = 0; i < yyjson_arr_size(args); i++) {
           yyjson_val* arg = yyjson_arr_get(args, i);
-          if (lv4_emit_pair_actual(f, arg, b, i)) continue;
+          if (lv4_emit_pair_actual(f, in, arg, b, i)) continue;
           /* A "map" actual is the caller's borrowed storage pointer; the
              callee's "map" formal receives it as `ptr`. */
           fprintf(f, lv4_is(arg, "kind", "map") ? ", ptr %%v%u" : ", i64 %%v%u",
@@ -599,7 +602,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       if (lv4_is(op, "kind", "birth_call")) {
         yyjson_val* call = yyjson_obj_get(op, "call");
         yyjson_val* args = yyjson_obj_get(call, "args");
-        lv4_emit_nullable_actual_tags(f, args, b);
+        lv4_emit_nullable_actual_tags(f, in, args, b);
         for (size_t i = 0; i < yyjson_arr_size(args); i++) {
           yyjson_val* arg = yyjson_arr_get(args, i);
           if (!lv4_is(arg, "kind", "borrowed_text")) continue;
@@ -650,7 +653,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         fprintf(f, "@hako_lifecycle_birth_%u(ptr %%frame, i64 %%v%u", lv4_u(call, "target"), lv4_u(call, "receiver"));
         for (size_t i = 0; i < yyjson_arr_size(args); i++) {
           yyjson_val* arg = yyjson_arr_get(args, i);
-          if (!lv4_emit_pair_actual(f, arg, b, i)) return 0;
+          if (!lv4_emit_pair_actual(f, in, arg, b, i)) return 0;
           yyjson_val* callee = yyjson_arr_get(in->functions, lv4_u(call, "target"));
           if (lv4_is(yyjson_arr_get(yyjson_obj_get(callee, "params"), i),
               "representation", "nullable_kind_payload_v1"))
@@ -741,6 +744,7 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
       "declare i32 @\"nyash.fault.report_final_v1\"(ptr)\n");
   lv4_string_globals(f, in);
   lv4_invocation_globals(f, in);
+  lv4_dispatch_globals(f, in);
   lv4_script_arguments_globals(f, in);
   /* Plain Array operations share one external ABI in both physical profiles. */
   fprintf(f,
