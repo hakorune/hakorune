@@ -1,0 +1,18 @@
+box Context {
+  birth() { }
+  starts_with_kw(src, i, word) {
+    return 0
+  }
+}
+static box Parser {
+  parse(src, i, ctx): i64 {
+    if ctx.starts_with_kw(src, i, "release") != 1 { return 7 }
+    return 9
+  }
+}
+static box Main {
+  main() {
+    local ctx = new Context()
+    return Parser.parse("release", 0, ctx)
+  }
+}

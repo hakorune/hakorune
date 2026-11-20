@@ -1,0 +1,23 @@
+box Context {
+  birth() { }
+}
+box Probe {
+  birth() { }
+  run(value): i64 {
+    if value < 3 { return 7 }
+    return 9
+  }
+}
+static box Parser {
+  parse(src, i, ctx): i64 {
+    local probe = new Probe()
+    return probe.run(2)
+  }
+}
+static box Main {
+  main() {
+    local ctx = new Context()
+    local result = Parser.parse("release", 0, ctx)
+    return result
+  }
+}
