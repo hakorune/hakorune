@@ -68,7 +68,7 @@ impl SourceLoopCleanupPlanV2 {
             &residuals,
             frame,
             resolve,
-        )
+        ).map(drop)
     }
 }
 

@@ -9,6 +9,12 @@ static void lv4_string_literal_global(FILE* f, const char* name, yyjson_val* tex
   for (size_t i = 0; i < len; i++) fprintf(f, "\\%02X", bytes[i]);
   fprintf(f, "\", align 1\n");
 }
+static yyjson_val* lv4_string_call_arguments(yyjson_val* op) {
+  if (lv4_is(op, "kind", "dynamic_invoke")) return yyjson_obj_get(op, "arguments");
+  if (lv4_is(op, "kind", "ordinary_call") || lv4_is(op, "kind", "birth_call"))
+    return yyjson_obj_get(yyjson_obj_get(op, "call"), "args");
+  return NULL;
+}
 static void lv4_string_globals(FILE* f, const hako_lv4_input* in) {
   fprintf(f,
       "%%nyrt.string.operand = type { i32, i32, ptr, i64, i64, i64, i64 }\n"
@@ -44,9 +50,9 @@ static void lv4_string_globals(FILE* f, const hako_lv4_input* in) {
         }
       }
       yyjson_val* op = yyjson_obj_get(lv4_term(block), "operation");
-      int call = lv4_is(op, "kind", "ordinary_call") || lv4_is(op, "kind", "birth_call");
+      yyjson_val* args = lv4_string_call_arguments(op);
+      int call = args != NULL;
       if (!call && !hako_physical_string_operand_count(op)) continue;
-      yyjson_val* args = yyjson_obj_get(yyjson_obj_get(op, "call"), "args");
       size_t count = call ? yyjson_arr_size(args) : hako_physical_string_operand_count(op);
       for (unsigned role = 0; role < count; role++) {
         yyjson_val* arg = call ? yyjson_arr_get(args, role) : NULL;
@@ -80,10 +86,10 @@ static void lv4_string_result_emit(FILE* f, uint32_t dst, uint32_t producer_id) 
 }
 
 static void lv4_string_alloca(FILE* f, yyjson_val* op, uint32_t b) {
-  if (lv4_is(op, "kind", "ordinary_call") || lv4_is(op, "kind", "birth_call")) {
+  yyjson_val* args = lv4_string_call_arguments(op);
+  if (args) {
     if (lv4_is(op, "result", "text") || lv4_is(op, "result", "nullable_text"))
       fprintf(f, "  %%strout%u = alloca %%nyrt.string.owned, align 8\n", b);
-    yyjson_val* args = yyjson_obj_get(yyjson_obj_get(op, "call"), "args");
     for (size_t i = 0; i < yyjson_arr_size(args); i++)
       if (lv4_is(yyjson_arr_get(args, i), "kind", "borrowed_text"))
         fprintf(f, "  %%strarg%u_%zu = alloca %%nyrt.string.operand, align 8\n", b, i);

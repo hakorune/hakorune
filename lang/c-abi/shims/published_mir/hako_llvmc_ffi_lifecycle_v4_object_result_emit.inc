@@ -218,6 +218,7 @@ static void lv4_emit_borrowed_parameter_guard(FILE* f, const hako_lv4_input* in,
           v,v, v,v, v,v,v, v,v,v);
       return;
     }
+    int dispatched = lv4_dispatch_borrowed_parameter(in, fn, i);
     /* Nonzero supplements the closed incoming/live proof; it is not that
        proof. The null pair (kind 0, payload 0) is the third admitted
        shape — every other kind/payload mix is ABI drift, never a
@@ -234,8 +235,25 @@ static void lv4_emit_borrowed_parameter_guard(FILE* f, const hako_lv4_input* in,
         "  %%arg_null%u = icmp eq i32 %%k%u, 0\n"
         "  %%arg_void%u = icmp eq i64 %%v%u, 0\n"
         "  %%arg_nulok%u = and i1 %%arg_null%u, %%arg_void%u\n"
-        "  %%arg_pre%u = or i1 %%arg_scalar%u, %%arg_live%u\n"
-        "  %%arg_ok%u = or i1 %%arg_pre%u, %%arg_nulok%u\n"
+        "  %%arg_scalar_or_null%u = or i1 %%arg_scalar%u, %%arg_nulok%u\n",
+        v,v,v,v,v,v,v,v,v,v,v,v,v,v,lv4_typed_store_tag(in),v,v,v,v,v,v,v,v,v,v,v,v,v,v,v);
+    if (dispatched) {
+      /* Kernel validates these wire payloads and holds the originals for
+         the synchronous provider. An ordinary direct entry retains its law. */
+      fprintf(f,
+          "  %%arg_host%u = icmp eq i32 %%k%u, 3\n"
+          "  %%arg_host_live%u = and i1 %%arg_host%u, %%arg_nonzero%u\n"
+          "  %%arg_ref_live%u = or i1 %%arg_live%u, %%arg_host_live%u\n"
+          "  %%arg_text%u = icmp eq i32 %%k%u, 4\n"
+          "  %%arg_textbits%u = and i64 %%v%u, 7\n"
+          "  %%arg_textaligned%u = icmp eq i64 %%arg_textbits%u, 0\n"
+          "  %%arg_textaddress%u = and i1 %%arg_textaligned%u, %%arg_nonzero%u\n"
+          "  %%arg_text_live%u = and i1 %%arg_text%u, %%arg_textaddress%u\n"
+          "  %%arg_borrow%u = or i1 %%arg_ref_live%u, %%arg_text_live%u\n",
+          v,v, v,v,v, v,v,v, v,v, v,v, v,v, v,v,v, v,v,v, v,v,v);
+    }
+    fprintf(f,
+        "  %%arg_ok%u = or i1 %%arg_scalar_or_null%u, %%%s%u\n"
         "  br i1 %%arg_ok%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
-        v,v,v,v,v,v,v,v,v,v,v,v,v,v,lv4_typed_store_tag(in),v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v);
+        v,v,dispatched ? "arg_borrow" : "arg_live",v, v,v,v);
 }

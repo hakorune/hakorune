@@ -174,6 +174,13 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedCall
 }
 
 impl PreparedBorrowedCallActualsV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn selected_dynamic_member_v1(
+        &self,
+    ) -> Option<(&str, u32)> {
+        let dispatch = self.dynamic_invocation_arguments.as_ref()?.source.target().dispatch();
+        Some((dispatch.selector(), dispatch.arity()))
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn declared_receiver_read_v1(&self)
         -> Option<&crate::mir::resolved_semantics::home_new_prefix::DeclaredReadReceiverV1> {
         match &self.phase {

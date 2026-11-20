@@ -93,6 +93,10 @@ fn checked_scalar_base_operation_v1(
             {
                 Ok(Operand::DynamicCarrier(*value))
             }
+            (Some(Leaf::Value(Class::Dynamic)), Operand::Dynamic(_))
+                if matches!(frame.references().get(&index), Some(
+                    crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::DynamicEntry(_)
+                )) => Ok(value),
             (Some(Leaf::Value(Class::Dynamic)), Operand::DynamicCarrier(_))
                 if frame.owned_result_nodes().contains(&index)
                     && frame.calls().iter().any(|call| {

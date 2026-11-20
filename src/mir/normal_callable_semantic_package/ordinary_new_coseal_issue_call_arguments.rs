@@ -522,8 +522,8 @@ pub(super) fn borrowed_call_arguments_callback_v1(
                 site: site.clone(),
                 issue,
             })?;
-        // An exact static target is the only executable meaning (the runtime has
-        // no user-box provider); the Dynamic candidate then lends nothing.
+        // Exact source targets own argument admission. Only prepare a Dynamic
+        // loan when the original call has no such target.
         let static_target = super::super::lexical_instance_call::original_lexical_target_at_v1(targets, site)
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
                 site: site.clone(), issue,

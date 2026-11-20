@@ -51,7 +51,7 @@ static void lv4_invocation_alloca(FILE* f, yyjson_val* op, uint32_t block) {
 }
 
 static int lv4_invocation_operand_emit(FILE* f, yyjson_val* operand,
-    uint32_t block, size_t ordinal, const char* destination) {
+    size_t function, uint32_t block, size_t ordinal, const char* destination) {
   int kind;
   const char* tag = "0";
   const char* payload = "0";
@@ -68,6 +68,14 @@ static int lv4_invocation_operand_emit(FILE* f, yyjson_val* operand,
   } else if (lv4_is(operand, "kind", "borrowed_typed_object")) {
     kind = 1; tag = "5";
     snprintf(payload_value, sizeof(payload_value), "%%v%u", value); payload = payload_value;
+  } else if (ordinal && lv4_is(operand, "kind", "borrowed_text")) {
+    kind = 1; tag = "4";
+    lv4_string_operand_emit(f, yyjson_obj_get(operand, "operand"),
+        function, block, (unsigned)(ordinal - 1));
+    fprintf(f, "  %%dyntext%u_%zu = ptrtoint ptr %%strarg%u_%zu to i64\n",
+        block, ordinal, block, ordinal - 1);
+    snprintf(payload_value, sizeof(payload_value), "%%dyntext%u_%zu", block, ordinal);
+    payload = payload_value;
   } else if (lv4_is(operand, "kind", "dynamic_carrier")) {
     kind = 4; snprintf(payload_value, sizeof(payload_value), "%%v%u", value); payload = payload_value;
   } else return 0;
@@ -98,7 +106,7 @@ static int lv4_invocation_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op
     size_t len = yyjson_get_len(yyjson_obj_get(op, "selector"));
     char receiver[40], argument_array[40];
     snprintf(receiver, sizeof(receiver), "%%dynrecv%u", block);
-    if (!lv4_invocation_operand_emit(f, yyjson_obj_get(op, "receiver"), block, 0, receiver)) return 0;
+    if (!lv4_invocation_operand_emit(f, yyjson_obj_get(op, "receiver"), function, block, 0, receiver)) return 0;
     if (count) snprintf(argument_array, sizeof(argument_array), "%%dynargs%u", block);
     else snprintf(argument_array, sizeof(argument_array), "null");
     for (size_t i = 0; i < count; i++) {
@@ -107,7 +115,7 @@ static int lv4_invocation_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op
       fprintf(f,
           "  %%dynargptr%u_%zu = getelementptr inbounds [%zu x %%nyrt.dynamic.operand], ptr %%dynargs%u, i64 0, i64 %zu\n",
           block, i, count, block, i);
-      if (!lv4_invocation_operand_emit(f, yyjson_arr_get(arguments, i), block, i + 1, destination)) return 0;
+      if (!lv4_invocation_operand_emit(f, yyjson_arr_get(arguments, i), function, block, i + 1, destination)) return 0;
     }
     fprintf(f,
         "  %%dynselector%u = getelementptr inbounds [%zu x i8], ptr @dynsel_%zu_%u, i64 0, i64 0\n"

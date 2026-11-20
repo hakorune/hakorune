@@ -191,6 +191,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_dynamic_entry_read_
             .map_err(|_| reject())?;
             call.site() == site.site() && original.as_ref() == plan.as_ref()
         }
+        ExpressionPlanRootV1::IfCondition { statement, condition, .. } => {
+            if !prepared.dynamic_provider_owners.contains(&input.owner()) {
+                return Ok(None);
+            }
+            let original = crate::mir::resolved_value_profile::expression_plan::condition_expression_source_plan_v1(
+                input, statement).map_err(|_| reject())?;
+            condition == site.site() && original.as_ref() == plan.as_ref()
+        }
         _ => false,
     };
     if input.owner() != plan.owner()

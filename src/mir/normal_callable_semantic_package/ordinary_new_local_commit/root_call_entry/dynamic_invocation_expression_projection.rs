@@ -24,6 +24,7 @@ pub(crate) struct EmittedDynamicInvocationCallProjectionV1 {
     operation: Operation,
     invoke: Binding,
     projection: Binding,
+    cleanup: Option<(BasicBlockId, Vec<Binding>)>,
 }
 
 impl EmittedDynamicInvocationCallProjectionV1 {
@@ -86,9 +87,7 @@ impl EmittedDynamicInvocationCallProjectionV1 {
             {
                 return Err(freeze("dynamic-expression/argument-source"));
             }
-            let value =
-                argument.value_for_source_v1(actual, source.owner(), site, None, Some(context))?;
-            operands.push(Operand::Integer(value));
+            operands.push(argument.dynamic_operand_v1(actual, source.site(), index, site, context)?);
         }
         Operation::from_source(loan, receiver, operands)
     }
@@ -102,6 +101,7 @@ impl EmittedDynamicInvocationCallProjectionV1 {
         context: CallValidationContextV1<'_>,
         invoke: Binding,
         projection: Binding,
+        cleanup: Option<(BasicBlockId, Vec<Binding>)>,
     ) -> Result<Self, String> {
         let Some(LocalCallResultSourceV1::DynamicInvocation(loan)) = source.result_source() else {
             return Err(freeze("dynamic-expression/source-loan"));
@@ -143,6 +143,11 @@ impl EmittedDynamicInvocationCallProjectionV1 {
         {
             return Err(freeze("dynamic-expression/pair-drift"));
         }
+        if cleanup.as_ref().map_or(0, |(_, normal)| normal.len()) !=
+            LexicalCallArgumentProjectionV1::deferred_ends_for_arguments_v1(&arguments, context)?.len()
+        {
+            return Err(freeze("dynamic-expression/cleanup-continuation"));
+        }
         Ok(Self {
             source: source.clone(),
             receiver_read: std::rc::Rc::new(receiver_read),
@@ -150,7 +155,27 @@ impl EmittedDynamicInvocationCallProjectionV1 {
             operation,
             invoke,
             projection,
+            cleanup,
         })
+    }
+
+    pub(super) fn argument_projections(&self) -> &[LexicalCallArgumentProjectionV1] {
+        &self.arguments
+    }
+
+    pub(super) fn cleanup_continuation(&self) -> Option<BasicBlockId> {
+        self.cleanup.as_ref().map(|(continuation, _)| *continuation)
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit)
+    fn original_argument_formals_v1(&self) -> Result<Vec<Option<crate::mir::resolved_semantics::BindingRefV1>>, String> {
+        self.arguments.iter().zip(self.operation.arguments()).map(|(argument, operand)| {
+            let original = argument.original_dynamic_formal_v1();
+            if matches!(operand, Operand::TaggedDynamic(_)) != original.is_some() {
+                return Err(freeze("dynamic-expression/argument-original-formal"));
+            }
+            Ok(original)
+        }).collect()
     }
 
     pub(crate) fn source(&self) -> &LocalCallObservationV1 {
@@ -179,7 +204,7 @@ impl EmittedDynamicInvocationCallProjectionV1 {
         self.receiver_read.original_copy_dependencies_v1()
     }
 
-    pub(crate) fn scope_bindings_in_context_v1(
+    pub(super) fn argument_bindings_in_context_v1(
         &self,
         context: CallValidationContextV1<'_>,
     ) -> Result<(Vec<Binding>, Vec<Binding>), String> {
@@ -214,7 +239,18 @@ impl EmittedDynamicInvocationCallProjectionV1 {
             ordered.extend(argument_ordered);
             copies.extend(argument_copies);
         }
+        Ok((ordered, copies))
+    }
+
+    pub(crate) fn scope_bindings_in_context_v1(
+        &self,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<(Vec<Binding>, Vec<Binding>), String> {
+        let (mut ordered, copies) = self.argument_bindings_in_context_v1(context)?;
         ordered.extend(self.ordered_bindings());
+        if let Some((_, ends)) = &self.cleanup {
+            ordered.extend(ends.iter().cloned());
+        }
         Ok((ordered, copies))
     }
 

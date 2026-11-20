@@ -26,7 +26,7 @@ pub(super) use cleanup::{
 #[path = "expression_value/invoke.rs"]
 mod invoke;
 use invoke::emit_string_value;
-pub(super) use invoke::{emit_checked_scalar_condition_v1, emit_scalar_operation_with_pending_v1};
+pub(super) use invoke::{emit_checked_scalar_condition_v1, emit_dynamic_with_argument_cleanup_v1, emit_scalar_operation_with_pending_v1};
 pub(in crate::mir::builder) use invoke::emit_scalar_operation_to_landing_v1;
 
 #[path = "expression_value/reads.rs"]

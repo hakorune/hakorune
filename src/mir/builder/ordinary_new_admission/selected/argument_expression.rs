@@ -135,17 +135,21 @@ pub(in crate::mir::builder) fn emit_with_checked_frame(
         let (terminal, continuation) =
             expression_value::finish_dynamic_initializer_continuation(builder, &mut expression)?;
         (value, terminal, continuation)
-    } else { match expression.value.as_operand()?.clone() {
-        Operand::NormalInteger(value) if frame.is_i64() => {
-            let (terminal, continuation) = expression_value::finish_scalar_continuation(builder, &mut expression)?;
-            (value, terminal, continuation)
-        }
-        Operand::OwnedString(value) if !frame.is_i64() => {
-            let (terminal, continuation) = expression_value::finish_deferred_argument_continuation(builder, &mut expression)?;
-            (value, terminal, continuation)
-        }
-        _ => return Err(freeze("argument-expression/result")),
-    }};
+    } else if frame.has_scalar_completion() {
+        let value = expression.value.value().ok_or_else(|| freeze("argument-expression/result"))?;
+        let (terminal, continuation) = if frame.source_loan().preserves_original_kind() {
+            expression_value::finish_value_continuation_v1(builder, &mut expression.body)?
+        } else {
+            expression_value::finish_scalar_continuation(builder, &mut expression)?
+        };
+        (value, terminal, continuation)
+    } else {
+        let Operand::OwnedString(value) = expression.value.as_operand()?.clone() else {
+            return Err(freeze("argument-expression/result"));
+        };
+        let (terminal, continuation) = expression_value::finish_deferred_argument_continuation(builder, &mut expression)?;
+        (value, terminal, continuation)
+    };
     let projection = Projection::from_expression_v1(
         frame,
         expression.body,

@@ -133,34 +133,20 @@ impl EmittedArgumentExpressionProjectionV1 {
             }
             None => None,
         };
-        let value = match (
-            self.completion,
-            self.body
-                .values
-                .first()
-                .and_then(Option::as_ref)
-                .map(|value| value.as_operand())
-                .transpose()?,
-        ) {
-            (
-                ArgumentCompletionV1::ScalarCompleted,
-                Some(crate::mir::instruction::StringInvokeOperand::NormalInteger(value)),
-            ) if self.frame.is_i64() => *value,
-            (
-                ArgumentCompletionV1::DynamicCarrierDeferred,
-                Some(crate::mir::instruction::StringInvokeOperand::DynamicCarrier(value)),
-            ) if self.frame.is_dynamic_carrier_append_v1() => *value,
-            (ArgumentCompletionV1::OwnedTextDeferred, _) if materialized.is_some() => {
-                materialized.unwrap()
-            }
-            (
-                ArgumentCompletionV1::OwnedTextDeferred,
-                Some(crate::mir::instruction::StringInvokeOperand::OwnedString(value)),
-            ) if !self.frame.is_i64()
-                && self.frame.evaluation().owned_text_root_node_v1().is_some() =>
-            {
-                *value
-            }
+        use super::super::super::expression_projection::EvaluatedExpressionValueV1 as Value;
+        use crate::mir::instruction::StringInvokeOperand as Operand;
+        let root = self.body.values.first().and_then(Option::as_ref);
+        let value = match (self.completion, root) {
+            (ArgumentCompletionV1::ScalarCompleted, Some(Value::Operand(Operand::NormalInteger(value))))
+                if self.frame.is_i64() => *value,
+            (ArgumentCompletionV1::ScalarCompleted,
+                Some(Value::Operand(Operand::Dynamic(value)) | Value::Bool(value) | Value::Null(value)))
+                if self.frame.has_scalar_completion() && !self.frame.is_i64() => *value,
+            (ArgumentCompletionV1::DynamicCarrierDeferred, Some(Value::Operand(Operand::DynamicCarrier(value))))
+                if self.frame.is_dynamic_carrier_append_v1() => *value,
+            (ArgumentCompletionV1::OwnedTextDeferred, _) if materialized.is_some() => materialized.unwrap(),
+            (ArgumentCompletionV1::OwnedTextDeferred, Some(Value::Operand(Operand::OwnedString(value))))
+                if self.frame.evaluation().owned_text_root_node_v1().is_some() => *value,
             _ => return Err(freeze("argument-expression/result")),
         };
         self.expression().validate_source(context)?;

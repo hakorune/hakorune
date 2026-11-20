@@ -31,6 +31,37 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 
+    // Catch an unrepresentable declared Text parameter before lowering asks
+    // for a Text ABI frame. Use only calls selected for Dynamic execution.
+    pub(in crate::mir::normal_callable_semantic_package) fn unpublishable_dynamic_text_parameter_v1<'a>(
+        &self,
+        selected: &'a super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        contracts: &[super::super::model::OwnedCallableParameterContractDeclarationV1],
+    ) -> Option<&'a hakorune_mir_defs::CanonicalSameModuleCallableKeyV1> {
+        use crate::mir::builder::SelectedNormalCallableKeyV1;
+        use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
+
+        let selectors: BTreeSet<_> = self
+            .borrowed_formal_actuals
+            .values()
+            .filter_map(|row| row.as_ref().ok()?.selected_dynamic_member_v1())
+            .collect();
+        selected.declared_instance_keys().iter().find(|key| {
+            if !selectors.contains(&(key.name(), key.arity())) {
+                return false;
+            }
+            let selected_key = SelectedNormalCallableKeyV1::Cataloged((*key).clone());
+            selected.batch_slot(&selected_key).is_some_and(|slot| {
+                contracts.iter().any(|contract| {
+                    contract.batch_slot == slot && contract.parameters.iter().any(|parameter| {
+                        matches!(parameter.kind, CallableParameterContractKindV1::ExactText(_))
+                            && parameter.dynamic_dispatch_wire_kind_v1().is_none()
+                    })
+                })
+            })
+        })
+    }
+
     #[cfg(test)]
     pub(in crate::mir::normal_callable_semantic_package) fn original_parameter_contracts_v1(
         &self,

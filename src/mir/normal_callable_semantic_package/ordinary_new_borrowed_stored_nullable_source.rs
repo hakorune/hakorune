@@ -99,3 +99,22 @@ pub(super) fn recheck_original_call_loan_v1(
 fn freeze(reason: &str) -> String {
     format!("[freeze:contract][stored-child/borrowed-nullable/{reason}]")
 }
+
+/// After eligibility, retain the exact demand instead of erasing it into a row error.
+pub(super) fn issue_eligible_receiver_v1(
+    reference: &CallTargetReferenceV1,
+    receiver: &StoredReceiverSourceV1,
+    original: Option<&super::borrowed_formal_source::OriginalBorrowedFormalSourceV1>,
+    issue: &mut impl FnMut(
+        &CallTargetReferenceV1,
+        &StoredReceiverSourceV1,
+        Option<&super::borrowed_formal_source::OriginalBorrowedFormalSourceV1>,
+    ) -> Result<Option<LexicalInstanceCallReceiverV1>, String>,
+) -> Result<LexicalInstanceCallReceiverV1, OrdinaryNewCoSealIssueV1> {
+    issue(reference, receiver, original)
+        .and_then(|row| row.ok_or_else(|| freeze("stored-child/receiver-unavailable")))
+        .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+            site: reference.call_site.clone(),
+            issue,
+        })
+}

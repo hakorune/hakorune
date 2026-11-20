@@ -134,8 +134,8 @@ pub(in crate::mir::normal_callable_semantic_package) type PendingBorrowedFormalA
     BTreeMap<OwnedExprSiteV1, Result<PreparedBorrowedCallActualsV1, String>>;
 
 /// Retain the exact Dynamic target's argument expression plans in its one
-/// pending actual row. Dynamic invocation has no callee formal contract; the
-/// source-bound operation supplies the I64 argument contract instead.
+/// pending actual row. The source retains the original kind; runtime checks
+/// the selected provider's formal contract after selecting its row.
 pub(in crate::mir::normal_callable_semantic_package) fn prepare_dynamic_invocation_argument_actuals_v1(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     target: &crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1,

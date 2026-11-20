@@ -207,6 +207,7 @@ fn array_actual_retains_original_shared_loan_and_refuses_executable_upgrade() {
                 None,
                 &entry,
                 constructors,
+                &BTreeSet::new(),
                 None,
             )
             .unwrap();
@@ -214,7 +215,7 @@ fn array_actual_retains_original_shared_loan_and_refuses_executable_upgrade() {
             let inventory = prepare_original_incoming_v1(
                 Some(&brands), batch, selected, &BTreeMap::new(), parameters, &calls, &drafts.0, &drafts.1,
                 None, &BTreeMap::new(), main, None, constructors,
-                &entry, &BTreeMap::new(), &classes, &drafts.3, &BTreeMap::new(), &[], &[], None,
+                &entry, &BTreeMap::new(), &classes, &drafts.3, &BTreeMap::new(), &[], &[], &[], None,
             );
             let mut ingress = finish_ingress_from_drafts_v1(
                 Some(&brands),
@@ -230,6 +231,8 @@ fn array_actual_retains_original_shared_loan_and_refuses_executable_upgrade() {
                 main,
                 drafts,
                 BTreeMap::new(),
+                &[],
+                BTreeSet::new(),
                 inventory,
             )
             .unwrap();

@@ -1,0 +1,36 @@
+box Match {
+  birth() { }
+  score(left, right): i64 {
+    if left == "a" { return 140 }
+    if right == "a" { return 240 }
+    return 340
+  }
+}
+box Second {
+  birth() { }
+  score(left, right): i64 { return 440 }
+}
+box Dispatch {
+  birth() { }
+  forward(receiver, n: i64): i64 {
+    local words = "ab"
+    local reversed = "ba"
+    local left = words.substring(n, n + 1)
+    local right = reversed.substring(n, n + 1)
+    return receiver.score(left, right)
+  }
+}
+static box Main {
+  main() {
+    local dispatch = new Dispatch()
+    local matcher = new Match()
+    local second = new Second()
+    local a = dispatch.forward(matcher, 0)
+    local b = dispatch.forward(matcher, 1)
+    local c = dispatch.forward(second, 1)
+    print(a)
+    print(b)
+    print(c)
+    return 0
+  }
+}

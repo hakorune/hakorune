@@ -1,0 +1,32 @@
+box Typed {
+  birth() { }
+  score(value: i64): i64 {
+    print(99)
+    return value + 100
+  }
+}
+
+box Second {
+  birth() { }
+  score(value: i64): i64 { return value + 200 }
+}
+
+box Dispatch {
+  birth() { }
+  forward(receiver): i64 {
+    return receiver.score("wrong")
+  }
+}
+
+static box Main {
+  main() {
+    local dispatch = new Dispatch()
+    local typed = new Typed()
+    local second = new Second()
+    local result = dispatch.forward(typed)
+    local alternate = dispatch.forward(second)
+    print(alternate)
+    print(result)
+    return 0
+  }
+}

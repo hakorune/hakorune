@@ -3,6 +3,7 @@
 //! The opaque carrier is a separate value class from tagged Dynamic input.
 //! Runtime dispatch remains responsible for exact provider selection.
 
+use super::StringInvokeOperand;
 use crate::mir::ValueId;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -12,6 +13,7 @@ pub enum DynamicInvocationOperandV1 {
     Bool(ValueId),
     TaggedDynamic(ValueId),
     BorrowedTypedObject(ValueId),
+    BorrowedText(StringInvokeOperand),
     Carrier(ValueId),
 }
 
@@ -27,6 +29,9 @@ impl serde::Serialize for DynamicInvocationOperandV1 {
             Self::BorrowedTypedObject(value) => {
                 serde_json::json!({"kind":"borrowed_typed_object", "value":value.as_u32()})
             }
+            Self::BorrowedText(operand) => {
+                serde_json::json!({"kind":"borrowed_text", "operand":operand})
+            }
             Self::Carrier(value) => {
                 serde_json::json!({"kind":"dynamic_carrier", "value":value.as_u32()})
             }
@@ -39,6 +44,7 @@ impl DynamicInvocationOperandV1 {
     pub fn value(&self) -> Option<ValueId> {
         match self {
             Self::Null => None,
+            Self::BorrowedText(operand) => operand.value(),
             Self::Integer(value)
             | Self::Bool(value)
             | Self::TaggedDynamic(value)
@@ -50,6 +56,7 @@ impl DynamicInvocationOperandV1 {
     pub fn rewrite_value(&mut self, mut rewrite: impl FnMut(&mut ValueId)) {
         match self {
             Self::Null => {}
+            Self::BorrowedText(operand) => operand.rewrite_value(rewrite),
             Self::Integer(value)
             | Self::Bool(value)
             | Self::TaggedDynamic(value)
@@ -78,6 +85,12 @@ impl DynamicInvocationOperationV1 {
             || arguments.len() != source.argument_sites().len()
         {
             return Err("[freeze:contract][dynamic-invocation/arity-drift]".into());
+        }
+        if matches!(receiver, DynamicInvocationOperandV1::BorrowedText(_))
+            || arguments.iter().any(|argument|
+                matches!(argument, DynamicInvocationOperandV1::BorrowedText(operand) if !operand.is_text()))
+        {
+            return Err("[freeze:contract][dynamic-invocation/text-argument-domain]".into());
         }
         Ok(Self {
             selector: target.dispatch().selector().into(),

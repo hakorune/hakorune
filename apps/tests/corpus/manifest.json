@@ -15702,6 +15702,24 @@
       "cadence": "every"
     },
     {
+      "path": "apps/tests/corpus/dynamic-compare/user-box-dispatch-text-actuals.hako",
+      "sha256": "4a549668453edab1a38b5e5a9a7b1e2d1f4cd6a2b4ad311da686bdf08e8a1ce4",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/user-box-dispatch-text-i64-mismatch.hako",
+      "sha256": "517f56b5d52a9e1381899105d760574389a5a16485c280916697db35771a5841",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
       "path": "apps/tests/corpus/dynamic-compare/user-box-dispatch-two-receivers.hako",
       "sha256": "0aab4aea956e25e21854391ed33de6aaa01b583b14c48822a11e4aedc055d1b5",
       "groups": [

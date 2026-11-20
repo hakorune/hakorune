@@ -689,3 +689,49 @@ impl EmittedBoolConditionProjectionV1 {
 
 #[path = "bool_condition_nonnull.rs"]
 mod nonnull;
+
+impl OrdinaryNewClaimLedgerV1 {
+    /// Verify the selected operator and original tagged borrow before lending
+    /// the finished operand occurrence to the same readonly Text-use census.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit)
+    fn visit_finished_tagged_condition_operands_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        context: CallValidationContextV1<'_>,
+        function: &MirFunction,
+        projection: &Finished,
+        mut visit: impl FnMut(&Binding, usize, BindingRefV1) -> Result<(), String>,
+    ) -> Result<(), String> {
+        use crate::mir::instruction::StringInvokeOperand as Operand;
+        use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1 as Reference;
+        self.visit_verified_condition_groups_v1(owner, context, function, projection, |packet| {
+            let frame = packet.frame.evaluation();
+            for node in packet.nodes.iter() {
+                let BoolConditionValueProofV1::ScalarInvocation {
+                    input_values, input_reads, bindings, receiver, ..
+                } = &node.proof else { continue; };
+                let Some(operands) = frame.comparison_plan_v1(node.node).map_err(freeze)?
+                    .and_then(|plan| plan.operands()) else { continue; };
+                for (side, operand) in operands.into_iter().enumerate() {
+                    let Some(Reference::DynamicEntry(original)) = frame.references().get(&operand)
+                    else { continue; };
+                    let value = input_values.get(operand).and_then(Option::as_ref)
+                        .ok_or_else(|| freeze("bool-condition/reference-source"))?.as_operand()?;
+                    if !matches!(value, Operand::Dynamic(_)) { continue; }
+                    let (invoke, _) = packet.text_comparison_producers_v1(
+                        node, input_values, receiver.as_ref(), bindings,
+                    )?;
+                    if !matches!(&invoke.1, MirInstruction::Invoke {
+                        operation: InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::Compare { .. }), ..
+                    }) { continue; }
+                    let read = input_reads.get(&operand).ok_or_else(|| freeze("bool-condition/reference-source"))?;
+                    if &read.operand(frame, operand, context)? != value {
+                        return Err(freeze("bool-condition/reference-source-value"));
+                    }
+                    visit(invoke, side, original.requirement().formal().1)?;
+                }
+            }
+            Ok(())
+        })
+    }
+}

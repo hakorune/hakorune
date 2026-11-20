@@ -104,6 +104,15 @@ impl OrdinaryNewClaimLedgerV1 {
             }));
         }
         if let Some(definition) = source.source_only_definitions.get(&owner) {
+            if source.dynamic_provider_owners.contains(&owner)
+                && source.source_incoming.project_declaration_v1(owner)
+                    .map_err(|issue| format!("{}: {issue:?}", freeze("borrowed-declaration/incoming")))?
+                    .is_empty()
+            {
+                return Ok(Some(BorrowedEntryOwnerViewV1 {
+                    definition, incoming: Box::new([]), tagged: true, mixed: false,
+                }));
+            }
             if let Some(view) = self.checked_borrowed_result_instance_entry_v1(source, owner)? {
                 return Ok(Some(view));
             }

@@ -68,13 +68,12 @@ impl FinalizedRootSourceHandoffV1 {
             .physical_param_carriers
             .as_deref()
             .ok_or_else(|| freeze("borrowed-declaration/carriers-missing"))?;
-        if function.params.len() != entry.formals().len() + 1
+        if function.params.len() != key.arity() as usize + 1
             || function.signature.params.len() != function.params.len()
             || carriers.len() != function.params.len()
             || carriers.first() != Some(&Carrier::ExistingCallableI64)
             || key.namespace()
                 != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
-            || key.arity() as usize != entry.formals().len()
             || !matches!(function.signature.params.first(),
                 Some(crate::mir::MirType::Box(class)) if class == key.owner())
             || function
@@ -89,15 +88,13 @@ impl FinalizedRootSourceHandoffV1 {
                 function.params.get(slot) != Some(value)
                     || carriers.get(slot) != Some(&Carrier::BorrowedTaggedValue)
             })
-            || carriers
-                .iter()
-                .skip(1)
-                .any(|carrier| *carrier != Carrier::BorrowedTaggedValue)
-            || function.signature.params.iter().skip(1).any(|kind| {
-                !matches!(
-                    kind,
-                    crate::mir::MirType::Unknown | crate::mir::MirType::Integer
-                )
+            || carriers.iter().zip(&function.signature.params).skip(1).enumerate().any(|(ordinal, (carrier, kind))| {
+                if entry.formals().iter().any(|row| row.0 as usize == ordinal) {
+                    *carrier != Carrier::BorrowedTaggedValue
+                        || !matches!(kind, crate::mir::MirType::Unknown | crate::mir::MirType::Integer)
+                } else {
+                    *carrier != Carrier::ExistingCallableI64 || *kind != crate::mir::MirType::Integer
+                }
             })
         {
             return Err(freeze("borrowed-declaration/entry-correspondence"));

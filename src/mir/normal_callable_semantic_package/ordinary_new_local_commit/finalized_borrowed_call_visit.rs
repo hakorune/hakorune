@@ -234,6 +234,7 @@ impl FinalizedRootSourceHandoffV1 {
         function: &MirFunction,
         mut visit: impl FnMut(
             BindingRefV1,
+            Vec<Option<BindingRefV1>>,
             (BasicBlockId, usize),
             MirInstruction,
             Vec<((BasicBlockId, MirInstruction), (BasicBlockId, usize))>,
@@ -268,13 +269,14 @@ impl FinalizedRootSourceHandoffV1 {
                     let finished = projection.required_effect_binding(function, packet.invoke_binding())?;
                     let coordinate = super::finalized_source_projection::find_finished_producer(symbol, &finished, function)?;
                     let mut copies = Vec::new();
-                    for original in packet.receiver_copy_dependencies_v1()? {
+                    for original in packet.scope_bindings_in_context_v1(context)?.1.iter() {
                         if let Some(row) = projection.relation_binding(function, original)? {
                             let at = super::finalized_source_projection::find_finished_producer(symbol, &row, function)?;
                             copies.push((row, at));
                         }
                     }
-                    visit(loan.target().dynamic_origin(), coordinate, finished.1, copies, checked_scalar)?;
+                    visit(loan.target().dynamic_origin(), packet.original_argument_formals_v1()?,
+                        coordinate, finished.1, copies, checked_scalar)?;
                 }
             }
             Ok(())
@@ -289,6 +291,18 @@ impl FinalizedRootSourceHandoffV1 {
         self.ledger.with_finished_projection(owner, |symbol, projection| {
             if symbol != function.signature.name { return Err(freeze("finished-copy/owner")); }
             let context = CallValidationContextV1::Finalized(self);
+            self.ledger.visit_finished_tagged_condition_operands_v1(
+                owner, context, function, projection, |original, side, formal| {
+                    let finished = projection.required_effect_binding(function, original)?;
+                    let MirInstruction::Invoke { operation: InvokeOperation::String(operation), .. } = &finished.1
+                    else { return Err(freeze("bool-condition/finished-compare")); };
+                    let operands = operation.operands();
+                    let Some(crate::mir::instruction::StringInvokeOperand::Dynamic(value)) = operands.get(side)
+                        else { return Err(freeze("bool-condition/finished-compare")); };
+                    let coordinate = super::finalized_source_projection::find_finished_producer(symbol, &finished, function)?;
+                    visit(formal, *value, side, coordinate)
+                },
+            )?;
             context.with_local_call_group_tree_v2(owner, |groups| {
                 for group in groups {
                     let Some(packet) = group.initializer() else { continue; };

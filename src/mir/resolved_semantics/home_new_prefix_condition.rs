@@ -662,7 +662,7 @@ fn install_source<E>(
             continue;
         }
         let Some((binding, root)) =
-            super::argument_expression::text_reference(input, locals, node.site())
+            super::argument_expression::entry_formal_reference(input, locals, node.site())
         else {
             if crate::config::env::builder_debug_enabled() {
                 eprintln!("[condition] reference {:?} has no stored-get, dynamic-result, loop or formal source", node.site());
@@ -686,6 +686,21 @@ fn install_source<E>(
                     exclusion: None,
                 },
             ));
+        } else if source.compares_with_proven_text_v1(index, |other| {
+            locals.static_text_reference(other).is_some() || locals.text_reference(other).is_some()
+        }) {
+            if let Some(BorrowedCallArgumentsV1::DynamicEntryRead(read)) = actuals(
+                &owned,
+                BorrowedCallActualRequestV1::DynamicEntryRead {
+                    input,
+                    plan: &source,
+                    read: node.site(),
+                    binding,
+                    root,
+                },
+            )? {
+                initial_references.push((index, CheckedExpressionReferenceV1::DynamicEntry(read)));
+            }
         }
     }
     let mut installation = None;

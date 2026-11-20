@@ -72,8 +72,10 @@ uint32_t nyrt_dynamic_checked_invoke_v1(void *, uint64_t,
     const NyrtDynamicInvocationOperandV1 *, size_t, uint64_t *)
     __asm__("nyash.dynamic.checked_invoke_v1");
 /* Program-aware checked call and allocation. Fault preserves the out-slot.
- * The invocation pins only a live same-program SafeMutex receiver. The thunk
- * runs after releasing the store lock and retains no borrowed inputs. */
+ * Tagged argument 4 carries the address of an existing aligned borrowed Text
+ * descriptor. Its storage and underlying Text must remain live throughout
+ * the synchronous call. Tag 5 borrows a live same-program SafeMutex object.
+ * The thunk runs after releasing the store lock and retains no borrowed input. */
 uint32_t nyrt_dynamic_checked_invoke_program_v1(void *, uint64_t,
     const NyrtDispatchProgramV1 *, const NyrtDynamicInvocationOperandV1 *,
     const uint8_t *, size_t, const NyrtDynamicInvocationOperandV1 *, size_t,

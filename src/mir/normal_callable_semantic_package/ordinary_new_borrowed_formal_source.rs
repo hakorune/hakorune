@@ -25,7 +25,7 @@ mod integer_return_source;
 #[path = "ordinary_new_borrowed_formal_source_drafts.rs"]
 mod source_drafts;
 
-pub(super) use source_drafts::collect_borrowed_source_drafts_v1;
+pub(super) use source_drafts::{collect_borrowed_source_drafts_v1, dynamic_provider_owners_v1};
 
 #[path = "ordinary_new_borrowed_formal_source_checked_input.rs"]
 mod checked_input;
@@ -103,6 +103,7 @@ impl BorrowedFormalObjectViewV1 {
 
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedFormalIngressV1 {
+    pub(super) dynamic_provider_owners: BTreeSet<FunctionOwnerIdV1>,
     pub(super) definitions: BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     /// Original AppMain co-seal identity; never inferred from a function name.
     pub(super) app_main_owner: Option<FunctionOwnerIdV1>,
@@ -276,12 +277,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
         dynamic_slot,
         entry_home_loans,
         instance_constructors,
+        &BTreeSet::new(),
         None,
     )?;
     let inventory = prepare_original_incoming_v1(
         None, batch, selected, &BTreeMap::new(), contracts, &calls, &drafts.0, &drafts.1,
         None, &BTreeMap::new(), None, None, instance_constructors,
-        entry_home_loans, local_candidates, callable_result_classes, &drafts.3, &BTreeMap::new(), &[], &[], None,
+        entry_home_loans, local_candidates, callable_result_classes, &drafts.3, &BTreeMap::new(), &[], &[], &[], None,
     );
     finish_ingress_from_drafts_v1(
         None,
@@ -297,6 +299,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
         None,
         drafts,
         BTreeMap::new(),
+        &[],
+        BTreeSet::new(),
         inventory,
     )
 }

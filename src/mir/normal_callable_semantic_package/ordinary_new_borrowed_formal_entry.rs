@@ -364,7 +364,8 @@ impl OrdinaryNewClaimLedgerV1 {
         let view = self
             .checked_entry_owner_view_v1(source, owner)?
             .ok_or_else(|| freeze("borrowed-entry/incoming-missing"))?;
-        if view.mixed
+        if (view.tagged && view.incoming.is_empty() && source.dynamic_provider_owners.contains(&owner))
+            || view.mixed
             || self.selected_instance_input_protocol_v1(source, owner)?.is_some()
             || self
                 .checked_guarded_instance_definition_v1(source, owner)?
