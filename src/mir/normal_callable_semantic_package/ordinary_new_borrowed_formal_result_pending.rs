@@ -293,10 +293,8 @@ fn source_result_pending(
                 .transpose().map_err(|_| freeze("borrowed-result/checked-return-source-identity"))?.flatten().is_some();
             // The checked Return gains I64 only on the Normal edge of its
             // destination check. Dynamic remains the original call's result.
-            let checked_dynamic_destination = input.declares_i64_result_v1()
-                && dynamic_source_calls.iter().filter(|call| {
-                    call.owner() == owner && call.call_site() == site && call.result_site() == site
-                }).count() == 1;
+            let checked_dynamic_destination = super::super::source::
+                checked_i64_dynamic_destination_v1(input, site, dynamic_source_calls);
             let site_class = if integer || exact || checked_return || checked_dynamic_destination { BorrowedResultClassV1::I64 }
             else if let Some(product) = draft.map(|draft| mul_result::capture_mul_return(input, draft, site)).transpose()?.flatten() {
                 multiplications.push(product); BorrowedResultClassV1::I64

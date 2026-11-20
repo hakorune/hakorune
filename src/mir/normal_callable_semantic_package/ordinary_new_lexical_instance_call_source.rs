@@ -453,9 +453,23 @@ enum SourceReceiverNeedV1 {
     Stored(Result<Option<PreparedSourceCallNeedV1>, String>),
 }
 
+/// The existing checked Dynamic result contract keeps the original call
+/// tagged and obtains I64 only on the destination's Normal edge.
+pub(super) fn checked_i64_dynamic_destination_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    site: &SourceExprSiteV1,
+    dynamic_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
+) -> bool {
+    input.declares_i64_result_v1()
+        && dynamic_calls.iter().filter(|call| {
+            call.owner() == input.owner() && call.call_site() == site && call.result_site() == site
+        }).count() == 1
+}
+
 pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_targets_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
+    dynamic_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
     new_classes: &BTreeMap<OwnedExprSiteV1, Box<str>>,
     ordinary_box_names: &[Box<str>],
     field_write_claims: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
@@ -480,7 +494,22 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
     let mut collect = |caller: OriginalCallSourceCallerV1<'_>,
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>| -> Result<(), String> {
                 let owner = input.owner();
+                let checked_returns = if input.declares_i64_result_v1()
+                    && dynamic_calls.iter().any(|call| call.owner() == owner)
+                {
+                    input.body_shape().and_then(|shape|
+                        super::super::verified_value_return_sites(input, shape))
+                } else {
+                    None
+                };
                 for (site, call) in input.function().method_calls() {
+                    // A checked Dynamic result already owns this site.
+                    // Incoming classes can still prove a loan, not a target.
+                    if checked_returns.as_ref().is_some_and(|sites| sites.contains(site))
+                        && checked_i64_dynamic_destination_v1(input, site, dynamic_calls)
+                    {
+                        continue;
+                    }
                     let ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(
                         binding,
                     )) = call.receiver()
