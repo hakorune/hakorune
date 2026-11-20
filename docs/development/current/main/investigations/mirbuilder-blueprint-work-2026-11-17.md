@@ -139,7 +139,7 @@ compilerの動くcodeは変更していない。coverage CLIは前回の同じbi
 
 | # | やる事 | 状態 |
 |---|---|---|
-| DC-1 | `run(x) { x < 3 }`(`x` は注釈なし仮引数)を、検査つきの比較にする。`run(2)` は true、`run(true)` は比較の位置の TypeError、後始末は 1 度 | 次 |
+| DC-1 | `run(x) { x < 3 }`(`x` は注釈なし仮引数)を、検査つきの比較にする。`run(2)` は true、`run(true)` は比較の位置の TypeError、後始末は 1 度 | 段 0 で止まった: 仮引数は借りた tag と payload の組で届くが、整数の取り出しは token しか受けない。今の `run(true)` は C の比較の中の汎用 Fault で exit 70、診断なし。借りた組を受ける形と kernel の関数を 1 つずつ足す(決定 24 の追記)。次 |
 | DC-2 | Resolve で Dynamic に依ると確かめた、残りの raw `icmp` を直す(挙動の直し。commit を分ける) | DC-1 の後 |
 | DC-3 | `Dynamic != I64`(4.3 の適用。等値の否定)と、戻りの型が無い呼び出しの結果(`release_source`) | 後 |
 | DC-4 | 古い plan の入口(bc・複合)の使い手を移し、入口と中の `if` の書き手を消す | DC-1〜3 の後 |
