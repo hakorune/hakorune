@@ -15414,6 +15414,96 @@
       "cadence": "every"
     },
     {
+      "path": "apps/tests/corpus/dynamic-compare/dynamic-ge-i64-bool.hako",
+      "sha256": "72285b0b097e9b686f2c2742d8e425fcf1f1cefebd28688f6e34dc6547b5f7d8",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/dynamic-ge-i64-integer.hako",
+      "sha256": "07ffe7d9b62a9c96cd1403225cf51b8fbd43a0b88ed3b85d553c361edd532dbe",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/dynamic-le-i64-bool.hako",
+      "sha256": "779c405efa10814e30a6cf49f7cc741b2df3cea8477df2ccc36fa8ad427c9f7b",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/dynamic-le-i64-integer.hako",
+      "sha256": "c83485d8fa0889d415989f882527353725ae0675fd0bf6ee6872a7768b37d643",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/i64-ge-dynamic-bool.hako",
+      "sha256": "dcff2d81c9158574338834feb2cab784065524809318a58c00838941bbea522e",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/i64-ge-dynamic-integer.hako",
+      "sha256": "a7bcb50681d23cd45665915588a424586e2fdae8bd9a4dc5d2150616beaec227",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/i64-gt-dynamic-bool.hako",
+      "sha256": "49fdefa94d88390c5c2056cfc18954d2b417e47865d6bff33c55b9019173b159",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/i64-gt-dynamic-integer.hako",
+      "sha256": "180a99b43a00968bcadc6c756badf7dcdb460a9d9c447e1afc7d6944c8e7b681",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/i64-le-dynamic-bool.hako",
+      "sha256": "1563cc3fb6921abbcee90ec2ccedc57f03d565692f262e023fa7135079746b84",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/i64-le-dynamic-integer.hako",
+      "sha256": "ec483b6e87042f05ce255cbfae1792e4c4831458de48c9bd8b69e12a5b689a68",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
       "path": "apps/tests/corpus/dynamic-compare/run-bool.hako",
       "sha256": "f73f8d58b4c4269d388e5ed3ad78ad3169a0e1fa5b7d219612dd46eb6fa3fc01",
       "groups": [
