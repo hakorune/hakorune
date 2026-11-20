@@ -147,7 +147,8 @@ compilerの動くcodeは変更していない。coverage CLIは前回の同じbi
 | UBD-1 | ユーザーの box の Dynamic 呼び出しを、program ごとの表で選ぶ(決定 25)。型付きの受け手・整数の引数・I64 の結果。入力形 1、tag 1、metadata 1、C ABI 2、kernel export 2 | 済(`ac50c423b2`): 拒否→成功 3(値一致)、成功→拒否 0。3 つ目の class で MirBuilder 差分 0。MIR 本体 +約 630 |
 | DEL-1 | 使い手が 0 の code を消すだけの回 | 済(`753d5121bd`): production −548、test −918 行。名簿・B は全部同じ。feature・flag の道は残した |
 | UBD-2 | Text の引数(決定 26): 引数は元の種類のまま。入力形 `BorrowedText` 1、tag 4 を使い直し、新しい tag・export 0 | 済(`fd76ae108a`): 拒否→成功 2(値一致)、成功→拒否 0。受け手の class が 1 つだけの時に古い道へ入る穴は、2b(`651ebe331c`)で直した。I64 を直接返す呼び出しだけ。それ以外の結果では、静的な候補の道が残る |
-| UBD-2 以降 | `release_source` まで(決定 26 の順): loop の止まり(`UnsupportedAncestor`)→ 受け手の後始末 → `!= 1`。普通の呼び出しを通した Text の引数は、`finite-domain-unclosed` で止まる(`ordinary_new_borrowed_formal_entry_finite.rs:112`) | 次: loop の止まり |
+| LOOP-1 | loop の止まり(`UnsupportedAncestor{ProgramBody}`) | 一部済(`7f7dfbf250`): 解決済みの loop 木を読む形に寄せて、本体 −75 行。名簿は差 0。本当の止まりは `parser_control_box.hako:102` の裸のブロック `{ … }` で、その scope の通常の出口で Home・carrier を End する接続(`transport_port.rs:33`)が無い。止まる線で止まった |
+| UBD-2 以降 | `release_source` まで(決定 26 の順): 裸のブロックの scope の閉じ → 受け手の後始末 → `!= 1`。普通の呼び出しを通した Text の引数は、`finite-domain-unclosed` で止まる(`ordinary_new_borrowed_formal_entry_finite.rs:112`) | 次: loop の止まり |
 
 - 道案内: `design/mirbuilder-route-guide.md`。
 - 確かめ方: 編集中は、変えた所を通る入力だけ。main に入れる前に 1 度、全入力の比較・全 lib・固定 suite。**到達の地図の取り直しは、毎回はしない**(道をまとめて消した回か、数回に 1 度)。
