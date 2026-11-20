@@ -216,8 +216,14 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
         !yyjson_get_len(yyjson_obj_get(operation, "selector")) ||
         !hako_physical_dynamic_operand(function, yyjson_obj_get(operation, "receiver"), block, index) ||
         !yyjson_is_arr(arguments) || !hako_physical_u64(yyjson_obj_get(operation, "site"), NULL)) return 0;
-    for (size_t i = 0; i < yyjson_arr_size(arguments); i++)
-      if (!hako_physical_dynamic_operand(function, yyjson_arr_get(arguments, i), block, index)) return 0;
+    static const char* const text_keys[] = {"kind", "operand"};
+    for (size_t i = 0; i < yyjson_arr_size(arguments); i++) {
+      yyjson_val* arg = yyjson_arr_get(arguments, i);
+      if (hako_physical_string(yyjson_obj_get(arg, "kind"), "borrowed_text")) {
+        if (!hako_physical_exact_keys(arg, text_keys, 2) ||
+            !hako_physical_string_operand(function, yyjson_obj_get(arg, "operand"), block, index, 1, 0, 0)) return 0;
+      } else if (!hako_physical_dynamic_operand(function, arg, block, index)) return 0;
+    }
     return 1;
   }
   if (!strcmp(kind, "dynamic_array_get")) {
@@ -256,10 +262,17 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
   }
   if (!strcmp(kind, "string_compare")) {
     static const char* const keys[] = {"kind", "comparison", "left", "right", "site"};
+    yyjson_val* left = yyjson_obj_get(operation, "left");
+    yyjson_val* right = yyjson_obj_get(operation, "right");
+    int left_tagged = hako_physical_string(yyjson_obj_get(left, "kind"), "tagged_dynamic");
+    int right_tagged = hako_physical_string(yyjson_obj_get(right, "kind"), "tagged_dynamic");
     return hako_physical_exact_keys(operation, keys, 5) && hako_physical_string_comparison(operation) >= 0 &&
         hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) &&
-        hako_physical_string_operand(function, yyjson_obj_get(operation, "left"), block, index, 1, 0, 1) &&
-        hako_physical_string_operand(function, yyjson_obj_get(operation, "right"), block, index, 1, 0, 1);
+        !(left_tagged && right_tagged) &&
+        !(left_tagged && hako_physical_string(yyjson_obj_get(right, "kind"), "dynamic_carrier")) &&
+        !(right_tagged && hako_physical_string(yyjson_obj_get(left, "kind"), "dynamic_carrier")) &&
+        hako_physical_string_operand(function, left, block, index, 1, 1, 1) &&
+        hako_physical_string_operand(function, right, block, index, 1, 1, 1);
   }
   if (!strcmp(kind, "string_add")) {
     static const char* const keys[] = {"kind", "left", "right", "site"};

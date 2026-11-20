@@ -8,8 +8,9 @@ use std::{ffi::c_void, mem::size_of};
 
 pub(super) const TAGGED: u32 = 1;
 pub(super) const INTEGER: u32 = 2;
-const BOOL: u32 = 3;
-const CARRIER: u32 = 4;
+pub(super) const BOOL: u32 = 3;
+pub(super) const CARRIER: u32 = 4;
+pub(super) const BORROWED_TEXT_TAG: u32 = 4;
 const DYNAMIC_INVOCATION_FAULT: u32 = 400;
 
 #[repr(C)]
@@ -45,7 +46,7 @@ pub(super) fn record_failure(frame: &mut FaultFrame, site: u64, failure: Dynamic
         .unwrap_or(Status::InvalidContract) as u32
 }
 
-unsafe fn decode(value: &Operand) -> Result<DynamicInvocationValueV1, Status> {
+pub(super) unsafe fn decode(value: &Operand) -> Result<DynamicInvocationValueV1, Status> {
     match value.kind {
         TAGGED => match value.tag {
             0 if value.payload == 0 => Ok(DynamicInvocationValueV1::Null),

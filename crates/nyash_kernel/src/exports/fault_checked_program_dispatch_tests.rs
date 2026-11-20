@@ -340,3 +340,200 @@ fn typed_store_borrow_is_an_operator_type_error_at_the_comparison_site() {
     assert!(suppressed.is_empty());
     release(handle);
 }
+
+#[test]
+fn original_dynamic_integer_compared_with_text_uses_only_the_operator_site() {
+    use super::super::checked_string::{compare, Operand};
+    let text = Operand {
+        kind: 1,
+        reserved: 0,
+        bytes: b"release".as_ptr(),
+        len: b"release".len(),
+        handle: 0,
+        token: 0,
+        integer: 0,
+    };
+    let integer = Operand {
+        kind: 4,
+        reserved: 1,
+        bytes: null(),
+        len: 0,
+        integer: 21,
+        ..text
+    };
+    let malformed = Operand {
+        reserved: 2,
+        ..integer
+    };
+    let mut frame = FaultFrame::new();
+    let mut out = 42;
+    assert_eq!(
+        unsafe { compare(storage(&mut frame), SITE, 0, &integer, &text, &mut out) },
+        Status::Normal as u32
+    );
+    assert_eq!(out, 0);
+    assert_eq!(
+        unsafe { compare(storage(&mut frame), SITE, 2, &malformed, &text, &mut out) },
+        Status::InvalidContract as u32
+    );
+    assert_eq!(out, 0);
+    assert!(frame.diagnostics().unwrap().0.is_none());
+    assert_eq!(
+        unsafe { compare(storage(&mut frame), SITE, 2, &integer, &text, &mut out) },
+        Status::Fault as u32
+    );
+    assert_eq!(out, 0);
+    let (primary, suppressed, _) = frame.diagnostics().unwrap();
+    let primary = primary.unwrap();
+    assert_eq!(
+        (primary.reason, primary.site, primary.details),
+        (302, SITE, [0, 0])
+    );
+    assert!(suppressed.is_empty());
+}
+
+#[test]
+fn program_dispatch_borrows_ordered_text_until_normal_or_fault() {
+    use super::super::checked_string::{code_point_count, Operand};
+    use nyash_rust::runtime::dynamic_v2_lease as lease;
+
+    unsafe extern "C" fn score(
+        frame: *mut c_void,
+        _receiver: i64,
+        actuals: *const dynamic::Operand,
+        arity: usize,
+        out: *mut i64,
+    ) -> u32 {
+        ENTERED.with(|count| count.set(count.get() + 1));
+        let actuals = unsafe { std::slice::from_raw_parts(actuals, arity) };
+        let mut counts = [0, 0];
+        for (wire, count) in actuals.iter().zip(&mut counts) {
+            if wire.kind != dynamic::TAGGED || wire.tag != dynamic::BORROWED_TEXT_TAG {
+                return Status::InvalidContract as u32;
+            }
+            let status = unsafe { code_point_count(wire.payload as *const Operand, count) };
+            if status != Status::Normal as u32 {
+                return status;
+            }
+        }
+        if counts[0] == 0 {
+            // A body Fault retains its own site and never publishes a result.
+            return record(frame, SITE + 1, Failure::MissingProvider);
+        }
+        unsafe { out.write(counts[0] * 10 + counts[1]) };
+        Status::Normal as u32
+    }
+
+    let types = [DispatchTypeV1 {
+        type_id: TYPE,
+        layout: null(),
+        layout_count: 0,
+    }];
+    for (parameters, left, right, expected) in [
+        ([FORMAL_DYNAMIC, FORMAL_DYNAMIC], "release", "猫", Some(71)),
+        ([FORMAL_DYNAMIC, FORMAL_DYNAMIC], "猫", "release", Some(17)),
+        ([FORMAL_DYNAMIC, FORMAL_DYNAMIC], "", "猫", None),
+        ([FORMAL_I64, FORMAL_DYNAMIC], "release", "猫", None),
+    ] {
+        let rows = [DispatchProviderV1 {
+            arity: 2,
+            parameters: parameters.as_ptr(),
+            thunk: Some(score),
+            ..provider()
+        }];
+        let program = descriptor(&types, &rows);
+        let handle = allocate(&program);
+        let recv = receiver(handle, TYPED_STORE_BORROW);
+        let leases =
+            [left, right].map(|text| lease::publish_end_authorized_text(text.to_owned()).unwrap());
+        let descriptors = leases.each_ref().map(|pair| Operand {
+            kind: 2,
+            reserved: 0,
+            bytes: null(),
+            len: 0,
+            handle: pair.handle(),
+            token: pair.token().get(),
+            integer: 0,
+        });
+        let args = descriptors.each_ref().map(|descriptor| dynamic::Operand {
+            kind: dynamic::TAGGED,
+            tag: dynamic::BORROWED_TEXT_TAG,
+            payload: std::ptr::from_ref(descriptor) as u64,
+        });
+        let mut frame = FaultFrame::new();
+        let mut out = OUT;
+        ENTERED.with(|value| value.set(0));
+        let status = unsafe {
+            invoke(
+                storage(&mut frame),
+                SITE,
+                &program,
+                &recv,
+                METHOD.as_ptr(),
+                METHOD.len(),
+                args.as_ptr(),
+                args.len(),
+                &mut out,
+            )
+        };
+        if let Some(expected) = expected {
+            assert_eq!(status, Status::Normal as u32);
+            let token = DynamicCarrierTokenV1::from_raw_v1(out).unwrap();
+            assert_eq!(token.integer_payload_v1().unwrap(), expected);
+            token.end_v1().unwrap();
+        } else {
+            assert_eq!(status, Status::Fault as u32);
+            assert_eq!(out, OUT);
+            let (primary, suppressed, _) = frame.diagnostics().unwrap();
+            let primary = primary.unwrap();
+            if parameters[0] == FORMAL_I64 {
+                assert_eq!(
+                    (primary.reason, primary.site, primary.details),
+                    (400, SITE, [4, 0])
+                );
+
+                let mut malformed = args;
+                malformed[1].payload = 1;
+                let mut frame = FaultFrame::new();
+                assert_eq!(
+                    unsafe {
+                        invoke(
+                            storage(&mut frame),
+                            SITE,
+                            &program,
+                            &recv,
+                            METHOD.as_ptr(),
+                            METHOD.len(),
+                            malformed.as_ptr(),
+                            malformed.len(),
+                            &mut out,
+                        )
+                    },
+                    Status::InvalidContract as u32
+                );
+                assert!(frame.diagnostics().unwrap().0.is_none());
+                assert_eq!(out, OUT);
+            } else {
+                assert_eq!(
+                    (primary.reason, primary.site, primary.details),
+                    (400, SITE + 1, [2, 0])
+                );
+            }
+            assert!(suppressed.is_empty());
+        }
+        assert_eq!(
+            ENTERED.with(Cell::get),
+            u32::from(parameters[0] == FORMAL_DYNAMIC)
+        );
+        for (pair, original) in leases.into_iter().zip([left, right]) {
+            assert_eq!(
+                lease::with_end_authorized_text_pair(pair.handle(), pair.token(), str::to_owned)
+                    .unwrap(),
+                original
+            );
+            lease::end_authorized_text_pair(pair.handle(), pair.token()).unwrap();
+            assert!(lease::end_authorized_text_pair(pair.handle(), pair.token()).is_err());
+        }
+        release(handle);
+    }
+}

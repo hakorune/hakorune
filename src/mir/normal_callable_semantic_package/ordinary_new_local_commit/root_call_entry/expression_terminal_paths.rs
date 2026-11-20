@@ -75,6 +75,11 @@ enum TransientPrefixOriginV1<'a> {
         live: &'a [ExpressionOwnedTemporaryV1],
         prior_homes: &'a [LiveHomeV1],
     },
+    EvaluatedDynamic {
+        frame: &'a CheckedExpressionEvaluationV1,
+        call: &'a LocalCallObservationV1,
+        live: &'a [ExpressionOwnedTemporaryV1],
+    },
     Arguments {
         call: ExpressionCallArgumentSourceV1<'a>,
         ordinal: usize,
@@ -88,13 +93,23 @@ enum TransientPrefixOriginV1<'a> {
     },
 }
 impl<'a> ExpressionCallTransientPrefixV1<'a> {
+    pub(super) fn from_emitted_dynamic_v1(
+        frame: &'a CheckedExpressionEvaluationV1,
+        call: &'a LocalCallObservationV1,
+        live: &'a [ExpressionOwnedTemporaryV1],
+        parent: Option<&'a Self>,
+    ) -> Self {
+        Self { origin: TransientPrefixOriginV1::EvaluatedDynamic { frame, call, live }, parent }
+    }
+
     /// The outer evaluation owns cumulative state across canonical child frames.
     /// Snapshot equality remains a separate original-source check below.
     fn ownership_frame_at_v1(&self, site: &OwnedExprSiteV1) -> Option<&CheckedExpressionEvaluationV1> {
         if let Some(frame) = self.parent.and_then(|parent| parent.ownership_frame_at_v1(site)) { return Some(frame); }
         let frame = match &self.origin {
             TransientPrefixOriginV1::Evaluation { frame, .. }
-            | TransientPrefixOriginV1::Emitted { frame, .. } => *frame,
+            | TransientPrefixOriginV1::Emitted { frame, .. }
+            | TransientPrefixOriginV1::EvaluatedDynamic { frame, .. } => *frame,
             TransientPrefixOriginV1::NewArguments { current, .. } => {
                 let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = current.kind() else { return None; };
                 evaluation
@@ -304,7 +319,8 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
             TransientPrefixOriginV1::Emitted { call, .. } => {
                 call.retained_node_at_v1(site)?.is_some()
             }
-            TransientPrefixOriginV1::Evaluation { call, .. } => {
+            TransientPrefixOriginV1::Evaluation { call, .. }
+            | TransientPrefixOriginV1::EvaluatedDynamic { call, .. } => {
                 call.site() == site || in_arguments(call.arguments(), site)
             }
             TransientPrefixOriginV1::Arguments { call, ordinal, .. } => {
@@ -327,7 +343,8 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
                 evaluation.prior_homes()
             }
             TransientPrefixOriginV1::Emitted { prior_homes, .. } => prior_homes,
-            TransientPrefixOriginV1::Evaluation { frame, .. } => frame.prior_homes(),
+            TransientPrefixOriginV1::Evaluation { frame, .. }
+            | TransientPrefixOriginV1::EvaluatedDynamic { frame, .. } => frame.prior_homes(),
             TransientPrefixOriginV1::Arguments { call, .. } => call.prior_homes(),
         }
     }
@@ -390,7 +407,8 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
                 operations.extend(inherited.iter().cloned());
                 operations
             }
-            TransientPrefixOriginV1::Emitted { live, .. } => {
+            TransientPrefixOriginV1::Emitted { live, .. }
+            | TransientPrefixOriginV1::EvaluatedDynamic { live, .. } => {
                 live.iter().rev().map(|temporary| temporary.end_operation()).collect::<Result<Vec<_>, _>>()?
             }
             TransientPrefixOriginV1::Evaluation { acquired, .. } => acquired

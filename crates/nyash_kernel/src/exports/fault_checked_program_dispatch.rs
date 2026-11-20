@@ -86,8 +86,45 @@ fn record(storage: *mut c_void, site: u64, failure: Failure) -> u32 {
     }
 }
 
-fn is_integer(op: &dynamic::Operand) -> bool {
-    (op.kind == dynamic::INTEGER && op.tag == 0) || (op.kind == dynamic::TAGGED && op.tag == 1)
+/// Validate each wire actual once, then compare it with the selected formal.
+fn argument_matches(
+    arg: &dynamic::Operand,
+    formal: u32,
+    stamp: NonZeroUsize,
+    pins: &mut Vec<crate::exports::typed_object_store_backend::DispatchReceiverPin>,
+) -> Result<bool, Status> {
+    let (is_integer, is_tagged_payload) = match (arg.kind, arg.tag) {
+        (dynamic::INTEGER, 0) | (dynamic::TAGGED, 1) => (true, true),
+        (dynamic::BOOL, 0) | (dynamic::TAGGED, 2) if arg.payload <= 1 => (false, true),
+        (dynamic::TAGGED, 0) if arg.payload == 0 => (false, true),
+        (dynamic::TAGGED, dynamic::BORROWED_TEXT_TAG) => {
+            unsafe { super::checked_string::validate_text_operand(arg.payload as *const _) }?;
+            (false, true)
+        }
+        (dynamic::TAGGED, TYPED_STORE_BORROW) => {
+            let pin = pin_dispatch_receiver(arg.payload as i64, stamp)
+                .ok_or(Status::InvalidContract)?;
+            pins.push(pin);
+            (false, true)
+        }
+        (dynamic::TAGGED, 3) => {
+            unsafe { dynamic::decode(arg) }?;
+            (false, true)
+        }
+        (dynamic::CARRIER, 0) => {
+            // An opaque result carrier is independent of the formal's original pair.
+            let token = nyash_rust::runtime::dynamic_invocation::DynamicCarrierTokenV1::from_raw_v1(arg.payload)
+                .map_err(|_| Status::InvalidContract)?;
+            token.is_null_v1().map_err(|_| Status::InvalidContract)?;
+            (false, false)
+        }
+        _ => return Err(Status::InvalidContract),
+    };
+    match formal {
+        FORMAL_DYNAMIC => Ok(is_tagged_payload),
+        FORMAL_I64 => Ok(is_integer),
+        _ => Err(Status::InvalidContract),
+    }
 }
 
 /// The site belongs to the original Invoke. A thunk may synchronously invoke
@@ -171,13 +208,15 @@ pub unsafe extern "C" fn invoke(
     let Some(parameters) = (unsafe { wire_slice(row.parameters, row.arity) }) else {
         return Status::InvalidContract as u32;
     };
-    if parameters
-        .iter()
-        .any(|formal| !matches!(*formal, FORMAL_DYNAMIC | FORMAL_I64))
-    {
-        return Status::InvalidContract as u32;
+    let mut argument_pins = Vec::new();
+    let mut mismatch = false;
+    for (arg, &formal) in args.iter().zip(parameters) {
+        match argument_matches(arg, formal, stamp, &mut argument_pins) {
+            Ok(matches) => mismatch |= !matches,
+            Err(status) => return status as u32,
+        }
     }
-    if args.iter().any(|arg| !is_integer(arg)) {
+    if mismatch {
         return record(storage, site, Failure::ArgumentTypeMismatch);
     }
     let Some(thunk) = row.thunk else {
@@ -189,6 +228,7 @@ pub unsafe extern "C" fn invoke(
     };
     let mut result = 0i64;
     let status = unsafe { thunk(storage, handle, arguments, argument_count, &mut result) };
+    drop(argument_pins);
     drop(pin);
     if status == Status::Normal as u32 {
         let token = reservation.publish_integer_v1(result);

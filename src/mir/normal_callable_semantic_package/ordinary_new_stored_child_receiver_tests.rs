@@ -245,6 +245,7 @@ fn passive_stored_dispatch_excludes_only_exact_different_targets() {
             None,
             needs,
             Some(&package.instance_constructors),
+            &[],
             None,
         )
     };

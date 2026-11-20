@@ -89,7 +89,16 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                         .ok_or_else(|| freeze("dynamic-expression/invoke-removed"))?,
                     None => original.clone(),
                 };
-                Ok((current, packet))
+                let mut arguments = packet.argument_bindings_in_context_v1(context)?.0;
+                arguments.push(original.clone());
+                let effects = arguments.into_iter()
+                    .filter(|(_, instruction)| matches!(instruction, MirInstruction::Invoke { .. }))
+                    .map(|binding| match finishing {
+                        Some(projection) => projection.binding(binding.0, &binding.1)?
+                            .ok_or_else(|| freeze("dynamic-expression/argument-effect-removed")),
+                        None => Ok(binding),
+                    }).collect::<Result<Vec<_>, String>>()?;
+                Ok((current, effects, packet))
             })
             .collect::<Result<Vec<_>, String>>()?;
         for (id, instruction) in ordered {
@@ -192,41 +201,49 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 }
                 continue;
             }
-            if let Some((_, packet)) = dynamic_packets
-                .iter()
-                .find(|(binding, _)| binding == &(*id, instruction.clone()))
+            if let Some((entry, _, packet)) = dynamic_packets.iter()
+                .find(|(_, effects, _)| effects.contains(&(*id, instruction.clone())))
             {
-                if !matches!(operation, InvokeOperation::DynamicInvocation(actual) if actual == packet.operation())
-                {
-                    return Err(freeze("dynamic-expression/invoke-operation"));
+                let source = self.frame.calls().iter().find(|call| call.site() == packet.source().site())
+                    .ok_or_else(|| freeze("dynamic-expression/source-loan"))?;
+                if validated_calls.insert(entry.0) {
+                    let prefix = ExpressionCallTransientPrefixV1::from_emitted_dynamic_v1(
+                        self.frame, source, &live, inherited,
+                    );
+                    for (ordinal, argument) in packet.argument_projections().iter().enumerate() {
+                        let argument_prefix = ExpressionCallTransientPrefixV1::for_prepared_call_argument(
+                            ExpressionCallArgumentSourceV1::from_local(source), ordinal,
+                            &packet.argument_projections()[..ordinal], context, Some(&prefix),
+                        )?;
+                        covered.extend(argument.validate_expression_physical_with_prefix_v1(
+                            context, function, finishing, self.original, None, Some(&argument_prefix),
+                        )?);
+                    }
                 }
-                let projected = match finishing {
-                    Some(projection) => projection
-                        .binding(
-                            packet.projection_binding().0,
-                            &packet.projection_binding().1,
-                        )?
-                        .ok_or_else(|| freeze("dynamic-expression/result-removed"))?,
-                    None => packet.projection_binding().clone(),
-                };
-                let MirInstruction::InvokeNormalResult { invoke_block, dst } = projected.1 else {
-                    return Err(freeze("dynamic-expression/result-projection"));
-                };
-                if invoke_block != *id
-                    || live.contains(&ExpressionOwnedTemporaryV1::DynamicCarrier(dst))
-                {
-                    return Err(freeze("dynamic-expression/result-lifecycle"));
+                if entry != &(*id, instruction.clone()) {
+                    if !covered.contains(id) { return Err(freeze("dynamic-expression/argument-effect-uncovered")); }
+                    continue;
                 }
-                covered.insert(*id);
-                covered.extend(paths::pending_operations(
-                    function,
-                    *fault_landing,
-                    &end_sequence(&live, &current_homes)?,
-                    Some(fault_frame),
+                let ends = LexicalCallArgumentProjectionV1::deferred_ends_for_arguments_v1(
+                    packet.argument_projections(), context,
+                )?;
+                let suffix = end_sequence(&live, &current_homes)?;
+                covered.extend(validate_dynamic_invoke_cleanup_v1(
+                    function, finishing, packet, *id, operation, *normal_landing,
+                    *fault_landing, fault_frame, &ends, &suffix,
                 )?);
-                live.push(ExpressionOwnedTemporaryV1::DynamicCarrier(dst));
+                let value = match finishing {
+                    Some(boundary) => boundary.binding(packet.projection_binding().0, &packet.projection_binding().1)?
+                        .and_then(|row| row.1.dst_value()).ok_or_else(|| freeze("dynamic-expression/result-removed"))?,
+                    None => packet.value(),
+                };
+                let temporary = ExpressionOwnedTemporaryV1::DynamicCarrier(value);
+                if live.contains(&temporary) { return Err(freeze("dynamic-expression/result-lifecycle")); }
+                live.push(temporary);
                 continue;
             }
+            // A previously validated Call includes its Normal End sequence.
+            if covered.contains(id) { continue; }
             let dynamic_result = match operation {
                 InvokeOperation::DynamicArrayGet { .. } => {
                     let mut values = self.frame.cores().iter().filter_map(|(node, core)| {
@@ -334,4 +351,57 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         }
         Ok((live, covered))
     }
+}
+
+/// Independent physical validation against the common argument End sequence.
+fn validate_dynamic_invoke_cleanup_v1(
+    function: &MirFunction,
+    finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
+    packet: &EmittedDynamicInvocationCallProjectionV1,
+    id: BasicBlockId,
+    operation: &InvokeOperation,
+    normal_landing: BasicBlockId,
+    fault_landing: BasicBlockId,
+    fault_frame: ValueId,
+    ends: &[InvokeOperation],
+    suffix: &[InvokeOperation],
+) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
+    use super::super::super::root_cleanup_graph::ordered_paths as paths;
+    if !matches!(operation, InvokeOperation::DynamicInvocation(actual) if actual == packet.operation()) {
+        return Err(freeze("dynamic-expression/invoke-operation"));
+    }
+    let projected = match finishing {
+        Some(projection) => projection.binding(packet.projection_binding().0, &packet.projection_binding().1)?
+            .ok_or_else(|| freeze("dynamic-expression/result-removed"))?,
+        None => packet.projection_binding().clone(),
+    };
+    let MirInstruction::InvokeNormalResult { invoke_block, dst } = projected.1 else {
+        return Err(freeze("dynamic-expression/result-projection"));
+    };
+    if invoke_block != id { return Err(freeze("dynamic-expression/result-projection")); }
+
+    let all = ends.iter().chain(suffix).cloned().collect::<Vec<_>>();
+    let mut covered = paths::pending_operations(function, fault_landing, &all, Some(fault_frame))?;
+    covered.insert(id);
+    let Some(continuation) = packet.cleanup_continuation() else {
+        return if ends.is_empty() { Ok(covered) } else { Err(freeze("dynamic-expression/cleanup-continuation")) };
+    };
+    let stop = match finishing {
+        Some(projection) => projection.destination(continuation)
+            .ok_or_else(|| freeze("dynamic-expression/cleanup-continuation"))?,
+        None => continuation,
+    };
+    let residuals = (1..=ends.len())
+        .map(|next| {
+            ends[next..].iter().cloned()
+                .chain([InvokeOperation::DynamicCarrierEnd { carrier: dst }])
+                .chain(suffix.iter().cloned())
+                .collect()
+        })
+        .collect::<Vec<Vec<_>>>();
+    covered.extend(paths::validate_to_continuation_v2(
+        function, normal_landing, stop, ends, &residuals,
+        Some(fault_frame), &mut |_, operation| Ok(operation.clone()),
+    )?);
+    Ok(covered)
 }

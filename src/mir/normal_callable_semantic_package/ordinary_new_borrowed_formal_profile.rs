@@ -17,6 +17,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 #[path = "ordinary_new_borrowed_stored_nullable_source.rs"]
 mod stored_nullable;
+use stored_nullable::issue_eligible_receiver_v1;
 
 fn attach_owning_object_local_input_v1(
     need: &mut PreparedSourceCallNeedV1,
@@ -148,6 +149,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         probe,
         Some(constructors), Some(entry_home_loans),
     );
+    let dynamic_provider_owners = super::borrowed_formal_source::dynamic_provider_owners_v1(
+        selected, contracts, dynamic_source_calls,
+    );
     let drafts = collect_borrowed_source_drafts_v1(
         batch,
         selected,
@@ -157,6 +161,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         dynamic_slot,
         entry_home_loans,
         constructors,
+        &dynamic_provider_owners,
         Some((callable_result_classes, field_write_claims)),
     );
     let (ordinary_callers, definitions, dominated_view_sites, guarded_actuals, originals) = match drafts {
@@ -376,7 +381,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
             &ordinary_callers, &definitions, Some(static_call_claims), &static_arguments,
             app_main, Some(needs), constructors,
             entry_home_loans, local_candidates, callable_result_classes, &guarded_actuals, array_i64_fields,
-            array_field_write_candidates, array_field_get_candidates, Some(field_write_claims),
+            array_field_write_candidates, array_field_get_candidates, dynamic_source_calls, Some(field_write_claims),
         )
     };
     // Recheck each provisional pair against the current all-owner New census.
@@ -622,6 +627,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 originals,
             ),
             static_arguments,
+            dynamic_source_calls,
+            dynamic_provider_owners,
             original_inventory,
         )
     })();
@@ -650,25 +657,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
     }
     let results = seal_pending_results_v1(pending, contracts, &ingress, batch, constructors);
     Ok((targets, ingress, static_source_sites, results))
-}
-
-/// After eligibility, retain the exact demand instead of erasing it into a row error.
-fn issue_eligible_receiver_v1(
-    reference: &CallTargetReferenceV1,
-    receiver: &StoredReceiverSourceV1,
-    original: Option<&super::borrowed_formal_source::OriginalBorrowedFormalSourceV1>,
-    issue: &mut impl FnMut(
-        &CallTargetReferenceV1,
-        &StoredReceiverSourceV1,
-        Option<&super::borrowed_formal_source::OriginalBorrowedFormalSourceV1>,
-    ) -> Result<Option<LexicalInstanceCallReceiverV1>, String>,
-) -> Result<LexicalInstanceCallReceiverV1, OrdinaryNewCoSealIssueV1> {
-    issue(reference, receiver, original)
-        .and_then(|row| row.ok_or_else(|| freeze("stored-child/receiver-unavailable")))
-        .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
-            site: reference.call_site.clone(),
-            issue,
-        })
 }
 
 /// Source-only eligibility. The same receiver issuer and whole incoming scan

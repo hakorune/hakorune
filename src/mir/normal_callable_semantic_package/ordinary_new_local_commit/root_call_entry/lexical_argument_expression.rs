@@ -2,14 +2,13 @@
 use super::*;
 
 impl LexicalCallArgumentProjectionV1 {
-    pub(crate) fn dynamic_call_argument_scope_bindings_v1(
+    fn dynamic_call_argument_v1(
         &self,
         source: &LocalCallArgumentV1,
         call: &OwnedExprSiteV1,
         ordinal: usize,
         site: &crate::mir::resolved_semantics::SourceExprSiteV1,
-        context: CallValidationContextV1<'_>,
-    ) -> Result<(Vec<Binding>, Vec<Binding>), String> {
+    ) -> Result<&EmittedArgumentExpressionProjectionV1, String> {
         let (
             Self::Expression(packet),
             LocalCallArgumentV1::Expression {
@@ -40,12 +39,57 @@ impl LexicalCallArgumentProjectionV1 {
                 .nodes()
                 .first()
                 .is_none_or(|node| node.site() != site)
-            || packet.completion != ArgumentCompletionV1::ScalarCompleted
-            || !packet.frame.is_i64()
+            || !packet.frame.source_loan().preserves_original_kind()
         {
             return Err(freeze("dynamic-expression/argument-source"));
         }
-        packet.scope_bindings_in_context_v1(context)
+        Ok(packet)
+    }
+
+    pub(crate) fn dynamic_call_argument_scope_bindings_v1(
+        &self,
+        source: &LocalCallArgumentV1,
+        call: &OwnedExprSiteV1,
+        ordinal: usize,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<(Vec<Binding>, Vec<Binding>), String> {
+        self.dynamic_call_argument_v1(source, call, ordinal, site)?
+            .scope_bindings_in_context_v1(context)
+    }
+
+    pub(in crate::mir) fn dynamic_operand_v1(
+        &self,
+        source: &LocalCallArgumentV1,
+        call: &OwnedExprSiteV1,
+        ordinal: usize,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<crate::mir::instruction::DynamicInvocationOperandV1, String> {
+        use crate::mir::instruction::{DynamicInvocationOperandV1 as Dynamic, StringInvokeOperand as String};
+        use super::super::super::expression_projection::EvaluatedExpressionValueV1 as Value;
+
+        let packet = self.dynamic_call_argument_v1(source, call, ordinal, site)?;
+        let value = packet.validate_source(context)?;
+        if packet.completion == ArgumentCompletionV1::OwnedTextDeferred {
+            return Ok(Dynamic::BorrowedText(String::OwnedString(value)));
+        }
+        match packet.body.values.first().and_then(Option::as_ref) {
+            Some(Value::Operand(String::NormalInteger(_))) => Ok(Dynamic::Integer(value)),
+            Some(Value::Operand(String::Dynamic(_))) => Ok(Dynamic::TaggedDynamic(value)),
+            Some(Value::Bool(_)) => Ok(Dynamic::Bool(value)),
+            Some(Value::Null(_)) => Ok(Dynamic::Null),
+            _ => Err(freeze("dynamic-expression/argument-result")),
+        }
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit)
+    fn original_dynamic_formal_v1(&self) -> Option<crate::mir::resolved_semantics::BindingRefV1> {
+        let Self::Expression(packet) = self else { return None; };
+        let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::DynamicEntry(read)) =
+            packet.frame.evaluation().references().get(&0)
+        else { return None; };
+        Some(read.requirement().formal().1)
     }
 
     pub(in crate::mir) fn from_expression_v1(
@@ -71,7 +115,7 @@ impl LexicalCallArgumentProjectionV1 {
         } else {
             None
         };
-        let completion = if frame.is_i64() {
+        let completion = if frame.has_scalar_completion() {
             ArgumentCompletionV1::ScalarCompleted
         } else if frame.is_dynamic_carrier_append_v1() {
             ArgumentCompletionV1::DynamicCarrierDeferred
@@ -162,6 +206,28 @@ impl LexicalCallArgumentProjectionV1 {
         }
         Ok((value, call_packet.invoke_binding().clone()))
     }
+    /// Reverse acquisition order is shared by every invocation envelope.
+    pub(in crate::mir) fn deferred_ends_for_arguments_v1(
+        arguments: &[Self],
+        context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<InvokeOperation>, String> {
+        let mut values = Vec::new();
+        let mut seen = std::collections::BTreeSet::new();
+        for argument in arguments {
+            for temporary in argument.deferred_temporaries_v1(context)? {
+                if !seen.insert(temporary.value()) {
+                    return Err(freeze("call-argument/duplicate-acquisition"));
+                }
+                values.push(temporary);
+            }
+        }
+        values
+            .into_iter()
+            .rev()
+            .map(ExpressionOwnedTemporaryV1::end_operation)
+            .collect()
+    }
+
     /// Source-bound live-out observations, never a second acquisition inventory.
     pub(in crate::mir) fn deferred_temporaries_v1(
         &self,
@@ -303,7 +369,7 @@ impl LexicalCallArgumentProjectionV1 {
             None,
         )
     }
-    pub(super) fn validate_expression_physical_with_prefix_v1(
+    pub(in super::super::super) fn validate_expression_physical_with_prefix_v1(
         &self,
         context: CallValidationContextV1<'_>,
         function: &crate::mir::MirFunction,

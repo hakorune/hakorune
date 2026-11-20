@@ -27,6 +27,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     array_i64_fields: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
     array_field_write_candidates: &[super::super::super::array_i64_fields::ArrayFieldWriteCandidateV1],
     array_field_get_candidates: &[super::super::super::array_i64_fields::ArrayFieldGetCandidateV1],
+    dynamic_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
     fields: Option<&crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::OrdinaryNewFieldWriteClaimsV1>,
 ) -> Result<source_seeds::OriginalBorrowedFormalSourceV1, String> {
     let context = static_claims.map(|claims| StaticIncomingContextV1 {
@@ -73,6 +74,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         context.as_ref(),
         stored_dispatch,
         Some(constructors),
+        dynamic_calls,
         Some(&array_sources),
     )
     .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/incoming-coverage")))?;
@@ -116,9 +118,11 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         (OwnedExprSiteV1, u32),
         super::borrowed_static_argument::StaticArgumentSourceV1,
     >,
+    dynamic_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
+    dynamic_provider_owners: BTreeSet<FunctionOwnerIdV1>,
     original_inventory: Result<source_seeds::OriginalBorrowedFormalSourceV1, String>,
 ) -> Result<PreparedBorrowedFormalIngressV1, String> {
-    let (_ordinary_callers, definitions, dominated_view_sites, guarded_actuals, originals) = drafts;
+    let (_ordinary_callers, mut definitions, dominated_view_sites, guarded_actuals, originals) = drafts;
     let mut transport_owners: BTreeSet<_> = contracts
         .iter()
         .filter(|row| {
@@ -168,6 +172,30 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             .values()
             .filter_map(|row| row.as_ref().ok().map(|source| source.as_ref())),
     )?;
+    // The ordinary source target wins at its exact site. Where no ordinary
+    // target exists, use the existing Dynamic source target's ordered actual
+    // census, without creating a static callee or a new forwarding edge.
+    for (owner, draft) in &mut definitions {
+        for row in &mut draft.uses {
+            let BorrowedFormalUseDraftKindV1::UnresolvedArgument { call, ordinal } = &row.kind
+            else { continue; };
+            if call_sources.contains_key(call) { continue; }
+            let mut candidates = dynamic_calls.iter().filter(|target| {
+                target.owner() == *owner && target.call_site() == call.site()
+            });
+            let Some(target) = candidates.next() else { continue; };
+            if candidates.next().is_some() || call.owner() != *owner || row.site.owner() != *owner
+                || row.formal.owner() != *owner || draft.origins.get(&row.binding) != Some(&row.formal)
+                || target.arguments().get(*ordinal as usize).is_none_or(|argument|
+                    argument.ordinal() != *ordinal || argument.site() != row.site.site())
+            {
+                return Err(freeze("borrowed-formal/dynamic-argument-identity"));
+            }
+            row.kind = BorrowedFormalUseDraftKindV1::DynamicInvocationArgument {
+                call: call.clone(), ordinal: *ordinal,
+            };
+        }
+    }
     // Close the finite graph before selection. Removing one outside-profile
     // destination invalidates every source that forwards an opaque value to it.
     // Repetition terminates because every nonfinal pass removes an owner.
@@ -252,6 +280,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     }
     let static_terminal_sites = observation::static_terminal_sites_v1(batch, selected, contracts, app_main)?;
     Ok(PreparedBorrowedFormalIngressV1 {
+        dynamic_provider_owners,
         original_corroboration: std::cell::Cell::new(None),
         static_terminal_sites,
         app_main_owner: contracts

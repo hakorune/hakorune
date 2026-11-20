@@ -54,6 +54,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         static_context,
         None,
         None,
+        &[],
         None,
     )
 }
@@ -69,8 +70,16 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     static_context: Option<&StaticIncomingContextV1<'_>>,
     stored_dispatch: Option<&super::super::source::PreparedSourceNeedsV1>,
     constructors: Option<&crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1>,
+    dynamic_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
     array_sources: Option<&super::super::borrowed_formal_source::OriginalArraySourcesV1>,
 ) -> Result<BorrowedIncomingInventoryV1, BorrowedIncomingDraftErrorV1> {
+    let mut dynamic_by_site = BTreeMap::new();
+    for target in dynamic_calls {
+        let site = OwnedExprSiteV1::new(target.owner(), target.call_site().clone());
+        if dynamic_by_site.insert(site.clone(), target).is_some() {
+            return Err(BorrowedIncomingDraftErrorV1::CallIdentity(site));
+        }
+    }
     let mut stored = BTreeMap::new();
     if let Some(prepared) = stored_dispatch {
         for need in prepared
@@ -465,6 +474,27 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                         }
                     }};
                     let Some(exact) = exact else {
+                        if caller.is_some() && instance.is_none() && stored_target.is_none()
+                            && static_observation.is_none() && source_static_observation.is_none()
+                            && contract.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod
+                        {
+                            if let Some(dynamic) = dynamic_by_site.get(&owned) {
+                                if dynamic.owner() != input.owner()
+                                    || dynamic.receiver_site() != call.receiver_site()
+                                    || dynamic.result_site() != call.result_site()
+                                    || dynamic.dispatch().selector() != call.selector()
+                                    || dynamic.dispatch().arity() != call.arity()
+                                    || dynamic.arguments().len() != call.arguments().len()
+                                    || dynamic.arguments().iter().zip(call.arguments()).any(|(target, original)|
+                                        target.ordinal() != original.ordinal() || target.site() != original.site())
+                                {
+                                    return Err(BorrowedIncomingDraftErrorV1::CallIdentity(owned.clone()));
+                                }
+                                // This original method use belongs to the program dispatch
+                                // contract, which has no statically selected callee.
+                                continue;
+                            }
+                        }
                         let refusal_scope = if legacy && source_static_observation.as_ref()
                             .and_then(|row| row.as_ref().ok()).is_some_and(|source| source.target() != *key)
                         { inventory::IncomingObservationScopeV1::LegacyOnly } else { scope };

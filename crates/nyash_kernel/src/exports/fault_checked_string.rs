@@ -55,11 +55,15 @@ fn fault(frame: &mut FaultFrame, site: u64, reason: u32) -> u32 {
 }
 
 unsafe fn operand<'a>(value: *const Operand) -> Result<&'a Operand, Status> {
+    unsafe { operand_with_max_tag(value, 3) }
+}
+
+unsafe fn operand_with_max_tag<'a>(value: *const Operand, max_tag: u32) -> Result<&'a Operand, Status> {
     if value.is_null() || !value.is_aligned() {
         return Err(Status::InvalidContract);
     }
     let value = unsafe { &*value };
-    if (value.kind == TAGGED_DYNAMIC && value.reserved > 3)
+    if (value.kind == TAGGED_DYNAMIC && value.reserved > max_tag)
         || (value.kind != TAGGED_DYNAMIC && value.reserved != 0) {
         return Err(Status::InvalidContract);
     }
@@ -96,6 +100,20 @@ fn tagged_integer(tag: u32, payload: u64) -> Result<i64, IntegerOperandFailure> 
     }
 }
 
+fn borrowed_tagged_integer(tag: u32, payload: u64) -> Result<i64, IntegerOperandFailure> {
+    match tag {
+        super::checked_dynamic::BORROWED_TEXT_TAG
+            if payload != 0 && payload % std::mem::align_of::<Operand>() as u64 == 0 =>
+        {
+            Err(IntegerOperandFailure::TypeError)
+        }
+        super::checked_program_dispatch::TYPED_STORE_BORROW if (payload as i64) < 0 => {
+            Err(IntegerOperandFailure::TypeError)
+        }
+        _ => tagged_integer(tag, payload),
+    }
+}
+
 /// Read the original V4 borrowed formal, without consuming it. The C caller
 /// validates the descriptor lifetime and supplies the operation's diagnostic site.
 #[export_name = "nyash.dynamic.checked_borrowed_integer_v1"]
@@ -113,18 +131,7 @@ pub unsafe extern "C" fn borrowed_integer_payload(
         Ok(frame) => frame,
         Err(status) => return status as u32,
     };
-    let result = match tag {
-        // The V4 borrowed formal carries Text and program-owned Objects in
-        // addition to the tags in the substring operand descriptor.
-        4 if payload != 0 && payload % std::mem::align_of::<Operand>() as u64 == 0 => {
-            Err(IntegerOperandFailure::TypeError)
-        }
-        super::checked_program_dispatch::TYPED_STORE_BORROW if (payload as i64) < 0 => {
-            Err(IntegerOperandFailure::TypeError)
-        }
-        _ => tagged_integer(tag, payload),
-    };
-    match result {
+    match borrowed_tagged_integer(tag, payload) {
         Ok(value) => {
             unsafe { out.write(value) };
             Status::Normal as u32
@@ -271,7 +278,32 @@ fn dynamic_carrier(value: &Operand) -> Result<nyash_rust::runtime::dynamic_invoc
 /// Decode both operands before applying an operator. Invalid transport is never
 /// a language TypeError, and a valid non-Text payload need not Fault for equality.
 unsafe fn comparable(value: *const Operand) -> Result<Comparable, u32> {
-    let descriptor = unsafe { operand(value) }.map_err(|status| status as u32)?;
+    let descriptor = unsafe { operand_with_max_tag(value, super::checked_program_dispatch::TYPED_STORE_BORROW) }
+        .map_err(|status| status as u32)?;
+    if descriptor.kind == TAGGED_DYNAMIC {
+        let invalid = Status::InvalidContract as u32;
+        if !descriptor.bytes.is_null() || descriptor.len != 0 || descriptor.handle != 0 || descriptor.token != 0
+            || descriptor.reserved == super::checked_dynamic::BORROWED_TEXT_TAG
+        {
+            // The C emitter unwraps tag 4 into an exact Text descriptor.
+            return Err(invalid);
+        }
+        match borrowed_tagged_integer(descriptor.reserved, descriptor.integer as u64) {
+            Err(IntegerOperandFailure::InvalidContract) => return Err(invalid),
+            Err(IntegerOperandFailure::TypeError) if descriptor.reserved == 0 => return Ok(Comparable::Null),
+            _ => {}
+        }
+        if descriptor.reserved == 3 {
+            let handle = descriptor.integer as u64;
+            let live = if nyash_rust::runtime::weak_handles::is_weak_handle(descriptor.integer) {
+                nyash_rust::runtime::weak_handles::get_weak(descriptor.integer).is_some()
+            } else {
+                nyash_rust::runtime::host_handles::get(handle).is_some()
+            };
+            if !live { return Err(invalid); }
+        }
+        return Ok(Comparable::Other);
+    }
     if descriptor.kind != DYNAMIC_CARRIER {
         if !matches!(descriptor.kind, STATIC_TEXT | OWNED_TEXT) { return Err(Status::InvalidContract as u32); }
         return Ok(Comparable::Text(*descriptor));
@@ -324,6 +356,11 @@ unsafe fn with_text_operands<const N: usize, R>(
     lease::with_end_authorized_texts(pairs, |texts| {
         callback(std::array::from_fn(|i| texts[i].or(literals[i])))
     }).map_err(|_| Status::InvalidContract)
+}
+
+/// Check the borrowed descriptor without a copy or a lease across the call.
+pub(super) unsafe fn validate_text_operand(value: *const Operand) -> Result<(), Status> {
+    unsafe { with_text_operands([Some(value)], |_| ()) }
 }
 
 /// Count a live Text borrow without allocation or a language Fault frame.

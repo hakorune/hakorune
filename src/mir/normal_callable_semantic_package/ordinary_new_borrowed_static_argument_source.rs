@@ -44,13 +44,20 @@ impl ArgumentMethodSourceV1 {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ArgumentExpressionResultV1 {
+    I64,
+    Text,
+    OriginalKind,
+}
+
 /// One original source loan, never an evaluation, entry or ownership grant.
 /// Core and ordinary calls retain their SAME original sources; Instance syntax
 /// alone grants no Text class. The common evaluator requires the completed result.
 #[derive(Debug, Clone)]
 pub(crate) struct ArgumentExpressionSourceLoanV1 {
     plan: Rc<ExpressionSourcePlanV1>,
-    i64_result: bool,
+    result: ArgumentExpressionResultV1,
     calls: BTreeMap<usize, ArgumentMethodSourceV1>,
     dynamic_array_carrier_append:
         Option<crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1>,
@@ -58,7 +65,7 @@ pub(crate) struct ArgumentExpressionSourceLoanV1 {
 impl PartialEq for ArgumentExpressionSourceLoanV1 {
     fn eq(&self, other: &Self) -> bool {
         Rc::ptr_eq(&self.plan, &other.plan)
-            && self.i64_result == other.i64_result
+            && self.result == other.result
             && self.calls == other.calls
             && self.dynamic_array_carrier_append == other.dynamic_array_carrier_append
     }
@@ -66,7 +73,10 @@ impl PartialEq for ArgumentExpressionSourceLoanV1 {
 impl Eq for ArgumentExpressionSourceLoanV1 {}
 impl ArgumentExpressionSourceLoanV1 {
     pub(crate) fn requires_i64_v1(&self) -> bool {
-        self.i64_result
+        self.result == ArgumentExpressionResultV1::I64
+    }
+    pub(crate) fn preserves_original_kind(&self) -> bool {
+        self.result == ArgumentExpressionResultV1::OriginalKind
     }
     pub(crate) fn plan(&self) -> &Rc<ExpressionSourcePlanV1> {
         &self.plan
@@ -125,7 +135,7 @@ impl ArgumentExpressionSourceLoanV1 {
             return false;
         }
         let site_path = site.node().segments();
-        let result_input = self.i64_result
+        let result_input = (self.requires_i64_v1() || self.preserves_original_kind())
             && self
                 .plan
                 .nodes_outside_calls()
@@ -168,17 +178,17 @@ impl ArgumentExpressionSourceLoanV1 {
         result_input || core_input
     }
     pub(crate) fn dynamic_operand_contains(&self, site: &SourceExprSiteV1) -> bool {
-        self.calls
-            .values()
-            .filter_map(ArgumentMethodSourceV1::core)
-            .any(|receipt| receipt.operands().dynamic_i64_operand_contains(site))
+        self.preserves_original_kind()
+            && self.plan.nodes_outside_calls().any(|(_, node)| node.site() == site)
+            || self.calls.values().filter_map(ArgumentMethodSourceV1::core)
+                .any(|receipt| receipt.operands().dynamic_i64_operand_contains(site))
     }
     pub(crate) fn text_operand_is(&self, site: &SourceExprSiteV1) -> bool {
         self.calls.values().filter_map(ArgumentMethodSourceV1::core).any(|receipt| {
             let core = receipt.source(); site == core.source().receiver_site() && !receipt.is_array_dynamic_get_v1()
                 || core.source().arguments().iter().zip(core.target().parameters()).any(|(arg, kind)|
                     *kind == crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::TextParameter && arg.site() == site)
-        }) || !self.i64_result && self.resolver_source().is_none() && self.plan.nodes_outside_calls().any(|(_, node)| node.site() == site
+        }) || !self.requires_i64_v1() && self.resolver_source().is_none() && self.plan.nodes_outside_calls().any(|(_, node)| node.site() == site
             && matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_)))
     }
     pub(crate) fn resolver_source(
@@ -499,7 +509,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .map_err(Clone::clone)?;
         let rows = rows.as_ref().map_err(Clone::clone)?;
         if rows.dynamic_invocation_arguments.is_some() {
-            let original = dynamic_invocation_argument_source_v1(rows, call, ordinal)?
+            let original = dynamic_invocation_argument_source_v1(prepared, rows, call, ordinal)?
                 .ok_or_else(|| freeze("dynamic-argument/source-missing"))?;
             let dynamic = rows
                 .dynamic_invocation_arguments
@@ -511,7 +521,7 @@ impl OrdinaryNewClaimLedgerV1 {
             };
             if frame.source_loan() != &original
                 || !Rc::ptr_eq(frame.source(), original.plan())
-                || !frame.is_i64()
+                || !frame.source_loan().preserves_original_kind()
                 || !frame.evaluation().reference_coverage_is_exact()
                 || frame
                     .source()

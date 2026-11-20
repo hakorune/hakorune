@@ -593,23 +593,10 @@ impl PreparedLexicalCallProjectionV1 {
         &self,
         context: CallValidationContextV1<'_>,
     ) -> Result<Vec<InvokeOperation>, String> {
-        let mut values = Vec::new();
-        let mut seen = std::collections::BTreeSet::new();
-        for argument in &self.arguments {
-            for temporary in argument.deferred_temporaries_v1(context)? {
-                if !seen.insert(temporary.value()) {
-                    return Err(freeze("call-argument/duplicate-acquisition"));
-                }
-                values.push(temporary);
-            }
-        }
-        values
-            .into_iter()
-            .rev()
-            .map(ExpressionOwnedTemporaryV1::end_operation)
-            .collect()
+        LexicalCallArgumentProjectionV1::deferred_ends_for_arguments_v1(&self.arguments, context)
     }
 }
+
 
 impl LexicalCallArgumentProjectionV1 {
     fn original_argument_boundaries_v1(

@@ -194,7 +194,7 @@ pub(in crate::mir::builder) fn emit_with_dynamic_and_argument_frames(
             Some(frame) => frame,
             None => ledger.qualified_argument_expression_frame_v1(call.site(), *ordinal, site)?,
         };
-        if !argument_frame.is_i64() {
+        if !argument_frame.source_loan().preserves_original_kind() {
             return Err(freeze("dynamic-expression/argument-class"));
         }
         let argument_prefix = ExpressionCallTransientPrefixV1::for_prepared_call_argument(
@@ -214,8 +214,8 @@ pub(in crate::mir::builder) fn emit_with_dynamic_and_argument_frames(
             Some(&argument_prefix),
             static_source,
         )?;
-        let projected = projection.value_for_source_v1(argument, call.owner(), site, None, Some(context))?;
-        if projected != value {
+        let projected = projection.dynamic_operand_v1(argument, call.site(), position, site, context)?;
+        if projected.value().is_some_and(|projected| projected != value) {
             return Err(freeze("dynamic-expression/argument-value"));
         }
         for binding in projection.expression_bindings_v1() {
@@ -235,17 +235,17 @@ pub(in crate::mir::builder) fn emit_with_dynamic_and_argument_frames(
     let fault_frame = state.borrow_fault_frame(builder)?;
     let shared_frame = fault_frame_binding(builder, state, fault_frame)?;
     if !bindings.contains(&shared_frame) { bindings.push(shared_frame); }
-    let mut writer = RawRootGraphWriterV1;
-    let (value, result, pair) = super::super::super::expression_value::emit_scalar_operation_with_pending_v1(
-        builder, &mut writer, InvokeOperation::DynamicInvocation(operation.clone()), fault_frame,
-        &FaultCleanupPlanV1::unwind(unwind), bindings,
+    let ends = crate::mir::normal_callable_semantic_package::LexicalCallArgumentProjectionV1::deferred_ends_for_arguments_v1(
+        &argument_projections, context,
     )?;
-    if result != crate::mir::instruction::InvokeNormalResultKind::DynamicCarrier {
-        return Err(freeze("dynamic-expression/result-kind"));
-    }
+    let (value, pair, cleanup_continuation) =
+        super::super::super::expression_value::emit_dynamic_with_argument_cleanup_v1(
+            builder, InvokeOperation::DynamicInvocation(operation.clone()), fault_frame,
+            ends, unwind, bindings,
+        )?;
     let packet = EmittedDynamicInvocationCallProjectionV1::from_source_v1(
         frame, call, receiver_read, operation, argument_projections, context,
-        pair[0].clone(), pair[1].clone(),
+        pair[0].clone(), pair[1].clone(), cleanup_continuation,
     )?;
     if packet.value() != value { return Err(freeze("dynamic-expression/result-value")); }
     Ok(ExpressionCallEmissionV1::Dynamic(std::rc::Rc::new(packet)))

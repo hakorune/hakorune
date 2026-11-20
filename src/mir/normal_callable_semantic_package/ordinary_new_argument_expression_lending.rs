@@ -35,7 +35,7 @@ fn lend_argument_source_inner_for_array_v1(
         .ok_or_else(|| freeze("borrowed-static/source-unobserved"))?
         .as_ref()
         .map_err(Clone::clone)?;
-    if let Some(source) = dynamic_invocation_argument_source_v1(rows, site, ordinal)? {
+    if let Some(source) = dynamic_invocation_argument_source_v1(prepared, rows, site, ordinal)? {
         return Ok(Some(source));
     }
     let Some(identity) = argument_source_identity_v1(prepared, contracts, rows, site)? else {
@@ -65,48 +65,9 @@ fn lend_argument_source_inner_for_array_v1(
         Some(_) => return Ok(None),
         None => None,
     };
-    let mut calls = BTreeMap::new();
-    let mut call_inputs: Vec<&SourceExprSiteV1> = Vec::new();
-    for (node, original) in plan.nodes().iter().enumerate() {
-        if call_inputs.iter().any(|call| {
-            original
-                .site()
-                .node()
-                .segments()
-                .starts_with(call.node().segments())
-        }) {
-            continue;
-        }
-        if !matches!(
-            original.source(),
-            crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall
-        ) {
-            continue;
-        }
-        let site = OwnedExprSiteV1::new(plan.owner(), original.site().clone());
-        if let Some(core) = prepared.ordinary_core_source_v1(&site) {
-            calls.insert(node, ArgumentMethodSourceV1::Core(Rc::clone(core)));
-        } else if node == 0 && dynamic_array_carrier_append.is_some() {
-            let mut matches = dynamic_calls.iter().filter(|source| {
-                source.owner() == plan.owner() && source.call_site() == site.site()
-            });
-            if let Some(dynamic) = matches.next() {
-                if matches.next().is_some() || dynamic.result_site() != site.site() {
-                    return Err(freeze("borrowed-static/dynamic-array-append-source"));
-                }
-                calls.insert(
-                    node,
-                    ArgumentMethodSourceV1::DynamicArrayCarrierAppend(dynamic.clone()),
-                );
-            }
-            call_inputs.push(original.site());
-        } else {
-            if let Some(source) = original_argument_call_source_v1(prepared, &site)? {
-                calls.insert(node, ArgumentMethodSourceV1::OrdinaryCall(source));
-            }
-            call_inputs.push(original.site());
-        }
-    }
+    let calls = argument_method_sources_v1(
+        prepared, plan, dynamic_array_carrier_append.is_some(), dynamic_calls,
+    )?;
     if let BorrowedCallActualValueV1::MethodCall(method) = &candidate.value {
         let Some(source) = calls.get(&0) else {
             return Ok(None);
@@ -146,13 +107,65 @@ fn lend_argument_source_inner_for_array_v1(
                 .is_some_and(|sum| sum.signed_only());
     Ok(Some(ArgumentExpressionSourceLoanV1 {
         plan: Rc::clone(plan),
-        i64_result,
+        result: if i64_result { ArgumentExpressionResultV1::I64 } else { ArgumentExpressionResultV1::Text },
         calls,
         dynamic_array_carrier_append,
     }))
 }
 
+fn argument_method_sources_v1(
+    prepared: &PreparedBorrowedFormalIngressV1,
+    plan: &ExpressionSourcePlanV1,
+    dynamic_array_carrier_append: bool,
+    dynamic_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
+) -> Result<BTreeMap<usize, ArgumentMethodSourceV1>, String> {
+    let mut calls = BTreeMap::new();
+    let mut call_inputs: Vec<&SourceExprSiteV1> = Vec::new();
+    for (node, original) in plan.nodes().iter().enumerate() {
+        if call_inputs.iter().any(|call| {
+            original
+                .site()
+                .node()
+                .segments()
+                .starts_with(call.node().segments())
+        }) {
+            continue;
+        }
+        if !matches!(
+            original.source(),
+            crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall
+        ) {
+            continue;
+        }
+        let site = OwnedExprSiteV1::new(plan.owner(), original.site().clone());
+        if let Some(core) = prepared.ordinary_core_source_v1(&site) {
+            calls.insert(node, ArgumentMethodSourceV1::Core(Rc::clone(core)));
+        } else if node == 0 && dynamic_array_carrier_append {
+            let mut matches = dynamic_calls.iter().filter(|source| {
+                source.owner() == plan.owner() && source.call_site() == site.site()
+            });
+            if let Some(dynamic) = matches.next() {
+                if matches.next().is_some() || dynamic.result_site() != site.site() {
+                    return Err(freeze("borrowed-static/dynamic-array-append-source"));
+                }
+                calls.insert(
+                    node,
+                    ArgumentMethodSourceV1::DynamicArrayCarrierAppend(dynamic.clone()),
+                );
+            }
+            call_inputs.push(original.site());
+        } else {
+            if let Some(source) = original_argument_call_source_v1(prepared, &site)? {
+                calls.insert(node, ArgumentMethodSourceV1::OrdinaryCall(source));
+            }
+            call_inputs.push(original.site());
+        }
+    }
+    Ok(calls)
+}
+
 pub(super) fn dynamic_invocation_argument_source_v1(
+    prepared: &PreparedBorrowedFormalIngressV1,
     rows: &PreparedBorrowedCallActualsV1,
     site: &OwnedExprSiteV1,
     ordinal: u32,
@@ -225,10 +238,21 @@ pub(super) fn dynamic_invocation_argument_source_v1(
     {
         return Err(reject());
     }
+    let calls = argument_method_sources_v1(prepared, &plan, false, &[])?;
+    if let BorrowedCallActualValueV1::MethodCall(method) = &candidate.value {
+        let original = match calls.get(&0) {
+            Some(ArgumentMethodSourceV1::Core(core)) => core.source().source(),
+            Some(ArgumentMethodSourceV1::OrdinaryCall(row)) => row.method_source(),
+            _ => return Ok(None),
+        };
+        if !std::sync::Arc::ptr_eq(method, original) {
+            return Err(reject());
+        }
+    }
     Ok(Some(ArgumentExpressionSourceLoanV1 {
         plan,
-        i64_result: true,
-        calls: BTreeMap::new(),
+        result: ArgumentExpressionResultV1::OriginalKind,
+        calls,
         dynamic_array_carrier_append: None,
     }))
 }
@@ -261,7 +285,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_argument_source
     };
     let rows = rows.as_ref().map_err(Clone::clone)?;
     if rows.dynamic_invocation_arguments.is_some() {
-        return dynamic_invocation_argument_source_v1(rows, site, ordinal);
+        return dynamic_invocation_argument_source_v1(prepared, rows, site, ordinal);
     }
     if !matches!(
         rows.phase,
@@ -474,7 +498,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_carrier_array_a
     }
     let source = ArgumentExpressionSourceLoanV1 {
         plan,
-        i64_result: false,
+        result: ArgumentExpressionResultV1::Text,
         calls: BTreeMap::from([(
             0,
             ArgumentMethodSourceV1::DynamicArrayCarrierAppend(target.clone()),

@@ -10,6 +10,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     dynamic_slot: Option<u32>,
     entry_home_loans: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
     instance_constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+    dynamic_provider_owners: &BTreeSet<FunctionOwnerIdV1>,
     source_uses: Option<(
         &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
         &super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
@@ -86,7 +87,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 let source_context = source_uses.and_then(|(results, writes)|
                     match selected.key_for_batch_slot(contract.batch_slot) {
                         Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) =>
-                            Some(BorrowedFormalSourceUseContextV1 { key, results, writes }),
+                            Some(BorrowedFormalSourceUseContextV1 {
+                                key, results, writes,
+                                dynamic_provider: dynamic_provider_owners.contains(&contract.owner),
+                            }),
                         _ => None,
                     });
                 classify_original_formal_uses_v1(
@@ -243,4 +247,24 @@ pub(super) fn seed_static_transport_owners_v1(
         owners.insert(contract.owner);
     }
     Ok(())
+}
+
+/// Original declaration-level runtime candidates from the same method source census.
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
+fn dynamic_provider_owners_v1(
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    dynamic_source_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
+) -> BTreeSet<FunctionOwnerIdV1> {
+    use crate::mir::builder::SelectedNormalCallableKeyV1;
+    let dynamic_provider_keys: BTreeSet<_> = dynamic_source_calls.iter().map(|call|
+        (call.dispatch().selector(), call.dispatch().arity())).collect();
+    contracts.iter().filter_map(|contract| {
+        let SelectedNormalCallableKeyV1::Cataloged(key) = selected.key_for_batch_slot(contract.batch_slot)?
+        else { return None; };
+        (key.namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+            && dynamic_provider_keys.contains(&(key.name(), key.arity()))
+            && contract.parameters.iter().all(|parameter|
+                parameter.dynamic_dispatch_wire_kind_v1().is_some())).then_some(contract.owner)
+    }).collect()
 }

@@ -50,6 +50,11 @@ fn is_call_argument(instruction: &MirInstruction, value: ValueId) -> bool {
 fn text_operands(operation: &InvokeOperation) -> Vec<&Operand> {
     match operation {
         InvokeOperation::String(operation) => operation.operands(),
+        InvokeOperation::DynamicInvocation(call) => call.arguments().iter()
+            .filter_map(|argument| match argument {
+                crate::mir::instruction::DynamicInvocationOperandV1::BorrowedText(operand) => Some(operand),
+                _ => None,
+            }).collect(),
         InvokeOperation::Birth(call) => call
             .arguments
             .iter()

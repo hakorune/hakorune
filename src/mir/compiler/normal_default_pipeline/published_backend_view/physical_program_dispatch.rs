@@ -235,7 +235,7 @@ pub(super) fn published_operations_v1(
         source.with_finished_dynamic_receiver_uses_v1(
             owner,
             function,
-            |_, coordinate, _, _, scalar| {
+            |_, _, coordinate, _, _, scalar| {
                 operations.insert(coordinate);
                 operations.extend(scalar);
                 Ok(())

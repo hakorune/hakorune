@@ -6,6 +6,7 @@ use crate::mir::resolved_semantics::{BodyExpressionShapeV1, BodyStatementShapeV1
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) struct BorrowedFormalSourceUseContextV1<'a> {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) key: &'a hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) results: &'a result_class_claim::OrdinaryNewResultClassClaimsV1,
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) dynamic_provider: bool,
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) writes: &'a field_write_claim::OrdinaryNewFieldWriteClaimsV1,
 }
 
@@ -117,4 +118,22 @@ pub(super) fn require_declared_read_use_v1(
         return Err(BorrowedFormalUseDraftErrorV1::UnsupportedUse(site.clone()));
     }
     Ok(kind)
+}
+
+/// Classify the operand's source purpose. The checked expression still owns
+/// its comparison envelope and the physical verifier corroborates the use.
+pub(super) fn dynamic_comparison_use_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &SourceExprSiteV1,
+    context: Option<&BorrowedFormalSourceUseContextV1<'_>>,
+) -> Option<BorrowedFormalUseDraftKindV1> {
+    if !context.is_some_and(|context| context.dynamic_provider) { return None; }
+    let mut comparisons = input.function().expression_source().binaries().filter(|binary| {
+        binary.operator().compare_op().is_some() && (binary.lhs() == site || binary.rhs() == site)
+    });
+    let binary = comparisons.next()?;
+    if comparisons.next().is_some() { return None; }
+    Some(BorrowedFormalUseDraftKindV1::DynamicComparisonOperand {
+        binary: OwnedExprSiteV1::new(input.owner(), binary.site().clone()),
+    })
 }

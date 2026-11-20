@@ -715,6 +715,13 @@ existing tagged host/weak domain uses tag 3. Within the selected compiler
 transport the C encoder emits tag 5 for an original typed-store actual and
 preserves it when forwarding the original pair.
 
+An invocation argument can also use `kind = 1, tag = 4` with a pointer to
+the existing, aligned borrowed Text descriptor as its payload. Its backing
+bytes or lease stay live while later arguments are evaluated and until the
+call returns on Normal or Fault. The thunk receives the same tag and payload
+for an unannotated formal. A declared i64 formal rejects a valid Text argument
+before body entry. Invalid descriptors fail the ABI check.
+
 The [Dynamic invocation header](../../../include/nyrt_dynamic_invocation_v1.h) defines
 `nyash.object.checked_new_in_program_v1` and
 `nyash.dynamic.checked_invoke_program_v1`. In a selected image the allocation
@@ -726,10 +733,10 @@ returns one End-authorized I64 carrier, and Fault preserves the previous out
 value. A Fault from the thunk retains its original diagnostic.
 
 The invocation diagnostic uses reason 400 with detail 2 for an absent provider
-or detail 4 for an incompatible invocation argument. Integer comparison uses
-the existing checked tagged-integer read. A valid typed-store borrow in that
-position records reason 302 at the verified comparison site, with zero detail
-words.
+or detail 4 for an incompatible invocation argument. Checked comparisons
+reuse the tagged-integer read to distinguish valid mismatched tags from
+malformed inputs. Operator TypeError records reason 302 at the verified
+comparison site with zero detail words. The site supplies the source location.
 
 ### Accepted task-4 null/object-view extension (actuals landed; field view pending)
 

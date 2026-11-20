@@ -36,8 +36,6 @@ impl VerifiedCallableResultContractCohortV1 {
         &self,
         key: &CanonicalSameModuleCallableKeyV1,
     ) -> Option<Vec<u32>> {
-        use crate::mir::callable_parameter_contract::CallableParameterContractKindV1 as Kind;
-        use crate::mir::resolved_semantics::HomeDemandV1;
         let (selected, parameters) = self.completed_context.as_ref()?;
         let selected_key = SelectedNormalCallableKeyV1::Cataloged(key.clone());
         let batch_slot = selected.batch_slot(&selected_key)?;
@@ -47,11 +45,7 @@ impl VerifiedCallableResultContractCohortV1 {
         declaration
             .parameters
             .iter()
-            .map(|parameter| match (&parameter.kind, parameter.demand) {
-                (Kind::OpaqueHandle, HomeDemandV1::Handle) => Some(0),
-                (kind, HomeDemandV1::Trivial) if kind.is_i64_actual_v1() => Some(1),
-                _ => None,
-            })
+            .map(|parameter| parameter.dynamic_dispatch_wire_kind_v1())
             .collect()
     }
 

@@ -135,6 +135,13 @@ pub(super) enum BorrowedFormalUseDraftKindV1 {
         call: OwnedExprSiteV1,
         ordinal: u32,
     },
+    /// Original actual of one source-bound Dynamic invocation. This is a
+    /// synchronous use, not a statically selected callee's forwarding edge.
+    DynamicInvocationArgument {
+        call: OwnedExprSiteV1,
+        ordinal: u32,
+    },
+    DynamicComparisonOperand { binary: OwnedExprSiteV1 },
     /// Exact direct receiver use of a lexical borrowed formal. Object class
     /// and input compatibility remain obligations of the source input join.
     InstanceMethodReceiver {
@@ -338,77 +345,9 @@ pub(super) fn draft_borrowed_incoming_calls_v1(
     .project(&drafts.keys().copied().collect())
 }
 
-/// Join every unresolved argument to the existing exact lexical disposition
-/// and the callee's source-owned opaque binding. The complete finite draft
-/// set permits cycles without assuming a recursive edge succeeds. This
-/// result still does not prove incoming coverage, availability or carrier ABI.
-pub(super) fn join_borrowed_forward_uses_v1(
-    drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
-    calls: &BTreeMap<OwnedExprSiteV1, BorrowedCallSourceLoanV1<'_>>,
-) -> Result<Box<[BorrowedForwardUseDraftRowV1]>, BorrowedForwardJoinDraftErrorV1> {
-    let mut rows = Vec::new();
-    for (owner, draft) in drafts {
-        for use_row in &draft.uses {
-            let BorrowedFormalUseDraftKindV1::UnresolvedArgument { call, ordinal } = &use_row.kind
-            else {
-                continue;
-            };
-            let error_site = use_row.site.clone();
-            let exact_call = calls
-                .get(call)
-                .ok_or_else(|| BorrowedForwardJoinDraftErrorV1::MissingCall(error_site.clone()))?;
-            if use_row.site.owner() != *owner
-                || call.owner() != *owner
-                || use_row.binding.owner() != *owner
-                || use_row.formal.owner() != *owner
-                || draft.origins.get(&use_row.binding) != Some(&use_row.formal)
-                || exact_call.call_site() != call
-                || exact_call.target().namespace() != exact_call.namespace()
-                || exact_call.argument_sites().get(*ordinal as usize) != Some(use_row.site.site())
-            {
-                return Err(BorrowedForwardJoinDraftErrorV1::CallIdentity(error_site));
-            }
-            let mut matching = contracts
-                .iter()
-                .filter(|contract| contract.owner == exact_call.callee_owner());
-            let contract = matching.next().ok_or_else(|| {
-                BorrowedForwardJoinDraftErrorV1::MissingCallee(error_site.clone())
-            })?;
-            let callee_draft = drafts.get(&contract.owner).ok_or_else(|| {
-                BorrowedForwardJoinDraftErrorV1::MissingCallee(error_site.clone())
-            })?;
-            if matching.next().is_some()
-                || contract.batch_slot != exact_call.target_batch_slot()
-                || contract.mode != exact_call.declaration_mode()
-                || contract.parameters.len() != exact_call.argument_sites().len()
-                || contract.parameters.len() != exact_call.target().arity() as usize
-            {
-                return Err(BorrowedForwardJoinDraftErrorV1::FormalIdentity(error_site));
-            }
-            let formal = contract.parameters.get(*ordinal as usize).ok_or_else(|| {
-                BorrowedForwardJoinDraftErrorV1::FormalIdentity(error_site.clone())
-            })?;
-            if formal.ordinal != *ordinal
-                || formal.binding.owner() != contract.owner
-                || !formal.kind.is_ordinary_borrowed_handle()
-                || callee_draft.origins.get(&formal.binding) != Some(&formal.binding)
-            {
-                return Err(BorrowedForwardJoinDraftErrorV1::FormalIdentity(error_site));
-            }
-            rows.push(BorrowedForwardUseDraftRowV1 {
-                site: use_row.site.clone(),
-                binding: use_row.binding,
-                source_formal: use_row.formal,
-                call: call.clone(),
-                target: exact_call.target().clone(),
-                ordinal: *ordinal,
-                callee_formal: formal.binding,
-            });
-        }
-    }
-    Ok(rows.into_boxed_slice())
-}
+#[path = "ordinary_new_borrowed_formal_forward_join.rs"]
+mod forward_join;
+pub(super) use forward_join::join_borrowed_forward_uses_v1;
 
 #[derive(Debug)]
 pub(super) struct BorrowedFormalSourceProductV1 {
@@ -818,6 +757,9 @@ fn classify_borrowed_formal_source_product_v1(
         }
         if kind.is_none() {
             kind = field_read::field_read_operand_kind(input, formal, &null_guards, site)?;
+        }
+        if kind.is_none() && numeric_origins.contains_key(binding) {
+            kind = source_effects::dynamic_comparison_use_v1(input, site, source_uses);
         }
         let Some(kind) = kind else {
             unsupported.get_or_insert(BorrowedFormalUseDraftErrorV1::UnsupportedUse(owned));

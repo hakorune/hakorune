@@ -33,11 +33,22 @@ static void lv4_dispatch_globals(FILE* f, const hako_lv4_input* in) {
     for (size_t j = 0; j < count; j++) {
       fprintf(f, "  %%ap%zu = getelementptr %%nyrt.dynamic.operand, ptr %%args, i64 %zu, i32 2\n"
           "  %%arg%zu = load i64, ptr %%ap%zu, align 8\n", j, j, j, j);
+      if (yyjson_get_uint(yyjson_arr_get(params, j)) == 0) {
+        fprintf(f, "  %%kp%zu = getelementptr %%nyrt.dynamic.operand, ptr %%args, i64 %zu, i32 0\n"
+            "  %%kind%zu = load i32, ptr %%kp%zu, align 8\n"
+            "  %%tp%zu = getelementptr %%nyrt.dynamic.operand, ptr %%args, i64 %zu, i32 1\n"
+            "  %%tag%zu = load i32, ptr %%tp%zu, align 4\n"
+            "  %%tagged%zu = icmp eq i32 %%kind%zu, 1\n"
+            "  %%raw_integer%zu = icmp eq i32 %%kind%zu, 2\n"
+            "  %%scalar_tag%zu = select i1 %%raw_integer%zu, i32 1, i32 2\n"
+            "  %%formal_tag%zu = select i1 %%tagged%zu, i32 %%tag%zu, i32 %%scalar_tag%zu\n",
+            j,j,j,j, j,j,j,j, j,j,j,j, j,j, j,j,j,j);
+      }
     }
     fprintf(f, "  %%result = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame, ptr %%out, i64 %%receiver",
         lv4_u(row, "target"));
     for (size_t j = 0; j < count; j++) {
-      if (yyjson_get_uint(yyjson_arr_get(params, j)) == 0) fprintf(f, ", i32 1");
+      if (yyjson_get_uint(yyjson_arr_get(params, j)) == 0) fprintf(f, ", i32 %%formal_tag%zu", j);
       fprintf(f, ", i64 %%arg%zu", j);
     }
     fprintf(f, ")\n  ret i32 %%result\n}\n");

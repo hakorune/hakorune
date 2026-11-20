@@ -114,8 +114,10 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
               lv4_u(op, "object_id"), 1))) return 0;
       for (size_t role = 0; role < hako_physical_string_operand_count(op); role++) {
         yyjson_val* operand = hako_physical_string_operand_at(op, role);
+        int original_tagged_compare = lv4_is(op, "kind", "string_compare") &&
+            lv4_is(operand, "kind", "tagged_dynamic");
         int integer_index = lv4_is(op, "kind", "string_substring") && role > 0;
-        if (!(integer_index ? lv4_string_indexed_integer_operand(fn, operand) :
+        if (!(integer_index || original_tagged_compare ? lv4_string_indexed_integer_operand(fn, operand) :
             lv4_string_indexed_operand(fn, operand, state))) return 0;
       }
       if (lv4_is(op, "kind", "map_field_install_indexed")) {

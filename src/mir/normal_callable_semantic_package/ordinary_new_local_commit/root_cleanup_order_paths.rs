@@ -137,7 +137,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
     let residuals = (0..normal.len()).map(|step| order.fault_after_normal_step(step)
         .map(|rows| rows.into_iter().map(|origin| origin.operation().clone()).collect()))
         .collect::<Result<Vec<Vec<_>>, _>>()?;
-    clean = normal_steps_with_resolver_v2(function, clean, &normal, &residuals, frame, None,
+    (clean, _) = normal_steps_with_resolver_v2(function, clean, &normal, &residuals, frame, None,
         &mut |_, operation| Ok(operation.clone()))?;
     clean = skip(function, clean)?;
     if terminal(function, clean)? != &(MirInstruction::Return { value: result }) {
@@ -256,17 +256,19 @@ fn normal_steps_with_resolver_v2(
     function: &MirFunction, mut clean: BasicBlockId, normal: &[InvokeOperation],
     residuals: &[Vec<InvokeOperation>], frame: Option<crate::mir::ValueId>, stop: Option<BasicBlockId>,
     resolve: &mut impl FnMut(BasicBlockId, &InvokeOperation) -> Result<InvokeOperation, String>,
-) -> Result<BasicBlockId, String> {
+) -> Result<(BasicBlockId, BTreeSet<BasicBlockId>), String> {
     if normal.len() != residuals.len() { return Err(fault("ordered-path/residual-census")); }
+    let mut covered = BTreeSet::new();
     for (expected, residual) in normal.iter().zip(residuals) {
         clean = skip_until(function, clean, stop)?;
         if Some(clean) == stop { return Err(fault("ordered-path/early-continuation")); }
         let operation = resolve(clean, expected)?;
         let (next, fault_edge) = release(function, clean, &operation, frame)?;
-        pending_operations_with_resolver_v2(function, fault_edge, residual, frame, stop, resolve)?;
+        covered.insert(clean);
+        covered.extend(pending_operations_with_resolver_v2(function, fault_edge, residual, frame, stop, resolve)?);
         clean = next;
     }
-    Ok(clean)
+    Ok((clean, covered))
 }
 
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_to_continuation_v2(
@@ -274,10 +276,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
     normal: &[InvokeOperation], residuals: &[Vec<InvokeOperation>],
     frame: Option<crate::mir::ValueId>,
     resolve: &mut impl FnMut(BasicBlockId, &InvokeOperation) -> Result<InvokeOperation, String>,
-) -> Result<(), String> {
-    let clean = normal_steps_with_resolver_v2(function, entry, normal, residuals, frame, Some(continuation), resolve)?;
+) -> Result<BTreeSet<BasicBlockId>, String> {
+    let (clean, covered) = normal_steps_with_resolver_v2(function, entry, normal, residuals, frame, Some(continuation), resolve)?;
     if skip_until(function, clean, Some(continuation))? != continuation {
         return Err(fault("ordered-path/normal-continuation"));
     }
-    Ok(())
+    Ok(covered)
 }

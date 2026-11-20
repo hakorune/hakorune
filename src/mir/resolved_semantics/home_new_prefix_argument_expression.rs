@@ -131,15 +131,18 @@ pub(super) fn observe<E>(
             // argument-expression source, including literal i64 operands.
             // Static calls may return no expression-source loan for a literal.
             BorrowedCallActualValueV1::Integer(_)
+            | BorrowedCallActualValueV1::Bool(_)
+            | BorrowedCallActualValueV1::Null
             | BorrowedCallActualValueV1::Expression
             | BorrowedCallActualValueV1::FieldAccess
             | BorrowedCallActualValueV1::MethodCall(_)
             | BorrowedCallActualValueV1::String(_)
             | BorrowedCallActualValueV1::SelfRooted { .. }
-            | BorrowedCallActualValueV1::Scalar(_, SourceScalarKind::Integer) => {}
+            | BorrowedCallActualValueV1::Scalar(_, SourceScalarKind::Integer | SourceScalarKind::Bool) => {}
             BorrowedCallActualValueV1::Binding(_)
                 if locals.static_text_reference(&actual.site).is_some()
                     || locals.text_reference(&actual.site).is_some()
+                    || entry_formal_reference(input, locals, &actual.site).is_some()
                     || locals
                         .current_scalar_read_v1(&actual.site, local_calls)
                         .is_some() => {}
@@ -224,7 +227,23 @@ pub(super) fn observe<E>(
             if !matches!(node.source(), ExpressionNodeSourceV1::Reference(_)) {
                 continue;
             }
-            if loan.text_operand_is(node.site()) {
+            if let Some((binding, root)) = entry_formal_reference(input, locals, node.site())
+                .filter(|_| loan.preserves_original_kind() && loan.dynamic_operand_contains(node.site()))
+            {
+                if let Some(BorrowedCallArgumentsV1::DynamicEntryRead(read)) = port(
+                    call_site,
+                    BorrowedCallActualRequestV1::DynamicEntryRead {
+                        input, plan: loan.plan(), read: node.site(), binding, root,
+                    },
+                )? {
+                    dynamic_reads.push(read);
+                    continue;
+                }
+            }
+            if loan.text_operand_is(node.site())
+                && !(loan.preserves_original_kind()
+                    && locals.current_scalar_read_v1(node.site(), local_calls).is_some())
+            {
                 if locals.static_text_reference(node.site()).is_some()
                     || locals.text_reference(node.site()).is_some()
                 {

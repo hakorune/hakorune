@@ -113,9 +113,10 @@ impl BorrowedCallUses {
         source.with_borrowed_ordinary_compare_carrier_copies_v1(owner, function, |copy, coordinate| {
             state.copy(copy, Some(coordinate))
         })?;
-        source.with_finished_dynamic_receiver_uses_v1(owner, function, |formal, coordinate, instruction, copies, _| {
+        source.with_finished_dynamic_receiver_uses_v1(owner, function, |formal, formals, coordinate, instruction, copies, _| {
             if !entry_values.iter().any(|(_, binding, _)| *binding == formal)
-                || state.dynamic_receivers.insert(coordinate, (formal, instruction)).is_some()
+                || formals.iter().flatten().any(|formal| !entry_values.iter().any(|(_, binding, _)| binding == formal))
+                || state.dynamic_receivers.insert(coordinate, (formal, formals, instruction)).is_some()
             {
                 return Err(fault("borrowed-use/dynamic-receiver"));
             }
@@ -294,12 +295,13 @@ impl FunctionUses {
         let mut seen = BTreeSet::new();
         for (coordinate, instruction) in indexed {
             if let MirInstruction::Invoke { operation: InvokeOperation::String(
-                crate::mir::instruction::StringInvokeOperation::Add { left, right }), .. } = instruction {
+                crate::mir::instruction::StringInvokeOperation::Add { left, right }
+                    | crate::mir::instruction::StringInvokeOperation::Compare { left, right, .. }), .. } = instruction {
                 for (side, operand) in [left, right].into_iter().enumerate() {
                     let key = (coordinate.0, coordinate.1, side);
                     if let Some(expected) = self.text_operands.get(&key) {
                         if expected != operand || !matches!(expected, Operand::Dynamic(_)) || !seen.insert(key) {
-                            return Err(format!("{} phase=string-add coordinate={coordinate:?} side={side} expected={expected:?} actual={operand:?}",
+                            return Err(format!("{} phase=string-operation coordinate={coordinate:?} side={side} expected={expected:?} actual={operand:?}",
                                 fault("borrowed-text/operand-correspondence")));
                         }
                     }
@@ -346,7 +348,8 @@ impl FunctionUses {
         let mut ordinary = Vec::new();
         for (side, operand) in operands.iter().copied().enumerate() {
             let key = (coordinate.0, coordinate.1, side);
-            if matches!(operation, crate::mir::instruction::StringInvokeOperation::Add { .. })
+            if matches!(operation, crate::mir::instruction::StringInvokeOperation::Add { .. }
+                | crate::mir::instruction::StringInvokeOperation::Compare { .. })
                 && matches!(operand, crate::mir::instruction::StringInvokeOperand::Dynamic(_))
                 && self.text_operands.get(&key) == Some(operand) {
                 continue;
@@ -545,16 +548,24 @@ impl FunctionUses {
         instruction: &MirInstruction,
         definitions: &mut Scan,
     ) -> Result<bool, String> {
-        if let Some((formal, expected)) = self.dynamic_receivers.get(&coordinate) {
+        if let Some((formal, formals, expected)) = self.dynamic_receivers.get(&coordinate) {
             let MirInstruction::Invoke { operation: InvokeOperation::DynamicInvocation(call), fault_frame, .. } = instruction else {
                 return Err(fault("borrowed-use/dynamic-receiver"));
             };
             let crate::mir::instruction::DynamicInvocationOperandV1::TaggedDynamic(receiver) = call.receiver() else {
                 return Err(fault("borrowed-use/dynamic-receiver"));
             };
-            let borrowed = |value| tracked.contains_key(&value) || views.views.contains_key(&value);
+            let original = |value| tracked.get(&value).or(views.views.get(&value));
             if instruction != expected || tracked.get(receiver) != Some(formal)
-                || borrowed(*fault_frame) || call.arguments().iter().filter_map(|arg| arg.value()).any(borrowed)
+                || original(*fault_frame).is_some() || call.arguments().len() != formals.len()
+                || call.arguments().iter().zip(formals).any(|(argument, formal)| {
+                    let actual = argument.value().and_then(original);
+                    match formal {
+                        Some(formal) => actual != Some(formal) || !matches!(argument,
+                            crate::mir::instruction::DynamicInvocationOperandV1::TaggedDynamic(_)),
+                        None => actual.is_some(),
+                    }
+                })
             {
                 return Err(fault("borrowed-use/dynamic-receiver"));
             }

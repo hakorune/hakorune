@@ -161,6 +161,18 @@ pub(super) struct OwnedCallableParameterContractV1 {
 }
 
 impl OwnedCallableParameterContractV1 {
+    /// Existing V4 Dynamic dispatch formal codes. Both source admission
+    /// and final publication query the same declaration contract.
+    pub(super) fn dynamic_dispatch_wire_kind_v1(&self) -> Option<u32> {
+        use crate::mir::callable_parameter_contract::CallableParameterContractKindV1 as Kind;
+        use crate::mir::resolved_semantics::HomeDemandV1 as Demand;
+        match (&self.kind, self.demand) {
+            (Kind::OpaqueHandle, Demand::Handle) => Some(0),
+            (kind, Demand::Trivial) if kind.is_i64_actual_v1() => Some(1),
+            _ => None,
+        }
+    }
+
     /// The full source-input domain, not executable argument or entry authority.
     /// Scalar-only calls retain their existing exact-I64 owner.
     pub(super) fn ordinary_source_input_cohort_v1(parameters: &[Self]) -> bool {

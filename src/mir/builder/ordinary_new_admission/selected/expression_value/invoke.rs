@@ -220,6 +220,27 @@ pub(in crate::mir::builder) fn emit_scalar_operation_to_landing_v1(
     ),
     String,
 > {
+    let value = builder.next_value_id();
+    emit_scalar_operation_at_value_v1(builder, writer, operation, fault_frame, normal, fault, value, bindings)
+}
+
+fn emit_scalar_operation_at_value_v1(
+    builder: &mut MirBuilder,
+    writer: &mut RawRootGraphWriterV1,
+    operation: InvokeOperation,
+    fault_frame: ValueId,
+    normal: BasicBlockId,
+    fault: BasicBlockId,
+    value: ValueId,
+    bindings: &mut Vec<Binding>,
+) -> Result<
+    (
+        ValueId,
+        crate::mir::instruction::InvokeNormalResultKind,
+        [Binding; 2],
+    ),
+    String,
+> {
     let result = operation
         .normal_result_kind()
         .ok_or_else(|| freeze("expression/string-result"))?;
@@ -232,7 +253,6 @@ pub(in crate::mir::builder) fn emit_scalar_operation_to_landing_v1(
             fault_landing: fault,
         },
     )?;
-    let value = builder.next_value_id();
     builder.start_new_block(normal)?;
     let projection = MirInstruction::InvokeNormalResult {
         invoke_block: invoke.0,
@@ -254,4 +274,49 @@ pub(in crate::mir::builder) fn emit_scalar_operation_to_landing_v1(
         .value_types
         .insert(value, kind);
     Ok((value, result, pair))
+}
+
+/// Emit through the same result writer while reserving an affine result for
+/// the cancellation branch of an argument End.
+pub(in crate::mir::builder::ordinary_new_admission::selected) fn emit_dynamic_with_argument_cleanup_v1(
+    builder: &mut MirBuilder,
+    operation: InvokeOperation,
+    fault_frame: ValueId,
+    ends: Vec<InvokeOperation>,
+    unwind: Vec<InvokeOperation>,
+    bindings: &mut Vec<Binding>,
+) -> Result<(ValueId, [Binding; 2], Option<(BasicBlockId, Vec<Binding>)>), String> {
+    use crate::mir::instruction::InvokeNormalResultKind as Kind;
+    let mut writer = RawRootGraphWriterV1;
+    if ends.is_empty() {
+        let (value, kind, pair) = emit_scalar_operation_with_pending_v1(
+            builder, &mut writer, operation, fault_frame, &FaultCleanupPlanV1::unwind(unwind), bindings,
+        )?;
+        if kind != Kind::DynamicCarrier {
+            return Err(freeze("dynamic-expression/result-kind"));
+        }
+        return Ok((value, pair, None));
+    }
+    if operation.normal_result_kind() != Some(Kind::DynamicCarrier) {
+        return Err(freeze("dynamic-expression/result-kind"));
+    }
+    let value = builder.next_value_id();
+    let normal = writer.reserve_block(builder)?;
+    let continuation = writer.reserve_block(builder)?;
+    let plan = FaultCleanupPlanV1::operation(
+        ends, &[InvokeOperation::DynamicCarrierEnd { carrier: value }], unwind,
+    )?;
+    plan.reject_duplicate_acquisition()?;
+    let graph = root_graph::emit_cleanup_suffixes_with_writer(
+        &mut writer, builder, fault_frame, continuation, &plan, bindings,
+    )?;
+    let (_, _, pair) = emit_scalar_operation_at_value_v1(
+        builder, &mut writer, operation, fault_frame, normal, graph.acquisition_fault, value, bindings,
+    )?;
+    let ingress = writer.emit_current(builder, MirInstruction::Jump { target: graph.clean, edge_args: None })?;
+    bindings.push(ingress);
+    builder.start_new_block(continuation)?;
+    // The continuation may still be empty while the caller projects the
+    // result. The exact final source verifier checks this destination.
+    Ok((value, pair, Some((continuation, graph.normal_origins))))
 }

@@ -158,6 +158,9 @@ pub(in crate::mir) enum NormalCallableSemanticPackageIssueV1 {
     LexicalInstanceCall {
         _error: String,
     },
+    DynamicDispatchPublication {
+        _error: String,
+    },
     AppMainRoot {
         _error: app_main_relation::AppMainRootRelationIssueV1,
     },
@@ -552,6 +555,18 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         }
         error => NormalCallableSemanticPackageIssueV1::OrdinaryNew { _error: error },
     })?;
+    if physical_selection == super::PackagePhysicalSelectionV1::ClosedAppExecutable {
+        if let Some(key) = ordinary_new_claim_ledger
+            .unpublishable_dynamic_text_parameter_v1(&selected, &parameter_contracts)
+        {
+            return Err(NormalCallableSemanticPackageIssueV1::DynamicDispatchPublication {
+                _error: format!(
+                    "[freeze:contract][dynamic-invocation/unpublishable-formal] \
+                     {key:?}: DispatchProgramV1 cannot encode a declared StringBox parameter"
+                ),
+            });
+        }
+    }
     ordinary_new_claim_ledger
         .retain_original_parameter_contracts_v1(&parameter_contracts)
         .map_err(|_error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error })?;

@@ -18,7 +18,7 @@ use crate::backend_env::{cached_env_choice, panic_unsupported_env_value, try_cac
 mod residence;
 #[path = "typed_object_store_dispatch.rs"]
 mod dispatch;
-pub(super) use dispatch::pin_dispatch_receiver;
+pub(super) use dispatch::{pin_dispatch_receiver, DispatchReceiverPin};
 pub(super) use residence::{get_object_residence_checked, install_object_residence_checked,
     replace_dynamic_field_checked, read_dynamic_field_checked, borrow_object_field_checked, take_dynamic_field_checked,
     install_map_field_checked, read_map_field_checked};

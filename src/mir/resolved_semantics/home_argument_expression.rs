@@ -37,9 +37,14 @@ impl CheckedArgumentExpressionFrameV1 {
                     && call.dynamic_invocation_result_lifecycle_v1().is_some()
             })
     }
+    pub(crate) fn has_scalar_completion(&self) -> bool {
+        self.is_i64() || self.source_loan.preserves_original_kind()
+            && matches!(self.evaluation.root_class(),
+                Leaf::Value(Class::Dynamic | Class::Bool | Class::Null))
+    }
     /// Argument purpose obtains independent Text residence for a readonly root.
     pub(crate) fn materializes_root(&self) -> bool {
-        !self.is_i64()
+        !self.has_scalar_completion()
             && !self.is_dynamic_carrier_append_v1()
             && self.evaluation.owned_text_root_node_v1().is_none()
     }
@@ -162,6 +167,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
             return Ok(None);
         }
     } else if !core.requires_i64_v1()
+        && !core.preserves_original_kind()
         && !(core.dynamic_array_carrier_append_root_v1()
             && core.dynamic_array_carrier_call_is_v1(root.site()))
         && !core.ordinary_call_is(root.site())
@@ -395,9 +401,11 @@ pub(crate) fn qualify_argument_expression_v1<E>(
         let Some(read) = scalar_reference(original.site()) else {
             continue;
         };
+        let kind = read.kind();
         let proof = CheckedExpressionReferenceV1::Scalar(CheckedScalarReferenceV1::Original(read));
         if !proof.matches_node(&source, node)
-            || !matches!(&proof, CheckedExpressionReferenceV1::Scalar(read) if read.kind() == SourceScalarKind::Integer)
+            || !(kind == SourceScalarKind::Integer
+                || core.preserves_original_kind() && kind == SourceScalarKind::Bool)
         {
             return Ok(None);
         }
@@ -434,7 +442,17 @@ pub(crate) fn qualify_argument_expression_v1<E>(
                 == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Dynamic
                 && call.dynamic_invocation_result_lifecycle_v1().is_some()
         });
-    if evaluation.root_class() != Leaf::Value(expected)
+    let accepted_class = if core.preserves_original_kind() {
+        match evaluation.root_class() {
+            Leaf::Value(Class::I64 | Class::Bool | Class::String | Class::Null) => true,
+            Leaf::Value(Class::Dynamic) => matches!(evaluation.references().get(&0),
+                Some(CheckedExpressionReferenceV1::DynamicEntry(_))),
+            _ => false,
+        }
+    } else {
+        evaluation.root_class() == Leaf::Value(expected)
+    };
+    if !accepted_class
         || evaluation.transfers_node(0)
         || !dynamic_producer_matches
     {

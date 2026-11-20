@@ -51,7 +51,7 @@ struct FunctionUses {
     copies: BTreeMap<ValueId, (Binding, Option<Coordinate>)>,
     arguments: BTreeMap<(BasicBlockId, usize, usize), BindingRefV1>,
     receivers: BTreeMap<Coordinate, arguments::CompletedReceiverUse>,
-    dynamic_receivers: BTreeMap<Coordinate, (BindingRefV1, MirInstruction)>,
+    dynamic_receivers: BTreeMap<Coordinate, (BindingRefV1, Vec<Option<BindingRefV1>>, MirInstruction)>,
     /// Checked-compare view admissions per formal, proved by the original
     /// source draft. Each admitted operand use must be observed through
     /// exactly one physical instruction coordinate and operand side per use.

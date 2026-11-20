@@ -117,6 +117,26 @@ pub(crate) fn emit_lifecycle_physical_abi_json(
     let mut root = emit_lifecycle_physical_program_value(input.program(), Some(input))?;
     let object = root.as_object_mut().ok_or_else(|| fault("program-root"))?;
     if let Some(rows) = input.program().dynamic_dispatch_wire_v1(input.has_program_dispatch_layouts_v1())? {
+        let functions = object.get("functions").and_then(Value::as_array)
+            .ok_or_else(|| fault("dynamic-dispatch-target"))?;
+        for row in &rows {
+            let target = row["target"].as_u64().and_then(|index| functions.get(index as usize))
+                .and_then(|target| target["params"].as_array())
+                .ok_or_else(|| fault("dynamic-dispatch-target"))?;
+            let parameters = row["parameters"].as_array()
+                .ok_or_else(|| fault("dynamic-dispatch-parameters"))?;
+            if parameters.len() != target.len() || parameters.iter().zip(target).any(|(kind, param)| {
+                match kind.as_u64() {
+                    Some(0) => param["representation"] != "borrowed_kind_payload_v1"
+                        || ["text_view", "integer_view", "bool_view", "object_view", "finite_domain"]
+                            .iter().any(|field| !param[*field].is_null()),
+                    Some(1) => param["representation"] != "i64",
+                    _ => true,
+                }
+            }) {
+                return Err(fault("dynamic-dispatch-parameter-representation"));
+            }
+        }
         object.insert("dynamic_dispatch".into(), Value::Array(rows));
     }
     object.insert(

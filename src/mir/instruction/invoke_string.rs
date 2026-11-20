@@ -139,6 +139,10 @@ impl StringInvokeOperation {
         match self {
             Self::Add { left, .. } => left.is_text(),
             Self::Compare { left, right, .. } => {
+                let original_dynamic = |operand: &StringInvokeOperand| matches!(operand, StringInvokeOperand::Dynamic(_));
+                if original_dynamic(left) || original_dynamic(right) {
+                    return (original_dynamic(left) && right.is_text()) || (left.is_text() && original_dynamic(right));
+                }
                 (left.is_text() || matches!(left, StringInvokeOperand::DynamicCarrier(_)))
                     && (right.is_text() || matches!(right, StringInvokeOperand::DynamicCarrier(_)))
             }

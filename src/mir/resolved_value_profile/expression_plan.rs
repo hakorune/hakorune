@@ -190,6 +190,34 @@ impl ExpressionSourcePlanV1 {
             || child.reach != crate::mir::resolved_value_profile::expression_children::ExpressionChildReachV1::Always { return None; }
         self.nodes.iter().position(|node| node.site() == &child.site)
     }
+    pub(crate) fn compares_with_proven_text_v1(
+        &self,
+        operand: usize,
+        mut exact_text_read: impl FnMut(&SourceExprSiteV1) -> bool,
+    ) -> bool {
+        let Some(operand) = self.nodes.get(operand) else {
+            return false;
+        };
+        self.nodes_outside_calls()
+            .filter_map(|(_, node)| node.binary())
+            .filter(|binary| binary.operator().compare_op().is_some())
+            .filter_map(|binary| {
+                if binary.lhs() == operand.site() {
+                    Some(binary.rhs())
+                } else if binary.rhs() == operand.site() {
+                    Some(binary.lhs())
+                } else {
+                    None
+                }
+            })
+            .any(|other| {
+                exact_text_read(other) || self.nodes.iter().any(|node| {
+                    node.site() == other && matches!(node.source(),
+                        ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::String(_)))
+                })
+            })
+    }
+
     /// Parent-expression source demand only. Call inputs need their own source
     /// consumer; their literal/read descendants do not select the outer value.
     /// This structural query grants no transfer or execution permission.

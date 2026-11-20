@@ -22,8 +22,15 @@ static int lv4_dynamic_invoke_operands_live(const hako_lv4_input* in,
   } else if (!lv4_dynamic_operand_live(fn, receiver, state)) return 0;
 
   yyjson_val* arguments = yyjson_obj_get(op, "arguments");
-  for (size_t i = 0; i < yyjson_arr_size(arguments); i++)
-    if (!lv4_dynamic_operand_live(fn, yyjson_arr_get(arguments, i), state)) return 0;
+  for (size_t i = 0; i < yyjson_arr_size(arguments); i++) {
+    yyjson_val* arg = yyjson_arr_get(arguments, i);
+    if (lv4_is(arg, "kind", "borrowed_text")) {
+      if (!lv4_string_indexed_operand(fn, yyjson_obj_get(arg, "operand"), state)) return 0;
+    } else if (lv4_is(arg, "kind", "tagged_dynamic")) {
+      hako_lv4_value* value = lv4_index_value(fn, lv4_u(arg, "value"));
+      if (!value || value->kind != LV4_TAGGED || !lv4_borrowed_tagged_formal(fn, value)) return 0;
+    } else if (!lv4_dynamic_operand_live(fn, arg, state)) return 0;
+  }
   return 1;
 }
 
@@ -66,6 +73,12 @@ static int lv4_dispatch_admit(const hako_lv4_input* in) {
       if (!yyjson_is_uint(kind) || yyjson_get_uint(kind) > 1 ||
           lv4_is(param, "ownership", "take") || lv4_is(param, "ownership", "edit") ||
           !lv4_is(param, "representation", yyjson_get_uint(kind) ? "i64" : "borrowed_kind_payload_v1")) return 0;
+      if (!yyjson_get_uint(kind) &&
+          (yyjson_is_true(yyjson_obj_get(param, "text_view")) ||
+           yyjson_is_true(yyjson_obj_get(param, "integer_view")) ||
+           yyjson_is_true(yyjson_obj_get(param, "bool_view")) ||
+           yyjson_is_uint(yyjson_obj_get(param, "object_view")) ||
+           yyjson_obj_get(param, "finite_domain"))) return 0;
     }
     yyjson_val* blocks = hako_physical_blocks(fn->function);
     for (size_t j = 0; j < yyjson_arr_size(blocks); j++) {
@@ -83,4 +96,18 @@ static int lv4_dispatch_admit(const hako_lv4_input* in) {
     }
   }
   return 1;
+}
+
+/* Consult only validated program rows for the ordinary entry's tag domain. */
+static int lv4_dispatch_borrowed_parameter(const hako_lv4_input* in,
+    yyjson_val* fn, size_t ordinal) {
+  for (size_t i = 0; i < yyjson_arr_size(in->dispatch); i++) {
+    yyjson_val* row = yyjson_arr_get(in->dispatch, i);
+    uint32_t target = lv4_u(row, "target");
+    if (target < in->index_count && in->index[target].function == fn) {
+      yyjson_val* kind = yyjson_arr_get(yyjson_obj_get(row, "parameters"), ordinal);
+      return yyjson_is_uint(kind) && yyjson_get_uint(kind) == 0;
+    }
+  }
+  return 0;
 }
