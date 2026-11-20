@@ -100,8 +100,9 @@ fn build_composite_source_recipe(
         vec![root_stmt.node().clone()],
     ));
     let mut region_to_member = BTreeMap::new();
-    let mut parents = Vec::with_capacity(projection.forest().member_sites().len());
-    for (index, site) in projection.forest().member_sites().iter().enumerate() {
+    let mut parents = Vec::with_capacity(projection.forest().members().len());
+    for (index, member) in projection.forest().members().iter().enumerate() {
+        let site = member.source().site();
         let region = input
             .function()
             .loop_region_bundle(site)
@@ -109,14 +110,7 @@ fn build_composite_source_recipe(
             .loop_pair()
             .region();
         region_to_member.insert(region, index as u32);
-        let parent = projection
-            .forest()
-            .forest_binding()
-            .members()
-            .get(index)
-            .ok_or_else(|| "[freeze:contract][composite-loopbreak/forest-parent]".to_owned())?
-            .parent_index();
-        parents.push(parent);
+        parents.push(member.parent_index());
     }
     let body_block = build_body_block(
         input,

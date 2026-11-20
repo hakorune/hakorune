@@ -306,8 +306,9 @@ fn issue_loop_evidence(
     if forest.owner() != input.owner() {
         return Err(LoopBreakCompositeBodyRoleRejectV1::ForeignOwner);
     }
-    let mut members = Vec::with_capacity(forest.member_sites().len());
-    for (index, site) in forest.member_sites().iter().enumerate() {
+    let mut members = Vec::with_capacity(forest.members().len());
+    for (index, member) in forest.members().iter().enumerate() {
+        let site = member.source().site();
         let stmt = input
             .source()
             .exact_stmt(site)
@@ -316,29 +317,19 @@ fn issue_loop_evidence(
             .source()
             .child_expr_from_stmt(&stmt, ExprChildRoleV1::LoopCondition)
             .map_err(|_| LoopBreakCompositeBodyRoleRejectV1::SourceNavigation)?;
-        let resolved = input
-            .function()
-            .resolved_loop_source(site)
-            .map_err(|_| LoopBreakCompositeBodyRoleRejectV1::MissingLoopMember(site.clone()))?;
         let region = input
             .function()
             .loop_region_bundle(site)
             .map_err(|_| LoopBreakCompositeBodyRoleRejectV1::MissingLoopMember(site.clone()))?
             .loop_pair()
             .region();
-        let parent_index = forest
-            .forest_binding()
-            .members()
-            .get(index)
-            .ok_or(LoopBreakCompositeBodyRoleRejectV1::ForestCoverage)?
-            .parent_index();
         members.push((
             CompositeLoopEvidenceV1 {
                 site: site.clone(),
                 condition_site: condition.site().clone(),
                 member_index: index as u32,
-                parent_index,
-                frame_key: resolved.frame_key(),
+                parent_index: member.parent_index(),
+                frame_key: member.source().frame_key(),
             },
             region,
         ));

@@ -171,7 +171,7 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
             );
         }
         let parent_stmt_site = SourceStmtSiteV1::from_node(self.parent_site.clone());
-        if self.projection.member_sites().first() != Some(&parent_stmt_site) {
+        if self.projection.members().first().map(|member| member.source().site()) != Some(&parent_stmt_site) {
             return Err(
                 "[freeze:contract][callable-loop/loop-cond/projection-root-site-mismatch]"
                     .to_owned(),

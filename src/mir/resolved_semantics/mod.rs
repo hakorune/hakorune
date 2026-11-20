@@ -198,7 +198,8 @@ pub(crate) use loop_region::loop_execution_frame_key_for_test;
 pub(crate) use loop_region::{
     LoopExecutionFrameKeyV1, ResolvedLoopPlacementV1, ResolvedLoopRegionBundleV1,
     ResolvedLoopRegionLookupErrorV1, ResolvedLoopSourceForestRejectV1,
-    VerifiedResolvedLoopSourceForestV1, VerifiedResolvedLoopSourceV1,
+    VerifiedResolvedLoopSourceForestMemberV1, VerifiedResolvedLoopSourceForestV1,
+    VerifiedResolvedLoopSourceV1,
 };
 pub use normalized::NormalizedResolvedFunctionGraphV1;
 pub(crate) use normalized_callable_catalog::NormalizedCallableCatalogV1;

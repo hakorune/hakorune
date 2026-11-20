@@ -7,10 +7,8 @@
 use crate::mir::resolved_semantics::{
     FunctionOriginV1, FunctionOwnerIdV1, LoopExecutionFrameKeyV1, ResolvedControlTransferV1,
     ResolvedExitOriginV1, ResolvedExitRecordV1, SemanticOwnerSourceKindV1, SourceExprSiteV1,
-    SourceStmtSiteV1,
+    SourceStmtSiteV1, VerifiedResolvedLoopSourceForestV1, VerifiedResolvedLoopSourceForestMemberV1,
 };
-
-use super::VerifiedLoopSourceForestBindingV1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedLoopCondBreakContinueSourceShapeV1 {
@@ -109,8 +107,7 @@ impl VerifiedLoopCondSourceExitV1 {
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedLoopCondBreakContinueSourceForestProjectionV1 {
     owner: FunctionOwnerIdV1,
-    forest_binding: VerifiedLoopSourceForestBindingV1,
-    member_sites: Box<[SourceStmtSiteV1]>,
+    forest: VerifiedResolvedLoopSourceForestV1,
     exits: Box<[VerifiedLoopCondSourceExitV1]>,
     function_origin: FunctionOriginV1,
     source_kind: SemanticOwnerSourceKindV1,
@@ -120,8 +117,7 @@ pub(crate) struct VerifiedLoopCondBreakContinueSourceForestProjectionV1 {
 impl VerifiedLoopCondBreakContinueSourceForestProjectionV1 {
     pub(crate) fn new(
         owner: FunctionOwnerIdV1,
-        forest_binding: VerifiedLoopSourceForestBindingV1,
-        member_sites: Box<[SourceStmtSiteV1]>,
+        forest: VerifiedResolvedLoopSourceForestV1,
         exits: Box<[VerifiedLoopCondSourceExitV1]>,
         function_origin: FunctionOriginV1,
         source_kind: SemanticOwnerSourceKindV1,
@@ -129,8 +125,7 @@ impl VerifiedLoopCondBreakContinueSourceForestProjectionV1 {
     ) -> Self {
         Self {
             owner,
-            forest_binding,
-            member_sites,
+            forest,
             exits,
             function_origin,
             source_kind,
@@ -142,12 +137,8 @@ impl VerifiedLoopCondBreakContinueSourceForestProjectionV1 {
         self.owner
     }
 
-    pub(crate) fn forest_binding(&self) -> &VerifiedLoopSourceForestBindingV1 {
-        &self.forest_binding
-    }
-
-    pub(crate) fn member_sites(&self) -> &[SourceStmtSiteV1] {
-        &self.member_sites
+    pub(crate) fn members(&self) -> &[VerifiedResolvedLoopSourceForestMemberV1] {
+        self.forest.members()
     }
 
     pub(crate) fn exits(&self) -> &[VerifiedLoopCondSourceExitV1] {
@@ -162,6 +153,6 @@ impl VerifiedLoopCondBreakContinueSourceForestProjectionV1 {
     ) -> bool {
         self.function_origin == function_origin
             && self.source_kind == source_kind
-            && self.member_sites.first() == Some(root_site)
+            && self.members().first().map(|member| member.source().site()) == Some(root_site)
     }
 }

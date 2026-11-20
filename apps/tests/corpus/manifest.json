@@ -15513,6 +15513,15 @@
       "cadence": "every"
     },
     {
+      "path": "apps/tests/corpus/dynamic-compare/release-source-loop.hako",
+      "sha256": "d7c749db1f8d77fb59f41bbf063960425749d71e2493be4301d412fd1dd97722",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
       "path": "apps/tests/corpus/dynamic-compare/release-source-match.hako",
       "sha256": "e7f2b3e32f9391f725834fa1017eecafb0e3052222d0831748c69739338e0f1a",
       "groups": [

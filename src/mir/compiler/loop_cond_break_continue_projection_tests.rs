@@ -268,11 +268,9 @@ fn forest_projection_seals_nested_members_and_all_root_exits() {
     let projection = issue_loop_cond_break_continue_source_forest_projection_v1(input, &root)
         .expect("nested loop source forest");
 
-    assert_eq!(projection.member_sites().len(), 3);
-    assert_eq!(projection.forest_binding().members().len(), 3);
+    assert_eq!(projection.members().len(), 3);
     assert_eq!(
         projection
-            .forest_binding()
             .members()
             .iter()
             .map(|member| member.parent_index())

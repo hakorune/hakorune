@@ -544,7 +544,7 @@ mod tests {
         let projection = issue_loop_break_source_projection_v1(input, &loop_stmt, resolved)
             .expect("direct LoopBreak projection");
         assert_eq!(projection.owner(), input.owner());
-        assert_eq!(projection.forest().member_sites().len(), 1);
+        assert_eq!(projection.forest().members().len(), 1);
         assert_eq!(projection.forest().exits().len(), 1);
         assert_eq!(projection.body_inventory().owner(), input.owner());
         assert_eq!(projection.body_inventory().root(), loop_stmt.site());
