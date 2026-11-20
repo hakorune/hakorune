@@ -1,0 +1,11 @@
+using lang.compiler.parser.box as ParserBoxMod
+using lang.compiler.parser.stmt.parser_stmt_box.release_source as ParserStmtReleaseSourceBox
+
+static box Main {
+  main() {
+    local ctx = new ParserBox()
+    local result = ParserStmtReleaseSourceBox.parse_or_null("return x", 0, 0, ctx)
+    print(result)
+    return 0
+  }
+}

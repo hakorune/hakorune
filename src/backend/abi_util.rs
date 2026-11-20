@@ -55,19 +55,8 @@ pub fn eq_vm(a: &VMValue, b: &VMValue) -> bool {
         (Bool(x), Bool(y)) => x == y,
         (String(x), String(y)) => x == y,
         (Void, Void) => true,
-        // Precise Int↔Float equality (avoid accidental true via float rounding)
         (Integer(x), Float(y)) | (Float(y), Integer(x)) => {
-            if y.is_nan() {
-                return false;
-            }
-            if y.is_finite() && y.fract() == 0.0 {
-                // Float is integral - check exact representability
-                let y_int = *y as i64;
-                if (y_int as f64) == *y {
-                    return x == &y_int;
-                }
-            }
-            false
+            crate::runtime::semantics::int_float_eq(*x, *y)
         }
         (BoxRef(ax), BoxRef(by)) => Arc::ptr_eq(ax, by),
         // Treat BoxRef(NullBox/VoidBox/MissingBox) as equal to runtime Void for compatibility.
@@ -110,6 +99,21 @@ mod tests {
         assert!(eq_vm(&exact, &dynamic));
         assert!(eq_vm(&dynamic, &exact));
         assert!(!eq_vm(&exact, &VMValue::Integer(63)));
+    }
+
+    #[test]
+    fn eq_vm_checks_float_representability_before_integer_cast() {
+        for (integer, float, expected) in [
+            (i64::MAX, 9_223_372_036_854_775_808.0, false),
+            (i64::MIN, -9_223_372_036_854_775_808.0, true),
+            (3, f64::NAN, false),
+            (3, 3.0, true),
+        ] {
+            let integer = VMValue::Integer(integer);
+            let float = VMValue::Float(float);
+            assert_eq!(eq_vm(&integer, &float), expected);
+            assert_eq!(eq_vm(&float, &integer), expected);
+        }
     }
 
     #[test]

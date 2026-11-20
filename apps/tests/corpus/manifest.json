@@ -15414,6 +15414,15 @@
       "cadence": "every"
     },
     {
+      "path": "apps/tests/corpus/dynamic-compare/condition-call-ordered-text-arguments.hako",
+      "sha256": "0d56b7ace24c04477f5186a9b0fdff663e61d991dbd85707ebd95d9143b279cb",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
       "path": "apps/tests/corpus/dynamic-compare/dynamic-ge-i64-bool.hako",
       "sha256": "72285b0b097e9b686f2c2742d8e425fcf1f1cefebd28688f6e34dc6547b5f7d8",
       "groups": [
@@ -15504,6 +15513,24 @@
       "cadence": "every"
     },
     {
+      "path": "apps/tests/corpus/dynamic-compare/release-source-match.hako",
+      "sha256": "e7f2b3e32f9391f725834fa1017eecafb0e3052222d0831748c69739338e0f1a",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/release-source-miss.hako",
+      "sha256": "ec84513e8799f4767d7945923dcfcca9e6cdcda461ab2beebdc0f195a32f30c4",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
       "path": "apps/tests/corpus/dynamic-compare/run-bool.hako",
       "sha256": "f73f8d58b4c4269d388e5ed3ad78ad3169a0e1fa5b7d219612dd46eb6fa3fc01",
       "groups": [
@@ -15515,6 +15542,141 @@
     {
       "path": "apps/tests/corpus/dynamic-compare/run-integer.hako",
       "sha256": "62f26a3b217df7629d2aa09d4ab949706fe8eb357f0f6724d310e2780cb18d86",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/stage0-borrowed-eq-bool.hako",
+      "sha256": "36e254ce117cdfad43e353bacaa61d1965889bea4788cdcb19e729a3108c54ab",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/stage0-borrowed-eq-float.hako",
+      "sha256": "4ef0fb96c78afeb0da688fb1a560c681c519df72f8e425cd1e8d25e047f1968d",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/stage0-borrowed-eq-integer.hako",
+      "sha256": "3b59b75c73b72d5a859c5d7cd72ecbbd185cafb29bd4165e8c364c98197148a9",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/stage0-borrowed-eq-string.hako",
+      "sha256": "f495fa883e3a5ace15f84c10d1e66ae3845bd7d4bb898c73c88a83029a6184cf",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/stage0-borrowed-ne-bool.hako",
+      "sha256": "6d251c36f46241ee2485b707d51f50d2e46314991ae9cc38cfdb3cc46475fbb5",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/stage0-borrowed-ne-float.hako",
+      "sha256": "fc74c591d45ce8055510c148655e75d4caba8ff06829de60cec5259c027f052b",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/stage0-borrowed-ne-integer.hako",
+      "sha256": "3d490772024cd39479424ac7af5aae4c4b5a88a2a52522d9c2687e98afadff9e",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/stage0-borrowed-ne-string.hako",
+      "sha256": "abe864f937590462776fbe11f7332de023e826d53f3f3f31cab93dd36c7d2136",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/stage0-dynamic-string-eq-integer.hako",
+      "sha256": "a29440528742e91fe3dc5b284f93f33ff915baa3105e9cec4e7b08cec1b8bdf4",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/stage0-dynamic-string-eq-string.hako",
+      "sha256": "80afce3d2b79afa170d00b698f38355ee1bfc7acd53a9dbb65fb067fa2d6e9e2",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/stage0-untyped-call-ne.hako",
+      "sha256": "e854a85a048fe3232056326f40e794bc9b01cfa73af04f2a36e4542a3f2842a2",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/stage3a-untyped-call-ne-other.hako",
+      "sha256": "a83875ded1b0ce2ff0ba2434ee93d5f450c47136eddc33f97e7514d6ce0225c6",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/stage3a-untyped-call-only.hako",
+      "sha256": "a4966e0212294a882cfe3ffa3a7d3b56939a32f6f10d2e2e16c9dadeee70b783",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/static-borrowed-home-fault.hako",
+      "sha256": "a792e6dbf70d9d29e888558f749b4ffe4b80bebd65168effb3315590fc979edd",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/static-borrowed-home-normal.hako",
+      "sha256": "246deb4cf01d6e1f7808c8794c01d5e61427cde019d5648830498b4404a42223",
       "groups": [
         "A"
       ],

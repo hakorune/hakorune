@@ -1,0 +1,13 @@
+box Context {
+  birth() { }
+  starts_with_kw(src, i, word): i64 {
+    return 1
+  }
+}
+static box Main {
+  main() {
+    local ctx = new Context()
+    if ctx.starts_with_kw("release", 0, "release") != 1 { return 7 }
+    return 9
+  }
+}
