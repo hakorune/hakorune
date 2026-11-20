@@ -304,10 +304,6 @@ fn remap_effect_in_place(value_map: &BTreeMap<ValueId, ValueId>, effect: &mut Co
             *dst = remap_value_id(value_map, *dst);
             *src = remap_value_id(value_map, *src);
         }
-        CoreEffectPlan::ExitIf { cond, exit } => {
-            *cond = remap_value_id(value_map, *cond);
-            *exit = remap_exit(value_map, exit.clone());
-        }
         CoreEffectPlan::IfEffect {
             cond,
             then_effects,

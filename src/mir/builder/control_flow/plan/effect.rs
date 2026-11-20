@@ -1,12 +1,10 @@
 use super::call_source::CoreCallSourceV1;
-use super::exit::CoreExitPlan;
 use crate::mir::{BinaryOp, CompareOp, ConstValue, EffectMask, LocalSlotId, MirType, ValueId};
 
 /// Phase 273 P1: Effect plan (side effects already lowered to ValueId)
 ///
 /// Effect vocabulary is minimal (scan-specific variants forbidden):
 /// - MethodCall, GlobalCall, BinOp, Compare, Const
-/// - ExitIf (loop-only)
 /// - IfEffect (loop-only, leaf effects only, no else)
 ///
 /// Phase 273 P2: MethodCall now supports:
@@ -136,16 +134,9 @@ pub(in crate::mir::builder) enum CoreEffectPlan {
         else_val: ValueId,
     },
 
-    /// Conditional exit inside loop body (minimal ExitIf)
-    ///
-    /// - exit must be Return/Break/Continue only
-    /// - Return requires payload (Some)
-    ExitIf { cond: ValueId, exit: CoreExitPlan },
-
     /// Conditional effects inside loop body (optional else, no join)
     ///
     /// - then/else effects must be leaf effects or nested IfEffect
-    /// - tail ExitIf(Continue) is allowed (single, last)
     /// - loop-only (cannot appear outside loop body)
     IfEffect {
         cond: ValueId,

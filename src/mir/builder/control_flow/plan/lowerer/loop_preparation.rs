@@ -154,7 +154,7 @@ fn has_control_flow_effect(effects: &[CoreEffectPlan]) -> bool {
     effects.iter().any(|e| {
         matches!(
             e,
-            CoreEffectPlan::ExitIf { .. } | CoreEffectPlan::IfEffect { .. }
+            CoreEffectPlan::IfEffect { .. }
         )
     })
 }

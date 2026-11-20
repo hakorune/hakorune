@@ -118,29 +118,6 @@ impl super::PlanLowerer {
                 debug_log_literal_plan(builder, "body_fallthrough", *dst, value);
             }
             match effect {
-                CoreEffectPlan::ExitIf { cond, exit } => {
-                    let has_more = idx + 1 < effects.len();
-                    let fallthrough = if has_more {
-                        let next_bb = builder.next_block_id();
-                        builder.ensure_block_exists(next_bb)?;
-                        Some(next_bb)
-                    } else {
-                        None
-                    };
-                    Self::emit_exit_if(
-                        builder,
-                        *cond,
-                        exit,
-                        fallthrough.unwrap_or(fallthrough_target),
-                        loop_stack,
-                    )?;
-                    if let Some(next_bb) = fallthrough {
-                        builder.start_new_block(next_bb)?;
-                        terminated = false;
-                    } else {
-                        terminated = true;
-                    }
-                }
                 CoreEffectPlan::IfEffect {
                     cond,
                     then_effects,
@@ -387,12 +364,6 @@ impl super::PlanLowerer {
         port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<(), String> {
         match effect {
-            CoreEffectPlan::ExitIf { cond, exit } => {
-                let fallthrough_target = builder.next_block_id();
-                builder.ensure_block_exists(fallthrough_target)?;
-                Self::emit_exit_if(builder, *cond, exit, fallthrough_target, loop_stack)?;
-                builder.start_new_block(fallthrough_target)?;
-            }
             CoreEffectPlan::IfEffect {
                 cond,
                 then_effects,

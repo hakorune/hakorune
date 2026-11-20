@@ -3,7 +3,7 @@
 //! # Responsibilities
 //!
 //! - Emit CoreEffectPlan variants to MIR instructions
-//! - Handle 11 effect types (MethodCall, GlobalCall, ValueCall, ExternCall, NewBox, BinOp, Compare, Select, Const, Copy, ExitIf, IfEffect)
+//! - Handle 11 effect types (MethodCall, GlobalCall, ValueCall, ExternCall, NewBox, BinOp, Compare, Select, Const, Copy, IfEffect)
 //! - ExitIf emission with conditional branching
 //!
 //! # Design
@@ -12,13 +12,15 @@
 //! - ExitIf requires loop context for Break/Continue target resolution
 //! - Used by body_processing and loop_lowering
 
-use super::{debug_ctx, debug_tags, LoopFrame};
+use super::debug_ctx;
 use crate::mir::builder::calls::call_target::typed_global_target_from_selected_symbol;
 use crate::mir::builder::calls::CallTarget;
-use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CoreExitPlan};
+use crate::mir::builder::control_flow::plan::CoreEffectPlan;
 use crate::mir::builder::MirBuilder;
 use crate::mir::builder::ssa::local::try_arg;
-use crate::mir::{BasicBlockId, MirInstruction, ValueId};
+use crate::mir::{MirInstruction, ValueId};
+#[cfg(test)]
+use crate::mir::BasicBlockId;
 
 fn try_emit_select_as_phi_for_merge(
     builder: &mut MirBuilder,
@@ -381,9 +383,6 @@ impl super::PlanLowerer {
                     else_val: *else_val,
                 })?;
             }
-            CoreEffectPlan::ExitIf { .. } => {
-                return Err("[lowerer] ExitIf requires loop body context".to_string());
-            }
             CoreEffectPlan::IfEffect { .. } => {
                 return Err("[lowerer] IfEffect requires loop body context".to_string());
             }
@@ -426,99 +425,6 @@ impl super::PlanLowerer {
         Ok(())
     }
 
-    pub(super) fn emit_exit_if(
-        builder: &mut MirBuilder,
-        cond: ValueId,
-        exit: &CoreExitPlan,
-        fallthrough_target: BasicBlockId,
-        loop_stack: &mut [LoopFrame],
-    ) -> Result<(), String> {
-        use crate::mir::builder::emission::branch::emit_conditional;
-
-        let _pre_branch_bb = builder
-            .function_state
-            .current_block
-            .ok_or_else(|| "[lowerer] No current block for ExitIf".to_string())?;
-
-        builder.ensure_block_exists(fallthrough_target)?;
-        let mut cond_val = cond;
-        crate::mir::builder::ssa::local::finalize_branch_cond(builder, &mut cond_val)?;
-
-        match exit {
-            CoreExitPlan::Return(Some(value)) => {
-                let return_bb = builder.next_block_id();
-                builder.ensure_block_exists(return_bb)?;
-                emit_conditional(builder, cond_val, return_bb, fallthrough_target)?;
-                builder.start_new_block(return_bb)?;
-                builder.emit_instruction(MirInstruction::Return {
-                    value: Some(*value),
-                })?;
-            }
-            CoreExitPlan::Return(None) => {
-                return Err("[lowerer] ExitIf(Return) requires payload".to_string());
-            }
-            CoreExitPlan::Break(depth) => {
-                let frame = Self::resolve_loop_frame(loop_stack, *depth)?;
-                builder.ensure_block_exists(frame.break_target)?;
-                emit_conditional(builder, cond_val, frame.break_target, fallthrough_target)?;
-            }
-            CoreExitPlan::BreakWithPhiArgs { depth, phi_args } => {
-                let pre_bb = builder.function_state.current_block.ok_or_else(|| {
-                    "[lowerer] No current block for ExitIf(BreakWithPhiArgs)".to_string()
-                })?;
-                let frame = Self::resolve_loop_frame_mut(loop_stack, *depth)?;
-                builder.ensure_block_exists(frame.break_target)?;
-                for (dst, src) in phi_args {
-                    let incoming = crate::mir::builder::ssa::local::try_ensure(
-                        builder,
-                        *src,
-                        crate::mir::builder::ssa::local::LocalKind::Arg,
-                    )?;
-                    builder.function_state.canonical_control.borrow_mut()
-                        .record_phi_edge(pre_bb, frame.break_target, *dst, incoming)?;
-                }
-                emit_conditional(builder, cond_val, frame.break_target, fallthrough_target)?;
-            }
-            CoreExitPlan::Continue(depth) => {
-                let frame = Self::resolve_loop_frame(loop_stack, *depth)?;
-                builder.ensure_block_exists(frame.continue_target)?;
-                emit_conditional(builder, cond_val, frame.continue_target, fallthrough_target)?;
-            }
-            CoreExitPlan::ContinueWithPhiArgs { depth, phi_args } => {
-                let pre_bb = builder.function_state.current_block.ok_or_else(|| {
-                    "[lowerer] No current block for ExitIf(ContinueWithPhiArgs)".to_string()
-                })?;
-                let frame = Self::resolve_loop_frame_mut(loop_stack, *depth)?;
-                builder.ensure_block_exists(frame.continue_target)?;
-                let debug_ctx = debug_ctx::build(builder);
-                for (dst, src) in phi_args {
-                    let incoming = crate::mir::builder::ssa::local::try_ensure(
-                        builder,
-                        *src,
-                        crate::mir::builder::ssa::local::LocalKind::Arg,
-                    )?;
-                    if let Some(debug_ctx) = &debug_ctx {
-                        let incoming_def_bb = debug_ctx.def_blocks.get(&incoming).copied();
-                        let ring0 = crate::runtime::get_global_ring0();
-                        ring0.log.debug(&format!(
-                            "{} fn={} origin=effect_emission pred_bb={:?} dst=%{} incoming=%{} incoming_def_bb={:?}",
-                            debug_tags::TAG_STEP_PHI_INPUT_ADD,
-                            debug_ctx.fn_name,
-                            pre_bb,
-                            dst.0,
-                            incoming.0,
-                            incoming_def_bb
-                        ));
-                    }
-                    builder.function_state.canonical_control.borrow_mut()
-                        .record_phi_edge(pre_bb, frame.continue_target, *dst, incoming)?;
-                }
-                emit_conditional(builder, cond_val, frame.continue_target, fallthrough_target)?;
-            }
-        }
-
-        Ok(())
-    }
 }
 
 #[cfg(test)]

@@ -173,8 +173,7 @@ fn collect_defined_values_from_effect(effect: &CoreEffectPlan, out: &mut BTreeSe
         }
         CoreEffectPlan::NamedArrayPush { .. }
         | CoreEffectPlan::MapLiteralEntryWrite { .. }
-        | CoreEffectPlan::FieldSet { .. }
-        | CoreEffectPlan::ExitIf { .. } => {}
+        | CoreEffectPlan::FieldSet { .. } => {}
     }
 }
 
@@ -185,7 +184,7 @@ fn plans_have_non_local_exit(plans: &[LoweredRecipe]) -> bool {
 fn plan_has_non_local_exit(plan: &LoweredRecipe) -> bool {
     match plan {
         CorePlan::Exit(_) => true,
-        CorePlan::Effect(effect) => effect_has_non_local_exit(effect),
+        CorePlan::Effect(_) => false,
         CorePlan::If(if_plan) => {
             plans_have_non_local_exit(&if_plan.then_plans)
                 || if_plan
@@ -204,32 +203,10 @@ fn plan_has_non_local_exit(plan: &LoweredRecipe) -> bool {
                     .is_some_and(|plans| plans_have_non_local_exit(plans))
         }
         CorePlan::Seq(inner) => plans_have_non_local_exit(inner),
-        CorePlan::Loop(loop_plan) => {
-            plans_have_non_local_exit(&loop_plan.body)
-                || loop_plan
-                    .block_effects
-                    .iter()
-                    .any(|(_, effects)| effects.iter().any(effect_has_non_local_exit))
-        }
+        CorePlan::Loop(loop_plan) => plans_have_non_local_exit(&loop_plan.body),
     }
 }
 
-fn effect_has_non_local_exit(effect: &CoreEffectPlan) -> bool {
-    match effect {
-        CoreEffectPlan::ExitIf { .. } => true,
-        CoreEffectPlan::IfEffect {
-            then_effects,
-            else_effects,
-            ..
-        } => {
-            then_effects.iter().any(effect_has_non_local_exit)
-                || else_effects
-                    .as_ref()
-                    .is_some_and(|effects| effects.iter().any(effect_has_non_local_exit))
-        }
-        _ => false,
-    }
-}
 
 #[cfg(test)]
 mod tests {

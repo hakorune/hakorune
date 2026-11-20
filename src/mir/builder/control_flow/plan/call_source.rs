@@ -87,7 +87,6 @@ fn visit_effect<'a>(effect: &'a CoreEffectPlan, visitor: &mut impl FnMut(&'a Cor
         | CoreEffectPlan::BinOp { .. }
         | CoreEffectPlan::Compare { .. }
         | CoreEffectPlan::Select { .. }
-        | CoreEffectPlan::ExitIf { .. }
         | CoreEffectPlan::Const { .. }
         | CoreEffectPlan::Copy { .. }
         | CoreEffectPlan::LocalContractWrite { .. } => {}

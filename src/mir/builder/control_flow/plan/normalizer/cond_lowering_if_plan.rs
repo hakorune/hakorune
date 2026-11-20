@@ -207,7 +207,6 @@ fn effect_defines_value(effect: &CoreEffectPlan) -> bool {
         CoreEffectPlan::NamedArrayPush { .. }
         | CoreEffectPlan::MapLiteralEntryWrite { .. }
         | CoreEffectPlan::FieldSet { .. }
-        | CoreEffectPlan::ExitIf { .. }
         | CoreEffectPlan::IfEffect { .. } => false,
     }
 }

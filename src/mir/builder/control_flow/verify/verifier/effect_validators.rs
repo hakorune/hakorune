@@ -3,16 +3,16 @@
 //! # Responsibilities
 //!
 //! - Validate Effect plan structure and ValueIds (V6)
-//! - Validate IfEffect and ExitIf special cases (V12)
+//! - Validate IfEffect special cases (V12)
 //! - Check effect leaf constraints in loop bodies
 //!
 //! # Invariants
 //!
 //! - V6: Effect ValueId validity (all ValueIds pre-generated)
-//! - V12: Loop body effect-only (IfEffect/ExitIf allowed with restrictions)
+//! - V12: Loop body effect-only (IfEffect allowed with restrictions)
 
-use super::{position_validators, primitives};
-use crate::mir::builder::control_flow::lower::{CoreEffectPlan, CoreExitPlan};
+use super::primitives;
+use crate::mir::builder::control_flow::lower::CoreEffectPlan;
 use crate::mir::builder::control_flow::verify::is_leaf_effect_plan;
 
 /// V6: Effect ValueId validity
@@ -287,51 +287,6 @@ pub(super) fn verify_effect(
             primitives::verify_value_id_basic(*dst, depth, "LocalContractWrite.dst")?;
             primitives::verify_value_id_basic(*src, depth, "LocalContractWrite.src")?;
         }
-        CoreEffectPlan::ExitIf { cond, exit } => {
-            if loop_depth == 0 {
-                return Err(primitives::err(
-                    "V12",
-                    "exit_if_outside_loop",
-                    format!("ExitIf outside loop body at depth {}", depth),
-                ));
-            }
-            primitives::verify_value_id_basic(*cond, depth, "ExitIf.cond")?;
-            match exit {
-                CoreExitPlan::Return(Some(value)) => {
-                    primitives::verify_value_id_basic(*value, depth, "ExitIf.return_value")?;
-                }
-                CoreExitPlan::Return(None) => {
-                    return Err(primitives::err(
-                        "V12",
-                        "exit_if_return_no_payload",
-                        format!("ExitIf(Return) without payload at depth {}", depth),
-                    ));
-                }
-                CoreExitPlan::Break(exit_depth) | CoreExitPlan::Continue(exit_depth) => {
-                    position_validators::verify_exit_depth(*exit_depth, loop_depth, depth)?;
-                }
-                CoreExitPlan::BreakWithPhiArgs {
-                    depth: exit_depth,
-                    phi_args,
-                } => {
-                    position_validators::verify_exit_depth(*exit_depth, loop_depth, depth)?;
-                    for (dst, src) in phi_args {
-                        primitives::verify_value_id_basic(*dst, depth, "ExitIf.break.phi_dst")?;
-                        primitives::verify_value_id_basic(*src, depth, "ExitIf.break.phi_src")?;
-                    }
-                }
-                CoreExitPlan::ContinueWithPhiArgs {
-                    depth: exit_depth,
-                    phi_args,
-                } => {
-                    position_validators::verify_exit_depth(*exit_depth, loop_depth, depth)?;
-                    for (dst, src) in phi_args {
-                        primitives::verify_value_id_basic(*dst, depth, "ExitIf.continue.phi_dst")?;
-                        primitives::verify_value_id_basic(*src, depth, "ExitIf.continue.phi_src")?;
-                    }
-                }
-            }
-        }
         CoreEffectPlan::IfEffect {
             cond,
             then_effects,
@@ -369,40 +324,7 @@ pub(super) fn verify_if_effect_branch(
         ));
     }
     for (idx, effect) in effects.iter().enumerate() {
-        let is_last = idx + 1 == effects.len();
         match effect {
-            CoreEffectPlan::ExitIf {
-                cond: exit_cond,
-                exit: CoreExitPlan::Continue(exit_depth),
-            } if is_last => {
-                primitives::verify_value_id_basic(*exit_cond, depth, "IfEffect.continue.cond")?;
-                position_validators::verify_exit_depth(*exit_depth, loop_depth, depth)?;
-            }
-            CoreEffectPlan::ExitIf {
-                cond: exit_cond,
-                exit:
-                    CoreExitPlan::ContinueWithPhiArgs {
-                        depth: exit_depth,
-                        phi_args,
-                    },
-            } if is_last => {
-                primitives::verify_value_id_basic(*exit_cond, depth, "IfEffect.continue.cond")?;
-                position_validators::verify_exit_depth(*exit_depth, loop_depth, depth)?;
-                for (dst, src) in phi_args {
-                    primitives::verify_value_id_basic(*dst, depth, "IfEffect.continue.phi_dst")?;
-                    primitives::verify_value_id_basic(*src, depth, "IfEffect.continue.phi_src")?;
-                }
-            }
-            CoreEffectPlan::ExitIf { .. } => {
-                return Err(primitives::err(
-                    "V12",
-                    "if_effect_exit_not_allowed",
-                    format!(
-                        "IfEffect.{}[{}] has forbidden exit at depth {}",
-                        label, idx, depth
-                    ),
-                ));
-            }
             CoreEffectPlan::IfEffect { .. } => {
                 verify_effect(effect, depth + 1, loop_depth).map_err(|e| {
                     primitives::err(

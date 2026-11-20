@@ -265,7 +265,6 @@ fn effect_defined_value(effect: &CoreEffectPlan) -> Option<(ValueId, &'static st
         CoreEffectPlan::NamedArrayPush { .. }
         | CoreEffectPlan::MapLiteralEntryWrite { .. }
         | CoreEffectPlan::FieldSet { .. }
-        | CoreEffectPlan::ExitIf { .. }
         | CoreEffectPlan::IfEffect { .. } => None,
     }
 }
