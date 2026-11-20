@@ -141,6 +141,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
     let mut needs = prepare_lexical_source_targets_v1(
         batch,
         selected,
+        dynamic_source_calls,
         new_classes,
         names,
         field_write_claims,

@@ -138,7 +138,7 @@ fn main_direct_and_received_share_original_source_outcomes_and_callee_witnesses(
             let probe_slot = selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(probe)).unwrap();
             let names: Vec<Box<str>> = batch.ordinary_box_coverage().rows().iter().map(|row| row.name().into()).collect();
             let needs = super::super::super::lexical_instance_call::prepare_lexical_source_targets_v1(
-                batch, selected, &BTreeMap::new(), &names, &fields, &facts, parameters,
+                batch, selected, &[], &BTreeMap::new(), &names, &fields, &facts, parameters,
                 main.map(|main| main.caller_source_ref_v1()), &mut |_, _, _| Ok(None), Some(constructors), Some(&entries)).unwrap();
             let target = needs.iter().filter_map(|row| row.as_ref().unwrap().as_ref()).find_map(|need| match need {
                 super::super::super::lexical_instance_call::PreparedSourceCallNeedV1::Lexical(source)

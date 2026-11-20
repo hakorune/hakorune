@@ -198,6 +198,7 @@ mod tests {
                     super::super::super::lexical_instance_call::prepare_lexical_source_targets_v1(
                         batch,
                         selected,
+                        &[],
                         &BTreeMap::new(),
                         &names,
                         &fields,

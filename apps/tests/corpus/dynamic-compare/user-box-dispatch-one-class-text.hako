@@ -1,0 +1,26 @@
+box Ctx {
+  birth() { }
+  kw(src, word): i64 {
+    if src == "release" { return 11 }
+    if word == "release" { return 22 }
+    return 30
+  }
+}
+
+box Parser {
+  birth() { }
+  parse(ctx, n: i64): i64 {
+    local src = "other"
+    return ctx.kw(src, "release")
+  }
+}
+
+static box Main {
+  main() {
+    local p = new Parser()
+    local c = new Ctx()
+    local a = p.parse(c, 0)
+    print(a)
+    return 0
+  }
+}
