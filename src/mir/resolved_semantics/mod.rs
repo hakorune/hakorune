@@ -11,6 +11,7 @@ mod body_shape;
 #[cfg(test)]
 pub(crate) use body_shape::issue_resolved_method_call_sources_v1;
 mod body_shape_resolver;
+pub(crate) mod borrowed_integer_comparison;
 mod brand_source_relation;
 #[cfg(test)]
 mod brand_source_relation_tests;

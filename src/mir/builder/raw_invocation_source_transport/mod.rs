@@ -42,6 +42,7 @@ mod bool_condition;
 mod field_write_rhs;
 pub(in crate::mir::builder) use field_write_rhs::FieldWriteRhsEmissionV1;
 mod borrowed_field_write;
+mod borrowed_integer_comparison;
 mod borrowed_array_set;
 mod if_observation;
 mod context;

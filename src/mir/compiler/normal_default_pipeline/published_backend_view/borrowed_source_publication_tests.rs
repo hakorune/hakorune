@@ -738,3 +738,6 @@ fn pure_scalar_read_root_publishes_without_calls_and_rejects_return_drift() {
 
 #[path = "borrowed_source_publication_i64_origin_tests.rs"]
 mod i64_origin_tests;
+
+#[path = "borrowed_source_publication_integer_comparison_tests.rs"]
+mod integer_comparison;

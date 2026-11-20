@@ -20,6 +20,7 @@ macro_rules! collect_errors {
 
 mod awaits;
 mod barrier;
+pub(in crate::mir) mod borrowed_integer_comparison;
 mod cfg;
 mod contract_carriers;
 mod fastmem;
@@ -143,6 +144,7 @@ impl MirVerifier {
             invoke::check_module_with_source(module, edge_policy, root, &geometries)
         );
         for function in module.functions.values() {
+            collect_errors!(self.errors, borrowed_integer_comparison::check(function));
             collect_errors!(
                 self.errors,
                 invoke::check_function_structure_in_module(
@@ -298,6 +300,7 @@ impl MirVerifier {
     ) -> Result<(), Vec<VerificationError>> {
         let mut errors = Vec::new();
         let geometry = geometry::FunctionVerificationGeometry::new(function);
+        collect_errors!(errors, borrowed_integer_comparison::check(function));
         collect_errors!(errors, invoke::check_function_with_geometry(&geometry));
         collect_errors!(errors, self.verify_function_body(function, &geometry));
         if errors.is_empty() {

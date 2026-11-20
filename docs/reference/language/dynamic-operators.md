@@ -363,5 +363,11 @@ Fault, and a failed check is a TypeError Fault at the comparison site.
 Syntactic position (inside an `if`, inside a loop) never selects this path.
 Other Dynamic operands keep the order above.
 
+The borrowed-integer check covers `Dynamic < I64`, `Dynamic > I64`, and
+`I64 < Dynamic` at a proved original-formal read. A well-formed non-integer
+records TypeError (reason 302) at the verified comparison site. A malformed
+tag and payload violates the physical contract. The check acquires no carrier
+token and leaves the operand borrowed.
+
 Unsupported or incomplete source relations fail closed. There is no
 name-based repair, runtime inference, retry, or fallback.

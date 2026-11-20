@@ -21,7 +21,8 @@ impl BorrowedCallUses {
         let entry = source.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
         state.finite_input = entry.uses_finite_input_v1();
         state.owned_formals = source.take_entry_bindings_v1(owner)?;
-        for (ordinal, formal, value) in source.borrowed_ordinary_entry_values_v1(owner)?.iter() {
+        let entry_values = source.borrowed_ordinary_entry_values_v1(owner)?;
+        for (ordinal, formal, value) in entry_values.iter() {
             if let Some(domain) = entry.formal_domain_v1(*ordinal, *formal)? {
                 if state.domains.insert(*value, domain.clone()).is_some_and(|previous| previous != *domain) {
                     return Err(fault("borrowed-use/conflicting-domain"));
@@ -91,6 +92,23 @@ impl BorrowedCallUses {
             state.retain_rooted_copies_v1(state.roots.keys().copied().collect(), &rooted)?;
             Ok(())
         })?;
+        for (coordinate, comparison) in crate::mir::verification::borrowed_integer_comparison
+            ::verified_sites(function).map_err(|_| fault("borrowed-use/checked-integer-comparison"))?
+        {
+            let proof = &comparison.source;
+            if proof.site().owner() != owner
+                || !entry_values.contains(&(proof.ordinal(), proof.formal(), comparison.tagged))
+            {
+                return Err(fault("borrowed-use/checked-integer-comparison"));
+            }
+            let side = usize::from(!proof.tagged_on_left());
+            let occurrence = compare_sites.get(proof.site()).map(|at| (*at, side));
+            if occurrence.is_some_and(|row| !expected.get(&proof.formal()).is_some_and(|rows| rows.contains(&row)))
+                || state.borrowed_integer_reads.insert(coordinate, (comparison.tagged, occurrence)).is_some()
+            {
+                return Err(fault("borrowed-use/checked-integer-comparison"));
+            }
+        }
         state.compare_coordinates = Some(expected);
         source.with_borrowed_ordinary_compare_carrier_copies_v1(owner, function, |copy, coordinate| {
             state.copy(copy, Some(coordinate))

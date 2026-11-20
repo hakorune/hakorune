@@ -329,6 +329,9 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       if (birth || faulted || state[bi] || !carrier || carrier->kind != LV4_DYNAMIC_CARRIER ||
           carrier->origin < 0 || state[carrier->origin] != LV4_DYNAMIC_CARRIER_LIVE) return 0;
       normal[bi] = LV4_LIVE;
+    } else if (lv4_is(op, "kind", "dynamic_borrowed_integer")) {
+      if (birth || faulted || state[bi] || !lv4_original_borrowed_formal(fn, lv4_u(op, "tagged"))) return 0;
+      normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "dynamic_carrier_sub_i64")) {
       hako_lv4_value* carrier = lv4_index_value(fn, lv4_u(op, "carrier"));
       hako_lv4_value* rhs = lv4_index_value(fn, lv4_u(op, "rhs"));

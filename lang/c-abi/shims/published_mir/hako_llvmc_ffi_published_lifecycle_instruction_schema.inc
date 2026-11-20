@@ -111,7 +111,7 @@ static int hako_physical_result_operation(yyjson_val* op, int native) {
   if (!kind) return 0;
   if (hako_physical_string_result(kind)) return 1;
   if (!strcmp(kind, "dynamic_invoke") || !strcmp(kind, "dynamic_array_get") || !strcmp(kind, "dynamic_carrier_integer") ||
-      !strcmp(kind, "dynamic_carrier_sub_i64")) return 1;
+      !strcmp(kind, "dynamic_carrier_sub_i64") || !strcmp(kind, "dynamic_borrowed_integer")) return 1;
   if (!native && (!strcmp(kind, "shared_new") || !strcmp(kind, "shared_clone") || !strcmp(kind, "shared_borrow"))) return 1;
   if (native) return !strcmp(kind, "array_new");
   if (!strcmp(kind, "field_get") || !strcmp(kind, "object_field_borrow")) return 1;
@@ -233,6 +233,13 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
     static const char* const keys[] = {"kind", "carrier", "site"};
     return !native && hako_physical_exact_keys(operation, keys, 3) &&
         hako_physical_u32(yyjson_obj_get(operation, "carrier"), &value) &&
+        hako_physical_value_available_at(function, value, block, index) &&
+        hako_physical_u64(yyjson_obj_get(operation, "site"), NULL);
+  }
+  if (!strcmp(kind, "dynamic_borrowed_integer")) {
+    static const char* const keys[] = {"kind", "tagged", "site"};
+    return !native && hako_physical_exact_keys(operation, keys, 3) &&
+        hako_physical_u32(yyjson_obj_get(operation, "tagged"), &value) &&
         hako_physical_value_available_at(function, value, block, index) &&
         hako_physical_u64(yyjson_obj_get(operation, "site"), NULL);
   }

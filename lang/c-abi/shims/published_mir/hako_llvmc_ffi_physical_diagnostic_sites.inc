@@ -29,7 +29,7 @@ static int hako_physical_checked_sites_unique(yyjson_val* functions, uint64_t pr
             strcmp(kind, "object_field_set") &&
             strcmp(kind, "field_residence_release") && strcmp(kind, "object_field_release") &&
             strcmp(kind, "home_release") && strcmp(kind, "home_release_if_live") &&
-            strcmp(kind, "reclaim_unpublished") &&
+            strcmp(kind, "reclaim_unpublished") && strcmp(kind, "dynamic_borrowed_integer") &&
             strcmp(kind, "array_new") && strcmp(kind, "array_claim") && strcmp(kind, "array_append") && !hako_physical_map_kind(kind) && !hako_physical_string_kind(kind))) continue;
         if (!hako_physical_u64(yyjson_obj_get(operation, "site"), &site)) { free(sites); return 0; }
         }

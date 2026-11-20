@@ -88,6 +88,9 @@ pub(super) fn scan_statement_flow<'a, E>(
                 unavailable.get_or_insert(issue);
             }
         }
+        if unavailable.is_none() {
+            locals.observe_comparison_prefix_homes(statement.site(), homes);
+        }
         locals.invalidate_dynamic_field_sources(&statement);
         local_call_flow::stage_statement_actuals(
             input, &statement, locals, unavailable.is_none(), homes, result_sites,

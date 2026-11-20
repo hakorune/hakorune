@@ -375,6 +375,8 @@ pub enum InvokeOperation {
     /// Borrow an integer payload from the exact opaque carrier. The source
     /// operator owns the resulting type check; the carrier remains live.
     DynamicCarrierInteger { carrier: ValueId },
+    /// Checked I64 read of the original borrowed tag/payload parameter.
+    DynamicBorrowedInteger { tagged: ValueId },
     /// Checked source subtraction over an integer-valued carrier. The input
     /// remains live; Normal publishes a fresh opaque carrier, Fault none.
     DynamicCarrierSubI64 { carrier: ValueId, rhs: ValueId },
@@ -482,7 +484,8 @@ impl InvokeOperation {
             Self::String(operation) => operation.normal_result_kind(),
             Self::DynamicInvocation(_) => Some(InvokeNormalResultKind::DynamicCarrier),
             Self::DynamicArrayGet { .. } => Some(InvokeNormalResultKind::DynamicCarrier),
-            Self::DynamicCarrierInteger { .. } => Some(InvokeNormalResultKind::I64),
+            Self::DynamicCarrierInteger { .. } | Self::DynamicBorrowedInteger { .. } =>
+                Some(InvokeNormalResultKind::I64),
             Self::DynamicCarrierSubI64 { .. } => Some(InvokeNormalResultKind::DynamicCarrier),
             Self::OwnedArray(operation) => operation.normal_result_kind(),
             Self::Shared(operation) => operation.normal_result_kind(),
@@ -541,7 +544,8 @@ impl InvokeOperation {
             Self::String(operation) => operation.effects(),
             Self::DynamicInvocation(_) => EffectMask::READ.add(Effect::Control),
             Self::DynamicArrayGet { .. } => EffectMask::READ.add(Effect::Alloc).add(Effect::Control),
-            Self::DynamicCarrierInteger { .. } => EffectMask::READ.add(Effect::Control),
+            Self::DynamicCarrierInteger { .. } | Self::DynamicBorrowedInteger { .. } =>
+                EffectMask::READ.add(Effect::Control),
             Self::DynamicCarrierSubI64 { .. } => {
                 EffectMask::READ.add(Effect::Alloc).add(Effect::Control)
             }
@@ -579,6 +583,7 @@ impl InvokeOperation {
             Self::DynamicInvocation(operation) => operation.used_values(),
             Self::DynamicArrayGet { array, index } => vec![*array, *index],
             Self::DynamicCarrierInteger { carrier } | Self::DynamicCarrierEnd { carrier } => vec![*carrier],
+            Self::DynamicBorrowedInteger { tagged } => vec![*tagged],
             Self::DynamicCarrierSubI64 { carrier, rhs } => vec![*carrier, *rhs],
             Self::OwnedArray(operation) => operation.used_values(),
             Self::Shared(operation) => operation.used_values(),
@@ -625,6 +630,7 @@ impl InvokeOperation {
             Self::DynamicInvocation(operation) => operation.rewrite_values(rewrite),
             Self::DynamicArrayGet { array, index } => { rewrite(array); rewrite(index); }
             Self::DynamicCarrierInteger { carrier } | Self::DynamicCarrierEnd { carrier } => rewrite(carrier),
+            Self::DynamicBorrowedInteger { tagged } => rewrite(tagged),
             Self::DynamicCarrierSubI64 { carrier, rhs } => {
                 rewrite(carrier);
                 rewrite(rhs);

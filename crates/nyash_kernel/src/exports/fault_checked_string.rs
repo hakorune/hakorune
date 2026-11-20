@@ -83,12 +83,50 @@ unsafe fn integer_operand(value: *const Operand) -> Result<i64, IntegerOperandFa
     if value.kind != TAGGED_DYNAMIC || !no_bytes || value.handle != 0 || value.token != 0 {
         return Err(IntegerOperandFailure::TypeError);
     }
-    match value.reserved {
-        1 => Ok(value.integer),
-        0 if value.integer == 0 => Err(IntegerOperandFailure::TypeError),
-        2 if value.integer == 0 || value.integer == 1 => Err(IntegerOperandFailure::TypeError),
-        3 if value.integer != 0 => Err(IntegerOperandFailure::TypeError),
+    tagged_integer(value.reserved, value.integer as u64)
+}
+
+fn tagged_integer(tag: u32, payload: u64) -> Result<i64, IntegerOperandFailure> {
+    match tag {
+        1 => Ok(payload as i64),
+        0 if payload == 0 => Err(IntegerOperandFailure::TypeError),
+        2 if payload <= 1 => Err(IntegerOperandFailure::TypeError),
+        3 if payload != 0 => Err(IntegerOperandFailure::TypeError),
         _ => Err(IntegerOperandFailure::InvalidContract),
+    }
+}
+
+/// Read the original V4 borrowed formal, without consuming it. The C caller
+/// validates the descriptor lifetime and supplies the operation's diagnostic site.
+#[export_name = "nyash.dynamic.checked_borrowed_integer_v1"]
+pub unsafe extern "C" fn borrowed_integer_payload(
+    storage: *mut c_void,
+    site: u64,
+    tag: u32,
+    payload: u64,
+    out: *mut i64,
+) -> u32 {
+    if out.is_null() || !out.is_aligned() {
+        return Status::InvalidContract as u32;
+    }
+    let frame = match unsafe { frame(storage) } {
+        Ok(frame) => frame,
+        Err(status) => return status as u32,
+    };
+    let result = if tag == 4 && payload != 0 && payload % std::mem::align_of::<Operand>() as u64 == 0 {
+        // This borrow-only V4 tag denotes a live Text descriptor, which the
+        // older substring integer operand wire format does not carry.
+        Err(IntegerOperandFailure::TypeError)
+    } else {
+        tagged_integer(tag, payload)
+    };
+    match result {
+        Ok(value) => {
+            unsafe { out.write(value) };
+            Status::Normal as u32
+        }
+        Err(IntegerOperandFailure::TypeError) => fault(frame, site, TYPE_ERROR),
+        Err(IntegerOperandFailure::InvalidContract) => Status::InvalidContract as u32,
     }
 }
 

@@ -391,3 +391,42 @@ impl OrdinaryNewClaimLedgerV1 {
 #[cfg(test)]
 #[path = "ordinary_new_borrowed_compare_materialization_tests.rs"]
 mod tests;
+
+impl OrdinaryNewClaimLedgerV1 {
+    /// Register new comparison lifecycle effects with the existing physical
+    /// boundary. The checked comparison keeps borrowing the same entry.
+    pub(in crate::mir) fn record_borrowed_integer_check(
+        &self,
+        owner: FunctionOwnerIdV1,
+        check: &crate::mir::verification::borrowed_integer_comparison::ComparisonBinding,
+        frame: (crate::mir::BasicBlockId, MirInstruction),
+    ) -> Result<(), String> {
+        let mut entries = self.borrowed_entry_values.borrow_mut();
+        let entry = entries.get_mut(&owner).ok_or_else(|| freeze("borrowed-integer/entry"))?;
+        let source = &check.source;
+        if source.site().owner() != owner || !entry.values.as_ref().is_ok_and(|values|
+            values.contains(&(source.ordinal(), source.formal(), check.tagged)))
+            || entry.integer_checks.contains_key(source.site())
+        {
+            return Err(freeze("borrowed-integer/effect-origin"));
+        }
+        let mut bindings = check.support.clone();
+        bindings.push(frame);
+        entry.integer_checks.insert(source.site().clone(), bindings);
+        Ok(())
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn append_borrowed_integer_checks(
+        &self,
+        owner: FunctionOwnerIdV1,
+        bindings: &mut Vec<(crate::mir::BasicBlockId, MirInstruction)>,
+    ) {
+        if let Some(entry) = self.borrowed_entry_values.borrow().get(&owner) {
+            for binding in entry.integer_checks.values().flatten() {
+                if !bindings.contains(binding) {
+                    bindings.push(binding.clone());
+                }
+            }
+        }
+    }
+}

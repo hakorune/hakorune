@@ -552,6 +552,8 @@ impl RawInvocationChildPortV1<'_, '_> {
                         .current_function
                         .as_ref()
                         .ok_or("[freeze:contract][bool-condition/no-function]")?;
+                    let (lhs, rhs) = crate::mir::verification::borrowed_integer_comparison::ComparisonBinding::for_result(function, value)
+                        .map_or((lhs, rhs), |comparison| comparison.original_operands());
                     let relations = &mut builder.function_state.local_ssa_correspondence;
                     let left = relations
                         .loan(function, inputs.0, lhs)

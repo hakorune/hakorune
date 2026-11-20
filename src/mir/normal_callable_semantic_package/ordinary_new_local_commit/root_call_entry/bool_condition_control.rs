@@ -403,11 +403,20 @@ impl EmittedBoolConditionProjectionV1 {
                     };
                     let lhs = self.node(index(original.lhs())?)?;
                     let rhs = self.node(index(original.rhs())?)?;
-                    if node.entry != lhs.entry
-                        || lhs.exit != rhs.entry
-                        || rhs.exit.block != node.exit.block
-                        || node.exit.instruction <= rhs.exit.instruction
-                    {
+                    let ordered = if let Some(comparison) = crate::mir::verification::borrowed_integer_comparison::ComparisonBinding::for_result(function, node.value) {
+                        let right_block = function.blocks.get(&rhs.exit.block);
+                        let extraction = right_block.and_then(|block| block.terminator.as_ref());
+                        allowed.extend(comparison.support.iter().cloned());
+                        matches!(extraction, Some(MirInstruction::Invoke {
+                            operation: crate::mir::instruction::InvokeOperation::DynamicBorrowedInteger { tagged },
+                            normal_landing, ..
+                        }) if *tagged == comparison.tagged && *normal_landing == node.exit.block)
+                            && right_block.is_some_and(|block| rhs.exit.instruction == block.instructions.len())
+                            && node.exit.instruction > 1
+                    } else {
+                        rhs.exit.block == node.exit.block && node.exit.instruction > rhs.exit.instruction
+                    };
+                    if node.entry != lhs.entry || lhs.exit != rhs.entry || !ordered {
                         return Err(freeze("bool-condition/binary-evaluation-order"));
                     }
                 }
