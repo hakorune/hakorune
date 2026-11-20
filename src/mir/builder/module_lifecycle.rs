@@ -415,59 +415,6 @@ impl super::MirBuilder {
         Ok(())
     }
 
-    /// Finalize the module after the selected canonical root draft was
-    /// published through the collector drain.  The `main` function already
-    /// carries its finished Return/PHI/CFG from the DraftSeal, so this
-    /// disposition owns only module-level sealing and root validation: it
-    /// never inserts a raw Return or re-infers the return type. Existing
-    /// draft PHI repair retains the same source-consumed Phi tuples.  `current_function` must be empty — a live
-    /// wrapper means the canonical route leaked a second root.
-    pub(super) fn finalize_module_with_canonical_root_v1(
-        &mut self,
-        phi_source: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
-        validate_root: impl FnOnce(
-            &crate::mir::MirFunction,
-        )
-            -> Result<crate::mir::function::RootOrdinaryNewObservation, String>,
-    ) -> Result<MirModule, String> {
-        if self.function_state.current_function.is_some()
-            || self.function_state.current_block.is_some()
-        {
-            return Err("[freeze:contract][mir/finalize-canonical/unfinished-function]".to_owned());
-        }
-        let mut module = self
-            .current_module
-            .take()
-            .ok_or_else(|| "[freeze:contract][mir/finalize-canonical/module-missing]".to_owned())?;
-
-        super::module_finalization_declaration_metadata::
-            PreparedModuleFinalizationDeclarationMetadataV1::prepare(&self.comp_ctx)
-            .commit_into(&mut module)?;
-        crate::mir::semantic_refresh::refresh_module_record_and_packed_layout_plans(&mut module);
-        crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module)?;
-        crate::mir::direct_state_plan::refresh_module_direct_state_plans(&mut module);
-        for function in module.functions.values_mut() {
-            crate::mir::builder::ssa::phi_input_materializer::materialize_all_phi_inputs_with_source_v1(
-                function,
-                "finalize_canonical_module", super::main_pending_draft::MainDraftIdentityV1::root().symbol(), phi_source,
-            )?;
-        }
-
-        let root = module
-            .functions
-            .get_mut(super::main_pending_draft::MainDraftIdentityV1::root().symbol())
-            .ok_or_else(|| {
-                "[freeze:contract][mir/finalize-canonical/root-definition-missing]".to_owned()
-            })?;
-        if let Some(source) = phi_source {
-            source.finish_main_arguments_after_phi_materialization_v1(root)?;
-        }
-        let observation = validate_root(root)?;
-        root.install_root_ordinary_new_observation(observation)?;
-        self.function_state = Default::default();
-        Ok(module)
-    }
-
     /// Finalize MIR module after a typed or responsibility-local lowering owner.
     ///
     /// Execution flow:
