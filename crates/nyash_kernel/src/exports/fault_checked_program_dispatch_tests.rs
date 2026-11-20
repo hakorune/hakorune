@@ -306,3 +306,37 @@ fn program_dispatch_never_enters_body_for_invalid_identity_or_selection() {
         release(handle);
     }
 }
+
+#[test]
+fn typed_store_borrow_is_an_operator_type_error_at_the_comparison_site() {
+    let types = [DispatchTypeV1 {
+        type_id: TYPE,
+        layout: null(),
+        layout_count: 0,
+    }];
+    let program = descriptor(&types, &[]);
+    let handle = allocate(&program);
+    let mut frame = FaultFrame::new();
+    let mut out = 42;
+    assert_eq!(
+        unsafe {
+            super::super::checked_string::borrowed_integer_payload(
+                storage(&mut frame),
+                SITE,
+                TYPED_STORE_BORROW,
+                handle as u64,
+                &mut out,
+            )
+        },
+        Status::Fault as u32,
+    );
+    assert_eq!(out, 42);
+    let (primary, suppressed, _) = frame.diagnostics().unwrap();
+    let primary = primary.unwrap();
+    assert_eq!(
+        (primary.reason, primary.site, primary.details),
+        (302, SITE, [0, 0])
+    );
+    assert!(suppressed.is_empty());
+    release(handle);
+}

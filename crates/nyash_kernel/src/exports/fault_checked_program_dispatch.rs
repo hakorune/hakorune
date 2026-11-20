@@ -9,7 +9,7 @@ use nyash_rust::runtime::dynamic_invocation::{
 use std::{ffi::c_void, mem::size_of, num::NonZeroUsize};
 
 const PROGRAM_VERSION: u32 = 1;
-const TYPED_STORE_BORROW: u32 = 5;
+pub(super) const TYPED_STORE_BORROW: u32 = 5;
 const FORMAL_DYNAMIC: u32 = 0;
 const FORMAL_I64: u32 = 1;
 
