@@ -31,70 +31,6 @@ impl CallableSemanticLoweringState {
             .collect::<Vec<_>>();
         claims.complete_local_installation(self.owner, site, &rows)
     }
-    pub(in crate::mir::builder) fn observe_preloop_alias(
-        &mut self,
-        site: &SourceNodeSiteV1,
-        binding: BindingRefV1,
-        formal: BindingRefV1,
-        value: ValueId,
-        ordinal: u32,
-    ) -> Result<(), String> {
-        let bindings = self
-            .locals
-            .get(site)
-            .cloned()
-            .ok_or_else(|| super::freeze("missing-alias-local-site"))?;
-        if bindings.as_ref() != [binding]
-            || ordinal != 0
-            || !self.materialized_locals.insert(site.clone())
-        {
-            return Err(super::freeze("preloop-alias-shape-mismatch"));
-        }
-        if self
-            .dynamic_origins
-            .source()
-            .origin_for_binding(binding)
-            .is_some()
-        {
-            self.insert_value(binding, value)?;
-            return self
-                .dynamic_origins
-                .record_alias_local(site, binding, formal, value, ordinal)
-                .map_err(|error| error.to_string());
-        }
-        if self.values.get(&formal).copied() != Some(value) {
-            return Err(super::freeze("static-alias-formal-value-mismatch"));
-        }
-        self.insert_value(binding, value)
-    }
-
-    pub(in crate::mir::builder) fn observe_existing_local(
-        &mut self,
-        site: &SourceNodeSiteV1,
-        binding: BindingRefV1,
-        value: ValueId,
-    ) -> Result<(), String> {
-        let bindings = self
-            .locals
-            .get(site)
-            .cloned()
-            .ok_or_else(|| super::freeze("missing-existing-local-site"))?;
-        if bindings.as_ref() != [binding] || !self.materialized_locals.insert(site.clone()) {
-            return Err(super::freeze("existing-local-shape-mismatch"));
-        }
-        if self
-            .dynamic_origins
-            .source()
-            .origin_for_binding(binding)
-            .is_some()
-        {
-            return Err(super::freeze(
-                "dynamic-local-requires-source-alias-observation",
-            ));
-        }
-        self.insert_value(binding, value)
-    }
-
     /// The variable-read site behind a selected `new` actual: the actual itself
     /// when the source resolved it as a variable read, else the operand of its
     /// explicit `move`. The choice comes from the source's variable table; no
@@ -133,41 +69,6 @@ impl CallableSemanticLoweringState {
             && self.dynamic_origins.current_origin(binding, semantic_value) != Some(binding)
         {
             return Err(super::freeze("variable-observation-current-mismatch"));
-        }
-        Ok(())
-    }
-
-    pub(in crate::mir::builder) fn observe_tail_site(
-        &mut self,
-        site: &SourceNodeSiteV1,
-        binding: BindingRefV1,
-        semantic_value: ValueId,
-    ) -> Result<(), String> {
-        if self.variables.get(site).copied() != Some(binding)
-            || !self.consumed_variables.insert(site.clone())
-        {
-            return Err(super::freeze("tail-observation-mismatch"));
-        }
-        if self.values.get(&binding).copied() != Some(semantic_value) {
-            return Err(super::freeze("tail-observation-current-mismatch"));
-        }
-        if self
-            .dynamic_origins
-            .source()
-            .origin_for_binding(binding)
-            .is_some()
-            && self.dynamic_origins.current_origin(binding, semantic_value) != Some(binding)
-        {
-            return Err(super::freeze("tail-observation-current-mismatch"));
-        }
-        Ok(())
-    }
-
-    pub(in crate::mir::builder) fn require_empty_side_observations(&self) -> Result<(), String> {
-        if !self.direct_lambda_captures.is_empty()
-            || self.brand_constructors.constructor_count() != 0
-        {
-            return Err(super::freeze("unsupported-side-observation-cohort"));
         }
         Ok(())
     }
