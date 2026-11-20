@@ -129,11 +129,23 @@ const fn checked_comparison(
 const LESS_DYNAMIC_DYNAMIC: VerifiedDynamicOperatorExecutionEnvelopeV1 = checked_comparison(
     DynamicOperatorFamilyV1::Less, DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::Dynamic,
 );
-const DYNAMIC_INTEGER_COMPARISONS: [VerifiedDynamicOperatorExecutionEnvelopeV1; 3] = [
-    checked_comparison(DynamicOperatorFamilyV1::Less, DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::I64),
-    checked_comparison(DynamicOperatorFamilyV1::Greater, DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::I64),
-    checked_comparison(DynamicOperatorFamilyV1::Less, DynamicOperatorValueClassV1::I64, DynamicOperatorValueClassV1::Dynamic),
-];
+/// Signed ordering has the same checked contract in either source order.
+const fn mixed_integer_ordering(
+    left: DynamicOperatorValueClassV1,
+    right: DynamicOperatorValueClassV1,
+) -> [VerifiedDynamicOperatorExecutionEnvelopeV1; 4] {
+    use DynamicOperatorFamilyV1 as Family;
+    [
+        checked_comparison(Family::Less, left, right),
+        checked_comparison(Family::Greater, left, right),
+        checked_comparison(Family::GreaterEqual, left, right),
+        checked_comparison(Family::LessEqual, left, right),
+    ]
+}
+const DYNAMIC_INTEGER_COMPARISONS: [VerifiedDynamicOperatorExecutionEnvelopeV1; 4] =
+    mixed_integer_ordering(DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::I64);
+const INTEGER_DYNAMIC_COMPARISONS: [VerifiedDynamicOperatorExecutionEnvelopeV1; 4] =
+    mixed_integer_ordering(DynamicOperatorValueClassV1::I64, DynamicOperatorValueClassV1::Dynamic);
 
 const fn dynamic_string_comparison(
     family: DynamicOperatorFamilyV1,
@@ -227,14 +239,16 @@ const STRING_DYNAMIC_COMPARISONS: [VerifiedDynamicOperatorExecutionEnvelopeV1; 6
     ),
 ];
 
+const ORDERING_START: usize = 2;
+
 const fn comparison_index(family: DynamicOperatorFamilyV1) -> Option<usize> {
     match family {
         DynamicOperatorFamilyV1::Equal => Some(0),
         DynamicOperatorFamilyV1::NotEqual => Some(1),
-        DynamicOperatorFamilyV1::Less => Some(2),
-        DynamicOperatorFamilyV1::Greater => Some(3),
-        DynamicOperatorFamilyV1::GreaterEqual => Some(4),
-        DynamicOperatorFamilyV1::LessEqual => Some(5),
+        DynamicOperatorFamilyV1::Less => Some(ORDERING_START),
+        DynamicOperatorFamilyV1::Greater => Some(ORDERING_START + 1),
+        DynamicOperatorFamilyV1::GreaterEqual => Some(ORDERING_START + 2),
+        DynamicOperatorFamilyV1::LessEqual => Some(ORDERING_START + 3),
         _ => None,
     }
 }
@@ -319,10 +333,13 @@ pub(crate) const fn issue_dynamic_operator_execution_envelope_v1(
             (DynamicOperatorValueClassV1::Bool, DynamicOperatorValueClassV1::Bool) if index < BOOL_EQUALITIES.len() => return Ok(&BOOL_EQUALITIES[index]),
             (DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::String) => return Ok(&DYNAMIC_STRING_COMPARISONS[index]),
             (DynamicOperatorValueClassV1::String, DynamicOperatorValueClassV1::Dynamic) => return Ok(&STRING_DYNAMIC_COMPARISONS[index]),
-            (DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::Dynamic) if index == 2 => return Ok(&LESS_DYNAMIC_DYNAMIC),
-            (DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::I64) if index == 2 => return Ok(&DYNAMIC_INTEGER_COMPARISONS[0]),
-            (DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::I64) if index == 3 => return Ok(&DYNAMIC_INTEGER_COMPARISONS[1]),
-            (DynamicOperatorValueClassV1::I64, DynamicOperatorValueClassV1::Dynamic) if index == 2 => return Ok(&DYNAMIC_INTEGER_COMPARISONS[2]),
+            (DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::Dynamic) if index == ORDERING_START => return Ok(&LESS_DYNAMIC_DYNAMIC),
+            (DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::I64) if index >= ORDERING_START => {
+                return Ok(&DYNAMIC_INTEGER_COMPARISONS[index - ORDERING_START]);
+            }
+            (DynamicOperatorValueClassV1::I64, DynamicOperatorValueClassV1::Dynamic) if index >= ORDERING_START => {
+                return Ok(&INTEGER_DYNAMIC_COMPARISONS[index - ORDERING_START]);
+            }
             _ => {}
         }
     }
