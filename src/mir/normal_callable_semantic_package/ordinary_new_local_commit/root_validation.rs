@@ -681,6 +681,13 @@ impl OrdinaryNewClaimLedgerV1 {
                 .filter(|packet| packet.source_site().owner() == owner)
                 .flat_map(|packet| packet.lifecycle_bindings().iter().cloned()),
         );
+        if let Some(scopes) = self.lexical_cleanup.borrow().get(&owner) {
+            for binding in scopes.iter().flat_map(|scope| &scope.bindings) {
+                if !result.contains(binding) {
+                    result.push(binding.clone());
+                }
+            }
+        }
         for relation in self.terminal_relations_for_owner(owner) {
             if !matches!(
                 relation,

@@ -1,35 +1,22 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::model::{
-    LoopJoinEdge, LoopJoinEdgeRoleV1, LoopJoinLoop, LoopJoinPayload, LoopJoinPortBinding,
+    LoopJoinEdge, LoopJoinEdgeRoleV1, LoopJoinExitOccurrenceV1, LoopJoinLoop, LoopJoinPayload, LoopJoinPortBinding,
     LoopJoinPortV1, LoopJoinSigRejectReasonV1,
 };
 use super::recipe_view::LoopJoinExitView;
 
 pub(super) fn loop_exit_edge<C>(
+    occurrence: LoopJoinExitOccurrenceV1,
     exit: LoopJoinExitView,
     payload: Vec<LoopJoinPayload<C>>,
 ) -> LoopJoinEdge<C> {
-    match exit {
-        LoopJoinExitView::Break { .. } => LoopJoinEdge {
-            from: LoopJoinPortV1::Body,
-            to: LoopJoinPortV1::After,
-            role: LoopJoinEdgeRoleV1::Break,
-            payload,
-        },
-        LoopJoinExitView::Continue { .. } => LoopJoinEdge {
-            from: LoopJoinPortV1::Body,
-            to: LoopJoinPortV1::Header,
-            role: LoopJoinEdgeRoleV1::Continue,
-            payload,
-        },
-        LoopJoinExitView::Return { .. } => LoopJoinEdge {
-            from: LoopJoinPortV1::Body,
-            to: LoopJoinPortV1::FunctionExit,
-            role: LoopJoinEdgeRoleV1::Return,
-            payload,
-        },
-    }
+    let (role, to) = match exit {
+        LoopJoinExitView::Break { .. } => (LoopJoinEdgeRoleV1::Break, LoopJoinPortV1::After),
+        LoopJoinExitView::Continue { .. } => (LoopJoinEdgeRoleV1::Continue, LoopJoinPortV1::Header),
+        LoopJoinExitView::Return { .. } => (LoopJoinEdgeRoleV1::Return, LoopJoinPortV1::FunctionExit),
+    };
+    LoopJoinEdge { exit: Some(occurrence), from: LoopJoinPortV1::Body, to, role, payload }
 }
 
 pub(in crate::mir::loop_recipe_contract) fn port_bindings<C: Copy + Eq>(

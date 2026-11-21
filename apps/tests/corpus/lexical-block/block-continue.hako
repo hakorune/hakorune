@@ -1,0 +1,16 @@
+// Expected stdout: Result: 1. Expected exit: 1.
+// The continue leaves the scope and ends its owned substring on that edge.
+static box Main {
+  main() {
+    local source = "a"
+    local j = 0
+    loop(j < 1) {
+      {
+        local text = source.substring(0, 1)
+        j = j + 1
+        continue
+      }
+    }
+    return j
+  }
+}

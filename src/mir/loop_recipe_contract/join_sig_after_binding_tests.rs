@@ -181,12 +181,14 @@ fn incoming_port_sets_must_match_without_duplicate_payloads() {
     let extra = payload(1, 1, LoopValueClassV1::I64);
     let mismatch = row_with_edges(vec![
         LoopJoinEdgeV1 {
+            exit: None,
             from: LoopJoinPortV1::Preheader,
             to: LoopJoinPortV1::Header,
             role: LoopJoinEdgeRoleV1::Enter,
             payload: vec![base.clone()],
         },
         LoopJoinEdgeV1 {
+            exit: None,
             from: LoopJoinPortV1::Body,
             to: LoopJoinPortV1::Header,
             role: LoopJoinEdgeRoleV1::Backedge,
@@ -202,6 +204,7 @@ fn incoming_port_sets_must_match_without_duplicate_payloads() {
     );
 
     let duplicate = row_with_edges(vec![LoopJoinEdgeV1 {
+        exit: None,
         from: LoopJoinPortV1::Preheader,
         to: LoopJoinPortV1::After,
         role: LoopJoinEdgeRoleV1::Break,
@@ -221,12 +224,14 @@ fn incoming_port_sets_must_match_without_duplicate_payloads() {
 fn incoming_port_classes_must_match() {
     let row = row_with_edges(vec![
         LoopJoinEdgeV1 {
+            exit: None,
             from: LoopJoinPortV1::Preheader,
             to: LoopJoinPortV1::After,
             role: LoopJoinEdgeRoleV1::Break,
             payload: vec![payload(0, 0, LoopValueClassV1::I64)],
         },
         LoopJoinEdgeV1 {
+            exit: None,
             from: LoopJoinPortV1::Body,
             to: LoopJoinPortV1::After,
             role: LoopJoinEdgeRoleV1::Break,

@@ -76,6 +76,16 @@ pub(in crate::mir) struct EmittedLoopBlockV2 {
     pub(in crate::mir) normal: bool,
     pub(in crate::mir) scope_close: LexicalScopeCloseReceiptV2,
 }
+pub(in crate::mir) struct EmittedLoopProgramV2 {
+    pub(in crate::mir) site: crate::mir::resolved_semantics::SourceStmtSiteV1,
+    pub(in crate::mir) entry: BasicBlockId,
+    pub(in crate::mir) before_close: BasicBlockId,
+    pub(in crate::mir) cleanup: Option<Rc<crate::mir::builder::EmittedSourceCleanupV2<
+        crate::mir::resolved_semantics::SourceNodeSiteV1>>>,
+    pub(in crate::mir) continuation: BasicBlockId,
+    pub(in crate::mir) normal: bool,
+    pub(in crate::mir) scope_close: LexicalScopeCloseReceiptV2,
+}
 pub(in crate::mir) struct EmittedLoopEffectV2 {
     pub(in crate::mir) site: crate::mir::resolved_semantics::SourceStmtSiteV1,
     pub(in crate::mir) entry: BasicBlockId,
@@ -111,6 +121,7 @@ pub(in crate::mir) struct EmittedSourceLoopGraphV2 {
     pub(in crate::mir) forks: Vec<EmittedLoopForkV2>,
     pub(in crate::mir) blocks: Vec<EmittedLoopBlockV2>,
     pub(in crate::mir) children: Vec<EmittedLoopChildV2>,
+    pub(in crate::mir) programs: Vec<EmittedLoopProgramV2>,
     pub(in crate::mir) result: crate::mir::builder::CompletedConstV1,
     before: BTreeMap<BasicBlockId, (Vec<MirInstruction>, Option<MirInstruction>)>,
     before_frame: Option<(BasicBlockId, MirInstruction)>,
@@ -210,7 +221,7 @@ pub(in crate::mir) fn emit(builder: &mut MirBuilder, port: &mut RawInvocationChi
     let recipe = product.recipe.as_recipe();
     let body_key = recipe.loops.first().ok_or_else(|| reject("root-loop-missing"))?.body;
     let mut driver = Driver { port, source, product: Rc::clone(&product), ledger, header, after,
-        returns: Vec::new(), edges: Vec::new(), frames: Vec::new(), effects: Vec::new(), forks: Vec::new(), blocks: Vec::new(), children: Vec::new() };
+        returns: Vec::new(), edges: Vec::new(), frames: Vec::new(), effects: Vec::new(), forks: Vec::new(), blocks: Vec::new(), children: Vec::new(), programs: Vec::new() };
     driver.edge(builder, Edge::LoopEntry, None)?;
     for &binding in product.source.headers.keys() {
         let name = driver.ledger.borrow().source_loop_binding_name(binding,
@@ -245,7 +256,7 @@ pub(in crate::mir) fn emit(builder: &mut MirBuilder, port: &mut RawInvocationChi
     let after_frame = driver.ledger.borrow().observed_fault_frame_binding_v2(
         builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?)?;
     Ok((EmittedSourceLoopGraphV2 { product, header, after, returns: driver.returns, edges: driver.edges, frames: driver.frames, effects: driver.effects,
-        forks: driver.forks, blocks: driver.blocks, children: driver.children, result, before, before_frame, after_frame },
+        forks: driver.forks, blocks: driver.blocks, children: driver.children, programs: driver.programs, result, before, before_frame, after_frame },
         SourceLoopEntryStateV2 { values: entry_values, cache: entry_cache }))
 }
 
@@ -263,6 +274,7 @@ struct Driver<'a, 'port, 'collector, 'input, 'ledger> {
     forks: Vec<EmittedLoopForkV2>,
     blocks: Vec<EmittedLoopBlockV2>,
     children: Vec<EmittedLoopChildV2>,
+    programs: Vec<EmittedLoopProgramV2>,
 }
 impl Driver<'_, '_, '_, '_, '_> {
     fn frame(&mut self, builder: &mut MirBuilder, index: usize, entry: BasicBlockId, value: ValueId,
@@ -292,9 +304,40 @@ impl Driver<'_, '_, '_, '_, '_> {
     }
     fn body(&mut self, builder: &mut MirBuilder, key: LoopBlockKeyV1) -> Result<bool, String> {
         let steps = self.product.schedule().block(key).ok_or_else(|| reject("schedule-block"))?.to_vec();
-        let mut position = 0;
-        while position < steps.len() {
+        self.body_steps(builder, &steps, 0, steps.len())
+    }
+    fn body_steps(
+        &mut self, builder: &mut MirBuilder, steps: &[Step], mut position: usize, limit: usize,
+    ) -> Result<bool, String> {
+        while position < limit {
             match &steps[position] {
+                Step::Program { site, body, end, normal } => {
+                    if *end <= position || *end > limit {
+                        return Err(reject("lexical-range"));
+                    }
+                    let entry = builder.function_state.current_block.ok_or_else(|| reject("lexical-entry"))?;
+                    let ((completed, before_close, cleanup), scope_close) =
+                        try_with_lexical_scope_with_receipt_v2(builder, |builder| {
+                            let completed = self.body_steps(builder, steps, position + 1, *end)?;
+                            if completed != *normal { return Err(reject("lexical-outcome")); }
+                            let before_close = builder.function_state.current_block.ok_or_else(|| reject("lexical-end"))?;
+                            let cleanup = if completed {
+                                self.port.finish_program_body_v1(builder, &body.root())?
+                            } else {
+                                None
+                            };
+                            Ok((completed, before_close, cleanup))
+                        }).map_err(|error| error.to_string())?;
+                    let continuation = builder.function_state.current_block.ok_or_else(|| reject("lexical-end"))?;
+                    self.programs.push(EmittedLoopProgramV2 {
+                        site: site.clone(), entry, before_close, cleanup, continuation, normal: completed, scope_close,
+                    });
+                    position = *end;
+                    if !completed {
+                        if position != limit { return Err(reject("schedule-after-lexical-exit")); }
+                        return Ok(false);
+                    }
+                }
                 Step::Call { site, observation, result, .. } => {
                     let entry = builder.function_state.current_block.ok_or_else(|| reject("call-entry"))?;
                     let (packet, actual) = super::source_loop_frames::emit_call(builder, self.port, &self.product, site, observation)?;
@@ -341,7 +384,7 @@ impl Driver<'_, '_, '_, '_, '_> {
                         };
                         if condition != index { return Err(reject("if-condition-frame")); }
                         if !self.branch(builder, *index, *then_block, *else_block, joins, text_joins)? {
-                            if position + 2 != steps.len() { return Err(reject("schedule-after-closed-if")); }
+                            if position + 2 != limit { return Err(reject("schedule-after-closed-if")); }
                             return Ok(false);
                         }
                         position += 2;
@@ -353,7 +396,7 @@ impl Driver<'_, '_, '_, '_, '_> {
                     }
                 }
                 Step::Return { source, .. } => {
-                    if position + 1 != steps.len() { return Err(reject("schedule-after-exit")); }
+                    if position + 1 != limit { return Err(reject("schedule-after-exit")); }
                     let entry = builder.function_state.current_block.ok_or_else(|| reject("body-entry"))?;
                     let (value, read, bindings) = super::source_loop_frames::emit_return(builder, self.port, &self.product, source)?;
                     let end = builder.function_state.current_block.ok_or_else(|| reject("body-end"))?;
@@ -372,7 +415,7 @@ impl Driver<'_, '_, '_, '_, '_> {
                         PortKind::Continue(original) if original == site => Edge::Continue(site.clone()),
                         _ => return Err(reject("exit-source-role")),
                     };
-                    if position + 1 != steps.len() { return Err(reject("schedule-after-exit")); }
+                    if position + 1 != limit { return Err(reject("schedule-after-exit")); }
                     self.edge(builder, edge, Some(*port))?;
                     return Ok(false);
                 }

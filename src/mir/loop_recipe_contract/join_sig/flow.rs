@@ -6,7 +6,8 @@ use super::super::ids::{
 use super::super::join_sig_branch::{branch_row, is_supported_loop_branch_pair};
 use super::super::verify::VerifiedLoopRecipeV1;
 use super::model::{
-    LoopJoinBranch, LoopJoinEdge, LoopJoinEdgeRoleV1, LoopJoinLoop, LoopJoinNextItemV1,
+    LoopJoinBranch, LoopJoinBranchArm, LoopJoinEdge, LoopJoinEdgeRoleV1,
+    LoopJoinExitOccurrenceV1, LoopJoinLoop, LoopJoinNextItemV1,
     LoopJoinPayload, LoopJoinSig, LoopJoinSigRejectReasonV1, VerifiedLoopJoinSig,
     VerifiedLoopJoinSigV1,
 };
@@ -99,6 +100,7 @@ pub(super) fn elaborate_loop<V: LoopJoinRecipeView>(
         return Err(LoopJoinSigRejectReasonV1::UnsupportedNestedPredicate { loop_key: key });
     }
     let mut edges = vec![LoopJoinEdge {
+        exit: None,
         from: super::model::LoopJoinPortV1::Preheader,
         to: super::model::LoopJoinPortV1::Header,
         role: LoopJoinEdgeRoleV1::Enter,
@@ -124,12 +126,14 @@ pub(super) fn elaborate_loop<V: LoopJoinRecipeView>(
         local_available = flow.available;
         require_value(&local_available, value)?;
         edges.push(LoopJoinEdge {
+            exit: None,
             from: super::model::LoopJoinPortV1::Header,
             to: super::model::LoopJoinPortV1::Body,
             role: LoopJoinEdgeRoleV1::PredicateTrue,
             payload: visible_payloads_from_view(recipe, key, &local)?,
         });
         edges.push(LoopJoinEdge {
+            exit: None,
             from: super::model::LoopJoinPortV1::Header,
             to: super::model::LoopJoinPortV1::After,
             role: LoopJoinEdgeRoleV1::PredicateFalse,
@@ -137,6 +141,7 @@ pub(super) fn elaborate_loop<V: LoopJoinRecipeView>(
         });
     } else {
         edges.push(LoopJoinEdge {
+            exit: None,
             from: super::model::LoopJoinPortV1::Header,
             to: super::model::LoopJoinPortV1::Body,
             role: LoopJoinEdgeRoleV1::BodyEntry,
@@ -169,13 +174,28 @@ pub(super) fn elaborate_loop<V: LoopJoinRecipeView>(
         }
     }
     let body_payload = visible_payloads_from_view(recipe, key, &body_flow.bindings)?;
+    let branch_exit_items: BTreeSet<_> = branches.iter()
+        .filter(|branch| branch.owner_loop == key)
+        .flat_map(|branch| [&branch.then_arm, &branch.else_arm])
+        .filter_map(|arm| match arm {
+            LoopJoinBranchArm::Exit(exit) => Some(exit.exit_item),
+            LoopJoinBranchArm::Fallthrough { .. } => None,
+        })
+        .collect();
+    let occurrence = |item| {
+        if branch_exit_items.contains(&item) {
+            LoopJoinExitOccurrenceV1::Branch(item)
+        } else {
+            LoopJoinExitOccurrenceV1::Direct(item)
+        }
+    };
     for side_exit in &body_flow.side_exits {
         if recipe.branch_exit_target(key, side_exit.kind).is_none() {
             return Err(LoopJoinSigRejectReasonV1::UnsupportedExit {
                 item: side_exit.item,
             });
         }
-        edges.push(loop_exit_edge(side_exit.kind, side_exit.payload.clone()));
+        edges.push(loop_exit_edge(occurrence(side_exit.item), side_exit.kind, side_exit.payload.clone()));
     }
     let propagated_exit = if let Some(else_exit) = body_flow.alternate_exit {
         let then_exit = body_flow
@@ -185,6 +205,7 @@ pub(super) fn elaborate_loop<V: LoopJoinRecipeView>(
             return Err(LoopJoinSigRejectReasonV1::BranchMergeMismatch { item: then_exit.0 });
         }
         edges.push(loop_exit_edge(
+            occurrence(then_exit.0),
             then_exit.1,
             body_flow
                 .exit_payload
@@ -192,6 +213,7 @@ pub(super) fn elaborate_loop<V: LoopJoinRecipeView>(
                 .expect("primary branch exit has payload"),
         ));
         edges.push(loop_exit_edge(
+            occurrence(else_exit.0),
             else_exit.1,
             body_flow
                 .alternate_exit_payload
@@ -203,6 +225,7 @@ pub(super) fn elaborate_loop<V: LoopJoinRecipeView>(
         match body_flow.exit {
             None => {
                 edges.push(LoopJoinEdge {
+                    exit: None,
                     from: super::model::LoopJoinPortV1::Body,
                     to: super::model::LoopJoinPortV1::Header,
                     role: LoopJoinEdgeRoleV1::Backedge,
@@ -210,33 +233,13 @@ pub(super) fn elaborate_loop<V: LoopJoinRecipeView>(
                 });
                 None
             }
-            Some((item, LoopJoinExitView::Continue { target_loop })) if target_loop == key => {
-                edges.push(LoopJoinEdge {
-                    from: super::model::LoopJoinPortV1::Body,
-                    to: super::model::LoopJoinPortV1::Header,
-                    role: LoopJoinEdgeRoleV1::Continue,
-                    payload: body_payload,
-                });
-                let _ = item;
-                None
-            }
-            Some((item, LoopJoinExitView::Break { target_loop })) if target_loop == key => {
-                edges.push(LoopJoinEdge {
-                    from: super::model::LoopJoinPortV1::Body,
-                    to: super::model::LoopJoinPortV1::After,
-                    role: LoopJoinEdgeRoleV1::Break,
-                    payload: body_payload,
-                });
-                let _ = item;
+            Some((item, exit @ (LoopJoinExitView::Continue { target_loop }
+                | LoopJoinExitView::Break { target_loop }))) if target_loop == key => {
+                edges.push(loop_exit_edge(occurrence(item), exit, body_payload));
                 None
             }
             Some((item, exit @ LoopJoinExitView::Return { .. })) => {
-                edges.push(LoopJoinEdge {
-                    from: super::model::LoopJoinPortV1::Body,
-                    to: super::model::LoopJoinPortV1::FunctionExit,
-                    role: LoopJoinEdgeRoleV1::Return,
-                    payload: body_payload,
-                });
+                edges.push(loop_exit_edge(occurrence(item), exit, body_payload));
                 Some((item, exit))
             }
             Some((item, _)) => return Err(LoopJoinSigRejectReasonV1::UnsupportedExit { item }),

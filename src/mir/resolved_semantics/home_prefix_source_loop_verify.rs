@@ -583,6 +583,21 @@ impl ports::SourceLoopScanSummaryV1 {
                             visit(body, summary, input, roots, frames, exits)?;
                         }
                     }
+                    CheckedSourceLoopStatementV1::Program { site, body, normal_end } => {
+                        let statement = input.source().exact_stmt(site)
+                            .map_err(|_| "source Loop lexical statement")?;
+                        let child = input.source().child_body_from_stmt(&statement,
+                            crate::mir::resolved_semantics::BodyChildRoleV1::ProgramBody,
+                        ).map_err(|_| "source Loop lexical source")?;
+                        let scope = input.function().program_body_scope(&child.site().root())
+                            .ok_or("source Loop lexical scope")?;
+                        if child.site() != &body.site || body.terminated == normal_end.is_some()
+                            || normal_end.as_ref().is_some_and(|end| end.scope() != scope)
+                        {
+                            return Err("source Loop lexical identity");
+                        }
+                        visit(body, summary, input, roots, frames, exits)?;
+                    }
                     CheckedSourceLoopStatementV1::Loop { site, product } => {
                         if product.source.source.owner() != input.owner()
                             || product.source.source.site() != site

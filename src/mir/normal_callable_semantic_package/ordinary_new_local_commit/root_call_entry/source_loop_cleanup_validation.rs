@@ -1,7 +1,7 @@
 //! Exact source cleanup receipts through original and finishing consumers.
 //! No source operation, Home obligation or replacement Invoke is inferred from MIR.
 use super::*;
-use crate::mir::builder::EmittedSourceLoopCleanupV2;
+use crate::mir::builder::{EmittedSourceCleanupV2, EmittedSourceLoopCleanupV2};
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::{
     physical_boundary::{self, FinishedBindings},
     root_cleanup_graph::ordered_structure,
@@ -26,23 +26,20 @@ impl SourceLoopCleanupPlanV2 {
         function: &MirFunction,
         finishing: Option<&FinishedBindings>,
     ) -> Result<(), String> {
-        if !std::ptr::eq(self, &emitted.plan) {
-            return Err(freeze("source-loop/cleanup-plan-substitution"));
-        }
-        context.require_original_source_loop_v2(&self.product)?;
+        context.require_original_source_loop_v2(self.product())?;
         context.require_source_loop_parent_v2(
-            &self.product,
+            self.product(),
             context.is_finalized(),
         )?;
         let port = self
-            .product
+            .product()
             .source
             .ports
-            .get(self.port)
+            .get(self.port())
             .ok_or_else(|| freeze("source-loop/cleanup-port"))?;
         let homes: Vec<_> = self
-            .product
-            .port_fault_homes_v2(self.port)?
+            .product()
+            .port_fault_homes_v2(self.port())?
             .into_iter()
             .rev()
             .collect();
@@ -55,6 +52,21 @@ impl SourceLoopCleanupPlanV2 {
         .ok_or_else(|| freeze("source-loop/cleanup-end-unavailable"))?;
         if self.full != expected.0 || self.normal != expected.1 {
             return Err(freeze("source-loop/cleanup-source-plan-drift"));
+        }
+        self.validate_cleanup_emission(emitted, context, function, finishing)
+    }
+}
+
+impl<Exit> SourceCleanupPlanV2<Exit> {
+    pub(super) fn validate_cleanup_emission(
+        &self,
+        emitted: &EmittedSourceCleanupV2<Exit>,
+        context: CallValidationContextV1<'_>,
+        function: &MirFunction,
+        finishing: Option<&FinishedBindings>,
+    ) -> Result<(), String> {
+        if !std::ptr::eq(self, &emitted.plan) {
+            return Err(freeze("source-loop/cleanup-plan-substitution"));
         }
         if self.normal_is_empty() {
             if emitted.from != emitted.entry

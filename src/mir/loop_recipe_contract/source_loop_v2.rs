@@ -95,7 +95,8 @@ impl VerifiedSourceLoopRecipeProductV2 {
                             child.source.condition.source().nodes()[0].site().clone()),
                         product: Rc::clone(child),
                     }),
-                    SourceLoopScheduledStepV2::Exit { .. } | SourceLoopScheduledStepV2::Return { .. } => {},
+                    SourceLoopScheduledStepV2::Exit { .. } | SourceLoopScheduledStepV2::Return { .. }
+                    | SourceLoopScheduledStepV2::Program { .. } => {},
                 }
             }
         }
@@ -190,35 +191,35 @@ impl VerifiedSourceLoopRecipeProductV2 {
                     if call == site || candidate == site)))
     }
 }
+/// Visit the original checked Program nodes without flattening their source bodies.
+pub(super) fn source_programs_v2(source: &Summary) -> Vec<&Statement> {
+    let mut programs = Vec::new();
+    if let Ok(body) = &source.control {
+        body.visit(&mut |stmt| {
+            if matches!(stmt, Statement::Program { .. }) { programs.push(stmt); }
+        });
+    }
+    programs
+}
 pub(super) fn source_returns_v2(source: &Summary)
     -> Vec<&Rc<crate::mir::resolved_semantics::home_new_prefix::SourceLoopReturnV1>> {
-    fn visit<'a>(body: &'a Body, output: &mut Vec<&'a Rc<crate::mir::resolved_semantics::home_new_prefix::SourceLoopReturnV1>>) {
-        for statement in &body.statements { match statement {
-            Statement::Return(source) => output.push(source),
-            Statement::If { then_body, else_body, .. } => {
-                visit(then_body, output); if let Some(body) = else_body { visit(body, output); }
-            }
-            _ => {},
-        } }
-    }
     let mut output = Vec::new();
-    if let Ok(body) = &source.control { visit(body, &mut output); }
+    if let Ok(body) = &source.control {
+        body.visit(&mut |stmt| {
+            if let Statement::Return(row) = stmt { output.push(row); }
+        });
+    }
     output
 }
 pub(super) fn source_call_v2<'a>(source: &'a Summary, site: &SourceStmtSiteV1)
     -> Option<&'a crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1> {
-    fn visit<'a>(body: &'a Body, site: &SourceStmtSiteV1)
-        -> Option<&'a crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1> {
-        for statement in body.statements.iter() { match statement {
-            Statement::Call { site: original, observation } if original == site => return Some(observation),
-            Statement::If { then_body, else_body, .. } => {
-                if let Some(call) = visit(then_body, site).or_else(|| else_body.as_ref().and_then(|body| visit(body, site))) { return Some(call); }
-            }
-            _ => {},
-        } }
-        None
-    }
-    visit(source.control.as_ref().ok()?, site).or_else(|| {
+    let mut call = None;
+    source.control.as_ref().ok()?.visit(&mut |stmt| {
+        if let Statement::Call { site: original, observation } = stmt {
+            if original == site { call = Some(observation); }
+        }
+    });
+    call.or_else(|| {
         std::iter::once(&source.condition)
             .chain(source.body_expressions.iter().filter_map(|frame| frame.condition_frame()))
             .flat_map(|frame| frame.calls().iter())
@@ -236,22 +237,13 @@ pub(super) fn source_condition_call_v2(
 }
 pub(super) fn source_array_append_v2<'a>(source: &'a Summary, site: &SourceStmtSiteV1)
     -> Option<&'a crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1> {
-    fn find<'a>(body: &'a Body, site: &SourceStmtSiteV1)
-        -> Option<&'a crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1> {
-        for statement in &body.statements {
-            match statement {
-                Statement::OwnedArrayAppend { site: original, observation } if original == site => return Some(observation),
-                Statement::If { then_body, else_body, .. } => {
-                    if let Some(row) = find(then_body, site).or_else(|| else_body.as_ref().and_then(|body| find(body, site))) {
-                        return Some(row);
-                    }
-                }
-                _ => {}
-            }
+    let mut append = None;
+    source.control.as_ref().ok()?.visit(&mut |stmt| {
+        if let Statement::OwnedArrayAppend { site: original, observation } = stmt {
+            if original == site { append = Some(observation); }
         }
-        None
-    }
-    find(source.control.as_ref().ok()?, site)
+    });
+    append
 }
 /// A borrowed outer Text input retains the original live acquisition. A
 /// readonly role alone cannot turn an iteration-local residence into an input.
@@ -718,21 +710,21 @@ fn validate_incoming(source: &Summary, recipe: &VerifiedLoopRecipeV2, closure: &
                 }
                 _ => return Err(reject("incoming-producer")),
             }};
-            with_incoming_payload_v2(recipe, closure, control, &original.edge, |payload|
+            with_incoming_payload_v2(recipe, &view, control, &original.edge, |payload|
                 validate_payload_value_v2(payload, *binding, expected, carrier.class, incoming.len()))?;
         }
     }
     Ok(())
 }
 
-/// Borrow one exact executable JoinSig transfer; summary edges never execute.
-fn with_incoming_payload_v2<R>(recipe: &VerifiedLoopRecipeV2, closure: &Closure,
+/// Match the original Resolve exit to its exact logical Recipe occurrence.
+fn with_incoming_payload_v2<R>(recipe: &VerifiedLoopRecipeV2,
+    view: &super::join_sig::LoopJoinLogicalTransferCollectionViewV2<'_>,
     control: &[SourceLoopItemV2], edge: &crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1,
     read: impl FnOnce(&[super::join_sig::LoopJoinPayloadV2]) -> Result<R, String>,
 ) -> Result<R, String> {
     use crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1 as Edge;
-    use super::join_sig::{LoopJoinEdgeRoleV1 as Role, LoopJoinBranchArmTransferRefV2 as Arm};
-    let view = closure.logical_transfer_view().map_err(|reason| format!("{} {reason:?}", reject("transfer-view")))?;
+    use super::join_sig::LoopJoinEdgeRoleV1 as Role;
     let payload = |edge: &Edge| -> Result<&[super::join_sig::LoopJoinPayloadV2], String> {
         let role = match edge {
             Edge::LoopEntry => Role::Enter,
@@ -746,12 +738,9 @@ fn with_incoming_payload_v2<R>(recipe: &VerifiedLoopRecipeV2, closure: &Closure,
             let mut items = control.iter().filter(|row| &row.site == site);
             let item = items.next().ok_or_else(|| reject("incoming-exit-source"))?;
             if items.next().is_some() { return Err(reject("incoming-exit-duplicate")); }
-            let mut exits = view.branches().iter().flat_map(|branch| [branch.then_arm, branch.else_arm])
-                .filter_map(|arm| match arm {
-                    Arm::Exit(exit) if exit.exit_item == item.item && exit.role == role => Some(exit.payload),
-                    _ => None,
-                });
-            let payload = exits.next().ok_or_else(|| reject("incoming-exit-transfer"))?;
+            let mut exits = view.summary_transfers().iter().filter(|row|
+                row.loop_key == recipe.root_loop() && row.exit_item == item.item && row.role == role);
+            let payload = exits.next().ok_or_else(|| reject("incoming-exit-transfer"))?.payload;
             if exits.next().is_some() { return Err(reject("incoming-exit-transfer-duplicate")); }
             Ok(payload)
         } else {

@@ -102,11 +102,11 @@ pub(crate) fn issue_loop_expression_fault_continuation_v1(
     if target != function.function_region() || function.region(roots.body_pair().region())
         .and_then(|region| region.parent()) != Some(target) { return Err("loop-expression-fault/function-target"); }
     let mut crossed = if is_body {
-        let mut scopes = prove_branch_scope_ancestry(function, scope, pair.scope())?.into_vec();
+        let mut scopes = prove_outward_scope_ancestry(function, scope, pair.scope())?.into_vec();
         scopes.push(pair.scope());
-        scopes.extend_from_slice(&prove_branch_scope_ancestry(function, parent, roots.body_pair().scope())?);
+        scopes.extend_from_slice(&prove_outward_scope_ancestry(function, parent, roots.body_pair().scope())?);
         scopes
-    } else { prove_branch_scope_ancestry(function, scope, roots.body_pair().scope())?.into_vec() };
+    } else { prove_outward_scope_ancestry(function, scope, roots.body_pair().scope())?.into_vec() };
     // No repeated scope can masquerade as an outward path.
     let mut unique = std::collections::BTreeSet::new();
     if crossed.iter().any(|scope| !unique.insert(*scope)) { return Err("loop-expression-fault/scope-cycle"); }

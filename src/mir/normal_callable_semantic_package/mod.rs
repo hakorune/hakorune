@@ -310,7 +310,7 @@ pub(crate) use ordinary_new_coseal::EmittedOwnedArrayHolderV1;
 pub(in crate::mir) use ordinary_new_coseal::{
     borrowed_source_loop_phi_relations_v2, BoolConditionCursorV1, BoolConditionNodeProjectionV1,
     BoolConditionSealV1, BoolConditionValueProofV1, EmittedBoolConditionProjectionV1,
-    SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2,
+    SourceCleanupPlanV2, SourceLoopCleanupPlanV2, SourceLoopExitV2, SourceLoopPhysicalProofV2,
 };
 
 pub(in crate::mir) use ordinary_new_coseal::CallValidationContextV1;

@@ -107,32 +107,25 @@ pub(crate) fn issue_new_fault_continuation_v1(
 }
 
 /// Prove that `scope` descends from the root body scope through verified
-/// If-region branch scopes only, returning the crossed scopes innermost
-/// first. Any other ancestry shape is unproven and rejected.
-fn prove_branch_scope_ancestry(
+/// verified If branches and naked lexical blocks, innermost first.
+fn prove_outward_scope_ancestry(
     function: &crate::mir::resolved_semantics::VerifiedResolvedFunctionV1,
     scope: crate::mir::resolved_semantics::ScopeId,
     body_scope: crate::mir::resolved_semantics::ScopeId,
 ) -> Result<Box<[crate::mir::resolved_semantics::ScopeId]>, &'static str> {
-    let mut crossed = Vec::new();
-    let mut cursor = scope;
-    while cursor != body_scope {
+    let crossed = function.scopes_until(scope, body_scope)
+        .ok_or("outward-function-target-mismatch")?;
+    for &cursor in &crossed {
         let proven_branch = function.if_region_sites().any(|site| {
             function.if_region_bundle(site).is_ok_and(|bundle| {
                 bundle.then_pair().scope() == cursor
-                    || bundle
-                        .else_pair()
-                        .is_some_and(|pair| pair.scope() == cursor)
+                    || bundle.else_pair().is_some_and(|pair| pair.scope() == cursor)
             })
         });
-        if !proven_branch {
+        let proven_block = function.program_body_root(cursor).is_some();
+        if !proven_branch && !proven_block {
             return Err("outward-function-target-mismatch");
         }
-        crossed.push(cursor);
-        cursor = function
-            .scope(cursor)
-            .and_then(|row| row.parent())
-            .ok_or("outward-function-target-mismatch")?;
     }
     Ok(crossed.into_boxed_slice())
 }
@@ -222,7 +215,7 @@ fn issue_destinationless_new_fault_v1(
     // A return-position `new` may live inside a verified If branch: the
     // ancestry between its scope and the root body scope must prove out
     // through verified branch scope pairs, innermost first.
-    let crossed_scopes = prove_branch_scope_ancestry(function, scope, roots.body_pair().scope())?;
+    let crossed_scopes = prove_outward_scope_ancestry(function, scope, roots.body_pair().scope())?;
     Ok(NewFaultContinuationV1 {
         site: site.clone(),
         source_scope: scope,

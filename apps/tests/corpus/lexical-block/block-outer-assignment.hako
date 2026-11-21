@@ -1,0 +1,10 @@
+// Expected stdout: Result: 7. Expected exit: 7.
+static box Main {
+  main() {
+    local n = 2
+    {
+      n = n + 5
+    }
+    return n
+  }
+}

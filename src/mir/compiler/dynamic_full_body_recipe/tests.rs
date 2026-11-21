@@ -2,7 +2,7 @@ use crate::ast::ASTNode;
 use crate::mir::loop_recipe_contract::{
     issue_sole_root_carrier_join_closure_v2, LoopBindingKeyV1, LoopCarrierKeyV1, LoopExitKindV2,
     LoopItemKeyV1, LoopJoinBranchArmV2, LoopJoinBranchExitTargetV2, LoopJoinClosureRejectV2,
-    LoopJoinEdgeRoleV1, LoopJoinEdgeV2, LoopJoinPayloadV2, LoopJoinPortBindingV2, LoopJoinPortV1,
+    LoopJoinEdgeRoleV1, LoopJoinEdgeV2, LoopJoinExitOccurrenceV1, LoopJoinPayloadV2, LoopJoinPortBindingV2, LoopJoinPortV1,
     LoopNodeKeyV1, LoopOperationV2, LoopRecipeBindingV2, LoopRecipeCarrierV2, LoopRecipeItemV2,
     LoopRecipeV2RejectReason, LoopRecipeValueV2, LoopRecipeVerifierV2, LoopValueClassV2,
     LoopValueKeyV1,
@@ -154,30 +154,35 @@ fn unchanged_dynamic_recipe_has_exact_typed_joinsig() {
                 LoopJoinPortV1::Header,
                 LoopJoinEdgeRoleV1::Enter,
                 entry.clone(),
+                None,
             ),
             edge(
                 LoopJoinPortV1::Header,
                 LoopJoinPortV1::Body,
                 LoopJoinEdgeRoleV1::PredicateTrue,
                 entry.clone(),
+                None,
             ),
             edge(
                 LoopJoinPortV1::Header,
                 LoopJoinPortV1::After,
                 LoopJoinEdgeRoleV1::PredicateFalse,
                 entry.clone(),
+                None,
             ),
             edge(
                 LoopJoinPortV1::Body,
                 LoopJoinPortV1::FunctionExit,
                 LoopJoinEdgeRoleV1::Return,
                 entry.clone(),
+                Some(LoopJoinExitOccurrenceV1::Branch(LoopItemKeyV1::new(12))),
             ),
             edge(
                 LoopJoinPortV1::Body,
                 LoopJoinPortV1::Header,
                 LoopJoinEdgeRoleV1::Backedge,
                 backedge,
+                None,
             ),
         ]
     );
@@ -352,8 +357,10 @@ fn edge(
     to: LoopJoinPortV1,
     role: LoopJoinEdgeRoleV1,
     payload: LoopJoinPayloadV2,
+    exit: Option<LoopJoinExitOccurrenceV1>,
 ) -> LoopJoinEdgeV2 {
     LoopJoinEdgeV2 {
+        exit,
         from,
         to,
         role,

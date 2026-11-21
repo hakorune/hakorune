@@ -386,6 +386,52 @@ impl VerifiedResolvedFunctionV1 {
         &self.core.normalized
     }
 
+    /// The exact lexical scope created for an original naked block body.
+    pub(crate) fn program_body_scope(
+        &self,
+        body: &super::source_site::SourceNodeSiteV1,
+    ) -> Option<ScopeId> {
+        if body.segments().last() != Some(&SourcePathSegmentV1::ProgramBodyRoot) {
+            return None;
+        }
+        let mut matches = self.scopes().filter(|(id, _)| self.program_body_root(*id) == Some(body));
+        let (id, _) = matches.next()?;
+        matches.next().is_none().then_some(id)
+    }
+
+    pub(crate) fn program_body_root(&self, scope: ScopeId) -> Option<&super::source_site::SourceNodeSiteV1> {
+        let record = self.scope(scope)?;
+        let ScopeOriginV1::Source(body) = record.origin() else {
+            return None;
+        };
+        let region = self.region(record.owner_region())?;
+        (record.kind() == ScopeKindV1::LexicalBlock
+            && body.segments().last() == Some(&SourcePathSegmentV1::ProgramBodyRoot)
+            && region.kind() == RegionKindV1::LexicalScope
+            && region.lexical_scope() == Some(scope)
+            && matches!(region.origin(), RegionOriginV1::Source(root) if root == body))
+            .then_some(body)
+    }
+
+    /// Lexical scopes crossed between an exact source point and its target,
+    /// innermost first. The target itself remains live.
+    pub(crate) fn scopes_until(
+        &self,
+        start: ScopeId,
+        target: ScopeId,
+    ) -> Option<Vec<ScopeId>> {
+        self.scope(target)?;
+        let mut scopes = Vec::new();
+        let mut cursor = start;
+        while cursor != target {
+            // The resolved scope graph is checked for cycles at seal time.
+            let parent = self.scope(cursor)?.parent()?;
+            scopes.push(cursor);
+            cursor = parent;
+        }
+        Some(scopes)
+    }
+
     pub(crate) fn exact_scope_containing(
         &self,
         site: &super::source_site::SourceNodeSiteV1,

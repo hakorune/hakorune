@@ -630,7 +630,7 @@ impl CallValidationContextV1<'_> {
 
 #[path = "source_loop_cleanup.rs"]
 mod cleanup;
-pub(in crate::mir) use cleanup::SourceLoopCleanupPlanV2;
+pub(in crate::mir) use cleanup::{SourceCleanupPlanV2, SourceLoopCleanupPlanV2, SourceLoopExitV2};
 
 #[path = "source_loop_frame_validation.rs"]
 mod frames;

@@ -114,6 +114,7 @@ impl From<SourceStmtSiteV1> for RootHomeExitKeyV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct RootHomeFlow {
+    pub(super) lexical_ends: super::LexicalBodyEndsV1,
     pub(super) named_arrays: Vec<super::NamedArrayHomeObservationV1>,
     /// One site-bound obligation per verified explicit exit. A completion
     /// with no statement site (implicit body end) keeps the obligation

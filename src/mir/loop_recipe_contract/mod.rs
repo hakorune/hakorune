@@ -207,7 +207,7 @@ pub(crate) use internal_declaration::LoopInternalDeclarationModeV1;
 pub(crate) use join_sig::{
     issue_sole_root_carrier_join_closure_v2, LoopJoinBranchArmTransferRefV2, LoopJoinBranchArmV2,
     LoopJoinBranchExitRefV2, LoopJoinBranchExitTargetV2, LoopJoinClosureRejectV2,
-    LoopJoinEdgeRoleV1, LoopJoinEdgeV2, LoopJoinLogicalTransferRejectV2,
+    LoopJoinEdgeRoleV1, LoopJoinEdgeV2, LoopJoinExitOccurrenceV1, LoopJoinLogicalTransferRejectV2,
     LoopJoinLogicalTransferViewV2, LoopJoinNextItemV1, LoopJoinPayloadV2, LoopJoinPortBindingV2,
     LoopJoinPortV1, LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1, LoopJoinSigV1,
     VerifiedLoopJoinClosureV2, VerifiedLoopJoinSigV1,

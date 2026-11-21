@@ -467,20 +467,9 @@ fn crossed_scopes(
     if input.function().scope(target)?.kind() != ScopeKindV1::LoopBody {
         return None;
     }
-    let mut current = start;
-    let mut crossed = Vec::new();
-    let mut seen = BTreeSet::new();
-    while seen.insert(current) {
-        if current.owner() != input.owner() {
-            return None;
-        }
-        crossed.push(current);
-        if current == target {
-            return Some(crossed.into_boxed_slice());
-        }
-        current = input.function().scope(current)?.parent()?;
-    }
-    None
+    let mut crossed = input.function().scopes_until(start, target)?;
+    crossed.push(target);
+    Some(crossed.into_boxed_slice())
 }
 
 impl PrefixLocalFlow<'_> {
@@ -586,6 +575,15 @@ impl PrefixLocalFlow<'_> {
                 normal_ends.push(home.clone());
             }
         }
+        let function = self.input.function();
+        let crosses_program = crossed.iter().any(|&scope| function.program_body_root(scope).is_some());
+        let unavailable = if crosses_program
+            && self.has_conditional_text_end_v1(&crossed, !normal_ends.is_empty())
+        {
+            unavailable.clone().or(Some(super::super::super::HomePrefixUnavailableV1::LexicalCarrierEndUnproved))
+        } else {
+            unavailable.clone()
+        };
         context.ports.borrow_mut().push(SourceLoopPortSnapshotV1 {
             kind,
             locals: self.locals.clone(),
@@ -594,7 +592,7 @@ impl PrefixLocalFlow<'_> {
             normal_ends: normal_ends.into_boxed_slice(),
             covered: covered.to_vec().into_boxed_slice(),
             calls: calls.clone(),
-            unavailable: unavailable.clone(),
+            unavailable,
         });
         true
     }

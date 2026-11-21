@@ -2,7 +2,7 @@
 //! Each operation is localized at its actual Invoke block, never at entry.
 use super::*;
 use std::rc::Rc;
-use crate::mir::normal_callable_semantic_package::SourceLoopCleanupPlanV2;
+use crate::mir::normal_callable_semantic_package::{SourceCleanupPlanV2, SourceLoopExitV2};
 use crate::mir::builder::ssa::local::{self, LocalKind, LocalSsaPhysicalRelationV1};
 
 #[derive(Debug)]
@@ -12,8 +12,8 @@ pub(in crate::mir) struct CleanupOperationLoanV2 {
     pub(in crate::mir) operands: Vec<Rc<LocalSsaPhysicalRelationV1>>,
 }
 #[derive(Debug)]
-pub(in crate::mir) struct EmittedSourceLoopCleanupV2 {
-    pub(in crate::mir) plan: SourceLoopCleanupPlanV2,
+pub(in crate::mir) struct EmittedSourceCleanupV2<Exit> {
+    pub(in crate::mir) plan: SourceCleanupPlanV2<Exit>,
     pub(in crate::mir) from: BasicBlockId,
     pub(in crate::mir) entry: BasicBlockId,
     pub(in crate::mir) continuation: BasicBlockId,
@@ -22,14 +22,16 @@ pub(in crate::mir) struct EmittedSourceLoopCleanupV2 {
     pub(in crate::mir) normal_origins: Vec<(BasicBlockId, MirInstruction)>,
 }
 
+pub(in crate::mir) type EmittedSourceLoopCleanupV2 = EmittedSourceCleanupV2<SourceLoopExitV2>;
+
 /// Calls the sole cleanup algorithm after the source plan's ledger borrow has
 /// ended. The caller owns the actual continuation and emits its final Jump.
-pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder,
-    state: &mut CallableSemanticLoweringState, plan: SourceLoopCleanupPlanV2,
-) -> Result<EmittedSourceLoopCleanupV2, String> {
+pub(in crate::mir::builder) fn emit<Exit>(builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState, plan: SourceCleanupPlanV2<Exit>,
+) -> Result<EmittedSourceCleanupV2<Exit>, String> {
     let from = builder.function_state.current_block.ok_or_else(|| freeze("source-loop/cleanup-block"))?;
     if plan.normal_is_empty() {
-        return Ok(EmittedSourceLoopCleanupV2 { plan, from, entry: from, continuation: from,
+        return Ok(EmittedSourceCleanupV2 { plan, from, entry: from, continuation: from,
             bindings: Vec::new(), operations: Vec::new(), normal_origins: Vec::new() });
     }
     let frame = state.borrow_fault_frame(builder)?;
@@ -44,7 +46,7 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder,
     let jump = writer.emit_current(builder, MirInstruction::Jump { target: graph.clean, edge_args: None })?;
     bindings.push(jump);
     builder.start_new_block(continuation)?;
-    Ok(EmittedSourceLoopCleanupV2 { plan, from, entry: graph.clean, continuation,
+    Ok(EmittedSourceCleanupV2 { plan, from, entry: graph.clean, continuation,
         bindings, operations: writer.operations, normal_origins: graph.normal_origins })
 }
 

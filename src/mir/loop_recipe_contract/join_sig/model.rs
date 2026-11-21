@@ -69,8 +69,17 @@ impl<C: Copy> VerifiedLoopAfterBinding<C> {
     }
 }
 
+/// The co-sealed source of an explicit edge. A branch occurrence requires
+/// the corresponding arm receipt when a logical transfer is borrowed.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum LoopJoinExitOccurrenceV1 {
+    Direct(LoopItemKeyV1),
+    Branch(LoopItemKeyV1),
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct LoopJoinEdge<C> {
+    pub(crate) exit: Option<LoopJoinExitOccurrenceV1>,
     pub(crate) from: LoopJoinPortV1,
     pub(crate) to: LoopJoinPortV1,
     pub(crate) role: LoopJoinEdgeRoleV1,
