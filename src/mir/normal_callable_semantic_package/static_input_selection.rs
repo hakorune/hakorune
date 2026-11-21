@@ -22,6 +22,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .filter(|original| {
                 original.parameters().iter().any(|formal| formal.takes_declared_object_v1())
                     || prepared.original_finite_forward_input_request_v1(original.callee_owner())
+                    || prepared.has_tagged_static_input_v1(original.callee_owner(), original.parameters())
                     || original.parameters().iter().any(|formal|
                         matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
                             && prepared.source_value_sum_v1(formal.binding).is_some_and(|sum|
@@ -202,10 +203,36 @@ impl OrdinaryNewClaimLedgerV1 {
             .collect())
     }
 
+    /// Static Loop entry selection remains authoritative even while its
+    /// one-use packet is pending or has already been consumed.
+    fn has_selected_static_loop_input_v1(&self, owner: FunctionOwnerIdV1) -> bool {
+        self.loop_static_source_loop_sites.iter().any(|(selected, _)| *selected == owner)
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn allows_general_tagged_static_input_v1(
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
+    ) -> bool {
+        !self.has_selected_static_loop_input_v1(owner)
+            && !self.static_expression_input_owner_v1(source, owner, false)
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn is_static_expression_input_owner_v1(
         &self,
         source: &PreparedBorrowedFormalIngressV1,
         owner: FunctionOwnerIdV1,
+    ) -> bool {
+        self.static_expression_input_owner_v1(
+            source, owner, !self.has_selected_static_loop_input_v1(owner),
+        )
+    }
+
+    fn static_expression_input_owner_v1(
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
+        allow_tagged: bool,
     ) -> bool {
         source.source_incoming.source_rows_v1().filter(|row| row.callee == owner).any(|row| {
             let source_input = match &row.source {
@@ -258,7 +285,8 @@ impl OrdinaryNewClaimLedgerV1 {
                         || original.has_exact_i64_inputs_v1()
                             && self.observes_static_result_v1(original,
                                 crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Text);
-                    finite_forward || text_source || scalar_expression_source || exact_input_text
+                    (allow_tagged && source.has_tagged_static_input_v1(owner, original.parameters()))
+                        || finite_forward || text_source || scalar_expression_source || exact_input_text
                         || original.parameters().iter().any(|formal| formal.takes_declared_object_v1())
                 }
                 _ => false,
@@ -278,6 +306,11 @@ impl OrdinaryNewClaimLedgerV1 {
         source: &PreparedBorrowedFormalIngressV1,
         contract: &OwnedCallableParameterContractDeclarationV1,
     ) -> Option<Box<[super::super::borrowed_formal_entry::BorrowedFormalDomainV1]>> {
+        if source.has_tagged_static_input_v1(contract.owner, &contract.parameters)
+            && self.allows_general_tagged_static_input_v1(source, contract.owner)
+        {
+            return Some(Box::new([]));
+        }
         contract
             .parameters
             .iter()

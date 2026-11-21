@@ -100,6 +100,18 @@ pub(in crate::mir::normal_callable_semantic_package) fn original_static_source_v
 }
 
 impl PreparedBorrowedFormalIngressV1 {
+    /// Retain the original target and its input choice before any result
+    /// consumer asks for ordered arguments.
+    pub(in crate::mir::normal_callable_semantic_package) fn has_tagged_static_source_call_v1(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Result<bool, String> {
+        Ok(original_static_source_v1(self, site)?
+            .is_some_and(|original| self.has_tagged_static_input_v1(
+                original.callee_owner(), original.parameters(),
+            )))
+    }
+
     /// Source projection uses the same original destination purpose as admission.
     pub(in crate::mir::normal_callable_semantic_package) fn has_finite_forward_source_call_v1(
         &self,
@@ -254,6 +266,8 @@ pub(super) fn selects_static_expression_source_v1(
                     .contains(&super::super::borrowed_formal_source::SourceValueAlternativeV1::Text)
         })
     };
+    let tagged_forward = original.is_some_and(|source|
+        prepared.has_tagged_static_input_v1(source.callee_owner(), source.parameters()));
     let source_expression = actuals.iter().any(|actual| match actual.value {
         BorrowedCallActualValueV1::Expression
         | BorrowedCallActualValueV1::String(_)
@@ -281,7 +295,8 @@ pub(super) fn selects_static_expression_source_v1(
     let ordinary_input_source = original.is_some_and(|source|
         source.qualified_scalar_result_v1().is_some()
             && crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1::owning_ordinary_source_input_cohort_v1(source.parameters()));
-    Ok(original.is_some() && (core_source || source_expression || sibling_source || ordinary_input_source))
+    Ok(original.is_some()
+        && (core_source || source_expression || sibling_source || ordinary_input_source || tagged_forward))
 }
 
 pub(super) fn prepare_static_source_actuals_v1(
@@ -488,6 +503,12 @@ fn prepare_original_static_source_actuals_v1(
                     .contains_key(&(call.clone(), actual.ordinal))
                 {
                     prepared.candidate_integer_agreement(*root)
+                } else if super::static_selected_actual::original_tagged_forward_source_v1(
+                    prepared, source, actual,
+                ).is_some() {
+                    // A newly supported entry read forwards the existing
+                    // pair without supplying a scalar proof.
+                    false
                 } else if binding.owner() == call.owner()
                     && root.owner() == call.owner()
                     && formal.kind.is_ordinary_borrowed_handle()

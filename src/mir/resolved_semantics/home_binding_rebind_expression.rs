@@ -43,6 +43,9 @@ impl CheckedBindingRebindFrameV1 {
     pub(crate) fn target(&self) -> BindingRefV1 {
         self.target
     }
+    pub(crate) fn is_trivial_scalar_rebind_v1(&self) -> bool {
+        matches!(self.destination, BindingRebindDestinationV1::Integer | BindingRebindDestinationV1::Bool)
+    }
     pub(crate) fn is_text_residence(&self) -> bool {
         matches!(
             self.destination,

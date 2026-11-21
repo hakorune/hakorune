@@ -401,6 +401,62 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("static-input/requested-incoming-missing"))
     }
 
+    /// Original source reads fulfilled by an ordered static argument. The
+    /// call packet still checks the final reaching SSA value and its live entry.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn tagged_static_argument_reads_v1(
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<std::collections::BTreeSet<(SourceExprSiteV1, BindingRefV1)>, String> {
+        let mut reads = std::collections::BTreeSet::new();
+        for row in source.source_incoming.source_rows_v1().filter(|row| row.call.owner() == owner) {
+            let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) = &row.source else {
+                continue;
+            };
+            let Some(snapshot) = self.borrowed_formal_actuals.get(&row.call)
+                .and_then(|rows| rows.as_ref().ok())
+                .and_then(PreparedBorrowedCallActualsV1::source_static_snapshot_v1) else {
+                continue;
+            };
+            let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &snapshot.phase else {
+                continue;
+            };
+            if !Rc::ptr_eq(&identity.source, original) {
+                continue;
+            }
+            let mut forwarded = identity.candidates.iter().filter_map(|candidate| {
+                let BorrowedFormalActualSourceV1::Forwarded { binding, .. } =
+                    super::static_selected_actual::original_tagged_forward_source_v1(
+                        source, original, candidate,
+                    )?
+                else {
+                    return None;
+                };
+                Some((candidate, binding))
+            }).peekable();
+            if forwarded.peek().is_none() {
+                continue;
+            }
+            // Validate the retained call and its child plans once for all
+            // forwarded reads. Each argument still has its own site check.
+            super::static_source::validate_static_source_actuals_v1(
+                source, snapshot, &row.call, original.required_i64_arguments(),
+            )?;
+            for (candidate, binding) in forwarded {
+                if !matches!(snapshot.ordered_arguments.get(candidate.ordinal as usize),
+                    Some(LocalCallArgumentV1::BorrowedActual { ordinal, site })
+                        if *ordinal == candidate.ordinal && *site == candidate.site)
+                {
+                    return Err(freeze("static-input/qualified-use-identity"));
+                }
+                if !reads.insert((candidate.site.clone(), binding)) {
+                    return Err(freeze("static-input/read-use-duplicate-or-foreign"));
+                }
+            }
+        }
+        Ok(reads)
+    }
+
     pub(super) fn checked_static_expression_actuals_v1(
         &self,
         source: &PreparedBorrowedFormalIngressV1,
@@ -438,8 +494,17 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 continue;
             }
-            let actual = match &candidate.value {
-                BorrowedCallActualValueV1::FreshConstruction(construction) => {
+            let forwarded = super::static_selected_actual::original_tagged_forward_source_v1(
+                source, original, candidate,
+            );
+            let actual = match (&candidate.value, forwarded) {
+                (_, Some(source)) => PreparedBorrowedFormalActualV1 {
+                    ordinal: formal.ordinal,
+                    site: candidate.site.clone(),
+                    formal: formal.binding,
+                    source,
+                },
+                (BorrowedCallActualValueV1::FreshConstruction(construction), None) => {
                     let acquisition =
                         OwnedExprSiteV1::new(call.call.owner(), candidate.site.clone());
                     let accepted = self.with_result_new_source_v1(&acquisition, |new| {
@@ -466,7 +531,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         },
                     }
                 }
-                BorrowedCallActualValueV1::Home { .. } => PreparedBorrowedFormalActualV1 {
+                (BorrowedCallActualValueV1::Home { .. }, None) => PreparedBorrowedFormalActualV1 {
                     ordinal: formal.ordinal,
                     site: candidate.site.clone(),
                     formal: formal.binding,
@@ -474,25 +539,25 @@ impl OrdinaryNewClaimLedgerV1 {
                         .prepare_home_actual_v1(&call.call, formal, candidate)?
                         .ok_or_else(|| freeze("static-input/argument-frame-missing"))?,
                 },
-                BorrowedCallActualValueV1::Integer(value) => PreparedBorrowedFormalActualV1 {
+                (BorrowedCallActualValueV1::Integer(value), None) => PreparedBorrowedFormalActualV1 {
                     ordinal: formal.ordinal,
                     site: candidate.site.clone(),
                     formal: formal.binding,
                     source: BorrowedFormalActualSourceV1::Integer(*value),
                 },
-                BorrowedCallActualValueV1::Bool(value) => PreparedBorrowedFormalActualV1 {
+                (BorrowedCallActualValueV1::Bool(value), None) => PreparedBorrowedFormalActualV1 {
                     ordinal: formal.ordinal,
                     site: candidate.site.clone(),
                     formal: formal.binding,
                     source: BorrowedFormalActualSourceV1::Bool(*value),
                 },
-                BorrowedCallActualValueV1::Null => PreparedBorrowedFormalActualV1 {
+                (BorrowedCallActualValueV1::Null, None) => PreparedBorrowedFormalActualV1 {
                     ordinal: formal.ordinal,
                     site: candidate.site.clone(),
                     formal: formal.binding,
                     source: BorrowedFormalActualSourceV1::Null,
                 },
-                BorrowedCallActualValueV1::Scalar(binding, kind) => {
+                (BorrowedCallActualValueV1::Scalar(binding, kind), None) => {
                     PreparedBorrowedFormalActualV1 {
                         ordinal: formal.ordinal,
                         site: candidate.site.clone(),
@@ -503,7 +568,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         },
                     }
                 }
-                BorrowedCallActualValueV1::SelfRooted { .. }
+                (BorrowedCallActualValueV1::SelfRooted { .. }, None)
                     if source
                         .static_arguments
                         .contains_key(&(call.call.clone(), formal.ordinal)) =>

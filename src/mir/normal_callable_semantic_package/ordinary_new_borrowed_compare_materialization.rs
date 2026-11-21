@@ -108,6 +108,17 @@ impl OrdinaryNewClaimLedgerV1 {
             // Input execution/Completion is demanded by their later consumers.
             return Ok(Some(view.definition));
         }
+        for row in source.source_incoming.source_rows_v1().filter(|row| row.callee == owner) {
+            use super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1;
+            let BorrowedIncomingSourceV1::Static(original) = &row.source else {
+                continue;
+            };
+            if source.has_tagged_static_input_v1(owner, original.parameters())
+                && self.checked_completed_static_expression_input_v1(original)?.is_some()
+            {
+                return Ok(Some(definition));
+            }
+        }
         if self
             .checked_completed_static_scalar_cohort_v1(source, owner)?
             .is_none()

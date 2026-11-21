@@ -1,0 +1,14 @@
+// check changes i from 2 to 5 before passing it. Expected exit 0.
+static box Main {
+    small(v) {
+        if v < 3 { return 1 }
+        return 0
+    }
+    check(i) {
+        i = 5
+        return Main.small(i)
+    }
+    main() {
+        return Main.check(2)
+    }
+}

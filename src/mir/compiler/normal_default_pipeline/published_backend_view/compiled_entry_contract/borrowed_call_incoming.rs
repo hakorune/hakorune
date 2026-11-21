@@ -256,8 +256,9 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
             } else {
                 Box::new([])
             };
-            uses.call(caller, (block, index), actuals, copies, &caller_entry)?;
-            uses.guarded_call(row.call_site(), caller, (block, index), actuals, &caller_entry)?;
+            let origins = source.borrowed_call_entry_origins_v1(row.call_site(), actuals, &caller_entry)?;
+            uses.call(caller, (block, index), copies, &caller_entry, &origins)?;
+            uses.guarded_call(row.call_site(), caller, (block, index), origins)?;
             original.insert(row.call_site().clone());
             let mut callers = program
                 .functions()

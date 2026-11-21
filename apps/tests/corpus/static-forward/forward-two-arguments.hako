@@ -1,0 +1,14 @@
+// callee receives a=2 and b=5; the first condition is true. Expected exit 17.
+static box Main {
+    compare(a, b) {
+        if a < 3 { return 17 }
+        if b < 3 { return 27 }
+        return 11
+    }
+    forward(x, y) {
+        return Main.compare(x, y)
+    }
+    main() {
+        return Main.forward(2, 5)
+    }
+}

@@ -399,6 +399,46 @@ impl OriginalFormalUseSourceV1 {
     ) -> &[(OwnedExprSiteV1, BindingRefV1, bool)] {
         &self.captures
     }
+    /// The unannotated formal whose received pair actually reaches this read.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn tagged_entry_at_v1(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<(BindingRefV1, BindingRefV1)> {
+        let (binding, formal) = self.tagged_argument_read_v1(site)?;
+        Some((binding, formal?))
+    }
+
+    /// A direct read of a reassigned formal still uses the ordinary input
+    /// path, but owes its current producer rather than an entry pair.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn tagged_argument_read_v1(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<(BindingRefV1, Option<BindingRefV1>)> {
+        let reference = |site: &SourceExprSiteV1| {
+            self.reads
+                .iter()
+                .find(|(at, _)| at == site)
+                .map(|(_, reference)| *reference)
+        };
+        let ResolvedLexicalRefV1::Local(binding) = reference(site)? else {
+            return None;
+        };
+        let flow = self.flow.as_ref()?;
+        let point = flow.read(site, binding)?;
+        let unannotated = |formal| self.parameters.iter().any(|(_, original, kind)| {
+            *original == formal && *kind == CallableParameterContractKindV1::OpaqueHandle
+        });
+        let entry = flow.alias_entry_origin(point, reference).filter(|formal| unannotated(*formal));
+        (entry.is_some() || unannotated(binding)).then_some((binding, entry))
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn has_declared_entry_initializer_v1(&self) -> bool {
+        self.initializers.iter().any(|initializer| {
+            initializer.declared_type_name().is_some()
+                && initializer.initializer_site().is_some_and(|site| self.tagged_entry_at_v1(site).is_some())
+        })
+    }
+
     /// Exact retained initializer and current source flow, not raw read membership.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn initializer_entry_alias_v1(
         &self, initializer: &ResolvedInitializerRelationV1, source_binding: Option<BindingRefV1>,

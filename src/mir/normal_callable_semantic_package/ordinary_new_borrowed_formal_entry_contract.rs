@@ -13,7 +13,8 @@ pub(super) struct BorrowedEntryStructureV1<'a> {
 #[derive(Debug)]
 pub(super) enum EntryStructureEvidenceV1<'a> {
     Uses(BorrowedEntryOwnerViewV1<'a>),
-    FiniteInput {
+    OriginalInputs {
+        tagged: bool,
         uses: Rc<super::super::borrowed_formal_uses::OriginalFormalUseSourceV1>,
         incoming: Box<[&'a super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1]>,
         domains: BTreeMap<BindingRefV1, Rc<super::super::borrowed_formal_source::SourceValueSumV1>>,
@@ -46,13 +47,19 @@ impl OrdinaryNewClaimLedgerV1 {
             != structure.formals.iter().map(|(_, formal)| *formal).collect() {
             return Err(freeze("static-input/original-use-contract"));
         }
-        if let EntryStructureEvidenceV1::FiniteInput { uses: retained, .. } = &structure.evidence {
+        if let EntryStructureEvidenceV1::OriginalInputs { uses: retained, .. } = &structure.evidence {
             if !Rc::ptr_eq(uses, retained) { return Err(freeze("static-input/original-use-identity")); }
         }
         // These remain explicit obligations until their own source/control
         // owners can lend a complete proof; no empty-use draft substitutes.
         if !uses.captures().is_empty() { input_use_pending!("captures") }
         let mut origins = uses.roots().clone();
+        let tagged = matches!(structure.evidence, EntryStructureEvidenceV1::OriginalInputs { tagged: true, .. });
+        let tagged_reads = if tagged {
+            self.tagged_entry_source_reads_v1(structure.source, contract.owner, &structure.formals, uses)?
+        } else {
+            BTreeSet::new()
+        };
         let mut covered = BTreeSet::new();
         let flow = self.completion_for_owner(contract.owner).and_then(|completion| completion.cleanup().root_flow());
         for initializer in uses.initializers() {
@@ -95,7 +102,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if let Some(frame) = plan.rebind_frame() {
                 let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment }
                     = frame.source().root() else { return Err(freeze("static-input/qualified-use-identity")) };
-                if origins.contains_key(&frame.target())
+                if origins.contains_key(&frame.target()) && !(tagged && frame.is_trivial_scalar_rebind_v1())
                     || !uses.assignments().iter().any(|(site, target)| site == assignment.target_site()
                         && *target == crate::mir::resolved_semantics::ResolvedAssignmentTargetV1::BindingRebind(frame.target())) {
                     input_use_pending!("rebind-frame")
@@ -205,7 +212,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     .and_then(|source| source.lend_current_scalar_sum_v1(read)));
                 let formal_domain_signed = origins.get(&reference.binding()).is_some_and(|formal|
                     match &structure.evidence {
-                        EntryStructureEvidenceV1::FiniteInput { domains, .. } => domains
+                        EntryStructureEvidenceV1::OriginalInputs { domains, .. } => domains
                             .get(formal).is_some_and(|sum| sum.signed_only()),
                         EntryStructureEvidenceV1::Uses(_) => structure.source
                             .lend_source_value_sum_v1(*formal).is_some_and(|sum| sum.signed_only()),
@@ -231,7 +238,12 @@ impl OrdinaryNewClaimLedgerV1 {
                         || origins.get(&entry.binding()) != Some(&entry.formal().1) {
                         return Err(freeze("static-input/entry-read-source"));
                     }
-                } else if origins.contains_key(&reference.binding()) && !source_scalar_entry {
+                } else if origins.contains_key(&reference.binding()) && !source_scalar_entry
+                    && !tagged_reads.contains(&(site.clone(), reference.binding()))
+                    && !(tagged && original_scalar_read && uses.corroborates_non_entry_source_read_v1(
+                        site, reference.binding(), &origins,
+                        &|read| structure.source.read_consumed_by_scalar_core_v1(contract.owner, read),
+                    )) {
                     input_use_pending!("evaluation-entry-reference", false)
                 }
                 // Nested call-argument evaluations may expose the same source
@@ -248,7 +260,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             Ok(true)
         })? { return Ok(None); }
-        if let EntryStructureEvidenceV1::FiniteInput { incoming, .. } = &structure.evidence {
+        if let EntryStructureEvidenceV1::OriginalInputs { incoming, .. } = &structure.evidence {
             if uses.cover_exact_bool_static_return_reads_v1(contract.owner, contract.batch_slot,
                 incoming, &origins, &mut covered)? == Some(false) { input_use_pending!("bool-static-return") }
         }
@@ -491,10 +503,10 @@ impl OrdinaryNewClaimLedgerV1 {
             let ResolvedLexicalRefV1::Local(binding) = reference else {
                 input_use_pending!("missing-nonlocal-read")
             };
-            if covered.contains(&(site.clone(), *binding)) {
+            if covered.contains(&(site.clone(), *binding)) || tagged_reads.contains(&(site.clone(), *binding)) {
                 continue;
             }
-            if origins.contains_key(binding) {
+            if origins.contains_key(binding) && (!tagged || uses.tagged_entry_at_v1(site).is_some()) {
                 if crate::config::env::builder_debug_enabled() {
                     eprintln!("[entry-input-use] uncovered entry read site={site:?} binding={binding:?}");
                 }
@@ -529,7 +541,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-entry/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        if let Some(structure) = Self::finite_input_entry_structure_v1(source, self.original_parameter_contracts.as_deref(), owner, parameters, true)? {
+        if let Some(structure) = self.selected_finite_input_entry_structure_v1(source, owner, parameters)? {
             return Ok(Some(structure));
         }
         let Some(view) = self.checked_entry_owner_view_v1(source, owner)? else {
@@ -629,7 +641,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 (self.checked_entry_domains_v1(structure.source, structure.owner, view, &incoming)?,
                     view.incoming.clone(), incoming)
             }
-            EntryStructureEvidenceV1::FiniteInput { uses, incoming, domains } => {
+            EntryStructureEvidenceV1::OriginalInputs { uses, incoming, domains, tagged } => {
                 let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
                 let contract = catalog.iter().find(|row| row.owner == structure.owner)
                     .ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
@@ -680,10 +692,14 @@ impl OrdinaryNewClaimLedgerV1 {
                     }
                     actuals.push((&call.call, row.opaque_actuals.as_ref()));
                 }
-                let domains = structure.formals.iter().map(|(ordinal, binding)| {
-                    let domain = domains.get(binding).ok_or_else(|| freeze("borrowed-entry/domain-formal"))?;
-                    Ok(BorrowedFormalDomainV1::from_source_v1(*ordinal, *binding, Rc::clone(domain)))
-                }).collect::<Result<Vec<_>, String>>()?.into_boxed_slice();
+                let domains = if *tagged {
+                    Box::new([])
+                } else {
+                    structure.formals.iter().map(|(ordinal, binding)| {
+                        let domain = domains.get(binding).ok_or_else(|| freeze("borrowed-entry/domain-formal"))?;
+                        Ok(BorrowedFormalDomainV1::from_source_v1(*ordinal, *binding, Rc::clone(domain)))
+                    }).collect::<Result<Vec<_>, String>>()?.into_boxed_slice()
+                };
                 (domains, incoming.clone(), BorrowedEntryActualsV1::Executable(actuals.into_boxed_slice()))
             }
         };

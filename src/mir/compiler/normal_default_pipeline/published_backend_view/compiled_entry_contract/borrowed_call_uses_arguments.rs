@@ -209,9 +209,9 @@ impl BorrowedCallUses {
         &mut self,
         caller: &MirFunction,
         coordinate: Coordinate,
-        actuals: &[PreparedBorrowedFormalActualV1],
         copies: &[(Binding, Coordinate)],
         caller_entry: &[(u32, BindingRefV1, ValueId)],
+        origins: &BTreeMap<u32, (BindingRefV1, BindingRefV1)>,
     ) -> Result<(), String> {
         let state = self
             .functions
@@ -221,32 +221,11 @@ impl BorrowedCallUses {
         // ordinary scalar/receiver dependencies. This closure tracks only
         // descendants of the SAME source-issued borrowed entry roots.
         state.retain_rooted_copies_v1(caller_entry.iter().map(|(_, _, value)| *value).collect(), copies)?;
-        for actual in actuals {
-            // A closed scalar seed that names the caller's own opaque formal is
-            // still that formal's value on the wire: the same entry slot, the
-            // same handle argument. Its integer class stays with the source
-            // domain, so only the entry root can make this a forward row.
-            let origin = match &actual.source {
-                BorrowedFormalActualSourceV1::Scalar { binding, .. } => Some((*binding, *binding)),
-                _ => actual.source.caller_formal_origin_v1(),
-            };
-            if let Some((_, formal)) = origin {
-                // DeclaredObject also exists outside the selected borrowed
-                // transport. Only the original finished caller entry can
-                // connect it to this operand closure; visitation order cannot.
-                if matches!(
-                    actual.source,
-                    BorrowedFormalActualSourceV1::DeclaredFormal { .. }
-                        | BorrowedFormalActualSourceV1::Scalar { .. }
-                ) && !caller_entry.iter().any(|(_, root, _)| *root == formal)
-                {
-                    continue;
-                }
-                let key = (coordinate.0, coordinate.1, actual.ordinal as usize);
-                if let Some(previous) = state.arguments.insert(key, formal) {
-                    if previous != formal {
-                        return Err(fault("borrowed-use/conflicting-argument"));
-                    }
+        for (&ordinal, &(_, formal)) in origins {
+            let key = (coordinate.0, coordinate.1, ordinal as usize);
+            if let Some(previous) = state.arguments.insert(key, formal) {
+                if previous != formal {
+                    return Err(fault("borrowed-use/conflicting-argument"));
                 }
             }
         }

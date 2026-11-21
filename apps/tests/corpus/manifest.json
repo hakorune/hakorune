@@ -53657,6 +53657,105 @@
         "B"
       ],
       "coverage_exe": false
+    },
+    {
+      "path": "apps/tests/corpus/static-forward/forward-two.hako",
+      "sha256": "b7bb0ca4ed5dec1304d19258ea5bfe616226b3ed009547b7c4e593a117d67792",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/static-forward/forward-five.hako",
+      "sha256": "7cd3e9d750f9bd2206cf377e8c015d558bf987fa8e1198809985fd6262654197",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/static-forward/forward-null-fault.hako",
+      "sha256": "60b81cf6ac66ef9e27d6ecd1c8d7ff84d13d2545b37e7e594409d2854134b671",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/static-forward/forward-int-and-null.hako",
+      "sha256": "1674cca87d1e9171f1e290bcbe70042ef6757864c283c60353f3816c75217299",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/static-forward/forward-reassigned.hako",
+      "sha256": "ca4ed37c893c24091200457a61b0304cfb4a6435ff5c90f41300d552dcace611",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/static-forward/forward-two-arguments.hako",
+      "sha256": "e1bb1bc45185355dc3a92d3e911753057ea4254889dfd230ba7cd26bbc977d28",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/static-forward/forward-two-arguments-reversed.hako",
+      "sha256": "e32c2803da72e0fdf0213f6725603e6297161a34d24d764cd216f4ea74451102",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/static-forward/forward-three-owners.hako",
+      "sha256": "583fa3ef08181a997a893f9ca4f342dc9a5a086378569a8f08076291dd86bad4",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/static-forward/forward-if-positions.hako",
+      "sha256": "be4528927fe52a184d2cedbe6828a62e069edce58ad5521cf39f67a861d254b4",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/static-forward/forward-if-false.hako",
+      "sha256": "86a9ac31fe3e3db8547a486619535cde14d09f101f6e6cb07f8b26aa88c3e8c9",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/static-forward/forward-text-result.hako",
+      "sha256": "fd332c446555789082f6f182357ab862ca8f766136225db3b2e71553cc0a58be",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
     }
   ]
 }

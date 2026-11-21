@@ -36,6 +36,7 @@ mod static_mixed_input_finish;
 mod static_scalar_input_finish;
 #[path = "ordinary_new_borrowed_static_selected_actual.rs"]
 mod static_selected_actual;
+pub(in crate::mir::normal_callable_semantic_package) use static_selected_actual::original_tagged_forward_at_v1;
 #[path = "ordinary_new_borrowed_static_tagged_input_finish.rs"]
 mod static_tagged_input_finish;
 pub(in crate::mir::normal_callable_semantic_package) use static_selected_actual::{

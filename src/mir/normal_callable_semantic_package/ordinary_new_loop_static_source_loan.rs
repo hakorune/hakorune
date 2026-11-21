@@ -392,10 +392,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_loop_tail_static_i
 /// affine loans feed source Home corroboration and later Static V2 lowering.
 #[derive(Default)]
 pub(super) struct IssuedLoopStaticSourceLoansV1 {
-    pub(super) selected_sites: std::collections::BTreeSet<(
+    pub(super) selected_sites: Rc<std::collections::BTreeSet<(
         crate::mir::resolved_semantics::FunctionOwnerIdV1,
         SourceStmtSiteV1,
-    )>,
+    )>>,
     pub(super) rows: std::collections::BTreeMap<
         (SourceStmtSiteV1, OwnedExprSiteV1),
         Result<LoopStaticSourceCallLoanV1, String>,
@@ -532,7 +532,7 @@ pub(super) fn issue_loop_static_source_loans_v1(
                 .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
     }
     Ok(IssuedLoopStaticSourceLoansV1 {
-        selected_sites,
+        selected_sites: Rc::new(selected_sites),
         rows,
         entry_rows,
         tail_rows,

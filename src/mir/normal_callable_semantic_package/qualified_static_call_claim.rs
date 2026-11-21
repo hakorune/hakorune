@@ -355,6 +355,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predic
     selected: &'index super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     contracts: &'index [super::model::OwnedCallableParameterContractDeclarationV1],
     app_main: Option<&'index super::ordinary_new_coseal::BorrowedAppMainSourceLoanV1<'_>>,
+    ingress: Option<&'index super::ordinary_new_coseal::lexical_instance_call::PreparedBorrowedFormalIngressV1>,
 ) -> Result<
     (
         impl FnMut(
@@ -372,22 +373,37 @@ pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predic
             caller == key && claims.current_owner_i64_source(caller, site).is_some()
         })
     });
+    let at_key = caller_key.clone();
+    let claim_at = move |site: &crate::mir::resolved_semantics::OwnedExprSiteV1| {
+        let claim = claim_for_source_site_v1(
+            claims, at_key.as_ref(), &input, site, selected, contracts, app_main,
+        )?;
+        let Some(qualified) = claim.as_ref().filter(|claim| !claim.is_qualified_terminal())
+            .and_then(StaticScalarCallClaimV1::qualified_claim)
+        else {
+            return Ok(claim);
+        };
+        if let Some(ingress) = ingress {
+            if input.body_shape().is_some_and(|shape|
+                shape.return_value_sites().any(|value| value == site.site()))
+                && ingress.has_tagged_static_source_call_v1(site).map_err(|issue| {
+                    super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                        site: site.clone(), issue,
+                    }
+                })?
+            {
+                return Ok(Some(StaticScalarCallClaimV1::qualified_terminal(
+                    site.clone(), qualified.clone(),
+                )));
+            }
+        }
+        Ok(claim)
+    };
     let mut has_qualified_terminal_source = false;
     for (site, call) in input.function().method_calls() {
         let owned =
             crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), site.clone());
-        let Some(claim) = claim_for_source_site_v1(
-            claims,
-            caller_key.as_ref(),
-            &input,
-            &owned,
-            selected,
-            contracts,
-            app_main,
-        )?
-        else {
-            continue;
-        };
+        let Some(claim) = claim_at(&owned)? else { continue; };
         if claim.is_qualified_terminal() {
             has_qualified_terminal_source = true;
             continue;
@@ -418,20 +434,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predic
         });
     }
 
-    Ok((
-        move |site: &crate::mir::resolved_semantics::OwnedExprSiteV1| {
-            claim_for_source_site_v1(
-                claims,
-                caller_key.as_ref(),
-                &input,
-                site,
-                selected,
-                contracts,
-                app_main,
-            )
-        },
-        has_current_owner_i64_source || has_qualified_terminal_source,
-    ))
+    Ok((claim_at, has_current_owner_i64_source || has_qualified_terminal_source))
 }
 
 /// Issue the Home walk's exact site claim through a reusable source port.

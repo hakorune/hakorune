@@ -183,10 +183,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_s
                 || identity.candidates.iter().any(|actual| matches!(&actual.value, BorrowedCallActualValueV1::MethodCall(_) | BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_))))));
     let retained = original_static_source_v1(prepared, site)?;
     let has_finite_forward_source = prepared.has_finite_forward_source_call_v1(site)?;
+    let has_tagged_source = prepared.has_tagged_static_source_call_v1(site)?;
     let has_current_owner_source = retained.is_some_and(|row| row.is_current_owner_i64_source_v1());
     let has_static_terminal_source =
         !current_owner && retained.is_some_and(|row| prepared.is_static_terminal_source_v1(row));
     if !has_source_fact
+        && !has_tagged_source
         && !has_final_static
         && !has_finite_forward_source
         && !has_static_terminal_source
@@ -233,6 +235,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_s
         .map(|arguments| Some(arguments.into()));
     }
     if !has_source_fact
+        && !has_tagged_source
         && !current_owner
         && !has_static_terminal_source
         && source_qualified.is_none()

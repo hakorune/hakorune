@@ -164,7 +164,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         names,
         mut local_candidates,
         lexical_source_targets,
-        borrowed_formal_source,
+        mut borrowed_formal_source,
         static_source_sites,
         borrowed_i64_results,
     ) = lexical::prepare_source_preflight_v1(
@@ -196,6 +196,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             static_call_claims,
             borrowed_formal_source.as_ref().ok(),
         )?;
+    if let Ok(source) = &mut borrowed_formal_source {
+        source.retain_tagged_static_loop_sites_v1(Rc::clone(&loop_static_source_loans.selected_sites));
+    }
     let mut preissued_static_i64_products = BTreeMap::new();
     let typed_static_walk_owners = walk_triggers::typed_static_walk_owners_v1(
         &borrowed_formal_source,
@@ -341,6 +344,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         static_call_claims,
                         static_caller_key.clone(),
                         input, selected, parameter_contracts, app_main.as_ref(),
+                        borrowed_formal_source.as_ref().ok(),
                     )?;
                 let has_borrowed_source_calls = borrowed_formal_source.as_ref().is_ok_and(|rows| {
                     rows.incoming_calls_for_owner(input.owner())

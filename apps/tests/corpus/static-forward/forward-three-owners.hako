@@ -1,0 +1,14 @@
+// middle and check each pass 2 to small. Expected exit 1.
+static box Main {
+    small(v) {
+        if v < 3 { return 1 }
+        return 0
+    }
+    check(i) {
+        return Main.small(i)
+    }
+    middle(i) { return Main.check(i) }
+    main() {
+        return Main.middle(2)
+    }
+}

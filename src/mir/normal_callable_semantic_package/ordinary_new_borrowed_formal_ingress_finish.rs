@@ -282,6 +282,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     Ok(PreparedBorrowedFormalIngressV1 {
         dynamic_provider_owners,
         original_corroboration: std::cell::Cell::new(None),
+        tagged_static_owners: Default::default(),
+        tagged_static_loop_sites: Default::default(),
         static_terminal_sites,
         app_main_owner: contracts
             .iter()

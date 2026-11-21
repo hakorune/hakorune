@@ -283,7 +283,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
         // The scalar expression loan belongs to a CallArgument frame. Other
         // scalar consumers keep their existing input protocol, selected from
         // the source purpose before any protocol validation is attempted.
+        let tagged = prepared.has_tagged_static_input_v1(original.callee_owner(), original.parameters())
+            && pending.get(site).is_some_and(|rows| rows.as_ref().is_ok_and(|row| row.source_static_snapshot_v1().is_some()));
         if original.source_scalar_result_v1().is_some()
+            && !tagged
             && !expression.is_some_and(|plan| plan.owner() == site.owner()
                 && (original.is_scalar_return_source_v1(plan)
                     || matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. })

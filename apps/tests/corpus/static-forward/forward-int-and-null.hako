@@ -1,0 +1,15 @@
+// classify returns 9 for 2 and 4 for null at the same forwarding site. Expected exit 13.
+static box Main {
+    classify(v) {
+        if v == null { return 4 }
+        return 9
+    }
+    forward(i) {
+        return Main.classify(i)
+    }
+    main() {
+        local integer = Main.forward(2)
+        local absent = Main.forward(null)
+        return integer + absent
+    }
+}

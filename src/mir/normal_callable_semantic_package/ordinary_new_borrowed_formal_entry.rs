@@ -78,7 +78,7 @@ pub(crate) struct BorrowedOrdinaryEntrySourceRefV1<'ledger> {
 
 impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(in crate::mir) fn uses_finite_input_v1(&self) -> bool {
-        matches!(self.evidence, EntryStructureEvidenceV1::FiniteInput { .. })
+        matches!(self.evidence, EntryStructureEvidenceV1::OriginalInputs { .. })
     }
     pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
@@ -93,7 +93,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(crate) fn origins(&self) -> &BTreeMap<BindingRefV1, BindingRefV1> {
         match &self.evidence {
             EntryStructureEvidenceV1::Uses(view) => &view.definition.origins,
-            EntryStructureEvidenceV1::FiniteInput { uses, .. } => uses.roots(),
+            EntryStructureEvidenceV1::OriginalInputs { uses, .. } => uses.roots(),
         }
     }
     // Finite input reaches this product only after every original use has a
@@ -122,7 +122,12 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(crate) fn compare_uses(
         &self,
     ) -> impl Iterator<Item = (BindingRefV1, BindingRefV1, &OwnedExprSiteV1)> {
-        self.legacy_uses_v1()
+        let definition = match &self.evidence {
+            EntryStructureEvidenceV1::OriginalInputs { tagged: true, .. } =>
+                self.source.source_definition_for(self.owner),
+            _ => self.legacy_definition_v1(),
+        };
+        definition.into_iter().flat_map(|draft| draft.uses.iter())
             .filter_map(|row| match &row.kind {
                 super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::CompareOperand {
                     binary,

@@ -61,16 +61,24 @@ pub(super) fn fixture() -> (FunctionUses, MirFunction, MirInstruction) {
     let mut uses = BorrowedCallUses {
         functions: [(function.signature.name.clone(), state)].into(),
     };
+    let actuals = ledger.borrowed_call_actuals_v1(&row).unwrap().unwrap();
+    let [forwarded] = actuals else {
+        panic!("one forwarded actual");
+    };
+    let origins = [(
+        forwarded.ordinal,
+        forwarded.source.caller_formal_origin_v1().expect("original forwarded use"),
+    )].into();
     uses.call(
         &function,
         coordinate,
-        ledger.borrowed_call_actuals_v1(&row).unwrap().unwrap(),
         &copies
             .iter()
             .enumerate()
             .map(|(index, original)| (original.clone(), (BasicBlockId(0), index)))
             .collect::<Vec<_>>(),
         &entry,
+        &origins,
     )
     .unwrap();
     let instruction = MirInstruction::Invoke {

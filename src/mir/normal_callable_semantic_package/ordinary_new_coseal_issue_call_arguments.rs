@@ -613,7 +613,8 @@ pub(super) fn borrowed_call_arguments_callback_v1(
                 prepared
                     .has_scalar_qualified_source_call_v1(site)
                     .and_then(|scalar| {
-                        Ok(scalar || prepared.has_finite_forward_source_call_v1(site)?)
+                        Ok(scalar || prepared.has_finite_forward_source_call_v1(site)?
+                            || prepared.has_tagged_static_source_call_v1(site)?)
                     })
             })
             .transpose()

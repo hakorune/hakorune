@@ -246,7 +246,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                 if let super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
                     &row.source
                 {
-                    if !matches!(&self.evidence, EntryStructureEvidenceV1::FiniteInput { .. })
+                    if !matches!(&self.evidence, EntryStructureEvidenceV1::OriginalInputs { .. })
                         && original.qualified_scalar_result_v1().is_none()
                         && !matches!(self.incoming, BorrowedEntryActualsV1::SelectedTagged)
                         && !((original.is_current_owner_i64_source_v1()
@@ -263,7 +263,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                         original.require_qualified_scalar_source_v1()?;
                     }
                     let retained = match &self.evidence {
-                        EntryStructureEvidenceV1::FiniteInput { .. } =>
+                        EntryStructureEvidenceV1::OriginalInputs { .. } =>
                             super::super::borrowed_formal_actuals::original_static_source_v1(self.source, &row.call)?
                                 .ok_or_else(|| freeze("borrowed-entry/incoming-source-missing"))?,
                         EntryStructureEvidenceV1::Uses(_) => self.source.source_incoming.static_observations()
