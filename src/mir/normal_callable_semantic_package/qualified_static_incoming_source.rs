@@ -138,14 +138,16 @@ impl StaticIncomingSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn is_zero_input_source_v1(&self) -> bool {
         self.is_zeroarg_i64_v1()
     }
-    /// K21: a String result whose formals are all i64 takes the qualified input protocol with
-    /// its i64 actuals; no formal needs a borrowed domain.
-    pub(in crate::mir::normal_callable_semantic_package) fn is_i64_input_text_v1(&self) -> bool {
+    pub(in crate::mir::normal_callable_semantic_package) fn has_exact_i64_inputs_v1(&self) -> bool {
         self.parameters.len() == self.argument_sites.len()
             && self
                 .parameters
                 .iter()
                 .all(|formal| formal.kind.is_i64_actual_v1())
+    }
+    /// K21: i64 input does not require a borrowed domain for a Text result.
+    pub(in crate::mir::normal_callable_semantic_package) fn is_i64_input_text_v1(&self) -> bool {
+        self.has_exact_i64_inputs_v1()
             && matches!(
                 self.source_result(),
                 VerifiedCallableResultDispositionV1::ExactString

@@ -15522,6 +15522,15 @@
       "cadence": "every"
     },
     {
+      "path": "apps/tests/corpus/forward-source/completed-text-receiver.hako",
+      "sha256": "eafd48ab3e442a2790b4a4d9892422d893f592f936f01f346718ad7f7ed3cab4",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
       "path": "apps/tests/corpus/forward-source/print-zero-i64.hako",
       "sha256": "cef89d4e2a1a0067be4d2db1adfc98d82a437ad05b718466efe6cba1058bf01e",
       "groups": [

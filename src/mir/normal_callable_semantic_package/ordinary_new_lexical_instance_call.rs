@@ -247,7 +247,9 @@ pub(in crate::mir) use borrowed_formal_source::SourceValueClassFactsV1;
 #[path = "ordinary_new_borrowed_formal_actuals.rs"]
 mod borrowed_formal_actuals;
 pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_actuals::{recheck_pending_array_source_actuals_v1, source_take_homes_v1};
-pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_actuals::prepare_dynamic_invocation_argument_actuals_v1;
+pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_actuals::{
+    prepare_completed_static_text_actuals_v1, prepare_dynamic_invocation_argument_actuals_v1,
+};
 
 #[path = "ordinary_new_borrowed_formal_result.rs"]
 mod borrowed_formal_result;

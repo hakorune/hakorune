@@ -3,7 +3,13 @@
 use super::*;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 use std::rc::Rc;
-use super::call_result_source::ordinary_argument_call_source_v1;
+use super::call_result_source::{
+    has_completed_static_text_result_v1, ordinary_argument_call_source_v1,
+};
+use crate::mir::normal_callable_semantic_package::{
+    result_contract::VerifiedCallableResultContractBuilderV1,
+    selected_mapping::VerifiedSelectedCallableBatchMapV1,
+};
 
 #[path = "ordinary_new_borrowed_static_argument_source.rs"]
 mod argument_source;
@@ -152,7 +158,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &mut self,
         constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
         claims: &crate::mir::normal_callable_semantic_package::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
-        selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        selected: &VerifiedSelectedCallableBatchMapV1,
         contracts: &[OwnedCallableParameterContractDeclarationV1],
     ) -> Result<(), String> {
         let sources = constructors.provider_static_sources_v1(claims, selected)?;
@@ -291,14 +297,6 @@ pub(super) fn prepare_static_source_actuals_v1(
         .keys()
         .any(|(site, _)| site == call);
     let source_expression = selects_static_expression_source_v1(prepared, call, actuals)?;
-    let original_text_formal = |root| {
-        prepared.source_value_sum_v1(root).is_some_and(|sum| {
-            sum.alternatives().len() == 1
-                && sum
-                    .alternatives()
-                    .contains(&super::super::borrowed_formal_source::SourceValueAlternativeV1::Text)
-        })
-    };
     let original = original_static_source_v1(prepared, call)?;
     let original_source = original
         .is_some_and(|source| {
@@ -314,6 +312,64 @@ pub(super) fn prepare_static_source_actuals_v1(
         return Ok(None);
     }
     let source = original.ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?;
+    prepare_original_static_source_actuals_v1(
+        prepared, contracts, call, actuals, source, source_expression,
+    )
+}
+
+/// Stage the original input from a callee completion that proves Text exits.
+pub(in crate::mir::normal_callable_semantic_package) fn prepare_completed_static_text_actuals_v1(
+    prepared: &PreparedBorrowedFormalIngressV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    call: &OwnedExprSiteV1,
+    actuals: &[BorrowedCallActualCandidateV1],
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    completed: &VerifiedCallableResultContractBuilderV1,
+) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
+    use crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1;
+
+    let Some(original) = original_static_source_v1(prepared, call)? else {
+        return Ok(None);
+    };
+    if !matches!(
+        original.source_result(),
+        VerifiedCallableResultDispositionV1::Unavailable(_)
+    ) || !original.has_exact_i64_inputs_v1()
+        || !has_completed_static_text_result_v1(
+            selected,
+            Some(completed),
+            original,
+        )
+    {
+        return Ok(None);
+    }
+    let source_expression = selects_static_expression_source_v1(prepared, call, actuals)?;
+    prepare_original_static_source_actuals_v1(
+        prepared,
+        contracts,
+        call,
+        actuals,
+        original,
+        source_expression,
+    )
+}
+
+fn prepare_original_static_source_actuals_v1(
+    prepared: &PreparedBorrowedFormalIngressV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    call: &OwnedExprSiteV1,
+    actuals: &[BorrowedCallActualCandidateV1],
+    source: &Rc<StaticIncomingSourceV1>,
+    source_expression: bool,
+) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
+    let original_text_formal = |root| {
+        prepared.source_value_sum_v1(root).is_some_and(|sum| {
+            sum.alternatives().len() == 1
+                && sum
+                    .alternatives()
+                    .contains(&super::super::borrowed_formal_source::SourceValueAlternativeV1::Text)
+        })
+    };
     let mut matching = contracts
         .iter()
         .filter(|row| row.owner == source.callee_owner());

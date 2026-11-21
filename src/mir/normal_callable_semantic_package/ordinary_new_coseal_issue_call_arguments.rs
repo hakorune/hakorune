@@ -1,6 +1,9 @@
 //! Source argument request dispatch, shared by every admitted Call context.
 use super::*;
-use super::super::lexical_instance_call::{PreparedLexicalInstanceCallSourceTargetsV1, BorrowedResultCohortV1};
+use super::super::lexical_instance_call::{
+    prepare_completed_static_text_actuals_v1, BorrowedResultCohortV1,
+    PreparedLexicalInstanceCallSourceTargetsV1,
+};
 use crate::mir::resolved_semantics::home_new_prefix::{BorrowedCallActualRequestV1, BorrowedCallArgumentsV1};
 
 #[path = "ordinary_new_received_handle_arguments.rs"]
@@ -551,6 +554,18 @@ pub(super) fn borrowed_call_arguments_callback_v1(
                 let refined = source.as_ref().ok().map(|prepared| {
                     prepared.refine_fresh_take_actuals_v1(input, site, contracts, actuals)
                 }).transpose()?;
+                if let (Ok(prepared), Some(completed)) = (source, completed) {
+                    if let Some(rows) = prepare_completed_static_text_actuals_v1(
+                        prepared,
+                        contracts,
+                        site,
+                        refined.as_deref().unwrap_or(actuals),
+                        selected,
+                        completed,
+                    )? {
+                        return Ok(Some(rows));
+                    }
+                }
                 super::super::lexical_instance_call::prepare_borrowed_call_actuals_v1(
                     source,
                     contracts,
