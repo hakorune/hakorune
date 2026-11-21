@@ -1,0 +1,12 @@
+// Expected stdout: ab, then Result: 0. Expected exit: 0.
+// The owned substring ends once at the closing brace.
+static box Main {
+  main() {
+    local source = " ab"
+    {
+      local text = source.substring(1, 3)
+      print(text)
+    }
+    return 0
+  }
+}

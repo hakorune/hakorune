@@ -83,6 +83,7 @@ fn complete_expression_installation_publishes_only_after_the_final_field_batch()
             // no call, field, temporary or physical observation exists.
             use crate::mir::resolved_semantics::home_new_prefix::{RootHomeExitV1, RootHomeFlow};
             let root = RootHomeFlow {
+                lexical_ends: Default::default(),
                 comparison_prefix_homes: Default::default(),
                 named_arrays: Vec::new(),
                 exits: Default::default(),
@@ -258,6 +259,7 @@ fn complete_expression_installation_publishes_only_after_the_final_field_batch()
             LifecyclePrefixSourceV1, RootHomeExitV1, RootHomeFlow,
         };
         let root = RootHomeFlow {
+            lexical_ends: Default::default(),
             comparison_prefix_homes: Default::default(),
             named_arrays: Vec::new(),
             exits: Default::default(),
@@ -360,6 +362,7 @@ fn complete_expression_installation_publishes_only_after_the_final_field_batch()
                     LifecyclePrefixSourceV1, RootHomeExitV1, RootHomeFlow,
                 };
                 let root = RootHomeFlow {
+                    lexical_ends: Default::default(),
                     comparison_prefix_homes: Default::default(),
                     named_arrays: Vec::new(),
                     exits: Default::default(),

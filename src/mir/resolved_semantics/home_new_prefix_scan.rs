@@ -68,6 +68,32 @@ pub(super) fn scan_statement_flow<'a, E>(
         }
         covered_statements.push(statement.site().clone());
         locals.visit_source_loop_statement_v1(body, statement.site(), index);
+        if matches!(statement.node(), ASTNode::Program { .. }) {
+            let Ok(child) = input.source().child_body_from_stmt(
+                &statement, crate::mir::resolved_semantics::BodyChildRoleV1::ProgramBody,
+            ) else {
+                unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+                return Ok(false);
+            };
+            let terminated = scan_statement_flow(
+                input, &child, exit_sites, selected, result_sites, results, exit_homes,
+                maps, local_calls, path_calls, terminal_relations, argument_observations,
+                result_prefixes, locals, homes, covered_statements, selected_seen, unavailable,
+                map_compatible, terminal_call, local_call_route, scalar_field, borrowed_actuals,
+                view_use, loop_prestate, object_return,
+            )?;
+            let normal_end = if terminated {
+                None
+            } else {
+                locals.finish_lexical_body_v1(child.site(), homes, unavailable)
+            };
+            locals.record_source_loop_program_v1(statement.site(), child.site(), normal_end);
+            if terminated {
+                locals.end_source_loop_body_v1(body, true);
+                return Ok(true);
+            }
+            continue;
+        }
         if locals.has_moved_out() {
             let statement_path = statement.site().node().segments();
             if let Some(issue) = function.variable_refs().find_map(|(site, reference)| {

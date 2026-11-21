@@ -25,6 +25,10 @@ enum Action {
     Expression(HomeExpressionPlanV1),
     OwnedArrayAppend(NamedArrayHomeObservationV1),
     Call(super::super::super::LocalCallObservationV1),
+    Program {
+        child: SourceBodySiteV1,
+        normal_end: Option<Rc<super::super::LexicalBodyEndV1>>,
+    },
     If {
         bundle: ResolvedIfRegionBundleV1,
         condition: Rc<CheckedBoolConditionFrameV1>,
@@ -45,6 +49,23 @@ pub(crate) struct CheckedSourceLoopBodyV1 {
     pub(crate) statements: Box<[CheckedSourceLoopStatementV1]>,
     pub(crate) terminated: bool,
 }
+impl CheckedSourceLoopBodyV1 {
+    /// Visits the current Loop’s original statements, including lexical and
+    /// branch children. A child Loop retains its own independently sealed body.
+    pub(crate) fn visit<'a>(&'a self, visit: &mut impl FnMut(&'a CheckedSourceLoopStatementV1)) {
+        for statement in &self.statements {
+            visit(statement);
+            match statement {
+                CheckedSourceLoopStatementV1::Program { body, .. } => body.visit(visit),
+                CheckedSourceLoopStatementV1::If { then_body, else_body, .. } => {
+                    then_body.visit(visit);
+                    if let Some(body) = else_body { body.visit(visit); }
+                }
+                _ => {}
+            }
+        }
+    }
+}
 #[derive(Debug)]
 pub(crate) enum CheckedSourceLoopStatementV1 {
     Return(Rc<SourceLoopReturnV1>),
@@ -59,6 +80,11 @@ pub(crate) enum CheckedSourceLoopStatementV1 {
     OwnedArrayAppend {
         site: SourceStmtSiteV1,
         observation: NamedArrayHomeObservationV1,
+    },
+    Program {
+        site: SourceStmtSiteV1,
+        body: CheckedSourceLoopBodyV1,
+        normal_end: Option<Rc<super::super::LexicalBodyEndV1>>,
     },
     If {
         site: SourceStmtSiteV1,
@@ -278,6 +304,14 @@ impl SourceLoopControlDraftV1 {
                     observed_termination = true;
                     CheckedSourceLoopStatementV1::Exit { site, record, port }
                 }
+                Action::Program { child, normal_end } => {
+                    let body = self.take_body(&child)?;
+                    if body.terminated == normal_end.is_some() {
+                        return Err("source control lexical outcome mismatch");
+                    }
+                    observed_termination = body.terminated;
+                    CheckedSourceLoopStatementV1::Program { site, body, normal_end }
+                }
                 Action::If {
                     bundle,
                     condition,
@@ -425,6 +459,20 @@ impl PrefixLocalFlow<'_> {
                 .action(site, Action::OwnedArrayAppend(observation.clone()));
         }
     }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn record_source_loop_program_v1(
+        &self,
+        site: &SourceStmtSiteV1,
+        child: &SourceBodySiteV1,
+        normal_end: Option<Rc<super::super::LexicalBodyEndV1>>,
+    ) {
+        if let Some(context) = &self.source_loop {
+            context.control.borrow_mut().action(site, Action::Program {
+                child: child.clone(),
+                normal_end,
+            });
+        }
+    }
+
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn begin_source_loop_body_v1(
         &self,
         body: &LocatedBodyV1<'_>,

@@ -18,7 +18,7 @@ mod visibility;
 pub(crate) use flow::LoopJoinSigElaboratorV1;
 pub(crate) use model::{
     LoopJoinBranchArmV1, LoopJoinBranchArmV2, LoopJoinBranchExitTargetV2, LoopJoinEdgeRoleV1, LoopJoinEdgeV1,
-    LoopJoinEdgeV2, LoopJoinLoopV1, LoopJoinNextItemV1, LoopJoinPayloadV1,
+    LoopJoinEdgeV2, LoopJoinExitOccurrenceV1, LoopJoinLoopV1, LoopJoinNextItemV1, LoopJoinPayloadV1,
     LoopJoinPayloadV2, LoopJoinPortBindingV2, LoopJoinPortV1,
     LoopJoinSigRejectReasonV1, LoopJoinSigV1, VerifiedLoopAfterBindingV1,
     VerifiedLoopJoinSigV1,
@@ -38,6 +38,7 @@ pub(crate) use v2::{
     issue_sole_root_carrier_join_closure_v2, LoopJoinClosureRejectV2, VerifiedLoopJoinClosureV2,
 };
 
+pub(super) use transfer_view_v2::LoopJoinLogicalTransferCollectionViewV2;
 pub(super) use flow::Flow;
 pub(super) use model::{
     LoopJoinBranch, LoopJoinBranchArm, LoopJoinBranchExit, LoopJoinBranchTarget, LoopJoinPayload,

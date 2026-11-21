@@ -15,6 +15,12 @@ impl EmittedSourceLoopGraphV2 {
                 .filter(|source| std::rc::Rc::ptr_eq(source, &row.source)).count() != 1)
             || self.returns.iter().enumerate().any(|(index, row)| self.returns[..index].iter()
                 .any(|old| std::rc::Rc::ptr_eq(&old.source, &row.source))) { return Err(reject("exit-outcome")); }
+        if self.programs.len() != self.product.schedule().programs_v2().count()
+            || self.programs.iter().any(|row| self.programs.iter()
+                .filter(|other| other.site == row.site).count() != 1)
+        {
+            return Err(reject("lexical-census"));
+        }
         if self.frames.len() != self.product.schedule().frames().len()
             || self.effects.len() != self.product.schedule().blocks_array_appends_v2().count() + self.product.schedule().calls_v2().count()
             || self.frames.iter().enumerate().any(|(index, frame)| frame.index != index) {
@@ -85,7 +91,18 @@ impl EmittedSourceLoopGraphV2 {
         }
         let steps = self.product.schedule().block(key).ok_or_else(|| reject("schedule-block"))?;
         let mut cursor = entry;
-        for step in steps {
+        let mut scopes = Vec::new();
+        for (position, step) in steps.iter().enumerate() {
+            self.close_programs_v2(&mut scopes, position, function, &mut cursor)?;
+            if let Step::Program { site, end, normal, .. } = step {
+                let row = self.programs.iter().find(|row| &row.site == site)
+                    .ok_or_else(|| reject("lexical-missing"))?;
+                if row.entry != cursor || row.normal != *normal || *end <= position
+                    || scopes.last().is_some_and(|(limit, _)| *end > *limit) {
+                    return Err(reject("lexical-entry"));
+                }
+                scopes.push((*end, row));
+            }
             if let Step::Call { site, observation, result, .. } = step {
                 let mut rows = self.effects.iter().filter(|row| &row.site == site);
                 let row = rows.next().ok_or_else(|| reject("call-missing"))?;
@@ -204,6 +221,8 @@ impl EmittedSourceLoopGraphV2 {
                 cursor = edge.predecessor;
             }
         }
+        self.close_programs_v2(&mut scopes, steps.len(), function, &mut cursor)?;
+        if !scopes.is_empty() { return Err(reject("lexical-range")); }
         if block.end != cursor { return Err(reject("block-sequence-end")); }
         match steps.last() {
             Some(Step::Return { source, .. }) => {
@@ -225,12 +244,41 @@ impl EmittedSourceLoopGraphV2 {
             Some(Step::If { condition, .. }) => {
                 let fork = self.forks.iter().find(|row| row.condition == *condition).ok_or_else(|| reject("final-fork"))?;
                 if block.normal != fork.join.is_some()
-                    || block.end != fork.join.unwrap_or(fork.ends.1) { return Err(reject("final-fork-outcome")); }
+                    || (!block.normal && block.end != fork.ends.1) { return Err(reject("final-fork-outcome")); }
             }
             _ if !block.normal => return Err(reject("normal-outcome")),
             _ => {},
         }
         Ok(())
     }
+    fn close_programs_v2(
+        &self,
+        scopes: &mut Vec<(usize, &super::source_loop_driver::EmittedLoopProgramV2)>,
+        position: usize,
+        function: &MirFunction,
+        cursor: &mut BasicBlockId,
+    ) -> Result<(), String> {
+        while scopes.last().is_some_and(|(end, _)| *end == position) {
+            let (_, row) = scopes.pop().expect("live Program scope");
+            if *cursor != row.before_close
+                || !function.blocks.contains_key(&row.continuation)
+                || row.cleanup.as_ref().is_some_and(|cleanup|
+                    !row.normal || cleanup.from != row.before_close || cleanup.continuation != row.continuation)
+                || (row.cleanup.is_none() && row.before_close != row.continuation)
+            {
+                return Err(reject("lexical-closure"));
+            }
+            if let Some((index, (block, instruction))) = row.scope_close.occurrence() {
+                if *block != row.continuation || !row.normal
+                    || function.blocks[block].instructions.get(index) != Some(instruction)
+                {
+                    return Err(reject("lexical-close-receipt"));
+                }
+            }
+            *cursor = row.continuation;
+        }
+        Ok(())
+    }
+
 }
 fn reject(reason: &str) -> String { format!("[freeze:contract][source-loop/control/{reason}]") }

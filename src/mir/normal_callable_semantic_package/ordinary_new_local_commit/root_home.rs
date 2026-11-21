@@ -781,7 +781,7 @@ pub(crate) use call_entry::{
 pub(in crate::mir) use call_entry::{
     borrowed_source_loop_phi_relations_v2, BoolConditionCursorV1, BoolConditionNodeProjectionV1,
     BoolConditionSealV1, BoolConditionValueProofV1, EmittedBoolConditionProjectionV1,
-    SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2,
+    SourceCleanupPlanV2, SourceLoopCleanupPlanV2, SourceLoopExitV2, SourceLoopPhysicalProofV2,
 };
 
 pub(crate) use call_entry::{CheckedFieldWriteGraphV1, EmittedBorrowedFieldWriteV1};

@@ -5,21 +5,13 @@ use super::*;
 /// A child Loop retained by this Loop's own source walk at `site`.
 pub(in crate::mir::loop_recipe_contract) fn source_child_loop_v2<'a>(source: &'a Summary, site: &SourceStmtSiteV1)
     -> Option<&'a Rc<VerifiedSourceLoopRecipeProductV2>> {
-    fn find<'a>(body: &'a Body, site: &SourceStmtSiteV1) -> Option<&'a Rc<VerifiedSourceLoopRecipeProductV2>> {
-        for statement in &body.statements {
-            match statement {
-                Statement::Loop { site: original, product } if original == site => return Some(product),
-                Statement::If { then_body, else_body, .. } => {
-                    if let Some(row) = find(then_body, site).or_else(|| else_body.as_ref().and_then(|body| find(body, site))) {
-                        return Some(row);
-                    }
-                }
-                _ => {}
-            }
+    let mut child = None;
+    source.control.as_ref().ok()?.visit(&mut |stmt| {
+        if let Statement::Loop { site: original, product } = stmt {
+            if original == site { child = Some(product); }
         }
-        None
-    }
-    find(source.control.as_ref().ok()?, site)
+    });
+    child
 }
 
 /// The parent-visible boundary of a closed child Loop: every child binding the

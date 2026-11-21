@@ -6,6 +6,21 @@ impl SourceLoopScheduleDraftV2 {
         verified: &VerifiedLoopRecipeV2, execution: &[SourceLoopEvaluationLifecycleV2],
         values: &[SourceLoopValueV2], control: &[SourceLoopItemV2], bindings: &BTreeMap<BindingRefV1, LoopBindingKeyV1>,
     ) -> Result<(), String> {
+        use super::super::source_loop_v2::Statement;
+        let programs = super::super::source_loop_v2::source_programs_v2(source);
+        let markers = self.blocks.values().flatten()
+            .filter(|step| matches!(step, SourceLoopScheduledStepV2::Program { .. }));
+        if markers.clone().count() != programs.len() || programs.iter().any(|program| {
+            let Statement::Program { site, body, normal_end } = program else {
+                unreachable!("only original Program statements")
+            };
+            markers.clone().filter(|step| matches!(step,
+                SourceLoopScheduledStepV2::Program { site: found, body: original, normal, .. }
+                if found == site && original == &body.site && *normal == normal_end.is_some()
+            )).count() != 1
+        }) {
+            return Err(reject("schedule-lexical-source"));
+        }
         let recipe = verified.as_recipe();
         let demanded = super::super::source_loop_v2::demanded_branch_joins_v2(source)?;
         if demanded.len() != self.joins_v2().count() || demanded.iter().any(|source|

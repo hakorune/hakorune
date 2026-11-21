@@ -15513,6 +15513,42 @@
       "cadence": "every"
     },
     {
+      "path": "apps/tests/corpus/lexical-block/a3-move-out.hako",
+      "sha256": "02dbacab211276212445bc80766baf17eb70c0e8ee83c93958eb3de4327b662a",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/lexical-block/block-continue.hako",
+      "sha256": "cb25ce536808a87548e4682cffc906e0106a012541503febe5959c18804438f0",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/lexical-block/block-outer-assignment.hako",
+      "sha256": "d5e66af5abd1e4989f46877e852ae0a6252f1b0ece875748ab52f18873f0e5d7",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/lexical-block/block-owned-text.hako",
+      "sha256": "ffe5d1562a53003bfb020fbdada7583249382a20f4a191b998c975093fbf26cb",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
       "path": "apps/tests/corpus/dynamic-compare/release-source-loop.hako",
       "sha256": "d7c749db1f8d77fb59f41bbf063960425749d71e2493be4301d412fd1dd97722",
       "groups": [

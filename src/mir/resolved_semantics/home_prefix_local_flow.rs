@@ -248,6 +248,7 @@ pub(super) struct PrefixLocalFlow<'source> {
     signed_formals: BTreeSet<BindingRefV1>,
     opaque_formals: BTreeSet<BindingRefV1>,
     source_loop: Option<std::rc::Rc<source_loop::SourceLoopHeaderEnvironmentV1>>,
+    lexical_ends: std::rc::Rc<std::cell::RefCell<LexicalBodyEndsV1>>,
     named_arrays:
         std::rc::Rc<std::cell::RefCell<Vec<super::named_array::NamedArrayHomeObservationV1>>>,
     input: ResolvedFunctionLoweringInputV1<'source>,
@@ -319,6 +320,7 @@ impl<'source> PrefixLocalFlow<'source> {
             opaque_formals: Default::default(),
             source_loop: None,
             named_arrays: Default::default(),
+            lexical_ends: Default::default(),
             input,
             locals: BTreeMap::new(),
             entry_receiver: None,
@@ -577,3 +579,7 @@ impl super::RootHomeFlow {
         self.comparison_prefix_homes.get(site)?.as_ref()
     }
 }
+
+#[path = "home_lexical_scope_end.rs"]
+mod lexical_scope_end;
+pub(crate) use lexical_scope_end::{LexicalBodyEndV1, LexicalBodyEndsV1};

@@ -350,6 +350,11 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     root_exits: RefCell<
         BTreeMap<(FunctionOwnerIdV1, RootHomeExitKeyV1), local_commit::RootHomeExitProgress>,
     >,
+    // Physical closures of the original source flow’s lexical body ends.
+    lexical_cleanup: RefCell<BTreeMap<
+        FunctionOwnerIdV1,
+        Vec<Rc<crate::mir::builder::EmittedSourceCleanupV2<crate::mir::resolved_semantics::SourceNodeSiteV1>>>,
+    >>,
     // Live Text carriers' Ends for a loop-body Call's Fault unwind, keyed by
     // call site: (loop prior Home count, Ends in unwind order).
     loop_call_text_ends:
@@ -728,7 +733,7 @@ pub(crate) use local_commit::EmittedOwnedArrayHolderV1;
 pub(in crate::mir) use local_commit::{
     borrowed_source_loop_phi_relations_v2, BoolConditionCursorV1, BoolConditionNodeProjectionV1,
     BoolConditionSealV1, BoolConditionValueProofV1, EmittedBoolConditionProjectionV1,
-    SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2,
+    SourceCleanupPlanV2, SourceLoopCleanupPlanV2, SourceLoopExitV2, SourceLoopPhysicalProofV2,
 };
 
 pub(in crate::mir) use local_commit::CallValidationContextV1;

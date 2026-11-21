@@ -1,4 +1,4 @@
-//! Original Loop port obligations borrow installed Home End plans once.
+//! Resolved exits use one ordered Home cleanup plan.
 //! No root Return identity, execution permission or second Home registry.
 use super::*;
 use crate::mir::instruction::InvokeOperation;
@@ -7,9 +7,8 @@ use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use std::rc::Rc;
 
 #[derive(Debug)]
-pub(in crate::mir) struct SourceLoopCleanupPlanV2 {
-    product: Rc<Product>,
-    port: usize,
+pub(in crate::mir) struct SourceCleanupPlanV2<Exit> {
+    exit: Exit,
     full: Vec<(
         LiveHomeV1,
         super::super::RootHomeReleaseSubjectV1,
@@ -18,12 +17,30 @@ pub(in crate::mir) struct SourceLoopCleanupPlanV2 {
     normal: Vec<usize>,
     residuals: Vec<Vec<usize>>,
 }
-impl SourceLoopCleanupPlanV2 {
-    pub(in crate::mir) fn product(&self) -> &Rc<Product> {
-        &self.product
-    }
-    pub(in crate::mir) fn port(&self) -> usize {
-        self.port
+impl<Exit> SourceCleanupPlanV2<Exit> {
+    fn new(
+        exit: Exit,
+        full: Vec<(LiveHomeV1, super::super::RootHomeReleaseSubjectV1, InvokeOperation)>,
+        normal: Vec<usize>,
+    ) -> Result<Self, String> {
+        // The Normal continuation can retain an outer Home, while Fault
+        // still owes it an End. The published Text checker has no evidence
+        // for skipping a younger concrete Text Home on a Normal End.
+        let mut retained_text = false;
+        for (index, (home, _, _)) in full.iter().enumerate() {
+            if !matches!(home, LiveHomeV1::Text(_)) {
+                continue;
+            }
+            if !normal.contains(&index) {
+                retained_text = true;
+            } else if retained_text {
+                return Err(freeze("root-cleanup-order/retained-text-order-unavailable"));
+            }
+        }
+        let residuals = (0..normal.len())
+            .map(|step| super::super::fault_indices_after_normal_step_v2(full.len(), &normal, step))
+            .collect::<Result<_, _>>()?;
+        Ok(Self { exit, full, normal, residuals })
     }
     pub(in crate::mir) fn normal_operations(&self) -> Vec<InvokeOperation> {
         self.normal
@@ -40,7 +57,7 @@ impl SourceLoopCleanupPlanV2 {
     pub(in crate::mir) fn normal_is_empty(&self) -> bool {
         self.normal.is_empty()
     }
-    /// Borrow the same root path algorithm with an explicit Loop stop. The
+    /// Borrow the same root path algorithm with the original exit’s continuation. The
     /// caller must also corroborate all retained Invoke loans and exact census.
     pub(in crate::mir) fn validate_paths_v2(
         &self,
@@ -72,6 +89,24 @@ impl SourceLoopCleanupPlanV2 {
     }
 }
 
+#[derive(Debug)]
+pub(in crate::mir) struct SourceLoopExitV2 {
+    product: Rc<Product>,
+    port: usize,
+}
+
+pub(in crate::mir) type SourceLoopCleanupPlanV2 = SourceCleanupPlanV2<SourceLoopExitV2>;
+
+impl SourceLoopCleanupPlanV2 {
+    pub(in crate::mir) fn product(&self) -> &Rc<Product> {
+        &self.exit.product
+    }
+
+    pub(in crate::mir) fn port(&self) -> usize {
+        self.exit.port
+    }
+}
+
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir) fn prepare_source_loop_port_cleanup_v2(
         &self,
@@ -100,18 +135,16 @@ impl OrdinaryNewClaimLedgerV1 {
             source.normal_ends(),
         )?
         .ok_or_else(|| freeze("source-loop/cleanup-end-unavailable"))?;
-        let residuals = (0..normal.len())
-            .map(|step| super::super::fault_indices_after_normal_step_v2(full.len(), &normal, step))
-            .collect::<Result<_, _>>()?;
-        Ok(SourceLoopCleanupPlanV2 {
-            product: Rc::clone(product),
-            port,
+        SourceCleanupPlanV2::new(
+            SourceLoopExitV2 { product: Rc::clone(product), port },
             full,
             normal,
-            residuals,
-        })
+        )
     }
 }
 
 #[path = "source_loop_cleanup_validation.rs"]
 mod validation;
+
+#[path = "lexical_cleanup.rs"]
+mod lexical_cleanup;

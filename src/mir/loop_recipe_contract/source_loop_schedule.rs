@@ -67,6 +67,13 @@ pub(crate) struct SourceLoopTextBranchPhiV2 {
 }
 #[derive(Debug, Clone)]
 pub(crate) enum SourceLoopScheduledStepV2 {
+    /// Private lexical boundary around a contiguous part of the same Recipe block.
+    Program {
+        site: SourceStmtSiteV1,
+        body: crate::mir::compiler::located::SourceBodySiteV1,
+        end: usize,
+        normal: bool,
+    },
     Frame(usize),
     Call { item: LoopItemKeyV1, site: SourceStmtSiteV1,
         observation: crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
@@ -103,6 +110,11 @@ impl std::fmt::Debug for SourceLoopScheduleDraftV2 {
     }
 }
 impl VerifiedSourceLoopScheduleV2 {
+    pub(crate) fn programs_v2(&self) -> impl Iterator<Item = &SourceLoopScheduledStepV2> {
+        self.0.blocks.values().flatten()
+            .filter(|step| matches!(step, SourceLoopScheduledStepV2::Program { .. }))
+    }
+
     pub(crate) fn branch_joins_v2(&self) -> impl Iterator<Item = &SourceLoopBranchPhiV2> {
         self.0.blocks.values().flatten().filter_map(|step| match step {
             SourceLoopScheduledStepV2::If { joins, .. } => Some(joins.as_slice()), _ => None,
@@ -168,6 +180,27 @@ impl SourceLoopScheduleDraftV2 {
     pub(super) fn step(&mut self, block: LoopBlockKeyV1, step: SourceLoopScheduledStepV2) {
         self.blocks.get_mut(&block).expect("same projector allocated this Recipe block").push(step);
     }
+    pub(super) fn open_program(
+        &mut self,
+        block: LoopBlockKeyV1,
+        site: &SourceStmtSiteV1,
+        body: &crate::mir::compiler::located::SourceBodySiteV1,
+        normal: bool,
+    ) -> usize {
+        let index = self.blocks[&block].len();
+        self.step(block, SourceLoopScheduledStepV2::Program {
+            site: site.clone(), body: body.clone(), end: index + 1, normal,
+        });
+        index
+    }
+    pub(super) fn close_program(&mut self, block: LoopBlockKeyV1, index: usize) {
+        let steps = self.blocks.get_mut(&block).expect("original Recipe block");
+        let total = steps.len();
+        let SourceLoopScheduledStepV2::Program { end, .. } = &mut steps[index] else {
+            unreachable!("projector closes its own lexical marker")
+        };
+        *end = total;
+    }
     pub(super) fn finish(self, input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary,
         recipe: &VerifiedLoopRecipeV2, execution: &[SourceLoopEvaluationLifecycleV2],
         values: &[SourceLoopValueV2], control: &[SourceLoopItemV2], bindings: &BTreeMap<BindingRefV1, LoopBindingKeyV1>,
@@ -203,11 +236,43 @@ impl ScheduleCheck<'_, '_> {
         let block = self.recipe.blocks.get(key.raw() as usize).filter(|row| row.key == key)
             .ok_or_else(|| reject("schedule-block-missing"))?;
         let steps = self.draft.blocks.get(&key).ok_or_else(|| reject("schedule-block-missing"))?;
+        let programs = steps.iter().enumerate().filter_map(|(start, step)| {
+            match step {
+                SourceLoopScheduledStepV2::Program { site, body, end, .. } =>
+                    Some((site, body.kind(), start + 1..*end)),
+                _ => None,
+            }
+        }).collect::<Vec<_>>();
         let mut position = 0;
         let mut alive = true;
         for (step_index, step) in steps.iter().enumerate() {
             if !alive { return Err(reject("schedule-after-exit")); }
+            use SourceLoopScheduledStepV2 as Step;
+            let source_site = match step {
+                Step::Frame(index) => self.draft.frames.get(*index)
+                    .ok_or_else(|| reject("schedule-frame-index"))?.source().root().statement(),
+                Step::Return { source, .. } => &source.site,
+                Step::Call { site, .. }
+                | Step::Program { site, .. }
+                | Step::If { site, .. }
+                | Step::Exit { site, .. }
+                | Step::ChildLoop { site, .. }
+                | Step::OwnedArrayAppend { site, .. } => site,
+            };
+            if programs.iter().any(|(site, kind, range)| {
+                let in_source = source_site.node().segments().strip_prefix(site.node().segments())
+                    .and_then(|relative| relative.first())
+                    .is_some_and(|segment| kind.owns_item_segment(segment));
+                in_source != range.contains(&step_index)
+            }) {
+                return Err(reject("schedule-lexical-source-order"));
+            }
             match step {
+                SourceLoopScheduledStepV2::Program { end, .. } => {
+                    if *end <= step_index || *end > steps.len() {
+                        return Err(reject("schedule-lexical-range"));
+                    }
+                }
                 SourceLoopScheduledStepV2::OwnedArrayAppend { item, site, observation } => {
                     if super::source_loop_v2::source_array_append_v2(self.source, site) != Some(observation)
                         || block.items.get(position) != Some(item) || !self.items.insert(*item)

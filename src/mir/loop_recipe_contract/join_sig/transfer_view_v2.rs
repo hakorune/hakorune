@@ -7,8 +7,8 @@
 use super::super::ids::{LoopBindingKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopValueKeyV1};
 use super::super::schema_v2::LoopValueClassV2;
 use super::model::{
-    LoopJoinBranchArmV2, LoopJoinBranchExitTargetV2, LoopJoinEdgeRoleV1, LoopJoinNextItemV1,
-    LoopJoinPayloadV2, LoopJoinPortV1, VerifiedLoopAfterBinding,
+    LoopJoinBranchArmV2, LoopJoinBranchExitTargetV2, LoopJoinEdgeRoleV1, LoopJoinExitOccurrenceV1,
+    LoopJoinNextItemV1, LoopJoinPayloadV2, LoopJoinPortV1, VerifiedLoopAfterBinding,
 };
 use super::v2::VerifiedLoopJoinClosureV2;
 
@@ -21,12 +21,11 @@ pub(crate) struct LoopJoinBoundaryTransferRefV2<'program> {
     pub(crate) payload: &'program [LoopJoinPayloadV2],
 }
 
-/// A logical exit summary retained for branch-consistency checks.
-///
-/// This is not an executable physical transfer. Bounded Dynamic lowering
-/// must consume the matching branch arm's exact exit item instead.
+/// A logical transfer with the exact verified Recipe exit occurrence.
+/// Physical lowering still needs the source and cleanup proof for that edge.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct LoopJoinSummaryTransferRefV2<'program> {
+    pub(crate) exit_item: LoopItemKeyV1,
     pub(crate) loop_key: LoopNodeKeyV1,
     pub(crate) from: LoopJoinPortV1,
     pub(crate) to: LoopJoinPortV1,
@@ -122,10 +121,7 @@ impl<'program> LoopJoinLogicalTransferCollectionViewV2<'program> {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum LoopJoinLogicalTransferRejectV2 {
     AfterCollectionCoverage,
-    SummaryCountMismatch {
-        summaries: usize,
-        branch_exits: usize,
-    },
+    InvalidExitItem,
     SummaryDoesNotMatchBranch,
 }
 
@@ -193,30 +189,48 @@ fn issue_view<'program, A>(
     let mut boundaries = Vec::new();
     let mut summaries = Vec::new();
 
+    let mut exit_items = std::collections::BTreeSet::new();
+    let mut required_branch_exits = std::collections::BTreeSet::new();
     for row in &signature.loops {
         for edge in &row.edges {
-            let transfer = LoopJoinSummaryTransferRefV2 {
-                loop_key: row.key,
-                from: edge.from,
-                to: edge.to,
-                role: edge.role,
-                payload: edge.payload.as_slice(),
-            };
             match edge.role {
                 LoopJoinEdgeRoleV1::Enter
                 | LoopJoinEdgeRoleV1::PredicateTrue
                 | LoopJoinEdgeRoleV1::PredicateFalse
                 | LoopJoinEdgeRoleV1::BodyEntry
                 | LoopJoinEdgeRoleV1::Backedge => boundaries.push(LoopJoinBoundaryTransferRefV2 {
-                    loop_key: transfer.loop_key,
-                    from: transfer.from,
-                    to: transfer.to,
-                    role: transfer.role,
-                    payload: transfer.payload,
+                    loop_key: row.key,
+                    from: edge.from,
+                    to: edge.to,
+                    role: edge.role,
+                    payload: &edge.payload,
                 }),
                 LoopJoinEdgeRoleV1::Break
                 | LoopJoinEdgeRoleV1::Continue
-                | LoopJoinEdgeRoleV1::Return => summaries.push(transfer),
+                | LoopJoinEdgeRoleV1::Return => {
+                    let item = match edge.exit {
+                        Some(LoopJoinExitOccurrenceV1::Direct(item)) => item,
+                        Some(LoopJoinExitOccurrenceV1::Branch(item)) => {
+                            required_branch_exits.insert((row.key, item));
+                            item
+                        }
+                        None => return Err(LoopJoinLogicalTransferRejectV2::InvalidExitItem),
+                    };
+                    if !exit_items.insert((row.key, item))
+                        || edge.from != LoopJoinPortV1::Body
+                        || edge.to != summary_port(edge.role)
+                    {
+                        return Err(LoopJoinLogicalTransferRejectV2::InvalidExitItem);
+                    }
+                    summaries.push(LoopJoinSummaryTransferRefV2 {
+                        exit_item: item,
+                        loop_key: row.key,
+                        from: edge.from,
+                        to: edge.to,
+                        role: edge.role,
+                        payload: &edge.payload,
+                    });
+                }
             }
         }
     }
@@ -232,48 +246,26 @@ fn issue_view<'program, A>(
             else_arm: branch_arm(&branch.else_arm),
         })
         .collect::<Vec<_>>();
-    let branch_exits = branches
-        .iter()
-        .flat_map(|branch| [branch.then_arm, branch.else_arm])
-        .filter_map(|arm| match arm {
-            LoopJoinBranchArmTransferRefV2::Exit(exit) => Some(exit),
-            LoopJoinBranchArmTransferRefV2::Fallthrough { .. } => None,
-        })
-        .collect::<Vec<_>>();
-
-    if summaries.len() != branch_exits.len() {
-        return Err(LoopJoinLogicalTransferRejectV2::SummaryCountMismatch {
-            summaries: summaries.len(),
-            branch_exits: branch_exits.len(),
-        });
-    }
-    let mut used = vec![false; branch_exits.len()];
-    for summary in &summaries {
-        let Some(index) = branches
-            .iter()
-            .flat_map(|branch| {
-                [branch.then_arm, branch.else_arm]
-                    .into_iter()
-                    .filter_map(move |arm| match arm {
-                        LoopJoinBranchArmTransferRefV2::Exit(exit) => {
-                            Some((branch.owner_loop, exit))
-                        }
-                        LoopJoinBranchArmTransferRefV2::Fallthrough { .. } => None,
+    let mut matched_branch_exits = std::collections::BTreeSet::new();
+    for branch in &branches {
+        for arm in [branch.then_arm, branch.else_arm] {
+            if let LoopJoinBranchArmTransferRefV2::Exit(exit) = arm {
+                if !matched_branch_exits.insert((branch.owner_loop, exit.exit_item))
+                    || !summaries.iter().any(|summary| {
+                        summary.loop_key == branch.owner_loop
+                            && summary.exit_item == exit.exit_item
+                            && summary.role == exit.role
+                            && summary.payload == exit.payload
                     })
-            })
-            .enumerate()
-            .position(|(index, (owner_loop, exit))| {
-                !used[index]
-                    && summary.loop_key == owner_loop
-                    && summary.role == exit.role
-                    && summary.payload == exit.payload
-                    && summary.to == summary_port(exit.role)
-                    && summary.from == LoopJoinPortV1::Body
-            })
-        else {
-            return Err(LoopJoinLogicalTransferRejectV2::SummaryDoesNotMatchBranch);
-        };
-        used[index] = true;
+                {
+                    return Err(LoopJoinLogicalTransferRejectV2::SummaryDoesNotMatchBranch);
+                }
+            }
+        }
+    }
+
+    if matched_branch_exits != required_branch_exits {
+        return Err(LoopJoinLogicalTransferRejectV2::SummaryDoesNotMatchBranch);
     }
 
     Ok(LoopJoinLogicalTransferViewV2 {

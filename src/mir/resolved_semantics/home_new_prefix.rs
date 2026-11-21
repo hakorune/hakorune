@@ -84,6 +84,7 @@ pub(crate) use selected_new_arguments::{
 pub(crate) enum HomePrefixUnavailableV1 {
     EntryDemandMissing,
     SourceMismatch,
+    LexicalCarrierEndUnproved,
     MoveUnsupported(SourceExprSiteV1),
     SharedOperandUnsupported { site: SourceExprSiteV1, guidance: &'static str },
     UseAfterMove(SourceExprSiteV1),
@@ -261,7 +262,7 @@ pub(crate) use local_flow::source_loop::{
 pub(crate) use local_flow::{
     HomesV1, BranchNormalScalarSourceV1, CurrentScalarProducerV1, CurrentScalarReadV1, FieldAliasPathV1,
     FieldAliasRootSourceV1,
-    LiveHomeV1, LoopHeaderValueBasisV1, LoopI64PreStateRequestV1, LoopTextReadV1, SourceScalarKind,
+    LiveHomeV1, LexicalBodyEndV1, LexicalBodyEndsV1, LoopHeaderValueBasisV1, LoopI64PreStateRequestV1, LoopTextReadV1, SourceScalarKind,
     StaticTextReadV1, TextResidenceAcquisitionV1,
 };
 pub(crate) use local_flow::TaggedDynamicReadV1;
@@ -488,6 +489,7 @@ pub(crate) fn scan_new_home_flow<E>(
                 .map(|site| (site.clone(), Err(HomePrefixUnavailableV1::SourceMismatch)))
                 .collect(),
             RootHomeFlow {
+                lexical_ends: Default::default(),
                 named_arrays: Vec::new(),
                 exits: exit_homes
                     .into_iter()
@@ -610,6 +612,7 @@ pub(crate) fn scan_new_home_flow<E>(
     Ok((
         results,
         RootHomeFlow {
+            lexical_ends: locals.lexical_ends(),
             named_arrays: locals.named_array_observations(),
             exits: exit_homes
                 .into_iter()

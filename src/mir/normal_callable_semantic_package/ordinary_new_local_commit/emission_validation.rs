@@ -107,6 +107,7 @@ impl OrdinaryNewClaimLedgerV1 {
         projection: Option<&super::physical_boundary::FinishedBindings>,
         pending: Option<&super::PendingSelectedStaticLoopViewV1<'_, '_>>,
     ) -> Result<(), String> {
+        self.validate_lexical_body_cleanup(owner, function, projection)?;
         let intervals = super::read_argument::IntervalViewV1::new(function);
         for (site, row) in self
             .local_commits

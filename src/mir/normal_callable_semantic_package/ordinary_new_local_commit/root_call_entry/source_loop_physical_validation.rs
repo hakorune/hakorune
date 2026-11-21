@@ -140,8 +140,15 @@ pub(super) fn validate_owned_v2(
             claim(&row, false)?;
         }
     }
-    for block in &graph.blocks {
-        if let Some((index, row)) = block.scope_close.occurrence() {
+    for program in &graph.programs {
+        if let Some(cleanup) = &program.cleanup {
+            for row in &cleanup.bindings { claim(row, false)?; }
+        }
+    }
+    for receipt in graph.blocks.iter().map(|block| &block.scope_close)
+        .chain(graph.programs.iter().map(|program| &program.scope_close))
+    {
+        if let Some((index, row)) = receipt.occurrence() {
             if function
                 .blocks
                 .get(&row.0)

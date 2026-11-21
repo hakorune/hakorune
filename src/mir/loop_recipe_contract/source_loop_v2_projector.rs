@@ -346,8 +346,9 @@ impl Projector<'_> {
             match statement {
                 Statement::Call { site, observation } => {
                     let result = if let Some((_, binding)) = observation.local_binding() {
-                        if self.source.source.bindings().bindings().find(|(original, _)| *original == binding)
-                            .is_none_or(|(_, role)| role != Role::IterationLocal) { return Err(reject("initializer-role")); }
+                        if !self.source.source.bindings().local_declarations().contains_key(&binding) {
+                            return Err(reject("initializer-role"));
+                        }
                         let class = match observation.result() {
                             crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64 => Some(LoopValueClassV2::I64),
                             crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Bool => Some(LoopValueClassV2::Bool),
@@ -443,8 +444,9 @@ impl Projector<'_> {
                     let start = self.recipe.blocks[block.raw() as usize].items.len();
                     let prefix_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(frame.source().owner(), frame.source().nodes()[0].site().clone());
                     if let Some(initializer) = frame.initializer_frame() {
-                        if self.source.source.bindings().bindings().find(|(binding, _)| *binding == initializer.binding())
-                            .is_none_or(|(_, role)| role != Role::IterationLocal) { return Err(reject("initializer-role")); }
+                        if !self.source.source.bindings().local_declarations().contains_key(&initializer.binding()) {
+                            return Err(reject("initializer-role"));
+                        }
                         let result = self.evaluation(block, initializer.evaluation())?;
                         self.schedule.frame(Prefix::InitializerExpression { site: prefix_site, frame: Rc::clone(initializer) },
                             block, start..self.recipe.blocks[block.raw() as usize].items.len(), result);
@@ -477,6 +479,11 @@ impl Projector<'_> {
                         self.schedule.frame(Prefix::BindingRebind { site: prefix_site, frame: Rc::clone(rebind) },
                             block, start..self.recipe.blocks[block.raw() as usize].items.len(), value);
                     } else { return Err(reject("statement-execution-family")); }
+                }
+                Statement::Program { site, body, normal_end } => {
+                    let marker = self.schedule.open_program(block, site, &body.site, normal_end.is_some());
+                    self.body(block, body)?;
+                    self.schedule.close_program(block, marker);
                 }
                 Statement::If { site, bundle, condition, then_body, else_body } => {
                     let condition_frame = self.schedule.frame_count();

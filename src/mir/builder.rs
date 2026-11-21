@@ -363,7 +363,9 @@ pub(in crate::mir) use emission::constant::CompletedConstV1;
 pub(in crate::mir) use normal_callable_loop_source_facts::{
     CompletedSourceLoopPhiPointsV2, PreparedSourceLoopPhiCompletionV2,
 };
-pub(in crate::mir) use ordinary_new_admission::selected::source_loop_cleanup::EmittedSourceLoopCleanupV2;
+pub(in crate::mir) use ordinary_new_admission::selected::source_loop_cleanup::{
+    EmittedSourceCleanupV2, EmittedSourceLoopCleanupV2,
+};
 pub(in crate::mir) use ordinary_new_admission::selected::{
     EmittedExpressionBodyV1, ExpressionOwnedTemporaryV1,
 };
