@@ -1,0 +1,7 @@
+using lang.runtime.collections.array_core_box as ArrayCoreBox
+static box Main {
+    main() {
+        print(7)
+        return 0
+    }
+}
