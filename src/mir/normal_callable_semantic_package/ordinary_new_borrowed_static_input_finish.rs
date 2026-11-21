@@ -116,18 +116,18 @@ impl OrdinaryNewClaimLedgerV1 {
             .source_rows_v1()
             .filter(|call| self.is_static_expression_input_owner_v1(source, call.callee))
             .map(|call| call.callee);
-        let zero_returns =
+        let checked_zero =
             source
                 .source_incoming
                 .source_rows_v1()
                 .filter_map(|call| match &call.source {
                     super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(
                         original,
-                    ) if self.has_static_zero_return_source_v1(original) => Some(call.callee),
+                    ) if self.has_static_zero_checked_source_v1(original) => Some(call.callee),
                     _ => None,
                 });
         let owners: std::collections::BTreeSet<_> =
-            zero.chain(zero_returns).chain(qualified).collect();
+            zero.chain(checked_zero).chain(qualified).collect();
         for owner in owners {
             let mut matching = contracts.iter().filter(|row| row.owner == owner);
             let contract = matching

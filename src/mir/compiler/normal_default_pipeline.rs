@@ -487,7 +487,7 @@ impl NormalDefaultPublishedPipelineV1 {
         request: NormalCompileRequestV1,
         select_validation: impl FnOnce(
             crate::mir::builder::CompletedNormalDefaultRootCatalogLifecycleV1,
-        ) -> (ModuleBuilderInvocationSessionV1, MirModule, V),
+        ) -> Result<(ModuleBuilderInvocationSessionV1, MirModule, V), String>,
         consume: impl FnOnce(
             MirCompileResult,
             ModuleBuilderInvocationSessionV1,
@@ -529,7 +529,7 @@ impl NormalDefaultPublishedPipelineV1 {
                 message
             })?;
         let scalar_roots = completed.scalar_finishing_liveness_v1()?;
-        let (session, module, validate_source_bindings) = select_validation(completed);
+        let (session, module, validate_source_bindings) = select_validation(completed)?;
         super::super::compile_timing::trace_stage("build_module", stage_start.elapsed());
 
         match result_contract {
@@ -565,7 +565,10 @@ impl MirCompiler {
         NormalDefaultPublishedPipelineV1::compile(
             self,
             request,
-            |completed| completed.into_parts(),
+            |completed| {
+                completed.require_bare_call_argument_sources_v1()?;
+                Ok(completed.into_parts())
+            },
             |result, session, ()| {
                 let prepared = session
                     .prepare_external_commit()
@@ -595,7 +598,7 @@ impl MirCompiler {
         NormalDefaultPublishedPipelineV1::compile(
             self,
             request,
-            |completed| completed.into_artifact_parts(),
+            |completed| Ok(completed.into_artifact_parts()),
             |mut result, session, retained_root| {
                 let profile_name = crate::config::env::env_string("HAKO_TYPED_OBJECT_STORE");
                 let direct_requested = profile_name.as_deref().is_some_and(|name| name.starts_with("direct_v0"));
@@ -697,7 +700,7 @@ impl MirCompiler {
         NormalDefaultPublishedPipelineV1::compile(
             self,
             request,
-            |completed| completed.into_document_parts(),
+            |completed| Ok(completed.into_document_parts()),
             |result, session, retained_root| {
                 let view = if selected_normal_admission {
                     published_backend_view::PublishedMirBackendView::try_new_selected_normal(

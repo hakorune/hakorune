@@ -40,6 +40,16 @@ impl BorrowedFormalActualSourceV1 {
     }
 }
 
+impl crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir) fn has_taken_call_argument_sources_v1(&self) -> bool {
+        self.borrowed_formal_actuals
+            .values()
+            .filter_map(|rows| rows.as_ref().ok())
+            .flat_map(|rows| rows.opaque_actuals.iter())
+            .any(|actual| actual.source.transfers_home_at_entry_v1())
+    }
+}
+
 /// Bind original source structure only. Mode-specific class/loan requirements
 /// stay with the original Static/Instance issuer, outside this common product.
 pub(super) fn bind_original_argument_plans_v1(

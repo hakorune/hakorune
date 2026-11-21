@@ -394,6 +394,19 @@ fn static_primitive_result_v1(
     Ok(Some(class))
 }
 
+pub(super) fn has_completed_static_text_result_v1(
+    selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    completed: Option<&crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractBuilderV1>,
+    original: &StaticIncomingSourceV1,
+) -> bool {
+    completed
+        .and_then(|rows| rows.row(original.target_batch_slot()))
+        .is_some_and(|row| {
+            row.borrow()
+                .corroborates_static_text_source_v1(selected, original)
+        })
+}
+
 pub(in crate::mir::normal_callable_semantic_package) fn source_static_result_arguments_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     pending: &PendingBorrowedFormalActualsV1,
@@ -416,12 +429,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_static_result_arg
     };
     let catalog_text =
         ordinary_text_argument_source_v1(prepared, site, original.method_source())?.is_some();
-    let completed_text = completed
-        .and_then(|rows| rows.row(original.target_batch_slot()))
-        .is_some_and(|row| {
-            row.borrow()
-                .corroborates_static_text_source_v1(selected, original)
-        });
+    let completed_text = has_completed_static_text_result_v1(selected, completed, original);
     use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1 as Class;
     let result = if let Some(result) = static_primitive_result_v1(original)? {
         result

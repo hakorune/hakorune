@@ -395,7 +395,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         if let Some(observation) = expression_observation {
-            if self.has_static_zero_return_source_v1(original) {
+            if self.has_static_zero_checked_source_v1(original) {
                 let Some(arguments) = self.checked_completed_static_zero_arguments_v1(original)?
                 else {
                     return Ok(None);

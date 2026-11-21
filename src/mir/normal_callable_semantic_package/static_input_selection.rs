@@ -102,16 +102,40 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(self.checked_input_use_source_v1(contract)?.map(Some))
     }
 
-    /// Borrow an existing Return frame; no statement or entry is synthesized.
-    pub(in crate::mir::normal_callable_semantic_package) fn has_static_zero_return_source_v1(
+    /// Use the exact original Call retained by the caller's checked evaluation.
+    /// A zero-input call does not depend on the destination of its result.
+    pub(in crate::mir::normal_callable_semantic_package) fn has_static_zero_checked_source_v1(
         &self,
         original: &Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
     ) -> bool {
-        original.is_zeroarg_i64_v1() && self.terminal_relations_for_owner(original.call_site().owner())
-            .iter().any(|relation| matches!(relation,
-                crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Scalar(terminal)
-                    if terminal.evaluation().is_some_and(|frame|
-                        original.is_scalar_return_source_v1(frame.source()))))
+        use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1;
+
+        if !original.is_zeroarg_i64_v1() {
+            return false;
+        }
+        let site = original.call_site();
+        self.observes_static_result_v1(original, LocalCallResultClassV1::I64)
+            || self.terminal_relations_for_owner(site.owner()).iter().any(|relation|
+            matches!(relation, crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Scalar(terminal)
+                if terminal.evaluation().is_some_and(|frame|
+                    original.is_scalar_return_source_v1(frame.source()))))
+    }
+
+    fn observes_static_result_v1(
+        &self,
+        original: &Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
+        result: crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1,
+    ) -> bool {
+        use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1;
+
+        let site = original.call_site();
+        self.local_call_for_owner(site.owner(), site.site())
+            .is_some_and(|call| {
+                call.arguments().len() == original.argument_sites().len()
+                    && call.result() == result
+                    && matches!(call.result_source(), Some(LocalCallResultSourceV1::Ordinary(loan))
+                        if loan.static_source().is_some_and(|source| Rc::ptr_eq(source, original)))
+            })
     }
 
     pub(super) fn static_zero_input_uses_source_v1(
@@ -126,12 +150,12 @@ impl OrdinaryNewClaimLedgerV1 {
             .any(|row| {
                 matches!(&row.source,
                 super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
-                    if self.has_static_zero_return_source_v1(original))
+                    if self.has_static_zero_checked_source_v1(original))
             })
     }
 
     /// The finisher and its lender recheck the same original caller cohort.
-    /// Only a retained qualified Return demands source-only zero callers.
+    /// A checked call retaining the original source can demand source-only zero callers.
     pub(super) fn static_zero_input_calls_v1(
         &self,
         source: &PreparedBorrowedFormalIngressV1,
@@ -139,8 +163,8 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Box<[super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1]>, String>
     {
         let owners = [owner].into_iter().collect();
-        let source_return = self.static_zero_input_uses_source_v1(source, owner);
-        let calls = if source_return {
+        let checked_source = self.static_zero_input_uses_source_v1(source, owner);
+        let calls = if checked_source {
             source.source_incoming.project_source_v1(&owners)
         } else {
             source.source_incoming.project(&owners)
@@ -148,7 +172,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let calls = calls.map_err(|issue| {
             format!("{}: {issue:?}", freeze("borrowed-formal/incoming-coverage"))
         })?;
-        if !source_return {
+        if !checked_source {
             return Ok(calls);
         }
         let (selected, _) = self
@@ -230,7 +254,11 @@ impl OrdinaryNewClaimLedgerV1 {
                             });
                             all_signed && has_expression
                         });
-                    finite_forward || text_source || scalar_expression_source || original.is_i64_input_text_v1()
+                    let exact_input_text = original.is_i64_input_text_v1()
+                        || original.has_exact_i64_inputs_v1()
+                            && self.observes_static_result_v1(original,
+                                crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Text);
+                    finite_forward || text_source || scalar_expression_source || exact_input_text
                         || original.parameters().iter().any(|formal| formal.takes_declared_object_v1())
                 }
                 _ => false,

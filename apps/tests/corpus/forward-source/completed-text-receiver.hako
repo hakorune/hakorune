@@ -1,0 +1,18 @@
+// Expected exit: 2. The returned text has two characters.
+box Holder {
+  value: i64
+  birth() { me.value = 1 }
+  name() { return "ab" }
+}
+
+static box Main {
+  make() {
+    local object = new Holder()
+    local text = object.name()
+    return text
+  }
+
+  main() {
+    return Main.make().length()
+  }
+}
