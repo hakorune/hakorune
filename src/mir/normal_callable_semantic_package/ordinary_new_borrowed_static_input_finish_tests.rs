@@ -273,18 +273,20 @@ fn static_zero_input_finish_preserves_original_cohort_and_refusal_boundaries() {
             );
         }
     }
-    let unknown = package("static box Layout { word() { return 8 } run(p) { local a = me.word() local b = p.word() return 0 } } static box Main { main() { return 0 } }");
-    let calls = originals(&unknown);
-    assert_eq!(
-        calls.len(),
-        1,
-        "known source retained beside unknown caller"
-    );
-    assert!(unknown
+    let lexical = package("static box Layout { word() { return 8 } run(p) { local a = me.word() local b = p.word() return 0 } } static box Main { main() { return 0 } }");
+    let calls = originals(&lexical);
+    assert_eq!(calls.len(), 1, "only the static caller enters the cohort");
+    assert!(lexical
         .ordinary_new_claim_ledger
         .checked_completed_static_zero_arguments_v1(&calls[0])
-        .unwrap_err()
-        .contains("incoming-coverage"));
+        .unwrap()
+        .is_some_and(|args| args.is_empty()));
+
+    // An unresolved qualified receiver still owes static source evidence.
+    let unresolved = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+        "static box Layout { word() { return 8 } run() { local a = me.word() local b = Missing.word() return 0 } } static box Main { main() { return 0 } }",
+    ).err().expect("unproved qualified caller must block completion");
+    assert!(format!("{unresolved:?}").contains("static-execution/completion-not-ready"));
 }
 
 #[test]

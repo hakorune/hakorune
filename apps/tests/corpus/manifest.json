@@ -35695,6 +35695,15 @@
       "cadence": "every"
     },
     {
+      "path": "apps/tests/corpus/unresolved-caller/imported-parser.hako",
+      "sha256": "9a0789989a750d17e9afbb8ab030dda297085eb693228ac7bef3eeb8338d2d50",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
       "path": "apps/tests/corpus/v/a.hako",
       "sha256": "2da79608fcd4605bde963e12146b66c4023f5c2fc6dc438dee16a5f52751a02e",
       "groups": [

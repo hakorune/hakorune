@@ -1,0 +1,7 @@
+using lang.compiler.parser.box as ParserBoxMod
+static box Main {
+    main() {
+        print(7)
+        return 0
+    }
+}
