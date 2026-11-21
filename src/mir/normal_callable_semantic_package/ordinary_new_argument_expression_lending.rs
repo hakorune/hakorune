@@ -1,6 +1,51 @@
 //! Original argument source loans and purpose-specific reads.
 use super::*;
 
+/// Select the evaluator's I64 result requirement from the original formal or
+/// from the actual's own reaching values. The latter proves an expression
+/// class only. The caller prefix and the whole callee transport still need
+/// their separate existing qualification.
+fn argument_expression_requires_i64_v1(
+    prepared: &PreparedBorrowedFormalIngressV1,
+    formal: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1,
+    candidate: &BorrowedCallActualCandidateV1,
+    plan: &ExpressionSourcePlanV1,
+) -> bool {
+    use crate::mir::resolved_semantics::ResolvedLexicalRefV1;
+    use crate::mir::resolved_value_profile::{
+        expression_class::ExpressionValueClassV1 as Class,
+        expression_plan::ExpressionNodeSourceV1 as Node,
+        expression_projection::{ExpressionLeafClassV1 as Leaf, project_expression_class_v1},
+    };
+
+    if formal.kind.is_i64_actual_v1() {
+        return true;
+    }
+    if !matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
+        || !matches!(candidate.value,
+            BorrowedCallActualValueV1::Expression
+                | BorrowedCallActualValueV1::MethodCall(_)
+                | BorrowedCallActualValueV1::Binding(_)
+                | BorrowedCallActualValueV1::Scalar(_, SourceScalarKind::Integer))
+    {
+        return false;
+    }
+    prepared.source_value_sum_v1(formal.binding).is_some_and(|sum| sum.signed_only())
+        || project_expression_class_v1(plan, |index| {
+            let node = &plan.nodes()[index];
+            let Node::Reference(ResolvedLexicalRefV1::Local(binding)) = node.source() else {
+                return Leaf::Unresolved;
+            };
+            if binding.owner() == plan.owner()
+                && prepared.lend_read_sum_v1(node.site(), *binding).is_some_and(|sum| sum.signed_only())
+            {
+                Leaf::Value(Class::I64)
+            } else {
+                Leaf::Unresolved
+            }
+        }) == Some(Class::I64)
+}
+
 pub(in crate::mir::normal_callable_semantic_package) fn lend_argument_expression_source_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
     pending: &PendingBorrowedFormalActualsV1,
@@ -94,17 +139,7 @@ fn lend_argument_source_inner_for_array_v1(
         .formals
         .get(ordinal as usize)
         .ok_or_else(|| freeze("borrowed-static/argument-formal"))?;
-    let i64_result = matches!(&formal.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64())
-        || matches!(
-            candidate.value,
-            BorrowedCallActualValueV1::Expression
-                | BorrowedCallActualValueV1::MethodCall(_)
-                | BorrowedCallActualValueV1::Binding(_)
-                | BorrowedCallActualValueV1::Scalar(_, SourceScalarKind::Integer)
-        ) && matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
-            && prepared
-                .source_value_sum_v1(formal.binding)
-                .is_some_and(|sum| sum.signed_only());
+    let i64_result = argument_expression_requires_i64_v1(prepared, formal, candidate, plan);
     Ok(Some(ArgumentExpressionSourceLoanV1 {
         plan: Rc::clone(plan),
         result: if i64_result { ArgumentExpressionResultV1::I64 } else { ArgumentExpressionResultV1::Text },
@@ -305,38 +340,22 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_argument_source
     else {
         return Ok(None);
     };
-    if !identity.slots.get(&ordinal).is_some_and(|plan| {
+    let reject = || freeze("borrowed-static/core-source-identity");
+    let plan = identity.slots.get(&ordinal).filter(|plan| {
         matches!(plan.root(), ExpressionPlanRootV1::CallArgument { call: original, .. }
-        if std::sync::Arc::ptr_eq(original, call))
-    }) {
-        return Err(freeze("borrowed-static/core-source-identity"));
-    }
+            if std::sync::Arc::ptr_eq(original, call))
+    }).ok_or_else(reject)?;
+    let candidate = identity.candidates.get(ordinal as usize)
+        .filter(|candidate| candidate.ordinal == ordinal && &candidate.site == arg.site())
+        .ok_or_else(reject)?;
     // Lend the same original plan only; field/lifetime/ABI remain separate.
     if formal.kind.is_ordinary_borrowed_handle()
-        && matches!(identity.candidates.get(ordinal as usize).map(|actual| &actual.value),
-            Some(BorrowedCallActualValueV1::FieldAccess))
+        && matches!(candidate.value, BorrowedCallActualValueV1::FieldAccess)
         && prepared.original_map_field_actual_source_v1(site, ordinal, arg.site())?.is_some()
     {
         return lend_argument_expression_source_v1(prepared, pending, contracts, site, ordinal);
     }
-    if matches!(&formal.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64())
-        || matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
-            && matches!(
-                identity
-                    .candidates
-                    .get(ordinal as usize)
-                    .map(|actual| &actual.value),
-                Some(
-                    BorrowedCallActualValueV1::Expression
-                        | BorrowedCallActualValueV1::MethodCall(_)
-                        | BorrowedCallActualValueV1::Binding(_)
-                        | BorrowedCallActualValueV1::Scalar(_, SourceScalarKind::Integer)
-                )
-            )
-            && prepared
-                .source_value_sum_v1(formal.binding)
-                .is_some_and(|sum| sum.signed_only())
-    {
+    if argument_expression_requires_i64_v1(prepared, formal, candidate, plan) {
         let eligible = match crate::mir::resolved_semantics::home_new_prefix::borrowed_actual_source_atom_v1(input, arg.site()) {
             Some(BorrowedCallActualValueV1::Expression) => true,
             Some(BorrowedCallActualValueV1::Binding(_)) => matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle),
@@ -390,10 +409,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_argument_source
                 }
             }
             Some(BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_)) => {}
-            _ if identity
-                .slots
-                .get(&ordinal)
-                .and_then(|plan| plan.nodes().first())
+            _ if plan
+                .nodes()
+                .first()
                 .and_then(|node| node.binary())
                 .is_some_and(|binary| {
                     binary.operator()

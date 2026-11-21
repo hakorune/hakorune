@@ -35164,6 +35164,15 @@
       "cadence": "every"
     },
     {
+      "path": "apps/tests/corpus/text-expression/imported-integer-actual.hako",
+      "sha256": "4b20272be2df9f8ee75780332ad87c728a80e08fdb76f9f0fd64ee85116e6355",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
       "path": "apps/tests/corpus/triage-work/cr0.hako",
       "sha256": "0535569a01453d91e6ffc78bf7294bdeceb873f2e7ccf566d6232fa45a718ab4",
       "groups": [
