@@ -15522,6 +15522,15 @@
       "cadence": "every"
     },
     {
+      "path": "apps/tests/corpus/forward-source/print-zero-i64.hako",
+      "sha256": "cef89d4e2a1a0067be4d2db1adfc98d82a437ad05b718466efe6cba1058bf01e",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
       "path": "apps/tests/corpus/lexical-block/a3-move-out.hako",
       "sha256": "02dbacab211276212445bc80766baf17eb70c0e8ee83c93958eb3de4327b662a",
       "groups": [

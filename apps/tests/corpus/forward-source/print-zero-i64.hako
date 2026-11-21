@@ -1,0 +1,12 @@
+// Expected stdout: 3. Expected exit: 0.
+static box Main {
+  value(): i64 {
+    local s = "abc"
+    local n = s.length()
+    return n
+  }
+  main() {
+    print(Main.value())
+    return 0
+  }
+}
