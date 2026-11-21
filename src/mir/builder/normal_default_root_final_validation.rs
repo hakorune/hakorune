@@ -84,6 +84,16 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
         }
     }
 
+    /// A bare module cannot carry the original owned-transfer witnesses.
+    pub(in crate::mir) fn require_bare_call_argument_sources_v1(&self) -> Result<(), String> {
+        if matches!(&self.root_validation, RootValidation::OrdinaryNew { ledger, .. }
+            if ledger.has_taken_call_argument_sources_v1())
+        {
+            return Err("[freeze:contract][bare-mir/take-source-handoff-required]".into());
+        }
+        Ok(())
+    }
+
     pub(in crate::mir) fn into_parts(
         self,
     ) -> (
