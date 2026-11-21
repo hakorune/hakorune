@@ -15513,6 +15513,15 @@
       "cadence": "every"
     },
     {
+      "path": "apps/tests/corpus/lexical-block/a3-move-out.hako",
+      "sha256": "02dbacab211276212445bc80766baf17eb70c0e8ee83c93958eb3de4327b662a",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
       "path": "apps/tests/corpus/lexical-block/block-continue.hako",
       "sha256": "cb25ce536808a87548e4682cffc906e0106a012541503febe5959c18804438f0",
       "groups": [

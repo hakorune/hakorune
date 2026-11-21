@@ -23,6 +23,20 @@ impl<Exit> SourceCleanupPlanV2<Exit> {
         full: Vec<(LiveHomeV1, super::super::RootHomeReleaseSubjectV1, InvokeOperation)>,
         normal: Vec<usize>,
     ) -> Result<Self, String> {
+        // The Normal continuation can retain an outer Home, while Fault
+        // still owes it an End. The published Text checker has no evidence
+        // for skipping a younger concrete Text Home on a Normal End.
+        let mut retained_text = false;
+        for (index, (home, _, _)) in full.iter().enumerate() {
+            if !matches!(home, LiveHomeV1::Text(_)) {
+                continue;
+            }
+            if !normal.contains(&index) {
+                retained_text = true;
+            } else if retained_text {
+                return Err(freeze("root-cleanup-order/retained-text-order-unavailable"));
+            }
+        }
         let residuals = (0..normal.len())
             .map(|step| super::super::fault_indices_after_normal_step_v2(full.len(), &normal, step))
             .collect::<Result<_, _>>()?;

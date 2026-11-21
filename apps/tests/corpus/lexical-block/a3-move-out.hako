@@ -1,0 +1,13 @@
+// Expected stdout: ab, then Result: 0. Expected exit: 0.
+static box Main {
+  main() {
+    local src = " ab"
+    local keep = ""
+    {
+      local t = src.substring(1, 3)
+      keep = t
+    }
+    print(keep)
+    return 0
+  }
+}
