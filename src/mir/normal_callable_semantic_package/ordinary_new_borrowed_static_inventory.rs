@@ -28,6 +28,15 @@ struct StaticIncomingContextV1
         Option<&'a super::super::super::BorrowedAppMainSourceLoanV1<'a>>,
 }
 
+/// Only resolver-sealed static receiver dispositions can enter the static census.
+pub(super) fn admits_static_receiver_v1(source: &VerifiedResolvedMethodCallSourceV1) -> bool {
+    matches!(
+        source.receiver(),
+        ResolvedMethodCallReceiverSourceV1::QualifiedUnbound
+            | ResolvedMethodCallReceiverSourceV1::CurrentOwner
+    )
+}
+
 impl StaticIncomingContextV1<'_> {
     pub(super) fn observe<'caller>(
         &self,
@@ -58,11 +67,7 @@ impl StaticIncomingContextV1<'_> {
             return Err(BorrowedIncomingDraftErrorV1::CallIdentity(site.clone()));
         }
         let retained = retained.or(operand_retained);
-        if !matches!(
-            source.receiver(),
-            ResolvedMethodCallReceiverSourceV1::QualifiedUnbound
-                | ResolvedMethodCallReceiverSourceV1::CurrentOwner
-        ) {
+        if !admits_static_receiver_v1(source) {
             return if retained.is_some() {
                 Err(BorrowedIncomingDraftErrorV1::CallIdentity(site.clone()))
             } else {

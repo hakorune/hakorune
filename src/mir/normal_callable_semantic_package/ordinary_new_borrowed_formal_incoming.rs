@@ -474,6 +474,13 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                         }
                     }};
                     let Some(exact) = exact else {
+                        // Receiver disposition can exclude a static edge even
+                        // when the original value's dispatch is still unresolved.
+                        if contract.mode == CallableParameterDeclarationModeV1::StaticBoxMethod
+                            && !static_inventory::admits_static_receiver_v1(method)
+                        {
+                            continue;
+                        }
                         if caller.is_some() && instance.is_none() && stored_target.is_none()
                             && static_observation.is_none() && source_static_observation.is_none()
                             && contract.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod
