@@ -476,6 +476,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
     callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     parameters: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
     app_main: Option<AppMainSourceRefV1<'_>>,
+    omitted_static_callers: &BTreeMap<FunctionOwnerIdV1, CanonicalSameModuleCallableKeyV1>,
     stored_receiver: &mut impl FnMut(
         OriginalCallSourceCallerV1<'_>,
         crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
@@ -636,7 +637,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                                 None => return Ok(None),
                             }
                         }
-                        None => match source.claim_local_class(batch, selected, &need)? {
+                        None => match source.claim_local_class(
+                            batch,
+                            selected,
+                            &need,
+                            omitted_static_callers.get(&need.owner),
+                        )? {
                             Some((class, borrowed)) => { borrowed_receiver_source = borrowed; class },
                             None => return Ok(None),
                         },

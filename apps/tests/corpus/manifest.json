@@ -4871,6 +4871,15 @@
       "cadence": "every"
     },
     {
+      "path": "apps/tests/corpus/app-main/imported-static.hako",
+      "sha256": "d38846b5e7d11ba29440c7b556c4c17ebad3f2af3a6a79af676511c472b35e36",
+      "groups": [
+        "A"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
       "path": "apps/tests/corpus/audit-birth-take/a1.hako",
       "sha256": "c0c40aa927eb24709bb08cb063348522c5bf29c39f1cf6fab665e1b1bd22a11b",
       "groups": [

@@ -1,0 +1,8 @@
+using lang.compiler.parser.stmt.parser_stmt_box.release_source as ParserStmtReleaseSourceBox
+using selfhost.shared.common.string_helpers as StringHelpers
+static box Main {
+  main() {
+    print(StringHelpers.int_to_str(7))
+    return 0
+  }
+}
