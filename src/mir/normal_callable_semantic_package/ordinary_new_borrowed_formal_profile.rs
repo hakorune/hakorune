@@ -147,6 +147,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         field_write_claims,
         callable_result_classes,
         contracts, app_main.map(|main| main.caller_source_ref_v1()),
+        omitted_static_callers,
         probe,
         Some(constructors), Some(entry_home_loans),
     );

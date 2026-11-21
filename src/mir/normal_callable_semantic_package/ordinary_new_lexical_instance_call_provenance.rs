@@ -329,6 +329,7 @@ impl LexicalReceiverClassSourceV1<'_> {
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
         need: &LexicalInstanceCallNeedV1,
+        omitted_caller: Option<&CanonicalSameModuleCallableKeyV1>,
     ) -> Result<Option<(Box<str>, Option<Box<BorrowedReceiverSourceV1>>)>, String> {
         batch
             .with_lowering_input(
@@ -338,8 +339,20 @@ impl LexicalReceiverClassSourceV1<'_> {
                         return Ok(None);
                     }
                     if input.forest().callable_source_ledger(input.owner()).is_ok_and(|ledger| ledger.uncaptured_binding(need.receiver_binding)) {
-                        if let Some(source) = self.callable_result_classes.declared_read_source_at_v1(batch, selected,
-                            self.field_write_claims, self.parameters, input, &need.receiver_site, self.app_main, None).map_err(freeze)? {
+                        if let Some(source) = self
+                            .callable_result_classes
+                            .declared_read_source_at_v1(
+                                batch,
+                                selected,
+                                self.field_write_claims,
+                                self.parameters,
+                                input,
+                                &need.receiver_site,
+                                self.app_main,
+                                omitted_caller,
+                            )
+                            .map_err(freeze)?
+                        {
                             if !self.ordinary_box_names.iter().any(|name| name.as_ref() == source.declared_type()) { return Ok(None); }
                             return Ok(Some((source.declared_type().into(), Some(Box::new(BorrowedReceiverSourceV1::DeclaredRead(source))))));
                         }
@@ -384,6 +397,11 @@ impl LexicalReceiverClassSourceV1<'_> {
                             let class = source.source().payload_source_v1().payload_class_v1().into();
                             (class, Some(Box::new(BorrowedReceiverSourceV1::DirectMapGet(source))))
                         } else {
+                            // A completed Map result loan requires a selected instance caller.
+                            // The omitted static key authorizes declaration reads only.
+                            if omitted_caller.is_some() {
+                                return Ok(None);
+                            }
                             let Some(loan) = self.callable_result_classes.borrowed_map_local_receiver_source_v1(
                                 batch, selected, self.field_write_claims, self.parameters, &call,
                                 need.receiver_binding, self.app_main).map_err(freeze)? else { return Ok(None); };

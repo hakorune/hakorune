@@ -204,6 +204,7 @@ mod tests {
                         &fields,
                         &classes,
                         parameters, main.map(|main| main.caller_source_ref_v1()),
+                        &std::collections::BTreeMap::new(),
                         &mut |_, _, _| Ok(None),
                         None, None,
                     )
