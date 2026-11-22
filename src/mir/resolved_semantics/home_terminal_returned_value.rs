@@ -96,10 +96,11 @@ pub(crate) enum TerminalReturnedSourceV1 {
     TextExpression(
         std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
     ),
-    /// Exact ReturnValue evaluation with an independently owned carrier at its root.
-    DynamicExpression(
-        std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
-    ),
+    /// Exact ReturnValue evaluation that will transfer an owned carrier.
+    DynamicExpression {
+        source: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
+        materialize: bool,
+    },
     /// Exact read of the current owned Text acquisition. The original exit
     /// keeps this residence live for Fault cleanup; Normal transfer is a
     /// downstream disposition, never an Object Home or a new acquisition.

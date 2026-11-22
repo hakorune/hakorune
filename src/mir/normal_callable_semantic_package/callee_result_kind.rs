@@ -10,15 +10,13 @@ use crate::mir::builder::{CanonicalSameModuleCallableKeyV1 as Key, SelectedNorma
 use crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1 as StaticEvidence;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1 as Class;
-use std::{cell::{OnceCell, RefCell}, collections::BTreeMap, rc::Rc};
+use std::{cell::OnceCell, collections::BTreeMap, rc::Rc};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum CalleeResultKindV1 {
     I64,
     Bool,
     Text,
-    NullableText,
-    OwnedDynamic,
     Handle(Box<str>),
     Nullable(Box<str>),
     Map,
@@ -30,8 +28,6 @@ impl CalleeResultKindV1 {
             Self::I64 => Class::I64,
             Self::Bool => Class::Bool,
             Self::Text => Class::Text,
-            Self::NullableText => Class::Dynamic,
-            Self::OwnedDynamic => Class::OwnedDynamic,
             Self::Handle(_) => Class::Handle,
             Self::Nullable(_) => Class::Nullable,
             Self::Map => Class::Map,
@@ -82,22 +78,22 @@ impl<'a> StaticInputRequirementsV1<'a> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 struct ResultRowV1 {
-    kind: RefCell<Option<CalleeResultKindV1>>,
+    kind: Option<CalleeResultKindV1>,
     // The SAME source projection, including a formal identity without a kind.
     object: Option<OrdinaryNewResultClassV1>,
+    source_i64: bool,
     normal_i64: bool,
 }
 impl ResultRowV1 {
-    fn corroborate(&self, key: &Key, evidence: Option<CalleeResultKindV1>) -> Result<(), String> {
+    fn corroborate(&mut self, key: &Key, evidence: Option<CalleeResultKindV1>) -> Result<(), String> {
         let Some(evidence) = evidence else { return Ok(()); };
-        let mut current = self.kind.borrow_mut();
-        match current.as_ref() {
+        match self.kind.as_ref() {
             Some(kind) if kind != &evidence => Err(format!(
                 "[freeze:contract][callee-result-kind/conflict]: callee={key:?} first={kind:?} next={evidence:?}")),
             Some(_) => Ok(()),
-            None => { *current = Some(evidence); Ok(()) }
+            None => { self.kind = Some(evidence); Ok(()) }
         }
     }
 }
@@ -129,7 +125,7 @@ impl CalleeResultKindCatalogV1 {
     }
     pub(super) fn kind(&self, key: &Key) -> Option<CalleeResultKindV1> {
         match self.resolved.get() {
-            Some(rows) => rows.get(key)?.kind.borrow().clone(),
+            Some(rows) => rows.get(key)?.kind.clone(),
             None => self.static_evidence(key).and_then(CalleeResultKindV1::from_static)
                 .or_else(|| self.static_value_classes.get(key).and_then(CalleeResultKindV1::from_source_value_class)),
         }
@@ -146,69 +142,53 @@ impl CalleeResultKindCatalogV1 {
         let requirements = self.static_input_requirements(key).verified()?;
         Some((requirements, self.kind(key)?.local_class()))
     }
-    /// Source-kind evidence may become available after Completion. The
-    /// independently verified transfer stays an admission prerequisite.
-    pub(super) fn corroborated_invoke_result<'a>(
-        &self, key: &Key, completed: Option<Class>, source_bool: bool, retained_bool: bool,
-        relations: impl IntoIterator<Item = &'a crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1>,
+    /// The preflight scalar evidence qualifies the source/input route. The
+    /// completed result is the only result transported to the caller.
+    pub(super) fn corroborated_invoke_result(
+        &self, key: &Key, completed: Option<crate::mir::instruction::InvokeCallResultKind>,
     ) -> Result<Option<crate::mir::instruction::InvokeCallResultKind>, String> {
+        use crate::mir::instruction::InvokeCallResultKind as Kind;
         let row = self.resolved.get().and_then(|rows| rows.get(key))
             .ok_or_else(|| format!("[freeze:contract][callee-result-kind/missing]: callee={key:?}"))?;
-        let evidence = match completed {
-            Some(Class::Text) => Some(CalleeResultKindV1::Text),
-            Some(Class::Dynamic) => Some(CalleeResultKindV1::NullableText),
-            Some(Class::OwnedDynamic) => Some(CalleeResultKindV1::OwnedDynamic),
-            None => None,
-            _ => return Err("[freeze:contract][callee-result-kind/owned-source-drift]".into()),
-        };
-        let supplied_result = matches!(completed, Some(Class::Text | Class::Dynamic));
-        let checked = (!supplied_result && !source_bool)
-            .then(|| super::direct_call_loan::lifecycle::uniform_call_result_kind(relations))
-            .flatten();
-        // The preliminary I64 claim can come from an unannotated borrowed
-        // Return whose current caller cohort contains only I64. The completed
-        // declaration and all of its verified exits own that result kind.
-        if completed == Some(Class::OwnedDynamic)
-            && checked == Some(crate::mir::instruction::InvokeCallResultKind::OwnedDynamicCarrier)
-            && self.static_evidence(key).and_then(CalleeResultKindV1::from_static).is_none()
-            && self.kind(key) == Some(CalleeResultKindV1::I64)
-        {
-            *row.kind.borrow_mut() = evidence;
-        } else {
-            row.corroborate(key, evidence)?;
+        let early = row.kind.as_ref().and_then(|kind| kind.local_class().invoke_result());
+        if early == completed || completed == Some(Kind::I64) && row.source_i64 {
+            return Ok(completed);
         }
-        if source_bool { row.corroborate(key, Some(CalleeResultKindV1::Bool))?; }
-        let independently_covered = if supplied_result { true }
-            else if source_bool { retained_bool }
-            else { checked.is_some() && self.kind(key).and_then(|kind| kind.local_class().invoke_result()) == checked };
-        Ok(independently_covered.then(|| self.kind(key)?.local_class().invoke_result()).flatten())
+        if matches!(completed, Some(Kind::OwnedString | Kind::NullableText | Kind::OwnedDynamicCarrier)) {
+            if early.is_none() {
+                return Ok(completed);
+            }
+            return Err(format!("[freeze:contract][callee-result-kind/conflict]: callee={key:?} source={early:?} completed={completed:?}"));
+        }
+        Ok(None)
     }
+
     pub(super) fn bind(
         self: &Rc<Self>, batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1, facts: &OrdinaryNewResultClassClaimsV1,
         scalar: &BorrowedResultCohortV1, ingress: &Result<PreparedBorrowedFormalIngressV1, String>,
     ) -> Result<(), String> {
         let mut rows: BTreeMap<_, _> = self.static_rows.iter().map(|(key, proof)| (key.clone(), ResultRowV1 {
-            kind: RefCell::new(CalleeResultKindV1::from_static(proof)), object: None, normal_i64: false,
+            kind: CalleeResultKindV1::from_static(proof), ..ResultRowV1::default()
         })).collect();
         for (key, class) in &self.static_value_classes {
-            let row = rows.entry(key.clone()).or_insert(ResultRowV1 { kind: RefCell::new(None), object: None, normal_i64: false });
+            let row = rows.entry(key.clone()).or_default();
             row.corroborate(key, CalleeResultKindV1::from_source_value_class(class))?;
         }
         for (key, object) in facts.iter() {
-            let row = rows.entry(key.clone()).or_insert(ResultRowV1 { kind: RefCell::new(None), object: None, normal_i64: false });
+            let row = rows.entry(key.clone()).or_default();
             row.corroborate(key, CalleeResultKindV1::from_object(object))?;
             row.object = Some(object.clone());
         }
         for declaration in batch.declarations() {
             let Some(SelectedNormalCallableKeyV1::Cataloged(key)) = selected.key_for_batch_slot(declaration.batch_slot()) else { continue; };
-            let row = rows.entry(key.clone()).or_insert(ResultRowV1 { kind: RefCell::new(None), object: None, normal_i64: false });
+            let row = rows.entry(key.clone()).or_default();
             row.normal_i64 = scalar.is_normal_i64_result_v1(&declaration.owner());
-            row.corroborate(key, scalar.source_result_class_v1(&declaration.owner()).and_then(|class| match class {
-                Class::I64 => Some(CalleeResultKindV1::I64),
-                Class::Bool => Some(CalleeResultKindV1::Bool),
-                _ => None,
-            }))?;
+            match scalar.source_result_class_v1(&declaration.owner()) {
+                Some(Class::I64) => row.source_i64 = true,
+                Some(Class::Bool) => row.corroborate(key, Some(CalleeResultKindV1::Bool))?,
+                _ => {}
+            }
             if let Ok(Some(original)) = scalar.original_return_source_v1(&declaration.owner()) {
                 if ingress.as_ref().is_ok_and(|ingress| original.is_text_return_v1(ingress)) {
                     row.corroborate(key, Some(CalleeResultKindV1::Text))?;
@@ -217,6 +197,9 @@ impl CalleeResultKindCatalogV1 {
             }
             if super::direct_call_loan::lifecycle::map_result_owner(batch, declaration.owner()) {
                 row.corroborate(key, Some(CalleeResultKindV1::Map))?;
+            }
+            if row.source_i64 && row.kind.as_ref().is_some_and(|kind| *kind != CalleeResultKindV1::I64) {
+                return Err(format!("[freeze:contract][callee-result-kind/conflict]: callee={key:?} source I64 vs {:?}", row.kind));
             }
         }
         self.resolved.set(rows).map_err(|_| "[freeze:contract][callee-result-kind/already-bound]".to_owned())?;

@@ -205,9 +205,9 @@ impl super::ExpressionEmissionV1<ReturnExpressionContractV1> {
                 displaced.as_ref(),
                 row.materialize.as_ref(),
             )?,
-            None if context.ledger().returns_owned_carrier_v1(
+            None if context.ledger().owned_carrier_materialization_v1(
                 self.contract.source.source().owner(), self.contract.source.source().root().statement(),
-            ) => expression.validate_pending_carrier_return_v1(
+            ).is_some() => expression.validate_pending_carrier_return_v1(
                 context, function, projection, &self.entry, &self.terminal,
                 &self.continuation, self.contract.value, self.contract.dynamic_purpose.as_ref(),
             )?,
@@ -349,9 +349,10 @@ impl OrdinaryNewClaimLedgerV1 {
             expression_class::ExpressionValueClassV1 as Class,
             expression_projection::ExpressionLeafClassV1 as Leaf,
         };
-        let owned_carrier = self.returns_owned_carrier_v1(owner, site);
+        let carrier_materialization = self.owned_carrier_materialization_v1(owner, site);
+        let owned_carrier = carrier_materialization.is_some();
         let dynamic_purpose = if source.root_class() == Leaf::Value(Class::Dynamic)
-            && (!owned_carrier || source.materializes_dynamic_root_v1())
+            && carrier_materialization != Some(false)
         {
             materialize.clone()
         } else {

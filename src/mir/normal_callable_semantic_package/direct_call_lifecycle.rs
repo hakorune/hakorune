@@ -59,11 +59,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn map_owned_owner(
 mod result_validation;
 pub(in crate::mir::normal_callable_semantic_package) use result_validation::{construction_result_callee, map_result_callee, map_result_owner, nullable_exits_hold};
 
-#[path = "direct_call_result.rs"]
-mod result;
-pub(in crate::mir::normal_callable_semantic_package) use result::{call_result_kind, uniform_call_result_kind};
-
-
 /// Co-seal one caller→callee borrowed-Map argument edge. The caller's
 /// sealed `%{...}` actual, the callee's `Map` formal ABI and contract
 /// kind, and the callee's own `BorrowedParameter` terminal read must
@@ -462,7 +457,7 @@ impl DirectCallDispositionLoanV1 {
                     ) {
                         return Err(reject);
                     }
-                    row.execution = DirectCallExecutionV1::Lifecycle;
+                    row.execution = DirectCallExecutionV1::Lifecycle(row.result().ok_or(reject)?);
                     continue;
                 }
                 let Some(local) = root.local_call_for_owner(self.owner, site.site()) else {
@@ -499,7 +494,7 @@ impl DirectCallDispositionLoanV1 {
                 }
                 // The original caller relation owns local placement, not Map
                 // membership. Its existing Invoke consumer records the binding.
-                row.execution = DirectCallExecutionV1::Lifecycle;
+                row.execution = DirectCallExecutionV1::Lifecycle(row.result().ok_or(reject)?);
                 root.record_lifecycle_local_call_site(site.clone(), LocalRouteWriterV1::DirectLifecycle).map_err(|_| reject)?;
                 continue;
             }
@@ -569,7 +564,8 @@ impl DirectCallDispositionLoanV1 {
             };
             let owner = emission.target().callable().owner();
             let mut matches = results.rows().filter(|result| result.owner() == owner);
-            let callee = matches.next().ok_or(reject)?.borrow();
+            let callee_row = matches.next().ok_or(reject)?;
+            let callee = callee_row.borrow();
             if matches.next().is_some()
                 || owner == self.owner
                 || !callee.completion().returns_value()
@@ -646,10 +642,9 @@ impl DirectCallDispositionLoanV1 {
                     _ => return Err(reject),
                 }
             }
-            row.result = root.result_kind_catalog_v1().ok_or(reject)?
-                .corroborated_invoke_result(row.published_key_v1().ok_or(reject)?, None, false, false,
-                    callee_relations.values()).map_err(|_| reject)?.ok_or(reject)?;
-            row.execution = DirectCallExecutionV1::Lifecycle;
+            let result = root.result_kind_catalog_v1().ok_or(reject)?
+                .corroborated_invoke_result(row.published_key_v1().ok_or(reject)?, callee_row.terminal_invoke_result_v1()).map_err(|_| reject)?.ok_or(reject)?;
+            row.execution = DirectCallExecutionV1::Lifecycle(result);
             if let Some(site) = local_binding_site {
                 root.record_lifecycle_local_call_site(site, LocalRouteWriterV1::DirectLifecycle).map_err(|_| reject)?;
             }

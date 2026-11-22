@@ -9,25 +9,36 @@ use crate::mir::{BasicBlockId, MirInstruction, ValueId};
 impl RootHomeCleanupOrderV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn ingress_result_kind(
         &self,
-    ) -> InvokeCallResultKind {
+    ) -> Option<InvokeCallResultKind> {
         if let Some((_, loan, _)) = &self.scalar {
-            return match loan.kind() {
-                crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer => {
-                    InvokeCallResultKind::I64
-                }
-                crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool => {
-                    InvokeCallResultKind::Bool
-                }
-            };
+            return Some(loan.kind().invoke_result());
         }
         if let Some(source) = &self.stored_map_get {
-            return InvokeCallResultKind::BorrowedNullableHandle { access: crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified,
+            return Some(InvokeCallResultKind::BorrowedNullableHandle { access: crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified,
                 support: source.parts().0.result_support_v1(),
-            };
+            });
         }
         self.direct
             .as_ref()
-            .map_or(InvokeCallResultKind::I64, |(source, _)| source.kind())
+            .map(|(source, _)| source.kind())
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn ingress_result_for_entry(
+        &self, entry: &RootHomeExitEntry,
+    ) -> Option<InvokeCallResultKind> {
+        use crate::mir::normal_callable_semantic_package::RootCallDispositionV1 as Call;
+        self.ingress_result_kind().or_else(|| match entry {
+            RootHomeExitEntry::Plain { .. } | RootHomeExitEntry::MapGet { stored: Some(_), .. } => None,
+            RootHomeExitEntry::MapGet { stored: None, .. } => Some(InvokeCallResultKind::I64),
+            RootHomeExitEntry::Call { row, .. } => {
+                match row {
+                    Call::Direct(row) => row.result(),
+                    Call::Instance(row) => Some(row.result()),
+                    Call::Lexical(packet) => packet.original_source().result(),
+                    Call::PendingStatic(packet) => packet.packet().original().carried_invoke_result_v1(),
+                }.filter(|kind| *kind == InvokeCallResultKind::I64)
+            }
+        })
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn retain_direct_source(
@@ -96,12 +107,12 @@ impl RootHomeCleanupOrderV1 {
         value: ValueId,
         kind: InvokeCallResultKind,
     ) -> Result<(), String> {
-        if self.scalar.is_some() {
-            if self.ingress_result_kind() != kind || self.scalar.as_ref().unwrap().2.is_some() {
+        if let Some((_, loan, bound)) = &mut self.scalar {
+            if loan.kind().invoke_result() != kind || bound.is_some() {
                 return Err(freeze("scalar-result-duplicate-or-kind"));
             }
             // Scalar Normal results acquire no Home and no result End obligation.
-            self.scalar.as_mut().unwrap().2 = Some(value);
+            *bound = Some(value);
             return Ok(());
         }
         let Some((source, bound)) = &self.direct else {
@@ -149,6 +160,7 @@ impl RootHomeCleanupOrderV1 {
         }
         self.validate_fresh_result_cleanup(ledger, owner, exit, entry)?;
         if let Some((original_exit, loan, value)) = &self.scalar {
+            let kind = loan.kind().invoke_result();
             let current = ledger
                 .verified_terminal_call_source_v1(owner, exit)?
                 .ok_or_else(|| freeze("scalar-result-terminal-missing"))?;
@@ -158,7 +170,7 @@ impl RootHomeCleanupOrderV1 {
                     .legacy_terminal()
                     .and_then(|terminal| terminal.source_scalar())
                     != Some(loan)
-                || current.result() != self.ingress_result_kind()
+                || current.result() != kind
                 || ledger
                     .callable_scalar_result_source_v1(loan.source().callee_owner())?
                     .is_none()
@@ -179,7 +191,7 @@ impl RootHomeCleanupOrderV1 {
             let row = packet.original_row()?;
             if row.scalar_result_source_v1() != Some(loan)
                 || row.source_target() != loan.source()
-                || row.result() != Some(self.ingress_result_kind())
+                || row.result() != Some(kind)
                 || packet.call_site() != loan.source().call_site()
                 || self.full.iter().any(|origin| {
                     matches!(
@@ -207,7 +219,7 @@ impl RootHomeCleanupOrderV1 {
                 })
                 .collect::<Result<Vec<_>, _>>()?;
             if !matches!(&invoke.1, MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call { result, call }, .. }
-                if *result == self.ingress_result_kind() && call.dst.is_none())
+                if *result == kind && call.dst.is_none())
                 || !matches!(projection.1, MirInstruction::InvokeNormalResult { dst, invoke_block } if dst == value && invoke_block == invoke.0)
                 || returns.len() != 1
                 || !matches!(returns[0].1, MirInstruction::Return { value: Some(dst) } if dst == value)

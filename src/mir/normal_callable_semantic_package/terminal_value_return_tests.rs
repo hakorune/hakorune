@@ -224,7 +224,7 @@ fn non_i64_literal_returns_issue_value_relations() {
                 }
             }
             assert!(root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(())).is_err());
-            assert_eq!(super::direct_call_loan::lifecycle::call_result_kind(Some(&TerminalRelationV1::Value(relation.clone()))), None,
+            assert_eq!(super::result_contract::callable_keys::call_result_kind(&TerminalRelationV1::Value(relation.clone())), None,
                 "source relation alone cannot grant an I64 or ordinary owned-pair ABI");
         }
     }

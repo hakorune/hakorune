@@ -139,7 +139,7 @@ pub(super) fn retain_child_terminal_relation(row: &TerminalRelationV1, has_map: 
                         | TerminalReturnedSourceV1::NullLiteral
                         | TerminalReturnedSourceV1::TextResidence { .. }
                         | TerminalReturnedSourceV1::TextExpression(_)
-                        | TerminalReturnedSourceV1::DynamicExpression(_)
+                        | TerminalReturnedSourceV1::DynamicExpression { .. }
                 )
         )
 }

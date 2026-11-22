@@ -125,6 +125,13 @@ impl StaticIncomingSourceV1 {
             StaticIncomingRouteV1::CurrentOwner(_) => None,
         }
     }
+    pub(in crate::mir::normal_callable_semantic_package) fn carried_invoke_result_v1(&self) -> Option<crate::mir::instruction::InvokeCallResultKind> {
+        use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1 as Class;
+        self.qualified_carried_result_v1()
+            .or_else(|| self.is_current_owner_i64_source_v1().then_some(Class::I64))
+            .and_then(Class::invoke_result)
+    }
+
     /// Exact source-only zero-input I64 law; no entry or packet permission.
     pub(in crate::mir::normal_callable_semantic_package) fn is_zeroarg_i64_v1(&self) -> bool {
         self.target.arity() == 0

@@ -32,7 +32,8 @@ pub(in crate::mir::builder) fn emit(
         ) => (false, true),
         _ => return Err(freeze("expression/residence-root")),
     };
-    let owned_carrier = ledger.returns_owned_carrier_v1(owner, &site);
+    let carrier_materialization = ledger.owned_carrier_materialization_v1(owner, &site);
+    let owned_carrier = carrier_materialization.is_some();
     let after_residency = if text {
         source
             .return_text_after_read_v2()
@@ -141,7 +142,7 @@ pub(in crate::mir::builder) fn emit(
             None => expression_value::emit(builder, state, ledger, &source, &mut emit_call)?,
         }
     };
-    if owned_carrier && source.materializes_dynamic_root_v1() {
+    if carrier_materialization == Some(true) {
         expression_value::materialize_carrier_return_v1(builder, &mut expression)?;
     } else if dynamic_root && !owned_carrier {
         expression_value::check_i64_destination_v1(builder, &mut expression)?;

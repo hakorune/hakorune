@@ -288,7 +288,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         bindings,
                         entry,
                         projection,
-                        order.ingress_result_kind(),
+                        order.ingress_result_for_entry(entry),
                         order.borrowed_expression_fault_v1(),
                     )?;
                 }

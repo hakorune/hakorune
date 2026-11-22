@@ -332,8 +332,10 @@ impl OrdinaryNewClaimLedgerV1 {
             // An opaque-call terminal callee proves no result class; it cannot
             // be an instance-call target until its return is decomposed.
             let call_result = self.result_kind_catalog_v1().ok_or_else(|| freeze("root-instance-call-result-catalog"))?
-                .corroborated_invoke_result(target, None, false, false,
-                    result.borrow().terminal_relations().values())?
+                .corroborated_invoke_result(target, result.terminal_invoke_result_v1()
+                    .filter(|kind| !matches!(kind, crate::mir::instruction::InvokeCallResultKind::OwnedString
+                        | crate::mir::instruction::InvokeCallResultKind::NullableText
+                        | crate::mir::instruction::InvokeCallResultKind::OwnedDynamicCarrier)))?
                 .ok_or_else(|| freeze("root-instance-call-result-kind-unavailable"))?;
             drop(claims);
             let mut rows = self.root_instance_calls.borrow_mut();

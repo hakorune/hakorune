@@ -95,7 +95,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if let Some(terminal) = self.terminal_relation_for_owner_at(owner, exit) {
             if let Some(source) = terminal.evaluation_v1().filter(|_| {
                 matches!(terminal, TerminalRelationV1::Scalar(_))
-                    || self.returns_owned_carrier_v1(owner, exit)
+                    || self.owned_carrier_materialization_v1(owner, exit).is_some()
             }) {
                 let row = order
                     .return_expression

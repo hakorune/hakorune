@@ -48,7 +48,7 @@ fn non_app_main_map_receive_issues_owner_scoped_loans() {
         .expect("receive row");
     assert_eq!(
         row.result(),
-        crate::mir::instruction::InvokeCallResultKind::Map
+        Some(crate::mir::instruction::InvokeCallResultKind::Map)
     );
     assert!(row.lifecycle_emission().is_ok());
     assert_eq!(
@@ -65,7 +65,7 @@ fn non_app_main_map_receive_issues_owner_scoped_loans() {
         .expect("lifecycle row");
     assert_eq!(
         callee.result(),
-        crate::mir::instruction::InvokeCallResultKind::I64
+        Some(crate::mir::instruction::InvokeCallResultKind::I64)
     );
     assert!(callee.lifecycle_emission().is_ok());
     assert_eq!(

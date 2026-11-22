@@ -244,14 +244,35 @@ fn source_result_completion_agrees_v1(
     completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
 ) -> bool {
     let expected: BTreeSet<_> = proof.returns.iter().cloned().collect();
-    let observed: BTreeSet<_> = completion.explicit_sites().iter().map(|exit| {
-        let value = crate::mir::resolved_semantics::SourcePathV1::from_node(exit.node())
-            .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Value).expr();
-        OwnedExprSiteV1::new(completion.owner(), value)
-    }).collect();
+    let observed: BTreeSet<_> = completion_value_sites(completion).collect();
     completion.owner() == owner && completion.returns_value() && !expected.is_empty()
         && expected.len() == proof.returns.len()
         && observed.len() == completion.explicit_sites().len() && observed == expected
+}
+
+fn completion_value_sites(
+    completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
+) -> impl Iterator<Item = OwnedExprSiteV1> + '_ {
+    completion.explicit_sites().iter().map(|exit| {
+        let value = crate::mir::resolved_semantics::SourcePathV1::from_node(exit.node())
+            .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Value).expr();
+        OwnedExprSiteV1::new(completion.owner(), value)
+    })
+}
+
+impl BorrowedResultCohortV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn proves_i64_completion_v1(
+        &self, completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
+    ) -> bool {
+        let owner = completion.owner();
+        self.get(&owner).and_then(|row| row.as_ref().ok()).is_some_and(|proof|
+            proof.require_source_i64_v1().is_ok()
+                && source_result_completion_agrees_v1(proof, owner, completion))
+            || self.original_return_source_v1(&owner).is_ok_and(|row| row.is_some_and(|original| {
+                let returns = completion_value_sites(completion).collect::<Vec<_>>();
+                original.corroborates_literal_returns_v1(&returns, BorrowedResultClassV1::I64)
+            }))
+    }
 }
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -486,7 +507,6 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn checked_local_scalar_call_result_v1(
         &self, row: &LexicalInstanceCallDispositionRowV1,
     ) -> Result<InvokeCallResultKind, String> {
-        use crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind;
         let observation = self.lexical_i64_call_source(row.call_site())
             .ok_or_else(|| freeze("lexical-scalar/observation-missing"))?;
         let expected = observation.result().scalar_invoke_result()
@@ -497,8 +517,7 @@ impl OrdinaryNewClaimLedgerV1 {
         match (observation.borrowed_scalar(), row.scalar_result_source_v1()) {
             (None, None) if expected == InvokeCallResultKind::I64 => {},
             (Some(original), Some(retained)) if original == retained => {
-                let kind = match original.kind() { SourceScalarKind::Integer => InvokeCallResultKind::I64,
-                    SourceScalarKind::Bool => InvokeCallResultKind::Bool };
+                let kind = original.kind().invoke_result();
                 if kind != expected || original.source() != row.source_target()
                     || self.retained_terminal_scalar_result_v1(row.source_target())?.as_ref() != Some(original)
                     || !self.borrowed_i64_results.get(&row.callee_owner()).and_then(|proof| proof.as_ref().ok())
@@ -604,16 +623,12 @@ impl OrdinaryNewClaimLedgerV1 {
             site: &OwnedExprSiteV1,
             arguments: &[LocalCallArgumentV1],
             scalar: Option<&BorrowedScalarResultSourceLoanV1>,
+            expected: InvokeCallResultKind,
             rows: &BTreeMap<OwnedExprSiteV1, LexicalInstanceCallDispositionSlotV1>,
         ) -> Result<(), String> {
             let Some(LexicalInstanceCallDispositionSlotV1::Ready(row)) = rows.get(site) else {
                 return Err(freeze("lexical-instance-call/terminal-disposition-missing"));
             };
-            let expected = scalar.map_or(crate::mir::instruction::InvokeCallResultKind::I64,
-                |loan| match loan.kind() {
-                    crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer => crate::mir::instruction::InvokeCallResultKind::I64,
-                    crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool => crate::mir::instruction::InvokeCallResultKind::Bool,
-                });
             if row.call_site() != site
                 || row.scalar_result_source_v1() != scalar
                 || scalar.is_some_and(|loan| loan.source() != row.source_target())
@@ -630,7 +645,7 @@ impl OrdinaryNewClaimLedgerV1 {
                             "lexical-instance-call/terminal-nested-source-mismatch",
                         ));
                     }
-                    check(inner.site(), inner.arguments(), None, rows)?;
+                    check(inner.site(), inner.arguments(), None, InvokeCallResultKind::I64, rows)?;
                 }
             }
             Ok(())
@@ -668,6 +683,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 &OwnedExprSiteV1::new(terminal.owner(), terminal.call_site().clone()),
                 &arguments,
                 terminal.source_scalar(),
+                terminal.scalar_kind().invoke_result(),
                 &rows,
             )?;
         }

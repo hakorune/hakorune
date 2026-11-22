@@ -99,9 +99,7 @@ impl TerminalIntegerLiteralReturnV1 {
     }
 }
 
-/// Issue the exact scalar root result for an AppMain with no selected Home
-/// obligations. This uses the same verified completion and source loan as the
-/// caller; it does not scan or reinterpret unrelated prefix statements.
+/// Exact scalar literal from the original Return of a plain Completion.
 pub(crate) fn issue_terminal_integer_literal_return_from_completion_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
@@ -595,7 +593,7 @@ impl TerminalRelationV1 {
             Self::Scalar(row) => row.evaluation(),
             Self::Value(row) => match row.returned() {
                 TerminalReturnedSourceV1::TextExpression(source)
-                | TerminalReturnedSourceV1::DynamicExpression(source) => Some(source),
+                | TerminalReturnedSourceV1::DynamicExpression { source, .. } => Some(source),
                 _ => None,
             },
             _ => None,

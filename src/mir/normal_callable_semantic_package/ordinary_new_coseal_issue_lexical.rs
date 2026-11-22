@@ -173,24 +173,27 @@ pub(super) fn lexical_local_route(
     let (key, target_batch_slot, callee_owner, arity) =
         lexical_claim_local_target(selected, batch, candidates, input, site)?;
     let catalog = callable_result_classes.result_catalog_v1()?;
-    let kind = catalog.kind(&key)?;
     use crate::mir::normal_callable_semantic_package::callee_result_kind::CalleeResultKindV1 as Kind;
-    use crate::mir::resolved_semantics::home_new_prefix::CallLaneV1;
-    match &kind {
-        Kind::Nullable(_) => { nullable_exits_hold(batch, target_batch_slot).then_some(())?; }
-        Kind::Handle(class) => {
+    use crate::mir::resolved_semantics::home_new_prefix::{CallLaneV1, LocalCallResultClassV1 as Class};
+    let class = match catalog.kind(&key) {
+        Some(Kind::Nullable(_)) => {
+            nullable_exits_hold(batch, target_batch_slot).then_some(())?;
+            Class::Nullable
+        }
+        Some(Kind::Handle(class)) => {
             all_formals_exact_i64(batch, parameter_contracts, callee_owner, arity)?;
             crate::mir::normal_callable_semantic_package::direct_call_loan::lifecycle::construction_result_callee(
-                batch, callee_owner, class,
+                batch, callee_owner, &class,
             ).then_some(())?;
+            Class::Handle
         }
-        Kind::I64 => {
+        Some(Kind::I64) | None => {
             all_formals_exact_i64(batch, parameter_contracts, callee_owner, arity)?;
             (callable_result_classes.get(&key).is_none() && catalog.normal_i64(&key)).then_some(())?;
+            Class::I64
         }
         _ => return None,
-    }
-    let class = kind.local_class();
+    };
     LocalCallRouteV1::for_result(CallLaneV1::Lexical, class)
 }
 

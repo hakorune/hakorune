@@ -50,7 +50,7 @@ impl DirectScalarCallProjectionV1 {
             ScalarCallSourceV1::Direct(row) => {
                 row.validate_static_source_v1(context.ledger())?;
                 if row.taken_site() != Some(self.source.site())
-                    || Some(row.result()) != self.source.result().scalar_invoke_result()
+                    || row.result() != self.source.result().scalar_invoke_result()
                 {
                     return Err(freeze("direct-scalar/taken-source"));
                 }

@@ -434,37 +434,39 @@ impl OrdinaryNewClaimLedgerV1 {
             if self.completion_for_owner(callee_owner).is_some_and(|completion| !completion.returns_value()) {
                 return Err(freeze("lexical-instance-call/unit-value-use"));
             }
-            let source_bool = self.result_kind_catalog_v1().and_then(|catalog| catalog.kind(&target))
-                == Some(super::super::callee_result_kind::CalleeResultKindV1::Bool);
+            let catalog = self.result_kind_catalog_v1().ok_or_else(|| freeze("lexical-instance-call/result-catalog"))?;
             let retained_scalar = self.retained_terminal_scalar_result_v1(&source)?;
             let completed = self.checked_local_instance_result_v1(&source)?;
-            let callee_result = self.result_kind_catalog_v1().ok_or_else(|| freeze("lexical-instance-call/result-catalog"))?
-                .corroborated_invoke_result(&target, completed, source_bool,
-                    retained_scalar.as_ref().is_some_and(|loan| loan.kind() == crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool),
-                    self.terminal_relations_for_owner(callee_owner).into_iter())?;
-            if callee_result == Some(InvokeCallResultKind::Bool) {
-                let loan = retained_scalar.as_ref()
-                    .filter(|loan| loan.kind() == crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool)
-                    .ok_or_else(|| freeze("lexical-instance-call/terminal-scalar-source-missing"))?;
-                borrowed_formal_result::corroborate_source_scalar_result_loan_v1(
-                    self.borrowed_formal_source
-                        .as_ref()
-                        .ok_or_else(|| freeze("scalar-loan/source-missing"))?,
-                    &self.borrowed_i64_results,
-                    loan,
-                    &source,
-                    results,
-                )?;
+            let result_row = results.row(target_batch_slot);
+            let terminal = result_row.and_then(|row| row.terminal_invoke_result_v1());
+            let mut callee_result = catalog.corroborated_invoke_result(&target, terminal)?;
+            let borrowed_bool = retained_scalar.as_ref()
+                .filter(|loan| loan.kind().invoke_result() == InvokeCallResultKind::Bool);
+            match (callee_result, borrowed_bool) {
+                (Some(InvokeCallResultKind::Bool), Some(loan)) => {
+                    borrowed_formal_result::corroborate_source_scalar_result_loan_v1(
+                        self.borrowed_formal_source.as_ref()
+                            .ok_or_else(|| freeze("scalar-loan/source-missing"))?,
+                        &self.borrowed_i64_results,
+                        loan,
+                        &source,
+                        results,
+                    )?;
+                }
+                (Some(InvokeCallResultKind::Bool), None) => callee_result = None,
+                (Some(InvokeCallResultKind::OwnedString | InvokeCallResultKind::NullableText | InvokeCallResultKind::OwnedDynamicCarrier), _)
+                    if completed.and_then(|class| class.invoke_result()) != callee_result => callee_result = None,
+                _ => {}
             }
             let handle_observation = self.handle_call_source(&call_site).is_some();
             let scalar_observation = self.lexical_i64_call_source(&call_site).is_some();
             let nullable_observation = self.nullable_call_source(&call_site).is_some();
+            let nullable_result = catalog.kind(&target)
+                .and_then(|kind| kind.local_class().invoke_result())
+                .filter(|kind| *kind == InvokeCallResultKind::NullableHandle);
             let result = match (handle_observation, scalar_observation, callee_result) {
                 (true, false, Some(InvokeCallResultKind::Handle))
-                    if results
-                        .row(target_batch_slot)
-                        .and_then(|row| row.result())
-                        .is_none()
+                    if result_row.and_then(|row| row.result()).is_none()
                         && self.callable_result_class(&target).is_some() =>
                 {
                     Some(InvokeCallResultKind::Handle)
@@ -478,10 +480,7 @@ impl OrdinaryNewClaimLedgerV1 {
                             .and_then(|observation| observation.borrowed_scalar())
                             .is_some_and(|loan| loan.source() == &source
                                 && retained_scalar.as_ref() == Some(loan)
-                                && match loan.kind() {
-                                    crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer => kind == InvokeCallResultKind::I64,
-                                    crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool => kind == InvokeCallResultKind::Bool,
-                                });
+                                && loan.kind().invoke_result() == kind);
                     if self_scalar {
                         borrowed_formal_result::corroborate_source_scalar_result_loan_v1(
                             self.borrowed_formal_source.as_ref()
@@ -500,11 +499,8 @@ impl OrdinaryNewClaimLedgerV1 {
                     return Err(freeze("lexical-instance-call/i64-result-mismatch"))
                 }
                 (false, false, _)
-                    if nullable_observation
-                        && results
-                            .row(target_batch_slot)
-                            .and_then(|row| row.result())
-                            .is_none()
+                    if nullable_observation && nullable_result.is_some()
+                        && result_row.and_then(|row| row.result()).is_none()
                         && matches!(
                             self.callable_result_classes.get(&target),
                             Some(
@@ -526,7 +522,7 @@ impl OrdinaryNewClaimLedgerV1 {
                             LocalRouteWriterV1::LexicalInstance,
                         )?;
                     }
-                    Some(InvokeCallResultKind::NullableHandle)
+                    nullable_result
                 }
                 (false, false, _) if nullable_observation => {
                     return Err(freeze("lexical-instance-call/nullable-result-mismatch"))

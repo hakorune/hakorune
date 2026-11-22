@@ -1,5 +1,6 @@
 //! Plain Completion seed issuance inside the original co-seal source loan.
 use super::super::super::physical_header::CallablePhysicalHeaderIssueV1;
+use super::super::lexical_instance_call::BorrowedResultCohortV1;
 use super::*;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticDeclarationRefV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -15,6 +16,7 @@ pub(super) fn issue_plain_completion(
     selected: &VerifiedSelectedCallableBatchMapV1,
     seed_completion: bool,
     app_main_integer_result: bool,
+    scalar_results: &BorrowedResultCohortV1,
     seeds: &mut super::super::super::result_contract::VerifiedCallableResultContractBuilderV1,
     root_completion: &mut Option<
         Result<Rc<VerifiedFunctionCompletionV1>, FunctionCompletionVerificationErrorV1>,
@@ -51,6 +53,7 @@ pub(super) fn issue_plain_completion(
                     selected,
                     Rc::clone(&completion),
                     BTreeMap::new(),
+                    Some(scalar_results),
                     top_level_input.take(),
                 )
                 .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;

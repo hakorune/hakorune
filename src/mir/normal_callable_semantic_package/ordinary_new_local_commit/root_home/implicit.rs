@@ -185,7 +185,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 bindings,
                 entry,
                 projection,
-                order.ingress_result_kind(),
+                order.ingress_result_for_entry(entry),
                 order.borrowed_expression_fault_v1(),
             )?;
         } else {
@@ -193,7 +193,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 function,
                 bindings,
                 entry,
-                order.ingress_result_kind(),
+                order.ingress_result_for_entry(entry),
                 &self.main_arguments_release_suffix_v1(owner, function)?,
                 order.borrowed_expression_fault_v1(),
             )?;

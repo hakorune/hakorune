@@ -34,10 +34,7 @@ impl VerifiedTerminalCallSourceV1<'_> {
         match self {
             Self::Direct(view) => view.result(),
             Self::Borrowed { source, .. } => source.result_kind_v1(),
-            Self::Legacy { terminal, .. } => match terminal.scalar_kind() {
-                crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer => InvokeCallResultKind::I64,
-                crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool => InvokeCallResultKind::Bool,
-            },
+            Self::Legacy { terminal, .. } => terminal.scalar_kind().invoke_result(),
         }
     }
     pub(crate) fn lexical_arguments(&self) -> Option<&[LocalCallArgumentV1]> {

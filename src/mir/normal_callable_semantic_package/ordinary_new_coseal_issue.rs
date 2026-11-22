@@ -465,6 +465,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     selected,
                     route.plain.seed,
                     route.plain.app_main_integer,
+                    &borrowed_i64_results,
                     &mut seeds,
                     &mut root_completion,
                     &mut root_terminal_relation,
@@ -623,7 +624,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 // callable or issuing its physical header.
                                 if selected.role_for_batch_slot(batch_slot).is_some() {
                                     seeds.push_completion_with_top_level_input(
-                                        declaration, selected, Rc::new(completion), relation, top_level_input.take(),
+                                        declaration, selected, Rc::new(completion), relation, Some(&borrowed_i64_results), top_level_input.take(),
                                     ).map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                                 }
                             }

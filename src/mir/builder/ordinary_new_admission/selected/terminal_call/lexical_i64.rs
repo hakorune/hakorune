@@ -174,10 +174,7 @@ fn emit_lexical_i64_call(
                 .and_then(|observation| observation.borrowed_scalar())
                 .is_some_and(|loan| loan.source() == instance.source_target()
                     && instance.scalar_result_source_v1() == Some(loan)
-                    && match loan.kind() {
-                        crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer => kind == InvokeCallResultKind::I64,
-                        crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool => kind == InvokeCallResultKind::Bool,
-                    })
+                    && loan.kind().invoke_result() == kind)
             && (instance.source_target().is_self_receiver()
                 || ledger.checked_stored_entry_receiver_v1(instance.source_target())?);
         let borrowed_alias = ledger.lexical_i64_call_source(row.call_site())

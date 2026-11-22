@@ -141,7 +141,7 @@ pub(in crate::mir::builder) fn emit(
     row: DirectCallDispositionRowV1,
 ) -> Result<ValueId, String> {
     let emission = row.physical_emission().map_err(|_| freeze("direct-source-required"))?;
-    let result = row.result();
+    let result = row.result().ok_or_else(|| freeze("direct-call-result-missing"))?;
     let block = builder
         .function_state
         .current_block
@@ -331,7 +331,7 @@ pub(in crate::mir::builder) fn emit_local(
     if unwind.iter().any(|operation| matches!(operation, InvokeOperation::Map(_))) {
         return Err(freeze("local-call-prior-homes-unsupported"));
     }
-    let result_kind = row.result();
+    let result_kind = row.result().ok_or_else(|| freeze("direct-call-result-missing"))?;
     let owned_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
     let lifecycle = row
         .lifecycle_emission()
