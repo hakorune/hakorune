@@ -1,6 +1,12 @@
 //! Independent expression continuation paths.
 use super::*;
 
+#[derive(Clone, Copy)]
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) enum CarrierHandoffV1 {
+    LocalOrArgument,
+    PendingReturn,
+}
+
 impl ExpressionPhysicalProjectionRefV1<'_> {
     pub(in crate::mir) fn validate_scalar_continuation_v1(
         &self,
@@ -199,7 +205,25 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             false,
             None,
             None,
-            Some(carrier),
+            Some((carrier, CarrierHandoffV1::LocalOrArgument)),
+        )
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_pending_carrier_return_v1(
+        &self,
+        context: CallValidationContextV1<'_>,
+        function: &MirFunction,
+        finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
+        entry: &Option<Binding>,
+        terminal: &Option<Binding>,
+        continuation: &Option<Binding>,
+        carrier: ValueId,
+        acquisition: Option<&[Binding; 2]>,
+    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
+        self.validate_local_delimiters_v1(context, function, finishing, entry, terminal, continuation)?;
+        self.validate_paths_with_policy(
+            context, function, finishing, terminal, continuation,
+            None, None, false, None, acquisition, Some((carrier, CarrierHandoffV1::PendingReturn)),
         )
     }
     pub(super) fn validate_local_delimiters_v1(

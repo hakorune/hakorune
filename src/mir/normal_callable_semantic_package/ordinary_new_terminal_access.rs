@@ -41,6 +41,15 @@ impl OrdinaryNewClaimLedgerV1 {
             .collect()
     }
 
+    pub(crate) fn returns_owned_carrier_v1(
+        &self,
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
+    ) -> bool {
+        matches!(self.terminal_relation_for_owner_at(owner, site), Some(TerminalRelationV1::Value(value))
+            if matches!(value.returned(), crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1::DynamicExpression(_)))
+    }
+
     /// Borrow the original sealed Return evaluation without exposing mutable
     /// terminal inventories to the physical builder.
     pub(crate) fn return_expression_evaluation_v1(&self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
@@ -52,19 +61,15 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn borrow_return_expression_evaluation_v1(
         &self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1, site: &SourceStmtSiteV1,
     ) -> Result<Option<&std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>>, String> {
-        let (source, value_site) = match self.terminal_relation_for_owner_at(owner, site) {
-            Some(TerminalRelationV1::Value(value)) => {
-                let crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1::TextExpression(source) = value.returned()
-                    else { return Ok(None) };
-                if value.owner() != owner || value.return_site() != site { return Err("[freeze:contract][expression/residence-original-pair]".into()); }
-                (source, value.value_site())
-            }
-            Some(TerminalRelationV1::Scalar(value)) => {
-                let Some(source) = value.evaluation() else { return Ok(None) };
-                if value.owner() != owner || value.return_site() != site { return Err("[freeze:contract][expression/residence-original-pair]".into()); }
-                (source, value.value_site())
-            }
-            _ => return Ok(None),
+        let Some(relation) = self.terminal_relation_for_owner_at(owner, site) else { return Ok(None) };
+        let Some(source) = relation.evaluation_v1() else { return Ok(None) };
+        if relation.owner() != owner || relation.return_site() != site {
+            return Err("[freeze:contract][expression/residence-original-pair]".into());
+        }
+        let value_site = match relation {
+            TerminalRelationV1::Value(value) => value.value_site(),
+            TerminalRelationV1::Scalar(value) => value.value_site(),
+            _ => return Err("[freeze:contract][expression/residence-original-pair]".into()),
         };
         if source.source().owner() != owner || source.source().root().statement() != site
             || source.source().nodes().first().is_none_or(|node| node.site() != value_site) {

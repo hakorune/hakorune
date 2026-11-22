@@ -151,12 +151,12 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_dynamic_
             | InvokeOperation::DynamicArrayGet { .. }
             | InvokeOperation::DynamicCarrierSubI64 { .. } => true,
             InvokeOperation::Call {
-                result: crate::mir::instruction::InvokeCallResultKind::DynamicCarrier,
+                result: result @ (crate::mir::instruction::InvokeCallResultKind::NullableText | crate::mir::instruction::InvokeCallResultKind::OwnedDynamicCarrier),
                 ..
             } => {
                 let mut packets = expression.body.calls.iter().filter(|packet| {
                     packet.original_source().result()
-                        == Some(crate::mir::instruction::InvokeCallResultKind::DynamicCarrier)
+                        == Some(*result)
                         && packet.outer_bindings().is_ok_and(|(invoke, normal)| {
                             invoke == binding && normal == &projection
                         })
@@ -295,6 +295,32 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn materialize_tex
     )?;
     expression.purpose_acquisition = Some(pair);
     expression.value = Operand::OwnedString(value).into();
+    Ok(())
+}
+
+/// Acquire the original, still-live tagged borrow before the Return cleanup.
+pub(in crate::mir::builder::ordinary_new_admission::selected) fn materialize_carrier_return_v1(
+    builder: &mut MirBuilder,
+    expression: &mut EmittedExpressionValueV1,
+) -> Result<(), String> {
+    let Operand::Dynamic(tagged) = expression.value.as_operand()? else {
+        return Err(freeze("expression/return-carrier-origin"));
+    };
+    if expression.purpose_acquisition.is_some() {
+        return Err(freeze("expression/return-carrier-origin"));
+    }
+    let pending = FaultCleanupPlanV1::pending(&expression.body.temporaries, &expression.body.homes)?;
+    let (value, _, pair) = emit_scalar_operation_with_pending_v1(
+        builder,
+        &mut RawRootGraphWriterV1,
+        InvokeOperation::DynamicMaterializeBorrowed { tagged: *tagged },
+        expression.body.required_fault_frame_v1()?,
+        &pending,
+        &mut expression.body.bindings,
+    )?;
+    expression.body.temporaries.push((0, ExpressionOwnedTemporaryV1::DynamicCarrier(value)));
+    expression.purpose_acquisition = Some(pair);
+    expression.value = Operand::DynamicCarrier(value).into();
     Ok(())
 }
 
@@ -458,6 +484,20 @@ fn finish_body_continuation(
         &homes,
     )?;
     finish_body_cleanup(builder, body, normal, fault, displaced)
+}
+
+pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_carrier_return(
+    builder: &mut MirBuilder,
+    body: &mut EmittedExpressionBodyV1,
+    carrier: ValueId,
+) -> Result<(Option<Binding>, Option<Binding>), String> {
+    if body.temporaries.last() != Some(&(0, ExpressionOwnedTemporaryV1::DynamicCarrier(carrier))) {
+        return Err(freeze("expression/return-carrier-origin"));
+    }
+    let fault = FaultCleanupPlanV1::owed_operations(&body.temporaries, &body.homes)?;
+    body.temporaries.pop();
+    let normal = FaultCleanupPlanV1::owed_operations(&body.temporaries, &[])?;
+    finish_body_cleanup(builder, body, normal, fault, None)
 }
 
 fn finish_body_cleanup(

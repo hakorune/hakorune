@@ -569,7 +569,11 @@ impl MirCompiler {
                 completed.require_bare_call_argument_sources_v1()?;
                 Ok(completed.into_parts())
             },
-            |result, session, ()| {
+            |mut result, session, retained_root| {
+                if let Some(root) = retained_root.as_ref() {
+                    result.verification_result = super::MirVerifier::new_strict()
+                        .verify_module_with_finalized_root(&result.module, Some(root));
+                }
                 let prepared = session
                     .prepare_external_commit()
                     .map_err(|error| error.to_string())?;

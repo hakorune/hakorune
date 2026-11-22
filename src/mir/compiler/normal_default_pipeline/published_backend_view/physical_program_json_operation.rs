@@ -122,6 +122,10 @@ pub(super) fn encode_invoke(
             json!({"kind":"dynamic_carrier_integer", "carrier":value(carrier)}),
             required_site(diagnostic_site, true)?,
         )?,
+        InvokeOperation::DynamicMaterializeBorrowed { tagged } => with_site(
+            json!({"kind":"dynamic_materialize_borrowed", "tagged":value(tagged)}),
+            required_site(diagnostic_site, true)?,
+        )?,
         InvokeOperation::DynamicBorrowedInteger { tagged } => with_site(
             json!({"kind":"dynamic_borrowed_integer", "tagged":value(tagged)}),
             required_site(diagnostic_site, true)?,
@@ -298,7 +302,8 @@ pub(super) fn encode_invoke(
             call,
             result:
                 result_kind @ (InvokeCallResultKind::Unit | InvokeCallResultKind::I64 | InvokeCallResultKind::OwnedString
-                | InvokeCallResultKind::DynamicCarrier
+                | InvokeCallResultKind::NullableText
+                | InvokeCallResultKind::OwnedDynamicCarrier
                 | InvokeCallResultKind::Bool
                 | InvokeCallResultKind::Map
                 | InvokeCallResultKind::Handle

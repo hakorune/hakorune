@@ -245,6 +245,11 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             // A previously validated Call includes its Normal End sequence.
             if covered.contains(id) { continue; }
             let dynamic_result = match operation {
+                InvokeOperation::DynamicMaterializeBorrowed { .. } if self.frame.materializes_dynamic_root_v1() =>
+                    ordered.iter().find_map(|(_, row)| match row {
+                        MirInstruction::InvokeNormalResult { invoke_block, dst } if *invoke_block == *id => Some(*dst),
+                        _ => None,
+                    }),
                 InvokeOperation::DynamicArrayGet { .. } => {
                     let mut values = self.frame.cores().iter().filter_map(|(node, core)| {
                         let expected = crate::mir::normal_callable_semantic_package::checked_expression_core_operation_v1(
@@ -293,6 +298,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 operation,
                 InvokeOperation::DynamicArrayGet { .. }
                     | InvokeOperation::DynamicCarrierSubI64 { .. }
+                    | InvokeOperation::DynamicMaterializeBorrowed { .. }
             ) && dynamic_result.is_none()
             {
                 return Err(freeze("dynamic-expression/owned-source-missing"));

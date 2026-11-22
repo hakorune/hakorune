@@ -30,26 +30,17 @@ static int lv4_indexed_map_readable(hako_lv4_function_index* fn, uint32_t id,
 
 #include "hako_llvmc_ffi_lifecycle_v4_indexed_birth_fields.inc"
 
-/* Wrapper arguments never become an owned-object holder/descriptor. */
-static hako_lv4_value* lv4_script_arguments_root(hako_lv4_function_index* fn, uint32_t id) {
+/* Wrapper arguments and Map keys snapshots are ordinary Array handles.
+ * Neither producer yields an indexed object, Map or owned-object descriptor. */
+static hako_lv4_value* lv4_array_result_root(hako_lv4_function_index* fn, uint32_t id,
+    const char* producer_kind) {
   hako_lv4_value* root = lv4_value_alias_root(fn, lv4_index_value(fn, id));
   if (!root || root->kind != LV4_HANDLE || root->origin < 0 ||
       !lv4_is(root->instruction, "op", "invoke_normal_result")) return NULL;
   hako_lv4_block* origin = lv4_index_block(fn, lv4_u(root->instruction, "invoke_block"));
   return origin && lv4_is(yyjson_obj_get(lv4_term(origin->block), "operation"),
-      "kind", "script_arguments_new") ? root : NULL;
+      "kind", producer_kind) ? root : NULL;
 }
-
-/* A keys snapshot owns a plain Text Array, never an indexed object or Map. */
-static hako_lv4_value* lv4_map_keys_root(hako_lv4_function_index* fn, uint32_t id) {
-  hako_lv4_value* root = lv4_value_alias_root(fn, lv4_index_value(fn, id));
-  if (!root || root->kind != LV4_HANDLE || root->origin < 0 ||
-      !lv4_is(root->instruction, "op", "invoke_normal_result")) return NULL;
-  hako_lv4_block* origin = lv4_index_block(fn, lv4_u(root->instruction, "invoke_block"));
-  return origin && lv4_is(yyjson_obj_get(lv4_term(origin->block), "operation"),
-      "kind", "map_field_keys") ? root : NULL;
-}
-
 
 #include "hako_llvmc_ffi_lifecycle_v4_borrowed_result_anchor.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_field_dependency_liveness.inc"
@@ -308,8 +299,8 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           }
           normal[bi] = (top - size + 1) | LV4_STRING_CALL_HELD;
         }
-      } else if (lv4_is(op, "result", "nullable_text")) {
-        /* Publication moves the callee pair into one caller-owned carrier. */
+      } else if (lv4_is(op, "result", "nullable_text") || lv4_is(op, "result", "dynamic_carrier")) {
+        /* Normal either receives the callee token or publishes the legacy pair. */
         normal[bi] = LV4_DYNAMIC_CARRIER_LIVE;
       } else if (!want_unit && !lv4_is(op, "result", "borrowed_nullable_handle"))
         normal[bi] = lv4_is(op, "result", "mixed_handle") ? LV4_CONDITIONAL_OBJECT : LV4_LIVE;
@@ -328,6 +319,12 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       if (birth || faulted || state[bi] || !carrier || carrier->kind != LV4_DYNAMIC_CARRIER ||
           carrier->origin < 0 || state[carrier->origin] != LV4_DYNAMIC_CARRIER_LIVE) return 0;
       normal[bi] = LV4_LIVE;
+    } else if (lv4_is(op, "kind", "dynamic_materialize_borrowed")) {
+      uint32_t id = lv4_u(op, "tagged");
+      yyjson_val* origin = lv4_borrowed_formal_parameter(fn, lv4_index_value(fn, id));
+      if (!lv4_is(fn->function, "role", "ordinary_dynamic_carrier") || faulted ||
+          state[bi] || !origin || !hako_physical_input_domain(origin)) return 0;
+      normal[bi] = LV4_DYNAMIC_CARRIER_LIVE;
     } else if (lv4_is(op, "kind", "dynamic_borrowed_integer")) {
       if (birth || faulted || state[bi] || !lv4_original_borrowed_formal(fn, lv4_u(op, "tagged"))) return 0;
       normal[bi] = LV4_LIVE;

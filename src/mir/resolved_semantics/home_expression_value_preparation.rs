@@ -26,6 +26,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_value_evaluat
         crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1,
     >,
     root_core: Option<crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1>,
+    materialized_return: Option<crate::mir::normal_callable_semantic_package::FiniteEntryReadV1>,
     field_request: &mut impl FnMut(
         &SourceExprSiteV1,
     ) -> Option<super::super::super::LocalFieldReadRequestV1>,
@@ -72,8 +73,12 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_value_evaluat
         return Ok(Err("call-preparation-declined"));
     };
     let mut initial = Vec::new();
+    if let Some(read) = materialized_return {
+        use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1;
+        initial.push((0, CheckedExpressionReferenceV1::FiniteEntry { read, exclusion: None }));
+    }
     for (node, original) in source.nodes().iter().enumerate() {
-        if !prepared.is_active_reference(node) {
+        if !prepared.is_active_reference(node) || (node == 0 && !initial.is_empty()) {
             continue;
         }
         let Some((binding, root)) =

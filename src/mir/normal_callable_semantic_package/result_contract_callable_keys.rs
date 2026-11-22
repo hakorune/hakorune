@@ -1,6 +1,38 @@
 //! Correspondence from completed source declarations to callable consumers.
 use super::*;
 
+use crate::mir::resolved_semantics::home_new_prefix::{
+    TerminalReturnedSourceV1, TerminalValueReturnV1,
+};
+
+pub(super) fn complete_value_exits_v1(
+    completion: &VerifiedFunctionCompletionV1,
+    relations: &BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
+    mut valid: impl FnMut(&TerminalValueReturnV1) -> bool,
+) -> bool {
+    let exits = completion.explicit_sites();
+    let unique: std::collections::BTreeSet<_> = exits.iter().collect();
+    completion.returns_value()
+        && completion.implicit_body_end().is_none()
+        && !exits.is_empty()
+        && unique.len() == exits.len() && relations.len() == exits.len()
+        && exits.iter().all(|site| matches!(relations.get(site), Some(TerminalRelationV1::Value(value))
+            if value.owner() == completion.owner() && value.return_site() == site && valid(value)))
+}
+
+pub(in crate::mir::normal_callable_semantic_package) fn owns_dynamic_carrier_result_v1(
+    completion: &VerifiedFunctionCompletionV1,
+    relations: &BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
+) -> bool {
+    use crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1;
+    completion.function_exit_contract().declared_result() == &DeclaredFunctionResultContractV1::Unannotated
+        && complete_value_exits_v1(completion, relations, |value| {
+            matches!(value.returned(), TerminalReturnedSourceV1::DynamicExpression(source)
+                if (source.owned_result_nodes().contains(&0) || source.materializes_dynamic_root_v1())
+                    && expression_return_source_v1(value, source, ExpressionValueClassV1::Dynamic))
+        })
+}
+
 impl CallableResultContractRefV1<'_> {
     /// Dynamic provider admission uses every original Normal exit, including
     /// source-unannotated methods. The witness proves a transport, not a type.

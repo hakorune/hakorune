@@ -16,7 +16,7 @@ static int lv4_indexed_return(const hako_lv4_input* in,
   /* This lane owns only local keys temporaries; no array result/handoff
    * contract has been selected at an ordinary object Return boundary. */
   if (lv4_is(term, "op", "return") &&
-      lv4_map_keys_root(fn, lv4_u(term, "value"))) return 0;
+      lv4_array_result_root(fn, lv4_u(term, "value"), "map_field_keys")) return 0;
   if (ordinary_text && lv4_is(term, "op", "return")) {
     hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
     int null_return = nullable_text && !faulted && result && result->kind == LV4_HANDLE && result->origin < 0 &&
@@ -33,6 +33,13 @@ static int lv4_indexed_return(const hako_lv4_input* in,
         (lv4_string_held(state, count) && !(state[result->origin] & LV4_STRING_RETURN)))
       return 0;
     else state[result->origin] = 0;
+  }
+  int ordinary_dynamic = lv4_is(fn->function, "role", "ordinary_dynamic_carrier");
+  if (ordinary_dynamic && lv4_is(term, "op", "return")) {
+    hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
+    if (faulted || !result || result->kind != LV4_DYNAMIC_CARRIER || result->origin < 0 ||
+        (size_t)result->origin >= count || state[result->origin] != LV4_DYNAMIC_CARRIER_LIVE) return 0;
+    state[result->origin] = 0;
   }
   if (ordinary_map && lv4_is(term, "op", "return")) {
     hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
@@ -122,6 +129,6 @@ static int lv4_indexed_return(const hako_lv4_input* in,
   return !faulted && result && (tagged_i64 ||
       result->kind == (birth ? LV4_UNIT : ordinary_bool ? LV4_BOOL : ordinary_map ? LV4_MAP :
           nullable_text ? (result->kind == LV4_HANDLE ? LV4_HANDLE : LV4_OWNED_STRING) :
-          ordinary_text ? LV4_OWNED_STRING :
+          ordinary_text ? LV4_OWNED_STRING : ordinary_dynamic ? LV4_DYNAMIC_CARRIER :
           (ordinary_handle || ordinary_nullable) ? LV4_HANDLE : LV4_I64));
 }

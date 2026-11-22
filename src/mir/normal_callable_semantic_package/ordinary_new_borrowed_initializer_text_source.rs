@@ -18,6 +18,7 @@ pub(crate) struct FiniteEntryReadV1 {
     flow: std::sync::Arc<VerifiedSourceValueFlowV1>,
     value: SourceValueRefV1,
     null_compare: Option<OwnedExprSiteV1>,
+    materialized_return: bool,
 }
 impl PartialEq for FiniteEntryReadV1 {
     fn eq(&self, other: &Self) -> bool {
@@ -25,6 +26,7 @@ impl PartialEq for FiniteEntryReadV1 {
             && std::sync::Arc::ptr_eq(&self.flow, &other.flow)
             && self.value == other.value
             && self.null_compare == other.null_compare
+            && self.materialized_return == other.materialized_return
             && self.requirement == other.requirement
             && Rc::ptr_eq(
                 self.requirement.source_plan(),
@@ -40,6 +42,10 @@ impl FiniteEntryReadV1 {
     pub(crate) fn null_compare_v1(&self) -> Option<&OwnedExprSiteV1> {
         self.null_compare.as_ref()
     }
+    pub(crate) fn materializes_return_v1(&self) -> bool {
+        self.materialized_return
+    }
+
     pub(crate) fn signed_only(&self) -> bool {
         self.sum.signed_only()
     }
@@ -64,6 +70,9 @@ impl FiniteEntryReadV1 {
             expression_class::ExpressionValueClassV1 as Class,
             expression_projection::ExpressionLeafClassV1 as Leaf,
         };
+        if self.materializes_return_v1() {
+            return exclusion.is_none().then_some(Leaf::Value(Class::Dynamic));
+        }
         // The raw guard observes only the tag. It proves no typed value or
         // non-null branch fact and cannot consume a null-exclusion loan.
         if self.null_compare.is_some() {
@@ -349,16 +358,32 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_finite_entry_read_v
     } else {
         None
     };
+    let materialized_return = requirement.node() == 0
+        && matches!(plan.root(), ExpressionPlanRootV1::Statement {
+            role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue,
+            value, ..
+        } if value == read)
+        && prepared.original_dynamic_return_request_v1(input.owner());
     Ok(Some(FiniteEntryReadV1 {
         requirement,
         sum,
         flow: std::sync::Arc::clone(flow),
         value,
         null_compare,
+        materialized_return,
     }))
 }
 
 impl PreparedBorrowedFormalIngressV1 {
+    /// Observe the original demand. Entry publication still needs the whole
+    /// finite incoming cohort and exact use of the received borrow.
+    pub(in crate::mir::normal_callable_semantic_package) fn original_dynamic_return_request_v1(
+        &self, owner: FunctionOwnerIdV1,
+    ) -> bool {
+        self.original_formal_uses_v1(owner)
+            .is_ok_and(|uses| uses.dynamic_return_requested_v1())
+    }
+
     /// Consumer demand follows the original reaching definitions, never producer classes.
     pub(in crate::mir::normal_callable_semantic_package) fn shared_initializer_demand_v1(
         &self,

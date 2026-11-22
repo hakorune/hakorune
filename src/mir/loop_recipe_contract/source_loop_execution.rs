@@ -67,7 +67,7 @@ fn call_at_node<'a>(frame: &'a Evaluation, node: usize) -> Result<Option<&'a Loc
 }
 fn call_result_class(result: LocalCallResultClassV1) -> Option<Class> {
     Some(match result {
-        LocalCallResultClassV1::Dynamic => Class::Dynamic,
+        LocalCallResultClassV1::Dynamic | LocalCallResultClassV1::OwnedDynamic => Class::Dynamic,
         LocalCallResultClassV1::I64 => Class::I64,
         LocalCallResultClassV1::Bool => Class::Bool,
         LocalCallResultClassV1::Text => Class::String,

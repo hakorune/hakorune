@@ -1,9 +1,10 @@
-//! Scalar destination of the shared original expression evaluation.
+//! Scalar and owned Dynamic destinations of the shared original Return evaluation.
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1;
 
 /// A selected scalar operation borrows the existing ReturnValue evaluator.
 /// Selection is original source morphology; unavailable never retries a terminal.
-pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return_expression_v1<
+pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_return_expression_v1<
     E,
 >(
     input: ResolvedFunctionLoweringInputV1<'_>,
@@ -19,7 +20,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         E,
     >,
     fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
-) -> Result<Option<Result<TerminalScalarReturnV1, super::super::HomePrefixUnavailableV1>>, E> {
+) -> Result<Option<Result<TerminalRelationV1, super::super::HomePrefixUnavailableV1>>, E> {
     let Ok(value) = input
         .source()
         .child_expr_from_stmt(statement, super::super::ExprChildRoleV1::ReturnValue)
@@ -99,7 +100,15 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         || copy
         || bool_root
         || owns_inputs;
-    if !previous_scalar_candidate
+    let unannotated = input.has_unannotated_result_v1();
+    let borrowed_return = unannotated
+        .then(|| {
+            crate::mir::resolved_semantics::home_new_prefix::argument_expression::entry_formal_reference(
+                input, locals, value.site(),
+            )
+        })
+        .flatten();
+    if !previous_scalar_candidate && borrowed_return.is_none()
         && input
             .function()
             .method_call_source_v1(value.site())
@@ -135,12 +144,24 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         return Ok(preselection_unavailable());
     };
     use crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1 as Class;
-    let checked_dynamic_return = input.declares_i64_result_v1() && matches!(
+    let borrowed_materialization = if let Some((binding, root)) = borrowed_return {
+        use crate::mir::resolved_semantics::home_new_prefix::{BorrowedCallActualRequestV1, BorrowedCallArgumentsV1};
+        match actuals(&purpose, BorrowedCallActualRequestV1::FiniteEntryRead {
+            input, plan: &source, read: value.site(), binding, root,
+        })? {
+            Some(BorrowedCallArgumentsV1::FiniteEntryRead(read)) if read.materializes_return_v1() => Some(read),
+            _ => None,
+        }
+    } else { None };
+    let materializes_dynamic = borrowed_materialization.is_some();
+    let declares_i64 = input.declares_i64_result_v1();
+    let dynamic_source = !materializes_dynamic && (declares_i64 || unannotated) && matches!(
         actuals(&purpose, super::super::super::BorrowedCallActualRequestV1::DynamicInvocationSource {
             input, plan: &source,
         })?,
         Some(super::super::super::BorrowedCallArgumentsV1::DynamicInvocationSource { .. })
     );
+    let checked_i64 = declares_i64 && dynamic_source;
     let mut root_argument_evaluation = false;
     if !previous_scalar_candidate {
         if let Some(call) = input.function().method_call_source_v1(value.site()) {
@@ -184,7 +205,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
             _ => None,
         }
     };
-    let root_core = if checked_dynamic_return || previous_scalar_candidate || root_call_class.is_some() {
+    let root_core = if materializes_dynamic || checked_i64 || previous_scalar_candidate || root_call_class.is_some() {
         None
     } else {
         use crate::mir::resolved_semantics::home_new_prefix::{
@@ -203,11 +224,18 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
                 };
                 Some((core, class))
             }
-            None if root_argument_evaluation => None,
+            None if root_argument_evaluation || (unannotated && dynamic_source) => None,
             _ => return Ok(None),
         }
     };
     let core_result_class = root_core.as_ref().map(|(_, class)| *class);
+    // The unannotated Return uses the exact Core or ordinary call result
+    // when that source has been proved. A Dynamic candidate alone cannot
+    // replace a known result (e.g. the length of a checked Text receiver).
+    let dynamic_return = materializes_dynamic
+        || checked_i64
+        || (unannotated && dynamic_source && !previous_scalar_candidate
+            && root_call_class.is_none() && core_result_class.is_none());
     let root_core = root_core.map(|(core, _)| core);
     let field_seeds = if root_core.is_some() {
         super::super::super::field_read::text_field_seeds_v1(input, &source, locals, fields)
@@ -219,7 +247,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     let prepared = prepare_value_evaluation_v1(
         input,
         std::rc::Rc::clone(&source),
-        checked_dynamic_return.then_some(Class::Dynamic).or(core_result_class)
+        dynamic_return.then_some(Class::Dynamic).or(core_result_class)
             .or(root_call_class.map(|_| {
                 crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64
             }))
@@ -236,6 +264,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         None,
         &field_seeds,
         root_core,
+        borrowed_materialization,
         &mut |site| {
             super::super::super::field_read::expression_field_read_request(
                 input, &source, site, locals,
@@ -259,7 +288,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     };
     // Qualified scalar Core operands keep their acquisition and Fault duties
     // in the shared evaluation; other terminal owners retain their boundary.
-    if !checked_dynamic_return && !previous_scalar_candidate
+    if !dynamic_return && !previous_scalar_candidate
         && !root_argument_evaluation
         && core_result_class.is_none()
         && root_call_class.is_none()
@@ -269,7 +298,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     }
     // A value already available at this point needs no new evaluation.
     // Every computation uses the shared expression writer.
-    if evaluation.operations().is_empty()
+    if !materializes_dynamic
+        && evaluation.operations().is_empty()
         && evaluation.calls().is_empty()
         && evaluation.cores().is_empty()
         && evaluation.owned_result_nodes().is_empty()
@@ -321,13 +351,31 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         }
         installation.commit();
     }
+    if unannotated && dynamic_return {
+        let relation = if (evaluation.owned_result_nodes().contains(&0) || evaluation.materializes_dynamic_root_v1())
+            && evaluation.reference_coverage_is_exact()
+        {
+            Ok(TerminalRelationV1::Value(TerminalValueReturnV1::issue(
+                input.owner(),
+                statement.site().clone(),
+                value.site().clone(),
+                TerminalReturnedSourceV1::DynamicExpression(evaluation),
+            )))
+        } else {
+            Err(super::super::HomePrefixUnavailableV1::ReturnValueNotCovered(
+                statement.site().clone(),
+            ))
+        };
+        return Ok(Some(relation));
+    }
     Ok(Some(
         TerminalScalarReturnV1::issue(
             input.owner(),
             statement.site().clone(),
             value.site().clone(),
         )
-        .with_evaluation_v1(evaluation, checked_dynamic_return)
+        .with_evaluation_v1(evaluation, dynamic_return)
+        .map(TerminalRelationV1::Scalar)
         .ok_or_else(|| {
             super::super::HomePrefixUnavailableV1::ReturnValueNotCovered(statement.site().clone())
         }),

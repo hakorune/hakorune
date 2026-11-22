@@ -283,6 +283,38 @@ impl FinalizedRootSourceHandoffV1 {
         })
     }
 
+    /// Lend the finished image of a source-checked Return acquisition.
+    pub(in crate::mir) fn with_finished_carrier_materializations_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+        mut visit: impl FnMut(
+            &crate::mir::normal_callable_semantic_package::FiniteEntryReadV1,
+            (BasicBlockId, usize),
+            MirInstruction,
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
+        self.ledger.with_finished_projection(owner, |symbol, projection| {
+            if symbol != function.signature.name { return Err(freeze("finished-terminal-call/owner")); }
+            let context = CallValidationContextV1::Finalized(self);
+            for ((_, exit), progress) in self.ledger.root_exits.borrow().iter().filter(|((found, _), _)| *found == owner) {
+                let order = match progress {
+                    RootHomeExitProgress::Emitted { order, .. } | RootHomeExitProgress::Finalized(order) => order,
+                    _ => continue,
+                };
+                let Some(expression) = order.return_expression_v1() else { continue; };
+                let Some((read, original)) = expression.carrier_materialization_v1() else { continue; };
+                let exit = exit.explicit_site().ok_or_else(|| freeze("finished-terminal-call/exit-missing"))?;
+                expression.require_source_v1(owner, exit)?;
+                expression.validate(context, function, Some(projection))?;
+                let finished = projection.required_effect_binding(function, original)?;
+                let coordinate = super::finalized_source_projection::find_finished_producer(symbol, &finished, function)?;
+                visit(read, coordinate, finished.1)?;
+            }
+            Ok(())
+        })
+    }
+
     /// Original tagged String operands remain tied to their operation and side.
     pub(in crate::mir) fn with_finished_tagged_text_operands_v1(
         &self, owner: FunctionOwnerIdV1, function: &MirFunction,

@@ -186,7 +186,7 @@ impl ExpressionEmissionV1<InitializerExpressionContractV1> {
         let mut ordinary = self.calls.iter().filter(|call| {
             call.call_site() == &site
                 && call.original_source().result()
-                    == Some(crate::mir::instruction::InvokeCallResultKind::DynamicCarrier)
+                    .is_some_and(crate::mir::instruction::InvokeCallResultKind::yields_carrier)
         });
         if let Some(call) = ordinary.next() {
             if ordinary.next().is_some()

@@ -14,7 +14,7 @@ use crate::mir::resolved_semantics::BodyExpressionShapeV1;
 #[path = "home_terminal_returned_value.rs"]
 mod returned_value;
 pub(super) use returned_value::{
-    finite_entry_return, observe_scalar_return_expression_v1 as returned_scalar_expression_v1,
+    finite_entry_return, observe_return_expression_v1,
     observe_stored_return_v1, observe_text_return_expression_v1, observe_receiver_field_return_v1,
     terminal_returned_source, observe_borrowed_call_return_v1,
 };
@@ -587,6 +587,18 @@ impl TerminalRelationV1 {
             Self::BoolLiteral(_) => Some(Kind::Bool),
             Self::Call(call) => call.source_scalar().map(|_| call.scalar_kind()),
             Self::Unit(_) | Self::Value(_) | Self::OpaqueCall(_) => None,
+        }
+    }
+
+    pub(crate) fn evaluation_v1(&self) -> Option<&std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>> {
+        match self {
+            Self::Scalar(row) => row.evaluation(),
+            Self::Value(row) => match row.returned() {
+                TerminalReturnedSourceV1::TextExpression(source)
+                | TerminalReturnedSourceV1::DynamicExpression(source) => Some(source),
+                _ => None,
+            },
+            _ => None,
         }
     }
 

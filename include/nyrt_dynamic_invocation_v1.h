@@ -89,6 +89,10 @@ uint32_t nyrt_dynamic_checked_array_get_v1(void *, uint64_t, int64_t, int64_t, u
 /* Borrow an integer payload; a different live carrier kind records Fault. */
 uint32_t nyrt_dynamic_checked_integer_v1(void *, uint64_t, uint64_t, int64_t *)
     __asm__("nyash.dynamic.checked_integer_v1");
+/* Copy one admitted borrowed scalar or Text and publish a token only on Normal. */
+uint32_t nyrt_dynamic_checked_materialize_borrowed_v1(
+    void *, uint64_t, uint32_t, uint64_t, uint64_t *)
+    __asm__("nyash.dynamic.checked_materialize_borrowed_v1");
 /* Read the original borrowed formal without registering or consuming a token. */
 uint32_t nyrt_dynamic_checked_borrowed_integer_v1(
     void *, uint64_t, uint32_t, uint64_t, int64_t *)

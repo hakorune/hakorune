@@ -22,6 +22,7 @@ struct OriginalFormalUseSourceV1
     assignments: Box<[(SourceExprSiteV1, ResolvedAssignmentTargetV1)]>,
     captures: Box<[(OwnedExprSiteV1, BindingRefV1, bool)]>,
     scalar_expression_use_requested: bool,
+    dynamic_return_requested: bool,
 }
 impl OriginalFormalUseSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn issue(
@@ -144,9 +145,29 @@ impl OriginalFormalUseSourceV1 {
             assignments,
             captures: captures.into_boxed_slice(),
             scalar_expression_use_requested: false,
+            dynamic_return_requested: false,
         };
         original.scalar_expression_use_requested = original.observe_scalar_expression_use_v1(input)?;
+        // Use the existing completed-result transport of ordinary instance calls.
+        // The Static publication owner currently seals only exact result kinds.
+        let dynamic_return_requested = contract.mode
+            == crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
+            && input.has_unannotated_result_v1()
+            && original.dynamic_return_roots_v1().next().is_some();
+        original.dynamic_return_requested = dynamic_return_requested;
         Ok(Rc::new(original))
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn dynamic_return_roots_v1(
+        &self,
+    ) -> impl Iterator<Item = BindingRefV1> + '_ {
+        self.return_plans.iter().flatten().filter_map(|plan| {
+            let node = plan.nodes().first()?;
+            self.tagged_entry_at_v1(node.site()).map(|(_, root)| root)
+        })
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn dynamic_return_requested_v1(&self) -> bool {
+        self.dynamic_return_requested
     }
     /// Original evaluation purposes select work before domain/use completion.
     /// A scalar SUM alone cannot activate a previously unsupported Return.

@@ -32,6 +32,7 @@ pub(in crate::mir::builder) fn emit(
         ) => (false, true),
         _ => return Err(freeze("expression/residence-root")),
     };
+    let owned_carrier = ledger.returns_owned_carrier_v1(owner, &site);
     let after_residency = if text {
         source
             .return_text_after_read_v2()
@@ -140,7 +141,9 @@ pub(in crate::mir::builder) fn emit(
             None => expression_value::emit(builder, state, ledger, &source, &mut emit_call)?,
         }
     };
-    if dynamic_root {
+    if owned_carrier && source.materializes_dynamic_root_v1() {
+        expression_value::materialize_carrier_return_v1(builder, &mut expression)?;
+    } else if dynamic_root && !owned_carrier {
         expression_value::check_i64_destination_v1(builder, &mut expression)?;
     }
     let (terminal, continuation) = if text {
@@ -155,6 +158,11 @@ pub(in crate::mir::builder) fn emit(
             &mut expression,
             displaced,
         )?
+    } else if owned_carrier {
+        let crate::mir::instruction::StringInvokeOperand::DynamicCarrier(carrier) = expression.value.as_operand()? else {
+            return Err(freeze("expression/return-carrier-origin"));
+        };
+        expression_value::finish_carrier_return(builder, &mut expression.body, *carrier)?
     } else {
         expression_value::finish_scalar_continuation(builder, &mut expression)?
     };
@@ -169,7 +177,8 @@ pub(in crate::mir::builder) fn emit(
     } else {
         match expression.value.as_operand()? {
             crate::mir::instruction::StringInvokeOperand::OwnedString(value) if text => *value,
-            crate::mir::instruction::StringInvokeOperand::NormalInteger(value) if !text => *value,
+            crate::mir::instruction::StringInvokeOperand::DynamicCarrier(value) if owned_carrier => *value,
+            crate::mir::instruction::StringInvokeOperand::NormalInteger(value) if !text && !owned_carrier => *value,
             _ => return Err(freeze("expression/residence-root")),
         }
     };

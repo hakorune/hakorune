@@ -61,6 +61,7 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         let borrowed: Vec<_> = contract.parameters.iter()
             .filter(|row| row.kind.is_ordinary_borrowed_handle()).collect();
+        let dynamic_return = source.original_dynamic_return_request_v1(owner);
         let tagged = allow_tagged && contract.mode == Mode::StaticBoxMethod
             && source.has_tagged_static_input_v1(owner, &contract.parameters);
         let mut domains = BTreeMap::new();
@@ -71,6 +72,7 @@ impl OrdinaryNewClaimLedgerV1 {
             // Existing Uses/Object owners keep authority. A complete original
             // mixed cohort with no legacy draft can lend structural membership
             // for sibling reads; it never selects finite executable input work.
+            let dynamic_return = dynamic_return && sums.iter().all(|sum| sum.finite_input());
             let nominal = sums.iter().any(|sum| sum.object_class_v1().is_some());
             // Ownership is declared, while the same closed source SUM still proves
             // each actual's class. This structural view grants no entry transfer.
@@ -93,16 +95,16 @@ impl OrdinaryNewClaimLedgerV1 {
             // Original Text domains select the same finite source structure even
             // when a legacy Uses definition exists. Full uses and incoming still
             // require their original proof; non-Text owners keep that selection.
-            if !text_requested && !owned_nominal
+            if !dynamic_return && !text_requested && !owned_nominal
                 && (source.definitions.contains_key(&owner) || source.target_static.contains_key(&owner)) {
                 return Ok(None);
             }
             // Preserve the existing Text refusal boundary. New scalar families
             // select only a complete original cohort, never one convenient formal.
-            if !text_requested && !owned_nominal && ((contract.mode == Mode::StaticBoxMethod
+            if !dynamic_return && !text_requested && !owned_nominal && ((contract.mode == Mode::StaticBoxMethod
                 && source.is_scalar_only_static_input_v1(owner)) || sums.is_empty() || !sums.iter().all(|sum| sum.finite_input())) { return Ok(None); }
             let uses = source.original_formal_uses_v1(owner)?;
-            if !text_requested && !owned_nominal && !source.original_finite_forward_input_request_v1(owner)
+            if !dynamic_return && !text_requested && !owned_nominal && !source.original_finite_forward_input_request_v1(owner)
                 && !uses.scalar_expression_use_requested_v1() { return Ok(None); }
             for (formal, sum) in borrowed.iter().zip(sums) {
                 if !sum.finite_input()

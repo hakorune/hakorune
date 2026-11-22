@@ -241,6 +241,49 @@ pub unsafe extern "C" fn subtract_i64(
     }
 }
 
+/// Acquire an independent result from the admitted, still-live borrowed value.
+#[export_name = "nyash.dynamic.checked_materialize_borrowed_v1"]
+pub unsafe extern "C" fn materialize_borrowed(
+    storage: *mut c_void,
+    site: u64,
+    tag: u32,
+    payload: u64,
+    out: *mut u64,
+) -> u32 {
+    if out.is_null() || !out.is_aligned() {
+        return Status::InvalidContract as u32;
+    }
+    let frame = match unsafe { frame(storage) } {
+        Ok(frame) => frame,
+        Err(status) => return status as u32,
+    };
+    let published = match tag {
+        0..=2 => {
+            let operand = Operand { kind: TAGGED, tag, payload };
+            let value = match unsafe { decode(&operand) } {
+                Ok(value) => value,
+                Err(status) => return status as u32,
+            };
+            invocation::publish_immediate_v1(value)
+        }
+        BORROWED_TEXT_TAG => {
+            match unsafe { super::checked_string::snapshot_borrowed_text(payload as *const _) } {
+                Ok(Some(text)) => invocation::publish_string_v1(text),
+                Ok(None) => Err(DynamicInvocationFailureV1::CarrierSpaceExhausted),
+                Err(status) => return status as u32,
+            }
+        }
+        _ => return Status::InvalidContract as u32,
+    };
+    match published {
+        Ok(token) => {
+            unsafe { out.write(token.raw_v1()) };
+            Status::Normal as u32
+        }
+        Err(failure) => record_failure(frame, site, failure),
+    }
+}
+
 /// Move one owned String pair, or the null sentinel pair (0, 0), into a fresh
 /// carrier. A String pair is ended only after the carrier exists; any failure
 /// leaves the pair for its Fault cleanup.
@@ -352,5 +395,53 @@ pub(super) unsafe fn end_array_slot(
     match token.end_array_slot_v1(owner_identity) {
         Ok(()) => Status::Normal as u32,
         Err(failure) => record_failure(frame, site, failure),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::super::checked_string::{self as text, Operand as TextOperand, OwnedText};
+
+    #[test]
+    fn borrowed_result_owns_exact_tag_and_text_after_source_end() {
+        let mut frame = FaultFrame::new();
+        let storage = (&mut frame as *mut FaultFrame).cast();
+        let mut token = 17;
+        for (tag, payload) in [(0, 1), (2, 2), (3, 1), (4, 0)] {
+            assert_eq!(unsafe { materialize_borrowed(storage, 7, tag, payload, &mut token) }, 2);
+            assert_eq!(token, 17);
+        }
+
+        for (tag, payload, expected) in [(0, 0, None), (1, (-7i64) as u64, Some("-7")), (2, 0, Some("false")), (2, 1, Some("true"))] {
+            assert_eq!(unsafe { materialize_borrowed(storage, 7, tag, payload, &mut token) }, 0);
+            let carrier = DynamicCarrierTokenV1::from_raw_v1(token).unwrap();
+            assert_eq!(carrier.is_null_v1().unwrap(), expected.is_none());
+            if let Some(expected) = expected {
+                assert_eq!(carrier.string_add_suffix_v1().unwrap(), expected);
+            }
+            assert_eq!(carrier.integer_payload_v1().ok(), (tag == 1).then_some(-7));
+            assert_eq!(unsafe { end(storage, 8, token) }, 0);
+            assert!(carrier.is_null_v1().is_err());
+        }
+
+        let bytes = "猫é".as_bytes();
+        let literal = TextOperand {
+            kind: 1, reserved: 0, bytes: bytes.as_ptr(), len: bytes.len(),
+            handle: 0, token: 0, integer: 0,
+        };
+        let mut pair = OwnedText { handle: 0, token: 0 };
+        assert_eq!(unsafe { text::materialize(storage, 7, &literal, &mut pair) }, 0);
+        let borrowed = TextOperand {
+            kind: 2, bytes: std::ptr::null(), len: 0, handle: pair.handle, token: pair.token, ..literal
+        };
+        assert_eq!(unsafe {
+            materialize_borrowed(storage, 7, BORROWED_TEXT_TAG, (&borrowed as *const TextOperand) as u64, &mut token)
+        }, 0);
+        assert_eq!(unsafe { text::end(storage, 8, pair.handle, pair.token) }, 0);
+        let carrier = DynamicCarrierTokenV1::from_raw_v1(token).unwrap();
+        assert_eq!(carrier.text_snapshot_v1().unwrap(), "猫é");
+        assert_eq!(unsafe { end(storage, 8, token) }, 0);
+        assert!(carrier.text_snapshot_v1().is_err());
     }
 }

@@ -15,7 +15,7 @@ impl OrdinaryNewClaimLedgerV1 {
         else {
             return Ok(None);
         };
-        if let TerminalReturnedSourceV1::TextExpression(source) = terminal.returned() {
+        if let TerminalReturnedSourceV1::TextExpression(source) | TerminalReturnedSourceV1::DynamicExpression(source) = terminal.returned() {
             let row = order
                 .return_expression
                 .as_ref()
@@ -32,11 +32,11 @@ impl OrdinaryNewClaimLedgerV1 {
                 vec![RootHomeReleaseOriginV1 {
                     subject: RootHomeReleaseSubjectV1::DirectResult { site },
                     exit: exit.clone().into(),
-                    operation: InvokeOperation::String(
-                        crate::mir::instruction::StringInvokeOperation::End {
-                            value: row.contract.value,
-                        },
-                    ),
+                    operation: if matches!(terminal.returned(), TerminalReturnedSourceV1::DynamicExpression(_)) {
+                        InvokeOperation::DynamicCarrierEnd { carrier: row.contract.value }
+                    } else {
+                        InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value: row.contract.value })
+                    },
                 }],
             )));
         }

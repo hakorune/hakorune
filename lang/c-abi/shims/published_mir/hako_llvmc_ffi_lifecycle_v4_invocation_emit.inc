@@ -26,6 +26,7 @@ static void lv4_invocation_declarations(FILE* f) {
       "declare i32 @\"nyash.dynamic.checked_array_get_v1\"(ptr, i64, i64, i64, ptr)\n"
       "declare i32 @\"nyash.dynamic.checked_integer_v1\"(ptr, i64, i64, ptr)\n"
       "declare i32 @\"nyash.dynamic.checked_borrowed_integer_v1\"(ptr, i64, i32, i64, ptr)\n"
+      "declare i32 @\"nyash.dynamic.checked_materialize_borrowed_v1\"(ptr, i64, i32, i64, ptr)\n"
       "declare i32 @\"nyash.dynamic.checked_sub_i64_v1\"(ptr, i64, i64, i64, ptr)\n"
       "declare i32 @\"nyash.dynamic.checked_publish_text_or_null_v1\"(ptr, i64, i64, i64, ptr)\n"
       "declare i32 @\"nyash.dynamic.checked_is_null_v1\"(ptr, i64, i64, ptr)\n"
@@ -45,7 +46,8 @@ static void lv4_invocation_alloca(FILE* f, yyjson_val* op, uint32_t block) {
   } else if (lv4_is(op, "kind", "dynamic_carrier_integer") ||
       lv4_is(op, "kind", "dynamic_borrowed_integer")) {
     fprintf(f, "  %%dynint%u = alloca i64, align 8\n", block);
-  } else if (lv4_is(op, "kind", "dynamic_carrier_sub_i64")) {
+  } else if (lv4_is(op, "kind", "dynamic_carrier_sub_i64") ||
+      lv4_is(op, "kind", "dynamic_materialize_borrowed")) {
     fprintf(f, "  %%dynout%u = alloca i64, align 8\n", block);
   }
 }
@@ -97,6 +99,7 @@ static int lv4_invocation_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op
       lv4_is(op, "kind", "dynamic_array_get") ||
       lv4_is(op, "kind", "dynamic_carrier_integer") ||
       lv4_is(op, "kind", "dynamic_borrowed_integer") ||
+      lv4_is(op, "kind", "dynamic_materialize_borrowed") ||
       lv4_is(op, "kind", "dynamic_carrier_sub_i64") ||
       lv4_is(op, "kind", "dynamic_carrier_end"))) return -1;
   site = yyjson_get_uint(yyjson_obj_get(op, "site"));
@@ -145,13 +148,17 @@ static int lv4_invocation_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op
         block, site, lv4_u(op, "carrier"), block, block, block, fault, block, normal);
     return !ferror(f);
   }
-  if (lv4_is(op, "kind", "dynamic_borrowed_integer")) {
+  if (lv4_is(op, "kind", "dynamic_borrowed_integer") ||
+      lv4_is(op, "kind", "dynamic_materialize_borrowed")) {
     uint32_t tagged = lv4_u(op, "tagged");
+    int materializes = lv4_is(op, "kind", "dynamic_materialize_borrowed");
+    const char* checked = materializes
+        ? "nyash.dynamic.checked_materialize_borrowed_v1" : "nyash.dynamic.checked_borrowed_integer_v1";
     fprintf(f,
-        "  %%dynstatus%u = call i32 @\"nyash.dynamic.checked_borrowed_integer_v1\"(ptr %%frame, i64 %llu, i32 %%k%u, i64 %%v%u, ptr %%dynint%u)\n"
+        "  %%dynstatus%u = call i32 @\"%s\"(ptr %%frame, i64 %llu, i32 %%k%u, i64 %%v%u, ptr %%%s%u)\n"
         "  switch i32 %%dynstatus%u, label %%invalid [ i32 0, label %%dynnormal%u i32 1, label %%%s ]\ndynnormal%u:\n"
         "  br label %%%s\n",
-        block, site, tagged, tagged, block,
+        block, checked, site, tagged, tagged, materializes ? "dynout" : "dynint", block,
         block, block, fault, block, normal);
     return !ferror(f);
   }

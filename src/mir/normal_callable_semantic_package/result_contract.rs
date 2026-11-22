@@ -198,77 +198,41 @@ impl<'a> CallableResultContractRefV1<'a> {
         }
     }
 
-    /// Complete original Text-residence exits; this grants no physical Call ABI.
-    /// Entry finishing and final publication replay the same source correspondence.
-    pub(super) fn has_complete_text_result_v1(&self) -> bool {
-        use crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1;
-        let exits = self.completion.explicit_sites();
-        let unique: std::collections::BTreeSet<_> = exits.iter().collect();
-        self.result.is_none()
-            && self.declares_text_or_nothing_v1()
-            && self.completion.owner() == self.owner && self.completion.returns_value()
-            && self.completion.implicit_body_end().is_none() && !exits.is_empty()
-            && unique.len() == exits.len() && self.terminal_relations.len() == exits.len()
-            && exits.iter().all(|site| matches!(self.terminal_relations.get(site),
-                Some(TerminalRelationV1::Value(value)) if value.owner() == self.owner
-                    && value.return_site() == site
-                    && match value.returned() {
-                        TerminalReturnedSourceV1::TextResidence { .. } => true,
-                        TerminalReturnedSourceV1::TextExpression(evaluation) => evaluation.source().owner() == self.owner
-                            && evaluation.source().root().statement() == site
-                            && evaluation.source().nodes().first().is_some_and(|node| node.site() == value.value_site())
-                            && evaluation.root_class() == crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
-                                crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String)
-                            && evaluation.reference_coverage_is_exact(),
-                        _ => false,
-                    }))
+    fn complete_value_exits_v1(
+        &self,
+        valid: impl FnMut(&crate::mir::resolved_semantics::home_new_prefix::TerminalValueReturnV1) -> bool,
+    ) -> bool {
+        self.result.is_none() && self.completion.owner() == self.owner
+            && callable_keys::complete_value_exits_v1(self.completion, self.terminal_relations, valid)
     }
 
-    /// Every exit returns a Text residence/expression or the source `null`, and
-    /// at least one of each exists. Text-only consumers keep using the strict
-    /// predicate above; a nullable result never widens them.
+    pub(super) fn has_complete_text_result_v1(&self) -> bool {
+        self.declares_text_or_nothing_v1()
+            && self.complete_value_exits_v1(text_return_source_v1)
+    }
+
     pub(super) fn has_nullable_text_result_v1(&self) -> bool {
         use crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1;
-        let exits = self.completion.explicit_sites();
-        let unique: std::collections::BTreeSet<_> = exits.iter().collect();
-        let (mut text, mut null) = (0usize, 0usize);
-        let exact = self.result.is_none()
-            && matches!(self.completion.function_exit_contract().declared_result(), DeclaredFunctionResultContractV1::Unannotated)
-            && self.completion.owner() == self.owner && self.completion.returns_value()
-            && self.completion.implicit_body_end().is_none() && !exits.is_empty()
-            && unique.len() == exits.len() && self.terminal_relations.len() == exits.len()
-            && exits.iter().all(|site| match self.terminal_relations.get(site) {
-                Some(TerminalRelationV1::Value(value)) if value.owner() == self.owner && value.return_site() == site => {
-                    match value.returned() {
-                        TerminalReturnedSourceV1::TextResidence { .. } => { text += 1; true }
-                        TerminalReturnedSourceV1::TextExpression(evaluation) => {
-                            text += 1;
-                            evaluation.source().owner() == self.owner
-                                && evaluation.source().root().statement() == site
-                                && evaluation.source().nodes().first().is_some_and(|node| node.site() == value.value_site())
-                                && evaluation.root_class() == crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
-                                    crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String)
-                                && evaluation.reference_coverage_is_exact()
-                        }
-                        TerminalReturnedSourceV1::NullLiteral => { null += 1; true }
-                        _ => false,
-                    }
-                }
-                _ => false,
-            });
-        exact && text > 0 && null > 0
+        let (mut text, mut null) = (false, false);
+        let exact = self.is_unannotated_result_v1() && self.complete_value_exits_v1(|value| {
+            if matches!(value.returned(), TerminalReturnedSourceV1::NullLiteral) {
+                null = true;
+                return true;
+            }
+            let valid = text_return_source_v1(value);
+            text |= valid;
+            valid
+        });
+        exact && text && null
     }
 
-    /// Instance target agreement for a {Text, null} completed result.
-    pub(in crate::mir::normal_callable_semantic_package) fn corroborates_instance_nullable_text_source_v1(
-        &self, selected: &VerifiedSelectedCallableBatchMapV1, source: &super::LexicalInstanceCallSourceTargetV1,
-    ) -> bool {
-        let slot = source.target_batch_slot();
-        source.target().namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
-            && selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(source.target().clone())) == Some(slot)
-            && selected.identity_for_batch_slot(slot).is_some_and(|identity| identity.same_as(self.identity))
-            && selected.role_for_batch_slot(slot) == Some(self.role)
-            && self.owner == source.callee_owner() && self.has_nullable_text_result_v1()
+    pub(in crate::mir) fn has_owned_dynamic_result_v1(&self) -> bool {
+        self.result.is_none() && self.completion.owner() == self.owner
+            && owns_dynamic_carrier_result_v1(self.completion, self.terminal_relations)
+    }
+
+    fn is_unannotated_result_v1(&self) -> bool {
+        self.completion.function_exit_contract().declared_result() == &DeclaredFunctionResultContractV1::Unannotated
     }
 
     /// The original Static target and this exact completed declaration agree.
@@ -288,16 +252,23 @@ impl<'a> CallableResultContractRefV1<'a> {
             && self.owner == source.callee_owner() && self.has_complete_text_result_v1()
     }
 
-    /// Original Instance target agreement, independent of executable input closure.
-    pub(in crate::mir::normal_callable_semantic_package) fn corroborates_instance_text_source_v1(
+    fn instance_result_class_v1(
         &self, selected: &VerifiedSelectedCallableBatchMapV1, source: &super::LexicalInstanceCallSourceTargetV1,
-    ) -> bool {
+    ) -> Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1> {
+        use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1 as Class;
         let slot = source.target_batch_slot();
-        source.target().namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
-            && selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(source.target().clone())) == Some(slot)
-            && selected.identity_for_batch_slot(slot).is_some_and(|identity| identity.same_as(self.identity))
-            && selected.role_for_batch_slot(slot) == Some(self.role)
-            && self.owner == source.callee_owner() && self.has_complete_text_result_v1()
+        if source.target().namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+            || selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(source.target().clone())) != Some(slot)
+            || !selected.identity_for_batch_slot(slot).is_some_and(|identity| identity.same_as(self.identity))
+            || selected.role_for_batch_slot(slot) != Some(self.role)
+            || self.owner != source.callee_owner()
+        {
+            return None;
+        }
+        if self.has_complete_text_result_v1() { Some(Class::Text) }
+        else if self.has_nullable_text_result_v1() { Some(Class::Dynamic) }
+        else if self.has_owned_dynamic_result_v1() { Some(Class::OwnedDynamic) }
+        else { None }
     }
 
     /// R9, S2, O2: the declaration agrees with the proven source: a scalar kind of the one table of
@@ -343,37 +314,61 @@ impl<'a> CallableResultContractRefV1<'a> {
     }
 }
 
-/// Immutable borrow of the same completed Text result across input finishing.
+fn text_return_source_v1(
+    value: &crate::mir::resolved_semantics::home_new_prefix::TerminalValueReturnV1,
+) -> bool {
+    use crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1;
+    use crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1;
+    match value.returned() {
+        TerminalReturnedSourceV1::TextResidence { .. } => true,
+        TerminalReturnedSourceV1::TextExpression(source) =>
+            expression_return_source_v1(value, source, ExpressionValueClassV1::String),
+        _ => false,
+    }
+}
+
+fn expression_return_source_v1(
+    value: &crate::mir::resolved_semantics::home_new_prefix::TerminalValueReturnV1,
+    source: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+    class: crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1,
+) -> bool {
+    use crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1;
+    source.source().owner() == value.owner()
+        && source.source().root().statement() == value.return_site()
+        && source.source().nodes().first().is_some_and(|node| node.site() == value.value_site())
+        && source.root_class() == ExpressionLeafClassV1::Value(class)
+        && source.reference_coverage_is_exact()
+}
+
+/// Immutable borrow of the same completed callable result across input finishing.
 /// It shares the original Completion and terminal map; it is not another index.
 #[derive(Debug, Clone)]
-pub(super) struct CompletedTextResultSourceV1 {
+pub(super) struct CompletedCallResultSourceV1 {
     owner: FunctionOwnerIdV1,
     identity: CallableDeclarationIdentityV1,
     role: SelectedCallableConsumptionRoleV1,
     completion: Rc<VerifiedFunctionCompletionV1>,
     terminals: Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>,
 }
-impl PartialEq for CompletedTextResultSourceV1 {
+impl PartialEq for CompletedCallResultSourceV1 {
     fn eq(&self, other: &Self) -> bool {
         self.owner == other.owner && self.identity.same_as(&other.identity) && self.role == other.role
             && Rc::ptr_eq(&self.completion, &other.completion) && Rc::ptr_eq(&self.terminals, &other.terminals)
     }
 }
-impl Eq for CompletedTextResultSourceV1 {}
-impl CompletedTextResultSourceV1 {
+impl Eq for CompletedCallResultSourceV1 {}
+impl CompletedCallResultSourceV1 {
     pub(super) fn corroborates(&self, selected: &VerifiedSelectedCallableBatchMapV1, source: &super::StaticIncomingSourceV1) -> bool {
         CallableResultContractRefV1::from_completion(self.owner, &self.identity, self.role, None,
             &self.completion, &self.terminals, None).corroborates_static_text_source_v1(selected, source)
     }
-    pub(super) fn corroborates_instance_nullable(&self, selected: &VerifiedSelectedCallableBatchMapV1,
-        source: &super::LexicalInstanceCallSourceTargetV1) -> bool {
+    pub(super) fn corroborates_instance_result(
+        &self, selected: &VerifiedSelectedCallableBatchMapV1,
+        source: &super::LexicalInstanceCallSourceTargetV1,
+        result: crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1,
+    ) -> bool {
         CallableResultContractRefV1::from_completion(self.owner, &self.identity, self.role, None,
-            &self.completion, &self.terminals, None).corroborates_instance_nullable_text_source_v1(selected, source)
-    }
-    pub(super) fn corroborates_instance(&self, selected: &VerifiedSelectedCallableBatchMapV1,
-        source: &super::LexicalInstanceCallSourceTargetV1) -> bool {
-        CallableResultContractRefV1::from_completion(self.owner, &self.identity, self.role, None,
-            &self.completion, &self.terminals, None).corroborates_instance_text_source_v1(selected, source)
+            &self.completion, &self.terminals, None).instance_result_class_v1(selected, source) == Some(result)
     }
     pub(super) fn matches_retained(&self, completion: &Rc<VerifiedFunctionCompletionV1>,
         terminals: &Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>) -> bool {
@@ -381,26 +376,22 @@ impl CompletedTextResultSourceV1 {
     }
 }
 impl VerifiedCallableResultContractRowV1 {
-    pub(super) fn completed_instance_nullable_text_source_v1(&self, selected: &VerifiedSelectedCallableBatchMapV1,
-        source: &super::LexicalInstanceCallSourceTargetV1) -> Option<CompletedTextResultSourceV1> {
-        self.borrow().corroborates_instance_nullable_text_source_v1(selected, source).then(|| CompletedTextResultSourceV1 {
-            owner: self.owner, identity: self.identity.clone(), role: self.role,
-            completion: Rc::clone(&self.completion), terminals: Rc::clone(&self.terminal_relations),
-        })
+    pub(super) fn completed_instance_result_v1(
+        &self, selected: &VerifiedSelectedCallableBatchMapV1, source: &super::LexicalInstanceCallSourceTargetV1,
+    ) -> Option<(CompletedCallResultSourceV1, crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1)> {
+        let kind = self.borrow().instance_result_class_v1(selected, source)?;
+        Some((self.result_source_loan_v1(), kind))
     }
-    pub(super) fn completed_instance_text_source_v1(&self, selected: &VerifiedSelectedCallableBatchMapV1,
-        source: &super::LexicalInstanceCallSourceTargetV1) -> Option<CompletedTextResultSourceV1> {
-        self.borrow().corroborates_instance_text_source_v1(selected, source).then(|| CompletedTextResultSourceV1 {
+
+    fn result_source_loan_v1(&self) -> CompletedCallResultSourceV1 {
+        CompletedCallResultSourceV1 {
             owner: self.owner, identity: self.identity.clone(), role: self.role,
             completion: Rc::clone(&self.completion), terminals: Rc::clone(&self.terminal_relations),
-        })
+        }
     }
     pub(super) fn completed_text_source_v1(&self, selected: &VerifiedSelectedCallableBatchMapV1,
-        source: &super::StaticIncomingSourceV1) -> Option<CompletedTextResultSourceV1> {
-        self.borrow().corroborates_static_text_source_v1(selected, source).then(|| CompletedTextResultSourceV1 {
-            owner: self.owner, identity: self.identity.clone(), role: self.role,
-            completion: Rc::clone(&self.completion), terminals: Rc::clone(&self.terminal_relations),
-        })
+        source: &super::StaticIncomingSourceV1) -> Option<CompletedCallResultSourceV1> {
+        self.borrow().corroborates_static_text_source_v1(selected, source).then(|| self.result_source_loan_v1())
     }
 }
 
@@ -751,6 +742,7 @@ impl VerifiedCallableResultContractCohortV1 {
 
 #[path = "result_contract_callable_keys.rs"]
 mod callable_keys;
+pub(super) use callable_keys::owns_dynamic_carrier_result_v1;
 
 #[path = "result_contract_top_level.rs"]
 mod top_level;

@@ -222,6 +222,19 @@ pub fn publish_string_v1(
     publish_carrier_v1(CarrierPayloadV1::Object(Arc::from(value)))
 }
 
+/// Publish a copied immediate, preserving its language kind.
+pub fn publish_immediate_v1(
+    value: DynamicInvocationValueV1,
+) -> Result<DynamicCarrierTokenV1, DynamicInvocationFailureV1> {
+    let payload = match value {
+        DynamicInvocationValueV1::Null => CarrierPayloadV1::Null,
+        DynamicInvocationValueV1::Integer(value) => CarrierPayloadV1::Integer(value),
+        DynamicInvocationValueV1::Bool(value) => CarrierPayloadV1::Bool(value),
+        _ => return Err(DynamicInvocationFailureV1::InvalidCarrier),
+    };
+    publish_carrier_v1(payload)
+}
+
 /// Publish the language `null` as an independent opaque carrier.
 pub fn publish_null_v1() -> Result<DynamicCarrierTokenV1, DynamicInvocationFailureV1> {
     publish_carrier_v1(CarrierPayloadV1::Null)

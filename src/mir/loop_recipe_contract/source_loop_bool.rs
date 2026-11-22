@@ -226,7 +226,8 @@ pub(crate) fn project_source_loop_bool_v1(
                         .next()
                         .ok_or_else(|| reject("hidden-effectful-node"))?;
                     let call_class = match call.result() {
-                        crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Dynamic => Class::Dynamic,
+                        crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Dynamic
+                        | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::OwnedDynamic => Class::Dynamic,
                         crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64 => Class::I64,
                         crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Bool => Class::Bool,
                         crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Text => Class::Text,

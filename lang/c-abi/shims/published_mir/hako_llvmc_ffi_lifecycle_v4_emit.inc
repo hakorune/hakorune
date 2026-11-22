@@ -227,7 +227,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       } else if (lv4_is(ins, "op", "string_residence_install")) {
         /* Validated lifecycle handoff preserves the existing handle/token pair. */
       } else if (lv4_is(ins, "op", "array_residence_release")) {
-        if (!in->native && lv4_map_keys_root(&in->index[fi], lv4_u(ins, "value"))) {
+        if (!in->native && lv4_array_result_root(&in->index[fi], lv4_u(ins, "value"), "map_field_keys")) {
           /* Nonfallible Text End: a broken physical contract traps and never
            * manufactures a source Fault. The prior Fault frame is retained. */
           fprintf(f,
@@ -369,7 +369,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         } else if (kind == LV4_DYNAMIC_CARRIER &&
             (lv4_is(producer_op, "kind", "dynamic_invoke") ||
              lv4_is(producer_op, "kind", "dynamic_array_get") ||
-             lv4_is(producer_op, "kind", "dynamic_carrier_sub_i64")))
+             lv4_is(producer_op, "kind", "dynamic_carrier_sub_i64") ||
+             lv4_is(producer_op, "kind", "dynamic_materialize_borrowed")))
           fprintf(f, "  %%v%u = load i64, ptr %%dynout%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
         else if (kind == LV4_I64 && (lv4_is(producer_op, "kind", "dynamic_carrier_integer") ||
              lv4_is(producer_op, "kind", "dynamic_borrowed_integer")))
@@ -391,7 +392,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           fprintf(f, "  %%v%u = load i64, ptr %%get_out%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
         else if (producer_op && lv4_is(producer_op, "kind", "field_get"))
           fprintf(f, "  %%v%u = load i64, ptr %%field_read%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
-        else if ((kind == LV4_I64 || kind == LV4_BOOL || kind == LV4_HANDLE || kind == LV4_BORROWED_OBJECT || kind == LV4_MIXED_OBJECT) &&
+        else if ((kind == LV4_I64 || kind == LV4_BOOL || kind == LV4_HANDLE || kind == LV4_BORROWED_OBJECT ||
+                  kind == LV4_MIXED_OBJECT || kind == LV4_DYNAMIC_CARRIER) &&
             producer_op && lv4_is(producer_op, "kind", "ordinary_call")) {
           /* A nullable call result lands in the same i64 out-slot as a
              scalar one; the handle-or-sentinel distinction is carried by
@@ -541,7 +543,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       if (lv4_is(op, "kind", "home_release_if_live")) {
         hako_lv4_function_index* index = &in->index[fi];
         hako_lv4_value* value = lv4_index_value(index, lv4_u(op, "value"));
-        if (lv4_birth_array_value(index, value) || lv4_script_arguments_root(index, lv4_u(op, "value"))) {
+        if (lv4_birth_array_value(index, value) || lv4_array_result_root(index, lv4_u(op, "value"), "script_arguments_new")) {
           /* Existing intrinsic Array leases keep their separate transport;
              this shared release opcode does not turn them into objects. */
           fprintf(f, "  %%live%u = icmp ne i64 %%v%u, 0\n", b, lv4_u(op, "value"));

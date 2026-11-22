@@ -156,6 +156,21 @@ pub(super) fn has_static_source_local_v1(
 /// source-loop product selected from the same body. This predicate only
 /// matches the already-admitted exact result site to its original Local
 /// initializer; it issues no carrier or execution authority.
+/// An unannotated callable with an original Dynamic value Return needs the
+/// same expression walk that verifies the origin and the pending result.
+pub(super) fn has_dynamic_return_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
+) -> bool {
+    input.has_unannotated_result_v1()
+        && calls.iter().any(|row| row.owner() == input.owner())
+        && input.body_shape().and_then(|shape|
+            super::super::verified_value_return_sites(input, shape)).is_some_and(|sites| {
+            !sites.is_empty() && sites.iter().all(|site| calls.iter().any(|row|
+                row.owner() == input.owner() && row.result_site() == site))
+        })
+}
+
 pub(super) fn has_dynamic_local_initializer_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],

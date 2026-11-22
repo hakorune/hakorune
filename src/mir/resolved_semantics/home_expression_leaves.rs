@@ -312,7 +312,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_expression_ca
             LocalCallResultClassV1::Bool if profile == ExpressionLeafProfileV1::BoolCondition => {
                 Class::Bool
             }
-            LocalCallResultClassV1::Dynamic
+            LocalCallResultClassV1::Dynamic | LocalCallResultClassV1::OwnedDynamic
                 if matches!(
                     profile,
                     ExpressionLeafProfileV1::BoolCondition

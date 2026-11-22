@@ -20,7 +20,7 @@ pub(super) struct StaticInputFinishV1 {
     pub(super) completion: Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,
     pub(super) evidence: StaticInputEvidenceV1,
     pub(super) text_result: Option<
-        crate::mir::normal_callable_semantic_package::result_contract::CompletedTextResultSourceV1,
+        crate::mir::normal_callable_semantic_package::result_contract::CompletedCallResultSourceV1,
     >,
 }
 #[derive(Debug, Clone)]
@@ -88,7 +88,7 @@ impl StaticInputFinishV1 {
         evidence: StaticInputEvidenceV1,
         actuals: Box<[PreparedBorrowedFormalActualV1]>,
         text_result: Option<
-            crate::mir::normal_callable_semantic_package::result_contract::CompletedTextResultSourceV1,
+            crate::mir::normal_callable_semantic_package::result_contract::CompletedCallResultSourceV1,
         >,
     ) -> PreparedBorrowedCallActualsV1 {
         PreparedBorrowedCallActualsV1 {

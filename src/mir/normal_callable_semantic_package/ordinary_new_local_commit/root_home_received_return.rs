@@ -92,10 +92,11 @@ impl OrdinaryNewClaimLedgerV1 {
         )? {
             return Ok(Some(bindings));
         }
-        if let Some(TerminalRelationV1::Scalar(terminal)) =
-            self.terminal_relation_for_owner_at(owner, exit)
-        {
-            if let Some(source) = terminal.evaluation() {
+        if let Some(terminal) = self.terminal_relation_for_owner_at(owner, exit) {
+            if let Some(source) = terminal.evaluation_v1().filter(|_| {
+                matches!(terminal, TerminalRelationV1::Scalar(_))
+                    || self.returns_owned_carrier_v1(owner, exit)
+            }) {
                 let row = order
                     .return_expression
                     .as_ref()

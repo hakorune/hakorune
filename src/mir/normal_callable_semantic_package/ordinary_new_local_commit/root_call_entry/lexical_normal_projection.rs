@@ -324,10 +324,11 @@ impl EmittedLexicalCallProjectionV1 {
                     .ledger()
                     .corroborate_mixed_call_using_v1(row, context)?;
             }
-            if row.result() == Some(InvokeCallResultKind::OwnedString) {
+            if matches!(row.result(),
+                Some(InvokeCallResultKind::OwnedString | InvokeCallResultKind::OwnedDynamicCarrier)) {
                 ledger
                     .ok_or_else(|| freeze("borrowed-call/source-missing"))?
-                    .corroborate_local_instance_text_call_v1(row)?;
+                    .corroborate_local_instance_owned_result_v1(row)?;
             }
             if row.result() == Some(InvokeCallResultKind::Unit) {
                 ledger
@@ -406,7 +407,7 @@ impl EmittedLexicalCallProjectionV1 {
         // Every wrapper and nested Call uses the same original result projection.
         // An outer expression may corroborate this cancellation, never replace it.
         let result_cancellation = if matches!(self.row.loan().result(),
-            Some(InvokeCallResultKind::OwnedString | InvokeCallResultKind::DynamicCarrier)) {
+            Some(InvokeCallResultKind::OwnedString | InvokeCallResultKind::NullableText | InvokeCallResultKind::OwnedDynamicCarrier)) {
             let (block, MirInstruction::InvokeNormalResult { dst, invoke_block }) =
                 self.projection.value()?
             else {

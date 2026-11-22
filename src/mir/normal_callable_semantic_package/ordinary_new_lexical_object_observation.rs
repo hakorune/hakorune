@@ -172,11 +172,11 @@ fn corroborate_original_object_observations_v1(
     if !matches!(
         observation.result(),
         LocalCallResultClassV1::Handle | LocalCallResultClassV1::Nullable
-    ) && !(observation.result() == LocalCallResultClassV1::Dynamic && dynamic_result.is_some())
+    ) && !(observation.result().is_carrier() && dynamic_result.is_some())
         || match observation.result() {
             LocalCallResultClassV1::Handle => result.is_some_and(|kind| kind != InvokeCallResultKind::Handle),
             LocalCallResultClassV1::Nullable => result.is_some_and(|kind| kind != InvokeCallResultKind::NullableHandle),
-            LocalCallResultClassV1::Dynamic => result.is_some_and(|kind| Some(kind) != dynamic_result),
+            LocalCallResultClassV1::Dynamic | LocalCallResultClassV1::OwnedDynamic => result.is_some_and(|kind| Some(kind) != dynamic_result),
             _ => true,
         }
     {

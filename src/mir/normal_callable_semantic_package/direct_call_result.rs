@@ -30,6 +30,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn call_result_kind(
             // Tagged Dynamic preserves its value at Return but does not
             // publish a concrete Invoke result ABI.
             TerminalReturnedSourceV1::TaggedDynamic(_) => None,
+            TerminalReturnedSourceV1::DynamicExpression(_) => Some(InvokeCallResultKind::OwnedDynamicCarrier),
             TerminalReturnedSourceV1::Construction(_) => Some(InvokeCallResultKind::Handle),
             TerminalReturnedSourceV1::Home { binding, acquisition }
                 if binding.owner() == row.owner() && acquisition.owner() == row.owner() =>

@@ -62,6 +62,7 @@ struct FunctionUses {
     /// Source-Loop occurrences keep their full finished image in both scans.
     /// They do not establish the legacy numeric dominance cone.
     loop_compares: BTreeMap<Coordinate, MirInstruction>,
+    carrier_materializations: BTreeMap<Coordinate, MirInstruction>,
     borrowed_integer_reads: BTreeMap<Coordinate, (ValueId, Option<(Coordinate, usize)>)>,
     mul_expected: BTreeMap<(Coordinate, usize), mul::MulOperandUse>,
     /// Dominated `+` operand admissions per formal under the same source
@@ -99,6 +100,7 @@ struct Scan {
     receivers: BTreeSet<Coordinate>,
     dynamic_receivers: BTreeSet<Coordinate>,
     /// Exact operand occurrences, including both sides of shared carriers.
+    carrier_materializations: BTreeSet<Coordinate>,
     compare_uses: BTreeMap<BindingRefV1, BTreeSet<(Coordinate, usize)>>,
     mul_uses: BTreeSet<(Coordinate, usize)>,
     /// Distinct operand values serving each formal's dominated `+` view.
@@ -353,6 +355,16 @@ impl FunctionUses {
             return Ok(());
         }
         match instruction {
+            MirInstruction::Invoke { operation: InvokeOperation::DynamicMaterializeBorrowed { tagged }, fault_frame, .. } => {
+                if self.carrier_materializations.get(&coordinate) != Some(instruction)
+                    || !tracked.contains_key(tagged)
+                    || tracked.contains_key(fault_frame)
+                    || views.views.contains_key(fault_frame)
+                    || !definitions.carrier_materializations.insert(coordinate)
+                {
+                    return Err(fault("borrowed-use/carrier-materialization"));
+                }
+            }
             MirInstruction::Invoke {
                 operation: InvokeOperation::DynamicBorrowedInteger { tagged },
                 fault_frame, ..
@@ -679,6 +691,9 @@ impl FunctionUses {
         params: &[ValueId],
         definitions: &Scan,
     ) -> Result<(), String> {
+        if !self.carrier_materializations.keys().copied().eq(definitions.carrier_materializations.iter().copied()) {
+            return Err(fault("borrowed-use/carrier-materialization-coverage"));
+        }
         integer_return::coverage(self, definitions)?;
         field_write::coverage(self, definitions)?;
         array_set::coverage(self, definitions)?;

@@ -395,18 +395,11 @@ fn borrowed_call_result_accepts_unannotated_complete_i64_source() {
     }
 }
 
-/// The unannotated arm borrows only the existing I64 source vocabulary:
-/// opaque/other-domain returns, mixed exits, implicit exits and other
-/// declared annotations never acquire the projection.
+/// An unannotated borrowed value gets the same owned result contract for
+/// either finite input. Scalar exit proofs still govern the other Returns.
 #[test]
 fn borrowed_call_result_keeps_unannotated_i64_bounded() {
     for (label, result, body, token) in [
-        (
-            "opaque-return",
-            "",
-            "return p",
-            "borrowed-result/source-not-i64",
-        ),
         (
             "mixed-exit",
             "",
@@ -438,41 +431,28 @@ fn borrowed_call_result_keeps_unannotated_i64_bounded() {
                 let error = format!("{error:?}");
                 assert!(error.contains(token), "{label}: {error}");
             }
-            // An opaque-return body leaves the callee outside the borrowed
-            // profile at the use-draft frontier, so no result row exists to
-            // demand at package level; the pin is that no callee ever
-            // acquires the corroborated I64 permission.
             Ok(package) => {
                 let rows = &package.ordinary_new_claim_ledger.borrowed_i64_results;
-                if label == "opaque-return" {
-                    // `return p` with the incoming literal actual `0` is corroborated
-                    // by that I64 source (checked against a Bool actual below).
-                    assert!(
-                        rows.values().all(|row| row.as_ref().is_ok_and(|proof| {
-                            matches!(proof.class, BorrowedResultClassV1::I64) && proof.contract_corroborated
-                        })),
-                        "{label}: the literal actual is the only I64 source"
-                    );
-                } else {
-                    assert!(
-                        rows.values().all(|proof| proof.is_err()),
-                        "{label}: an opaque-return callee acquired an I64 permission"
-                    );
-                }
+                assert!(rows.values().all(|proof| proof.is_err()),
+                    "{label}: the callee acquired an I64 permission");
             }
         }
     }
-    // The same opaque return with a Bool incoming actual is no I64 source.
-    let bool_actual = "box Transport { birth() { } probe(p) { return p } } static box Main { main() { local recv = new Transport() local out = recv.probe(true) return 0 } }";
-    // The package accepts the call; the callee's only result row is the named
-    // `source-not-i64` refusal, so no I64 permission exists for it.
-    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(bool_actual)
-        .unwrap_or_else(|error| panic!("Bool actual: {error:?}"));
-    let rows = &package.ordinary_new_claim_ledger.borrowed_i64_results;
-    assert_eq!(rows.len(), 1, "Bool actual: the one callee row");
-    for row in rows.values() {
-        let error = row.as_ref().expect_err("Bool actual acquired an I64 permission");
-        assert!(error.contains("borrowed-result/source-not-i64"), "Bool actual: {error}");
+    for actual in ["0", "true"] {
+        let package = package("p", "", "return p", actual);
+        let ledger = &package.ordinary_new_claim_ledger;
+        let source = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+        let mut incoming = source.source_incoming.source_rows_v1();
+        let call = &incoming.next().expect("the original Dynamic call").call;
+        assert!(incoming.next().is_none(), "{actual}: extra incoming call");
+        let row = ledger.take_lexical_instance_call(call.owner(), call.site()).unwrap().unwrap();
+        assert_eq!(row.result, Some(InvokeCallResultKind::OwnedDynamicCarrier), "{actual}");
+        let contract = package.result_contracts.row(row.source_target().target_batch_slot()).unwrap().borrow();
+        assert!(contract.has_owned_dynamic_result_v1(), "{actual}");
+        assert!(contract.result().is_none(), "{actual}: the Return acquired a scalar contract");
+        assert_eq!(contract.declared_result(),
+            &crate::mir::resolved_control_flow::DeclaredFunctionResultContractV1::Unannotated, "{actual}");
+        package.ordinary_new_claim_ledger.borrowed_call_actuals_v1(&row).unwrap().unwrap();
     }
 }
 
