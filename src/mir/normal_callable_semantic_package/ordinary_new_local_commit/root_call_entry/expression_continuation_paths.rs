@@ -218,11 +218,12 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         terminal: &Option<Binding>,
         continuation: &Option<Binding>,
         carrier: ValueId,
+        acquisition: Option<&[Binding; 2]>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         self.validate_local_delimiters_v1(context, function, finishing, entry, terminal, continuation)?;
         self.validate_paths_with_policy(
             context, function, finishing, terminal, continuation,
-            None, None, false, None, None, Some((carrier, CarrierHandoffV1::PendingReturn)),
+            None, None, false, None, acquisition, Some((carrier, CarrierHandoffV1::PendingReturn)),
         )
     }
     pub(super) fn validate_local_delimiters_v1(

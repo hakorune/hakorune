@@ -180,6 +180,21 @@ impl BorrowedCallUses {
             state.retain_rooted_copies_v1(state.roots.keys().copied().collect(), &scalar_copies)?;
         }
         let tracked = state.tracked()?;
+        source.with_finished_carrier_materializations_v1(owner, function, |read, coordinate, instruction| {
+            let MirInstruction::Invoke { operation: InvokeOperation::DynamicMaterializeBorrowed { tagged }, .. } = instruction else {
+                return Err(fault("borrowed-use/carrier-materialization"));
+            };
+            let (ordinal, formal) = read.requirement().formal();
+            let domain = entry.formal_domain_v1(ordinal, formal)?;
+            if tracked.get(&tagged) != Some(&formal)
+                || !state.finite_input
+                || !domain.is_some_and(|domain| domain.corroborates_finite_read_v1(read))
+                || state.carrier_materializations.insert(coordinate, instruction).is_some()
+            {
+                return Err(fault("borrowed-use/carrier-materialization"));
+            }
+            Ok(())
+        })?;
         source.with_finished_tagged_text_operands_v1(owner, function, |formal, value, side, coordinate| {
             let expected = crate::mir::instruction::StringInvokeOperand::Dynamic(value);
             let key = (coordinate.0, coordinate.1, side);

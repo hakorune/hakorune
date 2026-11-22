@@ -363,6 +363,23 @@ pub(super) unsafe fn validate_text_operand(value: *const Operand) -> Result<(), 
     unsafe { with_text_operands([Some(value)], |_| ()) }
 }
 
+/// Copy a live Text descriptor while its original lease still protects its bytes.
+pub(super) unsafe fn snapshot_borrowed_text(
+    value: *const Operand,
+) -> Result<Option<String>, Status> {
+    unsafe {
+        with_text_operands([Some(value)], |[text]| {
+            let text = text.ok_or(Status::InvalidContract)?;
+            let mut owned = String::new();
+            if owned.try_reserve(text.len()).is_err() {
+                return Ok(None);
+            }
+            owned.push_str(text);
+            Ok(Some(owned))
+        })
+    }?
+}
+
 /// Count a live Text borrow without allocation or a language Fault frame.
 /// Invalid descriptors leave the caller's output unchanged.
 #[export_name = "nyash.string.code_point_count_v1"]

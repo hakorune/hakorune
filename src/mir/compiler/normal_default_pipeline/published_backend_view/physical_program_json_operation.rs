@@ -122,6 +122,10 @@ pub(super) fn encode_invoke(
             json!({"kind":"dynamic_carrier_integer", "carrier":value(carrier)}),
             required_site(diagnostic_site, true)?,
         )?,
+        InvokeOperation::DynamicMaterializeBorrowed { tagged } => with_site(
+            json!({"kind":"dynamic_materialize_borrowed", "tagged":value(tagged)}),
+            required_site(diagnostic_site, true)?,
+        )?,
         InvokeOperation::DynamicBorrowedInteger { tagged } => with_site(
             json!({"kind":"dynamic_borrowed_integer", "tagged":value(tagged)}),
             required_site(diagnostic_site, true)?,

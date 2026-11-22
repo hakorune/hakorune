@@ -161,14 +161,26 @@ impl CalleeResultKindCatalogV1 {
             None => None,
             _ => return Err("[freeze:contract][callee-result-kind/owned-source-drift]".into()),
         };
-        row.corroborate(key, evidence)?;
+        let supplied_result = matches!(completed, Some(Class::Text | Class::Dynamic));
+        let checked = (!supplied_result && !source_bool)
+            .then(|| super::direct_call_loan::lifecycle::uniform_call_result_kind(relations))
+            .flatten();
+        // The preliminary I64 claim can come from an unannotated borrowed
+        // Return whose current caller cohort contains only I64. The completed
+        // declaration and all of its verified exits own that result kind.
+        if completed == Some(Class::OwnedDynamic)
+            && checked == Some(crate::mir::instruction::InvokeCallResultKind::OwnedDynamicCarrier)
+            && self.static_evidence(key).and_then(CalleeResultKindV1::from_static).is_none()
+            && self.kind(key) == Some(CalleeResultKindV1::I64)
+        {
+            *row.kind.borrow_mut() = evidence;
+        } else {
+            row.corroborate(key, evidence)?;
+        }
         if source_bool { row.corroborate(key, Some(CalleeResultKindV1::Bool))?; }
-        let independently_covered = if matches!(completed, Some(Class::Text | Class::Dynamic)) { true }
+        let independently_covered = if supplied_result { true }
             else if source_bool { retained_bool }
-            else {
-                let checked = super::direct_call_loan::lifecycle::uniform_call_result_kind(relations);
-                checked.is_some() && self.kind(key).and_then(|kind| kind.local_class().invoke_result()) == checked
-            };
+            else { checked.is_some() && self.kind(key).and_then(|kind| kind.local_class().invoke_result()) == checked };
         Ok(independently_covered.then(|| self.kind(key)?.local_class().invoke_result()).flatten())
     }
     pub(super) fn bind(

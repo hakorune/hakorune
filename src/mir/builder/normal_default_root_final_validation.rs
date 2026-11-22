@@ -99,12 +99,21 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
     ) -> (
         ModuleBuilderInvocationSessionV1,
         MirModule,
-        impl FnOnce(&MirModule) -> Result<(), String>,
+        impl FnOnce(&MirModule) -> Result<Option<crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>, String>,
     ) {
         let validate = move |module: &MirModule| {
             crate::mir::named_array_obligation::reject_unretained_module(module)?;
-            let _callables = self.callables;
             let mut root_validation = self.root_validation;
+            // A checked borrowed Return needs the original actuals even when
+            // the caller only requests a diagnostic MIR. Use the same source
+            // seal as the document route before giving it to verification.
+            if matches!(&root_validation, RootValidation::OrdinaryNew { ledger, .. }
+                if ledger.requires_dynamic_result_handoff_v1())
+            {
+                let keys = finish_document_inputs(&mut root_validation, module, &self.construction)?;
+                return seal_root_handoff(root_validation, module, &keys, self.callables, self.construction);
+            }
+            let _callables = self.callables;
             let _ = root_validation.validate(module, false)?;
             // Bare MIR drops the finalized call loans. Check their retained
             // source products, rather than the opcodes that also occur in Loops.
@@ -126,7 +135,7 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
                     })?;
                 validation.validate_after_compiler_finishing(definition)?;
             }
-            Ok(())
+            Ok(None)
         };
         (self.session, self.module, validate)
     }

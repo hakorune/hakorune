@@ -16,7 +16,7 @@ static int lv4_indexed_return(const hako_lv4_input* in,
   /* This lane owns only local keys temporaries; no array result/handoff
    * contract has been selected at an ordinary object Return boundary. */
   if (lv4_is(term, "op", "return") &&
-      lv4_map_keys_root(fn, lv4_u(term, "value"))) return 0;
+      lv4_array_result_root(fn, lv4_u(term, "value"), "map_field_keys")) return 0;
   if (ordinary_text && lv4_is(term, "op", "return")) {
     hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
     int null_return = nullable_text && !faulted && result && result->kind == LV4_HANDLE && result->origin < 0 &&

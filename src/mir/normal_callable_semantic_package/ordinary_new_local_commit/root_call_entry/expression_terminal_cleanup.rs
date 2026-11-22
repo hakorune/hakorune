@@ -56,6 +56,22 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                     return Err(freeze("rebind-expression/materialize-result"));
                 }
             }
+            Some([invoke, normal]) if self.frame.materializes_dynamic_root_v1() && !materializes && !text => {
+                let Some(Some(input)) = self.values.first() else {
+                    return Err(freeze("expression/return-carrier-origin"));
+                };
+                let Operand::Dynamic(tagged) = input.as_operand()? else {
+                    return Err(freeze("expression/return-carrier-origin"));
+                };
+                if !matches!(&invoke.1, MirInstruction::Invoke {
+                    operation: InvokeOperation::DynamicMaterializeBorrowed { tagged: bound }, normal_landing, ..
+                } if bound == tagged && *normal_landing == normal.0)
+                    || normal.1 != (MirInstruction::InvokeNormalResult { invoke_block: invoke.0, dst: value })
+                    || !self.original.contains(invoke) || !self.original.contains(normal)
+                {
+                    return Err(freeze("expression/return-carrier-origin"));
+                }
+            }
             Some([invoke, normal]) if !materializes && !text
                 && matches!(self.frame.root_class(),
                     crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(

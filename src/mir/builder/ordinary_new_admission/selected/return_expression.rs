@@ -141,7 +141,9 @@ pub(in crate::mir::builder) fn emit(
             None => expression_value::emit(builder, state, ledger, &source, &mut emit_call)?,
         }
     };
-    if dynamic_root && !owned_carrier {
+    if owned_carrier && source.materializes_dynamic_root_v1() {
+        expression_value::materialize_carrier_return_v1(builder, &mut expression)?;
+    } else if dynamic_root && !owned_carrier {
         expression_value::check_i64_destination_v1(builder, &mut expression)?;
     }
     let (terminal, continuation) = if text {

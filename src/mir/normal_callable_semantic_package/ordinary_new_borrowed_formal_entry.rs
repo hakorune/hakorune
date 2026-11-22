@@ -749,7 +749,9 @@ mod incoming;
 #[path = "ordinary_new_borrowed_formal_entry_owner_view.rs"]
 mod owner_view;
 pub(super) use owner_view::checked_forwarding_instance_source_v1;
-use owner_view::BorrowedEntryActualsV1;
+#[path = "ordinary_new_borrowed_formal_entry_actuals.rs"]
+mod entry_actuals;
+use entry_actuals::BorrowedEntryActualsV1;
 
 pub(in crate::mir) use entry_values::BorrowedCompareCarrierOperandLoanV1;
 pub(crate) use entry_values::BorrowedCompareIntegerLiteralLoanV1;

@@ -271,6 +271,7 @@ impl<'module> PublishedLifecyclePhysicalProgramV1<'module> {
                             | InvokeOperation::DynamicArrayGet { .. }
                             | InvokeOperation::DynamicCarrierInteger { .. }
                             | InvokeOperation::DynamicBorrowedInteger { .. }
+                            | InvokeOperation::DynamicMaterializeBorrowed { .. }
                             | InvokeOperation::DynamicCarrierSubI64 { .. }
                             | InvokeOperation::DynamicCarrierEnd { .. }
                             | InvokeOperation::OwnedArray(_)
@@ -689,6 +690,7 @@ fn validate_instruction_with_context(
                         | InvokeOperation::Birth(_)
                         | InvokeOperation::DynamicArrayGet { .. }
                         | InvokeOperation::DynamicBorrowedInteger { .. }
+                        | InvokeOperation::DynamicMaterializeBorrowed { .. }
                         | InvokeOperation::DynamicCarrierEnd { .. },
                     ..
                 }

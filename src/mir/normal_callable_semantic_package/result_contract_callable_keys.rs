@@ -28,7 +28,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn owns_dynamic_carrier_res
     completion.function_exit_contract().declared_result() == &DeclaredFunctionResultContractV1::Unannotated
         && complete_value_exits_v1(completion, relations, |value| {
             matches!(value.returned(), TerminalReturnedSourceV1::DynamicExpression(source)
-                if source.owned_result_nodes().contains(&0)
+                if (source.owned_result_nodes().contains(&0) || source.materializes_dynamic_root_v1())
                     && expression_return_source_v1(value, source, ExpressionValueClassV1::Dynamic))
         })
 }

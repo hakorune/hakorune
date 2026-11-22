@@ -53,8 +53,8 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
                   !lv4_string_hold(state, lv4_state_count(fn), value->origin))
               : !lv4_string_install(state, lv4_state_count(fn), value->origin, old ? lv4_text_origin(fn, old) : -1))) return 0;
     } else if (lv4_is(ins, "op", "array_residence_release")) {
-      hako_lv4_value* root = lv4_script_arguments_root(fn, lv4_u(ins, "value"));
-      if (!root) root = lv4_map_keys_root(fn, lv4_u(ins, "value"));
+      hako_lv4_value* root = lv4_array_result_root(fn, lv4_u(ins, "value"), "script_arguments_new");
+      if (!root) root = lv4_array_result_root(fn, lv4_u(ins, "value"), "map_field_keys");
       if (!root) {
         root = lv4_owned_array_root(fn, lv4_u(ins, "value"));
         if (!root || (!lv4_owned_array_claim(fn, root) &&
@@ -179,7 +179,7 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
         if (!lv4_string_indexed_operand(fn, hako_physical_text_read_operand(ins, i), state)) return 0;
     } else if (lv4_is(ins, "op", "array_length")) {
       hako_lv4_value* array = lv4_index_value(fn, lv4_u(ins, "array"));
-      hako_lv4_value* snapshot = array ? lv4_map_keys_root(fn, array->id) : NULL;
+      hako_lv4_value* snapshot = array ? lv4_array_result_root(fn, array->id, "map_field_keys") : NULL;
       if (faulted || birth || !array ||
           !(snapshot ? state[snapshot->origin] == LV4_LIVE :
             lv4_field_array_readable(in, fn, array->id, state, lv4_u(block, "id")))) return 0;

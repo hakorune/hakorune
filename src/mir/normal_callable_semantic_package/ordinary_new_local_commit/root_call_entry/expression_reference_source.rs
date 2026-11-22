@@ -394,7 +394,8 @@ pub(super) fn reference_operand(
             }
             let value = entry_value(original.requirement(), read, producer, context)?;
             let leaf = original.leaf_class(exclusion.as_deref());
-            if original.signed_only() { Ok(Operand::NormalInteger(value)) }
+            if original.materializes_return_v1() { Ok(Operand::Dynamic(value)) }
+            else if original.signed_only() { Ok(Operand::NormalInteger(value)) }
             else if leaf == Some(crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
                 crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String)) { Ok(Operand::BorrowedText(value)) }
             else if original.tagged_string_integer_only_v1(exclusion.as_deref()) {
@@ -420,7 +421,7 @@ pub(super) fn prepare_entry(
         .validate_prepared_finite_entry_read_v1(required, function, read)?;
     if initializer.map_or(!domain.text_only(), |original| {
         !original.corroborates_finite_domain_v1(&domain)
-            || !(original.null_compare_v1().is_some()
+            || !(original.materializes_return_v1() || original.null_compare_v1().is_some()
                 || domain.text_only()
                 || domain.signed_only()
                 || domain.bool_only()

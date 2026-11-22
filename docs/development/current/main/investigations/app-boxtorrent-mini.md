@@ -97,4 +97,4 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 ## 検証コマンド
 - 選択smoke: `HAKO_ROOT=$PWD NYASH_ROOT=$PWD NYASH_BIN=$PWD/target/quick/hakorune NYASH_EMIT_EXE_NYRT=$PWD/target/quick BUILD_TIMEOUT_SECS=1200 bash tools/smokes/v2/profiles/integration/apps/boxtorrent_mini_exe.sh`（最適化版で約140秒。opt0版は`BUILD_TIMEOUT_SECS`既定300秒を超えるので使わない）。
 - 固定suite: 上記の`run.sh ... --timeout 420`。ビルド: `cargo quick-build --bin hakorune`（最適化CLI）、`cargo quick-build-lifecycle-fast`（runtime）、`bash tools/build_hako_llvmc_ffi.sh`（C shim）。`cargo quick-build-fast`は開発用opt0で`target/quick/hakorune`を上書きする点に注意。
-- 詳細履歴（Map借用整理series、Set receipt arm、Bool Local等）はGitに保持。
+- 詳細履歴（Map借用整理series、Set receipt arm、Bool Local等）はGitに保持。決定29のkernel testは、既存のnullable Text試験が覆わない借用元のEnd後の内容、Boolと整数の区別、無効な入力での出力保持を検査する。既存のスカラー結果テストは混在・暗黙出口・不適合注釈の拒否を保持し、有限借用の結果が呼び手の型によらず owned Dynamic になることを確認する。

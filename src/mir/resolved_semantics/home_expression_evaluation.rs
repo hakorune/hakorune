@@ -135,6 +135,20 @@ impl CheckedExpressionEvaluationV1 {
     > {
         &self.cores
     }
+    pub(crate) fn materialized_dynamic_read_v1(
+        &self,
+    ) -> Option<&crate::mir::normal_callable_semantic_package::FiniteEntryReadV1> {
+        match self.references.get(&0)? {
+            CheckedExpressionReferenceV1::FiniteEntry { read, exclusion: None }
+                if read.materializes_return_v1() => Some(read),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn materializes_dynamic_root_v1(&self) -> bool {
+        self.materialized_dynamic_read_v1().is_some()
+    }
+
     /// A Dynamic local may act as an opaque String carrier only when this
     /// exact read is backed by its live, checked invocation-result Home.
     /// This keeps arbitrary Dynamic values out of the String operation domain.
@@ -417,6 +431,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_text_evaluati
         actuals,
         field_text_source,
         &std::collections::BTreeMap::new(),
+        None,
         None,
         &mut |_| None,
     )? {

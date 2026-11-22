@@ -123,7 +123,8 @@ static int lv4_operation_result(yyjson_val* op) {
   if (lv4_is(op, "kind", "dynamic_invoke") || lv4_is(op, "kind", "dynamic_array_get")) return LV4_DYNAMIC_CARRIER;
   if (lv4_is(op, "kind", "dynamic_carrier_integer") ||
       lv4_is(op, "kind", "dynamic_borrowed_integer")) return LV4_I64;
-  if (lv4_is(op, "kind", "dynamic_carrier_sub_i64")) return LV4_DYNAMIC_CARRIER;
+  if (lv4_is(op, "kind", "dynamic_carrier_sub_i64") ||
+      lv4_is(op, "kind", "dynamic_materialize_borrowed")) return LV4_DYNAMIC_CARRIER;
   if (lv4_is(op, "kind", "array_owned_get") || lv4_is(op, "kind", "map_field_get_indexed") ||
       lv4_is(op, "kind", "object_field_borrow")) return LV4_SLOT_BORROW;
   int string_result = hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind")));

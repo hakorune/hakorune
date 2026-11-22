@@ -100,7 +100,15 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_return_expres
         || copy
         || bool_root
         || owns_inputs;
-    if !previous_scalar_candidate
+    let unannotated = input.has_unannotated_result_v1();
+    let borrowed_return = unannotated
+        .then(|| {
+            crate::mir::resolved_semantics::home_new_prefix::argument_expression::entry_formal_reference(
+                input, locals, value.site(),
+            )
+        })
+        .flatten();
+    if !previous_scalar_candidate && borrowed_return.is_none()
         && input
             .function()
             .method_call_source_v1(value.site())
@@ -136,13 +144,24 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_return_expres
         return Ok(preselection_unavailable());
     };
     use crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1 as Class;
-    let unannotated = input.has_unannotated_result_v1();
-    let dynamic_return = (input.declares_i64_result_v1() || unannotated) && matches!(
+    let borrowed_materialization = if let Some((binding, root)) = borrowed_return {
+        use crate::mir::resolved_semantics::home_new_prefix::{BorrowedCallActualRequestV1, BorrowedCallArgumentsV1};
+        match actuals(&purpose, BorrowedCallActualRequestV1::FiniteEntryRead {
+            input, plan: &source, read: value.site(), binding, root,
+        })? {
+            Some(BorrowedCallArgumentsV1::FiniteEntryRead(read)) if read.materializes_return_v1() => Some(read),
+            _ => None,
+        }
+    } else { None };
+    let materializes_dynamic = borrowed_materialization.is_some();
+    let declares_i64 = input.declares_i64_result_v1();
+    let dynamic_source = !materializes_dynamic && (declares_i64 || unannotated) && matches!(
         actuals(&purpose, super::super::super::BorrowedCallActualRequestV1::DynamicInvocationSource {
             input, plan: &source,
         })?,
         Some(super::super::super::BorrowedCallArgumentsV1::DynamicInvocationSource { .. })
     );
+    let checked_i64 = declares_i64 && dynamic_source;
     let mut root_argument_evaluation = false;
     if !previous_scalar_candidate {
         if let Some(call) = input.function().method_call_source_v1(value.site()) {
@@ -186,7 +205,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_return_expres
             _ => None,
         }
     };
-    let root_core = if dynamic_return || previous_scalar_candidate || root_call_class.is_some() {
+    let root_core = if materializes_dynamic || checked_i64 || previous_scalar_candidate || root_call_class.is_some() {
         None
     } else {
         use crate::mir::resolved_semantics::home_new_prefix::{
@@ -205,11 +224,18 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_return_expres
                 };
                 Some((core, class))
             }
-            None if root_argument_evaluation => None,
+            None if root_argument_evaluation || (unannotated && dynamic_source) => None,
             _ => return Ok(None),
         }
     };
     let core_result_class = root_core.as_ref().map(|(_, class)| *class);
+    // The unannotated Return uses the exact Core or ordinary call result
+    // when that source has been proved. A Dynamic candidate alone cannot
+    // replace a known result (e.g. the length of a checked Text receiver).
+    let dynamic_return = materializes_dynamic
+        || checked_i64
+        || (unannotated && dynamic_source && !previous_scalar_candidate
+            && root_call_class.is_none() && core_result_class.is_none());
     let root_core = root_core.map(|(core, _)| core);
     let field_seeds = if root_core.is_some() {
         super::super::super::field_read::text_field_seeds_v1(input, &source, locals, fields)
@@ -238,6 +264,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_return_expres
         None,
         &field_seeds,
         root_core,
+        borrowed_materialization,
         &mut |site| {
             super::super::super::field_read::expression_field_read_request(
                 input, &source, site, locals,
@@ -271,7 +298,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_return_expres
     }
     // A value already available at this point needs no new evaluation.
     // Every computation uses the shared expression writer.
-    if evaluation.operations().is_empty()
+    if !materializes_dynamic
+        && evaluation.operations().is_empty()
         && evaluation.calls().is_empty()
         && evaluation.cores().is_empty()
         && evaluation.owned_result_nodes().is_empty()
@@ -324,7 +352,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_return_expres
         installation.commit();
     }
     if unannotated && dynamic_return {
-        let relation = if evaluation.owned_result_nodes().contains(&0)
+        let relation = if (evaluation.owned_result_nodes().contains(&0) || evaluation.materializes_dynamic_root_v1())
             && evaluation.reference_coverage_is_exact()
         {
             Ok(TerminalRelationV1::Value(TerminalValueReturnV1::issue(

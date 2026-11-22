@@ -9,7 +9,7 @@ pub(crate) struct ReturnExpressionContractV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) value:
         ValueId,
     pub(super) residence: Option<ReturnExpressionResidenceV1>,
-    checked_scalar: Option<[(BasicBlockId, MirInstruction); 2]>,
+    dynamic_purpose: Option<[(BasicBlockId, MirInstruction); 2]>,
     after_residency: Option<crate::mir::builder::BindingValueObservationV2>,
 }
 impl super::call_entry::ExpressionEmissionSourceV1 for ReturnExpressionContractV1 {
@@ -58,7 +58,19 @@ impl super::ExpressionEmissionV1<ReturnExpressionContractV1> {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn checked_scalar_operation_v1(
         &self,
     ) -> Option<&(BasicBlockId, MirInstruction)> {
-        self.contract.checked_scalar.as_ref().map(|pair| &pair[0])
+        let invoke = &self.contract.dynamic_purpose.as_ref()?[0];
+        matches!(invoke.1, MirInstruction::Invoke {
+            operation: crate::mir::instruction::InvokeOperation::DynamicCarrierInteger { .. }, ..
+        }).then_some(invoke)
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn carrier_materialization_v1(
+        &self,
+    ) -> Option<(&crate::mir::normal_callable_semantic_package::FiniteEntryReadV1, &(BasicBlockId, MirInstruction))> {
+        Some((
+            self.contract.source.materialized_dynamic_read_v1()?,
+            &self.contract.dynamic_purpose.as_ref()?[0],
+        ))
     }
 
     pub(super) fn has_call_binding_v1(
@@ -174,7 +186,8 @@ impl super::ExpressionEmissionV1<ReturnExpressionContractV1> {
             self.contract
                 .residence
                 .as_ref()
-                .and_then(|row| row.materialize.as_ref()).or(self.contract.checked_scalar.as_ref()),
+                .and_then(|row| row.materialize.as_ref())
+                .or(self.contract.dynamic_purpose.as_ref()),
         )?;
         let recorded = projection
             .map(|projection| projection.bindings(&self.original))
@@ -196,7 +209,7 @@ impl super::ExpressionEmissionV1<ReturnExpressionContractV1> {
                 self.contract.source.source().owner(), self.contract.source.source().root().statement(),
             ) => expression.validate_pending_carrier_return_v1(
                 context, function, projection, &self.entry, &self.terminal,
-                &self.continuation, self.contract.value,
+                &self.continuation, self.contract.value, self.contract.dynamic_purpose.as_ref(),
             )?,
             None => expression.validate_local_continuation_with_purpose_v1(
                 context,
@@ -207,7 +220,7 @@ impl super::ExpressionEmissionV1<ReturnExpressionContractV1> {
                 &self.continuation,
                 None,
                 None,
-                self.contract.checked_scalar.as_ref(),
+                self.contract.dynamic_purpose.as_ref(),
             )?,
         };
         if projection.is_none() {
@@ -218,7 +231,7 @@ impl super::ExpressionEmissionV1<ReturnExpressionContractV1> {
                 }
                 ordered.push(row.install.clone());
             }
-            if let Some(pair) = &self.contract.checked_scalar {
+            if let Some(pair) = self.contract.dynamic_purpose.as_ref() {
                 ordered.extend(pair.iter().cloned());
             }
             ordered.extend(self.terminal.iter().cloned());
@@ -285,15 +298,24 @@ impl OrdinaryNewClaimLedgerV1 {
     /// Bare MIR may discard this ledger only if its calls have no checked
     /// Dynamic receiver loan that must reach the source-bound verifier.
     pub(in crate::mir) fn has_dynamic_receiver_source_uses_v1(&self) -> bool {
+        self.any_emitted_return_expression(|expression| expression.dynamic_calls_v1().next().is_some())
+    }
+
+    pub(in crate::mir) fn requires_dynamic_result_handoff_v1(&self) -> bool {
+        self.any_emitted_return_expression(|expression| expression.carrier_materialization_v1().is_some())
+    }
+
+    fn any_emitted_return_expression(
+        &self,
+        predicate: impl Fn(&super::ExpressionEmissionV1<ReturnExpressionContractV1>) -> bool,
+    ) -> bool {
         self.root_exits.borrow().values().any(|progress| {
             let order = match progress {
                 RootHomeExitProgress::Emitted { order, .. }
                 | RootHomeExitProgress::Finalized(order) => order,
                 _ => return false,
             };
-            order.return_expression_v1().is_some_and(|expression| {
-                expression.dynamic_calls_v1().next().is_some()
-            })
+            order.return_expression_v1().is_some_and(&predicate)
         })
     }
 
@@ -328,7 +350,9 @@ impl OrdinaryNewClaimLedgerV1 {
             expression_projection::ExpressionLeafClassV1 as Leaf,
         };
         let owned_carrier = self.returns_owned_carrier_v1(owner, site);
-        let checked_scalar = if !owned_carrier && source.root_class() == Leaf::Value(Class::Dynamic) {
+        let dynamic_purpose = if source.root_class() == Leaf::Value(Class::Dynamic)
+            && (!owned_carrier || source.materializes_dynamic_root_v1())
+        {
             materialize.clone()
         } else {
             None
@@ -349,7 +373,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             Leaf::Value(Class::Dynamic)
                 if installs.is_empty() && after_residency.is_none()
-                    && (checked_scalar.is_some() || owned_carrier && materialize.is_none()
+                    && (dynamic_purpose.is_some() || owned_carrier && materialize.is_none()
                         && source.owned_result_nodes().contains(&0)
                         && matches!(body.values.first(), Some(Some(crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1::Operand(
                             crate::mir::instruction::StringInvokeOperand::DynamicCarrier(carrier)))) if *carrier == value)) => None,
@@ -363,7 +387,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let packet = super::ExpressionEmissionV1::from_body(
             ReturnExpressionContractV1 {
                 residence,
-                checked_scalar,
+                dynamic_purpose,
                 after_residency,
                 source: source.clone(),
                 value,
