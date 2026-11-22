@@ -1,7 +1,6 @@
 //! Complete one original Bool CurrentOwner input for the borrowed entry only.
 //! This proof never selects a Static packet or a Bool Invoke.
 use super::*;
-use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
 use crate::mir::normal_callable_semantic_package::{
     physical_signature::{PhysicalCallableLaneRoleV1, VerifiedCallablePhysicalSignatureCohortV1},
     qualified_static_call_claim::incoming_source::StaticIncomingSourceV1,
@@ -215,13 +214,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 || original.parameters().len() != 1
                 || original.argument_sites().len() != 1
                 || !original.parameters()[0].kind.is_ordinary_borrowed_handle()
-                || row.call != *original.call_site()
-                || row.arguments.as_ref()
-                    != [(
-                        0,
-                        original.argument_sites()[0].clone(),
-                        original.parameters()[0].binding,
-                    )]
+                || !static_source::matches_original_static_incoming_v1(row, original)
                 || !source.checked_static_input(original.parameters()[0].binding)
             {
                 return Err(freeze("static-bool-entry/source-identity"));
@@ -292,16 +285,9 @@ impl OrdinaryNewClaimLedgerV1 {
             else {
                 return Err(freeze("static-bool-entry/source-actual-kind"));
             };
-            if !Rc::ptr_eq(&source_actual.source, original)
-                || source_actual.integer_evidence.as_ref() != [true]
-                || candidate.ordinal != 0
-                || candidate.site != original.argument_sites()[0]
-                || !staged.opaque_actuals.is_empty()
-                || staged.ordered_arguments.as_ref()
-                    != [LocalCallArgumentV1::BorrowedActual {
-                        ordinal: 0,
-                        site: candidate.site.clone(),
-                    }]
+            if !static_source::has_original_integer_static_input_v1(
+                original, source_actual, &staged, 0,
+            )
             {
                 return Err(freeze("static-bool-entry/source-actual-identity"));
             }
@@ -319,13 +305,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .row(contract.batch_slot)
                 .ok_or_else(|| freeze("static-bool-entry/signature-missing"))?;
             if matching.next().is_some()
-                || contract.mode != CallableParameterDeclarationModeV1::StaticBoxMethod
-                || contract.batch_slot != original.target_batch_slot()
-                || contract.parameters.len() != 1
-                || contract.parameters[0].binding != original.parameters()[0].binding
-                || contract.parameters[0].kind != original.parameters()[0].kind
-                || !matches!(selected.key_for_batch_slot(contract.batch_slot),
-                    Some(SelectedNormalCallableKeyV1::Cataloged(key)) if key == original.target())
+                || !original.matches_static_input_contract_v1(selected, contract)
                 || signature.owner() != owner
                 || !signature.identity().same_as(identity)
                 || signature.lanes().len() != 1
@@ -365,15 +345,14 @@ impl OrdinaryNewClaimLedgerV1 {
                             binding,
                         },
                     ),
-                    opaque_actuals: Box::new([PreparedBorrowedFormalActualV1 {
-                        ordinal: 0,
-                        site: candidate.site.clone(),
-                        formal: original.parameters()[0].binding,
-                        source: BorrowedFormalActualSourceV1::Scalar {
+                    opaque_actuals: Box::new([super::static_input_validation::static_argument_actual_v1(
+                        original.parameters()[0].binding,
+                        candidate,
+                        BorrowedFormalActualSourceV1::Scalar {
                             binding,
                             kind: SourceScalarKind::Integer,
                         },
-                    }]),
+                    )]),
                     ordered_arguments: staged.ordered_arguments.clone(),
                     dynamic_invocation_arguments: None,
                 },

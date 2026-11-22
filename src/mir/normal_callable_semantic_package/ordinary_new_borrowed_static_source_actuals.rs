@@ -3,6 +3,7 @@
 use super::*;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 use std::rc::Rc;
+use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
 use super::call_result_source::{
     has_completed_static_text_result_v1, ordinary_argument_call_source_v1,
 };
@@ -70,6 +71,92 @@ impl StaticSourceActualIdentityV1 {
     }
 }
 impl Eq for StaticSourceActualIdentityV1 {}
+
+impl StaticIncomingSourceV1 {
+    /// Match the selected declaration with the original retained target.
+    pub(super) fn matches_static_input_contract_v1(
+        &self,
+        selected: &VerifiedSelectedCallableBatchMapV1,
+        contract: &OwnedCallableParameterContractDeclarationV1,
+    ) -> bool {
+        contract.mode == CallableParameterDeclarationModeV1::StaticBoxMethod
+            && contract.batch_slot == self.target_batch_slot()
+            && matches!(selected.key_for_batch_slot(contract.batch_slot),
+                Some(SelectedNormalCallableKeyV1::Cataloged(key)) if key == self.target())
+            && contract.parameters.len() == self.parameters().len()
+            && contract
+                .parameters
+                .iter()
+                .zip(self.parameters())
+                .enumerate()
+                .all(|(ordinal, (parameter, original))| {
+                    parameter.ordinal as usize == ordinal
+                        && parameter.binding == original.binding
+                        && parameter.kind == original.kind
+                        && parameter.kind.is_ordinary_borrowed_handle()
+                })
+    }
+}
+
+/// Read the retained call's borrowed argument coordinates in declaration order.
+pub(super) fn matches_original_static_incoming_v1(
+    row: &super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
+    original: &StaticIncomingSourceV1,
+) -> bool {
+    row.callee == original.callee_owner()
+        && &row.call == original.call_site()
+        && original.argument_sites().len() == original.parameters().len()
+        && row
+            .arguments
+            .iter()
+            .map(|(ordinal, site, binding)| (*ordinal, site, *binding))
+            .eq(original
+                .parameters()
+                .iter()
+                .zip(original.argument_sites())
+                .filter(|(formal, _)| formal.kind.is_ordinary_borrowed_handle())
+                .map(|(formal, site)| (formal.ordinal, site, formal.binding)))
+}
+
+/// Match the retained call, formal, source operand and physical argument ordinal.
+pub(super) fn original_static_borrowed_argument_v1<'a>(
+    original: &'a Rc<StaticIncomingSourceV1>,
+    identity: &'a StaticSourceActualIdentityV1,
+    rows: &PreparedBorrowedCallActualsV1,
+    ordinal: u32,
+) -> Option<(
+    &'a crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1,
+    &'a BorrowedCallActualCandidateV1,
+)> {
+    let index = ordinal as usize;
+    let parameter = original.parameters().get(index)?;
+    let candidate = identity.candidates.get(index)?;
+    (Rc::ptr_eq(&identity.source, original)
+        && original.parameters().len() == identity.candidates.len()
+        && original.argument_sites().len() == original.parameters().len()
+        && rows.ordered_arguments.len() == original.parameters().len()
+        && parameter.ordinal == ordinal
+        && parameter.binding.owner() == original.callee_owner()
+        && candidate.ordinal == ordinal
+        && original.argument_sites().get(index) == Some(&candidate.site)
+        && matches!(rows.ordered_arguments.get(index),
+            Some(LocalCallArgumentV1::BorrowedActual { ordinal: observed, site })
+                if *observed == ordinal && site == &candidate.site))
+    .then_some((parameter, candidate))
+}
+
+/// Integer evidence is supplied by the original source issuer.
+pub(super) fn has_original_integer_static_input_v1(
+    original: &Rc<StaticIncomingSourceV1>,
+    identity: &StaticSourceActualIdentityV1,
+    staged: &PreparedBorrowedCallActualsV1,
+    ordinal: u32,
+) -> bool {
+    identity.integer_evidence.len() == identity.candidates.len()
+        && identity.integer_evidence.get(ordinal as usize) == Some(&true)
+        && staged.opaque_actuals.is_empty()
+        && original_static_borrowed_argument_v1(original, identity, staged, ordinal).is_some()
+}
 
 /// Passive argument plans borrow the complete original source census. They must
 /// not insert omitted callers into the legacy static-observation projection.

@@ -63,33 +63,6 @@ pub(super) fn static_argument_actual_v1(
     }
 }
 
-/// Match the retained call, formal, source operand and physical argument ordinal.
-pub(super) fn original_static_borrowed_argument_v1<'a>(
-    original: &'a Rc<StaticIncomingSourceV1>,
-    identity: &'a static_source::StaticSourceActualIdentityV1,
-    rows: &PreparedBorrowedCallActualsV1,
-    ordinal: u32,
-) -> Option<(
-    &'a crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1,
-    &'a BorrowedCallActualCandidateV1,
-)> {
-    let index = ordinal as usize;
-    let parameter = original.parameters().get(index)?;
-    let candidate = identity.candidates.get(index)?;
-    (Rc::ptr_eq(&identity.source, original)
-        && original.parameters().len() == identity.candidates.len()
-        && original.argument_sites().len() == original.parameters().len()
-        && rows.ordered_arguments.len() == original.parameters().len()
-        && parameter.ordinal == ordinal
-        && parameter.binding.owner() == original.callee_owner()
-        && candidate.ordinal == ordinal
-        && original.argument_sites().get(index) == Some(&candidate.site)
-        && matches!(rows.ordered_arguments.get(index),
-            Some(LocalCallArgumentV1::BorrowedActual { ordinal: observed, site })
-                if *observed == ordinal && site == &candidate.site))
-    .then_some((parameter, candidate))
-}
-
 pub(super) fn checked_terminal_static_literal_v1(
     source: &PreparedBorrowedFormalIngressV1,
     original: &Rc<StaticIncomingSourceV1>,
@@ -107,7 +80,7 @@ pub(super) fn checked_terminal_static_literal_v1(
         return Ok(None);
     };
     let (parameter, candidate) =
-        original_static_borrowed_argument_v1(original, identity, rows, candidate.ordinal)
+        static_source::original_static_borrowed_argument_v1(original, identity, rows, candidate.ordinal)
             .ok_or_else(|| freeze("static-tagged/literal-identity"))?;
     if identity.integer_evidence.as_ref() != [true] || parameter.binding != formal {
         return Err(freeze("static-tagged/literal-identity"));
