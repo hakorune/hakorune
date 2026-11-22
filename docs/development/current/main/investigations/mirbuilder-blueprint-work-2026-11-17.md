@@ -125,6 +125,7 @@ compilerの動くcodeは変更していない。coverage CLIは前回の同じbi
   - 型の注釈の無い値との比較(`Stage1UsingResolver` の `loop(i < n)`、`release_source` の `!= 1`): 決定 14 の実行時の検査が、まだ無い。
   - 複合の拒否の使い手(`parser_literal_box`、`json_cur`、`json_loader` など): loop を下ろした後の、別の所で断られる。
 - 決定 14 の下調べ(実装していない): loop の外でも、型の注釈の無い値と整数を、確かめずに比べる MIR がある(固定入力 66 か所、selfhost 15 か所。順序 36 / 6、等値 30 / 9)。既存の `DynamicCarrierInteger` の Invoke と検査付き整数の ABI は、登録済みの token を検査する物。注釈の無い仮引数の型の印と値を使う所まで運び、正常 / TypeError / 後始末を表す輸送が足りない。新しい命令が要るかは未確定。**メンテナの判断が要る。**
+- 2026-11-23 の下調べ(main `cfe6a4d387`、読む中心): 上の 3 つの理由は古くなった。型の無い値との比較の検査は決定 24・30 で入り、新しい命令は要らなかった。今の拒否の多くは loop の前にある(`release_source` は最初の `if` の呼び出しの準備、`parser_literal_box` は `PrefixNotCovered`)。Stage1 の `loop(i < n)` は、loop の header の条件の検査で拒否される。`json_cur` の `i < s.length()` は、型の無い呼び出しの結果との大小で、まだ範囲の外。field の `push` の循環は残る。道 c(variable_accum)は、成功する使い手が 0 本(step 7 の前の coverage)。
 - 廃止した書き方の拒否は、今は 2 か所で決めている(raw dispatcher と、Text の backend の前の検査)。設計図 23 節のとおり、Resolve へ寄せる時に 1 つにする。
 
 ### 正規化(設計図の決定 23、25 節。2026-11-20〜)
@@ -143,7 +144,7 @@ compilerの動くcodeは変更していない。coverage CLIは前回の同じbi
 | DC-2 | Resolve で Dynamic に依ると確かめた、残りの raw `icmp` を直す(挙動の直し。commit を分ける) | 済(2026-11-20、code の変更なし)。契約のある比較で検査の抜けは 0。契約の無い演算子・向きの raw 比較は 1,606(Eq 1,533、Ne 46、Le 26、Ge 1)。注釈なし仮引数の `x <= 3` は、整数で正しく、Bool では診断なしの exit 70。C の test 4 本は、元の Bool 入力がまだ compile できず止まる |
 | DC-1c | 順序比較の残り 5 組(`Dynamic <= I64`・`Dynamic >= I64`・`I64 > Dynamic`・`I64 <= Dynamic`・`I64 >= Dynamic`)を DC-1 の形で検査つきにする | 済(`4faaa82292`)。新しい ABI なし。整数 15/15、Bool 5/5 で比較の site に TypeError 302。DC-2 の未照合 68・I64 証明待ち 5 は残る |
 | DC-3 | `Dynamic != I64`(4.3 の適用。等値の否定)と、戻りの型が無い呼び出しの結果(`release_source`) | 3a 済(`fef17df98e`): Int と Float の等値の 2^63 の境界を直した。呼び出しの借用 Home を通した(拒否→成功 4、値一致)。元の `release_source` の呼び出しは、user box の受け手を実行時に解決する契約が無く止まる。混合等値の ABI は保留。続きは UBD-1(決定 25) |
-| DC-4 | 古い plan の入口(bc・複合)の使い手を移し、入口と中の `if` の書き手を消す | DC-1〜3 の後 |
+| DC-4 | 古い plan の入口(bc・複合)の使い手を移し、入口と中の `if` の書き手を消す | 前提(DC-1〜3、DYR-1b2)は済み。使い手の妨げは、段 6・7 の節の 2026-11-23 の注 |
 | UBD-1 | ユーザーの box の Dynamic 呼び出しを、program ごとの表で選ぶ(決定 25)。型付きの受け手・整数の引数・I64 の結果。入力形 1、tag 1、metadata 1、C ABI 2、kernel export 2 | 済(`ac50c423b2`): 拒否→成功 3(値一致)、成功→拒否 0。3 つ目の class で MirBuilder 差分 0。MIR 本体 +約 630 |
 | DEL-1 | 使い手が 0 の code を消すだけの回 | 済(`753d5121bd`): production −548、test −918 行。名簿・B は全部同じ。feature・flag の道は残した |
 | UBD-2 | Text の引数(決定 26): 引数は元の種類のまま。入力形 `BorrowedText` 1、tag 4 を使い直し、新しい tag・export 0 | 済(`fd76ae108a`): 拒否→成功 2(値一致)、成功→拒否 0。受け手の class が 1 つだけの時に古い道へ入る穴は、2b(`651ebe331c`)で直した。I64 を直接返す呼び出しだけ。それ以外の結果では、静的な候補の道が残る |
@@ -160,7 +161,8 @@ compilerの動くcodeは変更していない。coverage CLIは前回の同じbi
 | DYR-1b | 決定 30: 仮引数と返った値で同じ等値 | 済(`86c7d1437f`): `true == 1` は false、`5 == 5` は true、左右逆も同じ、`true < 5` は TypeError 302。監査の新しい入力 9 本が期待の値。名簿の拒否→成功 8、成功→拒否 0。本体 +1,053/−270 行(古い関数・file の削除 0)。次は片付け CL-1〜CL-3(設計図 26 節) |
 | DYR-1b2 | 決定 30: 仮引数と戻り値の Dynamic 等値 | 実装・検証済み。I64/Bool の左右両順で同じ比較。大小は比較位置の 302。失効した carrier が正常な false にならないことは kernel の既存領域に独立のテストを追加。名簿 5,992 本の EXE 回帰 0、受理 8、固定 suite 8/8。本体 +1,053/−270 行、test +109/−67 行（rustfmt 後）。 |
 | CL-1 | 片付け: 戻り値の種類を呼び先で 1 度だけ決める | 済(`649211f03c`): 呼び手の上書きと既定の I64 を本番で 0 にした。`direct_call_result.rs`・`uniform_call_result_kind`・仮の I64 を書き換える分岐を退役。名簿の成功→拒否・拒否→成功 0、拒否の名前の変化 7(Bool の結果)。監査の新しい入力 12 本が基準と同じ。本体 +533/−537、test ±7(rustfmt 後、差し引き約 −5 行。見積もり 100〜130 行には届かず) |
-| UBD-2 以降 | `release_source` まで(決定 26 の順): 裸のブロックの scope の閉じ → 受け手の後始末 → `!= 1`。普通の呼び出しを通した Text の引数は、`finite-domain-unclosed` で止まる(`ordinary_new_borrowed_formal_entry_finite.rs:112`) | 次: 片付け CL-2(静的な入力の準備)→ CL-3(設計図 26 節)、`id(id(v))`、`pick` |
+| CL-2 | 片付け: 静的な呼び出しの入力の照合を 1 つに | 済(`51cfbc169b`): Forwarded・Numeric・Mixed・Bool の仕上げが、呼び先・site・ordinal の同じ照合(`ordinary_new_borrowed_static_source_actuals.rs`)を読む。仕上げの関数と file は残した(usize の ABI、Mul、Bool の入口、Forwarded の借用元は別の契約)。名簿の結果と拒否の名前の変化 0。監査の新しい入力 10 本が基準と同じ。本体 +144/−164(rustfmt 後、−20 行) |
+| UBD-2 以降 | `release_source` まで(決定 26 の順): 裸のブロックの scope の閉じ → 受け手の後始末 → `!= 1`。普通の呼び出しを通した Text の引数は、`finite-domain-unclosed` で止まる(`ordinary_new_borrowed_formal_entry_finite.rs:112`) | 次: CL-3(初期化と再代入を、評価 1 つと書き込み 1 つに縦に置き換える)→ loop の道 c(variable_accum)の退役、`id(id(v))`、`pick` |
 
 - 道案内: `design/mirbuilder-route-guide.md`。
 - 確かめ方: 編集中は、変えた所を通る入力だけ。main に入れる前に 1 度、全入力の比較・全 lib・固定 suite。**到達の地図の取り直しは、毎回はしない**(道をまとめて消した回か、数回に 1 度)。
