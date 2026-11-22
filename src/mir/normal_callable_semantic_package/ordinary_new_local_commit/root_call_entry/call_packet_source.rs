@@ -382,6 +382,7 @@ impl<'a> CallPacketSourceLoanV1<'a> {
             return Ok(());
         };
         ledger.verify_original_static_packet_source_v1(original)?;
+        ledger.require_static_packet_result_v1(original.callee_owner())?;
         if observation.result()
             == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Text
             && !ledger.checked_completed_static_text_result_v1(original)?

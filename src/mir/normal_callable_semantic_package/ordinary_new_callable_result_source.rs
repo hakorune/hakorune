@@ -231,6 +231,50 @@ impl CallableBorrowedNullableResultSourceLoanV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// A provisional entry read does not give an undeclared result a scalar
+    /// ABI. The callee's finite Return protocol must retain that exact read.
+    pub(in crate::mir::normal_callable_semantic_package) fn require_static_packet_result_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<(), String> {
+        use crate::mir::resolved_semantics::home_new_prefix::{
+            TerminalRelationV1, TerminalReturnedSourceV1,
+        };
+        let Some(completion) = self.completion_for_owner(owner) else {
+            return Ok(());
+        };
+        if completion.function_exit_contract().declared_result()
+            != &DeclaredFunctionResultContractV1::Unannotated
+        {
+            return Ok(());
+        }
+        let reject = || freeze("static-packet/callee-result-unavailable");
+        let relations = self.terminal_relations_for_owner(owner);
+        let mut finite_reads = Vec::new();
+        for relation in relations {
+            match relation {
+                TerminalRelationV1::Scalar(row) => finite_reads.extend(row.entry_read()),
+                TerminalRelationV1::Value(row)
+                    if matches!(row.returned(), TerminalReturnedSourceV1::TaggedDynamic(_)) =>
+                {
+                    return Err(reject());
+                }
+                _ => {}
+            }
+        }
+        if !finite_reads.is_empty() {
+            let domains = self.checked_static_input_domains_for_owner_v1(owner)?;
+            if finite_reads.iter().any(|read| {
+                !domains.iter().any(|domain| {
+                    domain.signed_only() && domain.corroborates_finite_read_v1(read)
+                })
+            }) {
+                return Err(reject());
+            }
+        }
+        Ok(())
+    }
+
     pub(crate) fn callable_result_source_v1(&self, owner: FunctionOwnerIdV1)
         -> Result<Option<CallableResultSourceV1>, String> {
         let scalar = self.callable_scalar_result_source_v1(owner)?;
