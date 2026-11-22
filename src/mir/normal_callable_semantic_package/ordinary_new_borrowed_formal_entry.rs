@@ -615,10 +615,10 @@ impl OrdinaryNewClaimLedgerV1 {
         if self.uses_object_packet_protocol_v1(row)? {
             return row.checked_object_packet_actuals_v1(self).map(Some);
         }
-        if matches!(row.result(), Some(crate::mir::instruction::InvokeCallResultKind::OwnedString | crate::mir::instruction::InvokeCallResultKind::NullableText)) {
+        if matches!(row.result(), Some(crate::mir::instruction::InvokeCallResultKind::OwnedString | crate::mir::instruction::InvokeCallResultKind::NullableText | crate::mir::instruction::InvokeCallResultKind::OwnedDynamicCarrier)) {
             // Text owns its result protocol, while the SAME original Instance
             // input cohort supplies these actuals (including a proved empty tuple).
-            self.corroborate_local_instance_text_call_v1(row)?;
+            self.corroborate_local_instance_owned_result_v1(row)?;
             let call = original.as_ref().ok_or_else(|| freeze("borrowed-call/incoming-missing"))?;
             let actuals = self.borrowed_formal_actuals.get(row.call_site())
                 .ok_or_else(|| freeze("borrowed-call/incoming-missing"))?.as_ref().map_err(Clone::clone)?;

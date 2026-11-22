@@ -53,6 +53,8 @@ blueprint が持ち主を名指ししているのは if(決定 18)と loop(決�
 
 ## 3. 注記と集計
 
+- 無注釈の owned Dynamic 結果（決定29 A）は `m/resolved_semantics/home_terminal_scalar_evaluation.rs::observe_return_expression_v1` の評価から、同じ `selected/return_expression.rs` の Return へ進む。結果種別は `result_contract_callable_keys.rs::owns_dynamic_carrier_result_v1` が全出口と宣言を照合する。既存の Fault cleanup に渡していない carrier の End を残し、C V4 の `indexed_return.inc` が最後の Normal Return で同じ token を一度だけ移すことを照合する。
+
 - `b/calls/lowering.rs:295` は旧 scalar 結果の検査。UBD の検査付き I64 結果は、元の Dynamic 呼び出しを出し、その Normal 辺で I64 を取り出す。旧 `:380,465` は引き続き `legacy_port.rs` から呼ばれる。公開 `MirBuilder::build_method_call` (`b/calls/build.rs:157,165`) → raw 式・宣言 → `b/instance_box_declaration_lifecycle.rs:107–122` 等で使用。通常 CLI は `runner/modes/mir.rs:103–119` から collector port を使う。
 - 線形 Script の `b/raw_root_body_lowering.rs:23` は `b/script_physical_exit/entry_session.rs:110` と `b/raw_root_environment_install/body_transaction.rs:122` の先がテストと外部 guard。旧 Return の `b/raw_root_body_exit.rs:257` と `b/script_physical_exit/exit.rs:228` も同じ系統で保持し、production の数から外した。
 - 旧 canonical root finalizer、instance method prefix harness、未接続の plan 補助関数、テスト専用の旧 EdgeCFG seq／loop を削除した。継続中の短絡評価・strict EdgeCFG 検証・公開 raw 経路はそれぞれの既存発行先を使う。

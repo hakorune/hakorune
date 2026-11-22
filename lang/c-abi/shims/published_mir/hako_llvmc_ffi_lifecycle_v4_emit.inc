@@ -391,7 +391,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           fprintf(f, "  %%v%u = load i64, ptr %%get_out%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
         else if (producer_op && lv4_is(producer_op, "kind", "field_get"))
           fprintf(f, "  %%v%u = load i64, ptr %%field_read%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
-        else if ((kind == LV4_I64 || kind == LV4_BOOL || kind == LV4_HANDLE || kind == LV4_BORROWED_OBJECT || kind == LV4_MIXED_OBJECT) &&
+        else if ((kind == LV4_I64 || kind == LV4_BOOL || kind == LV4_HANDLE || kind == LV4_BORROWED_OBJECT ||
+                  kind == LV4_MIXED_OBJECT || kind == LV4_DYNAMIC_CARRIER) &&
             producer_op && lv4_is(producer_op, "kind", "ordinary_call")) {
           /* A nullable call result lands in the same i64 out-slot as a
              scalar one; the handle-or-sentinel distinction is carried by

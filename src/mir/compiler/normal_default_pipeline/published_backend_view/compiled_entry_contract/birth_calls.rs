@@ -67,6 +67,7 @@ pub(super) fn issue_birth_calls_for_program(
             PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryUnit { key, .. }
             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryText { key, .. }
             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableText { key, .. }
+            | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryDynamicCarrier { key, .. }
             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key, .. }
             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBool { key, .. }
             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { key, .. }

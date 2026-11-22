@@ -7,7 +7,7 @@ use super::static_source::{
 };
 use super::*;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::normal_callable_semantic_package::result_contract::CompletedTextResultSourceV1;
+use crate::mir::normal_callable_semantic_package::result_contract::CompletedCallResultSourceV1;
 use crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
     BorrowedCallArgumentsV1, LocalCallResultClassV1, LocalCallResultSourceV1,
@@ -15,7 +15,7 @@ use crate::mir::resolved_semantics::home_new_prefix::{
 use std::rc::Rc;
 
 /// Original ordinary call syntax only. Instance result meaning is supplied
-/// later by completed_instance_text_source_v1, never by an opaque destination.
+/// later by completed_instance_result_v1, never by an opaque destination.
 #[derive(Debug, Clone)]
 pub(super) struct OrdinaryArgumentCallSourceV1 {
     source: BorrowedIncomingSourceV1,
@@ -161,7 +161,7 @@ enum OrdinaryResultOriginV1 {
     Static(Rc<StaticIncomingSourceV1>),
     Instance {
         source: LexicalInstanceCallSourceTargetV1,
-        text: CompletedTextResultSourceV1,
+        completion: CompletedCallResultSourceV1,
     },
 }
 impl PartialEq for OrdinaryResultOriginV1 {
@@ -171,11 +171,11 @@ impl PartialEq for OrdinaryResultOriginV1 {
             (
                 Self::Instance {
                     source: a,
-                    text: at,
+                    completion: at,
                 },
                 Self::Instance {
                     source: b,
-                    text: bt,
+                    completion: bt,
                 },
             ) => a == b && at == bt,
             _ => false,
@@ -305,12 +305,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
             source, pending, contracts, site, selected, completed, expression,
         );
     }
-    // An unrelated scalar consumer must keep its original scalar demand/refusal.
-    // This passive loan needs the SAME original Text-purpose expression.
-    let Some(expression) = expression else {
-        return ordinary_result_absent(site, "no text-purpose expression was supplied");
-    };
-    if expression.owner() != site.owner()
+    // An original expression binds the loan. A scalar classifier can also ask
+    // whether this exact source has an owned Dynamic result before choosing a writer.
+    if expression.is_some_and(|expression| expression.owner() != site.owner()
         || !(matches!(expression.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
             role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue
                 | crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue
@@ -320,7 +317,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
             || matches!(expression.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment }
                 if assignment.form() == crate::mir::resolved_semantics::ResolvedAssignmentFormV1::Plain))
         || !expression.nodes().iter().any(|node| node.site() == site.site()
-            && matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall))
+            && matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall)))
     { return ordinary_result_absent(site, "the expression is not a Print, Return, Discard, CallArgument, LocalInitializer or plain Assignment root with this method call"); }
     let Some(original) = crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(prepared, contracts, site)?
         else { return ordinary_result_absent(site, "no original instance input call for the site") };
@@ -337,20 +334,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
     let Some(row) = rows.row(target.target_batch_slot()) else {
         return ordinary_result_absent(site, "the callee has no completed result contract row yet");
     };
-    // A {Text, null} result is the same completed source published as one opaque
-    // Dynamic carrier; the strict Text-only predicate is never widened.
-    let (text, result) = if let Some(text) =
-        row.completed_instance_text_source_v1(selected, &target)
-    {
-        (text, LocalCallResultClassV1::Text)
-    } else if let Some(text) = row.completed_instance_nullable_text_source_v1(selected, &target) {
-        (text, LocalCallResultClassV1::Dynamic)
-    } else {
-        return ordinary_result_absent(
-            site,
-            "the callee's completed result does not corroborate an instance Text source",
-        );
+    let Some((completion, result)) = row.completed_instance_result_v1(selected, &target) else {
+        return ordinary_result_absent(site, "no supported result in the completed instance source");
     };
+    if expression.is_none() && result != LocalCallResultClassV1::OwnedDynamic {
+        return ordinary_result_absent(site, "no text-purpose expression was supplied");
+    }
     let reject = || freeze("borrowed-instance/source-identity");
     let retained =
         super::super::original_lexical_target_at_v1(targets, site)?.ok_or_else(reject)?;
@@ -367,7 +356,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
         loan: LocalCallResultSourceV1::Ordinary(OrdinaryResultSourceLoanV1 {
             source: OrdinaryResultOriginV1::Instance {
                 source: target,
-                text,
+                completion,
             },
             result,
         }),
@@ -513,53 +502,36 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_static_result_arg
 }
 
 impl crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1 {
-    /// Reborrow the SAME completed Text source from the original observation.
-    /// Execution additionally requires the whole incoming cohort and signature.
-    /// The affine packet never owns a second result-proof registry.
-    pub(in crate::mir::normal_callable_semantic_package) fn checked_local_instance_text_result_source_v1(
+    /// Reborrow the same completed result from the original Call observation.
+    /// Execution still requires its independently completed input cohort.
+    pub(in crate::mir::normal_callable_semantic_package) fn checked_local_instance_result_v1(
         &self,
         source: &LexicalInstanceCallSourceTargetV1,
-    ) -> Result<bool, String> {
-        self.checked_local_instance_result_source_v1(source, LocalCallResultClassV1::Text)
-    }
-    /// The {Text, null} analogue: the same completed source, published as one
-    /// opaque Dynamic carrier.
-    pub(in crate::mir::normal_callable_semantic_package) fn checked_local_instance_nullable_text_result_source_v1(
-        &self,
-        source: &LexicalInstanceCallSourceTargetV1,
-    ) -> Result<bool, String> {
-        self.checked_local_instance_result_source_v1(source, LocalCallResultClassV1::Dynamic)
-    }
-    fn checked_local_instance_result_source_v1(
-        &self,
-        source: &LexicalInstanceCallSourceTargetV1,
-        class: LocalCallResultClassV1,
-    ) -> Result<bool, String> {
+    ) -> Result<Option<LocalCallResultClassV1>, String> {
         let Some(observation) =
             self.local_call_for_owner(source.call_site().owner(), source.call_site().site())
         else {
-            return Ok(false);
+            return Ok(None);
         };
         let Some(LocalCallResultSourceV1::Ordinary(loan)) = observation.result_source() else {
-            return Ok(false);
+            return Ok(None);
         };
         let OrdinaryResultOriginV1::Instance {
             source: original,
-            text,
+            completion: result_source,
         } = &loan.source
         else {
-            return Ok(false);
+            return Ok(None);
         };
         let reject = || freeze("borrowed-call/result-not-corroborated");
-        // The other result class's source is simply not this one.
-        if loan.result != class && observation.result() != class {
-            return Ok(false);
+        let class = loan.result();
+        if class != LocalCallResultClassV1::Text && !class.is_carrier() {
+            return Err(reject());
         }
         if original != source
             || observation.site() != source.call_site()
             || observation.owner() != source.call_site().owner()
             || observation.result() != class
-            || loan.result != class
         {
             return Err(freeze("borrowed-call/result-not-corroborated"));
         }
@@ -578,12 +550,9 @@ impl crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1 {
             .terminal_relation_index
             .get(&source.callee_owner())
             .ok_or_else(reject)?;
-        let corroborated = if class == LocalCallResultClassV1::Dynamic {
-            text.corroborates_instance_nullable(selected, source)
-        } else {
-            text.corroborates_instance(selected, source)
-        };
-        if !text.matches_retained(completion, terminals) || !corroborated {
+        if !result_source.matches_retained(completion, terminals)
+            || !result_source.corroborates_instance_result(selected, source, class)
+        {
             return Err(freeze("borrowed-call/result-not-corroborated"));
         }
         let prepared = self
@@ -624,23 +593,16 @@ impl crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1 {
         if arguments != observation.arguments() {
             return Err(freeze("borrowed-call/disposition-identity"));
         }
-        Ok(true)
+        Ok(Some(class))
     }
 
-    pub(in crate::mir) fn corroborate_local_instance_text_call_v1(
+    pub(in crate::mir) fn corroborate_local_instance_owned_result_v1(
         &self,
         row: &LexicalInstanceCallDispositionRowV1,
     ) -> Result<(), String> {
-        let corroborated = match row.result() {
-            Some(crate::mir::instruction::InvokeCallResultKind::OwnedString) => {
-                self.checked_local_instance_text_result_source_v1(row.source_target())?
-            }
-            Some(crate::mir::instruction::InvokeCallResultKind::NullableText) => {
-                self.checked_local_instance_nullable_text_result_source_v1(row.source_target())?
-            }
-            _ => false,
-        };
-        if !corroborated {
+        let checked = self.checked_local_instance_result_v1(row.source_target())?
+            .and_then(LocalCallResultClassV1::invoke_result);
+        if checked.is_none() || checked != row.result() {
             return Err(freeze("borrowed-call/result-not-corroborated"));
         }
         Ok(())

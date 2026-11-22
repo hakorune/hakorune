@@ -99,7 +99,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
         None
     };
     let scalar_terminal = if object_terminal.is_none() && unavailable.is_none() {
-        super::terminal_relation::returned_scalar_expression_v1(
+        super::terminal_relation::observe_return_expression_v1(
             input,
             statement,
             locals,
@@ -136,7 +136,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
             None
         };
     let committed_expression = scalar_terminal.as_ref().and_then(|row| row.as_ref().ok())
-        .and_then(|terminal| terminal.evaluation())
+        .and_then(TerminalRelationV1::evaluation_v1)
         .or_else(|| value_terminal.as_ref().and_then(|value| match value.returned() {
             TerminalReturnedSourceV1::TextExpression(evaluation) => Some(evaluation), _ => None,
         })).map(std::rc::Rc::clone);
@@ -281,7 +281,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
     } else if let Some(terminal) = scalar_terminal {
         match terminal {
             Ok(value) => {
-                relation = Some(TerminalRelationV1::Scalar(value));
+                relation = Some(value);
                 true
             }
             Err(issue) => {

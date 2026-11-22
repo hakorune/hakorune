@@ -308,8 +308,8 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           }
           normal[bi] = (top - size + 1) | LV4_STRING_CALL_HELD;
         }
-      } else if (lv4_is(op, "result", "nullable_text")) {
-        /* Publication moves the callee pair into one caller-owned carrier. */
+      } else if (lv4_is(op, "result", "nullable_text") || lv4_is(op, "result", "dynamic_carrier")) {
+        /* Normal either receives the callee token or publishes the legacy pair. */
         normal[bi] = LV4_DYNAMIC_CARRIER_LIVE;
       } else if (!want_unit && !lv4_is(op, "result", "borrowed_nullable_handle"))
         normal[bi] = lv4_is(op, "result", "mixed_handle") ? LV4_CONDITIONAL_OBJECT : LV4_LIVE;

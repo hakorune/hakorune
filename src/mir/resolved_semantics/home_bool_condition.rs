@@ -186,7 +186,7 @@ pub(crate) fn qualify_condition_expression_v1<E>(
                 call.result(),
                 LocalCallResultClassV1::I64
                     | LocalCallResultClassV1::Bool
-                    | LocalCallResultClassV1::Dynamic
+                    | LocalCallResultClassV1::Dynamic | LocalCallResultClassV1::OwnedDynamic
             )
         })
     {

@@ -18,6 +18,7 @@ pub(super) enum CalleeResultKindV1 {
     Bool,
     Text,
     NullableText,
+    OwnedDynamic,
     Handle(Box<str>),
     Nullable(Box<str>),
     Map,
@@ -30,6 +31,7 @@ impl CalleeResultKindV1 {
             Self::Bool => Class::Bool,
             Self::Text => Class::Text,
             Self::NullableText => Class::Dynamic,
+            Self::OwnedDynamic => Class::OwnedDynamic,
             Self::Handle(_) => Class::Handle,
             Self::Nullable(_) => Class::Nullable,
             Self::Map => Class::Map,
@@ -147,15 +149,21 @@ impl CalleeResultKindCatalogV1 {
     /// Source-kind evidence may become available after Completion. The
     /// independently verified transfer stays an admission prerequisite.
     pub(super) fn corroborated_invoke_result<'a>(
-        &self, key: &Key, text: bool, nullable_text: bool, source_bool: bool, retained_bool: bool,
+        &self, key: &Key, completed: Option<Class>, source_bool: bool, retained_bool: bool,
         relations: impl IntoIterator<Item = &'a crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1>,
     ) -> Result<Option<crate::mir::instruction::InvokeCallResultKind>, String> {
         let row = self.resolved.get().and_then(|rows| rows.get(key))
             .ok_or_else(|| format!("[freeze:contract][callee-result-kind/missing]: callee={key:?}"))?;
-        if text { row.corroborate(key, Some(CalleeResultKindV1::Text))?; }
-        if nullable_text { row.corroborate(key, Some(CalleeResultKindV1::NullableText))?; }
+        let evidence = match completed {
+            Some(Class::Text) => Some(CalleeResultKindV1::Text),
+            Some(Class::Dynamic) => Some(CalleeResultKindV1::NullableText),
+            Some(Class::OwnedDynamic) => Some(CalleeResultKindV1::OwnedDynamic),
+            None => None,
+            _ => return Err("[freeze:contract][callee-result-kind/owned-source-drift]".into()),
+        };
+        row.corroborate(key, evidence)?;
         if source_bool { row.corroborate(key, Some(CalleeResultKindV1::Bool))?; }
-        let independently_covered = if text || nullable_text { true }
+        let independently_covered = if matches!(completed, Some(Class::Text | Class::Dynamic)) { true }
             else if source_bool { retained_bool }
             else {
                 let checked = super::direct_call_loan::lifecycle::uniform_call_result_kind(relations);

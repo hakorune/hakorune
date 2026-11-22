@@ -332,7 +332,7 @@ impl OrdinaryNewClaimLedgerV1 {
             // An opaque-call terminal callee proves no result class; it cannot
             // be an instance-call target until its return is decomposed.
             let call_result = self.result_kind_catalog_v1().ok_or_else(|| freeze("root-instance-call-result-catalog"))?
-                .corroborated_invoke_result(target, false, false, false, false,
+                .corroborated_invoke_result(target, None, false, false,
                     result.borrow().terminal_relations().values())?
                 .ok_or_else(|| freeze("root-instance-call-result-kind-unavailable"))?;
             drop(claims);

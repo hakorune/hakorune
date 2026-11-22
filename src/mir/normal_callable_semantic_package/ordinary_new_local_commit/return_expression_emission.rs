@@ -192,6 +192,12 @@ impl super::ExpressionEmissionV1<ReturnExpressionContractV1> {
                 displaced.as_ref(),
                 row.materialize.as_ref(),
             )?,
+            None if context.ledger().returns_owned_carrier_v1(
+                self.contract.source.source().owner(), self.contract.source.source().root().statement(),
+            ) => expression.validate_pending_carrier_return_v1(
+                context, function, projection, &self.entry, &self.terminal,
+                &self.continuation, self.contract.value,
+            )?,
             None => expression.validate_local_continuation_with_purpose_v1(
                 context,
                 function,
@@ -321,7 +327,8 @@ impl OrdinaryNewClaimLedgerV1 {
             expression_class::ExpressionValueClassV1 as Class,
             expression_projection::ExpressionLeafClassV1 as Leaf,
         };
-        let checked_scalar = if source.root_class() == Leaf::Value(Class::Dynamic) {
+        let owned_carrier = self.returns_owned_carrier_v1(owner, site);
+        let checked_scalar = if !owned_carrier && source.root_class() == Leaf::Value(Class::Dynamic) {
             materialize.clone()
         } else {
             None
@@ -341,7 +348,11 @@ impl OrdinaryNewClaimLedgerV1 {
                 })
             }
             Leaf::Value(Class::Dynamic)
-                if installs.is_empty() && checked_scalar.is_some() && after_residency.is_none() => None,
+                if installs.is_empty() && after_residency.is_none()
+                    && (checked_scalar.is_some() || owned_carrier && materialize.is_none()
+                        && source.owned_result_nodes().contains(&0)
+                        && matches!(body.values.first(), Some(Some(crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1::Operand(
+                            crate::mir::instruction::StringInvokeOperand::DynamicCarrier(carrier)))) if *carrier == value)) => None,
             Leaf::Value(Class::I64 | Class::Bool)
                 if installs.is_empty() && materialize.is_none() && after_residency.is_none() =>
             {

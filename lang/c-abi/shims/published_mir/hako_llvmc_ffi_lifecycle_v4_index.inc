@@ -135,7 +135,7 @@ static int lv4_operation_result(yyjson_val* op) {
        release. */
     return lv4_is(op, "result", "bool") ? LV4_BOOL
         : lv4_is(op, "result", "text") ? LV4_OWNED_STRING
-        : lv4_is(op, "result", "nullable_text") ? LV4_DYNAMIC_CARRIER
+        : (lv4_is(op, "result", "nullable_text") || lv4_is(op, "result", "dynamic_carrier")) ? LV4_DYNAMIC_CARRIER
         : lv4_is(op, "result", "map") ? LV4_MAP
         : lv4_is(op, "result", "borrowed_nullable_handle") ? LV4_BORROWED_OBJECT
         : lv4_is(op, "result", "mixed_handle") ? LV4_MIXED_OBJECT

@@ -202,6 +202,7 @@ impl<'module> PublishedMirBackendView<'module> {
                         | (InvokeCallResultKind::Bool, crate::mir::MirType::Bool)
                         | (InvokeCallResultKind::OwnedString, crate::mir::MirType::String)
                         | (InvokeCallResultKind::NullableText, crate::mir::MirType::String | crate::mir::MirType::Unknown)
+                        | (InvokeCallResultKind::OwnedDynamicCarrier, crate::mir::MirType::DynamicCarrier | crate::mir::MirType::Unknown)
                         | (
                             InvokeCallResultKind::Map
                                 | InvokeCallResultKind::Handle
@@ -237,6 +238,16 @@ impl<'module> PublishedMirBackendView<'module> {
                 InvokeCallResultKind::NullableText => PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableText {
                     key: key.clone(), receiver_object,
                 },
+                InvokeCallResultKind::OwnedDynamicCarrier => {
+                    handoff.callables()
+                        .and_then(|callables| callables.completed_result(
+                            &crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key.clone())))
+                        .filter(|row| row.has_owned_dynamic_result_v1())
+                        .ok_or_else(|| fault("dynamic-result/completed-source-missing"))?;
+                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryDynamicCarrier {
+                        key: key.clone(), receiver_object,
+                    }
+                }
                 InvokeCallResultKind::I64 => {
                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 {
                         key: key.clone(),

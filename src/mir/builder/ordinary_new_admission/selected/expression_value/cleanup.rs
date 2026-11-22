@@ -151,12 +151,12 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_dynamic_
             | InvokeOperation::DynamicArrayGet { .. }
             | InvokeOperation::DynamicCarrierSubI64 { .. } => true,
             InvokeOperation::Call {
-                result: crate::mir::instruction::InvokeCallResultKind::NullableText,
+                result: result @ (crate::mir::instruction::InvokeCallResultKind::NullableText | crate::mir::instruction::InvokeCallResultKind::OwnedDynamicCarrier),
                 ..
             } => {
                 let mut packets = expression.body.calls.iter().filter(|packet| {
                     packet.original_source().result()
-                        == Some(crate::mir::instruction::InvokeCallResultKind::NullableText)
+                        == Some(*result)
                         && packet.outer_bindings().is_ok_and(|(invoke, normal)| {
                             invoke == binding && normal == &projection
                         })
@@ -458,6 +458,20 @@ fn finish_body_continuation(
         &homes,
     )?;
     finish_body_cleanup(builder, body, normal, fault, displaced)
+}
+
+pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_carrier_return(
+    builder: &mut MirBuilder,
+    body: &mut EmittedExpressionBodyV1,
+    carrier: ValueId,
+) -> Result<(Option<Binding>, Option<Binding>), String> {
+    if body.temporaries.last() != Some(&(0, ExpressionOwnedTemporaryV1::DynamicCarrier(carrier))) {
+        return Err(freeze("expression/return-carrier-origin"));
+    }
+    let fault = FaultCleanupPlanV1::owed_operations(&body.temporaries, &body.homes)?;
+    body.temporaries.pop();
+    let normal = FaultCleanupPlanV1::owed_operations(&body.temporaries, &[])?;
+    finish_body_cleanup(builder, body, normal, fault, None)
 }
 
 fn finish_body_cleanup(

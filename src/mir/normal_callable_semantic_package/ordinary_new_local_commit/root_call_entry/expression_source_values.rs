@@ -125,9 +125,10 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     Operand::NormalInteger(value)
                 }
                 crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Dynamic
+                | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::OwnedDynamic
                     if observed.dynamic_invocation_source_v1().is_none()
                         && observed.dynamic_invocation_result_lifecycle_v1().is_some()
-                        && packet.original_source().result() == Some(crate::mir::instruction::InvokeCallResultKind::NullableText)
+                        && packet.original_source().result() == observed.result().invoke_result()
                         && self.frame.owned_result_nodes().contains(&index) => Operand::DynamicCarrier(value),
                 _ => return Err(freeze("print-expression/call-value")),
             };

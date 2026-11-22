@@ -1,9 +1,10 @@
-//! Scalar destination of the shared original expression evaluation.
+//! Scalar and owned Dynamic destinations of the shared original Return evaluation.
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1;
 
 /// A selected scalar operation borrows the existing ReturnValue evaluator.
 /// Selection is original source morphology; unavailable never retries a terminal.
-pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return_expression_v1<
+pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_return_expression_v1<
     E,
 >(
     input: ResolvedFunctionLoweringInputV1<'_>,
@@ -19,7 +20,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         E,
     >,
     fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
-) -> Result<Option<Result<TerminalScalarReturnV1, super::super::HomePrefixUnavailableV1>>, E> {
+) -> Result<Option<Result<TerminalRelationV1, super::super::HomePrefixUnavailableV1>>, E> {
     let Ok(value) = input
         .source()
         .child_expr_from_stmt(statement, super::super::ExprChildRoleV1::ReturnValue)
@@ -135,7 +136,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         return Ok(preselection_unavailable());
     };
     use crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1 as Class;
-    let checked_dynamic_return = input.declares_i64_result_v1() && matches!(
+    let unannotated = input.has_unannotated_result_v1();
+    let dynamic_return = (input.declares_i64_result_v1() || unannotated) && matches!(
         actuals(&purpose, super::super::super::BorrowedCallActualRequestV1::DynamicInvocationSource {
             input, plan: &source,
         })?,
@@ -184,7 +186,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
             _ => None,
         }
     };
-    let root_core = if checked_dynamic_return || previous_scalar_candidate || root_call_class.is_some() {
+    let root_core = if dynamic_return || previous_scalar_candidate || root_call_class.is_some() {
         None
     } else {
         use crate::mir::resolved_semantics::home_new_prefix::{
@@ -219,7 +221,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     let prepared = prepare_value_evaluation_v1(
         input,
         std::rc::Rc::clone(&source),
-        checked_dynamic_return.then_some(Class::Dynamic).or(core_result_class)
+        dynamic_return.then_some(Class::Dynamic).or(core_result_class)
             .or(root_call_class.map(|_| {
                 crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64
             }))
@@ -259,7 +261,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     };
     // Qualified scalar Core operands keep their acquisition and Fault duties
     // in the shared evaluation; other terminal owners retain their boundary.
-    if !checked_dynamic_return && !previous_scalar_candidate
+    if !dynamic_return && !previous_scalar_candidate
         && !root_argument_evaluation
         && core_result_class.is_none()
         && root_call_class.is_none()
@@ -321,13 +323,31 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         }
         installation.commit();
     }
+    if unannotated && dynamic_return {
+        let relation = if evaluation.owned_result_nodes().contains(&0)
+            && evaluation.reference_coverage_is_exact()
+        {
+            Ok(TerminalRelationV1::Value(TerminalValueReturnV1::issue(
+                input.owner(),
+                statement.site().clone(),
+                value.site().clone(),
+                TerminalReturnedSourceV1::DynamicExpression(evaluation),
+            )))
+        } else {
+            Err(super::super::HomePrefixUnavailableV1::ReturnValueNotCovered(
+                statement.site().clone(),
+            ))
+        };
+        return Ok(Some(relation));
+    }
     Ok(Some(
         TerminalScalarReturnV1::issue(
             input.owner(),
             statement.site().clone(),
             value.site().clone(),
         )
-        .with_evaluation_v1(evaluation, checked_dynamic_return)
+        .with_evaluation_v1(evaluation, dynamic_return)
+        .map(TerminalRelationV1::Scalar)
         .ok_or_else(|| {
             super::super::HomePrefixUnavailableV1::ReturnValueNotCovered(statement.site().clone())
         }),

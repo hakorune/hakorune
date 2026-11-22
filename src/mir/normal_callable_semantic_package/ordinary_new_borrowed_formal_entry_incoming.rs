@@ -491,16 +491,11 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         for terminal in self.terminal_relations_for_owner(owner) {
             use crate::mir::resolved_semantics::home_new_prefix::{TerminalRelationV1, TerminalReturnedSourceV1};
-            if let TerminalRelationV1::Scalar(row) = terminal {
-                if let Some(evaluation) = row.evaluation() {
-                    self.cover_expression_field_roots_v1(flow, evaluation, uses, origins, covered)?;
-                }
+            if let Some(evaluation) = terminal.evaluation_v1() {
+                self.cover_expression_field_roots_v1(flow, evaluation, uses, origins, covered)?;
             }
             if let TerminalRelationV1::Value(value) = terminal {
                 match value.returned() {
-                    TerminalReturnedSourceV1::TextExpression(evaluation) => {
-                        self.cover_expression_field_roots_v1(flow, evaluation, uses, origins, covered)?;
-                    },
                     TerminalReturnedSourceV1::StoredMapGet { source, receiver_read, .. } => {
                         let field = source.receiver();
                         field.require_entry_source_v1(self)?;

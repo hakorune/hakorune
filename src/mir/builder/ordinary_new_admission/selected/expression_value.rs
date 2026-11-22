@@ -20,7 +20,7 @@ pub(super) use cleanup::{
     bool_condition_temporary_operations_v1, check_i64_destination_v1, finish_bool_condition_continuation_v1,
     finish_deferred_argument_continuation, finish_dynamic_initializer_continuation,
     finish_rebind_continuation, finish_residence_with_displaced_continuation,
-    finish_scalar_continuation, finish_value_continuation_v1, materialize_text_root,
+    finish_carrier_return, finish_scalar_continuation, finish_value_continuation_v1, materialize_text_root,
 };
 
 #[path = "expression_value/invoke.rs"]
@@ -470,11 +470,11 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                         let owned = frame.owned_result_nodes().contains(&index);
                         let result = packet.original_source().result();
                         if owned != matches!(result, Some(crate::mir::instruction::InvokeCallResultKind::OwnedString
-                            | crate::mir::instruction::InvokeCallResultKind::NullableText)) {
+                            | crate::mir::instruction::InvokeCallResultKind::NullableText | crate::mir::instruction::InvokeCallResultKind::OwnedDynamicCarrier)) {
                             return Err(freeze("print-expression/call-source-missing"));
                         }
                         calls.push(packet);
-                        if result == Some(crate::mir::instruction::InvokeCallResultKind::NullableText) {
+                        if result.is_some_and(crate::mir::instruction::InvokeCallResultKind::yields_carrier) {
                             if call.dynamic_invocation_result_lifecycle_v1().is_none() {
                                 return Err(freeze("print-expression/call-source-missing"));
                             }

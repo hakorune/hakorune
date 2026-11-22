@@ -132,7 +132,7 @@ fn emit_lexical_i64_call(
         prefix.consume_receiver(instance)?;
     }
     let kind = match row.result() {
-        Some(kind @ (InvokeCallResultKind::I64 | InvokeCallResultKind::Unit | InvokeCallResultKind::OwnedString | InvokeCallResultKind::NullableText)) => kind,
+        Some(kind @ (InvokeCallResultKind::I64 | InvokeCallResultKind::Unit | InvokeCallResultKind::OwnedString | InvokeCallResultKind::NullableText | InvokeCallResultKind::OwnedDynamicCarrier)) => kind,
         Some(InvokeCallResultKind::Bool) => match row {
             SourceLoan::Instance(instance)
                 if ledger.checked_local_scalar_call_result_v1(instance)? == InvokeCallResultKind::Bool => InvokeCallResultKind::Bool,
@@ -279,7 +279,7 @@ fn emit_lexical_i64_call(
         InvokeCallResultKind::OwnedString => vec![InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End {
             value: result.ok_or_else(|| freeze("lexical-i64-result-mismatch"))?,
         })],
-        InvokeCallResultKind::NullableText => vec![InvokeOperation::DynamicCarrierEnd {
+        InvokeCallResultKind::NullableText | InvokeCallResultKind::OwnedDynamicCarrier => vec![InvokeOperation::DynamicCarrierEnd {
             carrier: result.ok_or_else(|| freeze("lexical-i64-result-mismatch"))?,
         }],
         _ => Vec::new(),

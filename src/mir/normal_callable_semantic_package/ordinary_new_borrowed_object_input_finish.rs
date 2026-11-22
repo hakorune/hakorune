@@ -48,7 +48,14 @@ impl OrdinaryNewClaimLedgerV1 {
             .as_deref()
             .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
         let finite_input = Self::original_finite_instance_input_request_v1(source, catalog, owner)?;
-        let mut source_result_request = source
+        let owns_carrier = self.completion_source_for_owner_v1(owner)
+            .zip(self.terminal_relation_index.get(&owner))
+            .is_some_and(|(completion, returns)| {
+                crate::mir::normal_callable_semantic_package::result_contract::owns_dynamic_carrier_result_v1(
+                    completion, returns,
+                )
+            });
+        let mut source_result_request = owns_carrier || source
             .original_returned_field_participant_request_v1(owner)?
             .is_some()
             || self.borrowed_i64_results.original_return_source_v1(&owner)?

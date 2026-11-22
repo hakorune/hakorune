@@ -250,7 +250,7 @@ impl StaticIncomingSourceV1 {
         &self,
         handoff: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
         selected: &super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
-        result: &super::super::result_contract::CompletedTextResultSourceV1,
+        result: &super::super::result_contract::CompletedCallResultSourceV1,
     ) -> bool {
         result.corroborates(selected, self)
             && handoff.catalog_identity() == self.catalog_brand.identity()

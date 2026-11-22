@@ -96,6 +96,10 @@ pub(crate) enum TerminalReturnedSourceV1 {
     TextExpression(
         std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
     ),
+    /// Exact ReturnValue evaluation with an independently owned carrier at its root.
+    DynamicExpression(
+        std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
+    ),
     /// Exact read of the current owned Text acquisition. The original exit
     /// keeps this residence live for Fault cleanup; Normal transfer is a
     /// downstream disposition, never an Object Home or a new acquisition.
@@ -598,7 +602,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_stored_return
 
 #[path = "home_terminal_scalar_evaluation.rs"]
 mod scalar_evaluation;
-pub(in crate::mir::resolved_semantics::home_new_prefix) use scalar_evaluation::observe_scalar_return_expression_v1;
+pub(in crate::mir::resolved_semantics::home_new_prefix) use scalar_evaluation::observe_return_expression_v1;
 
 /// Default-off (builder debug flag): which numbered check declined a Text return expression.
 #[inline(never)]

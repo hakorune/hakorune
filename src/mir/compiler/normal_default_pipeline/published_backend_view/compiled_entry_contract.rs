@@ -327,6 +327,7 @@ impl<'module> PublishedMirBackendView<'module> {
                             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryUnit { .. }
                             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryText { .. }
                     | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableText { .. }
+                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryDynamicCarrier { .. }
                             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
                     | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBool { .. }
                             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. }
@@ -429,6 +430,7 @@ impl<'module> PublishedMirBackendView<'module> {
                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryUnit { .. }
                     | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryText { .. }
                     | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableText { .. }
+                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryDynamicCarrier { .. }
                             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
                     | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBool { .. }
                     | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. }

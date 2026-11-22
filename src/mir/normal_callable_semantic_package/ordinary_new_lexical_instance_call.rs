@@ -437,10 +437,9 @@ impl OrdinaryNewClaimLedgerV1 {
             let source_bool = self.result_kind_catalog_v1().and_then(|catalog| catalog.kind(&target))
                 == Some(super::super::callee_result_kind::CalleeResultKindV1::Bool);
             let retained_scalar = self.retained_terminal_scalar_result_v1(&source)?;
-            let source_text = self.checked_local_instance_text_result_source_v1(&source)?;
-            let source_nullable_text = self.checked_local_instance_nullable_text_result_source_v1(&source)?;
+            let completed = self.checked_local_instance_result_v1(&source)?;
             let callee_result = self.result_kind_catalog_v1().ok_or_else(|| freeze("lexical-instance-call/result-catalog"))?
-                .corroborated_invoke_result(&target, source_text, source_nullable_text, source_bool,
+                .corroborated_invoke_result(&target, completed, source_bool,
                     retained_scalar.as_ref().is_some_and(|loan| loan.kind() == crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool),
                     self.terminal_relations_for_owner(callee_owner).into_iter())?;
             if callee_result == Some(InvokeCallResultKind::Bool) {

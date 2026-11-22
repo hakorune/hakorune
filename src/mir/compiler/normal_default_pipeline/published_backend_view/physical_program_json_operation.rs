@@ -299,6 +299,7 @@ pub(super) fn encode_invoke(
             result:
                 result_kind @ (InvokeCallResultKind::Unit | InvokeCallResultKind::I64 | InvokeCallResultKind::OwnedString
                 | InvokeCallResultKind::NullableText
+                | InvokeCallResultKind::OwnedDynamicCarrier
                 | InvokeCallResultKind::Bool
                 | InvokeCallResultKind::Map
                 | InvokeCallResultKind::Handle

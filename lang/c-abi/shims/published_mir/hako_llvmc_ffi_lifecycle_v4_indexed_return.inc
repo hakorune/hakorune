@@ -34,6 +34,13 @@ static int lv4_indexed_return(const hako_lv4_input* in,
       return 0;
     else state[result->origin] = 0;
   }
+  int ordinary_dynamic = lv4_is(fn->function, "role", "ordinary_dynamic_carrier");
+  if (ordinary_dynamic && lv4_is(term, "op", "return")) {
+    hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
+    if (faulted || !result || result->kind != LV4_DYNAMIC_CARRIER || result->origin < 0 ||
+        (size_t)result->origin >= count || state[result->origin] != LV4_DYNAMIC_CARRIER_LIVE) return 0;
+    state[result->origin] = 0;
+  }
   if (ordinary_map && lv4_is(term, "op", "return")) {
     hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
     /* A live LV4_MAP lease transfers into caller-owned storage. A spent
@@ -122,6 +129,6 @@ static int lv4_indexed_return(const hako_lv4_input* in,
   return !faulted && result && (tagged_i64 ||
       result->kind == (birth ? LV4_UNIT : ordinary_bool ? LV4_BOOL : ordinary_map ? LV4_MAP :
           nullable_text ? (result->kind == LV4_HANDLE ? LV4_HANDLE : LV4_OWNED_STRING) :
-          ordinary_text ? LV4_OWNED_STRING :
+          ordinary_text ? LV4_OWNED_STRING : ordinary_dynamic ? LV4_DYNAMIC_CARRIER :
           (ordinary_handle || ordinary_nullable) ? LV4_HANDLE : LV4_I64));
 }

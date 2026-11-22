@@ -250,6 +250,8 @@ pub enum InvokeCallResultKind {
     /// physical Call publishes it as one fresh opaque Dynamic carrier the
     /// caller must forward or End exactly once.
     NullableText,
+    /// A live opaque carrier the callee transfers unchanged only on Normal.
+    OwnedDynamicCarrier,
     Unit,
     I64,
     /// Exact source Bool; machine storage does not grant Integer semantics.
@@ -274,6 +276,10 @@ pub enum InvokeCallResultKind {
 }
 
 impl InvokeCallResultKind {
+    pub(crate) const fn yields_carrier(self) -> bool {
+        matches!(self, Self::NullableText | Self::OwnedDynamicCarrier)
+    }
+
     pub const fn borrowed_nullable_formal(formal_ordinal: u32) -> Self {
         Self::BorrowedNullableHandle { support: BorrowedResultSupportV1::Formal(formal_ordinal), access: BorrowedResultAccessV1::LegacyUnqualified }
     }
@@ -499,7 +505,8 @@ impl InvokeOperation {
                 ..
             } => Some(InvokeNormalResultKind::Bool),
             Self::Call { result: InvokeCallResultKind::OwnedString, .. } => Some(InvokeNormalResultKind::OwnedString),
-            Self::Call { result: InvokeCallResultKind::NullableText, .. } => Some(InvokeNormalResultKind::DynamicCarrier),
+            Self::Call { result: InvokeCallResultKind::NullableText | InvokeCallResultKind::OwnedDynamicCarrier, .. } =>
+                Some(InvokeNormalResultKind::DynamicCarrier),
             Self::Call {
                 result: InvokeCallResultKind::Map,
                 ..

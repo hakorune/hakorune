@@ -647,7 +647,7 @@ impl DirectCallDispositionLoanV1 {
                 }
             }
             row.result = root.result_kind_catalog_v1().ok_or(reject)?
-                .corroborated_invoke_result(row.published_key_v1().ok_or(reject)?, false, false, false, false,
+                .corroborated_invoke_result(row.published_key_v1().ok_or(reject)?, None, false, false,
                     callee_relations.values()).map_err(|_| reject)?.ok_or(reject)?;
             row.execution = DirectCallExecutionV1::Lifecycle;
             if let Some(site) = local_binding_site {

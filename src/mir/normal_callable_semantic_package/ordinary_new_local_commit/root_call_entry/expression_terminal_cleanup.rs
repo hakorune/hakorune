@@ -1,5 +1,6 @@
 //! Independent expression terminal cleanup.
 use super::*;
+use super::expression_continuation_paths::CarrierHandoffV1;
 
 impl ExpressionPhysicalProjectionRefV1<'_> {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_effective_root_v1(
@@ -15,7 +16,11 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                     EvaluatedExpressionValueV1::Bool(value),
             crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
                 crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic) =>
-                    EvaluatedExpressionValueV1::Operand(Operand::Dynamic(value)),
+                    EvaluatedExpressionValueV1::Operand(if self.frame.owned_result_nodes().contains(&0) {
+                        Operand::DynamicCarrier(value)
+                    } else {
+                        Operand::Dynamic(value)
+                    }),
             crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
                 crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::BoxReference) =>
                     EvaluatedExpressionValueV1::borrowed_reference_v1(value, self.frame.references().get(&0)
@@ -113,7 +118,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         defer_owned_argument: bool,
         displaced: Option<&InvokeOperation>,
         purpose_acquisition: Option<&[Binding; 2]>,
-        forwarded_dynamic_carrier: Option<ValueId>,
+        forwarded_dynamic_carrier: Option<(ValueId, CarrierHandoffV1)>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         let (Some(terminal), Some(continuation)) = (terminal, continuation) else {
             if terminal.is_some()
@@ -335,7 +340,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             let borrowed = paths::pending_operations(function, start, &homes, Some(fault_frame))?;
             covered.retain(|block| !borrowed.contains(block));
         }
-        if let Some(carrier) = forwarded_dynamic_carrier {
+        if let Some((carrier, _)) = forwarded_dynamic_carrier {
             if live.pop() != Some(ExpressionOwnedTemporaryV1::DynamicCarrier(carrier)) {
                 return Err(freeze("dynamic-expression/local-handoff-order"));
             }
@@ -419,6 +424,10 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         } else {
             (0..live.len()).collect()
         };
+        if let Some((carrier, CarrierHandoffV1::PendingReturn)) = forwarded_dynamic_carrier {
+            full.insert(0, InvokeOperation::DynamicCarrierEnd { carrier });
+            normal_indices.iter_mut().for_each(|index| *index += 1);
+        }
         let mut displaced_after = None;
         if let Some(old) = displaced {
             let index = full

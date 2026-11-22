@@ -196,6 +196,13 @@ impl<'a> ResolvedFunctionLoweringInputV1<'a> {
         }) == Some(ExactTrivialScalarAbiV1::I64)
     }
 
+    pub(crate) fn has_unannotated_result_v1(self) -> bool {
+        crate::mir::resolved_semantics::CallableFunctionSyntaxViewV1::from_function_ast(
+            self.source().root(),
+        )
+        .is_some_and(|syntax| syntax.header().return_type_name().is_none())
+    }
+
     pub(crate) const fn callable_index(self) -> Option<&'a VerifiedCallableIndexV1> {
         self.callable_index
     }
