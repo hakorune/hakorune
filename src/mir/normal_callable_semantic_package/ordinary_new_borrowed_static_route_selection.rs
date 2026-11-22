@@ -119,21 +119,24 @@ impl OrdinaryNewClaimLedgerV1 {
                 .ok_or_else(|| freeze("borrowed-static/local-completion-missing"))?;
             return Ok(Some(Rc::clone(original)));
         }
-        if let Some(original) = super::super::borrowed_formal_actuals::original_static_source_v1(source, site)? {
-            let qualified = self.checked_completed_static_expression_input_v1(original)?;
-            if qualified.is_some() || self.is_static_expression_input_owner_v1(source, original.callee_owner()) {
-                qualified.ok_or_else(|| format!("{}: call={site:?}; callee={:?}; target={:?}",
-                    freeze("static-input/cohort-unfinished"), original.callee_owner(), original.target()))?;
+        if let Some(original) =
+            super::super::borrowed_formal_actuals::original_static_source_v1(source, site)?
+        {
+            let completed = self.checked_static_input_packet_rows_v1(original)?;
+            if completed.is_some()
+                || self.is_static_expression_input_owner_v1(source, original.callee_owner())
+            {
+                completed.ok_or_else(|| {
+                    format!(
+                        "{}: call={site:?}; callee={:?}; target={:?}",
+                        freeze("static-input/cohort-unfinished"),
+                        original.callee_owner(),
+                        original.target()
+                    )
+                })?;
                 self.verify_original_static_packet_source_v1(original)?;
                 self.borrowed_static_packet_actuals_v1(original)?
                     .ok_or_else(|| freeze("borrowed-static/local-actuals-missing"))?;
-                return Ok(Some(Rc::clone(original)));
-            }
-            if self
-                .checked_static_tagged_packet_actuals_v1(original)?
-                .is_some()
-            {
-                self.verify_original_static_packet_source_v1(original)?;
                 return Ok(Some(Rc::clone(original)));
             }
             if self
@@ -257,16 +260,16 @@ impl OrdinaryNewClaimLedgerV1 {
                 continue;
             };
             let applies = self.is_static_expression_input_owner_v1(source, original.callee_owner());
-            if !legacy && !applies { continue; }
-            let qualified = applies && self.checked_completed_static_expression_input_v1(original)?.is_some();
-            let completed = qualified || self
-                .checked_static_scalar_packet_actuals_v1(original)?
-                .is_some()
+            if !legacy && !applies {
+                continue;
+            }
+            let completed_input = self.has_completed_static_input_route_v1(original, applies)?;
+            let completed = completed_input
                 || self
-                    .checked_static_mixed_packet_actuals_v1(original)?
+                    .checked_static_scalar_packet_actuals_v1(original)?
                     .is_some()
                 || self
-                    .checked_static_tagged_packet_actuals_v1(original)?
+                    .checked_static_mixed_packet_actuals_v1(original)?
                     .is_some();
             let selected = if completed {
                 self.selected_static_local_source_v1(&row.call)?.is_some()
@@ -295,6 +298,21 @@ impl OrdinaryNewClaimLedgerV1 {
             self.record_lifecycle_local_call_site(site, LocalRouteWriterV1::StaticPacket)?;
         }
         Ok(())
+    }
+
+    /// Route discovery checks completed input only for a selected source.
+    /// A refusal on an unselected observation stays at its original consumer.
+    fn has_completed_static_input_route_v1(
+        &self,
+        original: &Rc<StaticIncomingSourceV1>,
+        expression_selected: bool,
+    ) -> Result<bool, String> {
+        let selected = expression_selected
+            || self
+                .borrowed_formal_actuals
+                .get(original.call_site())
+                .is_some_and(|rows| rows.as_ref().is_ok_and(|rows| rows.has_static_loop_input_v1()));
+        Ok(selected && self.checked_static_input_packet_rows_v1(original)?.is_some())
     }
 
     /// Select the existing ordinary root route only from original final
@@ -378,17 +396,17 @@ impl OrdinaryNewClaimLedgerV1 {
                 continue;
             };
             let applies = self.is_static_expression_input_owner_v1(source, original.callee_owner());
-            if !legacy && !applies { continue; }
-            let qualified = applies && self.checked_completed_static_expression_input_v1(original)?.is_some();
-            if (qualified || self.is_static_zero_packet_cohort_v1(original)
+            if !legacy && !applies {
+                continue;
+            }
+            let completed_input = self.has_completed_static_input_route_v1(original, applies)?;
+            if (completed_input
+                || self.is_static_zero_packet_cohort_v1(original)
                 || self
                     .checked_static_scalar_packet_actuals_v1(original)?
                     .is_some()
                 || self
                     .checked_static_mixed_packet_actuals_v1(original)?
-                    .is_some()
-                || self
-                    .checked_static_tagged_packet_actuals_v1(original)?
                     .is_some())
                 && routed.is_local(&row.call)
             {

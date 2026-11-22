@@ -93,7 +93,7 @@ pub(in super::super) fn qualified_scalar_actual_v1(
         if !proof.corroborates(original, completion) {
             return Err(freeze("static-scalar/qualified-completion-drift"));
         }
-        let Some(value) = super::static_tagged_input_finish::literal_identity_v1(
+        let Some(literal) = super::static_input_validation::checked_terminal_static_literal_v1(
             source,
             original,
             identity,
@@ -103,14 +103,7 @@ pub(in super::super) fn qualified_scalar_actual_v1(
         else {
             return Ok(false);
         };
-        if actual.opaque_actuals.as_ref()
-            != [PreparedBorrowedFormalActualV1 {
-                ordinal: 0,
-                site: original.argument_sites()[0].clone(),
-                formal: original.parameters()[0].binding,
-                source: BorrowedFormalActualSourceV1::Integer(value),
-            }]
-        {
+        if actual.opaque_actuals.as_ref() != [literal] {
             return Err(freeze("static-scalar/qualified-payload-drift"));
         }
         return Ok(true);

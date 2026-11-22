@@ -312,12 +312,11 @@ arguments. A Value path alone is insufficient: assignment sites and
 DeclaredObject formals do not select this terminal membership. The same
 SourceStatic prohibition applies until the selected tagged entry and complete
 incoming cohort are independently closed.
-The existing input-finish owner can close that Main Integer-literal row as
-`ExecutableStaticTagged`: its original incoming Rc, formal, catalog brand,
-selected signature and shared Completion must agree with the existing tagged
-entry. It checks the complete original cohort, preserves forwarded SourceStatic
-rows and replaces selected Main rows only after all validation. Packet demand
-rechecks the retained identity, payload and ordered destination-less observation.
+The common Static input finisher retains that row as `ExecutableStaticInput`
+with the selected Loop capture as its argument origin. It verifies the original
+call, signature and shared Completion against the full cohort. Forwarded
+siblings retain their source receipts for the affine Loop packet. Packet demand
+rechecks payload and the original ordered, destination-less observation.
 Only that completed Static selection excludes this terminal from the root
 instance issuer; unrelated instance and annotation-only scalar owners remain.
 

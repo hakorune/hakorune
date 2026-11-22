@@ -197,7 +197,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             borrowed_formal_source.as_ref().ok(),
         )?;
     if let Ok(source) = &mut borrowed_formal_source {
-        source.retain_tagged_static_loop_sites_v1(Rc::clone(&loop_static_source_loans.selected_sites));
+        source.select_static_tagged_sources_v1(|formal| {
+            loop_static_source_loans
+                .tagged_rows
+                .values()
+                .any(|row| row.as_ref().is_ok_and(|loan| loan.formal() == formal))
+        });
     }
     let mut preissued_static_i64_products = BTreeMap::new();
     let typed_static_walk_owners = walk_triggers::typed_static_walk_owners_v1(

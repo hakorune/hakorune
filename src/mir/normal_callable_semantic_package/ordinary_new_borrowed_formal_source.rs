@@ -145,7 +145,6 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
     /// Derived participation only; the original inventory and reaching reads
     /// remain the authorities used when issuing an argument.
     pub(super) tagged_static_owners: std::cell::RefCell<(u64, BTreeSet<FunctionOwnerIdV1>)>,
-    pub(super) tagged_static_loop_sites: Rc<BTreeSet<(FunctionOwnerIdV1, SourceStmtSiteV1)>>,
     /// Source-only, least-fixed-point proof that the tagged formal is checked
     /// before numeric payload use, including exact Static forward chains.
     pub(super) checked_static_inputs: BTreeSet<BindingRefV1>,

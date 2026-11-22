@@ -63,11 +63,6 @@ pub(super) fn issue_signature_and_finish_inputs_v1(
             |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
         )?;
     ledger
-        .finish_static_tagged_input_actuals_v1(selected, contracts, &signature, results)
-        .map_err(
-            |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
-        )?;
-    ledger
         .finish_static_bool_entry_actual_v1(batch, selected, contracts, &signature, results)
         .map_err(
             |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },

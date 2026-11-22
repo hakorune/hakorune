@@ -414,13 +414,14 @@ impl OrdinaryNewClaimLedgerV1 {
                     else {
                         break;
                     };
-                    let Some(value) = super::static_tagged_input_finish::literal_identity_v1(
-                        source,
-                        original,
-                        identity,
-                        staged,
-                        contract.parameters[0].binding,
-                    )?
+                    let Some(literal) =
+                        super::static_input_validation::checked_terminal_static_literal_v1(
+                            source,
+                            original,
+                            identity,
+                            staged,
+                            contract.parameters[0].binding,
+                        )?
                     else {
                         break;
                     };
@@ -441,12 +442,7 @@ impl OrdinaryNewClaimLedgerV1 {
                             ),
                             ordered_arguments: staged.ordered_arguments.clone(),
                             dynamic_invocation_arguments: None,
-                            opaque_actuals: Box::new([PreparedBorrowedFormalActualV1 {
-                                ordinal: 0,
-                                site: original.argument_sites()[0].clone(),
-                                formal: contract.parameters[0].binding,
-                                source: BorrowedFormalActualSourceV1::Integer(value),
-                            }]),
+                            opaque_actuals: Box::new([literal]),
                         },
                     ));
                     checked_rows += 1;
