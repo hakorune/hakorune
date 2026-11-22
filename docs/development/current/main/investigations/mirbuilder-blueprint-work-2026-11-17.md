@@ -159,7 +159,8 @@ compilerの動くcodeは変更していない。coverage CLIは前回の同じbi
 | DYR-1 | 決定 29: 型の無い値を結果として返す(A・B) | 済(`eedfb73190`): instance の `id(v)` が、整数・Bool・null を `== null` で、Text を literal と比べて通る(元の借用が終わった後に読む)。Box は名前つきの拒否。名簿の拒否→成功 4 本、成功→拒否 0。返った値を数や Bool と比べると C の段で止まる(DYR-1b、決定 30)。本体 +1,162/−507 行 |
 | DYR-1b | 決定 30: 仮引数と返った値で同じ等値 | 済(`86c7d1437f`): `true == 1` は false、`5 == 5` は true、左右逆も同じ、`true < 5` は TypeError 302。監査の新しい入力 9 本が期待の値。名簿の拒否→成功 8、成功→拒否 0。本体 +1,053/−270 行(古い関数・file の削除 0)。次は片付け CL-1〜CL-3(設計図 26 節) |
 | DYR-1b2 | 決定 30: 仮引数と戻り値の Dynamic 等値 | 実装・検証済み。I64/Bool の左右両順で同じ比較。大小は比較位置の 302。失効した carrier が正常な false にならないことは kernel の既存領域に独立のテストを追加。名簿 5,992 本の EXE 回帰 0、受理 8、固定 suite 8/8。本体 +1,053/−270 行、test +109/−67 行（rustfmt 後）。 |
-| UBD-2 以降 | `release_source` まで(決定 26 の順): 裸のブロックの scope の閉じ → 受け手の後始末 → `!= 1`。普通の呼び出しを通した Text の引数は、`finite-domain-unclosed` で止まる(`ordinary_new_borrowed_formal_entry_finite.rs:112`) | 次: 結果の種類を 2 度決める所の片付け、`id(id(v))`、`pick` |
+| CL-1 | 片付け: 戻り値の種類を呼び先で 1 度だけ決める | 済(`649211f03c`): 呼び手の上書きと既定の I64 を本番で 0 にした。`direct_call_result.rs`・`uniform_call_result_kind`・仮の I64 を書き換える分岐を退役。名簿の成功→拒否・拒否→成功 0、拒否の名前の変化 7(Bool の結果)。監査の新しい入力 12 本が基準と同じ。本体 +533/−537、test ±7(rustfmt 後、差し引き約 −5 行。見積もり 100〜130 行には届かず) |
+| UBD-2 以降 | `release_source` まで(決定 26 の順): 裸のブロックの scope の閉じ → 受け手の後始末 → `!= 1`。普通の呼び出しを通した Text の引数は、`finite-domain-unclosed` で止まる(`ordinary_new_borrowed_formal_entry_finite.rs:112`) | 次: 片付け CL-2(静的な入力の準備)→ CL-3(設計図 26 節)、`id(id(v))`、`pick` |
 
 - 道案内: `design/mirbuilder-route-guide.md`。
 - 確かめ方: 編集中は、変えた所を通る入力だけ。main に入れる前に 1 度、全入力の比較・全 lib・固定 suite。**到達の地図の取り直しは、毎回はしない**(道をまとめて消した回か、数回に 1 度)。

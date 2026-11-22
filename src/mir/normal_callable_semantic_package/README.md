@@ -2493,8 +2493,8 @@ full input/receiver, Normal/scalar cleanup and independent final checks remain o
 A typed signature alone cannot open a Bool Invoke disposition. The existing
 participant inventory and entry result role preserve the corroborated Bool kind;
 ordinary admission still requires its original final input/exit memberships.
-The shared source result classifier lives in private `direct_call_result.rs`,
-re-exported by its existing lifecycle owner after the 800-line split; no parallel
+The call result kind is issued once from the callee contract by
+`result_contract_callable_keys.rs::issue_terminal_invoke_result_v1` (CL-1); no parallel
 classifier, Static Bool protocol or process-root Bool feature is introduced.
 
 Root cleanup order also retains the exact original scalar terminal loan/exit as
