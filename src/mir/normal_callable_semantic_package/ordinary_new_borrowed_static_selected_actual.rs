@@ -143,6 +143,37 @@ fn original_tagged_argument_read_v1(
         .then_some((binding, formal))
 }
 
+impl PreparedBorrowedFormalIngressV1 {
+    /// Ownership proof of one synchronous, non-consuming read. The lowerer
+    /// still checks the actual call's original tag, SSA payload and order.
+    pub(in crate::mir::normal_callable_semantic_package) fn proves_tagged_static_argument_use_v1(
+        &self,
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        read: &OwnedExprSiteV1,
+        binding: BindingRefV1,
+        formal: BindingRefV1,
+    ) -> Result<bool, String> {
+        use crate::mir::resolved_semantics::{SourceNodeSiteV1, SourcePathSegmentV1};
+
+        let Some((SourcePathSegmentV1::Argument(ordinal), parent)) =
+            read.site().node().segments().split_last()
+        else {
+            return Ok(false);
+        };
+        let site = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(parent.to_vec()));
+        let Some(method) = input.function().method_call_source_v1(&site) else {
+            return Ok(false);
+        };
+        let call = OwnedExprSiteV1::new(input.owner(), site);
+        let original = super::static_source::original_static_source_v1(self, &call)?;
+        Ok(original.is_some_and(|original| {
+            std::sync::Arc::ptr_eq(method, original.method_source())
+                && original_tagged_forward_at_v1(self, original, *ordinal, read.site())
+                    == Some((binding, formal))
+        }))
+    }
+}
+
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir) fn static_scalar_actual_rebound_v1(
         &self,
@@ -196,12 +227,12 @@ impl PreparedBorrowedFormalIngressV1 {
             // entry read. The general transport supplies no such conversion.
             && self.original_formal_uses_v1(owner)
                 .is_ok_and(|uses| !uses.has_declared_entry_initializer_v1())
-            // An incoming entry already selected from the original source
-            // has its own transport proof. Keep that proof and its writer.
-            && !self.incoming.iter().any(|row| {
+            // The general lane can replace an older scalar entry when all
+            // source uses already have a checked, read-only tagged meaning.
+            && (!self.incoming.iter().any(|row| {
                 row.callee == owner
                     && matches!(&row.source, super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(_))
-            })
+            }) || self.legacy_static_input_has_tagged_uses_v1(owner))
             // Keep the original finite Text entry proof when it owns the
             // complete cohort. Its per-operation facts remain needed even
             // though an argument still travels in the existing tagged form.
@@ -211,6 +242,56 @@ impl PreparedBorrowedFormalIngressV1 {
                         &super::super::borrowed_formal_source::SourceValueAlternativeV1::Text,
                     ))
             })
+    }
+
+    fn legacy_static_input_has_tagged_uses_v1(&self, owner: FunctionOwnerIdV1) -> bool {
+        use super::super::borrowed_formal_uses::BorrowedIncomingSourceV1;
+
+        // An original instance caller still uses its receiver-bound entry
+        // contract. The source-only tagged lane cannot replace that contract.
+        if self.incoming.iter().filter(|row| row.callee == owner).any(|row| {
+            !matches!(&row.source, BorrowedIncomingSourceV1::Static(original)
+                if original.caller().namespace()
+                    == hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod)
+        }) {
+            return false;
+        }
+        // An unresolved argument is only an observed read. Its original
+        // destination must also support tagged reads before displacing an
+        // existing whole-callee entry (for example, a signed provider).
+        fn closes(
+            source: &PreparedBorrowedFormalIngressV1,
+            owner: FunctionOwnerIdV1,
+            open: &mut BTreeSet<FunctionOwnerIdV1>,
+        ) -> bool {
+            use super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1 as Use;
+
+            if !open.insert(owner) {
+                return false;
+            }
+            let closed = source.source_definition_for(owner).is_some_and(|definition| {
+                definition.uses.iter().all(|row| match &row.kind {
+                    Use::Copy { .. }
+                    | Use::DynamicComparisonOperand { .. }
+                    | Use::CompareOperand { .. } => true,
+                    Use::UnresolvedArgument { call, ordinal } => {
+                        super::static_source::original_static_source_v1(source, call)
+                            .ok()
+                            .flatten()
+                            .is_some_and(|original| {
+                                original_tagged_argument_read_v1(
+                                    source, original, *ordinal, row.site.site(),
+                                ) == Some((row.binding, Some(row.formal)))
+                                    && closes(source, original.callee_owner(), open)
+                            })
+                    }
+                    _ => false,
+                })
+            });
+            open.remove(&owner);
+            closed
+        }
+        closes(self, owner, &mut BTreeSet::new())
     }
 
     /// A tagged argument requires a borrowed entry at both ends. Reuse the
@@ -249,10 +330,11 @@ impl PreparedBorrowedFormalIngressV1 {
                 let BorrowedIncomingSourceV1::Static(original) = &row.source else {
                     return None;
                 };
-                // A declaration without an incoming source can observe its
-                // arguments passively. A selected call keeps its own proof.
+                // Retain source participation independently of an older
+                // signed entry when the same callee has checked tagged uses.
                 if !incoming_owners.contains(&row.call.owner())
-                    || selected_calls.contains(&row.call)
+                    || (selected_calls.contains(&row.call)
+                        && !self.legacy_static_input_has_tagged_uses_v1(row.callee))
                 {
                     return None;
                 }

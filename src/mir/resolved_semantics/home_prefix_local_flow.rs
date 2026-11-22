@@ -279,6 +279,8 @@ pub(super) struct PrefixEntryReceiverV1 {
     pub(super) identity: crate::parser::CallableDeclarationIdentityV1,
 }
 
+pub(super) use borrowed_integer_comparison::sources_by_statement as comparison_sources;
+
 impl<'source> PrefixLocalFlow<'source> {
     /// Only a resolver-owned Loop at the current walk point can borrow these
     /// classes. Rebinding/branch joins already update `locals` before this
@@ -307,12 +309,16 @@ impl<'source> PrefixLocalFlow<'source> {
     }
 
     pub(super) fn new(input: ResolvedFunctionLoweringInputV1<'source>) -> Self {
-        Self::with_source_value_class_facts(input, None)
+        let comparisons = comparison_sources(input, &mut |_, _, _| {
+            Ok::<bool, std::convert::Infallible>(false)
+        }).unwrap();
+        Self::with_source_value_class_facts(input, None, comparisons)
     }
 
     pub(super) fn with_source_value_class_facts(
         input: ResolvedFunctionLoweringInputV1<'source>,
         source_value_class_facts: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::SourceValueClassFactsV1>>,
+        comparisons: borrowed_integer_comparison::SourcesByStatement,
     ) -> Self {
         Self {
             null_exclusions: Default::default(),
@@ -327,7 +333,7 @@ impl<'source> PrefixLocalFlow<'source> {
             scalar_field_reads: BTreeMap::new(),
             nonnull: std::collections::BTreeSet::new(),
             expression_plans: Default::default(),
-            comparison_sources: std::rc::Rc::new(borrowed_integer_comparison::sources_by_statement(input)),
+            comparison_sources: std::rc::Rc::new(comparisons),
             comparison_prefix_homes: Default::default(),
             source_value_class_facts,
         }

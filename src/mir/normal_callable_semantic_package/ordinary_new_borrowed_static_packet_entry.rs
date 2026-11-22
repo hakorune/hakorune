@@ -343,6 +343,35 @@ impl OrdinaryNewClaimLedgerV1 {
         self.borrowed_static_packet_actuals_with_observation_v1(original, None)
     }
 
+    /// Co-seal validates the original observation before registering any
+    /// route. Use the expression's retained observation for a nested call.
+    pub(super) fn preflight_static_input_packet_v1(
+        &self,
+        original: &Rc<StaticIncomingSourceV1>,
+    ) -> Result<(), String> {
+        let site = original.call_site();
+        if self.local_call_for_owner(site.owner(), site.site()).is_none() {
+            let mut seen = false;
+            self.visit_expression_evaluations_v1(site.owner(), &mut |evaluation| {
+                for call in evaluation.calls().iter().filter(|call| call.site() == site) {
+                    if seen {
+                        return Err(freeze("borrowed-static/expression-observation-drift"));
+                    }
+                    self.borrowed_static_packet_actuals_for_expression_v1(original, call)?
+                        .ok_or_else(|| freeze("borrowed-static/local-actuals-missing"))?;
+                    seen = true;
+                }
+                Ok(true)
+            })?;
+            if seen {
+                return Ok(());
+            }
+        }
+        self.borrowed_static_packet_actuals_v1(original)?
+            .ok_or_else(|| freeze("borrowed-static/local-actuals-missing"))?;
+        Ok(())
+    }
+
     /// Nested Static calls are retained by their checked expression frame,
     /// rather than by the statement-local call index. Reuse that exact
     /// observation to corroborate the original packet without manufacturing

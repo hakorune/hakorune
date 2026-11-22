@@ -70,10 +70,14 @@ impl PreparedBorrowedFormalIngressV1 {
         if site.owner() != input.owner() {
             return Err(freeze("borrowed-return/source-owner"));
         }
+        if let BorrowedViewUseRequestV1::TaggedStaticArgument { binding, formal } = request {
+            return self.proves_tagged_static_argument_use_v1(input, site, binding, formal);
+        }
         let Some(draft) = self.source_definition_for(input.owner()) else {
             return Ok(false);
         };
         match request {
+            BorrowedViewUseRequestV1::TaggedStaticArgument { .. } => Ok(false),
             BorrowedViewUseRequestV1::ArrayElementFieldIndexValue { call, index, binding, root } => {
                 Ok(draft.uses.iter().any(|row| &row.site == site
                     && draft.origins.get(&row.binding) == Some(&row.formal)
