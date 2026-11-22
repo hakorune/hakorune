@@ -36,6 +36,10 @@ use std::collections::{BTreeMap, BTreeSet};
 /// Exact source-use request; this port consults original evidence only.
 #[derive(Clone, Copy)]
 pub(crate) enum BorrowedViewUseRequestV1<'a> {
+    TaggedStaticArgument {
+        binding: BindingRefV1,
+        formal: BindingRefV1,
+    },
     FormalFieldWriteReceiver {
         target: &'a SourceExprSiteV1,
         binding: BindingRefV1,
@@ -526,7 +530,15 @@ pub(crate) fn scan_new_home_flow<E>(
         None => parameters.iter().filter(|(_, _, _, demand)| *demand == HomeDemandV1::Home)
             .map(|(_, binding, _, _)| LiveHomeV1::Stable(*binding)).collect(),
     };
-    let mut locals = PrefixLocalFlow::with_source_value_class_facts(input, source_value_class_facts);
+    let comparison_sources = local_flow::comparison_sources(input, &mut |read, binding, formal| {
+        view_use(
+            &OwnedExprSiteV1::new(input.owner(), read.clone()),
+            BorrowedViewUseRequestV1::TaggedStaticArgument { binding, formal },
+        )
+    })?;
+    let mut locals = PrefixLocalFlow::with_source_value_class_facts(
+        input, source_value_class_facts, comparison_sources,
+    );
     // A lent entry installs the loan's own verified receiver/parameter
     // bindings; without one the caller's declared parameter rows install.
     let installed = match entry_home {

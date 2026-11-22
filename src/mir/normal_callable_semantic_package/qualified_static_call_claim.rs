@@ -373,6 +373,16 @@ pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predic
             caller == key && claims.current_owner_i64_source(caller, site).is_some()
         })
     });
+    let requires_tagged_input = move |site: &crate::mir::resolved_semantics::OwnedExprSiteV1| {
+        match ingress {
+            Some(ingress) => ingress.has_tagged_static_source_call_v1(site).map_err(|issue| {
+                super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                    site: site.clone(), issue,
+                }
+            }),
+            None => Ok(false),
+        }
+    };
     let at_key = caller_key.clone();
     let claim_at = move |site: &crate::mir::resolved_semantics::OwnedExprSiteV1| {
         let claim = claim_for_source_site_v1(
@@ -383,29 +393,25 @@ pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predic
         else {
             return Ok(claim);
         };
-        if let Some(ingress) = ingress {
-            if input.body_shape().is_some_and(|shape|
-                shape.return_value_sites().any(|value| value == site.site()))
-                && ingress.has_tagged_static_source_call_v1(site).map_err(|issue| {
-                    super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
-                        site: site.clone(), issue,
-                    }
-                })?
-            {
-                return Ok(Some(StaticScalarCallClaimV1::qualified_terminal(
-                    site.clone(), qualified.clone(),
-                )));
-            }
+        if input.body_shape().is_some_and(|shape|
+            shape.return_value_sites().any(|value| value == site.site()))
+            && requires_tagged_input(site)?
+        {
+            return Ok(Some(StaticScalarCallClaimV1::qualified_terminal(
+                site.clone(), qualified.clone(),
+            )));
         }
         Ok(claim)
     };
-    let mut has_qualified_terminal_source = false;
+    let mut needs_static_source_walk = has_current_owner_i64_source;
     for (site, call) in input.function().method_calls() {
         let owned =
             crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), site.clone());
         let Some(claim) = claim_at(&owned)? else { continue; };
-        if claim.is_qualified_terminal() {
-            has_qualified_terminal_source = true;
+        // A checked tagged argument is a source evaluation demand at the
+        // exact call, independent of what consumes the result.
+        if claim.is_qualified_terminal() || requires_tagged_input(&owned)? {
+            needs_static_source_walk = true;
             continue;
         }
         if claim.qualified_claim().is_none()
@@ -426,7 +432,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predic
                     issue,
                 }
             })?;
-        has_qualified_terminal_source |= original.is_some_and(|row| {
+        needs_static_source_walk |= original.is_some_and(|row| {
             incoming_source::StaticIncomingSourceV1::exact_i64_input_result_v1(
                 &row.contract().parameters,
                 claim.result(),
@@ -434,7 +440,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predic
         });
     }
 
-    Ok((claim_at, has_current_owner_i64_source || has_qualified_terminal_source))
+    Ok((claim_at, needs_static_source_walk))
 }
 
 /// Issue the Home walk's exact site claim through a reusable source port.

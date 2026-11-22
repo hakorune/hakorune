@@ -135,8 +135,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     )
                 })?;
                 self.verify_original_static_packet_source_v1(original)?;
-                self.borrowed_static_packet_actuals_v1(original)?
-                    .ok_or_else(|| freeze("borrowed-static/local-actuals-missing"))?;
+                self.preflight_static_input_packet_v1(original)?;
                 return Ok(Some(Rc::clone(original)));
             }
             if self

@@ -27,7 +27,7 @@ pub(crate) struct BorrowedIntegerComparisonSourceV1 {
 }
 
 impl BorrowedIntegerComparisonSourceV1 {
-    pub(crate) fn at(
+    fn at(
         input: ResolvedFunctionLoweringInputV1<'_>,
         site: &SourceExprSiteV1,
     ) -> Option<Self> {
@@ -70,36 +70,6 @@ impl BorrowedIntegerComparisonSourceV1 {
             return None;
         }
 
-        let alias_of_formal = |site: &SourceExprSiteV1, binding| {
-            flow.read(site, binding).and_then(|value| {
-                flow.alias_entry_origin(value, |site| function.variable_ref(site))
-            }) == Some(formal)
-        };
-        let mut aliases = std::collections::BTreeSet::from([formal, binding]);
-        for (site, reference) in function.variable_refs() {
-            if let ResolvedLexicalRefV1::Local(binding) = *reference {
-                if alias_of_formal(site, binding) {
-                    aliases.insert(binding);
-                    let borrowed_use = expressions.binaries().any(|binary| {
-                        binary.operator().compare_op().is_some()
-                            && (binary.lhs() == site || binary.rhs() == site)
-                    }) || expressions.initializers().any(|row| {
-                        row.declared_type_name().is_none() && row.initializer_site() == Some(site)
-                    });
-                    if !borrowed_use {
-                        return None;
-                    }
-                }
-            }
-        }
-        let ledger = input.forest().callable_source_ledger(input.owner()).ok()?;
-        if aliases.iter().any(|binding| !ledger.uncaptured_binding(*binding))
-            || function.assignment_targets().any(|(_, target)| {
-                matches!(target, ResolvedAssignmentTargetV1::BindingRebind(binding) if aliases.contains(binding))
-            })
-        {
-            return None;
-        }
         let site = OwnedExprSiteV1::new(input.owner(), site.clone());
         let span = input.source().expr_at(&site).ok()?.node().span();
         Some(Self {
@@ -111,6 +81,43 @@ impl BorrowedIntegerComparisonSourceV1 {
             tagged_on_left,
             span: [span.start, span.end, span.line, span.column],
         })
+    }
+
+    fn has_read_only_uses<E>(
+        &self,
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        borrows_at: &mut impl FnMut(&SourceExprSiteV1, BindingRefV1, BindingRefV1) -> Result<bool, E>,
+    ) -> Result<bool, E> {
+        let function = input.function();
+        let expressions = function.expression_source();
+        let Some(flow) = expressions.value_flow() else { return Ok(false); };
+        let formal = self.formal;
+        let mut aliases = std::collections::BTreeSet::from([formal]);
+        for (site, reference) in function.variable_refs() {
+            let ResolvedLexicalRefV1::Local(binding) = *reference else { continue; };
+            if flow.read(site, binding).and_then(|value| {
+                flow.alias_entry_origin(value, |site| function.variable_ref(site))
+            }) != Some(formal) {
+                continue;
+            }
+            aliases.insert(binding);
+            let local_read = expressions.binaries().any(|binary| {
+                binary.operator().compare_op().is_some()
+                    && (binary.lhs() == site || binary.rhs() == site)
+            }) || expressions.initializers().any(|row| {
+                row.declared_type_name().is_none() && row.initializer_site() == Some(site)
+            });
+            if !local_read && !borrows_at(site, binding, formal)? {
+                return Ok(false);
+            }
+        }
+        let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else {
+            return Ok(false);
+        };
+        Ok(aliases.iter().all(|binding| ledger.uncaptured_binding(*binding))
+            && !function.assignment_targets().any(|(_, target)| {
+                matches!(target, ResolvedAssignmentTargetV1::BindingRebind(binding) if aliases.contains(binding))
+            }))
     }
 
     fn declared_parameter_type(
@@ -198,21 +205,25 @@ pub(in crate::mir) struct ComparisonPrefix {
 }
 pub(in crate::mir) type ComparisonPrefixHomes = BTreeMap<OwnedExprSiteV1, Option<ComparisonPrefix>>;
 
-pub(super) fn sources_by_statement(
+pub(super) fn sources_by_statement<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
-) -> SourcesByStatement {
+    borrows_at: &mut impl FnMut(&SourceExprSiteV1, BindingRefV1, BindingRefV1) -> Result<bool, E>,
+) -> Result<SourcesByStatement, E> {
     let function = input.function();
     if !function.declaration_sites().any(|site| matches!(site,
         super::SourceBindingSiteV1::Parameter { index }
             if BorrowedIntegerComparisonSourceV1::declared_parameter_type(input, *index) == Some(None)))
     {
-        return BTreeMap::new();
+        return Ok(BTreeMap::new());
     }
     let inventory = function.source_site_inventory();
     let expression = function.expression_source();
     let mut by_statement = SourcesByStatement::new();
     for binary in expression.binaries() {
         if let Some(source) = BorrowedIntegerComparisonSourceV1::at(input, binary.site()) {
+            if !source.has_read_only_uses(input, borrows_at)? {
+                continue;
+            }
             if let Some(statement) = inventory.containing_statement(binary.site()) {
                 by_statement
                     .entry(statement.clone())
@@ -256,7 +267,7 @@ pub(super) fn sources_by_statement(
                     })
             })
     });
-    by_statement
+    Ok(by_statement)
 }
 
 pub(super) fn record_prefix_homes(
