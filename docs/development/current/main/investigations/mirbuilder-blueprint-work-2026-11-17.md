@@ -153,7 +153,8 @@ compilerの動くcodeは変更していない。coverage CLIは前回の同じbi
 | TXE-1 | `text-expression-execution-pending` の止まり | 済(`4133382207`): 止まった式は `string_helpers.hako:10` の `me.int_to_str(0 - v)` の実引数(I64)。未注釈の formal 全体の SUM でなく、実引数の到達値から I64 を決める(本体 +25 行、重なっていた判定を 1 つに)。名簿は差 0。release-source の 2 本は次の `borrowed-static/core-source-identity: UnresolvedCaller` で止まり、8 行目は未達 |
 | UCR-1 | `core-source-identity: UnresolvedCaller` の止まり | 済(`60f641b02a`): `StringHelpers.index_of` の静的な呼び出しに、別の関数の値の受け手の `ctx.index_of` が名前と arity だけで混ざっていた。今ある静的な受け手の判定 `admits_static_receiver_v1` を、観測と候補の照合で共有(本体 +12 行)。名簿は結果の差 0。release-source の 2 本は次の `borrowed-static/forward-source-missing`(owner 1/29)で止まり、8 行目は未達 |
 | FSM-1 | `borrowed-static` の止まりを原因ごとに | 済(`b134d443d2`): 285 本を原因で 14 に分けた。直したのは、検査済みの引数なしの i64 呼び出し(26 本中 25 本)と、完成した Text の結果を受け手にする形(8 本)。名簿で拒否→成功 35 本(値は全部一致)、成功→拒否 0。単独 MIR dump で take の実引数がある物は、名前つきで断る(内部検証エラー 75 本→名前つきの拒否)。release-source は `i2s(i)` の `i` の SUM が閉じず同じ所で止まる |
-| UBD-2 以降 | `release_source` まで(決定 26 の順): 裸のブロックの scope の閉じ → 受け手の後始末 → `!= 1`。普通の呼び出しを通した Text の引数は、`finite-domain-unclosed` で止まる(`ordinary_new_borrowed_formal_entry_finite.rs:112`) | 次: release-source の `i2s(i)` の SUM(正規の EXE の道) |
+| SFW-1/1b/1c | 決定 27: 型の無い値を static の呼び出しへ tagged のまま運ぶ | 済(`5a32c90ce2`): 入口は 1 つ(loop 専用の選び方を消した)。呼び先の結果は呼び先の Return の証拠で決め、呼び手の値から決めない(検証で落ちていた 3 本は名前つきの拒否へ)。名簿の差 0。release-source は `StringHelpers.skip_ws(src,i)` の `required-integer-source-unproved` で止まる |
+| UBD-2 以降 | `release_source` まで(決定 26 の順): 裸のブロックの scope の閉じ → 受け手の後始末 → `!= 1`。普通の呼び出しを通した Text の引数は、`finite-domain-unclosed` で止まる(`ordinary_new_borrowed_formal_entry_finite.rs:112`) | 次: static の入力の入口(`*_input_finish.rs` 4 つ)の調べ、その後 `skip_ws` |
 
 - 道案内: `design/mirbuilder-route-guide.md`。
 - 確かめ方: 編集中は、変えた所を通る入力だけ。main に入れる前に 1 度、全入力の比較・全 lib・固定 suite。**到達の地図の取り直しは、毎回はしない**(道をまとめて消した回か、数回に 1 度)。
