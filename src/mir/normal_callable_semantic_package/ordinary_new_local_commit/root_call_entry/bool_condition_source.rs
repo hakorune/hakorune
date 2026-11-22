@@ -5,6 +5,27 @@ use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use crate::mir::resolved_semantics::{ResolvedLiteralSourceV1 as Literal, SourceExprSiteV1};
 use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
 
+pub(super) fn condition_call_packets(
+    nodes: &[BoolConditionNodeProjectionV1],
+) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
+    nodes.iter().flat_map(|node| {
+        match &node.proof {
+            BoolConditionValueProofV1::Call { packet, .. } => std::slice::from_ref(packet),
+            BoolConditionValueProofV1::ScalarInvocation { calls, .. } => calls.as_ref(),
+            _ => &[],
+        }.iter().map(Rc::as_ref)
+    })
+}
+
+pub(super) fn condition_dynamic_call_packets(
+    nodes: &[BoolConditionNodeProjectionV1],
+) -> impl Iterator<Item = &crate::mir::normal_callable_semantic_package::EmittedDynamicInvocationCallProjectionV1> {
+    nodes.iter().flat_map(|node| match &node.proof {
+        BoolConditionValueProofV1::ScalarInvocation { dynamic_calls, .. } => dynamic_calls.as_ref(),
+        _ => &[],
+    }).map(Rc::as_ref)
+}
+
 /// Borrow only indexed LoopHeader Phi writers reached through this condition's
 /// exact scalar source reads. Rebind/initializer reads keep their own emitted
 /// reference packets, so this walk follows source ownership instead of MIR
@@ -412,7 +433,7 @@ impl EmittedBoolConditionProjectionV1 {
                                 .comparison_plan_v1(node.node)
                                 .map_err(freeze)?
                                 .ok_or_else(|| freeze("bool-condition/operator-kind"))?
-                                .operator(),
+                                .mir_operator_v1(),
                         ),
                     };
                     let comparison = self
@@ -483,6 +504,7 @@ impl EmittedBoolConditionProjectionV1 {
                     BoolConditionValueProofV1::ScalarInvocation {
                         bindings,
                         input_values,
+                        calls,
                         dynamic_calls,
                         input_reads,
                         entry,
@@ -518,7 +540,7 @@ impl EmittedBoolConditionProjectionV1 {
                         .evaluation()
                         .scalar_invoke_input_order_v1(node.node)
                         .ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
-                    for input in inputs {
+                    for &input in &inputs {
                         if !observed_scalar_inputs.insert(input) {
                             return Err(freeze("bool-condition/text-leaf-duplicate"));
                         }
@@ -528,16 +550,20 @@ impl EmittedBoolConditionProjectionV1 {
                             return Err(freeze("bool-condition/reference-duplicate"));
                         }
                     }
-                    for packet in dynamic_calls.iter() {
-                        if !self
-                            .frame
-                            .calls()
-                            .iter()
-                            .any(|call| call == packet.source())
-                        {
-                            return Err(freeze("bool-condition/dynamic-call-source"));
+                    let mut scoped_calls = calls.iter().map(|packet| packet.call_site())
+                        .chain(dynamic_calls.iter().map(|packet| packet.source().site()))
+                        .collect::<std::collections::BTreeSet<_>>();
+                    if scoped_calls.len() != calls.len() + dynamic_calls.len() {
+                        return Err(freeze("bool-condition/scoped-call-duplicate"));
+                    }
+                    for input in inputs {
+                        let site = OwnedExprSiteV1::new(source.owner(), source.nodes()[input].site().clone());
+                        if let Some(site) = scoped_calls.take(&site) {
+                            observed_calls.push(site);
                         }
-                        observed_calls.push(packet.source().site());
+                    }
+                    if !scoped_calls.is_empty() {
+                        return Err(freeze("bool-condition/scoped-call-source"));
                     }
                     let projection = self.comparison_inputs_v1(node)?;
                     projection.validate_scalar_continuation_v1(
@@ -707,6 +733,20 @@ impl OrdinaryNewClaimLedgerV1 {
         self.visit_verified_condition_groups_v1(owner, context, function, projection, |packet| {
             let frame = packet.frame.evaluation();
             for node in packet.nodes.iter() {
+                if let BoolConditionValueProofV1::Binary { append, .. } = &node.proof {
+                    if matches!(append.1, MirInstruction::Compare {
+                        op: crate::mir::CompareOp::DynamicScalarEquality { .. }, ..
+                    }) {
+                        let operands = frame.comparison_plan_v1(node.node).map_err(freeze)?
+                            .and_then(|plan| plan.operands())
+                            .ok_or_else(|| freeze("bool-condition/operator-kind"))?;
+                        for (side, operand) in operands.into_iter().enumerate() {
+                            if let Some(Reference::DynamicEntry(original)) = frame.references().get(&operand) {
+                                visit(append, side, original.requirement().formal().1)?;
+                            }
+                        }
+                    }
+                }
                 let BoolConditionValueProofV1::ScalarInvocation {
                     input_values, input_reads, bindings, receiver, ..
                 } = &node.proof else { continue; };

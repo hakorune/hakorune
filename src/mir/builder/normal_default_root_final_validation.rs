@@ -104,11 +104,16 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
         let validate = move |module: &MirModule| {
             crate::mir::named_array_obligation::reject_unretained_module(module)?;
             let mut root_validation = self.root_validation;
-            // A checked borrowed Return needs the original actuals even when
-            // the caller only requests a diagnostic MIR. Use the same source
-            // seal as the document route before giving it to verification.
+            // Dynamic result materialization and tagged equality require the
+            // original actuals even for diagnostic MIR. Keep the same source
+            // seal as the document route before giving them to verification.
+            let tagged_equality = module.functions.values().any(|function| {
+                function.blocks.values().flat_map(|block| block.all_instructions()).any(
+                    |row| matches!(row, crate::mir::MirInstruction::Compare { op, .. } if op.reads_dynamic()),
+                )
+            });
             if matches!(&root_validation, RootValidation::OrdinaryNew { ledger, .. }
-                if ledger.requires_dynamic_result_handoff_v1())
+                if ledger.requires_dynamic_result_handoff_v1() || tagged_equality)
             {
                 let keys = finish_document_inputs(&mut root_validation, module, &self.construction)?;
                 return seal_root_handoff(root_validation, module, &keys, self.callables, self.construction);

@@ -291,55 +291,49 @@ fn me_object_field_read_publishes_object_get_and_null_compare() {
     });
 }
 
-/// Integer equality has its own original comparison proof. Null inequality
-/// and Bool siblings remain outside both admitted source envelopes.
+/// V4 publishes the source-selected scalar contract in either operand order.
+/// Null inequality stays refused and the older sibling equality keeps its
+/// independently verified original input receipts.
 #[test]
-fn non_null_equalities_stay_fail_closed_before_publication() {
+fn non_null_equalities_use_their_original_publication_contract() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        // `None`: an Integer comparison, published and executed once. `Some(stop)`:
-        // the exact refusal for the non-null equality.
-        for (suffix, prefix, condition, stop) in [
-            // Stopped before the source use completes, rather than at the artifact.
-            ("ne", "", "handle != null", Some("borrowed-entry/source-use-completion-pending")),
-            ("zero", "", "handle == 0", None),
-            // A Bool actual is stopped at the callee's exit coverage.
-            ("bool", "", "handle == false", Some("object-input/callee-exit")),
-            ("formal", "local q = handle ", "q == handle", None),
+        for (prefix, condition, contract, argument) in [
+            ("", "handle != null", None, "5"),
+            ("", "handle == 0", Some("dynamic_scalar_equality_lhs"), "5"),
+            ("", "false == handle", Some("dynamic_scalar_equality_rhs"), "true"),
+            ("local q = handle ", "q == handle", Some(""), "5"),
         ] {
             let text = format!(
                 "box Store {{ limit: i64 birth() {{ me.limit = 10 }} \
                  check(handle) {{ {prefix}if {condition} {{ return 7 }} return 3 }} }} \
-                 static box Main {{ main() {{ local s = new Store() return s.check(5) }} }}"
+                 static box Main {{ main() {{ local s = new Store() return s.check({argument}) }} }}"
             );
-            let integer = stop.is_none();
             let outcome = MirCompiler::with_options(false)
                 .compile_normal_with_published(request(&text), |view, verification| {
                     require_artifact_verification(verification);
-                    if integer {
-                        let handoff = view.retained_handoff.unwrap();
-                        let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
-                            hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method("Store", "check", 1));
-                        let owner = handoff.callables().unwrap().completed_result(&key).unwrap().owner();
-                        let mut count = 0;
-                        handoff.root_source().unwrap().with_borrowed_ordinary_compares_v1(
-                            owner, &view.module().functions["Store.check/1"], |loan, _, _| {
-                                assert_eq!(loan.operator(), crate::mir::CompareOp::Eq);
-                                count += 1;
-                                Ok(())
-                            })?;
-                        assert_eq!(count, 1, "original Integer source, not a null equality");
-                    }
-                    view.issue_lifecycle_physical_abi_input().map(|_| ())
+                    let input = view.issue_lifecycle_physical_abi_input()?;
+                    let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
+                    let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
+                    let function = json["functions"].as_array().unwrap().iter()
+                        .find(|f| f["name"] == "Store.check/1").unwrap();
+                    let rows: Vec<_> = function["blocks"].as_array().unwrap().iter()
+                        .flat_map(|block| block["instructions"].as_array().unwrap())
+                        .map(|row| &row["instruction"])
+                        .filter(|row| row["op"] == "compare" || row["op"] == "borrowed_null_compare")
+                        .collect();
+                    assert_eq!(rows.len(), 1, "{condition}: {wire}");
+                    assert_eq!(rows[0]["op"], "compare");
+                    assert_eq!(rows[0]["predicate"], "eq");
+                    assert_eq!(rows[0]["contract"].as_str(), contract.filter(|name| !name.is_empty()));
+                    Ok(())
                 });
-            if integer {
-                outcome.unwrap_or_else(|error| panic!("{suffix}: {error}"));
-                continue;
+            if contract.is_some() {
+                outcome.unwrap_or_else(|error| panic!("{condition}: {error}"));
+            } else {
+                let error = outcome.err().unwrap_or_else(|| panic!("{condition}: unexpectedly admitted"));
+                assert!(error.contains("borrowed-entry/source-use-completion-pending"), "{error}");
             }
-            let error = outcome.err()
-                .unwrap_or_else(|| panic!("{suffix}: unexpectedly admitted"));
-            let stop = stop.unwrap();
-            assert!(error.contains(stop), "{suffix}: expected {stop}: {error}");
         }
     });
 }

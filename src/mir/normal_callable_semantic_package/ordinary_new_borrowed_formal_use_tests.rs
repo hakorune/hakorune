@@ -296,21 +296,24 @@ fn null_compare_admits_direct_if_equal_with_null_sibling() {
     assert_eq!(aliased.origins[&compare.binding], compare.formal);
 }
 
-/// `!=`, non-null siblings, non-if positions and unproven origins stay
-/// outside the admitted null-equality profile.
+/// Null, checked Integer and tagged equality each require their own original
+/// operand use. Neither a different predicate nor a different source position
+/// may borrow the null-equality proof.
 #[test]
 fn null_compare_rejects_wrong_operator_sibling_and_position() {
-    for body in ["if p == 0 { return 1 } return 0",
-        "local q = p if p == q { return 1 } return 0"] {
-        let numeric = draft(body).unwrap();
-        assert!(numeric.uses.iter().any(|row| matches!(row.kind,
-            BorrowedFormalUseDraftKindV1::CompareOperand { .. })));
-        assert!(!numeric.uses.iter().any(|row| matches!(row.kind,
-            BorrowedFormalUseDraftKindV1::NullCompareOperand { .. })));
+    for body in ["if p == 0 { return 1 } return 0", "if p == false { return 1 } return 0"] {
+        let candidate = draft(body).unwrap();
+        assert!(matches!(candidate.uses.as_ref(), [row]
+            if matches!(row.kind, BorrowedFormalUseDraftKindV1::DynamicComparisonOperand { .. })));
     }
+    let siblings = draft("local q = p if p == q { return 1 } return 0").unwrap();
+    assert!(siblings.uses.iter().any(|row| matches!(row.kind,
+        BorrowedFormalUseDraftKindV1::CompareOperand { .. })));
+    assert!(!siblings.uses.iter().any(|row| matches!(row.kind,
+        BorrowedFormalUseDraftKindV1::NullCompareOperand { .. })));
+
     for body in [
         "if p != null { return 1 } return 0",
-        "if p == false { return 1 } return 0",
         "local b = p == null return 0",
     ] {
         assert!(

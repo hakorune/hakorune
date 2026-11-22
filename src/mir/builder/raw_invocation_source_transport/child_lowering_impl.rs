@@ -171,12 +171,13 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         else {
             return Ok(None);
         };
-        if !ledger.has_borrowed_compare_source_v1(owner) {
-            return Ok(None);
-        }
-        let node = self
-            .current_source_site_v1()
-            .ok_or_else(|| "[freeze:contract][borrowed-compare/source-site-missing]".to_owned())?;
+        let Some(node) = self.current_source_site_v1() else {
+            return if ledger.has_borrowed_compare_source_v1(owner) {
+                Err("[freeze:contract][borrowed-compare/source-site-missing]".to_owned())
+            } else {
+                Ok(None)
+            };
+        };
         let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
             owner,
             crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node),

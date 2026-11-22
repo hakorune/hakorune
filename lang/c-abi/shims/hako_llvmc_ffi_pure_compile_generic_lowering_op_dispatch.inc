@@ -395,6 +395,10 @@
           }
           #include "hako_llvmc_ffi_pure_compile_variant_dispatch.inc"
           if (strcmp(op, "compare")==0) {
+            if (yyjson_obj_get(ins, "contract")) {
+              note_pure_unsupported_shape(bid, ii, op, "comparison_requires_lifecycle_contract", NULL);
+              goto GEN_ABORT;
+            }
             const char* pred = read_str(ins, "cmp"); if (!pred) pred = read_str(ins, "operation");
             const char* p2 = NULL; if (pred){ if (!strcmp(pred,"Lt")||!strcmp(pred,"lt")||!strcmp(pred,"<")) p2="slt"; else if (!strcmp(pred,"Le")||!strcmp(pred,"le")||!strcmp(pred,"<=")) p2="sle"; else if (!strcmp(pred,"Eq")||!strcmp(pred,"eq")||!strcmp(pred,"==")) p2="eq"; else if (!strcmp(pred,"Ne")||!strcmp(pred,"ne")||!strcmp(pred,"!=")) p2="ne"; else if (!strcmp(pred,"Ge")||!strcmp(pred,"ge")||!strcmp(pred,">=")) p2="sge"; else if (!strcmp(pred,"Gt")||!strcmp(pred,"gt")||!strcmp(pred,">")) p2="sgt"; }
             if (!p2) {

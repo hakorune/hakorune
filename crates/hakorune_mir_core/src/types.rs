@@ -72,10 +72,20 @@ pub enum UnaryOp {
 pub enum CompareOp {
     Eq,
     Ne,
+    /// Equality of one borrowed Dynamic and one exact scalar. Lowering
+    /// preserves the language predicate and the separate operand contract.
+    DynamicScalarEquality { negated: bool, dynamic_left: bool },
     Lt,
     Le,
     Gt,
     Ge,
+}
+
+impl CompareOp {
+    /// A borrow observation must run while the original carrier is live.
+    pub const fn reads_dynamic(self) -> bool {
+        matches!(self, Self::DynamicScalarEquality { .. })
+    }
 }
 
 /// MIR type system

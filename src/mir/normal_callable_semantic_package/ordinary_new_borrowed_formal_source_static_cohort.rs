@@ -37,19 +37,27 @@ impl PreparedBorrowedFormalIngressV1 {
         })
     }
 
+    /// Numeric incoming transport is independently proved. Equality itself
+    /// grants no signed view to downstream uses on either branch.
+    pub(in crate::mir::normal_callable_semantic_package) fn static_compare_argument_i64_v1(&self, formal: BindingRefV1) -> bool {
+        self.checked_static_input(formal)
+            || self.lend_source_value_sum_v1(formal).is_some_and(|sum| sum.signed_only())
+    }
+
     /// Candidate source family only; executable entry still needs the whole
     /// original input cohort, signature, result and Completion.
     pub(in crate::mir::normal_callable_semantic_package) fn is_compare_only_static_input_v1(
         &self, owner: FunctionOwnerIdV1,
     ) -> bool {
+        use BorrowedFormalUseDraftKindV1 as Use;
         self.source_only_definitions.get(&owner).is_some_and(|draft| {
             draft.uses.iter().any(|row| matches!(row.kind,
-                BorrowedFormalUseDraftKindV1::CompareOperand { .. }))
+                Use::CompareOperand { .. } | Use::DynamicComparisonOperand { .. }))
                 && draft.uses.iter().all(|row| {
-                    matches!(row.kind, BorrowedFormalUseDraftKindV1::Copy { .. }
-                        | BorrowedFormalUseDraftKindV1::CompareOperand { .. })
+                    matches!(row.kind, Use::Copy { .. } | Use::CompareOperand { .. }
+                        | Use::DynamicComparisonOperand { .. })
                         && draft.origins.get(&row.binding) == Some(&row.formal)
-                        && self.checked_static_input(row.formal)
+                        && self.static_compare_argument_i64_v1(row.formal)
                 })
         })
     }

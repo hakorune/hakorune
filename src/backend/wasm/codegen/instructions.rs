@@ -224,6 +224,9 @@ impl WasmCodegen {
         rhs: ValueId,
     ) -> Result<Vec<String>, WasmError> {
         let wasm_op = match op {
+            CompareOp::DynamicScalarEquality { .. } => return Err(WasmError::UnsupportedInstruction(
+                "Dynamic scalar equality requires the lifecycle carrier ABI".to_owned(),
+            )),
             CompareOp::Eq => "i32.eq",
             CompareOp::Ne => "i32.ne",
             CompareOp::Lt => "i32.lt_s",

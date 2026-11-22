@@ -36,6 +36,7 @@ impl BorrowedIntegerComparisonSourceV1 {
         let expressions = function.expression_source();
         let binary = expressions.binary(site)?;
         let operator = binary.operator().compare_op()?;
+        if matches!(operator, CompareOp::Eq | CompareOp::Ne) { return None; }
         let family = comparison_operator_family_v1(binary.operator())?;
         let [left, right] = [binary.lhs(), binary.rhs()];
         let tagged_on_left = match (
@@ -143,26 +144,7 @@ impl BorrowedIntegerComparisonSourceV1 {
         input: ResolvedFunctionLoweringInputV1<'_>,
         site: &SourceExprSiteV1,
     ) -> bool {
-        let function = input.function();
-        let expressions = function.expression_source();
-        if matches!(
-            expressions.literal(site),
-            Some(ResolvedLiteralSourceV1::Integer(_))
-        ) || expressions.negative_integer_immediate(site).is_some()
-        {
-            return true;
-        }
-        let Some(ResolvedLexicalRefV1::Local(binding)) = function.variable_ref(site) else {
-            return false;
-        };
-        match function.binding(binding).map(|row| row.kind()) {
-            Some(BindingKindV1::Parameter { index }) => {
-                Self::declared_parameter_type(input, index).flatten() == Some("i64")
-            }
-            _ => expressions
-                .initializers()
-                .any(|row| row.binding() == binding && row.declared_type_name() == Some("i64")),
-        }
+        scalar_comparison_class_v1(input, site) == Some(DynamicOperatorValueClassV1::I64)
     }
 
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
@@ -192,6 +174,71 @@ impl BorrowedIntegerComparisonSourceV1 {
             column,
         }
     }
+}
+
+/// Exact scalar source evidence shared by comparison demand and ordered-formal admission.
+pub(crate) fn scalar_comparison_class_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &SourceExprSiteV1,
+) -> Option<DynamicOperatorValueClassV1> {
+    use DynamicOperatorValueClassV1::{Bool, I64};
+    let function = input.function();
+    let expressions = function.expression_source();
+    let literal_class = |site| match expressions.literal(site) {
+        Some(ResolvedLiteralSourceV1::Integer(_)) => Some(I64),
+        Some(ResolvedLiteralSourceV1::Bool(_)) => Some(Bool),
+        _ if expressions.negative_integer_immediate(site).is_some() => Some(I64),
+        _ => None,
+    };
+    if let Some(class) = literal_class(site) {
+        return Some(class);
+    }
+    let ResolvedLexicalRefV1::Local(binding) = function.variable_ref(site)? else {
+        return None;
+    };
+    let declared = match function.binding(binding)?.kind() {
+        BindingKindV1::Parameter { index } =>
+            BorrowedIntegerComparisonSourceV1::declared_parameter_type(input, index).flatten(),
+        _ => expressions.initializers().find(|row| row.binding() == binding)?.declared_type_name(),
+    };
+    match declared {
+        Some("i64") => Some(I64),
+        Some("Bool") => Some(Bool),
+        Some(_) => None,
+        None => {
+            let flow = expressions.value_flow()?;
+            let value = flow.read(site, binding)?;
+            let root = flow.alias_origin(value, |site| function.variable_ref(site))?;
+            let super::source_value_flow::SourceValueOriginV1::Expression(source) = flow.origin(root)? else {
+                return None;
+            };
+            literal_class(source)
+        }
+    }
+}
+
+pub(crate) fn dynamic_scalar_comparison_demand_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    read: &SourceExprSiteV1,
+    equality_only: bool,
+    scalar: impl FnOnce(&SourceExprSiteV1) -> Option<DynamicOperatorValueClassV1>,
+) -> bool {
+    use crate::mir::dynamic_operator_contract::DynamicOperatorFamilyV1::{Equal, NotEqual};
+    use DynamicOperatorValueClassV1::Dynamic;
+    use super::{SourceNodeSiteV1, SourcePathSegmentV1};
+    let Some((side, parent)) = read.node().segments().split_last() else { return false; };
+    if !matches!(side, SourcePathSegmentV1::Lhs | SourcePathSegmentV1::Rhs) { return false; }
+    let parent = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(parent.to_vec()));
+    let Some(binary) = input.function().expression_source().binary(&parent) else { return false; };
+    if binary.lhs() != read && binary.rhs() != read { return false; }
+    let Some(family) = comparison_operator_family_v1(binary.operator()) else { return false; };
+    if equality_only && !matches!(family, Equal | NotEqual) { return false; }
+    let domain = if binary.lhs() == read {
+        scalar(binary.rhs()).map(|class| DynamicOperatorDomainV1::new(family, Dynamic, class))
+    } else {
+        scalar(binary.lhs()).map(|class| DynamicOperatorDomainV1::new(family, class, Dynamic))
+    };
+    domain.is_some_and(|domain| issue_dynamic_operator_execution_envelope_v1(domain).is_ok())
 }
 
 type LiveHome = super::home_new_prefix::LiveHomeV1;

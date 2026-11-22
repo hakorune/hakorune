@@ -8,6 +8,7 @@ use std::rc::Rc;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ComparisonExecutionKindV1 {
     Scalar(super::super::super::SourceScalarKind),
+    DynamicScalarEquality { dynamic_left: bool },
     Null,
     Text,
     /// An opaque integer extraction needs the original carrier orientation;
@@ -41,6 +42,17 @@ impl ComparisonExecutionPlanV1 {
     pub(crate) fn operator(self) -> crate::mir::CompareOp {
         self.operator
     }
+    pub(crate) fn mir_operator_v1(self) -> crate::mir::CompareOp {
+        match self.kind {
+            ComparisonExecutionKindV1::DynamicScalarEquality { dynamic_left } =>
+                crate::mir::CompareOp::DynamicScalarEquality {
+                    negated: self.operator == crate::mir::CompareOp::Ne,
+                    dynamic_left,
+                },
+            _ => self.operator,
+        }
+    }
+
     pub(crate) fn operands(self) -> Option<[usize; 2]> {
         self.operands
     }
@@ -161,11 +173,24 @@ impl CheckedExpressionEvaluationV1 {
             }
             return Ok(plan(Kind::Null));
         }
-        let carrier_left = match (domain.left(), domain.right(), operator) {
-            (Class::Dynamic, Class::I64, crate::mir::CompareOp::Lt | crate::mir::CompareOp::Gt) => {
-                Some(true)
+        use crate::mir::CompareOp::{Eq, Ge, Gt, Le, Lt, Ne};
+        match (domain.left(), domain.right(), operator) {
+            (Class::Dynamic, Class::I64 | Class::Bool, Eq | Ne)
+            | (Class::I64 | Class::Bool, Class::Dynamic, Eq | Ne) => {
+                if envelope.fault() != Fault::MalformedCarrierBeforeResultNoOperandMutationNoRebind
+                    || envelope.suspension() != Suspension::NonSuspending
+                    || envelope.lifecycle().is_some()
+                    || operands.iter().any(|&node| self.transfers_node(node))
+                {
+                    return Err(error);
+                }
+                return Ok(plan(Kind::DynamicScalarEquality { dynamic_left: domain.left() == Class::Dynamic }));
             }
-            (Class::I64, Class::Dynamic, crate::mir::CompareOp::Lt) => Some(false),
+            _ => {}
+        }
+        let carrier_left = match (domain.left(), domain.right(), operator) {
+            (Class::Dynamic, Class::I64, Lt | Gt | Le | Ge) => Some(true),
+            (Class::I64, Class::Dynamic, Lt | Gt | Le | Ge) => Some(false),
             _ => None,
         };
         if let Some(carrier_left) = carrier_left {
@@ -250,7 +275,9 @@ impl CheckedExpressionEvaluationV1 {
                     && core.matches_plan(&self.source, node)
                     && core.scalar_read_result_class_v1().is_some()
             });
-        if !computed_scalar
+        let owns_comparison_input = matches!(plan.kind(), ComparisonExecutionKindV1::DynamicScalarEquality { .. })
+            && plan.operands()?.iter().any(|node| self.owned_result_nodes().contains(node));
+        if !computed_scalar && !owns_comparison_input
             && !matches!(plan.kind(), ComparisonExecutionKindV1::Text)
             && !(allow_dynamic_call
                 && matches!(
@@ -399,6 +426,12 @@ impl ComparisonExecutionPlanV1 {
             ComparisonExecutionKindV1::Null => Some(crate::mir::MirInstruction::NullCompare {
                 dst,
                 op: self.operator,
+                lhs,
+                rhs,
+            }),
+            ComparisonExecutionKindV1::DynamicScalarEquality { .. } => Some(crate::mir::MirInstruction::Compare {
+                dst,
+                op: self.mir_operator_v1(),
                 lhs,
                 rhs,
             }),

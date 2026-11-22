@@ -220,6 +220,9 @@ pub(super) fn lower_functions(functions: &[Value], module: &mut MirModule) -> Re
                             .and_then(Value::as_str)
                             .unwrap_or("==");
                         let cop = parse_compare(operation)?;
+                        if inst.get("contract").is_some() {
+                            return Err("compare contract requires published lifecycle V4".to_owned());
+                        }
                         block_ref.add_instruction(MirInstruction::Compare {
                             dst: ValueId::new(dst),
                             op: cop,

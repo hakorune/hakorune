@@ -1,6 +1,7 @@
 //! Original finite entry reads. Source proof only; current state is separate.
 use super::super::super::borrowed_formal_source::{SourceValueAlternativeV1, SourceValueSumV1};
 use super::*;
+use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1;
 use crate::mir::resolved_semantics::source_value_flow::{
@@ -182,6 +183,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_dynamic_entry_read_
     root: BindingRefV1,
 ) -> Result<Option<DynamicEntryReadV1>, String> {
     let reject = || freeze("borrowed-formal-entry/dynamic-source-identity");
+    use crate::mir::resolved_semantics::borrowed_integer_comparison::{
+        dynamic_scalar_comparison_demand_v1, scalar_comparison_class_v1,
+    };
+    let provider = prepared.dynamic_provider_owners.contains(&input.owner());
+    let scalar_equality = !provider && dynamic_scalar_comparison_demand_v1(input, read, true, |other| {
+        scalar_comparison_class_v1(input, other)
+    });
     let original_root = match plan.root() {
         ExpressionPlanRootV1::LocalInitializer { initializer, .. } => {
             initializer.initializer_site() == Some(site.site())
@@ -201,7 +209,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_dynamic_entry_read_
             call.site() == site.site() && original.as_ref() == plan.as_ref()
         }
         ExpressionPlanRootV1::IfCondition { statement, condition, .. } => {
-            if !prepared.dynamic_provider_owners.contains(&input.owner()) {
+            if !provider && !scalar_equality {
                 return Ok(None);
             }
             let original = crate::mir::resolved_value_profile::expression_plan::condition_expression_source_plan_v1(
@@ -228,10 +236,17 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_dynamic_entry_read_
     if flow.alias_entry_origin(value, |site| input.function().variable_ref(site)) != Some(root) {
         return Ok(None);
     }
-    if opaque_entry_contract_v1(contracts, input.owner(), root)
-        .map_err(|()| reject())?
-        .is_none()
-    {
+    let Some(contract) =
+        opaque_entry_contract_v1(contracts, input.owner(), root).map_err(|()| reject())?
+    else {
+        return Ok(None);
+    };
+    // An instance body can retain its source reads and exits before it has a
+    // caller. Static entry and an executable argument need an original ingress
+    // observation (or an independently selected Dynamic provider).
+    let requires_ingress = matches!(plan.root(), ExpressionPlanRootV1::CallArgument { .. })
+        || contract.mode == CallableParameterDeclarationModeV1::StaticBoxMethod;
+    if requires_ingress && !provider && !prepared.source_incoming.has_original_call_to_v1(input.owner()) {
         return Ok(None);
     }
     let original = prepared.original_formal_read_v1(input.owner(), read, binding, root)?;

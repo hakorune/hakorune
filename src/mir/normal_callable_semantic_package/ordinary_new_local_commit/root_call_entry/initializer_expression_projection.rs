@@ -373,14 +373,14 @@ impl ExpressionEmissionV1<InitializerExpressionContractV1> {
         )?;
         Ok(packet)
     }
-    /// Lend original tagged inputs of source-checked String Add operations.
+    /// Lend original tagged inputs of source-checked operations.
     /// The caller first validates this SAME packet and its finished group.
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn visit_tagged_text_operands_v1(
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn visit_tagged_read_operands_v1(
         &self,
         context: CallValidationContextV1<'_>,
         function: &MirFunction,
         finishing: &super::super::physical_boundary::FinishedBindings,
-        mut visit: impl FnMut(&Binding, usize, BindingRefV1, ValueId) -> Result<(), String>,
+        mut visit: impl FnMut(&Binding, usize, BindingRefV1) -> Result<(), String>,
     ) -> Result<(), String> {
         use crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1 as Normal;
         use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1 as Reference;
@@ -399,6 +399,25 @@ impl ExpressionEmissionV1<InitializerExpressionContractV1> {
             else {
                 continue;
             };
+            if let Some(plan) = frame.comparison_plan_v1(index).map_err(freeze)? {
+                if let crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionKindV1::DynamicScalarEquality { dynamic_left } = plan.kind() {
+                    let side = usize::from(!dynamic_left);
+                    let operands = plan.operands().ok_or_else(|| freeze("expression/comparison-operands"))?;
+                    if let Some(Reference::DynamicEntry(read)) = frame.references().get(&operands[side]) {
+                        let Some(EvaluatedExpressionValueV1::Bool(result)) =
+                            self.values.get(index).and_then(Option::as_ref)
+                        else {
+                            return Err(freeze("expression/comparison-result"));
+                        };
+                        let comparison = expression.require_unique(|row| matches!(row,
+                            MirInstruction::Compare { dst, op: crate::mir::CompareOp::DynamicScalarEquality { .. }, .. }
+                                if dst == result
+                        ))?;
+                        visit(comparison, side, read.requirement().formal().1)?;
+                    }
+                    continue;
+                }
+            }
             if binary.operator() != crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Add
                 || loan.normal_result_v1() != Some(Normal::OwnedStringValue)
             {
@@ -458,7 +477,7 @@ impl ExpressionEmissionV1<InitializerExpressionContractV1> {
                 if read.operand(frame, node, context)? != Operand::Dynamic(*value) {
                     return Err(freeze("expression/reference-source-value"));
                 }
-                visit(invoke, side, formal, *value)?;
+                visit(invoke, side, formal)?;
             }
         }
         Ok(())

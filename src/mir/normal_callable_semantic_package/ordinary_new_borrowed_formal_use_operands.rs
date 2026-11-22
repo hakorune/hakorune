@@ -72,6 +72,14 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     } else {
         binary.lhs()
     };
+    use crate::mir::resolved_semantics::borrowed_integer_comparison::{
+        dynamic_scalar_comparison_demand_v1, scalar_comparison_class_v1,
+    };
+    if dynamic_scalar_comparison_demand_v1(input, site, true, |other| {
+        scalar_comparison_class_v1(input, other)
+    }) {
+        return Ok(None);
+    }
     let integer_call = if normal_integer_operand(input, origins, constructors, receiver, other)? {
         None
     } else {

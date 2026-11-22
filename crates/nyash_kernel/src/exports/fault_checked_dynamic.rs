@@ -180,6 +180,45 @@ pub unsafe extern "C" fn array_get(
     }
 }
 
+/// Return 0/1 for one Dynamic/scalar equality and 2 for malformed transport.
+#[export_name = "nyash.dynamic.scalar_equal_v1"]
+pub unsafe extern "C" fn scalar_equal(
+    program: *const super::checked_program_dispatch::DispatchProgramV1,
+    left_kind: u32, left_tag: u32, left_payload: u64,
+    right_kind: u32, right_tag: u32, right_payload: u64,
+) -> u32 {
+    use invocation::DynamicEqualityScalarV1 as Scalar;
+    let invalid = Status::InvalidContract as u32;
+    let left_dynamic = matches!(left_kind, TAGGED | CARRIER);
+    let right_dynamic = matches!(right_kind, TAGGED | CARRIER);
+    if left_dynamic == right_dynamic { return invalid; }
+
+    let read = |kind, tag, payload| {
+        if kind == TAGGED && tag == BORROWED_TEXT_TAG {
+            unsafe { super::checked_string::validate_text_operand(payload as *const _) }?;
+            return Ok(None);
+        }
+        if kind == TAGGED && tag == super::checked_program_dispatch::TYPED_STORE_BORROW {
+            let stamp = std::num::NonZeroUsize::new(program.addr()).ok_or(Status::InvalidContract)?;
+            crate::exports::typed_object_store_backend::pin_dispatch_receiver(payload as i64, stamp)
+                .ok_or(Status::InvalidContract)?;
+            return Ok(None);
+        }
+        match unsafe { decode(&Operand { kind, tag, payload }) }? {
+            DynamicInvocationValueV1::Integer(value) => Ok(Some(Scalar::Integer(value))),
+            DynamicInvocationValueV1::Bool(value) => Ok(Some(Scalar::Bool(value))),
+            DynamicInvocationValueV1::Carrier(token) => token.scalar_equality_operand_v1()
+                .map_err(|_| Status::InvalidContract),
+            _ => Ok(None),
+        }
+    };
+
+    match (read(left_kind, left_tag, left_payload), read(right_kind, right_tag, right_payload)) {
+        (Ok(left), Ok(right)) => u32::from(left == right),
+        _ => invalid,
+    }
+}
+
 /// Borrow an opaque carrier as an integer for a separately admitted Dynamic
 /// operator. A non-integer payload records TypeError and leaves `out`
 /// untouched; this read does not consume the carrier.
@@ -206,7 +245,9 @@ pub unsafe extern "C" fn integer_payload(
             unsafe { out.write(value) };
             Status::Normal as u32
         }
-        Err(failure) => record_failure(frame, site, failure),
+        Err(DynamicInvocationFailureV1::ArgumentTypeMismatch) =>
+            super::checked_string::comparison_type_error(frame, site),
+        Err(_) => Status::InvalidContract as u32,
     }
 }
 
@@ -402,6 +443,24 @@ pub(super) unsafe fn end_array_slot(
 mod tests {
     use super::*;
     use super::super::checked_string::{self as text, Operand as TextOperand, OwnedText};
+
+    #[test]
+    fn scalar_equality_borrows_exactly_typed_values_and_refuses_stale_tokens() {
+        let mut frame = FaultFrame::new();
+        let storage = (&mut frame as *mut FaultFrame).cast();
+        let mut token = 0;
+        let program = std::ptr::null();
+        unsafe {
+            assert_eq!(materialize_borrowed(storage, 7, 2, 1, &mut token), 0);
+            assert_eq!(scalar_equal(program, TAGGED, 2, 1, INTEGER, 0, 1), 0);
+            assert_eq!(scalar_equal(program, CARRIER, 0, token, INTEGER, 0, 1), 0);
+            assert_eq!(scalar_equal(program, BOOL, 0, 1, CARRIER, 0, token), 1);
+            assert_eq!(scalar_equal(program, TAGGED, 2, 2, BOOL, 0, 1), 2);
+            assert_eq!(scalar_equal(program, TAGGED, u32::MAX, 0, INTEGER, 0, 0), 2);
+            assert_eq!(end(storage, 8, token), 0);
+            assert_eq!(scalar_equal(program, CARRIER, 0, token, BOOL, 0, 1), 2);
+        }
+    }
 
     #[test]
     fn borrowed_result_owns_exact_tag_and_text_after_source_end() {

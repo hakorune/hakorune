@@ -5,7 +5,7 @@ use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1;
 
 #[test]
 fn checked_compare_source_keeps_ordered_literal_child_and_alias() {
-    for (operator, expected) in [("==", ResolvedBinaryOperatorV1::Equal), ("!=", ResolvedBinaryOperatorV1::NotEqual), ("<", ResolvedBinaryOperatorV1::Less), (">", ResolvedBinaryOperatorV1::Greater), ("<=", ResolvedBinaryOperatorV1::LessEqual), (">=", ResolvedBinaryOperatorV1::GreaterEqual)] {
+    for (operator, expected) in [("<", ResolvedBinaryOperatorV1::Less), (">", ResolvedBinaryOperatorV1::Greater), ("<=", ResolvedBinaryOperatorV1::LessEqual), (">=", ResolvedBinaryOperatorV1::GreaterEqual)] {
         for (body, literal_on_left) in [
             ("if p > 5 { return 1 } return 0", false),
             ("if 5 > p { return 1 } return 0", true),

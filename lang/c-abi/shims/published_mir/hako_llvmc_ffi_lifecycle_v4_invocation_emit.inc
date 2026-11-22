@@ -30,6 +30,7 @@ static void lv4_invocation_declarations(FILE* f) {
       "declare i32 @\"nyash.dynamic.checked_sub_i64_v1\"(ptr, i64, i64, i64, ptr)\n"
       "declare i32 @\"nyash.dynamic.checked_publish_text_or_null_v1\"(ptr, i64, i64, i64, ptr)\n"
       "declare i32 @\"nyash.dynamic.checked_is_null_v1\"(ptr, i64, i64, ptr)\n"
+      "declare i32 @\"nyash.dynamic.scalar_equal_v1\"(ptr, i32, i32, i64, i32, i32, i64)\n"
       "declare i32 @\"nyash.dynamic.checked_end_v1\"(ptr, i64, i64)\n");
 }
 
@@ -88,6 +89,42 @@ static int lv4_invocation_operand_emit(FILE* f, yyjson_val* operand,
       "  store %%nyrt.dynamic.operand %%dyn%u_%zu_v, ptr %s, align 8\n",
       block, ordinal, kind, block, ordinal, block, ordinal, tag,
       block, ordinal, block, ordinal, payload, block, ordinal, destination);
+  return !ferror(f);
+}
+
+static int lv4_equality_operand_emit(FILE* f, hako_lv4_value* value, int dynamic) {
+  uint32_t id = value->id;
+  if (dynamic && value->kind != LV4_DYNAMIC_CARRIER) {
+    fprintf(f, ", i32 1, i32 %%k%u, i64 %%v%u", id, id);
+    return 1;
+  }
+  int kind = value->kind == LV4_I64 ? 2 : value->kind == LV4_BOOL ? 3
+      : value->kind == LV4_DYNAMIC_CARRIER ? 4 : 0;
+  if (!kind) return 0;
+  fprintf(f, ", i32 %d, i32 0, i64 %%v%u", kind, id);
+  return 1;
+}
+
+static int lv4_equality_emit(FILE* f, const hako_lv4_input* in, size_t fi, yyjson_val* ins) {
+  if (in->native) return 0;
+  uint32_t dst = lv4_u(ins, "dst");
+  fprintf(f, "  %%eq%u = call i32 @\"nyash.dynamic.scalar_equal_v1\"(ptr %s",
+      dst, in->dispatch ? "@dispatch_program" : "null");
+  hako_lv4_function_index* fn = &in->index[fi];
+  hako_lv4_value* lhs = lv4_index_value(fn, lv4_u(ins, "lhs"));
+  hako_lv4_value* rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
+  int side = hako_physical_equality_dynamic_side(ins);
+  if (side < 0 || !lhs || !rhs || !lv4_equality_operand_emit(f, lhs, side == 0) ||
+      !lv4_equality_operand_emit(f, rhs, side == 1)) return 0;
+  fprintf(f, ")\n  %%eq_valid%u = icmp ult i32 %%eq%u, 2\n"
+      "  br i1 %%eq_valid%u, label %%eq_ok%u, label %%invalid\neq_ok%u:\n",
+      dst, dst, dst, dst, dst);
+  if (lv4_is(ins, "predicate", "ne")) {
+    fprintf(f, "  %%ne%u = xor i32 %%eq%u, 1\n  %%v%u = zext i32 %%ne%u to i64\n",
+        dst, dst, dst, dst);
+  } else {
+    fprintf(f, "  %%v%u = zext i32 %%eq%u to i64\n", dst, dst);
+  }
   return !ferror(f);
 }
 

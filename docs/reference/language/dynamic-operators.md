@@ -149,6 +149,18 @@ this contract. The checked Integer view keeps TypeError and MaySuspend.
 | Checked NormalInteger/NormalInteger | all six | TypeError before result | MaySuspend |
 | Admitted borrowed Dynamic/null guard | Eq only | none; malformed transport is InvalidContract | NonSuspending |
 
+## Dynamic equality with an exact scalar
+
+Decision 30 admits `==` and `!=` between Dynamic and exact I64 or Bool,
+in either operand order. Both operands evaluate once, from left to right.
+A borrowed formal keeps its tag and payload. An owned return carrier stays
+live under the holder's existing End obligation. They use the same equality
+law from [types.md §4.3](types.md). Bool and I64 retain distinct kinds,
+and a malformed transport or expired token fails the contract before producing
+a Bool. Equality establishes no Integer refinement. The published `compare`
+row carries one `contract` item naming Dynamic scalar equality and its
+borrowed operand (`dynamic_scalar_equality_lhs` or `dynamic_scalar_equality_rhs`).
+
 ## Mixed Dynamic and String comparisons
 
 The `types.md` comparison table also covers a tagged Dynamic value compared

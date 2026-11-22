@@ -193,7 +193,8 @@ pub(super) fn checked_ready_scalar_rows_v1<'a>(
         .any(|row| row.is_current_owner_i64_source_v1())
         && !cohort.iter().all(|row| {
             (source.is_static_terminal_source_v1(row) || compare_only)
-                && source.checked_static_input(row.parameters()[0].binding)
+                && (source.checked_static_input(row.parameters()[0].binding)
+                    || compare_only && source.static_compare_argument_i64_v1(row.parameters()[0].binding))
                 && matches!(pending.get(row.call_site()), Some(Ok(actual))
                     if actual.numeric_static_finish_v1().is_some_and(|(_, evidence)| matches!(evidence,
                         StaticScalarActualV1::QualifiedLiteral(_) | StaticScalarActualV1::QualifiedExecutable(_))))

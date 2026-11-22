@@ -315,35 +315,45 @@ impl FinalizedRootSourceHandoffV1 {
         })
     }
 
-    /// Original tagged String operands remain tied to their operation and side.
-    pub(in crate::mir) fn with_finished_tagged_text_operands_v1(
+    /// Original tagged operands remain tied to their selected operation and side.
+    pub(in crate::mir) fn with_finished_tagged_read_operands_v1(
         &self, owner: FunctionOwnerIdV1, function: &MirFunction,
         mut visit: impl FnMut(BindingRefV1, ValueId, usize, (BasicBlockId, usize)) -> Result<(), String>,
     ) -> Result<(), String> {
         self.ledger.with_finished_projection(owner, |symbol, projection| {
             if symbol != function.signature.name { return Err(freeze("finished-copy/owner")); }
             let context = CallValidationContextV1::Finalized(self);
+            let mut project_operand = |original: &(BasicBlockId, MirInstruction), side: usize, formal| {
+                let finished = if original.1.dst_value().is_some() {
+                    projection.relation_binding(function, original)?
+                        .ok_or_else(|| freeze("bool-condition/finished-compare"))?
+                } else {
+                    projection.required_effect_binding(function, original)?
+                };
+                let value = match &finished.1 {
+                    MirInstruction::Compare {
+                        op: crate::mir::CompareOp::DynamicScalarEquality { .. }, lhs, rhs, ..
+                    } => [*lhs, *rhs].get(side).copied(),
+                    MirInstruction::Invoke { operation: InvokeOperation::String(operation), .. } =>
+                        match operation.operands().into_iter().nth(side) {
+                            Some(crate::mir::instruction::StringInvokeOperand::Dynamic(value)) => Some(*value),
+                            _ => None,
+                        },
+                    _ => None,
+                }.ok_or_else(|| freeze("bool-condition/finished-compare"))?;
+                let coordinate = super::finalized_source_projection::find_finished_producer(symbol, &finished, function)?;
+                visit(formal, value, side, coordinate)
+            };
             self.ledger.visit_finished_tagged_condition_operands_v1(
-                owner, context, function, projection, |original, side, formal| {
-                    let finished = projection.required_effect_binding(function, original)?;
-                    let MirInstruction::Invoke { operation: InvokeOperation::String(operation), .. } = &finished.1
-                    else { return Err(freeze("bool-condition/finished-compare")); };
-                    let operands = operation.operands();
-                    let Some(crate::mir::instruction::StringInvokeOperand::Dynamic(value)) = operands.get(side)
-                        else { return Err(freeze("bool-condition/finished-compare")); };
-                    let coordinate = super::finalized_source_projection::find_finished_producer(symbol, &finished, function)?;
-                    visit(formal, *value, side, coordinate)
-                },
+                owner, context, function, projection, &mut project_operand,
             )?;
             context.with_local_call_group_tree_v2(owner, |groups| {
                 for group in groups {
                     let Some(packet) = group.initializer() else { continue; };
                     group.validate_recorded_in_context(context, function, Some(projection))?;
-                    packet.visit_tagged_text_operands_v1(context, function, projection, |original, side, formal, value| {
-                        let finished = projection.required_effect_binding(function, original)?;
-                        let coordinate = super::finalized_source_projection::find_finished_producer(symbol, &finished, function)?;
-                        visit(formal, value, side, coordinate)
-                    })?;
+                    packet.visit_tagged_read_operands_v1(
+                        context, function, projection, &mut project_operand,
+                    )?;
                 }
                 Ok(())
             })

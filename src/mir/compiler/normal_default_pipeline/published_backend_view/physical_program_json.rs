@@ -303,13 +303,23 @@ fn encode_instruction(
             let predicate = match op {
                 crate::mir::CompareOp::Eq => "eq",
                 crate::mir::CompareOp::Ne => "ne",
+                crate::mir::CompareOp::DynamicScalarEquality { negated, .. } =>
+                    if *negated { "ne" } else { "eq" },
                 crate::mir::CompareOp::Lt => "slt",
                 crate::mir::CompareOp::Le => "sle",
                 crate::mir::CompareOp::Gt => "sgt",
                 crate::mir::CompareOp::Ge => "sge",
             };
-            json!({ "op": "compare", "dst": value(dst), "lhs": value(lhs),
-                "rhs": value(rhs), "predicate": predicate })
+            let mut row = json!({ "op": "compare", "dst": value(dst), "lhs": value(lhs),
+                "rhs": value(rhs), "predicate": predicate });
+            if let crate::mir::CompareOp::DynamicScalarEquality { dynamic_left, .. } = op {
+                row["contract"] = json!(if *dynamic_left {
+                    "dynamic_scalar_equality_lhs"
+                } else {
+                    "dynamic_scalar_equality_rhs"
+                });
+            }
+            row
         }
         MirInstruction::NullCompare { dst, op, lhs, rhs } => {
             let predicate = match op {
@@ -433,7 +443,7 @@ fn encode_instruction(
             right,
         } => {
             json!({"op":"string_compare", "dst":value(dst),
-                "comparison":operation::encode_text_comparison_v1(*op), "left":left, "right":right})
+                "comparison":operation::encode_text_comparison_v1(*op)?, "left":left, "right":right})
         }
         MirInstruction::StringResidenceInstall {
             value: installed,

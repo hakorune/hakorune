@@ -170,10 +170,17 @@ pub(crate) fn emit_compare(
         CompareOp::Le => "<=",
         CompareOp::Gt => ">",
         CompareOp::Lt => "<",
-        CompareOp::Eq => "==",
-        CompareOp::Ne => "!=",
+        CompareOp::Eq | CompareOp::DynamicScalarEquality { negated: false, .. } => "==",
+        CompareOp::Ne | CompareOp::DynamicScalarEquality { negated: true, .. } => "!=",
     };
     let mut obj = json!({"op":"compare","operation": op_s, "lhs": lhs.as_u32(), "rhs": rhs.as_u32(), "dst": dst.as_u32()});
+    if let CompareOp::DynamicScalarEquality { dynamic_left, .. } = op {
+        obj["contract"] = json!(if *dynamic_left {
+            "dynamic_scalar_equality_lhs"
+        } else {
+            "dynamic_scalar_equality_rhs"
+        });
+    }
     // cmp_kind hint for string equality
     if matches!(op, CompareOp::Eq | CompareOp::Ne) {
         let lhs_ty = value_types.get(lhs);

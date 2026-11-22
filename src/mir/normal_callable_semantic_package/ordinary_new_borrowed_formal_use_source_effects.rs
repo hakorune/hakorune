@@ -127,7 +127,15 @@ pub(super) fn dynamic_comparison_use_v1(
     site: &SourceExprSiteV1,
     context: Option<&BorrowedFormalSourceUseContextV1<'_>>,
 ) -> Option<BorrowedFormalUseDraftKindV1> {
-    if !context.is_some_and(|context| context.dynamic_provider) { return None; }
+    use crate::mir::resolved_semantics::borrowed_integer_comparison::{
+        dynamic_scalar_comparison_demand_v1, scalar_comparison_class_v1,
+    };
+    if !context.is_some_and(|context| context.dynamic_provider)
+        && !dynamic_scalar_comparison_demand_v1(input, site, true, |other| {
+            scalar_comparison_class_v1(input, other)
+        }) {
+        return None;
+    }
     let mut comparisons = input.function().expression_source().binaries().filter(|binary| {
         binary.operator().compare_op().is_some() && (binary.lhs() == site || binary.rhs() == site)
     });

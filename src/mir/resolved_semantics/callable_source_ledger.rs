@@ -236,6 +236,10 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         self.function.expression_source().literal(site)
     }
 
+    pub(crate) fn negative_integer_immediate(&self, site: &SourceExprSiteV1) -> Option<i64> {
+        self.function.expression_source().negative_integer_immediate(site)
+    }
+
     /// Borrows named-construction syntax without selecting a constructor.
     pub(crate) fn construction_source(
         &self,

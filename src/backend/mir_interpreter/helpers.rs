@@ -463,8 +463,8 @@ impl MirInterpreter {
             );
             let (an, bn) = (Self::tag_nullish(&a2), Self::tag_nullish(&b2));
             let op_s = match op {
-                CompareOp::Eq => "Eq",
-                CompareOp::Ne => "Ne",
+                CompareOp::Eq | CompareOp::DynamicScalarEquality { negated: false, .. } => "Eq",
+                CompareOp::Ne | CompareOp::DynamicScalarEquality { negated: true, .. } => "Ne",
                 CompareOp::Lt => "Lt",
                 CompareOp::Le => "Le",
                 CompareOp::Gt => "Gt",
@@ -473,8 +473,8 @@ impl MirInterpreter {
             crate::runtime::get_global_ring0().log.debug(&format!("{{\"ev\":\"cmp\",\"op\":\"{}\",\"a_k\":\"{}\",\"b_k\":\"{}\",\"a_n\":\"{}\",\"b_n\":\"{}\"}}", op_s, ak, bk, an, bn));
         }
         let result = match (op, &a3, &b3) {
-            (Eq, _, _) => eq_vm(&a2, &b2),
-            (Ne, _, _) => !eq_vm(&a2, &b2),
+            (Eq | CompareOp::DynamicScalarEquality { negated: false, .. }, _, _) => eq_vm(&a2, &b2),
+            (Ne | CompareOp::DynamicScalarEquality { negated: true, .. }, _, _) => !eq_vm(&a2, &b2),
             (Lt, Integer(x), Integer(y)) => x < y,
             (Le, Integer(x), Integer(y)) => x <= y,
             (Gt, Integer(x), Integer(y)) => x > y,

@@ -62,10 +62,56 @@ fn direct_null(function: &super::FunctionVerificationGeometry<'_>, value: ValueI
         ))
     )
 }
+pub(super) fn is_carrier_observation(row: &MirInstruction) -> bool {
+    matches!(row, MirInstruction::NullCompare { .. } | MirInstruction::Compare {
+        op: crate::mir::CompareOp::DynamicScalarEquality { .. }, ..
+    })
+}
+
+fn dynamic_equality_carrier(
+    function: &super::FunctionVerificationGeometry<'_>,
+    dynamic: ValueId,
+    scalar: ValueId,
+) -> Result<ValueId, &'static str> {
+    use crate::mir::value_origin::ValueOriginQueryContext;
+    let mut origins = ValueOriginQueryContext::new(function, function.definitions());
+    let mut kinds = |value| {
+        let root = origins.origin(value);
+        if let Some(index) = function.params.iter().position(|formal| *formal == root) {
+            let ty = function.signature.params.get(index);
+            return (matches!(ty, Some(MirType::Unknown)), matches!(ty, Some(MirType::Integer | MirType::Bool)));
+        }
+        let Some((_, row)) = definition(function, root) else { return (false, false); };
+        if let MirInstruction::InvokeNormalResult { invoke_block, .. } = row {
+            let result = function.blocks.get(invoke_block)
+                .and_then(|block| block.terminator.as_ref())
+                .and_then(|term| match term {
+                    MirInstruction::Invoke { operation, .. } => operation.normal_result_kind(),
+                    _ => None,
+                });
+            use crate::mir::instruction::InvokeNormalResultKind as Kind;
+            return (result == Some(Kind::DynamicCarrier), matches!(result, Some(Kind::I64 | Kind::Bool)));
+        }
+        (false, matches!(function.metadata.value_types.get(&root), Some(MirType::Integer | MirType::Bool))
+            || matches!(row, MirInstruction::Const { value: ConstValue::Integer(_) | ConstValue::Bool(_), .. }
+                | MirInstruction::Compare { .. } | MirInstruction::NullCompare { .. }))
+    };
+    match (kinds(dynamic), kinds(scalar)) {
+        ((true, false), (false, true)) => Ok(dynamic),
+        _ => Err("dynamic-scalar-equality/operand-kind"),
+    }
+}
+
 fn carrier(
     function: &super::FunctionVerificationGeometry<'_>,
     row: &MirInstruction,
 ) -> Result<ValueId, &'static str> {
+    if let MirInstruction::Compare {
+        op: crate::mir::CompareOp::DynamicScalarEquality { dynamic_left, .. }, lhs, rhs, ..
+    } = row {
+        let (dynamic, scalar) = if *dynamic_left { (*lhs, *rhs) } else { (*rhs, *lhs) };
+        return dynamic_equality_carrier(function, dynamic, scalar);
+    }
     let MirInstruction::NullCompare { op, lhs, rhs, .. } = row else {
         unreachable!()
     };
@@ -290,7 +336,7 @@ pub(super) fn check(function: &MirFunction) -> Result<(), Failure> {
     if !function.blocks.values().any(|block| {
         block
             .all_instructions()
-            .any(|row| matches!(row, MirInstruction::NullCompare { .. }))
+            .any(is_carrier_observation)
     }) {
         return Ok(());
     }
@@ -312,8 +358,11 @@ pub(super) fn check_with_geometry(
     let mut completed = BTreeMap::new();
     for (id, block) in &function.blocks {
         for row in block.all_instructions() {
-            let MirInstruction::NullCompare { dst, lhs, rhs, .. } = row else {
-                continue;
+            if !is_carrier_observation(row) { continue; }
+            let (dst, lhs, rhs) = match row {
+                MirInstruction::NullCompare { dst, lhs, rhs, .. }
+                | MirInstruction::Compare { dst, lhs, rhs, .. } => (dst, lhs, rhs),
+                _ => unreachable!(),
             };
             let value = carrier(function, row).map_err(|why| (*id, why))?;
             if block
@@ -350,7 +399,7 @@ pub(super) fn check_with_geometry(
         }
         if block
             .all_instructions()
-            .any(|row| matches!(row, MirInstruction::NullCompare { .. }))
+            .any(is_carrier_observation)
         {
             reaches_observation.insert(*id);
             reverse_pending.push_back(*id);
@@ -371,7 +420,7 @@ pub(super) fn check_with_geometry(
         let Some((_, row)) = definition(function, *value) else {
             continue;
         };
-        if matches!(row, MirInstruction::NullCompare { .. }) {
+        if is_carrier_observation(row) {
             values.insert(carrier(function, row).map_err(|why| (function.entry_block, why))?);
         }
         if let Some(dst) = row.dst_value() {
@@ -433,7 +482,7 @@ pub(super) fn check_with_geometry(
                     ),
                 }
             }
-            if matches!(row, MirInstruction::NullCompare { .. }) {
+            if is_carrier_observation(row) {
                 let value = carrier(function, row).map_err(|why| (id, why))?;
                 if faulted || live.bad.contains(&value) {
                     return Err((id, "null-comparison/carrier-not-live"));

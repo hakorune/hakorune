@@ -274,6 +274,10 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             lv4_is(ins, "op", "sub") ? "sub" : lv4_is(ins, "op", "div") ? "sdiv" : "srem",
             lv4_u(ins, "lhs"), lv4_u(ins, "rhs"));
       } else if (lv4_is(ins, "op", "compare")) {
+        if (hako_physical_equality_dynamic_side(ins) >= 0) {
+          if (!lv4_equality_emit(f, in, fi, ins)) return 0;
+          continue;
+        }
         uint32_t clhs = lv4_u(ins, "lhs"), crhs = lv4_u(ins, "rhs");
         /* A borrowed tagged operand may lend the checked-compare Integer
            view only while its kind lane is exactly 1 at the use site;

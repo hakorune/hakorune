@@ -214,7 +214,7 @@ fn materialize_local_inner_v1(
         let non_rematerializable = match &def_inst {
             Some(MirInstruction::Const { .. }) => false,
             Some(MirInstruction::BinOp { .. }) => false,
-            Some(MirInstruction::Compare { .. }) => false,
+            Some(MirInstruction::Compare { op, .. }) => op.reads_dynamic(),
             Some(MirInstruction::Copy { .. }) => false,
             Some(MirInstruction::Select { .. }) => false,
             _ => true,
@@ -553,7 +553,7 @@ fn materialize_local_inner_v1(
                     rhs: rhs_local,
                 })
             }
-            Some(MirInstruction::Compare { op, lhs, rhs, .. }) => {
+            Some(MirInstruction::Compare { op, lhs, rhs, .. }) if !op.reads_dynamic() => {
                 let mut lhs_local = lhs;
                 let mut rhs_local = rhs;
                 finalize_compare(builder, &mut lhs_local, &mut rhs_local)

@@ -60,6 +60,18 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn bool_condition_
         }) {
             continue;
         }
+        if body.calls.iter().any(|packet| {
+            packet.call_site().site() == frame.source().nodes()[node].site()
+                && matches!(packet.original_source().result(), Some(
+                    crate::mir::instruction::InvokeCallResultKind::NullableText
+                        | crate::mir::instruction::InvokeCallResultKind::OwnedDynamicCarrier
+                ))
+                && packet.outer_bindings().is_ok_and(|(_, normal)| {
+                    matches!(normal.1, MirInstruction::InvokeNormalResult { dst, .. } if dst == value)
+                })
+        }) {
+            continue;
+        }
         let source_producer = if let Some(core) = frame.cores().get(&node) {
             matches!(
                 crate::mir::normal_callable_semantic_package::checked_expression_core_operation_v1(

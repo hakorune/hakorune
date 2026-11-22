@@ -213,6 +213,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                     || matches!(
                         reference,
                         Reference::FiniteEntry { .. }
+                            | Reference::DynamicEntry(_)
                             | Reference::NullableResult(_)
                             | Reference::DynamicInvocationResult(_)
                             | Reference::LoopText(_)

@@ -228,11 +228,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         && *original == ResolvedLexicalRefV1::Local(reference.binding()))
                     && ((direct_formal && (original_scalar_read || scalar_obligation))
                         || (original_scalar_read && current_sum.as_ref().is_some_and(|sum| sum.signed_only())));
-                let entry = match reference {
-                    Reference::ArgumentEntry(read) => Some(read),
-                    Reference::FiniteEntry { read, .. } => Some(read.requirement()),
-                    _ => None,
-                };
+                let entry = reference.source_entry_requirement_v1();
                 if let Some(entry) = entry {
                     if !entry.corroborates_original_uses_v1(uses)
                         || origins.get(&entry.binding()) != Some(&entry.formal().1) {

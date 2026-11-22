@@ -156,22 +156,35 @@ impl OrdinaryNewClaimLedgerV1 {
         if site.owner() != owner {
             return Err(freeze("borrowed-compare/source-owner"));
         }
-        if !self.has_borrowed_compare_source_v1(owner) {
+        let Some(source) = self.borrowed_formal_source.as_ref()
+            .and_then(|source| source.as_ref().ok())
+        else {
             return Ok(None);
-        }
-        let source = self
-            .borrowed_formal_source
-            .as_ref()
-            .ok_or_else(|| freeze("borrowed-compare/source-missing"))?
-            .as_ref()
-            .map_err(Clone::clone)?;
+        };
         if let Some(definition) = source.source_only_definitions.get(&owner) {
+            // With no original caller, a source-only instance definition
+            // cannot emit a tagged formal equality through the raw writer.
+            if matches!(operator, Some(CompareOp::Eq | CompareOp::Ne))
+                && definition.uses.iter().any(|row| {
+                    matches!(&row.kind, Use::DynamicComparisonOperand { binary } if binary == site)
+                })
+                && self.original_parameter_contracts.as_ref().is_some_and(|contracts| {
+                    contracts.iter().any(|contract| contract.owner == owner && contract.mode ==
+                        crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod)
+                })
+                && !source.source_incoming.has_original_call_to_v1(owner)
+            {
+                return Err(freeze("borrowed-compare/source-only-entry"));
+            }
             if !definition.uses.iter().any(|row| {
                 matches!(&row.kind,
                 Use::CompareOperand { binary, .. } if binary == site)
             }) {
                 return Ok(None);
             }
+        }
+        if !self.has_borrowed_compare_source_v1(owner) {
+            return Ok(None);
         }
         let definition = self
             .checked_borrowed_compare_definition_v1(source, owner)?
