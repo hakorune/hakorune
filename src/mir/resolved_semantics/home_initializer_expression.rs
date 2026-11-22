@@ -52,32 +52,17 @@ impl TextResidenceReadV1 {
         &self.acquisition
     }
 }
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct CheckedInitializerExpressionFrameV1 {
-    evaluation: CheckedExpressionEvaluationV1,
-    signed_root_sum: Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>>,
-}
+pub(crate) type CheckedInitializerExpressionFrameV1 = CheckedBindingWriteV1<
+    Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>>,
+>;
 impl CheckedInitializerExpressionFrameV1 {
     pub(crate) fn signed_root_sum(
         &self,
     ) -> Option<&Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>> {
-        self.signed_root_sum.as_ref()
+        self.destination.as_ref()
     }
     pub(crate) fn text_acquisition_v1(self: &Rc<Self>) -> TextResidenceAcquisitionV1 {
         TextResidenceAcquisitionV1::from_initializer(Rc::clone(self))
-    }
-    pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 {
-        &self.evaluation
-    }
-    pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> {
-        self.evaluation.source()
-    }
-    pub(crate) fn binding(&self) -> BindingRefV1 {
-        self.source()
-            .root()
-            .initializer()
-            .expect("original initializer")
-            .binding()
     }
     pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] {
         self.evaluation.prior_homes()
@@ -370,22 +355,7 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     let Some(candidate) = initializer_plan_v1(evaluation, signed_root_sum) else {
         return Ok(None);
     };
-    let Some(candidate) = candidate.with_source_field_requirements(&fields) else {
-        return Ok(None);
-    };
-    if !can_install(&candidate) {
-        return Ok(None);
-    }
-    if !field_batch(
-        &fields,
-        super::super::LocalFieldReadDemandV1::SourceExpression {
-            probe: false,
-            plan: source,
-        },
-    )? {
-        return Ok(None);
-    }
-    Ok(Some(candidate))
+    Ok(ExpressionPlanInstallationV1::with_fields(candidate, &fields, can_install, field_batch)?.ok())
 }
 
 fn initializer_plan_v1(
@@ -396,13 +366,8 @@ fn initializer_plan_v1(
         return None;
     }
     let source = Rc::clone(evaluation.source());
-    let frame = Rc::new(CheckedInitializerExpressionFrameV1 {
-        signed_root_sum,
-        evaluation,
-    });
-    if !frame.evaluation().reference_coverage_is_exact() {
-        return None;
-    }
+    let binding = source.root().initializer()?.binding();
+    let frame = Rc::new(CheckedBindingWriteV1::new(evaluation, binding, signed_root_sum)?);
     let candidate = HomeExpressionPlanV1 {
         initializer_frame: Some(super::InitializerFrameV1::Evaluation(frame)),
         ..HomeExpressionPlanV1::for_source(Rc::clone(&source))

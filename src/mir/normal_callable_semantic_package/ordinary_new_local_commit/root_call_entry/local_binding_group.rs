@@ -223,7 +223,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
             PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(
                 packet,
             )) => packet
-                .initializer_expression_v1()
+                .expression()
                 .permits_empty_bindings_v1(ledger),
             PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(
                 packet,
@@ -515,7 +515,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
         let expression = match &self.proof {
             PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(
                 packet,
-            )) => packet.initializer_expression_v1(),
+            )) => packet.expression(),
             PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(
                 packet,
             )) => packet.expression(),

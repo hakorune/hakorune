@@ -24,9 +24,7 @@ pub(in crate::mir::builder) fn emit(
     let destination =
         CheckedRebindDestinationV1::prepare(builder, state, ledger, Rc::clone(&frame))?;
     let name = destination.name().to_owned();
-    let previous = state
-        .value_for_exact_binding(frame.source().owner(), frame.target())
-        .map_err(|error| error.to_string())?;
+    let previous = destination.previous();
     // A LocalContractWrite needs its own result relation. Refuse before RHS
     // effects, never silently invoke the raw assignment after selecting a frame.
     if builder
@@ -72,42 +70,9 @@ pub(in crate::mir::builder) fn emit(
         }
         None => (ledger.text_rebind_displaced_end_v1(&frame)?, None),
     };
-    let mut emit_call =
-        |builder: &mut MirBuilder,
-         state: &mut CallableSemanticLoweringState,
-         call: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
-         acquired: &[(usize, ValueId)],
-         values: &[Option<EvaluatedExpressionValueV1>],
-         bindings: &mut Vec<(BasicBlockId, MirInstruction)>| {
-            terminal_call::emit_expression_call(
-                builder,
-                state,
-                ledger,
-                frame.evaluation(),
-                call,
-                acquired,
-                values,
-                bindings,
-                consume_receiver,
-                static_source,
-            )
-        };
-    let mut expression = match &unwind {
-        Some(unwind) => expression_value::emit_with_prior_home_unwind(
-            builder,
-            state,
-            ledger,
-            frame.evaluation(),
-            unwind,
-            &mut emit_call,
-        )?,
-        None => expression_value::emit(builder, state, ledger, frame.evaluation(), &mut emit_call)?,
-    };
-    expression_value::materialize_text_root(
-        builder,
-        &mut expression,
-        frame.materializes_root(),
-        frame.evaluation(),
+    let mut expression = expression_value::emit_binding_write_rhs_v1(
+        builder, state, ledger, frame.evaluation(), frame.materializes_root(),
+        unwind.as_deref(), consume_receiver, static_source, None,
     )?;
     let dynamic_root = frame.evaluation().root_class()
         == crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(

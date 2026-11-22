@@ -130,16 +130,16 @@ fn scalar_expression_batch_cached_drift_rejects_before_new_row_commit() {
     let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
         "box Counter { n: i64 other: i64 birth() { me.n = 7 me.other = 0 } }
          static box Main { main() { local c = new Counter()
-            local value = c.n - c.other return 0 } }",
+            local value = \"total:\" + c.n + c.other return 0 } }",
     ).unwrap();
     let ledger = &package.ordinary_new_claim_ledger;
-    let (qualified, completion, foreign_loan) = package.batch().declarations().find_map(|declaration| {
+    let (qualified, without_root_flow, foreign_loan) = package.batch().declarations().find_map(|declaration| {
         package.batch().with_lowering_input(declaration.batch_slot(), |input| {
             let initializer = input.function().expression_source().initializers()
                 .find(|row| row.initializer_site().is_some_and(|site|
                     input.function().expression_source().binary(site).is_some()))?;
             let source_ledger = input.forest().callable_source_ledger(input.owner()).unwrap();
-            let mut flow = ledger.completion_for_owner(input.owner()).unwrap().cleanup().root_flow().unwrap().clone();
+            let flow = ledger.completion_for_owner(input.owner()).unwrap().cleanup().root_flow().unwrap().clone();
             let original_frame = flow.expression_plans().iter().find(|frame|
                 frame.source().root().initializer() == Some(initializer)).unwrap().clone();
             let plan = Rc::clone(original_frame.source());
@@ -160,11 +160,8 @@ fn scalar_expression_batch_cached_drift_rejects_before_new_row_commit() {
             foreign_requests[0].receiver_site = SourcePathV1::from_node(foreign_requests[0].receiver_site.node())
                 .child(SourcePathSegmentV1::Lhs).expr();
             assert!(original_frame.clone().with_source_field_requirements(&foreign_requests).is_none());
-            let refined = original_frame.with_source_field_requirements(&requests).unwrap();
-            assert!(flow.refine_expression_plan(refined));
             assert_eq!(flow.source_expression_fields().count(), 2);
-            let mut completion = crate::mir::resolved_control_flow::verify_function_completion_v1(input).unwrap();
-            completion.attach_root_home_flow(flow);
+            let without_root_flow = crate::mir::resolved_control_flow::verify_function_completion_v1(input).unwrap();
             let candidates = collect_local_candidates_v1(package.batch(), package.instance_constructors(), input).unwrap();
             let prove = |plan| prove_local_field_read_batch(
                 package.instance_constructors(), &candidates, &[], package.batch().ordinary_box_coverage(),
@@ -200,18 +197,14 @@ fn scalar_expression_batch_cached_drift_rejects_before_new_row_commit() {
             stage_local_field_read_batch(&mut staged, repeated).unwrap();
             assert_eq!(staged.len(), 2);
             assert!(stage_local_field_read_batch(&mut staged, foreign).is_err());
-            Some((staged, completion, foreign_loan))
+            Some((staged, without_root_flow, foreign_loan))
         }).unwrap()
     }).expect("whole initializer source");
     let site = qualified.keys().next().unwrap().clone();
     let other = qualified.keys().nth(1).unwrap().clone();
-    // The state fixture keeps the genuinely verified whole root and SAME
-    // original operation loans; only its strict batch refines field demands.
+    // The checked initializer installs the whole field requirement set.
+    // Keep its original plan and vary only the physical read rows.
     let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
-    let original_completion = ledger
-        .completion_index
-        .insert(site.owner(), Ok(Rc::new(completion)))
-        .unwrap();
     *ledger.local_field_reads.borrow_mut() = qualified;
     let original_loan = ledger
         .local_field_reads
@@ -405,9 +398,9 @@ fn scalar_expression_batch_cached_drift_rejects_before_new_row_commit() {
         .get_mut(&site)
         .unwrap()
         .numeric_source = Some(original_loan);
-    let refined_completion = ledger
+    let original_completion = ledger
         .completion_index
-        .insert(site.owner(), original_completion)
+        .insert(site.owner(), Ok(Rc::new(without_root_flow)))
         .unwrap();
     assert!(ledger
         .validate_field_reads(site.owner(), &function)
@@ -415,7 +408,7 @@ fn scalar_expression_batch_cached_drift_rejects_before_new_row_commit() {
         .contains("orphan-source-read"));
     ledger
         .completion_index
-        .insert(site.owner(), refined_completion);
+        .insert(site.owner(), original_completion);
     ledger
         .validate_field_reads(site.owner(), &function)
         .unwrap();

@@ -83,6 +83,46 @@ pub(crate) use field_write::{CheckedFieldWriteFrameV1, FieldWritePlanV1};
 mod scalar_operation;
 pub(crate) use scalar_operation::ExpressionScalarOperationLoanV1;
 
+/// A checked RHS and its resolved binding. The destination holds only the
+/// source-level write purpose and its ownership obligations.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct CheckedBindingWriteV1<Destination> {
+    evaluation: CheckedExpressionEvaluationV1,
+    binding: super::super::BindingRefV1,
+    destination: Destination,
+}
+impl<Destination> CheckedBindingWriteV1<Destination> {
+    fn new(
+        evaluation: CheckedExpressionEvaluationV1,
+        binding: super::super::BindingRefV1,
+        destination: Destination,
+    ) -> Option<Self> {
+        evaluation.reference_coverage_is_exact().then_some(Self {
+            evaluation,
+            binding,
+            destination,
+        })
+    }
+
+    pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 {
+        &self.evaluation
+    }
+
+    pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> {
+        self.evaluation.source()
+    }
+
+    pub(crate) fn binding(&self) -> super::super::BindingRefV1 {
+        self.binding
+    }
+}
+
+pub(super) enum ExpressionPlanInstallationRefusalV1 {
+    FieldRequirements,
+    Installation,
+    FieldBatch,
+}
+
 /// A mandatory source read of this SAME complete expression, independent of
 /// whether its physical row or optional leaf loan later survives. No layout,
 /// field value or Home permission is inferred from the request itself.
@@ -493,93 +533,6 @@ impl super::RootHomeFlow {
             .iter()
             .flat_map(HomeExpressionPlanV1::source_fields)
     }
-    /// Refine an existing whole expression, preserving the original stable
-    /// operation loans. No equal-source reconstruction can replace its Rc.
-    pub(crate) fn refine_expression_plan(&mut self, refined: HomeExpressionPlanV1) -> bool {
-        let Some(original) = self
-            .expression_plans
-            .iter_mut()
-            .find(|old| std::rc::Rc::ptr_eq(old.source(), refined.source()))
-        else {
-            return false;
-        };
-        if !refined.is_consistent()
-            || !original.source_fields().is_empty()
-            || match (&original.source_field_homes, &refined.source_field_homes) {
-                (None, None) => false,
-                (Some(a), Some(b)) => !Rc::ptr_eq(a, b),
-                _ => true,
-            }
-            || match (original.print_frame(), refined.print_frame()) {
-                (None, None) => false,
-                (Some(a), Some(b)) => !std::rc::Rc::ptr_eq(a, b),
-                _ => true,
-            }
-            || match (original.initializer_frame(), refined.initializer_frame()) {
-                (None, None) => false,
-                (Some(a), Some(b)) => !Rc::ptr_eq(a, b),
-                _ => true,
-            }
-            || match (
-                original.move_initializer_v1(),
-                refined.move_initializer_v1(),
-            ) {
-                (None, None) => false,
-                (Some((a, from_a, acquisition_a)), Some((b, from_b, acquisition_b))) => {
-                    !Rc::ptr_eq(a, b) || from_a != from_b || acquisition_a != acquisition_b
-                }
-                _ => true,
-            }
-            || match (
-                original.shared_initializer_v1(),
-                refined.shared_initializer_v1(),
-            ) {
-                (None, None) => false,
-                (Some((a, pa, ha)), Some((b, pb, hb))) => !Rc::ptr_eq(a, b) || pa != pb || ha != hb,
-                _ => true,
-            }
-            || match (original.rebind_frame(), refined.rebind_frame()) {
-                (None, None) => false,
-                (Some(a), Some(b)) => !Rc::ptr_eq(a, b),
-                _ => true,
-            }
-            || match (original.argument_frame(), refined.argument_frame()) {
-                (None, None) => false,
-                (Some(a), Some(b)) => !Rc::ptr_eq(a, b),
-                _ => true,
-            }
-            || match (original.condition_frame(), refined.condition_frame()) {
-                (None, None) => false,
-                (Some(a), Some(b)) => !std::rc::Rc::ptr_eq(a, b),
-                _ => true,
-            }
-            || original.raw_null_condition_v1() != refined.raw_null_condition_v1()
-            || match (original.loop_recipe_v2(), refined.loop_recipe_v2()) {
-                (None, None) => false,
-                (Some(a), Some(b)) => !Rc::ptr_eq(a, b),
-                _ => true,
-            }
-            || match (original.field_write_frame(), refined.field_write_frame()) {
-                (None, None) => false,
-                (Some(a), Some(b)) => !std::rc::Rc::ptr_eq(a, b),
-                _ => true,
-            }
-            || match (original.field_write_rhs(), refined.field_write_rhs()) {
-                (None, None) => false,
-                (Some(a), Some(b)) => !std::rc::Rc::ptr_eq(a, b),
-                _ => true,
-            }
-            || original.scalar_operations().count() != refined.scalar_operations().count()
-            || !original
-                .scalar_operations()
-                .zip(refined.scalar_operations())
-                .all(|(a, b)| std::rc::Rc::ptr_eq(a, b))
-        {
-            return false;
-        }
-        *original = refined;
-        true
-    }
     pub(crate) fn expression_plans(&self) -> &[HomeExpressionPlanV1] {
         &self.expression_plans
     }
@@ -603,6 +556,33 @@ pub(super) struct ExpressionPlanInstallationV1<'a, 'source> {
     approved: Option<HomeExpressionPlanV1>,
 }
 impl<'a, 'source> ExpressionPlanInstallationV1<'a, 'source> {
+    /// Validate the whole field batch before returning the plan to the caller
+    /// that commits the approved source slot.
+    pub(super) fn with_fields<E>(
+        plan: HomeExpressionPlanV1,
+        fields: &[LocalFieldReadRequestV1],
+        can_install: &mut impl FnMut(&HomeExpressionPlanV1) -> bool,
+        field_batch: &mut impl FnMut(
+            &[LocalFieldReadRequestV1],
+            super::LocalFieldReadDemandV1,
+        ) -> Result<bool, E>,
+    ) -> Result<Result<HomeExpressionPlanV1, ExpressionPlanInstallationRefusalV1>, E> {
+        use ExpressionPlanInstallationRefusalV1 as Refusal;
+        let Some(plan) = plan.with_source_field_requirements(fields) else {
+            return Ok(Err(Refusal::FieldRequirements));
+        };
+        if !can_install(&plan) {
+            return Ok(Err(Refusal::Installation));
+        }
+        if !field_batch(fields, super::LocalFieldReadDemandV1::SourceExpression {
+            probe: false,
+            plan: Rc::clone(plan.source()),
+        })? {
+            return Ok(Err(Refusal::FieldBatch));
+        }
+        Ok(Ok(plan))
+    }
+
     pub(super) fn new(
         owner: FunctionOwnerIdV1,
         locals: &'a super::local_flow::PrefixLocalFlow<'source>,

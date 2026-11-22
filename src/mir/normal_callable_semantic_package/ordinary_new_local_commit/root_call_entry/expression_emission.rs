@@ -85,4 +85,47 @@ impl<C: ExpressionEmissionSourceV1> ExpressionEmissionV1<C> {
         .with_inline_range_v1(self.inline_range)
         .with_root_fault_v1(self.root_fault)
     }
+
+    pub(super) fn validate_binding_write_scope_v1(
+        &self,
+        context: CallValidationContextV1<'_>,
+        function: &MirFunction,
+        covered: &std::collections::BTreeSet<BasicBlockId>,
+        acquisition: Option<&[Binding; 2]>,
+        install: Option<&Binding>,
+    ) -> Result<(), String> {
+        // The inline path validator already checks the same source scope.
+        if self.inline_range.is_some() && self.entry.is_none()
+            && self.terminal.is_none() && self.continuation.is_none()
+            && acquisition.is_none() && install.is_none()
+        {
+            return Ok(());
+        }
+        let expression = self.expression();
+        let mut ordered = expression.ordered_bindings_in_context(context)?;
+        ordered.extend(acquisition.into_iter().flatten().cloned());
+        ordered.extend(install.cloned());
+        ordered.extend(self.terminal.iter().cloned());
+        expression.validate_original_scope(
+            context, function, covered, &self.entry, &self.terminal, &self.continuation,
+            &ordered, None,
+        )?;
+        Ok(())
+    }
+
+    pub(super) fn corroborate_binding_write_loop_v2(
+        &self,
+        ledger: &OrdinaryNewClaimLedgerV1,
+        entry: BasicBlockId,
+        end: BasicBlockId,
+        value: ValueId,
+        observed: ValueId,
+    ) -> Result<(), String> {
+        if value != observed {
+            return Err(freeze("source-loop/binding-frame-correspondence"));
+        }
+        self.expression().corroborate_outer_scope_v1(
+            ledger, &self.entry, &self.continuation, entry, end,
+        )
+    }
 }

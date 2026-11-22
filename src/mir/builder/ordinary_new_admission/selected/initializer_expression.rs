@@ -376,35 +376,9 @@ pub(in crate::mir::builder) fn emit(
             )?;
         }
     }
-    let mut expression = expression_value::emit_with_dynamic_calls(
-        builder,
-        state,
-        ledger,
-        frame.evaluation(),
-        None,
-        unwind.as_deref(),
-        &mut |builder, state, call, acquired, values, bindings| {
-            terminal_call::emit_expression_call_with_dynamic_and_argument_frames(
-                builder,
-                state,
-                ledger,
-                frame.evaluation(),
-                call,
-                acquired,
-                values,
-                bindings,
-                consume_receiver,
-                static_source,
-                retained_argument_frames,
-                None,
-            )
-        },
-    )?;
-    expression_value::materialize_text_root(
-        builder,
-        &mut expression,
-        frame.materializes_root(),
-        frame.evaluation(),
+    let mut expression = expression_value::emit_binding_write_rhs_v1(
+        builder, state, ledger, frame.evaluation(), frame.materializes_root(),
+        unwind.as_deref(), consume_receiver, static_source, Some(retained_argument_frames),
     )?;
     let (terminal, continuation) = if frame.is_dynamic_invocation_result() {
         expression_value::finish_dynamic_initializer_continuation(builder, &mut expression)?
