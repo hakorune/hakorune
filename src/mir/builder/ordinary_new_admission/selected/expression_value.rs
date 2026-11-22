@@ -470,11 +470,11 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                         let owned = frame.owned_result_nodes().contains(&index);
                         let result = packet.original_source().result();
                         if owned != matches!(result, Some(crate::mir::instruction::InvokeCallResultKind::OwnedString
-                            | crate::mir::instruction::InvokeCallResultKind::DynamicCarrier)) {
+                            | crate::mir::instruction::InvokeCallResultKind::NullableText)) {
                             return Err(freeze("print-expression/call-source-missing"));
                         }
                         calls.push(packet);
-                        if result == Some(crate::mir::instruction::InvokeCallResultKind::DynamicCarrier) {
+                        if result == Some(crate::mir::instruction::InvokeCallResultKind::NullableText) {
                             if call.dynamic_invocation_result_lifecycle_v1().is_none() {
                                 return Err(freeze("print-expression/call-source-missing"));
                             }

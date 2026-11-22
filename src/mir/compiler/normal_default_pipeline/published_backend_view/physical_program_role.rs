@@ -158,7 +158,7 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
             Self::OrdinaryUnit { .. } => Some(InvokeCallResultKind::Unit),
             Self::OrdinaryI64 { .. } => Some(InvokeCallResultKind::I64),
             Self::OrdinaryText { .. } => Some(InvokeCallResultKind::OwnedString),
-            Self::OrdinaryNullableText { .. } => Some(InvokeCallResultKind::DynamicCarrier),
+            Self::OrdinaryNullableText { .. } => Some(InvokeCallResultKind::NullableText),
             Self::OrdinaryBool { .. } => Some(InvokeCallResultKind::Bool),
             Self::OrdinaryMap { .. } => Some(InvokeCallResultKind::Map),
             Self::OrdinaryHandle { .. } => Some(InvokeCallResultKind::Handle),

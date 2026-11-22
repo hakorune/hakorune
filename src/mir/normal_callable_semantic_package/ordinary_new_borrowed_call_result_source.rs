@@ -635,7 +635,7 @@ impl crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1 {
             Some(crate::mir::instruction::InvokeCallResultKind::OwnedString) => {
                 self.checked_local_instance_text_result_source_v1(row.source_target())?
             }
-            Some(crate::mir::instruction::InvokeCallResultKind::DynamicCarrier) => {
+            Some(crate::mir::instruction::InvokeCallResultKind::NullableText) => {
                 self.checked_local_instance_nullable_text_result_source_v1(row.source_target())?
             }
             _ => false,

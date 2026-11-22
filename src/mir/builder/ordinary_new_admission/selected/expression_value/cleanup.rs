@@ -151,12 +151,12 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_dynamic_
             | InvokeOperation::DynamicArrayGet { .. }
             | InvokeOperation::DynamicCarrierSubI64 { .. } => true,
             InvokeOperation::Call {
-                result: crate::mir::instruction::InvokeCallResultKind::DynamicCarrier,
+                result: crate::mir::instruction::InvokeCallResultKind::NullableText,
                 ..
             } => {
                 let mut packets = expression.body.calls.iter().filter(|packet| {
                     packet.original_source().result()
-                        == Some(crate::mir::instruction::InvokeCallResultKind::DynamicCarrier)
+                        == Some(crate::mir::instruction::InvokeCallResultKind::NullableText)
                         && packet.outer_bindings().is_ok_and(|(invoke, normal)| {
                             invoke == binding && normal == &projection
                         })

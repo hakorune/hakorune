@@ -45,7 +45,7 @@ impl LocalCallResultClassV1 {
             Self::Nullable => Some(Kind::NullableHandle),
             Self::Map => Some(Kind::Map),
             Self::Unit => Some(Kind::Unit),
-            Self::Dynamic => Some(Kind::DynamicCarrier),
+            Self::Dynamic => Some(Kind::NullableText),
             Self::BorrowedNullable | Self::MixedObject => None,
         }
     }

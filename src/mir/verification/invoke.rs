@@ -561,7 +561,7 @@ fn check_function_inner(
                         | ResultKind::Handle
                         | ResultKind::NullableHandle
                         | ResultKind::OwnedString
-                        | ResultKind::DynamicCarrier,
+                        | ResultKind::NullableText,
                     ) => {
                         key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
                             && key.arity() as usize == call.args.len()

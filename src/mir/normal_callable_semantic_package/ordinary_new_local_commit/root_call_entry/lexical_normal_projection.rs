@@ -406,7 +406,7 @@ impl EmittedLexicalCallProjectionV1 {
         // Every wrapper and nested Call uses the same original result projection.
         // An outer expression may corroborate this cancellation, never replace it.
         let result_cancellation = if matches!(self.row.loan().result(),
-            Some(InvokeCallResultKind::OwnedString | InvokeCallResultKind::DynamicCarrier)) {
+            Some(InvokeCallResultKind::OwnedString | InvokeCallResultKind::NullableText)) {
             let (block, MirInstruction::InvokeNormalResult { dst, invoke_block }) =
                 self.projection.value()?
             else {
