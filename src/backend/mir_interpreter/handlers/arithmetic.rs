@@ -33,8 +33,8 @@ impl MirInterpreter {
     #[inline]
     fn try_eval_int_compare(op: CompareOp, x: i64, y: i64) -> bool {
         match op {
-            CompareOp::Eq => x == y,
-            CompareOp::Ne => x != y,
+            CompareOp::Eq | CompareOp::DynamicScalarEquality { negated: false, .. } => x == y,
+            CompareOp::Ne | CompareOp::DynamicScalarEquality { negated: true, .. } => x != y,
             CompareOp::Lt => x < y,
             CompareOp::Le => x <= y,
             CompareOp::Gt => x > y,
@@ -157,7 +157,7 @@ impl MirInterpreter {
         rhs: ValueId,
     ) -> Result<(), VMError> {
         // Operator Box (Compare) — observe always; adopt gated
-        if self.operator_box_caps.compare_apply && self.operator_box_compare_adopt_enabled {
+        if !op.reads_dynamic() && self.operator_box_caps.compare_apply && self.operator_box_compare_adopt_enabled {
             let in_guard = self
                 .cur_fn
                 .as_deref()
@@ -165,8 +165,8 @@ impl MirInterpreter {
                 .unwrap_or(false);
             if !in_guard {
                 let opname = match op {
-                    CompareOp::Eq => "Eq",
-                    CompareOp::Ne => "Ne",
+                    CompareOp::Eq | CompareOp::DynamicScalarEquality { negated: false, .. } => "Eq",
+                    CompareOp::Ne | CompareOp::DynamicScalarEquality { negated: true, .. } => "Ne",
                     CompareOp::Lt => "Lt",
                     CompareOp::Le => "Le",
                     CompareOp::Gt => "Gt",

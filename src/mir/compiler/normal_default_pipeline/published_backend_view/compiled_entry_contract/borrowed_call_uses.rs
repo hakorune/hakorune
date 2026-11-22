@@ -39,7 +39,7 @@ struct FunctionUses {
     finite_input: bool,
     finite_scalar_bindings: BTreeMap<Coordinate, MirInstruction>,
     domains: BTreeMap<ValueId, BorrowedFormalDomainV1>,
-    text_operands: BTreeMap<(BasicBlockId, usize, usize), crate::mir::instruction::StringInvokeOperand>,
+    read_operands: BTreeMap<(BasicBlockId, usize, usize), crate::mir::instruction::StringInvokeOperand>,
     owned_field_writes: BTreeMap<Coordinate, field_write::OwnedFieldWriteUse>,
     field_writes: BTreeMap<Coordinate, field_write::FieldWriteUse>,
     array_sets: BTreeMap<Coordinate, array_set::ArraySetUse>,
@@ -569,6 +569,8 @@ impl FunctionUses {
                     &mut definitions.null_uses,
                 )?;
             }
+            MirInstruction::Compare { op: crate::mir::CompareOp::DynamicScalarEquality { .. }, lhs, rhs, .. } =>
+                self.verify_equality_operand_origins_v1(coordinate, [*lhs, *rhs], tracked, views)?,
             MirInstruction::Compare { lhs, rhs, .. } | MirInstruction::NullCompare { lhs, rhs, .. } => {
                 // `!=`, `<`, `<=`, `>=` and general tagged equality stay
                 // outside the admitted envelopes.

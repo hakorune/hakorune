@@ -195,7 +195,7 @@ pub(super) fn rematerialize_for_pred(
             let dst = func.next_value_id();
             MirInstruction::BinOp { dst, op, lhs, rhs }
         }
-        MirInstruction::Compare { op, lhs, rhs, .. } => {
+        MirInstruction::Compare { op, lhs, rhs, .. } if !op.reads_dynamic() => {
             let lhs = rematerialize_for_pred(func, analysis, lhs, context, edge_kind, remat_ctx)?;
             let rhs = rematerialize_for_pred(func, analysis, rhs, context, edge_kind, remat_ctx)?;
             let dst = func.next_value_id();

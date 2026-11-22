@@ -239,6 +239,12 @@ pub(super) fn observe<E>(
                     dynamic_reads.push(read);
                     continue;
                 }
+                if dynamic_formal_reference(input, locals, node.site()).is_some() {
+                    // This source reads the original untyped formal. Without
+                    // its tag/payload loan it cannot become a Text argument.
+                    ready = false;
+                    break;
+                }
             }
             if loan.text_operand_is(node.site())
                 && !(loan.preserves_original_kind()

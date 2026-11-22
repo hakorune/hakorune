@@ -147,7 +147,7 @@ const DYNAMIC_INTEGER_COMPARISONS: [VerifiedDynamicOperatorExecutionEnvelopeV1; 
 const INTEGER_DYNAMIC_COMPARISONS: [VerifiedDynamicOperatorExecutionEnvelopeV1; 4] =
     mixed_integer_ordering(DynamicOperatorValueClassV1::I64, DynamicOperatorValueClassV1::Dynamic);
 
-const fn dynamic_string_comparison(
+const fn mixed_dynamic_comparison(
     family: DynamicOperatorFamilyV1,
     left: DynamicOperatorValueClassV1,
     right: DynamicOperatorValueClassV1,
@@ -173,33 +173,53 @@ const fn dynamic_string_comparison(
     )
 }
 
+const fn mixed_equalities(
+    left: DynamicOperatorValueClassV1,
+    right: DynamicOperatorValueClassV1,
+) -> [VerifiedDynamicOperatorExecutionEnvelopeV1; 2] {
+    [
+        mixed_dynamic_comparison(DynamicOperatorFamilyV1::Equal, left, right),
+        mixed_dynamic_comparison(DynamicOperatorFamilyV1::NotEqual, left, right),
+    ]
+}
+
+use DynamicOperatorValueClassV1::{Bool, Dynamic, I64};
+const DYNAMIC_I64_EQUALITIES: [VerifiedDynamicOperatorExecutionEnvelopeV1; 2] =
+    mixed_equalities(Dynamic, I64);
+const I64_DYNAMIC_EQUALITIES: [VerifiedDynamicOperatorExecutionEnvelopeV1; 2] =
+    mixed_equalities(I64, Dynamic);
+const DYNAMIC_BOOL_EQUALITIES: [VerifiedDynamicOperatorExecutionEnvelopeV1; 2] =
+    mixed_equalities(Dynamic, Bool);
+const BOOL_DYNAMIC_EQUALITIES: [VerifiedDynamicOperatorExecutionEnvelopeV1; 2] =
+    mixed_equalities(Bool, Dynamic);
+
 const DYNAMIC_STRING_COMPARISONS: [VerifiedDynamicOperatorExecutionEnvelopeV1; 6] = [
-    dynamic_string_comparison(
+    mixed_dynamic_comparison(
         DynamicOperatorFamilyV1::Equal,
         DynamicOperatorValueClassV1::Dynamic,
         DynamicOperatorValueClassV1::String,
     ),
-    dynamic_string_comparison(
+    mixed_dynamic_comparison(
         DynamicOperatorFamilyV1::NotEqual,
         DynamicOperatorValueClassV1::Dynamic,
         DynamicOperatorValueClassV1::String,
     ),
-    dynamic_string_comparison(
+    mixed_dynamic_comparison(
         DynamicOperatorFamilyV1::Less,
         DynamicOperatorValueClassV1::Dynamic,
         DynamicOperatorValueClassV1::String,
     ),
-    dynamic_string_comparison(
+    mixed_dynamic_comparison(
         DynamicOperatorFamilyV1::Greater,
         DynamicOperatorValueClassV1::Dynamic,
         DynamicOperatorValueClassV1::String,
     ),
-    dynamic_string_comparison(
+    mixed_dynamic_comparison(
         DynamicOperatorFamilyV1::GreaterEqual,
         DynamicOperatorValueClassV1::Dynamic,
         DynamicOperatorValueClassV1::String,
     ),
-    dynamic_string_comparison(
+    mixed_dynamic_comparison(
         DynamicOperatorFamilyV1::LessEqual,
         DynamicOperatorValueClassV1::Dynamic,
         DynamicOperatorValueClassV1::String,
@@ -207,32 +227,32 @@ const DYNAMIC_STRING_COMPARISONS: [VerifiedDynamicOperatorExecutionEnvelopeV1; 6
 ];
 
 const STRING_DYNAMIC_COMPARISONS: [VerifiedDynamicOperatorExecutionEnvelopeV1; 6] = [
-    dynamic_string_comparison(
+    mixed_dynamic_comparison(
         DynamicOperatorFamilyV1::Equal,
         DynamicOperatorValueClassV1::String,
         DynamicOperatorValueClassV1::Dynamic,
     ),
-    dynamic_string_comparison(
+    mixed_dynamic_comparison(
         DynamicOperatorFamilyV1::NotEqual,
         DynamicOperatorValueClassV1::String,
         DynamicOperatorValueClassV1::Dynamic,
     ),
-    dynamic_string_comparison(
+    mixed_dynamic_comparison(
         DynamicOperatorFamilyV1::Less,
         DynamicOperatorValueClassV1::String,
         DynamicOperatorValueClassV1::Dynamic,
     ),
-    dynamic_string_comparison(
+    mixed_dynamic_comparison(
         DynamicOperatorFamilyV1::Greater,
         DynamicOperatorValueClassV1::String,
         DynamicOperatorValueClassV1::Dynamic,
     ),
-    dynamic_string_comparison(
+    mixed_dynamic_comparison(
         DynamicOperatorFamilyV1::GreaterEqual,
         DynamicOperatorValueClassV1::String,
         DynamicOperatorValueClassV1::Dynamic,
     ),
-    dynamic_string_comparison(
+    mixed_dynamic_comparison(
         DynamicOperatorFamilyV1::LessEqual,
         DynamicOperatorValueClassV1::String,
         DynamicOperatorValueClassV1::Dynamic,
@@ -327,6 +347,10 @@ pub(crate) const fn issue_dynamic_operator_execution_envelope_v1(
 ) -> Result<&'static VerifiedDynamicOperatorExecutionEnvelopeV1, DynamicOperatorEnvelopeIssueV1> {
     if let Some(index) = comparison_index(domain.family()) {
         match (domain.left(), domain.right()) {
+            (Dynamic, I64) if index < ORDERING_START => return Ok(&DYNAMIC_I64_EQUALITIES[index]),
+            (I64, Dynamic) if index < ORDERING_START => return Ok(&I64_DYNAMIC_EQUALITIES[index]),
+            (Dynamic, Bool) if index < ORDERING_START => return Ok(&DYNAMIC_BOOL_EQUALITIES[index]),
+            (Bool, Dynamic) if index < ORDERING_START => return Ok(&BOOL_DYNAMIC_EQUALITIES[index]),
             (DynamicOperatorValueClassV1::String, DynamicOperatorValueClassV1::String) => return Ok(&STRING_COMPARISONS[index]),
             (DynamicOperatorValueClassV1::I64, DynamicOperatorValueClassV1::I64) => return Ok(&I64_COMPARISONS[index]),
             (DynamicOperatorValueClassV1::NormalInteger, DynamicOperatorValueClassV1::NormalInteger) => return Ok(&CHECKED_INTEGER_COMPARISONS[index]),

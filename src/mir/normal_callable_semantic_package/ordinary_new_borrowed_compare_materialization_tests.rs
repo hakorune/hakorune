@@ -71,6 +71,11 @@ fn completed(
 fn borrowed_compare_original_completion_retains_each_canonical_operand_receipt() {
     for (spelling, op, ast) in [("==", CompareOp::Eq, crate::ast::BinaryOperator::Equal), ("!=", CompareOp::Ne, crate::ast::BinaryOperator::NotEqual), ("<", CompareOp::Lt, crate::ast::BinaryOperator::Less), (">", CompareOp::Gt, crate::ast::BinaryOperator::Greater), ("<=", CompareOp::Le, crate::ast::BinaryOperator::LessEqual), (">=", CompareOp::Ge, crate::ast::BinaryOperator::GreaterEqual)] {
         for condition in ["p > 0", "0 > p", "p > q"] {
+            // Exact-scalar equality has its own tagged-read proof. The older
+            // receipt still covers ordered reads and both borrowed siblings.
+            if matches!(op, CompareOp::Eq | CompareOp::Ne) && condition != "p > q" {
+                continue;
+            }
             let (ledger, owner, site) = fixture(&condition.replace('>', spelling));
             let loan = ledger
                 .prepare_borrowed_compare_source_v1(owner, &site, Some(op))

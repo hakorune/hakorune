@@ -72,6 +72,9 @@ impl MirInstruction {
 
     /// Get the effect mask for this instruction
     pub fn effects(&self) -> EffectMask {
+        if matches!(self, MirInstruction::Compare { op, .. } if op.reads_dynamic()) {
+            return EffectMask::READ;
+        }
         if let Some(eff) = inst_meta::effects_via_meta(self) {
             return eff;
         }

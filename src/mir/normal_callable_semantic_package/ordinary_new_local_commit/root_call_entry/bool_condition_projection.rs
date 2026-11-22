@@ -56,6 +56,7 @@ pub(in crate::mir) enum BoolConditionValueProofV1 {
     ScalarInvocation {
         receiver: Option<ExactLexicalReadV1>,
         input_values: Box<[Option<EvaluatedExpressionValueV1>]>,
+        calls: Box<[Rc<EmittedLexicalCallProjectionV1>]>,
         dynamic_calls: Box<[Rc<crate::mir::normal_callable_semantic_package::EmittedDynamicInvocationCallProjectionV1>]>,
         input_reads: std::collections::BTreeMap<
             usize,
@@ -187,6 +188,7 @@ impl EmittedBoolConditionProjectionV1 {
     ) -> Result<super::expression_projection::ExpressionPhysicalProjectionRefV1<'a>, String> {
         let BoolConditionValueProofV1::ScalarInvocation {
             input_values,
+            calls,
             dynamic_calls,
             input_reads,
             path_reads,
@@ -201,7 +203,7 @@ impl EmittedBoolConditionProjectionV1 {
         super::expression_projection::ExpressionPhysicalProjectionRefV1::new_with_dynamic(
             self.frame.evaluation(),
             input_values,
-            &[],
+            calls,
             dynamic_calls,
             path_reads,
             input_reads,
@@ -314,16 +316,7 @@ impl EmittedBoolConditionProjectionV1 {
         Ok(())
     }
     pub(in crate::mir) fn calls(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
-        self.nodes.iter().filter_map(|node| match &node.proof {
-            BoolConditionValueProofV1::Call { packet, .. } => Some(packet.as_ref()),
-            _ => None,
-        })
-    }
-    fn dynamic_calls(&self) -> impl Iterator<Item = &crate::mir::normal_callable_semantic_package::EmittedDynamicInvocationCallProjectionV1> {
-        self.nodes.iter().flat_map(|node| match &node.proof {
-            BoolConditionValueProofV1::ScalarInvocation { dynamic_calls, .. } => dynamic_calls.iter().map(Rc::as_ref).collect::<Vec<_>>(),
-            _ => Vec::new(),
-        })
+        source::condition_call_packets(&self.nodes)
     }
     /// The direct-receiver field read and checked Count of one Array operation.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn array_operation_bindings_v1(
@@ -373,7 +366,7 @@ impl EmittedBoolConditionProjectionV1 {
         for packet in self.calls() {
             packet.validate_recorded(bindings)?;
         }
-        for packet in self.dynamic_calls() {
+        for packet in source::condition_dynamic_call_packets(&self.nodes) {
             packet.validate_recorded_projected_v1(bindings, None)?;
         }
         Ok(())

@@ -973,7 +973,7 @@ fn checked_dynamic_invocation_publishes_and_ends_one_opaque_carrier() {
     }
     let (primary, _, _) = type_frame.diagnostics().unwrap();
     let primary = primary.unwrap();
-    assert_eq!((primary.reason, primary.site, primary.details[0]), (400, 51, 4));
+    assert_eq!((primary.reason, primary.site, primary.details), (302, 51, [0, 0]));
     host_handles::drop_handle(handle);
 }
 

@@ -689,6 +689,7 @@ fn validate_instruction_with_context(
                         | InvokeOperation::ReclaimUnpublished { .. }
                         | InvokeOperation::Birth(_)
                         | InvokeOperation::DynamicArrayGet { .. }
+                        | InvokeOperation::DynamicCarrierInteger { .. }
                         | InvokeOperation::DynamicBorrowedInteger { .. }
                         | InvokeOperation::DynamicMaterializeBorrowed { .. }
                         | InvokeOperation::DynamicCarrierEnd { .. },

@@ -86,7 +86,13 @@ uint32_t nyrt_object_checked_new_in_program_v1(void *, uint32_t, uint64_t,
 /* ArrayBox Get semantics; Normal publishes one independent opaque carrier. */
 uint32_t nyrt_dynamic_checked_array_get_v1(void *, uint64_t, int64_t, int64_t, uint64_t *)
     __asm__("nyash.dynamic.checked_array_get_v1");
-/* Borrow an integer payload; a different live carrier kind records Fault. */
+/* Compare one Dynamic borrow and one exact scalar, using the kinds above.
+ * Returns 0/1 for inequality/equality and InvalidContract (2) for malformed
+ * transport. The original program stamp is required for tag 5. */
+uint32_t nyrt_dynamic_scalar_equal_v1(const NyrtDispatchProgramV1 *,
+    uint32_t, uint32_t, uint64_t, uint32_t, uint32_t, uint64_t)
+    __asm__("nyash.dynamic.scalar_equal_v1");
+/* Borrow an integer payload; a different live carrier kind records TypeError. */
 uint32_t nyrt_dynamic_checked_integer_v1(void *, uint64_t, uint64_t, int64_t *)
     __asm__("nyash.dynamic.checked_integer_v1");
 /* Copy one admitted borrowed scalar or Text and publish a token only on Normal. */

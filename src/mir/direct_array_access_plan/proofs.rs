@@ -143,6 +143,7 @@ fn predecessor_branch_proves_nonzero_on_edge(
             return false;
         }
         match op {
+            CompareOp::DynamicScalarEquality { .. } => false,
             CompareOp::Eq => else_bb == target_block,
             CompareOp::Ne => then_bb == target_block,
             CompareOp::Lt => {

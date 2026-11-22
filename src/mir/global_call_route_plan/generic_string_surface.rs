@@ -180,6 +180,7 @@ pub(super) fn generic_pure_string_accepts_string_compare(
     rhs_class: GenericPureValueClass,
 ) -> bool {
     match op {
+        CompareOp::DynamicScalarEquality { .. } => false,
         CompareOp::Eq | CompareOp::Ne => true,
         CompareOp::Lt | CompareOp::Le | CompareOp::Gt | CompareOp::Ge => {
             lhs_class == GenericPureValueClass::String && rhs_class == GenericPureValueClass::String

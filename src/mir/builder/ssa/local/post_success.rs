@@ -127,7 +127,7 @@ impl PreparedLocalSsaPostSuccessV1 {
             Some(MirInstruction::BinOp { .. }) => {
                 LocalSsaMaterializationKindV1::RematerializedBinOp
             }
-            Some(MirInstruction::Compare { .. }) => {
+            Some(MirInstruction::Compare { op, .. }) if !op.reads_dynamic() => {
                 LocalSsaMaterializationKindV1::RematerializedCompare
             }
             Some(MirInstruction::Select { .. }) => {

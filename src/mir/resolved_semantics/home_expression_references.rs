@@ -23,6 +23,17 @@ pub(crate) enum CheckedExpressionReferenceV1 {
     Scalar(CheckedScalarReferenceV1),
 }
 impl CheckedExpressionReferenceV1 {
+    pub(crate) fn source_entry_requirement_v1(
+        &self,
+    ) -> Option<&crate::mir::normal_callable_semantic_package::BorrowedFormalEntryReadRequirementV1> {
+        match self {
+            Self::ArgumentEntry(read) => Some(read),
+            Self::FiniteEntry { read, .. } => Some(read.requirement()),
+            Self::DynamicEntry(read) if read.corroborates_original_read_v1() => Some(read.requirement()),
+            _ => None,
+        }
+    }
+
     pub(crate) fn binding(&self) -> super::super::BindingRefV1 {
         match self {
             Self::Alias(loan) => {

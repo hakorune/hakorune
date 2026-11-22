@@ -299,7 +299,7 @@ fn remap_leaf_instruction(
             lhs: map(*lhs, value_map)?,
             rhs: map(*rhs, value_map)?,
         }),
-        MirInstruction::Compare { dst, op, lhs, rhs } => Some(MirInstruction::Compare {
+        MirInstruction::Compare { dst, op, lhs, rhs } if !op.reads_dynamic() => Some(MirInstruction::Compare {
             dst: alloc_dst(*dst, value_map, mapped_dsts)?,
             op: *op,
             lhs: map(*lhs, value_map)?,

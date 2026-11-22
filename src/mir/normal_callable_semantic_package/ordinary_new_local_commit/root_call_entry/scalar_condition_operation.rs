@@ -189,7 +189,7 @@ pub(crate) fn checked_scalar_invoke_operation_v1(
     if let Some(plan) = comparison.filter(|plan| {
         matches!(
             plan.kind(),
-            ComparisonKind::Null | ComparisonKind::Scalar(SourceScalarKind::Bool)
+            ComparisonKind::Null | ComparisonKind::Scalar(SourceScalarKind::Bool) | ComparisonKind::DynamicScalarEquality { .. }
         )
     }) {
         if receiver.is_some() || values.len() != frame.source().nodes().len() {
@@ -249,7 +249,7 @@ pub(crate) fn checked_scalar_invoke_operation_v1(
                 } else {
                     (right, left)
                 };
-                let Operand::Dynamic(carrier) = operand(carrier)? else {
+                let (Operand::Dynamic(carrier) | Operand::DynamicCarrier(carrier)) = operand(carrier)? else {
                     return Err(freeze("bool-condition/text-operand-order"));
                 };
                 (

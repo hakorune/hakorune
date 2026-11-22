@@ -407,7 +407,7 @@ fn check_function_inner(
     let has_null_reads = function.blocks.values().any(|block| {
         block
             .all_instructions()
-            .any(|row| matches!(row, MirInstruction::NullCompare { .. }))
+            .any(null_compare::is_carrier_observation)
     });
     if !has_control && !has_text_reads && !has_null_reads {
         return Ok(());

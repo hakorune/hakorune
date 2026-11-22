@@ -521,6 +521,15 @@ pub(crate) fn issue_source_expression_call_v1<E>(
                 &mut observation,
                 port,
             )?;
+            // Target identity is earlier than argument qualification. An
+            // enclosing expression can borrow a result once all inputs have
+            // their original kind-preserving evaluations.
+            if !observation.entry_ownership_v1().is_some_and(|entry| {
+                entry.arguments.len() == observation.arguments().len()
+                    && entry.arguments.iter().all(|frame| frame.source_loan().preserves_original_kind())
+            }) {
+                return expression_call_declined(site, 4);
+            }
             return Ok(Some(Call::Ordinary(observation)));
         }
         Some(_) => return Ok(None),
@@ -564,10 +573,9 @@ pub(crate) fn issue_source_expression_call_v1<E>(
                         | crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue
                         | crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::DiscardValue, .. })) => None,
         LocalCallResultSourceV1::DynamicInvocation(_) => None,
-        // A static {Text, null} call published as one opaque Dynamic carrier.
+        // The enclosing expression verifies the carrier's one acquisition and End.
         LocalCallResultSourceV1::Ordinary(loan) if loan.result().is_carrier()
-            && loan.instance_source().is_some() && matches!(source.root(),
-                crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LocalInitializer { .. }) => None,
+            && loan.instance_source().is_some() => None,
         _ => return expression_call_declined(site, 90),
     };
     let mut observation = result_observation_v1(

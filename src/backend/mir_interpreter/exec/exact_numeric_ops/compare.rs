@@ -96,8 +96,8 @@ impl MirInterpreter {
 
 fn exact_numeric_compare_op(op: CompareOp) -> ExactNumericCompareOp {
     match op {
-        CompareOp::Eq => ExactNumericCompareOp::Eq,
-        CompareOp::Ne => ExactNumericCompareOp::Ne,
+        CompareOp::Eq | CompareOp::DynamicScalarEquality { negated: false, .. } => ExactNumericCompareOp::Eq,
+        CompareOp::Ne | CompareOp::DynamicScalarEquality { negated: true, .. } => ExactNumericCompareOp::Ne,
         CompareOp::Lt => ExactNumericCompareOp::Lt,
         CompareOp::Le => ExactNumericCompareOp::Le,
         CompareOp::Gt => ExactNumericCompareOp::Gt,

@@ -54,6 +54,17 @@ impl DynamicCarrierTokenV1 {
         }
     }
 
+    /// Borrow the scalar view under the existing caller-owned token check.
+    pub fn scalar_equality_operand_v1(
+        &self,
+    ) -> Result<Option<DynamicEqualityScalarV1>, DynamicInvocationFailureV1> {
+        self.with_payload_v1(|payload| match payload {
+            CarrierPayloadV1::Integer(value) => Some(DynamicEqualityScalarV1::Integer(*value)),
+            CarrierPayloadV1::Bool(value) => Some(DynamicEqualityScalarV1::Bool(*value)),
+            _ => None,
+        })
+    }
+
     /// Whether this live carrier holds the null value; it is not consumed.
     pub fn is_null_v1(&self) -> Result<bool, DynamicInvocationFailureV1> {
         Ok(matches!(self.snapshot_v1()?, CarrierPayloadV1::Null))
@@ -159,15 +170,30 @@ impl DynamicCarrierTokenV1 {
         Ok(())
     }
 
-    fn snapshot_v1(&self) -> Result<CarrierPayloadV1, DynamicInvocationFailureV1> {
+    fn with_payload_v1<R>(
+        &self,
+        read: impl FnOnce(&CarrierPayloadV1) -> R,
+    ) -> Result<R, DynamicInvocationFailureV1> {
         carriers()
             .lock()
             .expect("Dynamic carrier mutex poisoned")
             .get(&self.0)
             .filter(|carrier| carrier.owner == CarrierOwnerV1::Caller)
-            .map(|carrier| carrier.payload.clone())
+            .map(|carrier| read(&carrier.payload))
             .ok_or(DynamicInvocationFailureV1::InvalidCarrier)
     }
+
+    fn snapshot_v1(&self) -> Result<CarrierPayloadV1, DynamicInvocationFailureV1> {
+        self.with_payload_v1(Clone::clone)
+    }
+}
+
+/// The exact scalar kinds admitted by decision 30. Distinct variants preserve
+/// the language's Bool/integer distinction even when their bits coincide.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum DynamicEqualityScalarV1 {
+    Integer(i64),
+    Bool(bool),
 }
 
 /// Runtime values accepted at an ordinary Dynamic invocation boundary.

@@ -322,6 +322,25 @@ fn selects(
     selected && supported(source, 0)
 }
 
+pub(super) fn scalar_dynamic_demand_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    locals: &PrefixLocalFlow<'_>,
+    calls: &[LocalCallObservationV1],
+    read: &SourceExprSiteV1,
+    equality_only: bool,
+) -> bool {
+    use super::super::borrowed_integer_comparison::{
+        dynamic_scalar_comparison_demand_v1, scalar_comparison_class_v1,
+    };
+    use crate::mir::dynamic_operator_contract::DynamicOperatorValueClassV1::{Bool, I64};
+    dynamic_scalar_comparison_demand_v1(input, read, equality_only, |other| {
+        locals.current_scalar_read_v1(other, calls).map(|value| match value.kind() {
+            SourceScalarKind::Bool => Bool,
+            SourceScalarKind::Integer => I64,
+        }).or_else(|| scalar_comparison_class_v1(input, other))
+    })
+}
+
 pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &SourceStmtSiteV1,
@@ -396,8 +415,15 @@ pub(super) fn observe<E>(
             }
         }
     }
+    let dynamic_scalar = source.nodes_outside_calls().any(|(_, node)| {
+        let read = node.site();
+        let returned = locals.dynamic_invocation_result_reference_v1(read).is_some()
+            || locals.loop_dynamic_reference_v1(read).is_some();
+        let formal = super::argument_expression::entry_formal_reference(input, locals, read).is_some();
+        (returned || formal) && scalar_dynamic_demand_v1(input, locals, local_calls, read, !returned)
+    });
     let selected = (original_profile || nested_call_profile)
-        && selects(input, &source, statement, locals, local_calls);
+        && (dynamic_scalar || selects(input, &source, statement, locals, local_calls));
     if entry_guard.is_empty() && !contains_local_home_field(input, &source, locals) && !selected {
         if prefix_known {
             if let Some(plan) =
@@ -669,34 +695,27 @@ fn install_source<E>(
             }
             continue;
         };
-        if let Some(BorrowedCallArgumentsV1::FiniteEntryRead(read)) = actuals(
-            &owned,
-            BorrowedCallActualRequestV1::FiniteEntryRead {
-                input,
-                plan: &source,
-                read: node.site(),
-                binding,
-                root,
-            },
-        )? {
-            initial_references.push((
-                index,
-                CheckedExpressionReferenceV1::FiniteEntry {
-                    read,
-                    exclusion: None,
+        let prefer_tagged = scalar_dynamic_demand_v1(input, locals, local_calls, node.site(), true);
+        if !prefer_tagged {
+            if let Some(BorrowedCallArgumentsV1::FiniteEntryRead(read)) = actuals(
+                &owned,
+                BorrowedCallActualRequestV1::FiniteEntryRead {
+                    input, plan: &source, read: node.site(), binding, root,
                 },
-            ));
-        } else if source.compares_with_proven_text_v1(index, |other| {
+            )? {
+                initial_references.push((index, CheckedExpressionReferenceV1::FiniteEntry {
+                    read, exclusion: None,
+                }));
+                continue;
+            }
+        }
+        if prefer_tagged || source.compares_with_proven_text_v1(index, |other| {
             locals.static_text_reference(other).is_some() || locals.text_reference(other).is_some()
         }) {
             if let Some(BorrowedCallArgumentsV1::DynamicEntryRead(read)) = actuals(
                 &owned,
                 BorrowedCallActualRequestV1::DynamicEntryRead {
-                    input,
-                    plan: &source,
-                    read: node.site(),
-                    binding,
-                    root,
+                    input, plan: &source, read: node.site(), binding, root,
                 },
             )? {
                 initial_references.push((index, CheckedExpressionReferenceV1::DynamicEntry(read)));

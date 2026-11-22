@@ -517,6 +517,16 @@ fn build_plan(
         if !seen.insert(site.clone()) {
             return Err(Issue::ChildIdentity);
         }
+        // The sealed signed immediate has the same constant representation
+        // as integer literals. There is no runtime operand to evaluate.
+        if let Some(value) = ledger.negative_integer_immediate(&site) {
+            nodes.push(ExpressionSourceNodeV1 {
+                site,
+                source: ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Integer(value)),
+                children: ExpressionChildrenV1::Known(Vec::new()),
+            });
+            continue;
+        }
         let children = expression_children_v1(ledger, shape, &site)?;
         let source = match expression_source_v1(ledger, shape, &site).ok_or(Issue::MissingSource)? {
             ResolvedExpressionSourceV1::Binary(row) => ExpressionNodeSourceV1::Binary(row.clone()),

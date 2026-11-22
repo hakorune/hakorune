@@ -55,6 +55,14 @@ static yyjson_val* hako_physical_string_operand_at(yyjson_val* op, size_t ordina
   const char* field = kind && (!strcmp(kind, "string_add") || !strcmp(kind, "string_compare")) ? (ordinal ? "right" : "left") : "value";
   return yyjson_obj_get(op, field);
 }
+/* The source-selected contract also names the borrowed operand. */
+static int hako_physical_equality_dynamic_side(yyjson_val* instruction) {
+  yyjson_val* contract = yyjson_obj_get(instruction, "contract");
+  if (hako_physical_string(contract, "dynamic_scalar_equality_lhs")) return 0;
+  if (hako_physical_string(contract, "dynamic_scalar_equality_rhs")) return 1;
+  return -1;
+}
+
 /* One comparison spelling/opcode table shared by validation and emission. */
 static int hako_physical_string_comparison(yyjson_val* operation) {
   yyjson_val* value = yyjson_obj_get(operation, "comparison");
@@ -635,9 +643,15 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
   if (!strcmp(op, "add") || !strcmp(op, "mul")) return hako_physical_exact_keys(instruction, binary, 4) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) && hako_physical_u32(yyjson_obj_get(instruction, "lhs"), &b) && hako_physical_u32(yyjson_obj_get(instruction, "rhs"), &c) && hako_physical_value_available_at(function, b, current_block, current_index) && hako_physical_value_available_at(function, c, current_block, current_index);
   if (!strcmp(op, "compare")) {
     const char* p = yyjson_get_str(yyjson_obj_get(instruction, "predicate"));
-    return p && (!strcmp(p, "eq") || !strcmp(p, "ne") || !strcmp(p, "slt") ||
+    yyjson_val* contract = yyjson_obj_get(instruction, "contract");
+    static const char* const dynamic_compare[] = {"op", "dst", "lhs", "rhs", "predicate", "contract"};
+    int keys = contract
+        ? hako_physical_equality_dynamic_side(instruction) >= 0 && p &&
+            (!strcmp(p, "eq") || !strcmp(p, "ne")) &&
+            hako_physical_exact_keys(instruction, dynamic_compare, 6)
+        : hako_physical_exact_keys(instruction, compare, 5);
+    return keys && p && (!strcmp(p, "eq") || !strcmp(p, "ne") || !strcmp(p, "slt") ||
         !strcmp(p, "sle") || !strcmp(p, "sgt") || !strcmp(p, "sge")) &&
-        hako_physical_exact_keys(instruction, compare, 5) &&
         hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) &&
         hako_physical_u32(yyjson_obj_get(instruction, "lhs"), &b) &&
         hako_physical_u32(yyjson_obj_get(instruction, "rhs"), &c) &&

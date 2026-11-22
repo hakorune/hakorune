@@ -150,16 +150,12 @@ fn equal_dynamic_null_issues_non_suspending_trivial_bool() {
             DynamicOperatorFaultV1::NoSourceFault
         );
     }
-    // General tagged equality and the Integer-Zero literal stay outside
-    // the bounded domain.
+    // This null envelope grants neither unrestricted tagged equality nor a
+    // comparison between null and an exact numeric value.
     for (left, right) in [
         (
             DynamicOperatorValueClassV1::Dynamic,
             DynamicOperatorValueClassV1::Dynamic,
-        ),
-        (
-            DynamicOperatorValueClassV1::Dynamic,
-            DynamicOperatorValueClassV1::I64,
         ),
         (
             DynamicOperatorValueClassV1::I64,
@@ -379,6 +375,20 @@ fn checked_comparisons_refuse_every_other_operand_domain() {
                     assert_eq!(envelope.input_access(), DynamicOperatorInputAccessV1::BorrowedNoEscapeForOperation);
                     assert_eq!(envelope.fault(), DynamicOperatorFaultV1::TypeErrorBeforeResultNoOperandMutationNoRebind);
                     assert_eq!(envelope.suspension(), DynamicOperatorSuspensionV1::MaySuspend);
+                    assert_eq!(envelope.lifecycle(), None);
+                    continue;
+                }
+                use DynamicOperatorValueClassV1::{Bool, Dynamic, I64};
+                if matches!(family, DynamicOperatorFamilyV1::Equal | DynamicOperatorFamilyV1::NotEqual)
+                    && matches!((left, right), (Dynamic, I64 | Bool) | (I64 | Bool, Dynamic))
+                {
+                    let envelope = issue(family, left, right).unwrap();
+                    assert_eq!(envelope.domain(), DynamicOperatorDomainV1::new(family, left, right));
+                    assert_eq!(envelope.normal_result(), DynamicOperatorNormalResultV1::TrivialBool);
+                    assert_eq!(envelope.input_access(), DynamicOperatorInputAccessV1::BorrowedNoEscapeForOperation);
+                    assert_eq!(envelope.fault(),
+                        DynamicOperatorFaultV1::MalformedCarrierBeforeResultNoOperandMutationNoRebind);
+                    assert_eq!(envelope.suspension(), DynamicOperatorSuspensionV1::NonSuspending);
                     assert_eq!(envelope.lifecycle(), None);
                     continue;
                 }

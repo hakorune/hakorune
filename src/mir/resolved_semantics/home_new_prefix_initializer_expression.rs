@@ -137,18 +137,25 @@ pub(super) fn observe<E>(
         else {
             continue;
         };
-        if let Some(BorrowedCallArgumentsV1::FiniteEntryRead(read)) = port(
-            &owned,
-            BorrowedCallActualRequestV1::FiniteEntryRead {
-                input,
-                plan: &source,
-                read: node.site(),
-                binding,
-                root,
-            },
-        )? {
-            reads.push(read);
-        } else if let Some(BorrowedCallArgumentsV1::DynamicEntryRead(read)) = port(
+        let prefer_tagged = super::condition::scalar_dynamic_demand_v1(
+            input, locals, local_calls, node.site(), true,
+        );
+        if !prefer_tagged {
+            if let Some(BorrowedCallArgumentsV1::FiniteEntryRead(read)) = port(
+                &owned,
+                BorrowedCallActualRequestV1::FiniteEntryRead {
+                    input,
+                    plan: &source,
+                    read: node.site(),
+                    binding,
+                    root,
+                },
+            )? {
+                reads.push(read);
+                continue;
+            }
+        }
+        if let Some(BorrowedCallArgumentsV1::DynamicEntryRead(read)) = port(
             &owned,
             BorrowedCallActualRequestV1::DynamicEntryRead {
                 input,

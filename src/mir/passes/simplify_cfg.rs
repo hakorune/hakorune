@@ -189,7 +189,7 @@ fn compare_to_bool_const(
 ) -> Option<bool> {
     let lhs = const_to_join_value(function, def_map, lhs)?;
     let rhs = const_to_join_value(function, def_map, rhs)?;
-    let result = eval_compare(to_join_compare_op(op), &lhs, &rhs).ok()?;
+    let result = eval_compare(to_join_compare_op(op)?, &lhs, &rhs).ok()?;
     match result {
         JoinValue::Bool(b) => Some(b),
         _ => None,
@@ -254,7 +254,7 @@ fn const_value_from_origin(
         MirInstruction::Compare { op, lhs, rhs, .. } => {
             let lhs = const_to_join_value(function, def_map, *lhs)?;
             let rhs = const_to_join_value(function, def_map, *rhs)?;
-            let result = eval_compare(to_join_compare_op(*op), &lhs, &rhs).ok()?;
+            let result = eval_compare(to_join_compare_op(*op)?, &lhs, &rhs).ok()?;
             match result {
                 JoinValue::Bool(b) => Some(ConstValue::Bool(b)),
                 _ => None,
@@ -284,15 +284,16 @@ fn const_to_join_value(
     }
 }
 
-fn to_join_compare_op(op: crate::mir::CompareOp) -> crate::mir::join_ir::CompareOp {
-    match op {
+fn to_join_compare_op(op: crate::mir::CompareOp) -> Option<crate::mir::join_ir::CompareOp> {
+    Some(match op {
         crate::mir::CompareOp::Lt => crate::mir::join_ir::CompareOp::Lt,
         crate::mir::CompareOp::Le => crate::mir::join_ir::CompareOp::Le,
         crate::mir::CompareOp::Gt => crate::mir::join_ir::CompareOp::Gt,
         crate::mir::CompareOp::Ge => crate::mir::join_ir::CompareOp::Ge,
         crate::mir::CompareOp::Eq => crate::mir::join_ir::CompareOp::Eq,
         crate::mir::CompareOp::Ne => crate::mir::join_ir::CompareOp::Ne,
-    }
+        crate::mir::CompareOp::DynamicScalarEquality { .. } => return None,
+    })
 }
 
 fn fold_constant_compare(

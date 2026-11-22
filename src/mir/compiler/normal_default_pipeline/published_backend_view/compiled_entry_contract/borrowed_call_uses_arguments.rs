@@ -157,26 +157,36 @@ impl BorrowedCallUses {
         {
             *state.field_admissions.entry(*formal).or_default() += 1;
         }
-        if state.finite_input {
+        let has_dynamic_equality = function.blocks.values().any(|block| {
+            block.instructions.iter().any(|row| matches!(row, MirInstruction::Compare {
+                op: crate::mir::CompareOp::DynamicScalarEquality { .. }, ..
+            }))
+        });
+        if state.finite_input || has_dynamic_equality {
+            let mut scalar_copies: Vec<_> = state.copies.values().filter_map(|(binding, coordinate)|
+                coordinate.map(|coordinate| (binding.clone(), coordinate))).collect();
             source.with_finished_bool_bindings_v1(owner, function, |coordinate, instruction| {
-                if state.finite_scalar_bindings.insert(coordinate, instruction.clone())
+                if state.finite_input && state.finite_scalar_bindings.insert(coordinate, instruction.clone())
                     .is_some_and(|previous| previous != instruction) {
                     return Err(fault("borrowed-use/coordinate-duplicate"));
                 }
-                Ok(())
-            })?;
-            let mut scalar_copies: Vec<_> = state.copies.values().filter_map(|(binding, coordinate)|
-                coordinate.map(|coordinate| (binding.clone(), coordinate))).collect();
-            source.with_finished_scalar_bindings_v1(owner, function, |original, coordinate| {
-                if state.finite_scalar_bindings.insert(coordinate, original.1.clone())
-                    .is_some_and(|previous| previous != original.1) {
-                    return Err(fault("borrowed-use/coordinate-duplicate"));
-                }
-                if matches!(original.1, MirInstruction::Copy { .. }) {
-                    scalar_copies.push((original.clone(), coordinate));
+                if has_dynamic_equality && matches!(instruction, MirInstruction::Copy { .. }) {
+                    scalar_copies.push(((coordinate.0, instruction), coordinate));
                 }
                 Ok(())
             })?;
+            if state.finite_input {
+                source.with_finished_scalar_bindings_v1(owner, function, |original, coordinate| {
+                    if state.finite_scalar_bindings.insert(coordinate, original.1.clone())
+                        .is_some_and(|previous| previous != original.1) {
+                        return Err(fault("borrowed-use/coordinate-duplicate"));
+                    }
+                    if matches!(original.1, MirInstruction::Copy { .. }) {
+                        scalar_copies.push((original.clone(), coordinate));
+                    }
+                    Ok(())
+                })?;
+            }
             state.retain_rooted_copies_v1(state.roots.keys().copied().collect(), &scalar_copies)?;
         }
         let tracked = state.tracked()?;
@@ -195,14 +205,14 @@ impl BorrowedCallUses {
             }
             Ok(())
         })?;
-        source.with_finished_tagged_text_operands_v1(owner, function, |formal, value, side, coordinate| {
+        source.with_finished_tagged_read_operands_v1(owner, function, |formal, value, side, coordinate| {
             let expected = crate::mir::instruction::StringInvokeOperand::Dynamic(value);
             let key = (coordinate.0, coordinate.1, side);
             if tracked.get(&value) != Some(&formal) {
                 return Err(format!("{} function={} phase=source-image coordinate={coordinate:?} side={side} value={value:?} formal={formal:?} tracked={:?}",
                     fault("borrowed-text/operand-correspondence"), function.signature.name, tracked.get(&value)));
             }
-            if let Some(previous) = state.text_operands.insert(key, expected.clone()) {
+            if let Some(previous) = state.read_operands.insert(key, expected.clone()) {
                 return Err(format!("{} function={} phase=source-image coordinate={coordinate:?} side={side} previous={previous:?} expected={expected:?}",
                     fault("borrowed-text/operand-correspondence"), function.signature.name));
             }
@@ -267,7 +277,7 @@ impl BorrowedCallUses {
                     if !source.frame().is_i64() => {},
                 _ => return Err(fault("borrowed-text/operand-correspondence")),
             }
-            if state.text_operands.insert((coordinate.0, coordinate.1, *ordinal as usize), operand.clone()).is_some() {
+            if state.read_operands.insert((coordinate.0, coordinate.1, *ordinal as usize), operand.clone()).is_some() {
                 return Err(fault("borrowed-text/duplicate-occurrence"));
             }
         }
@@ -293,10 +303,23 @@ impl FunctionUses {
                     | crate::mir::instruction::StringInvokeOperation::Compare { left, right, .. }), .. } = instruction {
                 for (side, operand) in [left, right].into_iter().enumerate() {
                     let key = (coordinate.0, coordinate.1, side);
-                    if let Some(expected) = self.text_operands.get(&key) {
+                    if let Some(expected) = self.read_operands.get(&key) {
                         if expected != operand || !matches!(expected, Operand::Dynamic(_)) || !seen.insert(key) {
                             return Err(format!("{} phase=string-operation coordinate={coordinate:?} side={side} expected={expected:?} actual={operand:?}",
                                 fault("borrowed-text/operand-correspondence")));
+                        }
+                    }
+                }
+                continue;
+            }
+            if let MirInstruction::Compare {
+                op: crate::mir::CompareOp::DynamicScalarEquality { .. }, lhs, rhs, ..
+            } = instruction {
+                for (side, value) in [lhs, rhs].into_iter().enumerate() {
+                    let key = (coordinate.0, coordinate.1, side);
+                    if let Some(expected) = self.read_operands.get(&key) {
+                        if expected != &Operand::Dynamic(*value) || !seen.insert(key) {
+                            return Err(fault("borrowed-use/equality-operand-correspondence"));
                         }
                     }
                 }
@@ -309,15 +332,15 @@ impl FunctionUses {
             };
             for (ordinal, value) in call.args.iter().enumerate() {
                 let key = (coordinate.0, coordinate.1, ordinal);
-                if !owned.contains(value) && !self.text_operands.contains_key(&key) { continue; }
-                if !matches!(self.text_operands.get(&key), Some(Operand::OwnedString(original)) if original == value && owned.contains(value))
+                if !owned.contains(value) && !self.read_operands.contains_key(&key) { continue; }
+                if !matches!(self.read_operands.get(&key), Some(Operand::OwnedString(original)) if original == value && owned.contains(value))
                     || !seen.insert(key) {
                     return Err(format!("{} phase=call coordinate={coordinate:?} ordinal={ordinal} expected={:?} actual={value:?}",
-                        fault("borrowed-text/operand-correspondence"), self.text_operands.get(&key)));
+                        fault("borrowed-text/operand-correspondence"), self.read_operands.get(&key)));
                 }
             }
         }
-        if seen != self.text_operands.keys().copied().collect() { return Err(fault("borrowed-text/occurrence-coverage")); }
+        if seen != self.read_operands.keys().copied().collect() { return Err(fault("borrowed-text/occurrence-coverage")); }
         Ok(())
     }
 }
@@ -345,7 +368,7 @@ impl FunctionUses {
             if matches!(operation, crate::mir::instruction::StringInvokeOperation::Add { .. }
                 | crate::mir::instruction::StringInvokeOperation::Compare { .. })
                 && matches!(operand, crate::mir::instruction::StringInvokeOperand::Dynamic(_))
-                && self.text_operands.get(&key) == Some(operand) {
+                && self.read_operands.get(&key) == Some(operand) {
                 continue;
             }
             ordinary.push(operand);
@@ -355,6 +378,24 @@ impl FunctionUses {
 
     /// One typed operand check for String and synchronous Map field reads.
     /// Scalar receiver/frame operands cannot smuggle a borrowed tagged value.
+    pub(super) fn verify_equality_operand_origins_v1(
+        &self,
+        coordinate: Coordinate,
+        operands: [ValueId; 2],
+        tracked: &BTreeMap<ValueId, BindingRefV1>,
+        views: &ViewScan,
+    ) -> Result<(), String> {
+        for (side, operand) in operands.into_iter().enumerate() {
+            if (tracked.contains_key(&operand) || views.views.contains_key(&operand))
+                && self.read_operands.get(&(coordinate.0, coordinate.1, side))
+                    != Some(&crate::mir::instruction::StringInvokeOperand::Dynamic(operand))
+            {
+                return Err(fault("borrowed-use/equality-operand-correspondence"));
+            }
+        }
+        Ok(())
+    }
+
     pub(super) fn verify_text_operands_v1(&self, tracked: &BTreeMap<ValueId, BindingRefV1>, views: &ViewScan,
         operands: &[&crate::mir::instruction::StringInvokeOperand], scalar_values: &[ValueId], fault_frame: ValueId,
     ) -> Result<(), String> {

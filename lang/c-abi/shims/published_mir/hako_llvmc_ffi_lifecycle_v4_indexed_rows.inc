@@ -8,6 +8,13 @@ static int lv4_handle_alias_readable(const hako_lv4_input* in,
       lv4_carrier_array_holder_live(fn, value->id, state);
 }
 
+/* A Normal result remains readable only for the exact live carrier origin. */
+static int lv4_dynamic_carrier_readable(const hako_lv4_value* value,
+    const hako_lv4_state* state, int faulted) {
+  return !faulted && value->origin >= 0 &&
+      state[value->origin] == LV4_DYNAMIC_CARRIER_LIVE;
+}
+
 static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* fn,
     yyjson_val* block, hako_lv4_state* state, int faulted, int birth) {
   yyjson_val* rows = yyjson_obj_get(block, "instructions");
@@ -90,7 +97,7 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
           source->kind != LV4_DYNAMIC_CARRIER)) return 0;
       /* A Copy of a carrier is a read alias of the one live lease. */
       if (source->kind == LV4_DYNAMIC_CARRIER &&
-          (faulted || source->origin < 0 || state[source->origin] != LV4_DYNAMIC_CARRIER_LIVE)) return 0;
+          !lv4_dynamic_carrier_readable(source, state, faulted)) return 0;
       if (source->kind == LV4_MIXED_OBJECT &&
           (faulted || !lv4_mixed_result_readable(in, fn, source, state, lv4_u(block, "id")))) return 0;
       if (source->kind == LV4_BORROWED_OBJECT &&
@@ -119,6 +126,17 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
     } else if (lv4_is(ins, "op", "compare")) {
       hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
           *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
+      int side = hako_physical_equality_dynamic_side(ins);
+      if (side >= 0) {
+        hako_lv4_value* dynamic = side ? rhs : lhs;
+        hako_lv4_value* scalar = side ? lhs : rhs;
+        if (faulted || !dynamic || !scalar ||
+            (scalar->kind != LV4_I64 && scalar->kind != LV4_BOOL)) return 0;
+        if (dynamic->kind == LV4_DYNAMIC_CARRIER) {
+          if (!lv4_dynamic_carrier_readable(dynamic, state, faulted)) return 0;
+        } else if (!lv4_borrowed_formal_parameter(fn, dynamic)) return 0;
+        continue;
+      }
       /* Bool equality uses its canonical 0/1 carrier, never Integer or
          tagged-payload coercion. Bool ordering remains outside this lane. */
       if (lhs && rhs && lhs->kind == LV4_BOOL && rhs->kind == LV4_BOOL) {
@@ -151,7 +169,7 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
           carrier->kind != LV4_DYNAMIC_CARRIER) return 0;
       /* An opaque carrier answers by its runtime null kind while it is still live. */
       if (carrier->kind == LV4_DYNAMIC_CARRIER &&
-          (faulted || carrier->origin < 0 || state[carrier->origin] != LV4_DYNAMIC_CARRIER_LIVE)) return 0;
+          !lv4_dynamic_carrier_readable(carrier, state, faulted)) return 0;
       if (carrier->kind == LV4_SLOT_BORROW &&
           (faulted || !lv4_slot_borrow_readable(in, fn, carrier, state, lv4_u(block, "id")))) return 0;
       if (carrier->kind == LV4_MIXED_OBJECT &&

@@ -54,6 +54,10 @@ fn fault(frame: &mut FaultFrame, site: u64, reason: u32) -> u32 {
         .unwrap_or(Status::InvalidContract) as u32
 }
 
+pub(super) fn comparison_type_error(frame: &mut FaultFrame, site: u64) -> u32 {
+    fault(frame, site, TYPE_ERROR)
+}
+
 unsafe fn operand<'a>(value: *const Operand) -> Result<&'a Operand, Status> {
     unsafe { operand_with_max_tag(value, 3) }
 }
@@ -136,7 +140,7 @@ pub unsafe extern "C" fn borrowed_integer_payload(
             unsafe { out.write(value) };
             Status::Normal as u32
         }
-        Err(IntegerOperandFailure::TypeError) => fault(frame, site, TYPE_ERROR),
+        Err(IntegerOperandFailure::TypeError) => comparison_type_error(frame, site),
         Err(IntegerOperandFailure::InvalidContract) => Status::InvalidContract as u32,
     }
 }

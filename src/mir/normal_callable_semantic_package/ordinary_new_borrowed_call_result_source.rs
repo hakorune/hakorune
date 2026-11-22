@@ -307,18 +307,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
     }
     // An original expression binds the loan. A scalar classifier can also ask
     // whether this exact source has an owned Dynamic result before choosing a writer.
-    if expression.is_some_and(|expression| expression.owner() != site.owner()
-        || !(matches!(expression.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
-            role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue
-                | crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue
-                | crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::DiscardValue, .. })
-            || matches!(expression.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. }
-                | crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LocalInitializer { .. })
-            || matches!(expression.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment }
-                if assignment.form() == crate::mir::resolved_semantics::ResolvedAssignmentFormV1::Plain))
-        || !expression.nodes().iter().any(|node| node.site() == site.site()
-            && matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall)))
-    { return ordinary_result_absent(site, "the expression is not a Print, Return, Discard, CallArgument, LocalInitializer or plain Assignment root with this method call"); }
+    if expression.is_some_and(|expression| !expression.contains_call_site_v1(site)) {
+        return ordinary_result_absent(site, "the expression does not contain the original method call");
+    }
     let Some(original) = crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(prepared, contracts, site)?
         else { return ordinary_result_absent(site, "no original instance input call for the site") };
     // Do not project SelectedStored/PendingStored into this ordinary Instance role.

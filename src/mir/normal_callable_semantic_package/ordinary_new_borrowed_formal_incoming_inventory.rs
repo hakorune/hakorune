@@ -272,6 +272,11 @@ impl BorrowedIncomingInventoryV1 {
         self.legacy_observations()
             .filter_map(|(_, row)| row.as_ref().ok())
     }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn has_original_call_to_v1(
+        &self, owner: FunctionOwnerIdV1,
+    ) -> bool {
+        self.source_rows_v1().chain(self.exact_rows()).any(|call| call.callee == owner)
+    }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn registered_owners_v1(
         &self,
     ) -> &std::collections::BTreeSet<FunctionOwnerIdV1> {

@@ -97,7 +97,7 @@ fn compare_route_symbol(op: CompareOp) -> &'static str {
         CompareOp::Le => "<=",
         CompareOp::Gt => ">",
         CompareOp::Lt => "<",
-        CompareOp::Eq => "==",
-        CompareOp::Ne => "!=",
+        CompareOp::Eq | CompareOp::DynamicScalarEquality { negated: false, .. } => "==",
+        CompareOp::Ne | CompareOp::DynamicScalarEquality { negated: true, .. } => "!=",
     }
 }
