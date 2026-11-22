@@ -296,24 +296,18 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_s
             {
                 return Err(freeze("borrowed-static/scalar-required-integer-drift"));
             }
-            super::static_numeric_evidence::checked_ready_scalar_rows_v1(
+            let cohort = super::static_numeric_evidence::checked_ready_scalar_rows_v1(
                 prepared,
                 pending,
                 original,
                 &finish.completion,
             )?
             .ok_or_else(|| freeze("borrowed-static/scalar-sibling-unfinished"))?;
-            let mut matching = prepared
-                .source_incoming
-                .exact_rows()
-                .filter(|call| &call.call == site && call.callee == original.callee_owner());
-            let call = matching
-                .next()
-                .ok_or_else(|| freeze("borrowed-static/scalar-incoming-missing"))?;
-            if matching.next().is_some() {
-                return Err(freeze("borrowed-static/scalar-incoming-duplicate"));
-            }
-            call
+            cohort
+                .iter()
+                .copied()
+                .find(|row| row.call == *site)
+                .ok_or_else(|| freeze("borrowed-static/scalar-incoming-missing"))?
         };
         return rows.ordered_arguments_for_v1(call).map(|args| Some(args.into()));
     }

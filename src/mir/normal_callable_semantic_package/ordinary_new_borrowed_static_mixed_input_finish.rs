@@ -1,7 +1,6 @@
 //! Finish one source-only Static target with one exact scalar and two forwards.
 //! Every caller is checked against the same original incoming cohort.
 use super::*;
-use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
 use crate::mir::normal_callable_semantic_package::{
     physical_signature::VerifiedCallablePhysicalSignatureCohortV1,
     qualified_static_call_claim::incoming_source::StaticIncomingSourceV1,
@@ -413,15 +412,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 .next()
                 .ok_or_else(|| freeze("static-mixed/contract-missing"))?;
             if matching.next().is_some()
-                || contract.mode != CallableParameterDeclarationModeV1::StaticBoxMethod
-                || contract.batch_slot != first.target_batch_slot()
-                || contract.parameters.len() != 1
-                || contract.parameters[0].ordinal != 0
-                || contract.parameters[0].binding != first.parameters()[0].binding
-                || contract.parameters[0].kind != first.parameters()[0].kind
+                || !first.matches_static_input_contract_v1(selected, contract)
                 || !source.checked_static_input(contract.parameters[0].binding)
-                || !matches!(selected.key_for_batch_slot(contract.batch_slot),
-                    Some(SelectedNormalCallableKeyV1::Cataloged(key)) if key == first.target())
             {
                 return Err(freeze("static-mixed/contract-identity"));
             }
@@ -447,16 +439,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 let [candidate] = source_actual.candidates.as_ref() else {
                     break;
                 };
-                if !Rc::ptr_eq(&source_actual.source, member)
-                    || source_actual.integer_evidence.as_ref() != [true]
-                    || candidate.ordinal != 0
-                    || candidate.site != member.argument_sites()[0]
-                    || !staged.opaque_actuals.is_empty()
-                    || staged.ordered_arguments.as_ref()
-                        != [LocalCallArgumentV1::BorrowedActual {
-                            ordinal: 0,
-                            site: candidate.site.clone(),
-                        }]
+                if !static_source::has_original_integer_static_input_v1(
+                    member, source_actual, staged, 0,
+                )
                     || rows.iter().filter(|row| row.call == *site).count() != 1
                 {
                     return Err(freeze("static-mixed/source-actual-drift"));
@@ -468,15 +453,14 @@ impl OrdinaryNewClaimLedgerV1 {
                         )?;
                         (
                             StaticMixedInputKindV1::Scalar(binding),
-                            PreparedBorrowedFormalActualV1 {
-                                ordinal: 0,
-                                site: candidate.site.clone(),
-                                formal: member.parameters()[0].binding,
-                                source: BorrowedFormalActualSourceV1::Scalar {
+                            super::static_input_validation::static_argument_actual_v1(
+                                member.parameters()[0].binding,
+                                candidate,
+                                BorrowedFormalActualSourceV1::Scalar {
                                     binding,
                                     kind: SourceScalarKind::Integer,
                                 },
-                            },
+                            ),
                         )
                     }
                     BorrowedCallActualValueV1::SelfRooted { root, .. } => {

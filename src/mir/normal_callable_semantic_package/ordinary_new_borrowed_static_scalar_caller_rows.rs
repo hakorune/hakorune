@@ -357,16 +357,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 let BorrowedCallActualEvidencePhaseV1::SourceStatic(actual) = &staged.phase else {
                     return false;
                 };
-                if original.call_site() != &row.call
-                    || original.callee_owner() != owner
-                    || original.argument_sites().len() != 1
+                if original.callee_owner() != owner
                     || original.parameters().len() != 1
-                    || row.arguments.as_ref()
-                        != [(
-                            0,
-                            original.argument_sites()[0].clone(),
-                            original.parameters()[0].binding,
-                        )]
+                    || !static_source::matches_original_static_incoming_v1(row, original)
                     || !Rc::ptr_eq(&actual.source, original)
                 {
                     return false;
@@ -534,14 +527,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .next()
                 .ok_or_else(|| freeze("static-scalar/contract-missing"))?;
             if matching.next().is_some()
-                || contract.mode != CallableParameterDeclarationModeV1::StaticBoxMethod
-                || contract.batch_slot != first.target_batch_slot()
-                || contract.parameters.len() != 1
-                || contract.parameters[0].ordinal != 0
-                || contract.parameters[0].binding != first.parameters()[0].binding
-                || contract.parameters[0].kind != first.parameters()[0].kind
-                || !matches!(selected.key_for_batch_slot(contract.batch_slot),
-                    Some(SelectedNormalCallableKeyV1::Cataloged(key)) if key == first.target())
+                || !first.matches_static_input_contract_v1(selected, contract)
             {
                 return Err(freeze("static-scalar/contract-identity"));
             }
@@ -678,17 +664,10 @@ impl OrdinaryNewClaimLedgerV1 {
                         selected, contracts, signatures, original, binding,
                     )?;
                 }
-                if !Rc::ptr_eq(&source_actual.source, original)
-                    || source_actual.integer_evidence.as_ref() != [true]
-                    || candidate.ordinal != 0
-                    || candidate.site != original.argument_sites()[0]
+                if !static_source::has_original_integer_static_input_v1(
+                    original, source_actual, staged, 0,
+                )
                     || binding.owner() != site.owner()
-                    || !staged.opaque_actuals.is_empty()
-                    || staged.ordered_arguments.as_ref()
-                        != [LocalCallArgumentV1::BorrowedActual {
-                            ordinal: 0,
-                            site: candidate.site.clone(),
-                        }]
                     || projected.iter().filter(|row| row.call == *site).count() != 1
                 {
                     replacements.clear();

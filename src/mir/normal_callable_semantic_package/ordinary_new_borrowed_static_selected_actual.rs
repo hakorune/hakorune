@@ -3,7 +3,6 @@
 
 use super::static_input_finish::{StaticInputEvidenceV1, StaticInputFinishV1, StaticInputRowsV1};
 use super::*;
-use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
 use crate::mir::normal_callable_semantic_package::{
     physical_signature::VerifiedCallablePhysicalSignatureCohortV1,
     result_contract::VerifiedCallableResultContractCohortV1,
@@ -407,7 +406,7 @@ fn checked_original_static_forward_v1(
     let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &snapshot.phase else {
         return Err(reject());
     };
-    let (formal, candidate) = super::static_input_validation::original_static_borrowed_argument_v1(
+    let (formal, candidate) = static_source::original_static_borrowed_argument_v1(
         original, identity, snapshot, ordinal,
     )
     .ok_or_else(reject)?;
@@ -632,16 +631,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .next()
                 .ok_or_else(|| freeze("static-one/contract-missing"))?;
             if matching.next().is_some()
-                || contract.mode != CallableParameterDeclarationModeV1::StaticBoxMethod
-                || contract.batch_slot != original.target_batch_slot()
-                || contract.parameters.len() != original.parameters().len()
-                || contract.parameters.iter().zip(original.parameters()).enumerate()
-                    .any(|(ordinal, (parameter, original))| {
-                        parameter.ordinal as usize != ordinal
-                            || parameter.binding != original.binding
-                            || parameter.kind != original.kind
-                            || !parameter.kind.is_ordinary_borrowed_handle()
-                    })
+                || !original.matches_static_input_contract_v1(selected, contract)
                 || !(source.definitions.contains_key(&owner)
                     || source.target_static.contains_key(&owner))
             {
@@ -650,11 +640,6 @@ impl OrdinaryNewClaimLedgerV1 {
             let identity = selected
                 .identity_for_batch_slot(contract.batch_slot)
                 .ok_or_else(|| freeze("static-one/selected-identity"))?;
-            if !matches!(selected.key_for_batch_slot(contract.batch_slot),
-                Some(SelectedNormalCallableKeyV1::Cataloged(key)) if key == original.target())
-            {
-                return Err(freeze("static-one/selected-target"));
-            }
             let completion = self.require_static_input_completion_v1(
                 identity, contract, signatures, results, "static-one",
             )?;
@@ -688,14 +673,7 @@ impl OrdinaryNewClaimLedgerV1 {
             else {
                 return Err(freeze("static-one/source-phase"));
             };
-            if !Rc::ptr_eq(&source_actual.source, &original)
-                || source_actual.integer_evidence.len() != original.parameters().len()
-                || staged.opaque_actuals.len() != 0
-                || staged.ordered_arguments.as_ref()
-                    != [LocalCallArgumentV1::BorrowedActual {
-                        ordinal: issued.actual().ordinal,
-                        site: issued.actual().site.clone(),
-                    }]
+            if source_actual.integer_evidence.len() != original.parameters().len()
             {
                 return Err(freeze("static-one/source-actual-drift"));
             }
