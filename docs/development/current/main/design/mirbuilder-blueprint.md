@@ -679,3 +679,21 @@ ChatGPT Pro に相談した。目的は、行を減らす事ではなく、構�
 - **やめる線**: Local × Script / Callable / Loop のような新しい型や observer が増え、古い入口も残るなら、その案はやめる。
 - **組み替えか、作り直しかの判定**: 今の driver のままで、`local` を 1 つ読んだ人が「初期値はどこで 1 度だけ評価され、成功した束縛はどこで公開されるか」を指せる形になれば、組み替え(14 節のまま)。全構文の新しい表現と walker を先に作らないと `local` 1 つも置き換えられないなら、作り直しなので、止めてメンテナに聞く。
 - **道案内を保つ**: 入口をまとめる回・道を消す回は、触った構文の行を、道案内で直す。発行箇所の地図(`tools/mir_map`)は、登録した箇所しか見ないので、「独立の定義が増えていない」の保証には使わない。報告で、触った構文の「意味を決める所 / 書く所 / 確かめる所」を `file:line` で答える。
+
+## 26. 持ち主の表(移行先。メンテナ OK 2026-11-23。ChatGPT Pro に相談した)
+
+今の全部の道が、もうこの形になっている、という意味ではない。片付けの回は、この表の持ち主へ使い手を移して、古い道を消す。新しい持ち主は作らない。
+
+| 責任 | 持ち主に育てる、今ある所 | 1 度だけ決める事 |
+|---|---|---|
+| 式の意味 | Resolve の `VerifiedResolvedFunctionV1`。Lower は `ResolvedFunctionLoweringInputV1`(`src/mir/compiler/function_input.rs`)から読む。式は `CheckedExpressionEvaluationV1`(`src/mir/resolved_semantics/home_expression_evaluation.rs`) | 元の束縛・演算・呼び先・評価の順・要る実行時の検査。初期化用・引数用に、同じ式を読み直さない |
+| MIR を書く | 今の MirBuilder と、関数ごとの Lower の作業場。callable の式は `src/mir/builder/ordinary_new_admission/selected/expression_value.rs` の共通の発行 | 届いた辺で、子を順に 1 度だけ評価し、値・正常な続き・取得した一時値を返す。return や Fault で終わった辺から、無い値を作らない |
+| 所有と片付け | 意味は Resolve が持つ。式の中の責任の変化は `ExpressionOwnershipV1`(`src/mir/resolved_semantics/home_expression_ownership.rs`)。出口で終える Home と順は `source_home_end_selection_v2`(`ordinary_new_local_commit/root_home_cleanup_order.rs`) | どこで取得し、何に支えられ、どこで移し、どこで終えるか。Lower は、実際に取得まで届いた値にだけ使う。scope・return・Fault の発行元は、RC の決まりを持ち直さない |
+| 独立の検証 | 段 5 の MirVerifier(`src/mir/verification.rs`)と、完成した MIR を元の契約に照らす検証。C の ABI の検証も保つ | 実際の operand・分岐先・実行の順・Normal/Fault・所有の行き先が合うか。発行者が「正しい」と書いた事だけでは通さない |
+
+- **位置の違いは、値を使う側に閉じる。** `local x = f()` と `x = f()` では、`f()` の解決・実行・結果の受け取りは同じ。初期化は新しい束縛に置く。再代入は、新しい値を守って置き換え、古い値の責任を終える。右辺が Fault なら、古い値が残る。
+- 共有するのは評価。親(条件・引数・return・field や添字への書き込み)は、自分の効果と続きを持つ。全部を 1 つの Place に押し込む事や、「式の種類 × 位置」の表を作る事はしない(今の 3 層を、別の名前で作り直す事になる)。
+- 結果の種類は、呼び先の宣言・完了の情報・全部の Return から 1 度決める。呼び手は、その答えを読むだけにする。`LocalCallResultClassV1::invoke_result()` は、決まった種類を物理の ABI に写す表で、支えや由来が要る種類には None を返す。これを、全部を通す 1 つの表にはしない。
+- **片付けの順**(2026-11-23): DYR-1b → CL-1(戻り値の確定)→ CL-2(静的な入力の準備)→ CL-3(初期化と再代入の右辺)。古い道を消すのに要ると分かった時だけ、`id(id(v))` を独立した機能の回として入れる。`pick` は後。
+- **大きさの判断**: CL-3 で位置ごとの層を 1 組消せるか、その次に loop の古い道を 1 本退役できるかを測る。その実測で、組み替えのまま ADR-003 の目標に届くかを、もう一度判断する。test を別の file に移した分は、減った実績に数えない。
+- **道案内**: 触った操作ごとに、route guide に 1 行を残す(意味を決める関数 / MIR を書く関数 / 独立に照らす関数 / 今回消した古い入口)。
