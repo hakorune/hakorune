@@ -434,7 +434,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     selected_loop_body_packets: RefCell<
         BTreeMap<OwnedExprSiteV1, loop_static_body_actual::PreparedLoopStaticBodyDetachedPacketV1>,
     >,
-    loop_static_source_loop_sites: BTreeSet<(FunctionOwnerIdV1, SourceStmtSiteV1)>,
+    loop_static_source_loop_sites: Rc<BTreeSet<(FunctionOwnerIdV1, SourceStmtSiteV1)>>,
     preissued_static_i64_products: RefCell<
         BTreeMap<
             FunctionOwnerIdV1,

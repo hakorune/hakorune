@@ -29,6 +29,33 @@ fn current_owner_forwarded_i64_emits_one_physical_static_packet() {
     });
 }
 #[test]
+fn forwarded_formals_do_not_prove_a_static_callee_result_abi() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let text = r#"
+            static box Main {
+                pick(a, b) {
+                    if a < b { return a }
+                    return b
+                }
+                forward(value) { return Main.pick(value, 0) }
+                main() { return Main.forward(1) }
+            }
+        "#;
+        let issue = MirCompiler::with_options(false)
+            .compile_normal_with_published(request(text), |_, _| -> Result<(), String> { Ok(()) })
+            .err()
+            .expect("the callee has no scalar result contract");
+        assert!(
+            issue
+                .to_string()
+                .contains("[freeze:contract][ordinary-new/static-packet/callee-result-unavailable]"),
+            "{issue}"
+        );
+    });
+}
+
+#[test]
 fn borrowed_less_equal_publishes_both_sides_shared_carrier_and_original_alias() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {

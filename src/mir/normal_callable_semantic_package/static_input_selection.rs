@@ -1,9 +1,128 @@
 //! Original input selection, passive source staging and closed domain queries.
 use super::static_input_finish::{StaticInputEvidenceV1, StaticInputFinishV1};
 use super::*;
-use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
+use crate::mir::normal_callable_semantic_package::{
+    selected_mapping::VerifiedSelectedCallableBatchMapV1, OrdinaryNewClaimLedgerV1,
+};
+use std::collections::BTreeSet;
+use std::rc::Rc;
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Entry correspondence borrows the checked whole source cohort. Actuals
+    /// remain owned by each executable canonical packet, not by this view.
+    pub(in crate::mir::normal_callable_semantic_package) fn checked_completed_static_tagged_entry_v1<
+        'a,
+    >(
+        &'a self,
+        source: &'a PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<
+        Option<Box<[&'a super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1]>>,
+        String,
+    > {
+        let seed = self
+            .borrowed_formal_actuals
+            .values()
+            .filter_map(|row| row.as_ref().ok()?.static_loop_input_v1())
+            .map(|(proof, _)| &proof.source)
+            .find(|source| source.callee_owner() == owner);
+        let Some(seed) = seed else { return Ok(None) };
+        if !source.source_only_definitions.contains_key(&owner)
+            || source.definitions.contains_key(&owner)
+            || source.target_static.contains_key(&owner)
+        {
+            return Err(freeze("static-tagged/entry-owner-overlap"));
+        }
+        self.checked_static_input_packet_rows_v1(seed)?
+            .ok_or_else(|| freeze("static-tagged/entry-cohort-unfinished"))?;
+        let projected = source
+            .source_incoming
+            .project(&BTreeSet::from([owner]))
+            .map_err(|error| {
+                format!("{}: {error:?}", freeze("static-tagged/entry-incoming-veto"))
+            })?;
+        let mut retained = Vec::new();
+        for row in projected.iter() {
+            let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
+                &row.source
+            else {
+                return Err(freeze("static-tagged/entry-source-kind"));
+            };
+            if row.callee != owner
+                || original.callee_owner() != owner
+                || original.call_site() != &row.call
+                || row.arguments.as_ref()
+                    != [(
+                        0,
+                        original.argument_sites()[0].clone(),
+                        original.parameters()[0].binding,
+                    )]
+            {
+                return Err(freeze("static-tagged/entry-source-identity"));
+            }
+            let mut matching = source
+                .source_incoming
+                .exact_rows()
+                .filter(|candidate| candidate.callee == row.callee && candidate.call == row.call);
+            let exact = matching
+                .next()
+                .ok_or_else(|| freeze("static-tagged/entry-row-missing"))?;
+            if matching.next().is_some()
+                || !matches!(&exact.source, super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(source) if Rc::ptr_eq(source, original))
+                || exact.arguments != row.arguments
+            {
+                return Err(freeze("static-tagged/entry-row-drift"));
+            }
+            retained.push(exact);
+        }
+        Ok(Some(retained.into_boxed_slice()))
+    }
+
+    /// Lend the selected affine input origin. A physical Loop product and its
+    /// residual source loan are two phases of the same origin.
+    pub(super) fn selected_static_loop_formals_v1(
+        &self,
+        selected: &VerifiedSelectedCallableBatchMapV1,
+        requested: &BTreeSet<BindingRefV1>,
+    ) -> Result<BTreeSet<BindingRefV1>, String> {
+        if requested.is_empty() {
+            return Ok(BTreeSet::new());
+        }
+        let mut formals = BTreeSet::new();
+        // The affine source may still be residual or already owned by the
+        // preissued V2 product. Borrow both, never take or rebuild either.
+        let entries = self.loop_entry_static_i64_source_loans.borrow();
+        for (key, tagged) in self.loop_static_tagged_entry.borrow().iter() {
+            let (Ok(tagged), Some(Ok(entry))) = (tagged, entries.get(key)) else {
+                continue;
+            };
+            if !requested.contains(&tagged.formal()) {
+                continue;
+            }
+            if !entry.publication_brand().is_same(selected.catalog_brand())
+                || !tagged.corroborates(entry)
+                || !formals.insert(tagged.formal())
+            {
+                return Err(freeze("static-tagged/entry-source-drift"));
+            }
+        }
+        for (owner, product) in self.preissued_static_i64_products.borrow().iter() {
+            let Ok(product) = product else { continue };
+            let (entry, tagged) = product.packet_source_inputs();
+            if !requested.contains(&tagged.formal()) {
+                continue;
+            }
+            if tagged.formal().owner() != *owner
+                || !entry.publication_brand().is_same(selected.catalog_brand())
+                || !tagged.corroborates(entry)
+                || !formals.insert(tagged.formal())
+            {
+                return Err(freeze("static-tagged/product-source-drift"));
+            }
+        }
+        Ok(formals)
+    }
+
     /// Complete passive source rows for selected Static input cohorts before
     /// any callee entry asks to borrow the whole cohort. The normal caller
     /// walk may not have visited a Loop body's expression yet; this source-only
@@ -22,6 +141,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .filter(|original| {
                 original.parameters().iter().any(|formal| formal.takes_declared_object_v1())
                     || prepared.original_finite_forward_input_request_v1(original.callee_owner())
+                    || prepared.has_tagged_static_input_v1(original.callee_owner(), original.parameters())
                     || original.parameters().iter().any(|formal|
                         matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
                             && prepared.source_value_sum_v1(formal.binding).is_some_and(|sum|
@@ -202,10 +322,27 @@ impl OrdinaryNewClaimLedgerV1 {
             .collect())
     }
 
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn allows_general_tagged_static_input_v1(
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
+    ) -> bool {
+        !self.static_expression_input_owner_v1(source, owner, false)
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn is_static_expression_input_owner_v1(
         &self,
         source: &PreparedBorrowedFormalIngressV1,
         owner: FunctionOwnerIdV1,
+    ) -> bool {
+        self.static_expression_input_owner_v1(source, owner, true)
+    }
+
+    fn static_expression_input_owner_v1(
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
+        allow_tagged: bool,
     ) -> bool {
         source.source_incoming.source_rows_v1().filter(|row| row.callee == owner).any(|row| {
             let source_input = match &row.source {
@@ -258,7 +395,8 @@ impl OrdinaryNewClaimLedgerV1 {
                         || original.has_exact_i64_inputs_v1()
                             && self.observes_static_result_v1(original,
                                 crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Text);
-                    finite_forward || text_source || scalar_expression_source || exact_input_text
+                    (allow_tagged && source.has_tagged_static_input_v1(owner, original.parameters()))
+                        || finite_forward || text_source || scalar_expression_source || exact_input_text
                         || original.parameters().iter().any(|formal| formal.takes_declared_object_v1())
                 }
                 _ => false,
@@ -278,6 +416,11 @@ impl OrdinaryNewClaimLedgerV1 {
         source: &PreparedBorrowedFormalIngressV1,
         contract: &OwnedCallableParameterContractDeclarationV1,
     ) -> Option<Box<[super::super::borrowed_formal_entry::BorrowedFormalDomainV1]>> {
+        if source.has_tagged_static_input_v1(contract.owner, &contract.parameters)
+            && self.allows_general_tagged_static_input_v1(source, contract.owner)
+        {
+            return Some(Box::new([]));
+        }
         contract
             .parameters
             .iter()

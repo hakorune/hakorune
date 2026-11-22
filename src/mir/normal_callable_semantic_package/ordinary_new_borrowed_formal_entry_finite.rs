@@ -46,6 +46,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         parameters: &[(u32, BindingRefV1, CallableParameterContractKindV1)],
         nominal_sibling_structure: bool,
+        allow_tagged: bool,
     ) -> Result<Option<BorrowedEntryStructureV1<'a>>, String> {
         use super::super::borrowed_formal_uses::BorrowedIncomingSourceV1;
         use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1 as Mode;
@@ -60,45 +61,61 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         let borrowed: Vec<_> = contract.parameters.iter()
             .filter(|row| row.kind.is_ordinary_borrowed_handle()).collect();
-        // The source read lender uses this SAME full original membership.
-        // One Text formal cannot select an ungrounded sibling or grant entry.
-        let Some(sums) = source.lend_original_input_sums_v1(&contract.parameters) else { return Ok(None) };
-        // Existing Uses/Object owners keep authority. A complete original
-        // mixed cohort with no legacy draft can lend structural membership
-        // for sibling reads; it never selects finite executable input work.
-        let nominal = sums.iter().any(|sum| sum.object_class_v1().is_some());
-        // Ownership is declared, while the same closed source SUM still proves
-        // each actual's class. This structural view grants no entry transfer.
-        let owned_nominal = borrowed.iter().any(|formal| formal.takes_declared_object_v1())
-            && borrowed.iter().zip(&sums).all(|(formal, sum)| {
-                if formal.takes_declared_object_v1() {
-                    matches!(&formal.kind, CallableParameterContractKindV1::DeclaredObject(expected)
-                        if sum.nullable_object_class_v1() == Some((expected.as_ref(), false)))
-                } else { sum.finite_input() }
-            });
-        if nominal && !owned_nominal && (!nominal_sibling_structure || contract.mode != Mode::InstanceBoxMethod
-            || source.source_definition_for(owner).is_some()
-            || !sums.iter().any(|sum| sum.alternatives().contains(
-                &super::super::borrowed_formal_source::SourceValueAlternativeV1::Text))
-            || !sums.iter().all(|sum| sum.finite_input() || sum.object_class_v1().is_some())) {
-            return Ok(None);
+        let tagged = allow_tagged && contract.mode == Mode::StaticBoxMethod
+            && source.has_tagged_static_input_v1(owner, &contract.parameters);
+        let mut domains = BTreeMap::new();
+        if !tagged {
+            // The source read lender uses this SAME full original membership.
+            // One Text formal cannot select an ungrounded sibling or grant entry.
+            let Some(sums) = source.lend_original_input_sums_v1(&contract.parameters) else { return Ok(None) };
+            // Existing Uses/Object owners keep authority. A complete original
+            // mixed cohort with no legacy draft can lend structural membership
+            // for sibling reads; it never selects finite executable input work.
+            let nominal = sums.iter().any(|sum| sum.object_class_v1().is_some());
+            // Ownership is declared, while the same closed source SUM still proves
+            // each actual's class. This structural view grants no entry transfer.
+            let owned_nominal = borrowed.iter().any(|formal| formal.takes_declared_object_v1())
+                && borrowed.iter().zip(&sums).all(|(formal, sum)| {
+                    if formal.takes_declared_object_v1() {
+                        matches!(&formal.kind, CallableParameterContractKindV1::DeclaredObject(expected)
+                            if sum.nullable_object_class_v1() == Some((expected.as_ref(), false)))
+                    } else { sum.finite_input() }
+                });
+            if nominal && !owned_nominal && (!nominal_sibling_structure || contract.mode != Mode::InstanceBoxMethod
+                || source.source_definition_for(owner).is_some()
+                || !sums.iter().any(|sum| sum.alternatives().contains(
+                    &super::super::borrowed_formal_source::SourceValueAlternativeV1::Text))
+                || !sums.iter().all(|sum| sum.finite_input() || sum.object_class_v1().is_some())) {
+                return Ok(None);
+            }
+            let text_requested = sums.iter().any(|sum| sum.alternatives().contains(
+                &super::super::borrowed_formal_source::SourceValueAlternativeV1::Text));
+            // Original Text domains select the same finite source structure even
+            // when a legacy Uses definition exists. Full uses and incoming still
+            // require their original proof; non-Text owners keep that selection.
+            if !text_requested && !owned_nominal
+                && (source.definitions.contains_key(&owner) || source.target_static.contains_key(&owner)) {
+                return Ok(None);
+            }
+            // Preserve the existing Text refusal boundary. New scalar families
+            // select only a complete original cohort, never one convenient formal.
+            if !text_requested && !owned_nominal && ((contract.mode == Mode::StaticBoxMethod
+                && source.is_scalar_only_static_input_v1(owner)) || sums.is_empty() || !sums.iter().all(|sum| sum.finite_input())) { return Ok(None); }
+            let uses = source.original_formal_uses_v1(owner)?;
+            if !text_requested && !owned_nominal && !source.original_finite_forward_input_request_v1(owner)
+                && !uses.scalar_expression_use_requested_v1() { return Ok(None); }
+            for (formal, sum) in borrowed.iter().zip(sums) {
+                if !sum.finite_input()
+                    && !((nominal_sibling_structure || owned_nominal && formal.takes_declared_object_v1())
+                        && sum.object_class_v1().is_some()) {
+                    if crate::config::env::builder_debug_enabled() {
+                        eprintln!("[input-domain] finite owner={owner:?} formal={:?} alternatives={:?}", formal.binding, sum.alternatives());
+                    }
+                    return Err(freeze("borrowed-entry/finite-domain-unclosed"));
+                }
+                domains.insert(formal.binding, sum);
+            }
         }
-        let text_requested = sums.iter().any(|sum| sum.alternatives().contains(
-            &super::super::borrowed_formal_source::SourceValueAlternativeV1::Text));
-        // Original Text domains select the same finite source structure even
-        // when a legacy Uses definition exists. Full uses and incoming still
-        // require their original proof; non-Text owners keep that selection.
-        if !text_requested && !owned_nominal
-            && (source.definitions.contains_key(&owner) || source.target_static.contains_key(&owner)) {
-            return Ok(None);
-        }
-        // Preserve the existing Text refusal boundary. New scalar families
-        // select only a complete original cohort, never one convenient formal.
-        if !text_requested && !owned_nominal && ((contract.mode == Mode::StaticBoxMethod
-            && source.is_scalar_only_static_input_v1(owner)) || sums.is_empty() || !sums.iter().all(|sum| sum.finite_input())) { return Ok(None); }
-        let uses = Rc::clone(source.original_formal_uses_v1(owner)?);
-        if !text_requested && !owned_nominal && !source.original_finite_forward_input_request_v1(owner)
-            && !uses.scalar_expression_use_requested_v1() { return Ok(None); }
         if parameters.len() != contract.parameters.len()
             || parameters.iter().zip(&contract.parameters).enumerate().any(|(index, ((ordinal, binding, kind), original))|
                 *ordinal as usize != index || *ordinal != original.ordinal || *binding != original.binding
@@ -107,19 +124,8 @@ impl OrdinaryNewClaimLedgerV1 {
             || source.source_incoming.sum_vetoed_owners_v1().contains(&owner) {
             return Err(freeze("borrowed-entry/finite-source-contract"));
         }
+        let uses = Rc::clone(source.original_formal_uses_v1(owner)?);
         if !uses.matches_contract(contract) { return Err(freeze("borrowed-entry/original-use-contract")); }
-        let mut domains = BTreeMap::new();
-        for (formal, sum) in borrowed.iter().zip(sums) {
-            if !sum.finite_input()
-                && !((nominal_sibling_structure || owned_nominal && formal.takes_declared_object_v1())
-                    && sum.object_class_v1().is_some()) {
-                if crate::config::env::builder_debug_enabled() {
-                    eprintln!("[input-domain] finite owner={owner:?} formal={:?} alternatives={:?}", formal.binding, sum.alternatives());
-                }
-                return Err(freeze("borrowed-entry/finite-domain-unclosed"));
-            }
-            domains.insert(formal.binding, sum);
-        }
         let incoming: Box<[_]> = source.source_incoming.source_rows_v1()
             .filter(|row| row.callee == owner).collect();
         let Some(first) = incoming.first() else { return Err(freeze("borrowed-entry/finite-incoming-missing")) };
@@ -173,7 +179,7 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(Some(BorrowedEntryStructureV1 {
             owner, source,
             formals: borrowed.iter().map(|row| (row.ordinal, row.binding)).collect(),
-            evidence: EntryStructureEvidenceV1::FiniteInput { uses, incoming, domains },
+            evidence: EntryStructureEvidenceV1::OriginalInputs { uses, incoming, domains, tagged },
         }))
     }
 
@@ -186,7 +192,7 @@ impl EntryStructureEvidenceV1<'_> {
         &self, source: &PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1,
         expected: &LexicalInstanceCallSourceTargetV1,
     ) -> Result<Option<BindingRefV1>, String> {
-        let Self::FiniteInput { uses, domains, .. } = self else { return Ok(None); };
+        let Self::OriginalInputs { uses, domains, .. } = self else { return Ok(None); };
         let call = expected.call_site();
         let site = expected.receiver_site();
         let binding = expected.receiver_binding()?;
@@ -219,7 +225,7 @@ impl BorrowedEntryStructureV1<'_> {
     /// This is a canonical source-domain loan, never completed actual/use proof.
     pub(in super::super) fn finite_domain_for_formal_v1(&self, ordinal: u32, formal: BindingRefV1)
         -> Result<&Rc<super::super::borrowed_formal_source::SourceValueSumV1>, String> {
-        let EntryStructureEvidenceV1::FiniteInput { domains, .. } = &self.evidence else {
+        let EntryStructureEvidenceV1::OriginalInputs { domains, .. } = &self.evidence else {
             return Err(freeze("borrowed-text-entry/finite-structure-required"));
         };
         if !self.formals.contains(&(ordinal, formal)) { return Err(freeze("borrowed-text-entry/structural-formal")); }
@@ -230,9 +236,12 @@ impl BorrowedEntryStructureV1<'_> {
     /// actuals. Existing Uses owners retain their full use/actual final proof.
     pub(in super::super) fn source_domain_for_formal_v1(&self, ordinal: u32, formal: BindingRefV1)
         -> Result<Rc<super::super::borrowed_formal_source::SourceValueSumV1>, String> {
-        if matches!(self.evidence, EntryStructureEvidenceV1::FiniteInput { .. }) {
+        if matches!(self.evidence, EntryStructureEvidenceV1::OriginalInputs { tagged: false, .. }) {
             return self.finite_domain_for_formal_v1(ordinal, formal).map(Rc::clone);
         }
+        // A source-only view of an individual operation is independent of
+        // the installed parameter transport. Tagged parameters publish no
+        // finite domain and do not check an integer tag on entry.
         if !self.formals.contains(&(ordinal, formal))
             || !self.source.source_incoming.source_registered_owners_v1().contains(&self.owner)
             || self.source.source_incoming.sum_vetoed_owners_v1().contains(&self.owner) {
@@ -253,7 +262,7 @@ impl BorrowedEntryStructureV1<'_> {
         initializer: &crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
         source_binding: Option<BindingRefV1>,
     ) -> Result<Option<BindingRefV1>, String> {
-        let EntryStructureEvidenceV1::FiniteInput { uses, .. } = &self.evidence else { return Err(freeze("borrowed-alias/finite-structure-required")); };
+        let EntryStructureEvidenceV1::OriginalInputs { uses, .. } = &self.evidence else { return Err(freeze("borrowed-alias/finite-structure-required")); };
         let formal = uses.initializer_entry_alias_v1(initializer, source_binding)
             .map_err(|_| freeze("borrowed-alias/source-identity"))?;
         if formal.is_some_and(|formal| !self.formals.iter().any(|(_, root)| *root == formal)) {
@@ -265,7 +274,7 @@ impl BorrowedEntryStructureV1<'_> {
         declaration: &crate::mir::resolved_semantics::SourceBindingSiteV1,
         binding: BindingRefV1, source_binding: BindingRefV1, formal: BindingRefV1,
     ) -> Result<(), String> {
-        let EntryStructureEvidenceV1::FiniteInput { uses, .. } = &self.evidence else { return Err(freeze("borrowed-alias/finite-structure-required")); };
+        let EntryStructureEvidenceV1::OriginalInputs { uses, .. } = &self.evidence else { return Err(freeze("borrowed-alias/finite-structure-required")); };
         let mut originals = uses.initializers().iter().filter(|row| row.binding() == binding && row.declaration_site() == declaration);
         let original = originals.next().ok_or_else(|| freeze("borrowed-alias/source-copy-missing"))?;
         if originals.next().is_some() || site.owner() != self.owner || original.initializer_site() != Some(site.site())
@@ -284,9 +293,11 @@ impl BorrowedEntryStructureV1<'_> {
             return Err(freeze("borrowed-entry/finite-entry-values-identity"));
         }
         let roots = match &self.evidence {
-            EntryStructureEvidenceV1::FiniteInput { uses, incoming, domains } => {
-                if domains.len() != rows.len() || incoming.is_empty()
-                    || rows.iter().any(|(_, binding, _)| !domains.contains_key(binding)) {
+            EntryStructureEvidenceV1::OriginalInputs { uses, incoming, domains, tagged } => {
+                if incoming.is_empty()
+                    || (*tagged && !domains.is_empty())
+                    || (!*tagged && (domains.len() != rows.len()
+                        || rows.iter().any(|(_, binding, _)| !domains.contains_key(binding)))) {
                     return Err(freeze("borrowed-entry/finite-entry-values-identity"));
                 }
                 uses.roots().keys().copied().collect::<BTreeSet<_>>()
@@ -333,7 +344,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(contract) = contracts.next() else { return Ok(false) };
         if contracts.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
         let parameters: Vec<_> = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
-        Ok(Self::finite_input_entry_structure_v1(source, Some(catalog), owner, &parameters, false)?.is_some())
+        Ok(Self::finite_input_entry_structure_v1(source, Some(catalog), owner, &parameters, false, true)?.is_some())
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_entry) fn finite_entry_for_owner_v1(
@@ -345,7 +356,19 @@ impl OrdinaryNewClaimLedgerV1 {
             .and_then(|rows| rows.iter().find(|row| row.owner == owner)) else { return Ok(None) };
         let parameters: Vec<_> = contract.parameters.iter()
             .map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
-        Self::finite_input_entry_structure_v1(source, self.original_parameter_contracts.as_deref(), owner, &parameters, true)
+        self.selected_finite_input_entry_structure_v1(source, owner, &parameters)
+    }
+
+    pub(super) fn selected_finite_input_entry_structure_v1<'a>(
+        &'a self,
+        source: &'a PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
+        parameters: &[(u32, BindingRefV1, CallableParameterContractKindV1)],
+    ) -> Result<Option<BorrowedEntryStructureV1<'a>>, String> {
+        let allow_tagged = self.allows_general_tagged_static_input_v1(source, owner);
+        Self::finite_input_entry_structure_v1(
+            source, self.original_parameter_contracts.as_deref(), owner, parameters, true, allow_tagged,
+        )
     }
 
 }

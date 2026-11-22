@@ -549,6 +549,14 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         expression_projection::ExpressionLeafClassV1 as Leaf,
     };
     for actual in &identity.candidates {
+        if super::super::static_selected_actual::original_tagged_forward_source_v1(
+            prepared, &identity.source, actual,
+        ).is_some() {
+            // The original argument plan was already checked. The borrowed
+            // packet will read and pin its reaching value, not re-evaluate it
+            // as an independently qualified scalar expression.
+            continue;
+        }
         let core = identity.core_arguments.contains_key(&actual.ordinal);
         let ordinary_call = match &actual.value {
             BorrowedCallActualValueV1::MethodCall(method) => ordinary_argument_call_source_v1(

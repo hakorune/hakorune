@@ -103,19 +103,18 @@ fn main_qualified_terminal_retains_original_literal_and_checked_packet() {
     let staged = ledger.borrowed_formal_actuals[original.call_site()]
         .as_ref()
         .unwrap();
-    assert!(matches!(
-        staged.phase,
-        BorrowedCallActualEvidencePhaseV1::ExecutableStaticTagged(_)
-    ));
+    assert!(staged.has_static_loop_input_v1());
     let selected = ledger
         .selected_static_local_source_v1(original.call_site())
         .unwrap()
         .unwrap();
     assert!(Rc::ptr_eq(&selected, original));
     let actuals = ledger
-        .checked_static_tagged_packet_actuals_v1(original)
+        .checked_static_input_packet_rows_v1(original)
         .unwrap()
-        .unwrap();
+        .unwrap()
+        .opaque_actuals
+        .as_ref();
     assert!(matches!(
         actuals,
         [PreparedBorrowedFormalActualV1 {
@@ -246,7 +245,7 @@ fn main_terminal_checked_packet_rejects_actual_and_order_drift() {
             .unwrap()
             .clone();
         assert!(ledger
-            .checked_static_tagged_packet_actuals_v1(&original)
+            .checked_static_input_packet_rows_v1(&original)
             .unwrap()
             .is_some());
         let rows = ledger
@@ -273,7 +272,7 @@ fn main_terminal_checked_packet_rejects_actual_and_order_drift() {
         }
         assert!(
             ledger
-                .checked_static_tagged_packet_actuals_v1(&original)
+                .checked_static_input_packet_rows_v1(&original)
                 .is_err(),
             "mutation {mutation} must not reach executable packet"
         );
@@ -297,7 +296,7 @@ fn main_terminal_finish_rejects_foreign_verified_entry_brand() {
         .is_same(foreign.selected.catalog_brand()));
     let ledger = Rc::get_mut(&mut original.ordinary_new_claim_ledger).unwrap();
     let error = ledger
-        .finish_static_tagged_input_actuals_v1(
+        .finish_static_input_actuals_v1(
             &foreign.selected,
             &original.parameter_contracts,
             &original.physical_signature,
@@ -339,7 +338,7 @@ fn main_terminal_finish_does_not_validate_unrequested_entry() {
         .borrow_mut()
         .insert(other_owner, product);
     ledger
-        .finish_static_tagged_input_actuals_v1(
+        .finish_static_input_actuals_v1(
             &original.selected,
             &original.parameter_contracts,
             &original.physical_signature,
@@ -391,7 +390,7 @@ fn main_terminal_packet_denies_restored_source_only_actual() {
         .borrowed_formal_actuals
         .insert(original.call_site().clone(), Ok(pending));
     assert!(ledger
-        .checked_static_tagged_packet_actuals_v1(&original)
+        .checked_static_input_packet_rows_v1(&original)
         .unwrap()
         .is_none());
     assert!(ledger
@@ -535,13 +534,10 @@ fn main_terminal_tagged_entry_keeps_canonical_actuals_and_whole_sibling_veto() {
                 .is_err());
             let saved = ledger.borrowed_formal_actuals.remove(&site).unwrap();
             assert!(
-                matches!(
-                    ledger.borrowed_formal_actuals[original.call_site()]
-                        .as_ref()
-                        .unwrap()
-                        .phase,
-                    BorrowedCallActualEvidencePhaseV1::ExecutableStaticTagged(_)
-                ),
+                ledger.borrowed_formal_actuals[original.call_site()]
+                    .as_ref()
+                    .unwrap()
+                    .has_static_loop_input_v1(),
                 "Main's finished literal row remains while only Heap's row is absent"
             );
             let ingress = ledger

@@ -3,6 +3,37 @@
 use super::*;
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// These uses already have their own checked source owners. Binding
+    /// lineage is rechecked against the exact entry, not a scalar domain.
+    pub(super) fn tagged_entry_source_reads_v1(
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
+        formals: &[(u32, BindingRefV1)],
+        uses: &super::super::borrowed_formal_uses::OriginalFormalUseSourceV1,
+    ) -> Result<BTreeSet<(SourceExprSiteV1, BindingRefV1)>, String> {
+        let mut reads = self.tagged_static_argument_reads_v1(source, owner)?;
+        let flow = self.completion_for_owner(owner)
+            .and_then(|completion| completion.cleanup().root_flow());
+        if let Some(flow) = flow {
+            for row in flow.comparison_prefixes_v1() {
+                let comparison = &row.source;
+                if comparison.site().owner() != owner
+                    || !formals.contains(&(comparison.ordinal(), comparison.formal()))
+                {
+                    return Err(freeze("static-input/entry-read-source"));
+                }
+                let (binding, formal) = uses.tagged_entry_at_v1(comparison.read())
+                    .ok_or_else(|| freeze("static-input/entry-read-source"))?;
+                if formal != comparison.formal() {
+                    return Err(freeze("static-input/entry-read-source"));
+                }
+                reads.insert((comparison.read().clone(), binding));
+            }
+        }
+        Ok(reads)
+    }
+
     /// Join a forwarded source use to the SAME original Static argument fact.
     /// Physical entry/read/Copy and completed actuals remain independent duties.
     pub(super) fn original_static_forwarded_use_v1(
@@ -11,7 +42,11 @@ impl OrdinaryNewClaimLedgerV1 {
         original: &Rc<crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1>,
         ordinal: u32, site: &SourceExprSiteV1,
     ) -> Result<Option<(BindingRefV1, BindingRefV1)>, String> {
-        let Some(fact) = source.static_arguments.get(&(original.call_site().clone(), ordinal)) else { return Ok(None) };
+        let Some(fact) = source.static_arguments.get(&(original.call_site().clone(), ordinal)) else {
+            return Ok(super::super::borrowed_formal_actuals::original_tagged_forward_at_v1(
+                source, original, ordinal, site,
+            ));
+        };
         if !Rc::ptr_eq(fact.retained_call_source(), original)
             || fact.call() != original.call_site() || fact.ordinal() != ordinal
             || fact.use_site().owner() != original.call_site().owner() || fact.use_site().site() != site
@@ -591,7 +626,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     fn finite_read_domain_v1(
         &self, site: &SourceExprSiteV1, binding: BindingRefV1,
     ) -> Result<Option<BorrowedFormalDomainV1>, String> {
-        let EntryStructureEvidenceV1::FiniteInput { uses, .. } = &self.evidence else { return Ok(None); };
+        let EntryStructureEvidenceV1::OriginalInputs { uses, .. } = &self.evidence else { return Ok(None); };
         if binding.owner() != self.owner { return Err(freeze("static-input/qualified-use-identity")); }
         let Some(formal) = self.origins().get(&binding) else { return Ok(None); };
         let Some((ordinal, _)) = self.formals.iter().find(|(_, root)| root == formal) else {

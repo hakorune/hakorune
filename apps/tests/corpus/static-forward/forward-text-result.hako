@@ -1,0 +1,13 @@
+// label returns short; main yields its length. Expected exit 5.
+static box Main {
+    label(v): String {
+        if v < 3 { return "short" }
+        return "long"
+    }
+    forward(i): String {
+        return Main.label(i)
+    }
+    main() {
+        return Main.forward(2).length()
+    }
+}

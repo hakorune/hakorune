@@ -573,6 +573,12 @@ mod received_call;
 mod shared;
 
 impl super::RootHomeFlow {
+    pub(in crate::mir) fn comparison_prefixes_v1(
+        &self,
+    ) -> impl Iterator<Item = &crate::mir::resolved_semantics::borrowed_integer_comparison::ComparisonPrefix> {
+        self.comparison_prefix_homes.values().filter_map(Option::as_ref)
+    }
+
     pub(crate) fn comparison_prefix(
         &self, site: &OwnedExprSiteV1,
     ) -> Option<&crate::mir::resolved_semantics::borrowed_integer_comparison::ComparisonPrefix> {

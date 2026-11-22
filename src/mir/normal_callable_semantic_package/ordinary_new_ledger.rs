@@ -211,7 +211,7 @@ impl OrdinaryNewClaimLedgerV1 {
             loop_static_source_loans: RefCell::new(BTreeMap::new()),
             loop_static_body_scalar_sources: RefCell::new(BTreeMap::new()),
             selected_loop_body_packets: RefCell::new(BTreeMap::new()),
-            loop_static_source_loop_sites: BTreeSet::new(),
+            loop_static_source_loop_sites: Default::default(),
             preissued_static_i64_products: RefCell::new(BTreeMap::new()),
             loop_entry_static_i64_source_loans: RefCell::new(BTreeMap::new()),
             loop_tail_static_i64_source_loans: RefCell::new(BTreeMap::new()),

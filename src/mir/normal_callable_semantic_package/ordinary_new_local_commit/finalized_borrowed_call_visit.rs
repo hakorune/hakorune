@@ -5,7 +5,7 @@ use crate::mir::normal_callable_semantic_package::{
 };
 use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
 use crate::mir::MirModule;
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 /// Transport view only: a detached LoopBody is never a Home lexical packet.
 #[derive(Clone, Copy)]
@@ -373,6 +373,40 @@ impl FinalizedRootSourceHandoffV1 {
             return Err(freeze("final-call-visit/function-missing"));
         }
         Ok(Some(read))
+    }
+
+    /// Keep the original reaching definition when accounting for borrowed
+    /// entry uses. A reassigned formal's scalar read belongs to its producer.
+    pub(in crate::mir) fn borrowed_call_entry_origins_v1(
+        &self,
+        call: &OwnedExprSiteV1,
+        actuals: &[PreparedBorrowedFormalActualV1],
+        caller_entry: &[(u32, BindingRefV1, ValueId)],
+    ) -> Result<BTreeMap<u32, (BindingRefV1, BindingRefV1)>, String> {
+        use crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1 as Source;
+        let mut origins = BTreeMap::new();
+        for actual in actuals {
+            let origin = match &actual.source {
+                Source::Scalar { binding, .. }
+                    if caller_entry.iter().any(|(_, root, _)| root == binding) =>
+                {
+                    if self.ledger.static_scalar_actual_rebound_v1(call, actual, *binding)? {
+                        None
+                    } else {
+                        Some((*binding, *binding))
+                    }
+                }
+                Source::DeclaredFormal { root, .. }
+                    if !caller_entry.iter().any(|(_, formal, _)| formal == root) => None,
+                other => other.caller_formal_origin_v1(),
+            };
+            if let Some(origin) = origin {
+                if origins.insert(actual.ordinal, origin).is_some() {
+                    return Err(freeze("borrowed-use/guarded-actual-duplicate"));
+                }
+            }
+        }
+        Ok(origins)
     }
 
     pub(in crate::mir) fn visit_finalized_borrowed_call_nodes_v1(

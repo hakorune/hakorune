@@ -1,0 +1,13 @@
+// check forwards 5; small takes the false branch. Expected exit 0.
+static box Main {
+    small(v) {
+        if v < 3 { return 1 }
+        return 0
+    }
+    check(i) {
+        return Main.small(i)
+    }
+    main() {
+        return Main.check(5)
+    }
+}
