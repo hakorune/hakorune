@@ -305,7 +305,7 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 return Err(freeze("static-bool-entry/source-actual-identity"));
             }
-            super::static_scalar_input_finish::check_exact_usize_scalar_caller_v1(
+            super::static_numeric_evidence::check_exact_usize_scalar_caller_v1(
                 selected, contracts, signatures, original, binding,
             )?;
             let mut matching = contracts.iter().filter(|contract| contract.owner == owner);

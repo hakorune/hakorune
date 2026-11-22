@@ -3,7 +3,7 @@
 use super::*;
 use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
 use crate::mir::normal_callable_semantic_package::{
-    physical_signature::{PhysicalCallableLaneRoleV1, VerifiedCallablePhysicalSignatureCohortV1},
+    physical_signature::VerifiedCallablePhysicalSignatureCohortV1,
     qualified_static_call_claim::incoming_source::StaticIncomingSourceV1,
     result_contract::VerifiedCallableResultContractCohortV1,
     selected_mapping::VerifiedSelectedCallableBatchMapV1,
@@ -428,42 +428,9 @@ impl OrdinaryNewClaimLedgerV1 {
             let identity = selected
                 .identity_for_batch_slot(contract.batch_slot)
                 .ok_or_else(|| freeze("static-mixed/selected-identity"))?;
-            let signature = signatures
-                .row(contract.batch_slot)
-                .ok_or_else(|| freeze("static-mixed/signature-missing"))?;
-            if !signature.identity().same_as(identity)
-                || signature.owner() != owner
-                || signature.mode() != contract.mode
-                || signature.source_logical_arity() != 1
-                || signature.receiver_lane_count() != 0
-                || signature.physical_formal_lane_count() != 1
-                || signature.physical_callable_lane_count() != 1
-                || signature.lanes().len() != 1
-                || signature.lanes()[0].role() != PhysicalCallableLaneRoleV1::OrdinaryScalar
-                || signature.lanes()[0].logical_ordinal() != Some(0)
-                || signature.lanes()[0].binding() != contract.parameters[0].binding
-            {
-                return Err(freeze("static-mixed/signature-identity"));
-            }
-            let completion = self
-                .completion_index
-                .get(&owner)
-                .ok_or_else(|| freeze("static-mixed/completion-missing"))?
-                .as_ref()
-                .map_err(|error| format!("{}: {error:?}", freeze("static-mixed/completion")))?;
-            let result = results
-                .row(contract.batch_slot)
-                .ok_or_else(|| freeze("static-mixed/result-missing"))?
-                .borrow();
-            if result.owner() != owner
-                || !result.identity().same_as(identity)
-                || !result.declared_result_agrees_with_source()
-                || !completion.returns_value()
-                || completion.owner() != owner
-                || !std::ptr::eq(result.completion(), completion.as_ref())
-            {
-                return Err(freeze("static-mixed/result-completion-identity"));
-            }
+            let completion = self.require_static_input_completion_v1(
+                identity, contract, signatures, results, "static-mixed",
+            )?;
             let mut replacements = Vec::with_capacity(3);
             for (member, kind) in cohort.iter().zip(kinds) {
                 let site = member.call_site();
@@ -496,7 +463,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 let (kind, actual) = match kind {
                     BorrowedCallActualValueV1::Scalar(binding, SourceScalarKind::Integer) => {
-                        super::static_scalar_input_finish::check_exact_usize_scalar_caller_v1(
+                        super::static_numeric_evidence::check_exact_usize_scalar_caller_v1(
                             selected, contracts, signatures, member, binding,
                         )?;
                         (

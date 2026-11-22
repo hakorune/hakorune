@@ -110,7 +110,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     _ => None,
                 })
         {
-            self.checked_completed_static_one_actuals_v1(original)?
+            self.checked_completed_static_forwarded_actuals_v1(original)?
                 .ok_or_else(|| freeze("borrowed-static/local-actuals-missing"))?;
             self.verify_original_static_packet_source_v1(original)?;
             self.borrowed_static_packet_actuals_v1(original)?
@@ -177,7 +177,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(None);
         };
         if original.qualified_scalar_result_v1().is_none() {
-            self.checked_completed_static_one_actuals_v1(original)?
+            self.checked_completed_static_forwarded_actuals_v1(original)?
                 .ok_or_else(|| freeze("ordinary-new/borrowed-entry/source-only-static-actuals"))?;
         }
         if rows.next().is_some() {
@@ -230,7 +230,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if self.is_static_zero_packet_cohort_v1(original)
                 || (original.qualified_scalar_result_v1().is_none()
                     && self
-                        .checked_completed_static_one_actuals_v1(original)?
+                        .checked_completed_static_forwarded_actuals_v1(original)?
                         .is_none())
             {
                 continue;
@@ -342,7 +342,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if self.is_static_zero_packet_cohort_v1(original)
                 || (original.qualified_scalar_result_v1().is_none()
                     && self
-                        .checked_completed_static_one_actuals_v1(original)?
+                        .checked_completed_static_forwarded_actuals_v1(original)?
                         .is_none())
             {
                 continue;

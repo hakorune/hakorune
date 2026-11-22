@@ -153,8 +153,6 @@ pub(super) enum BorrowedCallActualEvidencePhaseV1 {
     ExecutableSourceObject(object_source::ObjectSourceActualIdentityV1),
     ExecutableSourceInstance(instance_source::InstanceSourceActualIdentityV1),
     ExecutableStaticInput(static_input_finish::StaticInputFinishV1),
-    ExecutableStaticOne(static_one_input_finish::StaticOneInputFinishV1),
-    ExecutableStaticScalar(static_scalar_input_finish::StaticScalarInputFinishV1),
     ExecutableStaticMixed(static_mixed_input_finish::StaticMixedInputFinishV1),
     EntryOnlyStaticBool(static_bool_entry_finish::StaticBoolEntryFinishV1),
     SourceStatic(static_source::StaticSourceActualIdentityV1),
@@ -173,6 +171,28 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedCall
 }
 
 impl PreparedBorrowedCallActualsV1 {
+    pub(super) fn numeric_static_finish_v1(
+        &self,
+    ) -> Option<(&static_input_finish::StaticInputFinishV1, &static_numeric_evidence::StaticScalarActualV1)> {
+        match &self.phase {
+            BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(finish) => {
+                let static_input_finish::StaticInputEvidenceV1::Numeric(actual) = &finish.evidence
+                else { return None; };
+                Some((finish, actual))
+            }
+            _ => None,
+        }
+    }
+
+    pub(super) fn forwarded_static_finish_v1(&self) -> Option<&static_input_finish::StaticInputFinishV1> {
+        match &self.phase {
+            BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(finish)
+                if matches!(finish.evidence, static_input_finish::StaticInputEvidenceV1::Forwarded) =>
+                Some(finish),
+            _ => None,
+        }
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn selected_dynamic_member_v1(
         &self,
     ) -> Option<(&str, u32)> {
@@ -279,9 +299,7 @@ impl PreparedBorrowedCallActualsV1 {
             BorrowedCallActualEvidencePhaseV1::Executable
             | BorrowedCallActualEvidencePhaseV1::ExecutableSourceObject(_)
             | BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(_)
-            | BorrowedCallActualEvidencePhaseV1::ExecutableStaticOne(_)
             | BorrowedCallActualEvidencePhaseV1::ExecutableStaticMixed(_) => Ok(()),
-            BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(_) => Ok(()),
             BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(ref identity) => {
                 let mut ordinals = std::collections::BTreeSet::new();
                 for (ordinal, original) in &identity.array_loans {

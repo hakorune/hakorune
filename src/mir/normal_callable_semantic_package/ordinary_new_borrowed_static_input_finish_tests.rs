@@ -52,7 +52,7 @@ fn restage(package: &mut Package, sources: &[Rc<StaticIncomingSourceV1>]) {
 fn finish(package: &mut Package) -> Result<(), String> {
     Rc::get_mut(&mut package.ordinary_new_claim_ledger)
         .unwrap()
-        .finish_static_input_actuals_v1(
+        .finish_static_input_cohorts_v1(
             &package.selected,
             &package.parameter_contracts,
             &package.physical_signature,
@@ -188,7 +188,7 @@ fn static_zero_input_finish_preserves_original_cohort_and_refusal_boundaries() {
             let foreign = package(TEXT);
             Rc::get_mut(&mut variant.ordinary_new_claim_ledger)
                 .unwrap()
-                .finish_static_input_actuals_v1(
+                .finish_static_input_cohorts_v1(
                     &variant.selected,
                     &variant.parameter_contracts,
                     &foreign.physical_signature,

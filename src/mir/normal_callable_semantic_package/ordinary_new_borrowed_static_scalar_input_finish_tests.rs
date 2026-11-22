@@ -185,14 +185,17 @@ fn current_owner_scalar_callers_finish_together_and_lend_the_mul_entry() {
         // Finishing again neither replaces completed scalar receipts nor rewrites
         // the qualified literal protocol.
         let before = ledger.borrowed_formal_actuals.clone();
-        ledger
-            .finish_static_scalar_input_actuals_v1(
+        let ready = ledger
+            .prepare_numeric_static_inputs_v1(
                 &package.selected,
                 &package.parameter_contracts,
                 &package.physical_signature,
                 &package.result_contracts,
             )
             .unwrap();
+        for (site, actuals) in ready {
+            ledger.borrowed_formal_actuals.insert(site, Ok(actuals));
+        }
         assert_eq!(ledger.borrowed_formal_actuals, before);
         for (site, original) in &qualified {
             let saved = ledger.borrowed_formal_actuals.remove(site).unwrap();
