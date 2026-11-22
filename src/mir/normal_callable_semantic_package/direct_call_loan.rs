@@ -31,7 +31,6 @@ pub(crate) struct DirectCallDispositionRowV1 {
     argument_projections: Option<Box<[super::LexicalCallArgumentProjectionV1]>>,
     emission: DirectCallEmissionV1,
     execution: DirectCallExecutionV1,
-    result: InvokeCallResultKind,
 }
 
 #[derive(Debug)]
@@ -56,7 +55,7 @@ mod static_execution;
 #[derive(Debug)]
 enum DirectCallExecutionV1 {
     Scalar,
-    Lifecycle,
+    Lifecycle(InvokeCallResultKind),
 }
 
 #[path = "direct_call_lifecycle.rs"]
@@ -133,7 +132,7 @@ impl DirectCallDispositionRowV1 {
     }
     pub(crate) fn lifecycle_emission(&self) -> Result<LifecycleCallEmissionRefV1<'_>, DirectCallLoanErrorV1> {
         match self.execution {
-            DirectCallExecutionV1::Lifecycle => Ok(LifecycleCallEmissionRefV1(&self.emission)),
+            DirectCallExecutionV1::Lifecycle(_) => Ok(LifecycleCallEmissionRefV1(&self.emission)),
             DirectCallExecutionV1::Scalar => Err(DirectCallLoanErrorV1::LifecycleSourceMismatch),
         }
     }
@@ -148,15 +147,17 @@ impl DirectCallDispositionRowV1 {
             argument_projections: None,
             emission: DirectCallEmissionV1::ResolverDirect(emission),
             execution: DirectCallExecutionV1::Scalar,
-            result: InvokeCallResultKind::I64,
         }
     }
 
-    /// The callee's source-issued result class, sealed at lifecycle co-seal
-    /// from the callee's own terminal relation. `I64` remains the default
-    /// for every scalar-admitted row; a Map-source callee yields `Map`.
-    pub(crate) const fn result(&self) -> InvokeCallResultKind {
-        self.result
+    pub(crate) fn result(&self) -> Option<InvokeCallResultKind> {
+        match self.execution {
+            DirectCallExecutionV1::Lifecycle(result) => Some(result),
+            DirectCallExecutionV1::Scalar =>
+                (self.resolver_emission()?.target().signature().result()
+                    == Some(crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1::I64))
+                    .then_some(InvokeCallResultKind::I64),
+        }
     }
 
     pub(crate) fn argument_sites(&self) -> &[SourceExprSiteV1] {
@@ -166,7 +167,7 @@ impl DirectCallDispositionRowV1 {
     pub(crate) fn scalar_emission(&self) -> Result<&VerifiedCanonicalDirectCallEmissionV1, DirectCallLoanErrorV1> {
         match self.execution {
             DirectCallExecutionV1::Scalar => self.physical_emission(),
-            DirectCallExecutionV1::Lifecycle => Err(DirectCallLoanErrorV1::LifecycleConsumerMissing),
+            DirectCallExecutionV1::Lifecycle(_) => Err(DirectCallLoanErrorV1::LifecycleConsumerMissing),
         }
     }
 
@@ -295,7 +296,7 @@ impl DirectCallDispositionLoanV1 {
     }
     fn map_edges_v1(&self, lifecycle_only: bool) -> Vec<(OwnedExprSiteV1, u32, FunctionOwnerIdV1)> {
         self.rows.iter().filter_map(|(site, slot)| match slot {
-            DirectCallDispositionSlotV1::Ready(row) if !lifecycle_only || matches!(row.execution, DirectCallExecutionV1::Lifecycle) =>
+            DirectCallDispositionSlotV1::Ready(row) if !lifecycle_only || matches!(row.execution, DirectCallExecutionV1::Lifecycle(_)) =>
                 row.resolver_emission().map(|emission| (site, emission)),
             _ => None,
         }).flat_map(|(site, emission)| emission.target().signature().params().iter().enumerate()

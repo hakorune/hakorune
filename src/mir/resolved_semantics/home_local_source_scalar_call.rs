@@ -1,5 +1,6 @@
 //! Exact source scalar Return/Discard from the same package result loan.
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind;
 use crate::mir::normal_callable_semantic_package::BorrowedScalarResultSourceLoanV1;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
@@ -39,8 +40,8 @@ impl LocalCallResultClassV1 {
     ) -> Option<crate::mir::instruction::InvokeCallResultKind> {
         use crate::mir::instruction::InvokeCallResultKind as Kind;
         match self {
-            Self::I64 => Some(Kind::I64),
-            Self::Bool => Some(Kind::Bool),
+            Self::I64 => Some(SourceScalarKind::Integer.invoke_result()),
+            Self::Bool => Some(SourceScalarKind::Bool.invoke_result()),
             Self::Text => Some(Kind::OwnedString),
             Self::Handle => Some(Kind::Handle),
             Self::Nullable => Some(Kind::NullableHandle),
@@ -64,6 +65,16 @@ impl LocalCallResultClassV1 {
         match self {
             Self::I64 | Self::Bool => self.invoke_result(),
             _ => None,
+        }
+    }
+}
+
+impl SourceScalarKind {
+    pub(crate) const fn invoke_result(self) -> crate::mir::instruction::InvokeCallResultKind {
+        use crate::mir::instruction::InvokeCallResultKind as Kind;
+        match self {
+            Self::Integer => Kind::I64,
+            Self::Bool => Kind::Bool,
         }
     }
 }

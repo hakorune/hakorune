@@ -53,6 +53,8 @@ blueprint が持ち主を名指ししているのは if(決定 18)と loop(決�
 
 ## 3. 注記と集計
 
+- 呼び出しの結果（CL-1、設計図 §26）｜意味を決める `m/normal_callable_semantic_package/result_contract_callable_keys.rs::issue_terminal_invoke_result_v1` ｜ MIR を書く `b/ordinary_new_admission/selected/terminal_call.rs::emit_call_normal` ｜ 独立に照らす `m/verification/invoke.rs::check_module_with_source` ｜ 退役 `direct_call_result.rs::uniform_call_result_kind` と仮の I64 を上書きする分岐。
+
 - 無注釈の owned Dynamic 結果（決定29 A）は `m/resolved_semantics/home_terminal_scalar_evaluation.rs::observe_return_expression_v1` の評価から、同じ `selected/return_expression.rs` の Return へ進む。結果種別は `result_contract_callable_keys.rs::owns_dynamic_carrier_result_v1` が全出口と宣言を照合する。既存の Fault cleanup に渡していない carrier の End を残し、C V4 の `indexed_return.inc` が最後の Normal Return で同じ token を一度だけ移すことを照合する。 借用結果（B）は同じ Return で、元の有限入力契約に結び付いた値から Normal にだけ独立した carrier を取得する。公開時は `compiled_entry_contract/borrowed_call_uses_arguments.rs` が取得を元の SSA 借用と照合し、C V4 も元の引数の入力域を検査する。MIR 表示の独立検証にも `normal_default_root_final_validation.rs` が文書経路と同じ元の呼び出しの証拠を渡す。現在つなぐのは完了済みの結果を運べる通常の instance 呼び出し。静的呼び出しは affine な publication handoff がこの結果種別を運べるまで既存の受理範囲を保つ。
 
 - `b/calls/lowering.rs:295` は旧 scalar 結果の検査。UBD の検査付き I64 結果は、元の Dynamic 呼び出しを出し、その Normal 辺で I64 を取り出す。旧 `:380,465` は引き続き `legacy_port.rs` から呼ばれる。公開 `MirBuilder::build_method_call` (`b/calls/build.rs:157,165`) → raw 式・宣言 → `b/instance_box_declaration_lifecycle.rs:107–122` 等で使用。通常 CLI は `runner/modes/mir.rs:103–119` から collector port を使う。

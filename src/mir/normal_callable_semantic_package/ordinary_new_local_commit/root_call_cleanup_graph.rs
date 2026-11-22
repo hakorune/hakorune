@@ -13,45 +13,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
     projection: &(BasicBlockId, MirInstruction),
     expected_kind: InvokeCallResultKind,
 ) -> Result<(BasicBlockId, BasicBlockId, ValueId, ValueId), String> {
-    let (fault_frame, normal_landing, fault_landing) = match &invoke.1 {
-        MirInstruction::Invoke {
-            operation: InvokeOperation::Call { call, result },
-            fault_frame,
-            normal_landing,
-            fault_landing,
-        } if call.dst.is_none() && *result == expected_kind => {
-            (*fault_frame, *normal_landing, *fault_landing)
-        }
-        // The readable-Map terminal shares the exact ingress graph: one
-        // checked read invoke, Normal result projection, Fault cleanup.
-        MirInstruction::Invoke {
-            operation:
-                InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::CheckedGetI64 {
-                    ..
-                }),
-            fault_frame,
-            normal_landing,
-            fault_landing,
-        } if expected_kind == InvokeCallResultKind::I64 => {
-            (*fault_frame, *normal_landing, *fault_landing)
-        }
-        MirInstruction::Invoke {
-            operation: InvokeOperation::FieldGet { .. },
-            fault_frame,
-            normal_landing,
-            fault_landing,
-        } if expected_kind == InvokeCallResultKind::I64 => {
-            (*fault_frame, *normal_landing, *fault_landing)
-        }
-        MirInstruction::Invoke {
-            operation: InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { field, object, .. }),
-            fault_frame, normal_landing, fault_landing,
-        } if matches!(expected_kind, InvokeCallResultKind::BorrowedNullableHandle {
-            access: crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified,
-            support: crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { field: original, object: payload, .. }
-        } if original == *field && payload == *object) => (*fault_frame, *normal_landing, *fault_landing),
-        _ => return Err(fault("call-ingress")),
-    };
+    let (fault_frame, normal_landing, fault_landing) =
+        check_invoke_result(&invoke.1, expected_kind).ok_or_else(|| fault("call-ingress"))?;
     let MirInstruction::InvokeNormalResult {
         dst,
         invoke_block: origin,
@@ -98,6 +61,29 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
         return Err(fault("call-missing-incoming"));
     }
     Ok((normal_landing, fault_landing, fault_frame, *dst))
+}
+
+/// Validate the same physical result on both topology and cleanup-path checks.
+pub(super) fn check_invoke_result(
+    invoke: &MirInstruction,
+    expected_kind: InvokeCallResultKind,
+) -> Option<(ValueId, BasicBlockId, BasicBlockId)> {
+    let MirInstruction::Invoke { operation, fault_frame, normal_landing, fault_landing } = invoke else {
+        return None;
+    };
+    use crate::mir::instruction::{BorrowedResultAccessV1, BorrowedResultSupportV1, MapInvokeOperation};
+    let matches = match operation {
+        InvokeOperation::Call { call, result } => call.dst.is_none() && *result == expected_kind,
+        InvokeOperation::Map(MapInvokeOperation::CheckedGetI64 { .. }) | InvokeOperation::FieldGet { .. } =>
+            expected_kind == InvokeCallResultKind::I64,
+        InvokeOperation::Map(MapInvokeOperation::FieldGetIndexed { field, object, .. }) =>
+            matches!(expected_kind, InvokeCallResultKind::BorrowedNullableHandle {
+                access: BorrowedResultAccessV1::LegacyUnqualified,
+                support: BorrowedResultSupportV1::ReceiverFieldSlot { field: original, object: payload, .. }
+            } if original == *field && payload == *object),
+        _ => false,
+    };
+    matches.then_some((*fault_frame, *normal_landing, *fault_landing))
 }
 
 #[cfg(test)]

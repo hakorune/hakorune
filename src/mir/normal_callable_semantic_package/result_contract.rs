@@ -9,6 +9,7 @@
 use crate::mir::builder::SelectedCallableConsumptionRoleV1;
 use crate::mir::builder::SelectedNormalCallableKeyV1;
 use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
+use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::resolved_control_flow::{
     DeclaredFunctionResultContractV1, VerifiedFunctionCompletionV1,
 };
@@ -19,6 +20,7 @@ use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 use std::collections::BTreeMap;
 use std::rc::Rc;
 
+use super::ordinary_new_coseal::lexical_instance_call::BorrowedResultCohortV1;
 use super::model::OwnedCallableParameterContractDeclarationV1;
 use super::physical_header::CallablePhysicalHeaderIssueV1;
 pub(super) use super::physical_header::{
@@ -51,6 +53,7 @@ pub(super) struct VerifiedCallableResultContractRowV1 {
     identity: CallableDeclarationIdentityV1,
     role: SelectedCallableConsumptionRoleV1,
     result: Option<ExactTrivialScalarAbiV1>,
+    terminal_invoke_result: Option<InvokeCallResultKind>,
     borrowed_result: Option<std::sync::Arc<crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>>,
     completion: Rc<VerifiedFunctionCompletionV1>,
     top_level_input: Option<top_level::VerifiedTopLevelScalarInputV1>,
@@ -103,6 +106,10 @@ impl VerifiedCallableResultContractRowV1 {
 
     pub(super) const fn result(&self) -> Option<ExactTrivialScalarAbiV1> {
         self.result
+    }
+
+    pub(super) const fn terminal_invoke_result_v1(&self) -> Option<InvokeCallResultKind> {
+        self.terminal_invoke_result
     }
 
     /// Exclusive handoff for the S6C child: the row is consumed, its
@@ -252,25 +259,6 @@ impl<'a> CallableResultContractRefV1<'a> {
             && self.owner == source.callee_owner() && self.has_complete_text_result_v1()
     }
 
-    fn instance_result_class_v1(
-        &self, selected: &VerifiedSelectedCallableBatchMapV1, source: &super::LexicalInstanceCallSourceTargetV1,
-    ) -> Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1> {
-        use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1 as Class;
-        let slot = source.target_batch_slot();
-        if source.target().namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
-            || selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(source.target().clone())) != Some(slot)
-            || !selected.identity_for_batch_slot(slot).is_some_and(|identity| identity.same_as(self.identity))
-            || selected.role_for_batch_slot(slot) != Some(self.role)
-            || self.owner != source.callee_owner()
-        {
-            return None;
-        }
-        if self.has_complete_text_result_v1() { Some(Class::Text) }
-        else if self.has_nullable_text_result_v1() { Some(Class::Dynamic) }
-        else if self.has_owned_dynamic_result_v1() { Some(Class::OwnedDynamic) }
-        else { None }
-    }
-
     /// R9, S2, O2: the declaration agrees with the proven source: a scalar kind of the one table of
     /// declared spellings, or complete Text exits (a `String` declaration or none).
     pub(super) fn declared_result_agrees_with_source(&self) -> bool {
@@ -347,6 +335,7 @@ pub(super) struct CompletedCallResultSourceV1 {
     owner: FunctionOwnerIdV1,
     identity: CallableDeclarationIdentityV1,
     role: SelectedCallableConsumptionRoleV1,
+    terminal_invoke_result: Option<InvokeCallResultKind>,
     completion: Rc<VerifiedFunctionCompletionV1>,
     terminals: Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>,
 }
@@ -367,8 +356,13 @@ impl CompletedCallResultSourceV1 {
         source: &super::LexicalInstanceCallSourceTargetV1,
         result: crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1,
     ) -> bool {
-        CallableResultContractRefV1::from_completion(self.owner, &self.identity, self.role, None,
-            &self.completion, &self.terminals, None).instance_result_class_v1(selected, source) == Some(result)
+        let slot = source.target_batch_slot();
+        source.target().namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+            && selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(source.target().clone())) == Some(slot)
+            && selected.identity_for_batch_slot(slot).is_some_and(|identity| identity.same_as(&self.identity))
+            && selected.role_for_batch_slot(slot) == Some(self.role)
+            && self.owner == source.callee_owner()
+            && result.invoke_result().is_some_and(|kind| Some(kind) == self.terminal_invoke_result)
     }
     pub(super) fn matches_retained(&self, completion: &Rc<VerifiedFunctionCompletionV1>,
         terminals: &Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>) -> bool {
@@ -379,13 +373,21 @@ impl VerifiedCallableResultContractRowV1 {
     pub(super) fn completed_instance_result_v1(
         &self, selected: &VerifiedSelectedCallableBatchMapV1, source: &super::LexicalInstanceCallSourceTargetV1,
     ) -> Option<(CompletedCallResultSourceV1, crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1)> {
-        let kind = self.borrow().instance_result_class_v1(selected, source)?;
-        Some((self.result_source_loan_v1(), kind))
+        use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1 as Class;
+        let class = match self.terminal_invoke_result? {
+            InvokeCallResultKind::OwnedString => Class::Text,
+            InvokeCallResultKind::NullableText => Class::Dynamic,
+            InvokeCallResultKind::OwnedDynamicCarrier => Class::OwnedDynamic,
+            _ => return None,
+        };
+        let result = self.result_source_loan_v1();
+        result.corroborates_instance_result(selected, source, class).then_some((result, class))
     }
 
     fn result_source_loan_v1(&self) -> CompletedCallResultSourceV1 {
         CompletedCallResultSourceV1 {
             owner: self.owner, identity: self.identity.clone(), role: self.role,
+            terminal_invoke_result: self.terminal_invoke_result,
             completion: Rc::clone(&self.completion), terminals: Rc::clone(&self.terminal_relations),
         }
     }
@@ -422,6 +424,7 @@ impl VerifiedCallableResultContractBuilderV1 {
             completion,
             terminal_relations,
             None,
+            None,
         )
     }
 
@@ -431,6 +434,7 @@ impl VerifiedCallableResultContractBuilderV1 {
         selected: &VerifiedSelectedCallableBatchMapV1,
         completion: Rc<VerifiedFunctionCompletionV1>,
         terminal_relations: BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
+        scalar_results: Option<&BorrowedResultCohortV1>,
         top_level_input: Option<top_level::VerifiedTopLevelScalarInputV1>,
     ) -> Result<(), CallablePhysicalHeaderIssueV1> {
         let batch_slot = declaration.batch_slot();
@@ -460,12 +464,18 @@ impl VerifiedCallableResultContractBuilderV1 {
                 })
             }
         }
+        let contract = CallableResultContractRefV1::from_completion(
+            declaration.owner(), declaration.identity(), role, result, &completion, &terminal_relations,
+            declaration.borrowed_result(),
+        );
+        let terminal_invoke_result = contract.issue_terminal_invoke_result_v1(scalar_results);
         self.rows.push(VerifiedCallableResultContractRowV1 {
             batch_slot,
             owner: declaration.owner(),
             identity: declaration.identity().clone(),
             role,
             result,
+            terminal_invoke_result,
             borrowed_result: declaration.borrowed_result().cloned(),
             completion,
             top_level_input,
@@ -661,8 +671,14 @@ impl VerifiedCallableResultContractCohortV1 {
         &self,
         key: &crate::mir::builder::SelectedNormalCallableKeyV1,
     ) -> Option<CallableResultContractRefV1<'_>> {
+        self.completed_result_row_v1(key).map(|row| row.borrow())
+    }
+
+    pub(super) fn completed_result_row_v1(
+        &self, key: &SelectedNormalCallableKeyV1,
+    ) -> Option<&VerifiedCallableResultContractRowV1> {
         let (selected, _) = self.completed_context.as_ref()?;
-        self.row(selected.batch_slot(key)?).map(|row| row.borrow())
+        self.row(selected.batch_slot(key)?)
     }
 
     /// Borrow the original selected key; no physical-name reconstruction.
@@ -741,7 +757,7 @@ impl VerifiedCallableResultContractCohortV1 {
 }
 
 #[path = "result_contract_callable_keys.rs"]
-mod callable_keys;
+pub(super) mod callable_keys;
 pub(super) use callable_keys::owns_dynamic_carrier_result_v1;
 
 #[path = "result_contract_top_level.rs"]

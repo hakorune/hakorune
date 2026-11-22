@@ -242,7 +242,7 @@ impl FinalizedRootSourceHandoffV1 {
         owners.extend(self.ledger.terminal_relation_index.iter().filter_map(|(owner, terminals)|
             ((*owner == self.owner || self.ledger.child_physical_validation.borrow().contains_key(owner))
                 && terminals.values().any(|relation| matches!(relation, TerminalRelationV1::Value(value)
-                    if matches!(value.returned(), TerminalReturnedSourceV1::TextExpression(_) | TerminalReturnedSourceV1::DynamicExpression(_)))))
+                    if matches!(value.returned(), TerminalReturnedSourceV1::TextExpression(_) | TerminalReturnedSourceV1::DynamicExpression { .. }))))
                 .then_some(*owner)));
         owners
     }

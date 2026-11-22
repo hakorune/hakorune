@@ -118,7 +118,9 @@ fn seal_local(
         let completion = ledger.completion_for_owner(owner).ok_or_else(|| reject("completion"))?;
         if !lifecycle::completion_ready(completion) { return Err(reject("completion-not-ready")); }
     }
-    row.execution = DirectCallExecutionV1::Lifecycle;
+    if matches!(row.execution, DirectCallExecutionV1::Scalar) {
+        row.execution = DirectCallExecutionV1::Lifecycle(row.result().ok_or_else(|| reject("result-source"))?);
+    }
     // A received Handle is owned by its own commit row (`CallReceived`), which holds the
     // emitted bindings; only a scalar result owes a call-prefix binding group.
     if !matches!(local.result(), LocalCallResultClassV1::Handle | LocalCallResultClassV1::Nullable) {
@@ -171,11 +173,11 @@ impl DirectCallDispositionLoansV1 {
             batch.with_lowering_input(*slot, |input| -> Result<(), String> {
                 for (site, _) in input.function().method_calls() {
                     let site = OwnedExprSiteV1::new(owner, site.clone());
-                    let Some(call_result) = ledger.local_call_for_owner(owner, site.site())
+                    let Some(observation) = ledger.local_call_for_owner(owner, site.site())
                         .filter(|local| local.local_binding().is_some())
                         .and_then(|local| local.result().invoke_result()) else { continue };
                     let Some(original) = ledger.borrow_original_static_source_v1(&site)? else { continue };
-                    if original.qualified_carried_result_v1().is_none() && !original.is_current_owner_i64_source_v1() { continue; }
+                    let Some(call_result) = original.carried_invoke_result_v1() else { continue };
                     if !owners.contains_key(&original.callee_owner()) { continue; }
                     if original.caller() != caller || !original.catalog_brand().is_same(selected.catalog_brand()) {
                         return Err(reject("source-catalog"));
@@ -193,14 +195,15 @@ impl DirectCallDispositionLoansV1 {
                     }
                     let result = results.row(original.target_batch_slot()).ok_or_else(|| reject("result-contract"))?.borrow();
                     let completion = ledger.completion_for_owner(original.callee_owner()).ok_or_else(|| reject("result-completion"))?;
-                    if result.owner() != original.callee_owner() || !result.identity().same_as(declaration.identity())
+                    if call_result != observation || result.owner() != original.callee_owner()
+                        || !result.identity().same_as(declaration.identity())
                         || !result_agrees_v1(ledger, original, &result, completion)? || !std::ptr::eq(result.completion(), completion) {
                         return Err(reject("result-source"));
                     }
                     let row = DirectCallDispositionRowV1 {
                         argument_sites: original.argument_sites().to_vec().into_boxed_slice(), taken_site: None,
                         observed_arguments: None, argument_projections: None, emission: DirectCallEmissionV1::Static(emission),
-                        execution: DirectCallExecutionV1::Lifecycle, result: call_result,
+                        execution: DirectCallExecutionV1::Lifecycle(call_result),
                     };
                     additions.push((site, row));
                 }

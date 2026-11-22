@@ -228,7 +228,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 function,
                 bindings,
                 entry,
-                order.ingress_result_kind(),
+                order.ingress_result_for_entry(entry),
                 &self.main_arguments_release_suffix_v1(owner, function)?,
                 order.borrowed_expression_fault_v1(),
             )?;
@@ -245,7 +245,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 function,
                 row.bindings(),
                 row.entry(),
-                row.order().ingress_result_kind(),
+                row.order().ingress_result_for_entry(row.entry()),
                 &self.main_arguments_release_suffix_v1(owner, function)?,
                 row.order().borrowed_expression_fault_v1(),
             )?;

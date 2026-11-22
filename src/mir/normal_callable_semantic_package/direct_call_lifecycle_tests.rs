@@ -637,7 +637,7 @@ return value"#] {
             .unwrap();
         assert_eq!(
             row.result(),
-            crate::mir::instruction::InvokeCallResultKind::Map
+            Some(crate::mir::instruction::InvokeCallResultKind::Map)
         );
         assert!(row.lifecycle_emission().is_ok());
         assert_eq!(

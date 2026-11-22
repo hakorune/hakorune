@@ -352,14 +352,15 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_return_expres
         installation.commit();
     }
     if unannotated && dynamic_return {
-        let relation = if (evaluation.owned_result_nodes().contains(&0) || evaluation.materializes_dynamic_root_v1())
+        let materialize = evaluation.materializes_dynamic_root_v1();
+        let relation = if (evaluation.owned_result_nodes().contains(&0) || materialize)
             && evaluation.reference_coverage_is_exact()
         {
             Ok(TerminalRelationV1::Value(TerminalValueReturnV1::issue(
                 input.owner(),
                 statement.site().clone(),
                 value.site().clone(),
-                TerminalReturnedSourceV1::DynamicExpression(evaluation),
+                TerminalReturnedSourceV1::DynamicExpression { source: evaluation, materialize },
             )))
         } else {
             Err(super::super::HomePrefixUnavailableV1::ReturnValueNotCovered(

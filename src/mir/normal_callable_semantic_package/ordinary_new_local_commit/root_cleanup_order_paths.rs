@@ -46,41 +46,18 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
         } => {
             let (_, invoke) = binding(invoke)?;
             let (_, projected) = binding(result_projection)?;
-            let MirInstruction::Invoke {
-                normal_landing,
-                fault_landing,
-                fault_frame,
-                operation,
-            } = invoke
-            else {
+            let MirInstruction::Invoke { operation, .. } = &invoke else {
                 return Err(fault("ordered-path/ingress"));
             };
-            let kind = order.ingress_result_kind();
-            match operation {
-                InvokeOperation::Call { result, call } if result == kind && call.dst.is_none() => {}
-                InvokeOperation::Map(
-                    crate::mir::instruction::MapInvokeOperation::CheckedGetI64 { .. },
-                ) if kind == crate::mir::instruction::InvokeCallResultKind::I64 => {}
-                InvokeOperation::FieldGet { .. }
-                    if kind == crate::mir::instruction::InvokeCallResultKind::I64 => {}
-                InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { field, object, .. })
-                    if matches!(kind, crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle {
-                        access: crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified,
-            support: crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { field: original, object: payload, .. }
-                    } if original == field && payload == object) => {}
-                _ => {
+            let kind = order.ingress_result_for_entry(entry)
+                .ok_or_else(|| fault("ordered-path/ingress-result-missing"))?;
+            let (fault_frame, normal_landing, fault_landing) =
+                call::check_invoke_result(&invoke, kind).ok_or_else(|| {
                     if crate::config::env::builder_debug_enabled() {
-                        let entry_kind = match entry {
-                            RootHomeExitEntry::Call { .. } => "Call",
-                            RootHomeExitEntry::MapGet { .. } => "MapGet",
-
-                            RootHomeExitEntry::Plain { .. } => "Plain",
-                        };
-                        eprintln!("[root-cleanup/ingress] function={} entry={entry_kind} expected={kind:?} operation={operation:?}", function.signature.name);
+                        eprintln!("[root-cleanup/ingress] function={} expected={kind:?} operation={operation:?}", function.signature.name);
                     }
-                    return Err(fault("ordered-path/ingress-kind"));
-                },
-            }
+                    fault("ordered-path/ingress-kind")
+                })?;
             let MirInstruction::InvokeNormalResult { dst, .. } = projected else {
                 return Err(fault("ordered-path/result"));
             };

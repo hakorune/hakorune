@@ -366,14 +366,14 @@ pub(in super::super) fn validate_finished_cleanup_entry(
             bindings,
             entry,
             finishing,
-            order.ingress_result_kind(),
+            order.ingress_result_for_entry(entry),
             order.borrowed_expression_fault_v1(),
         ),
         None => root_cleanup_graph::ordered_structure::validate_finished_call(
             function,
             bindings,
             entry,
-            order.ingress_result_kind(),
+            order.ingress_result_for_entry(entry),
         ),
     }
 }

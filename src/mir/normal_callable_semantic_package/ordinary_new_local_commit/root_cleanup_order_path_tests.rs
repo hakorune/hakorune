@@ -513,7 +513,7 @@ fn root_ordered_structure_rejects_extra_missing_foreign_cycle_and_duplicate_node
     let allowed = [caller.clone()];
     let validate = |function: &MirFunction| {
         super::super::super::super::root_cleanup_graph::ordered_structure::validate_original_with_wrapper(
-            function, &bindings, &entry, crate::mir::instruction::InvokeCallResultKind::I64,
+            function, &bindings, &entry, None,
             &[], Some((BasicBlockId(3), &allowed)))
     };
     validate(&function).unwrap();
@@ -571,7 +571,7 @@ fn root_ordered_structure_and_paths_accept_finished_plain_entry_contraction() {
         &bindings,
         &entry,
         &projection,
-        crate::mir::instruction::InvokeCallResultKind::I64,
+        None,
         None,
     )
     .unwrap();

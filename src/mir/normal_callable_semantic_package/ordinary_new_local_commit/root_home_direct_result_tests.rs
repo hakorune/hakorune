@@ -154,7 +154,7 @@ fn scalar_terminal_order_retains_same_source_without_result_home() {
     };
     assert!(!direct_object);
     assert_eq!(order.scalar.as_ref().unwrap().1, *loan);
-    assert_eq!(order.ingress_result_kind(), InvokeCallResultKind::I64);
+    assert_eq!(order.ingress_result_kind(), Some(InvokeCallResultKind::I64));
     let original = order.full().to_vec();
     order.prepend_argument_maps(Vec::new()).unwrap();
     assert_eq!(order.scalar.as_ref().unwrap().1, *loan);

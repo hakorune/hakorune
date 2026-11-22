@@ -127,11 +127,12 @@ impl FinalizedRootSourceHandoffV1 {
             ) {
                 return Err(freeze("callable-participant/owner-key"));
             }
-            let contract = callables
-                .completed_result(
+            let result_row = callables
+                .completed_result_row_v1(
                     &crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key.clone()),
                 )
                 .ok_or_else(|| freeze("callable-participant/result-missing"))?;
+            let contract = result_row.borrow();
             let symbol = module
                 .canonical_callable_definition_symbol(key)
                 .ok_or_else(|| freeze("callable-participant/definition-missing"))?;
@@ -259,32 +260,21 @@ impl FinalizedRootSourceHandoffV1 {
             } else if self.validate_finalized_text_participant_v1(owner, module, contract)? {
                 InvokeCallResultKind::OwnedString
             } else if let Some(scalar) = self.ledger.callable_scalar_result_source_v1(owner)? {
-                let (kind, agrees) = match scalar.kind() {
-                    crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer =>
-                        (InvokeCallResultKind::I64, contract.declared_result_agrees_with_i64_source()),
-                    crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool =>
-                        (InvokeCallResultKind::Bool, contract.declared_result_agrees_with_bool_source()),
-                };
+                use crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind;
                 let expected = scalar.kind();
+                let kind = expected.invoke_result();
+                let agrees = match expected {
+                    SourceScalarKind::Integer => contract.declared_result_agrees_with_i64_source(),
+                    SourceScalarKind::Bool => contract.declared_result_agrees_with_bool_source(),
+                };
                 if scalar.owner() != owner || !std::ptr::eq(scalar.completion(), completion) || !agrees
                     || terminals.values().any(|terminal| terminal.scalar_class() != Some(expected))
                 { return Err(freeze("callable-participant/scalar-result-agreement")); }
                 kind
             } else {
-                if !contract.declared_result_agrees_with_i64_source()
-                    || terminals.values().any(|terminal| {
-                        !matches!(
-                            terminal,
-                            TerminalRelationV1::Call(_)
-                                | TerminalRelationV1::IntegerLiteral(_)
-                                | TerminalRelationV1::Scalar(_)
-                                | TerminalRelationV1::MapGet(_)
-                        )
-                    })
-                {
-                    return Err(freeze("callable-participant/result-unavailable"));
-                }
-                InvokeCallResultKind::I64
+                result_row.terminal_invoke_result_v1()
+                    .filter(|kind| *kind == InvokeCallResultKind::I64 && contract.declared_result_agrees_with_i64_source())
+                    .ok_or_else(|| freeze("callable-participant/result-unavailable"))?
             };
             for exit in &exits {
                 let relation = &terminals[exit];

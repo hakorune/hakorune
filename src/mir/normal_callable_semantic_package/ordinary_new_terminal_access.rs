@@ -41,13 +41,19 @@ impl OrdinaryNewClaimLedgerV1 {
             .collect()
     }
 
-    pub(crate) fn returns_owned_carrier_v1(
+    pub(crate) fn owned_carrier_materialization_v1(
         &self,
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
         site: &SourceStmtSiteV1,
-    ) -> bool {
-        matches!(self.terminal_relation_for_owner_at(owner, site), Some(TerminalRelationV1::Value(value))
-            if matches!(value.returned(), crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1::DynamicExpression(_)))
+    ) -> Option<bool> {
+        use crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1;
+        let TerminalRelationV1::Value(value) = self.terminal_relation_for_owner_at(owner, site)? else {
+            return None;
+        };
+        match value.returned() {
+            TerminalReturnedSourceV1::DynamicExpression { materialize, .. } => Some(*materialize),
+            _ => None,
+        }
     }
 
     /// Borrow the original sealed Return evaluation without exposing mutable
