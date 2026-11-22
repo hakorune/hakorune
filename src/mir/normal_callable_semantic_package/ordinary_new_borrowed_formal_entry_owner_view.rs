@@ -90,7 +90,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 if call.callee != owner
                     || original.call_site() != &call.call
                     || self
-                        .checked_completed_static_one_actuals_v1(original)?
+                        .checked_completed_static_forwarded_actuals_v1(original)?
                         .is_none()
                 {
                     return Err(freeze("borrowed-entry/target-actuals-unfinished"));

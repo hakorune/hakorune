@@ -175,7 +175,7 @@ fn current_owner_one_input_packet_requires_original_completed_cohort() {
     )).expect("one original CurrentOwner incoming");
     let super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) = &row.source else { unreachable!() };
     assert_eq!(source.static_incoming_cohort_v1(original).unwrap().len(), 1);
-    assert_eq!(ledger.checked_completed_static_one_actuals_v1(original).unwrap().unwrap().opaque_actuals.len(), 1);
+    assert_eq!(ledger.checked_completed_static_forwarded_actuals_v1(original).unwrap().unwrap().opaque_actuals.len(), 1);
     assert!(Rc::ptr_eq(original, &ledger.selected_static_local_source_v1(&row.call).unwrap().unwrap()));
     assert!(ledger.has_routed_static_local_for_owner_v1(row.call.owner()).unwrap());
     let original = Rc::clone(original);
@@ -183,11 +183,11 @@ fn current_owner_one_input_packet_requires_original_completed_cohort() {
     let actuals = ledger.borrowed_formal_actuals.get_mut(original.call_site()).unwrap().as_mut().unwrap();
     let ordered = actuals.ordered_arguments[0].clone();
     actuals.ordered_arguments[0] = crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Integer(10);
-    assert!(ledger.checked_completed_static_one_actuals_v1(&original).is_err());
+    assert!(ledger.checked_completed_static_forwarded_actuals_v1(&original).is_err());
     assert!(ledger.borrowed_static_packet_actuals_v1(&original).is_err());
     ledger.borrowed_formal_actuals.get_mut(original.call_site()).unwrap().as_mut().unwrap().ordered_arguments[0] = ordered;
     ledger.completion_index.remove(&original.callee_owner());
-    assert!(ledger.checked_completed_static_one_actuals_v1(&original).is_err());
+    assert!(ledger.checked_completed_static_forwarded_actuals_v1(&original).is_err());
     assert!(ledger.borrowed_static_packet_actuals_v1(&original).is_err());
 }
 
@@ -312,7 +312,7 @@ fn current_owner_one_input_packet_can_follow_executable_caller_entry() {
     )).expect("selected CurrentOwner incoming");
     let super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) = &row.source else { unreachable!() };
     assert!(source.definitions.contains_key(&row.call.owner()));
-    assert!(ledger.checked_completed_static_one_actuals_v1(original).unwrap().is_some());
+    assert!(ledger.checked_completed_static_forwarded_actuals_v1(original).unwrap().is_some());
     assert!(ledger.has_routed_static_local_for_owner_v1(row.call.owner()).unwrap());
 }
 #[test]

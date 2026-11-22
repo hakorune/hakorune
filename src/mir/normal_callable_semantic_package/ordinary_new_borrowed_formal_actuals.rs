@@ -32,8 +32,8 @@ pub(in crate::mir::normal_callable_semantic_package) use static_source::project_
 mod static_bool_entry_finish;
 #[path = "ordinary_new_borrowed_static_mixed_input_finish.rs"]
 mod static_mixed_input_finish;
-#[path = "ordinary_new_borrowed_static_scalar_input_finish.rs"]
-mod static_scalar_input_finish;
+#[path = "ordinary_new_borrowed_static_scalar_caller_rows.rs"]
+mod static_numeric_evidence;
 #[path = "ordinary_new_borrowed_static_selected_actual.rs"]
 mod static_selected_actual;
 pub(in crate::mir::normal_callable_semantic_package) use static_selected_actual::original_tagged_forward_at_v1;
@@ -444,8 +444,6 @@ enum TypedInputClosureV1 {
 
 #[path = "ordinary_new_borrowed_static_input_finish.rs"]
 mod static_input_finish;
-#[path = "ordinary_new_borrowed_static_one_input_finish.rs"]
-mod static_one_input_finish;
 
 #[path = "ordinary_new_borrowed_object_input_finish.rs"]
 pub(super) mod object_input_finish;

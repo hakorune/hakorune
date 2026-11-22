@@ -287,15 +287,8 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         if !original.is_zeroarg_i64_v1()
             && original.qualified_scalar_result_v1().is_none()
-            && self
-                .checked_static_scalar_packet_actuals_v1(original)?
-                .is_none()
-            && self
-                .checked_static_mixed_packet_actuals_v1(original)?
-                .is_none()
         {
-            self.checked_completed_static_one_actuals_v1(original)?
-                .ok_or_else(&unfinished)?;
+            self.checked_current_owner_static_packet_v1(original)?.ok_or_else(&unfinished)?;
         }
         self.verify_original_static_source_v1(original)
     }
@@ -423,16 +416,9 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         if original.is_current_owner_i64_source_v1() && original.argument_sites().len() == 1 {
-            if let Some(rows) = self.checked_static_scalar_packet_actuals_v1(original)? {
-                return Ok(Some(rows));
-            }
-            if let Some(rows) = self.checked_static_mixed_packet_actuals_v1(original)? {
-                return Ok(Some(rows));
-            }
-            let row = self
-                .checked_completed_static_one_actuals_v1(original)?
-                .ok_or_else(|| freeze("ordinary-new/borrowed-entry/source-only-static-actuals"))?;
-            return Ok(Some(row.opaque_actuals.as_ref()));
+            return self.checked_current_owner_static_packet_v1(original)?
+                .map(Some)
+                .ok_or_else(|| freeze("ordinary-new/borrowed-entry/source-only-static-actuals"));
         }
         if self.is_static_zero_packet_cohort_v1(original) {
             let Some(arguments) = self.checked_completed_static_zero_arguments_v1(original)? else {
@@ -463,6 +449,22 @@ impl OrdinaryNewClaimLedgerV1 {
             )
         })
         .map(Some)
+    }
+
+    /// Borrow the checked original inputs for an already selected CurrentOwner call.
+    fn checked_current_owner_static_packet_v1(
+        &self,
+        original: &Rc<StaticIncomingSourceV1>,
+    ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
+        if let Some(actuals) = self.checked_static_scalar_packet_actuals_v1(original)? {
+            return Ok(Some(actuals));
+        }
+        // The mixed census still owns its historical admission boundary.
+        if let Some(actuals) = self.checked_static_mixed_packet_actuals_v1(original)? {
+            return Ok(Some(actuals));
+        }
+        Ok(self.checked_completed_static_forwarded_actuals_v1(original)?
+            .map(|row| row.opaque_actuals.as_ref()))
     }
 
     fn corroborate_static_packet_arguments_v1(

@@ -12,6 +12,8 @@ use crate::mir::normal_callable_semantic_package::{
 use std::collections::{BTreeMap, BTreeSet};
 use std::rc::Rc;
 
+pub(super) type StaticInputRowsV1 = Vec<(OwnedExprSiteV1, PreparedBorrowedCallActualsV1)>;
+
 #[derive(Debug, Clone)]
 pub(super) struct StaticInputFinishV1 {
     pub(super) source: Rc<StaticIncomingSourceV1>,
@@ -24,6 +26,8 @@ pub(super) struct StaticInputFinishV1 {
 #[derive(Debug, Clone)]
 pub(super) enum StaticInputEvidenceV1 {
     Zero,
+    Forwarded,
+    Numeric(super::static_numeric_evidence::StaticScalarActualV1),
     LoopEntry {
         snapshot: Box<PreparedBorrowedCallActualsV1>,
         formal: BindingRefV1,
@@ -38,7 +42,8 @@ pub(super) enum StaticInputEvidenceV1 {
 impl PartialEq for StaticInputEvidenceV1 {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
-            (Self::Zero, Self::Zero) => true,
+            (Self::Zero, Self::Zero) | (Self::Forwarded, Self::Forwarded) => true,
+            (Self::Numeric(a), Self::Numeric(b)) => a == b,
             (
                 Self::LoopEntry {
                     snapshot: a,
@@ -119,6 +124,12 @@ impl StaticInputFinishV1 {
             && source.is_zero_input_source_v1()
             && self.completion.owner() == source.callee_owner()
     }
+    pub(super) fn corroborates_forwarded_v1(&self, original: &Rc<StaticIncomingSourceV1>) -> bool {
+        matches!(self.evidence, StaticInputEvidenceV1::Forwarded)
+            && Rc::ptr_eq(&self.source, original)
+            && self.completion.owner() == original.callee_owner()
+    }
+
     pub(super) fn source_snapshot_v1(&self) -> Option<&PreparedBorrowedCallActualsV1> {
         match &self.evidence {
             StaticInputEvidenceV1::Qualified { snapshot, .. } => Some(snapshot),
@@ -156,6 +167,30 @@ fn static_input_contract_v1(
 
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn finish_static_input_actuals_v1(
+        &mut self,
+        batch: &VerifiedResolvedCallableSemanticBatchV1,
+        selected: &VerifiedSelectedCallableBatchMapV1,
+        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        signatures: &VerifiedCallablePhysicalSignatureCohortV1,
+        results: &VerifiedCallableResultContractCohortV1,
+    ) -> Result<(), String> {
+        for (site, actuals) in
+            self.prepare_static_forwarded_inputs_v1(selected, contracts, signatures, results)?
+        {
+            self.borrowed_formal_actuals.insert(site, Ok(actuals));
+        }
+        for (site, actuals) in
+            self.prepare_numeric_static_inputs_v1(selected, contracts, signatures, results)?
+        {
+            self.borrowed_formal_actuals.insert(site, Ok(actuals));
+        }
+        self.finish_static_mixed_input_actuals_v1(selected, contracts, signatures, results)?;
+        self.finish_static_bool_entry_actual_v1(batch, selected, contracts, signatures, results)?;
+        self.stage_missing_static_input_sources_v1(batch, contracts)?;
+        self.finish_static_input_cohorts_v1(selected, contracts, signatures, results)
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn finish_static_input_cohorts_v1(
         &mut self,
         selected: &VerifiedSelectedCallableBatchMapV1,
         contracts: &[OwnedCallableParameterContractDeclarationV1],

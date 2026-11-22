@@ -1,7 +1,15 @@
 //! Source-only forwarding and the stronger selected-loop caller witness.
 //! Neither source identity nor a forwarded root grants physical entry permission.
 
+use super::static_input_finish::{StaticInputEvidenceV1, StaticInputFinishV1, StaticInputRowsV1};
 use super::*;
+use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
+use crate::mir::normal_callable_semantic_package::{
+    physical_signature::VerifiedCallablePhysicalSignatureCohortV1,
+    result_contract::VerifiedCallableResultContractCohortV1,
+    selected_mapping::VerifiedSelectedCallableBatchMapV1,
+};
+use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 use std::collections::BTreeSet;
 use std::rc::Rc;
@@ -356,4 +364,281 @@ fn checked_original_static_forward_v1(
             formal: root,
         },
     ))
+}
+
+fn forwarded_static_incoming_v1(
+    source: &PreparedBorrowedFormalIngressV1,
+    owner: FunctionOwnerIdV1,
+) -> &[super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1] {
+    source.target_static.get(&owner)
+        .map_or(source.incoming.as_ref(), |target| target.incoming.as_ref())
+}
+
+pub(super) fn forwarded_static_incoming_row_v1<'a>(
+    source: &'a PreparedBorrowedFormalIngressV1,
+    original: &Rc<StaticIncomingSourceV1>,
+    missing: &'static str,
+    drift: &'static str,
+) -> Result<&'a super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1, String> {
+    use super::super::borrowed_formal_uses::BorrowedIncomingSourceV1;
+    let mut matches = forwarded_static_incoming_v1(source, original.callee_owner())
+        .iter()
+        .filter(|row| &row.call == original.call_site());
+    let call = matches.next().ok_or_else(|| freeze(missing))?;
+    if matches.next().is_some()
+        || call.callee != original.callee_owner()
+        || !matches!(&call.source, BorrowedIncomingSourceV1::Static(row) if Rc::ptr_eq(row, original))
+    {
+        return Err(freeze(drift));
+    }
+    Ok(call)
+}
+
+pub(super) fn retains_forwarded_static_cohort_v1(
+    source: &PreparedBorrowedFormalIngressV1,
+    original: &StaticIncomingSourceV1,
+    cohort: &[Rc<StaticIncomingSourceV1>],
+) -> bool {
+    use super::super::borrowed_formal_uses::BorrowedIncomingSourceV1;
+    let owner = original.callee_owner();
+    // Only a registered target authorizes a wider forwarded input scope.
+    // Without one, the source inventory has already confirmed this exact site.
+    let Some(target) = source.target_static.get(&owner) else {
+        return cohort.iter().all(|member| std::ptr::eq(member.as_ref(), original));
+    };
+    let incoming = target.incoming.iter().filter(|call| call.callee == owner);
+    incoming.clone().count() == cohort.len()
+        && cohort.iter().all(|member| {
+            incoming.clone().filter(|call| {
+                call.call == *member.call_site()
+                    && matches!(&call.source, BorrowedIncomingSourceV1::Static(source)
+                        if Rc::ptr_eq(member, source))
+            }).count() == 1
+        })
+}
+
+impl OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn checked_completed_static_forwarded_actuals_v1(
+        &self,
+        original: &Rc<StaticIncomingSourceV1>,
+    ) -> Result<Option<&PreparedBorrowedCallActualsV1>, String> {
+        if !original.is_current_owner_i64_source_v1() || original.argument_sites().len() != 1 {
+            return Ok(None);
+        }
+        let source = self
+            .borrowed_formal_source
+            .as_ref()
+            .ok_or_else(|| freeze("static-one/source-missing"))?
+            .as_ref()
+            .map_err(Clone::clone)?;
+        let cohort = source.static_incoming_cohort_v1(original)?;
+        if !retains_forwarded_static_cohort_v1(source, original, &cohort) {
+            return Err(freeze("static-one/whole-cohort"));
+        }
+        let retained = source
+            .source_incoming
+            .static_observations()
+            .get(original.call_site())
+            .ok_or_else(|| freeze("static-one/original-missing"))?
+            .as_ref()
+            .map_err(Clone::clone)?;
+        if !Rc::ptr_eq(retained, original) {
+            return Err(freeze("static-one/original-drift"));
+        }
+        let Some(row) = self.borrowed_formal_actuals.get(original.call_site()) else {
+            return Ok(None);
+        };
+        let row = row.as_ref().map_err(Clone::clone)?;
+        let Some(finish) = row.forwarded_static_finish_v1() else {
+            return Ok(None);
+        };
+        let completion = self
+            .completion_index
+            .get(&original.callee_owner())
+            .ok_or_else(|| freeze("static-one/completion-missing"))?
+            .as_ref()
+            .map_err(|error| format!("{}: {error:?}", freeze("static-one/completion")))?;
+        if !finish.corroborates_forwarded_v1(original) || !Rc::ptr_eq(&finish.completion, completion) {
+            return Err(freeze("static-one/completion-drift"));
+        }
+        if source.target_static.contains_key(&original.callee_owner()) {
+            for sibling in &cohort {
+                let ready = self
+                    .borrowed_formal_actuals
+                    .get(sibling.call_site())
+                    .ok_or_else(|| freeze("static-one/cohort-actuals-missing"))?
+                    .as_ref()
+                    .map_err(Clone::clone)?;
+                let Some(proof) = ready.forwarded_static_finish_v1() else {
+                    return Err(freeze("static-one/cohort-unfinished"));
+                };
+                if !proof.corroborates_forwarded_v1(sibling)
+                    || !Rc::ptr_eq(&proof.completion, completion)
+                {
+                    return Err(freeze("static-one/cohort-completion-drift"));
+                }
+            }
+        }
+        let call = forwarded_static_incoming_row_v1(
+            source, original, "static-one/incoming-missing", "static-one/incoming-identity",
+        )?;
+        let arguments = row.ordered_arguments_for_v1(call)?;
+        if row.opaque_actuals.len() != 1
+            || !matches!(
+                &row.opaque_actuals[0].source,
+                BorrowedFormalActualSourceV1::Forwarded { .. }
+            )
+        {
+            return Err(freeze("static-one/actual-identity"));
+        }
+        let observation = self
+            .local_call_for_owner(original.call_site().owner(), original.call_site().site())
+            .ok_or_else(|| freeze("static-one/home-observation-missing"))?;
+        if observation.arguments() != arguments
+            || observation.result() != LocalCallResultClassV1::I64
+        {
+            return Err(freeze("static-one/home-observation-drift"));
+        }
+        Ok(Some(row))
+    }
+
+    pub(super) fn prepare_static_forwarded_inputs_v1(
+        &self,
+        selected: &VerifiedSelectedCallableBatchMapV1,
+        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        signatures: &VerifiedCallablePhysicalSignatureCohortV1,
+        results: &VerifiedCallableResultContractCohortV1,
+    ) -> Result<StaticInputRowsV1, String> {
+        let Some(Ok(source)) = self.borrowed_formal_source.as_ref() else {
+            return Ok(Vec::new());
+        };
+        let mut originals: Vec<_> = source
+            .incoming
+            .iter()
+            .filter_map(|call| match &call.source {
+                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
+                    if original.is_current_owner_i64_source_v1()
+                        && source.definitions.contains_key(&original.callee_owner()) =>
+                {
+                    Some(Rc::clone(original))
+                }
+                _ => None,
+            })
+            .collect();
+        originals.extend(source.target_static.values().flat_map(|cohort| {
+            cohort
+                .incoming
+                .iter()
+                .filter_map(|call| match &call.source {
+                    super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(
+                        original,
+                    ) if original.is_current_owner_i64_source_v1() => Some(Rc::clone(original)),
+                    _ => None,
+                })
+        }));
+        let mut replacements = Vec::new();
+        for original in originals {
+            let cohort = source.static_incoming_cohort_v1(&original)?;
+            if !cohort.iter().any(|row| Rc::ptr_eq(row, &original))
+                || !retains_forwarded_static_cohort_v1(source, &original, &cohort)
+            {
+                return Err(freeze("static-one/whole-cohort"));
+            }
+            let owner = original.callee_owner();
+            let mut matching = contracts.iter().filter(|row| row.owner == owner);
+            let contract = matching
+                .next()
+                .ok_or_else(|| freeze("static-one/contract-missing"))?;
+            if matching.next().is_some()
+                || contract.mode != CallableParameterDeclarationModeV1::StaticBoxMethod
+                || contract.batch_slot != original.target_batch_slot()
+                || contract.parameters.len() != original.parameters().len()
+                || contract.parameters.iter().zip(original.parameters()).enumerate()
+                    .any(|(ordinal, (parameter, original))| {
+                        parameter.ordinal as usize != ordinal
+                            || parameter.binding != original.binding
+                            || parameter.kind != original.kind
+                            || !parameter.kind.is_ordinary_borrowed_handle()
+                    })
+                || !(source.definitions.contains_key(&owner)
+                    || source.target_static.contains_key(&owner))
+            {
+                return Err(freeze("static-one/contract-identity"));
+            }
+            let identity = selected
+                .identity_for_batch_slot(contract.batch_slot)
+                .ok_or_else(|| freeze("static-one/selected-identity"))?;
+            if !matches!(selected.key_for_batch_slot(contract.batch_slot),
+                Some(SelectedNormalCallableKeyV1::Cataloged(key)) if key == original.target())
+            {
+                return Err(freeze("static-one/selected-target"));
+            }
+            let completion = self.require_static_input_completion_v1(
+                identity, contract, signatures, results, "static-one",
+            )?;
+            let site = original.call_site();
+            let call = forwarded_static_incoming_row_v1(
+                source, &original, "static-one/incoming-missing", "static-one/incoming-identity",
+            )?;
+            let [(ordinal, _, _)] = call.arguments.as_ref() else {
+                return Err(freeze("static-one/incoming-identity"));
+            };
+            let fact = source
+                .static_arguments
+                .get(&(site.clone(), *ordinal))
+                .ok_or_else(|| freeze("static-one/forward-source-missing"))?;
+            let issued = super::static_selected_actual::issue_original_static_forwarded_actual_v1(
+                source,
+                &self.borrowed_formal_actuals,
+                &original,
+                fact.formal(),
+            )?;
+            if !issued.corroborates(&original, fact.formal()) {
+                return Err(freeze("static-one/forward-identity"));
+            }
+            let staged = self
+                .borrowed_formal_actuals
+                .get(site)
+                .ok_or_else(|| freeze("static-one/actuals-missing"))?
+                .as_ref()
+                .map_err(Clone::clone)?;
+            let BorrowedCallActualEvidencePhaseV1::SourceStatic(source_actual) = &staged.phase
+            else {
+                return Err(freeze("static-one/source-phase"));
+            };
+            if !Rc::ptr_eq(&source_actual.source, &original)
+                || source_actual.integer_evidence.len() != original.parameters().len()
+                || staged.opaque_actuals.len() != 0
+                || staged.ordered_arguments.as_ref()
+                    != [LocalCallArgumentV1::BorrowedActual {
+                        ordinal: issued.actual().ordinal,
+                        site: issued.actual().site.clone(),
+                    }]
+            {
+                return Err(freeze("static-one/source-actual-drift"));
+            }
+            let observation = self
+                .local_call_for_owner(site.owner(), site.site())
+                .ok_or_else(|| freeze("static-one/home-observation-missing"))?;
+            if observation.site() != site
+                || observation.owner() != site.owner()
+                || observation.result() != LocalCallResultClassV1::I64
+                || observation.arguments() != staged.ordered_arguments.as_ref()
+            {
+                return Err(freeze("static-one/home-observation-drift"));
+            }
+            replacements.push((
+                site.clone(),
+                StaticInputFinishV1::finish_arguments_v1(
+                    &original,
+                    completion,
+                    staged,
+                    StaticInputEvidenceV1::Forwarded,
+                    Box::new([issued.actual().clone()]),
+                    None,
+                ),
+            ));
+        }
+        Ok(replacements)
+    }
 }

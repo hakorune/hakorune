@@ -606,10 +606,10 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                 .iter().map(|row| row.call_site().clone()).collect();
             let mut package = package;
             let ledger = std::rc::Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
-            assert!(ledger.checked_completed_static_one_actuals_v1(&original).unwrap().is_some(),
+            assert!(ledger.checked_completed_static_forwarded_actuals_v1(&original).unwrap().is_some(),
                 "original whole-input lender is complete before mutation");
             assert!(ledger.borrowed_formal_actuals.remove(original.call_site()).is_some());
-            assert!(ledger.checked_completed_static_one_actuals_v1(&original).unwrap().is_none(),
+            assert!(ledger.checked_completed_static_forwarded_actuals_v1(&original).unwrap().is_none(),
                 "missing actual invalidates the original completed input");
             assert!(ledger.selected_static_local_source_v1(&pair_sites[0]).is_err(),
                 "one missing actual invalidates the selected cohort packet");

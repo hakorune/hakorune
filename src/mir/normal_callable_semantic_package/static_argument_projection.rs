@@ -78,7 +78,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_current_owner_lo
         .as_ref()
         .map_err(Clone::clone)?;
     let (original, binding, original_site) =
-        super::static_scalar_input_finish::original_scalar_source_v1(row)?.ok_or_else(reject)?;
+        super::static_numeric_evidence::original_scalar_source_v1(row)?.ok_or_else(reject)?;
     let prepared = source.as_ref().map_err(Clone::clone)?;
     let retained = prepared
         .source_incoming
@@ -244,89 +244,78 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_s
     {
         return Err(freeze("borrowed-static/source-fact-required"));
     }
-    if let BorrowedCallActualEvidencePhaseV1::ExecutableStaticOne(finish) = &rows.phase {
+    if let Some(finish) = rows.forwarded_static_finish_v1()
+        .or_else(|| rows.numeric_static_finish_v1().map(|(finish, _)| finish))
+    {
+        use super::static_input_finish::StaticInputEvidenceV1;
+        let forwarded = matches!(finish.evidence, StaticInputEvidenceV1::Forwarded);
         if !current_owner {
-            return Err(freeze("borrowed-static/executable-current-owner-required"));
+            if forwarded {
+                return Err(freeze("borrowed-static/executable-current-owner-required"));
+            }
+            if !has_static_terminal_source && source_qualified.is_none() {
+                return Err(freeze("borrowed-static/scalar-source-required"));
+            }
         }
         let original =
             retained.ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?;
-        if !finish.corroborates_source_v1(original)
-            || required_i64_arguments != original.required_i64_arguments()
-        {
-            return Err(freeze("borrowed-static/executable-source-drift"));
-        }
-        let cohort = prepared.static_incoming_cohort_v1(original)?;
-        if cohort.len() == 2 {
-            let target = prepared
-                .target_static
-                .get(&original.callee_owner())
-                .ok_or_else(|| freeze("borrowed-static/executable-cohort-missing"))?;
-            if target.incoming.len() != 2 {
-                return Err(freeze("borrowed-static/executable-cohort-drift"));
+        let call = if forwarded {
+            if !finish.corroborates_forwarded_v1(original)
+                || required_i64_arguments != original.required_i64_arguments()
+            {
+                return Err(freeze("borrowed-static/executable-source-drift"));
             }
-            for sibling in &cohort {
-                let ready = pending
-                    .get(sibling.call_site())
-                    .ok_or_else(|| freeze("borrowed-static/executable-sibling-missing"))?
-                    .as_ref()
-                    .map_err(Clone::clone)?;
-                let BorrowedCallActualEvidencePhaseV1::ExecutableStaticOne(proof) = &ready.phase
-                else {
-                    return Err(freeze("borrowed-static/executable-sibling-unfinished"));
-                };
-                if !proof.corroborates_source_v1(sibling) {
-                    return Err(freeze("borrowed-static/executable-sibling-drift"));
+            let cohort = prepared.static_incoming_cohort_v1(original)?;
+            if !super::static_selected_actual::retains_forwarded_static_cohort_v1(prepared, original, &cohort) {
+                return Err(freeze("borrowed-static/executable-whole-cohort"));
+            }
+            if prepared.target_static.contains_key(&original.callee_owner()) {
+                for sibling in &cohort {
+                    let ready = pending
+                        .get(sibling.call_site())
+                        .ok_or_else(|| freeze("borrowed-static/executable-sibling-missing"))?
+                        .as_ref()
+                        .map_err(Clone::clone)?;
+                    let Some(proof) = ready.forwarded_static_finish_v1() else {
+                        return Err(freeze("borrowed-static/executable-sibling-unfinished"));
+                    };
+                    if !proof.corroborates_forwarded_v1(sibling) {
+                        return Err(freeze("borrowed-static/executable-sibling-drift"));
+                    }
                 }
             }
-        } else if cohort.len() != 1 {
-            return Err(freeze("borrowed-static/executable-whole-cohort"));
-        }
-        let incoming_rows = prepared
-            .target_static
-            .get(&original.callee_owner())
-            .map_or(prepared.incoming.as_ref(), |row| row.incoming.as_ref());
-        let mut matching = incoming_rows.iter().filter(|row| &row.call == site);
-        let call = matching
-            .next()
-            .ok_or_else(|| freeze("borrowed-static/executable-incoming-missing"))?;
-        if matching.next().is_some() {
-            return Err(freeze("borrowed-static/executable-incoming-duplicate"));
-        }
-        return rows
-            .ordered_arguments_for_v1(call)
-            .map(|rows| Some(rows.into()));
-    }
-    if let BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(proof) = &rows.phase {
-        if !current_owner && !has_static_terminal_source && source_qualified.is_none() {
-            return Err(freeze("borrowed-static/scalar-source-required"));
-        }
-        let original =
-            retained.ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?;
-        if required_i64_arguments != original.required_i64_arguments()
-            || !(required_i64_arguments == [0] || required_i64_arguments.is_empty())
-        {
-            return Err(freeze("borrowed-static/scalar-required-integer-drift"));
-        }
-        super::static_scalar_input_finish::checked_ready_scalar_rows_v1(
-            prepared,
-            pending,
-            original,
-            &proof.completion,
-        )?
-        .ok_or_else(|| freeze("borrowed-static/scalar-sibling-unfinished"))?;
-        let mut matching = prepared
-            .source_incoming
-            .exact_rows()
-            .filter(|call| &call.call == site && call.callee == original.callee_owner());
-        let call = matching
-            .next()
-            .ok_or_else(|| freeze("borrowed-static/scalar-incoming-missing"))?;
-        if matching.next().is_some() {
-            return Err(freeze("borrowed-static/scalar-incoming-duplicate"));
-        }
-        return rows
-            .ordered_arguments_for_v1(call)
-            .map(|rows| Some(rows.into()));
+            super::static_selected_actual::forwarded_static_incoming_row_v1(
+                prepared,
+                original,
+                "borrowed-static/executable-incoming-missing",
+                "borrowed-static/executable-incoming-duplicate",
+            )?
+        } else {
+            if required_i64_arguments != original.required_i64_arguments()
+                || !(required_i64_arguments == [0] || required_i64_arguments.is_empty())
+            {
+                return Err(freeze("borrowed-static/scalar-required-integer-drift"));
+            }
+            super::static_numeric_evidence::checked_ready_scalar_rows_v1(
+                prepared,
+                pending,
+                original,
+                &finish.completion,
+            )?
+            .ok_or_else(|| freeze("borrowed-static/scalar-sibling-unfinished"))?;
+            let mut matching = prepared
+                .source_incoming
+                .exact_rows()
+                .filter(|call| &call.call == site && call.callee == original.callee_owner());
+            let call = matching
+                .next()
+                .ok_or_else(|| freeze("borrowed-static/scalar-incoming-missing"))?;
+            if matching.next().is_some() {
+                return Err(freeze("borrowed-static/scalar-incoming-duplicate"));
+            }
+            call
+        };
+        return rows.ordered_arguments_for_v1(call).map(|args| Some(args.into()));
     }
     if matches!(
         rows.phase,

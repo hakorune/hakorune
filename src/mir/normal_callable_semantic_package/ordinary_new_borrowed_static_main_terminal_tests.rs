@@ -296,7 +296,7 @@ fn main_terminal_finish_rejects_foreign_verified_entry_brand() {
         .is_same(foreign.selected.catalog_brand()));
     let ledger = Rc::get_mut(&mut original.ordinary_new_claim_ledger).unwrap();
     let error = ledger
-        .finish_static_input_actuals_v1(
+        .finish_static_input_cohorts_v1(
             &foreign.selected,
             &original.parameter_contracts,
             &original.physical_signature,
@@ -338,7 +338,7 @@ fn main_terminal_finish_does_not_validate_unrequested_entry() {
         .borrow_mut()
         .insert(other_owner, product);
     ledger
-        .finish_static_input_actuals_v1(
+        .finish_static_input_cohorts_v1(
             &original.selected,
             &original.parameter_contracts,
             &original.physical_signature,

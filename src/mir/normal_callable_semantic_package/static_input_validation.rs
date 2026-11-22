@@ -5,12 +5,50 @@ use super::static_input_finish::{
 use super::*;
 use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
 use crate::mir::normal_callable_semantic_package::{
-    physical_signature::VerifiedCallablePhysicalSignatureCohortV1,
+    physical_signature::{
+        PhysicalCallableLaneRoleV1, PhysicalCallableSignatureRowRefV1,
+        VerifiedCallablePhysicalSignatureCohortV1,
+    },
     qualified_static_call_claim::incoming_source::StaticIncomingSourceV1,
-    result_contract::VerifiedCallableResultContractCohortV1,
+    result_contract::{CallableResultContractRefV1, VerifiedCallableResultContractCohortV1},
     selected_mapping::VerifiedSelectedCallableBatchMapV1, OrdinaryNewClaimLedgerV1,
 };
 use std::rc::Rc;
+
+pub(super) fn static_input_signature_matches_v1(
+    signature: PhysicalCallableSignatureRowRefV1<'_>,
+    identity: &crate::parser::CallableDeclarationIdentityV1,
+    contract: &OwnedCallableParameterContractDeclarationV1,
+) -> bool {
+    let arity = contract.parameters.len() as u32;
+    signature.identity().same_as(identity)
+        && signature.owner() == contract.owner
+        && signature.mode() == contract.mode
+        && signature.source_logical_arity() == arity
+        && signature.receiver_lane_count() == 0
+        && signature.physical_formal_lane_count() == arity
+        && signature.physical_callable_lane_count() == arity
+        && signature.lanes().len() == arity as usize
+        && signature.lanes().iter().zip(&contract.parameters).all(|(lane, formal)| {
+            lane.logical_ordinal() == Some(formal.ordinal)
+                && lane.binding() == formal.binding
+                && lane.role() == PhysicalCallableLaneRoleV1::OrdinaryScalar
+        })
+}
+
+pub(super) fn static_input_result_matches_v1(
+    result: CallableResultContractRefV1<'_>,
+    identity: &crate::parser::CallableDeclarationIdentityV1,
+    completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
+    owner: FunctionOwnerIdV1,
+) -> bool {
+    result.owner() == owner
+        && result.identity().same_as(identity)
+        && result.declared_result_agrees_with_source()
+        && completion.returns_value()
+        && completion.owner() == owner
+        && std::ptr::eq(result.completion(), completion)
+}
 
 pub(super) fn static_argument_actual_v1(
     formal: BindingRefV1,
@@ -93,7 +131,6 @@ impl OrdinaryNewClaimLedgerV1 {
         completion: &Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,
         tag: &str,
     ) -> Result<bool, String> {
-        use crate::mir::normal_callable_semantic_package::physical_signature::PhysicalCallableLaneRoleV1 as Role;
         let fail = |suffix: &str| freeze(&format!("{tag}/{suffix}"));
         let Some(SelectedNormalCallableKeyV1::Cataloged(key)) =
             selected.key_for_batch_slot(contract.batch_slot)
@@ -116,25 +153,9 @@ impl OrdinaryNewClaimLedgerV1 {
         let identity = selected
             .identity_for_batch_slot(contract.batch_slot)
             .ok_or_else(|| fail("signature-identity"))?;
-        let arity = contract.parameters.len() as u32;
-        if !signature.identity().same_as(identity)
-            || signature.owner() != contract.owner
-            || signature.mode() != contract.mode
-            || signature.source_logical_arity() != arity
-            || signature.receiver_lane_count() != 0
-            || signature.physical_formal_lane_count() != arity
-            || signature.physical_callable_lane_count() != arity
-            || signature.lanes().len() != arity as usize
-            || signature
-                .lanes()
-                .iter()
-                .zip(&contract.parameters)
-                .any(|(lane, formal)| {
-                    lane.index() != formal.ordinal
-                        || lane.logical_ordinal() != Some(formal.ordinal)
-                        || lane.binding() != formal.binding
-                        || lane.role() != Role::OrdinaryScalar
-                })
+        if !static_input_signature_matches_v1(signature, identity, contract)
+            || signature.lanes().iter().zip(&contract.parameters)
+                .any(|(lane, formal)| lane.index() != formal.ordinal)
         {
             return Err(fail("signature-identity"));
         }
@@ -142,16 +163,37 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(false);
         };
         let result = result.borrow();
-        if result.owner() != contract.owner
-            || !result.identity().same_as(identity)
-            || !result.declared_result_agrees_with_source()
-            || !completion.returns_value()
-            || completion.owner() != contract.owner
-            || !std::ptr::eq(result.completion(), completion.as_ref())
+        if !static_input_result_matches_v1(result, identity, completion, contract.owner)
         {
             return Err(fail("result-completion-identity"));
         }
         Ok(true)
+    }
+
+    /// Lend the original signature and Completion after source enrollment.
+    /// An admitted specialized source requires both rows to exist.
+    pub(super) fn require_static_input_completion_v1(
+        &self,
+        identity: &crate::parser::CallableDeclarationIdentityV1,
+        contract: &OwnedCallableParameterContractDeclarationV1,
+        signatures: &VerifiedCallablePhysicalSignatureCohortV1,
+        results: &VerifiedCallableResultContractCohortV1,
+        evidence: &str,
+    ) -> Result<&Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>, String> {
+        let fail = |reason| freeze(&format!("{evidence}/{reason}"));
+        let signature = signatures.row(contract.batch_slot).ok_or_else(|| fail("signature-missing"))?;
+        if !static_input_signature_matches_v1(signature, identity, contract) {
+            return Err(fail("signature-identity"));
+        }
+        let completion = self.completion_index.get(&contract.owner)
+            .ok_or_else(|| fail("completion-missing"))?
+            .as_ref().map_err(|error| format!("{}: {error:?}", fail("completion")))?;
+        let result = results.row(contract.batch_slot)
+            .ok_or_else(|| fail("result-missing"))?.borrow();
+        if !static_input_result_matches_v1(result, identity, completion, contract.owner) {
+            return Err(fail("result-completion-identity"));
+        }
+        Ok(completion)
     }
 
     /// Borrow only the SAME completed whole input cohort. No caller result,
