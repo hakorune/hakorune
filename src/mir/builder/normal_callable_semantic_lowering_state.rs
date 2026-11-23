@@ -38,8 +38,6 @@ mod exact_parameter_entry;
 #[path = "normal_callable_semantic_lowering_state/source_prepare.rs"]
 mod source_prepare;
 
-#[path = "normal_callable_semantic_lowering_state/loop_recipe_accounting.rs"]
-mod loop_recipe_accounting;
 /// Loop-carrier physical value publication and `values` projection
 /// transactions for speculative branch lanes.
 #[path = "normal_callable_semantic_lowering_state/loop_value_publication.rs"]

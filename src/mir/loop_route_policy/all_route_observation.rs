@@ -65,12 +65,6 @@ pub(crate) enum LoopAllRouteObservationSetRejectV1 {
 /// `RecipeBacked` claim outside this table is a typed reject.
 pub(crate) const ATTESTED_RECIPE_BACKED_V1: &[(LoopRouteId, LoopRouteRecipeBackingV1)] = &[
     (
-        LoopRouteId::LoopSimpleWhile,
-        LoopRouteRecipeBackingV1::PortableProducer(
-            LoopRecipeProducerIdV1::VariableAccumRecurrenceV1,
-        ),
-    ),
-    (
         LoopRouteId::ScanWithInit,
         LoopRouteRecipeBackingV1::ScanWithInitV2,
     ),

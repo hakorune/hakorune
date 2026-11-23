@@ -50,18 +50,6 @@ pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsRouteErrorV1 {
     NonGenericOrOverlapping {
         routes: Box<[LoopRouteId]>,
     },
-    VariableAccumRecurrenceSourceUnavailable(Box<str>),
-    VariableAccumRecurrenceSiteMismatch,
-    VariableAccumRecurrenceUnresolved(
-        crate::mir::loop_structural_facts::VariableAccumRecurrenceSourceUnresolvedV1,
-    ),
-    VariableAccumRecurrenceRejected(
-        crate::mir::loop_structural_facts::VariableAccumRecurrenceSourceRejectV1,
-    ),
-    VariableAccumRecurrenceOverlap {
-        routes: Box<[LoopRouteId]>,
-    },
-    VariableAccumRecurrenceProducer(Box<str>),
     LoopCondRouteRejected(CallableLoopSourceRouteRejectV1),
 }
 
@@ -71,15 +59,11 @@ pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsDispositionV1<'so
     FactsAbsent,
     FactsRejected(Box<str>),
     RouteNotFrontSelected(CallableGenericLoopSourceFactsRouteErrorV1),
-    VariableAccumRecurrenceReady(
-        crate::mir::loop_recipe_contract::VerifiedVariableAccumRecurrenceRecipeProductV1,
-    ),
     LoopCondReady(CallableLoopCondSourceFactsV1<'source>),
 }
 
 #[path = "generic/issuer.rs"]
 mod issuer;
-pub(in crate::mir::builder) use issuer::issue_callable_variable_accum_recurrence;
 pub(in crate::mir::builder) use issuer::CallableGenericLoopSourceFactsIssuerV1;
 
 fn validate_source_input(

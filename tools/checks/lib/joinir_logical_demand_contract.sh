@@ -8,7 +8,6 @@ guard_joinir_logical_demand_contract() {
   local producer_id="$portable_recipe_dir/producer_id.rs"
   local loop_structural_facts_dir="$root_dir/src/mir/loop_structural_facts"
   local direct_accum_recipe_producer="$portable_recipe_dir/direct_accum_producer.rs"
-  local variable_accum_recipe_producer="$portable_recipe_dir/variable_accum_recurrence_producer.rs";
   local direct_accum_projection="$root_dir/src/mir/compiler/direct_accum_projection.rs"
   local direct_accum_observation_adapter="$root_dir/src/mir/compiler/direct_accum_observation.rs"
   local nested_observation_source="$root_dir/src/mir/loop_structural_facts/nested_predicate_observation.rs"
@@ -50,7 +49,6 @@ guard_joinir_logical_demand_contract() {
 
   guard_require_files "$tag" "${files[@]}"
   guard_require_files "$tag" \
-    "$variable_accum_recipe_producer" \
     "$direct_accum_projection" "$direct_accum_observation_adapter" \
     "$loop_true_source_projection" "$loop_true_observation_adapter" \
     "$loop_cond_source_projection" "$loop_cond_observation_adapter" "$nested_observation_source" \
@@ -207,13 +205,13 @@ guard_joinir_logical_demand_contract() {
   local structural_binding_callers
   structural_binding_callers="$(
     { rg -l 'bind_resolved_loop_root_v1\(' "$root_dir/src/mir" || true; } \
-      | awk -v prefix="$loop_structural_facts_dir/" -v producer="$direct_accum_recipe_producer" -v variable_producer="$variable_accum_recipe_producer" \
+      | awk -v prefix="$loop_structural_facts_dir/" -v producer="$direct_accum_recipe_producer" \
           -v projection="$loop_true_source_projection" \
           -v dynamic_recipe_mod="$dynamic_recipe_mod" \
           -v wire_tests_prefix="$root_dir/src/mir/loop_recipe_contract/wire_parity_tests" \
           -v wire_route_tests="$root_dir/src/mir/loop_recipe_contract/wire_route_parity_tests.rs" \
           -v loopcond_issue="$root_dir/src/mir/compiler/loop_cond_break_continue_typed_map_issue.rs" \
-          'index($0, prefix) != 1 && index($0, wire_tests_prefix) != 1 && $0 != producer && $0 != variable_producer && $0 != projection && $0 != dynamic_recipe_mod && $0 != wire_route_tests && $0 != loopcond_issue' \
+          'index($0, prefix) != 1 && index($0, wire_tests_prefix) != 1 && $0 != producer && $0 != projection && $0 != dynamic_recipe_mod && $0 != wire_route_tests && $0 != loopcond_issue' \
       | wc -l \
       | tr -d '[:space:]'
   )"

@@ -2,44 +2,11 @@
 
 > **Read first (2026-11-17, maintainer decision):** the design of source → MIR lives in the [MirBuilder blueprint](../../../docs/development/current/main/design/mirbuilder-blueprint.md). This README describes the code as it is today and is largely a change record; do not use it as design authority. Where it says loop families, routes or recipes decide acceptance, or names a stage order other than `DeclarationTable -> Resolve -> Lower -> Seal -> Verify -> Publish`, the blueprint wins.
 
-## M8 S6A variable-accum recurrence boundary
+## M8 S6A two-local recurrence boundary — retired
 
-The `VariableAccumRecurrenceV1` observer is the sole source-family
-owner for `acc = acc + i; i = i + 1`. Its compiler projection may use private
-partial observations, but exactly one AST-free move-only aggregate,
-`VerifiedVariableAccumRecurrenceFactsV1`, crosses this module boundary.
-
-The aggregate retains resolver-issued owner/origin/source-kind/site/frame and
-scope identity, two distinct local `BindingRef` roles, two initializer inputs,
-the condition/update/step roles, and complete source coverage. It does not
-mint Recipe/JoinSig keys, route IDs, ValueId/BasicBlockId, or physical facts.
-
-The source-role map is sealed with these exact cardinalities:
-
-```text
-input-source relations          = 2
-Recipe binding relations        = 2
-Core binding-effect relations   = 8
-item-source operation relations = 11
-```
-
-Private DTOs are not independent verified products. The producer consumes a
-Candidate once and projects only into the existing neutral Recipe/Core/input/
-operation owners. `NoSafeSlice` is a development status, not a source
-disposition. Source outcomes are `Candidate`, `Declined`, `Unresolved`, or
-`Rejected`, with identity conflict first, missing evidence second, and fully
-observed shape mismatch third. `print(acc)` and `return 0` remain callable-tail
-evidence outside this Facts boundary.
-
-The resolver-backed projection and atomic Facts issuer are landed in
-`mir/compiler/variable_accum_recurrence_projection.rs` and
-`variable_accum_recurrence.rs`; source-site coherence checks live in the
-separate `variable_accum_recurrence_validation.rs` module so this Facts owner
-remains below 800 lines. The producer-facing Recipe mapping is tested through
-the existing source-bound owners, and the normal `Main.main` resolver ingress,
-full C/D/U/R envelope, duplicate-role rejection, and source-site negatives are
-closed. Bounds and deltas are general `I64` literals with exact source anchors;
-the fixture values `4` and `1` are not hard-coded policy.
+The dedicated recurrence Facts and their source-site coherence verifier have
+retired with their only Rust producer. Other source owners retain their own
+binding, site and coverage verification.
 
 ## M8 S6B variable-accum break/fallthrough boundary — retired
 

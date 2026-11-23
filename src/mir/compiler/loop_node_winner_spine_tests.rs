@@ -106,7 +106,7 @@ static box Main {
 }
 "#;
 
-const VARIABLE_ACCUM_RECURRENCE: &str = r#"
+const TWO_LOCAL_RECURRENCE: &str = r#"
 static box Main {
     main(): i64 {
         local i: i64 = 0
@@ -212,8 +212,8 @@ fn generic_g0_standalone_function_is_typed_terminal() {
 }
 
 #[test]
-fn family_less_variable_accum_declines() {
-    let function = parsed_method(VARIABLE_ACCUM_RECURRENCE, "Main", "main");
+fn family_less_two_local_recurrence_declines() {
+    let function = parsed_method(TWO_LOCAL_RECURRENCE, "Main", "main");
     let outcome = run(function);
     // `acc += i` is outside the selected five-family boundary (D0): no
     // family admits it, the whole-unit set is entirely pre-effect

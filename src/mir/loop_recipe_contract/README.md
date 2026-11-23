@@ -145,18 +145,11 @@ method-name match from masking the actual transfer checks.
 
 ## Current M8 boundary
 
-G0 I1 is a closed caller-zero physical canary. The S6A variable-accum design is
-accepted: one atomic AST-free Facts product will project two external inputs,
-two Recipe bindings, eight Core binding effects, and eleven item-source rows
-into the existing Recipe/JoinSig/Core owners. The selected
-`LOOP-INPUT-SOURCE-RELATION-SET-R0` is now landed: callable's singular
-initialized-local input relation is a one-row instance of the common
-exact-coverage `VerifiedLoopInitializedLocalInputSourceSetV1`; Generic
-parameter inputs stay separate. S6A source observation and its
-provenance-only producer are closed as a caller-zero row, including the normal
-`Main.main` resolver ingress, typed C/D/U/R envelope, duplicate-role rejection,
-and source-site coherence negatives; no selector or physical consumer is
-opened.
+G0 I1 is a closed caller-zero physical canary. Callable initialized-local
+inputs use the common exact-coverage
+`VerifiedLoopInitializedLocalInputSourceSetV1`. Generic parameter inputs
+stay separate. The dedicated M8A recurrence producer and Rust wire parity
+have retired. `LoopSimpleWhile` remains in the route census as typed declined.
 
 The common set co-seals declaration (including its statement site), initializer,
 `BindingRefV1`, Recipe input value, and class against the already sealed Recipe
@@ -193,31 +186,6 @@ verified product can lend a move-only Home After capability only when both
 I64 After bindings join uniquely to the two carrier source relations and the
 read-only input remains separate. That loan grants scalar-class continuation
 of the selected Home walk, not physical Mul or EXE permission.
-
-S6A keeps the same one-owner rule for the recurrence source map. Private
-condition/update/step observations never become separate verified products;
-`VerifiedVariableAccumRecurrenceFactsV1` is the only neutral handoff. Its
-producer consumes a Candidate once and projects exactly 2 input, 2 binding, 8
-Core-effect, and 11 item-source relations into the existing owners. Reads,
-constants, binary expressions, assignment targets, carrier entries, and
-initializer declarations use their exact owned source anchors; Recipe ordinals
-are not source lookup keys. Duplicate roles and incoherent source sites fail
-before the aggregate is issued, while missing evidence remains Unresolved.
-`NoSafeSlice` is a development stop, not a source disposition, and no S6A
-selector or physicalizer is opened here.
-
-The producer is `variable_accum_recurrence_producer.rs`. It consumes one Facts
-aggregate and seals the existing Recipe/JoinSig/Core/input/effect owners with
-`2` input, `2` binding, `8` Core-effect, and `11` item-source rows. It accepts
-exact `I64` bound/delta literals from Facts and does not inspect AST or
-reclassify the source family.
-
-The audited `loop_simple_while_inline_explicit_step_min.hako` fixture remains
-Declined by the existing SimpleWhile, DirectAccum, and Generic G0 observers.
-No route relabel, DirectAccum widening, new Recipe kind, selector/physicalizer,
-Builder/MIR effect, M9 parity, production route, retry/fallback, or legacy
-deletion is open. The S6A closeout updates this README and the matching
-`docs/reference/**` receipt; M10b cutover requires a final update.
 
 ## M8 S6B variable-accum break/fallthrough producer — retired
 
@@ -653,16 +621,13 @@ physicalizer dispatches on producer ID. There is still no Generic Recipe
 producer or production consumer, and a post-loop function tail must not be
 inserted into `LoopRecipeV1`.
 
-The M8 all19 closeout S6G extended that test-only receipt to all 19
-canonical routes: six `portable_producer` rows (S6A/S6B recurrence and
-break, DirectAccum, NestedPredicate, LoopTrue, and LoopCond), one
-`portable_v2_producer` row for `ScanWithInit`, and twelve `legacy_only`
-typed declines including `GenericLoopV0` and `GenericLoopV1` — the S6E
-`generic_residual_v1` producer row was retired at M12-R2B with the
-caller-zero GenericResidual chain. `GenericG0` is asserted absent from
-every route mapping so it cannot be re-minted as legacy Generic
-provenance. The receipt stays outside the portable artifact and selects
-nothing.
+The test-only receipt classifies all 19 canonical routes. Four are
+`portable_producer` rows (DirectAccum, NestedPredicate, LoopTrue, and
+LoopCond), one is a `portable_v2_producer` row for `ScanWithInit`, and
+fourteen are `legacy_only` typed declines, including `LoopSimpleWhile`,
+`GenericLoopV0`, and `GenericLoopV1`. `GenericG0` is absent from the
+legacy route mappings. The receipt stays outside the portable artifact
+and selects no lowering route.
 
 ## LoopTrue S2 producer
 

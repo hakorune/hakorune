@@ -52,10 +52,7 @@ pub(in crate::mir::builder) use generic_lowerer::lower_generic_g0_function_draft
 // Caller-zero re-export for the third bounded Main0 profile; same handoff.
 // Caller-zero re-export until the R0 route switch wires the node-level
 // admission edge; same recheck applies.
-pub(in crate::mir::builder) use loop_node_lowerer::{
-    lower_loop_node_physical_admission_v1,
-    lower_loop_node_physical_admission_with_callable_entry_values_v1,
-};
+pub(in crate::mir::builder) use loop_node_lowerer::lower_loop_node_physical_admission_v1;
 pub(super) use operation_dispatcher::LoopOperationDispatchServicesV1;
 #[cfg(test)]
 pub(super) use segment_allocator::allocate_for_layout;

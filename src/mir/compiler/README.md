@@ -1214,35 +1214,13 @@ publication, or backend widening. Self edges, mutual recursion, and SCC
 authority remain rejected. The next callable task is the behavior-neutral
 P0c-MR-G0 inventory extraction.
 
-## M8 S6A variable-accum recurrence source facts and M10b callable ingress
+## Loop recurrence route retirement (2026-11-23)
 
-`variable_accum_recurrence_projection.rs` is the sole source-view adapter for
-the bounded `acc = acc + i; i = i + 1` family. It consumes the resolver ledger
-and exact Loop membership, while `loop_structural_facts` owns the one atomic
-AST-free Facts product. `variable_accum_recurrence_producer.rs` projects that
-Candidate into the existing Recipe/JoinSig/Core/input/effect owners. Both
-initializers must be source Integer literals; MIR types and current physical
-values cannot supply that claim. Existing S6A coverage includes Candidate,
-Declined, incomplete-evidence Unresolved, foreign-owner Rejected,
-duplicate-role rejection, and source-site coherence.
-
-M10b-I0-R0-VAR now connects this existing product through the installed
-callable's exact source input and Loop membership. `raw_loop_child_entry` asks
-the retained LoopCond/LoopTrue/GenericLoop owners first; the VAR arm is selected
-only when those routes are absent, and overlap is a named terminal. The
-consumer obtains both entry values through exact `BindingRefV1`, reuses common
-physical admission and the canonical physicalizer, accounts for each source
-read/write site once, and publishes both continuation values through the
-callable ledger. A missing entry value rejects as
-`variable-accum/entry-value-missing`; the selected row never retries through
-the shared raw legacy fallback.
-
-Source-backed MIR evidence keeps the accepted fixture output `6`. The selected
-published EXE test also verifies renamed bindings with bound 3/step 2 (`24`)
-and zero iterations (`70`), checking both final values; all three exit `0`.
-Exact missing-value and duplicate read/write-consumption tests live with the
-callable ledger owner. The broader named-terminal matrix and R0 acceptance/
-retirement remain open, so this bounded connection is not global caller-zero.
+The dedicated two-local recurrence projection and its physical-admission
+adapter have retired. Checked source loop products use the existing
+source loop completion and driver. The shared node winner admission remains
+the legacy node route's boundary. Its source membership and physical
+verification are unchanged.
 
 ## Canonical Script Source-only A carrier I0
 
