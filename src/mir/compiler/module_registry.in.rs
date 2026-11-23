@@ -27,6 +27,7 @@ pub(in crate::mir) mod canonical_physical_completion;
 pub(crate) mod canonical_source_identity;
 pub(in crate::mir) mod capability;
 pub(in crate::mir) mod common_v2_physical_function_entry_input;
+#[cfg(test)]
 pub(crate) mod direct_accum_observation;
 pub(in crate::mir) mod direct_accum_projection;
 pub(in crate::mir) mod dynamic_full_body_recipe;
@@ -53,23 +54,18 @@ pub(in crate::mir) mod generic_g0_source_parent;
 pub(in crate::mir) mod generic_g0_storage_lane_source;
 pub(in crate::mir) mod generic_g0_top_level_declaration_header;
 pub(in crate::mir) mod located;
+#[cfg(test)]
 pub(crate) mod loop_cond_break_continue_observation;
 #[cfg(test)]
 mod loop_family_window_probe_tests;
-pub(crate) mod loop_node_winner_spine;
-#[cfg(test)]
-mod loop_node_winner_spine_tests;
-// Caller-zero until the R0 route switch wires the physicalize edge;
-// recheck at the production-switch slice.
 pub(in crate::mir) mod loop_break_composite_body_role;
 pub(in crate::mir) mod loop_break_composite_source_projection;
 pub(in crate::mir) mod loop_break_source_projection;
 pub(in crate::mir) mod loop_cond_break_continue_projection;
-pub(in crate::mir) mod loop_cond_break_continue_typed_map;
-pub(in crate::mir) mod loop_cond_break_continue_typed_map_issue;
-pub(crate) mod loop_node_physical_admission;
 #[cfg(test)]
-mod loop_node_physical_admission_tests;
+pub(in crate::mir) mod loop_cond_break_continue_typed_map;
+#[cfg(test)]
+pub(in crate::mir) mod loop_cond_break_continue_typed_map_issue;
 pub(crate) mod loop_physical_prepare;
 // Caller-zero Main0 Continue co-seal issuer; sole owner is this row's source
 // front. Recheck at the Main0 canonical-root handoff / production caller
@@ -88,18 +84,23 @@ pub(crate) mod loop_physical_prepare;
 // and production caller switch as the continue profile.
 // Third bounded Main0 profile (derived predicate); same canonical-root
 // handoff and production caller switch as the landed profiles.
+#[cfg(test)]
 pub(crate) mod loop_true_break_continue_observation;
 pub(in crate::mir) mod loop_true_break_continue_projection;
 mod lowering_input;
 pub(in crate::mir) mod module_postprocess;
 pub(in crate::mir) mod module_postprocess_stages;
 mod module_session;
+#[cfg(test)]
 pub(in crate::mir) mod nested_predicate_effect_plan;
+#[cfg(test)]
 pub(crate) mod nested_predicate_observation;
+#[cfg(test)]
 pub(in crate::mir) mod nested_predicate_producer;
 #[cfg(test)]
 mod nested_predicate_producer_tests;
 pub(in crate::mir) mod nested_predicate_projection;
+#[cfg(test)]
 pub(in crate::mir) mod nested_predicate_source_handoff;
 pub(in crate::mir) mod pinned_text_backend_frame;
 pub(in crate::mir) mod pinned_text_residence_backend_carrier;

@@ -4,7 +4,6 @@
 //! re-growing compatibility surfaces after the facade cleanup. Plan-resident
 //! facts continue to live behind `plan::facts`.
 
-pub(crate) mod ast_feature_extractor;
 pub(in crate::mir::builder) mod block_policies;
 pub(in crate::mir::builder) mod canon;
 pub(in crate::mir::builder) mod expr_bool;

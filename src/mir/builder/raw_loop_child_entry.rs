@@ -276,7 +276,10 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 return lower_outside_callable_loop_v1(reason)
             }
             None => {
-                return lower_non_callable_loop_route_v1(builder, condition, body, parent_source, source_input)
+                return Err(checked_source_route_unavailable(
+                    function_name,
+                    parent_source.site(),
+                ));
             }
         };
         let owner = binding_product.owner();
@@ -426,7 +429,6 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?
             .ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned());
         }
-        let canonical_loop_node = loop_node.clone();
         let prepared = Self {
             parent_source,
             loop_node,
@@ -482,21 +484,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             )),
             CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(
                 CallableGenericLoopSourceFactsRouteErrorV1::NonGenericOrOverlapping { .. },
-            ) => {
-                // The callable ledger arms cover only the ledger-bound
-                // families; every other loop shape belongs to the sole
-                // canonical node route. This is a family dispatch edge,
-                // not a retry — no product was consumed on this arm.
-                let ASTNode::Loop {
-                    condition, body, ..
-                } = canonical_loop_node
-                else {
-                    return Err(
-                        "[freeze:contract][raw-loop-child-entry/expected-loop]".to_owned(),
-                    );
-                };
-                lower_non_callable_loop_route_v1(builder, *condition, body, parent_source, source_input)
-            }
+            ) => Err(checked_source_route_unavailable(function_name, parent_source.site())),
             CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(error) => {
                 Err(format!(
                     "[freeze:contract][callable-loop/route-not-front-selected] {error:?} function={function_name} source={:?} site={:?}",
@@ -588,23 +576,15 @@ fn lower_outside_callable_loop_v1(reason: CallableLoopOutsideReasonV1) -> Result
     Err(reason.into_terminal_error())
 }
 
-fn lower_non_callable_loop_route_v1(
-    builder: &mut MirBuilder,
-    condition: ASTNode,
-    body: Vec<ASTNode>,
-    source: &RawInvocationSourceContextV1,
-    source_input: Option<crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>>,
-) -> Result<ValueId, String> {
-    let site = source
-        .site()
-        .cloned()
-        .map(crate::mir::resolved_semantics::SourceStmtSiteV1::from_node);
-    super::control_flow::joinir::routing::lower_loop_or_freeze_v1(
-        builder,
-        condition,
-        body,
-        site.as_ref(),
-        source_input,
+pub(super) fn checked_source_route_unavailable(
+    function_name: &str,
+    site: Option<&crate::mir::resolved_semantics::SourceNodeSiteV1>,
+) -> String {
+    use super::control_flow::verify::diagnostics::planner_reject_detail;
+
+    planner_reject_detail::clear_last_plan_reject_detail();
+    format!(
+        "[freeze:contract][raw-loop-child-entry/checked-source-route-unavailable] function={function_name} site={site:?}"
     )
 }
 

@@ -62,7 +62,7 @@ fn compatibility_loop_uses_legacy_child_terminal_without_callable_scope() {
         .expect_err("compatibility Loop must reach its named route_loop terminal");
     let error = rejected.error().to_string();
     assert!(
-        error.contains("route_loop requires a parser-issued FunctionDeclaration"),
+        error.contains("[raw-loop-child-entry/checked-source-route-unavailable]"),
         "{error}"
     );
     rejected.discard();

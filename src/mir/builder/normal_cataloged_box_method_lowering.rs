@@ -253,7 +253,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
-        declaration: Option<ASTNode>,
+        _declaration: Option<ASTNode>,
         target_capability: Option<
             &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
         >,
@@ -296,8 +296,6 @@ impl RawInvocationChildPortV1<'_, '_> {
             builder
                 .capture_legacy_function_pending_session_v1(
                     &session_name,
-                    body.clone(),
-                    declaration,
                     move |builder| {
                         let prepared = builder.build_instance_method_draft_with_port_v1(
                             &mut child_port,

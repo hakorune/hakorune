@@ -78,9 +78,8 @@ pub(in crate::mir) use loop_cond_after_role::VerifiedLoopCondAfterPhysicalRoleV1
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{ASTNode, LiteralValue, Span};
     use crate::mir::builder::control_flow::edgecfg::api::Frag;
-    use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+    use crate::mir::builder::control_flow::plan::lowering_context::CallableLoopPlanLoweringContextV1;
     use crate::mir::builder::control_flow::plan::branchn::{CoreBranchArmPlan, CoreBranchNPlan};
     use crate::mir::builder::control_flow::plan::step_mode::extract_to_step_bb_explicit_step;
     use crate::mir::builder::control_flow::plan::{
@@ -89,8 +88,8 @@ mod tests {
     use crate::mir::builder::MirBuilder;
     use crate::mir::{ConstValue, MirInstruction};
 
-    fn make_ctx<'a>(condition: &'a ASTNode, body: &'a [ASTNode]) -> LoopRouteContext<'a> {
-        LoopRouteContext::new(condition, body, "test_coreplan", false)
+    fn make_ctx() -> CallableLoopPlanLoweringContextV1 {
+        CallableLoopPlanLoweringContextV1::new("test_coreplan", false)
     }
 
     #[test]
@@ -106,12 +105,7 @@ mod tests {
             })
             .expect("emit const");
 
-        let cond = ASTNode::Literal {
-            value: LiteralValue::Bool(true),
-            span: Span::unknown(),
-        };
-        let body: Vec<ASTNode> = vec![];
-        let ctx = make_ctx(&cond, &body);
+        let ctx = make_ctx();
 
         let plan = CorePlan::Exit(CoreExitPlan::Return(Some(ret_val)));
         let result = PlanLowerer::lower(&mut builder, plan, &ctx);
@@ -155,12 +149,7 @@ mod tests {
             joins: Vec::new(),
         };
 
-        let cond = ASTNode::Literal {
-            value: LiteralValue::Bool(true),
-            span: Span::unknown(),
-        };
-        let body: Vec<ASTNode> = vec![];
-        let ctx = make_ctx(&cond, &body);
+        let ctx = make_ctx();
 
         let result = PlanLowerer::lower(&mut builder, CorePlan::If(if_plan), &ctx);
         assert!(result.is_ok());
@@ -221,12 +210,7 @@ mod tests {
             else_plans: None,
         };
 
-        let cond = ASTNode::Literal {
-            value: LiteralValue::Bool(true),
-            span: Span::unknown(),
-        };
-        let body: Vec<ASTNode> = vec![];
-        let ctx = make_ctx(&cond, &body);
+        let ctx = make_ctx();
 
         let result = PlanLowerer::lower(&mut builder, CorePlan::BranchN(branch_plan), &ctx);
         assert!(result.is_ok());
@@ -288,12 +272,7 @@ mod tests {
             has_explicit_step,
         };
 
-        let cond = ASTNode::Literal {
-            value: LiteralValue::Bool(true),
-            span: Span::unknown(),
-        };
-        let body: Vec<ASTNode> = vec![];
-        let ctx = make_ctx(&cond, &body);
+        let ctx = make_ctx();
 
         let result = PlanLowerer::lower(&mut builder, CorePlan::Loop(loop_plan), &ctx);
         assert!(result.is_ok());
@@ -368,12 +347,7 @@ mod tests {
             has_explicit_step,
         };
 
-        let cond = ASTNode::Literal {
-            value: LiteralValue::Bool(true),
-            span: Span::unknown(),
-        };
-        let body: Vec<ASTNode> = vec![];
-        let ctx = make_ctx(&cond, &body);
+        let ctx = make_ctx();
 
         let result = PlanLowerer::lower(&mut builder, CorePlan::Loop(loop_plan), &ctx);
         assert!(result.is_ok());
@@ -387,12 +361,7 @@ mod tests {
 
         let after_bb = builder.next_block_id();
         let final_value = builder.alloc_value_for_test();
-        let cond = ASTNode::Literal {
-            value: LiteralValue::Bool(true),
-            span: Span::unknown(),
-        };
-        let body: Vec<ASTNode> = vec![];
-        let ctx = make_ctx(&cond, &body);
+        let ctx = make_ctx();
 
         let result = super::loop_completion::finalize_loop_variables(
             &mut builder,

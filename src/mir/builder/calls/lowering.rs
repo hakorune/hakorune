@@ -412,7 +412,7 @@ impl MirBuilder {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: crate::ast::DeclarationAttrs,
-        declaration: Option<ASTNode>,
+        _declaration: Option<ASTNode>,
     ) -> Result<(), super::function_session::CanonicalFunctionSessionErrorV1> {
         // Phase 200-C: Store fn_body for capture analysis
         if crate::config::env::joinir_dev::debug_enabled() {
@@ -440,8 +440,6 @@ impl MirBuilder {
         let session_name = func_name.clone();
         self.with_legacy_function_lowering_session_typed(
             &session_name,
-            body.clone(),
-            declaration,
             move |builder| {
                 let mut port = RawLegacyChildLoweringPortV1;
                 let prepared = builder.build_static_method_draft_with_port_v1(
@@ -472,7 +470,7 @@ impl MirBuilder {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: crate::ast::DeclarationAttrs,
-        declaration: Option<ASTNode>,
+        _declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         let params = normalize_instance_method_params(&func_name, params);
         let param_decls = normalize_instance_method_param_decls(&func_name, param_decls);
@@ -502,8 +500,6 @@ impl MirBuilder {
         let session_name = func_name.clone();
         self.with_function_lowering_session(
             &session_name,
-            body.clone(),
-            declaration,
             move |builder| {
                 let mut port = RawLegacyChildLoweringPortV1;
                 let prepared = builder.build_instance_method_draft_with_port_v1(

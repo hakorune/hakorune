@@ -8,7 +8,7 @@ use std::collections::{HashMap, HashSet};
 
 use hakorune_mir_builder::BindingContext;
 
-use crate::ast::{ASTNode, Span};
+use crate::ast::Span;
 use crate::mir::builder::compilation_context::RecordLocalValue;
 use crate::mir::builder::type_context::TypeContext;
 use crate::mir::builder::variable_context::VariableContext;
@@ -225,9 +225,6 @@ impl FunctionLoweringStateV1 {
             && self.scope.function_param_names.is_empty()
             && self.scope.fastmem_region_stack.is_empty()
             && self.compilation.reserved_value_ids.is_empty()
-            && self.compilation.fn_body_ast.is_none()
-            && self.compilation.fn_declaration_ast.is_none()
-            && self.compilation.resolved_loop_source_unit.is_none()
             && self.compilation.record_local_values.is_empty()
             && self.value_origins.value_origin_spans.is_empty()
             && self.value_origins.value_origin_callers.is_empty()
@@ -356,17 +353,6 @@ impl FunctionCompilationScratchV1 {
 #[derive(Debug, Default)]
 pub(super) struct FunctionCompilationScratchV1 {
     pub(super) reserved_value_ids: HashSet<ValueId>,
-    pub(super) fn_body_ast: Option<Vec<ASTNode>>,
-    /// The parser-issued FunctionDeclaration for the function under lowering.
-    /// The M10b route_loop switch resolves this node once into
-    /// `resolved_loop_source_unit`; it is recorded at function entry alongside
-    /// `fn_body_ast` and must never be reconstructed from pieces.
-    pub(super) fn_declaration_ast: Option<ASTNode>,
-    /// Lazily resolved source unit for `fn_declaration_ast` (one resolver run
-    /// per function with loops). `Rc` lets `route_loop` hold the unit while it
-    /// also borrows `&mut MirBuilder` for physicalization.
-    pub(super) resolved_loop_source_unit:
-        Option<std::rc::Rc<crate::mir::compiler::VerifiedResolvedSourceUnitV1>>,
     pub(super) record_local_values: HashMap<ValueId, RecordLocalValue>,
 }
 

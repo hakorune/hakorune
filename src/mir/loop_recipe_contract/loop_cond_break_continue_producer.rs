@@ -83,16 +83,6 @@ impl VerifiedLoopCondBreakContinueRecipeProductV1 {
     ) -> &crate::mir::loop_route_policy::VerifiedLoopCondBreakContinuePolicyReceiptV1 {
         &self.policy_receipt
     }
-
-    pub(crate) fn into_parts(
-        self,
-    ) -> (
-        crate::mir::loop_route_policy::VerifiedLoopCondBreakContinuePolicyReceiptV1,
-        VerifiedLoopOperationEffectProductV1,
-        VerifiedLoopInitializedLocalInputSourceSetV1,
-    ) {
-        (self.policy_receipt, self.operations, self.inputs)
-    }
 }
 
 pub(crate) fn produce_loop_cond_break_continue_recipe_v1(

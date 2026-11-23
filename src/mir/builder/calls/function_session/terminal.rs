@@ -4,7 +4,6 @@
 //! one place to perform `validate -> seal/collect -> restore` without making
 //! the existing production `run()` lifecycle observe a new collector.
 
-use crate::ast::ASTNode;
 use crate::mir::builder::type_context::TypeContext;
 use crate::mir::function::MirFunction;
 use crate::mir::MirBuilder;
@@ -187,11 +186,7 @@ impl MirBuilder {
         function_name: &str,
         operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
     ) -> Result<PendingFunctionSessionCloseV1<'_>, CanonicalFunctionSessionErrorV1> {
-        CanonicalFunctionLoweringSessionV1::open(
-            self,
-            function_name,
-            super::FunctionBodyCaptureV1::CanonicalClosedFamily,
-        )
+        CanonicalFunctionLoweringSessionV1::open(self, function_name, true)
         .capture_pending(operation)
     }
 
@@ -203,37 +198,19 @@ impl MirBuilder {
         function_name: &str,
         operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
     ) -> Result<PendingFunctionSessionCloseV1<'_>, CanonicalFunctionSessionErrorV1> {
-        CanonicalFunctionLoweringSessionV1::open(
-            self,
-            function_name,
-            super::FunctionBodyCaptureV1::Legacy {
-                body: Vec::new(),
-                declaration: None,
-            },
-        )
+        CanonicalFunctionLoweringSessionV1::open(self, function_name, false)
         .capture_pending(operation)
     }
 
     /// Capture one raw legacy child without publishing it after restoration.
     ///
-    /// This is disconnected S0 vocabulary.  The legacy body snapshot retains
-    /// the existing function-session capture mode, while the returned newtype
-    /// cannot be paired with a resolved owner admission.
+    /// The returned newtype cannot be paired with a resolved owner admission.
     pub(in crate::mir::builder) fn capture_legacy_function_pending_session_v1(
         &mut self,
         function_name: &str,
-        body_snapshot: Vec<ASTNode>,
-        declaration: Option<ASTNode>,
         operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
     ) -> Result<LegacyFunctionPendingSessionV1<'_>, CanonicalFunctionSessionErrorV1> {
-        CanonicalFunctionLoweringSessionV1::open(
-            self,
-            function_name,
-            super::FunctionBodyCaptureV1::Legacy {
-                body: body_snapshot,
-                declaration,
-            },
-        )
+        CanonicalFunctionLoweringSessionV1::open(self, function_name, false)
         .capture_pending(operation)
         .map(|pending| LegacyFunctionPendingSessionV1 {
             pending,
@@ -377,7 +354,6 @@ mod tests {
         BasicBlockId, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirType,
     };
 
-    use super::super::FunctionBodyCaptureV1;
     use super::{CanonicalFunctionLoweringSessionV1, PreparedFunctionSessionCommitInputV1};
 
     fn resolved_product() -> Arc<crate::mir::resolved_semantics::VerifiedResolvedFunctionV1> {
@@ -416,11 +392,7 @@ mod tests {
     #[test]
     fn pending_success_keeps_parent_captured_until_explicit_abort() {
         let mut builder = MirBuilder::new();
-        let pending = CanonicalFunctionLoweringSessionV1::open(
-            &mut builder,
-            "pending/0",
-            FunctionBodyCaptureV1::Legacy { body: Vec::<ASTNode>::new(), declaration: None },
-        )
+        let pending = CanonicalFunctionLoweringSessionV1::open(&mut builder, "pending/0", false)
         .capture_pending(|_| Ok(draft("pending/0", 0)))
         .unwrap();
         assert!(pending.pending.parent_is_captured());
@@ -432,11 +404,7 @@ mod tests {
     #[test]
     fn explicit_abort_discards_the_draft_and_releases_the_builder() {
         let mut builder = MirBuilder::new();
-        let pending = CanonicalFunctionLoweringSessionV1::open(
-            &mut builder,
-            "pending/0",
-            FunctionBodyCaptureV1::Legacy { body: Vec::<ASTNode>::new(), declaration: None },
-        )
+        let pending = CanonicalFunctionLoweringSessionV1::open(&mut builder, "pending/0", false)
         .capture_pending(|_| Ok(draft("pending/0", 0)))
         .unwrap();
 
@@ -449,11 +417,7 @@ mod tests {
         let mut builder = MirBuilder::new();
         let collector = ModuleDraftCollectorV1::default();
         {
-            let _pending = CanonicalFunctionLoweringSessionV1::open(
-                &mut builder,
-                "pending/0",
-                FunctionBodyCaptureV1::Legacy { body: Vec::<ASTNode>::new(), declaration: None },
-            )
+            let _pending = CanonicalFunctionLoweringSessionV1::open(&mut builder, "pending/0", false)
             .capture_pending(|_| Ok(draft("pending/0", 0)))
             .unwrap();
         }
@@ -465,7 +429,7 @@ mod tests {
     fn legacy_pending_capture_keeps_legacy_authority_distinct_from_resolved() {
         let mut builder = MirBuilder::new();
         let pending = builder
-            .capture_legacy_function_pending_session_v1("Legacy.f/0", Vec::new(), None, |_| {
+            .capture_legacy_function_pending_session_v1("Legacy.f/0", |_| {
                 Ok(draft("Legacy.f/0", 0))
             })
             .unwrap();
@@ -577,11 +541,7 @@ mod tests {
     #[test]
     fn draft_seal_close_rejects_legacy_session_before_extracting() {
         let mut builder = MirBuilder::new();
-        let pending = CanonicalFunctionLoweringSessionV1::open(
-            &mut builder,
-            "legacy/0",
-            FunctionBodyCaptureV1::Legacy { body: Vec::new(), declaration: None },
-        );
+        let pending = CanonicalFunctionLoweringSessionV1::open(&mut builder, "legacy/0", false);
         pending.builder.enter_function_for_test("legacy/0".into());
 
         let rejected = match pending.prepare_draft_seal_close() {

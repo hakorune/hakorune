@@ -6,7 +6,6 @@
 
 use std::fmt;
 
-use crate::ast::ASTNode;
 use crate::mir::builder::resolved_lowering::DiscardedFunctionDraftSealErrorV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::generic_g0_physical_operation_cohort::GenericG0PhysicalEmitterAdmissionRejectV1;
@@ -55,18 +54,6 @@ pub(in crate::mir::builder) struct CanonicalFunctionLoweringSessionV1<'builder> 
     context: Option<LoweringContext>,
     requires_resolved_authority: bool,
     closed: bool,
-}
-
-enum FunctionBodyCaptureV1 {
-    /// Legacy compatibility lowering: the parser-issued body plus, when the
-    /// caller still holds it, the whole FunctionDeclaration node. The
-    /// declaration feeds the M10b route_loop resolver unit; `None` keeps the
-    /// route on the recorded typed terminal.
-    Legacy {
-        body: Vec<ASTNode>,
-        declaration: Option<ASTNode>,
-    },
-    CanonicalClosedFamily,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -154,20 +141,9 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
     fn open(
         builder: &'builder mut MirBuilder,
         function_name: &str,
-        body_capture: FunctionBodyCaptureV1,
+        requires_resolved_authority: bool,
     ) -> Self {
-        let requires_resolved_authority =
-            matches!(&body_capture, FunctionBodyCaptureV1::CanonicalClosedFamily);
         let context = builder.prepare_lowering_context(function_name);
-        match body_capture {
-            FunctionBodyCaptureV1::Legacy { body, declaration } => {
-                builder.function_state.compilation.fn_body_ast = Some(body);
-                builder.function_state.compilation.fn_declaration_ast = declaration;
-            }
-            FunctionBodyCaptureV1::CanonicalClosedFamily => {
-                builder.function_state.compilation.fn_body_ast = None;
-            }
-        }
         Self {
             builder,
             context: Some(context),
@@ -389,18 +365,9 @@ impl MirBuilder {
     pub(super) fn with_function_lowering_session(
         &mut self,
         function_name: &str,
-        body_snapshot: Vec<ASTNode>,
-        declaration: Option<ASTNode>,
         operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
     ) -> Result<(), String> {
-        CanonicalFunctionLoweringSessionV1::open(
-            self,
-            function_name,
-            FunctionBodyCaptureV1::Legacy {
-                body: body_snapshot,
-                declaration,
-            },
-        )
+        CanonicalFunctionLoweringSessionV1::open(self, function_name, false)
         .run(operation)
         .map_err(|error| error.to_string())
     }
@@ -408,18 +375,9 @@ impl MirBuilder {
     pub(in crate::mir::builder) fn with_legacy_function_lowering_session_typed(
         &mut self,
         function_name: &str,
-        body_snapshot: Vec<ASTNode>,
-        declaration: Option<ASTNode>,
         operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
     ) -> Result<(), CanonicalFunctionSessionErrorV1> {
-        CanonicalFunctionLoweringSessionV1::open(
-            self,
-            function_name,
-            FunctionBodyCaptureV1::Legacy {
-                body: body_snapshot,
-                declaration,
-            },
-        )
+        CanonicalFunctionLoweringSessionV1::open(self, function_name, false)
         .run(operation)
     }
 
@@ -428,11 +386,7 @@ impl MirBuilder {
         function_name: &str,
         operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
     ) -> Result<(), CanonicalFunctionSessionErrorV1> {
-        CanonicalFunctionLoweringSessionV1::open(
-            self,
-            function_name,
-            FunctionBodyCaptureV1::CanonicalClosedFamily,
-        )
+        CanonicalFunctionLoweringSessionV1::open(self, function_name, true)
         .run(operation)
     }
 
@@ -443,10 +397,6 @@ impl MirBuilder {
         &mut self,
         function_name: &str,
     ) -> CanonicalFunctionLoweringSessionV1<'_> {
-        CanonicalFunctionLoweringSessionV1::open(
-            self,
-            function_name,
-            FunctionBodyCaptureV1::CanonicalClosedFamily,
-        )
+        CanonicalFunctionLoweringSessionV1::open(self, function_name, true)
     }
 }

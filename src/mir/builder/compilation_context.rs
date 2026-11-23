@@ -9,7 +9,6 @@
  * - current_static_box: Current static box being compiled
  * - user_defined_boxes: User-defined box names registry
  * - reserved_value_ids: Reserved ValueIds for PHI instructions
- * - fn_body_ast: Function body AST for capture analysis
  * - weak_fields_by_box: Weak field registry
  * - property_registry: Property getter registry
  * - field_origin_class: Field origin tracking

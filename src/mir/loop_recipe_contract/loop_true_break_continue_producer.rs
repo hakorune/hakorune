@@ -82,16 +82,6 @@ impl VerifiedLoopTrueBreakContinueRecipeProductV1 {
     pub(crate) fn policy_receipt(&self) -> &VerifiedLoopTrueBreakContinuePolicyReceiptV1 {
         &self.policy_receipt
     }
-
-    pub(crate) fn into_parts(
-        self,
-    ) -> (
-        VerifiedLoopTrueBreakContinuePolicyReceiptV1,
-        VerifiedLoopOperationEffectProductV1,
-        VerifiedLoopInitializedLocalInputSourceSetV1,
-    ) {
-        (self.policy_receipt, self.operations, self.inputs)
-    }
 }
 
 pub(crate) fn produce_loop_true_break_continue_recipe_v1(
