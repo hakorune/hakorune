@@ -322,25 +322,6 @@ fn selects(
     selected && supported(source, 0)
 }
 
-pub(super) fn scalar_dynamic_demand_v1(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    locals: &PrefixLocalFlow<'_>,
-    calls: &[LocalCallObservationV1],
-    read: &SourceExprSiteV1,
-    equality_only: bool,
-) -> bool {
-    use super::super::borrowed_integer_comparison::{
-        dynamic_scalar_comparison_demand_v1, scalar_comparison_class_v1,
-    };
-    use crate::mir::dynamic_operator_contract::DynamicOperatorValueClassV1::{Bool, I64};
-    dynamic_scalar_comparison_demand_v1(input, read, equality_only, |other| {
-        locals.current_scalar_read_v1(other, calls).map(|value| match value.kind() {
-            SourceScalarKind::Bool => Bool,
-            SourceScalarKind::Integer => I64,
-        }).or_else(|| scalar_comparison_class_v1(input, other))
-    })
-}
-
 pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &SourceStmtSiteV1,
@@ -420,11 +401,28 @@ pub(super) fn observe<E>(
         let returned = locals.dynamic_invocation_result_reference_v1(read).is_some()
             || locals.loop_dynamic_reference_v1(read).is_some();
         let formal = super::argument_expression::entry_formal_reference(input, locals, read).is_some();
-        (returned || formal) && scalar_dynamic_demand_v1(input, locals, local_calls, read, !returned)
+        (returned || formal) && super::argument_expression::scalar_dynamic_demand_v1(input, locals, local_calls, read, !returned)
     });
     let selected = (original_profile || nested_call_profile)
         && (dynamic_scalar || selects(input, &source, statement, locals, local_calls));
-    if entry_guard.is_empty() && !contains_local_home_field(input, &source, locals) && !selected {
+    let known_scalar_reads = || {
+        source.nodes_outside_calls().all(|(_, node)| {
+            !matches!(node.source(), Node::Reference(_))
+                || locals.current_scalar_read_v1(node.site(), local_calls).is_some()
+        })
+    };
+    let static_operand = if !selected && prefix_known && known_scalar_reads() {
+        local_call_flow::select_static_comparison_operand_v1(
+            input, &source, homes, path_calls, actuals,
+        )?
+    } else {
+        None
+    };
+    if entry_guard.is_empty()
+        && !contains_local_home_field(input, &source, locals)
+        && !selected
+        && static_operand.is_none()
+    {
         if prefix_known {
             if let Some(plan) =
                 observe_raw_null_condition_v1(&source, locals, homes, local_calls, path_calls)
@@ -447,6 +445,7 @@ pub(super) fn observe<E>(
         input,
         source,
         &entry_guard,
+        static_operand,
         locals,
         homes,
         local_calls,
@@ -494,6 +493,7 @@ pub(super) fn observe_loop<E>(
         input,
         Rc::clone(condition),
         &[],
+        None,
         locals,
         homes,
         local_calls,
@@ -588,6 +588,7 @@ fn install_source<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     source: Rc<ExpressionSourcePlanV1>,
     source_references: &[(usize, CheckedExpressionReferenceV1)],
+    mut static_operand: Option<LocalCallObservationV1>,
     locals: &PrefixLocalFlow<'_>,
     homes: &[LiveHomeV1],
     local_calls: &mut Vec<LocalCallObservationV1>,
@@ -605,6 +606,12 @@ fn install_source<E>(
         &BTreeMap::new(),
         homes,
         &mut |site| {
+            if static_operand
+                .as_ref()
+                .is_some_and(|call| call.site() == site)
+            {
+                return Ok(static_operand.take().map(ExpressionCallSourceV1::Ordinary));
+            }
             let mut receiver_path = |binding| locals.field_alias_call_path(binding);
             if let Some(ExpressionCallSourceV1::Ordinary(call)) =
                 local_call_flow::issue_source_expression_call_v1(
@@ -695,7 +702,7 @@ fn install_source<E>(
             }
             continue;
         };
-        let prefer_tagged = scalar_dynamic_demand_v1(input, locals, local_calls, node.site(), true);
+        let prefer_tagged = super::argument_expression::scalar_dynamic_demand_v1(input, locals, local_calls, node.site(), true);
         if !prefer_tagged {
             if let Some(BorrowedCallArgumentsV1::FiniteEntryRead(read)) = actuals(
                 &owned,

@@ -92,7 +92,7 @@ impl StaticIncomingSourceV1 {
 
     /// Kind comes from the shared catalog; the original row still limits this
     /// source protocol to the previously admitted scalar evidence.
-    pub(in crate::mir::normal_callable_semantic_package) fn source_scalar_result_v1(
+    pub(in crate::mir) fn source_scalar_result_v1(
         &self,
     ) -> Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1> {
         self.route.result().required_i64_arguments()?;

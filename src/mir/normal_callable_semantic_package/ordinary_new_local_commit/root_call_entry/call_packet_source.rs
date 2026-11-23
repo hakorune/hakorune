@@ -381,7 +381,13 @@ impl<'a> CallPacketSourceLoanV1<'a> {
         else {
             return Ok(());
         };
-        ledger.verify_original_static_packet_source_v1(original)?;
+        if expression_origin.is_some() && original.is_current_owner_i64_source_v1() {
+            // The expression owns the retained arguments. Their executable
+            // packet is corroborated below against that same observation.
+            ledger.verify_original_static_source_v1(original)?;
+        } else {
+            ledger.verify_original_static_packet_source_v1(original)?;
+        }
         ledger.require_static_packet_result_v1(original.callee_owner())?;
         if observation.result()
             == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Text
@@ -422,7 +428,10 @@ impl<'a> CallPacketSourceLoanV1<'a> {
             // publication must still identify this exact original call.
             || ledger.corroborates_completed_static_input_publication_v1(original, publication)?
             || (borrowed_actuals.is_some()
-                && original.corroborates_selected_loop_publication_handoff(publication));
+                && (original.corroborates_selected_loop_publication_handoff(publication)
+                    || expression_origin.is_some()
+                        && original.is_current_owner_i64_source_v1()
+                        && original.matches_publication_handoff_identity(publication)));
         if !handoff_agrees {
             return Err(freeze("static-packet/original-source-drift"));
         }
