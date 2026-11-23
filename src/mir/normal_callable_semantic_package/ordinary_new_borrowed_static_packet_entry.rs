@@ -398,16 +398,14 @@ impl OrdinaryNewClaimLedgerV1 {
         original: &Rc<StaticIncomingSourceV1>,
         expression_observation: Option<&LocalCallObservationV1>,
     ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
-        if let Some(rows) = self.checked_static_input_packet_rows_v1(original)? {
-            if !rows.has_static_loop_input_v1() {
-                self.corroborate_static_packet_arguments_v1(
-                    original,
-                    expression_observation,
-                    &rows.ordered_arguments,
-                    "static-input/local-source-missing",
-                    "static-input/ordered-arguments-drift",
-                )?;
-            }
+        if let Some(rows) = self.checked_completed_static_expression_input_v1(original)? {
+            self.corroborate_static_packet_arguments_v1(
+                original,
+                expression_observation,
+                &rows.ordered_arguments,
+                "static-input/local-source-missing",
+                "static-input/ordered-arguments-drift",
+            )?;
             return Ok(Some(rows.opaque_actuals.as_ref()));
         }
         if original.qualified_scalar_result_v1().is_some() {

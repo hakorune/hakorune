@@ -35,7 +35,6 @@ impl RootHomeCleanupOrderV1 {
                     Call::Direct(row) => row.result(),
                     Call::Instance(row) => Some(row.result()),
                     Call::Lexical(packet) => packet.original_source().result(),
-                    Call::PendingStatic(packet) => packet.packet().original().carried_invoke_result_v1(),
                 }.filter(|kind| *kind == InvokeCallResultKind::I64)
             }
         })

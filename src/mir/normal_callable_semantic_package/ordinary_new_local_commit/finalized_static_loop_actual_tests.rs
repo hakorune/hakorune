@@ -29,235 +29,6 @@ fn request_from_text(text: &str) -> NormalCompileRequestV1 {
 }
 
 #[test]
-fn finalized_selected_loop_actual_loan_preserves_source_and_finished_producer() {
-    crate::runtime::ring0::ensure_global_ring0_initialized();
-    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        let mut compiler = MirCompiler::with_options(false);
-        compiler
-            .compile_normal_with_published(
-                selected_request(),
-                |view, verification| -> Result<(), String> {
-                    assert!(verification.is_ok(), "final module verification");
-                    let source = view
-                        .retained_root_source()
-                        .expect("retained original source");
-                    let mut visited = 0;
-                    source.visit_finalized_lexical_call_nodes_v1(
-                        view.module(),
-                        |owner, _, emitted, _, caller, coordinate, _| {
-                            let CallPacketSourceLoanV1::SelectedStaticLoop {
-                                packet,
-                                observation,
-                            } = emitted.original_source()
-                            else {
-                                return Ok(());
-                            };
-                            assert!(packet.corroborates_local_call(observation));
-                            let (original_caller, site) = packet.publication_source();
-                            let expected =
-                                packet.selected_forwarded_actual_for_call(original_caller, site)?;
-                            let actuals = source
-                                .borrowed_packet_actuals_v1(emitted)?
-                                .expect("finalized selected actual loan");
-                            assert_eq!(actuals.len(), 1);
-                            assert!(
-                                std::ptr::eq(&actuals[0], expected),
-                                "lend the same checked witness"
-                            );
-                            assert_eq!(expected.ordinal, 0);
-                            assert_eq!(&expected.site, packet.argument_site());
-                            assert_eq!(emitted.call_site().owner(), owner);
-                            let mut independent = MirCompiler::with_options(false);
-                            independent.compile_normal_with_published(
-                                selected_request(),
-                                |foreign_view, foreign_verification| -> Result<(), String> {
-                                    assert!(foreign_verification.is_ok());
-                                    let foreign = foreign_view.retained_root_source()
-                                        .expect("independent retained original source");
-                                    let error = foreign.borrowed_packet_actuals_v1(emitted)
-                                        .unwrap_err();
-                                    assert!(error.contains("selected-static-packet/canonical-source-drift"),
-                                        "a genuine packet from another invocation must be rejected: {error}");
-                                    Ok(())
-                                },
-                            )?;
-                            let error = emitted
-                                .original_source()
-                                .borrowed_actuals(&source.ledger)
-                                .unwrap_err();
-                            assert!(
-                                error.contains("selected-static-packet/canonical-entry-required"),
-                                "generic admission must remain closed: {error}"
-                            );
-                            let instruction = caller.blocks[&coordinate.0]
-                                .all_instructions()
-                                .nth(coordinate.1)
-                                .unwrap();
-                            assert!(matches!(
-                                instruction,
-                                MirInstruction::Invoke {
-                                    operation: InvokeOperation::Call { .. },
-                                    ..
-                                }
-                            ));
-                            visited += 1;
-                            Ok(())
-                        },
-                    )?;
-                    assert_eq!(
-                        visited, 1,
-                        "original selected entry call, not name-selected mirrors"
-                    );
-                    let mut bodies = 0;
-                    source.visit_finalized_borrowed_call_nodes_v1(
-                        view.module(),
-                        |node, _, caller, coordinate, copies| {
-                            let FinalizedBorrowedCallPacketV1::LoopBody(packet) = node else {
-                                return Ok(());
-                            };
-                            bodies += 1;
-                            assert!(packet.corroborates_retained_scalar());
-                            assert!(copies.is_empty(), "canonical read is not a synthetic Copy");
-                            let actuals = source.borrowed_finalized_call_actuals_v1(node)?
-                                .expect("retained scalar actual");
-                            assert_eq!(actuals.len(), 1);
-                            assert!(std::ptr::eq(&actuals[0], packet.scalar_actual()));
-                            assert_eq!(actuals[0].formal.owner(), node.callee_owner());
-                            assert_eq!(node.call_site(), packet.original_source().call_site());
-                            let mut independent = MirCompiler::with_options(false);
-                            independent.compile_normal_with_published(
-                                selected_request(),
-                                |foreign, verification| -> Result<(), String> {
-                                    assert!(verification.is_ok());
-                                    assert!(foreign.retained_root_source().unwrap()
-                                        .borrowed_finalized_call_actuals_v1(node)
-                                        .unwrap_err().contains("retained-source-missing"));
-                                    Ok(())
-                                },
-                            )?;
-                            for mutation in 0..3 {
-                                let mut changed = view.module().clone();
-                                let block = changed.functions.get_mut(&caller.signature.name)
-                                    .unwrap().blocks.get_mut(&coordinate.0).unwrap();
-                                if mutation == 0 {
-                                    block.terminator = None;
-                                } else if mutation == 1 {
-                                    block.instructions.push(block.terminator.as_ref().unwrap().clone());
-                                } else {
-                                    let MirInstruction::Invoke {
-                                        operation: InvokeOperation::Call { call, .. }, ..
-                                    } = block.terminator.as_mut().unwrap() else {
-                                        panic!("original body Invoke");
-                                    };
-                                    call.args[0] = ValueId(999999);
-                                }
-                                assert!(source.visit_finalized_borrowed_call_nodes_v1(
-                                    &changed, |_, _, _, _, _| Ok(())
-                                ).is_err(), "missing/duplicate/changed original body producer");
-                            }
-                            Ok(())
-                        },
-                    )?;
-                    assert_eq!(bodies, 1, "retain and visit the original selected body once");
-                    for mutation in 0..2 {
-                        let mut changed = view.module().clone();
-                        source.visit_finalized_lexical_call_nodes_v1(
-                            view.module(),
-                            |_, _, emitted, _, caller, coordinate, _| {
-                                if !matches!(
-                                    emitted.original_source(),
-                                    CallPacketSourceLoanV1::SelectedStaticLoop { .. }
-                                ) {
-                                    return Ok(());
-                                }
-                                let instruction = changed
-                                    .functions
-                                    .get_mut(&caller.signature.name)
-                                    .unwrap()
-                                    .blocks
-                                    .get_mut(&coordinate.0)
-                                    .unwrap()
-                                    .terminator
-                                    .as_mut()
-                                    .unwrap();
-                                let MirInstruction::Invoke {
-                                    operation: InvokeOperation::Call { call, .. },
-                                    ..
-                                } = instruction
-                                else {
-                                    panic!("original Invoke terminator");
-                                };
-                                if mutation == 0 {
-                                    call.args[0] = ValueId(999999);
-                                } else {
-                                    call.callee =
-                                        crate::mir::Callee::Global(
-                                            crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method("Foreign", "other", 1)
-                                                .canonical_global_target_v1().unwrap()
-                                        );
-                                }
-                                Ok(())
-                            },
-                        )?;
-                        assert!(
-                            source
-                                .visit_finalized_lexical_call_nodes_v1(
-                                    &changed,
-                                    |_, _, _, _, _, _, _| Ok(())
-                                )
-                                .is_err(),
-                            "foreign producer/source target cannot acquire finalized loans"
-                        );
-                    }
-                    let owners: Vec<_> = source.ledger.borrowed_entry_values.borrow()
-                        .keys().copied().collect();
-                    for owner in owners {
-                        let symbol = source.ledger.with_finished_projection(owner,
-                            |symbol, _| Ok(symbol.to_owned()))?;
-                        let function = &view.module().functions[&symbol];
-                        let mut copies = Vec::new();
-                        source.with_borrowed_ordinary_compare_carrier_copies_v1(
-                            owner, function, |copy, coordinate| {
-                                copies.push((copy.clone(), coordinate));
-                                Ok(())
-                            },
-                        )?;
-                        for (copy, coordinate) in copies {
-                            for mutation in 0..3 {
-                                let mut changed = function.clone();
-                                let rows = &mut changed.blocks.get_mut(&coordinate.0)
-                                    .unwrap().instructions;
-                                assert_eq!(rows[coordinate.1], copy.1);
-                                match mutation {
-                                    0 => { rows.remove(coordinate.1); }
-                                    1 => { rows.push(copy.1.clone()); }
-                                    _ => {
-                                        let MirInstruction::Copy { src, .. } = &mut rows[coordinate.1]
-                                            else { panic!("lent Copy") };
-                                        *src = ValueId(999999);
-                                    }
-                                }
-                                let mut lent = 0;
-                                assert!(source.with_borrowed_ordinary_compare_carrier_copies_v1(
-                                    owner, &changed, |_, _| { lent += 1; Ok(()) },
-                                ).is_err(), "missing/duplicate/changed Compare Copy");
-                                assert_eq!(lent, 0, "verify all groups before lending any Copy");
-                            }
-                        }
-                    }
-                    if crate::config::env::builder_mir_compile_trace() {
-                        eprintln!("[selected-source/final-module] {}",
-                            crate::mir::MirPrinter::new().print_module(view.module()));
-                    }
-                    view.issue_lifecycle_compiled_entry_contract()?;
-                    Ok(())
-                },
-            )
-            .unwrap();
-    });
-}
-
-#[test]
 fn finalized_mul_nonviews_keep_original_producers_and_reject_mutations() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
@@ -416,5 +187,138 @@ fn finalized_mul_nonviews_keep_original_producers_and_reject_mutations() {
                 }).unwrap_or_else(|error| panic!("{expression}, optimize={optimize}: {error}"));
             }
         }
+    });
+}
+
+#[test]
+fn finalized_source_loop_rejects_initial_bin_and_normal_fault_target() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let original = include_str!("../../../../lang/src/hako_alloc/memory/size_class_box.hako");
+        let text = format!(
+            "{original}\nstatic box Main {{ main() {{ return SizeClassBox.size_to_bin(4194304) }} }}"
+        );
+        let mut compiler = MirCompiler::with_options(false);
+        compiler
+            .compile_normal_with_published(request_from_text(&text), |view, verification| {
+                assert!(verification.is_ok(), "original MIR must verify");
+                let source = view.retained_root_source().expect("original source");
+                let target = crate::mir::Callee::Global(
+                    crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
+                        "SizeClassBox",
+                        "bin_size",
+                        1,
+                    )
+                    .canonical_global_target_v1()
+                    .unwrap(),
+                );
+                let mut visit_count = 0;
+                source.visit_finalized_lexical_call_nodes_v1(
+                    view.module(),
+                    |owner, _, _, _, function, coordinate, _| {
+                        let Some(MirInstruction::Invoke {
+                            operation: InvokeOperation::Call { call, .. },
+                            ..
+                        }) = function.blocks[&coordinate.0].terminator.as_ref()
+                        else {
+                            return Ok(());
+                        };
+                        if call.callee != target {
+                            return Ok(());
+                        }
+                        visit_count += 1;
+                        let current = call.args[0];
+                        let initial = function
+                            .blocks
+                            .values()
+                            .flat_map(|block| block.all_instructions())
+                            .find_map(|instruction| match instruction {
+                                MirInstruction::Phi { dst, inputs, .. } if *dst == current => {
+                                    Some(inputs)
+                                }
+                                _ => None,
+                            })
+                            .expect("the body reads the current header binding")
+                            .iter()
+                            .find_map(|(block, incoming)| {
+                                let predecessor = &function.blocks[block];
+                                let original = predecessor
+                                    .all_instructions()
+                                    .find_map(|row| match row {
+                                        MirInstruction::Copy { dst, src } if dst == incoming => {
+                                            Some(*src)
+                                        }
+                                        _ => None,
+                                    })
+                                    .unwrap_or(*incoming);
+                                predecessor.all_instructions().find_map(|row| match row {
+                                    MirInstruction::Const {
+                                        dst,
+                                        value: crate::mir::ConstValue::Integer(1),
+                                    } if *dst == original => Some(*dst),
+                                    _ => None,
+                                })
+                            })
+                            .expect("find the real I64 initializer in the preheader");
+                        assert_ne!(initial, current);
+                        for value in [initial, current] {
+                            assert_eq!(
+                                function.metadata.value_types.get(&value),
+                                Some(&crate::mir::MirType::Integer)
+                            );
+                        }
+                        let mut original_seen = 0;
+                        source.with_finished_bool_bindings_v1(owner, function, |at, _| {
+                            original_seen += usize::from(at == coordinate);
+                            Ok(())
+                        })?;
+                        assert_eq!(original_seen, 1, "original common Bool verifier");
+                        for change in 0..3 {
+                            let mut changed = function.clone();
+                            let invoke = changed
+                                .blocks
+                                .get_mut(&coordinate.0)
+                                .unwrap()
+                                .terminator
+                                .as_mut()
+                                .unwrap();
+                            let MirInstruction::Invoke {
+                                operation: InvokeOperation::Call { call, .. },
+                                normal_landing,
+                                fault_landing,
+                                ..
+                            } = invoke
+                            else {
+                                unreachable!()
+                            };
+                            match change {
+                                0 => call.args[0] = initial,
+                                1 => {
+                                    assert_ne!(normal_landing, fault_landing);
+                                    *fault_landing = *normal_landing;
+                                }
+                                _ => {
+                                    call.callee = crate::mir::Callee::Global(
+                                        crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
+                                            "SizeClassBox", "normalize_size", 1,
+                                        ).canonical_global_target_v1().unwrap(),
+                                    );
+                                }
+                            }
+                            assert!(
+                                source.with_finished_bool_bindings_v1(
+                                    owner, &changed, |_, _| Ok(())
+                                ).is_err(),
+                                "changed argument, Fault edge, or target {change}"
+                            );
+                        }
+                        Ok(())
+                    },
+                )?;
+                assert_eq!(visit_count, 1, "must exercise the actual bin_size Invoke");
+                view.issue_lifecycle_compiled_entry_contract()?;
+                Ok(())
+            })
+            .unwrap();
     });
 }

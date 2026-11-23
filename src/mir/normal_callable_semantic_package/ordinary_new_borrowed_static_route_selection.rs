@@ -122,7 +122,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if let Some(original) =
             super::super::borrowed_formal_actuals::original_static_source_v1(source, site)?
         {
-            let completed = self.checked_static_input_packet_rows_v1(original)?;
+            let completed = self.checked_completed_static_expression_input_v1(original)?;
             if completed.is_some()
                 || self.is_static_expression_input_owner_v1(source, original.callee_owner())
             {
@@ -262,7 +262,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if !legacy && !applies {
                 continue;
             }
-            let completed_input = self.has_completed_static_input_route_v1(original, applies)?;
+            let completed_input = applies && self.checked_completed_static_expression_input_v1(original)?.is_some();
             let completed = completed_input
                 || self
                     .checked_static_scalar_packet_actuals_v1(original)?
@@ -284,34 +284,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 routed.insert(row.call.clone());
             }
         }
-        // The selected arity-one CurrentOwner loop owns a separate checked
-        // packet source. Only its successfully co-sealed original call joins
-        // the same source-ordered lifecycle group; general SourceStatic stays
-        // closed for opaque actuals.
-        for packet in self.loop_static_packet_sources.borrow().values() {
-            if let Ok(packet) = packet {
-                routed.insert(packet.local_call_site().clone());
-            }
-        }
         for site in routed {
             self.record_lifecycle_local_call_site(site, LocalRouteWriterV1::StaticPacket)?;
         }
         Ok(())
-    }
-
-    /// Route discovery checks completed input only for a selected source.
-    /// A refusal on an unselected observation stays at its original consumer.
-    fn has_completed_static_input_route_v1(
-        &self,
-        original: &Rc<StaticIncomingSourceV1>,
-        expression_selected: bool,
-    ) -> Result<bool, String> {
-        let selected = expression_selected
-            || self
-                .borrowed_formal_actuals
-                .get(original.call_site())
-                .is_some_and(|rows| rows.as_ref().is_ok_and(|rows| rows.has_static_loop_input_v1()));
-        Ok(selected && self.checked_static_input_packet_rows_v1(original)?.is_some())
     }
 
     /// Select the existing ordinary root route only from original final
@@ -398,7 +374,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if !legacy && !applies {
                 continue;
             }
-            let completed_input = self.has_completed_static_input_route_v1(original, applies)?;
+            let completed_input = applies && self.checked_completed_static_expression_input_v1(original)?.is_some();
             if (completed_input
                 || self.is_static_zero_packet_cohort_v1(original)
                 || self

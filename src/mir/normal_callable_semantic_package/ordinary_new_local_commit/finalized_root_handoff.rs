@@ -264,7 +264,6 @@ impl OrdinaryNewClaimLedgerV1 {
             .filter_map(|row| row.as_ref().ok())
             .filter_map(|completion| completion.cleanup().root_flow())
             .any(|flow| flow.expression_plans().iter().any(|plan| plan.initializer_frame().is_some() || plan.move_initializer_v1().is_some() || plan.shared_initializer_source_v1().is_some() || plan.rebind_frame().is_some() || plan.print_frame().is_some() || plan.condition_frame().is_some() || plan.field_write_frame().is_some() || !plan.source_fields().is_empty()));
-        let has_selected_loop_body_calls = !self.selected_loop_body_packets.borrow().is_empty();
         // The source loan follows verified main identity plus retained
         // source evidence — a terminal relation is only one inventory.
         // Checked birth actuals and lexical local-call rows are equally
@@ -276,7 +275,6 @@ impl OrdinaryNewClaimLedgerV1 {
                 || !actuals.is_empty()
                 || has_lexical_local_calls
                 || has_expression_source
-                || has_selected_loop_body_calls
                 || construction.iter().any(|(_, row)| row.has_provider_calls_v1());
         if needs_source && self.app_main_catalog_key.is_none() {
             return Err(freeze("artifact-root-catalog-key-unavailable"));
@@ -336,7 +334,6 @@ impl OrdinaryNewClaimLedgerV1 {
             terminals: self.terminal_relation.as_ref().clone(),
             call_entries,
             local_calls: std::mem::take(&mut *self.root_local_call_bindings.borrow_mut()),
-            loop_body_calls: std::mem::take(&mut *self.selected_loop_body_packets.borrow_mut()),
             construction,
         });
         let birth_actuals = actuals.into_boxed_slice();

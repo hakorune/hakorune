@@ -229,26 +229,6 @@ impl PreparedBorrowedCallActualsV1 {
             BorrowedFormalActualSourceV1::Read(read) => read.declared_read_v1(), _ => None,
         })
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn has_static_loop_input_v1(
-        &self,
-    ) -> bool {
-        self.static_loop_input_v1().is_some()
-    }
-
-    pub(super) fn static_loop_input_v1(
-        &self,
-    ) -> Option<(&static_input_finish::StaticInputFinishV1, BindingRefV1)> {
-        let BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(proof) = &self.phase else {
-            return None;
-        };
-        match &proof.evidence {
-            static_input_finish::StaticInputEvidenceV1::LoopEntry { formal, .. } => {
-                Some((proof, *formal))
-            }
-            _ => None,
-        }
-    }
-
     /// Original source observations survive completion in their sole input
     /// proof. This immutable loan grants neither execution nor requalification.
     pub(super) fn source_static_snapshot_v1(&self) -> Option<&Self> {

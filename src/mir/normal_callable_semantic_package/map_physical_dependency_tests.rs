@@ -97,7 +97,7 @@ fn map_callable_dependency_preserves_opaque_local_and_alias_identity() {
                 }
             }
             if changed { assert!(package.ordinary_new_claim_ledger
-                .validate_new_emissions(declaration.owner(), &drifted_value, None, None).is_err()); }
+                .validate_new_emissions(declaration.owner(), &drifted_value, None).is_err()); }
         }
         let mut drifted = function.clone();
         let mut changed = false;
@@ -117,7 +117,7 @@ fn map_callable_dependency_preserves_opaque_local_and_alias_identity() {
         assert!(changed);
         assert!(package
             .ordinary_new_claim_ledger
-            .validate_new_emissions(declaration.owner(), &drifted, None, None)
+            .validate_new_emissions(declaration.owner(), &drifted, None)
             .is_err());
 
         assert!(

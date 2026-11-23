@@ -17,8 +17,9 @@ mod prepare;
 #[path = "root_home/record.rs"]
 mod record;
 pub(crate) use prepare::{PreparedRootHomeGraphPlanV1, PreparedRootHomeOrderV1};
-#[path = "root_home/pending.rs"]
-mod pending;
+#[cfg(test)]
+#[path = "root_home/recorded_order_tests.rs"]
+mod recorded_order_tests;
 pub(crate) use cleanup_order::RootCleanupActionV1;
 pub(crate) use cleanup_order::{
     displaced_replacement_fault_sequences_v2, fault_indices_after_normal_step_v2,
@@ -26,7 +27,6 @@ pub(crate) use cleanup_order::{
 pub(in crate::mir::normal_callable_semantic_package) use cleanup_order::{
     source_home_end_plans_v1, source_home_end_selection_v2, RootHomeCleanupOrderV1,
 };
-pub(crate) use pending::PendingRootHomeExitV1;
 #[path = "root_home_null_return.rs"]
 mod null_return;
 pub(crate) use null_return::TerminalNullReturnSourceLoanV1;
@@ -754,8 +754,8 @@ pub(in crate::mir) use call_entry::EmittedDynamicInvocationCallProjectionV1;
 pub(crate) use call_entry::PreparedStaticTerminalPacketV1;
 pub(in crate::mir) use call_entry::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
-    LexicalCallArgumentProjectionV1, PendingStaticCallProjectionV1,
-    PreparedLexicalCallProjectionV1, PreparedSelectedStaticLoopCallProjectionV1,
+    LexicalCallArgumentProjectionV1,
+    PreparedLexicalCallProjectionV1,
     StoredReceiverFaultV1, StoredReceiverReadV1, TakenObjectArgumentOriginV1,
 };
 

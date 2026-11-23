@@ -42,7 +42,7 @@ impl FinalizedRootSourceHandoffV1 {
                     return Err(freeze("argument-read-function-drift"));
                 }
                 self.ledger
-                    .validate_new_emissions(owner, function, Some(projection), None)
+                    .validate_new_emissions(owner, function, Some(projection))
             })
     }
 }

@@ -383,106 +383,6 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
             let good_slot = good_contract.batch_slot;
             let bin_target = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "size_to_bin", 1);
             let bin_contract = original_static_contract(&package, &bin_target);
-            let bin_slot = bin_contract.batch_slot;
-            package.batch().with_lowering_input(bin_slot, |input| {
-                let loop_site = input.function().loop_sites().next().expect("original size_to_bin loop");
-                let ledger = &package.ordinary_new_claim_ledger;
-                assert!(ledger.expects_loop_static_source_loan_v1(input.owner(), loop_site));
-                let issued_product = crate::mir::builder::take_at_function_entry_v2(input, ledger)
-                    .unwrap().expect("same preissued source-bound product");
-                let product = issued_product.semantic();
-                for (selector, arity) in [("max_regular_bin", 0), ("bin_size", 1)] {
-                    let (site, call) = input.function().method_calls()
-                        .find(|(_, call)| call.selector() == selector)
-                        .expect("original size_to_bin loop call");
-                    let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), site.clone());
-                    let original = source.source_incoming.static_observations()[&owned]
-                        .as_ref().expect("original loop Static Rc");
-                    let claim = crate::mir::normal_callable_semantic_package::qualified_static_call_claim::claim_for_source_site_v1(
-                        claims, Some(&bin_target), &input, &owned, &package.selected,
-                        &package.parameter_contracts, None,
-                    ).unwrap().expect("same issuer accepts original loop call");
-                    assert_eq!(call.arity(), arity);
-                    assert!(claim.corroborates_source(&owned,
-                        crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::CurrentOwner,
-                        arity));
-                    assert_eq!(original.call_site(), &owned);
-                    assert_eq!(original.argument_sites().len(), arity as usize);
-                    let loan = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::loop_static_source_loan::issue_loop_static_source_call_loan_v1(
-                        claims, source, &package.selected, &package.parameter_contracts,
-                        &bin_target, input, loop_site, &owned,
-                    ).unwrap().expect("original Loop Static source loan");
-                    assert_eq!(loan.loop_site(), loop_site);
-                    assert!(std::rc::Rc::ptr_eq(loan.original(), original));
-                    assert!(loan.claim().corroborates_source(&owned, call.receiver(), arity));
-                    assert_eq!(loan.placement(), &input.function().resolved_loop_placement(loop_site, site).unwrap().unwrap());
-                    assert!(!ledger.loop_static_source_loans.borrow().contains_key(&(loop_site.clone(), owned.clone())));
-                    let retained = if arity == 0 { product.source_calls().1 } else { product.source_calls().2 };
-                    assert!(std::rc::Rc::ptr_eq(retained.original(), original));
-                    assert_eq!(retained.placement(), loan.placement());
-                    assert!(ledger.take_loop_static_source_call_loan_v1(loop_site, &owned).is_none());
-                }
-                let outside = input.function().method_calls()
-                    .find(|(_, call)| call.selector() == "normalize_size").unwrap().0;
-                let outside = crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), outside.clone());
-                let initializer = input.function().expression_source().initializers()
-                    .find(|row| row.initializer_site() == Some(outside.site()))
-                    .expect("original n initializer");
-                let entry = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::loop_static_source_loan::issue_loop_entry_static_i64_source_loan_v1(
-                    claims, source, &package.selected, &package.parameter_contracts,
-                    &bin_target, input, loop_site, initializer.declaration_site(),
-                ).unwrap().expect("original pre-loop I64 result source");
-                assert_eq!(entry.loop_site(), loop_site);
-                assert_eq!(entry.declaration(), initializer.declaration_site());
-                assert_eq!(entry.original().call_site(), &outside);
-                assert!(entry.claim().corroborates_source(
-                    &outside, crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::CurrentOwner, 1));
-                assert!(std::rc::Rc::ptr_eq(entry.original(), product.source_calls().0.original()));
-                assert!(ledger.take_loop_entry_static_i64_source_loan_v1(loop_site, initializer.declaration_site()).is_none());
-                let completion = package.ordinary_new_claim_ledger
-                    .completion_for_owner(input.owner()).expect("original full source Completion");
-                let site_for = |selector| {
-                    let site = input.function().method_calls()
-                        .find(|(_, call)| call.selector() == selector).unwrap().0;
-                    crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), site.clone())
-                };
-                let wrong_header = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::loop_static_source_loan::issue_loop_static_source_call_loan_v1(
-                    claims, source, &package.selected, &package.parameter_contracts,
-                    &bin_target, input, loop_site, &site_for("bin_size"),
-                ).unwrap().unwrap();
-                let wrong_body = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::loop_static_source_loan::issue_loop_static_source_call_loan_v1(
-                    claims, source, &package.selected, &package.parameter_contracts,
-                    &bin_target, input, loop_site, &site_for("max_regular_bin"),
-                ).unwrap().unwrap();
-                let negative_entry = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::loop_static_source_loan::issue_loop_entry_static_i64_source_loan_v1(
-                    claims, source, &package.selected, &package.parameter_contracts,
-                    &bin_target, input, loop_site, initializer.declaration_site(),
-                ).unwrap().unwrap();
-                let negative_tail = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::loop_static_source_loan::issue_loop_tail_static_i64_source_loan_v1(
-                    claims, source, &package.selected, &package.parameter_contracts,
-                    &bin_target, input, loop_site,
-                ).unwrap().unwrap();
-                assert!(crate::mir::builder::produce_static_i64_loop_semantic_v2(
-                    input, loop_site, completion, negative_entry, wrong_header, wrong_body, negative_tail,
-                ).is_err(), "swapped original CallSlot proofs must fail before MIR");
-                let tail = product.tail_call();
-                assert_eq!(tail.loop_site(), loop_site);
-                assert!(tail.original().call_site().site() == site_for("huge_bin").site());
-                assert!(ledger.take_loop_tail_static_i64_source_loan_v1(loop_site).is_none());
-                assert!(crate::mir::builder::take_at_function_entry_v2(input, ledger)
-                    .unwrap_err().contains("static-i64-v2/source-unavailable"));
-                assert_eq!(product.recipe().as_recipe().items.len(), 13);
-                assert_eq!(product.join().after_binding().raw(), 0);
-                assert_ne!(product.roles().n_binding, product.roles().bin_binding);
-                assert_eq!((product.roles().header_call.raw(), product.roles().body_call.raw(), product.roles().backedge_write.raw()), (1, 4, 12));
-                assert_eq!(product.source_calls().1.placement(), &crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Condition);
-                assert_eq!(product.tail_call().return_site(), package.ordinary_new_claim_ledger
-                    .completion_for_owner(input.owner()).unwrap().explicit_sites().last().unwrap());
-                assert!(crate::mir::normal_callable_semantic_package::ordinary_new_coseal::loop_static_source_loan::issue_loop_static_source_call_loan_v1(
-                    claims, source, &package.selected, &package.parameter_contracts,
-                    &bin_target, input, loop_site, &outside,
-                ).is_err(), "pre-loop call cannot impersonate a Loop CallSlot");
-            }).unwrap();
             package.batch().with_lowering_input(good_slot, |input| {
                 let mut calls = input.function().method_calls().filter(|(_, call)| call.selector() == "size_to_bin");
                 let (site, call) = calls.next().expect("original good_size CurrentOwner call");
@@ -616,9 +516,6 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
         });
     }).unwrap().join().expect("real imported observation");
 }
-
-#[path = "ordinary_new_borrowed_formal_candidate_static_loop_tests.rs"]
-mod static_loop_tests;
 
 #[test]
 fn candidate_integer_forward_retains_agreement_without_reviving_transport() {

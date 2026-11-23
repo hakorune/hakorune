@@ -7,7 +7,6 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
         projection: Option<&super::super::physical_boundary::FinishedBindings>,
-        pending: Option<&super::super::PendingSelectedStaticLoopViewV1<'_, '_>>,
     ) -> Result<(), String> {
         self.validate_implicit_root_progress_v1(owner, function, projection)?;
         if !self.object_return_construction_ready_v1(owner)? {
@@ -30,22 +29,11 @@ impl OrdinaryNewClaimLedgerV1 {
                     flow.exit_row(expected_exit).is_some(), self.terminal_relation_for_owner_at(owner, expected_exit)));
             };
             let expected_homes = exit_row.homes();
-            let pending_row = pending.and_then(|pending| pending.root(owner, expected_exit));
             let progress = exits.get(&(owner, expected_exit.clone().into()));
-            let (order, origins, bindings, entry) = match (pending_row, progress) {
-                (Some(row), None | Some(RootHomeExitProgress::Unprepared)) => {
-                    (row.order(), row.origins(), row.bindings(), row.entry())
-                }
-                (None, Some(RootHomeExitProgress::Unavailable)) => continue,
-                (
-                    None,
-                    Some(RootHomeExitProgress::Emitted {
-                        order,
-                        origins,
-                        bindings,
-                        entry,
-                    }),
-                ) => (order, origins.as_slice(), bindings.as_slice(), entry),
+            let (order, origins, bindings, entry) = match progress {
+                Some(RootHomeExitProgress::Unavailable) => continue,
+                Some(RootHomeExitProgress::Emitted { order, origins, bindings, entry }) =>
+                    (order, origins.as_slice(), bindings.as_slice(), entry),
                 _ => return Err(freeze("root-exit-unconsumed")),
             };
             {
@@ -63,7 +51,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     function,
                     projection,
                     None,
-                    pending.map_or(&[][..], |pending| pending.excluded_routes()),
+                    &[],
                     entry,
                     bindings,
                 )?;
@@ -361,5 +349,41 @@ impl OrdinaryNewClaimLedgerV1 {
                 consumed
             })
         })
+    }
+}
+
+impl OrdinaryNewClaimLedgerV1 {
+    pub(in super::super) fn validate_root_cleanup_shape(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+    ) -> Result<(), String> {
+        let exits = self.root_exits.borrow();
+        for (key, progress) in exits.iter() {
+            if key.0 != owner {
+                continue;
+            }
+            let RootHomeExitProgress::Emitted {
+                bindings,
+                entry,
+                order,
+                ..
+            } = progress
+            else {
+                continue;
+            };
+            super::super::root_cleanup_graph::ordered_paths::validate(
+                function, bindings, entry, order, None,
+            )?;
+            super::super::root_cleanup_graph::ordered_structure::validate_original_with_wrapper(
+                function,
+                bindings,
+                entry,
+                order.ingress_result_for_entry(entry),
+                &self.main_arguments_release_suffix_v1(owner, function)?,
+                order.borrowed_expression_fault_v1(),
+            )?;
+        }
+        Ok(())
     }
 }

@@ -248,9 +248,6 @@ fn emit_lexical_i64_call(
             (Some(receiver), read)
         }
         SourceLoan::Static { .. } => (None, None),
-        SourceLoan::SelectedStaticLoop { .. } => {
-            return Err(freeze("selected-static-loop/canonical-entry-required"));
-        }
     };
     let frame = state.borrow_fault_frame(builder)?;
     let normal_landing = builder.next_block_id();

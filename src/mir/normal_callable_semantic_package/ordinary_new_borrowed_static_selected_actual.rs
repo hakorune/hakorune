@@ -202,11 +202,8 @@ impl OrdinaryNewClaimLedgerV1 {
 
 impl PreparedBorrowedFormalIngressV1 {
     /// Resolve the source origin before Home walks can demand a borrowed entry.
-    pub(in crate::mir::normal_callable_semantic_package) fn select_static_tagged_sources_v1(
-        &mut self,
-        has_capture: impl Fn(BindingRefV1) -> bool,
-    ) {
-        let owners = self.static_tagged_forward_owners_v1(has_capture);
+    pub(in crate::mir::normal_callable_semantic_package) fn select_static_tagged_sources_v1(&mut self) {
+        let owners = self.static_tagged_forward_owners_v1();
         *self.tagged_static_owners.get_mut() = (self.source_incoming.revision_v1(), owners);
     }
 
@@ -303,15 +300,12 @@ impl PreparedBorrowedFormalIngressV1 {
         let revision = self.source_incoming.revision_v1();
         let mut participation = self.tagged_static_owners.borrow_mut();
         if participation.0 == 0 {
-            *participation = (revision, self.static_tagged_forward_owners_v1(|_| false));
+            *participation = (revision, self.static_tagged_forward_owners_v1());
         }
         participation.0 == revision && participation.1.contains(&owner)
     }
 
-    fn static_tagged_forward_owners_v1(
-        &self,
-        has_capture: impl Fn(BindingRefV1) -> bool,
-    ) -> BTreeSet<FunctionOwnerIdV1> {
+    fn static_tagged_forward_owners_v1(&self) -> BTreeSet<FunctionOwnerIdV1> {
         use super::super::borrowed_formal_uses::BorrowedIncomingSourceV1;
 
         let incoming_owners = self
@@ -343,8 +337,7 @@ impl PreparedBorrowedFormalIngressV1 {
                     .iter()
                     .zip(original.argument_sites())
                     .any(|(formal, site)| {
-                        !has_capture(formal.binding)
-                            && original_tagged_argument_read_v1(
+                        original_tagged_argument_read_v1(
                                 self,
                                 original,
                                 formal.ordinal,

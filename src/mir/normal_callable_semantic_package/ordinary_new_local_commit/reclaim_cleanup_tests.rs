@@ -165,7 +165,7 @@ fn reclaim_rejects_coordinated_duplicate_field_cleanup_after_healthy_control() {
         )
         .unwrap();
     ledger
-        .validate_new_emissions(site.owner(), &function, None, None)
+        .validate_new_emissions(site.owner(), &function, None)
         .expect("healthy source-issued storage-only control");
 
     // Restore the old caller field cleanup in both retained bindings and MIR.
@@ -243,7 +243,7 @@ fn reclaim_rejects_coordinated_duplicate_field_cleanup_after_healthy_control() {
     }
     assert_eq!(
         ledger
-            .validate_new_emissions(site.owner(), &function, None, None)
+            .validate_new_emissions(site.owner(), &function, None)
             .unwrap_err(),
         "[freeze:contract][ordinary-new/local-commit/reclaim-duplicate-field-cleanup]"
     );

@@ -105,7 +105,6 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
         projection: Option<&super::physical_boundary::FinishedBindings>,
-        pending: Option<&super::PendingSelectedStaticLoopViewV1<'_, '_>>,
     ) -> Result<(), String> {
         self.validate_lexical_body_cleanup(owner, function, projection)?;
         let intervals = super::read_argument::IntervalViewV1::new(function);
@@ -157,7 +156,6 @@ impl OrdinaryNewClaimLedgerV1 {
                         site,
                         &intervals,
                         projection,
-                        pending,
                         CallValidationContextV1::Lowering(self),
                     )?;
                     continue;
@@ -187,12 +185,11 @@ impl OrdinaryNewClaimLedgerV1 {
         site: &OwnedExprSiteV1,
         function: &MirFunction,
         projection: Option<&super::physical_boundary::FinishedBindings>,
-        pending: Option<&super::PendingSelectedStaticLoopViewV1<'_, '_>>,
         context: CallValidationContextV1<'_>,
     ) -> Result<(), String> {
         let intervals = super::read_argument::IntervalViewV1::new(function);
         self.validate_call_received_emission_with_intervals_v1(
-            site, &intervals, projection, pending, context,
+            site, &intervals, projection, context,
         )
     }
 
@@ -201,7 +198,6 @@ impl OrdinaryNewClaimLedgerV1 {
         site: &OwnedExprSiteV1,
         intervals: &super::read_argument::IntervalViewV1<'_>,
         projection: Option<&super::physical_boundary::FinishedBindings>,
-        pending: Option<&super::PendingSelectedStaticLoopViewV1<'_, '_>>,
         context: CallValidationContextV1<'_>,
     ) -> Result<(), String> {
         let function = intervals.function();
@@ -439,24 +435,6 @@ impl OrdinaryNewClaimLedgerV1 {
                     .count();
             })?;
             let owed_exit = owed;
-            if let Some(view) = pending {
-                owed += view
-                    .roots()
-                    .into_iter()
-                    .filter(|root| root.owner() == row.owner)
-                    .flat_map(|root| root.bindings().iter())
-                    .filter(|(_, emitted)| {
-                        matches!(
-                            emitted,
-                            MirInstruction::Invoke {
-                                operation: emitted,
-                                ..
-                            } if emitted == operation
-                        )
-                    })
-                    .count();
-            }
-            let owed_pending = owed;
             owed += rows
                 .iter()
                 .filter(|(site, other)| {
@@ -508,9 +486,8 @@ impl OrdinaryNewClaimLedgerV1 {
             })?;
             if crate::config::env::builder_debug_enabled() && actual != owed {
                 eprintln!(
-                    "[release-count] breakdown exit={owed_exit} pending={} rows={} groups={}",
-                    owed_pending - owed_exit,
-                    owed_rows - owed_pending,
+                    "[release-count] breakdown exit={owed_exit} rows={} groups={}",
+                    owed_rows - owed_exit,
                     owed - owed_rows
                 );
             }

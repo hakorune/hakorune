@@ -111,20 +111,6 @@ pub(in crate::mir) use lexical_instance_call::{MainArgumentKindV1, MainArguments
 pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::{
     StoredReceiverSourceOriginV1, StoredReceiverSourceV1,
 };
-#[path = "ordinary_new_loop_static_body_actual.rs"]
-mod loop_static_body_actual;
-#[path = "ordinary_new_loop_static_preissue.rs"]
-mod loop_static_preissue;
-#[path = "ordinary_new_loop_static_source_loan.rs"]
-mod loop_static_source_loan;
-#[path = "ordinary_new_static_home_effect.rs"]
-mod static_home_effect;
-#[path = "ordinary_new_static_loop_packet_source.rs"]
-mod static_loop_packet_source;
-#[path = "ordinary_new_static_loop_result.rs"]
-mod static_loop_result;
-#[path = "ordinary_new_static_loop_tagged_entry.rs"]
-mod static_loop_tagged_entry;
 pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::ArrayHolderLifecycleRecipeV1;
 pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::BorrowedAppMainSourceLoanV1;
 pub(crate) use lexical_instance_call::NamedArrayHolderSourceLoanV1;
@@ -132,9 +118,6 @@ pub(in crate::mir) use local_commit::EmittedDynamicInvocationCallProjectionV1;
 pub(crate) use local_commit::EmittedOwnedArrayReadV1;
 #[cfg(test)]
 pub(in crate::mir) use local_commit::ExpressionPhysicalProjectionRefV1;
-pub(crate) use local_commit::PendingRootHomeExitV1;
-pub(crate) use local_commit::PendingSelectedStaticLoopViewV1;
-pub(in crate::mir) use local_commit::PendingStaticCallProjectionV1;
 pub(crate) use local_commit::PreparedRootHomeGraphPlanV1;
 pub(crate) use local_commit::PreparedRootHomeOrderV1;
 pub(crate) use local_commit::PreparedRootLexicalCallBindingGroupV1;
@@ -163,17 +146,6 @@ pub(crate) use local_commit::{
 pub(crate) use local_commit::{
     RootCleanupActionV1, RootHomeFaultSequencesV1, RootHomeReleaseOriginV1,
 };
-pub(crate) use loop_static_body_actual::PreparedLoopStaticBodyRetentionV1;
-pub(in crate::mir) use loop_static_body_actual::{
-    PreparedLoopStaticBodyDetachedPacketV1, VerifiedLoopStaticBodyPrepacketV1,
-    VerifiedLoopStaticBodyScalarSourceV1,
-};
-pub(in crate::mir) use loop_static_source_loan::{
-    LoopEntryStaticI64SourceLoanV1, LoopStaticSourceCallLoanV1, LoopTailStaticI64SourceLoanV1,
-};
-pub(in crate::mir) use static_loop_packet_source::VerifiedStaticLoopPacketSourceV1;
-pub(in crate::mir) use static_loop_result::VerifiedStaticLoopI64ResultSourceV1;
-pub(in crate::mir) use static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1;
 #[path = "ordinary_new_local_commit.rs"]
 mod local_commit;
 pub(in crate::mir) use lexical_instance_call::BorrowedCompareCarrierOperandLoanV1;
@@ -237,7 +209,6 @@ pub(crate) enum RootCallDispositionV1 {
     Direct(super::direct_call_loan::DirectCallDispositionRowV1),
     Instance(RootInstanceCallDispositionRowV1),
     Lexical(std::rc::Rc<local_commit::EmittedLexicalCallProjectionV1>),
-    PendingStatic(PendingStaticCallProjectionV1),
 }
 
 pub(crate) use candidate::{OrdinaryNewConstructorDispositionV1, VerifiedOrdinaryNewBirthRecipeV1};
@@ -417,66 +388,6 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // One source-bound product or refusal per Loop site. Home and raw entry
     // cannot consume it until their separate verified loan slices.
     selected_loop_products: coseal_issue::SelectedLoopProductV1,
-    loop_static_source_loans: RefCell<
-        BTreeMap<
-            (SourceStmtSiteV1, OwnedExprSiteV1),
-            Result<loop_static_source_loan::LoopStaticSourceCallLoanV1, String>,
-        >,
-    >,
-    loop_static_body_scalar_sources: RefCell<
-        BTreeMap<
-            (SourceStmtSiteV1, OwnedExprSiteV1),
-            Result<loop_static_body_actual::VerifiedLoopStaticBodyScalarSourceV1, String>,
-        >,
-    >,
-    // The selected body call has no Home local-call observation. Its own
-    // source/physical packet enters only after successful collector admission.
-    selected_loop_body_packets: RefCell<
-        BTreeMap<OwnedExprSiteV1, loop_static_body_actual::PreparedLoopStaticBodyDetachedPacketV1>,
-    >,
-    loop_static_source_loop_sites: Rc<BTreeSet<(FunctionOwnerIdV1, SourceStmtSiteV1)>>,
-    preissued_static_i64_products: RefCell<
-        BTreeMap<
-            FunctionOwnerIdV1,
-            Result<crate::mir::builder::StaticI64LoopFunctionEntryV2, String>,
-        >,
-    >,
-    loop_entry_static_i64_source_loans: RefCell<
-        BTreeMap<
-            (SourceStmtSiteV1, SourceBindingSiteV1),
-            Result<loop_static_source_loan::LoopEntryStaticI64SourceLoanV1, String>,
-        >,
-    >,
-    loop_tail_static_i64_source_loans: RefCell<
-        BTreeMap<
-            SourceStmtSiteV1,
-            Result<loop_static_source_loan::LoopTailStaticI64SourceLoanV1, String>,
-        >,
-    >,
-    loop_static_home_neutral: RefCell<
-        BTreeMap<
-            SourceStmtSiteV1,
-            Result<static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1, String>,
-        >,
-    >,
-    loop_static_tagged_entry: RefCell<
-        BTreeMap<
-            (SourceStmtSiteV1, SourceBindingSiteV1),
-            Result<static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1, String>,
-        >,
-    >,
-    loop_static_i64_results: RefCell<
-        BTreeMap<
-            SourceStmtSiteV1,
-            Result<static_loop_result::VerifiedStaticLoopI64ResultSourceV1, String>,
-        >,
-    >,
-    loop_static_packet_sources: RefCell<
-        BTreeMap<
-            (SourceStmtSiteV1, SourceBindingSiteV1),
-            Result<static_loop_packet_source::VerifiedStaticLoopPacketSourceV1, String>,
-        >,
-    >,
     // The existing source dispatch projection retains per-site error scope.
     borrowed_static_source_sites: Option<Result<BTreeSet<OwnedExprSiteV1>, String>>,
     borrowed_formal_actuals: lexical_instance_call::PendingBorrowedFormalActualsV1,
@@ -716,7 +627,7 @@ mod tests;
 pub(in crate::mir) use local_commit::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
     FinalizedLexicalCallContextV1, LexicalCallArgumentProjectionV1,
-    PreparedLexicalCallProjectionV1, PreparedSelectedStaticLoopCallProjectionV1,
+    PreparedLexicalCallProjectionV1,
     StoredReceiverFaultV1, StoredReceiverReadV1, TakenObjectArgumentOriginV1,
 };
 

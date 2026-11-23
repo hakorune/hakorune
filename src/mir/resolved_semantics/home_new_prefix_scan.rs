@@ -425,46 +425,6 @@ pub(super) fn scan_statement_flow<'a, E>(
                                 }
                             }
                         }
-                        Some(SelectedLoopHomeLoanV1::StaticI64Search(source)) => {
-                            if let Some(current) = locals.loop_i64_prestate(statement.site(), homes)
-                            {
-                                if current.proves_integer(source.bin_binding())
-                                    && current.proves_integer(source.n_binding())
-                                    && super::search_loop::observe_static_i64_search_loop(
-                                        input,
-                                        &statement,
-                                        &source,
-                                        exit_sites,
-                                        selected,
-                                        result_sites,
-                                        results,
-                                        exit_homes,
-                                        maps,
-                                        local_calls,
-                                        path_calls,
-                                        terminal_relations,
-                                        argument_observations,
-                                        result_prefixes,
-                                        locals,
-                                        homes,
-                                        covered_statements,
-                                        selected_seen,
-                                        unavailable,
-
-                                        map_compatible,
-                                        terminal_call,
-                                        local_call_route,
-                                        scalar_field,
-                                        borrowed_actuals,
-                                        view_use,
-                                        loop_prestate,
-                                        object_return,
-                                    )?
-                                {
-                                    continue;
-                                }
-                            }
-                        }
                         Some(SelectedLoopHomeLoanV1::SourceObservation(row)) => {
                             let Some(source) = row.observation_source_v1(input) else {
                                 unavailable.get_or_insert_with(|| {

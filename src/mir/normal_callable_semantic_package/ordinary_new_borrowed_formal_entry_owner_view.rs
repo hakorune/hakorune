@@ -157,14 +157,6 @@ impl OrdinaryNewClaimLedgerV1 {
             if contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::StaticBoxMethod {
                 return Ok(None);
             }
-            if let Some(incoming) = self.checked_completed_static_tagged_entry_v1(source, owner)? {
-                return Ok(Some(BorrowedEntryOwnerViewV1 {
-                    definition,
-                    incoming,
-                    tagged: true,
-                    mixed: false,
-                }));
-            }
             if let Some(incoming) = self.checked_completed_static_bool_entry_v1(source, owner)? {
                 return Ok(Some(BorrowedEntryOwnerViewV1 {
                     definition,

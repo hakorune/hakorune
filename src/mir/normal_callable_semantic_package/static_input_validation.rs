@@ -336,51 +336,9 @@ impl OrdinaryNewClaimLedgerV1 {
             && original.matches_publication_handoff_identity(publication))
     }
 
-    /// Demand the same executable Static input regardless of its source witness.
-    /// Loop preserves its own capture proof and the original local observation.
-    pub(in crate::mir::normal_callable_semantic_package) fn checked_static_input_packet_rows_v1(
-        &self,
-        original: &Rc<StaticIncomingSourceV1>,
-    ) -> Result<Option<&PreparedBorrowedCallActualsV1>, String> {
-        let Some(Ok(rows)) = self.borrowed_formal_actuals.get(original.call_site()) else {
-            return self.checked_completed_static_expression_input_v1(original);
-        };
-        let Some((proof, formal)) = rows.static_loop_input_v1() else {
-            return self.checked_completed_static_expression_input_v1(original);
-        };
-        if !Rc::ptr_eq(&proof.source, original) {
-            return Err(freeze("static-tagged/cohort-unfinished"));
-        }
-        let Some(Ok(source)) = self.borrowed_formal_source.as_ref() else {
-            return Ok(None);
-        };
-        let completion = self
-            .completion_index
-            .get(&original.callee_owner())
-            .ok_or_else(|| freeze("static-tagged/completion-missing"))?
-            .as_ref()
-            .map_err(|error| format!("{}: {error:?}", freeze("static-tagged/completion")))?;
-        if self
-            .checked_static_loop_input_cohort_v1(source, original, formal, completion, true)?
-            .is_none()
-        {
-            return Err(freeze("static-tagged/cohort-unfinished"));
-        }
-        let observation = self
-            .local_call_for_owner(original.call_site().owner(), original.call_site().site())
-            .ok_or_else(|| freeze("static-tagged/local-observation-missing"))?;
-        if observation.arguments() != rows.ordered_arguments.as_ref()
-            || observation.local_binding().is_some()
-        {
-            return Err(freeze("static-tagged/local-observation-drift"));
-        }
-        rows.require_executable_v1()?;
-        Ok(Some(rows))
-    }
-
     /// Demand the already completed whole cohort; unlike preparation this
     /// never accepts a sibling that could merely be completed in a future pass.
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn checked_completed_static_expression_input_v1(
+    pub(in crate::mir::normal_callable_semantic_package) fn checked_completed_static_expression_input_v1(
         &self,
         requested: &Rc<StaticIncomingSourceV1>,
     ) -> Result<Option<&PreparedBorrowedCallActualsV1>, String> {

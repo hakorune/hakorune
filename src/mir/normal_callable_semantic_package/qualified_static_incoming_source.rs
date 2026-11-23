@@ -227,18 +227,6 @@ impl StaticIncomingSourceV1 {
             && self.matches_publication_handoff_identity(handoff)
     }
 
-    /// The selected Loop packet supplies the separate CurrentOwner source,
-    /// actual and result proof before this source-only result corroboration.
-    pub(in crate::mir::normal_callable_semantic_package) fn corroborates_selected_loop_publication_handoff(
-        &self,
-        handoff: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
-    ) -> bool {
-        self.is_current_owner_i64_source_v1()
-            && self.qualified_scalar_result_v1().is_none()
-            && self.argument_sites.len() == 1
-            && self.matches_publication_handoff_identity(handoff)
-    }
-
     pub(in crate::mir::normal_callable_semantic_package) fn matches_publication_handoff_identity(
         &self,
         handoff: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,

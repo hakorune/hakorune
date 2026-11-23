@@ -404,7 +404,6 @@ fn source_null_read_cone_allows_only_captured_unobserved_elision() {
             &[(ValueId(72), ValueId(71))],
             &aliases,
             &BTreeMap::new(),
-            None,
             &[],
             approved,
         )

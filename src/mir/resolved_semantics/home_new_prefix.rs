@@ -22,7 +22,6 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 /// source-only view of the same Static V2 product consumed after Home.
 pub(crate) enum SelectedLoopHomeLoanV1 {
     NoExitArrayAfter(std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>),
-    StaticI64Search(crate::mir::builder::VerifiedStaticI64LoopHomeSourceV2),
     SourceObservation(
         std::rc::Rc<crate::mir::normal_callable_semantic_package::RetainedSourceLoopProductV1>,
     ),
@@ -393,8 +392,6 @@ pub(crate) use argument_expression::observe_for_test as observe_argument_express
 pub(crate) use initializer_expression::observe_for_test as observe_local_initializers_for_test;
 #[path = "home_new_prefix_print.rs"]
 mod print;
-#[path = "home_new_prefix_search_loop.rs"]
-mod search_loop;
 #[path = "home_new_prefix_terminal.rs"]
 mod terminal;
 #[path = "home_terminal_literal.rs"]

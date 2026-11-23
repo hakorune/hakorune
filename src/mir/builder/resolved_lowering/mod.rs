@@ -21,23 +21,12 @@ pub(in crate::mir::builder) use draft_seal_owner::{
 mod generic_g0_physical_emitter_session;
 mod identity;
 mod semantic_stack;
-mod static_loop_body;
-mod static_loop_body_exit;
-mod static_loop_draft_finish;
-mod static_loop_entry_session;
-mod static_loop_header;
-mod static_loop_publication;
-mod static_loop_tail;
 mod trivial_ssa;
 
 pub(in crate::mir) use callable_module_transaction::{
     CallableModuleTransactionErrorV1, VerifiedUnpublishedCallableDraftSetV1,
 };
 pub(in crate::mir::builder) use loop_recipe_physicalizer::lower_callable_single_loop_function_draft_v1;
-pub(in crate::mir::builder) use static_loop_entry_session::{
-    prepare_selected_static_loop_entry_v1, PreparedSelectedStaticLoopEntryV1,
-};
-pub(in crate::mir) use static_loop_publication::SelectedStaticLoopPublicationBatchV1;
 
 #[cfg(test)]
 mod block_expr_tests;

@@ -32,9 +32,6 @@ impl PreparedRootLexicalCallBindingGroupV1<'_> {
         self.packet.invoke_binding()
     }
 
-    pub(crate) fn pending_group(&self) -> &RootLifecyclePrefixBindingGroupV1 {
-        &self.group.group
-    }
 
     pub(crate) fn commit(self) -> Result<std::rc::Rc<EmittedLexicalCallProjectionV1>, String> {
         self.group.commit()?;
@@ -148,7 +145,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .borrow_mut()
             .remove(&owner)
             .ok_or_else(|| freeze("local-call-pool-missing"))?;
-        let result = self.validate_new_emissions(owner, function, None, None);
+        let result = self.validate_new_emissions(owner, function, None);
         self.root_local_call_bindings
             .borrow_mut()
             .insert(owner, groups);
@@ -314,9 +311,6 @@ impl OrdinaryNewClaimLedgerV1 {
                     .physical_emission()
                     .map_err(|_| freeze("direct-source-required"))?;
             }
-        }
-        if matches!(&row, RootCallDispositionV1::PendingStatic(_)) {
-            return Err(freeze("pending-static-entry"));
         }
         if let RootCallDispositionV1::Lexical(packet) = &row {
             self.validate_lexical_terminal_packet(owner, site, packet)?;
@@ -662,8 +656,8 @@ mod lexical_projection;
 pub(crate) use lexical_projection::PreparedStaticTerminalPacketV1;
 pub(in crate::mir) use lexical_projection::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
-    LexicalCallArgumentProjectionV1, PendingStaticCallProjectionV1,
-    PreparedLexicalCallProjectionV1, PreparedSelectedStaticLoopCallProjectionV1,
+    LexicalCallArgumentProjectionV1,
+    PreparedLexicalCallProjectionV1,
     StoredReceiverFaultV1, StoredReceiverReadV1, TakenObjectArgumentOriginV1,
 };
 

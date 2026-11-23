@@ -178,13 +178,7 @@ pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareCarrierOperandLoanV1;
 pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareIntegerLiteralMaterializationV1;
 pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareMaterializationV1;
 pub(crate) use ordinary_new_coseal::CanonicalArrayFieldReadSourceV1;
-pub(in crate::mir) use ordinary_new_coseal::LoopEntryStaticI64SourceLoanV1;
-pub(in crate::mir) use ordinary_new_coseal::LoopStaticSourceCallLoanV1;
-pub(in crate::mir) use ordinary_new_coseal::LoopTailStaticI64SourceLoanV1;
 pub(in crate::mir) use ordinary_new_coseal::TextFieldValueSourceV1;
-pub(in crate::mir) use ordinary_new_coseal::VerifiedStaticLoopI64ResultSourceV1;
-pub(in crate::mir) use ordinary_new_coseal::VerifiedStaticLoopPacketSourceV1;
-pub(in crate::mir) use ordinary_new_coseal::VerifiedStaticLoopTaggedEntrySourceV1;
 pub(crate) use ordinary_new_coseal::{
     BirthAbiHandoffV1, BorrowedCallResultSourceLoanV1, BorrowedCallSourceLoanV1,
     BorrowedCompareIntegerLiteralLoanV1, BorrowedCompareSourceLoanV1, BorrowedLifetimeAnchorV1,
@@ -211,15 +205,11 @@ pub(in crate::mir) use ordinary_new_coseal::{
     LocalFieldReadSourceV1, OriginalScalarAppendV1, StoredChildFieldSourceV1,
 };
 pub(crate) use ordinary_new_coseal::{
-    PendingChildPhysicalValidationV1, PendingRootHomeExitV1, PendingSelectedStaticLoopViewV1,
-    PreparedLoopStaticBodyRetentionV1, PreparedRootHomeGraphPlanV1, PreparedRootHomeOrderV1,
+    PendingChildPhysicalValidationV1,
+PreparedRootHomeGraphPlanV1, PreparedRootHomeOrderV1,
     PreparedRootLexicalCallBindingGroupV1, PreparedStaticTerminalPacketV1,
     PreparedStaticTerminalRootRouteV1, RootCleanupActionV1, RootHomeFaultSequencesV1,
     RootHomeReleaseOriginV1,
-};
-pub(in crate::mir) use ordinary_new_coseal::{
-    PreparedLoopStaticBodyDetachedPacketV1, VerifiedLoopStaticBodyPrepacketV1,
-    VerifiedLoopStaticBodyScalarSourceV1,
 };
 pub(crate) use physical_header::CallablePhysicalHeaderRefV1;
 pub(crate) use physical_signature::{
@@ -260,7 +250,7 @@ pub(in crate::mir) use ordinary_new_coseal::{
     BorrowedFormalActualSourceV1, BorrowedFormalDomainV1, CallPacketSourceLoanV1,
     CallPacketSourceV1, EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
     PreparedBorrowedFormalActualV1, PreparedLexicalCallProjectionV1,
-    PreparedSelectedStaticLoopCallProjectionV1, StoredReceiverFaultV1, StoredReceiverReadV1,
+StoredReceiverFaultV1, StoredReceiverReadV1,
     TakenObjectArgumentOriginV1,
 };
 

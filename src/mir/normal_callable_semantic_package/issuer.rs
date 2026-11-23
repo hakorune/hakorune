@@ -629,7 +629,6 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         &parameter_contracts,
         &result_contracts,
         &mut ordinary_new_claim_ledger,
-        &static_claim_index,
     )?;
     super::direct_call_loan::DirectCallDispositionLoansV1::join_static_execution_v1(
         &mut direct_call_loans, &batch, &selected, catalog.catalog().source_backed_app_main(),

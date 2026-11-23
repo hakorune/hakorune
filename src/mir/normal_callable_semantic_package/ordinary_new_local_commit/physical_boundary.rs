@@ -15,8 +15,6 @@ mod branch_threading;
 use branch_threading::ThreadedBranches;
 #[path = "physical_boundary_phi_policy.rs"]
 mod phi_policy;
-#[path = "physical_boundary_selected_loop.rs"]
-mod selected_loop;
 #[path = "physical_boundary_control_scope.rs"]
 mod control_scope;
 #[path = "physical_boundary_value_dependencies.rs"]
@@ -131,7 +129,6 @@ impl PhysicalBoundary {
             copies,
             borrowed_copies,
             &BTreeMap::new(),
-            None,
         )
     }
 
@@ -141,15 +138,14 @@ impl PhysicalBoundary {
         copies: &[(ValueId, ValueId)],
         borrowed_copies: &Bindings,
         source_phi_roles: &phi_policy::SourcePhiRoles,
-        single_predecessor_phi_body: Option<BasicBlockId>,
     ) -> Result<Self, String> {
         Self::capture_with_phi_policy_and_source_loops(function, bindings, copies, borrowed_copies,
-            source_phi_roles, single_predecessor_phi_body, &[], &[])
+            source_phi_roles, &[], &[])
     }
 
     fn capture_with_phi_policy_and_source_loops(
         function: &MirFunction, bindings: &Bindings, copies: &[(ValueId, ValueId)], borrowed_copies: &Bindings,
-        source_phi_roles: &phi_policy::SourcePhiRoles, single_predecessor_phi_body: Option<BasicBlockId>,
+        source_phi_roles: &phi_policy::SourcePhiRoles,
         source_loops: &[std::rc::Rc<crate::mir::builder::VerifiedLoopCondAfterPhysicalRoleV1>], read_cones: &Bindings,
     ) -> Result<Self, String> {
         let borrowed_copies = OriginalBorrowedCopies::capture(function, bindings, borrowed_copies, read_cones)?;
@@ -189,7 +185,6 @@ impl PhysicalBoundary {
                 *id,
                 block,
                 source_phi_roles,
-                single_predecessor_phi_body,
             )?;
             for instruction in &block.instructions {
                 let candidate = match instruction {

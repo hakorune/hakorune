@@ -517,29 +517,6 @@ fn phi_in_a_sole_predecessor_recorded_block_still_rejects() {
     );
 }
 
-#[test]
-fn selected_static_loop_body_phi_is_scoped_to_its_exact_block() {
-    let (function, bindings) = join_fixture(1, true, false);
-    let boundary = PhysicalBoundary::capture_selected_static_loop_with_source_copies(
-        &function,
-        &bindings,
-        &[],
-        &[],
-        BasicBlockId(3),
-    )
-    .expect("the verified loop body can retain its leading PHI");
-    assert!(validate(&boundary, &function, &bindings));
-    let error = PhysicalBoundary::capture_selected_static_loop_with_source_copies(
-        &function,
-        &bindings,
-        &[],
-        &[],
-        BasicBlockId(0),
-    )
-    .unwrap_err();
-    assert!(error.contains("phi-in-recorded-block"), "{error}");
-}
-
 #[path = "physical_boundary_loop_after_tests.rs"]
 mod loop_after_tests;
 

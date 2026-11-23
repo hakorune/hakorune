@@ -260,8 +260,7 @@ impl EmittedLexicalCallProjectionV1 {
                 self.row.loan().validate_static(context.ledger())?;
                 Some(ExpressionCallArgumentSourceV1::from_local(observation))
             }
-            crate::mir::normal_callable_semantic_package::CallPacketSourceLoanV1::Instance(_)
-            | crate::mir::normal_callable_semantic_package::CallPacketSourceLoanV1::SelectedStaticLoop { .. } => {
+            crate::mir::normal_callable_semantic_package::CallPacketSourceLoanV1::Instance(_) => {
                 context.ledger().local_call_for_owner(self.call_site().owner(), self.call_site().site())
                     .map(ExpressionCallArgumentSourceV1::from_local)
             }

@@ -31,7 +31,6 @@ fn verified_loop_after_phi_requires_exact_block_and_predecessor() {
         &[],
         &[],
         &after,
-        None,
     )
     .expect("the verified after role admits its exact leading PHI");
     assert!(validate(&boundary, &function, &bindings));
@@ -44,7 +43,6 @@ fn verified_loop_after_phi_requires_exact_block_and_predecessor() {
         &[],
         &[],
         &wrong_block,
-        None,
     )
     .unwrap_err();
     assert!(error.contains("phi-in-recorded-block"), "{error}");
@@ -65,7 +63,6 @@ fn verified_loop_after_phi_requires_exact_block_and_predecessor() {
         &[],
         &[],
         &after,
-        None,
     )
     .unwrap_err();
     assert!(error.contains("phi-in-recorded-block"), "{error}");
@@ -88,7 +85,6 @@ fn verified_loop_after_phi_requires_exact_block_and_predecessor() {
         &[],
         &[],
         &after,
-        None,
     )
     .unwrap_err();
     assert!(error.contains("loop-after-phi-prefix-drift"), "{error}");
@@ -109,7 +105,6 @@ fn verified_loop_after_phi_requires_exact_block_and_predecessor() {
         &[],
         &[],
         &after,
-        None,
     )
     .unwrap_err();
     assert!(error.contains("loop-after-phi-prefix-drift"), "{error}");
@@ -136,7 +131,6 @@ fn source_phi_role_rejects_extra_predecessor_and_finished_prefix_drift() {
         &[],
         &[],
         &roles,
-        None,
     )
     .unwrap();
     assert!(validate(&boundary, &function, &bindings));
@@ -168,7 +162,6 @@ fn source_phi_role_rejects_extra_predecessor_and_finished_prefix_drift() {
             &[],
             &[],
             &roles,
-            None
         )
         .is_err(),
         "an empty observed prefix cannot erase a sealed nonempty prefix"
@@ -181,7 +174,7 @@ fn source_phi_role_rejects_extra_predecessor_and_finished_prefix_drift() {
     });
     extra.add_block(predecessor);
     let error =
-        PhysicalBoundary::capture_with_source_phi_roles(&extra, &bindings, &[], &[], &roles, None)
+        PhysicalBoundary::capture_with_source_phi_roles(&extra, &bindings, &[], &[], &roles)
             .unwrap_err();
     assert!(
         error.contains("phi-in-recorded-block"),
@@ -200,7 +193,6 @@ fn source_phi_prefix_preserves_existing_multi_predecessor_after_join() {
         &[],
         &[],
         &roles,
-        None,
     )
     .expect("source-bound LoopCond after remains a legitimate multi-input join");
     assert!(validate(&boundary, &function, &bindings));
@@ -222,7 +214,6 @@ fn source_normal_predecessor_role_is_checked_without_phis() {
         &[],
         &[],
         &roles,
-        None,
     )
     .unwrap();
     assert!(validate(&boundary, &function, &bindings));
@@ -239,7 +230,6 @@ fn source_normal_predecessor_role_is_checked_without_phis() {
         &[],
         &[],
         &roles,
-        None,
     )
     .unwrap_err();
     assert!(error.contains("phi-in-recorded-block"), "{error}");
