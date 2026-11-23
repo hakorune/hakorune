@@ -45,11 +45,9 @@ fn source_backed_root(source: &str) -> PreparedNormalDefaultProgramRootV1 {
     PreparedNormalDefaultProgramRootV1::from_callable_source(source)
 }
 
-/// Compatibility-mode loops carry no parser-issued `FunctionDeclaration`, so
-/// they cannot satisfy the route_loop lowering-session contract after the
-/// registry retirement. This is the accepted non-corpus compatibility
-/// boundary: the loop must end at the named freeze, never at a silent
-/// fallback or partial MIR.
+/// Compatibility-mode loops lack a parser-issued `FunctionDeclaration`.
+/// The raw Loop entry rejects them with the named checked-source diagnostic
+/// before emitting MIR.
 #[test]
 fn compatibility_loop_uses_legacy_child_terminal_without_callable_scope() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
@@ -59,7 +57,7 @@ fn compatibility_loop_uses_legacy_child_terminal_without_callable_scope() {
             CallableMainMaterializationPolicyV1::Omitted,
             NormalRuntimeInputSnapshotV1::empty(),
         )
-        .expect_err("compatibility Loop must reach its named route_loop terminal");
+        .expect_err("compatibility Loop must be refused when the checked source route is unavailable");
     let error = rejected.error().to_string();
     assert!(
         error.contains("[raw-loop-child-entry/checked-source-route-unavailable]"),

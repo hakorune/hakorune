@@ -78,14 +78,14 @@ Audit rule (active運用):
   `LoopSimpleWhile` / `LoopCondBreak` replacement owners に置換済み。
 - removal boundary（`CLEAN-PLAN-V0-SHRINK-2`）の詳細ファイル群は、`CURRENT_TASK.md` の同名セッション記録を参照する。
 
-## Entry SSOT (router→planner→composer→lower)
+## Entry SSOT (source facts→planner→composer→lower)
 
-Single entry pipeline for loop routing (no bypass):
+Planner pipeline for selected source-backed Loops:
 
 Selected source Loop facts → `single_planner::try_build_source_outcome` → recipe/composer adopt path → plan lowerer. The former route-context wrapper is retired.
 
-Router: active module surface `crate::mir::builder::control_flow::joinir::route_entry::router`
-(physical path: `src/mir/builder/control_flow/joinir/route_entry/router.rs`)  
+Loop child entry: `src/mir/builder/raw_loop_child_port.rs`. A raw Loop without a checked source route receives `raw-loop-child-entry/checked-source-route-unavailable`.
+
 Planner: `src/mir/builder/control_flow/plan/single_planner/`  
 Composer (adopt ordering SSOT): `src/mir/builder/control_flow/plan/composer/`  
 Lower: `src/mir/builder/control_flow/plan/lowerer/`
@@ -108,9 +108,9 @@ Allowed public entry surfaces:
 
 | Surface | Role |
 | --- | --- |
-| `joinir::route_entry::router::route_loop` | main loop routing entry from `MirBuilder::cf_loop` |
-| `control_flow/lower/planner_compat.rs` | consumer-facing compatibility facade for planner/lowerer exports and router-only planner probes |
-| `route_entry/registry` | ordered recipe-first route table and ambiguity/candidate checks |
+| `raw_loop_child_port::RawLoopChildEntryPortV1::lower_loop` | Loop child entry from statement lowering |
+| `control_flow/lower/planner_compat.rs` | consumer-facing compatibility facade for planner/lowerer exports |
+| `route_entry/registry` | retained route-shape predicates for source-route diagnostics |
 | `plan/REGISTRY.md` | route-order, exception, and cleanup ledger |
 
 Accepted temporary exceptions:

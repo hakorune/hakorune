@@ -85,7 +85,6 @@ guard_require_files \
   "$NORMAL_PIPELINE" \
   "$NORMAL_ROOT_LIFECYCLE" \
   "$RAW_CHILD_PORT" \
-  \
   "$CONTROL_FLOW_ROOT" \
   "$STATEMENT_SURFACE" \
   "$LOCAL_DESCENT" \
