@@ -104,11 +104,6 @@ pub(in crate::mir) mod nested_predicate_source_handoff;
 pub(in crate::mir) mod pinned_text_backend_frame;
 pub(in crate::mir) mod pinned_text_residence_backend_carrier;
 pub(crate) mod pinned_text_residence_backend_projection;
-pub(in crate::mir) mod variable_accum_recurrence_projection;
-// Owner: selected package Loop handoff. Remove this temporary allowance when
-// the typed Home/Recipe consumer lands; review by 2026-10-17.
-#[cfg(test)]
-mod variable_accum_recurrence_projection_tests;
 #[cfg(test)]
 pub(crate) use nested_predicate_producer_tests::{
     nested_function as nested_function_for_p3_test, projection_for as nested_projection_for_test,

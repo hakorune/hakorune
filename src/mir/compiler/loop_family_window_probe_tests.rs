@@ -241,21 +241,6 @@ static box Main {
 }
 "#;
 
-const VARIABLE_ACCUM_RECURRENCE: &str = r#"
-static box Main {
-    main(): i64 {
-        local i: i64 = 0
-        local acc: i64 = 0
-        loop(i < 4) {
-            acc = acc + i
-            i = i + 1
-        }
-        print(acc)
-        return 0
-    }
-}
-"#;
-
 
 const NESTED_MINIMAL: &str = r#"
 static box Main {
@@ -323,11 +308,6 @@ static box Main {
 #[test]
 fn probe_accum_const_loop() {
     report("AccumConstLoop", ACCUM_CONST, "accum");
-}
-
-#[test]
-fn probe_variable_accum_recurrence() {
-    report("LoopSimpleWhile/VariableAccumRecurrence", VARIABLE_ACCUM_RECURRENCE, "main");
 }
 
 #[test]

@@ -72,7 +72,6 @@ mod source_binding;
 mod source_bound_core;
 mod typed_schema_v2;
 mod typed_schema_v2_structure;
-mod variable_accum_recurrence_producer;
 mod verify;
 
 #[cfg(test)]
@@ -276,9 +275,6 @@ pub(crate) use source_bound_core::{
 pub(crate) use typed_schema_v2::{
     LoopRecipeV2RejectReason, LoopRecipeVerifierV2, VerifiedLoopRecipeArtifactV2,
     VerifiedLoopRecipeV2,
-};
-pub(crate) use variable_accum_recurrence_producer::{
-    produce_variable_accum_recurrence_recipe_v1, VerifiedVariableAccumRecurrenceRecipeProductV1,
 };
 pub(crate) use verify::{
     verify_source_bound_recipe_v1, LoopRecipeVerifierV1, VerifiedLoopRecipeV1,

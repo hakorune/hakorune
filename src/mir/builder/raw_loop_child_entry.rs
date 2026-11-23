@@ -16,7 +16,6 @@ use super::normal_callable_loop_handoff::{
     CallableLoopBindingProjectionDispositionV1, CallableLoopOutsideReasonV1,
     CallableLoopReadyBodyOnlyProductV1,
 };
-use super::normal_callable_loop_source_facts::issue_callable_variable_accum_recurrence;
 use super::normal_callable_loop_source_facts::{
     CallableGenericLoopSourceFactsDispositionV1, CallableGenericLoopSourceFactsIssuerV1,
     CallableGenericLoopSourceFactsRouteErrorV1,
@@ -36,11 +35,6 @@ mod syntax_boundary;
 use syntax_boundary::verify_exact_loop_child_receipts;
 pub(in crate::mir::builder) use syntax_boundary::classify_raw_loop_child_entry_v1;
 
-#[cfg(test)]
-#[path = "raw_loop_child_entry/test_route_observation.rs"]
-pub(in crate::mir::builder) mod test_route_observation;
-#[path = "raw_loop_child_entry/variable_accum.rs"]
-mod variable_accum;
 #[path = "raw_loop_child_entry/loop_cond.rs"]
 mod loop_cond;
 
@@ -310,29 +304,6 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 return Err("[freeze:contract][callable-loop/loop-cond/source-facts-shape-mismatch]".into());
             }
         }
-        let variable_accum_recurrence = match source_input {
-            Some(_) if checked_source_selected => None,
-            Some(input) => issue_callable_variable_accum_recurrence(input, owner, parent_source)
-                .map_err(|error| {
-                    format!("[freeze:contract][callable-loop/variable-accum-recurrence] {error:?}")
-                })?,
-            None => None,
-        };
-        if variable_accum_recurrence.is_some() {
-            if let (Some(callable_ledger), Some(parent_site)) =
-                (callable_ledger, parent_source.site())
-            {
-                let state = callable_ledger.borrow();
-                if state.has_loop_break_source_candidate(parent_site)
-                    || state.has_loop_break_composite_source_candidate(parent_site)
-                {
-                    return Err(
-                        "[freeze:contract][callable-loop/variable-accum-recurrence/owner-overlap]"
-                            .to_owned(),
-                    );
-                }
-            }
-        }
         let (function_origin, source_kind, source_projection, source_items, call_free) =
             if let Some(callable_ledger) = callable_ledger {
                 let Some(parent_site) = parent_source.site() else {
@@ -375,9 +346,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                     // A retained checked source recipe owns the complete Loop
                     // body and its lifecycle prefixes. Its selected route must
                     // not be intercepted by a parallel loop-break adapter.
-                    let (direct, composite) = if variable_accum_recurrence.is_some() {
-                        (None, None)
-                    } else if checked_source_selected {
+                    let (direct, composite) = if checked_source_selected {
                         // The retained checked source recipe is already the
                         // exact owner for this Loop site. Retire any pre-issued
                         // LoopBreak adapter candidate for that same site, but
@@ -402,8 +371,8 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 _ => (None, None),
             };
         if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
-            eprintln!("[local-call-bindings] raw-loop-routes function={function_name} checked={checked_source_selected} variable-accum={} loop-break={} composite-break={}",
-                variable_accum_recurrence.is_some(), direct_candidate.is_some(), composite_loop_break_candidate.is_some());
+            eprintln!("[local-call-bindings] raw-loop-routes function={function_name} checked={checked_source_selected} loop-break={} composite-break={}",
+                direct_candidate.is_some(), composite_loop_break_candidate.is_some());
         }
         if direct_candidate.is_some() {
             return Err("[freeze:contract][callable-loop/facts-absent]".to_owned());
@@ -488,33 +457,9 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             )?;
         let retained = ledger_bridge::take_preissued_source_plan_v1(callable_ledger, owner, parent_source.site())?;
         if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
-            eprintln!("[local-call-bindings] generic-loop-issuer function={function_name} checked={checked_source_selected} variable-accum={}",
-                variable_accum_recurrence.is_some());
+            eprintln!("[local-call-bindings] generic-loop-issuer function={function_name} checked={checked_source_selected}");
         }
-        match CallableGenericLoopSourceFactsIssuerV1::issue_once(payload, variable_accum_recurrence, retained) {
-            CallableGenericLoopSourceFactsDispositionV1::VariableAccumRecurrenceReady(product) => {
-                #[cfg(test)]
-                test_route_observation::record_variable_accum();
-                let source_input = source_input.ok_or_else(|| {
-                    "[freeze:contract][callable-loop/variable-accum-recurrence/source-input-missing]"
-                        .to_owned()
-                })?;
-                let callable_ledger = callable_ledger.ok_or_else(|| {
-                    "[freeze:contract][callable-loop/variable-accum-recurrence/callable-ledger-missing]"
-                        .to_owned()
-                })?;
-                let parent_site = parent_source.site().ok_or_else(|| {
-                    "[freeze:contract][callable-loop/variable-accum-recurrence/parent-site-missing]"
-                        .to_owned()
-                })?;
-                variable_accum::lower(
-                    builder,
-                    source_input,
-                    crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(parent_site.clone()),
-                    product,
-                    callable_ledger,
-                )
-            }
+        match CallableGenericLoopSourceFactsIssuerV1::issue_once(payload, retained) {
             CallableGenericLoopSourceFactsDispositionV1::LoopCondReady(source_facts) => {
                 let source_ledger = callable_ledger.ok_or_else(|| {
                     "[freeze:contract][callable-loop/loop-cond/source-port-ledger-missing]"
@@ -650,8 +595,6 @@ fn lower_non_callable_loop_route_v1(
     source: &RawInvocationSourceContextV1,
     source_input: Option<crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>>,
 ) -> Result<ValueId, String> {
-    #[cfg(test)]
-    test_route_observation::record_non_callable_route();
     let site = source
         .site()
         .cloned()
@@ -668,6 +611,3 @@ fn lower_non_callable_loop_route_v1(
 #[cfg(test)]
 #[path = "raw_loop_child_entry/tests.rs"]
 mod tests;
-#[cfg(test)]
-#[path = "raw_loop_child_entry/variable_accum_tests.rs"]
-mod variable_accum_tests;

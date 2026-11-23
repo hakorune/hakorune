@@ -81,12 +81,6 @@ fn all_declined_nineteen_row_set_seals() {
 #[test]
 fn attested_backed_routes_seal() {
     for (route, backing) in [
-        (
-            LoopRouteId::LoopSimpleWhile,
-            LoopRouteRecipeBackingV1::PortableProducer(
-                LoopRecipeProducerIdV1::VariableAccumRecurrenceV1,
-            ),
-        ),
         (LoopRouteId::ScanWithInit, LoopRouteRecipeBackingV1::ScanWithInitV2),
         (
             LoopRouteId::AccumConstLoop,

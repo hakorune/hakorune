@@ -18,8 +18,6 @@ mod s6c_exit_tail;
 mod s6c_scan_with_init;
 mod selected_demand;
 mod types;
-mod variable_accum_recurrence;
-mod variable_accum_recurrence_validation;
 
 pub(crate) use resolved_source_adapter::{
     bind_resolved_loop_root_v1, bind_resolved_loop_source_forest_v1, LoopRootSourceBindingRejectV1,
@@ -88,20 +86,6 @@ pub(crate) use selected_demand::{
 pub(crate) use types::{
     DirectAccumObservedShapeV1, DirectAccumStructuralShapeV1, DirectAccumUpdateShapeV1,
 };
-pub(crate) use variable_accum_recurrence::{
-    issue_variable_accum_recurrence_facts_v1, VariableAccumRecurrenceAccumulatorUpdateV1,
-    VariableAccumRecurrenceBindingObservationV1, VariableAccumRecurrenceBindingRoleV1,
-    VariableAccumRecurrenceConditionObservationV1, VariableAccumRecurrenceConditionOperatorV1,
-    VariableAccumRecurrenceCoverageV1, VariableAccumRecurrenceFactsIssueV1,
-    VariableAccumRecurrenceInductionStepV1, VariableAccumRecurrenceInputObservationV1,
-    VariableAccumRecurrenceInputRoleV1, VariableAccumRecurrenceObservationCoverageV1,
-    VariableAccumRecurrenceSourceAttemptOutcomeV1, VariableAccumRecurrenceSourceDeclineV1,
-    VariableAccumRecurrenceSourceIdentityV1, VariableAccumRecurrenceSourceRejectV1,
-    VariableAccumRecurrenceSourceRoleV1, VariableAccumRecurrenceSourceUnresolvedV1,
-    VariableAccumRecurrenceValueClassV1, VerifiedVariableAccumRecurrenceFactsV1,
-    VerifiedVariableAccumRecurrenceSourceAttemptV1,
-};
-pub(crate) use variable_accum_recurrence_validation::source_coherence_is_exact;
 
 #[cfg(test)]
 pub(crate) use selected_demand::verified_loop_structural_facts_for_test_with_frame;
