@@ -130,20 +130,8 @@ pub(crate) fn qualify_print_expression_v1<E>(
         print_frame: Some(frame),
         ..HomeExpressionPlanV1::for_source(Rc::clone(&source))
     };
-    let Some(candidate) = candidate.with_source_field_requirements(&fields) else {
-        return Ok(None);
-    };
-    if !can_install(&candidate) {
-        return Ok(None);
-    }
-    if !field_batch(
-        &fields,
-        super::super::LocalFieldReadDemandV1::SourceExpression {
-            probe: false,
-            plan: source,
-        },
-    )? {
-        return Ok(None);
-    }
-    Ok(Some(candidate))
+    Ok(
+        ExpressionPlanInstallationV1::with_fields(candidate, &fields, can_install, field_batch)?
+            .ok(),
+    )
 }
