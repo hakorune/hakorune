@@ -48,8 +48,6 @@ mod main_root;
 mod ordinary_new;
 #[path = "normal_callable_semantic_loan_port/source_scope.rs"]
 mod source_scope;
-#[path = "normal_callable_semantic_loan_port/static_i64_entry.rs"]
-mod static_i64_entry;
 use source_scope::with_selected_source_scope;
 
 pub(super) use canonical_route::{

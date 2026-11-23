@@ -47,10 +47,6 @@ pub(in crate::mir) use normal_callable_loop_source_facts::{
     VerifiedCallableLoopBreakCompositeSourceFactsV1, VerifiedCallableLoopBreakSourceCandidateV1,
     VerifiedCallableLoopBreakSourceFactsV1,
 };
-pub(in crate::mir) use normal_callable_loop_source_facts::{
-    produce_static_i64_loop_semantic_v2, VerifiedStaticI64LoopHomeSourceV2,
-    VerifiedStaticI64LoopSemanticV2,
-};
 mod normal_callable_loop_source_port; // source-aware callable-loop expression capability
 pub(in crate::mir) use normal_callable_loop_source_facts::{
     issue_preissued_callable_loop_source_plan_v1, PreissuedCallableLoopSourcePlanV1,
@@ -318,9 +314,6 @@ mod raw_expansion_receipt_ledger_p0; // ROUTEINV-P0b-RAWLEDGER-P0 proof matrix
 mod raw_expansion_receipt_ledger_tests; // ROUTEINV-P0b-RAWLEDGER-S0 fixtures
 mod raw_expression_dispatch; // single raw AST expression dispatcher
 mod raw_loop_child_entry; // LOOPBRIDGE0-S0 pure raw Loop child-entry quarantine
-#[cfg(test)]
-pub(in crate::mir) use raw_loop_child_entry::take_at_function_entry_v2;
-pub(in crate::mir) use raw_loop_child_entry::StaticI64LoopFunctionEntryV2;
 mod raw_loop_child_port; // single located-source Loop child-entry boundary
 mod raw_root_completion; // CUT0-I0-ROOT0-RAW0 retained raw root witness
 mod raw_root_completion_preflight; // ROOT-RETENTION0-PREFLIGHT borrowed owner checks

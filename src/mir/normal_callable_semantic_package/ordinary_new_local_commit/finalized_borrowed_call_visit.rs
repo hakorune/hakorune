@@ -1,17 +1,16 @@
 //! Existing retained call packets, lent without changing their source authority.
 use super::*;
 use crate::mir::normal_callable_semantic_package::{
-    CallValidationContextV1, PreparedBorrowedFormalActualV1, PreparedLoopStaticBodyDetachedPacketV1,
+    CallValidationContextV1, PreparedBorrowedFormalActualV1,
 };
 use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
 use crate::mir::MirModule;
 use std::collections::{BTreeMap, BTreeSet};
 
-/// Transport view only: a detached LoopBody is never a Home lexical packet.
+/// Borrow the transport view of the retained original Call.
 #[derive(Clone, Copy)]
 pub(in crate::mir) enum FinalizedBorrowedCallPacketV1<'source> {
     Lexical(&'source EmittedLexicalCallProjectionV1),
-    LoopBody(&'source PreparedLoopStaticBodyDetachedPacketV1),
     ProviderArgument(&'source crate::mir::normal_callable_semantic_package::PreparedProviderStaticArgumentV1),
 }
 
@@ -19,7 +18,6 @@ impl<'source> FinalizedBorrowedCallPacketV1<'source> {
     pub(in crate::mir) fn call_site(self) -> &'source OwnedExprSiteV1 {
         match self {
             Self::Lexical(packet) => packet.call_site(),
-            Self::LoopBody(packet) => packet.source_site(),
             Self::ProviderArgument(packet) => packet.incoming().call_site(),
         }
     }
@@ -27,7 +25,6 @@ impl<'source> FinalizedBorrowedCallPacketV1<'source> {
     pub(in crate::mir) fn target(self) -> &'source CanonicalSameModuleCallableKeyV1 {
         match self {
             Self::Lexical(packet) => packet.original_source().target(),
-            Self::LoopBody(packet) => packet.original_source().target(),
             Self::ProviderArgument(packet) => packet.incoming().target(),
         }
     }
@@ -35,7 +32,6 @@ impl<'source> FinalizedBorrowedCallPacketV1<'source> {
     pub(in crate::mir) fn callee_owner(self) -> FunctionOwnerIdV1 {
         match self {
             Self::Lexical(packet) => packet.original_source().callee_owner(),
-            Self::LoopBody(packet) => packet.original_source().callee_owner(),
             Self::ProviderArgument(packet) => packet.incoming().callee_owner(),
         }
     }
@@ -44,10 +40,6 @@ impl<'source> FinalizedBorrowedCallPacketV1<'source> {
     pub(in crate::mir) fn result(self) -> Option<crate::mir::instruction::InvokeCallResultKind> {
         match self {
             Self::Lexical(packet) => packet.original_source().result(),
-            Self::LoopBody(packet) if packet.corroborates_retained_scalar() => {
-                Some(crate::mir::instruction::InvokeCallResultKind::I64)
-            }
-            Self::LoopBody(_) => None,
             Self::ProviderArgument(_) => Some(crate::mir::instruction::InvokeCallResultKind::I64),
         }
     }
@@ -57,7 +49,7 @@ impl<'source> FinalizedBorrowedCallPacketV1<'source> {
     ) -> Result<Option<crate::mir::instruction::StringInvokeOperand>, String> {
         match self {
             Self::Lexical(packet) => packet.borrowed_computed_argument_operand_v1(ordinal, context),
-            Self::LoopBody(_) | Self::ProviderArgument(_) => Ok(None),
+            Self::ProviderArgument(_) => Ok(None),
         }
     }
 
@@ -66,7 +58,7 @@ impl<'source> FinalizedBorrowedCallPacketV1<'source> {
             Self::Lexical(_) => arguments
                 .iter()
                 .any(|argument| matches!(argument, LocalCallArgumentV1::BorrowedActual { .. })),
-            Self::LoopBody(_) | Self::ProviderArgument(_) => true,
+            Self::ProviderArgument(_) => true,
         }
     }
 }
@@ -386,16 +378,6 @@ impl FinalizedRootSourceHandoffV1 {
             FinalizedBorrowedCallPacketV1::ProviderArgument(packet) => {
                 self.ledger.borrowed_provider_packet_actuals_v1(packet).map(Some)
             }
-            FinalizedBorrowedCallPacketV1::LoopBody(packet) => {
-                let retained = self
-                    .loop_body_calls
-                    .get(packet.source_site())
-                    .ok_or_else(|| freeze("finished-loop-body/retained-source-missing"))?;
-                if !std::ptr::eq(retained, packet) || !retained.corroborates_retained_scalar() {
-                    return Err(freeze("finished-loop-body/retained-source-drift"));
-                }
-                Ok(Some(std::slice::from_ref(retained.scalar_actual())))
-            }
         }
     }
 
@@ -481,23 +463,6 @@ impl FinalizedRootSourceHandoffV1 {
                 )
             },
         )?;
-        for (site, packet) in &self.loop_body_calls {
-            let (caller, coordinate) = self
-                .ledger
-                .finished_loop_body_call_producer_v1(site, packet, module)?;
-            if !sites.insert(site.clone())
-                || !coordinates.insert((caller.signature.name.clone(), coordinate))
-            {
-                return Err(freeze("final-borrowed-call/duplicate"));
-            }
-            visit(
-                FinalizedBorrowedCallPacketV1::LoopBody(packet),
-                &[],
-                caller,
-                coordinate,
-                &[],
-            )?;
-        }
         for (key, validation) in &self.construction {
             let symbol = module.canonical_callable_definition_symbol(key)
                 .ok_or_else(|| freeze("final-provider/definition-missing"))?;

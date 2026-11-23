@@ -219,16 +219,6 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                 validate_selected_cataloged_input(&input)?;
                 validate_selected_signature_loan(&input, &signature)?;
                 let (selected, admission, _physical_header) = input.into_lowering_and_admission();
-                if static_i64_entry::collect_if_selected(
-                    builder,
-                    inner.module_port,
-                    &selected,
-                    &admission,
-                    &ordinary_new_claim_ledger,
-                    &signature,
-                )? {
-                    return Ok(());
-                }
                 let canonical_route = classify_canonical_callable_route(
                     selected.source(),
                     builder.comp_ctx.emit_debug_policy().generic_g0_policy_mode_v1(),

@@ -14,8 +14,6 @@ mod generic;
 mod loop_break;
 #[path = "normal_callable_loop_source_facts/loop_cond.rs"]
 mod loop_cond;
-#[path = "normal_callable_loop_source_facts/static_i64_v2.rs"]
-mod static_i64_v2;
 
 pub(in crate::mir) use composite::*;
 pub(in crate::mir::builder) use composite_physical::*;
@@ -24,4 +22,3 @@ pub(in crate::mir) use generic::{issue_preissued_callable_loop_source_plan_v1, P
 pub(in crate::mir) use loop_break::*;
 pub(in crate::mir::builder) use loop_cond::*;
 pub(in crate::mir) use loop_cond::{CompletedSourceLoopPhiPointsV2, PreparedSourceLoopPhiCompletionV2};
-pub(in crate::mir) use static_i64_v2::*;

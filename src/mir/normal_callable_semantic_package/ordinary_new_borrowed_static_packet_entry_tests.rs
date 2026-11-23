@@ -248,13 +248,34 @@ fn scalar_formal_forward_refuses_a_different_declared_abi() {
     let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source)
         .expect("wrong declared ABI remains a source-backed package");
     let ledger = &package.ordinary_new_claim_ledger;
-    let ingress = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
-    let outgoing = ingress.source_incoming.static_observations().values()
+    let ingress = ledger
+        .borrowed_formal_source
+        .as_ref()
+        .unwrap()
+        .as_ref()
+        .unwrap();
+    let outgoing = ingress
+        .source_incoming
+        .static_observations()
+        .values()
         .filter_map(|row| row.as_ref().ok())
         .find(|row| row.caller().name() == "good_size_usize" && row.target().name() == "good_size")
         .expect("original outgoing call remains observable");
-    assert!(ledger.selected_static_local_source_v1(outgoing.call_site()).unwrap().is_none());
-    assert!(ledger.borrowed_static_packet_actuals_v1(outgoing).is_err());
+    if let Some(selected) = ledger
+        .selected_static_local_source_v1(outgoing.call_site())
+        .unwrap()
+    {
+        assert!(
+            Rc::ptr_eq(&selected, outgoing),
+            "source-only route cannot substitute an ABI or call"
+        );
+    }
+    let executable = format!("{changed}\nstatic box Main {{ main() {{ local a = SizeClassBox.good_size_usize(33) print(a) return 0 }} }}");
+    let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+        &executable,
+        crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
+    ).err().expect("the wrong declared ABI must not gain executable forwarding");
+    assert!(format!("{error:?}").contains("borrowed-static/selected-forwarded-actual-unavailable"));
 }
 
 #[test]

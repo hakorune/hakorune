@@ -43,62 +43,64 @@ fn formal(package: &Package, class: &str, name: &str) -> BindingRefV1 {
 const SOURCE: &str = "static box Layout { pick(p) { return 0 } } box Heap { lookup(size) { local k = Layout.pick(size) return 0 } } static box Main { main() { local heap = new Heap() local a = heap.lookup(7) local b = Layout.pick(8) return 0 } }";
 
 #[test]
-fn current_owner_if_ge_zero_keeps_one_source_call_without_opening_transport() {
+fn current_owner_comparison_keeps_original_source_without_opening_transport() {
     use crate::mir::resolved_semantics::home_new_prefix::{
         LocalCallArgumentV1, LocalCallResultClassV1,
     };
     let source = |condition: &str| {
         format!("static box Layout {{ class_id(size) {{ return 0 }} accepts(size) {{ if {condition} {{ return true }} return false }} }} static box Main {{ main() {{ return 0 }} }}")
     };
-    let accepted = package(&source("me.class_id(size) >= 0"));
-    let original = ingress(&accepted)
-        .source_incoming
-        .static_observations()
-        .values()
-        .filter_map(|row| row.as_ref().ok())
-        .find(|row| row.target().name() == "class_id")
-        .expect("original CurrentOwner call");
-    let observed = accepted
-        .ordinary_new_claim_ledger
-        .local_call_for_owner(original.call_site().owner(), original.call_site().site())
-        .expect("selected Home source observation");
-    assert_eq!(observed.site(), original.call_site());
-    assert!(observed.is_expression_value());
-    assert_eq!(observed.result(), LocalCallResultClassV1::I64);
-    assert!(observed.prior_homes().is_empty());
-    assert!(matches!(observed.arguments(),
-        [LocalCallArgumentV1::BorrowedActual { ordinal: 0, site }]
-            if Some(site) == original.argument_sites().first()));
-    assert!(ingress(&accepted)
-        .source_incoming
-        .has_unsupported_static_context(original.callee_owner()));
-    assert!(ingress(&accepted)
-        .incoming
-        .iter()
-        .all(|row| row.callee != original.callee_owner()));
-
-    for rejected in [
+    for comparison in [
+        "me.class_id(size) >= 0",
         "me.class_id(size) >= 1",
         "me.class_id(size) <= 0",
         "0 >= me.class_id(size)",
-        "me.class_id(size) >= true",
     ] {
-        let candidate = package(&source(rejected));
-        let original = ingress(&candidate)
+        let checked = package(&source(comparison));
+        let ingress = ingress(&checked);
+        let original = ingress
             .source_incoming
             .static_observations()
             .values()
             .filter_map(|row| row.as_ref().ok())
             .find(|row| row.target().name() == "class_id")
-            .expect("rejected shape still has original call");
-        assert!(
-            candidate
-                .ordinary_new_claim_ledger
-                .local_call_for_owner(original.call_site().owner(), original.call_site().site())
-                .is_none(),
-            "{rejected}"
-        );
+            .expect("original CurrentOwner call");
+        let observed = checked
+            .ordinary_new_claim_ledger
+            .local_call_for_owner(original.call_site().owner(), original.call_site().site())
+            .expect(comparison);
+        assert_eq!(observed.site(), original.call_site());
+        assert!(observed.is_expression_value());
+        assert_eq!(observed.result(), LocalCallResultClassV1::I64);
+        assert!(observed.prior_homes().is_empty());
+        assert!(matches!(observed.arguments(),
+            [LocalCallArgumentV1::BorrowedActual { ordinal: 0, site }]
+                if Some(site) == original.argument_sites().first()));
+        assert!(ingress
+            .source_incoming
+            .has_unsupported_static_context(original.callee_owner()));
+        assert!(ingress
+            .incoming
+            .iter()
+            .all(|row| row.callee != original.callee_owner()));
     }
+
+    let mismatched = package(&source("me.class_id(size) >= true"));
+    let mismatched_ingress = ingress(&mismatched);
+    let original = mismatched_ingress
+        .source_incoming
+        .static_observations()
+        .values()
+        .filter_map(|row| row.as_ref().ok())
+        .find(|row| row.target().name() == "class_id")
+        .expect("comparison retains the original call inventory");
+    assert!(mismatched_ingress
+        .source_incoming
+        .has_unsupported_static_context(original.callee_owner()));
+    assert!(mismatched_ingress
+        .incoming
+        .iter()
+        .all(|row| row.callee != original.callee_owner()));
 
     // Opaque formal source spelling may carry Bool. This Home fact does not
     // assert an Integer payload or promote the retained SourceStatic phase.

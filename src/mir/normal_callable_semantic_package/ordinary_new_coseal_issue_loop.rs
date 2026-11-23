@@ -151,28 +151,11 @@ pub(super) fn retain_selected_loop_product_v1(
 pub(super) fn issue_selected_home_loop_loan_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     prestate: LoopI64PreStateRequestV1,
-    static_sites: &std::collections::BTreeSet<(FunctionOwnerIdV1, SourceStmtSiteV1)>,
-    static_products: &BTreeMap<
-        FunctionOwnerIdV1,
-        Result<crate::mir::builder::StaticI64LoopFunctionEntryV2, String>,
-    >,
     variable_rows: &mut SelectedLoopProductV1,
     source_core_calls: Option<&crate::mir::normal_callable_semantic_package::core_method_source::SourceCoreMethodCallRowsV1>,
     policy: crate::mir::builder::LoopFactsPolicyFrameV1,
 ) -> Option<crate::mir::resolved_semantics::home_new_prefix::SelectedLoopHomeLoanV1> {
     use crate::mir::resolved_semantics::home_new_prefix::SelectedLoopHomeLoanV1;
-    if static_sites.contains(&(prestate.owner(), prestate.site().clone())) {
-        let product = static_products.get(&prestate.owner())?.as_ref().ok()?;
-        let source = product.home_source();
-        if source.owner() != prestate.owner()
-            || source.loop_site() != prestate.site()
-            || !prestate.proves_integer(source.bin_binding())
-            || !prestate.proves_integer(source.n_binding())
-        {
-            return None;
-        }
-        return Some(SelectedLoopHomeLoanV1::StaticI64Search(source));
-    }
     if source_core_calls.is_some_and(|rows| {
         rows.values().any(|row| {
             row.contract().owner() == prestate.owner()
@@ -213,49 +196,6 @@ pub(super) fn issue_selected_home_loop_loan_v1(
         return Some(SelectedLoopHomeLoanV1::NoExitArrayAfter(home));
     }
     retain_selected_loop_product_v1(input, prestate, variable_rows, policy)
-}
-
-/// Lend the Home-issued early local return to the existing child retention.
-/// The selected V2 product fixes its source identity; the result claim fixes
-/// the public I64 class. This does not issue another terminal relation.
-pub(super) fn retain_static_i64_search_early_return_v1(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    caller: Option<&crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
-    claims: &crate::mir::normal_callable_semantic_package::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
-    products: &BTreeMap<
-        FunctionOwnerIdV1,
-        Result<crate::mir::builder::StaticI64LoopFunctionEntryV2, String>,
-    >,
-    relation: &crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1,
-) -> bool {
-    use crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1;
-    use crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1;
-    use crate::mir::resolved_semantics::{ResolvedLexicalRefV1, SourcePathSegmentV1, SourcePathV1};
-    let TerminalRelationV1::Scalar(scalar) = relation else {
-        return false;
-    };
-    let Some(caller) = caller else { return false };
-    let Some(product) = products
-        .get(&input.owner())
-        .and_then(|row| row.as_ref().ok())
-    else {
-        return false;
-    };
-    let roles = product.semantic().roles();
-    let value = SourcePathV1::from_node(roles.return_site.node())
-        .child(SourcePathSegmentV1::Value)
-        .expr();
-    let entry = product.semantic().source_calls().0;
-    scalar.owner() == input.owner()
-        && scalar.return_site() == &roles.return_site
-        && scalar.value_site() == &value
-        && input.function().variable_ref(&value)
-            == Some(ResolvedLexicalRefV1::Local(roles.bin_binding))
-        && entry.original().caller() == caller
-        && matches!(
-            claims.result_for_key(caller),
-            Some(VerifiedCallableResultDispositionV1::ExactI64 { .. })
-        )
 }
 
 impl super::OrdinaryNewClaimLedgerV1 {

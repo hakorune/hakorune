@@ -13,43 +13,6 @@ pub(super) fn value(
     context: CallValidationContextV1<'_>,
 ) -> Result<ValueId, String> {
     let ledger = context.ledger();
-    if let CallPacketSourceLoanV1::SelectedStaticLoop {
-        packet,
-        observation,
-    } = row
-    {
-        let LexicalCallArgumentProjectionV1::SelectedCanonicalRead {
-            ordinal: observed,
-            site: observed_site,
-            read,
-        } = projection
-        else {
-            return Err(freeze("selected-static-packet/canonical-read-required"));
-        };
-        let (caller, call_site) = packet.publication_source();
-        let actual = packet.selected_forwarded_actual_for_call(caller, call_site)?;
-        let Source::Forwarded { binding, formal } = &actual.source else {
-            return Err(freeze("selected-static-packet/forwarded-source-required"));
-        };
-        if !packet.corroborates_local_call(observation)
-            || *observed != ordinal
-            || observed_site != site
-            || actual.ordinal != ordinal
-            || actual.site != *site
-            || actual.formal.owner() != row.callee_owner()
-            || read.owner() != owner
-            || read.binding() != *binding
-            || formal.owner() != owner
-            || packet
-                .original_source()
-                .argument_sites()
-                .get(ordinal as usize)
-                != Some(site)
-        {
-            return Err(freeze("selected-static-packet/canonical-source-drift"));
-        }
-        return Ok(read.physical_value());
-    }
     let actuals = row
         .borrowed_actuals_in_context(context)?
         .ok_or_else(|| freeze("lexical-i64/borrowed-actuals-missing"))?;

@@ -27,8 +27,6 @@ use std::rc::Rc;
 
 #[path = "ordinary_new_local_commit/physical_validation_scope.rs"]
 mod physical_validation_scope;
-pub(crate) use self::root_home::PendingRootHomeExitV1;
-pub(in crate::mir) use self::root_home::PendingStaticCallProjectionV1;
 pub(crate) use self::root_home::PreparedRootHomeGraphPlanV1;
 pub(crate) use self::root_home::PreparedRootHomeOrderV1;
 pub(crate) use self::root_home::PreparedRootLexicalCallBindingGroupV1;
@@ -236,8 +234,6 @@ pub(crate) struct FinalizedRootSourceHandoffV1 {
     local_calls:
         std::collections::BTreeMap<FunctionOwnerIdV1, Vec<RootLifecyclePrefixBindingGroupV1>>,
     // The selected LoopBody source packet has no Home local-call observation.
-    loop_body_calls:
-        std::collections::BTreeMap<OwnedExprSiteV1, super::PreparedLoopStaticBodyDetachedPacketV1>,
     construction: crate::mir::builder::RetainedConstructionDrafts,
 }
 
@@ -694,9 +690,6 @@ mod call_received;
 use call_received::{
     CallReceivedCommitV1, CallReceivedPhase, CallReceivedProgress, CallReceivedReleaseV1,
 };
-#[path = "ordinary_new_local_commit/pending_selected_static_loop.rs"]
-mod pending_selected_static_loop;
-pub(crate) use pending_selected_static_loop::PendingSelectedStaticLoopViewV1;
 #[path = "ordinary_new_local_commit/emission_prepare.rs"]
 mod emission_prepare;
 pub(crate) use emission_prepare::{
@@ -738,7 +731,7 @@ pub(in crate::mir) use root_home::EmittedDynamicInvocationCallProjectionV1;
 pub(in crate::mir) use root_home::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
     LexicalCallArgumentProjectionV1, PreparedLexicalCallProjectionV1,
-    PreparedSelectedStaticLoopCallProjectionV1, StoredReceiverFaultV1, StoredReceiverReadV1,
+StoredReceiverFaultV1, StoredReceiverReadV1,
     TakenObjectArgumentOriginV1,
 };
 

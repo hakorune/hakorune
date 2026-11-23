@@ -483,7 +483,7 @@ fn installed_home_precedes_checked_and_failed_validation_preserves_progress() {
         .all(|row| row.is_complete()));
     // Revalidation keeps checking the graph even when its progress is Checked.
     assert!(ledger
-        .validate_new_emissions(fixture.owner, &bad, None, None)
+        .validate_new_emissions(fixture.owner, &bad, None)
         .is_err());
 }
 

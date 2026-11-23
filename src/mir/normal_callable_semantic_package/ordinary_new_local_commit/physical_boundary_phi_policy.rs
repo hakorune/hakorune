@@ -14,7 +14,6 @@ impl PhysicalBoundary {
         copies: &[(ValueId, ValueId)],
         borrowed_copies: &Bindings,
         source_phi_roles: &SourcePhiRoles,
-        selected_body_block: Option<BasicBlockId>,
     ) -> Result<Self, String> {
         Self::capture_with_phi_policy(
             function,
@@ -22,7 +21,6 @@ impl PhysicalBoundary {
             copies,
             borrowed_copies,
             source_phi_roles,
-            selected_body_block,
         )
     }
 }
@@ -32,7 +30,6 @@ pub(super) fn validate_recorded_phi(
     id: BasicBlockId,
     block: &crate::mir::BasicBlock,
     source_phi_roles: &SourcePhiRoles,
-    selected_body_block: Option<BasicBlockId>,
 ) -> Result<(), String> {
     let mut saw_non_phi = false;
     let mut phis = Vec::new();
@@ -61,9 +58,7 @@ pub(super) fn validate_recorded_phi(
         }
     }
     if !phis.is_empty() && predecessors.len() < 2 {
-        if predecessors.len() != 1
-            || (selected_body_block != Some(id) && !source_phi_roles.contains_key(&id))
-        {
+        if predecessors.len() != 1 || !source_phi_roles.contains_key(&id) {
             return Err(fault("phi-in-recorded-block"));
         }
         let predecessor = predecessors[0];
@@ -90,11 +85,11 @@ pub(super) fn validate_recorded_phi(
 impl PhysicalBoundary {
     pub(in super::super) fn capture_with_source_loop_roles_v2(
         function: &MirFunction, bindings: &Bindings, copies: &[(ValueId, ValueId)], borrowed_copies: &Bindings,
-        phi_roles: &SourcePhiRoles, selected_body: Option<BasicBlockId>,
+        phi_roles: &SourcePhiRoles,
         roles: &[std::rc::Rc<crate::mir::builder::VerifiedLoopCondAfterPhysicalRoleV1>],
         read_cones: &Bindings,
     ) -> Result<Self, String> {
-        Self::capture_with_phi_policy_and_source_loops(function, bindings, copies, borrowed_copies, phi_roles, selected_body, roles, read_cones)
+        Self::capture_with_phi_policy_and_source_loops(function, bindings, copies, borrowed_copies, phi_roles, roles, read_cones)
     }
 }
 pub(super) fn source_loop_feedback_v2(function: &MirFunction, nodes: &BTreeMap<BasicBlockId, Node>,

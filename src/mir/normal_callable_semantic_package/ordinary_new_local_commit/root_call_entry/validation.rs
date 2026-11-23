@@ -127,13 +127,6 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 packet.call_with_ledger(owner, &source_arguments, self)?
             }
-            RootCallDispositionV1::PendingStatic(pending) => {
-                self.validate_pending_static_terminal_packet(owner, exit, pending)?;
-                let mut recorded = arguments.clone();
-                recorded.extend([invoke.clone(), projection.clone()]);
-                pending.validate_recorded(&recorded)?;
-                pending.expected_call().clone()
-            }
             _ => {
                 let terminal = source
                     .legacy_terminal()
@@ -141,7 +134,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 let row_argument_count = match row {
                     RootCallDispositionV1::Direct(row) => row.argument_sites().len(),
                     RootCallDispositionV1::Instance(row) => row.argument_sites().len(),
-                    RootCallDispositionV1::Lexical(_) | RootCallDispositionV1::PendingStatic(_) => {
+                    RootCallDispositionV1::Lexical(_) => {
                         return Err(freeze("lexical-terminal/strict-row"))
                     }
                 };
@@ -218,7 +211,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         .map_err(|_| freeze("direct-source-required"))?
                         .materialize_call_typed(None, typed)
                         .map_err(|_| freeze("call-projection-failed"))?,
-                    RootCallDispositionV1::Lexical(_) | RootCallDispositionV1::PendingStatic(_) => {
+                    RootCallDispositionV1::Lexical(_) => {
                         return Err(freeze("lexical-terminal/strict-row"))
                     }
                     RootCallDispositionV1::Instance(row) => {

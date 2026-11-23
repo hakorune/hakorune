@@ -238,7 +238,7 @@ impl FinalizedRootSourceHandoffV1 {
             }
             // Cheap source/actual and final-producer correspondence refuses
             // drift before recursively checking the unchanged callee seals.
-            self.ledger.validate_call_received_emission_in_context_v1(original.site(), function, Some(finishing), None,
+            self.ledger.validate_call_received_emission_in_context_v1(original.site(), function, Some(finishing),
                 CallValidationContextV1::Finalized(self))?;
             read(result_kind, &field_supports).map(Some)
         })

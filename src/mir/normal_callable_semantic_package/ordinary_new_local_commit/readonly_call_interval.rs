@@ -93,8 +93,7 @@ impl FinalizedRootSourceHandoffV1 {
             edges.push((caller.signature.name.clone(), at, original.target().clone(), original.callee_owner()));
             let loan = match original {
                 CallPacketSourceLoanV1::Instance(row) => row.source_target().borrowed_nullable_local_source(),
-                CallPacketSourceLoanV1::Static { observation, .. }
-                    | CallPacketSourceLoanV1::SelectedStaticLoop { observation, .. } => observation.borrowed_nullable(),
+                CallPacketSourceLoanV1::Static { observation, .. } => observation.borrowed_nullable(),
             };
             if let Some(loan) = loan.filter(|loan| loan.is_declared_read_v1()) {
                 let normal = packet.outer_bindings()?.1.clone();

@@ -40,12 +40,6 @@ mod loop_cond;
 
 #[path = "raw_loop_child_entry/ledger_bridge.rs"]
 mod ledger_bridge;
-#[path = "raw_loop_child_entry/static_i64_v2.rs"]
-mod static_i64_v2;
-pub(in crate::mir) use static_i64_v2::{
-    take_at_function_entry_v2, StaticI64LoopFunctionEntryV2,
-    StaticI64LoopTaggedPhysicalFormalV2,
-};
 
 /// Exact child-entry result for one raw Loop syntax surface.
 ///
@@ -283,17 +277,6 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             }
         };
         let owner = binding_product.owner();
-        if let (Some(input), Some(ledger), Some(loop_site)) =
-            (source_input, callable_ledger, parent_source.site())
-        {
-            if let Some(claims) = ledger.borrow().ordinary_new_claim_ledger() {
-                static_i64_v2::stop_after_selected_semantic_product(
-                    input,
-                    claims,
-                    &crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(loop_site.clone()),
-                )?;
-            }
-        }
         let checked_source_selected = ledger_bridge::has_checked_source_selection_v2(callable_ledger, owner, parent_source.site())?;
         if checked_source_selected {
             let input = source_input.filter(|input| input.owner() == owner)

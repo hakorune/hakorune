@@ -423,7 +423,6 @@ fn root_ordered_structure_accepts_fault_only_release_without_fixed_count() {
         &[],
         &[],
         &roles,
-        None,
     )
     .expect("independent physical owner still requires the exact source prefix role");
 }

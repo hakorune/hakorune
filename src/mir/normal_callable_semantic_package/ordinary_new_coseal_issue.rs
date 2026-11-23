@@ -188,23 +188,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         &array_field_get_candidates,
         &mut owned_field_children,
     )?;
-    let mut loop_static_source_loans =
-        super::loop_static_source_loan::issue_loop_static_source_loans_v1(
-            batch,
-            selected,
-            parameter_contracts,
-            static_call_claims,
-            borrowed_formal_source.as_ref().ok(),
-        )?;
     if let Ok(source) = &mut borrowed_formal_source {
-        source.select_static_tagged_sources_v1(|formal| {
-            loop_static_source_loans
-                .tagged_rows
-                .values()
-                .any(|row| row.as_ref().is_ok_and(|loan| loan.formal() == formal))
-        });
+        source.select_static_tagged_sources_v1();
     }
-    let mut preissued_static_i64_products = BTreeMap::new();
     let typed_static_walk_owners = walk_triggers::typed_static_walk_owners_v1(
         &borrowed_formal_source,
         selected,
@@ -437,6 +423,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 requests.require(ScanRequestV1::ValueExpression,
                     walk_triggers::has_dynamic_return_v1(input, dynamic_source_calls)
                         || walk_triggers::has_explicit_copy_source_v1(input)
+                        || walk_triggers::requires_scalar_operation_walk_v1(input)
                         || borrowed_formal_source.as_ref().is_ok_and(|source| source.requires_expression_walk_v1(input, is_app_main)
                             || source.original_dynamic_return_request_v1(owner)));
                 requests.require(ScanRequestV1::TextReturn, borrowed_formal_source.as_ref().is_ok_and(|source| source.requires_text_return_walk_v1(input, &borrowed_i64_results)));
@@ -491,16 +478,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     let mut argument_staged_reads = BTreeMap::new();
                     let mut local_staged_reads = BTreeMap::new();
                     let base_completion = crate::mir::resolved_control_flow::verify_function_completion_v1(input);
-                    if let Ok(ref completion) = base_completion {
-                        if loop_static_source_loans.selected_sites.iter().any(|(owner, _)| *owner == input.owner()) {
-                            let product = super::loop_static_preissue::issue_selected_product_v2(
-                                input, completion, &mut loop_static_source_loans,
-                            ).and_then(|row| row.ok_or_else(|| "[freeze:contract][callable-loop/static-i64-v2/source-unavailable]".to_owned()));
-                            if preissued_static_i64_products.insert(input.owner(), product).is_some() {
-                                return Err(OrdinaryNewCoSealIssueV1::BatchLoan);
-                            }
-                        }
-                    }
                     let local_route_sources = local_route::LocalRouteSourcesV1 {
                         owner_loan, selected, batch, parameter_contracts,
                         callable_result_classes: &callable_result_classes,
@@ -558,8 +535,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             instance_constructors, batch.ordinary_box_coverage(),
                         ), &mut |prestate| {
                             let loan = loop_issue::issue_selected_home_loop_loan_v1(
-                                input, prestate, &loop_static_source_loans.selected_sites,
-                                &preissued_static_i64_products, &mut selected_loop_products, source_core_calls, loop_policy,
+                                input, prestate, &mut selected_loop_products, source_core_calls, loop_policy,
                             );
                             Ok(loan)
                         }, &mut |site| Ok(callable_result_classes.object_return_qualification(site)))? {
@@ -614,10 +590,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                         // exit later requires the same proof (`scalar-result-source-missing`).
                                         || matches!(row, TerminalRelationV1::Call(call)
                                             if call.owner() == owner && call.source_scalar().is_some_and(|loan|
-                                                borrowed_i64_results.get(&loan.source().callee_owner()).is_some_and(|proof| proof.is_ok())))
-                                        || loop_issue::retain_static_i64_search_early_return_v1(
-                                            input, static_caller_key.as_ref(), static_call_claims,
-                                            &preissued_static_i64_products, row))
+                                                borrowed_i64_results.get(&loan.source().callee_owner()).is_some_and(|proof| proof.is_ok()))))
                                 })?;
                                 // An original nested-call walk may lend actual
                                 // source facts without selecting an executable
@@ -743,7 +716,5 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     ledger.owned_field_children = owned_field_children;
     ledger.terminal_relation = std::rc::Rc::new(root_terminal_relation);
     ledger.retain_app_main_source_v1(app_main_source, batch, parameter_contracts)?;
-    ledger.install_loop_static_source_loans_v1(loop_static_source_loans);
-    *ledger.preissued_static_i64_products.get_mut() = preissued_static_i64_products;
     Ok((ledger, seeds.finish()))
 }

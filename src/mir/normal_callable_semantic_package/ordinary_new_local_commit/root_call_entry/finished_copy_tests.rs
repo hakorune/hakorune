@@ -280,7 +280,6 @@ fn finalized_call_visitor_lends_original_borrowed_discard_with_synthetic_physica
         terminals: ledger.terminal_relation.as_ref().clone(),
         call_entries: Default::default(),
         local_calls: [(owner, vec![group])].into(),
-        loop_body_calls: Default::default(),
         construction: Vec::new(),
     };
     let child_symbol = physical.signature.name.clone();
@@ -392,7 +391,6 @@ fn empty_terminal_root_source_keeps_verified_owner_without_abi() {
         terminals: Default::default(),
         call_entries: Default::default(),
         local_calls: [(owner, vec![group])].into(),
-        loop_body_calls: Default::default(),
         construction: Vec::new(),
     };
     assert_eq!(source.owner(), owner);

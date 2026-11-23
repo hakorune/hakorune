@@ -398,16 +398,14 @@ impl OrdinaryNewClaimLedgerV1 {
         original: &Rc<StaticIncomingSourceV1>,
         expression_observation: Option<&LocalCallObservationV1>,
     ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
-        if let Some(rows) = self.checked_static_input_packet_rows_v1(original)? {
-            if !rows.has_static_loop_input_v1() {
-                self.corroborate_static_packet_arguments_v1(
-                    original,
-                    expression_observation,
-                    &rows.ordered_arguments,
-                    "static-input/local-source-missing",
-                    "static-input/ordered-arguments-drift",
-                )?;
-            }
+        if let Some(rows) = self.checked_completed_static_expression_input_v1(original)? {
+            self.corroborate_static_packet_arguments_v1(
+                original,
+                expression_observation,
+                &rows.ordered_arguments,
+                "static-input/local-source-missing",
+                "static-input/ordered-arguments-drift",
+            )?;
             return Ok(Some(rows.opaque_actuals.as_ref()));
         }
         if original.qualified_scalar_result_v1().is_some() {
@@ -427,12 +425,27 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Ok(Some(&[]));
             }
         }
+        if let Some(observation) = expression_observation.filter(|_| original.is_current_owner_i64_source_v1()) {
+            if let Some(actuals) = self.with_checked_static_scalar_packet_actuals_v1(
+                original,
+                |arguments, _| {
+                    self.corroborate_static_packet_arguments_v1(
+                        original, Some(observation), arguments,
+                        "static-scalar/local-source-missing",
+                        "static-scalar/packet-ordered-arguments-drift",
+                    )?;
+                    Ok(true)
+                },
+            )? {
+                return Ok(Some(actuals));
+            }
+        }
         // A nested call whose every formal is an exact i64 carries no borrowed
         // handle: its arguments live in the retained argument frame, so the
         // packet has no opaque actuals. Only an expression-origin call, whose
         // observation the caller already holds, takes this route.
         if let Some(observation) = expression_observation {
-            if original.qualified_scalar_result_v1().is_some()
+            if (original.qualified_scalar_result_v1().is_some() || original.is_current_owner_i64_source_v1())
                 && !original.parameters().is_empty()
                 && original.parameters().iter().all(|formal| {
                     formal.kind

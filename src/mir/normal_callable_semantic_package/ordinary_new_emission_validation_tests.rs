@@ -168,7 +168,7 @@ fn ordinary_new_finalizer_rejects_literal_order_and_birth_call_drift() {
     let fixture = fixture();
     fixture
         .ledger
-        .validate_new_emissions(fixture.owner, &fixture.function, None, None)
+        .validate_new_emissions(fixture.owner, &fixture.function, None)
         .expect("fixture validates");
 
     let mut literal = fixture.function.clone();
@@ -186,7 +186,7 @@ fn ordinary_new_finalizer_rejects_literal_order_and_birth_call_drift() {
     }
     assert!(fixture
         .ledger
-        .validate_new_emissions(fixture.owner, &literal, None, None)
+        .validate_new_emissions(fixture.owner, &literal, None)
         .unwrap_err()
         .contains("argument-literal-drift"));
 
@@ -206,7 +206,7 @@ fn ordinary_new_finalizer_rejects_literal_order_and_birth_call_drift() {
     birth_call.arguments.swap(0, 1);
     assert!(fixture
         .ledger
-        .validate_new_emissions(fixture.owner, &order, None, None)
+        .validate_new_emissions(fixture.owner, &order, None)
         .unwrap_err()
         .contains("argument-call-drift"));
 
@@ -226,7 +226,7 @@ fn ordinary_new_finalizer_rejects_literal_order_and_birth_call_drift() {
     birth_call.arguments = Box::new([]);
     assert!(fixture
         .ledger
-        .validate_new_emissions(fixture.owner, &call, None, None)
+        .validate_new_emissions(fixture.owner, &call, None)
         .unwrap_err()
         .contains("argument-call-drift"));
 }
@@ -258,7 +258,7 @@ fn ordinary_new_finalizer_rejects_residual_emission() {
         BasicBlockId::new(1),
     );
     assert!(ledger
-        .validate_new_emissions(owner, &function, None, None)
+        .validate_new_emissions(owner, &function, None)
         .unwrap_err()
         .contains("emission-residual"));
 }

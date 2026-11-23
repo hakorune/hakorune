@@ -454,7 +454,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        self.validate_new_emissions(owner, function, None, None)?;
+        self.validate_new_emissions(owner, function, None)?;
         for row in self
             .local_commits
             .borrow_mut()
@@ -480,85 +480,41 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        self.validate_child_emissions_with_pending(owner, function, None)?
+        self.prepare_child_physical_validation(owner, function)?
             .commit_after_collected();
         Ok(())
     }
 
-    /// Lend only the two source-checked Static Loop calls to the existing
-    /// finished-child boundary. No lexical Home row or publication is issued.
-    pub(in crate::mir) fn validate_selected_static_loop_child_emissions(
+    fn prepare_child_physical_validation(
         &self,
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
-        pending: &super::PendingSelectedStaticLoopViewV1<'_, '_>,
-    ) -> Result<PendingChildPhysicalValidationV1<'_>, String> {
-        let entry = pending.entry();
-        let body = pending.body();
-        if entry.source_site().owner() != owner
-            || body.source_site().owner() != owner
-            || entry.source_site() == body.source_site()
-        {
-            return Err(freeze("selected-static-loop-child-source-drift"));
-        }
-        self.validate_child_emissions_with_pending(owner, function, Some(pending))
-    }
-
-    fn validate_child_emissions_with_pending(
-        &self,
-        owner: FunctionOwnerIdV1,
-        function: &MirFunction,
-        pending: Option<&super::PendingSelectedStaticLoopViewV1<'_, '_>>,
     ) -> Result<PendingChildPhysicalValidationV1<'_>, String> {
         if self.child_physical_validation.borrow().contains_key(&owner) {
             return Err(freeze("duplicate-child-physical-validation"));
         }
         self.seal_physical_observations_v1(owner)?;
-        if let Some(view) = pending {
-            self.validate_new_emissions(owner, function, None, Some(view))?;
-        } else {
-            self.validate_new_emissions(owner, function, None, None)?;
-        }
+        self.validate_new_emissions(owner, function, None)?;
         self.validate_field_reads(owner, function)?;
         self.validate_terminal_scalar_literal_return(owner, function)?;
 
-        let (bindings, selected_body_block) = if let Some(view) = pending {
-            self.validate_root_home_exit(owner, function, None, Some(view))?;
-            self.validate_root_cleanup_shape_with_pending(owner, function, view)?;
-            (
-                self.lifecycle_bindings_with_pending(owner, view)?,
-                Some(view.body().original_invoke_binding().0),
-            )
-        } else {
-            self.validate_root_home_exit(owner, function, None, None)?;
-            self.validate_root_cleanup_shape(owner, function)?;
-            (self.lifecycle_bindings(owner)?, None)
-        };
+        self.validate_root_home_exit(owner, function, None)?;
+        self.validate_root_cleanup_shape(owner, function)?;
+        let bindings = self.lifecycle_bindings(owner)?;
         let copies = self.source_local_copies(owner)?;
         let mut aliases = self.borrowed_ordinary_alias_bindings_v1(owner)?;
         aliases.extend(self.field_alias_copy_bindings_v1(owner)?);
-        let mut source_phi_roles: std::collections::BTreeMap<_, _> = self
+        let source_phi_roles: std::collections::BTreeMap<_, _> = self
             .recorded_loop_cond_after_blocks(owner, function, &bindings)?
             .into_iter()
             .map(|(block, phis)| (block, (phis, None)))
             .collect();
-        if let Some(view) = pending {
-            if let Some((normal, predecessor, phis)) = view.body().header_normal_phi_role() {
-                if source_phi_roles
-                    .insert(normal, (phis.into(), Some(predecessor)))
-                    .is_some()
-                {
-                    return Err(freeze("duplicate-source-phi-role"));
-                }
-            }
-        }
         let boundary = physical_boundary::PhysicalBoundary::capture_with_source_loop_roles_v2(
             function,
             &bindings,
             &copies,
             &aliases,
             &source_phi_roles,
-            selected_body_block,
             &self.recorded_source_loop_roles_v2(owner),
             &self.initializer_optional_bindings_v1(owner, function)?,
         )?;

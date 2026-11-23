@@ -298,23 +298,8 @@ impl LexicalCallArgumentProjectionV1 {
             | Self::TakenObjectArgument { .. }
             | Self::BorrowedLiteral { .. }
             | Self::BorrowedReadArgument { .. }
-            | Self::BorrowedRead { .. }
-            | Self::SelectedCanonicalRead { .. } => Ok(()),
+            | Self::BorrowedRead { .. } => Ok(()),
         }
-    }
-}
-
-impl PendingStaticCallProjectionV1 {
-    pub(in crate::mir) fn visit_i64_origins_v1(
-        &self,
-        visit: &mut dyn FnMut(
-            &crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
-        ) -> Result<(), String>,
-    ) -> Result<(), String> {
-        for argument in &self.prepared.arguments {
-            argument.visit_i64_origins_v1(visit)?;
-        }
-        Ok(())
     }
 }
 
@@ -334,7 +319,6 @@ impl crate::mir::normal_callable_semantic_package::RootCallDispositionV1 {
             }
             Self::Instance(_) => Ok(()), // this lane stores Integer literals only
             Self::Lexical(packet) => packet.visit_i64_origins_v1(visit),
-            Self::PendingStatic(packet) => packet.visit_i64_origins_v1(visit),
         }
     }
 }

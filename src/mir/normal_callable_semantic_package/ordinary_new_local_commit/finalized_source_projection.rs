@@ -239,42 +239,6 @@ impl FinalizedRootSourceHandoffV1 {
         emitted: &EmittedLexicalCallProjectionV1,
     ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
         let original = emitted.original_source();
-        if let CallPacketSourceLoanV1::SelectedStaticLoop {
-            packet,
-            observation,
-        } = original
-        {
-            if !packet.corroborates_local_call(observation)
-                || self
-                    .ledger
-                    .local_call_for_owner(observation.owner(), observation.site().site())
-                    != Some(observation)
-            {
-                return Err(freeze("selected-static-packet/canonical-source-drift"));
-            }
-            // The callback loan is short-lived. Reborrow its exact packet from
-            // this handoff's original retained pool, without copying a witness.
-            let mut matching = self.local_call_binding_groups().filter(|(owner, group)| {
-                *owner == observation.owner() && group.site() == observation.site()
-            });
-            let (_, group) = matching
-                .next()
-                .ok_or_else(|| freeze("selected-static-packet/retained-source-missing"))?;
-            let retained = group
-                .lexical()
-                .ok_or_else(|| freeze("selected-static-packet/retained-source-missing"))?;
-            if matching.next().is_some() || !std::ptr::eq(retained, emitted) {
-                return Err(freeze("selected-static-packet/retained-source-drift"));
-            }
-            let CallPacketSourceLoanV1::SelectedStaticLoop { packet, .. } =
-                retained.original_source()
-            else {
-                return Err(freeze("selected-static-packet/retained-source-drift"));
-            };
-            let (caller, site) = packet.publication_source();
-            let actual = packet.selected_forwarded_actual_for_call(caller, site)?;
-            return Ok(Some(std::slice::from_ref(actual)));
-        }
         original.borrowed_actuals_in_context(CallValidationContextV1::Finalized(self))
     }
 

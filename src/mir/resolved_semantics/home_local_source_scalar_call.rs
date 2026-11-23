@@ -441,12 +441,13 @@ pub(crate) fn issue_source_static_scalar_frame_call_v1<E>(
     else {
         return Ok(None);
     };
-    // A Bool result is the whole condition. A qualified exact-i64 result stands
-    // where its position executes it in an argument frame (an operand of the
-    // condition); a current-owner call keeps its own source.
+    // Bool occupies the whole condition. An I64 operand borrows the original
+    // resolved static result, whether the declaration was explicitly qualified
+    // or selected by CurrentOwner.
     let admitted = matches!(&loan, LocalCallResultSourceV1::Ordinary(result) if match result.result() {
         LocalCallResultClassV1::Bool => result.static_source().is_some() && site.site() == condition,
-        LocalCallResultClassV1::I64 => result.static_source().is_some_and(|original| original.qualified_scalar_result_v1().is_some())
+        LocalCallResultClassV1::I64 => result.static_source().is_some_and(|original|
+            original.source_scalar_result_v1() == Some(LocalCallResultClassV1::I64))
             && crate::mir::resolved_value_profile::expression_position::CallExecutorV1::at(site.site()).is_argument_frame(),
         _ => false,
     });
@@ -626,4 +627,46 @@ impl LocalCallObservationV1 {
             _ => None,
         }
     }
+}
+
+/// Borrow the first exact CurrentOwner I64 result that selects the checked
+/// comparison owner. The expression walk still verifies every operand.
+pub(crate) fn select_static_comparison_operand_v1<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    source: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    homes: &[LiveHomeV1],
+    path_calls: &std::collections::BTreeSet<OwnedExprSiteV1>,
+    actuals: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
+) -> Result<Option<LocalCallObservationV1>, E> {
+    use crate::mir::resolved_semantics::home_new_prefix::scalar_expression::is_comparison_operator_v1;
+    use crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1;
+    let Some(comparison) = source
+        .nodes()
+        .first()
+        .and_then(|node| node.binary())
+        .filter(|binary| is_comparison_operator_v1(binary.operator()))
+    else {
+        return Ok(None);
+    };
+    for operand in [comparison.lhs(), comparison.rhs()] {
+        let site = OwnedExprSiteV1::new(input.owner(), operand.clone());
+        if path_calls.contains(&site)
+            || !input
+                .function()
+                .method_call(operand)
+                .is_some_and(|call| call.receiver() == ResolvedMethodCallReceiverSourceV1::CurrentOwner)
+        {
+            continue;
+        }
+        if let Some(call) =
+            issue_source_static_scalar_frame_call_v1(input, source, &site, homes, actuals)?
+                .filter(|call| call.result() == LocalCallResultClassV1::I64)
+        {
+            return Ok(Some(call));
+        }
+    }
+    Ok(None)
 }

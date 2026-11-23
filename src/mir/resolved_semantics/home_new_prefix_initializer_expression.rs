@@ -137,7 +137,7 @@ pub(super) fn observe<E>(
         else {
             continue;
         };
-        let prefer_tagged = super::condition::scalar_dynamic_demand_v1(
+        let prefer_tagged = super::argument_expression::scalar_dynamic_demand_v1(
             input, locals, local_calls, node.site(), true,
         );
         if !prefer_tagged {

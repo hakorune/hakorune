@@ -200,7 +200,7 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         *value = ValueId(999);
     }
     assert!(ledger
-        .validate_new_emissions(sites[0].owner(), &reclaim_drift, None, None)
+        .validate_new_emissions(sites[0].owner(), &reclaim_drift, None)
         .unwrap_err()
         .contains("reclaim-origin-operation-drift"));
     ledger
@@ -329,13 +329,6 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
             &physical,
         )
         .unwrap();
-    ledger.check_pending_nonempty_home_order_for_test(
-        sites[0].owner(),
-        &exit_stmt_site,
-        &origin_bindings,
-        &bindings,
-        &physical,
-    );
     assert!(ledger
         .prepare_root_home_exit(sites[0].owner(), &exit_site)
         .unwrap());
@@ -351,9 +344,18 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
             .map(|(origin, _, _)| origin.clone())
             .collect::<Vec<_>>()
     );
+    let mut reversed = origin_bindings.clone();
+    reversed.reverse();
+    for origins in [reversed, origin_bindings[1..].to_vec()] {
+        let error = ledger
+            .record_root_home_exit(sites[0].owner(), &exit_stmt_site, origins, bindings.clone())
+            .unwrap_err();
+        assert!(error.contains("root-exit-origin-order"), "{error}");
+    }
     ledger
         .record_root_home_exit(sites[0].owner(), &exit_stmt_site, origin_bindings, bindings)
         .unwrap();
+    ledger.check_recorded_home_order_for_test(sites[0].owner(), &exit_stmt_site, &physical);
     assert!(ledger.is_empty());
     let mut changed_home = physical.clone();
     if let Some(crate::mir::MirInstruction::Invoke {

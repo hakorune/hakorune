@@ -284,7 +284,7 @@ fn current_owner_loop_handoff_matches_only_its_original_catalog() {
         .selected_handoff_for_source(source.caller(), source.call_site().site())
         .unwrap();
     assert!(!source.corroborates_publication_handoff(handoff));
-    assert!(source.corroborates_selected_loop_publication_handoff(handoff));
+    assert!(source.matches_publication_handoff_identity(handoff));
 
     let foreign = issue(text);
     let foreign_declarations = foreign.declaration_catalog();
@@ -307,7 +307,7 @@ fn current_owner_loop_handoff_matches_only_its_original_catalog() {
     let foreign_handoff = foreign_owner
         .selected_handoff_for_source(source.caller(), source.call_site().site())
         .unwrap();
-    assert!(!source.corroborates_selected_loop_publication_handoff(foreign_handoff));
+    assert!(!source.matches_publication_handoff_identity(foreign_handoff));
 }
 
 #[test]

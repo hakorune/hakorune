@@ -92,7 +92,7 @@ impl StaticIncomingSourceV1 {
 
     /// Kind comes from the shared catalog; the original row still limits this
     /// source protocol to the previously admitted scalar evidence.
-    pub(in crate::mir::normal_callable_semantic_package) fn source_scalar_result_v1(
+    pub(in crate::mir) fn source_scalar_result_v1(
         &self,
     ) -> Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1> {
         self.route.result().required_i64_arguments()?;
@@ -224,18 +224,6 @@ impl StaticIncomingSourceV1 {
         (self.qualified_scalar_result_v1().is_some() || self.is_zeroarg_i64_v1()
             || matches!(self.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString
                 | crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactBool { .. }))
-            && self.matches_publication_handoff_identity(handoff)
-    }
-
-    /// The selected Loop packet supplies the separate CurrentOwner source,
-    /// actual and result proof before this source-only result corroboration.
-    pub(in crate::mir::normal_callable_semantic_package) fn corroborates_selected_loop_publication_handoff(
-        &self,
-        handoff: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
-    ) -> bool {
-        self.is_current_owner_i64_source_v1()
-            && self.qualified_scalar_result_v1().is_none()
-            && self.argument_sites.len() == 1
             && self.matches_publication_handoff_identity(handoff)
     }
 

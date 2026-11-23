@@ -68,7 +68,6 @@ impl OrdinaryNewClaimLedgerV1 {
                 &copies,
                 &aliases,
                 &source_phi_roles,
-                None,
                 &self.recorded_source_loop_roles_v2(owner),
                 &self.initializer_optional_bindings_v1(owner, function)?,
             )?;
@@ -171,10 +170,10 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         let _source_scope = self.branch_source_scope_v1(owner);
         let _physical_scope = self.physical_validation_scope_v1(function, projection, false);
-        self.validate_new_emissions(owner, function, projection, None)?;
+        self.validate_new_emissions(owner, function, projection)?;
         if !child {
             self.validate_terminal_unit_return(owner, function)?;
-            self.validate_root_home_exit(owner, function, projection, None)?;
+            self.validate_root_home_exit(owner, function, projection)?;
         }
         self.validate_field_reads_with_projection_v1(
             owner,
@@ -208,7 +207,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
         self.validate_terminal_scalar_literal_return_projected(owner, function, projection)?;
         if child {
-            self.validate_root_home_exit(owner, function, projection, None)?;
+            self.validate_root_home_exit(owner, function, projection)?;
         }
 
         Ok(())
@@ -443,19 +442,6 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    /// Use the same checked cleanup projection as diagnostic finishing. No stale
-    /// block observer or independently reconstructed release list may enter here.
-    #[cfg(test)]
-    pub(in crate::mir) fn validate_selected_loop_artifact_coverage_for_test(
-        &self,
-        owner: FunctionOwnerIdV1,
-        function: &MirFunction,
-        pending: &super::PendingSelectedStaticLoopViewV1<'_, '_>,
-    ) -> Result<(), String> {
-        let bindings = self.lifecycle_bindings_with_pending(owner, pending)?;
-        self.validate_artifact_lifecycle_coverage(owner, function, &bindings)
-    }
-
     fn validate_artifact_lifecycle_coverage(
         &self,
         owner: FunctionOwnerIdV1,
@@ -674,13 +660,6 @@ impl OrdinaryNewClaimLedgerV1 {
         result.extend(self.scalar_operation_bindings_v1(owner)?);
         result.extend(self.original_checked_field_bindings_v1(owner)?);
 
-        result.extend(
-            self.selected_loop_body_packets
-                .borrow()
-                .values()
-                .filter(|packet| packet.source_site().owner() == owner)
-                .flat_map(|packet| packet.lifecycle_bindings().iter().cloned()),
-        );
         if let Some(scopes) = self.lexical_cleanup.borrow().get(&owner) {
             for binding in scopes.iter().flat_map(|scope| &scope.bindings) {
                 if !result.contains(binding) {
@@ -713,27 +692,6 @@ impl OrdinaryNewClaimLedgerV1 {
                         result.push(binding);
                     }
                 }
-            }
-        }
-        Ok(result)
-    }
-
-    pub(super) fn lifecycle_bindings_with_pending(
-        &self,
-        owner: FunctionOwnerIdV1,
-        pending: &super::PendingSelectedStaticLoopViewV1<'_, '_>,
-    ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
-        let mut result = self.lifecycle_bindings(owner)?;
-        for row in pending.roots() {
-            if row.owner() == owner {
-                row.append_lifecycle_bindings(&mut result)?;
-            }
-        }
-        for binding in std::iter::once(pending.entry().original_invoke_binding())
-            .chain(pending.body().lifecycle_bindings().iter())
-        {
-            if !result.contains(binding) {
-                result.push(binding.clone());
             }
         }
         Ok(result)
