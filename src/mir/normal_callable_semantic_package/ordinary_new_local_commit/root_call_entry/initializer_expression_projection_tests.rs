@@ -253,7 +253,6 @@ fn initializer_observation_copy(
     packet: &ExpressionEmissionV1<InitializerExpressionContractV1>,
 ) -> ExpressionEmissionV1<InitializerExpressionContractV1> {
     assert!(packet.reference_reads.is_empty());
-    assert!(packet.contract.dynamic_calls.is_empty());
     assert!(packet.contract.loop_residency.is_none());
     assert!(packet.dynamic_calls_v1().next().is_none());
     ExpressionEmissionV1::from_body(
@@ -263,7 +262,6 @@ fn initializer_observation_copy(
             local: packet.local_value(),
             copy: packet.contract.copy.clone(),
             install: packet.contract.install.clone(),
-            dynamic_calls: Box::new([]),
             loop_residency: None,
             purpose_acquisition: packet.contract.purpose_acquisition.clone(),
         },
@@ -324,7 +322,7 @@ fn initializer_record_rejects_shared_and_destination_mutations() {
         assert!(
             super::super::expression_projection::mutation_evidence::check_observation_mutations(
                 "Local",
-                packet.initializer_expression_v1(),
+                packet.expression(),
                 context,
                 root,
                 &module

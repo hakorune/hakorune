@@ -39,6 +39,9 @@ impl CheckedRebindDestinationV1 {
         Ok(Self { frame, name, previous })
     }
     pub(in crate::mir::builder) fn name(&self) -> &str { &self.name }
+    pub(in crate::mir::builder) fn previous(&self) -> ValueId {
+        self.previous
+    }
     pub(in crate::mir::builder) fn validate(&self, builder: &MirBuilder, name: &str) -> Result<(), String> {
         if name != self.name || builder.function_state.variable_ctx.variable_map.get(name) != Some(&self.previous) {
             return Err("[freeze:contract][scalar-rebind/destination-drift]".into());

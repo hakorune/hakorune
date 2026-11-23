@@ -28,24 +28,6 @@ impl super::ExpressionEmissionSourceV1 for BindingRebindExpressionContractV1 {
     }
 }
 impl ExpressionEmissionV1<BindingRebindExpressionContractV1> {
-    pub(super) fn corroborate_loop_frame_v2(
-        &self,
-        ledger: &OrdinaryNewClaimLedgerV1,
-        entry: BasicBlockId,
-        end: BasicBlockId,
-        value: ValueId,
-    ) -> Result<(), String> {
-        if self.value() != value {
-            return Err(freeze("source-loop/binding-frame-correspondence"));
-        }
-        self.expression().corroborate_outer_scope_v1(
-            ledger,
-            &self.entry,
-            &self.continuation,
-            entry,
-            end,
-        )
-    }
     pub(crate) fn frame(&self) -> &Rc<CheckedBindingRebindFrameV1> {
         &self.contract.frame
     }
@@ -151,24 +133,13 @@ impl ExpressionEmissionV1<BindingRebindExpressionContractV1> {
         packet.root_fault = None;
         let _physical_scope = ledger.physical_validation_scope_v1(function, None, false);
         let context = CallValidationContextV1::Lowering(ledger);
-        let covered = packet.validate_paths(context, function, None)?;
-        let mut ordered = packet.expression().ordered_bindings_in_context(context)?;
-        if let Some(pair) = &packet.contract.purpose_acquisition {
-            ordered.extend(pair.iter().cloned());
-        }
-        if let Some(install) = &packet.contract.install {
-            ordered.push(install.clone());
-        }
-        ordered.extend(packet.terminal.iter().cloned());
-        packet.expression().validate_original_scope(
-            CallValidationContextV1::Lowering(ledger),
+        let covered = packet.validate_admitted_write_paths_v1(context, function, None, None)?;
+        packet.validate_binding_write_scope_v1(
+            context,
             function,
             &covered,
-            &packet.entry,
-            &packet.terminal,
-            &packet.continuation,
-            &ordered,
-            None,
+            packet.contract.purpose_acquisition.as_ref(),
+            packet.contract.install.as_ref(),
         )?;
         Ok(packet)
     }
@@ -200,6 +171,16 @@ impl ExpressionEmissionV1<BindingRebindExpressionContractV1> {
                 self.contract.frame.source().root().statement().node(),
             )?
             .ok_or_else(|| freeze("rebind-expression/source-missing"))?;
+        self.validate_admitted_write_paths_v1(context, function, finishing, Some(&selected))
+    }
+
+    fn validate_admitted_write_paths_v1(
+        &self,
+        context: CallValidationContextV1<'_>,
+        function: &MirFunction,
+        finishing: Option<&super::super::physical_boundary::FinishedBindings>,
+        selected: Option<&Rc<CheckedBindingRebindFrameV1>>,
+    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         let dynamic_root = self.contract.frame.evaluation().root_class()
             == crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
                 crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic);
@@ -207,7 +188,7 @@ impl ExpressionEmissionV1<BindingRebindExpressionContractV1> {
             return Err(freeze("rebind-expression/dynamic-carrier-source"));
         }
         self.validate_effective_root()?;
-        if !Rc::ptr_eq(&selected, &self.contract.frame)
+        if selected.is_some_and(|original| !Rc::ptr_eq(original, &self.contract.frame))
             || self.contract.receipt.rhs() != self.contract.receipt.assigned()
         {
             return Err(freeze("rebind-expression/source-or-value"));

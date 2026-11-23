@@ -81,7 +81,6 @@ pub(crate) struct InitializerExpressionContractV1 {
     local: ValueId,
     copy: Option<Binding>,
     install: Option<Binding>,
-    dynamic_calls: Box<[Rc<EmittedDynamicInvocationCallProjectionV1>]>,
     loop_residency: Option<(
         Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
         Vec<crate::mir::builder::BindingValueObservationV2>,
@@ -97,24 +96,6 @@ impl super::ExpressionEmissionSourceV1 for InitializerExpressionContractV1 {
     }
 }
 impl ExpressionEmissionV1<InitializerExpressionContractV1> {
-    pub(super) fn corroborate_loop_frame_v2(
-        &self,
-        ledger: &OrdinaryNewClaimLedgerV1,
-        entry: BasicBlockId,
-        end: BasicBlockId,
-        value: ValueId,
-    ) -> Result<(), String> {
-        if self.value() != value {
-            return Err(freeze("source-loop/binding-frame-correspondence"));
-        }
-        self.initializer_expression_v1().corroborate_outer_scope_v1(
-            ledger,
-            &self.entry,
-            &self.continuation,
-            entry,
-            end,
-        )
-    }
     pub(crate) fn frame(&self) -> &Rc<CheckedInitializerExpressionFrameV1> {
         &self.contract.frame
     }
@@ -191,9 +172,7 @@ impl ExpressionEmissionV1<InitializerExpressionContractV1> {
         if let Some(call) = ordinary.next() {
             if ordinary.next().is_some()
                 || self
-                    .contract
-                    .dynamic_calls
-                    .iter()
+                    .dynamic_calls_v1()
                     .any(|call| call.source().site() == &site)
             {
                 return Err(freeze("initializer-expression/dynamic-result-pair"));
@@ -206,9 +185,7 @@ impl ExpressionEmissionV1<InitializerExpressionContractV1> {
             return Ok(normal);
         }
         let mut calls = self
-            .contract
-            .dynamic_calls
-            .iter()
+            .dynamic_calls_v1()
             .filter(|call| call.source().site() == &site && call.value() == self.value());
         let call = calls
             .next()
@@ -224,7 +201,7 @@ impl ExpressionEmissionV1<InitializerExpressionContractV1> {
         if !self.has_text_home() {
             return Err(freeze("initializer-expression/no-text-home"));
         }
-        self.initializer_expression_v1().require_unique(|row| {
+        self.expression().require_unique(|row| {
             matches!(row,
             MirInstruction::InvokeNormalResult { dst, .. } if *dst == self.value())
         })
@@ -246,7 +223,7 @@ impl ExpressionEmissionV1<InitializerExpressionContractV1> {
         if !self.frame().is_i64() && !self.frame().is_bool() {
             return Err(freeze("expression/scalar-entry-contract"));
         }
-        let expression = self.initializer_expression_v1();
+        let expression = self.expression();
         let mut source = expression.ordered_bindings_in_context(context)?;
         source.extend(expression.scalar_copy_dependencies_v1(context)?);
         for read in self.reference_reads.values() {
@@ -282,11 +259,11 @@ impl ExpressionEmissionV1<InitializerExpressionContractV1> {
             dependencies.extend(read.dependencies()?);
         }
         dependencies.extend(
-            self.initializer_expression_v1()
+            self.expression()
                 .ordered_bindings_in_context(context)?,
         );
         dependencies.extend(
-            self.initializer_expression_v1()
+            self.expression()
                 .scalar_copy_dependencies_v1(context)?,
         );
         for call in self.calls() {
@@ -297,7 +274,7 @@ impl ExpressionEmissionV1<InitializerExpressionContractV1> {
                     .map(|(_, binding)| binding),
             );
         }
-        for call in &self.contract.dynamic_calls {
+        for call in self.dynamic_calls_v1() {
             dependencies.extend(call.scope_bindings_in_context_v1(context)?.1);
         }
         for node in self.frame().source().nodes() {
@@ -319,7 +296,7 @@ impl ExpressionEmissionV1<InitializerExpressionContractV1> {
         value: ValueId,
         local: ValueId,
         copy: Option<Binding>,
-        mut body: crate::mir::builder::EmittedExpressionBodyV1,
+        body: crate::mir::builder::EmittedExpressionBodyV1,
         terminal: Option<Binding>,
         continuation: Option<Binding>,
         loop_residency: Option<(
@@ -341,35 +318,20 @@ impl ExpressionEmissionV1<InitializerExpressionContractV1> {
             local,
             copy,
             install,
-            dynamic_calls: std::mem::take(&mut body.dynamic_calls).into_boxed_slice(),
             loop_residency,
             purpose_acquisition,
         };
         let mut packet = Self::from_body(contract, body, terminal, continuation);
         packet.root_fault = None; // Local has no borrowed Return-root boundary.
-        packet.validate_source(CallValidationContextV1::Lowering(ledger))?;
         let _physical_scope = ledger.physical_validation_scope_v1(function, None, false);
-        let covered =
-            packet.validate_paths(CallValidationContextV1::Lowering(ledger), function, None)?;
-        let mut ordered = packet
-            .initializer_expression_v1()
-            .ordered_bindings_in_context(CallValidationContextV1::Lowering(ledger))?;
-        if let Some(pair) = &packet.contract.purpose_acquisition {
-            ordered.extend(pair.iter().cloned());
-        }
-        if let Some(install) = &packet.contract.install {
-            ordered.push(install.clone());
-        }
-        ordered.extend(packet.terminal.iter().cloned());
-        packet.initializer_expression_v1().validate_original_scope(
-            CallValidationContextV1::Lowering(ledger),
+        let context = CallValidationContextV1::Lowering(ledger);
+        let covered = packet.validate_paths(context, function, None)?;
+        packet.validate_binding_write_scope_v1(
+            context,
             function,
             &covered,
-            &packet.entry,
-            &packet.terminal,
-            &packet.continuation,
-            &ordered,
-            None,
+            packet.contract.purpose_acquisition.as_ref(),
+            packet.contract.install.as_ref(),
         )?;
         Ok(packet)
     }
@@ -385,7 +347,7 @@ impl ExpressionEmissionV1<InitializerExpressionContractV1> {
         use crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1 as Normal;
         use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1 as Reference;
         let frame = self.frame().evaluation();
-        let expression = self.initializer_expression_v1();
+        let expression = self.expression();
         for loan in frame.operations() {
             let index = loan.node();
             if frame.transfers_node(index) {
@@ -481,12 +443,6 @@ impl ExpressionEmissionV1<InitializerExpressionContractV1> {
             }
         }
         Ok(())
-    }
-    pub(super) fn initializer_expression_v1(
-        &self,
-    ) -> super::expression_projection::ExpressionPhysicalProjectionRefV1<'_> {
-        self.expression()
-            .with_dynamic_calls_v1(&self.contract.dynamic_calls)
     }
     fn validate_source(&self, context: CallValidationContextV1<'_>) -> Result<(), String> {
         let selected = context
@@ -619,14 +575,14 @@ impl ExpressionEmissionV1<InitializerExpressionContractV1> {
                 return Err(freeze("initializer-expression/source-or-result"));
             }
         }
-        self.initializer_expression_v1().validate_source(context)
+        self.expression().validate_source(context)
     }
     pub(super) fn validate_recorded(
         &self,
         bindings: &[Binding],
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
-        self.initializer_expression_v1()
+        self.expression()
             .validate_recorded(bindings, finishing)?;
         for expected in [&self.entry, &self.terminal, &self.continuation]
             .into_iter()
@@ -677,7 +633,7 @@ impl ExpressionEmissionV1<InitializerExpressionContractV1> {
                 )
             })
             .transpose()?;
-        let expression = self.initializer_expression_v1();
+        let expression = self.expression();
         let expression = match &unwind {
             Some(unwind) => expression.with_prior_home_unwind(unwind),
             None => expression,

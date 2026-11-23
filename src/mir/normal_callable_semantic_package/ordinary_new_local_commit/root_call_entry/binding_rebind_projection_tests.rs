@@ -4,7 +4,8 @@ use super::*;
 fn rebind_record_rejects_shared_and_replacement_mutations() {
     use super::super::expression_projection::mutation_evidence::check_observation_mutations;
     let text = "static box Values { read(a: i64): i64 { return copy a } }
-        static box Main { main() { local text = \"old\" + \"value\"
+        static box Main { main() { local spare = \"other\" + \"binding\"
+            local text = \"old\" + \"value\"
             text = (\"n=\" + Values.read(7)) + Values.read(7)
             print(text) return 0 } }";
     let (completed, ledger) =
@@ -54,6 +55,30 @@ fn rebind_record_rejects_shared_and_replacement_mutations() {
                 .count(),
             1
         );
+        let MirInstruction::StringResidenceInstall {
+            value, replaces: Some(previous), ..
+        } = install else {
+            panic!("replacement install");
+        };
+        let other = function.blocks.values()
+            .flat_map(|block| &block.instructions)
+            .find_map(|row| match row {
+                MirInstruction::StringResidenceInstall {
+                    value, replaces: None, returning: false,
+                } if *value != previous => Some(*value),
+                _ => None,
+            })
+            .expect("another live Text binding");
+        let mut changed = module.clone();
+        let block = changed.get_function_mut(&symbol).unwrap().blocks.get_mut(&install_id).unwrap();
+        let actual = block.instructions.iter_mut().find(|row| **row == install).unwrap();
+        *actual = MirInstruction::StringResidenceInstall {
+            value, replaces: Some(other), returning: false,
+        };
+        let error = root
+            .visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(()))
+            .unwrap_err();
+        assert!(error.contains("freeze:contract"), "{error}");
         // Recording order also contains RHS Fault cleanup. Select execution
         // order instead: both Ends must follow this install on its Normal path.
         let mut current = install_id;

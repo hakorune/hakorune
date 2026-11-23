@@ -92,6 +92,38 @@ pub(in crate::mir::builder) fn emit_with_dynamic_calls(
     Ok(EmittedExpressionValueV1 { value, purpose_acquisition: None, body })
 }
 
+/// Lower and materialize the RHS before its parent writes the binding.
+pub(super) fn emit_binding_write_rhs_v1(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    evaluation: &CheckedExpressionEvaluationV1,
+    materializes_root: bool,
+    prior_home_unwind: Option<&[InvokeOperation]>,
+    consume_receiver: &dyn Fn(&crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
+    retained_arguments: Option<&[Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>]>,
+) -> Result<EmittedExpressionValueV1, String> {
+    let mut expression = emit_with_dynamic_calls(
+        builder, state, ledger, evaluation, None, prior_home_unwind,
+        &mut |builder, state, call, acquired, values, bindings| {
+            if let Some(arguments) = retained_arguments {
+                terminal_call::emit_expression_call_with_dynamic_and_argument_frames(
+                    builder, state, ledger, evaluation, call, acquired, values, bindings,
+                    consume_receiver, static_source, arguments, None,
+                )
+            } else {
+                terminal_call::emit_expression_call(
+                    builder, state, ledger, evaluation, call, acquired, values, bindings,
+                    consume_receiver, static_source,
+                ).map(ExpressionCallEmissionV1::Lexical)
+            }
+        },
+    )?;
+    materialize_text_root(builder, &mut expression, materializes_root, evaluation)?;
+    Ok(expression)
+}
+
 pub(super) fn emit_comparison_inputs_v1(builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1, frame: &CheckedExpressionEvaluationV1, comparison: usize,
     consume_receiver: &dyn Fn(&crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1) -> Result<(), String>,

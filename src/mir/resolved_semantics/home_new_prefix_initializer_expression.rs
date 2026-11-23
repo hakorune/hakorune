@@ -92,7 +92,7 @@ pub(super) fn observe<E>(
     {
         return declined(statement.site(), 6);
     }
-    if root_compare || (arithmetic_requested || root_add) && !matches!(source.nodes()[0].source(), ExpressionNodeSourceV1::MethodCall) {
+    if root_compare || arithmetic_requested || root_add {
         // A comparison or arithmetic root is not itself a call root: stage every
         // call under it in source order from this real Prefix, as the
         // whole-expression consumers do.

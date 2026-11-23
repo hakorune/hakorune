@@ -111,16 +111,18 @@ impl EmittedSourceLoopProjectionV2 {
             }
             match expected {
                 LifecyclePrefixSourceV1::InitializerExpression { .. } => {
-                    child
-                        .initializer()
-                        .ok_or_else(|| freeze("source-loop/initializer-packet"))?
-                        .corroborate_loop_frame_v2(context.ledger(), observed.entry, observed.end, observed.value)?;
+                    let packet = child.initializer()
+                        .ok_or_else(|| freeze("source-loop/initializer-packet"))?;
+                    packet.corroborate_binding_write_loop_v2(
+                        context.ledger(), observed.entry, observed.end, packet.value(), observed.value,
+                    )?;
                 }
                 LifecyclePrefixSourceV1::BindingRebind { .. } => {
-                    child
-                        .rebind()
-                        .ok_or_else(|| freeze("source-loop/rebind-packet"))?
-                        .corroborate_loop_frame_v2(context.ledger(), observed.entry, observed.end, observed.value)?;
+                    let packet = child.rebind()
+                        .ok_or_else(|| freeze("source-loop/rebind-packet"))?;
+                    packet.corroborate_binding_write_loop_v2(
+                        context.ledger(), observed.entry, observed.end, packet.value(), observed.value,
+                    )?;
                 }
                 LifecyclePrefixSourceV1::BoolCondition { .. } => {
                     let materialization = observed

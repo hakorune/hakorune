@@ -21,12 +21,7 @@ pub(crate) enum BindingRebindDestinationV1 {
     TextLoopCarrier(Rc<LoopHeaderValueBasisV1>),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct CheckedBindingRebindFrameV1 {
-    evaluation: CheckedExpressionEvaluationV1,
-    target: BindingRefV1,
-    destination: BindingRebindDestinationV1,
-}
+pub(crate) type CheckedBindingRebindFrameV1 = CheckedBindingWriteV1<BindingRebindDestinationV1>;
 impl CheckedBindingRebindFrameV1 {
     pub(crate) fn declared_read_v1(&self) -> Option<&super::super::BorrowedResultReadV1> {
         match &self.destination {
@@ -34,14 +29,8 @@ impl CheckedBindingRebindFrameV1 {
             _ => None,
         }
     }
-    pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 {
-        &self.evaluation
-    }
-    pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> {
-        self.evaluation.source()
-    }
     pub(crate) fn target(&self) -> BindingRefV1 {
-        self.target
+        self.binding()
     }
     pub(crate) fn is_trivial_scalar_rebind_v1(&self) -> bool {
         matches!(self.destination, BindingRebindDestinationV1::Integer | BindingRebindDestinationV1::Bool)
@@ -291,34 +280,20 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
     if !text && evaluation.owned_result_nodes().contains(&0) {
         reject_rebind!("owned-result-destination");
     }
-    let frame = Rc::new(CheckedBindingRebindFrameV1 {
-        target: *target,
-        destination,
-        evaluation,
-    });
-    if !frame.evaluation().reference_coverage_is_exact() {
+    let Some(frame) = CheckedBindingWriteV1::new(evaluation, *target, destination) else {
         reject_rebind!("reference-coverage");
-    }
+    };
     let candidate = HomeExpressionPlanV1 {
-        rebind_frame: Some(frame),
+        rebind_frame: Some(Rc::new(frame)),
         ..HomeExpressionPlanV1::for_source(Rc::clone(&source))
     };
-    let Some(candidate) = candidate.with_source_field_requirements(&fields) else {
-        reject_rebind!("field-requirements");
-    };
-    if !can_install(&candidate) {
-        reject_rebind!("installation");
+    use ExpressionPlanInstallationRefusalV1 as Refusal;
+    match ExpressionPlanInstallationV1::with_fields(candidate, &fields, can_install, field_batch)? {
+        Ok(plan) => Ok(Some(plan)),
+        Err(Refusal::FieldRequirements) => reject_rebind!("field-requirements"),
+        Err(Refusal::Installation) => reject_rebind!("installation"),
+        Err(Refusal::FieldBatch) => reject_rebind!("field-batch"),
     }
-    if !field_batch(
-        &fields,
-        super::super::LocalFieldReadDemandV1::SourceExpression {
-            probe: false,
-            plan: Rc::clone(&source),
-        },
-    )? {
-        reject_rebind!("field-batch");
-    }
-    Ok(Some(candidate))
 }
 
 #[cfg(test)]
