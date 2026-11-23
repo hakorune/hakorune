@@ -400,22 +400,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
         }),
         ..HomeExpressionPlanV1::for_source(Rc::clone(&source))
     };
-    let Some(candidate) = candidate.with_source_field_requirements(&requests) else {
-        return Ok(None);
-    };
-    if !can_install(&candidate) {
-        return Ok(None);
-    }
-    if !field_batch(
-        &requests,
-        super::super::LocalFieldReadDemandV1::SourceExpression {
-            probe: false,
-            plan: source,
-        },
-    )? {
-        return Ok(None);
-    }
-    Ok(Some(candidate))
+    ExpressionPlanInstallationV1::with_fields(candidate, &requests, can_install, field_batch)
+        .map(Result::ok)
 }
 
 impl HomeExpressionPlanV1 {

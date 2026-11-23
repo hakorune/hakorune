@@ -257,7 +257,7 @@ fn original_scalar_append_observer_retains_three_source_operations() {
             ("me.value = me.value - 1 me.value = me.value / 2", 2),
             ("me.value = (me.value - 1) + 2 me.value = (me.value / 2) - 1", 3),
           ] {
-            let text = format!("box Counter {{ value: usize birth() {{ me.value = 8 }} tick(): i64 {{ me.value = 8 {writes} return 0 }} }} static box Main {{ main() {{ local counter = new Counter() local out = counter.tick() return 0 }} }}");
+            let text = format!("box Counter {{ value: usize sibling: usize birth() {{ me.value = 8 me.sibling = 9 }} tick(): i64 {{ me.value = 8 {writes} return 0 }} }} static box Main {{ main() {{ local counter = new Counter() local out = counter.tick() return 0 }} }}");
             let request = scalar_field_request(&text);
             MirCompiler::with_options(optimize).compile_normal_with_published(request,
                 |view, verification| -> Result<(), String> {
@@ -281,6 +281,26 @@ fn original_scalar_append_observer_retains_three_source_operations() {
                     let mut finished = 0;
                     source.visit_finished_scalar_operations_v1(view.module(), |_, _, _| { finished += 1; Ok(()) })?;
                     assert_eq!(finished, count);
+                    let mut changed = view.module().clone();
+                    let function = changed.functions.get_mut("Counter.tick/0").unwrap();
+                    let field = function.blocks.values_mut()
+                        .flat_map(|block| &mut block.instructions)
+                        .find_map(|instruction| match instruction {
+                            MirInstruction::ObjectFieldGet { field, .. }
+                                if field.declaration_ordinal() == 0 => Some(field),
+                            _ => None,
+                        })
+                        .expect("original field read in assignment RHS");
+                    *field = hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(
+                        field.object(), 1,
+                    ).expect("same-type sibling field");
+                    let error = source
+                        .visit_finished_scalar_operations_v1(&changed, |_, _, _| Ok(()))
+                        .unwrap_err();
+                    assert!(
+                        error.contains("physical-boundary/relation-finished-producer"),
+                        "{error}"
+                    );
                     for mutation in ["missing", "operator"] {
                         let mut changed = view.module().clone();
                         let function = changed.functions.get_mut("Counter.tick/0").unwrap();
