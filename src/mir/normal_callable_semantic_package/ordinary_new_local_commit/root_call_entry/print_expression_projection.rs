@@ -31,13 +31,10 @@ impl ExpressionEmissionV1<Rc<CheckedPrintExpressionFrameV1>> {
     ) -> Result<Self, String> {
         let mut packet = Self::from_body(frame, body, print, continuation);
         packet.root_fault = None; // Print has no borrowed Return-root boundary.
-        packet.validate_source(CallValidationContextV1::Lowering(ledger))?;
+        let context = CallValidationContextV1::Lowering(ledger);
+        packet.validate_source(context)?;
         packet.validate_recorded(&packet.original, None)?;
-        let covered = packet.validate_paths_in_context(
-            CallValidationContextV1::Lowering(ledger),
-            function,
-            None,
-        )?;
+        let covered = packet.validate_paths_after_source(context, function, None)?;
         packet.validate_original_scope(ledger, function, &covered)?;
         Ok(packet)
     }
@@ -121,6 +118,15 @@ impl ExpressionEmissionV1<Rc<CheckedPrintExpressionFrameV1>> {
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         self.validate_source(context)?;
+        self.validate_paths_after_source(context, function, finishing)
+    }
+
+    fn validate_paths_after_source(
+        &self,
+        context: CallValidationContextV1<'_>,
+        function: &MirFunction,
+        finishing: Option<&super::super::physical_boundary::FinishedBindings>,
+    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         self.expression().validate_paths_to_terminal(
             context,
             function,
