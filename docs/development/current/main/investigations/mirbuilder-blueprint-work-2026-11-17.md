@@ -162,7 +162,8 @@ compilerの動くcodeは変更していない。coverage CLIは前回の同じbi
 | DYR-1b2 | 決定 30: 仮引数と戻り値の Dynamic 等値 | 実装・検証済み。I64/Bool の左右両順で同じ比較。大小は比較位置の 302。失効した carrier が正常な false にならないことは kernel の既存領域に独立のテストを追加。名簿 5,992 本の EXE 回帰 0、受理 8、固定 suite 8/8。本体 +1,053/−270 行、test +109/−67 行（rustfmt 後）。 |
 | CL-1 | 片付け: 戻り値の種類を呼び先で 1 度だけ決める | 済(`649211f03c`): 呼び手の上書きと既定の I64 を本番で 0 にした。`direct_call_result.rs`・`uniform_call_result_kind`・仮の I64 を書き換える分岐を退役。名簿の成功→拒否・拒否→成功 0、拒否の名前の変化 7(Bool の結果)。監査の新しい入力 12 本が基準と同じ。本体 +533/−537、test ±7(rustfmt 後、差し引き約 −5 行。見積もり 100〜130 行には届かず) |
 | CL-2 | 片付け: 静的な呼び出しの入力の照合を 1 つに | 済(`51cfbc169b`): Forwarded・Numeric・Mixed・Bool の仕上げが、呼び先・site・ordinal の同じ照合(`ordinary_new_borrowed_static_source_actuals.rs`)を読む。仕上げの関数と file は残した(usize の ABI、Mul、Bool の入口、Forwarded の借用元は別の契約)。名簿の結果と拒否の名前の変化 0。監査の新しい入力 10 本が基準と同じ。本体 +144/−164(rustfmt 後、−20 行) |
-| UBD-2 以降 | `release_source` まで(決定 26 の順): 裸のブロックの scope の閉じ → 受け手の後始末 → `!= 1`。普通の呼び出しを通した Text の引数は、`finite-domain-unclosed` で止まる(`ordinary_new_borrowed_formal_entry_finite.rs:112`) | 次: CL-3(初期化と再代入を、評価 1 つと書き込み 1 つに縦に置き換える)→ loop の道 c(variable_accum)の退役、`id(id(v))`、`pick` |
+| CL-3 | 片付け: 初期化と再代入を 1 つの書き込みに | 済(`c500983f88`): 意味は `CheckedBindingWriteV1`、右辺は `emit_binding_write_rhs_v1` 1 つ。`refine_expression_plan`・`initializer_expression_v1`・2 つの `corroborate_loop_frame_v2` を退役。別の束縛へ書く MIR と End の後に install する MIR を独立の検証が拒む。右辺に 1 つ足す試しで初期化・再代入の file の変更 0。右辺の形を見る判定 22→21。名簿の変化 0、新しい入力 11 本が基準と同じ。本体 −74、test +34(rustfmt 後、−40) |
+| UBD-2 以降 | `release_source` まで(決定 26 の順): 裸のブロックの scope の閉じ → 受け手の後始末 → `!= 1`。普通の呼び出しを通した Text の引数は、`finite-domain-unclosed` で止まる(`ordinary_new_borrowed_formal_entry_finite.rs:112`) | 次: loop の道 c(variable_accum)の退役 → 位置ごとの受け付け(`ExpressionLeafProfileV1`)を引数・print へ、`id(id(v))`、`pick` |
 
 - 道案内: `design/mirbuilder-route-guide.md`。
 - 確かめ方: 編集中は、変えた所を通る入力だけ。main に入れる前に 1 度、全入力の比較・全 lib・固定 suite。**到達の地図の取り直しは、毎回はしない**(道をまとめて消した回か、数回に 1 度)。
