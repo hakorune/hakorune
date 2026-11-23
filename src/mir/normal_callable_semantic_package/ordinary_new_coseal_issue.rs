@@ -437,6 +437,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 requests.require(ScanRequestV1::ValueExpression,
                     walk_triggers::has_dynamic_return_v1(input, dynamic_source_calls)
                         || walk_triggers::has_explicit_copy_source_v1(input)
+                        || walk_triggers::requires_scalar_operation_walk_v1(input)
                         || borrowed_formal_source.as_ref().is_ok_and(|source| source.requires_expression_walk_v1(input, is_app_main)
                             || source.original_dynamic_return_request_v1(owner)));
                 requests.require(ScanRequestV1::TextReturn, borrowed_formal_source.as_ref().is_ok_and(|source| source.requires_text_return_walk_v1(input, &borrowed_i64_results)));

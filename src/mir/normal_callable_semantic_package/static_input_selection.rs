@@ -295,31 +295,35 @@ impl OrdinaryNewClaimLedgerV1 {
         if !checked_source {
             return Ok(calls);
         }
-        let (selected, _) = self
-            .original_instance_input_issuance
-            .as_ref()
-            .ok_or_else(|| freeze("static-zero/selected-key"))?;
-        // Keep every source target and validate its census above, but only
-        // selected callers and the retained root carry executable obligations.
-        // An omitted caller's
-        // source-only row cannot lend (or demand) a finished execution input.
+        if self.original_instance_input_issuance.is_none() {
+            return Err(freeze("static-zero/selected-key"));
+        }
         Ok(calls
             .into_vec()
             .into_iter()
-            .filter(|call| match &call.source {
-                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) => {
-                    self.root_owner() == Some(original.call_site().owner())
-                        || selected
-                            .batch_slot(
-                                &crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
-                                    original.caller().clone(),
-                                ),
-                            )
-                            .is_some()
-                }
-                _ => true,
-            })
+            .filter(|call| self.static_input_caller_has_execution_v1(call))
             .collect())
+    }
+
+    /// Project execution membership only after the caller census is validated.
+    /// Source-only callers still contribute source identity and its vetoes.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn static_input_caller_has_execution_v1(
+        &self,
+        call: &super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
+    ) -> bool {
+        use super::super::borrowed_formal_uses::BorrowedIncomingSourceV1;
+
+        let BorrowedIncomingSourceV1::Static(original) = &call.source else {
+            return true;
+        };
+        self.root_owner() == Some(call.call.owner())
+            || self.original_instance_input_issuance.as_ref().is_none_or(|(selected, _)| {
+                selected.batch_slot(
+                    &crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
+                        original.caller().clone(),
+                    ),
+                ).is_some()
+            })
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn allows_general_tagged_static_input_v1(
@@ -327,7 +331,29 @@ impl OrdinaryNewClaimLedgerV1 {
         source: &PreparedBorrowedFormalIngressV1,
         owner: FunctionOwnerIdV1,
     ) -> bool {
+        // A downstream forwarding read cannot establish this entry's input
+        // protocol. The original cohort must have executable caller evidence.
+        let mut callers = source.source_incoming.source_rows_v1().filter(|row| {
+            row.callee == owner && self.static_input_caller_has_execution_v1(row)
+        }).peekable();
         !self.static_expression_input_owner_v1(source, owner, false)
+            && callers.peek().is_some()
+            && callers.all(|row| {
+                self.borrowed_formal_actuals
+                    .get(&row.call)
+                    .and_then(|row| row.as_ref().ok())
+                    .and_then(PreparedBorrowedCallActualsV1::source_static_snapshot_v1)
+                    .is_some()
+            })
+    }
+
+    pub(super) fn uses_tagged_static_inputs_v1(
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        contract: &OwnedCallableParameterContractDeclarationV1,
+    ) -> bool {
+        source.has_tagged_static_input_v1(contract.owner, &contract.parameters)
+            && self.allows_general_tagged_static_input_v1(source, contract.owner)
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn is_static_expression_input_owner_v1(
@@ -416,9 +442,7 @@ impl OrdinaryNewClaimLedgerV1 {
         source: &PreparedBorrowedFormalIngressV1,
         contract: &OwnedCallableParameterContractDeclarationV1,
     ) -> Option<Box<[super::super::borrowed_formal_entry::BorrowedFormalDomainV1]>> {
-        if source.has_tagged_static_input_v1(contract.owner, &contract.parameters)
-            && self.allows_general_tagged_static_input_v1(source, contract.owner)
-        {
+        if self.uses_tagged_static_inputs_v1(source, contract) {
             return Some(Box::new([]));
         }
         contract

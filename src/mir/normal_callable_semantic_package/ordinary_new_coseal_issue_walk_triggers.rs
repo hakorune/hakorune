@@ -11,6 +11,19 @@ pub(super) fn has_explicit_copy_source_v1(input: ResolvedFunctionLoweringInputV1
         row.is_explicit_copy_v1())
 }
 
+/// Publication requires original operand evidence for raw scalar operations
+/// that the ordinary prefix cannot publish on its own.
+pub(super) fn requires_scalar_operation_walk_v1(input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
+    use crate::mir::resolved_semantics::home_new_prefix::ExpressionScalarOperationLoanV1;
+
+    input.function().expression_source().binaries().any(|row| {
+        matches!(
+            ExpressionScalarOperationLoanV1::original_integer_operator_law_v1(row.operator()),
+            Some((crate::mir::BinaryOp::Sub | crate::mir::BinaryOp::Div | crate::mir::BinaryOp::Mod, _))
+        )
+    })
+}
+
 pub(super) fn has_print_expression_v1(input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
     input.body_shape().is_some_and(|shape| {
         shape.statements().iter().any(|statement| {

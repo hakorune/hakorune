@@ -262,33 +262,18 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let catalog = self.original_parameter_contracts.as_deref()
             .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
+        use super::super::borrowed_formal_uses::BorrowedIncomingSourceV1;
         for observation in calls {
-            // Borrow the same checked finite-source census as entry/actuals;
-            // legacy-only membership cannot cover a qualified source-only call.
-            let original = Self::original_instance_input_call_v1(structure.source, catalog, observation.site())?;
-            let original = original.as_ref();
-            // Finite Static and exact-i64 dependencies retain their own source
-            // issuer; source-use closure never substitutes completed actuals.
-            let scalar_static = if original.is_none() { self.original_static_input_use_source_v1(observation.site())? } else { None };
-            let target = original.map(|row| row.source.as_loan()).transpose()?;
-            let argument_sites = match (target.as_ref(), scalar_static.as_ref()) {
-                (Some(target), None) => {
-                    if target.call_site() != observation.site() { return Err(freeze("static-input/qualified-use-identity")); }
-                    target.argument_sites()
-                }
-                (None, Some(original)) => original.argument_sites(),
-                _ => {
-                    if crate::config::env::builder_debug_enabled() {
-                        eprintln!("[input-use] owner={:?} original call source unavailable at {:?}", contract.owner, observation.site());
-                    }
-                    input_use_pending!("original-call-source")
-                }
-            };
+            let original = self.original_input_use_call_v1(structure.source, catalog, observation.site())?;
+            let Some(original) = original.as_ref() else { input_use_pending!("original-call-source") };
+            let target = original.as_loan()?;
+            if target.call_site() != observation.site() { return Err(freeze("static-input/qualified-use-identity")); }
+            let argument_sites = target.argument_sites();
             if argument_sites.len() != observation.arguments().len()
                 || self.local_call_for_owner(contract.owner, observation.site().site()) != Some(observation) {
                 return Err(freeze("static-input/qualified-use-identity"));
             }
-            if let Some(instance) = original.and_then(|row| row.source.instance()) {
+            if let Some(instance) = original.instance() {
                 // A stored Provider child is read through its parent `me.<field>`.
                 let (binding, read_site) = match instance.stored_receiver() {
                     Some((parent, parent_site, _, _)) => (parent, parent_site),
@@ -304,7 +289,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     covered.insert((read_site.clone(), binding));
                 }
             }
-            let scalar_reads = match original.and_then(|row| row.source.instance()) {
+            let scalar_reads = match original.instance() {
                 Some(target) => super::super::borrowed_formal_actuals::source_instance_scalar_reads_v1(
                     self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("borrowed-instance/source-unavailable"))?,
                     &self.borrowed_formal_actuals, catalog, target, self)?,
@@ -315,7 +300,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 if crate::config::env::builder_debug_enabled() {
                     eprintln!("[entry-input-use] call={:?} argument site={site:?} kind={:?}", observation.site(), std::mem::discriminant(argument));
                 }
-                if let (Argument::BorrowedActual { ordinal, site: actual }, Some(original)) = (argument, scalar_static.as_ref()) {
+                if let (Argument::BorrowedActual { ordinal, site: actual }, BorrowedIncomingSourceV1::Static(original)) = (argument, original) {
                     if actual != site { return Err(freeze("static-input/qualified-use-identity")); }
                     if let Some((binding, formal)) = Self::original_static_forwarded_use_v1(
                         structure.source, uses, original, *ordinal, site)? {
@@ -646,7 +631,10 @@ impl OrdinaryNewClaimLedgerV1 {
                         freeze("borrowed-entry/source-use-completion-pending"), structure.owner))?;
                 if !Rc::ptr_eq(uses, &complete) { return Err(freeze("static-input/original-use-identity")); }
                 let mut actuals = Vec::new();
-                for call in incoming {
+                let execution: Box<[_]> = incoming.iter().copied()
+                    .filter(|call| !*tagged || self.static_input_caller_has_execution_v1(call))
+                    .collect();
+                for call in &execution {
                     match &call.source {
                         super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Instance(target) => {
                             let (selected, signatures) = self.original_instance_input_issuance.as_ref()
@@ -696,7 +684,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         Ok(BorrowedFormalDomainV1::from_source_v1(*ordinal, *binding, Rc::clone(domain)))
                     }).collect::<Result<Vec<_>, String>>()?.into_boxed_slice()
                 };
-                (domains, incoming.clone(), BorrowedEntryActualsV1::Executable(actuals.into_boxed_slice()))
+                (domains, execution, BorrowedEntryActualsV1::Executable(actuals.into_boxed_slice()))
             }
         };
         Ok(BorrowedOrdinaryEntrySourceRefV1 {

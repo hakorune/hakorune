@@ -272,7 +272,8 @@ impl PreparedBorrowedFormalIngressV1 {
                 definition.uses.iter().all(|row| match &row.kind {
                     Use::Copy { .. }
                     | Use::DynamicComparisonOperand { .. }
-                    | Use::CompareOperand { .. } => true,
+                    | Use::CompareOperand { .. }
+                    | Use::IntegerReturn { .. } => true,
                     Use::UnresolvedArgument { call, ordinal } => {
                         super::static_source::original_static_source_v1(source, call)
                             .ok()

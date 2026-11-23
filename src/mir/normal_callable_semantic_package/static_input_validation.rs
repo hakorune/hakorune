@@ -459,7 +459,10 @@ impl OrdinaryNewClaimLedgerV1 {
             .source_incoming
             .project_source_v1(&[owner].into_iter().collect())
             .map_err(|issue| format!("{}: {issue:?}", freeze("static-input/source-cohort-veto")))?;
-        for call in &incoming {
+        let tagged = self.uses_tagged_static_inputs_v1(source, contract);
+        for call in incoming.iter().filter(|call| {
+            !tagged || self.static_input_caller_has_execution_v1(call)
+        }) {
             if !seen.insert(call.call.clone()) {
                 return Err(freeze("static-input/original-row-duplicate"));
             }

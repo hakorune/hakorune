@@ -3,6 +3,25 @@
 use super::*;
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// The original incoming lookup can also return Static rows. Keep the
+    /// namespace on the same canonical source when accounting for argument uses.
+    pub(super) fn original_input_use_call_v1(
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        catalog: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+        site: &OwnedExprSiteV1,
+    ) -> Result<Option<super::super::borrowed_formal_uses::BorrowedIncomingSourceV1>, String> {
+        use super::super::borrowed_formal_uses::BorrowedIncomingSourceV1;
+
+        if let Some(row) = Self::original_instance_input_call_v1(source, catalog, site)? {
+            if let BorrowedIncomingSourceV1::Static(original) = &row.source {
+                self.verify_original_static_source_v1(original)?;
+            }
+            return Ok(Some(row.source));
+        }
+        Ok(self.original_static_input_use_source_v1(site)?.map(BorrowedIncomingSourceV1::Static))
+    }
+
     /// These uses already have their own checked source owners. Binding
     /// lineage is rechecked against the exact entry, not a scalar domain.
     pub(super) fn tagged_entry_source_reads_v1(
