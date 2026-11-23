@@ -21,9 +21,6 @@ mod generic_lowerer;
 #[cfg(test)]
 mod generic_production_canary_tests;
 mod initialized_local_input_materializer;
-// Caller-zero until the R0 route switch wires the node-level admission
-// edge; recheck at the production-switch slice.
-mod loop_node_lowerer;
 // Caller-zero until the Main0 canonical-root handoff wires the installed App
 // Main caller; recheck at the production-switch slice.
 // Caller-zero until the same Main0 canonical-root handoff wires the second
@@ -50,9 +47,6 @@ pub(in crate::mir::builder) use generic_lowerer::lower_generic_g0_function_draft
 // installed App Main caller; recheck at the production-switch slice.
 // Caller-zero re-export for the second bounded Main0 profile; same handoff.
 // Caller-zero re-export for the third bounded Main0 profile; same handoff.
-// Caller-zero re-export until the R0 route switch wires the node-level
-// admission edge; same recheck applies.
-pub(in crate::mir::builder) use loop_node_lowerer::lower_loop_node_physical_admission_v1;
 pub(super) use operation_dispatcher::LoopOperationDispatchServicesV1;
 #[cfg(test)]
 pub(super) use segment_allocator::allocate_for_layout;

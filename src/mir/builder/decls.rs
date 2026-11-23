@@ -277,16 +277,6 @@ impl super::MirBuilder {
             if root_identity.is_none() || normal_runtime_inputs.is_none() {
                 self.materialize_legacy_main_parameters_v1(&params, &script_args)?;
             }
-            // Phase 200-C: Store fn_body_ast for inline main() lowering
-            if !self.comp_ctx.quiet_internal_logs {
-                let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!(
-                    "[decls/fn_body_ast] Storing fn_body_ast with {} nodes for inline main()",
-                    body.len()
-                ));
-            }
-            self.function_state.compilation.fn_body_ast = Some(body.clone());
-            self.function_state.compilation.fn_declaration_ast = declaration.clone();
             self.set_current_function_runes(&attrs);
             self.set_current_function_declared_capability_uses(&uses);
 
@@ -303,11 +293,6 @@ impl super::MirBuilder {
                 ),
                 None => port.lower_body(self, body.clone()),
             };
-
-            // Phase 200-C: Clear fn_body_ast after main() lowering
-            self.function_state.compilation.fn_body_ast = None;
-            self.function_state.compilation.fn_declaration_ast = None;
-            self.function_state.compilation.resolved_loop_source_unit = None;
 
             self.function_state.variable_ctx.variable_map = saved_var_map;
             lowered.map_err(CallableMainCompatibilityLoweringErrorV1::from)

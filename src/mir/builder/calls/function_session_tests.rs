@@ -1,7 +1,7 @@
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::sync::Arc;
 
-use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
+use crate::ast::{ASTNode, DeclarationAttrs, Span};
 use crate::mir::builder::compilation_context::RecordLocalFieldValue;
 use crate::mir::builder::control_flow::edgecfg::api::{EdgeStub, ExitKind, Frag};
 use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
@@ -27,12 +27,6 @@ enum InjectedCheckpoint {
     AfterFinalize,
 }
 
-fn literal(value: i64) -> ASTNode {
-    ASTNode::Literal {
-        value: LiteralValue::Integer(value),
-        span: Span::unknown(),
-    }
-}
 
 fn resolved_product() -> Arc<VerifiedResolvedFunctionV1> {
     let function = ASTNode::FunctionDeclaration {
@@ -206,7 +200,6 @@ fn seeded_builder() -> MirBuilder {
         .function_state
         .compilation
         .reserve_value_id(ValueId::new(716));
-    builder.function_state.compilation.fn_body_ast = Some(vec![literal(717)]);
     builder.metadata_ctx.set_current_span(Span::new(1, 2, 3, 4));
     builder.metadata_ctx.push_region(RegionId(718));
     builder.record_value_origin_span(ValueId::new(727), Span::new(7, 2, 7, 9));
@@ -348,15 +341,6 @@ fn assert_outer_state(builder: &MirBuilder) {
         .function_state
         .compilation
         .is_reserved_value_id(ValueId::new(716)));
-    assert_eq!(
-        builder
-            .function_state
-            .compilation
-            .fn_body_ast
-            .as_ref()
-            .map(|body| body.len()),
-        Some(1)
-    );
     assert_eq!(builder.metadata_ctx.current_span(), Span::new(1, 2, 3, 4));
     assert_eq!(
         builder.metadata_ctx.current_region_stack(),
@@ -417,16 +401,6 @@ fn assert_child_entry_is_reset(builder: &MirBuilder) {
         .compilation
         .is_reserved_value_id(ValueId::new(716)));
     assert_eq!(
-        builder
-            .function_state
-            .compilation
-            .fn_body_ast
-            .as_ref()
-            .map(Vec::len),
-        Some(0),
-        "the child owns its empty legacy body capture rather than the outer body"
-    );
-    assert_eq!(
         builder.value_origin_span(ValueId::new(727)),
         Some(Span::new(7, 2, 7, 9)),
         "metadata origin spans are an explicit no-isolation control before METAISO"
@@ -450,7 +424,7 @@ fn run_injected_checkpoint(
     let function_name = "Injected.run/0".to_string();
     let session_name = function_name.clone();
     let body = Vec::new();
-    builder.with_function_lowering_session(&session_name, body.clone(), None, move |builder| {
+    builder.with_function_lowering_session(&session_name, move |builder| {
         if checkpoint == InjectedCheckpoint::BeforeSkeleton {
             return Err("injected:before_skeleton".into());
         }
@@ -511,7 +485,7 @@ fn every_fallible_checkpoint_restores_caller_and_publishes_nothing() {
 fn primary_and_cleanup_errors_are_both_preserved() {
     let mut builder = seeded_builder();
     let error = builder
-        .with_function_lowering_session("Injected.cleanup/0", Vec::new(), None, |builder| {
+        .with_function_lowering_session("Injected.cleanup/0", |builder| {
             builder.metadata_ctx.push_region(RegionId(800));
             builder.metadata_ctx.push_region(RegionId(801));
             Err("injected:primary".to_string())
@@ -594,7 +568,7 @@ fn static_and_instance_drafts_commit_only_after_caller_restore() {
 fn child_entry_resets_captured_function_owned_state_before_restoring_outer_state() {
     let mut builder = seeded_builder();
     let error = builder
-        .with_function_lowering_session("Injected.child_entry/0", Vec::new(), None, |child| {
+        .with_function_lowering_session("Injected.child_entry/0", |child| {
             assert_child_entry_is_reset(child);
 
             child

@@ -4,11 +4,10 @@
 //! transition is owned by `CanonicalFunctionLoweringSessionV1`; this file only
 //! carries its successful draft/payload pair until one explicit completion.
 
-use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
 use crate::mir::function::MirFunction;
 
-use super::{CanonicalFunctionLoweringSessionV1, FunctionBodyCaptureV1};
+use super::CanonicalFunctionLoweringSessionV1;
 
 /// Typed failure from one payload-bearing legacy child capture.
 ///
@@ -116,21 +115,12 @@ impl MirBuilder {
     pub(in crate::mir::builder) fn capture_legacy_function_payload_pending_session_v1<P, E>(
         &mut self,
         function_name: &str,
-        body_snapshot: Vec<ASTNode>,
-        declaration: Option<ASTNode>,
         operation: impl FnOnce(&mut MirBuilder) -> Result<(MirFunction, P), E>,
     ) -> Result<
         LegacyFunctionPayloadPendingSessionV1<'_, P>,
         LegacyFunctionPayloadSessionErrorV1<E, P>,
     > {
-        CanonicalFunctionLoweringSessionV1::open(
-            self,
-            function_name,
-            FunctionBodyCaptureV1::Legacy {
-                body: body_snapshot,
-                declaration,
-            },
-        )
+        CanonicalFunctionLoweringSessionV1::open(self, function_name, false)
         .capture_pending_payload(operation)
         .map(|pending| LegacyFunctionPayloadPendingSessionV1 {
             pending,
@@ -195,7 +185,7 @@ mod tests {
         let source = String::from("exact-source-owner");
         let mut builder = seeded_builder();
         let pending = builder
-            .capture_legacy_function_payload_pending_session_v1("child/0", Vec::new(), None, |_| {
+            .capture_legacy_function_payload_pending_session_v1("child/0", |_| {
                 Ok::<_, TypedPrimary>((
                     draft("child/0"),
                     NonClonePayload {
@@ -228,8 +218,6 @@ mod tests {
         let mut builder = seeded_builder();
         let rejected = match builder.capture_legacy_function_payload_pending_session_v1::<(), _>(
             "primary/0",
-            Vec::new(),
-            None,
             |_| Err(TypedPrimary { code: 11 }),
         ) {
             Ok(_) => panic!("typed primary must reject"),
@@ -242,7 +230,7 @@ mod tests {
         assert_outer_restored(&builder);
 
         builder
-            .capture_legacy_function_payload_pending_session_v1("fresh/0", Vec::new(), None, |_| {
+            .capture_legacy_function_payload_pending_session_v1("fresh/0", |_| {
                 Ok::<_, TypedPrimary>((draft("fresh/0"), 23_u32))
             })
             .unwrap()
@@ -256,8 +244,6 @@ mod tests {
         let mut builder = seeded_builder();
         let rejected = match builder.capture_legacy_function_payload_pending_session_v1(
             "cleanup/0",
-            Vec::new(),
-            None,
             |builder| {
                 builder.recursion_depth = 1;
                 Ok::<_, TypedPrimary>((
@@ -288,8 +274,6 @@ mod tests {
         let mut builder = seeded_builder();
         let rejected = match builder.capture_legacy_function_payload_pending_session_v1::<(), _>(
             "during/0",
-            Vec::new(),
-            None,
             |builder| {
                 builder.recursion_depth = 1;
                 Err(TypedPrimary { code: 31 })
@@ -308,7 +292,7 @@ mod tests {
         assert_outer_restored(&builder);
 
         builder
-            .capture_legacy_function_payload_pending_session_v1("fresh/0", Vec::new(), None, |_| {
+            .capture_legacy_function_payload_pending_session_v1("fresh/0", |_| {
                 Ok::<_, TypedPrimary>((draft("fresh/0"), ()))
             })
             .unwrap()
@@ -322,7 +306,7 @@ mod tests {
         let mut builder = seeded_builder();
         {
             let _pending = builder
-                .capture_legacy_function_payload_pending_session_v1("drop/0", Vec::new(), None, |_| {
+                .capture_legacy_function_payload_pending_session_v1("drop/0", |_| {
                     Ok::<_, TypedPrimary>((draft("drop/0"), 37_u32))
                 })
                 .unwrap();
@@ -339,8 +323,6 @@ mod tests {
         let rejected = builder
             .capture_legacy_function_payload_pending_session_v1(
                 "completion-reject/0",
-                Vec::new(),
-                None,
                 |_| Ok::<_, TypedPrimary>((draft("completion-reject/0"), 43_u32)),
             )
             .unwrap()

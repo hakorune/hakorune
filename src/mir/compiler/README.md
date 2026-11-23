@@ -1222,6 +1222,13 @@ source loop completion and driver. The shared node winner admission remains
 the legacy node route's boundary. Its source membership and physical
 verification are unchanged.
 
+## Legacy JoinIR loop route retirement
+
+The node winner spine, node physical admission and node-specific lowerer
+have retired with raw JoinIR dispatch. The checked source loop and G0
+retain their existing segment materialization and verification owners.
+Portable recipe wire compatibility and the shared projection tests remain.
+
 ## Canonical Script Source-only A carrier I0
 
 `canonical_script_source_a_input.rs` is the compiler-side transport owner for

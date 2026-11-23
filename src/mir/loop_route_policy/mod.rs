@@ -24,10 +24,12 @@ mod generic_g0_observation;
 mod generic_g0_observation_tests;
 #[cfg(test)]
 mod generic_g0_tests;
+#[cfg(test)]
 mod loop_cond_break_continue;
 mod loop_cond_break_continue_observation;
 #[cfg(test)]
 mod loop_cond_break_continue_observation_tests;
+#[cfg(test)]
 mod loop_true_break_continue;
 mod loop_true_break_continue_observation;
 #[cfg(test)]
@@ -51,6 +53,7 @@ pub(crate) use direct_accum_observation::{
     DirectAccumObservationContextV1, DirectAccumObservationDeclineV1, DirectAccumObservationRejectV1,
     DirectAccumObservationUnresolvedV1, VerifiedDirectAccumFamilyCandidateV1,
 };
+#[cfg(test)]
 pub(crate) use loop_cond_break_continue::{
     issue_loop_cond_break_continue_policy_demand_v1,
     VerifiedLoopCondBreakContinuePolicyDemandV1, VerifiedLoopCondBreakContinuePolicyReceiptV1,
@@ -78,6 +81,7 @@ pub(crate) use generic_g0_observation::{
     GenericG0ObservationContextV1, GenericG0ObservationEvidenceV1,
 };
 pub(crate) use loop_cond_break_continue_observation::LoopCondFamilyObservationV1;
+#[cfg(test)]
 pub(crate) use loop_true_break_continue::{
     issue_loop_true_break_continue_policy_demand_v1,
     VerifiedLoopTrueBreakContinuePolicyDemandV1, VerifiedLoopTrueBreakContinuePolicyReceiptV1,

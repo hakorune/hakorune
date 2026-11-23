@@ -141,7 +141,7 @@ fn collect_seed(invocation: &mut ModuleLoweringInvocationV1<'_>, symbol: &str) {
     invocation
         .with_module_port(|builder, port| {
             let pending = port
-                .capture_legacy_pending(builder, symbol, Vec::new(), None, |_| Ok(draft(symbol)))?;
+                .capture_legacy_pending(builder, symbol, |_| Ok(draft(symbol)))?;
             port.commit_legacy_pending(
                 pending,
                 LegacyChildDraftAdmissionV1::legacy_symbol(symbol.into(), 0),
@@ -181,7 +181,7 @@ fn pending_capture_ends_before_header_loan_and_commit() {
     invocation
         .with_module_port(|builder, port| {
             let pending = port
-                .capture_legacy_pending(builder, "inner/0", Vec::new(), None, |_| {
+                .capture_legacy_pending(builder, "inner/0", |_| {
                     Ok(draft("inner/0"))
                 })
                 .unwrap();
@@ -222,7 +222,7 @@ fn rejected_commit_restores_parent_without_collector_delta() {
 
     let result = invocation.with_module_port(|builder, port| {
         let pending = port
-            .capture_legacy_pending(builder, "inner/0", Vec::new(), None, |_| {
+            .capture_legacy_pending(builder, "inner/0", |_| {
                 Ok(draft("inner/0"))
             })
             .unwrap();
@@ -248,8 +248,6 @@ fn capture_failure_never_reaches_commit_terminal() {
         let captured = port.capture_legacy_pending(
             builder,
             "failed/0",
-            Vec::new(),
-            None,
             move |_| -> Result<MirFunction, String> { Err("nested body failure".to_owned()) },
         );
         captured.map(|pending| {
@@ -273,7 +271,7 @@ fn raw_capture_commit_failure_matrix_preserves_prefix_and_reuse() {
     collect_seed(&mut invocation, "prefix/0");
 
     let primary = invocation.with_module_port(|builder, port| {
-        port.capture_legacy_pending(builder, "primary/0", Vec::new(), None, |_| {
+        port.capture_legacy_pending(builder, "primary/0", |_| {
             Err("raw primary".to_owned())
         })
         .map(drop)
@@ -287,7 +285,7 @@ fn raw_capture_commit_failure_matrix_preserves_prefix_and_reuse() {
     assert_parent_and_prefix(&mut invocation, &["prefix/0"]);
 
     let cleanup = invocation.with_module_port(|builder, port| {
-        port.capture_legacy_pending(builder, "cleanup/0", Vec::new(), None, |builder| {
+        port.capture_legacy_pending(builder, "cleanup/0", |builder| {
             builder.recursion_depth = 1;
             Ok(draft("cleanup/0"))
         })
@@ -303,7 +301,7 @@ fn raw_capture_commit_failure_matrix_preserves_prefix_and_reuse() {
 
     let admission = invocation.with_module_port(|builder, port| {
         let pending =
-            port.capture_legacy_pending(builder, "admission/0", Vec::new(), None, |_| {
+            port.capture_legacy_pending(builder, "admission/0", |_| {
                 Ok(draft("admission/0"))
             })?;
         port.commit_legacy_pending(
@@ -319,7 +317,7 @@ fn raw_capture_commit_failure_matrix_preserves_prefix_and_reuse() {
 
     let panic = catch_unwind(AssertUnwindSafe(|| {
         let _ = invocation.with_module_port(|builder, port| {
-            port.capture_legacy_pending(builder, "panic/0", Vec::new(), None, |_| {
+            port.capture_legacy_pending(builder, "panic/0", |_| {
                 panic!("raw child panic")
             })
             .map(drop)
@@ -647,7 +645,7 @@ fn located_loop_rejects_reachable_box_before_joinir_or_collection() {
 }
 
 #[test]
-fn located_loop_preserves_legacy_route_result_and_instructions() {
+fn raw_loop_without_checked_source_refuses_before_emission() {
     let node = ASTNode::Loop {
         condition: Box::new(ASTNode::Literal {
             value: LiteralValue::Bool(true),
@@ -660,6 +658,7 @@ fn located_loop_preserves_legacy_route_result_and_instructions() {
     };
     let mut legacy = MirBuilder::new();
     legacy.enter_function_for_test("reentrant_parent/0".to_owned());
+    let before = sorted_instruction_debug(&legacy);
     let legacy_result =
         drive_legacy_expression_v1(&mut legacy, &mut RawLegacyChildLoweringPortV1, node.clone());
 
@@ -673,6 +672,13 @@ fn located_loop_preserves_legacy_route_result_and_instructions() {
         )
     });
     let selected_rows = invocation.with_header_port(|builder, _| sorted_instruction_debug(builder));
-    assert_eq!(selected_result, legacy_result);
-    assert_eq!(selected_rows, sorted_instruction_debug(&legacy));
+    for error in [selected_result.unwrap_err(), legacy_result.unwrap_err()] {
+        assert!(
+            error.contains("[raw-loop-child-entry/checked-source-route-unavailable]"),
+            "{error}"
+        );
+        assert!(error.contains("function=reentrant_parent/0"), "{error}");
+    }
+    assert_eq!(selected_rows, before);
+    assert_eq!(sorted_instruction_debug(&legacy), before);
 }

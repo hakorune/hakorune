@@ -15,6 +15,7 @@ mod binding_declaration;
 // Caller-zero source-backed complete predicate branch-plan transport.
 // Caller-zero same-cohort Return-read logical/layout/Join co-seal view.
 // Caller-zero source-segment allocation demand; synthetic After is separate.
+#[cfg(test)]
 mod direct_accum_producer;
 mod error;
 mod ids;
@@ -24,7 +25,9 @@ mod join_sig;
 // Main0 Continue and the selected variable-bound Mul producer use this owner.
 mod internal_declaration;
 mod join_sig_branch;
+#[cfg(test)]
 mod loop_cond_break_continue_producer;
+#[cfg(test)]
 mod loop_true_break_continue_producer;
 mod normalize;
 mod operation_carrier_demand;
@@ -189,10 +192,8 @@ pub(crate) use binding_declaration::{
     resolve_loop_binding_declaration_v1, ResolvedLoopBindingDeclarationV1,
 };
 pub(crate) use continuation::VerifiedLoopContinuationContractV1;
-pub(crate) use direct_accum_producer::{
-    produce_direct_accum_recipe_v1, DirectAccumRecipeProducerRejectV1,
-    VerifiedDirectAccumRecipeProductV1,
-};
+#[cfg(test)]
+pub(crate) use direct_accum_producer::VerifiedDirectAccumRecipeProductV1;
 pub(crate) use error::LoopRecipeRejectReasonV1;
 pub(crate) use ids::{
     LoopBindingKeyV1, LoopBlockKeyV1, LoopCarrierKeyV1, LoopExitKeyV1, LoopItemKeyV1,
@@ -210,14 +211,6 @@ pub(crate) use join_sig::{
     LoopJoinLogicalTransferViewV2, LoopJoinNextItemV1, LoopJoinPayloadV2, LoopJoinPortBindingV2,
     LoopJoinPortV1, LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1, LoopJoinSigV1,
     VerifiedLoopJoinClosureV2, VerifiedLoopJoinSigV1,
-};
-pub(crate) use loop_cond_break_continue_producer::{
-    produce_loop_cond_break_continue_recipe_v1, LoopCondBreakContinueRecipeProducerRejectV1,
-    VerifiedLoopCondBreakContinueRecipeProductV1,
-};
-pub(crate) use loop_true_break_continue_producer::{
-    produce_loop_true_break_continue_recipe_v1, LoopTrueBreakContinueRecipeProducerRejectV1,
-    VerifiedLoopTrueBreakContinueRecipeProductV1,
 };
 pub(crate) use normalize::{LoopRecipeDecodeErrorV2, LoopRecipeNormalizerV2};
 pub(crate) use operation_carrier_demand::PreparedLoopDerivedCarrierSeedRowV1;

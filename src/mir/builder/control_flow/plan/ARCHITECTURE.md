@@ -10,7 +10,7 @@ This folder implements the JoinIR “planner-first” pipeline in layers:
 ## Entry SSOT
 
 The authoritative “entry wiring” and ownership boundaries are documented in `src/mir/builder/control_flow/plan/REGISTRY.md`
-under “Entry SSOT (router→planner→composer→lower)”.
+under “Entry SSOT (source facts→planner→composer→lower)”.
 
 ## Public Surface
 
@@ -19,7 +19,7 @@ This folder is the FlowPlanner implementation owner. It is physically under
 
 Allowed consumer-facing surfaces:
 
-- `joinir::route_entry::router::route_loop` for loop routing.
+- `raw_loop_child_port::RawLoopChildEntryPortV1::lower_loop` for Loop child entry.
 - `control_flow/lower/planner_compat.rs` for planner/lowerer compatibility
   exports.
 - documented facts / recipe facades while the `facts/` and `recipes/` split is

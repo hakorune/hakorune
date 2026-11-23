@@ -4,8 +4,10 @@
 //! Keeping the pair owned and non-Clone prevents a consumer from accepting a
 //! recipe and a JoinSig that were verified from different semantic products.
 
+#[cfg(test)]
 use super::direct_accum_producer::VerifiedDirectAccumRecipeProductV1;
 use super::join_sig::VerifiedLoopJoinSigV1;
+#[cfg(test)]
 use super::source_bound_core::VerifiedLoopRecipeBindingRelationV1;
 use super::verify::VerifiedLoopRecipeV1;
 
@@ -19,6 +21,7 @@ impl VerifiedLoopPhysicalInputV1 {
     /// Extracts the verified Recipe/JoinSig pair plus the Recipe-layer binding
     /// relations, which remain the sole owner of the `LoopBindingKeyV1` ->
     /// `BindingRefV1` mapping for the resolved identity adapter.
+    #[cfg(test)]
     pub(crate) fn from_direct_accum_with_relations(
         product: VerifiedDirectAccumRecipeProductV1,
     ) -> (Self, Box<[VerifiedLoopRecipeBindingRelationV1]>) {

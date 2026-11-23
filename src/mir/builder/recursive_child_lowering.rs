@@ -633,17 +633,14 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
-        declaration: Option<ASTNode>,
+        _declaration: Option<ASTNode>,
     ) -> Result<LegacyFunctionPendingSessionV1<'builder>, ModuleLoweringPortChildErrorV1> {
-        let body_snapshot = body.clone();
         let session_name = function_name.clone();
         let pending = {
             let mut child_port = self.reborrow();
             builder
                 .capture_legacy_function_pending_session_v1(
                     &session_name,
-                    body_snapshot,
-                    declaration,
                     move |builder| {
                         let prepared: PortAwarePreparedDraftBodyV1 = builder
                             .build_static_method_draft_with_port_v1(

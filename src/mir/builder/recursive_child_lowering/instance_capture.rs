@@ -60,16 +60,13 @@ impl RawInvocationChildPortV1<'_, '_> {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
-        declaration: Option<ASTNode>,
+        _declaration: Option<ASTNode>,
     ) -> Result<LegacyFunctionPendingSessionV1<'builder>, ModuleLoweringPortChildErrorV1> {
-        let body_snapshot = body.clone();
         let session_name = function_name.clone();
         let mut child = self.reborrow();
         builder
             .capture_legacy_function_pending_session_v1(
                 &session_name,
-                body_snapshot,
-                declaration,
                 move |builder| {
                     child.lower_instance_capture_draft(
                         builder,
@@ -99,19 +96,16 @@ impl RawInvocationChildPortV1<'_, '_> {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
-        declaration: Option<ASTNode>,
+        _declaration: Option<ASTNode>,
     ) -> Result<
         LegacyFunctionPayloadPendingSessionV1<'builder, Option<RetainedConstructionValidation>>,
         ModuleLoweringPortChildErrorV1,
     > {
-        let body_snapshot = body.clone();
         let session_name = function_name.clone();
         let mut child = self.reborrow();
         builder
             .capture_legacy_function_payload_pending_session_v1(
                 &session_name,
-                body_snapshot,
-                declaration,
                 move |builder| {
                     let function = child.lower_instance_capture_draft(
                         builder,

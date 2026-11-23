@@ -17,7 +17,6 @@ use super::module_draft_collector::{
 };
 use super::module_lowering_invocation_access::ModuleLoweringInvocationAccessPortV1;
 use super::module_lowering_shell::ModuleLoweringShellV1;
-use crate::ast::ASTNode;
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
@@ -378,15 +377,11 @@ impl ModuleLoweringPortV1<'_> {
         &self,
         builder: &'builder mut MirBuilder,
         function_name: &str,
-        body_snapshot: Vec<ASTNode>,
-        declaration: Option<ASTNode>,
         lower: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
     ) -> Result<LegacyFunctionPendingSessionV1<'builder>, ModuleLoweringPortChildErrorV1> {
         builder
             .capture_legacy_function_pending_session_v1(
                 function_name,
-                body_snapshot,
-                declaration,
                 lower,
             )
             .map_err(ModuleLoweringPortChildErrorV1::Session)

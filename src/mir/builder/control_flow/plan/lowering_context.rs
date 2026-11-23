@@ -1,25 +1,11 @@
 //! Route-neutral diagnostics and explicit completion capability for CorePlan.
 //!
-//! This context is intentionally smaller than `LoopRouteContext`.  A source-
-//! backed Recipe already owns route selection; the physical lowerer needs only
-//! stable diagnostics, policy and an explicit source completion capability. Legacy callers still
-//! implement this trait through their existing route context.
-
-use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+//! A source-backed Recipe owns source identity and route selection. The
+//! physical lowerer reads the existing function name and debug flag.
 
 pub(in crate::mir::builder) trait PlanLoweringContext {
     fn function_name(&self) -> &str;
     fn debug_enabled(&self) -> bool;
-}
-
-impl<'a> PlanLoweringContext for LoopRouteContext<'a> {
-    fn function_name(&self) -> &str {
-        self.func_name
-    }
-
-    fn debug_enabled(&self) -> bool {
-        self.debug
-    }
 }
 
 /// Route-neutral lowering context for source-backed callable loop plans.

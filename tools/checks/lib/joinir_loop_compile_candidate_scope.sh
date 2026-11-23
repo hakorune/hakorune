@@ -4,8 +4,6 @@ guard_joinir_loop_compile_candidate_scope() {
   local root_dir="$1"
   local tag="$2"
   local manifest="$root_dir/tools/checks/manifests/joinir_loop_compile_candidate_scope_v1.tsv"
-  local routing="$root_dir/src/mir/builder/control_flow/joinir/routing.rs"
-  local router="$root_dir/src/mir/builder/control_flow/joinir/route_entry/router.rs"
   local raw_child="$root_dir/src/mir/builder/raw_loop_child_entry.rs"
   local recursive_child="$root_dir/src/mir/builder/recursive_child_lowering.rs"
   local normal="$root_dir/src/mir/compiler/normal_default_pipeline.rs"
@@ -63,7 +61,7 @@ guard_joinir_loop_compile_candidate_scope() {
   local nested_effect_plan_tests="$root_dir/src/mir/compiler/nested_predicate_effect_plan_tests.rs"
   local nested_effect_adapter_tests="$root_dir/src/mir/builder/resolved_lowering/nested_predicate_effect_adapter_tests.rs"
 
-  guard_require_files "$tag" "$manifest" "$routing" "$router" "$raw_child" \
+  guard_require_files "$tag" "$manifest" "$raw_child" \
     "$recursive_child" "$normal" "$raw_compile" "$raw_open" "$raw_recipe" \
     "$canonical" "$canonical_input" "$m1_test" \
     "$external_commit" \
@@ -99,33 +97,11 @@ guard_joinir_loop_compile_candidate_scope() {
     guard_fail "$tag" "Loop candidate scope manifest row contract failed"
   fi
 
-  local route_refs
-  route_refs="$(rg -n -F 'route_loop(' "$root_dir/src" --glob '*.rs' || true)"
-  if [[ "$(printf '%s\n' "$route_refs" | sed '/tests\//d' | sed '/_tests\.rs:/d' | sed '/::tests::/d' | sed '/pub(crate) fn route_loop/d' | sed '/^$/d' | wc -l | tr -d '[:space:]')" != "1" ]]; then
-    guard_fail "$tag" "production route_loop caller count drift"
+  if rg -n '\b(route_loop|try_cf_loop_joinir|lower_loop_or_freeze_v1)\(' "$root_dir/src/mir" --glob '*.rs' >/dev/null; then
+    guard_fail "$tag" "retired loop route returned"
   fi
-  if ! rg -n -F 'route_loop(self, &ctx)?' "$routing" >/dev/null || \
-     ! rg -n -F 'pub(crate) fn route_loop(' "$router" >/dev/null; then
-    guard_fail "$tag" "route_loop definition/caller anchors drift"
-  fi
-
-  local joinir_refs
-  joinir_refs="$(rg -n -F 'try_cf_loop_joinir(' "$root_dir/src" --glob '*.rs' || true)"
-  if [[ "$(printf '%s\n' "$joinir_refs" | sed '/tests\//d' | sed '/_tests\.rs:/d' | sed '/^$/d' | wc -l | tr -d '[:space:]')" != "2" ]]; then
-    guard_fail "$tag" "try_cf_loop_joinir definition/caller count drift"
-  fi
-  if ! rg -n -F 'lower_loop_or_freeze_v1(' "$routing" "$raw_child" "$recursive_child" >/dev/null; then
-    guard_fail "$tag" "shared Loop terminal owner anchors drift"
-  fi
-
-  if ! rg -n -F 'route_loop(' "$root_dir/src" --glob '*.rs' \
-      | awk -F: '$1 !~ /route_entry\/router\.rs$/ && $1 !~ /joinir\/routing\.rs$/ && $1 !~ /_tests?\.rs$/ { found = 1 } END { exit found }'; then
-    guard_fail "$tag" "route_loop caller escaped the sole routing owner"
-  fi
-  if ! rg -n -F 'try_cf_loop_joinir(' "$root_dir/src" --glob '*.rs' \
-      | awk -F: '$1 !~ /joinir\/routing\.rs$/ && $1 !~ /_tests?\.rs$/ { found = 1 } END { exit found }'; then
-    guard_fail "$tag" "try_cf_loop_joinir caller escaped the routing owner"
-  fi
+  guard_expect_fixed_in_file "$tag" "[raw-loop-child-entry/checked-source-route-unavailable]" \
+    "$root_dir/src/mir/builder/raw_loop_child_entry.rs" "raw Loop must name the missing checked route"
 
   for required in \
     "$normal|ModuleBuilderInvocationSessionV1::open_for_token|1" \

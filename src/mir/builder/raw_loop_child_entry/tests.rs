@@ -650,7 +650,6 @@ fn unlocated_entry_is_rejected_before_child_classification() {
 
 #[test]
 fn identical_loops_keep_distinct_resolver_receipts() {
-    use crate::mir::builder::control_flow::joinir::route_entry::{route_loop, LoopRouteContext};
     use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
     let program = crate::parser::NyashParser::parse_from_string(
         "static box Main { main() {\nloop(false) {}\nloop(false) {}\nreturn 0\n} }",
@@ -666,49 +665,14 @@ fn identical_loops_keep_distinct_resolver_receipts() {
             _ => None,
         })
         .unwrap();
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(declaration.clone()).unwrap();
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(declaration).unwrap();
     let input = unit.root_function_input().unwrap();
     let sites: Vec<_> = input.function().loop_sites().cloned().collect();
     assert_eq!(sites.len(), 2);
     assert_ne!(sites[0], sites[1]);
-    for (index, site) in sites.iter().enumerate() {
-        // The original receipt is authoritative even when the walked shape
-        // has the other identical loop's span; a syntax scan picks that site.
-        let located = input.source().exact_stmt(&sites[1 - index]).unwrap();
-        let ASTNode::Loop {
-            condition, body, ..
-        } = located.node()
-        else {
-            panic!("Loop");
-        };
-        let mut builder = MirBuilder::new();
-        builder.enter_function_for_test("main".to_owned());
-        builder.function_state.compilation.fn_declaration_ast = Some(declaration.clone());
-        let context = LoopRouteContext::new(condition, body, "main", false);
-        let before = builder
-            .function_state
-            .current_function
-            .as_ref()
-            .unwrap()
-            .blocks
-            .len();
-        let missing = route_loop(&mut builder, &context, None, None).unwrap_err();
-        assert!(
-            missing.contains("[route-loop/missing-source-site]"),
-            "{missing}"
-        );
-        assert_eq!(
-            builder
-                .function_state
-                .current_function
-                .as_ref()
-                .unwrap()
-                .blocks
-                .len(),
-            before
-        );
-        let error = route_loop(&mut builder, &context, Some(site), None).unwrap_err();
-        assert!(error.contains("loop winner selection declined"), "{error}");
-        assert!(error.contains(&format!("site={site:?}")), "{error}");
+    for site in &sites {
+        let located = input.source().exact_stmt(site).unwrap();
+        assert!(matches!(located.node(), ASTNode::Loop { .. }));
+        assert_eq!(located.site(), site);
     }
 }

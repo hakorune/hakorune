@@ -20,9 +20,8 @@ use super::recursive_child_lowering::{RawInvocationChildPortV1, RawLegacyChildLo
 
 /// One raw Loop child-entry boundary.
 ///
-/// This boundary owns the raw invocation entry. A non-callable handoff may
-/// delegate to the legacy JoinIR owner, while a source-backed Ready handoff
-/// enters the named Recipe/physical adapter exactly once.
+/// This boundary owns raw loop ingress. A source-backed Ready handoff enters
+/// the checked lowering path. An entry without a checked route refuses.
 pub(in crate::mir::builder) trait RawLoopChildEntryPortV1 {
     fn lower_loop(
         &mut self,
@@ -37,15 +36,18 @@ impl RawLoopChildEntryPortV1 for RawLegacyChildLoweringPortV1 {
         builder: &mut MirBuilder,
         loop_node: ASTNode,
     ) -> Result<ValueId, String> {
-        let ASTNode::Loop {
-            condition, body, ..
-        } = loop_node
-        else {
+        if !matches!(loop_node, ASTNode::Loop { .. }) {
             return Err("[freeze:contract][raw-loop-child-entry/expected-loop]".to_owned());
-        };
-        crate::mir::builder::control_flow::joinir::routing::lower_loop_or_freeze_v1(
-            builder, *condition, body, None, None,
-        )
+        }
+        let function_name = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .map_or("<unknown>", |function| function.signature.name.as_str());
+        Err(super::raw_loop_child_entry::checked_source_route_unavailable(
+            function_name,
+            None,
+        ))
     }
 }
 
