@@ -26,7 +26,6 @@ use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceNodeSiteV1, Source
 mod planner;
 pub(in crate::mir) use planner::{issue_preissued_callable_loop_source_plan_v1, PreissuedCallableLoopSourcePlanV1, RetainedCallableLoopSourceV1};
 use planner::PlannedSourceLoopV1;
-pub(super) use planner::corroborate_loop_cond_recipe_source;
 #[path = "generic/home_after.rs"]
 use super::loop_cond;
 use super::loop_cond::CallableLoopCondSourceFactsV1;

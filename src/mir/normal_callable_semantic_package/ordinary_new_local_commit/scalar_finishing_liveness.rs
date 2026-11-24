@@ -152,9 +152,7 @@ impl OrdinaryNewClaimLedgerV1 {
         )?);
         let mut loop_dependencies = Vec::new();
         for role in self.recorded_source_loop_roles_v2(owner) {
-            let proof = role
-                .source_proof_v2()
-                .ok_or_else(|| freeze("scalar-liveness/source-loop-role"))?;
+            let proof = role.source_proof_v2();
             loop_dependencies.extend(proof.source_dependency_bindings_v2()?);
         }
         required.extend(validated_roots_with_auxiliary(

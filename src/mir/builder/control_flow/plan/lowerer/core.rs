@@ -63,11 +63,11 @@ impl super::PlanLowerer {
     /// Internal entry for one already-selected effect-emission authority.
     ///
     /// Located execution owns this only through a consuming, non-Clone bundle.
-    pub(in crate::mir::builder) fn lower_with_emission_port<'plan>(
+    pub(in crate::mir::builder) fn lower_with_emission_port(
         builder: &mut MirBuilder,
         plan: LoweredRecipe,
         ctx: &dyn PlanLoweringContext,
-        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'plan>,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1,
     ) -> Result<Option<ValueId>, String> {
         let mut loop_stack = Vec::new();
         Self::lower_with_stack(builder, plan, ctx, &mut loop_stack, port)
@@ -79,7 +79,7 @@ impl super::PlanLowerer {
         plan: LoweredRecipe,
         ctx: &dyn PlanLoweringContext,
         loop_stack: &mut Vec<LoopFrame>,
-        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1,
     ) -> Result<Option<ValueId>, String> {
         match plan {
             CorePlan::Seq(plans) => Self::lower_seq(builder, plans, ctx, loop_stack, port),

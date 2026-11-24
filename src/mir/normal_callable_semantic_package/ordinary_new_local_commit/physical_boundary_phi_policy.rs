@@ -97,7 +97,7 @@ pub(super) fn source_loop_feedback_v2(function: &MirFunction, nodes: &BTreeMap<B
 ) -> Result<BTreeSet<(BasicBlockId, BasicBlockId)>, String> {
     let mut feedback = BTreeSet::new();
     for role in roles {
-        let Some(proof) = role.source_proof_v2() else { continue };
+        let proof = role.source_proof_v2();
         if role.owner() != proof.product().source.source.owner() || role.site() != proof.product().source.source.site()
             || role.loop_phis().get(&proof.header()).is_none_or(|rows| rows.is_empty()) {
             return Err(fault("source-loop-feedback-role"));
@@ -121,6 +121,6 @@ pub(super) fn is_source_loop_auxiliary_const_v2(
     !function.params.contains(dst) && function.blocks.values().all(|block|
         block.all_instructions().all(|row| !row.used_values().contains(dst))
             && block.return_env.as_ref().is_none_or(|values| !values.contains(dst)))
-        && roles.iter().filter_map(|role| role.source_proof_v2())
+        && roles.iter().map(|role| role.source_proof_v2())
             .any(|proof| proof.result_binding() == &(id, row.clone()))
 }

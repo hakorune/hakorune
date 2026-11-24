@@ -4,7 +4,6 @@
 //! facts contract lives here so non-family callers can depend on a top-level
 //! facts owner surface.
 
-use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::ExitAllowedBlockRecipe;
 use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueRecipe;
 use crate::mir::policies::BodyLoweringPolicy;
@@ -27,11 +26,7 @@ pub(in crate::mir::builder) enum LoopCondBreakAcceptKind {
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopCondBreakContinueFacts {
     pub accept_kind: LoopCondBreakAcceptKind,
-    pub condition: ASTNode,
     pub recipe: LoopCondBreakContinueRecipe,
-    pub has_handled_guard_break: bool,
-    pub handled_var_name: Option<String>,
-    pub continue_branches: Vec<ContinueBranchSig>,
     pub body_lowering_policy: BodyLoweringPolicy,
     pub body_exit_allowed: Option<ExitAllowedBlockRecipe>,
 }

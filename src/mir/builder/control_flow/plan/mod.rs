@@ -88,10 +88,8 @@ mod loop_true_break_continue;
 // M1 scaffold: RecipeTree vocabulary + Parts dispatch entry (no calls from existing pipeline)
 mod parts;
 
-pub(in crate::mir::builder) use parts::exit_branch::validate_return_exit_branch_input;
 // Consumption seam for the source LoopCond sibling entry (item 6); the item
 // dispatcher stays the single physical owner while the caller slice lands.
-pub(in crate::mir::builder) use parts::lower_loop_cond_source_item;
 
 #[cfg(test)]
 pub(crate) fn reset_loop_physical_effect_probe() {

@@ -88,7 +88,6 @@ NO_EXIT="$ROOT_DIR/src/mir/builder/control_flow/plan/facts/loop_cond_no_exit_fac
 LOOP_BUILDER="$ROOT_DIR/src/mir/builder/control_flow/plan/facts/loop_builder.rs"
 LOOP_COND_FACTS="$ROOT_DIR/src/mir/builder/control_flow/facts/loop_cond_break_continue.rs"
 REJECT_REASON="$ROOT_DIR/src/mir/builder/control_flow/plan/facts/reject_reason.rs"
-LOOP_COND_BC="$ROOT_DIR/src/mir/builder/control_flow/plan/features/loop_cond_bc.rs"
 BC_ITEM="$ROOT_DIR/src/mir/builder/control_flow/plan/loop_cond/break_continue_item.rs"
 rg -q 'fn try_extract_loop_cond_no_exit_facts' "$NO_EXIT"
 rg -q 'LoopCondBreakAcceptKind::NoExitBody' "$NO_EXIT"
@@ -108,7 +107,6 @@ fi
 rg -q 'NoExitBody' "$LOOP_COND_FACTS"
 rg -q 'ExitSignalPresent => "exit_signal_present"' "$REJECT_REASON"
 rg -q 'fn for_loop_cond_no_exit' "$REJECT_REASON"
-rg -q 'LoopCondBreakAcceptKind::NoExitBody => \(\)' "$LOOP_COND_BC"
 rg -q 'fn build_loop_cond_break_continue_recipe' "$BC_ITEM"
 rg -q 'pipeline_pins_no_exit_body_kind' "$NO_EXIT"
 rg -q 'pipeline_keeps_exit_bearing_body_on_sibling' "$NO_EXIT"
@@ -140,11 +138,7 @@ rg -q 'source_read_binding' "$LOOP_SRC_PORT"
 rg -q 'me_this_method_call_effect' "$ASSOC_INPUT"
 rg -q 'exact_source_receiver_value' "$NORMALIZER_COMMON"
 rg -q 'fn cataloged_body_source' "$TESTKIT"
-rg -q 'source_item_consumes_me_receiver_site_for_method_call' "$ITEMS_TESTS"
-rg -q 'source_item_consumes_me_receiver_site_for_value_call' "$ITEMS_TESTS"
-rg -q 'source_item_consumes_this_receiver_site_for_method_call' "$ITEMS_TESTS"
 rg -q 'port_declines_receiver_value_for_non_receiver_expression' "$ITEMS_TESTS"
-rg -q 'source_item_rejects_duplicate_me_receiver_site_consumption' "$ITEMS_TESTS"
 
 # MIRBUILDER-EXE-ACCEPTANCE-INSTANCE-STATIC-INGRESS-S0: the static-result
 # publication ingress admits a `Cataloged` non-StaticBoxMethod caller only
@@ -443,20 +437,7 @@ ROOT_MAIN_SELECTION_TESTS="$ROOT_DIR/src/mir/builder/normal_default_root_catalog
 LOOP_PIPELINE_TESTS="$ROOT_DIR/src/mir/compiler/normal_default_pipeline_loop_tests.rs"
 LOOP_SCOPE_TESTS="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_loop_scope_tests.rs"
 
-# MIRBUILDER-GATE1-CALLFREE-LOOPCOND-S0: a loop whose call inventory is
-# empty is admitted only beside a bridge-issued
-# VerifiedCallableLoopCallFreeCoverageV1 proof — the bridge resolver-only
-# scan seals the `<` condition site plus the flat NoExitBody statement and
-# expression rows under the loop (integer/typed literals, lexical locals,
-# Add/Multiply, plain BindingRebind writes, no exits, no residual calls).
-# The route token co-seals the coverage as CallFree/WithCalls and rejects
-# foreign owners, foreign loop sites, residual call evidence, and any
-# item beside a CallFree claim; the physical input re-verifies owner,
-# parent, condition site, and under-loop containment before the existing
-# LoopCond owner lowers. Unproven empty inventories stay
-# SourceItemsMissing; a hidden call never mints CallFree.
 ROUTE_ITEMS_SRC="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_route_items.rs"
-ROUTE_CALL_FREE_TESTS="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_route_call_free_tests.rs"
 LEXICAL_INSTANCE_CALL_SRC="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_lexical_instance_call.rs"
 LEXICAL_INSTANCE_PROVENANCE_SRC="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_lexical_instance_call_provenance.rs"
 LEXICAL_INSTANCE_SOURCE_SRC="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_lexical_instance_call_source.rs"
@@ -486,31 +467,18 @@ LEXICAL_INSTANCE_CALL_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/
 VALUE_METHOD_CALL_SRC="$ROOT_DIR/src/mir/builder/control_flow/plan/normalizer/helpers_value/method_call.rs"
 ROUTE_TEST_SURFACE="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_route_tests.rs"
 SOURCE_LOOP_BRIDGE="$ROOT_DIR/src/mir/builder/normal_callable_semantic_lowering_state/source_loop_bridge.rs"
-LOOP_COND_FACTS_SRC="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_facts/loop_cond.rs"
 GENERIC_FACTS_ISSUER="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_facts/generic/issuer.rs"
 rg -q 'VerifiedCallableLoopCallFreeCoverageV1' "$ROUTE_ITEMS_SRC"
-rg -q 'CallFree\(VerifiedCallableLoopCallFreeCoverageV1\)' "$ROUTE_ITEMS_SRC"
-rg -q 'fn has_residual_evidence' "$ROUTE_ITEMS_SRC"
 rg -q 'fn issue_call_free_coverage' "$SOURCE_LOOP_BRIDGE"
 rg -q 'Armed \{' "$SOURCE_LOOP_BRIDGE"
 rg -q 'SourceCoverageForeign' "$CALLABLE_ROUTE"
 rg -q 'SourceCoverageSiteMismatch' "$CALLABLE_ROUTE"
 rg -q 'SourceCallResidualEvidence' "$CALLABLE_ROUTE"
-rg -q 'fn source_coverage' "$CALLABLE_ROUTE"
 rg -q 'call_free' "$GENERIC_FACTS_ISSUER"
-rg -q 'source_coverage: CallableLoopSourceCallCoverageV1' "$LOOP_COND_FACTS_SRC"
-rg -q 'call-free-coverage-mismatch' "$LOOP_COND_FACTS_SRC"
 rg -q 'call_free: Option<VerifiedCallableLoopCallFreeCoverageV1>' "$RAW_LOOP_ENTRY"
-rg -q 'source_backed_loop_keeps_invocation_scope_and_ledger_route' "$LOOP_SCOPE_TESTS"
-rg -q 'source_backed_call_free_loop_carries_two_bindings' "$LOOP_SCOPE_TESTS"
-rg -q 'source_backed_loop_outside_call_free_grammar_still_stops_at_source_items' "$LOOP_SCOPE_TESTS"
-rg -q 'source_backed_loop_with_hidden_call_never_mints_call_free' "$LOOP_SCOPE_TESTS"
-rg -q 'issue_with_source_relations_admits_verified_call_free_coverage' "$ROUTE_CALL_FREE_TESTS"
-rg -q 'issue_with_source_relations_keeps_unproven_empty_inventory_missing' "$ROUTE_CALL_FREE_TESTS"
-rg -q 'issue_with_source_relations_rejects_a_foreign_call_free_owner' "$ROUTE_CALL_FREE_TESTS"
-rg -q 'issue_with_source_relations_rejects_a_foreign_call_free_site' "$ROUTE_CALL_FREE_TESTS"
-rg -q 'issue_with_source_relations_rejects_call_free_with_residual_evidence' "$ROUTE_CALL_FREE_TESTS"
-rg -q 'issue_with_source_relations_rejects_call_free_beside_call_items' "$ROUTE_CALL_FREE_TESTS"
+rg -q 'untyped_loop_comparison_requires_checked_source_route' "$LOOP_SCOPE_TESTS"
+rg -q 'untyped_loop_comparison_with_two_carriers_requires_checked_source_route' "$LOOP_SCOPE_TESTS"
+rg -q 'untyped_loop_comparison_with_body_call_requires_checked_source_route' "$LOOP_SCOPE_TESTS"
 
 # MIRBUILDER-GATE1-PARAM-RECEIVER-CALL-SOURCE-S0: the ordinary_new co-seal
 # cohort issues InstanceMethod lexical dispositions — claim-local receivers
@@ -545,7 +513,6 @@ rg -q 'ResolvedLoopPlacementV1::Body' "$CORE_METHOD_SRC"
 rg -q 'fn allowed_target_placements' "$CONTRACT_ISSUER"
 rg -q 'body_position_length_with_text_evidence_arms' "$ITEMS_TESTS"
 rg -q 'body_position_length_without_text_evidence_stays_unarmed' "$ITEMS_TESTS"
-rg -q 'fn with_covered_call_items' "$ROUTE_ITEMS_SRC"
 
 # MIRBUILDER-GATE1-FIELD-WRITE-CLAIM-EDGE-TRANSPORT-S0: a field claims a
 # class only when every package write to that field name is an

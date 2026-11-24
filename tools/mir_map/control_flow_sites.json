@@ -169,19 +169,6 @@
     "evidence": "checked carrierからHeader/After点のPHIを予約"
   },
   {
-    "id": "plan-loop-cond-header",
-    "category": "loop-header-phi",
-    "role": "writer",
-    "file": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs",
-    "sites": [
-      {
-        "line": 50,
-        "code": "let phi_dst = builder.alloc_typed(ty.clone());"
-      }
-    ],
-    "evidence": "carrierの束縛と入場値からheader/step/afterのIDを割り当てる"
-  },
-  {
     "id": "plan-core-header",
     "category": "loop-header-phi",
     "role": "writer",
@@ -442,19 +429,6 @@
       }
     ],
     "evidence": "計画のcontinue_targetをCoreExitへ渡す"
-  },
-  {
-    "id": "plan-loopcond-continue-frame",
-    "category": "loop-continue",
-    "role": "writer",
-    "file": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs",
-    "sites": [
-      {
-        "line": 70,
-        "code": "let continue_target = if use_header_continue_target {"
-      }
-    ],
-    "evidence": "LoopCondのheader/stepのどちらへcontinueするか決める"
   },
   {
     "id": "plan-composite-continue-frame",

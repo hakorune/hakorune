@@ -763,12 +763,6 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         )
 
         check_verification_coreplan_varmap_reseal_carrier_pipeline_r0(state, card, root, api)
-    elif row == VERIFICATION_VARMAP_LOOP_COND_BC_ROW:
-        from mir_verification_quick_p0_c_guard import (
-            check_verification_coreplan_varmap_reseal_loop_cond_bc_r0,
-        )
-
-        check_verification_coreplan_varmap_reseal_loop_cond_bc_r0(state, card, root, api)
     elif row == VERIFICATION_VARMAP_LOOP_TRUE_BC_ROW:
         from mir_verification_quick_p0_c_guard import (
             check_verification_coreplan_varmap_reseal_loop_true_bc_r0,

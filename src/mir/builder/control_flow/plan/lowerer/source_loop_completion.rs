@@ -29,7 +29,7 @@ impl PlanLowerer {
             .ok_or_else(|| "[freeze:contract][source-loop/completion/function]".to_owned())?;
         let prepared = claims.prepare_source_loop_physical_v2(graph, marker, function)?;
         let role = prepared.commit(builder)?;
-        let proof = role.source_proof_v2().expect("source completion retains original proof");
+        let proof = role.source_proof_v2();
         for (binding, name) in names {
             let point = proof.points().after_point_v2(binding)?;
             ledger.borrow_mut().publish_source_loop_point_v2(builder, &point)?;

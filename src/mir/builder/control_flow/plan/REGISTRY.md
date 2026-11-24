@@ -148,10 +148,8 @@ surface with a new route or semantic issuer:
 | Surface | Role | Current disposition |
 |---|---|---|
 | `features/loop_break_composite_source.rs` | Composite LoopBreak adapter | active for the remaining compound source inputs |
-| `features/loop_cond_bc_source.rs` | LoopCond source item adapter | consumes the existing LoopCond owner |
 | `lowerer/source_loop_driver.rs` | Checked Loop writer | lowers the retained source plan |
 | `parts/associated_source/callable_loop_source.rs` | associated-source input owner | shared source handoff owner |
-| `parts/associated_source/callable_loop_source_items.rs` | source item bindings | shared source handoff part |
 | `parts/associated_source/callable_loop_source_lowering.rs` | source item lowering seam | shared source handoff part |
 | `parts/associated_source/dispatch.rs` | associated-source dispatch seam | shared source handoff part |
 

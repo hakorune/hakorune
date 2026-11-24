@@ -33,7 +33,7 @@ impl super::PlanLowerer {
         condition: ValueId,
         then_effects: &[CoreEffectPlan],
         else_effects: Option<&[CoreEffectPlan]>,
-        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1,
     ) -> Result<(), String> {
         // The plan has already resolved each operand to a ValueId. Its variable
         // cache can name destinations that the following effects still define.
@@ -60,7 +60,7 @@ impl super::PlanLowerer {
     fn emit_effects(
         builder: &mut MirBuilder,
         effects: &[CoreEffectPlan],
-        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1,
     ) -> Result<(), String> {
         let strict_planner_required = crate::config::env::joinir_dev::strict_enabled()
             && crate::config::env::joinir_dev::planner_required_enabled();
@@ -185,7 +185,7 @@ impl super::PlanLowerer {
         builder: &mut MirBuilder,
         effects: &[CoreEffectPlan],
         fallthrough_target: BasicBlockId,
-        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1,
     ) -> Result<(), String> {
         let has_control_flow =
             crate::mir::builder::control_flow::verify::coreloop_body_contract::has_control_flow_effect(effects);
@@ -306,7 +306,7 @@ impl super::PlanLowerer {
     pub(super) fn emit_effect_in_loop(
         builder: &mut MirBuilder,
         effect: &CoreEffectPlan,
-        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1,
     ) -> Result<(), String> {
         match effect {
             CoreEffectPlan::IfEffect {
@@ -402,7 +402,7 @@ impl super::PlanLowerer {
         ctx: &dyn PlanLoweringContext,
         loop_stack: &mut Vec<LoopFrame>,
         fallthrough_target: BasicBlockId,
-        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1,
     ) -> Result<(), String> {
         use crate::mir::builder::control_flow::joinir::trace;
 

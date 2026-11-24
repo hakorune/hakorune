@@ -39,7 +39,7 @@ impl RetainedSourceLoopProductV1 {
         policy: crate::mir::builder::LoopFactsPolicyFrameV1,
     ) -> std::rc::Rc<Self> {
         let plan =
-            crate::mir::builder::issue_preissued_callable_loop_source_plan_v1(input, site, policy, false);
+            crate::mir::builder::issue_preissued_callable_loop_source_plan_v1(input, site, policy);
         if let Err(reason) = &plan {
             if crate::config::env::builder_debug_enabled() {
                 eprintln!("[source-loop] owner={:?} site={site:?} original planner issuance failed: {reason}", input.owner());

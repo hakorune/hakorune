@@ -3,17 +3,8 @@ use crate::mir::builder::control_flow::plan::{
     CoreCallSourceV1, CoreEffectPlan, LoopPlanExpressionPortV1,
 };
 use crate::mir::builder::MirBuilder;
-use crate::mir::edge_args::JumpArgsLayout;
-use crate::mir::EdgeArgs;
 use crate::mir::{Effect, EffectMask, ValueId};
 use std::collections::BTreeMap;
-
-pub(in crate::mir::builder) fn empty_args() -> EdgeArgs {
-    EdgeArgs {
-        layout: JumpArgsLayout::CarriersOnly,
-        values: vec![],
-    }
-}
 
 pub(in crate::mir::builder) fn lower_me_this_method_effect(
     builder: &MirBuilder,

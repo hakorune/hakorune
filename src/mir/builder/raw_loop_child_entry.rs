@@ -452,9 +452,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 })?;
                 let physical_input =
                     source_facts.into_physical_input(source_ledger, declared_instance_locator)?;
-                let context = crate::mir::builder::control_flow::plan::lowering_context::
-                    CallableLoopPlanLoweringContextV1::new(function_name, debug);
-                loop_cond::lower(builder, &physical_input, &context, source_ledger, invocation)
+                loop_cond::lower(builder, &physical_input, source_ledger, invocation)
             }
             CallableGenericLoopSourceFactsDispositionV1::SourceUnavailable(error) => Err(format!(
                 "[freeze:contract][callable-loop/source-unavailable] {error:?}"

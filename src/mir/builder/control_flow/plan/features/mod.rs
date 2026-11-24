@@ -19,14 +19,4 @@ pub(in crate::mir::builder) mod loop_break_composite_source;
 pub(in crate::mir::builder) mod step_mode;
 
 // Flattened from loop_cond_break_continue_pipeline/
-pub(in crate::mir::builder) mod loop_cond_bc;
-pub(in crate::mir::builder) mod loop_cond_bc_cleanup;
-pub(in crate::mir::builder) mod loop_cond_bc_continue_if;
-pub(in crate::mir::builder) mod loop_cond_bc_else_patterns;
-pub(in crate::mir::builder) mod loop_cond_bc_item;
-pub(in crate::mir::builder) mod loop_cond_bc_item_stmt;
-pub(in crate::mir::builder) mod loop_cond_bc_nested_carriers;
-pub(in crate::mir::builder) mod loop_cond_bc_phi_materializer;
-pub(in crate::mir::builder) mod loop_cond_bc_source;
 pub(in crate::mir::builder) mod loop_cond_bc_util;
-pub(in crate::mir::builder) mod loop_cond_bc_verifier;

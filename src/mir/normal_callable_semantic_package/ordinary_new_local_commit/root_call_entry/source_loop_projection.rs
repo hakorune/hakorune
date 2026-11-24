@@ -72,7 +72,7 @@ impl EmittedSourceLoopProjectionV2 {
     pub(super) fn bindings(&self) -> &[(BasicBlockId, MirInstruction)] {
         self.completion
             .get()
-            .and_then(|role| role.source_proof_v2())
+            .map(|role| role.source_proof_v2())
             .map(|proof| proof.bindings())
             .unwrap_or(&[])
     }
@@ -86,7 +86,7 @@ impl EmittedSourceLoopProjectionV2 {
         let proof = self
             .completion
             .get()
-            .and_then(|role| role.source_proof_v2())
+            .map(|role| role.source_proof_v2())
             .ok_or_else(|| freeze("source-loop/whole-proof-missing"))?;
         let mut bindings = Vec::new();
         for edge in &proof.graph.edges {
@@ -115,9 +115,7 @@ impl EmittedSourceLoopProjectionV2 {
             .completion
             .get()
             .ok_or_else(|| freeze("source-loop/physical-closure-pending"))?;
-        let proof = role
-            .source_proof_v2()
-            .ok_or_else(|| freeze("source-loop/whole-proof-missing"))?;
+        let proof = role.source_proof_v2();
         if !Rc::ptr_eq(proof.product(), &self.product)
             || context
                 .ledger()

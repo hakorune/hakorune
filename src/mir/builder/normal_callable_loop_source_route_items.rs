@@ -347,15 +347,6 @@ pub(in crate::mir::builder) struct CallableLoopSourceTargetRelationV1 {
     call_site: SourceExprSiteV1,
     target: Option<CanonicalSameModuleCallableKeyV1>,
     requirement: Option<CallableLoopSourceTargetRequirementV1>,
-    core_methods: Box<[CallableLoopSourceItemBindingV1]>,
-    /// Items covered by an armed lexical instance-call disposition
-    /// (claim-local or parameter receiver). They carry no static target and
-    /// no publication requirement; the physical emitter resolves each row at
-    /// lowering time.
-    instance_methods: Box<[CallableLoopSourceItemBindingV1]>,
-    /// Exact Dynamic invocation source observations retained by checked Loop
-    /// expression frames; the Local owner remains their physical emitter.
-    dynamic_invocations: Box<[CallableLoopDynamicInvocationSourceV1]>,
 }
 
 impl CallableLoopSourceTargetRelationV1 {
@@ -368,52 +359,6 @@ impl CallableLoopSourceTargetRelationV1 {
             call_site,
             target: Some(target),
             requirement,
-            core_methods: Box::new([]),
-            instance_methods: Box::new([]),
-            dynamic_invocations: Box::new([]),
-        }
-    }
-
-    /// One relation for a loop whose call items are covered entirely by
-    /// non-static evidence: resolver-issued CoreMethod rows plus armed
-    /// lexical instance-call dispositions.
-    pub(in crate::mir::builder) fn covered_call_items(
-        core_methods: Box<[CallableLoopSourceItemBindingV1]>,
-        instance_methods: Box<[CallableLoopSourceItemBindingV1]>,
-        dynamic_invocations: Box<[CallableLoopDynamicInvocationSourceV1]>,
-    ) -> Result<Self, CallableLoopSourceRouteRejectV1> {
-        let Some(first) = core_methods
-            .first()
-            .or_else(|| instance_methods.first())
-            .map(CallableLoopSourceItemBindingV1::call_site)
-            .or_else(|| dynamic_invocations.first().map(CallableLoopDynamicInvocationSourceV1::call_site)) else {
-            return Err(CallableLoopSourceRouteRejectV1::SourceItemsMissing);
-        };
-        Ok(Self {
-            call_site: first.clone(),
-            target: None,
-            requirement: None,
-            core_methods,
-            instance_methods,
-            dynamic_invocations,
-        })
-    }
-
-    /// Attach covered method items to a selected static relation for a
-    /// mixed loop. The static obligation stays on `target`; the buckets
-    /// carry the non-static coverage rows the physical validator unions
-    /// against the exact source items.
-    pub(in crate::mir::builder) fn with_covered_call_items(
-        self,
-        core_methods: Box<[CallableLoopSourceItemBindingV1]>,
-        instance_methods: Box<[CallableLoopSourceItemBindingV1]>,
-        dynamic_invocations: Box<[CallableLoopDynamicInvocationSourceV1]>,
-    ) -> Self {
-        Self {
-            core_methods,
-            instance_methods,
-            dynamic_invocations,
-            ..self
         }
     }
 
@@ -435,6 +380,7 @@ impl CallableLoopSourceTargetRelationV1 {
     /// representation issued by the source-result owner.  The formal ordinal
     /// list is data carried by that owner; this route does not impose an ABI
     /// policy for a particular ordinal.
+    #[cfg(test)]
     pub(in crate::mir::builder) fn has_exact_i64_result(&self) -> bool {
         self.requirement.as_ref().is_some_and(|requirement| {
             requirement.representation() == &VerifiedCallableResultRepresentationV1::ExactI64
@@ -451,21 +397,7 @@ impl CallableLoopSourceTargetRelationV1 {
         })
     }
 
-    pub(in crate::mir::builder) fn core_method_items(&self) -> &[CallableLoopSourceItemBindingV1] {
-        &self.core_methods
-    }
 
-    pub(in crate::mir::builder) fn instance_method_items(
-        &self,
-    ) -> &[CallableLoopSourceItemBindingV1] {
-        &self.instance_methods
-    }
-
-    pub(in crate::mir::builder) fn dynamic_invocation_items(
-        &self,
-    ) -> &[CallableLoopDynamicInvocationSourceV1] {
-        &self.dynamic_invocations
-    }
 }
 
 /// Resolver-issued proof that one armed loop's complete source inventory is
@@ -526,36 +458,10 @@ impl VerifiedCallableLoopCallFreeCoverageV1 {
 
 /// Source-proven call coverage for one armed LoopCond subtree.
 ///
-/// `CallFree` carries the bounded grammar proof issued beside the bridge
-/// inventory; `WithCalls` retains the existing selected-target relation.
-/// The route token owns exactly one arm — a loop never presents both.
+/// This proof ties each reachable call to the checked recipe.
 #[derive(Debug)]
 pub(in crate::mir::builder) enum CallableLoopSourceCallCoverageV1 {
-    CallFree(VerifiedCallableLoopCallFreeCoverageV1),
-    WithCalls(CallableLoopSourceTargetRelationV1),
     CheckedRecipe(std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>),
-}
-
-impl CallableLoopSourceCallCoverageV1 {
-
-
-    pub(in crate::mir::builder) const fn as_with_calls(
-        &self,
-    ) -> Option<&CallableLoopSourceTargetRelationV1> {
-        match self {
-            Self::WithCalls(relation) => Some(relation),
-            Self::CallFree(_) | Self::CheckedRecipe(_) => None,
-        }
-    }
-
-    pub(in crate::mir::builder) const fn as_call_free(
-        &self,
-    ) -> Option<&VerifiedCallableLoopCallFreeCoverageV1> {
-        match self {
-            Self::CallFree(coverage) => Some(coverage),
-            Self::WithCalls(_) | Self::CheckedRecipe(_) => None,
-        }
-    }
 }
 
 /// One source-order disposition for a resolver-issued method item.  Static
@@ -854,119 +760,6 @@ impl CallableLoopSourceTargetProbeV1 {
     /// Any classified evidence still carried by this probe. A CallFree loop
     /// must arrive with none — a selected, uncovered, mismatched, or
     /// CoreMethod row contradicts the call-free proof.
-    pub(in crate::mir::builder) fn has_residual_evidence(&self) -> bool {
-        !self.selected.is_empty()
-            || !self.uncovered.is_empty()
-            || self.requirement_mismatch
-            || !self.core_methods.is_empty()
-            || !self.instance_methods.is_empty()
-            || !self.dynamic_invocations.is_empty()
-    }
-
-    /// Resolve the classification into the single co-sealed target relation.
-    /// Evidence gaps are checked before selection arity so a dropped
-    /// required row can never reclassify as out of scope.
-    pub(in crate::mir::builder) fn into_selected_relation(
-        self,
-        source_items: &[CallableLoopSourceItemBindingV1],
-    ) -> Result<CallableLoopSourceTargetRelationV1, CallableLoopSourceRouteRejectV1> {
-        let Self {
-            selected,
-            uncovered,
-            requirement_mismatch,
-            core_methods,
-            instance_methods,
-            dynamic_invocations,
-        } = self;
-        if requirement_mismatch {
-            return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch);
-        }
-        if !uncovered.is_empty() {
-            return Err(CallableLoopSourceRouteRejectV1::SourceTargetUnselected {
-                call_sites: uncovered,
-            });
-        }
-        if selected.len() > 1 {
-            return Err(CallableLoopSourceRouteRejectV1::SourceTargetMultiple);
-        }
-        let mut selected = Vec::from(selected);
-        if let Some(relation) = selected.pop() {
-            if core_methods.is_empty()
-                && instance_methods.is_empty()
-                && dynamic_invocations.is_empty()
-            {
-                return Ok(relation);
-            }
-            // A selected static row beside covered method items is a mixed
-            // loop: retain the static obligation and still verify every
-            // source item exactly once — silently dropping the buckets
-            // would seal WithCalls without coverage proof.
-            let covered = std::iter::once(relation.call_site())
-                .chain(core_methods.iter().map(|item| item.call_site()))
-                .chain(instance_methods.iter().map(|item| item.call_site()))
-                .chain(dynamic_invocations.iter().map(|item| item.call_site()))
-                .collect::<std::collections::BTreeSet<_>>();
-            let uncovered = source_items
-                .iter()
-                .filter(|item| !covered.contains(item.call_site()))
-                .map(|item| item.call_site().clone())
-                .collect::<Vec<_>>();
-            if !uncovered.is_empty() {
-                return Err(
-                    CallableLoopSourceRouteRejectV1::SourceCallOutsideSelectedFamily {
-                        call_sites: uncovered.into_boxed_slice(),
-                    },
-                );
-            }
-            return Ok(relation.with_covered_call_items(
-                core_methods,
-                instance_methods,
-                dynamic_invocations,
-            ));
-        }
-        if !core_methods.is_empty()
-            || !instance_methods.is_empty()
-            || !dynamic_invocations.is_empty()
-        {
-            let covered = core_methods
-                .iter()
-                .chain(instance_methods.iter())
-                .map(|item| item.call_site())
-                .chain(dynamic_invocations.iter().map(|item| item.call_site()))
-                .collect::<std::collections::BTreeSet<_>>();
-            let uncovered = source_items
-                .iter()
-                .filter(|item| !covered.contains(item.call_site()))
-                .map(|item| item.call_site().clone())
-                .collect::<Vec<_>>();
-            if !uncovered.is_empty() {
-                return Err(
-                    CallableLoopSourceRouteRejectV1::SourceCallOutsideSelectedFamily {
-                        call_sites: uncovered.into_boxed_slice(),
-                    },
-                );
-            }
-            return CallableLoopSourceTargetRelationV1::covered_call_items(
-                core_methods,
-                instance_methods,
-                dynamic_invocations,
-            );
-        }
-        Err(
-            CallableLoopSourceRouteRejectV1::SourceCallOutsideSelectedFamily {
-                call_sites: source_items
-                    .iter()
-                    .map(|item| item.call_site().clone())
-                    .collect::<Vec<_>>()
-                    .into_boxed_slice(),
-            },
-        )
-    }
-
-    /// Consume the complete ordered selected set for a composite source
-    /// Recipe.  The direct route keeps `into_selected_relation`'s singleton
-    /// contract; this batch route only accepts one selected handoff for every
-    /// resolver-issued source item, in the same order.
     #[cfg(test)]
     pub(in crate::mir::builder) fn into_selected_relations(
         self,

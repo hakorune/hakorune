@@ -14,7 +14,6 @@ INDEX="docs/tools/check-scripts-index.md"
 LOCAL_PATCH_SSOT="docs/development/current/main/design/local-patch-prevention-ssot.md"
 DEV_GATE_STEPS="tools/checks/lib/dev_gate_quick_steps.sh"
 SELF_SCRIPT="tools/checks/coreplan_phi_binding_boundary_guard.sh"
-LOOP_COND="src/mir/builder/control_flow/plan/features/loop_cond_bc_source.rs"
 
 echo "[$TAG] checking PHI / BindingState / RecipeOnly boundary"
 
@@ -27,8 +26,7 @@ guard_require_files \
   "$INDEX" \
   "$LOCAL_PATCH_SSOT" \
   "$DEV_GATE_STEPS" \
-  "$SELF_SCRIPT" \
-  "$LOOP_COND"
+  "$SELF_SCRIPT"
 
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 
@@ -92,34 +90,6 @@ guard_expect_fixed_in_file "$TAG" \
   "$LOCAL_PATCH_SSOT" \
   "docs/development/current/main/design/compiler-expressivity-first-policy.md" \
   "compiler expressivity policy must point to local patch prevention SSOT"
-
-python3 - <<'PY'
-from pathlib import Path
-
-path = Path("src/mir/builder/control_flow/plan/features/loop_cond_bc_source.rs")
-text = path.read_text()
-needle = "BodyLoweringPolicy::RecipeOnly"
-start = text.find(needle)
-if start < 0:
-    raise SystemExit(f"[coreplan-phi-binding-boundary] ERROR: {needle} arm not found")
-
-end_marker = "let body_entry_bindings = current_bindings.clone();"
-end = text.find(end_marker, start)
-if end < 0:
-    raise SystemExit("[coreplan-phi-binding-boundary] ERROR: RecipeOnly arm boundary not found")
-
-section = text[start:end]
-for forbidden in (
-    "try_build_exit_allowed_block_recipe",
-    ".or_else(|err|",
-    ".body_exit_allowed.clone",
-):
-    if forbidden in section:
-        raise SystemExit(
-            "[coreplan-phi-binding-boundary] ERROR: RecipeOnly arm must not "
-            f"perform route-level whole-body fallback: found {forbidden}"
-        )
-PY
 
 python3 - <<'PY'
 import subprocess
@@ -227,7 +197,6 @@ if violations:
     raise SystemExit(1)
 PY
 
-echo "[$TAG] recipe_only_whole_body_fallback=0"
 echo "[$TAG] phi_low_level_callsite_owner=phi_lifecycle"
 echo "[$TAG] phi_transaction_boundary_defined=1"
 echo "[$TAG] joinir_loop_header_phi_builder_direct_phi_construction=0"
