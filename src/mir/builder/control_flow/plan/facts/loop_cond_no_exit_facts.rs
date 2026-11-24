@@ -131,11 +131,7 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_no_exit_facts(
 
     Ok(Some(LoopCondBreakContinueFacts {
         accept_kind: LoopCondBreakAcceptKind::NoExitBody,
-        condition: condition.clone(),
         recipe,
-        has_handled_guard_break: false,
-        handled_var_name: None,
-        continue_branches: Vec::new(),
         body_lowering_policy: BodyLoweringPolicy::RecipeOnly,
         body_exit_allowed: None,
     }))
@@ -223,7 +219,6 @@ mod tests {
             facts.body_lowering_policy,
             BodyLoweringPolicy::RecipeOnly
         ));
-        assert!(facts.continue_branches.is_empty());
         assert!(facts.body_exit_allowed.is_none());
         assert!(facts
             .recipe
@@ -419,4 +414,3 @@ mod tests {
         ));
     }
 }
-

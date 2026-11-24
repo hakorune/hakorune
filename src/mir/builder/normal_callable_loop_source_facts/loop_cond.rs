@@ -5,17 +5,13 @@
 //! target relation. Physical LoopCond lowering is a later task.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCondBreakContinueFacts;
 use crate::mir::builder::control_flow::plan::LoopPlanExpressionPortV1;
-use crate::mir::builder::control_flow::plan::PlanBuildOutcome;
-use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
 use crate::mir::builder::normal_callable_loop_handoff::CallableLoopReadyBodyOnlyProductV1;
 use crate::mir::builder::normal_callable_loop_handoff::CallableSemanticLoopHandoffPreEffectReceiptV1;
 use crate::mir::builder::normal_callable_loop_source_facts::CallableGenericLoopSourceFactsRouteErrorV1;
 use crate::mir::builder::normal_callable_loop_source_port::CallableLoopSourceExpressionPortV1;
 use crate::mir::builder::normal_callable_loop_source_route::{
-    CallableLoopRouteMatchV1, CallableLoopSourceCallCoverageV1,
-    CallableLoopSourceItemBindingV1, CallableLoopSourceRouteRejectV1,
+    CallableLoopSourceCallCoverageV1, CallableLoopSourceItemBindingV1, CallableLoopSourceRouteRejectV1,
     CallableLoopSourceRouteTokenV1, CallableLoopSourceTargetProbeV1,
     VerifiedCallableLoopCallFreeCoverageV1,
 };
@@ -48,10 +44,8 @@ pub(in crate::mir) struct SourceLoopCondPhysicalInputV1<'source, 'ledger> {
     condition: ASTNode,
     body: Vec<ASTNode>,
     pre_effect: CallableSemanticLoopHandoffPreEffectReceiptV1,
-    outcome: Option<PlanBuildOutcome>,
     projection: VerifiedLoopCondBreakContinueSourceForestProjectionV1,
     source_items: Box<[CallableLoopSourceItemBindingV1]>,
-    source_coverage: CallableLoopSourceCallCoverageV1,
     source_port: CallableLoopSourceExpressionPortV1<'ledger>,
     retained_source: Option<Rc<super::generic::RetainedCallableLoopSourceV1>>,
     phi_session: SourceLoopPhiSessionV1,
@@ -87,70 +81,12 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
         }
         Ok(())
     }
-    pub(in crate::mir::builder) fn require_source_lifecycle_writer_v2(&self) -> Result<(), String> {
-        if self.source_recipe.is_some() {
-            return Err("[freeze:contract][source-loop/logical-product-physical-pending]".into());
-        }
-        Ok(())
-    }
-    /// Borrow the original source roles. Body-only outer writes also need an
-    /// After carrier; declarations inside this Loop remain iteration locals.
-    /// This map is an invocation-local locator, not a new role authority.
-    pub(in crate::mir::builder) fn carrier_bindings(
-        &self,
-        physical: &std::collections::BTreeMap<String, crate::mir::ValueId>,
-    ) -> Result<
-        std::collections::BTreeMap<String, crate::mir::resolved_semantics::BindingRefV1>,
-        String,
-    > {
-        self.source_port.source_carrier_bindings(
-            self.pre_effect.source(),
-            physical,
-            "[freeze:contract][callable-loop/loop-cond",
-        )
-    }
-
     pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
     }
 
-    pub(in crate::mir::builder) fn parent_site(&self) -> &SourceNodeSiteV1 {
-        &self.parent_site
-    }
-
     pub(in crate::mir::builder) fn parent_source(&self) -> &RawInvocationSourceContextV1 {
         self.parent_source
-    }
-
-    pub(in crate::mir::builder) fn condition_source(&self) -> &RawInvocationSourceContextV1 {
-        &self.condition_source
-    }
-
-    pub(in crate::mir::builder) fn body_source(&self) -> &RawInvocationSourceContextV1 {
-        &self.body_source
-    }
-
-    pub(in crate::mir::builder) fn condition(&self) -> &ASTNode {
-        &self.condition
-    }
-
-    pub(in crate::mir::builder) fn body(&self) -> &[ASTNode] {
-        &self.body
-    }
-
-    pub(in crate::mir::builder) const fn source_port(
-        &self,
-    ) -> &CallableLoopSourceExpressionPortV1<'_> {
-        &self.source_port
-    }
-
-    pub(in crate::mir::builder) fn loop_cond_facts(
-        &self,
-    ) -> Result<&LoopCondBreakContinueFacts, String> {
-        self.outcome.as_ref()
-            .and_then(|outcome| outcome.facts.as_ref())
-            .and_then(|facts| facts.facts.loop_cond_break_continue())
-            .ok_or_else(|| "[freeze:contract][callable-loop/loop-cond/facts-missing]".to_owned())
     }
 
     /// Validate the co-sealed input before any Builder allocation or physical
@@ -217,103 +153,9 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
                 "[freeze:contract][callable-loop/loop-cond/source-site-parent-mismatch]".to_owned(),
             );
         }
-        match &self.source_coverage {
-            CallableLoopSourceCallCoverageV1::CheckedRecipe(product) => {
-                if self.source_recipe.as_ref().is_none_or(|same| !Rc::ptr_eq(same, product)) {
-                    return Err("[freeze:contract][source-loop/coverage-product-drift]".into());
-                }
-                CallableLoopSourceCallCoverageV1::validate_checked_recipe_v2(product, self.owner, &self.parent_site, &self.source_items)
-                    .map_err(|error| format!("[freeze:contract][source-loop/call-coverage] {error:?}"))?;
-            }
-            CallableLoopSourceCallCoverageV1::CallFree(coverage) => {
-                if coverage.owner() != self.owner
-                    || coverage.loop_site().node() != &self.parent_site
-                {
-                    return Err(
-                        "[freeze:contract][callable-loop/loop-cond/call-free-coverage-mismatch]"
-                            .to_owned(),
-                    );
-                }
-                if coverage.condition_site().node() != condition_site {
-                    return Err(
-                        "[freeze:contract][callable-loop/loop-cond/call-free-condition-site]"
-                            .to_owned(),
-                    );
-                }
-                if !self.source_items.is_empty() {
-                    return Err(
-                        "[freeze:contract][callable-loop/loop-cond/call-free-residual-items]"
-                            .to_owned(),
-                    );
-                }
-                if !coverage
-                    .covered_statements()
-                    .iter()
-                    .map(|site| site.node())
-                    .all(|node| node.segments().starts_with(self.parent_site.segments()))
-                    || !coverage.covered_expressions().iter().all(|site| {
-                        site.node()
-                            .segments()
-                            .starts_with(self.parent_site.segments())
-                    })
-                {
-                    return Err(
-                        "[freeze:contract][callable-loop/loop-cond/call-free-coverage-sites]"
-                            .to_owned(),
-                    );
-                }
-            }
-            CallableLoopSourceCallCoverageV1::WithCalls(source_target) => {
-                let covered_items = source_target
-                    .core_method_items()
-                    .iter()
-                    .chain(source_target.instance_method_items().iter())
-                    .chain(
-                        source_target
-                            .dynamic_invocation_items()
-                            .iter()
-                            .map(|source| source.item()),
-                    );
-                if covered_items.clone().next().is_none() {
-                    let target_site = source_target.call_site();
-                    let target_matches = self
-                        .source_items
-                        .iter()
-                        .filter(|item| item.call_site() == target_site)
-                        .count();
-                    if target_matches == 0 {
-                        return Err(
-                            "[freeze:contract][callable-loop/loop-cond/source-target-site-missing]"
-                                .to_owned(),
-                        );
-                    }
-                    if target_matches > 1 {
-                        return Err(
-                            "[freeze:contract][callable-loop/loop-cond/source-target-site-multiple]"
-                                .to_owned(),
-                        );
-                    }
-                } else {
-                    // A mixed loop carries a selected static target beside
-                    // method buckets: the relation's own call site is also
-                    // coverage evidence and must be unioned in.
-                    let covered_sites = covered_items
-                        .map(|item| item.call_site())
-                        .chain(std::iter::once(source_target.call_site()))
-                        .collect::<std::collections::BTreeSet<_>>();
-                    if covered_sites.len() != self.source_items.len()
-                        || self
-                            .source_items
-                            .iter()
-                            .any(|item| !covered_sites.contains(item.call_site()))
-                    {
-                        return Err(
-                            "[freeze:contract][callable-loop/loop-cond/call-item-coverage]"
-                                .to_owned(),
-                        );
-                    }
-                }
-            }
+        if let Some(product) = &self.source_recipe {
+            CallableLoopSourceCallCoverageV1::validate_checked_recipe_v2(product, self.owner, &self.parent_site, &self.source_items)
+                .map_err(|error| format!("[freeze:contract][source-loop/call-coverage] {error:?}"))?;
         }
         if self.source_items.iter().any(|item| {
             !item
@@ -325,18 +167,6 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
             return Err(
                 "[freeze:contract][callable-loop/loop-cond/source-item-parent-mismatch]".to_owned(),
             );
-        }
-        if let CallableLoopSourceCallCoverageV1::WithCalls(source_target) = &self.source_coverage {
-            if source_target.core_method_items().is_empty()
-                && source_target.instance_method_items().is_empty()
-                && source_target.dynamic_invocation_items().is_empty()
-                && !source_target.has_exact_i64_result()
-            {
-                return Err(
-                    "[freeze:contract][callable-loop/loop-cond/result-requirement-mismatch]"
-                        .to_owned(),
-                );
-            }
         }
         self.source_port
             .expr(&self.condition, &self.condition_source)
@@ -363,62 +193,8 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
             &self.condition_source,
             &self.body,
             &self.body_source,
-        )?;
-        if self.source_recipe.is_some() {
-            return Ok(());
-        }
-        let facts = self.loop_cond_facts()?;
-        let body = self
-            .source_port
-            .body(&self.body, &self.body_source)
-            .map_err(|error| format!("[freeze:contract][callable-loop/source-port] {error}"))?;
-        preflight_source_exit_if_items(&self.source_port, &body, &facts.recipe.items)
+        )
     }
-}
-
-fn preflight_source_exit_if_items<'input, P>(
-    port: &P,
-    body: &P::BodyInput<'input>,
-    items: &[LoopCondBreakContinueItem],
-) -> Result<(), String>
-where
-    P: LoopPlanExpressionPortV1 + 'input,
-{
-    for item in items {
-        let LoopCondBreakContinueItem::ExitIf {
-            if_stmt,
-            block: None,
-        } = item
-        else {
-            continue;
-        };
-        let statement = port
-            .body_stmt(body, if_stmt.index())
-            .map_err(|error| error.render())?;
-        if !matches!(
-            port.stmt_syntax(&statement),
-            ASTNode::If {
-                else_body: None,
-                ..
-            }
-        ) {
-            return Err(
-                "[freeze:contract][callable-loop/loop-cond/source-exit-if-shape]".to_owned(),
-            );
-        }
-        let then_body = port
-            .child_body_from_stmt(
-                &statement,
-                crate::mir::resolved_semantics::BodyChildRoleV1::IfThen,
-            )
-            .map_err(|error| error.render())?;
-        crate::mir::builder::control_flow::plan::validate_return_exit_branch_input(
-            port,
-            &then_body,
-            "[freeze:contract][callable-loop/loop-cond/source-exit-if-then]",
-        )?;
-    }
-    Ok(())
 }
 
 pub(super) fn preflight_source_port_inputs(
@@ -552,9 +328,7 @@ pub(in crate::mir::builder) struct CallableLoopCondSourceFactsV1<'source> {
 
 impl<'source> CallableLoopCondSourceFactsV1<'source> {
     /// Consume the source Facts product at the physical boundary.  The
-    /// resulting input feeds the sole LoopCond physical consumer,
-    /// `lower_loop_cond_break_continue_source`, through the raw child-entry
-    /// caller — never the raw `LoopRouteContext` route.
+    /// resulting input feeds the checked source-loop writer through raw child entry.
     pub(in crate::mir::builder) fn into_physical_input<'ledger>(
         self,
         source_ledger: &'ledger Rc<RefCell<CallableSemanticLoweringState>>,
@@ -574,7 +348,7 @@ impl<'source> CallableLoopCondSourceFactsV1<'source> {
             route_token,
             source_recipe,
         } = self;
-        let (owner, parent_site, outcome, projection, source_items, source_coverage) =
+        let (owner, parent_site, projection, source_items) =
             route_token.into_physical_parts().map_err(|error| {
                 format!("[freeze:contract][callable-loop/loop-cond/input] {error:?}")
             })?;
@@ -587,12 +361,6 @@ impl<'source> CallableLoopCondSourceFactsV1<'source> {
             source_ledger,
             declared_instance_locator,
         );
-        if let Some(outcome) = &outcome {
-            if !outcome.facts.as_ref().and_then(|facts| facts.facts.loop_cond_break_continue())
-                .is_some_and(|facts| super::generic::corroborate_loop_cond_recipe_source(facts, &_condition, &_body)) {
-                return Err("[freeze:contract][callable-loop/loop-cond/source-facts-shape-mismatch]".into());
-            }
-        }
         let condition = _condition;
         let body = _body;
         let parent_source = _parent_source;
@@ -637,10 +405,8 @@ impl<'source> CallableLoopCondSourceFactsV1<'source> {
             condition,
             body,
             pre_effect,
-            outcome,
             projection,
             source_items,
-            source_coverage,
             source_port,
             retained_source,
             phi_session: SourceLoopPhiSessionV1::default(),
@@ -660,12 +426,11 @@ pub(super) fn issue<'source>(
     binding_product: CallableLoopReadyBodyOnlyProductV1,
     function_origin: Option<FunctionOriginV1>,
     source_kind: Option<SemanticOwnerSourceKindV1>,
-    legacy: Option<(PlanBuildOutcome, CallableLoopRouteMatchV1)>,
     projection: Option<VerifiedLoopCondBreakContinueSourceForestProjectionV1>,
     source_items: Box<[CallableLoopSourceItemBindingV1]>,
     source_target_probe: CallableLoopSourceTargetProbeV1,
     call_free: Option<VerifiedCallableLoopCallFreeCoverageV1>,
-    source_recipe: Option<Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>,
+    source_recipe: Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
 ) -> Result<CallableLoopCondSourceFactsV1<'source>, CallableGenericLoopSourceFactsRouteErrorV1> {
     let function_origin = function_origin.ok_or_else(|| {
         CallableGenericLoopSourceFactsRouteErrorV1::LoopCondRouteRejected(
@@ -682,18 +447,10 @@ pub(super) fn issue<'source>(
             CallableLoopSourceRouteRejectV1::SourceParentMissing,
         )
     })?;
-    let route_token = match (&source_recipe, legacy) {
-        (Some(product), None) => CallableLoopSourceRouteTokenV1::issue_checked_recipe_v2(
-            owner, parent_site, function_origin, source_kind, projection,
-            Rc::clone(product), source_items, source_target_probe, call_free,
-        ),
-        (None, Some((outcome, selection))) => CallableLoopSourceRouteTokenV1::issue_with_source_relations(
-            owner, parent_site, function_origin, source_kind, outcome, selection, projection,
-            source_items, source_target_probe, call_free,
-        ),
-        _ => Err(CallableLoopSourceRouteRejectV1::FactsMissing),
-    }
-    .map_err(CallableGenericLoopSourceFactsRouteErrorV1::LoopCondRouteRejected)?;
+    let route_token = CallableLoopSourceRouteTokenV1::issue_checked_recipe_v2(
+        owner, parent_site, function_origin, source_kind, projection,
+        Rc::clone(&source_recipe), source_items, source_target_probe, call_free,
+    ).map_err(CallableGenericLoopSourceFactsRouteErrorV1::LoopCondRouteRejected)?;
     Ok(CallableLoopCondSourceFactsV1 {
         _owner: owner,
         _parent_source: parent_source,
@@ -703,6 +460,6 @@ pub(super) fn issue<'source>(
         _body: body,
         _binding_product: binding_product,
         route_token,
-        source_recipe,
+        source_recipe: Some(source_recipe),
     })
 }

@@ -562,9 +562,7 @@ impl EmittedSourceLoopProjectionV2 {
             .completion
             .get()
             .ok_or_else(|| freeze("source-loop/physical-closure-pending"))?;
-        let proof = role
-            .source_proof_v2()
-            .ok_or_else(|| freeze("source-loop/whole-proof-missing"))?;
+        let proof = role.source_proof_v2();
         proof.visit_i64_origins_v1(visit)
     }
 }

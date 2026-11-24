@@ -50,8 +50,7 @@ pub(in crate::mir) use normal_callable_loop_source_facts::{
 mod normal_callable_loop_source_port; // source-aware callable-loop expression capability
 pub(in crate::mir) use normal_callable_loop_source_facts::{
     issue_preissued_callable_loop_source_plan_v1, PreissuedCallableLoopSourcePlanV1,
-    RetainedCallableLoopSourceV1, VerifiedNoExitArrayHomeAfterV1,
-    VerifiedNoExitIntegerExpressionV1,
+    RetainedCallableLoopSourceV1,
 };
 mod normal_callable_loop_source_route; // callable source-owned LoopCond route token
 mod normal_callable_package_bridge; // Builder-private package install boundary
@@ -583,5 +582,3 @@ pub(in crate::mir) use lexical_call_projection_test_fixture::borrowed_fixture as
 pub(in crate::mir) use lexical_call_projection_test_fixture::forwarded_fixture as lexical_call_projection_forwarded_fixture;
 
 pub(in crate::mir) use normal_callable_semantic_lowering_state::construction::RetainedConstructionDrafts;
-
-pub(in crate::mir) use control_flow::plan::ObservedSourceValueV1;

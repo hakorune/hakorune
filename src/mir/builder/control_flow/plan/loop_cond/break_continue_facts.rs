@@ -20,7 +20,7 @@ use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 
 use super::break_continue_accept::determine_accept_kind;
 use super::break_continue_helpers::{
-    collect_continue_branch_sigs, detect_handled_guard_break, matches_parse_string2_shape,
+    collect_continue_branch_sigs, matches_parse_string2_shape,
 };
 use super::break_continue_item::build_loop_cond_break_continue_recipe;
 use super::break_continue_validator_exit::returns_only_in_exit_if;
@@ -257,7 +257,6 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_inner(
         }
     }
 
-    let (has_handled_guard_break, handled_var_name) = detect_handled_guard_break(body);
     let continue_branches = collect_continue_branch_sigs(body);
     let accept_kind = determine_accept_kind(
         &counts,
@@ -312,11 +311,7 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_inner(
 
     Ok(Some(LoopCondBreakContinueFacts {
         accept_kind,
-        condition: condition.clone(),
         recipe,
-        has_handled_guard_break,
-        handled_var_name,
-        continue_branches,
         body_lowering_policy,
         body_exit_allowed,
     }))

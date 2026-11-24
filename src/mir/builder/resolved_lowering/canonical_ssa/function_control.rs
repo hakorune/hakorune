@@ -165,50 +165,13 @@ impl FunctionControlV1 {
             .adopt_provisional_phi(key, block, value, token)
             .map_err(|error| error.to_string())
     }
-    pub(in crate::mir::builder) fn reserve_loop_entries(
-        &mut self,
-        builder: &mut MirBuilder,
-        header: BasicBlockId,
-        after: BasicBlockId,
-        headers: Vec<(FunctionSsaKeyV1, ValueId)>,
-        afters: Vec<(FunctionSsaKeyV1, ValueId)>,
-    ) -> Result<(), String> {
-        use std::collections::BTreeSet;
-        if header == after
-            || headers.is_empty()
-            || headers.len() != afters.len()
-            || headers
-                .iter()
-                .chain(&afters)
-                .map(|(_, value)| *value)
-                .collect::<BTreeSet<_>>()
-                .len()
-                != headers.len() + afters.len()
-        {
-            return Err("[freeze:contract][source-loop-phi/preparation-destinations]".to_owned());
-        }
-        for (block, entries) in [(header, headers), (after, afters)] {
-            for (key, value) in entries {
-                self.reserve_key(builder, key, block, value, "source-loop:before-expose")?;
-            }
-        }
-        Ok(())
-    }
     pub(in crate::mir::builder) fn reserve_plan_phis(
         &mut self,
         builder: &mut MirBuilder,
         plan: &crate::mir::builder::control_flow::plan::CoreLoopPlan,
-        adopt_early: bool,
     ) -> Result<(), String> {
         for phi in &plan.phis {
             let key = phi.ssa_key();
-            let existing = self
-                .bindings
-                .as_ref()
-                .and_then(|ssa| ssa.key_for_definition(phi.block, phi.dst));
-            if adopt_early && existing == Some(key) {
-                continue;
-            }
             let tag = if phi.binding.is_some() {
                 "source-loop:step-adoption".to_owned()
             } else {

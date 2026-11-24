@@ -73,7 +73,20 @@ pub(crate) struct NamedArrayFieldResidenceRequirementV1 {
     argument: SourceExprSiteV1,
 }
 
+impl PartialEq for NamedArrayFieldResidenceRequirementV1 {
+    fn eq(&self, other: &Self) -> bool { std::ptr::eq(self, other) }
+}
+impl Eq for NamedArrayFieldResidenceRequirementV1 {}
+
 impl NamedArrayFieldResidenceRequirementV1 {
+    pub(crate) fn same_residence_v1(&self, other: &Self) -> bool {
+        self.owner == other.owner && self.binding == other.binding
+            && self.field == other.field && self.field_site == other.field_site
+            && self.field_name == other.field_name
+            && self.provider_caller == other.provider_caller
+            && self.provider_site == other.provider_site
+    }
+
     pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
     }

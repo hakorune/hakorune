@@ -23,7 +23,7 @@ struct BodyDraft {
 enum Action {
     Return(Rc<SourceLoopReturnV1>),
     Expression(HomeExpressionPlanV1),
-    OwnedArrayAppend(NamedArrayHomeObservationV1),
+    ArrayAppend(NamedArrayHomeObservationV1),
     Call(super::super::super::LocalCallObservationV1),
     Program {
         child: SourceBodySiteV1,
@@ -77,7 +77,7 @@ pub(crate) enum CheckedSourceLoopStatementV1 {
         site: SourceStmtSiteV1,
         observation: super::super::super::LocalCallObservationV1,
     },
-    OwnedArrayAppend {
+    ArrayAppend {
         site: SourceStmtSiteV1,
         observation: NamedArrayHomeObservationV1,
     },
@@ -296,8 +296,8 @@ impl SourceLoopControlDraftV1 {
                 Action::Expression(frame) => {
                     CheckedSourceLoopStatementV1::Expression { site, frame }
                 }
-                Action::OwnedArrayAppend(observation) => {
-                    CheckedSourceLoopStatementV1::OwnedArrayAppend { site, observation }
+                Action::ArrayAppend(observation) => {
+                    CheckedSourceLoopStatementV1::ArrayAppend { site, observation }
                 }
                 Action::Loop(product) => CheckedSourceLoopStatementV1::Loop { site, product },
                 Action::Exit { record, port } => {
@@ -456,7 +456,7 @@ impl PrefixLocalFlow<'_> {
             context
                 .control
                 .borrow_mut()
-                .action(site, Action::OwnedArrayAppend(observation.clone()));
+                .action(site, Action::ArrayAppend(observation.clone()));
         }
     }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn record_source_loop_program_v1(

@@ -116,22 +116,30 @@ impl EmittedSourceLoopGraphV2 {
                 // ordered arguments in both Lowering and final projection.
                 cursor = row.end;
             }
-            if let Step::OwnedArrayAppend { site, observation, .. } = step {
+            if let Step::ArrayAppend { site, observation, .. } = step {
                 let mut rows = self.effects.iter().filter(|row| &row.site == site);
                 let row = rows.next().ok_or_else(|| reject("array-append-missing"))?;
-                let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append {
-                    source, call, candidate, ..
-                } = observation else { return Err(reject("array-append-source")); };
-                let packet = row.packet.owned_array_append().ok_or_else(|| reject("array-append-source"))?;
-                let continuation = packet.normal_continuation_binding();
-                if rows.next().is_some() || row.result.is_some() || row.entry != cursor || packet.source().site() != call
-                    || !packet.source().matches_original_v1(source, candidate)
+                use crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1;
+                let (invoke, argument_entry, continuation) = match observation {
+                    NamedArrayHomeObservationV1::Append { source, call, candidate, .. } => {
+                        let packet = row.packet.owned_array_append().filter(|packet| packet.source().site() == call
+                            && packet.source().matches_original_v1(source, candidate)).ok_or_else(|| reject("array-append-source"))?;
+                        (packet.invoke_binding(), packet.candidate_entry_binding(), packet.normal_continuation_binding())
+                    }
+                    NamedArrayHomeObservationV1::FieldIntegerAppend { .. } => {
+                        let packet = row.packet.field_array_append().filter(|packet| packet.source().matches_loop_observation_v1(observation))
+                            .ok_or_else(|| reject("array-append-source"))?;
+                        (packet.invoke_binding(), packet.argument_entry_binding(), packet.normal_continuation_binding())
+                    }
+                    _ => return Err(reject("array-append-source")),
+                };
+                if rows.next().is_some() || row.result.is_some() || row.entry != cursor
                     || !matches!(&continuation.1, MirInstruction::Jump { target, edge_args: None } if *target == row.end)
                     || function.blocks.get(&continuation.0).and_then(|block| block.terminator.as_ref()) != Some(&continuation.1)
                     || !crate::mir::verification::utils::compute_dominators(function)
-                        .dominates(row.entry, packet.invoke_binding().0)
+                        .dominates(row.entry, invoke.0)
                     || !crate::mir::verification::utils::compute_dominators(function)
-                        .dominates(row.entry, packet.candidate_entry_binding().0) {
+                        .dominates(row.entry, argument_entry.0) {
                     return Err(reject("array-append-sequence"));
                 }
                 cursor = row.end;

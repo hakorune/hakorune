@@ -48,8 +48,8 @@ impl RootLifecyclePrefixBindingGroupV1 {
             ) => true,
             (
                 PrefixPhysicalProofV1::FieldArrayAppend(packet),
-                LifecyclePrefixSourceV1::FieldArrayAppend { proof, index, .. },
-            ) => packet.source().matches_original(proof, *index),
+                LifecyclePrefixSourceV1::FieldArrayAppend { observation, .. },
+            ) => packet.source().matches_loop_observation_v1(observation),
             (
                 PrefixPhysicalProofV1::FieldArrayAppend(packet),
                 LifecyclePrefixSourceV1::FieldTextAppend { frame, .. },

@@ -26,7 +26,7 @@ impl super::PlanLowerer {
         plans: &[LoweredRecipe],
         ctx: &dyn PlanLoweringContext,
         loop_stack: &mut Vec<LoopFrame>,
-        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1,
         list_ctx: &'static str,
     ) -> Result<Option<ValueId>, String> {
         let strict_planner_required = crate::config::env::joinir_dev::strict_enabled()
@@ -154,7 +154,7 @@ impl super::PlanLowerer {
         plans: Vec<LoweredRecipe>,
         ctx: &dyn PlanLoweringContext,
         loop_stack: &mut Vec<LoopFrame>,
-        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1,
     ) -> Result<Option<ValueId>, String> {
         Self::lower_plan_list(builder, &plans, ctx, loop_stack, port, "seq")
     }
@@ -165,7 +165,7 @@ impl super::PlanLowerer {
         if_plan: CoreIfPlan,
         ctx: &dyn PlanLoweringContext,
         loop_stack: &mut Vec<LoopFrame>,
-        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1,
     ) -> Result<Option<ValueId>, String> {
         use crate::mir::builder::emission::branch::{emit_conditional, emit_jump};
 
@@ -232,7 +232,7 @@ impl super::PlanLowerer {
         branch_plan: CoreBranchNPlan,
         ctx: &dyn PlanLoweringContext,
         loop_stack: &mut Vec<LoopFrame>,
-        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1,
     ) -> Result<Option<ValueId>, String> {
         let if_chain = super::super::branchn::branchn_to_if_chain(branch_plan)?;
         Self::lower_with_stack(builder, if_chain, ctx, loop_stack, port)

@@ -428,7 +428,7 @@ impl Projector<'_> {
                     self.schedule.step(block, SourceLoopScheduledStepV2::ChildLoop {
                         site: site.clone(), product: Rc::clone(product), inputs: input_rows, outputs: output_rows });
                 }
-                Statement::OwnedArrayAppend { site, observation } => {
+                Statement::ArrayAppend { site, observation } => {
                     // A unit effect slot delegates receiver/candidate/cleanup
                     // to the original owned-array packet. No synthetic value,
                     // scalar class or second expression evaluator is issued.
@@ -436,7 +436,7 @@ impl Projector<'_> {
                         operation: LoopOperationV2::CallSlot { receiver: None, args: Vec::new(), result: None },
                     });
                     self.control.push(SourceLoopItemV2 { site: site.clone(), item });
-                    self.schedule.step(block, SourceLoopScheduledStepV2::OwnedArrayAppend {
+                    self.schedule.step(block, SourceLoopScheduledStepV2::ArrayAppend {
                         item, site: site.clone(), observation: observation.clone(),
                     });
                 }

@@ -77,16 +77,9 @@ impl EmittedSourceLoopProjectionV2 {
                 child.validate_recorded_in_context(context, function, finishing)?;
                 continue;
             }
-            if let LifecyclePrefixSourceV1::OwnedArrayAppend {
-                site,
-                holder,
-                candidate,
-                ..
-            } = expected
+            if let LifecyclePrefixSourceV1::OwnedArrayAppend { site, .. }
+                | LifecyclePrefixSourceV1::FieldArrayAppend { site, .. } = expected
             {
-                let packet = child
-                    .owned_array_append()
-                    .ok_or_else(|| freeze("source-loop/append-packet"))?;
                 let mut rows = graph.effects.iter().filter(|row| row.packet.site() == site);
                 let row = rows
                     .next()
@@ -94,7 +87,6 @@ impl EmittedSourceLoopProjectionV2 {
                 if rows.next().is_some()
                     || !child.matches_source(expected)
                     || !child.same_effect_packet_v2(&row.packet)
-                    || !packet.source().matches_original_v1(holder, candidate)
                 {
                     return Err(freeze("source-loop/append-source"));
                 }

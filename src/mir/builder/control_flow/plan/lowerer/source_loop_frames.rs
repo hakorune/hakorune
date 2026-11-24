@@ -96,15 +96,30 @@ pub(super) fn emit_array_append(
     let input = input(port, product)?;
     let site = OwnedExprSiteV1::new(input.owner(),
         crate::mir::resolved_semantics::SourceExprSiteV1::from_node(statement.node().clone()));
-    if product.owned_array_append_v2(&site) != Some(observation) {
+    if product.array_append_v2(&site) != Some(observation) {
         return Err(freeze("array-append-source-drift"));
+    }
+    let original = input.function().method_call(site.site()).ok_or_else(|| freeze("array-append-original-missing"))?;
+    if let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::FieldIntegerAppend { evaluation, .. } = observation {
+        let claims = port.ordinary_new_claim_ledger.clone().ok_or_else(|| freeze("claim-ledger-missing"))?;
+        let state = port.source_ledger.callable().cloned().ok_or_else(|| freeze("state-missing"))?;
+        let mut state = state.borrow_mut();
+        let ends = text_carrier_ends(&claims, &state, product.call_text_carriers_v2(&site)?,
+            &evaluation.prior_homes().iter().map(|home| home.binding()).collect::<Vec<_>>())?;
+        claims.record_loop_call_text_carrier_ends_v2(site.clone(), product.source.condition.prior_homes().len(),
+            ends.into_iter().map(|(_, end)| end).collect())?;
+        let (receiver, emission) = state.take_source_array_push(site.site(), original.selector(), original.arity())?
+            .ok_or_else(|| freeze("array-append-source-missing"))?;
+        let (source, receiver_read) = emission.field_append_source_v1(&claims)?;
+        if !source.matches_loop_observation_v1(observation) { return Err(freeze("array-append-source-drift")); }
+        crate::mir::builder::ordinary_new_admission::selected::field_array_append::emit(
+            builder, &mut state, &claims, source, receiver_read, receiver, &emission)?;
+        return claims.source_loop_effect_group_v2(product, &site);
     }
     let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append {
         source: holder, call, candidate, prior_homes, ..
     } = observation else { return Err(freeze("array-append-purpose")); };
     if call != &site { return Err(freeze("array-append-source-drift")); }
-    let original = input.function().method_calls().find(|(original, _)| *original == site.site())
-        .map(|(_, call)| call).ok_or_else(|| freeze("array-append-original-missing"))?;
     let (argument_frame, nested_argument_frames) = if holder.is_dynamic_carrier_append_only_v1() {
         let frames = product
             .source

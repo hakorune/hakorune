@@ -45,30 +45,24 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
             parent_source.site().ok_or_else(|| "[freeze:contract][preissued-loop/parent-missing]".to_owned())
                 .and_then(|site| retained.into_issuance(owner, site, function_origin, source_kind, policy))
         }).transpose();
-        let (planned, source_recipe) = match retained {
-            Ok(retained) => retained.unwrap_or((None, None)),
+        match retained {
+            Ok(Some(Some(product))) => {
+                return match loop_cond::issue(owner, parent_source, condition_source, body_source,
+                    condition, body, binding_product, function_origin, source_kind,
+                    source_projection, source_items, source_target_probe, call_free, product) {
+                    Ok(source_facts) => CallableGenericLoopSourceFactsDispositionV1::LoopCondReady(source_facts),
+                    Err(error) => CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(error),
+                };
+            }
+            Ok(_) => {}
+            Err(error) => return CallableGenericLoopSourceFactsDispositionV1::FactsRejected(error.into_boxed_str()),
+        }
+        let PlannedSourceLoopV1 { selection } = match PlannedSourceLoopV1::issue(
+            &condition, &body, policy, function_name, debug
+        ) {
+            Ok(planned) => planned,
             Err(error) => return CallableGenericLoopSourceFactsDispositionV1::FactsRejected(error.into_boxed_str()),
         };
-        if let Some(product) = source_recipe {
-            if planned.is_some() {
-                return CallableGenericLoopSourceFactsDispositionV1::FactsRejected(
-                    "[freeze:contract][source-loop/product-route-drift]".into());
-            }
-            return match loop_cond::issue(owner, parent_source, condition_source, body_source,
-                condition, body, binding_product, function_origin, source_kind, None,
-                source_projection, source_items, source_target_probe, call_free, Some(product)) {
-                Ok(source_facts) => CallableGenericLoopSourceFactsDispositionV1::LoopCondReady(source_facts),
-                Err(error) => CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(error),
-            };
-        }
-        let planned = match planned {
-            Some(planned) => planned,
-            None => match PlannedSourceLoopV1::issue(&condition, &body, policy, function_name, debug) {
-                Ok(planned) => planned,
-                Err(error) => return CallableGenericLoopSourceFactsDispositionV1::FactsRejected(error.into_boxed_str()),
-            },
-        };
-        let PlannedSourceLoopV1 { outcome, selection } = planned;
         if let Some(function_name) = trace_name {
             eprintln!("[local-call-bindings] loop-route owner={owner:?} function={function_name} family={:?}",
                 selection.as_ref().and_then(|selection| selection.sole_family()));
@@ -76,32 +70,6 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
         let Some(selection) = selection else {
             return CallableGenericLoopSourceFactsDispositionV1::FactsAbsent;
         };
-        if selection.sole_family() == Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue) {
-            return match loop_cond::issue(
-                owner,
-                parent_source,
-                condition_source,
-                body_source,
-                condition,
-                body,
-                binding_product,
-                function_origin,
-                source_kind,
-                Some((outcome, selection)),
-                source_projection,
-                source_items,
-                source_target_probe,
-                call_free,
-                None,
-            ) {
-                Ok(source_facts) => {
-                    CallableGenericLoopSourceFactsDispositionV1::LoopCondReady(source_facts)
-                }
-                Err(error) => {
-                    CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(error)
-                }
-            };
-        }
         if selection.sole_family() == Some(CallableLoopSoleFamilyV1::LoopTrueBreakContinue) {
             return CallableGenericLoopSourceFactsDispositionV1::FactsAbsent;
         }

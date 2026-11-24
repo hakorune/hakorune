@@ -14,15 +14,14 @@ use std::rc::Rc;
 ///
 /// Recursive lowering receives a mutable borrow of the same emission policy.
 #[derive(Debug)]
-pub(in crate::mir::builder) enum CorePlanEffectEmissionPortV1<'plan> {
+pub(in crate::mir::builder) enum CorePlanEffectEmissionPortV1 {
     Raw,
     SourcePublication {
         ledger: Rc<RefCell<crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState>>,
-        loop_completion: Option<&'plan super::loop_cond_after_role::LoopCondPhysicalCompletionV1<'plan>>,
     },
 }
 
-impl<'plan> CorePlanEffectEmissionPortV1<'plan> {
+impl CorePlanEffectEmissionPortV1 {
     pub(super) const fn raw() -> Self {
         Self::Raw
     }
@@ -30,31 +29,7 @@ impl<'plan> CorePlanEffectEmissionPortV1<'plan> {
     pub(in crate::mir::builder) fn source_publication(
         ledger: Rc<RefCell<crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState>>,
     ) -> Self {
-        Self::SourcePublication { ledger, loop_completion: None }
-    }
-
-    pub(super) fn source_publication_with_loop_completion(
-        ledger: Rc<RefCell<crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState>>,
-        completion: &'plan super::loop_cond_after_role::LoopCondPhysicalCompletionV1<'plan>,
-    ) -> Self { Self::SourcePublication { ledger, loop_completion: Some(completion) } }
-
-    pub(super) fn prepare_source_loop_phis(&self, builder: &mut MirBuilder,
-        plan: &crate::mir::builder::control_flow::plan::CoreLoopPlan,
-    ) -> Result<Option<()>, String> {
-        if let Self::SourcePublication { loop_completion: Some(completion), .. } = self {
-            if let Some(session) = completion.matching_phi_session(plan)? {
-                return session.verify_plan_adoption(builder, plan).map(Some);
-            }
-        }
-        Ok(None)
-    }
-    pub(super) fn completed_loop(&self, plan: &crate::mir::builder::control_flow::plan::CoreLoopPlan,
-        function: &crate::mir::MirFunction,
-    ) -> Result<(), String> {
-        if let Self::SourcePublication { loop_completion: Some(completion), .. } = self {
-            completion.observe_completed_loop(plan, function)?;
-        }
-        Ok(())
+        Self::SourcePublication { ledger }
     }
 
     pub(super) fn emit_effect(
@@ -122,19 +97,11 @@ impl<'plan> CorePlanEffectEmissionPortV1<'plan> {
                         return builder.complete_borrowed_array_set_v1(source_ledger, source, [*object, *index, *value], write);
                     }
                 }
-                if let CoreEffectPlan::NamedArrayPush { source, receiver, value, argument, emission } = effect {
-                    if !emission.is_field_residence_v1()? { return PlanLowerer::emit_raw_effect(builder, effect); }
-                    let source_ledger = ledger.borrow().ordinary_new_claim_ledger().cloned()
-                        .ok_or_else(|| "[freeze:contract][field-array-append/ledger-missing]".to_string())?;
-                    let (loan, receiver_read) = emission.field_append_source_v1(&source_ledger)?;
-                    {
-                        if !matches!(source, CoreCallSourceV1::LocatedMethodCall(site) if site == loan.site().site()) {
-                            return Err("[freeze:contract][field-array-append/call-source]".into());
-                        }
-                        let argument = argument.as_ref().ok_or_else(|| "[freeze:contract][field-array-append/argument-source]".to_string())?;
-                        return crate::mir::builder::ordinary_new_admission::selected::field_array_append::emit(
-                            builder, &mut ledger.borrow_mut(), &source_ledger, loan, receiver_read, *receiver, *value, argument, emission);
+                if let CoreEffectPlan::NamedArrayPush { emission, .. } = effect {
+                    if emission.is_field_residence_v1()? {
+                        return Err("[freeze:contract][field-array-append/loop-source-missing]".into());
                     }
+                    return PlanLowerer::emit_raw_effect(builder, effect);
                 }
                 let Some(source) = call_source(effect) else {
                     return PlanLowerer::emit_raw_effect(builder, effect);
@@ -189,8 +156,7 @@ impl<'plan> CorePlanEffectEmissionPortV1<'plan> {
     pub(in crate::mir::builder) fn finish(self) -> Result<(), String> {
         match self {
             Self::Raw => Ok(()),
-            Self::SourcePublication { ledger, loop_completion } => {
-                if let Some(completion) = loop_completion { completion.require_finished()?; }
+            Self::SourcePublication { ledger } => {
                 if ledger
                     .borrow()
                     .has_pending_source_static_result_publications()

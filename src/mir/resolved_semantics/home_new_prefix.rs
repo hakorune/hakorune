@@ -21,7 +21,6 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 /// Source walk permission from one selected verifier. The search role is a
 /// source-only view of the same Static V2 product consumed after Home.
 pub(crate) enum SelectedLoopHomeLoanV1 {
-    NoExitArrayAfter(std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>),
     SourceObservation(
         std::rc::Rc<crate::mir::normal_callable_semantic_package::RetainedSourceLoopProductV1>,
     ),

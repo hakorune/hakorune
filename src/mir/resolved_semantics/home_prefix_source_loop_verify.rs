@@ -166,7 +166,28 @@ impl ports::SourceLoopScanSummaryV1 {
                             return Err("source Loop Exit port identity");
                         }
                     }
-                    CheckedSourceLoopStatementV1::OwnedArrayAppend { site, observation } => {
+                    CheckedSourceLoopStatementV1::ArrayAppend { site, observation } => {
+                        if let NamedArrayHomeObservationV1::FieldIntegerAppend { loop_site, call, requirement, evaluation } = observation {
+                            let ledger = input.forest().callable_source_ledger(input.owner())
+                                .map_err(|_| "source Loop append ledger")?;
+                            let original = ledger.method_call_source_v1(call.site())
+                                .ok_or("source Loop append source missing")?;
+                            use crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1;
+                            if loop_site != summary.source.site() || call.owner() != input.owner() || call.site().node() != site.node()
+                                || requirement.owner() != call.owner() || requirement.call() != call.site()
+                                || original.receiver() != crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::Lexical(
+                                    crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(requirement.binding()))
+                                || !matches!(original.arguments(), [arg] if arg.site() == requirement.argument())
+                                || ledger.resolved_loop_placement(summary.source.site(), call.site()).ok()
+                                    != Some(Some(crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Body))
+                                || !matches!(evaluation.source().root(), ExpressionPlanRootV1::CallArgument {
+                                    statement, call: checked, ordinal: 0,
+                                } if statement == site && std::sync::Arc::ptr_eq(checked, original))
+                                || !evaluation.reference_coverage_is_exact() {
+                                return Err("source Loop field append identity");
+                            }
+                            continue;
+                        }
                         let NamedArrayHomeObservationV1::Append {
                             source,
                             call,

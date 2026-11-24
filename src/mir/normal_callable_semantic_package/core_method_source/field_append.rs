@@ -9,7 +9,10 @@ use std::rc::Rc;
 
 #[derive(Debug, Clone)]
 enum FieldArrayAppendOriginalV1 {
-    LoopInteger { proof: Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>, index: usize },
+    CheckedInteger {
+        product: Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+        site: OwnedExprSiteV1,
+    },
     StatementText(Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedFieldArrayTextAppendV1>),
 }
 
@@ -23,40 +26,49 @@ impl FieldArrayAppendSourceLoanV1 {
     pub(crate) fn text_frame(&self) -> Option<&Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedFieldArrayTextAppendV1>> {
         match &self.original { FieldArrayAppendOriginalV1::StatementText(frame) => Some(frame), _ => None }
     }
+    pub(crate) fn checked_integer_observation_v1(&self) -> Option<&crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1> {
+        let FieldArrayAppendOriginalV1::CheckedInteger { product, site } = &self.original else { return None; };
+        product.array_append_v2(site)
+    }
+    pub(crate) fn checked_integer_evaluation_v1(&self) -> Option<&Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>> {
+        use crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1;
+        match self.checked_integer_observation_v1()? {
+            NamedArrayHomeObservationV1::FieldIntegerAppend { evaluation, .. } => Some(evaluation),
+            _ => None,
+        }
+    }
+    pub(crate) fn matches_loop_observation_v1(&self, observation: &crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1) -> bool {
+        self.checked_integer_observation_v1() == Some(observation)
+    }
     pub(crate) fn same_source(&self, other: &Self) -> bool {
         Rc::ptr_eq(&self.completion, &other.completion) && match &other.original {
-            FieldArrayAppendOriginalV1::LoopInteger { proof, index } => self.matches_original(proof, *index),
+            FieldArrayAppendOriginalV1::CheckedInteger { product, site } => matches!(&self.original,
+                FieldArrayAppendOriginalV1::CheckedInteger { product: original, site: current }
+                    if Rc::ptr_eq(original, product) && current == site),
             FieldArrayAppendOriginalV1::StatementText(frame) => self.matches_text_frame(frame),
         }
     }
     pub(crate) fn receiver_site(&self) -> &crate::mir::resolved_semantics::SourceExprSiteV1 { &self.receiver_site }
     pub(crate) fn integer_requirement(&self) -> Result<&Rc<NamedArrayFieldResidenceRequirementV1>, String> {
         match &self.original {
-            FieldArrayAppendOriginalV1::LoopInteger { proof, index } => Ok(proof.appends()[*index].requirement()),
-            FieldArrayAppendOriginalV1::StatementText(_) => Err(fault("original-call")),
-        }
-    }
-    pub(crate) fn integer_argument(&self) -> Result<&crate::mir::builder::VerifiedNoExitIntegerExpressionV1, String> {
-        match &self.original {
-            FieldArrayAppendOriginalV1::LoopInteger { proof, index } => Ok(proof.appends()[*index].argument()),
+            FieldArrayAppendOriginalV1::CheckedInteger { .. } => match self.checked_integer_observation_v1() {
+                Some(crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::FieldIntegerAppend { requirement, .. }) => Ok(requirement),
+                _ => Err(fault("original-call")),
+            },
             FieldArrayAppendOriginalV1::StatementText(_) => Err(fault("original-call")),
         }
     }
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
         match &self.original {
-            FieldArrayAppendOriginalV1::LoopInteger { proof, index } => proof.appends()[*index].fault().call(),
+            FieldArrayAppendOriginalV1::CheckedInteger { site, .. } => site,
             FieldArrayAppendOriginalV1::StatementText(frame) => frame.source().call(),
         }
     }
     pub(crate) fn prior_homes(&self) -> &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1] {
         match &self.original {
-            FieldArrayAppendOriginalV1::LoopInteger { proof, .. } => proof.prior_homes(),
+            FieldArrayAppendOriginalV1::CheckedInteger { .. } => self.checked_integer_evaluation_v1().expect("checked integer argument").prior_homes(),
             FieldArrayAppendOriginalV1::StatementText(frame) => frame.evaluation().prior_homes(),
         }
-    }
-    pub(crate) fn matches_original(&self, proof: &Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>, index: usize) -> bool {
-        matches!(&self.original, FieldArrayAppendOriginalV1::LoopInteger { proof: original, index: ordinal }
-            if Rc::ptr_eq(original, proof) && *ordinal == index)
     }
     pub(crate) fn matches_text_frame(&self, frame: &Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedFieldArrayTextAppendV1>) -> bool {
         matches!(&self.original, FieldArrayAppendOriginalV1::StatementText(original) if Rc::ptr_eq(original, frame))
@@ -68,13 +80,13 @@ impl FieldArrayAppendSourceLoanV1 {
         { return Err(fault("source-owner")); }
         let flow = self.completion.cleanup().root_flow().ok_or_else(|| fault("home-flow-missing"))?;
         match &self.original {
-            FieldArrayAppendOriginalV1::LoopInteger { proof, index } => {
-                if proof.owner() != owner
-                    || !ledger.no_exit_array_home_source_v1(owner, proof.site()).is_some_and(|original| Rc::ptr_eq(original, proof))
-                    || flow.field_array_loop_sources().filter(|original| Rc::ptr_eq(original, proof)).count() != 1
-                    || proof.appends().get(*index).is_none_or(|append|
-                        append.requirement().owner() != owner || append.fault().call() != self.site()
-                            || append.fault().loop_site() != proof.site())
+            FieldArrayAppendOriginalV1::CheckedInteger { product, site } => {
+                let observation = self.checked_integer_observation_v1().ok_or_else(|| fault("original-call"))?;
+                let requirement = self.integer_requirement()?;
+                if !ledger.retained_source_loop_recipe_v2(owner, product.source.source.site())?
+                    .is_some_and(|original| Rc::ptr_eq(original, product))
+                    || flow.named_arrays().iter().filter(|original| *original == observation).count() != 1
+                    || requirement.owner() != owner || requirement.call() != site.site()
                 { return Err(fault("home-source-membership")); }
             }
             FieldArrayAppendOriginalV1::StatementText(frame) => {
@@ -148,14 +160,17 @@ impl OrdinaryNewClaimLedgerV1 {
             || contract.arguments()[0].site() != requirement.argument()
             || contract.owner() != requirement.owner()
         { return Err(fault("original-call")); }
-        let proof = self.no_exit_array_home_source_v1(contract.owner(), contract.loop_site())
+        let product = self.retained_source_loop_recipe_v2(contract.owner(), contract.loop_site())?
             .ok_or_else(|| fault("loop-source-missing"))?;
-        if !contract.frame().matches(proof.frame()) { return Err(fault("loop-frame")); }
-        let mut originals = proof.appends().iter().enumerate().filter(|(_, append)| Rc::ptr_eq(append.requirement(), requirement));
-        let (index, _) = originals.next().ok_or_else(|| fault("append-source-missing"))?;
-        if originals.next().is_some() { return Err(fault("append-source-duplicate")); }
-        let completion = self.completion_source_for_owner_v1(contract.owner()).ok_or_else(|| fault("completion-missing"))?;
-        let source = FieldArrayAppendSourceLoanV1 { original: FieldArrayAppendOriginalV1::LoopInteger { proof: Rc::clone(proof), index }, receiver_site: contract.receiver_site().clone(), completion: Rc::clone(completion) };
+        let site = OwnedExprSiteV1::new(contract.owner(), contract.call_site().clone());
+        let source = FieldArrayAppendSourceLoanV1 {
+            original: FieldArrayAppendOriginalV1::CheckedInteger { product: Rc::clone(product), site },
+            receiver_site: contract.receiver_site().clone(),
+            completion: Rc::clone(self.completion_source_for_owner_v1(contract.owner()).ok_or_else(|| fault("completion-missing"))?),
+        };
+        if !Rc::ptr_eq(source.integer_requirement()?, requirement)
+            || !contract.frame().matches(product.source.source.frame())
+        { return Err(fault("original-call")); }
         source.validate_source(self)?;
         Ok(source)
     }

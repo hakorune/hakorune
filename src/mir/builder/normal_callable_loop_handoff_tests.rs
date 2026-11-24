@@ -575,7 +575,7 @@ fn source_pre_effect(
     assert_eq!(original, physical, "original resolver adapter preserves the sole projector's complete disposition");
     let policy = crate::mir::builder::control_flow::plan::LoopFactsPolicyFrameV1::from_values(
         false, false, false, false, false, true);
-    let retained = crate::mir::builder::issue_preissued_callable_loop_source_plan_v1(input, &path.stmt(), policy, false).unwrap();
+    let retained = crate::mir::builder::issue_preissued_callable_loop_source_plan_v1(input, &path.stmt(), policy).unwrap();
     let retained_source = Rc::clone(retained.original_source_v1());
     let source = Rc::clone(retained_source.bindings());
     assert!(retained_source.binding_handoff_pending_v1());

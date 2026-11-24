@@ -551,7 +551,7 @@ impl FinalizedRootSourceHandoffV1 {
     ) -> Result<(), String> {
         self.validate_finalized_root_cleanup_v1(module)?;
         for ((owner, _), role) in self.ledger.loop_cond_after_roles.borrow().iter() {
-            let Some(proof) = role.source_proof_v2() else { continue; };
+            let proof = role.source_proof_v2();
             if proof.product().source.source.owner() != *owner {
                 return Err(freeze("source-loop/aggregate-correspondence"));
             }

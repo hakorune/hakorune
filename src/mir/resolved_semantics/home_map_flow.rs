@@ -126,14 +126,6 @@ pub(crate) struct RootHomeFlow {
     pub(super) comparison_prefix_homes: crate::mir::resolved_semantics::borrowed_integer_comparison::ComparisonPrefixHomes,
 }
 impl RootHomeFlow {
-    pub(crate) fn field_array_loop_sources(
-        &self,
-    ) -> impl Iterator<Item = &std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>>
-    {
-        self.named_arrays
-            .iter()
-            .filter_map(super::NamedArrayHomeObservationV1::field_loop_proof)
-    }
     pub(crate) fn named_arrays(&self) -> &[super::NamedArrayHomeObservationV1] {
         &self.named_arrays
     }

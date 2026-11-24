@@ -78,7 +78,7 @@ pub(crate) enum SourceLoopScheduledStepV2 {
     Call { item: LoopItemKeyV1, site: SourceStmtSiteV1,
         observation: crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
         result: Option<LoopValueKeyV1> },
-    OwnedArrayAppend { item: LoopItemKeyV1, site: SourceStmtSiteV1,
+    ArrayAppend { item: LoopItemKeyV1, site: SourceStmtSiteV1,
         observation: crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1 },
     If { item: LoopItemKeyV1, site: SourceStmtSiteV1, bundle: ResolvedIfRegionBundleV1,
         condition: usize, then_block: LoopBlockKeyV1, else_block: Option<LoopBlockKeyV1>,
@@ -128,7 +128,7 @@ impl VerifiedSourceLoopScheduleV2 {
     pub(crate) fn blocks_array_appends_v2(&self)
         -> impl Iterator<Item = &crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1> {
         self.0.blocks.values().flatten().filter_map(|step| match step {
-            SourceLoopScheduledStepV2::OwnedArrayAppend { observation, .. } => Some(observation), _ => None,
+            SourceLoopScheduledStepV2::ArrayAppend { observation, .. } => Some(observation), _ => None,
         })
     }
     pub(crate) fn returns_v2(&self) -> impl Iterator<Item = &Rc<crate::mir::resolved_semantics::home_new_prefix::SourceLoopReturnV1>> {
@@ -257,7 +257,7 @@ impl ScheduleCheck<'_, '_> {
                 | Step::If { site, .. }
                 | Step::Exit { site, .. }
                 | Step::ChildLoop { site, .. }
-                | Step::OwnedArrayAppend { site, .. } => site,
+                | Step::ArrayAppend { site, .. } => site,
             };
             if programs.iter().any(|(site, kind, range)| {
                 let in_source = source_site.node().segments().strip_prefix(site.node().segments())
@@ -273,7 +273,7 @@ impl ScheduleCheck<'_, '_> {
                         return Err(reject("schedule-lexical-range"));
                     }
                 }
-                SourceLoopScheduledStepV2::OwnedArrayAppend { item, site, observation } => {
+                SourceLoopScheduledStepV2::ArrayAppend { item, site, observation } => {
                     if super::source_loop_v2::source_array_append_v2(self.source, site) != Some(observation)
                         || block.items.get(position) != Some(item) || !self.items.insert(*item)
                         || self.draft.operations.contains_key(item)

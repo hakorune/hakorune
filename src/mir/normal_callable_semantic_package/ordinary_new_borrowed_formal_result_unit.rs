@@ -154,13 +154,15 @@ impl OrdinaryNewClaimLedgerV1 {
                 if completion.returns_value() || !completion.explicit_sites().is_empty()
                     || completion.implicit_body_end().is_none() { return Ok(None); }
                 let Some(flow) = completion.cleanup().root_flow() else { return Ok(None); };
-                let mut proofs = flow.field_array_loop_sources().peekable();
-                if proofs.peek().is_none() { return Ok(None); }
-                let mut sites = std::collections::BTreeSet::new();
-                for proof in proofs {
-                    if proof.owner() != owner || proof.appends().is_empty() || !sites.insert(proof.site())
-                        || !self.no_exit_array_home_source_v1(owner, proof.site())
-                            .is_some_and(|original| Rc::ptr_eq(original, proof)) {
+                let mut appends = flow.named_arrays().iter().filter_map(|observation| match observation {
+                    crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::FieldIntegerAppend { loop_site, call, .. } =>
+                        Some((observation, loop_site, call)),
+                    _ => None,
+                }).peekable();
+                if appends.peek().is_none() { return Ok(None); }
+                for (observation, loop_site, call) in appends {
+                    if call.owner() != owner || self.retained_source_loop_recipe_v2(owner, loop_site)?
+                        .and_then(|product| product.array_append_v2(call)) != Some(observation) {
                         return Err(freeze("implicit-field-array/source-membership"));
                     }
                 }

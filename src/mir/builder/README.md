@@ -1033,26 +1033,12 @@ is caller-zero infrastructure; the production Ready path uses the semantic
 Recipe/physical adapter above and does not consume this structural lease or
 silently create a fallback.
 
-### Callable LoopCond call-free source coverage S0 (2026-09-28)
+### Checked callable loops
 
-An armed LoopCond whose resolver call inventory is empty is no longer stopped
-by the missing inventory alone. `CallableLoopSourceBridgeV1::from_input`
-issues `VerifiedCallableLoopCallFreeCoverageV1` only while the exact resolved
-input proves the bounded flat shape: a `Less` condition over the scalar
-closure, flat `LoopBody(i)` statements that are plain `BindingRebind`
-assignments, values limited to integer/typed-integer literals, lexical local
-reads, `Add`/`Multiply`/`Less`, no exits under the loop, and only the matching
-`Write` effects. The proof travels on the one-shot `Armed { projection,
-call_free }` take through `raw_loop_child_entry.rs` and the generic Facts
-issuer into `loop_cond::issue`, which co-seals the token's
-`CallableLoopSourceCallCoverageV1` — `CallFree` or the existing `WithCalls`
-target relation, never both. The token rejects foreign owners, foreign loop
-sites, residual call evidence, and any call item beside a CallFree claim;
-`SourceLoopCondPhysicalInputV1` re-validates owner, parent site, condition
-site, and under-loop containment before the existing
-`lower_loop_cond_break_continue_source` owner lowers it. Unproven empty
-inventories keep `SourceItemsMissing`, and a hidden call can never mint
-CallFree.
+The retained checked recipe controls call coverage. The source bridge lends
+the existing resolver projection and call rows. The physical input verifies
+owner, condition, body lineage and exact call reach before the checked writer
+is invoked. The composite LoopBreak path keeps its separate source contract.
 
 For a selected retained SourcePlan, the existing package row keeps one shared
 original Loop source component outside affine planner storage. The Home proof
@@ -1064,9 +1050,7 @@ A selected missing or drifted source is terminal. This correspondence grants
 no Header class, Home continuation or general Text Loop permission.
 
 Focused evidence: `loop_scope_tests` (flipped positive, two-carrier
-multiplication, per-shape grammar negatives, hidden-call pin) and
-`normal_callable_loop_source_route_call_free_tests` (route-level coverage
-pins). Production evidence: the original corpus `SizeClassBox.bin_size/1`
+multiplication, per-shape grammar negatives, hidden-call pin). Production evidence: the original corpus `SizeClassBox.bin_size/1`
 (`lang/src/hako_alloc/memory/size_class_box.hako`) compiles and emits its
 10-block MIR with loop-carrier PHIs; the `apps/mimalloc-lite` entry then
 reached `ordinary-new/local-commit/artifact-source-unavailable`. That

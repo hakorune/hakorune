@@ -1,6 +1,5 @@
 //! Source associations retain early Header/After identities through completion.
 //! Definitions, patch and rollback borrow the function owner's single PhiTxn.
-use crate::mir::builder::control_flow::plan::CoreLoopPlan;
 use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::MirBuilder;
 use crate::mir::BasicBlockId;
@@ -154,7 +153,6 @@ impl CompletedSourceLoopPhiPointsV2 {
 struct State {
     scope: Option<(BasicBlockId, BasicBlockId)>,
     adopted: bool,
-    step: Option<BasicBlockId>,
     finished: bool,
     shared: Option<crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1>,
     checked: Option<CheckedPointsV2>,
@@ -273,19 +271,6 @@ impl SourceLoopPhiSessionV1 {
             owner: PointOwnerV2::Session(self),
         })
     }
-    /// Borrow the function owner before exposing any early source PHI.
-    /// The common owner defines destinations and retains partial rollback.
-    pub(in crate::mir::builder) fn open_scope(
-        &self, header: BasicBlockId, after: BasicBlockId,
-        shared: crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
-    ) -> Result<(), String> {
-        let mut state = self.state.borrow_mut();
-        if header == after || state.scope.is_some() { return Err(freeze("preparation-repeat")); }
-        state.scope = Some((header, after));
-        state.shared = Some(shared);
-        Ok(())
-    }
-
     /// Patch the SAME txn from exact source-edge verification, retaining its
     /// ownership until the whole-graph caller completes all fallible checks.
     pub(in crate::mir::builder) fn prepare_checked_completion_v2(&self, builder: &mut MirBuilder,
@@ -391,42 +376,6 @@ impl SourceLoopPhiSessionV1 {
         result.map_err(|error| self.abort_error(builder, error))
     }
 
-    /// Verify the original Header/After definitions before plan adoption.
-    /// The common owner defines Step destinations through the same transaction.
-    pub(in crate::mir::builder) fn verify_plan_adoption(
-        &self, builder: &mut MirBuilder, plan: &CoreLoopPlan,
-    ) -> Result<(), String> {
-        let mut state = self.state.borrow_mut();
-        if state.scope != Some((plan.header_bb, plan.after_bb)) || state.adopted || state.finished {
-            return Err(freeze("adoption-scope-or-repeat"));
-        }
-        let shared = state.shared.clone().ok_or_else(|| freeze("transaction-missing"))?;
-        let pending: BTreeSet<_> = shared.borrow_mut().with_transaction(|txn| Ok(
-            txn.pending_tokens_v1().filter(|(block, _)| *block == plan.header_bb || *block == plan.after_bb)
-                .map(|(block, token)| (block, token.dst())).collect()))?;
-        let all: BTreeSet<_> = plan.phis.iter().map(|phi| (phi.block, phi.dst)).collect();
-        let expected: BTreeSet<_> = all.iter().copied()
-            .filter(|(block, _)| *block == plan.header_bb || *block == plan.after_bb).collect();
-        if pending != expected || all.len() != plan.phis.len()
-            || plan.phis.iter().map(|phi| phi.dst).collect::<BTreeSet<_>>().len() != plan.phis.len()
-            || all.iter().any(|(block, _)| *block != plan.header_bb && *block != plan.after_bb && *block != plan.step_bb) {
-            return Err(freeze("adoption-destination-census"));
-        }
-        // The source phase cannot patch or replace these provisional definitions.
-        let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("function-missing"))?;
-        for &(block, value) in &pending {
-            let definitions: Vec<_> = function.blocks.iter().flat_map(|(id, body)| body.all_instructions()
-                .filter(move |row| row.dst_value() == Some(value)).map(move |row| (*id, row))).collect();
-            if !matches!(definitions.as_slice(), [(id, crate::mir::MirInstruction::Phi { dst, inputs, .. })]
-                if *id == block && *dst == value && inputs.is_empty()) || function.params.contains(&value) {
-                return Err(freeze("adoption-definition-drift"));
-            }
-        }
-        state.adopted = true;
-        state.step = Some(plan.step_bb);
-        Ok(())
-    }
-
     /// Only linear patch operations borrow the txn; recursive source lowering
     /// never carries this RefMut across an expression or child callback.
     pub(in crate::mir::builder) fn with_transaction<R>(
@@ -442,10 +391,9 @@ impl SourceLoopPhiSessionV1 {
     pub(in crate::mir::builder) fn require_patched(&self) -> Result<(), String> {
         let state = self.state.borrow();
         let (header, after) = state.scope.ok_or_else(|| freeze("transaction-missing"))?;
-        let step = state.step;
         drop(state);
         self.with_transaction(|txn| {
-            if txn.pending_tokens_v1().any(|(block, _)| block == header || block == after || Some(block) == step) {
+            if txn.pending_tokens_v1().any(|(block, _)| block == header || block == after) {
                 return Err(freeze("pending-after-patch"));
             }
             Ok(())

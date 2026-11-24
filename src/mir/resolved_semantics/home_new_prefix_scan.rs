@@ -308,6 +308,8 @@ pub(super) fn scan_statement_flow<'a, E>(
                 homes,
                 covered_statements,
                 unavailable,
+                local_calls,
+                scalar_field,
                 borrowed_actuals,
             )? {
                 continue;
@@ -406,7 +408,7 @@ pub(super) fn scan_statement_flow<'a, E>(
             // exact Loop point. Only a complete source-bound After loan can
             // advance this walk; a typed refusal keeps the old first-stop.
             if matches!(statement.node(), ASTNode::Loop { .. }) && unavailable.is_none() {
-                if let Some(request) = locals.loop_i64_prestate(statement.site(), homes) {
+                if let Some(request) = locals.loop_i64_prestate(statement.site()) {
                     let owner = request.owner();
                     let site = request.site().clone();
                     let selected_loan = loop_prestate(request)?;
@@ -417,14 +419,6 @@ pub(super) fn scan_statement_flow<'a, E>(
                         );
                     }
                     match selected_loan {
-                        Some(SelectedLoopHomeLoanV1::NoExitArrayAfter(loan)) => {
-                            if let Some(current) = locals.loop_i64_prestate(statement.site(), homes)
-                            {
-                                if locals.install_no_exit_array_after(current, loan) {
-                                    continue;
-                                }
-                            }
-                        }
                         Some(SelectedLoopHomeLoanV1::SourceObservation(row)) => {
                             let Some(source) = row.observation_source_v1(input) else {
                                 unavailable.get_or_insert_with(|| {

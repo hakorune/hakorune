@@ -32,7 +32,7 @@ pub fn emit_all_block_effects(
     body_effects: Option<Vec<CoreEffectPlan>>,
     ctx: &dyn PlanLoweringContext,
     loop_stack: &mut Vec<LoopFrame>,
-    port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
+    port: &mut super::emission_port::CorePlanEffectEmissionPortV1,
 ) -> Result<(), String> {
     let trace_logger = trace::trace();
     let debug = ctx.debug_enabled();
@@ -134,7 +134,7 @@ fn emit_block_effects_strict(
     ctx: &dyn PlanLoweringContext,
     planned_defs: &Option<HashMap<ValueId, (BasicBlockId, usize, &'static str)>>,
     strict_planner_required: bool,
-    port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
+    port: &mut super::emission_port::CorePlanEffectEmissionPortV1,
 ) -> Result<(), String> {
     let mut defined_values = if strict_planner_required {
         builder
@@ -256,7 +256,7 @@ fn emit_loop_body_plans(
     ctx: &dyn PlanLoweringContext,
     loop_stack: &mut Vec<LoopFrame>,
     step_bb: BasicBlockId,
-    port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
+    port: &mut super::emission_port::CorePlanEffectEmissionPortV1,
 ) -> Result<(), String> {
     use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
 
@@ -267,7 +267,7 @@ fn emit_loop_body_plans(
 fn emit_effect_from_lowerer(
     builder: &mut MirBuilder,
     effect: &CoreEffectPlan,
-    port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
+    port: &mut super::emission_port::CorePlanEffectEmissionPortV1,
 ) -> Result<(), String> {
     port.emit_effect(builder, effect)
 }

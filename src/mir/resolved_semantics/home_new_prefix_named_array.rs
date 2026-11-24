@@ -6,10 +6,13 @@ use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum NamedArrayHomeObservationV1 {
-    FieldLoop {
-        source: FieldArrayLoopHomeSourceV1,
-    },
     FieldTextAppend(std::rc::Rc<super::CheckedFieldArrayTextAppendV1>),
+    FieldIntegerAppend {
+        loop_site: SourceStmtSiteV1,
+        call: OwnedExprSiteV1,
+        requirement: std::rc::Rc<crate::mir::resolved_semantics::NamedArrayFieldResidenceRequirementV1>,
+        evaluation: std::rc::Rc<super::CheckedExpressionEvaluationV1>,
+    },
     Initializer {
         source: NamedArrayHolderSourceLoanV1,
         prefix: Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>,
@@ -24,34 +27,14 @@ pub(crate) enum NamedArrayHomeObservationV1 {
     },
 }
 
-/// Identity-preserving loan of one Home-installed original Loop proof.
-/// This carries no physical append, entry permission or runtime representation.
-#[derive(Debug, Clone)]
-pub(crate) struct FieldArrayLoopHomeSourceV1(
-    std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>,
-);
-impl PartialEq for FieldArrayLoopHomeSourceV1 {
-    fn eq(&self, other: &Self) -> bool {
-        std::rc::Rc::ptr_eq(&self.0, &other.0)
-    }
-}
-impl Eq for FieldArrayLoopHomeSourceV1 {}
 impl NamedArrayHomeObservationV1 {
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn field_loop(
-        proof: std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>,
-    ) -> Self {
-        Self::FieldLoop {
-            source: FieldArrayLoopHomeSourceV1(proof),
-        }
-    }
-    pub(crate) fn field_loop_proof(
-        &self,
-    ) -> Option<&std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>> {
+    pub(crate) fn append_call_v1(&self) -> Option<&OwnedExprSiteV1> {
         match self {
-            Self::FieldLoop { source } => Some(&source.0),
+            Self::Append { call, .. } | Self::FieldIntegerAppend { call, .. } => Some(call),
             _ => None,
         }
     }
+
 }
 
 pub(super) fn observe_initializer<E>(
@@ -117,6 +100,8 @@ pub(super) fn observe_append<E>(
     homes: &[LiveHomeV1],
     covered: &[SourceStmtSiteV1],
     unavailable: &mut Option<HomePrefixUnavailableV1>,
+    calls: &[LocalCallObservationV1],
+    fields: &mut impl HomeFieldSourceConsultV1<E>,
     borrow: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -129,19 +114,34 @@ pub(super) fn observe_append<E>(
         input.owner(),
         SourceExprSiteV1::from_node(statement.site().node().clone()),
     );
-    let Some((receiver, receiver_site)) = input
-        .function()
-        .method_calls()
-        .find(|(site, _)| *site == call.site())
-        .map(|(_, row)| (row.receiver(), row.receiver_site()))
-    else {
+    let Some(original) = input.function().method_call_source_v1(call.site()) else {
         return Ok(false);
     };
+    let receiver_site = original.receiver_site();
     let ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding)) =
-        receiver
+        original.receiver()
     else {
         return Ok(false);
     };
+    if let Some(requirement) = fields.array_integer_append_source(&call) {
+        let Some(loop_site) = locals.current_source_loop_site_v1().cloned() else {
+            unavailable.get_or_insert(HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone()));
+            return Ok(true);
+        };
+        if unavailable.is_some() {
+            return Ok(true);
+        }
+        if let Some(evaluation) = field_append_argument(
+            input, &call, original, binding, &requirement, locals, homes, calls, borrow,
+        )? {
+            let observation = NamedArrayHomeObservationV1::FieldIntegerAppend { loop_site, call, requirement, evaluation };
+            locals.record_source_loop_array_append_v1(statement.site(), &observation);
+            locals.retain_named_array_observation(observation);
+            return Ok(true);
+        }
+        unavailable.get_or_insert(HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone()));
+        return Ok(true);
+    }
     if !locals.is_named_array_holder(binding) {
         return Ok(false);
     }
@@ -187,4 +187,41 @@ pub(super) fn observe_append<E>(
     // The source store is covered; actual candidate ownership and successful
     // commit must still be established by the existing acquisition/physical owner.
     Ok(true)
+}
+
+fn field_append_argument<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    call: &OwnedExprSiteV1,
+    original: &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
+    binding: BindingRefV1,
+    requirement: &crate::mir::resolved_semantics::NamedArrayFieldResidenceRequirementV1,
+    locals: &PrefixLocalFlow<'_>,
+    homes: &[LiveHomeV1],
+    calls: &[LocalCallObservationV1],
+    borrow: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>)
+        -> Result<Option<BorrowedCallArgumentsV1>, E>,
+) -> Result<Option<std::rc::Rc<super::CheckedExpressionEvaluationV1>>, E> {
+    use crate::mir::resolved_value_profile::{expression_class::ExpressionValueClassV1,
+        expression_plan::call_argument_expression_source_plan_v1};
+    if requirement.binding() != binding || requirement.owner() != call.owner()
+        || requirement.call() != call.site()
+        || input.function().variable_ref(original.receiver_site()) != Some(ResolvedLexicalRefV1::Local(binding))
+        || !locals.has_array_field_residence_v1(requirement)
+    { return Ok(None); }
+    if !matches!(original.arguments(), [argument] if argument.site() == requirement.argument()) {
+        return Ok(None);
+    }
+    let Ok(plan) = call_argument_expression_source_plan_v1(input, original, 0) else { return Ok(None); };
+    let result = super::expression_plan::prepare_value_evaluation_v1(
+        input, plan, ExpressionValueClassV1::I64, call, locals, homes, calls, borrow, None,
+        &std::collections::BTreeMap::new(), None, None, &mut |_| None,
+    )?;
+    Ok(result.ok().and_then(|(evaluation, fields)| {
+        // The argument is a passive integer expression. The Push itself
+        // owns the call's Fault edge and the associated Home unwind.
+        (fields.is_empty()
+            && evaluation.cores().is_empty()
+            && !evaluation.requires_fault_frame_v1(true, |_| None))
+        .then_some(evaluation)
+    }))
 }

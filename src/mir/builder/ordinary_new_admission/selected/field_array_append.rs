@@ -2,38 +2,50 @@
 //! cleanup writers. Its original normalizer output is never lowered again.
 use super::*;
 use crate::mir::normal_callable_semantic_package::{FieldArrayAppendSourceLoanV1, EmittedFieldArrayAppendV1, NamedArrayWriteEmissionPortV1};
-use crate::mir::builder::control_flow::plan::SourceValueProjectionV1;
 use std::rc::Rc;
 
 pub(in crate::mir::builder) fn emit(
-    builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState,
-    ledger: &OrdinaryNewClaimLedgerV1, source: FieldArrayAppendSourceLoanV1,
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    source: FieldArrayAppendSourceLoanV1,
     receiver_read: Rc<crate::mir::builder::ExactLexicalReadV1>,
-    receiver: ValueId, value: ValueId, argument: &SourceValueProjectionV1,
+    receiver: ValueId,
     emission: &NamedArrayWriteEmissionPortV1,
 ) -> Result<(), String> {
     source.validate_source(ledger)?;
-    if state.owner() != source.site().owner() || argument.root_value() != value
-        || receiver_read.value_for(source.site().owner(), source.receiver_site().node(), source.integer_requirement()?.binding())
-            .map_err(|issue| issue.to_string())? != receiver { return Err(freeze("field-array-append/source-operands")); }
-    let argument = argument.observe(builder, state.owner(), source.integer_argument()?)?;
-    // Reject unavailable End plans before changing the control graph.
+    let evaluation = source.checked_integer_evaluation_v1()
+        .ok_or_else(|| freeze("field-array-append/source-operands"))?;
+    if state.owner() != source.site().owner() || receiver_read.value_for(state.owner(),
+        source.receiver_site().node(), source.integer_requirement()?.binding()).map_err(|issue| issue.to_string())? != receiver {
+        return Err(freeze("field-array-append/source-operands"));
+    }
     let operations = ledger.field_array_append_unwind_v1(&source)?;
+    let mut expression = super::expression_value::emit(builder, state, ledger, evaluation,
+        &mut |_, _, _, _, _, _| Err(freeze("field-array-append/source-operands")))?;
+    let crate::mir::instruction::StringInvokeOperand::NormalInteger(value) = *expression.value.as_operand()? else {
+        return Err(freeze("field-array-append/source-operands"));
+    };
+    let end = super::expression_value::finish_value_continuation_v1(builder, &mut expression.body)?;
     let pinned_receiver = builder.local_recv(receiver);
     let pinned_value = builder.local_arg(value);
     let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
     let index = &mut builder.function_state.local_ssa_correspondence;
     let receiver_pin = index.loan(function, receiver, pinned_receiver).ok_or_else(|| freeze("field-array-append/receiver-pin"))?;
     let value_pin = index.loan(function, value, pinned_value).ok_or_else(|| freeze("field-array-append/value-pin"))?;
-    let mut bindings = argument.bindings().to_vec();
+    let mut bindings = expression.body.bindings.clone();
     for pin in [&receiver_pin, &value_pin] {
-        index.require_member(pin)?; pin.verify(function)?; pin.append_observed_bindings_v1(&mut bindings);
+        index.require_member(pin)?;
+        pin.verify(function)?;
+        pin.append_observed_bindings_v1(&mut bindings);
     }
     let (invoke, continuation, fault_bindings) = emit_push(builder, state, operations, pinned_receiver,
         crate::mir::instruction::ArrayElementWriteValueV1::Scalar(pinned_value), &mut bindings)?;
     let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
-    let packet = Rc::new(EmittedFieldArrayAppendV1::new(source, receiver_read, argument,
-        [receiver_pin, value_pin], invoke, continuation, bindings, fault_bindings, ledger, function)?);
+    let bindings = crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::without_borrowed_phis_v2(
+        bindings, expression.body.reference_reads.values())?;
+    let packet = Rc::new(EmittedFieldArrayAppendV1::new_checked_integer(source, receiver_read, expression.body,
+        end, [receiver_pin, value_pin], invoke, continuation, bindings, fault_bindings, ledger, function)?);
     let marker = emission.record_checked_write_v1(Rc::clone(&packet))?;
     ledger.record_field_array_append_bindings_v1(packet)?;
     builder.function_state.current_function.as_mut().ok_or_else(|| freeze("no-function"))?

@@ -291,6 +291,30 @@ fn provider_construction_store_reaches_artifact_lane() {
                         view.module(), seed_function, view.validated_named_arrays()?)?;
                     assert_eq!(append_bindings.len(), 4);
                     let first = &append_bindings[0];
+                    let MirInstruction::Invoke {
+                        operation: crate::mir::instruction::InvokeOperation::ArrayElementWrite { receiver, .. },
+                        ..
+                    } = &append_bindings[1].1 else { panic!("independent field append") };
+                    let dominators = crate::mir::verification::utils::compute_dominators(seed_function);
+                    let mut other_receiver = *receiver;
+                    loop {
+                        let (block, definition) = seed_function.blocks.iter().find_map(|(block, body)| {
+                            body.all_instructions().find(|row| row.dst_value() == Some(other_receiver))
+                                .map(|row| (*block, row))
+                        }).expect("alternate field receiver is defined");
+                        if dominators.dominates(block, first.0) { break; }
+                        let MirInstruction::Copy { src, .. } = definition else {
+                            panic!("alternate receiver must be read before either push")
+                        };
+                        other_receiver = *src;
+                    }
+                    let entry = &seed_function.blocks[&seed_function.entry_block];
+                    assert!(dominators.dominates(seed_function.entry_block, first.0));
+                    let initial_zero = entry.instructions.iter().find_map(|row| match row {
+                        MirInstruction::Const { dst, value: crate::mir::ConstValue::Integer(0) } => Some(*dst),
+                        _ => None,
+                    }).expect("constant zero dominating the first append");
+                    let zero = crate::mir::instruction::ArrayElementWriteValueV1::Scalar(initial_zero);
                     for mutation in 0..8 {
                         let mut changed = view.module().clone();
                         let body = changed.functions.get_mut("Holder.seed/0").unwrap()
@@ -305,14 +329,14 @@ fn provider_construction_store_reaches_artifact_lane() {
                             site_id, kind, producer, receiver, value, ..
                         } = operation else { panic!("same source append") };
                         match mutation {
-                            0 => *value = crate::mir::instruction::ArrayElementWriteValueV1::Scalar(crate::mir::ValueId::new(u32::MAX - 1)),
-                            1 => *receiver = crate::mir::ValueId::new(u32::MAX - 2),
+                            0 => { assert_ne!(value, &zero); *value = zero.clone(); }
+                            1 => { assert_ne!(receiver, &other_receiver); *receiver = other_receiver; }
                             2 => *kind = ArrayElementWriteKind::LiteralAppend,
                             3 => *producer = crate::mir::ArrayWriteProducerKind::Literal,
                             4 => *site_id = crate::mir::ArrayWriteSiteId(u32::MAX),
                             5 => *fault_frame = crate::mir::ValueId::new(u32::MAX - 3),
                             6 => *normal_landing = crate::mir::BasicBlockId(u32::MAX - 1),
-                            7 => *fault_landing = crate::mir::BasicBlockId(u32::MAX - 2),
+                            7 => *fault_landing = *normal_landing,
                             _ => unreachable!(),
                         }
                         assert!(source.finished_field_array_appends_v1(&changed,

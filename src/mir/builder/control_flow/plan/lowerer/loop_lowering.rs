@@ -42,7 +42,7 @@ impl super::PlanLowerer {
         loop_plan: CoreLoopPlan,
         ctx: &dyn PlanLoweringContext,
         loop_stack: &mut Vec<LoopFrame>,
-        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1,
     ) -> Result<Option<ValueId>, String> {
         use crate::mir::builder::control_flow::joinir::trace;
 
@@ -86,7 +86,7 @@ impl super::PlanLowerer {
         loop_plan: CoreLoopPlan,
         ctx: &dyn PlanLoweringContext,
         loop_stack: &mut Vec<LoopFrame>,
-        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1,
     ) -> Result<Option<ValueId>, String> {
         let pre_loop_map = builder.function_state.variable_ctx.variable_map.clone();
 
@@ -102,10 +102,9 @@ impl super::PlanLowerer {
         // Clone final_values to avoid borrow conflict with mutable loop_plan access in closure
         let final_values = loop_plan.final_values.clone();
 
-        let source_scope = port.prepare_source_loop_phis(builder, &loop_plan)?.is_some();
         let shared = std::rc::Rc::clone(&builder.function_state.canonical_control);
         let result = (|| {
-            shared.borrow_mut().reserve_plan_phis(builder, &loop_plan, source_scope)?;
+            shared.borrow_mut().reserve_plan_phis(builder, &loop_plan)?;
             block_effect_emission::emit_all_block_effects(
                 builder, &loop_plan, &block_effects, body_effects, ctx, loop_stack, port,
             )?;
@@ -120,9 +119,6 @@ impl super::PlanLowerer {
             Ok(())
         })();
         result.map_err(|error| shared.borrow_mut().abort(builder, error))?;
-
-        port.completed_loop(&loop_plan, builder.function_state.current_function.as_ref()
-            .ok_or("[freeze:contract][loop-cond-after-role/function-missing]")?)?;
 
         // Steps 6-8: Finalize variables and return Void
         // Restore the outer lexical map before reapplying loop final_values.

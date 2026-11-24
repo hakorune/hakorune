@@ -634,9 +634,7 @@ impl OrdinaryNewClaimLedgerV1 {
         bindings.extend(self.original_borrowed_array_set_bindings_v1(owner)?);
         bindings.extend(self.original_borrowed_field_write_bindings_v1(owner, false)?);
         for role in self.recorded_source_loop_roles_v2(owner) {
-            let proof = role
-                .source_proof_v2()
-                .ok_or_else(|| freeze("source-loop/repair-proof"))?;
+            let proof = role.source_proof_v2();
             bindings.extend(proof.source_dependency_bindings_v2()?);
         }
         Ok(bindings

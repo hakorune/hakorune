@@ -18,16 +18,11 @@ Naming / navigation:
 - reusable “lego parts” live here (`plan/features/*`) and must stay kind-agnostic.
 
 Pipeline:
-- Oracle `features/*_pipeline.rs` entries were retired with the ordered
-  scheduler / oracle chain (R0 + M12-R2B). Live loop lowering is source-backed
-  via `loop_true_break_continue_source.rs`, `loop_cond_bc_source.rs`, and the
-  `loop_break_*_source.rs` lowerers feeding the retained
-  `loop_true_break_continue_*` / `loop_cond_bc_*` helpers.
+- The checked source-loop writer owns ordinary loops. The remaining composite
+  LoopBreak writer uses the shared plan helpers and verifier.
 - `if_join::apply_if_joins` preserves every reaching `CoreIfJoin` incoming and
   delegates edge repair only to `ssa::phi_input_materializer::for_pred`;
   `pre_val` substitution and branch dropping are forbidden.
-- LoopTrueBreakContinue carrier preparation rejects a carrier missing from
-  `variable_ctx.variable_map` before allocating any carrier PHI destination.
 - loop_true_early_exit route:
   - semantic route: `loop_true_early_exit`
   - current implementation: `recipe_tree/loop_true_early_exit_builder.rs`

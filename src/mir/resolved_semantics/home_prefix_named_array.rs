@@ -16,59 +16,13 @@ impl PrefixLocalFlow<'_> {
                         && operation.field() == source.field() && operation.field_name() == source.field_name()
                         && operation.provider_caller() == source.provider() && operation.provider_site() == source.provider_site())))))
     }
-    pub(super) fn live_borrowed_array_sources(
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_array_field_residence_v1(
         &self,
-    ) -> BTreeMap<BindingRefV1, super::super::field_read::BorrowedArrayFieldSourceV1> {
-        self.locals
-            .iter()
-            .filter_map(|(binding, value)| match value {
-                StoredLocal::BorrowedArray { source, root } if self.field_root_is_live(*root) => {
-                    Some((*binding, source.clone()))
-                }
-                _ => None,
-            })
-            .collect()
-    }
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_no_exit_array_after(
-        &mut self,
-        prestate: LoopI64PreStateRequestV1,
-        loan: std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>,
+        requirement: &crate::mir::resolved_semantics::NamedArrayFieldResidenceRequirementV1,
     ) -> bool {
-        let current_arrays = self.live_borrowed_array_sources();
-        if !loan.matches_prestate(&prestate)
-            || loan.owner() != self.input.owner()
-            || prestate.owner() != loan.owner()
-            || loan.site() != prestate.site()
-            || loan.updated().iter().any(|binding| {
-                !prestate.proves_integer(*binding)
-                    || !matches!(
-                        self.locals.get(binding),
-                        Some(StoredLocal::Trivial(Some(SourceScalarKind::Integer)))
-                    )
-            })
-            || loan.arrays().iter().any(|(binding, source)| {
-                !prestate
-                    .borrowed_array(*binding)
-                    .is_some_and(|alias| alias.integer_requirement_v1().is_some_and(|original| std::rc::Rc::ptr_eq(original, source)))
-                    || !current_arrays
-                        .get(binding)
-                        .is_some_and(|alias| alias.integer_requirement_v1().is_some_and(|original| std::rc::Rc::ptr_eq(original, source)))
-            })
-        {
-            return false;
-        }
-        // The same canonical Home walk retains cleanup participation. The
-        // Recipe row shares only this immutable proof, never emission state.
-        self.retain_named_array_observation(NamedArrayHomeObservationV1::field_loop(
-            std::rc::Rc::clone(&loan),
-        ));
-        for binding in loan.updated() {
-            self.store(
-                *binding,
-                StoredLocal::Trivial(Some(SourceScalarKind::Integer)),
-            );
-        }
-        true
+        matches!(self.locals.get(&requirement.binding()), Some(StoredLocal::BorrowedArray { source, root })
+            if self.field_root_is_live(*root) && source.integer_requirement_v1().is_some_and(|original|
+                original.same_residence_v1(requirement)))
     }
 
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_borrowed_array_field(

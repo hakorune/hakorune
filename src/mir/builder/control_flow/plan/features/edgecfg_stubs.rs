@@ -1,7 +1,6 @@
 //! EdgeCFG stub builders (BranchStub/EdgeStub + EdgeArgs layouts).
 
 use crate::mir::builder::control_flow::edgecfg::api::{BranchStub, EdgeStub, ExitKind};
-use crate::mir::builder::control_flow::plan::normalizer::common::empty_args;
 use crate::mir::EdgeArgs;
 use crate::mir::{BasicBlockId, ValueId};
 
@@ -52,15 +51,8 @@ pub(in crate::mir::builder) fn build_loop_cond_branch(
     then_target: BasicBlockId,
     else_target: BasicBlockId,
 ) -> BranchStub {
-    let args = empty_args();
+    let args = EdgeArgs { layout: crate::mir::edge_args::JumpArgsLayout::CarriersOnly, values: vec![] };
     build_branch_stub(from, cond, then_target, args.clone(), else_target, args)
-}
-
-pub(in crate::mir::builder) fn build_loop_back_edge(
-    from: BasicBlockId,
-    target: BasicBlockId,
-) -> EdgeStub {
-    build_normal_edge_stub(from, target, empty_args())
 }
 
 pub(in crate::mir::builder) fn build_loop_back_edge_with_args(

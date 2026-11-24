@@ -148,6 +148,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
                     PrefixPhysicalProofV1::OwnedArrayAppend(a),
                     PrefixPhysicalProofV1::OwnedArrayAppend(b),
                 ) => Rc::ptr_eq(a, b),
+                (PrefixPhysicalProofV1::FieldArrayAppend(a), PrefixPhysicalProofV1::FieldArrayAppend(b)) => Rc::ptr_eq(a, b),
                 (PrefixPhysicalProofV1::Call(Some(a)), PrefixPhysicalProofV1::Call(Some(b))) => {
                     Rc::ptr_eq(a, b)
                 }

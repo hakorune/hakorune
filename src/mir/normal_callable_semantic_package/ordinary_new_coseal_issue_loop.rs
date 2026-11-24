@@ -31,17 +31,15 @@ pub(crate) struct RetainedSourceLoopProductV1 {
             String,
         >,
     >,
-    home: std::cell::OnceCell<std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>>,
 }
 impl RetainedSourceLoopProductV1 {
     fn issue(
         input: ResolvedFunctionLoweringInputV1<'_>,
         site: &SourceStmtSiteV1,
         policy: crate::mir::builder::LoopFactsPolicyFrameV1,
-        legacy: bool,
     ) -> std::rc::Rc<Self> {
         let plan =
-            crate::mir::builder::issue_preissued_callable_loop_source_plan_v1(input, site, policy, legacy);
+            crate::mir::builder::issue_preissued_callable_loop_source_plan_v1(input, site, policy);
         if let Err(reason) = &plan {
             if crate::config::env::builder_debug_enabled() {
                 eprintln!("[source-loop] owner={:?} site={site:?} original planner issuance failed: {reason}", input.owner());
@@ -55,7 +53,6 @@ impl RetainedSourceLoopProductV1 {
             source,
             plan: std::cell::RefCell::new(Some(plan)),
             source_recipe: std::cell::OnceCell::new(),
-            home: std::cell::OnceCell::new(),
         })
     }
 }
@@ -135,7 +132,7 @@ pub(super) fn retain_selected_loop_product_v1(
     let key = (prestate.owner(), prestate.site().clone());
     match rows.entry(key) {
         std::collections::btree_map::Entry::Vacant(slot) => {
-            let row = RetainedSourceLoopProductV1::issue(input, prestate.site(), policy, false);
+            let row = RetainedSourceLoopProductV1::issue(input, prestate.site(), policy);
             let loan = row.observation_source_v1(input)
                 .map(|_| SelectedLoopHomeLoanV1::SourceObservation(std::rc::Rc::clone(&row)));
             slot.insert(Ok(row));
@@ -146,56 +143,6 @@ pub(super) fn retain_selected_loop_product_v1(
             None
         }
     }
-}
-
-pub(super) fn issue_selected_home_loop_loan_v1(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    prestate: LoopI64PreStateRequestV1,
-    variable_rows: &mut SelectedLoopProductV1,
-    source_core_calls: Option<&crate::mir::normal_callable_semantic_package::core_method_source::SourceCoreMethodCallRowsV1>,
-    policy: crate::mir::builder::LoopFactsPolicyFrameV1,
-) -> Option<crate::mir::resolved_semantics::home_new_prefix::SelectedLoopHomeLoanV1> {
-    use crate::mir::resolved_semantics::home_new_prefix::SelectedLoopHomeLoanV1;
-    if source_core_calls.is_some_and(|rows| {
-        rows.values().any(|row| {
-            row.contract().owner() == prestate.owner()
-                && row.contract().loop_site() == prestate.site()
-                && row
-                    .contract()
-                    .named_array_requirement()
-                    .and_then(|row| row.residence())
-                    .is_some()
-        })
-    }) {
-        let key = (prestate.owner(), prestate.site().clone());
-        match variable_rows.entry(key) {
-            std::collections::btree_map::Entry::Vacant(slot) => {
-                slot.insert(Ok(RetainedSourceLoopProductV1::issue(input, prestate.site(), policy, true)));
-            }
-            std::collections::btree_map::Entry::Occupied(_) => {}
-        }
-        let Some(Ok(slot)) =
-            variable_rows.get(&(prestate.owner(), prestate.site().clone()))
-        else {
-            return None;
-        };
-        let contracts = || {
-            source_core_calls
-                .into_iter()
-                .flat_map(|rows| rows.values())
-                .map(|row| row.contract())
-        };
-        if let Some(home) = slot.home.get() {
-            return (home.matches_prestate(&prestate) && home.recheck_source(input, contracts()))
-                .then(|| SelectedLoopHomeLoanV1::NoExitArrayAfter(std::rc::Rc::clone(home)));
-        }
-        let retained = slot.plan.borrow();
-        let plan = retained.as_ref()?.as_ref().ok()?;
-        let home = std::rc::Rc::new(plan.prove_array_home_after(input, &prestate, contracts())?);
-        slot.home.set(std::rc::Rc::clone(&home)).ok()?;
-        return Some(SelectedLoopHomeLoanV1::NoExitArrayAfter(home));
-    }
-    retain_selected_loop_product_v1(input, prestate, variable_rows, policy)
 }
 
 impl super::OrdinaryNewClaimLedgerV1 {
@@ -303,18 +250,6 @@ impl super::OrdinaryNewClaimLedgerV1 {
                 Ok(Some(source))
             }
             _ => Ok(None),
-        }
-    }
-
-    /// Borrow the SAME source/Home proof before or after affine Recipe take.
-    pub(in crate::mir) fn no_exit_array_home_source_v1(
-        &self,
-        owner: FunctionOwnerIdV1,
-        site: &SourceStmtSiteV1,
-    ) -> Option<&std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>> {
-        match self.selected_loop_products.get(&(owner, site.clone())) {
-            Some(Ok(row)) => row.home.get(),
-            _ => None,
         }
     }
 
