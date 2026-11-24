@@ -74,10 +74,13 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
             }
             for original in flow.named_arrays() {
-                if let NamedArrayHomeObservationV1::FieldTextAppend(frame) = original {
-                    if !lend(frame.evaluation())? {
-                        return Ok(false);
-                    }
+                let evaluation = match original {
+                    NamedArrayHomeObservationV1::FieldTextAppend(frame) => frame.evaluation(),
+                    NamedArrayHomeObservationV1::FieldIntegerAppend { evaluation, .. } => evaluation,
+                    _ => continue,
+                };
+                if !lend(evaluation)? {
+                    return Ok(false);
                 }
             }
         }
