@@ -27,7 +27,7 @@ pub(crate) struct BorrowedIntegerComparisonSourceV1 {
 }
 
 impl BorrowedIntegerComparisonSourceV1 {
-    fn at(
+    pub(crate) fn at(
         input: ResolvedFunctionLoweringInputV1<'_>,
         site: &SourceExprSiteV1,
     ) -> Option<Self> {

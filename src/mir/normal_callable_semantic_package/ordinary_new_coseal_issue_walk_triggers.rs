@@ -14,13 +14,16 @@ pub(super) fn has_explicit_copy_source_v1(input: ResolvedFunctionLoweringInputV1
 /// Publication requires original operand evidence for raw scalar operations
 /// that the ordinary prefix cannot publish on its own.
 pub(super) fn requires_scalar_operation_walk_v1(input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
-    use crate::mir::resolved_semantics::home_new_prefix::ExpressionScalarOperationLoanV1;
+    use crate::mir::resolved_semantics::{
+        borrowed_integer_comparison::BorrowedIntegerComparisonSourceV1,
+        home_new_prefix::ExpressionScalarOperationLoanV1,
+    };
 
     input.function().expression_source().binaries().any(|row| {
         matches!(
             ExpressionScalarOperationLoanV1::original_integer_operator_law_v1(row.operator()),
             Some((crate::mir::BinaryOp::Sub | crate::mir::BinaryOp::Div | crate::mir::BinaryOp::Mod, _))
-        )
+        ) || BorrowedIntegerComparisonSourceV1::at(input, row.site()).is_some()
     })
 }
 

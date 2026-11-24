@@ -147,6 +147,7 @@ impl super::super::MirBuilder {
             lhs,
             rhs,
         )?;
+        bindings.push(original.clone());
         let function = self
             .function_state
             .current_function

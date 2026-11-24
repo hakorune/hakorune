@@ -59,6 +59,9 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut bindings = self.scalar_operation_bindings_v1(owner)?;
         bindings.extend(self.borrowed_mul_bindings_v1(owner)?);
         bindings.extend(self.borrowed_compare_bindings_v1(owner)?);
+        // The independent verifier still consumes the ordered comparison when
+        // its Bool result has no source-level reader.
+        self.append_borrowed_integer_checks(owner, &mut bindings);
         let mut required = validated_roots(function, boundary, bindings)?;
         // This same source packet consumes its complete original prefix,
         // including auxiliary Const/Copy producers. Lend those exact values to

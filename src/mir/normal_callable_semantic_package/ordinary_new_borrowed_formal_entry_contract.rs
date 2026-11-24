@@ -55,11 +55,9 @@ impl OrdinaryNewClaimLedgerV1 {
         if !uses.captures().is_empty() { input_use_pending!("captures") }
         let mut origins = uses.roots().clone();
         let tagged = matches!(structure.evidence, EntryStructureEvidenceV1::OriginalInputs { tagged: true, .. });
-        let tagged_reads = if tagged {
-            self.tagged_entry_source_reads_v1(structure.source, contract.owner, &structure.formals, uses)?
-        } else {
-            BTreeSet::new()
-        };
+        let tagged_reads = self.checked_entry_source_reads_v1(
+            structure.source, contract.owner, &structure.formals, uses, tagged,
+        )?;
         let mut covered = BTreeSet::new();
         let flow = self.completion_for_owner(contract.owner).and_then(|completion| completion.cleanup().root_flow());
         for initializer in uses.initializers() {
