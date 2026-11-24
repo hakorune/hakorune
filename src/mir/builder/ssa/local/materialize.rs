@@ -235,11 +235,20 @@ fn materialize_local_inner_v1(
             return Ok(v);
         }
 
-        let selected_scalar_copy = builder
+        // Keep the Bool already produced on the checked comparison's Normal edge.
+        let checked_comparison = builder
             .function_state
-            .local_ssa_correspondence
-            .selects_scalar(v)
-            && def_block != Some(bb);
+            .current_function
+            .as_ref()
+            .and_then(|function| {
+                crate::mir::verification::borrowed_integer_comparison::ComparisonBinding::for_result(
+                    function, v,
+                )
+            })
+            .is_some();
+        let selected_scalar_copy = def_block != Some(bb)
+            && (checked_comparison
+                || builder.function_state.local_ssa_correspondence.selects_scalar(v));
         if selected_scalar_copy {
             let function = builder
                 .function_state

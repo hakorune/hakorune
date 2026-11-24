@@ -53756,6 +53756,78 @@
       ],
       "coverage_exe": true,
       "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/local-lt-bool.hako",
+      "sha256": "68ce4f3e794a435f081a29f7ae30b0ae67c3d8d270dfeaf01609d37dad670686",
+      "groups": [
+        "B"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/local-lt-text.hako",
+      "sha256": "df245d076b11e091ce43262c69be316ddf72cd6dc787f459665cba8e5731bcf8",
+      "groups": [
+        "B"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/local-le-bool.hako",
+      "sha256": "8a13b72af4a1f3fec375ce9647eca33bf1f6348534bbdfd947e6916296bdced1",
+      "groups": [
+        "B"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/local-le-text.hako",
+      "sha256": "7839c64a8b15f0b01b7bfd8fb6a08708dedcb8b31c676e763086652d9eb3d71b",
+      "groups": [
+        "B"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/local-gt-bool.hako",
+      "sha256": "f9099f425f7ec635ea96bf8f5935ef04a6acfd883e21651892b1474ef4e2515e",
+      "groups": [
+        "B"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/local-gt-text.hako",
+      "sha256": "967ffdaa3dd06a1d9eb9e8ab3319f29cf13e01d94a6dc1dcd0c87a0bb5cf6040",
+      "groups": [
+        "B"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/local-ge-bool.hako",
+      "sha256": "93f5554f117b15930c18ed95cff2e3fa95f7379ba4d292df7bc9a873413004c3",
+      "groups": [
+        "B"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/local-ge-text.hako",
+      "sha256": "2799d0f16f345d7d58b69786e91b907038dd381a3dc1340364eebb14360b5819",
+      "groups": [
+        "B"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
     }
   ]
 }

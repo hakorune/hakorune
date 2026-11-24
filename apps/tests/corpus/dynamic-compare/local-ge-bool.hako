@@ -1,0 +1,12 @@
+box Probe {
+ birth() { }
+ run(x): i64 {
+local c = x >= 3
+return 9
+}
+}
+static box Main { main() {
+local p = new Probe()
+return p.run(true)
+}
+}
