@@ -729,21 +729,21 @@ impl CallableLoopSourceTargetProbeV1 {
         // Transfer only the exact resolver item after checking the packet's
         // owner and candidate relation; conflicting owners remain refusals.
         for observation in product.schedule().blocks_array_appends_v2() {
-            let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append {
-                source,
-                call,
-                candidate,
-                ..
-            } = observation
-            else {
-                return Err(CallableLoopSourceRouteRejectV1::SourceItemForeign);
-            };
+            use crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1;
+            let call = observation.append_call_v1().ok_or(CallableLoopSourceRouteRejectV1::SourceItemForeign)?;
             let item = items
                 .iter()
                 .find(|item| item.call_site() == call.site())
                 .ok_or(CallableLoopSourceRouteRejectV1::SourceItemForeign)?;
-            let owner_matches = call.owner() == owner && source.binding().owner() == owner;
-            let candidate_matches = source.append_candidate(call).as_ref() == Some(candidate);
+            let append_matches = match observation {
+                NamedArrayHomeObservationV1::Append { source, candidate, .. } =>
+                    source.binding().owner() == owner && source.append_candidate(call).as_ref() == Some(candidate),
+                NamedArrayHomeObservationV1::FieldIntegerAppend { requirement, .. } =>
+                    requirement.owner() == owner && requirement.call() == item.call_site()
+                        && item.argument_sites.as_ref() == [requirement.argument().clone()]
+                        && core_methods.get(call.site()) == Some(item),
+                _ => false,
+            };
             let uncovered = self.uncovered.iter().any(|site| site == call.site());
             let selected = self.selected.iter().any(|relation| relation.call_site() == call.site());
             let core_mismatch = core_methods
@@ -756,8 +756,8 @@ impl CallableLoopSourceTargetProbeV1 {
                 .filter(|instance| instance.call_site() == call.site());
             let instance_mismatch = matching_instance.next().is_some_and(|instance| instance != item)
                 || matching_instance.next().is_some();
-            if !owner_matches
-                || !candidate_matches
+            if call.owner() != owner
+                || !append_matches
                 || uncovered
                 || selected
                 || core_mismatch

@@ -455,55 +455,47 @@ fn local_field_read_claims_object_alias_on_entry_receiver() {
         input.forest().callable_source_ledger(input.owner()).unwrap().loop_sites().next().unwrap().clone()
     }).unwrap();
     assert!(ledger.validate_preissued_loop_consumption_v1(site.owner()).is_err(), "Home success is not physical consumption");
-    let home = std::rc::Rc::clone(ledger.no_exit_array_home_source_v1(site.owner(), &loop_site).unwrap());
-    assert_eq!(home.appends().len(), 4, "every original Push, in source order");
-    assert!(home.prior_homes().is_empty(), "source aliases create no owner");
+    use crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1;
+    use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1;
+    let product = std::rc::Rc::clone(ledger.retained_source_loop_recipe_v2(site.owner(), &loop_site).unwrap().unwrap());
     let flow = ledger.completion_for_owner(site.owner()).unwrap().cleanup().root_flow().unwrap();
-    let mut installed = flow.field_array_loop_sources();
-    assert!(std::rc::Rc::ptr_eq(&home, installed.next().unwrap()), "canonical Home walk retains the SAME proof");
-    assert!(installed.next().is_none());
     let originals = package.source_core_method_calls.values().find(|rows|
         rows.values().any(|row| row.contract().owner() == site.owner())).unwrap();
-    for (index, row) in home.appends().iter().enumerate() {
-        let requirement = row.requirement();
-        let fault = row.fault();
-        assert_eq!(fault.call().site(), requirement.call());
-        assert_eq!(fault.loop_site(), &loop_site);
-        assert!(!fault.crossed_scopes().is_empty(), "the original Loop scope is crossed");
-        let original = originals.values().find_map(|row| match row.contract().named_array_requirement() {
-            Some(crate::mir::resolved_semantics::NamedArrayRequirementV1::FieldResidence(original))
-                if original.call() == requirement.call() => Some(original), _ => None,
-        }).unwrap();
-        assert!(std::rc::Rc::ptr_eq(original, requirement));
-        let contract = originals.values().find(|row| row.contract().call_site() == requirement.call()).unwrap().contract();
-        let append = ledger.field_array_append_source_v1(contract).expect("same original source and canonical Home participation");
-        assert!(append.matches_original(&home, index));
-        assert!(std::rc::Rc::ptr_eq(append.integer_requirement().unwrap(), requirement));
-        assert_eq!(append.site(), fault.call());
-        append.validate_source(ledger).unwrap();
-        assert!(std::ptr::eq(append.integer_argument().unwrap(), row.argument()));
-        assert_eq!(append.integer_argument().unwrap().site(), requirement.argument());
+    let appends: Vec<_> = product.schedule().blocks_array_appends_v2().collect();
+    assert_eq!(appends.len(), 4, "every original Push, in source order");
+    assert_eq!(originals.len(), 4);
+    for observation in appends {
+        let NamedArrayHomeObservationV1::FieldIntegerAppend { call, requirement, evaluation, loop_site: original_loop } = observation
+            else { panic!("borrowed field append") };
+        assert_eq!(original_loop, &loop_site);
+        assert!(evaluation.prior_homes().is_empty(), "field aliases create no owner");
+        assert_eq!(flow.named_arrays().iter().filter(|row| *row == observation).count(), 1);
+        let contract = originals.values().find(|row| row.contract().call_site() == call.site()).unwrap().contract();
+        let source = ledger.field_array_append_source_v1(contract).expect("same original source and Home participation");
+        assert!(source.matches_loop_observation_v1(observation));
+        assert!(std::rc::Rc::ptr_eq(source.integer_requirement().unwrap(), requirement));
+        assert!(std::rc::Rc::ptr_eq(source.checked_integer_evaluation_v1().unwrap(), evaluation));
+        assert_eq!(source.site(), call);
+        source.validate_source(ledger).unwrap();
+        let argument = &evaluation.source().nodes()[0];
+        assert_eq!(argument.site(), requirement.argument());
         if requirement.field_name() == "free_stack" {
-            assert!(append.integer_argument().unwrap().binding().is_some());
+            assert!(matches!(argument.source(), ExpressionNodeSourceV1::Reference(_)));
         } else {
-            assert_eq!(append.integer_argument().unwrap().literal(), Some(0));
+            assert!(matches!(argument.source(), ExpressionNodeSourceV1::Literal(
+                crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Integer(0))));
         }
     }
-    package.batch().with_lowering_input(declaration.batch_slot(), |input| {
-        assert!(home.recheck_source(input, originals.values().map(|row| row.contract())));
-        assert!(!home.recheck_source(input, originals.values().skip(1).map(|row| row.contract())), "missing original Call refuses");
-    }).unwrap();
     let plan = ledger.take_preissued_loop_source_handoff_v2(site.owner(), &loop_site).unwrap().unwrap();
     let original = std::rc::Rc::clone(ledger.retained_loop_source_v1(site.owner(), &loop_site).unwrap().unwrap());
     assert!(std::rc::Rc::ptr_eq(&original, plan.original_source_v1()));
     let roles = std::rc::Rc::clone(original.bindings());
     assert_eq!(roles.owner(), site.owner());
     assert_eq!(roles.loop_site(), loop_site.node());
-    assert!(std::rc::Rc::ptr_eq(&original, home.original_source_v1()), "Home and affine plan share original source");
-    assert!(std::rc::Rc::ptr_eq(&home, ledger.no_exit_array_home_source_v1(site.owner(), &loop_site).unwrap()),
-        "affine Recipe take retains the SAME source/Home proof");
+    assert!(std::rc::Rc::ptr_eq(&original, &product.source.source), "Home and affine plan share original source");
+    assert!(std::rc::Rc::ptr_eq(&product, ledger.retained_source_loop_recipe_v2(site.owner(), &loop_site).unwrap().unwrap()),
+        "affine Recipe take retains the SAME source product");
     package.batch().with_lowering_input(declaration.batch_slot(), |input| {
-        assert_eq!(plan.flat_no_exit_statement_sites(input).unwrap().len(), 5);
         let condition = plan.condition_source_v1(input).unwrap();
         let root = condition.nodes()[0].site().node();
         let reads: Vec<_> = input.function().variable_refs().filter_map(|(site, reference)| {
@@ -531,12 +523,10 @@ fn local_field_read_claims_object_alias_on_entry_receiver() {
             && Some(bundle) == input.function().loop_region_bundle(&loop_site).ok()
             && frame.matches(plan.frame())));
         assert!(crate::mir::resolved_value_profile::expression_plan::condition_expression_source_plan_v1(input, &loop_site).is_err(), "Loop is not an If purpose");
-        assert!(home.recheck_source(input, originals.values().map(|row| row.contract())), "source proof survives Recipe take");
     }).unwrap();
     let main = package.batch().declarations().find(|row| row.owner() != site.owner()).unwrap();
     package.batch().with_lowering_input(main.batch_slot(), |input| {
         assert!(plan.condition_source_v1(input).is_none(), "foreign function cannot borrow the retained condition");
-        assert!(plan.flat_no_exit_statement_sites(input).is_none(), "foreign source cannot borrow this Recipe");
     }).unwrap();
     assert!(ledger.take_preissued_loop_source_handoff_v2(site.owner(), &loop_site).unwrap_err().contains("already-taken"));
     assert!(ledger.validate_preissued_loop_consumption_v1(site.owner()).unwrap_err()
@@ -569,12 +559,14 @@ fn local_field_read_claims_object_alias_on_entry_receiver() {
             let declaration = package.batch().declarations().find(|row| row.owner() == alias.owner()).unwrap();
             package.batch().with_lowering_input(declaration.batch_slot(), |input| {
                 let loop_site = input.forest().callable_source_ledger(input.owner()).unwrap().loop_sites().next().unwrap().clone();
-                let proof = package.ordinary_new_claim_ledger.no_exit_array_home_source_v1(input.owner(), &loop_site).unwrap();
-                assert_eq!(proof.prior_homes(), exit.homes(), "Fault owes the SAME original pre-Loop live Homes");
-                let flow = completion.cleanup().root_flow().unwrap();
-                assert!(std::rc::Rc::ptr_eq(proof, flow.field_array_loop_sources().next().unwrap()),
-                    "the complete Home law owns this original Loop participation");
-                assert_eq!(proof.appends().len(), body.matches(".push(").count());
+                let product = package.ordinary_new_claim_ledger.retained_source_loop_recipe_v2(input.owner(), &loop_site).unwrap().unwrap();
+                let appends: Vec<_> = product.schedule().blocks_array_appends_v2().collect();
+                assert_eq!(appends.len(), body.matches(".push(").count());
+                for observation in appends {
+                    let NamedArrayHomeObservationV1::FieldIntegerAppend { evaluation, .. } = observation
+                        else { panic!("checked field append") };
+                    assert_eq!(evaluation.prior_homes(), exit.homes(), "Fault owes the SAME live Homes");
+                }
             }).unwrap();
         }
     }

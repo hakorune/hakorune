@@ -458,7 +458,14 @@ fn body(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, tree: &Bod
                     return Err(reject("execution-child-loop-boundary"));
                 }
             }
-            Statement::OwnedArrayAppend { observation, .. } => {
+            Statement::ArrayAppend { observation, .. } => {
+                if let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::FieldIntegerAppend { call, evaluation, .. } = observation {
+                    if evaluation.prior_homes() != homes.as_slice() {
+                        return Err(reject("execution-array-homes"));
+                    }
+                    returns.push((SourceLoopCarrierPointV2::Call(call.clone()), text_carriers.values().cloned().collect()));
+                    continue;
+                }
                 let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append {
                     source: holder, availability, prior_homes, ..
                 } = observation else { return Err(reject("execution-array-observation")); };

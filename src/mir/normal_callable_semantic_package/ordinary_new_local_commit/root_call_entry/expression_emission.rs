@@ -42,6 +42,9 @@ impl ExpressionEmissionSourceV1 for Rc<CheckedPrintExpressionFrameV1> {
         self.as_ref().evaluation()
     }
 }
+impl ExpressionEmissionSourceV1 for Rc<CheckedExpressionEvaluationV1> {
+    fn evaluation(&self) -> &CheckedExpressionEvaluationV1 { self }
+}
 impl<C: ExpressionEmissionSourceV1> ExpressionEmissionV1<C> {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn from_body(
         contract: C,

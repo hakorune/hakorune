@@ -27,8 +27,7 @@ pub(crate) enum LifecyclePrefixSourceV1 {
     },
     FieldArrayAppend {
         site: OwnedExprSiteV1,
-        proof: std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>,
-        index: usize,
+        observation: super::NamedArrayHomeObservationV1,
     },
     OwnedArrayAppend {
         site: OwnedExprSiteV1,
@@ -87,7 +86,9 @@ impl LifecyclePrefixSourceV1 {
             Self::StoredMapGet { frame, .. } => frame.statement(),
             Self::Loop { product, .. } => product.source.source.site(),
             Self::Call { statement, .. } | Self::OwnedArrayAppend { statement, .. } => statement,
-            Self::FieldArrayAppend { proof, .. } => proof.site(),
+            Self::FieldArrayAppend { observation: super::NamedArrayHomeObservationV1::FieldIntegerAppend { evaluation, .. }, .. } =>
+                evaluation.source().root().statement(),
+            Self::FieldArrayAppend { .. } => unreachable!("checked field append"),
             Self::FieldTextAppend { frame, .. } => frame.statement(),
             Self::BindingRebind { frame, .. } => frame.source().root().statement(),
             Self::InitializerExpression { frame, .. } => frame.source().root().statement(),
@@ -326,7 +327,7 @@ impl RootHomeFlow {
                     .map_err(|_| "lifecycle-prefix/array-append-unavailable")?;
                 if loops
                     .iter()
-                    .any(|product| product.owned_array_append_v2(call).is_some())
+                    .any(|product| product.array_append_v2(call).is_some())
                 {
                     continue;
                 }
@@ -343,15 +344,6 @@ impl RootHomeFlow {
                 prefixes.push(LifecyclePrefixSourceV1::FieldTextAppend {
                     site: frame.source().call().clone(),
                     frame: std::rc::Rc::clone(frame),
-                });
-            }
-        }
-        for proof in self.field_array_loop_sources() {
-            for (index, append) in proof.appends().iter().enumerate() {
-                prefixes.push(LifecyclePrefixSourceV1::FieldArrayAppend {
-                    site: append.fault().call().clone(),
-                    proof: std::rc::Rc::clone(proof),
-                    index,
                 });
             }
         }

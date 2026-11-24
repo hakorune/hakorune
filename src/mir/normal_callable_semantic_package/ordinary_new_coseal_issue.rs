@@ -534,8 +534,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             &borrowed_formal_source, input, &borrowed_i64_results, &array_i64_field_sets,
                             instance_constructors, batch.ordinary_box_coverage(),
                         ), &mut |prestate| {
-                            let loan = loop_issue::issue_selected_home_loop_loan_v1(
-                                input, prestate, &mut selected_loop_products, source_core_calls, loop_policy,
+                            let loan = loop_issue::retain_selected_loop_product_v1(
+                                input, prestate, &mut selected_loop_products, loop_policy,
                             );
                             Ok(loan)
                         }, &mut |site| Ok(callable_result_classes.object_return_qualification(site)))? {

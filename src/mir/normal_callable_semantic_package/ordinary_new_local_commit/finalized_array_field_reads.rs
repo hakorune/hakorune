@@ -239,6 +239,7 @@ impl FinalizedRootSourceHandoffV1 {
         }
         let mut result = Vec::new();
         for (owner, groups) in &self.local_calls {
+            let groups = super::RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(groups);
             if !groups.iter().any(|group| group.field_array_append().is_some()) { continue; }
             self.ledger.with_finished_projection(*owner, |symbol, projection| {
                 if symbol != function.signature.name { return Ok(()); }

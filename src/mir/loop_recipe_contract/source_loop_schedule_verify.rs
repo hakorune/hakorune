@@ -35,7 +35,7 @@ impl SourceLoopScheduleDraftV2 {
         if source.source.owner() != input.owner() || self.frames.len() != execution.len()
             || self.blocks.len() != recipe.blocks.len() || recipe.loops.len() != 1
             || self.operations.len() + self.blocks.values().flatten()
-                .filter(|step| matches!(step, SourceLoopScheduledStepV2::OwnedArrayAppend { .. } | SourceLoopScheduledStepV2::Call { .. })).count()
+                .filter(|step| matches!(step, SourceLoopScheduledStepV2::ArrayAppend { .. } | SourceLoopScheduledStepV2::Call { .. })).count()
                 + self.joins_v2().count()
                 + self.joins_v2().filter(|join| join.write_item.is_some()).count()
                 + self.text_joins_v2().count()

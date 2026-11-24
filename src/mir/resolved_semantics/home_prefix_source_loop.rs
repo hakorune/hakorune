@@ -209,6 +209,10 @@ pub(super) fn same_context(
 }
 
 impl PrefixLocalFlow<'_> {
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn current_source_loop_site_v1(&self) -> Option<&SourceStmtSiteV1> {
+        Some(self.source_loop.as_ref()?.source.site())
+    }
+
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn source_loop_header_basis_v1(
         &self,
         binding: BindingRefV1,

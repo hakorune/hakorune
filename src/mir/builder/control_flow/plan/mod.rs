@@ -155,5 +155,4 @@ mod expression_port_tests;
 #[cfg(test)]
 pub(in crate::mir::builder) mod parity_snapshot_test_support;
 
-pub(in crate::mir) use normalizer::helpers_value::ObservedSourceValueV1;
 pub(in crate::mir::builder) use normalizer::helpers_value::SourceValueProjectionV1;

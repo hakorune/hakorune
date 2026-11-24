@@ -97,6 +97,21 @@ impl
         OrdinaryNewCoSealIssueV1,
     > for FieldSourcesWithOriginalWritesV1<'_>
 {
+    fn array_integer_append_source(
+        &mut self,
+        site: &OwnedExprSiteV1,
+    ) -> Option<Rc<crate::mir::resolved_semantics::NamedArrayFieldResidenceRequirementV1>> {
+        let row = self.core_calls?.get(site.site())?;
+        let contract = row.contract();
+        let crate::mir::resolved_semantics::NamedArrayRequirementV1::FieldResidence(requirement) =
+            contract.named_array_requirement()?
+        else { return None; };
+        (contract.owner() == site.owner()
+            && contract.call_site() == site.site()
+            && contract.target().schema() == crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::ArrayIntegerAppend)
+            .then(|| Rc::clone(requirement))
+    }
+
     fn array_text_append_source(
         &mut self,
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,

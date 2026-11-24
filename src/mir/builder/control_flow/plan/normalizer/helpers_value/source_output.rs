@@ -35,18 +35,6 @@ impl NormalizedSourceValueV1 {
             lhs.values(values); rhs.values(values);
         }
     }
-    fn matches_source(&self, owner: FunctionOwnerIdV1,
-        source: &crate::mir::builder::VerifiedNoExitIntegerExpressionV1,
-    ) -> bool {
-        if self.site.owner() != owner || self.site.site() != source.site() { return false; }
-        match &self.kind {
-            NormalizedSourceValueKindV1::Literal(value) => source.literal() == Some(*value),
-            NormalizedSourceValueKindV1::Variable(read) => source.binding().is_some_and(|binding|
-                read.value_for(owner, source.site().node(), binding) == Ok(self.value)),
-            NormalizedSourceValueKindV1::Add(lhs, rhs) => source.operands().is_some_and(|(left, right)|
-                lhs.matches_source(owner, left) && rhs.matches_source(owner, right)),
-        }
-    }
 }
 
 /// Each speculative CorePlan clone owns its physical projection. Freshening
@@ -62,9 +50,6 @@ impl SourceValueProjectionV1 {
         Self { original, values }
     }
     pub(in crate::mir::builder) fn root_value(&self) -> ValueId { self.values[&self.original.value] }
-    pub(in crate::mir::builder) fn matches_source(&self, owner: FunctionOwnerIdV1,
-        source: &crate::mir::builder::VerifiedNoExitIntegerExpressionV1,
-    ) -> bool { self.original.matches_source(owner, source) }
     pub(in crate::mir::builder::control_flow::plan::normalizer) fn remap(
         &mut self, map: &super::super::cond_lowering_freshen::FresheningValuesV1<'_>,
     ) {
@@ -87,6 +72,3 @@ impl SourceValueProjectionV1 {
         self.values.values().copied()
     }
 }
-
-mod observed;
-pub(in crate::mir) use observed::ObservedSourceValueV1;

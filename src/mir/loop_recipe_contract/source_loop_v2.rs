@@ -78,7 +78,11 @@ impl VerifiedSourceLoopRecipeProductV2 {
                         site: observation.site().clone(), statement: site.clone(),
                     }),
                     SourceLoopScheduledStepV2::Frame(index) => output.push(product.schedule().frames()[*index].prefix().clone()),
-                    SourceLoopScheduledStepV2::OwnedArrayAppend { site, observation, .. } => {
+                    SourceLoopScheduledStepV2::ArrayAppend { site, observation, .. } => {
+                        if let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::FieldIntegerAppend { call, .. } = observation {
+                            output.push(Prefix::FieldArrayAppend { site: call.clone(), observation: observation.clone() });
+                            continue;
+                        }
                         let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append {
                             source, call, candidate, ..
                         } = observation else { unreachable!("verified append observation") };
@@ -106,7 +110,7 @@ impl VerifiedSourceLoopRecipeProductV2 {
         visit(self, block, &mut output); visit(self, root.body, &mut output);
         output
     }
-    pub(crate) fn owned_array_append_v2(&self, site: &crate::mir::resolved_semantics::OwnedExprSiteV1)
+    pub(crate) fn array_append_v2(&self, site: &crate::mir::resolved_semantics::OwnedExprSiteV1)
         -> Option<&crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1> {
         if site.owner() != self.source.source.owner() { return None; }
         source_array_append_v2(&self.source, &SourceStmtSiteV1::from_node(site.site().node().clone()))
@@ -129,7 +133,12 @@ impl VerifiedSourceLoopRecipeProductV2 {
             Prefix::BindingRebind { frame, .. } => Some(frame.evaluation()),
             _ => None,
         });
-        scheduled
+        let append_evaluations = self.schedule().blocks_array_appends_v2().filter_map(|observation| match observation {
+            crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::FieldIntegerAppend { evaluation, .. } =>
+                Some(evaluation.as_ref()),
+            _ => None,
+        });
+        scheduled.chain(append_evaluations)
             .chain(std::iter::once(self.source.condition.evaluation()))
             .chain(
             self.source.body_expressions.iter().flat_map(|plan| {
@@ -148,6 +157,7 @@ impl VerifiedSourceLoopRecipeProductV2 {
         source_returns_v2(&self.source).iter().any(|row| Rc::ptr_eq(source, &row.source))
             || Rc::ptr_eq(source, self.source.condition.source())
             || self.source.body_expressions.iter().any(|frame| Rc::ptr_eq(source, frame.source()))
+            || self.checked_expression_evaluations_v2().any(|evaluation| Rc::ptr_eq(source, evaluation.source()))
     }
     /// These qualified argument frames execute inside the SAME scheduled Call,
     /// not the Loop frame emitter. Source summary verification binds their Arc,
@@ -186,9 +196,10 @@ impl VerifiedSourceLoopRecipeProductV2 {
                 && matches!(node.source(), Node::MethodCall | Node::DirectCall)))
             || self.schedule.calls_v2().any(|step| matches!(step,
                 SourceLoopScheduledStepV2::Call { observation, .. } if observation.site() == site))
-            || self.schedule.blocks_array_appends_v2().any(|observation| matches!(observation,
-                crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append { call, candidate, .. }
-                    if call == site || candidate == site)))
+            || self.schedule.blocks_array_appends_v2().any(|observation|
+                observation.append_call_v1() == Some(site) || matches!(observation,
+                    crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append { candidate, .. }
+                        if candidate == site)))
     }
 }
 /// Visit the original checked Program nodes without flattening their source bodies.
@@ -239,7 +250,7 @@ pub(super) fn source_array_append_v2<'a>(source: &'a Summary, site: &SourceStmtS
     -> Option<&'a crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1> {
     let mut append = None;
     source.control.as_ref().ok()?.visit(&mut |stmt| {
-        if let Statement::OwnedArrayAppend { site: original, observation } = stmt {
+        if let Statement::ArrayAppend { site: original, observation } = stmt {
             if original == site { append = Some(observation); }
         }
     });

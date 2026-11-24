@@ -76,7 +76,8 @@ impl FinalizedRootSourceHandoffV1 {
         // The original field-loop packet remains a validation participant even
         // when no executable Call happens to invoke its declared method.
         let field_owners: BTreeSet<_> = self.local_calls.iter()
-            .filter(|(_, groups)| groups.iter().any(|group| group.field_array_append().is_some()))
+            .filter(|(_, groups)| RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(groups)
+                .into_iter().any(|group| group.field_array_append().is_some()))
             .map(|(owner, _)| *owner).collect();
         owners.extend(field_owners.iter().copied());
         self.visit_finalized_borrowed_call_nodes_v1(module, |packet, arguments, _, _, _| {
@@ -148,7 +149,7 @@ impl FinalizedRootSourceHandoffV1 {
             })?;
             if field_owners.contains(&owner) {
                 self.ledger.with_finished_projection(owner, |_, projection| {
-                    for group in &self.local_calls[&owner] {
+                    for group in RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(&self.local_calls[&owner]) {
                         let Some(packet) = group.field_array_append() else { continue; };
                         if group.site() != packet.source().site() || group.site().owner() != owner {
                             return Err(freeze("callable-participant/field-source-owner"));

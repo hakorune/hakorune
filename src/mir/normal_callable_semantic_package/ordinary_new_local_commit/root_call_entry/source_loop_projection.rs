@@ -430,6 +430,7 @@ impl OrdinaryNewClaimLedgerV1 {
                             source,
                             LifecyclePrefixSourceV1::Call { .. }
                                 | LifecyclePrefixSourceV1::OwnedArrayAppend { .. }
+                                | LifecyclePrefixSourceV1::FieldArrayAppend { .. }
                         )
                 });
                 let source = sources

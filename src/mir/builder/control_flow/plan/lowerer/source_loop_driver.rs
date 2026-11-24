@@ -369,7 +369,7 @@ impl Driver<'_, '_, '_, '_, '_> {
                     self.effects.push(EmittedLoopEffectV2 { site: site.clone(), entry, end, packet, result });
                     position += 1;
                 }
-                Step::OwnedArrayAppend { site, observation, .. } => {
+                Step::ArrayAppend { site, observation, .. } => {
                     let entry = builder.function_state.current_block.ok_or_else(|| reject("array-append-entry"))?;
                     let packet = super::source_loop_frames::emit_array_append(builder, self.port, &self.product, site, observation)?;
                     let end = builder.function_state.current_block.ok_or_else(|| reject("array-append-end"))?;

@@ -65,6 +65,12 @@ pub(crate) trait HomeFieldSourceConsultV1<E> {
     {
         Ok(None)
     }
+    fn array_integer_append_source(
+        &mut self,
+        _site: &OwnedExprSiteV1,
+    ) -> Option<Rc<crate::mir::resolved_semantics::NamedArrayFieldResidenceRequirementV1>> {
+        None
+    }
     fn array_text_append_source(
         &mut self,
         _input: ResolvedFunctionLoweringInputV1<'_>,

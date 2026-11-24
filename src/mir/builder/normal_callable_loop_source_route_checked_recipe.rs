@@ -45,16 +45,16 @@ impl CallableLoopSourceCallCoverageV1 {
             }
         }
         for observation in product.schedule().blocks_array_appends_v2() {
-            let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append {
-                source, call, candidate, ..
-            } = observation else { return Err(CallableLoopSourceRouteRejectV1::SourceItemForeign); };
+            let call = observation.append_call_v1().ok_or(CallableLoopSourceRouteRejectV1::SourceItemForeign)?;
             if !expected.insert(call.site()) {
                 return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate { call_site: call.site().clone() });
             }
-            match source.append_candidate_is_null_v1(call) {
-                Some(true) => {},
-                Some(false) if expected.insert(candidate.site()) => {},
-                _ => return Err(CallableLoopSourceRouteRejectV1::SourceItemForeign),
+            if let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append { source, candidate, .. } = observation {
+                match source.append_candidate_is_null_v1(call) {
+                    Some(true) => {},
+                    Some(false) if expected.insert(candidate.site()) => {},
+                    _ => return Err(CallableLoopSourceRouteRejectV1::SourceItemForeign),
+                }
             }
         }
         let mut observed = std::collections::BTreeSet::new();
@@ -108,8 +108,7 @@ impl CallableLoopSourceTargetProbeV1 {
         // candidate is covered above by the ordinary instance bucket. Do not
         // demand a second generic Call owner for this already checked effect.
         for observation in product.schedule().blocks_array_appends_v2() {
-            let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append { call, .. }
-                = observation else { return Err(CallableLoopSourceRouteRejectV1::SourceItemForeign); };
+            let call = observation.append_call_v1().ok_or(CallableLoopSourceRouteRejectV1::SourceItemForeign)?;
             if !items.iter().any(|item| item.call_site() == call.site()) || !seen.insert(call.site().clone()) {
                 return Err(CallableLoopSourceRouteRejectV1::SourceCallResidualEvidence);
             }
