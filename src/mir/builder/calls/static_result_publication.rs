@@ -33,6 +33,7 @@ pub(in crate::mir::builder) struct PreparedStaticCallResultPublicationV1 {
 struct PreparedStaticCallResultPublicationSealV1;
 
 impl PreparedStaticCallResultPublicationV1 {
+
     pub(in crate::mir::builder) fn prepare(
         demand: VerifiedStaticCallResultPublicationDemandV1,
         emission: CompletedUnifiedValueCallEmissionV1,
@@ -72,29 +73,6 @@ impl PreparedStaticCallResultPublicationV1 {
         Ok(())
     }
 
-    /// Commit a publication whose destination type was preallocated by the
-    /// source normalizer. Existing matching type information is accepted as
-    /// the same destination contract; conflicting type information still
-    /// fails closed.
-    pub(in crate::mir::builder) fn commit_external_destination(
-        self,
-        builder: &mut MirBuilder,
-    ) -> Result<(), String> {
-        let exact_type = exact_physical_result_type(self.demand.representation());
-        if let Some(existing) = builder.function_state.type_ctx.get_type(self.destination) {
-            if existing != &exact_type {
-                return Err(
-                    "[freeze:contract][static-call-result-publication/type-mismatch]".to_owned(),
-                );
-            }
-            return Ok(());
-        }
-        builder
-            .function_state
-            .type_ctx
-            .set_type(self.destination, exact_type);
-        Ok(())
-    }
 }
 
 #[cfg(test)]
@@ -190,42 +168,10 @@ mod tests {
     }
 
     #[test]
-    fn source_string_and_bool_publication_cover_destinations_and_mismatch() {
+    fn source_string_and_bool_publication_preserves_exact_result_type() {
         crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
             for (result, expected) in [("\"猫\"", MirType::String), ("true", MirType::Bool)] {
-                for external in [false, true] {
-                    let mut builder = builder("string_publication/0");
-                    let demand = source_result_demand(result);
-                    let destination = builder.alloc_value_for_test();
-                    let target = demand.target().canonical_global_target_v1().unwrap();
-                    let emission =
-                        UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
-                            &mut builder,
-                            destination,
-                            CallTarget::Global(target),
-                            vec![],
-                            None,
-                        )
-                        .unwrap();
-                    let publication =
-                        PreparedStaticCallResultPublicationV1::prepare(demand, emission);
-                    if external {
-                        builder
-                            .function_state
-                            .type_ctx
-                            .set_type(destination, expected.clone());
-                        publication
-                            .commit_external_destination(&mut builder)
-                            .unwrap();
-                    } else {
-                        publication.commit(&mut builder).unwrap();
-                    }
-                    assert_eq!(
-                        builder.function_state.type_ctx.get_type(destination),
-                        Some(&expected)
-                    );
-                }
-                let mut builder = builder("string_publication_mismatch/0");
+                let mut builder = builder("string_publication/0");
                 let demand = source_result_demand(result);
                 let destination = builder.alloc_value_for_test();
                 let target = demand.target().canonical_global_target_v1().unwrap();
@@ -238,17 +184,12 @@ mod tests {
                         None,
                     )
                     .unwrap();
-                builder
-                    .function_state
-                    .type_ctx
-                    .set_type(destination, MirType::Integer);
-                let error = PreparedStaticCallResultPublicationV1::prepare(demand, emission)
-                    .commit_external_destination(&mut builder)
-                    .unwrap_err();
-                assert!(error.contains("type-mismatch"));
+                let publication =
+                    PreparedStaticCallResultPublicationV1::prepare(demand, emission);
+                publication.commit(&mut builder).unwrap();
                 assert_eq!(
                     builder.function_state.type_ctx.get_type(destination),
-                    Some(&MirType::Integer)
+                    Some(&expected)
                 );
             }
         });

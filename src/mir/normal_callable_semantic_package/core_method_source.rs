@@ -226,6 +226,7 @@ pub(crate) struct SelectedSourceCoreMethodCallV1 {
 }
 
 impl SelectedSourceCoreMethodCallV1 {
+
     pub(crate) fn contract(
         &self,
     ) -> &crate::mir::resolved_semantics::VerifiedResolverCoreMethodCallableContractV1 {
@@ -247,19 +248,6 @@ impl SelectedSourceCoreMethodCallV1 {
         Ok(())
     }
 
-    /// Unconditional String rows need no retained constructor obligation.
-    /// Conditional rows must instead remain owned through physical emission.
-    pub(crate) fn into_unconditional_contract(
-        self,
-    ) -> Result<crate::mir::resolved_semantics::VerifiedResolverCoreMethodCallableContractV1, String>
-    {
-        if self.contract().named_array_requirement().is_some() {
-            return Err(crate::mir::named_array_obligation::fault(
-                "retained-source-required",
-            ));
-        }
-        Ok(self.row.into_contract())
-    }
 }
 
 #[cfg(test)]

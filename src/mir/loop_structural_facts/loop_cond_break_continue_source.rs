@@ -85,6 +85,11 @@ pub(crate) struct VerifiedLoopCondSourceExitV1 {
 }
 
 impl VerifiedLoopCondSourceExitV1 {
+    #[cfg(test)]
+    pub(crate) const fn record(&self) -> &ResolvedExitRecordV1 {
+        &self.record
+    }
+
     pub(crate) fn new(site: SourceStmtSiteV1, record: ResolvedExitRecordV1) -> Self {
         Self { site, record }
     }
@@ -93,9 +98,6 @@ impl VerifiedLoopCondSourceExitV1 {
         &self.site
     }
 
-    pub(crate) const fn record(&self) -> &ResolvedExitRecordV1 {
-        &self.record
-    }
 }
 
 /// AST-free co-seal for one nested LoopCond source forest.

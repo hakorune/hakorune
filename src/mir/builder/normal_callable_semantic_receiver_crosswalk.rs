@@ -443,6 +443,17 @@ impl fmt::Display for ExactBindingValueErrorV1 {
 }
 
 impl CallableSemanticLoweringState {
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn take_exact_receiver_value(
+        &mut self,
+        expected_owner: FunctionOwnerIdV1,
+        receiver_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+        expected_binding: BindingRefV1,
+    ) -> Result<ValueId, ExactReceiverValueErrorV1> {
+        self.take_exact_receiver_read(expected_owner, receiver_site, expected_binding)?
+            .value_for(expected_owner, receiver_site, expected_binding)
+    }
+
     /// Keep terminal observations with their existing exit owner in both raw
     /// and expression-port lowering. Other lexical reads keep the same law.
     pub(in crate::mir::builder) fn read_variable_retaining_return_v1(
@@ -537,18 +548,6 @@ impl CallableSemanticLoweringState {
         })
     }
 
-    /// Consume one exact receiver source site and read its already-materialized
-    /// value. The binding/value itself stays reusable so repeated `me.method`
-    /// calls remain legal; only the source-site observation is one-shot.
-    pub(in crate::mir::builder) fn take_exact_receiver_value(
-        &mut self,
-        expected_owner: FunctionOwnerIdV1,
-        receiver_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
-        expected_binding: BindingRefV1,
-    ) -> Result<ValueId, ExactReceiverValueErrorV1> {
-        self.take_exact_receiver_read(expected_owner, receiver_site, expected_binding)?
-            .value_for(expected_owner, receiver_site, expected_binding)
-    }
 
     /// Keep the same one-shot read for the downstream physical call packet.
     pub(in crate::mir::builder) fn take_exact_receiver_read(
@@ -568,7 +567,7 @@ impl CallableSemanticLoweringState {
 
     /// Consume one exact lexical source read without requiring the callable's
     /// entry receiver slot.  Static roots use this for a local object receiver;
-    /// instance bodies continue to use `take_exact_receiver_value` above.
+    /// instance bodies can use `take_exact_receiver_read` above.
     pub(in crate::mir::builder) fn take_exact_lexical_value(
         &mut self,
         expected_owner: FunctionOwnerIdV1,

@@ -392,11 +392,6 @@ impl NamedArrayEmissionDraftV1 {
 }
 
 impl NamedArrayWriteEmissionPortV1 {
-    pub(crate) fn is_field_residence_v1(&self) -> Result<bool, String> {
-        let state = self.0.borrow();
-        let WriteState::Pending(draft) = &*state else { return Err(fault("duplicate-physical-write")); };
-        Ok(matches!(draft.source.contract().named_array_requirement(), Some(NamedArrayRequirementV1::FieldResidence(_))))
-    }
     /// Canonical source family selection; absence of a required source proof
     /// is an error after FieldResidence selection, never raw-route fallback.
     pub(crate) fn field_append_source_v1(&self, ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1)

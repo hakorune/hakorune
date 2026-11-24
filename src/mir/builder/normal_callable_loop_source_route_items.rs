@@ -181,23 +181,6 @@ impl CallableLoopDynamicInvocationSourceV1 {
             && self.observation.as_ref().is_none_or(|original| original == observation)
     }
 
-    pub(in crate::mir::builder) fn matches_item(
-        &self,
-        owner: FunctionOwnerIdV1,
-        item: &CallableLoopSourceItemBindingV1,
-    ) -> bool {
-        let target = self.loan.target();
-        self.item == *item
-            && target.owner() == owner
-            && self.loan.call_site()
-                == &crate::mir::resolved_semantics::OwnedExprSiteV1::new(
-                    owner,
-                    item.call_site().clone(),
-                )
-            && self.loan.argument_sites() == item.argument_sites()
-            && CallableLoopSourceItemBindingV1::from_dynamic_target(owner, target)
-                .is_ok_and(|expected| expected == *item)
-    }
 
     pub(in crate::mir::builder) fn call_site(&self) -> &SourceExprSiteV1 {
         self.item.call_site()
@@ -283,17 +266,6 @@ impl CallableLoopSourceItemBindingV1 {
         self.arity
     }
 
-    #[cfg(test)]
-    pub(in crate::mir::builder) fn for_test(call_site: SourceExprSiteV1) -> Self {
-        Self {
-            receiver_site: call_site.clone(),
-            argument_sites: Box::new([]),
-            result_site: call_site.clone(),
-            call_site,
-            selector: "test".into(),
-            arity: 0,
-        }
-    }
 }
 
 /// Selected static-result requirement evidence copied from one publication
@@ -329,15 +301,6 @@ impl CallableLoopSourceTargetRequirementV1 {
         &self.required_callee_i64_arguments
     }
 
-    #[cfg(test)]
-    pub(in crate::mir::builder) fn for_test(
-        representation: VerifiedCallableResultRepresentationV1,
-    ) -> Self {
-        Self {
-            representation,
-            required_callee_i64_arguments: Box::new([]),
-        }
-    }
 }
 
 /// Exact target relation issued by the same invocation's source-target
@@ -387,15 +350,6 @@ impl CallableLoopSourceTargetRelationV1 {
         })
     }
 
-    pub(in crate::mir::builder) fn has_exact_scalar_result(&self) -> bool {
-        self.requirement.as_ref().is_some_and(|requirement| {
-            matches!(
-                requirement.representation(),
-                VerifiedCallableResultRepresentationV1::ExactI64
-                    | VerifiedCallableResultRepresentationV1::ExactBool
-            )
-        })
-    }
 
 
 }
@@ -464,26 +418,7 @@ pub(in crate::mir::builder) enum CallableLoopSourceCallCoverageV1 {
     CheckedRecipe(std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>),
 }
 
-/// One source-order disposition for a resolver-issued method item.  Static
-/// publication and bound CoreMethod rows share one batch, while their
-/// authorities remain distinct and are validated by their existing owners.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir::builder) enum CallableLoopSourceItemDispositionV1 {
-    SelectedStatic(CallableLoopSourceTargetRelationV1),
-    CoreMethod(CallableLoopSourceItemBindingV1),
-    InstanceMethod(CallableLoopSourceItemBindingV1),
-    DynamicInvocation(CallableLoopDynamicInvocationSourceV1),
-}
 
-impl CallableLoopSourceItemDispositionV1 {
-    pub(in crate::mir::builder) fn call_site(&self) -> &SourceExprSiteV1 {
-        match self {
-            Self::SelectedStatic(relation) => relation.call_site(),
-            Self::CoreMethod(item) | Self::InstanceMethod(item) => item.call_site(),
-            Self::DynamicInvocation(source) => source.call_site(),
-        }
-    }
-}
 
 /// Immutable obligation/evidence classification for one armed loop's source
 /// items, produced by the module-port probe before route selection.
@@ -821,115 +756,4 @@ impl CallableLoopSourceTargetProbeV1 {
         Ok(selected)
     }
 
-    /// Consume the complete source-order disposition batch for a structured
-    /// source Recipe. Every resolver item is covered exactly once by either
-    /// the selected publication owner or the existing CoreMethod owner.
-    pub(in crate::mir::builder) fn into_item_dispositions(
-        self,
-        source_items: &[CallableLoopSourceItemBindingV1],
-    ) -> Result<Box<[CallableLoopSourceItemDispositionV1]>, CallableLoopSourceRouteRejectV1> {
-        use std::collections::BTreeMap;
-
-        let Self {
-            selected,
-            uncovered,
-            requirement_mismatch,
-            core_methods,
-            instance_methods,
-            dynamic_invocations,
-        } = self;
-        if requirement_mismatch {
-            return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch);
-        }
-        if !uncovered.is_empty() {
-            return Err(CallableLoopSourceRouteRejectV1::SourceTargetUnselected {
-                call_sites: uncovered,
-            });
-        }
-
-        let mut selected_by_site = BTreeMap::new();
-        for relation in selected {
-            let call_site = relation.call_site().clone();
-            if selected_by_site
-                .insert(call_site.clone(), relation)
-                .is_some()
-            {
-                return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate { call_site });
-            }
-        }
-        let mut core_by_site = BTreeMap::new();
-        for item in core_methods {
-            let call_site = item.call_site().clone();
-            if core_by_site.insert(call_site.clone(), item).is_some() {
-                return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate { call_site });
-            }
-        }
-        let mut instance_by_site = BTreeMap::new();
-        for item in instance_methods {
-            let call_site = item.call_site().clone();
-            if instance_by_site
-                .insert(call_site.clone(), item)
-                .is_some()
-            {
-                return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate { call_site });
-            }
-        }
-        let mut dynamic_by_site = BTreeMap::new();
-        for source in dynamic_invocations {
-            let call_site = source.call_site().clone();
-            if dynamic_by_site.insert(call_site.clone(), source).is_some() {
-                return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate { call_site });
-            }
-        }
-
-        let mut seen_items = BTreeMap::new();
-        let mut dispositions = Vec::with_capacity(source_items.len());
-        for item in source_items {
-            if seen_items.insert(item.call_site().clone(), ()).is_some() {
-                return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate {
-                    call_site: item.call_site().clone(),
-                });
-            }
-            if let Some(relation) = selected_by_site.remove(item.call_site()) {
-                if !relation.has_exact_scalar_result() {
-                    return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch);
-                }
-                dispositions.push(CallableLoopSourceItemDispositionV1::SelectedStatic(
-                    relation,
-                ));
-            } else if let Some(core_method) = core_by_site.remove(item.call_site()) {
-                dispositions.push(CallableLoopSourceItemDispositionV1::CoreMethod(core_method));
-            } else if let Some(instance_method) = instance_by_site.remove(item.call_site()) {
-                dispositions.push(CallableLoopSourceItemDispositionV1::InstanceMethod(
-                    instance_method,
-                ));
-            } else if let Some(dynamic_invocation) = dynamic_by_site.remove(item.call_site()) {
-                dispositions.push(CallableLoopSourceItemDispositionV1::DynamicInvocation(
-                    dynamic_invocation,
-                ));
-            } else {
-                return Err(
-                    CallableLoopSourceRouteRejectV1::SourceItemDispositionMissing {
-                        call_site: item.call_site().clone(),
-                    },
-                );
-            }
-        }
-
-        let mut residual = selected_by_site
-            .into_keys()
-            .chain(core_by_site.into_keys())
-            .chain(instance_by_site.into_keys())
-            .chain(dynamic_by_site.into_keys())
-            .collect::<Vec<_>>();
-        if !residual.is_empty() {
-            residual.sort();
-            return Err(
-                CallableLoopSourceRouteRejectV1::SourceItemDispositionResidual {
-                    call_sites: residual.into_boxed_slice(),
-                },
-            );
-        }
-        Ok(dispositions.into_boxed_slice())
-    }
 }

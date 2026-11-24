@@ -3,10 +3,9 @@
 //! During folderization, implementations still live under `plan/`.
 //! Non-`plan/` consumers should depend on this module first.
 
-mod planner_compat;
 
 pub(in crate::mir::builder) mod normalize;
 
-pub(in crate::mir::builder) use self::planner_compat::{ CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfPlan, CoreLoopPlan,
-    CorePlan, Freeze, LoopStepMode, LoweredRecipe, PlanLowerer,
-};
+
+
+pub(in crate::mir::builder) use super::plan::planner::Freeze;

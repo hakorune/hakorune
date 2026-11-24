@@ -37,115 +37,6 @@ fn parser_scan_source_seals_one_dynamic_candidate_and_all_parameter_contracts() 
     );
 }
 
-#[test]
-fn parser_program_source_retains_composite_loopbreak_recipe_candidate() {
-    let mut package = issue(include_str!(
-        "../../../lang/src/compiler/parser/program/parser_program_box.hako"
-    ))
-    .expect("parser program composite LoopBreak semantic package");
-
-    assert_eq!(
-        package.loop_break_source_row_count(),
-        package.batch().declarations().len()
-    );
-    assert_eq!(package.loop_break_source_candidate_count(), 1);
-    let owner = package
-        .loop_break_source
-        .candidate_owner()
-        .expect("composite candidate owner");
-    let mut loan = package
-        .loop_break_source
-        .take_for_owner(owner)
-        .expect("owner receives composite candidate");
-    assert!(matches!(
-        loan,
-        LoopBreakSourcePackageLoanV1::CompositeCandidate(_)
-    ));
-    let sites = match &loan {
-        LoopBreakSourcePackageLoanV1::CompositeCandidate(facts) => facts
-            .candidates()
-            .iter()
-            .map(|candidate| candidate.projection().loop_site().clone())
-            .collect::<Vec<_>>(),
-        _ => panic!("fixture must issue a composite candidate"),
-    };
-    assert!(
-        !sites.is_empty(),
-        "composite candidate inventory must be finite"
-    );
-    for site in sites {
-        assert!(loan.take_composite_candidate_for_site(&site).is_some());
-    }
-    loan.finish_empty()
-        .expect("composite candidate is consumed exactly once");
-}
-
-#[test]
-fn finite_parser_loopbreak_sources_retain_structured_candidates() {
-    let sources = [
-        (
-            "ParserStringUtilsBox",
-            include_str!("../../../lang/src/compiler/parser/scan/parser_string_utils_box.hako"),
-        ),
-        (
-            "ParserDelegateExposesBox._parse_delegate",
-            include_str!("../../../lang/src/compiler/parser/decl/parser_delegate_exposes_box.hako"),
-        ),
-        (
-            "ParserRecordDeclarationBox.parse",
-            include_str!(
-                "../../../lang/src/compiler/parser/decl/parser_record_declaration_box.hako"
-            ),
-        ),
-    ];
-    for (label, source) in sources {
-        let mut package = issue(source)
-            .unwrap_or_else(|error| panic!("{label} source must remain issuable: {error:?}"));
-        assert!(
-            package.loop_break_source_candidate_count() > 0,
-            "{label} must retain at least one structured LoopBreak candidate"
-        );
-        let owner = package
-            .loop_break_source
-            .candidate_owner()
-            .expect("structured parser source candidate owner");
-        let mut loan = package
-            .loop_break_source
-            .take_for_owner(owner)
-            .expect("structured parser source owner receives its row");
-        let sites = match &loan {
-            LoopBreakSourcePackageLoanV1::Candidate(facts) => facts
-                .candidates()
-                .iter()
-                .map(|candidate| candidate.projection().loop_site().clone())
-                .collect::<Vec<_>>(),
-            LoopBreakSourcePackageLoanV1::CompositeCandidate(facts) => facts
-                .candidates()
-                .iter()
-                .map(|candidate| candidate.projection().loop_site().clone())
-                .collect::<Vec<_>>(),
-            LoopBreakSourcePackageLoanV1::SupportedNonCandidate { .. } => Vec::new(),
-        };
-        assert!(
-            !sites.is_empty(),
-            "{label} candidate inventory must be finite"
-        );
-        for site in sites {
-            let taken = match &mut loan {
-                LoopBreakSourcePackageLoanV1::Candidate(_) => {
-                    loan.take_candidate_for_site(&site).is_some()
-                }
-                LoopBreakSourcePackageLoanV1::CompositeCandidate(_) => {
-                    loan.take_composite_candidate_for_site(&site).is_some()
-                }
-                LoopBreakSourcePackageLoanV1::SupportedNonCandidate { .. } => false,
-            };
-            assert!(taken, "{label} candidate must be taken by exact site");
-        }
-        loan.finish_empty()
-            .unwrap_or_else(|error| panic!("{label} candidate rows must finish: {error}"));
-    }
-}
 
 #[test]
 fn direct_loop_break_source_package_retains_one_candidate_row() {
@@ -277,9 +168,6 @@ static box Main {
         LoopBreakSourcePackageLoanV1::SupportedNonCandidate { .. } => {
             panic!("fixture must issue a candidate")
         }
-        LoopBreakSourcePackageLoanV1::CompositeCandidate(_) => {
-            panic!("direct fixture must not issue a composite candidate")
-        }
     };
     assert!(loan.take_candidate_for_site(&site).is_some());
     loan.finish_empty()
@@ -319,7 +207,7 @@ static box Main {
 
 #[test]
 fn loop_break_source_package_retains_typed_absence_for_specialized_topology() {
-    let package = issue(
+    let mut package = issue(
         r#"
 static box Main {
     main() {
@@ -344,5 +232,11 @@ static box Main {
     .expect("specialized LoopBreak remains a valid semantic package");
 
     assert_eq!(package.loop_break_source_row_count(), 1);
-    assert_eq!(package.loop_break_source_candidate_count(), 1);
+    let owner = package.loop_break_source.first_owner().expect("source owner");
+    let loan = package.loop_break_source.take_for_owner(owner).expect("owner row");
+    assert!(matches!(
+        loan,
+        LoopBreakSourcePackageLoanV1::SupportedNonCandidate { loop_count: 1, .. }
+    ));
+    loan.finish_empty().expect("typed absence has no residual candidate");
 }

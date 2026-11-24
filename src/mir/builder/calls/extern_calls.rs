@@ -194,24 +194,6 @@ pub fn resolve_env_method_call(object: &ASTNode, method: &str) -> Option<EnvMeth
     })
 }
 
-/// Conservative return type hints for env.* methods.
-///
-/// This is used only by the plan normalizer path to avoid inventing
-/// integer-typed placeholders for extern values that are actually stringish
-/// or nullable at runtime.
-pub fn get_env_method_return_type(iface: &str, method: &str) -> Option<MirType> {
-    match (iface, method) {
-        ("env", "get") => Some(MirType::Unknown),
-        ("env", "set") => Some(MirType::Void),
-        ("console", "readLine") => Some(MirType::String),
-        ("fs", "readFile") => Some(MirType::String),
-        ("fs", "exists") => Some(MirType::Bool),
-        ("process", "argv") => Some(MirType::Unknown),
-        ("process", "env") => Some(MirType::Unknown),
-        ("now_ms", _) => None,
-        _ => Some(MirType::Unknown),
-    }
-}
 
 /// Split the source-level explicit externcall target.
 ///

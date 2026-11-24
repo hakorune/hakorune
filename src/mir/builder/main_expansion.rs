@@ -480,18 +480,6 @@ impl<'src> VerifiedMainExpansionV1<'src> {
     }
 }
 
-#[cfg(test)]
-pub(in crate::mir) fn with_test_main_static_children<R>(
-    root: PreparedAdmittedNormalRootExpansionV1,
-    callback: impl for<'src> FnOnce(&[VerifiedMainStaticChildV1<'src>]) -> R,
-) -> Result<R, MainExpansionErrorV1> {
-    root.consume_lowering_view_once(|expansion| {
-        let VerifiedRawRootExpansionV1::App(expansion) = expansion else {
-            return Err(MainExpansionErrorV1::MainBoxMissing);
-        };
-        Ok(callback(expansion.static_children()))
-    })
-}
 
 #[cfg(test)]
 #[path = "main_expansion_tests.rs"]

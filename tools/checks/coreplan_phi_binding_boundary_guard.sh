@@ -139,8 +139,6 @@ allowed_prefixes = (
     "src/mir/builder/ssa/phi_input_materializer/function_repair_tests.rs:",
     "src/mir/builder/record_helper_args.rs:",
     "src/runner/json_v1_bridge/parse/instruction.rs:",
-    "src/mir/builder/control_flow/plan/lowerer/effect_emission.rs:",
-    "src/mir/builder/control_flow/plan/features/if_join.rs:",
     "src/mir/builder/control_flow/edgecfg/api/emit/tests.rs:",
 )
 

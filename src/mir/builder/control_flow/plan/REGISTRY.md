@@ -141,37 +141,19 @@ Rejected bypasses:
 
 ## Source-backed Loop handoff
 
-The source-backed loop handoff is one associated-source family. These recent
-files are named here so the code-side registry does not confuse a new physical
-surface with a new route or semantic issuer:
-
-| Surface | Role | Current disposition |
-|---|---|---|
-| `features/loop_break_composite_source.rs` | Composite LoopBreak adapter | active for the remaining compound source inputs |
-| `lowerer/source_loop_driver.rs` | Checked Loop writer | lowers the retained source plan |
-| `parts/associated_source/callable_loop_source.rs` | associated-source input owner | shared source handoff owner |
-| `parts/associated_source/callable_loop_source_lowering.rs` | source item lowering seam | shared source handoff part |
-| `parts/associated_source/dispatch.rs` | associated-source dispatch seam | shared source handoff part |
-
-The companion `*_tests.rs`, `*_driver_tests.rs`, and `*_testkit.rs` files are
-test evidence for this family, not additional route owners. Any future
-retirement must name the same owner, consumer, and delete-set; this row does
-not authorize a second Recipe, route, or fallback.
+The Loop child entry sends a retained checked recipe to
+`lowerer/source_loop_completion.rs` and `lowerer/source_loop_driver.rs`.
+The driver writes the blocks and edges. The completed MIR is independently
+checked against the original source by `source_loop_physical_validation.rs`.
+A site without a covered source route gets a named refusal.
 
 ## Notes (avoid box explosion)
 
 - Canon (analysis-only) lives in `src/mir/builder/control_flow/generic_loop_canon/`; the former plan-side forwarding shelf is retired.
-- Features (delta apply) live in `src/mir/builder/control_flow/plan/features/`.
-- Oracle `features/*_pipeline.rs` entries (generic_loop / loop_true_break_continue / loop_cond_break_continue / loop_cond_continue_only / loop_cond_continue_with_return / loop_cond_return_in_body / scan_with_init / split_scan) and the `recipe_tree/*_composer.rs` facade methods were retired with the ordered scheduler / oracle chain (R0 + M12-R2B). The remaining source-backed Plan writers are the bc and composite adapters. Checked source uses the direct driver.
 - The remaining `loop_true_early_exit` Recipe is built by `plan/recipe_tree/loop_true_early_exit_builder.rs`.
-- loop phis are attached via `features/loop_carriers.rs::with_loop_carriers` (ops must not set `phis` directly).
-- carrier collection is centralized in `features/carriers.rs`.
-- JoinFeature (if-join PHI insertion) is `src/mir/builder/control_flow/plan/features/if_join.rs`.
-- “continue 経路の合流” は plan rule を増やして個別対応せず、CorePlan の primitive（例: `ContinueWithPhiArgs`）へ寄せる。
 - `continue` の飛び先が “常に step_bb” だと箱ごとに例外が増えるため、ContinueTarget slot（`continue_target_bb`）を土台として先に入れる（SSOT: `docs/development/current/main/design/coreloop-continue-target-slot-ssot.md`）。
 - 候補競合は “ルール順” より “責務スロット” で解決する（例: planner-required exception slot / requires-carrier-merge / forbids-value-join）。
 - `loop_cond_break_continue` は handled-guard (`if handled==0 { break }`) と continue-if-with-fallthrough-else を許可する土台として拡張中。
-- `loop_cond_break_continue` の正規化は `features/exit_if_map.rs` / `features/conditional_update_join.rs` / `features/carrier_merge.rs` に分解済み。
 - `loop_cond_break_continue` の Program block（ASTNode::Program）は container として展開し、展開後 stmt を同じルールで判定する。
 - `loop_cond_break_continue` の general-if は nested loop を許可する（branch に top-level exit が無いこと）。
 - `loop_cond_break_continue` の else-only-break は base 受理（`IfMode::ElseOnlyExit` / `IfContractKind::ExitAllowed`、planner_required に限定しない）。

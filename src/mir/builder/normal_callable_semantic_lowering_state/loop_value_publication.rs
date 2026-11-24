@@ -89,32 +89,6 @@ impl CallableSemanticLoweringState {
         Ok(())
     }
 
-    /// Publishes a loop-carrier physical value for the resolver-owned binding
-    /// that carries `name`.  Loop producers collect carrier names from the
-    /// co-sealed AST; this name index resolves the name to the single
-    /// materialized binding so carrier publication and `read_variable` share
-    /// `values` as the sole physical authority.  Unknown or ambiguous names
-    /// freeze rather than guess a binding.
-    pub(in crate::mir::builder) fn publish_source_loop_final_value_named(
-        &mut self,
-        name: &str,
-        value: ValueId,
-    ) -> Result<(), String> {
-        let mut candidates = self
-            .binding_names
-            .iter()
-            .filter(|(binding, recorded)| {
-                recorded.as_ref() == name && self.values.contains_key(*binding)
-            })
-            .map(|(binding, _)| *binding);
-        let Some(binding) = candidates.next() else {
-            return Err(freeze("loop-final-name-unknown"));
-        };
-        if candidates.next().is_some() {
-            return Err(freeze("loop-final-name-ambiguous"));
-        }
-        self.publish_source_final_value(binding, value)
-    }
 
     /// Captures the `values` projection for a speculative branch lane.
     ///

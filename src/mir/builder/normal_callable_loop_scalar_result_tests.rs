@@ -4,7 +4,7 @@ use crate::mir::callable_result_representation::VerifiedCallableResultRepresenta
 use crate::mir::resolved_semantics::SourcePathSegmentV1;
 
 #[test]
-fn composite_scalar_admission_keeps_direct_i64_and_rejects_string_box() {
+fn direct_scalar_admission_requires_exact_i64() {
     let site = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
         SourcePathSegmentV1::Body(0),
         SourcePathSegmentV1::Value,
@@ -17,23 +17,20 @@ fn composite_scalar_admission_keeps_direct_i64_and_rejects_string_box() {
         selector: "predicate".into(),
         arity: 0,
     };
-    for (representation, accepted, direct_i64) in [
+    for (representation, direct_i64) in [
         (
             VerifiedCallableResultRepresentationV1::ExactBool,
-            true,
             false,
         ),
-        (VerifiedCallableResultRepresentationV1::ExactI64, true, true),
+        (VerifiedCallableResultRepresentationV1::ExactI64, true),
         (
             VerifiedCallableResultRepresentationV1::ExactString,
-            false,
             false,
         ),
         (
             VerifiedCallableResultRepresentationV1::ExactNominalBox { nullable: false,
                 box_name: "Page".into(),
             },
-            false,
             false,
         ),
     ] {
@@ -53,16 +50,5 @@ fn composite_scalar_admission_keeps_direct_i64_and_rejects_string_box() {
         )
         .into_selected_relations(&[item.clone()]);
         assert_eq!(direct.is_ok(), direct_i64);
-        let composite =
-            CallableLoopSourceTargetProbeV1::from_parts(vec![relation].into(), Box::new([]), false)
-                .into_item_dispositions(&[item.clone()]);
-        if accepted {
-            assert!(composite.is_ok());
-        } else {
-            assert!(matches!(
-                composite,
-                Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch)
-            ));
-        }
     }
 }

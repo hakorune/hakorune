@@ -3,6 +3,7 @@
 use super::*;
 
 impl CallableSemanticLoweringState {
+
     /// The shared expression writer already reads operands and emits the Core.
     /// Discharge its SAME staged source without reading or emitting it again.
     pub(in crate::mir::builder) fn complete_expression_core_source_v1(
@@ -63,121 +64,7 @@ impl CallableSemanticLoweringState {
         Ok(())
     }
 
-    pub(in crate::mir::builder) fn take_source_core_method_call(
-        &mut self,
-        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
-        method: &str,
-        arity: u32,
-    ) -> Result<Option<ExactSourceMethodCallV1>, String> {
-        let Some(row) = self.source_core_method_calls.remove(site) else {
-            if self.consumed_source_core_method_calls.contains(site) {
-                return Err(freeze("duplicate-core-method-call-consumption"));
-            }
-            if let Some(handoff) = self.source_static_result_publications.get(site) {
-                if handoff.site() != site
-                    || handoff.target().namespace()
-                        != crate::mir::builder::SameModuleCallableNamespaceV1::StaticBoxMethod
-                    || handoff.target().name() != method
-                    || handoff.target().arity() != arity
-                {
-                    return Err(freeze("static-publication-target"));
-                }
-                let result_type = match handoff.representation() {
-                    crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactI64 => crate::mir::MirType::Integer,
-                    crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactBool => crate::mir::MirType::Bool,
-                    _ => return Err(freeze("static-publication-representation")),
-                };
-                if !self
-                    .consumed_source_static_result_publications
-                    .insert(site.clone())
-                {
-                    return Err(freeze("duplicate-static-publication-consumption"));
-                }
-                return Ok(Some(ExactSourceMethodCallV1::static_publication(
-                    handoff.target().clone(),
-                    result_type,
-                    crate::mir::EffectMask::PURE.add(crate::mir::Effect::Io),
-                )));
-            }
-            if self
-                .consumed_source_static_result_publications
-                .contains(site)
-            {
-                return Err(freeze("duplicate-static-publication-consumption"));
-            }
-            return Ok(None);
-        };
-        if !self.consumed_source_core_method_calls.insert(site.clone()) {
-            return Err(freeze("duplicate-core-method-call-consumption"));
-        }
-        let contract = row.into_unconditional_contract()?;
-        if contract.call_site() != site
-            || contract.result_site() != site
-            || contract.arguments().len() != arity as usize
-        {
-            return Err(freeze("core-method-call-shape"));
-        }
-        if contract.named_array_requirement().is_some() {
-            return Err(freeze("named-array-artifact-retention-required"));
-        }
-        let target = contract.target();
-        let generated = target.row().row();
-        if target.row().arity() != arity
-            || (generated.canonical != method && !generated.aliases.contains(&method))
-            || generated.effect != crate::mir::core_method_result_kind::CoreMethodEffectV1::PureRead
-        {
-            return Err(freeze("core-method-call-target"));
-        }
-        let receiver = match contract.receiver() {
-            crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::Lexical(
-                crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(_),
-            ) => self.read_variable(contract.receiver_site().node())?,
-            _ => return Err(freeze("core-method-call-receiver")),
-        };
-        let result_type = match target.result() {
-            crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextArrayToCaller => {
-                return Err(freeze("named-array-artifact-retention-required"));
-            }
-            crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::NoValue => {
-                return Err(freeze("no-value-source-call-used-as-value"));
-            }
-            crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::BoolToCaller => crate::mir::MirType::Bool,
-            crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::I64ToCaller => {
-                crate::mir::MirType::Integer
-            }
-            crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller => {
-                crate::mir::MirType::String
-            }
-            crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::DynamicToCaller => {
-                crate::mir::MirType::Unknown
-            }
-        };
-        Ok(Some(ExactSourceMethodCallV1::new(
-            receiver,
-            result_type,
-            crate::mir::EffectMask::PURE.add(crate::mir::Effect::Io),
-        )))
-    }
 
-    pub(in crate::mir::builder) fn take_source_static_result_publication(
-        &mut self,
-        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
-    ) -> Result<Option<VerifiedStaticCallResultPublicationHandoffV1>, String> {
-        if !self
-            .consumed_source_static_result_publications
-            .contains(site)
-        {
-            return Ok(None);
-        }
-        let handoff = self
-            .source_static_result_publications
-            .remove(site)
-            .ok_or_else(|| freeze("missing-static-publication-handoff"))?;
-        if handoff.site() != site {
-            return Err(freeze("static-publication-site-mismatch"));
-        }
-        Ok(Some(handoff))
-    }
 
     /// Take one staged publication handoff for a provider `new` argument —
     /// the qualified-static call's exact `(caller, site)` row the port

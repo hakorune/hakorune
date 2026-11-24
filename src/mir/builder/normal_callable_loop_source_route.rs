@@ -36,12 +36,6 @@ pub(in crate::mir::builder) enum CallableLoopSourceRouteRejectV1 {
     SourceItemDuplicate {
         call_site: SourceExprSiteV1,
     },
-    SourceItemDispositionMissing {
-        call_site: SourceExprSiteV1,
-    },
-    SourceItemDispositionResidual {
-        call_sites: Box<[SourceExprSiteV1]>,
-    },
     /// An exact same-module static target was resolved for the listed sites
     /// but its selected publication row is absent — target-only, missing,
     /// or already consumed evidence all stop here instead of reclassifying

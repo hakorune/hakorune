@@ -46,7 +46,7 @@ fn selected_loan_retains_canonical_caller_and_exact_source_owner() {
         for (site, row) in rows {
             row.require_selected(input.selected_key(), input.source().owner())?;
             assert_eq!(&site, row.contract().call_site());
-            let contract = row.into_unconditional_contract()?;
+            let contract = row.contract();
             assert_eq!(contract.owner(), input.source().owner());
         }
         Ok(())

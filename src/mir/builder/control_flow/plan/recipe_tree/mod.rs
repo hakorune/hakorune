@@ -8,7 +8,6 @@ use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 
 mod block;
 mod common;
-mod join_scope;
 // Re-export block types explicitly (use block::* doesn't work with visibility)
 pub(in crate::mir::builder) use block::{
     BlockContractKind, BodyId, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock,
@@ -25,7 +24,6 @@ pub(in crate::mir::builder) struct BuiltRecipeTree {
     pub arena: RecipeBodies,
     pub root: RecipeBlock,
 }
-pub(in crate::mir::builder) use join_scope::collect_branch_local_vars_from_block_recursive;
 
 // Builder modules stay private; callers enter through the matcher owner.
 mod accum_const_loop_builder;
@@ -44,27 +42,7 @@ mod matcher;
 pub(in crate::mir::builder) use matcher::RecipeMatcher;
 mod verified;
 pub(in crate::mir::builder) use contracts::{RecipeContract, RecipeContractKind};
-pub(in crate::mir::builder::control_flow::plan) use verified::verify_block_contract_with_pre;
-pub(in crate::mir::builder) use verified::{
-    verify_port_sig_obligations_if_enabled, VerifiedRecipeBlock,
-};
 
-/// Source-backed recipe producers need the structural verifier without
-/// depending on the narrower internal pre-binding entry point.
-pub(in crate::mir::builder) fn verify_source_recipe_block(
-    arena: &RecipeBodies,
-    block: &RecipeBlock,
-    context: &str,
-) -> Result<(), String> {
-    verified::verify_block_contract_with_pre(
-        arena,
-        block,
-        BlockContractKind::ExitAllowed,
-        context,
-        None,
-    )
-    .map(|_| ())
-}
 
 // ===== Shared RecipeBlock construction helpers =====
 

@@ -11,29 +11,6 @@ from callable_result_i0_site0_r0_expr0_spine0_stmt0_assignment import check_asn0
 from callable_result_i0_site0_r0_expr0_spine0_stmt0_return import check_ret0_s0
 from callable_result_i0_site0_r0_expr0_spine0_stmt0 import check_lcl0_s0
 from callable_result_i0_site0_r0_expr0_spine0_if0 import check_if0_s0
-from callable_result_i0_site0_r0_expr0_spine0_loop0 import check_loop0_s0a
-from callable_result_i0_site0_r0_expr0_spine0_loop0_p0 import check_loop0_p0a
-from callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0 import (
-    check_loop0_p0b_o0_s0,
-)
-from callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0_g0 import (
-    check_loop0_p0b_o0_g0,
-)
-from callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0_r0 import (
-    check_loop0_p0b_o0_r0,
-)
-from callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0_siteproj0 import (
-    check_loop0_p0b_o0_siteproj0,
-)
-from callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_t0 import (
-    check_loop0_p0b_t0,
-)
-from callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_t0_p0 import (
-    check_loop0_p0b_t0_p0,
-)
-from callable_result_i0_site0_r0_expr0_spine0_loop0_p0c import check_loop0_p0c
-from callable_result_i0_site0_r0_expr0_spine0_loop0_i0a import check_loop0_i0a
-from callable_result_i0_site0_r0_expr0_spine0_loop0_i0b import check_loop0_i0b
 from callable_result_i0_site0_r0_expr0_spine0_suffix0 import (
     check_suffix0_i0,
     check_suffix0_s0,
@@ -690,17 +667,6 @@ def main() -> None:
                 check_bodydomain0(root),
                 check_suffix0_s0(root),
                 check_suffix0_i0(root),
-                check_loop0_s0a(root),
-                check_loop0_p0a(root),
-                check_loop0_p0b_o0_s0(root),
-                check_loop0_p0b_o0_r0(root),
-                check_loop0_p0b_o0_siteproj0(root),
-                check_loop0_p0b_o0_g0(root),
-                check_loop0_p0b_t0(root),
-                check_loop0_p0b_t0_p0(root),
-                check_loop0_p0c(root),
-                check_loop0_i0a(root),
-                check_loop0_i0b(root),
             ]
         except RuntimeError as error:
             fail(str(error))
@@ -754,16 +720,6 @@ def main() -> None:
         located_short_circuit_tests_path,
         logical_owner_path,
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0.py",
-        "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0.py",
-        "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0_p0.py",
-        "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0.py",
-        "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0_r0.py",
-        "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0_siteproj0.py",
-        "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0_g0.py",
-        "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_t0.py",
-        "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0_p0c.py",
-        "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0_i0a.py",
-        "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0_i0b.py",
     )
     oversized = [relative for relative in touched if len(read(root, relative).splitlines()) >= 800]
     if oversized:

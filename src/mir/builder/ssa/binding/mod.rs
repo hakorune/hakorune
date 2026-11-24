@@ -65,6 +65,8 @@ impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Toke
         Ok(())
     }
 
+
+    #[cfg(test)]
     pub(in crate::mir::builder) fn define_edge(
         &mut self,
         binding: Key,
@@ -192,71 +194,8 @@ impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Toke
         Ok(())
     }
 
-    pub(in crate::mir::builder) fn key_for_definition(
-        &self,
-        block: BasicBlockId,
-        value: ValueId,
-    ) -> Option<Key> {
-        self.definitions
-            .iter()
-            .find_map(|(&(candidate, key), &definition)| {
-                (candidate == block && definition == value).then_some(key)
-            })
-    }
 
-    pub(in crate::mir::builder) fn complete_adopted<I: BindingSsaIrV1<PhiToken = Token>>(
-        &mut self,
-        ir: &mut I,
-        key: Key,
-        block: BasicBlockId,
-        witness: &VerifiedPredecessorsV1,
-    ) -> Result<Vec<(BasicBlockId, ValueId)>, BindingSsaErrorV1> {
-        self.require_usable()?;
-        self.require_binding(key)?;
-        self.record_predecessors(block, witness, true)?;
-        for &source in witness.predecessors() {
-            if !self.edge_definitions.contains_key(&(source, block, key)) {
-                return Err(self.missing_definition(source, key));
-            }
-        }
-        let token =
-            *self
-                .incomplete
-                .get(&(block, key))
-                .ok_or_else(|| BindingSsaErrorV1::PhiOperation {
-                    operation: "complete-adopted",
-                    detail: "destination is not pending".to_owned(),
-                })?;
-        let mut affected = vec![token];
-        self.complete_incomplete(ir, key, block, &mut affected)
-            .map_err(|error| self.abort(ir, error, affected))
-    }
 
-    pub(in crate::mir::builder) fn discard_adopted<I: BindingSsaIrV1<PhiToken = Token>>(
-        &mut self,
-        ir: &mut I,
-        key: Key,
-        block: BasicBlockId,
-    ) -> Result<(), BindingSsaErrorV1> {
-        self.require_usable()?;
-        self.require_binding(key)?;
-        let token =
-            *self
-                .incomplete
-                .get(&(block, key))
-                .ok_or_else(|| BindingSsaErrorV1::PhiOperation {
-                    operation: "discard-adopted",
-                    detail: "destination is not pending".to_owned(),
-                })?;
-        ir.rollback_phi(token)
-            .map_err(|detail| BindingSsaErrorV1::PhiOperation {
-                operation: "discard-adopted",
-                detail,
-            })?;
-        self.incomplete.remove(&(block, key));
-        self.definitions.remove(&(block, key));
-        Ok(())
-    }
 
     fn record_predecessors(
         &mut self,

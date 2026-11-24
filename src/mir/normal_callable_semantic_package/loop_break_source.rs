@@ -8,7 +8,7 @@
 use crate::mir::builder::{
     issue_callable_loop_break_source_facts_v1, CallableLoopBreakSourceFactsDispositionV1,
     CallableLoopBreakSourceFactsIssueV1, LoopFactsPolicyFrameV1,
-    VerifiedCallableLoopBreakCompositeSourceFactsV1, VerifiedCallableLoopBreakSourceFactsV1,
+    VerifiedCallableLoopBreakSourceFactsV1,
 };
 use crate::mir::callable_semantic_batch::{
     ResolvedCallableSemanticBatchLoanErrorV1, VerifiedResolvedCallableSemanticBatchV1,
@@ -49,7 +49,6 @@ pub(in crate::mir) enum LoopBreakSourcePackageIssueV1 {
 #[derive(Debug)]
 pub(super) enum OwnedLoopBreakSourcePackageRowV1 {
     Candidate(VerifiedCallableLoopBreakSourceFactsV1),
-    CompositeCandidate(VerifiedCallableLoopBreakCompositeSourceFactsV1),
     SupportedNonCandidate { loop_count: usize },
     Consumed,
 }
@@ -60,7 +59,6 @@ pub(super) enum OwnedLoopBreakSourcePackageRowV1 {
 #[derive(Debug)]
 pub(in crate::mir) enum LoopBreakSourcePackageLoanV1 {
     Candidate(VerifiedCallableLoopBreakSourceFactsV1),
-    CompositeCandidate(VerifiedCallableLoopBreakCompositeSourceFactsV1),
     SupportedNonCandidate {
         owner: FunctionOwnerIdV1,
         loop_count: usize,
@@ -71,10 +69,6 @@ impl LoopBreakSourcePackageLoanV1 {
     pub(in crate::mir) fn is_candidate(&self) -> bool {
         match self {
             Self::Candidate(facts) => {
-                let _ = facts;
-                true
-            }
-            Self::CompositeCandidate(facts) => {
                 let _ = facts;
                 true
             }
@@ -91,7 +85,7 @@ impl LoopBreakSourcePackageLoanV1 {
     ) -> Option<crate::mir::builder::VerifiedCallableLoopBreakSourceCandidateV1> {
         match self {
             Self::Candidate(facts) => facts.take_candidate_for_site(site),
-            Self::CompositeCandidate(_) | Self::SupportedNonCandidate { .. } => None,
+            Self::SupportedNonCandidate { .. } => None,
         }
     }
 
@@ -101,29 +95,11 @@ impl LoopBreakSourcePackageLoanV1 {
                 .candidates()
                 .iter()
                 .any(|candidate| candidate.projection().loop_site() == site),
-            Self::CompositeCandidate(_) | Self::SupportedNonCandidate { .. } => false,
+            Self::SupportedNonCandidate { .. } => false,
         }
     }
 
-    pub(in crate::mir) fn take_composite_candidate_for_site(
-        &mut self,
-        site: &SourceStmtSiteV1,
-    ) -> Option<crate::mir::builder::VerifiedCallableLoopBreakCompositeSourceCandidateV1> {
-        match self {
-            Self::CompositeCandidate(facts) => facts.take_candidate_for_site(site),
-            Self::Candidate(_) | Self::SupportedNonCandidate { .. } => None,
-        }
-    }
 
-    pub(in crate::mir) fn has_composite_candidate_for_site(&self, site: &SourceStmtSiteV1) -> bool {
-        match self {
-            Self::CompositeCandidate(facts) => facts
-                .candidates()
-                .iter()
-                .any(|candidate| candidate.projection().loop_site() == site),
-            Self::Candidate(_) | Self::SupportedNonCandidate { .. } => false,
-        }
-    }
 
     pub(in crate::mir) fn finish_empty(&self) -> Result<(), String> {
         match self {
@@ -132,12 +108,7 @@ impl LoopBreakSourcePackageLoanV1 {
                 facts.owner(),
                 facts.candidates().len(),
             )),
-            Self::CompositeCandidate(facts) if !facts.candidates().is_empty() => Err(format!(
-                "[freeze:contract][callable-loop-break/source-package/residual-composite-candidates] owner={:?} count={}",
-                facts.owner(),
-                facts.candidates().len(),
-            )),
-            Self::Candidate(_) | Self::CompositeCandidate(_) | Self::SupportedNonCandidate { .. } => Ok(()),
+            Self::Candidate(_) | Self::SupportedNonCandidate { .. } => Ok(()),
         }
     }
 }
@@ -177,16 +148,10 @@ impl VerifiedLoopBreakSourcePackageV1 {
                     .to_owned(),
             );
         };
-        if let OwnedLoopBreakSourcePackageRowV1::CompositeCandidate(facts) = &row.row {
-            facts.validate_package_candidate()?;
-        }
         let previous = std::mem::replace(&mut row.row, OwnedLoopBreakSourcePackageRowV1::Consumed);
         match previous {
             OwnedLoopBreakSourcePackageRowV1::Candidate(facts) => {
                 Ok(LoopBreakSourcePackageLoanV1::Candidate(facts))
-            }
-            OwnedLoopBreakSourcePackageRowV1::CompositeCandidate(facts) => {
-                Ok(LoopBreakSourcePackageLoanV1::CompositeCandidate(facts))
             }
             OwnedLoopBreakSourcePackageRowV1::SupportedNonCandidate { loop_count } => {
                 Ok(LoopBreakSourcePackageLoanV1::SupportedNonCandidate { owner, loop_count })
@@ -206,7 +171,6 @@ impl VerifiedLoopBreakSourcePackageV1 {
                 matches!(
                     row.row,
                     OwnedLoopBreakSourcePackageRowV1::Candidate(_)
-                        | OwnedLoopBreakSourcePackageRowV1::CompositeCandidate(_)
                 )
             })
             .count()
@@ -218,7 +182,6 @@ impl VerifiedLoopBreakSourcePackageV1 {
             matches!(
                 row.row,
                 OwnedLoopBreakSourcePackageRowV1::Candidate(_)
-                    | OwnedLoopBreakSourcePackageRowV1::CompositeCandidate(_)
             )
             .then_some(row.owner)
         })
@@ -259,15 +222,6 @@ pub(super) fn issue_loop_break_source_package_v1(
                 let observed_function_origin = facts.function_origin();
                 (
                     OwnedLoopBreakSourcePackageRowV1::Candidate(facts),
-                    observed_owner,
-                    observed_function_origin,
-                )
-            }
-            CallableLoopBreakSourceFactsDispositionV1::CompositeCandidate(facts) => {
-                let observed_owner = facts.owner();
-                let observed_function_origin = facts.function_origin();
-                (
-                    OwnedLoopBreakSourcePackageRowV1::CompositeCandidate(facts),
                     observed_owner,
                     observed_function_origin,
                 )

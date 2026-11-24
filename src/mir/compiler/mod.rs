@@ -47,8 +47,6 @@ mod generic_g0_source_parent_tests;
 #[cfg(test)]
 mod legacy_candidate_session_tests;
 #[cfg(test)]
-mod loop_candidate_abort_p0;
-#[cfg(test)]
 mod module_postprocess_failure_p0;
 #[cfg(test)]
 mod module_postprocess_p0;

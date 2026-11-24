@@ -88,7 +88,7 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
             })?;
             let consume_publication = source.site().map(|site| {
                 let state = callable_ledger.borrow();
-                state.has_loop_break_composite_source_candidate(site) || state.source_loop_items(site).is_some()
+                state.source_loop_items(site).is_some()
             }).unwrap_or(false);
             // Preserve the prior demand boundary: missing input refuses before
             // the target probe consumes any selected publication handoff.

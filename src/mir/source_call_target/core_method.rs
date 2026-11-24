@@ -43,9 +43,6 @@ impl VerifiedSourceBoundCoreMethodCallV1 {
         &self.contract
     }
 
-    pub(crate) fn into_contract(self) -> VerifiedResolverCoreMethodCallableContractV1 {
-        self.contract
-    }
 }
 
 #[derive(Debug, PartialEq, Eq)]

@@ -5,7 +5,6 @@ ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 cd "$ROOT"
 
 # Keep in sync with docs/development/current/main/design/recipe-tree-and-parts-ssot.md (M6-final-1).
-ALLOWLIST_RE='^src/mir/builder/control_flow/plan/core.rs:[0-9]+:[[:space:]]*Seq\(Vec<CorePlan>\),$'
 BOUNDARY_PATTERN='->\s*CorePlan\b|\[CorePlan\]|&CorePlan\b|Vec<CorePlan>|Result<.*CorePlan|Option<CorePlan>|Option<Vec<CorePlan>>|pub core_plan:\s*CorePlan'
 
 ALLOW_GLOBS=(
@@ -44,12 +43,11 @@ matches=$(
   ' "$tmpfile" | sort -u
 )
 
-disallowed="$(echo "$matches" | grep -Ev "$ALLOWLIST_RE" || true)"
-if [[ -n "$disallowed" ]]; then
+if [[ -n "$matches" ]]; then
   echo "[coreplan-boundary] ERROR: unapproved CorePlan type boundary detected."
-  echo "Fix: migrate boundary to LoweredRecipe or update allowlist + SSOT."
+  echo "Fix: remove the retired CorePlan boundary."
   echo
-  echo "$disallowed"
+  echo "$matches"
   exit 1
 fi
 

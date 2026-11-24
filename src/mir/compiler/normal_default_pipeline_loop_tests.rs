@@ -584,8 +584,7 @@ fn callable_source_return_in_body_loop_reads_bind_header_phi_dst_inner() {
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         // find/3 shape: a carrier read inside the loop body must resolve the
         // header phi dst — the baseline replayed the pre-loop entry value.
-        // The method call under the loop is what arms the callable-source
-        // route (SourceItems); the composite return-in-body arm then owns it.
+        // The checked source loop keeps the body call and its early return.
         let source = "static box Main { main() { return 0 } find(text, n: i64): i64 { local pos = 0 loop(pos < n) { local sub = text.substring(pos, pos + 1) if sub == \"x\" { return pos } pos = pos + 1 } return -1 } }";
         let mut compiler = MirCompiler::with_options(false);
         let result = compiler
@@ -614,7 +613,7 @@ fn callable_source_return_in_body_loop_reads_bind_header_phi_dst_inner() {
             !header_phi_dsts.is_empty(),
             "carrier publication must keep the header phi spine"
         );
-        // `i == 2` compare and `return i` inside the body must reach a phi dst.
+        // The loop comparison and early return must reach a phi dst.
         let const_dsts: std::collections::BTreeSet<crate::mir::ValueId> = helper
             .blocks
             .values()

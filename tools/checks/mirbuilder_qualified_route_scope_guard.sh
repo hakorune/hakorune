@@ -120,26 +120,6 @@ rg -q 'VariableAccumFamily => "variable_accum_family"' "$REJECT_REASON"
 rg -q 'defers_variable_accum_recurrence_family' "$NO_EXIT"
 rg -q 'pipeline_defers_variable_accum_family' "$NO_EXIT"
 
-# MIRBUILDER-EXE-ACCEPTANCE-ME-RECEIVER-SITE-S0: located `Me`/`This`
-# MethodCall receivers consume their registered `Receiver` site through the
-# source port (`exact_source_receiver_value`); unregistered receivers keep
-# the existing `lower_me_this_method_effect` path — site registration is
-# the check, never a name fallback.
-EXPR_PORT="$ROOT_DIR/src/mir/builder/control_flow/plan/expression_port.rs"
-LOOP_SRC_PORT="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_port.rs"
-ASSOC_INPUT="$ROOT_DIR/src/mir/builder/control_flow/plan/normalizer/loop_body_lowering_associated_input.rs"
-HELPERS_LOWER="$ROOT_DIR/src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs"
-NORMALIZER_COMMON="$ROOT_DIR/src/mir/builder/control_flow/plan/normalizer/common.rs"
-ITEMS_TESTS="$ROOT_DIR/src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_items_tests.rs"
-TESTKIT="$ROOT_DIR/src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_testkit.rs"
-rg -q 'fn exact_source_receiver_value' "$EXPR_PORT"
-rg -q 'fn exact_source_receiver_value' "$LOOP_SRC_PORT"
-rg -q 'source_read_binding' "$LOOP_SRC_PORT"
-rg -q 'me_this_method_call_effect' "$ASSOC_INPUT"
-rg -q 'exact_source_receiver_value' "$NORMALIZER_COMMON"
-rg -q 'fn cataloged_body_source' "$TESTKIT"
-rg -q 'port_declines_receiver_value_for_non_receiver_expression' "$ITEMS_TESTS"
-
 # MIRBUILDER-EXE-ACCEPTANCE-INSTANCE-STATIC-INGRESS-S0: the static-result
 # publication ingress admits a `Cataloged` non-StaticBoxMethod caller only
 # when the probed (owner, method, arity) resolves through the declaration
@@ -262,25 +242,6 @@ rg -q 'nested_program_items_drop_the_program_body_root' "$ITEM_SITE"
 rg -q 'program_items_keep_the_explicit_program_root' "$ITEM_SITE"
 rg -q 'nested_program_local_registers_rootless_statement_site' "$MAP_LOCAL_TESTS"
 
-# MIRBUILDER-EXE-ACCEPTANCE-COMPOSITE-RETURN-EXIT-S0: the composite
-# LoopBreak lane is the sole physical owner for return-in-body
-# `loop(cond){…return…}`; `validate_exit_ledger` admits a root carrying a
-# root-targeted `Break` OR an `ExplicitReturn`/`Return{target_function}`
-# record, and an exit-free root still fails `RootExitMissing` (tolerated
-# as "no candidate" by the package issuer — never a fallback).
-COMPOSITE_PROJECTION="$ROOT_DIR/src/mir/compiler/loop_break_composite_source_projection.rs"
-LOOP_BREAK_FACTS="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_facts/loop_break.rs"
-rg -q 'RootExitMissing' "$COMPOSITE_PROJECTION"
-if rg -n 'RootBreakMissing' "$COMPOSITE_PROJECTION" "$LOOP_BREAK_FACTS"; then
-  echo "[$TAG] composite root-exit reject regressed to break-only" >&2
-  exit 1
-fi
-rg -q 'ResolvedControlTransferV1::Return \{ \.\. \}' "$COMPOSITE_PROJECTION"
-rg -q 'ResolvedExitOriginV1::ExplicitReturn' "$COMPOSITE_PROJECTION"
-rg -q 'RootExitMissing' "$LOOP_BREAK_FACTS"
-rg -q 'return_in_body_projection_is_admitted_by_composite_owner' "$COMPOSITE_PROJECTION"
-rg -q 'exit_free_loop_declines_with_root_exit_missing' "$COMPOSITE_PROJECTION"
-
 # MIRBUILDER-EXE-ACCEPTANCE-DEAD-ROUTE-SOLE-FAMILY-S1: `LoopBreakRecipe`
 # is TypedDeclined wire vocabulary (retired plan-lane pipeline) — matched
 # rows stay provenance-only. Live front-selectable routes must not be
@@ -318,9 +279,6 @@ rg -q 'fn allowed_target_placements' "$CONTRACT_ISSUER"
 rg -q '\(CoreMethodOp::ArrayPush, 1\) => &\[ResolvedLoopPlacementV1::Body\]' "$CONTRACT_ISSUER"
 rg -q 'allowed\.contains\(&placement\)' "$CONTRACT_ISSUER"
 rg -q '== Some\(ResolvedLoopPlacementV1::Body\)' "$NAMED_ARRAY_SRC"
-rg -q 'fn real_core_method_ledger_with_placements' "$TESTKIT"
-rg -q 'condition_position_substring_contracts_and_consumes_exact_row' "$ITEMS_TESTS"
-rg -q 'body_position_length_stays_unarmed' "$ITEMS_TESTS"
 rg -q 'resolver_callable_contract_co_seals_condition_substring_and_generated_target' "$LEDGER_CONTRACT_TESTS"
 rg -q 'resolver_callable_contract_rejects_condition_claimed_body_only_target' "$LEDGER_CONTRACT_TESTS"
 rg -q 'condition_position_push_stays_unarmed' "$NAMED_ARRAY_METHOD_TESTS"
@@ -372,48 +330,17 @@ rg -q 'find_alias_follows_the_same_text_evidence_gate' "$CORE_METHOD_PACKAGE_TES
 rg -q 'index_of_stays_unarmed_without_text_evidence' "$CORE_METHOD_PACKAGE_TESTS"
 rg -q 'index_of_condition_placement_stays_rejected' "$CORE_METHOD_PACKAGE_TESTS"
 
-# MIRBUILDER-EXE-ACCEPTANCE-DECLARED-INSTANCE-LOOP-LOCATOR-S3: callable loop
-# source lanes carry the package-issued declared-instance locator so a
-# loop-body `me.method` site consumes its exact relation row and emits the
-# canonical `Callee::SameModuleInstance` — the same physical meaning the
-# body lane produces. The locator scope stays `Copy` via a shared
-# `RefCell` consumed set; the port hook `exact_source_declared_instance_call_v1`
-# defaults to `Ok(None)` for unarmed ports; statement and value positions
-# share one `me_this_method_call_effect` precedence (armed locator ->
-# exact receiver -> bound/static fallback); `CoreEffectPlan::DeclaredInstanceCall`
-# delegates to the sole canonical emitter; armed lanes never fall back to
-# dynamic `MethodCall`.
+# The retained source locator keeps its own consumed set for exact calls.
 DECLARED_INSTANCE_LOCATOR="$ROOT_DIR/src/mir/normal_callable_semantic_package/declared_instance_locator.rs"
-CORE_EFFECT_PLAN="$ROOT_DIR/src/mir/builder/control_flow/plan/effect.rs"
-SOURCE_METHOD_PORT="$ROOT_DIR/src/mir/builder/control_flow/plan/expression_port/source_method.rs"
-UNIFIED_EMITTER="$ROOT_DIR/src/mir/builder/calls/unified_emitter.rs"
-LOOP_DECLARED_TESTS="$ROOT_DIR/src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_declared_instance_tests.rs"
 rg -q 'consumed: &.a RefCell<BTreeSet<u32>>' "$DECLARED_INSTANCE_LOCATOR"
-rg -q 'declared_instance_locator: Option<DeclaredInstanceCallLocatorScopeV1' "$LOOP_SRC_PORT"
-rg -q 'fn exact_source_declared_instance_call_v1' "$EXPR_PORT"
-rg -q 'fn exact_source_declared_instance_call_v1' "$LOOP_SRC_PORT"
-rg -q 'ExactSourceDeclaredInstanceCallV1' "$SOURCE_METHOD_PORT"
-rg -q 'DeclaredInstanceCall \{' "$CORE_EFFECT_PLAN"
-rg -q 'fn me_this_method_call_effect' "$NORMALIZER_COMMON"
-rg -q 'fn emit_canonical_instance_call_at_v1' "$UNIFIED_EMITTER"
-rg -q 'armed_loop_body_me_call_consumes_the_exact_locator_row' "$LOOP_DECLARED_TESTS"
-rg -q 'armed_locator_rejects_a_foreign_method_key_without_fallback' "$LOOP_DECLARED_TESTS"
-rg -q 'unarmed_port_projects_no_declared_instance_call' "$LOOP_DECLARED_TESTS"
 
-# MIRBUILDER-EXE-ACCEPTANCE-SELECTED-STATIC-CALL-LOOP-PUBLICATION-S4: the
-# take->install->consume machinery existed only for composite loops; the
-# arming gate widens to every armed loop-source candidate so LoopCond /
-# LoopTrue / direct loop_break lanes take their Selected publication rows,
-# and all three routes lower through lower_with_source_publication so the
-# SourcePublication emission port stays the sole physical consumer. The
-# post-lower residual check fails on any taken-but-unemitted handoff —
-# no silent GlobalCall fallback on the armed lane.
+# Checked loops arm selected publications from the source items and reject
+# any taken handoff left unpublished after lowering.
 RAW_LOOP_PORT="$ROOT_DIR/src/mir/builder/raw_loop_child_port.rs"
 RAW_LOOP_ENTRY="$ROOT_DIR/src/mir/builder/raw_loop_child_entry.rs"
 rg -q 'state\.source_loop_items\(site\)\.is_some\(\)' "$RAW_LOOP_PORT"
 rg -q 'has_pending_source_static_result_publications' "$RAW_LOOP_PORT"
 rg -q 'residual-after-lower' "$RAW_LOOP_PORT"
-test "$(rg -c 'lower_with_source_publication' "$RAW_LOOP_ENTRY")" -ge 4
 
 # MIRBUILDER-EXE-ACCEPTANCE-REVIEW-LINE-BOUNDARY-R0: the S8 loop-carrier
 # ledger-publication slice pushed `normal_callable_semantic_lowering_state.rs`
@@ -464,7 +391,6 @@ BORROWED_ENTRY_STATE_TESTS="$ROOT_DIR/src/mir/builder/normal_callable_semantic_l
 BORROWED_ENTRY_SCOPE_TESTS="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port/borrowed_entry_scope_tests.rs"
 BORROWED_ACTUAL_OBSERVER="$ROOT_DIR/src/mir/resolved_semantics/home_local_call_borrowed_actuals.rs"
 LEXICAL_INSTANCE_CALL_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_lexical_instance_call_tests.rs"
-VALUE_METHOD_CALL_SRC="$ROOT_DIR/src/mir/builder/control_flow/plan/normalizer/helpers_value/method_call.rs"
 ROUTE_TEST_SURFACE="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_route_tests.rs"
 SOURCE_LOOP_BRIDGE="$ROOT_DIR/src/mir/builder/normal_callable_semantic_lowering_state/source_loop_bridge.rs"
 GENERIC_FACTS_ISSUER="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_facts/generic/issuer.rs"
@@ -499,7 +425,6 @@ rg -q 'lexical_instance_call_keeps_call_result_argument_unarmed' "$LEXICAL_INSTA
 rg -q 'lexical_instance_call_keeps_call_result_receiver_unarmed' "$LEXICAL_INSTANCE_CALL_TESTS"
 rg -q 'lexical_instance_call_vetoes_ambiguous_argument_classes' "$LEXICAL_INSTANCE_CALL_TESTS"
 rg -q 'lexical_instance_call_keeps_rebound_parameter_unarmed' "$LEXICAL_INSTANCE_CALL_TESTS"
-rg -q 'fn lower_method_call_value_input' "$VALUE_METHOD_CALL_SRC"
 
 # MIRBUILDER-GATE1-BODY-LENGTH-TEXT-EVIDENCE-S0: `StringLen/0` admits Body
 # placement only beside receiver text evidence (`TextToCaller` initializer
@@ -511,8 +436,6 @@ rg -q 'fn receiver_has_text_evidence' "$CORE_METHOD_SRC"
 rg -q 'StringLen, 0' "$CORE_METHOD_SRC"
 rg -q 'ResolvedLoopPlacementV1::Body' "$CORE_METHOD_SRC"
 rg -q 'fn allowed_target_placements' "$CONTRACT_ISSUER"
-rg -q 'body_position_length_with_text_evidence_arms' "$ITEMS_TESTS"
-rg -q 'body_position_length_without_text_evidence_stays_unarmed' "$ITEMS_TESTS"
 
 # MIRBUILDER-GATE1-FIELD-WRITE-CLAIM-EDGE-TRANSPORT-S0: a field claims a
 # class only when every package write to that field name is an
