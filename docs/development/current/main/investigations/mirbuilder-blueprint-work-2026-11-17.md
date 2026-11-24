@@ -174,6 +174,8 @@ compilerの動くcodeは変更していない。coverage CLIは前回の同じbi
 | LR-6b | 直す: push の引数の Sub・Div・Mod | 済(`129c836f4a`): Resolve が受けた引数を、書き手が書けなかった(監査で見つけた)。引数の評価を共通の一覧へ載せて解消。正と証明できない除数は前と同じ拒否。本体 +5 |
 | LR-7 | 段 0 で停止 | Stage1 の `resolve_for_source` は、条件の他に、型の無い受け手の `get` と、型の無い値の return が持ち主の道に無い。新しい受け付けの範囲なので、この系列ではやらない。loop の条件の検査つきの比較は、道 b の系列でやる |
 | LR-8 | 消す: loop の道 a(LoopCond plan) | 済(`1a47b9adc7`、統合 `07f9f2a4c6`): Rust 15 file・guard 11 file・lib test 45 件を削除。Stage1 の fixture の単独 dump と、lib の 3 入力(型の無い値どうしを確かめずに `icmp` で比べていた)は、名前つきの拒否に変わった(EXE と実行は同じ。メンテナ OK)。拒否の名前だけが変わった入力 25 本もメンテナ OK。名簿 5,992 本で、成功→拒否はその 1 本の dump だけ。系列の全体で rustfmt 後 本体 −3,347・test −2,417、`src/mir` 592,887 行 |
+| LR-9 | 測る: loop の道 b(code の変更なし) | 済: b の成功は `parse_or_null/4` の 2 本だけで、どちらの `main` もその関数を呼ばない。その関数は loop の外も、型の無い値を確かめずに比べていた(13 か所)。名簿で型の無い値に直に届く `icmp` は 234 入力・1,741 命令。ChatGPT Pro に相談して、b を消すと決めた |
+| LR-10 | 消す: loop の道 b(LoopBreak composite)と旧 CorePlan | 済(`5d6655c3ae`、統合 `17ca266829`): 158 file を削除(Rust 132)。旧 `PlanVerifier`・normalizer・lowerer も消えた。`release_source.hako` と `loop_short_circuit_blockexpr_if.hako` の dump と EXE は名前つきの拒否に変わった(メンテナ OK。本物の selfhost の source を単体で compile できなくなった)。拒否の名前だけが変わった 21 本と、消した test 137 本もメンテナ OK。rustfmt 後 本体 −21,713・test −8,630、`src/mir` 571,174 行。loop の古い道は 0 本 |
 | UBD-2 以降 | `release_source` まで(決定 26 の順): 裸のブロックの scope の閉じ → 受け手の後始末 → `!= 1`。普通の呼び出しを通した Text の引数は、`finite-domain-unclosed` で止まる(`ordinary_new_borrowed_formal_entry_finite.rs:112`) | 次: 元の引数 plan と位置の照合の共有(`call_argument_source.rs:55`・`ordinary_new_argument_expression_lifecycle.rs:5`)、`id(id(v))`、`pick` |
 
 - 道案内: `design/mirbuilder-route-guide.md`。
