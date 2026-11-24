@@ -1,43 +1,14 @@
-# Control Flow Plan — Architecture (SSOT)
+# Checked Loop lowering
 
-This folder implements the JoinIR “planner-first” pipeline in layers:
+The Loop child entry is `RawLoopChildEntryPortV1::lower_loop` in
+`src/mir/builder/raw_loop_child_port.rs`. Source Facts and recipe matching
+supply the checked source product and its refusal diagnostics.
 
-- **Facts**: Conservative shape observation (no AST rewrite). Produces box-local “facts” and/or recipes.
-- **Recipe Contract**: Facts-derived route contract (`RecipeMatcher`) that chooses a single lowering route.
-- **CorePlan**: A normalized plan in CorePlan vocabulary, ready for lowering to MIR.
-- **Lowering**: Emits MIR (or freezes in `planner_required` mode when a contract is violated).
+`lowerer/source_loop_completion.rs` opens the PHI transaction.
+`lowerer/source_loop_driver.rs` lowers the condition and body through the
+invocation port and emits the original control edges and their cleanup.
+The completed MIR is independently checked against the original source by
+`source_loop_physical_validation.rs` and then by the module verifier.
 
-## Entry SSOT
-
-The authoritative “entry wiring” and ownership boundaries are documented in `src/mir/builder/control_flow/plan/REGISTRY.md`
-under “Entry SSOT (source facts→planner→composer→lower)”.
-
-## Public Surface
-
-This folder is the FlowPlanner implementation owner. It is physically under
-`src/mir/builder/control_flow/` for now, but it is not builder core.
-
-Allowed consumer-facing surfaces:
-
-- `raw_loop_child_port::RawLoopChildEntryPortV1::lower_loop` for Loop child entry.
-- `control_flow/lower/planner_compat.rs` for planner/lowerer compatibility
-  exports.
-- documented facts / recipe facades while the `facts/` and `recipes/` split is
-  being tightened.
-- `REGISTRY.md` as the route-order and accepted-exception ledger.
-
-Rejected surface:
-
-- direct imports from route-specific `loop_*_v0` boxes by builder core.
-- hidden fallback paths outside `planner_required` fail-fast rules.
-- backend route policy hidden in builder helpers.
-- new public exports from `plan/mod.rs` without a row that names the owner and
-  retire/promote path.
-
-Legacy compatibility boundary (`loop_*_v0` inventory and removal rules):
-- `src/mir/builder/control_flow/plan/LEGACY_V0_BOUNDARY.md`
-
-## Notes
-
-- `strict/dev + planner_required` must fail-fast (no silent fallback).
-- New accepted shapes must preserve the Facts→Lower contract: if Facts returns `Some`, Lower must be able to lower it.
+The current entry and the other syntax paths are listed in
+[`mirbuilder-route-guide.md`](../../../../../docs/development/current/main/design/mirbuilder-route-guide.md).

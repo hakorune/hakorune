@@ -301,9 +301,6 @@ impl MaterializedValuesV1 {
             .map(|entry| entry.value)
     }
 
-    pub(super) fn contains_key(&self, binding: &BindingRefV1) -> bool {
-        self.entries.contains_key(binding)
-    }
 
     pub(super) fn provenance(&self, binding: &BindingRefV1) -> Option<LocalProvenanceV1> {
         self.entries

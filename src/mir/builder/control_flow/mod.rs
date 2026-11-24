@@ -53,7 +53,7 @@ pub(in crate::mir::builder) mod edgecfg;
 // Phase 29ca P1: top-level descriptive owner surface (folderization first cut)
 pub(in crate::mir::builder) mod facts;
 
-// Phase 29ca P1: top-level recipe/CorePlan owner surface (folderization first cut)
+// Loop facts, recipe matching, and checked source lowering.
 pub(in crate::mir::builder) mod recipes;
 
 // Phase 29ca P1: top-level verifier/observability owner surface (folderization first cut)
@@ -71,15 +71,7 @@ pub(in crate::mir::builder) mod generic_loop_canon;
 // Phase 273 P0: Plan Extractor (Pure) + PlanLowerer SSOT
 pub(in crate::mir::builder) mod plan;
 
-#[cfg(test)]
-pub(crate) fn reset_loop_physical_effect_probe() {
-    plan::reset_loop_physical_effect_probe();
-}
 
-#[cfg(test)]
-pub(crate) fn take_loop_physical_effect_probe() -> usize {
-    plan::take_loop_physical_effect_probe()
-}
 
 
 

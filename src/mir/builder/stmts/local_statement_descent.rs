@@ -494,6 +494,7 @@ impl CompletedLocalBindingV1 {
 }
 
 impl CompletedLocalStatementV1 {
+    #[cfg(test)]
     pub(in crate::mir::builder) fn from_parts(
         result: ValueId,
         bindings: Vec<CompletedLocalBindingV1>,
@@ -504,6 +505,7 @@ impl CompletedLocalStatementV1 {
             selected_initializers: Vec::new(),
         }
     }
+
 
     pub(in crate::mir::builder) fn take_checked_initializers(&mut self) -> Vec<PendingInitializerExpressionV1> {
         std::mem::take(&mut self.selected_initializers)

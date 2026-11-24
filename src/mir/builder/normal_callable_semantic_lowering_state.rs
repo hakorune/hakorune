@@ -12,7 +12,6 @@ use crate::mir::resolved_semantics::{
 };
 use crate::mir::ValueId;
 
-use super::control_flow::plan::expression_port::ExactSourceMethodCallV1;
 use super::normal_callable_binding_materialization_port::PreparedCallableEntryValuesV1;
 use super::normal_callable_dynamic_origin::CallableDynamicOriginLoweringStateV1;
 use super::normal_callable_dynamic_source::SourceBackedDynamicCallableIssuerV1;
@@ -222,35 +221,7 @@ impl CallableSemanticLoweringState {
             .unwrap_or(false)
     }
 
-    /// Consume one composite LoopBreak candidate by its exact source site.
-    /// Direct candidates retain their singleton physical contract; a missing
-    /// composite row is typed absence and never re-enters the generic route.
-    pub(super) fn take_loop_break_composite_source_candidate(
-        &mut self,
-        site: &SourceNodeSiteV1,
-    ) -> Result<
-        Option<crate::mir::builder::VerifiedCallableLoopBreakCompositeSourceCandidateV1>,
-        String,
-    > {
-        let statement_site =
-            crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone());
-        self.loop_break_source
-            .as_mut()
-            .map(|loan| Ok(loan.take_composite_candidate_for_site(&statement_site)))
-            .unwrap_or(Ok(None))
-    }
 
-    pub(super) fn has_loop_break_composite_source_candidate(
-        &self,
-        site: &SourceNodeSiteV1,
-    ) -> bool {
-        let statement_site =
-            crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone());
-        self.loop_break_source
-            .as_ref()
-            .map(|loan| loan.has_composite_candidate_for_site(&statement_site))
-            .unwrap_or(false)
-    }
 
     /// Return the resolver-issued CoreMethod item rows that cover one exact
     /// loop root. This is an applicability view only; physical consumption

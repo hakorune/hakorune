@@ -731,10 +731,6 @@ for file in \
   "$LOCAL_DESCENT" \
   "$VARIABLE_STMT" \
   "$ROOT_DIR/src/mir/builder/stmts/README.md" \
-  "$ROOT_DIR/src/mir/builder/control_flow/plan/parts/wiring_tests.rs" \
-  "$ROOT_DIR/src/mir/builder/control_flow/plan/parts/associated_source/raw_parity_tests.rs" \
-  "$ROOT_DIR/src/mir/builder/control_flow/plan/parts/if_general.rs" \
-  "$ROOT_DIR/src/mir/builder/control_flow/plan/parts/stmt/tests.rs" \
   "$LOCAL_GUARD" \
   "$RAW_DISPATCH" \
   "$ASSIGNMENT_DESCENT" \

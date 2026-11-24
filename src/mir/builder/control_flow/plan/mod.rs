@@ -1,75 +1,19 @@
-//! Phase 273 P1: Facts/Recipe + CorePlan 二層構造 + PlanNormalizer + PlanVerifier
+//! Loop source classification, recipe matching and checked-source MIR lowering.
 //!
-//! This module provides a two-layer Plan architecture for loop lowering:
-//!
-//! # Architecture
-//!
-//! ```text
-//! Facts/Recipe contract (ループ受理契約)
-//!     ↓ PlanNormalizer (SSOT)
-//! CorePlan (固定語彙 - 構造ノードのみ)
-//!     ↓ PlanLowerer
-//! MIR (block/value/phi)
-//! ```
-//!
-//! - **Facts/Recipe contract**: planner-produced loop acceptance contract
-//! - **PlanNormalizer**: Facts/Recipe contract → CorePlan conversion (SSOT, scan knowledge here)
-//! - **CorePlan**: Fixed vocabulary, expressions as ValueId references (no String parsing)
-//! - **PlanVerifier**: Fail-fast validation for CorePlan invariants
-//! - **PlanLowerer**: Processes CorePlan only (no string interpretation)
-//!
-//! # Key Design Decision (String式禁止)
-//!
-//! CorePlan expressions use **ValueId references only** (String expressions forbidden).
-//! This prevents "second language processor" from growing inside Lowerer.
+//! The checked source writer lives in `lowerer`. Recipe matching and facts
+//! also support the entry diagnostics.
 
-// ============================================================================
-// Module Declarations (Layer-based Organization)
-// Design: docs/development/current/main/design/plan-mod-layout-ssot.md
-// ============================================================================
-
-// Layer 0: Core Data Structures (owner-internal)
-// 分割されたデータ構造定義。plan/mod.rs 配下でのみ使う内部層。
 mod call_source;
-mod core;
-mod loop_final_values;
-pub(in crate::mir::builder) use loop_final_values::CoreLoopFinalValuesV1;
 mod domain;
-mod effect;
-mod exit;
 pub(in crate::mir::builder) mod expression_port;
-
-// Layer 1: Core Infrastructure (基盤)
-// MIR lowering の中核インフラ
-pub(in crate::mir::builder) mod branchn;
 pub(in crate::mir::builder) mod facts;
 pub(in crate::mir) use facts::LoopFactsPolicyFrameV1;
 pub(in crate::mir::builder) mod lowerer;
-pub(in crate::mir::builder) mod lowering_context;
-mod normalizer;
-pub(in crate::mir::builder) mod step_mode;
 mod trace;
-
-// Layer 3: Skeleton/Feature Layer (分解スロット)
-// route 形状認識の分解スロット
-// Phase 29bt P0: Skeletons + Features (decomposition slots)
-pub(in crate::mir::builder) mod features;
-
-// Layer 4: Route-Specific (形状固有)
-// 各 route の固有処理（一部 helper には historical file 名が残る）
-// Phase 29ca P1: Generic loop v0 module (facts/normalizer SSOT)
 mod generic_loop;
-// Phase 29bq+: loop_break module moved to plan side
 pub(in crate::mir::builder) mod loop_break;
-// Layer 5: Loop-Specific (ループ固有)
-// 各ループタイプの固有処理
-// Phase 29bq P2.x: unified loop_cond helpers (moved from loop_cond_unified/helpers.rs)
 pub(in crate::mir::builder) mod loop_cond_unified_helpers;
-// Phase 29bq P2.x: unified loop_cond facts (variants)
-// Note: loop_cond_continue_only, loop_cond_continue_with_return, loop_cond_return_in_body,
-//       loop_cond_break_continue are now unified into loop_cond/
 pub(in crate::mir::builder) mod loop_cond;
-// M6-B: verified JoinSig -> sealed physical PHI transaction (caller-zero).
 pub(in crate::mir::builder) mod loop_accum_binding_port;
 #[cfg(test)]
 pub(in crate::mir::builder) mod loop_accum_caller_zero;
@@ -78,79 +22,14 @@ pub(in crate::mir::builder) mod loop_accum_physicalizer;
 #[path = "loop_accum_physicalizer_tests.rs"]
 mod loop_accum_physicalizer_tests;
 pub(in crate::mir::builder) mod loop_physical_input;
-// Phase 29bq P2: loop(true) break/continue coverage
 mod loop_true_break_continue;
-// Phase 12: Unified nested loop depth1 module (consolidates 4 variants)
-// Phase 29bq+: Shared nested loop plan lowering helper
-
-// Layer 6: Data Structures (データ構造)
-// CorePlan の構成要素
-// M1 scaffold: RecipeTree vocabulary + Parts dispatch entry (no calls from existing pipeline)
 mod parts;
-
-// Consumption seam for the source LoopCond sibling entry (item 6); the item
-// dispatcher stays the single physical owner while the caller slice lands.
-
-#[cfg(test)]
-pub(crate) fn reset_loop_physical_effect_probe() {
-    parts::reset_loop_physical_effect_probe();
-}
-
-#[cfg(test)]
-pub(crate) fn take_loop_physical_effect_probe() -> usize {
-    parts::take_loop_physical_effect_probe()
-}
 pub(in crate::mir::builder) mod recipe_tree;
-// M5f: Neutral re-export layer for parts (parts should not depend on features)
-mod steps;
-
-// Layer 7: Orchestration (オーケストレーション)
-// 全体の制御・調整
-// Phase 29ao P0: CorePlan composer scaffold (unused)
 mod emit;
 pub(in crate::mir::builder) mod planner;
-// Phase 29ai P5: JoinIR router → single plan extraction entrypoint
 pub(in crate::mir::builder) mod single_planner;
-
-// Layer 8: Utilities (ユーティリティ)
-// 共通機能・ポリシー
-// Layer 9: Legacy/Scaffolding (残骸・足場)
-// 歴史的経緯で残存、将来的には整理予定
-
-// ============================================================================
-// Entrypoints (SSOT)
-// ============================================================================
-//
-// Plan pipeline entrypoints:
-// - planner::build_plan_with_facts_ctx (Facts + recipe contract)
-// - PlanVerifier::verify (CorePlan invariants)
-// - PlanLowerer::lower (CorePlan → MIR)
-pub(in crate::mir::builder) use normalizer::PlanNormalizer;
 pub(in crate::mir::builder) use planner::PlanBuildOutcome;
-
-pub(in crate::mir::builder) use branchn::CoreBranchNPlan;
-
-// ============================================================================
-// Re-exports (New Modules)
-// ============================================================================
-
-// Core types
-pub(in crate::mir::builder) use self::call_source::{visit_core_call_sources_v1, CoreCallSourceV1};
-pub(in crate::mir::builder) use self::core::{
-    CoreIfJoin, CoreIfPlan, CoreLoopPlan, CorePhiInfo, CorePlan, LoopStepMode, LoweredRecipe,
-};
-pub(in crate::mir::builder) use self::effect::CoreEffectPlan;
-pub(in crate::mir::builder) use self::exit::CoreExitPlan;
+pub(in crate::mir::builder) use self::call_source::CoreCallSourceV1;
 pub(in crate::mir::builder) use self::expression_port::LoopPlanExpressionPortErrorV1;
-pub(in crate::mir::builder) use self::expression_port::{
-    LoopPlanExpressionPortV1, RawLoopPlanExpressionPortV1,
-};
-// Domain types
+pub(in crate::mir::builder) use self::expression_port::LoopPlanExpressionPortV1;
 pub(in crate::mir::builder) use self::domain::LoopBreakStepPlacement;
-
-#[cfg(test)]
-mod expression_port_tests;
-#[cfg(test)]
-pub(in crate::mir::builder) mod parity_snapshot_test_support;
-
-pub(in crate::mir::builder) use normalizer::helpers_value::SourceValueProjectionV1;

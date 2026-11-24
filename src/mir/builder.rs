@@ -39,12 +39,9 @@ mod normal_callable_dynamic_source; // source-backed untyped formal/Loop carrier
 mod normal_callable_loop_handoff; // callable Loop source/BindingRef S0 handoff
 pub(in crate::mir) use normal_callable_loop_handoff::CallableLoopSourceBindingClassV1;
 mod normal_callable_loop_source_facts; // callable source-aware Facts Ready issuer
-#[cfg(test)]
-pub(in crate::mir) use normal_callable_loop_source_facts::issue_composite_source_candidate_v1;
 pub(in crate::mir) use normal_callable_loop_source_facts::{
     issue_callable_loop_break_source_facts_v1, CallableLoopBreakSourceFactsDispositionV1,
-    CallableLoopBreakSourceFactsIssueV1, VerifiedCallableLoopBreakCompositeSourceCandidateV1,
-    VerifiedCallableLoopBreakCompositeSourceFactsV1, VerifiedCallableLoopBreakSourceCandidateV1,
+    CallableLoopBreakSourceFactsIssueV1, VerifiedCallableLoopBreakSourceCandidateV1,
     VerifiedCallableLoopBreakSourceFactsV1,
 };
 mod normal_callable_loop_source_port; // source-aware callable-loop expression capability
@@ -77,8 +74,6 @@ pub(crate) use callable_declaration_catalog::{
     VerifiedSameModuleCallableDeclarationV1, VerifiedSelectedNormalCallableSourceInventoryV1,
     VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
-#[cfg(test)]
-pub(in crate::mir) use main_expansion::with_test_main_static_children;
 pub(in crate::mir) use main_expansion::{
     MainExpansionErrorV1, PreparedAdmittedNormalRootExpansionV1, VerifiedMainStaticChildV1,
 };
@@ -361,15 +356,7 @@ pub(in crate::mir) use ordinary_new_admission::selected::source_loop_cleanup::{
 pub(in crate::mir) use ordinary_new_admission::selected::{
     EmittedExpressionBodyV1, ExpressionOwnedTemporaryV1,
 };
-#[cfg(test)]
-pub(crate) fn reset_loop_physical_effect_probe() {
-    control_flow::reset_loop_physical_effect_probe();
-}
 
-#[cfg(test)]
-pub(crate) fn take_loop_physical_effect_probe() -> usize {
-    control_flow::take_loop_physical_effect_probe()
-}
 mod weak_field_write_route;
 
 

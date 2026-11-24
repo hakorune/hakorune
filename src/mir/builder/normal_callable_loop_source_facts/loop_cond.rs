@@ -332,10 +332,6 @@ impl<'source> CallableLoopCondSourceFactsV1<'source> {
     pub(in crate::mir::builder) fn into_physical_input<'ledger>(
         self,
         source_ledger: &'ledger Rc<RefCell<CallableSemanticLoweringState>>,
-        declared_instance_locator: Option<
-            crate::mir::normal_callable_semantic_package::
-                DeclaredInstanceCallLocatorScopeV1<'ledger>,
-        >,
     ) -> Result<SourceLoopCondPhysicalInputV1<'source, 'ledger>, String> {
         let Self {
             _owner,
@@ -357,10 +353,7 @@ impl<'source> CallableLoopCondSourceFactsV1<'source> {
                 "[freeze:contract][callable-loop/loop-cond/source-port-owner-mismatch]".to_owned(),
             );
         }
-        let source_port = CallableLoopSourceExpressionPortV1::new(
-            source_ledger,
-            declared_instance_locator,
-        );
+        let source_port = CallableLoopSourceExpressionPortV1::new(source_ledger);
         let condition = _condition;
         let body = _body;
         let parent_source = _parent_source;

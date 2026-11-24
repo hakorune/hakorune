@@ -15,7 +15,6 @@ guard_joinir_loop_compile_candidate_scope() {
   local capability="$root_dir/src/mir/compiler/capability.rs"
   local first_family_plan="$root_dir/src/mir/compiler/capability/first_family_plan.rs"
   local source_bound_plan="$root_dir/src/mir/compiler/source_bound_plan.rs"
-  local m1_test="$root_dir/src/mir/compiler/loop_candidate_abort_p0.rs"
   local external_commit="$root_dir/src/mir/compiler/external_commit.rs"
   local loop_region="$root_dir/src/mir/resolved_semantics/loop_region.rs"
   local source_adapter="$root_dir/src/mir/loop_structural_facts/resolved_source_adapter.rs"
@@ -63,7 +62,7 @@ guard_joinir_loop_compile_candidate_scope() {
 
   guard_require_files "$tag" "$manifest" "$raw_child" \
     "$recursive_child" "$normal" "$raw_compile" "$raw_open" "$raw_recipe" \
-    "$canonical" "$canonical_input" "$m1_test" \
+    "$canonical" "$canonical_input" \
     "$external_commit" \
     "$capability" "$first_family_plan" "$source_bound_plan" "$loop_region" \
     "$source_adapter" "$generic_g0_projection" "$generic_g0_handoff" "$generic_g0_projection_tests" \
@@ -606,19 +605,6 @@ guard_joinir_loop_compile_candidate_scope() {
      ! rg -n -F 'ASTNode::Loop {' "$canonical_input" >/dev/null; then
     guard_fail "$tag" "Raw/canonical Loop pre-effect rejection anchors drift"
   fi
-
-  for required in \
-    'loop_effect_then_later_failure_discards_candidate_and_reuses_live_compiler' \
-    'reset_loop_physical_effect_probe' \
-    'take_loop_physical_effect_probe' \
-    'loop_candidate_test_fingerprint' \
-    'Undefined variable: missing' \
-    'loop-failure.hako' \
-    'loop-reused.hako'
-  do
-    rg -n -F "$required" "$m1_test" >/dev/null || \
-      guard_fail "$tag" "M1 candidate-abort proof anchor missing: $required"
-  done
 
   rg -n -F 'project_canonical_verification_result' "$external_commit" >/dev/null || \
     guard_fail "$tag" "canonical final-barrier projection anchor missing"

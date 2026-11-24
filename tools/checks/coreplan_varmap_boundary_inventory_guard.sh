@@ -76,26 +76,15 @@ for root in roots:
 insert_sites = [site for site in sites if site[3] == "insert"]
 remove_or_clear = [site for site in sites if site[3] in ("remove", "clear")]
 site_ids = {f"{path}#{ordinal}" for path, ordinal, _line, _op in insert_sites}
-test_only_sites = {
-    *(f"src/mir/builder/control_flow/plan/normalizer/helpers_pure_value.rs#{n}" for n in range(1, 5)),
-    *(f"src/mir/builder/control_flow/plan/normalizer/tests.rs#{n}" for n in range(1, 4)),
+checked_loop_sites = {
+    "src/mir/builder/control_flow/plan/lowerer/source_loop_completion.rs#1",
+    "src/mir/builder/control_flow/plan/lowerer/source_loop_driver.rs#1",
 }
-disconnected_sites = set()
-canonical_sites = {
-    "src/mir/builder/control_flow/plan/parts/var_map_scope.rs#1",
-}
-# This is a finite shrink-only baseline.  Reseal rows may remove a known
-# live site, but a new path or ordinal must first be classified in a bounded
-# row; changing this guard is not a substitute for that inventory decision.
-known_live_sites = {
-    "src/mir/builder/control_flow/plan/parts/associated_source/raw_lowering.rs#1",
-    *(f"src/mir/builder/control_flow/plan/parts/loop_/loop_v0.rs#{n}" for n in range(1, 4)),
-}
-known_sites = test_only_sites | disconnected_sites | canonical_sites | known_live_sites
 
-if not site_ids <= known_sites:
-    print("[coreplan-varmap-boundary] ERROR: unknown variable_map site entered the finite role inventory")
-    print("\n".join(sorted(site_ids - known_sites)))
+if site_ids != checked_loop_sites:
+    print("[coreplan-varmap-boundary] ERROR: checked Loop cache writer inventory drifted")
+    print("unexpected:", sorted(site_ids - checked_loop_sites))
+    print("missing:", sorted(checked_loop_sites - site_ids))
     raise SystemExit(1)
 
 if remove_or_clear:
@@ -103,31 +92,7 @@ if remove_or_clear:
     print("\n".join(f"{path}:{line}: variable_map.{op}" for path, _ordinal, line, op in remove_or_clear))
     raise SystemExit(1)
 
-if site_ids & test_only_sites != test_only_sites:
-    print("[coreplan-varmap-boundary] ERROR: test-only role inventory drifted")
-    raise SystemExit(1)
-if site_ids & disconnected_sites != disconnected_sites:
-    print("[coreplan-varmap-boundary] ERROR: disconnected role inventory drifted")
-    raise SystemExit(1)
-if site_ids & canonical_sites != canonical_sites:
-    print("[coreplan-varmap-boundary] ERROR: canonical owner inventory drifted")
-    raise SystemExit(1)
-
-live_sites = site_ids - test_only_sites - disconnected_sites
-reseal_sites = live_sites - canonical_sites
-
-canonical_path = Path("src/mir/builder/control_flow/plan/parts/var_map_scope.rs")
-if "publish_emission_cache" not in canonical_path.read_text():
-    print("[coreplan-varmap-boundary] ERROR: canonical cache owner is missing")
-    raise SystemExit(1)
-
-print(
-    "[coreplan-varmap-boundary] role-aware inventory "
-    f"raw={len(site_ids)} test_only={len(site_ids & test_only_sites)} "
-    f"disconnected={len(site_ids & disconnected_sites)} live={len(live_sites)} "
-    f"canonical={len(live_sites & canonical_sites)} reseal={len(reseal_sites)} "
-    "(baseline=12/7/0/5/1/4)"
-)
+print(f"[coreplan-varmap-boundary] checked_loop_cache_writers={len(site_ids)}")
 print("[coreplan-varmap-boundary] variable_map_remove_clear_sites=0")
 PY
 

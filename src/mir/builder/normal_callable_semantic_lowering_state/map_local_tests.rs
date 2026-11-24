@@ -170,25 +170,6 @@ fn local_initializer_lookup_rejects_missing_locator_and_foreign_binding() {
         .is_ok());
 }
 
-#[test]
-fn source_core_method_take_rejects_duplicate_exact_site() {
-    let (mut state, site) = core_method_fixture();
-    let missing = SourcePathV1::root_body(99).expr();
-    assert!(state
-        .take_source_core_method_call(&missing, "length", 0)
-        .expect("missing exact site")
-        .is_none());
-    let first = state
-        .take_source_core_method_call(&site, "length", 0)
-        .expect("first exact take")
-        .expect("length row");
-    assert_eq!(first.result_type(), crate::mir::MirType::Integer);
-
-    let duplicate = state
-        .take_source_core_method_call(&site, "length", 0)
-        .expect_err("duplicate take must freeze");
-    assert!(duplicate.contains("duplicate-core-method-call-consumption"));
-}
 
 #[test]
 fn source_loop_binding_locator_requires_original_materialized_binding_and_cache_value() {

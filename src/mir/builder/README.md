@@ -291,8 +291,7 @@ Before the source-aware physical adapter is switched, a private borrow-scoped
 root facade must co-bind those existing owners. The facade is not a second
 Builder/session/collector, cannot be built from a bare `&mut MirBuilder`, and
 must not expose a generic mutable Builder getter. The bounded claim is
-unpublished-effect confinement and one collector drain/commit on success; it
-does not claim that `PlanVerifier` is effect-free. See the active card in
+unpublished-effect confinement and one collector drain/commit on success. See the active card in
 `CURRENT_STATE.toml` for the exact call chain, acceptance guards, and
 `NoSafeSlice` conditions.
 

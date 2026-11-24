@@ -65,32 +65,6 @@
     "evidence": "ループの予定表を腕のコールバックへ渡す。真偽・合流の発行は普通の if が担当。"
   },
   {
-    "id": "core-plan-if",
-    "category": "if",
-    "role": "writer",
-    "file": "src/mir/builder/control_flow/plan/lowerer/plan_lowering.rs",
-    "sites": [
-      {
-        "line": 194,
-        "code": "emit_conditional(builder, condition_val, then_bb, else_bb)?;"
-      }
-    ],
-    "evidence": "CoreIfPlanの真偽・合流のブロックを自分で確保。218行で合流"
-  },
-  {
-    "id": "core-effect-if",
-    "category": "if",
-    "role": "forwarder",
-    "file": "src/mir/builder/control_flow/plan/lowerer/body_processing.rs",
-    "sites": [
-      {
-        "line": 41,
-        "code": "let result = builder.lower_if_form_for_effects_v1("
-      }
-    ],
-    "evidence": "事前に確定した効果列を腕のコールバックに渡す。分岐と正常合流は共通の if が発行する。"
-  },
-  {
     "id": "static-recipe-if",
     "category": "if",
     "role": "writer",
@@ -169,19 +143,6 @@
     "evidence": "checked carrierからHeader/After点のPHIを予約"
   },
   {
-    "id": "plan-core-header",
-    "category": "loop-header-phi",
-    "role": "writer",
-    "file": "src/mir/builder/control_flow/plan/features/coreloop_frame.rs",
-    "sites": [
-      {
-        "line": 156,
-        "code": "phis.push(loop_carriers::build_loop_phi_info("
-      }
-    ],
-    "evidence": "preheader値とstep値からCoreLoopのheader PHI情報を作る"
-  },
-  {
     "id": "static-recipe-header",
     "category": "loop-header-phi",
     "role": "writer",
@@ -247,40 +208,6 @@
     "evidence": "元のContinueポートを認定。545行でDriver.headerへ写す"
   },
   {
-    "id": "core-plan-break",
-    "category": "loop-break",
-    "role": "writer",
-    "file": "src/mir/builder/control_flow/plan/lowerer/exit_lowering.rs",
-    "sites": [
-      {
-        "line": 52,
-        "code": "target: frame.break_target,"
-      },
-      {
-        "line": 90,
-        "code": "target: frame.break_target,"
-      }
-    ],
-    "evidence": "CoreExitPlanでLoopFrameを深さ解決し、break_targetに値なし／PHI付きで飛ぶ"
-  },
-  {
-    "id": "core-plan-continue",
-    "category": "loop-continue",
-    "role": "writer",
-    "file": "src/mir/builder/control_flow/plan/lowerer/exit_lowering.rs",
-    "sites": [
-      {
-        "line": 106,
-        "code": "target: frame.continue_target,"
-      },
-      {
-        "line": 157,
-        "code": "target: frame.continue_target,"
-      }
-    ],
-    "evidence": "CoreExitPlanでLoopFrameを深さ解決し、continue_targetに値なし／PHI付きで飛ぶ"
-  },
-  {
     "id": "recursive-recipe-break",
     "category": "loop-break",
     "role": "writer",
@@ -328,40 +255,6 @@
     "evidence": "式のIfを共通ifの受け口へ渡す"
   },
   {
-    "id": "plan-break-source-port",
-    "category": "loop-break",
-    "role": "forwarder",
-    "file": "src/mir/builder/control_flow/plan/parts/exit.rs",
-    "sites": [
-      {
-        "line": 58,
-        "code": "build_break_with_phi_args(break_phi_dsts, current_bindings, error_prefix)?,"
-      },
-      {
-        "line": 98,
-        "code": "build_break_with_phi_args(break_phi_dsts, current_bindings, error_prefix)?,"
-      }
-    ],
-    "evidence": "sourceのbreakを深さ付きCoreExitPlanへ渡す"
-  },
-  {
-    "id": "plan-continue-source-port",
-    "category": "loop-continue",
-    "role": "forwarder",
-    "file": "src/mir/builder/control_flow/plan/parts/exit.rs",
-    "sites": [
-      {
-        "line": 61,
-        "code": "build_continue_with_phi_args("
-      },
-      {
-        "line": 101,
-        "code": "build_continue_with_phi_args("
-      }
-    ],
-    "evidence": "sourceのcontinueを深さ付きCoreExitPlanへ渡す"
-  },
-  {
     "id": "ssa-adopt-provisional",
     "category": "loop-header-phi",
     "role": "shared",
@@ -403,45 +296,6 @@
       }
     ],
     "evidence": "読み出し時の未完成PHI。ループ以外の利用も含む"
-  },
-  {
-    "id": "plan-break-frame",
-    "category": "loop-break",
-    "role": "forwarder",
-    "file": "src/mir/builder/control_flow/plan/lowerer/loop_lowering.rs",
-    "sites": [
-      {
-        "line": 70,
-        "code": "break_target: loop_plan.after_bb,"
-      }
-    ],
-    "evidence": "作られたafterの番号をCoreExitへ渡す"
-  },
-  {
-    "id": "plan-continue-frame",
-    "category": "loop-continue",
-    "role": "forwarder",
-    "file": "src/mir/builder/control_flow/plan/lowerer/loop_lowering.rs",
-    "sites": [
-      {
-        "line": 71,
-        "code": "continue_target: loop_plan.continue_target,"
-      }
-    ],
-    "evidence": "計画のcontinue_targetをCoreExitへ渡す"
-  },
-  {
-    "id": "plan-composite-continue-frame",
-    "category": "loop-continue",
-    "role": "writer",
-    "file": "src/mir/builder/control_flow/plan/features/coreloop_frame.rs",
-    "sites": [
-      {
-        "line": 113,
-        "code": "continue_target: step_bb, // StepBb mode: always step_bb"
-      }
-    ],
-    "evidence": "複合CoreLoopの続きにstepを指定する"
   },
   {
     "id": "checked-array-append",

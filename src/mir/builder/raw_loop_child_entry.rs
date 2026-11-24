@@ -202,7 +202,6 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             None,
             None,
             None,
-            None,
             CallableLoopSourceTargetProbeV1::empty(),
         )
     }
@@ -221,9 +220,6 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                     super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState,
                 >,
             >,
-        >,
-        declared_instance_locator: Option<
-            crate::mir::normal_callable_semantic_package::DeclaredInstanceCallLocatorScopeV1<'_>,
         >,
         source_input: Option<
             crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
@@ -325,92 +321,19 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             } else {
                 (None, None, None, Box::default(), None)
             };
-        let (direct_candidate, composite_loop_break_candidate) =
-            match (callable_ledger, parent_source.site()) {
-                (Some(callable_ledger), Some(parent_site)) => {
-                    let mut state = callable_ledger.borrow_mut();
-                    // A retained checked source recipe owns the complete Loop
-                    // body and its lifecycle prefixes. Its selected route must
-                    // not be intercepted by a parallel loop-break adapter.
-                    let (direct, composite) = if checked_source_selected {
-                        // The retained checked source recipe is already the
-                        // exact owner for this Loop site. Retire any pre-issued
-                        // LoopBreak adapter candidate for that same site, but
-                        // never lower it in parallel with the selected route.
-                        let direct = state.take_loop_break_source_candidate(parent_site)?;
-                        let composite = state.take_loop_break_composite_source_candidate(parent_site)?;
-                        if direct.is_some() && composite.is_some() {
-                            return Err("[freeze:contract][callable-loopbreak/mixed-direct-composite]".into());
-                        }
-                        (None, None)
-                    } else {
-                        let direct = state.take_loop_break_source_candidate(parent_site)?;
-                        let composite = if direct.is_none() {
-                            state.take_loop_break_composite_source_candidate(parent_site)?
-                        } else {
-                            None
-                        };
-                        (direct, composite)
-                    };
-                    (direct, composite)
-                }
-                _ => (None, None),
-            };
-        if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
-            eprintln!("[local-call-bindings] raw-loop-routes function={function_name} checked={checked_source_selected} loop-break={} composite-break={}",
-                direct_candidate.is_some(), composite_loop_break_candidate.is_some());
-        }
-        if direct_candidate.is_some() {
-            return Err("[freeze:contract][callable-loop/facts-absent]".to_owned());
-        }
-        if let Some(candidate) = composite_loop_break_candidate {
-            // A composite writer is eligible only when every original
-            // call already has a selected disposition.
-            let source_dispositions = source_target_probe
-                .into_item_dispositions(&source_items)
-                .map_err(|error| {
-                    format!("[freeze:contract][callable-loop/composite/source-target] {error:?}")
-                })?;
-            if source_items.is_empty() || source_dispositions.is_empty() {
-                return Err("[freeze:contract][callable-loop/composite/source-target-empty]".to_owned());
+        let direct_candidate = match (callable_ledger, parent_source.site()) {
+            (Some(ledger), Some(site)) => {
+                // Consume a pre-issued direct candidate even when the checked recipe owns the site.
+                ledger.borrow_mut().take_loop_break_source_candidate(site)?
             }
-            let callable_ledger = callable_ledger.ok_or_else(|| {
-                "[freeze:contract][callable-loop/composite/source-port-ledger-missing]".to_owned()
-            })?;
-            let retained = ledger_bridge::take_preissued_source_plan_v1(
-                Some(callable_ledger),
-                owner,
-                parent_source.site(),
-            )?;
-            let physical_input = candidate.into_physical_input(
-                parent_source,
-                loop_node,
-                condition_source,
-                body_source,
-                condition,
-                body,
-                binding_product,
-                source_items,
-                source_dispositions,
-                callable_ledger,
-                retained,
-                policy,
-                declared_instance_locator,
-            )?;
-            let plan = crate::mir::builder::control_flow::plan::features::
-                loop_break_composite_source::lower_loop_break_composite_source(builder, &physical_input)?;
-            crate::mir::builder::control_flow::verify::PlanVerifier::verify(&plan)
-                .map_err(|error| format!("[freeze:contract][callable-loop/verify] {error}"))?;
-            let context = crate::mir::builder::control_flow::plan::lowering_context::
-                CallableLoopPlanLoweringContextV1::new(function_name, debug);
-            return crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower_with_source_publication(
-                builder,
-                plan,
-                &context,
-                std::rc::Rc::clone(callable_ledger),
-            )
-            .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?
-            .ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned());
+            _ => None,
+        };
+        if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
+            eprintln!("[local-call-bindings] raw-loop-routes function={function_name} checked={checked_source_selected} loop-break={}",
+                direct_candidate.is_some() && !checked_source_selected);
+        }
+        if direct_candidate.is_some() && !checked_source_selected {
+            return Err("[freeze:contract][callable-loop/facts-absent]".to_owned());
         }
         let prepared = Self {
             parent_source,
@@ -451,7 +374,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                         .to_owned()
                 })?;
                 let physical_input =
-                    source_facts.into_physical_input(source_ledger, declared_instance_locator)?;
+                    source_facts.into_physical_input(source_ledger)?;
                 loop_cond::lower(builder, &physical_input, source_ledger, invocation)
             }
             CallableGenericLoopSourceFactsDispositionV1::SourceUnavailable(error) => Err(format!(

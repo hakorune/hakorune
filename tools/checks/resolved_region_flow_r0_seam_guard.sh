@@ -12,7 +12,7 @@ guard_require_files "$TAG" \
   "$ROOT/src/mir/builder/vars/lexical_scope.rs" \
   "$ROOT/crates/hakorune_frontend_ast/src/ast_node.rs" \
   "$ROOT/src/mir/builder/control_flow/plan/recipe_tree/common.rs" \
-  "$ROOT/src/mir/builder/control_flow/plan/lowerer/exit_lowering.rs"
+  "$ROOT/src/mir/resolved_semantics/shadow/stmt.rs"
 
 python3 - "$ROOT" <<'PY'
 from pathlib import Path
@@ -25,8 +25,8 @@ binding_ctx = (root / "crates/hakorune_mir_builder/src/binding_context.rs").read
 lexical = (root / "src/mir/builder/vars/lexical_scope.rs").read_text()
 ast = (root / "crates/hakorune_frontend_ast/src/ast_node.rs").read_text()
 recipe_exit = (root / "src/mir/builder/control_flow/plan/recipe_tree/common.rs").read_text()
-lower_exit = (root / "src/mir/builder/control_flow/plan/lowerer/exit_lowering.rs").read_text()
-facts = (root / "src/mir/builder/control_flow/plan/generic_loop/facts/extract/v1.rs").read_text()
+resolved_exit = (root / "src/mir/resolved_semantics/shadow/stmt.rs").read_text()
+facts = (root / "src/mir/builder/control_flow/plan/facts/loop_cond_no_exit_facts.rs").read_text()
 
 required = {
     "canonical BindingId": (canonical, r"pub struct BindingId\(pub u32\)"),
@@ -35,7 +35,7 @@ required = {
     "source Break without target": (ast, r"Break \{ span: Span \}"),
     "source Continue without target": (ast, r"Continue \{ span: Span \}"),
     "Recipe depth carrier": (recipe_exit, r"Break \{ depth: u32 \}"),
-    "Lower depth recount": (lower_exit, r"stack\.len\(\).*depth|checked_sub\(depth\)"),
+    "Resolved exit target": (resolved_exit, r"fn resolve_loop_exit\(.*?\.nearest_loop\(\).*?self\.record_exit\(path\.stmt\(\), origin, transfer\)"),
     "Facts AST-only signature": (facts, r"condition: &ASTNode,\s*body: &\[ASTNode\]"),
 }
 for label, (text, pattern) in required.items():
@@ -48,7 +48,7 @@ if "MirBuilder" in facts or "BindingContext" in facts:
 print("canonical_binding_id_owner=present")
 print("preplan_resolved_binding_view=missing")
 print("ownership_private_binding_id=retired")
-print("resolved_control_target_owner=missing")
+print("resolved_control_target_owner=present")
 print("r1_implementation_connection=0")
 print("summary=ok")
 PY

@@ -151,7 +151,7 @@ pub enum VerificationError {
         owner: String,
         reason: String,
     },
-    /// Module-level metadata row invariant violation before CorePlan/backend
+    /// Module-level metadata row invariant violation before backend
     /// consumers may rely on layout or static data plans.
     ModuleMetadataInvariantViolation {
         key: &'static str,

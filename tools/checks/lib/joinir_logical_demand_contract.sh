@@ -178,10 +178,9 @@ guard_joinir_logical_demand_contract() {
       -v r="$root_dir/src/mir/resolved_semantics/" \
       -v b="$root_dir/src/mir/builder/normal_callable_loop_source_facts/" \
       -v t2="$root_dir/src/mir/loop_recipe_contract/s6c_scan_with_init_tests.rs" \
-      -v x2="$root_dir/src/mir/compiler/loop_break_composite_source_projection.rs" \
       -v x3="$root_dir/src/mir/compiler/loop_break_source_projection.rs" \
       -v x4="$root_dir/src/mir/compiler/loop_family_window_probe_tests.rs" \
-      '$0 != a && $0 != n && $0 != p && $0 != l && $0 != t && $0 != c && $0 != d && $0 != g && $0 != t2 && $0 != x2 && $0 != x3 && $0 != x4 && index($0,s) != 1 && index($0,r) != 1 && index($0,b) != 1 { found=1 } END { exit found }'; then
+      '$0 != a && $0 != n && $0 != p && $0 != l && $0 != t && $0 != c && $0 != d && $0 != g && $0 != t2 && $0 != x3 && $0 != x4 && index($0,s) != 1 && index($0,r) != 1 && index($0,b) != 1 { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "sealed resolved Loop source capability escaped its adapter boundary"
@@ -273,10 +272,9 @@ guard_joinir_logical_demand_contract() {
           -v dynamic_physical_input="$dynamic_physical_input" \
           -v callable_facts_prefix="$root_dir/src/mir/builder/normal_callable_loop_source_facts/" \
           -v s6c_tests="$root_dir/src/mir/loop_recipe_contract/s6c_scan_with_init_tests.rs" \
-          -v break_composite="$root_dir/src/mir/compiler/loop_break_composite_source_projection.rs" \
           -v break_source="$root_dir/src/mir/compiler/loop_break_source_projection.rs" \
           -v window_probe_tests="$root_dir/src/mir/compiler/loop_family_window_probe_tests.rs" \
-          'index($0, structural_prefix) != 1 && index($0, resolved_prefix) != 1 && index($0, callable_facts_prefix) != 1 && $0 != projection && $0 != observation_adapter && $0 != nested_observation_adapter && $0 != loop_true_projection && $0 != loop_true_observation_adapter && $0 != loop_cond_projection && $0 != loop_cond_observation_adapter && $0 != generic_g0_observation_adapter && $0 != dynamic_recipe_mod && $0 != dynamic_physical_input && $0 != s6c_tests && $0 != break_composite && $0 != break_source && $0 != window_probe_tests'
+          'index($0, structural_prefix) != 1 && index($0, resolved_prefix) != 1 && index($0, callable_facts_prefix) != 1 && $0 != projection && $0 != observation_adapter && $0 != nested_observation_adapter && $0 != loop_true_projection && $0 != loop_true_observation_adapter && $0 != loop_cond_projection && $0 != loop_cond_observation_adapter && $0 != generic_g0_observation_adapter && $0 != dynamic_recipe_mod && $0 != dynamic_physical_input && $0 != s6c_tests && $0 != break_source && $0 != window_probe_tests'
   )
   if (( ${#external_resolved_source_files[@]} != 0 )); then
     guard_fail "$tag" "sealed resolved Loop source capability escaped its adapter boundary"
