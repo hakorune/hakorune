@@ -24,14 +24,19 @@ impl OrdinaryNewClaimLedgerV1 {
 
     /// These uses already have their own checked source owners. Binding
     /// lineage is rechecked against the exact entry, not a scalar domain.
-    pub(super) fn tagged_entry_source_reads_v1(
+    pub(super) fn checked_entry_source_reads_v1(
         &self,
         source: &PreparedBorrowedFormalIngressV1,
         owner: FunctionOwnerIdV1,
         formals: &[(u32, BindingRefV1)],
         uses: &super::super::borrowed_formal_uses::OriginalFormalUseSourceV1,
+        tagged_static: bool,
     ) -> Result<BTreeSet<(SourceExprSiteV1, BindingRefV1)>, String> {
-        let mut reads = self.tagged_static_argument_reads_v1(source, owner)?;
+        let mut reads = if tagged_static {
+            self.tagged_static_argument_reads_v1(source, owner)?
+        } else {
+            BTreeSet::new()
+        };
         let flow = self.completion_for_owner(owner)
             .and_then(|completion| completion.cleanup().root_flow());
         if let Some(flow) = flow {
