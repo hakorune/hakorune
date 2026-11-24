@@ -53828,6 +53828,15 @@
       ],
       "coverage_exe": true,
       "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/dynamic-compare/local-nested-checked-compare.hako",
+      "sha256": "06e0d7cda23983059e924215323fee0d245ef4ce738836323c53cd6950ec99fc",
+      "groups": [
+        "B"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
     }
   ]
 }

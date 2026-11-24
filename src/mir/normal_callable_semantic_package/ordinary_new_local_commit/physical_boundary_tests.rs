@@ -721,6 +721,40 @@ fn empty_branch_trampoline_preserves_original_return_and_complete_boundary() {
         });
         assert!(accepted.is_err(), "unproved {case}");
     }
+
+    // A surviving branch reached through the deleted trampoline must keep
+    // both original arms, even when both choices independently verify.
+    let (mut original, mut bindings) = threaded_return_fixture();
+    let exit = BasicBlockId(4);
+    let mut exit_block = BasicBlock::new(exit);
+    let returned = original.blocks[&BasicBlockId(3)].terminator.clone().unwrap();
+    exit_block.set_terminator(returned.clone());
+    original.add_block(exit_block);
+    bindings.retain(|(id, _)| *id != BasicBlockId(3));
+    bindings.push((exit, returned));
+    original.blocks.get_mut(&BasicBlockId(3)).unwrap().set_terminator(
+        MirInstruction::Branch {
+            condition: ValueId(4),
+            then_bb: exit,
+            else_bb: BasicBlockId(2),
+            then_edge_args: None,
+            else_edge_args: None,
+        },
+    );
+    original.update_cfg();
+    let boundary = PhysicalBoundary::capture(&original, &bindings).unwrap();
+    let mut finished = original;
+    thread_return_arm(&mut finished);
+    boundary_result(&boundary, &finished, &bindings).unwrap();
+
+    let Some(MirInstruction::Branch { then_bb, else_bb, .. }) =
+        &mut finished.blocks.get_mut(&BasicBlockId(3)).unwrap().terminator
+    else {
+        unreachable!();
+    };
+    std::mem::swap(then_bb, else_bb);
+    finished.update_cfg();
+    assert!(boundary_result(&boundary, &finished, &bindings).is_err());
 }
 
 #[test]
