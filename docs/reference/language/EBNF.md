@@ -152,14 +152,15 @@ Function-exit semantic status:
   target Unit semantics but remains grammar-inactive until a separate registry
   row and both parser witnesses land.
 
-program   := (cfg_item | static_const_table_decl | brand_decl | type_alias_decl | record_decl | enum_decl | box_decl | stmt)* EOF
+program   := (cfg_item | static_const_table_decl | brand_decl | type_alias_decl | record_decl | enum_decl | box_decl | static_box_decl | stmt)* EOF
 
 cfg_item  := 'gate' build_predicate '{' program_item* '}' ('else' cfg_else)?
 cfg_else  := cfg_item | '{' program_item* '}'
-program_item := static_const_table_decl | brand_decl | type_alias_decl | record_decl | enum_decl | box_decl | stmt
+program_item := static_const_table_decl | brand_decl | type_alias_decl | record_decl | enum_decl | box_decl | static_box_decl | stmt
 
 ; ADR-005 (2026-11-26): file-mode `program` and `program_item` admit no
-; `function_decl`. A file function is a method of a static box, called as
+; `function_decl`. A file function is a method of a static box
+; (`static_method_decl` in "Static box declaration" below), called as
 ; `me.f(x)` inside that box and `Box.f(x)` outside it. Implementation pending:
 ; the current parser still accepts top-level `function` and `static function`
 ; (also inside a top-level `gate`) until the ADR-005 rejection round.
@@ -1037,6 +1038,63 @@ Current migration lowering boundary (no JSON v0 change in this docs slice)
   widened. C′ I0 replaces cleanup with the verified exit owner; C′ R0 retires
   catch and the handler carrier.
 - unsupported routes reject before protected-body effects. JSON v0 is unchanged.
+
+### Static box declaration (current parser)
+
+Status: a transcription of what the current Rust parser reads (2026-11-26,
+maintainer OK). It adds no language decision. Where this form differs from
+other documents, the difference is left for a maintainer decision.
+
+A `static box` is the only place for file functions
+([ADR-005](../../development/adr/adr-005-file-functions-live-in-static-boxes.md)).
+
+```
+static_box_decl    := 'static' 'box' IDENT static_type_params? static_from? static_interfaces?
+                      '{' static_member* '}'
+static_type_params := '<' IDENT (',' IDENT)* '>'
+static_from        := 'from' IDENT (',' IDENT)*
+static_interfaces  := 'interface' IDENT (',' IDENT)*
+static_member      := static_method_decl
+                    | static_field
+                    | init_block
+                    | static_initializer
+static_method_decl := ( 'method' )? IDENT '(' params? ')' ( ':' TYPE_REF )? signature_clause* block
+                    ; every method is static. Rune metadata may precede it.
+static_field       := IDENT
+                    ; a bare name not followed by '('. No type, no initializer.
+init_block         := 'init' '{' ( 'weak'? IDENT ','? )* '}'
+                    ; the legacy list (see "Legacy: init { ... } field list").
+static_initializer := 'static' block
+```
+
+Newlines and `;` may separate members.
+
+Differences from `box` (current parser):
+
+- No constructor. `birth` is not a static-box member; writing it is a parse
+  error. `new` of a static box parses as an ordinary `new_expr` and is rejected
+  when the program is compiled (checked 2026-11-26 with the current CLI). The
+  current rejection is `[mir/callable-semantic-package/issue]` with
+  `OrdinaryBoxCoverageMissing` for the box name; it is the same rejection as
+  `new` of an undeclared name. `types.md` states the rule (a static box is not
+  constructible); the MirBuilder blueprint proposes the name
+  `call/new-static-box` (section 23.1, A20).
+- Members are limited to the forms above. These `box` member forms are parse
+  errors in a static box ("expected method or field name"): typed fields
+  (`x: T`), field initializers (`x = expr`), `weak x` outside `init`,
+  visibility blocks (`public { }` / `private { }`), `gate` members,
+  `delegate`, `override`, `fini`, `birth`, and `static function` members.
+  With `NYASH_PARSER_SEAM_TOLERANT=1`, a member-level `=` closes the box
+  instead of raising the error.
+- The parser reads `static_field`, `init_block`, and `static_initializer`, but
+  compiling a program that has them stopped with
+  `[mir/normal-root/consume] IntegrityInvalid` in the 2026-11-26 checks. That
+  is not a named source rejection.
+- The header accepts type parameters and `from` and `interface` lists. A
+  `box` header rejects `from` (`parser/from_transport_not_closed_form` in the
+  2026-11-26 check); a static box header reads it without that check.
+- Inside a static box, `me.m()` names a static method of the same box; `me` is
+  not an instance value (`semantic-kernel.md`).
 
 ### Current production compatibility grammar
 
