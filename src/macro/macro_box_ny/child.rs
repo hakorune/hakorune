@@ -220,7 +220,7 @@ impl super::super::macro_box::MacroBox for NyChildMacroBox {
             let macro_src = std::fs::read_to_string(self.file)
                 .unwrap_or_else(|_| String::from("// failed to read macro file\n"));
             let script = format!(
-                "{}\n\nfunction main(args) {{\n    if args.length() == 0 {{\n        print(\"{{}}\")\n        return 0\n    }}\n    local j, r, ctx\n    j = args.get(0)\n    if args.length() > 1 {{ ctx = args.get(1) }} else {{ ctx = \"{{}}\" }}\n    r = MacroBoxSpec.expand(j, ctx)\n    print(r)\n    return 0\n}}\n",
+                "{}\n\nstatic box Main {{\n    main(args) {{\n        if args.length() == 0 {{\n            print(\"{{}}\")\n            return 0\n        }}\n        local j, r, ctx\n        j = args.get(0)\n        if args.length() > 1 {{ ctx = args.get(1) }} else {{ ctx = \"{{}}\" }}\n        r = MacroBoxSpec.expand(j, ctx)\n        print(r)\n        return 0\n    }}\n}}\n",
                 macro_src
             );
             if let Err(e) = f.write_all(script.as_bytes()) {
