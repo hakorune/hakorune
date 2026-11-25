@@ -1,8 +1,9 @@
 use super::generic_g0_result_abi::{
-    issue_generic_g0_result_abi_transport_v1, GenericG0ResultAbiRejectV1,
+    issue_generic_g0_result_abi_transport_from_handoff_v1, GenericG0ResultAbiRejectV1,
 };
 use super::generic_g0_source_parent::{
-    with_generic_g0_source_parent_v1, GenericG0SourceParentRejectV1,
+    issue_generic_g0_source_parent_from_observation_v1, GenericG0SourceParentRefV1,
+    GenericG0SourceParentRejectV1, VerifiedGenericG0SourceParentV1,
 };
 use super::generic_g0_storage_lane_source::{
     issue_generic_g0_storage_lane_source_projection_v1, GenericG0StorageLaneCarrierV1,
@@ -11,14 +12,31 @@ use super::generic_g0_storage_lane_source::{
 use super::generic_g0_top_level_declaration_header::issue_generic_g0_top_level_declaration_header_v1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
-use crate::mir::loop_route_policy::generic_source_unit_and_selection_for_test;
+use crate::mir::loop_route_policy::{
+    generic_g0_observation_for_test, generic_g0_source_unit_for_test, GenericG0PolicyModeV1,
+};
+
+pub(crate) fn generic_g0_parent_for_test(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+) -> Result<VerifiedGenericG0SourceParentV1<'_>, super::CanonicalLoweringErrorV1> {
+    super::generic_g0_capability::probe_generic_g0_function_v1(input, Some(GenericG0PolicyModeV1::Release))
+        .map(|plan| plan.expect("Generic G0 source marker").into_source_parent())
+}
+
+pub(crate) fn with_generic_g0_parent_for_test<'source, R>(
+    input: ResolvedFunctionLoweringInputV1<'source>,
+    callback: impl for<'loan> FnOnce(GenericG0SourceParentRefV1<'loan, 'source>) -> R,
+) -> Result<R, super::CanonicalLoweringErrorV1> {
+    let parent = generic_g0_parent_for_test(input)?;
+    Ok(callback(parent.borrow_for_physical_emitter()))
+}
 
 #[test]
 fn source_parent_lends_one_cohort_with_exact_entry_rows() {
-    let (unit, selection) = generic_source_unit_and_selection_for_test();
+    let unit = generic_g0_source_unit_for_test();
     let input = unit.root_function_input().expect("root input");
     let owner = input.owner();
-    let result = with_generic_g0_source_parent_v1(input, selection, |cohort| {
+    let result = with_generic_g0_parent_for_test(input, |cohort| {
         assert_eq!(cohort.owner(), owner);
         assert_eq!(cohort.entries().len(), 2);
         assert_eq!(cohort.entries()[0].parameter_index(), 0);
@@ -85,11 +103,11 @@ fn source_parent_lends_one_cohort_with_exact_entry_rows() {
 
 #[test]
 fn storage_lane_rejects_foreign_input_before_row_publication() {
-    let (unit_a, selection_a) = generic_source_unit_and_selection_for_test();
-    let (unit_b, _) = generic_source_unit_and_selection_for_test();
+    let unit_a = generic_g0_source_unit_for_test();
+    let unit_b = generic_g0_source_unit_for_test();
     let input_a = unit_a.root_function_input().expect("root A");
     let input_b = unit_b.root_function_input().expect("root B");
-    let result = with_generic_g0_source_parent_v1(input_a, selection_a, |cohort| {
+    let result = with_generic_g0_parent_for_test(input_a, |cohort| {
         issue_generic_g0_storage_lane_source_projection_v1(
             &input_b,
             cohort.product(),
@@ -142,11 +160,11 @@ static function generic_g0(i: i64, j: i64): i64 {
 
 #[test]
 fn source_parent_rejects_foreign_resolver_input_before_product() {
-    let (unit_a, selection) = generic_source_unit_and_selection_for_test();
-    let (unit_b, _) = generic_source_unit_and_selection_for_test();
-    let _input_a = unit_a.root_function_input().expect("root A");
+    let unit_a = generic_g0_source_unit_for_test();
+    let (observation, lease) = generic_g0_observation_for_test(&unit_a);
+    let unit_b = generic_g0_source_unit_for_test();
     let input_b = unit_b.root_function_input().expect("root B");
-    let result = with_generic_g0_source_parent_v1(input_b, selection, |_| ());
+    let result = issue_generic_g0_source_parent_from_observation_v1(input_b, observation, lease);
     assert!(matches!(
         result,
         Err(GenericG0SourceParentRejectV1::SelectionOwnerMismatch)
@@ -157,12 +175,13 @@ fn source_parent_rejects_foreign_resolver_input_before_product() {
 
 #[test]
 fn result_abi_transport_rejects_foreign_candidate_before_retention() {
-    let (_, selection_a) = generic_source_unit_and_selection_for_test();
-    let (unit_b, _) = generic_source_unit_and_selection_for_test();
+    let unit_a = generic_g0_source_unit_for_test();
+    let (observation_a, _) = generic_g0_observation_for_test(&unit_a);
+    let unit_b = generic_g0_source_unit_for_test();
     let input_b = unit_b.root_function_input().expect("root B");
     let header_b = issue_generic_g0_top_level_declaration_header_v1(&input_b).expect("header B");
 
-    let result = issue_generic_g0_result_abi_transport_v1(&input_b, &selection_a, &header_b);
+    let result = issue_generic_g0_result_abi_transport_from_handoff_v1(&input_b, observation_a.handoff(), &header_b);
 
     assert!(matches!(
         result,
@@ -172,7 +191,8 @@ fn result_abi_transport_rejects_foreign_candidate_before_retention() {
 
 #[test]
 fn source_parent_rejects_bare_input_before_product() {
-    let (unit, selection) = generic_source_unit_and_selection_for_test();
+    let unit = generic_g0_source_unit_for_test();
+    let (observation, lease) = generic_g0_observation_for_test(&unit);
     let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
         unit.syntax_root(),
         unit.forest(),
@@ -180,7 +200,7 @@ fn source_parent_rejects_bare_input_before_product() {
     )
     .expect("bare input");
 
-    let result = with_generic_g0_source_parent_v1(input, selection, |_| ());
+    let result = issue_generic_g0_source_parent_from_observation_v1(input, observation, lease);
 
     assert!(matches!(
         result,

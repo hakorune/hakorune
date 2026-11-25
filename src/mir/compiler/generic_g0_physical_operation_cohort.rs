@@ -14,8 +14,6 @@ pub(crate) use emitter_admission::{
     GenericG0PhysicalEmitterAdmissionRejectV1, PreparedGenericG0PhysicalEmitterAdmissionV1,
 };
 #[cfg(test)]
-pub(crate) use emitter_admission::issue_generic_g0_physical_emitter_admission_v1;
-#[cfg(test)]
 pub(crate) use emitter_admission::
     issue_generic_g0_physical_emitter_admission_with_missing_carrier_for_test;
 
@@ -23,7 +21,6 @@ use crate::mir::loop_recipe_contract::{
     LoopOperationPhysicalDemandRejectV1, PreparedLoopOperationProgramV1,
     VerifiedGenericG0TailCapabilityV1, VerifiedGenericRecipeProductG0,
 };
-use crate::mir::loop_route_policy::CanonicalLoopFamilySelectionV1;
 use crate::mir::numeric_substrate::NumericTarget;
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::{
@@ -35,10 +32,7 @@ use super::generic_g0_physical_operation_mapping::{
     issue_generic_g0_physical_operation_mapping_from_program_v1,
     GenericG0PhysicalOperationMappingRejectV1, GenericG0PhysicalOperationMappingV1,
 };
-use super::generic_g0_source_parent::{
-    issue_generic_g0_source_parent_v1, GenericG0SourceParentRejectV1,
-    VerifiedGenericG0EntryBindingV1,
-};
+use super::generic_g0_source_parent::VerifiedGenericG0EntryBindingV1;
 use super::generic_g0_function_effect::VerifiedGenericG0NoExternalEffectV1;
 use super::generic_g0_result_abi::VerifiedGenericG0ResultAbiV1;
 use super::generic_g0_storage_lane_source::VerifiedGenericG0StorageLaneSourceProjectionV1;
@@ -47,7 +41,6 @@ use super::generic_g0_top_level_declaration_header::
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum GenericG0PhysicalOperationCohortRejectV1 {
-    SourceParent(GenericG0SourceParentRejectV1),
     Program(LoopOperationPhysicalDemandRejectV1),
     OwnerMismatch,
     BodyRootMismatch,
@@ -149,39 +142,27 @@ impl<'source> GenericG0PhysicalOperationCohortV1<'source> {
     }
 }
 
-/// Consume the source parent once and lend the resulting cohort through a
-/// single callback.  No Builder/session or MIR effect is allowed here.
-pub(crate) fn with_generic_g0_physical_operation_cohort_v1<'source, R>(
-    input: ResolvedFunctionLoweringInputV1<'source>,
-    selection: CanonicalLoopFamilySelectionV1,
-    callback: impl FnOnce(GenericG0PhysicalOperationCohortV1<'source>) -> R,
-) -> Result<R, GenericG0PhysicalOperationCohortRejectV1> {
-    let parent = issue_generic_g0_source_parent_v1(input, selection)
-        .map_err(GenericG0PhysicalOperationCohortRejectV1::SourceParent)?;
-    let cohort = parent.into_physical_operation_cohort()?;
-    Ok(callback(cohort))
-}
-
 #[cfg(test)]
 mod tests {
-    use super::with_generic_g0_physical_operation_cohort_v1;
-    use crate::mir::loop_route_policy::generic_source_unit_and_selection_for_test;
+    use crate::mir::compiler::generic_g0_parent_for_test;
+    use crate::mir::loop_route_policy::generic_g0_source_unit_for_test;
 
     #[test]
     fn owns_program_and_lends_mapping_only_inside_callback() {
-        let (unit, selection) = generic_source_unit_and_selection_for_test();
+        let unit = generic_g0_source_unit_for_test();
         let input = unit.root_function_input().expect("root input");
-        let result = with_generic_g0_physical_operation_cohort_v1(input, selection, |cohort| {
-            assert_eq!(cohort.entries().len(), 2);
-            let owner = cohort.owner();
-            cohort
-                .with_mapping(|program, mapping| {
-                    assert_eq!(program.coverage().operation_count(), 15);
-                    assert_eq!(mapping.owner(), owner);
-                    assert_eq!(mapping.operation_count(), 15);
-                })
-                .expect("transient mapping");
-        });
-        result.expect("Generic operation cohort");
+        let cohort = generic_g0_parent_for_test(input)
+            .expect("source parent")
+            .into_physical_operation_cohort()
+            .expect("Generic operation cohort");
+        assert_eq!(cohort.entries().len(), 2);
+        let owner = cohort.owner();
+        cohort
+            .with_mapping(|program, mapping| {
+                assert_eq!(program.coverage().operation_count(), 15);
+                assert_eq!(mapping.owner(), owner);
+                assert_eq!(mapping.operation_count(), 15);
+            })
+            .expect("transient mapping");
     }
 }

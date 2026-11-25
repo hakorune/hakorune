@@ -295,15 +295,15 @@ mod tests {
     use super::{
         issue_generic_g0_physical_function_entry_input_v1, GenericG0PhysicalLaneRoleV1,
     };
-    use crate::mir::compiler::generic_g0_source_parent::with_generic_g0_source_parent_v1;
-    use crate::mir::loop_route_policy::generic_source_unit_and_selection_for_test;
+    use crate::mir::compiler::with_generic_g0_parent_for_test;
+    use crate::mir::loop_route_policy::generic_g0_source_unit_for_test;
 
     #[test]
     fn generic_entry_input_projects_receiver_and_explicit_rows_without_effect() {
-        let (unit, selection) = generic_source_unit_and_selection_for_test();
+        let unit = generic_g0_source_unit_for_test();
         let input = unit.root_function_input().expect("root input");
         let owner = input.owner();
-        let consumed = with_generic_g0_source_parent_v1(input, selection, |parent| {
+        let consumed = with_generic_g0_parent_for_test(input, |parent| {
             let prepared = issue_generic_g0_physical_function_entry_input_v1(parent)?;
             assert_eq!(prepared.physical_callable_lane_count(), 3);
             assert_eq!(prepared.descriptors().len(), 3);

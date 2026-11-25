@@ -185,15 +185,11 @@ retains those inventories by `FunctionOwnerIdV1`; its root
 sibling.  Bare mechanical inputs and callable-module inputs remain explicitly
 body-shape-free, so they cannot fabricate a Generic effect product.
 
-`with_generic_g0_source_parent_v1` requires the borrowed sibling and checks
-owner/body-root equality before issuing its existing demand/product cohort.
-The accepted follow-up effect row now borrows the selected Generic structural
-facts before moving the selection into demand/product, co-seals them with the
-same body-shape/function/header cohort, and retains one private
-`VerifiedGenericG0NoExternalEffectV1`.  That receipt records the exact bounded
-two-local-write/one-tail-return shape without becoming an `EffectMask`; it
-adds no Builder/session mutation, `ValueId`, CFG/SSA/PHI, lifecycle, Text,
-route, fallback, retry, or production caller.
+The source parent consumes one policy-checked Generic G0 observation and its
+resolver lease. It checks owner and body-root equality, verifies the local
+effects against the same function and declaration header, and issues the
+demand and Recipe. `VerifiedGenericG0NoExternalEffectV1` retains the exact
+bounded local-write and tail-return evidence.
 
 The Generic source parent now also retains one private result-ABI row from the
 same selected observation before demand/product consumption.  The transport

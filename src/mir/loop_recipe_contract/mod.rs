@@ -15,8 +15,6 @@ mod binding_declaration;
 // Caller-zero source-backed complete predicate branch-plan transport.
 // Caller-zero same-cohort Return-read logical/layout/Join co-seal view.
 // Caller-zero source-segment allocation demand; synthetic After is separate.
-#[cfg(test)]
-mod direct_accum_producer;
 mod error;
 mod ids;
 mod input_source;
@@ -33,7 +31,6 @@ mod normalize;
 mod operation_carrier_demand;
 mod operation_effect;
 mod operation_physical_demand;
-mod physical_input;
 mod physical_layout;
 mod physical_transfer;
 mod producer_id;
@@ -76,10 +73,6 @@ mod source_bound_core;
 mod typed_schema_v2;
 mod typed_schema_v2_structure;
 mod verify;
-
-#[cfg(test)]
-#[path = "direct_accum_producer_tests.rs"]
-mod direct_accum_producer_tests;
 
 #[cfg(test)]
 #[path = "nested_predicate_tests.rs"]
@@ -139,11 +132,8 @@ mod generic_g0_demand;
 
 mod generic_g0;
 
-#[cfg(test)]
-pub(crate) use direct_accum_producer_tests::direct_accum_product_for_test;
-
 pub(crate) use generic_g0_demand::{
-    issue_generic_g0_recipe_demand_from_observation_v1, issue_generic_g0_recipe_demand_v1,
+    issue_generic_g0_recipe_demand_from_observation_v1,
     GenericG0RecipeDemandIssueV1,
 };
 
@@ -192,8 +182,6 @@ pub(crate) use binding_declaration::{
     resolve_loop_binding_declaration_v1, ResolvedLoopBindingDeclarationV1,
 };
 pub(crate) use continuation::VerifiedLoopContinuationContractV1;
-#[cfg(test)]
-pub(crate) use direct_accum_producer::VerifiedDirectAccumRecipeProductV1;
 pub(crate) use error::LoopRecipeRejectReasonV1;
 pub(crate) use ids::{
     LoopBindingKeyV1, LoopBlockKeyV1, LoopCarrierKeyV1, LoopExitKeyV1, LoopItemKeyV1,
@@ -223,7 +211,6 @@ pub(crate) use operation_physical_demand::{
     PreparedLoopReadBindingRowV1, PreparedLoopWriteBindingRowV1,
     VerifiedLoopOperationPhysicalDemandV1,
 };
-pub(crate) use physical_input::VerifiedLoopPhysicalInputV1;
 pub(crate) use physical_layout::{
     LoopPhysicalLayoutRejectV1, LoopPhysicalSegmentKeyV1, LoopPhysicalSegmentRoleV1,
     LoopPhysicalTargetV1, LoopPhysicalTransferV1, PreparedLoopPhysicalLayoutV1,

@@ -169,19 +169,6 @@
     "evidence": "recursive recipeのcarrier seedを既存のidentity ledgerへ渡して物理PHIを準備"
   },
   {
-    "id": "direct-accum-header",
-    "category": "loop-header-phi",
-    "role": "writer",
-    "file": "src/mir/builder/control_flow/plan/loop_accum_physicalizer/session.rs",
-    "sites": [
-      {
-        "line": 213,
-        "code": "let value = self.read(binding, self.roles.block(LoopPhysicalRoleV1::Header))?;"
-      }
-    ],
-    "evidence": "accumulatorのhelperがheader PHIを確保する経路"
-  },
-  {
     "id": "checked-source-break",
     "category": "loop-break",
     "role": "writer",

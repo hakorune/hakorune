@@ -6,9 +6,6 @@
 //! ABI, rescan syntax, or issue physical function metadata.
 
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
-use crate::mir::loop_route_policy::{
-    CanonicalLoopFamilyCandidateV1, CanonicalLoopFamilySelectionV1,
-};
 use crate::mir::resolved_semantics::{
     FunctionOriginV1, FunctionOwnerIdV1, SemanticOwnerSourceKindV1,
 };
@@ -22,7 +19,6 @@ use super::generic_g0_top_level_declaration_header::
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum GenericG0ResultAbiRejectV1 {
-    SelectionFamilyMismatch,
     CandidateOwnerMismatch,
     CandidateOriginMismatch,
     CandidateSourceKindMismatch,
@@ -63,26 +59,6 @@ impl VerifiedGenericG0ResultAbiV1 {
     pub(crate) const fn abi(&self) -> ExactTrivialReturnAbiV1 {
         self.abi
     }
-}
-
-pub(crate) fn issue_generic_g0_result_abi_transport_v1(
-    input: &ResolvedFunctionLoweringInputV1<'_>,
-    selection: &CanonicalLoopFamilySelectionV1,
-    header: &VerifiedGenericG0TopLevelDeclarationHeaderV1,
-) -> Result<VerifiedGenericG0ResultAbiV1, GenericG0ResultAbiRejectV1> {
-    let candidate = match selection.candidate() {
-        CanonicalLoopFamilyCandidateV1::GenericG0(candidate) => candidate,
-        _ => return Err(GenericG0ResultAbiRejectV1::SelectionFamilyMismatch),
-    };
-    let structural = candidate.observation().bundle().source().structural();
-    issue_generic_g0_result_abi_transport_from_parts(
-        input,
-        structural,
-        selection.lease().site(),
-        selection.lease().frame(),
-        candidate.observation().bundle().return_abi(),
-        header,
-    )
 }
 
 pub(crate) fn issue_generic_g0_result_abi_transport_from_handoff_v1(

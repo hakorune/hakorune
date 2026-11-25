@@ -3,14 +3,12 @@
 //! The S7B cohorts pinned per-family parity in `wire_parity_tests.rs`. This
 //! module closes the ladder: two new parity arms cover the remaining
 //! attested-backed routes (`NestedLoopMinimal`, `LoopTrueBreakContinue`), the
-//! S7A `direct_accum_v1` emission gains a live-producer semantic anchor, and
-//! one census pins exactly one coverage class per canonical route — wire-
+//! S7A `direct_accum_v1` emission remains a wire witness, and one census
+//! pins exactly one coverage class per canonical route — wire-
 //! backed parity or typed decline — cross-checked against the sealed
 //! `ATTESTED_RECIPE_BACKED_V1` table and the migration `RECEIPTS` inventory.
 //! It adds no public API, no production caller, and no new semantic receipt.
 
-use super::direct_accum_producer::direct_accum_recipe;
-use super::direct_accum_producer_tests::{demand_for as direct_accum_demand_for, direct_accum_product_for_test};
 use super::loop_true_break_continue_producer::{
     loop_true_break_continue_recipe, produce_loop_true_break_continue_recipe_v1,
 };
@@ -240,78 +238,10 @@ fn loop_true_hako_emission_is_single_line_provenance_with_two_exits() {
 // ---------------------------------------------------------------------------
 // AccumConstLoop arm (cursor 10, `direct_accum_v1`).
 //
-// The S7A substrate emission (`hako_loop_recipe_wire_v1.json`) stays pinned to
-// the older-era `accum_direct_v1.json` golden — its landed claim is wire
-// transport, not producer parity. The AccumConstLoop cohort artifact is the
-// live producer's own output for the bounded `accum` profile: role labels
-// `induction`/`accumulator`, loop at `body_item(1)`.
 // ---------------------------------------------------------------------------
 
 const HAKO_WIRE_ACCUM_DIRECT: &str =
     include_str!("fixtures/hako_loop_recipe_wire_accum_direct_v1.json");
-
-/// The artifact the producer's own issuer calls make for the bounded `accum`
-/// profile (`accum() { local i, sum; loop(i < 3) { sum += 1; i += 1 } }`,
-/// loop at `body_item(1)`): demand `into_parts` -> facts payload ->
-/// `direct_accum_recipe` -> verify -> resolver-bound root claim ->
-/// `DirectAccumV1` provenance.
-fn direct_accum_rust_artifact() -> LoopRecipeArtifactV1 {
-    let unit = super::direct_accum_producer_tests::unit();
-    let input = unit.root_function_input().expect("direct accum function input");
-    let (facts, source) = direct_accum_demand_for(input).into_parts();
-    let shape = facts.into_direct_accum_v1().expect("direct accum payload");
-    let source_root =
-        crate::mir::loop_structural_facts::bind_resolved_loop_root_v1(source)
-            .expect("resolved loop root binds");
-    let recipe = direct_accum_recipe(&shape);
-    let verified_for_source =
-        LoopRecipeVerifierV1::verify(recipe.clone()).expect("recipe verifies");
-    let source_binding = source_root.into_root_claim(&verified_for_source);
-    LoopRecipeArtifactV1::new(
-        LoopRecipeProvenanceV1::new(LoopRecipeProducerIdV1::DirectAccumV1),
-        source_binding,
-        recipe,
-    )
-}
-
-#[test]
-fn direct_accum_hako_emission_verifies_and_matches_rust_producer_artifact() {
-    let hako_verified = LoopRecipeNormalizerV1::decode_and_verify(HAKO_WIRE_ACCUM_DIRECT)
-        .expect(".hako direct-accum emission decodes and verifies");
-    let rust_verified = LoopRecipeVerifierV1::verify_artifact(direct_accum_rust_artifact())
-        .expect("rust artifact verifies");
-    assert_eq!(
-        LoopRecipeNormalizerV1::normalize_artifact(&hako_verified)
-            .expect("hako normalize_artifact"),
-        LoopRecipeNormalizerV1::normalize_artifact(&rust_verified)
-            .expect("rust normalize_artifact"),
-    );
-    assert_eq!(
-        LoopRecipeNormalizerV1::normalize_semantic(hako_verified.recipe())
-            .expect("hako normalize_semantic"),
-        LoopRecipeNormalizerV1::normalize_semantic(rust_verified.recipe())
-            .expect("rust normalize_semantic"),
-    );
-    assert_eq!(
-        LoopRecipeNormalizerV1::normalize_source_bound(&hako_verified)
-            .expect("hako normalize_source_bound"),
-        LoopRecipeNormalizerV1::normalize_source_bound(&rust_verified)
-            .expect("rust normalize_source_bound"),
-    );
-}
-
-#[test]
-fn direct_accum_reconstructed_artifact_matches_live_producer_product() {
-    let reconstructed = LoopRecipeVerifierV1::verify_artifact(direct_accum_rust_artifact())
-        .expect("reconstructed verifies");
-    let product = direct_accum_product_for_test();
-    assert_eq!(
-        LoopRecipeNormalizerV1::normalize_semantic(reconstructed.recipe())
-            .expect("reconstructed normalize_semantic"),
-        LoopRecipeNormalizerV1::normalize_semantic(product.recipe())
-            .expect("producer normalize_semantic"),
-    );
-}
 
 #[test]
 fn direct_accum_hako_emission_is_single_line_provenance_with_role_labels() {

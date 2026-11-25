@@ -7,14 +7,12 @@ guard_joinir_logical_demand_contract() {
   local portable_recipe_dir="$root_dir/src/mir/loop_recipe_contract"
   local producer_id="$portable_recipe_dir/producer_id.rs"
   local loop_structural_facts_dir="$root_dir/src/mir/loop_structural_facts"
-  local direct_accum_recipe_producer="$portable_recipe_dir/direct_accum_producer.rs"
   local direct_accum_projection="$root_dir/src/mir/compiler/direct_accum_projection.rs"
   local direct_accum_observation_adapter="$root_dir/src/mir/compiler/direct_accum_observation.rs"
   local nested_observation_source="$root_dir/src/mir/loop_structural_facts/nested_predicate_observation.rs"
   local nested_observation_adapter="$root_dir/src/mir/compiler/nested_predicate_observation.rs"
   local nested_observation_policy="$root_dir/src/mir/loop_route_policy/nested_predicate_observation.rs"
   local nested_observation_tests="$root_dir/src/mir/loop_route_policy/nested_predicate_observation_tests.rs"
-  local family_selector_tests="$root_dir/src/mir/loop_route_policy/family_selector_tests.rs"
   local loop_true_source_projection="$root_dir/src/mir/compiler/loop_true_break_continue_projection.rs"
   local loop_true_observation_adapter="$root_dir/src/mir/compiler/loop_true_break_continue_observation.rs"
   local loop_cond_source_projection="$root_dir/src/mir/compiler/loop_cond_break_continue_projection.rs"
@@ -95,13 +93,11 @@ guard_joinir_logical_demand_contract() {
   fi
   if rg -n -w 'LoopRouteId|producer_route' \
     "$portable_recipe_dir/schema.rs" \
-    "$portable_recipe_dir/direct_accum_producer.rs" \
     "$portable_recipe_dir/loop_true_break_continue_producer.rs" \
     "$nested_predicate_producer" >/dev/null; then
     guard_fail "$tag" "portable schema/producer imported legacy LoopRouteId provenance"
   fi
   if ! rg -n -F 'producer_id: LoopRecipeProducerIdV1' "$portable_recipe_dir/schema.rs" >/dev/null || \
-     ! rg -n -F 'LoopRecipeProducerIdV1::DirectAccumV1' "$portable_recipe_dir/direct_accum_producer.rs" >/dev/null || \
      ! rg -n -F 'LoopRecipeProducerIdV1::LoopTrueBreakContinueV1' "$portable_recipe_dir/loop_true_break_continue_producer.rs" >/dev/null || \
      ! rg -n -F 'LoopRecipeProducerIdV1::NestedPredicateV1' "$nested_predicate_producer" >/dev/null; then
     guard_fail "$tag" "portable producer ID issuer anchors drifted"
@@ -125,9 +121,7 @@ guard_joinir_logical_demand_contract() {
           -v dynamic_semantic_tests="$dynamic_semantic_tests" \
           -v dynamic_recipe_tests="$dynamic_recipe_tests" \
           -v node_admission="$root_dir/src/mir/compiler/loop_node_physical_admission.rs" \
-          -v physicalizer="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs" \
-          -v physicalizer_session="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer/session.rs" \
-          'index($0, prefix) != 1 && $0 != nested_producer && $0 != nested_producer_tests && $0 != dynamic_physical_input && $0 != dynamic_semantic_tests && $0 != dynamic_recipe_tests && $0 != node_admission && $0 != physicalizer && $0 != physicalizer_session'
+          'index($0, prefix) != 1 && $0 != nested_producer && $0 != nested_producer_tests && $0 != dynamic_physical_input && $0 != dynamic_semantic_tests && $0 != dynamic_recipe_tests && $0 != node_admission'
   )
   if (( ${#join_sig_external_files[@]} != 0 )); then
     guard_fail "$tag" "caller-zero logical JoinSig symbols escaped the contract subtree"
@@ -160,11 +154,9 @@ guard_joinir_logical_demand_contract() {
   fi
   if rg -l -F 'issue_nested_predicate_family_observation_v1(' "$root_dir/src/mir" |
     awk -v p="$nested_observation_policy" -v t="$nested_observation_tests" \
-      -v at="$root_dir/src/mir/loop_route_policy/family_admission_tests.rs" \
-      -v st="$family_selector_tests" \
       -v m="$root_dir/src/mir/loop_route_policy/mod.rs" \
       -v w="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
-      '$0 != p && $0 != t && $0 != at && $0 != st && $0 != m && $0 != w && $0 != "" { found=1 } END { exit found }'; then
+      '$0 != p && $0 != t && $0 != m && $0 != w && $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Nested S1 policy observer acquired a production caller"
@@ -204,37 +196,18 @@ guard_joinir_logical_demand_contract() {
   local structural_binding_callers
   structural_binding_callers="$(
     { rg -l 'bind_resolved_loop_root_v1\(' "$root_dir/src/mir" || true; } \
-      | awk -v prefix="$loop_structural_facts_dir/" -v producer="$direct_accum_recipe_producer" \
+      | awk -v prefix="$loop_structural_facts_dir/" \
           -v projection="$loop_true_source_projection" \
           -v dynamic_recipe_mod="$dynamic_recipe_mod" \
           -v wire_tests_prefix="$root_dir/src/mir/loop_recipe_contract/wire_parity_tests" \
           -v wire_route_tests="$root_dir/src/mir/loop_recipe_contract/wire_route_parity_tests.rs" \
           -v loopcond_issue="$root_dir/src/mir/compiler/loop_cond_break_continue_typed_map_issue.rs" \
-          'index($0, prefix) != 1 && index($0, wire_tests_prefix) != 1 && $0 != producer && $0 != projection && $0 != dynamic_recipe_mod && $0 != wire_route_tests && $0 != loopcond_issue' \
+          'index($0, prefix) != 1 && index($0, wire_tests_prefix) != 1 && $0 != projection && $0 != dynamic_recipe_mod && $0 != wire_route_tests && $0 != loopcond_issue' \
       | wc -l \
       | tr -d '[:space:]'
   )"
   if [[ "$structural_binding_callers" != "0" ]]; then
     guard_fail "$tag" "Loop source adapter acquired an unapproved production caller"
-  fi
-  local direct_accum_production_callers=()
-  mapfile -t direct_accum_production_callers < <(
-    { rg -l 'produce_direct_accum_recipe_v1\(' "$root_dir/src/mir" || true; } \
-      | awk -v producer="$direct_accum_recipe_producer" \
-          -v spine="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
-          '$0 != producer && $0 != spine && $0 !~ /_tests\.rs$/'
-  )
-  if (( ${#direct_accum_production_callers[@]} != 0 )); then
-    guard_fail "$tag" "Direct Accum Recipe producer acquired a production caller"
-  fi
-  local direct_accum_physicalizer_production_callers=()
-  mapfile -t direct_accum_physicalizer_production_callers < <(
-    { rg -l 'physicalize_direct_accum_v1(_with_port)?\(' "$root_dir/src/mir" || true; } \
-      | awk -v physicalizer="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs" \
-          '$0 != physicalizer && $0 !~ /_tests\.rs$/'
-  )
-  if (( ${#direct_accum_physicalizer_production_callers[@]} != 0 )); then
-    guard_fail "$tag" "Direct Accum physicalizer acquired an external production caller after whole-unit retirement"
   fi
   local external_portable_source_files=()
   mapfile -t external_portable_source_files < <(

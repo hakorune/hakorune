@@ -393,21 +393,25 @@ fn no_safe_slice(reason: GenericG0IngressRejectReasonV1) -> GenericG0IngressReje
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::loop_recipe_contract::issue_generic_g0_recipe_demand_v1;
-    use crate::mir::loop_route_policy::generic_source_unit_and_selection_for_test;
+    use crate::mir::loop_recipe_contract::issue_generic_g0_recipe_demand_from_observation_v1;
+    use crate::mir::loop_route_policy::{
+        generic_g0_observation_for_test, generic_g0_source_unit_for_test,
+    };
 
     fn product_for_test() -> VerifiedGenericRecipeProductG0 {
-        let (_, selection) = generic_source_unit_and_selection_for_test();
-        let demand = issue_generic_g0_recipe_demand_v1(selection).expect("G0 demand");
+        let unit = generic_g0_source_unit_for_test();
+        let (observation, lease) = generic_g0_observation_for_test(&unit);
+        let demand = issue_generic_g0_recipe_demand_from_observation_v1(observation, lease).expect("G0 demand");
         produce_generic_g0_recipe_v1(demand).expect("G0 product")
     }
 
     #[test]
     fn exact_input_prepares_all_fifteen_rows_and_preserves_g0_tail() {
-        let (unit, selection) = generic_source_unit_and_selection_for_test();
+        let unit = generic_g0_source_unit_for_test();
+        let (observation, lease) = generic_g0_observation_for_test(&unit);
         let input = unit.root_function_input().expect("root input");
         let product = produce_generic_g0_recipe_v1(
-            issue_generic_g0_recipe_demand_v1(selection).expect("G0 demand"),
+            issue_generic_g0_recipe_demand_from_observation_v1(observation, lease).expect("G0 demand"),
         )
         .expect("G0 product");
         let prepared =
@@ -439,11 +443,12 @@ mod tests {
 
     #[test]
     fn foreign_resolver_input_is_rejected_before_prepare_all() {
-        let (unit_a, selection_a) = generic_source_unit_and_selection_for_test();
-        let (unit_b, _) = generic_source_unit_and_selection_for_test();
+        let unit_a = generic_g0_source_unit_for_test();
+        let (observation, lease) = generic_g0_observation_for_test(&unit_a);
+        let unit_b = generic_g0_source_unit_for_test();
         let input_b = unit_b.root_function_input().expect("foreign input");
         let product_a = produce_generic_g0_recipe_v1(
-            issue_generic_g0_recipe_demand_v1(selection_a).expect("G0 demand"),
+            issue_generic_g0_recipe_demand_from_observation_v1(observation, lease).expect("G0 demand"),
         )
         .expect("G0 product");
         let error = issue_generic_g0_loop_ingress_v1(Some(input_b), product_a).unwrap_err();

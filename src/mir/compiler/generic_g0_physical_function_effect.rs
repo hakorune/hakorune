@@ -186,16 +186,16 @@ fn is_mir_pure_generic_operation(operation: LoopOperationV1) -> bool {
 #[cfg(test)]
 mod tests {
     use super::issue_generic_g0_physical_function_effects_v1;
-    use crate::mir::compiler::generic_g0_source_parent::with_generic_g0_source_parent_v1;
-    use crate::mir::loop_route_policy::generic_source_unit_and_selection_for_test;
+    use crate::mir::compiler::with_generic_g0_parent_for_test;
+    use crate::mir::loop_route_policy::generic_g0_source_unit_for_test;
     use crate::mir::EffectMask;
 
     #[test]
     fn generic_physical_effect_projects_finite_operation_contract_without_effect() {
-        let (unit, selection) = generic_source_unit_and_selection_for_test();
+        let unit = generic_g0_source_unit_for_test();
         let input = unit.root_function_input().expect("root input");
         let owner = input.owner();
-        let result = with_generic_g0_source_parent_v1(input, selection, |parent| {
+        let result = with_generic_g0_parent_for_test(input, |parent| {
             let projection = issue_generic_g0_physical_function_effects_v1(&parent)?;
             assert_eq!(projection.owner(), owner);
             assert_eq!(projection.operation_count(), 15);

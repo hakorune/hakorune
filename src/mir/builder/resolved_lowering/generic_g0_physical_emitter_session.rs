@@ -147,14 +147,17 @@ mod tests {
     use super::with_generic_g0_physical_emitter_session_preflight;
     use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::LoopOperationDispatchServicesV1;
     use crate::mir::builder::MirBuilder;
-    use crate::mir::compiler::generic_g0_physical_operation_cohort::issue_generic_g0_physical_emitter_admission_v1;
-    use crate::mir::loop_route_policy::generic_source_unit_and_selection_for_test;
+    use crate::mir::compiler::generic_g0_physical_operation_cohort::issue_generic_g0_physical_emitter_admission_from_source_parent_v1;
+    use crate::mir::compiler::generic_g0_parent_for_test;
+    use crate::mir::loop_route_policy::generic_g0_source_unit_for_test;
 
     #[test]
     fn whole_admission_preflight_reads_entries_and_allocates_segments() {
-        let (unit, selection) = generic_source_unit_and_selection_for_test();
+        let unit = generic_g0_source_unit_for_test();
         let input = unit.root_function_input().expect("root input");
-        let admission = issue_generic_g0_physical_emitter_admission_v1(input, selection)
+        let admission = issue_generic_g0_physical_emitter_admission_from_source_parent_v1(
+            generic_g0_parent_for_test(input).expect("source parent"),
+        )
             .expect("Generic emitter admission");
         let mut builder = MirBuilder::new();
         let result = with_generic_g0_physical_emitter_session_preflight(
@@ -188,9 +191,11 @@ mod tests {
 
     #[test]
     fn preflight_rejects_an_occupied_builder_without_consuming_effects() {
-        let (unit, selection) = generic_source_unit_and_selection_for_test();
+        let unit = generic_g0_source_unit_for_test();
         let input = unit.root_function_input().expect("root input");
-        let admission = issue_generic_g0_physical_emitter_admission_v1(input, selection)
+        let admission = issue_generic_g0_physical_emitter_admission_from_source_parent_v1(
+            generic_g0_parent_for_test(input).expect("source parent"),
+        )
             .expect("Generic emitter admission");
         let mut builder = MirBuilder::new();
         builder
@@ -208,9 +213,11 @@ mod tests {
 
     #[test]
     fn late_callback_failure_discards_the_whole_unpublished_candidate() {
-        let (unit, selection) = generic_source_unit_and_selection_for_test();
+        let unit = generic_g0_source_unit_for_test();
         let input = unit.root_function_input().expect("root input");
-        let admission = issue_generic_g0_physical_emitter_admission_v1(input, selection)
+        let admission = issue_generic_g0_physical_emitter_admission_from_source_parent_v1(
+            generic_g0_parent_for_test(input).expect("source parent"),
+        )
             .expect("Generic emitter admission");
         let mut builder = MirBuilder::new();
         let error = with_generic_g0_physical_emitter_session_preflight(

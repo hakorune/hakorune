@@ -14,14 +14,6 @@ mod generic_loop;
 pub(in crate::mir::builder) mod loop_break;
 pub(in crate::mir::builder) mod loop_cond_unified_helpers;
 pub(in crate::mir::builder) mod loop_cond;
-pub(in crate::mir::builder) mod loop_accum_binding_port;
-#[cfg(test)]
-pub(in crate::mir::builder) mod loop_accum_caller_zero;
-pub(in crate::mir::builder) mod loop_accum_physicalizer;
-#[cfg(test)]
-#[path = "loop_accum_physicalizer_tests.rs"]
-mod loop_accum_physicalizer_tests;
-pub(in crate::mir::builder) mod loop_physical_input;
 mod loop_true_break_continue;
 mod parts;
 pub(in crate::mir::builder) mod recipe_tree;

@@ -718,7 +718,7 @@ if rg -n -F '.clone()' <<<"$match_branch" >/dev/null ||
 fi
 if [[ "$(rg -o '\b(?:callee|arguments|expression|record_type_name|fields|base|updates)\.clone\s*\(' "$RAW_DISPATCH" | wc -l | tr -d '[:space:]')" != "2" ]]; then guard_fail "$TAG" "owned compound expression dispatcher clone count drift"; fi
 python3 "$GENERIC_LEGACY_GUARD" "$GENERIC_LEGACY_MANIFEST" "$ROOT_DIR" "$GENERIC_FRONT_RECEIPT" || guard_fail "$TAG" "Generic legacy corpus/front receipt failed"
-guard_joinir_logical_demand_contract "$ROOT_DIR" "$TAG"; guard_joinir_loop_compile_candidate_scope "$ROOT_DIR" "$TAG"; guard_loop_family_observation_contract "$ROOT_DIR" "$TAG"; guard_generic_g0_observation_contract "$ROOT_DIR" "$TAG"; guard_loop_family_row_context_retention_contract "$ROOT_DIR" "$TAG"; guard_loop_family_window_lease_contract "$ROOT_DIR" "$TAG"; guard_loop_family_admission_contract "$ROOT_DIR" "$TAG"; guard_loop_family_selector_contract "$ROOT_DIR" "$TAG"
+guard_joinir_logical_demand_contract "$ROOT_DIR" "$TAG"; guard_joinir_loop_compile_candidate_scope "$ROOT_DIR" "$TAG"; guard_loop_family_observation_contract "$ROOT_DIR" "$TAG"; guard_generic_g0_observation_contract "$ROOT_DIR" "$TAG"; guard_loop_family_row_context_retention_contract "$ROOT_DIR" "$TAG"; guard_loop_family_window_lease_contract "$ROOT_DIR" "$TAG"; guard_loop_family_admission_contract "$ROOT_DIR" "$TAG"
 for file in \
   "$LOWERING" \
   "$PORT_OWNER" \

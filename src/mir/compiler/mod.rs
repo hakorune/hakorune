@@ -35,6 +35,10 @@ mod generic_g0_projection_tests;
 #[cfg(test)]
 mod generic_g0_source_parent_tests;
 #[cfg(test)]
+pub(crate) use generic_g0_source_parent_tests::{
+    generic_g0_parent_for_test, with_generic_g0_parent_for_test,
+};
+#[cfg(test)]
 mod legacy_candidate_session_tests;
 #[cfg(test)]
 mod module_session_borrow_p0_tests;
