@@ -241,7 +241,7 @@ fn emit_object(
     let call = prepared.materialize_with_ledger(owner, &row, source_arguments, ledger)?;
     let (invoke, projection) = emit_call_normal(
         builder, call, result_kind, frame, normal_landing, fault_landing,
-        result, result_type,
+        result, || Ok(result_type),
     )?;
     let uses_packet = object_packet.is_some();
     let emitted = EmittedCall::new(row, prepared, invoke, projection);
