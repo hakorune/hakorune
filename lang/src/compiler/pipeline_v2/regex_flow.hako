@@ -1,6 +1,6 @@
 using selfhost.shared.common.string_helpers as StringHelpers
 
-flow RegexFlow {
+static box RegexFlow {
   // Minimal regex-like helpers focused on readability and determinism.
   // Supported primitives: digits (\d+), identifier ([A-Za-z_][A-Za-z0-9_]*),
   // literal substring find, read_digits from position.
