@@ -85,6 +85,21 @@ impl PreparedNormalProgramDeclarationFactsV1 {
         })
     }
 
+    pub(super) fn reject_static_box_construction(
+        &self,
+        root: &ASTNode,
+        imports: &HashMap<String, String>,
+    ) -> Result<(), String> {
+        let static_names = self.operations.iter().filter_map(|operation| match operation {
+            NormalProgramDeclarationFactOperationV1::StaticBox { name, .. } => Some(name.as_str()),
+            _ => None,
+        }).collect::<BTreeSet<_>>();
+        if static_names.is_empty() {
+            return Ok(());
+        }
+        reject_static_box_construction(root, &static_names, imports)
+    }
+
     pub(super) fn with_brand_catalog<R>(
         &self,
         use_catalog: impl FnOnce(&VerifiedBrandProgramDeclarationCatalogV1) -> R,
@@ -149,7 +164,7 @@ impl PreparedNormalProgramDeclarationFactsV1 {
                     name,
                     scalar_updates,
                 } => {
-                    context.register_user_box(name);
+                    context.register_static_box(name);
                     for update in scalar_updates.into_vec() {
                         context.install_static_scalar_method_fact_update(
                             update.method_symbol,
@@ -160,6 +175,26 @@ impl PreparedNormalProgramDeclarationFactsV1 {
             }
         }
     }
+}
+
+fn reject_static_box_construction(
+    node: &ASTNode,
+    static_names: &BTreeSet<&str>,
+    imports: &HashMap<String, String>,
+) -> Result<(), String> {
+    if let ASTNode::New { class, .. } = node {
+        let owner = imports.get(class).map_or(class.as_str(), String::as_str);
+        if static_names.contains(class.as_str()) || static_names.contains(owner) {
+            return Err(crate::mir::resolved_semantics::new_static_box_diagnostic(class));
+        }
+    }
+    let mut result = Ok(());
+    node.for_each_child(&mut |child| {
+        if result.is_ok() {
+            result = reject_static_box_construction(child, static_names, imports);
+        }
+    });
+    result
 }
 
 fn collect_operations(

@@ -242,6 +242,16 @@ impl ModuleBuilderInvocationSessionV1 {
             }
         };
 
+        if let Err(error) =
+            declaration_facts.reject_static_box_construction(source_ast, self.config().using_import_boxes())
+        {
+            return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                session: self,
+                _source: compatibility_source,
+                error: NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(error.into()),
+            });
+        }
+
         let mut resolver = match FunctionSemanticResolverSessionV1::new(0) {
             Ok(resolver) => resolver,
             Err(error) => {

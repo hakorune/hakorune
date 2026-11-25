@@ -44,11 +44,11 @@ pub(super) enum ParserBoxPostpassRowV1 {
         seal: ParserBoxSourceSealV1,
     },
     /// A declaration that is not a source-sealed ordinary Box (`static`,
-    /// interface, record). Only its name is kept: it is still a user
-    /// declaration of that name.
+    /// interface, record). Keep the name and static flag for target resolution.
     AstOnlyCompatibility {
         _final_box_ordinal: usize,
         name: Box<str>,
+        is_static: bool,
     },
 }
 
@@ -99,8 +99,8 @@ impl ParserBoxPostpassCoverageV1 {
                             == super::source_authority::GeneratedBirthTriggerKindV1::StoredFieldInitializer)
                     }),
                 )),
-                ParserBoxPostpassRowV1::AstOnlyCompatibility { name, .. } => {
-                    non_ordinary_names.push(name);
+                ParserBoxPostpassRowV1::AstOnlyCompatibility { name, is_static, .. } => {
+                    non_ordinary_names.push((name, is_static));
                     None
                 }
             })

@@ -7,6 +7,11 @@ impl CompilationContext {
         self.user_box_field_decls.insert(name, Vec::new());
     }
 
+    pub(in crate::mir::builder) fn register_static_box(&mut self, name: String) {
+        self.static_box_names.insert(name.clone());
+        self.register_user_box(name);
+    }
+
     pub fn register_brand_decl(&mut self, name: String, underlying_type_name: String) {
         self.brand_decls.insert(name, underlying_type_name);
     }

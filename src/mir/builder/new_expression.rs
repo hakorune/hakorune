@@ -109,6 +109,11 @@ impl PreparedRawNewExpressionV1 {
         arguments: Vec<ASTNode>,
         field_initializers: Vec<(String, ASTNode)>,
     ) -> Result<Self, String> {
+        let context = &builder.comp_ctx;
+        let owner = context.using_import_boxes.get(&class).unwrap_or(&class);
+        if context.static_box_names.contains(&class) || context.static_box_names.contains(owner) {
+            return Err(crate::mir::resolved_semantics::new_static_box_diagnostic(&class));
+        }
         if builder.is_record_constructor_class(&class) {
             if !field_initializers.is_empty() {
                 return Err(format!(

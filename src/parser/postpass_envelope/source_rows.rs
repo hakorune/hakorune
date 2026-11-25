@@ -13,12 +13,13 @@ pub(super) fn compatibility_rows(ast: &ASTNode) -> Box<[ParserBoxPostpassRowV1]>
         .iter()
         .enumerate()
         .filter_map(|(final_box_ordinal, statement)| {
-            let ASTNode::BoxDeclaration { name, .. } = statement else {
+            let ASTNode::BoxDeclaration { name, is_static, .. } = statement else {
                 return None;
             };
             Some(ParserBoxPostpassRowV1::AstOnlyCompatibility {
                 _final_box_ordinal: final_box_ordinal,
                 name: name.as_str().into(),
+                is_static: *is_static,
             })
         })
         .collect::<Vec<_>>()
@@ -70,7 +71,7 @@ pub(super) fn source_backed_compatibility_rows(
         .iter()
         .enumerate()
         .filter_map(|(final_box_ordinal, statement)| {
-            let ASTNode::BoxDeclaration { name, .. } = statement else {
+            let ASTNode::BoxDeclaration { name, is_static, .. } = statement else {
                 return None;
             };
             Some(
@@ -83,6 +84,7 @@ pub(super) fn source_backed_compatibility_rows(
                     .unwrap_or(ParserBoxPostpassRowV1::AstOnlyCompatibility {
                         _final_box_ordinal: final_box_ordinal,
                         name: name.as_str().into(),
+                        is_static: *is_static,
                     }),
             )
         })

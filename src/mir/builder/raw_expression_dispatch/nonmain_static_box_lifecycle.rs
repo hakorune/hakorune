@@ -49,7 +49,7 @@ impl PreparedRawNonMainStaticBoxLifecycleV1 {
             return Err("[freeze:contract][raw-compat/runtime-box-fate-retired/static]".to_owned());
         }
 
-        builder.comp_ctx.register_user_box(self.name);
+        builder.comp_ctx.register_static_box(self.name);
         let transaction = ActiveRawStaticBoxCompilationStateV1::begin(builder);
         match self.methods.lower_with_port_v1(builder, port) {
             Ok(()) => transaction.complete_success(builder),
@@ -80,7 +80,7 @@ impl PreparedRawNonMainStaticBoxLifecycleV1 {
             return crate::mir::builder::emission::constant::emit_void(builder);
         }
 
-        builder.comp_ctx.register_user_box(self.name);
+        builder.comp_ctx.register_static_box(self.name);
         let transaction = ActiveRawStaticBoxCompilationStateV1::begin(builder);
         match self.methods.lower_root_with_port_v1(builder, port) {
             Ok(()) => transaction.complete_success(builder),
