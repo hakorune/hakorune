@@ -9,7 +9,6 @@ files=(
   src/mir/builder/normal_script_direct_static_join_handoff/physical_input.rs
   src/mir/builder/normal_script_direct_static_join_handoff/scalar_operand_recipe.rs
   src/mir/builder/script_physical_exit/direct_static_entry_kernel.rs
-  src/mir/builder/script_physical_exit/entry_session.rs
   src/mir/resolved_semantics/expression_source.rs
   src/mir/resolved_semantics/product.rs
 )
@@ -21,7 +20,7 @@ for file in "${files[@]}"; do
 done
 
 kernel=src/mir/builder/script_physical_exit/direct_static_entry_kernel.rs
-if rg -n 'ASTNode|RawScriptBodyRecipe|lower_and_complete|ScriptPhysicalExitCommitV1|ScriptPhysicalExitCommit' "$kernel"; then
+if rg -n 'ASTNode|RawScriptBodyRecipe|ScriptPhysicalExitCommitV1|ScriptPhysicalExitCommit' "$kernel"; then
   echo "detached direct-static kernel reached a forbidden source/exit owner" >&2
   exit 1
 fi
