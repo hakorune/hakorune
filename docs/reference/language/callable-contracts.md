@@ -83,10 +83,19 @@ produces an arity error before argument evaluation rather than searching for
 another declaration. Different nominal Boxes may use the same method name:
 the exact receiver/owner relation distinguishes them.
 
-This Box rule is intentionally separate from the FreeStatic namespace.
-FreeStatic identity includes exact `name/arity`, so `f/1` and `f/2` may coexist;
-two FreeStatic declarations with the same exact `name/arity` remain ambiguous
-and reject. FreeStatic arity overloading does not authorize Box-method
+Amended 2026-11-26 (maintainer decision,
+[ADR-005](../../development/adr/adr-005-file-functions-live-in-static-boxes.md)):
+file functions live in static boxes, so this Box rule is the only function
+namespace in the file language. A file has no top-level `function` or
+`static function`. Two functions with the same name and different arity cannot
+share one Box; rename one or split the Boxes. A REPL session function follows
+the same rule inside the session's implicit Box ([repl.md](repl.md) section 2.4).
+
+Current implementation until the ADR-005 rejection round (step 3): top-level
+functions still use a separate FreeStatic namespace. FreeStatic identity
+includes exact `name/arity`, so `f/1` and `f/2` may coexist there; two
+FreeStatic declarations with the same exact `name/arity` remain ambiguous and
+reject. FreeStatic arity overloading does not authorize Box-method
 overloading.
 
 A delegate exposure occupies the host Box namespace under its exposed name.
@@ -105,8 +114,10 @@ not select a winner.
 | direct host method and delegate exposure share a name | whole unpublished delegate batch rejected |
 | two delegate exposures share a host name | rejected unless explicit distinct aliases are used |
 | one unique Box method with wrong arity | typed arity rejection; no overload search |
-| same FreeStatic name with different arity | accepted as distinct exact `name/arity` identities |
-| duplicate exact FreeStatic `name/arity` | ambiguous direct target; rejected before argument effects |
+| top-level `function` or `static function` (ADR-005) | rejected as a declaration error; write it as a method in a static box (implementation pending) |
+| same function name with different arity in one Box (ADR-005) | rejected like any second method name; rename or split the Boxes |
+| same FreeStatic name with different arity | current implementation only: accepted as distinct exact `name/arity` identities until ADR-005 step 3 |
+| duplicate exact FreeStatic `name/arity` | current implementation only: ambiguous direct target; rejected before argument effects |
 
 These rules fix language identity and failure order. Existing parser duplicate
 checks and delegate staging are implementation evidence; delegate forwarding,

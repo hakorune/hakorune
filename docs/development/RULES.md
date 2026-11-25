@@ -3,7 +3,7 @@
 Status: SSOT
 Date: 2026-11-17
 Scope: 作業選択・実装・検証・退役・再開の唯一の運用ルール。
-Related: [現在地](current/main/CURRENT_STATE.toml)、[MirBuilder の設計図](current/main/design/mirbuilder-blueprint.md)、[所有 ADR-003](adr/adr-003-counted-box-default.md)、[失敗の道 ADR-004](adr/adr-004-failure-surface-catch-and-cleanup.md)、[順の正本(設計図の親)](current/main/design/mirbuilder-final-pipeline-ssot.md)。
+Related: [現在地](current/main/CURRENT_STATE.toml)、[MirBuilder の設計図](current/main/design/mirbuilder-blueprint.md)、[所有 ADR-003](adr/adr-003-counted-box-default.md)、[失敗の道 ADR-004](adr/adr-004-failure-surface-catch-and-cleanup.md)、[file の関数 ADR-005](adr/adr-005-file-functions-live-in-static-boxes.md)、[順の正本(設計図の親)](current/main/design/mirbuilder-final-pipeline-ssot.md)。
 
 ## 0. 目的
 

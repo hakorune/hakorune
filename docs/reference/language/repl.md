@@ -68,11 +68,18 @@ static box Main {
 ```
 
 **File Mode Rules**:
-- Top-level allows **declarations only** (`box`, `static box`, `function`, `static function`, `using`)
+- Top-level allows **declarations only** (`box`, `static box`, `using`)
 - Top-level **statements are rejected** (Fail-Fast):
   - Assignment (`x = 1`)
   - `local` declarations (`local x = 1`)
   - Expression statements (`f()`), `print(...)`, control flow, etc.
+- Top-level **functions are rejected**: `function f(...) { ... }` and
+  `static function f(...) { ... }` are compile errors that say to write the
+  function as a method in a static box. Call it as `me.f(...)` inside that box
+  and `Box.f(...)` outside it
+  ([ADR-005](../../development/adr/adr-005-file-functions-live-in-static-boxes.md),
+  maintainer decision 2026-11-26). Implementation pending: the current parser
+  still accepts both forms until the ADR-005 rejection round (step 3).
 - **Rationale**: Prevents mutable globals; maintains "state lives in boxes" discipline
 
 ### REPL Mode (convenient) - Interactive Example
@@ -156,6 +163,32 @@ REPL accepts `local name = expr` / `local name` as explicit declarations.
 
 - Semantics: declare/update `name` in the session scope (same end result as implicit assignment).
 - Guidance: `local` remains useful for clarity, but REPL users are not forced to write it.
+
+### 2.4 Session functions (future feature)
+
+Decision: [ADR-005](../../development/adr/adr-005-file-functions-live-in-static-boxes.md)
+(maintainer decision 2026-11-26). Not built: the current REPL has no function
+definition that persists across inputs.
+
+```nyash
+>>> function twice(x) { return x * 2 }   // ⏳ future: session declaration
+>>> twice(4)
+8
+>>> .reset
+Session reset
+>>> twice(4)        // ❌ ERROR: removed by .reset
+```
+
+- In REPL mode, `function name(params) { ... }` may be written without a Box.
+  It registers a session declaration.
+- Later inputs call it as `name(args)`. `.reset` removes it.
+- Model: opening the REPL gives the user one invisible Box. A session function
+  is a method of that Box.
+- The Box rule for names applies: one function per name. `twice(x)` and
+  `twice(x, y)` cannot both exist in one session.
+- To keep a function, write it as a method in a named static box in a file.
+  File mode does not accept a Box-less `function` (§1).
+- Redefinition of an existing session function name is undecided (ADR-005).
 
 ## 3) Output Rules (REPL UX contract)
 
@@ -292,6 +325,10 @@ Recommended file-mode errors:
 
 - `Error: top-level statements are not allowed in file mode. Put code inside Main.main() or run with --repl.`
 - `Error: 'local' is not allowed at top-level in file mode. Use Main.main() or REPL mode.`
+- `Error: 'function' is not allowed at top-level in file mode. Write it as a method in a static box; call it as me.f(...) inside the box or Box.f(...) outside it.`
+  The same diagnostic covers `static function`. The rejection name is proposed
+  as `decl/function-outside-box`; the ADR-005 rejection round (step 3) fixes
+  the name and the wording.
 
 ## 8) Minimal Conformance Tests (spec lock)
 
@@ -300,8 +337,10 @@ Recommended file-mode errors:
 1. `x = 1` at top-level → error (top-level statements not allowed)
 2. `local x = 1` at top-level → error (local not allowed at top-level)
 3. `print("hi")` at top-level → error
-4. Declarations at top-level → OK
-5. Statements inside `Main.main()` or `main()` → OK
+4. `box`, `static box`, and `using` declarations at top-level → OK
+5. Statements inside a static box method such as `Main.main()` → OK
+6. `function f() { ... }` or `static function f() { ... }` at top-level → error
+   (ADR-005; implementation pending until the rejection round)
 
 ### REPL mode
 
@@ -310,6 +349,8 @@ Recommended file-mode errors:
 3. `x = 1; x = 2; x` → prints `2`
 4. `local z = 3; z` → prints `3`
 5. `x = 1; .reset; x` → NameError
+6. (future, §2.4) `function twice(x) { return x * 2 }` then `twice(4)` → prints `8`;
+   after `.reset`, `twice(4)` → error
 
 ---
 

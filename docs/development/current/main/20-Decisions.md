@@ -49,6 +49,11 @@ Private Canonical Path: `docs/private/development/current/main/20-Decisions.md`
 - Failure surface (maintainer decision 2026-11-16):
   `docs/development/adr/adr-004-failure-surface-catch-and-cleanup.md` amends C′
   below: trailing `catch`/`cleanup` forms stay in the language.
+- File functions (maintainer decision 2026-11-26):
+  `docs/development/adr/adr-005-file-functions-live-in-static-boxes.md`. A file
+  function is a method of a static box; top-level `function`/`static function`
+  become a compile error, and one name per Box has no arity overloads. REPL
+  session functions are a future feature. Not built yet.
 - Language failure/exit C′ is accepted as
   `LANGUAGE-RESULT-EXIT-C-PRIME0-D0`: recoverable failure is `Result<T,E>`,
   unchanged propagation is typed Result-only postfix `?`, `Option ?`, source
