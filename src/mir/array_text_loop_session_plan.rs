@@ -6,7 +6,7 @@
 
 use super::array_receiver_proof::{match_array_set_call, same_value_root};
 use super::value_origin::build_value_def_map;
-use super::{BasicBlockId, MirFunction, MirInstruction, MirModule, ValueId};
+use super::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 
 mod indexof_const_region;
 mod region_payload;
@@ -165,13 +165,6 @@ impl ArrayTextLoopSessionPlan {
             return Some(ArrayTextLoopSessionRejectReason::IndexDomainUnproven);
         }
         None
-    }
-}
-
-pub fn refresh_module_array_text_loop_session_plans(module: &mut MirModule) {
-    for function in module.functions.values_mut() {
-        refresh_function_array_text_loop_session_plans(function);
-        refresh_function_array_text_indexof_const_region_plans(function);
     }
 }
 

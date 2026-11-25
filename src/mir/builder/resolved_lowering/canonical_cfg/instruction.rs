@@ -59,25 +59,6 @@ impl CanonicalCfgSessionV1 {
         )
     }
 
-    /// The source body cursor can continue after its incoming SSA edge set is
-    /// sealed. Its own terminator still closes the cursor; target seals remain
-    /// strict. Checked packets use their stronger open-source contract above.
-    pub(in crate::mir::builder) fn append_body_instruction(
-        &self,
-        function: &mut MirFunction,
-        source: BasicBlockId,
-        instruction: MirInstruction,
-        span: crate::ast::Span,
-    ) -> Result<(), CanonicalCfgErrorV1> {
-        self.append_selected_instruction(
-            function,
-            source,
-            instruction,
-            span,
-            InstructionPlacementV1::Body,
-        )
-    }
-
     pub(in crate::mir::builder) fn append_selected_instruction(
         &self,
         function: &mut MirFunction,

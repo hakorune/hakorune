@@ -1,8 +1,7 @@
 use super::{
-    CanonicalCallableDefinitionPublicationErrorV1, ClosureBodyId, FunctionPublicationErrorV1,
+    CanonicalCallableDefinitionPublicationErrorV1, FunctionPublicationErrorV1,
     MirFunction, MirModule, ModuleMetadata, ModuleStats,
 };
-use crate::mir::ConstValue;
 use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
@@ -253,27 +252,6 @@ impl MirModule {
     /// Get all function names
     pub fn function_names(&self) -> Vec<&String> {
         self.functions.keys().collect()
-    }
-
-    /// Add a global constant
-    pub fn add_global(&mut self, name: String, value: ConstValue) {
-        self.globals.insert(name, value);
-    }
-
-    /// NCL-1: Store closure body into module metadata and return stable id.
-    pub fn intern_closure_body(&mut self, body: Vec<crate::ast::ASTNode>) -> ClosureBodyId {
-        let id = self.metadata.next_closure_body_id;
-        self.metadata.next_closure_body_id = self.metadata.next_closure_body_id.saturating_add(1);
-        self.metadata.closure_bodies.insert(id, body);
-        id
-    }
-
-    /// NCL-1: Read externalized closure body by id.
-    pub fn closure_body(&self, id: ClosureBodyId) -> Option<&[crate::ast::ASTNode]> {
-        self.metadata
-            .closure_bodies
-            .get(&id)
-            .map(|body| body.as_slice())
     }
 
     /// Verify entire module

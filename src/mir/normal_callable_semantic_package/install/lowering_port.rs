@@ -279,37 +279,6 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         Ok(result)
     }
 
-    /// Lend the selected cataloged input and its same-cohort physical
-    /// signature as sibling views for one synchronous resolved handoff.
-    /// Neither view may escape the callback, and the admission remains the
-    /// identity-only collector owner.
-    pub(in crate::mir) fn with_selected_cataloged_lowering_input_and_signature<R>(
-        &mut self,
-        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
-        callback: impl for<'loan> FnOnce(
-            SelectedCatalogedCallableLoweringInputV1<'loan>,
-            ResolvedCallablePhysicalSignatureLoanV1<'loan>,
-        ) -> R,
-    ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
-        let key = SelectedNormalCallableKeyV1::Cataloged(admission.source_key().clone());
-        let batch_slot = self
-            .installed
-            .selected
-            .batch_slot(&key)
-            .ok_or(NormalCallableSemanticPackageInstallIssueV1::SelectedKeyUnavailable)?;
-        let signature = self
-            .installed
-            .physical_signature
-            .row(batch_slot)
-            .ok_or(NormalCallableSemanticPackageInstallIssueV1::PhysicalSignatureUnavailable)?;
-        self.with_selected_cataloged_lowering_input(admission, |input| {
-            callback(
-                input,
-                ResolvedCallablePhysicalSignatureLoanV1::new(signature),
-            )
-        })
-    }
-
     /// Variant for the source-backed lowering path that also lends the
     /// package-owned LoopBreak transport handle. Existing callers keep the
     /// narrower signature above.

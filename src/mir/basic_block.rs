@@ -84,11 +84,6 @@ impl BasicBlock {
         }
     }
 
-    /// Add a spanned instruction to this block
-    pub fn add_spanned_instruction(&mut self, sp: SpannedInstruction) {
-        self.add_instruction_with_span(sp.inst, sp.span);
-    }
-
     /// Add an instruction to this block
     pub fn add_instruction(&mut self, instruction: MirInstruction) {
         self.add_instruction_with_span(instruction, Span::unknown());
@@ -280,14 +275,6 @@ impl BasicBlock {
         }
     }
 
-    /// Get edge args for a specific target (if present)
-    pub fn edge_args_to(&self, target: BasicBlockId) -> Option<EdgeArgs> {
-        self.out_edges()
-            .into_iter()
-            .find(|edge| edge.target == target)
-            .and_then(|edge| edge.args)
-    }
-
     /// Set Return environment metadata (Return-specific)
     ///
     /// Return has no edge-args operand, so we keep this metadata for continuation.
@@ -354,17 +341,6 @@ impl BasicBlock {
         self.terminator = Some(terminator);
         self.terminator_span = Some(self.fallback_terminator_span());
         self.update_successors_from_terminator();
-    }
-
-    /// Get edge-args from the current terminator
-    ///
-    /// Jump uses its edge-args operand. Return uses return_env metadata.
-    pub fn edge_args_from_terminator(&self) -> Option<EdgeArgs> {
-        match self.terminator {
-            Some(MirInstruction::Jump { ref edge_args, .. }) => edge_args.clone(),
-            Some(MirInstruction::Return { .. }) => self.return_env(),
-            _ => None,
-        }
     }
 
     /// Add a predecessor
@@ -509,27 +485,6 @@ impl BasicBlock {
         self.effects = self.effects | sp.inst.effects();
         self.instructions.insert(phi_count, sp.inst);
         self.instruction_spans.insert(phi_count, sp.span);
-    }
-
-    /// Update PHI instruction input by destination ValueId
-    /// Used for loop back-edge PHI updates
-    pub fn update_phi_input(
-        &mut self,
-        phi_dst: ValueId,
-        incoming: (BasicBlockId, ValueId),
-    ) -> Result<(), String> {
-        for inst in &mut self.instructions {
-            if let MirInstruction::Phi { dst, inputs, .. } = inst {
-                if *dst == phi_dst {
-                    inputs.push(incoming);
-                    return Ok(());
-                }
-            }
-        }
-        Err(format!(
-            "PHI instruction with dst {:?} not found in block {:?}",
-            phi_dst, self.id
-        ))
     }
 
     /// Replace terminator instruction

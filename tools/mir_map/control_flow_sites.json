@@ -143,19 +143,6 @@
     "evidence": "checked carrierからHeader/After点のPHIを予約"
   },
   {
-    "id": "static-recipe-header",
-    "category": "loop-header-phi",
-    "role": "writer",
-    "file": "src/mir/builder/resolved_lowering/static_loop_header.rs",
-    "sites": [
-      {
-        "line": 148,
-        "code": "let read = canonical.identity.read_entry_receipt_with_deferred_entry("
-      }
-    ],
-    "evidence": "静的callableのheader carrierを既存のidentity ledgerで読む"
-  },
-  {
     "id": "recursive-recipe-header",
     "category": "loop-header-phi",
     "role": "writer",

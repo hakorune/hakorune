@@ -75,9 +75,6 @@ guard_expect_fixed_in_file "$TAG" "DynamicV2CallOutV1" "$WIRE_PY" \
 # package-backed input and lend the final Dynamic authority internally.  The
 # canary may not re-verify Completion/If control or accept an externally
 # paired session.
-if rg -n -A6 -- "fn new_selected_dynamic" "$CANONICAL_SESSION" | rg -q -- "block_expr_count"; then
-  guard_fail "$TAG" "Dynamic canonical semantic block count must not be selected by the physical emitter"
-fi
 guard_expect_fixed_in_file "$TAG" "SelectedCatalogedCallableLoweringInputV1" "$PACKAGE_INSTALL" \
   "catalog admission must travel with the selected package loan"
 guard_expect_fixed_in_file "$TAG" "CatalogedBoxMethodPhysicalHeaderProjectionV1" "$CATALOG_ADMISSION" \

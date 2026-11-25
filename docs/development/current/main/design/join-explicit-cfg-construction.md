@@ -93,7 +93,7 @@ BoolPredicateScan（legacy numbered label is traceability-only）の実装で明
 
 - `jump_args` を BasicBlock メタから terminator operand へ寄せる（段階導入: 互換フィールド併存→移行→削除）
 - “参照 API” は Branch を含むので **複数 edge を前提**にする（単発 `edge_args()` は曖昧になりやすい）
-  - 例: `block.out_edges()` / `block.edge_args_to(target)`
+  - 例: `block.out_edges()`
 - terminator operand 側は `Vec<ValueId>` だけでなく **意味（layout）**も同梱する
   - 例: `EdgeArgs { layout: JumpArgsLayout, values: Vec<ValueId> }`
 - spans は `Vec<Spanned<_>>` へ（API で不変条件を守る）

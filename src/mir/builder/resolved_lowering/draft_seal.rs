@@ -212,33 +212,6 @@ impl ReadyFunctionDraftSealV1 {
         self.completion
     }
 
-    pub(in crate::mir::builder::resolved_lowering) fn return_observations(
-        &self,
-    ) -> Result<[ReadyFunctionReturnObservationV1; 2], String> {
-        let claims = self.completion.explicit_claims();
-        if claims.len() != 2 {
-            return Err(format!(
-                "selected Dynamic receipt requires exactly two returns, got {}",
-                claims.len()
-            ));
-        }
-        let mut observations = Vec::with_capacity(2);
-        for claim in claims {
-            let super::completion_consumption::ExplicitReturnWitnessV1::Value(witness) =
-                claim.witness()
-            else {
-                return Err("selected Dynamic receipt requires value returns".to_owned());
-            };
-            observations.push(ReadyFunctionReturnObservationV1 {
-                site: claim.site().clone(),
-                block: witness.block(),
-                value: witness.value(),
-            });
-        }
-        observations
-            .try_into()
-            .map_err(|_| "selected Dynamic return observation cardinality drift".to_owned())
-    }
 }
 
 impl PreparedFunctionExitPlanV1 {

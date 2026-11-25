@@ -135,16 +135,6 @@ impl<'a> ResolvedIdentityLedgerV2<'a> {
         Ok(())
     }
 
-    pub(in crate::mir::builder::resolved_lowering) fn claim_variable_use(
-        &mut self,
-        site: &SourceExprSiteV1,
-        expected_name: &str,
-    ) -> Result<BindingRefV1, String> {
-        let binding = self.resolve_variable_binding(site, expected_name)?;
-        self.claim_variable_use_binding(site, binding)?;
-        Ok(binding)
-    }
-
     pub(in crate::mir::builder::resolved_lowering) fn resolve_variable_binding(
         &self,
         site: &SourceExprSiteV1,

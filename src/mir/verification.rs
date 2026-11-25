@@ -76,23 +76,8 @@ impl MirVerifier {
         )
     }
 
-    /// Verify the module as a publication document: the same canonical
-    /// structure is checked, but the cataloged call-edge Integer-domain
-    /// rule is skipped — a document serializes the edges without
-    /// claiming the sealed corridor they name.
-    pub fn verify_document_module(
-        &mut self,
-        module: &MirModule,
-    ) -> Result<(), Vec<VerificationError>> {
-        self.verify_module_with_call_edge_policy(
-            module,
-            invoke::CatalogedCallEdgePolicyV1::Document,
-            None,
-        )
-    }
-
     /// Document policy still replays the original loans when publication has
-    /// retained them. Source-less document callers keep their strict old API.
+    /// retained them.
     pub(crate) fn verify_document_module_with_finalized_root(
         &mut self,
         module: &MirModule,

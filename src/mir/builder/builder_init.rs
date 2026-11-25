@@ -32,15 +32,6 @@ impl MirBuilder {
 
 
 
-    pub(in crate::mir) fn variable_bindings(&self) -> Vec<(String, super::ValueId)> {
-        self.function_state
-            .variable_ctx
-            .variable_map()
-            .iter()
-            .map(|(name, value)| (name.clone(), *value))
-            .collect()
-    }
-
     pub(in crate::mir) fn value_type(&self, value: super::ValueId) -> Option<&super::MirType> {
         self.function_state.type_ctx.value_types.get(&value)
     }

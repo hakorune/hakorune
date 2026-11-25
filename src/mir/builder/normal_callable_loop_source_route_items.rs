@@ -480,21 +480,6 @@ impl CallableLoopSourceTargetProbeV1 {
         )
     }
 
-    pub(in crate::mir::builder) fn from_parts_with_core_methods(
-        selected: Box<[CallableLoopSourceTargetRelationV1]>,
-        uncovered: Box<[SourceExprSiteV1]>,
-        requirement_mismatch: bool,
-        core_methods: Box<[CallableLoopSourceItemBindingV1]>,
-    ) -> Self {
-        Self::from_parts_with_covered_methods(
-            selected,
-            uncovered,
-            requirement_mismatch,
-            core_methods,
-            Box::new([]),
-        )
-    }
-
     pub(in crate::mir::builder) fn from_parts_with_covered_methods(
         selected: Box<[CallableLoopSourceTargetRelationV1]>,
         uncovered: Box<[SourceExprSiteV1]>,

@@ -85,10 +85,6 @@ impl LiveValueSet {
 /// definitely non-escaping local boxes when they are otherwise unused.
 ///
 /// Returns the number of eliminated instructions.
-pub fn eliminate_dead_code(module: &mut MirModule) -> usize {
-    eliminate_dead_code_with_required_roots(module, &RequiredLivenessRoots::new())
-}
-
 pub(in crate::mir) fn eliminate_dead_code_with_required_roots(
     module: &mut MirModule,
     roots: &RequiredLivenessRoots,

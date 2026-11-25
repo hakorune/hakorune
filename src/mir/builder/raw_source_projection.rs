@@ -76,19 +76,6 @@ pub(in crate::mir) enum OwnedRawRootProjectionV1 {
 
 impl OwnedRawRootProjectionV1 {
 
-    pub(in crate::mir) const fn is_script(&self) -> bool {
-        matches!(self, Self::Script { .. })
-    }
-
-    pub(in crate::mir) fn static_child_locators(&self) -> &[RawSourceLocatorV1] {
-        match self {
-            Self::Script { .. } => &[],
-            Self::App {
-                static_children, ..
-            } => static_children,
-        }
-    }
-
     pub(in crate::mir) fn callable_main_locator(&self) -> Option<&RawSourceLocatorV1> {
         match self {
             Self::Script { .. } => None,

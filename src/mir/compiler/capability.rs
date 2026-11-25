@@ -144,35 +144,6 @@ impl CanonicalLoweringPreflightV1 {
         }
     }
 
-    pub(crate) fn verify_normal_main0_function_with_finite_direct_calls_v1<'a>(
-        function: ResolvedFunctionLoweringInputV1<'a>,
-        role: super::normal_source_plan::VerifiedNormalMainRoleV1,
-    ) -> Result<CanonicalTrivialBindingSsaPlanV1<'a>, CanonicalLoweringErrorV1> {
-        match Self::verify_function_with_policy(
-            function,
-            DirectCallAdmissionV1::FiniteOneOrMore,
-            CanonicalFunctionRolePolicyV1::NormalMainDirectCall0,
-            Some(role),
-        )? {
-            CanonicalFirstFamilyPlanV1::Loop(
-                super::capability::CanonicalLoopFamilyPlanV1::GenericG0(plan),
-            ) => unsupported(
-                "root",
-                plan.source_input().source().root(),
-                "generic_g0_not_normal_main_direct_call",
-            ),
-            CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => Ok(plan),
-            CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => {
-                let (function, ..) = plan.into_parts();
-                unsupported(
-                    "root",
-                    function.source().root(),
-                    "normal_main_direct_call_requires_trivial_binding_ssa",
-                )
-            }
-        }
-    }
-
     fn verify_function_with_policy<'a>(
         function: ResolvedFunctionLoweringInputV1<'a>,
         direct_call_admission: DirectCallAdmissionV1,

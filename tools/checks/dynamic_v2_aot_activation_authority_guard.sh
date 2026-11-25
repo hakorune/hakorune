@@ -202,16 +202,13 @@ if [[ "$(rg -n '^pub\(crate\) fn issue_runtime_executable_plan\(' "$PLAN_OWNER" 
   guard_fail "$TAG" "W3 post-link executable plan issuer must be unique"
 fi
 
-# CheckedCallOut R0 is neutral MIR plumbing only.  Keep the site-plan owner and
-# the two canonical session issuers unique while production/AOT callers remain 0.
+# CheckedCallOut R0 is neutral MIR plumbing only. Keep the site-plan owner and
+# canonical CFG issuer unique while production/AOT callers remain 0.
 if [[ "$(rg -n '^pub\(crate\) struct CheckedCallOutSitePlanV1' "$CALLOUT_OWNER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "CheckedCallOut site-plan owner definition must be unique"
 fi
 if [[ "$(rg -n 'fn emit_checked_callout\(' "$CALLOUT_CFG" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "Canonical CFG CheckedCallOut issuer must be unique"
-fi
-if [[ "$(rg -n 'fn define_checked_callout_normal_result\(' "$CALLOUT_SSA" | wc -l | tr -d '[:space:]')" != 1 ]]; then
-  guard_fail "$TAG" "Canonical Normal-result issuer must be unique"
 fi
 if [[ "$(rg -n 'fn verify_checked_callout_function_v1\(' "$CALLOUT_CENSUS" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "CheckedCallOut function census owner must be unique"
@@ -249,10 +246,6 @@ if rg -n 'let _completed_draft = .*commit\(\);' \
   "$ROOT_DIR/src/mir/builder/resolved_lowering" --glob '*.rs'; then
   guard_fail "$TAG" "DraftSeal tests/canaries must explicitly retire proof-only evidence after commit"
 fi
-guard_expect_fixed_in_file "$TAG" "result_type: MirType" "$CALLOUT_SSA" \
-  "canonical Normal-result issuer must co-seal the MIR type"
-guard_expect_fixed_in_file "$TAG" "publish_physical_value_type(builder, dst, result_type)" "$CALLOUT_SSA" \
-  "Normal-result type publication must stay inside the canonical issuer"
 if [[ "$(rg -n 'commit_cataloged_box_method_completed\(' "$CATALOGED_HANDOFF" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "cataloged Box-method collector terminal definition must be unique"
 fi
@@ -281,10 +274,6 @@ for file in "$CATALOGED_HANDOFF" ; do
 done
 if [[ "$(rg -n '\.verify_checked_callout_function\(function\)' "$CALLOUT_SSA" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "canonical finish must consume the CheckedCallOut function census exactly once"
-fi
-CALLOUT_NORMAL_ISSUER="$(sed -n '/fn define_checked_callout_normal_result(/,/^    }/p' "$CALLOUT_SSA")"
-if printf '%s\n' "$CALLOUT_NORMAL_ISSUER" | rg -n 'dst:[[:space:]]*ValueId'; then
-  guard_fail "$TAG" "CheckedCallOut Normal-result destination must be minted by canonical SSA"
 fi
 if rg -n 'lower_method_call|RuntimeExecutablePlan|dynamic_v2_text_scan|lookup_core_method' \
   "$CALLOUT_OWNER" "$CALLOUT_CFG" "$CALLOUT_SSA"; then

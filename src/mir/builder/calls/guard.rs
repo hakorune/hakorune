@@ -186,38 +186,11 @@ impl<'a> CalleeGuardBox<'a> {
         }
     }
 
-    /// me-call判定
-    ///
-    /// box_name と receiver型が一致するか判定
-    /// （静的メソッド呼び出しの検出用）
-    pub fn is_me_call(&self, box_name: &str, receiver: ValueId) -> bool {
-        match self.get_box_type(receiver) {
-            Some(recv_box) => recv_box == box_name,
-            None => false,
-        }
-    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_me_call_detection() {
-        let mut value_types = BTreeMap::new();
-        value_types.insert(ValueId::new(10), MirType::Box("StageBArgsBox".to_string()));
-
-        let guard = CalleeGuardBox::new(&value_types);
-
-        // Same box name → me-call
-        assert!(guard.is_me_call("StageBArgsBox", ValueId::new(10)));
-
-        // Different box name → not me-call
-        assert!(!guard.is_me_call("Stage1UsingResolverBox", ValueId::new(10)));
-
-        // No type info → not me-call
-        assert!(!guard.is_me_call("StageBArgsBox", ValueId::new(999)));
-    }
 
     #[test]
     fn test_static_runtime_guard_me_call() {

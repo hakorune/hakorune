@@ -70,13 +70,6 @@ impl FunctionSlotRegistry {
         id
     }
 
-    /// RefSlotKind を後から埋めるためのヘルパーだよ。
-    pub fn set_ref_kind(&mut self, slot: SlotId, kind: RefSlotKind) {
-        if let Some(info) = self.slots.get_mut(slot.0 as usize) {
-            info.ref_kind = Some(kind);
-        }
-    }
-
     /// 全スロットを列挙するイテレータだよ（観測専用）。
     pub fn iter_slots(&self) -> impl Iterator<Item = &SlotInfo> {
         self.slots.iter()
@@ -87,8 +80,4 @@ impl FunctionSlotRegistry {
         self.name_to_slot.get(name).copied()
     }
 
-    /// SlotId から SlotInfo を引くよ。
-    pub fn get_slot_info(&self, slot: SlotId) -> Option<&SlotInfo> {
-        self.slots.get(slot.0 as usize)
-    }
 }

@@ -9,7 +9,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 PHI_EMISSION = ROOT / "src/mir/builder/emission/phi.rs"
-PHI_HELPERS = ROOT / "src/mir/utils/phi_helpers.rs"
 LOCAL_SSA = ROOT / "src/mir/builder/ssa/local.rs"
 NEXT_ROW = "HAKO-MIMALLOC-SINGLE-PRED-PHI-ELISION-GUARD-SURFACE-296X-001"
 
@@ -26,8 +25,6 @@ def main() -> int:
     args = parser.parse_args()
 
     require_contains(PHI_EMISSION, "materialize_vars_single_pred_at_entry")
-    require_contains(PHI_EMISSION, "insert_phi_single")
-    require_contains(PHI_HELPERS, "pub fn insert_phi_single")
     require_contains(LOCAL_SSA, "pub fn ensure")
 
     lines = [
@@ -35,8 +32,6 @@ def main() -> int:
         "input_contract=hako-mimalloc-small-alloc-phi-copy-lowering-probe-v0",
         f"selected_owner_file={PHI_EMISSION.relative_to(ROOT).as_posix()}",
         "selected_owner_module=crate::mir::builder::emission::phi::materialize_vars_single_pred_at_entry",
-        f"supporting_phi_helper_file={PHI_HELPERS.relative_to(ROOT).as_posix()}",
-        "supporting_phi_helper=MirBuilder::insert_phi_single",
         f"supporting_copy_owner_file={LOCAL_SSA.relative_to(ROOT).as_posix()}",
         "supporting_copy_owner=crate::mir::builder::ssa::local::ensure",
         "candidate_change_kind=mirbuilder_elision",

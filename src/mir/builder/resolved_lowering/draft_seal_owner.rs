@@ -16,11 +16,6 @@ use crate::mir::builder::calls::{
 use crate::mir::resolved_semantics::SourceStmtSiteV1;
 use crate::mir::{BasicBlockId, MirBuilder, MirFunction};
 
-#[cfg(test)]
-use crate::mir::compiler::pinned_text_backend_frame::PinnedTextBackendFrameBorrowV1;
-#[cfg(test)]
-use crate::mir::pinned_text_residence_lifecycle::PinnedTextResidenceFinishCapabilityV1;
-
 use super::completion_consumption::ReadyFunctionCompletionV1;
 use super::draft_seal::{
     FunctionDraftSealPreparationErrorV1, FunctionDraftSealProjectionErrorV1,
@@ -227,17 +222,6 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
         self.prepare_exact_two_inner(outer_site, None)
     }
 
-    /// Selected Dynamic handoff. The candidate metadata is installed only on
-    /// the detached projection after its clone-scrubbing boundary, never on
-    /// the live function before `prepare_exact_two` clones it.
-    pub(super) fn prepare_exact_two_with_candidate_metadata(
-        self,
-        outer_site: &SourceStmtSiteV1,
-        candidate: SelectedDynamicCandidateMetadataV1,
-    ) -> Result<PreparedFunctionDraftSealV1<'builder>, RejectedFunctionDraftSealV1<'builder>> {
-        self.prepare_exact_two_inner(outer_site, Some(candidate))
-    }
-
     fn prepare_exact_two_inner(
         mut self,
         outer_site: &SourceStmtSiteV1,
@@ -325,15 +309,6 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
 }
 
 impl<'builder> PreparedFunctionDraftSealV1<'builder> {
-    /// Run one read-only corroboration after detached verification and before
-    /// the ownership-only commit terminal.
-    pub(in crate::mir::builder::resolved_lowering) fn corroborate_detached_function<T>(
-        &self,
-        check: impl FnOnce(&MirFunction) -> Result<T, String>,
-    ) -> Result<T, String> {
-        check(self.plan.projected_function())
-    }
-
     pub(super) fn commit(self) -> CompletedFunctionDraftV1 {
         let Self {
             completion,

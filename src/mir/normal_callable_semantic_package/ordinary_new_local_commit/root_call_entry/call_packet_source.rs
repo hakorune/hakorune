@@ -86,25 +86,6 @@ impl PreparedStaticTerminalPacketV1 {
         &self.observation
     }
 
-    pub(crate) fn prepare_zeroarg_projection(
-        &self,
-        publication: &VerifiedStaticCallResultPublicationHandoffV1,
-    ) -> Result<PreparedLexicalCallProjectionV1, String> {
-        if !self.original.argument_sites().is_empty() || !self.observation.arguments().is_empty() {
-            return Err(freeze("static-terminal/zeroarg-projection-required"));
-        }
-        PreparedLexicalCallProjectionV1::for_source(
-            CallPacketSourceLoanV1::Static {
-                original: &self.original,
-                observation: &self.observation,
-                publication,
-                expression_origin: self.expression_origin.as_ref(),
-            },
-            None,
-            Vec::new(),
-        )
-    }
-
     pub(crate) fn into_packet(
         self,
         publication: VerifiedStaticCallResultPublicationHandoffV1,

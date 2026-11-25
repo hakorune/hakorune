@@ -48,40 +48,8 @@ fn classify_operand_type(
     }
 }
 
-/// Build an arithmetic binary operation instruction.
-///
-/// This function handles all arithmetic operations (Add, Sub, Mul, Div, Mod, Shl, Shr,
-/// BitAnd, BitOr, BitXor) through the direct MIR owner.
-///
-/// # Arguments
-/// - `builder`: MIR builder context
-/// - `op`: Binary operation type
-/// - `lhs`: Left-hand side ValueId
-/// - `rhs`: Right-hand side ValueId
-///
-/// # Returns
-/// - `Ok(ValueId)`: Result value ID
-/// - `Err(String)`: Error message
-///
-/// # Type Inference
-/// For Add operations:
-/// - Both String → String value result
-/// - Both Integer → Integer result
-/// - Mixed/Unknown → Unknown (use-site coercion)
-///
-/// For other arithmetic ops:
-/// - Always Integer result type
-pub(in crate::mir::builder) fn build_arithmetic_op(
-    builder: &mut super::super::MirBuilder,
-    op: crate::mir::BinaryOp,
-    lhs: ValueId,
-    rhs: ValueId,
-) -> Result<ValueId, String> {
-    build_arithmetic_op_recorded(builder, op, lhs, rhs).map(|completed| completed.value)
-}
-
 /// The sole arithmetic append lends its original tuple to ordered Binary
-/// completion. Existing value callers borrow this core through the adapter.
+/// completion.
 pub(in crate::mir::builder) fn build_arithmetic_op_recorded(
     builder: &mut super::super::MirBuilder,
     op: crate::mir::BinaryOp,

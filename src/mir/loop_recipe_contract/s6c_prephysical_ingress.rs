@@ -202,22 +202,6 @@ impl<'a, 'rows, 'facts> S6CPrephysicalIngressRefV2<'a, 'rows, 'facts> {
         self.source.facts().source().calls().length().owner()
     }
 
-    pub(crate) fn logical_items(self) -> &'rows [S6CLogicalItemV1] {
-        self.source.logical().rows().items()
-    }
-
-    pub(crate) fn logical_loops(
-        self,
-    ) -> &'rows [super::s6c_scan_with_init_joinir_output_rows::S6CLogicalLoopV1] {
-        self.source.logical().rows().loops()
-    }
-
-    pub(crate) fn logical_blocks(
-        self,
-    ) -> &'rows [super::s6c_scan_with_init_joinir_output_rows::S6CLogicalBlockV1] {
-        self.source.logical().rows().blocks()
-    }
-
     pub(crate) fn logical_transfer(
         self,
     ) -> &'facts super::join_sig::LoopJoinLogicalTransferViewV2<'facts> {
@@ -252,27 +236,6 @@ impl<'a, 'rows, 'facts> S6CPrephysicalIngressRefV2<'a, 'rows, 'facts> {
 
     pub(crate) const fn index_input(self) -> LoopValueKeyV1 {
         self.source.logical().roles().index_input()
-    }
-
-    pub(crate) fn typed_input_relation(
-        self,
-    ) -> &'facts crate::mir::callable_semantic_batch::VerifiedS6CTypedInputRelationV1 {
-        self.source.facts().source().calls().typed()
-    }
-
-    /// Lend the resolver-issued StringSubstring contract that already belongs
-    /// to this retained source cohort.  This is transport only: no new
-    /// semantic receipt or physical target is issued here.
-    pub(crate) fn substring_source(
-        self,
-    ) -> super::s6c_scan_with_init_joinir::S6CLogicalCallInputRefV1<'facts> {
-        self.source.logical().calls().substring().source()
-    }
-
-    pub(crate) fn length_source(
-        self,
-    ) -> super::s6c_scan_with_init_joinir::S6CLogicalCallInputRefV1<'facts> {
-        self.source.logical().calls().length().source()
     }
 
     /// Project the two source-bound CoreMethod effects without exposing the

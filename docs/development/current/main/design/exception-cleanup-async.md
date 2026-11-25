@@ -34,7 +34,7 @@ Nyash/Hakorune の表面文法（主に postfix `catch/cleanup`）に合わせ�
 前提（Phase 260 で固める）:
 
 - MIR で edge-args が terminator operand にあり、`BasicBlock.jump_args` に依存しない（併存→移行→削除の P2 到達が理想）
-- “読む側” の参照点が `out_edges()`/`edge_args_to(target)` に一本化されている（Branch 含む）
+- “読む側” の参照点が `out_edges()` に一本化されている（Branch 含む）
 - “書く側” の terminator 設定が API で一元化されている（successors キャッシュ同期漏れを構造で潰している）
 - DCE/verify/printer が terminator operand を SSOT として扱う（メタ追いが不要）
 

@@ -69,43 +69,6 @@ impl CheckedBindingRebindFrameV1 {
     }
 }
 
-pub(crate) fn qualify_binding_rebind_expression_v1<E>(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    prepared: super::leaves::PreparedExpressionCallsV1,
-    destination: BindingRebindDestinationV1,
-    static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
-    residence_reference: &mut impl FnMut(
-        &SourceExprSiteV1,
-    ) -> Option<(
-        BindingRefV1,
-        BindingRefV1,
-        TextResidenceAcquisitionV1,
-    )>,
-    loop_text_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::LoopTextReadV1>,
-    scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::CurrentScalarReadV1>,
-    field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
-    can_install: &mut impl FnMut(&HomeExpressionPlanV1) -> bool,
-    field_batch: &mut impl FnMut(
-        &[LocalFieldReadRequestV1],
-        super::super::LocalFieldReadDemandV1,
-    ) -> Result<bool, E>,
-) -> Result<Option<HomeExpressionPlanV1>, E> {
-    qualify_binding_rebind_expression_with_loop_dynamic_v1(
-        input,
-        prepared,
-        destination,
-        static_reference,
-        residence_reference,
-        loop_text_reference,
-        &mut |_| None,
-        &mut |_| None,
-        scalar_reference,
-        field_request,
-        can_install,
-        field_batch,
-    )
-}
-
 pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     prepared: super::leaves::PreparedExpressionCallsV1,

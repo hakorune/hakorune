@@ -124,9 +124,6 @@ impl LoweringPlanTier {
         }
     }
 
-    pub fn is_direct_abi(self) -> bool {
-        self == Self::DirectAbi
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -188,14 +185,6 @@ impl CoreMethodLoweringTier {
 
     pub fn is_design_only(self) -> bool {
         self == Self::DesignOnly
-    }
-
-    pub fn is_hot_inline(self) -> bool {
-        self == Self::HotInline
-    }
-
-    pub fn is_cold_fallback(self) -> bool {
-        self == Self::ColdFallback
     }
 
     pub fn plan_tier(self) -> LoweringPlanTier {

@@ -73,32 +73,6 @@ impl MirFunction {
         id
     }
 
-    /// Reserve ValueIds for function parameters (Hotfix 1: Parameter ValueId Reservation)
-    ///
-    /// Call this after setting params to ensure next_value_id doesn't overlap
-    /// with parameter ValueIds. This prevents SSA violations where local variables
-    /// overwrite parameter values.
-    ///
-    /// # Box-First理論
-    /// - 「境界をはっきりさせる」: パラメータ予約を明示的に
-    /// - 「いつでも戻せる」: 呼び出しタイミングを制御可能
-    pub fn reserve_parameter_value_ids(&mut self) {
-        let param_count = self.signature.params.len();
-        if self.next_value_id < param_count as u32 {
-            if std::env::var("NYASH_LOOPFORM_DEBUG").is_ok() {
-                let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!(
-                    "[MirFunction::reserve_parameter_value_ids] fn='{}' reserving {} params, adjusting counter {} -> {}",
-                    self.signature.name,
-                    param_count,
-                    self.next_value_id,
-                    param_count
-                ));
-            }
-            self.next_value_id = param_count as u32;
-        }
-    }
-
     /// Add a new basic block
     pub fn add_block(&mut self, block: BasicBlock) -> BasicBlockId {
         let id = block.id;
@@ -221,16 +195,6 @@ impl MirFunction {
         }
     }
 
-    /// Mark reachable blocks
-    pub fn mark_reachable_blocks(&mut self) {
-        let reachable = self.compute_reachable_blocks();
-        for (id, block) in &mut self.blocks {
-            if reachable.contains(id) {
-                block.mark_reachable();
-            }
-        }
-    }
-
     /// Prune blocks that are unreachable from the entry block.
     ///
     /// This is a structural CFG cleanup helper. Callers remain responsible for
@@ -310,26 +274,4 @@ impl MirFunction {
         }
     }
 
-    /// Set branch terminator.
-    /// Helper for JSON v0 Bridge if/else lowering.
-    pub fn set_branch_terminator(
-        &mut self,
-        bb_id: BasicBlockId,
-        condition: ValueId,
-        then_bb: BasicBlockId,
-        else_bb: BasicBlockId,
-    ) -> Result<(), String> {
-        if let Some(bb) = self.get_block_mut(bb_id) {
-            bb.set_terminator(MirInstruction::Branch {
-                condition,
-                then_bb,
-                else_bb,
-                then_edge_args: None,
-                else_edge_args: None,
-            });
-            Ok(())
-        } else {
-            Err(format!("Block {:?} not found", bb_id))
-        }
-    }
 }

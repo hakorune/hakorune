@@ -50,7 +50,6 @@ def main() -> None:
         "coverage: LoweringSourceCoverageV2",
         "retired: BTreeSet<BindingRefV1>",
         "fn adopt_declaration(",
-        "fn claim_variable_use(",
         "fn claim_assignment_binding(",
         "fn verify_scope_active(",
         "fn finish(",

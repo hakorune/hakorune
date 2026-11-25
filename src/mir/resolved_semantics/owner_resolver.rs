@@ -455,30 +455,6 @@ impl FunctionSemanticResolverSessionV1 {
         Ok((forest, body_shapes))
     }
 
-    pub(in crate::mir) fn resolve_forest_with_callable_index(
-        &mut self,
-        root: FunctionSyntaxViewV1<'_>,
-        callable_index: &VerifiedCallableIndexV1,
-    ) -> Result<VerifiedSemanticOwnerForestV1, ResolveOwnerForestErrorV1> {
-        let mut draft = SemanticOwnerForestDraftV1::new();
-        let tree = construct_function_owner_tree_v1(root, &BTreeSet::new())
-            .map_err(ResolveFunctionErrorV1::Syntax)
-            .map_err(ResolveOwnerForestErrorV1::Function)?;
-        self.seal_owner_tree(
-            tree,
-            &BTreeMap::new(),
-            None,
-            None,
-            Some(callable_index),
-            DirectCallCanonicalizationPolicyV1::RequireCallableIndex,
-            &mut draft,
-            None,
-        )?;
-        draft
-            .seal()
-            .map_err(ResolveOwnerForestErrorV1::Verification)
-    }
-
     pub(in crate::mir) fn resolve_forest_with_reserved_root(
         &mut self,
         root: FunctionSyntaxViewV1<'_>,

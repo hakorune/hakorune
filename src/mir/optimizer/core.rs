@@ -1,5 +1,5 @@
 use crate::mir::optimizer_stats::OptimizationStats;
-use crate::mir::{MirInstruction, MirModule};
+use crate::mir::MirModule;
 use crate::runtime::get_global_ring0;
 
 /// MIR optimization passes
@@ -226,42 +226,6 @@ impl MirOptimizer {
         stats.merge(diag2);
     }
 
-    /// Convert instruction to string key for CSE
-    pub(crate) fn instruction_to_key(&self, instruction: &MirInstruction) -> String {
-        match instruction {
-            MirInstruction::Const { value, .. } => format!("const_{:?}", value),
-            MirInstruction::BinOp { op, lhs, rhs, .. } => {
-                format!("binop_{:?}_{}_{}", op, lhs.as_u32(), rhs.as_u32())
-            }
-            MirInstruction::Compare { op, lhs, rhs, .. } => {
-                format!("cmp_{:?}_{}_{}", op, lhs.as_u32(), rhs.as_u32())
-            }
-            MirInstruction::Call(call) => {
-                let args_str = call
-                    .args
-                    .iter()
-                    .map(|v| v.as_u32().to_string())
-                    .collect::<Vec<_>>()
-                    .join(",");
-                format!("call_canonical_{:?}_{}", call.callee, args_str)
-            }
-            // MirInstruction::BoxFieldLoad { box_val, field, .. } => format!("boxload_{}_{}", box_val.as_u32(), field),
-            MirInstruction::LegacyCallV0 {
-                callee, func, args, ..
-            } => {
-                let args_str = args
-                    .iter()
-                    .map(|v| v.as_u32().to_string())
-                    .collect::<Vec<_>>()
-                    .join(",");
-                match callee {
-                    Some(callee) => format!("call_callee_{:?}_{}", callee, args_str),
-                    None => format!("call_legacy_{}_{}", func.as_u32(), args_str),
-                }
-            }
-            _ => format!("other_{:?}", instruction),
-        }
-    }
 }
 
 impl MirOptimizer {

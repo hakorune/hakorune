@@ -45,7 +45,6 @@
     "prepopulation": "ParameterIdPrepopulation",
     "counter_seed": "FunctionCounterSeed",
     "binding_reuse": "ParameterBindingReuse",
-    "counter_floor_repair": "ParameterCounterFloorRepair",
     "compatibility_fallback": "ParameterSetupCompatibilityFallbackUnselected"
   },
   "sentinel_policy": {
