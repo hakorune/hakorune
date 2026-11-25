@@ -11,12 +11,6 @@ mod callable_lowerer;
 #[cfg(test)]
 mod callable_production_canary_tests;
 mod carrier_emitter;
-mod compare_i64_operands;
-mod compare_i64_writer;
-#[cfg(test)]
-mod compare_i64_writer_tests;
-#[cfg(test)]
-mod compare_result_ledger;
 mod generic_lowerer;
 #[cfg(test)]
 mod generic_production_canary_tests;

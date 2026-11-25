@@ -2252,10 +2252,6 @@ mir::builder::resolved_lowering::canonical_cfg::tests::missing_target_is_a_typed
 mir::builder::resolved_lowering::canonical_cfg::tests::named_block_owner_rejects_duplicate_creation
 mir::builder::resolved_lowering::canonical_cfg::tests::named_return_owner_is_checked_and_updates_terminator_truth
 mir::builder::resolved_lowering::canonical_cfg::tests::named_selection_never_creates_a_missing_block
-mir::builder::resolved_lowering::canonical_cfg::tests::open_instruction_target_rejects_foreign_session_and_missing_block
-mir::builder::resolved_lowering::canonical_cfg::tests::open_instruction_target_rejects_sealed_and_terminated_blocks
-mir::builder::resolved_lowering::canonical_cfg::tests::open_instruction_target_rejects_unbound_or_foreign_session_owner
-mir::builder::resolved_lowering::canonical_cfg::tests::open_instruction_target_requires_session_created_open_block
 mir::builder::resolved_lowering::canonical_cfg::tests::prepared_branch_has_no_effect_until_commit
 mir::builder::resolved_lowering::canonical_cfg::tests::sealing_twice_is_a_typed_error
 mir::builder::resolved_lowering::canonical_cfg::tests::second_terminator_is_rejected_without_rewriting_the_first
@@ -2267,9 +2263,6 @@ mir::builder::resolved_lowering::canonical_ssa::identity::tests::first_assignmen
 mir::builder::resolved_lowering::canonical_ssa::identity::tests::single_predecessor_phi_relation_accepts_distinct_target_value
 mir::builder::resolved_lowering::canonical_ssa::identity::tests::single_predecessor_phi_relation_rejects_input_drift
 mir::builder::resolved_lowering::canonical_ssa::identity::tests::uninitialized_read_rejects_before_ssa_can_open_a_phi
-mir::builder::resolved_lowering::canonical_ssa::session::same_block_operand::tests::definition_failures_are_typed_and_non_repairing
-mir::builder::resolved_lowering::canonical_ssa::session::same_block_operand::tests::parameter_and_type_failures_are_not_inferred
-mir::builder::resolved_lowering::canonical_ssa::session::same_block_operand::tests::unique_integer_definition_in_target_block_is_accepted
 mir::builder::resolved_lowering::canonical_ssa::session::tests::profile_close_failure_does_not_mint_a_receipt
 mir::builder::resolved_lowering::canonical_ssa::session::tests::profile_close_receipt_is_minted_only_after_profile_success
 mir::builder::resolved_lowering::completion_consumption::tests::borrowed_completion_projects_to_a_borrow_free_consumer
@@ -2339,14 +2332,6 @@ mir::builder::resolved_lowering::loop_recipe_physicalizer::callable_canary::test
 mir::builder::resolved_lowering::loop_recipe_physicalizer::callable_production_canary_tests::callable_production_canary_discards_late_failure_and_reruns_fresh
 mir::builder::resolved_lowering::loop_recipe_physicalizer::callable_production_canary_tests::callable_production_canary_rejects_selected_session_mutations
 mir::builder::resolved_lowering::loop_recipe_physicalizer::callable_production_canary_tests::callable_production_canary_runs_s2_to_draft_seal
-mir::builder::resolved_lowering::loop_recipe_physicalizer::compare_i64_operands::tests::only_full_published_i64_receipt_for_exact_target_is_admitted
-mir::builder::resolved_lowering::loop_recipe_physicalizer::compare_i64_writer_tests::operand_definition_drift_rejects_without_partial_effect
-mir::builder::resolved_lowering::loop_recipe_physicalizer::compare_i64_writer_tests::sealed_target_rejects_before_append_and_type_publication
-mir::builder::resolved_lowering::loop_recipe_physicalizer::compare_i64_writer_tests::strict_writer_appends_one_compare_and_returns_definition_source
-mir::builder::resolved_lowering::loop_recipe_physicalizer::compare_result_ledger::dropped_reservation_poison_is_terminal_and_not_reusable
-mir::builder::resolved_lowering::loop_recipe_physicalizer::compare_result_ledger::rejected_reservation_preserves_existing_published_receipt
-mir::builder::resolved_lowering::loop_recipe_physicalizer::compare_result_ledger::reservation_commit_publishes_one_full_receipt
-mir::builder::resolved_lowering::loop_recipe_physicalizer::compare_result_ledger::strict_reservation_requires_an_owner_bound_ledger
 mir::builder::resolved_lowering::loop_recipe_physicalizer::generic_production_canary_tests::generic_g0_common_physical_canary_reaches_draft_seal
 mir::builder::resolved_lowering::loop_recipe_physicalizer::generic_production_canary_tests::generic_g0_computed_condition_left_reaches_real_recursive_after
 mir::builder::resolved_lowering::loop_recipe_physicalizer::generic_production_canary_tests::generic_g0_late_failure_discards_and_fresh_session_replays

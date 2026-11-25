@@ -3,16 +3,9 @@ use super::origin;
 use super::{BasicBlockId, MirBuilder, MirInstruction, ValueId};
 use crate::mir::diagnostics::{caller_string, mir_dump_value, FreezeContract};
 
-#[path = "builder_emit_core.rs"]
-mod builder_emit_core;
 #[cfg(test)]
 #[path = "builder_method_none_terminal_tests.rs"]
 mod builder_method_none_terminal_tests;
-
-pub(in crate::mir::builder) use builder_emit_core::{
-    CanonicalCompareAppendRejectV1, CanonicalCompareDefinitionSourceV1,
-    PreparedCanonicalCompareAppendV1,
-};
 
 impl MirBuilder {
     /// Emit one instruction into an explicitly selected existing block.

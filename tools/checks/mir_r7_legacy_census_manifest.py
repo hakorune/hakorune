@@ -169,7 +169,6 @@ def legacy_rows(root: Path) -> list[dict[str, Any]]:
     test_only_files = {
         root / "src/mir/builder/joinir_id_remapper.rs",
         root / "src/mir/builder/joinir_id_remapper_values.rs",
-        root / "src/mir/compiler/module_postprocess_failure_p0.rs",
     }
     if (root / "src/mir/builder/joinir_id_remapper.rs").exists():
         builder = (root / "src/mir/builder.rs").read_text(encoding="utf-8")
@@ -180,10 +179,6 @@ def legacy_rows(root: Path) -> list[dict[str, Any]]:
             fail("JoinIR ID remapper values path changed")
     elif (root / "src/mir/builder/joinir_id_remapper_values.rs").exists():
         fail("JoinIR ID remapper values lost its test-only parent")
-    if (root / "src/mir/compiler/module_postprocess_failure_p0.rs").exists():
-        compiler = (root / "src/mir/compiler/mod.rs").read_text(encoding="utf-8")
-        if not re.search(r"#\[cfg\(test\)\]\s*mod module_postprocess_failure_p0\s*;", compiler):
-            fail("module postprocess failure fixture is no longer gated by cfg(test)")
     for base in (root / "src", root / "crates"):
         if not base.is_dir():
             continue

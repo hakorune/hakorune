@@ -1,8 +1,4 @@
 use super::error::{require_block, CanonicalCfgBlockRoleV1, CanonicalCfgErrorV1};
-use super::open_instruction_target::{
-    CanonicalCfgCreationStateV1, CanonicalOpenInstructionTargetErrorV1,
-    VerifiedCanonicalOpenInstructionTargetV1,
-};
 use super::predecessors::{derive_and_verify_predecessors, TerminatorPredecessorsV1};
 use crate::mir::builder::MirBuilder;
 use crate::mir::checked_callout::CheckedCallOutSiteIdV1;
@@ -13,10 +9,7 @@ use crate::mir::pinned_text_residence_lifecycle::{
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{BasicBlock, BasicBlockId, MirFunction, MirInstruction, ValueId};
 use std::cell::RefCell;
-use std::collections::BTreeMap;
-
-#[path = "session/invoke.rs"]
-mod invoke;
+use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) struct VerifiedPredecessorsV1 {
@@ -59,6 +52,28 @@ impl VerifiedCanonicalCfgV1 {
 }
 
 #[derive(Debug, Default)]
+struct CanonicalCfgCreationStateV1 {
+    owner: Option<FunctionOwnerIdV1>,
+    created: BTreeSet<BasicBlockId>,
+}
+
+impl CanonicalCfgCreationStateV1 {
+    fn is_empty(&self) -> bool {
+        self.owner.is_none() && self.created.is_empty()
+    }
+    fn bind_source_owner(&mut self, owner: FunctionOwnerIdV1) -> Result<(), String> {
+        if self.owner.is_some_and(|old| old != owner) {
+            return Err("[freeze:contract][canonical-control/foreign-owner]".to_owned());
+        }
+        self.owner = Some(owner);
+        Ok(())
+    }
+    fn record_created(&mut self, block: BasicBlockId) {
+        self.created.insert(block);
+    }
+}
+
+#[derive(Debug, Default)]
 pub(in crate::mir::builder) struct CanonicalCfgSessionV1 {
     pub(super) sealed: BTreeMap<BasicBlockId, VerifiedPredecessorsV1>,
     creation: CanonicalCfgCreationStateV1,
@@ -84,18 +99,6 @@ impl CanonicalCfgSessionV1 {
         Self::default()
     }
 
-    #[cfg(test)]
-    pub(in crate::mir::builder::resolved_lowering) fn new_for_owner(
-        owner: FunctionOwnerIdV1,
-    ) -> Self {
-        Self {
-            sealed: BTreeMap::new(),
-            creation: CanonicalCfgCreationStateV1::new_for_owner(owner),
-            fragment_outgoing: Default::default(),
-            forward_predecessors: RefCell::default(),
-        }
-    }
-
     pub(in crate::mir::builder) fn create_block(
         &mut self,
         function: &mut MirFunction,
@@ -112,17 +115,6 @@ impl CanonicalCfgSessionV1 {
         function.add_block(created);
         self.creation.record_created(block);
         Ok(())
-    }
-
-    pub(in crate::mir::builder::resolved_lowering) fn prepare_created_open_instruction_target(
-        &self,
-        function: &MirFunction,
-        owner: FunctionOwnerIdV1,
-        block: BasicBlockId,
-    ) -> Result<VerifiedCanonicalOpenInstructionTargetV1, CanonicalOpenInstructionTargetErrorV1>
-    {
-        self.creation
-            .prepare_open_target(function, self.sealed.contains_key(&block), owner, block)
     }
 
     pub(in crate::mir::builder) fn select_block(

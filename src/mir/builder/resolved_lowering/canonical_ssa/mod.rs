@@ -12,11 +12,4 @@ mod session;
 
 pub(in crate::mir) use identity::CanonicalBindingReadReceiptV1;
 pub(super) use identity::ResolvedSsaIdentityStateV2;
-pub(super) use session::{
-    finish_profile_close, CanonicalSameBlockIntegerRejectV1, CanonicalSameBlockIntegerRequestV1,
-    CanonicalSsaFunctionSessionV2,
-};
-
-pub(in crate::mir::builder) use session::{
-    ReservedCanonicalCompareDestinationV1, VerifiedCanonicalSameBlockIntegerOperandV1,
-};
+pub(super) use session::{finish_profile_close, CanonicalSsaFunctionSessionV2};
