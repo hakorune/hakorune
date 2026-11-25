@@ -3,6 +3,8 @@ record MetadataContext {
     current_region: RegionIdT
 }
 
-function MetadataContext_current_span(receiver: MetadataContext): SpanT {
-    return receiver.current_span
+static box RustSubset_generic_uimpl_utarget {
+    MetadataContext_current_span(receiver: MetadataContext): SpanT {
+        return receiver.current_span
+    }
 }

@@ -93,6 +93,31 @@ stateful/resource struct -> box only when schema marks identity=true
 
 The schema must carry `identity=true` before the converter emits `box`.
 
+### Module Static Box
+
+A module with emitted functions has one static box. Use the RustSubset
+`module` ID to form the box name. Prefix it with `RustSubset_`, keep ASCII
+letters and digits, encode `_` as `_u`, and encode `:` as `_c`. The two
+escapes are unambiguous because every input underscore is escaped. Reject a
+missing or empty ID, unsupported characters, or an emitted struct with the
+same name as the generated box. Modules without callable items keep just their
+structural output.
+
+A free function keeps its adapter-emitted name as the method name. An impl
+method keeps the existing `Target_method` name and explicit receiver
+parameter. Check the names of all methods before producing the skeleton.
+Reject the second definition of a name in its box, including a second
+definition with a different arity. The Python CLI reports exit 1 with no
+skeleton. The Hako core returns its existing `// error:` diagnostic string.
+
+An unqualified call to a method emitted in the same module becomes
+`me.method(...)`. A module-qualified `crate::...::function` Call uses the
+box encoded from its module path and the method name. Receiver MethodCall
+nodes keep their existing receiver. An unqualified name with no declaration in
+this module retains the unresolved handoff as given by the adapter. This
+conversion leaves Rust `use` declarations and name resolution to the adapter
+or caller of the generated skeleton.
+
 ### Impl Method
 
 Rust:
@@ -108,8 +133,10 @@ impl Point {
 Hako skeleton:
 
 ```hako
-function Point_len2(me: Point): i64 {
-    return me.x * me.x + me.y * me.y
+static box RustSubset_geometry {
+    Point_len2(receiver: Point): i64 {
+        return receiver.x * receiver.x + receiver.y * receiver.y
+    }
 }
 ```
 
@@ -197,7 +224,7 @@ Acceptance:
 
 ```text
 struct_to_record=1
-impl_method_to_function_with_me=1
+impl_method_to_static_box_with_receiver=1
 unsupported_enum_todo=1
 ```
 

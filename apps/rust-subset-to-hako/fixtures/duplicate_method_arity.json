@@ -1,0 +1,21 @@
+{
+  "schema_version": 0,
+  "kind": "RustSubsetModule",
+  "module": "duplicate_method_arity",
+  "items": [
+    {
+      "kind": "Function",
+      "name": "same",
+      "params": [{"name": "x", "type": "i64"}],
+      "return_type": "i64",
+      "body": []
+    },
+    {
+      "kind": "Function",
+      "name": "same",
+      "params": [{"name": "x", "type": "i64"}, {"name": "y", "type": "i64"}],
+      "return_type": "i64",
+      "body": []
+    }
+  ]
+}

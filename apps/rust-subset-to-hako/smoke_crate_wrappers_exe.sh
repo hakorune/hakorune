@@ -5,6 +5,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT_DIR"
 
 APP_DIR="apps/rust-subset-to-hako"
+HAKORUNE_BIN="${HAKORUNE_BIN:-./target/release/hakorune}"
 TMP_PREFIX="${TMPDIR:-/tmp}/hako_rust_subset_crate_wrapper_exe_$$"
 
 run_wrapper_exe() {
@@ -15,7 +16,7 @@ run_wrapper_exe() {
   echo "[rust-subset/crate-wrapper-exe] $label"
   rm -f "$exe" "$exe.log"
   NYASH_FILEBOX_MODE=core-ro \
-    ./target/release/hakorune --emit-exe "$exe" "$source" \
+    "$HAKORUNE_BIN" --emit-exe "$exe" "$source" \
     >"$exe.log" 2>&1
   test -x "$exe"
 }

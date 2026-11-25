@@ -5,6 +5,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT_DIR"
 
 APP_DIR="apps/rust-subset-to-hako"
+HAKORUNE_BIN="${HAKORUNE_BIN:-./target/release/hakorune}"
 EXAMPLES_DIR="$APP_DIR/examples"
 PY_SELFTEST="$APP_DIR/selftest.py"
 JSON_PROBE="$APP_DIR/probes/stable/json_probe.hako"
@@ -19,7 +20,7 @@ emit_mir_json() {
 
   echo "[rust-subset/smoke] emit MIR JSON: $label"
   NYASH_FILEBOX_MODE=core-ro \
-    ./target/release/hakorune --emit-mir-json "$out" "$source" \
+    "$HAKORUNE_BIN" --emit-mir-json "$out" "$source" \
     >"${out%.json}.emit.log"
 }
 
@@ -37,7 +38,7 @@ run_exe_diff() {
   rm -f "$exe"
   rm -f tmp/nyash_cli_emit.json
   NYASH_FILEBOX_MODE=core-ro \
-    ./target/release/hakorune --emit-exe "$exe" "$source" \
+    "$HAKORUNE_BIN" --emit-exe "$exe" "$source" \
     >"$exe.exe.log" 2>&1
   "$exe" >"$raw" 2>"$exe.err"
   sed '/^Result: /d' "$raw" >"$out"
@@ -58,12 +59,12 @@ run_generated_hako_mir_acceptance() {
   rm -f "$exe" "$generated" "$mir"
   rm -f tmp/nyash_cli_emit.json
   NYASH_FILEBOX_MODE=core-ro \
-    ./target/release/hakorune --emit-exe "$exe" "$source" \
+    "$HAKORUNE_BIN" --emit-exe "$exe" "$source" \
     >"$exe.exe.log" 2>&1
   "$exe" >"$raw" 2>"$exe.err"
   sed '/^Result: /d' "$raw" >"$generated"
   NYASH_FILEBOX_MODE=core-ro \
-    ./target/release/hakorune --emit-mir-json "$mir" "$generated" \
+    "$HAKORUNE_BIN" --emit-mir-json "$mir" "$generated" \
     >"${mir%.json}.emit.log"
 }
 
@@ -316,7 +317,7 @@ echo "[rust-subset/smoke] EXE: json probe"
 rm -f /tmp/hako_json_probe
 rm -f tmp/nyash_cli_emit.json
 NYASH_FILEBOX_MODE=core-ro \
-  ./target/release/hakorune --emit-exe /tmp/hako_json_probe "$JSON_PROBE" \
+  "$HAKORUNE_BIN" --emit-exe /tmp/hako_json_probe "$JSON_PROBE" \
   >/tmp/hako_json_probe.exe.log 2>&1
 /tmp/hako_json_probe >/tmp/hako_json_probe.out 2>/tmp/hako_json_probe.err
 grep -Fq "field.kind.value=Program" /tmp/hako_json_probe.out
@@ -400,7 +401,7 @@ if [[ "${RUST_SUBSET_RUN_REGRESSION:-0}" == "1" ]]; then
     rm -f "$exe"
     rm -f tmp/nyash_cli_emit.json
     NYASH_FILEBOX_MODE=core-ro \
-      ./target/release/hakorune --emit-exe "$exe" "$probe" \
+      "$HAKORUNE_BIN" --emit-exe "$exe" "$probe" \
       >"/tmp/hako_${name}.exe.log" 2>&1
     "$exe" >"/tmp/hako_${name}.out" 2>"/tmp/hako_${name}.err"
   done

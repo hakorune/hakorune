@@ -51,9 +51,11 @@ Hako-safe name:
 }
 ```
 
-For call expressions, `callee` is the emitted name and `callee_source_path` is
-diagnostic provenance. The converter prints `callee`; it does not parse or
-resolve `source_path`.
+For call expressions, `callee` is the emitted name. The emitter uses
+`callee_source_path` to retain an explicit `crate::` module qualification when
+it moves functions into static boxes. An unqualified call is qualified with
+`me.` when its emitted name matches a method in the module. Rust name resolution
+and imports remain outside the emitter.
 
 ## Item Kinds
 

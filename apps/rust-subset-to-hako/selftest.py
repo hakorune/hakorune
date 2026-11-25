@@ -58,6 +58,9 @@ def main() -> None:
     assert_fail_fast_case("invalid_unknown_kind", "unknown item kind: Trait")
     assert_fail_fast_case("invalid_unknown_statement_kind", "unknown statement kind: Mystery")
     assert_fail_fast_case("invalid_unknown_expression_kind", "unknown expression kind: MysteryExpr")
+    collision = run_convert(ROOT / "fixtures" / "duplicate_method_arity.json")
+    if collision.returncode != 1 or collision.stdout or "duplicate method name: same" not in collision.stderr:
+        raise AssertionError(f"duplicate method name was not rejected: {collision}")
     print("summary=ok")
 
 

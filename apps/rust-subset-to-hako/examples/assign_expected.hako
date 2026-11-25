@@ -1,5 +1,7 @@
-function bump(x: i64): i64 {
-    local value: i64 = x
-    value = value + 1
-    return value
+static box RustSubset_assign_ufixture {
+    bump(x: i64): i64 {
+        local value: i64 = x
+        value = value + 1
+        return value
+    }
 }

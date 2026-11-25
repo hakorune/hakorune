@@ -19,49 +19,11 @@
 //   Value(ValueId)
 //   Extern(String)
 
-function Callee_is_constructor(receiver: Callee): bool {
-    return null /* TODO: unsupported expression: Macro */
-}
-
-function Callee_has_receiver(receiver: Callee): bool {
-    return null /* TODO: Rust match expression is out of v0 scope */
-}
-
-function Callee_receiver(receiver: Callee): Option<ValueId> {
-    return null /* TODO: Rust match expression is out of v0 scope */
-}
-
 record CallFlags {
     tail_call: bool
     no_return: bool
     can_inline: bool
     is_constructor: bool
-}
-
-function CallFlags_new(): Self {
-    return null /* TODO: unsupported expression: Struct */
-}
-
-function CallFlags_constructor(): Self {
-    return null /* TODO: unsupported expression: Struct */
-}
-
-function CallFlags_no_return(): Self {
-    return null /* TODO: unsupported expression: Struct */
-}
-
-function CallFlags_with_tail_call(receiver: CallFlags): Self {
-    receiver.tail_call = true
-    return receiver
-}
-
-function CallFlags_with_inline(receiver: CallFlags): Self {
-    receiver.can_inline = true
-    return receiver
-}
-
-function CallFlags_default(): Self {
-    return null /* TODO: associated function call expression is out of v0 skeleton scope: CallFlags::new */
 }
 
 record MirCall {
@@ -72,44 +34,84 @@ record MirCall {
     effects: EffectMask
 }
 
-function MirCall_new(dst: Option<ValueId>, callee: Callee, args: Array): Self {
-    return null /* TODO: unsupported expression: Struct */
-}
+static box RustSubset_crate_c_ccall_uunified {
+    Callee_is_constructor(receiver: Callee): bool {
+        return null /* TODO: unsupported expression: Macro */
+    }
 
-function MirCall_global(dst: Option<ValueId>, name: String, args: Array): Self {
-    return null /* TODO: associated function call expression is out of v0 skeleton scope: MirCall::new */
-}
+    Callee_has_receiver(receiver: Callee): bool {
+        return null /* TODO: Rust match expression is out of v0 scope */
+    }
 
-function MirCall_method(dst: Option<ValueId>, box_name: String, method: String, receiver: ValueId, args: Array): Self {
-    return null /* TODO: associated function call expression is out of v0 skeleton scope: MirCall::new */
-}
+    Callee_receiver(receiver: Callee): Option<ValueId> {
+        return null /* TODO: Rust match expression is out of v0 scope */
+    }
 
-function MirCall_external(dst: Option<ValueId>, name: String, args: Array): Self {
-    local call: Unknown = null /* TODO: associated function call expression is out of v0 skeleton scope: MirCall::new */
-    call.effects = null /* TODO: associated const/value path expression is out of v0 skeleton scope: EffectMask::IO */
-    return call
-}
+    CallFlags_new(): Self {
+        return null /* TODO: unsupported expression: Struct */
+    }
 
-function MirCall_constructor(dst: ValueId, box_type: String, args: Array): Self {
-    local call: Unknown = null /* TODO: associated function call expression is out of v0 skeleton scope: MirCall::new */
-    call.flags = null /* TODO: associated function call expression is out of v0 skeleton scope: CallFlags::constructor */
-    call.effects = null /* TODO: associated const/value path expression is out of v0 skeleton scope: EffectMask::PURE */.add(null /* TODO: associated const/value path expression is out of v0 skeleton scope: Effect::Alloc */)
-    return call
-}
+    CallFlags_constructor(): Self {
+        return null /* TODO: unsupported expression: Struct */
+    }
 
-function MirCall_closure(dst: ValueId, params: Array, captures: Array, me_capture: Option<ValueId>): Self {
-    local call: Unknown = null /* TODO: associated function call expression is out of v0 skeleton scope: MirCall::new */
-    call.flags = null /* TODO: associated function call expression is out of v0 skeleton scope: CallFlags::constructor */
-    call.effects = null /* TODO: associated const/value path expression is out of v0 skeleton scope: EffectMask::PURE */.add(null /* TODO: associated const/value path expression is out of v0 skeleton scope: Effect::Alloc */)
-    return call
-}
+    CallFlags_no_return(): Self {
+        return null /* TODO: unsupported expression: Struct */
+    }
 
-function MirCall_with_tail_call(receiver: MirCall): Self {
-    receiver.flags.tail_call = true
-    return receiver
-}
+    CallFlags_with_tail_call(receiver: CallFlags): Self {
+        receiver.tail_call = true
+        return receiver
+    }
 
-function MirCall_with_effects(receiver: MirCall, effects: EffectMask): Self {
-    receiver.effects = effects
-    return receiver
+    CallFlags_with_inline(receiver: CallFlags): Self {
+        receiver.can_inline = true
+        return receiver
+    }
+
+    CallFlags_default(): Self {
+        return null /* TODO: associated function call expression is out of v0 skeleton scope: CallFlags::new */
+    }
+
+    MirCall_new(dst: Option<ValueId>, callee: Callee, args: Array): Self {
+        return null /* TODO: unsupported expression: Struct */
+    }
+
+    MirCall_global(dst: Option<ValueId>, name: String, args: Array): Self {
+        return null /* TODO: associated function call expression is out of v0 skeleton scope: MirCall::new */
+    }
+
+    MirCall_method(dst: Option<ValueId>, box_name: String, method: String, receiver: ValueId, args: Array): Self {
+        return null /* TODO: associated function call expression is out of v0 skeleton scope: MirCall::new */
+    }
+
+    MirCall_external(dst: Option<ValueId>, name: String, args: Array): Self {
+        local call: Unknown = null /* TODO: associated function call expression is out of v0 skeleton scope: MirCall::new */
+        call.effects = null /* TODO: associated const/value path expression is out of v0 skeleton scope: EffectMask::IO */
+        return call
+    }
+
+    MirCall_constructor(dst: ValueId, box_type: String, args: Array): Self {
+        local call: Unknown = null /* TODO: associated function call expression is out of v0 skeleton scope: MirCall::new */
+        call.flags = null /* TODO: associated function call expression is out of v0 skeleton scope: CallFlags::constructor */
+        call.effects = null /* TODO: associated const/value path expression is out of v0 skeleton scope: EffectMask::PURE */.add(null /* TODO: associated const/value path expression is out of v0 skeleton scope: Effect::Alloc */)
+        return call
+    }
+
+    MirCall_closure(dst: ValueId, params: Array, captures: Array, me_capture: Option<ValueId>): Self {
+        local call: Unknown = null /* TODO: associated function call expression is out of v0 skeleton scope: MirCall::new */
+        call.flags = null /* TODO: associated function call expression is out of v0 skeleton scope: CallFlags::constructor */
+        call.effects = null /* TODO: associated const/value path expression is out of v0 skeleton scope: EffectMask::PURE */.add(null /* TODO: associated const/value path expression is out of v0 skeleton scope: Effect::Alloc */)
+        return call
+    }
+
+    MirCall_with_tail_call(receiver: MirCall): Self {
+        receiver.flags.tail_call = true
+        return receiver
+    }
+
+    MirCall_with_effects(receiver: MirCall, effects: EffectMask): Self {
+        receiver.effects = effects
+        return receiver
+    }
 }

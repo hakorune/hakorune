@@ -20,10 +20,6 @@ record ContinueEdgeId {
 //   Null
 //   Void
 
-function ConstValue_fmt(receiver: ConstValue, f: fmt_Formatter): fmt_Result {
-    return null /* TODO: Rust match expression is out of v0 scope */
-}
-
 // enum BinaryOp
 //   Add
 //   Sub
@@ -74,3 +70,9 @@ function ConstValue_fmt(receiver: ConstValue, f: fmt_Formatter): fmt_Result {
 // enum BarrierOp
 //   Read
 //   Write
+
+static box RustSubset_crate_c_ctypes {
+    ConstValue_fmt(receiver: ConstValue, f: fmt_Formatter): fmt_Result {
+        return null /* TODO: Rust match expression is out of v0 scope */
+    }
+}

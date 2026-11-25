@@ -3,10 +3,12 @@ record Point {
     y: i64
 }
 
-function Point_len2(receiver: Point): i64 {
-    return receiver.x * receiver.x + receiver.y * receiver.y
-}
+static box RustSubset_simple {
+    Point_len2(receiver: Point): i64 {
+        return receiver.x * receiver.x + receiver.y * receiver.y
+    }
 
-function add(a: i64, b: i64): i64 {
-    return a + b
+    add(a: i64, b: i64): i64 {
+        return a + b
+    }
 }

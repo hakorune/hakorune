@@ -1,7 +1,9 @@
-function classify(x: i64): i64 {
-    if x == 0 {
-        return 1
-    } else {
-        return 2
+static box RustSubset_if_ufixture {
+    classify(x: i64): i64 {
+        if x == 0 {
+            return 1
+        } else {
+            return 2
+        }
     }
 }

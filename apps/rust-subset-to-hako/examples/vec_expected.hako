@@ -1,4 +1,6 @@
-function make_vec(): Array {
-    local xs: Array = [1, 2, 3]
-    return xs
+static box RustSubset_vec_ufixture {
+    make_vec(): Array {
+        local xs: Array = [1, 2, 3]
+        return xs
+    }
 }

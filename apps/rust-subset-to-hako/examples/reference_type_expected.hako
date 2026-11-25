@@ -1,3 +1,5 @@
-function maybe_name(value: Option<String>): Option<String> {
-    return value
+static box RustSubset_reference_utype {
+    maybe_name(value: Option<String>): Option<String> {
+        return value
+    }
 }
