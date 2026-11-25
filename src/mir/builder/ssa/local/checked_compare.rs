@@ -50,14 +50,6 @@ impl CheckedCompareReuseV1 {
             && self.copies.is_empty()
             && self.branches.is_empty()
     }
-    pub(in crate::mir::builder) fn clear(&mut self) {
-        self.carriers = carrier::CarrierReuse::default();
-        self.literals = literal::LiteralReuse::default();
-        self.entry = None;
-        self.records.clear();
-        self.copies.clear();
-        self.branches.clear();
-    }
     pub(in crate::mir::builder) fn adopt_entry(
         &mut self,
         entry: Rc<RefCell<Entry>>,

@@ -62,10 +62,6 @@ pub(crate) struct VerifiedLoopBreakSourceBodyInventoryV1 {
 }
 
 impl VerifiedLoopBreakSourceBodyInventoryV1 {
-    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
     pub(crate) fn root(&self) -> &SourceStmtSiteV1 {
         &self.root
     }
@@ -103,20 +99,12 @@ pub(crate) struct VerifiedLoopBreakSourceProjectionV1 {
 }
 
 impl VerifiedLoopBreakSourceProjectionV1 {
-    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
     pub(crate) fn loop_site(&self) -> &SourceStmtSiteV1 {
         &self.loop_site
     }
 
     pub(crate) fn break_if_site(&self) -> &SourceStmtSiteV1 {
         &self.break_if_site
-    }
-
-    pub(crate) const fn break_exit(&self) -> ResolvedExitRecordV1 {
-        self.break_exit
     }
 
     pub(crate) fn forest(&self) -> &VerifiedLoopCondBreakContinueSourceForestProjectionV1 {
@@ -543,10 +531,10 @@ mod tests {
             .expect("loop source");
         let projection = issue_loop_break_source_projection_v1(input, &loop_stmt, resolved)
             .expect("direct LoopBreak projection");
-        assert_eq!(projection.owner(), input.owner());
+        assert_eq!(projection.owner, input.owner());
         assert_eq!(projection.forest().members().len(), 1);
         assert_eq!(projection.forest().exits().len(), 1);
-        assert_eq!(projection.body_inventory().owner(), input.owner());
+        assert_eq!(projection.body_inventory().owner, input.owner());
         assert_eq!(projection.body_inventory().root(), loop_stmt.site());
         assert_eq!(projection.body_inventory().statements().len(), 4);
         assert!(projection.body_inventory().nested_loops().is_empty());
@@ -554,7 +542,7 @@ mod tests {
         assert_eq!(projection.carrier_update_site().node().segments().len(), 2);
         assert_eq!(projection.step_site().node().segments().len(), 2);
         assert_eq!(
-            projection.break_exit().origin(),
+            projection.break_exit.origin(),
             crate::mir::resolved_semantics::ResolvedExitOriginV1::ExplicitBreak
         );
     }

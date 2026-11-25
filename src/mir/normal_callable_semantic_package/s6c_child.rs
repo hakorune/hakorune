@@ -93,10 +93,6 @@ impl VerifiedS6CSemanticChildV1 {
         self.batch_slot
     }
 
-    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
     pub(super) const fn result(
         &self,
     ) -> crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1 {
@@ -113,10 +109,6 @@ pub(super) struct S6CSemanticChildRefV1<'loan> {
 }
 
 impl S6CSemanticChildRefV1<'_> {
-    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.child.owner()
-    }
-
     pub(crate) const fn result(
         &self,
     ) -> crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1 {
@@ -125,15 +117,6 @@ impl S6CSemanticChildRefV1<'_> {
 
     pub(crate) fn physical_effects(&self) -> &VerifiedS6CPhysicalFunctionEffectsV1 {
         self.child.physical_effects()
-    }
-
-    pub(crate) fn with_completion<R>(
-        &self,
-        callback: impl for<'facts> FnOnce(
-            crate::mir::loop_recipe_contract::S6CPrephysicalCompletionRefV2<'facts>,
-        ) -> R,
-    ) -> R {
-        self.child.ingress.with_completion(callback)
     }
 
     pub(crate) fn with_completion_parity<R>(

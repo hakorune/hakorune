@@ -114,17 +114,6 @@ impl JoinLoopTrace {
         }
     }
 
-    /// Dev-only trace message (NYASH_JOINIR_DEV=1).
-    ///
-    /// This is for diagnostics that should never appear in default runs, but are
-    /// useful while developing JoinIR lowering.
-    pub fn dev(&self, tag: &str, msg: &str) {
-        if self.dev_enabled {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[trace:dev] {}: {}", tag, msg));
-        }
-    }
-
     /// Emit a message when the caller explicitly enables it (no env checks).
     ///
     /// This is useful for routing `debug: bool` parameters through a single formatting point,
@@ -149,21 +138,6 @@ impl JoinLoopTrace {
         }
     }
 
-    /// Trace function routing decisions
-    ///
-    /// # Arguments
-    /// - `tag`: Context identifier (e.g., "router", "mainline")
-    /// - `func_name`: Name of the function being routed
-    /// - `msg`: Human-readable message about the routing decision
-    pub fn routing(&self, tag: &str, func_name: &str, msg: &str) {
-        if self.joinir_enabled || self.mainline_enabled {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[trace:routing] {}: function '{}' - {}",
-                tag, func_name, msg
-            ));
-        }
-    }
 }
 
 impl Default for JoinLoopTrace {

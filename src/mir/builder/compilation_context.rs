@@ -353,11 +353,6 @@ impl CompilationContext {
         self.current_static_box = None;
     }
 
-    /// Get current static box name
-    pub fn current_static_box(&self) -> Option<&str> {
-        self.current_static_box.as_deref()
-    }
-
     /// Check if currently compiling a static box
     pub fn is_in_static_box(&self) -> bool {
         self.current_static_box.is_some()

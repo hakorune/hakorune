@@ -26,21 +26,6 @@ pub(crate) struct LoopRecipeArtifactV2 {
     pub(crate) recipe: LoopRecipeV2,
 }
 
-impl LoopRecipeArtifactV2 {
-    pub(crate) fn new(
-        provenance: LoopRecipeProvenanceV1,
-        source_binding: LoopRecipeSourceBindingV1,
-        recipe: LoopRecipeV2,
-    ) -> Self {
-        Self {
-            schema_version: LOOP_RECIPE_SCHEMA_VERSION_V2,
-            provenance,
-            source_binding,
-            recipe,
-        }
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct LoopRecipeV2 {
@@ -347,4 +332,24 @@ pub(crate) enum LoopExitKindV2 {
     Break { target_loop: LoopNodeKeyV1 },
     Continue { target_loop: LoopNodeKeyV1 },
     Return { value: Option<LoopValueKeyV1> },
+}
+
+#[cfg(test)]
+mod test_fixtures {
+    use super::*;
+
+    impl LoopRecipeArtifactV2 {
+        pub(crate) fn new(
+            provenance: LoopRecipeProvenanceV1,
+            source_binding: LoopRecipeSourceBindingV1,
+            recipe: LoopRecipeV2,
+        ) -> Self {
+            Self {
+                schema_version: LOOP_RECIPE_SCHEMA_VERSION_V2,
+                provenance,
+                source_binding,
+                recipe,
+            }
+        }
+    }
 }

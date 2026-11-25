@@ -59,15 +59,6 @@ impl CheckedCallOutEntryIdV1 {
     }
 }
 
-impl CheckedCallOutLeaseSlotIdV1 {
-    /// Project the lease slot selected by the admitted TextScan ABI shape.
-    /// The bounded cohort admits only slot zero; the pair issuer still owns
-    /// the resulting site/outcome identities.
-    pub(crate) const fn from_admitted(value: u32) -> Self {
-        Self(value)
-    }
-}
-
 /// The only Normal result shapes admitted by the bounded TextScan cohort.
 /// Fault never carries a result or lease slot.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

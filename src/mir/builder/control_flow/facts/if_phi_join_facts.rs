@@ -37,17 +37,6 @@ impl IfPhiJoinSourceTopologyV1 {
     }
 }
 
-pub(in crate::mir::builder) fn try_extract_if_phi_join_facts(
-    condition: &ASTNode,
-    body: &[ASTNode],
-) -> Result<Option<IfPhiJoinFacts>, Freeze> {
-    try_extract_if_phi_join_facts_with_projection(
-        condition,
-        body,
-        &LoopSourceProjectionV1::default(),
-    )
-}
-
 /// Extract IfPhiJoin facts while retaining the existing flattened-body sites.
 pub(in crate::mir::builder) fn try_extract_if_phi_join_facts_with_projection(
     condition: &ASTNode,
@@ -253,7 +242,12 @@ mod tests {
         );
 
         let body = vec![if_stmt, assign("i", loop_increment())];
-        let facts = try_extract_if_phi_join_facts(&loop_condition(), &body).expect("Ok");
+        let facts = try_extract_if_phi_join_facts_with_projection(
+            &loop_condition(),
+            &body,
+            &super::LoopSourceProjectionV1::default(),
+        )
+        .expect("Ok");
         let facts = facts.expect("Some");
         assert_eq!(facts.loop_var, "i");
         assert_eq!(facts.carrier_var, "sum");
@@ -344,7 +338,12 @@ mod tests {
         };
 
         let body = vec![if_stmt, assign("i", loop_increment())];
-        let facts = try_extract_if_phi_join_facts(&loop_condition(), &body).expect("Ok");
+        let facts = try_extract_if_phi_join_facts_with_projection(
+            &loop_condition(),
+            &body,
+            &super::LoopSourceProjectionV1::default(),
+        )
+        .expect("Ok");
         assert!(facts.is_none());
     }
 
@@ -378,7 +377,12 @@ mod tests {
         );
 
         let body = vec![if_stmt, assign("i", loop_increment())];
-        let facts = try_extract_if_phi_join_facts(&loop_condition(), &body).expect("Ok");
+        let facts = try_extract_if_phi_join_facts_with_projection(
+            &loop_condition(),
+            &body,
+            &super::LoopSourceProjectionV1::default(),
+        )
+        .expect("Ok");
         assert!(facts.is_none());
     }
 
@@ -413,7 +417,12 @@ mod tests {
             },
             assign("i", loop_increment()),
         ];
-        let facts = try_extract_if_phi_join_facts(&loop_condition(), &body).expect("Ok");
+        let facts = try_extract_if_phi_join_facts_with_projection(
+            &loop_condition(),
+            &body,
+            &super::LoopSourceProjectionV1::default(),
+        )
+        .expect("Ok");
         assert!(facts.is_none());
     }
 
@@ -466,7 +475,12 @@ mod tests {
         );
 
         let body = vec![if_stmt, assign("i", loop_increment())];
-        let facts = try_extract_if_phi_join_facts(&loop_condition(), &body).expect("Ok");
+        let facts = try_extract_if_phi_join_facts_with_projection(
+            &loop_condition(),
+            &body,
+            &super::LoopSourceProjectionV1::default(),
+        )
+        .expect("Ok");
         assert!(facts.is_none());
     }
 }

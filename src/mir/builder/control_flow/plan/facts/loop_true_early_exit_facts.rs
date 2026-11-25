@@ -31,17 +31,6 @@ pub(in crate::mir::builder) struct LoopTrueEarlyExitSourceTopologyV1 {
     step: LoopSourceBodySiteV1,
 }
 
-pub(in crate::mir::builder) fn try_extract_loop_true_early_exit_facts(
-    condition: &ASTNode,
-    body: &[ASTNode],
-) -> Result<Option<LoopTrueEarlyExitFacts>, Freeze> {
-    try_extract_loop_true_early_exit_facts_with_projection(
-        condition,
-        body,
-        &LoopSourceProjectionV1::default(),
-    )
-}
-
 pub(in crate::mir::builder) fn try_extract_loop_true_early_exit_facts_with_projection(
     condition: &ASTNode,
     body: &[ASTNode],
@@ -327,7 +316,12 @@ mod tests {
         let condition = lit_true();
         let body = vec![if_return(v("done"), Some(v("value"))), increment("i")];
 
-        let facts = try_extract_loop_true_early_exit_facts(&condition, &body).expect("Ok");
+        let facts = try_extract_loop_true_early_exit_facts_with_projection(
+            &condition,
+            &body,
+            &super::LoopSourceProjectionV1::default(),
+        )
+        .expect("Ok");
         let facts = facts.expect("Some");
 
         assert_eq!(facts.loop_var, "i");
@@ -344,7 +338,12 @@ mod tests {
             increment("i"),
         ];
 
-        let facts = try_extract_loop_true_early_exit_facts(&condition, &body).expect("Ok");
+        let facts = try_extract_loop_true_early_exit_facts_with_projection(
+            &condition,
+            &body,
+            &super::LoopSourceProjectionV1::default(),
+        )
+        .expect("Ok");
         let facts = facts.expect("Some");
 
         assert_eq!(facts.loop_var, "i");
@@ -419,7 +418,12 @@ mod tests {
         let condition = lit_true();
         let body = vec![if_break_else(v("done")), increment("i")];
 
-        let facts = try_extract_loop_true_early_exit_facts(&condition, &body).expect("Ok");
+        let facts = try_extract_loop_true_early_exit_facts_with_projection(
+            &condition,
+            &body,
+            &super::LoopSourceProjectionV1::default(),
+        )
+        .expect("Ok");
         assert!(facts.is_none());
     }
 
@@ -428,7 +432,12 @@ mod tests {
         let condition = lit_true();
         let body = vec![if_return(v("done"), None)];
 
-        let facts = try_extract_loop_true_early_exit_facts(&condition, &body).expect("Ok");
+        let facts = try_extract_loop_true_early_exit_facts_with_projection(
+            &condition,
+            &body,
+            &super::LoopSourceProjectionV1::default(),
+        )
+        .expect("Ok");
         assert!(facts.is_none());
     }
 }

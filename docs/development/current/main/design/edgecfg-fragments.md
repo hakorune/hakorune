@@ -251,8 +251,7 @@ The architectural SSOT is **Frag composition rules** (`seq`/`if`/`loop`/`cleanup
 
 **Terminator emission**:
 - `wires` → Jump/Return terminators (`emit_wires` internally)
-- `branches` → Branch terminators (`set_branch_with_edge_args`)
-- Phase 260 terminator API (SSOT): `set_jump_with_edge_args`, `set_branch_with_edge_args`
+- `branches` → Branch terminators (`CanonicalCfgSessionV1::commit_instruction`)
 
 ### Composition-side Invariants
 
@@ -307,7 +306,7 @@ pub fn seq(a: Frag, b: Frag) -> Frag {
 
 **Responsibilities**:
 - Calls `emit_frag()` to generate MIR terminators
-- Uses Phase 260 terminator API (`set_jump_with_edge_args`, `set_branch_with_edge_args`)
+- Delegates terminator publication to `CanonicalCfgSessionV1`.
 - No allocation, no CFG construction
 
 **Example** (PlanLowerer::lower_loop):

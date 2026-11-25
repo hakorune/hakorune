@@ -38,19 +38,6 @@ impl BoolPredicateScanSourceTopologyV1 {
     }
 }
 
-pub(in crate::mir::builder) fn try_extract_bool_predicate_scan_facts(
-    condition: &ASTNode,
-    body: &[ASTNode],
-    observation: &ScanConditionObservation,
-) -> Result<Option<BoolPredicateScanFacts>, Freeze> {
-    try_extract_bool_predicate_scan_facts_with_projection(
-        condition,
-        body,
-        observation,
-        &LoopSourceProjectionV1::default(),
-    )
-}
-
 pub(in crate::mir::builder) fn try_extract_bool_predicate_scan_facts_with_projection(
     condition: &ASTNode,
     body: &[ASTNode],
@@ -398,7 +385,13 @@ mod tests {
 
         let observation = scan_condition_observation(&condition_shape, &step_shape);
         let facts =
-            try_extract_bool_predicate_scan_facts(&condition, &body, &observation).expect("Ok");
+            try_extract_bool_predicate_scan_facts_with_projection(
+                &condition,
+                &body,
+                &observation,
+                &super::LoopSourceProjectionV1::default(),
+            )
+            .expect("Ok");
         let facts = facts.expect("Some");
 
         assert_eq!(facts.loop_var, "i");
@@ -462,7 +455,13 @@ mod tests {
 
         let observation = scan_condition_observation(&condition_shape, &step_shape);
         let facts =
-            try_extract_bool_predicate_scan_facts(&condition, &body, &observation).expect("Ok");
+            try_extract_bool_predicate_scan_facts_with_projection(
+                &condition,
+                &body,
+                &observation,
+                &super::LoopSourceProjectionV1::default(),
+            )
+            .expect("Ok");
         assert!(facts.is_none());
     }
 
@@ -483,7 +482,13 @@ mod tests {
 
         let observation = scan_condition_observation(&condition_shape, &step_shape);
         let facts =
-            try_extract_bool_predicate_scan_facts(&condition, &body, &observation).expect("Ok");
+            try_extract_bool_predicate_scan_facts_with_projection(
+                &condition,
+                &body,
+                &observation,
+                &super::LoopSourceProjectionV1::default(),
+            )
+            .expect("Ok");
         assert!(facts.is_none());
     }
 }

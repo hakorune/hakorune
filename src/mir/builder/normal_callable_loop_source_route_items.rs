@@ -397,17 +397,6 @@ impl VerifiedCallableLoopCallFreeCoverageV1 {
         &self.loop_site
     }
 
-    pub(in crate::mir::builder) const fn condition_site(&self) -> &SourceExprSiteV1 {
-        &self.condition_site
-    }
-
-    pub(in crate::mir::builder) fn covered_statements(&self) -> &[SourceStmtSiteV1] {
-        &self.statements
-    }
-
-    pub(in crate::mir::builder) fn covered_expressions(&self) -> &[SourceExprSiteV1] {
-        &self.expressions
-    }
 }
 
 /// Source-proven call coverage for one armed LoopCond subtree.

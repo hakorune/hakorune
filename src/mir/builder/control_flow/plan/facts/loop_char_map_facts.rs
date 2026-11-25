@@ -35,19 +35,6 @@ pub(in crate::mir::builder) struct LoopCharMapSourceTopologyV1 {
     step: LoopSourceBodySiteV1,
 }
 
-pub(in crate::mir::builder) fn try_extract_loop_char_map_facts(
-    condition: &ASTNode,
-    body: &[ASTNode],
-    observation: &ScanConditionObservation,
-) -> Result<Option<LoopCharMapFacts>, Freeze> {
-    try_extract_loop_char_map_facts_with_projection(
-        condition,
-        body,
-        observation,
-        &LoopSourceProjectionV1::default(),
-    )
-}
-
 pub(in crate::mir::builder) fn try_extract_loop_char_map_facts_with_projection(
     condition: &ASTNode,
     body: &[ASTNode],
@@ -254,7 +241,7 @@ fn extract_result_update(stmt: &ASTNode, ch_var: &str) -> Option<(String, String
 
 #[cfg(test)]
 mod tests {
-    use super::{try_extract_loop_char_map_facts, LoopCharMapFacts};
+    use super::{try_extract_loop_char_map_facts_with_projection, LoopCharMapFacts};
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
     use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
         scan_condition_observation, ConditionShape, LengthMethod, StepShape,
@@ -350,7 +337,12 @@ mod tests {
 
         let body = vec![local_ch, result_update, step];
         let observation = scan_condition_observation(&condition_shape, &step_shape);
-        let facts = try_extract_loop_char_map_facts(&condition, &body, &observation)
+        let facts = try_extract_loop_char_map_facts_with_projection(
+            &condition,
+            &body,
+            &observation,
+            &super::LoopSourceProjectionV1::default(),
+        )
             .expect("Ok")
             .expect("Some");
 
@@ -392,7 +384,13 @@ mod tests {
         }];
 
         let observation = scan_condition_observation(&condition_shape, &step_shape);
-        let facts = try_extract_loop_char_map_facts(&condition, &body, &observation).expect("Ok");
+        let facts = try_extract_loop_char_map_facts_with_projection(
+            &condition,
+            &body,
+            &observation,
+            &super::LoopSourceProjectionV1::default(),
+        )
+        .expect("Ok");
         assert!(facts.is_none());
     }
 }

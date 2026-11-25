@@ -117,10 +117,6 @@ pub(crate) struct PreparedStaticTerminalRootRouteV1<'ledger> {
 }
 
 impl PreparedStaticTerminalRootRouteV1<'_> {
-    pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
-        &self.site
-    }
-
     pub(crate) fn commit_prechecked(self) {
         self.ledger
             .lifecycle_local_call_sites

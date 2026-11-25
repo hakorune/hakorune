@@ -269,12 +269,6 @@ impl RootHomeCleanupOrderV1 {
         self.text_return_hold.as_ref()
     }
 
-    pub(in crate::mir::normal_callable_semantic_package) fn ordinary(
-        full: Vec<RootHomeReleaseOriginV1>,
-    ) -> Result<Self, String> {
-        Self::from_sequences(full.clone(), &full, &full)
-    }
-
     /// Expand original full exit Homes once; Normal selects whole Home plans.
     pub(super) fn from_home_end_plans(
         ledger: &super::OrdinaryNewClaimLedgerV1,
@@ -786,5 +780,18 @@ impl super::OrdinaryNewClaimLedgerV1 {
         }
         order.return_read = Some(read);
         Ok(Some(value))
+    }
+}
+
+#[cfg(test)]
+mod test_fixtures {
+    use super::*;
+
+    impl RootHomeCleanupOrderV1 {
+        pub(in crate::mir::normal_callable_semantic_package) fn ordinary(
+            full: Vec<RootHomeReleaseOriginV1>,
+        ) -> Result<Self, String> {
+            Self::from_sequences(full.clone(), &full, &full)
+        }
     }
 }

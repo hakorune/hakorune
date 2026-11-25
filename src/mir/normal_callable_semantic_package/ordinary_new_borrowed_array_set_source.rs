@@ -20,7 +20,6 @@ pub(in crate::mir) struct BorrowedArraySetSourceLoanV1 {
 }
 impl BorrowedArraySetSourceLoanV1 {
     pub(in crate::mir) fn call(&self) -> &OwnedExprSiteV1 { &self.call }
-    pub(in crate::mir) fn receiver(&self) -> &OwnedExprSiteV1 { &self.receiver }
     pub(in crate::mir) fn argument_sites(&self) -> [&SourceExprSiteV1; 2] {
         [self.index.parts_v1().0.site(), self.value.2.site()]
     }

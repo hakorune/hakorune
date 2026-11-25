@@ -236,10 +236,6 @@ impl NormalInstanceConstructorSourceKeyV1 {
         }
     }
 
-    pub(in crate::mir::builder) const fn statement_index(&self) -> usize {
-        self.statement_index
-    }
-
     pub(in crate::mir::builder) fn box_name(&self) -> &str {
         &self.box_name
     }
@@ -572,7 +568,7 @@ mod tests {
             .expect("constructor ABI");
 
         assert!(first.source_key().source_id().same_as(&source_id));
-        assert_eq!(first.source_key().statement_index(), 7);
+        assert_eq!(first.source_key().statement_index, 7);
         assert_eq!(first.physical_symbol(), "Page.birth/0");
         assert_eq!(second.physical_arity(), 1);
         let (key, symbol, arity) = second.into_collector_parts();

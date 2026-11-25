@@ -42,10 +42,6 @@ impl PreparedLoopOperationRowV1 {
         self.schedule
     }
 
-    pub(crate) const fn block(self) -> LoopBlockKeyV1 {
-        self.schedule.block
-    }
-
     pub(crate) const fn operation(self) -> LoopOperationV1 {
         self.operation
     }

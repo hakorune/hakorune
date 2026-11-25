@@ -344,10 +344,6 @@ impl NewLocalCommitV1 {
         self.object
     }
 
-    pub(super) fn construction(&self) -> &super::ConstructionEligibilityV1 {
-        &self.construction
-    }
-
     pub(super) fn pending(
         binding: BindingRefV1,
         declaration: SourceBindingSiteV1,

@@ -232,7 +232,7 @@ fn emit_block_params_as_phis(
 /// # 責務
 /// - verify_frag_invariants_strict() で事前検証（Fail-Fast）
 /// - wires → Jump/Return terminator（emit_wires を呼ぶ）
-/// - branches → Branch terminator（set_branch_with_edge_args を使う）
+/// - branches → Branch terminator（CanonicalCfgSessionV1::commit_instruction を使う）
 /// - 1 block = 1 terminator 制約を強制
 ///
 /// # 引数

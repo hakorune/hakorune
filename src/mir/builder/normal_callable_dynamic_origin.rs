@@ -90,10 +90,6 @@ impl PreparedDynamicLocalEntryV1 {
         self.formal
     }
 
-    pub(super) const fn binding(&self) -> BindingRefV1 {
-        self.binding
-    }
-
     pub(super) const fn initializer(&self) -> ValueId {
         self.initializer
     }
@@ -130,24 +126,6 @@ pub(super) struct CurrentDynamicBindingReceiptV1 {
     previous: ValueId,
     current: ValueId,
     origin: BindingRefV1,
-}
-
-impl CurrentDynamicBindingReceiptV1 {
-    pub(super) const fn binding(&self) -> BindingRefV1 {
-        self.binding
-    }
-
-    pub(super) const fn previous(&self) -> ValueId {
-        self.previous
-    }
-
-    pub(super) const fn current(&self) -> ValueId {
-        self.current
-    }
-
-    pub(super) const fn origin(&self) -> BindingRefV1 {
-        self.origin
-    }
 }
 
 impl CallableDynamicOriginLoweringStateV1 {

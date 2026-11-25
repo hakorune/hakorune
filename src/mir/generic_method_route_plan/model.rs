@@ -1,4 +1,4 @@
-use crate::mir::core_method_op::{CoreMethodOpCarrier, LoweringPlanEmitKind, LoweringPlanTier};
+use crate::mir::core_method_op::{CoreMethodOpCarrier, LoweringPlanTier};
 use crate::mir::generated::generic_method_route_descriptors::descriptor_for_route_kind;
 use crate::mir::generic_method_route_facts::{
     GenericMethodKeyRoute, GenericMethodPublicationPolicy, GenericMethodReturnShape,
@@ -413,12 +413,6 @@ impl GenericMethodRoute {
         self.decision
             .core_method
             .map(|carrier| carrier.lowering_tier.plan_tier())
-    }
-
-    pub fn lowering_emit_kind(&self) -> Option<LoweringPlanEmitKind> {
-        self.decision
-            .core_method
-            .map(|carrier| carrier.lowering_tier.plan_emit_kind())
     }
 
     pub fn return_shape(&self) -> Option<GenericMethodReturnShape> {

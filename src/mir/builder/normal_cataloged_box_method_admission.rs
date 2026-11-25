@@ -74,25 +74,6 @@ impl CatalogedBoxMethodPhysicalHeaderProjectionV1 {
         &self.key
     }
 
-    pub(in crate::mir) fn params(&self) -> &[String] {
-        &self.params
-    }
-
-    pub(in crate::mir) fn param_decls(&self) -> &[ParamDecl] {
-        &self.param_decls
-    }
-
-    pub(in crate::mir) fn return_type_name(&self) -> Option<&str> {
-        self.return_type_name.as_deref()
-    }
-
-    pub(in crate::mir) fn uses(&self) -> &[String] {
-        &self.uses
-    }
-
-    pub(in crate::mir) fn attrs(&self) -> &DeclarationAttrs {
-        &self.attrs
-    }
 }
 
 #[derive(Debug)]

@@ -47,10 +47,6 @@ pub(super) struct ReadyFunctionCompletionV1 {
 }
 
 impl ReadyFunctionCompletionV1 {
-    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
     pub(super) fn explicit_operand(&self) -> Option<ReturnOperandWitnessV1> {
         if self.explicit_claims.len() != 1 {
             return None;

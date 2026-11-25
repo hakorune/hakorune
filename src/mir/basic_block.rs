@@ -317,32 +317,6 @@ impl BasicBlock {
         self.update_successors_from_terminator();
     }
 
-    /// Set branch terminator with per-edge args
-    pub fn set_branch_with_edge_args(
-        &mut self,
-        condition: ValueId,
-        then_bb: BasicBlockId,
-        then_edge_args: Option<EdgeArgs>,
-        else_bb: BasicBlockId,
-        else_edge_args: Option<EdgeArgs>,
-    ) {
-        let terminator = MirInstruction::Branch {
-            condition,
-            then_bb,
-            else_bb,
-            then_edge_args,
-            else_edge_args,
-        };
-        if !self.is_terminator(&terminator) {
-            panic!("Instruction is not a valid terminator: {:?}", terminator);
-        }
-
-        self.effects = self.effects | terminator.effects();
-        self.terminator = Some(terminator);
-        self.terminator_span = Some(self.fallback_terminator_span());
-        self.update_successors_from_terminator();
-    }
-
     /// Add a predecessor
     pub fn add_predecessor(&mut self, pred: BasicBlockId) {
         self.predecessors.insert(pred);
@@ -538,15 +512,6 @@ impl BasicBlock {
         self.sealed
     }
 
-    /// Check if this block dominates another block (simplified check)
-    /// Phase 69-3: Changed to BTreeSet for determinism
-    pub fn dominates(&self, other: BasicBlockId, dominators: &[BTreeSet<BasicBlockId>]) -> bool {
-        if let Some(dom_set) = dominators.get(other.to_usize()) {
-            dom_set.contains(&self.id)
-        } else {
-            false
-        }
-    }
 }
 
 impl fmt::Display for BasicBlock {

@@ -29,10 +29,6 @@ mod numeric_substrate_tests;
 #[cfg(test)]
 mod tests;
 
-pub(super) fn build_typed_object_plans(module: &MirModule) -> Result<Vec<TypedObjectPlan>, String> {
-    prepare_layouts(module).map(|(_, plans)| plans)
-}
-
 pub(super) fn refresh(module: &mut MirModule) -> Result<(), String> {
     let (canonical, projection) = prepare_layouts(module)?;
     module.install_object_layouts_preflighted(canonical);

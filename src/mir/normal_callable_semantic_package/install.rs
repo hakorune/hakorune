@@ -198,23 +198,10 @@ impl S6CInstalledCallableLoanRefV1<'_> {
         self.child.physical_effects()
     }
 
-    pub(crate) const fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
-        self.child.owner()
-    }
-
     pub(crate) const fn result(
         &self,
     ) -> crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1 {
         self.child.result()
-    }
-
-    pub(crate) fn with_completion<R>(
-        &self,
-        callback: impl for<'facts> FnOnce(
-            crate::mir::loop_recipe_contract::S6CPrephysicalCompletionRefV2<'facts>,
-        ) -> R,
-    ) -> R {
-        self.child.with_completion(callback)
     }
 
     pub(crate) fn with_completion_parity<R>(

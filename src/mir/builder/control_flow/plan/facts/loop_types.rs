@@ -59,10 +59,6 @@ impl LoopFacts {
         &self.source_receipt
     }
 
-    pub fn source_projection(&self) -> &LoopSourceProjectionV1 {
-        &self.source_projection
-    }
-
     pub fn scan_with_init(&self) -> Option<&ScanWithInitFacts> {
         self.scan_with_init.as_ref()
     }

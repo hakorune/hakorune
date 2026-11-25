@@ -254,23 +254,6 @@ impl MirModule {
         self.functions.keys().collect()
     }
 
-    /// Verify entire module
-    pub fn verify(&self) -> Result<(), Vec<String>> {
-        let mut errors = Vec::new();
-
-        for (name, function) in &self.functions {
-            if let Err(e) = function.verify() {
-                errors.push(format!("Function '{}': {}", name, e));
-            }
-        }
-
-        if errors.is_empty() {
-            Ok(())
-        } else {
-            Err(errors)
-        }
-    }
-
     /// Get module statistics
     pub fn stats(&self) -> ModuleStats {
         let function_stats: Vec<_> = self.functions.values().map(|f| f.stats()).collect();

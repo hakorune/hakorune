@@ -345,9 +345,6 @@ impl BirthAbiHandoffV1 {
         &self.formal_contracts
     }
 
-    pub(crate) const fn result(&self) -> BirthResultAbiV1 {
-        self.result
-    }
 }
 
 fn dynamic_object_contract(
@@ -402,7 +399,7 @@ mod tests {
                 .collect::<Vec<_>>(),
             vec![(Some(0), 1), (Some(1), 2)]
         );
-        assert_eq!(handoff.result(), BirthResultAbiV1::Unit);
+        assert_eq!(handoff.result, BirthResultAbiV1::Unit);
         // Reissuing from this same source row lends its existing execution;
         // the final provider/claim join must not reconstruct that permission.
         assert_eq!(handoff, BirthAbiHandoffV1::issue(

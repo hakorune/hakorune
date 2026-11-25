@@ -110,10 +110,6 @@ impl VerifiedSameRootReceiverValueV1 {
         analysis::verify(builder, value, false).map(|result| result.proof)
     }
 
-    pub(crate) fn value(&self) -> ValueId {
-        self.value
-    }
-
     pub(crate) fn receiver(&self) -> &VerifiedCurrentReceiverIdentityV1 {
         &self.receiver
     }

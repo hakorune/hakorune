@@ -153,7 +153,7 @@ fn exact_entry_and_local_copy_preserve_source_backed_origin() {
         }
     );
     assert_eq!(retained.formal(), formal);
-    assert_eq!(retained.binding(), local);
+    assert_eq!(retained.binding, local);
     assert_eq!(retained.initializer(), initializer);
     assert_eq!(retained.local(), local_value);
     fixture.state.finish().unwrap();
@@ -407,10 +407,10 @@ fn prepared_dynamic_rebind_commits_current_and_lineage_together() {
 
     let receipt = fixture.state.commit_current_rebind(prepared);
 
-    assert_eq!(receipt.binding(), local);
-    assert_eq!(receipt.previous(), local_value);
-    assert_eq!(receipt.current(), result);
-    assert_eq!(receipt.origin(), origin);
+    assert_eq!(receipt.binding, local);
+    assert_eq!(receipt.previous, local_value);
+    assert_eq!(receipt.current, result);
+    assert_eq!(receipt.origin, origin);
     assert_eq!(fixture.state.current_origin(local, local_value), None);
     assert_eq!(fixture.state.current_origin(local, result), Some(origin));
     assert_eq!(fixture.state.value_origin(result), Some(origin));

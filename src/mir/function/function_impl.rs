@@ -112,63 +112,6 @@ impl MirFunction {
         ids
     }
 
-    /// Get all values defined in this function
-    pub fn defined_values(&self) -> Vec<ValueId> {
-        let mut values = Vec::new();
-        values.extend(&self.params);
-
-        for block in self.blocks.values() {
-            values.extend(block.defined_values());
-        }
-
-        values
-    }
-
-    /// Verify function integrity (basic checks)
-    pub fn verify(&self) -> Result<(), String> {
-        // Check entry block exists
-        if !self.blocks.contains_key(&self.entry_block) {
-            return Err("Entry block does not exist".to_string());
-        }
-
-        // Check all blocks are reachable from entry
-        let reachable = self.compute_reachable_blocks();
-        for (id, _block) in &self.blocks {
-            if !reachable.contains(id) {
-                let ring0 = crate::runtime::get_global_ring0();
-                ring0
-                    .log
-                    .debug(&format!("Warning: Block {} is unreachable", id));
-            }
-        }
-
-        // Check terminator consistency
-        for block in self.blocks.values() {
-            if !block.is_terminated() && !block.is_empty() {
-                return Err(format!("Block {} is not properly terminated", block.id));
-            }
-
-            // Check successor/predecessor consistency
-            for successor_id in &block.successors {
-                if let Some(successor) = self.blocks.get(successor_id) {
-                    if !successor.predecessors.contains(&block.id) {
-                        return Err(format!(
-                            "Inconsistent CFG: {} -> {} but {} doesn't have {} as predecessor",
-                            block.id, successor_id, successor_id, block.id
-                        ));
-                    }
-                } else {
-                    return Err(format!(
-                        "Block {} references non-existent successor {}",
-                        block.id, successor_id
-                    ));
-                }
-            }
-        }
-
-        Ok(())
-    }
-
     /// Compute reachable blocks from entry
     fn compute_reachable_blocks(&self) -> std::collections::HashSet<BasicBlockId> {
         crate::mir::verification::utils::compute_reachable_blocks(self)

@@ -21,11 +21,6 @@ impl CheckedMulReuseV1 {
         self.records.is_empty() && self.operand_copies.is_empty()
     }
 
-    pub(in crate::mir::builder) fn clear(&mut self) {
-        self.records.clear();
-        self.operand_copies.clear();
-    }
-
     pub(in crate::mir::builder) fn records(&self) -> impl Iterator<Item = &Rc<Record>> {
         self.records.values()
     }

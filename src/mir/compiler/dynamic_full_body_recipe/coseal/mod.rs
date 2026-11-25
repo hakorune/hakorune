@@ -64,10 +64,6 @@ impl VerifiedDynamicFullLoopSourceRecipeEnvelopeV2 {
         self.iteration_local.borrow(&self.source)
     }
 
-    pub(in crate::mir) fn physical_evidence(&self) -> &VerifiedDynamicFullLoopPhysicalEvidenceV2 {
-        &self.physical_evidence
-    }
-
     #[cfg(test)]
     fn artifact(&self) -> &VerifiedLoopRecipeArtifactV2 {
         &self.artifact

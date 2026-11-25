@@ -338,21 +338,6 @@ impl NormalCompileRequestV1 {
         )
     }
 
-    pub fn for_llvm_source(
-        ast: ASTNode,
-        source_file: Option<&str>,
-        imports: HashMap<String, String>,
-    ) -> Result<Self, RejectedNormalProgramCompileRequestV1> {
-        Self::new(
-            ast,
-            source_file,
-            imports,
-            NormalCompileAdmissionV1::PreparedSourceWithImports(
-                NormalPreparedSourceCallerV1::LlvmSourceCompiler,
-            ),
-        )
-    }
-
     pub fn for_wasm_source(
         ast: ASTNode,
         source_file: Option<&str>,
@@ -756,3 +741,25 @@ impl MirCompiler {
 #[cfg(test)]
 #[path = "normal_default_pipeline_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+mod test_fixtures {
+    use super::*;
+
+    impl NormalCompileRequestV1 {
+        pub fn for_llvm_source(
+            ast: ASTNode,
+            source_file: Option<&str>,
+            imports: HashMap<String, String>,
+        ) -> Result<Self, RejectedNormalProgramCompileRequestV1> {
+            Self::new(
+                ast,
+                source_file,
+                imports,
+                NormalCompileAdmissionV1::PreparedSourceWithImports(
+                    NormalPreparedSourceCallerV1::LlvmSourceCompiler,
+                ),
+            )
+        }
+    }
+}

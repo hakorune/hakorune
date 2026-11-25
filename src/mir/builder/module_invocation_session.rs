@@ -162,15 +162,6 @@ impl BuilderInvocationConfigV1 {
         self.emit_debug_policy
     }
 
-    /// Project the one invocation-owned policy snapshot used by the
-    /// source-backed Generic G0 issuer.  An invalid planner-only combination
-    /// is deliberately rejected instead of being normalized to a default.
-    pub(in crate::mir) fn generic_g0_policy_mode_v1(
-        &self,
-    ) -> Option<crate::mir::loop_route_policy::GenericG0PolicyModeV1> {
-        self.emit_debug_policy.generic_g0_policy_mode_v1()
-    }
-
     /// Project the invocation-owned flags into the existing LoopFacts policy
     /// frame.  Source package issuance must consume this snapshot instead of
     /// rereading process environment after the invocation has started.

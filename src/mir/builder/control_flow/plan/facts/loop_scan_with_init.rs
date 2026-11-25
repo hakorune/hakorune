@@ -35,21 +35,6 @@ struct ScanIfReturnMatch {
     matched_index: usize,
 }
 
-pub(super) fn try_extract_scan_with_init_facts(
-    condition: &ASTNode,
-    body: &[ASTNode],
-    condition_shape: &ConditionShape,
-    step_shape: &StepShape,
-) -> Result<Option<ScanWithInitFacts>, Freeze> {
-    try_extract_scan_with_init_facts_with_projection(
-        condition,
-        body,
-        condition_shape,
-        step_shape,
-        &LoopSourceProjectionV1::default(),
-    )
-}
-
 pub(super) fn try_extract_scan_with_init_facts_with_projection(
     condition: &ASTNode,
     body: &[ASTNode],
@@ -585,7 +570,13 @@ mod tests {
             .expect("known step shape");
 
         let facts =
-            try_extract_scan_with_init_facts(&condition, &body, &condition_shape, &step_shape)
+            try_extract_scan_with_init_facts_with_projection(
+                &condition,
+                &body,
+                &condition_shape,
+                &step_shape,
+                &super::LoopSourceProjectionV1::default(),
+            )
                 .expect("facts extraction")
                 .expect("scan facts");
 

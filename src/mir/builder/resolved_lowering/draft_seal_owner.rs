@@ -60,16 +60,6 @@ pub(in crate::mir::builder) struct SelectedDynamicCandidateMetadataV1 {
 }
 
 impl SelectedDynamicCandidateMetadataV1 {
-    pub(super) fn new(
-        receipt: APrimeI64PhysicalReceiptV1,
-        projection: DynamicV2AotCallMetadataProjectionV1,
-    ) -> Self {
-        Self {
-            receipt,
-            projection,
-        }
-    }
-
     pub(super) fn into_parts(
         self,
     ) -> (

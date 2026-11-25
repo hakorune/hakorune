@@ -64,21 +64,6 @@ impl EvaluatedBoxReferenceV1 {
     pub(in crate::mir) fn value(&self) -> ValueId {
         self.value
     }
-    /// Only an existing canonical payload proof may supply layout membership.
-    /// Alias/from declarations alone have no canonical layout at this phase.
-    pub(in crate::mir) fn object(&self) -> Option<hakorune_mir_defs::CanonicalObjectIdV1> {
-        match &self.ownership {
-            BoxReferenceOwnershipV1::Borrowed(BoxReferenceSupportV1::Field(source)) => match source.result() {
-                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedObject(child) => Some(child.child()), _ => None,
-            },
-            BoxReferenceOwnershipV1::Borrowed(BoxReferenceSupportV1::DeclaredFrom(read)) => {
-                let mut loans = read.loans();
-                let first = loans.next()?.map_payload_v1()?.1;
-                loans.all(|loan| loan.map_payload_v1().is_some_and(|(_, object)| object == first)).then_some(first)
-            }
-            BoxReferenceOwnershipV1::Borrowed(BoxReferenceSupportV1::Alias(_)) => None,
-        }
-    }
     pub(in crate::mir) fn field_source(
         &self,
     ) -> Option<&Rc<crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1>> {

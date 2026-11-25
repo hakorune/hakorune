@@ -47,10 +47,6 @@ impl VerifiedIfFlowCoverageV1 {
         &self.then_direct
     }
 
-    pub(crate) fn else_direct(&self) -> &[SourceExprSiteV1] {
-        &self.else_direct
-    }
-
     pub(super) fn direct_sites(&self) -> impl Iterator<Item = &SourceExprSiteV1> {
         self.condition_direct
             .iter()

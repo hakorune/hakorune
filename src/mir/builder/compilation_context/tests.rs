@@ -23,11 +23,11 @@ fn test_static_box_mode() {
 
     ctx.enter_static_box("Main".to_string());
     assert!(ctx.is_in_static_box());
-    assert_eq!(ctx.current_static_box(), Some("Main"));
+    assert_eq!(ctx.current_static_box.as_deref(), Some("Main"));
 
     ctx.exit_static_box();
     assert!(!ctx.is_in_static_box());
-    assert_eq!(ctx.current_static_box(), None);
+    assert_eq!(ctx.current_static_box.as_deref(), None);
 }
 
 #[test]

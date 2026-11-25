@@ -4,7 +4,6 @@
 mod control_borrow;
 
 use crate::mir::builder::MirBuilder;
-use crate::mir::checked_callout::CheckedCallOutSiteIdV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::located::SourceBodySiteV1;
 use crate::mir::resolved_control_flow::if_control::{
@@ -256,10 +255,6 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         self.owner
     }
 
-    pub(in crate::mir::builder::resolved_lowering) const fn target_function(&self) -> RegionId {
-        self.target_function
-    }
-
     pub(in crate::mir::builder::resolved_lowering) fn entry_block(
         &self,
         builder: &MirBuilder,
@@ -298,48 +293,6 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
                 "[freeze:contract][canonical_physical_value/type_drift] value={value:?} expected={expected:?} actual={actual:?}"
             )),
         }
-    }
-
-    /// Sole canonical SSA/session writer for the physical End instruction.
-    /// End has no SSA result, but it must still be emitted through the
-    /// canonical session so a caller cannot pair a foreign site or lease slot
-    /// with an otherwise valid block.
-    pub(in crate::mir::builder::resolved_lowering) fn emit_checked_callout_end(
-        &mut self,
-        builder: &mut MirBuilder,
-        block: BasicBlockId,
-        site_id: CheckedCallOutSiteIdV1,
-        lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1,
-    ) -> Result<(), String> {
-        let function = builder
-            .function_state
-            .current_function
-            .as_mut()
-            .ok_or_else(|| "checked callout End requires current function".to_owned())?;
-        let plan = function
-            .metadata
-            .checked_callout_plan(site_id)
-            .ok_or_else(|| "checked callout End has no admitted site plan".to_owned())?;
-        match plan.normal_shape() {
-            crate::mir::checked_callout::CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
-                lease_slot: expected,
-            } if expected == lease_slot => {}
-            _ => return Err("checked callout End lease shape mismatch".to_owned()),
-        }
-        if builder.function_state.current_block != Some(block) {
-            return Err("checked callout End requires selected current block".to_owned());
-        }
-        let target = function
-            .get_block_mut(block)
-            .ok_or_else(|| "checked callout End block is missing".to_owned())?;
-        if target.is_sealed() || target.is_terminated() {
-            return Err("checked callout End block is sealed or terminated".to_owned());
-        }
-        target.add_instruction(crate::mir::MirInstruction::CheckedCallOutEnd {
-            site_id,
-            lease_slot,
-        });
-        Ok(())
     }
 
     pub(in crate::mir::builder) fn adopt_generic_g0_entry_lanes(

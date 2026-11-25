@@ -35,19 +35,6 @@ pub(in crate::mir::builder) struct LoopArrayJoinSourceTopologyV1 {
     step: LoopSourceBodySiteV1,
 }
 
-pub(in crate::mir::builder) fn try_extract_loop_array_join_facts(
-    condition: &ASTNode,
-    body: &[ASTNode],
-    observation: &ScanConditionObservation,
-) -> Result<Option<LoopArrayJoinFacts>, Freeze> {
-    try_extract_loop_array_join_facts_with_projection(
-        condition,
-        body,
-        observation,
-        &LoopSourceProjectionV1::default(),
-    )
-}
-
 pub(in crate::mir::builder) fn try_extract_loop_array_join_facts_with_projection(
     condition: &ASTNode,
     body: &[ASTNode],
@@ -274,7 +261,7 @@ fn extract_array_append(stmt: &ASTNode, idx_var: &str) -> Option<(String, String
 
 #[cfg(test)]
 mod tests {
-    use super::{try_extract_loop_array_join_facts, LoopArrayJoinFacts};
+    use super::{try_extract_loop_array_join_facts_with_projection, LoopArrayJoinFacts};
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
     use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
         scan_condition_observation, ConditionShape, LengthMethod, StepShape,
@@ -358,7 +345,12 @@ mod tests {
         };
 
         let observation = scan_condition_observation(&condition_shape, &step_shape);
-        let facts = try_extract_loop_array_join_facts(&condition, &body, &observation)
+        let facts = try_extract_loop_array_join_facts_with_projection(
+            &condition,
+            &body,
+            &observation,
+            &super::LoopSourceProjectionV1::default(),
+        )
             .expect("Ok")
             .expect("Some facts");
 
@@ -407,7 +399,13 @@ mod tests {
         };
 
         let observation = scan_condition_observation(&condition_shape, &step_shape);
-        let facts = try_extract_loop_array_join_facts(&condition, &body, &observation).expect("Ok");
+        let facts = try_extract_loop_array_join_facts_with_projection(
+            &condition,
+            &body,
+            &observation,
+            &super::LoopSourceProjectionV1::default(),
+        )
+        .expect("Ok");
         assert!(facts.is_none());
     }
 }

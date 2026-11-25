@@ -66,26 +66,6 @@ impl ExpressionStaticObservationV1 {
 }
 
 impl PreparedStaticTerminalPacketV1 {
-    pub(crate) fn loan<'a>(
-        &'a self,
-        publication: &'a VerifiedStaticCallResultPublicationHandoffV1,
-    ) -> CallPacketSourceLoanV1<'a> {
-        CallPacketSourceLoanV1::Static {
-            original: &self.original,
-            observation: &self.observation,
-            publication,
-            expression_origin: self.expression_origin.as_ref(),
-        }
-    }
-
-    pub(crate) fn original(&self) -> &Rc<StaticIncomingSourceV1> {
-        &self.original
-    }
-
-    pub(crate) fn observation(&self) -> &LocalCallObservationV1 {
-        &self.observation
-    }
-
     pub(crate) fn into_packet(
         self,
         publication: VerifiedStaticCallResultPublicationHandoffV1,

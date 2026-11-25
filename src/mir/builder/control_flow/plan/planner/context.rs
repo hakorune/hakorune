@@ -6,12 +6,6 @@ pub(in crate::mir::builder) struct PlannerContext {
 }
 
 impl PlannerContext {
-    pub(in crate::mir::builder) fn from_environment() -> Self {
-        Self {
-            loop_facts_policy: LoopFactsPolicyFrameV1::from_environment(),
-        }
-    }
-
     pub(in crate::mir::builder) const fn from_loop_facts_policy(
         loop_facts_policy: LoopFactsPolicyFrameV1,
     ) -> Self {
@@ -22,5 +16,18 @@ impl PlannerContext {
         &self,
     ) -> LoopFactsPolicyFrameV1 {
         self.loop_facts_policy
+    }
+}
+
+#[cfg(test)]
+mod test_fixtures {
+    use super::*;
+
+    impl PlannerContext {
+        pub(in crate::mir::builder) fn from_environment() -> Self {
+            Self {
+                loop_facts_policy: LoopFactsPolicyFrameV1::from_environment(),
+            }
+        }
     }
 }

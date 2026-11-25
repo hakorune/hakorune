@@ -285,7 +285,7 @@ fn accepts_receiver_and_copy_chain_without_persistent_metadata() {
     let second = fixture.add_copy(0, first);
     assert_eq!(fixture.normalized(second).unwrap(), "R");
     let proof = fixture.verify(second).unwrap();
-    assert_eq!(proof.value(), second);
+    assert_eq!(proof.value, second);
     assert_eq!(proof.receiver().receiver_parameter(), receiver);
     assert_eq!(proof.receiver().owner_box(), OWNER);
     assert!(!fixture

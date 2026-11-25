@@ -51,27 +51,6 @@ pub struct AggLocalScalarizationRoute {
     pub reason: String,
 }
 
-impl AggLocalScalarizationRoute {
-    pub fn summary(&self) -> String {
-        let block_suffix = self
-            .block
-            .map(|block| format!(" bb{}", block.as_u32()))
-            .unwrap_or_else(|| " module".to_string());
-        let instruction_suffix = self
-            .instruction_index
-            .map(|index| format!("#{index}"))
-            .unwrap_or_default();
-        let value_suffix = self
-            .value
-            .map(|value| format!(" value=%{}", value.as_u32()))
-            .unwrap_or_default();
-        format!(
-            "{}{} {} kind={}{} reason={}",
-            block_suffix, instruction_suffix, self.subject, self.kind, value_suffix, self.reason
-        )
-    }
-}
-
 pub fn refresh_module_agg_local_scalarization_routes(module: &mut MirModule) {
     let metadata = module.metadata.clone();
     for function in module.functions.values_mut() {

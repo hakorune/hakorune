@@ -41,17 +41,17 @@ fn home_abi_maps_i64_parameter_and_result_without_query_behavior() {
     let declaration = &home.declarations()[0];
     let abi = &home.home_abis()[0];
 
-    assert_eq!(abi.receiver(), HomeDemandV1::Handle);
+    assert_eq!(abi.receiver, HomeDemandV1::Handle);
     assert_eq!(abi.parameters(), &[HomeDemandV1::Trivial]);
-    assert_eq!(abi.result(), HomeResultRelationV1::Trivial);
-    assert_eq!(abi.resolver_brand(), declaration.resolver_brand());
-    assert_eq!(abi.nominal_box_type(), declaration.nominal_box_type());
+    assert_eq!(abi.result, HomeResultRelationV1::Trivial);
+    assert_eq!(abi.resolver_brand, declaration.resolver_brand());
+    assert_eq!(abi.nominal_box_type, declaration.nominal_box_type());
     assert_eq!(
-        abi.box_statement_ordinal(),
+        abi.box_statement_ordinal,
         declaration.box_statement_ordinal()
     );
     assert_eq!(
-        abi.method_member_ordinal(),
+        abi.method_member_ordinal,
         declaration.method_member_ordinal()
     );
 }
@@ -64,19 +64,19 @@ fn home_abi_maps_unit_result_and_ignores_query_carriage() {
     );
     let without_query = issue_home("box TextLike { reset() { return } }", "TextLike");
 
-    assert_eq!(with_query.home_abis()[0].receiver(), HomeDemandV1::Handle);
+    assert_eq!(with_query.home_abis()[0].receiver, HomeDemandV1::Handle);
     assert_eq!(with_query.home_abis()[0].parameters(), &[]);
     assert_eq!(
-        with_query.home_abis()[0].result(),
+        with_query.home_abis()[0].result,
         HomeResultRelationV1::Trivial
     );
     assert_eq!(
-        without_query.home_abis()[0].receiver(),
+        without_query.home_abis()[0].receiver,
         HomeDemandV1::Handle
     );
     assert_eq!(without_query.home_abis()[0].parameters(), &[]);
     assert_eq!(
-        without_query.home_abis()[0].result(),
+        without_query.home_abis()[0].result,
         HomeResultRelationV1::Unit
     );
 }
@@ -98,14 +98,14 @@ fn home_abi_uses_a_fresh_relation_batch_for_each_issuance() {
     let first = issue_home("box TextLike { length(): i64 { return 0 } }", "TextLike");
     let second = issue_home("box TextLike { length(): i64 { return 0 } }", "TextLike");
 
-    assert_ne!(first.relation_batch_brand(), second.relation_batch_brand());
+    assert_ne!(first.relation_batch_brand, second.relation_batch_brand);
     assert_eq!(
-        first.home_abis()[0].relation_batch_brand(),
-        first.relation_batch_brand()
+        first.home_abis()[0].relation_batch_brand,
+        first.relation_batch_brand
     );
     assert_eq!(
-        second.home_abis()[0].relation_batch_brand(),
-        second.relation_batch_brand()
+        second.home_abis()[0].relation_batch_brand,
+        second.relation_batch_brand
     );
 }
 
@@ -123,15 +123,15 @@ fn query_carriage_does_not_change_home_abi_output() {
     let without_home = issue_home("box TextLike { length(): i64 { return 0 } }");
 
     assert_eq!(
-        with_home.home_abis()[0].receiver(),
-        without_home.home_abis()[0].receiver()
+        with_home.home_abis()[0].receiver,
+        without_home.home_abis()[0].receiver
     );
     assert_eq!(
         with_home.home_abis()[0].parameters(),
         without_home.home_abis()[0].parameters()
     );
     assert_eq!(
-        with_home.home_abis()[0].result(),
-        without_home.home_abis()[0].result()
+        with_home.home_abis()[0].result,
+        without_home.home_abis()[0].result
     );
 }

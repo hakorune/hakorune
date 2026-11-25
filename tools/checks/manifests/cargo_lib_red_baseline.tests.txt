@@ -4048,12 +4048,6 @@ mir::join_ir::tests::loop_header_shape_params_order_is_pinned_then_carrier
 mir::join_ir::tests::test_join_function_creation
 mir::join_ir::tests::test_join_module
 mir::join_ir::tests::test_mark_normalized
-mir::join_ir_ops::tests::test_eval_binop_add_int
-mir::join_ir_ops::tests::test_eval_binop_add_str
-mir::join_ir_ops::tests::test_eval_binop_and
-mir::join_ir_ops::tests::test_eval_binop_div_by_zero
-mir::join_ir_ops::tests::test_eval_binop_or
-mir::join_ir_ops::tests::test_eval_binop_sub
 mir::join_ir_ops::tests::test_eval_compare_bool_eq
 mir::join_ir_ops::tests::test_eval_compare_bool_lt_error
 mir::join_ir_ops::tests::test_eval_compare_int_eq

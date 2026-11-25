@@ -80,10 +80,6 @@ pub(super) struct VerifiedDynamicLoopCarrierSourceV1 {
 }
 
 impl VerifiedDynamicLoopCarrierSourceV1 {
-    pub(super) const fn local(&self) -> BindingRefV1 {
-        self.local
-    }
-
     pub(super) fn condition_reads(&self) -> &[SourceExprSiteV1] {
         &self.condition_reads
     }

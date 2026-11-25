@@ -128,10 +128,6 @@ impl CallableLoopOutsideRowV1 {
         self.observed.binding()
     }
 
-    pub(super) const fn kind(&self) -> CallableLoopOutsideKindV1 {
-        self.kind
-    }
-
     pub(super) fn receipts(&self) -> &[CallableLoopBindingReceiptV1] {
         self.observed.receipts()
     }

@@ -25,7 +25,7 @@ fn facade_rebuilds_and_validates_declared_return_carrier() {
         refresh_and_validate_for_boundary(&mut module, ContractRefreshBoundary::ToolDirectVerify)
             .expect("refresh");
 
-    assert_eq!(bundle.boundary(), ContractRefreshBoundary::ToolDirectVerify);
+    assert_eq!(bundle.boundary, ContractRefreshBoundary::ToolDirectVerify);
     assert_eq!(bundle.carriers().return_exits, 1);
     assert_eq!(bundle.carriers().total(), 1);
     assert!(bundle

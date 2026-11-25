@@ -24,10 +24,6 @@ pub(in crate::mir) struct RawSourceLocatorV1 {
 }
 
 impl RawSourceLocatorV1 {
-    pub(in crate::mir) fn top_level_statement(&self) -> usize {
-        self.top_level_statement
-    }
-
     pub(in crate::mir) fn box_name(&self) -> &str {
         &self.box_name
     }
@@ -223,10 +219,6 @@ impl OwnedRawSourceV1 {
         })
     }
 
-    pub(in crate::mir) fn origin(&self) -> RawSourceOriginV1 {
-        self.origin
-    }
-
     pub(in crate::mir) fn projection(&self) -> &OwnedRawRootProjectionV1 {
         &self.projection
     }
@@ -295,7 +287,7 @@ mod tests {
     fn projection_owns_locators_without_borrowing_the_ast() {
         let source = program();
         let owned = OwnedRawSourceV1::bind(source, RawSourceOriginV1::BareAst).unwrap();
-        assert_eq!(owned.origin(), RawSourceOriginV1::BareAst);
+        assert_eq!(owned.origin, RawSourceOriginV1::BareAst);
         let OwnedRawRootProjectionV1::App {
             main,
             static_children,

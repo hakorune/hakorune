@@ -198,10 +198,6 @@ impl VerifiedInstanceMethodDeclarationCatalogV1 {
         self.resolver_brand
     }
 
-    pub(crate) fn parser_provenance(&self) -> &ResolverSourceInvocationProvenanceV1 {
-        &self.parser_provenance
-    }
-
 }
 
 impl VerifiedInstanceMethodDeclarationV1 {
@@ -229,9 +225,6 @@ impl VerifiedInstanceMethodDeclarationV1 {
         &self.signature
     }
 
-    pub(crate) fn callable_contract(&self) -> Option<&CallableContractSyntaxV1> {
-        self.callable_contract.as_ref()
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

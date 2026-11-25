@@ -60,22 +60,11 @@ impl OwnedRefreshedContractBundle {
         &self.module
     }
 
-    pub fn boundary(&self) -> ContractRefreshBoundary {
-        self.boundary
-    }
-
-    pub fn carriers(&self) -> ContractCarrierSummary {
-        self.carriers
-    }
 }
 
 impl<'a> RefreshedContractBundle<'a> {
     pub fn module(&self) -> &'a MirModule {
         self.module
-    }
-
-    pub fn boundary(&self) -> ContractRefreshBoundary {
-        self.boundary
     }
 
     pub fn carriers(&self) -> ContractCarrierSummary {
