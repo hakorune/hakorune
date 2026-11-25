@@ -50,32 +50,13 @@ pub(crate) fn parse_static_header(
         Vec::new()
     };
 
-    // extends: from Parent1, Parent2
-    let extends = if p.match_token(&TokenType::FROM) {
-        p.advance(); // consume 'from'
-        let mut parents = Vec::new();
-        loop {
-            if let TokenType::IDENTIFIER(parent_name) = &p.current_token().token_type {
-                parents.push(parent_name.clone());
-                p.advance();
-                if p.match_token(&TokenType::COMMA) {
-                    p.advance();
-                } else {
-                    break;
-                }
-            } else {
-                let line = p.current_token().line;
-                return Err(ParseError::UnexpectedToken {
-                    found: p.current_token().token_type.clone(),
-                    expected: "parent class name".to_string(),
-                    line,
-                });
-            }
-        }
-        parents
-    } else {
-        Vec::new()
-    };
+    if p.match_token(&TokenType::FROM) {
+        return Err(ParseError::GrammarContract {
+            stable_reject_tag: "decl/static-box-from",
+            detail: "remove the parent clause and call the parent's method as Parent.method(...)".to_owned(),
+            line: p.current_token().line,
+        });
+    }
 
     // implements: `interface A, B` (optional)
     let implements = if p.match_token(&TokenType::INTERFACE) {
@@ -104,5 +85,5 @@ pub(crate) fn parse_static_header(
         Vec::new()
     };
 
-    Ok((name, type_parameters, extends, implements))
+    Ok((name, type_parameters, Vec::new(), implements))
 }
