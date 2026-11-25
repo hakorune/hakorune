@@ -82,7 +82,7 @@ fn preparation_installs_exact_method_header_and_preserves_owned_body() {
     )
     .unwrap();
 
-    assert_eq!(prepared.body(), body.as_slice());
+    assert_eq!(prepared.into_body(), body);
     let function = builder.function_state.current_function.as_ref().unwrap();
     assert_eq!(function.signature.name, "Fixture.read/1");
     assert_eq!(

@@ -298,7 +298,8 @@ run_selfhost_case() {
     return 1
   fi
 
-  if ! grep -qF "$planner_tag" "$raw_log"; then
+  # A dash keeps the TSV column present without requiring a log tag.
+  if [ "$planner_tag" != "-" ] && ! grep -qF "$planner_tag" "$raw_log"; then
     log_error "$gate_name:$case_name missing planner tag ($planner_tag)"
     emit_failure_summary_from_log "$log_path"
     echo "LOG: $log_path"

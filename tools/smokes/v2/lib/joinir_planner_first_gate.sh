@@ -89,7 +89,8 @@ run_planner_first_gate() {
 
   # NOTE: Avoid `echo ... | grep -q` under `set -o pipefail`, because `grep -q`
   # closes the pipe early and can turn the pipeline into a SIGPIPE failure.
-  if ! planner_first_tag_matches "$output" "$planner_tag"; then
+  # A dash keeps the TSV column present without requiring a log tag.
+  if [ "$planner_tag" != "-" ] && ! planner_first_tag_matches "$output" "$planner_tag"; then
     echo "[FAIL] Missing planner-first tag ($planner_tag)"
     echo "$output" | tail -n 40 || true
     test_fail "$test_name: Missing planner-first tag"
