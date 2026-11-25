@@ -81,6 +81,9 @@ static box Main {
   maintainer decision 2026-11-26). Implementation pending: the current parser
   still accepts both forms until the ADR-005 rejection round (step 3).
 - **Rationale**: Prevents mutable globals; maintains "state lives in boxes" discipline
+  - "Boxes" here means ordinary `box` instances. A static box only groups
+    static methods by name and holds no state ([ADR-006](../../development/adr/adr-006-static-box-holds-only-static-methods.md), maintainer decision
+    2026-11-26; implementation pending until the ADR-006 rejection round).
 
 ### REPL Mode (convenient) - Interactive Example
 

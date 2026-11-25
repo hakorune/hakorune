@@ -170,6 +170,15 @@ box ChoiceBox {
 The branch bodies above are allowed because their declaration signatures are
 identical. Bodies may differ; field/method surface may not.
 
+Static box bodies ([ADR-006](../../development/adr/adr-006-static-box-holds-only-static-methods.md), maintainer decision 2026-11-26): a static box holds
+only static methods, so a member-level `gate` there can only select methods.
+ADR-006 records that form as a later extension; its exact rule is undecided.
+The proposal is to share this LANG-CFG-002 rule: check both branches as
+syntax, require a same-signature pair for a non-empty public surface, and
+register the selected method. It is not built: the current parser rejects a
+member-level `gate` inside a static box body ("expected method or field
+name"). Top-level `gate` items are unchanged.
+
 ### LANG-CFG-005: statement level
 
 Scope:

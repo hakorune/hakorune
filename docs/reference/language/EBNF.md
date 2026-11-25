@@ -26,6 +26,7 @@ Design SSOT note (Scope Exit Semantics):
   its grammar/verified consumer remains production 0.
 - 2026-11-16 ([ADR-004](../../development/adr/adr-004-failure-surface-catch-and-cleanup.md), maintainer decision): trailing `catch`/`cleanup` stay in the language as forms over `Result`; not built yet. `RecoverableFailure`, `throw` and exceptions stay rejected.
 - 2026-11-26 ([ADR-005](../../development/adr/adr-005-file-functions-live-in-static-boxes.md), maintainer decision): file functions live in static boxes. File-mode `program` has no `function_decl`; a top-level `function` or `static function` is a compile error that says to write it as a method in a static box. Not built yet: the current parser still accepts both until the ADR-005 rejection round (step 3).
+- 2026-11-26 ([ADR-006](../../development/adr/adr-006-static-box-holds-only-static-methods.md), maintainer decision): a static box only groups static methods by name. `new` of a static box is `call/new-static-box`; static-box fields, `init { }`, `static { }`, and a header `from` become compile errors; the `flow` declaration spelling retires. Not built yet (ADR-006 step 3); see "Static box declaration".
 - source catch and `RecoverableFailure` are rejected targets.
 - standalone `cleanup {}` is the sole lexical cleanup target; local/postfix
   cleanup and scope-position `fini` are retirement input.
@@ -1039,14 +1040,56 @@ Current migration lowering boundary (no JSON v0 change in this docs slice)
   catch and the handler carrier.
 - unsupported routes reject before protected-body effects. JSON v0 is unchanged.
 
-### Static box declaration (current parser)
+### Static box declaration
+
+Decision: [ADR-006](../../development/adr/adr-006-static-box-holds-only-static-methods.md)
+(maintainer decision 2026-11-26). A static box only groups static methods by
+name. To hold state, write an ordinary `box`. A `static box` is also the only
+place for file functions
+([ADR-005](../../development/adr/adr-005-file-functions-live-in-static-boxes.md)).
+Implementation pending: the current parser form below stays until the ADR-006
+rejection round (step 3).
+
+#### Accepted target grammar
+
+```
+static_box_decl    := 'static' 'box' IDENT static_type_params? static_interfaces?
+                      '{' static_member* '}'
+static_type_params := '<' IDENT (',' IDENT)* '>'
+static_interfaces  := 'interface' IDENT (',' IDENT)*
+static_member      := static_method_decl
+static_method_decl := ( 'method' )? IDENT '(' params? ')' ( ':' TYPE_REF )? signature_clause* block
+                    ; every method is static. Rune metadata may precede it.
+```
+
+Target rules (ADR-006):
+
+- `new` of a static box is rejected as `call/new-static-box`. It is a different
+  rejection from `new` of an undeclared name. A static box that shadows a
+  builtin name (`static box MapBox {}`) is rejected the same way; the compiler
+  does not fall back to the builtin.
+- A static box holds no state or initialization. Fields, `init { }`,
+  `static { }`, typed fields, and field initializers (`x: T`, `x = e`,
+  `x: T = e`) are compile errors at the declaration. The diagnostic says that a
+  static box cannot hold state or initialization and that state belongs in an
+  ordinary `box`. The proposed rejection name is `decl/static-box-state`.
+- A static box header has no `from`, like a `box` header. Call a parent method
+  by name (`P.f()`). The ownership/result-contract `from` of a method signature
+  is a different form and is not affected.
+- `static function` members are not added. A Box-less
+  `static function Box.f(...)` is the ADR-005 file-level compile error.
+- `flow` as a declaration spelling retires. A named group of functions moves to
+  `static box`; anything that holds state moves to `box`.
+- A method-selecting `gate` inside a static box is the intended later
+  extension (same paired-signature rule as LANG-CFG-002). It is not built.
+- File-level `static const` tables are a separate declaration and do not
+  change.
+
+#### Current parser (until ADR-006 step 3)
 
 Status: a transcription of what the current Rust parser reads (2026-11-26,
-maintainer OK). It adds no language decision. Where this form differs from
-other documents, the difference is left for a maintainer decision.
-
-A `static box` is the only place for file functions
-([ADR-005](../../development/adr/adr-005-file-functions-live-in-static-boxes.md)).
+maintainer OK). The target rules above replace the differing parts when
+step 3 lands.
 
 ```
 static_box_decl    := 'static' 'box' IDENT static_type_params? static_from? static_interfaces?
@@ -1069,16 +1112,15 @@ static_initializer := 'static' block
 
 Newlines and `;` may separate members.
 
-Differences from `box` (current parser):
+Differences from `box` in the current parser:
 
 - No constructor. `birth` is not a static-box member; writing it is a parse
   error. `new` of a static box parses as an ordinary `new_expr` and is rejected
   when the program is compiled (checked 2026-11-26 with the current CLI). The
   current rejection is `[mir/callable-semantic-package/issue]` with
   `OrdinaryBoxCoverageMissing` for the box name; it is the same rejection as
-  `new` of an undeclared name. `types.md` states the rule (a static box is not
-  constructible); the MirBuilder blueprint proposes the name
-  `call/new-static-box` (section 23.1, A20).
+  `new` of an undeclared name. ADR-006 gives it its own name,
+  `call/new-static-box` (MirBuilder blueprint section 23.1, A20).
 - Members are limited to the forms above. These `box` member forms are parse
   errors in a static box ("expected method or field name"): typed fields
   (`x: T`), field initializers (`x = expr`), `weak x` outside `init`,
@@ -1089,10 +1131,15 @@ Differences from `box` (current parser):
 - The parser reads `static_field`, `init_block`, and `static_initializer`, but
   compiling a program that has them stopped with
   `[mir/normal-root/consume] IntegrityInvalid` in the 2026-11-26 checks. That
-  is not a named source rejection.
+  is not a named source rejection. ADR-006 makes all of them the declaration
+  error `decl/static-box-state` (proposed name).
 - The header accepts type parameters and `from` and `interface` lists. A
   `box` header rejects `from` (`parser/from_transport_not_closed_form` in the
-  2026-11-26 check); a static box header reads it without that check.
+  2026-11-26 check); a static box header reads it without that check. ADR-006
+  rejects it like the `box` header.
+- `flow Name { ... }` is read by the `box` parser as an ordinary (non-static)
+  box, although a code comment calls it static-box sugar. ADR-006 retires the
+  spelling.
 - Inside a static box, `me.m()` names a static method of the same box; `me` is
   not an instance value (`semantic-kernel.md`).
 

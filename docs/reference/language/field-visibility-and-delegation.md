@@ -27,6 +27,13 @@ property forwarding
 Legacy `from` / `override` names may still exist in old parser/model internals
 or historical examples, but they are not the current canonical surface.
 
+A static box header has no `from` either ([ADR-006](../../development/adr/adr-006-static-box-holds-only-static-methods.md), maintainer decision
+2026-11-26). `static box Child from Parent { ... }` becomes a compile error
+like the `box` header; call the parent's method by name (`Parent.f()`). The
+current parser still accepts it until the ADR-006 rejection round (step 3).
+The ownership/result-contract `from` of a method signature is a different form
+and is not affected.
+
 ## Canonical Delegation
 
 Behavior reuse is explicit composition:
@@ -105,3 +112,17 @@ box Child from Parent {
 
 are legacy / historical and should not be copied into new code. New code should
 use an explicit field plus `delegate field exposes { ... }`.
+
+The static box form is quarantined the same way (ADR-006):
+
+```hako
+// legacy: becomes a compile error in ADR-006 step 3
+static box Child from Parent {
+    f() { return 1 }
+}
+
+// new code: no header `from`; call the parent by name
+static box Child {
+    f() { return Parent.base() }
+}
+```
