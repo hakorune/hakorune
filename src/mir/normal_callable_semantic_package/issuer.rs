@@ -373,8 +373,10 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
             .map(|calls| (calls, Default::default())),
     }
     .map_err(|error| NormalCallableSemanticPackageIssueV1::CoreMethodSource { _error: error })?;
-    let omitted_static_callers = validate_cataloged_source_co_seal_v1(&catalog, &batch, &selected)
-        .map_err(|error| NormalCallableSemanticPackageIssueV1::Batch { _error: error })?;
+    let omitted_static_callers = Rc::new(
+        validate_cataloged_source_co_seal_v1(&catalog, &batch, &selected)
+            .map_err(|error| NormalCallableSemanticPackageIssueV1::Batch { _error: error })?,
+    );
     app_main_relation::validate_app_main_root_owner_relation_v1(&catalog, &batch)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::AppMainRoot { _error: error })?;
     let mut direct_call_loans = match app_main_identity.as_ref() {

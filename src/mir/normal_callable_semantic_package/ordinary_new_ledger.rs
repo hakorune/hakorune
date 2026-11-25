@@ -190,6 +190,7 @@ impl OrdinaryNewClaimLedgerV1 {
             original_object_sources: None,
             original_parameter_contracts: None,
             original_instance_input_issuance: None,
+            omitted_static_callers: None,
             array_holder_lifecycles: RefCell::new(BTreeMap::new()),
             local_commits: RefCell::new(BTreeMap::new()),
             root_validation: RefCell::new(local_commit::RootNewValidation::Unregistered),

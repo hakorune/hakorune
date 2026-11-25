@@ -107,25 +107,6 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(self.checked_input_use_source_v1(contract)?.map(Some))
     }
 
-    /// Use the exact original Call retained by the caller's checked evaluation.
-    /// A zero-input call does not depend on the destination of its result.
-    pub(in crate::mir::normal_callable_semantic_package) fn has_static_zero_checked_source_v1(
-        &self,
-        original: &Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
-    ) -> bool {
-        use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1;
-
-        if !original.is_zeroarg_i64_v1() {
-            return false;
-        }
-        let site = original.call_site();
-        self.observes_static_result_v1(original, LocalCallResultClassV1::I64)
-            || self.terminal_relations_for_owner(site.owner()).iter().any(|relation|
-            matches!(relation, crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Scalar(terminal)
-                if terminal.evaluation().is_some_and(|frame|
-                    original.is_scalar_return_source_v1(frame.source()))))
-    }
-
     fn observes_static_result_v1(
         &self,
         original: &Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
@@ -143,56 +124,12 @@ impl OrdinaryNewClaimLedgerV1 {
             })
     }
 
-    pub(super) fn static_zero_input_uses_source_v1(
-        &self,
-        source: &PreparedBorrowedFormalIngressV1,
-        owner: FunctionOwnerIdV1,
-    ) -> bool {
-        source
-            .source_incoming
-            .source_rows_v1()
-            .filter(|row| row.callee == owner)
-            .any(|row| {
-                matches!(&row.source,
-                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
-                    if self.has_static_zero_checked_source_v1(original))
-            })
-    }
-
-    /// The finisher and its lender recheck the same original caller cohort.
-    /// A checked call retaining the original source can demand source-only zero callers.
-    pub(super) fn static_zero_input_calls_v1(
-        &self,
-        source: &PreparedBorrowedFormalIngressV1,
-        owner: FunctionOwnerIdV1,
-    ) -> Result<Box<[super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1]>, String>
-    {
-        let owners = [owner].into_iter().collect();
-        let checked_source = self.static_zero_input_uses_source_v1(source, owner);
-        let calls = if checked_source {
-            source.source_incoming.project_source_v1(&owners)
-        } else {
-            source.source_incoming.project(&owners)
-        };
-        let calls = calls.map_err(|issue| {
-            format!("{}: {issue:?}", freeze("borrowed-formal/incoming-coverage"))
-        })?;
-        if !checked_source {
-            return Ok(calls);
-        }
-        if self.original_instance_input_issuance.is_none() {
-            return Err(freeze("static-zero/selected-key"));
-        }
-        Ok(calls
-            .into_vec()
-            .into_iter()
-            .filter(|call| self.static_input_caller_has_execution_v1(call))
-            .collect())
-    }
-
-    /// Project execution membership only after the caller census is validated.
-    /// Source-only callers still contribute source identity and its vetoes.
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn static_input_caller_has_execution_v1(
+    /// The one rule for owing a Static actual row, asked after the caller
+    /// census is validated. Every caller keeps its source identity and vetoes;
+    /// only a caller that the co-seal recorded as omitted from this closed-app
+    /// artifact, under the same caller owner and declaration key, may lack its
+    /// actual row. Root, Birth, selected and unclassified callers owe one.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn static_input_caller_owes_actuals_v1(
         &self,
         call: &super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
     ) -> bool {
@@ -201,14 +138,9 @@ impl OrdinaryNewClaimLedgerV1 {
         let BorrowedIncomingSourceV1::Static(original) = &call.source else {
             return true;
         };
-        self.root_owner() == Some(call.call.owner())
-            || self.original_instance_input_issuance.as_ref().is_none_or(|(selected, _)| {
-                selected.batch_slot(
-                    &crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
-                        original.caller().clone(),
-                    ),
-                ).is_some()
-            })
+        !self.omitted_static_callers.as_deref().is_some_and(|omitted| {
+            omitted.get(&call.call.owner()) == Some(original.caller())
+        })
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn allows_general_tagged_static_input_v1(
@@ -217,9 +149,9 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
     ) -> bool {
         // A downstream forwarding read cannot establish this entry's input
-        // protocol. The original cohort must have executable caller evidence.
+        // protocol. Every caller that owes an actual row must have its source row.
         let mut callers = source.source_incoming.source_rows_v1().filter(|row| {
-            row.callee == owner && self.static_input_caller_has_execution_v1(row)
+            row.callee == owner && self.static_input_caller_owes_actuals_v1(row)
         }).peekable();
         !self.static_expression_input_owner_v1(source, owner, false)
             && callers.peek().is_some()
@@ -306,8 +238,11 @@ impl OrdinaryNewClaimLedgerV1 {
                         || original.has_exact_i64_inputs_v1()
                             && self.observes_static_result_v1(original,
                                 crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Text);
+                    // A call with no input and an I64 result also closes here once its
+                    // original row exists; no separate zero-input protocol remains.
                     (allow_tagged && source.has_tagged_static_input_v1(owner, original.parameters()))
                         || finite_forward || text_source || scalar_expression_source || exact_input_text
+                        || original.is_zeroarg_i64_v1()
                         || original.parameters().iter().any(|formal| formal.takes_declared_object_v1())
                 }
                 _ => false,

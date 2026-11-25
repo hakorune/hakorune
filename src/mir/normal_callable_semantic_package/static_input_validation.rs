@@ -1,7 +1,5 @@
 //! Recheck retained whole-input evidence against the same source and completion.
-use super::static_input_finish::{
-    original_zero_input_source_v1, StaticInputEvidenceV1, StaticInputFinishV1,
-};
+use super::static_input_finish::{StaticInputEvidenceV1, StaticInputFinishV1};
 use super::*;
 use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
 use crate::mir::normal_callable_semantic_package::{
@@ -93,8 +91,8 @@ pub(super) fn checked_terminal_static_literal_v1(
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    /// One signature/result/Completion correspondence for both zero and
-    /// qualified source inputs. Specialized scalar/mixed owners remain separate.
+    /// One signature/result/Completion correspondence for qualified source
+    /// inputs, zero-input I64 calls included. Specialized scalar owners remain separate.
     pub(super) fn verify_static_input_header_v1(
         &self,
         selected: &VerifiedSelectedCallableBatchMapV1,
@@ -167,100 +165,6 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(fail("result-completion-identity"));
         }
         Ok(completion)
-    }
-
-    /// Borrow only the SAME completed whole input cohort. No caller result,
-    /// transport or affine publication permission is issued by this lender.
-    pub(in crate::mir::normal_callable_semantic_package) fn checked_completed_static_zero_arguments_v1(
-        &self,
-        original: &Rc<StaticIncomingSourceV1>,
-    ) -> Result<Option<&[LocalCallArgumentV1]>, String> {
-        if !original.is_zero_input_source_v1() {
-            return Err(freeze("static-zero/source-contract"));
-        }
-        let source = self
-            .borrowed_formal_source
-            .as_ref()
-            .ok_or_else(|| freeze("static-zero/source-missing"))?
-            .as_ref()
-            .map_err(Clone::clone)?;
-        let retained = original_zero_input_source_v1(source, original)?
-            .ok_or_else(|| freeze("static-zero/original-source-missing"))?;
-        if !Rc::ptr_eq(retained, original) {
-            return Err(freeze("static-zero/original-source-drift"));
-        }
-        let owner = original.callee_owner();
-        let calls = self.static_zero_input_calls_v1(source, owner)?;
-        let Some(completion) = self.completion_index.get(&owner) else {
-            return Ok(None);
-        };
-        let completion = completion
-            .as_ref()
-            .map_err(|issue| format!("{}: {issue:?}", freeze("static-zero/callee-completion")))?;
-        if completion.owner() != owner {
-            return Err(freeze("static-zero/completion-owner"));
-        }
-        let mut missing = false;
-        let mut requested = None;
-        let mut seen = std::collections::BTreeSet::new();
-        for call in &calls {
-            if !seen.insert(call.call.clone()) {
-                return Err(freeze("static-zero/original-row-duplicate"));
-            }
-            let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(source_call) =
-                &call.source
-            else {
-                return Err(freeze("static-zero/original-source-kind"));
-            };
-            let retained = original_zero_input_source_v1(source, source_call)?
-                .ok_or_else(|| freeze("static-zero/original-source-missing"))?;
-            if !Rc::ptr_eq(source_call, retained)
-                || !source_call.is_zero_input_source_v1()
-                || source_call.target() != original.target()
-                || source_call.callee_owner() != owner
-                || source_call.target_batch_slot() != original.target_batch_slot()
-                || source_call.call_site() != &call.call
-                || !call.arguments.is_empty()
-            {
-                return Err(freeze("static-zero/original-target"));
-            }
-            let Some(actuals) = self.borrowed_formal_actuals.get(&call.call) else {
-                missing = true;
-                continue;
-            };
-            let actuals = actuals.as_ref().map_err(Clone::clone)?;
-            let BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(finish) = &actuals.phase
-            else {
-                missing = true;
-                continue;
-            };
-            if !finish.corroborates_source_v1(source_call)
-                || !Rc::ptr_eq(&finish.completion, completion)
-            {
-                return Err(freeze("static-zero/completion-drift"));
-            }
-            let arguments = actuals.ordered_arguments_for_v1(call)?;
-            if !arguments.is_empty() || !actuals.opaque_actuals.is_empty() {
-                return Err(freeze("static-zero/argument-snapshot-drift"));
-            }
-            if &call.call == original.call_site() {
-                if requested.is_some() {
-                    return Err(freeze("static-zero/original-row-duplicate"));
-                }
-                requested = Some(arguments);
-            }
-        }
-        for retained in source
-            .source_incoming
-            .static_observations()
-            .values()
-            .filter_map(|row| row.as_ref().ok())
-        {
-            if retained.callee_owner() == owner && !seen.contains(retained.call_site()) {
-                return Err(freeze("static-zero/original-row-missing"));
-            }
-        }
-        Ok(if missing { None } else { requested })
     }
 
     /// Reborrow the same completed Text source retained by whole-input finishing.
@@ -419,7 +323,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .map_err(|issue| format!("{}: {issue:?}", freeze("static-input/source-cohort-veto")))?;
         let tagged = self.uses_tagged_static_inputs_v1(source, contract);
         for call in incoming.iter().filter(|call| {
-            !tagged || self.static_input_caller_has_execution_v1(call)
+            !tagged || self.static_input_caller_owes_actuals_v1(call)
         }) {
             if !seen.insert(call.call.clone()) {
                 return Err(freeze("static-input/original-row-duplicate"));
@@ -436,12 +340,14 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 return Err(freeze("static-input/original-target"));
             }
-            let actuals = self
-                .borrowed_formal_actuals
-                .get(&call.call)
-                .ok_or_else(|| freeze("static-input/cohort-missing"))?
-                .as_ref()
-                .map_err(Clone::clone)?;
+            // The same rule as finishing: only a recorded omitted caller may lack a row.
+            let Some(actuals) = self.borrowed_formal_actuals.get(&call.call) else {
+                if self.static_input_caller_owes_actuals_v1(call) {
+                    return Err(freeze("static-input/cohort-missing"));
+                }
+                continue;
+            };
+            let actuals = actuals.as_ref().map_err(Clone::clone)?;
             let BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(proof) = &actuals.phase
             else {
                 return Err(freeze("static-input/cohort-unfinished"));

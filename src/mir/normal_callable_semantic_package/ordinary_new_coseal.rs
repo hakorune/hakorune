@@ -306,6 +306,9 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
         Rc<super::selected_mapping::VerifiedSelectedCallableBatchMapV1>,
         Rc<super::physical_signature::VerifiedCallablePhysicalSignatureCohortV1>,
     )>,
+    // The co-seal's own closed-app omission record, shared and never re-derived.
+    omitted_static_callers:
+        Option<Rc<BTreeMap<FunctionOwnerIdV1, crate::mir::builder::CanonicalSameModuleCallableKeyV1>>>,
     // Package-owned obligations; never stored back in source/Completion.
     array_holder_lifecycles:
         RefCell<BTreeMap<BindingRefV1, Rc<lexical_instance_call::ArrayHolderLifecycleRecipeV1>>>,

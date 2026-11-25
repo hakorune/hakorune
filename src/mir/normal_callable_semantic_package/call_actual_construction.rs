@@ -10,7 +10,6 @@ pub(super) fn construct_borrowed_call_actuals_v1(
     homes: object_source::ObjectActualHomeSourceV1<'_>,
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     nullable_class: &mut impl FnMut(BindingRefV1) -> Option<Box<str>>,
-    static_zero: Option<static_input_finish::StaticInputFinishV1>,
     guarded_definition: Option<&super::borrowed_formal_uses::BorrowedFormalUsesDraftV1>,
     source_actual: &mut dyn FnMut(
         u32,
@@ -40,25 +39,14 @@ pub(super) fn construct_borrowed_call_actuals_v1(
     if let super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
         &incoming_row.source
     {
-        if let Some(finish) = &static_zero {
-            if !finish.corroborates_source_v1(original) {
-                return Err(freeze("static-zero/input-finish-source-drift"));
-            }
-        } else {
-            original.require_qualified_scalar_source_v1()?;
-        }
-        let retained = if static_zero.is_some() {
-            static_input_finish::original_zero_input_source_v1(prepared, original)?
-                .ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?
-        } else {
-            prepared
-                .source_incoming
-                .static_observations()
-                .get(call)
-                .ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?
-                .as_ref()
-                .map_err(Clone::clone)?
-        };
+        original.require_qualified_scalar_source_v1()?;
+        let retained = prepared
+            .source_incoming
+            .static_observations()
+            .get(call)
+            .ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?
+            .as_ref()
+            .map_err(Clone::clone)?;
         if !std::rc::Rc::ptr_eq(original, retained)
             || original.parameters() != contract.parameters.as_ref()
         {
@@ -357,10 +345,7 @@ pub(super) fn construct_borrowed_call_actuals_v1(
         })
         .collect::<Result<Vec<_>, String>>()?;
     Ok(Some(PreparedBorrowedCallActualsV1 {
-        phase: match static_zero {
-            Some(finish) => BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(finish),
-            None => BorrowedCallActualEvidencePhaseV1::Executable,
-        },
+        phase: BorrowedCallActualEvidencePhaseV1::Executable,
         opaque_actuals: rows.into_boxed_slice(),
         ordered_arguments: ordered_arguments.into_boxed_slice(),
         dynamic_invocation_arguments: None,

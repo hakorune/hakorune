@@ -1,0 +1,23 @@
+// One Static callee with an untyped parameter, called from Main and from a
+// Birth (the field initializer of Parent). Both actuals reach the callee:
+// Main passes 1 (16) and the Birth passes 0 (8), so the program returns 24.
+static box LayoutBox {
+  class_size(i) { if i == 0 { return 8 } return 16 }
+}
+box Page {
+  s: i64
+  birth(a, b) { me.s = b }
+  get(): i64 { return me.s }
+}
+box Parent {
+  child: Page = new Page(0, LayoutBox.class_size(0))
+  birth() { }
+  size(): i64 { return me.child.get() }
+}
+static box Main {
+  main() {
+    local parent = new Parent()
+    local n = LayoutBox.class_size(1)
+    return n + parent.size()
+  }
+}
