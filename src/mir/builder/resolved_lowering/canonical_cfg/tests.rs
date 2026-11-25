@@ -1,3 +1,4 @@
+use super::instruction::InstructionPlacementV1;
 use super::{CanonicalCfgErrorV1, CanonicalCfgSessionV1};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{
@@ -478,20 +479,22 @@ fn incoming_seal_keeps_source_body_open_but_packets_and_late_edges_closed() {
         },
     );
     session
-        .append_body_instruction(
+        .append_selected_instruction(
             &mut function,
             block(1),
             terminal.clone(),
             crate::ast::Span::unknown(),
+            InstructionPlacementV1::Body,
         )
         .unwrap();
     assert_eq!(
         session
-            .append_body_instruction(
+            .append_selected_instruction(
                 &mut function,
                 block(1),
                 terminal,
                 crate::ast::Span::unknown(),
+                InstructionPlacementV1::Body,
             )
             .unwrap_err(),
         CanonicalCfgErrorV1::SourceAlreadyTerminated { source: block(1) },

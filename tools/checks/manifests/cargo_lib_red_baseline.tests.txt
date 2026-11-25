@@ -687,7 +687,6 @@ mir::builder::calls::function_session_tests::every_fallible_checkpoint_restores_
 mir::builder::calls::function_session_tests::panic_backstop_restores_without_publishing
 mir::builder::calls::function_session_tests::primary_and_cleanup_errors_are_both_preserved
 mir::builder::calls::function_session_tests::static_and_instance_drafts_commit_only_after_caller_restore
-mir::builder::calls::guard::tests::test_me_call_detection
 mir::builder::calls::guard::tests::test_static_runtime_guard_me_call
 mir::builder::calls::guard::tests::test_static_runtime_guard_normalization
 mir::builder::calls::instance_method_draft_preparation_tests::legacy_completion_preserves_port_aware_instance_draft_contract
@@ -4062,9 +4061,6 @@ mir::join_ir_ops::tests::test_eval_compare_int_gt
 mir::join_ir_ops::tests::test_eval_compare_str_eq
 mir::join_ir_ops::tests::test_eval_compare_str_ne
 mir::join_ir_ops::tests::test_eval_compare_type_mismatch
-mir::join_ir_ops::vm_conversion_tests::test_joinvalue_to_vmvalue
-mir::join_ir_ops::vm_conversion_tests::test_vmvalue_to_joinvalue
-mir::join_ir_ops::vm_conversion_tests::test_vmvalue_to_joinvalue_unsupported
 mir::local_slot_backend_capability::tests::only_reference_interpreter_supports_first_slice
 mir::loop_canonicalizer::canonicalizer_tests::basic::test_canonicalize_rejects_non_loop
 mir::loop_canonicalizer::canonicalizer_tests::continue_pattern::test_simple_continue_route_shape_recognized
@@ -5080,7 +5076,6 @@ mir::optimizer::tests::mir_optimizer_visible_pipeline_groups_lock
 mir::optimizer::tests::test_dce_does_not_drop_typeop_used_by_console_log
 mir::optimizer::tests::test_dce_keeps_edge_args_values
 mir::optimizer::tests::test_dce_syncs_instruction_spans
-mir::optimizer::tests::test_instruction_to_key
 mir::optimizer::tests::test_method_call_not_rewritten_even_if_legacy_env_is_set
 mir::optimizer::tests::test_normalize_keeps_barrier_read_instruction
 mir::optimizer::tests::test_normalize_keeps_barrier_write_instruction

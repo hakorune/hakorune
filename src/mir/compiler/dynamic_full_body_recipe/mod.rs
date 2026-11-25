@@ -12,7 +12,7 @@ pub(in crate::mir) use coseal::{
     issue_dynamic_exit_transaction_coseal_i0, issue_dynamic_full_loop_semantic_program_v2,
     issue_dynamic_full_loop_source_recipe_envelope_v2,
     issue_dynamic_invocation_carrier_lifecycle_program_v1,
-    issue_dynamic_invocation_cleanup_projection_i0, DynamicCanonicalSessionAuthorityRefV1,
+    issue_dynamic_invocation_cleanup_projection_i0,
     DynamicExitTransactionCoSealRejectV1, DynamicFullLoopFaultFamilyV2,
     DynamicFullLoopOperationEffectV2, DynamicFullLoopPhysicalItemKindV2,
     DynamicFullLoopPhysicalItemPlacementV2, DynamicFullLoopSemanticProgramRejectV2,

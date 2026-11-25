@@ -224,7 +224,8 @@ fn logical_output_product_owns_fixed_rows_and_borrows_join_transfer() {
     )
     .expect("logical output rows");
     output
-        .try_with_output(|view| {
+        .with_prephysical_source(|source| {
+            let view = source.logical();
             assert!(view.domains().is_exact_s6c());
             assert_eq!(view.rows().values().len(), 15);
             assert_eq!(view.rows().blocks().len(), 3);
@@ -248,7 +249,8 @@ fn logical_output_product_owns_fixed_rows_and_borrows_join_transfer() {
             );
             assert_eq!(view.logical_transfer().branches().len(), 1);
             assert_eq!(view.logical_transfer().summary_transfers().len(), 1);
-            Ok(())
+            Ok::<(), ()>(())
         })
+        .expect("logical output input")
         .expect("logical output parity");
 }

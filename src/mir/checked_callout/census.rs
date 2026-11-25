@@ -376,30 +376,3 @@ fn emitted_index(block: &crate::mir::BasicBlock, raw_index: usize) -> usize {
         phi_count + non_phi_before
     }
 }
-
-/// A Normal-landing projection is an ordinary SSA definition.  It is not a
-/// terminator destination and therefore never dominates the Fault landing.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct CheckedCallOutNormalResultProjectionV1 {
-    site_id: CheckedCallOutSiteIdV1,
-    normal_landing: BasicBlockId,
-    dst: ValueId,
-}
-
-impl CheckedCallOutNormalResultProjectionV1 {
-    pub(crate) const fn new(
-        site_id: CheckedCallOutSiteIdV1,
-        normal_landing: BasicBlockId,
-        dst: ValueId,
-    ) -> Self {
-        Self {
-            site_id,
-            normal_landing,
-            dst,
-        }
-    }
-
-    pub(crate) const fn dst(self) -> ValueId {
-        self.dst
-    }
-}

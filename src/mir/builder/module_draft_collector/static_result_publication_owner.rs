@@ -1,4 +1,4 @@
-use crate::mir::builder::{CanonicalSameModuleCallableKeyV1, SameModuleCallableCatalogBrandV1};
+use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::callable_result_representation::{
     StaticCallResultPublicationOwnerTakeErrorV1, StaticCallResultPublicationTakeV1,
     VerifiedStaticCallResultPublicationHandoffV1, VerifiedStaticCallResultPublicationOwnerV1,
@@ -8,26 +8,6 @@ use crate::mir::resolved_semantics::SourceExprSiteV1;
 use super::{ModuleDraftCollectorV1, UnpublishedFunctionDraftV1};
 
 impl UnpublishedFunctionDraftV1<'_> {
-    /// Keep collector admission and the selected source-row take in one
-    /// pre-collection transaction; no second call is emitted here.
-    pub(in crate::mir::builder) fn consume_selected_static_result_batch(
-        self,
-        brand: &SameModuleCallableCatalogBrandV1,
-        caller: &CanonicalSameModuleCallableKeyV1,
-        sites_and_targets: &[(SourceExprSiteV1, CanonicalSameModuleCallableKeyV1); 4],
-    ) -> Result<
-        (Self, [VerifiedStaticCallResultPublicationHandoffV1; 4]),
-        StaticCallResultPublicationOwnerTakeErrorV1,
-    > {
-        let Some(owner) = self.collector.static_result_publication_owner.as_mut() else {
-            return Err(StaticCallResultPublicationOwnerTakeErrorV1::OwnerUnavailable);
-        };
-        let consumed = owner.take_selected_batch_for_source(brand, caller, sites_and_targets)?;
-        let handoffs = consumed
-            .try_into()
-            .expect("four preflighted selected publication sites");
-        Ok((self, handoffs))
-    }
 }
 
 impl ModuleDraftCollectorV1 {

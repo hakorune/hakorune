@@ -10,7 +10,7 @@ use crate::mir::function::{
     DirectArrayExtentFact, DirectArrayExtentProofKind, RegionStabilityFact,
     RegionStabilityProofKind,
 };
-use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
+use crate::mir::value_origin::{resolve_value_origin, ValueDefMap};
 use crate::mir::{BasicBlockId, ConstValue, MirFunction, MirInstruction, MirType, ValueId};
 
 const DIRECT_ARRAY_I64_DEFAULT_CAPACITY_V0: i64 = 64;
@@ -20,11 +20,6 @@ struct FieldGetOrigin {
     base_origin: ValueId,
     field: String,
     declared_type: Option<MirType>,
-}
-
-pub fn refresh_function_direct_array_extent_facts(function: &mut MirFunction) {
-    let def_map = build_value_def_map(function);
-    refresh_function_direct_array_extent_facts_with_def_map(function, &def_map);
 }
 
 pub(crate) fn refresh_function_direct_array_extent_facts_with_def_map(
@@ -252,6 +247,11 @@ mod tests {
     use crate::mir::{
         BasicBlock, Callee, ConstValue, EffectMask, FunctionSignature, MirFunction, MirType,
     };
+
+    fn refresh_function_direct_array_extent_facts(function: &mut MirFunction) {
+        let def_map = crate::mir::value_origin::build_value_def_map(function);
+        refresh_function_direct_array_extent_facts_with_def_map(function, &def_map);
+    }
 
     fn make_function() -> MirFunction {
         let mut function = MirFunction::new(

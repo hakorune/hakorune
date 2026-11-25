@@ -5,6 +5,10 @@ use crate::mir::{
     MirModule, MirType, ValueId,
 };
 
+pub(crate) fn simplify(module: &mut MirModule) -> usize {
+    simplify_with_preserved_producers(module, &Default::default())
+}
+
 fn test_signature(name: &str, return_type: MirType) -> FunctionSignature {
     FunctionSignature {
         name: name.to_string(),

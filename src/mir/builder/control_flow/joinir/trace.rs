@@ -102,16 +102,6 @@ impl JoinLoopTrace {
             || self.capture_enabled
     }
 
-    /// Check if mainline routing debug is enabled
-    pub fn is_mainline_enabled(&self) -> bool {
-        self.mainline_enabled
-    }
-
-    /// Check if loopform debug is enabled (legacy compatibility)
-    pub fn is_loopform_enabled(&self) -> bool {
-        self.loopform_enabled
-    }
-
     /// Generic debug message (only if any tracing enabled)
     ///
     /// # Arguments

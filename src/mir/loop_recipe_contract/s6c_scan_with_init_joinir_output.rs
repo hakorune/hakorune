@@ -25,61 +25,6 @@ pub(crate) struct VerifiedS6CScanWithInitLogicalOutputV1 {
 }
 
 impl VerifiedS6CScanWithInitLogicalOutputV1 {
-    pub(crate) fn try_with_output<R>(
-        &self,
-        callback: impl for<'rows, 'product> FnOnce(
-            S6CScanWithInitLogicalOutputRefV1<'rows, 'product>,
-        ) -> Result<R, S6CLogicalOutputRejectV1>,
-    ) -> Result<R, S6CLogicalOutputRejectV1> {
-        with_s6c_scan_with_init_logical_join_input(&self.product, |input| {
-            let calls = self.rows.calls();
-            if calls.len() != 2 {
-                return Err(S6CLogicalOutputRejectV1::Call("call pair count"));
-            }
-            let Some(length_row) = calls.first() else {
-                return Err(S6CLogicalOutputRejectV1::Call("Length call row"));
-            };
-            let Some(substring_row) = calls.get(1) else {
-                return Err(S6CLogicalOutputRejectV1::Call("Substring call row"));
-            };
-            if length_row.role() != S6CLogicalCallRoleV1::Length
-                || substring_row.role() != S6CLogicalCallRoleV1::Substring
-                || input.length().role() != S6CLogicalCallRoleV1::Length
-                || input.substring().role() != S6CLogicalCallRoleV1::Substring
-            {
-                return Err(S6CLogicalOutputRejectV1::Call("call role parity"));
-            }
-            let calls = S6CLogicalCallPairsRefV1 {
-                length: S6CLogicalCallWithSourceRefV1 {
-                    row: *length_row,
-                    source: input.length(),
-                },
-                substring: S6CLogicalCallWithSourceRefV1 {
-                    row: *substring_row,
-                    source: input.substring(),
-                },
-            };
-            callback(S6CScanWithInitLogicalOutputRefV1 {
-                rows: &self.rows,
-                roles: input.roles(),
-                calls,
-                transfer: input.logical_transfer(),
-                return_source_binding: input.return_source_binding(),
-                domains: S6CLogicalOutputDomainCountsV1 {
-                    loops: input.rows().loop_count(),
-                    blocks: input.rows().block_count(),
-                    bindings: input.rows().binding_count(),
-                    inputs: input.rows().input_count(),
-                    values: input.rows().value_count(),
-                    items: input.rows().item_count(),
-                    carriers: input.rows().carrier_count(),
-                    exits: input.rows().exit_count(),
-                },
-            })
-        })
-        .map_err(|_| S6CLogicalOutputRejectV1::Control("logical input"))?
-    }
-
     /// Private source seam for the single S6C prephysical ingress issuer.
     ///
     /// The callback receives the existing logical output and the same sealed

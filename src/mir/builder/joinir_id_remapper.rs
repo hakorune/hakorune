@@ -5,6 +5,7 @@
 //! - JoinIR fragment → host MIR への ID変換
 //! - 決定性を重視した実装
 
+use crate::mir::instruction::ArrayReadOperationV1;
 use crate::mir::{BasicBlockId, MirInstruction, ValueId};
 #[path = "joinir_id_remapper_values.rs"]
 mod values;
@@ -216,7 +217,7 @@ impl JoinIrIdRemapper {
                 site_id: *site_id,
                 dst: dst.map(|value| remap(value)),
                 receiver: remap(*receiver),
-                operation: operation.remapped(|value| remap(value)),
+                operation: remap_array_read(*operation, |value| remap(value)),
             },
             ArrayStateContractClaim { contract_id, array } => ArrayStateContractClaim {
                 contract_id: contract_id.clone(),
@@ -647,5 +648,17 @@ mod tests {
                 field,
             }
         );
+    }
+}
+
+fn remap_array_read(
+    operation: ArrayReadOperationV1,
+    mut remap: impl FnMut(ValueId) -> ValueId,
+) -> ArrayReadOperationV1 {
+    match operation {
+        ArrayReadOperationV1::Element { index } => ArrayReadOperationV1::Element {
+            index: remap(index),
+        },
+        ArrayReadOperationV1::Count => ArrayReadOperationV1::Count,
     }
 }

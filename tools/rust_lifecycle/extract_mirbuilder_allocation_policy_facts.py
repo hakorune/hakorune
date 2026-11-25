@@ -84,9 +84,6 @@ def extract_facts() -> dict[str, Any]:
             ("pub fn next_value_id(&mut self) -> ValueId", "MirFunction::next_value_id"),
             ("let id = ValueId::new(self.next_value_id);", "function allocator take"),
             ("self.next_value_id += 1;", "function allocator increment"),
-            ("pub fn reserve_parameter_value_ids(&mut self)", "counter floor repair function"),
-            ("if self.next_value_id < param_count as u32", "counter floor repair predicate"),
-            ("self.next_value_id = param_count as u32;", "counter floor repair effect"),
         ],
     )
     _require_all(
@@ -167,7 +164,6 @@ def extract_facts() -> dict[str, Any]:
             "prepopulation": "ParameterIdPrepopulation",
             "counter_seed": "FunctionCounterSeed",
             "binding_reuse": "ParameterBindingReuse",
-            "counter_floor_repair": "ParameterCounterFloorRepair",
             "compatibility_fallback": "ParameterSetupCompatibilityFallbackUnselected",
         },
         "sentinel_policy": {

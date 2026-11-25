@@ -79,25 +79,6 @@ pub(in crate::mir::builder) enum LocalValuePlacement {
     ReuseInitializer,
 }
 
-/// Build local variable declaration from already-evaluated initializer values.
-///
-/// This is the shared shell used by ordinary lowering and fastmem lowering.
-/// It preserves SSA behavior by copying each initializer into a fresh local
-/// ValueId before registering the binding.
-pub(in crate::mir::builder) fn build_local_statement_from_values(
-    builder: &mut MirBuilder,
-    variables: Vec<String>,
-    initial_values: Vec<ValueId>,
-) -> Result<ValueId, String> {
-    build_local_statement_from_values_with_types_and_preclaims(
-        builder,
-        variables,
-        initial_values,
-        Vec::new(),
-        Vec::new(),
-    )
-}
-
 pub(in crate::mir::builder) fn build_local_statement_from_values_with_types_and_preclaims(
     builder: &mut MirBuilder,
     variables: Vec<String>,

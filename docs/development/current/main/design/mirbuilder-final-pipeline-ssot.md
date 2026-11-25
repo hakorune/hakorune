@@ -932,8 +932,8 @@ switches its named production callers and retires its proved caller-zero private
 implementation, adapters and temporary assets in that series. Shared barrel
 registrations, raw ports, `variable_map` bypasses, wrappers and backend consumers
 remain until their own caller/contract obligations close, then retire leaf-first.
-The public `emit_global_call` facade remains a candidate until its API/feature
-callers and successor checks are verified; no immediate deletion is selected.
+The caller-zero `emit_global_call` facade was removed in BD-7. Its existing
+`emit_unified_call(dst, CallTarget::Global(target), args)` entry remains.
 Preserve durable semantic/rejection tests. Moves and tracked archive copies earn
 no reduction credit; Git retains completed evidence.
 

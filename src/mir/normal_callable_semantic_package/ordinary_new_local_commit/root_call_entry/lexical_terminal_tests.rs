@@ -178,9 +178,11 @@ fn lexical_return_record_keeps_original_packet_and_moves_affinely() {
         frame,
         cleanup,
     );
+    let sites = [exit.clone()].into();
     let (entry, _) = ledger
-        .take_finalized_root_call(owner, &exit)
+        .take_finalized_root_calls(owner, &sites)
         .unwrap()
+        .remove(&exit)
         .unwrap();
     let RootHomeExitEntry::Call {
         row: RootCallDispositionV1::Lexical(retained),
@@ -195,7 +197,7 @@ fn lexical_return_record_keeps_original_packet_and_moves_affinely() {
         packet.call_site()
     );
     assert!(ledger
-        .take_finalized_root_call(owner, &exit)
+        .take_finalized_root_calls(owner, &sites)
         .unwrap_err()
         .contains("already-finalized"));
 }
@@ -294,8 +296,9 @@ fn lexical_return_finished_lender_preserves_original_coordinates_after_rebind() 
         .rebind_root_call_entry(owner, &exit, &projection)
         .unwrap();
     let (entry, cleanup) = ledger
-        .take_finalized_root_call(owner, &exit)
+        .take_finalized_root_calls(owner, &[exit.clone()].into())
         .unwrap()
+        .remove(&exit)
         .unwrap();
     let RootHomeExitEntry::Call {
         invoke,
@@ -442,9 +445,8 @@ fn finalized_call_visitor_lends_original_return_and_demands_actual_function() {
         frame,
         cleanup,
     );
-    let (entry, cleanup) = ledger
-        .take_finalized_root_call(owner, &exit)
-        .unwrap()
+    let call_entries = ledger
+        .take_finalized_root_calls(owner, &[exit.clone()].into())
         .unwrap();
     *ledger.root_validation.borrow_mut() = RootNewValidation::ArtifactFinalized {
         owner,
@@ -456,7 +458,7 @@ fn finalized_call_visitor_lends_original_return_and_demands_actual_function() {
         app_main_identity: ledger.app_main_identity.as_ref().unwrap().clone(),
         owner,
         terminals: ledger.terminal_relation.as_ref().clone(),
-        call_entries: [(exit.clone(), (entry, cleanup))].into(),
+        call_entries,
         local_calls: Default::default(),
         construction: Vec::new(),
     };

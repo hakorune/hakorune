@@ -6,11 +6,6 @@
 use crate::mir::{MirFunction, MirInstruction, MirModule, MirType, ValueId};
 use std::collections::HashMap;
 
-/// Run CSE across the module. Returns the number of eliminated expressions.
-pub fn eliminate_common_subexpressions(module: &mut MirModule) -> usize {
-    eliminate_with_preserved_producers(module, &Default::default())
-}
-
 pub(in crate::mir) fn eliminate_with_preserved_producers(
     module: &mut MirModule,
     preserved: &crate::mir::passes::dce::RequiredLivenessRoots,

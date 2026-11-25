@@ -86,16 +86,6 @@ pub fn set_jump(f: &mut MirFunction, cur_bb: BasicBlockId, target: BasicBlockId)
 }
 
 /// Insert a PHI instruction at block head (after existing PHIs) with normalized inputs order.
-pub fn insert_phi_at_head(
-    f: &mut MirFunction,
-    bb_id: BasicBlockId,
-    dst: ValueId,
-    inputs: Vec<(BasicBlockId, ValueId)>,
-) -> Result<(), String> {
-    insert_phi_at_head_spanned(f, bb_id, dst, inputs, Span::unknown())
-}
-
-/// Insert a PHI instruction at block head (after existing PHIs) with normalized inputs order.
 /// Allows passing a span to retain source mapping when available.
 pub fn insert_phi_at_head_spanned(
     f: &mut MirFunction,

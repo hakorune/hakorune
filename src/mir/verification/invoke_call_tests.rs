@@ -393,7 +393,7 @@ fn document_policy_admits_proven_non_scalar_argument_on_cataloged_edge() {
             "{arg_type:?}: {errors:?}"
         );
         MirVerifier::new()
-            .verify_document_module(&module)
+            .verify_document_module_with_finalized_root(&module, None)
             .unwrap_or_else(|errors| panic!("{arg_type:?}: {errors:?}"));
     }
 }
@@ -421,11 +421,11 @@ fn document_policy_keeps_arity_drift_on_cataloged_edge() {
         };
         call.args.clear();
     }
-    for verify in [
-        MirVerifier::verify_module,
-        MirVerifier::verify_document_module,
+    for outcome in [
+        MirVerifier::new().verify_module(&module),
+        MirVerifier::new().verify_document_module_with_finalized_root(&module, None),
     ] {
-        let errors = verify(&mut MirVerifier::new(), &module).unwrap_err();
+        let errors = outcome.unwrap_err();
         assert!(
             format!("{errors:?}").contains("call-argument-type-drift"),
             "{errors:?}"

@@ -130,7 +130,6 @@ def validate_allocation_policy_facts(facts: dict[str, Any]) -> None:
     require(parameter["prepopulation"] == "ParameterIdPrepopulation", "parameter prepopulation missing")
     require(parameter["counter_seed"] == "FunctionCounterSeed", "function counter seed fact missing")
     require(parameter["binding_reuse"] == "ParameterBindingReuse", "parameter binding reuse missing")
-    require(parameter["counter_floor_repair"] == "ParameterCounterFloorRepair", "counter floor repair missing")
     require(
         parameter["compatibility_fallback"] == "ParameterSetupCompatibilityFallbackUnselected",
         "parameter compatibility fallback must remain unselected",

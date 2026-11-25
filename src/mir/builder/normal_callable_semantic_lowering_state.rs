@@ -212,15 +212,6 @@ impl CallableSemanticLoweringState {
             .unwrap_or(Ok(None))
     }
 
-    pub(super) fn has_loop_break_source_candidate(&self, site: &SourceNodeSiteV1) -> bool {
-        let statement_site =
-            crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone());
-        self.loop_break_source
-            .as_ref()
-            .map(|loan| loan.has_candidate_for_site(&statement_site))
-            .unwrap_or(false)
-    }
-
 
 
     /// Return the resolver-issued CoreMethod item rows that cover one exact

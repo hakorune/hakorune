@@ -1,13 +1,11 @@
 //! AST → MIR Operator Converters
 //!
-//! This module provides pure functions for converting AST operator representations
-//! to their corresponding MIR enum types.
+//! Converts AST binary operators to their MIR arithmetic or comparison form.
 //!
 //! ## Purpose
 //!
 //! - Pure AST → MIR operator enum conversion (no MirBuilder state required)
 //! - Convert AST BinaryOperator to MIR BinaryOpType (arithmetic/comparison)
-//! - Convert AST unary operator strings to MIR UnaryOp enum
 //! - Error handling for unknown/unsupported operators
 //!
 //! ## Responsibilities
@@ -17,20 +15,14 @@
 //!   - Comparison: Eq, Ne, Lt, Le, Gt, Ge
 //!   - Logical: And, Or (classified as Arithmetic for MIR purposes)
 //!
-//! - **Unary operators**: Maps string operators to MIR UnaryOp enum
-//!   - Neg: "-"
-//!   - Not: "!" or "not"
-//!   - BitNot: "~"
-//!
 //! - **Error handling**: Returns descriptive errors for unsupported operators
 //!
 //! ## Design Notes
 //!
 //! These are **pure functions** with no side effects or dependencies on MirBuilder state.
-//! They perform only enum-to-enum conversions and string matching.
 
 use crate::ast::BinaryOperator;
-use crate::mir::{BinaryOp, CompareOp, UnaryOp};
+use crate::mir::{BinaryOp, CompareOp};
 
 /// Internal classification for binary operations
 #[derive(Debug)]
@@ -74,32 +66,5 @@ pub(in crate::mir::builder) fn convert_binary_operator(
         BinaryOperator::GreaterEqual => Ok(BinaryOpType::Comparison(CompareOp::Ge)),
         BinaryOperator::And => Ok(BinaryOpType::Arithmetic(BinaryOp::And)),
         BinaryOperator::Or => Ok(BinaryOpType::Arithmetic(BinaryOp::Or)),
-    }
-}
-
-/// Convert AST unary operator string to MIR UnaryOp enum
-///
-/// Maps string representations of unary operators to the corresponding MIR UnaryOp enum.
-///
-/// ## Supported Operators
-///
-/// - `"-"`: Negation (Neg)
-/// - `"!"` or `"not"`: Logical NOT (Not)
-/// - `"~"`: Bitwise NOT (BitNot)
-///
-/// ## Arguments
-///
-/// - `op`: The operator string to convert
-///
-/// ## Returns
-///
-/// - `Ok(UnaryOp)`: The corresponding MIR unary operation
-/// - `Err(String)`: Error message for unsupported operators
-pub(in crate::mir::builder) fn convert_unary_operator(op: String) -> Result<UnaryOp, String> {
-    match op.as_str() {
-        "-" => Ok(UnaryOp::Neg),
-        "!" | "not" => Ok(UnaryOp::Not),
-        "~" => Ok(UnaryOp::BitNot),
-        _ => Err(format!("Unsupported unary operator: {}", op)),
     }
 }

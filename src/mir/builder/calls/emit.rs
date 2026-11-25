@@ -3,7 +3,7 @@
 //! 責務: MIR Call命令の発行のみ
 //! - emit_unified_call: 統一Call発行（Phase 3対応）
 //! - emit_legacy_call: 互換Call入口（RouterPolicyがBoxCallを選んだ経路を含む）
-//! - emit_global_call/emit_method_call/emit_constructor_call: 便利ラッパー
+//! - emit_method_call/emit_constructor_call: 便利ラッパー
 
 use super::super::{EffectMask, MirBuilder, MirInstruction, ValueId};
 use super::unified_emitter::{
@@ -12,7 +12,6 @@ use super::unified_emitter::{
 use super::CallTarget;
 use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
 use crate::mir::definitions::call_unified::TypeCertainty;
-use hakorune_mir_defs::CanonicalGlobalTargetV1;
 
 impl MirBuilder {
     /// Unified call emission - delegates to UnifiedCallEmitterBox
@@ -210,16 +209,6 @@ impl MirBuilder {
     }
 
     // Phase 2 Migration: Convenience methods that use emit_unified_call
-
-    /// Emit a global function call (print, panic, etc.)
-    pub fn emit_global_call(
-        &mut self,
-        dst: Option<ValueId>,
-        target: CanonicalGlobalTargetV1,
-        args: Vec<ValueId>,
-    ) -> Result<(), String> {
-        self.emit_unified_call(dst, CallTarget::Global(target), args)
-    }
 
     /// Emit a method call (box.method)
     pub fn emit_method_call(

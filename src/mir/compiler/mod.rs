@@ -243,16 +243,6 @@ impl MirCompiler {
         self.compile_public_program(ast, source_file, std::collections::HashMap::new())
     }
 
-    /// Compile AST to MIR with an explicit imported static-box alias table.
-    pub fn compile_with_source_and_imports(
-        &mut self,
-        ast: crate::ast::ASTNode,
-        source_file: Option<&str>,
-        imports: std::collections::HashMap<String, String>,
-    ) -> Result<MirCompileResult, String> {
-        self.compile_public_program(ast, source_file, imports)
-    }
-
     fn compile_public_program(
         &mut self,
         ast: crate::ast::ASTNode,

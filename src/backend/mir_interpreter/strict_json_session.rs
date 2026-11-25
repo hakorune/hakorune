@@ -200,8 +200,12 @@ mod tests {
         )
         .expect("normalize root reader source");
         let ast = crate::parser::NyashParser::parse_from_string(&prepared).expect("parse fixture");
+        let request = crate::mir::compiler::NormalCompileRequestV1::for_mir_mode(
+            ast, Some(fixture), imports,
+        )
+        .expect("prepare root reader");
         crate::mir::MirCompiler::with_options(false)
-            .compile_with_source_and_imports(ast, Some(fixture), imports)
+            .compile_normal(request)
             .expect("compile root reader")
             .module
     }

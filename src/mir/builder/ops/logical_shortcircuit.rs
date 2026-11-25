@@ -106,29 +106,17 @@ pub(in crate::mir::builder) fn build_logical_shortcircuit_pre_sc0_i0_reference_v
     right: ASTNode,
 ) -> Result<ValueId, String> {
     let lhs_val0 = drive_raw_legacy_expression_v1(builder, left)?;
-    build_logical_shortcircuit_after_lhs_v1(builder, operator, lhs_val0, move |builder| {
-        drive_raw_legacy_expression_v1(builder, right)
-    })
+    build_logical_shortcircuit_after_lhs_recorded_v1(
+        builder,
+        operator,
+        lhs_val0,
+        move |builder| drive_raw_legacy_expression_v1(builder, right),
+    )
+    .map(|completed| completed.value())
 }
 
-/// Existing short-circuit CFG/PHI owner after the LHS has been lowered.
-///
-/// `lower_rhs` is invoked only after entering the eval-RHS block. Associated
-/// input adapters may therefore defer both RHS location demand and lowering
-/// without acquiring any CFG, PHI, result, or type authority.
-pub(in crate::mir::builder) fn build_logical_shortcircuit_after_lhs_v1<LowerRhs>(
-    builder: &mut MirBuilder,
-    operator: BinaryOperator,
-    lhs_val0: ValueId,
-    lower_rhs: LowerRhs,
-) -> Result<ValueId, String>
-where
-    LowerRhs: FnOnce(&mut MirBuilder) -> Result<ValueId, String>,
-{
-    build_logical_shortcircuit_after_lhs_recorded_v1(builder, operator, lhs_val0, lower_rhs)
-        .map(|completed| completed.value())
-}
-
+/// Short-circuit CFG/PHI emission after the LHS has been lowered.
+/// The RHS callback runs only inside the eval-RHS block.
 pub(in crate::mir::builder) fn build_logical_shortcircuit_after_lhs_recorded_v1<LowerRhs>(
     builder: &mut MirBuilder, operator: BinaryOperator, lhs_val0: ValueId, lower_rhs: LowerRhs,
 ) -> Result<CompletedLogicalShortCircuitV1, String>

@@ -581,7 +581,6 @@ def check_callable_source(
             f"borrow-only helper catalog preparation {fragment}",
         )
     for fragment in (
-        "resolve_forest_with_callable_index(",
         "CatalogSealedResolverContinuationV1::restore(",
         "from_exact_parts_with_callable_index(",
         "source.catalog().index()",
@@ -592,7 +591,6 @@ def check_callable_source(
             f"continuation-owned Main resolution {fragment}",
         )
     for fragment in (
-        "verify_normal_main0_function_with_finite_direct_calls_v1(",
         "profile.direct_calls()",
         "fn discard(self)",
     ):

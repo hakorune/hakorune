@@ -54,28 +54,17 @@ def validate_const0_authority_v1(root: Path) -> None:
 
     if "value_types.insert" in constant or "value_origin_newbox" in constant:
         fail("CONST0 direct type/origin writer survived in constant.rs")
-    for label, start, end in (
-        (
-            "CONST0 fresh-destination emission",
-            "fn emit_exact_const_at(",
-            "fn emit_exact_const(",
-        ),
-        (
-            "CONST0 caller-issued destination emission",
-            "pub(in crate::mir) fn emit_integer_at_with_dst(",
-            "pub fn emit_integer(",
-        ),
-    ):
-        window = _window(constant, start, end)
-        _require_once(window, "PreparedCanonicalConstTypeV1::prepare", label)
-        _require_once(window, "MirInstruction::Const", label)
-        _require_once(window, "prepared.commit(", label)
-        _require_after(
-            window,
-            "MirInstruction::Const",
-            "prepared.commit(",
-            f"{label} prepare/emit/commit",
-        )
+    label = "CONST0 fresh-destination emission"
+    window = _window(constant, "fn emit_exact_const_at(", "fn emit_exact_const(")
+    _require_once(window, "PreparedCanonicalConstTypeV1::prepare", label)
+    _require_once(window, "MirInstruction::Const", label)
+    _require_once(window, "prepared.commit(", label)
+    _require_after(
+        window,
+        "MirInstruction::Const",
+        "prepared.commit(",
+        f"{label} prepare/emit/commit",
+    )
     for delegate in (
         "emit_integer",
         "emit_bool",

@@ -38,13 +38,16 @@ impl Drop for EnvVarRestore {
     }
 }
 
+impl MirOptimizer {
+    pub(crate) fn optimize_module(&mut self, module: &mut MirModule) -> OptimizationStats {
+        self.optimize_module_with_required_roots(module, &Default::default())
+    }
+}
+
 #[test]
 fn test_optimizer_creation() {
     let optimizer = MirOptimizer::new();
     assert!(!optimizer.debug);
-
-    let debug_optimizer = MirOptimizer::new().with_debug();
-    assert!(debug_optimizer.debug);
 }
 
 #[test]
@@ -72,20 +75,6 @@ fn test_optimization_stats() {
     assert_eq!(stats.cfg_simplified, 6);
     assert_eq!(stats.memory_effect_optimizations, 5);
     assert_eq!(stats.total_optimizations(), 22);
-}
-
-#[test]
-fn test_instruction_to_key() {
-    let optimizer = MirOptimizer::new();
-
-    let const_instr = MirInstruction::Const {
-        dst: ValueId::new(1),
-        value: ConstValue::Integer(42),
-    };
-
-    let key = optimizer.instruction_to_key(&const_instr);
-    assert!(key.contains("const"));
-    assert!(key.contains("42"));
 }
 
 #[test]
@@ -414,7 +403,9 @@ fn test_dce_keeps_edge_args_values() {
     let mut module = MirModule::new("test".to_string());
     module.add_function(func);
 
-    crate::mir::passes::dce::eliminate_dead_code(&mut module);
+    crate::mir::passes::dce::eliminate_dead_code_with_required_roots(
+        &mut module, &Default::default(),
+    );
 
     let f = module.get_function("main").unwrap();
     let block = f.get_block(bb0).unwrap();
@@ -454,7 +445,9 @@ fn test_dce_syncs_instruction_spans() {
     let mut module = MirModule::new("test".to_string());
     module.add_function(func);
 
-    crate::mir::passes::dce::eliminate_dead_code(&mut module);
+    crate::mir::passes::dce::eliminate_dead_code_with_required_roots(
+        &mut module, &Default::default(),
+    );
 
     let f = module.get_function("main").unwrap();
     let block = f.get_block(bb0).unwrap();

@@ -29,7 +29,7 @@ pub(in crate::mir) use physical_evidence::{
 pub(in crate::mir) use semantic_program::{
     issue_dynamic_exit_transaction_coseal_i0, issue_dynamic_full_loop_semantic_program_v2,
     issue_dynamic_invocation_carrier_lifecycle_program_v1,
-    issue_dynamic_invocation_cleanup_projection_i0, DynamicCanonicalSessionAuthorityRefV1,
+    issue_dynamic_invocation_cleanup_projection_i0,
     DynamicExitTransactionCoSealRejectV1, DynamicFullLoopFaultCutPointCatalogRefV2,
     DynamicFullLoopFaultFamilyV2, DynamicFullLoopSemanticProgramRejectV2,
     DynamicInvocationCarrierLifecycleProgramRejectV1, DynamicInvocationCleanupCurrentDispositionV1, DynamicInvocationCleanupProjectionRejectV1,

@@ -216,29 +216,6 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
         })
     }
 
-    pub(in crate::mir::builder::resolved_lowering) fn read_entry_receipt_with_deferred_entry(
-        &mut self,
-        builder: &mut MirBuilder,
-
-        block: BasicBlockId,
-        binding: BindingRefV1,
-        deferred_entry: BasicBlockId,
-    ) -> Result<CanonicalBindingReadReceiptV1, String> {
-        self.require_active(binding)?;
-        self.require_initialized(binding)?;
-        let control = builder.function_control_for_owner_v1(self.ledger.owner())?;
-        let physical_value =
-            control
-                .borrow_mut()
-                .read_source(builder, binding, block, Some(deferred_entry))?;
-        Ok(CanonicalBindingReadReceiptV1 {
-            owner: binding.owner(),
-            binding,
-            physical_block: block,
-            physical_value,
-        })
-    }
-
     /// Verify the existing one-predecessor SSA edge used by a profile's
     /// terminal read. The target may directly inherit its predecessor's
     /// ValueId or use a distinct PHI ValueId; the authority is the sealed edge

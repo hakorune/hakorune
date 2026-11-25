@@ -15,7 +15,6 @@ use crate::mir::{BasicBlockId, ValueId};
 /// # SSOT（入口 PHI 定型の責務）
 /// - **この関数が入口 PHI 定型の SSOT**（直書き禁止）
 /// - 適用先: `if_form.rs`（then/else/empty_else 入口）, `ops.rs`（short-circuit skip/eval_rhs）
-/// - PHI 挿入: `MirBuilder::insert_phi_single` 経由
 ///
 /// # Arguments
 /// - `builder`: MirBuilder

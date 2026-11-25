@@ -153,19 +153,6 @@ impl MirBuilder {
         Ok(dst)
     }
 
-    // Build method call: object.method(arguments)
-    pub fn build_method_call(
-        &mut self,
-        object: ASTNode,
-        method: String,
-        arguments: Vec<ASTNode>,
-    ) -> Result<ValueId, String> {
-        let input =
-            super::method_call_descent::RawLegacyMethodCallInputV1::new(object, method, arguments);
-        let mut port = super::super::recursive_child_lowering::RawLegacyChildLoweringPortV1;
-        self.build_method_call_from_input_v1(&mut port, &input)
-    }
-
     pub(in crate::mir::builder) fn build_method_call_from_input_v1<Port>(
         &mut self,
         port: &mut Port,

@@ -28,10 +28,6 @@ impl PreparedRootLexicalCallBindingGroupV1<'_> {
         self.group.group.site()
     }
 
-    pub(crate) fn original_invoke_binding(&self) -> &(BasicBlockId, MirInstruction) {
-        self.packet.invoke_binding()
-    }
-
 
     pub(crate) fn commit(self) -> Result<std::rc::Rc<EmittedLexicalCallProjectionV1>, String> {
         self.group.commit()?;
@@ -448,99 +444,6 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(taken)
     }
 
-    pub(crate) fn take_finalized_root_call(
-        &self,
-        owner: FunctionOwnerIdV1,
-        site: &SourceStmtSiteV1,
-    ) -> Result<Option<(RootHomeExitEntry, Vec<(BasicBlockId, MirInstruction)>)>, String> {
-        let mut exits = self.root_exits.borrow_mut();
-        let Some(progress) = exits.get_mut(&(owner, site.clone().into())) else {
-            return Ok(None);
-        };
-        let state = std::mem::replace(progress, RootHomeExitProgress::Unprepared);
-        match state {
-            RootHomeExitProgress::Emitted {
-                order,
-                bindings,
-                entry:
-                    RootHomeExitEntry::Call {
-                        row,
-                        local_bindings,
-                        arguments,
-                        invoke,
-                        projection,
-                        frame,
-                    },
-                ..
-            } => {
-                *progress = RootHomeExitProgress::Finalized(order);
-                Ok(Some((
-                    RootHomeExitEntry::Call {
-                        row,
-                        local_bindings,
-                        arguments,
-                        invoke,
-                        projection,
-                        frame,
-                    },
-                    bindings,
-                )))
-            }
-            RootHomeExitProgress::Emitted {
-                order,
-                origins,
-                bindings,
-                entry: RootHomeExitEntry::Plain { local_bindings },
-            } => {
-                *progress = RootHomeExitProgress::Emitted {
-                    order,
-                    origins,
-                    bindings,
-                    entry: RootHomeExitEntry::Plain { local_bindings },
-                };
-                Ok(None)
-            }
-
-            // The MapGet payload stays internal like a Plain entry: the
-            // physical instructions already live in the finished function
-            // body, so the handoff carries no separate read receipt.
-            RootHomeExitProgress::Emitted {
-                order,
-                origins,
-                bindings,
-                entry:
-                    RootHomeExitEntry::MapGet {
-                        stored,
-                        local_bindings,
-                        invoke,
-                        projection,
-                        frame,
-                    },
-            } => {
-                *progress = RootHomeExitProgress::Emitted {
-                    order,
-                    origins,
-                    bindings,
-                    entry: RootHomeExitEntry::MapGet {
-                        stored,
-                        local_bindings,
-                        invoke,
-                        projection,
-                        frame,
-                    },
-                };
-                Ok(None)
-            }
-            RootHomeExitProgress::Finalized(order) => {
-                *progress = RootHomeExitProgress::Finalized(order);
-                Err(freeze("root-call-already-finalized"))
-            }
-            other => {
-                *progress = other;
-                Err(freeze("root-call-entry-unavailable"))
-            }
-        }
-    }
 }
 
 impl RootHomeExitEntry {

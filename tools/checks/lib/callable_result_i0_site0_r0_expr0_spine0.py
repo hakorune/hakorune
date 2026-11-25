@@ -367,7 +367,7 @@ def main() -> None:
     left_descent_at = short_circuit.index(
         "drive_legacy_expression_v1(builder, port, left_input)?"
     )
-    control_owner_at = short_circuit.index("build_logical_shortcircuit_after_lhs_v1(")
+    control_owner_at = short_circuit.index("build_logical_shortcircuit_after_lhs_recorded_v1(")
     right_input_at = short_circuit.index("port.short_circuit_right_input(input)?")
     right_descent_at = short_circuit.index(
         "drive_legacy_expression_v1(builder, port, right_input)"
@@ -383,7 +383,7 @@ def main() -> None:
         fail("SC0 order must be logical admit -> lhs -> control owner -> deferred rhs")
     require_count(
         logical_owner,
-        "fn build_logical_shortcircuit_after_lhs_v1",
+        "fn build_logical_shortcircuit_after_lhs_recorded_v1",
         1,
         "existing short-circuit control owner",
     )

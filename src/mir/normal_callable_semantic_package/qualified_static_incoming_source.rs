@@ -80,10 +80,6 @@ impl StaticIncomingSourceV1 {
             && plan.nodes().first().is_some_and(|node| node.site() == self.call_site().site())
     }
 
-    pub(in crate::mir) fn same_catalog_as(&self, other: &Self) -> bool {
-        self.catalog_brand.is_same(&other.catalog_brand) && self.caller == other.caller
-    }
-
     pub(in crate::mir::normal_callable_semantic_package) fn catalog_brand(
         &self,
     ) -> &crate::mir::builder::SameModuleCallableCatalogBrandV1 {

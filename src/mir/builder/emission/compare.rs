@@ -5,17 +5,6 @@ use crate::mir::{CompareOp, MirInstruction, ValueId};
 
 use super::compare_type::PreparedCanonicalCompareBoolTypeV1;
 
-#[inline]
-pub fn emit_to(
-    b: &mut MirBuilder,
-    dst: ValueId,
-    op: CompareOp,
-    lhs: ValueId,
-    rhs: ValueId,
-) -> Result<(), String> {
-    emit_to_recorded(b, dst, op, lhs, rhs).map(|_| ())
-}
-
 /// The same append lends its immutable original tuple after operand finalization.
 /// This physical observation carries no source identity or admission permission.
 pub(in crate::mir::builder) fn emit_to_recorded(
@@ -119,7 +108,7 @@ fn require_existing_compare_block(
 
 #[cfg(test)]
 mod tests {
-    use super::emit_to;
+    use super::emit_to_recorded;
     use crate::mir::{BasicBlockId, CompareOp, ConstValue, MirBuilder, MirInstruction, MirType, ValueId};
 
     #[test]
@@ -138,7 +127,7 @@ mod tests {
         }
         let destination = builder.alloc_value_for_test();
 
-        emit_to(&mut builder, destination, CompareOp::Lt, lhs, rhs).unwrap();
+        emit_to_recorded(&mut builder, destination, CompareOp::Lt, lhs, rhs).unwrap();
 
         assert_eq!(
             builder.function_state.type_ctx.get_type(destination),
@@ -167,7 +156,7 @@ mod tests {
         let mut builder = MirBuilder::new();
         let destination = builder.alloc_value_for_test();
 
-        assert!(emit_to(
+        assert!(emit_to_recorded(
             &mut builder,
             destination,
             CompareOp::Eq,
@@ -187,7 +176,7 @@ mod tests {
         let stale_block = BasicBlockId::new(9_999);
         builder.function_state.current_block = Some(stale_block);
 
-        let error = emit_to(
+        let error = emit_to_recorded(
             &mut builder,
             destination,
             CompareOp::Eq,
