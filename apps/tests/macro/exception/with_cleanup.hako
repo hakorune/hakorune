@@ -1,9 +1,10 @@
 // Phase 1 sugar: with_cleanup(expr, fn(){ body })
-function cleanup_target(args) {
-  return 1
-}
+static box Main {
+    cleanup_target(args) {
+      return 1
+    }
 
-function main(args) {
-  with_cleanup(cleanup_target(args), fn(){ print("done") })
+    main(args) {
+      with_cleanup(me.cleanup_target(args), fn(){ print("done") })
+    }
 }
-

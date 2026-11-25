@@ -1,8 +1,9 @@
-function test_dummy() {
-    return true
-}
+static box Main {
+    test_dummy() {
+        return true
+    }
 
-function main(args) {
-    return 7
+    main(args) {
+        return 7
+    }
 }
-

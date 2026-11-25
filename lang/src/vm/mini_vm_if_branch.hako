@@ -33,19 +33,3 @@ static box Main {
     return MiniVm.run_branch(json)
   }
 }
-
-// Top-level fallback entry for current runner
-function main(args) {
-  @vm = new MiniVm()
-  @json = "{\"kind\":\"Program\",\"statements\":[{\"kind\":\"Print\",\"expression\":{\"kind\":\"Literal\",\"value\":{\"type\":\"int\",\"value\":1}}}]}"
-  if args {
-    if args.length() > 0 {
-      @s = args.get(0)
-      if s { json = s }
-    }
-  }
-  @n = MiniVm.parse_first_int(json)
-  if n == "0" || n == "1" || n == "2" || n == "3" || n == "4" { print("10") return 0 }
-  print("20")
-  return 0
-}

@@ -1,8 +1,9 @@
-function test_param_zero(x) {
-    return x == 0
-}
+static box Tests {
+    test_param_zero(x) {
+        return x == 0
+    }
 
-function test_param_pair(a, b) {
-    return (a == 0) && (b == 0)
+    test_param_pair(a, b) {
+        return (a == 0) && (b == 0)
+    }
 }
-

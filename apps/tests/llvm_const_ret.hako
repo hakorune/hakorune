@@ -1,4 +1,5 @@
-function main(args) {
-  return 0
+static box Tests {
+    main(args) {
+      return 0
+    }
 }
-

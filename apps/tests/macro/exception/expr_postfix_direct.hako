@@ -1,12 +1,13 @@
-function f(x) {
-  return x
-}
+static box Main {
+    f(x) {
+      return x
+    }
 
-function main(args) {
-  local i = 0
-  loop(i < 2) {
-    f(i) catch(e) { print(e) } cleanup { print("cleanup") }
-    i = i + 1
-  }
+    main(args) {
+      local i = 0
+      loop(i < 2) {
+        me.f(i) catch(e) { print(e) } cleanup { print("cleanup") }
+        i = i + 1
+      }
+    }
 }
-

@@ -53596,7 +53596,7 @@
     },
     {
       "path": "lang/src/vm/mini_vm_if_branch.hako",
-      "sha256": "b0a79d0e2fafb9cf98b4f4d95e6b9750982c94aa315613bc2295554950572e6a",
+      "sha256": "fc2ccbd77721cb4f60a75b98a0fd41dbd2cba7122d1a44e61170841f8fd11926",
       "groups": [
         "B"
       ],

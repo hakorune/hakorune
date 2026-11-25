@@ -5,8 +5,9 @@ box Worker {
   }
 }
 
-function main(args) {
-  local w = new Worker()
-  postfix_catch(w.run(), "Error", fn(e){ print(e) })
+static box Main {
+    main(args) {
+      local w = new Worker()
+      postfix_catch(w.run(), "Error", fn(e){ print(e) })
+    }
 }
-

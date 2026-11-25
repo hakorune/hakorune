@@ -1,9 +1,10 @@
 // Phase 1 sugar: postfix_catch(expr, "Error", fn(e){ body })
-function do_work(args) {
-  return 0
-}
+static box Main {
+    do_work(args) {
+      return 0
+    }
 
-function main(args) {
-  postfix_catch(do_work(args), "Error", fn(e){ print(e) })
+    main(args) {
+      postfix_catch(me.do_work(args), "Error", fn(e){ print(e) })
+    }
 }
-
