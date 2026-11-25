@@ -44,7 +44,7 @@ impl NyashParser {
                 crate::parser::declarations::box_def::parse_interface_box_declaration(self)
             }
             TokenType::GLOBAL => self.parse_global_var(),
-            TokenType::FUNCTION => self.parse_function_declaration(),
+            TokenType::FUNCTION => Err(ParseError::function_outside_box(self.current_token().line)),
             TokenType::STATIC => self.parse_static_declaration(),
             _ => Err(ParseError::UnexpectedToken {
                 found: self.current_token().token_type.clone(),

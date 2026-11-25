@@ -92,3 +92,14 @@ pub enum ParseError {
     #[error("Build cfg error: {message} at line {line}")]
     BuildCfg { message: String, line: usize },
 }
+
+impl ParseError {
+    /// A function declaration reached a file statement boundary.
+    pub fn function_outside_box(line: usize) -> Self {
+        Self::GrammarContract {
+            stable_reject_tag: "decl/function-outside-box",
+            detail: "declare the function as a method inside a static box".to_owned(),
+            line,
+        }
+    }
+}
