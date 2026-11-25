@@ -119,13 +119,13 @@ impl FinalizedObjectReturnOutcomeV1 {
                 | FinalizedObjectReturnOriginV1::BorrowedReceiverField { receiver: value, .. } = &self.origin {
                 if function.params.first() != Some(value)
                     || function.metadata.physical_param_carriers.as_deref().and_then(|rows| rows.first())
-                        != Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::ExistingCallableI64) {
+                        != Some(&hakorune_mir_defs::PhysicalCallableLaneCarrierV1::ExistingCallableI64) {
                     return Err(freeze("object-return/physical-carrier"));
                 }
             }
             if let FinalizedObjectReturnOriginV1::BorrowedCall { invoke, producer, .. } = &self.origin {
                 if function.metadata.physical_param_carriers.as_deref().and_then(|rows| rows.first())
-                    != Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::ExistingCallableI64) {
+                    != Some(&hakorune_mir_defs::PhysicalCallableLaneCarrierV1::ExistingCallableI64) {
                     return Err(freeze("object-return/physical-carrier"));
                 }
                 if !matches!((&invoke.1, &producer.1),
@@ -156,7 +156,7 @@ impl FinalizedObjectReturnOutcomeV1 {
         let lane = ordinal as usize + usize::from(has_receiver);
         let value = function.params.get(lane).ok_or_else(|| freeze("object-return/physical-ordinal"))?;
         if function.metadata.physical_param_carriers.as_ref().and_then(|rows| rows.get(lane))
-            != Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue)
+            != Some(&hakorune_mir_defs::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue)
         { return Err(freeze("object-return/physical-carrier")); }
         if matches!(result, InvokeCallResultKind::BorrowedNullableHandle { .. })
             && !matches!(self.origin, FinalizedObjectReturnOriginV1::Null { .. } | FinalizedObjectReturnOriginV1::BorrowedFormal { .. })
@@ -360,7 +360,7 @@ impl FinalizedRootSourceHandoffV1 {
             || !borrowed.root().is_some_and(|root| source_entry.formals().contains(&(*ordinal, root)))
             || function.params.get(slot) != Some(value)
             || function.metadata.physical_param_carriers.as_deref().and_then(|rows| rows.get(slot))
-                != Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue) {
+                != Some(&hakorune_mir_defs::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue) {
             return Err(freeze("mixed-return/borrowed-support"));
         }
         Ok(FinalizedObjectReturnOriginV1::BorrowedCall { producer, invoke, support: outer_support })
@@ -453,7 +453,7 @@ impl FinalizedRootSourceHandoffV1 {
                         let slot = *ordinal as usize + offset;
                         if values.next().is_some() || function.params.get(slot) != Some(value)
                             || function.metadata.physical_param_carriers.as_deref().and_then(|rows| rows.get(slot))
-                                != Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue) {
+                                != Some(&hakorune_mir_defs::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue) {
                             return Err(freeze("borrowed-return/formal-carrier"));
                         }
                         let object = entry_source.formal_object_view(*formal)?.map(|view| view.object());

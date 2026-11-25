@@ -848,7 +848,7 @@ fn string_length_rows_keep_domain_lifetime_and_definition_order() {
             implicit_receiver: false,
         }];
         borrowed.metadata.physical_param_carriers = Some(vec![
-        crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue].into_boxed_slice());
+        hakorune_mir_defs::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue].into_boxed_slice());
         let body = borrowed.blocks.get_mut(&BasicBlockId(0)).unwrap();
         body.instructions[0] = read(ValueId(1), Operand::BorrowedText(ValueId(11)));
         body.instructions.insert(

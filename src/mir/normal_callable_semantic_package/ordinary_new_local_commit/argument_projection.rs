@@ -381,7 +381,7 @@ impl FinalizedRootSourceHandoffV1 {
         abi: &BirthAbiHandoffV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+        use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
         let retained = self
             .construction
             .iter()

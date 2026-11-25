@@ -328,7 +328,7 @@ mod tests {
             frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedInitializerExpressionFrameV1,
             formals: Vec<(u32, crate::mir::resolved_semantics::BindingRefV1)>,
         ) {
-            use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+            use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
             let mut state = CallableSemanticLoweringState::from_exact_source(input).unwrap();
             let mut names: Vec<_> = input
                 .function()
@@ -485,7 +485,7 @@ mod tests {
                 builder.setup_function_params(&names).unwrap();
                 // This unit shell predates the canonical compiler skeleton;
                 // install its ordinary physical column before entry projection.
-                use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+                use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
                 builder
                     .function_state
                     .current_function
@@ -599,7 +599,7 @@ mod tests {
                             Ok(value) => {
                                 assert_eq!(value, read.value_for(input.owner(), requirement.read().node(), requirement.binding()).unwrap());
                                 for mutation in 0..4 {
-                                    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+                                    use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
                                     let mut changed = function.clone();
                                     let ordinal = requirement.formal().0 as usize;
                                     match mutation {

@@ -269,7 +269,7 @@ impl FinalizedRootSourceHandoffV1 {
             .physical_param_carriers
             .as_deref()
             .ok_or_else(|| freeze("borrowed-entry/finished-carriers"))?;
-        use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+        use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
         if carriers.len() != function.params.len()
             || function.signature.params.len() != function.params.len()
             || carriers

@@ -122,7 +122,7 @@ fn project_field_get(
         && function.metadata.physical_param_carriers.as_deref().is_some_and(
             |carriers| {
                 carriers.contains(
-                    &crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue,
+                    &hakorune_mir_defs::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue,
                 )
             },
         );
@@ -139,7 +139,7 @@ fn project_field_get(
         && decision.selected_storage == Some("handle")
         && (source_field.is_some() || function.metadata.physical_param_carriers.as_deref().is_some_and(
             |carriers| carriers.contains(
-                &crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue,
+                &hakorune_mir_defs::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue,
             ),
         ));
     if rows.next().is_some()
@@ -202,7 +202,7 @@ fn project_field_set(
         && function.metadata.physical_param_carriers.as_deref().is_some_and(
             |carriers| {
                 carriers.contains(
-                    &crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue,
+                    &hakorune_mir_defs::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue,
                 )
             },
         );

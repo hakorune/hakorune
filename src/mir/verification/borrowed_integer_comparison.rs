@@ -1,6 +1,6 @@
 //! Match the Resolve-owned comparison proof against the final CFG and reads.
 use super::VerificationError;
-use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
+use hakorune_mir_defs::PhysicalCallableLaneCarrierV1;
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::resolved_semantics::borrowed_integer_comparison::BorrowedIntegerComparisonSourceV1;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};

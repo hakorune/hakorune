@@ -23,59 +23,78 @@ impl ThreadedBranches {
         expected: &mut BTreeMap<BasicBlockId, (Vec<MirInstruction>, MirInstruction)>,
     ) -> Result<Self, String> {
         let mut proof = Self::default();
-        for (&middle, _) in graph.iter().filter(|(id, _)| recorded.contains_key(id) || controls.contains(id)) {
-            if destinations.contains_key(&middle) { continue; }
-            let Some((destination, mut component, endpoint)) = Self::forwarding_chain(
-                middle, graph, function, destinations, expected)? else { continue };
-            let mut pending: Vec<_> = component.iter().copied().collect();
-            let mut visited = BTreeSet::new();
-            let mut certified = Vec::new();
-            while let Some(member) = pending.pop() {
-                if !visited.insert(member) { continue; }
-                for (&source, row) in graph.iter().filter(|(_, row)| row.edges.contains(&member)) {
-                    if let MirInstruction::Branch { then_bb, else_bb, then_edge_args, else_edge_args, .. } = &row.terminal {
-                        if !destinations.get(&source).is_some_and(|id| expected.contains_key(id))
-                            || graph.values().filter(|other| other.terminal == row.terminal).count() != 1 {
-                            return Err(fault("threading-branch-unvalidated"));
-                        }
-                        let then_arm = *then_bb == member;
-                        let else_arm = *else_bb == member;
-                        for (selected, args) in [(then_arm, then_edge_args), (else_arm, else_edge_args)] {
-                            if selected && args.as_ref().is_some_and(|args| !args.values.is_empty()) {
-                                return Err(fault("threading-edge-values"));
+        let mut required: BTreeSet<_> = recorded.keys().chain(controls).copied().collect();
+        loop {
+            let mapped_before = destinations.len();
+            let mut awaiting_branch = false;
+            // A newly certified endpoint can govern another original jump
+            // chain. Defer its consumers until the incoming branch is proved.
+            'component: for middle in required.clone() {
+                if destinations.contains_key(&middle) { continue; }
+                let Some((destination, mut component, endpoint)) = Self::forwarding_chain(
+                    middle, graph, function, destinations, expected)? else { continue };
+                let mut pending: Vec<_> = component.iter().copied().collect();
+                let mut visited = BTreeSet::new();
+                let mut certified = Vec::new();
+                while let Some(member) = pending.pop() {
+                    if !visited.insert(member) { continue; }
+                    for (&source, row) in graph.iter().filter(|(_, row)| row.edges.contains(&member)) {
+                        if let MirInstruction::Branch { then_bb, else_bb, then_edge_args, else_edge_args, .. } = &row.terminal {
+                            if !destinations.get(&source).is_some_and(|id| expected.contains_key(id)) {
+                                awaiting_branch = true;
+                                continue 'component;
                             }
-                        }
-                        certified.push((source, row.terminal.clone(), then_arm, else_arm));
-                    } else {
-                        // Only deleted empty Jump nodes within this same proved
-                        // chain are internal edges, never arbitrary Jump/Invoke roots.
-                        let Some((same, chain, _)) = Self::forwarding_chain(source, graph, function, destinations, expected)?
-                            else { return Err(fault("threading-incoming-kind")) };
-                        if same != destination { return Err(fault("threading-incoming-kind")); }
-                        for id in chain {
-                            if component.insert(id) { pending.push(id); }
+                            if graph.values().filter(|other| other.terminal == row.terminal).count() != 1 {
+                                return Err(fault("threading-branch-unvalidated"));
+                            }
+                            let then_arm = *then_bb == member;
+                            let else_arm = *else_bb == member;
+                            for (selected, args) in [(then_arm, then_edge_args), (else_arm, else_edge_args)] {
+                                if selected && args.as_ref().is_some_and(|args| !args.values.is_empty()) {
+                                    return Err(fault("threading-edge-values"));
+                                }
+                            }
+                            certified.push((source, row.terminal.clone(), then_arm, else_arm));
+                        } else {
+                            // Only deleted empty Jump nodes within this same proved
+                            // chain are internal edges, never arbitrary Jump/Invoke roots.
+                            let Some((same, chain, _)) = Self::forwarding_chain(source, graph, function, destinations, expected)?
+                                else { return Err(fault("threading-incoming-kind")) };
+                            if same != destination { return Err(fault("threading-incoming-kind")); }
+                            for id in chain {
+                                if component.insert(id) { pending.push(id); }
+                            }
                         }
                     }
                 }
+                if certified.is_empty() { continue; }
+                if component.iter().any(|id| destinations.get(id).is_some_and(|old| *old != destination)) {
+                    return Err(fault("threading-destination-conflict"));
+                }
+                // Publish only after the entire original component and every
+                // external Branch root have passed; partial paths prove nothing.
+                if let Some((id, terminal)) = endpoint {
+                    if expected.contains_key(&id) { return Err(fault("threading-destination-conflict")); }
+                    if matches!(terminal, MirInstruction::Branch { .. }) {
+                        required.extend(graph[&id].edges.iter().copied());
+                    }
+                    expected.insert(id, (Vec::new(), terminal));
+                }
+                for (source, original, then_arm, else_arm) in certified {
+                    let row = proof.rows.entry(source).or_insert(ThreadedBranch {
+                        original, then_arm: false, else_arm: false,
+                    });
+                    row.then_arm |= then_arm;
+                    row.else_arm |= else_arm;
+                }
+                for id in component { destinations.insert(id, destination); }
             }
-            if certified.is_empty() { continue; }
-            if component.iter().any(|id| destinations.get(id).is_some_and(|old| *old != destination)) {
-                return Err(fault("threading-destination-conflict"));
+            if destinations.len() == mapped_before {
+                if awaiting_branch {
+                    return Err(fault("threading-branch-unvalidated"));
+                }
+                break;
             }
-            // Publish only after the entire original component and every
-            // external Branch root have passed; partial paths prove nothing.
-            if let Some((id, terminal)) = endpoint {
-                if expected.contains_key(&id) { return Err(fault("threading-destination-conflict")); }
-                expected.insert(id, (Vec::new(), terminal));
-            }
-            for (source, original, then_arm, else_arm) in certified {
-                let row = proof.rows.entry(source).or_insert(ThreadedBranch {
-                    original, then_arm: false, else_arm: false,
-                });
-                row.then_arm |= then_arm;
-                row.else_arm |= else_arm;
-            }
-            for id in component { destinations.insert(id, destination); }
         }
         Ok(proof)
     }
@@ -117,6 +136,12 @@ impl ThreadedBranches {
         let node = graph.get(&original)?;
         let actual = function.blocks.get(&destination)?;
         if !node.instructions.is_empty() || !actual.instructions.is_empty() { return None; }
+        // The inner branch may itself have threaded arms. Its unchanged
+        // original condition and projected edges are checked after mapping.
+        if matches!((&node.terminal, &actual.terminator),
+            (MirInstruction::Branch { .. }, Some(MirInstruction::Branch { .. }))) {
+            return Some(node.terminal.clone());
+        }
         let MirInstruction::Jump { target, edge_args } = &node.terminal else { return None; };
         if edge_args.as_ref().is_some_and(|args| args.layout != crate::mir::edge_args::JumpArgsLayout::CarriersOnly
             || !args.values.is_empty()) { return None; }

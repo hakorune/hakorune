@@ -7,6 +7,7 @@ lane.
 
 - `call_unified.rs`
 - `object_ref.rs`: module-local object and declaration-order field coordinates.
+- `physical_callable_lane.rs`: shared physical parameter carrier tags and their MIR types.
 
 ## Boundaries
 

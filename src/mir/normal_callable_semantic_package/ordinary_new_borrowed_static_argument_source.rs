@@ -75,6 +75,9 @@ impl ArgumentExpressionSourceLoanV1 {
     pub(crate) fn requires_i64_v1(&self) -> bool {
         self.result == ArgumentExpressionResultV1::I64
     }
+    pub(crate) fn requires_text_v1(&self) -> bool {
+        self.result == ArgumentExpressionResultV1::Text
+    }
     pub(crate) fn preserves_original_kind(&self) -> bool {
         self.result == ArgumentExpressionResultV1::OriginalKind
     }

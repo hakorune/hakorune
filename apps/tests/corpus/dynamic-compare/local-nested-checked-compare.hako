@@ -1,0 +1,23 @@
+// Both comparisons must check the borrowed parameter before the nested branch.
+box Probe {
+  birth() { }
+  run(x): i64 {
+    local low = 2 <= x
+    local high = x > 8
+    if low {
+      if high { return 3 }
+      return 2
+    }
+    return 1
+  }
+}
+
+static box Main {
+  main() {
+    local probe = new Probe()
+    print(probe.run(1))
+    print(probe.run(5))
+    print(probe.run(9))
+    return 0
+  }
+}

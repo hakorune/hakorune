@@ -1,7 +1,9 @@
 //! Physical carrier tags shared by current callable and GenericG0 lowering.
 
+use hakorune_mir_core::MirType;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir) enum PhysicalCallableLaneCarrierV1 {
+pub enum PhysicalCallableLaneCarrierV1 {
     ExistingCallableI64,
     U64BitsOnI64,
     /// A borrowed checked-map storage pointer (`ptr` wire); the callee
@@ -17,11 +19,11 @@ impl PhysicalCallableLaneCarrierV1 {
     /// signature. `CheckedMapStorage` keeps `MapBox` metadata so emission
     /// can spell the lane `ptr` instead of the unconditional `i64` used by
     /// the scalar carriers.
-    pub(in crate::mir) fn mir_type(self) -> crate::mir::MirType {
+    pub fn mir_type(self) -> MirType {
         match self {
-            Self::CheckedMapStorage => crate::mir::MirType::Box("MapBox".to_owned()),
+            Self::CheckedMapStorage => MirType::Box("MapBox".to_owned()),
             Self::ExistingCallableI64 | Self::U64BitsOnI64 | Self::BorrowedTaggedValue => {
-                crate::mir::MirType::Integer
+                MirType::Integer
             }
         }
     }

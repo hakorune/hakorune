@@ -1,6 +1,6 @@
 //! Read-only wire projection of the signature owner's existing carrier rows.
 use super::FunctionMetadata;
-use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
+use hakorune_mir_defs::PhysicalCallableLaneCarrierV1;
 
 impl FunctionMetadata {
     pub(crate) fn physical_param_carrier_transport_tags_v1(&self) -> Option<Vec<&'static str>> {

@@ -301,6 +301,13 @@ impl<'source> PrefixLocalFlow<'source> {
         }
     }
 
+    pub(super) fn has_comparison_prefix(&self, site: &OwnedExprSiteV1) -> bool {
+        self.comparison_prefix_homes
+            .borrow()
+            .get(site)
+            .is_some_and(Option::is_some)
+    }
+
     pub(super) fn comparison_prefix_homes(&self) -> borrowed_integer_comparison::ComparisonPrefixHomes {
         self.comparison_prefix_homes.borrow().clone()
     }

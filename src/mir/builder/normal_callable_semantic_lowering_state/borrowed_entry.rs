@@ -3,7 +3,7 @@ use super::*;
 
 type PreparedEntryValues = Option<Result<Box<[(u32, BindingRefV1, ValueId)]>, String>>;
 type PreparedCarriers = (
-    Box<[crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1]>,
+    Box<[hakorune_mir_defs::PhysicalCallableLaneCarrierV1]>,
     Vec<(usize, ValueId)>,
 );
 
@@ -35,7 +35,7 @@ impl CallableSemanticLoweringState {
         builder: &crate::mir::MirBuilder,
         has_physical_formals: bool,
     ) -> Result<Option<PreparedCarriers>, String> {
-        use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+        use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
         let prepared = self.prepare_borrowed_entry_values(entry)?;
         if matches!(&prepared, Some(Err(_))) { return Ok(None); }
         if !has_physical_formals {
@@ -154,7 +154,7 @@ impl CallableSemanticLoweringState {
         entry: &PreparedCallableEntryValuesV1,
         builder: &crate::mir::MirBuilder,
     ) -> Result<Option<PreparedCarriers>, String> {
-        use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+        use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
         use crate::mir::MirType;
         let Some(formals) = &self.dynamic_entry_formals else { return Ok(None) };
         if formals.is_empty() { return Ok(None); }

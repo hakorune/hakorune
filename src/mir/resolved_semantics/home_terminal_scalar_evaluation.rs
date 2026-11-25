@@ -176,10 +176,19 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_return_expres
                         argument.ordinal(),
                     ),
                 )? {
-                    if !matches!(loan.plan().nodes().first().map(|node| node.source()),
-                        Some(crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Literal(_)
-                            | crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_)))
-                    { root_argument_evaluation = true; }
+                    // Text arguments retain the checked evaluation even for a
+                    // literal or reference, so the Call owns their preparation.
+                    if loan.requires_text_v1()
+                        || !matches!(
+                            loan.plan().nodes().first().map(|node| node.source()),
+                            Some(
+                                crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Literal(_)
+                                    | crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_)
+                            )
+                        )
+                    {
+                        root_argument_evaluation = true;
+                    }
                 }
             }
         }

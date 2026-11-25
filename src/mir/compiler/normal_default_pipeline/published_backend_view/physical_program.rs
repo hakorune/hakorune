@@ -125,7 +125,7 @@ pub(crate) struct PublishedLifecyclePhysicalFunctionV1<'module> {
     /// the wire `representation` authority. `CheckedMapStorage` keeps its
     /// identity so the name is never re-read to spell `ptr`.
     param_carriers:
-        Option<&'module [crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1]>,
+        Option<&'module [hakorune_mir_defs::PhysicalCallableLaneCarrierV1]>,
     /// The caller-side actual representation record: the same sealed
     /// `value_types` map the MIR verifier corroborates against callee
     /// formals. A `Box("MapBox")` actual is the only map-kind evidence;
@@ -156,7 +156,7 @@ impl<'module> PublishedLifecyclePhysicalFunctionV1<'module> {
     pub(in crate::mir) fn param_carriers(
         &self,
     ) -> Option<
-        &'module [crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1],
+        &'module [hakorune_mir_defs::PhysicalCallableLaneCarrierV1],
     >{
         self.param_carriers
     }

@@ -87,7 +87,7 @@ fn is_tagged_dynamic_formal(function: &MirFunction, value: ValueId) -> bool {
     };
     function.metadata.physical_param_carriers.as_deref()
         .and_then(|carriers| carriers.get(index))
-        == Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue)
+        == Some(&hakorune_mir_defs::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue)
 }
 
 #[path = "invoke_string_lifetime.rs"]
@@ -168,7 +168,7 @@ fn check_borrowed_operand(
     function: &super::FunctionVerificationGeometry<'_>,
     mut value: ValueId,
 ) -> Result<(), &'static str> {
-    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+    use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
     let mut seen = std::collections::BTreeSet::new();
     loop {
         if !seen.insert(value) {

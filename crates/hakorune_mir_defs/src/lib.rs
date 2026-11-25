@@ -4,6 +4,7 @@ pub mod callable_key;
 
 pub mod global_target;
 pub mod object_ref;
+mod physical_callable_lane;
 pub use call_unified::{CallFlags, Callee, CalleeBoxKind, MirCall, TypeCertainty};
 pub use callable_key::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
 pub use global_target::{
@@ -12,3 +13,4 @@ pub use global_target::{
     CanonicalSameModuleGlobalTargetV1,
 };
 pub use object_ref::{CanonicalFieldRefV1, CanonicalObjectIdV1};
+pub use physical_callable_lane::PhysicalCallableLaneCarrierV1;

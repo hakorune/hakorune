@@ -53,6 +53,13 @@ pub(super) fn observe<E>(
         locals.install_text_alias(initializer.binding(), root, acquisition);
         return Ok(true);
     }
+    let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
+    // Ordinary expression descent emits the checked comparison from its source
+    // proof. A selected Loop initializer still needs its complete frame.
+    if !locals.in_source_loop_v1() && locals.has_comparison_prefix(&owned) {
+        locals.install_scalar_call_result(initializer.binding(), SourceScalarKind::Bool);
+        return Ok(true);
+    }
     let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else {
         return declined(statement.site(), 4);
     };
@@ -70,7 +77,6 @@ pub(super) fn observe<E>(
         source.nodes()[0].source(),
         ExpressionNodeSourceV1::Reference(_)
     );
-    let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
     let arithmetic_requested = source.nodes()[0].binary().is_some_and(|binary|
         super::scalar_expression::is_arithmetic_operator_v1(binary.operator()))
         && (locals.in_source_loop_v1() || scalar_source.requires_initializer_use_frame(&owned)?);
