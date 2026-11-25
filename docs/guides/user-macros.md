@@ -37,11 +37,11 @@ MacroCtx (MVP)
 
 ## Authoring a Macro
 
-Create a Nyash file that defines `MacroBoxSpec` with a static `expand(json[, ctx])` returning a JSON string (AST JSON v0):
+Create a Nyash file that defines `static box MacroBoxSpec` with an `expand(json[, ctx])` method returning a JSON string (AST JSON v0). Methods of a static box are static; do not write `static function` members ([ADR-006](../development/adr/adr-006-static-box-holds-only-static-methods.md), 2026-11-26):
 
 ```nyash
 static box MacroBoxSpec {
-  static function expand(json, ctx) {
+  expand(json, ctx) {
     // json: string (AST JSON v0)
     // ctx:  string (JSON; {caps:{io,net,env}} MVP). Optional for backward compatibility.
     // return: string (AST JSON v0)
@@ -160,3 +160,4 @@ Purpose: restrict side‑effects and ensure deterministic macro expansion.
 
 ## Top-level static MacroBoxSpec (safety)
 - 既定では無効（`NYASH_MACRO_TOPLEVEL_ALLOW=0`）。Box宣言なしで `static function MacroBoxSpec.expand` を受理したい場合は `--macro-top-level-allow` を指定してください。
+- 退役する([ADR-006](../development/adr/adr-006-static-box-holds-only-static-methods.md)、メンテナ決定 2026-11-26)。macro は `static box MacroBoxSpec { expand(json, ctx) { ... } }` だけに揃える。箱の外の `static function MacroBoxSpec.expand` は ADR-005 の compile error に入り、`NYASH_MACRO_TOPLEVEL_ALLOW` と `--macro-top-level-allow` の特例はなくなる。実装は ADR-006 の (3) の回。

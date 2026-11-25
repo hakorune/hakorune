@@ -196,6 +196,12 @@ Decision (2026-11-14):
 - With `static box MapBox { ... }`, `new MapBox()` is rejected because a static
   box is not constructible, exactly as `new` of any other static box. The
   compiler does not retry the builtin of the same name.
+- [ADR-006](../../development/adr/adr-006-static-box-holds-only-static-methods.md) (maintainer decision 2026-11-26): this rejection has its own name,
+  `call/new-static-box`, separate from `new` of an undeclared name. A static
+  box only groups static methods by name and holds no state; state belongs in
+  an ordinary `box`. Implementation pending (ADR-006 step 3): the current
+  compiler rejects both cases with the same `OrdinaryBoxCoverageMissing`
+  rejection.
 - Builtin construction, operation, ownership and destruction contracts come only
   from a reference that resolves to the builtin, or from syntax that carries the
   builtin meaning directly (`%{}`). A user declaration of the same name inherits

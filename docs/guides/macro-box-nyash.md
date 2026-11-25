@@ -9,14 +9,21 @@ Philosophy
 
 API (Nyash)
 ```nyash
-box MacroBoxSpec {
+static box MacroBoxSpec {
   // Required entry. Receives AST JSON and returns transformed AST JSON.
-  static function expand(json, ctx) { /* pure transform over JSON string */ }
+  expand(json, ctx) { /* pure transform over JSON string */ }
 
   // Optional metadata.
-  static function name() { return "MyMacro" }
+  name() { return "MyMacro" }
 }
 ```
+- Write the macro as methods of `static box MacroBoxSpec` ([ADR-006](../development/adr/adr-006-static-box-holds-only-static-methods.md), maintainer
+  decision 2026-11-26). A static box method is already static, so there is no
+  `static function` member. A Box-less `static function MacroBoxSpec.expand`
+  is the ADR-005 file-level compile error, and the
+  `NYASH_MACRO_TOPLEVEL_ALLOW` / `--macro-top-level-allow` exception retires.
+  Implementation pending (ADR-006 step 3); older examples may still show the
+  previous spelling.
 
 Registration
 - Declared in `nyash.toml` (planned):

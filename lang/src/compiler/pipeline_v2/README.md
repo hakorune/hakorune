@@ -20,6 +20,7 @@ Modules（責務）
   - 失敗時: なし（入力は抽出済み前提）。
 
 - pipeline.hako（flow PipelineV2）
+  - `flow` の宣言は退役する([ADR-006](../../../../docs/development/adr/adr-006-static-box-holds-only-static-methods.md)、2026-11-26)。この directory の `flow` の 5 宣言は、名前で呼ぶ関数の集まりなら `static box` に、状態を持つなら `box` に移す。移す前と後で、`using` の別名を含めて同じ関数へ届く事を確かめる。実装は ADR-006 の (3) の回。
   - 役割: Extract系→Emit系の配線。Call/Method/New/Compare/If(Compare) を段階的に対応。
   - フラグ:
     - prefer_cfg=0: Return‑only（compare→ret）

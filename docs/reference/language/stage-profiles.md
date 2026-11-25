@@ -113,7 +113,7 @@ Stage1 support in the matrix means one of:
 
 | Feature family | Stage0 bootstrap profile | Stage1 selfhost profile | Notes |
 | --- | --- | --- | --- |
-| `box`, `static box`, methods, functions, fields, `birth` | live for ordinary bootstrap code | live | Stored field type annotations are metadata unless a specific verifier row owns them. |
+| `box`, `static box`, methods, functions, fields, `birth` | live for ordinary bootstrap code | live | Stored field type annotations are metadata unless a specific verifier row owns them. Fields and `birth` belong to `box`: a static box only groups static methods by name ([ADR-006](../../development/adr/adr-006-static-box-holds-only-static-methods.md), 2026-11-26; its fields, `init { }`, and `static { }` become compile errors in ADR-006 step 3). |
 | `local`, assignment, compound assignment, field/method calls, literals | live | live | Compound assignment uses the semantic kernel's Evaluated Place contract: evaluate the target once, read it, evaluate the RHS, operate, and store. Parser/lowering conformance is separate from syntax acceptance. |
 | `if`, `guard expr else`, `loop cond`, `loop {}`, `break`, `continue`, `return` | live | live | `while`, `for`, `repeat`, and `until` are not canonical source spellings. |
 | `loop i in start..end` | transport / narrow live parse | live, guarded by LoopRange facts | End-exclusive, step `1`, entry-bound capture, read-only index. Fresh body-local writes are accepted; loop-carried writes remain fail-fast. Stage0 must not desugar this to local/increment form. |
@@ -168,7 +168,15 @@ cap block syntax
 implicit null-based Option/Result sugar
 ordinary box as record
 PackedArray boxed fallback
+flow (declaration spelling; ADR-006)
+static box ... from Parent (ADR-006)
+static box fields, init { }, static { } (ADR-006)
 ```
+
+The three ADR-006 rows (2026-11-26) are still accepted by the current parser
+until the ADR-006 rejection round (step 3). Move a named group of functions to
+`static box`, and anything that holds state to `box`; call a parent's method
+by name (`P.f()`).
 
 Legacy compatibility may still exist in parser or historical docs. Compatibility
 does not make a spelling canonical.

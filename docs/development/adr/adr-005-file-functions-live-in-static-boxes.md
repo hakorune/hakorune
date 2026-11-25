@@ -4,7 +4,7 @@ Status: 採用(2026-11-26、ユーザー決定)。実装は、まだ無い。
 Date: 2026-11-26
 Scope: file に書く関数の置き場所、関数の名前の決まり、呼び方、REPL の関数の定義、移る順。
 
-この ADR は、box の外に書く関数(`function f(...) { ... }` と `static function f(...) { ... }`)を、file のモードの言語から外す。Box の method の名前の決まり(`LANG-BOX-METHOD-NAMESPACE-D0`、[callable-contracts.md](../../reference/language/callable-contracts.md#box-method-namespace-and-collisions))と、`using` の別名の契約([using.md](../../reference/language/using.md))は、そのまま使う。
+この ADR は、box の外に書く関数(`function f(...) { ... }` と `static function f(...) { ... }`)を、file のモードの言語から外す。static box に書ける物(static method だけ)は、[ADR-006](adr-006-static-box-holds-only-static-methods.md) が決める。Box の method の名前の決まり(`LANG-BOX-METHOD-NAMESPACE-D0`、[callable-contracts.md](../../reference/language/callable-contracts.md#box-method-namespace-and-collisions))と、`using` の別名の契約([using.md](../../reference/language/using.md))は、そのまま使う。
 
 ## なぜ決めたか
 
@@ -134,7 +134,7 @@ static box ConsoleStd {
 - 拒否の名前と、診断の文。案は `decl/function-outside-box`。(3) の回で決める。
 - 移した後の箱の名前の付け方。変換器は今 `Counter_get` のような名前の関数を出す。`impl` ごとに箱を作るか、1 つの file に 1 つの箱か。
 - `console_std.hako` の helper の移し方。箱を足すと、`using` の別名の結び付けが変わりうる(公開の static box が 1 つの時と、複数の時で、今の決まりが違う)。
-- runner 向けの `function main(args)`(`mini_vm_if_branch.hako`、macro の子の runner)の代わりの入口。macro の top-level の `static function MacroBoxSpec.expand`(`NYASH_MACRO_TOPLEVEL_ALLOW`)の扱い。
+- runner 向けの `function main(args)`(`mini_vm_if_branch.hako`、macro の子の runner)の代わりの入口。macro の top-level の `static function MacroBoxSpec.expand` と `NYASH_MACRO_TOPLEVEL_ALLOW` は、[ADR-006](adr-006-static-box-holds-only-static-methods.md) で決まった(`static box MacroBoxSpec { expand(json, ctx) { ... } }` に揃え、特例は退役する)。子の runner の正式な入口は、まだ決めていない。
 - method の本体の中に書いた `function`(入れ子。今の parser は文として読む)。この ADR が決めるのは、file の top-level の宣言だけ。
 - src の Rust の test の文字列 101 本を、(2) と (3) のどちらで直すか。
 - 内部の名前 `FreeStatic`(code と MIR の文書で、static box の method の呼び出しにも使う)の呼び分け。(4) の回で、消す範囲と一緒に決める。

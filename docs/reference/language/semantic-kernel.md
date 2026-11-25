@@ -147,6 +147,9 @@ Resolve stage, not by the parser; the parser owns syntax only.
 or `fini` of a Box. Anywhere else it is a compile error. Inside a `static box`,
 `me.m()` is a namespace qualifier for a static method of that box; it is not
 an instance value, and `me.field` or passing `me` there is a compile error.
+A static box has no fields or other state ([ADR-006](../../development/adr/adr-006-static-box-holds-only-static-methods.md), maintainer decision
+2026-11-26), so `me` there only qualifies static methods of that box.
+Implementation pending (ADR-006 step 3).
 
 ## Canonical Form and Evidence
 

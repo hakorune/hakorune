@@ -621,7 +621,7 @@ env NYASH_FEATURES=stage3 ./target/release/hakorune program.hako
 | --- | --- | --- | --- |
 | `NYASH_MACRO_BOX_NY={0\|1}` | `0` | Any | Legacy: Nyash MacroBox ロード有効化。非推奨：`NYASH_MACRO_PATHS` を使用してね。 |
 | `NYASH_MACRO_BOX_NY_PATHS=comma,separated,paths` | unset | Any | Legacy: Nyash MacroBox パス（カンマ区切り）。非推奨：`NYASH_MACRO_PATHS` を使用してね。 |
-| `NYASH_MACRO_TOPLEVEL_ALLOW={0\|1\|true\|false}` | `false` | Any | Legacy: トップレベル `static function MacroBoxSpec.expand(json)` を許可。非推奨：BoxDeclaration を使用してね。 |
+| `NYASH_MACRO_TOPLEVEL_ALLOW={0\|1\|true\|false}` | `false` | Any | Legacy: トップレベル `static function MacroBoxSpec.expand(json)` を許可。非推奨：BoxDeclaration を使用してね。退役する([ADR-006](../development/adr/adr-006-static-box-holds-only-static-methods.md)、2026-11-26。CLI の `--macro-top-level-allow` も同じ)。`static box MacroBoxSpec { expand(json, ctx) { ... } }` に書く。実装は ADR-006 の (3) の回。 |
 | `NYASH_MACRO_BOX_CHILD={0\|1\|true\|false}` | `true` | Any | 子プロセス MacroBox を使用。 |
 | `NYASH_MACRO_BOX_CHILD_RUNNER={0\|1\|true\|false}` | `false` | Any | Legacy: Runner モードを強制。非推奨：自動管理されるから手動設定不要だよ。 |
 | `NYASH_MACRO_BOX_NY_IDENTITY_ROUNDTRIP={0\|1}` | `0` | Any | Identity MacroBox の JSON ラウンドトリップ検証。 |

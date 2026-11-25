@@ -36,3 +36,6 @@ Deprecated ENV (kept for compatibility for now)
 - `NYASH_MACRO_BOX_NY=1` + `NYASH_MACRO_BOX_NY_PATHS=...` → use `NYASH_MACRO_PATHS`
 - `NYASH_MACRO_BOX_CHILD_RUNNER` → no longer needed
 - `NYASH_MACRO_TOPLEVEL_ALLOW` → default OFF; prefer CLI `--macro-top-level-allow` when necessary
+  - Both retire ([ADR-006](../development/adr/adr-006-static-box-holds-only-static-methods.md), maintainer decision 2026-11-26): write the macro as
+    `static box MacroBoxSpec { expand(json, ctx) { ... } }`. Implementation
+    pending (ADR-006 step 3).

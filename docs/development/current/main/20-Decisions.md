@@ -54,6 +54,13 @@ Private Canonical Path: `docs/private/development/current/main/20-Decisions.md`
   function is a method of a static box; top-level `function`/`static function`
   become a compile error, and one name per Box has no arity overloads. REPL
   session functions are a future feature. Not built yet.
+- Static boxes (maintainer decision 2026-11-26):
+  `docs/development/adr/adr-006-static-box-holds-only-static-methods.md`. A
+  static box only groups static methods by name; state belongs in an ordinary
+  `box`. `new` of a static box is `call/new-static-box`; static-box fields,
+  `init { }`, `static { }`, and a header `from` become compile errors; the
+  `flow` declaration spelling and the top-level macro exception retire. Not
+  built yet.
 - Language failure/exit C′ is accepted as
   `LANGUAGE-RESULT-EXIT-C-PRIME0-D0`: recoverable failure is `Result<T,E>`,
   unchanged propagation is typed Result-only postfix `?`, `Option ?`, source
