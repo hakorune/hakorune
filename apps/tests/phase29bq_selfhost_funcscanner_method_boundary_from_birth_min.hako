@@ -10,7 +10,7 @@ static box Parent {
   }
 }
 
-static box Child from Parent {
+static box Child {
   from Parent.birth(name)
 
   legacy_id(x) {

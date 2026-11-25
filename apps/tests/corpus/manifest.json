@@ -40763,7 +40763,7 @@
     },
     {
       "path": "apps/tests/phase29bq_selfhost_funcscanner_box_from_min.hako",
-      "sha256": "e08e5045014f0f953c34fbc80a0b5f8441e4e341e20649ab39490223dfc33151",
+      "sha256": "66d6694534fe2f8c102b8048f0c46ab7903af674f488dfe603698a46f5245ab4",
       "groups": [
         "A"
       ],
@@ -40781,7 +40781,7 @@
     },
     {
       "path": "apps/tests/phase29bq_selfhost_funcscanner_method_boundary_from_birth_min.hako",
-      "sha256": "70663a32e2de8cf91d45906fd2a469235814ce6bead1fefc25f34d333a61f941",
+      "sha256": "3a9d582b9e93273da34cfdc4ab7884b4d3f2f44c03ea4dfa6959460ce04cf98c",
       "groups": [
         "A"
       ],
@@ -41600,7 +41600,7 @@
     },
     {
       "path": "apps/tests/phase29cc_selfhost_funcscanner_typed_params_implements_min.hako",
-      "sha256": "eb7d64ad12b3028b6feaaf0466c219d1a00517aa6690c397d5e4359d286fe766",
+      "sha256": "9083f72cc7ade1486873927ae9a6131bb27f23423d6e7d2a6bac19e64122d17f",
       "groups": [
         "A"
       ],
