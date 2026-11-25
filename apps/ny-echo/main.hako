@@ -3,9 +3,16 @@
 // 使用法: ny-echo [--upper|--lower]
 
 static box Main {
+  main(args) {
+    local app = new Echo()
+    return app.run(args)
+  }
+}
+
+box Echo {
     init { console, options }
     
-    main(args) {
+    run(args) {
         me.console = new ConsoleBox()
         me.options = me.parseArgs(args)
         

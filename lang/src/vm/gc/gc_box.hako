@@ -2,7 +2,7 @@
 
 using selfhost.vm.gc.gc_metrics_box as GcMetrics
 
-static box GcBox {
+box GcBox {
   metrics: GcMetrics.GcMetricsBox
 
   birth() {

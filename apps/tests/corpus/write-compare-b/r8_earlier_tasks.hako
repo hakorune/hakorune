@@ -101,7 +101,7 @@ record TypeId {
     raw: i64
 }
 
-static box TypeIds {
+box TypeIds {
     INT: TypeId = TypeId { raw: 1 }
     BOOL: TypeId = TypeId { raw: 2 }
 
@@ -131,7 +131,8 @@ box TypeTable {
     }
 
     unify(a: TypedId, b: TypedId, edit sink: DiagSink): TypedId {
-        if TypeIds.eq(a.ty, b.ty) {
+        local type_ids = new TypeIds()
+        if type_ids.eq(a.ty, b.ty) {
             return a with { span: Spans.merge(a.span, b.span) }
         }
         sink.errorWith(a.span, b.span, "type mismatch")

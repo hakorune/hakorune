@@ -1,8 +1,15 @@
 // AOT Python simple call demo - single print to avoid doubling
 static box Main {
+  main() {
+    local app = new PythonCallExample()
+    return app.run()
+  }
+}
+
+box PythonCallExample {
   init { py, abs_func, result }
   
-  main() {
+  run() {
     // Create Python runtime
     me.py = new PyRuntimeBox()
     

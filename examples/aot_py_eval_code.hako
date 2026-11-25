@@ -1,8 +1,15 @@
 // AOT Python eval with code string - simplest possible
 static box Main {
+  main() {
+    local app = new PythonEvalExample()
+    return app.run()
+  }
+}
+
+box PythonEvalExample {
   init { py, code, result }
   
-  main() {
+  run() {
     // Create Python runtime
     me.py = new PyRuntimeBox()
     

@@ -5,9 +5,16 @@
 // 計測・集計は無効化（VM/JITで同一挙動を優先）
 
 static box Main {
+  main(args) {
+    local app = new ArrayBenchmark()
+    return app.run(args)
+  }
+}
+
+box ArrayBenchmark {
     init { console }
     
-    main(args) {
+    run(args) {
         me.console = new ConsoleBox()
         
         // ベンチマーク設定（ArrayBoxで明示作成）

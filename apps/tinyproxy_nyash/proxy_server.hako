@@ -2,10 +2,10 @@
 // Phase 10.1: Zero-copy detection testing with real HTTP traffic
 
 // ProxyServer - Main proxy server implementation
-static box ProxyServer {
+box ProxyServer {
     init { server_socket, upstream_buffer, downstream_buffer, port, running }
     
-    main() {
+    run() {
         me.port = 8080
         me.running = true
         me.upstream_buffer = new BufferBox()
@@ -160,15 +160,14 @@ static box ProxyServer {
 
 // Entry point
 static box Main {
-    init { console }
-    
     main() {
-        me.console = new ConsoleBox()
-        me.console.log("🚀 Starting Tinyproxy Nyash - Phase 10.1")
+        local console = new ConsoleBox()
+        console.log("🚀 Starting Tinyproxy Nyash - Phase 10.1")
         
-        local result = ProxyServer.main()
+        local server = new ProxyServer()
+        local result = server.run()
         
-        me.console.log("🏁 Proxy result: " + result)
+        console.log("🏁 Proxy result: " + result)
         return "Phase 10.1 Complete"
     }
 }

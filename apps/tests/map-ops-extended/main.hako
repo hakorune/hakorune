@@ -1,7 +1,14 @@
 // MapBox extended ops smoke: remove/clear/keysStr/getOr and string keys
 static box Main {
-  init { console }
   main() {
+    local app = new MapOpsExtended()
+    return app.run()
+  }
+}
+
+box MapOpsExtended {
+  init { console }
+  run() {
     me.console = new ConsoleBox()
     local m = new MapBox()
     // int keys

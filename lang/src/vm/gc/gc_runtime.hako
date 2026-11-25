@@ -3,7 +3,7 @@
 using selfhost.vm.gc.gc_box as Gc
 using selfhost.vm.gc.gc_policy_box as GcPolicy
 
-static box GcRuntime {
+box GcRuntime {
   gc: Gc.GcBox
 
   birth() {

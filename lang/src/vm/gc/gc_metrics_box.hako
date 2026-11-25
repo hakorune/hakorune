@@ -1,6 +1,6 @@
 // gc_metrics_box.hako — GC metrics (skeleton; not wired)
 
-static box GcMetricsBox {
+box GcMetricsBox {
   total_allocations: IntegerBox
   total_collections: IntegerBox
   total_freed: IntegerBox

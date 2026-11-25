@@ -3,7 +3,7 @@
 
 using tools.hako_shared.json_parser as JsonParserBox
 
-static box JsonParserTestBox {
+box JsonParserTestBox {
   passed
   failed
 

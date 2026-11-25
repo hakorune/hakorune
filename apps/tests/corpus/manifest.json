@@ -102,7 +102,7 @@
     },
     {
       "path": "apps/examples/array_p0.hako",
-      "sha256": "1bab78d4ca3605117eda61f37dd485d533e63e3550b483597371a1a1d211be00",
+      "sha256": "795a1801eee0c8e0c0e106fd2cf95018146a3688e65c4f53d3c05b3a73f6cc00",
       "groups": [
         "A"
       ],
@@ -147,7 +147,7 @@
     },
     {
       "path": "apps/examples/map_p0.hako",
-      "sha256": "b751b4200ed34862826945f52d06cac3cbd61e9a4601cc32eb42ba77ca804ee0",
+      "sha256": "35712e6393d340797c5cbeee737491f08431752864ecea55474479c2752b7f07",
       "groups": [
         "A"
       ],
@@ -156,7 +156,7 @@
     },
     {
       "path": "apps/examples/string_p0.hako",
-      "sha256": "954621dbe59275a84cab141b5bdbfe4fa0df71ca9a36435df2772070e6457e1d",
+      "sha256": "ecd3c98bdfc22bd37363abc85153b07c5f46f8ae03b73f28579e9cf0626a1f44",
       "groups": [
         "A"
       ],
@@ -3315,7 +3315,7 @@
     },
     {
       "path": "apps/ny-array-bench/main.hako",
-      "sha256": "7903260fa36cf5e788542884f6f4c71867f789b4266868b3262fa462dec37947",
+      "sha256": "73d85a3ee0fac4712013027058de42d508508c5f93146f8dec394e0fa02fca02",
       "groups": [
         "A"
       ],
@@ -3324,7 +3324,7 @@
     },
     {
       "path": "apps/ny-echo/main.hako",
-      "sha256": "6023205b98ff38d10822f805dcdf63225e50867967f3f2ff661a6a94715c1a26",
+      "sha256": "0ddf367f5ea68b16d1dea76d266c6c2fdf9d468d6718f9bcb5fdb4b311399a8b",
       "groups": [
         "A"
       ],
@@ -3333,7 +3333,7 @@
     },
     {
       "path": "apps/ny-mem-bench/main.hako",
-      "sha256": "4324b321a37105825aa95b049defc26c1981e8551e60b3f43b8c94d61b125bdd",
+      "sha256": "26f947db924d01a6e3251f2dc84463a1ed9783f653e54a724f085f5edd0981ac",
       "groups": [
         "A"
       ],
@@ -4566,7 +4566,7 @@
     },
     {
       "path": "apps/selfhost-minimal/main.hako",
-      "sha256": "d3a805bd8f9d6f68779813cfdfaae049f2e2463712d9616b52e9567684510929",
+      "sha256": "8b680a72759de4a8361afb76d848cc593fdea52363cd4d4baff17afe484a2fbf",
       "groups": [
         "A"
       ],
@@ -36011,7 +36011,7 @@
     },
     {
       "path": "apps/tests/corpus/write-compare-b/b3_checker.hako",
-      "sha256": "c6954e2938ce140b26642ea9af59d25f6e06dce97dbfc8f37726b4cac26c8ea8",
+      "sha256": "e011aff5f11ba4d9b1e05a274f1c78843dbc99a18ed8d2f36887887d34a0904d",
       "groups": [
         "A"
       ],
@@ -36056,7 +36056,7 @@
     },
     {
       "path": "apps/tests/corpus/write-compare-b/b8_earlier_tasks.hako",
-      "sha256": "b4762d6704bae2c9ccf704b80a4476aeaf9dd3d9fd02ed02450c6ec7de04786a",
+      "sha256": "82f4085381c941f33d3e37310eb5b36222d69f18f2877e8350467c55c90f37e2",
       "groups": [
         "A"
       ],
@@ -36092,7 +36092,7 @@
     },
     {
       "path": "apps/tests/corpus/write-compare-b/r3_checker.hako",
-      "sha256": "17e0409b0d43297c7d71dca7fbc74cc9af779376216e86f59fa304c724d4e6c1",
+      "sha256": "3642ae4e90efd03facf39f9ab599a66e49a084de8b513b61a16a6958ce20a82c",
       "groups": [
         "A"
       ],
@@ -36137,7 +36137,7 @@
     },
     {
       "path": "apps/tests/corpus/write-compare-b/r8_earlier_tasks.hako",
-      "sha256": "d0cdd81e855f1a0a63a69064352411f56b984cc0c1054ff398914ffc4ae4a18c",
+      "sha256": "b8a23daad4762b52d1dfd3bc431253b180468e44e1f2342278262c89365b9c79",
       "groups": [
         "A"
       ],
@@ -36821,7 +36821,7 @@
     },
     {
       "path": "apps/tests/map-ops-extended/main.hako",
-      "sha256": "79e5d417a280057219f229da5444315c89899b1da43c84aefc0d6f24fadadb50",
+      "sha256": "793d50a70faedd332d7a19f0514e5bcbf9cd53a8c1849131c36685003be03c13",
       "groups": [
         "A"
       ],
@@ -37073,7 +37073,7 @@
     },
     {
       "path": "apps/tests/ny-echo-lite/main.hako",
-      "sha256": "e1c1dbe52a7e1283f6be8223a3e62073289901408240396dce9afdb21d0af11b",
+      "sha256": "e1b3774e7ee9852a234204a94c1bcca1b5b0d4c232c545cdd68db79ddafdada1",
       "groups": [
         "A"
       ],
@@ -43022,7 +43022,7 @@
     },
     {
       "path": "apps/tinyproxy_nyash/proxy_server.hako",
-      "sha256": "92519c0a65da4f7a385ec7292853da09da60e193e2d80b92a9b4b1ccbb40f5c2",
+      "sha256": "797097366fac73c8fe321348e6e9d1c343156f12b93b8b3d8f087aa1c80abb6a",
       "groups": [
         "A"
       ],
@@ -43121,7 +43121,7 @@
     },
     {
       "path": "apps/using-e2e/main.hako",
-      "sha256": "2f1cb886c61fd31ac2f0d6249738346cc2e9e18319f9412c1e874bf23a595199",
+      "sha256": "31a9c38ef489ca3ab0e6bc2a5d96d143b503a3111e1279d6a65f4d2902a83262",
       "groups": [
         "A"
       ],
@@ -47814,7 +47814,7 @@
     },
     {
       "path": "lang/src/compiler/pipeline_v2/readonly_map_view.hako",
-      "sha256": "61d689c18b9df2b87f0b263028b871c54f50be75a31c081d9b288bb85a965698",
+      "sha256": "4a995d85ac2688bbf54aa7f517640a7a549896096b2d6832b610ba3ef97d5494",
       "groups": [
         "A",
         "B"
@@ -52908,7 +52908,7 @@
     },
     {
       "path": "lang/src/vm/gc/gc_box.hako",
-      "sha256": "c295a87c17421a9ca75f1d8201f2d066816e128fb7761e6e5a66b20a543c7214",
+      "sha256": "12f3d598a65197ee6e9f610f31d13406ce6c7de08a740f6485b61fdcebbefc6f",
       "groups": [
         "B"
       ],
@@ -52924,7 +52924,7 @@
     },
     {
       "path": "lang/src/vm/gc/gc_metrics_box.hako",
-      "sha256": "c6a5e685dfa8c7b041d3bbc0ccb81118fbcd092877887b0846cb5ba800d4e549",
+      "sha256": "ddad4cf2492d9ac3e999440201e9e329b9808eaa1c97e7f2e7ea10d4dcaf4c4d",
       "groups": [
         "B"
       ],
@@ -52940,7 +52940,7 @@
     },
     {
       "path": "lang/src/vm/gc/gc_runtime.hako",
-      "sha256": "8fd85e6292f8421099bc4601bb66e1c1220cd0a43de11aeba8d9279a7f6890c8",
+      "sha256": "67bca885986d8d532fe14a555a0c7832d71a4aaea14cdc7ad5b898403c33d864",
       "groups": [
         "B"
       ],
@@ -53068,7 +53068,7 @@
     },
     {
       "path": "lang/src/vm/hakorune-vm/constructor_call_handler.hako",
-      "sha256": "6c8c22fdc6f165592153ac754c5f4a8a5cb7ae2598ee43146d8bbaeb31b70d67",
+      "sha256": "0ef62ff0a2cba5503e4dc7385a0c2e2835f051738c7d1d11c1f324269fb28176",
       "groups": [
         "B"
       ],
@@ -53156,7 +53156,7 @@
     },
     {
       "path": "lang/src/vm/hakorune-vm/gc_hooks.hako",
-      "sha256": "3abaa5d11d82332ac8eeb9786b8a6474c624ffa4cece9e79030d1f43e37c0672",
+      "sha256": "12268cd5be8d97f0dff1b90c25de6d8880c6fd0e62ef1d1b918484da68b83dfe",
       "groups": [
         "B"
       ],
@@ -53172,7 +53172,7 @@
     },
     {
       "path": "lang/src/vm/hakorune-vm/hakorune_vm_core.hako",
-      "sha256": "01d2f0b12ec5df866644f19f1b642d01cfd117917da2ddf901c60449a1b71715",
+      "sha256": "c6ce762fb086147d8fa9278c10ca27fee7d4428585cd28f0fc9ca45c8d32542c",
       "groups": [
         "B"
       ],
@@ -53204,7 +53204,7 @@
     },
     {
       "path": "lang/src/vm/hakorune-vm/instruction_dispatcher.hako",
-      "sha256": "bac5868f1843ecdd0c93d387d038757361a40d4682ec01a3e2ae5132c15b2cee",
+      "sha256": "949eda2e4ee84495afbd738b79d64b9acd55708950f1de5b1e1149505fb291cd",
       "groups": [
         "B"
       ],
@@ -53268,7 +53268,7 @@
     },
     {
       "path": "lang/src/vm/hakorune-vm/mircall_handler.hako",
-      "sha256": "f273e7e081c8ff4e90d0eb489331ed981e26c3b1c115bf21f6108f8d7b84fe41",
+      "sha256": "b178be40f3e1f2e9aa707fa83716fda5b61fe27f0f01209439dc88708f78c8cf",
       "groups": [
         "B"
       ],
@@ -53284,7 +53284,7 @@
     },
     {
       "path": "lang/src/vm/hakorune-vm/newbox_handler.hako",
-      "sha256": "99b6831be8be2d11c5c8d3323661b2e4a5e7427decf214b4f934fc636d6d621b",
+      "sha256": "6d2942aceec59fa2324effd88cd8c521143ecb9d1816a990b6126551cf067de0",
       "groups": [
         "B"
       ],

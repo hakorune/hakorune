@@ -2,20 +2,20 @@
 // id plus a span. PAPER ONLY. Never compiled. Uses r0_common.hako and r2_parser.hako.
 
 static box Ty {
-    ERROR: i64 = 0
-    INT: i64 = 1
-    BOOL: i64 = 2
-    VOID: i64 = 3
+    ERROR() { return 0 }
+    INT() { return 1 }
+    BOOL() { return 2 }
+    VOID() { return 3 }
 
     ofName(name: String?): i64 {
         if name == null {
-            return Ty.VOID
+            return Ty.VOID()
         }
         return match name {
-            "int" => Ty.INT
-            "bool" => Ty.BOOL
-            "void" => Ty.VOID
-            _ => Ty.ERROR
+            "int" => Ty.INT()
+            "bool" => Ty.BOOL()
+            "void" => Ty.VOID()
+            _ => Ty.ERROR()
         }
     }
 
@@ -30,15 +30,15 @@ static box Ty {
 
     operand(op: BinOp): i64 {
         return match op {
-            Add | Sub | Mul | Div | Lt | Gt => Ty.INT
-            Eq | Ne => Ty.ERROR
+            Add | Sub | Mul | Div | Lt | Gt => Ty.INT()
+            Eq | Ne => Ty.ERROR()
         }
     }
 
     result(op: BinOp): i64 {
         return match op {
-            Add | Sub | Mul | Div => Ty.INT
-            Eq | Ne | Lt | Gt => Ty.BOOL
+            Add | Sub | Mul | Div => Ty.INT()
+            Eq | Ne | Lt | Gt => Ty.BOOL()
         }
     }
 }
@@ -144,20 +144,20 @@ box Checker {
 
     edit checkReturn(s: ReturnStmt): void {
         if s.value == null {
-            if me.retTy != Ty.VOID {
+            if me.retTy != Ty.VOID() {
                 me.diags.errorWith(s.span, me.retSpan, "missing return value")
             }
             return
         }
         local t = me.checkExpr(s.value)
-        if t.ty != me.retTy && t.ty != Ty.ERROR {
+        if t.ty != me.retTy && t.ty != Ty.ERROR() {
             me.diags.errorWith(t.span, me.retSpan, "return type mismatch: found " + Ty.name(t.ty))
         }
     }
 
     edit checkIf(s: IfStmt): void {
         local c = me.checkExpr(s.cond)
-        if c.ty != Ty.BOOL && c.ty != Ty.ERROR {
+        if c.ty != Ty.BOOL() && c.ty != Ty.ERROR() {
             me.diags.error(c.span, "condition must be bool, found " + Ty.name(c.ty))
         }
         me.checkBlock(s.thenBlock)
@@ -168,12 +168,12 @@ box Checker {
 
     edit checkExpr(e: Expr): Typed {
         return match e {
-            Num(n) => Typed { ty: Ty.INT, span: n.span }
+            Num(n) => Typed { ty: Ty.INT(), span: n.span }
             Name(n) => me.checkName(n)
             Unary(n) => me.checkUnary(n)
             Binary(n) => me.checkBinary(n)
             Call(n) => me.checkCall(n)
-            Bad(sp) => Typed { ty: Ty.ERROR, span: sp }
+            Bad(sp) => Typed { ty: Ty.ERROR(), span: sp }
         }
     }
 
@@ -181,7 +181,7 @@ box Checker {
         local info = me.locals.get(n.name)
         if info == null {
             me.diags.error(n.span, "unknown name '" + n.name + "'")
-            return Typed { ty: Ty.ERROR, span: n.span }
+            return Typed { ty: Ty.ERROR(), span: n.span }
         }
         return Typed { ty: info.ty, span: n.span }
     }
@@ -189,15 +189,15 @@ box Checker {
     edit checkUnary(n: UnaryNode): Typed {
         local t = me.checkExpr(n.operand)
         local want = match n.op {
-            Neg => Ty.INT
-            Not => Ty.BOOL
+            Neg => Ty.INT()
+            Not => Ty.BOOL()
         }
-        if t.ty == Ty.ERROR {
-            return Typed { ty: Ty.ERROR, span: n.span }
+        if t.ty == Ty.ERROR() {
+            return Typed { ty: Ty.ERROR(), span: n.span }
         }
         if t.ty != want {
             me.diags.error(t.span, "operator expects " + Ty.name(want) + ", found " + Ty.name(t.ty))
-            return Typed { ty: Ty.ERROR, span: n.span }
+            return Typed { ty: Ty.ERROR(), span: n.span }
         }
         return Typed { ty: want, span: n.span }
     }
@@ -205,20 +205,20 @@ box Checker {
     edit checkBinary(n: BinaryNode): Typed {
         local l = me.checkExpr(n.left)
         local r = me.checkExpr(n.right)
-        if l.ty == Ty.ERROR || r.ty == Ty.ERROR {
-            return Typed { ty: Ty.ERROR, span: n.span }
+        if l.ty == Ty.ERROR() || r.ty == Ty.ERROR() {
+            return Typed { ty: Ty.ERROR(), span: n.span }
         }
         local want = Ty.operand(n.op)
-        if want == Ty.ERROR {
+        if want == Ty.ERROR() {
             want = l.ty
         }
         if l.ty != want {
             me.diags.errorWith(l.span, n.opSpan, "left operand: expected " + Ty.name(want))
-            return Typed { ty: Ty.ERROR, span: n.span }
+            return Typed { ty: Ty.ERROR(), span: n.span }
         }
         if r.ty != want {
             me.diags.errorWith(r.span, n.opSpan, "right operand: expected " + Ty.name(want))
-            return Typed { ty: Ty.ERROR, span: n.span }
+            return Typed { ty: Ty.ERROR(), span: n.span }
         }
         return Typed { ty: Ty.result(n.op), span: n.span }
     }
@@ -237,11 +237,11 @@ box Checker {
         local sig = me.fns.get(n.callee)
         if sig == null {
             me.diags.error(n.calleeSpan, "unknown function '" + n.callee + "'")
-            return Typed { ty: Ty.ERROR, span: n.span }
+            return Typed { ty: Ty.ERROR(), span: n.span }
         }
         if sig.params.length() != args.length() {
             me.diags.errorWith(n.span, sig.span, "wrong number of arguments")
-            return Typed { ty: Ty.ERROR, span: n.span }
+            return Typed { ty: Ty.ERROR(), span: n.span }
         }
         loop i in 0..args.length() {
             local got = args.get(i)
@@ -249,7 +249,7 @@ box Checker {
             guard got != null && want != null else {
                 continue
             }
-            if got.ty != want && got.ty != Ty.ERROR {
+            if got.ty != want && got.ty != Ty.ERROR() {
                 me.diags.errorWith(got.span, sig.span, "argument type mismatch: found " + Ty.name(got.ty))
             }
         }
