@@ -120,12 +120,6 @@ emit_failure_summary_from_log() {
     echo "[diag/selfhost] last_reject=$last_reject"
   fi
 
-  local stageb_root
-  stageb_root="$(rg -n "StepTree root for 'StageBBodyExtractorBox\\.build_body_src/2'" "$log_path" 2>/dev/null | head -n 1 || true)"
-  if [ -n "$stageb_root" ]; then
-    echo "[diag/selfhost] steptree_root=$(echo "$stageb_root" | cut -c1-220)"
-  fi
-
   echo "[diag/selfhost] summary_end"
 }
 

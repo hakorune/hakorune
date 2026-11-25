@@ -51,7 +51,6 @@ concat_const_suffix_micro_seed_plan	pub	none
 constructor_call_route_plan	pub	none
 contracts	pub	none
 control_form	pub	none
-control_tree	pub	none
 core_method_op	pub	none
 core_method_result_kind	pub(crate)	none
 declared_type_storage	pub(crate)	none

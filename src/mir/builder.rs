@@ -253,26 +253,6 @@ pub(in crate::mir) use ordinary_new_admission::selected::{
 mod weak_field_write_route;
 
 
-/// Phase 129: Public (crate) wrapper for StepTree capability guard.
-///
-/// `control_flow` is intentionally private to keep control-flow entrypoints centralized.
-/// Shadow pipelines outside `mir::builder` must call this wrapper instead of reaching into
-/// `control_flow::*` directly.
-pub(crate) fn check_step_tree_capabilities(
-    tree: &crate::mir::control_tree::StepTree,
-    func_name: &str,
-    strict: bool,
-    dev: bool,
-) -> Result<(), String> {
-    let planner_required = crate::config::env::joinir_dev::planner_required_enabled();
-    control_flow::joinir::control_tree_capability_guard::check(
-        tree,
-        func_name,
-        strict,
-        dev,
-        planner_required,
-    )
-}
 mod condition_materialization;
 mod field_facts; // Field/property receiver facts and declared-type helpers
 mod field_receiver_provenance; // Bounded current-receiver Copy/Phi proof; one field-fact consumer

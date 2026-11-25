@@ -921,11 +921,6 @@ mir::builder::control_flow::generic_loop_canon::condition::tests::non_extended_c
 mir::builder::control_flow::generic_loop_canon::condition::tests::numeric_compare_canon_inverts_literal_ge_var
 mir::builder::control_flow::generic_loop_canon::condition::tests::numeric_compare_canon_keeps_constant_compare_diagnostic_only
 mir::builder::control_flow::generic_loop_canon::condition::tests::numeric_compare_canon_records_var_le_literal
-mir::builder::control_flow::joinir::control_tree_capability_guard::tests::test_if_only_strict_passes
-mir::builder::control_flow::joinir::control_tree_capability_guard::tests::test_nested_loop_1level_strict_passes
-mir::builder::control_flow::joinir::control_tree_capability_guard::tests::test_nested_loop_2level_planner_required_passes
-mir::builder::control_flow::joinir::control_tree_capability_guard::tests::test_nested_loop_2level_strict_rejects
-mir::builder::control_flow::joinir::control_tree_capability_guard::tests::test_strict_false_always_passes
 mir::builder::control_flow::joinir::loop_context::tests::test_context_creation
 mir::builder::control_flow::joinir::loop_context::tests::test_to_loop_ast_reconstruction
 mir::builder::control_flow::joinir::loop_context::tests::test_verify_parity_with_fail_fast
@@ -3434,14 +3429,6 @@ mir::contracts::fastmem_ops::tests::free_list_memops_are_transport_only_until_lo
 mir::contracts::fastmem_ops::tests::llvm_open_memop_subsets_are_named
 mir::contracts::fastmem_ops::tests::llvm_open_memops_are_json_and_llvm_supported
 mir::contracts::fastmem_ops::tests::remote_free_memops_are_transport_only_until_lowering_row
-mir::control_tree::step_tree::tests::build_step_tree_if_only_nested_if_is_structural
-mir::control_tree::step_tree::tests::contract_extracts_loop_exits_and_writes_minimal
-mir::control_tree::step_tree::tests::step_tree_cond_ast_is_populated
-mir::control_tree::step_tree::tests::step_tree_program_node_is_structural_block
-mir::control_tree::step_tree::tests::step_tree_signature_is_stable_with_cond_ast
-mir::control_tree::step_tree_contract_box::tests::facts_are_order_independent
-mir::control_tree::step_tree_contract_box::tests::from_facts_is_idempotent
-mir::control_tree::step_tree_contract_box::tests::signature_basis_string_is_deterministic
 mir::core_method_op::tests::carrier_formats_stable_metadata_tokens
 mir::core_method_op::tests::lowering_plan_tier_json_names_are_stable
 mir::core_method_op::tests::manifest_core_ops_are_known_by_mir_carrier

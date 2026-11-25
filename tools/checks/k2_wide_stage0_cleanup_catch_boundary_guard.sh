@@ -28,7 +28,6 @@ require_file docs/guides/exception-handling.md
 require_file docs/guides/exceptions-stage3.md
 require_file src/parser/statements/exceptions.rs
 require_file src/parser/statements/mod.rs
-require_file src/mir/builder/control_flow/joinir/control_tree_capability_guard.rs
 
 boundary_doc="$(find docs/development/current/main/design -maxdepth 1 -name '*cleanup-catch-boundary-ssot.md' -print -quit)"
 compat_guide="$(find docs/guides -maxdepth 1 -name 'exceptions-*.md' -print -quit)"
@@ -52,7 +51,5 @@ require_grep src/parser/statements/exceptions.rs "[freeze:contract][parser/throw
 require_grep src/parser/statements/exceptions.rs "[freeze:contract][parser/try_reserved]"
 require_grep src/parser/statements/mod.rs '[freeze:contract][parser/cleanup_canonical] use `cleanup { ... }`; `finally` is reserved as terminology only'
 
-require_grep src/mir/builder/control_flow/joinir/control_tree_capability_guard.rs "Stage0 cleanup uses the MIR builder route"
-require_grep src/mir/builder/control_flow/joinir/control_tree_capability_guard.rs "throw is reserved/prohibited in Stage0"
 
 echo "[$TAG] ok"

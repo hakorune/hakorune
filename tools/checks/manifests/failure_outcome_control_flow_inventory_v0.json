@@ -5965,42 +5965,6 @@
       "token": "throw_instruction"
     },
     {
-      "control_flow_evidence_id": "control.fault_and_throw.src/mir/builder/control_flow/joinir/control_tree_capability_guard.rs:121:throw_instruction",
-      "evidence": "StepCapability::Throw => {",
-      "evidence_kind": "throw_instruction",
-      "family": "fault_and_throw",
-      "line": 121,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/control_flow/joinir/control_tree_capability_guard.rs",
-      "token": "throw_instruction"
-    },
-    {
-      "control_flow_evidence_id": "control.fault_and_throw.src/mir/builder/control_flow/joinir/control_tree_capability_guard.rs:122:throw_instruction",
-      "evidence": "\"throw is reserved/prohibited in Stage0 source; use cleanup for deterministic finalization and keep full exception semantics for a future lane\".to_string()",
-      "evidence_kind": "throw_instruction",
-      "family": "fault_and_throw",
-      "line": 122,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/control_flow/joinir/control_tree_capability_guard.rs",
-      "token": "throw_instruction"
-    },
-    {
-      "control_flow_evidence_id": "control.fault_and_throw.src/mir/builder/control_flow/joinir/control_tree_capability_guard.rs:9:throw_instruction",
-      "evidence": "//! - **Deny (strict)**: NestedLoop, TryCatch, Throw, Lambda, While, LoopRange, Match, Arrow",
-      "evidence_kind": "throw_instruction",
-      "family": "fault_and_throw",
-      "line": 9,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/control_flow/joinir/control_tree_capability_guard.rs",
-      "token": "throw_instruction"
-    },
-    {
       "control_flow_evidence_id": "control.fault_and_throw.src/mir/builder/control_flow/mod.rs:22:throw_instruction",
       "evidence": "//! - `exception` - Exception handling (try/catch/throw)",
       "evidence_kind": "throw_instruction",
@@ -21538,30 +21502,6 @@
       "resolution": "Pending",
       "site_ref": null,
       "source_path": "src/mir/compiler/normal_source_plan/instance_integer_return_plan.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/control_tree/step_tree/builder.rs:108:mir_return",
-      "evidence": "ASTNode::Return { value, span } => (",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 108,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/control_tree/step_tree/builder.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/control_tree/step_tree/builder.rs:110:mir_return",
-      "evidence": "kind: StepStmtKind::Return {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 110,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/control_tree/step_tree/builder.rs",
       "token": "mir_return"
     },
     {

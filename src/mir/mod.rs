@@ -111,7 +111,6 @@ pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for tempora
 pub mod constructor_call_route_plan; // MIR-owned constructor call route plans
 pub mod contracts; // backend-core instruction contracts (SSOT)
 pub mod control_form;
-pub mod control_tree; // Phase 110: Structure-only SSOT (StepTree)
 pub mod core_method_op; // MIR-side CoreMethodOp carrier vocabulary
 pub(crate) mod core_method_result_kind; // generated neutral Core result-kind view
 pub(crate) mod declared_type_storage; // shared declared type-name -> storage classification
