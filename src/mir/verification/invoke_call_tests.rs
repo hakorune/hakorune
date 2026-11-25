@@ -393,7 +393,7 @@ fn document_policy_admits_proven_non_scalar_argument_on_cataloged_edge() {
             "{arg_type:?}: {errors:?}"
         );
         MirVerifier::new()
-            .verify_document_module(&module)
+            .verify_document_module_with_finalized_root(&module, None)
             .unwrap_or_else(|errors| panic!("{arg_type:?}: {errors:?}"));
     }
 }

@@ -195,7 +195,7 @@ impl CompletedOrdinaryArithmeticV1 {
 
 #[cfg(test)]
 mod tests {
-    use super::build_arithmetic_op;
+    use super::build_arithmetic_op_recorded;
     use crate::mir::builder::MirBuilder;
     use crate::mir::{BinaryOp, MirType, ValueId};
 
@@ -211,7 +211,9 @@ mod tests {
             .value_types
             .insert(rhs, MirType::Integer);
 
-        let result = build_arithmetic_op(&mut builder, BinaryOp::Add, lhs, rhs).unwrap();
+        let result = build_arithmetic_op_recorded(&mut builder, BinaryOp::Add, lhs, rhs)
+            .unwrap()
+            .value;
 
         assert_eq!(builder.function_state.type_ctx.get_type(result), None);
     }
@@ -230,7 +232,9 @@ mod tests {
                 .insert(value, MirType::Integer);
         }
 
-        let result = build_arithmetic_op(&mut builder, BinaryOp::Add, lhs, rhs).unwrap();
+        let result = build_arithmetic_op_recorded(&mut builder, BinaryOp::Add, lhs, rhs)
+            .unwrap()
+            .value;
 
         assert_eq!(
             builder.function_state.type_ctx.get_type(result),

@@ -484,8 +484,9 @@ mod tests {
                 .unwrap();
                 let mut installation = None;
                 let mut batches = 0;
-                let plan = qualify_binding_rebind_expression_v1::<()>(input, prepared, BindingRebindDestinationV1::Integer,
-                    &mut |_| None, &mut |_| None, &mut |_| None, &mut |site| locals.current_scalar_read_v1(site, &[]),
+                let plan = qualify_binding_rebind_expression_with_loop_dynamic_v1::<()>(input, prepared, BindingRebindDestinationV1::Integer,
+                    &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| None,
+                    &mut |site| locals.current_scalar_read_v1(site, &[]),
                     &mut |_| None, &mut |plan| {
                         let mut pending = locals.expression_installation();
                         if !pending.approve(plan) { return false; }
@@ -583,10 +584,12 @@ mod tests {
             .unwrap()
             .unwrap();
             let mut installation = None;
-            let plan = qualify_binding_rebind_expression_v1::<()>(
+            let plan = qualify_binding_rebind_expression_with_loop_dynamic_v1::<()>(
                 input,
                 prepared,
                 BindingRebindDestinationV1::Integer,
+                &mut |_| None,
+                &mut |_| None,
                 &mut |_| None,
                 &mut |_| None,
                 &mut |_| None,
