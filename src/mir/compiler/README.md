@@ -464,7 +464,11 @@ route, fallback, retry, or production selector is opened by this cleanup.
 
 ### Common V2 physical function-entry input I0
 
-`common_v2_physical_function_entry_input.rs` is the transport-only consumer
+Historical note: `common_v2_physical_function_entry_input.rs` was removed in
+LC-1 (2026-11-25). The carrier tag `PhysicalCallableLaneCarrierV1` now lives in
+`crates/hakorune_mir_defs/src/physical_callable_lane.rs`.
+
+`common_v2_physical_function_entry_input.rs` was the transport-only consumer
 of the accepted physical-entry BoxShape. Inside the same installed S6C HRTB
 loan it borrows the catalog-backed storage header, physical-signature lane
 row, and source-backed physical effects, then projects one non-semantic
