@@ -1,7 +1,7 @@
 //! Closed parameter and Call transport. Source proofs stay with their existing
 //! owners; this encoder never infers an opaque formal from payload bits.
 use super::*;
-use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
 use crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1 as Source;
 use crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind;
 use super::super::physical_program::PublishedLifecyclePhysicalFunctionRoleV1;
@@ -53,7 +53,7 @@ pub(super) fn encode_parameters(
                             crate::mir::MirType::Box(name) if name == "MapBox"
                         );
                         let representation = match (carrier, named_map) {
-                            (Some(crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue), _) => {
+                            (Some(hakorune_mir_defs::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue), _) => {
                                 let input = abi_input.ok_or_else(|| fault("borrowed-carrier-activation-missing"))?;
                                 corroborate_function(function, ordinal, input)?;
                                 if !birth_text && !input.entry().has_borrowed_entry(ordinal) {
@@ -61,11 +61,11 @@ pub(super) fn encode_parameters(
                                 }
                                 "borrowed_kind_payload_v1"
                             }
-                            (Some(crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::CheckedMapStorage), true) => {
+                            (Some(hakorune_mir_defs::PhysicalCallableLaneCarrierV1::CheckedMapStorage), true) => {
                                 // Borrowed checked-map storage pointer, not an i64 payload.
                                 "map"
                             }
-                            (Some(crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::CheckedMapStorage), false)
+                            (Some(hakorune_mir_defs::PhysicalCallableLaneCarrierV1::CheckedMapStorage), false)
                             | (_, true) => {
                                 return Err(fault("param-carrier-drift"));
                             }

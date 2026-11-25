@@ -1,7 +1,7 @@
 //! Lend exact original ordinary Call slots to final module verification.
 //! This is not a new semantic issuer. Physical publication still validates
 //! producer provenance, full use closure and the immutable module snapshot.
-use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
 use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
 use crate::mir::instruction::{InvokeOperation, StringInvokeOperand};
 use crate::mir::normal_callable_semantic_package::CallValidationContextV1;

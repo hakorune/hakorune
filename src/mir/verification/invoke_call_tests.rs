@@ -329,7 +329,7 @@ fn cataloged_call_rejects_carrier_name_drift() {
     // The skeleton-installed carrier is the formal's physical authority: a
     // `CheckedMapStorage` carrier behind an `Integer` signature spelling is
     // drift, not a clean scalar formal — the scalar edge stays closed.
-    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
+    use hakorune_mir_defs::PhysicalCallableLaneCarrierV1;
     let (key, mut callee) = cataloged_callee(crate::mir::MirType::Integer);
     callee.metadata.physical_param_carriers =
         Some(Box::new([PhysicalCallableLaneCarrierV1::CheckedMapStorage]));
@@ -343,7 +343,7 @@ fn cataloged_call_rejects_carrier_name_drift() {
 
 #[test]
 fn cataloged_call_accepts_i64_carrier_contract() {
-    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
+    use hakorune_mir_defs::PhysicalCallableLaneCarrierV1;
     let (key, mut callee) = cataloged_callee(crate::mir::MirType::Integer);
     callee.metadata.physical_param_carriers = Some(Box::new([
         PhysicalCallableLaneCarrierV1::ExistingCallableI64,

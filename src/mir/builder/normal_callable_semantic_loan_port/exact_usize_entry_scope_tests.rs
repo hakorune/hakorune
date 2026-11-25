@@ -128,7 +128,7 @@ fn scope(mode: &str) -> Result<(), String> {
                     Some(owned_array_source),
                     None,
                     |inner, _transport| {
-                        use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+                        use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
                         let function = builder.function_state.current_function.as_mut().unwrap();
                         match mode {
                             "ok" => {},

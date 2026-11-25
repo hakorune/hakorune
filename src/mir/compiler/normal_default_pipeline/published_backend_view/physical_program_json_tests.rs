@@ -422,7 +422,7 @@ fn unannotated_pair_issues_tagged_input_from_retained_contract() {
 /// re-derives `ptr` from the name.
 #[test]
 fn compiled_map_formal_keeps_checked_map_storage_carrier() {
-    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
+    use hakorune_mir_defs::PhysicalCallableLaneCarrierV1;
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let mut compiler = MirCompiler::with_options(false);

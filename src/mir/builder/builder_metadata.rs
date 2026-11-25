@@ -97,7 +97,7 @@ fn project_declared_signature_representation(function: &mut MirFunction) {
     if function.metadata.physical_param_carriers.is_none()
         && function.metadata.declared_param_decls.len() == function.signature.params.len()
     {
-        use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
+        use hakorune_mir_defs::PhysicalCallableLaneCarrierV1;
         function.metadata.physical_param_carriers = Some(
             function
                 .metadata

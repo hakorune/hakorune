@@ -149,7 +149,7 @@ pub(crate) fn exact_i64_parameter_abi(
     function: &MirFunction,
     index: usize,
 ) -> Option<crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1> {
-    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
+    use hakorune_mir_defs::PhysicalCallableLaneCarrierV1;
     use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
     if function.params.len() != function.signature.params.len()
         || function.signature.params.get(index) != Some(&crate::mir::MirType::Integer)

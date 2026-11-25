@@ -276,7 +276,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let index = lane.index() as usize;
         let value = *function.params.get(index).ok_or_else(|| fault("alias/entry-receiver"))?;
         if function.metadata.physical_param_carriers.as_deref().and_then(|rows| rows.get(index))
-            != Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::ExistingCallableI64)
+            != Some(&hakorune_mir_defs::PhysicalCallableLaneCarrierV1::ExistingCallableI64)
             || !matches!(selected.key_for_batch_slot(batch_slot),
                 Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
                     if function.signature.name == key.mir_symbol_projection()

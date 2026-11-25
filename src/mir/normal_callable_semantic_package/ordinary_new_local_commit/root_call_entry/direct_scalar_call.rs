@@ -33,7 +33,7 @@ pub(super) struct DirectScalarCallProjectionV1 {
     dependencies: Vec<Binding>,
     params: Vec<ValueId>,
     param_types: Vec<crate::mir::MirType>,
-    carriers: Option<Box<[crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1]>>,
+    carriers: Option<Box<[hakorune_mir_defs::PhysicalCallableLaneCarrierV1]>>,
 }
 impl DirectScalarCallProjectionV1 {
     fn validate_source(&self, context: CallValidationContextV1<'_>) -> Result<ValueId, String> {

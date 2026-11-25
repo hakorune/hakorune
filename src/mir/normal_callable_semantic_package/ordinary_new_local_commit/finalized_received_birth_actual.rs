@@ -212,7 +212,7 @@ impl FinalizedRootSourceHandoffV1 {
                 let lane = support.ordinal as usize + usize::from(has_receiver);
                 if function.params.get(lane) != Some(&entry)
                     || function.metadata.physical_param_carriers.as_ref().and_then(|rows| rows.get(lane))
-                        != Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue)
+                        != Some(&hakorune_mir_defs::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue)
                 { return Err(freeze("received-birth/field-support-parameter")); }
                 let copies = copies.iter().map(|copy| finishing.relation_binding(function, copy)?
                     .ok_or_else(|| freeze("received-birth/field-support-copy")))

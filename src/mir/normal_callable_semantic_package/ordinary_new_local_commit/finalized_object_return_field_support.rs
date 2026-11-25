@@ -73,7 +73,7 @@ impl FinalizedObjectReturnFieldSupportV1 {
         let lane = source.ordinal as usize + usize::from(has_receiver);
         if function.params.get(lane) != Some(&self.entry)
             || function.metadata.physical_param_carriers.as_ref().and_then(|rows| rows.get(lane))
-                != Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue)
+                != Some(&hakorune_mir_defs::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue)
         { return Err(freeze("object-return/field-support-parameter")); }
         for binding in self.call.iter().chain(self.construction.iter()) {
             if !super::physical_boundary::check_binding(function, None, binding.0, &binding.1)? {

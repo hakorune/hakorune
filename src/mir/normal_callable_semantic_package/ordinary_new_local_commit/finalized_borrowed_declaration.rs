@@ -53,7 +53,7 @@ impl FinalizedRootSourceHandoffV1 {
         key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+        use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
         let entry = self.ledger.checked_borrowed_declaration_source_v1(owner).map_err(|error|
             format!("{error} owner={owner:?} key={key:?} function={}", function.signature.name))?;
         if !self

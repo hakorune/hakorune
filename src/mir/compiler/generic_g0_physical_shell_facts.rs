@@ -131,7 +131,7 @@ pub(in crate::mir::compiler) fn validate_generic_g0_physical_function_shell_fact
             return Err(GenericG0PhysicalShellFactsRejectV1::DescriptorIndexMismatch);
         }
         if row.carrier()
-            != crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::ExistingCallableI64
+            != hakorune_mir_defs::PhysicalCallableLaneCarrierV1::ExistingCallableI64
         {
             return Err(GenericG0PhysicalShellFactsRejectV1::DescriptorCarrierMismatch);
         }

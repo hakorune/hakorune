@@ -202,7 +202,7 @@ fn scope(actual: &str) -> Result<(ValueId, ValueId), String> {
             .params,
         original_params
     );
-    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+    use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
     let rows = ledger.borrowed_ordinary_entry_values_v1(owner);
     let expected = if rows.is_ok() {
         [Carrier::ExistingCallableI64, Carrier::BorrowedTaggedValue]

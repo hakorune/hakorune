@@ -624,7 +624,7 @@ pub struct FunctionMetadata {
     /// every signature issuer.
     pub(in crate::mir) physical_param_carriers: Option<
         Box<
-            [crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1],
+            [hakorune_mir_defs::PhysicalCallableLaneCarrierV1],
         >,
     >,
 
