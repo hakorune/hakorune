@@ -39,17 +39,6 @@ pub(in crate::mir::builder) enum LoopContinueOnlyObservedStmtRoleV1 {
     Step,
 }
 
-pub(in crate::mir::builder) fn try_extract_loop_continue_only_facts(
-    condition: &ASTNode,
-    body: &[ASTNode],
-) -> Result<Option<LoopContinueOnlyFacts>, Freeze> {
-    try_extract_loop_continue_only_facts_with_projection(
-        condition,
-        body,
-        &LoopSourceProjectionV1::default(),
-    )
-}
-
 pub(in crate::mir::builder) fn try_extract_loop_continue_only_facts_with_projection(
     condition: &ASTNode,
     body: &[ASTNode],
@@ -315,7 +304,12 @@ mod tests {
             increment("i"),
         ];
 
-        let facts = try_extract_loop_continue_only_facts(&condition, &body).expect("Ok");
+        let facts = try_extract_loop_continue_only_facts_with_projection(
+            &condition,
+            &body,
+            &super::LoopSourceProjectionV1::default(),
+        )
+        .expect("Ok");
         let facts = facts.expect("Some");
         assert_eq!(facts.loop_var, "i");
         assert_eq!(facts.carrier_updates.len(), 1);
@@ -338,7 +332,12 @@ mod tests {
             increment("i"),
         ];
 
-        let facts = try_extract_loop_continue_only_facts(&condition, &body).expect("Ok");
+        let facts = try_extract_loop_continue_only_facts_with_projection(
+            &condition,
+            &body,
+            &super::LoopSourceProjectionV1::default(),
+        )
+        .expect("Ok");
         assert!(facts.is_none());
     }
 
@@ -347,7 +346,12 @@ mod tests {
         let condition = condition_lt("i", 6);
         let body = vec![carrier_update("sum", v("i")), increment("i")];
 
-        let facts = try_extract_loop_continue_only_facts(&condition, &body).expect("Ok");
+        let facts = try_extract_loop_continue_only_facts_with_projection(
+            &condition,
+            &body,
+            &super::LoopSourceProjectionV1::default(),
+        )
+        .expect("Ok");
         assert!(facts.is_none());
     }
 
@@ -361,7 +365,12 @@ mod tests {
             increment("i"),
         ];
 
-        let facts = try_extract_loop_continue_only_facts(&condition, &body).expect("Ok");
+        let facts = try_extract_loop_continue_only_facts_with_projection(
+            &condition,
+            &body,
+            &super::LoopSourceProjectionV1::default(),
+        )
+        .expect("Ok");
         assert!(facts.is_none());
     }
 }

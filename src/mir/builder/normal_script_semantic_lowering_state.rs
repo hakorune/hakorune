@@ -91,25 +91,6 @@ impl ScriptSemanticLoweringState {
         &self.projection
     }
 
-    pub(super) fn lambda_captures(
-        &self,
-        site: &SourceNodeSiteV1,
-    ) -> Option<Result<Vec<(String, ValueId)>, String>> {
-        self.projection().lambda_captures_at(site).map(|captures| {
-            captures
-                .iter()
-                .map(|(name, binding)| {
-                    self.value(*binding)
-                        .map(|value| (name.to_string(), value))
-                        .ok_or_else(|| {
-                            "[freeze:contract][script-lambda/capture-before-materialization]"
-                                .to_owned()
-                        })
-                })
-                .collect()
-        })
-    }
-
     pub(super) fn variable_binding(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
         self.projection().variable_binding_at(site)
     }

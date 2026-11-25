@@ -116,14 +116,6 @@ pub(in crate::mir::builder) struct LegacyChildDraftAdmissionV1 {
 struct LegacyChildDraftAdmissionSealV1;
 
 impl LegacyChildDraftAdmissionV1 {
-    pub(in crate::mir::builder) fn legacy_symbol(symbol: String, arity: usize) -> Self {
-        Self {
-            symbol,
-            arity,
-            _seal: LegacyChildDraftAdmissionSealV1,
-        }
-    }
-
     pub(in crate::mir::builder) fn collector_parts(self) -> (FunctionDraftKeyV1, String, usize) {
         let Self {
             symbol,
@@ -196,15 +188,6 @@ pub(in crate::mir::builder) struct LoweringHeaderPortV1<'collector> {
 struct LoweringHeaderPortSealV1;
 
 impl LoweringHeaderPortV1<'_> {
-    pub(in crate::mir::builder) fn from_view(
-        view: &dyn CompletedDraftSignatureViewV1,
-    ) -> LoweringHeaderPortV1<'_> {
-        LoweringHeaderPortV1 {
-            view,
-            _seal: LoweringHeaderPortSealV1,
-        }
-    }
-
     pub(in crate::mir::builder) fn signature(&self, symbol: &str) -> Option<&FunctionSignature> {
         self.view.signature(symbol)
     }
@@ -717,5 +700,20 @@ mod tests {
             assert_eq!(headers.symbol_count(), 0);
             assert!(headers.signature("rejected_child/0").is_none());
         });
+    }
+}
+
+#[cfg(test)]
+mod test_fixtures {
+    use super::*;
+
+    impl LegacyChildDraftAdmissionV1 {
+        pub(in crate::mir::builder) fn legacy_symbol(symbol: String, arity: usize) -> Self {
+            Self {
+                symbol,
+                arity,
+                _seal: LegacyChildDraftAdmissionSealV1,
+            }
+        }
     }
 }

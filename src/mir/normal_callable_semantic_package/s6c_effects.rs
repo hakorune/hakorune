@@ -29,10 +29,6 @@ pub(crate) struct VerifiedS6CPhysicalFunctionEffectsV1 {
 }
 
 impl VerifiedS6CPhysicalFunctionEffectsV1 {
-    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
     pub(crate) const fn effect_mask(&self) -> EffectMask {
         self.effect_mask
     }

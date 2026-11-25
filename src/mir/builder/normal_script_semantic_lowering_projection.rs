@@ -251,15 +251,6 @@ impl VerifiedScriptLoweringProjectionV1 {
             .find_map(|(candidate, bindings)| (candidate == site).then_some(bindings.as_ref()))
     }
 
-    pub(super) fn lambda_captures_at(
-        &self,
-        site: &SourceNodeSiteV1,
-    ) -> Option<&[(Box<str>, BindingRefV1)]> {
-        self.lambda_captures
-            .iter()
-            .find_map(|(candidate, captures)| (candidate == site).then_some(captures.as_ref()))
-    }
-
     pub(super) fn record_literal_explicit_field_count_at(
         &self,
         site: &SourceNodeSiteV1,

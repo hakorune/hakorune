@@ -112,37 +112,10 @@ pub(crate) struct VerifiedHomeAbiV1 {
 }
 
 impl VerifiedHomeAbiV1 {
-    pub(crate) const fn resolver_brand(&self) -> super::ResolverCatalogBrandV1 {
-        self.resolver_brand
-    }
-
-    pub(crate) const fn nominal_box_type(&self) -> ResolverNominalBoxTypeIdV1 {
-        self.nominal_box_type
-    }
-
-    pub(crate) const fn box_statement_ordinal(&self) -> u32 {
-        self.box_statement_ordinal
-    }
-
-    pub(crate) const fn method_member_ordinal(&self) -> u32 {
-        self.method_member_ordinal
-    }
-
-    pub(crate) const fn relation_batch_brand(&self) -> HomeRelationBrandV1 {
-        self.relation_batch_brand
-    }
-
-    pub(crate) const fn receiver(&self) -> HomeDemandV1 {
-        self.receiver
-    }
-
     pub(crate) fn parameters(&self) -> &[HomeDemandV1] {
         &self.parameters
     }
 
-    pub(crate) const fn result(&self) -> HomeResultRelationV1 {
-        self.result
-    }
 }
 
 /// One-shot Home ABI catalog paired with the declaration catalog it consumed.
@@ -164,9 +137,6 @@ impl VerifiedDeclaredInstanceMethodHomeCatalogV1 {
         &self.home_abis
     }
 
-    pub(crate) const fn relation_batch_brand(&self) -> HomeRelationBrandV1 {
-        self.relation_batch_brand
-    }
 }
 
 /// One entry-only parameter demand lent to source Home flow. The kind is

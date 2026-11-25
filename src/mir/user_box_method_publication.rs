@@ -44,10 +44,6 @@ impl UserBoxMethodPublicationClassification {
         self.origin_kind
     }
 
-    pub fn publication_state(&self) -> PublicationState {
-        self.publication_state
-    }
-
     pub fn publication_state_tag(&self) -> &'static str {
         match self.publication_state {
             PublicationState::Unpublished => "unpublished",
@@ -461,7 +457,7 @@ mod tests {
 
         let row = &main.metadata.user_box_method_publication_classifications[0];
         assert_eq!(row.origin_kind(), "local_newbox_same_block");
-        assert_eq!(row.publication_state(), PublicationState::Unpublished);
+        assert_eq!(row.publication_state, PublicationState::Unpublished);
         assert!(row.fact_allowed());
         assert_eq!(
             row.proof(),
@@ -495,7 +491,7 @@ mod tests {
 
         let row = &main.metadata.user_box_method_publication_classifications[0];
         assert_eq!(row.origin_kind(), "param");
-        assert_eq!(row.publication_state(), PublicationState::MaybePublished);
+        assert_eq!(row.publication_state, PublicationState::MaybePublished);
         assert!(!row.fact_allowed());
         assert_eq!(
             row.proof(),

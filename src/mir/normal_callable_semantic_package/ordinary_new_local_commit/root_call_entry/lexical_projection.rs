@@ -155,16 +155,6 @@ impl PreparedLexicalCallProjectionV1 {
         })
     }
 
-    pub(in crate::mir) fn new(
-        receiver: ExactLexicalReadV1,
-        arguments: Vec<LexicalCallArgumentProjectionV1>,
-    ) -> Self {
-        Self {
-            receiver: LexicalReceiverProjectionV1::Lexical(receiver),
-            arguments,
-        }
-    }
-
     pub(in crate::mir) fn with_stored_receiver(mut self, read: impl Into<StoredReceiverReadV1>) -> Result<Self, String> {
         let LexicalReceiverProjectionV1::Lexical(parent) = self.receiver else {
             return Err(freeze("lexical-terminal/duplicate-stored-receiver"));
@@ -648,3 +638,20 @@ mod finished_copy_tests;
 #[cfg(test)]
 #[path = "static_packet_tests.rs"]
 mod static_packet_tests;
+
+#[cfg(test)]
+mod test_fixtures {
+    use super::*;
+
+    impl PreparedLexicalCallProjectionV1 {
+        pub(in crate::mir) fn new(
+            receiver: ExactLexicalReadV1,
+            arguments: Vec<LexicalCallArgumentProjectionV1>,
+        ) -> Self {
+            Self {
+                receiver: LexicalReceiverProjectionV1::Lexical(receiver),
+                arguments,
+            }
+        }
+    }
+}

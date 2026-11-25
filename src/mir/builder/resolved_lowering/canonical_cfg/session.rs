@@ -295,45 +295,6 @@ impl CanonicalCfgSessionV1 {
         super::pinned_text_finish::emit_detached(function, source, residence)
     }
 
-    /// Sole canonical CFG writer for a checked-call Fault landing.  Fault is
-    /// a terminal with no successor; it cannot silently rejoin `After` or a
-    /// shared normal cleanup block.
-    pub(in crate::mir::builder) fn emit_checked_callout_fault(
-        &self,
-        function: &mut MirFunction,
-        source: BasicBlockId,
-        site_id: CheckedCallOutSiteIdV1,
-    ) -> Result<(), CanonicalCfgErrorV1> {
-        self.preflight_terminator(function, source)?;
-        if function.metadata.checked_callout_plan(site_id).is_none() {
-            return Err(CanonicalCfgErrorV1::CheckedCallOut(
-                "checked callout Fault has no admitted site plan".to_owned(),
-            ));
-        }
-        let fault_target_matches = function.blocks.values().any(|block| {
-            matches!(
-                block.terminator.as_ref(),
-                Some(MirInstruction::CheckedCallOut {
-                    site_id: actual_site,
-                    fault_landing,
-                    ..
-                }) if *actual_site == site_id && *fault_landing == source
-            )
-        });
-        if !fault_target_matches {
-            return Err(CanonicalCfgErrorV1::CheckedCallOut(
-                "checked callout Fault source is not the admitted site landing".to_owned(),
-            ));
-        }
-        self.commit_instruction(
-            function,
-            source,
-            MirInstruction::CheckedCallOutFault { site_id },
-            None,
-        );
-        Ok(())
-    }
-
     pub(in crate::mir::builder) fn seal_block(
         &mut self,
         function: &mut MirFunction,

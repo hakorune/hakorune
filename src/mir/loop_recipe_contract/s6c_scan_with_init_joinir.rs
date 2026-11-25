@@ -57,26 +57,12 @@ pub(crate) struct S6CLogicalCallInputRefV1<'a> {
 }
 
 impl<'a> S6CLogicalCallInputRefV1<'a> {
-    pub(crate) const fn role(self) -> S6CLogicalCallRoleV1 {
-        self.role
-    }
-
-    pub(crate) fn owner(self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
-        self.contract.owner()
-    }
-
     pub(crate) const fn placement(self) -> ResolvedLoopPlacementV1 {
         self.contract.placement()
     }
 
     pub(crate) fn operation(self) -> CoreMethodOp {
         self.contract.target().row().row().op
-    }
-
-    pub(crate) fn target(
-        self,
-    ) -> &'a crate::mir::resolved_semantics::VerifiedCoreMethodInstanceTargetV1 {
-        self.contract.target()
     }
 
     pub(crate) fn arity(self) -> u32 {
@@ -87,30 +73,10 @@ impl<'a> S6CLogicalCallInputRefV1<'a> {
         self.contract.call_site()
     }
 
-    pub(crate) fn receiver_site(self) -> &'a crate::mir::resolved_semantics::SourceExprSiteV1 {
-        self.contract.receiver_site()
-    }
-
-    pub(crate) fn result_site(self) -> &'a crate::mir::resolved_semantics::SourceExprSiteV1 {
-        self.contract.result_site()
-    }
-
     pub(crate) fn arguments(
         self,
     ) -> &'a [crate::mir::resolved_semantics::ResolvedMethodCallArgumentSourceV1] {
         self.contract.arguments()
-    }
-
-    /// Mechanical projection of the resolver-issued receiver relation.  The
-    /// resolver contract has already proved the accepted S6C call receiver is
-    /// a local BindingRef; this accessor does not issue a new semantic fact.
-    pub(crate) fn receiver_binding(self) -> Option<crate::mir::resolved_semantics::BindingRefV1> {
-        match self.contract.receiver() {
-            ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding)) => {
-                Some(binding)
-            }
-            _ => None,
-        }
     }
 
     pub(crate) const fn recipe_row(self) -> S6CRecipeOperationRowRefV2<'a> {

@@ -45,7 +45,7 @@ fn materializes_exact_callee_without_legacy_resolution() {
     assert_eq!(emission.target().callable().owner(), expected_owner);
     assert_eq!(emission.target().signature().arity(), 1);
     assert_eq!(
-        emission.effect(),
+        emission.effect,
         VerifiedDirectCallEffectV1::ConservativeBarrier
     );
 

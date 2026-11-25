@@ -37,24 +37,6 @@ pub(crate) struct GenericG0PhysicalOperationRowV1<'loan> {
     evidence: &'loan VerifiedLoopOperationSourceEvidenceV1,
 }
 
-impl GenericG0PhysicalOperationRowV1<'_> {
-    pub(crate) const fn item(&self) -> LoopItemKeyV1 {
-        self.item
-    }
-
-    pub(crate) const fn block(&self) -> LoopBlockKeyV1 {
-        self.block
-    }
-
-    pub(crate) const fn owner_loop(&self) -> LoopNodeKeyV1 {
-        self.owner_loop
-    }
-
-    pub(crate) fn evidence(&self) -> &VerifiedLoopOperationSourceEvidenceV1 {
-        self.evidence
-    }
-}
-
 /// One complete Generic operation mapping.  The wrapper is intentionally
 /// non-Clone so a physical consumer cannot silently split the mapping into
 /// independently re-paired operation/evidence products.
@@ -194,16 +176,16 @@ mod tests {
                 .expect("complete Generic operation mapping");
             assert_eq!(mapping.operation_count(), 15);
             assert_eq!(mapping.owner(), parent.owner());
-            assert!(mapping.rows().iter().all(|row| row.evidence().item() == row.item()));
-            assert!(mapping.rows().iter().all(|row| row.block() == row.evidence().block()));
+            assert!(mapping.rows().iter().all(|row| row.evidence.item() == row.item));
+            assert!(mapping.rows().iter().all(|row| row.block == row.evidence.block()));
             assert!(mapping
                 .rows()
                 .iter()
-                .all(|row| row.owner_loop() == row.evidence().owner_loop()));
+                .all(|row| row.owner_loop == row.evidence.owner_loop()));
             // Item 4 is the nested-loop/carrier boundary, not a Generic
             // physical operation row.  Keeping it out is part of the
             // mapping's negative coverage contract.
-            assert!(mapping.rows().iter().all(|row| row.item().raw() != 4));
+            assert!(mapping.rows().iter().all(|row| row.item.raw() != 4));
             Ok::<_, String>(())
         });
         result.expect("Generic source parent").expect("mapping test");

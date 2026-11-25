@@ -219,9 +219,10 @@ pub(crate) use producer_id::LoopRecipeProducerIdV1;
 pub(crate) use recipe_draft::{LoopRecipeDraftRejectV1, LoopRecipeDraftV1};
 pub(crate) use s6c_prephysical_ingress::{
     issue_s6c_prephysical_ingress_v2, S6CPrephysicalCompletionParityRefV2,
-    S6CPrephysicalCompletionRefV2, S6CPrephysicalIngressRejectV2, S6CPrephysicalOperationRoleV2,
-    VerifiedS6CPrephysicalIngressV2,
+    S6CPrephysicalIngressRejectV2, VerifiedS6CPrephysicalIngressV2,
 };
+#[cfg(test)]
+pub(crate) use s6c_prephysical_ingress::S6CPrephysicalOperationRoleV2;
 pub(crate) use s6c_return_source_binding::VerifiedS6CReturnSourceRecipeBindingV1;
 pub(crate) use s6c_scan_with_init::{
     produce_s6c_scan_with_init_recipe_v2, S6CScanWithInitRecipeProducerRejectV2,

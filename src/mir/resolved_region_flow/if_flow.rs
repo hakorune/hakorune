@@ -220,13 +220,4 @@ impl VerifiedResolvedFunctionFlowV1 {
         &self.coverage
     }
 
-    pub(crate) fn into_parts(
-        self,
-    ) -> (
-        FunctionOwnerIdV1,
-        Box<[VerifiedResolvedIfFlowV1]>,
-        VerifiedFunctionFlowCoverageV1,
-    ) {
-        (self.owner, self.if_flows, self.coverage)
-    }
 }

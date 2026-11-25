@@ -28,6 +28,7 @@ FIXTURE = (
 )
 MODULE_LIFECYCLE = ROOT / "src/mir/builder/module_lifecycle.rs"
 TYPED_OBJECT_PLAN = ROOT / "src/mir/typed_object_plan.rs"
+STORAGE_INFERENCE = ROOT / "src/mir/typed_object_plan/storage_inference.rs"
 RECORD_PACKED_LAYOUT_REFRESH_PLAN = (
     ROOT
     / "docs/development/current/main/design/fixtures/rust-lifecycle/"
@@ -78,20 +79,20 @@ def extract_plan() -> dict[str, Any]:
     typed_object = _read(TYPED_OBJECT_PLAN)
     record_refresh = _read_json(RECORD_PACKED_LAYOUT_REFRESH_PLAN)
     finalize = _function_body(
-        lifecycle, "pub(super) fn finalize_module(&mut self, result_value: ValueId)"
+        lifecycle, "pub(super) fn finalize_module_with_root_validation("
     )
     refresh_body = _function_body(
         typed_object, "pub fn refresh_module_typed_object_plans(module: &mut MirModule)"
     )
     build_body = _function_body(
-        typed_object, "pub fn build_typed_object_plans(module: &MirModule) -> Vec<TypedObjectPlan>"
+        _read(STORAGE_INFERENCE), "pub(super) fn refresh(module: &mut MirModule)"
     )
 
     finalize_order = _require_order(
         finalize,
         [
             "crate::mir::semantic_refresh::refresh_module_record_and_packed_layout_plans(&mut module);",
-            "crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module);",
+            "crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module)?;",
             "crate::mir::direct_state_plan::refresh_module_direct_state_plans(&mut module);",
         ],
         "MirBuilder::finalize_module typed object plan refresh",
@@ -99,16 +100,17 @@ def extract_plan() -> dict[str, Any]:
     refresh_order = _require_order(
         refresh_body,
         [
-            "module.metadata.typed_object_plans = build_typed_object_plans(module);",
+            "storage_inference::refresh(module)",
         ],
         "typed_object_plan::refresh_module_typed_object_plans",
     )
     build_order = _require_order(
         build_body,
         [
-            "storage_inference::build_typed_object_plans(module)",
+            "let (canonical, projection) = prepare_layouts(module)?;",
+            "module.metadata.typed_object_plans = projection;",
         ],
-        "typed_object_plan::build_typed_object_plans",
+        "storage_inference::refresh",
     )
     require(
         record_refresh.get("non_claims", {}).get("typed_object_plan_refresh") == 0,
@@ -124,7 +126,7 @@ def extract_plan() -> dict[str, Any]:
         "kind": "MirBuilderTypedObjectPlanRefreshPlanV1",
         "subject": "MirBuilder::finalize_module typed object plan refresh",
         "source_authority": {
-            "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+            "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module_with_root_validation",
             "refresh_entrypoint": "src/mir/typed_object_plan.rs::refresh_module_typed_object_plans",
             "predecessor_plan": "mirbuilder-record-packed-layout-refresh-plan-v0.json",
         },
@@ -142,8 +144,8 @@ def extract_plan() -> dict[str, Any]:
             "entrypoint": "refresh_module_typed_object_plans",
             "timing": "AfterRecordPackedLayoutRefreshBeforeDirectStateRefresh",
             "operation": "AssignTypedObjectPlans",
-            "source": "build_typed_object_plans(module)",
-            "build_provider": "storage_inference::build_typed_object_plans",
+            "source": "projection",
+            "build_provider": "storage_inference::prepare_layouts",
             "target": "module.metadata.typed_object_plans",
             "module_arg": "&mut MirModule",
         },
@@ -196,11 +198,11 @@ def validate_plan(plan: dict[str, Any]) -> None:
     )
     require(refresh["operation"] == "AssignTypedObjectPlans", "operation drift")
     require(
-        refresh["source"] == "build_typed_object_plans(module)",
+        refresh["source"] == "projection",
         "refresh source drift",
     )
     require(
-        refresh["build_provider"] == "storage_inference::build_typed_object_plans",
+        refresh["build_provider"] == "storage_inference::prepare_layouts",
         "build provider drift",
     )
     require(refresh["target"] == "module.metadata.typed_object_plans", "target drift")

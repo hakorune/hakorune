@@ -379,7 +379,7 @@ impl LocalCommitV1 {
         &self,
     ) -> &crate::mir::normal_callable_semantic_package::ConstructionEligibilityV1 {
         match self {
-            Self::Ordinary(row) => row.construction(),
+            Self::Ordinary(row) => (&row.construction),
             Self::Result(row) => row.construction(),
             Self::Map(_) => panic!("map row has no construction eligibility"),
             Self::TextResidence(_) | Self::DynamicCarrierResidence(_) | Self::Shared(_) => {

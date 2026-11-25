@@ -153,45 +153,6 @@ pub enum PlacementEffectStringProof {
     },
 }
 
-impl PlacementEffectStringProof {
-    pub fn summary(&self) -> String {
-        match self {
-            Self::BorrowedSlice { source, start, end } => format!(
-                "borrowed_slice(src=%{} start=%{} end=%{})",
-                source.0, start.0, end.0
-            ),
-            Self::ConcatTriplet {
-                left_value,
-                left_source,
-                left_start,
-                left_end,
-                middle,
-                right_value,
-                right_source,
-                right_start,
-                right_end,
-                shared_source,
-            } => format!(
-                "concat_triplet(shared_source={} left_value={} left=%{}[%{},%{}] middle=%{} right_value={} right=%{}[%{},%{}])",
-                shared_source,
-                left_value
-                    .map(|value| format!("%{}", value.0))
-                    .unwrap_or_else(|| "-".to_string()),
-                left_source.0,
-                left_start.0,
-                left_end.0,
-                middle.0,
-                right_value
-                    .map(|value| format!("%{}", value.0))
-                    .unwrap_or_else(|| "-".to_string()),
-                right_source.0,
-                right_start.0,
-                right_end.0
-            ),
-        }
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PlacementEffectRoute {
     pub block: Option<BasicBlockId>,
@@ -213,84 +174,6 @@ pub struct PlacementEffectRoute {
     pub state: PlacementEffectState,
     pub detail: Option<String>,
     pub reason: String,
-}
-
-impl PlacementEffectRoute {
-    pub fn summary(&self) -> String {
-        let block_suffix = self
-            .block
-            .map(|block| format!(" bb{}", block.as_u32()))
-            .unwrap_or_else(|| " module".to_string());
-        let instruction_suffix = self
-            .instruction_index
-            .map(|index| format!("#{index}"))
-            .unwrap_or_default();
-        let value_suffix = self
-            .value
-            .map(|value| format!(" value=%{}", value.as_u32()))
-            .unwrap_or_default();
-        let source_value_suffix = self
-            .source_value
-            .map(|value| format!(" source_value=%{}", value.as_u32()))
-            .unwrap_or_default();
-        let window_suffix = match (self.window_start, self.window_end) {
-            (Some(start), Some(end)) => {
-                format!(" window=[%{}, %{}]", start.as_u32(), end.as_u32())
-            }
-            _ => String::new(),
-        };
-        let borrow_contract_suffix = self
-            .borrow_contract
-            .map(|contract| format!(" borrow_contract={contract}"))
-            .unwrap_or_default();
-        let publish_reason_suffix = self
-            .publish_reason
-            .map(|reason| format!(" publish_reason={reason}"))
-            .unwrap_or_default();
-        let publish_repr_policy_suffix = self
-            .publish_repr_policy
-            .map(|repr| format!(" publish_repr_policy={repr}"))
-            .unwrap_or_default();
-        let stable_view_provenance_suffix = self
-            .stable_view_provenance
-            .map(|provenance| format!(" stable_view_provenance={provenance}"))
-            .unwrap_or_default();
-        let string_proof_suffix = self
-            .string_proof
-            .as_ref()
-            .map(|proof| format!(" string_proof={}", proof.summary()))
-            .unwrap_or_default();
-        let publication_boundary_suffix = self
-            .publication_boundary
-            .map(|boundary| format!(" publication_boundary={boundary}"))
-            .unwrap_or_default();
-        let detail_suffix = self
-            .detail
-            .as_ref()
-            .map(|detail| format!(" detail={detail}"))
-            .unwrap_or_default();
-        format!(
-            "{}{} {} {} {} demand={} [{}]{}{}{}{}{}{}{}{}{}{} reason={}",
-            block_suffix,
-            instruction_suffix,
-            self.source,
-            self.subject,
-            self.decision,
-            self.demand,
-            self.state,
-            value_suffix,
-            source_value_suffix,
-            window_suffix,
-            borrow_contract_suffix,
-            publish_reason_suffix,
-            publish_repr_policy_suffix,
-            stable_view_provenance_suffix,
-            string_proof_suffix,
-            publication_boundary_suffix,
-            detail_suffix,
-            self.reason
-        )
-    }
 }
 
 #[cfg(test)]

@@ -62,14 +62,6 @@ impl VerifiedS6CReturnSourceRecipeBindingV1 {
         self.owner
     }
 
-    pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 {
-        &self.return_site
-    }
-
-    pub(crate) fn return_value(&self) -> &SourceExprSiteV1 {
-        &self.return_value
-    }
-
     pub(crate) const fn return_region(&self) -> RegionId {
         self.return_region
     }

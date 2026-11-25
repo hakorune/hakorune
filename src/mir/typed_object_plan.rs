@@ -7,7 +7,7 @@
 
 mod storage_inference;
 
-use crate::mir::function::{TypedObjectFieldStorage, TypedObjectPlan};
+use crate::mir::function::TypedObjectFieldStorage;
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use crate::mir::{MirFunction, MirInstruction, MirModule, MirType, ValueId};
 use std::collections::BTreeMap;
@@ -43,10 +43,6 @@ pub fn refresh_module_typed_object_collection_field_element_value_types(module: 
             &element_types,
         );
     }
-}
-
-pub fn build_typed_object_plans(module: &MirModule) -> Result<Vec<TypedObjectPlan>, String> {
-    storage_inference::build_typed_object_plans(module)
 }
 
 type TypedObjectFieldStorageMap = BTreeMap<(String, String), TypedObjectFieldStorage>;

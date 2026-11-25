@@ -89,16 +89,6 @@ impl LoopBreakSourcePackageLoanV1 {
         }
     }
 
-    pub(in crate::mir) fn has_candidate_for_site(&self, site: &SourceStmtSiteV1) -> bool {
-        match self {
-            Self::Candidate(facts) => facts
-                .candidates()
-                .iter()
-                .any(|candidate| candidate.projection().loop_site() == site),
-            Self::SupportedNonCandidate { .. } => false,
-        }
-    }
-
 
 
     pub(in crate::mir) fn finish_empty(&self) -> Result<(), String> {

@@ -109,10 +109,6 @@ impl<'loan, 'source> PreparedGenericG0PhysicalFunctionEntryInputV1<'loan, 'sourc
         &self.descriptors
     }
 
-    pub(crate) const fn physical_callable_lane_count(&self) -> u32 {
-        self.physical_callable_lane_count
-    }
-
     /// Consume the complete parent and descriptor cohort together.  This is
     /// the only projection seam offered to the later skeleton consumer.
     pub(crate) fn consume<R>(
@@ -305,7 +301,7 @@ mod tests {
         let owner = input.owner();
         let consumed = with_generic_g0_parent_for_test(input, |parent| {
             let prepared = issue_generic_g0_physical_function_entry_input_v1(parent)?;
-            assert_eq!(prepared.physical_callable_lane_count(), 3);
+            assert_eq!(prepared.physical_callable_lane_count, 3);
             assert_eq!(prepared.descriptors().len(), 3);
             assert_eq!(
                 prepared.descriptors()[0].role(),

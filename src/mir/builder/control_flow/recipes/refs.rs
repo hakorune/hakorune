@@ -28,15 +28,6 @@ pub(in crate::mir::builder) struct StmtPair {
     pub b: StmtIdx,
 }
 
-impl StmtPair {
-    pub(in crate::mir::builder) fn new(a: usize, b: usize) -> Self {
-        Self {
-            a: StmtIdx(a),
-            b: StmtIdx(b),
-        }
-    }
-}
-
 /// Span of statements (shape-only)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder) struct StmtSpan {

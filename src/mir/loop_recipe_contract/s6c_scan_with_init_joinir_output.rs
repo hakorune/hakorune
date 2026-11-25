@@ -153,11 +153,6 @@ impl<'rows, 'facts> S6CPrephysicalSourceInputRefV2<'rows, 'facts> {
         self.facts
     }
 
-    pub(super) const fn return_source_binding(
-        self,
-    ) -> &'facts VerifiedS6CReturnSourceRecipeBindingV1 {
-        self.logical.return_source_binding()
-    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -189,12 +184,6 @@ impl<'rows, 'product> S6CScanWithInitLogicalOutputRefV1<'rows, 'product> {
         self,
     ) -> &'product super::join_sig::LoopJoinLogicalTransferViewV2<'product> {
         self.transfer
-    }
-
-    pub(crate) const fn return_source_binding(
-        self,
-    ) -> &'product VerifiedS6CReturnSourceRecipeBindingV1 {
-        self.return_source_binding
     }
 
     pub(crate) const fn domains(self) -> S6CLogicalOutputDomainCountsV1 {

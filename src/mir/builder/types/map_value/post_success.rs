@@ -64,9 +64,6 @@ impl MapWriteObservationDescriptorV1 {
         &self.args
     }
 
-    pub(super) fn receiver(&self) -> ValueId {
-        self.receiver
-    }
 }
 
 #[derive(Debug, Eq, PartialEq)]
@@ -146,7 +143,7 @@ mod tests {
         replay
             .into_observations()
             .iter()
-            .map(|descriptor| descriptor.receiver())
+            .map(|descriptor| descriptor.receiver)
             .collect()
     }
 

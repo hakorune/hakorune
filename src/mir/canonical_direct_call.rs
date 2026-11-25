@@ -76,10 +76,6 @@ impl VerifiedCanonicalDirectCallEmissionV1 {
         &self.target
     }
 
-    pub(crate) const fn effect(&self) -> VerifiedDirectCallEffectV1 {
-        self.effect
-    }
-
     pub(crate) fn materialize(
         self,
         dst: ValueId,

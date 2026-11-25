@@ -21,10 +21,6 @@ pub(crate) enum OwnershipFunctionOwnerV1 {
 }
 
 impl OwnershipFunctionOwnerV1 {
-    pub(crate) const fn new(raw: u64) -> Self {
-        Self::Legacy(raw)
-    }
-
     pub(crate) const fn source(owner: crate::mir::resolved_semantics::FunctionOwnerIdV1) -> Self {
         Self::Source(owner)
     }
@@ -268,4 +264,15 @@ pub(super) fn collect_ownership_operations(function: &MirFunction) -> Box<[Owner
         }
     }
     operations.into_boxed_slice()
+}
+
+#[cfg(test)]
+mod test_fixtures {
+    use super::*;
+
+    impl OwnershipFunctionOwnerV1 {
+        pub(crate) const fn new(raw: u64) -> Self {
+            Self::Legacy(raw)
+        }
+    }
 }

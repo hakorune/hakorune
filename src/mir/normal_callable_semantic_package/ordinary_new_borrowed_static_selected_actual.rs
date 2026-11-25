@@ -21,10 +21,6 @@ pub(in crate::mir::normal_callable_semantic_package) struct VerifiedStaticForwar
 }
 
 impl VerifiedStaticForwardedActualV1 {
-    pub(in crate::mir::normal_callable_semantic_package) fn caller_formal(&self) -> BindingRefV1 {
-        self.caller_formal
-    }
-
     pub(in crate::mir::normal_callable_semantic_package) fn actual(
         &self,
     ) -> &PreparedBorrowedFormalActualV1 {

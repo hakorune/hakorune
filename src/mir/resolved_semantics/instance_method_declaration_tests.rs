@@ -38,13 +38,13 @@ box TextLike {
         declaration.signature().result(),
         ResolverSemanticValueTypeV1::I64
     );
-    assert!(declaration.callable_contract().is_some());
+    assert!(declaration.callable_contract.as_ref().is_some());
     assert_eq!(
         declaration.nominal_box_type().brand(),
         catalog.resolver_brand()
     );
     assert_eq!(declaration.resolver_brand(), catalog.resolver_brand());
-    let _ = catalog.parser_provenance();
+    let _ = (&catalog.parser_provenance);
 }
 
 #[test]
@@ -53,7 +53,7 @@ fn declaration_issuer_does_not_require_query_behavior() {
     let catalog = SemanticInstanceDeclarationIssuerV1::issue(handoff, environment("TextLike"))
         .expect("declaration/signature does not require Query");
 
-    assert!(catalog.declarations()[0].callable_contract().is_none());
+    assert!(catalog.declarations()[0].callable_contract.as_ref().is_none());
     assert_eq!(
         catalog.declarations()[0].signature().result(),
         ResolverSemanticValueTypeV1::I64

@@ -250,19 +250,6 @@ pub(in crate::mir::builder) struct RawLegacyMethodCallInputV1 {
 }
 
 impl RawLegacyMethodCallInputV1 {
-    pub(in crate::mir::builder) fn new(
-        receiver: ASTNode,
-        method: String,
-        arguments: Vec<ASTNode>,
-    ) -> Self {
-        Self {
-            receiver,
-            method,
-            arguments,
-            receiver_source: None,
-        }
-    }
-
     pub(in crate::mir::builder) fn with_receiver_source(
         receiver: ASTNode,
         method: String,
@@ -331,6 +318,26 @@ where
             }
             CatalogHelperChildV1::Expression(expression) => {
                 drive_legacy_expression_v1(builder, self, expression)
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod test_fixtures {
+    use super::*;
+
+    impl RawLegacyMethodCallInputV1 {
+        pub(in crate::mir::builder) fn new(
+            receiver: ASTNode,
+            method: String,
+            arguments: Vec<ASTNode>,
+        ) -> Self {
+            Self {
+                receiver,
+                method,
+                arguments,
+                receiver_source: None,
             }
         }
     }

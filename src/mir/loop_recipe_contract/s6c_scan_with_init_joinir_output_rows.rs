@@ -176,10 +176,6 @@ pub(crate) struct S6CLogicalOutputRowsV1 {
 }
 
 impl S6CLogicalOutputRowsV1 {
-    pub(crate) fn loops(&self) -> &[S6CLogicalLoopV1] {
-        &self.loops
-    }
-
     pub(crate) fn values(&self) -> &[S6CLogicalValueV1] {
         &self.values
     }

@@ -64,17 +64,6 @@ struct OuterBodyScanV1 {
     schedule: Vec<NestedLoopMinimalObservedStmtRoleV1>,
 }
 
-pub(in crate::mir::builder) fn try_extract_nested_loop_minimal_facts(
-    condition: &ASTNode,
-    body: &[ASTNode],
-) -> Result<Option<NestedLoopMinimalFacts>, Freeze> {
-    try_extract_nested_loop_minimal_facts_with_projection(
-        condition,
-        body,
-        &LoopSourceProjectionV1::default(),
-    )
-}
-
 pub(in crate::mir::builder) fn try_extract_nested_loop_minimal_facts_with_projection(
     condition: &ASTNode,
     body: &[ASTNode],
@@ -376,7 +365,7 @@ fn extract_accum_add_const(update: &ASTNode, acc_var: &str) -> Option<i64> {
 #[cfg(test)]
 mod tests {
     use super::{
-        try_extract_nested_loop_minimal_facts,
+
         try_extract_nested_loop_minimal_facts_with_projection, NestedLoopMinimalObservedStmtRoleV1,
     };
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
@@ -487,7 +476,12 @@ mod tests {
         ];
         let condition = condition_lt("i", 3);
 
-        let facts = try_extract_nested_loop_minimal_facts(&condition, &body).expect("Ok");
+        let facts = try_extract_nested_loop_minimal_facts_with_projection(
+            &condition,
+            &body,
+            &super::LoopSourceProjectionV1::default(),
+        )
+        .expect("Ok");
         let facts = facts.expect("Some");
 
         assert_eq!(facts.outer_loop_var, "i");
@@ -502,7 +496,12 @@ mod tests {
         let body = vec![inner_loop(), increment("i", 1)];
         let condition = condition_lt("i", 3);
 
-        let facts = try_extract_nested_loop_minimal_facts(&condition, &body).expect("Ok");
+        let facts = try_extract_nested_loop_minimal_facts_with_projection(
+            &condition,
+            &body,
+            &super::LoopSourceProjectionV1::default(),
+        )
+        .expect("Ok");
         assert!(facts.is_none());
     }
 

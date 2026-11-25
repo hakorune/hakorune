@@ -37,10 +37,6 @@ impl VerifiedLocatedIfControlV1 {
         &self.site
     }
 
-    pub(in crate::mir::resolved_control_flow) const fn regions(&self) -> ResolvedIfRegionBundleV1 {
-        self.regions
-    }
-
     pub(in crate::mir::resolved_control_flow) const fn then_port(
         &self,
     ) -> ResolvedIfFallthroughPortV1 {
@@ -104,14 +100,6 @@ pub(crate) struct ResolvedIfControlMaterializationV1 {
 impl ResolvedIfControlMaterializationV1 {
     pub(crate) const fn site(&self) -> &SourceStmtSiteV1 {
         &self.site
-    }
-
-    pub(crate) const fn regions(&self) -> ResolvedIfRegionBundleV1 {
-        self.regions
-    }
-
-    pub(crate) const fn else_port(&self) -> ResolvedIfElsePortV1 {
-        self.else_port
     }
 
     pub(crate) fn claim_statement(

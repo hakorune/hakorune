@@ -43,26 +43,6 @@ impl MapMissingEmptyRoute {
         self.instruction_index
     }
 
-    pub fn receiver_value(&self) -> ValueId {
-        self.receiver_value
-    }
-
-    pub fn receiver_root(&self) -> ValueId {
-        self.receiver_root
-    }
-
-    pub fn key_value(&self) -> ValueId {
-        self.key_value
-    }
-
-    pub fn key_const(&self) -> i64 {
-        self.key_const
-    }
-
-    pub fn result_value(&self) -> ValueId {
-        self.result_value
-    }
-
     pub fn proof_ids(&self) -> &'static [&'static str] {
         &[
             "receiver_birth_is_new_mapbox",
@@ -261,11 +241,11 @@ mod tests {
         assert_eq!(route.route_id(), "map_missing_empty.get");
         assert_eq!(route.block(), BasicBlockId::new(0));
         assert_eq!(route.instruction_index(), 2);
-        assert_eq!(route.receiver_value(), ValueId::new(1));
-        assert_eq!(route.receiver_root(), ValueId::new(1));
-        assert_eq!(route.key_value(), ValueId::new(2));
-        assert_eq!(route.key_const(), 0);
-        assert_eq!(route.result_value(), ValueId::new(3));
+        assert_eq!(route.receiver_value, ValueId::new(1));
+        assert_eq!(route.receiver_root, ValueId::new(1));
+        assert_eq!(route.key_value, ValueId::new(2));
+        assert_eq!(route.key_const, 0);
+        assert_eq!(route.result_value, ValueId::new(3));
     }
 
     #[test]

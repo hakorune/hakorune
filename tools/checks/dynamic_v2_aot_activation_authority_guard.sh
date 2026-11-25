@@ -225,10 +225,6 @@ guard_expect_fixed_in_file "$TAG" "from_admitted(value: u32)" "$CALLOUT_OWNER" \
   "admitted entry/lease projection must remain explicit"
 guard_expect_fixed_in_file "$TAG" "fn parse_effect_mask" "$ROOT_DIR/src/runner/mir_json_v0/checked_callout.rs" \
   "CheckedCallOut JSON transport must reject unknown effect bits"
-guard_expect_fixed_in_file "$TAG" "emit_checked_callout_fault" "$CALLOUT_CFG" \
-  "canonical CFG must own the physical Fault terminal issuer"
-guard_expect_fixed_in_file "$TAG" "emit_checked_callout_end" "$CALLOUT_SSA" \
-  "canonical SSA must own the physical End issuer"
 guard_expect_fixed_in_file "$TAG" "consume_non_authority_evidence" "$SEAL_OWNER" \
   "completed DraftSeal handoff must explicitly retire proof-only evidence"
 if [[ "$(rg -n 'pub\(super\) fn into_draft\(' "$SEAL_OWNER" | wc -l | tr -d '[:space:]')" != 0 ]]; then

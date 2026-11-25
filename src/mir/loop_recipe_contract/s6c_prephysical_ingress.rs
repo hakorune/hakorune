@@ -202,18 +202,6 @@ impl<'a, 'rows, 'facts> S6CPrephysicalIngressRefV2<'a, 'rows, 'facts> {
         self.source.facts().source().calls().length().owner()
     }
 
-    pub(crate) fn logical_transfer(
-        self,
-    ) -> &'facts super::join_sig::LoopJoinLogicalTransferViewV2<'facts> {
-        self.source.logical().logical_transfer()
-    }
-
-    pub(crate) fn return_source_binding(
-        self,
-    ) -> &'facts super::s6c_return_source_binding::VerifiedS6CReturnSourceRecipeBindingV1 {
-        self.source.return_source_binding()
-    }
-
     pub(crate) const fn operation_count(self) -> usize {
         OPERATION_COUNT
     }
@@ -224,18 +212,6 @@ impl<'a, 'rows, 'facts> S6CPrephysicalIngressRefV2<'a, 'rows, 'facts> {
 
     pub(crate) const fn input_bindings(self) -> [BindingRefV1; 3] {
         self.seal.inputs
-    }
-
-    pub(crate) const fn needle_input(self) -> LoopValueKeyV1 {
-        self.source.logical().roles().needle_input()
-    }
-
-    pub(crate) const fn subject_input(self) -> LoopValueKeyV1 {
-        self.source.logical().roles().subject_input()
-    }
-
-    pub(crate) const fn index_input(self) -> LoopValueKeyV1 {
-        self.source.logical().roles().index_input()
     }
 
     /// Project the two source-bound CoreMethod effects without exposing the
@@ -249,14 +225,6 @@ impl<'a, 'rows, 'facts> S6CPrephysicalIngressRefV2<'a, 'rows, 'facts> {
             calls.length().target().row().row().effect,
             calls.substring().target().row().row().effect,
         ]
-    }
-
-    pub(crate) const fn index_carrier_entry(self) -> LoopValueKeyV1 {
-        self.seal.index_carrier_entry
-    }
-
-    pub(crate) const fn index_binding(self) -> LoopBindingKeyV1 {
-        self.source.logical().roles().index_binding()
     }
 
     pub(crate) const fn after(self) -> (LoopNodeKeyV1, LoopBindingKeyV1, LoopValueClassV2) {
@@ -335,12 +303,6 @@ pub(crate) struct S6CPrephysicalCompletionRefV2<'facts> {
 }
 
 impl<'facts> S6CPrephysicalCompletionRefV2<'facts> {
-    pub(crate) const fn completion(
-        self,
-    ) -> &'facts crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1 {
-        self.completion
-    }
-
     pub(crate) const fn loop_return_site(&self) -> &SourceStmtSiteV1 {
         self.loop_return_site
     }
@@ -391,10 +353,6 @@ impl<'facts> S6CPrephysicalTextEqRefV2<'facts> {
 }
 
 impl S6CPrephysicalCompletionParityRefV2 {
-    pub(crate) const fn target_function(self) -> crate::mir::resolved_semantics::RegionId {
-        self.target_function
-    }
-
     pub(crate) const fn explicit_exit_count(self) -> usize {
         self.explicit_exit_count
     }

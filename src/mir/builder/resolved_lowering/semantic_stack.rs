@@ -71,18 +71,6 @@ impl ResolvedSemanticStackV1 {
         self.root_regions[0]
     }
 
-    pub(super) fn new(
-        product: &VerifiedResolvedFunctionV1,
-        roots: ResolvedFunctionLoweringRootsV1,
-        expected_block_expr_pairs: usize,
-    ) -> Result<Self, String> {
-        Self::new_with_expectations(
-            product,
-            roots,
-            ResolvedSemanticExpectedCountsV1::new(expected_block_expr_pairs, 0, 0),
-        )
-    }
-
     pub(super) fn new_with_expectations(
         product: &VerifiedResolvedFunctionV1,
         roots: ResolvedFunctionLoweringRootsV1,
@@ -325,5 +313,24 @@ fn pop_exact<T: Copy + PartialEq>(
         None => Err(format!(
             "[freeze:contract][canonical_semantic_stack/{empty_tag}]"
         )),
+    }
+}
+
+#[cfg(test)]
+mod test_fixtures {
+    use super::*;
+
+    impl ResolvedSemanticStackV1 {
+        pub(in crate::mir::builder::resolved_lowering) fn new(
+            product: &VerifiedResolvedFunctionV1,
+            roots: ResolvedFunctionLoweringRootsV1,
+            expected_block_expr_pairs: usize,
+        ) -> Result<Self, String> {
+            Self::new_with_expectations(
+                product,
+                roots,
+                ResolvedSemanticExpectedCountsV1::new(expected_block_expr_pairs, 0, 0),
+            )
+        }
     }
 }

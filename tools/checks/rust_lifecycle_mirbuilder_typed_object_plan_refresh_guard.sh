@@ -22,8 +22,8 @@ refresh = plan["refresh_policy"]
 assert refresh["entrypoint"] == "refresh_module_typed_object_plans"
 assert refresh["timing"] == "AfterRecordPackedLayoutRefreshBeforeDirectStateRefresh"
 assert refresh["operation"] == "AssignTypedObjectPlans"
-assert refresh["source"] == "build_typed_object_plans(module)"
-assert refresh["build_provider"] == "storage_inference::build_typed_object_plans"
+assert refresh["source"] == "projection"
+assert refresh["build_provider"] == "storage_inference::prepare_layouts"
 assert refresh["target"] == "module.metadata.typed_object_plans"
 result = plan["result_contract"]
 assert result["mutates"] == ["module.metadata.typed_object_plans"]

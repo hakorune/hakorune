@@ -32,17 +32,6 @@ impl LoopSimpleWhileSourceTopologyV1 {
     }
 }
 
-pub(in crate::mir::builder) fn try_extract_loop_simple_while_facts(
-    condition: &ASTNode,
-    body: &[ASTNode],
-) -> Result<Option<LoopSimpleWhileFacts>, Freeze> {
-    try_extract_loop_simple_while_facts_with_projection(
-        condition,
-        body,
-        &LoopSourceProjectionV1::default(),
-    )
-}
-
 pub(in crate::mir::builder) fn try_extract_loop_simple_while_facts_with_projection(
     condition: &ASTNode,
     body: &[ASTNode],
@@ -146,7 +135,7 @@ fn is_increment_step_one(loop_increment: &ASTNode, loop_var: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::{
-        try_extract_loop_simple_while_facts, try_extract_loop_simple_while_facts_with_projection,
+        try_extract_loop_simple_while_facts_with_projection,
     };
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
     use crate::mir::builder::control_flow::facts::stmt_view::flatten_scope_boxes_with_projection;
@@ -203,7 +192,12 @@ mod tests {
             inc_stmt("i"),
         ];
 
-        let facts = try_extract_loop_simple_while_facts(&condition, &body).expect("ok");
+        let facts = try_extract_loop_simple_while_facts_with_projection(
+            &condition,
+            &body,
+            &super::LoopSourceProjectionV1::default(),
+        )
+        .expect("ok");
         assert!(facts.is_none());
     }
 

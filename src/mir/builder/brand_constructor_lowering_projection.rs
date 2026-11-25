@@ -34,14 +34,6 @@ impl ProjectedBrandConstructorV1 {
         }
     }
 
-    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
-    pub(super) const fn declaration(&self) -> BrandDeclarationSourceIdV1 {
-        self.declaration
-    }
-
     pub(super) fn name(&self) -> &str {
         &self.name
     }
@@ -196,8 +188,8 @@ mod tests {
         else {
             panic!("exact constructor site must retain its row")
         };
-        assert_eq!(constructor.owner(), owner);
-        assert_eq!(constructor.declaration().program_item_ordinal(), 3);
+        assert_eq!(constructor.owner, owner);
+        assert_eq!(constructor.declaration.program_item_ordinal(), 3);
         assert_eq!(constructor.name(), "BlockId");
         assert_eq!(constructor.underlying_type(), "i64");
         assert_eq!(constructor.call_site(), &site(1));

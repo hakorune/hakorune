@@ -81,7 +81,7 @@ fn skip_while_source_seals_complete_dynamic_formals_and_exact_carrier() {
     assert_eq!(product.loops().len(), 1);
     assert_eq!(product.loops()[0].carriers().len(), 1);
     assert_eq!(
-        product.loops()[0].carriers()[0].local(),
+        product.loops()[0].carriers()[0].local,
         product.local_initializations()[0].local()
     );
     assert_eq!(product.loops()[0].carriers()[0].condition_reads().len(), 1);
@@ -152,8 +152,8 @@ fn multi_loop_callable_keeps_nearest_loop_carriers_separate() {
     assert_eq!(product.loops()[0].carriers().len(), 1);
     assert_eq!(product.loops()[1].carriers().len(), 1);
     assert_ne!(
-        product.loops()[0].carriers()[0].local(),
-        product.loops()[1].carriers()[0].local()
+        product.loops()[0].carriers()[0].local,
+        product.loops()[1].carriers()[0].local
     );
 }
 

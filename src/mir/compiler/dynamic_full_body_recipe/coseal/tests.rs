@@ -138,7 +138,7 @@ fn physical_evidence_coseals_exact_placement_operation_and_effect_coverage() {
     let product =
         issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, fixture.calls)
             .expect("atomic source/Recipe/envelope co-seal");
-    let evidence = product.physical_evidence();
+    let evidence = (&product.physical_evidence);
 
     assert_eq!(evidence.placements().len(), 17);
     assert_eq!(evidence.operations().len(), 15);

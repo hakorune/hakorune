@@ -18,7 +18,6 @@ use crate::mir::builder::emission::value_lifecycle_definition::{
 use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
 use crate::mir::builder::type_context::TypeContext;
 use crate::mir::function::FunctionMetadata;
-use crate::mir::resolved_semantics::SourceStmtSiteV1;
 use crate::mir::{BasicBlockId, MirBuilder, MirFunction, MirType, ValueId};
 
 use super::completion_consumption::ReadyFunctionCompletionV1;
@@ -37,30 +36,6 @@ pub(in crate::mir::builder) struct ReadyFunctionDraftSealV1 {
     completion: ReadyFunctionCompletionV1,
     current_block: BasicBlockId,
     checked_callout_census: Option<crate::mir::checked_callout::VerifiedCheckedCallOutFunctionV1>,
-}
-
-/// Borrowed projection of the already site-keyed Completion witnesses.  This
-/// is transport evidence for the selected physical receipt; it does not issue
-/// a second return or Completion authority and cannot outlive the ready seal.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir::builder::resolved_lowering) struct ReadyFunctionReturnObservationV1 {
-    site: SourceStmtSiteV1,
-    block: BasicBlockId,
-    value: ValueId,
-}
-
-impl ReadyFunctionReturnObservationV1 {
-    pub(in crate::mir::builder::resolved_lowering) fn site(&self) -> &SourceStmtSiteV1 {
-        &self.site
-    }
-
-    pub(in crate::mir::builder::resolved_lowering) fn block(&self) -> BasicBlockId {
-        self.block
-    }
-
-    pub(in crate::mir::builder::resolved_lowering) fn value(&self) -> ValueId {
-        self.value
-    }
 }
 
 /// Detached exit-only plan used by the PREPARE0 fixtures.  It owns no live
@@ -175,14 +150,6 @@ impl ReadyFunctionDraftSealV1 {
             completion,
             current_block,
             checked_callout_census: Some(checked_callout_census),
-        }
-    }
-
-    pub(super) fn new(completion: ReadyFunctionCompletionV1, current_block: BasicBlockId) -> Self {
-        Self {
-            completion,
-            current_block,
-            checked_callout_census: None,
         }
     }
 
@@ -584,4 +551,22 @@ fn set_projected_return_type(
     }
     function.signature.return_type = return_type;
     Ok(())
+}
+
+#[cfg(test)]
+mod test_fixtures {
+    use super::*;
+
+    impl ReadyFunctionDraftSealV1 {
+        pub(in crate::mir::builder::resolved_lowering) fn new(
+            completion: ReadyFunctionCompletionV1,
+            current_block: BasicBlockId,
+        ) -> Self {
+            Self {
+                completion,
+                current_block,
+                checked_callout_census: None,
+            }
+        }
+    }
 }

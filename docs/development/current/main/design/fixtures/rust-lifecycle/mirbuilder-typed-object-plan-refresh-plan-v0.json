@@ -3,7 +3,7 @@
   "kind": "MirBuilderTypedObjectPlanRefreshPlanV1",
   "subject": "MirBuilder::finalize_module typed object plan refresh",
   "source_authority": {
-    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module_with_root_validation",
     "refresh_entrypoint": "src/mir/typed_object_plan.rs::refresh_module_typed_object_plans",
     "predecessor_plan": "mirbuilder-record-packed-layout-refresh-plan-v0.json"
   },
@@ -16,27 +16,31 @@
     "finalize_module": [
       {
         "marker": "crate::mir::semantic_refresh::refresh_module_record_and_packed_layout_plans(&mut module);",
-        "byte_offset": 10520
+        "byte_offset": 8743
       },
       {
-        "marker": "crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module);",
-        "byte_offset": 10618
+        "marker": "crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module)?;",
+        "byte_offset": 8841
       },
       {
         "marker": "crate::mir::direct_state_plan::refresh_module_direct_state_plans(&mut module);",
-        "byte_offset": 10705
+        "byte_offset": 8929
       }
     ],
     "refresh_entrypoint": [
       {
-        "marker": "module.metadata.typed_object_plans = build_typed_object_plans(module);",
+        "marker": "storage_inference::refresh(module)",
         "byte_offset": 5
       }
     ],
     "build_entrypoint": [
       {
-        "marker": "storage_inference::build_typed_object_plans(module)",
+        "marker": "let (canonical, projection) = prepare_layouts(module)?;",
         "byte_offset": 5
+      },
+      {
+        "marker": "module.metadata.typed_object_plans = projection;",
+        "byte_offset": 123
       }
     ]
   },
@@ -44,8 +48,8 @@
     "entrypoint": "refresh_module_typed_object_plans",
     "timing": "AfterRecordPackedLayoutRefreshBeforeDirectStateRefresh",
     "operation": "AssignTypedObjectPlans",
-    "source": "build_typed_object_plans(module)",
-    "build_provider": "storage_inference::build_typed_object_plans",
+    "source": "projection",
+    "build_provider": "storage_inference::prepare_layouts",
     "target": "module.metadata.typed_object_plans",
     "module_arg": "&mut MirModule"
   },

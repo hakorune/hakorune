@@ -126,12 +126,12 @@ fn absent_and_explicit_empty_else_are_distinct_typed_ports() {
         absent.rows()[0].else_port(),
         ResolvedIfElsePortV1::ImplicitIdentity
     );
-    assert!(absent.rows()[0].regions().else_pair().is_none());
+    assert!(absent.rows()[0].regions.else_pair().is_none());
     assert_eq!(
         explicit.rows()[0].else_port(),
         ResolvedIfElsePortV1::Explicit(ResolvedIfFallthroughPortV1::verified())
     );
-    assert!(explicit.rows()[0].regions().else_pair().is_some());
+    assert!(explicit.rows()[0].regions.else_pair().is_some());
     assert_eq!(
         explicit.rows()[0].coverage_preorder().len(),
         absent.rows()[0].coverage_preorder().len() + 1,

@@ -516,13 +516,6 @@ impl LocalSsaPhysicalIndexV1 {
             && self.scalar_appends.is_empty()
             && self.phis.is_empty()
     }
-    pub(in crate::mir::builder) fn clear(&mut self) {
-        self.rows.clear();
-        self.scalar_loans.clear();
-        self.scalar_appends.clear();
-        self.phis.clear();
-    }
-
     pub(in crate::mir::builder) fn loan(
         &mut self,
         function: &MirFunction,

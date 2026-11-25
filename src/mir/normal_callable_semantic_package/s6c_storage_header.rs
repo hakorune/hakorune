@@ -36,27 +36,12 @@ impl VerifiedS6CStorageHeaderProjectionV1 {
         }
     }
 
-    pub(crate) fn key(&self) -> &CanonicalSameModuleCallableKeyV1 {
-        &self.key
-    }
-
     pub(crate) fn params(&self) -> &[String] {
         &self.params
-    }
-
-    pub(crate) fn param_decls(&self) -> &[ParamDecl] {
-        &self.param_decls
     }
 
     pub(crate) fn return_type_name(&self) -> Option<&str> {
         self.return_type_name.as_deref()
     }
 
-    pub(crate) fn uses(&self) -> &[String] {
-        &self.uses
-    }
-
-    pub(crate) fn attrs(&self) -> &DeclarationAttrs {
-        &self.attrs
-    }
 }

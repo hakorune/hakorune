@@ -345,7 +345,7 @@ fn body_only_rebind_moves_with_ready_remainder_and_source_evidence() {
     assert_eq!(product.body_only_rows().len(), 1);
     let row = &product.body_only_rows()[0];
     assert_eq!(row.binding(), outside);
-    assert_eq!(row.kind(), CallableLoopOutsideKindV1::BodyOnlyRebind);
+    assert_eq!(row.kind, CallableLoopOutsideKindV1::BodyOnlyRebind);
     assert_eq!(row.receipts().len(), 2);
     assert_eq!(row.receipts()[0].binding(), outside);
     assert_eq!(row.receipts()[1].binding(), outside);
@@ -355,7 +355,7 @@ fn body_only_rebind_moves_with_ready_remainder_and_source_evidence() {
     assert!(row.receipts().iter().any(|receipt| {
         receipt.site() == &outside_rebind && receipt.role() == CallableLoopBindingRoleV1::BodyRebind
     }));
-    assert_eq!(row.kind(), CallableLoopOutsideKindV1::BodyOnlyRebind);
+    assert_eq!(row.kind, CallableLoopOutsideKindV1::BodyOnlyRebind);
 }
 
 #[test]
@@ -403,7 +403,7 @@ fn write_only_rebind_moves_with_ready_remainder_as_body_only_row() {
     assert_eq!(product.body_only_rows().len(), 1);
     let row = &product.body_only_rows()[0];
     assert_eq!(row.binding(), write_only);
-    assert_eq!(row.kind(), CallableLoopOutsideKindV1::BodyOnlyRebind);
+    assert_eq!(row.kind, CallableLoopOutsideKindV1::BodyOnlyRebind);
     assert_eq!(row.receipts().len(), 1);
     assert_eq!(row.receipts()[0].site(), &write_only_rebind);
     assert_eq!(
@@ -515,7 +515,7 @@ fn production_esc_json_keeps_body_only_rebinds_in_one_source_product() {
     assert!(product
         .body_only_rows()
         .iter()
-        .all(|row| { matches!(row.kind(), CallableLoopOutsideKindV1::BodyOnlyRebind) }));
+        .all(|row| { matches!(row.kind, CallableLoopOutsideKindV1::BodyOnlyRebind) }));
     assert!(
         product
             .body_only_rows()
