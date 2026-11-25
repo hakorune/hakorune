@@ -13,6 +13,8 @@ Related:
 
 > **注意(2026-11-17、メンテナ決定):** この文書の、loop の形や家族の見分けは、**診断と最適化のため**の物である。source を受け付けるかは決めない([MirBuilder の設計図](mirbuilder-blueprint.md) 7 節)。
 
+> **2026-11-25:** 五つの family を組み合わせる test 専用の window と selector は退役した。以下のその部分は当時の記録。本番 Generic G0 は `generic_g0_capability.rs::probe_generic_g0_function_v1` の単独 observation と resolver lease を使う。
+
 ## Decision
 
 `LOOP-FAMILY-DIRECT-OBSERVATION-S1` is accepted as a caller-zero observation

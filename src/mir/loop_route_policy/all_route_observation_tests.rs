@@ -1,10 +1,7 @@
-use super::family_admission_tests::{all_declined, candidate_fixture, fixture};
 use super::{
-    assemble_loop_family_admission_window_v1, issue_all_route_observation_set_v1,
-    issue_whole_unit_loop_coverage_proof_v1, select_canonical_loop_family_v1,
-    CanonicalLoopFamilySelectionOutcomeV1, CanonicalLoopFamilySelectionReasonV1,
-    LoopAllRouteObservationRowV1, LoopAllRouteObservationSetRejectV1,
-    LoopFamilyAdmissionAssemblyOutcomeV1, LoopRouteObservationOutcomeV1,
+    generic_g0_source_unit_for_test, issue_all_route_observation_set_v1,
+    issue_whole_unit_loop_coverage_proof_v1, LoopAllRouteObservationRowV1,
+    LoopAllRouteObservationSetRejectV1, LoopRouteObservationOutcomeV1,
     LoopRoutePolicySourceDeclineReasonV1, LoopRouteRecipeBackingV1,
     VerifiedLoopAllRouteObservationSetV1, WholeUnitLoopCoverageProofV1,
     CANONICAL_LOOP_ROUTE_ORDER_V1,
@@ -178,99 +175,17 @@ fn second_backed_row_is_a_typed_reject() {
 
 #[test]
 fn coverage_proof_binds_the_lease_identity() {
-    let (lease, _identity) = fixture();
+    let unit = generic_g0_source_unit_for_test();
+    let input = unit.root_function_input().expect("root input");
+    let body = input.source().root_body().expect("root body");
+    let root_loop = input.source().body_stmt(&body, 0).expect("root loop");
+    let lease = input
+        .function()
+        .issue_loop_family_window_lease_v1(root_loop.site())
+        .expect("resolver lease");
     let proof = coverage(&lease, seal(all_declined_rows()));
     assert!(proof.matches_lease(&lease));
     assert!(!proof.matches_lease(&foreign_lease()));
     assert_eq!(proof.owner(), lease.owner());
     assert!(proof.observation_set().all_pre_effect_declined());
-}
-
-#[test]
-fn no_candidate_opens_only_with_all_declined_coverage() {
-    let (lease, identity) = fixture();
-    let proof = coverage(&lease, seal(all_declined_rows()));
-    let window = match assemble_loop_family_admission_window_v1(lease, all_declined(&identity)) {
-        LoopFamilyAdmissionAssemblyOutcomeV1::Ready(window) => window,
-        _ => panic!("five declined rows must be ready for selector"),
-    };
-    match select_canonical_loop_family_v1(window, proof) {
-        CanonicalLoopFamilySelectionOutcomeV1::NoCandidate(proof) => {
-            assert!(proof.observation_set().all_pre_effect_declined());
-        }
-        _ => panic!("all-declined window plus all-declined coverage must be NoCandidate"),
-    }
-}
-
-#[test]
-fn backed_set_without_window_candidate_rejects_as_contradiction() {
-    let (lease, identity) = fixture();
-    let proof = coverage(
-        &lease,
-        seal(rows_with_backed(
-            LoopRouteId::AccumConstLoop,
-            LoopRouteRecipeBackingV1::PortableProducer(LoopRecipeProducerIdV1::DirectAccumV1),
-        )),
-    );
-    let window = match assemble_loop_family_admission_window_v1(lease, all_declined(&identity)) {
-        LoopFamilyAdmissionAssemblyOutcomeV1::Ready(window) => window,
-        _ => panic!("five declined rows must be ready for selector"),
-    };
-    match select_canonical_loop_family_v1(window, proof) {
-        CanonicalLoopFamilySelectionOutcomeV1::Rejected(failure) => {
-            assert_eq!(
-                failure.reason(),
-                CanonicalLoopFamilySelectionReasonV1::CoverageBackedWithoutCandidate
-            );
-        }
-        _ => panic!("backed coverage without a window candidate must reject"),
-    }
-}
-
-#[test]
-fn foreign_coverage_identity_rejects() {
-    let (lease, identity, candidate) = candidate_fixture();
-    let foreign_lease = foreign_lease();
-    let proof = coverage(&foreign_lease, seal(all_declined_rows()));
-    let mut rows = all_declined(&identity).into_vec();
-    rows[2] = candidate;
-    let window = match assemble_loop_family_admission_window_v1(lease, rows.into_boxed_slice()) {
-        LoopFamilyAdmissionAssemblyOutcomeV1::Ready(window) => window,
-        _ => panic!("one candidate plus four declines must be ready"),
-    };
-    match select_canonical_loop_family_v1(window, proof) {
-        CanonicalLoopFamilySelectionOutcomeV1::Rejected(failure) => {
-            assert_eq!(
-                failure.reason(),
-                CanonicalLoopFamilySelectionReasonV1::CoverageIdentityMismatch
-            );
-        }
-        _ => panic!("foreign coverage identity must reject"),
-    }
-}
-
-#[test]
-fn selected_window_retains_the_coverage_proof() {
-    let (lease, identity, candidate) = candidate_fixture();
-    let proof = coverage(
-        &lease,
-        seal(rows_with_backed(
-            LoopRouteId::AccumConstLoop,
-            LoopRouteRecipeBackingV1::PortableProducer(LoopRecipeProducerIdV1::DirectAccumV1),
-        )),
-    );
-    let owner = identity.owner;
-    let mut rows = all_declined(&identity).into_vec();
-    rows[2] = candidate;
-    let window = match assemble_loop_family_admission_window_v1(lease, rows.into_boxed_slice()) {
-        LoopFamilyAdmissionAssemblyOutcomeV1::Ready(window) => window,
-        _ => panic!("one candidate plus four declines must be ready"),
-    };
-    match select_canonical_loop_family_v1(window, proof) {
-        CanonicalLoopFamilySelectionOutcomeV1::Selected(selection) => {
-            assert!(selection.unit_coverage().matches_lease(selection.lease()));
-            assert_eq!(selection.unit_coverage().owner(), owner);
-        }
-        _ => panic!("one candidate must be selected"),
-    }
 }

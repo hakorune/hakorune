@@ -1,22 +1,13 @@
-//! Caller-zero Generic G0 demand product.
-//!
-//! This seam consumes the canonical family selection exactly once.
-//! It retains the resolver window, the handoff brand, the typed source bundle,
-//! post-loop completion read, and the common admission context.  It does not
-//! issue Recipe keys, relations, JoinSig, After, Builder, or MIR products.
+//! Generic G0 demand from one policy-checked observation and its resolver lease.
 
 use crate::mir::loop_route_policy::{
-    CanonicalLoopFamilySelectionV1, GenericG0CoverageV1, GenericG0ObservationEvidenceV1,
-    GenericG0PolicyContextV1, GenericG0PolicyModeV1, GenericG0PolicyProfileV1,
-    LoopFamilyAdmissionCoverageV1, LoopFamilyAdmissionModeV1, LoopFamilyTagV1,
+    GenericG0CoverageV1, GenericG0PolicyContextV1, GenericG0PolicyModeV1, GenericG0PolicyProfileV1,
+    LoopFamilyAdmissionCoverageV1, LoopFamilyAdmissionModeV1,
     VerifiedGenericFamilyObservationG0,
 };
 use crate::mir::loop_structural_facts::generic_g0::{
     GenericG0SourceBrandV1, VerifiedGenericG0PolicyHandoffV1, VerifiedGenericG0PostLoopReadV1,
     VerifiedGenericTypedSourceBundleG0,
-};
-use crate::mir::loop_structural_facts::{
-    GenericG0ObservationCoverageV1, GenericG0ObservationModeV1,
 };
 use crate::mir::resolved_semantics::VerifiedLoopFamilyWindowLeaseV1;
 
@@ -36,10 +27,6 @@ struct GenericG0RoleLeaseSealV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum GenericG0RecipeDemandIssueV1 {
-    SelectedOtherFamily(LoopFamilyTagV1),
-    EvidenceIdentityMismatch,
-    EvidenceModeMismatch,
-    EvidenceCoverageMismatch,
     PolicyOwnerMismatch,
     PolicyProfileMismatch,
     PolicyModeMismatch,
@@ -90,24 +77,6 @@ impl VerifiedGenericRecipeDemandG0 {
     }
 }
 
-pub(crate) fn issue_generic_g0_recipe_demand_v1(
-    selection: CanonicalLoopFamilySelectionV1,
-) -> Result<VerifiedGenericRecipeDemandG0, GenericG0RecipeDemandIssueV1> {
-    let (window_lease, mode, coverage, candidate, _unit_coverage) = selection.into_parts();
-    let candidate = candidate
-        .into_generic_g0()
-        .map_err(|candidate| GenericG0RecipeDemandIssueV1::SelectedOtherFamily(candidate.tag()))?;
-    let (observation, evidence) = candidate.into_parts();
-    verify_evidence(&evidence, &window_lease, mode, coverage)?;
-
-    let (handoff, policy_context) = observation.into_parts();
-    issue_generic_g0_recipe_demand_from_parts(window_lease, mode, coverage, handoff, policy_context)
-}
-
-/// Production G0 ingress for the source-backed issuer.  Unlike the legacy
-/// caller-zero selector path, this consumes the already policy-checked
-/// observation and its resolver lease directly; no synthetic five-row window
-/// or selector evidence is created.
 pub(crate) fn issue_generic_g0_recipe_demand_from_observation_v1(
     observation: VerifiedGenericFamilyObservationG0,
     window_lease: VerifiedLoopFamilyWindowLeaseV1,
@@ -147,34 +116,6 @@ fn issue_generic_g0_recipe_demand_from_parts(
     })
 }
 
-fn verify_evidence(
-    evidence: &GenericG0ObservationEvidenceV1,
-    lease: &VerifiedLoopFamilyWindowLeaseV1,
-    mode: LoopFamilyAdmissionModeV1,
-    coverage: LoopFamilyAdmissionCoverageV1,
-) -> Result<(), GenericG0RecipeDemandIssueV1> {
-    if !identity_matches_lease(evidence.expected().identity(), lease)
-        || !identity_matches_lease(evidence.observed_identity(), lease)
-    {
-        return Err(GenericG0RecipeDemandIssueV1::EvidenceIdentityMismatch);
-    }
-    let Some(expected_mode) = evidence.expected().mode() else {
-        return Err(GenericG0RecipeDemandIssueV1::EvidenceModeMismatch);
-    };
-    let Some(observed_mode) = evidence.observed_mode() else {
-        return Err(GenericG0RecipeDemandIssueV1::EvidenceModeMismatch);
-    };
-    if map_observation_mode(expected_mode) != mode || map_observation_mode(observed_mode) != mode {
-        return Err(GenericG0RecipeDemandIssueV1::EvidenceModeMismatch);
-    }
-    if map_observation_coverage(evidence.expected().coverage()) != coverage
-        || map_observation_coverage(evidence.observed_coverage()) != coverage
-    {
-        return Err(GenericG0RecipeDemandIssueV1::EvidenceCoverageMismatch);
-    }
-    Ok(())
-}
-
 fn verify_policy_context(
     context: &GenericG0PolicyContextV1,
     lease: &VerifiedLoopFamilyWindowLeaseV1,
@@ -194,36 +135,6 @@ fn verify_policy_context(
         return Err(GenericG0RecipeDemandIssueV1::PolicyCoverageMismatch);
     }
     Ok(())
-}
-
-fn identity_matches_lease(
-    identity: &crate::mir::loop_structural_facts::GenericG0SourceIdentityV1,
-    lease: &VerifiedLoopFamilyWindowLeaseV1,
-) -> bool {
-    identity.owner() == lease.owner()
-        && identity.function_origin() == lease.function_origin()
-        && identity.source_kind() == lease.source_kind()
-        && identity.site() == lease.site()
-        && identity.frame().matches(&lease.frame())
-}
-
-fn map_observation_mode(mode: GenericG0ObservationModeV1) -> LoopFamilyAdmissionModeV1 {
-    match mode {
-        GenericG0ObservationModeV1::Release => LoopFamilyAdmissionModeV1::Release,
-        GenericG0ObservationModeV1::Strict => LoopFamilyAdmissionModeV1::Strict,
-        GenericG0ObservationModeV1::StrictPlannerRequired => {
-            LoopFamilyAdmissionModeV1::StrictPlannerRequired
-        }
-    }
-}
-
-fn map_observation_coverage(
-    coverage: GenericG0ObservationCoverageV1,
-) -> LoopFamilyAdmissionCoverageV1 {
-    match coverage {
-        GenericG0ObservationCoverageV1::Complete => LoopFamilyAdmissionCoverageV1::Complete,
-        GenericG0ObservationCoverageV1::Incomplete => LoopFamilyAdmissionCoverageV1::Incomplete,
-    }
 }
 
 fn map_policy_mode(mode: GenericG0PolicyModeV1) -> LoopFamilyAdmissionModeV1 {

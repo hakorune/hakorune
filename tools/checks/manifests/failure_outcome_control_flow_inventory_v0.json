@@ -18061,18 +18061,6 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/control_flow/plan/loop_accum_physicalizer_tests.rs:204:mir_return",
-      "evidence": ".all(|instruction| !matches!(instruction, crate::mir::MirInstruction::Return { .. })));",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 204,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/control_flow/plan/loop_accum_physicalizer_tests.rs",
-      "token": "mir_return"
-    },
-    {
       "control_flow_evidence_id": "control.return_unit.src/mir/builder/control_flow/plan/loop_cond/break_continue_classify.rs:149:mir_return",
       "evidence": "ASTNode::Break { .. } | ASTNode::Continue { .. } | ASTNode::Return { .. } => {",
       "evidence_kind": "mir_return",

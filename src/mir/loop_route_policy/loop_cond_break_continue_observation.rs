@@ -176,9 +176,6 @@ impl LoopCondFamilyObservationV1 {
         }
     }
 
-    pub(crate) fn into_admission_row(self) -> super::family_admission::LoopFamilyObservationRowV1 {
-        super::family_admission::LoopFamilyObservationRowV1::LoopCond(self)
-    }
 }
 
 pub(crate) fn issue_loop_cond_family_observation_v1(

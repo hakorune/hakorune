@@ -26,14 +26,10 @@ use crate::mir::compiler::generic_g0_physical_operation_mapping::{
     issue_generic_g0_physical_operation_mapping_from_program_v1,
     GenericG0PhysicalOperationMappingRejectV1, GenericG0PhysicalOperationMappingV1,
 };
-use crate::mir::compiler::generic_g0_source_parent::{
-    issue_generic_g0_source_parent_v1, GenericG0SourceParentRejectV1,
-};
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
 use crate::mir::loop_recipe_contract::{
     LoopPhysicalLayoutRejectV1, PreparedLoopPhysicalLayoutV1, VerifiedGenericG0TailCapabilityV1,
 };
-use crate::mir::loop_route_policy::CanonicalLoopFamilySelectionV1;
 use crate::mir::numeric_substrate::NumericTarget;
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1;
@@ -52,7 +48,6 @@ const GENERIC_G0_PHYSICAL_LAYOUT_REVISION_V1: u16 = 1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum GenericG0PhysicalEmitterAdmissionRejectV1 {
-    SourceParent(GenericG0SourceParentRejectV1),
     Entry(GenericG0PhysicalFunctionEntryRejectV1),
     Effect(GenericG0PhysicalFunctionEffectRejectV1),
     Shell(GenericG0PhysicalShellFactsRejectV1),
@@ -285,16 +280,6 @@ impl<'source> PreparedGenericG0PhysicalEmitterAdmissionV1<'source> {
             mapping,
         ))
     }
-}
-
-pub(crate) fn issue_generic_g0_physical_emitter_admission_v1<'source>(
-    input: ResolvedFunctionLoweringInputV1<'source>,
-    selection: CanonicalLoopFamilySelectionV1,
-) -> Result<PreparedGenericG0PhysicalEmitterAdmissionV1<'source>, GenericG0PhysicalEmitterAdmissionRejectV1>
-{
-    let parent = issue_generic_g0_source_parent_v1(input, selection)
-        .map_err(GenericG0PhysicalEmitterAdmissionRejectV1::SourceParent)?;
-    issue_generic_g0_physical_emitter_admission_from_source_parent_v1(parent)
 }
 
 pub(crate) fn issue_generic_g0_physical_emitter_admission_from_source_parent_v1<'source>(

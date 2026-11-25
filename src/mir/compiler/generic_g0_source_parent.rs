@@ -1,14 +1,14 @@
 //! Production Generic G0 source-parent issuer.
 //!
 //! This is the first fast-row seam after the design-only source-cohort stop.
-//! It consumes one resolver input and one canonical family selection, issues
-//! the Generic demand/Recipe product exactly once, and lends only a
+//! It consumes the observation and resolver lease for one function, issues
+//! the Generic demand/Recipe product exactly once, and lends a
 //! callback-scoped typed view.  It does not create physical IDs, a Builder,
 //! session state, CFG, or a route decision.
 
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
 use crate::mir::loop_recipe_contract::{
-    issue_generic_g0_recipe_demand_from_observation_v1, issue_generic_g0_recipe_demand_v1,
+    issue_generic_g0_recipe_demand_from_observation_v1,
     produce_generic_g0_recipe_v1,
     GenericG0RecipeDemandIssueV1, GenericG0RecipeProducerRejectV1, LoopBindingKeyV1,
     LoopValueClassV1, LoopValueKeyV1, VerifiedGenericRecipeProductG0,
@@ -22,7 +22,7 @@ use super::generic_g0_function_effect::{
     VerifiedGenericG0NoExternalEffectV1,
 };
 use super::generic_g0_result_abi::{
-    issue_generic_g0_result_abi_transport_v1, GenericG0ResultAbiRejectV1,
+    GenericG0ResultAbiRejectV1,
     VerifiedGenericG0ResultAbiV1,
 };
 use super::generic_g0_storage_lane_source::{
@@ -34,9 +34,6 @@ use super::generic_g0_top_level_declaration_header::{
     issue_generic_g0_top_level_declaration_header_v1,
     GenericG0TopLevelDeclarationHeaderRejectV1,
     VerifiedGenericG0TopLevelDeclarationHeaderV1,
-};
-use crate::mir::loop_route_policy::{
-    CanonicalLoopFamilyCandidateV1, CanonicalLoopFamilySelectionV1,
 };
 use crate::mir::loop_structural_facts::generic_g0::{
     VerifiedGenericStructuralFactsG0,
@@ -66,7 +63,6 @@ pub(crate) enum GenericG0SourceParentRejectV1 {
     SelectionSiteMismatch,
     SelectionFrameMismatch,
     SelectionScopeRegionMismatch,
-    SelectionFamilyMismatch,
     SelectionForestMismatch,
     LoopSiteNotUnique,
     LoopForestUnavailable,
@@ -290,69 +286,6 @@ impl<'loan, 'source> GenericG0SourceParentRefV1<'loan, 'source> {
     }
 }
 
-pub(super) fn issue_generic_g0_source_parent_v1<'source>(
-    input: ResolvedFunctionLoweringInputV1<'source>,
-    selection: CanonicalLoopFamilySelectionV1,
-)-> Result<VerifiedGenericG0SourceParentV1<'source>, GenericG0SourceParentRejectV1> {
-    validate_selection_input(&input, &selection)?;
-    let body_shape = input
-        .body_shape()
-        .ok_or(GenericG0SourceParentRejectV1::BodyShapeMissing)?;
-    validate_body_shape_input(&input, body_shape)?;
-    let declaration_header = issue_generic_g0_top_level_declaration_header_v1(&input)
-        .map_err(GenericG0SourceParentRejectV1::DeclarationHeader)?;
-    let structural = match selection.candidate() {
-        CanonicalLoopFamilyCandidateV1::GenericG0(candidate) => candidate
-            .observation()
-            .handoff()
-            .bundle()
-            .source()
-            .structural(),
-        _ => return Err(GenericG0SourceParentRejectV1::SelectionFamilyMismatch),
-    };
-    let result_abi = issue_generic_g0_result_abi_transport_v1(
-        &input,
-        &selection,
-        &declaration_header,
-    )
-    .map_err(GenericG0SourceParentRejectV1::ResultAbi)?;
-    let completion = issue_generic_g0_completion_transport_v1(input, &result_abi)
-        .map_err(GenericG0SourceParentRejectV1::Completion)?;
-    let function_effect = issue_generic_g0_no_external_effect_v1(
-        &input,
-        body_shape,
-        &declaration_header,
-        structural,
-    )
-    .map_err(GenericG0SourceParentRejectV1::FunctionEffect)?;
-    let demand = issue_generic_g0_recipe_demand_v1(selection)
-        .map_err(GenericG0SourceParentRejectV1::Demand)?;
-    let product = produce_generic_g0_recipe_v1(demand)
-        .map_err(GenericG0SourceParentRejectV1::Product)?;
-    validate_product_input(&input, &product)?;
-    let entries = issue_entry_rows(&input, &product)?;
-    let storage_lane = issue_generic_g0_storage_lane_source_projection_v1(
-        &input,
-        &product,
-        &declaration_header,
-        body_shape,
-        &entries,
-    )
-    .map_err(GenericG0SourceParentRejectV1::StorageLane)?;
-    let parent = VerifiedGenericG0SourceParentV1 {
-        input,
-        product,
-        entries,
-        body_shape,
-        declaration_header,
-        function_effect,
-        result_abi,
-        storage_lane,
-        completion,
-    };
-    Ok(parent)
-}
-
 pub(super) fn issue_generic_g0_source_parent_from_observation_v1<'source>(
     input: ResolvedFunctionLoweringInputV1<'source>,
     observation: VerifiedGenericFamilyObservationG0,
@@ -409,15 +342,6 @@ pub(super) fn issue_generic_g0_source_parent_from_observation_v1<'source>(
     })
 }
 
-pub(crate) fn with_generic_g0_source_parent_v1<'source, R>(
-    input: ResolvedFunctionLoweringInputV1<'source>,
-    selection: CanonicalLoopFamilySelectionV1,
-    callback: impl for<'loan> FnOnce(GenericG0SourceParentRefV1<'loan, 'source>) -> R,
-) -> Result<R, GenericG0SourceParentRejectV1> {
-    let parent = issue_generic_g0_source_parent_v1(input, selection)?;
-    Ok(callback(GenericG0SourceParentRefV1 { parent: &parent }))
-}
-
 fn validate_body_shape_input(
     input: &ResolvedFunctionLoweringInputV1<'_>,
     body_shape: &VerifiedResolvedBodyShapeInventoryV1,
@@ -429,23 +353,6 @@ fn validate_body_shape_input(
         return Err(GenericG0SourceParentRejectV1::BodyShapeRootMismatch);
     }
     Ok(())
-}
-
-fn validate_selection_input(
-    input: &ResolvedFunctionLoweringInputV1<'_>,
-    selection: &CanonicalLoopFamilySelectionV1,
-) -> Result<(), GenericG0SourceParentRejectV1> {
-    let lease = selection.lease();
-    let CanonicalLoopFamilyCandidateV1::GenericG0(candidate) = selection.candidate() else {
-        return Err(GenericG0SourceParentRejectV1::SelectionFamilyMismatch);
-    };
-    let structural = candidate
-        .observation()
-        .handoff()
-        .bundle()
-        .source()
-        .structural();
-    validate_source_context(input, lease, structural)
 }
 
 fn validate_source_context(

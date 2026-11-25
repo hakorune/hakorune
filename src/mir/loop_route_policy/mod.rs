@@ -8,16 +8,6 @@ mod direct_accum_observation;
 #[cfg(test)]
 mod direct_accum_observation_tests;
 mod family_admission;
-#[cfg(test)]
-mod family_admission_tests;
-mod family_selector;
-#[cfg(test)]
-mod family_selector_tests;
-
-#[cfg(test)]
-pub(crate) use family_selector_tests::{
-    generic_selection_for_test, generic_source_unit_and_selection_for_test,
-};
 mod generic_g0;
 mod generic_g0_observation;
 #[cfg(test)]
@@ -62,19 +52,7 @@ pub(crate) use loop_cond_break_continue::{
     issue_loop_cond_break_continue_policy_demand_v1,
     VerifiedLoopCondBreakContinuePolicyDemandV1, VerifiedLoopCondBreakContinuePolicyReceiptV1,
 };
-pub(crate) use family_admission::{
-    assemble_loop_family_admission_window_v1, LoopFamilyAdmissionAssemblyOutcomeV1,
-    LoopFamilyAdmissionFailureEvidenceV1, LoopFamilyAdmissionIssueV1, LoopFamilyObservationRowV1,
-    VerifiedLoopFamilyAdmissionRowsV1, VerifiedLoopFamilyAdmissionWindowV1,
-};
-pub(crate) use family_admission::{
-    LoopFamilyAdmissionCoverageV1, LoopFamilyAdmissionModeV1, LoopFamilyTagV1,
-};
-pub(crate) use family_selector::{
-    select_canonical_loop_family_v1, CanonicalLoopFamilySelectionFailureV1,
-    CanonicalLoopFamilySelectionOutcomeV1, CanonicalLoopFamilySelectionReasonV1,
-};
-pub(crate) use family_selector::{CanonicalLoopFamilyCandidateV1, CanonicalLoopFamilySelectionV1};
+pub(crate) use family_admission::{LoopFamilyAdmissionCoverageV1, LoopFamilyAdmissionModeV1};
 pub(crate) use generic_g0::{
     issue_generic_g0_candidate_v1, GenericG0CoverageV1, GenericG0PolicyContextV1,
     GenericG0PolicyModeV1, GenericG0PolicyOutcomeV1, GenericG0PolicyProfileV1,

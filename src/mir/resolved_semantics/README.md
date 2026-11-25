@@ -1278,15 +1278,10 @@ identity authority, and no selector, Recipe/key, Builder/MIR caller, or route
 policy is issued here. D4-S3-D0 is a docs-only decision for the neutral
 observation set and `mir::loop_route_policy` authority.
 
-D4-S3 closes that design boundary. The canonical
-`VerifiedLoopFamilyAdmissionWindowV1` must retain the resolver-issued lease
-itself (owner brand plus origin/source-kind/site/frame), not expose
-independently constructible coordinates. The route-policy assembler co-seals
-one common mode, complete coverage, and five family-tagged typed dispositions.
-This resolver remains the source/identity issuer; it does not select a family
-or issue a Recipe key. The D4-S3-S0 witness is private and test-only, and the live
-DirectAccum/NestedPredicate resolved lanes remain separate from the
-caller-zero Generic selector path.
+D4-S3 describes the retired multi-family test assembly. The resolver still
+issues the single owned lease with owner, origin, source kind, site and frame.
+The Generic G0 demand consumes that lease with the checked observation.
+Mode and coverage travel with the observation; the resolver supplies identity.
 
 D4-S3-S0 is closed as a private `cfg(test)` witness in the MIR source-window
 seam. It consumes one resolver-issued non-`Clone` receipt per set and checks

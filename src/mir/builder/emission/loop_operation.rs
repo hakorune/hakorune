@@ -1,30 +1,11 @@
-//! AST-free operation facade for the first Loop physicalizer.
+//! Typed integer operation emission for scheduled Loop blocks.
 //!
 //! This is a thin typed bridge over existing MIR emission. It owns no route,
 //! recipe, CFG, SSA, PHI, or publication policy.
 
-use crate::mir::builder::emission::{compare, constant};
+use crate::mir::builder::emission::compare;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BinaryOp, CompareOp, MirInstruction, MirType, ValueId};
-
-pub(in crate::mir::builder) fn emit_const_i64(
-    builder: &mut MirBuilder,
-    value: i64,
-) -> Result<ValueId, String> {
-    require_current_block(builder)?;
-    let dst = constant::emit_integer(builder, value)?;
-    publish_i64_value(builder, dst)?;
-    Ok(dst)
-}
-
-pub(in crate::mir::builder) fn emit_add_i64(
-    builder: &mut MirBuilder,
-    lhs: ValueId,
-    rhs: ValueId,
-) -> Result<ValueId, String> {
-    let block = require_current_block(builder)?;
-    emit_add_i64_at(builder, block, lhs, rhs)
-}
 
 pub(in crate::mir::builder) fn emit_add_i64_at(
     builder: &mut MirBuilder,
@@ -67,24 +48,6 @@ pub(in crate::mir::builder) fn emit_sub_i64_at(
     rhs: ValueId,
 ) -> Result<ValueId, String> {
     emit_binary_i64_at(builder, block, BinaryOp::Sub, lhs, rhs)
-}
-
-pub(in crate::mir::builder) fn emit_less_i64(
-    builder: &mut MirBuilder,
-    lhs: ValueId,
-    rhs: ValueId,
-) -> Result<ValueId, String> {
-    emit_compare_i64(builder, CompareOp::Lt, lhs, rhs)
-}
-
-pub(in crate::mir::builder) fn emit_compare_i64(
-    builder: &mut MirBuilder,
-    op: CompareOp,
-    lhs: ValueId,
-    rhs: ValueId,
-) -> Result<ValueId, String> {
-    let block = require_current_block(builder)?;
-    emit_compare_i64_at(builder, block, op, lhs, rhs)
 }
 
 pub(in crate::mir::builder) fn emit_compare_i64_at(
@@ -130,52 +93,6 @@ fn emit_binary_i64_at(
     Ok(dst)
 }
 
-pub(in crate::mir::builder) fn publish_i64_value(
-    builder: &mut MirBuilder,
-    value: ValueId,
-) -> Result<(), String> {
-    match builder.function_state.type_ctx.get_type(value) {
-        Some(MirType::Integer) => Ok(()),
-        Some(MirType::Unknown) => {
-            builder
-                .function_state
-                .type_ctx
-                .value_types
-                .insert(value, MirType::Integer);
-            Ok(())
-        }
-        Some(other) => Err(format!(
-            "[freeze:contract][loop_operation/i64_value_type] value={value:?} type={other:?}"
-        )),
-        None => {
-            builder
-                .function_state
-                .type_ctx
-                .value_types
-                .insert(value, MirType::Integer);
-            Ok(())
-        }
-    }
-}
-
-fn require_current_block(builder: &MirBuilder) -> Result<crate::mir::BasicBlockId, String> {
-    let block = builder
-        .function_state
-        .current_block
-        .ok_or_else(|| "[freeze:contract][loop_operation/current_block_missing]".to_string())?;
-    let function = builder
-        .function_state
-        .current_function
-        .as_ref()
-        .ok_or_else(|| "[freeze:contract][loop_operation/current_function_missing]".to_string())?;
-    if function.get_block(block).is_none() {
-        return Err(format!(
-            "[freeze:contract][loop_operation/current_block_not_in_function] block={block:?}"
-        ));
-    }
-    Ok(block)
-}
-
 fn require_i64_operands_at(
     builder: &MirBuilder,
     block: crate::mir::BasicBlockId,
@@ -205,6 +122,7 @@ fn require_i64_operands_at(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::builder::emission::constant;
     use crate::mir::builder::MirBuilder;
 
     #[test]

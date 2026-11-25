@@ -247,20 +247,11 @@ the private D4-S3-S0 witness now owns the observation-set transport; this layer
 must wait for D4-S3-S1 and a later design before gaining a canonical family
 consumer.
 
-D4-S3-D0 is historical schema evidence; the canonical common product is now
-`VerifiedLoopFamilyAdmissionWindowV1`, owned by the route-policy admission
-assembler rather than this facts layer. The resolver-owned prerequisite
-`VerifiedLoopFamilyWindowLeaseV1` is now landed as caller-zero S0. The lease is
-identity-only: it carries the resolver brand and source origin/kind/site/frame,
-but no mode, coverage, or row data. The route-policy assembler later co-seals
-those row-derived facts into `VerifiedLoopFamilyAdmissionWindowV1`, whose rows
-are `Candidate|Declined|Unresolved|Rejected`. Legacy `Blocked` and the old
-`VerifiedLoopFamilyObservationSetV1` witness name stay historical and must not
-become a second authority. The canonical product must not contain
-route IDs, raw cursors, AST, Recipe/key, Builder/MIR/ValueId/PHI, or retry and
-fallback state. D4-S3-S0 is now a closed private witness; only a later
-family-level selector may consume the sealed set, while A+/Trivial remain in
-the separate whole-unit stage.
+D4-S3-D0 records the earlier test-only family assembly. The current Generic
+G0 demand takes a single checked observation and the resolver's
+`VerifiedLoopFamilyWindowLeaseV1`. The lease retains source identity,
+including origin, kind, site and frame. The facts layer issues no mode,
+coverage, or downstream Recipe and physical products.
 
 D4-S3-S0 is closed without widening this facts boundary. Its six private
 sets retain only a resolver receipt, exact mode snapshot, loop-window coverage

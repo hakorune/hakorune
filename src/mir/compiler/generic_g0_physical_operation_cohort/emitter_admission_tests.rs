@@ -3,10 +3,7 @@ use super::{
     issue_generic_g0_physical_emitter_admission_with_missing_carrier_for_test,
 };
 use crate::mir::compiler::generic_g0_parent_for_test;
-use crate::mir::compiler::generic_g0_source_parent::issue_generic_g0_source_parent_from_observation_v1;
-use crate::mir::loop_route_policy::{
-    generic_g0_observation_for_test, generic_g0_source_unit_for_test,
-};
+use crate::mir::loop_route_policy::generic_g0_source_unit_for_test;
 use crate::mir::EffectMask;
 
 #[test]
@@ -58,30 +55,6 @@ fn owns_one_complete_prephysical_cohort_and_lends_mapping_scoped() {
             assert!(view.completion().returns_value());
         })
         .expect("scoped Generic mapping");
-}
-
-#[test]
-fn rejects_foreign_selection_before_admission_publication() {
-    let foreign_unit = generic_g0_source_unit_for_test();
-    let (observation, lease) = generic_g0_observation_for_test(&foreign_unit);
-    let unit = generic_g0_source_unit_for_test();
-    let input = unit.root_function_input().expect("foreign root input");
-
-    let result = issue_generic_g0_source_parent_from_observation_v1(input, observation, lease)
-        .map_err(super::GenericG0PhysicalEmitterAdmissionRejectV1::SourceParent)
-        .and_then(issue_generic_g0_physical_emitter_admission_from_source_parent_v1);
-    let error = match result {
-        Ok(_) => panic!("foreign cohort must reject"),
-        Err(error) => error,
-    };
-    assert!(matches!(
-        error,
-        super::GenericG0PhysicalEmitterAdmissionRejectV1::SourceParent(
-            crate::mir::compiler::generic_g0_source_parent::GenericG0SourceParentRejectV1::SelectionOwnerMismatch
-                | crate::mir::compiler::generic_g0_source_parent::GenericG0SourceParentRejectV1::SelectionOriginMismatch
-                | crate::mir::compiler::generic_g0_source_parent::GenericG0SourceParentRejectV1::SelectionSiteMismatch
-        )
-    ));
 }
 
 #[test]
@@ -145,7 +118,7 @@ fn admission_source_has_no_physical_state_or_legacy_adapter_surface() {
     }
     assert_eq!(
         source
-            .matches("pub(crate) fn issue_generic_g0_physical_emitter_admission_v1")
+            .matches("pub(crate) fn issue_generic_g0_physical_emitter_admission_from_source_parent_v1")
             .count(),
         1
     );

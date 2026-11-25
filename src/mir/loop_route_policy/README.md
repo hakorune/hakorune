@@ -2,30 +2,14 @@
 
 > **Read first (2026-11-17, maintainer decision):** the design of source → MIR lives in the [MirBuilder blueprint](../../../docs/development/current/main/design/mirbuilder-blueprint.md). This README describes the code as it is today and is largely a change record; do not use it as design authority. Where it says loop families, routes or recipes decide acceptance, or names a stage order other than `DeclarationTable -> Resolve -> Lower -> Seal -> Verify -> Publish`, the blueprint wins.
 
-This module owns the family observation/assembler/selector boundary plus the
-profile-specific policy admissions for Loop rows. Resolved DirectAccum,
-NestedPredicate, LoopTrue, LoopCond, and GenericG0 handoffs are live lanes.
+This module owns typed Loop profile observations and policy admissions.
+Production Generic G0 passes a single checked observation and its resolver
+lease to the Recipe demand. The family admission module retains the mode and
+coverage types carried by that demand.
 
-Authority is deliberately narrow:
-
-```text
-owned typed observations/evidence
-  -> five-family admission window
-  -> canonical family selection
-  -> profile-specific policy demand/admission (no route cursor)
-```
-
-The M12-R2C part 2 retirement removed the synthetic 19-row
-`FrozenLoopRouteScheduleV1` and the `VerifiedLoopPolicyWinnerV1` ceremony:
-family selection happens upstream in `family_selector.rs`, so the profile
-admissions seal directly from their source-side observations and carry no
-route ID, raw cursor, or winner. `CANONICAL_LOOP_ROUTE_ORDER_V1` remains only
-as all-route coverage/provenance vocabulary for `all_route_observation.rs`;
-it is not a semantic order and must not drive lowering.
-
-This module does not own or perform route predicates, winner selection, retry,
-recipe construction, AST observation, Builder mutation, composition, lowering,
-or physical ID allocation.
+`CANONICAL_LOOP_ROUTE_ORDER_V1` is the all-route coverage and provenance
+vocabulary used by `all_route_observation.rs`. Lowering takes its order from
+the source. Recipe construction and MIR emission have separate owners.
 
 M8 S6A does not add code or a selector here. Its
 `VariableAccumRecurrenceV1` producer remains a caller-zero provenance path
@@ -61,39 +45,13 @@ ambiguous `ForestShape`/`BindingLookup` evidence remains conservative
 `Unresolved` until a resolver-side split. There is no admission assembler,
 selector, Recipe/JoinSig, Builder/MIR, retry/fallback, or production caller.
 
-## Generic G0 demand S3 I0/R0
+## Generic G0 demand
 
-The test-only `loop_recipe_contract::generic_g0_demand` seam consumes the
-canonical `Selected(Generic)` product once. It validates the selected lease
-against candidate evidence and the borrowed handoff brand, then retains one
-move-only demand with the typed source bundle, post-loop tail read,
-profile/mode/coverage, and an opaque role proof. It does not select another
-family, issue Recipe/JoinSig/Core/After keys, call Builder/MIR, retry, fallback,
-or open a production caller. The worker-reviewed S4 design and caller-zero
-Recipe producer `GENERIC-G0-RECIPE-S4-I0-R0` are now closed. The producer lives
-under `loop_recipe_contract::generic_g0`; this policy module does not issue
-Recipe keys or aggregate products. The next ordered boundary is the legacy
-corpus universe P0, while production selection remains closed.
-
-S4 consumes this demand once and is the sole Generic Recipe/effect/provenance
-producer. It must call common Recipe/JoinSig/Core owners rather than re-create
-their products. Its After envelope owns the logical tail and exact return ABI;
-P0 owns executable completion/DraftSeal. This policy module does not gain a
-Recipe or physical authority.
-
-The DirectAccum pilot's live handoff is:
-
-```text
-VerifiedDirectAccumSingletonObservationV1
-  -> issue_direct_accum_route_admission_v1
-  -> VerifiedDirectAccumPolicyHandoffV1
-```
-
-The admission seals directly from the source-side singleton observation; there
-is no intermediate schedule, raw cursor, or winner evaluation. The handoff
-retains the source observation for the next Recipe stage and is
-profile-specific — it must not be mistaken for the family selector, which
-already ran upstream in the production spine.
+`issue_generic_g0_recipe_demand_from_observation_v1` consumes one
+`VerifiedGenericFamilyObservationG0` and its resolver lease. The demand keeps
+the source brand, typed bundle, post-loop read, role proof, mode and coverage.
+The Recipe producer in `loop_recipe_contract::generic_g0` consumes the demand
+and uses the shared Recipe, JoinSig and source-binding owners.
 
 ## DirectAccum S1 family observation
 
@@ -133,39 +91,6 @@ selection/admission design.
 The current LoopTrue branch cohort below is a separate legacy policy-demand
 owner and remains migration-only until common selection and physical cutover.
 
-## Common admission D0 design receipt
-
-The canonical five-row admission window is now worker-reviewed but remains
-caller-zero. Its required semantic tags are `DirectAccum`, `NestedPredicate`,
-`LoopTrueBreakContinue`, `LoopCondBreakContinue`, and `GenericG0`. A resolver-
-issued AST-free window identity brand is co-sealed with one typed
-`Candidate|Declined|Unresolved|Rejected` row per tag; legacy `Blocked` belongs
-only to the schedule evaluator. The assembler checks identity/mode/coverage
-and does not select. LoopCond S1 and Generic normalization now supply bounded
-C/D/U/R observers. FAMILY-ROW-CONTEXT-RETENTION-R0 is also landed: every
-family disposition keeps expected/observed identity, mode, and coverage
-evidence. The resolver-owned `LOOP-FAMILY-WINDOW-LEASE-ISSUER-S0` source-brand
-prerequisite is now landed in `resolved_semantics`; the next ordered cell for
-this module is the common assembler. Selector promotion remains separate.
-
-## Common admission assembler S1 receipt
-
-`LOOP-FAMILY-COMMON-ADMISSION-ASSEMBLER-S1` is landed in
-`family_admission.rs` as the sole cross-family admission owner. It consumes
-one resolver-issued, non-`Clone` `VerifiedLoopFamilyWindowLeaseV1` and an
-arbitrary-order move-only row vector, then co-seals exactly five typed family
-rows with one common mode and complete coverage. Success stores fixed
-DirectAccum, NestedPredicate, LoopTrueBreakContinue, LoopCondBreakContinue,
-and GenericG0 fields; failure stores the lease, every input row, and typed
-issues.
-
-The assembler validates identity/frame, duplicate/missing tags, mode, coverage,
-and row C/D/U/R status only. Rejected evidence dominates unresolved evidence.
-It does not reissue source, count candidates, reject semantic overlap, handle
-`OutOfWindow`, select a winner, or call Recipe/Builder/MIR. Six focused tests
-and the shared caller-zero/line guard are green. The next owner is the pure
-selector; production and legacy cutover remain closed.
-
 ## Family row context-retention R0 receipt
 
 The five caller-zero observer enums now use typed evidence-bearing variants for
@@ -202,83 +127,6 @@ At M12, migration-only schedule adapters and opaque route receipts retired:
 the synthetic 19-row schedule and winner cursor were removed, and the profile
 demands/admissions now seal directly from their upstream-selected inputs.
 
-## D4-S3 family-selection boundary
-
-D4-S3 closes the future authority. `CANONICAL_LOOP_ROUTE_ORDER_V1` remains
-migration provenance vocabulary for the all-route coverage proof only; it is
-not the canonical NestedPredicate/DirectAccum/Generic family selector and the
-19-route schedule/evaluator APIs are retired. The resolved DirectAccum and
-NestedPredicate lanes already have live family-specific handoffs, so this
-module is not globally caller-zero; the Generic resolved-carrier selector
-remains caller-zero.
-
-The next product is the separate resolver-branded, non-`Clone`
-`VerifiedLoopFamilyAdmissionWindowV1` containing one identity-only source
-lease, five canonical family rows, and assembler-owned mode/coverage seals.
-A separate `CanonicalLoopFamilySelectionV1` entrypoint will consume only an
-assembler `Ready(window)` once and return `Selected`, `Rejected(Overlap)`, or
-`Unresolved(OutOfWindow)`. It must not inspect AST/LoopRouteContext/route IDs,
-reuse raw cursors, invoke Builder or Recipe production, or retry/fallback.
-Missing/foreign/incomplete/mismatched observations are assembler failures and
-never enter the selector. `NoCandidate` requires a separate sealed whole-unit
-proof and is not an S2 outcome. D4-S3-S0 is closed as a private
-observation-set witness; selector implementation and Generic production
-cutover remain closed.
-
-D4-S3-S0 is now closed as a private witness outside this policy module. The
-test-only set owns one resolver receipt, a mode snapshot, a loop-window
-coverage seal, and unresolved family rows. D4-S3-S1 is also closed outside
-this module as nine private source-backed fixture/mode matrix sets with typed
-NoStandaloneRow/planner-freeze/reject separation; neither row calls or
-implements the future selector. The next private row is the pure selector
-consumer.
-
-The historical `#[cfg(test)]` `family_selection.rs` marker was removed in
-M12-R2C part 2 together with the synthetic schedule machinery; it was never
-the canonical selector.
-The next implementation adds a separate `family_selector.rs` consuming only
-the common assembler's Ready window. Production selector, Recipe/key,
-Builder/MIR, retry/fallback, and Generic caller remain zero until that new
-consumer is independently verified.
-The older cfg(test)-only source-lease/CarrierProof/candidate-envelope
-prototype chain was retired. The policy selector retains its current common
-window and opaque candidate contracts; it does not reconstruct source roles or
-issue Recipe keys from the removed witnesses.
-
-## Family selector S2 implementation receipt (2026-08-06)
-
-`family_selector.rs` is now the caller-zero consumer of the assembler's
-`Ready(window)` product. It consumes the window by value exactly once and
-returns only the fixed algebra:
-
-```text
-1 Candidate + 4 Declined -> Selected
-2+ Candidates            -> Rejected(Overlap)
-5 Declined               -> Unresolved(OutOfWindow)
-```
-
-The selected product retains the resolver lease, common mode/coverage, family
-tag, and typed candidate. Failure products retain the consumed lease and all
-five rows. The selector contains no source lookup, AST/resolver issuer,
-route/schedule access, Recipe/JoinSig, Builder/MIR, retry, fallback, or
-production call.
-
-Three focused selector tests cover all five candidate variants, retained
-`OutOfWindow` evidence, and overlap retention. The shared selector guard checks
-the caller-zero boundary and the <800-line source/test limit. This is a
-caller-zero semantic product only. The old cfg(test)-only candidate-envelope witness was retired; the
-`GENERIC-SELECTION-POLICY-HANDOFF-D0` design and its single I0/R0 caller-zero
-implementation are closed. The current accepted boundary is
-`GENERIC-G0-DEMAND-S3-D0` (see
-`docs/development/current/main/investigations/generic-g0-demand-s3-design-task-2026-08-07.md`):
-the selector owns one canonical window lease, the Generic handoff borrows only
-an opaque brand projection, and Demand consumes the selected Generic product
-once while retaining exact source roles. Physicalization, production cutover,
-and legacy deletion remain separate rows.
-The implementation commit updates this README, the loop SSOT, reference
-matrix, workstream, and current mirrors together as the required
-post-implementation reference receipt.
-
 ## M8 all19 closeout S6G receipt (2026-09-23)
 
 `all_route_observation.rs` seals the caller-zero whole-unit coverage products
@@ -293,24 +141,4 @@ a second backed row, an unattested backing, a missing/duplicate/out-of-order
 route, or a wrong row count is a typed reject, never a silent skip.
 `issue_whole_unit_loop_coverage_proof_v1` co-seals a complete set with the
 five lease identity fields (owner, origin, source kind, site, frame) so a
-foreign or mismatched proof fails `matches_lease` inside the selector.
-
-`select_canonical_loop_family_v1` now takes the proof as a second argument
-and the outcome algebra is closed:
-
-```text
-1 Candidate + 4 Declined            -> Selected (retains the coverage proof)
-2+ Candidates                       -> Rejected(Overlap)
-0 Candidates + all-declined proof   -> NoCandidate(proof)
-0 Candidates + backed proof         -> Rejected(CoverageBackedWithoutCandidate)
-foreign coverage identity           -> Rejected(CoverageIdentityMismatch)
-```
-
-The stale `Unresolved(OutOfWindow)` arm is removed: window input without a
-coverage proof can no longer reach the selector, so every call resolves
-through the sealed proof. `NoCandidate` is opened only here and only under a
-fully pre-effect-declined set; the selected-family/backed-route forward
-correspondence is not re-derived because no authoritative family-to-route
-map exists and inventing one would make route IDs semantic authority. The
-selector still creates no route, Recipe, Builder, MIR, or physical product
-and the production caller remains zero.
+foreign or mismatched proof fails `matches_lease`.
