@@ -11,24 +11,9 @@ use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
     FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1, VerifiedSemanticOwnerForestV1,
 };
-
-use super::canonical_finalization::CanonicalFinalizationErrorV1;
-use super::canonical_physical_completion::{
-    CanonicalDrainPrepareErrorV1, CanonicalPhysicalCompletionErrorV1,
-};
-use super::capability::ResolvedOwnerHeaderSealErrorV1;
-use super::external_commit::ExternalCommitPreparationErrorV1;
-use super::generic_g0_physical_operation_cohort::{
-    GenericG0PhysicalEmitterAdmissionRejectV1, GenericG0PhysicalOperationCohortRejectV1,
-};
 use super::generic_g0_projection::handoff::GenericG0PolicyHandoffIssueV1;
 use super::generic_g0_source_parent::GenericG0SourceParentRejectV1;
-use super::module_postprocess::ModulePostprocessErrorV1;
-use super::source_bound_package::{
-    CanonicalPhysicalOpenErrorV1, CanonicalPlanLoweringErrorV1, SourceBindingErrorV1,
-};
 use super::source_projection::VerifiedSourceProjectionV1;
-use crate::mir::builder::CanonicalPhysicalCollectionErrorV1;
 
 #[derive(Debug)]
 struct CanonicalSyntaxOwnerV1 {
@@ -140,20 +125,6 @@ impl LegacyModuleLoweringInputV1 {
 pub(in crate::mir) enum CanonicalGenericG0BoundaryErrorV1 {
     PolicyHandoff(GenericG0PolicyHandoffIssueV1),
     SourceParent(GenericG0SourceParentRejectV1),
-    Cohort(GenericG0PhysicalOperationCohortRejectV1),
-    Admission(GenericG0PhysicalEmitterAdmissionRejectV1),
-    Header(ResolvedOwnerHeaderSealErrorV1),
-    SourceBinding(SourceBindingErrorV1),
-    PhysicalOpen(CanonicalPhysicalOpenErrorV1),
-    PhysicalLower(CanonicalPlanLoweringErrorV1),
-    Lowerer(String),
-    PhysicalCollection(CanonicalPhysicalCollectionErrorV1),
-    PhysicalCompletion(CanonicalPhysicalCompletionErrorV1),
-    PhysicalDrain(CanonicalDrainPrepareErrorV1),
-    FinalizationPrepare(CanonicalFinalizationErrorV1),
-    Finalization(CanonicalFinalizationErrorV1),
-    Postprocess(ModulePostprocessErrorV1),
-    ExternalCommit(ExternalCommitPreparationErrorV1),
 }
 
 

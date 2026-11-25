@@ -7,57 +7,37 @@
 use std::collections::BTreeMap;
 
 use super::module_invocation_identity::ModuleInvocationBrandV1;
+#[cfg(test)]
 use super::module_invocation_owner_chain::InvocationBranded;
 use super::normal_callable_semantic_lowering_state::construction::RetainedConstructionValidation;
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
-use crate::mir::resolved_semantics::{CanonicalCallableKeyV1, FunctionOwnerIdV1};
+#[cfg(test)]
+use crate::mir::resolved_semantics::CanonicalCallableKeyV1;
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{FunctionSignature, MirFunction};
 
-mod callable_batch;
-mod collected_product;
-mod drain;
 mod final_row;
 mod normal_collector_drain_lifecycle;
-mod raw_drain;
 mod receipt;
-mod root_batch;
 mod static_result_publication_owner;
 
-pub(in crate::mir::builder) use drain::{
-    CanonicalCollectorDrainErrorV1, CanonicalCollectorReceiptViewV1,
-    PreparedCanonicalCollectorDrainV1,
-};
-pub(in crate::mir::builder) use raw_drain::{
-    raw_collector_from_branded, PreparedRawCollectorDrainV1, RawCollectorDrainErrorV1,
-};
-
-pub(in crate::mir::builder) use callable_batch::{
-    CallableCollectorBatchPrepareErrorV1, CallableCollectorBatchReceiptV1,
-    CallableCollectorDraftEntryV1, CollectedCallableCollectorBatchV1,
-};
-
-pub(in crate::mir) use callable_batch::CallableCollectorBatchReceiptV1 as CommitCallableCollectorBatchReceiptV1;
-pub(in crate::mir::builder) use collected_product::{
-    CollectedDraftAdmissionProductErrorV1, CollectedDraftAdmissionProductV1,
-};
-pub(in crate::mir) use receipt::CollectedDraftAdmissionReceiptV1 as CommitCollectedDraftAdmissionReceiptV1;
 pub(in crate::mir) use receipt::{
     CollectedDraftAdmissionReceiptV1, CollectedDraftReplacementDispositionV1,
 };
-pub(in crate::mir::builder) use root_batch::RootCollectorBatchPrepareErrorV1;
 
 /// Semantic identity for one draft admission, distinct from fact generation.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub(in crate::mir) enum FunctionDraftKeyV1 {
+    #[cfg(test)]
     Main,
     LegacySymbol(String),
     CanonicalResolvedOwner(FunctionOwnerIdV1),
+    #[cfg(test)]
     CanonicalCallable(CanonicalCallableKeyV1),
     /// Cataloged Box-method identity; unlike `CanonicalCallable`, this keeps
     /// the same-module namespace and owner/name/arity together.
     CatalogedBoxMethod(CanonicalSameModuleCallableKeyV1),
     CatalogedConstructor(CanonicalSameModuleCallableKeyV1),
-    SyntheticConditionFn,
 }
 
 /// Preserve each current route family's duplicate behavior at collection.
@@ -88,11 +68,13 @@ pub(in crate::mir) enum ModuleDraftAdmissionErrorV1 {
     },
 }
 
+#[cfg(test)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum CollectorReceiptBrandErrorV1 {
     CollectorUnbranded,
 }
 
+#[cfg(test)]
 impl std::fmt::Display for CollectorReceiptBrandErrorV1 {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -102,6 +84,7 @@ impl std::fmt::Display for CollectorReceiptBrandErrorV1 {
     }
 }
 
+#[cfg(test)]
 impl std::error::Error for CollectorReceiptBrandErrorV1 {}
 
 impl std::fmt::Display for ModuleDraftAdmissionErrorV1 {
@@ -227,6 +210,7 @@ impl UnpublishedFunctionDraftV1<'_> {
         self.collect_inner()
     }
 
+    #[cfg(test)]
     pub(in crate::mir::builder) fn collect_branded(
         self,
     ) -> Result<InvocationBranded<CollectedDraftAdmissionReceiptV1>, CollectorReceiptBrandErrorV1>
@@ -275,6 +259,58 @@ pub(in crate::mir::builder) struct ModuleDraftCollectorV1 {
 #[derive(Debug, Default)]
 struct ModuleDraftCollectorSealV1;
 
+fn plan_admission_v1(
+    collector: &ModuleDraftCollectorV1,
+    key: &FunctionDraftKeyV1,
+    expected_symbol: &str,
+    policy: DraftPublicationPolicyV1,
+) -> Result<PreparedCollectorReplacementV1, ModuleDraftAdmissionErrorV1> {
+    let symbol_key = collector.key_by_symbol.get(expected_symbol).cloned();
+    let key_symbol = collector
+        .drafts
+        .get(key)
+        .map(|entry| entry.draft.signature.name.clone());
+    match policy {
+        DraftPublicationPolicyV1::CanonicalRejectDuplicate => {
+            if collector.drafts.contains_key(key) {
+                return Err(ModuleDraftAdmissionErrorV1::DuplicateKey(key.clone()));
+            }
+            if collector.key_by_symbol.contains_key(expected_symbol) {
+                return Err(ModuleDraftAdmissionErrorV1::DuplicateSymbol(
+                    expected_symbol.to_owned(),
+                ));
+            }
+            Ok(PreparedCollectorReplacementV1::Canonical)
+        }
+        DraftPublicationPolicyV1::LegacyReplaceWholePair => {
+            if collector
+                .drafts
+                .get(key)
+                .is_some_and(|entry| entry.construction.is_some())
+            {
+                return Err(ModuleDraftAdmissionErrorV1::ConstructionPayloadBoundary);
+            }
+            let pairing_matches = match (&symbol_key, &key_symbol) {
+                (Some(symbol_key), Some(key_symbol)) => {
+                    symbol_key == key && key_symbol == expected_symbol
+                }
+                (None, None) => true,
+                _ => false,
+            };
+            if !pairing_matches {
+                return Err(ModuleDraftAdmissionErrorV1::IndexDrift {
+                    symbol: expected_symbol.to_owned(),
+                    key: key.clone(),
+                });
+            }
+            Ok(PreparedCollectorReplacementV1::Legacy {
+                symbol_key,
+                key_symbol,
+            })
+        }
+    }
+}
+
 impl ModuleDraftCollectorV1 {
     pub(in crate::mir::builder) fn with_brand(brand: ModuleInvocationBrandV1) -> Self {
         Self {
@@ -295,7 +331,7 @@ impl ModuleDraftCollectorV1 {
         expected_arity: usize,
         policy: DraftPublicationPolicyV1,
     ) -> Result<PreparedFunctionDraftAdmissionV1<'_>, ModuleDraftAdmissionErrorV1> {
-        let replacement = root_batch::plan_admission_v1(self, &key, &expected_symbol, policy)?;
+        let replacement = plan_admission_v1(self, &key, &expected_symbol, policy)?;
         Ok(PreparedFunctionDraftAdmissionV1 {
             collector: self,
             key,

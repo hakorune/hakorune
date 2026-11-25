@@ -1,6 +1,4 @@
-use super::capability::CanonicalLoopFamilyPlanV1;
 use super::lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1};
-use super::source_bound_plan::ExactCanonicalPreflightPlanV1;
 use crate::ast::ASTNode;
 use crate::mir::loop_route_policy::GenericG0PolicyModeV1;
 use crate::parser::NyashParser;
@@ -47,11 +45,10 @@ fn production_preflight_issues_generic_g0_plan_with_trivial_lifecycle() {
         plan.source_parent().declaration_header().name(),
         "generic_g0"
     );
-    assert_eq!(
-        ExactCanonicalPreflightPlanV1::Loop(CanonicalLoopFamilyPlanV1::GenericG0(plan))
-        .route(),
-        super::source_bound_plan::CanonicalSourceRouteV1::BindingSsaTrivial
-    );
+    let admission = super::generic_g0_physical_operation_cohort::
+        issue_generic_g0_physical_emitter_admission_from_source_parent_v1(plan.into_source_parent())
+        .expect("the plan reaches the normal Generic G0 physical admission");
+    assert_eq!(admission.symbol().as_mir_name(), "generic_g0/2");
 }
 
 #[test]
@@ -63,43 +60,4 @@ fn marked_generic_g0_rejects_invalid_policy_mode_without_fallback() {
             boundary: "generic_g0_policy_mode",
         })
     ));
-}
-
-#[test]
-fn generic_g0_prepared_commit_failure_discards_unpublished_module() {
-    let unit = resolved_g0();
-    let plan = super::generic_g0_capability::probe_generic_g0_function_v1(
-        unit.root_function_input().unwrap(),
-        Some(GenericG0PolicyModeV1::Release),
-    )
-    .expect("generic G0 plan");
-    let Some(plan) = plan else {
-        panic!("expected Generic G0 loop plan")
-    };
-    let mut compiler = super::MirCompiler::with_options(false);
-    let exact = ExactCanonicalPreflightPlanV1::Loop(CanonicalLoopFamilyPlanV1::GenericG0(plan));
-    let package = compiler.bind_canonical_source(exact).unwrap();
-    let ready = compiler
-        .begin_canonical_invocation(package, Some("generic_g0-failed.hako"), "generic_g0/2".into())
-        .unwrap()
-        .lower()
-        .unwrap()
-        .collect()
-        .unwrap()
-        .complete()
-        .unwrap()
-        .prepare_drain()
-        .unwrap()
-        .drain()
-        .prepare_finalization()
-        .unwrap();
-    let finalized = super::canonical_finalization::CanonicalModuleFinalizerV1::finalize(ready).unwrap();
-    let processed = super::module_postprocess::ModulePostprocessOwnerV1::new(&mut compiler.verifier, false)
-        .run(finalized)
-        .unwrap();
-    let prepared = compiler.prepare_module_external_commit(processed).unwrap();
-    drop(prepared);
-    assert!(compiler.builder.current_module.is_none());
-    assert!(compiler.builder.current_function_name().is_none());
-    assert!(compiler.builder.current_function_entry_block().is_none());
 }

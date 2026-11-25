@@ -1454,8 +1454,7 @@ root Return statement. Local initializers, assignments, print/discarded calls,
 control-flow/nested owners, Deferred, Compatibility, and RawLegacy remain
 outside this Recipe and are rejected rather than represented by an empty row.
 
-The producer is separate from `RawScriptBodyRecipeV1` and the Loop Recipe
-vocabulary. The Recipe is transported through the existing Complete Script
+The producer has its own recipe vocabulary alongside the Loop Recipe. The Recipe is transported through the existing Complete Script
 semantic source/lowering input/state only; no JoinSig, ValueId, MIR type,
 physical block, route selection, raw retirement, or production switch is
 performed in this I0. The focused guard and empty Complete Script fixture cover
@@ -1639,8 +1638,8 @@ or retry claim.
 The production Script root is installed by
 `normal_default_root_catalog_post_install.rs` and checked by
 `RootValidation::Script` in `normal_default_root_final_validation.rs`.
-The shared Script Return writer remains in `script_physical_exit/exit.rs`
-and serves the raw root adapter.
+The root uses the ordinary Return writer in `stmts/return_stmt.rs`. The
+former detached physical root and its publication path have been retired.
 
 ## Root app-mode boundary P0
 

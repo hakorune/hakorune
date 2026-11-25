@@ -148,11 +148,6 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
         recursive_plan_tests,
         compiler_mod,
         root / "src/mir/builder/resolved_lowering/callable_module_transaction_p0d_tests.rs",
-        root / "src/mir/compiler/canonical_bridge_fixture0_p0.rs",
-        root / "src/mir/compiler/canonical_physical_completion_p0.rs",
-        root / "src/mir/compiler/canonical_drain_manifest_p0.rs",
-        root / "src/mir/compiler/canonical_finalization_p0.rs",
-        root / "src/mir/compiler/source_bound_package_p0.rs",
     }
     if actual_plan_callers != expected_plan_callers:
         fail(
@@ -195,7 +190,6 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
     expected_install_callers = {
         recursive_backend_gate,
         transaction,
-        root / "src/mir/builder/module_lowering_shell.rs",
     }
     if install_callers != expected_install_callers:
         fail(

@@ -28,38 +28,6 @@ use crate::mir::function::MirParamDecl;
 use crate::mir::loop_recipe_contract::{LoopValueClassV1, VerifiedGenericG0TailCapabilityV1};
 use crate::mir::resolved_control_flow::DeclaredFunctionResultContractV1;
 use crate::mir::resolved_semantics::ResolvedExitSiteV1;
-use crate::mir::MirFunction;
-
-pub(in crate::mir::builder) fn lower_generic_g0_function_draft_v1(
-    builder: &mut MirBuilder,
-    admission: PreparedGenericG0PhysicalEmitterAdmissionV1<'_>,
-) -> Result<MirFunction, String> {
-    if builder.function_state.current_function.is_some()
-        || builder.function_state.current_block.is_some()
-    {
-        return Err("[freeze:contract][generic-g0/lowerer/builder_not_empty]".to_owned());
-    }
-
-    let function_name = admission.symbol().as_mir_name().to_owned();
-    let mut outer = builder.open_resolved_function_draft_seal_session_v1(&function_name);
-    let ready = match lower_generic_g0_function_ready_v1(&mut outer, admission) {
-        Ok(ready) => ready,
-        Err(error) => {
-            outer.discard_unpublished();
-            return Err(error);
-        }
-    };
-    let prepared = ready.open(outer).prepare().map_err(|rejected| {
-        let detail = format!(
-            "[freeze:contract][generic-g0/draft-seal/{:?}] {:?}",
-            rejected.stage(),
-            rejected.error()
-        );
-        rejected.discard();
-        detail
-    })?;
-    Ok(prepared.commit().consume_non_authority_evidence())
-}
 
 /// Open one canonical child session around the existing Generic lowerer and
 /// retain its prepared draft until the invocation collector has admitted it.

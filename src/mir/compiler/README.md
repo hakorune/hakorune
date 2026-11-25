@@ -826,38 +826,20 @@ requires the source handoff to prove `Complete`, and declines known non-G0
 shapes to the existing preflight. It does not read the environment, infer a
 mode, rescan AST after projection, or fall back after a G0 integrity failure.
 
-The issuer co-seals `CanonicalGenericG0PlanV1` with the existing
-`VerifiedResolvedOwnerHeaderV1`; `ExactCanonicalPreflightPlanV1::Loop` maps
-it to `CanonicalSourceRouteV1::BindingSsaTrivial`, the existing
-`ModuleInvocationFamilyV1::BindingSsaTrivial`, and one `Single` continuation.
-Package binding seals that lifecycle header once; the physical consumer carries
-the same plan into the bounded Generic G0 production terminal below. No G0
-token, continuation, route-loop re-entry, test-session call, or alternate
-publication path is introduced.
+The issuer carries the verified source parent in `CanonicalGenericG0PlanV1`.
+Normal top-level admission passes that plan to
+`lower_resolved_generic_g0_function_pending_v1`. The physical lowerer consumes
+the source-owned entry rows, layout, control, Completion, and Generic Tail.
+It keeps the unpublished draft pending until the normal collector admits it.
 
 ### Generic G0 production terminal I1 (2026-09-11)
 
-`resolved_generic_g0_cutover.rs` is the one production source-bound switch for
-the marked Generic G0 shape. It consumes the existing Generic admission through
-`loop_recipe_physicalizer/generic_lowerer.rs`, then reuses the existing
-`Single` collect/complete/drain, finalization, postprocess, external-commit,
-and `publish_once` lifecycle. The lowerer consumes the co-sealed source parent,
-operation program, entry rows, layout, control, Completion, and Generic Tail;
-it does not re-infer source facts, ABI, identity, or control from MIR. The
-cutover preserves source-parent, cohort, admission, and lowerer rejects as
-typed Generic G0 boundary stages; it does not collapse them into debug strings.
-
-Logical source identity remains `generic_g0/2`, while the physical signature
-has three `i64` lanes for the declared-instance fixture (receiver, `i`, `j`).
-The physical arity is carried as an explicit relation from the source-owned
-storage-lane projection into the existing `Single` collector/manifest; the
-logical header is not rewritten. The old
-`generic_g0_physical_emitter_session` remains `cfg(test)` evidence and is not
-promoted. The focused `generic_g0` suite currently has 74 passing tests,
-including a real completed-dispatch/`prepare_recursive_after_v1` computed-left
-case, carrier-entry loss rejected at admission, and late prepared-commit drop
-with no published module. This slice does not claim source-to-exe, backend
-parity, all Loop families, or legacy removal.
+The logical source identity remains `generic_g0/2`. The declared-instance
+admission fixture projects three physical `i64` lanes (receiver, `i`, `j`)
+from the source-owned storage relation. The normal top-level free function
+projects two lanes. The test-only emitter session covers the computed-left
+case through `prepare_recursive_after_v1`, and the admission tests cover
+carrier-entry loss.
 
 ### Generic G0 normal-package function consumer I0 (2026-09-12)
 

@@ -242,9 +242,13 @@ fn verified_expansion_disposition_reaches_script_and_app_root_lowering() {
                 NormalRuntimeInputSnapshotV1::empty(),
             )
             .expect("verified route must lower");
-        let (session, _, _) = completed.into_parts();
+        let (session, module, _) = completed.into_parts();
 
         assert_eq!(session.builder().root_is_app_mode, Some(expected_app_mode));
+        assert!(session.builder().comp_ctx.callable_declaration_catalog().is_ok());
+        assert_eq!(module.metadata.user_box_decls.contains_key("Main"), expected_app_mode);
+        assert_eq!(module.metadata.user_box_field_decls.contains_key("Main"), expected_app_mode);
+        assert!(module.metadata.record_decls.is_empty());
     }
 }
 

@@ -87,8 +87,6 @@ def check_transaction(root: Path, directory: Path, task_path: Path) -> None:
         "VerifiedNormalMainPhysicalThunkDraftV1::prepare(",
         "fn validate_correspondence(",
         "fn verify_candidate(",
-        "ModuleLoweringShellDrainInventoryV1::from_symbols",
-        "ModuleLoweringShellV1::from_empty_module",
         "commit_preflighted(functions)",
     ):
         require(transaction, fragment, f"TX0 owner chain {fragment}")
@@ -252,7 +250,6 @@ def check_transaction(root: Path, directory: Path, task_path: Path) -> None:
     for fragment in (
         "struct PreparedNormalCallableCommitV1",
         "struct CompletedNormalCallableCandidateV1",
-        "ModuleLoweringShellV1::from_empty_module",
         "commit_preflighted(functions)",
     ):
         require(callable_commit, fragment, f"COMMIT0 owner {fragment}")

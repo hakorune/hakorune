@@ -23,6 +23,7 @@ mod identity;
 mod semantic_stack;
 mod trivial_ssa;
 
+#[cfg(test)]
 pub(in crate::mir) use callable_module_transaction::{
     CallableModuleTransactionErrorV1, VerifiedUnpublishedCallableDraftSetV1,
 };
@@ -61,7 +62,9 @@ mod void_tests;
 use crate::mir::compiler::capability::{
     CanonicalGenericG0PlanV1, CanonicalTrivialBindingSsaPlanV1,
 };
-use crate::mir::{MirFunction, MirModule};
+use crate::mir::MirFunction;
+#[cfg(test)]
+use crate::mir::MirModule;
 
 use super::calls::{
     CanonicalFunctionLoweringSessionV1, CanonicalFunctionSessionErrorV1,
@@ -75,11 +78,6 @@ use trivial_ssa::{install_trivial_callable_abi_v1, CanonicalTrivialSsaLowererV1}
 pub(in crate::mir) enum CanonicalResolvedBuildErrorV1 {
     BuilderContract(String),
     DuplicateFunctionPublication { function_name: String },
-    GenericG0Admission(
-        crate::mir::compiler::generic_g0_physical_operation_cohort::
-            GenericG0PhysicalEmitterAdmissionRejectV1,
-    ),
-    GenericG0Lowerer(String),
 }
 
 /// Complete one CallableSingleLoop draft seal without restoring the captured

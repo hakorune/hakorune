@@ -119,8 +119,6 @@ map_missing_empty_route_plan	pub	none
 map_repr_plan	pub	none
 module_invocation_identity	pub(crate)	none
 module_invocation_identity_idkernel_p0	private	test
-module_invocation_policy	pub(crate)	none
-module_invocation_policy_tests	private	test
 named_array_obligation	pub(crate)	none
 naming	pub	none
 normal_callable_semantic_package	pub(crate)	none
@@ -143,10 +141,7 @@ printer	pub	none
 printer_helpers	private	none
 query	pub	none
 range_index_fact	pub	none
-raw_finalization_contract	pub(crate)	none
 raw_layout	pub(crate)	none
-raw_physical_drain	pub(crate)	none
-raw_root_body_recipe	pub(crate)	none
 raw_vm_reference_contract	pub(crate)	none
 receiver_snapshot_publication_plan	pub	none
 record_layout_plan	pub	none

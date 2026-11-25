@@ -326,6 +326,49 @@ fn late_normal_lowering_failure_leaves_live_builder_unchanged_and_reusable() {
 }
 
 #[test]
+fn typed_root_return_rejection_keeps_the_published_builder() {
+    let mut compiler = MirCompiler::with_options(false);
+    let compile = |compiler: &mut MirCompiler, source: &str, path| {
+        compiler.compile_normal(normal_request(
+            NyashParser::parse_from_string(source).unwrap(),
+            Some(path),
+            HashMap::new(),
+        ))
+    };
+    let original = compile(&mut compiler, "return 7", "published-before.hako").unwrap();
+    assert!(original.verification_result.is_ok());
+    let before = (source_file(&compiler), core_cursor(&compiler));
+
+    let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+        "static box Main { main(): i64 { return null } }",
+        crate::parser::ParserBuildConfig::default(),
+    )
+    .unwrap();
+    let transformed = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
+    });
+    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(rejected) = transformed
+    else {
+        panic!("typed Main needs the source-backed entry");
+    };
+    let error = compiler
+        .compile_normal(NormalCompileRequestV1::for_mir_mode_callable_source(
+            rejected,
+            Some("rejected-return.hako"),
+            HashMap::new(),
+        ))
+        .unwrap_err();
+    assert!(error.contains("[freeze:contract][main-arguments/root-completion]"), "{error}");
+    assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
+    assert!(compiler.builder.current_module.is_none());
+    assert!(compiler.builder.current_function_name().is_none());
+
+    let reused = compile(&mut compiler, "return 9", "published-after.hako").unwrap();
+    assert!(reused.verification_result.is_ok());
+    assert_eq!(source_file(&compiler).as_deref(), Some("published-after.hako"));
+}
+
+#[test]
 fn nonmain_static_box_failure_discards_candidate_and_reuses_live_compiler() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
     let failing = NyashParser::parse_from_string(
@@ -743,4 +786,95 @@ fn responsibility_local_nonprogram_roots_share_public_admission_and_reuse() {
             Some("nonprogram-root-reuse.hako")
         );
     }
+}
+
+#[test]
+fn finishing_rejects_optimizer_diagnostics_without_committing() {
+    use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
+    use crate::mir::{Callee, EffectMask, MirInstruction};
+
+    let mut compiler = MirCompiler::with_options(false);
+    let mut module = compiler
+        .compile_normal(normal_request(program(literal(7)), Some("already-live.hako"), HashMap::new()))
+        .unwrap()
+        .module;
+    let before = (source_file(&compiler), core_cursor(&compiler));
+    let main = module.functions.get_mut("main").unwrap();
+    let entry = main.get_block_mut(main.entry_block).unwrap();
+    let receiver = entry.instructions.iter().find_map(MirInstruction::dst_value).unwrap();
+    entry.add_instruction_before_terminator(MirInstruction::LegacyCallV0 {
+        dst: None,
+        func: receiver,
+        callee: Some(Callee::Method {
+            box_name: "IntegerBox".into(),
+            method: "is".into(),
+            receiver: Some(receiver),
+            certainty: TypeCertainty::Known,
+            box_kind: CalleeBoxKind::RuntimeData,
+        }),
+        args: Vec::new(),
+        effects: EffectMask::IO,
+    });
+    compiler.optimize = true;
+    let error = crate::test_support::with_env_vars(
+        &[
+            ("NYASH_OPT_DIAG_FAIL", Some("1")),
+            ("NYASH_OPT_DIAG_FORBID_LEGACY", None),
+            ("NYASH_MIR_DISABLE_OPT", None),
+            ("HAKO_MIR_DISABLE_OPT", None),
+            ("HAKO_JOINIR_STRICT", None),
+            ("NYASH_JOINIR_STRICT", None),
+            ("HAKO_JOINIR_PLANNER_REQUIRED", None),
+        ],
+        || compiler.finish_built_module(module, super::MirFinishScheduleV1::Legacy, &Default::default()),
+    )
+    .unwrap_err();
+    assert!(error.starts_with("Diagnostic failure:"), "{error}");
+    assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
+    assert!(compiler.builder.current_module.is_none());
+}
+
+#[test]
+fn finishing_rejects_an_orphan_static_plan_without_committing() {
+    let mut compiler = MirCompiler::with_options(false);
+    let mut module = compiler
+        .compile_normal(normal_request(program(literal(7)), Some("already-live.hako"), HashMap::new()))
+        .unwrap()
+        .module;
+    let before = (source_file(&compiler), core_cursor(&compiler));
+    module.metadata.static_data_plans.push(crate::mir::function::StaticDataPlan {
+        source_name: "ORPHAN".into(),
+        symbol: ".hako.static.ORPHAN".into(),
+        element: "u16".into(),
+        align: 2,
+        linkage: "private".into(),
+        unnamed_addr: true,
+        values: vec![1],
+    });
+    let error = compiler
+        .finish_built_module(module, super::MirFinishScheduleV1::Legacy, &Default::default())
+        .unwrap_err();
+    assert!(error.contains("[type/static_table_contract_spec_missing]"), "{error}");
+    assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
+    assert!(compiler.builder.current_module.is_none());
+}
+
+#[test]
+fn canonical_finish_rejects_an_invalid_target_before_publication() {
+    let mut compiler = MirCompiler::with_options(false);
+    let mut module = compiler
+        .compile_normal(normal_request(program(literal(7)), Some("already-live.hako"), HashMap::new()))
+        .unwrap()
+        .module;
+    let before = (source_file(&compiler), core_cursor(&compiler));
+    let main = module.functions.get_mut("main").unwrap();
+    main.get_block_mut(main.entry_block)
+        .unwrap()
+        .set_jump_with_edge_args(crate::mir::BasicBlockId::new(9999), None);
+    let error = compiler
+        .finish_built_canonical_module(module, super::CanonicalFinishScheduleV1::TrivialBindingSsa)
+        .unwrap_err();
+    assert!(matches!(error, super::CanonicalLoweringErrorV1::MirVerificationFailed { .. }), "{error}");
+    assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
+    assert!(compiler.builder.current_module.is_none());
 }

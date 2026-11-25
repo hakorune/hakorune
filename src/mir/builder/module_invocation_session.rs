@@ -370,38 +370,16 @@ impl ModuleBuilderInvocationSessionV1 {
         )
     }
 
+    #[cfg(test)]
     pub(in crate::mir) fn builder_mut(&mut self) -> &mut MirBuilder {
         &mut self.candidate
     }
 
+    #[cfg(test)]
     pub(in crate::mir::builder) fn builder(&self) -> &MirBuilder {
         &self.candidate
     }
 
-    pub(in crate::mir::builder) fn environment_ready(
-        &self,
-    ) -> Result<(), BuilderCommitReadinessErrorV1> {
-        self.readiness_error()
-    }
-
-    pub(in crate::mir::builder) fn raw_root_environment_lanes_are_vacant(
-        &self,
-        route: super::raw_root_environment_install::RawRootEnvironmentInstallRouteV1,
-    ) -> bool {
-        self.candidate
-            .comp_ctx
-            .raw_root_environment_lanes_vacant(route)
-    }
-
-    pub(in crate::mir::builder) fn install_raw_root_environment_preflighted(
-        &mut self,
-        route: super::raw_root_environment_install::RawRootEnvironmentInstallRouteV1,
-        catalog: crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1,
-    ) {
-        self.candidate
-            .comp_ctx
-            .install_raw_root_environment_preflighted(route, catalog);
-    }
 
     pub(in crate::mir::builder) fn config(&self) -> &BuilderInvocationConfigV1 {
         &self.config
@@ -428,6 +406,7 @@ impl ModuleBuilderInvocationSessionV1 {
         Ok(())
     }
 
+    #[cfg(test)]
     pub(in crate::mir) fn pinned_text_invocation_binding<'session>(
         &'session self,
     ) -> Result<
@@ -449,6 +428,7 @@ impl ModuleBuilderInvocationSessionV1 {
         )
     }
 
+    #[cfg(test)]
     pub(in crate::mir) fn with_builder_and_pinned_text_invocation_binding<R>(
         &mut self,
         callback: impl FnOnce(
@@ -496,6 +476,7 @@ impl ModuleBuilderInvocationSessionV1 {
         callback(&mut self.candidate, binding, &mut scope)
     }
 
+    #[cfg(test)]
     pub(in crate::mir) fn with_pinned_text_invocation_binding<R>(
         &self,
         callback: impl FnOnce(
@@ -504,10 +485,6 @@ impl ModuleBuilderInvocationSessionV1 {
     ) -> Result<R, super::pinned_text_invocation_binding::PinnedTextInvocationBindingIssueV1> {
         let binding = self.pinned_text_invocation_binding()?;
         Ok(callback(binding))
-    }
-
-    pub(in crate::mir) const fn family(&self) -> ModuleInvocationFamilyV1 {
-        self.family
     }
 
     fn readiness_error(&self) -> Result<(), BuilderCommitReadinessErrorV1> {
@@ -556,10 +533,12 @@ impl ModuleBuilderInvocationSessionV1 {
 }
 
 impl PreparedBuilderModuleSessionV1 {
+    #[cfg(test)]
     pub(in crate::mir) const fn brand(&self) -> ModuleInvocationBrandV1 {
         self.brand
     }
 
+    #[cfg(test)]
     pub(in crate::mir) const fn family(&self) -> ModuleInvocationFamilyV1 {
         self.family
     }
@@ -575,16 +554,6 @@ impl PreparedBuilderModuleSessionV1 {
         ModuleBuilderInvocationSessionV1,
     ) {
         (self.brand, self.family, self.session)
-    }
-
-    pub(in crate::mir) fn into_external_commit(self) -> PreparedBuilderExternalCommitV1 {
-        let (brand, family, session) = self.into_parts();
-        PreparedBuilderExternalCommitV1 {
-            brand,
-            family,
-            session,
-            _seal: PreparedBuilderExternalCommitSealV1,
-        }
     }
 }
 
@@ -604,14 +573,6 @@ impl RejectedPreparedBuilderModuleSessionV1 {
 }
 
 impl PreparedBuilderExternalCommitV1 {
-    pub(in crate::mir) const fn brand(&self) -> ModuleInvocationBrandV1 {
-        self.brand
-    }
-
-    pub(in crate::mir) const fn family(&self) -> ModuleInvocationFamilyV1 {
-        self.family
-    }
-
     pub(in crate::mir) fn commit(
         self,
         current: &mut MirBuilder,
@@ -624,28 +585,6 @@ impl PreparedBuilderExternalCommitV1 {
             family,
             _seal: super::builder_publication_target::BuilderPublicationReceiptSealV1,
         }
-    }
-
-    pub(in crate::mir) fn commit_raw_direct(
-        self,
-        current: &mut MirBuilder,
-        module: super::raw_root_physical::postprocess_terminal::RawExternalCommitModuleV1,
-    ) -> (
-        super::builder_publication_target::BuilderPublicationReceiptV1,
-        super::raw_root_physical::publication_terminal::RawPublishedModuleV1,
-    ) {
-        let brand = self.brand;
-        let family = self.family;
-        let published = module.into_published_module();
-        replace_live_builder(self.session.candidate, current);
-        (
-            super::builder_publication_target::BuilderPublicationReceiptV1 {
-                brand,
-                family,
-                _seal: super::builder_publication_target::BuilderPublicationReceiptSealV1,
-            },
-            published,
-        )
     }
 }
 

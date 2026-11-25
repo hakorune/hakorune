@@ -7,15 +7,9 @@ guard_joinir_loop_compile_candidate_scope() {
   local raw_child="$root_dir/src/mir/builder/raw_loop_child_entry.rs"
   local recursive_child="$root_dir/src/mir/builder/recursive_child_lowering.rs"
   local normal="$root_dir/src/mir/compiler/normal_default_pipeline.rs"
-  local raw_compile="$root_dir/src/mir/compiler/raw_published_compile.rs"
-  local raw_open="$root_dir/src/mir/compiler/raw_root_eligibility.rs"
-  local raw_recipe="$root_dir/src/mir/compiler/raw_root_source_facts/recipe_projection.rs"
-  local canonical="$root_dir/src/mir/compiler/source_bound_package.rs"
   local canonical_input="$root_dir/src/mir/compiler/lowering_input.rs"
   local capability="$root_dir/src/mir/compiler/capability.rs"
   local first_family_plan="$root_dir/src/mir/compiler/capability/first_family_plan.rs"
-  local source_bound_plan="$root_dir/src/mir/compiler/source_bound_plan.rs"
-  local external_commit="$root_dir/src/mir/compiler/external_commit.rs"
   local loop_region="$root_dir/src/mir/resolved_semantics/loop_region.rs"
   local source_adapter="$root_dir/src/mir/loop_structural_facts/resolved_source_adapter.rs"
   local generic_g0_projection="$root_dir/src/mir/compiler/generic_g0_projection/mod.rs"
@@ -61,10 +55,8 @@ guard_joinir_loop_compile_candidate_scope() {
   local nested_effect_adapter_tests="$root_dir/src/mir/builder/resolved_lowering/nested_predicate_effect_adapter_tests.rs"
 
   guard_require_files "$tag" "$manifest" "$raw_child" \
-    "$recursive_child" "$normal" "$raw_compile" "$raw_open" "$raw_recipe" \
-    "$canonical" "$canonical_input" \
-    "$external_commit" \
-    "$capability" "$first_family_plan" "$source_bound_plan" "$loop_region" \
+    "$recursive_child" "$normal" "$canonical_input" \
+    "$capability" "$first_family_plan" "$loop_region" \
     "$source_adapter" "$generic_g0_projection" "$generic_g0_handoff" "$generic_g0_projection_tests" \
     "$generic_g0_source_type" "$generic_g0_numeric" "$generic_g0_numeric_tests" \
     "$generic_g0_numeric_adapter" "$generic_g0_numeric_projection_tests" \
@@ -105,11 +97,7 @@ guard_joinir_loop_compile_candidate_scope() {
   for required in \
     "$normal|ModuleBuilderInvocationSessionV1::open_for_token|1" \
     "$normal|prepare_external_commit|3" \
-    "$normal|prepared.commit(&mut compiler.builder)|1" \
-    "$raw_compile|open_physical(&self.builder)|1" \
-    "$raw_compile|prepare_external_commit|1" \
-    "$raw_open|ModuleBuilderInvocationSessionV1::open_for_token|1" \
-    "$canonical|ModuleBuilderInvocationSessionV1::open_for_token|1"
+    "$normal|prepared.commit(&mut compiler.builder)|1"
   do
     local file="${required%%|*}"
     local rest="${required#*|}"
@@ -316,16 +304,14 @@ guard_joinir_loop_compile_candidate_scope() {
     fi
   done
 
-  if rg -n -F 'CanonicalFirstFamilyPlanV1::DirectAccum' "$root_dir/src" --glob '*.rs' >/dev/null || \
-     rg -n -F 'ExactCanonicalPreflightPlanV1::DirectAccum' "$root_dir/src" --glob '*.rs' >/dev/null; then
+  if rg -n -F 'CanonicalFirstFamilyPlanV1::DirectAccum' "$root_dir/src" --glob '*.rs' >/dev/null; then
     guard_fail "$tag" "DirectAccum escaped the canonical Loop family envelope"
   fi
   for required in \
     'CanonicalLoopFamilyPlanV1' \
-    'CanonicalFirstFamilyPlanV1::Loop' \
-    'ExactCanonicalPreflightPlanV1::Loop'
+    'CanonicalFirstFamilyPlanV1::Loop'
   do
-    rg -n -F "$required" "$capability" "$first_family_plan" "$source_bound_plan" "$canonical" >/dev/null || \
+    rg -n -F "$required" "$capability" "$first_family_plan" >/dev/null || \
       guard_fail "$tag" "canonical Loop family envelope anchor missing: $required"
   done
 
@@ -599,16 +585,11 @@ guard_joinir_loop_compile_candidate_scope() {
     guard_fail "$tag" "Nested Predicate effect adapter test acquired a route caller"
   fi
 
-  if ! rg -n -F 'RawLocatedScalarStmtV1::Loop { .. }' "$raw_recipe" >/dev/null || \
-     ! rg -n -F 'RawUnsupportedBodyStatementKindV1::Loop' "$raw_recipe" >/dev/null || \
-     ! rg -n -F 'unsupported_shape_fails_before_builder_effects_without_legacy_retry' "$canonical_input" >/dev/null || \
+  if ! rg -n -F 'unsupported_shape_fails_before_builder_effects_without_legacy_retry' "$canonical_input" >/dev/null || \
      ! rg -n -F 'ASTNode::Loop {' "$canonical_input" >/dev/null; then
-    guard_fail "$tag" "Raw/canonical Loop pre-effect rejection anchors drift"
+    guard_fail "$tag" "canonical Loop pre-effect rejection anchors drift"
   fi
 
-  rg -n -F 'project_canonical_verification_result' "$external_commit" >/dev/null || \
+  rg -n -F 'require_canonical_verification(verification_result)?' "$root_dir/src/mir/compiler/mod.rs" >/dev/null || \
     guard_fail "$tag" "canonical final-barrier projection anchor missing"
-  if rg -n -F 'pre_transform.map_err' "$external_commit" >/dev/null; then
-    guard_fail "$tag" "canonical publication still projects pre_transform directly"
-  fi
 }

@@ -24,8 +24,7 @@ use super::raw_compat_runtime_box_fate::{
 use super::raw_expression_dispatch::RawExpressionDispatchPortV1;
 pub(in crate::mir::builder) use super::raw_expression_recursion_guard::with_legacy_expression_recursion_guard_v1;
 use super::raw_invocation_source_transport::{
-    RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawInvocationSourceTransportV1,
-    RawSourceTransportPortV1,
+    RawInvocationRootLineageV1, RawInvocationSourceContextV1,
 };
 use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
 use crate::mir::resolved_semantics::{ScriptResolverDeferredV1, SourceNodeSiteV1};
@@ -324,6 +323,7 @@ impl QualifiedStaticMethodHandoffPortV1 for RawInvocationChildPortV1<'_, '_> {}
 
 impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
     /// Start one raw recursive frame from the exact invocation port.
+    #[cfg(test)]
     pub(in crate::mir::builder) fn new(
         module_port: &'port mut ModuleLoweringPortV1<'collector>,
     ) -> Self {
@@ -340,6 +340,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         Self::new_with_optional_callable_loop_root_scope(module_port, cleanup_exit_policy, None)
     }
 
+    #[cfg(test)]
     pub(in crate::mir::builder) fn new_with_cleanup_exit_policy_and_callable_loop_scope(
         module_port: &'port mut ModuleLoweringPortV1<'collector>,
         cleanup_exit_policy: CleanupExitPolicyV1,
@@ -575,6 +576,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         self.module_port.with_headers(observe)
     }
 
+    #[cfg(test)]
     /// Delegate the invocation-owned brand without retaining it in the raw
     /// child port. This keeps provider admission tied to its collector.
     pub(in crate::mir::builder) fn with_invocation_brand<R>(

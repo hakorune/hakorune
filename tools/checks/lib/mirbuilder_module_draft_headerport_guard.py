@@ -22,8 +22,6 @@ MODULE_DRAFT = ROOT / "src/mir/builder/module_draft_collector.rs"
 ANNOTATION = ROOT / "src/mir/builder/calls/annotation.rs"
 SIGNATURE_LOOKUP = ROOT / "src/mir/builder/function_signature_lookup.rs"
 PORT_AWARE_DRAFT = ROOT / "src/mir/builder/port_aware_function_draft.rs"
-MODULE_SHELL = ROOT / "src/mir/builder/module_lowering_shell.rs"
-INVOCATION_DRAIN = ROOT / "src/mir/builder/module_invocation_drain.rs"
 MATRIX_CONSUMERS = ()
 INVOCATION_STATE = ROOT / "src/mir/builder/module_lowering_invocation_state.rs"
 PENDING_TERMINAL = ROOT / "src/mir/builder/calls/function_session/terminal.rs"
@@ -179,8 +177,6 @@ def main() -> int:
     annotation = read(ANNOTATION)
     signature_lookup = read(SIGNATURE_LOOKUP)
     port_aware_draft = read(PORT_AWARE_DRAFT)
-    module_shell = read(MODULE_SHELL)
-    invocation_drain = read(INVOCATION_DRAIN)
     builder = read(BUILDER)
     method_index = read(METHOD_INDEX)
     compilation = read(COMPILATION)
@@ -198,26 +194,6 @@ def main() -> int:
     state_consultation = read(STATE_CUTOVER_DOC)
 
     for fragment in (
-        "ModuleLoweringShellV1",
-        "ModuleLoweringShellPortV1",
-        "ModuleLoweringShellDrainInventoryV1",
-        "PreparedModuleLoweringShellDrainV1",
-        "from_empty_module",
-        "with_port",
-        "prepare_drain",
-        "FunctionMapNotEmpty",
-        "DuplicateFunction",
-        "DuplicateInventorySymbol",
-        "InventoryMismatch",
-    ):
-        require(module_shell, fragment, "HEADERPORT0 I0-SHELL-S0 vocabulary")
-    require(invocation_drain, "ConditionFnPolicyV1", "live condition policy")
-    live_drain = read(ROOT / "src/mir/builder/module_draft_collector/drain.rs")
-    require(live_drain, "retained_construction_rejects_all_alternative_drain_preflights", "live drain refusal fixture")
-    require(live_drain, "DuplicateManifestKey", "duplicate manifest key refusal")
-    require(live_drain, "DuplicateManifestSymbol", "duplicate manifest symbol refusal")
-    for fragment in (
-        "shell: ModuleLoweringShellV1",
         "collector: ModuleDraftCollectorV1",
         "fresh_invocation_exposes_the_same_empty_prefix_as_a_new_module",
         "read_borrow_ends_before_prepared_admission_and_updates_the_same_prefix",
@@ -236,12 +212,6 @@ def main() -> int:
         "headers.visit_symbols",
     ):
         require(method_index, fragment, "HEADERPORT0 I0-ACCESS0-P0 inventory adapter")
-    for fragment in (
-        "intern_closure_body",
-        "static_data_plan",
-        "shell_metadata_port_owns_closure_and_static_plan_operations",
-    ):
-        require(module_shell, fragment, "HEADERPORT0 I0-ACCESS0-P0 shell surface")
     access_port_consumers = []
     if "mod module_lowering_access_port" in builder:
         raise AssertionError("retired ACCESS0-S0 module must not re-enter")
@@ -257,9 +227,7 @@ def main() -> int:
         )
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
         if path in (
-            INVOCATION_DRAIN,
             INVOCATION,
-            MODULE_SHELL,
             *MATRIX_CONSUMERS,
             INVOCATION_STATE,
             MODULE_DRAFT,
@@ -286,10 +254,10 @@ def main() -> int:
                        and "ModuleLoweringInvocationStateV1" in read(path).split("#[cfg(test)]", 1)[0]]
     if state_consumers:
         raise AssertionError(f"retired STATE0 has callers: {state_consumers}")
-    for path in (INVOCATION, INVOCATION_DRAIN):
+    for path in (INVOCATION,):
         forbid(read(path), "current_module", f"STATE0-G0 fallback in {path.relative_to(ROOT)}")
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
-        if path in (INVOCATION, INVOCATION_DRAIN, INVOCATION_STATE, DRAINED_CANDIDATE_P0) or path.name.endswith(
+        if path in (INVOCATION, INVOCATION_STATE, DRAINED_CANDIDATE_P0) or path.name.endswith(
             "_tests.rs"
         ):
             continue
@@ -304,21 +272,6 @@ def main() -> int:
             "ModuleLoweringInvocationDrainOwnerV1",
             f"STATE0-G0 production drain caller {path.relative_to(ROOT)}",
         )
-    for fragment in (
-        "shell_metadata_port_is_the_only_narrow_metadata_write_surface",
-        "shell_drain_inventory_rejects_duplicate_symbols_before_commit",
-        "shell_drain_rejects_inventory_function_mismatch_before_commit",
-    ):
-        require(module_shell, fragment, "HEADERPORT0 I0-SHELL-P0 fixture")
-    for path in (ROOT / "src/mir/builder").rglob("*.rs"):
-        if path in (MODULE_SHELL, REENTRANT_TESTS, DRAINED_CANDIDATE_P0) or path.name.endswith("_tests.rs"):
-            continue
-        forbid(
-            read(path),
-            "prepare_drain()",
-            f"HEADERPORT0 I0-SHELL-S0 disconnected drain consumer {path.relative_to(ROOT)}",
-        )
-
     for fragment in (
         "PreparedCollectorReplacementV1",
         "IndexDrift",

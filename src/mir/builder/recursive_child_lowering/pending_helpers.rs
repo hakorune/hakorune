@@ -27,37 +27,6 @@ impl RawInvocationChildPortV1<'_, '_> {
             .commit_normal_instance_constructor_pending(pending, admission)
     }
 
-    pub(in crate::mir::builder) fn complete_raw_root_static_child_branded(
-        &mut self,
-        builder: &mut MirBuilder,
-        prepared: super::super::PreparedRawRootStaticChildDraftV1,
-    ) -> Result<
-        super::super::module_invocation_owner_chain::InvocationBranded<
-            super::super::module_draft_collector::CollectedDraftAdmissionReceiptV1,
-        >,
-        ModuleLoweringPortChildErrorV1,
-    > {
-        let (admission, lowering) = prepared.into_parts();
-        let source_root = RawInvocationRootLineageV1::Main(admission.source_locator().clone());
-        let pending = self.with_source_transport_v1(
-            RawInvocationSourceTransportV1::root((), source_root),
-            |port, ()| {
-                port.capture_static_box_method_pending_v1(
-                    builder,
-                    lowering.function_name,
-                    lowering.params,
-                    lowering.param_decls,
-                    lowering.return_type_name,
-                    lowering.body,
-                    lowering.uses,
-                    lowering.attrs,
-                    Some(lowering.declaration),
-                )
-            },
-        )?;
-        self.module_port
-            .commit_legacy_symbol_pending_branded(pending, admission.into_collector_parts())
-    }
 
     pub(in crate::mir::builder) fn is_direct_call_scope_v1(&self) -> bool {
         let Some(loans) = self.direct_call_loans.as_deref() else {

@@ -27,14 +27,17 @@ use super::source_view::{BodyChildRoleV1, ExprChildRoleV1};
 
 mod first_family_plan;
 mod function_role_policy;
+#[cfg(test)]
 mod resolved_owner_header;
 mod trivial_plan;
 mod validation_errors;
 pub(crate) use first_family_plan::{
-    CanonicalFirstFamilyPlanBrandV1, CanonicalFirstFamilyPlanV1,
-    CanonicalGenericG0PlanV1, CanonicalLoopFamilyPlanV1,
+    CanonicalFirstFamilyPlanV1, CanonicalGenericG0PlanV1, CanonicalLoopFamilyPlanV1,
 };
+#[cfg(test)]
+pub(crate) use first_family_plan::CanonicalFirstFamilyPlanBrandV1;
 use function_role_policy::{CanonicalFunctionRolePolicyV1, DirectCallAdmissionV1};
+#[cfg(test)]
 pub(crate) use resolved_owner_header::{
     ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
 };
@@ -50,6 +53,7 @@ pub(crate) struct CanonicalCurrentAPlusPlanV1<'a> {
 }
 
 impl<'a> CanonicalCurrentAPlusPlanV1<'a> {
+    #[cfg(test)]
     pub(crate) fn seal_resolved_owner_header_v1(
         &self,
     ) -> Result<VerifiedResolvedOwnerHeaderV1, ResolvedOwnerHeaderSealErrorV1> {

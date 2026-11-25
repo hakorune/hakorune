@@ -241,12 +241,10 @@ llvm = Path(sys.argv[1]).read_text()
 root = Path(sys.argv[2])
 schedule_callers = [
     "src/mir/compiler/mod.rs",
-    "src/mir/compiler/module_postprocess.rs",
-    "src/mir/builder/raw_root_physical/drain_terminal.rs",
     "src/runner/mir_json_v0.rs",
     "src/runner/json_v0_bridge/core.rs",
 ]
-if sum((root / path).read_text().count("canonicalize_for_site(") for path in schedule_callers) != 6: raise SystemExit("callsite canonicalizer schedule caller inventory drifted from six")
+if sum((root / path).read_text().count("canonicalize_for_site(") for path in schedule_callers) != 4: raise SystemExit("callsite canonicalizer schedule caller inventory drifted from four")
 array_writer = (root / "src/mir/array_element_write.rs").read_text()
 if array_writer.count("*instruction = MirInstruction::LegacyCallV0 {") != 1: raise SystemExit("ArrayElementWrite legacy projection writer count drifted from one")
 direct_call = (root / "src/mir/canonical_direct_call.rs").read_text()

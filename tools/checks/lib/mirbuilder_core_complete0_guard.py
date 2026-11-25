@@ -8,8 +8,6 @@ ROOT = Path(__file__).resolve().parents[3]
 FUNCTION_EXIT_DOC = ROOT / "docs/reference/language/function-exit-and-entry-result.md"
 FUNCTION_EXIT_OWNER = ROOT / "src/mir/resolved_control_flow/function_control.rs"
 DRAFT_SEAL = ROOT / "src/mir/builder/resolved_lowering/draft_seal_owner.rs"
-SCRIPT_RECIPE = ROOT / "src/mir/raw_root_body_recipe.rs"
-RAW_COMPILE = ROOT / "src/mir/compiler/raw_published_compile.rs"
 TASK = ROOT / (
     "docs/development/current/main/investigations/"
     "mirbuilder-core-complete0-proof-task-2026-07-26.md"
@@ -26,8 +24,6 @@ def main() -> int:
     function_doc = FUNCTION_EXIT_DOC.read_text()
     function_owner = FUNCTION_EXIT_OWNER.read_text()
     draft_seal = DRAFT_SEAL.read_text()
-    script_recipe = SCRIPT_RECIPE.read_text()
-    raw_compile = RAW_COMPILE.read_text()
 
     for fragment in (
         "MIRBUILDER-CORE-COMPLETE0-P0",
@@ -49,17 +45,15 @@ def main() -> int:
         require(function_doc, fragment, f"normative function/entry contract {fragment}")
     require(function_owner, "pub(crate) struct SealedFunctionExitContractV1", "function exit owner")
     require(draft_seal, "PreparedFunctionDraftSealV1", "prepared draft seal owner")
-    for fragment in ("RawScriptBodyRecipeV1", "RawScriptTerminalRecipeV1"):
-        require(script_recipe, fragment, f"Script result owner {fragment}")
-
-    require(raw_compile, "pub(in crate::mir) fn compile_raw_published_v1(", "Raw publication kernel")
+    normal = ROOT / "src/mir/compiler/normal_default_pipeline.rs"
+    require(normal.read_text(), "prepared.commit(&mut compiler.builder)", "normal publication")
+    root = ROOT / "src/mir/builder/normal_default_root_final_validation.rs"
+    require(root.read_text(), "RootValidation::Script", "Script result owner")
 
     checked = (
         FUNCTION_EXIT_DOC,
         FUNCTION_EXIT_OWNER,
         DRAFT_SEAL,
-        SCRIPT_RECIPE,
-        RAW_COMPILE,
         TASK,
         Path(__file__),
     )

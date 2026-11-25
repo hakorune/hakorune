@@ -21,7 +21,8 @@ fn draft(symbol: &str, arity: usize, return_type: MirType) -> MirFunction {
 
 #[test]
 fn successful_commit_returns_exact_insert_receipt() {
-    let mut collector = ModuleDraftCollectorV1::default();
+    let brand = super::module_invocation_identity::ModuleInvocationBrandV1::test_with_ordinal(91);
+    let mut collector = ModuleDraftCollectorV1::with_brand(brand);
     let receipt = collector
         .prepare_admission(
             FunctionDraftKeyV1::LegacySymbol("Parser.skip/1".into()),
@@ -32,7 +33,10 @@ fn successful_commit_returns_exact_insert_receipt() {
         .unwrap()
         .seal(draft("Parser.skip/1", 1, MirType::Integer))
         .unwrap()
-        .collect();
+        .collect_branded()
+        .unwrap();
+    assert_eq!(receipt.brand(), brand);
+    let receipt = receipt.into_payload();
 
     assert_eq!(
         receipt.key(),
@@ -48,6 +52,7 @@ fn successful_commit_returns_exact_insert_receipt() {
         receipt.replacement(),
         &CollectedDraftReplacementDispositionV1::Inserted
     );
+    assert_eq!(receipt.collector_brand(), Some(brand));
     assert!(collector.contains_symbol("Parser.skip/1"));
 }
 

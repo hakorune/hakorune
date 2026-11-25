@@ -66,9 +66,6 @@ pub(crate) mod finalized_root_handoff;
 pub(crate) mod linear_metadata_slot; // clone-scrub lifecycle observation vocabulary
 pub(crate) mod named_array_obligation;
 pub(crate) mod normal_callable_semantic_package;
-pub(crate) mod raw_finalization_contract;
-pub(crate) mod raw_physical_drain;
-pub(crate) mod raw_root_body_recipe;
 #[cfg(test)]
 #[path = "shared_loop_source_window_tests.rs"]
 pub(crate) mod shared_loop_source_window;
@@ -178,9 +175,6 @@ pub mod map_repr_plan; // MIR-owned MapBox representation plan family
 pub(crate) mod module_invocation_identity;
 #[cfg(test)]
 mod module_invocation_identity_idkernel_p0;
-pub(crate) mod module_invocation_policy;
-#[cfg(test)]
-mod module_invocation_policy_tests;
 pub mod naming; // Static box / entry naming rules（NamingBox）
 pub(crate) mod numeric_substrate; // fixed-width/pointer-sized numeric type-name vocabulary
 pub mod optimizer;

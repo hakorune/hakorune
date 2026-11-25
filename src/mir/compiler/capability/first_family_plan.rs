@@ -1,4 +1,5 @@
 use super::super::function_input::ResolvedFunctionLoweringInputV1;
+#[cfg(test)]
 use super::resolved_owner_header::{
     ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
 };
@@ -12,6 +13,7 @@ pub(crate) enum CanonicalLoopFamilyPlanV1<'a> {
     GenericG0(CanonicalGenericG0PlanV1<'a>),
 }
 
+#[cfg(test)]
 impl<'a> CanonicalLoopFamilyPlanV1<'a> {
     pub(crate) fn function_input(
         &self,
@@ -39,6 +41,7 @@ impl<'a> CanonicalGenericG0PlanV1<'a> {
         self.source_parent.source_input()
     }
 
+    #[cfg(test)]
     pub(crate) fn source_parent(&self) -> &VerifiedGenericG0SourceParentV1<'a> {
         &self.source_parent
     }
@@ -47,12 +50,7 @@ impl<'a> CanonicalGenericG0PlanV1<'a> {
         self.source_parent
     }
 
-    pub(crate) fn physical_callable_lane_count(&self) -> u32 {
-        self.source_parent
-            .storage_lane()
-            .physical_callable_lane_count()
-    }
-
+    #[cfg(test)]
     pub(crate) fn seal_resolved_owner_header_v1(
         &self,
     ) -> Result<VerifiedResolvedOwnerHeaderV1, ResolvedOwnerHeaderSealErrorV1> {
@@ -78,9 +76,11 @@ pub(crate) enum CanonicalFirstFamilyPlanV1<'a> {
     CurrentCanonicalAPlus(CanonicalCurrentAPlusPlanV1<'a>),
 }
 
+#[cfg(test)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct CanonicalFirstFamilyPlanBrandV1(ResolvedOwnerHeaderFamilyV1);
 
+#[cfg(test)]
 impl CanonicalFirstFamilyPlanBrandV1 {
     pub(in crate::mir::compiler) const fn from_family(family: ResolvedOwnerHeaderFamilyV1) -> Self {
         Self(family)
@@ -91,6 +91,7 @@ impl CanonicalFirstFamilyPlanBrandV1 {
     }
 }
 
+#[cfg(test)]
 impl<'a> CanonicalFirstFamilyPlanV1<'a> {
     pub(in crate::mir::compiler) fn brand(&self) -> CanonicalFirstFamilyPlanBrandV1 {
         let family = match self {

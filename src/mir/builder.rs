@@ -88,11 +88,6 @@ pub(in crate::mir) use normal_callable_dynamic_source::{
 pub(in crate::mir) use normal_callable_semantic_source::NormalCallableSemanticAdmissionV1;
 pub(in crate::mir) use normal_callable_semantic_source::VerifiedNormalCallableSemanticSourceV1;
 mod calls; // Call system modules (refactored from builder_calls)
-mod canonical_physical_drain;
-#[cfg(test)]
-mod canonical_root_completion_receipt0_p0; // CUT0-I0-ROOT0-CANON0-RECEIPT0 fixtures
-#[cfg(test)]
-mod canonical_root_completion_recursive0_p0; // CUT0-I0-ROOT0-CANON0-RECURSIVE0 fixtures
 mod collection_literals; // ArrayLiteral / MapLiteral lowering
 mod compilation_context; // Phase 136 follow-up (Step 7/7): CompilationContext extraction
 pub(crate) use compilation_context::CompilationContext;
@@ -128,45 +123,14 @@ mod normal_script_composite_partition;
 mod normal_script_direct_static_lookup;
 mod normal_script_instance_box_transfer;
 mod normal_script_neutral_window;
-mod raw_required_condition_draft; // ROOTBATCH0-S0b typed condition producer
-#[cfg(test)]
-mod raw_required_condition_draft_p0; // ROOTBATCH0-S0b exact factory contract
-mod raw_root_body_exit; // RAW-BODY-RETURN0 sole signature/Return/witness owner
-pub(in crate::mir) use raw_root_body_exit::{RawVmSourceEntryDecodeKindV1, RawVmUnitOriginV1};
-mod raw_root_body_lowering; // RAW-SOURCE0-LOWER0-ROOT0-BODY0 recipe-only value lowerer
-#[cfg(test)]
-mod raw_root_body_lowering_p0; // BODY0-S0-B disconnected lowerer fixtures
-mod raw_root_environment_install;
-mod raw_root_physical; // RAW-SOURCE0-LOWER0-ROOT0-OWNER0-PHYSICAL0 empty carrier
 mod raw_static_main_compat_batch; // explicit raw static-Main source partition
-mod script_physical_exit; // NORMAL-SCRIPT0 brand-free Script terminal kernel
-pub(in crate::mir) use builder_publication_target::{
-    check_builder_external_commit_quiescence, BuilderPublicationReceiptV1,
-};
+#[cfg(test)]
 pub(in crate::mir) use normal_module_transaction::{
     canonical_normal_main_entry_target, CanonicalNormalMainEntryTargetV1,
 };
-pub(in crate::mir) use raw_root_physical::publication_terminal::RawPublishedModuleV1;
-pub(in crate::mir) use root_batch_slot::RawMainEntryTargetV1;
 mod raw_source_projection; // RAW-SOURCE0-PLAN0 owned source locators
-pub(in crate::mir) use raw_root_environment_install::{
-    CompletedRawRootBodyPhysicalV1, InstalledRawRootEnvironmentV1, RawRootBodyLoweringErrorV1,
-    RawRootEnvironmentInstallErrorV1, RawRootEnvironmentInstallOwnerV1,
-    RawRootEnvironmentInstallRouteV1, RawRootEnvironmentProjectionV1,
-    RejectedRawRootBodyPhysicalV1, RejectedRawRootEnvironmentInstallV1,
-};
-pub(in crate::mir) use raw_root_physical::callable_main_terminal::RawRootPhysicalCallableMainErrorV1;
-pub(in crate::mir) use raw_root_physical::child_terminal::RawRootPhysicalChildErrorV1;
-pub(in crate::mir) use raw_root_physical::root_batch_terminal::{
-    CompletedRawRootBatchPhysicalV1, RawRootBatchPhysicalErrorV1, RejectedRawRootBatchPhysicalV1,
-};
-pub(in crate::mir) use raw_root_physical::RawRootBodyPhysicalErrorV1;
-pub(in crate::mir) use raw_root_physical::RawRootPhysicalStateV1;
-mod raw_root_child_work; // RAW-SOURCE0-LOWER0-ROOT0-CHILDREN0 source-bound helper work
-pub(in crate::mir) use raw_root_child_work::RawCallableMainWorkV1;
 mod raw_compat_runtime_box_fate;
 mod raw_compatibility_child_terminal;
-mod raw_root_static_child_admission;
 pub(in crate::mir) use entry_materialization::{
     CallableMainMaterializationPolicyV1, CallableMainMaterializationTargetV1,
     NormalEntryMaterializationSourceReceiptV1, RawEntryMaterializationSourceReceiptV1,
@@ -179,22 +143,12 @@ pub(in crate::mir) use normal_root_execution::{
     NormalRootExecutionConsumerV1,
 };
 pub(in crate::mir) use normal_runtime_inputs::NormalRuntimeInputSnapshotV1;
-pub(in crate::mir) use raw_root_static_child_admission::PreparedRawRootStaticChildDraftV1;
-pub(in crate::mir) use raw_source_projection::{
-    OwnedRawRootProjectionV1, OwnedRawSourceV1, RawSourceLocatorV1, RawSourceOriginV1,
-    RawSourceProjectionErrorV1,
-};
-mod main_pending_draft; // HEADERPORT0-I0-MAINPENDING0-S0 disconnected handoff
+pub(in crate::mir) use raw_source_projection::{OwnedRawRootProjectionV1, RawSourceLocatorV1};
 #[cfg(test)]
-mod main_pending_draft_p0; // HEADERPORT0-I0-MAINPENDING0-P0 fixtures
+pub(in crate::mir) use raw_source_projection::{OwnedRawSourceV1, RawSourceOriginV1};
 mod me_call_header_observation; // ACCESS0-MEHEADER-S0 typed source snapshot
 mod metadata_context; // Phase 136 follow-up (Step 6/7): MetadataContext extraction
 mod method_call_handlers;
-#[cfg(test)]
-mod module_declaration_fact_shell_commit_p0; // HEADERPORT0 BORROW-P0-ROOT-P0c proof
-mod module_declaration_facts; // HEADERPORT0-I0-SHELLFACT0-S0 disconnected facts
-#[cfg(test)]
-mod module_declaration_facts_p0; // HEADERPORT0-I0-SHELLFACT0-P0 fixtures
 mod module_draft_collector;
 #[cfg(test)]
 mod module_draft_collector_receipt_p0; // ROUTEINV-P0a-RECEIPT-P0 matrix
@@ -202,53 +156,18 @@ mod module_draft_collector_receipt_p0; // ROUTEINV-P0a-RECEIPT-P0 matrix
 mod module_draft_collector_receipt_tests; // ROUTEINV-P0a-RECEIPT-S0 fixtures
 #[cfg(test)]
 mod module_finalization_candidate_p0; // HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0 matrix
-mod module_invocation_brand0; // CUT0-I0-ROOT0-BRAND0 real owner
-#[cfg(test)]
-mod module_invocation_brand_p0; // CUT0-I0-ID0-P0 fixtures
-mod module_invocation_drain; // HEADERPORT0 I0-SHELL-I0-S0 disconnected drain
 mod module_invocation_identity; // CUT0-I0-ID0-S0 disconnected identity/token
 #[cfg(test)]
 mod module_invocation_identity_p0; // CUT0-I0-ID0-S0 fixtures
-mod module_invocation_owner_chain; // CUT0-I0-ID0-P0 disconnected brand chain
+#[cfg(test)]
+mod module_invocation_owner_chain;
+#[cfg(test)]
 mod normal_module_transaction; // NORMAL-MODULE-TX0-L0 disconnected schema
-pub(in crate::mir) use canonical_physical_drain::{
-    CanonicalDrainedCallablePhysicalV1, CanonicalDrainedSinglePhysicalV1,
-    CanonicalPhysicalDrainPrepareErrorV1, PreparedCanonicalCallablePhysicalDrainV1,
-    PreparedCanonicalSinglePhysicalDrainV1, RejectedCanonicalCallablePhysicalDrainV1,
-    RejectedCanonicalSinglePhysicalDrainV1,
-};
-pub(in crate::mir) use module_draft_collector::{
-    CollectedDraftAdmissionReceiptV1, CommitCallableCollectorBatchReceiptV1,
-    CommitCollectedDraftAdmissionReceiptV1,
-};
-pub(in crate::mir) use module_invocation_brand0::{
-    CanonicalCallableCapabilityWitnessV1, CanonicalPhysicalCollectionErrorV1,
-    CollectedCanonicalCallablePhysicalV1, CollectedCanonicalSinglePhysicalV1,
-    InvocationPhysicalStateV1, RejectedCanonicalPhysicalCollectionV1,
-};
-pub(in crate::mir) use module_invocation_owner_chain::InvocationBranded;
-pub(in crate::mir) use module_lowering_shell::ModuleLoweringShellErrorV1;
-pub(in crate::mir) use raw_root_physical::drain_terminal::{
-    PreparedRawPhysicalDrainV1, RawDrainWitnessV1, RawDrainedPhysicalV1, RawPhysicalDrainErrorV1,
-    RejectedRawPhysicalDrainV1,
-};
-pub(in crate::mir) use raw_root_physical::finalization_terminal::{
-    RawFinalizationParitySealV1, RawFinalizedPhysicalV1,
-    RawPhysicalFinalizationErrorV1 as RawRootPhysicalFinalizationErrorV1,
-    RejectedRawPhysicalFinalizationV1,
-};
-pub(in crate::mir) use raw_root_physical::postprocess_terminal::{
-    RawExternalCommitModuleV1, RawExternalCommitPhysicalErrorV1,
-    RawExternalCommitPhysicalHandoffV1, RawPostprocessCarrierParityErrorV1,
-    RawPostprocessParitySealV1, RawPostprocessPhysicalOwnerV1, RawPostprocessProgressV1,
-    RawPostprocessedPhysicalV1,
-};
 mod module_invocation_session; // Shared isolated Builder transaction
 mod pinned_text_invocation_binding; // Session-owned pinned-Text target/brand ingress
 pub(in crate::mir::builder) use module_invocation_session::UnpublishedCallableLoopRootScopeV1;
 pub(in crate::mir) use module_invocation_session::{
-    BuilderCommitReadinessErrorV1, BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1,
-    PreparedBuilderExternalCommitV1, PreparedBuilderModuleSessionV1,
+    BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1, PreparedBuilderExternalCommitV1,
 };
 #[cfg(test)]
 mod module_invocation_session_p0; // CUT0-I0-SESSION0 fixtures
@@ -286,29 +205,15 @@ pub(in crate::mir) use normal_default_root_catalog_lifecycle::CompletedNormalDef
 #[cfg(test)]
 pub(in crate::mir) use normal_default_root_catalog_lifecycle::NormalDefaultRootCatalogLifecycleStageV1;
 mod module_lowering_invocation;
-mod module_lowering_invocation_access; // HEADERPORT0 WIRING-S0 live bundle
-#[cfg(test)]
-mod module_lowering_invocation_access_tests;
 mod module_lowering_invocation_legacy_term;
 #[cfg(test)]
 mod module_lowering_invocation_reentrant_tests;
-mod module_lowering_shell; // HEADERPORT0 I0-SHELL-S0 disconnected shell
 mod nonmain_static_box_method_batch;
-mod raw_expansion_receipt_ledger; // ROUTEINV-P0b-RAWLEDGER-S0 disconnected owner
 #[cfg(test)]
 mod runtime_box_fate_tests;
-pub(in crate::mir) use raw_expansion_receipt_ledger::RawCallableMainCompatibilityDispositionV1;
-#[cfg(test)]
-mod raw_expansion_receipt_ledger_p0; // ROUTEINV-P0b-RAWLEDGER-P0 proof matrix
-#[cfg(test)]
-mod raw_expansion_receipt_ledger_tests; // ROUTEINV-P0b-RAWLEDGER-S0 fixtures
 mod raw_expression_dispatch; // single raw AST expression dispatcher
 mod raw_loop_child_entry; // LOOPBRIDGE0-S0 pure raw Loop child-entry quarantine
 mod raw_loop_child_port; // single located-source Loop child-entry boundary
-mod raw_root_completion; // CUT0-I0-ROOT0-RAW0 retained raw root witness
-mod raw_root_completion_preflight; // ROOT-RETENTION0-PREFLIGHT borrowed owner checks
-mod root_batch_slot; // HEADERPORT0-I0-ROOTBATCH0-S0 identity SSOT
-pub(in crate::mir) use root_batch_slot::raw_main_entry_target;
 mod enum_variant_source_demand;
 mod raw_expression_recursion_guard;
 mod raw_invocation_body;
@@ -327,14 +232,6 @@ mod recursive_child_lowering_rawport_header_tests;
 mod recursive_child_lowering_rawport_tests;
 #[cfg(test)]
 mod recursive_child_lowering_tests;
-mod root_body_completion; // HEADERPORT0-I0-BODYDRAIN0-S0 disconnected witness
-#[cfg(test)]
-mod root_body_completion_p0; // HEADERPORT0-I0-BODYDRAIN0-P0 fixtures
-mod root_draft_batch; // HEADERPORT0-I0-ROOTBATCH0-S0 disconnected batch // CUT0-I0-POST0-RAW-S0 physical retention
-#[cfg(test)]
-mod root_draft_batch_commit_p0; // HEADERPORT0 BORROW-P0-ROOT-P0b proof
-#[cfg(test)]
-mod root_draft_batch_p0; // HEADERPORT0-I0-ROOTBATCH0-P0 fixtures
 mod static_result_publication_ingress;
 mod variable_context; // Phase 136 follow-up (Step 5/7): VariableContext extraction // Method call handler separation (Phase 3) // call(expr)
                       // include lowering removed (using is handled in runner)

@@ -514,6 +514,41 @@ fn catalog_session_rejects_missing_and_duplicate_install_without_replacing_first
 }
 
 #[test]
+fn selected_install_rejects_an_occupied_catalog_without_replacing_it() {
+    use crate::mir::builder::{BuilderInstallConsumerV1, CompilationContext};
+    use crate::mir::normal_callable_semantic_package::{
+        issue_normal_callable_semantic_package_v1, NormalCallableSemanticPackageInstallIssueV1,
+    };
+    use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
+
+    let mut context = CompilationContext::new();
+    let source = NyashParser::parse_from_string("static box Keep { value(): i64 { return 7 } }")
+        .unwrap();
+    let original = VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&source).unwrap();
+    context.install_callable_declaration_catalog(original).unwrap();
+    let installed = context.callable_declaration_catalog().unwrap();
+    let original = installed.keys().cloned().collect::<Vec<_>>();
+    assert!(!original.is_empty());
+
+    let mut resolver = FunctionSemanticResolverSessionV1::new(91).unwrap();
+    let package = issue_normal_callable_semantic_package_v1(
+        &mut resolver,
+        final_source("static box Main { main() { return 0 } }"),
+    )
+    .unwrap();
+    let rejected = package.with_normal_callable_install_once(
+        &mut context,
+        BuilderInstallConsumerV1::new(),
+    );
+    assert!(matches!(
+        rejected,
+        Err(NormalCallableSemanticPackageInstallIssueV1::CatalogSlotOccupied)
+    ));
+    let installed = context.callable_declaration_catalog().unwrap();
+    assert_eq!(installed.keys().cloned().collect::<Vec<_>>(), original);
+}
+
+#[test]
 fn source_backed_app_main_co_seal_retains_parser_identity_and_catalog_brand() {
     let source = final_source("static box Main { main() { 1 } helper() { 2 } }");
     let parser_identity = source
