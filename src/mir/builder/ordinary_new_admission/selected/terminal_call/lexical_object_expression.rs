@@ -48,7 +48,7 @@ pub(in crate::mir::builder) fn emit(
     let call = prepared.materialize_with_ledger(site.owner(), &row, arguments, ledger)?;
     let normal = builder.next_block_id();
     let (invoke, projection) = emit_call_normal(
-        builder, call, result_kind, frame, normal, fault, result, carrier,
+        builder, call, result_kind, frame, normal, fault, result, || Ok(carrier),
     )?;
     bindings.push(invoke.clone());
     bindings.push(projection.clone());

@@ -88,10 +88,11 @@ fn result_type(result: InvokeCallResultKind, class: Option<&str>) -> Result<MirT
     }
 }
 
-/// Sole physical Call/Normal pair for source-qualified lexical results.
+/// Sole physical Call/Normal pair for source-qualified results.
 /// Callers retain source/argument authority, reserve IDs in their original
 /// order, and own the Fault cleanup and final inventory. This helper neither
-/// invents a local destination nor transfers a Home.
+/// invents a local destination nor transfers a Home. Callers can supply a
+/// prechecked type or resolve the carrier after the Normal result is emitted.
 fn emit_call_normal(
     builder: &mut MirBuilder,
     call: MirCall,
@@ -100,17 +101,16 @@ fn emit_call_normal(
     normal_landing: BasicBlockId,
     fault_landing: BasicBlockId,
     result: ValueId,
-    carrier: MirType,
+    carrier: impl FnOnce() -> Result<MirType, String>,
 ) -> Result<
     ((BasicBlockId, MirInstruction), (BasicBlockId, MirInstruction)),
     String,
 > {
-    if result_kind == InvokeCallResultKind::Unit { return Err(freeze("unit-call-has-no-value")); }
     let invoke = emit_call_normal_start(builder, call, result_kind, frame, normal_landing, fault_landing)?;
     let origin = invoke.0;
     let projection = MirInstruction::InvokeNormalResult { invoke_block: origin, dst: result };
     builder.emit_instruction(projection.clone())?;
-    builder.function_state.type_ctx.value_types.insert(result, carrier);
+    builder.function_state.type_ctx.value_types.insert(result, carrier()?);
     Ok((invoke, (normal_landing, projection)))
 }
 
@@ -350,7 +350,7 @@ pub(in crate::mir::builder) fn emit_local(
         .materialize_call(None, arguments.clone())
         .map_err(|_| freeze("local-call-projection-failed"))?;
     let frame = state.borrow_fault_frame(builder)?;
-    let origin = builder
+    builder
         .function_state
         .current_block
         .ok_or_else(|| freeze("no-block"))?;
@@ -371,38 +371,24 @@ pub(in crate::mir::builder) fn emit_local(
         &mut bindings,
     )?;
     let fault_landing = cleanup_chain(builder, frame, &FaultCleanupPlanV1::unwind(unwind), outward, &mut bindings)?;
-    let invoke = MirInstruction::Invoke {
-        operation: InvokeOperation::Call {
-            call,
-            result: result_kind,
+    let (invoke, projection) = emit_call_normal(
+        builder, call, result_kind, frame, normal_landing, fault_landing, result, || {
+            let result_class = match result_kind {
+                InvokeCallResultKind::NullableHandle => Some(
+                    row.published_key_v1()
+                        .and_then(|key| ledger.nullable_result_class(key))
+                        .ok_or_else(|| freeze("nullable-result-class-missing"))?,
+                ),
+                InvokeCallResultKind::Handle => Some(
+                    row.published_key_v1()
+                        .and_then(|key| ledger.callable_result_class(key))
+                        .ok_or_else(|| freeze("handle-result-class-missing"))?,
+                ),
+                _ => None,
+            };
+            result_type(result_kind, result_class)
         },
-        fault_frame: frame,
-        normal_landing,
-        fault_landing,
-    };
-    builder.emit_instruction(invoke.clone())?;
-    builder.start_new_block(normal_landing)?;
-    let projection = MirInstruction::InvokeNormalResult {
-        invoke_block: origin,
-        dst: result,
-    };
-    builder.emit_instruction(projection.clone())?;
-    let result_class = match result_kind {
-        InvokeCallResultKind::NullableHandle => Some(row.published_key_v1().and_then(|key| ledger.nullable_result_class(key)).ok_or_else(|| freeze("nullable-result-class-missing"))?),
-        InvokeCallResultKind::Handle => Some(
-            row.published_key_v1()
-                .and_then(|key| ledger.callable_result_class(key))
-                .ok_or_else(|| freeze("handle-result-class-missing"))?,
-        ),
-        _ => None,
-    };
-    builder
-        .function_state
-        .type_ctx
-        .value_types
-        .insert(result, result_type(result_kind, result_class)?);
-    let invoke = (origin, invoke);
-    let projection = (normal_landing, projection);
+    )?;
     bindings.push(invoke.clone());
     bindings.push(projection.clone());
     match result_kind {
@@ -458,7 +444,7 @@ pub(in crate::mir::builder) fn emit_local_lexical(
         .take_exact_lexical_value(owner, row.receiver_site().node(), row.receiver_binding()?)
         .map_err(|error| format!("[freeze:contract][lexical-handle/receiver/{error:?}]"))?;
     let frame = state.borrow_fault_frame(builder)?;
-    let origin = builder
+    builder
         .function_state
         .current_block
         .ok_or_else(|| freeze("no-block"))?;
@@ -492,38 +478,24 @@ pub(in crate::mir::builder) fn emit_local_lexical(
             }
         })
         .collect::<Result<Vec<_>, _>>()?;
-    let invoke = MirInstruction::Invoke {
-        operation: InvokeOperation::Call {
-            call: MirCall::new(
-                None,
-                crate::mir::definitions::Callee::SameModuleInstance {
-                    key: row.target().clone(),
-                    receiver,
-                },
-                arguments,
-            ),
-            result: InvokeCallResultKind::Handle,
+    let call = MirCall::new(
+        None,
+        crate::mir::definitions::Callee::SameModuleInstance {
+            key: row.target().clone(),
+            receiver,
         },
-        fault_frame: frame,
-        normal_landing,
-        fault_landing,
-    };
-    builder.emit_instruction(invoke.clone())?;
-    builder.start_new_block(normal_landing)?;
-    let projection = MirInstruction::InvokeNormalResult {
-        invoke_block: origin,
-        dst: result,
-    };
-    builder.emit_instruction(projection.clone())?;
-    let result_class = ledger
-        .callable_result_class(row.target())
-        .ok_or_else(|| freeze("handle-result-class-missing"))?;
-    builder.function_state.type_ctx.value_types.insert(
-        result,
-        result_type(InvokeCallResultKind::Handle, Some(result_class))?,
+        arguments,
     );
-    bindings.push((origin, invoke));
-    bindings.push((normal_landing, projection));
+    let (invoke, projection) = emit_call_normal(
+        builder, call, InvokeCallResultKind::Handle, frame, normal_landing, fault_landing, result, || {
+            let class = ledger
+                .callable_result_class(row.target())
+                .ok_or_else(|| freeze("handle-result-class-missing"))?;
+            result_type(InvokeCallResultKind::Handle, Some(class))
+        },
+    )?;
+    bindings.push(invoke);
+    bindings.push(projection);
     ledger.record_handle_call_emission(&owned_site, result, bindings)?;
     Ok(result)
 }

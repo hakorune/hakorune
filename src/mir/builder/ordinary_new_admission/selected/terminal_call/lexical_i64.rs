@@ -283,8 +283,9 @@ fn emit_lexical_i64_call(
     if let Some(read) = stored_read { prepared = prepared.with_stored_receiver(read)?; }
     let call = prepared.materialize_using(owner, row, sealed_arguments, Some(ledger))?;
     let packet = if let Some(result) = result {
+        let carrier = result_type(kind, None)?;
         let (invoke, projection) = emit_call_normal(
-            builder, call, kind, frame, normal_landing, fault_landing, result, result_type(kind, None)?,
+            builder, call, kind, frame, normal_landing, fault_landing, result, || Ok(carrier),
         )?;
         bindings.push(invoke.clone());
         bindings.push(projection.clone());
