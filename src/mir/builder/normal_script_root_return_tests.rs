@@ -84,3 +84,40 @@ fn final_root_void_return_is_complete_without_a_value_demand() {
         ResolveScriptOutcomeV1::Complete(_),
     ));
 }
+
+
+#[test]
+fn normal_script_commits_one_return_of_the_selected_operand() {
+    use crate::mir::{ConstValue, MirInstruction, MirType};
+    use crate::parser::NyashParser;
+
+    for (source, expected_type, expected_value) in [
+        ("return 7", MirType::Integer, ConstValue::Integer(7)),
+        ("return", MirType::Void, ConstValue::Void),
+        ("", MirType::Void, ConstValue::Void),
+    ] {
+        let program = NyashParser::parse_from_string(source).expect("Script source");
+        let result = MirCompiler::with_options(false)
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    program,
+                    Some("normal-script-return.hako"),
+                    Default::default(),
+                )
+                .expect("normal Script request"),
+            )
+            .expect("normal Script publishes only a finished module");
+        assert!(result.verification_result.is_ok(), "{source:?}");
+        let main = &result.module.functions["main"];
+        assert_eq!(main.signature.return_type, expected_type, "{source:?}");
+        let mut returns = main.blocks.values().filter_map(|block| match block.terminator.as_ref() {
+            Some(MirInstruction::Return { value }) => Some(value),
+            _ => None,
+        });
+        let returned = returns.next().copied().flatten().expect("Script return operand");
+        assert!(returns.next().is_none(), "{source:?}");
+        assert!(main.blocks.values().flat_map(|block| &block.instructions).any(|inst| {
+            matches!(inst, MirInstruction::Const { dst, value } if *dst == returned && value == &expected_value)
+        }), "{source:?}");
+    }
+}

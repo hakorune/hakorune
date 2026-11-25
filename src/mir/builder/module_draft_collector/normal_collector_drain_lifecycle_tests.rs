@@ -113,12 +113,26 @@ fn retained_construction_moves_only_through_normal_drain() {
 
     let mut occupied = MirModule::new("occupied".into());
     occupied.add_function(draft_with_arity(&symbol, 1));
-    let rejected = collect_birth()
+    let retained = collect_birth();
+    let before = retained.receipt_proof_snapshot();
+    let rejected = retained
         .prepare_normal_collector_drain(&mut occupied, brand())
         .unwrap_err();
     let (retained, _) = rejected.into_parts();
     assert!(retained.has_retained_construction());
+    assert_eq!(retained.receipt_proof_snapshot(), before);
     assert_eq!(occupied.functions.len(), 1);
+
+    let mut vacant = MirModule::new("vacant".into());
+    let committed = retained
+        .prepare_normal_collector_drain(&mut vacant, brand())
+        .unwrap()
+        .commit();
+    let (actual, validation) = committed.into_iter().next().unwrap();
+    assert_eq!(actual, key);
+    validation
+        .validate_after_compiler_finishing(&vacant.functions[&symbol])
+        .unwrap();
 
     let mut collector = ModuleDraftCollectorV1::with_brand(brand());
     assert!(collector
@@ -411,9 +425,14 @@ fn empty_normal_collector_prepares_and_commits_without_publication() {
 #[test]
 fn normal_drain_rejection_retains_collector_and_leaves_target_unchanged() {
     let mut collector = ModuleDraftCollectorV1::with_brand(brand());
+    collect(&mut collector, "before/0");
     collect(&mut collector, "same/0");
+    let before = collector.receipt_proof_snapshot();
+
     let mut target = MirModule::new("normal".to_owned());
-    target.add_function(draft("same/0"));
+    let mut published = draft("same/0");
+    published.signature.return_type = MirType::String;
+    target.add_function(published);
 
     let rejected = collector
         .prepare_normal_collector_drain(&mut target, brand())
@@ -423,8 +442,17 @@ fn normal_drain_rejection_retains_collector_and_leaves_target_unchanged() {
         NormalCollectorDrainLifecycleErrorV1::Publication(_)
     ));
     let (collector, _) = rejected.into_parts();
-    assert_eq!(collector.symbol_count(), 1);
+    assert_eq!(collector.receipt_proof_snapshot(), before);
     assert_eq!(target.function_names(), vec!["same/0"]);
+    assert_eq!(target.functions["same/0"].signature.return_type, MirType::String);
+
+    let mut vacant = MirModule::new("retry".to_owned());
+    collector
+        .prepare_normal_collector_drain(&mut vacant, brand())
+        .unwrap()
+        .commit();
+    assert!(vacant.functions.contains_key("before/0"));
+    assert_eq!(vacant.functions["same/0"].signature.return_type, MirType::Integer);
 }
 
 #[test]
@@ -522,6 +550,23 @@ fn collect_main(collector: &mut ModuleDraftCollectorV1) {
         .seal(draft("main"))
         .unwrap()
         .collect();
+}
+
+#[test]
+fn root_and_helper_share_the_normal_collector_inventory() {
+    let mut collector = ModuleDraftCollectorV1::with_brand(brand());
+    collect_main(&mut collector);
+    collect(&mut collector, "help/0");
+    let mut symbols = Vec::new();
+    collector.visit_symbols(&mut |symbol| symbols.push(symbol.to_owned()));
+    assert_eq!(symbols, ["help/0", "main"]);
+
+    let mut target = MirModule::new("normal".into());
+    collector
+        .prepare_normal_collector_drain(&mut target, brand())
+        .unwrap()
+        .commit();
+    assert_eq!(target.function_names(), vec!["help/0", "main"]);
 }
 
 #[test]
