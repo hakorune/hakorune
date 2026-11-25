@@ -2,7 +2,7 @@
 // Macro that returns invalid JSON (for strict error test)
 
 static box MacroBoxSpec {
-  expand(json) {
+  expand(json, ctx) {
     return "NOT_JSON!"
   }
 }

@@ -1,9 +1,9 @@
 // upper_string_macro.hako
 // MacroBoxSpec.expand: uppercase string literal values that start with "UPPER:" in AST JSON v0
-// Contract: expand(json: string) -> string (AST JSON v0)
+// Contract: expand(json, ctx) -> string (AST JSON v0)
 
 static box MacroBoxSpec {
-  expand(json) {
+  expand(json, ctx) {
     local s, out, i, plen, pat
     s = json
     out = ""

@@ -1,6 +1,6 @@
-box MacroBoxSpec {
-    static function expand(ast) {
-        return uppercase_print(ast)
+static box MacroBoxSpec {
+    expand(json, ctx) {
+        return uppercase_print(json)
     }
 }
 

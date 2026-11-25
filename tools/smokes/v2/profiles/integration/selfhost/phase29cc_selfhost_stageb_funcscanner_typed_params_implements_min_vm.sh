@@ -1,7 +1,7 @@
 #!/bin/bash
 # phase29cc_selfhost_stageb_funcscanner_typed_params_implements_min_vm.sh
 # Pin mode-B compatibility FuncScanner parity:
-#   - static box Child<T> from Parent implements Worker<T> { ... }
+#   - static box Child<T> implements Worker<T> { ... }
 #   - method run(x: Int, labels: Map<String, Int>) -> params ["me","x","labels"]
 set -euo pipefail
 

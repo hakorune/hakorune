@@ -5,7 +5,7 @@ using selfhost.shared.mir.builder as BlockBuilder
 using selfhost.shared.common.box_helpers as BoxHelpers
 using lang.compiler.pipeline_v2.localvar_ssa_box as LocalSSABox
 
-flow EmitMirFlowMap {
+static box EmitMirFlowMap {
   _array_len(arr) { return BoxHelpers.array_len(arr) }
   _array_get(arr, idx) { return BoxHelpers.array_get(arr, idx) }
   _map_get(obj, key) { return BoxHelpers.map_get(obj, key) }

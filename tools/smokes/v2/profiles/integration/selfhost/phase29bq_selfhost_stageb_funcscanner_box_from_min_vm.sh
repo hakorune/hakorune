@@ -1,7 +1,7 @@
 #!/bin/bash
 # phase29bq_selfhost_stageb_funcscanner_box_from_min_vm.sh
 # Pin mode-B compatibility FuncScanner delegated box header:
-#   static box Child from Parent { ... }
+#   static box Child { ... }
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../../../../.." && pwd)"

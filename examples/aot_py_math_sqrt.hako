@@ -1,9 +1,16 @@
 // AOT Python math.sqrt(16) demo
 // Demonstrates import/getattr/call chain
 static box Main {
+  main() {
+    local app = new PythonMathExample()
+    return app.run()
+  }
+}
+
+box PythonMathExample {
   init { py, math, sqrt_func, result }
   
-  main() {
+  run() {
     // Create Python runtime
     me.py = new PyRuntimeBox()
     

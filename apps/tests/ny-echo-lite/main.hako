@@ -2,9 +2,16 @@
 // Reads one line from stdin and prints it back. EOF -> exit(0)
 
 static box Main {
+  main() {
+    local app = new EchoLite()
+    return app.run()
+  }
+}
+
+box EchoLite {
     init { console }
 
-    main() {
+    run() {
         me.console = new ConsoleBox()
         local line = me.console.readLine()
         if line != null {

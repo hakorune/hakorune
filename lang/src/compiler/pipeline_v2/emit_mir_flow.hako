@@ -5,7 +5,7 @@ using selfhost.shared.mir.builder as BlockBuilder
 using lang.compiler.pipeline_v2.localvar_ssa_box as LocalSSABox
 using selfhost.shared.common.box_helpers as BoxHelpers
 
-flow EmitMirFlow {
+static box EmitMirFlow {
   _int(n) { return "" + n }
 
   emit_return_int(v) {

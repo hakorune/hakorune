@@ -3,9 +3,16 @@
 //   NYASH_CLI_VERBOSE=1 ./target/release/nyash --backend vm examples/py_result_chain_demo_fixed.hako
 
 static box Main {
+  main() {
+    local app = new PythonResultExample()
+    return app.run()
+  }
+}
+
+box PythonResultExample {
   init { console }
   
-  main() {
+  run() {
     me.console = new ConsoleBox()
     
     local py, mR, fR, rR, badR

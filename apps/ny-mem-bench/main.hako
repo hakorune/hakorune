@@ -3,9 +3,16 @@
 
 // 先頭のStatsBoxは削除し、Main内に簡易実装を持つ
 static box Main {
+  main() {
+    local app = new MemoryBenchmark()
+    return app.run()
+  }
+}
+
+box MemoryBenchmark {
     init { console, time, construct_s, dispatch_s, fini_s, construct_ms, dispatch_ms, fini_ms, mem_peak, mem_after }
     
-    main() {
+    run() {
         me.console = new ConsoleBox()
         // タイマー/メモリ管理（簡易版）
         me.time = new TimeBox()
@@ -165,8 +172,8 @@ box Listener {
 
 // （元のStatsBox定義は先頭へ移動）
 
-// 解放順序ログ（static box として単一インスタンス）
-static box OrderLogger {
+// 解放順序ログ
+box OrderLogger {
     init { entries, expected }
     
     constructor() {

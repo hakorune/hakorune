@@ -2,13 +2,11 @@
 
 using selfhost.shared.common.box_helpers as BoxHelpers
 
-static box ReadOnlyMapView {
+box ReadOnlyMapView {
   _m
 
-  of(m) {
-    local v = new ReadOnlyMapView()
-    v._m = m
-    return v
+  birth(m) {
+    me._m = m
   }
 
   has(key) { return me._m.has(key) }

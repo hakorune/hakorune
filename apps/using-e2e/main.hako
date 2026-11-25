@@ -1,6 +1,5 @@
 // using/nyash.link E2E sample (placeholder)
 static box Main {
-  init { }
   main(args) {
     // When using/nyash.link is active, modules can be resolved here.
     // Placeholder just returns 0 for now.

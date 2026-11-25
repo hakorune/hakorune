@@ -2,7 +2,6 @@
 // Minimal placeholder to define file layout and ny_plugins mapping.
 
 static box StdArray {
-  init { }
 
   len(a) { return 0 }
   push(a, v) { return 0 }

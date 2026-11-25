@@ -26,7 +26,7 @@ using lang.compiler.pipeline_v2.stage1_args_parser_box as Stage1ArgsParserBox
 using lang.compiler.pipeline_v2.pipeline_helpers_box as PipelineHelpersBox
 using selfhost.shared.json.mir_v1_meta_inject_box as MirV1MetaInjectBox
 
-flow PipelineV2 {
+static box PipelineV2 {
   lower_stage1_to_mir(ast_json, prefer_cfg) {
     // Backward-compatible entry (trace=0)
     return PipelineV2.lower_stage1_to_mir_trace(ast_json, prefer_cfg, 0)

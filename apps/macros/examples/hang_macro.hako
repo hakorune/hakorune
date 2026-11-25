@@ -2,7 +2,7 @@
 // Macro that never returns (infinite loop) to test timeout handling.
 
 static box MacroBoxSpec {
-  expand(json) {
+  expand(json, ctx) {
     // Busy loop forever
     loop(true) {
       // do nothing

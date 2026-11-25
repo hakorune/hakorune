@@ -104,7 +104,7 @@ box TypeId {
     }
 }
 
-static box TypeIds {
+box TypeIds {
     INT: TypeId = new TypeId { raw: 1 }
     BOOL: TypeId = new TypeId { raw: 2 }
 }

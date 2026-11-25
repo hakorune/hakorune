@@ -1,9 +1,9 @@
 // array_prepend_zero_macro.hako
 // MacroBoxSpec.expand: prepend 0 to every Array elements list in AST JSON v0
-// Contract: expand(json: string) -> string (AST JSON v0)
+// Contract: expand(json, ctx) -> string (AST JSON v0)
 
 static box MacroBoxSpec {
-  expand(json) {
+  expand(json, ctx) {
     local s, out, i, pat, plen, ins
     s = json
     out = ""
