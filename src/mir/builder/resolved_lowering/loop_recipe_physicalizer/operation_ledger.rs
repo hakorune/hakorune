@@ -300,3 +300,29 @@ impl Default for LoopOperationValueLedgerV1 {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
+
+    #[test]
+    fn published_loop_value_receipt_survives_duplicate_key_rejection() {
+        let owner = FunctionOwnerIssuerV1::new_for_compilation().unwrap().issue().unwrap();
+        let key = LoopValueKeyV1::new(12);
+        let original = LoopOperationValueReceiptV1::new(
+            owner, key, LoopValueClassV1::I64, LoopItemKeyV1::new(4),
+            BasicBlockId::new(3), ValueId::new(44),
+        );
+        let duplicate = LoopOperationValueReceiptV1::new(
+            owner, key, LoopValueClassV1::Bool, LoopItemKeyV1::new(5),
+            BasicBlockId::new(6), ValueId::new(7),
+        );
+        let mut ledger = LoopOperationValueLedgerV1::default();
+        ledger.publish(original).unwrap();
+
+        assert_eq!(ledger.publish(duplicate), Err(LoopOperationValueLedgerRejectV1(key)));
+        assert_eq!(ledger.receipt(key), Some(original));
+        assert_eq!(ledger.get(key), Some(original.physical_value()));
+    }
+}
