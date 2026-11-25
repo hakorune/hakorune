@@ -107,25 +107,6 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(self.checked_input_use_source_v1(contract)?.map(Some))
     }
 
-    /// Use the exact original Call retained by the caller's checked evaluation.
-    /// A zero-input call does not depend on the destination of its result.
-    pub(in crate::mir::normal_callable_semantic_package) fn has_static_zero_checked_source_v1(
-        &self,
-        original: &Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
-    ) -> bool {
-        use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1;
-
-        if !original.is_zeroarg_i64_v1() {
-            return false;
-        }
-        let site = original.call_site();
-        self.observes_static_result_v1(original, LocalCallResultClassV1::I64)
-            || self.terminal_relations_for_owner(site.owner()).iter().any(|relation|
-            matches!(relation, crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Scalar(terminal)
-                if terminal.evaluation().is_some_and(|frame|
-                    original.is_scalar_return_source_v1(frame.source()))))
-    }
-
     fn observes_static_result_v1(
         &self,
         original: &Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
@@ -141,53 +122,6 @@ impl OrdinaryNewClaimLedgerV1 {
                     && matches!(call.result_source(), Some(LocalCallResultSourceV1::Ordinary(loan))
                         if loan.static_source().is_some_and(|source| Rc::ptr_eq(source, original)))
             })
-    }
-
-    pub(super) fn static_zero_input_uses_source_v1(
-        &self,
-        source: &PreparedBorrowedFormalIngressV1,
-        owner: FunctionOwnerIdV1,
-    ) -> bool {
-        source
-            .source_incoming
-            .source_rows_v1()
-            .filter(|row| row.callee == owner)
-            .any(|row| {
-                matches!(&row.source,
-                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
-                    if self.has_static_zero_checked_source_v1(original))
-            })
-    }
-
-    /// The finisher and its lender recheck the same original caller cohort.
-    /// A checked call retaining the original source can demand source-only zero callers.
-    pub(super) fn static_zero_input_calls_v1(
-        &self,
-        source: &PreparedBorrowedFormalIngressV1,
-        owner: FunctionOwnerIdV1,
-    ) -> Result<Box<[super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1]>, String>
-    {
-        let owners = [owner].into_iter().collect();
-        let checked_source = self.static_zero_input_uses_source_v1(source, owner);
-        let calls = if checked_source {
-            source.source_incoming.project_source_v1(&owners)
-        } else {
-            source.source_incoming.project(&owners)
-        };
-        let calls = calls.map_err(|issue| {
-            format!("{}: {issue:?}", freeze("borrowed-formal/incoming-coverage"))
-        })?;
-        if !checked_source {
-            return Ok(calls);
-        }
-        if self.original_instance_input_issuance.is_none() {
-            return Err(freeze("static-zero/selected-key"));
-        }
-        Ok(calls
-            .into_vec()
-            .into_iter()
-            .filter(|call| self.static_input_caller_has_execution_v1(call))
-            .collect())
     }
 
     /// Project execution membership only after the caller census is validated.
@@ -306,8 +240,11 @@ impl OrdinaryNewClaimLedgerV1 {
                         || original.has_exact_i64_inputs_v1()
                             && self.observes_static_result_v1(original,
                                 crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Text);
+                    // A call with no input and an I64 result also closes here once its
+                    // original row exists; no separate zero-input protocol remains.
                     (allow_tagged && source.has_tagged_static_input_v1(owner, original.parameters()))
                         || finite_forward || text_source || scalar_expression_source || exact_input_text
+                        || original.is_zeroarg_i64_v1()
                         || original.parameters().iter().any(|formal| formal.takes_declared_object_v1())
                 }
                 _ => false,

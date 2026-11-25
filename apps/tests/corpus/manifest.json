@@ -53756,6 +53756,14 @@
       ],
       "coverage_exe": true,
       "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/static-input-1/size-class-fourth-caller.hako",
+      "sha256": "f142aa8f82e69c46d3ce7fcfc24e1078eac0be51f5fb3a7d7cf65e0e823f3118",
+      "groups": [
+        "B"
+      ],
+      "coverage_exe": false
     }
   ]
 }

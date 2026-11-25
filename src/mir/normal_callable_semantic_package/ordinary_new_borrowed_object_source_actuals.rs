@@ -458,7 +458,6 @@ pub(super) fn reconstruct_original_argument_protocol_with_sources_v1(
             .unwrap_or(ObjectActualHomeSourceV1::SourceOnly),
         None,
         &mut |_| None,
-        None,
         guarded_definition,
         source_actual,
     )

@@ -6,42 +6,6 @@ use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::i
 use std::rc::Rc;
 
 impl OrdinaryNewClaimLedgerV1 {
-    /// The CurrentOwner zero I64 cohort uses the Zero input protocol. Eligibility does not grant readiness or result publication.
-    pub(super) fn is_static_zero_packet_cohort_v1(&self, original: &StaticIncomingSourceV1) -> bool {
-        original.is_zero_input_source_v1()
-            && self.borrowed_formal_source.as_ref().is_some_and(|source| {
-                source.as_ref().is_ok_and(|source| source.source_incoming.source_rows_with_legacy_v1().any(|(row, legacy)|
-                    matches!(&row.source, super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(seed)
-                        if seed.is_zero_input_source_v1()
-                            && legacy && seed.current_owner_source().is_some()
-                            && seed.callee_owner() == original.callee_owner()
-                            && seed.target() == original.target()
-                            && seed.target_batch_slot() == original.target_batch_slot())))
-            })
-    }
-
-    pub(in crate::mir::normal_callable_semantic_package) fn select_static_zero_local_routes_v1(
-        &mut self,
-    ) {
-        let Some(Ok(source)) = self.borrowed_formal_source.as_ref() else {
-            return;
-        };
-        let sites: Vec<_> = source
-            .source_incoming
-            .source_rows_with_legacy_v1()
-            .filter_map(|(row, legacy)| match &row.source {
-                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
-                    if legacy => Some(original),
-                _ => None,
-            })
-            .filter(|original| self.is_static_zero_packet_cohort_v1(original))
-            .map(|original| original.call_site().clone())
-            .collect();
-        if let Some(Ok(selected)) = self.borrowed_static_source_sites.as_mut() {
-            selected.extend(sites);
-        }
-    }
-
     /// Select completed original scalar-result cohorts with their actual source observations.
     /// The incoming inventory stays the sole source; this is route membership.
     pub(in crate::mir::normal_callable_semantic_package) fn select_completed_static_local_routes_v1(
@@ -81,8 +45,8 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 
-    /// Final borrowed incoming or the bounded original zero-input cohort
-    /// selects this protocol. Membership alone grants no executable packet.
+    /// Final borrowed incoming or a completed original input cohort selects
+    /// this protocol. Membership alone grants no executable packet.
     pub(crate) fn selected_static_local_source_v1(
         &self,
         site: &OwnedExprSiteV1,
@@ -145,26 +109,6 @@ impl OrdinaryNewClaimLedgerV1 {
                 self.verify_original_static_packet_source_v1(original)?;
                 return Ok(Some(Rc::clone(original)));
             }
-            if self
-                .checked_static_mixed_packet_actuals_v1(original)?
-                .is_some()
-            {
-                self.verify_original_static_packet_source_v1(original)?;
-                return Ok(Some(Rc::clone(original)));
-            }
-            if self.is_static_zero_packet_cohort_v1(original) {
-                self.verify_original_static_packet_source_v1(original)?;
-                self.borrowed_static_packet_actuals_v1(original)?
-                    .ok_or_else(|| freeze("borrowed-static/local-actuals-missing"))?;
-                if original.is_zeroarg_i64_v1() {
-                    self.lexical_i64_call_source(site)
-                        .ok_or_else(|| freeze("borrowed-static/local-completion-missing"))?;
-                } else {
-                    self.local_call_for_owner(site.owner(), site.site())
-                        .ok_or_else(|| freeze("borrowed-static/local-completion-missing"))?;
-                }
-                return Ok(Some(Rc::clone(original)));
-            }
         }
         let mut rows = source.incoming.iter().filter(|row| &row.call == site);
         let Some(row) = rows.next() else {
@@ -191,8 +135,7 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     /// Co-seal the original selected Static local edges before emission.
-    /// Validate ready cohorts before marking. Unready zero-input cohorts stay
-    /// source-only; their selected demand still refuses at emission.
+    /// Validate ready cohorts before marking.
     pub(in crate::mir::normal_callable_semantic_package) fn co_seal_static_local_routes_v1(
         &self,
     ) -> Result<(), String> {
@@ -206,7 +149,7 @@ impl OrdinaryNewClaimLedgerV1 {
         // its selected reservation, but leave physical route registration to
         // executable phases. Any eventual demand still validates the cohort.
         let passive_arguments = |original: &Rc<StaticIncomingSourceV1>| -> Result<bool, String> {
-            if original.qualified_scalar_result_v1().is_none() || original.is_zero_input_source_v1() {
+            if original.qualified_scalar_result_v1().is_none() || original.is_zeroarg_i64_v1() {
                 return Ok(false);
             }
             if !self.borrowed_formal_actuals.get(original.call_site())
@@ -226,11 +169,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 continue;
             };
             if passive_arguments(original)? { continue; }
-            if self.is_static_zero_packet_cohort_v1(original)
-                || (original.qualified_scalar_result_v1().is_none()
-                    && self
-                        .checked_completed_static_forwarded_actuals_v1(original)?
-                        .is_none())
+            if original.qualified_scalar_result_v1().is_none()
+                && self
+                    .checked_completed_static_forwarded_actuals_v1(original)?
+                    .is_none()
             {
                 continue;
             }
@@ -266,21 +208,8 @@ impl OrdinaryNewClaimLedgerV1 {
             let completed = completed_input
                 || self
                     .checked_static_scalar_packet_actuals_v1(original)?
-                    .is_some()
-                || self
-                    .checked_static_mixed_packet_actuals_v1(original)?
                     .is_some();
-            let selected = if completed {
-                self.selected_static_local_source_v1(&row.call)?.is_some()
-            } else if self.is_static_zero_packet_cohort_v1(original) {
-                // Zero-input source-only rows may be unready; their original
-                // demand still refuses at emission, as before this slice.
-                self.selected_static_local_source_v1(&row.call)
-                    .is_ok_and(|row| row.is_some())
-            } else {
-                false
-            };
-            if selected {
+            if completed && self.selected_static_local_source_v1(&row.call)?.is_some() {
                 routed.insert(row.call.clone());
             }
         }
@@ -314,11 +243,10 @@ impl OrdinaryNewClaimLedgerV1 {
             else {
                 continue;
             };
-            if self.is_static_zero_packet_cohort_v1(original)
-                || (original.qualified_scalar_result_v1().is_none()
-                    && self
-                        .checked_completed_static_forwarded_actuals_v1(original)?
-                        .is_none())
+            if original.qualified_scalar_result_v1().is_none()
+                && self
+                    .checked_completed_static_forwarded_actuals_v1(original)?
+                    .is_none()
             {
                 continue;
             }
@@ -376,12 +304,8 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             let completed_input = applies && self.checked_completed_static_expression_input_v1(original)?.is_some();
             if (completed_input
-                || self.is_static_zero_packet_cohort_v1(original)
                 || self
                     .checked_static_scalar_packet_actuals_v1(original)?
-                    .is_some()
-                || self
-                    .checked_static_mixed_packet_actuals_v1(original)?
                     .is_some())
                 && routed.is_local(&row.call)
             {

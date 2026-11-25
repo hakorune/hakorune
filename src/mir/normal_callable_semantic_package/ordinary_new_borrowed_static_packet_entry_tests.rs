@@ -279,48 +279,6 @@ fn scalar_formal_forward_refuses_a_different_declared_abi() {
 }
 
 #[test]
-fn original_size_to_bin_mixed_cohort_finishes_atomically() {
-    use crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind;
-    let source = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
-    let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source)
-        .expect("original size-class source issues");
-    let ledger = &package.ordinary_new_claim_ledger;
-    let ingress = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
-    let wrapper = ingress.source_incoming.static_observations().values()
-        .filter_map(|row| row.as_ref().ok())
-        .find(|row| row.caller().name() == "size_to_bin_usize"
-            && row.target().name() == "size_to_bin")
-        .expect("original wrapper source");
-    let cohort = ingress.static_incoming_cohort_v1(wrapper).unwrap();
-    assert_eq!(cohort.len(), 3);
-    let mut scalar = 0;
-    let mut forwarded = 0;
-    for original in &cohort {
-        assert!(ledger.selected_static_local_source_v1(original.call_site()).unwrap().is_some());
-        let [actual] = ledger.borrowed_static_packet_actuals_v1(original).unwrap().unwrap() else {
-            panic!("one original packet actual")
-        };
-        match &actual.source {
-            BorrowedFormalActualSourceV1::Scalar { kind: SourceScalarKind::Integer, .. } => scalar += 1,
-            BorrowedFormalActualSourceV1::Forwarded { .. } => forwarded += 1,
-            other => panic!("unexpected mixed actual: {other:?}"),
-        }
-    }
-    assert_eq!((scalar, forwarded), (1, 2));
-
-    let missing = cohort.iter().find(|row| row.caller().name() == "good_size").unwrap();
-    let missing_site = missing.call_site().clone();
-    let wrapper = Rc::clone(wrapper);
-    Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap()
-        .borrowed_formal_actuals.remove(&missing_site);
-    assert!(Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap()
-        .select_static_mixed_local_routes_v1().is_err(),
-        "route selection must recheck the whole mixed cohort");
-    assert!(package.ordinary_new_claim_ledger.borrowed_static_packet_actuals_v1(&wrapper).is_err(),
-        "a selected packet cannot lend after any sibling disappears");
-}
-
-#[test]
 fn current_owner_one_input_packet_can_follow_executable_caller_entry() {
     let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
         "static box SizeClassBox { normalize_size(size) { if size <= 0 { return 1 } return size } size_to_bin(size) { local n = me.normalize_size(size) return 0 } } static box Main { main() { local n = SizeClassBox.size_to_bin(7) return 0 } }",
@@ -491,86 +449,6 @@ fn static_packet_route_preflight_refuses_partial_marking_on_missing_completion()
         .unwrap_err()
         .contains("callee-completion-missing"));
     assert!(ledger.lifecycle_local_call_sites.borrow().is_empty());
-}
-
-#[test]
-fn static_zero_packet_selection_keeps_pending_demands_and_refuses_before_publication() {
-    const ZERO: &str = "static box Layout { word() { return 8 } run() { local a = me.word() local b = Layout.word() return 0 } } static box Main { main() { return 0 } }";
-    for mutation in 0..6 {
-        let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(ZERO).unwrap();
-        let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
-        let calls: Vec<_> = ledger
-            .borrowed_formal_source
-            .as_ref()
-            .unwrap()
-            .as_ref()
-            .unwrap()
-            .source_incoming
-            .exact_rows()
-            .filter_map(|row| match &row.source {
-                super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(
-                    original,
-                ) if original.target().name() == "word" => Some(Rc::clone(original)),
-                _ => None,
-            })
-            .collect();
-        assert_eq!(calls.len(), 2);
-        ledger.lifecycle_local_call_sites.borrow_mut().clear();
-        match mutation {
-            0 => {
-                ledger
-                    .completion_index
-                    .remove(&calls[0].call_site().owner());
-            }
-            1 => {
-                ledger.borrowed_formal_actuals.remove(calls[1].call_site());
-            }
-            2 => {
-                ledger.borrowed_formal_actuals.insert(
-                    calls[1].call_site().clone(),
-                    Err("original-packet-sibling-refusal".into()),
-                );
-            }
-            3 => {
-                ledger.completion_index.remove(&calls[0].callee_owner());
-            }
-            4 => {
-                ledger
-                    .borrowed_formal_source
-                    .as_mut()
-                    .unwrap()
-                    .as_mut()
-                    .unwrap()
-                    .source_incoming
-                    .remove_exact_row_for_test(calls[1].call_site());
-            }
-            5 => {
-                ledger.borrowed_formal_source = None;
-            }
-            _ => unreachable!(),
-        }
-        ledger.select_static_zero_local_routes_v1();
-        ledger.co_seal_static_local_routes_v1().unwrap();
-        assert!(
-            ledger.lifecycle_local_call_sites.borrow().is_empty(),
-            "no partial routes: {mutation}"
-        );
-        for call in &calls {
-            assert!(ledger
-                .borrowed_static_source_sites
-                .as_ref()
-                .unwrap()
-                .as_ref()
-                .unwrap()
-                .contains(call.call_site()));
-            let error = ledger
-                .selected_static_local_source_v1(call.call_site())
-                .unwrap_err();
-            if mutation == 2 {
-                assert_eq!(error, "original-packet-sibling-refusal");
-            }
-        }
-    }
 }
 
 #[path = "ordinary_new_borrowed_static_packet_scope_tests.rs"]

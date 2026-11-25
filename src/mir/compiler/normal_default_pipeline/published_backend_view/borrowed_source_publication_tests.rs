@@ -741,3 +741,6 @@ mod i64_origin_tests;
 
 #[path = "borrowed_source_publication_integer_comparison_tests.rs"]
 mod integer_comparison;
+
+#[path = "borrowed_source_publication_static_input_tests.rs"]
+mod static_input;

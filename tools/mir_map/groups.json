@@ -1529,7 +1529,6 @@
   "src/mir/normal_callable_semantic_package/ordinary_new_borrowed_static_inventory.rs": "normal_callable_semantic_package/ordinary_new_borrowed_static*",
   "src/mir/normal_callable_semantic_package/ordinary_new_borrowed_static_local_issuer_tests.rs": "normal_callable_semantic_package/ordinary_new_borrowed_static*",
   "src/mir/normal_callable_semantic_package/ordinary_new_borrowed_static_main_terminal_tests.rs": "normal_callable_semantic_package/ordinary_new_borrowed_static*",
-  "src/mir/normal_callable_semantic_package/ordinary_new_borrowed_static_mixed_input_finish.rs": "normal_callable_semantic_package/ordinary_new_borrowed_static*",
   "src/mir/normal_callable_semantic_package/ordinary_new_borrowed_static_one_input_finish.rs": "normal_callable_semantic_package/ordinary_new_borrowed_static*",
   "src/mir/normal_callable_semantic_package/ordinary_new_borrowed_static_packet_entry.rs": "normal_callable_semantic_package/ordinary_new_borrowed_static*",
   "src/mir/normal_callable_semantic_package/ordinary_new_borrowed_static_packet_entry_tests.rs": "normal_callable_semantic_package/ordinary_new_borrowed_static*",

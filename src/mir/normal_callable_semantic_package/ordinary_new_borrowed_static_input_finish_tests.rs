@@ -1,4 +1,5 @@
-//! The existing source actual family gains whole zero-input finish boundaries.
+//! Zero-input I64 calls finish through the same whole-input cohort as every other
+//! qualified Static input; there is no separate zero-input lender.
 use super::*;
 type Package =
     crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1;
@@ -49,6 +50,16 @@ fn restage(package: &mut Package, sources: &[Rc<StaticIncomingSourceV1>]) {
             .insert(source.call_site().clone(), Ok(rows));
     }
 }
+/// The completed zero-input actuals, borrowed from the general whole-input lender.
+fn zero_arguments<'a>(
+    ledger: &'a OrdinaryNewClaimLedgerV1,
+    call: &Rc<StaticIncomingSourceV1>,
+) -> Result<Option<&'a [LocalCallArgumentV1]>, String> {
+    Ok(ledger.checked_completed_static_expression_input_v1(call)?.map(|rows| {
+        assert!(rows.opaque_actuals.is_empty(), "a zero-input call lends no opaque actual");
+        rows.ordered_arguments.as_ref()
+    }))
+}
 fn finish(package: &mut Package) -> Result<(), String> {
     Rc::get_mut(&mut package.ordinary_new_claim_ledger)
         .unwrap()
@@ -60,14 +71,13 @@ fn finish(package: &mut Package) -> Result<(), String> {
         )
 }
 #[test]
-fn static_zero_input_finish_preserves_original_cohort_and_refusal_boundaries() {
+fn static_zero_input_closes_through_the_general_input_cohort() {
     let ready = package(TEXT);
     let calls = originals(&ready);
     assert_eq!(calls.len(), 2);
     for call in &calls {
         let ledger = &ready.ordinary_new_claim_ledger;
-        assert!(ledger
-            .checked_completed_static_zero_arguments_v1(call)
+        assert!(zero_arguments(ledger, call)
             .unwrap()
             .unwrap()
             .is_empty());
@@ -85,9 +95,7 @@ fn static_zero_input_finish_preserves_original_cohort_and_refusal_boundaries() {
     }
     let annotated = package(&TEXT.replacen("word()", "word(): i64", 1));
     for call in originals(&annotated) {
-        assert!(annotated
-            .ordinary_new_claim_ledger
-            .checked_completed_static_zero_arguments_v1(&call)
+        assert!(zero_arguments(&annotated.ordinary_new_claim_ledger, &call)
             .unwrap()
             .is_some());
     }
@@ -107,9 +115,7 @@ fn static_zero_input_finish_preserves_original_cohort_and_refusal_boundaries() {
         assert!(!calls.is_empty(), "{body}");
         for call in calls {
             assert!(
-                variant
-                    .ordinary_new_claim_ledger
-                    .checked_completed_static_zero_arguments_v1(&call)
+                zero_arguments(&variant.ordinary_new_claim_ledger, &call)
                     .unwrap()
                     .is_some(),
                 "{body}"
@@ -254,20 +260,16 @@ fn static_zero_input_finish_preserves_original_cohort_and_refusal_boundaries() {
             _ => {
                 let foreign = package(TEXT);
                 let foreign_call = originals(&foreign)[0].clone();
-                let issue = ledger
-                    .checked_completed_static_zero_arguments_v1(&foreign_call)
-                    .unwrap_err();
+                // A call of another package has no row in this ledger: nothing is lent.
                 assert!(
-                    issue.contains("original-source-drift")
-                        || issue.contains("original-source-missing"),
-                    "{issue}"
+                    zero_arguments(ledger, &foreign_call).map_or(true, |rows| rows.is_none()),
+                    "a foreign zero-input call must not borrow this cohort"
                 );
             }
         }
         if mutation != 4 {
             assert!(
-                ledger
-                    .checked_completed_static_zero_arguments_v1(&calls[0])
+                zero_arguments(ledger, &calls[0])
                     .map_or(true, |rows| rows.is_none()),
                 "late mutation {mutation}"
             );
@@ -276,17 +278,16 @@ fn static_zero_input_finish_preserves_original_cohort_and_refusal_boundaries() {
     let lexical = package("static box Layout { word() { return 8 } run(p) { local a = me.word() local b = p.word() return 0 } } static box Main { main() { return 0 } }");
     let calls = originals(&lexical);
     assert_eq!(calls.len(), 1, "only the static caller enters the cohort");
-    assert!(lexical
-        .ordinary_new_claim_ledger
-        .checked_completed_static_zero_arguments_v1(&calls[0])
+    assert!(zero_arguments(&lexical.ordinary_new_claim_ledger, &calls[0])
         .unwrap()
         .is_some_and(|args| args.is_empty()));
 
-    // An unresolved qualified receiver still owes static source evidence.
+    // An unresolved qualified receiver still owes static source evidence: the
+    // general cohort vetoes the unresolved caller before any completion.
     let unresolved = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
         "static box Layout { word() { return 8 } run() { local a = me.word() local b = Missing.word() return 0 } } static box Main { main() { return 0 } }",
     ).err().expect("unproved qualified caller must block completion");
-    assert!(format!("{unresolved:?}").contains("static-execution/completion-not-ready"));
+    assert!(format!("{unresolved:?}").contains("static-input/source-cohort-veto"), "{unresolved:?}");
 }
 
 #[test]
@@ -443,4 +444,99 @@ fn static_expression_input_retains_original_frames_and_atomic_cohort() {
     ledger.borrowed_formal_actuals.insert(calls[1].call_site().clone(), Ok(snapshot));
     assert!(ledger.checked_completed_static_expression_input_v1(&calls[0]).is_err());
     assert!(ledger.borrowed_formal_actuals[calls[1].call_site()].as_ref().unwrap().require_executable_v1().is_err());
+}
+
+/// The former mixed cohort of `size_to_bin` (one integer caller and two
+/// forwarded formals) now finishes through the general input cohort. A
+/// restaged original row that no longer matches its original actual is still
+/// refused before anything is installed, as the mixed finisher did.
+#[test]
+fn static_input_former_mixed_cohort_refuses_source_actual_drift() {
+    let text = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
+    let cohort = |package: &Package| -> Vec<Rc<StaticIncomingSourceV1>> {
+        package
+            .ordinary_new_claim_ledger
+            .borrowed_formal_source
+            .as_ref()
+            .unwrap()
+            .as_ref()
+            .unwrap()
+            .source_incoming
+            .exact_rows()
+            .filter_map(|call| match &call.source {
+                super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(
+                    original,
+                ) if original.target().name() == "size_to_bin" => Some(Rc::clone(original)),
+                _ => None,
+            })
+            .collect()
+    };
+    for mutation in 0..3 {
+        let mut variant = package(text);
+        let calls = cohort(&variant);
+        assert_eq!(calls.len(), 3, "the original three callers");
+        for call in &calls {
+            let rows = variant
+                .ordinary_new_claim_ledger
+                .checked_completed_static_expression_input_v1(call)
+                .unwrap()
+                .expect("closed by the general input cohort");
+            assert_eq!(rows.opaque_actuals.len(), 1);
+        }
+        let ledger = Rc::get_mut(&mut variant.ordinary_new_claim_ledger).unwrap();
+        for call in &calls {
+            let snapshot = ledger.borrowed_formal_actuals[call.call_site()]
+                .as_ref()
+                .unwrap()
+                .source_static_snapshot_v1()
+                .expect("the original row stays retained")
+                .clone();
+            ledger
+                .borrowed_formal_actuals
+                .insert(call.call_site().clone(), Ok(snapshot));
+        }
+        let drifted = calls[1].call_site().clone();
+        {
+            let rows = ledger
+                .borrowed_formal_actuals
+                .get_mut(&drifted)
+                .unwrap()
+                .as_mut()
+                .unwrap();
+            match mutation {
+                // The candidate names another caller's argument site.
+                0 => {
+                    let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &mut rows.phase
+                    else {
+                        panic!("source phase");
+                    };
+                    identity.candidates[0].site = calls[0].argument_sites()[0].clone();
+                }
+                // The ordered argument is no longer the original borrowed actual.
+                1 => {
+                    rows.ordered_arguments =
+                        vec![LocalCallArgumentV1::Integer(8)].into_boxed_slice();
+                }
+                // The row claims another call's original source.
+                _ => {
+                    let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &mut rows.phase
+                    else {
+                        panic!("source phase");
+                    };
+                    identity.source = Rc::clone(&calls[0]);
+                }
+            }
+        }
+        let result = finish(&mut variant);
+        assert!(result.is_err(), "mutation {mutation}: {result:?}");
+        let ledger = &variant.ordinary_new_claim_ledger;
+        for call in &calls {
+            assert!(
+                ledger.borrowed_formal_actuals[call.call_site()]
+                    .as_ref()
+                    .map_or(true, |row| row.require_executable_v1().is_err()),
+                "no partial install, mutation {mutation}"
+            );
+        }
+    }
 }

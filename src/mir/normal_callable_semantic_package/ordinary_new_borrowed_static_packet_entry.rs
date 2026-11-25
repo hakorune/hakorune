@@ -276,13 +276,8 @@ impl OrdinaryNewClaimLedgerV1 {
         if matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString)
             || (original.qualified_scalar_result_v1().is_none() && matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactBool { .. }))
             || self.checked_completed_static_text_result_v1(original)? {
-            if original.is_zero_input_source_v1() {
-                self.checked_completed_static_zero_arguments_v1(original)?
-                    .ok_or_else(&unfinished)?;
-            } else {
-                self.checked_completed_static_expression_input_v1(original)?
-                    .ok_or_else(&unfinished)?;
-            }
+            self.checked_completed_static_expression_input_v1(original)?
+                .ok_or_else(&unfinished)?;
             return self.verify_original_static_source_v1(original);
         }
         if !original.is_zeroarg_i64_v1()
@@ -413,18 +408,6 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Ok(Some(rows));
             }
         }
-        if let Some(observation) = expression_observation {
-            if self.has_static_zero_checked_source_v1(original) {
-                let Some(arguments) = self.checked_completed_static_zero_arguments_v1(original)?
-                else {
-                    return Ok(None);
-                };
-                if !arguments.is_empty() || observation.arguments() != arguments {
-                    return Err(freeze("static-zero/argument-snapshot-drift"));
-                }
-                return Ok(Some(&[]));
-            }
-        }
         if let Some(observation) = expression_observation.filter(|_| original.is_current_owner_i64_source_v1()) {
             if let Some(actuals) = self.with_checked_static_scalar_packet_actuals_v1(
                 original,
@@ -462,25 +445,6 @@ impl OrdinaryNewClaimLedgerV1 {
                 .map(Some)
                 .ok_or_else(|| freeze("ordinary-new/borrowed-entry/source-only-static-actuals"));
         }
-        if self.is_static_zero_packet_cohort_v1(original) {
-            let Some(arguments) = self.checked_completed_static_zero_arguments_v1(original)? else {
-                return Ok(None);
-            };
-            self.corroborate_static_packet_arguments_v1(
-                original,
-                expression_observation,
-                &arguments,
-                "borrowed-static/local-source-missing",
-                "borrowed-static/ordered-arguments-drift",
-            )?;
-            let rows = self
-                .borrowed_formal_actuals
-                .get(original.call_site())
-                .ok_or_else(|| freeze("borrowed-entry/actuals-missing"))?
-                .as_ref()
-                .map_err(Clone::clone)?;
-            return Ok(Some(rows.opaque_actuals.as_ref()));
-        }
         self.with_qualified_static_packet_actuals_v1(original, |arguments| {
             self.corroborate_static_packet_arguments_v1(
                 original,
@@ -499,10 +463,6 @@ impl OrdinaryNewClaimLedgerV1 {
         original: &Rc<StaticIncomingSourceV1>,
     ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
         if let Some(actuals) = self.checked_static_scalar_packet_actuals_v1(original)? {
-            return Ok(Some(actuals));
-        }
-        // The mixed census still owns its historical admission boundary.
-        if let Some(actuals) = self.checked_static_mixed_packet_actuals_v1(original)? {
             return Ok(Some(actuals));
         }
         Ok(self.checked_completed_static_forwarded_actuals_v1(original)?

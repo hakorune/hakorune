@@ -30,8 +30,6 @@ pub(in crate::mir::normal_callable_semantic_package) use static_source::project_
 
 #[path = "ordinary_new_borrowed_static_bool_entry_finish.rs"]
 mod static_bool_entry_finish;
-#[path = "ordinary_new_borrowed_static_mixed_input_finish.rs"]
-mod static_mixed_input_finish;
 #[path = "ordinary_new_borrowed_static_scalar_caller_rows.rs"]
 mod static_numeric_evidence;
 #[path = "ordinary_new_borrowed_static_selected_actual.rs"]
@@ -282,7 +280,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
                 receiver,
                 nullable_class,
                 None,
-                None,
                 &mut |_, _, _| Ok(None),
             );
         }
@@ -317,7 +314,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
         object_source::ObjectActualHomeSourceV1::Candidates(candidates),
         receiver,
         nullable_class,
-        None,
         None,
         &mut |_, _, _| Ok(None),
     )

@@ -153,7 +153,6 @@ pub(super) enum BorrowedCallActualEvidencePhaseV1 {
     ExecutableSourceObject(object_source::ObjectSourceActualIdentityV1),
     ExecutableSourceInstance(instance_source::InstanceSourceActualIdentityV1),
     ExecutableStaticInput(static_input_finish::StaticInputFinishV1),
-    ExecutableStaticMixed(static_mixed_input_finish::StaticMixedInputFinishV1),
     EntryOnlyStaticBool(static_bool_entry_finish::StaticBoolEntryFinishV1),
     SourceStatic(static_source::StaticSourceActualIdentityV1),
     SourceObject(object_source::ObjectSourceActualIdentityV1),
@@ -278,8 +277,7 @@ impl PreparedBorrowedCallActualsV1 {
         match self.phase {
             BorrowedCallActualEvidencePhaseV1::Executable
             | BorrowedCallActualEvidencePhaseV1::ExecutableSourceObject(_)
-            | BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(_)
-            | BorrowedCallActualEvidencePhaseV1::ExecutableStaticMixed(_) => Ok(()),
+            | BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(_) => Ok(()),
             BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(ref identity) => {
                 let mut ordinals = std::collections::BTreeSet::new();
                 for (ordinal, original) in &identity.array_loans {
