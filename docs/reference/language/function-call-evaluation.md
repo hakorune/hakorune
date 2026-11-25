@@ -6,11 +6,22 @@ migration remains pending.
 
 ## Decision
 
+> **Amended 2026-11-26 (maintainer decision,
+> [ADR-005](../../development/adr/adr-005-file-functions-live-in-static-boxes.md)).**
+> File functions live in static boxes. A file has no top-level `function` or
+> `static function`, so the accepted target has no file-level FreeStatic
+> declaration and no `name/arity` overload namespace. A function is called as
+> `me.f(x)` inside its static box and `Box.f(x)` outside it. Implementation
+> pending: the paragraphs below that mention FreeStatic describe the current
+> implementation, which keeps top-level functions until the ADR-005 rejection
+> round (step 3).
+
 Hakorune has two semantic call shapes:
 
 ```text
 FunctionCall(name, arguments)
-  = a direct FreeStatic call or an explicitly defined special source form
+  = an explicitly defined special source form, or (current implementation
+    until ADR-005 step 3) a direct FreeStatic call
 
 Call(callee, arguments)
   = invocation of a value produced by a callee expression
@@ -65,14 +76,17 @@ Home obligations before the final successorless Fault terminal. Bare `exit`
 is a separate undecided application/runtime surface, not a sibling selected by
 this rule.
 
-Within the SelectedNormal admission cohort, multiple source occurrences that
-project to the same effective top-level `name/arity` physical symbol are an
-ambiguous direct target. They reject before body lowering and before argument
-evaluation. Declaration order, collector replacement, and a retry through the
-RawCompatibility owner do not select a winner. Different arities remain
-distinct FreeStatic identities; this is not Box-method overloading.
+Current implementation until ADR-005 step 3: within the SelectedNormal
+admission cohort, multiple source occurrences that project to the same
+effective top-level `name/arity` physical symbol are an ambiguous direct
+target. They reject before body lowering and before argument evaluation.
+Declaration order, collector replacement, and a retry through the
+RawCompatibility owner do not select a winner. Different arities are still
+distinct FreeStatic identities there; this is not Box-method overloading.
 RawCompatibility keeps its own explicitly owned legacy replacement policy and
-never re-enters SelectedNormal.
+never re-enters SelectedNormal. Under ADR-005 a top-level function is itself
+the compile error, and a moved function follows the one-name-per-Box rule
+below.
 
 For a Box method call, the exact nominal owner/receiver relation selects one
 Box namespace before argument evaluation. A Box has at most one visible method
@@ -114,7 +128,14 @@ is never reinterpreted after argument evaluation:
 | `me.method(args)` in an instance method, or `obj.method(args)` | `DeclaredInstance` | `Method(Some(receiver))` | the exact lexical/object receiver is carried once |
 | `host.exposed(args)` for a declared delegate exposure | `DelegateForward` | exact host-field/delegate relation | the exposure's declared field relation supplies the forwarded receiver; no name fallback |
 | `obj.field.method(args)` | explicit delegate-object call | the nominal target of `field` | the field path is part of the owner relation |
-| `f(args)` | `FreeStatic` | exact `name/arity` identity | no Box receiver |
+| `Box.method(args)` naming a `static box` (or a `using` alias of it) | qualified static call | the exact static declaration of that Box | no receiver; the named Box is the owner |
+| `f(args)` | `FreeStatic` (current implementation until ADR-005 step 3) | exact `name/arity` identity | no Box receiver |
+
+Under ADR-005 the `f(args)` row leaves the file language: a file function is
+called through the `me.method(args)` or `Box.method(args)` row. `f(args)` stays
+the spelling of explicitly defined special forms such as `panic(message)`, of
+value calls, and of future REPL session functions
+([repl.md](repl.md) section 2.4).
 
 If the enclosing context has no exact declaration in the applicable family, the
 call rejects before receiver materialization and before argument effects. A
@@ -129,7 +150,8 @@ Static/instance declarations and delegate exposures therefore collide on the
 same visible name even when arity or receiver policy differs. A distinct
 explicit delegate alias is valid, and the same spelling on another nominal Box
 is valid because the owner relation differs. FreeStatic `name/arity` overloads
-remain a separate namespace. The StaticCurrentOwner handoff and resolver-owned
+are a separate namespace only in the current implementation; ADR-005 removes
+them from the file language. The StaticCurrentOwner handoff and resolver-owned
 source-site/declaration relation are landed implementation slices; true
 DeclaredInstance production Method(Some) remains a design stop until
 effect/result contracts, the full receiver lane, and selected physical
@@ -163,6 +185,13 @@ observed in left-to-right source order.
 Explicit special forms own their own source validation but must likewise choose
 their form before descending into ordinary arguments. They cannot fall through
 to FreeStatic resolution after partially evaluating arguments.
+
+A top-level `function` or `static function` is a declaration error under
+ADR-005, not a call failure. It is reported at the declaration, whether or not
+any call names it, and its diagnostic says to write the function as a method
+in a static box. A call that names no declaration in the selected Box
+namespace still rejects before argument evaluation, as above. Implementation
+pending (ADR-005 step 3).
 
 `panic` is not shadowable by a local, parameter, or source callable in v1.
 Because it remains an identifier token rather than a lexer keyword, this rule

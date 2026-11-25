@@ -84,8 +84,13 @@ Expressions and Calls
   - 各 nominal Box の visible method 名は一意。static/instance、arity違い、
     delegate forwarding は同名overloadを作らず、衝突は引数評価前にrejectする。
     別Boxの同名methodはowner/receiverが異なるため許可する。
-  - FreeStaticだけは別namespaceで exact `name/arity` identityを使い、
-    `f/1`と`f/2`を区別できる。この規則をBox methodへ流用しない。
+  - file の関数は static box の中だけに書く([ADR-005](../../development/adr/adr-005-file-functions-live-in-static-boxes.md)、
+    メンテナ決定 2026-11-26)。box の外の `function`・`static function` は
+    compile error。呼び方は、箱の中で `me.f(x)`、外から `Box.f(x)`。
+  - 名前は箱ごとに 1 つ。`f/1` と `f/2` は、1 つの箱に並べられない。
+  - 実装は ADR-005 の (3) の回。それまでの今の実装は、box の外の関数を
+    FreeStatic の exact `name/arity` identity で扱い、`f/1` と `f/2` を区別する。
+    この規則を Box method へ流用しない。
   - `CallableContract(query)` が無い通常の declared-instance call は、source
     declaration に基づく accepted `OpaqueObservable` effect contract を持つ。
     resolver facts issuer は着地済みだが、physical production issuer はまだ 0。

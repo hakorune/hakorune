@@ -25,6 +25,7 @@ Design SSOT note (Scope Exit Semantics):
 - typed Result-only postfix `?` is the accepted unchanged-propagation target;
   its grammar/verified consumer remains production 0.
 - 2026-11-16 ([ADR-004](../../development/adr/adr-004-failure-surface-catch-and-cleanup.md), maintainer decision): trailing `catch`/`cleanup` stay in the language as forms over `Result`; not built yet. `RecoverableFailure`, `throw` and exceptions stay rejected.
+- 2026-11-26 ([ADR-005](../../development/adr/adr-005-file-functions-live-in-static-boxes.md), maintainer decision): file functions live in static boxes. File-mode `program` has no `function_decl`; a top-level `function` or `static function` is a compile error that says to write it as a method in a static box. Not built yet: the current parser still accepts both until the ADR-005 rejection round (step 3).
 - source catch and `RecoverableFailure` are rejected targets.
 - standalone `cleanup {}` is the sole lexical cleanup target; local/postfix
   cleanup and scope-position `fini` are retirement input.
@@ -151,11 +152,17 @@ Function-exit semantic status:
   target Unit semantics but remains grammar-inactive until a separate registry
   row and both parser witnesses land.
 
-program   := (cfg_item | static_const_table_decl | brand_decl | type_alias_decl | record_decl | enum_decl | box_decl | function_decl | stmt)* EOF
+program   := (cfg_item | static_const_table_decl | brand_decl | type_alias_decl | record_decl | enum_decl | box_decl | stmt)* EOF
 
 cfg_item  := 'gate' build_predicate '{' program_item* '}' ('else' cfg_else)?
 cfg_else  := cfg_item | '{' program_item* '}'
-program_item := static_const_table_decl | brand_decl | type_alias_decl | record_decl | enum_decl | box_decl | function_decl | stmt
+program_item := static_const_table_decl | brand_decl | type_alias_decl | record_decl | enum_decl | box_decl | stmt
+
+; ADR-005 (2026-11-26): file-mode `program` and `program_item` admit no
+; `function_decl`. A file function is a method of a static box, called as
+; `me.f(x)` inside that box and `Box.f(x)` outside it. Implementation pending:
+; the current parser still accepts top-level `function` and `static function`
+; (also inside a top-level `gate`) until the ADR-005 rejection round.
 
 ; Build conditional predicates are not ordinary runtime expressions.
 ; LANG-CFG-001 owns parser transport and prune-before-resolution semantics.
@@ -267,6 +274,9 @@ function_decl := 'function' IDENT '(' params? ')' ( ':' TYPE_REF )? signature_cl
                ; return annotation is optional. `: void` is an explicit
                ; no-value contract; omission is an unannotated result contract,
                ; not implicit void or source-level result inference.
+               ; ADR-005: not a file-mode item. It remains the spelling of a
+               ; future REPL session function (repl.md section 2.4), which
+               ; follows the one-name-per-Box rule of the session's implicit Box.
 
 signature_clause := uses_clause | contract_clause
 
@@ -1002,8 +1012,12 @@ Semantics (summary)
   reuse an existing visible method name, even with a different arity. An
   explicit delegate `as` alias is valid only when the resulting host name is
   unique. Collisions reject the unpublished declaration/batch before callable
-  publication; no declaration-order or runtime winner exists. FreeStatic
-  `name/arity` identity remains a separate call namespace.
+  publication; no declaration-order or runtime winner exists. Under
+  [ADR-005](../../development/adr/adr-005-file-functions-live-in-static-boxes.md)
+  file functions are static-box methods, so this one-name rule is the only
+  function namespace; there is no separate FreeStatic `name/arity` namespace.
+  Implementation pending: top-level functions with `name/arity` identity stay
+  accepted until the ADR-005 rejection round.
 - constructor overload identity is the normalized `init|pack|birth/arity` key.
   Two selected declarations with the same key are rejected before either can
   overwrite the other. Generated `birth/0` is source-backed by the stored-field

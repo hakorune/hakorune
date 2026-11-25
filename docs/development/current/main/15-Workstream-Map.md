@@ -34,7 +34,7 @@ Related:
 2. `docs/development/current/main/CURRENT_STATE.toml`
 3. the file named by `latest_card_path`
 4. `docs/development/current/main/design/mirbuilder-blueprint.md` (when the work touches `src/mir`)
-5. `docs/development/adr/adr-003-counted-box-default.md`, `adr-004-failure-surface-catch-and-cleanup.md`
+5. `docs/development/adr/adr-003-counted-box-default.md`, `adr-004-failure-surface-catch-and-cleanup.md`, `adr-005-file-functions-live-in-static-boxes.md`
 
 `latest_workstream_card` and the milestone tables below are history (2026-07..10), not the current order.
 

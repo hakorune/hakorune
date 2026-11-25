@@ -17,7 +17,7 @@ manifest + shards）。`INDEX.md` は navigation index でauthorityを持たな�
 
 ## Read First Now
 
-- **MirBuilder(source → MIR)の設計: `docs/development/current/main/design/mirbuilder-blueprint.md`。最初にこれを読む。** 構文ごとの今の入口・持ち主・残っている道は `docs/development/current/main/design/mirbuilder-route-guide.md`。所有は `docs/development/adr/adr-003-counted-box-default.md`、失敗の道は `docs/development/adr/adr-004-failure-surface-catch-and-cleanup.md`。
+- **MirBuilder(source → MIR)の設計: `docs/development/current/main/design/mirbuilder-blueprint.md`。最初にこれを読む。** 構文ごとの今の入口・持ち主・残っている道は `docs/development/current/main/design/mirbuilder-route-guide.md`。所有は `docs/development/adr/adr-003-counted-box-default.md`、失敗の道は `docs/development/adr/adr-004-failure-surface-catch-and-cleanup.md`、file の関数の置き場所は `docs/development/adr/adr-005-file-functions-live-in-static-boxes.md`。
 - `Status: Historical` の文書と `archive/` は、作業の根拠にしない。
 - development rules: `docs/development/RULES.md`
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
