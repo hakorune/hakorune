@@ -20,20 +20,6 @@ use super::super::completion_consumption::ResolvedFunctionCompletionConsumptionV
 use super::super::semantic_stack::{ResolvedSemanticExpectedCountsV1, ResolvedSemanticStackV1};
 use super::identity::ResolvedSsaIdentityStateV2;
 
-#[path = "session/same_block_operand.rs"]
-mod same_block_operand;
-
-#[path = "session/destination.rs"]
-mod destination;
-
-pub(in crate::mir::builder) use destination::ReservedCanonicalCompareDestinationV1;
-
-pub(in crate::mir::builder) use same_block_operand::VerifiedCanonicalSameBlockIntegerOperandV1;
-
-pub(in crate::mir::builder::resolved_lowering) use same_block_operand::{
-    CanonicalSameBlockIntegerRejectV1, CanonicalSameBlockIntegerRequestV1,
-};
-
 #[path = "session/draft_seal_close.rs"]
 mod draft_seal_close;
 #[path = "session/generic_g0_entry_adoption.rs"]

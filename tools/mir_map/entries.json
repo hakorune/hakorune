@@ -67,17 +67,6 @@
   },
   {
     "category": "expression",
-    "file": "src/mir/builder/raw_root_body_lowering.rs",
-    "fn": "lower_linear_expr_v1",
-    "owner": "impl MirBuilder",
-    "line": 145,
-    "definition_justification": "本文を物理MIRまたはCorePlan/effectへ下ろす定義。writerの独立性/選択可否はcoverageとは別。",
-    "role": "writer",
-    "old_group": "6",
-    "has_body": true
-  },
-  {
-    "category": "expression",
     "file": "src/mir/builder/raw_invocation_source_transport/bool_condition.rs",
     "fn": "lower_whole_bool_condition_v1",
     "owner": "impl RawInvocationChildPortV1<'_, '_>",
@@ -712,28 +701,6 @@
     "definition_justification": "本文を物理MIRまたはCorePlan/effectへ下ろす定義。writerの独立性/選択可否はcoverageとは別。",
     "role": "writer",
     "old_group": "11",
-    "has_body": true
-  },
-  {
-    "category": "call",
-    "file": "src/mir/builder/resolved_lowering/canonical_cfg/session/invoke.rs",
-    "fn": "emit_root_invoke",
-    "owner": "impl CanonicalCfgSessionV1",
-    "line": 12,
-    "definition_justification": "本文を物理MIRまたはCorePlan/effectへ下ろす定義。writerの独立性/選択可否はcoverageとは別。",
-    "role": "writer",
-    "old_group": "12",
-    "has_body": true
-  },
-  {
-    "category": "call",
-    "file": "src/mir/builder/resolved_lowering/canonical_cfg/session/invoke.rs",
-    "fn": "emit_i64_invoke",
-    "owner": "impl CanonicalCfgSessionV1",
-    "line": 126,
-    "definition_justification": "本文を物理MIRまたはCorePlan/effectへ下ろす定義。writerの独立性/選択可否はcoverageとは別。",
-    "role": "writer",
-    "old_group": "12",
     "has_body": true
   },
   {

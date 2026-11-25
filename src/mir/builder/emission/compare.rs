@@ -120,39 +120,46 @@ fn require_existing_compare_block(
 #[cfg(test)]
 mod tests {
     use super::emit_to;
-    use crate::mir::{BasicBlockId, CompareOp, MirBuilder, MirInstruction, MirType, ValueId};
+    use crate::mir::{BasicBlockId, CompareOp, ConstValue, MirBuilder, MirInstruction, MirType, ValueId};
 
     #[test]
     fn valid_builder_compare_emits_one_instruction_and_keeps_bool_receipt() {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("compare_receipt/0".to_string());
+        let lhs = builder.alloc_typed(MirType::Integer);
+        let rhs = builder.alloc_typed(MirType::Integer);
+        for (dst, value) in [(lhs, 2), (rhs, 3)] {
+            builder
+                .emit_instruction(MirInstruction::Const {
+                    dst,
+                    value: ConstValue::Integer(value),
+                })
+                .unwrap();
+        }
         let destination = builder.alloc_value_for_test();
 
-        emit_to(
-            &mut builder,
-            destination,
-            CompareOp::Eq,
-            ValueId::new(0),
-            ValueId::new(1),
-        )
-        .unwrap();
+        emit_to(&mut builder, destination, CompareOp::Lt, lhs, rhs).unwrap();
 
         assert_eq!(
             builder.function_state.type_ctx.get_type(destination),
             Some(&MirType::Bool)
         );
-        assert!(builder
-            .function_state
-            .current_function
-            .as_ref()
-            .unwrap()
-            .blocks
-            .values()
-            .flat_map(|block| block.instructions.iter())
-            .any(|instruction| matches!(
-                instruction,
-                MirInstruction::Compare { dst, .. } if *dst == destination
-            )));
+        let function = builder.function_state.current_function.as_ref().unwrap();
+        let block = function.get_block(function.entry_block).unwrap();
+        let mut comparisons = block
+            .instructions
+            .iter()
+            .filter(|instruction| matches!(instruction, MirInstruction::Compare { .. }));
+        assert_eq!(
+            comparisons.next(),
+            Some(&MirInstruction::Compare {
+                dst: destination,
+                op: CompareOp::Lt,
+                lhs,
+                rhs,
+            })
+        );
+        assert!(comparisons.next().is_none());
     }
 
     #[test]

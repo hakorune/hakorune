@@ -234,46 +234,25 @@ guard_expect_fixed_in_file "$TAG" "verify_single_predecessor_phi" "$IDENTITY" \
 guard_expect_fixed_in_file "$TAG" "single_predecessor_phi_relation_accepts_distinct_target_value" "$IDENTITY" \
   "relation evidence must allow distinct target and predecessor ValueIds"
 
-CANONICAL_WRITER="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_compare_writer.rs"
-OPERAND="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/same_block_operand.rs"
-guard_require_files "$TAG" "$CANONICAL_WRITER" "$OPERAND"
-guard_expect_fixed_in_file "$TAG" "CanonicalCompareDefinitionSourceV1" "$CANONICAL_WRITER" \
-  "strict writer must return the canonical definition source"
-guard_expect_fixed_in_file "$TAG" "unique physical MIR definition" "$OPERAND" \
-  "same-block issuer must document its physical-definition proof"
-
-# F22 retired the generic Compare writer; retain its current shared append proof.
 BUILDER_EMIT="$ROOT_DIR/src/mir/builder/builder_emit.rs"
-APPEND_CORE="$ROOT_DIR/src/mir/builder/builder_emit_core.rs"
 APPEND_SSOT="$ROOT_DIR/src/mir/ssot/cf_common.rs"
 CFG_INSTRUCTION="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_cfg/instruction.rs"
-guard_require_files "$TAG" "$BUILDER_EMIT" "$APPEND_CORE" "$APPEND_SSOT" "$CFG_INSTRUCTION"
-guard_expect_fixed_in_file "$TAG" "append_instruction_core" "$APPEND_CORE" \
-  "strict writer must use the shared append core"
-guard_expect_fixed_in_file "$TAG" "PreparedCanonicalCompareAppendV1" "$APPEND_CORE" \
-  "strict writer must expose a prepared append state"
-guard_expect_fixed_in_file "$TAG" "CanonicalCompareDefinitionSourceV1" "$APPEND_CORE" \
-  "strict commit must return the writer-owned definition source"
-for file in "$CANONICAL_WRITER" "$APPEND_CORE"; do
-  if rg -n -- 'emit_instruction_at\(|emit_instruction\(|ensure_block_exists\(|current_block|compute_def_blocks\(|compute_dominators\(' "$file"; then
-    guard_fail "$TAG" "strict writer path reaches a legacy/ambient repair hook: ${file#"$ROOT_DIR/"}"
-  fi
-done
-# The shared mutation primitive now lives in cf_common. Neither Builder
-# front/core duplicates it; canonical CFG delegates actual function mutation.
+guard_require_files "$TAG" "$BUILDER_EMIT" "$APPEND_SSOT" "$CFG_INSTRUCTION"
+# The Builder front delegates via canonical CFG to the shared mutation
+# primitive in cf_common.
 # CFG also appends to a temporary BasicBlock projection for preflight, retained.
-direct_append_count="$(rg -F -o -- 'add_instruction_with_span(' "$BUILDER_EMIT" "$APPEND_CORE" "$APPEND_SSOT" | wc -l | tr -d '[:space:]')"
+direct_append_count="$(rg -F -o -- 'add_instruction_with_span(' "$BUILDER_EMIT" "$APPEND_SSOT" | wc -l | tr -d '[:space:]')"
 if [[ "$direct_append_count" -ne 1 ]]; then
   guard_fail "$TAG" "physical span append count must be one; found $direct_append_count"
 fi
-if rg -n -F -- 'add_instruction_with_span(' "$BUILDER_EMIT" "$APPEND_CORE"; then
-  guard_fail "$TAG" "Builder front/core must not own a second direct span append"
+if rg -n -F -- 'add_instruction_with_span(' "$BUILDER_EMIT"; then
+  guard_fail "$TAG" "Builder front must not own a second direct span append"
 fi
 guard_expect_fixed_in_file "$TAG" '.append_selected_instruction(' "$BUILDER_EMIT" \
   "Builder front door must delegate through canonical CFG"
 guard_expect_fixed_in_file "$TAG" 'crate::mir::ssot::cf_common::append_instruction_core(function, source, instruction, span)' "$CFG_INSTRUCTION" \
   "canonical CFG must delegate to the shared append owner"
-for file in "$BUILDER_EMIT" "$APPEND_CORE" "$APPEND_SSOT" "$CFG_INSTRUCTION" "$CANONICAL_WRITER"; do
+for file in "$BUILDER_EMIT" "$APPEND_SSOT" "$CFG_INSTRUCTION"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "shared append source reached the 800-line hard boundary: ${file#"$ROOT_DIR/"}=$lines"

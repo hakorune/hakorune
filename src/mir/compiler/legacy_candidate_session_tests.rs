@@ -368,6 +368,74 @@ fn typed_root_return_rejection_keeps_the_published_builder() {
     assert_eq!(source_file(&compiler).as_deref(), Some("published-after.hako"));
 }
 
+fn compile_loop_source(
+    compiler: &mut MirCompiler,
+    source: &str,
+    path: &str,
+) -> Result<crate::mir::MirCompileResult, String> {
+    use crate::runner::modes::common_util::normal_callable::{
+        materialize_normal_callable_program_with_identity_v1,
+        NormalCallableMaterializationOutcomeV1,
+    };
+
+    let parsed = materialize_normal_callable_program_with_identity_v1(
+        source,
+        crate::parser::ParserBuildConfig::default(),
+        path,
+    )
+    .expect("loop fixture must materialize");
+    let NormalCallableMaterializationOutcomeV1::SourceBacked(source) = parsed else {
+        panic!("loop fixture must use the source-backed normal route");
+    };
+    compiler.compile_normal(NormalCompileRequestV1::for_mir_mode_callable_source(
+        source,
+        Some(path),
+        HashMap::new(),
+    ))
+}
+
+#[test]
+fn rejected_loop_body_rolls_back_emitted_phis_and_reuses_compiler() {
+    const REJECTED: &str = include_str!("../../../apps/tests/phase29bq_generic_loop_v1_general_if_min.hako");
+    const VALID: &str = include_str!("../../../apps/loop-basics/main.hako");
+    let mut compiler = MirCompiler::with_options(false);
+    let original = compile_loop_source(&mut compiler, VALID, "loop-before.hako").unwrap();
+    assert!(original.verification_result.is_ok());
+    let live = |compiler: &MirCompiler| {
+        (
+            source_file(compiler),
+            core_cursor(compiler),
+            compiler.builder.current_module.as_ref().map(|module| {
+                MirPrinter::new().print_module(module)
+            }),
+            compiler.builder.current_function_name().map(str::to_owned),
+            compiler.builder.current_function_entry_block(),
+        )
+    };
+    let before = live(&compiler);
+    let error = compile_loop_source(
+        &mut compiler,
+        REJECTED,
+        "apps/tests/phase29bq_generic_loop_v1_general_if_min.hako",
+    )
+    .expect_err("the corpus input must be rejected");
+    assert_eq!(live(&compiler), before);
+
+    let reused = compile_loop_source(&mut compiler, VALID, "loop-after.hako").unwrap();
+    assert!(reused.verification_result.is_ok());
+    assert_eq!(source_file(&compiler).as_deref(), Some("loop-after.hako"));
+    assert_eq!(reused.module.function_names(), original.module.function_names());
+
+    let pending: usize = error
+        .split_once("[freeze:contract][phi_lifecycle/txn_abort] tag=source-loop-header-after pending_count=")
+        .and_then(|(_, detail)| detail.split_whitespace().next())
+        .and_then(|count| count.parse().ok())
+        .unwrap_or_else(|| panic!("expected the emitted PHI transaction to abort: {error}"));
+    assert!(pending > 0, "no provisional PHIs were emitted: {error}");
+    assert!(error.contains("cleanup_failure_count=0"), "{error}");
+    assert!(error.contains("[freeze:contract][local-read/loop-point-missing]"), "{error}");
+}
+
 #[test]
 fn nonmain_static_box_failure_discards_candidate_and_reuses_live_compiler() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();

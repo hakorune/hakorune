@@ -6,7 +6,6 @@
 
 mod callable_module_transaction;
 pub(in crate::mir::builder) mod canonical_cfg;
-mod canonical_compare_writer;
 pub(in crate::mir) mod canonical_ssa;
 mod completion_consumption;
 mod draft_seal;
@@ -39,9 +38,6 @@ mod completion_draft_seal_tests;
 mod completion_test_support;
 pub(in crate::mir::builder) mod loop_recipe_physicalizer;
 
-pub(in crate::mir::builder::resolved_lowering) use canonical_compare_writer::{
-    CanonicalLoopCompareI64WriterV1, PreparedCanonicalLoopCompareI64V1,
-};
 #[cfg(test)]
 mod nested_predicate_effect_adapter_tests;
 #[cfg(test)]

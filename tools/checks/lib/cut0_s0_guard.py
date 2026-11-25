@@ -35,7 +35,6 @@ def main() -> int:
         path
         for path in SRC.glob("*.rs")
         if not (path.name.endswith("_tests.rs") or path.name.endswith("_p0.rs") or path.name.endswith("_p0d.rs"))
-        and path.name not in {"module_invocation_drain.rs"}
     ]
     forbidden_calls = (
         "ModuleLoweringInvocationCandidateV1::open(",

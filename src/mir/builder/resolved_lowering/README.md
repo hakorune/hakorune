@@ -60,40 +60,6 @@ Invariants:
 - legacy statement/expression dispatch, Planner/CorePlan, Lambda, production
   Loop activation, Main, REPL, and ProgramV0 are outside this boundary.
 
-## Canonical Loop Compare operand boundary
-
-The shared strict Compare contract accepts owner/session-bound same-block
-Integer witnesses. Canonical SSA scans actual MIR for one exact definition in
-the target block and rejects missing, duplicate, parameter, cross-block,
-foreign and non-Integer operands before destination reservation or mutation.
-The generic Loop writer adapter retired in F22; the selected Dynamic I9
-emitter and its private result ledger retire in F25. Their old caller counts
-and physical ledgers are not current activation authorities.
-
-## Shared canonical Compare preparation and append
-
-The retained owner is `canonical_compare_writer.rs` with
-`builder_emit_core.rs` preparation/commit:
-
-```text
-open target + same-block Integer lhs/rhs + fresh destination + Bool plan
-    -> PreparedCanonicalCompareAppendV1
-    -> append_instruction_core in mir/ssot/cf_common.rs
-    -> non-Clone/non-Copy CanonicalCompareDefinitionSourceV1
-```
-
-Preparation owns every fallible target/definition/type check. Commit does not
-create blocks, consult `current_block`, invoke a repair-capable emitter,
-materialize LocalSSA/PHI state, infer types or perform a fallible post-append
-check. The legacy `builder_emit.rs` front door delegates through canonical CFG;
-strict Compare delegates directly to the same shared append primitive.
-
-The existing `dynamic_v2_physical_input_authority_guard.sh` retains prepared
-append/definition-source and no-ambient-repair checks, exactly one direct span
-append at the shared owner, zero direct Builder span appends, canonical CFG
-delegation, source caps and the Builder split trigger. The old strict-writer/CONNECT0 guards
-retire with their adapters; their shared guarantees remain in this guard.
-
 ## Common V2 canonical session-open canary
 
 `with_common_v2_canonical_session` is the caller-zero consumer of one
