@@ -6,8 +6,10 @@
 
 // TODO: empty record BoxCoreBoundary is out of v0 skeleton scope
 
-function BoxCoreBoundary_name(receiver: BoxCoreBoundary): String {
-    return "hakorune-box-core"
+static box RustSubset_crate {
+    BoxCoreBoundary_name(receiver: BoxCoreBoundary): String {
+        return "hakorune-box-core"
+    }
 }
 
 // module crate::plugin

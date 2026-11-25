@@ -132,7 +132,7 @@ static box ConsoleStd {
 - REPL から file へ移す時の案内(診断の文、session の関数を箱の形で書き出す手助けを作るか)。
 - `examples/` の 28 file を移すか、消すか。
 - 拒否の名前と、診断の文。案は `decl/function-outside-box`。(3) の回で決める。
-- 移した後の箱の名前の付け方。変換器は今 `Counter_get` のような名前の関数を出す。`impl` ごとに箱を作るか、1 つの file に 1 つの箱か。
+- 変換器の箱の名前は決定済み（LB-2d）。関数を出力する module ごとに一つの static box を作る。箱名は `RustSubset_` に module ID（ASCII 英数字はそのまま、`_` は `_u`、`:` は `_c`）を続ける。同じ箱でメソッド名が重なった場合、引数の数にかかわらず変換を拒否する。
 - `console_std.hako` の helper の移し方。箱を足すと、`using` の別名の結び付けが変わりうる(公開の static box が 1 つの時と、複数の時で、今の決まりが違う)。
 - runner 向けの `function main(args)`(`mini_vm_if_branch.hako`、macro の子の runner)の代わりの入口。macro の top-level の `static function MacroBoxSpec.expand` と `NYASH_MACRO_TOPLEVEL_ALLOW` は、[ADR-006](adr-006-static-box-holds-only-static-methods.md) で決まった(`static box MacroBoxSpec { expand(json, ctx) { ... } }` に揃え、特例は退役する)。子の runner の正式な入口は、まだ決めていない。
 - method の本体の中に書いた `function`(入れ子。今の parser は文として読む)。この ADR が決めるのは、file の top-level の宣言だけ。

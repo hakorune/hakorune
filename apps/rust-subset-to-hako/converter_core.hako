@@ -30,21 +30,138 @@ box RustSubsetConverter {
             return "// empty module"
         }
 
+        local method_names = me.collect_method_names(items)
+        if method_names.indexOf("// error: ") == 0 {
+            return method_names
+        }
+        local box_name = ""
+        if method_names != "\n" {
+            box_name = me.module_box_name(me.node_str(doc.get_node("module")))
+            if box_name == "" {
+                return me.fail("invalid RustSubset module name for static box")
+            }
+        }
+
         local item_count = items.length()
         local output = ""
+        local methods = ""
         local i = 0
-
         loop(i < item_count) {
             local item = items.get_node(i)
-            local item_text = me.emit_item(item)
-            if output != "" {
-                output = output + "\n\n"
+            local kind = me.node_str(item.get_node("kind"))
+            local item_text = ""
+            if kind == "Function" {
+                methods = me.append_block(methods, me.emit_method(item, "", method_names))
+            } else {
+                if kind == "Impl" {
+                    local target = me.impl_target(item)
+                    local impl_methods = item.get_node("methods")
+                    if impl_methods == null {
+                        item_text = "// impl " + target + " (no methods)"
+                    } else {
+                        if impl_methods.length() == 0 {
+                            item_text = "// impl " + target + " (no methods)"
+                        } else {
+                            methods = me.append_block(methods, me.emit_impl(impl_methods, target, method_names))
+                        }
+                    }
+                } else {
+                    if kind == "Struct" && box_name != "" && me.emitted_name(item) == box_name {
+                        return me.fail("static box name collides with struct: " + box_name)
+                    }
+                    item_text = me.emit_item(item)
+                }
             }
-            output = output + item_text
+            if item_text != "" {
+                output = me.append_block(output, item_text)
+            }
             i = i + 1
         }
 
+        if methods != "" {
+            return me.append_block(output, "static box " + box_name + " {\n" + methods + "\n}")
+        }
         return output
+    }
+
+    append_block(output, block) {
+        if output == "" { return block }
+        return output + "\n\n" + block
+    }
+
+    module_box_name(module) {
+        if module == "" { return "" }
+        local box_name = "RustSubset_"
+        local alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+        local i = 0
+        loop(i < module.length()) {
+            local ch = module.substring(i, i + 1)
+            if alphabet.indexOf(ch) >= 0 {
+                box_name = box_name + ch
+            } else {
+                if ch == "_" {
+                    box_name = box_name + "_u"
+                } else {
+                    if ch != ":" { return "" }
+                    box_name = box_name + "_c"
+                }
+            }
+            i = i + 1
+        }
+        return box_name
+    }
+
+    emitted_name(node) {
+        local name = me.node_str(node.get_node("emitted_name"))
+        if name == "" { return me.node_str(node.get_node("name")) }
+        return name
+    }
+
+    impl_target(item) {
+        local target = me.node_str(item.get_node("target_emitted_name"))
+        if target == "" { return me.node_str(item.get_node("target")) }
+        return target
+    }
+
+    method_name(func, target) {
+        local name = me.emitted_name(func)
+        if target == "" { return name }
+        return target + "_" + name
+    }
+
+    insert_method_name(names, func, target) {
+        local name = me.method_name(func, target)
+        if names.indexOf("\n" + name + "\n") >= 0 {
+            return me.fail("duplicate method name: " + name)
+        }
+        return names + name + "\n"
+    }
+
+    collect_method_names(items) {
+        local names = "\n"
+        local i = 0
+        loop(i < items.length()) {
+            local item = items.get_node(i)
+            local kind = me.node_str(item.get_node("kind"))
+            if kind == "Function" {
+                names = me.insert_method_name(names, item, "")
+                if names.indexOf("// error: ") == 0 { return names }
+            }
+            if kind == "Impl" {
+                local target = me.impl_target(item)
+                local methods = item.get_node("methods")
+                if methods != null {
+                    local j = 0
+                    loop(j < methods.length()) {
+                        names = me.insert_method_name(names, methods.get_node(j), target)
+                        if names.indexOf("// error: ") == 0 { return names }
+                        j = j + 1
+                    }
+                }
+            }
+            i = i + 1
+        }
+        return names
     }
 
     fail(message) {
@@ -60,12 +177,6 @@ box RustSubsetConverter {
         }
         if kind == "Enum" {
             return me.emit_enum(item)
-        }
-        if kind == "Impl" {
-            return me.emit_impl(item)
-        }
-        if kind == "Function" {
-            return me.emit_function(item, "")
         }
         if kind == "Unsupported" {
             return me.emit_unsupported(item)
@@ -157,36 +268,19 @@ box RustSubsetConverter {
         return result
     }
 
-    emit_impl(item) {
-        local target = me.node_str(item.get_node("target_emitted_name"))
-        if target == "" { target = me.node_str(item.get_node("target")) }
-        local methods = item.get_node("methods")
+    emit_impl(methods, target, method_names) {
         local result = ""
-        if methods == null {
-            return "// impl " + target + " (no methods)"
-        }
-        local mc = methods.length()
-        if mc == 0 {
-            return "// impl " + target + " (no methods)"
-        }
         local mi = 0
-        loop(mi < mc) {
+        loop(mi < methods.length()) {
             local method = methods.get_node(mi)
-            result = result + me.emit_function(method, target)
+            result = me.append_block(result, me.emit_method(method, target, method_names))
             mi = mi + 1
-            if mi < mc {
-                result = result + "\n\n"
-            }
         }
         return result
     }
 
-    emit_function(func, target_prefix) {
-        local name = me.node_str(func.get_node("emitted_name"))
-        if name == "" { name = me.node_str(func.get_node("name")) }
-        if target_prefix != "" {
-            name = target_prefix + "_" + name
-        }
+    emit_method(func, target_prefix, method_names) {
+        local name = me.method_name(func, target_prefix)
 
         // Build params
         local params = ""
@@ -220,22 +314,22 @@ box RustSubsetConverter {
 
         // Body
         local body_arr = func.get_node("body")
-        local body = me.emit_stmt_list(body_arr, "    ")
-        if body == "" { body = "    // empty body" }
+        local body = me.emit_stmt_list(body_arr, "        ", method_names)
+        if body == "" { body = "        // empty body" }
 
-        return "function " + name + "(" + params + "): " + return_type + " {\n" + body + "\n}"
+        return "    " + name + "(" + params + "): " + return_type + " {\n" + body + "\n    }"
     }
 
     // ── statement emitter ───────────────────────────────
 
-    emit_stmt_list(stmts, indent) {
+    emit_stmt_list(stmts, indent, method_names) {
         local result = ""
         if stmts != null {
             local sc = stmts.length()
             local si = 0
             loop(si < sc) {
                 local stmt = stmts.get_node(si)
-                result = result + me.emit_stmt(stmt, indent)
+                result = result + me.emit_stmt(stmt, indent, method_names)
                 si = si + 1
                 if si < sc { result = result + "\n" }
             }
@@ -243,13 +337,13 @@ box RustSubsetConverter {
         return result
     }
 
-    emit_stmt(stmt, indent) {
+    emit_stmt(stmt, indent, method_names) {
         local kind = me.node_str(stmt.get_node("kind"))
 
         if kind == "Return" {
             local val = stmt.get_node("value")
             if val != null {
-                return indent + "return " + me.emit_expr(val)
+                return indent + "return " + me.emit_expr(val, method_names)
             }
             return indent + "return"
         }
@@ -259,24 +353,24 @@ box RustSubsetConverter {
             if lname == "" { lname = me.node_str(stmt.get_node("name")) }
             local ltype = me.map_type(me.node_str(stmt.get_node("type")))
             local lval = stmt.get_node("value")
-            return indent + "local " + lname + ": " + ltype + " = " + me.emit_expr(lval)
+            return indent + "local " + lname + ": " + ltype + " = " + me.emit_expr(lval, method_names)
         }
 
         if kind == "Expr" {
-            return indent + me.emit_expr(stmt.get_node("value"))
+            return indent + me.emit_expr(stmt.get_node("value"), method_names)
         }
 
         if kind == "Assign" {
-            local target = me.emit_expr(stmt.get_node("target"))
-            local val = me.emit_expr(stmt.get_node("value"))
+            local target = me.emit_expr(stmt.get_node("target"), method_names)
+            local val = me.emit_expr(stmt.get_node("value"), method_names)
             return indent + target + " = " + val
         }
 
         if kind == "If" {
-            local cond = me.emit_expr(stmt.get_node("cond"))
-            local then_body = me.emit_stmt_list(stmt.get_node("then"), indent + "    ")
+            local cond = me.emit_expr(stmt.get_node("cond"), method_names)
+            local then_body = me.emit_stmt_list(stmt.get_node("then"), indent + "    ", method_names)
             local result = indent + "if " + cond + " {\n" + then_body + "\n" + indent + "}"
-            local else_body = me.emit_stmt_list(stmt.get_node("else"), indent + "    ")
+            local else_body = me.emit_stmt_list(stmt.get_node("else"), indent + "    ", method_names)
             if else_body != "" {
                 result = result + " else {\n" + else_body + "\n" + indent + "}"
             }
@@ -284,7 +378,7 @@ box RustSubsetConverter {
         }
 
         if kind == "While" {
-            return me.emit_while(stmt, indent)
+            return me.emit_while(stmt, indent, method_names)
         }
 
         if kind == "Unsupported" {
@@ -296,16 +390,16 @@ box RustSubsetConverter {
         return indent + me.fail("unknown statement kind: " + kind)
     }
 
-    emit_while(stmt, indent) {
-        local cond = me.emit_expr(stmt.get_node("cond"))
-        local body = me.emit_stmt_list(stmt.get_node("body"), indent + "    ")
+    emit_while(stmt, indent, method_names) {
+        local cond = me.emit_expr(stmt.get_node("cond"), method_names)
+        local body = me.emit_stmt_list(stmt.get_node("body"), indent + "    ", method_names)
         local result = indent + "loop(" + cond + ") {\n" + body + "\n" + indent + "}"
         return result
     }
 
     // ── expression emitter (recursive) ──────────────────
 
-    emit_expr(expr) {
+    emit_expr(expr, method_names) {
         if expr == null { return "null" }
 
         local kind = me.node_str(expr.get_node("kind"))
@@ -322,22 +416,22 @@ box RustSubsetConverter {
         }
 
         if kind == "Field" {
-            local base = me.emit_expr(expr.get_node("base"))
+            local base = me.emit_expr(expr.get_node("base"), method_names)
             local field = me.node_str(expr.get_node("emitted_name"))
             if field == "" { field = me.node_str(expr.get_node("field")) }
             return base + "." + field
         }
 
         if kind == "Index" {
-            local target = me.emit_expr(expr.get_node("target"))
-            local index = me.emit_expr(expr.get_node("index"))
+            local target = me.emit_expr(expr.get_node("target"), method_names)
+            local index = me.emit_expr(expr.get_node("index"), method_names)
             return target + "[" + index + "]"
         }
 
         if kind == "Binary" {
             local op = me.node_str(expr.get_node("op"))
-            local left = me.emit_expr(expr.get_node("left"))
-            local right = me.emit_expr(expr.get_node("right"))
+            local left = me.emit_expr(expr.get_node("left"), method_names)
+            local right = me.emit_expr(expr.get_node("right"), method_names)
             return left + " " + op + " " + right
         }
 
@@ -350,15 +444,15 @@ box RustSubsetConverter {
                 local ai = 0
                 loop(ai < ac) {
                     if args_str != "" { args_str = args_str + ", " }
-                    args_str = args_str + me.emit_expr(args.get_node(ai))
+                    args_str = args_str + me.emit_expr(args.get_node(ai), method_names)
                     ai = ai + 1
                 }
             }
-            return callee + "(" + args_str + ")"
+            return me.call_target(expr, callee, method_names) + "(" + args_str + ")"
         }
 
         if kind == "MethodCall" {
-            local recv = me.emit_expr(expr.get_node("receiver"))
+            local recv = me.emit_expr(expr.get_node("receiver"), method_names)
             local method = me.node_str(expr.get_node("method"))
             local args = expr.get_node("args")
             local args_str = ""
@@ -367,7 +461,7 @@ box RustSubsetConverter {
                 local ai = 0
                 loop(ai < ac) {
                     if args_str != "" { args_str = args_str + ", " }
-                    args_str = args_str + me.emit_expr(args.get_node(ai))
+                    args_str = args_str + me.emit_expr(args.get_node(ai), method_names)
                     ai = ai + 1
                 }
             }
@@ -382,7 +476,7 @@ box RustSubsetConverter {
                 local ei = 0
                 loop(ei < ec) {
                     if result != "[" { result = result + ", " }
-                    result = result + me.emit_expr(elements.get_node(ei))
+                    result = result + me.emit_expr(elements.get_node(ei), method_names)
                     ei = ei + 1
                 }
             }
@@ -417,6 +511,32 @@ box RustSubsetConverter {
             return "Array"
         }
         return ty
+    }
+
+    call_target(expr, callee, method_names) {
+        local path = expr.get_node("callee_source_path")
+        if path != null {
+            local size = path.length()
+            if size > 1 {
+                if me.node_str(path.get_node(0)) == "crate" {
+                    local module = "crate"
+                    local i = 1
+                    loop(i < size - 1) {
+                        module = module + "::" + me.node_str(path.get_node(i))
+                        i = i + 1
+                    }
+                    local owner = me.module_box_name(module)
+                    if owner != "" {
+                        return owner + "." + me.node_str(path.get_node(size - 1))
+                    }
+                }
+                return callee
+            }
+        }
+        if method_names.indexOf("\n" + callee + "\n") >= 0 {
+            return "me." + callee
+        }
+        return callee
     }
 
     emit_literal_value(node) {

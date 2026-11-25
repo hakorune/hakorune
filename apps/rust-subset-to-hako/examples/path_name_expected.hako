@@ -7,7 +7,9 @@ record KeywordNames {
     rust_type: i64
 }
 
-function rust_match(rust_type: i64): i64 {
-    local rust_local: crate_model_Config = crate_model_Config
-    return crate_util_add1(rust_type)
+static box RustSubset_path_uname {
+    rust_match(rust_type: i64): i64 {
+        local rust_local: crate_model_Config = crate_model_Config
+        return RustSubset_crate_c_cutil.add1(rust_type)
+    }
 }

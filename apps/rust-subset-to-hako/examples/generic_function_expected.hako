@@ -1,3 +1,5 @@
-function identity(value: T): T {
-    return value
+static box RustSubset_generic_ufunction_ufixture {
+    identity(value: T): T {
+        return value
+    }
 }

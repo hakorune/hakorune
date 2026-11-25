@@ -16,6 +16,7 @@ Schema: apps/rust-subset-to-hako/schema/RustSubset-v0.md
 """
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -70,7 +71,7 @@ def emit_literal_value(value) -> str:
 
 # ── expression emitter ─────────────────────────────────────────────
 
-def emit_expr(expr: dict) -> str:
+def emit_expr(expr: dict, method_names: set[str]) -> str:
     """Convert a RustSubset expression node to .hako expression text."""
     if not isinstance(expr, dict):
         fail_fast(f"expression is not a dict: {expr}")
@@ -89,41 +90,47 @@ def emit_expr(expr: dict) -> str:
 
     if kind == "Field":
         # { "kind": "Field", "base": {...}, "field": "x" }
-        base = emit_expr(require_key(expr, "base", "Field"))
+        base = emit_expr(require_key(expr, "base", "Field"), method_names)
         field = emitted_name(expr, "Field", key="field")
         return f"{base}.{field}"
 
     if kind == "Index":
         # { "kind": "Index", "target": {...}, "index": {...} }
-        target = emit_expr(require_key(expr, "target", "Index"))
-        index = emit_expr(require_key(expr, "index", "Index"))
+        target = emit_expr(require_key(expr, "target", "Index"), method_names)
+        index = emit_expr(require_key(expr, "index", "Index"), method_names)
         return f"{target}[{index}]"
 
     if kind == "Binary":
         # { "kind": "Binary", "op": "+", "left": {...}, "right": {...} }
         op = require_key(expr, "op", "Binary")
-        left = emit_expr(require_key(expr, "left", "Binary"))
-        right = emit_expr(require_key(expr, "right", "Binary"))
+        left = emit_expr(require_key(expr, "left", "Binary"), method_names)
+        right = emit_expr(require_key(expr, "right", "Binary"), method_names)
         return f"{left} {op} {right}"
 
     if kind == "Call":
         # { "kind": "Call", "callee": "add", "args": [...] }
         callee = require_key(expr, "callee", "Call")
         args = expr.get("args", [])
-        args_str = ", ".join(emit_expr(a) for a in args)
+        args_str = ", ".join(emit_expr(a, method_names) for a in args)
+        path = expr.get("callee_source_path", [])
+        if len(path) > 1 and path[0] == "crate":
+            owner = module_box_name("::".join(path[:-1]))
+            return f"{owner}.{path[-1]}({args_str})"
+        if callee in method_names and len(path) <= 1:
+            return f"me.{callee}({args_str})"
         return f"{callee}({args_str})"
 
     if kind == "MethodCall":
         # { "kind": "MethodCall", "receiver": {...}, "method": "len2", "args": [...] }
-        receiver = emit_expr(require_key(expr, "receiver", "MethodCall"))
+        receiver = emit_expr(require_key(expr, "receiver", "MethodCall"), method_names)
         method = require_key(expr, "method", "MethodCall")
         args = expr.get("args", [])
-        args_str = ", ".join(emit_expr(a) for a in args)
+        args_str = ", ".join(emit_expr(a, method_names) for a in args)
         return f"{receiver}.{method}({args_str})"
 
     if kind == "ArrayLiteral":
         elements = expr.get("elements", [])
-        return "[" + ", ".join(emit_expr(e) for e in elements) + "]"
+        return "[" + ", ".join(emit_expr(e, method_names) for e in elements) + "]"
 
     if kind == "Unsupported":
         reason = expr.get("reason", "unsupported")
@@ -137,11 +144,11 @@ def emit_expr(expr: dict) -> str:
 INDENT = "    "
 
 
-def emit_stmt_block(stmts: list, indent: str = INDENT) -> str:
-    return "\n".join(emit_stmt(s, indent=indent) for s in stmts)
+def emit_stmt_block(stmts: list, indent: str, method_names: set[str]) -> str:
+    return "\n".join(emit_stmt(s, indent, method_names) for s in stmts)
 
 
-def emit_stmt(stmt: dict, indent: str = INDENT) -> str:
+def emit_stmt(stmt: dict, indent: str, method_names: set[str]) -> str:
     """Convert a RustSubset statement node to one .hako line."""
     if not isinstance(stmt, dict):
         fail_fast(f"statement is not a dict: {stmt}")
@@ -152,34 +159,34 @@ def emit_stmt(stmt: dict, indent: str = INDENT) -> str:
         # { "kind": "Let", "name": "v", "type": "i64", "value": {...} }
         name = require_key(stmt, "name", "Let")
         ty = map_type(require_key(stmt, "type", "Let"))
-        value = emit_expr(require_key(stmt, "value", "Let"))
+        value = emit_expr(require_key(stmt, "value", "Let"), method_names)
         return f"{indent}local {name}: {ty} = {value}"
 
     if kind == "Return":
         # { "kind": "Return", "value": {...} }
         if "value" in stmt:
-            value = emit_expr(stmt["value"])
+            value = emit_expr(stmt["value"], method_names)
             return f"{indent}return {value}"
         return f"{indent}return"
 
     if kind == "Expr":
         # { "kind": "Expr", "value": {...} }
-        value = emit_expr(require_key(stmt, "value", "Expr"))
+        value = emit_expr(require_key(stmt, "value", "Expr"), method_names)
         return f"{indent}{value}"
 
     if kind == "Assign":
-        target = emit_expr(require_key(stmt, "target", "Assign"))
-        value = emit_expr(require_key(stmt, "value", "Assign"))
+        target = emit_expr(require_key(stmt, "target", "Assign"), method_names)
+        value = emit_expr(require_key(stmt, "value", "Assign"), method_names)
         return f"{indent}{target} = {value}"
 
     if kind == "If":
-        cond = emit_expr(require_key(stmt, "cond", "If"))
-        then_body = emit_stmt_block(stmt.get("then", []), indent=indent + INDENT)
+        cond = emit_expr(require_key(stmt, "cond", "If"), method_names)
+        then_body = emit_stmt_block(stmt.get("then", []), indent + INDENT, method_names)
         lines = [f"{indent}if {cond} {{"]
         if then_body:
             lines.append(then_body)
         lines.append(f"{indent}}}")
-        else_body = emit_stmt_block(stmt.get("else", []), indent=indent + INDENT)
+        else_body = emit_stmt_block(stmt.get("else", []), indent + INDENT, method_names)
         if else_body:
             lines[-1] = lines[-1] + " else {"
             lines.append(else_body)
@@ -187,8 +194,8 @@ def emit_stmt(stmt: dict, indent: str = INDENT) -> str:
         return "\n".join(lines)
 
     if kind == "While":
-        cond = emit_expr(require_key(stmt, "cond", "While"))
-        body = emit_stmt_block(stmt.get("body", []), indent=indent + INDENT)
+        cond = emit_expr(require_key(stmt, "cond", "While"), method_names)
+        body = emit_stmt_block(stmt.get("body", []), indent + INDENT, method_names)
         lines = [f"{indent}loop({cond}) {{"]
         if body:
             lines.append(body)
@@ -204,16 +211,19 @@ def emit_stmt(stmt: dict, indent: str = INDENT) -> str:
 
 # ── function emitter ───────────────────────────────────────────────
 
-def emit_function(func: dict, target_prefix: str = None) -> str:
-    """
-    Convert a RustSubset Function (or Impl method) to a .hako function.
-
-    If *target_prefix* is given (e.g. "Point"), the function name is prefixed
-    ("Point_len2") and a receiver parameter `receiver: Point` is inserted.
-    """
+def method_name(func: dict, target: str = "") -> str:
     name = emitted_name(func, "Function")
-    if target_prefix:
-        name = f"{target_prefix}_{name}"
+    return f"{target}_{name}" if target else name
+
+
+def module_box_name(module: str) -> str:
+    if not isinstance(module, str) or not re.fullmatch(r"[A-Za-z0-9_:]+", module):
+        fail_fast("invalid RustSubset module name for static box")
+    return "RustSubset_" + module.replace("_", "_u").replace(":", "_c")
+
+
+def emit_method(func: dict, target_prefix: str, method_names: set[str]) -> str:
+    name = method_name(func, target_prefix)
 
     # Build parameter list
     params = []
@@ -237,11 +247,11 @@ def emit_function(func: dict, target_prefix: str = None) -> str:
     # Body statements
     body_stmts = func.get("body", [])
     if body_stmts:
-        body_lines = emit_stmt_block(body_stmts)
+        body_lines = emit_stmt_block(body_stmts, INDENT * 2, method_names)
     else:
-        body_lines = f"{INDENT}// empty body"
+        body_lines = f"{INDENT * 2}// empty body"
 
-    return f"function {name}({params_str}): {return_type} {{\n{body_lines}\n}}"
+    return f"{INDENT}{name}({params_str}): {return_type} {{\n{body_lines}\n{INDENT}}}"
 
 
 # ── item emitter ───────────────────────────────────────────────────
@@ -282,16 +292,6 @@ def emit_item(item: dict) -> str:
                 lines.append(f"//   {vname}")
         return "\n".join(lines)
 
-    if kind == "Impl":
-        target = item.get("target_emitted_name") or require_key(item, "target", "Impl")
-        methods = item.get("methods", [])
-        if not methods:
-            return f"// impl {target} (no methods)"
-        return "\n\n".join(emit_function(m, target_prefix=target) for m in methods)
-
-    if kind == "Function":
-        return emit_function(item)
-
     if kind == "Unsupported":
         reason = (
             item.get("summary")
@@ -328,8 +328,36 @@ def convert(json_str: str) -> str:
         return "// empty module\n"
 
     blocks = []
+    methods = []
+    names = set()
     for item in items:
-        blocks.append(emit_item(item))
+        if not isinstance(item, dict):
+            fail_fast(f"item is not a dict: {item}")
+        kind = require_key(item, "kind", "item")
+        if kind == "Function":
+            functions = [item]
+            target = ""
+        elif kind == "Impl":
+            target = item.get("target_emitted_name") or require_key(item, "target", "Impl")
+            functions = item.get("methods", [])
+            if not functions:
+                blocks.append(f"// impl {target} (no methods)")
+        else:
+            blocks.append(emit_item(item))
+            continue
+        for function in functions:
+            name = method_name(function, target)
+            if name in names:
+                fail_fast(f"duplicate method name: {name}")
+            names.add(name)
+            methods.append((function, target))
+
+    if methods:
+        box = module_box_name(require_key(doc, "module", "document"))
+        if any(item["kind"] == "Struct" and emitted_name(item, "Struct") == box for item in items):
+            fail_fast(f"static box name collides with struct: {box}")
+        body = "\n\n".join(emit_method(function, target, names) for function, target in methods)
+        blocks.append(f"static box {box} {{\n{body}\n}}")
 
     return "\n\n".join(blocks) + "\n"
 

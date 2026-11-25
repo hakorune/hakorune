@@ -1,9 +1,11 @@
-function count_to(limit: i64): i64 {
-    local i: i64 = 0
-    local sum: i64 = 0
-    loop(i < limit) {
-        sum = sum + i
-        i = i + 1
+static box RustSubset_while_ufixture {
+    count_to(limit: i64): i64 {
+        local i: i64 = 0
+        local sum: i64 = 0
+        loop(i < limit) {
+            sum = sum + i
+            i = i + 1
+        }
+        return sum
     }
-    return sum
 }

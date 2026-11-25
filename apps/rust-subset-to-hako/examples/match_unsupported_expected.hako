@@ -1,3 +1,5 @@
-function classify(x: i64): void {
-    null /* TODO: Rust match expression is out of v0 scope */
+static box RustSubset_match_uunsupported_ufixture {
+    classify(x: i64): void {
+        null /* TODO: Rust match expression is out of v0 scope */
+    }
 }

@@ -1,3 +1,5 @@
-function visit_all(xs: Array): void {
-    null /* TODO: Rust for loop expression is out of v0 scope */
+static box RustSubset_for_uloop_uunsupported_ufixture {
+    visit_all(xs: Array): void {
+        null /* TODO: Rust for loop expression is out of v0 scope */
+    }
 }

@@ -2,11 +2,13 @@ box Counter {
     value: i64
 }
 
-function Counter_get(receiver: Counter): i64 {
-    return receiver.value
-}
+static box RustSubset_adapter_ufixture {
+    Counter_get(receiver: Counter): i64 {
+        return receiver.value
+    }
 
-function make_counter(value: i64): i64 {
-    local next: i64 = value + 1
-    return next
+    make_counter(value: i64): i64 {
+        local next: i64 = value + 1
+        return next
+    }
 }

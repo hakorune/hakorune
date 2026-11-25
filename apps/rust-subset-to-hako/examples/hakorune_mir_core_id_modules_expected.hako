@@ -6,53 +6,55 @@ record BasicBlockId {
     _0: i64
 }
 
-function BasicBlockId_new(id: i64): Self {
-    return null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: BasicBlockId */
-}
-
-function BasicBlockId_as_u32(receiver: BasicBlockId): i64 {
-    return receiver._0
-}
-
-function BasicBlockId_from_usize(id: usize): Self {
-    return null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: BasicBlockId */
-}
-
-function BasicBlockId_to_usize(receiver: BasicBlockId): usize {
-    return null /* TODO: unsupported expression: Cast */
-}
-
-function BasicBlockId_fmt(receiver: BasicBlockId, f: fmt_Formatter): fmt_Result {
-    return null /* TODO: unsupported expression: Macro */
-}
-
 record BasicBlockIdGenerator {
     next_id: i64
 }
 
-function BasicBlockIdGenerator_new(): Self {
-    return null /* TODO: unsupported expression: Struct */
-}
-
-function BasicBlockIdGenerator_next(receiver: BasicBlockIdGenerator): BasicBlockId {
-    local id: Unknown = null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: BasicBlockId */
-    /* TODO: Rust compound assignment expression is out of v0 scope: += */
-    return id
-}
-
-function BasicBlockIdGenerator_peek_next(receiver: BasicBlockIdGenerator): BasicBlockId {
-    return null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: BasicBlockId */
-}
-
-function BasicBlockIdGenerator_reset(receiver: BasicBlockIdGenerator): void {
-    receiver.next_id = 0
-}
-
-function BasicBlockIdGenerator_default(): Self {
-    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self::new */
-}
-
 // TODO: Mod items are out of v0 scope
+
+static box RustSubset_crate_c_cbasic_ublock_uid {
+    BasicBlockId_new(id: i64): Self {
+        return null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: BasicBlockId */
+    }
+
+    BasicBlockId_as_u32(receiver: BasicBlockId): i64 {
+        return receiver._0
+    }
+
+    BasicBlockId_from_usize(id: usize): Self {
+        return null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: BasicBlockId */
+    }
+
+    BasicBlockId_to_usize(receiver: BasicBlockId): usize {
+        return null /* TODO: unsupported expression: Cast */
+    }
+
+    BasicBlockId_fmt(receiver: BasicBlockId, f: fmt_Formatter): fmt_Result {
+        return null /* TODO: unsupported expression: Macro */
+    }
+
+    BasicBlockIdGenerator_new(): Self {
+        return null /* TODO: unsupported expression: Struct */
+    }
+
+    BasicBlockIdGenerator_next(receiver: BasicBlockIdGenerator): BasicBlockId {
+        local id: Unknown = null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: BasicBlockId */
+        /* TODO: Rust compound assignment expression is out of v0 scope: += */
+        return id
+    }
+
+    BasicBlockIdGenerator_peek_next(receiver: BasicBlockIdGenerator): BasicBlockId {
+        return null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: BasicBlockId */
+    }
+
+    BasicBlockIdGenerator_reset(receiver: BasicBlockIdGenerator): void {
+        receiver.next_id = 0
+    }
+
+    BasicBlockIdGenerator_default(): Self {
+        return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self::new */
+    }
+}
 
 // module crate::binding_id
 // source src/binding_id.rs
@@ -60,25 +62,27 @@ record BindingId {
     _0: i64
 }
 
-function BindingId_new(id: i64): Self {
-    /* TODO: statement macro out of v0 scope */
-    return null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: BindingId */
-}
-
-function BindingId_next(receiver: BindingId): Self {
-    /* TODO: statement macro out of v0 scope */
-    return null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: BindingId */
-}
-
-function BindingId_raw(receiver: BindingId): i64 {
-    return receiver._0
-}
-
-function BindingId_fmt(receiver: BindingId, f: std_fmt_Formatter): std_fmt_Result {
-    return null /* TODO: unsupported expression: Macro */
-}
-
 // TODO: Mod items are out of v0 scope
+
+static box RustSubset_crate_c_cbinding_uid {
+    BindingId_new(id: i64): Self {
+        /* TODO: statement macro out of v0 scope */
+        return null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: BindingId */
+    }
+
+    BindingId_next(receiver: BindingId): Self {
+        /* TODO: statement macro out of v0 scope */
+        return null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: BindingId */
+    }
+
+    BindingId_raw(receiver: BindingId): i64 {
+        return receiver._0
+    }
+
+    BindingId_fmt(receiver: BindingId, f: std_fmt_Formatter): std_fmt_Result {
+        return null /* TODO: unsupported expression: Macro */
+    }
+}
 
 // module crate::value_id
 // source src/value_id.rs
@@ -88,88 +92,90 @@ record ValueId {
     _0: i64
 }
 
-function ValueId_new(id: i64): Self {
-    return null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: ValueId */
-}
-
-function ValueId_as_u32(receiver: ValueId): i64 {
-    return receiver._0
-}
-
-function ValueId_from_usize(id: usize): Self {
-    return null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: ValueId */
-}
-
-function ValueId_to_usize(receiver: ValueId): usize {
-    return null /* TODO: unsupported expression: Cast */
-}
-
-function ValueId_fmt(receiver: ValueId, f: fmt_Formatter): fmt_Result {
-    return null /* TODO: unsupported expression: Macro */
-}
-
 record LocalId {
     _0: i64
-}
-
-function LocalId_new(id: i64): Self {
-    return null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: LocalId */
-}
-
-function LocalId_as_u32(receiver: LocalId): i64 {
-    return receiver._0
-}
-
-function LocalId_fmt(receiver: LocalId, f: fmt_Formatter): fmt_Result {
-    return null /* TODO: unsupported expression: Macro */
 }
 
 record ValueIdGenerator {
     next_id: i64
 }
 
-function ValueIdGenerator_new(): Self {
-    return null /* TODO: unsupported expression: Struct */
-}
-
-function ValueIdGenerator_next(receiver: ValueIdGenerator): ValueId {
-    local id: Unknown = null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: ValueId */
-    /* TODO: Rust compound assignment expression is out of v0 scope: += */
-    return id
-}
-
-function ValueIdGenerator_peek_next(receiver: ValueIdGenerator): ValueId {
-    return null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: ValueId */
-}
-
-function ValueIdGenerator_reset(receiver: ValueIdGenerator): void {
-    receiver.next_id = 0
-}
-
-function ValueIdGenerator_default(): Self {
-    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self::new */
-}
-
 record LocalIdGenerator {
     next_id: i64
 }
 
-function LocalIdGenerator_new(): Self {
-    return null /* TODO: unsupported expression: Struct */
-}
-
-function LocalIdGenerator_next(receiver: LocalIdGenerator): LocalId {
-    local id: Unknown = null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: LocalId */
-    /* TODO: Rust compound assignment expression is out of v0 scope: += */
-    return id
-}
-
-function LocalIdGenerator_reset(receiver: LocalIdGenerator): void {
-    receiver.next_id = 0
-}
-
-function LocalIdGenerator_default(): Self {
-    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self::new */
-}
-
 // TODO: Mod items are out of v0 scope
+
+static box RustSubset_crate_c_cvalue_uid {
+    ValueId_new(id: i64): Self {
+        return null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: ValueId */
+    }
+
+    ValueId_as_u32(receiver: ValueId): i64 {
+        return receiver._0
+    }
+
+    ValueId_from_usize(id: usize): Self {
+        return null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: ValueId */
+    }
+
+    ValueId_to_usize(receiver: ValueId): usize {
+        return null /* TODO: unsupported expression: Cast */
+    }
+
+    ValueId_fmt(receiver: ValueId, f: fmt_Formatter): fmt_Result {
+        return null /* TODO: unsupported expression: Macro */
+    }
+
+    LocalId_new(id: i64): Self {
+        return null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: LocalId */
+    }
+
+    LocalId_as_u32(receiver: LocalId): i64 {
+        return receiver._0
+    }
+
+    LocalId_fmt(receiver: LocalId, f: fmt_Formatter): fmt_Result {
+        return null /* TODO: unsupported expression: Macro */
+    }
+
+    ValueIdGenerator_new(): Self {
+        return null /* TODO: unsupported expression: Struct */
+    }
+
+    ValueIdGenerator_next(receiver: ValueIdGenerator): ValueId {
+        local id: Unknown = null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: ValueId */
+        /* TODO: Rust compound assignment expression is out of v0 scope: += */
+        return id
+    }
+
+    ValueIdGenerator_peek_next(receiver: ValueIdGenerator): ValueId {
+        return null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: ValueId */
+    }
+
+    ValueIdGenerator_reset(receiver: ValueIdGenerator): void {
+        receiver.next_id = 0
+    }
+
+    ValueIdGenerator_default(): Self {
+        return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self::new */
+    }
+
+    LocalIdGenerator_new(): Self {
+        return null /* TODO: unsupported expression: Struct */
+    }
+
+    LocalIdGenerator_next(receiver: LocalIdGenerator): LocalId {
+        local id: Unknown = null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: LocalId */
+        /* TODO: Rust compound assignment expression is out of v0 scope: += */
+        return id
+    }
+
+    LocalIdGenerator_reset(receiver: LocalIdGenerator): void {
+        receiver.next_id = 0
+    }
+
+    LocalIdGenerator_default(): Self {
+        return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self::new */
+    }
+}

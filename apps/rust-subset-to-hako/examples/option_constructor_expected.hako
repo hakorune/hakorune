@@ -1,7 +1,9 @@
-function wrap(value: i64): Option<i64> {
-    return null /* TODO: Option constructor/value expression is out of v0 skeleton scope: Some */
-}
+static box RustSubset_option_uconstructor_ufixture {
+    wrap(value: i64): Option<i64> {
+        return null /* TODO: Option constructor/value expression is out of v0 skeleton scope: Some */
+    }
 
-function empty(): Option<i64> {
-    return null /* TODO: Option constructor/value expression is out of v0 skeleton scope: None */
+    empty(): Option<i64> {
+        return null /* TODO: Option constructor/value expression is out of v0 skeleton scope: None */
+    }
 }

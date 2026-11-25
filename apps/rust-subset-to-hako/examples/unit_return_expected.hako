@@ -1,4 +1,6 @@
-function observe_unit(x: i64): void {
-    log_value(x)
-    log_value(x + 1)
+static box RustSubset_unit_ureturn_ufixture {
+    observe_unit(x: i64): void {
+        log_value(x)
+        log_value(x + 1)
+    }
 }

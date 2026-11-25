@@ -1,3 +1,5 @@
-function pick(xs: Array, i: usize): i64 {
-    return xs[i]
+static box RustSubset_index_ufixture {
+    pick(xs: Array, i: usize): i64 {
+        return xs[i]
+    }
 }

@@ -2,10 +2,12 @@
 //   Ready
 //   Waiting
 
-function current_status(): Status {
-    return null /* TODO: enum variant value reference is out of v0 skeleton scope: Status_Ready */
-}
+static box RustSubset_enum_uvariant_uvalue_ufixture {
+    current_status(): Status {
+        return null /* TODO: enum variant value reference is out of v0 skeleton scope: Status_Ready */
+    }
 
-function is_ready(status: Status): bool {
-    return status == null /* TODO: enum variant value reference is out of v0 skeleton scope: Status_Ready */
+    is_ready(status: Status): bool {
+        return status == null /* TODO: enum variant value reference is out of v0 skeleton scope: Status_Ready */
+    }
 }
