@@ -106,7 +106,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         match p.current_token().token_type {
             TokenType::INIT | TokenType::WEAK => return Err(static_box_state(p.current_token().line)),
             TokenType::STATIC => {
-                let mut offset = 0;
+                let mut offset = 1;
                 while matches!(p.peek_nth_token(offset), TokenType::NEWLINE) {
                     offset += 1;
                 }
