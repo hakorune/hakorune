@@ -181,6 +181,8 @@ fn coverage_proof_binds_the_lease_identity() {
     let (lease, _identity) = fixture();
     let proof = coverage(&lease, seal(all_declined_rows()));
     assert!(proof.matches_lease(&lease));
+    assert!(!proof.matches_lease(&foreign_lease()));
+    assert_eq!(proof.owner(), lease.owner());
     assert!(proof.observation_set().all_pre_effect_declined());
 }
 

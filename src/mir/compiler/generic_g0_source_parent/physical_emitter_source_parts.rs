@@ -162,14 +162,14 @@ impl<'parts, 'source> GenericG0PhysicalEmitterSourcePartsRef<'parts, 'source> {
 #[cfg(test)]
 mod tests {
     use super::GenericG0PhysicalEmitterSourcePartsRejectV1;
-    use crate::mir::compiler::generic_g0_source_parent::with_generic_g0_source_parent_v1;
-    use crate::mir::loop_route_policy::generic_source_unit_and_selection_for_test;
+    use crate::mir::compiler::with_generic_g0_parent_for_test;
+    use crate::mir::loop_route_policy::generic_g0_source_unit_for_test;
 
     #[test]
     fn source_parts_borrow_one_complete_parent_without_repairing_siblings() {
-        let (unit, selection) = generic_source_unit_and_selection_for_test();
+        let unit = generic_g0_source_unit_for_test();
         let input = unit.root_function_input().expect("root input");
-        let result = with_generic_g0_source_parent_v1(input, selection, |parent| {
+        let result = with_generic_g0_parent_for_test(input, |parent| {
             let parts = parent.physical_emitter_source_parts();
             assert_eq!(parts.input().owner(), parent.owner());
             assert_eq!(parts.product().context().owner(), parent.owner());

@@ -1,18 +1,23 @@
 use super::{
-    issue_generic_g0_physical_emitter_admission_v1,
+    issue_generic_g0_physical_emitter_admission_from_source_parent_v1,
     issue_generic_g0_physical_emitter_admission_with_missing_carrier_for_test,
 };
-use crate::mir::compiler::generic_g0_source_parent::issue_generic_g0_source_parent_v1;
-use crate::mir::loop_route_policy::generic_source_unit_and_selection_for_test;
+use crate::mir::compiler::generic_g0_parent_for_test;
+use crate::mir::compiler::generic_g0_source_parent::issue_generic_g0_source_parent_from_observation_v1;
+use crate::mir::loop_route_policy::{
+    generic_g0_observation_for_test, generic_g0_source_unit_for_test,
+};
 use crate::mir::EffectMask;
 
 #[test]
 fn owns_one_complete_prephysical_cohort_and_lends_mapping_scoped() {
-    let (unit, selection) = generic_source_unit_and_selection_for_test();
+    let unit = generic_g0_source_unit_for_test();
     let input = unit.root_function_input().expect("root input");
     let owner = input.owner();
     let target = crate::mir::numeric_substrate::NumericTarget::host();
-    let admission = issue_generic_g0_physical_emitter_admission_v1(input, selection)
+    let admission = issue_generic_g0_physical_emitter_admission_from_source_parent_v1(
+        generic_g0_parent_for_test(input).expect("source parent"),
+    )
         .expect("combined Generic emitter admission");
 
     admission
@@ -57,11 +62,15 @@ fn owns_one_complete_prephysical_cohort_and_lends_mapping_scoped() {
 
 #[test]
 fn rejects_foreign_selection_before_admission_publication() {
-    let (_, foreign_selection) = generic_source_unit_and_selection_for_test();
-    let (unit, _) = generic_source_unit_and_selection_for_test();
+    let foreign_unit = generic_g0_source_unit_for_test();
+    let (observation, lease) = generic_g0_observation_for_test(&foreign_unit);
+    let unit = generic_g0_source_unit_for_test();
     let input = unit.root_function_input().expect("foreign root input");
 
-    let error = match issue_generic_g0_physical_emitter_admission_v1(input, foreign_selection) {
+    let result = issue_generic_g0_source_parent_from_observation_v1(input, observation, lease)
+        .map_err(super::GenericG0PhysicalEmitterAdmissionRejectV1::SourceParent)
+        .and_then(issue_generic_g0_physical_emitter_admission_from_source_parent_v1);
+    let error = match result {
         Ok(_) => panic!("foreign cohort must reject"),
         Err(error) => error,
     };
@@ -77,9 +86,9 @@ fn rejects_foreign_selection_before_admission_publication() {
 
 #[test]
 fn rejects_missing_carrier_entry_before_lowerer_publication() {
-    let (unit, selection) = generic_source_unit_and_selection_for_test();
+    let unit = generic_g0_source_unit_for_test();
     let input = unit.root_function_input().expect("root input");
-    let parent = issue_generic_g0_source_parent_v1(input, selection)
+    let parent = generic_g0_parent_for_test(input)
         .expect("source parent for carrier mutation");
 
     let error =
@@ -95,10 +104,12 @@ fn rejects_missing_carrier_entry_before_lowerer_publication() {
 
 #[test]
 fn consume_lends_only_one_callback_scoped_view() {
-    let (unit, selection) = generic_source_unit_and_selection_for_test();
+    let unit = generic_g0_source_unit_for_test();
     let input = unit.root_function_input().expect("root input");
     let owner = input.owner();
-    let admission = issue_generic_g0_physical_emitter_admission_v1(input, selection)
+    let admission = issue_generic_g0_physical_emitter_admission_from_source_parent_v1(
+        generic_g0_parent_for_test(input).expect("source parent"),
+    )
         .expect("combined Generic emitter admission");
 
     let observed = admission.consume(|view| {

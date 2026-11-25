@@ -1,7 +1,8 @@
 use super::internal_declaration::{
     LoopInternalDeclarationModeV1, VerifiedLoopInternalDeclarationSetV1,
 };
-use super::{direct_accum_product_for_test, LoopOperationV1, LoopRecipeItemV1};
+use super::generic_g0::generic_operation_effect_for_test;
+use super::{LoopOperationV1, LoopRecipeItemV1};
 use crate::mir::compiler::nested_predicate_producer::{
     produce_nested_predicate_recipe_v1, VerifiedNestedPredicateRecipeProductV1,
 };
@@ -98,20 +99,19 @@ fn declaration_rows_are_scoped_to_their_producing_item() {
 }
 
 #[test]
-fn direct_accum_loop_true_and_loop_cond_derive_no_internal_declarations() {
-    let direct = direct_accum_product_for_test();
-    let site = direct
-        .operations()
+fn generic_g0_loop_true_and_loop_cond_derive_no_internal_declarations() {
+    let generic = generic_operation_effect_for_test();
+    let root = generic.core().recipe().as_recipe().root_loop;
+    let site = generic
         .evidence()
-        .first()
-        .expect("direct evidence")
-        .source_loop()
-        .clone();
-    assert!(
-        VerifiedLoopInternalDeclarationSetV1::issue(direct.operations(), &site)
-            .expect("direct accum set")
-            .is_empty()
-    );
+        .iter()
+        .find(|row| row.owner_loop() == root)
+        .expect("root loop operation evidence")
+        .source_loop();
+    assert!(VerifiedLoopInternalDeclarationSetV1::issue(&generic, site)
+        .expect("Generic G0 declaration set")
+        .is_empty());
+
     let loop_true = true_tests::product();
     let site = loop_true
         .operations()

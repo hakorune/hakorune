@@ -182,14 +182,14 @@ fn is_admitted_operation(operation: LoopOperationV1) -> bool {
 #[cfg(test)]
 mod tests {
     use super::issue_generic_g0_physical_operation_mapping_v1;
-    use crate::mir::compiler::generic_g0_source_parent::with_generic_g0_source_parent_v1;
-    use crate::mir::loop_route_policy::generic_source_unit_and_selection_for_test;
+    use crate::mir::compiler::with_generic_g0_parent_for_test;
+    use crate::mir::loop_route_policy::generic_g0_source_unit_for_test;
 
     #[test]
     fn maps_complete_generic_operation_evidence_without_s6c_rows() {
-        let (unit, selection) = generic_source_unit_and_selection_for_test();
+        let unit = generic_g0_source_unit_for_test();
         let input = unit.root_function_input().expect("root input");
-        let result = with_generic_g0_source_parent_v1(input, selection, |parent| {
+        let result = with_generic_g0_parent_for_test(input, |parent| {
             let mapping = issue_generic_g0_physical_operation_mapping_v1(&parent)
                 .expect("complete Generic operation mapping");
             assert_eq!(mapping.operation_count(), 15);

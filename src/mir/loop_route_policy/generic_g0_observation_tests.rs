@@ -34,6 +34,77 @@ fn parse_function(source: &str) -> ASTNode {
         .expect("fixture function")
 }
 
+pub(crate) fn generic_g0_source_unit_for_test() -> VerifiedResolvedSourceUnitV1 {
+    VerifiedResolvedSourceUnitV1::resolve_function(parse_function(TYPED)).expect("resolve fixture")
+}
+
+pub(crate) fn generic_g0_observation_for_test(
+    unit: &VerifiedResolvedSourceUnitV1,
+) -> (
+    super::VerifiedGenericFamilyObservationG0,
+    crate::mir::resolved_semantics::VerifiedLoopFamilyWindowLeaseV1,
+) {
+    use super::{
+        issue_generic_g0_candidate_v1, GenericG0CoverageV1, GenericG0PolicyContextV1,
+        GenericG0PolicyModeV1, GenericG0PolicyOutcomeV1, GenericG0PolicyProfileV1,
+    };
+    use crate::mir::compiler::generic_g0_projection::handoff::issue_generic_g0_policy_handoff_with_window_v1;
+
+    let input = unit.root_function_input().expect("root input");
+    let body = input.source().root_body().expect("root body");
+    let root_loop = input.source().body_stmt(&body, 0).expect("root loop");
+    let lease = input
+        .function()
+        .issue_loop_family_window_lease_v1(root_loop.site())
+        .expect("resolver lease");
+    let handoff = issue_generic_g0_policy_handoff_with_window_v1(
+        input, &lease, NumericTarget::host(),
+    )
+    .expect("source handoff");
+    let context = GenericG0PolicyContextV1::from_observation(
+        input.owner(),
+        GenericG0PolicyProfileV1::G0,
+        GenericG0PolicyModeV1::Release,
+        GenericG0CoverageV1::Complete,
+    );
+    let GenericG0PolicyOutcomeV1::Candidate(observation) =
+        issue_generic_g0_candidate_v1(handoff, context)
+    else {
+        panic!("exact Generic G0 source must produce a policy-checked observation");
+    };
+    (observation, lease)
+}
+
+#[test]
+fn single_observation_moves_the_resolver_lease_into_generic_demand() {
+    use crate::mir::loop_recipe_contract::issue_generic_g0_recipe_demand_from_observation_v1;
+
+    let unit = generic_g0_source_unit_for_test();
+    let (observation, lease) = generic_g0_observation_for_test(&unit);
+    let owner = lease.owner();
+    let origin = lease.function_origin();
+    let site = lease.site().clone();
+    let frame = lease.frame();
+    let scope_region = lease.scope_region();
+    let demand = issue_generic_g0_recipe_demand_from_observation_v1(observation, lease)
+        .expect("one observation and its resolver lease issue one owned demand");
+
+    let (lease, brand, bundle, post_loop_read, profile, mode, coverage, _roles) =
+        demand.into_parts();
+    assert_eq!(lease.owner(), owner);
+    assert_eq!(lease.function_origin(), origin);
+    assert_eq!(lease.site(), &site);
+    assert!(lease.frame().matches(&frame));
+    assert_eq!(lease.scope_region(), scope_region);
+    assert!(brand.matches_window(&lease));
+    assert_eq!(profile, super::GenericG0PolicyProfileV1::G0);
+    assert_eq!(mode, super::LoopFamilyAdmissionModeV1::Release);
+    assert_eq!(coverage, super::LoopFamilyAdmissionCoverageV1::Complete);
+    let structural = bundle.source().structural();
+    assert_eq!(structural.root_loop(), &site);
+    assert_eq!(post_loop_read.binding(), structural.tail().binding);
+}
+
 fn attempt(
     source: &str,
     mode: Option<GenericG0ObservationModeV1>,

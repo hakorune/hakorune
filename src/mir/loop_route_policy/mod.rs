@@ -23,6 +23,10 @@ mod generic_g0_observation;
 #[cfg(test)]
 mod generic_g0_observation_tests;
 #[cfg(test)]
+pub(crate) use generic_g0_observation_tests::{
+    generic_g0_observation_for_test, generic_g0_source_unit_for_test,
+};
+#[cfg(test)]
 mod generic_g0_tests;
 #[cfg(test)]
 mod loop_cond_break_continue;

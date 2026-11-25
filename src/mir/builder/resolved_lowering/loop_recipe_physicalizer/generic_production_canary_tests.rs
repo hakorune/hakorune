@@ -26,9 +26,11 @@ use crate::mir::compiler::generic_g0_physical_prepare::{
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
 use crate::mir::function::MirParamDecl;
 use crate::mir::loop_recipe_contract::{
-    issue_generic_g0_recipe_demand_v1, LoopItemKeyV1, LoopOperationV1, LoopValueClassV1,
+    issue_generic_g0_recipe_demand_from_observation_v1, LoopItemKeyV1, LoopOperationV1, LoopValueClassV1,
 };
-use crate::mir::loop_route_policy::generic_source_unit_and_selection_for_test;
+use crate::mir::loop_route_policy::{
+    generic_g0_observation_for_test, generic_g0_source_unit_for_test,
+};
 use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1;
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
 use crate::mir::resolved_semantics::{
@@ -323,12 +325,13 @@ fn run_canary_with_options(
     inject_late_failure: bool,
     computed_condition_left: bool,
 ) -> Result<G0CanaryReceipt, String> {
-    let (unit, selection) = generic_source_unit_and_selection_for_test();
+    let unit = generic_g0_source_unit_for_test();
+    let (observation, lease) = generic_g0_observation_for_test(&unit);
     let input = unit
         .root_function_input()
         .map_err(|error| error.to_string())?;
     let mut product = crate::mir::loop_recipe_contract::produce_generic_g0_recipe_v1(
-        issue_generic_g0_recipe_demand_v1(selection)
+        issue_generic_g0_recipe_demand_from_observation_v1(observation, lease)
             .map_err(|error| format!("G0 demand: {error:?}"))?,
     )
     .map_err(|error| format!("G0 product: {error:?}"))?;

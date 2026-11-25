@@ -261,6 +261,20 @@ fn hako_emission_matches_direct_accum_golden() {
     let golden: LoopRecipeArtifactV1 =
         serde_json::from_str(ACCUM_DIRECT_GOLDEN).expect("golden decodes");
     assert_eq!(hako, golden);
+
+    let verified = LoopRecipeNormalizerV1::decode_and_verify(HAKO_WIRE_EMISSION)
+        .expect("emitted artifact verifies");
+    let encoded = LoopRecipeNormalizerV1::normalize_artifact(&verified).expect("normalize");
+    let decoded = LoopRecipeNormalizerV1::decode_and_verify(&encoded)
+        .expect("normalized artifact verifies");
+    assert_eq!(
+        LoopRecipeNormalizerV1::normalize_source_bound(&verified).expect("source-bound view"),
+        LoopRecipeNormalizerV1::normalize_source_bound(&decoded).expect("round-tripped view"),
+    );
+    let joins = super::join_sig::LoopJoinSigElaboratorV1::elaborate(decoded.recipe())
+        .expect("verified wire supports JoinSig");
+    assert_eq!(joins.as_sig().loops.len(), 1);
+    assert_eq!(joins.as_sig().loops[0].edges.len(), 4);
 }
 
 #[test]

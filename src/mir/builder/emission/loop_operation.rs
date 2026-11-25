@@ -211,10 +211,12 @@ mod tests {
     fn ast_free_i64_operations_publish_canonical_types() {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("loop_operation_facade/0".to_owned());
-        let lhs = emit_const_i64(&mut builder, 1).expect("lhs");
-        let rhs = emit_const_i64(&mut builder, 2).expect("rhs");
-        let sum = emit_add_i64(&mut builder, lhs, rhs).expect("sum");
-        let predicate = emit_less_i64(&mut builder, sum, rhs).expect("predicate");
+        let block = builder.current_block_id().expect("entry block");
+        let lhs = constant::emit_integer(&mut builder, 1).expect("lhs");
+        let rhs = constant::emit_integer(&mut builder, 2).expect("rhs");
+        let sum = emit_add_i64_at(&mut builder, block, lhs, rhs).expect("sum");
+        let predicate = emit_compare_i64_at(&mut builder, block, CompareOp::Lt, sum, rhs)
+            .expect("predicate");
         assert_eq!(
             builder.function_state.type_ctx.get_type(sum),
             Some(&MirType::Integer)
@@ -237,7 +239,9 @@ mod tests {
             .entry_block()
             .instructions
             .len();
-        let error = emit_add_i64(&mut builder, ValueId::new(99), ValueId::new(100)).unwrap_err();
+        let block = builder.current_block_id().expect("entry block");
+        let error = emit_add_i64_at(&mut builder, block, ValueId::new(99), ValueId::new(100))
+            .unwrap_err();
         assert!(error.contains("i64_operand_type"));
         let after = builder
             .function_state

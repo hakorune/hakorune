@@ -130,7 +130,7 @@ guard_generic_g0_observation_contract() {
     guard_fail "$tag" "Generic G0 handoff module is missing from the projection"
   [[ "$(rg -o -F '#[test]' "$compiler_tests" | wc -l | tr -d '[:space:]')" == "5" ]] ||
     guard_fail "$tag" "Generic G0 compiler observation test count drift"
-  [[ "$(rg -o -F '#[test]' "$policy_tests" | wc -l | tr -d '[:space:]')" == "7" ]] ||
+  [[ "$(rg -o -F '#[test]' "$policy_tests" | wc -l | tr -d '[:space:]')" == "8" ]] ||
     guard_fail "$tag" "Generic G0 policy observation test count drift"
 
   for forbidden in ASTNode MirBuilder ValueId BasicBlockId LoopRouteId Retry \
@@ -296,8 +296,9 @@ guard_loop_family_window_lease_contract() {
       -v spine="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
       -v cap="$root_dir/src/mir/compiler/generic_g0_capability.rs" \
       -v rot="$root_dir/src/mir/loop_route_policy/all_route_observation_tests.rs" \
+      -v got="$root_dir/src/mir/loop_route_policy/generic_g0_observation_tests.rs" \
       -v pat="$root_dir/src/mir/compiler/loop_node_physical_admission_tests.rs" \
-      '$0 != l && $0 != t && $0 != at && $0 != st && $0 != gh && $0 != spine && $0 != cap && $0 != rot && $0 != pat && $0 != "" { found=1 } END { exit found }'; then
+      '$0 != l && $0 != t && $0 != at && $0 != st && $0 != gh && $0 != spine && $0 != cap && $0 != rot && $0 != got && $0 != pat && $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "window lease escaped its canonical caller boundary"
