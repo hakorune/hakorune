@@ -1,8 +1,8 @@
-box MacroBoxSpec {
-    static function name() { return "NyIdentity" }
-    static function expand(ast) {
+static box MacroBoxSpec {
+    name() { return "NyIdentity" }
+    expand(json, ctx) {
         // identity transform
-        return ast
+        return json
     }
 }
 

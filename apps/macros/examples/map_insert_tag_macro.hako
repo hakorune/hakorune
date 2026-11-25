@@ -1,9 +1,9 @@
 // map_insert_tag_macro.hako
 // MacroBoxSpec.expand: insert a leading entry {"k":"__macro","v":"on"} into every Map entries list
-// Contract: expand(json: string) -> string (AST JSON v0)
+// Contract: expand(json, ctx) -> string (AST JSON v0)
 
 static box MacroBoxSpec {
-  expand(json) {
+  expand(json, ctx) {
     local s, out, i, pat, plen, ins
     s = json
     out = ""

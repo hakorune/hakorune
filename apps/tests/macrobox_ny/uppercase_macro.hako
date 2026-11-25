@@ -1,5 +1,5 @@
-box MacroBoxSpec {
-    static function name() { return "UppercasePrintMacro" }
-    static function expand(ast) { return ast }
+static box MacroBoxSpec {
+    name() { return "UppercasePrintMacro" }
+    expand(json, ctx) { return json }
 }
 
