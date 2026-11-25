@@ -1,0 +1,12 @@
+// A Bool forwarded to an untyped formal. This branch reaches the integer
+// comparison `v < 3` with a Bool, so the program stops there with TypeError
+// 302 (exit 70). The unused direct() caller passes an integer and is omitted
+// from the closed-app executable.
+static box Gate {
+  check(v): i64 { if v == true { return 5 } if v < 3 { return 7 } return 9 }
+  relay(v): i64 { return me.check(v) }
+  direct(): i64 { return me.check(1) }
+}
+static box Main {
+  main() { return Gate.relay(false) }
+}

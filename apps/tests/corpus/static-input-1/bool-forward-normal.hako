@@ -1,0 +1,11 @@
+// A Bool forwarded to an untyped formal. This branch never reaches the integer
+// comparison, so the program ends normally with 5. The unused direct() caller
+// passes an integer and is omitted from the closed-app executable.
+static box Gate {
+  check(v): i64 { if v == true { return 5 } if v < 3 { return 7 } return 9 }
+  relay(v): i64 { return me.check(v) }
+  direct(): i64 { return me.check(1) }
+}
+static box Main {
+  main() { return Gate.relay(true) }
+}

@@ -630,7 +630,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 if !Rc::ptr_eq(uses, &complete) { return Err(freeze("static-input/original-use-identity")); }
                 let mut actuals = Vec::new();
                 let execution: Box<[_]> = incoming.iter().copied()
-                    .filter(|call| !*tagged || self.static_input_caller_has_execution_v1(call))
+                    .filter(|call| !*tagged || self.static_input_caller_owes_actuals_v1(call))
                     .collect();
                 for call in &execution {
                     match &call.source {

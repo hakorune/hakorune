@@ -124,9 +124,12 @@ impl OrdinaryNewClaimLedgerV1 {
             })
     }
 
-    /// Project execution membership only after the caller census is validated.
-    /// Source-only callers still contribute source identity and its vetoes.
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn static_input_caller_has_execution_v1(
+    /// The one rule for owing a Static actual row, asked after the caller
+    /// census is validated. Every caller keeps its source identity and vetoes;
+    /// only a caller that the co-seal recorded as omitted from this closed-app
+    /// artifact, under the same caller owner and declaration key, may lack its
+    /// actual row. Root, Birth, selected and unclassified callers owe one.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn static_input_caller_owes_actuals_v1(
         &self,
         call: &super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
     ) -> bool {
@@ -135,14 +138,9 @@ impl OrdinaryNewClaimLedgerV1 {
         let BorrowedIncomingSourceV1::Static(original) = &call.source else {
             return true;
         };
-        self.root_owner() == Some(call.call.owner())
-            || self.original_instance_input_issuance.as_ref().is_none_or(|(selected, _)| {
-                selected.batch_slot(
-                    &crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
-                        original.caller().clone(),
-                    ),
-                ).is_some()
-            })
+        !self.omitted_static_callers.as_deref().is_some_and(|omitted| {
+            omitted.get(&call.call.owner()) == Some(original.caller())
+        })
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn allows_general_tagged_static_input_v1(
@@ -151,9 +149,9 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
     ) -> bool {
         // A downstream forwarding read cannot establish this entry's input
-        // protocol. The original cohort must have executable caller evidence.
+        // protocol. Every caller that owes an actual row must have its source row.
         let mut callers = source.source_incoming.source_rows_v1().filter(|row| {
-            row.callee == owner && self.static_input_caller_has_execution_v1(row)
+            row.callee == owner && self.static_input_caller_owes_actuals_v1(row)
         }).peekable();
         !self.static_expression_input_owner_v1(source, owner, false)
             && callers.peek().is_some()

@@ -291,7 +291,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .map_err(|issue| format!("{}: {issue:?}", freeze("static-input/source-cohort-veto")))?;
         let tagged = self.uses_tagged_static_inputs_v1(source, contract);
         for call in incoming.iter().filter(|call| {
-            !tagged || self.static_input_caller_has_execution_v1(call)
+            !tagged || self.static_input_caller_owes_actuals_v1(call)
         }) {
             if !seen.insert(call.call.clone()) {
                 return Err(freeze("static-input/original-row-duplicate"));
@@ -316,9 +316,9 @@ impl OrdinaryNewClaimLedgerV1 {
             if matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString)
                 && text_result.is_none() { debug_pending("text-result"); return Ok(TypedInputClosureV1::Pending); }
             // Every caller keeps its original identity check above. Only a caller
-            // that executes owes an actual row; a source-only caller never gets one.
+            // recorded as omitted from this closed-app artifact may lack its row.
             let Some(rows) = self.borrowed_formal_actuals.get(&call.call) else {
-                missing |= self.static_input_caller_has_execution_v1(call);
+                missing |= self.static_input_caller_owes_actuals_v1(call);
                 continue;
             };
             let rows = match rows {

@@ -323,7 +323,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .map_err(|issue| format!("{}: {issue:?}", freeze("static-input/source-cohort-veto")))?;
         let tagged = self.uses_tagged_static_inputs_v1(source, contract);
         for call in incoming.iter().filter(|call| {
-            !tagged || self.static_input_caller_has_execution_v1(call)
+            !tagged || self.static_input_caller_owes_actuals_v1(call)
         }) {
             if !seen.insert(call.call.clone()) {
                 return Err(freeze("static-input/original-row-duplicate"));
@@ -340,9 +340,9 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 return Err(freeze("static-input/original-target"));
             }
-            // The same rule as finishing: only an executing caller owes an actual row.
+            // The same rule as finishing: only a recorded omitted caller may lack a row.
             let Some(actuals) = self.borrowed_formal_actuals.get(&call.call) else {
-                if self.static_input_caller_has_execution_v1(call) {
+                if self.static_input_caller_owes_actuals_v1(call) {
                     return Err(freeze("static-input/cohort-missing"));
                 }
                 continue;

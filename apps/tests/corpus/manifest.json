@@ -53845,6 +53845,33 @@
         "B"
       ],
       "coverage_exe": false
+    },
+    {
+      "path": "apps/tests/corpus/static-input-1/birth-and-main-caller.hako",
+      "sha256": "549d7c44673b1273ed5c463912acbc1d420ae060a451ef18f72dc6c9e8fdb852",
+      "groups": [
+        "B"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/static-input-1/bool-forward-normal.hako",
+      "sha256": "558715d41912453037aaaa199fe4cb87d2607be26893e2a25d5a679f9c473596",
+      "groups": [
+        "B"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
+    },
+    {
+      "path": "apps/tests/corpus/static-input-1/bool-forward-fault.hako",
+      "sha256": "d9cfabc212b23b2d35ab02b86852b65a1ece797c0dd93b896a6e49b88a4eee66",
+      "groups": [
+        "B"
+      ],
+      "coverage_exe": true,
+      "cadence": "every"
     }
   ]
 }

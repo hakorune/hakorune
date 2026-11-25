@@ -540,3 +540,173 @@ fn static_input_former_mixed_cohort_refuses_source_actual_drift() {
         }
     }
 }
+
+/// The original Static rows of one callee, by target name.
+fn static_cohort(package: &Package, name: &str) -> Vec<Rc<StaticIncomingSourceV1>> {
+    package
+        .ordinary_new_claim_ledger
+        .borrowed_formal_source
+        .as_ref()
+        .unwrap()
+        .as_ref()
+        .unwrap()
+        .source_incoming
+        .source_rows_v1()
+        .filter_map(|call| match &call.source {
+            super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(
+                original,
+            ) if original.target().name() == name => Some(Rc::clone(original)),
+            _ => None,
+        })
+        .collect()
+}
+
+fn package_for(
+    text: &str,
+    selection: crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1,
+) -> Package {
+    crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+        text, selection,
+    )
+    .unwrap()
+}
+
+/// The rows of one callee's original incoming calls, by target name.
+fn incoming_rows<'a>(
+    package: &'a Package,
+    name: &str,
+) -> Vec<&'a super::super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1> {
+    package
+        .ordinary_new_claim_ledger
+        .borrowed_formal_source
+        .as_ref()
+        .unwrap()
+        .as_ref()
+        .unwrap()
+        .source_incoming
+        .source_rows_v1()
+        .filter(|row| matches!(&row.source,
+            super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
+                if original.target().name() == name))
+        .collect()
+}
+
+fn is_birth(call: &StaticIncomingSourceV1) -> bool {
+    call.caller().namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::BirthConstructor
+}
+
+/// A Birth caller has no declaration slot of its own, yet it runs, so it owes
+/// its actual row. With one untyped input, the Birth and Main rows both exist
+/// and finish. In the zero-input general cohort the Birth provider has no row:
+/// the sibling Main row then neither finishes nor is lent, and a Main row that
+/// was finished as if the Birth were omitted is refused by name.
+#[test]
+fn static_input_birth_caller_owes_its_actual_row() {
+    use crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1 as Selection;
+    let text = include_str!("../../../apps/tests/corpus/static-input-1/birth-and-main-caller.hako");
+    for selection in [Selection::AllSource, Selection::ClosedAppExecutable] {
+        let package = package_for(text, selection);
+        let calls = static_cohort(&package, "class_size");
+        assert_eq!(calls.iter().filter(|call| is_birth(call)).count(), 1, "{selection:?}");
+        assert_eq!(calls.len(), 2, "{selection:?}: one Birth and one Main caller");
+        let ledger = &package.ordinary_new_claim_ledger;
+        for row in incoming_rows(&package, "class_size") {
+            assert!(ledger.static_input_caller_owes_actuals_v1(row), "{selection:?}");
+            assert!(ledger.borrowed_formal_actuals[&row.call]
+                .as_ref()
+                .unwrap()
+                .require_executable_v1()
+                .is_ok(), "{selection:?}: both rows are finished");
+        }
+    }
+
+    let text = "static box LayoutBox { word() { return 8 } } box Page { s: i64 birth(a, b) { me.s = b } get(): i64 { return me.s } } box Parent { child: Page = new Page(0, LayoutBox.word()) birth() { } size(): i64 { return me.child.get() } } static box Main { main() { local parent = new Parent() local n = LayoutBox.word() return n + parent.size() } }";
+    let mut package = package_for(text, Selection::ClosedAppExecutable);
+    let calls = static_cohort(&package, "word");
+    let (birth, main): (Vec<_>, Vec<_>) = calls.iter().cloned().partition(|call| is_birth(call));
+    assert_eq!((birth.len(), main.len()), (1, 1));
+    let ledger = &package.ordinary_new_claim_ledger;
+    let birth_row = incoming_rows(&package, "word")
+        .into_iter()
+        .find(|row| &row.call == birth[0].call_site())
+        .unwrap();
+    assert!(ledger.static_input_caller_owes_actuals_v1(birth_row));
+    assert!(!ledger.borrowed_formal_actuals.contains_key(birth[0].call_site()));
+    assert!(ledger.borrowed_formal_actuals[main[0].call_site()]
+        .as_ref()
+        .unwrap()
+        .require_executable_v1()
+        .is_err(), "the sibling Main row alone does not finish");
+    assert!(ledger.checked_completed_static_expression_input_v1(&main[0]).unwrap().is_none());
+
+    // Finish once as if the Birth caller were recorded as omitted, then put the
+    // co-seal's own record back: the finished Main row is no longer lent.
+    let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+    let record = ledger.omitted_static_callers.clone().expect("the co-seal record");
+    let mut forged = (*record).clone();
+    forged.insert(birth[0].call_site().owner(), birth[0].caller().clone());
+    ledger.omitted_static_callers = Some(Rc::new(forged));
+    finish(&mut package).unwrap();
+    let ledger = &package.ordinary_new_claim_ledger;
+    assert!(ledger.checked_completed_static_expression_input_v1(&main[0]).unwrap().is_some());
+    Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap().omitted_static_callers = Some(record);
+    let error = package
+        .ordinary_new_claim_ledger
+        .checked_completed_static_expression_input_v1(&main[0])
+        .unwrap_err();
+    assert!(error.contains("static-input/cohort-missing"), "{error}");
+}
+
+/// Only a caller in the co-seal's closed-app omission record may lack its row.
+/// The same unused Static caller is omitted in ClosedApp and owes its row in
+/// AllSource, where removing that row stops the cohort from being lent.
+#[test]
+fn static_input_omits_only_recorded_closed_app_callers() {
+    use crate::mir::builder::CanonicalSameModuleCallableKeyV1 as Key;
+    use crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1 as Selection;
+    let text = include_str!("../../../apps/tests/corpus/static-input-1/bool-forward-normal.hako");
+    let direct = Key::static_box_method("Gate", "direct", 0);
+    for selection in [Selection::AllSource, Selection::ClosedAppExecutable] {
+        let omitted = selection == Selection::ClosedAppExecutable;
+        let package = package_for(text, selection);
+        assert_eq!(package.omitted_closed_app_static_key(&direct), omitted);
+        let calls = static_cohort(&package, "check");
+        let (from_direct, others): (Vec<_>, Vec<_>) =
+            calls.iter().cloned().partition(|call| call.caller() == &direct);
+        assert_eq!((from_direct.len(), others.len()), (1, 1), "{selection:?}");
+        let ledger = &package.ordinary_new_claim_ledger;
+        let row = incoming_rows(&package, "check")
+            .into_iter()
+            .find(|row| &row.call == from_direct[0].call_site())
+            .unwrap();
+        assert_eq!(ledger.static_input_caller_owes_actuals_v1(row), !omitted, "{selection:?}");
+        assert!(ledger
+            .checked_completed_static_expression_input_v1(&others[0])
+            .unwrap()
+            .is_some(), "{selection:?}: the relay call closes");
+        if !omitted {
+            assert!(ledger
+                .checked_completed_static_expression_input_v1(&from_direct[0])
+                .unwrap()
+                .is_some());
+            // A fresh package has its own compilation identity; take its own rows.
+            let mut missing = package_for(text, selection);
+            let calls = static_cohort(&missing, "check");
+            let (from_direct, others): (Vec<_>, Vec<_>) =
+                calls.iter().cloned().partition(|call| call.caller() == &direct);
+            Rc::get_mut(&mut missing.ordinary_new_claim_ledger)
+                .unwrap()
+                .borrowed_formal_actuals
+                .remove(from_direct[0].call_site())
+                .expect("the selected caller's row exists");
+            // This cohort is tagged. A missing owed row also withdraws the tagged
+            // input (every caller that owes a row must have one), so the relay
+            // row's retained domains no longer match and it is refused by name.
+            let error = missing
+                .ordinary_new_claim_ledger
+                .checked_completed_static_expression_input_v1(&others[0])
+                .unwrap_err();
+            assert!(error.contains("static-input/completed-source-drift"), "{error}");
+        }
+    }
+}

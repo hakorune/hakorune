@@ -73,9 +73,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     brands: Option<&crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1>,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    omitted_static_callers: &BTreeMap<
-        FunctionOwnerIdV1,
-        crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+    omitted_static_callers: &Rc<
+        BTreeMap<FunctionOwnerIdV1, crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
     >,
     app_main_source: Option<&crate::mir::builder::AppMainCatalogCoSealV1>,
     direct_call_loans: Option<&super::super::direct_call_loan::DirectCallDispositionLoansV1>,
@@ -690,6 +689,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     ledger.original_object_sources = Some(Rc::clone(
         instance_constructors.original_object_sources_v1(),
     ));
+    ledger.omitted_static_callers = Some(Rc::clone(omitted_static_callers));
     ledger
         .retain_source_dynamic_member_calls_v1(dynamic_source_calls)
         .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
