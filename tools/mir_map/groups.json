@@ -163,7 +163,6 @@
   "src/mir/builder/control_flow/generic_loop_canon/update/literal_match.rs": "builder/control_flow/generic_loop_canon/",
   "src/mir/builder/control_flow/generic_loop_canon/update/literal_step.rs": "builder/control_flow/generic_loop_canon/",
   "src/mir/builder/control_flow/generic_loop_canon/update/mod.rs": "builder/control_flow/generic_loop_canon/",
-  "src/mir/builder/control_flow/joinir/control_tree_capability_guard.rs": "builder/control_flow/joinir/",
   "src/mir/builder/control_flow/joinir/mod.rs": "builder/control_flow/joinir/",
   "src/mir/builder/control_flow/joinir/route_entry/mod.rs": "builder/control_flow/joinir/",
   "src/mir/builder/control_flow/joinir/route_entry/registry/mod.rs": "builder/control_flow/joinir/",

@@ -97,12 +97,6 @@ extract_first_marker() {
   rg -n "\\[(plan/freeze:|plan/reject|joinir/freeze|freeze:)" "$log_path" | head -n 1 || true
 }
 
-extract_step_tree_nearby() {
-  local log_path="$1"
-  local marker_line="$2"
-  awk -v stop="$marker_line" 'NR < stop && $0 ~ /StepTree root for/ { last = NR ":" $0 } END { print last }' "$log_path"
-}
-
 resolve_fixture_for_case_id() {
   local case_id="$1"
   if [ ! -f "$JOINIR_LIST_FILE" ]; then
@@ -180,7 +174,7 @@ run_step() {
   shift
   shift
   local log_path="$LOG_DIR/${RUN_ID}_${key}.log"
-  local marker marker_line step_tree
+  local marker
 
   echo "[INFO] $label"
   local rc
@@ -202,19 +196,10 @@ run_step() {
   fi
 
   marker="$(extract_first_marker "$log_path")"
-  marker_line="99999999"
-  if [ -n "$marker" ]; then
-    marker_line="${marker%%:*}"
-  fi
-  step_tree="$(extract_step_tree_nearby "$log_path" "$marker_line")"
-
   echo "[FAIL] step failed: key=$key rc=$rc" >&2
   echo "[FAIL] log: $log_path" >&2
   if [ -n "$marker" ]; then
     echo "[FAIL] first_freeze_or_reject: $marker" >&2
-  fi
-  if [ -n "$step_tree" ]; then
-    echo "[FAIL] step_tree_root_nearby: $step_tree" >&2
   fi
 
   if [ "$key" = "fast_gate_bq" ] && [ "$AUTO_COLLECT_BLOCKER" -eq 1 ]; then

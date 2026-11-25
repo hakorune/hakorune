@@ -3,7 +3,7 @@
 #
 # Purpose:
 # - Run a fixture under planner-required mode and save the earliest freeze/reject line
-#   plus the nearest StepTree root to /tmp (SSOT-friendly blocker capture for BoxCount).
+#   to a summary next to the raw log.
 #
 # Output:
 # - /tmp/phase29bq_joinir_blocker_<label>_<pid>.log
@@ -45,13 +45,6 @@ RC=$?
 set -e
 
 MARKER="$(rg -n "\\[(plan/freeze:|plan/reject|joinir/freeze|freeze:)" "$LOG" | head -n 1 || true)"
-if [ -n "$MARKER" ]; then
-  MARKER_LINE="${MARKER%%:*}"
-else
-  MARKER_LINE="99999999"
-fi
-
-STEPTREE="$(awk -v stop="$MARKER_LINE" 'NR < stop && $0 ~ /StepTree root for/ { last = NR ":" $0 } END { print last }' "$LOG")"
 
 {
   echo "fixture=$FIXTURE"
@@ -61,9 +54,6 @@ STEPTREE="$(awk -v stop="$MARKER_LINE" 'NR < stop && $0 ~ /StepTree root for/ { 
   echo
   echo "first_freeze_or_reject="
   echo "$MARKER"
-  echo
-  echo "step_tree_root_nearby="
-  echo "$STEPTREE"
 } >"$SUMMARY"
 
 echo "[ok] wrote $LOG"

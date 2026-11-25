@@ -7,7 +7,7 @@ use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 use crate::mir::{MirBuilder, MirFunction, MirType};
 
 use super::calls::instance_method_draft_preparation::{
-    prepare_instance_method_draft_body_v1, run_function_body_step_tree_guard_v1,
+    prepare_instance_method_draft_body_v1,
     InstanceMethodDraftPreparationRequestV1,
 };
 use super::calls::lowering::mir_param_decls_from_source;
@@ -107,7 +107,6 @@ impl MirBuilder {
             },
         )?;
         let result_source = port.prepare_callable_result_source_v1()?;
-        run_function_body_step_tree_guard_v1(self, &body, &self.current_function_name_for_port()?)?;
         let _ = port.lower_body(self, body)?;
         port.complete_construction_stores_v1(self)?;
         prepare_port_aware_draft_body_completion_v1(self, result_source, port.callable_result_owner_v1()?)?
@@ -151,11 +150,6 @@ impl MirBuilder {
             },
         )?;
         let result_source = port.prepare_callable_result_source_v1()?;
-        run_function_body_step_tree_guard_v1(
-            self,
-            prepared.body(),
-            &self.current_function_name_for_port()?,
-        )?;
         let _ = port.lower_body(self, prepared.into_body())?;
         port.complete_construction_stores_v1(self)?;
         prepare_port_aware_draft_body_completion_v1(self, result_source, port.callable_result_owner_v1()?)?
@@ -180,13 +174,5 @@ impl MirBuilder {
     ) -> Result<MirFunction, String> {
         prepared.validate_result_owner_v1()?;
         self.finalize_function_draft_with_sources_v1(prepared.returns_value, prepared.result_source.as_ref(), prepared.implicit_end.as_ref())
-    }
-
-    fn current_function_name_for_port(&self) -> Result<String, String> {
-        self.function_state
-            .current_function
-            .as_ref()
-            .map(|function| function.signature.name.clone())
-            .ok_or_else(|| "[freeze:contract][headerport/no_current_function]".to_owned())
     }
 }

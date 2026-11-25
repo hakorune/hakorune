@@ -120,12 +120,6 @@ emit_failure_summary_from_log() {
     echo "[diag/selfhost] last_reject=$last_reject"
   fi
 
-  local stageb_root
-  stageb_root="$(rg -n "StepTree root for 'StageBBodyExtractorBox\\.build_body_src/2'" "$log_path" 2>/dev/null | head -n 1 || true)"
-  if [ -n "$stageb_root" ]; then
-    echo "[diag/selfhost] steptree_root=$(echo "$stageb_root" | cut -c1-220)"
-  fi
-
   echo "[diag/selfhost] summary_end"
 }
 
@@ -298,7 +292,8 @@ run_selfhost_case() {
     return 1
   fi
 
-  if ! grep -qF "$planner_tag" "$raw_log"; then
+  # A dash keeps the TSV column present without requiring a log tag.
+  if [ "$planner_tag" != "-" ] && ! grep -qF "$planner_tag" "$raw_log"; then
     log_error "$gate_name:$case_name missing planner tag ($planner_tag)"
     emit_failure_summary_from_log "$log_path"
     echo "LOG: $log_path"

@@ -9,8 +9,6 @@ first: observe shapes, do not rewrite semantics silently.
 
 1. `src/mir/README.md`
 2. `src/mir/builder/README.md`
-3. `src/mir/control_tree/step_tree/`
-4. `src/mir/control_tree/normalized_shadow/`
 
 ## Boundaries
 

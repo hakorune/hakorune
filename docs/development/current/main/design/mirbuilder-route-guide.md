@@ -64,6 +64,7 @@ blueprint が持ち主を名指ししているのは if(決定 18)と loop(決�
 
 - `b/calls/lowering.rs:295` は旧 scalar 結果の検査。UBD の検査付き I64 結果は、元の Dynamic 呼び出しを出し、その Normal 辺で I64 を取り出す。旧 `:380,465` は引き続き `legacy_port.rs` から呼ばれる。公開 `MirBuilder::build_method_call` (`b/calls/build.rs:157,165`) → raw 式・宣言 → `b/instance_box_declaration_lifecycle.rs:107–122` 等で使用。通常 CLI は `runner/modes/mir.rs:103–119` から collector port を使う。
 - 線形 Script の detached main 候補を退役した。現行の Script は `b/normal_script_pre_effect_source_observation.rs:68` で元の source を解決し、`b/normal_default_root_catalog_post_install.rs:97` で root を下ろす。`b/normal_default_root_final_validation.rs:53` の `RootValidation::Script` が完成した root と照合する。Raw 物理 root の状態・receipt・公開分岐を退役した。通常の root/catalog で、候補の drain と Return を検査する。
+- BD-6c で static／instance draft の共通入口から、開発用の StepTree 検査を退役した。draft は既存の `port.lower_body` へ進み、loop の発行と検証は既存の持ち主が担当する。
 - DirectAccum の旧発行器を退役した。現行の `source_loop_driver::emit` に対しては、`rejected_loop_body_rolls_back_emitted_phis_and_reuses_compiler` が仮PHI発行後の拒否と、同じ入口からの再試行を確かめる。Generic G0 の demand は `m/compiler/generic_g0_capability.rs::probe_generic_g0_function_v1` が発行した単独の observation と resolver lease から作る。
 - 旧 canonical の Invoke と Compare の書き手を退役した。Invoke は `b/ordinary_new_admission/selected/invoke_operation.rs::emit`、比較は `b/emission/compare.rs::emit_planned_recorded` から共通の命令発行へ進み、完成した MIR は `m/verification.rs` で照合する。
 - 旧 canonical root finalizer、instance method prefix harness、未接続の plan 補助関数、テスト専用の旧 EdgeCFG seq／loop を削除した。継続中の短絡評価・strict EdgeCFG 検証・公開 raw 経路はそれぞれの既存発行先を使う。
