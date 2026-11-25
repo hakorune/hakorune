@@ -1,10 +1,142 @@
-{"kind":"Program","statements":[
-  {"kind":"FunctionDeclaration","name":"main","params":[],"body":[
-    {"kind":"If","condition":{"kind":"BinaryOp","op":"<","left":{"kind":"Literal","value":{"type":"int","value":1}},"right":{"kind":"Literal","value":{"type":"int","value":2}}},"then":[
-      {"kind":"Return","value":{"kind":"Literal","value":{"type":"int","value":10}}}
-    ],"else":[
-      {"kind":"Return","value":{"kind":"Literal","value":{"type":"int","value":20}}}
-    ]}
-  ],"static":false,"override":false}
-]}
-
+{
+  "kind": "Program",
+  "schema": "ast_json_roundtrip_v2",
+  "schema_version": 2,
+  "statements": [
+    {
+      "attrs": {
+        "runes": []
+      },
+      "constructors": [],
+      "delegates": [],
+      "extends": [],
+      "field_decls": [],
+      "fields": [],
+      "implements": [],
+      "init_fields": [],
+      "invariants": [],
+      "is_interface": false,
+      "is_record": false,
+      "is_static": true,
+      "is_sync": false,
+      "kind": "BoxDeclaration",
+      "methods": [
+        {
+          "decl": {
+            "attrs": {
+              "runes": []
+            },
+            "body": [
+              {
+                "cond": {
+                  "kind": "BinaryOp",
+                  "left": {
+                    "kind": "Literal",
+                    "type": "Int",
+                    "value": 1
+                  },
+                  "lhs": {
+                    "kind": "Literal",
+                    "type": "Int",
+                    "value": 1
+                  },
+                  "op": "<",
+                  "rhs": {
+                    "kind": "Literal",
+                    "type": "Int",
+                    "value": 2
+                  },
+                  "right": {
+                    "kind": "Literal",
+                    "type": "Int",
+                    "value": 2
+                  },
+                  "type": "Compare"
+                },
+                "condition": {
+                  "kind": "BinaryOp",
+                  "left": {
+                    "kind": "Literal",
+                    "type": "Int",
+                    "value": 1
+                  },
+                  "lhs": {
+                    "kind": "Literal",
+                    "type": "Int",
+                    "value": 1
+                  },
+                  "op": "<",
+                  "rhs": {
+                    "kind": "Literal",
+                    "type": "Int",
+                    "value": 2
+                  },
+                  "right": {
+                    "kind": "Literal",
+                    "type": "Int",
+                    "value": 2
+                  },
+                  "type": "Compare"
+                },
+                "else": [
+                  {
+                    "kind": "Return",
+                    "type": "Return",
+                    "value": {
+                      "kind": "Literal",
+                      "type": "Int",
+                      "value": 20
+                    }
+                  }
+                ],
+                "kind": "If",
+                "then": [
+                  {
+                    "kind": "Return",
+                    "type": "Return",
+                    "value": {
+                      "kind": "Literal",
+                      "type": "Int",
+                      "value": 10
+                    }
+                  }
+                ],
+                "type": "If"
+              }
+            ],
+            "contracts": [],
+            "kind": "FunctionDeclaration",
+            "name": "main",
+            "override": false,
+            "param_decls": [],
+            "params": [],
+            "return_type": null,
+            "static": true,
+            "uses": []
+          },
+          "diagnostic_span": {
+            "column": 5,
+            "end": 0,
+            "line": 2,
+            "start": 0
+          },
+          "key": "main",
+          "provenance": {
+            "kind": "explicit_source",
+            "selection": {
+              "kind": "direct"
+            }
+          },
+          "selected_method_ordinal": 0
+        }
+      ],
+      "name": "Tests",
+      "private_fields": [],
+      "public_fields": [],
+      "static_init": null,
+      "transitions": [],
+      "type_parameters": [],
+      "weak_fields": []
+    }
+  ]
+}

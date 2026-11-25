@@ -1,8 +1,9 @@
-function main(args) {
-  local x = 0
-  if 1 {
-    x = 42
-    print(x)
-  }
+static box Main {
+    main(args) {
+      local x = 0
+      if 1 {
+        x = 42
+        print(x)
+      }
+    }
 }
-

@@ -1,6 +1,7 @@
-function main() {
-    print("UPPER:hello world")
-    print("lower stays lower")
-    return 0
+static box Main {
+    main() {
+        print("UPPER:hello world")
+        print("lower stays lower")
+        return 0
+    }
 }
-

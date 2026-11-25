@@ -1,8 +1,9 @@
-function main(args) {
-  if 1 {
-    print("x")
-  } ; else {
-    print("y")
-  }
+static box Main {
+    main(args) {
+      if 1 {
+        print("x")
+      } ; else {
+        print("y")
+      }
+    }
 }
-

@@ -1,8 +1,9 @@
-function test_api_ok() {
-    return true
-}
+static box Tests {
+    test_api_ok() {
+        return true
+    }
 
-function test_impl_skip() {
-    return true
+    test_impl_skip() {
+        return true
+    }
 }
-

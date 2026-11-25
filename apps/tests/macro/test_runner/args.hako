@@ -1,7 +1,9 @@
-// Macro test-args demo (top-level + Box static/instance)
+// Macro test-args demo (static box + Box static/instance)
 
-function test_top_level(a, b) {
-    return (a == 1) && (b == "x")
+static box Tests {
+    test_top_level(a, b) {
+        return (a == 1) && (b == "x")
+    }
 }
 
 box B {
@@ -15,4 +17,3 @@ box B {
         return me.method(p)
     }
 }
-
