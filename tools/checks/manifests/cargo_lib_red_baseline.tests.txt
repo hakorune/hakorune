@@ -2497,8 +2497,6 @@ mir::builder::runtime_box_fate_tests::phase2160_runtime_box_fate_rejects_nested_
 mir::builder::runtime_box_fate_tests::phase2160_runtime_box_fate_rejects_second_take
 mir::builder::scope_context::tests::test_debug_scope_stack
 mir::builder::script_physical_exit::direct_static_entry_kernel::tests::detached_kernel_emits_one_receipted_call_and_completes_session
-mir::builder::script_physical_exit::tests::normal_script_physical_session_completes_detached_empty_draft
-mir::builder::script_physical_exit::tests::normal_script_physical_session_opens_one_detached_unknown_main
 mir::builder::script_physical_exit::tests::script_physical_exit_kernel_commits_existing_scalar_return_once
 mir::builder::script_physical_exit::tests::script_physical_exit_kernel_materializes_exact_synthetic_unit
 mir::builder::script_physical_exit::tests::script_physical_exit_kernel_rejects_void_value_before_commit

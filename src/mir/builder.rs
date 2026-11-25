@@ -148,10 +148,6 @@ pub(in crate::mir) use normal_module_transaction::{
 };
 pub(in crate::mir) use raw_root_physical::publication_terminal::RawPublishedModuleV1;
 pub(in crate::mir) use root_batch_slot::RawMainEntryTargetV1;
-pub(in crate::mir) use script_physical_exit::{
-    CompletedScriptPhysicalFunctionV1, OpenScriptPhysicalEntrySessionV1,
-    ScriptPhysicalEntrySessionErrorV1,
-};
 mod raw_source_projection; // RAW-SOURCE0-PLAN0 owned source locators
 pub(in crate::mir) use raw_root_environment_install::{
     CompletedRawRootBodyPhysicalV1, InstalledRawRootEnvironmentV1, RawRootBodyLoweringErrorV1,

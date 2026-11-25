@@ -929,7 +929,6 @@
   "src/mir/builder/schedule/block.rs": "builder/schedule/",
   "src/mir/builder/scope_context.rs": "builder/top: function state/context (function_*, *_context, mir_value_id_inventory, emit_debug_policy)",
   "src/mir/builder/script_array_control_emission.rs": "builder/top: normal_script_array_* + script_array_*",
-  "src/mir/builder/script_physical_exit/entry_session.rs": "builder/script_physical_exit/",
   "src/mir/builder/script_physical_exit/exit.rs": "builder/script_physical_exit/",
   "src/mir/builder/script_physical_exit/mod.rs": "builder/script_physical_exit/",
   "src/mir/builder/script_physical_exit/terminal.rs": "builder/script_physical_exit/",
