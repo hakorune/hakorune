@@ -3,7 +3,7 @@
 use super::*;
 use crate::mir::instruction::{FieldSetModeV1 as Mode, InvokeOperation, StringInvokeOperand as Operand, StringInvokeOperation as Op};
 use crate::mir::{MirBuilder, MirInstruction, MirType};
-use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
 use std::rc::Rc;
 type Binding = (BasicBlockId, MirInstruction);
 

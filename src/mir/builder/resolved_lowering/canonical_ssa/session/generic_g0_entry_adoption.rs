@@ -70,8 +70,7 @@ fn validate_descriptors(
             .map_err(|_| "generic physical entry descriptor overflow".to_owned())?;
         if descriptor.physical_index() != index
             || descriptor.carrier()
-                != crate::mir::compiler::common_v2_physical_function_entry_input::
-                    PhysicalCallableLaneCarrierV1::ExistingCallableI64
+                != hakorune_mir_defs::PhysicalCallableLaneCarrierV1::ExistingCallableI64
             || descriptor.binding().owner() != owner
             || !seen.insert(descriptor.binding())
         {

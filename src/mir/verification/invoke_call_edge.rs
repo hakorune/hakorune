@@ -133,7 +133,7 @@ pub(super) fn check_call_edge(
             if !source_bound || expected != argument || module.canonical_object_definition(*object).is_none()
                 || !matches!(parameter, crate::mir::MirType::Box(_))
                 || callee.metadata.physical_param_carriers.as_deref().and_then(|rows| rows.get(index + receiver_params))
-                    != Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::ExistingCallableI64)
+                    != Some(&hakorune_mir_defs::PhysicalCallableLaneCarrierV1::ExistingCallableI64)
                 || borrowed_slots.is_some_and(|slots| slots.contains(&index)) {
                 errors.push(error(block, "borrowed-source-call-coverage"));
                 return;
@@ -142,7 +142,7 @@ pub(super) fn check_call_edge(
         }
         let tagged_formal = callee.metadata.physical_param_carriers.as_deref()
             .and_then(|rows| rows.get(index + receiver_params))
-            == Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue);
+            == Some(&hakorune_mir_defs::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue);
         if source_bound
             && tagged_formal != borrowed_slots.is_some_and(|slots| slots.contains(&index))
         {
@@ -162,7 +162,7 @@ pub(super) fn check_call_edge(
         let map_formal = match callee.metadata.physical_param_carriers.as_deref() {
             Some(carriers) => {
                 carriers.get(index + receiver_params).copied()
-                    == Some(crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::CheckedMapStorage)
+                    == Some(hakorune_mir_defs::PhysicalCallableLaneCarrierV1::CheckedMapStorage)
                     || named_map
             }
             None => named_map,

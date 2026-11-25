@@ -45,7 +45,7 @@ impl CallableSemanticLoweringState {
             .as_ref()
             .ok_or_else(|| freeze("exact-usize-entry/function-missing"))?;
         let offset = usize::from(entry.receiver().is_some());
-        use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+        use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
         let carriers = function
             .metadata
             .physical_param_carriers

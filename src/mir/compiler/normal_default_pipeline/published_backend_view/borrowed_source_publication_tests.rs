@@ -1,7 +1,7 @@
 //! Original source through production lowering, final handoff and ABI writer.
 //! Immutable source loans remain authority across the selected continuations.
 use super::*;
-use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
 use crate::mir::compiler::normal_default_pipeline::{MirCompiler, NormalCompileRequestV1};
 
 fn request(text: &str) -> NormalCompileRequestV1 {

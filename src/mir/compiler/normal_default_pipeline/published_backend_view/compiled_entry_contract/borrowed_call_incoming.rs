@@ -1,7 +1,7 @@
 //! Bidirectional final Call coverage, demanded before ordinary result filtering.
 //! Metadata selects inspection; original source and finished packets prove it.
 use super::*;
-use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
 use crate::mir::MirModule;
 
 #[path = "borrowed_call_uses.rs"]

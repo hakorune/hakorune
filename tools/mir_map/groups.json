@@ -1059,7 +1059,6 @@
   "src/mir/compiler/capability/trivial_plan.rs": "compiler/07 capability* (whole-unit family proof)",
   "src/mir/compiler/capability/validation_errors.rs": "compiler/07 capability* (whole-unit family proof)",
   "src/mir/compiler/capability_tests.rs": "compiler/07 capability* (whole-unit family proof)",
-  "src/mir/compiler/common_v2_physical_function_entry_input.rs": "compiler/17 source carriers (function_input, located, source_view, ...)",
   "src/mir/compiler/direct_accum_observation.rs": "compiler/09 direct_accum_*",
   "src/mir/compiler/direct_accum_projection.rs": "compiler/09 direct_accum_*",
   "src/mir/compiler/dynamic_full_body_recipe/claims.rs": "compiler/14 dynamic_full_body_* / selected_dynamic",

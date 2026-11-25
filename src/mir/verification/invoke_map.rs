@@ -25,7 +25,7 @@ fn is_map_param(function: &MirFunction, value: &ValueId) -> bool {
     match function.metadata.physical_param_carriers.as_deref() {
         Some(carriers) => {
             carriers.get(index).copied()
-                == Some(crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::CheckedMapStorage)
+                == Some(hakorune_mir_defs::PhysicalCallableLaneCarrierV1::CheckedMapStorage)
                 && named_map
         }
         None => named_map,

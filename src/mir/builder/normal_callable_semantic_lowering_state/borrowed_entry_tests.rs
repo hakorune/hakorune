@@ -301,7 +301,7 @@ fn carrier_function(values: &[ValueId]) -> crate::mir::MirFunction {
     function.params = values.to_vec();
     function.signature.params = vec![crate::mir::MirType::Integer; values.len()];
     function.signature.params[0] = crate::mir::MirType::Box("Transport".into());
-    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+    use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
     function.metadata.physical_param_carriers =
         Some(vec![Carrier::ExistingCallableI64; values.len()].into_boxed_slice());
     function
@@ -322,7 +322,7 @@ fn carrier_builder(function: &crate::mir::MirFunction) -> crate::mir::MirBuilder
 
 #[test]
 fn borrowed_carrier_preflight_preserves_mixed_original_formals_without_effects() {
-    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+    use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
     let state = state_from_package(package_with_parameters("p, q: i64", "true, 7"), 2);
     let mut function = carrier_function(&[ValueId(51), ValueId(72), ValueId(73)]);
     let mut builder = crate::mir::MirBuilder::new();
@@ -355,7 +355,7 @@ fn borrowed_carrier_preflight_preserves_mixed_original_formals_without_effects()
 
 #[test]
 fn borrowed_carrier_preflight_rejects_missing_conflicting_and_drifted_column() {
-    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+    use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
     for change in 0..10 {
         let state = state("true");
         let mut function = carrier_function(&[ValueId(51), ValueId(72)]);
@@ -427,7 +427,7 @@ fn static_borrowed_state() -> CallableSemanticLoweringState {
 
 #[test]
 fn static_borrowed_entry_replaces_parameter_zero_without_receiver_column() {
-    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+    use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
     let mut state = static_borrowed_state();
     let mut function = carrier_function(&[ValueId(72), ValueId(73)]);
     function.signature.params[0] = crate::mir::MirType::Unknown;

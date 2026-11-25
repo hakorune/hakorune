@@ -8,7 +8,7 @@
 
 use std::collections::BTreeSet;
 
-use super::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
+use hakorune_mir_defs::PhysicalCallableLaneCarrierV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, ReceiverPolicyV1,
 };

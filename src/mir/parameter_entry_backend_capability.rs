@@ -1,4 +1,4 @@
-use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
 use crate::mir::type_contracts::parameter_entry::validate_parameter_entry_contracts;
 use crate::mir::{MirModule, MirType};
 use std::collections::BTreeSet;

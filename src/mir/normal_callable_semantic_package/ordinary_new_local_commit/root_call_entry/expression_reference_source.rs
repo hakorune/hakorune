@@ -655,7 +655,7 @@ pub(super) fn validate_entry_layout(
         || function.params.get(ordinal) != Some(entry) || declarations.len() != count
         || declarations.iter().enumerate().any(|(index, row)| row.implicit_receiver != (receivers == 1 && index == 0))
         || receivers == 1 && function.metadata.physical_param_carriers.as_deref().and_then(|rows| rows.first())
-            != Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::ExistingCallableI64) {
+            != Some(&hakorune_mir_defs::PhysicalCallableLaneCarrierV1::ExistingCallableI64) {
         return Err(freeze("expression/scalar-entry-ordinal-value"));
     }
     // Reuse the complete physical entry and exact Copy checks, independently
@@ -668,7 +668,7 @@ pub(super) fn validate_dependencies_for_entry(
     context: CallValidationContextV1<'_>,
     function: &MirFunction,
 ) -> Result<(), String> {
-    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+    use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
     let carriers = function
         .metadata
         .physical_param_carriers

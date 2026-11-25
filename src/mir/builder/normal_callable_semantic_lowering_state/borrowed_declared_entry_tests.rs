@@ -1,6 +1,6 @@
 //! Original declared class is lent by the same pre-entry source ledger.
 use super::*;
-use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
 use crate::mir::function::MirParamDecl;
 use crate::mir::MirType;
 

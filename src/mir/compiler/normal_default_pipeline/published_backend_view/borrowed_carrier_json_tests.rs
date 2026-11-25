@@ -1,7 +1,7 @@
 //! Negative mutation of a real published Map program: neither writer
 //! branch may turn a reserved borrowed carrier into an i64 transport.
 use super::*;
-use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
 use crate::mir::compiler::normal_default_pipeline::{MirCompiler, NormalCompileRequestV1};
 
 #[test]

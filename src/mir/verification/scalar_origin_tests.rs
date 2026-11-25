@@ -1,5 +1,5 @@
 use super::*;
-use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
+use hakorune_mir_defs::PhysicalCallableLaneCarrierV1;
 use crate::mir::{BasicBlock, ConstValue, EffectMask, FunctionSignature};
 use SameI64Definition::{Different, Same, Unresolved};
 

@@ -19,7 +19,7 @@ pub(in super::super) fn entry(state: &mut FunctionUses, source: &FinalizedRootSo
         if let Receiver::Entry { parameter, value } = &row.receiver {
             if function.params.get(*parameter) != Some(value)
                 || function.metadata.physical_param_carriers.as_ref().and_then(|rows| rows.get(*parameter))
-                    != Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::ExistingCallableI64) {
+                    != Some(&hakorune_mir_defs::PhysicalCallableLaneCarrierV1::ExistingCallableI64) {
                 return Err(fault("owned-write/normal-order"));
             }
         }

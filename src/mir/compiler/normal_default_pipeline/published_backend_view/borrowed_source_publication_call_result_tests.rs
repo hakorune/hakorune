@@ -362,7 +362,7 @@ fn owned_call_results_publish_original_child_handle_contracts() {
                                 let make = changed.functions.iter_mut()
                                     .find(|function| function.name() == "Maker.make/1").unwrap();
                                 assert!(make.param_carriers().unwrap().contains(
-                                    &crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue
+                                    &hakorune_mir_defs::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue
                                 ), "opaque actual must select the original borrowed checker");
                                 make.role = match make.role.clone() {
                                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { key, receiver_object, returns } =>
@@ -669,7 +669,7 @@ fn owned_call_results_publish_original_child_handle_contracts() {
                         }
                         3 => function.params[1] = crate::mir::ValueId::new(900_004),
                         4 => function.metadata.physical_param_carriers.as_mut().unwrap()[1] =
-                            crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::ExistingCallableI64,
+                            hakorune_mir_defs::PhysicalCallableLaneCarrierV1::ExistingCallableI64,
                         _ => {
                             let row = function.blocks.get_mut(&copy.0).unwrap().instructions.iter_mut()
                                 .find(|row| **row == copy.1).unwrap();
@@ -738,7 +738,7 @@ fn owned_call_results_publish_original_child_handle_contracts() {
                         },
                         1 => function.params[1] = crate::mir::ValueId::new(900_011),
                         2 => function.metadata.physical_param_carriers.as_mut().unwrap()[1] =
-                            crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::ExistingCallableI64,
+                            hakorune_mir_defs::PhysicalCallableLaneCarrierV1::ExistingCallableI64,
                         3 => {
                             let mut changed_null = false;
                             for block in function.blocks.values_mut() {

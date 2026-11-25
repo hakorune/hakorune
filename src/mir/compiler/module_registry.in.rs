@@ -26,7 +26,6 @@ pub(in crate::mir) mod canonical_finalization;
 pub(in crate::mir) mod canonical_physical_completion;
 pub(crate) mod canonical_source_identity;
 pub(in crate::mir) mod capability;
-pub(in crate::mir) mod common_v2_physical_function_entry_input;
 #[cfg(test)]
 pub(crate) mod direct_accum_observation;
 pub(in crate::mir) mod direct_accum_projection;

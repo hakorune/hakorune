@@ -74,7 +74,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self, requirement: &BorrowedFormalEntryReadRequirementV1,
         function: &crate::mir::MirFunction, read: &crate::mir::builder::ExactLexicalReadV1,
     ) -> Result<(crate::mir::ValueId, crate::mir::ValueId), String> {
-        use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+        use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
         let owner = requirement.source_plan.owner();
         let source = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("borrowed-dynamic-entry/source-missing"))?
             .as_ref().map_err(Clone::clone)?;
@@ -150,7 +150,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self, requirement: &BorrowedTextEntryReadRequirementV1,
         function: &crate::mir::MirFunction, read: &crate::mir::builder::ExactLexicalReadV1,
     ) -> Result<(crate::mir::ValueId, crate::mir::ValueId, Rc<super::super::borrowed_formal_source::SourceValueSumV1>), String> {
-        use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+        use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
         let owner = requirement.source_plan.owner();
         let source = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("borrowed-text-entry/source-missing"))?
             .as_ref().map_err(Clone::clone)?;
