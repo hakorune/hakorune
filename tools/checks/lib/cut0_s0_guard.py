@@ -21,25 +21,6 @@ def require(text: str, fragment: str, label: str) -> None:
 
 
 def main() -> int:
-    files = {
-        name: (SRC / name).read_text()
-        for name in (
-            "module_invocation_drain.rs",
-        )
-    }
-    for name, text in files.items():
-        if len(text.splitlines()) >= 800:
-            raise AssertionError(f"CUT0-S0 source must remain below 800 lines: {name}")
-
-    root = (SRC / "root_body_completion.rs").read_text()
-    require(root, "begin_root_body", "live root capture transition")
-    require(root, "seal_root_body", "live root completion transition")
-    require((SRC / "raw_root_physical/root_batch_terminal.rs").read_text(), "prepare_raw_root_batch", "live root batch admission")
-    require(files["module_invocation_drain.rs"], "ConditionFnPolicyV1", "live condition policy")
-    require((SRC / "raw_root_physical/drain_terminal.rs").read_text(), "published_shell_rejection_is_owned_by_drain0", "raw drain rejection fixture")
-
-    require((SRC / "raw_root_environment_install.rs").read_text(), "root_batch_terminal_consumes_body_owner_without_publishing_shell", "raw drain witness fixture")
-
     state = STATE.read_text()
     card = CARD.read_text()
     require(

@@ -26,14 +26,9 @@ IDENTITY_ALLOWED = {
     pathlib.Path("src/mir/builder/module_invocation_identity.rs"),
     pathlib.Path("src/mir/builder/module_invocation_identity_p0.rs"),
     pathlib.Path("src/mir/builder/module_invocation_owner_chain.rs"),
-    pathlib.Path("src/mir/builder/module_invocation_brand_p0.rs"),
-    pathlib.Path("src/mir/builder/module_draft_collector/callable_batch.rs"),
     pathlib.Path("src/mir/builder/resolved_lowering/callable_module_transaction.rs"),
-    pathlib.Path("src/mir/builder/module_lowering_shell.rs"),
     pathlib.Path("src/mir/builder/module_invocation_session.rs"),
     pathlib.Path("src/mir/builder/module_invocation_session_p0.rs"),
-    pathlib.Path("src/mir/builder/raw_expansion_receipt_ledger.rs"),
-    pathlib.Path("src/mir/builder/module_invocation_brand0.rs"),
 }
 
 

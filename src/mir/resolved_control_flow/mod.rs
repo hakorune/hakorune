@@ -5,6 +5,8 @@
 
 mod cleanup;
 mod function_control;
+#[cfg(test)]
+pub(crate) use function_control::{FunctionUnitOriginV1, ReturnExitRelationV1};
 pub(crate) mod if_control;
 mod loop_owned_if;
 mod source_coverage;
@@ -25,7 +27,7 @@ pub(crate) use function_control::{
     verify_function_completion_v1,
     verify_function_completion_with_new_homes_and_argument_observations_v1,
     DeclaredFunctionResultContractV1, FunctionCompletionVerificationErrorV1,
-    FunctionExitCoverageV1, FunctionUnitOriginV1, NewFaultContinuationV1, ReturnExitRelationV1,
+    FunctionExitCoverageV1, NewFaultContinuationV1,
     SealedFunctionExitDispositionV1, VerifiedFunctionCompletionV1,
 };
 

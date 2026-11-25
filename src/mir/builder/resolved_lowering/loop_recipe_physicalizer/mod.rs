@@ -42,7 +42,6 @@ mod topology;
 
 pub(in crate::mir::builder) use callable_lowerer::lower_callable_single_loop_function_draft_v1;
 pub(in crate::mir::builder) use generic_lowerer::lower_generic_g0_function_draft_pending_v1;
-pub(in crate::mir::builder) use generic_lowerer::lower_generic_g0_function_draft_v1;
 // Caller-zero re-export until the Main0 canonical-root handoff wires the
 // installed App Main caller; recheck at the production-switch slice.
 // Caller-zero re-export for the second bounded Main0 profile; same handoff.

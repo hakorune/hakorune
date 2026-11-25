@@ -308,20 +308,13 @@
      "src/backend/mir_interpreter/exec/function_loop.rs",
      "src/backend/vm_types.rs",
      "src/mir/builder/builder_metadata.rs",
-     "src/mir/builder/module_invocation_brand0.rs",
      "src/mir/builder/module_invocation_session.rs",
      "src/mir/builder/module_lifecycle.rs",
-     "src/mir/builder/module_lowering_shell/declaration_fact_commit.rs",
-     "src/mir/builder/module_lowering_shell.rs",
-     "src/mir/builder/raw_root_environment_install.rs",
-     "src/mir/builder/raw_root_physical.rs",
-     "src/mir/compiler/canonical_bridge_fixture0_p0.rs",
      "src/mir/compiler/loop_candidate_abort_p0.rs",
      "src/mir/compiler/mod.rs",
      "src/mir/compiler/normal_default_pipeline.rs",
      "src/mir/compiler/raw_public_cutover_parity_snapshot.rs",
      "src/mir/compiler/raw_public_ingress.rs",
-     "src/mir/compiler/raw_root_environment_manifest.rs",
      "src/mir/compiler/resolved_direct_accum_cutover.rs",
      "src/mir/compiler/resolved_nested_predicate_cutover.rs",
      "src/mir/function/types.rs",
@@ -338,15 +331,9 @@
    "production_consumer": {
     "owners": [
      "src/mir/builder/builder_metadata.rs",
-     "src/mir/builder/module_invocation_brand0.rs",
      "src/mir/builder/module_invocation_session.rs",
      "src/mir/builder/module_invocation_session_p0.rs",
      "src/mir/builder/module_lifecycle.rs",
-     "src/mir/builder/module_lowering_shell/declaration_fact_commit.rs",
-     "src/mir/builder/module_lowering_shell.rs",
-     "src/mir/builder/raw_root_environment_install.rs",
-     "src/mir/builder/raw_root_physical.rs",
-     "src/mir/compiler/canonical_bridge_fixture0_p0.rs",
      "src/mir/compiler/loop_candidate_abort_p0.rs",
      "src/mir/compiler/mod.rs",
      "src/mir/compiler/normal_default_pipeline.rs",
@@ -355,7 +342,6 @@
      "src/mir/compiler/raw_public_ingress_p0.rs",
      "src/mir/compiler/raw_published_compile.rs",
      "src/mir/compiler/raw_root_decl_access.rs",
-     "src/mir/compiler/raw_root_environment_manifest.rs",
      "src/mir/compiler/raw_root_package.rs",
      "src/mir/compiler/raw_source_binding_p0.rs",
      "src/mir/compiler/resolved_direct_accum_cutover.rs",
@@ -365,10 +351,9 @@
      "src/mir/raw_vm_reference_contract.rs"
     ],
     "anchors": [
-     "src/mir/builder/builder_metadata.rs:49:source_file",
-     "src/mir/builder/module_invocation_brand0.rs:229:source_file"
+     "src/mir/builder/builder_metadata.rs:49:source_file"
     ],
-    "count": 26
+    "count": 19
    },
    "backend_consumer": {
     "role": "selected_observed",
@@ -754,8 +739,6 @@
      "src/mir/builder/phi_type_publication/connection.rs",
      "src/mir/builder/phi_type_publication/decision.rs",
      "src/mir/builder/raw_expression_dispatch/static_box_state.rs",
-     "src/mir/builder/raw_root_body_exit.rs",
-     "src/mir/builder/raw_root_body_lowering.rs",
      "src/mir/builder/record_helper_args.rs",
      "src/mir/builder/record_values.rs",
      "src/mir/builder/resolved_lowering/canonical_ssa/session/generic_g0_entry_adoption.rs",
@@ -771,7 +754,6 @@
      "src/mir/builder/return_type_strategy.rs",
      "src/mir/builder/rewrite/known.rs",
      "src/mir/builder/rewrite/special.rs",
-     "src/mir/builder/script_physical_exit/exit.rs",
      "src/mir/builder/ssa/binding/mir_adapter.rs",
      "src/mir/builder/ssa/local.rs",
      "src/mir/builder/stmts/async_stmt.rs",
@@ -834,7 +816,7 @@
      "src/mir/array_receiver_proof.rs:121:value_types",
      "src/mir/builder/array_element_write.rs:24:value_types"
     ],
-    "count": 128
+    "count": 125
    },
    "backend_consumer": {
     "role": "selected_observed",
@@ -2706,7 +2688,6 @@
      "src/mir/compiler/generic_g0_top_level_declaration_header.rs",
      "src/mir/compiler/mod.rs",
      "src/mir/compiler/raw_root_helper_coverage.rs",
-     "src/mir/compiler/raw_root_source_facts.rs",
      "src/mir/effect_capability_plan.rs",
      "src/mir/inline_plan.rs",
      "src/mir/rune_plan_refresh.rs",
@@ -2725,7 +2706,7 @@
      "src/macro/ast_json/joinir_compat/helpers.rs:6:runes",
      "src/macro/ast_json/shared.rs:207:runes"
     ],
-    "count": 20
+    "count": 19
    },
    "backend_consumer": {
     "role": "selected_observed",

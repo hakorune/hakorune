@@ -1,3 +1,4 @@
+#[cfg(test)]
 use super::{
     CanonicalFirstFamilyPlanBrandV1, ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1,
     VerifiedResolvedOwnerHeaderV1,
@@ -28,6 +29,7 @@ impl<'a> CanonicalTrivialBindingSsaPlanV1<'a> {
         callback(self.function)
     }
 
+    #[cfg(test)]
     pub(crate) fn seal_resolved_owner_header_v1(
         &self,
     ) -> Result<VerifiedResolvedOwnerHeaderV1, ResolvedOwnerHeaderSealErrorV1> {
@@ -43,10 +45,12 @@ impl<'a> CanonicalTrivialBindingSsaPlanV1<'a> {
         self.profile.direct_calls().len()
     }
 
+    #[cfg(test)]
     pub(crate) fn completion(&self) -> &VerifiedFunctionCompletionV1 {
         &self.completion
     }
 
+    #[cfg(test)]
     pub(crate) fn terminal_profile(
         &self,
     ) -> &crate::mir::resolved_value_profile::product::TrivialTerminalProfileV1 {

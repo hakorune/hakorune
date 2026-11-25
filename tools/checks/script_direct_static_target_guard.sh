@@ -46,7 +46,6 @@ CLAIM_TRANSPORT=src/mir/builder/normal_script_direct_static_claim_transport.rs
 MEMBER_ROUTE=src/mir/builder/calls/member_route.rs
 PHYSICAL_BRIDGE=src/mir/builder/calls/script_direct_static_physical_bridge.rs
 PHYSICAL_PUBLICATION=src/mir/builder/normal_script_direct_static_physical_publication.rs
-PHYSICAL_KERNEL=src/mir/builder/script_physical_exit/direct_static_entry_kernel.rs
 RAW_DISPATCH=src/mir/builder/raw_expression_dispatch/mod.rs
 RAW_STRUCTURED=src/mir/builder/raw_structured_child_scope.rs
 RAW_INVOCATION=src/mir/builder/raw_invocation_source_transport.rs
@@ -163,7 +162,6 @@ require_text "$PHYSICAL_PUBLICATION" "MirType::Integer"
 require_text "$PHYSICAL_PUBLICATION" "ScriptDirectStaticPublicationErrorV1"
 require_text "$PHYSICAL_PUBLICATION" "RepresentationMismatch"
 require_text "$PHYSICAL_PUBLICATION" "DuplicatePublication"
-require_text "$PHYSICAL_KERNEL" "error.to_string()"
 require_text "$ROOT_TRAVERSAL" "record_statement_shape"
 require_text "$BUILDER_README" "VerifiedScriptSourceContinuationV1"
 require_text "$BUILDER_README" "source/Facts-only"
@@ -186,7 +184,7 @@ require_text "$FAILFAST_CARD" "UnlocatedCompatibility"
 # README is a documentation index, not production source.  Keep the 760-line
 # source split gate on Rust owners and validate README content separately via
 # the required-text assertions above.
-for file in "$MODULE" "$COVERAGE" "$LOOKUP" "$LOOKUP_TESTS" "$TESTS" "$TYPEOP_POLICY" "$TYPEOP_TESTS" "$SPECIAL_HANDLERS" "$CALL_BUILD" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$CLAIM_LEDGER" "$CLAIM_LEDGER_TESTS" "$REQUIRED_ARGUMENT_PROOF" "$CLAIM_PORT" "$CLAIM_PORT_TESTS" "$CLAIM_TRANSPORT" "$MEMBER_ROUTE" "$PHYSICAL_BRIDGE" "$PHYSICAL_PUBLICATION" "$PHYSICAL_KERNEL" "$RAW_DISPATCH" "$RAW_STRUCTURED" "$RAW_INVOCATION" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$SOURCE_FINALIZER" "$SOURCE_TESTS"; do
+for file in "$MODULE" "$COVERAGE" "$LOOKUP" "$LOOKUP_TESTS" "$TESTS" "$TYPEOP_POLICY" "$TYPEOP_TESTS" "$SPECIAL_HANDLERS" "$CALL_BUILD" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$CLAIM_LEDGER" "$CLAIM_LEDGER_TESTS" "$REQUIRED_ARGUMENT_PROOF" "$CLAIM_PORT" "$CLAIM_PORT_TESTS" "$CLAIM_TRANSPORT" "$MEMBER_ROUTE" "$PHYSICAL_BRIDGE" "$PHYSICAL_PUBLICATION" "$RAW_DISPATCH" "$RAW_STRUCTURED" "$RAW_INVOCATION" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$SOURCE_FINALIZER" "$SOURCE_TESTS"; do
   lines="$(wc -l < "$file")"
   if (( lines >= 760 )); then
     echo "[script-direct-static-target] source split required: $file has $lines lines" >&2
@@ -215,7 +213,7 @@ if printf '%s\n' "$LOOKUP_HEADER" | rg -n 'Clone'; then
   exit 1
 fi
 
-if rg -n "MirInstruction|MirType|ScriptPhysicalExit|finish_direct_static_claims|raw_root_body_recipe" "$CLAIM_PORT"; then
+if rg -n "MirInstruction|MirType|finish_direct_static_claims" "$CLAIM_PORT"; then
   echo "[script-direct-static-target] claim port crossed the physical/finish boundary" >&2
   exit 1
 fi
@@ -226,17 +224,17 @@ if printf '%s\n' "$TOKEN_HEADER" | rg -n "Clone"; then
   exit 1
 fi
 
-if rg -n "rollback|reinsert|put_back|emit_.*call|lower_.*physical|MirType|ValueId|ScriptPhysicalExit" "$CLAIM_LEDGER"; then
+if rg -n "rollback|reinsert|put_back|emit_.*call|lower_.*physical|MirType|ValueId" "$CLAIM_LEDGER"; then
   echo "[script-direct-static-target] claim ledger crossed the operational-only boundary" >&2
   exit 1
 fi
 
-if rg -n "emit_.*call|MirType|ValueId|ScriptPhysicalExit|raw_invocation_source_transport" "$CLAIM_LEDGER_TESTS"; then
+if rg -n "emit_.*call|MirType|ValueId|raw_invocation_source_transport" "$CLAIM_LEDGER_TESTS"; then
   echo "[script-direct-static-target] claim ledger tests crossed the physical boundary" >&2
   exit 1
 fi
 
-if rg -n "raw_root_body_recipe|JoinSig|lower_.*physical|emit_.*call" "$MODULE"; then
+if rg -n "JoinSig|lower_.*physical|emit_.*call" "$MODULE"; then
   echo "[script-direct-static-target] observation module crossed the Recipe/physical boundary" >&2
   exit 1
 fi
@@ -246,22 +244,22 @@ if rg -n 'method == "is"|method == "as"' "$SPECIAL_HANDLERS" "$CALL_BUILD" "$MOD
   exit 1
 fi
 
-if rg -n "raw_root_body_recipe|normal_source_plan|JoinSig|ValueId|MirType|lower_.*physical|emit_.*call" "$RECIPE"; then
+if rg -n "normal_source_plan|JoinSig|ValueId|MirType|lower_.*physical|emit_.*call" "$RECIPE"; then
   echo "[script-direct-static-target] dedicated Recipe crossed the scalar/physical boundary" >&2
   exit 1
 fi
 
-if rg -n "crate::.*(JoinSig|ValueId|MirType)|raw_root_body_recipe::|fn lower_.*physical|fn emit_.*call" "$RESULT_OWNER"; then
+if rg -n "crate::.*(JoinSig|ValueId|MirType)|fn lower_.*physical|fn emit_.*call" "$RESULT_OWNER"; then
   echo "[script-direct-static-target] result owner crossed the source/Facts boundary" >&2
   exit 1
 fi
 
-if rg -n "raw_root_body_recipe|JoinSig|ValueId|MirType|lower_.*physical|emit_.*call" "$JOIN_HANDOFF"; then
+if rg -n "JoinSig|ValueId|MirType|lower_.*physical|emit_.*call" "$JOIN_HANDOFF"; then
   echo "[script-direct-static-target] Join handoff crossed the source/Facts boundary" >&2
   exit 1
 fi
 
-if rg -n "raw_root_body_recipe|JoinSig|lower_.*physical|emit_.*call" "$CONTINUATION" "$LOWERING_INPUT"; then
+if rg -n "JoinSig|lower_.*physical|emit_.*call" "$CONTINUATION" "$LOWERING_INPUT"; then
   echo "[script-direct-static-target] continuation crossed the Recipe/physical boundary" >&2
   exit 1
 fi
@@ -276,17 +274,17 @@ if rg -n "issue_arguments|VerifiedScriptDirectStaticScalarOperandRecipeV1::issue
   exit 1
 fi
 
-if rg -n "ASTNode|source_name|ordinal|ScriptPhysicalExit|finalize_module|rollback|reinsert|put_back" "$PHYSICAL_BRIDGE"; then
+if rg -n "ASTNode|source_name|ordinal|finalize_module|rollback|reinsert|put_back" "$PHYSICAL_BRIDGE"; then
   echo "[script-direct-static-target] physical bridge reconstructed source or crossed the exit/publication boundary" >&2
   exit 1
 fi
 
-if rg -n "ASTNode|source_name|ordinal|ScriptPhysicalExit|finalize_module|rollback|reinsert|put_back|callable.*publication" "$PHYSICAL_PUBLICATION"; then
+if rg -n "ASTNode|source_name|ordinal|finalize_module|rollback|reinsert|put_back|callable.*publication" "$PHYSICAL_PUBLICATION"; then
   echo "[script-direct-static-target] Script publication sibling crossed its narrow boundary" >&2
   exit 1
 fi
 
-if rg -n "raw name|target.*lookup|name.*lookup|rollback|reinsert|put_back|MirInstruction|MirType|ValueId|ScriptPhysicalExit" "$CLAIM_TRANSPORT"; then
+if rg -n "raw name|target.*lookup|name.*lookup|rollback|reinsert|put_back|MirInstruction|MirType|ValueId" "$CLAIM_TRANSPORT"; then
   echo "[script-direct-static-target] claim transport crossed source/physical ownership" >&2
   exit 1
 fi

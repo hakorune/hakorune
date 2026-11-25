@@ -262,6 +262,7 @@ impl SealedNormalCollectorDrainReceiptV1 {
                             CollectedDraftReplacementDispositionV1::Inserted
                                 | CollectedDraftReplacementDispositionV1::ReplacedWholePair { .. }
                         ) => {}
+                #[cfg(test)]
                 FunctionDraftKeyV1::Main
                     if admission.policy == DraftPublicationPolicyV1::CanonicalRejectDuplicate
                         && matches!(

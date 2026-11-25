@@ -2,19 +2,6 @@
 use super::*;
 
 impl MirBuilder {
-    pub(in crate::mir) fn lower_resolved_generic_g0_function_draft(
-        &mut self,
-        plan: CanonicalGenericG0PlanV1<'_>,
-    ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
-        let admission = crate::mir::compiler::generic_g0_physical_operation_cohort::
-            issue_generic_g0_physical_emitter_admission_from_source_parent_v1(
-                plan.into_source_parent(),
-            )
-            .map_err(CanonicalResolvedBuildErrorV1::GenericG0Admission)?;
-        loop_recipe_physicalizer::lower_generic_g0_function_draft_v1(self, admission)
-            .map_err(CanonicalResolvedBuildErrorV1::GenericG0Lowerer)
-    }
-
     pub(in crate::mir::builder) fn lower_resolved_generic_g0_function_pending_v1(
         &mut self,
         function_name: &str,
@@ -32,8 +19,7 @@ impl MirBuilder {
         )
     }
 
-
-
+    #[cfg(test)]
     pub(in crate::mir) fn build_resolved_trivial_function_module(
         &mut self,
         plan: CanonicalTrivialBindingSsaPlanV1<'_>,
@@ -87,6 +73,7 @@ impl MirBuilder {
     /// TX0-private typed terminal. It consumes the preflight plan once and
     /// either yields the exact draft or a typed failure after the child
     /// session's discard terminal has restored the caller context.
+    #[cfg(test)]
     pub(in crate::mir) fn lower_resolved_trivial_function_draft_retaining_failure_v1(
         &mut self,
         plan: CanonicalTrivialBindingSsaPlanV1<'_>,

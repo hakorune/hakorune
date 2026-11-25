@@ -4,14 +4,13 @@
 //! the source-file size cap while preserving one collector admission owner.
 
 use super::calls::LegacyFunctionPendingSessionV1;
-use super::module_draft_collector::CollectedDraftAdmissionReceiptV1;
 use super::module_draft_collector::DraftPublicationPolicyV1;
-use super::module_invocation_owner_chain::InvocationBranded;
-use super::module_lowering_invocation::{
-    LegacyChildDraftAdmissionV1, ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1,
-};
+#[cfg(test)]
+use super::module_lowering_invocation::LegacyChildDraftAdmissionV1;
+use super::module_lowering_invocation::{ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1};
 
 impl ModuleLoweringPortV1<'_> {
+    #[cfg(test)]
     pub(in crate::mir::builder) fn commit_legacy_pending(
         &mut self,
         pending: LegacyFunctionPendingSessionV1<'_>,
@@ -73,33 +72,6 @@ impl ModuleLoweringPortV1<'_> {
                 .map_err(ModuleLoweringPortChildErrorV1::Admission)?
                 .collect();
             Ok(())
-        })
-    }
-
-    pub(in crate::mir::builder) fn commit_legacy_symbol_pending_branded(
-        &mut self,
-        pending: LegacyFunctionPendingSessionV1<'_>,
-        (key, symbol, arity): (
-            super::module_draft_collector::FunctionDraftKeyV1,
-            String,
-            usize,
-        ),
-    ) -> Result<InvocationBranded<CollectedDraftAdmissionReceiptV1>, ModuleLoweringPortChildErrorV1>
-    {
-        pending.complete_before_restore(|draft| {
-            let prepared = self
-                .prepare_draft_admission(
-                    key,
-                    symbol,
-                    arity,
-                    DraftPublicationPolicyV1::LegacyReplaceWholePair,
-                )
-                .map_err(ModuleLoweringPortChildErrorV1::Admission)?;
-            prepared
-                .seal(draft)
-                .map_err(ModuleLoweringPortChildErrorV1::Admission)?
-                .collect_branded()
-                .map_err(ModuleLoweringPortChildErrorV1::ReceiptBrand)
         })
     }
 }

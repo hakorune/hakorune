@@ -21,17 +21,7 @@ mod callable_batch_correspondence_test_support;
 #[cfg(test)]
 mod callable_catalog_cutover_tests;
 #[cfg(test)]
-mod canonical_bridge_fixture0_p0;
-#[cfg(test)]
-mod canonical_drain_manifest_p0;
-#[cfg(test)]
-mod canonical_finalization_p0;
-#[cfg(test)]
-mod canonical_physical_completion_p0;
-#[cfg(test)]
 mod capability_tests;
-#[cfg(test)]
-mod external_commit_p0;
 #[cfg(test)]
 mod finite_direct_call_tests;
 #[cfg(test)]
@@ -47,32 +37,20 @@ mod generic_g0_source_parent_tests;
 #[cfg(test)]
 mod legacy_candidate_session_tests;
 #[cfg(test)]
-mod module_postprocess_failure_p0;
-#[cfg(test)]
-mod module_postprocess_p0;
-#[cfg(test)]
 mod module_session_borrow_p0_tests;
 #[cfg(test)]
 mod operator_call_retirement_tests;
-#[cfg(test)]
-mod prod_activation_p0_r1;
-pub(in crate::mir) mod raw_root_environment_manifest;
-pub(in crate::mir) mod raw_root_plan0;
-pub(in crate::mir) mod raw_root_source_facts;
 #[cfg(test)]
 mod recursive_callable_module_activation_tests;
 #[cfg(test)]
 mod resolved_callable_module_tests;
 #[cfg(test)]
-mod source_bound_package_p0;
-#[cfg(test)]
 mod source_view_tests;
 #[cfg(test)]
 mod static_result_target_only_emission_tests;
-use crate::mir::builder::BuilderInvocationConfigV1;
 pub(in crate::mir) use lowering_input::LegacyModuleLoweringInputV1;
 pub use lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1};
-use module_session::CanonicalModuleLoweringSessionV1;
+use module_session::{CanonicalModuleLoweringSessionV1, InvocationIdentityIssuerV1};
 pub(in crate::mir) use normal_default_pipeline::published_backend_view;
 pub(crate) use normal_default_pipeline::{
     emit_lifecycle_physical_abi_json, PublishedLifecyclePhysicalAbiInputV1,
@@ -88,11 +66,6 @@ pub(crate) use normal_default_pipeline::{
 };
 pub use resolved_callable_module_input::{
     ResolvedCallableModuleLoweringInputV1, VerifiedResolvedCallableProgramV1,
-};
-use source_bound_package::{
-    CanonicalPhysicalInvocationV1, ExactCanonicalPreflightPlanV1, InvocationIdentityIssuerV1,
-    RejectedCanonicalPhysicalOpenV1, RejectedCanonicalSourceBindingV1,
-    SourceBoundCanonicalPackageV1,
 };
 
 /// Closed post-build schedule selected with the canonical lowering owner.
@@ -245,46 +218,6 @@ impl MirCompiler {
             optimize,
             invocation_identity: InvocationIdentityIssuerV1::new(),
         }
-    }
-
-    /// SOURCE-BIND0 sole constructor.  The exact canonical plan is the only
-    /// source authority; identity is minted only after its continuation has
-    /// been sealed.  LOWER0 is the only future package consumer.
-    pub(in crate::mir) fn bind_canonical_source<'a>(
-        &mut self,
-        plan: ExactCanonicalPreflightPlanV1<'a>,
-    ) -> Result<SourceBoundCanonicalPackageV1<'a>, RejectedCanonicalSourceBindingV1<'a>> {
-        SourceBoundCanonicalPackageV1::bind(&mut self.invocation_identity, plan)
-    }
-
-
-
-    /// OWNER0's compiler-owned physical bridge.  The package is consumed only
-    /// after one real session, shell, and collector have opened from its token.
-    pub(in crate::mir) fn begin_canonical_invocation<'a>(
-        &mut self,
-        package: SourceBoundCanonicalPackageV1<'a>,
-        source_file: Option<&str>,
-        module_name: String,
-    ) -> Result<CanonicalPhysicalInvocationV1<'a>, RejectedCanonicalPhysicalOpenV1<'a>> {
-        let config = crate::mir::builder::BuilderInvocationConfigV1::snapshot_for_canonical(
-            &self.builder,
-            source_file,
-        );
-        self.begin_canonical_invocation_with_config(package, config, module_name)
-    }
-
-    /// Open the physical owner with the config already captured by its
-    /// preflight ingress. Selected first-family routes use this handoff so
-    /// policy, imports, plugin signatures, and debug settings cannot be
-    /// re-read between admission and lowering.
-    pub(in crate::mir) fn begin_canonical_invocation_with_config<'a>(
-        &mut self,
-        package: SourceBoundCanonicalPackageV1<'a>,
-        config: BuilderInvocationConfigV1,
-        module_name: String,
-    ) -> Result<CanonicalPhysicalInvocationV1<'a>, RejectedCanonicalPhysicalOpenV1<'a>> {
-        package.open_physical(&self.builder, config, module_name)
     }
 
     /// Phase 288 P2: Set REPL mode flag

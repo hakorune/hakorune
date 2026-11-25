@@ -5,7 +5,6 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="joinir-nested-resolved-fallback-guard"
 COMPILER_DIR="$ROOT_DIR/src/mir/compiler"
 COMPILER_MOD="$COMPILER_DIR/mod.rs"
-SOURCE_BOUND="$COMPILER_DIR/source_bound_package.rs"
 
 fail() {
   printf '[%s] ERROR: %s\n' "$TAG" "$1" >&2
@@ -17,7 +16,6 @@ require_file() {
 }
 
 require_file "$COMPILER_MOD"
-require_file "$SOURCE_BOUND"
 
 for forbidden in \
   'route_loop(' \
@@ -30,7 +28,7 @@ do
   fi
 done
 
-for path in "$COMPILER_MOD" "$SOURCE_BOUND"; do
+for path in "$COMPILER_MOD"; do
   lines="$(wc -l < "$path" | tr -d '[:space:]')"
   (( lines < 800 )) || fail "800-line boundary exceeded: ${path#"$ROOT_DIR/"}=$lines"
 done

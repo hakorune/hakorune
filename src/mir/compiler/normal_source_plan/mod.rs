@@ -6,9 +6,11 @@
 mod classifier;
 mod compatibility_origin;
 mod inventory;
+#[cfg(test)]
 mod main_function_plan;
 mod main_resolved_source;
 mod main_source;
+#[cfg(test)]
 mod main_thunk_plan;
 mod parser_bound_policy;
 mod product;
@@ -20,6 +22,7 @@ pub(crate) use classifier::NormalSourcePlanClassifierV1;
 pub(crate) use compatibility_origin::{
     NormalCallableCompatibilityOriginErrorV1, NormalCallableCompatibilityOriginV1,
 };
+#[cfg(test)]
 pub(crate) use main_function_plan::{NormalMainFunctionPlanErrorV1, NormalMainFunctionPreflightV1};
 pub(crate) use main_resolved_source::{
     NormalMainResolvedSourceErrorV1, VerifiedNormalMainResolvedSourceUnitV1,
@@ -28,6 +31,7 @@ pub(crate) use main_resolved_source::{
 pub(crate) use main_source::{
     NormalMainFunctionSourceErrorV1, VerifiedNormalMainFunctionSourceUnitV1,
 };
+#[cfg(test)]
 pub(crate) use main_thunk_plan::{
     NormalMainThunkPlanErrorV1,
     VerifiedNormalMainEntryRelationV1, VerifiedNormalMainPhysicalRelationV1,

@@ -446,7 +446,6 @@ expected_resolved_module_users = [
     "src/mir/compiler/callable_batch_correspondence_test_support.rs",
     "src/mir/compiler/normal_source_plan/normal_acyclic_module_plan.rs",
     "src/mir/compiler/normal_source_plan/normal_callable_transaction_handoff.rs",
-    "src/mir/compiler/source_bound_package.rs",
 ]
 for path in (root / "src").rglob("*.rs"):
     if path in {

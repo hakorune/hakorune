@@ -67,17 +67,6 @@ def main() -> int:
         raise AssertionError("retired disconnected receipt bridge returned")
     if "mod module_compat_raw_ledger_p0;" in (SRC.parent / "builder.rs").read_text():
         raise AssertionError("retired receipt bridge registration returned")
-    callable_main = (SRC / "raw_root_physical/callable_main_terminal.rs").read_text()
-    for fragment in (
-        "fn complete_callable_main(",
-        "RawExpansionDraftRequestV1::callable_main_compatibility",
-        "ledger.abort(reservation",
-    ):
-        require(callable_main, fragment, "live callable-Main receipt owner")
-    for fragment in ("retry", "fallback"):
-        if fragment in callable_main:
-            raise AssertionError(f"live callable-Main owner must not contain {fragment}")
-
     policy_readers = [
         name for name, text in files.items() if "builder_build_static_main_entry()" in text
     ]
@@ -88,7 +77,7 @@ def main() -> int:
     require(card, "CUT0-S0-COMPAT0", "compatibility task row")
     require(card, "selected callable-Main typed failures", "compatibility acceptance")
 
-    print("[cut0-s0-compat-guard] ok policy=sealed duplicate_main=preflight receipt=abort-proof")
+    print("[cut0-s0-compat-guard] ok policy=sealed duplicate_main=preflight")
     return 0
 
 

@@ -18,9 +18,6 @@ BRAND_CHAIN = ROOT / "src/mir/builder/module_invocation_owner_chain.rs"
 BUILDER = ROOT / "src/mir/builder.rs"
 SESSION = ROOT / "src/mir/builder/module_invocation_session.rs"
 SESSION_FIXTURE = ROOT / "src/mir/builder/module_invocation_session_p0.rs"
-LEDGER = ROOT / "src/mir/builder/raw_expansion_receipt_ledger.rs"
-ACTIVE = ROOT / "src/mir/builder/module_invocation_brand0.rs"
-BRAND_FIXTURE = ROOT / "src/mir/builder/module_invocation_brand_p0.rs"
 SRC = ROOT / "src"
 ALLOWED = {
     IDENTITY.relative_to(ROOT),
@@ -29,9 +26,6 @@ ALLOWED = {
     BUILDER.relative_to(ROOT),
     SESSION.relative_to(ROOT),
     SESSION_FIXTURE.relative_to(ROOT),
-    LEDGER.relative_to(ROOT),
-    ACTIVE.relative_to(ROOT),
-    BRAND_FIXTURE.relative_to(ROOT),
 }
 
 

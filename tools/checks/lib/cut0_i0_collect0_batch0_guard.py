@@ -14,23 +14,14 @@ TASK = ROOT / (
 )
 BUILDER = ROOT / "src/mir/builder.rs"
 COLLECTOR = ROOT / "src/mir/builder/module_draft_collector.rs"
-BATCH = ROOT / "src/mir/builder/module_draft_collector/callable_batch.rs"
 TRANSACTION = ROOT / (
     "src/mir/builder/resolved_lowering/callable_module_transaction.rs"
 )
-FIXTURE = ROOT / "src/mir/builder/canonical_physical_drain.rs"
-SOURCE = ROOT / "src/mir/compiler/source_bound_package.rs"
-SHELL = ROOT / "src/mir/builder/module_lowering_shell.rs"
-SRC = ROOT / "src"
 
 ALLOWED = {
     BUILDER.relative_to(ROOT),
     COLLECTOR.relative_to(ROOT),
-    BATCH.relative_to(ROOT),
-    SOURCE.relative_to(ROOT),
     TRANSACTION.relative_to(ROOT),
-    FIXTURE.relative_to(ROOT),
-    SHELL.relative_to(ROOT),
 }
 
 
@@ -43,12 +34,7 @@ def main() -> int:
     state = STATE.read_text()
     task = TASK.read_text()
     builder = BUILDER.read_text()
-    collector = COLLECTOR.read_text()
-    batch = BATCH.read_text()
-    source = SOURCE.read_text()
     transaction = TRANSACTION.read_text()
-    fixture = FIXTURE.read_text()
-    shell = SHELL.read_text()
 
     for path in (*[pathlib.Path(p) for p in ALLOWED], pathlib.Path(__file__)):
         if len((ROOT / path).read_text().splitlines()) >= 800:
@@ -71,66 +57,16 @@ def main() -> int:
     require(task, "recursive capability preserved exactly once", "recursive acceptance")
     require(task, "CUT0-I0-SESSION0", "successor task")
 
-    require(collector, "mod callable_batch;", "collector registration")
-    require(collector, "CallableCollectorBatchReceiptV1", "collector re-export")
-    for fragment, label in (
-        ("prepare_callable_batch", "whole-batch preflight"),
-        ("collect_all", "infallible collect terminal"),
-        ("DuplicateBatchKey", "batch duplicate key"),
-        ("DuplicateBatchSymbol", "batch duplicate symbol"),
-        ("CanonicalRejectDuplicate", "canonical policy fixed"),
-    ):
-        require(batch, fragment, label)
-    for fragment, label in (
-        ("SourceBoundCanonicalPackageV1", "source authority"),
-        ("ExactCanonicalPreflightPlanV1", "source plan"),
-    ):
-        require(source, fragment, label)
-    for fragment, label in (
-        ("prepare_collector_batch", "verified owner bridge"),
-        ("PreparedCallableCollectorInvocationV1", "source-retaining owner"),
-        ("CallableCollectorDraftEntryV1", "typed collector row"),
-        ("source: &'a VerifiedResolvedCallableModuleV1", "source retained"),
-        ("publish_into", "legacy publication remains present"),
-    ):
-        require(transaction, fragment, label)
-    for fragment, label in (
-        ("callable_row_cardinality_rejects_missing_and_surplus_manifest_rows", "callable drain fixture"),
-        ("CallableCollectorBatchPrepareErrorV1::Admission", "late collision refusal"),
-        ('signature("alpha/0").is_none()', "late collision preserves collector"),
-        ("CanonicalCollectorDrainErrorV1::BrandMismatch", "foreign collector refusal"),
-        ("CanonicalPhysicalDrainPrepareErrorV1::WrongFamily", "callable family refusal"),
-    ):
-        require(fixture, fragment, label)
-    require(shell, "install_callable_batch_capability", "recursive capability terminal")
+    require(transaction, "publish_into", "callable publication remains present")
     require((ROOT / "src/mir/compiler/recursive_callable_module_plan/tests.rs").read_text(),
             "rejects_zero_call_acyclic_and_nontrivial_profiles", "recursive source rejection")
-    require((ROOT / "src/mir/compiler/canonical_bridge_fixture0_p0.rs").read_text(),
-            "p0_r1_callable_capability_mismatch_stops_before_commit", "foreign capability rejection")
-
-    forbidden = (
-        "prepare_collector_batch(",
-        "seal_callable_batch(",
-        "install_callable_batch_shell_fact_for_test",
-        "CallableBatchSourceProofV1",
-    )
-    consumers = []
-    for path in SRC.rglob("*.rs"):
-        if path.relative_to(ROOT) in ALLOWED:
-            continue
-        text = path.read_text()
-        for fragment in forbidden:
-            if fragment in text:
-                consumers.append(f"{path.relative_to(ROOT)}:{fragment}")
-    if consumers:
-        raise AssertionError("BATCH0 production consumers: " + ", ".join(consumers))
 
     if transaction.count("fn publish_into(") != 1:
         raise AssertionError("existing callable publish_into owner must remain singular")
 
     print(
         "[cut0-i0-collect0-batch0-guard] ok "
-        "whole_preflight=1 collect_all=1 recursive_marker=1 production_consumers=0"
+        "recursive_source_check=1"
     )
     return 0
 

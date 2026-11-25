@@ -2562,22 +2562,6 @@
     },
     {
       "evidence": "value: ConstValue::Void,",
-      "evidence_id": "src/mir/builder/raw_root_body_exit.rs:275:ConstValue::Void",
-      "evidence_kind": "mir_constant_carrier",
-      "line": 275,
-      "source_path": "src/mir/builder/raw_root_body_exit.rs",
-      "token": "ConstValue::Void"
-    },
-    {
-      "evidence": "value: ConstValue::Void",
-      "evidence_id": "src/mir/builder/raw_root_body_exit.rs:592:ConstValue::Void",
-      "evidence_kind": "mir_constant_carrier",
-      "line": 592,
-      "source_path": "src/mir/builder/raw_root_body_exit.rs",
-      "token": "ConstValue::Void"
-    },
-    {
-      "evidence": "value: ConstValue::Void,",
       "evidence_id": "src/mir/builder/resolved_lowering/draft_seal/exit_projection.rs:168:ConstValue::Void",
       "evidence_kind": "mir_constant_carrier",
       "line": 168,
@@ -2631,22 +2615,6 @@
       "line": 235,
       "source_path": "src/mir/builder/resolved_lowering/void_tests.rs",
       "token": "VMValue::Void"
-    },
-    {
-      "evidence": "value: ConstValue::Void,",
-      "evidence_id": "src/mir/builder/script_physical_exit/exit.rs:262:ConstValue::Void",
-      "evidence_kind": "mir_constant_carrier",
-      "line": 262,
-      "source_path": "src/mir/builder/script_physical_exit/exit.rs",
-      "token": "ConstValue::Void"
-    },
-    {
-      "evidence": "value: ConstValue::Void,",
-      "evidence_id": "src/mir/builder/script_physical_exit/tests.rs:281:ConstValue::Void",
-      "evidence_kind": "mir_constant_carrier",
-      "line": 281,
-      "source_path": "src/mir/builder/script_physical_exit/tests.rs",
-      "token": "ConstValue::Void"
     },
     {
       "evidence": "value: ConstValue::Void,",
@@ -5557,11 +5525,7 @@
         "src/mir/builder/ordinary_new_admission/selected/owned_array.rs:234:ConstValue::Null",
         "src/mir/builder/ordinary_new_admission/selected/terminal_call/lexical_i64.rs:603:ConstValue::Null",
         "src/mir/builder/port_aware_function_draft_impl/implicit_end.rs:55:ConstValue::Void",
-        "src/mir/builder/raw_root_body_exit.rs:275:ConstValue::Void",
-        "src/mir/builder/raw_root_body_exit.rs:592:ConstValue::Void",
         "src/mir/builder/resolved_lowering/draft_seal/exit_projection.rs:168:ConstValue::Void",
-        "src/mir/builder/script_physical_exit/exit.rs:262:ConstValue::Void",
-        "src/mir/builder/script_physical_exit/tests.rs:281:ConstValue::Void",
         "src/mir/compiler/normal_default_pipeline/published_backend_view/compiled_entry_contract/borrowed_call_uses.rs:124:ConstValue::Null",
         "src/mir/compiler/normal_default_pipeline/published_backend_view/compiled_entry_contract/borrowed_call_uses.rs:530:ConstValue::Null",
         "src/mir/compiler/normal_default_pipeline/published_backend_view/compiled_entry_contract/borrowed_call_uses_array_set.rs:146:ConstValue::Null",
@@ -5677,11 +5641,7 @@
         "src/mir/builder/emission/constant_type.rs:91:ConstValue::Void",
         "src/mir/builder/normal_main_arguments.rs:128:ConstValue::Void",
         "src/mir/builder/port_aware_function_draft_impl/implicit_end.rs:55:ConstValue::Void",
-        "src/mir/builder/raw_root_body_exit.rs:275:ConstValue::Void",
-        "src/mir/builder/raw_root_body_exit.rs:592:ConstValue::Void",
         "src/mir/builder/resolved_lowering/draft_seal/exit_projection.rs:168:ConstValue::Void",
-        "src/mir/builder/script_physical_exit/exit.rs:262:ConstValue::Void",
-        "src/mir/builder/script_physical_exit/tests.rs:281:ConstValue::Void",
         "src/mir/compiler/normal_default_pipeline/published_backend_view/map_projection.rs:26:ConstValue::Void",
         "src/mir/compiler/normal_default_pipeline/published_backend_view/physical_program.rs:613:ConstValue::Void",
         "src/mir/compiler/normal_default_pipeline/published_backend_view/physical_program.rs:648:ConstValue::Void",

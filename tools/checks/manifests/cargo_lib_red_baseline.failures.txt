@@ -35,9 +35,6 @@ mir::builder::stmts::variable_assignment_completion::tests::receipt_retains_the_
 mir::builder::types::annotation::tests::corebox_surface_aliases_use_catalog_return_type
 mir::callable_parameter_contract::tests::declared_box_names_project_as_handle_not_opaque_or_exact
 mir::compiler::callable_catalog_cutover_tests::ambiguous_rejection_does_not_poison_following_catalog_session
-mir::compiler::canonical_bridge_fixture0_p0::canonical_bridge_fixture0_four_route_aggregate
-mir::compiler::canonical_bridge_fixture0_p0::p0_r1_canonical_four_route_real_authority_chain
-mir::compiler::canonical_physical_completion_p0::compiler_bridge_drains_a_plus_single_route
 mir::compiler::loop_candidate_abort_p0::loop_effect_then_later_failure_discards_candidate_and_reuses_live_compiler
 mir::compiler::normal_default_pipeline::tests::published_consumer_runs_once_and_propagates_failure_without_retry
 mir::compiler::normal_source_plan::main_function_plan::tests::main_f1_rejects_direct_call_and_nested_owner_before_lowering

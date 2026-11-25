@@ -4,23 +4,25 @@
 //! `CompilationContext`. It owns one unpublished-draft collector and
 //! lends only a short-lived, read-only header port to an explicit lowering closure.
 
+#[cfg(test)]
+use super::calls::LegacyFunctionPendingSessionV1;
 use super::calls::{
-    CanonicalFunctionSessionErrorV1, LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1,
+    CanonicalFunctionSessionErrorV1, PendingFunctionSessionCloseV1,
 };
 use super::function_signature_lookup::FunctionSignatureLookupV1;
+#[cfg(test)]
+use super::module_draft_collector::CollectorReceiptBrandErrorV1;
 use super::module_draft_collector::{
-    CollectorReceiptBrandErrorV1, CompletedDraftSignatureViewV1, ModuleDraftCollectorV1,
+    CompletedDraftSignatureViewV1, DraftPublicationPolicyV1, FunctionDraftKeyV1,
+    ModuleDraftAdmissionErrorV1, ModuleDraftCollectorV1, PreparedFunctionDraftAdmissionV1,
 };
-use super::module_draft_collector::{
-    DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftAdmissionErrorV1,
-    PreparedFunctionDraftAdmissionV1,
-};
-use super::module_lowering_invocation_access::ModuleLoweringInvocationAccessPortV1;
-use super::module_lowering_shell::ModuleLoweringShellV1;
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
+#[cfg(test)]
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
-use crate::mir::{FunctionSignature, MirBuilder, MirFunction};
+use crate::mir::FunctionSignature;
+#[cfg(test)]
+use crate::mir::{MirBuilder, MirFunction};
 
 #[path = "module_lowering_invocation_resolved_loan.rs"]
 mod resolved_loan;
@@ -141,7 +143,6 @@ impl LegacyChildDraftAdmissionV1 {
 pub(in crate::mir) enum ModuleLoweringPortChildErrorV1 {
     Session(CanonicalFunctionSessionErrorV1),
     Admission(ModuleDraftAdmissionErrorV1),
-    ReceiptBrand(CollectorReceiptBrandErrorV1),
     InstanceConstructorAbi(crate::mir::instance_constructor_abi::InstanceConstructorAbiErrorV1),
     PhysicalSignatureMismatch,
     PinnedTextBackendFrameContractMismatch,
@@ -162,7 +163,6 @@ impl std::fmt::Display for ModuleLoweringPortChildErrorV1 {
         match self {
             Self::Session(error) => error.fmt(formatter),
             Self::Admission(error) => error.fmt(formatter),
-            Self::ReceiptBrand(error) => error.fmt(formatter),
             Self::InstanceConstructorAbi(error) => write!(
                 formatter,
                 "[freeze:contract][mir/instance-constructor-abi/{error:?}]"
@@ -263,6 +263,7 @@ impl ModuleLoweringPortV1<'_> {
         }
     }
 
+    #[cfg(test)]
     /// Lend the invocation-owned collector brand for one non-escaping use.
     /// The collector is the sole source; an unbranded invocation cannot enter
     /// a brand-sensitive admission boundary.
@@ -318,6 +319,7 @@ impl ModuleLoweringPortV1<'_> {
     /// `capture -> prepare -> seal -> collect -> restore`.  No caller can
     /// supply a foreign prepared admission or observe the draft after parent
     /// restoration.
+    #[cfg(test)]
     pub(in crate::mir::builder) fn complete_resolved_child(
         &mut self,
         builder: &mut MirBuilder,
@@ -373,6 +375,7 @@ impl ModuleLoweringPortV1<'_> {
 
     /// Legacy counterpart to `capture_resolved_pending`; it owns no identity
     /// and cannot prepare or collect a draft.
+    #[cfg(test)]
     pub(in crate::mir::builder) fn capture_legacy_pending<'builder>(
         &self,
         builder: &'builder mut MirBuilder,
@@ -388,21 +391,14 @@ impl ModuleLoweringPortV1<'_> {
     }
 }
 
-/// The external owner of one module-lowering invocation.
-///
-/// It borrows the route's Builder and owns the invocation-local collector, but
-/// is never stored in either of them. The only public transition in S0 loans a
-/// read-only header capability. M0-T0 adds only one disconnected resolved
-/// child terminal; production collection remains an I0 responsibility.
+/// Own a collector while exercising the production port in isolation.
+#[cfg(test)]
 pub(in crate::mir::builder) struct ModuleLoweringInvocationV1<'builder> {
     builder: &'builder mut MirBuilder,
-    shell: ModuleLoweringShellV1,
     collector: ModuleDraftCollectorV1,
-    _seal: ModuleLoweringInvocationSealV1,
 }
 
-struct ModuleLoweringInvocationSealV1;
-
+#[cfg(test)]
 impl<'builder> ModuleLoweringInvocationV1<'builder> {
     pub(in crate::mir::builder) fn open(builder: &'builder mut MirBuilder) -> Self {
         Self::with_collector(builder, ModuleDraftCollectorV1::default())
@@ -416,24 +412,7 @@ impl<'builder> ModuleLoweringInvocationV1<'builder> {
         builder: &'builder mut MirBuilder,
         collector: ModuleDraftCollectorV1,
     ) -> Self {
-        let shell = ModuleLoweringShellV1::from_empty_module(super::MirModule::new(
-            "disconnected-invocation".to_owned(),
-        ))
-        .expect("empty disconnected invocation shell");
-        Self::with_shell_collector(builder, shell, collector)
-    }
-
-    pub(in crate::mir::builder) fn with_shell_collector(
-        builder: &'builder mut MirBuilder,
-        shell: ModuleLoweringShellV1,
-        collector: ModuleDraftCollectorV1,
-    ) -> Self {
-        Self {
-            builder,
-            shell,
-            collector,
-            _seal: ModuleLoweringInvocationSealV1,
-        }
+        Self { builder, collector }
     }
 
     /// Lend one stack-owned lowering port to an explicit recursive descent.
@@ -451,21 +430,6 @@ impl<'builder> ModuleLoweringInvocationV1<'builder> {
             _seal: ModuleLoweringPortSealV1,
         };
         lower(builder, &mut port)
-    }
-
-    /// Lend one short-lived shell/header bundle for wiring-only construction.
-    /// Production roots remain disconnected until the all-route I0 cutover.
-    pub(in crate::mir::builder) fn with_access_port<R>(
-        &mut self,
-        lower: impl for<'shell, 'collector> FnOnce(
-            &mut MirBuilder,
-            &mut ModuleLoweringInvocationAccessPortV1<'shell, 'collector>,
-        ) -> R,
-    ) -> R {
-        let builder = &mut *self.builder;
-        let (shell, collector) = (&mut self.shell, &mut self.collector);
-        let mut access = ModuleLoweringInvocationAccessPortV1::new(shell, collector);
-        lower(builder, &mut access)
     }
 
     /// Lend the same-owned collector header view to one explicit lowering step.
@@ -493,10 +457,6 @@ impl<'builder> ModuleLoweringInvocationV1<'builder> {
     ) -> Result<PreparedFunctionDraftAdmissionV1<'_>, ModuleDraftAdmissionErrorV1> {
         self.collector
             .prepare_admission(key, expected_symbol, expected_arity, policy)
-    }
-
-    pub(in crate::mir::builder) fn into_parts(self) -> (ModuleLoweringShellV1, ModuleDraftCollectorV1) {
-        (self.shell, self.collector)
     }
 }
 
@@ -605,7 +565,6 @@ mod tests {
     fn fresh_invocation_exposes_the_same_empty_prefix_as_a_new_module() {
         let mut builder = MirBuilder::new();
         let mut invocation = ModuleLoweringInvocationV1::open(&mut builder);
-        assert!(!invocation.shell.has_published_functions());
         assert_eq!(invocation.collector.symbol_count(), 0);
 
         invocation.with_header_port(|_builder, headers| {

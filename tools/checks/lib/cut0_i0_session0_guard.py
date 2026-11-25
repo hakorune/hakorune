@@ -26,8 +26,6 @@ ALLOWED = {
     CORE.relative_to(ROOT),
     VALUE.relative_to(ROOT),
     BLOCK.relative_to(ROOT),
-    pathlib.Path("src/mir/builder/module_invocation_brand0.rs"),
-    pathlib.Path("src/mir/builder/module_invocation_brand_p0.rs"),
     pathlib.Path(__file__).relative_to(ROOT),
 }
 

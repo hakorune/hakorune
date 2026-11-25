@@ -19,35 +19,16 @@ from headerport_method_tail_compat_guard import verify_method_tail_compat
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 MAIN_EXPANSION = ROOT / "src/mir/builder/main_expansion.rs"
-ROOT_BODY = ROOT / "src/mir/builder/root_body_completion.rs"
-ROOT_BODY_P0 = ROOT / "src/mir/builder/root_body_completion_p0.rs"
-MAIN_PENDING = ROOT / "src/mir/builder/main_pending_draft.rs"
-MAIN_PENDING_P0 = ROOT / "src/mir/builder/main_pending_draft_p0.rs"
-ROOT_BATCH = ROOT / "src/mir/builder/root_draft_batch.rs"
-ROOT_BATCH_P0 = ROOT / "src/mir/builder/root_draft_batch_p0.rs"
 ACCESS_IMPL = ROOT / "src/mir/builder/module_lowering_invocation.rs"
-ACCESS_LIVE = ROOT / "src/mir/builder/module_lowering_invocation_access.rs"
-ACCESS_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_access_tests.rs"
-ROUTE_POLICY = ROOT / "src/mir/module_invocation_policy.rs"
 ROUTE_MATRIX_P0E = ROOT / "src/mir/builder/module_wiring_route_matrix_p0e.rs"
 COLLECTOR = ROOT / "src/mir/builder/module_draft_collector.rs"
 COLLECTOR_RECEIPT = ROOT / "src/mir/builder/module_draft_collector/receipt.rs"
 COLLECTOR_RECEIPT_TESTS = ROOT / "src/mir/builder/module_draft_collector_receipt_tests.rs"
 COLLECTOR_RECEIPT_P0 = ROOT / "src/mir/builder/module_draft_collector_receipt_p0.rs"
-RAW_LEDGER = ROOT / "src/mir/builder/raw_expansion_receipt_ledger.rs"
-RAW_LEDGER_P0 = ROOT / "src/mir/builder/raw_expansion_receipt_ledger_p0.rs"
-RAW_LEDGER_TESTS = ROOT / "src/mir/builder/raw_expansion_receipt_ledger_tests.rs"
-SHELL_FACTS = ROOT / "src/mir/builder/module_declaration_facts.rs"
-SHELL_FACTS_P0 = ROOT / "src/mir/builder/module_declaration_facts_p0.rs"
 DRAINED_CANDIDATE = ROOT / "src/mir/builder/drained_module_candidate.rs"
 DRAINED_CANDIDATE_P0 = ROOT / "src/mir/builder/drained_module_candidate_p0.rs"
 MODULE_FINAL_CANDIDATE_P0 = ROOT / "src/mir/builder/module_finalization_candidate_p0.rs"
-MODULE_INVOCATION_DRAIN = ROOT / "src/mir/builder/module_invocation_drain.rs"
 MODULE_INVOCATION_DRAIN_S0_TESTS = ROOT / "src/mir/builder/module_invocation_drain_s0_tests.rs"
-ROOT_BATCH_COMMIT = ROOT / "src/mir/builder/module_draft_collector/root_batch.rs"
-ROOT_BATCH_COMMIT_P0 = ROOT / "src/mir/builder/root_draft_batch_commit_p0.rs"
-DECL_FACT_COMMIT = ROOT / "src/mir/builder/module_lowering_shell/declaration_fact_commit.rs"
-DECL_FACT_COMMIT_P0 = ROOT / "src/mir/builder/module_declaration_fact_shell_commit_p0.rs"
 BUILDER_MOD = ROOT / "src/mir/builder.rs"
 CARD = ROOT / (
     "docs/development/current/main/investigations/"
@@ -68,21 +49,11 @@ def forbid(text: str, fragment: str, label: str) -> None:
 
 def main() -> int:
     main_expansion = MAIN_EXPANSION.read_text()
-    root_body = ROOT_BODY.read_text()
-    root_body_p0 = ROOT_BODY_P0.read_text()
-    main_pending = MAIN_PENDING.read_text()
-    main_pending_p0 = MAIN_PENDING_P0.read_text()
-    root_batch = ROOT_BATCH.read_text()
-    root_batch_p0 = ROOT_BATCH_P0.read_text()
     access_impl = ACCESS_IMPL.read_text()
-    access_live = ACCESS_LIVE.read_text()
-    route_policy = ROUTE_POLICY.read_text()
     collector = COLLECTOR.read_text()
     collector_receipt = COLLECTOR_RECEIPT.read_text()
     collector_receipt_tests = COLLECTOR_RECEIPT_TESTS.read_text()
     collector_receipt_p0 = COLLECTOR_RECEIPT_P0.read_text()
-    shell_facts = SHELL_FACTS.read_text()
-    shell_facts_p0 = SHELL_FACTS_P0.read_text()
     module_final_candidate_p0 = MODULE_FINAL_CANDIDATE_P0.read_text()
     builder_mod = BUILDER_MOD.read_text()
     if "mod module_lowering_access_port" in builder_mod:
@@ -92,20 +63,6 @@ def main() -> int:
 
     if len(main_expansion.splitlines()) >= 800:
         raise AssertionError("MAINROLE0-S0 source must remain below 800 lines")
-    if len(root_body.splitlines()) >= 800:
-        raise AssertionError("BODYDRAIN0-S0 source must remain below 800 lines")
-    if len(root_body_p0.splitlines()) >= 800:
-        raise AssertionError("BODYDRAIN0-P0 fixture source must remain below 800 lines")
-    if len(main_pending.splitlines()) >= 800:
-        raise AssertionError("MAINPENDING0-S0 source must remain below 800 lines")
-    if len(main_pending_p0.splitlines()) >= 800:
-        raise AssertionError("MAINPENDING0-P0 fixture source must remain below 800 lines")
-    if len(root_batch.splitlines()) >= 800:
-        raise AssertionError("ROOTBATCH0-S0 source must remain below 800 lines")
-    if len(root_batch_p0.splitlines()) >= 800:
-        raise AssertionError("ROOTBATCH0-P0 fixture source must remain below 800 lines")
-    if len(route_policy.splitlines()) >= 800:
-        raise AssertionError("invocation policy source must remain below 800 lines")
     if len(collector.splitlines()) >= 800:
         raise AssertionError("MODULEDRAFT0 collector source must remain below 800 lines")
     if len(collector_receipt.splitlines()) >= 800:
@@ -114,10 +71,6 @@ def main() -> int:
         raise AssertionError("ROUTEINV-P0a receipt fixtures must remain below 800 lines")
     if len(collector_receipt_p0.splitlines()) >= 800:
         raise AssertionError("ROUTEINV-P0a receipt P0 proof must remain below 800 lines")
-    if len(shell_facts.splitlines()) >= 800:
-        raise AssertionError("SHELLFACT0-S0 source must remain below 800 lines")
-    if len(shell_facts_p0.splitlines()) >= 800:
-        raise AssertionError("SHELLFACT0-P0 fixture source must remain below 800 lines")
     if len(module_final_candidate_p0.splitlines()) >= 800:
         raise AssertionError("MODULEFINAL0-CANDIDATE0-P0 source must remain below 800 lines")
 
@@ -134,78 +87,16 @@ def main() -> int:
     ):
         require(main_expansion, fragment, "MAINROLE0-S0/P0 source product/fixtures")
 
-    for fragment in (
-        "CompletedRootBodyV1",
-        "RootBodyCompletionTrackerV1",
-        "RootBodyActivityTokenV1",
-        "RootBodyResultV1",
-        "OpenChildScopes",
-        "OpenHeaderLoans",
-        "OpenPendingTerminals",
-        "nested_activity_closes_before_value_witness",
-        "foreign_and_mismatched_tokens_fail_closed",
-    ):
-        require(root_body, fragment, "BODYDRAIN0-S0 source product/fixtures")
-    for fragment in (
-        "nested_children_close_inner_before_outer",
-        "header_and_pending_tokens_close_before_root_completion",
-        "each_open_activity_has_a_distinct_fail_fast_disposition",
-        "failed_completion_consumes_the_tracker_without_a_witness",
-    ):
-        require(root_body_p0, fragment, "BODYDRAIN0-P0 closure/failure fixtures")
 
-    for fragment in (
-        "PendingMainDraftV1",
-        "MainCompletionRequestV1",
-        "MainHeaderLoanV1",
-        "MainHeaderSourceV1",
-        "finish_consumes_short_header_loan_without_storing_it",
-        "foreign_symbol_or_arity_is_rejected_before_pending_product",
-    ):
-        require(main_pending, fragment, "MAINPENDING0-S0 source product/fixtures")
-    for fragment in (
-        "header_source_matrix_preserves_the_selected_route_without_fallback",
-        "root_value_and_no_value_dispositions_are_preserved",
-    ):
-        require(main_pending_p0, fragment, "MAINPENDING0-P0 parity fixtures")
 
-    for fragment in (
-        "PreparedRootDraftBatchV1",
-        "PendingConditionFnDraftV1",
-        "RootDraftAdmissionPlanV1",
-        "required_condition_fn_prepares_one_atomic_root_batch",
-        "optional_missing_and_forbidden_present_are_explicit",
-        "malformed_condition_fn_is_rejected_before_batch_product",
-    ):
-        require(root_batch, fragment, "ROOTBATCH0-S0 source product/fixtures")
-    for fragment in (
-        "condition_policy_matrix_has_one_primary_result",
-        "condition_identity_failures_are_typed_before_batch_creation",
-    ):
-        require(root_batch_p0, fragment, "ROOTBATCH0-P0 policy/failure fixtures")
 
     require(access_impl, "with_access_port", "WIRING-S0 live access bundle/fixture")
-    for fragment in (
-        "ModuleLoweringInvocationAccessPortV1",
-        "with_finalizer_headers",
-    ):
-        require(access_live, fragment, "WIRING-S0 live access bundle/fixture")
     require(
         ACCESS_TESTS.read_text(),
         "access_port_keeps_shell_metadata_and_headers_as_short_separate_loans",
         "WIRING-S0 live access fixture",
     )
 
-    for fragment in (
-        "ModuleInvocationPolicyV1",
-        "InvocationInventoryAuthorityV1",
-        "InvocationRootPolicyV1",
-        "InvocationConditionPolicyV1",
-        "RawExpansionReceipts",
-        "CanonicalResolvedOwner",
-        "CanonicalCallableCatalog",
-    ):
-        require(route_policy, fragment, "invocation policy")
     for fragment in (
         "CollectedDraftAdmissionReceiptV1",
         "CollectedDraftReplacementDispositionV1",
@@ -282,13 +173,6 @@ def main() -> int:
             COLLECTOR,
             COLLECTOR_RECEIPT,
             COLLECTOR_RECEIPT_TESTS,
-            RAW_LEDGER,
-            RAW_LEDGER_P0,
-            RAW_LEDGER_TESTS,
-            ROOT_BATCH_COMMIT,
-            ROOT_BATCH_COMMIT_P0,
-            DECL_FACT_COMMIT,
-            DECL_FACT_COMMIT_P0,
             ACCESS_IMPL,
             BUILDER_MOD,
         ):
@@ -312,7 +196,6 @@ def main() -> int:
             "src/mir/builder/resolved_lowering/mod.rs",
             "fn build_resolved_trivial_function_module",
         ),
-        ("src/mir/compiler/mod.rs", "fn bind_canonical_source"),
         (
             "src/mir/builder/resolved_lowering/callable_module_transaction.rs",
             "fn lower_acyclic_callable_drafts",
@@ -331,27 +214,6 @@ def main() -> int:
             fragment,
             f"WIRING-I0 source symbol {relative}",
         )
-    source_bound = (ROOT / "src/mir/compiler/source_bound_package.rs").read_text()
-    require(
-        source_bound,
-        "ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan) => {\n"
-        "                match builder.lower_acyclic_callable_drafts(plan)",
-        "source-bound acyclic variant and lowering",
-    )
-    inventory_struct = route_policy.split(
-        "pub(crate) struct ModuleInvocationPolicyV1", 1
-    )[1].split("impl ModuleInvocationPolicyV1", 1)[0]
-    for fragment in (
-        "MirBuilder",
-        "ModuleDraftCollectorV1",
-        "MirModule",
-        "MirFunction",
-        "ValueId",
-        "TypeContext",
-        "retry",
-    ):
-        forbid(inventory_struct, fragment, f"route inventory stores {fragment}")
-
     for relative, fragment in (
         ("src/mir/builder/module_lifecycle.rs", "lower_root"),
         ("src/mir/builder/decls.rs", "build_static_main_box"),
@@ -373,30 +235,8 @@ def main() -> int:
             f"WIRING-P0 source anchor {relative}",
         )
 
-    for fragment in (
-        "SealedModuleDeclarationFactsV1",
-        "user_box_field_decls",
-        "record_decls",
-        "enum_decls",
-        "declaration_snapshot_preserves_all_four_source_fact_lanes",
-        "btree_snapshot_order_is_independent_of_insertion_order",
-    ):
-        require(shell_facts, fragment, "SHELLFACT0-S0 source product/fixtures")
-    for fragment in (
-        "all_declaration_lanes_move_together_at_the_shell_boundary",
-        "empty_and_nonempty_lane_shapes_remain_explicit",
-    ):
-        require(shell_facts_p0, fragment, "SHELLFACT0-P0 lane/failure fixtures")
-    raw_drain = (ROOT / "src/mir/builder/module_draft_collector/drain.rs").read_text()
-    require(raw_drain, "retained_construction_rejects_all_alternative_drain_preflights", "live drain refusal fixture")
-    require(raw_drain, "DuplicateManifestKey", "duplicate key refusal")
-    require(raw_drain, "DuplicateManifestSymbol", "duplicate symbol refusal")
     normal_drain_tests = (ROOT / "src/mir/builder/module_draft_collector/normal_collector_drain_lifecycle_tests.rs").read_text()
     require(normal_drain_tests, "prepared_normal_drain_preserves_final_legacy_key_order_until_commit", "live drain order fixture")
-    raw_handoff = (ROOT / "src/mir/builder/raw_root_environment_install.rs").read_text()
-    facts_tests = (ROOT / "src/mir/builder/module_declaration_fact_shell_commit_p0.rs").read_text()
-    require(raw_handoff, "root_batch_terminal_consumes_body_owner_without_publishing_shell", "raw root witness fixture")
-    require(facts_tests, "prepared_shell_commit_moves_all_four_declaration_lanes_once", "declaration lane fixture")
     for fragment in (
         "ModuleFinalizationFailureStageV1",
         "ModuleFinalizationCandidateDispositionV1",
@@ -407,46 +247,15 @@ def main() -> int:
         "matrix_has_one_row_per_failure_owner",
     ):
         require(module_final_candidate_p0, fragment, "MODULEFINAL0-CANDIDATE0-P0 matrix")
-    facts_struct = shell_facts.split(
-        "pub(in crate::mir::builder) struct SealedModuleDeclarationFactsV1", 1
-    )[1].split("#[derive(Debug, Clone, Copy", 1)[0]
-    forbid(facts_struct, "MirBuilder", "declaration facts store Builder")
-    forbid(facts_struct, "ModuleDraftCollector", "declaration facts store collector")
-    forbid(facts_struct, "ASTNode", "declaration facts store AST body")
-    batch_struct = root_batch.split(
-        "pub(in crate::mir::builder) struct PreparedRootDraftBatchV1", 1
-    )[1].split("#[derive(Debug)]\nstruct PreparedRootDraftBatchSealV1", 1)[0]
-    forbid(batch_struct, "ModuleDraftCollector", "root batch stores collector")
-    forbid(batch_struct, "MirBuilder", "root batch stores Builder")
-    pending_struct = main_pending.split(
-        "pub(in crate::mir::builder) struct PendingMainDraftV1", 1
-    )[1].split("#[derive(Debug)]\nstruct PendingMainDraftSealV1", 1)[0]
-    forbid(pending_struct, "MainHeaderLoanV1", "pending draft stores header loan")
-    forbid(pending_struct, "MirBuilder", "pending draft stores Builder")
-    forbid(pending_struct, "ModuleDraftCollector", "pending draft stores collector")
 
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
         if path in (
             MAIN_EXPANSION,
-            ROOT_BODY,
-            ROOT_BODY_P0,
-            MAIN_PENDING,
-            MAIN_PENDING_P0,
-            ROOT_BATCH,
-            ROOT_BATCH_P0,
             ACCESS_IMPL,
-            ACCESS_LIVE,
             ROUTE_MATRIX_P0E,
-            SHELL_FACTS,
-            SHELL_FACTS_P0,
             DRAINED_CANDIDATE,
             DRAINED_CANDIDATE_P0,
             MODULE_FINAL_CANDIDATE_P0,
-            MODULE_INVOCATION_DRAIN,
-            ROOT_BATCH_COMMIT,
-            ROOT_BATCH_COMMIT_P0,
-            DECL_FACT_COMMIT,
-            DECL_FACT_COMMIT_P0,
             BUILDER_MOD,
         ) or path.name.endswith("_tests.rs"):
             continue
@@ -496,12 +305,6 @@ def main() -> int:
         "panic_backstop_restores_without_publishing",
     ):
         require(real_fault_tests, fragment, "live failure fixture")
-    require(builder_mod, "mod root_body_completion;", "BODYDRAIN0-S0 module registration")
-    require(builder_mod, "mod root_body_completion_p0;", "BODYDRAIN0-P0 fixture registration")
-    require(builder_mod, "mod main_pending_draft;", "MAINPENDING0-S0 module registration")
-    require(builder_mod, "mod main_pending_draft_p0;", "MAINPENDING0-P0 fixture registration")
-    require(builder_mod, "mod root_draft_batch;", "ROOTBATCH0-S0 module registration")
-    require(builder_mod, "mod root_draft_batch_p0;", "ROOTBATCH0-P0 fixture registration")
     require(
         builder_mod,
         "mod module_draft_collector_receipt_tests;",
@@ -512,13 +315,6 @@ def main() -> int:
         "mod module_draft_collector_receipt_p0;",
         "WIRING-I0-ROUTEINV-P0a-P0 registration",
     )
-    require(
-        builder_mod,
-        "mod module_lowering_invocation_access;",
-        "WIRING-S0 live access registration",
-    )
-    require(builder_mod, "mod module_declaration_facts;", "SHELLFACT0-S0 module registration")
-    require(builder_mod, "mod module_declaration_facts_p0;", "SHELLFACT0-P0 fixture registration")
     if "mod drained_module_candidate;" in builder_mod or "mod drained_module_candidate_p0;" in builder_mod:
         raise AssertionError("retired drain candidate must not re-enter")
     require(builder_mod, "mod module_finalization_candidate_p0;", "MODULEFINAL0-CANDIDATE0-P0 registration")
@@ -556,7 +352,6 @@ def main() -> int:
         for path in (ROOT / "src/mir/builder").rglob("*.rs"):
             if path in (
                 ACCESS_IMPL,
-                ACCESS_LIVE,
                 BUILDER_MOD,
             ):
                 continue
@@ -609,7 +404,6 @@ def main() -> int:
 
     print(
         "[headerport-candidate0-guard] ok disconnected=1 "
-        f"route_policy_lines={len(route_policy.splitlines())} "
         "production_consumers=0"
     )
     return 0

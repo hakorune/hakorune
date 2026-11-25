@@ -194,11 +194,6 @@ impl FunctionLoweringStateV1 {
         self.write_neutral_transient_control_vector_v1();
     }
 
-    pub(super) fn close_raw_root_transient_control_v1(&mut self) {
-        debug_assert!(self.current_function.is_none());
-        debug_assert!(self.current_block.is_none());
-        self.write_neutral_transient_control_vector_v1();
-    }
 
     fn write_neutral_transient_control_vector_v1(&mut self) {
         self.protected_region = ProtectedRegionTransientStateV1::default();

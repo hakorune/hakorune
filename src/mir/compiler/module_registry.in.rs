@@ -21,9 +21,6 @@ pub(crate) mod callable_single_loop_source_shapes;
 #[path = "callable_single_loop_static_fixture_tests.rs"]
 pub(crate) mod callable_single_loop_static_fixture_tests;
 pub(crate) mod callable_single_loop_syntax_facts;
-mod canonical_drain_manifest;
-pub(in crate::mir) mod canonical_finalization;
-pub(in crate::mir) mod canonical_physical_completion;
 pub(crate) mod canonical_source_identity;
 pub(in crate::mir) mod capability;
 #[cfg(test)]
@@ -33,7 +30,6 @@ pub(in crate::mir) mod dynamic_full_body_recipe;
 pub(in crate::mir) mod dynamic_full_body_source;
 #[cfg(test)]
 mod dynamic_full_body_source_tests;
-pub(in crate::mir) mod external_commit;
 pub(in crate::mir) mod function_input;
 pub(in crate::mir) mod generic_g0_capability;
 pub(in crate::mir) mod generic_g0_completion;
@@ -85,8 +81,6 @@ pub(crate) mod loop_physical_prepare;
 pub(crate) mod loop_true_break_continue_observation;
 pub(in crate::mir) mod loop_true_break_continue_projection;
 mod lowering_input;
-pub(in crate::mir) mod module_postprocess;
-pub(in crate::mir) mod module_postprocess_stages;
 mod module_session;
 #[cfg(test)]
 pub(in crate::mir) mod nested_predicate_effect_plan;
@@ -120,15 +114,10 @@ mod nested_predicate_effect_plan_tests;
 mod nested_predicate_projection_tests;
 mod normal_default_pipeline;
 pub(crate) mod normal_source_plan;
-pub(in crate::mir) mod publication_kernel;
-pub(in crate::mir) mod raw_runtime_inputs;
 pub(in crate::mir) mod recursive_callable_module_plan;
 pub(in crate::mir) mod resolved_callable_module;
 mod resolved_callable_module_input;
 pub(in crate::mir) mod selected_dynamic_w6_activation;
-pub(in crate::mir) mod source_bound_package;
-pub(in crate::mir) mod source_bound_package_generic_g0;
-pub(in crate::mir) mod source_bound_plan;
 pub(in crate::mir) mod source_projection;
 pub(in crate::mir) mod source_view;
 pub(crate) mod target_capability;

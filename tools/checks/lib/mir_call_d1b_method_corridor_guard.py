@@ -465,7 +465,6 @@ def check_static_receipt_target_before_args_i0(
     production_rels = (
         Path("src/mir/builder/calls/script_direct_static_physical_bridge.rs"),
         Path("src/mir/builder/calls/static_result_publication_physical_bridge.rs"),
-        Path("src/mir/builder/script_physical_exit/direct_static_entry_kernel.rs"),
     )
     tests_rel = Path("src/mir/builder/calls/method_call_terminal_tests.rs")
     readme_rel = Path("src/mir/builder/calls/README.md")
