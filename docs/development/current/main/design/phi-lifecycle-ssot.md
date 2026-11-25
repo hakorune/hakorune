@@ -158,7 +158,7 @@ PHI のライフサイクル操作を “1つの入口” に集約する。
 
 検索対象（例）:
 
-- `insert_phi_at_head` / `insert_phi_at_head_spanned`
+- `insert_phi_at_head_spanned`
 - `update_phi_instruction`
 
 方針:

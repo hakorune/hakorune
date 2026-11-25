@@ -25,20 +25,6 @@
       ]
     },
     {
-      "id": "rust-source-imports-bare-ast",
-      "source_family": "RustParsedSourceWithImports",
-      "current_route": "LegacyBareAstWithImportSideTable",
-      "canonical_candidate": true,
-      "source_unit_provenance_preserved": false,
-      "current_entry": "MirCompiler::compile_with_source_and_imports",
-      "convergence_entry": "MirCompiler::compile_with_source_internal",
-      "preflight_before_prepare_module": false,
-      "evidence": [
-        "src/mir/compiler/mod.rs#pub fn compile_with_source_and_imports(",
-        "src/mir/compiler/mod.rs#self.builder.comp_ctx.set_using_import_boxes(imports);"
-      ]
-    },
-    {
       "id": "direct-bare-ast-api",
       "source_family": "DirectAstAndSelfhostBridge",
       "current_route": "LegacyBareAst",

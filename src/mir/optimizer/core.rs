@@ -43,17 +43,6 @@ impl MirOptimizer {
         Self { debug: false }
     }
 
-    /// Enable debug output
-    pub fn with_debug(mut self) -> Self {
-        self.debug = true;
-        self
-    }
-
-    /// Run all optimization passes on a MIR module
-    pub fn optimize_module(&mut self, module: &mut MirModule) -> OptimizationStats {
-        self.optimize_module_with_required_roots(module, &Default::default())
-    }
-
     pub(in crate::mir) fn optimize_module_with_required_roots(
         &mut self,
         module: &mut MirModule,

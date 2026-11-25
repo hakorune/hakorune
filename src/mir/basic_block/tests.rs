@@ -41,7 +41,7 @@ fn test_terminator_addition() {
     bb.add_instruction(return_inst);
 
     assert!(bb.is_terminated());
-    assert!(bb.ends_with_return());
+    assert!(matches!(bb.terminator, Some(MirInstruction::Return { .. })));
     assert_eq!(bb.instructions.len(), 0);
     assert!(bb.terminator.is_some());
 }

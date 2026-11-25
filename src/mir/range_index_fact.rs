@@ -7,15 +7,10 @@
  */
 
 use crate::mir::function::{RangeIndexFact, RangeIndexFactOriginKind};
-use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
+use crate::mir::value_origin::{resolve_value_origin, ValueDefMap};
 use crate::mir::{
     BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction, MirInstruction, ValueId,
 };
-
-pub fn refresh_function_range_index_facts(function: &mut MirFunction) {
-    let def_map = build_value_def_map(function);
-    refresh_function_range_index_facts_with_def_map(function, &def_map);
-}
 
 pub(crate) fn refresh_function_range_index_facts_with_def_map(
     function: &mut MirFunction,
@@ -331,6 +326,9 @@ fn same_range_fact(lhs: &RangeIndexFact, rhs: &RangeIndexFact) -> bool {
 }
 
 #[cfg(test)]
+pub(crate) use tests::refresh_function_range_index_facts;
+
+#[cfg(test)]
 mod tests {
     use super::*;
     use crate::mir::function::{CountingLoopFact, LoopRangeFact};
@@ -338,6 +336,11 @@ mod tests {
         BasicBlock, BasicBlockId, BinaryOp, CompareOp, ConstValue, EffectMask, FunctionSignature,
         MirFunction, MirInstruction, MirType, ValueId,
     };
+
+    pub(crate) fn refresh_function_range_index_facts(function: &mut MirFunction) {
+        let def_map = crate::mir::value_origin::build_value_def_map(function);
+        refresh_function_range_index_facts_with_def_map(function, &def_map);
+    }
 
     fn make_function() -> MirFunction {
         MirFunction::new(

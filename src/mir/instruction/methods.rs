@@ -504,12 +504,4 @@ impl ArrayReadOperationV1 {
             Self::Count => {}
         }
     }
-    pub fn remapped(self, mut remap: impl FnMut(ValueId) -> ValueId) -> Self {
-        match self {
-            Self::Element { index } => Self::Element {
-                index: remap(index),
-            },
-            Self::Count => Self::Count,
-        }
-    }
 }

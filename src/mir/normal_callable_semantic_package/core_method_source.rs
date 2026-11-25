@@ -58,32 +58,6 @@ pub(crate) type NamedArrayFieldProviderTableV1 = BTreeMap<
     BTreeMap<SourceExprSiteV1, hakorune_mir_defs::CanonicalFieldRefV1>,
 >;
 
-pub(crate) fn issue_source_core_method_calls_with_named_arrays_v1(
-    catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
-    batch: &VerifiedResolvedCallableSemanticBatchV1,
-    selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
-    brands: &crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1,
-    constructors: &super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
-) -> Result<
-    (
-        BTreeMap<
-            SelectedNormalCallableKeyV1,
-            BTreeMap<SourceExprSiteV1, SelectedSourceCoreMethodCallV1>,
-        >,
-        NamedArrayFieldProviderTableV1,
-    ),
-    String,
-> {
-    issue_source_core_method_calls_with_named_arrays_and_dynamic_calls_v1(
-        catalog,
-        batch,
-        selected,
-        brands,
-        constructors,
-        &[],
-    )
-}
-
 pub(crate) fn issue_source_core_method_calls_with_named_arrays_and_dynamic_calls_v1(
     catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,

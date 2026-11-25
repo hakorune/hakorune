@@ -30,10 +30,6 @@ use self::flow::{
     merge_single_predecessor_jump_block, thread_branch_arm,
 };
 
-pub fn simplify(module: &mut MirModule) -> usize {
-    simplify_with_preserved_producers(module, &Default::default())
-}
-
 /// Preserve exact source-consumed producers while allowing block projection.
 pub(in crate::mir) fn simplify_with_preserved_producers(
     module: &mut MirModule,
@@ -333,6 +329,9 @@ fn fold_constant_branch(
     block.set_terminator(MirInstruction::Jump { target, edge_args });
     function.update_cfg();
 }
+
+#[cfg(test)]
+pub(crate) use tests::simplify;
 
 #[cfg(test)]
 #[path = "simplify_cfg_tests.rs"]

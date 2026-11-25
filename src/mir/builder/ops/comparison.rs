@@ -8,7 +8,7 @@
 ///
 /// **Integration**:
 /// - Called from `build_binary_op_from_values()` in parent module
-/// - Uses `emission::compare::emit_to()` for final MIR emission
+/// - Uses `emission::compare::emit_to_recorded()` for final MIR emission
 /// - Uses `ssa::local::finalize_compare()` for SSA correctness
 ///
 /// **Related Phases**:

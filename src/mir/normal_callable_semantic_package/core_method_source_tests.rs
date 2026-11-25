@@ -140,12 +140,13 @@ fn field_resident_get_rows(body: &str) -> Result<GetRows, String> {
     .expect("package issue");
     let ast = crate::parser::NyashParser::parse_from_string(&source).unwrap();
     let brands = crate::analysis::brand_program_declaration_catalog::issue_brand_program_declaration_catalog_v1(&ast).unwrap();
-    super::core_method_source::issue_source_core_method_calls_with_named_arrays_v1(
+    super::core_method_source::issue_source_core_method_calls_with_named_arrays_and_dynamic_calls_v1(
         &package.catalog,
         &package.batch,
         &package.selected,
         &brands,
         package.instance_constructors(),
+        &[],
     )
     .map(|(rows, _)| rows)
 }

@@ -46,37 +46,6 @@ pub(in crate::mir::builder) fn verify_no_exit_block_contract_if_enabled(
     verify_no_exit_block_contract(arena, block, context)
 }
 
-// ============================================================================
-// Debug-only verifier entrypoints (Lower-side safety net)
-// ============================================================================
-
-#[cfg(debug_assertions)]
-pub(in crate::mir::builder) fn debug_check_block_contract(
-    arena: &RecipeBodies,
-    block: &RecipeBlock,
-    context: &str,
-) -> Result<(), String> {
-    verify_block_contract_if_enabled(arena, block, context)
-}
-
-#[cfg(debug_assertions)]
-pub(in crate::mir::builder) fn debug_check_stmt_only_block_contract(
-    arena: &RecipeBodies,
-    block: &RecipeBlock,
-    context: &str,
-) -> Result<(), String> {
-    verify_stmt_only_block_contract_if_enabled(arena, block, context)
-}
-
-#[cfg(debug_assertions)]
-pub(in crate::mir::builder) fn debug_check_no_exit_block_contract(
-    arena: &RecipeBodies,
-    block: &RecipeBlock,
-    context: &str,
-) -> Result<(), String> {
-    verify_no_exit_block_contract_if_enabled(arena, block, context)
-}
-
 fn verify_no_exit_block_contract(
     arena: &RecipeBodies,
     block: &RecipeBlock,

@@ -38,13 +38,16 @@ impl Drop for EnvVarRestore {
     }
 }
 
+impl MirOptimizer {
+    pub(crate) fn optimize_module(&mut self, module: &mut MirModule) -> OptimizationStats {
+        self.optimize_module_with_required_roots(module, &Default::default())
+    }
+}
+
 #[test]
 fn test_optimizer_creation() {
     let optimizer = MirOptimizer::new();
     assert!(!optimizer.debug);
-
-    let debug_optimizer = MirOptimizer::new().with_debug();
-    assert!(debug_optimizer.debug);
 }
 
 #[test]

@@ -10,7 +10,6 @@ from pathlib import Path
 
 MODULE_IDS = {
     "rust-source-default-bare-ast",
-    "rust-source-imports-bare-ast",
     "direct-bare-ast-api",
     "program-v0-import-bundle",
     "repl-wrapper-source",

@@ -382,11 +382,6 @@ impl BasicBlock {
         self.terminator.is_some()
     }
 
-    /// Check if this block ends with a return
-    pub fn ends_with_return(&self) -> bool {
-        matches!(self.terminator, Some(MirInstruction::Return { .. }))
-    }
-
     /// Get the phi instructions at the beginning of this block
     pub fn phi_instructions(&self) -> impl Iterator<Item = &MirInstruction> {
         self.instructions
