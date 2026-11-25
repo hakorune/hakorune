@@ -50,6 +50,7 @@ pub(crate) fn execute_file_with_backend(runner: &NyashRunner, filename: &str) {
         } else {
             ast.clone()
         };
+        crate::r#macro::require_file_functions(&ast2);
         println!("{:#?}", ast2);
         return;
     }
@@ -78,6 +79,7 @@ pub(crate) fn execute_file_with_backend(runner: &NyashRunner, filename: &str) {
         } else {
             ast
         };
+        crate::r#macro::require_file_functions(&expanded);
         let j = crate::r#macro::ast_json::ast_to_json_roundtrip(&expanded);
         println!("{}", j.to_string());
         return;

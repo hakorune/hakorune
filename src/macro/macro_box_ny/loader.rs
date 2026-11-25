@@ -1,5 +1,5 @@
 use super::analysis::caps_allow_macro_source;
-use super::child::{register_decl_box, register_top_level_static};
+use super::child::register_decl_box;
 use nyash_rust::ASTNode;
 
 /// Load MacroBoxes written in Nyash.
@@ -20,9 +20,6 @@ pub fn init_from_env() {
             None
         });
 
-    if crate::config::env::macro_toplevel_allow().is_some() {
-        crate::macro_log!("[macro][compat] NYASH_MACRO_TOPLEVEL_ALLOW is deprecated; default is OFF. Prefer CLI --macro-top-level-allow if needed");
-    }
     if crate::config::env::macro_box_child_runner().is_some() {
         crate::macro_log!("[macro][compat] NYASH_MACRO_BOX_CHILD_RUNNER is deprecated; runner mode is managed automatically");
     }
@@ -76,21 +73,6 @@ fn try_load_one(path: &str) -> Result<(), String> {
                     if mname == "expand" {
                         let _ = mname; // keep the shape explicit for readability
                         return register_decl_box(path, box_name.as_str(), methods);
-                    }
-                }
-            }
-        }
-        for st in &statements {
-            if let ASTNode::FunctionDeclaration {
-                is_static: true,
-                name,
-                ..
-            } = st
-            {
-                if let Some((box_name, method)) = name.split_once('.') {
-                    if method == "expand" {
-                        register_top_level_static(path, box_name);
-                        return Ok(());
                     }
                 }
             }

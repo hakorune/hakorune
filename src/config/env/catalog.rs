@@ -143,12 +143,6 @@ pub fn env_vars() -> Vec<EnvVarMeta> {
             default: Some("1"),
         },
         EnvVarMeta {
-            name: "NYASH_MACRO_TOPLEVEL_ALLOW",
-            description: "Allow top-level static functions (deprecated)",
-            applies_to: AppliesTo::Macro,
-            default: None,
-        },
-        EnvVarMeta {
             name: "NYASH_MACRO_BOX_CHILD_RUNNER",
             description: "Use runner script for macro expansion (deprecated)",
             applies_to: AppliesTo::Macro,
