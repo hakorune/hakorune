@@ -267,7 +267,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                     path.expr(),
                     crate::mir::resolved_semantics::body_shape::BodyEffectKindV1::Call,
                 );
-                self.check_file_call_target(path.expr(), name, arguments.len())?;
+                self.check_file_call_target(path.expr(), name)?;
                 let brand_draft = self.brand_call_draft(
                     name,
                     BrandCallSourceRelationKindV1::Constructor,

@@ -504,7 +504,6 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         &self,
         site: SourceExprSiteV1,
         name: &str,
-        arity: usize,
     ) -> Result<(), ShadowResolveErrorV0> {
         use crate::mir::policies::call_name_classification::{
             is_parked_file_special_form_v1, is_reserved_source_function_call_v1,
@@ -518,7 +517,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             && (self.lookup(name).is_some()
                 || self.ancestor_is_visible(name)
                 || scope.brands.contains_name(name)
-                || is_reserved_source_function_call_v1(name, arity))
+                || is_reserved_source_function_call_v1(name))
         {
             return Ok(());
         }

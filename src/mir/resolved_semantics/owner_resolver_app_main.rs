@@ -292,11 +292,11 @@ fn validate_file_call_observations(
 
     tree.function.direct_calls.retain(|_, call| {
         !call.has_lexical_binding
-            || is_reserved_source_function_call_v1(&call.name, call.arity as usize)
+            || is_reserved_source_function_call_v1(&call.name)
     });
     for (site, call) in &tree.function.direct_calls {
         let parked_special_form = is_parked_file_special_form_v1(&call.name);
-        if parked_special_form || !is_reserved_source_function_call_v1(&call.name, call.arity as usize) {
+        if parked_special_form || !is_reserved_source_function_call_v1(&call.name) {
             return Err(ShadowResolveErrorV0::BareCallTargetMissing {
                 name: call.name.clone(),
                 site: site.clone(),

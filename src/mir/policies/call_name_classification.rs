@@ -58,20 +58,38 @@ pub(crate) fn is_parked_file_special_form_v1(name: &str) -> bool {
     name == "panic"
 }
 
-/// File-mode reservation for direct calls. See the reserved bare call forms in
-/// docs/reference/language/function-call-evaluation.md.
-pub(crate) fn is_reserved_source_function_call_v1(name: &str, arity: usize) -> bool {
-    if is_math_function(name) {
-        return false;
-    }
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum UnsupportedBareProviderV1 {
+    Error,
+    Now,
+}
 
-    // Keep existing special forms and the pending compatibility spellings.
-    let classification = classify_call_name_v1(name);
-    classification.raw_unified_admission()
-        || classification.callee_class() != CallNameCalleeClassV1::Ordinary
-        || (name == "str" && arity == 1)
-        || name == "Range"
-        || name.starts_with("mem.")
+impl UnsupportedBareProviderV1 {
+    pub(crate) fn diagnostic(self, arity: usize) -> String {
+        let name = match self {
+            Self::Error => "error",
+            Self::Now => "now",
+        };
+        format!("[freeze:contract][direct-call/bare-{name}-unsupported] name={name} arity={arity}")
+    }
+}
+
+pub(crate) fn unsupported_bare_provider_v1(name: &str) -> Option<UnsupportedBareProviderV1> {
+    match name {
+        "error" => Some(UnsupportedBareProviderV1::Error),
+        "now" => Some(UnsupportedBareProviderV1::Now),
+        _ => None,
+    }
+}
+
+/// File-mode reservations. Print syntax and FastMemory receiver policy have
+/// their own AST forms. The legacy builtin names below issue no file target.
+pub(crate) fn is_reserved_source_function_call_v1(name: &str) -> bool {
+    matches!(name, "print" | "panic" | "gc_collect" | "gc_stats" | "isType" | "asType")
+        || unsupported_bare_provider_v1(name).is_some()
+        || name.starts_with("nyash.")
+        || name.starts_with("env.")
+        || name.starts_with("system.")
 }
 
 #[cfg(test)]
