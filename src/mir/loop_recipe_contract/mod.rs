@@ -1,7 +1,6 @@
 //! Neutral selfhost-portable recursive Loop recipe contract.
 
 // Shared resolver-function declaration lookup for physical-ready producers.
-mod binding_declaration;
 // Caller-zero common V2 operation/control/coverage projections.
 // Caller-zero typed source-backed After boundary; no allocation or CFG.
 // Caller-zero V2 physical-ID-free layout input transport.
@@ -94,9 +93,6 @@ mod typed_schema_v2_structure_tests;
 
 // Keep one stable facade for the caller-zero common-V2 parent; the products
 // remain source-only and do not open the physical session.
-pub(crate) use binding_declaration::{
-    resolve_loop_binding_declaration_v1, ResolvedLoopBindingDeclarationV1,
-};
 pub(crate) use ids::{
     LoopBindingKeyV1, LoopBlockKeyV1, LoopCarrierKeyV1, LoopExitKeyV1, LoopItemKeyV1,
     LoopNodeKeyV1, LoopValueKeyV1,
