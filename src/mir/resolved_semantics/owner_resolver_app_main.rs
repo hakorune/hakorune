@@ -285,16 +285,22 @@ fn validate_file_call_observations(
     tree: &mut ShadowOwnerConstructionTreeV1<'_>,
     same_owner_has_method: &impl Fn(&str) -> bool,
 ) -> Result<(), crate::mir::resolved_semantics::ShadowResolveErrorV0> {
-    use crate::mir::policies::call_name_classification::is_reserved_source_function_call_v1;
+    use crate::mir::policies::call_name_classification::{
+        is_parked_file_special_form_v1, is_reserved_source_function_call_v1,
+    };
     use crate::mir::resolved_semantics::ShadowResolveErrorV0;
 
-    tree.function.direct_calls.retain(|_, call| !call.lexical_value);
+    tree.function.direct_calls.retain(|_, call| {
+        !call.has_lexical_binding
+            || is_reserved_source_function_call_v1(&call.name, call.arity as usize)
+    });
     for (site, call) in &tree.function.direct_calls {
-        if !is_reserved_source_function_call_v1(&call.name, call.arity as usize) {
+        let parked_special_form = is_parked_file_special_form_v1(&call.name);
+        if parked_special_form || !is_reserved_source_function_call_v1(&call.name, call.arity as usize) {
             return Err(ShadowResolveErrorV0::BareCallTargetMissing {
                 name: call.name.clone(),
                 site: site.clone(),
-                suggest_me: same_owner_has_method(&call.name),
+                suggest_me: !parked_special_form && same_owner_has_method(&call.name),
             });
         }
     }

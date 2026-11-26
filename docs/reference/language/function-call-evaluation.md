@@ -16,13 +16,15 @@ result and cleanup checks.
 A bare `f(x)` in a file must name an admitted special form or a lexically
 bound callable value. For an unbound ordinary name, Resolve reports
 `call/target-missing` at the call site. It suggests `me.f(...)` only when
-the current static box declares `f`. The reserved forms and future REPL
-session names have their own rules.
+the current static box declares `f`. See [Reserved bare call forms](#reserved-bare-call-forms)
+and the separate rules for [future REPL session names](repl.md).
 
 The callee is fixed before argument evaluation. Arguments are then evaluated
 exactly once from left to right. An assignment or other effect inside an
 argument cannot retarget the enclosing call. For a known static declaration,
 a wrong argument count is reported as `call/arity-mismatch`.
+
+### Reserved bare call forms
 
 Bare `error` is reserved and rejects before argument evaluation; qualified providers such as
 `env.console.error` remain separate Extern contracts and are not inferred from
@@ -42,6 +44,19 @@ the earlier primary Fault. The common exit transaction drains cleanup and
 Home obligations before the final successorless Fault terminal. Bare `exit`
 is a separate undecided application/runtime surface, not a sibling selected by
 this rule.
+
+Current file-mode implementation rejects bare `panic(...)` as
+`call/target-missing`, including when a box declares a method named `panic`.
+The terminal Fault implementation is still pending. `me.panic(...)` and
+`Box.panic(...)` use ordinary method resolution.
+
+A [declared Brand](brands.md) owns its constructor spelling through its
+declaration. Math operations use [MathBox methods](../boxes-system/box-reference.md#mathbox),
+such as `math.sqrt(16)`. An unbound bare math name follows the ordinary
+`call/target-missing` rule, including when a static box declares a method of
+that name.
+
+### Declared call target selection
 
 Current implementation until ADR-005 step 3: within the SelectedNormal
 admission cohort, multiple source occurrences that project to the same

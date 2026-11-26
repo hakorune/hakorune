@@ -506,19 +506,23 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         name: &str,
         arity: usize,
     ) -> Result<(), ShadowResolveErrorV0> {
-        use crate::mir::policies::call_name_classification::is_reserved_source_function_call_v1;
+        use crate::mir::policies::call_name_classification::{
+            is_parked_file_special_form_v1, is_reserved_source_function_call_v1,
+        };
 
         let Some(scope) = self.file_calls else {
             return Ok(());
         };
-        if self.lookup(name).is_some()
-            || self.ancestor_is_visible(name)
-            || scope.brands.contains_name(name)
-            || is_reserved_source_function_call_v1(name, arity)
+        let parked_special_form = is_parked_file_special_form_v1(name);
+        if !parked_special_form
+            && (self.lookup(name).is_some()
+                || self.ancestor_is_visible(name)
+                || scope.brands.contains_name(name)
+                || is_reserved_source_function_call_v1(name, arity))
         {
             return Ok(());
         }
-        let suggest_me = scope.static_owner.is_some_and(|owner| {
+        let suggest_me = !parked_special_form && scope.static_owner.is_some_and(|owner| {
             scope.declarations.static_method_arities(owner, name).next().is_some()
         });
         Err(ShadowResolveErrorV0::BareCallTargetMissing {
@@ -536,13 +540,10 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
     ) -> Result<(), ShadowResolveErrorV0> {
         let arity = u32::try_from(argument_sites.len())
             .map_err(|_| ShadowResolveErrorV0::FunctionCallArityOverflow { site: site.clone() })?;
-        let lexical_value = (self.lookup(name).is_some() || self.ancestor_is_visible(name))
-            && !crate::mir::policies::call_name_classification::is_reserved_source_function_call_v1(
-                name, argument_sites.len(),
-            );
+        let has_lexical_binding = self.lookup(name).is_some() || self.ancestor_is_visible(name);
         let record = ShadowDirectCallUseV0 {
             name: name.into(),
-            lexical_value,
+            has_lexical_binding,
             arity,
             argument_sites,
         };
