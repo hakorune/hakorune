@@ -46,7 +46,7 @@ pub(super) fn published_request(source: &str) -> NormalCompileRequestV1 {
 fn published_consumer_runs_once_and_propagates_failure_without_retry() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        let source = "static box Main { main() { return helper(2) } helper(value: i64): i64 { return value } }";
+        let source = "static box Main { main() { return me.helper(2) } helper(value: i64): i64 { return value } }";
         let mut compiler = MirCompiler::with_options(false);
         let mut calls = 0;
         let failure = compiler.compile_normal_with_published(
@@ -428,6 +428,7 @@ fn normal_ingress_preserves_app_main_free_static_definition_after_finish() {
             panic!("App source must remain source-backed")
         };
         let mut compiler = MirCompiler::with_options(false);
+        compiler.set_repl_mode(true);
         let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method(
             "Main", "helper", 1,
         );

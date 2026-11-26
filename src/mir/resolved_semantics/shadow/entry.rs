@@ -16,7 +16,7 @@ use super::product::{
 use super::resolver::{
     traverse_shadow_root_v1, ShadowLambdaModeV0, ShadowMethodCallObservationModeV0,
 };
-use super::root_traversal::ShadowRootTraversalInputV1;
+use super::root_traversal::{FileCallScopeV1, ShadowRootTraversalInputV1};
 use super::traversal_profile::ShadowTraversalProfileV1;
 
 pub(super) fn resolve_function_shadow_v0(
@@ -199,9 +199,10 @@ pub(in crate::mir) fn observe_qualified_receiver_shadow_view_v0(
 
 pub(in crate::mir) fn observe_method_calls_shadow_view_v0(
     view: FunctionSyntaxViewV1<'_>,
+    file_calls: Option<FileCallScopeV1<'_>>,
 ) -> Result<BTreeMap<SourceExprSiteV1, ShadowMethodCallObservationV0>, ShadowResolveErrorV0> {
     traverse_shadow_root_v1(
-        ShadowRootTraversalInputV1::dense(view),
+        ShadowRootTraversalInputV1::dense(view).with_file_calls(file_calls),
         ShadowLambdaModeV0::Reject,
         BTreeSet::new(),
         BTreeSet::new(),
@@ -217,9 +218,11 @@ pub(in crate::mir) fn observe_method_calls_shadow_view_v0(
 pub(in crate::mir) fn observe_script_method_calls_shadow_view_v0(
     view: ScriptSyntaxViewV1<'_>,
     window: &VerifiedScriptRootDemandWindowV1,
+    file_calls: Option<FileCallScopeV1<'_>>,
 ) -> Result<BTreeMap<SourceExprSiteV1, ShadowMethodCallObservationV0>, ShadowResolveErrorV0> {
     traverse_shadow_root_v1(
-        ShadowRootTraversalInputV1::sparse_script_static_target_observation(view, window),
+        ShadowRootTraversalInputV1::sparse_script_static_target_observation(view, window)
+            .with_file_calls(file_calls),
         ShadowLambdaModeV0::Reject,
         BTreeSet::new(),
         BTreeSet::new(),

@@ -1,9 +1,18 @@
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::resolved_semantics::{
-    observe_method_calls_shadow_view_v0, FunctionSyntaxViewV1, ReceiverPolicyV1,
+    FunctionSyntaxViewV1, ReceiverPolicyV1,
     ShadowMethodCallReceiverV0, ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0,
     SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
 };
+
+fn observe_method_calls_shadow_view_v0(
+    view: FunctionSyntaxViewV1<'_>,
+) -> Result<
+    std::collections::BTreeMap<SourceExprSiteV1, super::product::ShadowMethodCallObservationV0>,
+    ShadowResolveErrorV0,
+> {
+    super::observe_method_calls_shadow_view_v0(view, None)
+}
 
 fn variable(name: &str) -> ASTNode {
     ASTNode::Variable {

@@ -25,7 +25,12 @@ pub(super) fn callable_source(
 }
 
 pub(super) fn session() -> ModuleBuilderInvocationSessionV1 {
-    let current = MirBuilder::new();
+    session_for_mode(false)
+}
+
+pub(super) fn session_for_mode(repl_mode: bool) -> ModuleBuilderInvocationSessionV1 {
+    let mut current = MirBuilder::new();
+    current.repl_mode = repl_mode;
     let config = BuilderInvocationConfigV1::snapshot_for_raw(&current, None);
     ModuleBuilderInvocationSessionV1::open(&current, config)
 }
@@ -362,7 +367,7 @@ fn source_backed_app_main_root_uses_cataloged_scope() {
 fn source_backed_app_main_direct_call_consumes_affine_loan() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
     let source = callable_source(
-        "static box Main { main() { return helper(2) } helper(value: i64): i64 { return value } }",
+        "static box Main { main() { return me.helper(2) } helper(value: i64): i64 { return value } }",
         ParserBuildConfig::default(),
     );
     let completed = session()

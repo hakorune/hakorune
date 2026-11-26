@@ -496,8 +496,11 @@ fn cataloged_target_preflight_applies_total_shadow_order() {
     assert!(matches!(
         current_owner.route,
         PreparedRawFunctionPreflightRouteV1::Ordinary {
-            completion: PreparedRawOrdinaryFunctionCompletionV1::Rejected { ref error }
-        } if error.contains("bare-static-method-retired")
+            completion: PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted {
+                callee: crate::mir::Callee::Value(value),
+                ..
+            }
+        } if value == ValueId::new(77)
     ));
 
     let builtin = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
@@ -552,7 +555,7 @@ fn cataloged_target_preflight_applies_total_shadow_order() {
         unique_other.route,
         PreparedRawFunctionPreflightRouteV1::Ordinary {
             completion: PreparedRawOrdinaryFunctionCompletionV1::Rejected { ref error }
-        } if error.contains("bare-static-method-retired")
+        } if error.contains("installed-source-relation-missing")
     ));
 }
 
@@ -582,11 +585,6 @@ fn cataloged_bare_static_rejects_before_children() {
         &mut bare_static,
         vec![static_box("BoxA", &[("caller", 0), ("run", 2)])],
     );
-    bare_static
-        .function_state
-        .variable_ctx
-        .variable_map
-        .insert("run".to_owned(), ValueId::new(88));
     let rejected = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
         &bare_static,
         "run".to_owned(),
@@ -599,7 +597,7 @@ fn cataloged_bare_static_rejects_before_children() {
         rejected.route,
         PreparedRawFunctionPreflightRouteV1::Ordinary {
             completion: PreparedRawOrdinaryFunctionCompletionV1::Rejected { ref error }
-        } if error.contains("bare-static-method-retired")
+        } if error.contains("installed-source-relation-missing")
     ));
 
     let foreign = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
@@ -643,7 +641,7 @@ fn cataloged_bare_static_rejects_before_children() {
         ambiguous.route,
         PreparedRawFunctionPreflightRouteV1::Ordinary {
             completion: PreparedRawOrdinaryFunctionCompletionV1::Rejected { ref error }
-        } if error.contains("ambiguous-static")
+        } if error.contains("installed-source-relation-missing")
     ));
 
     let mut port = RecordingPortV1::default();

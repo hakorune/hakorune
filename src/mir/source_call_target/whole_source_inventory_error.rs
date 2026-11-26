@@ -33,6 +33,7 @@ pub(crate) enum WholeSourceStaticCallTargetInventoryErrorV1 {
 impl WholeSourceStaticCallTargetInventoryErrorV1 {
     pub(crate) fn call_diagnostic(&self) -> Option<String> {
         match self {
+            Self::MethodCallObservation { cause, .. } => cause.call_diagnostic(),
             Self::StaticArityMismatch(issue)
             | Self::CurrentOwnerTarget(CurrentOwnerStaticCallTargetErrorV1::ArityMismatch(issue)) =>
                 Some(format!(

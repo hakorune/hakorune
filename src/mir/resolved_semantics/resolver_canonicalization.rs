@@ -19,6 +19,8 @@ pub(super) fn canonicalize_draft(
         (Some(index), DirectCallCanonicalizationPolicyV1::RequireCallableIndex) => {
             let mut targets = BTreeMap::new();
             let mut observations = BTreeMap::new();
+            // File-mode Resolve has already excluded ordinary bare names
+            // and value invocations from these compatibility observations.
             for (site, call) in std::mem::take(&mut draft.direct_calls) {
                 let header = index
                     .resolve_free_static_source_call(&call.name, call.arity)

@@ -10,13 +10,7 @@ use crate::mir::numeric_substrate::is_numeric_integer_type_name;
 use crate::mir::policies::source_method_typeop_route::extract_source_string_literal_v1;
 use crate::mir::MirType;
 
-/// Check if a function is a math function
-pub fn is_math_function(name: &str) -> bool {
-    matches!(
-        name,
-        "sin" | "cos" | "abs" | "min" | "max" | "sqrt" | "pow" | "floor" | "ceil"
-    )
-}
+pub(crate) use crate::mir::policies::call_name_classification::is_math_function;
 
 /// Extract string literal from AST node if possible
 /// Handles both direct literals and StringBox constructors

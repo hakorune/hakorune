@@ -1,12 +1,12 @@
-use super::normal_default_root_catalog_lifecycle_tests::{callable_source, session};
+use super::normal_default_root_catalog_lifecycle_tests::{callable_source, session_for_mode};
 use crate::mir::builder::{CallableMainMaterializationPolicyV1, NormalRuntimeInputSnapshotV1};
 use crate::parser::ParserBuildConfig;
 
 #[test]
 fn source_backed_map_consumer_child_receives_and_releases_its_lease() {
-    // C8 acceptance, production route: `main -> use_map -> make_map`. The
-    // non-AppMain `use_map` owner consumes its own sealed loan row, installs
-    // the received lease, and releases it once on its exit chain.
+    // The retained direct-call compatibility protocol owns this Map lease.
+    // The non-AppMain callee consumes its sealed loan, installs the received
+    // lease and releases it on the checked exit chain.
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
     let source = callable_source(
         r#"static box Main {
@@ -16,7 +16,7 @@ fn source_backed_map_consumer_child_receives_and_releases_its_lease() {
         }"#,
         ParserBuildConfig::default(),
     );
-    let completed = session()
+    let completed = session_for_mode(true)
         .complete_normal_default_program_root_catalog_lifecycle(
             source,
             CallableMainMaterializationPolicyV1::Omitted,
@@ -160,7 +160,7 @@ fn source_backed_map_consumer_fault_suffix_still_releases_pending_homes() {
         }"#,
         ParserBuildConfig::default(),
     );
-    let completed = session()
+    let completed = session_for_mode(true)
         .complete_normal_default_program_root_catalog_lifecycle(
             source,
             CallableMainMaterializationPolicyV1::Omitted,
@@ -294,7 +294,7 @@ fn source_backed_map_consumer_release_drift_rejects_at_artifact_validation() {
             ParserBuildConfig::default(),
         )
     };
-    let completed = session()
+    let completed = session_for_mode(true)
         .complete_normal_default_program_root_catalog_lifecycle(
             source(),
             CallableMainMaterializationPolicyV1::Omitted,

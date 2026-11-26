@@ -89,6 +89,7 @@ static box Main {
         let mut snapshots = Vec::new();
         for _ in 0..2 {
             let mut compiler = MirCompiler::with_options(false);
+            compiler.set_repl_mode(true);
             let mut snapshot = None;
             let result = compiler.compile_normal_with_published(
                 request(source),

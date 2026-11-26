@@ -284,6 +284,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                     self.record_brand_call(path.expr(), draft)?;
                     self.resolve_arguments(expr, arguments, path)
                 } else {
+                    self.check_file_call_target(path.expr(), name, arguments.len())?;
                     let argument_sites =
                         self.resolve_arguments_with_sites(expr, arguments, path)?;
                     self.record_direct_call(path.expr(), name, argument_sites)?;

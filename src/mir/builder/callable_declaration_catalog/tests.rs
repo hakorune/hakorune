@@ -132,9 +132,9 @@ fn seals_static_rows_with_complete_header_and_body_pairing() {
 
     assert_eq!(catalog.len(), 2);
     let seed = catalog
-        .static_candidates("seed", 0)
-        .first()
-        .expect("seed key");
+        .declaration_for(SameModuleCallableNamespaceV1::StaticBoxMethod, "Helpers", "seed", 0)
+        .expect("seed declaration")
+        .key();
     assert_eq!(
         seed.namespace(),
         SameModuleCallableNamespaceV1::StaticBoxMethod
@@ -176,8 +176,8 @@ fn separates_instance_rows_from_static_candidate_lookup() {
     let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&source).unwrap();
 
     assert_eq!(catalog.len(), 2);
-    assert_eq!(catalog.static_candidates("run", 1).len(), 1);
-    assert_eq!(catalog.static_candidates("run", 1)[0].owner(), "Static");
+    assert_eq!(catalog.static_method_arities("Static", "run").collect::<Vec<_>>(), [1]);
+    assert!(catalog.static_method_arities("Ordinary", "run").next().is_none());
     let instance = catalog
         .declaration_for(
             SameModuleCallableNamespaceV1::InstanceBoxMethod,
@@ -232,7 +232,7 @@ fn root_seal_preserves_program_single_box_and_expression_surfaces() {
     let static_catalog =
         VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&static_root).unwrap();
     assert_eq!(static_catalog.len(), 1);
-    assert_eq!(static_catalog.static_candidates("run", 0).len(), 1);
+    assert_eq!(static_catalog.static_method_arities("Static", "run").next(), Some(0));
 
     let instance_root = instance_box(
         "Ordinary",
@@ -241,7 +241,7 @@ fn root_seal_preserves_program_single_box_and_expression_surfaces() {
     let instance_catalog =
         VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&instance_root).unwrap();
     assert_eq!(instance_catalog.len(), 1);
-    assert!(instance_catalog.static_candidates("read", 0).is_empty());
+    assert!(instance_catalog.static_method_arities("Ordinary", "read").next().is_none());
 
     assert!(
         VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&scalar())

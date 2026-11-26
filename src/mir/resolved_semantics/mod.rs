@@ -241,7 +241,7 @@ pub(crate) use selected_callable_deferred::{
 };
 pub(in crate::mir) use shadow::{
     observe_method_calls_shadow_view_v0, observe_qualified_receiver_shadow_view_v0,
-    observe_script_method_calls_shadow_view_v0, ShadowMethodCallReceiverV0,
+    observe_script_method_calls_shadow_view_v0, FileCallScopeV1, ShadowMethodCallReceiverV0,
     ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0,
 };
 pub(crate) use shadow::{

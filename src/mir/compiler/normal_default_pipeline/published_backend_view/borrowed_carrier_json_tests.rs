@@ -20,7 +20,11 @@ fn borrowed_carrier_writer_refuses_both_parameter_and_actual_encoding() {
                 source, None, std::collections::HashMap::new(),
             )
         };
-        MirCompiler::with_options(false)
+        // The retained compatibility producer supplies this borrowed-Map
+        // snapshot to both independent writer mutation checks.
+        let mut compiler = MirCompiler::with_options(false);
+        compiler.set_repl_mode(true);
+        compiler
             .compile_normal_with_published(request(source), |view, verification| -> Result<(), String> {
                 assert!(verification.is_ok(), "{verification:?}");
                 let input = view.issue_lifecycle_physical_abi_input()?;

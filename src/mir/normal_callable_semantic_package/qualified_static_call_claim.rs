@@ -17,6 +17,8 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
+use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
+
 use crate::mir::builder::{
     CanonicalSameModuleCallableKeyV1, SelectedNormalCallableKeyV1,
     VerifiedSameModuleCallableDeclarationCatalogV1,
@@ -112,6 +114,7 @@ impl QualifiedStaticCallClaimIndexV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn issue(
         declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
         import_rows: impl IntoIterator<Item = (String, String)>,
+        file_brands: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
     ) -> Result<
         (Self, BTreeSet<CanonicalSameModuleCallableKeyV1>),
         QualifiedStaticCallClaimIndexIssueV1,
@@ -119,7 +122,7 @@ impl QualifiedStaticCallClaimIndexV1 {
         let imports = VerifiedStaticImportAliasViewV1::seal(declarations, import_rows)
             .map_err(QualifiedStaticCallClaimIndexIssueV1::ImportAlias)?;
         let inventory =
-            VerifiedWholeSourceStaticCallTargetInventoryV1::verify(declarations, &imports)
+            VerifiedWholeSourceStaticCallTargetInventoryV1::verify_with_file_calls(declarations, &imports, file_brands)
                 .map_err(QualifiedStaticCallClaimIndexIssueV1::TargetInventory)?;
         let closed_app_zero_incoming = declarations
             .source_backed_app_main()

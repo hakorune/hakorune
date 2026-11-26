@@ -76,7 +76,7 @@ fn per_new_actuals_survive_definition_dedup_and_are_consumed_once() {
 fn child_birth_actual_is_retained_and_attributed_to_child_function() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        let text = "box Page { birth() { } } static box Main { main() { return helper(7) } helper(value: i64): i64 { local page = new Page() local m = %{\"v\" => page} return 30 } }";
+        let text = "box Page { birth() { } } static box Main { main() { return me.helper(7) } helper(value: i64): i64 { local page = new Page() local m = %{\"v\" => page} return 30 } }";
         let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
             text,
             crate::parser::ParserBuildConfig::default(),
