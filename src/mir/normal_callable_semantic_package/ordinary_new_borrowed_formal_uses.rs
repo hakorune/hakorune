@@ -527,7 +527,7 @@ fn classify_borrowed_formal_source_product_v1(
                     function.binding(destination).map(|row| row.kind()),
                     Some(BindingKindV1::Local { .. })
                 )
-                || original.initializers().iter()
+                || original.initializers()
                     .filter(|row| row.binding() == destination)
                     .count()
                     != 1

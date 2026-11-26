@@ -2,7 +2,7 @@
 
 use super::lexical_instance_call::freeze;
 use super::{
-    OrdinaryNewClaimLedgerV1, OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1,
+    OrdinaryNewClaimLedgerV1, SelectedNewArgumentKindV1, OrdinaryNewTrivialArgumentV1,
 };
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
@@ -104,7 +104,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         self.visit_new_input_arguments_v1(owner, &mut |argument| match argument.kind() {
-            OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } => lend(evaluation),
+            SelectedNewArgumentKindV1::Expression { evaluation } => lend(evaluation),
             _ => Ok(true),
         })
     }
@@ -147,7 +147,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 {
                     return Err(freeze("static-input/qualified-use-identity"));
                 }
-                if let OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = argument.kind()
+                if let SelectedNewArgumentKindV1::Expression { evaluation } = argument.kind()
                 {
                     let ExpressionPlanRootV1::NewArgument {
                         construction,

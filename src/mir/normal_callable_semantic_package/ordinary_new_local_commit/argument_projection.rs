@@ -164,7 +164,7 @@ impl EmittedNewExpressionV1 {
         source: &super::super::OrdinaryNewTrivialArgumentV1,
         payload: &BirthArgumentV1,
     ) -> Result<(), String> {
-        let super::super::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } =
+        let super::super::SelectedNewArgumentKindV1::Expression { evaluation } =
             source.kind()
         else {
             return Err(freeze("argument-source-drift"));
@@ -283,11 +283,11 @@ impl EmittedNewArgumentV1 {
     }
     pub(in crate::mir) fn deferred_text_values_v1(&self) -> Result<Vec<ValueId>, String> {
         match (&self.expression, self.source.kind()) {
-            (Some(packet), super::super::OrdinaryNewTrivialArgumentKindV1::Expression { .. }) => {
+            (Some(packet), super::super::SelectedNewArgumentKindV1::Expression { .. }) => {
                 packet.require_source_v1(&self.source, &self.payload)?;
                 Ok(packet.deferred_values_v1())
             }
-            (None, super::super::OrdinaryNewTrivialArgumentKindV1::Expression { .. })
+            (None, super::super::SelectedNewArgumentKindV1::Expression { .. })
             | (Some(_), _) => Err(freeze("argument-source-drift")),
             (None, _) => {
                 self.value_only_v1()?;

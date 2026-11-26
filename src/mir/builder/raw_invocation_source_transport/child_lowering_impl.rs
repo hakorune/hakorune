@@ -410,7 +410,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
             let has_call_argument = arguments.iter().any(|argument| {
                 matches!(
                     argument.kind(),
-                    crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::QualifiedStaticCall { .. }
+                    crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1::QualifiedStaticCall { .. }
                 )
             });
             if has_call_argument {
@@ -422,7 +422,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
                             .to_owned()
                     })?;
                 for argument in arguments.iter() {
-                    let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::QualifiedStaticCall {
+                    let crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1::QualifiedStaticCall {
                         target,
                         ..
                     } = argument.kind()

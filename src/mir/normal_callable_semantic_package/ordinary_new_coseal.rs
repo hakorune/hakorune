@@ -51,7 +51,7 @@ mod claim_access;
 #[path = "ordinary_new_arguments.rs"]
 mod ordinary_new_arguments;
 pub(crate) use ordinary_new_arguments::{
-    ArgumentFieldArrayReadSourceV1, OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1,
+    ArgumentFieldArrayReadSourceV1, SelectedNewArgumentKindV1, OrdinaryNewTrivialArgumentV1,
     QualifiedStaticCallArgumentKindV1,
 };
 #[path = "ordinary_new_branch_source_index.rs"]

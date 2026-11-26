@@ -389,7 +389,7 @@ mod new_completion_tests;
 
 #[test]
 fn ordinary_new_claim_records_parameter_handle_argument() {
-    use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1;
+    use crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1;
     use crate::mir::resolved_semantics::SourceBindingSiteV1;
     let package = issue_with_brand_catalog(
         "box Page { birth(value) { } } static box Main { helper(value) { local item = new Page(value) return 0 } main() { return 0 } }"
@@ -404,7 +404,7 @@ fn ordinary_new_claim_records_parameter_handle_argument() {
     let [row] = rows else {
         panic!("one argument row, got {rows:?}")
     };
-    let OrdinaryNewTrivialArgumentKindV1::Handle { binding } = row.kind() else {
+    let SelectedNewArgumentKindV1::Handle { binding } = row.kind() else {
         panic!(
             "parameter argument must be a Handle row, got {:?}",
             row.kind()

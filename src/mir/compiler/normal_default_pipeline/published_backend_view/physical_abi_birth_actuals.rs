@@ -37,7 +37,7 @@ impl PublishedMirBackendView<'_> {
         BTreeMap<(OwnedExprSiteV1, u32), BorrowedBirthActualTransportV1>,
         BTreeMap<(OwnedExprSiteV1, u32), ObjectBirthActualTransportV1>,
     ), String> {
-        use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1 as Kind;
+        use crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1 as Kind;
         let mut borrowed = BTreeMap::new();
         let mut object = BTreeMap::new();
         for call in entry.birth_calls() {

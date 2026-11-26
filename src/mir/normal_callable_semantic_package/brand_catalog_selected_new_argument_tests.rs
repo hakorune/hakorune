@@ -83,7 +83,7 @@ fn selected_new_arguments_reach_birth_in_issued_order() {
 
 #[test]
 fn selected_new_arguments_admit_inventoried_call_result_local() {
-    use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1;
+    use crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1;
     let package = issue_with_brand_catalog(
         "static box Sizes { size(v) { return v } } \
          box Page { birth(v) { } } \
@@ -102,7 +102,7 @@ fn selected_new_arguments_admit_inventoried_call_result_local() {
     // `Sizes.size(7)` carries an `ExactI64` result disposition, so the
     // qualified static-call claim installs `h` as a trivial scalar local —
     // the honest `Local` row, not the unclassified `BoundValue` shape.
-    let OrdinaryNewTrivialArgumentKindV1::Local { binding } = row.kind() else {
+    let SelectedNewArgumentKindV1::Local { binding } = row.kind() else {
         panic!(
             "i64-disposed call-result local must be a Local row, got {:?}",
             row.kind()
@@ -154,7 +154,7 @@ fn selected_new_rejects_unbound_and_call_expression_arguments() {
             assert_eq!(rows.len(), 1);
             assert!(matches!(
                 rows[0].kind(),
-                crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Local { .. }
+                crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1::Local { .. }
             ));
             assert!(claims[0].home_prefix().is_ok());
             continue;
@@ -208,7 +208,7 @@ fn selected_new_rejects_nontrivial_argument_before_raw_descent() {
 
 #[test]
 fn selected_new_arguments_admit_null_literal() {
-    use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1;
+    use crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1;
     let package = super::brand_catalog_tests::issue_with_brand_catalog(
         "box Page { birth(v) { } } \
          static box Main { main() { local p = new Page(null) return 0 } }",
@@ -224,7 +224,7 @@ fn selected_new_arguments_admit_null_literal() {
         panic!("one argument row, got {rows:?}")
     };
     assert!(
-        matches!(row.kind(), OrdinaryNewTrivialArgumentKindV1::Null),
+        matches!(row.kind(), SelectedNewArgumentKindV1::Null),
         "null argument must be a Null row, got {:?}",
         row.kind()
     );
@@ -298,7 +298,7 @@ fn selected_new_null_argument_reaches_birth_call() {
 /// or MIR-layout read.
 #[test]
 fn selected_new_arguments_admit_entry_receiver_i64_field() {
-    use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1;
+    use crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1;
     let package = super::brand_catalog_tests::issue_with_brand_catalog(
         "box Node {
              value: i64
@@ -317,7 +317,7 @@ fn selected_new_arguments_admit_entry_receiver_i64_field() {
         for row in rows {
             if matches!(
                 row.kind(),
-                OrdinaryNewTrivialArgumentKindV1::I64Field { .. }
+                SelectedNewArgumentKindV1::I64Field { .. }
             ) {
                 i64_field_rows += 1;
             }
@@ -451,7 +451,7 @@ fn selected_new_rejects_unproven_field_arguments() {
 
 #[test]
 fn selected_new_arguments_admit_an_explicit_move_of_a_handle_local() {
-    use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1;
+    use crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1;
     let header = "box Leaf { value: i64 birth(value) { me.value = value } }
         box Node { next: Leaf v: i64 birth(next, v) { me.next = next me.v = v } }";
     // `move leaf` is the operand's own handle transfer, like the plain local.
@@ -467,7 +467,7 @@ fn selected_new_arguments_admit_an_explicit_move_of_a_handle_local() {
         .pending_claims_for_test()
         .values()
         .filter_map(|claim| claim.core().argument_rows().ok())
-        .flat_map(|rows| rows.iter().map(|row| matches!(row.kind(), OrdinaryNewTrivialArgumentKindV1::Handle { .. })).collect::<Vec<_>>())
+        .flat_map(|rows| rows.iter().map(|row| matches!(row.kind(), SelectedNewArgumentKindV1::Handle { .. })).collect::<Vec<_>>())
         .collect();
     assert!(kinds.iter().any(|is_handle| *is_handle), "the moved local is a Handle argument");
     // A moved local cannot be passed again or moved again.

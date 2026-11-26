@@ -97,7 +97,7 @@ impl VerifiedScriptLoweringProjectionV1 {
         )?;
 
         let mut variables = BTreeMap::new();
-        for (site, reference) in &owner.core().data().variable_uses {
+        for (site, reference) in owner.core().data().variable_uses.iter() {
             let ResolvedLexicalRefV1::Local(binding) = reference else {
                 continue;
             };
@@ -110,7 +110,7 @@ impl VerifiedScriptLoweringProjectionV1 {
         }
 
         let mut assignments = BTreeMap::new();
-        for (site, target) in &owner.core().data().assignment_targets {
+        for (site, target) in owner.core().data().assignment_targets.iter() {
             let ResolvedAssignmentTargetV1::BindingRebind(binding) = target else {
                 continue;
             };

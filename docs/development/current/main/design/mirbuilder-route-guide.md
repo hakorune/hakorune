@@ -57,7 +57,7 @@ blueprint が持ち主を名指ししているのは if(決定 18)と loop(決�
 
 ## 3. 注記と集計
 
-- `new` の claim（NR-1、設計図 §4・§6）。元の構築関係は Resolve から借り、Lower の claim を `m/normal_callable_semantic_package/ordinary_new_ledger.rs::take_claim` で一度だけ消費する。local と return に必要な照合はそれぞれ保持し、Birth の引き渡し、MIR の書き手、完成後の検証は従来の契約を使う。
+- `new` の claim（NR-1、設計図 §4・§6）。元の構築関係は Resolve から借り、Lower の claim を `m/normal_callable_semantic_package/ordinary_new_ledger.rs::take_claim` で一度だけ消費する。local と return に必要な照合はそれぞれ保持し、Birth の引き渡し、MIR の書き手、完成後の検証は従来の契約を使う。 `new` の引数は `m/resolved_semantics/selected_new_arguments.rs` の元の行を claim に移す。Borrowed formal の read・assignment・initializer も Resolve の元の行を借りる。
 
 - 式の続き（NR-1、設計図 §5・§26）。解決済みの評価目的と Home は Resolve の元の行を使う。命令を書く共通の入口は `b/ordinary_new_admission/selected/expression_value.rs`。完成 MIR の続きは `m/normal_callable_semantic_package/ordinary_new_local_commit/root_call_entry/expression_terminal_cleanup.rs::validate_continuation_v1` が共通の検査を行う。利用側は同じ policy に必要な境界と片付けの差を渡し、位置ごとの転送関数を廃止した。
 

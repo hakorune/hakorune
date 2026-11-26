@@ -2,7 +2,7 @@
 use super::*;
 use crate::mir::{Callee, ConstValue, MirInstruction};
 use crate::mir::normal_callable_semantic_package::{
-    OrdinaryNewTrivialArgumentKindV1 as Kind, QualifiedStaticCallArgumentKindV1 as Literal,
+    SelectedNewArgumentKindV1 as Kind, QualifiedStaticCallArgumentKindV1 as Literal,
 };
 
 impl ProviderCallArgEmission {

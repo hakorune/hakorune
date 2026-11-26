@@ -7,7 +7,7 @@ use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemant
 use crate::mir::instruction::BirthArgumentV1;
 use crate::mir::normal_callable_semantic_package::{
     CallValidationContextV1, EmittedNewArgumentV1, EmittedNewExpressionV1,
-    ExpressionCallTransientPrefixV1, OrdinaryNewClaimLedgerV1, OrdinaryNewTrivialArgumentKindV1,
+    ExpressionCallTransientPrefixV1, OrdinaryNewClaimLedgerV1, SelectedNewArgumentKindV1,
     OrdinaryNewTrivialArgumentV1,
 };
 use crate::mir::{MirBuilder, MirInstruction};
@@ -33,7 +33,7 @@ pub(super) fn materialize_arguments(
     validate_argument_rows_v1(site.owner(), site, arity, rows)?;
     let mut arguments = Vec::with_capacity(rows.len());
     for row in rows {
-        if let OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = row.kind() {
+        if let SelectedNewArgumentKindV1::Expression { evaluation } = row.kind() {
             let inherited = ExpressionCallTransientPrefixV1::for_prepared_new_argument_v1(
                 row,
                 &arguments,
@@ -108,21 +108,21 @@ pub(super) fn materialize_arguments(
             continue;
         }
         let value = match row.kind() {
-            OrdinaryNewTrivialArgumentKindV1::Integer(value) => {
+            SelectedNewArgumentKindV1::Integer(value) => {
                 crate::mir::builder::emission::constant::emit_integer_recorded(builder, *value)
                     .map(|value| value.into_recorded_value(bindings))
             }
-            OrdinaryNewTrivialArgumentKindV1::Bool(value) => {
+            SelectedNewArgumentKindV1::Bool(value) => {
                 crate::mir::builder::emission::constant::emit_bool_recorded(builder, *value)
                     .map(|value| value.into_recorded_value(bindings))
             }
-            OrdinaryNewTrivialArgumentKindV1::Null => {
+            SelectedNewArgumentKindV1::Null => {
                 crate::mir::builder::emission::constant::emit_null_recorded(builder)
                     .map(|value| value.into_recorded_value(bindings))
             }
-            OrdinaryNewTrivialArgumentKindV1::Local { binding }
-            | OrdinaryNewTrivialArgumentKindV1::Handle { binding }
-            | OrdinaryNewTrivialArgumentKindV1::BoundValue { binding } => {
+            SelectedNewArgumentKindV1::Local { binding }
+            | SelectedNewArgumentKindV1::Handle { binding }
+            | SelectedNewArgumentKindV1::BoundValue { binding } => {
                 let value = state
                     .value_for_exact_binding(site.owner(), *binding)
                     .map_err(|_| freeze("argument-binding-unavailable"))?;
@@ -142,11 +142,11 @@ pub(super) fn materialize_arguments(
             // the Birth construction plan; the selected `local x = new`
             // lane never admits it. A row reaching this owner is issuer
             // drift, not a supported actual.
-            OrdinaryNewTrivialArgumentKindV1::Expression { .. }
-            | OrdinaryNewTrivialArgumentKindV1::QualifiedStaticCall { .. } => {
+            SelectedNewArgumentKindV1::Expression { .. }
+            | SelectedNewArgumentKindV1::QualifiedStaticCall { .. } => {
                 return Err(freeze("argument-kind-provider-only"))
             }
-            OrdinaryNewTrivialArgumentKindV1::I64Field { object } => {
+            SelectedNewArgumentKindV1::I64Field { object } => {
                 // The read site is this row's exact `FieldAccess`
                 // expression site; the staged issuer proof under it is
                 // taken once and must resolve to the receiver's live value.
@@ -262,7 +262,7 @@ mod tests {
             new_site.clone(),
             ordinal,
             argument,
-            OrdinaryNewTrivialArgumentKindV1::Integer(1),
+            SelectedNewArgumentKindV1::Integer(1),
         )
     }
 

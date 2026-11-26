@@ -648,7 +648,7 @@ impl<'a> CallValidationContextV1<'a> {
                 continue;
             };
             for argument in arguments.iter() {
-                let super::super::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } =
+                let super::super::SelectedNewArgumentKindV1::Expression { evaluation } =
                     argument.kind()
                 else {
                     continue;

@@ -32,7 +32,7 @@ fn per_new_actuals_survive_definition_dedup_and_are_consumed_once() {
             for call in contract.birth_calls() {
                 assert_eq!(call.function_index(), 1);
                 assert!(call.actual().arguments().iter().all(|argument| matches!(argument.source().kind(),
-                    crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Local { .. })));
+                    crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1::Local { .. })));
             }
             let [root, births @ ..] = contract.program().functions() else { panic!("root missing") };
             let PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } = births[0].role()

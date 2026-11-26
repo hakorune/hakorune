@@ -111,7 +111,7 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
             | TransientPrefixOriginV1::Emitted { frame, .. }
             | TransientPrefixOriginV1::EvaluatedDynamic { frame, .. } => *frame,
             TransientPrefixOriginV1::NewArguments { current, .. } => {
-                let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = current.kind() else { return None; };
+                let crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1::Expression { evaluation } = current.kind() else { return None; };
                 evaluation
             }
             TransientPrefixOriginV1::Arguments { .. } => return None,
@@ -124,7 +124,7 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
         -> Option<&crate::mir::resolved_semantics::home_new_prefix::ExpressionOwnershipStateV1> {
         if let Some(state) = self.parent.and_then(|parent| parent.new_argument_state_for_site_v1(site)) { return Some(state); }
         let TransientPrefixOriginV1::NewArguments { current, state_before: Some(state), .. } = &self.origin else { return None; };
-        let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = current.kind() else { return None; };
+        let crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1::Expression { evaluation } = current.kind() else { return None; };
         (current.owner() == site.owner() && (current.new_site() == site
             || evaluation.source().nodes().iter().any(|node| node.site() == site.site())))
             .then_some(state.as_ref())
@@ -175,7 +175,7 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
         inherited: &'a [InvokeOperation],
         context: CallValidationContextV1<'_>,
     ) -> Result<Self, String> {
-        let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = current.kind()
+        let crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1::Expression { evaluation } = current.kind()
             else { return Err(freeze("argument-source-drift")) };
         let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::NewArgument { construction, ordinal, .. } = evaluation.source().root()
             else { return Err(freeze("argument-expression/transient-purpose")) };
@@ -312,7 +312,7 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
         }
         Ok(match &self.origin {
             TransientPrefixOriginV1::NewArguments { current, .. } => {
-                let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = current.kind()
+                let crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1::Expression { evaluation } = current.kind()
                     else { return Err(freeze("argument-source-drift")) };
                 current.new_site() == site || evaluation.source().contains_call_site_v1(site)
             }
@@ -338,7 +338,7 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
     fn prior_homes(&self) -> &[LiveHomeV1] {
         match &self.origin {
             TransientPrefixOriginV1::NewArguments { current, .. } => {
-                let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = current.kind()
+                let crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1::Expression { evaluation } = current.kind()
                     else { unreachable!("checked original New expression prefix") };
                 evaluation.prior_homes()
             }
@@ -483,7 +483,7 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
         let point = frame.ownership_v1().first_site().cloned().unwrap_or_else(||
             OwnedExprSiteV1::new(frame.source().owner(), frame.source().nodes()[0].site().clone()));
         if let TransientPrefixOriginV1::NewArguments { current, .. } = &self.origin {
-            let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = current.kind()
+            let crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1::Expression { evaluation } = current.kind()
                 else { return Err(freeze("argument-source-drift")) };
             let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::NewArgument { construction, ordinal, .. } = frame.source().root()
                 else {

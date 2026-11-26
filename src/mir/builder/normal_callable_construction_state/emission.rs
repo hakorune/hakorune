@@ -71,7 +71,7 @@ impl CallableSemanticLoweringState {
         > = std::collections::BTreeMap::new();
         if let ConstructionStoreRhsV1::ProviderConstruction { arguments, static_sources, site, caller, .. } = &taken.rhs {
             for argument in arguments.iter() {
-                if let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::QualifiedStaticCall {
+                if let crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1::QualifiedStaticCall {
                     target,
                     ..
                 } = argument.kind()
@@ -275,17 +275,17 @@ impl CallableSemanticLoweringState {
                         let mut call_arg_records = Vec::new();
                         for argument in arguments.iter() {
                             let arg_value = match argument.kind() {
-                                crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Integer(
+                                crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1::Integer(
                                     literal,
                                 ) => crate::mir::builder::emission::constant::emit_integer(
                                     builder, *literal,
                                 )?,
-                                crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Bool(
+                                crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1::Bool(
                                     literal,
                                 ) => crate::mir::builder::emission::constant::emit_bool(
                                     builder, *literal,
                                 )?,
-                                crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::QualifiedStaticCall {
+                                crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1::QualifiedStaticCall {
                                     target,
                                     arguments: inner,
                                 } => {

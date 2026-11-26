@@ -120,11 +120,11 @@ pub(super) fn issue_provider_rhs_v1(
                 ASTNode::Literal {
                     value: LiteralValue::Integer(value),
                     ..
-                } => super::super::OrdinaryNewTrivialArgumentKindV1::Integer(*value),
+                } => super::super::SelectedNewArgumentKindV1::Integer(*value),
                 ASTNode::Literal {
                     value: LiteralValue::Bool(value),
                     ..
-                } => super::super::OrdinaryNewTrivialArgumentKindV1::Bool(*value),
+                } => super::super::SelectedNewArgumentKindV1::Bool(*value),
                 ASTNode::MethodCall { .. } => {
                     // The constructor retained this source seal before whole-
                     // body eligibility. Physical construction consumes the SAME

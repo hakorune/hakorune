@@ -15,11 +15,11 @@ struct OriginalFormalUseSourceV1
     mode: crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1,
     parameters: Box<[(u32, BindingRefV1, CallableParameterContractKindV1)]>,
     roots: BTreeMap<BindingRefV1, BindingRefV1>,
-    reads: Box<[(SourceExprSiteV1, ResolvedLexicalRefV1)]>,
+    reads: Rc<BTreeMap<SourceExprSiteV1, ResolvedLexicalRefV1>>,
     return_plans: Option<Box<[std::rc::Rc<ExpressionSourcePlanV1>]>>,
     flow: Option<Arc<VerifiedSourceValueFlowV1>>,
-    initializers: Box<[ResolvedInitializerRelationV1]>,
-    assignments: Box<[(SourceExprSiteV1, ResolvedAssignmentTargetV1)]>,
+    initializers: Rc<BTreeMap<SourceBindingSiteV1, ResolvedInitializerRelationV1>>,
+    assignments: Rc<BTreeMap<SourceExprSiteV1, ResolvedAssignmentTargetV1>>,
     captures: Box<[(OwnedExprSiteV1, BindingRefV1, bool)]>,
     scalar_expression_use_requested: bool,
     dynamic_return_requested: bool,
@@ -59,14 +59,9 @@ impl OriginalFormalUseSourceV1 {
             }
         }
 
-        let reads: Box<[_]> = function
-            .variable_refs()
-            .map(|(site, reference)| (site.clone(), *reference))
-            .collect();
-        let assignments: Box<[_]> = function
-            .assignment_targets()
-            .map(|(site, target)| (site.clone(), target.clone()))
-            .collect();
+        let source_rows = function.core().data();
+        let reads = Rc::clone(&source_rows.variable_uses);
+        let assignments = Rc::clone(&source_rows.assignment_targets);
         let return_plans = input.body_shape().and_then(|shape| {
             let ledger = input.forest().callable_source_ledger(input.owner()).ok()?;
             let mut plans = Vec::new();
@@ -95,7 +90,7 @@ impl OriginalFormalUseSourceV1 {
                     }
                 };
             if owner == input.owner() {
-                for (site, target) in &assignments {
+                for (site, target) in assignments.iter() {
                     retain_assignment(site, target);
                 }
             } else {
@@ -115,7 +110,7 @@ impl OriginalFormalUseSourceV1 {
                 }
             };
             if owner == input.owner() {
-                for (site, reference) in &reads {
+                for (site, reference) in reads.iter() {
                     retain(site, reference);
                 }
             } else {
@@ -137,11 +132,7 @@ impl OriginalFormalUseSourceV1 {
             reads,
             return_plans,
             flow: function.expression_source().value_flow().map(Arc::clone),
-            initializers: function
-                .expression_source()
-                .initializers()
-                .cloned()
-                .collect(),
+            initializers: Rc::clone(function.expression_source().initializer_rows()),
             assignments,
             captures: captures.into_boxed_slice(),
             scalar_expression_use_requested: false,
@@ -195,8 +186,7 @@ impl OriginalFormalUseSourceV1 {
             let plan = plan.map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
             for (_, node) in plan.nodes_outside_calls() {
                 let ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(binding)) = node.source() else { continue };
-                if self.reads.iter().filter(|(site, reference)| site == node.site()
-                    && *reference == ResolvedLexicalRefV1::Local(*binding)).count() != 1 {
+                if self.reads.get(node.site()) != Some(&ResolvedLexicalRefV1::Local(*binding)) {
                     return Err(BorrowedFormalUseDraftErrorV1::SourceIdentity);
                 }
                 if self.roots.get(binding) == Some(binding) { return Ok(true); }
@@ -232,7 +222,7 @@ impl OriginalFormalUseSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn reads(
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, &ResolvedLexicalRefV1)> {
-        self.reads.iter().map(|(site, reference)| (site, reference))
+        self.reads.iter()
     }
     /// A local read can satisfy the borrowed-input use census without a Home
     /// evaluation only when its complete resolver value graph has no path to
@@ -252,7 +242,7 @@ impl OriginalFormalUseSourceV1 {
         fn visit(
             value: SourceValueRefV1,
             flow: &VerifiedSourceValueFlowV1,
-            reads: &[(SourceExprSiteV1, ResolvedLexicalRefV1)],
+            reads: &BTreeMap<SourceExprSiteV1, ResolvedLexicalRefV1>,
             entry_origins: &BTreeMap<BindingRefV1, BindingRefV1>,
             consumed: &dyn Fn(&SourceExprSiteV1) -> bool,
             active: &mut BTreeSet<SourceValueRefV1>,
@@ -279,17 +269,7 @@ impl OriginalFormalUseSourceV1 {
                             let ResolvedLexicalRefV1::Local(read_binding) = reference else {
                                 return false;
                             };
-                            if read_binding.owner() != flow.owner()
-                                || reads
-                                    .iter()
-                                    .filter(|(candidate, candidate_ref)| {
-                                        candidate == read_site
-                                            && *candidate_ref
-                                                == ResolvedLexicalRefV1::Local(*read_binding)
-                                    })
-                                    .count()
-                                    != 1
-                            {
+                            if read_binding.owner() != flow.owner()                            {
                                 return false;
                             }
                             flow.read(read_site, *read_binding).is_some_and(|dependency| {
@@ -329,15 +309,7 @@ impl OriginalFormalUseSourceV1 {
         }
 
         if binding.owner() != self.owner
-            || self
-                .reads
-                .iter()
-                .filter(|(candidate, reference)| {
-                    candidate == site
-                        && *reference == ResolvedLexicalRefV1::Local(binding)
-                })
-                .count()
-                != 1
+            || self.reads.get(site) != Some(&ResolvedLexicalRefV1::Local(binding))
         {
             return false;
         }
@@ -407,12 +379,12 @@ impl OriginalFormalUseSourceV1 {
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn initializers(
         &self,
-    ) -> &[ResolvedInitializerRelationV1] {
-        &self.initializers
+    ) -> impl Iterator<Item = &ResolvedInitializerRelationV1> {
+        self.initializers.values()
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn assignments(
         &self,
-    ) -> &[(SourceExprSiteV1, ResolvedAssignmentTargetV1)] {
+    ) -> &BTreeMap<SourceExprSiteV1, ResolvedAssignmentTargetV1> {
         &self.assignments
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn captures(
@@ -436,10 +408,7 @@ impl OriginalFormalUseSourceV1 {
         site: &SourceExprSiteV1,
     ) -> Option<(BindingRefV1, Option<BindingRefV1>)> {
         let reference = |site: &SourceExprSiteV1| {
-            self.reads
-                .iter()
-                .find(|(at, _)| at == site)
-                .map(|(_, reference)| *reference)
+            self.reads.get(site).copied()
         };
         let ResolvedLexicalRefV1::Local(binding) = reference(site)? else {
             return None;
@@ -454,7 +423,7 @@ impl OriginalFormalUseSourceV1 {
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn has_declared_entry_initializer_v1(&self) -> bool {
-        self.initializers.iter().any(|initializer| {
+        self.initializers.values().any(|initializer| {
             initializer.declared_type_name().is_some()
                 && initializer.initializer_site().is_some_and(|site| self.tagged_entry_at_v1(site).is_some())
         })
@@ -466,19 +435,18 @@ impl OriginalFormalUseSourceV1 {
     ) -> Result<Option<BindingRefV1>, BorrowedFormalUseDraftErrorV1> {
         let reject = || BorrowedFormalUseDraftErrorV1::SourceIdentity;
         if initializer.binding().owner() != self.owner
-            || self.initializers.iter().filter(|row| *row == initializer).count() != 1 { return Err(reject()); }
+            || self.initializers.values().filter(|row| *row == initializer).count() != 1 { return Err(reject()); }
         let Some(source_binding) = source_binding else { return Ok(None) };
         let SourceBindingSiteV1::Local { statement, ordinal } = initializer.declaration_site() else { return Err(reject()) };
         let site = crate::mir::resolved_semantics::SourcePathV1::from_node(statement.node())
             .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Initializer(*ordinal)).expr();
         if initializer.initializer_site() != Some(&site)
             || source_binding.owner() != self.owner
-            || self.reads.iter().filter(|(at, reference)| *at == site
-                && *reference == ResolvedLexicalRefV1::Local(source_binding)).count() != 1 { return Err(reject()); }
+            || self.reads.get(&site) != Some(&ResolvedLexicalRefV1::Local(source_binding)) { return Err(reject()); }
         let Some(flow) = &self.flow else { return Ok(None) };
         let Some(point) = flow.read(&site, source_binding) else { return Ok(None) };
         let Some(formal) = flow.alias_entry_origin(point, |site|
-            self.reads.iter().find(|(at, _)| at == site).map(|(_, reference)| *reference)) else { return Ok(None) };
+            self.reads.get(site).copied()) else { return Ok(None) };
         if self.roots.get(&formal) != Some(&formal) { return Ok(None); }
         if initializer.declared_type_name().is_some() || formal == initializer.binding() { return Err(reject()); }
         Ok(Some(formal))
@@ -500,7 +468,7 @@ impl OriginalFormalUseSourceV1 {
         let plan = plans.next()?;
         let crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(binding))
             = plan.nodes().first()?.source() else { return None; };
-        let mut initializers = self.initializers.iter().filter(|row| row.binding() == *binding);
+        let mut initializers = self.initializers.values().filter(|row| row.binding() == *binding);
         let initializer = initializers.next()?;
         if plans.next().is_some() || initializers.next().is_some() || self.roots.contains_key(binding)
             || binding.owner() != self.owner || plan.nodes().first()?.site() != root.site().site()
@@ -529,12 +497,11 @@ impl OriginalFormalUseSourceV1 {
         if returned.owner() != self.owner || binding.owner() != self.owner
             || acquisition.source().owner() != self.owner || !acquisition.owns_root()
             || !acquisition.is_text_residence()
-            || self.reads.iter().filter(|(site, reference)| site == returned.value_site()
-                && *reference == ResolvedLexicalRefV1::Local(*binding)).count() != 1 { return false; }
+            || self.reads.get(returned.value_site()) != Some(&ResolvedLexicalRefV1::Local(*binding)) { return false; }
         let Some(flow) = &self.flow else { return false };
         flow.read(returned.value_site(), *binding).and_then(|point|
             flow.alias_origin_with_expression_boundary(point,
-                |site| self.reads.iter().find(|(at, _)| at == site).map(|(_, reference)| *reference),
+                |site| self.reads.get(site).copied(),
                 |site| site == root))
             .and_then(|origin| flow.origin(origin))
             .is_some_and(|origin| matches!(origin, SourceValueOriginV1::Expression(site) if site == root))
@@ -546,9 +513,9 @@ impl OriginalFormalUseSourceV1 {
         binding: BindingRefV1,
         formal: BindingRefV1,
     ) -> Option<OriginalFormalReadLoanV1> {
-        let index = self.reads.iter().position(|(original, reference)| {
-            original == site && *reference == ResolvedLexicalRefV1::Local(binding)
-        })?;
+        if self.reads.get(site) != Some(&ResolvedLexicalRefV1::Local(binding)) {
+            return None;
+        }
         if !self.roots.contains_key(&formal) {
             return None;
         }
@@ -557,7 +524,7 @@ impl OriginalFormalUseSourceV1 {
         let point = self.flow.as_ref().and_then(|flow| flow.read(site, binding));
         Some(OriginalFormalReadLoanV1 {
             original: Rc::clone(self),
-            index,
+            site: site.clone(),
             formal,
             point,
         })
@@ -569,14 +536,14 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 struct OriginalFormalReadLoanV1
 {
     original: Rc<OriginalFormalUseSourceV1>,
-    index: usize,
+    site: SourceExprSiteV1,
     formal: BindingRefV1,
     point: Option<crate::mir::resolved_semantics::source_value_flow::SourceValueRefV1>,
 }
 impl PartialEq for OriginalFormalReadLoanV1 {
     fn eq(&self, other: &Self) -> bool {
         Rc::ptr_eq(&self.original, &other.original)
-            && self.index == other.index
+            && self.site == other.site
             && self.formal == other.formal
             && self.point == other.point
     }
@@ -596,7 +563,7 @@ impl OriginalFormalReadLoanV1 {
         formal: BindingRefV1,
     ) -> bool {
         self.formal == formal
-            && self.original.reads.get(self.index)
-                == Some(&(site.clone(), ResolvedLexicalRefV1::Local(binding)))
+            && &self.site == site
+            && self.original.reads.get(site) == Some(&ResolvedLexicalRefV1::Local(binding))
     }
 }

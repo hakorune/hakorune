@@ -188,7 +188,7 @@ pub(crate) use ordinary_new_coseal::{
     LexicalInstanceCallSourceTargetV1, MapStoredResultSourceV1, MixedLocalCallSourceLoanV1,
     NewEmissionSelectionV1, NewEmissionUnavailableV1, ObjectReturnCallQualificationV1,
     OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewConstructorDispositionV1,
-    OrdinaryNewResultClaimV1, OrdinaryNewResultClassV1, OrdinaryNewTrivialArgumentKindV1,
+    OrdinaryNewResultClaimV1, OrdinaryNewResultClassV1, SelectedNewArgumentKindV1,
     OrdinaryNewTrivialArgumentV1, OwnedFieldChildKindV1, OwnedFieldChildV1,
     PreparedTerminalMapGetReturnV1, QualifiedFieldWriteReceiverV1,
     QualifiedStaticCallArgumentKindV1, ReceiverCallClassObservationV1, ResultExitOriginV1,

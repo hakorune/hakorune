@@ -136,11 +136,11 @@ pub(super) fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> Resol
         variable_uses: BTreeMap::from([(
             use_site,
             super::ResolvedLexicalRefV1::Local(binding_ref),
-        )]),
+        )]).into(),
         assignment_targets: BTreeMap::from([(
             assignment_site,
             ResolvedAssignmentTargetV1::BindingRebind(binding_ref),
-        )]),
+        )]).into(),
         direct_call_targets: BTreeMap::new(),
         direct_call_observations: BTreeMap::new(),
         method_calls: BTreeMap::new(),
