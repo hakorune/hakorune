@@ -423,11 +423,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_static_result_arg
     };
     let original = Rc::clone(original);
     let reject = || freeze("borrowed-static/core-source-identity");
-    let mut matches = contracts
-        .iter()
-        .filter(|contract| contract.owner == original.callee_owner());
-    let contract = matches.next().ok_or_else(reject)?;
-    if matches.next().is_some() || contract.batch_slot != original.target_batch_slot()
+    let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
+        contracts, original.callee_owner(), reject, reject,
+    )?;
+    if contract.batch_slot != original.target_batch_slot()
         || contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::StaticBoxMethod
         || contract.parameters.len() != original.target().arity() as usize
         || contract.parameters.len() != original.parameters().len()

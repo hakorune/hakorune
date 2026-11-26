@@ -427,7 +427,7 @@ fn exact_no_entry_transfer_v1(
     let Some((owner, slot, arguments)) = target else {
         return Ok(false);
     };
-    let mut matching = contracts.iter().filter(|row| row.owner == owner);
+    let mut matching = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, owner);
     let Some(contract) = matching.next() else {
         return Ok(false);
     };

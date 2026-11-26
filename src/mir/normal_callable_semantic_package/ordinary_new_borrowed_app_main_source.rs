@@ -101,9 +101,11 @@ impl<'a> AppMainSourceRefV1<'a> {
         if declarations.next().is_some() || declaration.owner() != owner || declaration.batch_slot() != slot
             || self.key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
         { return Err("original-caller/app-main-identity"); }
-        let mut rows = contracts.iter().filter(|row| row.owner == owner);
-        let row = rows.next().ok_or("original-caller/app-main-contract")?;
-        if rows.next().is_some() || row.batch_slot != slot
+        let reject = || "original-caller/app-main-contract";
+        let row = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
+            contracts, owner, reject, reject,
+        )?;
+        if row.batch_slot != slot
             || row.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::StaticBoxMethod
             || row.parameters.len() != self.key.arity() as usize
             || row.parameters.iter().enumerate().any(|(index, formal)| formal.ordinal as usize != index || formal.binding.owner() != owner)

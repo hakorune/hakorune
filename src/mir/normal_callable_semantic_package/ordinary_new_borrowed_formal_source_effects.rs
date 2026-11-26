@@ -13,7 +13,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     while let Some(owner) = pending.pop() {
         if !seen.insert(owner) { continue; }
         if let Some(contracts) = contracts {
-            let mut rows = contracts.iter().filter(|row| row.owner == owner);
+            let mut rows = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, owner);
             let Some(row) = rows.next() else { return false; };
             if rows.next().is_some() || row.parameters.iter().any(|formal|
                 formal.demand == crate::mir::resolved_semantics::HomeDemandV1::Home) { return false; }

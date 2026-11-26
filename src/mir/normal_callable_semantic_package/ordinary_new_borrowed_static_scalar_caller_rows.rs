@@ -522,12 +522,12 @@ impl OrdinaryNewClaimLedgerV1 {
             }) {
                 continue;
             }
-            let mut matching = contracts.iter().filter(|row| row.owner == owner);
-            let contract = matching
-                .next()
-                .ok_or_else(|| freeze("static-scalar/contract-missing"))?;
-            if matching.next().is_some()
-                || !first.matches_static_input_contract_v1(selected, contract)
+            let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
+                contracts, owner,
+                || freeze("static-scalar/contract-missing"),
+                || freeze("static-scalar/contract-identity"),
+            )?;
+            if !first.matches_static_input_contract_v1(selected, contract)
             {
                 return Err(freeze("static-scalar/contract-identity"));
             }

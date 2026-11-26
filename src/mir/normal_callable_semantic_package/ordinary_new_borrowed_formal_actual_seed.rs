@@ -702,7 +702,7 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
                 if !sum_stable {
                     return OriginalFormalActualSeedV1::Conflict;
                 }
-                let mut owners = contracts.iter().filter(|row| row.owner == input.owner());
+                let mut owners = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, input.owner());
                 if let Some(contract) = owners.next().filter(|_| owners.next().is_none()) {
                     if let Some(formal) = contract.parameters.iter().enumerate().find_map(|(ordinal, formal)|
                         (formal.binding == binding && formal.ordinal as usize == ordinal

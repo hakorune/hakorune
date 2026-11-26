@@ -248,13 +248,11 @@ fn source_result_pending(
     owner: FunctionOwnerIdV1,
     dynamic_source_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
 ) -> Result<BorrowedI64ResultSourceV1, String> {
-    let mut matches = contracts.iter().filter(|row| row.owner == owner);
-    let contract = matches
-        .next()
-        .ok_or_else(|| freeze("borrowed-result/source-contract-missing"))?;
-    if matches.next().is_some() {
-        return Err(freeze("borrowed-result/source-contract-duplicate"));
-    }
+    let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
+        contracts, owner,
+        || freeze("borrowed-result/source-contract-missing"),
+        || freeze("borrowed-result/source-contract-duplicate"),
+    )?;
     batch.with_lowering_input(contract.batch_slot, |input| {
         let key = selected.key_for_batch_slot(contract.batch_slot)
             .and_then(|key| match key { crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key) => Some(key), _ => None })
@@ -678,9 +676,11 @@ fn seal_one(
 fn zero_parameter_instance_result_owner_v1(
     contracts: &[OwnedCallableParameterContractDeclarationV1], owner: FunctionOwnerIdV1,
 ) -> Result<bool, String> {
-    let mut matching = contracts.iter().filter(|row| row.owner == owner);
-    let contract = matching.next().ok_or_else(|| freeze("borrowed-result/source-contract-missing"))?;
-    if matching.next().is_some() { return Err(freeze("borrowed-result/source-contract-duplicate")); }
+    let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
+        contracts, owner,
+        || freeze("borrowed-result/source-contract-missing"),
+        || freeze("borrowed-result/source-contract-duplicate"),
+    )?;
     Ok(contract.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod && contract.parameters.is_empty())
 }
 

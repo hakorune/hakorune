@@ -213,6 +213,28 @@ struct ArgumentSourceIdentityRefV1<'a> {
     slots: &'a BTreeMap<u32, ArgumentExpressionV1>,
     formals: &'a [crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1],
 }
+fn argument_source_contract_v1<'a>(
+    contracts: &'a [OwnedCallableParameterContractDeclarationV1],
+    source: &LexicalInstanceCallSourceTargetV1,
+    candidates: &[BorrowedCallActualCandidateV1],
+    reject: impl Fn() -> String + Copy,
+) -> Result<&'a OwnedCallableParameterContractDeclarationV1, String> {
+    let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
+        contracts, source.callee_owner(), reject, reject,
+    )?;
+    if contract.batch_slot != source.target_batch_slot()
+        || contract.mode != super::super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Instance(source).declaration_mode()
+        || contract.parameters.len() != candidates.len()
+        || contract.parameters.iter().zip(candidates).enumerate().any(|(index, (formal, candidate))| {
+            formal.ordinal as usize != index
+                || formal.binding.owner() != contract.owner
+                || source.argument_sites().get(index) != Some(&candidate.site)
+        })
+    {
+        return Err(reject());
+    }
+    Ok(contract)
+}
 fn argument_source_identity_v1<'a>(
     prepared: &'a PreparedBorrowedFormalIngressV1,
     contracts: Option<&'a [OwnedCallableParameterContractDeclarationV1]>,
@@ -246,49 +268,11 @@ fn argument_source_identity_v1<'a>(
             {
                 return Err(reject());
             }
-            let mut matches = contracts
-                .iter()
-                .filter(|row| row.owner == identity.source.callee_owner());
-            let contract = matches.next().ok_or_else(reject)?;
-            if matches.next().is_some()
-                || contract.batch_slot != identity.source.target_batch_slot()
-                || contract.mode != Loan::Instance(&identity.source).declaration_mode()
-                || contract.parameters.len() != identity.candidates.len()
-                || contract
-                    .parameters
-                    .iter()
-                    .enumerate()
-                    .any(|(index, formal)| {
-                        formal.ordinal as usize != index
-                            || formal.binding.owner() != contract.owner
-                            || identity.source.argument_sites().get(index)
-                                != identity
-                                    .candidates
-                                    .get(index)
-                                    .map(|candidate| &candidate.site)
-                    })
-            {
-                return Err(reject());
-            }
-            let mut rebuilt = instance_source::prepare_instance_source_actuals_v1(
-                prepared,
-                contracts,
-                site,
-                &identity.candidates,
-            )?
-            .ok_or_else(reject)?;
-            model::retain_instance_argument_sources_v1(&mut rebuilt, identity)?;
-            if rebuilt.ordered_arguments != rows.ordered_arguments {
-                return Err(reject());
-            }
-            match &rows.phase {
-                BorrowedCallActualEvidencePhaseV1::SourceInstance(_) if &rebuilt != rows => {
-                    return Err(reject())
-                }
-                BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(_) => {
-                    rows.checked_ordered_arguments_v1(&original)?;
-                }
-                _ => {}
+            let contract = argument_source_contract_v1(
+                contracts, &identity.source, &identity.candidates, reject,
+            )?;
+            if matches!(&rows.phase, BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(_)) {
+                rows.checked_ordered_arguments_v1(&original)?;
             }
             Ok(Some(ArgumentSourceIdentityRefV1 {
                 source: Loan::Instance(&identity.source),
@@ -312,49 +296,11 @@ fn argument_source_identity_v1<'a>(
             {
                 return Err(reject());
             }
-            let mut matches = contracts
-                .iter()
-                .filter(|row| row.owner == identity.source.callee_owner());
-            let contract = matches.next().ok_or_else(reject)?;
-            if matches.next().is_some()
-                || contract.batch_slot != identity.source.target_batch_slot()
-                || contract.mode != Loan::Instance(&identity.source).declaration_mode()
-                || contract.parameters.len() != identity.candidates.len()
-                || contract
-                    .parameters
-                    .iter()
-                    .enumerate()
-                    .any(|(index, formal)| {
-                        formal.ordinal as usize != index
-                            || formal.binding.owner() != contract.owner
-                            || identity.source.argument_sites().get(index)
-                                != identity
-                                    .candidates
-                                    .get(index)
-                                    .map(|candidate| &candidate.site)
-                    })
-            {
-                return Err(reject());
-            }
-            let mut rebuilt = object_source::prepare_object_source_actuals_v1(
-                prepared,
-                contracts,
-                site,
-                &identity.candidates,
-            )?
-            .ok_or_else(reject)?;
-            model::retain_object_argument_sources_v1(&mut rebuilt, identity)?;
-            if rebuilt.ordered_arguments != rows.ordered_arguments {
-                return Err(reject());
-            }
-            match &rows.phase {
-                BorrowedCallActualEvidencePhaseV1::SourceObject(_) if &rebuilt != rows => {
-                    return Err(reject())
-                }
-                BorrowedCallActualEvidencePhaseV1::ExecutableSourceObject(_) => {
-                    rows.checked_ordered_arguments_v1(original)?;
-                }
-                _ => {}
+            let contract = argument_source_contract_v1(
+                contracts, &identity.source, &identity.candidates, reject,
+            )?;
+            if matches!(&rows.phase, BorrowedCallActualEvidencePhaseV1::ExecutableSourceObject(_)) {
+                rows.checked_ordered_arguments_v1(original)?;
             }
             Ok(Some(ArgumentSourceIdentityRefV1 {
                 source: Loan::Instance(&identity.source),

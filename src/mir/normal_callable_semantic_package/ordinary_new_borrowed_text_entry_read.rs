@@ -1,5 +1,6 @@
 //! Required source Text read, fulfilled only by a later finished borrowed entry.
 use super::*;
+use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -45,9 +46,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     }
     let node = plan.nodes().iter().position(|node| node.site() == read
         && matches!(node.source(), ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(original)) if *original == binding)).ok_or_else(reject)?;
-    let mut matching = contracts.iter().filter(|row| row.owner == binding.owner());
-    let declaration = matching.next().ok_or_else(reject)?;
-    if matching.next().is_some() || !original.matches_contract(declaration) { return Err(reject()); }
+    let declaration = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
+        contracts, binding.owner(), reject, reject,
+    )?;
+    if !original.matches_contract(declaration) { return Err(reject()); }
     let mut formals = declaration.parameters.iter().filter(|row| row.binding == root);
     let formal = formals.next().ok_or_else(reject)?;
     if formals.next().is_some() || !matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)

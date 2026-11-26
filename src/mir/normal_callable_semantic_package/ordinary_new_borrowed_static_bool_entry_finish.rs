@@ -294,7 +294,7 @@ impl OrdinaryNewClaimLedgerV1 {
             super::static_numeric_evidence::check_exact_usize_scalar_caller_v1(
                 selected, contracts, signatures, original, binding,
             )?;
-            let mut matching = contracts.iter().filter(|contract| contract.owner == owner);
+            let mut matching = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, owner);
             let contract = matching
                 .next()
                 .ok_or_else(|| freeze("static-bool-entry/contract-missing"))?;

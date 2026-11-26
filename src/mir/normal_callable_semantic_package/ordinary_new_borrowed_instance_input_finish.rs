@@ -504,13 +504,11 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 continue;
             }
-            let mut matching = contracts.iter().filter(|row| row.owner == owner);
-            let contract = matching
-                .next()
-                .ok_or_else(|| freeze("instance-input/contract-missing"))?;
-            if matching.next().is_some() {
-                return Err(freeze("instance-input/contract-duplicate"));
-            }
+            let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
+                contracts, owner,
+                || freeze("instance-input/contract-missing"),
+                || freeze("instance-input/contract-duplicate"),
+            )?;
             // Finish non-Array inputs before Normal; keep Array rows source-only
             // until all original producer inputs AND the sole Normal seal agree.
             let mut array_pending = false;

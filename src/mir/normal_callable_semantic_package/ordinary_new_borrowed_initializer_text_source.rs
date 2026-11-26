@@ -157,11 +157,9 @@ fn opaque_entry_contract_v1<'a>(
     owner: FunctionOwnerIdV1,
     root: BindingRefV1,
 ) -> Result<Option<&'a OwnedCallableParameterContractDeclarationV1>, ()> {
-    let mut rows = contracts.iter().filter(|row| row.owner == owner);
-    let contract = rows.next().ok_or(())?;
-    if rows.next().is_some() {
-        return Err(());
-    }
+    let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
+        contracts, owner, || (), || (),
+    )?;
     Ok(contract
         .parameters
         .iter()

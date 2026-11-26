@@ -616,12 +616,12 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("static-one/whole-cohort"));
             }
             let owner = original.callee_owner();
-            let mut matching = contracts.iter().filter(|row| row.owner == owner);
-            let contract = matching
-                .next()
-                .ok_or_else(|| freeze("static-one/contract-missing"))?;
-            if matching.next().is_some()
-                || !original.matches_static_input_contract_v1(selected, contract)
+            let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
+                contracts, owner,
+                || freeze("static-one/contract-missing"),
+                || freeze("static-one/contract-identity"),
+            )?;
+            if !original.matches_static_input_contract_v1(selected, contract)
                 || !(source.definitions.contains_key(&owner)
                     || source.target_static.contains_key(&owner))
             {

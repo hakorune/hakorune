@@ -39,9 +39,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     // references. Only original borrowed formal ordinals select this family.
     let mut arguments = BTreeSet::new();
     let mut retain_arguments = |reference: super::super::source::CallTargetReferenceV1| -> Result<(), String> {
-        let mut matches = contracts.iter().filter(|row| row.owner == reference.callee_owner);
-        let contract = matches.next().ok_or_else(|| freeze("array-source/contract-missing"))?;
-        if matches.next().is_some() || contract.batch_slot != reference.target_batch_slot
+        let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
+            contracts, reference.callee_owner, || freeze("array-source/contract-missing"), || freeze("array-source/contract-identity"),
+        )?;
+        if contract.batch_slot != reference.target_batch_slot
             || contract.parameters.len() != reference.argument_sites.len() {
             return Err(freeze("array-source/contract-identity"));
         }
