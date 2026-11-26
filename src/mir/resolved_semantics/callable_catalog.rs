@@ -7,7 +7,7 @@
 use std::collections::BTreeMap;
 
 use super::{
-    CallableIndexSealErrorV1, EmbeddedCallableFunctionSyntaxViewV1, FunctionOriginV1,
+    CallableIndexSealErrorV1, FunctionOriginV1,
     FunctionSemanticResolverSessionV1, LocatedCallableHeaderSyntaxViewV1, ResolveFunctionErrorV1,
     ResolvedCallableRefV1, SourceCallableDeclarationSiteV1, VerifiedCallableHeaderSourceUnitV1,
     VerifiedCallableIndexV1, VerifiedOwnerFreeCallableCatalogSourceUnitV1,
@@ -99,14 +99,6 @@ impl VerifiedCallableCatalogSourceUnitV1 {
 
     pub(crate) const fn catalog(&self) -> &VerifiedCallableCatalogV1 {
         &self.catalog
-    }
-
-    pub(in crate::mir) fn embedded_function(
-        &self,
-        statement_index: usize,
-        method_key: &str,
-    ) -> Option<EmbeddedCallableFunctionSyntaxViewV1<'_>> {
-        self.source.embedded_function(statement_index, method_key)
     }
 
     pub(super) const fn resolution_syntax(&self) -> &VerifiedCallableHeaderSourceUnitV1 {
