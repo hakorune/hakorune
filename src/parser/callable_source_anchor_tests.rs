@@ -1,7 +1,7 @@
 use super::*;
 use crate::parser::source_authority::{
     ParserInvocationBrandV1, SourceBoxDeclarationPathV1,
-    SourceBuildGateBranchV1, SourceProgramCallablePathV1,
+    SourceBuildGateBranchV1, SourceProgramCallablePathV1, SourceProgramDeclarationPathV1,
 };
 use crate::tokenizer::NyashTokenizer;
 
@@ -115,7 +115,6 @@ fn member_gate_children_keep_both_written_paths_before_selection() {
                 assert_eq!(gate_path.len(), 1);
                 gate_path[0].branch()
             }
-            other => panic!("expected Box method path, got {other:?}"),
         })
         .collect::<Vec<_>>();
     assert_eq!(
@@ -147,12 +146,23 @@ fn nested_member_gate_keeps_the_full_written_branch_path() {
             )
         })
         .expect("nested then declaration must be retained");
-    let SourceProgramCallablePathV1::BoxMethod { gate_path, .. } = nested_then.path() else {
-        panic!("nested member must retain a Box-method path")
-    };
+    let SourceProgramCallablePathV1::BoxMethod { gate_path, .. } = nested_then.path();
     assert_eq!(gate_path.len(), 2);
     assert_eq!(gate_path[0].branch(), SourceBuildGateBranchV1::Else);
     assert_eq!(gate_path[1].branch(), SourceBuildGateBranchV1::Then);
+}
+
+fn test_method_placement() -> DirectCallableCommitPlacementV1 {
+    let parser = parse_rows("static box Fixture { same() {} }");
+    parser.callable_source_session.as_ref().unwrap().rows()[0].commit_placement()
+}
+
+fn test_method_path(brand: ParserInvocationBrandV1) -> SourceProgramCallablePathV1 {
+    SourceProgramCallablePathV1::box_method(
+        SourceProgramDeclarationPathV1::from_parser_path(SourceBoxDeclarationPathV1::root(brand, 0)),
+        Box::new([]),
+        0,
+    )
 }
 
 #[test]
@@ -162,9 +172,9 @@ fn foreign_parser_path_rejects_before_publication() {
     let session = ParserCallableSourceSessionV1::open(owner);
     let error = session
         .prepare_direct(
-            SourceProgramCallablePathV1::top_level(SourceBoxDeclarationPathV1::root(foreign, 0)),
-            DirectCallableDeclarationKindV1::FreeFunction,
-            DirectCallableCommitPlacementV1::TopLevel,
+            test_method_path(foreign),
+            DirectCallableDeclarationKindV1::StaticBoxMethod,
+            test_method_placement(),
             "same",
         )
         .unwrap_err();
@@ -176,13 +186,13 @@ fn duplicate_path_rejects_without_cloning_anchor_authority() {
     let brand = ParserInvocationBrandV1::issue();
     let mut session = ParserCallableSourceSessionV1::open(brand.clone());
     let path = || {
-        SourceProgramCallablePathV1::top_level(SourceBoxDeclarationPathV1::root(brand.clone(), 0))
+        test_method_path(brand.clone())
     };
     let first = session
         .prepare_direct(
             path(),
-            DirectCallableDeclarationKindV1::FreeFunction,
-            DirectCallableCommitPlacementV1::TopLevel,
+            DirectCallableDeclarationKindV1::StaticBoxMethod,
+            test_method_placement(),
             "same",
         )
         .unwrap();
@@ -191,8 +201,8 @@ fn duplicate_path_rejects_without_cloning_anchor_authority() {
     let second_anchor_same_path = session
         .prepare_direct(
             path(),
-            DirectCallableDeclarationKindV1::FreeFunction,
-            DirectCallableCommitPlacementV1::TopLevel,
+            DirectCallableDeclarationKindV1::StaticBoxMethod,
+            test_method_placement(),
             "same",
         )
         .unwrap();

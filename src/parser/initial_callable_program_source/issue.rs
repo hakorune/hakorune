@@ -10,7 +10,7 @@ use crate::parser::build_cfg::program_item_slots::{
 use crate::parser::callable_contract_syntax::CallableContractSourceDispositionV1;
 use crate::parser::callable_source_anchor::{
     DirectCallableCommitPlacementV1, DirectCallableDeclarationKindV1, GeneratedCallableOriginV1,
-    PreparedCallableSourceV1, PreparedDirectCallableSourceV1,
+    PreparedCallableSourceV1,
 };
 use crate::parser::source_authority::{MethodSourceRelationV1, PreparedBoxSourceSealV1};
 use crate::parser::source_path::{
@@ -25,7 +25,6 @@ pub(in crate::parser) enum InitialCallableProgramSourceRejectV1 {
     MissingProgramSlot,
     FinalSlotOutOfRange,
     WrongDeclarationKind,
-    WrongDirectCommitPlacement,
     MissingBoxSourceSeal,
     SelectedMethodRelationCoverage,
     UnsupportedBoxKind,
@@ -103,10 +102,7 @@ fn issue_callable_contract_source(
         declaration,
         gate_path,
         member_ordinal,
-    } = direct.path()
-    else {
-        return Ok(CallableContractSourceDispositionV1::OutsideDirectDeclaredInstanceMethod);
-    };
+    } = direct.path();
     if !gate_path.is_empty() {
         return Ok(CallableContractSourceDispositionV1::OutsideDirectDeclaredInstanceMethod);
     }
@@ -267,16 +263,6 @@ fn resolve_callable_slot(
         .map_err(map_program_slot_error)?
         .ok_or(InitialCallableProgramSourceRejectV1::MissingProgramSlot)?;
     match source_path {
-        SourceProgramCallablePathV1::TopLevel { .. } => {
-            let direct = row
-                .direct()
-                .ok_or(InitialCallableProgramSourceRejectV1::WrongDeclarationKind)?;
-            if direct.commit_placement() != DirectCallableCommitPlacementV1::TopLevel {
-                return Err(InitialCallableProgramSourceRejectV1::WrongDirectCommitPlacement);
-            }
-            validate_top_level(ast, statement, direct)?;
-            Ok(InitialCallableFinalSlotV1::TopLevel { statement })
-        }
         SourceProgramCallablePathV1::BoxMethod {
             declaration,
             gate_path,
@@ -290,26 +276,6 @@ fn resolve_callable_slot(
     }
 }
 
-fn validate_top_level(
-    ast: &ASTNode,
-    statement: u32,
-    direct: &PreparedDirectCallableSourceV1,
-) -> Result<(), InitialCallableProgramSourceRejectV1> {
-    let node = program_statement(ast, statement)?;
-    let ASTNode::FunctionDeclaration { is_static, .. } = node else {
-        return Err(InitialCallableProgramSourceRejectV1::WrongDeclarationKind);
-    };
-    let valid = matches!(direct.kind(), DirectCallableDeclarationKindV1::FreeFunction)
-        && !*is_static
-        || matches!(
-            direct.kind(),
-            DirectCallableDeclarationKindV1::FreeStaticFunction
-        ) && *is_static;
-    valid
-        .then_some(())
-        .ok_or(InitialCallableProgramSourceRejectV1::WrongDeclarationKind)
-}
-
 fn resolve_method_ordinal(
     declaration: &SourceProgramDeclarationPathV1,
     gate_path: &[SourceProgramMemberGateStepV1],
@@ -320,10 +286,7 @@ fn resolve_method_ordinal(
     if let Some(direct) = row.direct() {
         let DirectCallableCommitPlacementV1::BoxMethod {
             committed_inventory,
-        } = direct.commit_placement()
-        else {
-            return Err(InitialCallableProgramSourceRejectV1::WrongDirectCommitPlacement);
-        };
+        } = direct.commit_placement();
         if gate_path.is_empty() {
             return Ok(committed_inventory);
         }

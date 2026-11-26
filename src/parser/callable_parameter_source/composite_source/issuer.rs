@@ -190,10 +190,7 @@ fn find_source_row<'a>(
             declaration,
             gate_path,
             member_ordinal,
-        } = direct.path()
-        else {
-            return false;
-        };
+        } = direct.path();
         gate_path.is_empty()
             && declaration.compatibility_box_path() == provider.source_site().box_site().path()
             && *member_ordinal == provider.source_member_ordinal()

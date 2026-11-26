@@ -537,9 +537,7 @@ fn callable_row_matches(
     box_path: &SourceBoxDeclarationPathV1,
     member_site: &SourceBoxMemberSiteV1,
 ) -> bool {
-    let Some((declaration, gate_path, member_ordinal)) = row.path().box_method_parts() else {
-        return false;
-    };
+    let (declaration, gate_path, member_ordinal) = row.path().box_method_parts();
     gate_path.is_empty()
         && declaration.compatibility_box_path() == box_path
         && member_ordinal == member_site.member_ordinal()

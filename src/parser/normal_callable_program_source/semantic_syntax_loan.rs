@@ -262,10 +262,7 @@ fn issue_method_source_observation(
         declaration,
         gate_path,
         member_ordinal,
-    } = direct.path()
-    else {
-        return None;
-    };
+    } = direct.path();
     // The bounded I0 observes only direct source methods.  Build-gate methods
     // retain their own richer gate relation and are intentionally not
     // collapsed into an ordinary Box source site here.

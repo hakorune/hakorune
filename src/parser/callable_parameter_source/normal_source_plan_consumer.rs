@@ -102,9 +102,6 @@ pub(crate) enum NormalSourcePlanTopLevelRowRefV1<'source> {
     Executable {
         statement: u32,
     },
-    TopLevelCallable {
-        statement: u32,
-    },
     Box(NormalSourcePlanBoxRefV1<'source>),
     Unsupported {
         statement: u32,
@@ -319,12 +316,6 @@ fn observe_surface<R>(
         rows.push(match row {
             ParserNormalSourcePlanTopLevelRowV1::Executable { .. } => {
                 NormalSourcePlanTopLevelRowRefV1::Executable { statement }
-            }
-            ParserNormalSourcePlanTopLevelRowV1::TopLevelCallable {
-                callable_identity, ..
-            } => {
-                let _top_level_callable = method_ref(bound, callable_identity)?;
-                NormalSourcePlanTopLevelRowRefV1::TopLevelCallable { statement }
             }
             ParserNormalSourcePlanTopLevelRowV1::StaticBox { source, .. } => {
                 if usize::try_from(source.member_count()).ok() != Some(source.member_kinds().len())

@@ -198,8 +198,6 @@ impl PreparedCallableSourceV1 {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum DirectCallableDeclarationKindV1 {
-    FreeFunction,
-    FreeStaticFunction,
     StaticBoxMethod,
     InstanceBoxMethod,
 }
@@ -212,7 +210,6 @@ pub(super) enum DirectCallableDeclarationKindV1 {
 /// branch-local commit ordinal.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum DirectCallableCommitPlacementV1 {
-    TopLevel,
     BoxMethod {
         committed_inventory: BoxMethodInventoryOrdinalV1,
     },

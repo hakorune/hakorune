@@ -7,9 +7,7 @@
 
 use crate::ast::ASTNode;
 
-use super::super::callable_source_anchor::{
-    CallableDeclarationIdentityV1, PreparedCallableSourceV1,
-};
+use super::super::callable_source_anchor::CallableDeclarationIdentityV1;
 use super::catalog::ParserCallableParameterSourceDispositionV1;
 use super::model::ParserCallableDeclarationKindV1;
 use super::normal_source_plan_seed::ParserNormalSourcePlanSeedDispositionV1;
@@ -20,7 +18,6 @@ use super::static_box_source::{
 use crate::parser::build_cfg::program_item_slots::ProjectedProgramItemSlotV1;
 use crate::parser::postpass_envelope::{CompletedParserPostpassV1, ParserPostpassProgramCohortV1};
 use crate::parser::source_authority::{SourceBoxDeclarationSiteV1, SourceBoxMethodSiteV1};
-use crate::parser::source_path::SourceProgramCallablePathV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::parser) enum ParserNormalSourcePlanUnsupportedKindV1 {
@@ -40,10 +37,6 @@ pub(crate) enum ParserNormalSourcePlanTopLevelRowV1 {
     Executable {
         slot: ProjectedProgramItemSlotV1,
     },
-    TopLevelCallable {
-        slot: ProjectedProgramItemSlotV1,
-        callable_identity: CallableDeclarationIdentityV1,
-    },
     StaticBox {
         slot: ProjectedProgramItemSlotV1,
         source: PreparedParserStaticBoxParentSourceV1,
@@ -62,7 +55,6 @@ impl ParserNormalSourcePlanTopLevelRowV1 {
     pub(crate) fn slot(&self) -> &ProjectedProgramItemSlotV1 {
         match self {
             Self::Executable { slot }
-            | Self::TopLevelCallable { slot, .. }
             | Self::StaticBox { slot, .. }
             | Self::OrdinaryBox { slot, .. }
             | Self::Unsupported { slot, .. } => slot,
@@ -152,7 +144,6 @@ pub(crate) enum ParserNormalSourcePlanSurfaceV1 {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ParserNormalSourcePlanCallableKindV1 {
-    TopLevel,
     StaticBoxMethod,
     InstanceBoxMethod,
 }
@@ -337,63 +328,10 @@ impl ParserNormalSourcePlanSurfaceIssuerV1 {
                 );
             };
             let row = match statement {
-                ASTNode::FunctionDeclaration { name, params, .. } => {
-                    let callable_matches = completed
-                        .callable_rows()
-                        .iter()
-                        .filter_map(PreparedCallableSourceV1::direct)
-                        .filter(|source| {
-                            matches!(
-                                source.path(),
-                                SourceProgramCallablePathV1::TopLevel { declaration }
-                                    if *declaration == *slot.source_path()
-                            )
-                        })
-                        .collect::<Vec<_>>();
-                    let Some(source) = callable_matches.first() else {
-                        return ParserNormalSourcePlanSurfaceDispositionV1::Incomplete(
-                            ParserNormalSourcePlanSurfaceIncompleteV1::CallableSourceMissing,
-                        );
-                    };
-                    if callable_matches.len() != 1 {
-                        return ParserNormalSourcePlanSurfaceDispositionV1::IntegrityInvalid(
-                            ParserNormalSourcePlanSurfaceIntegrityIssueV1::DuplicateCallableSource,
-                        );
-                    }
-                    if !source.parser_brand().same_as(slot.source_path().brand()) {
-                        return ParserNormalSourcePlanSurfaceDispositionV1::IntegrityInvalid(
-                            ParserNormalSourcePlanSurfaceIntegrityIssueV1::ForeignParserRelation,
-                        );
-                    }
-                    let arity = match u32::try_from(params.len()) {
-                        Ok(arity) => arity,
-                        Err(_) => {
-                            return ParserNormalSourcePlanSurfaceDispositionV1::Incomplete(
-                                ParserNormalSourcePlanSurfaceIncompleteV1::CallableArityOverflow,
-                            )
-                        }
-                    };
-                    let identity = source.anchor().identity();
-                    if callable_syntax
-                        .iter()
-                        .any(|row: &ParserNormalSourcePlanCallableSyntaxV1| {
-                            row.identity.same_as(&identity)
-                        })
-                    {
-                        return ParserNormalSourcePlanSurfaceDispositionV1::IntegrityInvalid(
-                            ParserNormalSourcePlanSurfaceIntegrityIssueV1::DuplicateCallableSyntax,
-                        );
-                    }
-                    callable_syntax.push(ParserNormalSourcePlanCallableSyntaxV1 {
-                        identity: identity.clone(),
-                        diagnostic_name: name.as_str().into(),
-                        arity,
-                        kind: ParserNormalSourcePlanCallableKindV1::TopLevel,
-                    });
-                    ParserNormalSourcePlanTopLevelRowV1::TopLevelCallable {
-                        slot,
-                        callable_identity: identity,
-                    }
+                ASTNode::FunctionDeclaration { .. } => {
+                    return ParserNormalSourcePlanSurfaceDispositionV1::Incomplete(
+                        ParserNormalSourcePlanSurfaceIncompleteV1::CallableSourceMissing,
+                    );
                 }
                 ASTNode::BoxDeclaration { is_static, .. } if *is_static => {
                     let Some(index) = static_parent_sources.iter().position(|source| {
