@@ -71,7 +71,11 @@ Selected contextual forms
   is a current reserved keyword, and `share(...)` remains an ordinary call)
 
 Expressions and Calls
-- Function call: `f(a, b)`
+- Function call: `f(a, b)`.
+- [Reserved call forms](function-call-evaluation.md#reserved-bare-call-forms)
+  include the statement `print(expr)` and `mem.name(...)` within a
+  `fastmem ContractName { ... }` region. Bare `exit`, `str`, and `Range`
+  follow ordinary name resolution.
 - Accepted target, production 0: `panic(message)` uses the ordinary function
   call syntax but is a reserved terminal builtin with semantic signature
   `panic(String) -> Never`. It is not shadowable, returns no value, cannot be
@@ -143,7 +147,8 @@ Blocks and Control
 - `if (cond) { ... } [else { ... }]`
 - `guard cond else { ... }` — early-exit branch
 - `loop cond { ... }` — condition loop
-- `loop i in start..end { ... }` — range loop header, end-exclusive
+- `loop i in start..end { ... }` — range loop header, end-exclusive.
+  The standalone `start .. end` expression sugar has been retired.
 - `loop { ... }` — infinite loop
 - `match expr { pattern => expr, _ => fallback }` — MVP match form; no `case` keyword
 

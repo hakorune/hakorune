@@ -179,9 +179,8 @@ provider lookup, retry, or fallback.
 
 Expected or caller-actionable failures use `Result<T,E>` and explicit
 `match`, `guard`, return, or typed Result-only `?`. `panic` is for an
-unrecoverable violated contract. Bare `exit` is not an alias: process exit is
-a separate application/runtime capability and is not accepted by this
-Decision.
+unrecoverable violated contract. Bare `exit(...)` has no special target.
+Process exit remains a separate application/runtime capability.
 
 Repository evidence (not a language authority) already demonstrates the
 throw-free application shape: `apps/lib/json_native/parser/parser.hako`

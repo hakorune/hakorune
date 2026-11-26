@@ -26,6 +26,18 @@ a wrong argument count is reported as `call/arity-mismatch`.
 
 ### Reserved bare call forms
 
+`print(expr)` is a statement with exactly one expression. The parser produces
+a Print statement directly. Expression calls and method lookup do not provide
+the bare Print form.
+
+`mem.name(args)` is reserved within a
+[FastMemory contract region](low-level-capabilities.md#fastmemory-contract-regions)
+written `fastmem ContractName { ... }`. The region selects the FastMemory
+intrinsic. Outside the region, member calls use ordinary receiver resolution.
+
+A reserved call never selects a same-named method by bare-name lookup.
+Use `me.name(...)` or `Box.name(...)` to call a declared static method.
+
 Bare `error` is reserved and rejects before argument evaluation; qualified providers such as
 `env.console.error` remain separate Extern contracts and are not inferred from
 the bare spelling.
@@ -41,14 +53,17 @@ does not enter FreeStatic, SameModule, Extern, provider, or value-call target
 resolution. The message expression is then evaluated exactly once. A normal
 message creates a pending noncatchable Panic Fault; an argument Fault remains
 the earlier primary Fault. The common exit transaction drains cleanup and
-Home obligations before the final successorless Fault terminal. Bare `exit`
-is a separate undecided application/runtime surface, not a sibling selected by
-this rule.
+Home obligations before the final successorless Fault terminal.
 
 Current file-mode implementation rejects bare `panic(...)` as
 `call/target-missing`, including when a box declares a method named `panic`.
 The terminal Fault implementation is still pending. `me.panic(...)` and
 `Box.panic(...)` use ordinary method resolution.
+
+Bare `exit(...)`, `str(...)`, and `Range(...)` have no special target. An
+unbound call follows the ordinary `call/target-missing` rule. The standalone
+`a .. b` expression has been retired at every sugar level. The
+`loop i in a..b { ... }` range header remains part of loop syntax.
 
 A [declared Brand](brands.md) owns its constructor spelling through its
 declaration. Math operations use [MathBox methods](../boxes-system/box-reference.md#mathbox),
