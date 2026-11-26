@@ -167,26 +167,26 @@ impl LoopPhysicalSegmentBlockReceiptV1 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::compiler::callable_single_loop_operation_effect::callable_operation_demand_parts_for_test;
+    use crate::mir::loop_recipe_contract::generic_operation_demand_parts_for_test;
     use crate::mir::loop_recipe_contract::VerifiedLoopOperationPhysicalDemandV1;
 
-    fn callable_segments() -> (FunctionOwnerIdV1, Vec<LoopPhysicalSegmentKeyV1>) {
-        let (effect, context, continuation) = callable_operation_demand_parts_for_test();
+    fn generic_segments() -> (FunctionOwnerIdV1, Vec<LoopPhysicalSegmentKeyV1>) {
+        let (effect, context, continuation) = generic_operation_demand_parts_for_test();
         let layout = VerifiedLoopOperationPhysicalDemandV1::issue(context, effect, continuation)
-            .expect("callable demand")
+            .expect("generic demand")
             .prepare_all()
-            .expect("callable program")
+            .expect("generic program")
             .prepare_physical_layout()
-            .expect("callable layout");
+            .expect("generic layout");
         (
             layout.program().demand().context().owner(),
-            layout.segments().iter().map(|row| row.key()).collect(),
+            layout.segments().iter().take(2).map(|row| row.key()).collect(),
         )
     }
 
     #[test]
     fn receipt_requires_exact_segment_coverage_and_unique_blocks() {
-        let (owner, segments) = callable_segments();
+        let (owner, segments) = generic_segments();
         let result = LoopPhysicalSegmentBlockReceiptV1::issue(
             owner,
             BasicBlockId::new(0),
@@ -211,7 +211,7 @@ mod tests {
 
     #[test]
     fn receipt_rejects_segment_aliasing_one_physical_block() {
-        let (owner, segments) = callable_segments();
+        let (owner, segments) = generic_segments();
         let error = LoopPhysicalSegmentBlockReceiptV1::issue(
             owner,
             BasicBlockId::new(0),

@@ -1,32 +1,4 @@
-use super::{classify_canonical_callable_route, CanonicalCallableRouteV1};
-use crate::mir::compiler::{
-    callable_single_loop_static_fixture_tests::static_fixture_for_test,
-    VerifiedResolvedSourceUnitV1,
-};
-
-
-#[test]
-fn callable_single_loop_selection_uses_the_source_bound_route() {
-    let module = static_fixture_for_test();
-    let header = module
-        .source()
-        .catalog()
-        .index()
-        .resolve_free_static_source_call("int_to_str", 1)
-        .expect("int_to_str header");
-    let input = module
-        .function_input(header.source_key())
-        .expect("int_to_str input");
-    let route = classify_canonical_callable_route(
-        input,
-        Some(crate::mir::loop_route_policy::GenericG0PolicyModeV1::Release),
-    )
-    .expect("canonical preflight");
-    assert!(matches!(
-        route,
-        CanonicalCallableRouteV1::CallableSingleLoop(_)
-    ));
-}
+use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 
 #[test]
 fn generic_g0_selection_rejects_missing_policy_mode() {

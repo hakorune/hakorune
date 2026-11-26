@@ -56,8 +56,7 @@ impl FunctionSemanticResolverSessionV1 {
 
     /// Co-issue the same source-unit FreeStatic index for selected roots when
     /// no App Main root exists. Generic observer-only batch callers stay on
-    /// their existing resolver entry; this method is the explicit package
-    /// handoff for the bounded CallableSingleLoop cohort.
+    /// their existing resolver entry.
     pub(crate) fn resolve_source_bound_selected_callable_forests_with_freestatic_targets(
         &mut self,
         inputs: &[SelectedCallableResolverInputV1<'_>],

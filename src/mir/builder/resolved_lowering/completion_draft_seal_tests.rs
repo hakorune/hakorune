@@ -565,7 +565,7 @@ fn open_draft_seal_rejection_discards_the_unpublished_session() {
 }
 
 #[test]
-fn callable_pending_draft_seal_rejection_keeps_typed_error_and_restores_parent() {
+fn draft_seal_rejection_keeps_typed_error_and_restores_parent() {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(
         "callable_pending_draft_seal_reject",
         Vec::new(),
@@ -607,13 +607,9 @@ fn callable_pending_draft_seal_rejection_keeps_typed_error_and_restores_parent()
         .set_terminator(MirInstruction::Return { value: None });
 
     let ready = ReadyFunctionDraftSealV1::new(ready, BasicBlockId::new(0));
-    let error = match super::commit_callable_single_loop_ready_to_pending_v1(session, ready) {
-        Ok(_) => panic!("preterminated pending draft unexpectedly prepared"),
-        Err(error) => error,
-    };
-    let crate::mir::builder::calls::CanonicalFunctionSessionErrorV1::DraftSeal(error) = error
-    else {
-        panic!("pending DraftSeal rejection lost its typed session variant")
+    let error = match ready.open(session).prepare() {
+        Ok(_) => panic!("preterminated draft unexpectedly prepared"),
+        Err(rejected) => rejected.into_discarded_error(),
     };
     assert_eq!(
         error.stage(),

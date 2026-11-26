@@ -1,5 +1,4 @@
 use super::*;
-use crate::mir::compiler::callable_single_loop_operation_effect::callable_operation_demand_parts_for_test;
 use crate::mir::loop_recipe_contract::generic_g0::generic_operation_demand_parts_for_test;
 use crate::mir::loop_recipe_contract::join_sig::{
     LoopJoinBoundaryTransferRefV1, LoopJoinBranchArmTransferRefV1, LoopJoinBranchExitRefV1,
@@ -23,16 +22,6 @@ fn transfer(
         condition,
         payload: &[],
     }
-}
-
-fn callable_layout() -> PreparedLoopPhysicalLayoutV1 {
-    let (effect, context, continuation) = callable_operation_demand_parts_for_test();
-    VerifiedLoopOperationPhysicalDemandV1::issue(context, effect, continuation)
-        .expect("callable demand")
-        .prepare_all()
-        .expect("callable program")
-        .prepare_physical_layout()
-        .expect("callable layout")
 }
 
 #[test]
@@ -236,33 +225,6 @@ fn generic_layout() -> PreparedLoopPhysicalLayoutV1 {
         .expect("generic program")
         .prepare_physical_layout()
         .expect("generic layout")
-}
-
-#[test]
-fn callable_layout_keeps_one_segment_per_logical_block() {
-    let layout = callable_layout();
-    assert_eq!(layout.coverage().item_count(), 7);
-    assert_eq!(layout.coverage().operation_count(), 7);
-    assert_eq!(layout.coverage().segment_count(), 2);
-    assert_eq!(layout.entry_segment(), layout.segments()[0].key());
-    assert_eq!(
-        layout.segments()[0].role(),
-        LoopPhysicalSegmentRoleV1::Header
-    );
-    assert_eq!(layout.segments()[1].role(), LoopPhysicalSegmentRoleV1::Body);
-    assert_eq!(
-        layout.segments()[0].operations(),
-        [
-            LoopItemKeyV1::new(0),
-            LoopItemKeyV1::new(1),
-            LoopItemKeyV1::new(2),
-        ]
-    );
-    assert_eq!(layout.segments()[1].operations().len(), 4);
-    assert!(matches!(
-        layout.segments()[0].transfer(),
-        LoopPhysicalTransferV1::Predicate { .. }
-    ));
 }
 
 #[test]

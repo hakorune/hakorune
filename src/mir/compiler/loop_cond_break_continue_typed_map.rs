@@ -14,7 +14,7 @@ use crate::mir::resolved_semantics::{
     ResolvedScopeRegionPairV1, SemanticOwnerSourceKindV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
 
-use super::callable_single_loop_source_shapes::SyntaxBinaryOperatorV1;
+use super::loop_source_expression_shapes::SyntaxBinaryOperatorV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum LoopCondTypedSourceMapRejectV1 {

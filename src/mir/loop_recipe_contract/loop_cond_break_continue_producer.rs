@@ -8,7 +8,7 @@
 //! allocate physical IDs.
 
 use crate::mir::compiler::loop_cond_break_continue_typed_map::LoopCondTypedCompareV1;
-use crate::mir::compiler::callable_single_loop_source_shapes::SyntaxBinaryOperatorV1;
+use crate::mir::compiler::loop_source_expression_shapes::SyntaxBinaryOperatorV1;
 use crate::mir::loop_route_policy::VerifiedLoopCondBreakContinuePolicyDemandV1;
 use crate::mir::resolved_semantics::{
     BindingOriginV1, BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceExprSiteV1,

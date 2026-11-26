@@ -357,7 +357,7 @@ mod tests {
         LoopPhysicalSegmentBlockReceiptV1, LoopPhysicalSegmentBlockRowV1,
     };
     use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::topology::LoopPhysicalBlockRoleV1;
-    use crate::mir::compiler::callable_single_loop_operation_effect::callable_operation_demand_parts_for_test;
+    use crate::mir::loop_recipe_contract::generic_operation_demand_parts_for_test;
     use crate::mir::loop_recipe_contract::VerifiedLoopOperationPhysicalDemandV1;
 
     fn receipt() -> (
@@ -365,13 +365,13 @@ mod tests {
         crate::mir::loop_recipe_contract::LoopPhysicalSegmentKeyV1,
         crate::mir::loop_recipe_contract::LoopPhysicalSegmentKeyV1,
     ) {
-        let (effect, context, continuation) = callable_operation_demand_parts_for_test();
+        let (effect, context, continuation) = generic_operation_demand_parts_for_test();
         let layout = VerifiedLoopOperationPhysicalDemandV1::issue(context, effect, continuation)
-            .expect("callable demand")
+            .expect("generic demand")
             .prepare_all()
-            .expect("callable program")
+            .expect("generic program")
             .prepare_physical_layout()
-            .expect("callable layout");
+            .expect("generic layout");
         let owner = layout.program().demand().context().owner();
         let first = layout.segments()[0].key();
         let missing = layout.segments()[1].key();

@@ -150,9 +150,6 @@ mod tests;
 mod operation_effect_tests;
 
 #[cfg(test)]
-mod operation_effect_parity;
-
-#[cfg(test)]
 #[path = "internal_declaration_tests.rs"]
 mod internal_declaration_tests;
 
@@ -269,3 +266,6 @@ pub(crate) fn verify_artifact_for_test(
 ) -> Result<(), LoopRecipeRejectReasonV1> {
     verify::LoopRecipeVerifierV1::verify_artifact(artifact).map(drop)
 }
+
+#[cfg(test)]
+pub(crate) use generic_g0::generic_operation_demand_parts_for_test;
