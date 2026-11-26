@@ -53,12 +53,12 @@ impl TextResidenceReadV1 {
     }
 }
 pub(crate) type CheckedInitializerExpressionFrameV1 = CheckedBindingWriteV1<
-    Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>>,
+    Option<Rc<crate::mir::resolved_semantics::source_value_class::SourceValueSumV1>>,
 >;
 impl CheckedInitializerExpressionFrameV1 {
     pub(crate) fn signed_root_sum(
         &self,
-    ) -> Option<&Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>> {
+    ) -> Option<&Rc<crate::mir::resolved_semantics::source_value_class::SourceValueSumV1>> {
         self.destination.as_ref()
     }
     pub(crate) fn text_acquisition_v1(self: &Rc<Self>) -> TextResidenceAcquisitionV1 {
@@ -184,7 +184,7 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     dynamic_local_reference: &mut impl FnMut(
         &SourceExprSiteV1,
     ) -> Option<Rc<CheckedInitializerExpressionFrameV1>>,
-    signed_root_sum: Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>>,
+    signed_root_sum: Option<Rc<crate::mir::resolved_semantics::source_value_class::SourceValueSumV1>>,
     // A selected source Loop body evaluates even a scalar literal or plain
     // read through one complete frame; the caller proves that context.
     loop_scalar_frame: bool,
@@ -360,7 +360,7 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
 
 fn initializer_plan_v1(
     mut evaluation: CheckedExpressionEvaluationV1,
-    signed_root_sum: Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>>,
+    signed_root_sum: Option<Rc<crate::mir::resolved_semantics::source_value_class::SourceValueSumV1>>,
 ) -> Option<HomeExpressionPlanV1> {
     if !evaluation.retain_core_text_entry_reads_v1() {
         return None;

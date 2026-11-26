@@ -242,7 +242,7 @@ pub(super) fn add_declaration_null_residences_v1(
 #[derive(Debug, Clone)]
 pub(crate) struct TextFieldValueSourceV1 {
     source: Rc<DeclaredFieldValueSourceV1>,
-    sum: Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>,
+    sum: Rc<crate::mir::resolved_semantics::source_value_class::SourceValueSumV1>,
 }
 impl PartialEq for TextFieldValueSourceV1 {
     fn eq(&self, other: &Self) -> bool {
@@ -438,7 +438,7 @@ impl OrdinaryNewFieldWriteClaimsV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn object_sources_with_sums_v1(
         &self, coverage: &ParserOrdinaryBoxSourceCoverageV1,
         constructors: &VerifiedInstanceConstructorSemanticBatchV1,
-        mut sum_for: impl FnMut(&Rc<DeclaredFieldValueSourceV1>) -> Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>>,
+        mut sum_for: impl FnMut(&Rc<DeclaredFieldValueSourceV1>) -> Option<Rc<crate::mir::resolved_semantics::source_value_class::SourceValueSumV1>>,
     ) -> ObjectFieldClassSourcesV1 {
         let mut additional = BTreeMap::new();
         for (class, name, source) in self.value_sources() {
@@ -460,7 +460,7 @@ impl OrdinaryNewFieldWriteClaimsV1 {
     /// child permission. The sole Birth store still retains its original RHS.
     pub(in crate::mir::normal_callable_semantic_package) fn object_source_from_sum_v1(
         &self, parent: &str, name: &str, source: &Rc<DeclaredFieldValueSourceV1>,
-        sum: &Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>,
+        sum: &Rc<crate::mir::resolved_semantics::source_value_class::SourceValueSumV1>,
         coverage: &ParserOrdinaryBoxSourceCoverageV1,
         constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     ) -> Option<Rc<ObjectFieldClassSourceV1>> {

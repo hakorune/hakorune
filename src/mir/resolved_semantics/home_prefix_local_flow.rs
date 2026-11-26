@@ -241,7 +241,7 @@ pub(super) struct PrefixLocalFlow<'source> {
     expression_plans: std::rc::Rc<std::cell::RefCell<Vec<super::HomeExpressionPlanV1>>>,
     comparison_sources: std::rc::Rc<borrowed_integer_comparison::SourcesByStatement>,
     comparison_prefix_homes: std::rc::Rc<std::cell::RefCell<borrowed_integer_comparison::ComparisonPrefixHomes>>,
-    source_value_class_facts: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::SourceValueClassFactsV1>>,
+    source_value_class_facts: Option<std::rc::Rc<crate::mir::resolved_semantics::source_value_class::SourceValueClassFactsV1>>,
 }
 
 #[derive(Clone)]
@@ -269,7 +269,7 @@ impl<'source> PrefixLocalFlow<'source> {
 
     pub(super) fn with_source_value_class_facts(
         input: ResolvedFunctionLoweringInputV1<'source>,
-        source_value_class_facts: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::SourceValueClassFactsV1>>,
+        source_value_class_facts: Option<std::rc::Rc<crate::mir::resolved_semantics::source_value_class::SourceValueClassFactsV1>>,
         comparisons: borrowed_integer_comparison::SourcesByStatement,
     ) -> Self {
         Self {

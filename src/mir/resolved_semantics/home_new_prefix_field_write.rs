@@ -384,7 +384,7 @@ fn signed_reads<E>(
     SourceExprSiteV1,
     (
         CurrentScalarReadV1,
-        Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>,
+        Rc<crate::mir::resolved_semantics::source_value_class::SourceValueSumV1>,
     ),
 > {
     source

@@ -286,7 +286,7 @@ fn original_local_object_binding_actual_v1(
     identity: &InstanceSourceActualIdentityV1,
     candidate: &BorrowedCallActualCandidateV1,
 ) -> Option<BorrowedFormalActualSourceV1> {
-    use crate::mir::normal_callable_semantic_package::SourceValueAlternativeV1 as Value;
+    use crate::mir::resolved_semantics::source_value_class::SourceValueAlternativeV1 as Value;
     use crate::mir::resolved_value_profile::expression_plan::{
         ExpressionNodeSourceV1, ExpressionPlanRootV1,
     };

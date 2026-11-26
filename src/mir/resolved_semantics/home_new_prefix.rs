@@ -412,7 +412,7 @@ pub(crate) fn scan_new_home_flow<E>(
         ),
     >,
     entry_home: Option<&VerifiedInstanceEntryHomeLoanV1>,
-    source_value_class_facts: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::SourceValueClassFactsV1>>,
+    source_value_class_facts: Option<std::rc::Rc<crate::mir::resolved_semantics::source_value_class::SourceValueClassFactsV1>>,
     exit_sites: &[SourceStmtSiteV1],
     uncovered_implicit_exit: bool,
     result_sites: &BTreeSet<OwnedExprSiteV1>,

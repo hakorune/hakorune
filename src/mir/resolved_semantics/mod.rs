@@ -82,6 +82,7 @@ mod source_path_policy;
 mod source_projection;
 mod source_site;
 mod source_site_inventory;
+pub(in crate::mir) mod source_value_class;
 pub(crate) mod source_value_flow;
 mod verifier;
 

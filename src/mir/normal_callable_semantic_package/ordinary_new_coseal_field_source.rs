@@ -516,7 +516,7 @@ impl
     fn scalar_read_sum(
         &mut self,
         read: &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarReadV1,
-    ) -> Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>> {
+    ) -> Option<Rc<crate::mir::resolved_semantics::source_value_class::SourceValueSumV1>> {
         if self.writes.is_none() {
             return None;
         }

@@ -89,7 +89,7 @@ pub(crate) trait HomeFieldSourceConsultV1<E> {
     fn scalar_read_sum(
         &mut self,
         _read: &CurrentScalarReadV1,
-    ) -> Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>> {
+    ) -> Option<Rc<crate::mir::resolved_semantics::source_value_class::SourceValueSumV1>> {
         None
     }
     /// Borrow the same original entry read for an Assignment RHS. No view or

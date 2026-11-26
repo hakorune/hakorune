@@ -68,7 +68,7 @@ mod model;
 mod ordinary_new_coseal;
 pub(crate) use ordinary_new_coseal::OrdinaryResultSourceLoanV1;
 pub(crate) use ordinary_new_coseal::RetainedSourceLoopProductV1;
-pub(in crate::mir) use ordinary_new_coseal::SourceValueClassFactsV1;
+use crate::mir::resolved_semantics::source_value_class::SourceValueClassFactsV1;
 pub(crate) use ordinary_new_coseal::{
     EntryFieldWriteSourceV1, OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1,
 };
@@ -323,7 +323,7 @@ pub(crate) use ordinary_new_coseal::{
     displaced_replacement_fault_sequences_v2, fault_indices_after_normal_step_v2,
 };
 
-pub(in crate::mir) use ordinary_new_coseal::{SourceValueAlternativeV1, SourceValueSumV1};
+use crate::mir::resolved_semantics::source_value_class::{SourceValueAlternativeV1, SourceValueSumV1};
 
 pub(in crate::mir) use ordinary_new_coseal::{
     EmittedNewArgumentV1, EmittedNewExpressionV1, NewArgumentCleanupV1,

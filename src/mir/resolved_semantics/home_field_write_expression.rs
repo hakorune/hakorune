@@ -22,7 +22,7 @@ pub(crate) struct QualifiedFieldWriteRhsV1 {
         usize,
         (
             Reference,
-            Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>>,
+            Option<Rc<crate::mir::resolved_semantics::source_value_class::SourceValueSumV1>>,
         ),
     >,
     // A conditional transfer of the exact live holder, not a physical End grant.
@@ -84,7 +84,7 @@ impl QualifiedFieldWriteRhsV1 {
         node: usize,
     ) -> Option<(
         &CurrentScalarReadV1,
-        &Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>,
+        &Rc<crate::mir::resolved_semantics::source_value_class::SourceValueSumV1>,
     )> {
         let (Reference::Scalar(Scalar::Original(read)), Some(sum)) = self.references.get(&node)?
         else {
@@ -176,7 +176,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
         &SourceExprSiteV1,
     ) -> Option<(
         CurrentScalarReadV1,
-        Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>,
+        Rc<crate::mir::resolved_semantics::source_value_class::SourceValueSumV1>,
     )>,
     finite_reference: &mut impl FnMut(
         &SourceExprSiteV1,

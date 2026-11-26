@@ -10,7 +10,9 @@ mod graph;
 use graph::{Graph, Node, OriginalSourceSumGraphV1, project_graph_v1, project_field_sums_v1};
 #[path = "ordinary_new_borrowed_formal_source_sum_loans.rs"]
 mod loans;
-pub(in crate::mir) use loans::SourceValueClassFactsV1;
+pub(in crate::mir) use crate::mir::resolved_semantics::source_value_class::{
+    SourceValueAlternativeV1, SourceValueClassFactsV1, SourceValueSumV1,
+};
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use loans::OriginalIntegerBasisV1;
 
 pub(super) enum SourcePointExpansionV1 {
@@ -28,75 +30,6 @@ type ReturnExpander<'a> = dyn FnMut(
     + 'a;
 type PointExpander<'a> =
     dyn FnMut(FunctionOwnerIdV1, SourceValueRefV1) -> Result<SourcePointExpansionV1, String> + 'a;
-
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub(in crate::mir) enum SourceValueAlternativeV1 {
-    Text,
-    SignedI64,
-    /// An unannotated formal with no source callers still has its declared
-    /// tagged carrier. This is a runtime class, not a concrete payload tag.
-    TaggedDynamic,
-    Bool,
-    Null,
-    Other,
-    Object(Box<str>),
-}
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct SourceValueSumV1(BTreeSet<SourceValueAlternativeV1>);
-impl SourceValueSumV1 {
-    /// A closed nominal source may include null but must contain one class.
-    /// This is a value-class fact, not a live or non-null read permission.
-    pub(in crate::mir) fn nullable_object_class_v1(&self) -> Option<(&str, bool)> {
-        Self::nullable_object_alternatives_v1(&self.0)
-    }
-    fn nullable_object_alternatives_v1(values: &BTreeSet<SourceValueAlternativeV1>) -> Option<(&str, bool)> {
-        let class = values.iter().find_map(|value| match value {
-            SourceValueAlternativeV1::Object(name) => Some(name.as_ref()),
-            _ => None,
-        })?;
-        values.iter().all(|value| matches!(value, SourceValueAlternativeV1::Null)
-            || matches!(value, SourceValueAlternativeV1::Object(actual) if actual.as_ref() == class))
-            .then_some((class, values.contains(&SourceValueAlternativeV1::Null)))
-    }
-    pub(in crate::mir) fn object_class_v1(&self) -> Option<&str> {
-        if self.0.len() != 1 { return None; }
-        match self.0.first()? {
-            SourceValueAlternativeV1::Object(class) => Some(class),
-            _ => None,
-        }
-    }
-    pub(in crate::mir) fn alternatives(&self) -> &BTreeSet<SourceValueAlternativeV1> {
-        &self.0
-    }
-    pub(in crate::mir) fn signed_only(&self) -> bool {
-        self.0.len() == 1 && self.0.contains(&SourceValueAlternativeV1::SignedI64)
-    }
-    pub(in crate::mir) fn text_only(&self) -> bool {
-        self.0.len() == 1 && self.0.contains(&SourceValueAlternativeV1::Text)
-    }
-    pub(in crate::mir) fn tagged_dynamic_only(&self) -> bool {
-        self.0.len() == 1 && self.0.contains(&SourceValueAlternativeV1::TaggedDynamic)
-    }
-    pub(in crate::mir) fn bool_only(&self) -> bool {
-        self.0.len() == 1 && self.0.contains(&SourceValueAlternativeV1::Bool)
-    }
-    pub(in crate::mir) fn finite_input(&self) -> bool {
-        !self.0.is_empty()
-            && self.0.iter().all(|value| {
-                matches!(
-                    value,
-                    SourceValueAlternativeV1::Text
-                        | SourceValueAlternativeV1::SignedI64
-                        | SourceValueAlternativeV1::Bool
-                        | SourceValueAlternativeV1::Null
-                )
-            })
-    }
-    fn permits_object(&self, name: &str) -> bool {
-        self.0.iter().all(|value| matches!(value, SourceValueAlternativeV1::Null)
-            || matches!(value, SourceValueAlternativeV1::Object(actual) if actual.as_ref() == name))
-    }
-}
 
 type FieldSource = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::DeclaredFieldValueSourceV1;
 pub(super) type FieldSourceSeedsV1 = (Rc<FieldSource>, Vec<OriginalFormalActualSeedV1>);
