@@ -59,7 +59,6 @@ pub(in crate::mir) enum DynamicInvocationCleanupProjectionRejectV1 {
     TypedCarrier,
     FaultCoverage,
     CompletionCoverage,
-    BackedgeCoverage,
 }
 
 #[derive(Debug)]
