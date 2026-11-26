@@ -13,6 +13,7 @@ pub(crate) struct ExactTrivialReturnAbiV1 {
 }
 
 impl ExactTrivialReturnAbiV1 {
+    #[cfg(test)]
     pub(crate) const I64: Self = Self {
         scalar: ExactTrivialScalarAbiV1::I64,
     };

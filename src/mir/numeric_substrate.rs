@@ -9,8 +9,6 @@
 
 mod checked_ops;
 mod exact_values;
-#[cfg(test)]
-pub(crate) mod generic_g0;
 mod target;
 
 #[cfg(test)]

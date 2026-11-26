@@ -67,9 +67,6 @@ pub(crate) mod linear_metadata_slot; // clone-scrub lifecycle observation vocabu
 pub(crate) mod named_array_obligation;
 pub(crate) mod normal_callable_semantic_package;
 #[cfg(test)]
-#[path = "shared_loop_source_window_tests.rs"]
-pub(crate) mod shared_loop_source_window;
-#[cfg(test)]
 pub(crate) mod test_support;
 
 /// Test-only projection for legacy MIR fixtures.  Production callers must use

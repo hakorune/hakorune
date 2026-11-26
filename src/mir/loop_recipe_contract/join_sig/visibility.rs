@@ -1,17 +1,11 @@
 use std::collections::{btree_map::Entry, BTreeMap, BTreeSet};
 
 use super::super::ids::{LoopBindingKeyV1, LoopNodeKeyV1, LoopValueKeyV1};
-#[cfg(test)]
-use super::super::schema::LoopRecipeV1;
-#[cfg(test)]
-use super::model::LoopJoinPayloadV1;
 use super::model::{LoopJoinPayload, LoopJoinSigRejectReasonV1};
 use super::recipe_view::{
     LoopJoinItemView, LoopJoinOperationFamily, LoopJoinOperationView, LoopJoinRecipeView,
 };
 
-#[cfg(test)]
-use super::recipe_view::LoopRecipeV1JoinView;
 
 pub(super) fn seed_carriers<V: LoopJoinRecipeView>(
     recipe: &V,
@@ -110,17 +104,6 @@ pub(in crate::mir::loop_recipe_contract) fn visible_payloads_from_view<V: LoopJo
         cursor = recipe.loop_at(owner).and_then(|node| node.parent);
     }
     Ok(visible.into_values().collect())
-}
-
-/// Historical V1 test seam. Production elaboration uses the borrowed verified
-/// Recipe view directly; this wrapper preserves existing projection tests.
-#[cfg(test)]
-pub(in crate::mir::loop_recipe_contract) fn visible_payloads(
-    recipe: &LoopRecipeV1,
-    key: LoopNodeKeyV1,
-    bindings: &BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
-) -> Result<Vec<LoopJoinPayloadV1>, LoopJoinSigRejectReasonV1> {
-    visible_payloads_from_view(&LoopRecipeV1JoinView::raw(recipe), key, bindings)
 }
 
 pub(super) fn block_item<V: LoopJoinRecipeView>(

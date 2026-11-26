@@ -1,7 +1,5 @@
 //! Neutral selfhost-portable recursive Loop recipe contract.
 
-#[cfg(test)]
-mod continuation;
 // Shared resolver-function declaration lookup for physical-ready producers.
 mod binding_declaration;
 // Caller-zero common V2 operation/control/coverage projections.
@@ -18,31 +16,12 @@ mod binding_declaration;
 // Caller-zero source-segment allocation demand; synthetic After is separate.
 mod error;
 mod ids;
-#[cfg(test)]
-mod input_source;
 mod join_sig;
 // Canonical draft builder: single key allocator + source-anchor co-recorder.
 // Main0 Continue and the selected variable-bound Mul producer use this owner.
-#[cfg(test)]
-mod internal_declaration;
 mod join_sig_branch;
-#[cfg(test)]
-mod loop_cond_break_continue_producer;
-#[cfg(test)]
-mod loop_true_break_continue_producer;
 mod normalize;
-#[cfg(test)]
-mod operation_carrier_demand;
-mod operation_effect;
-#[cfg(test)]
-mod operation_physical_demand;
-#[cfg(test)]
-mod physical_layout;
-#[cfg(test)]
-mod physical_transfer;
 mod producer_id;
-#[cfg(test)]
-mod recipe_draft;
 pub(crate) mod route_id;
 mod s6c_scan_with_init;
 // Caller-zero source-to-Recipe/Join Return binding; no physical effect.
@@ -75,40 +54,19 @@ pub(crate) use source_loop_v2::{produce_source_loop_recipe_v2, VerifiedSourceLoo
 mod source_loop_bool;
 pub(crate) use source_loop_bool::{project_source_loop_bool_v1, CheckedLoopBoolExpressionV1};
 mod read_only_inputs;
-mod semantic_context;
 mod source_binding;
-mod source_bound_core;
 mod typed_schema_v2;
 mod typed_schema_v2_structure;
-mod verify;
 
-#[cfg(test)]
-#[path = "nested_predicate_tests.rs"]
-mod nested_predicate_tests;
 
-#[cfg(test)]
-#[path = "join_sig_branch_tests.rs"]
-mod join_sig_branch_tests;
 
-#[cfg(test)]
-#[path = "loop_cond_break_continue_producer_tests.rs"]
-mod loop_cond_break_continue_producer_tests;
 
-#[cfg(test)]
-#[path = "loop_true_break_continue_producer_tests.rs"]
-mod loop_true_break_continue_producer_tests;
 
 #[cfg(test)]
 #[path = "producer_id_migration_tests.rs"]
 mod producer_id_migration_tests;
 
-#[cfg(test)]
-#[path = "join_sig_nested_shadow_tests.rs"]
-mod join_sig_nested_shadow_tests;
 
-#[cfg(test)]
-#[path = "join_sig_after_binding_tests.rs"]
-mod join_sig_after_binding_tests;
 
 #[cfg(test)]
 #[path = "s6c_scan_with_init_tests.rs"]
@@ -118,56 +76,22 @@ mod s6c_scan_with_init_tests;
 #[path = "s6c_prephysical_ingress_tests.rs"]
 mod s6c_prephysical_ingress_tests;
 
-#[cfg(test)]
-#[path = "source_bound_core_tests.rs"]
-mod source_bound_core_tests;
 
 // S7A caller-zero wire-parity harness: `.hako` emission vs Rust-assembled
 // artifact through the same decode/verify/normalize owner.
-#[cfg(test)]
-#[path = "wire_parity_tests.rs"]
-mod wire_parity_tests;
 
 // S7G caller-zero all-route wire-parity census: remaining attested-route
 // arms (nested, loop-true), the DirectAccum live-producer anchor, and one
 // coverage class per canonical route cross-checked against the sealed
 // attestation and migration inventories.
-#[cfg(test)]
-#[path = "wire_route_parity_tests.rs"]
-mod wire_route_parity_tests;
 
-#[cfg(test)]
-mod generic_g0_demand;
 
-#[cfg(test)]
-mod generic_g0;
 
-#[cfg(test)]
-pub(crate) use generic_g0_demand::{
-    issue_generic_g0_recipe_demand_from_observation_v1,
-    GenericG0RecipeDemandIssueV1,
-};
 
-#[cfg(test)]
-pub(crate) use generic_g0::{
-    produce_generic_g0_recipe_v1, GenericG0RecipeProducerRejectV1,
-    VerifiedGenericG0TailCapabilityV1, VerifiedGenericRecipeProductG0,
-};
 
-#[cfg(test)]
-mod tests;
 
-#[cfg(test)]
-#[path = "operation_effect_tests.rs"]
-mod operation_effect_tests;
 
-#[cfg(test)]
-#[path = "internal_declaration_tests.rs"]
-mod internal_declaration_tests;
 
-#[cfg(test)]
-#[path = "operation_physical_demand_tests.rs"]
-mod operation_physical_demand_tests;
 
 #[cfg(test)]
 #[path = "typed_schema_v2_text_tests.rs"]
@@ -190,21 +114,10 @@ mod typed_schema_v2_structure_tests;
 pub(crate) use binding_declaration::{
     resolve_loop_binding_declaration_v1, ResolvedLoopBindingDeclarationV1,
 };
-#[cfg(test)]
-pub(crate) use continuation::VerifiedLoopContinuationContractV1;
-#[cfg(test)]
-pub(crate) use error::LoopRecipeRejectReasonV1;
 pub(crate) use ids::{
     LoopBindingKeyV1, LoopBlockKeyV1, LoopCarrierKeyV1, LoopExitKeyV1, LoopItemKeyV1,
     LoopNodeKeyV1, LoopValueKeyV1,
 };
-#[cfg(test)]
-pub(crate) use input_source::{
-    issue_initialized_local_input_source_set_v1, LoopInitializedLocalInputSourceRelationV1,
-    LoopInitializedLocalInputSourceSetRejectV1, VerifiedLoopInitializedLocalInputSourceSetV1,
-};
-#[cfg(test)]
-pub(crate) use internal_declaration::LoopInternalDeclarationModeV1;
 pub(crate) use join_sig::{
     issue_sole_root_carrier_join_closure_v2, LoopJoinClosureRejectV2, LoopJoinLogicalTransferRejectV2,
     LoopJoinLogicalTransferViewV2, VerifiedLoopJoinClosureV2,
@@ -213,28 +126,9 @@ pub(crate) use join_sig::{
 pub(crate) use join_sig::{
     LoopJoinBranchArmTransferRefV2, LoopJoinBranchArmV2, LoopJoinBranchExitTargetV2,
     LoopJoinEdgeRoleV1, LoopJoinEdgeV2, LoopJoinExitOccurrenceV1, LoopJoinPayloadV2,
-    LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1,
-    VerifiedLoopJoinSigV1,
+    LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigRejectReasonV1,
 };
 pub(crate) use normalize::{LoopRecipeDecodeErrorV2, LoopRecipeNormalizerV2};
-#[cfg(test)]
-pub(crate) use operation_carrier_demand::PreparedLoopDerivedCarrierSeedRowV1;
-pub(crate) use operation_effect::{
-    LoopOperationEffectRejectV1, LoopOperationSourceEvidenceV1, VerifiedLoopOperationEffectProductV1,
-};
-#[cfg(test)]
-pub(crate) use operation_effect::VerifiedLoopOperationSourceEvidenceV1;
-#[cfg(test)]
-pub(crate) use operation_physical_demand::{
-    LoopOperationPhysicalDemandRejectV1, PreparedLoopOperationProgramV1,
-    PreparedLoopReadBindingRowV1, PreparedLoopWriteBindingRowV1,
-    VerifiedLoopOperationPhysicalDemandV1,
-};
-#[cfg(test)]
-pub(crate) use physical_layout::{
-    LoopPhysicalLayoutRejectV1, LoopPhysicalSegmentKeyV1, LoopPhysicalSegmentRoleV1,
-    LoopPhysicalTargetV1, LoopPhysicalTransferV1, PreparedLoopPhysicalLayoutV1,
-};
 pub(crate) use producer_id::LoopRecipeProducerIdV1;
 pub(crate) use s6c_prephysical_ingress::{
     issue_s6c_prephysical_ingress_v2, S6CPrephysicalCompletionParityRefV2,
@@ -255,13 +149,7 @@ pub(crate) use s6c_scan_with_init_joinir_output_rows::{
 pub(crate) use schema::{
     LoopNodeSourceBindingV1,
     LoopRecipeProvenanceV1, LoopRecipeSourceBindingV1, LoopRecipeSourceOwnerV1, LoopSourcePathStepV1,
-    LoopSourcePathV1, LoopValueClassV1,
-};
-#[cfg(test)]
-pub(crate) use schema::{
-    LoopBinaryI64OpV1, LoopCompareI64OpV1, LoopConditionV1, LoopNodeV1, LoopOperationV1,
-    LoopRecipeArtifactV1, LoopRecipeBindingV1, LoopRecipeBlockV1, LoopRecipeCarrierV1,
-    LoopRecipeItemRowV1, LoopRecipeItemV1, LoopRecipeV1, LoopRecipeValueV1,
+    LoopSourcePathV1,
 };
 pub(crate) use schema_v2::{
     LoopBinaryI64OpV2, LoopCompareI64OpV2, LoopConditionV2, LoopExitKindV2, LoopNodeV2,
@@ -270,29 +158,7 @@ pub(crate) use schema_v2::{
     LoopRecipeItemRowV2, LoopRecipeItemV2, LoopRecipeV2, LoopRecipeValueV2, LoopValueClassV2,
     LOOP_RECIPE_SCHEMA_VERSION_V2,
 };
-pub(crate) use semantic_context::VerifiedLoopSemanticContextV1;
-pub(crate) use source_bound_core::{LoopBindingEffectAnchorV1, VerifiedLoopCoreProductV1};
-#[cfg(test)]
-pub(crate) use source_bound_core::{
-    issue_source_bound_core_from_artifact_v1, LoopBindingEffectRelationV1, LoopBindingEffectRoleV1,
-    LoopRecipeBindingRelationV1,
-};
 pub(crate) use typed_schema_v2::{
     LoopRecipeV2RejectReason, LoopRecipeVerifierV2, VerifiedLoopRecipeArtifactV2,
     VerifiedLoopRecipeV2,
 };
-#[cfg(test)]
-pub(crate) use verify::{verify_source_bound_recipe_v1, LoopRecipeVerifierV1};
-pub(crate) use verify::VerifiedLoopRecipeV1;
-
-/// Test-only end-to-end seam. The structural source-claim capability remains
-/// private even when sibling modules exercise artifact verification.
-#[cfg(test)]
-pub(crate) fn verify_artifact_for_test(
-    artifact: LoopRecipeArtifactV1,
-) -> Result<(), LoopRecipeRejectReasonV1> {
-    verify::LoopRecipeVerifierV1::verify_artifact(artifact).map(drop)
-}
-
-#[cfg(test)]
-pub(crate) use generic_g0::generic_operation_demand_parts_for_test;

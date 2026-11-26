@@ -1,77 +1,33 @@
 //! Owned, caller-zero route-policy admission plus family observation for Loop
 //! rows. See `README.md` for the authority boundary.
 
-mod all_route_observation;
-#[cfg(test)]
-mod all_route_observation_tests;
 mod direct_accum_observation;
 #[cfg(test)]
 mod direct_accum_observation_tests;
-mod family_admission;
-#[cfg(test)]
-mod generic_g0;
-#[cfg(test)]
-mod generic_g0_observation;
-#[cfg(test)]
-mod generic_g0_observation_tests;
-#[cfg(test)]
-pub(crate) use generic_g0_observation_tests::{
-    generic_g0_observation_for_test, generic_g0_source_unit_for_test,
-};
-#[cfg(test)]
-mod generic_g0_tests;
-#[cfg(test)]
-mod loop_cond_break_continue;
 mod loop_cond_break_continue_observation;
 #[cfg(test)]
 mod loop_cond_break_continue_observation_tests;
-#[cfg(test)]
-mod loop_true_break_continue;
 mod loop_true_break_continue_observation;
 #[cfg(test)]
 mod loop_true_break_continue_observation_tests;
-mod nested_predicate_observation;
-#[cfg(test)]
-mod nested_predicate_observation_tests;
 mod policy;
 mod policy_evidence;
 mod schema;
 
-pub(crate) use all_route_observation::{
-    issue_all_route_observation_set_v1, issue_whole_unit_loop_coverage_proof_v1,
-    LoopAllRouteObservationRowV1, LoopAllRouteObservationSetRejectV1,
-    LoopRouteObservationOutcomeV1, LoopRouteRecipeBackingV1,
-    VerifiedLoopAllRouteObservationSetV1, WholeUnitLoopCoverageProofV1,
-    ATTESTED_RECIPE_BACKED_V1,
-};
 pub(crate) use direct_accum_observation::{
     issue_direct_accum_family_observation_v1, DirectAccumFamilyObservationV1,
     DirectAccumObservationContextV1, DirectAccumObservationDeclineV1, DirectAccumObservationRejectV1,
     DirectAccumObservationUnresolvedV1, VerifiedDirectAccumFamilyCandidateV1,
 };
 #[cfg(test)]
-pub(crate) use loop_cond_break_continue::{
-    issue_loop_cond_break_continue_policy_demand_v1,
-    VerifiedLoopCondBreakContinuePolicyDemandV1, VerifiedLoopCondBreakContinuePolicyReceiptV1,
+pub(crate) use policy::direct_accum_route_admission_for_test;
+pub(crate) use policy::{
+    issue_direct_accum_route_admission_v1, VerifiedDirectAccumPolicyHandoffV1,
+    VerifiedDirectAccumPolicyReceiptV1, VerifiedDirectAccumRouteAdmissionV1,
 };
-pub(crate) use family_admission::{LoopFamilyAdmissionCoverageV1, LoopFamilyAdmissionModeV1};
-#[cfg(test)]
-pub(crate) use generic_g0::{
-    issue_generic_g0_candidate_v1, GenericG0CoverageV1, GenericG0PolicyContextV1,
-    GenericG0PolicyModeV1, GenericG0PolicyOutcomeV1, GenericG0PolicyProfileV1,
-    GenericG0PolicyRejectV1, GenericG0PolicyUnresolvedV1, VerifiedGenericFamilyObservationG0,
-};
-#[cfg(test)]
-pub(crate) use generic_g0_observation::{
-    issue_generic_g0_family_observation_v1, GenericG0FamilyObservationV1,
-    GenericG0ObservationContextV1, GenericG0ObservationEvidenceV1,
-};
+pub(crate) use policy_evidence::LoopRoutePolicySourceDeclineReasonV1;
+pub(crate) use schema::CANONICAL_LOOP_ROUTE_ORDER_V1;
 pub(crate) use loop_cond_break_continue_observation::LoopCondFamilyObservationV1;
-#[cfg(test)]
-pub(crate) use loop_true_break_continue::{
-    issue_loop_true_break_continue_policy_demand_v1,
-    VerifiedLoopTrueBreakContinuePolicyDemandV1, VerifiedLoopTrueBreakContinuePolicyReceiptV1,
-};
 pub(crate) use loop_cond_break_continue_observation::{
     issue_loop_cond_family_observation_v1, LoopCondObservationContextV1,
     LoopCondObservationDeclineV1, LoopCondObservationRejectV1, LoopCondObservationUnresolvedV1,
@@ -83,16 +39,3 @@ pub(crate) use loop_true_break_continue_observation::{
     LoopTrueObservationDeclineV1, LoopTrueObservationRejectV1, LoopTrueObservationUnresolvedV1,
     VerifiedLoopTrueFamilyCandidateV1,
 };
-pub(crate) use nested_predicate_observation::{
-    issue_nested_predicate_family_observation_v1, NestedPredicateFamilyObservationV1,
-    NestedPredicateObservationContextV1, NestedPredicateObservationDeclineV1, NestedPredicateObservationRejectV1,
-    NestedPredicateObservationUnresolvedV1,
-};
-#[cfg(test)]
-pub(crate) use policy::direct_accum_route_admission_for_test;
-pub(crate) use policy::{
-    issue_direct_accum_route_admission_v1, VerifiedDirectAccumPolicyHandoffV1,
-    VerifiedDirectAccumPolicyReceiptV1, VerifiedDirectAccumRouteAdmissionV1,
-};
-pub(crate) use policy_evidence::LoopRoutePolicySourceDeclineReasonV1;
-pub(crate) use schema::CANONICAL_LOOP_ROUTE_ORDER_V1;

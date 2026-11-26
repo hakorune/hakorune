@@ -300,9 +300,3 @@ fn v2_dynamic_less_rejects_forward_call_result() {
         })
     );
 }
-
-#[test]
-fn v1_does_not_decode_v2_dynamic_operation_wire() {
-    let json = serde_json::to_string(&dynamic_operation_recipe()).expect("V2 encodes");
-    assert!(serde_json::from_str::<super::schema::LoopRecipeArtifactV1>(&json).is_err());
-}

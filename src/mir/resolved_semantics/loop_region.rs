@@ -72,12 +72,9 @@ impl VerifiedResolvedLoopSourceForestMemberV1 {
         &self.source
     }
 
+    #[cfg(test)]
     pub(crate) const fn parent_index(&self) -> Option<u32> {
         self.parent_index
-    }
-
-    pub(crate) fn into_source(self) -> VerifiedResolvedLoopSourceV1 {
-        self.source
     }
 }
 
@@ -91,10 +88,6 @@ pub(crate) struct VerifiedResolvedLoopSourceForestV1 {
 impl VerifiedResolvedLoopSourceForestV1 {
     pub(crate) fn members(&self) -> &[VerifiedResolvedLoopSourceForestMemberV1] {
         &self.members
-    }
-
-    pub(crate) fn into_members(self) -> Box<[VerifiedResolvedLoopSourceForestMemberV1]> {
-        self.members
     }
 }
 

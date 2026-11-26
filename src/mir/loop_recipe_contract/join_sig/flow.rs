@@ -4,17 +4,15 @@ use super::super::ids::{
     LoopBindingKeyV1, LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopValueKeyV1,
 };
 use super::super::join_sig_branch::{branch_row, is_supported_loop_branch_pair};
-use super::super::verify::VerifiedLoopRecipeV1;
 use super::model::{
     LoopJoinBranch, LoopJoinBranchArm, LoopJoinEdge, LoopJoinEdgeRoleV1,
     LoopJoinExitOccurrenceV1, LoopJoinLoop, LoopJoinNextItemV1,
     LoopJoinPayload, LoopJoinSig, LoopJoinSigRejectReasonV1, VerifiedLoopJoinSig,
-    VerifiedLoopJoinSigV1,
 };
 use super::port::{loop_exit_edge, port_bindings};
 use super::recipe_view::{
     LoopJoinConditionView, LoopJoinExitView, LoopJoinItemView, LoopJoinOperationFamily,
-    LoopJoinOperationView, LoopJoinRecipeView, LoopJoinValueUses, LoopRecipeV1JoinView,
+    LoopJoinOperationView, LoopJoinRecipeView, LoopJoinValueUses,
 };
 use super::visibility::{
     block_item, has_only_operations, payloads, seed_carriers, seed_read_only_inputs,
@@ -39,16 +37,6 @@ pub(in crate::mir::loop_recipe_contract) struct FlowExit<C> {
     pub(in crate::mir::loop_recipe_contract) item: LoopItemKeyV1,
     pub(in crate::mir::loop_recipe_contract) kind: LoopJoinExitView,
     pub(in crate::mir::loop_recipe_contract) payload: Vec<LoopJoinPayload<C>>,
-}
-
-pub(crate) struct LoopJoinSigElaboratorV1;
-
-impl LoopJoinSigElaboratorV1 {
-    pub(crate) fn elaborate(
-        verified: &VerifiedLoopRecipeV1,
-    ) -> Result<VerifiedLoopJoinSigV1, LoopJoinSigRejectReasonV1> {
-        elaborate_view(&LoopRecipeV1JoinView::verified(verified))
-    }
 }
 
 pub(super) fn elaborate_view<V: LoopJoinRecipeView>(

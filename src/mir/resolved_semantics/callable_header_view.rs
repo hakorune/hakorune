@@ -4,7 +4,7 @@
 //! indexing must not gain body traversal authority, while the function/lambda
 //! resolver must not grow source-name or physical-symbol policy.
 
-use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
+use crate::ast::{ASTNode, ParamDecl};
 
 use super::function_view::FunctionSyntaxViewV1;
 
@@ -40,8 +40,6 @@ pub(crate) struct CallableHeaderSyntaxViewV1<'a> {
     name: &'a str,
     params: &'a [String],
     param_decls: &'a [ParamDecl],
-    uses: &'a [String],
-    attrs: &'a DeclarationAttrs,
     return_type_name: Option<&'a str>,
     is_static: bool,
     is_override: bool,
@@ -69,8 +67,6 @@ impl<'a> CallableHeaderSyntaxViewV1<'a> {
             name,
             params,
             param_decls,
-            uses,
-            attrs,
             return_type_name: return_type_name.as_deref(),
             is_static: *is_static,
             is_override: *is_override,
@@ -88,14 +84,6 @@ impl<'a> CallableHeaderSyntaxViewV1<'a> {
 
     pub(crate) const fn param_decls(self) -> &'a [ParamDecl] {
         self.param_decls
-    }
-
-    pub(crate) const fn uses(self) -> &'a [String] {
-        self.uses
-    }
-
-    pub(crate) const fn attrs(self) -> &'a DeclarationAttrs {
-        self.attrs
     }
 
     pub(crate) const fn return_type_name(self) -> Option<&'a str> {

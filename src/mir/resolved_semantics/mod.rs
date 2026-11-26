@@ -54,17 +54,12 @@ pub(crate) use named_array_residence::{
 };
 mod function_root;
 mod function_view;
-#[cfg(test)]
-pub(crate) mod generic_g0;
 mod home_abi;
 pub(crate) mod home_new_prefix;
 mod home_relation;
 mod ids;
 mod if_region;
 mod instance_method_declaration;
-mod loop_family_window;
-#[cfg(test)]
-mod loop_family_window_tests;
 mod loop_region;
 mod normalized;
 mod normalized_callable_catalog;
@@ -191,14 +186,11 @@ pub(crate) use instance_method_declaration::{
     ResolverSemanticValueTypeV1, SemanticInstanceDeclarationIssuerV1,
     VerifiedInstanceMethodDeclarationCatalogV1, VerifiedInstanceMethodDeclarationV1,
 };
-pub(crate) use loop_family_window::{
-    LoopFamilyWindowLeaseIssueV1, VerifiedLoopFamilyWindowLeaseV1,
-};
 #[cfg(test)]
-pub(crate) use loop_region::loop_execution_frame_key_for_test;
+pub(crate) use loop_region::{loop_execution_frame_key_for_test, ResolvedLoopSourceForestRejectV1};
 pub(crate) use loop_region::{
     LoopExecutionFrameKeyV1, ResolvedLoopPlacementV1, ResolvedLoopRegionBundleV1,
-    ResolvedLoopRegionLookupErrorV1, ResolvedLoopSourceForestRejectV1,
+    ResolvedLoopRegionLookupErrorV1,
     VerifiedResolvedLoopSourceForestMemberV1, VerifiedResolvedLoopSourceForestV1,
     VerifiedResolvedLoopSourceV1,
 };
@@ -267,8 +259,8 @@ pub(in crate::mir) use source_projection::{
 };
 pub(crate) use source_site::SourcePathV1;
 pub use source_site::{
-    FunctionOriginV1, OwnedExprSiteV1, OwnedHeaderSiteV1, ResolvedExitSiteV1, SourceBindingSiteV1,
-    SourceExprSiteV1, SourceHeaderSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
+    FunctionOriginV1, OwnedExprSiteV1, ResolvedExitSiteV1, SourceBindingSiteV1,
+    SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
 };
 pub use source_site_inventory::{
     ResolvedSourceSiteInventoryVerificationErrorV1, VerifiedResolvedSourceSiteInventoryV1,

@@ -4,16 +4,10 @@
 
 mod direct_accum_exclusivity;
 mod direct_accum_observation;
-#[cfg(test)]
-pub(crate) mod generic_g0;
-#[cfg(test)]
-mod generic_g0_observation;
 mod loop_cond_break_continue_observation;
 mod loop_cond_break_continue_source;
 mod loop_true_break_continue_observation;
 mod loop_true_break_continue_source;
-mod nested_predicate_observation;
-mod nested_predicate_source;
 mod resolved_source_adapter;
 // Caller-zero until the immediately following complete S6C Facts row.
 mod s6c_exit_tail;
@@ -22,24 +16,14 @@ mod selected_demand;
 mod types;
 
 pub(crate) use resolved_source_adapter::{
-    bind_resolved_loop_root_v1, bind_resolved_loop_source_forest_v1, LoopRootSourceBindingRejectV1,
-    LoopSourceForestBindingRejectV1, VerifiedLoopRootSourceV1, VerifiedLoopSourceForestBindingV1,
+    bind_resolved_loop_root_v1, LoopRootSourceBindingRejectV1, VerifiedLoopRootSourceV1,
 };
-
-#[cfg(test)]
-pub(crate) use resolved_source_adapter::projection_for_test;
 
 pub(crate) use direct_accum_exclusivity::DirectAccumDisjointnessRejectV1;
 pub(crate) use direct_accum_observation::{
     DirectAccumObservationCoverageV1, DirectAccumObservationModeV1,
     DirectAccumSourceAttemptOutcomeV1, DirectAccumSourceDeclineV1, DirectAccumSourceIdentityV1,
     DirectAccumSourceRejectV1, DirectAccumSourceUnresolvedV1, VerifiedDirectAccumSourceAttemptV1,
-};
-#[cfg(test)]
-pub(crate) use generic_g0_observation::{
-    GenericG0ObservationCoverageV1, GenericG0ObservationModeV1, GenericG0SourceAttemptOutcomeV1,
-    GenericG0SourceDeclineV1, GenericG0SourceIdentityV1, GenericG0SourceRejectV1,
-    GenericG0SourceUnresolvedV1, VerifiedGenericG0SourceAttemptV1,
 };
 pub(crate) use loop_cond_break_continue_observation::{
     LoopCondObservationCoverageV1, LoopCondObservationModeV1, LoopCondSourceAttemptOutcomeV1,
@@ -59,18 +43,6 @@ pub(crate) use loop_true_break_continue_observation::{
 };
 pub(crate) use loop_true_break_continue_source::{
     VerifiedLoopTrueBreakContinueSourceProjectionV1, VerifiedLoopTrueBreakContinueSourceShapeV1,
-};
-pub(crate) use nested_predicate_observation::{
-    NestedPredicateObservationCoverageV1, NestedPredicateObservationModeV1,
-    NestedPredicateSourceAttemptOutcomeV1, NestedPredicateSourceDeclineV1,
-    NestedPredicateSourceIdentityV1, NestedPredicateSourceRejectV1,
-    NestedPredicateSourceUnresolvedV1, VerifiedNestedPredicateSourceAttemptV1,
-};
-pub(crate) use nested_predicate_source::{
-    NestedBindingEvidenceV1, NestedChildBodyRoleV1, NestedObservedRecurrenceOwnerV1,
-    NestedPredicateConditionEvidenceV1, NestedPredicateUpdateEvidenceV1, NestedRootBodyRoleV1,
-    NestedRootInitializerEvidenceV1, VerifiedNestedLoopSourceProjectionV1,
-    VerifiedNestedLoopSourceShapeV1,
 };
 pub(crate) use s6c_exit_tail::{
     issue_s6c_exit_tail_source_coseal_v1, S6CExitRoleV1, S6CExitTailSourceCoSealRefV1,

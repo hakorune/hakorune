@@ -9,39 +9,22 @@ mod model;
 mod port;
 pub(super) mod recipe_view;
 mod recipe_view_v2;
-#[cfg(test)]
-mod transfer_view_v1;
 mod transfer_view_v2;
-#[cfg(test)]
-mod v1;
 mod v2;
 mod visibility;
 
-pub(crate) use flow::LoopJoinSigElaboratorV1;
 pub(crate) use model::{
-    LoopJoinBranchArmV1, LoopJoinBranchExitTargetV2, LoopJoinEdgeRoleV1, LoopJoinLoopV1,
-    LoopJoinNextItemV1, LoopJoinPayloadV2, LoopJoinPortV1, LoopJoinSigRejectReasonV1, LoopJoinSigV1,
-    VerifiedLoopAfterBindingV1, VerifiedLoopJoinSigV1,
+    LoopJoinBranchExitTargetV2, LoopJoinEdgeRoleV1, LoopJoinNextItemV1, LoopJoinPayloadV2,
+    LoopJoinPortV1, LoopJoinSigRejectReasonV1,
 };
 #[cfg(test)]
 pub(crate) use model::{
-    LoopJoinBranchArmV2, LoopJoinEdgeV1, LoopJoinEdgeV2, LoopJoinExitOccurrenceV1,
+    LoopJoinBranchArmV2, LoopJoinEdgeV2, LoopJoinExitOccurrenceV1,
     LoopJoinPortBindingV2,
 };
-#[cfg(test)]
-pub(crate) use transfer_view_v1::{
-    LoopJoinBoundaryTransferRefV1, LoopJoinBranchArmTransferRefV1, LoopJoinBranchExitRefV1,
-    LoopJoinBranchTransferRefV1, LoopJoinLogicalTransferRejectV1, LoopJoinLogicalTransferViewV1,
-};
-#[cfg(test)]
-pub(crate) use model::LoopJoinPayloadV1;
 pub(crate) use transfer_view_v2::{
     LoopJoinBoundaryTransferRefV2, LoopJoinBranchArmTransferRefV2,
     LoopJoinBranchTransferRefV2, LoopJoinLogicalTransferRejectV2, LoopJoinLogicalTransferViewV2,
-};
-#[cfg(test)]
-pub(crate) use v1::{
-    issue_root_carrier_join_closure_v1, LoopJoinClosureRejectV1,
 };
 pub(crate) use v2::{
     issue_sole_root_carrier_join_closure_v2, LoopJoinClosureRejectV2, VerifiedLoopJoinClosureV2,
@@ -54,8 +37,6 @@ pub(super) use model::{
 };
 #[cfg(test)]
 pub(super) use port::port_bindings;
-#[cfg(test)]
-pub(super) use visibility::visible_payloads;
 pub(super) use visibility::visible_payloads_from_view;
 
 pub(super) use model::VerifiedLoopAfterBinding;
