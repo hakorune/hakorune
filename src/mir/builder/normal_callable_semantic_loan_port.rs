@@ -35,8 +35,6 @@ use crate::mir::normal_callable_semantic_package::{
     ResolvedCallablePhysicalSignatureLoanV1, SelectedCallableLoweringInputRefV1,
 };
 
-#[path = "normal_callable_semantic_loan_port/canonical_route.rs"]
-mod canonical_route;
 #[path = "normal_callable_semantic_loan_port/cataloged_instance_scope.rs"]
 mod cataloged_instance_scope;
 #[path = "normal_callable_semantic_loan_port/main_root.rs"]
@@ -46,8 +44,6 @@ mod ordinary_new;
 #[path = "normal_callable_semantic_loan_port/source_scope.rs"]
 mod source_scope;
 use source_scope::with_selected_source_scope;
-
-use canonical_route::try_classify_generic_g0_route_v1;
 
 pub(super) struct NormalCallableSemanticPackagePortAdapterV1<
     'package,
@@ -322,7 +318,3 @@ mod root_capture;
 #[cfg(test)]
 #[path = "normal_callable_semantic_loan_port/map_dependency_tests.rs"]
 mod map_dependency_tests;
-
-#[cfg(test)]
-#[path = "normal_callable_semantic_loan_port/canonical_route_tests.rs"]
-mod canonical_route_tests;

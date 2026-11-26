@@ -54,6 +54,7 @@ pub(crate) use named_array_residence::{
 };
 mod function_root;
 mod function_view;
+#[cfg(test)]
 pub(crate) mod generic_g0;
 mod home_abi;
 pub(crate) mod home_new_prefix;

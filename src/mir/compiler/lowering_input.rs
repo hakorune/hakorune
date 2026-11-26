@@ -11,8 +11,6 @@ use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
     FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1, VerifiedSemanticOwnerForestV1,
 };
-use super::generic_g0_projection::handoff::GenericG0PolicyHandoffIssueV1;
-use super::generic_g0_source_parent::GenericG0SourceParentRejectV1;
 use super::source_projection::VerifiedSourceProjectionV1;
 
 #[derive(Debug)]
@@ -120,15 +118,6 @@ impl LegacyModuleLoweringInputV1 {
     }
 }
 
-/// Typed canonical preflight failures. No variant authorizes legacy retry.
-#[derive(Debug)]
-pub(in crate::mir) enum CanonicalGenericG0BoundaryErrorV1 {
-    PolicyHandoff(GenericG0PolicyHandoffIssueV1),
-    SourceParent(GenericG0SourceParentRejectV1),
-}
-
-
-
 /// The outer lowering error is part of the existing public compiler surface;
 /// this stage payload intentionally stays MIR-internal so typed reject owners
 /// are not duplicated as a second public API.
@@ -173,7 +162,6 @@ pub enum CanonicalLoweringErrorV1 {
     DuplicateFunctionPublication {
         function_name: String,
     },
-    GenericG0(CanonicalGenericG0BoundaryErrorV1),
     BuilderContract {
         detail: String,
     },
@@ -242,10 +230,6 @@ impl fmt::Display for CanonicalLoweringErrorV1 {
             Self::DuplicateFunctionPublication { function_name } => write!(
                 formatter,
                 "[freeze:contract][canonical_lowering/duplicate_function_publication] function={function_name}"
-            ),
-            Self::GenericG0(error) => write!(
-                formatter,
-                "[freeze:contract][canonical_lowering/generic_g0] stage={error:?}"
             ),
             Self::BuilderContract { detail } => write!(
                 formatter,

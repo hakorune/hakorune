@@ -166,17 +166,6 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                 validate_selected_cataloged_input(&input)?;
                 validate_selected_signature_loan(&input, &signature)?;
                 let (selected, admission, _physical_header) = input.into_lowering_and_admission();
-                if try_classify_generic_g0_route_v1(
-                    selected.source(),
-                    builder.comp_ctx.emit_debug_policy().generic_g0_policy_mode_v1(),
-                )?
-                .is_some()
-                {
-                    return Err(
-                        "[freeze:contract][mir/callable-generic-g0/cataloged-method-outside-i0]"
-                            .to_owned(),
-                    );
-                }
                 let lineage =
                     super::super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
                         admission.source_key().clone(),

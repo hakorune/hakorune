@@ -1,67 +1,10 @@
+#[cfg(test)]
 use super::super::function_input::ResolvedFunctionLoweringInputV1;
 #[cfg(test)]
 use super::resolved_owner_header::{
     ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
 };
 use super::{CanonicalCurrentAPlusPlanV1, CanonicalTrivialBindingSsaPlanV1};
-use crate::mir::compiler::generic_g0_source_parent::VerifiedGenericG0SourceParentV1;
-
-/// Semantic Loop-family envelope. Each variant carries one sealed
-/// source/body product; the external lifecycle remains BindingSsaTrivial.
-#[derive(Debug)]
-pub(crate) enum CanonicalLoopFamilyPlanV1<'a> {
-    GenericG0(CanonicalGenericG0PlanV1<'a>),
-}
-
-#[cfg(test)]
-impl<'a> CanonicalLoopFamilyPlanV1<'a> {
-    pub(crate) fn function_input(
-        &self,
-    ) -> super::super::function_input::ResolvedFunctionLoweringInputV1<'a> {
-        match self {
-            Self::GenericG0(plan) => plan.source_input(),
-        }
-    }
-}
-
-/// Source-backed Generic G0 capability carried by the existing Loop envelope.
-/// The lifecycle family remains `BindingSsaTrivial`; no new physical route is
-/// introduced by this semantic plan.
-#[derive(Debug)]
-pub(crate) struct CanonicalGenericG0PlanV1<'a> {
-    source_parent: VerifiedGenericG0SourceParentV1<'a>,
-}
-
-impl<'a> CanonicalGenericG0PlanV1<'a> {
-    pub(crate) fn new(source_parent: VerifiedGenericG0SourceParentV1<'a>) -> Self {
-        Self { source_parent }
-    }
-
-    pub(crate) fn source_input(&self) -> ResolvedFunctionLoweringInputV1<'a> {
-        self.source_parent.source_input()
-    }
-
-    #[cfg(test)]
-    pub(crate) fn source_parent(&self) -> &VerifiedGenericG0SourceParentV1<'a> {
-        &self.source_parent
-    }
-
-    pub(crate) fn into_source_parent(self) -> VerifiedGenericG0SourceParentV1<'a> {
-        self.source_parent
-    }
-
-    #[cfg(test)]
-    pub(crate) fn seal_resolved_owner_header_v1(
-        &self,
-    ) -> Result<VerifiedResolvedOwnerHeaderV1, ResolvedOwnerHeaderSealErrorV1> {
-        VerifiedResolvedOwnerHeaderV1::seal_input(
-            CanonicalFirstFamilyPlanBrandV1::from_family(
-                ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa,
-            ),
-            self.source_input(),
-        )
-    }
-}
 
 /// One whole-unit canonical value-authority selection.
 ///
@@ -69,9 +12,6 @@ impl<'a> CanonicalGenericG0PlanV1<'a> {
 /// lowering failure cannot be reclassified as the temporary A+ route.
 #[derive(Debug)]
 pub(crate) enum CanonicalFirstFamilyPlanV1<'a> {
-    /// A whole-function Loop profile. Its external header brand remains the
-    /// existing TrivialBindingSsa contract; this is not a Trivial body.
-    Loop(CanonicalLoopFamilyPlanV1<'a>),
     TrivialBindingSsa(CanonicalTrivialBindingSsaPlanV1<'a>),
     CurrentCanonicalAPlus(CanonicalCurrentAPlusPlanV1<'a>),
 }
@@ -95,7 +35,7 @@ impl CanonicalFirstFamilyPlanBrandV1 {
 impl<'a> CanonicalFirstFamilyPlanV1<'a> {
     pub(in crate::mir::compiler) fn brand(&self) -> CanonicalFirstFamilyPlanBrandV1 {
         let family = match self {
-            Self::Loop(_) | Self::TrivialBindingSsa(_) => {
+            Self::TrivialBindingSsa(_) => {
                 ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa
             }
             Self::CurrentCanonicalAPlus(_) => ResolvedOwnerHeaderFamilyV1::CurrentCanonicalAPlus,
@@ -105,7 +45,6 @@ impl<'a> CanonicalFirstFamilyPlanV1<'a> {
 
     pub(in crate::mir::compiler) fn function_input(&self) -> ResolvedFunctionLoweringInputV1<'a> {
         match self {
-            Self::Loop(plan) => plan.function_input(),
             Self::TrivialBindingSsa(plan) => plan.function,
             Self::CurrentCanonicalAPlus(plan) => plan.function,
         }

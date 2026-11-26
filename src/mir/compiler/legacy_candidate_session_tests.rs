@@ -394,6 +394,46 @@ fn compile_loop_source(
 }
 
 #[test]
+fn cataloged_static_nested_loops_keep_separate_bool_branches() {
+    use crate::mir::{MirInstruction, MirType};
+
+    let source = r#"
+        static box Counter {
+            nested(n: i64): i64 {
+                local i = n
+                local j = n
+                loop(i + 1 < 4) {
+                    loop(j + 1 < 4) { j = j + 1 }
+                    i = i + 1
+                }
+                return j
+            }
+        }
+        static box Main { main() { return Counter.nested(0) } }
+    "#;
+    let mut compiler = MirCompiler::with_options(false);
+    let compiled = compile_loop_source(&mut compiler, source, "nested-static.hako")
+        .expect("ordinary static nested loop");
+    compiled.verification_result.expect("verified nested loop CFG and SSA");
+
+    let function = &compiled.module.functions["Counter.nested/1"];
+    let mut predicates = function.blocks.values().filter_map(|block| {
+        let Some(MirInstruction::Branch { condition, .. }) = &block.terminator else {
+            return None;
+        };
+        assert_eq!(function.metadata.value_types.get(condition), Some(&MirType::Bool));
+        assert!(block.instructions.iter().any(|instruction| matches!(
+            instruction, MirInstruction::Compare { dst, .. } if dst == condition
+        )));
+        Some((block.id, *condition))
+    });
+    let (first_block, first_value) = predicates.next().expect("one loop predicate");
+    let (second_block, second_value) = predicates.next().expect("other loop predicate");
+    assert_ne!(first_block, second_block);
+    assert_ne!(first_value, second_value);
+}
+
+#[test]
 fn rejected_loop_body_rolls_back_emitted_phis_and_reuses_compiler() {
     const REJECTED: &str = include_str!("../../../apps/tests/phase29bq_generic_loop_v1_general_if_min.hako");
     const VALID: &str = include_str!("../../../apps/loop-basics/main.hako");
