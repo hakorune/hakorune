@@ -1,5 +1,6 @@
 //! Source-owned initializer lifecycle and finalized New relations.
 use super::*;
+use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 
 impl FinalizedRootSourceHandoffV1 {
     /// Lend only the finished physical Shared initializers retained by the
@@ -113,7 +114,7 @@ impl FinalizedRootSourceHandoffV1 {
         let slot = selected.batch_slot(&selected_key).ok_or_else(unsupported)?;
         let signature = signatures.row(slot).ok_or_else(unsupported)?;
         let contracts = self.ledger.original_parameter_contracts.as_deref().ok_or_else(unsupported)?;
-        let mut rows = contracts.iter().filter(|row| row.batch_slot == slot);
+        let mut rows = OwnedCallableParameterContractDeclarationV1::for_batch_slot(contracts, slot);
         let row = rows.next().ok_or_else(unsupported)?;
         if rows.next().is_some() || row.owner != owner || signature.owner() != owner || row.mode != signature.mode()
             || !selected.identity_for_batch_slot(slot).is_some_and(|identity| identity.same_as(signature.identity()))

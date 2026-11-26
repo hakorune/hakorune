@@ -90,7 +90,7 @@ impl<'a> OriginalActualSourceContextV1<'a> {
             .declarations()
             .find(|row| row.batch_slot() == slot)
             .ok_or_else(reject)?;
-        let mut rows = contracts.iter().filter(|row| row.owner == input.owner());
+        let mut rows = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, input.owner());
         let contract = rows.next().ok_or_else(reject)?;
         if input.owner() != source.callee_owner()
             || slot != source.target_batch_slot()
@@ -251,7 +251,7 @@ impl<'a> OriginalActualSourceContextV1<'a> {
                 if declarations.next().is_some() {
                     return Err(freeze("source-sum/caller-owner"));
                 }
-                let mut rows = contracts.iter().filter(|row| row.owner == input.owner());
+                let mut rows = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, input.owner());
                 let row = rows
                     .next()
                     .ok_or_else(|| freeze("source-sum/caller-contract"))?;

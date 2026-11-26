@@ -285,10 +285,10 @@ impl<'a> CallPacketSourceLoanV1<'a> {
         }
     }
 
-    pub(in crate::mir) fn validate_static(
+    pub(in crate::mir) fn validate_static<'ledger>(
         self,
-        ledger: &OrdinaryNewClaimLedgerV1,
-    ) -> Result<(), String> {
+        ledger: &'ledger OrdinaryNewClaimLedgerV1,
+    ) -> Result<Option<&'ledger [crate::mir::normal_callable_semantic_package::PreparedBorrowedFormalActualV1]>, String> {
         let Self::Static {
             original,
             observation,
@@ -296,7 +296,7 @@ impl<'a> CallPacketSourceLoanV1<'a> {
             expression_origin,
         } = self
         else {
-            return Ok(());
+            return Ok(None);
         };
         if expression_origin.is_some() && original.is_current_owner_i64_source_v1() {
             // The expression owns the retained arguments. Their executable
@@ -427,7 +427,7 @@ impl<'a> CallPacketSourceLoanV1<'a> {
                 return Err(freeze("static-packet/input-contract-unsupported"));
             }
         }
-        Ok(())
+        Ok(borrowed_actuals)
     }
 
     pub(in crate::mir) fn borrowed_actuals<'ledger>(
@@ -446,19 +446,7 @@ impl<'a> CallPacketSourceLoanV1<'a> {
         let ledger = context.ledger();
         match self {
             Self::Instance(row) => ledger.borrowed_call_actuals_using_v1(row, context),
-            Self::Static {
-                original,
-                observation,
-                expression_origin,
-                ..
-            } => {
-                self.validate_static(ledger)?;
-                match expression_origin {
-                    Some(_) => ledger
-                        .borrowed_static_packet_actuals_for_expression_v1(original, observation),
-                    None => ledger.borrowed_static_packet_actuals_v1(original),
-                }
-            }
+            Self::Static { .. } => self.validate_static(ledger),
         }
     }
 }

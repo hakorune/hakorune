@@ -5,7 +5,7 @@ use std::collections::BTreeMap;
 use super::error::LoopRecipeRejectReasonV1 as Reject;
 use super::ids::LoopNodeKeyV1;
 use super::schema::{
-    LoopRecipeSourceBindingV1, LoopRecipeV1, LoopSourcePathStepV1, LoopSourcePathV1,
+    LoopRecipeSourceBindingV1, LoopSourcePathStepV1, LoopSourcePathV1,
 };
 use super::schema_v2::LoopRecipeV2;
 
@@ -28,16 +28,6 @@ impl StructurallyVerifiedLoopRecipeSourceClaimV1 {
 pub(super) struct LoopRecipeSourceClaimVerifierV1;
 
 impl LoopRecipeSourceClaimVerifierV1 {
-    pub(super) fn verify(
-        recipe: &LoopRecipeV1,
-        binding: LoopRecipeSourceBindingV1,
-    ) -> Result<StructurallyVerifiedLoopRecipeSourceClaimV1, Reject> {
-        verify_loop_source_shape(
-            recipe.loops.iter().map(|node| (node.key, node.parent)),
-            binding,
-        )
-    }
-
     pub(super) fn verify_v2(
         recipe: &LoopRecipeV2,
         binding: LoopRecipeSourceBindingV1,

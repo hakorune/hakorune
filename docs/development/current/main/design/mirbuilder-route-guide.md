@@ -71,6 +71,7 @@ blueprint が持ち主を名指ししているのは if(決定 18)と loop(決�
 - 線形 Script の detached main 候補を退役した。現行の Script は `b/normal_script_pre_effect_source_observation.rs:68` で元の source を解決し、`b/normal_default_root_catalog_post_install.rs:97` で root を下ろす。`b/normal_default_root_final_validation.rs:53` の `RootValidation::Script` が完成した root と照合する。Raw 物理 root の状態・receipt・公開分岐を退役した。通常の root/catalog で、候補の drain と Return を検査する。
 - BD-6c で static／instance draft の共通入口から、開発用の StepTree 検査を退役した。draft は既存の `port.lower_body` へ進み、loop の発行と検証は既存の持ち主が担当する。
 - DirectAccum の旧発行器を退役した。現行の `source_loop_driver::emit` に対しては、`rejected_loop_body_rolls_back_emitted_phis_and_reuses_compiler` が仮PHI発行後の拒否と、同じ入口からの再試行を確かめる。通常の static method は署名を照合し、`b/normal_callable_semantic_loan_port/root_capture.rs::lower_cataloged_static_box_method` から共通の body lowering に進む。
+- 現行の Loop Recipe は `m/loop_recipe_contract/typed_schema_v2.rs::LoopRecipeVerifierV2` で検証する。旧 V1 Recipe の検証と G0 の source window を退役した。V2 が読む source binding、read-only input、JoinSig と wire の producer ID は残す。
 - 旧 canonical の Invoke と Compare の書き手を退役した。Invoke は `b/ordinary_new_admission/selected/invoke_operation.rs::emit`、比較は `b/emission/compare.rs::emit_planned_recorded` から共通の命令発行へ進み、完成した MIR は `m/verification.rs` で照合する。
 - 旧 canonical root finalizer、instance method prefix harness、未接続の plan 補助関数、テスト専用の旧 EdgeCFG seq／loop を削除した。継続中の短絡評価・strict EdgeCFG 検証・公開 raw 経路はそれぞれの既存発行先を使う。
 - 旧集計(18 構文)では、異なる emit 関数を 75 と数えた(890896d144)。step 7 で loop の 2 経路(LoopBreak 直接・LoopTrue)を削除。正規化 1 の共通 Local に続き、正規化 2 で文・式と Local の AST 選択を一箇所にまとめた。更新後の全構文の emit は再集計していない。

@@ -235,13 +235,11 @@ impl OrdinaryNewClaimLedgerV1 {
             .map(|row| row.callee)
             .collect();
         for owner in owners {
-            let mut matching = contracts.iter().filter(|row| row.owner == owner);
-            let contract = matching
-                .next()
-                .ok_or_else(|| freeze("object-input/contract-missing"))?;
-            if matching.next().is_some() {
-                return Err(freeze("object-input/contract-duplicate"));
-            }
+            let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
+                contracts, owner,
+                || freeze("object-input/contract-missing"),
+                || freeze("object-input/contract-duplicate"),
+            )?;
             if !self.selected_object_input_contract_v1(source, contract)? {
                 continue;
             }

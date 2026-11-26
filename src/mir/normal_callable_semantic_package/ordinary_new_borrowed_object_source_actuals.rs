@@ -101,12 +101,12 @@ pub(super) fn prepare_object_source_actuals_v1(
     if !prepared.source_incoming.has_object_input_callee_v1(target) {
         return Ok(None);
     }
-    let mut matching = contracts.iter().filter(|row| row.owner == original.callee);
-    let contract = matching
-        .next()
-        .ok_or_else(|| freeze("borrowed-object/source-contract"))?;
-    if matching.next().is_some()
-        || original.callee != target.callee_owner()
+    let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
+        contracts, original.callee,
+        || freeze("borrowed-object/source-contract"),
+        || freeze("borrowed-object/source-actual-identity"),
+    )?;
+    if original.callee != target.callee_owner()
         || target.call_site() != call
         || contract.batch_slot != target.target_batch_slot()
         || target.argument_sites().len() != target.target().arity() as usize

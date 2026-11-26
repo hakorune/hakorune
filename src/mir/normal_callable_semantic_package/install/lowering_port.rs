@@ -7,7 +7,6 @@ use crate::mir::builder::{
 use crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::normal_callable_semantic_package::SelectedSourceCoreMethodCallV1;
-use crate::mir::resolved_semantics::ReceiverPolicyV1;
 use crate::parser::CallableDeclarationIdentityV1;
 
 use super::super::declared_instance_locator::DeclaredInstanceCallLocatorScopeV1;
@@ -53,7 +52,10 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         }
         let batch_slot = self.app_main_root_batch_slot(expected_key, expected_identity)?;
         self.main_root_consumed = true;
-        self.with_app_main_root_source_view(batch_slot, expected_identity, callback)
+        self.installed
+            .batch
+            .with_lowering_input_and_source_identity(batch_slot, callback)
+            .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)
     }
 
     fn app_main_root_batch_slot(
@@ -89,41 +91,6 @@ impl NormalCallableSemanticPackagePortV1<'_> {
                     );
                 }
                 Ok(declaration.batch_slot())
-            })
-            .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)?
-    }
-
-    fn with_app_main_root_source_view<R>(
-        &self,
-        batch_slot: u32,
-        expected_identity: &CallableDeclarationIdentityV1,
-        callback: impl for<'source> FnOnce(
-            ResolvedFunctionLoweringInputV1<'source>,
-            crate::mir::callable_semantic_batch::VerifiedResolvedCallableSourceIdentityV1,
-        ) -> R,
-    ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
-        self.installed
-            .batch
-            .with_lowering_input_and_source_identity(batch_slot, |input, source_identity| {
-                let owner = input.owner();
-                let Some(root) = input.forest().owner(owner) else {
-                    return Err(
-                        NormalCallableSemanticPackageInstallIssueV1::MainRootRelationMismatch,
-                    );
-                };
-                if !source_identity.identity().same_as(expected_identity)
-                    || source_identity.mode() != ResolvedCallableDeclarationModeV1::StaticBoxMethod
-                    || source_identity.owner() != owner
-                    || input.forest().roots() != std::slice::from_ref(&owner)
-                    || root.owner() != owner
-                    || root.source_site_inventory().owner() != owner
-                    || root.root_profile().receiver_policy() != ReceiverPolicyV1::StaticCurrentOwner
-                {
-                    return Err(
-                        NormalCallableSemanticPackageInstallIssueV1::MainRootRelationMismatch,
-                    );
-                }
-                Ok(callback(input, source_identity))
             })
             .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)?
     }

@@ -30,8 +30,6 @@ mod completion_draft_seal_tests;
 #[cfg(test)]
 mod completion_test_support;
 #[cfg(test)]
-mod nested_predicate_effect_adapter_tests;
-#[cfg(test)]
 mod normal_function_draft_lowering_tests;
 #[cfg(test)]
 mod null_tests;

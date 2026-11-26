@@ -120,13 +120,11 @@ fn static_input_contract_v1(
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     owner: FunctionOwnerIdV1,
 ) -> Result<&OwnedCallableParameterContractDeclarationV1, String> {
-    let mut matching = contracts.iter().filter(|row| row.owner == owner);
-    let contract = matching
-        .next()
-        .ok_or_else(|| freeze("static-input/contract-missing"))?;
-    if matching.next().is_some() {
-        return Err(freeze("static-input/contract-duplicate"));
-    }
+    let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
+        contracts, owner,
+        || freeze("static-input/contract-missing"),
+        || freeze("static-input/contract-duplicate"),
+    )?;
     Ok(contract)
 }
 

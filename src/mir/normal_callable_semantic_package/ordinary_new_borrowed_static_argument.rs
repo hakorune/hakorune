@@ -73,7 +73,7 @@ pub(super) fn collect_static_argument_sources_v1(
     };
     let mut call_sources = BTreeMap::new();
     for (owner, draft) in definitions {
-        let mut caller_contracts = contracts.iter().filter(|row| row.owner == *owner);
+        let mut caller_contracts = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, *owner);
         let contract = caller_contracts
             .next()
             .ok_or_else(|| freeze("borrowed-static/caller-contract"))?;

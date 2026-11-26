@@ -144,10 +144,10 @@ impl BorrowedIncomingSourceV1 {
         if self.argument_sites().get(ordinal as usize) != Some(construction.site()) {
             return false;
         }
-        let mut declarations = contracts.iter().filter(|declaration| {
-            declaration.owner == self.callee_owner()
-                && declaration.batch_slot == self.target_batch_slot()
-        });
+        let mut declarations = OwnedCallableParameterContractDeclarationV1::for_batch_slot(
+            contracts, self.target_batch_slot(),
+        )
+        .filter(|declaration| declaration.owner == self.callee_owner());
         let Some(declaration) = declarations.next() else {
             return false;
         };

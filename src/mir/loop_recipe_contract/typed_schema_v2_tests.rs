@@ -293,12 +293,6 @@ fn v2_rejects_mixed_dynamic_carrier_class() {
 }
 
 #[test]
-fn v1_does_not_decode_v2_dynamic_wire() {
-    let json = serde_json::to_string(&minimal_dynamic_recipe()).expect("V2 Dynamic encodes");
-    assert!(serde_json::from_str::<super::schema::LoopRecipeArtifactV1>(&json).is_err());
-}
-
-#[test]
 fn v2_rejects_text_eq_with_non_text_operand() {
     let mut artifact = minimal_typed_recipe();
     artifact.recipe.values[1].class = LoopValueClassV2::I64;

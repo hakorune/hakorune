@@ -2,11 +2,8 @@ use std::sync::Arc;
 
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::loop_recipe_contract::{
-    verify_artifact_for_test, LoopConditionV2, LoopNodeSourceBindingV1, LoopNodeV2,
-    LoopRecipeArtifactV1, LoopRecipeBlockV2, LoopRecipeProducerIdV1, LoopRecipeProvenanceV1,
-    LoopRecipeSourceBindingV1, LoopRecipeSourceOwnerV1, LoopRecipeV1, LoopRecipeV2,
-    LoopRecipeVerifierV1, LoopRecipeVerifierV2, LoopSourcePathStepV1, LoopSourcePathV1,
-    VerifiedLoopRecipeV1,
+    LoopConditionV2, LoopNodeSourceBindingV1, LoopNodeV2, LoopRecipeBlockV2, LoopRecipeSourceBindingV1,
+    LoopRecipeSourceOwnerV1, LoopRecipeV2, LoopRecipeVerifierV2, LoopSourcePathStepV1, LoopSourcePathV1,
 };
 use crate::mir::loop_route_policy::direct_accum_route_admission_for_test;
 use crate::mir::resolved_semantics::{
@@ -15,10 +12,9 @@ use crate::mir::resolved_semantics::{
 };
 
 use super::{
-    bind_resolved_loop_root_v1, bind_resolved_loop_source_forest_v1,
-    issue_selected_loop_recipe_demand_v1, projection_for_test,
+    bind_resolved_loop_root_v1, issue_selected_loop_recipe_demand_v1,
     verified_loop_structural_facts_for_test_with_frame, DirectAccumSingletonObservationRejectV1,
-    LoopRootSourceBindingRejectV1, LoopSourceForestBindingRejectV1, SelectedLoopDemandRejectV1,
+    LoopRootSourceBindingRejectV1, SelectedLoopDemandRejectV1,
 };
 
 fn int(value: i64) -> ASTNode {
@@ -67,13 +63,13 @@ fn bind(
     product: &VerifiedResolvedFunctionV1,
     site: SourceStmtSiteV1,
 ) -> Result<LoopRecipeSourceBindingV1, LoopRootSourceBindingRejectV1> {
-    let recipe = verified_root_recipe();
+    let recipe = verified_root_recipe_v2();
     bind_resolved_loop_root_v1(product.resolved_loop_source(&site).unwrap())
-        .map(|source| source.into_root_claim(&recipe))
+        .map(|source| source.into_root_claim_v2(&recipe))
 }
 
 fn expected(steps: Vec<LoopSourcePathStepV1>) -> LoopRecipeSourceBindingV1 {
-    let recipe = verified_root_recipe();
+    let recipe = verified_root_recipe_v2();
     LoopRecipeSourceBindingV1::new(
         LoopRecipeSourceOwnerV1::function_body(0, 0),
         vec![LoopNodeSourceBindingV1::new(
@@ -81,23 +77,6 @@ fn expected(steps: Vec<LoopSourcePathStepV1>) -> LoopRecipeSourceBindingV1 {
             LoopSourcePathV1::new(steps),
         )],
     )
-}
-
-fn root_recipe() -> LoopRecipeV1 {
-    serde_json::from_str(
-        r#"{
-            "root_loop": 0,
-            "loops": [{"key":0,"parent":null,"condition":{"kind":"always"},"body":0}],
-            "blocks": [{"key":0,"owner_loop":0,"items":[0]}],
-            "items": [{"key":0,"item":{"kind":"exit","exit":0}}],
-            "bindings": [],
-            "values": [],
-            "inputs": [],
-            "carriers": [],
-            "exits": [{"key":0,"owner_loop":0,"kind":{"kind":"break","target_loop":0}}]
-        }"#,
-    )
-    .expect("minimal semantic recipe JSON")
 }
 
 fn verified_root_recipe_v2() -> crate::mir::loop_recipe_contract::VerifiedLoopRecipeV2 {
@@ -123,17 +102,6 @@ fn verified_root_recipe_v2() -> crate::mir::loop_recipe_contract::VerifiedLoopRe
         exits: vec![],
     })
     .expect("minimal V2 root verifies")
-}
-
-fn verified_root_recipe() -> VerifiedLoopRecipeV1 {
-    LoopRecipeVerifierV1::verify(root_recipe()).expect("minimal semantic recipe verifies")
-}
-
-fn nested_artifact() -> LoopRecipeArtifactV1 {
-    serde_json::from_str(include_str!(
-        "../loop_recipe_contract/fixtures/accum_nested_v1.json"
-    ))
-    .expect("nested recipe artifact fixture")
 }
 
 #[test]
@@ -245,29 +213,6 @@ fn direct_function_loop_has_one_exact_body_item() {
 }
 
 #[test]
-fn resolved_adapter_to_structurally_verified_artifact_is_end_to_end_green() {
-    let tree = function(vec![loop_stmt(Vec::new())]);
-    let product = resolve_function(&tree);
-    let recipe = verified_root_recipe();
-    assert_eq!(recipe.root_loop().raw(), 0);
-
-    let local_source = bind_resolved_loop_root_v1(
-        product
-            .resolved_loop_source(&stmt(vec![SourcePathSegmentV1::Body(0)]))
-            .unwrap(),
-    )
-    .unwrap();
-    let source_binding = local_source.into_root_claim(&recipe);
-    let artifact = LoopRecipeArtifactV1::new(
-        LoopRecipeProvenanceV1::new(LoopRecipeProducerIdV1::GenericG0),
-        source_binding,
-        root_recipe(),
-    );
-
-    verify_artifact_for_test(artifact).expect("source-bound artifact verifies");
-}
-
-#[test]
 fn resolved_root_adapter_issues_v2_root_without_manual_coordinates() {
     let tree = function(vec![loop_stmt(Vec::new())]);
     let product = resolve_function(&tree);
@@ -336,123 +281,6 @@ fn nested_loop_preserves_loop_body_root_and_item_identity() {
 }
 
 #[test]
-fn nested_source_forest_projects_to_verified_artifact_binding() {
-    let tree = function(vec![int(0), int(1), loop_stmt(vec![loop_stmt(Vec::new())])]);
-    let product = resolve_function(&tree);
-    let root = stmt(vec![SourcePathSegmentV1::Body(2)]);
-    let artifact = nested_artifact();
-    let recipe = LoopRecipeVerifierV1::verify(artifact.recipe().clone())
-        .expect("nested recipe semantic verifier");
-
-    let projection = bind_resolved_loop_source_forest_v1(
-        product
-            .resolved_loop_source_forest(&root)
-            .expect("nested source forest"),
-    )
-    .expect("portable nested source projection");
-    assert_eq!(projection.members().len(), 2);
-    assert_eq!(projection.members()[0].parent_index(), None);
-    assert_eq!(
-        projection.members()[0].path(),
-        &LoopSourcePathV1::new(vec![LoopSourcePathStepV1::BodyItem { index: 2 }])
-    );
-    assert_eq!(projection.members()[1].parent_index(), Some(0));
-    assert_eq!(
-        projection.members()[1].path(),
-        &LoopSourcePathV1::new(vec![
-            LoopSourcePathStepV1::BodyItem { index: 2 },
-            LoopSourcePathStepV1::LoopBodyItem { index: 0 },
-        ])
-    );
-
-    let source_binding = projection
-        .into_source_binding(&recipe)
-        .expect("recipe/source parent correspondence");
-    let rebound = LoopRecipeArtifactV1::new(
-        LoopRecipeProvenanceV1::new(LoopRecipeProducerIdV1::DirectAccumV1),
-        source_binding,
-        artifact.recipe().clone(),
-    );
-    verify_artifact_for_test(rebound).expect("source-bound nested artifact verifies");
-}
-
-#[test]
-fn nested_source_forest_projection_preserves_scope_path() {
-    let tree = function(vec![loop_stmt(vec![ASTNode::ScopeBox {
-        body: vec![loop_stmt(Vec::new())],
-        span: Span::unknown(),
-    }])]);
-    let product = resolve_function(&tree);
-    let root = stmt(vec![SourcePathSegmentV1::Body(0)]);
-    let projection = bind_resolved_loop_source_forest_v1(
-        product
-            .resolved_loop_source_forest(&root)
-            .expect("scope-wrapped nested source forest"),
-    )
-    .expect("scope-wrapped portable projection");
-
-    assert_eq!(projection.members().len(), 2);
-    assert_eq!(
-        projection.members()[1].path(),
-        &LoopSourcePathV1::new(vec![
-            LoopSourcePathStepV1::BodyItem { index: 0 },
-            LoopSourcePathStepV1::LoopBodyItem { index: 0 },
-            LoopSourcePathStepV1::ScopeBodyItem { index: 0 },
-        ])
-    );
-}
-
-#[test]
-fn nested_source_binding_rejects_recipe_coverage_mismatch() {
-    let projection = projection_for_test(&[None]);
-    let artifact = nested_artifact();
-    let recipe = LoopRecipeVerifierV1::verify(artifact.recipe().clone()).unwrap();
-
-    assert_eq!(
-        projection.into_source_binding(&recipe),
-        Err(
-            LoopSourceForestBindingRejectV1::RecipeLoopCoverageMismatch {
-                expected: 2,
-                found: 1,
-            }
-        )
-    );
-}
-
-#[test]
-fn nested_source_binding_rejects_root_and_out_of_range_parent() {
-    let artifact = nested_artifact();
-    let recipe = LoopRecipeVerifierV1::verify(artifact.recipe().clone()).unwrap();
-
-    assert_eq!(
-        projection_for_test(&[Some(1), Some(0)]).into_source_binding(&recipe),
-        Err(LoopSourceForestBindingRejectV1::RootParentMismatch)
-    );
-    assert_eq!(
-        projection_for_test(&[None, Some(9)]).into_source_binding(&recipe),
-        Err(LoopSourceForestBindingRejectV1::ParentIndexOutOfRange {
-            member_index: 1,
-            parent_index: 9,
-        })
-    );
-}
-
-#[test]
-fn nested_source_binding_rejects_recipe_parent_mismatch() {
-    let artifact = nested_artifact();
-    let recipe = LoopRecipeVerifierV1::verify(artifact.recipe().clone()).unwrap();
-
-    assert_eq!(
-        projection_for_test(&[None, None]).into_source_binding(&recipe),
-        Err(LoopSourceForestBindingRejectV1::RecipeParentMismatch {
-            member_index: 1,
-            expected: Some(crate::mir::loop_recipe_contract::LoopNodeKeyV1::new(0)),
-            found: None,
-        })
-    );
-}
-
-#[test]
 fn multiple_scopes_under_a_loop_preserve_every_container_boundary() {
     let tree = function(vec![loop_stmt(vec![ASTNode::ScopeBox {
         body: vec![ASTNode::ScopeBox {
@@ -500,44 +328,10 @@ fn supported_owner_with_if_then_ancestor_preserves_branch_path() {
     assert_eq!(
         bind_resolved_loop_root_v1(product.resolved_loop_source(&site).unwrap())
             .unwrap()
-            .into_root_claim(&verified_root_recipe()),
+            .into_root_claim_v2(&verified_root_recipe_v2()),
         expected(vec![
             LoopSourcePathStepV1::BodyItem { index: 0 },
             LoopSourcePathStepV1::IfThenItem { index: 0 },
-        ])
-    );
-}
-
-#[test]
-fn nested_forest_preserves_if_then_and_if_else_member_paths() {
-    let tree = function(vec![loop_stmt(vec![ASTNode::If {
-        condition: Box::new(int(1)),
-        then_body: vec![loop_stmt(Vec::new())],
-        else_body: Some(vec![loop_stmt(Vec::new())]),
-        span: Span::unknown(),
-    }])]);
-    let product = resolve_function(&tree);
-    let root = stmt(vec![SourcePathSegmentV1::Body(0)]);
-    let forest = product
-        .resolved_loop_source_forest(&root)
-        .expect("conditional nested loop forest");
-    let binding = bind_resolved_loop_source_forest_v1(forest).expect("conditional path binding");
-
-    assert_eq!(binding.members().len(), 3);
-    assert_eq!(
-        binding.members()[1].path(),
-        &LoopSourcePathV1::new(vec![
-            LoopSourcePathStepV1::BodyItem { index: 0 },
-            LoopSourcePathStepV1::LoopBodyItem { index: 0 },
-            LoopSourcePathStepV1::IfThenItem { index: 0 },
-        ])
-    );
-    assert_eq!(
-        binding.members()[2].path(),
-        &LoopSourcePathV1::new(vec![
-            LoopSourcePathStepV1::BodyItem { index: 0 },
-            LoopSourcePathStepV1::LoopBodyItem { index: 0 },
-            LoopSourcePathStepV1::IfElseItem { index: 0 },
         ])
     );
 }

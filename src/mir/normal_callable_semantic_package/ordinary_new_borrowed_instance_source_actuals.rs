@@ -44,7 +44,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     let Some(target) = original.source.instance() else {
         return Ok(false);
     };
-    let mut matching = contracts.iter().filter(|row| row.owner == original.callee);
+    let mut matching = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, original.callee);
     let contract = matching
         .next()
         .ok_or_else(|| freeze("borrowed-instance/source-contract"))?;
@@ -289,7 +289,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
         }
         return Ok(None);
     }
-    let mut matching = contracts.iter().filter(|row| row.owner == original.callee);
+    let mut matching = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, original.callee);
     let contract = matching
         .next()
         .ok_or_else(|| freeze("borrowed-instance/source-contract"))?;
@@ -733,7 +733,7 @@ pub(super) fn declared_source_actual_class_v1(
     binding: BindingRefV1,
     root: BindingRefV1,
 ) -> Result<Option<Box<str>>, String> {
-    let mut matching = contracts.iter().filter(|row| row.owner == call.owner());
+    let mut matching = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, call.owner());
     let Some(contract) = matching.next() else {
         return Ok(None);
     };

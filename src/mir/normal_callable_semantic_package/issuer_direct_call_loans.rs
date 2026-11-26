@@ -161,21 +161,11 @@ fn collect_direct_call_rows_v1(
                         }
                         key.clone()
                     };
-                    if header.callable().owner().compilation_brand()
-                        != owner.compilation_brand()
-                    {
-                        return Err(
-                            DirectCallDispositionIssueV1::CompilationBrandMismatch,
-                        );
-                    }
                     if header.source_key().name() != observation.name() {
                         return Err(DirectCallDispositionIssueV1::TargetNameMismatch);
                     }
                     if header.signature().arity() != observation.arity() as usize {
                         return Err(DirectCallDispositionIssueV1::ArityMismatch);
-                    }
-                    if header.signature().arity() != observation.argument_sites().len() {
-                        return Err(DirectCallDispositionIssueV1::ArgumentSiteMismatch);
                     }
                     let emission = crate::mir::canonical_direct_call::VerifiedCanonicalDirectCallEmissionV1::from_header_with_published_key(
                         header,

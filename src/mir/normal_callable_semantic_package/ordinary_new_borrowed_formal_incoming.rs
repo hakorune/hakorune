@@ -110,7 +110,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     let mut stored_seen = std::collections::BTreeSet::new();
     let mut definitions = BTreeMap::new();
     for owner in drafts.keys() {
-        let mut matching = contracts.iter().filter(|row| row.owner == *owner);
+        let mut matching = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, *owner);
         let contract = matching
             .next()
             .ok_or(BorrowedIncomingDraftErrorV1::SourceIdentity)?;

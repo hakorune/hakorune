@@ -77,7 +77,7 @@ impl OriginalBorrowedFormalSourceV1 {
         }
         let binding = arg_site_binding(input, site)?;
         let formal = *definitions.get(&input.owner())?.origins.get(&binding)?;
-        let mut declarations = contracts.iter().filter(|row| row.owner == input.owner());
+        let mut declarations = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, input.owner());
         let declaration = declarations.next()?;
         if declarations.next().is_some()
             || declaration.mode != CallableParameterDeclarationModeV1::InstanceBoxMethod

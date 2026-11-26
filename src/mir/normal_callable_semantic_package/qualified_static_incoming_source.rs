@@ -519,7 +519,7 @@ impl QualifiedStaticCallClaimIndexV1 {
                 None => {
                     let mut owners = omitted.iter().filter(|(_, key)| *key == target);
                     let (owner, _) = owners.next().ok_or_else(reject)?;
-                    let mut rows = contracts.iter().filter(|row| row.owner == *owner);
+                    let mut rows = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, *owner);
                     let row = rows.next().ok_or_else(reject)?;
                     if owners.next().is_some() || rows.next().is_some() {
                         return Err(reject());
@@ -527,7 +527,7 @@ impl QualifiedStaticCallClaimIndexV1 {
                     row.batch_slot
                 }
             };
-        let mut matches = contracts.iter().filter(|row| row.batch_slot == slot);
+        let mut matches = OwnedCallableParameterContractDeclarationV1::for_batch_slot(contracts, slot);
         let contract = matches.next().ok_or_else(reject)?;
         if matches.next().is_some()
             || source.owner() != site.owner()

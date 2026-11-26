@@ -210,6 +210,31 @@ pub(super) struct OwnedCallableParameterContractDeclarationV1 {
     pub(super) parameters: Box<[OwnedCallableParameterContractV1]>,
 }
 impl OwnedCallableParameterContractDeclarationV1 {
+    pub(super) fn for_owner(
+        contracts: &[Self],
+        owner: FunctionOwnerIdV1,
+    ) -> impl Iterator<Item = &Self> {
+        contracts.iter().filter(move |row| row.owner == owner)
+    }
+
+    pub(super) fn for_batch_slot(contracts: &[Self], slot: u32) -> impl Iterator<Item = &Self> {
+        contracts.iter().filter(move |row| row.batch_slot == slot)
+    }
+
+    pub(super) fn unique_for_owner<E>(
+        contracts: &[Self],
+        owner: FunctionOwnerIdV1,
+        missing: impl FnOnce() -> E,
+        duplicate: impl FnOnce() -> E,
+    ) -> Result<&Self, E> {
+        let mut rows = Self::for_owner(contracts, owner);
+        let row = rows.next().ok_or_else(missing)?;
+        if rows.next().is_some() {
+            return Err(duplicate());
+        }
+        Ok(row)
+    }
+
     /// Existing strict scalar input family. This selects no actuals, entry,
     /// result, or execution permission; those still require their own proofs.
     pub(in crate::mir::normal_callable_semantic_package) fn has_exact_i64_parameters_v1(&self) -> bool {

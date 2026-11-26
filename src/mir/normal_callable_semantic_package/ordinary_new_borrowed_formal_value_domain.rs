@@ -104,7 +104,7 @@ pub(super) fn declared_integer_seed_v1(
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     binding: BindingRefV1,
 ) -> bool {
-    let mut owners = contracts.iter().filter(|row| row.owner == input.owner());
+    let mut owners = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, input.owner());
     let Some(contract) = owners.next() else {
         return false;
     };
