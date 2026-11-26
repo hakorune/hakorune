@@ -26,7 +26,6 @@ pub(in crate::mir) enum ScriptDirectStaticRequiredArgumentProofIssueV1 {
     ScriptRootMissing,
     ScriptRootNotScript,
     SourceOwnerMismatch,
-    JoinOwnerMismatch(SourceExprSiteV1),
     DuplicateJoinKey(ScriptDirectStaticRecipeKeyV1),
     RequiredOrdinalOutOfBounds {
         site: SourceExprSiteV1,
@@ -37,7 +36,6 @@ pub(in crate::mir) enum ScriptDirectStaticRequiredArgumentProofIssueV1 {
         ordinal: u32,
         source: VerifiedScriptDirectStaticScalarOperandRecipeIssueV1,
     },
-    MethodShape(VerifiedScriptDirectStaticScalarOperandRecipeIssueV1),
     CanonicalSourceRowMissing(SourceExprSiteV1),
     CanonicalSourceRowForeign(SourceExprSiteV1),
 }
