@@ -45,6 +45,11 @@ Home obligations before the final successorless Fault terminal. Bare `exit`
 is a separate undecided application/runtime surface, not a sibling selected by
 this rule.
 
+Current file-mode implementation rejects bare `panic(...)` as
+`call/target-missing`, including when a box declares a method named `panic`.
+The terminal Fault implementation is still pending. `me.panic(...)` and
+`Box.panic(...)` use ordinary method resolution.
+
 A [declared Brand](brands.md) owns its constructor spelling through its
 declaration. Math operations use [MathBox methods](../boxes-system/box-reference.md#mathbox),
 such as `math.sqrt(16)`. An unbound bare math name follows the ordinary
