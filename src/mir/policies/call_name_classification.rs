@@ -54,6 +54,10 @@ pub(crate) fn is_math_function(name: &str) -> bool {
     )
 }
 
+pub(crate) fn is_parked_file_special_form_v1(name: &str) -> bool {
+    name == "panic"
+}
+
 /// File-mode reservation for direct calls. See the reserved bare call forms in
 /// docs/reference/language/function-call-evaluation.md.
 pub(crate) fn is_reserved_source_function_call_v1(name: &str, arity: usize) -> bool {
