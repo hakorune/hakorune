@@ -16,22 +16,7 @@ use crate::mir::resolved_semantics::{
 
 use super::main_source::{NormalMainFunctionSourceViewV1, VerifiedNormalMainFunctionSourceUnitV1};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct VerifiedNormalMainRoleV1 {
-    _seal: VerifiedNormalMainRoleSealV1,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct VerifiedNormalMainRoleSealV1;
-
-impl VerifiedNormalMainRoleV1 {
-    fn seal() -> Self {
-        Self {
-            _seal: VerifiedNormalMainRoleSealV1,
-        }
-    }
-
-}
+use super::VerifiedNormalMainRoleV1;
 
 #[derive(Debug)]
 pub(crate) enum NormalMainResolvedSourceErrorV1 {

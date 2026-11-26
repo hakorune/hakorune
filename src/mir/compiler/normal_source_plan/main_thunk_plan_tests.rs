@@ -1,3 +1,4 @@
+use super::super::test_support::main_at_root;
 use super::*;
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::builder::CanonicalNormalMainEntryTargetV1;
@@ -7,10 +8,7 @@ use crate::mir::resolved_value_profile::product::{
 };
 use std::collections::HashMap;
 
-use super::super::{
-    NormalMainFunctionPreflightV1, NormalSourcePlanClassifierV1, PreparedNormalSourcePlanInputV1,
-    SealedNormalScalarRootV1, SealedNormalSourcePlanV1,
-};
+use super::super::NormalMainFunctionPreflightV1;
 
 fn literal(value: LiteralValue) -> ASTNode {
     ASTNode::Literal {
@@ -79,12 +77,7 @@ fn with_plan<R>(
     body: Vec<ASTNode>,
     inspect: impl FnOnce(VerifiedNormalMainFunctionPlanV1<'_>) -> R,
 ) -> R {
-    let input =
-        PreparedNormalSourcePlanInputV1::new(main_program(result, body), "main-thunk-plan-test");
-    let plan = NormalSourcePlanClassifierV1::seal(input).expect("valid Main0");
-    let SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Main0(main)) = plan else {
-        panic!("expected Main0");
-    };
+    let main = main_at_root(main_program(result, body));
     let source = main.prepare_function_source().expect("exact Main source");
     let resolved = source
         .prepare_embedded_resolved_main()
