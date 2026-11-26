@@ -47,14 +47,6 @@ impl TextScanCheckedCallOutFactsV1 {
     pub(crate) const fn wire_revision(self) -> u32 {
         self.wire_revision
     }
-
-    pub(crate) const fn is_end_authorized_handle(self) -> bool {
-        self.end_authorized_handle
-    }
-
-    pub(crate) const fn is_immediate_i64(self) -> bool {
-        self.immediate_i64
-    }
 }
 
 impl TextScanEntryContractV1 {
@@ -166,33 +158,6 @@ impl PreparedAotExecutableAdmissionV1 {
         match role {
             TextScanAdmittedRoleV1::TextSliceRange => self.substring,
             TextScanAdmittedRoleV1::TextFindNeedle => self.index_of,
-        }
-    }
-
-    pub(crate) const fn checked_callout_facts(
-        &self,
-        role: TextScanAdmittedRoleV1,
-    ) -> TextScanCheckedCallOutFactsV1 {
-        let entry = self.entry_for(role);
-        TextScanCheckedCallOutFactsV1 {
-            entry_code: entry.entry as u32,
-            arity: entry.arity,
-            call_abi_revision: entry.call_abi.abi_revision,
-            wire_revision: entry.call_abi.out_wire_revision,
-            end_authorized_handle: matches!(
-                (entry.result_lane, entry.lease),
-                (
-                    TextScanValueLaneV1::HostHandle,
-                    TextScanLeaseCapabilityV1::EndAuthorized
-                )
-            ),
-            immediate_i64: matches!(
-                (entry.result_lane, entry.lease),
-                (
-                    TextScanValueLaneV1::ImmediateI64,
-                    TextScanLeaseCapabilityV1::None
-                )
-            ),
         }
     }
 }
