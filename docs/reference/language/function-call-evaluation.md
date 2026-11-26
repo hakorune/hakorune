@@ -1,63 +1,30 @@
 # Function Call Evaluation
 
-Status: accepted language target; StaticCurrentOwner handoff and the resolver-owned
-DeclaredInstance source relation are landed, while production Method(Some)
+Status: accepted language target. File-mode static calls and missing bare
+targets are resolved before lowering. Production DeclaredInstance Method(Some)
 migration remains pending.
 
 ## Decision
 
-> **Amended 2026-11-26 (maintainer decision,
-> [ADR-005](../../development/adr/adr-005-file-functions-live-in-static-boxes.md)).**
-> File functions live in static boxes. A file has no top-level `function` or
-> `static function`, so the accepted target has no file-level FreeStatic
-> declaration and no `name/arity` overload namespace. A function is called as
-> `me.f(x)` inside its static box and `Box.f(x)` outside it. Implementation
-> pending: the paragraphs below that mention FreeStatic describe the current
-> implementation, which keeps top-level functions until the ADR-005 rejection
-> round (step 3).
+File functions live in static boxes under [ADR-005](../../development/adr/adr-005-file-functions-live-in-static-boxes.md).
+Inside a static box, including in `Main.main`, `me.f(x)` calls the method
+declared in that box. Outside the box, use `Box.f(x)` or a `using` alias
+for that box. Resolve selects the declaration at the original call site.
+Both static receiver spellings use the qualified static lowering and its
+result and cleanup checks.
 
-Hakorune has two semantic call shapes:
-
-```text
-FunctionCall(name, arguments)
-  = an explicitly defined special source form, or (current implementation
-    until ADR-005 step 3) a direct FreeStatic call
-
-Call(callee, arguments)
-  = invocation of a value produced by a callee expression
-```
+A bare `f(x)` in a file must name an admitted special form or a lexically
+bound callable value. For an unbound ordinary name, Resolve reports
+`call/target-missing` at the call site. It suggests `me.f(...)` only when
+the current static box declares `f`. The reserved forms and future REPL
+session names have their own rules.
 
 The callee is fixed before argument evaluation. Arguments are then evaluated
 exactly once from left to right. An assignment or other effect inside an
-argument cannot retarget the enclosing call.
+argument cannot retarget the enclosing call. For a known static declaration,
+a wrong argument count is reported as `call/arity-mismatch`.
 
-For a direct FreeStatic call, the sole target authority is:
-
-```text
-complete source callable inventory
-  -> VerifiedCallableIndexV1
-  -> exact source FunctionCall site
-  -> ResolvedDirectCallTargetV1
-```
-
-The resolved function retains only the exact callable identity for that source
-site. Lowering consumes it and does not search again by name.
-
-The bounded App Main local-i64 Call connection consumes that same typed target
-and the caller's existing source-issued local relation. Literal arguments,
-destination and cleanup stay with their original owners; lowering records the
-local Invoke binding required by its terminal Call exit instead of silently
-emitting an unrecorded Scalar Call. Without a terminal Call, the existing Plain
-consumer retains the ordinary Scalar Call and its source observation.
-An empty-Home Plain exit has no cleanup Fault successor to issue; its physical
-emitter preserves the clean exit without an orphan Fault terminal. Home cleanup
-and terminal Call Fault paths remain required, with exact finishing validation.
-This compiler connection requires no prior live Homes and changes no source
-call syntax or callee effect contract. Terminal-only and Map-specific admission
-retain their existing respective consumers.
-
-Bare `error` is not a direct FreeStatic provider. It is an unsupported bare
-name and rejects before argument evaluation; qualified providers such as
+Bare `error` is reserved and rejects before argument evaluation; qualified providers such as
 `env.console.error` remain separate Extern contracts and are not inferred from
 the bare spelling.
 
@@ -149,9 +116,8 @@ the selected declaration and never searches a second same-name declaration.
 Static/instance declarations and delegate exposures therefore collide on the
 same visible name even when arity or receiver policy differs. A distinct
 explicit delegate alias is valid, and the same spelling on another nominal Box
-is valid because the owner relation differs. FreeStatic `name/arity` overloads
-are a separate namespace only in the current implementation; ADR-005 removes
-them from the file language. The StaticCurrentOwner handoff and resolver-owned
+is valid because the owner relation differs. The file language follows the
+box method namespace of ADR-005. The StaticCurrentOwner handoff and resolver-owned
 source-site/declaration relation are landed implementation slices; true
 DeclaredInstance production Method(Some) remains a design stop until
 effect/result contracts, the full receiver lane, and selected physical
@@ -186,12 +152,11 @@ Explicit special forms own their own source validation but must likewise choose
 their form before descending into ordinary arguments. They cannot fall through
 to FreeStatic resolution after partially evaluating arguments.
 
-A top-level `function` or `static function` is a declaration error under
-ADR-005, not a call failure. It is reported at the declaration, whether or not
-any call names it, and its diagnostic says to write the function as a method
-in a static box. A call that names no declaration in the selected Box
-namespace still rejects before argument evaluation, as above. Implementation
-pending (ADR-005 step 3).
+Resolve rejects a missing call declaration before argument evaluation. The
+call site's diagnostic is `call/target-missing` for a bare ordinary name or
+a missing method in the current static box. A file-level `function` or
+`static function` declaration is reported separately as
+`decl/function-outside-box` at the declaration under ADR-005.
 
 `panic` is not shadowable by a local, parameter, or source callable in v1.
 Because it remains an identifier token rather than a lexer keyword, this rule

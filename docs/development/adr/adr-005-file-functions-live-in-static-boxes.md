@@ -22,7 +22,8 @@ Scope: file に書く関数の置き場所、関数の名前の決まり、呼�
    - 名前は `decl/function-outside-box`（[設計図](../current/main/design/mirbuilder-blueprint.md) §23.1 A08）。method 本体の入れ子と macro が展開後に作る file 直下の関数にも適用する。
 2. **関数の名前は、箱ごとに 1 つ。** 今の Box の method の決まりのまま。同じ名前で引数の数だけが違う関数(`f(x)` と `f(x, y)`)は、1 つの箱に持てない。名前を変えるか、箱を分ける。FreeStatic の `name/arity` の名前の空間は、言語から無くなる。
 3. **呼び方は 2 つ。** 同じ箱の中は `me.f(x)`。外からは `Box名.f(x)`。`using ... as S` の別名は、その箱を指す(`using.md` の今の契約のまま)。
-   - 箱の名前の無い `f(x)` は、file の関数を呼ぶ形ではなくなる。
+   - static box の中の `me` は、その箱自身を指す。Main の `main` でも同じ。Resolve が呼び先を決め、`Box名.f(x)` と同じ経路で、実引数を左から一度ずつ評価する。引数の数が宣言と違うと `call/arity-mismatch` で拒否する。
+   - file で束縛の無い裸の `f(x)` は、Resolve が呼び出しの位置で `call/target-missing` にする。同じ static box に `f` が宣言されている時だけ `me.f(x)` を案内する。
    - 次の物は、この ADR では変えない: 言語が決めた特別な形(`panic(message)`)、関数の値の呼び出し(`Call`)、裸の `error`・`now` の拒否。
 4. **REPL では、箱なしの `function` を将来の機能として認める。** 下の「REPL」の節。
 
