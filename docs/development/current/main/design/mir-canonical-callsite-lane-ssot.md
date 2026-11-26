@@ -539,7 +539,6 @@ consumers, remain inside B0/B1 mechanical disposition.
 bash tools/checks/current_state_pointer_guard.sh
 bash tools/checks/run_row_guard.sh --only mir-call-d1b-targeted-variant-split
 bash tools/checks/run_row_guard.sh --only mir-call-d1b-cataloged-affine-loan-lifecycle
-bash tools/checks/mir_call_d1b_selected_normal_duplicate_projection_guard.sh
 git diff --check
 ```
 
