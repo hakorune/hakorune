@@ -3,8 +3,10 @@
 use crate::abi::text_scan_aot_export_facts::{
     TextScanAotEntryIdV1, TextScanCallAbiFactV1, TextScanLeaseCapabilityV1, TextScanValueLaneV1,
 };
+#[cfg(test)]
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 
+#[cfg(test)]
 use super::admitted_registry::{AdmittedTextScanRegistryV1, TextScanAdmittedRoleV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -19,37 +21,8 @@ pub(crate) struct TextScanEntryContractV1 {
     call_abi: TextScanCallAbiFactV1,
 }
 
-/// Provider-owned projection consumed by the neutral MIR site-plan issuer.
-/// It carries only checked ABI facts; it does not issue MIR IDs or shapes.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct TextScanCheckedCallOutFactsV1 {
-    entry_code: u32,
-    arity: u32,
-    call_abi_revision: u32,
-    wire_revision: u32,
-    end_authorized_handle: bool,
-    immediate_i64: bool,
-}
-
-impl TextScanCheckedCallOutFactsV1 {
-    pub(crate) const fn entry_code(self) -> u32 {
-        self.entry_code
-    }
-
-    pub(crate) const fn arity(self) -> u32 {
-        self.arity
-    }
-
-    pub(crate) const fn call_abi_revision(self) -> u32 {
-        self.call_abi_revision
-    }
-
-    pub(crate) const fn wire_revision(self) -> u32 {
-        self.wire_revision
-    }
-}
-
 impl TextScanEntryContractV1 {
+    #[cfg(test)]
     pub(super) const fn from_fact(
         entry: TextScanAotEntryIdV1,
         symbol: &'static str,
@@ -105,6 +78,7 @@ impl TextScanEntryContractV1 {
     }
 }
 
+#[cfg(test)]
 /// Move-only pre-link product.  Final image/address resolution belongs to the
 /// post-object AOT link owner, not this MIR-side admission.
 #[derive(Debug)]
@@ -120,6 +94,7 @@ pub(crate) struct PreparedAotExecutableAdmissionV1 {
     plan_stamp: ModuleInvocationBrandV1,
 }
 
+#[cfg(test)]
 impl PreparedAotExecutableAdmissionV1 {
     pub(crate) const fn contract_id(&self) -> &'static str {
         self.contract_id
@@ -162,6 +137,7 @@ impl PreparedAotExecutableAdmissionV1 {
     }
 }
 
+#[cfg(test)]
 pub(super) fn build(
     contract_id: &'static str,
     profile: u32,

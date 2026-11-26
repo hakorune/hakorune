@@ -3,31 +3,41 @@
 //! This module co-seals already-issued admission and physical receipt facts.
 //! It does not select a provider, inspect MIR, or issue a semantic result.
 
-use crate::abi::text_scan_aot_export_facts::{TextScanAotEntryIdV1, TextScanValueLaneV1};
 #[cfg(test)]
 use crate::abi::text_scan_aot_export_facts::{
-    TextScanCallAbiFactV1, TextScanCallOutParameterV1, TextScanCallParameterTypeV1,
+    TextScanAotEntryIdV1, TextScanValueLaneV1, TextScanCallAbiFactV1, TextScanCallOutParameterV1, TextScanCallParameterTypeV1,
     TextScanCallTransportReturnV1, TextScanLeaseCapabilityV1, TEXT_SCAN_CALL_ABI_REVISION_V1,
     TEXT_SCAN_CALL_OUT_WIRE_REVISION_V2, TEXT_SCAN_SYMBOL_INDEX_OF_V1,
     TEXT_SCAN_SYMBOL_SUBSTRING_V1,
 };
 use crate::mir::a_prime_i64_formal_representation::APrimeI64FormalPhysicalRepresentationProjectionV1;
+use crate::mir::a_prime_i64_physical_receipt::APrimeI64LaneV1;
+#[cfg(test)]
 use crate::mir::a_prime_i64_physical_receipt::{
-    APrimeI64LaneV1, APrimeI64PhysicalReceiptRejectV1, APrimeI64PhysicalReceiptV1,
+    APrimeI64PhysicalReceiptRejectV1, APrimeI64PhysicalReceiptV1,
 };
 use crate::mir::checked_callout::{
-    CheckedCallOutEndCensusV1, CheckedCallOutEntryIdV1, CheckedCallOutFunctionCensusViewV1,
-    CheckedCallOutNormalShapeV1, CheckedCallOutPlanTableV1, CheckedCallOutSiteIdV1,
+    CheckedCallOutEndCensusV1, CheckedCallOutNormalShapeV1, CheckedCallOutSiteIdV1,
+};
+#[cfg(test)]
+use crate::mir::checked_callout::{
+    CheckedCallOutEntryIdV1, CheckedCallOutFunctionCensusViewV1, CheckedCallOutPlanTableV1,
     VerifiedCheckedCallOutFunctionV1,
 };
 use crate::mir::compile_target_capability::APrimeI64TargetStorageLayoutV1;
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::policies::a_prime_i64_callable_storage_layout::APrimeI64CallableStorageLayoutV1;
-use crate::mir::{BasicBlockId, EffectMask, MirFunction, MirType, ValueId};
+use crate::mir::{BasicBlockId, EffectMask, ValueId};
+#[cfg(test)]
+use crate::mir::{MirFunction, MirType};
 
+#[cfg(test)]
 use super::admitted_registry::TextScanAdmittedRoleV1;
-use super::aot_admission::{PreparedAotExecutableAdmissionV1, TextScanEntryContractV1};
+#[cfg(test)]
+use super::aot_admission::PreparedAotExecutableAdmissionV1;
+use super::aot_admission::TextScanEntryContractV1;
 
+#[cfg(test)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum DynamicV2AotCallMetadataRejectV1 {
     InvalidReceipt(APrimeI64PhysicalReceiptRejectV1),
@@ -79,6 +89,7 @@ pub(crate) struct DynamicV2AotFormalProjectionV1 {
 }
 
 impl DynamicV2AotFormalProjectionV1 {
+    #[cfg(test)]
     pub(crate) const fn new(
         role: DynamicV2AotFormalRoleV1,
         value_id: ValueId,
@@ -112,6 +123,7 @@ impl DynamicV2AotCallRoleV1 {
         }
     }
 
+    #[cfg(test)]
     const fn expected_entry(&self) -> TextScanAotEntryIdV1 {
         match self {
             Self::Substring => TextScanAotEntryIdV1::Substring,
@@ -119,6 +131,7 @@ impl DynamicV2AotCallRoleV1 {
         }
     }
 
+    #[cfg(test)]
     const fn admitted_role(&self) -> TextScanAdmittedRoleV1 {
         match self {
             Self::Substring => TextScanAdmittedRoleV1::TextSliceRange,
@@ -433,6 +446,7 @@ impl DynamicV2AotCallMetadataProjectionV1 {
     }
 }
 
+#[cfg(test)]
 /// Co-seal the existing AOT admission and canonical physical receipt.
 ///
 /// The function deliberately borrows both sources and returns only an owned
@@ -492,6 +506,7 @@ pub(crate) fn project_dynamic_v2_aot_call_metadata(
     })
 }
 
+#[cfg(test)]
 fn validate_function_transport(
     function: &MirFunction,
     formal_parameters: [DynamicV2AotFormalProjectionV1; 4],
@@ -531,6 +546,7 @@ fn validate_function_transport(
     Ok(())
 }
 
+#[cfg(test)]
 fn project_call(
     admission: &PreparedAotExecutableAdmissionV1,
     receipt: &APrimeI64PhysicalReceiptV1,
@@ -621,6 +637,7 @@ fn project_call(
     })
 }
 
+#[cfg(test)]
 fn lane_from_text(lane: TextScanValueLaneV1) -> APrimeI64LaneV1 {
     match lane {
         TextScanValueLaneV1::HostHandle => APrimeI64LaneV1::OpaqueHandle,
