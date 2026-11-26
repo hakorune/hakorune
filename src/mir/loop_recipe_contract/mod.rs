@@ -20,7 +20,6 @@ mod join_sig;
 // Canonical draft builder: single key allocator + source-anchor co-recorder.
 // Main0 Continue and the selected variable-bound Mul producer use this owner.
 mod join_sig_branch;
-mod normalize;
 mod producer_id;
 pub(crate) mod route_id;
 mod s6c_scan_with_init;
@@ -77,22 +76,6 @@ mod s6c_scan_with_init_tests;
 mod s6c_prephysical_ingress_tests;
 
 
-// S7A caller-zero wire-parity harness: `.hako` emission vs Rust-assembled
-// artifact through the same decode/verify/normalize owner.
-
-// S7G caller-zero all-route wire-parity census: remaining attested-route
-// arms (nested, loop-true), the DirectAccum live-producer anchor, and one
-// coverage class per canonical route cross-checked against the sealed
-// attestation and migration inventories.
-
-
-
-
-
-
-
-
-
 #[cfg(test)]
 #[path = "typed_schema_v2_text_tests.rs"]
 mod typed_schema_v2_text_tests;
@@ -128,7 +111,6 @@ pub(crate) use join_sig::{
     LoopJoinEdgeRoleV1, LoopJoinEdgeV2, LoopJoinExitOccurrenceV1, LoopJoinPayloadV2,
     LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigRejectReasonV1,
 };
-pub(crate) use normalize::{LoopRecipeDecodeErrorV2, LoopRecipeNormalizerV2};
 pub(crate) use producer_id::LoopRecipeProducerIdV1;
 pub(crate) use s6c_prephysical_ingress::{
     issue_s6c_prephysical_ingress_v2, S6CPrephysicalCompletionParityRefV2,
