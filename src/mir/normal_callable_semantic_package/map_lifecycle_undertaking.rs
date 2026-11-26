@@ -147,9 +147,6 @@ pub(crate) enum MapCallEdgeKindV1 {
     /// argument contract), and the caller loses release responsibility for
     /// what it transferred.
     Argument { ordinal: u32 },
-    /// The callee's map egresses `return`: the caller acquires release
-    /// responsibility for the received map, and borrows stored inside it
-    /// must keep their targets live.
 }
 
 impl MapCallEdgeContractV1 {
