@@ -52,10 +52,15 @@ impl VerifiedSelectedCallableBatchMapV1 {
     }
 
     pub(super) fn batch_slot(&self, key: &SelectedNormalCallableKeyV1) -> Option<u32> {
-        self.rows
-            .binary_search_by(|row| row.key.cmp(key))
-            .ok()
-            .map(|index| self.rows[index].batch_slot)
+        self.row_for_key(key).map(SelectedCallableBatchMapRowRefV1::batch_slot)
+    }
+
+    pub(super) fn row_for_key(
+        &self,
+        key: &SelectedNormalCallableKeyV1,
+    ) -> Option<SelectedCallableBatchMapRowRefV1<'_>> {
+        let index = self.rows.binary_search_by(|row| row.key.cmp(key)).ok()?;
+        Some(SelectedCallableBatchMapRowRefV1 { row: &self.rows[index] })
     }
 
     pub(super) fn is_main_child_key(&self, key: &SelectedNormalCallableKeyV1) -> bool {
@@ -137,6 +142,10 @@ impl SelectedCallableBatchMapRowRefV1<'_> {
 
     pub(super) fn identity(&self) -> &CallableDeclarationIdentityV1 {
         &self.row.identity
+    }
+
+    pub(super) fn key(&self) -> &SelectedNormalCallableKeyV1 {
+        &self.row.key
     }
 
     pub(super) const fn role(self) -> SelectedCallableConsumptionRoleV1 {

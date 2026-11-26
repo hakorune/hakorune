@@ -13,20 +13,12 @@ impl InstalledNormalCallableSemanticPackageV1 {
         key: &SelectedNormalCallableKeyV1,
         callback: impl for<'loan> FnOnce(SelectedCallableLoweringInputRefV1<'loan>) -> R,
     ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
-        let batch_slot = self
+        let row = self
             .selected
-            .batch_slot(key)
+            .row_for_key(key)
             .ok_or(NormalCallableSemanticPackageInstallIssueV1::SelectedKeyUnavailable)?;
-        // Reborrow the package's canonical key instead of trusting a
-        // caller-owned spelling. The batch-slot check above proves
-        // membership; this clone preserves that exact catalog identity for
-        // the later physical-header projection.
-        let selected_key = self
-            .selected
-            .keys()
-            .find(|candidate| *candidate == key)
-            .cloned()
-            .ok_or(NormalCallableSemanticPackageInstallIssueV1::SelectedKeyUnavailable)?;
+        let batch_slot = row.batch_slot();
+        let selected_key = row.key().clone();
         let parameter_declaration = match key {
             SelectedNormalCallableKeyV1::Cataloged(_) => {
                 let mut declarations = self
@@ -100,14 +92,6 @@ impl InstalledNormalCallableSemanticPackageV1 {
         } = &self.dynamic
         {
             if *dynamic_slot == batch_slot {
-                let identity = self
-                    .selected
-                    .identity_for_batch_slot(batch_slot)
-                    .ok_or(NormalCallableSemanticPackageInstallIssueV1::ResultContractMismatch)?;
-                let role = self
-                    .selected
-                    .role_for_batch_slot(batch_slot)
-                    .ok_or(NormalCallableSemanticPackageInstallIssueV1::ResultContractMismatch)?;
                 return program.with_canonical_session_authority(|authority| {
                     // The canonical-session authority's completion has no
                     // package-retained per-exit relation map; an empty map
@@ -115,8 +99,8 @@ impl InstalledNormalCallableSemanticPackageV1 {
                     let terminal_relations = std::collections::BTreeMap::new();
                     let contract = CallableResultContractRefV1::from_completion(
                         authority.completion().owner(),
-                        identity,
-                        role,
+                        row.identity(),
+                        row.role(),
                         *result,
                         authority.completion(),
                         &terminal_relations, None,
@@ -138,22 +122,6 @@ impl InstalledNormalCallableSemanticPackageV1 {
                 let row = self.result_contracts.row(batch_slot).ok_or(
                     NormalCallableSemanticPackageInstallIssueV1::ResultContractUnavailable,
                 )?;
-                let Some(expected_identity) = self.selected.identity_for_batch_slot(batch_slot)
-                else {
-                    return Err(
-                        NormalCallableSemanticPackageInstallIssueV1::ResultContractMismatch,
-                    );
-                };
-                let Some(expected_role) = self.selected.role_for_batch_slot(batch_slot) else {
-                    return Err(
-                        NormalCallableSemanticPackageInstallIssueV1::ResultContractMismatch,
-                    );
-                };
-                if !row.identity().same_as(expected_identity) || row.role() != expected_role {
-                    return Err(
-                        NormalCallableSemanticPackageInstallIssueV1::ResultContractMismatch,
-                    );
-                }
                 Some(row.borrow())
             }
             SelectedNormalCallableKeyV1::TopLevel(_) => None,

@@ -90,10 +90,8 @@ pub(crate) enum DirectCallDispositionIssueV1 {
     PublishedTargetNamespaceMismatch,
     PublishedTargetNameMismatch,
     PublishedTargetArityMismatch,
-    CompilationBrandMismatch,
     TargetNameMismatch,
     ArityMismatch,
-    ArgumentSiteMismatch,
     BatchLoan(ResolvedCallableSemanticBatchLoanErrorV1),
     Loan(super::direct_call_loan::DirectCallLoanErrorV1),
 }
