@@ -101,7 +101,6 @@ struct CoreMethodTargetIdentityV1 {
 pub(crate) enum CoreMethodInstanceTargetRejectV1 {
     ManifestBrandMismatch,
     DesignOnlyRow,
-    UnsupportedHomeSchema,
     UnsupportedOperation { op: CoreMethodOp, arity: u32 },
     ReceiverMismatch,
     ResultMismatch,

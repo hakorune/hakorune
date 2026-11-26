@@ -70,7 +70,6 @@ pub(crate) enum ResolverCoreMethodCallableContractRejectV1 {
     },
     TargetParameterMismatch,
     TargetEffectMismatch,
-    TargetResultMismatch,
     SelectorMismatch(Box<str>),
 }
 
