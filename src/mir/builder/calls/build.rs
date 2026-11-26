@@ -28,7 +28,7 @@ use crate::mir::builder::calls::{
     drive_call_arguments_v1, drive_call_arguments_with_expected_sites_v1,
 };
 use crate::mir::builder::recursive_child_lowering::{
-    drive_legacy_expression_v1, DirectCallDispositionPortV1, RawAstChildLoweringPortV1,
+    DirectCallDispositionPortV1, RawAstChildLoweringPortV1,
     RawFunctionHeaderLookupPortV1,
 };
 use crate::mir::policies::source_method_typeop_route::{
@@ -92,10 +92,6 @@ impl MirBuilder {
             RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1 + DirectCallDispositionPortV1,
     {
         match completion {
-            PreparedRawOrdinaryFunctionCompletionV1::StrNormalization { argument } => {
-                let value = drive_legacy_expression_v1(self, port, argument)?;
-                self.build_str_normalization(value)
-            }
             PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted { callee, arguments } => {
                 lower_prepared_targeted_call_v1(self, port, callee, arguments)
             }

@@ -261,18 +261,6 @@ fn raw_script_root_keeps_brand_and_special_precedence() {
         PreparedRawFunctionPreflightRouteV1::FastMem { .. }
     ));
 
-    let string = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
-        &builder,
-        "str".to_owned(),
-        vec![integer(1)],
-        RawBrandCallAuthorityV1::RawScriptRootParkedCompatibility,
-    );
-    assert!(matches!(
-        string.route,
-        PreparedRawFunctionPreflightRouteV1::Ordinary {
-            completion: PreparedRawOrdinaryFunctionCompletionV1::StrNormalization { .. }
-        }
-    ));
 }
 
 #[test]
@@ -349,17 +337,5 @@ fn unclassified_source_keeps_special_route_precedence() {
     assert!(matches!(
         math.route,
         PreparedRawFunctionPreflightRouteV1::Math { .. }
-    ));
-    let string = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
-        &builder,
-        "str".to_owned(),
-        vec![integer(1)],
-        RawBrandCallAuthorityV1::UnclassifiedSource,
-    );
-    assert!(matches!(
-        string.route,
-        PreparedRawFunctionPreflightRouteV1::Ordinary {
-            completion: PreparedRawOrdinaryFunctionCompletionV1::StrNormalization { .. }
-        }
     ));
 }

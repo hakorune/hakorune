@@ -105,9 +105,6 @@ enum PreparedRawNonBrandRouteOriginV1 {
 }
 
 pub(super) enum PreparedRawOrdinaryFunctionCompletionV1 {
-    StrNormalization {
-        argument: ASTNode,
-    },
     CatalogedTargeted {
         callee: Callee,
         arguments: Vec<ASTNode>,
@@ -355,14 +352,7 @@ fn prepare_ordinary_function_completion_v1(
     caller: Option<&crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
     origin: PreparedRawNonBrandRouteOriginV1,
 ) -> Result<PreparedRawOrdinaryFunctionCompletionV1, RawCompatibilityOrdinaryCallTerminalV1> {
-    if name == "str" && arguments.len() == 1 {
-        Ok(PreparedRawOrdinaryFunctionCompletionV1::StrNormalization {
-            argument: arguments
-                .into_iter()
-                .next()
-                .expect("exact str/1 route must retain one argument"),
-        })
-    } else if matches!(
+    if matches!(
         origin,
         PreparedRawNonBrandRouteOriginV1::RawScriptRootParkedCompatibility
     ) {

@@ -29,7 +29,7 @@ impl CallNameClassificationV1 {
 
 pub(crate) fn classify_call_name_v1(name: &str) -> CallNameClassificationV1 {
     let (raw_unified_admission, callee_class) = match name {
-        "print" | "error" | "panic" | "exit" | "now" | "abs" | "min" | "max" => {
+        "print" | "error" | "panic" | "now" | "abs" | "min" | "max" => {
             (true, CallNameCalleeClassV1::BuiltinGlobal)
         }
         "isType" | "asType" => (true, CallNameCalleeClassV1::Ordinary),
@@ -98,7 +98,7 @@ mod tests {
             ("print", true, CallNameCalleeClassV1::BuiltinGlobal),
             ("error", true, CallNameCalleeClassV1::BuiltinGlobal),
             ("panic", true, CallNameCalleeClassV1::BuiltinGlobal),
-            ("exit", true, CallNameCalleeClassV1::BuiltinGlobal),
+            ("exit", false, CallNameCalleeClassV1::Ordinary),
             ("now", true, CallNameCalleeClassV1::BuiltinGlobal),
             ("abs", true, CallNameCalleeClassV1::BuiltinGlobal),
             ("min", true, CallNameCalleeClassV1::BuiltinGlobal),

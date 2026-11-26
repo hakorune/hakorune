@@ -41,7 +41,7 @@ impl NyashParser {
     }
 
     pub(crate) fn expr_parse_comparison(&mut self) -> Result<ASTNode, ParseError> {
-        let mut expr = self.expr_parse_range()?;
+        let mut expr = self.expr_parse_term()?;
         while self.match_token(&TokenType::LESS)
             || self.match_token(&TokenType::LessEquals)
             || self.match_token(&TokenType::GREATER)
@@ -57,7 +57,7 @@ impl NyashParser {
                 _ => unreachable!(),
             };
             self.advance();
-            let right = self.expr_parse_range()?;
+            let right = self.expr_parse_term()?;
             expr = ASTNode::BinaryOp {
                 operator,
                 left: Box::new(expr),

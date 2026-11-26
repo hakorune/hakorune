@@ -2,7 +2,6 @@
 //!
 //! 責務: TypeOp functions, math functions, string normalization
 //! - selected math function lowering
-//! - build_str_normalization: str(x) → x.str() normalization
 
 use super::super::{MirBuilder, MirInstruction, MirType, ValueId};
 use super::special_handlers;
@@ -99,14 +98,6 @@ impl MirBuilder {
         // call method
         let dst = self.next_value_id();
         self.emit_method_call(Some(dst), math_recv, name, math_args)?;
-        Ok(dst)
-    }
-
-    /// Build str(x) normalization to x.str()
-    pub(super) fn build_str_normalization(&mut self, arg: ValueId) -> Result<ValueId, String> {
-        let dst = self.next_value_id();
-        // Use unified method emission; downstream rewrite will functionize as needed
-        self.emit_method_call(Some(dst), arg, "str".to_string(), vec![])?;
         Ok(dst)
     }
 }
