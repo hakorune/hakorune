@@ -2,6 +2,7 @@ use super::normal_root_execution::{
     ParserNormalRootExecutionRoleV1, ParserNormalRootExecutionSourceDispositionV1,
     ParserNormalRootExecutionTestTerminalV1, ParserRetainedCallableSemanticSourceTestLoanV1,
 };
+use super::script_source_rows::CanonicalScriptSourceRowsDispositionV1;
 use crate::ast::ASTNode;
 use crate::parser::{BuildMode, NyashParser, ParserBuildConfig};
 
@@ -45,7 +46,10 @@ fn retained_source_keeps_total_app_relation_and_script_sibling() {
             ParserNormalRootExecutionSourceDispositionV1::Ready(root)
                 if root.role() == ParserNormalRootExecutionRoleV1::App
         ));
-        assert!(loan.retains_script_source_rows());
+        assert!(matches!(
+            loan.script_source_rows(),
+            CanonicalScriptSourceRowsDispositionV1::CompatibilitySource
+        ));
         assert!(loan.source_authority_is_ready());
     });
 }

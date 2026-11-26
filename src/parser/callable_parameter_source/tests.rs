@@ -404,9 +404,4 @@ fn assert_source_only_header_is_not_erased(source: &str, expected_tag: &str) {
             other => panic!("ownership header must not be erased: {other:?}"),
         }
     }
-    let raw = NyashParser::parse_from_string_with_callable_parameter_source(source, ParserBuildConfig::default())
-        .unwrap().prepare_raw_vm_source_route();
-    assert!(matches!(raw.as_ref().map_err(|rejected| rejected.error()),
-        Err(super::product::ParserNormalRawVmSourceExtractionErrorV1::SourceAuthorityUnavailable)));
-    if let Err(rejected) = raw { rejected.discard(); }
 }

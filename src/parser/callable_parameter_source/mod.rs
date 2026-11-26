@@ -61,12 +61,7 @@ pub(crate) use composite_source::{
 };
 #[cfg(test)]
 pub(crate) use product::ParserCallableSourceRetentionErrorV1;
-pub(crate) use product::{
-    ParsedProgramWithCallableParameterSourceV1, ParserNormalRawVmSourceExtractionErrorV1,
-    ParserNormalRawVmSourceKindV1, PreparedParserNormalCompatibilityRawVmV1,
-    PreparedParserNormalRawVmSourceRouteV1, PreparedParserNormalSourceBackedRawVmV1,
-    RejectedParserNormalRawVmSourceExtractionV1,
-};
+pub(crate) use product::ParsedProgramWithCallableParameterSourceV1;
 pub(crate) use script_source_authority::{
     validate_parser_normal_program_source_transform_v1,
     with_parser_composite_source_loan_from_normal_authority,

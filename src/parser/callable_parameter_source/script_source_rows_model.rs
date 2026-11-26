@@ -182,7 +182,6 @@ pub(crate) enum CanonicalScriptSourceRowsDispositionV1 {
     IntegrityInvalid,
     NonCandidate,
     HandoffReady(CanonicalScriptSourceRowsV1),
-    MovedToParallelHandoff,
     DispositionTransported,
 }
 
@@ -201,7 +200,6 @@ impl CanonicalScriptSourceRowsDispositionV1 {
             | Self::ObservationIncomplete
             | Self::IntegrityInvalid
             | Self::NonCandidate
-            | Self::MovedToParallelHandoff
             | Self::DispositionTransported => {}
         }
     }

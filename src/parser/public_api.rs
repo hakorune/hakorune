@@ -6,12 +6,8 @@ pub(crate) use super::callable_parameter_source::{
     ParserCompositeSourceUnavailableV1, ParserInvocationWitnessV1,
     ParserNormalProgramBodySourceRowV1, ParserNormalProgramBodySyntaxKindV1,
     ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1,
-    ParserNormalRawVmSourceExtractionErrorV1, ParserNormalRawVmSourceKindV1,
     ParserNormalRootExecutionRoleV1, ParserNormalRootExecutionSourceV1,
     ParserNormalRootExecutionTerminalClassV1,
-    PreparedParserNormalCompatibilityRawVmV1,
-    PreparedParserNormalRawVmSourceRouteV1, PreparedParserNormalSourceBackedRawVmV1,
-    RejectedParserNormalRawVmSourceExtractionV1,
 };
 pub(crate) use super::constructor_source_catalog::{
     ConstructorSourceIdV1, FinalConstructorSemanticSyntaxLoanErrorV1,

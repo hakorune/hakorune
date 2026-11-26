@@ -157,11 +157,10 @@ impl<'source> ParserRetainedCallableSemanticSourceTestLoanV1<'source> {
         self.root_execution
     }
 
-    pub(in crate::parser) fn retains_script_source_rows(&self) -> bool {
-        !matches!(
-            self.script_rows,
-            super::super::script_source_rows::CanonicalScriptSourceRowsDispositionV1::MovedToParallelHandoff
-        )
+    pub(in crate::parser) fn script_source_rows(
+        &self,
+    ) -> &super::super::script_source_rows::CanonicalScriptSourceRowsDispositionV1 {
+        self.script_rows
     }
 
     pub(in crate::parser) fn source_authority_is_ready(&self) -> bool {
