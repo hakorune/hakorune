@@ -182,7 +182,7 @@ pub(crate) use ordinary_new_coseal::CanonicalArrayFieldReadSourceV1;
 pub(in crate::mir) use ordinary_new_coseal::TextFieldValueSourceV1;
 pub(crate) use ordinary_new_coseal::{
     BirthAbiHandoffV1, BorrowedCallResultSourceLoanV1, BorrowedCallSourceLoanV1,
-    BorrowedCompareIntegerLiteralLoanV1, BorrowedCompareSourceLoanV1, BorrowedLifetimeAnchorV1,
+    BorrowedCompareIntegerLiteralLoanV1, BorrowedCompareSourceLoanV1,
     BorrowedNullableLocalSourceLoanV1, FinalizedBirthActualsV1, FinalizedRootResultAbiV1,
     FinalizedRootSourceHandoffV1, LexicalInstanceCallDispositionRowV1,
     LexicalInstanceCallSourceTargetV1, MapStoredResultSourceV1, MixedLocalCallSourceLoanV1,

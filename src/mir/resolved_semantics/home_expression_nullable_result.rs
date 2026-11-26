@@ -2,7 +2,8 @@
 use crate::mir::resolved_semantics::{BindingRefV1, OwnedExprSiteV1, SourceExprSiteV1,
     ResolvedLexicalRefV1, source_value_flow::{SourceValueRefV1, SourceValueOriginV1, VerifiedSourceValueFlowV1}};
 use crate::mir::resolved_semantics::home_new_prefix::{LiveHomeV1, MapFieldGetLocalV1};
-use crate::mir::normal_callable_semantic_package::{BorrowedNullableLocalSourceLoanV1, BorrowedLifetimeAnchorV1};
+use crate::mir::normal_callable_semantic_package::{BorrowedNullableLocalSourceLoanV1};
+use super::BorrowedLifetimeAnchorV1;
 use crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use std::{rc::Rc, sync::Arc};

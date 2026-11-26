@@ -32,7 +32,7 @@ impl SourceReadSubstitutionV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn matches_support_v1(&self,
         plan: &super::super::borrowed_nullable_local::BorrowedSupportReadV1,
     ) -> bool {
-        use super::super::BorrowedLifetimeAnchorV1;
+        use crate::mir::resolved_semantics::BorrowedLifetimeAnchorV1;
         self.source == *plan.source_signature_v1()
             && matches!(plan.anchor(), BorrowedLifetimeAnchorV1::Entry { root, caller_support: crate::mir::instruction::BorrowedResultSupportV1::Formal(ordinal) }
                 if *root == self.formal && *ordinal == self.ordinal)

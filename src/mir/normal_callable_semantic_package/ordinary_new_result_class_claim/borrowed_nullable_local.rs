@@ -13,7 +13,7 @@ mod formal_return;
 #[path = "borrowed_support.rs"]
 mod support;
 pub(crate) use formal_return::BorrowedFormalReturnSourceLoanV1;
-pub(crate) use support::BorrowedLifetimeAnchorV1;
+pub(crate) use crate::mir::resolved_semantics::BorrowedLifetimeAnchorV1;
 #[path = "borrowed_call_result.rs"]
 mod call_result;
 pub(crate) use call_result::{BorrowedCallResultSourceLoanV1, BorrowedCallSourceLoanV1};

@@ -171,6 +171,7 @@ pub(crate) use home_abi::{
     VerifiedInstanceEntryHomeParameterV1,
 };
 pub(crate) use home_relation::{
+    BorrowedLifetimeAnchorV1,
     HomeDemandV1, HomeRelationBrandIssuerV1, HomeRelationBrandV1, HomeRelationRejectV1,
     HomeResultRelationV1,
 };

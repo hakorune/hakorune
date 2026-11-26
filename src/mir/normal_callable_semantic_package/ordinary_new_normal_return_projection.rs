@@ -1,6 +1,6 @@
 //! Read-only Normal cleanup projection from the original sealed return proof.
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
-use crate::mir::normal_callable_semantic_package::BorrowedLifetimeAnchorV1;
+use crate::mir::resolved_semantics::BorrowedLifetimeAnchorV1;
 use super::{freeze, NormalReturnDispositionV1, OrdinaryNewClaimLedgerV1};
 use crate::mir::resolved_semantics::home_new_prefix::{
     ObjectReturnAcquisitionV1, RootHomeExitV1, TerminalObjectReturnObligationV1,
