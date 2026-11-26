@@ -285,24 +285,23 @@ fn validate_file_call_observations(
     tree: &mut ShadowOwnerConstructionTreeV1<'_>,
     same_owner_has_method: &impl Fn(&str) -> bool,
 ) -> Result<(), crate::mir::resolved_semantics::ShadowResolveErrorV0> {
-    use crate::mir::policies::call_name_classification::{
-        is_parked_file_special_form_v1, is_reserved_source_function_call_v1,
-    };
+    use crate::mir::policies::call_name_classification::is_reserved_source_function_call_v1;
     use crate::mir::resolved_semantics::ShadowResolveErrorV0;
 
     tree.function.direct_calls.retain(|_, call| {
-        !call.has_lexical_binding
-            || is_reserved_source_function_call_v1(&call.name)
+        !call.has_lexical_binding || is_reserved_source_function_call_v1(&call.name)
     });
-    for (site, call) in &tree.function.direct_calls {
-        let parked_special_form = is_parked_file_special_form_v1(&call.name);
-        if parked_special_form || !is_reserved_source_function_call_v1(&call.name) {
-            return Err(ShadowResolveErrorV0::BareCallTargetMissing {
-                name: call.name.clone(),
-                site: site.clone(),
-                suggest_me: !parked_special_form && same_owner_has_method(&call.name),
-            });
-        }
+    if let Some((site, call)) = tree.function.direct_calls.first_key_value() {
+        return Err(ShadowResolveErrorV0::reserved_file_call_refusal(
+            &call.name,
+            site.clone(),
+            call.arity as usize,
+        )
+        .unwrap_or_else(|| ShadowResolveErrorV0::BareCallTargetMissing {
+            name: call.name.clone(),
+            site: site.clone(),
+            suggest_me: same_owner_has_method(&call.name),
+        }));
     }
     for child in &mut tree.children {
         validate_file_call_observations(&mut child.tree, same_owner_has_method)?;

@@ -388,19 +388,12 @@ fn prepare_ordinary_function_completion_v1(
         Ok(PreparedRawOrdinaryFunctionCompletionV1::Retired(
             RawOrdinaryFunctionRetirementV1::GcGlobal,
         ))
-    } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledNonBrand)
-        && matches!(name, "error" | "now")
+    } else if let Some(provider) = matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledNonBrand)
+        .then(|| crate::mir::policies::call_name_classification::unsupported_bare_provider_v1(name))
+        .flatten()
     {
-        let provider = if name == "error" {
-            "bare-error-unsupported"
-        } else {
-            "bare-now-unsupported"
-        };
         Ok(PreparedRawOrdinaryFunctionCompletionV1::Rejected {
-            error: format!(
-                "[freeze:contract][direct-call/{provider}] name={name} arity={}",
-                arguments.len()
-            ),
+            error: provider.diagnostic(arguments.len()),
         })
     } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledNonBrand)
         && caller.is_some()

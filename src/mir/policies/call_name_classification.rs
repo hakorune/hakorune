@@ -54,10 +54,6 @@ pub(crate) fn is_math_function(name: &str) -> bool {
     )
 }
 
-pub(crate) fn is_parked_file_special_form_v1(name: &str) -> bool {
-    name == "panic"
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum UnsupportedBareProviderV1 {
     Error,
