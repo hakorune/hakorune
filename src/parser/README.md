@@ -38,12 +38,13 @@ neutral `ParamDecl`; missing AST metadata is never reclassified as
 
 `callable_source_anchor.rs` owns one parser-invocation-local session for
 direct callable declarations. A fresh opaque `CallableDeclarationAnchorV1`
-is issued at the exact free-function, free-static-function, static Box-method,
-or ordinary instance-method declaration commit. `Main.main` is retained as
+is issued at the exact static Box-method or ordinary instance-method
+declaration commit. A function declared outside a Box is rejected before
+anchor issuance. `Main.main` is retained as
 an ordinary static Box method; entrypoint selection is a later owner and is
 not inferred here from names.
 
-Top-level paths reuse the parser's Program declaration path. Box member-gate
+The enclosing Box uses the parser's Program declaration path. Box member-gate
 Then/Else prefixes remain owned by `OpenBoxMethodSourceTransactionV1`, so both
 as-written branches are recorded before selection without a second global path
 stack. Explicit Box commits use `DirectExplicitMethodSinkV1` to capture the

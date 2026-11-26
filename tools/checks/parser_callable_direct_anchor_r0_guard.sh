@@ -8,7 +8,8 @@ TESTS="$ROOT/src/parser/callable_source_anchor_tests.rs"
 PENDING="$ROOT/src/parser/declarations/box_def/members/pending_method.rs"
 BODY="$ROOT/src/parser/declarations/box_def/body.rs"
 STATIC="$ROOT/src/parser/declarations/static_def/mod.rs"
-FUNCTIONS="$ROOT/src/parser/items/functions.rs"
+DECLARATIONS="$ROOT/src/parser/statements/declarations.rs"
+GATE_TESTS="$ROOT/src/parser/callable_gate_projection_tests.rs"
 STATIC_ITEMS="$ROOT/src/parser/items/static_items.rs"
 SOURCE_PATH="$ROOT/src/parser/source_path.rs"
 SOURCE_AUTHORITY="$ROOT/src/parser/source_authority.rs"
@@ -20,10 +21,10 @@ source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" python3
 guard_require_files "$TAG" "$ANCHOR" "$TESTS" "$PENDING" "$BODY" "$STATIC" \
-  "$FUNCTIONS" "$STATIC_ITEMS" "$SOURCE_PATH" "$SOURCE_AUTHORITY" \
+  "$DECLARATIONS" "$GATE_TESTS" "$STATIC_ITEMS" "$SOURCE_PATH" "$SOURCE_AUTHORITY" \
   "$PARSER_MOD" "$README" "$TASK" "$INDEX"
 
-python3 - "$ANCHOR" "$TESTS" "$PENDING" "$BODY" "$STATIC" "$FUNCTIONS" \
+python3 - "$ANCHOR" "$TESTS" "$PENDING" "$BODY" "$STATIC" "$DECLARATIONS" "$GATE_TESTS" \
   "$STATIC_ITEMS" "$SOURCE_PATH" "$SOURCE_AUTHORITY" "$PARSER_MOD" \
   "$README" "$TASK" "$INDEX" <<'PY'
 import re
@@ -33,7 +34,7 @@ from pathlib import Path
 paths = list(map(Path, sys.argv[1:]))
 (
     anchor_path, tests_path, pending_path, body_path, static_path,
-    functions_path, static_items_path, source_path, authority_path,
+    declarations_path, gate_tests_path, static_items_path, source_path, authority_path,
     parser_mod_path, readme_path, task_path, index_path,
 ) = paths
 texts = {path: path.read_text(encoding="utf-8") for path in paths}
@@ -42,7 +43,8 @@ tests = texts[tests_path]
 pending = texts[pending_path]
 body = texts[body_path]
 static = texts[static_path]
-functions = texts[functions_path]
+declarations = texts[declarations_path]
+gate_tests = texts[gate_tests_path]
 static_items = texts[static_items_path]
 source = texts[source_path]
 authority = texts[authority_path]
@@ -88,8 +90,6 @@ if "SourceProgramCallablePathV1," in anchor.split(
     raise SystemExit("Box anchor issuer must consume the commit receipt, not a sibling raw path")
 
 for text, needle, label in (
-    (functions, "issue_direct_free_function", "free function parser"),
-    (static_items, "issue_direct_free_static_function", "free static parser"),
     (body, "issue_committed_instance_box_method", "instance method commit"),
     (static, "issue_committed_static_box_method", "static method commit"),
     (parser_mod, "ParserCallableSourceSessionV1::open", "parser session"),
@@ -103,10 +103,9 @@ for forbidden in ('MainMethod', 'box_name == "Main"', 'diagnostic_name == "main"
         raise SystemExit(f"by-name Main classification is forbidden: {forbidden}")
 
 for needle in (
-    "mixed_direct_source_keeps_five_rows_across_four_direct_kinds",
+    "mixed_method_source_keeps_exact_rows_and_placements",
     "generated_property_does_not_enter_the_direct_anchor_session",
     "generated_delegate_does_not_add_a_direct_anchor_row",
-    "top_level_gate_children_keep_both_written_paths_before_selection",
     "member_gate_children_keep_both_written_paths_before_selection",
     "nested_member_gate_keeps_the_full_written_branch_path",
     "foreign_parser_path_rejects_before_publication",
@@ -116,7 +115,13 @@ for needle in (
     if needle not in tests:
         raise SystemExit(f"missing direct anchor focused test: {needle}")
 
-for document, label in ((readme, "parser README"), (task, "active task")):
+for text, label in ((declarations, "function"), (static_items, "static function")):
+    if "TokenType::FUNCTION => Err(ParseError::function_outside_box(" not in text:
+        raise SystemExit(f"{label} must reject outside Box before anchor issuance")
+if "unselected_top_level_gate_branch_still_rejects_free_function" not in gate_tests:
+    raise SystemExit("missing file-function rejection test in an unselected gate branch")
+
+for document, label in ((readme, "parser README"), (task, "landed task")):
     for needle in (
         "PARSER-CALLABLE-DIRECT-ANCHOR-R0",
         "DirectExplicitMethodSinkV1",
@@ -131,7 +136,7 @@ if "parser_callable_direct_anchor_r0_guard.sh" not in index:
 
 for path in (
     anchor_path, tests_path, pending_path, body_path, static_path,
-    functions_path, static_items_path, source_path, authority_path, parser_mod_path,
+    declarations_path, static_items_path, source_path, authority_path, parser_mod_path,
 ):
     lines = len(texts[path].splitlines())
     if lines >= 760:
