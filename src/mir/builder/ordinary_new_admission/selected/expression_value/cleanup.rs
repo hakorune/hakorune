@@ -515,7 +515,7 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_carrier_
 fn finish_body_cleanup(
     builder: &mut MirBuilder,
     body: &mut EmittedExpressionBodyV1,
-    mut normal: Vec<InvokeOperation>,
+    normal: Vec<InvokeOperation>,
     fault: Vec<InvokeOperation>,
     displaced: Option<InvokeOperation>,
 ) -> Result<(Option<Binding>, Option<Binding>), String> {

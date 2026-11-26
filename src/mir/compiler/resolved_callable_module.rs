@@ -85,12 +85,6 @@ impl RejectedResolvedCallableModuleV1 {
     fn into_error(self) -> ResolveCallableModuleErrorV1 {
         self.error
     }
-
-    pub(in crate::mir) fn into_normal_composition_parts(
-        self,
-    ) -> (CallableCatalogSealOutcomeV1, ResolveCallableModuleErrorV1) {
-        (self.owner, self.error)
-    }
 }
 
 impl VerifiedResolvedCallableModuleV1 {

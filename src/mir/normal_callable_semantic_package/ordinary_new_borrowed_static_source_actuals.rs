@@ -720,6 +720,6 @@ mod local_issuer_tests;
 
 pub(in crate::mir::normal_callable_semantic_package) use super::static_argument_projection::{
     project_pending_static_source_arguments_v1, project_pending_current_owner_static_source_arguments_v1,
-    project_current_owner_loop_scalar_source_v1, project_pending_static_source_arguments_for_route_v1,
+    project_pending_static_source_arguments_for_route_v1,
 };
 pub(super) use super::static_argument_projection::checked_executable_qualified_arguments_v1;

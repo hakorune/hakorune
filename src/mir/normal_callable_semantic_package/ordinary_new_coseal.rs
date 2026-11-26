@@ -518,9 +518,6 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
     SourceNavigation {
         site: OwnedExprSiteV1,
     },
-    AllocationSiteNotDirectLocal {
-        site: SourceExprSiteV1,
-    },
     InitializerBindingMismatch {
         site: OwnedExprSiteV1,
     },

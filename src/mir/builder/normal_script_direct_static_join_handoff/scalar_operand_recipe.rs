@@ -64,14 +64,7 @@ pub(in crate::mir) enum VerifiedScriptDirectStaticScalarOperandRecipeIssueV1 {
     SourceOwnerMismatch,
     ScriptRootMissing,
     ScriptRootNotScript,
-    MethodCallMissing(SourceExprSiteV1),
-    MethodOwnerMismatch(SourceExprSiteV1),
     ReceiverSiteMismatch(SourceExprSiteV1),
-    ArgumentCardinalityMismatch(SourceExprSiteV1),
-    ArgumentOrdinalMismatch {
-        site: SourceExprSiteV1,
-        ordinal: u32,
-    },
     ArgumentSiteMismatch {
         site: SourceExprSiteV1,
         ordinal: u32,

@@ -383,7 +383,7 @@ pub(in crate::mir::builder) fn emit_root_graph_with_arguments_v1(
     let return_block = prepared.return_block;
     let fault_terminal = prepared.fault_terminal;
     let acquisition_fault = prepared.acquisition_fault;
-    let RootGraphEmissionV1 { origins, mut bindings, frame: frame_value, mut clean, .. } = prepared;
+    let RootGraphEmissionV1 { origins, mut bindings, frame: frame_value, clean, .. } = prepared;
     writer.append_terminated(builder, return_block, MirInstruction::Return { value: return_value }, &mut bindings)?;
     bindings.rotate_right(1);
     let mut ingress = None;

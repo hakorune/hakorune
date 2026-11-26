@@ -72,15 +72,12 @@ pub(crate) enum ResolveFunctionErrorV1 {
 /// mismatched relation without collapsing the cause into `()` or a string.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum AppMainFreeStaticResolverIssueV1 {
-    RootCount,
     RootOwnerMismatch,
     NestedOwnerObservation,
     TargetMissing,
     HeaderMissing,
-    HeaderSeal,
     IndexSeal,
     OwnerMismatch,
-    CompilationBrandMismatch,
     ArityMismatch,
     ArgumentSiteMismatch,
 }

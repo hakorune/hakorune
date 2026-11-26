@@ -244,9 +244,6 @@ pub(crate) enum MapReadFactIssueV1 {
     ArrayElementNotMap {
         site: OwnedExprSiteV1,
     },
-    ChildMapUnavailable {
-        site: OwnedExprSiteV1,
-    },
     NameEntryMissing {
         site: OwnedExprSiteV1,
     },

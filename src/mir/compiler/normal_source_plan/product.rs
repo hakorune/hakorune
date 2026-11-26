@@ -1,116 +1,5 @@
 use crate::ast::ASTNode;
 
-/// Invocation-neutral identity retained beside one owned parsed source.
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) struct NormalSourceIdentityV1 {
-    display_name: Box<str>,
-}
-
-impl NormalSourceIdentityV1 {
-    fn new(display_name: impl Into<Box<str>>) -> Self {
-        Self {
-            display_name: display_name.into(),
-        }
-    }
-
-    pub(crate) fn display_name(&self) -> &str {
-        &self.display_name
-    }
-}
-
-/// The sole input consumed by normal source-family classification.
-#[derive(Debug)]
-pub(crate) struct PreparedNormalSourcePlanInputV1 {
-    source: ASTNode,
-    identity: NormalSourceIdentityV1,
-}
-
-impl PreparedNormalSourcePlanInputV1 {
-    pub(crate) fn new(source: ASTNode, display_name: impl Into<Box<str>>) -> Self {
-        Self {
-            source,
-            identity: NormalSourceIdentityV1::new(display_name),
-        }
-    }
-
-    pub(super) fn source(&self) -> &ASTNode {
-        &self.source
-    }
-
-    pub(super) fn identity(&self) -> &NormalSourceIdentityV1 {
-        &self.identity
-    }
-
-    pub(super) fn into_parts(self) -> (ASTNode, NormalSourceIdentityV1) {
-        (self.source, self.identity)
-    }
-
-}
-
-/// Source owner retained after one source-family decision.
-///
-/// `AstFixture` is the separately typed compatibility/test authority.
-#[derive(Debug)]
-pub(super) enum NormalSourcePlanOwnerV1 {
-    AstFixture(PreparedNormalSourcePlanInputV1),
-}
-
-impl From<PreparedNormalSourcePlanInputV1> for NormalSourcePlanOwnerV1 {
-    fn from(input: PreparedNormalSourcePlanInputV1) -> Self {
-        Self::AstFixture(input)
-    }
-}
-
-impl NormalSourcePlanOwnerV1 {
-
-
-    pub(super) fn source(&self) -> &ASTNode {
-        match self {
-            Self::AstFixture(input) => input.source(),
-        }
-    }
-
-    pub(super) fn identity(&self) -> &NormalSourceIdentityV1 {
-        match self {
-            Self::AstFixture(input) => input.identity(),
-        }
-    }
-
-    pub(super) fn into_parts(self) -> (ASTNode, NormalSourceIdentityV1) {
-        match self {
-            Self::AstFixture(input) => input.into_parts(),
-        }
-    }
-
-
-
-
-    pub(super) fn discard_after_source_plan_terminal(self) {
-        match self {
-            Self::AstFixture(input) => {
-                let (source, identity) = input.into_parts();
-                drop((source, identity));
-            }
-        }
-    }
-}
-
-pub(super) trait NormalSourcePlanSyntaxV1 {
-    fn source_ast(&self) -> &ASTNode;
-}
-
-impl NormalSourcePlanSyntaxV1 for PreparedNormalSourcePlanInputV1 {
-    fn source_ast(&self) -> &ASTNode {
-        self.source()
-    }
-}
-
-impl NormalSourcePlanSyntaxV1 for NormalSourcePlanOwnerV1 {
-    fn source_ast(&self) -> &ASTNode {
-        self.source()
-    }
-}
-
 /// A source-only top-level location.
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct NormalTopLevelSiteV1 {
@@ -168,44 +57,9 @@ impl NormalMainMethodSiteV1 {
     }
 }
 
-/// One additional callable site without callable-catalog identity.
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) enum NormalAdditionalCallableSiteV1 {
-    TopLevel(NormalTopLevelSiteV1),
-    MainMethod(NormalMainMethodSiteV1),
-}
-
-#[derive(Debug)]
-pub(crate) struct SealedNormalScriptSourceV1 {
-    input: NormalSourcePlanOwnerV1,
-    statements: Box<[NormalTopLevelSiteV1]>,
-    _seal: NormalScriptSourceSealV1,
-}
-
-#[derive(Debug)]
-struct NormalScriptSourceSealV1;
-
-impl SealedNormalScriptSourceV1 {
-    pub(super) fn seal(
-        input: impl Into<NormalSourcePlanOwnerV1>,
-        statements: Box<[NormalTopLevelSiteV1]>,
-    ) -> Self {
-        Self {
-            input: input.into(),
-            statements,
-            _seal: NormalScriptSourceSealV1,
-        }
-    }
-
-
-
-
-
-}
-
 #[derive(Debug)]
 pub(crate) struct SealedNormalMainSourceV1 {
-    input: NormalSourcePlanOwnerV1,
+    input: ASTNode,
     main_box: NormalTopLevelSiteV1,
     main_method: NormalMainMethodSiteV1,
     _seal: NormalMainSourceSealV1,
@@ -216,12 +70,12 @@ struct NormalMainSourceSealV1;
 
 impl SealedNormalMainSourceV1 {
     pub(super) fn seal(
-        input: impl Into<NormalSourcePlanOwnerV1>,
+        input: ASTNode,
         main_box: NormalTopLevelSiteV1,
         main_method: NormalMainMethodSiteV1,
     ) -> Self {
         Self {
-            input: input.into(),
+            input,
             main_box,
             main_method,
             _seal: NormalMainSourceSealV1,
@@ -242,7 +96,7 @@ impl SealedNormalMainSourceV1 {
         }
     }
 
-    pub(super) fn input(&self) -> &NormalSourcePlanOwnerV1 {
+    pub(super) fn input(&self) -> &ASTNode {
         &self.input
     }
 
@@ -253,54 +107,4 @@ impl SealedNormalMainSourceV1 {
     pub(super) fn main_method(&self) -> &NormalMainMethodSiteV1 {
         &self.main_method
     }
-}
-
-#[derive(Debug)]
-pub(crate) struct SealedNormalCallableModuleSourceV1 {
-    input: NormalSourcePlanOwnerV1,
-    main_box: NormalTopLevelSiteV1,
-    main_method: NormalMainMethodSiteV1,
-    additional_callables: Box<[NormalAdditionalCallableSiteV1]>,
-    _seal: NormalCallableModuleSourceSealV1,
-}
-
-#[derive(Debug)]
-struct NormalCallableModuleSourceSealV1;
-
-impl SealedNormalCallableModuleSourceV1 {
-    pub(super) fn seal(
-        input: impl Into<NormalSourcePlanOwnerV1>,
-        main_box: NormalTopLevelSiteV1,
-        main_method: NormalMainMethodSiteV1,
-        additional_callables: Box<[NormalAdditionalCallableSiteV1]>,
-    ) -> Self {
-        Self {
-            input: input.into(),
-            main_box,
-            main_method,
-            additional_callables,
-            _seal: NormalCallableModuleSourceSealV1,
-        }
-    }
-
-
-    pub(super) fn additional_callables(&self) -> &[NormalAdditionalCallableSiteV1] {
-        &self.additional_callables
-    }
-
-
-
-
-}
-
-#[derive(Debug)]
-pub(crate) enum SealedNormalScalarRootV1 {
-    Script(SealedNormalScriptSourceV1),
-    Main0(SealedNormalMainSourceV1),
-}
-
-#[derive(Debug)]
-pub(crate) enum SealedNormalSourcePlanV1 {
-    ScalarRoot(SealedNormalScalarRootV1),
-    CallableModule(SealedNormalCallableModuleSourceV1),
 }

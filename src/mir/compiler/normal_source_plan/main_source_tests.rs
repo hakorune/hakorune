@@ -1,8 +1,7 @@
+use super::super::test_support::main_at_root;
 use super::super::product::{
-    NormalMainMethodSiteV1, NormalTopLevelSiteV1, PreparedNormalSourcePlanInputV1,
-    SealedNormalMainSourceV1, SealedNormalScalarRootV1, SealedNormalSourcePlanV1,
+    NormalMainMethodSiteV1, NormalTopLevelSiteV1, SealedNormalMainSourceV1,
 };
-use super::super::NormalSourcePlanClassifierV1;
 use super::*;
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use std::collections::HashMap;
@@ -72,15 +71,6 @@ fn valid_main(body: Vec<ASTNode>, annotation: Option<&str>) -> ASTNode {
     program(vec![main_box(methods, vec!["retained".to_owned()])])
 }
 
-fn classified_main(source: ASTNode) -> SealedNormalMainSourceV1 {
-    let input = PreparedNormalSourcePlanInputV1::new(source, "main-source-test");
-    let plan = NormalSourcePlanClassifierV1::seal(input).expect("valid Main0 plan");
-    let SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Main0(main)) = plan else {
-        panic!("expected Main0 plan");
-    };
-    main
-}
-
 fn literal(value: i64) -> ASTNode {
     ASTNode::Literal {
         value: LiteralValue::Integer(value),
@@ -114,7 +104,7 @@ fn sealed_fixture_with_sites(
     is_static: bool,
 ) -> SealedNormalMainSourceV1 {
     SealedNormalMainSourceV1::seal(
-        PreparedNormalSourcePlanInputV1::new(source, "drift-fixture"),
+        source,
         NormalTopLevelSiteV1::new(main_statement_index),
         NormalMainMethodSiteV1::new(
             method_statement_index,
@@ -141,7 +131,7 @@ fn exact_private_site_does_not_reclassify_unrelated_program_statements() {
 
 #[test]
 fn main_zero_seals_one_borrowed_exact_function_without_clone() {
-    let unit = classified_main(valid_main(Vec::new(), None))
+    let unit = main_at_root(valid_main(Vec::new(), None))
         .prepare_function_source()
         .expect("exact Main relation");
     let first = unit.borrow_exact_function();
@@ -158,7 +148,7 @@ fn main_body_annotation_and_program_owned_box_fields_survive_source_sealing() {
         value: Some(Box::new(literal(7))),
         span: Span::unknown(),
     }];
-    let unit = classified_main(valid_main(body, Some("i64")))
+    let unit = main_at_root(valid_main(body, Some("i64")))
         .prepare_function_source()
         .expect("exact Main relation");
     let view = unit.borrow_exact_function();

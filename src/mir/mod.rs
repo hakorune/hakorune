@@ -163,7 +163,6 @@ pub mod loop_api; // Minimal LoopBuilder facade (adapter-ready)
 pub mod loop_form; // ControlForm::LoopShape の薄いエイリアス
 pub(crate) mod loop_recipe_contract; // Builder-free recursive Loop recipe wire
 pub mod loop_route_detection; // Active module surface for loop route-shape detection
-pub(crate) mod loop_route_policy; // frozen, non-authoritative Loop route observations
 pub(crate) mod loop_structural_facts; // resolved source -> portable Loop source binding
 pub mod map_lookup_fusion_plan; // MIR-owned MapGet/MapHas same-key fusion metadata
 pub mod map_missing_empty_route_plan; // MIR-owned local empty MapGet missing-route metadata

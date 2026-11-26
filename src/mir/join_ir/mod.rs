@@ -117,33 +117,6 @@ impl LoopHeaderShape {
     }
 }
 
-/// Phase 27.5: ループ exit φ の意味を表す構造
-///
-/// ExitPhiBuilder が生成していた「ループ脱出時の変数合流」を JoinIR の k_exit 引数として表現するためのヘルパー。
-///
-/// 用語:
-/// - **exit_args**: ループから脱出する際に k_exit に渡す値のリスト
-///
-/// 例:
-/// - **minimal_ssa_skip_ws**: exit_args = [i]
-///   - ループから抜ける時、現在の i の値を返す
-/// - **FuncScanner.trim**: exit_args = [e] (Option A)
-///   - ループから抜ける時、現在の e の値を返す（後続で substring(b, e) を呼ぶ）
-///
-/// Phase 27.5 では minimal/trim 用に手動で構成するが、将来は ExitPhiBuilder の分析から自動導出する。
-#[derive(Debug, Clone)]
-pub(crate) struct LoopExitShape {
-    /// Exit 時に k_exit に渡したい値（JoinIR 引数）
-    exit_args: Vec<ValueId>,
-}
-
-impl LoopExitShape {
-    /// Phase 27.5: 手動で exit_args を指定して構築
-    pub(crate) fn new_manual(exit_args: Vec<ValueId>) -> Self {
-        LoopExitShape { exit_args }
-    }
-}
-
 /// JoinIR フェーズメタデータ。
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum JoinIrPhase {

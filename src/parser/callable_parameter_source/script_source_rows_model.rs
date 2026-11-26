@@ -174,16 +174,12 @@ impl CanonicalScriptSourceRowsV1 {
 pub(crate) enum CanonicalScriptSourceRowsDispositionV1 {
     NotApplicable,
     CompatibilitySource,
-    Deferred,
     AdmissionMissing,
     SourceAuthorityUnavailable,
     CohortUnresolved,
     ObservationIncomplete,
     IntegrityInvalid,
-    NonCandidate,
     HandoffReady(CanonicalScriptSourceRowsV1),
-    MovedToParallelHandoff,
-    DispositionTransported,
 }
 
 impl CanonicalScriptSourceRowsDispositionV1 {
@@ -194,15 +190,11 @@ impl CanonicalScriptSourceRowsDispositionV1 {
             Self::HandoffReady(rows) => drop(rows),
             Self::NotApplicable
             | Self::CompatibilitySource
-            | Self::Deferred
             | Self::AdmissionMissing
             | Self::SourceAuthorityUnavailable
             | Self::CohortUnresolved
             | Self::ObservationIncomplete
-            | Self::IntegrityInvalid
-            | Self::NonCandidate
-            | Self::MovedToParallelHandoff
-            | Self::DispositionTransported => {}
+            | Self::IntegrityInvalid => {}
         }
     }
 }

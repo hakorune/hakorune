@@ -6,7 +6,7 @@
 //! - Guard break detection
 //! - Continue branch signature collection
 
-use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
+use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::extractors::common_helpers::branch_tail_is_continue_flattened;
 use crate::mir::builder::control_flow::facts::loop_cond_break_continue::ContinueBranchSig;
 use crate::mir::builder::control_flow::facts::stmt_walk::{flatten_stmt_list, walk_stmt_list};

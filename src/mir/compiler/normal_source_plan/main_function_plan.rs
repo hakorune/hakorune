@@ -9,9 +9,8 @@ use crate::mir::compiler::lowering_input::CanonicalLoweringErrorV1;
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_value_profile::product::TrivialTerminalProfileV1;
 
-use super::main_resolved_source::{
-    VerifiedNormalMainResolvedSourceUnitV1, VerifiedNormalMainRoleV1,
-};
+use super::main_resolved_source::VerifiedNormalMainResolvedSourceUnitV1;
+use super::VerifiedNormalMainRoleV1;
 
 pub(crate) struct NormalMainFunctionPreflightV1;
 

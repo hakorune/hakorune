@@ -86,7 +86,6 @@ pub(crate) enum DirectCallDispositionIssueV1 {
     TargetOwnerMismatch,
     PublishedTargetMissing,
     PublishedTargetDuplicate,
-    PublishedTargetNotCataloged,
     PublishedTargetNamespaceMismatch,
     PublishedTargetNameMismatch,
     PublishedTargetArityMismatch,

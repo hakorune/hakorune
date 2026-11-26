@@ -115,20 +115,6 @@ impl VerifiedSelectedNormalCallableSourceInventoryV1 {
         &self.brand
     }
 
-    pub(in crate::mir::builder) fn top_level_function(
-        &self,
-        statement_index: usize,
-    ) -> Option<&SelectedTopLevelFunctionKeyV1> {
-        self.rows.iter().find_map(|row| match &row.key {
-            SelectedNormalCallableKeyV1::TopLevel(key)
-                if key.statement_index() == statement_index =>
-            {
-                Some(key)
-            }
-            _ => None,
-        })
-    }
-
     pub(crate) fn site(
         &self,
         key: &SelectedNormalCallableKeyV1,

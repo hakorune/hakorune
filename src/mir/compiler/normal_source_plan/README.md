@@ -17,23 +17,12 @@ do not add a second issuer.  The active contract is the
 `callable-compatibility-source-transport-p0` card and the finite-state rule in
 `agent-current-entry-contract-ssot.md`.
 
-## Canonical parser identity transport
+## App root policy
 
-The normal-file front door carries one non-`Clone`
-`NormalParserSourceLineageV1` from `CanonicalParserSourceHandoffV1` through
-`SourcePlanBoundNormalCallableSourceV1` and validates it before source-family
-classification. The bound owner lends the existing source identity, digest,
-grammar profile, UTF-8 length, and read/parse counts; it never reparses,
-rereads, or reconstructs identity from the AST or display path.
+The normal root execution consumer takes the parser-issued root relation.
+`parser_bound_policy.rs` checks whether the designated Main box is static
+before the Builder projects that relation.
 
-`PreparedNormalSourcePlanInputV1` is the separate AST-only fixture authority.
-It is not a production parser-lineage carrier and cannot enter the
-parser-bound policy entry.
-
-The validator keeps the finite outcomes distinct: AST-only input is
-`SourceAuthorityUnavailable`, a parser compatibility cohort is
-`CompatibilitySourceUnavailable`, a lost lineage is `SourceLineageUnavailable`,
-and any field drift is `SourceIdentityMismatch`.  A matching canonical
-source-backed handoff is the only state that may continue to the existing
-classifier.  No Recipe, Join, Builder, physical, fallback, or production
-authority is opened by this transport-only boundary.
+The Main fixture modules are built for tests of exact source identity and
+lowering contracts. They use an owned AST fixture and the existing specific
+source, resolver, and preflight checks.

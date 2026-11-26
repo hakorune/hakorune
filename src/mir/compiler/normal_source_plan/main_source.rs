@@ -1,115 +1,12 @@
 //! Program-owned exact Main.main/0 source relation.
 //!
-//! This module consumes the Main0 product emitted by the sole source-family
-//! classifier. It verifies only that the sealed sites still identify the same
-//! function inside the immutable owned Program.
+//! The tests verify that the sealed sites identify the exact function
+//! inside the immutable owned Program.
 
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::CallableFunctionSyntaxViewV1;
 
-use super::inventory::{NormalMainBoxSurfaceV1, NormalMethodSurfaceV1};
-use super::product::{
-    NormalMainMethodSiteV1, NormalSourcePlanSyntaxV1, NormalTopLevelSiteV1,
-    SealedNormalMainSourceV1,
-};
-use super::rejection::NormalSourcePlanErrorV1;
-
-pub(super) fn validate_main_surface(
-    main_box: &NormalMainBoxSurfaceV1,
-) -> Result<
-    (
-        NormalTopLevelSiteV1,
-        NormalMainMethodSiteV1,
-        Vec<NormalMainMethodSiteV1>,
-    ),
-    NormalSourcePlanErrorV1,
-> {
-    if !main_box.is_static {
-        return Err(NormalSourcePlanErrorV1::MainMustBeStatic);
-    }
-
-    let mut main_method = None;
-    let mut helper_methods = Vec::new();
-    for method in &main_box.methods {
-        if method.method_key.as_ref() == "main" {
-            main_method = Some(validate_main_method(
-                main_box.site.statement_index(),
-                method,
-            )?);
-        } else {
-            helper_methods.push(validate_helper_method(
-                main_box.site.statement_index(),
-                method,
-            )?);
-        }
-    }
-    let Some(main_method) = main_method else {
-        return Err(NormalSourcePlanErrorV1::MainMethodMissing);
-    };
-    Ok((
-        NormalTopLevelSiteV1::new(main_box.site.statement_index()),
-        main_method,
-        helper_methods,
-    ))
-}
-
-fn validate_main_method(
-    main_statement_index: usize,
-    method: &NormalMethodSurfaceV1,
-) -> Result<NormalMainMethodSiteV1, NormalSourcePlanErrorV1> {
-    let Some(declaration_name) = method.declaration_name.as_deref() else {
-        return Err(NormalSourcePlanErrorV1::MainMethodMustBeFunction);
-    };
-    if declaration_name != "main" {
-        return Err(NormalSourcePlanErrorV1::MainMethodNameMismatch {
-            method_key: method.method_key.as_ref().into(),
-            declaration_name: declaration_name.into(),
-        });
-    }
-    let (Some(arity), Some(is_static)) = (method.arity, method.is_static) else {
-        return Err(NormalSourcePlanErrorV1::MainMethodMustBeFunction);
-    };
-    if !is_static {
-        return Err(NormalSourcePlanErrorV1::MainMethodMustBeStatic);
-    }
-    if arity != 0 {
-        return Err(NormalSourcePlanErrorV1::MainArityMismatch { actual: arity });
-    }
-    Ok(NormalMainMethodSiteV1::new(
-        main_statement_index,
-        method.method_key.as_ref().into(),
-        arity,
-        is_static,
-    ))
-}
-
-fn validate_helper_method(
-    main_statement_index: usize,
-    method: &NormalMethodSurfaceV1,
-) -> Result<NormalMainMethodSiteV1, NormalSourcePlanErrorV1> {
-    let Some(declaration_name) = method.declaration_name.as_deref() else {
-        return Err(NormalSourcePlanErrorV1::MainHelperMustBeFunction {
-            method_key: method.method_key.as_ref().into(),
-        });
-    };
-    if declaration_name != method.method_key.as_ref() {
-        return Err(NormalSourcePlanErrorV1::MainHelperNameMismatch {
-            method_key: method.method_key.as_ref().into(),
-            declaration_name: declaration_name.into(),
-        });
-    }
-    let (Some(arity), Some(is_static)) = (method.arity, method.is_static) else {
-        return Err(NormalSourcePlanErrorV1::MainHelperMustBeFunction {
-            method_key: method.method_key.as_ref().into(),
-        });
-    };
-    Ok(NormalMainMethodSiteV1::new(
-        main_statement_index,
-        method.method_key.as_ref().into(),
-        arity,
-        is_static,
-    ))
-}
+use super::product::{NormalMainMethodSiteV1, NormalTopLevelSiteV1, SealedNormalMainSourceV1};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum NormalMainFunctionSourceErrorV1 {
@@ -177,7 +74,7 @@ impl VerifiedNormalMainFunctionSourceUnitV1 {
 
     #[cfg(test)]
     fn owned_program_for_test(&self) -> &ASTNode {
-        self.source.input().source()
+        self.source.input()
     }
 }
 
@@ -211,12 +108,12 @@ pub(super) fn verify_main_source_relation(
     verify_main_source_parts(source.input(), source.main_box(), source.main_method())
 }
 
-pub(super) fn verify_main_source_parts<Input: NormalSourcePlanSyntaxV1>(
-    input: &Input,
+pub(super) fn verify_main_source_parts(
+    input: &ASTNode,
     main_box: &NormalTopLevelSiteV1,
     main_method: &NormalMainMethodSiteV1,
 ) -> Result<(), NormalMainFunctionSourceErrorV1> {
-    let ASTNode::Program { statements, .. } = input.source_ast() else {
+    let ASTNode::Program { statements, .. } = input else {
         return Err(NormalMainFunctionSourceErrorV1::RootNotProgram);
     };
     let Some(statement) = statements.get(main_box.statement_index()) else {
@@ -259,8 +156,8 @@ pub(super) fn verify_main_source_parts<Input: NormalSourcePlanSyntaxV1>(
     Ok(())
 }
 
-pub(super) fn borrow_exact_main_function_v1<'src, Input: NormalSourcePlanSyntaxV1>(
-    input: &'src Input,
+pub(super) fn borrow_exact_main_function_v1<'src>(
+    input: &'src ASTNode,
     main_box: &'src NormalTopLevelSiteV1,
     main_method: &'src NormalMainMethodSiteV1,
 ) -> Result<NormalMainFunctionSourceViewV1<'src>, NormalMainFunctionSourceErrorV1> {
@@ -274,12 +171,12 @@ pub(super) fn borrow_exact_main_function_v1<'src, Input: NormalSourcePlanSyntaxV
     })
 }
 
-fn locate_main_function<'src, Input: NormalSourcePlanSyntaxV1>(
-    input: &'src Input,
+fn locate_main_function<'src>(
+    input: &'src ASTNode,
     main_box: &NormalTopLevelSiteV1,
     main_method: &NormalMainMethodSiteV1,
 ) -> Option<&'src ASTNode> {
-    let ASTNode::Program { statements, .. } = input.source_ast() else {
+    let ASTNode::Program { statements, .. } = input else {
         return None;
     };
     let ASTNode::BoxDeclaration { methods, .. } = statements.get(main_box.statement_index())?

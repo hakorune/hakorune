@@ -1,9 +1,6 @@
+use super::super::test_support::main_at_root;
 use super::*;
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
-use crate::mir::compiler::normal_source_plan::{
-    NormalSourcePlanClassifierV1, PreparedNormalSourcePlanInputV1, SealedNormalScalarRootV1,
-    SealedNormalSourcePlanV1,
-};
 use std::collections::HashMap;
 
 fn literal(value: i64) -> ASTNode {
@@ -59,12 +56,7 @@ fn main_program(body: Vec<ASTNode>) -> ASTNode {
 }
 
 fn resolved_main(body: Vec<ASTNode>) -> VerifiedNormalMainResolvedSourceUnitV1 {
-    let input =
-        PreparedNormalSourcePlanInputV1::new(main_program(body), "main-resolved-source-test");
-    let plan = NormalSourcePlanClassifierV1::seal(input).expect("valid Main0");
-    let SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Main0(main)) = plan else {
-        panic!("expected Main0");
-    };
+    let main = main_at_root(main_program(body));
     main.prepare_function_source()
         .expect("exact Main source")
         .prepare_embedded_resolved_main()

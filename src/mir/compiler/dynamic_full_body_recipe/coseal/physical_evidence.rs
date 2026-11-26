@@ -133,7 +133,6 @@ pub(in crate::mir) enum DynamicFullLoopPhysicalEvidenceRejectV2 {
     MissingSourceAnchor,
     MultipleSourceAnchors,
     CallRelation,
-    ControlShape,
     EffectCoverage,
     ExecutionCoverage,
 }

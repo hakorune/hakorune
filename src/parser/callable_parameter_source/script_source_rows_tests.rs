@@ -58,7 +58,6 @@ fn compatibility_and_imports_never_become_empty_ready_rows() {
         assert!(matches!(
             loan.canonical_script_source_rows(),
             CanonicalScriptSourceRowsDispositionV1::CohortUnresolved
-                | CanonicalScriptSourceRowsDispositionV1::Deferred
                 | CanonicalScriptSourceRowsDispositionV1::SourceAuthorityUnavailable
         ));
     });

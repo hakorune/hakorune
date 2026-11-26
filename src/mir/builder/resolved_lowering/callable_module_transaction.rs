@@ -156,17 +156,6 @@ impl<'a> VerifiedUnpublishedCallableDraftSetV1<'a> {
 
 impl MirBuilder {
 
-    /// LOWER0 draft-only recursive consumer.  Capability installation stays
-    /// with the later RECURSIVE0 row.
-    pub(in crate::mir) fn lower_recursive_callable_drafts<'a>(
-        &mut self,
-        plan: VerifiedRecursiveCallableModulePlanV1<'a>,
-    ) -> Result<VerifiedUnpublishedCallableDraftSetV1<'a>, CallableModuleTransactionErrorV1> {
-        VerifiedUnpublishedCallableDraftSetV1::collect_recursive_with(plan, |_key, plan| {
-            self.lower_resolved_trivial_function_draft(plan)
-        })
-    }
-
     pub(in crate::mir) fn build_recursive_callable_module_candidate(
         &mut self,
         plan: VerifiedRecursiveCallableModulePlanV1<'_>,

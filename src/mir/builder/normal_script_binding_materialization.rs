@@ -4,7 +4,6 @@
 //! name or inspect an AST shape to choose an authority.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::recursive_child_lowering::RecursiveChildLoweringPortV1;
 use crate::mir::builder::stmts::async_stmt::build_nowait_statement_with_port_v1;
 use crate::mir::{MirBuilder, ValueId};
 

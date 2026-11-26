@@ -37,7 +37,6 @@ pub(in crate::parser) enum ParserNormalModuleSourceRowsUnavailableV1 {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::parser) enum ParserNormalModuleSourceRowsIncompleteV1 {
-    ProgramBodyCoverage,
     BoxSourceSealMissing,
     MethodSourceRelationMissing,
     CallableSourceMissing,

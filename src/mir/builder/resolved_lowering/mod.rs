@@ -83,12 +83,10 @@ impl From<CanonicalFunctionSessionErrorV1> for CanonicalResolvedBuildErrorV1 {
 /// classify a formatted legacy diagnostic to recover it.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum NormalFunctionDraftLoweringStageV1 {
-    SessionOpen,
     BindingInstall,
     Skeleton,
     BodyLowering,
     DraftSeal(FunctionDraftSealStageV1),
-    SessionRestore,
 }
 
 #[derive(Debug)]

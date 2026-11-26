@@ -59,7 +59,6 @@ impl HomeDestinationV1 {
 pub(crate) enum HomeDemandV1 {
     Handle,
     Home,
-    SharedHome,
     Trivial,
 }
 

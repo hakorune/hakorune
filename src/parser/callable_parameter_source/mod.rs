@@ -10,7 +10,6 @@ mod composite_source;
 mod issuer;
 mod model;
 mod normal_root_execution;
-mod normal_source_plan_consumer;
 mod normal_source_plan_seed;
 mod normal_source_plan_surface;
 mod parse_product;
@@ -41,13 +40,6 @@ pub(crate) use normal_root_execution::{
     ParserNormalRootExecutionRoleV1, ParserNormalRootExecutionSourceDispositionV1,
     ParserNormalRootExecutionSourceV1, ParserNormalRootExecutionTerminalClassV1,
 };
-pub(crate) use normal_source_plan_consumer::{
-    AdmittedSourcePlanBoundNormalCallableSourceV1, NormalSourcePlanBoxRefV1,
-    NormalSourcePlanRootRefV1, NormalSourcePlanSurfaceLoanErrorV1, NormalSourcePlanSurfaceLoanV1,
-    NormalSourcePlanTopLevelRowRefV1, NormalSourcePlanUnsupportedKindV1,
-    ParserNormalRootSourcePlanConsumeErrorV1, ParserNormalRootSourcePlanConsumerV1,
-    RejectedParserNormalRootSourcePlanConsumptionV1, SourcePlanBoundNormalCallableSourceV1,
-};
 pub(in crate::parser) use normal_source_plan_seed::{
     ParserNormalSourcePlanSeedDispositionV1, ParserNormalSourcePlanSeedIssueV1,
     ParserNormalSourcePlanSeedV1,
@@ -69,12 +61,7 @@ pub(crate) use composite_source::{
 };
 #[cfg(test)]
 pub(crate) use product::ParserCallableSourceRetentionErrorV1;
-pub(crate) use product::{
-    ParsedProgramWithCallableParameterSourceV1, ParserNormalRawVmSourceExtractionErrorV1,
-    ParserNormalRawVmSourceKindV1, PreparedParserNormalCompatibilityRawVmV1,
-    PreparedParserNormalRawVmSourceRouteV1, PreparedParserNormalSourceBackedRawVmV1,
-    RejectedParserNormalRawVmSourceExtractionV1,
-};
+pub(crate) use product::ParsedProgramWithCallableParameterSourceV1;
 pub(crate) use script_source_authority::{
     validate_parser_normal_program_source_transform_v1,
     with_parser_composite_source_loan_from_normal_authority,

@@ -20,8 +20,6 @@ use crate::mir::callable_result_representation::VerifiedCallableResultRepresenta
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum ScriptDirectStaticResultPublicationOwnerIssueV1 {
-    ScriptRootCardinality,
-    ScriptRootProduct,
     SourceOwnerMismatch,
     BundleOwnerMismatch,
     BundleSourceMismatch,
