@@ -162,6 +162,11 @@ compilerの動くcodeは変更していない。coverage CLIは前回の同じbi
 | LB-5 | static box の中の `me.f(x)` を動かし、箱の名前なしの `f(x)` を `call/target-missing` にする | 済(`1ea8328f33`・`5ccf4c7ce2`・`44d3bb0d5b`、統合 `8f6c39aacd`): `me.g(x)` は `Box.g(x)` と同じ書き手。変わる入力と test 7 本の削除はメンテナの OK。本体 +257 行(仕様の実装) |
 | LB-5c | 箱の名前なしの予約の名前を仕様の特別な形だけにする(math を外す、`panic` を method に結び付けない) | 済(`55e634b841`..`684489d2a4`、統合 `fbd6c7235e`): 変わる試しの入力と名簿の拒否名 1 本はメンテナの OK。CallableSingleLoop の書き手は名簿でも試しでも MIR 0 本。本体 +17 行 |
 | LB-5e | 残りの予約の名前を決めた形にそろえる | 済(`0f5e8e6a3f`..`42e8c06c11`、統合 `46a3e3373a`): `print` と `mem.*` を仕様に書き、`exit`・`str`・`Range` と `a .. b` の糖衣を退役。どの予約の名前も同じ名前の method に結び付かない。名簿・監査の差 0。試しの入力の変化と test 1 本の削除はメンテナの OK。本体 +8 行 |
+| LB-6c | CallableSingleLoop を退役する | 済(`a5926b52eb`、統合 `c77887d71a`): 予約の名前の穴を LB-5b〜5e で塞いだ後、専用の書き手を消した。名簿・監査の差 0。test 53 本の削除はメンテナの OK。本体 538,948 → 534,313 行 |
+| LB-6d | LB-6c の後の warning を片付ける | 済(`904536d30a` まで、統合 `8c7c4c05f4`): warning 1,897 → 1,643。本番の使い手が無い物を test の側へ移し、本体 −7,135・test +6,880(合計 −255)。test の削除 0 本 |
+| NR-2 | 配列の整数の確かめを 1 か所にし、比較の照合を書き手から独立させる | 済(`d8b426ae03`..`a80c75de1c`、統合 `5d4f95cc1f`): 整数の確かめは `resolved_semantics/named_array_residence.rs::array_integer_source`。比較の照合は完成した MIR を直接比べる(`scalar_condition_operation.rs::matches_direct_comparison`、取り違えを拒否する test を追加)。差 0。本体 −87 |
+| LB-7 | ふつうの static method から Generic G0 の入口を外す | 済(`77d785127f`..`3344b5700c`、統合 `b05f3c8286`): G0 の probe・専用の拒否・物理の組み立てを退役。名簿の差 0。試しの Helper 4 本が拒否→成功、test 35 本の削除はメンテナの OK。本体 527,091 → 521,625、合計 −7,771 行 |
+| NR-3 | V1 Recipe の退役と、封じた call の事実の使い回し | 済(`f06774be60`..`85bb8a87d1`、統合 `020dd6c69b`): 旧 V1 Recipe・G0・source window の検証を退役し、App Main・direct call・仮引数の契約・引数 frame の 2 度目の照合を消した。差 0。test 246 本の削除はメンテナの OK。本体 → 517,733、合計 −23,550 行、warning → 1,484 |
 | UBD-1 | ユーザーの box の Dynamic 呼び出しを、program ごとの表で選ぶ(決定 25)。型付きの受け手・整数の引数・I64 の結果。入力形 1、tag 1、metadata 1、C ABI 2、kernel export 2 | 済(`ac50c423b2`): 拒否→成功 3(値一致)、成功→拒否 0。3 つ目の class で MirBuilder 差分 0。MIR 本体 +約 630 |
 | DEL-1 | 使い手が 0 の code を消すだけの回 | 済(`753d5121bd`): production −548、test −918 行。名簿・B は全部同じ。feature・flag の道は残した |
 | UBD-2 | Text の引数(決定 26): 引数は元の種類のまま。入力形 `BorrowedText` 1、tag 4 を使い直し、新しい tag・export 0 | 済(`fd76ae108a`): 拒否→成功 2(値一致)、成功→拒否 0。受け手の class が 1 つだけの時に古い道へ入る穴は、2b(`651ebe331c`)で直した。I64 を直接返す呼び出しだけ。それ以外の結果では、静的な候補の道が残る |
