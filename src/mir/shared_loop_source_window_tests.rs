@@ -236,7 +236,7 @@ fn map_forest_reject(
 mod tests {
     use super::*;
     use crate::mir::compiler::capability::{
-        CanonicalFirstFamilyPlanV1, CanonicalLoopFamilyPlanV1, CanonicalLoweringPreflightV1,
+        CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1,
     };
     use crate::mir::compiler::nested_function_for_p3_test;
     use crate::mir::compiler::direct_accum_projection;

@@ -136,15 +136,19 @@ mod wire_parity_tests;
 #[path = "wire_route_parity_tests.rs"]
 mod wire_route_parity_tests;
 
+#[cfg(test)]
 mod generic_g0_demand;
 
+#[cfg(test)]
 mod generic_g0;
 
+#[cfg(test)]
 pub(crate) use generic_g0_demand::{
     issue_generic_g0_recipe_demand_from_observation_v1,
     GenericG0RecipeDemandIssueV1,
 };
 
+#[cfg(test)]
 pub(crate) use generic_g0::{
     produce_generic_g0_recipe_v1, GenericG0RecipeProducerRejectV1,
     VerifiedGenericG0TailCapabilityV1, VerifiedGenericRecipeProductG0,

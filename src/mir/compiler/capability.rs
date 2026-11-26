@@ -33,9 +33,7 @@ mod function_role_policy;
 mod resolved_owner_header;
 mod trivial_plan;
 mod validation_errors;
-pub(crate) use first_family_plan::{
-    CanonicalFirstFamilyPlanV1, CanonicalGenericG0PlanV1, CanonicalLoopFamilyPlanV1,
-};
+pub(crate) use first_family_plan::CanonicalFirstFamilyPlanV1;
 #[cfg(test)]
 pub(crate) use first_family_plan::CanonicalFirstFamilyPlanBrandV1;
 use function_role_policy::{CanonicalFunctionRolePolicyV1, DirectCallAdmissionV1};
@@ -128,13 +126,6 @@ impl CanonicalLoweringPreflightV1 {
             CanonicalFunctionRolePolicyV1::NormalMain0,
             Some(role),
         )? {
-            CanonicalFirstFamilyPlanV1::Loop(
-                super::capability::CanonicalLoopFamilyPlanV1::GenericG0(plan),
-            ) => unsupported(
-                "root",
-                plan.source_input().source().root(),
-                "generic_g0_not_normal_main",
-            ),
             CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => Ok(plan),
             CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => {
                 let (function, ..) = plan.into_parts();

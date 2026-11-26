@@ -12,8 +12,6 @@ mod draft_seal;
 mod draft_seal_owner;
 mod function_draft_entry;
 pub(in crate::mir::builder) use draft_seal_owner::SelectedDynamicCandidateMetadataV1;
-#[cfg(test)]
-mod generic_g0_physical_emitter_session;
 mod identity;
 mod semantic_stack;
 mod trivial_ssa;
@@ -31,9 +29,6 @@ mod completion_consumption_tests;
 mod completion_draft_seal_tests;
 #[cfg(test)]
 mod completion_test_support;
-#[cfg(test)]
-pub(in crate::mir::builder) mod loop_recipe_physicalizer;
-
 #[cfg(test)]
 mod nested_predicate_effect_adapter_tests;
 #[cfg(test)]

@@ -20,9 +20,6 @@ use super::identity::ResolvedSsaIdentityStateV2;
 
 #[path = "session/draft_seal_close.rs"]
 mod draft_seal_close;
-#[cfg(test)]
-#[path = "session/generic_g0_entry_adoption.rs"]
-mod generic_g0_entry_adoption;
 
 pub(in crate::mir::builder::resolved_lowering) enum CanonicalIfControlConsumptionV1 {
     Resolved(FunctionIfControlUseLedgerV1),
@@ -295,17 +292,6 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
                 "[freeze:contract][canonical_physical_value/type_drift] value={value:?} expected={expected:?} actual={actual:?}"
             )),
         }
-    }
-
-    #[cfg(test)]
-    pub(in crate::mir::builder) fn adopt_generic_g0_entry_lanes(
-        &mut self,
-        builder: &mut MirBuilder,
-        descriptors: &[crate::mir::compiler::generic_g0_physical_function_entry_input::
-            GenericG0PhysicalParameterDescriptorV1],
-    ) -> Result<(), String> {
-        generic_g0_entry_adoption::adopt(self, builder, descriptors)?;
-        self.bind_control(builder)
     }
 }
 

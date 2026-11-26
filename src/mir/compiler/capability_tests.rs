@@ -3,7 +3,7 @@ use crate::mir::resolved_region_flow::ResolvedElseFallthroughV1;
 use crate::mir::resolved_semantics::SourcePathSegmentV1;
 
 use super::capability::{
-    CanonicalFirstFamilyPlanV1, CanonicalLoopFamilyPlanV1, CanonicalLoweringPreflightV1,
+    CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1,
     ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1,
 };
 use super::{CanonicalLoweringErrorV1, MirCompiler, VerifiedResolvedSourceUnitV1};

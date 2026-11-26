@@ -8,7 +8,9 @@ mod direct_accum_observation;
 #[cfg(test)]
 mod direct_accum_observation_tests;
 mod family_admission;
+#[cfg(test)]
 mod generic_g0;
+#[cfg(test)]
 mod generic_g0_observation;
 #[cfg(test)]
 mod generic_g0_observation_tests;
@@ -53,11 +55,13 @@ pub(crate) use loop_cond_break_continue::{
     VerifiedLoopCondBreakContinuePolicyDemandV1, VerifiedLoopCondBreakContinuePolicyReceiptV1,
 };
 pub(crate) use family_admission::{LoopFamilyAdmissionCoverageV1, LoopFamilyAdmissionModeV1};
+#[cfg(test)]
 pub(crate) use generic_g0::{
     issue_generic_g0_candidate_v1, GenericG0CoverageV1, GenericG0PolicyContextV1,
     GenericG0PolicyModeV1, GenericG0PolicyOutcomeV1, GenericG0PolicyProfileV1,
     GenericG0PolicyRejectV1, GenericG0PolicyUnresolvedV1, VerifiedGenericFamilyObservationG0,
 };
+#[cfg(test)]
 pub(crate) use generic_g0_observation::{
     issue_generic_g0_family_observation_v1, GenericG0FamilyObservationV1,
     GenericG0ObservationContextV1, GenericG0ObservationEvidenceV1,
