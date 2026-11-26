@@ -150,7 +150,6 @@ pub(crate) enum MapCallEdgeKindV1 {
     /// The callee's map egresses `return`: the caller acquires release
     /// responsibility for the received map, and borrows stored inside it
     /// must keep their targets live.
-    ReturnReceive,
 }
 
 impl MapCallEdgeContractV1 {
@@ -262,7 +261,6 @@ impl MapLifecycleUndertakingV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum MapLifecycleUndertakingIssueV1 {
-    Describe(MapObligationDescribeIssueV1),
     /// The declared capability cannot execute an operation an owner owes.
     UncoveredOperation {
         owner: FunctionOwnerIdV1,
