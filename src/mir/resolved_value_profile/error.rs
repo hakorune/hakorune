@@ -110,9 +110,6 @@ pub(crate) enum TrivialProfileContractErrorV1 {
     MissingDirectCallResolution {
         site: SourceExprSiteV1,
     },
-    MissingMethodCallResolution {
-        site: SourceExprSiteV1,
-    },
     MissingCallableIndex,
     DirectCallCardinality {
         actual: u32,

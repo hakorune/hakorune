@@ -270,7 +270,6 @@ pub(in crate::mir) enum DeclaredInstanceCallPackageLocatorIssueV1 {
     DuplicateOwnedCallSite(OwnedExprSiteV1),
     EffectMissing(SourceExprSiteV1),
     EffectDuplicate(SourceExprSiteV1),
-    EffectIdentityMismatch(SourceExprSiteV1),
     TargetSelectionMissing,
     TargetSelectionDuplicate,
     TargetSelectionModeMismatch,
