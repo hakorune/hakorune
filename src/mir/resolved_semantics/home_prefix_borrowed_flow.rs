@@ -1,7 +1,7 @@
 //! Readonly result joins over the existing source value graph, without a new CFG.
 use super::*;
 use crate::mir::normal_callable_semantic_package::{BorrowedNullableLocalSourceLoanV1 as Loan};
-use super::BorrowedLifetimeAnchorV1;
+use crate::mir::resolved_semantics::BorrowedLifetimeAnchorV1;
 use crate::mir::resolved_semantics::source_value_flow::{SourceValueEdgeV1 as Edge, SourceValueOriginV1 as Origin, SourceValueRefV1, VerifiedSourceValueFlowV1};
 use std::sync::Arc;
 
