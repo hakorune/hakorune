@@ -5,17 +5,12 @@ use crate::mir::loop_recipe_contract::{
     LoopConditionV2, LoopNodeSourceBindingV1, LoopNodeV2, LoopRecipeBlockV2, LoopRecipeSourceBindingV1,
     LoopRecipeSourceOwnerV1, LoopRecipeV2, LoopRecipeVerifierV2, LoopSourcePathStepV1, LoopSourcePathV1,
 };
-use crate::mir::loop_route_policy::direct_accum_route_admission_for_test;
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, SemanticOwnerSourceKindV1,
     SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1, VerifiedResolvedFunctionV1,
 };
 
-use super::{
-    bind_resolved_loop_root_v1, issue_selected_loop_recipe_demand_v1,
-    verified_loop_structural_facts_for_test_with_frame, DirectAccumSingletonObservationRejectV1,
-    LoopRootSourceBindingRejectV1, SelectedLoopDemandRejectV1,
-};
+use super::{bind_resolved_loop_root_v1, LoopRootSourceBindingRejectV1};
 
 fn int(value: i64) -> ASTNode {
     ASTNode::Literal {
@@ -102,103 +97,6 @@ fn verified_root_recipe_v2() -> crate::mir::loop_recipe_contract::VerifiedLoopRe
         exits: vec![],
     })
     .expect("minimal V2 root verifies")
-}
-
-#[test]
-fn selected_demand_consumes_matching_policy_facts_and_source_once() {
-    let tree = function(vec![loop_stmt(Vec::new())]);
-    let product = resolve_function(&tree);
-    let site = stmt(vec![SourcePathSegmentV1::Body(0)]);
-    let source = product.resolved_loop_source(&site).unwrap();
-    let frame_key = source.frame_key();
-    let facts = verified_loop_structural_facts_for_test_with_frame(
-        crate::mir::resolved_semantics::FunctionOriginV1::new(0, 0),
-        SemanticOwnerSourceKindV1::DeclaredFunction,
-        site.clone(),
-        frame_key.clone(),
-    );
-
-    let (demand, _receipt) = issue_selected_loop_recipe_demand_v1(
-        direct_accum_route_admission_for_test(frame_key),
-        facts,
-        source,
-    )
-    .expect("matching selected demand must seal");
-    let (_facts, source) = demand.into_parts();
-    let (origin, owner, resolved_site) = source.into_parts();
-    assert_eq!(origin.compilation_unit_ordinal(), 0);
-    assert_eq!(origin.function_ordinal(), 0);
-    assert_eq!(owner, SemanticOwnerSourceKindV1::DeclaredFunction);
-    assert_eq!(resolved_site, site);
-}
-
-#[test]
-fn selected_demand_rejects_facts_source_identity_mismatch() {
-    let tree = function(vec![loop_stmt(Vec::new()), loop_stmt(Vec::new())]);
-    let product = resolve_function(&tree);
-    let source_site = stmt(vec![SourcePathSegmentV1::Body(0)]);
-    let facts_site = stmt(vec![SourcePathSegmentV1::Body(1)]);
-    let source = product.resolved_loop_source(&source_site).unwrap();
-    let frame_key = source.frame_key();
-    let facts = verified_loop_structural_facts_for_test_with_frame(
-        crate::mir::resolved_semantics::FunctionOriginV1::new(0, 0),
-        SemanticOwnerSourceKindV1::DeclaredFunction,
-        facts_site,
-        frame_key.clone(),
-    );
-
-    assert_eq!(
-        issue_selected_loop_recipe_demand_v1(
-            direct_accum_route_admission_for_test(frame_key),
-            facts,
-            source,
-        ),
-        Err(SelectedLoopDemandRejectV1::FactsSourceIdentityMismatch)
-    );
-}
-
-#[test]
-fn selected_demand_rejects_foreign_execution_frame() {
-    let tree = function(vec![loop_stmt(Vec::new()), loop_stmt(Vec::new())]);
-    let product = resolve_function(&tree);
-    let site = stmt(vec![SourcePathSegmentV1::Body(1)]);
-    let source = product.resolved_loop_source(&site).unwrap();
-    let foreign_frame = crate::mir::resolved_semantics::loop_execution_frame_key_for_test();
-    let facts = verified_loop_structural_facts_for_test_with_frame(
-        crate::mir::resolved_semantics::FunctionOriginV1::new(0, 0),
-        SemanticOwnerSourceKindV1::DeclaredFunction,
-        site,
-        foreign_frame.clone(),
-    );
-
-    assert_eq!(
-        issue_selected_loop_recipe_demand_v1(
-            direct_accum_route_admission_for_test(foreign_frame),
-            facts,
-            source,
-        ),
-        Err(SelectedLoopDemandRejectV1::ExecutionFrameMismatch)
-    );
-}
-
-#[test]
-fn singleton_observation_rejects_identity_only_facts() {
-    let tree = function(vec![loop_stmt(Vec::new())]);
-    let product = resolve_function(&tree);
-    let site = stmt(vec![SourcePathSegmentV1::Body(0)]);
-    let source = product.resolved_loop_source(&site).unwrap();
-    let frame_key = source.frame_key();
-    let facts = verified_loop_structural_facts_for_test_with_frame(
-        crate::mir::resolved_semantics::FunctionOriginV1::new(0, 0),
-        SemanticOwnerSourceKindV1::DeclaredFunction,
-        site,
-        frame_key,
-    );
-
-    assert_eq!(
-        facts.into_direct_accum_singleton_observation_v1(source),
-        Err(DirectAccumSingletonObservationRejectV1::NotDirectAccum)
-    );
 }
 
 #[test]

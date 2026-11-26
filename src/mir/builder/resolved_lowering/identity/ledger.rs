@@ -345,7 +345,7 @@ impl<'a> ResolvedIdentityLedgerV2<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::compiler::direct_accum_projection::direct_accum_function_for_test;
+    use crate::mir::compiler::loop_source_expression_shapes::direct_accum_function_for_test;
     use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 
     #[test]

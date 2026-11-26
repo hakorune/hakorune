@@ -2,47 +2,20 @@
 //!
 //! See `README.md` for the authority and caller-zero contract.
 
-mod direct_accum_exclusivity;
-mod direct_accum_observation;
-mod loop_cond_break_continue_observation;
 mod loop_cond_break_continue_source;
-mod loop_true_break_continue_observation;
-mod loop_true_break_continue_source;
 mod resolved_source_adapter;
 // Caller-zero until the immediately following complete S6C Facts row.
 mod s6c_exit_tail;
 mod s6c_scan_with_init;
-mod selected_demand;
-mod types;
 
 pub(crate) use resolved_source_adapter::{
     bind_resolved_loop_root_v1, LoopRootSourceBindingRejectV1, VerifiedLoopRootSourceV1,
 };
 
-pub(crate) use direct_accum_exclusivity::DirectAccumDisjointnessRejectV1;
-pub(crate) use direct_accum_observation::{
-    DirectAccumObservationCoverageV1, DirectAccumObservationModeV1,
-    DirectAccumSourceAttemptOutcomeV1, DirectAccumSourceDeclineV1, DirectAccumSourceIdentityV1,
-    DirectAccumSourceRejectV1, DirectAccumSourceUnresolvedV1, VerifiedDirectAccumSourceAttemptV1,
-};
-pub(crate) use loop_cond_break_continue_observation::{
-    LoopCondObservationCoverageV1, LoopCondObservationModeV1, LoopCondSourceAttemptOutcomeV1,
-    LoopCondSourceDeclineV1, LoopCondSourceIdentityV1, LoopCondSourceRejectV1,
-    LoopCondSourceUnresolvedV1, VerifiedLoopCondSourceAttemptV1,
-};
 pub(crate) use loop_cond_break_continue_source::{
     VerifiedLoopCondBreakContinueSourceForestProjectionV1,
     VerifiedLoopCondBreakContinueSourceProjectionV1, VerifiedLoopCondBreakContinueSourceShapeV1,
     VerifiedLoopCondSourceExitV1,
-};
-pub(crate) use loop_true_break_continue_observation::map_loop_true_source_binding_reject;
-pub(crate) use loop_true_break_continue_observation::{
-    LoopTrueObservationCoverageV1, LoopTrueObservationModeV1, LoopTrueSourceAttemptOutcomeV1,
-    LoopTrueSourceDeclineV1, LoopTrueSourceIdentityV1, LoopTrueSourceRejectV1,
-    LoopTrueSourceUnresolvedV1, VerifiedLoopTrueSourceAttemptV1,
-};
-pub(crate) use loop_true_break_continue_source::{
-    VerifiedLoopTrueBreakContinueSourceProjectionV1, VerifiedLoopTrueBreakContinueSourceShapeV1,
 };
 pub(crate) use s6c_exit_tail::{
     issue_s6c_exit_tail_source_coseal_v1, S6CExitRoleV1, S6CExitTailSourceCoSealRefV1,
@@ -52,18 +25,6 @@ pub(crate) use s6c_scan_with_init::{
     issue_s6c_scan_with_init_facts_v1, S6CScanWithInitFactsRefV1, S6CScanWithInitFactsRejectV1,
     VerifiedS6CScanWithInitFactsV1,
 };
-pub(crate) use selected_demand::{
-    issue_direct_accum_structural_facts_v1, issue_selected_loop_recipe_demand_v1,
-    DirectAccumFactsPayloadRejectV1, DirectAccumSingletonObservationRejectV1,
-    SelectedLoopDemandRejectV1, VerifiedDirectAccumSingletonObservationV1,
-    VerifiedLoopStructuralFactsV1, VerifiedSelectedLoopRecipeDemandV1,
-};
-pub(crate) use types::{
-    DirectAccumObservedShapeV1, DirectAccumStructuralShapeV1, DirectAccumUpdateShapeV1,
-};
-
-#[cfg(test)]
-pub(crate) use selected_demand::verified_loop_structural_facts_for_test_with_frame;
 
 #[cfg(test)]
 mod s6c_exit_tail_tests;

@@ -1,6 +1,6 @@
 //! As-written operator and literal shapes shared by typed loop producers.
 
-use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
+use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
 
 use super::located::LocatedExprV1;
 
@@ -77,5 +77,65 @@ pub(crate) fn literal_shape_from_expr(expr: &LocatedExprV1<'_>) -> Option<Source
     match expr.node() {
         ASTNode::Literal { value, .. } => Some(literal_shape(value)),
         _ => None,
+    }
+}
+
+fn variable(name: &str) -> ASTNode {
+    ASTNode::Variable {
+        name: name.to_string(),
+        span: Span::unknown(),
+    }
+}
+
+fn integer(value: i64) -> ASTNode {
+    ASTNode::Literal {
+        value: LiteralValue::Integer(value),
+        span: Span::unknown(),
+    }
+}
+
+fn add(name: &str, delta: i64) -> ASTNode {
+    ASTNode::Assignment {
+        target: Box::new(variable(name)),
+        value: Box::new(ASTNode::BinaryOp {
+            operator: BinaryOperator::Add,
+            left: Box::new(variable(name)),
+            right: Box::new(integer(delta)),
+            span: Span::unknown(),
+        }),
+        span: Span::unknown(),
+    }
+}
+
+pub(crate) fn direct_accum_function_for_test() -> ASTNode {
+    ASTNode::FunctionDeclaration {
+        name: "accum".into(),
+        params: Vec::new(),
+        param_decls: Vec::new(),
+        return_type_name: None,
+        body: vec![
+            ASTNode::Local {
+                variables: vec!["i".into(), "sum".into()],
+                initial_values: vec![Some(Box::new(integer(0))), Some(Box::new(integer(0)))],
+                declared_type_names: vec![None, None],
+                span: Span::unknown(),
+            },
+            ASTNode::Loop {
+                condition: Box::new(ASTNode::BinaryOp {
+                    operator: BinaryOperator::Less,
+                    left: Box::new(variable("i")),
+                    right: Box::new(integer(3)),
+                    span: Span::unknown(),
+                }),
+                body: vec![add("sum", 1), add("i", 1)],
+                span: Span::unknown(),
+            },
+        ],
+        uses: Vec::new(),
+        contracts: Vec::new(),
+        is_static: true,
+        is_override: false,
+        attrs: DeclarationAttrs::default(),
+        span: Span::unknown(),
     }
 }

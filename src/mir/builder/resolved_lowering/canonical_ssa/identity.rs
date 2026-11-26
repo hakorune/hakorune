@@ -375,7 +375,7 @@ impl ResolvedScopeRetirementV1 for ResolvedSsaIdentityStateV2<'_> {
 mod tests {
     use super::*;
 
-    use crate::mir::compiler::direct_accum_projection::direct_accum_function_for_test;
+    use crate::mir::compiler::loop_source_expression_shapes::direct_accum_function_for_test;
     use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
     use crate::mir::resolved_semantics::{ResolvedAssignmentTargetV1, ResolvedLexicalRefV1};
 
