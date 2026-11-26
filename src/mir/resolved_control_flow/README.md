@@ -61,7 +61,7 @@ precommit/committed Fault cleanup, alongside terminal order. Complete and
 unavailable Map observations both retain a consumer requirement; an unavailable
 first Map must not disappear into ordinary-New installation. `map_control.rs`
 checks exact Map initializer/destination, body scope and outward region without
-relaxing the New-only continuation issuer. The package's common `prepare_install`
+relaxing the New-only continuation issuer. The package's common `prepare_install_with_consumer`
 rejects this unconnected lifecycle before catalog installation/body lowering.
 Source retention and that Stop do not prove runtime execution.
 

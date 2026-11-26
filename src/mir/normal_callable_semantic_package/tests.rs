@@ -63,7 +63,7 @@ fn selected_dynamic_loan_carries_the_package_source_seed() {
     .expect("exact Dynamic package");
     let mut context = CompilationContext::new();
     let installed = package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .expect("vacant catalog slot")
         .commit();
     let key = SelectedNormalCallableKeyV1::Cataloged(
@@ -93,7 +93,7 @@ fn foreign_catalog_admission_rejects_before_selected_loan_callback() {
     .expect("exact Dynamic package");
     let mut context = CompilationContext::new();
     let installed = package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .expect("vacant catalog slot")
         .commit();
     let foreign = NormalCatalogedBoxMethodDraftAdmissionV1::seal(
@@ -120,7 +120,7 @@ fn package_scoped_loan_retains_exact_parameter_contract() {
         .expect("typed parameter package");
     let mut context = CompilationContext::new();
     let installed = package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .expect("vacant catalog slot")
         .commit();
     let key = SelectedNormalCallableKeyV1::Cataloged(
@@ -161,7 +161,7 @@ fn package_scoped_loan_retains_exact_text_parameter_contract() {
             .expect("ordinary StringBox package");
     let mut context = CompilationContext::new();
     let installed = package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .expect("vacant catalog slot")
         .commit();
     let key = SelectedNormalCallableKeyV1::Cataloged(
@@ -341,7 +341,7 @@ fn consuming_install_and_port_enforce_exact_selected_coverage() {
         issue("static box Api { run(value) { return value } }").expect("ordinary package");
     let mut context = CompilationContext::new();
     let installed = package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .expect("vacant catalog slot")
         .commit();
     let key = SelectedNormalCallableKeyV1::Cataloged(
@@ -388,12 +388,12 @@ fn install_rejects_occupied_catalog_and_port_rejects_incomplete_coverage() {
     let mut context = CompilationContext::new();
     let installed = issue(source)
         .expect("first package")
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .expect("vacant catalog slot")
         .commit();
     assert!(issue(source)
         .expect("second package")
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .is_err());
 
     let port = installed

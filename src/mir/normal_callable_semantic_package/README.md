@@ -559,7 +559,7 @@ ambiguous, repaired or coverage-drifted identity rejects before Builder effects.
 The HRTB syntax loan is the sole AST-borrowing boundary; no public batch slot,
 owner number, raw CallSlot getter or independent target catalog may bypass it.
 
-[Installation](install.rs) is one consuming `prepare_install`/`commit` transition.
+[Installation](install.rs) is one consuming `prepare_install_with_consumer`/`commit` transition.
 The package is non-Clone and non-splittable. `with_normal_callable_install_once`
 returns a Builder-private bundle, then a private lowering scope; no bare installed
 package escapes. That scope borrows the parser Program and opens the package
@@ -707,25 +707,11 @@ are checked in batch order: candidate validation precedes that declaration's
 Completion diagnostics. All declarations succeed before S6C takes its seed.
 AppMain keeps its separate Home-aware root ledger; TopLevel emits no seed,
 and successful Dynamic borrows its retained authority. Exact
-AppMainStaticChild consumes its seed into `VerifiedS6CSemanticChildV1`; ordinary
-seeds feed the generic header projection. The child retains the complete
-Facts/Recipe/Join/prephysical parent. Result/parity, Completion, Loop Return and
-callable Tail are borrowed projections, not duplicate fields or clones.
-
-`with_s6c_common_v2_pre_session` lends selected callable, signature, installed
-child and `PreparedLoopV2PreSessionEnvelopeV1` in one HRTB. The envelope is created
-inside the retained source loan: operation/control/coverage cannot be separately
-acquired or re-paired. `with_s6c_child` is its compatibility wrapper; there is no
-slot/key argument. Generic selected entry points reject the Main-child role;
-the same coverage ledger consumes its key once and rejects a second loan.
-
-The same loan includes [storage header](s6c_storage_header.rs) params/result/
-attrs/uses from the catalog declaration, distinct from the Dynamic legacy header,
-and [physical effects](s6c_effects.rs). `VerifiedS6CPhysicalFunctionEffectsV1`
-projects READ only after retained call contracts prove the two expected pure
-reads; CoreMethod/Facts remain semantic effect authority. A function-entry
-consumer must take header/signature/result/effects together, never reread a
-declaration or infer effects from MIR.
+AppMainStaticChild consumes its seed in the S6C issuer. The issuer checks the
+Facts/Recipe/Join/prephysical product and reads its physical effects before
+discarding the checked child payload. Ordinary seeds feed the generic header
+projection. Main-child lowering checks the parser identity and consumes the
+selected key through `with_main_static_child_lowering_input`.
 
 `SelectedCallableLoweringInputRefV1::block_expr_expectation` borrows the same
 row's resolver-issued `VerifiedResolvedBlockExpressionExpectationV1`. Missing
@@ -1079,7 +1065,7 @@ AppMain uses InstallValue for known scalar kinds and InstallIndexed for Home
 transfer. Ordinary callable install remains stopped until its Call/cleanup ABI
 and physical consumer are connected.
 Completion owns one root flow, including successful or unavailable Map sites and
-their cleanup successors. `prepare_install` describes every sealed member's Map
+their cleanup successors. `prepare_install_with_consumer` describes every sealed member's Map
 obligations from batch membership and verifies them against the selected
 consumer's declared capability before catalog mutation — the sealed
 undertaking, never AppMain reachability, is the coverage criterion.
@@ -1190,7 +1176,7 @@ receiver/operand sites, typed operation/result class, containment path, and
 borrow-root occurrences without issuing a Recipe key, physical ID, or MIR
 type. The existing direct-call co-seal accepts this Fact as the callee read
 evidence; an unrelated `m.get("k")` remains unchanged. Direct
-`prepare_install` callers still stop with the named
+`prepare_install_with_consumer` callers still stop with the named
 `MapReadPhysicalConsumerMissing` issue before catalog mutation. The selected
 normal builder caller now supplies its existing `BuilderInstallConsumerV1`
 capability and attaches one scoped `MapReadPhysicalConsumerV1` to the existing

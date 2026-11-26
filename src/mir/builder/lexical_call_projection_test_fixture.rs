@@ -79,7 +79,7 @@ pub(in crate::mir) fn fixture() -> (
         .expect("fixture's exact pair source loan");
     let mut context = crate::mir::builder::CompilationContext::new();
     let installed = package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .map_err(|(_, error)| error)
         .unwrap()
         .commit();
@@ -252,7 +252,7 @@ pub(in crate::mir) fn borrowed_fixture(
     let owner = state.owner();
     let mut context = crate::mir::builder::CompilationContext::new();
     let installed = package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .map_err(|(_, error)| error)
         .unwrap()
         .commit();
@@ -403,7 +403,7 @@ pub(in crate::mir) fn forwarded_fixture(
 ) {
     let mut context = super::CompilationContext::new();
     let installed = package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .map_err(|(_, e)| e)
         .unwrap()
         .commit();

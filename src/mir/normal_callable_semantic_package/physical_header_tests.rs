@@ -20,14 +20,19 @@ fn issue(
 fn explicit_result_annotation_lends_one_complete_header_view() {
     let package = issue("static box Api { run(value: i64): i64 { return value } }")
         .expect("explicit source/header cohort");
-    let mut context = CompilationContext::new();
-    let installed = package
-        .prepare_install(&mut context)
-        .expect("vacant catalog slot")
-        .commit();
     let key = SelectedNormalCallableKeyV1::Cataloged(
         CanonicalSameModuleCallableKeyV1::test_static_box_method("Api", "run", 1),
     );
+    let slot = package.selected.batch_slot(&key).unwrap();
+    let header = package.physical_header.row(slot, &package.result_contracts).unwrap();
+    let header_owner = header.owner();
+    assert_eq!(header.result(), crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1::I64);
+    assert_eq!(header.completion().owner(), header_owner);
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install_with_consumer(&mut context, None)
+        .expect("vacant catalog slot")
+        .commit();
     let mut port = installed.begin_lowering(&context).expect("same catalog");
     port.with_selected_lowering_input(&key, |input| {
         let result_contract = input
@@ -38,16 +43,12 @@ fn explicit_result_annotation_lends_one_complete_header_view() {
             crate::mir::resolved_control_flow::DeclaredFunctionResultContractV1::Annotated(name)
                 if name.as_ref() == "i64"
         ));
-        let header = input.physical_header().expect("header cohort row");
-        assert_eq!(header.owner(), input.source().owner());
-        assert_eq!(
-            header.result(),
-            crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1::I64
-        );
-        assert_eq!(header.completion().owner(), input.source().owner());
-        assert!(header.completion().returns_value());
-        assert_eq!(header.completion().explicit_sites().len(), 1);
-        assert!(header.completion().cleanup().crossed_scopes().is_empty());
+        assert_eq!(header_owner, input.source().owner());
+        let completion = result_contract.completion();
+        assert_eq!(completion.owner(), header_owner);
+        assert!(completion.returns_value());
+        assert_eq!(completion.explicit_sites().len(), 1);
+        assert!(completion.cleanup().crossed_scopes().is_empty());
         assert!(matches!(
             input.semantic(),
             SelectedCallableSemanticRefV1::Ordinary
@@ -60,14 +61,16 @@ fn explicit_result_annotation_lends_one_complete_header_view() {
 fn absent_result_annotation_keeps_ordinary_package_without_physical_header() {
     let package = issue("static box Api { run(value: i64) { return value } }")
         .expect("ordinary package remains source-compatible");
-    let mut context = CompilationContext::new();
-    let installed = package
-        .prepare_install(&mut context)
-        .expect("vacant catalog slot")
-        .commit();
     let key = SelectedNormalCallableKeyV1::Cataloged(
         CanonicalSameModuleCallableKeyV1::test_static_box_method("Api", "run", 1),
     );
+    let slot = package.selected.batch_slot(&key).unwrap();
+    assert!(package.physical_header.row(slot, &package.result_contracts).is_none());
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install_with_consumer(&mut context, None)
+        .expect("vacant catalog slot")
+        .commit();
     let mut port = installed.begin_lowering(&context).expect("same catalog");
     port.with_selected_lowering_input(&key, |input| {
         let result_contract = input
@@ -77,7 +80,7 @@ fn absent_result_annotation_keeps_ordinary_package_without_physical_header() {
             result_contract.declared_result(),
             crate::mir::resolved_control_flow::DeclaredFunctionResultContractV1::Unannotated
         ));
-        assert!(input.physical_header().is_none());
+        assert!(result_contract.result().is_none());
     })
     .expect("ordinary loan");
 }
@@ -94,9 +97,19 @@ fn valid_void_siblings_do_not_poison_sparse_physical_header_cohort() {
     .expect("ordinary Void siblings remain source-valid");
     let selected_keys = package.selected.keys().cloned().collect::<Vec<_>>();
     assert_eq!(selected_keys.len(), 3);
+    for key in &selected_keys {
+        let SelectedNormalCallableKeyV1::Cataloged(source_key) = key else {
+            panic!("Void/header fixture rows must stay cataloged");
+        };
+        let slot = package.selected.batch_slot(key).unwrap();
+        assert_eq!(
+            package.physical_header.row(slot, &package.result_contracts).is_some(),
+            source_key.name() == "run"
+        );
+    }
     let mut context = CompilationContext::new();
     let installed = package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .expect("vacant catalog slot")
         .commit();
     let mut port = installed.begin_lowering(&context).expect("same catalog");
@@ -110,7 +123,7 @@ fn valid_void_siblings_do_not_poison_sparse_physical_header_cohort() {
                 .result_contract()
                 .expect("result contract row remains for every generic callable");
             assert_eq!(
-                input.physical_header().is_some(),
+                result_contract.result().is_some(),
                 expected_header,
                 "{}",
                 source_key.name()
@@ -148,7 +161,7 @@ fn mixed_package_lends_only_the_eligible_physical_header_row() {
     assert_eq!(selected_keys.len(), 4);
     let mut context = CompilationContext::new();
     let installed = package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .expect("vacant catalog slot")
         .commit();
     let mut port = installed.begin_lowering(&context).expect("same catalog");
@@ -159,15 +172,15 @@ fn mixed_package_lends_only_the_eligible_physical_header_row() {
         let method = source_key.name();
         let expected_header = method == "skip_while";
         port.with_selected_lowering_input(&key, |input| {
-            let header = input.physical_header();
-            assert_eq!(header.is_some(), expected_header, "{method}");
-            if let Some(header) = header {
+            let contract = input.result_contract().unwrap();
+            assert_eq!(contract.result().is_some(), expected_header, "{method}");
+            if let Some(result) = contract.result() {
                 assert_eq!(
-                    header.result(),
+                    result,
                     crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1::I64
                 );
-                assert!(header.completion().returns_value());
-                assert_eq!(header.completion().explicit_sites().len(), 2);
+                assert!(contract.completion().returns_value());
+                assert_eq!(contract.completion().explicit_sites().len(), 2);
             }
         })
         .expect("selected row loan");

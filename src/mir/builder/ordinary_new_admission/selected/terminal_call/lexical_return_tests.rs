@@ -42,7 +42,7 @@ fn direct_return_emitter_rejects_taken_row_before_builder_effects() {
     let owner = state.owner();
     let mut context = crate::mir::builder::CompilationContext::new();
     let installed = package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .map_err(|(_, error)| error)
         .unwrap()
         .commit();

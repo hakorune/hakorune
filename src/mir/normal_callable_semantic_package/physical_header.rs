@@ -64,15 +64,6 @@ pub(crate) struct CallablePhysicalHeaderRefV1<'a> {
 }
 
 impl<'a> CallablePhysicalHeaderRefV1<'a> {
-    pub(super) fn from_result_contract(
-        result_contract: CallableResultContractRefV1<'a>,
-    ) -> Option<Self> {
-        Some(Self {
-            result: result_contract.result()?,
-            result_contract,
-        })
-    }
-
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.result_contract.owner()
     }

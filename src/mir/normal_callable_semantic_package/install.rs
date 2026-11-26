@@ -33,12 +33,10 @@ use super::declared_instance_locator::{
 use super::ordinary_new_coseal::{
     OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewClaimTakeErrorV1,
 };
-use super::physical_header::{CallablePhysicalHeaderRefV1, VerifiedCallablePhysicalHeaderCohortV1};
 use super::physical_signature::{
-    PhysicalCallableSignatureRowRefV1, VerifiedCallablePhysicalSignatureCohortV1,
+    VerifiedCallablePhysicalSignatureCohortV1,
 };
 use super::result_contract::{CallableResultContractRefV1, VerifiedCallableResultContractCohortV1};
-use super::s6c_storage_header::VerifiedS6CStorageHeaderProjectionV1;
 use super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use super::{
     model::{
@@ -90,9 +88,6 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     MainChildIdentityMismatch,
     MainChildRoleMismatch,
     MainChildAdmissionRequired,
-    S6CChildUnavailable,
-    S6CChildAlreadyConsumed,
-    S6CChildKeyUnavailable,
     PhysicalSignatureUnavailable,
     CatalogSlotOccupied,
     LoweringAlreadyStarted,
@@ -126,9 +121,6 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     physical_signature: Rc<VerifiedCallablePhysicalSignatureCohortV1>,
     declared_instance_call_locators:
         super::declared_instance_locator::DeclaredInstanceCallPackageLocatorDispositionV1,
-    s6c_child: Option<super::s6c_child::VerifiedS6CSemanticChildV1>,
-    s6c_storage_header: Option<VerifiedS6CStorageHeaderProjectionV1>,
-    physical_header: VerifiedCallablePhysicalHeaderCohortV1,
     dynamic: NormalCallableDynamicProjectionV1,
     dynamic_physical_header: RefCell<Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>>,
     loop_break_source: RefCell<super::loop_break_source::VerifiedLoopBreakSourcePackageV1>,
@@ -152,7 +144,6 @@ pub(crate) struct SelectedCallableLoweringInputRefV1<'loan> {
     source: ResolvedFunctionLoweringInputV1<'loan>,
     parameter_contracts: &'loan [super::model::OwnedCallableParameterContractV1],
     block_expr_expectation: &'loan VerifiedResolvedBlockExpressionExpectationV1,
-    physical_header: Option<CallablePhysicalHeaderRefV1<'loan>>,
     result_contract: Option<CallableResultContractRefV1<'loan>>,
     semantic: SelectedCallableSemanticRefV1<'loan>,
     source_identity: VerifiedResolvedCallableSourceIdentityV1,
@@ -166,52 +157,6 @@ pub(crate) struct SelectedCatalogedCallableLoweringInputV1<'loan> {
     selected: SelectedCallableLoweringInputRefV1<'loan>,
     admission: NormalCatalogedBoxMethodDraftAdmissionV1,
     physical_header: Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>,
-}
-
-/// One exactly-once S6C child loan.  The selected input, its parameter
-/// contracts, the package-owned child, and the physical signature row are
-/// sibling views of the same installed cohort; callers cannot open them by
-/// separate key/slot lookups.
-pub(crate) struct S6CInstalledCallableLoanRefV1<'loan> {
-    selected: SelectedCallableLoweringInputRefV1<'loan>,
-    child: super::s6c_child::S6CSemanticChildRefV1<'loan>,
-    signature: PhysicalCallableSignatureRowRefV1<'loan>,
-    storage_header: &'loan VerifiedS6CStorageHeaderProjectionV1,
-}
-
-impl S6CInstalledCallableLoanRefV1<'_> {
-    pub(crate) fn selected(&self) -> &SelectedCallableLoweringInputRefV1<'_> {
-        &self.selected
-    }
-
-    pub(crate) const fn signature(&self) -> PhysicalCallableSignatureRowRefV1<'_> {
-        self.signature
-    }
-
-    pub(crate) fn storage_header(&self) -> &VerifiedS6CStorageHeaderProjectionV1 {
-        self.storage_header
-    }
-
-    pub(crate) fn physical_effects(
-        &self,
-    ) -> &super::s6c_effects::VerifiedS6CPhysicalFunctionEffectsV1 {
-        self.child.physical_effects()
-    }
-
-    pub(crate) const fn result(
-        &self,
-    ) -> crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1 {
-        self.child.result()
-    }
-
-    pub(crate) fn with_completion_parity<R>(
-        &self,
-        callback: impl FnOnce(
-            crate::mir::loop_recipe_contract::S6CPrephysicalCompletionParityRefV2,
-        ) -> R,
-    ) -> R {
-        self.child.with_completion_parity(callback)
-    }
 }
 
 /// Exactly-once Main static-child input.  The generic key-only admission is
@@ -278,7 +223,6 @@ pub(crate) struct NormalCallableSemanticPackagePortV1<'package> {
     pub(super) direct_call_loans: Option<super::direct_call_loan::DirectCallDispositionLoansV1>,
     consumed: BTreeSet<SelectedNormalCallableKeyV1>,
     declared_instance_consumed: RefCell<BTreeSet<u32>>,
-    s6c_child_consumed: bool,
     main_root_consumed: bool,
 }
 
@@ -338,45 +282,21 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         NormalCallableSemanticPackageInstallIssueV1,
     > {
         let prepared = self
-            .prepare_install_with_consumer(context, &consumer)
+            .prepare_install_with_consumer(context, Some(&consumer))
             .map_err(|(_, issue)| issue)?;
         let installed = prepared.commit();
         Ok(consumer.seal(installed, BuilderInstallTokenV1::issue()))
     }
 
-    pub(crate) fn prepare_install<'context>(
-        self,
-        context: &'context mut CompilationContext,
-    ) -> Result<
-        PreparedNormalCallableSemanticPackageInstallV1<'context>,
-        (Self, NormalCallableSemanticPackageInstallIssueV1),
-    > {
-        let map_lifecycle_undertaking = match self.preflight_map_install(None) {
-            Ok(undertaking) => undertaking,
-            Err(issue) => return Err((self, issue)),
-        };
-        if !context.callable_declaration_catalog_vacant() {
-            return Err((
-                self,
-                NormalCallableSemanticPackageInstallIssueV1::CatalogSlotOccupied,
-            ));
-        }
-        Ok(PreparedNormalCallableSemanticPackageInstallV1 {
-            context,
-            package: self,
-            map_lifecycle_undertaking,
-        })
-    }
-
     pub(in crate::mir) fn prepare_install_with_consumer<'context>(
         self,
         context: &'context mut CompilationContext,
-        consumer: &BuilderInstallConsumerV1,
+        consumer: Option<&BuilderInstallConsumerV1>,
     ) -> Result<
         PreparedNormalCallableSemanticPackageInstallV1<'context>,
         (Self, NormalCallableSemanticPackageInstallIssueV1),
     > {
-        let map_lifecycle_undertaking = match self.preflight_map_install(Some(consumer)) {
+        let map_lifecycle_undertaking = match self.preflight_map_install(consumer) {
             Ok(undertaking) => undertaking,
             Err(issue) => return Err((self, issue)),
         };
@@ -410,9 +330,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             parameter_contracts,
             result_contracts,
             physical_signature,
-            s6c_child,
-            s6c_storage_header,
-            physical_header,
+            physical_header: _,
             dynamic,
             dynamic_physical_header,
             loop_break_source,
@@ -461,9 +379,6 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             result_contracts,
             physical_signature,
             declared_instance_call_locators,
-            s6c_child,
-            s6c_storage_header,
-            physical_header,
             dynamic,
             dynamic_physical_header: RefCell::new(dynamic_physical_header),
             loop_break_source: RefCell::new(loop_break_source),
@@ -674,7 +589,6 @@ impl InstalledNormalCallableSemanticPackageV1 {
             direct_call_loans,
             consumed: BTreeSet::new(),
             declared_instance_consumed: RefCell::new(BTreeSet::new()),
-            s6c_child_consumed: false,
             main_root_consumed: false,
         })
     }

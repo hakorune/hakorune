@@ -51,7 +51,7 @@ box InstanceApi {
     .expect("selected ordinary package");
     let mut context = CompilationContext::new();
     let installed = package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .expect("vacant catalog")
         .commit();
     let static_key =
@@ -178,7 +178,7 @@ fn declared_instance_selected_handoff_consumes_locator_and_finishes() {
     };
     let mut context = CompilationContext::new();
     let installed = package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .expect("vacant catalog")
         .commit();
     let mut port = installed.begin_lowering(&context).expect("same catalog");
@@ -195,7 +195,7 @@ fn declared_instance_selected_handoff_rejects_residual_locator() {
     let package = declared_instance_package();
     let mut context = CompilationContext::new();
     let installed = package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .expect("vacant catalog")
         .commit();
     let mut port = installed.begin_lowering(&context).expect("same catalog");

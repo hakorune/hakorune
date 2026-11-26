@@ -91,7 +91,7 @@ fn non_app_main_map_receive_installs_through_preflight() {
     )
     .expect("non-AppMain map-receive package");
     let mut context = crate::mir::builder::CompilationContext::new();
-    assert!(package.prepare_install(&mut context).is_ok());
+    assert!(package.prepare_install_with_consumer(&mut context, None).is_ok());
 }
 
 #[test]
@@ -109,7 +109,7 @@ fn non_app_main_map_receive_with_prior_home_rejects_before_catalog_mutation() {
     .expect("source facts remain issuable for the bounded rejection");
     let mut context = crate::mir::builder::CompilationContext::new();
     assert!(matches!(
-        package.prepare_install(&mut context),
+        package.prepare_install_with_consumer(&mut context, None),
         Err((
             _,
             super::NormalCallableSemanticPackageInstallIssueV1::MapObligationDescribe(
@@ -221,7 +221,7 @@ fn unrelated_map_owner_with_plain_return_stays_admitted() {
     .expect("unrelated map owner stays admitted");
     let mut context = crate::mir::builder::CompilationContext::new();
     package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .expect("unrelated map owner install");
 }
 
@@ -232,7 +232,7 @@ fn app_main_root_consumption_keeps_source_identity_and_is_one_shot() {
 
     let package = issue("static box Main { main() { return 0 } }").unwrap();
     let mut context = CompilationContext::new();
-    let installed = package.prepare_install(&mut context).unwrap().commit();
+    let installed = package.prepare_install_with_consumer(&mut context, None).unwrap().commit();
     let root = context
         .callable_declaration_catalog()
         .unwrap()

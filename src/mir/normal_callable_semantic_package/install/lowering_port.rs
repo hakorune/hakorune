@@ -12,11 +12,10 @@ use crate::parser::CallableDeclarationIdentityV1;
 
 use super::super::declared_instance_locator::DeclaredInstanceCallLocatorScopeV1;
 use super::super::ordinary_new_coseal::OrdinaryNewAdmissionClaimV1;
-use super::super::s6c_child::S6CSemanticChildRefV1;
 use super::{
     MainStaticChildLoweringInputV1, NormalCallableSemanticPackageInstallIssueV1,
     NormalCallableSemanticPackagePortV1, ResolvedCallablePhysicalSignatureLoanV1,
-    S6CInstalledCallableLoanRefV1, SelectedCallableLoweringInputRefV1,
+    SelectedCallableLoweringInputRefV1,
     SelectedCatalogedCallableLoweringInputV1,
 };
 
@@ -148,55 +147,6 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         self.installed.take_ordinary_new_claim(site, class, arity)
     }
 
-    pub(crate) fn with_s6c_child<R>(
-        &mut self,
-        callback: impl for<'loan> FnOnce(S6CInstalledCallableLoanRefV1<'loan>) -> R,
-    ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
-        if self.s6c_child_consumed {
-            return Err(NormalCallableSemanticPackageInstallIssueV1::S6CChildAlreadyConsumed);
-        }
-        let child = self
-            .installed
-            .s6c_child
-            .as_ref()
-            .ok_or(NormalCallableSemanticPackageInstallIssueV1::S6CChildUnavailable)?;
-        let storage_header = self
-            .installed
-            .s6c_storage_header
-            .as_ref()
-            .ok_or(NormalCallableSemanticPackageInstallIssueV1::S6CChildUnavailable)?;
-        let key = self
-            .installed
-            .selected
-            .key_for_batch_slot(child.batch_slot())
-            .cloned()
-            .ok_or(NormalCallableSemanticPackageInstallIssueV1::S6CChildKeyUnavailable)?;
-        if !self.installed.selected.is_main_child_key(&key) {
-            return Err(NormalCallableSemanticPackageInstallIssueV1::MainChildRoleMismatch);
-        }
-        if self.consumed.contains(&key) {
-            return Err(NormalCallableSemanticPackageInstallIssueV1::DuplicateSelectedKey);
-        }
-        let signature = self
-            .installed
-            .physical_signature
-            .row(child.batch_slot())
-            .ok_or(NormalCallableSemanticPackageInstallIssueV1::PhysicalSignatureUnavailable)?;
-        let result = self
-            .installed
-            .with_selected_lowering_input(&key, |selected| {
-                callback(S6CInstalledCallableLoanRefV1 {
-                    selected,
-                    child: S6CSemanticChildRefV1 { child },
-                    signature,
-                    storage_header,
-                })
-            })?;
-        self.consumed.insert(key);
-        self.s6c_child_consumed = true;
-        Ok(result)
-    }
-
     pub(crate) fn with_selected_lowering_input<R>(
         &mut self,
         key: &SelectedNormalCallableKeyV1,
@@ -209,45 +159,6 @@ impl NormalCallableSemanticPackagePortV1<'_> {
             return Err(NormalCallableSemanticPackageInstallIssueV1::MainChildAdmissionRequired);
         }
         let result = self.installed.with_selected_lowering_input(key, callback)?;
-        self.consumed.insert(key.clone());
-        Ok(result)
-    }
-
-    /// Lend one selected input together with the route-neutral CoreMethod arm
-    /// issued from that same resolver ledger.  The catalog is consumed into
-    /// the callback's scoped lowering state; no second name map is retained.
-    pub(in crate::mir) fn with_selected_lowering_input_and_core_methods<R>(
-        &mut self,
-        key: &SelectedNormalCallableKeyV1,
-        callback: impl for<'loan> FnOnce(
-            SelectedCallableLoweringInputRefV1<'loan>,
-            BTreeMap<
-                crate::mir::resolved_semantics::SourceExprSiteV1,
-                SelectedSourceCoreMethodCallV1,
-            >,
-            super::LoopBreakSourcePackageTakeHandle<'loan>,
-        ) -> Result<R, String>,
-    ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
-        if self.consumed.contains(key) {
-            return Err(NormalCallableSemanticPackageInstallIssueV1::DuplicateSelectedKey);
-        }
-        if self.installed.selected.is_main_child_key(key) {
-            return Err(NormalCallableSemanticPackageInstallIssueV1::MainChildAdmissionRequired);
-        }
-        let core_method_calls = self.installed.take_source_core_method_calls(key);
-        let result = self
-            .installed
-            .with_selected_lowering_input(key, |selected| {
-                let loop_break_take = super::LoopBreakSourcePackageTakeHandle {
-                    installed: self.installed,
-                };
-                callback(selected, core_method_calls, loop_break_take)
-            })?
-            .map_err(|error| {
-                NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(
-                    error.into_boxed_str(),
-                )
-            })?;
         self.consumed.insert(key.clone());
         Ok(result)
     }

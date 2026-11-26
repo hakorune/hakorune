@@ -60,7 +60,7 @@ fn terminal_map_call_borrows_real_caller_cleanup_and_stops_scalar_emission() {
         );
         let mut context = crate::mir::builder::CompilationContext::new();
         assert!(matches!(
-            package.prepare_install(&mut context),
+            package.prepare_install_with_consumer(&mut context, None),
             Err((
                 _,
                 super::NormalCallableSemanticPackageInstallIssueV1::MapLifecycleConsumerMissing
@@ -147,7 +147,7 @@ fn distinct_map_call_owners_share_the_existing_install_preflight() {
         .collect();
     assert_eq!(targets.len(), 2);
     let mut context = crate::mir::builder::CompilationContext::new();
-    assert!(package.prepare_install(&mut context).is_ok());
+    assert!(package.prepare_install_with_consumer(&mut context, None).is_ok());
 }
 
 #[test]
@@ -193,7 +193,7 @@ fn three_distinct_map_call_owners_share_source_ordered_local_bindings() {
         2
     );
     let mut context = crate::mir::builder::CompilationContext::new();
-    assert!(package.prepare_install(&mut context).is_ok());
+    assert!(package.prepare_install_with_consumer(&mut context, None).is_ok());
 }
 
 #[test]
@@ -216,7 +216,7 @@ fn repeated_map_target_fourth_call_installs_under_the_undertaking() {
     )
     .expect("source facts remain issuable for the bounded rejection");
     let mut context = crate::mir::builder::CompilationContext::new();
-    assert!(package.prepare_install(&mut context).is_ok());
+    assert!(package.prepare_install_with_consumer(&mut context, None).is_ok());
 }
 
 #[test]
@@ -264,7 +264,7 @@ fn four_distinct_map_call_owners_share_three_source_ordered_local_bindings() {
         3
     );
     let mut context = crate::mir::builder::CompilationContext::new();
-    assert!(package.prepare_install(&mut context).is_ok());
+    assert!(package.prepare_install_with_consumer(&mut context, None).is_ok());
 }
 
 #[test]
@@ -314,7 +314,7 @@ fn five_distinct_map_call_owners_share_four_source_ordered_local_bindings() {
         4
     );
     let mut context = crate::mir::builder::CompilationContext::new();
-    assert!(package.prepare_install(&mut context).is_ok());
+    assert!(package.prepare_install_with_consumer(&mut context, None).is_ok());
 }
 
 #[test]
@@ -356,7 +356,7 @@ fn sixth_repeated_or_distinct_map_call_installs_under_the_undertaking() {
     ] {
         let package = issue(source).expect("source facts remain issuable for bounded rejection");
         let mut context = crate::mir::builder::CompilationContext::new();
-        assert!(package.prepare_install(&mut context).is_ok());
+        assert!(package.prepare_install_with_consumer(&mut context, None).is_ok());
     }
 }
 

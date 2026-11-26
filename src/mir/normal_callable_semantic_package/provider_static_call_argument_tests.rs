@@ -154,7 +154,7 @@ fn provider_static_call_argument_seals_target_and_literal_actuals() {
     let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
         hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method("LayoutBox", "class_size", 1));
     let mut context = crate::mir::builder::CompilationContext::new();
-    let installed = package.prepare_install(&mut context).unwrap().commit();
+    let installed = package.prepare_install_with_consumer(&mut context, None).unwrap().commit();
     installed.begin_lowering(&context).unwrap().with_selected_lowering_input(&key, |input| {
         let entry = ledger.borrowed_ordinary_entry_source_v1(&input).unwrap().unwrap();
         let incoming = entry.incoming().unwrap();

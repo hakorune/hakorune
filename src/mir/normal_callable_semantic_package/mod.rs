@@ -82,7 +82,6 @@ mod result_contract;
 pub(crate) use result_contract::VerifiedCallableResultContractCohortV1;
 mod s6c_child;
 mod s6c_effects;
-mod s6c_storage_header;
 mod selected_mapping;
 
 /// Physical source selection belongs to the requested artifact, not to a
@@ -213,7 +212,6 @@ PreparedRootHomeGraphPlanV1, PreparedRootHomeOrderV1,
     PreparedStaticTerminalRootRouteV1, RootCleanupActionV1, RootHomeFaultSequencesV1,
     RootHomeReleaseOriginV1,
 };
-pub(crate) use physical_header::CallablePhysicalHeaderRefV1;
 pub(crate) use physical_signature::{
     PhysicalCallableLaneRoleV1, PhysicalCallableLaneV1, PhysicalCallableSignatureRowRefV1,
 };

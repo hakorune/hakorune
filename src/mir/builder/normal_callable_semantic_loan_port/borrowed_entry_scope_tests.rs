@@ -55,7 +55,7 @@ fn installed_source(
     )
     .map_err(|issue| format!("{issue:?}"))?;
     let mut context = CompilationContext::new();
-    let installed = package.prepare_install(&mut context).unwrap().commit();
+    let installed = package.prepare_install_with_consumer(&mut context, None).unwrap().commit();
     Ok((context, installed))
 }
 

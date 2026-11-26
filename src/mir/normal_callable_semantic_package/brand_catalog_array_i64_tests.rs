@@ -166,7 +166,7 @@ fn array_i64_get_installs_i64_result() {
         );
     }
     let mut context = crate::mir::builder::CompilationContext::new();
-    assert!(package.prepare_install(&mut context).is_ok());
+    assert!(package.prepare_install_with_consumer(&mut context, None).is_ok());
 }
 
 /// A `me.<numeric field>` read indexes the get — the same Integer leaf
@@ -187,7 +187,7 @@ fn array_i64_get_admits_numeric_field_index() {
     )
     .expect("numeric-field index admits the get result");
     let mut context = crate::mir::builder::CompilationContext::new();
-    assert!(package.prepare_install(&mut context).is_ok());
+    assert!(package.prepare_install_with_consumer(&mut context, None).is_ok());
 }
 
 /// A `get` on a proven field still chains through the fixpoint: a local
@@ -208,7 +208,7 @@ fn array_i64_get_result_feeds_next_index() {
     )
     .expect("get results chain as Integer indices");
     let mut context = crate::mir::builder::CompilationContext::new();
-    assert!(package.prepare_install(&mut context).is_ok());
+    assert!(package.prepare_install_with_consumer(&mut context, None).is_ok());
 }
 
 /// A borrowed callee returning the proven `get` — directly or through a

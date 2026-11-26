@@ -163,7 +163,7 @@ fn non_app_main_map_owner_installs_with_covered_obligations() {
     .expect("mixed AppMain and ordinary Map source");
     let mut context = CompilationContext::new();
     let installed = package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .map(|prepared| prepared.commit())
         .expect("covered per-owner obligations admit install");
     let undertaking = installed
@@ -187,7 +187,7 @@ fn declared_root_unissued_map_sites_stop_before_install() {
             panic!("declared-root Map source inventory: {body}: {error:?}")
         });
         let mut context = CompilationContext::new();
-        let issue = match package.prepare_install(&mut context) {
+        let issue = match package.prepare_install_with_consumer(&mut context, None) {
             Err((_, issue)) => issue,
             Ok(_) => panic!("unissued Map installed: {body}"),
         };
@@ -215,7 +215,7 @@ fn declared_root_unissued_map_sites_stop_before_install() {
         ))
         .unwrap();
         let mut context = CompilationContext::new();
-        assert!(package.prepare_install(&mut context).is_ok(), "{body}");
+        assert!(package.prepare_install_with_consumer(&mut context, None).is_ok(), "{body}");
     }
 }
 
@@ -332,7 +332,7 @@ fn map_annotation_refusal_returns_same_source_product_and_keeps_catalog_vacant()
             .site()
             .clone();
         let mut context = CompilationContext::new();
-        let returned = match package.prepare_install(&mut context) {
+        let returned = match package.prepare_install_with_consumer(&mut context, None) {
             Err((package, issue)) => {
                 assert!(matches!(
                     issue,
@@ -380,7 +380,7 @@ fn map_candidate_alias_reuse_and_fresh_are_not_transfer_evidence() {
         assert!(flow.terminal_homes().is_err());
         let mut context = CompilationContext::new();
         assert!(
-            package.prepare_install(&mut context).is_err(),
+            package.prepare_install_with_consumer(&mut context, None).is_err(),
             "first unavailable Map must not fall through"
         );
         assert!(context.callable_declaration_catalog_vacant());
@@ -411,7 +411,7 @@ fn map_transfer_invalidates_old_local_and_alias_field_observation() {
         // undertaking co-seals exit evidence, so install must reject
         // before any catalog mutation — never admit on the row alone.
         let mut context = CompilationContext::new();
-        assert!(package.prepare_install(&mut context).is_err(), "{receiver}");
+        assert!(package.prepare_install_with_consumer(&mut context, None).is_err(), "{receiver}");
         assert!(context.callable_declaration_catalog_vacant());
     }
 }
@@ -431,7 +431,7 @@ fn unavailable_prefix_cannot_skip_map_install_stop() {
         "Map cannot disappear from an incomplete flow: {body}"
     );
     let mut context = CompilationContext::new();
-    assert!(package.prepare_install(&mut context).is_err());
+    assert!(package.prepare_install_with_consumer(&mut context, None).is_err());
     assert!(context.callable_declaration_catalog_vacant());
 }
 
@@ -444,7 +444,7 @@ fn implicit_exit_map_owner_rejects_without_terminal_evidence() {
     for body in ["local m = %{}", "local a = new Page() local m = %{}"] {
         let package = issue(&source(body)).unwrap();
         let mut context = CompilationContext::new();
-        assert!(package.prepare_install(&mut context).is_err(), "{body}");
+        assert!(package.prepare_install_with_consumer(&mut context, None).is_err(), "{body}");
         assert!(context.callable_declaration_catalog_vacant());
     }
 }
@@ -507,7 +507,7 @@ fn map_install_accepts_complete_unannotated_root_and_aliases() {
         let package = issue(&source(body)).unwrap();
         let mut context = CompilationContext::new();
         package
-            .prepare_install(&mut context)
+            .prepare_install_with_consumer(&mut context, None)
             .expect("ready source Map cohort");
         assert!(
             context.callable_declaration_catalog_vacant(),
@@ -530,7 +530,7 @@ fn opaque_entry_classes_reject_at_preflight_before_catalog() {
         ))
         .unwrap();
         let mut context = CompilationContext::new();
-        assert!(package.prepare_install(&mut context).is_err(), "{entry}");
+        assert!(package.prepare_install_with_consumer(&mut context, None).is_err(), "{entry}");
         assert!(context.callable_declaration_catalog_vacant());
     }
 }
@@ -544,7 +544,7 @@ fn map_install_rejects_annotated_aliases() {
     ] {
         let package = issue(&source(body)).unwrap();
         let mut context = CompilationContext::new();
-        assert!(package.prepare_install(&mut context).is_err(), "{body}");
+        assert!(package.prepare_install_with_consumer(&mut context, None).is_err(), "{body}");
         assert!(context.callable_declaration_catalog_vacant());
     }
 }
@@ -556,17 +556,17 @@ fn unit_exit_and_unready_new_owners_install_with_covered_obligations() {
     // its own named rejection downstream.
     let package = issue(&source("local m = %{} return")).unwrap();
     let mut context = CompilationContext::new();
-    assert!(package.prepare_install(&mut context).is_ok());
+    assert!(package.prepare_install_with_consumer(&mut context, None).is_ok());
     let package = issue("box Bad { value } static box Main { main() { local m = %{} local bad = new Bad() return 30 } }").unwrap();
     let mut context = CompilationContext::new();
-    assert!(package.prepare_install(&mut context).is_ok());
+    assert!(package.prepare_install_with_consumer(&mut context, None).is_ok());
 }
 
 #[test]
 fn map_annotation_preflight_preserves_malformed_diagnostic() {
     let package = issue(&source("local m: Array<bogus> = %{} return 30")).unwrap();
     let mut context = CompilationContext::new();
-    let error = match package.prepare_install(&mut context) {
+    let error = match package.prepare_install_with_consumer(&mut context, None) {
         Err((_, error)) => error,
         Ok(_) => panic!("malformed annotation accepted"),
     };
@@ -622,7 +622,7 @@ fn map_preflight_keeps_non_map_numeric_locals_and_foreign_same_name_separate() {
         .any(|binding| binding.owner() != map_binding.owner()));
     let mut context = CompilationContext::new();
     package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .expect("numeric locals are not Map aliases");
     assert!(context.callable_declaration_catalog_vacant());
 }
@@ -876,7 +876,7 @@ fn argument_free_new_map_box_is_the_same_empty_map_home_as_a_literal() {
         let package = issue(&source(body)).unwrap();
         let mut context = CompilationContext::new();
         package
-            .prepare_install(&mut context)
+            .prepare_install_with_consumer(&mut context, None)
             .expect("ready source Map cohort");
         assert!(context.callable_declaration_catalog_vacant(), "{body}");
     }
@@ -889,7 +889,7 @@ fn new_map_box_home_refusal_names_the_uncovered_statement() {
     // the statement that stopped the Home walk, not only the owner.
     let package = issue(&source("local m = new MapBox() m.delete(\"k\") return 30")).unwrap();
     let mut context = CompilationContext::new();
-    let Err((_, error)) = package.prepare_install(&mut context) else {
+    let Err((_, error)) = package.prepare_install_with_consumer(&mut context, None) else {
         panic!("delete is not covered");
     };
     assert!(matches!(
@@ -914,7 +914,7 @@ fn literal_key_i64_set_on_a_named_local_map_is_one_entry_of_the_same_flow_row() 
         let package = issue(&source(body)).unwrap();
         let mut context = CompilationContext::new();
         package
-            .prepare_install(&mut context)
+            .prepare_install_with_consumer(&mut context, None)
             .unwrap_or_else(|(_, error)| panic!("{body}: {error:?}"));
         assert!(context.callable_declaration_catalog_vacant(), "{body}");
     }
@@ -930,7 +930,7 @@ fn set_outside_the_literal_key_i64_rule_is_refused_at_the_statement() {
     ] {
         let package = issue(&source(body)).unwrap();
         let mut context = CompilationContext::new();
-        let Err((_, error)) = package.prepare_install(&mut context) else {
+        let Err((_, error)) = package.prepare_install_with_consumer(&mut context, None) else {
             panic!("{body}: refused");
         };
         assert!(
@@ -958,7 +958,7 @@ fn checked_get_on_a_named_local_map_is_a_shared_expression_operation() {
         let package = issue(&source(body)).unwrap();
         let mut context = CompilationContext::new();
         package
-            .prepare_install(&mut context)
+            .prepare_install_with_consumer(&mut context, None)
             .unwrap_or_else(|(_, error)| panic!("{body}: {error:?}"));
     }
 }
@@ -976,7 +976,7 @@ fn checked_get_as_a_comparison_input_installs_with_the_same_map_home() {
         let package = issue(&source(body)).unwrap();
         let mut context = CompilationContext::new();
         package
-            .prepare_install(&mut context)
+            .prepare_install_with_consumer(&mut context, None)
             .unwrap_or_else(|(_, error)| panic!("{body}: {error:?}"));
         assert!(context.callable_declaration_catalog_vacant(), "{body}");
     }
@@ -990,7 +990,7 @@ fn an_uncovered_method_on_a_named_local_map_is_refused_as_that_call() {
         Err(error) => format!("{error:?}"),
         Ok(package) => {
             let mut context = CompilationContext::new();
-            match package.prepare_install(&mut context) {
+            match package.prepare_install_with_consumer(&mut context, None) {
                 Err((_, error)) => format!("{error:?}"),
                 Ok(_) => panic!("size on a named-local Map is not covered"),
             }

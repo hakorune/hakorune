@@ -113,7 +113,7 @@ fn source_map_read_stops_before_physical_install() {
     let package = issue(NESTED_MAP_READ_SOURCE).expect("bounded source Map read package");
     let mut context = crate::mir::builder::CompilationContext::new();
     assert!(matches!(
-        package.prepare_install(&mut context),
+        package.prepare_install_with_consumer(&mut context, None),
         Err((
             _,
             super::NormalCallableSemanticPackageInstallIssueV1::MapReadPhysicalConsumerMissing { .. }
@@ -131,7 +131,7 @@ fn unrelated_map_lookup_does_not_claim_the_bounded_chain() {
     .expect("unrelated Map lookup remains admitted");
     assert!(package.map_read_facts().is_empty());
     let mut context = crate::mir::builder::CompilationContext::new();
-    assert!(package.prepare_install(&mut context).is_ok());
+    assert!(package.prepare_install_with_consumer(&mut context, None).is_ok());
 }
 
 #[test]

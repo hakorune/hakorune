@@ -544,7 +544,7 @@ fn installed_entry_demands_nonopaque_actual_proof_before_borrowed_values() {
             .clone();
         let ledger = std::rc::Rc::clone(&package.ordinary_new_claim_ledger);
         let mut context = crate::mir::builder::CompilationContext::new();
-        let installed = package.prepare_install(&mut context).unwrap().commit();
+        let installed = package.prepare_install_with_consumer(&mut context, None).unwrap().commit();
         let mut port = installed.begin_lowering(&context).unwrap();
         port.with_selected_lowering_input(&key, |input| {
             let projection = ledger.borrowed_ordinary_entry_source_v1(&input);
@@ -626,7 +626,7 @@ fn assert_nested_consumers(
         .clone();
     let expected_incoming = source.incoming.len();
     let mut context = crate::mir::builder::CompilationContext::new();
-    let installed = package.prepare_install(&mut context).unwrap().commit();
+    let installed = package.prepare_install_with_consumer(&mut context, None).unwrap().commit();
     let mut port = installed.begin_lowering(&context).unwrap();
     port.with_selected_lowering_input(&key, |input| {
         let entry = ledger.borrowed_ordinary_entry_source_v1(&input);

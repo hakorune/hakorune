@@ -630,7 +630,7 @@ fn original_qualified_body_entry_shares_whole_native_input_owner() {
             hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method("Maker", "make", 1));
         let mut context = crate::mir::builder::CompilationContext::new();
         let entry_ledger = std::rc::Rc::clone(&package.ordinary_new_claim_ledger);
-        let installed = package.prepare_install(&mut context).unwrap().commit();
+        let installed = package.prepare_install_with_consumer(&mut context, None).unwrap().commit();
         installed.begin_lowering(&context).unwrap().with_selected_lowering_input(&key, |input| {
             let loan = entry_ledger.borrowed_ordinary_entry_source_v1(&input);
             match mutation {
