@@ -5,7 +5,6 @@ use crate::mir::builder::{
 };
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 
-use super::core_method::VerifiedSourceBoundCoreMethodCallV1;
 use super::VerifiedSourceBoundDynamicMemberCallV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -96,7 +95,6 @@ pub(crate) enum VerifiedSourceStaticCallTargetV1 {
 pub(crate) enum VerifiedSourceCallTargetV1 {
     Static(VerifiedSourceStaticCallTargetV1),
     DynamicMember(VerifiedSourceBoundDynamicMemberCallV1),
-    CoreMethod(VerifiedSourceBoundCoreMethodCallV1),
 }
 
 impl VerifiedSourceStaticCallTargetV1 {
@@ -166,8 +164,7 @@ impl VerifiedSourceCallTargetCatalogV1<'_> {
     ) -> Option<&VerifiedSourceStaticCallTargetV1> {
         match self.rows.get(&(caller.clone(), site.clone()))? {
             VerifiedSourceCallTargetV1::Static(target) => Some(target),
-            VerifiedSourceCallTargetV1::DynamicMember(_)
-            | VerifiedSourceCallTargetV1::CoreMethod(_) => None,
+            VerifiedSourceCallTargetV1::DynamicMember(_) => None,
         }
     }
 
@@ -182,8 +179,7 @@ impl VerifiedSourceCallTargetCatalogV1<'_> {
     > {
         self.rows.iter().filter_map(|(key, target)| match target {
             VerifiedSourceCallTargetV1::Static(target) => Some((key, target)),
-            VerifiedSourceCallTargetV1::DynamicMember(_)
-            | VerifiedSourceCallTargetV1::CoreMethod(_) => None,
+            VerifiedSourceCallTargetV1::DynamicMember(_) => None,
         })
     }
 

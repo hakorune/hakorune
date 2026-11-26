@@ -6,6 +6,8 @@
 //! consumption, physical ABI, or fallback route.
 
 mod core_method_source;
+#[cfg(test)]
+pub(crate) use core_method_source::seal_selected_core_method_rows;
 pub(crate) use core_method_source::{ExpressionCoreSourceLoanV1, FieldMapReceiverSourceV1};
 #[cfg(test)]
 mod core_method_source_tests;
