@@ -89,7 +89,6 @@ use coseal_helpers::no_birth_constructor_disposition;
 mod coseal_issue;
 pub(super) use coseal_issue::issue_ordinary_source_cohort_v1;
 pub(in crate::mir) use coseal_issue::source_claims::StoredChildFieldSourceV1;
-pub(crate) use coseal_issue::RetainedSourceLoopProductV1;
 #[path = "ordinary_new_terminal_map_get_return.rs"]
 mod terminal_map_get_return;
 pub(crate) use terminal_map_get_return::{

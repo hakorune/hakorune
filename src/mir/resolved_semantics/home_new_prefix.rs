@@ -22,7 +22,7 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 /// source-only view of the same Static V2 product consumed after Home.
 pub(crate) enum SelectedLoopHomeLoanV1 {
     SourceObservation(
-        std::rc::Rc<crate::mir::normal_callable_semantic_package::RetainedSourceLoopProductV1>,
+        std::rc::Rc<crate::mir::loop_recipe_contract::RetainedSourceLoopProductV1>,
     ),
 }
 use crate::mir::normal_callable_semantic_package::ObjectReturnCallQualificationV1;

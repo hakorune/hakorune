@@ -67,7 +67,6 @@ mod map_read_fact_tests;
 mod model;
 mod ordinary_new_coseal;
 pub(crate) use ordinary_new_coseal::OrdinaryResultSourceLoanV1;
-pub(crate) use ordinary_new_coseal::RetainedSourceLoopProductV1;
 use crate::mir::resolved_semantics::source_value_class::SourceValueClassFactsV1;
 pub(crate) use ordinary_new_coseal::{
     EntryFieldWriteSourceV1, OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1,
