@@ -214,9 +214,6 @@ pub(super) fn issue_canonical_script_source_rows(
         CanonicalScriptCohortDispositionV1::CompatibilitySource => {
             CanonicalScriptSourceRowsDispositionV1::CompatibilitySource
         }
-        CanonicalScriptCohortDispositionV1::Deferred => {
-            CanonicalScriptSourceRowsDispositionV1::Deferred
-        }
         CanonicalScriptCohortDispositionV1::CohortUnresolved => {
             CanonicalScriptSourceRowsDispositionV1::CohortUnresolved
         }
@@ -237,18 +234,6 @@ pub(super) fn issue_canonical_script_source_rows(
                     CanonicalScriptSourceRowsDispositionV1::ObservationIncomplete
                 }
             }
-        }
-        CanonicalScriptCohortDispositionV1::IntegrityInvalid => {
-            CanonicalScriptSourceRowsDispositionV1::IntegrityInvalid
-        }
-        CanonicalScriptCohortDispositionV1::ObservationIncomplete => {
-            CanonicalScriptSourceRowsDispositionV1::ObservationIncomplete
-        }
-        CanonicalScriptCohortDispositionV1::NonCandidate => {
-            CanonicalScriptSourceRowsDispositionV1::NonCandidate
-        }
-        CanonicalScriptCohortDispositionV1::DispositionTransported => {
-            CanonicalScriptSourceRowsDispositionV1::DispositionTransported
         }
     }
 }

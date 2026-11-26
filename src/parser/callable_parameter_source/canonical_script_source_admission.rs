@@ -16,14 +16,9 @@ use crate::parser::source_authority::ParserInvocationBrandV1;
 pub(crate) enum CanonicalScriptCohortDispositionV1 {
     NotApplicable,
     CompatibilitySource,
-    Deferred,
     SourceAuthorityUnavailable,
     CohortUnresolved,
     CanonicalScriptCohortAdmitted(CanonicalScriptCohortAdmissionV1),
-    IntegrityInvalid,
-    ObservationIncomplete,
-    NonCandidate,
-    DispositionTransported,
 }
 
 /// A parser-only witness.  It contains no AST, source plan, Recipe, Join,
