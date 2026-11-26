@@ -182,7 +182,6 @@ pub(in crate::mir::builder) fn flatten_scope_boxes_with_projection(
     }
 }
 
-// Return-prelude container recipe SSOT is in `facts::return_prelude`.
 
 /// Facts SSOT: Try to build a `RecipeBlock` for a "stmt-only effects" block.
 ///

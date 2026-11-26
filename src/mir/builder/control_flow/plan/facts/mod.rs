@@ -39,7 +39,6 @@ pub(in crate::mir::builder) mod match_return_facts;
 pub(in crate::mir::builder) mod nested_loop_minimal_facts;
 pub(in crate::mir::builder) mod nested_loop_profile;
 pub(in crate::mir::builder) mod reject_reason;
-pub(in crate::mir::builder) mod return_prelude;
 pub(in crate::mir::builder) mod scan_shapes;
 pub(in crate::mir::builder) mod skeleton_facts;
 pub(in crate::mir::builder) mod string_is_integer_facts;

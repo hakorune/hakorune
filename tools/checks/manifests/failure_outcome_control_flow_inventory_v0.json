@@ -17989,18 +17989,6 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/control_flow/plan/facts/return_prelude.rs:170:mir_return",
-      "evidence": "ASTNode::Return { .. } => Some(RecipeItem::Exit {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 170,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/control_flow/plan/facts/return_prelude.rs",
-      "token": "mir_return"
-    },
-    {
       "control_flow_evidence_id": "control.return_unit.src/mir/builder/control_flow/plan/facts/string_is_integer_facts.rs:239:mir_return",
       "evidence": "let ASTNode::Return {",
       "evidence_kind": "mir_return",
