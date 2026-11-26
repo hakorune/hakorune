@@ -267,32 +267,6 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         self.bind_control(builder)?;
         Ok(entry)
     }
-
-    /// Commit one physical value type through the canonical SSA owner.  The
-    /// selected emitter may project an already-verified operation shape, but
-    /// it may not write a competing type fact directly into the Builder.
-    pub(in crate::mir::builder::resolved_lowering) fn publish_physical_value_type(
-        &mut self,
-        builder: &mut MirBuilder,
-        value: ValueId,
-        expected: MirType,
-    ) -> Result<(), String> {
-        self.bind_control(builder)?;
-        match builder.function_state.type_ctx.get_type(value) {
-            None | Some(MirType::Unknown) => {
-                builder
-                    .function_state
-                    .type_ctx
-                    .value_types
-                    .insert(value, expected);
-                Ok(())
-            }
-            Some(actual) if *actual == expected => Ok(()),
-            Some(actual) => Err(format!(
-                "[freeze:contract][canonical_physical_value/type_drift] value={value:?} expected={expected:?} actual={actual:?}"
-            )),
-        }
-    }
 }
 
 #[cfg(test)]
