@@ -47,10 +47,7 @@ mod ordinary_new;
 mod source_scope;
 use source_scope::with_selected_source_scope;
 
-pub(super) use canonical_route::{
-    classify_canonical_callable_route, try_prepare_callable_single_loop_program_v1,
-    CanonicalCallableRouteV1,
-};
+use canonical_route::try_classify_generic_g0_route_v1;
 
 pub(super) struct NormalCallableSemanticPackagePortAdapterV1<
     'package,

@@ -27,7 +27,6 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
     ) -> Result<(), String> {
         let (_symbol, params, param_decls, return_type_name, body, uses, attrs, declaration) =
             child.to_owned_lowering().into_parts();
-        let target_binding = self.target_binding.as_ref();
         let inner = &mut *self.inner;
         let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
         let owned_array_source = self.package.owned_array_lifecycle_source_v1();
@@ -46,60 +45,36 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                     ));
                 }
                 validate_selected_signature_loan_parts(&selected, &admission, &signature)?;
-                let target_capability = target_binding.map(|binding| binding.target_capability());
                 let lineage =
                     super::super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
                         admission.source_key().clone(),
                     );
-                // This bounded production edge owns only the existing
-                // CallableSingleLoop consumer. Other static-child shapes keep
-                // their prior source lowering until their own consumer is
-                // selected, so this adapter does not reclassify or open an
-                // unrelated canonical session.
-                if let Some(program) = try_prepare_callable_single_loop_program_v1(selected.source())?
-                {
-                    // The issued canonical program is the bypass evidence:
-                    // this exact owner's loan rows stay untouched on purpose
-                    // and close through the mark, never silently.
-                    if let Some(loans) = inner.direct_call_loans.as_deref_mut() {
-                        loans.mark_canonical_route_bypass(selected.source().owner());
-                    }
-                    return inner
-                        .lower_normal_cataloged_static_box_method_with_callable_single_loop_program_v1(
-                            builder,
-                            admission,
-                            signature,
-                            program,
-                            target_capability,
-                        )
-                        .map_err(|error| error.to_string());
-                }
-                with_selected_source_scope(
-                    inner,
-                    lineage,
-                    selected,
-                    core_method_calls,
-                    Rc::clone(&named_array_emissions),
+                    with_selected_source_scope(
+                        inner,
+                        lineage,
+                        selected,
+                        core_method_calls,
+                        Rc::clone(&named_array_emissions),
                         Rc::clone(&ordinary_new_claim_ledger),
-                    Some(owned_array_source),
-                    Some(loop_break_take),
-                    |inner, transport| {
-                        inner
-                            .lower_normal_cataloged_static_box_method_with_source_v1(
-                                builder,
-                                admission,
-                                params,
-                                param_decls,
-                                return_type_name,
-                                body,
-                                uses,
-                                attrs,
-                                transport,
-                                Some(declaration),
-                            )
-                            .map_err(|error| error.to_string())
-                    },
-                )
+                        Some(owned_array_source),
+                        Some(loop_break_take),
+                        |inner, transport| {
+                            inner
+                                .lower_normal_cataloged_static_box_method_with_source_v1(
+                                    builder,
+                                    admission,
+                                    params,
+                                    param_decls,
+                                    return_type_name,
+                                    body,
+                                    uses,
+                                    attrs,
+                                    transport,
+                                    Some(declaration),
+                                )
+                                .map_err(|error| error.to_string())
+                        },
+                    )
                 },
             )
             .map_err(package_issue)?
@@ -175,7 +150,6 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         attrs: DeclarationAttrs,
         declaration: Option<ASTNode>,
     ) -> Result<(), String> {
-        let target_binding = self.target_binding.as_ref();
         let inner = &mut *self.inner;
         let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
         let owned_array_source = self.package.owned_array_lifecycle_source_v1();
@@ -192,58 +166,47 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                 validate_selected_cataloged_input(&input)?;
                 validate_selected_signature_loan(&input, &signature)?;
                 let (selected, admission, _physical_header) = input.into_lowering_and_admission();
-                let canonical_route = classify_canonical_callable_route(
+                if try_classify_generic_g0_route_v1(
                     selected.source(),
                     builder.comp_ctx.emit_debug_policy().generic_g0_policy_mode_v1(),
-                )?;
-                let target_capability = target_binding.map(|binding| binding.target_capability());
+                )?
+                .is_some()
+                {
+                    return Err(
+                        "[freeze:contract][mir/callable-generic-g0/cataloged-method-outside-i0]"
+                            .to_owned(),
+                    );
+                }
                 let lineage =
                     super::super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
                         admission.source_key().clone(),
                     );
-                match canonical_route {
-                    CanonicalCallableRouteV1::CallableSingleLoop(program) => inner
-                        .lower_normal_cataloged_static_box_method_with_callable_single_loop_program_v1(
-                            builder,
-                            admission,
-                            signature,
-                            program,
-                            target_capability,
-                        )
-                        .map_err(|error| error.to_string()),
-                    CanonicalCallableRouteV1::GenericG0(_) => Err(
-                        "[freeze:contract][mir/callable-generic-g0/cataloged-method-outside-i0]"
-                            .to_owned(),
-                    ),
-                    CanonicalCallableRouteV1::Outside => {
-                        with_selected_source_scope(
-                            inner,
-                            lineage,
-                            selected,
-                            core_method_calls,
-                            Rc::clone(&named_array_emissions),
-                            Rc::clone(&ordinary_new_claim_ledger),
-                            Some(owned_array_source),
-                            Some(loop_break_take),
-                            |inner, transport| {
-                            inner
-                                .lower_normal_cataloged_static_box_method_with_source_v1(
-                                    builder,
-                                    admission,
-                                    params,
-                                    param_decls,
-                                    return_type_name,
-                                    body,
-                                    uses,
-                                    attrs,
-                                    transport,
-                                    declaration,
-                                )
-                                .map_err(|error| error.to_string())
-                            },
-                        )
-                    }
-                }
+                    with_selected_source_scope(
+                        inner,
+                        lineage,
+                        selected,
+                        core_method_calls,
+                        Rc::clone(&named_array_emissions),
+                        Rc::clone(&ordinary_new_claim_ledger),
+                        Some(owned_array_source),
+                        Some(loop_break_take),
+                        |inner, transport| {
+                        inner
+                            .lower_normal_cataloged_static_box_method_with_source_v1(
+                                builder,
+                                admission,
+                                params,
+                                param_decls,
+                                return_type_name,
+                                body,
+                                uses,
+                                attrs,
+                                transport,
+                                declaration,
+                            )
+                            .map_err(|error| error.to_string())
+                        },
+                    )
                 },
             )
             .map_err(package_issue)?

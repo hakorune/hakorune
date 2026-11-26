@@ -2,18 +2,12 @@
 //!
 //! `topology` owns shared physical services and entry transport,
 //! `operation_emitter` owns private operation leaf seams, and segment modules
-//! own the current production placement route. The bounded CallableSingleLoop
-//! consumer is production-connected. Generic G0 emission is covered by the
+//! own the shared placement route. Generic G0 emission is covered by the
 //! existing test-only canaries.
 
-mod callable_canary;
-mod callable_lowerer;
-#[cfg(test)]
-mod callable_production_canary_tests;
 mod carrier_emitter;
 #[cfg(test)]
 mod generic_production_canary_tests;
-mod initialized_local_input_materializer;
 // Caller-zero until the Main0 canonical-root handoff wires the installed App
 // Main caller; recheck at the production-switch slice.
 // Caller-zero until the same Main0 canonical-root handoff wires the second
@@ -30,10 +24,8 @@ mod recursive_after;
 mod segment_allocator;
 mod segment_dispatcher;
 mod segment_topology;
-mod tail_completion;
 mod topology;
 
-pub(in crate::mir::builder) use callable_lowerer::lower_callable_single_loop_function_draft_v1;
 // Caller-zero re-export until the Main0 canonical-root handoff wires the
 // installed App Main caller; recheck at the production-switch slice.
 // Caller-zero re-export for the second bounded Main0 profile; same handoff.

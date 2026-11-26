@@ -27,7 +27,6 @@ mod trivial_ssa;
 pub(in crate::mir) use callable_module_transaction::{
     CallableModuleTransactionErrorV1, VerifiedUnpublishedCallableDraftSetV1,
 };
-pub(in crate::mir::builder) use loop_recipe_physicalizer::lower_callable_single_loop_function_draft_v1;
 
 #[cfg(test)]
 mod block_expr_tests;
@@ -61,10 +60,7 @@ use crate::mir::MirFunction;
 #[cfg(test)]
 use crate::mir::MirModule;
 
-use super::calls::{
-    CanonicalFunctionLoweringSessionV1, CanonicalFunctionSessionErrorV1,
-    PendingFunctionSessionCloseV1,
-};
+use super::calls::CanonicalFunctionSessionErrorV1;
 use super::MirBuilder;
 use draft_seal_owner::{FunctionDraftSealStageV1, RejectedFunctionDraftSealV1};
 use trivial_ssa::{install_trivial_callable_abi_v1, CanonicalTrivialSsaLowererV1};
@@ -73,26 +69,6 @@ use trivial_ssa::{install_trivial_callable_abi_v1, CanonicalTrivialSsaLowererV1}
 pub(in crate::mir) enum CanonicalResolvedBuildErrorV1 {
     BuilderContract(String),
     DuplicateFunctionPublication { function_name: String },
-}
-
-/// Complete one CallableSingleLoop draft seal without restoring the captured
-/// parent until collector admission has consumed the pending draft.  The
-/// selected cataloged entry owns the function session; this helper only joins
-/// the ready physical result to the existing pending restoration terminal.
-pub(in crate::mir::builder) fn commit_callable_single_loop_ready_to_pending_v1(
-    session: CanonicalFunctionLoweringSessionV1<'_>,
-    ready: ReadyFunctionDraftSealV1,
-) -> Result<PendingFunctionSessionCloseV1<'_>, CanonicalFunctionSessionErrorV1> {
-    let open = ready.open(session);
-    let prepared = match open.prepare() {
-        Ok(prepared) => prepared,
-        Err(rejected) => {
-            return Err(CanonicalFunctionSessionErrorV1::DraftSeal(
-                rejected.into_discarded_error(),
-            ));
-        }
-    };
-    Ok(prepared.commit_pending())
 }
 
 impl From<String> for CanonicalResolvedBuildErrorV1 {

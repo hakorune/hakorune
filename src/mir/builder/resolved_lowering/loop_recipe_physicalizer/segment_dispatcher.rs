@@ -404,19 +404,19 @@ mod tests {
     use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::topology::{
         LoopPhysicalBlockRoleV1, ReadyLoopEntryV1,
     };
-    use crate::mir::compiler::callable_single_loop_operation_effect::callable_operation_demand_parts_for_test;
+    use crate::mir::loop_recipe_contract::generic_operation_demand_parts_for_test;
     use crate::mir::loop_recipe_contract::VerifiedLoopOperationPhysicalDemandV1;
     use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
     use crate::mir::BasicBlockId;
 
-    fn callable_layout() -> PreparedLoopPhysicalLayoutV1 {
-        let (effect, context, continuation) = callable_operation_demand_parts_for_test();
+    fn generic_layout() -> PreparedLoopPhysicalLayoutV1 {
+        let (effect, context, continuation) = generic_operation_demand_parts_for_test();
         VerifiedLoopOperationPhysicalDemandV1::issue(context, effect, continuation)
-            .expect("callable demand")
+            .expect("generic demand")
             .prepare_all()
-            .expect("callable program")
+            .expect("generic program")
             .prepare_physical_layout()
-            .expect("callable layout")
+            .expect("generic layout")
     }
 
     fn receipt(
@@ -456,7 +456,7 @@ mod tests {
 
     #[test]
     fn segment_target_rejects_missing_exact_segment() {
-        let layout = callable_layout();
+        let layout = generic_layout();
         let segments = layout.segments();
         let receipt = receipt(&layout, 1);
         let entry = ReadyLoopEntryV1::new_for_test(
@@ -480,7 +480,7 @@ mod tests {
 
     #[test]
     fn segment_target_rejects_foreign_entry_owner() {
-        let layout = callable_layout();
+        let layout = generic_layout();
         let receipt = receipt(&layout, 2);
         let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().expect("issuer");
         let foreign = issuer.issue().expect("foreign owner");

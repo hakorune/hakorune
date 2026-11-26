@@ -162,33 +162,8 @@ fn partially_consumed_owner_loan_rejects_at_finish() {
 }
 
 #[test]
-fn untouched_owner_loans_drain_only_with_bypass_evidence() {
-    // An owner whose selected lane never enters direct-call scope leaves its
-    // loan fully untouched — but only the canonical route's own mark may
-    // close it. Untouched and bypassed are different states.
-    let mut package = issue(
-        r#"static box Main {
-            main() { local r = use_map(10) return 30 }
-            use_map(seed: i64): i64 { local m = make_map() return 42 }
-            make_map() { return %{"a" => 1} }
-        }"#,
-    )
-    .expect("non-AppMain map-receive package");
-    let mut loans = package.direct_call_loans.take().expect("owner loans");
-    let owners: Vec<_> = loans.iter().map(|loan| loan.owner()).collect();
-    assert!(!owners.is_empty());
-    for owner in owners {
-        loans.mark_canonical_route_bypass(owner);
-    }
-    loans
-        .finish_empty()
-        .expect("marked bypass loans drain without residual");
-}
-
-#[test]
 fn untouched_owner_loans_reject_without_bypass_evidence() {
-    // The same untouched loans, with no route claiming them, are residual:
-    // finish_empty must not confuse "never entered scope" with "consumed".
+    // An untouched owner loan still owns its unconsumed rows.
     let mut package = issue(
         r#"static box Main {
             main() { local r = use_map(10) return 30 }

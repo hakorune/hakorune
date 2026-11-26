@@ -4,23 +4,8 @@
 // compiler entry points remain in the sibling modules and in `mod.rs`.
 
 pub(in crate::mir) mod callable_graph_inventory;
-#[cfg(test)]
-pub(crate) mod callable_loop_physical_canary;
 pub(in crate::mir) mod callable_scc_partition;
-pub(in crate::mir) mod callable_semantic_program;
-pub(in crate::mir) mod callable_single_loop_operation_effect;
-pub(crate) mod callable_single_loop_prelude_arguments;
-pub(crate) mod callable_single_loop_recipe;
-pub(crate) mod callable_single_loop_recipe_coseal;
-#[cfg(test)]
-#[path = "callable_single_loop_recipe_coseal_tests.rs"]
-mod callable_single_loop_recipe_coseal_tests;
-pub(crate) mod callable_single_loop_source_map;
-pub(crate) mod callable_single_loop_source_shapes;
-#[cfg(test)]
-#[path = "callable_single_loop_static_fixture_tests.rs"]
-pub(crate) mod callable_single_loop_static_fixture_tests;
-pub(crate) mod callable_single_loop_syntax_facts;
+pub(crate) mod loop_source_expression_shapes;
 pub(crate) mod canonical_source_identity;
 pub(in crate::mir) mod capability;
 #[cfg(test)]
@@ -66,7 +51,6 @@ pub(in crate::mir) mod loop_cond_break_continue_projection;
 pub(in crate::mir) mod loop_cond_break_continue_typed_map;
 #[cfg(test)]
 pub(in crate::mir) mod loop_cond_break_continue_typed_map_issue;
-pub(crate) mod loop_physical_prepare;
 // Caller-zero Main0 Continue co-seal issuer; sole owner is this row's source
 // front. Recheck at the Main0 canonical-root handoff / production caller
 // switch slice (active card generic-loop-mainline-source-front-d0).

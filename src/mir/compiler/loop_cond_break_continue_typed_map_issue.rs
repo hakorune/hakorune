@@ -16,7 +16,7 @@ use crate::mir::resolved_semantics::{
     SourceBindingSiteV1, SourceExprSiteV1,
 };
 
-use super::callable_single_loop_source_shapes::{
+use super::loop_source_expression_shapes::{
     binary_operator_shape, literal_shape_from_expr, SourceLiteralShapeV1, SyntaxBinaryOperatorV1,
 };
 use super::function_input::ResolvedFunctionLoweringInputV1;

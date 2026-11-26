@@ -255,7 +255,7 @@ impl DirectCallDispositionLoansV1 {
             if !context.contains(&site.owner()) && !context.contains(&row.callee_owner_v1()) { continue; }
             seal_local(batch, parameters, ledger, &site, &mut row)?;
             let loan = inventory.loans.entry(site.owner()).or_insert_with(|| DirectCallDispositionLoanV1 {
-                owner: site.owner(), rows: BTreeMap::new(), canonical_route_bypassed: false,
+                owner: site.owner(), rows: BTreeMap::new(),
             });
             if loan.rows.insert(site, DirectCallDispositionSlotV1::Ready(row)).is_some() { return Err(reject("duplicate-edge")); }
         }

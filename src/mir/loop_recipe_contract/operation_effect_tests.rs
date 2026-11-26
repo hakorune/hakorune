@@ -213,3 +213,32 @@ fn operation_effect_product_rejects_binding_evidence_on_pure_operation() {
             if item == LoopItemKeyV1::new(1)
     ));
 }
+
+#[test]
+fn effect_product_rejects_relabel_to_non_operation_item() {
+    let product = super::generic_g0::generic_operation_effect_for_test();
+    let (core, rows) = product.into_parts();
+    let mut raw = rows
+        .into_vec()
+        .into_iter()
+        .map(|row| row.into_unverified_for_test())
+        .collect::<Vec<_>>();
+    let index = raw
+        .iter()
+        .position(|row| row.item() == LoopItemKeyV1::new(3))
+        .expect("child entry row");
+    let row = raw.remove(index);
+    raw.push(LoopOperationSourceEvidenceV1::new(
+        LoopItemKeyV1::new(4),
+        row.anchor().clone(),
+        row.source_loop().clone(),
+        row.owner_loop(),
+        row.block(),
+        row.source_binding(),
+    ));
+    assert!(matches!(
+        VerifiedLoopOperationEffectProductV1::issue(core, raw),
+        Err(LoopOperationEffectRejectV1::NonOperationItem { item })
+            if item == LoopItemKeyV1::new(4)
+    ));
+}

@@ -185,10 +185,6 @@ type DirectCallDispositionSlotV1 =
 pub(crate) struct DirectCallDispositionLoanV1 {
     owner: FunctionOwnerIdV1,
     rows: BTreeMap<OwnedExprSiteV1, DirectCallDispositionSlotV1>,
-    /// Explicit evidence that a selected canonical route (for example the
-    /// CallableSingleLoop program) already consumed this owner's lowering:
-    /// only then may an untouched loan close without consumption.
-    canonical_route_bypassed: bool,
 }
 
 impl DirectCallDispositionLoanV1 {
@@ -239,7 +235,6 @@ impl DirectCallDispositionLoanV1 {
         Ok(Self {
             owner,
             rows: slots,
-            canonical_route_bypassed: false,
         })
     }
 
@@ -321,10 +316,6 @@ impl DirectCallDispositionLoanV1 {
 ///
 /// Every loan keeps its own exact owner; the collection only routes a raw
 /// consumer to the loan that owner already holds and never resolves targets.
-/// An owner whose call sites are lowered through a non-raw lane (for example
-/// a canonical callable program) never enters direct-call scope: only the
-/// selected route's own product may mark that bypass, and a partially
-/// consumed or unexplained untouched loan is always a violation.
 #[must_use]
 #[derive(Debug)]
 pub(crate) struct DirectCallDispositionLoansV1 {
@@ -368,38 +359,10 @@ impl DirectCallDispositionLoansV1 {
         self.loans.values_mut()
     }
 
-    /// Record that the selected canonical route already consumed this exact
-    /// owner's lowering, so its untouched rows close as bypassed rather than
-    /// residual. Only the route that produced the product may mark it; an
-    /// owner without a loan carries nothing to mark.
-    pub(crate) fn mark_canonical_route_bypass(&mut self, owner: FunctionOwnerIdV1) {
-        if let Some(loan) = self.loans.get_mut(&owner) {
-            loan.canonical_route_bypassed = true;
-        }
-    }
-
     pub(crate) fn finish_empty(self) -> Result<(), DirectCallLoanErrorV1> {
-        for loan in self.loans.into_values() {
-            let mut taken = false;
-            let mut ready = false;
-            for slot in loan.rows.values() {
-                match slot {
-                    DirectCallDispositionSlotV1::Ready(row) => {
-                        // A canonical bypass cannot explain an unconsumed source-selected Invoke.
-                        if row.static_source_v1().is_some() { return Err(DirectCallLoanErrorV1::ResidualRows); }
-                        ready = true;
-                    },
-                    DirectCallDispositionSlotV1::Taken => taken = true,
-                }
-            }
-            // Every Ready row must be explained: either the owner never
-            // entered direct-call scope because a selected canonical route
-            // consumed it (marked), or the loan is a violation.
-            if ready && (taken || !loan.canonical_route_bypassed) {
-                return Err(DirectCallLoanErrorV1::ResidualRows);
-            }
-        }
-        Ok(())
+        self.loans
+            .into_values()
+            .try_for_each(DirectCallDispositionLoanV1::finish_empty)
     }
 }
 
