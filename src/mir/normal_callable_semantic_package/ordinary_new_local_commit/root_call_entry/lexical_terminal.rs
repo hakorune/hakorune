@@ -175,7 +175,6 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 return Err(freeze("static-terminal/packet-source-drift"));
             }
-            packet.original_source().validate_static(self)?;
             let arguments = observation.arguments();
             packet.call_in_context(owner, arguments, context)?;
             return Ok(arguments.to_vec());
