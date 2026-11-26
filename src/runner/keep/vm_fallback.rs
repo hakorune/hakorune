@@ -162,7 +162,7 @@ impl NyashRunner {
 
         let _vm_user_factory =
             crate::runner::modes::common_util::vm_user_factory::prepare_vm_user_factory(
-                &ast, false, true,
+                &ast, false,
             );
         let compile = match compile_post_macro_program(ast, filename, !self.config.no_optimize) {
             Ok(c) => c,
