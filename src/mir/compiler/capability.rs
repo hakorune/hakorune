@@ -22,7 +22,9 @@ use crate::mir::resolved_value_profile::{
 
 use super::function_input::ResolvedFunctionLoweringInputV1;
 use super::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
-use super::lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1};
+use super::lowering_input::CanonicalLoweringErrorV1;
+#[cfg(test)]
+use super::lowering_input::VerifiedResolvedSourceUnitV1;
 use super::source_view::{BodyChildRoleV1, ExprChildRoleV1};
 
 mod first_family_plan;
@@ -85,12 +87,14 @@ impl<'a> CanonicalCurrentAPlusPlanV1<'a> {
 pub(crate) struct CanonicalLoweringPreflightV1;
 
 impl CanonicalLoweringPreflightV1 {
+    #[cfg(test)]
     pub(crate) fn verify(
         unit: &VerifiedResolvedSourceUnitV1,
     ) -> Result<CanonicalFirstFamilyPlanV1<'_>, CanonicalLoweringErrorV1> {
         Self::verify_function(unit.root_function_input()?)
     }
 
+    #[cfg(test)]
     pub(crate) fn verify_function<'a>(
         function: ResolvedFunctionLoweringInputV1<'a>,
     ) -> Result<CanonicalFirstFamilyPlanV1<'a>, CanonicalLoweringErrorV1> {
@@ -102,8 +106,7 @@ impl CanonicalLoweringPreflightV1 {
         )
     }
 
-    /// Disconnected P0c-F-DX0a facade. Production module admission remains on
-    /// `verify_function` until the later atomic P0c-F-I1 cutover.
+    /// Capability preflight for the recursive callable module transaction.
     pub(crate) fn verify_function_with_finite_direct_calls_v1<'a>(
         function: ResolvedFunctionLoweringInputV1<'a>,
     ) -> Result<CanonicalFirstFamilyPlanV1<'a>, CanonicalLoweringErrorV1> {

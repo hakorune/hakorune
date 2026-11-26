@@ -1,4 +1,4 @@
-//! Original input selection, passive source staging and closed domain queries.
+//! Original input selection and closed domain queries.
 use super::static_input_finish::{StaticInputEvidenceV1, StaticInputFinishV1};
 use super::*;
 use crate::mir::normal_callable_semantic_package::{
@@ -8,87 +8,6 @@ use std::collections::BTreeSet;
 use std::rc::Rc;
 
 impl OrdinaryNewClaimLedgerV1 {
-    /// Complete passive source rows for selected Static input cohorts before
-    /// any callee entry asks to borrow the whole cohort. The normal caller
-    /// walk may not have visited a Loop body's expression yet; this source-only
-    /// pass retains the exact argument plans from the same resolved batch and
-    /// grants no execution or physical-call permission.
-    pub(in crate::mir::normal_callable_semantic_package) fn stage_missing_static_input_sources_v1(
-        &mut self,
-        batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
-    ) -> Result<(), String> {
-        let Some(prepared) = self.borrowed_formal_source.as_ref() else {
-            return Ok(());
-        };
-        let prepared = prepared.as_ref().map_err(Clone::clone)?;
-        let sources: Vec<_> = prepared.original_static_input_sources_v1()
-            .filter(|original| {
-                original.parameters().iter().any(|formal| formal.takes_declared_object_v1())
-                    || prepared.original_finite_forward_input_request_v1(original.callee_owner())
-                    || prepared.has_tagged_static_input_v1(original.callee_owner(), original.parameters())
-                    || original.parameters().iter().any(|formal|
-                        matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
-                            && prepared.source_value_sum_v1(formal.binding).is_some_and(|sum|
-                                sum.alternatives().contains(&super::super::borrowed_formal_source::SourceValueAlternativeV1::Text)))
-            })
-            .cloned()
-            .collect();
-
-        for original in sources {
-            let site = original.call_site();
-            if self.borrowed_formal_actuals.contains_key(site) {
-                continue;
-            }
-            let Some(caller) = batch.declarations().find(|row| row.owner() == site.owner()) else {
-                return Err(freeze("static-input/caller-source-missing"));
-            };
-            let source_result = self
-                .borrowed_formal_source
-                .as_ref()
-                .ok_or_else(|| freeze("static-input/source-missing"))?;
-            let staged = batch.with_lowering_input(caller.batch_slot(), |input| {
-                if input.owner() != site.owner() { return Err(freeze("static-input/caller-owner")); }
-                let actuals: Vec<_> = original.argument_sites().iter().enumerate().map(|(ordinal, argument)| {
-                    let value = crate::mir::resolved_semantics::home_new_prefix::borrowed_actual_source_atom_v1(input, argument)
-                        .unwrap_or(crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualValueV1::Unknown);
-                    crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1 {
-                        ordinal: ordinal as u32,
-                        site: argument.clone(),
-                        value,
-                    }
-                }).collect();
-                let actuals = prepared.refine_fresh_take_actuals_v1(input, site, contracts, &actuals)?;
-                // Only source atoms whose identity is stable without caller
-                // flow may be staged here. Bindings/fields remain owned by
-                // the ordinary prefix walk and cannot be guessed early.
-                if actuals.iter().any(|actual| matches!(actual.value,
-                    crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualValueV1::Binding(_)
-                    | crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualValueV1::FieldAccess
-                    | crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualValueV1::ReceivedField { .. }
-                    | crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualValueV1::Unknown)) {
-                    return Ok(None);
-                }
-                let Some(mut rows) = super::prepare_borrowed_call_actuals_v1(
-                    source_result, contracts, site, &actuals, &[], None, &mut |_| None,
-                )? else { return Ok(None) };
-                if !matches!(rows.phase, BorrowedCallActualEvidencePhaseV1::SourceStatic(_)) {
-                    return Ok(None);
-                }
-                super::bind_argument_sources_v1(input, prepared, Some(contracts), site, None, Some(&mut rows))?;
-                Ok(Some(rows))
-            }).map_err(|_| freeze("static-input/caller-source-loan"))??;
-            if let Some(rows) = staged {
-                super::stage_observed_call_actuals_v1(
-                    &mut self.borrowed_formal_actuals,
-                    site,
-                    Ok(Some(rows)),
-                );
-            }
-        }
-        Ok(())
-    }
-
     /// The original formal-use proof of a static input cohort: `Some(None)` only when
     /// every formal is an i64 actual (K21); any other formal needs the same proof as before;
     /// `None` while the proof is pending.

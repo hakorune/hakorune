@@ -223,26 +223,12 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                     selected.source(),
                     builder.comp_ctx.emit_debug_policy().generic_g0_policy_mode_v1(),
                 )?;
-                let requires_source_home_scope = if matches!(&canonical_route, CanonicalCallableRouteV1::Ready(_)) {
-                    ordinary_new_claim_ledger.requires_source_home_scope_v1(selected.source().owner())?
-                } else {
-                    false
-                };
                 let target_capability = target_binding.map(|binding| binding.target_capability());
                 let lineage =
                     super::super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
                         admission.source_key().clone(),
                     );
                 match canonical_route {
-                    CanonicalCallableRouteV1::Ready(plan) if !requires_source_home_scope => inner
-                        .lower_normal_cataloged_static_box_method_with_canonical_trivial_plan_v1(
-                            builder,
-                            admission,
-                            signature,
-                            plan,
-                            target_capability,
-                        )
-                        .map_err(|error| error.to_string()),
                     CanonicalCallableRouteV1::CallableSingleLoop(program) => inner
                         .lower_normal_cataloged_static_box_method_with_callable_single_loop_program_v1(
                             builder,
@@ -256,7 +242,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                         "[freeze:contract][mir/callable-generic-g0/cataloged-method-outside-i0]"
                             .to_owned(),
                     ),
-                    CanonicalCallableRouteV1::Ready(_) | CanonicalCallableRouteV1::Outside => {
+                    CanonicalCallableRouteV1::Outside => {
                         with_selected_source_scope(
                             inner,
                             lineage,

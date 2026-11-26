@@ -150,7 +150,6 @@ impl OrdinaryNewClaimLedgerV1 {
             self.borrowed_formal_actuals.insert(site, Ok(actuals));
         }
         self.finish_static_bool_entry_actual_v1(batch, selected, contracts, signatures, results)?;
-        self.stage_missing_static_input_sources_v1(batch, contracts)?;
         self.finish_static_input_cohorts_v1(selected, contracts, signatures, results)
     }
 

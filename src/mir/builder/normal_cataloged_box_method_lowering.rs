@@ -3,7 +3,7 @@
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 
 use super::calls::{
-    CanonicalFunctionSessionErrorV1, LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1,
+    CanonicalFunctionSessionErrorV1, LegacyFunctionPendingSessionV1,
 };
 use super::module_lowering_invocation::{ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1};
 use super::module_lowering_invocation::ResolvedChildDraftAdmissionV1;
@@ -147,51 +147,6 @@ impl RawInvocationChildPortV1<'_, '_> {
         self.module_port
             .commit_normal_cataloged_box_method_pending(pending, admission)
     }
-
-    /// Canonical trivial sibling for one already-preflighted source row.
-    ///
-    /// The body never enters the port-aware legacy driver. The existing
-    /// resolver plan owns BindingRef identity, while the catalog admission
-    /// supplies only the already-validated physical symbol/signature loan.
-    pub(in crate::mir::builder) fn lower_normal_cataloged_static_box_method_with_canonical_trivial_plan_v1(
-        &mut self,
-        builder: &mut MirBuilder,
-        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
-        signature: ResolvedCallablePhysicalSignatureLoanV1<'_>,
-        plan: crate::mir::compiler::capability::CanonicalTrivialBindingSsaPlanV1<'_>,
-        target_capability: Option<
-            &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
-        >,
-    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
-        if plan.with_function_input(|input| input.owner()) != signature.owner() {
-            return Err(ModuleLoweringPortChildErrorV1::PhysicalSignatureMismatch);
-        }
-        let function_name = admission.physical_symbol().to_owned();
-        let session_name = function_name.clone();
-        let resolved = ResolvedChildDraftAdmissionV1::cataloged_box_method(
-            signature.owner(),
-            admission.source_key().clone(),
-            function_name.clone(),
-            admission.physical_arity(),
-        );
-        let pending: PendingFunctionSessionCloseV1<'_> = builder
-            .capture_resolved_function_pending_after_owned_close_v1(&session_name, move |builder| {
-                builder
-                    .lower_resolved_trivial_function_draft_with_physical_name_v1(
-                        plan,
-                        function_name,
-                    )
-                    .map_err(|error| format!("{error:?}"))
-            })
-            .map_err(ModuleLoweringPortChildErrorV1::Session)?;
-        self.module_port.complete_resolved_child_with_physical_loan(
-            pending,
-            resolved,
-            signature,
-            target_capability,
-        )
-    }
-
 
     /// Canonical consumer for the bounded source-bound CallableSingleLoop
     /// profile. The existing semantic demand is consumed once by the shared

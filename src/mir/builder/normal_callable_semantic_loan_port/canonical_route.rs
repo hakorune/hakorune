@@ -18,7 +18,7 @@ use crate::mir::compiler::callable_single_loop_syntax_facts::{
     issue_callable_single_loop_syntax_facts_from_ledger_v1, CallableSyntaxFactsRejectV1,
 };
 use crate::mir::compiler::capability::{
-    CanonicalFirstFamilyPlanV1, CanonicalGenericG0PlanV1, CanonicalLoweringPreflightV1,
+    CanonicalGenericG0PlanV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::generic_g0_capability::probe_generic_g0_function_v1;
@@ -30,7 +30,6 @@ use crate::mir::loop_route_policy::GenericG0PolicyModeV1;
 /// The enum is a route observation only; each successful variant is consumed
 /// by an existing owner in the parent adapter.
 pub(in crate::mir::builder) enum CanonicalCallableRouteV1<'source> {
-    Ready(crate::mir::compiler::capability::CanonicalTrivialBindingSsaPlanV1<'source>),
     CallableSingleLoop(PreparedCallableLoopOperationProgramV1<'source>),
     GenericG0(CanonicalGenericG0PlanV1<'source>),
     Outside,
@@ -46,16 +45,7 @@ pub(in crate::mir::builder) fn classify_canonical_callable_route(
     if let Some(route) = try_classify_generic_g0_route_v1(input, mode)? {
         return Ok(route);
     }
-    match CanonicalLoweringPreflightV1::verify_function(input) {
-        Ok(CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan)) => {
-            Ok(CanonicalCallableRouteV1::Ready(plan))
-        }
-        Ok(_) => Ok(CanonicalCallableRouteV1::Outside),
-        Err(error) if is_canonical_shape_outside(&error) => Ok(CanonicalCallableRouteV1::Outside),
-        Err(error) => Err(format!(
-            "[freeze:contract][mir/callable-canonical-preflight] {error:?}"
-        )),
-    }
+    Ok(CanonicalCallableRouteV1::Outside)
 }
 
 pub(in crate::mir::builder) fn try_classify_generic_g0_route_v1(
@@ -155,15 +145,5 @@ fn callable_recipe_shape_outside(error: &CallableRecipeCoSealRejectV1) -> bool {
         error,
         CallableRecipeCoSealRejectV1::UnsupportedLiteral(_)
             | CallableRecipeCoSealRejectV1::UnsupportedOperator(_)
-    )
-}
-
-fn is_canonical_shape_outside(error: &CanonicalLoweringErrorV1) -> bool {
-    matches!(
-        error,
-        CanonicalLoweringErrorV1::UnsupportedCanonicalOwnerKind
-            | CanonicalLoweringErrorV1::UnsupportedCanonicalSyntaxKind
-            | CanonicalLoweringErrorV1::UnsupportedCanonicalControlRoute
-            | CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape { .. }
     )
 }
