@@ -5,13 +5,10 @@
 //! return the exact unpublished owner and `commit` is the only operation that
 //! extracts the function or restores the caller context.
 
-use std::fmt;
-
 use crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1;
 use crate::mir::a_prime_i64_physical_receipt::APrimeI64PhysicalReceiptV1;
 use crate::mir::builder::calls::{
-    CanonicalFunctionLoweringSessionV1, PendingFunctionSessionCloseV1,
-    PreparedFunctionSessionCloseV1,
+    CanonicalFunctionLoweringSessionV1, PreparedFunctionSessionCloseV1,
 };
 use crate::mir::resolved_semantics::SourceStmtSiteV1;
 use crate::mir::{BasicBlockId, MirBuilder, MirFunction};
@@ -108,11 +105,13 @@ pub(super) struct RejectedFunctionDraftSealV1<'builder> {
 /// The payload is transport evidence only; it cannot reopen the child or
 /// bypass the owner-preserving restoration terminal.
 #[derive(Debug, PartialEq, Eq)]
+#[cfg(test)]
 pub(in crate::mir) struct DiscardedFunctionDraftSealErrorV1 {
     stage: FunctionDraftSealStageV1,
     error: FunctionDraftSealErrorV1,
 }
 
+#[cfg(test)]
 impl DiscardedFunctionDraftSealErrorV1 {
     #[cfg(test)]
     pub(in crate::mir::builder) fn stage(&self) -> FunctionDraftSealStageV1 {
@@ -125,15 +124,6 @@ impl DiscardedFunctionDraftSealErrorV1 {
     }
 }
 
-impl fmt::Display for DiscardedFunctionDraftSealErrorV1 {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            formatter,
-            "[freeze:contract][canonical_function_session/draft_seal] stage={:?} error={:?}",
-            self.stage, self.error
-        )
-    }
-}
 
 impl<'builder> OpenFunctionDraftSealV1<'builder> {
     pub(super) fn new(
@@ -314,22 +304,6 @@ impl<'builder> PreparedFunctionDraftSealV1<'builder> {
         }
     }
 
-    /// Commit the prepared draft while retaining the captured parent context
-    /// for the collector's admission terminal.  This is the one-session
-    /// counterpart to `commit`: no source or PHI evidence is reissued, and
-    /// `PendingFunctionSessionCloseV1` restores the parent exactly once after
-    /// collection.
-    pub(in crate::mir::builder) fn commit_pending(self) -> PendingFunctionSessionCloseV1<'builder> {
-        let Self {
-            completion,
-            plan,
-            close,
-        } = self;
-        let (input, receipt) = plan.into_commit_parts();
-        drop(completion);
-        drop(receipt);
-        close.commit_projected_pending(input)
-    }
 }
 
 impl CompletedFunctionDraftV1 {
@@ -370,6 +344,7 @@ impl RejectedFunctionDraftSealV1<'_> {
 
     /// Consume the rejected owner before exposing its typed error. The live
     /// session is therefore restored exactly once and cannot be retried.
+    #[cfg(test)]
     pub(in crate::mir::builder) fn into_discarded_error(self) -> DiscardedFunctionDraftSealErrorV1 {
         let Self {
             owner,
@@ -380,6 +355,7 @@ impl RejectedFunctionDraftSealV1<'_> {
         DiscardedFunctionDraftSealErrorV1 { stage, error }
     }
 
+    #[cfg(test)]
     pub(super) fn discard(self) {
         let _ = self.discard_with_restoration_receipt();
     }

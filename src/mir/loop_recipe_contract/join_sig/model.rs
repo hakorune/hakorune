@@ -30,6 +30,7 @@ pub(crate) struct LoopJoinPayload<C> {
     pub(crate) class: C,
 }
 
+#[cfg(test)]
 pub(crate) type LoopJoinPayloadV1 = LoopJoinPayload<super::super::schema::LoopValueClassV1>;
 pub(crate) type LoopJoinPayloadV2 = LoopJoinPayload<super::super::schema_v2::LoopValueClassV2>;
 

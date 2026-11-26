@@ -92,7 +92,7 @@ mod tests {
         let owner = layout.program().demand().context().owner();
         assert_ne!(owner, foreign_owner);
 
-        let entry = ReadyLoopEntryV1::new_for_test(foreign_owner, BasicBlockId::new(0), Vec::new());
+        let entry = ReadyLoopEntryV1::new(foreign_owner, BasicBlockId::new(0));
         let mut builder = MirBuilder::new();
         let cfg = builder.function_state.canonical_control.clone();
         let mut services = LoopPhysicalServicesV1::new(&mut builder, cfg);

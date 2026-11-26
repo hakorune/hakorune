@@ -5,6 +5,7 @@
 
 pub(in crate::mir) mod callable_graph_inventory;
 pub(in crate::mir) mod callable_scc_partition;
+#[cfg(test)]
 pub(crate) mod loop_source_expression_shapes;
 pub(crate) mod canonical_source_identity;
 pub(in crate::mir) mod capability;

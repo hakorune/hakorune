@@ -45,6 +45,7 @@ pub(crate) enum DirectCallEmissionErrorV1 {
 }
 
 impl VerifiedCanonicalDirectCallEmissionV1 {
+    #[cfg(test)]
     pub(crate) fn conservative_from_header(header: &VerifiedCallableHeaderV1) -> Self {
         Self {
             target: VerifiedTrivialDirectCallTargetV1::from_header(header),

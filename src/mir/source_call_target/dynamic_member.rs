@@ -5,11 +5,12 @@
 
 use std::collections::BTreeSet;
 
+use crate::mir::builder::{CanonicalSameModuleCallableKeyV1, VerifiedSourceBackedDynamicCallableV1};
+#[cfg(test)]
 use crate::mir::builder::{
     issue_catalog_callable_owner_link_v1, issue_source_backed_dynamic_callable_v1,
-    CanonicalSameModuleCallableKeyV1, CatalogCallableOwnerLinkIssueV1,
-    VerifiedCatalogCallableOwnerLinkV1, VerifiedNormalCallableSemanticSourceV1,
-    VerifiedSourceBackedDynamicCallableV1,
+    CatalogCallableOwnerLinkIssueV1, VerifiedCatalogCallableOwnerLinkV1,
+    VerifiedNormalCallableSemanticSourceV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{
@@ -17,6 +18,7 @@ use crate::mir::resolved_semantics::{
     SourceExprSiteV1,
 };
 
+#[cfg(test)]
 use super::{VerifiedSourceCallTargetCatalogV1, VerifiedSourceCallTargetV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -41,6 +43,7 @@ pub(in crate::mir) enum DynamicMemberSourceRejectV1 {
         owner: FunctionOwnerIdV1,
         site: SourceExprSiteV1,
     },
+    #[cfg(test)]
     CatalogCallableOwnerLink(CatalogCallableOwnerLinkIssueV1),
 }
 
@@ -225,8 +228,9 @@ pub(in crate::mir) fn issue_source_bound_dynamic_member_calls_v1(
     Ok(rows.into_boxed_slice())
 }
 
+#[cfg(test)]
 impl<'catalog> VerifiedSourceCallTargetCatalogV1<'catalog> {
-    /// Extends the production catalog from every cataloged callable in one
+    /// Extends the catalog from every cataloged callable in one
     /// complete semantic-source batch. Top-level functions are deliberately
     /// outside the same-module callable catalog and remain untouched.
     pub(in crate::mir) fn extend_complete_dynamic_sources(

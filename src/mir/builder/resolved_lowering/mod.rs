@@ -11,12 +11,7 @@ mod completion_consumption;
 mod draft_seal;
 mod draft_seal_owner;
 mod function_draft_entry;
-pub(in crate::mir::builder) use draft_seal::ReadyFunctionDraftSealV1;
-pub(in crate::mir::builder) use draft_seal_owner::{
-    DiscardedFunctionDraftSealErrorV1,
-    SelectedDynamicCandidateMetadataV1,
-};
-#[cfg(test)]
+pub(in crate::mir::builder) use draft_seal_owner::SelectedDynamicCandidateMetadataV1;
 #[cfg(test)]
 mod generic_g0_physical_emitter_session;
 mod identity;
@@ -36,6 +31,7 @@ mod completion_consumption_tests;
 mod completion_draft_seal_tests;
 #[cfg(test)]
 mod completion_test_support;
+#[cfg(test)]
 pub(in crate::mir::builder) mod loop_recipe_physicalizer;
 
 #[cfg(test)]
@@ -190,6 +186,7 @@ fn reject_draft_seal_typed(
     }
 }
 
+#[cfg(test)]
 fn reject_draft_seal<'builder>(
     rejected: RejectedFunctionDraftSealV1<'builder>,
 ) -> CanonicalResolvedBuildErrorV1 {

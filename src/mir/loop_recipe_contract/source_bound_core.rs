@@ -14,7 +14,9 @@ use super::error::LoopRecipeRejectReasonV1 as Reject;
 use super::ids::{LoopBindingKeyV1, LoopCarrierKeyV1};
 use super::join_sig::{LoopJoinBranchArmV1, VerifiedLoopJoinSigV1};
 use super::schema::{LoopRecipeItemV1, LoopRecipeV1, LoopValueClassV1};
+#[cfg(test)]
 use super::source_binding::StructurallyVerifiedLoopRecipeSourceClaimV1;
+#[cfg(test)]
 use super::verify::LoopRecipeVerifierV1;
 use super::verify::{VerifiedLoopRecipeArtifactV1, VerifiedLoopRecipeV1};
 
@@ -118,6 +120,7 @@ impl VerifiedLoopRecipeBindingRelationV1 {
         self.0.class
     }
 
+    #[cfg(test)]
     pub(crate) fn declaration(&self) -> &BindingOriginV1 {
         &self.0.declaration
     }
@@ -157,7 +160,9 @@ impl VerifiedLoopBindingEffectRelationV1 {
 pub(crate) struct VerifiedLoopCoreProductV1 {
     owner: FunctionOwnerIdV1,
     recipe: VerifiedLoopRecipeV1,
+    #[cfg(test)]
     join_sig: VerifiedLoopJoinSigV1,
+    #[cfg(test)]
     source_claim: StructurallyVerifiedLoopRecipeSourceClaimV1,
     binding_relations: Box<[VerifiedLoopRecipeBindingRelationV1]>,
     effect_relations: Box<[VerifiedLoopBindingEffectRelationV1]>,
@@ -172,6 +177,7 @@ impl VerifiedLoopCoreProductV1 {
         &self.recipe
     }
 
+    #[cfg(test)]
     pub(crate) fn join_sig(&self) -> &VerifiedLoopJoinSigV1 {
         &self.join_sig
     }
@@ -194,6 +200,7 @@ impl VerifiedLoopCoreProductV1 {
     /// consumers outside this module tree.  The source claim and relations
     /// stay private to the co-seal boundary; physical edges never reach
     /// this seam because they consume the whole operation/effect product.
+    #[cfg(test)]
     pub(crate) fn into_recipe_sig(self) -> (VerifiedLoopRecipeV1, VerifiedLoopJoinSigV1) {
         let (_owner, recipe, join_sig, _claim, _bindings, _effects) = self.into_parts();
         (recipe, join_sig)
@@ -203,6 +210,7 @@ impl VerifiedLoopCoreProductV1 {
     /// the whole Core through `VerifiedLoopOperationEffectProductV1`; the
     /// bounded Recipe/JoinSig extraction exists only for retirement-track
     /// legacy consumers that still carry the recipe envelope by value.
+    #[cfg(test)]
     pub(crate) fn into_parts(
         self,
     ) -> (
@@ -234,24 +242,27 @@ pub(super) fn issue_source_bound_core_v1(
     bindings: Vec<LoopRecipeBindingRelationV1>,
     effects: Vec<LoopBindingEffectRelationV1>,
 ) -> Result<VerifiedLoopCoreProductV1, Reject> {
-    let (source_claim, recipe) = artifact.into_source_bound_parts();
+    let (_source_claim, recipe) = artifact.into_source_bound_parts();
     verify_join_sig_pair(recipe.as_recipe(), &join_sig)?;
     let binding_relations = verify_binding_relations(recipe.as_recipe(), owner, bindings)?;
     let effect_relations = verify_effect_relations(recipe.as_recipe(), owner, effects)?;
     Ok(VerifiedLoopCoreProductV1 {
         owner,
         recipe,
+        #[cfg(test)]
         join_sig,
-        source_claim,
+        #[cfg(test)]
+        source_claim: _source_claim,
         binding_relations: binding_relations.into_boxed_slice(),
         effect_relations: effect_relations.into_boxed_slice(),
     })
 }
 
-/// Production logical wrapper for the source-bound Core boundary. The
+/// Logical test ingress for the source-bound Core boundary. The
 /// artifact verifier remains the sole owner of Recipe/source-wire validation;
 /// this function only performs that validation before delegating to the
 /// existing co-seal owner.
+#[cfg(test)]
 pub(crate) fn issue_source_bound_core_from_artifact_v1(
     artifact: super::schema::LoopRecipeArtifactV1,
     join_sig: VerifiedLoopJoinSigV1,

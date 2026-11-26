@@ -1,13 +1,18 @@
 use super::error::{require_block, CanonicalCfgBlockRoleV1, CanonicalCfgErrorV1};
 use super::predecessors::{derive_and_verify_predecessors, TerminatorPredecessorsV1};
+#[cfg(test)]
 use crate::mir::builder::MirBuilder;
+#[cfg(test)]
 use crate::mir::checked_callout::CheckedCallOutSiteIdV1;
+#[cfg(test)]
 use crate::mir::pinned_text_residence_lifecycle::{
     PinnedTextResidenceFinishCapabilityV1, PreparedPinnedTextResidenceLifecycleV1,
-    TextFormalResidenceIdV1,
 };
+use crate::mir::pinned_text_residence_lifecycle::TextFormalResidenceIdV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
-use crate::mir::{BasicBlock, BasicBlockId, MirFunction, MirInstruction, ValueId};
+#[cfg(test)]
+use crate::mir::ValueId;
+use crate::mir::{BasicBlock, BasicBlockId, MirFunction, MirInstruction};
 use std::cell::RefCell;
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -117,6 +122,7 @@ impl CanonicalCfgSessionV1 {
         Ok(())
     }
 
+    #[cfg(test)]
     pub(in crate::mir::builder) fn select_block(
         &self,
         builder: &mut MirBuilder,
@@ -154,6 +160,7 @@ impl CanonicalCfgSessionV1 {
         Ok(())
     }
 
+    #[cfg(test)]
     pub(in crate::mir::builder) fn emit_return(
         &self,
         function: &mut MirFunction,
@@ -168,6 +175,7 @@ impl CanonicalCfgSessionV1 {
     /// Sole canonical CFG writer for the neutral CheckedCallOut terminator.
     /// The function-local site plan is the authority for effect/ABI/shape;
     /// this method only installs the terminator and its two CFG edges.
+    #[cfg(test)]
     pub(in crate::mir::builder) fn emit_checked_callout(
         &self,
         function: &mut MirFunction,
@@ -218,6 +226,7 @@ impl CanonicalCfgSessionV1 {
     /// Sole canonical CFG writer for the physical pinned-Text Residence
     /// entry.  The affine carrier has already co-sealed the function-local
     /// frame/plan provenance; this method only installs its two edges.
+    #[cfg(test)]
     pub(in crate::mir::builder::resolved_lowering) fn emit_pinned_text_residence_enter(
         &mut self,
         function: &mut MirFunction,
@@ -268,6 +277,7 @@ impl CanonicalCfgSessionV1 {
     /// Sole canonical instruction writer for the success-only Residence
     /// finish marker.  The caller has already validated the explicit exit
     /// set; this writer only requires the selected block to be unterminated.
+    #[cfg(test)]
     pub(in crate::mir::builder::resolved_lowering) fn emit_pinned_text_residence_finish(
         &self,
         function: &mut MirFunction,
@@ -434,6 +444,7 @@ impl CanonicalCfgSessionV1 {
         Ok(())
     }
 
+    #[cfg(test)]
     fn preflight_terminator(
         &self,
         function: &MirFunction,

@@ -29,6 +29,7 @@ impl VerifiedLoopRecipeV1 {
         &self.0
     }
 
+    #[cfg(test)]
     pub(crate) fn root_loop(&self) -> LoopNodeKeyV1 {
         self.0.root_loop
     }

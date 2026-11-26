@@ -11,7 +11,7 @@ use super::operation_type::ensure_provisional_value_class;
 use super::recursive_after::prepare_recursive_after_v1;
 use super::segment_allocator::allocate_for_layout;
 use super::segment_dispatcher::prepare_loop_segment_operation_dispatch_v1;
-use super::topology::{ReadyLoopEntryRowV1, ReadyLoopEntryV1};
+use super::topology::ReadyLoopEntryV1;
 use crate::ast::ASTNode;
 use crate::mir::builder::resolved_lowering::canonical_ssa::{
     finish_profile_close, CanonicalSsaFunctionSessionV2,
@@ -137,7 +137,7 @@ fn materialize_parameters(
     session: &mut CanonicalSsaFunctionSessionV2<'_>,
     input: &VerifiedGenericG0FunctionLoweringInputV1<'_>,
     preheader: BasicBlockId,
-) -> Result<Vec<ReadyLoopEntryRowV1>, String> {
+) -> Result<(), String> {
     let ASTNode::FunctionDeclaration {
         params,
         param_decls,
@@ -241,25 +241,15 @@ fn materialize_parameters(
             value,
         )?;
     }
-    let rows = input
-        .entries()
-        .iter()
-        .map(|entry| {
-            let value = values
-                .get(entry.parameter_index() as usize + usize::from(has_receiver))
-                .copied()
-                .ok_or_else(|| "G0 entry parameter index missing".to_string())?;
-            Ok(ReadyLoopEntryRowV1::new(
-                entry.recipe_value(),
-                entry.binding(),
-                value,
-            ))
-        })
-        .collect::<Result<Vec<_>, String>>()?;
-    if rows.len() != 2 {
+    for entry in input.entries() {
+        values
+            .get(entry.parameter_index() as usize + usize::from(has_receiver))
+            .ok_or_else(|| "G0 entry parameter index missing".to_string())?;
+    }
+    if input.entries().len() != 2 {
         return Err("G0 entry receipt count mismatch".into());
     }
-    Ok(rows)
+    Ok(())
 }
 
 fn consume_g0_tail(
@@ -356,18 +346,15 @@ fn run_canary_with_options(
         .builder_view()
         .current_block_for_test()
         .map_err(|error| format!("G0 preheader: {error}"))?;
-    let entry_rows = match materialize_parameters(
+    if let Err(error) = materialize_parameters(
         outer.builder_view_mut_for_lowering(),
         &mut session,
         &generic_input,
         preheader,
     ) {
-        Ok(rows) => rows,
-        Err(error) => {
-            outer.discard_unpublished();
-            return Err(format!("G0 parameter materialization: {error}"));
-        }
-    };
+        outer.discard_unpublished();
+        return Err(format!("G0 parameter materialization: {error}"));
+    }
     macro_rules! try_after_session {
         ($expression:expr) => {{
             match $expression {
@@ -380,7 +367,7 @@ fn run_canary_with_options(
             }
         }};
     }
-    let make_entry = || ReadyLoopEntryV1::new_for_test(owner, preheader, entry_rows.clone());
+    let make_entry = || ReadyLoopEntryV1::new(owner, preheader);
     let segment_receipt = {
         let mut services =
             LoopPhysicalServicesV1::new(outer.builder_view_mut_for_lowering(), session.control()?);

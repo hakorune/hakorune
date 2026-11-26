@@ -19,17 +19,17 @@ use super::super::super::loop_recipe_contract::source_bound_core::{
     issue_source_bound_core_v1, VerifiedLoopCoreProductV1,
 };
 use super::super::super::loop_recipe_contract::verify::LoopRecipeVerifierV1;
-use super::super::super::loop_recipe_contract::{
-    VerifiedLoopContinuationContractV1, VerifiedLoopSemanticContextV1,
-};
+#[cfg(test)]
+use super::super::super::loop_recipe_contract::VerifiedLoopContinuationContractV1;
+use super::super::super::loop_recipe_contract::VerifiedLoopSemanticContextV1;
+#[cfg(test)]
 use super::super::operation_physical_demand::{
     LoopOperationPhysicalDemandRejectV1, PreparedLoopOperationProgramV1,
     VerifiedLoopOperationPhysicalDemandV1,
 };
-use super::after::{
-    issue_after, GenericG0AfterRejectV1, VerifiedGenericAfterEffectG0,
-    VerifiedGenericG0TailCapabilityV1,
-};
+use super::after::{issue_after, GenericG0AfterRejectV1, VerifiedGenericAfterEffectG0};
+#[cfg(test)]
+use super::after::VerifiedGenericG0TailCapabilityV1;
 use super::operation_effect::issue_generic_g0_operation_effect_v1;
 use super::recipe::{generic_g0_recipe, GenericG0RecipeShapeRejectV1};
 use super::relations::{build_relations, GenericG0RelationRejectV1};
@@ -89,9 +89,10 @@ impl VerifiedGenericRecipeProductG0 {
             .replace_outer_condition_with_computed_left_for_test()
     }
 
-    /// Production physical ingress that preserves the Generic tail beside
+    /// Physical test ingress that preserves the Generic tail beside
     /// the neutral operation program.  The common physicalizer consumes only
     /// the neutral continuation; the Generic lowerer consumes the tail later.
+    #[cfg(test)]
     pub(crate) fn into_prepared_operation_program_and_tail(
         self,
     ) -> Result<

@@ -256,6 +256,7 @@ impl<'builder> PreparedFunctionSessionCloseV1<'builder> {
     /// Apply one prepared projected function/type payload without restoring
     /// the captured parent yet.  The returned pending owner keeps the same
     /// session alive until collector admission has completed.
+    #[cfg(test)]
     pub(in crate::mir::builder) fn commit_projected_pending(
         self,
         input: PreparedFunctionSessionCommitInputV1,
@@ -294,6 +295,7 @@ impl<'builder> PreparedFunctionSessionCloseV1<'builder> {
         (session, draft)
     }
 
+    #[cfg(test)]
     pub(in crate::mir::builder) fn function_name(&self) -> &str {
         &self.function_name
     }

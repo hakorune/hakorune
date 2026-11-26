@@ -220,14 +220,6 @@ impl PreparedLoopOperationProgramV1 {
         self.ledger.operation_rows().to_vec().into_boxed_slice()
     }
 
-    /// Project every ReadBinding row from the complete prepared program.
-    /// There is deliberately no first/select/take operation API.
-    pub(crate) fn read_binding_rows(
-        &self,
-    ) -> Result<Box<[PreparedLoopReadBindingRowV1]>, LoopOperationPhysicalDemandRejectV1> {
-        Ok(self.ledger.read_binding_rows().to_vec().into_boxed_slice())
-    }
-
     /// Project every WriteBinding row from the complete prepared program.
     pub(crate) fn write_binding_rows(
         &self,

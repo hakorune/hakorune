@@ -8,6 +8,7 @@ mod function_control;
 #[cfg(test)]
 pub(crate) use function_control::{FunctionUnitOriginV1, ReturnExitRelationV1};
 pub(crate) mod if_control;
+#[cfg(test)]
 mod loop_owned_if;
 mod source_coverage;
 

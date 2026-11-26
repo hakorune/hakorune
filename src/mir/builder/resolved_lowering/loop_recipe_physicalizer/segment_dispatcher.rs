@@ -459,10 +459,9 @@ mod tests {
         let layout = generic_layout();
         let segments = layout.segments();
         let receipt = receipt(&layout, 1);
-        let entry = ReadyLoopEntryV1::new_for_test(
+        let entry = ReadyLoopEntryV1::new(
             layout.program().demand().context().owner(),
             BasicBlockId::new(0),
-            Vec::new(),
         );
         let error = VerifiedLoopOperationTargetBlockV1::issue_for_segment(
             layout.program().demand().context().owner(),
@@ -484,7 +483,7 @@ mod tests {
         let receipt = receipt(&layout, 2);
         let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().expect("issuer");
         let foreign = issuer.issue().expect("foreign owner");
-        let entry = ReadyLoopEntryV1::new_for_test(foreign, BasicBlockId::new(0), Vec::new());
+        let entry = ReadyLoopEntryV1::new(foreign, BasicBlockId::new(0));
         let error = VerifiedLoopOperationTargetBlockV1::issue_for_segment(
             layout.program().demand().context().owner(),
             crate::mir::loop_recipe_contract::LoopItemKeyV1::new(1),
