@@ -81,3 +81,23 @@ static box S {
         &["parse_float", "is_empty_or_whitespace"]
     ));
 }
+
+#[test]
+fn retired_box_headers_have_named_rejections() {
+    use crate::parser::{NyashParser, ParseError};
+
+    for (source, tag) in [
+        ("static box Child from Parent {}", "decl/static-box-from"),
+        ("static box Child<T> from Parent {}", "decl/static-box-from"),
+        ("flow Stage {}", "decl/flow-retired"),
+    ] {
+        let error = NyashParser::parse_from_string(source).expect_err("retired box header");
+        assert!(
+            matches!(
+                error,
+                ParseError::GrammarContract { stable_reject_tag, .. } if stable_reject_tag == tag
+            ),
+            "{source}: {error}"
+        );
+    }
+}

@@ -368,19 +368,6 @@ fn unsupported_explicit_type_rejects_without_opaque_fallback() {
 }
 
 #[test]
-fn top_level_rows_remain_outside_direct_method_contract_catalog() {
-    let batch = batch(
-        "function helper(value: i64) { return value }\n\
-         static box StaticApi { run(value) { return value } }",
-        10,
-    );
-    let catalog = issue_callable_parameter_contract_v1(&batch).unwrap();
-    let declarations = catalog.declarations().collect::<Vec<_>>();
-    assert_eq!(declarations.len(), 1);
-    assert_eq!(declarations[0].batch_slot(), 1);
-}
-
-#[test]
 fn foreign_batches_keep_distinct_parameter_binding_identity() {
     let source = "static box Source { run(value) { return value } }";
     let first = batch(source, 11);

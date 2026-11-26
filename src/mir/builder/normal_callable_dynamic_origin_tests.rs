@@ -419,7 +419,7 @@ fn prepared_dynamic_rebind_commits_current_and_lineage_together() {
 #[test]
 fn normal_callable_scope_consumes_real_entry_and_local_terminal_receipts() {
     let program =
-        NyashParser::parse_from_string("function walk(pos) { local i = pos return i }").unwrap();
+        NyashParser::parse_from_string("static box Fixture { walk(pos) { local i = pos return i } } static box Main { main() { return 0 } }").unwrap();
     MirCompiler::with_options(false)
         .compile_normal(
             NormalCompileRequestV1::for_mir_mode(

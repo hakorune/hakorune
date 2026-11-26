@@ -81,8 +81,8 @@ fn non_static_main_surface_is_observed_without_becoming_program_runtime() {
 }
 
 #[test]
-fn top_level_callable_and_executable_rows_share_one_surface_order() {
-    with_surface("function free() {}\nprint(1)\n", |surface| {
+fn static_box_and_executable_rows_share_one_surface_order() {
+    with_surface("static box Helpers { run() {} }\nprint(1)\n", |surface| {
         let Some(ParserNormalSourcePlanSurfaceV1::CompleteRows(rows)) = surface else {
             panic!("mixed top-level rows must remain explicit")
         };
@@ -90,7 +90,7 @@ fn top_level_callable_and_executable_rows_share_one_surface_order() {
         assert_eq!(rows.len(), 2);
         assert!(matches!(
             &rows[0],
-            ParserNormalSourcePlanTopLevelRowV1::TopLevelCallable { .. }
+            ParserNormalSourcePlanTopLevelRowV1::StaticBox { .. }
         ));
         assert!(matches!(
             &rows[1],

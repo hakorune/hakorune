@@ -2,7 +2,9 @@ use crate::parser::{
     ParserNormalRootExecutionPreservationV1, ParserNormalRootExecutionRoleV1,
     ParserNormalRootExecutionTerminalClassV1, VerifiedFinalCallableProgramSourceV1,
 };
+use std::collections::HashMap;
 
+use super::super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use super::super::{MainExpansionErrorV1, PreparedAdmittedNormalRootExpansionV1};
 use super::model::{AdmittedNormalRootExecutionModeV1, PreparedNormalRootExecutionConsumptionV1};
 use super::NormalRootExecutionProjectionPermitV1;
@@ -26,6 +28,22 @@ pub(crate) struct RejectedNormalRootExecutionConsumptionV1 {
 impl RejectedNormalRootExecutionConsumptionV1 {
     pub(crate) const fn error(&self) -> &NormalRootExecutionConsumerRejectV1 {
         &self.error
+    }
+
+    pub(in crate::mir::builder) fn static_box_construction_error(
+        &self,
+        imports: &HashMap<String, String>,
+    ) -> Option<String> {
+        if self.error != NormalRootExecutionConsumerRejectV1::IntegrityInvalid {
+            return None;
+        }
+        // A static box with no methods can be absent from the admitted root
+        // inventory while still being a declaration that rules out construction.
+        let ast = self.source.ast();
+        PreparedNormalProgramDeclarationFactsV1::collect(ast)
+            .ok()?
+            .reject_static_box_construction(ast, imports)
+            .err()
     }
 
     pub(crate) fn discard_at_named_root_execution_terminal(self) {

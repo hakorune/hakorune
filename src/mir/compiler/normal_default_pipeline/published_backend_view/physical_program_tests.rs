@@ -112,9 +112,8 @@ fn nested_ordinary_call_chain_emits_per_function_call_rows() {
         let mut compiler = MirCompiler::with_options(false);
         let result = compiler.compile_normal_with_published(
             request(
-                "static function inner(): i64 { return 7 }
-                 static function helper(value: i64): i64 { return value }
-                 static box Main { main() { return helper(10) } }",
+                "static box Helpers { inner(): i64 { return 7 } helper(value: i64): i64 { return value } }
+                 static box Main { main() { return Helpers.helper(10) } }",
             ),
             |view, _| -> Result<(), String> {
                 // The producer lane cannot yet seal a call edge inside an
@@ -140,7 +139,8 @@ fn nested_ordinary_call_chain_emits_per_function_call_rows() {
                 let nested_call = MirCall::new(
                     None,
                     Callee::Global(
-                        hakorune_mir_defs::CanonicalGlobalTargetV1::new_free_function(
+                        hakorune_mir_defs::CanonicalGlobalTargetV1::new_static_box_method(
+                            "Helpers".into(),
                             "inner".into(),
                             0,
                         )

@@ -15,14 +15,14 @@ impl NyashParser {
 
         // 次のトークンで分岐: function か box か
         match &self.current_token().token_type {
-            TokenType::FUNCTION => self.parse_static_function(),
+            TokenType::FUNCTION => Err(ParseError::function_outside_box(self.current_token().line)),
             TokenType::BOX => crate::parser::declarations::static_def::parse_static_box(self),
             TokenType::IDENTIFIER(word) if word == "const" => self.parse_static_const_table(),
             _ => {
                 let line = self.current_token().line;
                 Err(ParseError::UnexpectedToken {
                     found: self.current_token().token_type.clone(),
-                    expected: "function, box, or const after static".to_string(),
+                    expected: "box or const after static".to_string(),
                     line,
                 })
             }

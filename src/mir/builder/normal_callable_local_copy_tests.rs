@@ -20,7 +20,7 @@ fn copied_local(initializer: ValueId, local: ValueId) -> CompletedLocalStatement
 #[test]
 fn source_alias_chain_retains_original_formal_and_invalidates_on_rebind() {
     let (mut state, _, formal) = materialized_fixture(
-        "function caller(first: i64) { local a = first local b = a return b }",
+        "static box Fixture { caller(first: i64) { local a = first local b = a return b } }",
     );
     let sites: Vec<_> = state.locals.keys().cloned().collect();
     assert_eq!(sites.len(), 2);
@@ -51,7 +51,7 @@ fn source_alias_chain_retains_original_formal_and_invalidates_on_rebind() {
 #[test]
 fn source_alias_does_not_prove_forwarding_from_unmatched_initializer() {
     let (mut state, _, _) =
-        materialized_fixture("function caller(first: i64) { local a = first return a }");
+        materialized_fixture("static box Fixture { caller(first: i64) { local a = first return a } }");
     let site = state.locals.keys().next().unwrap().clone();
     state
         .record_completed_local(&site, &copied_local(ValueId::new(88), ValueId::new(89)))
@@ -76,7 +76,7 @@ fn source_alias_does_not_prove_forwarding_from_unmatched_initializer() {
 fn source_reuse_preserves_identity_but_contract_write_has_no_copy_proof() {
     for local in [ValueId::new(77), ValueId::new(78)] {
         let (mut state, _, formal) =
-            materialized_fixture("function caller(first: i64) { local a = first return a }");
+            materialized_fixture("static box Fixture { caller(first: i64) { local a = first return a } }");
         let site = state.locals.keys().next().unwrap().clone();
         let completed = CompletedLocalStatementV1::from_parts(
             local,
@@ -97,7 +97,7 @@ fn source_reuse_preserves_identity_but_contract_write_has_no_copy_proof() {
 #[test]
 fn completed_local_rejects_foreign_ordinal_before_publication() {
     let (mut state, _, _) =
-        materialized_fixture("function caller(first: i64) { local a = first return a }");
+        materialized_fixture("static box Fixture { caller(first: i64) { local a = first return a } }");
     let site = state.locals.keys().next().unwrap().clone();
     let completed = CompletedLocalStatementV1::from_parts(
         ValueId::new(78),
@@ -116,7 +116,7 @@ fn completed_local_rejects_foreign_ordinal_before_publication() {
 #[test]
 fn later_initializer_rebind_does_not_reject_an_earlier_local() {
     let (mut state, _, formal) =
-        materialized_fixture("function caller(first: i64) { local a = first return a }");
+        materialized_fixture("static box Fixture { caller(first: i64) { local a = first return a } }");
     let site = state.locals.keys().next().unwrap().clone();
     // The earlier initializer read 77; a later initializer has published 88.
     state.values.insert(formal, ValueId::new(88));
@@ -133,7 +133,7 @@ fn later_initializer_rebind_does_not_reject_an_earlier_local() {
 fn exact_forwarded_copy_loan_checks_original_root_chain_and_read_value() {
     for length in 0..=2 {
         let (mut state, owner, formal) = materialized_fixture(
-            "function caller(first: i64) { local a = first local b = a return b }",
+            "static box Fixture { caller(first: i64) { local a = first local b = a return b } }",
         );
         let sites: Vec<_> = state.locals.keys().cloned().collect();
         state
@@ -175,7 +175,7 @@ fn exact_forwarded_copy_loan_checks_original_root_chain_and_read_value() {
 #[test]
 fn reused_forwarded_local_lends_empty_copy_chain() {
     let (mut state, owner, formal) =
-        materialized_fixture("function caller(first: i64) { local a = first return a }");
+        materialized_fixture("static box Fixture { caller(first: i64) { local a = first return a } }");
     let site = state.locals.keys().next().unwrap().clone();
     state
         .record_completed_local(
@@ -205,7 +205,7 @@ fn reused_forwarded_local_lends_empty_copy_chain() {
 fn exact_lexical_batch_preflight_is_atomic_and_rechecks_current_provenance() {
     for mutation in ["none", "duplicate", "value", "provenance", "binding", "consumed", "foreign", "missing"] {
         let (mut state, owner, first) = materialized_fixture(
-            "function caller(first: i64, second: i64) { local a = first local b = second return a + b }",
+            "static box Fixture { caller(first: i64, second: i64) { local a = first local b = second return a + b } }",
         );
         let second = state.parameters[1];
         state.values.insert(second, ValueId::new(88));

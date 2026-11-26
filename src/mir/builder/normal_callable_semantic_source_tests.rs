@@ -56,7 +56,7 @@ fn callable_entry_local_variable_and_rebind_materialization_keeps_parity() {
     assert!(compiler
         .compile_normal(
             NormalCompileRequestV1::for_mir_mode(
-                NyashParser::parse_from_string("function bad(x) { local y = missing return y }",)
+                NyashParser::parse_from_string("static box Fixture { bad(x) { local y = missing return y } } static box Main { main() { return 0 } }",)
                     .unwrap(),
                 Some("callable-materialization-failure.hako"),
                 std::collections::HashMap::new(),
@@ -67,7 +67,7 @@ fn callable_entry_local_variable_and_rebind_materialization_keeps_parity() {
     compiler
         .compile_normal(
             NormalCompileRequestV1::for_mir_mode(
-                NyashParser::parse_from_string("function good(x) { local y = x y += 1 return y }")
+                NyashParser::parse_from_string("static box Fixture { good(x) { local y = x y += 1 return y } } static box Main { main() { return 0 } }")
                     .unwrap(),
                 Some("callable-materialization-reuse.hako"),
                 std::collections::HashMap::new(),
@@ -80,7 +80,7 @@ fn callable_entry_local_variable_and_rebind_materialization_keeps_parity() {
 #[test]
 fn mixed_callable_batch_seals_and_reacquires_exact_program_sites() {
     let program = NyashParser::parse_from_string(
-        "function helper(x) { return x }\n\
+        "static box Fixture { helper(x) { return x } }\n\
              static box Tools { add(x) { return x } }\n\
              box Page { show(x) { return x } }",
     )
@@ -181,7 +181,7 @@ fn callable_loop_handoff_issues_exact_resolver_sites_before_lowering() {
 #[test]
 fn function_call_defers_before_unresolved_argument_child() {
     let program =
-        NyashParser::parse_from_string("function helper() { return unknown(missing) }").unwrap();
+        NyashParser::parse_from_string("static box Fixture { helper() { return unknown(missing) } }").unwrap();
     let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&program).unwrap();
     let mut resolver = FunctionSemanticResolverSessionV1::new(0).unwrap();
     assert!(matches!(
@@ -198,7 +198,9 @@ fn function_call_defers_before_unresolved_argument_child() {
 
 #[test]
 fn selected_direct_call_observation_is_a_typed_package_terminal() {
-    let program = NyashParser::parse_from_string("function caller() { return helper() }").unwrap();
+    let program =
+        NyashParser::parse_from_string("static box Fixture { caller() { return helper() } }")
+            .unwrap();
     let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&program).unwrap();
     let mut resolver = FunctionSemanticResolverSessionV1::new(813).unwrap();
     assert!(matches!(
@@ -243,7 +245,7 @@ fn main_methods_are_absent_from_callable_semantic_batch() {
 #[test]
 fn nonplain_instance_blocker_defers_the_whole_mixed_batch_before_resolution() {
     let program = NyashParser::parse_from_string(
-        "function helper(x) { return x }\n\
+        "static box Fixture { helper(x) { return x } }\n\
              record Pair { value: i64 }",
     )
     .unwrap();
@@ -266,7 +268,7 @@ fn nonplain_instance_blocker_defers_the_whole_mixed_batch_before_resolution() {
 #[test]
 fn nonplain_blocker_is_script_only_and_app_remains_complete_eligible() {
     let program = NyashParser::parse_from_string(
-        "function helper(x) { return x } record Pair { value: i64 }",
+        "static box Fixture { helper(x) { return x } } record Pair { value: i64 }",
     )
     .unwrap();
     let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&program).unwrap();
@@ -285,7 +287,7 @@ fn nonplain_blocker_is_script_only_and_app_remains_complete_eligible() {
 
 #[test]
 fn mixed_nonplain_batch_keeps_selected_and_legacy_lowering_in_parity() {
-    let text = "function helper() { return 1 }\n\
+    let text = "static box Fixture { helper() { return 1 } }\n\
                     record Pair { value: i64 }\n\
                     Pair { value: 1 }";
     assert_retired_compat_batch(text, "callable-nonplain");
@@ -293,7 +295,7 @@ fn mixed_nonplain_batch_keeps_selected_and_legacy_lowering_in_parity() {
 
 #[test]
 fn callable_parameter_and_local_bodies_do_not_borrow_the_script_ledger() {
-    let text = "function helper(x) { local y = x return y }\n\
+    let text = "static box Fixture { helper(x) { local y = x return y } }\n\
                     static box Tools { add(x) { local y = x return y } }\n\
                     box Page { show(x) { local y = x return y } }\n\
                     0";

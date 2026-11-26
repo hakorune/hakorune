@@ -44,10 +44,10 @@ fn consumes_app_once_from_parser_relation() {
 }
 
 #[test]
-fn same_named_top_level_and_main_child_are_paired_by_parser_identity() {
+fn same_named_static_method_and_main_child_are_paired_by_parser_identity() {
     assert_eq!(
         consume(
-            "function helper() { return 1 }\nstatic box Main { main() { return 0 } helper() { return 2 } }",
+            "static box Helpers { helper() { return 1 } }\nstatic box Main { main() { return 0 } helper() { return 2 } }",
         ),
         AdmittedNormalRootExecutionModeV1::App
     );

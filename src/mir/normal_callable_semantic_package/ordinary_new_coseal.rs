@@ -524,6 +524,9 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
     InitializerBindingMismatch {
         site: OwnedExprSiteV1,
     },
+    NewStaticBox {
+        diagnostic: String,
+    },
     OrdinaryBoxCoverageMissing {
         site: OwnedExprSiteV1,
         class: Box<str>,

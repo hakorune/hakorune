@@ -41,12 +41,6 @@ fn has_function(module: &super::MirModule, name: &str) -> bool {
 #[test]
 fn raw_compatibility_root_families_use_the_collector_terminal() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
-    let script_top_level = lower_raw_compat(
-        "function helper(value) { return value }",
-        CallableMainMaterializationPolicyV1::Omitted,
-    );
-    assert!(has_function(&script_top_level, "helper/1"));
-
     let instance_constructor = lower_raw_compat(
         "box Worker { birth(value) { return value } }\nstatic box Main { main() { return 0 } }",
         CallableMainMaterializationPolicyV1::Omitted,

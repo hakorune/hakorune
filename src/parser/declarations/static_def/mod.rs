@@ -61,7 +61,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         box_span.line,
     );
 
-    let mut fields = Vec::new();
+    let fields: Vec<String> = Vec::new();
     let mut methods = BoxMethodInventoryV1::empty();
     let constructors = HashMap::new();
     let mut init_fields = Vec::new();
@@ -101,6 +101,20 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         // RBRACEに到達していればループを抜ける
         if p.match_token(&TokenType::RBRACE) {
             break;
+        }
+
+        match p.current_token().token_type {
+            TokenType::INIT | TokenType::WEAK => return Err(static_box_state(p.current_token().line)),
+            TokenType::STATIC => {
+                let mut offset = 1;
+                while matches!(p.peek_nth_token(offset), TokenType::NEWLINE) {
+                    offset += 1;
+                }
+                if matches!(p.peek_nth_token(offset), TokenType::LBRACE) {
+                    return Err(static_box_state(p.current_token().line));
+                }
+            }
+            _ => {}
         }
 
         // 🔥 static 初期化子の処理（厳密ゲート互換）
@@ -198,11 +212,8 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
                     }
                 }
                 match members::try_parse_method_or_field(p, field_or_method, declaration_span)? {
-                    members::ParsedStaticMemberV1::Field(field) => {
-                        fields.push(field);
-                        source_transaction
-                            .commit_unsupported_member(ParserStaticBoxMemberKindV1::Field)
-                            .map_err(static_source_issue)?;
+                    members::ParsedStaticMemberV1::Field(_) => {
+                        return Err(static_box_state(declaration_span.line));
                     }
                     members::ParsedStaticMemberV1::Method(method) => pending_method = Some(method),
                 }
@@ -292,6 +303,14 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         attrs,
         span: box_span,
     })
+}
+
+fn static_box_state(line: usize) -> ParseError {
+    ParseError::GrammarContract {
+        stable_reject_tag: "decl/static-box-state",
+        detail: "move fields and initialization into an ordinary box".to_owned(),
+        line,
+    }
 }
 
 fn commit_pending_static_method(

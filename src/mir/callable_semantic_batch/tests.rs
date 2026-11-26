@@ -8,7 +8,6 @@ use crate::parser::{NyashParser, ParserBuildConfig};
 use super::{
     issue_resolved_callable_semantic_batch_v1,
     issue_resolved_callable_semantic_batch_with_brand_catalog_v1,
-    issue_resolved_callable_semantic_batch_with_freestatic_targets_v1,
     ResolvedCallableDeclarationModeV1, ResolvedCallableSemanticBatchLoanErrorV1,
     VerifiedResolvedCallableSemanticBatchV1,
 };
@@ -64,16 +63,19 @@ fn mixed_direct_methods_resolve_once_in_exact_source_order() {
 }
 
 #[test]
-fn top_level_and_box_methods_share_one_complete_batch() {
+fn multiple_boxes_share_one_complete_batch() {
     let batch = batch(
-        "function helper(value) { return value }\n\
+        "static box Helpers { helper(value) { return value } }\n\
          static box StaticApi { run(value) { return value } }\n\
          box InstanceApi { read() { return 1 } }",
     );
     let rows = batch.declarations().collect::<Vec<_>>();
     assert_eq!(rows.len(), 3);
     assert_eq!(rows[0].batch_slot(), 0);
-    assert_eq!(rows[0].mode(), ResolvedCallableDeclarationModeV1::TopLevel);
+    assert_eq!(
+        rows[0].mode(),
+        ResolvedCallableDeclarationModeV1::StaticBoxMethod
+    );
     assert_eq!(rows[0].parameter_count(), 1);
     assert_eq!(rows[1].batch_slot(), 1);
     assert_eq!(rows[2].batch_slot(), 2);
@@ -83,40 +85,7 @@ fn top_level_and_box_methods_share_one_complete_batch() {
             assert_eq!(input.owner(), rows[0].owner());
             assert_eq!(input.forest().roots(), [rows[0].owner()]);
         })
-        .expect("top-level lowering input belongs to the complete batch");
-}
-
-#[test]
-fn freestatic_target_batch_lends_one_owner_matched_index_and_header() {
-    let source = final_source(
-        "function caller(value: i64): i64 { return helper(value) }\n\
-         function helper(value: i64): i64 { return value }",
-    );
-    let mut resolver = FunctionSemanticResolverSessionV1::new(711).unwrap();
-    let batch = issue_resolved_callable_semantic_batch_with_freestatic_targets_v1(
-        &mut resolver,
-        source,
-        None,
-    )
-    .expect("source-unit FreeStatic target index");
-    let rows = batch.declarations().collect::<Vec<_>>();
-    assert_eq!(rows.len(), 2);
-
-    for slot in 0..2 {
-        batch
-            .with_lowering_input(slot, |input| {
-                let index = input
-                    .callable_index()
-                    .expect("eligible root receives the shared index");
-                let header = input
-                    .callable_header()
-                    .expect("header comes from the same index");
-                assert_eq!(header.callable().owner(), input.owner());
-                assert!(index.header_for_owner(input.owner()).is_some());
-                assert_eq!(header.callable().owner(), rows[slot as usize].owner());
-            })
-            .expect("owner-matched source lowering input");
-    }
+        .expect("first method lowering input belongs to the complete batch");
 }
 
 #[test]

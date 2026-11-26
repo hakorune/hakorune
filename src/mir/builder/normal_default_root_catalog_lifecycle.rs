@@ -186,13 +186,22 @@ impl ModuleBuilderInvocationSessionV1 {
                     (Some(source.into_consumed_source()), None, is_app)
                 }
                 Err(rejected) => {
-                    let error = format!("{:?}", rejected.error());
+                    let error = rejected
+                        .static_box_construction_error(self.config().using_import_boxes())
+                        .map(|error| {
+                            NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
+                                error.into(),
+                            )
+                        })
+                        .unwrap_or_else(|| {
+                            NormalDefaultRootCatalogLifecycleErrorV1::RootExpansion(
+                                format!("[mir/normal-root/consume] {:?}", rejected.error()).into(),
+                            )
+                        });
                     return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
                         session: self,
                         _source: Some(RejectedNormalDefaultRootOwnerV1::RootExecution(rejected)),
-                        error: NormalDefaultRootCatalogLifecycleErrorV1::RootExpansion(
-                            format!("[mir/normal-root/consume] {error}").into(),
-                        ),
+                        error,
                     });
                 }
             },
@@ -241,6 +250,16 @@ impl ModuleBuilderInvocationSessionV1 {
                 })
             }
         };
+
+        if let Err(error) =
+            declaration_facts.reject_static_box_construction(source_ast, self.config().using_import_boxes())
+        {
+            return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                session: self,
+                _source: compatibility_source,
+                error: NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(error.into()),
+            });
+        }
 
         let mut resolver = match FunctionSemanticResolverSessionV1::new(0) {
             Ok(resolver) => resolver,

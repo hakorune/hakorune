@@ -13,6 +13,9 @@ fn function_body<'a>(ast: &'a ASTNode, function_name: &str) -> &'a Vec<ASTNode> 
                 }
                 None
             }
+            ASTNode::BoxDeclaration { methods, .. } => methods
+                .get_declaration(function_name)
+                .and_then(|node| walk(node, function_name)),
             ASTNode::FunctionDeclaration { name, body, .. } if name == function_name => Some(body),
             _ => None,
         }
@@ -25,12 +28,14 @@ fn function_body<'a>(ast: &'a ASTNode, function_name: &str) -> &'a Vec<ASTNode> 
 fn fini_wraps_only_suffix_statements() {
     with_stage3_features(|| {
         let src = r#"
-function main() {
+static box Main {
+  main() {
   print("pre")
   fini {
     print("cleanup")
   }
   return 1
+  }
 }
 "#;
         let ast = NyashParser::parse_from_string(src).expect("parse ok");
@@ -67,12 +72,14 @@ function main() {
 fn local_fini_sugar_keeps_local_then_wraps_tail() {
     with_stage3_features(|| {
         let src = r#"
-function main() {
+static box Main {
+  main() {
   local x = 1 fini {
     print(x)
   }
   x = x + 1
   return x
+  }
 }
 "#;
         let ast = NyashParser::parse_from_string(src).expect("parse ok");
@@ -104,10 +111,12 @@ function main() {
 fn fini_is_lifo_order_in_ast_shape() {
     with_stage3_features(|| {
         let src = r#"
-function main() {
+static box Main {
+  main() {
   fini { print("A") }
   fini { print("B") }
   return 0
+  }
 }
 "#;
         let ast = NyashParser::parse_from_string(src).expect("parse ok");
@@ -150,11 +159,13 @@ function main() {
 fn fini_block_rejects_non_local_exit() {
     with_stage3_features(|| {
         let src = r#"
-function main() {
+static box Main {
+  main() {
   fini {
     return 1
   }
   return 0
+  }
 }
 "#;
         assert!(

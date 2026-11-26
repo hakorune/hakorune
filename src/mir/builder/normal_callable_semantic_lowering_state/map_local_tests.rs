@@ -11,7 +11,9 @@ use crate::mir::ValueId;
 use crate::parser::NyashParser;
 
 fn fixture() -> CallableSemanticLoweringState {
-    fixture_from("function caller() { local first = 1 local second = 2 return first }")
+    fixture_from(
+        "static box Fixture { caller() { local first = 1 local second = 2 return first } }",
+    )
 }
 
 fn fixture_from(source: &str) -> CallableSemanticLoweringState {
@@ -19,8 +21,12 @@ fn fixture_from(source: &str) -> CallableSemanticLoweringState {
     let crate::ast::ASTNode::Program { mut statements, .. } = program else {
         panic!("fixture must be a program")
     };
-    let function = statements.remove(0);
-    let syntax = CallableFunctionSyntaxViewV1::from_function_ast(&function)
+    let crate::ast::ASTNode::BoxDeclaration { methods, .. } = statements.remove(0) else {
+        panic!("fixture must declare a static box")
+    };
+    let function = methods.get_declaration("caller").expect("fixture caller");
+
+    let syntax = CallableFunctionSyntaxViewV1::from_function_ast(function)
         .expect("fixture callable syntax");
     let mut resolver = FunctionSemanticResolverSessionV1::new(9102).expect("resolver");
     let ResolveSelectedCallableForestsOutcomeV1::Complete(forests) = resolver
@@ -31,13 +37,13 @@ fn fixture_from(source: &str) -> CallableSemanticLoweringState {
     };
     let forest = forests.into_vec().pop().expect("fixture root forest");
     let projection = VerifiedSourceProjectionV1::seal_with_root_profile(
-        &function,
+        function,
         &forest,
         syntax.function().root_profile(),
     )
     .expect("fixture projection");
     let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
-        &function,
+        function,
         &forest,
         &projection,
     )
@@ -52,14 +58,18 @@ fn core_method_fixture() -> (
     crate::mir::resolved_semantics::SourceExprSiteV1,
 ) {
     let program = NyashParser::parse_from_string(
-        "function caller(text) { loop(text.length() < 2) { local piece = text.substring(0, 1) } }",
+        "static box Fixture { caller(text) { loop(text.length() < 2) { local piece = text.substring(0, 1) } } }",
     )
     .expect("core-method fixture parses");
     let crate::ast::ASTNode::Program { mut statements, .. } = program else {
         panic!("fixture must be a program")
     };
-    let function = statements.remove(0);
-    let syntax = CallableFunctionSyntaxViewV1::from_function_ast(&function)
+    let crate::ast::ASTNode::BoxDeclaration { methods, .. } = statements.remove(0) else {
+        panic!("fixture must declare a static box")
+    };
+    let function = methods.get_declaration("caller").expect("fixture caller");
+
+    let syntax = CallableFunctionSyntaxViewV1::from_function_ast(function)
         .expect("core-method callable syntax");
     let mut resolver = FunctionSemanticResolverSessionV1::new(9103).expect("resolver");
     let ResolveSelectedCallableForestsOutcomeV1::Complete(forests) = resolver
@@ -82,13 +92,13 @@ fn core_method_fixture() -> (
         })
         .expect("length row");
     let projection = VerifiedSourceProjectionV1::seal_with_root_profile(
-        &function,
+        function,
         &forest,
         syntax.function().root_profile(),
     )
     .expect("core-method projection");
     let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
-        &function,
+        function,
         &forest,
         &projection,
     )
@@ -131,7 +141,7 @@ fn nested_program_local_registers_rootless_statement_site() {
     // A `local` inside a bare `{ }` block registers under the rootless
     // `[stmt, ProgramBody(i)]` spelling — the same key `body_item_site`
     // emits on the lowering lane after the nested-program collapse.
-    let state = fixture_from("function caller() { { local inner = 1 } return 0 }");
+    let state = fixture_from("static box Fixture { caller() { { local inner = 1 } return 0 } }");
     let nested = SourcePathV1::root_body(0)
         .child(SourcePathSegmentV1::ProgramBody(0))
         .node();

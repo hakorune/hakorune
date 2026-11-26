@@ -52,6 +52,11 @@ impl OrdinaryNewCandidate {
         arity: usize,
         has_overrides: bool,
     ) -> Result<Option<OrdinaryNewSiteResolutionV1>, OrdinaryNewCoSealIssueV1> {
+        if batch.ordinary_box_coverage().declares_static_box(&class) {
+            return Err(OrdinaryNewCoSealIssueV1::NewStaticBox {
+                diagnostic: crate::mir::resolved_semantics::new_static_box_diagnostic(&class),
+            });
+        }
         let Some(box_source) = batch
             .ordinary_box_coverage()
             .row_for(class.as_ref())

@@ -310,3 +310,8 @@ mod tests;
 
 #[cfg(test)]
 mod source_value_flow_tests;
+
+/// A resolved static namespace has no instance to construct.
+pub(in crate::mir) fn new_static_box_diagnostic(class: &str) -> String {
+    format!("[freeze:contract][call/new-static-box] call methods on {class} by name or construct an ordinary box")
+}

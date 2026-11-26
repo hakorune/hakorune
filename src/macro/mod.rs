@@ -65,5 +65,55 @@ pub fn maybe_expand_and_dump(ast: &ASTNode, _dump_only: bool) -> ASTNode {
     if crate::config::env::macro_trace() {
         crate::macro_log!("[macro] output AST: {:?}", out2);
     }
+    require_file_functions(&out2);
     out2
+}
+
+/// Gate the AST at a file-level macro expansion boundary. Methods and
+/// constructors are declarations owned by the box member inventory.
+pub(crate) fn validate_file_functions(ast: &ASTNode) -> Result<(), crate::ParseError> {
+    if let ASTNode::FunctionDeclaration { span, .. } = ast {
+        return Err(crate::ParseError::function_outside_box(span.line));
+    }
+    if let ASTNode::BoxDeclaration {
+        methods,
+        constructors,
+        static_init,
+        invariants,
+        ..
+    } = ast
+    {
+        for statement in invariants.iter().chain(static_init.iter().flatten()) {
+            validate_file_functions(statement)?;
+        }
+        let members = methods
+            .iter_selected_declaration_order()
+            .map(|method| method.declaration())
+            .chain(constructors.values());
+        for member in members {
+            match member {
+                ASTNode::FunctionDeclaration { .. } => validate_file_function_children(member)?,
+                _ => validate_file_functions(member)?,
+            }
+        }
+        return Ok(());
+    }
+    validate_file_function_children(ast)
+}
+
+fn validate_file_function_children(ast: &ASTNode) -> Result<(), crate::ParseError> {
+    let mut result = Ok(());
+    ast.for_each_child(&mut |child| {
+        if result.is_ok() {
+            result = validate_file_functions(child);
+        }
+    });
+    result
+}
+
+pub(crate) fn require_file_functions(ast: &ASTNode) {
+    if let Err(error) = validate_file_functions(ast) {
+        crate::runtime::get_global_ring0().log.error(&error.to_string());
+        std::process::exit(1);
+    }
 }

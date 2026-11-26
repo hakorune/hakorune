@@ -148,31 +148,6 @@ pub(crate) fn register_decl_box(
     Err("no Box with static expand(ast) found".into())
 }
 
-pub(crate) fn register_top_level_static(path: &str, name: &str) {
-    let nm: &'static str = Box::leak(name.to_string().into_boxed_str());
-    let file_static: &'static str = Box::leak(path.to_string().into_boxed_str());
-    let use_child = crate::config::env::macro_box_child();
-    let allow_top = crate::config::env::macro_toplevel_allow().unwrap_or(false);
-    if use_child && allow_top {
-        crate::r#macro::macro_box::register(Box::leak(Box::new(NyChildMacroBox {
-            nm,
-            file: file_static,
-        })));
-        crate::macro_log!(
-            "[macro][box_ny] registered child-proxy MacroBox '{}' (top-level static) for {}",
-            nm,
-            path
-        );
-    } else {
-        crate::r#macro::macro_box::register(Box::leak(Box::new(NyIdentityMacroBox { nm })));
-        crate::macro_log!(
-            "[macro][box_ny] registered identity MacroBox '{}' (top-level static) for {}",
-            nm,
-            path
-        );
-    }
-}
-
 impl super::super::macro_box::MacroBox for NyChildMacroBox {
     fn name(&self) -> &'static str {
         self.nm
@@ -320,10 +295,19 @@ impl super::super::macro_box::MacroBox for NyChildMacroBox {
             use std::io::Read;
             let _ = se.read_to_string(&mut err);
         }
+        // Preserve a source rejection reported by the child rather than retrying
+        // expansion with its original input.
+        if let Some(diagnostic) = err.lines().find(|line| line.contains("[decl/function-outside-box]")) {
+            crate::runtime::get_global_ring0().log.error(diagnostic);
+            std::process::exit(1);
+        }
         // Parse output JSON
         match serde_json::from_str::<serde_json::Value>(&out) {
             Ok(v) => match crate::r#macro::ast_json::json_to_ast(&v) {
-                Some(a) => a,
+                Some(a) => {
+                    crate::r#macro::require_file_functions(&a);
+                    a
+                }
                 None => {
                     crate::macro_log!(
                         "[macro-proxy] child JSON did not map to AST. stderr=\n{}",

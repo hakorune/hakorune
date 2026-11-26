@@ -18,12 +18,12 @@ fn open_pruned(
 }
 
 #[test]
-fn selected_top_level_and_member_rows_are_pruned_in_one_transaction() {
+fn selected_box_and_member_rows_are_pruned_in_one_transaction() {
     let product = open_pruned(
         "gate Build.test {\n\
-           function selected_free() {}\n\
+           static box Selected { selected_method() {} }\n\
            box Choice { gate Build.test { run() {} } else { run() {} } }\n\
-         } else { function unselected_free() {} }\n",
+         } else { static box Unselected { unselected_method() {} } }\n",
         ParserBuildConfig {
             mode: BuildMode::Test,
             ..ParserBuildConfig::default()
@@ -33,10 +33,10 @@ fn selected_top_level_and_member_rows_are_pruned_in_one_transaction() {
     assert_eq!(rows.len(), 2);
     assert!(rows
         .iter()
-        .any(|row| row.diagnostic_name() == "selected_free"));
+        .any(|row| row.diagnostic_name() == "selected_method"));
     assert!(!rows
         .iter()
-        .any(|row| row.diagnostic_name() == "unselected_free"));
+        .any(|row| row.diagnostic_name() == "unselected_method"));
     let member = rows
         .iter()
         .find(|row| row.diagnostic_name() == "run")
@@ -71,38 +71,15 @@ fn nested_member_selection_keeps_the_full_selected_path_only() {
 }
 
 #[test]
-fn top_level_else_and_nested_top_level_leaf_are_selected_exactly() {
-    let product = open_pruned(
-        "gate Build.test { function outer_then() {} } else {\n\
-           gate Build.debug { function inner_then() {} }\n\
-           else { function inner_else() {} }\n\
-         }\n",
-        ParserBuildConfig::default(),
+fn unselected_top_level_gate_branch_still_rejects_free_function() {
+    let error = crate::parser::NyashParser::parse_from_string(
+        "gate Build.test { function retired() {} } else { static box Choice { run() {} } }",
+    )
+    .expect_err("retired syntax must be rejected");
+    assert!(
+        error.to_string().contains("decl/function-outside-box"),
+        "{error}"
     );
-    let rows = product.source_session.callable_rows();
-    assert_eq!(rows.len(), 1);
-    assert_eq!(rows[0].diagnostic_name(), "inner_else");
-    let segments = rows[0]
-        .direct()
-        .unwrap()
-        .path()
-        .declaration()
-        .compatibility_box_path()
-        .segments();
-    assert!(matches!(
-        segments,
-        [
-            _,
-            super::source_authority::SourceBoxPathSegmentV1::BuildGate {
-                branch: SourceBuildGateBranchV1::Else,
-                ..
-            },
-            super::source_authority::SourceBoxPathSegmentV1::BuildGate {
-                branch: SourceBuildGateBranchV1::Else,
-                ..
-            }
-        ]
-    ));
 }
 
 #[test]
@@ -127,7 +104,7 @@ fn inactive_outer_member_branch_does_not_demand_its_nested_receipt() {
 
 #[test]
 fn opening_postpass_twice_rejects_the_moved_callable_session() {
-    let tokens = NyashTokenizer::new("function once() {}\n")
+    let tokens = NyashTokenizer::new("static box Once { run() {} }\n")
         .tokenize()
         .unwrap();
     let mut parser = NyashParser::new(tokens);
@@ -142,7 +119,7 @@ fn opening_postpass_twice_rejects_the_moved_callable_session() {
 fn compatibility_finish_retains_selected_callable_rows_privately() {
     let tokens = NyashTokenizer::new(
         "static box Main { main() {} }\n\
-         gate Build.test { function chosen() {} } else { function hidden() {} }\n",
+         gate Build.test { static box Selected { chosen() {} } } else { static box Hidden { hidden() {} } }\n",
     )
     .tokenize()
     .unwrap();

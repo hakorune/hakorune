@@ -71,7 +71,6 @@ pub fn build_command() -> Command {
         .arg(Arg::new("dump-ast").long("dump-ast").help("Dump parsed AST and exit").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("macro-preexpand").long("macro-preexpand").help("Enable selfhost macro pre-expand").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("macro-preexpand-auto").long("macro-preexpand-auto").help("Auto enable selfhost macro pre-expand").action(clap::ArgAction::SetTrue))
-        .arg(Arg::new("macro-top-level-allow").long("macro-top-level-allow").help("Allow top-level macro usage").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("macro-profile").long("macro-profile").value_name("{dev|ci-fast|strict}").help("Select macro profile"))
         .arg(Arg::new("dump-expanded-ast-json").long("dump-expanded-ast-json").help("Dump AST after macro expansion as JSON v0 and exit").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("macro-ctx-json").long("macro-ctx-json").value_name("JSON").help("Provide MacroCtx as JSON string for macro child routes"))
@@ -405,7 +404,6 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
         macro_expand_child: matches.get_one::<String>("macro-expand-child").cloned(),
         macro_preexpand: matches.get_flag("macro-preexpand"),
         macro_preexpand_auto: matches.get_flag("macro-preexpand-auto"),
-        macro_top_level_allow: matches.get_flag("macro-top-level-allow"),
         macro_profile: matches.get_one::<String>("macro-profile").cloned(),
         dump_expanded_ast_json: matches.get_flag("dump-expanded-ast-json"),
         macro_ctx_json: matches.get_one::<String>("macro-ctx-json").cloned(),
@@ -579,15 +577,11 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
     if matches.get_flag("macro-preexpand-auto") {
         std::env::set_var("NYASH_MACRO_SELFHOST_PRE_EXPAND", "auto");
     }
-    if matches.get_flag("macro-top-level-allow") {
-        std::env::set_var("NYASH_MACRO_TOPLEVEL_ALLOW", "1");
-    }
     if let Some(p) = matches.get_one::<String>("macro-profile") {
         match p.as_str() {
             "dev" | "ci-fast" | "strict" => {
                 std::env::set_var("NYASH_MACRO_ENABLE", "1");
                 std::env::set_var("NYASH_MACRO_STRICT", "1");
-                std::env::set_var("NYASH_MACRO_TOPLEVEL_ALLOW", "0");
                 std::env::set_var("NYASH_MACRO_SELFHOST_PRE_EXPAND", "auto");
             }
             _ => {}

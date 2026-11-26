@@ -121,7 +121,7 @@ fn constructor_construction_reject_keeps_the_exact_parser_source_id() {
 
 #[test]
 fn unissued_direct_call_observation_rejects_package_before_install() {
-    let source = final_source("function caller() { return helper() }");
+    let source = final_source("static box Fixture { caller() { return helper() } }");
     let mut resolver = FunctionSemanticResolverSessionV1::new(96).unwrap();
     let reject = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
         Err(NormalCallableSemanticPackageIssueV1::Batch {
@@ -139,7 +139,9 @@ fn unissued_direct_call_observation_rejects_package_before_install() {
 
 #[test]
 fn nested_lambda_direct_call_observation_rejects_package_before_install() {
-    let source = final_source("function caller() { local f = fn() { return helper() } return 0 }");
+    let source = final_source(
+        "static box Fixture { caller() { local f = fn() { return helper() } return 0 } }",
+    );
     let mut resolver = FunctionSemanticResolverSessionV1::new(97).unwrap();
     let reject = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
         Err(NormalCallableSemanticPackageIssueV1::Batch {
@@ -158,7 +160,7 @@ fn nested_lambda_direct_call_observation_rejects_package_before_install() {
 #[test]
 fn root_and_nested_direct_call_observations_share_one_package_gate() {
     let source =
-        final_source("function caller() { local f = fn() { return helper() } return helper() }");
+        final_source("static box Fixture { caller() { local f = fn() { return helper() } return helper() } }");
     let mut resolver = FunctionSemanticResolverSessionV1::new(98).unwrap();
     let reject = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
         Err(NormalCallableSemanticPackageIssueV1::Batch {
@@ -186,19 +188,6 @@ fn cataloged_static_direct_call_observation_rejects_before_install() {
         other => panic!("expected cataloged unissued direct-call terminal, got {other:?}"),
     };
     assert_eq!(reject, ());
-
-    for fixture in [
-        "static function caller(n: i64): i64 { return callee(n) } static function callee(n: i64): i64 { return n + 1 }",
-        "static function callee(n: i64): i64 { return n + 1 } static function caller(n: i64): i64 { return callee(n) }",
-    ] {
-        let mut resolver = FunctionSemanticResolverSessionV1::new(99).unwrap();
-        assert!(matches!(
-            issue_normal_callable_semantic_package_v1(&mut resolver, final_source(fixture)),
-            Err(NormalCallableSemanticPackageIssueV1::Batch {
-                _error: ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
-            })
-        ));
-    }
 }
 
 #[test]
@@ -557,105 +546,13 @@ fn app_main_without_qualified_receiver_is_unavailable_but_still_one_shot() {
 }
 
 #[test]
-fn app_main_direct_call_accepts_top_level_free_function() {
-    let source = final_source(
-        "function helper(value: i64): i64 { return value }\n\
-         static box Main { main() { return helper(2) } }",
+fn app_main_source_rejects_top_level_function_before_package() {
+    let error = crate::parser::NyashParser::parse_from_string("function helper(value: i64): i64 { return value } static box Main { main() { return helper(2) } }")
+        .expect_err("file-scope function must be rejected");
+    assert!(
+        error.to_string().contains("decl/function-outside-box"),
+        "{error}"
     );
-    let mut resolver = FunctionSemanticResolverSessionV1::new(107).unwrap();
-    let package = issue_normal_callable_semantic_package_v1(&mut resolver, source)
-        .expect("mixed App Main plus top-level FreeFunction package");
-    assert!(package.has_direct_call_loan());
-    assert!(package
-        .declaration_catalog()
-        .declaration(
-            &crate::mir::builder::CanonicalSameModuleCallableKeyV1::free_function("helper", 1,)
-        )
-        .is_some());
-    let declaration = package
-        .batch()
-        .declarations()
-        .find(|declaration| {
-            matches!(
-                package
-                    .selected
-                    .key_for_batch_slot(declaration.batch_slot()),
-                Some(crate::mir::builder::SelectedNormalCallableKeyV1::TopLevel(
-                    _
-                ))
-            )
-        })
-        .expect("original selected TopLevel declaration");
-    let row = package
-        .result_contracts
-        .row(declaration.batch_slot())
-        .expect("TopLevel retains its original Completion seed");
-    let completion = package
-        .ordinary_new_claim_ledger
-        .completion_for_owner(declaration.owner())
-        .unwrap();
-    assert!(std::ptr::eq(completion, row.borrow().completion()));
-    assert_eq!(completion.owner(), declaration.owner());
-    assert_eq!(completion.explicit_sites().len(), 1);
-    package
-        .batch()
-        .with_lowering_input(declaration.batch_slot(), |input| {
-            assert!(super::result_contract::issue_top_level_scalar_input_v1(
-                declaration,
-                &package.selected,
-                input,
-            )
-            .unwrap()
-            .is_some());
-        })
-        .unwrap();
-    let main = package
-        .batch()
-        .declarations()
-        .find(|other| other.owner() != declaration.owner())
-        .unwrap();
-    package.batch().with_lowering_input(main.batch_slot(), |input| {
-        assert!(matches!(super::result_contract::issue_top_level_scalar_input_v1(
-            declaration, &package.selected, input,
-        ), Err(super::physical_header::CallablePhysicalHeaderIssueV1::ParameterOwnerMismatch { .. })));
-    }).unwrap();
-    for (formal, body, prefix, scalar_header) in [
-        ("value", "return 1", "", false),
-        ("value: StringBox", "return 1", "", false),
-        (
-            "value: i64",
-            "local token = new Token() return 1",
-            "box Token {} ",
-            true,
-        ),
-    ] {
-        let source = final_source(&format!(
-            "{prefix}function isolated({formal}): i64 {{ {body} }}"
-        ));
-        let mut resolver = FunctionSemanticResolverSessionV1::new(108).unwrap();
-        let isolated = issue_normal_callable_semantic_package_v1(&mut resolver, source)
-            .expect("unselected scalar formal stays outside Completion seed admission");
-        let declaration = isolated.batch().declarations().next().unwrap();
-        assert!(isolated
-            .result_contracts
-            .row(declaration.batch_slot())
-            .is_none());
-        isolated
-            .batch()
-            .with_lowering_input(declaration.batch_slot(), |input| {
-                assert_eq!(
-                    super::result_contract::issue_top_level_scalar_input_v1(
-                        declaration,
-                        &isolated.selected,
-                        input,
-                    )
-                    .unwrap()
-                    .is_some(),
-                    scalar_header
-                );
-            })
-            .unwrap();
-    }
 }
 
 #[test]

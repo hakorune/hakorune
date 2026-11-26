@@ -1,6 +1,6 @@
 # ADR-005: file の関数は static box の中だけに書く
 
-Status: 採用(2026-11-26、ユーザー決定)。実装は、まだ無い。
+Status: 採用(2026-11-26、ユーザー決定)。(3) の診断を実装。
 Date: 2026-11-26
 Scope: file に書く関数の置き場所、関数の名前の決まり、呼び方、REPL の関数の定義、移る順。
 
@@ -19,7 +19,7 @@ Scope: file に書く関数の置き場所、関数の名前の決まり、呼�
 1. **file のモードでは、box の外の関数は compile error。**
    - 相手は、file の top-level の `function f(...) { ... }`、`static function f(...) { ... }`、`static function Box.f(...) { ... }`。top-level の `gate ... { } else { }` の中も同じ。
    - エラーは「static box の中に method として書いて」と案内する。
-   - 拒否の名前の案は `decl/function-outside-box`([設計図](../current/main/design/mirbuilder-blueprint.md) §23.1 A08)。名前と文は、実装の回(下の「移る順」の (3))で決める。
+   - 名前は `decl/function-outside-box`（[設計図](../current/main/design/mirbuilder-blueprint.md) §23.1 A08）。method 本体の入れ子と macro が展開後に作る file 直下の関数にも適用する。
 2. **関数の名前は、箱ごとに 1 つ。** 今の Box の method の決まりのまま。同じ名前で引数の数だけが違う関数(`f(x)` と `f(x, y)`)は、1 つの箱に持てない。名前を変えるか、箱を分ける。FreeStatic の `name/arity` の名前の空間は、言語から無くなる。
 3. **呼び方は 2 つ。** 同じ箱の中は `me.f(x)`。外からは `Box名.f(x)`。`using ... as S` の別名は、その箱を指す(`using.md` の今の契約のまま)。
    - 箱の名前の無い `f(x)` は、file の関数を呼ぶ形ではなくなる。
@@ -131,11 +131,9 @@ static box ConsoleStd {
 - REPL で、同じ名前の関数を定義し直す時の扱い(置き換えるか、拒否するか)。引数の数が違う定義し直しも含む。
 - REPL から file へ移す時の案内(診断の文、session の関数を箱の形で書き出す手助けを作るか)。
 - `examples/` の 28 file を移すか、消すか。
-- 拒否の名前と、診断の文。案は `decl/function-outside-box`。(3) の回で決める。
 - 変換器の箱の名前は決定済み（LB-2d）。関数を出力する module ごとに一つの static box を作る。箱名は `RustSubset_` に module ID（ASCII 英数字はそのまま、`_` は `_u`、`:` は `_c`）を続ける。同じ箱でメソッド名が重なった場合、引数の数にかかわらず変換を拒否する。
 - `console_std.hako` の helper の移し方。箱を足すと、`using` の別名の結び付けが変わりうる(公開の static box が 1 つの時と、複数の時で、今の決まりが違う)。
 - runner 向けの `function main(args)`(`mini_vm_if_branch.hako`、macro の子の runner)の代わりの入口。macro の top-level の `static function MacroBoxSpec.expand` と `NYASH_MACRO_TOPLEVEL_ALLOW` は、[ADR-006](adr-006-static-box-holds-only-static-methods.md) で決まった(`static box MacroBoxSpec { expand(json, ctx) { ... } }` に揃え、特例は退役する)。子の runner の正式な入口は、まだ決めていない。
-- method の本体の中に書いた `function`(入れ子。今の parser は文として読む)。この ADR が決めるのは、file の top-level の宣言だけ。
 - src の Rust の test の文字列 101 本を、(2) と (3) のどちらで直すか。
 - 内部の名前 `FreeStatic`(code と MIR の文書で、static box の method の呼び出しにも使う)の呼び分け。(4) の回で、消す範囲と一緒に決める。
 - この ADR が直さなかった文書: `docs/reference/language/LANGUAGE_REFERENCE_2025.md`(過去の記録。`static function Factory.create()` の例がある)、`docs/guides/` の macro の頁、`docs/reference/mir/` の FreeStatic の記述。

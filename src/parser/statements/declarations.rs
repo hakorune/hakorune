@@ -38,13 +38,17 @@ impl NyashParser {
             TokenType::TYPE => {
                 crate::parser::declarations::type_alias_def::parse_type_alias_declaration(self)
             }
-            TokenType::FLOW => crate::parser::declarations::box_def::parse_box_declaration(self), // flow is syntactic sugar for static box
+            TokenType::FLOW => Err(ParseError::GrammarContract {
+                stable_reject_tag: "decl/flow-retired",
+                detail: "use a static box for methods or an ordinary box for state".to_owned(),
+                line: self.current_token().line,
+            }),
             TokenType::IMPORT => self.parse_import(),
             TokenType::INTERFACE => {
                 crate::parser::declarations::box_def::parse_interface_box_declaration(self)
             }
             TokenType::GLOBAL => self.parse_global_var(),
-            TokenType::FUNCTION => self.parse_function_declaration(),
+            TokenType::FUNCTION => Err(ParseError::function_outside_box(self.current_token().line)),
             TokenType::STATIC => self.parse_static_declaration(),
             _ => Err(ParseError::UnexpectedToken {
                 found: self.current_token().token_type.clone(),

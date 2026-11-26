@@ -29,14 +29,6 @@ pub fn macro_box_ny_paths() -> Option<String> {
     std::env::var("NYASH_MACRO_BOX_NY_PATHS").ok()
 }
 
-/// NYASH_MACRO_TOPLEVEL_ALLOW (deprecated)
-pub fn macro_toplevel_allow() -> Option<bool> {
-    std::env::var("NYASH_MACRO_TOPLEVEL_ALLOW").ok().map(|v| {
-        let lv = v.to_ascii_lowercase();
-        lv == "1" || lv == "true" || lv == "on"
-    })
-}
-
 /// NYASH_MACRO_BOX_CHILD_RUNNER (deprecated)
 pub fn macro_box_child_runner() -> Option<bool> {
     std::env::var("NYASH_MACRO_BOX_CHILD_RUNNER").ok().map(|v| {

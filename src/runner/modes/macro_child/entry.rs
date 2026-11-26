@@ -29,6 +29,8 @@ pub fn run_macro_child(macro_file: &str) {
         }
     };
 
+    crate::r#macro::require_file_functions(&ast);
+
     // Analyze macro behavior (PoC)
     let mut behavior = crate::r#macro::macro_box_ny::analyze_macro_file(macro_file);
     if macro_file.contains("env_tag_string_macro") {
@@ -185,6 +187,7 @@ pub fn run_macro_child(macro_file: &str) {
             }
         }
     };
+    crate::r#macro::require_file_functions(&out_ast);
     let out_json = crate::r#macro::ast_json::ast_to_json_roundtrip(&out_ast);
     println!("{}", out_json.to_string());
 }

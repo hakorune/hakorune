@@ -106,6 +106,7 @@ pub(crate) struct CompilationContext {
     /// For static boxes: empty Vec (no fields)
     /// For instance boxes: Vec of field names
     pub user_defined_boxes: HashMap<String, Vec<String>>,
+    pub(super) static_box_names: HashSet<String>,
 
     /// Brand declarations visible to direct MIR lowering.
     ///
@@ -204,7 +205,8 @@ impl CompilationContext {
             current_static_box: None,
             callable_main_compatibility_policy: CallableMainCompatibilityPolicyV1::Omitted,
             emit_debug_policy: BuilderEmitDebugPolicySnapshotV1::default(),
-            user_defined_boxes: HashMap::new(), // Phase 285LLVM-1.1: HashMap for fields
+            user_defined_boxes: HashMap::new(),
+            static_box_names: HashSet::new(), // Phase 285LLVM-1.1: HashMap for fields
             brand_decls: HashMap::new(),
             user_box_field_decls: HashMap::new(),
             record_decls: HashMap::new(),

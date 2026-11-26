@@ -1,6 +1,6 @@
 # ADR-006: static box は、static method を名前でまとめるだけの箱
 
-Status: 採用(2026-11-26、ユーザー決定)。実装は、まだ無い。
+Status: 採用(2026-11-26、ユーザー決定)。(3) の診断を実装。
 Date: 2026-11-26
 Scope: static box に書ける物、static box の `new`、static box の header の `from`、`flow` の宣言、macro の書き方、移る順。
 
@@ -27,14 +27,14 @@ Scope: static box に書ける物、static box の `new`、static box の header
    - `static box MapBox {}` のように組み込みの名前を覆う時も同じで、組み込みに戻さない。
 2. **static box の field・`init { }`・`static { }` は禁止。**
    - 宣言の位置で、compile error にする。案内は「static box は状態・初期化を持てない。状態はふつうの box へ」。
-   - 名前の案は `decl/static-box-state`。
+   - 名前は `decl/static-box-state`。
 3. **型つきの field・初期値(`x: T`、`x = e`、`x: T = e`)も、2 と同じ。**
    - method を選ぶ `gate` は、将来許す方針。今は作らない。
    - file 直下の `static const` の表は別の宣言で、変えない。
 4. **`static box S from P` も拒否し、ふつうの `box` と揃える。**
-   - 親の method は `P.f()` と呼ぶ。
+   - `decl/static-box-from` で拒否する。親の method は `P.f()` と呼ぶ。
    - 所有・戻り値の契約の `from`(`pick(a: P, b: P): P from a`)は別の物で、この ADR の対象外。
-5. **`flow` という宣言の綴りは、退役する。** 名前で呼ぶ関数の集まりは `static box` に、状態を持つ物は `box` に移す。
+5. **`flow` という宣言は `decl/flow-retired` で拒否する。** 名前で呼ぶ関数の集まりは `static box` に、状態を持つ物は `box` に移す。
 6. **macro も `static box MacroBoxSpec { expand(json, ctx) { ... } }` に揃える。**
    - 箱の中の `static function` は作らない。
    - 箱の外の `static function MacroBoxSpec.expand` は、ADR-005 の compile error に入る。
@@ -182,10 +182,8 @@ ADR-005 と同じ順にする。
 
 ## まだ決めていない事
 
-- 診断の文。`decl/static-box-state` は名前の案で、決めるのは (3) の回。`call/new-static-box` の文も (3) の回で決める。
 - `new` が static box を指す事の見分け方。今の code の `declares_non_ordinary_box` は interface・record も含むので、それだけで `call/new-static-box` を出すと誤る(相談の答え)。宣言の種類で決め、引数を読む前に決める、が案。
 - method を選ぶ `gate` の形と時期。方針は、両方の枝を構文で検査し、同じ署名の対を求め、選ばれた method を 1 つ登録する(ふつうの box の LANG-CFG-002 と共有する)。
-- `flow` を退役した後、古い宣言の位置で出す案内の文と、拒否の名前。
 - macro の子の runner の、正式な入口(引数の受け渡しを保つ形)。ADR-005 の、runner 向けの `function main(args)` と同じ問題である。
 - macro に古い形を指定した時、何も変えずに登録が成功したように見える今の動き(相談の答え)の直し方。
 - 古い VM の `StaticBoxRegistry` の遅れて作る singleton を、いつ消すか。

@@ -21,13 +21,13 @@ pub(crate) struct ParserOrdinaryBoxSourceCoverageV1 {
     /// Names of user declarations that are not source-sealed ordinary Boxes
     /// (`static`, interface, record). They have no row, but they are still
     /// user declarations: a builtin of the same name is not what they denote.
-    non_ordinary_names: Box<[Box<str>]>,
+    non_ordinary_names: Box<[(Box<str>, bool)]>,
 }
 
 impl ParserOrdinaryBoxSourceCoverageV1 {
     pub(in crate::parser) fn issue(
         rows: Vec<(usize, Box<str>, SourceBoxDeclarationSiteV1, bool)>,
-        non_ordinary_names: Vec<Box<str>>,
+        non_ordinary_names: Vec<(Box<str>, bool)>,
     ) -> Self {
         Self {
             non_ordinary_names: non_ordinary_names.into_boxed_slice(),
@@ -56,7 +56,13 @@ impl ParserOrdinaryBoxSourceCoverageV1 {
     /// The user declared a `static`, interface or record Box of this name.
     /// It is not constructible as an ordinary Box, and it shadows a builtin.
     pub(crate) fn declares_non_ordinary_box(&self, name: &str) -> bool {
-        self.non_ordinary_names.iter().any(|own| own.as_ref() == name)
+        self.non_ordinary_names.iter().any(|(own, _)| own.as_ref() == name)
+    }
+
+    pub(crate) fn declares_static_box(&self, name: &str) -> bool {
+        self.non_ordinary_names
+            .iter()
+            .any(|(own, is_static)| *is_static && own.as_ref() == name)
     }
 
     /// The user declared any Box of this name. The one declaration question:

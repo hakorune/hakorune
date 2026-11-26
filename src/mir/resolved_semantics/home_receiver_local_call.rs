@@ -60,17 +60,11 @@ mod tests {
     use super::*;
     #[test]
     fn non_receiver_local_and_unsupported_result_issue_nothing() {
-        let ast = crate::parser::NyashParser::parse_from_string(
-            "function probe(other) { local item = other.make(7) return item }",
-        )
-        .unwrap();
-        let crate::ast::ASTNode::Program { statements, .. } = ast else {
-            panic!("program")
-        };
-        let function = statements
-            .into_iter()
-            .find(|node| matches!(node, crate::ast::ASTNode::FunctionDeclaration { .. }))
-            .unwrap();
+        let function = crate::tests::helpers::parser::parse_fixture_method(
+            "static box Fixture { probe(other) { local item = other.make(7) return item } }",
+            "Fixture",
+            "probe",
+        );
         let unit =
             crate::mir::compiler::VerifiedResolvedSourceUnitV1::resolve_function(function).unwrap();
         let input = unit.root_function_input().unwrap();

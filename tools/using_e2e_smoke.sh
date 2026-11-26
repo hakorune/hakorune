@@ -14,7 +14,6 @@ if [ ! -f "$APP" ]; then
 using acme.util
 
 static box Main {
-  init { }
   main(args) {
     // using line should be accepted when NYASH_ENABLE_USING=1
     return 0

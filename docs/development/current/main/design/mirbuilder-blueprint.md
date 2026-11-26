@@ -486,7 +486,7 @@ source → MIR の間で、program を断ってよい理由は、**この表に�
 
 引用の略号: `L/` = `docs/reference/language/`、`BP` = この文書、`ADR3` = `docs/development/adr/adr-003-counted-box-default.md`、`ADR4` = `docs/development/adr/adr-004-failure-surface-catch-and-cleanup.md`、`ADR5` = `docs/development/adr/adr-005-file-functions-live-in-static-boxes.md`、`ADR6` = `docs/development/adr/adr-006-static-box-holds-only-static-methods.md`。根拠の S は仕様が明記、I は直接の含意。行番号は 2026-11-17 の時点。2026-11-26 の ADR5 の文書の回、EBNF に static box の文法の式を足した回、ADR6 の文書の回で、直した文書を指す行だけ、同じ文を指すように付け直した。
 
-### 23.1 program が間違っている(compile error。54 行)
+### 23.1 program が間違っている(compile error。56 行)
 
 | # | 名前(案) | 意味 | 根拠 | 引用 |
 |---|---|---|---|---|
@@ -497,7 +497,7 @@ source → MIR の間で、program を断ってよい理由は、**この表に�
 | A05 | `name/panic-reserved` | `panic` を宣言・上書きする。引数が 1 個でない、String でない | S | `L/failure-outcome-relations.md:151-156`、`L/quick-reference.md:77` |
 | A06 | `decl/method-name-duplicate` | 1 つの Box に同じ method 名が 2 つ(引数の数や static/instance が違っても) | S | `L/callable-contracts.md:77-78`、`L/EBNF.md:1012-1017` |
 | A07 | `decl/delegate-exposure-collision` | delegate の公開名が、host の method や別の公開名とぶつかる | S | `L/field-visibility-and-delegation.md:73-77`、`L/callable-contracts.md:114-115` |
-| A08 | `decl/function-outside-box` | file の top-level(box の外)に `function`・`static function` を書く。static box の method として書くよう案内する(メンテナ決定 2026-11-26。名前は案で、決めるのは ADR5 の (3) の回。実装はまだ。それまでの今の実装は、同じ `name/arity` の top-level 関数が 2 つの時に拒否する) | S | `ADR5`、`L/repl.md:76-82`、`L/EBNF.md:162-167`、`L/callable-contracts.md:86-92` |
+| A08 | `decl/function-outside-box` | file の box 外、gate、method 本体、macro 展開後に関数宣言がある。static box に method として書く。 | S | `ADR5`、`L/EBNF.md` |
 | A09 | `decl/constructor-duplicate` | 同じ `birth/arity` の constructor が 2 つ | S | `L/EBNF.md:1023-1025` |
 | A10 | `decl/brand-duplicate` | 同じ名前の `brand` が 2 つ | S | `L/brands.md:17-18` |
 | A11 | `decl/birth-once-retired` | `birth_once` を書く(言語から外した) | S | `BP:276` |
@@ -509,7 +509,7 @@ source → MIR の間で、program を断ってよい理由は、**この表に�
 | A17 | `name/me-outside-instance` | instance の method・`birth`・`fini` の外の `me`(値として)。static の中の `me.field`、`me` を渡す事 | S | `L/semantic-kernel.md`(Control Boundaries の `me`) |
 | A18 | `call/direct-birth` | `obj.birth(...)` を直接呼ぶ | S | `L/lifecycle.md:124` |
 | A19 | `call/direct-fini` | `obj.fini()` を直接呼ぶ | S | `L/lifecycle.md:58-61` |
-| A20 | `call/new-static-box` | `static box` を `new` する。無い名前の `new` とは分ける。組み込みの名前を覆う static box も同じで、組み込みに戻さない(ADR6、メンテナ決定 2026-11-26。実装はまだで、今は無い名前と同じ `OrdinaryBoxCoverageMissing`) | S | `ADR6`、`L/types.md:196-204` |
+| A20 | `call/new-static-box` | static box を `new` する。組み込みの同名を覆う場合も、実引数の解決前に拒否する。箱名で method を呼ぶ。 | S | `ADR6`、`L/types.md` |
 | A21 | `call/brand-arity` | brand の構築・`unwrap` の引数が 1 個でない。無い static method | S | `L/brands.md:28-34` |
 | A22 | `call/enum-payload-arity` | enum の構築の payload の数が違う | S | `L/option.md:106-108` |
 | A23 | `call/enum-dot-variant` | 既知の enum を `Result.Ok(..)` と書く(`::` が正) | S | `L/option.md:71-75`、`L/types.md:387` |
@@ -543,7 +543,9 @@ source → MIR の間で、program を断ってよい理由は、**この表に�
 | A52 | `type/local-store-mismatch` | 型を宣言した `local` へ、静的に違う型の値を入れる(初期値と代入) | S | 同 3 |
 | A53 | `type/operator-mismatch` | 演算子の両方の型が静的に分かっていて、合わない(`1 + true`) | S | 同 3、`L/types.md`(演算子の表) |
 | A54 | `name/unknown-field` | 型が静的に分かる receiver に、無い field を読む・書く | S | 同 5 |
-| A55 | `decl/static-box-state` | static box に field・`init { }`・`static { }`・型つきの field・初期値を書く。「static box は状態・初期化を持てない。状態はふつうの box へ」と案内する(ADR6、メンテナ決定 2026-11-26。名前は案で、決めるのは ADR6 の (3) の回) | S | `ADR6`、`L/EBNF.md:1071-1075` |
+| A55 | `decl/static-box-state` | static box の field・弱参照 field・初期化を拒否する。状態は普通の box に移す。 | S | `ADR6`、`L/EBNF.md` |
+| A56 | `decl/static-box-from` | static box の header に親の `from` がある。親の method を箱名で呼ぶ。 | S | `ADR6`、`L/EBNF.md` |
+| A57 | `decl/flow-retired` | `flow` の宣言を拒否する。method の集まりは static box、状態を持つ物は普通の box にする。 | S | `ADR6`、`L/EBNF.md` |
 
 所有の拒否: 次の model(`L/ownership.md` の 0 節)と HomeV1 の候補 27 行は、表に入れない。**今、有効な所有の規則が利用者に求めている物だけを、ここへ足して、凍結する**(Resolve の責務をまとめる回で、今出ている所有の拒否を、「利用者の違反 / まだ作っていない / 内部の不整合 / 古い道だけの証拠」に分けて、最初の 2 つだけを行にする)。ADR-003 が正式になった時は、行が減る。
 

@@ -3,17 +3,11 @@ use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::resolved_semantics::home_new_prefix::local_flow::PrefixLocalFlow;
 #[test]
 fn complete_expression_installation_publishes_only_after_the_final_field_batch() {
-    let parsed = crate::parser::NyashParser::parse_from_string(
-        "function probe() { print(\"猫\") return 0 }",
-    )
-    .unwrap();
-    let crate::ast::ASTNode::Program { statements, .. } = parsed else {
-        panic!("Program")
-    };
-    let function = statements
-        .into_iter()
-        .find(|node| matches!(node, crate::ast::ASTNode::FunctionDeclaration { .. }))
-        .unwrap();
+    let function = crate::tests::helpers::parser::parse_fixture_method(
+        "static box Fixture { probe() { print(\"猫\") return 0 } }",
+        "Fixture",
+        "probe",
+    );
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(function).unwrap();
     let input = unit.root_function_input().unwrap();
     let shape = input.body_shape().unwrap();
@@ -154,15 +148,11 @@ fn complete_expression_installation_publishes_only_after_the_final_field_batch()
         ("2 << 1", false, true),
     ] {
         for batch_succeeds in [false, true] {
-            let parsed = crate::parser::NyashParser::parse_from_string(&format!(
-                "function probe(p, n) {{ p.value = {rhs} return p }}"
-            ))
-            .unwrap();
-            let crate::ast::ASTNode::Program { mut statements, .. } = parsed else {
-                panic!("Program")
-            };
+            let function = crate::tests::helpers::parser::parse_fixture_method(&format!(
+                "static box Fixture {{ probe(p, n) {{ p.value = {rhs} return p }} }}"
+            ), "Fixture", "probe");
             let unit =
-                VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+                VerifiedResolvedSourceUnitV1::resolve_function(function).unwrap();
             let input = unit.root_function_input().unwrap();
             let shape = input.body_shape().unwrap();
             let ledger = input
@@ -199,14 +189,12 @@ fn complete_expression_installation_publishes_only_after_the_final_field_batch()
     // A borrowed write retains its original assignment and allocation-order
     // snapshot. This frame alone never issues a physical store capability.
     {
-        let parsed = crate::parser::NyashParser::parse_from_string(
-            "function probe(p, n) { p.value = n return p }",
-        )
-        .unwrap();
-        let crate::ast::ASTNode::Program { mut statements, .. } = parsed else {
-            panic!("Program")
-        };
-        let unit = VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+        let function = crate::tests::helpers::parser::parse_fixture_method(
+            "static box Fixture { probe(p, n) { p.value = n return p } }",
+            "Fixture",
+            "probe",
+        );
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(function).unwrap();
         let input = unit.root_function_input().unwrap();
         let shape = input.body_shape().unwrap();
         let assignment = &shape.assignment_sources()[0];
@@ -304,14 +292,14 @@ fn complete_expression_installation_publishes_only_after_the_final_field_batch()
         "(\"b\" > \"a\") || false",
         "(\"b\" >= \"a\") && true",
     ] {
-        let parsed = crate::parser::NyashParser::parse_from_string(&format!(
-            "function probe() {{ if {expression} {{ return 1 }} return 0 }}"
-        ))
-        .unwrap();
-        let crate::ast::ASTNode::Program { mut statements, .. } = parsed else {
-            panic!("Program")
-        };
-        let unit = VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+        let function = crate::tests::helpers::parser::parse_fixture_method(
+            &format!(
+                "static box Fixture {{ probe() {{ if {expression} {{ return 1 }} return 0 }} }}"
+            ),
+            "Fixture",
+            "probe",
+        );
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(function).unwrap();
         let input = unit.root_function_input().unwrap();
         let statement = input.function().if_region_sites().next().unwrap();
         let source = crate::mir::resolved_value_profile::expression_plan::condition_expression_source_plan_v1(input, statement).unwrap();
@@ -426,14 +414,14 @@ fn complete_expression_installation_publishes_only_after_the_final_field_batch()
         ("obj != null && true", false, false),
         ("(3 - 1 == 2) && true", false, false),
     ] {
-        let parsed = crate::parser::NyashParser::parse_from_string(&format!(
-            "function probe(obj) {{ if {expression} {{ return 1 }} return 0 }}"
-        ))
-        .unwrap();
-        let crate::ast::ASTNode::Program { mut statements, .. } = parsed else {
-            panic!("Program")
-        };
-        let unit = VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+        let function = crate::tests::helpers::parser::parse_fixture_method(
+            &format!(
+                "static box Fixture {{ probe(obj) {{ if {expression} {{ return 1 }} return 0 }} }}"
+            ),
+            "Fixture",
+            "probe",
+        );
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(function).unwrap();
         let input = unit.root_function_input().unwrap();
         let statement = input.function().if_region_sites().next().unwrap();
         for field_ok in [false, true] {
@@ -491,14 +479,14 @@ fn complete_expression_installation_publishes_only_after_the_final_field_batch()
         "\"x\" == null",
         "(\"a\" + \"b\") == \"ab\"",
     ] {
-        let parsed = crate::parser::NyashParser::parse_from_string(&format!(
-            "function probe(obj) {{ if {expression} {{ return 1 }} return 0 }}"
-        ))
-        .unwrap();
-        let crate::ast::ASTNode::Program { mut statements, .. } = parsed else {
-            panic!("Program")
-        };
-        let unit = VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+        let function = crate::tests::helpers::parser::parse_fixture_method(
+            &format!(
+                "static box Fixture {{ probe(obj) {{ if {expression} {{ return 1 }} return 0 }} }}"
+            ),
+            "Fixture",
+            "probe",
+        );
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(function).unwrap();
         let input = unit.root_function_input().unwrap();
         let source = crate::mir::resolved_value_profile::expression_plan::condition_expression_source_plan_v1(
                 input, input.function().if_region_sites().next().unwrap()).unwrap();
@@ -525,14 +513,9 @@ fn complete_expression_installation_publishes_only_after_the_final_field_batch()
 
 #[test]
 fn initializer_scope_keeps_its_original_profile_and_home_snapshot() {
-    let parsed = crate::parser::NyashParser::parse_from_string(
-        "function probe() { local prior = \"p\" + \"q\" local out = \"a\" + \"b\" return 0 }",
-    )
-    .unwrap();
-    let crate::ast::ASTNode::Program { mut statements, .. } = parsed else {
-        panic!("Program")
-    };
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+    let function = crate::tests::helpers::parser::parse_fixture_method(
+        "static box Fixture { probe() { local prior = \"p\" + \"q\" local out = \"a\" + \"b\" return 0 } }", "Fixture", "probe");
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function).unwrap();
     let input = unit.root_function_input().unwrap();
     let ledger = input
         .forest()
@@ -606,12 +589,9 @@ fn original_loop_condition_keeps_frame_and_conditional_reach_without_if_permissi
         },
     };
     for (operator, truth) in [("&&", true), ("||", false)] {
-        let parsed = crate::parser::NyashParser::parse_from_string(&format!(
-                "function probe(flag) {{ loop(flag {operator} true) {{ break }} if true {{ return 1 }} return 0 }}")).unwrap();
-        let crate::ast::ASTNode::Program { mut statements, .. } = parsed else {
-            panic!("Program")
-        };
-        let unit = VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+        let function = crate::tests::helpers::parser::parse_fixture_method(&format!(
+                "static box Fixture {{ probe(flag) {{ loop(flag {operator} true) {{ break }} if true {{ return 1 }} return 0 }} }}"), "Fixture", "probe");
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(function).unwrap();
         let input = unit.root_function_input().unwrap();
         let site = input.function().only_loop_site().unwrap();
         let source = loop_condition_expression_source_plan_v1(input, &site).unwrap();

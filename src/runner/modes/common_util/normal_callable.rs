@@ -140,6 +140,8 @@ fn materialize_normal_callable_program_with_identity_and_optional_lineage_v1(
         }
         NormalCallableTransformOutcomeV1::Compatibility { ast, reason } => {
             let ast = super::super::macro_child::normalize_core_pass(&ast);
+            crate::r#macro::validate_file_functions(&ast)
+                .map_err(NormalCallableMaterializationErrorV1::Parse)?;
             let origin = NormalCallableCompatibilityOriginV1::issue(ast, reason, source_lineage)
                 .map_err(NormalCallableMaterializationErrorV1::CompatibilityOrigin)?;
             NormalCallableMaterializationOutcomeV1::Compatibility(origin)

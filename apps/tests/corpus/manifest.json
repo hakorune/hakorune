@@ -34409,6 +34409,7 @@
     },
     {
       "path": "apps/tests/corpus/tl/f1.hako",
+      "expected_refusal": "decl/function-outside-box",
       "sha256": "d10f7c71510dee0f8f66ca52ff5fe6378ba3d136519067fd064b8dc7585d2d89",
       "groups": [
         "A"
@@ -34427,6 +34428,7 @@
     },
     {
       "path": "apps/tests/corpus/tl/g0.hako",
+      "expected_refusal": "decl/function-outside-box",
       "sha256": "9ca094031531c2c30080725320ce5d4e43e862c11b7043c8abfefcd71c617926",
       "groups": [
         "A"
@@ -34463,6 +34465,7 @@
     },
     {
       "path": "apps/tests/corpus/tl/g4.hako",
+      "expected_refusal": "decl/function-outside-box",
       "sha256": "6b02ce019ae281cb4e583934a4fc8abc1629c5edf0c266e49600be49ee7f036d",
       "groups": [
         "A"

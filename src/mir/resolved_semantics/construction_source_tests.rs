@@ -1,22 +1,13 @@
 use super::*;
 use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1};
-use crate::parser::NyashParser;
 
 fn parsed_function(source: &str) -> ASTNode {
-    let ASTNode::Program { statements, .. } =
-        NyashParser::parse_from_string(source).expect("natural source parses")
-    else {
-        panic!("program expected")
-    };
-    statements
-        .into_iter()
-        .find(|node| matches!(node, ASTNode::FunctionDeclaration { .. }))
-        .expect("function")
+    crate::tests::helpers::parser::parse_fixture_method(source, "Fixture", "build")
 }
 
 #[test]
 fn natural_new_rows_keep_initializer_and_nested_argument_sites() {
-    let tree = parsed_function("function build() {\n local arr = new ArrayBox()\n local item = new UserBox(new OtherBox(), 7)\n return arr\n}");
+    let tree = parsed_function("static box Fixture { build() {\n local arr = new ArrayBox()\n local item = new UserBox(new OtherBox(), 7)\n return arr\n} }");
     let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
     let forest = session
         .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
@@ -58,7 +49,9 @@ fn natural_new_rows_keep_initializer_and_nested_argument_sites() {
 
 #[test]
 fn new_field_children_remain_ordered_and_resolved() {
-    let mut tree = parsed_function("function build() { local item = new UserBox() return item }");
+    let mut tree = parsed_function(
+        "static box Fixture { build() { local item = new UserBox() return item } }",
+    );
     let ASTNode::FunctionDeclaration { body, .. } = &mut tree else {
         panic!()
     };

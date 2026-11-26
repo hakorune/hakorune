@@ -1,10 +1,10 @@
 use super::lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1};
 use crate::ast::ASTNode;
 use crate::mir::loop_route_policy::GenericG0PolicyModeV1;
-use crate::parser::NyashParser;
 
 const G0: &str = r#"
-function generic_g0(i: i64, j: i64): i64 {
+box G0Fixture {
+generic_g0(i: i64, j: i64): i64 {
     loop(i < 3) {
         loop(j < 3) {
             j = j + 1
@@ -13,17 +13,11 @@ function generic_g0(i: i64, j: i64): i64 {
     }
     return j
 }
+}
 "#;
 
 fn parse_function(source: &str) -> ASTNode {
-    let program = NyashParser::parse_from_string(source).expect("fixture parses");
-    let ASTNode::Program { statements, .. } = program else {
-        panic!("fixture must produce a Program")
-    };
-    statements
-        .into_iter()
-        .find(|node| matches!(node, ASTNode::FunctionDeclaration { .. }))
-        .expect("function fixture")
+    crate::tests::helpers::parser::parse_fixture_method(source, "G0Fixture", "generic_g0")
 }
 
 fn resolved_g0() -> VerifiedResolvedSourceUnitV1 {

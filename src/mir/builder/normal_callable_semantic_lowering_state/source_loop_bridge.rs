@@ -289,8 +289,7 @@ fn issue_call_free_coverage(
 mod tests {
     use super::{CallableLoopSourceBridgeTakeV1, CallableLoopSourceBridgeV1};
     use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
-    use crate::mir::resolved_semantics::{SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1};
-    use crate::parser::NyashParser;
+    use crate::mir::resolved_semantics::{SourcePathV1, SourceStmtSiteV1};
 
     #[test]
     fn owned_inventory_takes_exact_loop_projection_once() {
@@ -321,9 +320,10 @@ mod tests {
     }
 
     fn mixed_loop_function() -> crate::ast::ASTNode {
-        let program = NyashParser::parse_from_string(
+        crate::tests::helpers::parser::parse_fixture_method(
             r#"
-static function mixed_loop(x: i64): i64 {
+static box Fixture {
+mixed_loop(x: i64): i64 {
     loop(x < 10) {
         x = x + 1
     }
@@ -334,16 +334,11 @@ static function mixed_loop(x: i64): i64 {
     }
     return x
 }
+}
 "#,
+            "Fixture",
+            "mixed_loop",
         )
-        .expect("mixed loop fixture parses");
-        let crate::ast::ASTNode::Program { statements, .. } = program else {
-            panic!("fixture is a program")
-        };
-        statements
-            .into_iter()
-            .find(|node| matches!(node, crate::ast::ASTNode::FunctionDeclaration { .. }))
-            .expect("mixed loop function")
     }
 
     #[test]
