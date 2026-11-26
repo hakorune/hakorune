@@ -161,6 +161,7 @@ compilerの動くcodeは変更していない。coverage CLIは前回の同じbi
 | NR-1 | `N/` の小さな組み替え(外から見える変化なし) | 済(`b6bbae1f2c`..`0e12cb9ea4`): CoreMethod の表の往復、呼び手の無い入口、位置ごとの包み 8 本、claim の取り出しの重なり、Resolve の行の写しを消した。test 1 本はメンテナの OK で削除。名簿の全部で差 0。本体 −659 行 |
 | LB-5 | static box の中の `me.f(x)` を動かし、箱の名前なしの `f(x)` を `call/target-missing` にする | 済(`1ea8328f33`・`5ccf4c7ce2`・`44d3bb0d5b`、統合 `8f6c39aacd`): `me.g(x)` は `Box.g(x)` と同じ書き手。変わる入力と test 7 本の削除はメンテナの OK。本体 +257 行(仕様の実装) |
 | LB-5c | 箱の名前なしの予約の名前を仕様の特別な形だけにする(math を外す、`panic` を method に結び付けない) | 済(`55e634b841`..`684489d2a4`、統合 `fbd6c7235e`): 変わる試しの入力と名簿の拒否名 1 本はメンテナの OK。CallableSingleLoop の書き手は名簿でも試しでも MIR 0 本。本体 +17 行 |
+| LB-5e | 残りの予約の名前を決めた形にそろえる | 済(`0f5e8e6a3f`..`42e8c06c11`、統合 `46a3e3373a`): `print` と `mem.*` を仕様に書き、`exit`・`str`・`Range` と `a .. b` の糖衣を退役。どの予約の名前も同じ名前の method に結び付かない。名簿・監査の差 0。試しの入力の変化と test 1 本の削除はメンテナの OK。本体 +8 行 |
 | UBD-1 | ユーザーの box の Dynamic 呼び出しを、program ごとの表で選ぶ(決定 25)。型付きの受け手・整数の引数・I64 の結果。入力形 1、tag 1、metadata 1、C ABI 2、kernel export 2 | 済(`ac50c423b2`): 拒否→成功 3(値一致)、成功→拒否 0。3 つ目の class で MirBuilder 差分 0。MIR 本体 +約 630 |
 | DEL-1 | 使い手が 0 の code を消すだけの回 | 済(`753d5121bd`): production −548、test −918 行。名簿・B は全部同じ。feature・flag の道は残した |
 | UBD-2 | Text の引数(決定 26): 引数は元の種類のまま。入力形 `BorrowedText` 1、tag 4 を使い直し、新しい tag・export 0 | 済(`fd76ae108a`): 拒否→成功 2(値一致)、成功→拒否 0。受け手の class が 1 つだけの時に古い道へ入る穴は、2b(`651ebe331c`)で直した。I64 を直接返す呼び出しだけ。それ以外の結果では、静的な候補の道が残る |
