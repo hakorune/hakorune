@@ -297,7 +297,9 @@ impl ModuleBuilderInvocationSessionV1 {
                             session: self,
                             _source: None,
                             error: NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
-                                format!("[mir/callable-semantic-package/issue] {error:?}").into(),
+                                error.call_diagnostic().unwrap_or_else(||
+                                    format!("[mir/callable-semantic-package/issue] {error:?}")
+                                ).into(),
                             ),
                         })
                     }

@@ -115,6 +115,33 @@ pub(crate) enum QualifiedCallRouteFactsErrorV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct StaticCallArityMismatchV1 {
+    pub(super) caller: CanonicalSameModuleCallableKeyV1,
+    pub(super) site: SourceExprSiteV1,
+    pub(super) target_owner: Box<str>,
+    pub(super) selector: Box<str>,
+    pub(super) expected: Vec<u32>,
+    pub(super) actual: u32,
+}
+
+impl StaticCallArityMismatchV1 {
+    pub(super) fn for_call(
+        call: &super::VerifiedSourceMethodCallSiteV1<'_>,
+        target_owner: &str,
+        expected: Vec<u32>,
+    ) -> Self {
+        Self {
+            caller: call.caller().clone(),
+            site: call.site().clone(),
+            target_owner: target_owner.into(),
+            selector: call.method().into(),
+            expected,
+            actual: call.arity(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum CurrentOwnerStaticCallTargetErrorV1 {
     CallCatalogMismatch {
         caller: CanonicalSameModuleCallableKeyV1,
@@ -131,9 +158,11 @@ pub(crate) enum CurrentOwnerStaticCallTargetErrorV1 {
         caller: CanonicalSameModuleCallableKeyV1,
         site: SourceExprSiteV1,
     },
+    ArityMismatch(StaticCallArityMismatchV1),
     TargetOutsideCatalog {
         owner: Box<str>,
         method: Box<str>,
         arity: u32,
+        site: SourceExprSiteV1,
     },
 }

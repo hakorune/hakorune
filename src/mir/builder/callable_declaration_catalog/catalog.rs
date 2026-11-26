@@ -403,6 +403,16 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
             .filter(|(key, _)| key.namespace() == SameModuleCallableNamespaceV1::StaticBoxMethod)
     }
 
+    pub(crate) fn static_method_arities<'a>(
+        &'a self,
+        owner: &str,
+        method: &str,
+    ) -> impl Iterator<Item = u32> + 'a {
+        let first = CanonicalSameModuleCallableKeyV1::static_box_method(owner, method, 0);
+        let last = CanonicalSameModuleCallableKeyV1::static_box_method(owner, method, u32::MAX);
+        self.rows_by_key.range(first..=last).map(|(key, _)| key.arity())
+    }
+
     pub(crate) fn static_candidates(
         &self,
         method: &str,

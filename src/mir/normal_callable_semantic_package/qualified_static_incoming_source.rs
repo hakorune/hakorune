@@ -71,7 +71,7 @@ impl StaticIncomingSourceV1 {
         &self,
         plan: &crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
     ) -> bool {
-        self.qualified_scalar_result_v1().is_some_and(|result|
+        self.source_scalar_result_v1().is_some_and(|result|
             Self::exact_i64_input_result_v1(self.parameters(), result))
             && plan.owner() == self.call_site().owner()
             && matches!(plan.root(),

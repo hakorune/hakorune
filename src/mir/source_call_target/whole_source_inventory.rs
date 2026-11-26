@@ -402,19 +402,29 @@ fn seal_static_targets<'catalog>(
             unreachable!("variable-call filter");
         };
         let canonical_owner = imports.canonical_owner(name).unwrap_or(name);
-        if declarations
+        let has_exact_target = declarations
             .declaration_for(
                 SameModuleCallableNamespaceV1::StaticBoxMethod,
                 canonical_owner,
                 call.method(),
                 call.arity() as usize,
             )
-            .is_none()
+            .is_some();
+        if !has_exact_target
+            && declarations.static_method_arities(canonical_owner, call.method()).next().is_none()
         {
             continue;
         }
         match VerifiedQualifiedCallRouteFactsV1::verify(call, lexical, imports) {
-            Ok(row) => facts.push(row),
+            Ok(row) => {
+                if !has_exact_target {
+                    let expected = declarations.static_method_arities(canonical_owner, call.method()).collect();
+                    return Err(WholeSourceStaticCallTargetInventoryErrorV1::StaticArityMismatch(
+                        super::error::StaticCallArityMismatchV1::for_call(call, canonical_owner, expected),
+                    ));
+                }
+                facts.push(row);
+            }
             Err(
                 QualifiedCallRouteFactsErrorV1::ReservedRouteSelected { .. }
                 | QualifiedCallRouteFactsErrorV1::ReservedRouteRejected { .. }

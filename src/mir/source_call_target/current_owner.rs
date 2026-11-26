@@ -61,10 +61,17 @@ impl<'catalog> VerifiedSourceStaticCallTargetCatalogV1<'catalog> {
                 call.method(),
                 call.arity() as usize,
             ) else {
+                let expected: Vec<_> = declarations.static_method_arities(owner, call.method()).collect();
+                if !expected.is_empty() {
+                    return Err(CurrentOwnerStaticCallTargetErrorV1::ArityMismatch(
+                        super::error::StaticCallArityMismatchV1::for_call(call, owner, expected),
+                    ));
+                }
                 return Err(CurrentOwnerStaticCallTargetErrorV1::TargetOutsideCatalog {
                     owner: owner.into(),
                     method: call.method().into(),
                     arity: call.arity(),
+                    site: call.site().clone(),
                 });
             };
 

@@ -185,6 +185,7 @@ fn missing_current_owner_target_rejects() {
             owner: "Helpers".into(),
             method: "absent".into(),
             arity: 1,
+            site: return_site(),
         }
     );
 }

@@ -202,6 +202,17 @@ pub(in crate::mir) enum NormalCallableSemanticPackageIssueV1 {
     },
 }
 
+impl NormalCallableSemanticPackageIssueV1 {
+    pub(in crate::mir) fn call_diagnostic(&self) -> Option<String> {
+        match self {
+            Self::QualifiedStaticClaim {
+                _error: super::qualified_static_call_claim::QualifiedStaticCallClaimIndexIssueV1::TargetInventory(error),
+            } => error.call_diagnostic(),
+            _ => None,
+        }
+    }
+}
+
 #[cfg(test)]
 pub(in crate::mir) fn issue_normal_callable_semantic_package_v1(
     resolver: &mut FunctionSemanticResolverSessionV1,
