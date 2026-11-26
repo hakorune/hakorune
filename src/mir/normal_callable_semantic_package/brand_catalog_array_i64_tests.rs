@@ -59,7 +59,7 @@ fn probe_owner(
     let [claim] = claims.as_slice() else {
         panic!("one claim inside `probe`, got {claims:?}")
     };
-    claim.site().owner()
+    claim.core().site().owner()
 }
 
 /// Issue a borrowed-formal `probe(h)` fixture whose sealed borrowed

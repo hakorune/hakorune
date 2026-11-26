@@ -154,7 +154,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<NewEmissionSelectionV1, String> {
         if claim.core.allocation_execution.is_some() {
             let completion = self
-                .completion_source_for_owner_v1(claim.site().owner())
+                .completion_source_for_owner_v1(claim.core().site().owner())
                 .ok_or_else(|| freeze("allocation-only/completion-missing"))?;
             if !self.root_home_flow_ready_v1(completion)? {
                 return Err(freeze("allocation-only/source-home-closure-unavailable"));
@@ -162,17 +162,17 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let rows = self.local_commits.borrow();
         let row = rows
-            .get(claim.site())
+            .get(claim.core().site())
             .and_then(LocalCommitV1::ordinary)
             .ok_or_else(|| freeze("prepare-without-take"))?;
         if !matches!(row.emission, NewEmissionProgress::Unprepared)
-            || row.object != claim.object()
+            || row.object != claim.core().object()
             || row.binding != claim.destination
-            || !row.box_source.same_source_as(claim.box_source())
+            || !row.box_source.same_source_as(claim.core().box_source())
             || row.allocation_execution != claim.core.allocation_execution
             || row.allocation_execution.as_ref().is_some_and(|lease| {
                 !lease.matches_source(&row.construction_source)
-                    || !lease.matches_source(claim.construction_source())
+                    || !lease.matches_source(claim.core().construction_source())
             })
         {
             return Err(freeze("prepare-state-or-source-mismatch"));
@@ -183,22 +183,22 @@ impl OrdinaryNewClaimLedgerV1 {
             .map(|prefix| (prefix.prior_homes(), prefix.required_unwind()));
         let (next, selection) = self.compute_emission_prepare(
             &rows,
-            claim.site(),
-            claim.arity(),
+            claim.core().site(),
+            claim.core().arity(),
             &claim.core.constructor,
-            claim.construction(),
-            claim.execution_profile(),
-            claim.object(),
+            claim.core().construction(),
+            claim.core().execution_profile(),
+            claim.core().object(),
             claim.core.destruction,
             claim.core.children.as_deref(),
             prior_homes,
         )?;
         if selection.is_err() {
-            self.release_staged_argument_reads(claim.site())?;
+            self.release_staged_argument_reads(claim.core().site())?;
         }
         drop(rows);
         let mut rows = self.local_commits.borrow_mut();
-        rows.get_mut(claim.site())
+        rows.get_mut(claim.core().site())
             .and_then(LocalCommitV1::ordinary_mut)
             .expect("checked ordinary row")
             .emission = next;
@@ -213,12 +213,12 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<NewEmissionSelectionV1, String> {
         let rows = self.local_commits.borrow();
         let row = rows
-            .get(claim.site())
+            .get(claim.core().site())
             .and_then(LocalCommitV1::result)
             .ok_or_else(|| freeze("prepare-without-take"))?;
         if !matches!(row.emission, NewEmissionProgress::Unprepared)
-            || row.object != claim.object()
-            || !row.box_source.same_source_as(claim.box_source())
+            || row.object != claim.core().object()
+            || !row.box_source.same_source_as(claim.core().box_source())
         {
             return Err(freeze("prepare-state-or-source-mismatch"));
         }
@@ -226,19 +226,19 @@ impl OrdinaryNewClaimLedgerV1 {
             .home_prefix()
             .as_ref()
             .ok()
-            .map(|prefix| self.expression_result_new_prefix_v1(claim.site(), prefix))
+            .map(|prefix| self.expression_result_new_prefix_v1(claim.core().site(), prefix))
             .transpose()?;
         let prior_homes = prefix
             .as_ref()
             .map(|prefix| (prefix.prior_homes(), prefix.required_unwind()));
         let (mut next, mut selection) = self.compute_emission_prepare(
             &rows,
-            claim.site(),
-            claim.arity(),
+            claim.core().site(),
+            claim.core().arity(),
             &claim.core.constructor,
-            claim.construction(),
+            claim.core().construction(),
             claim.core.execution_profile(),
-            claim.object(),
+            claim.core().object(),
             claim.core.destruction,
             claim.core.children.as_deref(),
             prior_homes,
@@ -247,31 +247,31 @@ impl OrdinaryNewClaimLedgerV1 {
         // freeze: the site keeps its raw-lane emission and the row records
         // the truthful unavailable terminal.
         if crate::config::env::builder_debug_enabled() {
-            if let Err(issue) = claim.argument_rows() {
+            if let Err(issue) = claim.core().argument_rows() {
                 eprintln!(
                     "[new-emission] argument rows unavailable site={:?}: {issue:?}",
-                    claim.site()
+                    claim.core().site()
                 );
             }
             if !matches!(next, NewEmissionProgress::Prepared { .. }) {
                 eprintln!(
                     "[new-emission] not prepared site={:?} (prior Home or constructor unavailable)",
-                    claim.site()
+                    claim.core().site()
                 );
             }
         }
-        if claim.argument_rows().is_err() && selection.is_ok() {
+        if claim.core().argument_rows().is_err() && selection.is_ok() {
             next = NewEmissionProgress::RetainedUnavailable {
                 progress: UnavailableLocalProgress::PendingExpression,
             };
             selection = Err(NewEmissionUnavailableV1::ArgumentRows);
         }
         if selection.is_err() {
-            self.release_staged_argument_reads(claim.site())?;
+            self.release_staged_argument_reads(claim.core().site())?;
         }
         drop(rows);
         let mut rows = self.local_commits.borrow_mut();
-        rows.get_mut(claim.site())
+        rows.get_mut(claim.core().site())
             .and_then(LocalCommitV1::result_mut)
             .expect("checked result row")
             .emission = next;

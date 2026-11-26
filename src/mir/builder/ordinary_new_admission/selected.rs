@@ -85,18 +85,18 @@ pub(in crate::mir::builder) fn emit(
     consume_receiver: &dyn Fn(&crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
     static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
 ) -> Result<ValueId, String> {
-    if state.owner() != claim.site().owner() {
+    if state.owner() != claim.core().site().owner() {
         return Err(freeze("owner-or-argument-count"));
     }
-    let site = claim.site().clone();
-    let object = claim.object();
-    let class = claim.class().to_owned();
-    let arity = claim.arity();
+    let site = claim.core().site().clone();
+    let object = claim.core().object();
+    let class = claim.core().class().to_owned();
+    let arity = claim.core().arity();
     let rows = claim
-        .argument_rows()
+        .core().argument_rows()
         .map_err(crate::mir::resolved_semantics::home_new_prefix::argument_source_unavailable_tag_v1)?
         .to_vec();
-    let constructor = claim.constructor();
+    let constructor = claim.into_core().constructor();
     emit_selected_new(
         builder,
         state,
@@ -122,18 +122,18 @@ pub(in crate::mir::builder) fn emit_result(
     static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
     inherited: &[InvokeOperation],
 ) -> Result<ValueId, String> {
-    if state.owner() != claim.site().owner() {
+    if state.owner() != claim.core().site().owner() {
         return Err(freeze("owner-or-argument-count"));
     }
-    let site = claim.site().clone();
-    let object = claim.object();
-    let class = claim.class().to_owned();
-    let arity = claim.arity();
+    let site = claim.core().site().clone();
+    let object = claim.core().object();
+    let class = claim.core().class().to_owned();
+    let arity = claim.core().arity();
     let rows = claim
-        .argument_rows()
+        .core().argument_rows()
         .map_err(crate::mir::resolved_semantics::home_new_prefix::argument_source_unavailable_tag_v1)?
         .to_vec();
-    let constructor = claim.constructor();
+    let constructor = claim.into_core().constructor();
     emit_selected_new(
         builder,
         state,

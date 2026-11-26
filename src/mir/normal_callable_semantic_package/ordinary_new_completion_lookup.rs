@@ -123,11 +123,11 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut sites = std::collections::BTreeSet::new();
         for (site, rows) in local
             .values()
-            .map(|claim| (claim.site(), claim.argument_rows()))
+            .map(|claim| (claim.core().site(), claim.core().argument_rows()))
             .chain(
                 returned
                     .values()
-                    .map(|claim| (claim.site(), claim.argument_rows())),
+                    .map(|claim| (claim.core().site(), claim.core().argument_rows())),
             )
             .chain(taken.iter().filter_map(|(site, row)| {
                 row.new_argument_rows().map(|rows| (site, rows.as_deref()))

@@ -662,7 +662,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     // the claimed set is still passed defensively.
     let claimed_sites: BTreeSet<OwnedExprSiteV1> = claims
         .iter()
-        .map(|claim| claim.site().clone())
+        .map(|claim| claim.core().site().clone())
         .chain(result_claims.iter().map(|claim| claim.core.site.clone()))
         .collect();
     source_claims::collect_constructor_birth_sites_v1(

@@ -57,6 +57,8 @@ blueprint が持ち主を名指ししているのは if(決定 18)と loop(決�
 
 ## 3. 注記と集計
 
+- `new` の claim（NR-1、設計図 §4・§6）。元の構築関係は Resolve から借り、Lower の claim を `m/normal_callable_semantic_package/ordinary_new_ledger.rs::take_claim` で一度だけ消費する。local と return に必要な照合はそれぞれ保持し、Birth の引き渡し、MIR の書き手、完成後の検証は従来の契約を使う。
+
 - 式の続き（NR-1、設計図 §5・§26）。解決済みの評価目的と Home は Resolve の元の行を使う。命令を書く共通の入口は `b/ordinary_new_admission/selected/expression_value.rs`。完成 MIR の続きは `m/normal_callable_semantic_package/ordinary_new_local_commit/root_call_entry/expression_terminal_cleanup.rs::validate_continuation_v1` が共通の検査を行う。利用側は同じ policy に必要な境界と片付けの差を渡し、位置ごとの転送関数を廃止した。
 
 - 呼び出しの結果（CL-1、設計図 §26）｜意味を決める `m/normal_callable_semantic_package/result_contract_callable_keys.rs::issue_terminal_invoke_result_v1` ｜ MIR を書く `b/ordinary_new_admission/selected/terminal_call.rs::emit_call_normal` ｜ 独立に照らす `m/verification/invoke.rs::check_module_with_source` ｜ 退役 `direct_call_result.rs::uniform_call_result_kind` と仮の I64 を上書きする分岐。

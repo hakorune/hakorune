@@ -55,18 +55,18 @@ fn return_position_new_mints_result_claim_and_construction_relation() {
     let claim = result_claims
         .get(site)
         .expect("return-position `new` mints a result claim at the exact site");
-    assert_eq!(claim.class(), "Point");
-    assert_eq!(claim.arity(), 2);
+    assert_eq!(claim.core().class(), "Point");
+    assert_eq!(claim.core().arity(), 2);
     let original = package.instance_constructors
-        .construction_source_for(claim.box_source(), 2).unwrap().as_ref().unwrap();
-    assert!(std::rc::Rc::ptr_eq(original, claim.construction_source().as_ref().unwrap()));
+        .construction_source_for(claim.core().box_source(), 2).unwrap().as_ref().unwrap();
+    assert!(std::rc::Rc::ptr_eq(original, claim.core().construction_source().as_ref().unwrap()));
     assert!(
         claim.home_prefix().is_ok(),
         "trivial integer arguments issue a covered result prefix, got {:?}",
         claim.home_prefix()
     );
     assert!(
-        claim.argument_rows().is_ok(),
+        claim.core().argument_rows().is_ok(),
         "trivial integer arguments co-seal their observations"
     );
     // The claim lane — not the destination-less birth index — owns the
@@ -98,9 +98,9 @@ fn return_position_new_with_unavailable_arguments_stays_retained() {
         .values()
         .next()
         .expect("result claim is still minted");
-    assert_eq!(claim.class(), "Point");
+    assert_eq!(claim.core().class(), "Point");
     assert!(
-        claim.home_prefix().is_err() || claim.argument_rows().is_err(),
+        claim.home_prefix().is_err() || claim.core().argument_rows().is_err(),
         "non-trivial argument keeps the claim truthfully unavailable"
     );
 }
@@ -257,14 +257,14 @@ fn provided_parameter_object_store_seals_and_prepares() {
         let claims = ledger.pending_result_claims_for_test();
         let (site, claim) = claims
             .iter()
-            .find(|(_, claim)| claim.class() == "Wrap")
+            .find(|(_, claim)| claim.core().class() == "Wrap")
             .expect("Wrap result claim");
         assert!(
-            claim.construction().is_ok(),
+            claim.core().construction().is_ok(),
             "provided-object store seals construction, got {:?}",
-            claim.construction()
+            claim.core().construction()
         );
-        let Ok(plan) = claim.construction() else {
+        let Ok(plan) = claim.core().construction() else {
             unreachable!()
         };
         assert_eq!(
@@ -277,7 +277,7 @@ fn provided_parameter_object_store_seals_and_prepares() {
         );
         let (_, destruction) = package
             .instance_constructors
-            .destruction_for(claim.box_source())
+            .destruction_for(claim.core().box_source())
             .expect("Wrap definition");
         assert_eq!(
             destruction,
@@ -318,27 +318,27 @@ fn provided_parameter_store_rejects_builtin_and_seals_nested_object() {
         .pending_result_claims_for_test();
     let builtin = claims
         .values()
-        .find(|claim| claim.class() == "ArrHolder")
+        .find(|claim| claim.core().class() == "ArrHolder")
         .expect("builtin provided-field claim");
     assert!(
         matches!(
-            builtin.construction(),
+            builtin.core().construction(),
             Err(super::ConstructionUnavailableV1::FieldContractUnsupported)
         ),
         "builtin provided field remains unsupported"
     );
     let nested = claims
         .values()
-        .find(|claim| claim.class() == "RichHolder")
+        .find(|claim| claim.core().class() == "RichHolder")
         .expect("nested provided-field claim");
     assert!(
-        nested.construction().is_ok(),
+        nested.core().construction().is_ok(),
         "nested user-object construction is supported"
     );
     let children = package
         .ordinary_new_claim_ledger
         .owned_field_children
-        .get(&nested.object())
+        .get(&nested.core().object())
         .and_then(|children| children.as_deref())
         .expect("nested child inventory seals");
     let [child] = children else {
@@ -384,12 +384,12 @@ fn defaulted_scalar_field_accepts_birth_overwrite() {
         .pending_result_claims_for_test();
     let claim = claims
         .values()
-        .find(|claim| claim.class() == "Point")
+        .find(|claim| claim.core().class() == "Point")
         .expect("Point result claim");
     assert!(
-        claim.construction().is_ok(),
+        claim.core().construction().is_ok(),
         "a scalar default overwritten in birth seals, got {:?}",
-        claim.construction()
+        claim.core().construction()
     );
 }
 
@@ -411,10 +411,10 @@ fn defaulted_object_field_rejects_birth_overwrite() {
         .pending_result_claims_for_test();
     let claim = claims
         .values()
-        .find(|claim| claim.class() == "Wrap")
+        .find(|claim| claim.core().class() == "Wrap")
         .expect("Wrap result claim");
     assert!(
-        claim.construction().is_err(),
+        claim.core().construction().is_err(),
         "an object-field re-store still needs release semantics"
     );
 }
@@ -437,10 +437,10 @@ fn provided_parameter_store_rejects_copied_local() {
         .pending_result_claims_for_test();
     let claim = claims
         .values()
-        .find(|claim| claim.class() == "Wrap")
+        .find(|claim| claim.core().class() == "Wrap")
         .expect("Wrap result claim");
     assert!(
-        claim.construction().is_err(),
+        claim.core().construction().is_err(),
         "a copied local is not a provided parameter"
     );
 }

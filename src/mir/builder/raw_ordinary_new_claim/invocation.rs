@@ -421,7 +421,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         _builder: &crate::mir::MirBuilder,
         claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1,
     ) -> Result<crate::mir::normal_callable_semantic_package::NewEmissionSelectionV1, String> {
-        self.check_new_emission_scope(claim.site())?;
+        self.check_new_emission_scope(claim.core().site())?;
         self.ordinary_new_claim_ledger
             .as_ref()
             .expect("checked ledger")
@@ -433,7 +433,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         builder: &mut crate::mir::MirBuilder,
         claim: crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1,
     ) -> Result<crate::mir::ValueId, String> {
-        self.check_new_emission_scope(claim.site())?;
+        self.check_new_emission_scope(claim.core().site())?;
         let ledger = self
             .ordinary_new_claim_ledger
             .as_ref()
@@ -497,7 +497,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         _builder: &crate::mir::MirBuilder,
         claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1,
     ) -> Result<crate::mir::normal_callable_semantic_package::NewEmissionSelectionV1, String> {
-        self.check_new_emission_scope(claim.site())?;
+        self.check_new_emission_scope(claim.core().site())?;
         let result = self
             .ordinary_new_claim_ledger
             .as_ref()
@@ -512,7 +512,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         builder: &mut crate::mir::MirBuilder,
         claim: crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1,
     ) -> Result<crate::mir::ValueId, String> {
-        self.check_new_emission_scope(claim.site())?;
+        self.check_new_emission_scope(claim.core().site())?;
         let ledger = self
             .ordinary_new_claim_ledger
             .as_ref()

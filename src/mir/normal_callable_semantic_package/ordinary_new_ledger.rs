@@ -2,6 +2,121 @@
 use super::*;
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::CallRouteTableV1;
 
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
+use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
+
+trait NewClaimTakeV1 {
+    const MISSING: Option<OrdinaryNewClaimTakeErrorV1>;
+    const RESULT_SITE: bool;
+    fn core(&self) -> &OrdinaryNewClaimCoreV1;
+    fn prior_homes(
+        &self,
+        site: &OwnedExprSiteV1,
+        occupied: bool,
+    ) -> Result<&[LiveHomeV1], OrdinaryNewClaimTakeErrorV1>;
+    fn pending(
+        &self,
+        site: &OwnedExprSiteV1,
+        birth_target: Option<CanonicalSameModuleCallableKeyV1>,
+        birth_abi: Option<BirthAbiHandoffV1>,
+    ) -> local_commit::LocalCommitV1;
+}
+
+impl NewClaimTakeV1 for OrdinaryNewAdmissionClaimV1 {
+    const MISSING: Option<OrdinaryNewClaimTakeErrorV1> = Some(OrdinaryNewClaimTakeErrorV1::Unavailable);
+
+    const RESULT_SITE: bool = false;
+
+    fn core(&self) -> &OrdinaryNewClaimCoreV1 {
+        &self.core
+    }
+
+    fn prior_homes(
+        &self,
+        site: &OwnedExprSiteV1,
+        _occupied: bool,
+    ) -> Result<&[LiveHomeV1], OrdinaryNewClaimTakeErrorV1> {
+        let Ok(prefix) = &self.home_prefix else {
+            return Ok(&[]);
+        };
+        if prefix.destination() != self.destination || prefix.required_unwind() != site {
+            return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
+        }
+        Ok(prefix.prior_homes())
+    }
+
+    fn pending(
+        &self,
+        _site: &OwnedExprSiteV1,
+        birth_target: Option<CanonicalSameModuleCallableKeyV1>,
+        birth_abi: Option<BirthAbiHandoffV1>,
+    ) -> local_commit::LocalCommitV1 {
+        local_commit::LocalCommitV1::Ordinary(local_commit::NewLocalCommitV1::pending(
+            self.destination,
+            self.declaration.clone(),
+            self.home_prefix.clone(),
+            self.core.box_source().clone(),
+            self.core.construction.clone(),
+            self.core.construction_source.clone(),
+            self.core.allocation_execution.clone(),
+            self.core.object,
+            self.core.destruction,
+            birth_target,
+            birth_abi,
+            self.core.argument_rows.clone(),
+            self.core.children.clone(),
+        ))
+    }
+}
+
+impl NewClaimTakeV1 for OrdinaryNewResultClaimV1 {
+    const MISSING: Option<OrdinaryNewClaimTakeErrorV1> = None;
+
+    const RESULT_SITE: bool = true;
+
+    fn core(&self) -> &OrdinaryNewClaimCoreV1 {
+        &self.core
+    }
+
+    fn prior_homes(
+        &self,
+        site: &OwnedExprSiteV1,
+        occupied: bool,
+    ) -> Result<&[LiveHomeV1], OrdinaryNewClaimTakeErrorV1> {
+        if occupied {
+            return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
+        }
+        let Ok(prefix) = &self.home_prefix else {
+            return Ok(&[]);
+        };
+        if prefix.required_unwind() != site {
+            return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
+        }
+        Ok(prefix.prior_homes())
+    }
+
+    fn pending(
+        &self,
+        site: &OwnedExprSiteV1,
+        birth_target: Option<CanonicalSameModuleCallableKeyV1>,
+        birth_abi: Option<BirthAbiHandoffV1>,
+    ) -> local_commit::LocalCommitV1 {
+        local_commit::LocalCommitV1::Result(local_commit::NewResultCommitV1::pending(
+            site.clone(),
+            self.core.arity(),
+            self.home_prefix.clone(),
+            self.core.box_source().clone(),
+            self.core.construction.clone(),
+            self.core.object,
+            self.core.destruction,
+            birth_target,
+            birth_abi,
+            self.core.argument_rows.clone(),
+            self.core.children.clone(),
+        ))
+    }
+}
+
 impl OrdinaryNewClaimLedgerV1 {
     /// An original New requires lifecycle context even while its execution
     /// premise is unavailable. Keep that failure in the claim for its consumer;
@@ -176,7 +291,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 claims
                     .into_vec()
                     .into_iter()
-                    .map(|claim| (claim.site().clone(), claim))
+                    .map(|claim| (claim.core().site().clone(), claim))
                     .collect(),
             ),
             result_claims: RefCell::new(
@@ -289,68 +404,7 @@ impl OrdinaryNewClaimLedgerV1 {
         class: &str,
         arity: usize,
     ) -> Result<Option<OrdinaryNewAdmissionClaimV1>, OrdinaryNewClaimTakeErrorV1> {
-        if !self
-            .ordinary_box_names
-            .iter()
-            .any(|name| name.as_ref() == class)
-        {
-            return Ok(None);
-        }
-        let claims = self.claims.borrow();
-        let claim = claims
-            .get(site)
-            .ok_or(OrdinaryNewClaimTakeErrorV1::Unavailable)?;
-        if claim.class() != class || claim.arity() != arity {
-            return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
-        }
-        let commits = self.local_commits.borrow();
-        if let Ok(prefix) = &claim.home_prefix {
-            if prefix.destination() != claim.destination
-                || prefix.required_unwind() != site
-                || prefix.prior_homes().iter().any(|binding| {
-                    self.source_home_installed_v1(&commits, binding)
-                        .map_or(true, |ready| !ready)
-                })
-            {
-                return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
-            }
-        }
-        let birth_target = match &claim.core.constructor {
-            OrdinaryNewConstructorDispositionV1::NoBirthZero => None,
-            OrdinaryNewConstructorDispositionV1::Birth(recipe) => Some(recipe.target_ref().clone()),
-        };
-        let birth_abi = self.birth_abi_handoffs.borrow_mut().remove(site);
-        if birth_abi.as_ref().map(BirthAbiHandoffV1::target) != birth_target.as_ref() {
-            return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
-        }
-        drop(commits);
-        let mut commits = self.local_commits.borrow_mut();
-        commits.insert(
-            site.clone(),
-            local_commit::LocalCommitV1::Ordinary(local_commit::NewLocalCommitV1::pending(
-                claim.destination,
-                claim.declaration.clone(),
-                claim.home_prefix.clone(),
-                claim.box_source().clone(),
-                claim.core.construction.clone(),
-                claim.core.construction_source.clone(),
-                claim.core.allocation_execution.clone(),
-                claim.core.object,
-                claim.core.destruction,
-                birth_target,
-                birth_abi,
-                claim.core.argument_rows.clone(),
-                claim.core.children.clone(),
-            )),
-        );
-        drop(commits);
-        drop(claims);
-        Ok(Some(
-            self.claims
-                .borrow_mut()
-                .remove(site)
-                .expect("claim remained present after the checked lookup"),
-        ))
+        self.take_claim(site, class, arity, &self.claims)
     }
 
     /// Whether the callee's result-position claim either still awaits
@@ -381,6 +435,16 @@ impl OrdinaryNewClaimLedgerV1 {
         class: &str,
         arity: usize,
     ) -> Result<Option<OrdinaryNewResultClaimV1>, OrdinaryNewClaimTakeErrorV1> {
+        self.take_claim(site, class, arity, &self.result_claims)
+    }
+
+    fn take_claim<C: NewClaimTakeV1>(
+        &self,
+        site: &OwnedExprSiteV1,
+        class: &str,
+        arity: usize,
+        claims: &RefCell<BTreeMap<OwnedExprSiteV1, C>>,
+    ) -> Result<Option<C>, OrdinaryNewClaimTakeErrorV1> {
         if !self
             .ordinary_box_names
             .iter()
@@ -388,32 +452,29 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Ok(None);
         }
-        let claims = self.result_claims.borrow();
-        let Some(claim) = claims.get(site) else {
-            return Ok(None);
+        let available = claims.borrow();
+        let Some(claim) = available.get(site) else {
+            return C::MISSING.map_or(Ok(None), Err);
         };
-        if claim.site() != site
-            || claim.class() != class
-            || claim.arity() != arity
-            || claim.class() != claim.box_source().name()
+        let core = claim.core();
+        if core.class() != class
+            || core.arity() != arity
+            || C::RESULT_SITE && (core.site() != site || core.class() != core.box_source().name())
         {
             return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
         }
         let commits = self.local_commits.borrow();
-        if commits.contains_key(site) {
+        if claim
+            .prior_homes(site, C::RESULT_SITE && commits.contains_key(site))?
+            .iter()
+            .any(|binding| {
+                self.source_home_installed_v1(&commits, binding)
+                    .map_or(true, |ready| !ready)
+            })
+        {
             return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
         }
-        if let Ok(prefix) = &claim.home_prefix {
-            if prefix.required_unwind() != site
-                || prefix.prior_homes().iter().any(|binding| {
-                    self.source_home_installed_v1(&commits, binding)
-                        .map_or(true, |ready| !ready)
-                })
-            {
-                return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
-            }
-        }
-        let birth_target = match &claim.core.constructor {
+        let birth_target = match &core.constructor {
             OrdinaryNewConstructorDispositionV1::NoBirthZero => None,
             OrdinaryNewConstructorDispositionV1::Birth(recipe) => Some(recipe.target_ref().clone()),
         };
@@ -422,28 +483,15 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
         }
         drop(commits);
-        let mut commits = self.local_commits.borrow_mut();
-        commits.insert(
+        self.local_commits.borrow_mut().insert(
             site.clone(),
-            local_commit::LocalCommitV1::Result(local_commit::NewResultCommitV1::pending(
-                site.clone(),
-                claim.arity(),
-                claim.home_prefix.clone(),
-                claim.box_source().clone(),
-                claim.core.construction.clone(),
-                claim.core.object,
-                claim.core.destruction,
-                birth_target,
-                birth_abi,
-                claim.core.argument_rows.clone(),
-                claim.core.children.clone(),
-            )),
+            claim.pending(site, birth_target, birth_abi),
         );
-        drop(commits);
-        drop(claims);
-        Ok(Some(self.result_claims.borrow_mut().remove(site).expect(
-            "result claim remained present after the checked lookup",
-        )))
+        drop(available);
+        Ok(Some(
+            claims.borrow_mut().remove(site)
+                .expect("claim remained present after the checked lookup"),
+        ))
     }
 
     /// Affine take of a verified `Birth` recipe for a non-`[Body,

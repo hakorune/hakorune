@@ -276,16 +276,16 @@ impl OrdinaryNewClaimLedgerV1 {
         let source = match (claims.get(site), commits.get(site)) {
             (Some(_), Some(_)) => return Err(freeze("result-source/duplicate-store")),
             (Some(claim), None) => {
-                if claim.site() != site || claim.class() != claim.box_source().name() {
+                if claim.core().site() != site || claim.core().class() != claim.core().box_source().name() {
                     return Err(freeze("result-source/claim-identity"));
                 }
                 ResultNewSourceRefV1 {
-                    site: claim.site(),
-                    class: claim.class(),
-                    arity: claim.arity(),
-                    object: claim.object(),
+                    site: claim.core().site(),
+                    class: claim.core().class(),
+                    arity: claim.core().arity(),
+                    object: claim.core().object(),
                     destruction: claim.core.destruction(),
-                    construction: claim.construction(),
+                    construction: claim.core().construction(),
                     prefix: &claim.home_prefix,
                     arguments: &claim.core.argument_rows,
                     children: claim.core.children(),

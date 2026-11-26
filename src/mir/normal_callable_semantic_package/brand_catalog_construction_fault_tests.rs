@@ -29,7 +29,7 @@ fn construction_store_fault_inventory_is_prior_committed_source_order() {
         let [claim] = claims.as_slice() else {
             panic!("one Holder claim: {claims:?}")
         };
-        let plan = claim.construction().as_ref().unwrap();
+        let plan = claim.core().construction().as_ref().unwrap();
         let stores = plan.stores();
         assert_eq!(stores.len(), 3);
         for (store, expected) in stores.iter().zip([vec![], vec![0], vec![1, 0]]) {
@@ -69,12 +69,12 @@ fn caller_provided_object_store_seals_prior_owned_cleanup() {
     let rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
     let claim = rows
         .values()
-        .find(|claim| claim.class() == "Holder")
+        .find(|claim| claim.core().class() == "Holder")
         .expect("Holder source claim");
     // The provided child moves only on Birth Normal; Fault still owes it.
     assert_eq!(claim.home_prefix().unwrap().prior_homes().len(), 1);
     assert!(claim.home_prefix().unwrap().normal_homes().is_empty());
-    let plan = claim.construction().as_ref().unwrap();
+    let plan = claim.core().construction().as_ref().unwrap();
     assert_eq!(plan.stores().len(), 4);
     for (store, expected) in plan
         .stores()
@@ -98,7 +98,7 @@ fn caller_provided_object_store_seals_prior_owned_cleanup() {
         }
     ));
     let children = claim
-        .children()
+        .core().children()
         .expect("Normal parent End keeps all residences");
     assert_eq!(
         children
@@ -120,9 +120,9 @@ fn caller_provided_object_store_seals_prior_owned_cleanup() {
             .ordinary_new_claim_ledger
             .pending_claims_for_test()
             .values()
-            .find(|claim| claim.class() == "Holder")
+            .find(|claim| claim.core().class() == "Holder")
             .unwrap()
-            .construction()
+            .core().construction()
             .is_err(),
         "one provided Home cannot become two owning fields"
     );

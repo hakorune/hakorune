@@ -100,10 +100,10 @@ fn local_field_read_claims_object_alias_on_selected_new_home() {
         let text = format!("box Page {{ id: i64 = 0 birth() {{}} seed(): i64 {{ return 0 }} }} box Pool {{ page: Page {birth} }} static box Main {{ main() {{ local pool = {init} local page = pool.page return 0 }} }}");
         let package = issue(&text).expect("object alias field read package");
         let claims = package.ordinary_new_claim_ledger.pending_claims_for_test();
-        let mut pool_claims = claims.values().filter(|claim| claim.class() == "Pool");
+        let mut pool_claims = claims.values().filter(|claim| claim.core().class() == "Pool");
         let claim = pool_claims.next().expect("original Pool claim");
         assert!(pool_claims.next().is_none());
-        let claim_site = claim.site().clone();
+        let claim_site = claim.core().site().clone();
         if unavailable == 1 {
             let constructor = package.instance_constructors().rows().iter()
                 .find(|row| row.box_name() == "Pool").unwrap();
@@ -163,9 +163,9 @@ fn local_field_read_claims_object_alias_on_selected_new_home() {
         assert_eq!(result, LocalFieldReadResultV1::Alias("Page".into()));
         assert_eq!(field.declaration_ordinal(), 0);
         match unavailable {
-            0 => assert!(claim.construction().is_ok()),
-            1 => assert_eq!(claim.construction(), &Err(ConstructionUnavailableV1::ChildCallsPending)),
-            _ => assert_eq!(claim.construction(), &Err(ConstructionUnavailableV1::OverrideUnsupported)),
+            0 => assert!(claim.core().construction().is_ok()),
+            1 => assert_eq!(claim.core().construction(), &Err(ConstructionUnavailableV1::ChildCallsPending)),
+            _ => assert_eq!(claim.core().construction(), &Err(ConstructionUnavailableV1::OverrideUnsupported)),
         }
         if unavailable == 2 {
             assert!(matches!(claim.home_prefix(), Err(HomePrefixUnavailableV1::OverridesNotCovered(_))));

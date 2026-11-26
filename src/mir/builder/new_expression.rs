@@ -28,11 +28,11 @@ impl OrdinaryNewClaimTakeV1 {
         use crate::mir::normal_callable_semantic_package::NewEmissionUnavailableV1 as Cause;
         let (rows, home) = match self {
             Self::Local(claim) => (
-                claim.argument_rows(),
+                claim.core().argument_rows(),
                 claim.home_prefix().err().map(|r| format!("{r:?}")),
             ),
             Self::Result(claim) => (
-                claim.argument_rows(),
+                claim.core().argument_rows(),
                 claim.home_prefix().err().map(|r| format!("{r:?}")),
             ),
         };
@@ -52,8 +52,8 @@ impl OrdinaryNewClaimTakeV1 {
         self,
     ) -> crate::mir::normal_callable_semantic_package::OrdinaryNewConstructorDispositionV1 {
         match self {
-            Self::Local(claim) => claim.constructor(),
-            Self::Result(claim) => claim.constructor(),
+            Self::Local(claim) => claim.into_core().constructor(),
+            Self::Result(claim) => claim.into_core().constructor(),
         }
     }
 }
@@ -172,7 +172,7 @@ impl PreparedRawNewExpressionV1 {
             return Ok(());
         }
         let claim = port.try_take_ordinary_new_claim(&self.class, arguments.len())?;
-        if let Some(Err(reason)) = claim.as_ref().map(|claim| claim.argument_rows()) {
+        if let Some(Err(reason)) = claim.as_ref().map(|claim| claim.core().argument_rows()) {
             return Err(
                 crate::mir::resolved_semantics::home_new_prefix::argument_source_unavailable_tag_v1(
                     &reason,

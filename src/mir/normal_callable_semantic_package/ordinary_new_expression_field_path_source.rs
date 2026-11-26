@@ -375,7 +375,7 @@ mod tests {
                     }
                 };
                 let foreign_source = foreign.ordinary_new_claim_ledger.claims.borrow().values()
-                    .find(|row| row.class() == "Outer").unwrap().box_source().clone();
+                    .find(|row| row.core().class() == "Outer").unwrap().core().box_source().clone();
                 let retained = {
                     let mut rows = ledger.claims.borrow_mut();
                     std::mem::replace(&mut rows.get_mut(acquisition).unwrap().core.box_source, foreign_source)

@@ -30,7 +30,7 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         ]
     );
     assert_eq!(prefixes[2].covered_statements().len(), 4);
-    let sites: Vec<_> = claims.iter().map(|claim| claim.site().clone()).collect();
+    let sites: Vec<_> = claims.iter().map(|claim| claim.core().site().clone()).collect();
     let destinations: Vec<_> = prefixes.iter().map(|prefix| prefix.destination()).collect();
     let declarations: Vec<_> = sites
         .iter()
@@ -134,7 +134,7 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         let mut reclaim_physical = crate::mir::BasicBlock::new(reclaim_block);
         reclaim_physical.add_instruction(reclaim_instruction.clone());
         physical.add_block(reclaim_physical);
-        let super::super::OrdinaryNewConstructorDispositionV1::Birth(recipe) = claim.constructor()
+        let super::super::OrdinaryNewConstructorDispositionV1::Birth(recipe) = claim.into_core().constructor()
         else {
             panic!("source-issued Birth")
         };

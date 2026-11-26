@@ -85,8 +85,8 @@ fn exact_claim_is_consumed_once() {
         .try_take(&site, "Page", 0)
         .expect("exact claim should be available")
         .expect("ordinary class should return a claim");
-    assert_eq!(taken.class(), "Page");
-    assert_eq!(taken.arity(), 0);
+    assert_eq!(taken.core().class(), "Page");
+    assert_eq!(taken.core().arity(), 0);
     assert_eq!(
         ledger
             .local_commits
@@ -94,10 +94,10 @@ fn exact_claim_is_consumed_once() {
             .get(&site)
             .unwrap()
             .construction(),
-        taken.construction()
+        taken.core().construction()
     );
     assert!(taken
-        .construction()
+        .core().construction()
         .as_ref()
         .unwrap()
         .reclaims_unpublished_outer_storage());
@@ -177,9 +177,9 @@ fn pending_construction_retains_constructor_identity_after_target_take() {
     let claims = package.ordinary_new_claim_ledger.pending_claims_for_test();
     assert_eq!(claims.len(), 1);
     let claim = claims.values().next().unwrap();
-    let site = claim.site().clone();
+    let site = claim.core().site().clone();
     let expected = claim
-        .construction()
+        .core().construction()
         .as_ref()
         .unwrap()
         .constructor()
@@ -192,7 +192,7 @@ fn pending_construction_retains_constructor_identity_after_target_take() {
             .try_take(&site, "Page", 1)
             .unwrap()
             .unwrap()
-            .constructor(),
+            .into_core().constructor(),
     );
     let rows = ledger.local_commits.borrow();
     let plan = rows.get(&site).unwrap().construction().as_ref().unwrap();

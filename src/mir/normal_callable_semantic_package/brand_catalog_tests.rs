@@ -21,11 +21,11 @@ fn ordinary_new_claims_match_exact_local_initializers_without_effect_discovery()
         let mut bindings = std::collections::BTreeSet::new();
         for claim in &claims {
             let declaration = package.batch().declarations()
-                .find(|row| row.owner() == claim.site().owner()).expect("exact owner");
+                .find(|row| row.owner() == claim.core().site().owner()).expect("exact owner");
             let binding = package.batch().with_lowering_input(declaration.batch_slot(), |input| {
                 let function = input.function();
                 let initializer = function.expression_source().initializers()
-                    .find(|row| row.initializer_site() == Some(claim.site().site()))
+                    .find(|row| row.initializer_site() == Some(claim.core().site().site()))
                     .expect("claim retains its source initializer relation");
                 assert!(matches!(initializer.declaration_site(), SourceBindingSiteV1::Local { .. }));
                 assert_eq!(function.declaration_binding(initializer.declaration_site()),
@@ -48,23 +48,23 @@ fn ordinary_new_retains_unavailable_descriptors_through_candidate_co_seal() {
     let rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
     assert_eq!(rows.len(), 1);
     let claim = rows.values().next().unwrap();
-    assert!(claim.construction().is_err());
+    assert!(claim.core().construction().is_err());
     // The Dynamic field keeps its retained allocation-only source (no initialized plan).
     assert!(matches!(
-        claim.construction_source().as_ref().expect("allocation-only source retained").completion(),
+        claim.core().construction_source().as_ref().expect("allocation-only source retained").completion(),
         super::instance_construction::ConstructionCompletionV1::AllocationOnly { .. }
     ));
     // Dynamic fields tear down through the Dynamic residence requirement.
     assert_eq!(
-        claim.destruction(),
+        claim.core().destruction(),
         crate::mir::function::ObjectDestructionDispositionV1::no_hook_fields(false, false, true)
     );
     assert_eq!(
         package
             .instance_constructors
-            .destruction_for(claim.box_source())
+            .destruction_for(claim.core().box_source())
             .unwrap(),
-        (claim.object(), claim.destruction())
+        (claim.core().object(), claim.core().destruction())
     );
 }
 
@@ -102,21 +102,21 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
         let package = issue_with_brand_catalog(&source).unwrap();
         let rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
         let claim = rows.values().next().unwrap();
-        let retained = claim.construction_source().as_ref().unwrap();
+        let retained = claim.core().construction_source().as_ref().unwrap();
         let original = package.instance_constructors
-            .construction_source_for(claim.box_source(), 0).unwrap().as_ref().unwrap();
+            .construction_source_for(claim.core().box_source(), 0).unwrap().as_ref().unwrap();
         assert!(std::rc::Rc::ptr_eq(original, retained));
         assert!(matches!(retained.completion(),
             super::instance_construction::ConstructionCompletionV1::AllocationOnly { .. }));
-        assert_eq!(claim.construction(), &Err(ConstructionUnavailableV1::InitializationContractMissing));
+        assert_eq!(claim.core().construction(), &Err(ConstructionUnavailableV1::InitializationContractMissing));
         // The typed `i64` and the Dynamic (untyped) allocation-only source both hold
         // exactly the one retained AllocationOnly lease (the Dynamic program compiles
         // and runs end to end; no other profile exists for either).
-        assert!(matches!(claim.execution_profile().unwrap(),
+        assert!(matches!(claim.core().execution_profile().unwrap(),
             super::instance_construction::NewExecutionProfileRefV1::AllocationOnly(lease)
                 if std::rc::Rc::ptr_eq(lease.source(), retained)),
             "{declaration}");
-        let completion = package.ordinary_new_claim_ledger.completion_for_owner(claim.site().owner()).unwrap();
+        let completion = package.ordinary_new_claim_ledger.completion_for_owner(claim.core().site().owner()).unwrap();
         let flow = completion.cleanup().root_flow().expect("retained original source flow");
         let writes: Vec<_> = flow.expression_plans().iter().filter_map(|plan| {
             assert!(plan.borrowed_field_write_frame().is_none(), "LOCAL cannot borrow a formal frame");
@@ -140,7 +140,7 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
             assert_eq!(rhs.ordered_nodes(), frame.source().ordered_postorder_v1().unwrap());
             assert!(std::rc::Rc::ptr_eq(rhs.source(), frame.source()));
             let local = frame.owned_local().unwrap();
-            assert_eq!(local.acquisition(), claim.site());
+            assert_eq!(local.acquisition(), claim.core().site());
             assert_eq!(local.root(), claim.home_prefix().unwrap().destination());
             assert!(std::rc::Rc::ptr_eq(local.construction(), retained));
             assert!(std::rc::Rc::ptr_eq(local.source(), frame.source()));
@@ -150,7 +150,7 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
         let foreign = issue_with_brand_catalog(&source).unwrap();
         let foreign_rows = foreign.ordinary_new_claim_ledger.pending_claims_for_test();
         assert!(!std::rc::Rc::ptr_eq(retained,
-            foreign_rows.values().next().unwrap().construction_source().as_ref().unwrap()));
+            foreign_rows.values().next().unwrap().core().construction_source().as_ref().unwrap()));
         let source = package.ordinary_new_claim_ledger.field_write_source_at_v1(writes[0].source().owner(), writes[0].source().root().statement()).unwrap().unwrap();
         assert!(source.validate_source(&foreign.ordinary_new_claim_ledger).is_err());
     }
@@ -164,8 +164,8 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
         let (site, root, original) = {
             let rows = ledger.pending_claims_for_test();
             let claim = rows.values().next().unwrap();
-            (claim.site().clone(), claim.home_prefix().unwrap().destination(),
-                std::rc::Rc::clone(claim.construction_source().as_ref().unwrap()))
+            (claim.core().site().clone(), claim.home_prefix().unwrap().destination(),
+                std::rc::Rc::clone(claim.core().construction_source().as_ref().unwrap()))
         };
         for taken in [false, true] {
             if taken { ledger.try_take(&site, "Pair", 0).unwrap().expect("same affine claim"); }
@@ -276,7 +276,7 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
         let package = issue_with_brand_catalog(&source).unwrap();
         let rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
         let claim = rows.values().next().unwrap();
-        let completion = package.ordinary_new_claim_ledger.completion_for_owner(claim.site().owner()).unwrap();
+        let completion = package.ordinary_new_claim_ledger.completion_for_owner(claim.core().site().owner()).unwrap();
         let flow = completion.cleanup().root_flow().unwrap();
         assert_eq!(flow.expression_plans().iter().filter_map(|plan| plan.field_write_frame()).count(), frames, "{body}");
         assert!(completion.cleanup().terminal_homes().unwrap().is_err(), "unproved suffix stays unavailable: {body}");
@@ -289,11 +289,11 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
     let [claim] = claims.as_slice() else {
         panic!("one exact New");
     };
-    let plan = claim.construction().as_ref().unwrap();
+    let plan = claim.core().construction().as_ref().unwrap();
     let original_source = package.instance_constructors
-        .construction_source_for(claim.box_source(), claim.arity()).unwrap().as_ref().unwrap();
-    assert!(std::rc::Rc::ptr_eq(original_source, claim.construction_source().as_ref().unwrap()));
-    assert!(matches!(claim.execution_profile().unwrap(), super::instance_construction::NewExecutionProfileRefV1::Initialized(original)
+        .construction_source_for(claim.core().box_source(), claim.core().arity()).unwrap().as_ref().unwrap();
+    assert!(std::rc::Rc::ptr_eq(original_source, claim.core().construction_source().as_ref().unwrap()));
+    assert!(matches!(claim.core().execution_profile().unwrap(), super::instance_construction::NewExecutionProfileRefV1::Initialized(original)
         if std::ptr::eq(original, plan)));
     assert_eq!(plan.stores().len(), 1);
     assert!(plan.reclaims_unpublished_outer_storage());
@@ -322,37 +322,37 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
     let claim_rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
     let claims: Vec<_> = claim_rows.values().collect();
     assert_eq!(
-        claims[0].construction(),
+        claims[0].core().construction(),
         &Err(ConstructionUnavailableV1::OverrideUnsupported)
     );
     let claim = &claims[0];
-    assert_eq!(claim.construction_source(), &Err(ConstructionUnavailableV1::OverrideUnsupported));
-    assert!(claim.execution_profile().is_err());
+    assert_eq!(claim.core().construction_source(), &Err(ConstructionUnavailableV1::OverrideUnsupported));
+    assert!(claim.core().execution_profile().is_err());
     let batch = &package.instance_constructors;
-    let projected = batch.destruction_for(claim.box_source()).unwrap();
-    assert_eq!(projected, (claim.object(), claim.destruction()));
+    let projected = batch.destruction_for(claim.core().box_source()).unwrap();
+    assert_eq!(projected, (claim.core().object(), claim.core().destruction()));
     assert_eq!(
-        claim.destruction(),
+        claim.core().destruction(),
         crate::mir::function::ObjectDestructionDispositionV1::NUMERIC_NO_HOOK
     );
     let foreign = issue_with_brand_catalog(&source).unwrap();
     let foreign_claims = foreign.ordinary_new_claim_ledger.pending_claims_for_test();
-    assert!(matches!(batch.destruction_for(foreign_claims.values().next().unwrap().box_source()),
+    assert!(matches!(batch.destruction_for(foreign_claims.values().next().unwrap().core().box_source()),
         Err(super::instance_constructor_semantic::InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch)));
     let definitions = batch.take_object_definitions().unwrap();
     assert_eq!(
-        definitions[claim.object().declaration_index() as usize].destruction_disposition(),
-        claim.destruction()
+        definitions[claim.core().object().declaration_index() as usize].destruction_disposition(),
+        claim.core().destruction()
     );
-    assert!(matches!(batch.destruction_for(claim.box_source()),
+    assert!(matches!(batch.destruction_for(claim.core().box_source()),
         Err(super::instance_constructor_semantic::InstanceConstructorBirthLookupErrorV1::ObjectDefinitionsTransferred)));
     assert_eq!(
-        batch.object_for(claim.box_source()).unwrap(),
-        claim.object()
+        batch.object_for(claim.core().box_source()).unwrap(),
+        claim.core().object()
     );
     assert_eq!(
         projected,
-        (claim.object(), claim.destruction()),
+        (claim.core().object(), claim.core().destruction()),
         "retained claim survives transfer"
     );
     assert!(batch.take_object_definitions().is_none());
@@ -376,9 +376,9 @@ fn ordinary_new_claims_retain_exact_parent_with_and_without_birth() {
             .unwrap()
             .unwrap();
         assert_eq!(claims.len(), 2);
-        assert_ne!(claims[0].site(), claims[1].site());
+        assert_ne!(claims[0].core().site(), claims[1].core().site());
         for claim in &claims {
-            assert!(claim.box_source().same_source_as(parent));
+            assert!(claim.core().box_source().same_source_as(parent));
         }
     }
 }
@@ -399,7 +399,7 @@ fn ordinary_new_claim_records_parameter_handle_argument() {
     assert_eq!(claims.len(), 1);
     assert!(claims[0].home_prefix().is_ok());
     let rows = claims[0]
-        .argument_rows()
+        .core().argument_rows()
         .expect("declared parameter installs as a handle observation");
     let [row] = rows else {
         panic!("one argument row, got {rows:?}")
@@ -413,7 +413,7 @@ fn ordinary_new_claim_records_parameter_handle_argument() {
     let declaration = package
         .batch()
         .declarations()
-        .find(|row| row.owner() == claims[0].site().owner())
+        .find(|row| row.owner() == claims[0].core().site().owner())
         .expect("exact owner");
     let parameter = package
         .batch()
@@ -454,7 +454,7 @@ fn normal_home_completion_observes_suffix_and_does_not_reuse_last_new_prefix() {
         let package = issue_with_brand_catalog(&source).unwrap();
         let claim_rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
         let claims: Vec<_> = claim_rows.values().collect();
-        let owner = claims[0].site().owner();
+        let owner = claims[0].core().site().owner();
         {
             let completion = package.ordinary_new_claim_ledger.root_completion_for_test();
             assert_eq!(completion.owner(), owner);
@@ -537,14 +537,14 @@ fn ordinary_new_fault_continuation_is_source_owned_and_not_normal_completion() {
     let declaration = package
         .batch()
         .declarations()
-        .find(|row| row.owner() == claims[0].site().owner())
+        .find(|row| row.owner() == claims[0].core().site().owner())
         .unwrap();
     package
         .batch()
         .with_lowering_input(declaration.batch_slot(), |input| {
             for claim in &claims {
                 let fault = claim.home_prefix().unwrap().outward_fault();
-                assert_eq!(fault.site(), claim.site());
+                assert_eq!(fault.site(), claim.core().site());
                 assert_eq!(fault.target_function(), input.function().function_region());
                 assert_eq!(
                     fault.source_scope(),
@@ -553,7 +553,7 @@ fn ordinary_new_fault_continuation_is_source_owned_and_not_normal_completion() {
                 assert_eq!(
                     issue_new_fault_continuation_v1(
                         input,
-                        &OwnedExprSiteV1::new(foreign, claim.site().site().clone())
+                        &OwnedExprSiteV1::new(foreign, claim.core().site().site().clone())
                     ),
                     Err("foreign-source-owner")
                 );

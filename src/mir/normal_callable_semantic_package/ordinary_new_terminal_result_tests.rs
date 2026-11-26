@@ -59,8 +59,8 @@ fn lexical_instance_return_retains_initializer_and_claim_object_identity() {
     let claims = ledger.pending_claims_for_test();
     let claim = claims.get(&initializer).expect("same original second initializer claim");
     assert_eq!(receiver.owner(), owner);
-    assert_eq!(row.target().owner(), claim.class());
-    assert_ne!(claims.get(&OwnedExprSiteV1::new(owner, initializers[0].1.clone().unwrap())).unwrap().site(), claim.site());
+    assert_eq!(row.target().owner(), claim.core().class());
+    assert_ne!(claims.get(&OwnedExprSiteV1::new(owner, initializers[0].1.clone().unwrap())).unwrap().core().site(), claim.core().site());
 }
 
 #[test]
@@ -80,7 +80,7 @@ fn root_instance_call_rejects_emitted_receiver_mutation() {
     assert_eq!(claims.len(), 2);
     let sites = claims
         .iter()
-        .map(|claim| claim.site().clone())
+        .map(|claim| claim.core().site().clone())
         .collect::<Vec<_>>();
     let declarations = sites
         .iter()
