@@ -209,6 +209,7 @@ stmt      := 'return' expr
            | guard_stmt
            | gate_stmt
            | fastmem_stmt
+           | print_stmt
            | 'if' expr block ('else' block)?
            | loop_stmt
            | expr                         ; expression statement
@@ -218,10 +219,13 @@ stmt      := 'return' expr
 ; one outer + one inner explicit-else pure fallthrough over one binding.
 ; This profile note does not make deeper/effectful shapes parser errors.
 
+print_stmt := 'print' '(' expr ')'
+
 loop_stmt := 'loop' loop_head? block
 loop_head := loop_range_head | loop_condition_head
 loop_condition_head := '('? expr ')'?
 loop_range_head := IDENT 'in' expr '..' expr
+; The standalone `a .. b` expression sugar has been retired.
 
 local_stmt := 'local' IDENT local_type_opt local_tail
 local_type_opt := (':' TYPE_REF)?
@@ -390,13 +394,16 @@ guard     := 'if' expr
 
 map_entries := STRING '=>' expr (',' STRING '=>' expr)* [',']
 
+; Reserved call forms are listed in function-call-evaluation.md.
+; Inside fastmem_stmt, mem.name(args) selects the region intrinsic.
+; Bare exit, str, and Range follow ordinary name resolution.
 call_tail := '.' IDENT '(' args? ')'   ; method
            | '(' args? ')'             ; function call
 
 ; `panic(message)` uses the ordinary function-call production. Semantic
 ; admission reserves exact bare panic/1, requires a verified String result,
 ; and selects terminal Fault before argument effects. The ordinary call parser
-; is live; the dedicated reservation/terminal route is not.
+; is live. File Resolve rejects the bare target while terminal lowering is pending.
 
 args      := expr (',' expr)*
 

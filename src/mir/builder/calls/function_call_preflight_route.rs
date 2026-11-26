@@ -105,9 +105,6 @@ enum PreparedRawNonBrandRouteOriginV1 {
 }
 
 pub(super) enum PreparedRawOrdinaryFunctionCompletionV1 {
-    StrNormalization {
-        argument: ASTNode,
-    },
     CatalogedTargeted {
         callee: Callee,
         arguments: Vec<ASTNode>,
@@ -355,14 +352,7 @@ fn prepare_ordinary_function_completion_v1(
     caller: Option<&crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
     origin: PreparedRawNonBrandRouteOriginV1,
 ) -> Result<PreparedRawOrdinaryFunctionCompletionV1, RawCompatibilityOrdinaryCallTerminalV1> {
-    if name == "str" && arguments.len() == 1 {
-        Ok(PreparedRawOrdinaryFunctionCompletionV1::StrNormalization {
-            argument: arguments
-                .into_iter()
-                .next()
-                .expect("exact str/1 route must retain one argument"),
-        })
-    } else if matches!(
+    if matches!(
         origin,
         PreparedRawNonBrandRouteOriginV1::RawScriptRootParkedCompatibility
     ) {
@@ -388,19 +378,12 @@ fn prepare_ordinary_function_completion_v1(
         Ok(PreparedRawOrdinaryFunctionCompletionV1::Retired(
             RawOrdinaryFunctionRetirementV1::GcGlobal,
         ))
-    } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledNonBrand)
-        && matches!(name, "error" | "now")
+    } else if let Some(provider) = matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledNonBrand)
+        .then(|| crate::mir::policies::call_name_classification::unsupported_bare_provider_v1(name))
+        .flatten()
     {
-        let provider = if name == "error" {
-            "bare-error-unsupported"
-        } else {
-            "bare-now-unsupported"
-        };
         Ok(PreparedRawOrdinaryFunctionCompletionV1::Rejected {
-            error: format!(
-                "[freeze:contract][direct-call/{provider}] name={name} arity={}",
-                arguments.len()
-            ),
+            error: provider.diagnostic(arguments.len()),
         })
     } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledNonBrand)
         && caller.is_some()

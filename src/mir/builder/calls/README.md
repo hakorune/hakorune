@@ -31,8 +31,8 @@ gone; this contract does not govern the separate JSON/Hako readers.
 The `RawScriptRootParkedCompatibility` and `ScriptRootParkedCompatibility`
 origins retire ordinary non-special `FunctionCall` before argument descent
 with their origin-specific typed terminals. The bounded RawLegacy fate row now
-uses the same pre-effect retirement shape; Brand, TypeOp, Math, FastMem, and
-`str/1` precedence is unchanged. `RawRootMain` is caller-zero upstream and its
+uses the same pre-effect retirement shape. Brand, TypeOp, Math, and
+FastMem retain their precedence. `RawRootMain` is caller-zero upstream and its
 direct-injection ordinary non-special edge now ends at `RawRootMainRetired`.
 The shared `Resolved` completion, post-argument generic resolver, unique/tail
 recovery, name-Const Call writer, and tail-resolve env selector are retired.

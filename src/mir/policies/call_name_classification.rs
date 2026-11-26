@@ -29,7 +29,7 @@ impl CallNameClassificationV1 {
 
 pub(crate) fn classify_call_name_v1(name: &str) -> CallNameClassificationV1 {
     let (raw_unified_admission, callee_class) = match name {
-        "print" | "error" | "panic" | "exit" | "now" | "abs" | "min" | "max" => {
+        "print" | "error" | "panic" | "now" | "abs" | "min" | "max" => {
             (true, CallNameCalleeClassV1::BuiltinGlobal)
         }
         "isType" | "asType" => (true, CallNameCalleeClassV1::Ordinary),
@@ -54,24 +54,38 @@ pub(crate) fn is_math_function(name: &str) -> bool {
     )
 }
 
-pub(crate) fn is_parked_file_special_form_v1(name: &str) -> bool {
-    name == "panic"
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum UnsupportedBareProviderV1 {
+    Error,
+    Now,
 }
 
-/// File-mode reservation for direct calls. See the reserved bare call forms in
-/// docs/reference/language/function-call-evaluation.md.
-pub(crate) fn is_reserved_source_function_call_v1(name: &str, arity: usize) -> bool {
-    if is_math_function(name) {
-        return false;
+impl UnsupportedBareProviderV1 {
+    pub(crate) fn diagnostic(self, arity: usize) -> String {
+        let name = match self {
+            Self::Error => "error",
+            Self::Now => "now",
+        };
+        format!("[freeze:contract][direct-call/bare-{name}-unsupported] name={name} arity={arity}")
     }
+}
 
-    // Keep existing special forms and the pending compatibility spellings.
-    let classification = classify_call_name_v1(name);
-    classification.raw_unified_admission()
-        || classification.callee_class() != CallNameCalleeClassV1::Ordinary
-        || (name == "str" && arity == 1)
-        || name == "Range"
-        || name.starts_with("mem.")
+pub(crate) fn unsupported_bare_provider_v1(name: &str) -> Option<UnsupportedBareProviderV1> {
+    match name {
+        "error" => Some(UnsupportedBareProviderV1::Error),
+        "now" => Some(UnsupportedBareProviderV1::Now),
+        _ => None,
+    }
+}
+
+/// File-mode reservations. Print syntax and FastMemory receiver policy have
+/// their own AST forms. The legacy builtin names below issue no file target.
+pub(crate) fn is_reserved_source_function_call_v1(name: &str) -> bool {
+    matches!(name, "print" | "panic" | "gc_collect" | "gc_stats" | "isType" | "asType")
+        || unsupported_bare_provider_v1(name).is_some()
+        || name.starts_with("nyash.")
+        || name.starts_with("env.")
+        || name.starts_with("system.")
 }
 
 #[cfg(test)]
@@ -84,7 +98,7 @@ mod tests {
             ("print", true, CallNameCalleeClassV1::BuiltinGlobal),
             ("error", true, CallNameCalleeClassV1::BuiltinGlobal),
             ("panic", true, CallNameCalleeClassV1::BuiltinGlobal),
-            ("exit", true, CallNameCalleeClassV1::BuiltinGlobal),
+            ("exit", false, CallNameCalleeClassV1::Ordinary),
             ("now", true, CallNameCalleeClassV1::BuiltinGlobal),
             ("abs", true, CallNameCalleeClassV1::BuiltinGlobal),
             ("min", true, CallNameCalleeClassV1::BuiltinGlobal),

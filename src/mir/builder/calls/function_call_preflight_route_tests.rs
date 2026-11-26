@@ -20,7 +20,6 @@ use crate::mir::{MirInstruction, TypeOpKind, ValueId};
 struct RecordingPortV1 {
     expression_count: usize,
     events: Vec<&'static str>,
-    fail_expression: bool,
 }
 
 impl RecursiveChildLoweringPortV1 for RecordingPortV1 {
@@ -51,9 +50,6 @@ impl RecursiveChildLoweringPortV1 for RecordingPortV1 {
     ) -> Result<ValueId, String> {
         self.expression_count += 1;
         self.events.push("child");
-        if self.fail_expression {
-            return Err("direct str child failed".to_owned());
-        }
         crate::mir::builder::emission::constant::emit_integer(builder, 7)
     }
 }
@@ -292,18 +288,10 @@ fn raw_root_main_special_precedence_survives_resolved_retirement() {
         )
     ));
 
-    let str_one =
-        PreparedRawFunctionPreflightV1::prepare(&builder, "str".to_string(), vec![integer(1)]);
-    assert!(matches!(
-        str_one.route,
-        PreparedRawFunctionPreflightRouteV1::Ordinary {
-            completion: PreparedRawOrdinaryFunctionCompletionV1::StrNormalization { .. }
-        }
-    ));
-    for arguments in [Vec::new(), vec![integer(1), integer(2)]] {
-        let wrong_arity = raw_root_main_preflight(&builder, "str", arguments);
+    for arguments in [Vec::new(), vec![integer(1)], vec![integer(1), integer(2)]] {
+        let retired = raw_root_main_preflight(&builder, "str", arguments);
         assert!(matches!(
-            wrong_arity.route,
+            retired.route,
             PreparedRawFunctionPreflightRouteV1::CompatibilityTerminal(
                 RawCompatibilityOrdinaryCallTerminalV1::RawRootMainRetired
             )
@@ -420,7 +408,7 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
 }
 
 #[test]
-fn selected_math_and_ordinary_str_keep_child_and_completion_order() {
+fn selected_math_keeps_child_and_completion_order() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("direct_preflight_completion/0".to_string());
     let mut port = RecordingPortV1::default();
@@ -448,12 +436,6 @@ fn selected_math_and_ordinary_str_keep_child_and_completion_order() {
                 ..
             }
         )));
-
-    let string =
-        PreparedRawFunctionPreflightV1::prepare(&builder, "str".to_string(), vec![integer(1)]);
-    lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, string).unwrap();
-    assert_eq!(port.expression_count, 2);
-    assert_eq!(port.events, vec!["child", "child"]);
 
     port.events.clear();
     let ordinary = raw_root_main_preflight(&builder, "user_function", vec![integer(1)]);
@@ -709,33 +691,6 @@ fn cataloged_local_value_target_is_consumed_once_before_canonical_call_publicati
         } => *dst == result && *value == ValueId::new(88) && args.len() == 1,
         _ => false,
     });
-}
-
-#[test]
-fn direct_str_child_failure_does_not_retry_or_observe_headers_and_reuses_builder() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("direct_str_failure_reuse/0".to_owned());
-    let mut port = RecordingPortV1 {
-        fail_expression: true,
-        ..Default::default()
-    };
-
-    let failing =
-        PreparedRawFunctionPreflightV1::prepare(&builder, "str".to_owned(), vec![integer(1)]);
-    let error =
-        lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, failing)
-            .unwrap_err();
-    assert_eq!(error, "direct str child failed");
-    assert_eq!(port.events, vec!["child"]);
-
-    port.fail_expression = false;
-    port.events.clear();
-    let succeeding =
-        PreparedRawFunctionPreflightV1::prepare(&builder, "str".to_owned(), vec![integer(2)]);
-    lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, succeeding)
-        .unwrap();
-    assert_eq!(port.events, vec!["child"]);
-    assert_eq!(port.expression_count, 2);
 }
 
 #[path = "function_call_installed_gc_builtin_tests.rs"]

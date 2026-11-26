@@ -181,6 +181,10 @@ pub(crate) enum ShadowResolveErrorV0 {
         site: SourceExprSiteV1,
         suggest_me: bool,
     },
+    UnsupportedBareProvider {
+        provider: crate::mir::policies::call_name_classification::UnsupportedBareProviderV1,
+        arity: usize,
+    },
     ExpectedFunctionDeclaration,
     SameScopeRedeclaration {
         name: Box<str>,
@@ -262,7 +266,29 @@ pub(crate) enum ShadowResolveErrorV0 {
 }
 
 impl ShadowResolveErrorV0 {
+    pub(in crate::mir::resolved_semantics) fn reserved_file_call_refusal(
+        name: &str,
+        site: SourceExprSiteV1,
+        arity: usize,
+    ) -> Option<Self> {
+        use crate::mir::policies::call_name_classification::{
+            is_reserved_source_function_call_v1, unsupported_bare_provider_v1,
+        };
+
+        if let Some(provider) = unsupported_bare_provider_v1(name) {
+            return Some(Self::UnsupportedBareProvider { provider, arity });
+        }
+        is_reserved_source_function_call_v1(name).then(|| Self::BareCallTargetMissing {
+            name: name.into(),
+            site,
+            suggest_me: false,
+        })
+    }
+
     pub(crate) fn call_diagnostic(&self) -> Option<String> {
+        if let Self::UnsupportedBareProvider { provider, arity } = self {
+            return Some(provider.diagnostic(*arity));
+        }
         let Self::BareCallTargetMissing { name, site, suggest_me } = self else {
             return None;
         };
