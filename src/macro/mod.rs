@@ -75,21 +75,37 @@ pub(crate) fn validate_file_functions(ast: &ASTNode) -> Result<(), crate::ParseE
     if let ASTNode::FunctionDeclaration { span, .. } = ast {
         return Err(crate::ParseError::function_outside_box(span.line));
     }
+    if let ASTNode::BoxDeclaration {
+        methods,
+        constructors,
+        static_init,
+        invariants,
+        ..
+    } = ast
+    {
+        for statement in invariants.iter().chain(static_init.iter().flatten()) {
+            validate_file_functions(statement)?;
+        }
+        let members = methods
+            .iter_selected_declaration_order()
+            .map(|method| method.declaration())
+            .chain(constructors.values());
+        for member in members {
+            match member {
+                ASTNode::FunctionDeclaration { .. } => validate_file_function_children(member)?,
+                _ => validate_file_functions(member)?,
+            }
+        }
+        return Ok(());
+    }
+    validate_file_function_children(ast)
+}
+
+fn validate_file_function_children(ast: &ASTNode) -> Result<(), crate::ParseError> {
     let mut result = Ok(());
     ast.for_each_child(&mut |child| {
         if result.is_ok() {
-            result = match (ast, child) {
-                (ASTNode::BoxDeclaration { .. }, ASTNode::FunctionDeclaration { .. }) => {
-                    let mut body_result = Ok(());
-                    child.for_each_child(&mut |node| {
-                        if body_result.is_ok() {
-                            body_result = validate_file_functions(node);
-                        }
-                    });
-                    body_result
-                }
-                _ => validate_file_functions(child),
-            };
+            result = validate_file_functions(child);
         }
     });
     result
