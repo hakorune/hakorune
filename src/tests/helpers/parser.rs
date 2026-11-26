@@ -84,3 +84,8 @@ pub fn find_constructor_body<'a>(box_node: &'a ASTNode, key: &str) -> &'a [ASTNo
     };
     body
 }
+
+/// Parse and detach an exact method for tests of function-local compiler stages.
+pub(crate) fn parse_fixture_method(source: &str, box_name: &str, method_name: &str) -> ASTNode {
+    find_method_decl(&parse_ok(source), box_name, method_name).clone()
+}

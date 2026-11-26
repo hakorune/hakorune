@@ -270,15 +270,10 @@ mod tests {
     #[test]
     fn production_rebind_walk_refuses_owned_unknown_and_noninteger_destinations() {
         for case in 0..7 {
-            let program = crate::parser::NyashParser::parse_from_string(
-                "function probe() { local x = 0 x = x + 1 return 0 }",
-            )
-            .unwrap();
-            let crate::ast::ASTNode::Program { mut statements, .. } = program else {
-                panic!("Program")
-            };
+            let function = crate::tests::helpers::parser::parse_fixture_method(
+                "static box Fixture { probe() { local x = 0 x = x + 1 return 0 } }", "Fixture", "probe");
             let unit =
-                VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+                VerifiedResolvedSourceUnitV1::resolve_function(function).unwrap();
             let input = unit.root_function_input().unwrap();
             let initializer = input
                 .function()
@@ -331,14 +326,11 @@ mod tests {
     #[test]
     fn object_home_rebind_is_unavailable_without_consuming_the_prior_homes() {
         for assignment in ["x = new Page()", "x = move y"] {
-            let program = crate::parser::NyashParser::parse_from_string(&format!(
-                "function probe() {{ local x = new Page() local y = new Page() {assignment} return 0 }}"
-            )).unwrap();
-            let crate::ast::ASTNode::Program { mut statements, .. } = program else {
-                panic!("Program")
-            };
+            let function = crate::tests::helpers::parser::parse_fixture_method(&format!(
+                "static box Fixture {{ probe() {{ local x = new Page() local y = new Page() {assignment} return 0 }} }}"
+            ), "Fixture", "probe");
             let unit =
-                VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+                VerifiedResolvedSourceUnitV1::resolve_function(function).unwrap();
             let input = unit.root_function_input().unwrap();
             let initializers = input
                 .function()
@@ -393,15 +385,11 @@ mod tests {
             ("x = 1 == 1", false),
             ("x = p", false),
         ] {
-            let program = crate::parser::NyashParser::parse_from_string(&format!(
-                "function probe(p) {{ local x = 0 {assignment} return x }}"
-            ))
-            .unwrap();
-            let crate::ast::ASTNode::Program { mut statements, .. } = program else {
-                panic!("Program")
-            };
+            let function = crate::tests::helpers::parser::parse_fixture_method(&format!(
+                "static box Fixture {{ probe(p) {{ local x = 0 {assignment} return x }} }}"
+            ), "Fixture", "probe");
             let unit =
-                VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+                VerifiedResolvedSourceUnitV1::resolve_function(function).unwrap();
             let input = unit.root_function_input().unwrap();
             let ledger = input
                 .forest()
@@ -502,12 +490,9 @@ mod tests {
 
     #[test]
     fn source_scalar_reads_keep_rebind_producers_before_following_aliases() {
-        let program = crate::parser::NyashParser::parse_from_string(
-            "function probe() { local x = 0 x = x + 1 local y = x x = x local z = x return y + z + x }").unwrap();
-        let crate::ast::ASTNode::Program { mut statements, .. } = program else {
-            panic!("Program")
-        };
-        let unit = VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+        let function = crate::tests::helpers::parser::parse_fixture_method(
+            "static box Fixture { probe() { local x = 0 x = x + 1 local y = x x = x local z = x return y + z + x } }", "Fixture", "probe");
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(function).unwrap();
         let input = unit.root_function_input().unwrap();
         let ledger = input
             .forest()

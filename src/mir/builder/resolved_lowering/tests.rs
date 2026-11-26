@@ -6,16 +6,14 @@ use crate::mir::{MirInstruction, MirType};
 
 use super::*;
 
-const FIXTURE_SOURCE: &str = "static function canonical_fixture(arg) { local x = arg + 1\n x = x + 1\n outbox result\n return x }";
+const FIXTURE_SOURCE: &str = "static box Fixture { canonical_fixture(arg) { local x = arg + 1\n x = x + 1\n outbox result\n return x } }";
 
 fn fixture() -> ASTNode {
-    let ASTNode::Program { mut statements, .. } =
-        crate::parser::NyashParser::parse_from_string(FIXTURE_SOURCE).expect("fixture parses")
-    else {
-        panic!("fixture must be a program")
-    };
-    assert_eq!(statements.len(), 1);
-    statements.remove(0)
+    crate::tests::helpers::parser::parse_fixture_method(
+        FIXTURE_SOURCE,
+        "Fixture",
+        "canonical_fixture",
+    )
 }
 
 
@@ -51,15 +49,18 @@ fn source_backed_route_produces_verifier_clean_mir() {
         "{:?}",
         result.verification_result
     );
-    assert!(result.module.functions.contains_key("canonical_fixture/1"));
-    let function = &result.module.functions["canonical_fixture/1"];
+    assert!(result
+        .module
+        .functions
+        .contains_key("Fixture.canonical_fixture/1"));
+    let function = &result.module.functions["Fixture.canonical_fixture/1"];
     assert_eq!(function.metadata.outbox_bindings, vec!["result"]);
 }
 
 #[test]
 fn trivial_float_route_keeps_exact_type_and_emits_no_legacy_release() {
-    let result = compile_source("static function trivial_float() { return 1.5 + 2.5 }");
-    let function = &result.module.functions["trivial_float/0"];
+    let result = compile_source("static box Fixture { trivial_float() { return 1.5 + 2.5 } }");
+    let function = &result.module.functions["Fixture.trivial_float/0"];
     let binop_dst = function
         .blocks
         .values()
@@ -83,8 +84,9 @@ fn trivial_float_route_keeps_exact_type_and_emits_no_legacy_release() {
 
 #[test]
 fn trivial_comparison_route_keeps_the_profile_sealed_bool_result() {
-    let result = compile_source("static function trivial_bool_compare() { return true == false }");
-    let function = &result.module.functions["trivial_bool_compare/0"];
+    let result =
+        compile_source("static box Fixture { trivial_bool_compare() { return true == false } }");
+    let function = &result.module.functions["Fixture.trivial_bool_compare/0"];
     let comparison = function
         .blocks
         .values()
@@ -148,12 +150,16 @@ fn function_error_discards_unpublished_canonical_draft() {
     let mut builder = MirBuilder::new();
     crate::test_support::with_env_vars(&crate::test_support::METHODIZE_SELECTOR_UNSET, || builder.prepare_module()).unwrap();
     let error = builder
-        .with_resolved_function_lowering_session("canonical_fixture/1", |builder| {
+        .with_resolved_function_lowering_session("Fixture.canonical_fixture/1", |builder| {
             builder
                 .function_state
                 .resolved_binding_state
                 .install(input.function())?;
-            builder.create_function_skeleton("canonical_fixture/1".into(), &["arg".into()], &[])?;
+            builder.create_function_skeleton(
+                "Fixture.canonical_fixture/1".into(),
+                &["arg".into()],
+                &[],
+            )?;
             Err("[injected/canonical_body]".to_string())
         })
         .unwrap_err();
@@ -164,6 +170,6 @@ fn function_error_discards_unpublished_canonical_draft() {
         .as_ref()
         .unwrap()
         .functions
-        .contains_key("canonical_fixture/1"));
+        .contains_key("Fixture.canonical_fixture/1"));
     assert!(!builder.function_state.resolved_binding_state.is_installed());
 }

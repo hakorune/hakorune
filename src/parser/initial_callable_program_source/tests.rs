@@ -62,8 +62,7 @@ fn loaned_names(completed: &CompletedParserPostpassV1) -> Vec<String> {
 #[test]
 fn co_seal_covers_mixed_direct_program_without_name_repair() {
     let completed = finish(
-        "function free() {}\n\
-         static function free_static() {}\n\
+        "static box Fixture { first() {} second() {} }\n\
          static box Main { main() {} }\n\
          static box Utility { ping() {} }\n\
          box Node { value() {} }\n",
@@ -71,14 +70,14 @@ fn co_seal_covers_mixed_direct_program_without_name_repair() {
     );
     assert_eq!(
         loaned_names(&completed),
-        ["free", "free_static", "main", "ping", "value"]
+        ["first", "second", "main", "ping", "value"]
     );
 }
 
 #[test]
-fn co_seal_uses_selected_top_level_and_member_gate_receipts() {
+fn co_seal_uses_selected_box_and_member_gate_receipts() {
     let completed = finish(
-        "gate Build.test { function chosen() {} } else { function hidden() {} }\n\
+        "gate Build.test { static box Selected { chosen() {} } } else { static box Hidden { hidden() {} } }\n\
          box Choice { gate Build.test { run() {} } else { run() {} } }\n",
         BuildMode::Test,
     );
@@ -136,7 +135,7 @@ fn issuer_rejects_missing_rows_and_arbitrary_ast() {
         }
     ));
 
-    let (_parser, product) = open_pruned("function run() {}\n", BuildMode::Release);
+    let (_parser, product) = open_pruned("static box Fixture { run() {} }\n", BuildMode::Release);
     let program_slots = product.projected_program_item_slots.as_ref().unwrap();
     let error = issue_initial_callable_program_source_v1(
         ASTNode::Literal {
@@ -153,8 +152,10 @@ fn issuer_rejects_missing_rows_and_arbitrary_ast() {
 
 #[test]
 fn issuer_rejects_foreign_slots_and_compatibility_only_methods() {
-    let (_left_parser, left) = open_pruned("function left() {}\n", BuildMode::Release);
-    let (_right_parser, right) = open_pruned("function right() {}\n", BuildMode::Release);
+    let (_left_parser, left) =
+        open_pruned("static box Fixture { left() {} }\n", BuildMode::Release);
+    let (_right_parser, right) =
+        open_pruned("static box Fixture { right() {} }\n", BuildMode::Release);
     let right_slots = right.projected_program_item_slots.as_ref().unwrap();
     let error = issue_initial_callable_program_source_v1(
         left.ast,

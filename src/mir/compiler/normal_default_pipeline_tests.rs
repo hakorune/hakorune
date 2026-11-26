@@ -468,12 +468,12 @@ fn normal_ingress_preserves_app_main_free_static_definition_after_finish() {
 }
 
 #[test]
-fn normal_ingress_preserves_top_level_free_function_after_finish() {
+fn normal_ingress_preserves_qualified_static_sibling_after_finish() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let parsed = NyashParser::parse_normal_callable_program_with_build_config(
-            "function helper(value: i64): i64 { return value }\n\
-             static box Main { main() { return helper(2) } }",
+            "static box Helpers { helper(value: i64): i64 { return value } }\n\
+             static box Main { main() { return Helpers.helper(2) } }",
             crate::parser::ParserBuildConfig::default(),
         )
         .expect("mixed App source");
@@ -484,12 +484,14 @@ fn normal_ingress_preserves_top_level_free_function_after_finish() {
             panic!("App source must remain source-backed")
         };
         let mut compiler = MirCompiler::with_options(false);
-        let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::free_function("helper", 1);
+        let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method(
+            "Helpers", "helper", 1,
+        );
         let outcome = compiler
             .compile_normal_with_published(
                 NormalCompileRequestV1::for_mir_mode_callable_source(
                     source,
-                    Some("app-main-free-function.hako"),
+                    Some("app-main-qualified-sibling.hako"),
                     HashMap::new(),
                 ),
                 |view, verification| {
@@ -499,7 +501,7 @@ fn normal_ingress_preserves_top_level_free_function_after_finish() {
                         view.retained_root_result().unwrap(),
                         Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64Return { .. })
                     ));
-                    assert_eq!(view.module().canonical_callable_definition_symbol(&key), Some("helper/1"));
+                    assert_eq!(view.module().canonical_callable_definition_symbol(&key), Some("Helpers.helper/1"));
                     let contract = view.issue_lifecycle_compiled_entry_contract()?;
                     assert_eq!(contract.ordinary_calls().len(), 1);
                     assert!(contract.program().functions().iter().any(|function| matches!(
@@ -512,7 +514,7 @@ fn normal_ingress_preserves_top_level_free_function_after_finish() {
                     Ok::<(), String>(())
                 },
             )
-            .expect("selected App Main FreeFunction publication");
+            .expect("selected App Main qualified static target publication");
         assert!(matches!(
             outcome,
             NormalPublishedCompileOutcome::Consumed(())

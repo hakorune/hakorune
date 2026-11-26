@@ -43,26 +43,15 @@ static box Main {
 }
 
 #[test]
-fn parser_contract_surface_parses_free_function_contract_metadata() {
-    let statements = program_statements(
-        r#"
-function validate(x: i64): i64
-    requires x >= 0
-{
-    return x
-}
-"#,
+fn parser_contract_surface_refuses_file_function_before_metadata() {
+    let error = crate::parser::NyashParser::parse_from_string(
+        "function validate(x: i64): i64 requires x >= 0 { return x }",
+    )
+    .expect_err("retired syntax must be rejected");
+    assert!(
+        error.to_string().contains("decl/function-outside-box"),
+        "{error}"
     );
-    let ASTNode::FunctionDeclaration {
-        contracts, body, ..
-    } = &statements[0]
-    else {
-        panic!("expected function declaration");
-    };
-
-    assert_eq!(contracts.len(), 1);
-    assert!(matches!(contracts[0].kind, ContractKind::Requires));
-    assert_eq!(body.len(), 1, "contracts are metadata only in Stage0");
 }
 
 #[test]

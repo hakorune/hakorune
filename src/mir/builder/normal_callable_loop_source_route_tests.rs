@@ -192,16 +192,8 @@ pub(super) struct ArmedLoopCondParts {
 
 pub(super) fn armed_loop_cond_parts(source: &str) -> ArmedLoopCondParts {
     crate::runtime::ring0::ensure_global_ring0_initialized();
-    let program =
-        crate::parser::NyashParser::parse_from_string(source).expect("loop-cond fixture parses");
-    let ASTNode::Program { statements, .. } = program else {
-        panic!("fixture is a program")
-    };
-    let function = statements
-        .iter()
-        .find(|node| matches!(node, ASTNode::FunctionDeclaration { .. }))
-        .expect("loop-cond function");
-    let ASTNode::FunctionDeclaration { body, .. } = function else {
+    let function = crate::tests::helpers::parser::parse_fixture_method(source, "Fixture", "caller");
+    let ASTNode::FunctionDeclaration { body, .. } = &function else {
         panic!("fixture is a function")
     };
     let loop_index = body
@@ -270,7 +262,8 @@ pub(super) fn armed_loop_cond_parts(source: &str) -> ArmedLoopCondParts {
 }
 
 pub(super) const ARMED_LOOP_COND_SOURCE: &str = r#"
-static function caller(flag: i64, text: i64): i64 {
+static box Fixture {
+caller(flag: i64, text: i64): i64 {
     loop(flag < 2) {
         if text.starts_with("a", 0) == 1 {
             flag = flag + 1
@@ -280,13 +273,15 @@ static function caller(flag: i64, text: i64): i64 {
     }
     return flag
 }
+}
 "#;
 
 /// Two cataloged calls under one loop root: the selected publication
 /// obligation may cover only one of them, so the unrelated item exercises
 /// the static-plus-other mix.
 const MIXED_LOOP_COND_SOURCE: &str = r#"
-static function caller(flag: i64, text: i64): i64 {
+static box Fixture {
+caller(flag: i64, text: i64): i64 {
     loop(flag < 2) {
         if text.starts_with("a", 0) == 1 {
             local other = text.starts_with("b", 1)
@@ -296,6 +291,7 @@ static function caller(flag: i64, text: i64): i64 {
         }
     }
     return flag
+}
 }
 "#;
 

@@ -35,7 +35,7 @@ fn transform_root(
 #[test]
 fn exact_app_relation_preserves_main_and_static_children_as_one_aggregate() {
     let final_source = prepared(
-        "function helper() { return 2 }\nstatic box Main { main() { return 1 } child() { return 3 } }",
+        "static box Helpers { helper() { return 2 } }\nstatic box Main { main() { return 1 } child() { return 3 } }",
     )
     .begin_transform()
     .finish_exact()

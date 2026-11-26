@@ -63,9 +63,9 @@ fn shared_projection_emits_no_else_receipt_without_a_child_path() {
 
 fn projected_gate_slots(mode: BuildMode) -> super::BuildGateProjectionOutputV1 {
     let tokens = NyashTokenizer::new(
-        "function before() {}\n\
-         gate Build.test { function chosen() {} } else { function chosen() {} }\n\
-         function after() {}\n",
+        "static box Before { run() {} }\n\
+         gate Build.test { static box Choice { chosen() {} } } else { static box Choice { chosen() {} } }\n\
+         static box After { run() {} }\n",
     )
     .tokenize()
     .unwrap();

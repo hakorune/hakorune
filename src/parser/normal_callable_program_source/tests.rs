@@ -576,15 +576,14 @@ fn unsupported_compatibility_cohorts_do_not_enter_initial_source_lane() {
 }
 
 #[test]
-fn top_level_callable_does_not_fabricate_parameter_source() {
-    let final_source = transform(parse("function helper(pos: i64) { return pos }"), |_| {})
-        .expect("exact transform");
-    final_source
-        .with_callable_semantic_syntax(|loan| {
-            assert!(loan.rows()[0].parameters().is_none());
-        })
-        .expect("semantic syntax loan");
-    final_source.discard_at_named_root_execution_terminal();
+fn top_level_callable_is_rejected_before_parameter_source() {
+    let error =
+        crate::parser::NyashParser::parse_from_string("function helper(pos: i64) { return pos }")
+            .expect_err("retired syntax must be rejected");
+    assert!(
+        error.to_string().contains("decl/function-outside-box"),
+        "{error}"
+    );
 }
 
 #[test]

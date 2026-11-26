@@ -111,7 +111,6 @@ fn complete_sibling_catalog_covers_static_and_instance_direct_methods() {
     let parsed = NyashParser::parse_from_string_with_callable_parameter_source(
         r#"
 static box StaticApi {
-    field
     run(source, count: i64) { return count }
 }
 box InstanceApi {
@@ -131,7 +130,7 @@ box InstanceApi {
             ParserCallableDeclarationKindV1::StaticBoxMethod
         );
         assert_eq!(declarations[0].box_statement_ordinal(), 0);
-        assert_eq!(declarations[0].source_member_ordinal(), 1);
+        assert_eq!(declarations[0].source_member_ordinal(), 0);
         assert_eq!(declarations[0].inventory_ordinal().inventory_ordinal(), 0);
         assert_eq!(declarations[0].diagnostic_name(), "run");
         assert_eq!(declarations[0].parameters().len(), 2);
@@ -166,7 +165,6 @@ fn consuming_syntax_loan_binds_exact_static_and_instance_declarations() {
     let parsed = NyashParser::parse_from_string_with_callable_parameter_source(
         r#"
 static box StaticApi {
-    field
     run(source, count: i64) { return count }
 }
 box InstanceApi {

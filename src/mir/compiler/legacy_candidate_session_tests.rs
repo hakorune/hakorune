@@ -256,8 +256,7 @@ fn repl_program_matches_legacy_config_and_failure_reuse() {
 fn late_normal_lowering_failure_leaves_live_builder_unchanged_and_reusable() {
     let root = NyashParser::parse_from_string(
         r#"
-            function staged() { return 1 }
-            box Page { birth() { return 6 } }
+            box Page { birth() { return 6 } staged() { return 1 } }
             print(missing)
         "#,
     )
@@ -514,8 +513,10 @@ fn explicit_imports_commit_only_with_the_finished_normal_candidate() {
 fn normal_pipeline_matches_legacy_compatibility_for_general_module() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
     let source = r#"
-function selected_top_level() { return 1 }
-function selected_top_level_peer() { return 2 }
+static box Fixture {
+  selected() { return 1 }
+  selected_peer() { return 2 }
+}
 
 box Page {
   capacity: usize = 0

@@ -387,9 +387,10 @@ mod tests {
     /// fixture through the raw invocation child port.
     fn lower_unarmed_nested_loop() -> Result<(), String> {
         crate::runtime::ring0::ensure_global_ring0_initialized();
-        let program = NyashParser::parse_from_string(
+        let function = crate::tests::helpers::parser::parse_fixture_method(
             r#"
-static function mixed_loop(x: i64): i64 {
+static box Fixture {
+mixed_loop(x: i64): i64 {
     loop(x < 10) {
         x = x + 1
     }
@@ -401,16 +402,11 @@ static function mixed_loop(x: i64): i64 {
     }
     return x
 }
+}
 "#,
-        )
-        .expect("mixed loop fixture parses");
-        let crate::ast::ASTNode::Program { statements, .. } = program else {
-            panic!("fixture is a program")
-        };
-        let function = statements
-            .into_iter()
-            .find(|node| matches!(node, crate::ast::ASTNode::FunctionDeclaration { .. }))
-            .expect("mixed loop function");
+            "Fixture",
+            "mixed_loop",
+        );
         let crate::ast::ASTNode::FunctionDeclaration { body, .. } = &function else {
             panic!("fixture is a function")
         };

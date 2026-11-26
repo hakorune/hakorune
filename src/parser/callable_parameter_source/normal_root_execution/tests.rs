@@ -88,8 +88,9 @@ fn missing_main_method_is_a_typed_incomplete_terminal() {
 }
 
 #[test]
-fn app_relation_keeps_top_level_siblings_in_the_same_surface() {
-    let parsed = parse("function sibling() {}\nstatic box Main { main() {} helper() {} }");
+fn app_relation_keeps_static_box_siblings_in_the_same_surface() {
+    let parsed =
+        parse("static box Sibling { run() {} }\nstatic box Main { main() {} helper() {} }");
     ParserNormalRootExecutionTestTerminalV1::observe_once(parsed, |loan| {
         let source = loan
             .normal_root_execution()

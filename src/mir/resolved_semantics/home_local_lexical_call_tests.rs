@@ -1,20 +1,10 @@
 use super::*;
-use crate::ast::ASTNode;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
-use crate::parser::NyashParser;
 
 #[test]
 fn received_handle_observer_rejects_initializer_argument_and_response_drift_without_retry() {
-    let ASTNode::Program { statements, .. } = NyashParser::parse_from_string(
-        "function probe() { local maker = new Maker() local item = maker.make(7) return item }",
-    )
-    .unwrap() else {
-        panic!("Program")
-    };
-    let function = statements
-        .into_iter()
-        .find(|node| matches!(node, ASTNode::FunctionDeclaration { .. }))
-        .unwrap();
+    let function = crate::tests::helpers::parser::parse_fixture_method(
+        "static box Fixture { probe() { local maker = new Maker() local item = maker.make(7) return item } }", "Fixture", "probe");
     let source = VerifiedResolvedSourceUnitV1::resolve_function(function).unwrap();
     let input = source.root_function_input().unwrap();
     let rows: Vec<_> = input

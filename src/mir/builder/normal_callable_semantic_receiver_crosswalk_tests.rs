@@ -15,7 +15,9 @@ fn materialized_parameter_fixture() -> (
     crate::mir::resolved_semantics::FunctionOwnerIdV1,
     BindingRefV1,
 ) {
-    materialized_fixture("function caller(first, second, third, fourth) { return first }")
+    materialized_fixture(
+        "static box Fixture { caller(first, second, third, fourth) { return first } }",
+    )
 }
 
 fn materialized_fixture(
@@ -29,8 +31,12 @@ fn materialized_fixture(
     let crate::ast::ASTNode::Program { mut statements, .. } = program else {
         panic!("fixture must be a program")
     };
-    let function = statements.remove(0);
-    let syntax = CallableFunctionSyntaxViewV1::from_function_ast(&function)
+    let crate::ast::ASTNode::BoxDeclaration { methods, .. } = statements.remove(0) else {
+        panic!("fixture must declare a static box")
+    };
+    let function = methods.get_declaration("caller").expect("fixture caller");
+
+    let syntax = CallableFunctionSyntaxViewV1::from_function_ast(function)
         .expect("fixture callable syntax");
     let mut resolver = FunctionSemanticResolverSessionV1::new(9102).expect("resolver");
     let ResolveSelectedCallableForestsOutcomeV1::Complete(forests) = resolver
@@ -41,13 +47,13 @@ fn materialized_fixture(
     };
     let forest = forests.into_vec().pop().expect("fixture root forest");
     let projection = VerifiedSourceProjectionV1::seal_with_root_profile(
-        &function,
+        function,
         &forest,
         syntax.function().root_profile(),
     )
     .expect("fixture projection");
     let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
-        &function,
+        function,
         &forest,
         &projection,
     )

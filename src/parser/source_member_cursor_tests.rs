@@ -28,18 +28,16 @@ fn branch_reuses_box_identity_but_starts_a_fresh_member_sequence() {
 }
 
 #[test]
-fn static_box_mixed_members_keep_existing_ast_behavior_with_shared_cursor() {
+fn static_box_methods_keep_written_order_with_shared_cursor() {
     let ast = NyashParser::parse_from_string(
         r#"
 static box CursorFixture {
-    left
     first(value) { return value }
-    right
-    second(left, right) { return left }
+    method second(left, right) { return left }
 }
 "#,
     )
-    .expect("static Box fields and methods must keep their existing parse behavior");
+    .expect("static box methods must parse in written order");
 
     let ASTNode::Program { statements, .. } = ast else {
         panic!("expected Program");
@@ -54,7 +52,7 @@ static box CursorFixture {
         panic!("expected static Box declaration");
     };
     assert!(*is_static);
-    assert_eq!(fields, &["left", "right"]);
+    assert!(fields.is_empty());
     assert_eq!(
         methods.names_in_selected_order().collect::<Vec<_>>(),
         ["first", "second"]

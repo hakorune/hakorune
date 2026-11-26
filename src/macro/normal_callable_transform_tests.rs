@@ -78,7 +78,7 @@ fn enabled_macro_with_no_actual_test_tail_stays_source_backed() {
         ],
         || {
             let transformed =
-                transform_normal_callable_program_v1(parse("function helper() { return 0 }"))
+                transform_normal_callable_program_v1(parse("static box Helpers { helper() { return 0 } }"))
                     .expect("actual no-op remains exact");
             let NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed else {
                 panic!("no-op macro must preserve the source-backed owner")
@@ -100,7 +100,7 @@ fn source_backed_test_harness_tail_rejects_root_authority_loss() {
         ],
         || {
             assert!(matches!(
-                transform_normal_callable_program_v1(parse("function test_zero() { return 0 }")),
+                transform_normal_callable_program_v1(parse("static box Helpers { test_zero() { return 0 } }")),
                 Err(NormalCallableTransformRejectV1::ExactSourceChanged(
                     crate::parser::FinalCallableProgramSourceRejectV1::RootPreservation(
                         crate::parser::ParserNormalRootExecutionPreservationRejectV1::CompatibilityLoss
@@ -145,5 +145,29 @@ fn unclassified_macro_mutation_is_not_exact_or_compatibility() {
     assert_eq!(
         require_unchanged_source_macro_output_v1(&source, &changed),
         Err(NormalCallableTransformRejectV1::UnclassifiedSourceMutation)
+    );
+}
+
+#[test]
+fn macro_function_declarations_require_a_method_or_constructor_slot() {
+    use crate::ast::ASTNode;
+    use crate::tests::helpers::parser::{find_method_decl, parse_ok};
+
+    let mut ast = parse_ok("static box Fixture { generated() {} }");
+    super::validate_file_functions(&ast).expect("selected static method");
+    let function = find_method_decl(&ast, "Fixture", "generated").clone();
+
+    let ASTNode::Program { statements, .. } = &mut ast else {
+        panic!("fixture program");
+    };
+    let ASTNode::BoxDeclaration { static_init, .. } = &mut statements[0] else {
+        panic!("fixture box");
+    };
+    *static_init = Some(vec![function]);
+
+    let error = super::validate_file_functions(&ast).expect_err("macro output initializer");
+    assert!(
+        error.to_string().contains("decl/function-outside-box"),
+        "{error}"
     );
 }

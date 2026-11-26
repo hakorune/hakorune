@@ -13,13 +13,9 @@ test_emit_boxcall_length_json() {
   SRC=$(mktemp --suffix .hako)
   cat >"$SRC" <<'HKR'
 static box Main {
-  s
-  n
-
   main() {
-    me.s = new StringBox("nyash")
-    me.n = me.s.length()
-    return me.n
+    local s = "nyash"
+    return s.length()
   }
 }
 HKR

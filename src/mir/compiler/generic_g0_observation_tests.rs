@@ -6,10 +6,10 @@ use crate::mir::loop_structural_facts::{
     GenericG0SourceRejectV1, GenericG0SourceUnresolvedV1,
 };
 use crate::mir::numeric_substrate::NumericTarget;
-use crate::parser::NyashParser;
 
 const TYPED: &str = r#"
-function generic_g0(i: i64, j: i64): i64 {
+box G0Fixture {
+generic_g0(i: i64, j: i64): i64 {
     loop(i < 3) {
         loop(j < 3) {
             j = j + 1
@@ -18,17 +18,11 @@ function generic_g0(i: i64, j: i64): i64 {
     }
     return j
 }
+}
 "#;
 
 fn parse_function(source: &str) -> ASTNode {
-    let program = NyashParser::parse_from_string(source).expect("fixture parses");
-    let ASTNode::Program { statements, .. } = program else {
-        panic!("fixture must produce a Program")
-    };
-    statements
-        .into_iter()
-        .find(|node| matches!(node, ASTNode::FunctionDeclaration { .. }))
-        .expect("fixture function")
+    crate::tests::helpers::parser::parse_fixture_method(source, "G0Fixture", "generic_g0")
 }
 
 fn attempt(

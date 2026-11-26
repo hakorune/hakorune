@@ -125,9 +125,10 @@ fn storage_lane_rejects_foreign_input_before_row_publication() {
 
 #[test]
 fn static_source_keeps_absent_receiver_policy_as_source_fact() {
-    let program = crate::parser::NyashParser::parse_from_string(
+    let function = crate::tests::helpers::parser::parse_fixture_method(
         r#"
-static function generic_g0(i: i64, j: i64): i64 {
+static box G0Fixture {
+generic_g0(i: i64, j: i64): i64 {
     loop(i < 3) {
         loop(j < 3) {
             j = j + 1
@@ -136,16 +137,11 @@ static function generic_g0(i: i64, j: i64): i64 {
     }
     return j
 }
+}
 "#,
-    )
-    .expect("fixture parses");
-    let function = match program {
-        crate::ast::ASTNode::Program { statements, .. } => statements
-            .into_iter()
-            .find(|node| matches!(node, crate::ast::ASTNode::FunctionDeclaration { .. }))
-            .expect("function fixture"),
-        _ => panic!("fixture is a program"),
-    };
+        "G0Fixture",
+        "generic_g0",
+    );
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(function).expect("resolves");
     let input = unit.root_function_input().expect("root input");
     assert_eq!(

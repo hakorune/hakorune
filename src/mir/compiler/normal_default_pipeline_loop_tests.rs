@@ -1,137 +1,33 @@
 use super::*;
-use crate::mir::instruction::{InvokeCallResultKind, InvokeOperation};
-use crate::mir::{Callee, MirInstruction};
+use crate::mir::MirInstruction;
+use crate::parser::NyashParser;
 use std::path::Path;
 use std::process::Command;
 
-fn generic_g0_source() -> &'static str {
-    concat!(
-        "static function generic_g0(i: i64, j: i64): i64 { loop(i < 3) { loop(j < 3) { j = j + 1 } i = i + 1 } return j }\n",
-        "static box Main { main() { return generic_g0(0, 0) } }\n"
-    )
-}
-
-fn assert_generic_g0_physical_reach(
-    view: &crate::mir::function::PublishedMirBackendView<'_>,
-) -> Result<(), String> {
-    let program = view.issue_lifecycle_physical_program()?;
-    let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::free_function("generic_g0", 2);
-    let helper = program
-        .functions()
-        .iter()
-        .find(|function| function.role().ordinary_target() == Some(&key))
-        .ok_or_else(|| "generic_g0/2 is absent from the physical program".to_owned())?;
-    assert_eq!(helper.name(), "generic_g0/2");
-    assert_eq!(helper.params().len(), 2);
-    assert!(!helper.role().has_receiver());
-    let function = &view.module().functions["generic_g0/2"];
-    assert_eq!(function.metadata.declared_param_decls.len(), 2);
-    for (declaration, name) in function
-        .metadata
-        .declared_param_decls
-        .iter()
-        .zip(["i", "j"])
-    {
-        assert_eq!(declaration.name, name);
-        assert_eq!(declaration.declared_type_name.as_deref(), Some("i64"));
-        assert!(!declaration.implicit_receiver);
-    }
-    assert_eq!(function.metadata.parameter_entry_contracts.len(), 2);
-    assert_eq!(
-        function.metadata.declared_return_type_name.as_deref(),
-        Some("i64")
-    );
-    assert!(function.metadata.return_exit_contract.is_some());
-    crate::mir::type_contracts::parameter_entry::validate_parameter_entry_contracts(function)?;
-    crate::mir::type_contracts::return_exit::validate_return_exit_contract(function)?;
-    let target = Callee::Global(key.canonical_global_target_v1().unwrap());
-    let root_calls = program.functions()[0]
-        .blocks()
-        .iter()
-        .flat_map(|block| {
-            block
-                .instructions()
-                .iter()
-                .copied()
-                .chain(std::iter::once(block.terminator()))
-        })
-        .filter(|row| {
-            matches!(
-                row.instruction(),
-                MirInstruction::Invoke {
-                    operation: InvokeOperation::Call {
-                        call,
-                        result: InvokeCallResultKind::I64,
-                    },
-                    ..
-                } if call.callee == target && call.args.len() == 2 && call.dst.is_none()
-            )
-        })
-        .count();
-    assert_eq!(root_calls, 1);
-    let mut helper_instructions = helper.blocks().iter().flat_map(|block| {
-        block
-            .instructions()
-            .iter()
-            .copied()
-            .chain(std::iter::once(block.terminator()))
-    });
-    assert!(helper_instructions
-        .clone()
-        .any(|row| matches!(row.instruction(), MirInstruction::Compare { .. })));
-    assert!(helper_instructions.any(|row| matches!(
-        row.instruction(),
-        MirInstruction::BinOp {
-            op: crate::mir::BinaryOp::Add,
-            ..
+#[test]
+fn normal_package_source_refuses_top_level_generic_g0() {
+    let error = NyashParser::parse_from_string(
+        "static function generic_g0(i: i64, j: i64): i64 {
+            loop(i < 3) { loop(j < 3) { j = j + 1 } i = i + 1 }
+            return j
         }
-    )));
-    assert_eq!(program.functions().len(), 2);
-    assert_eq!(
-        program
-            .functions()
-            .iter()
-            .filter(|function| function.role().ordinary_target().is_some())
-            .count(),
-        1
+        static box Main { main() { return generic_g0(0, 0) } }",
+    )
+    .expect_err("file-scope G0 function must be rejected");
+    assert!(
+        error.to_string().contains("decl/function-outside-box"),
+        "{error}"
     );
-    Ok(())
 }
 
 #[test]
-fn normal_package_routes_top_level_generic_g0_through_existing_terminal() {
-    crate::runtime::ring0::ensure_global_ring0_initialized();
-    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        let source = generic_g0_source();
-        let mut compiler = MirCompiler::with_options(false);
-        let mut callbacks = 0;
-        compiler
-            .compile_normal_with_published(published_request(source), |view, verification| {
-                callbacks += 1;
-                assert!(verification.is_ok(), "{verification:?}");
-                assert!(view.module().functions.contains_key("generic_g0/2"));
-                assert_generic_g0_physical_reach(view)?;
-                let input = view.issue_lifecycle_physical_abi_input()?;
-                assert!(input.diagnostic_sites().is_empty());
-                assert_eq!(input.process_result_site(), 0);
-                assert!(input.layouts().is_empty());
-                crate::mir::backend_capability::enforce_published_lifecycle_backend_supported(
-                    view, &input,
-                )?;
-                Ok::<(), String>(())
-            })
-            .expect("normal package Generic G0 compile");
-        assert_eq!(callbacks, 1);
-    });
-}
-
-#[test]
-fn normal_package_generic_g0_rejects_declared_contract_drift() {
+fn qualified_static_helper_rejects_declared_contract_drift() {
+    let source = "static box Helpers { checked_pair(i: i64, j: i64): i64 { return i + j } }
+                  static box Main { main() { return Helpers.checked_pair(0, 0) } }";
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         MirCompiler::with_options(false)
-            .compile_normal_with_published(published_request(generic_g0_source()), |view, _| {
-                assert_generic_g0_physical_reach(view)?;
+            .compile_normal_with_published(published_request(source), |view, _| {
                 let input = view.issue_lifecycle_physical_abi_input()?;
                 for (mutation, expected) in [
                     "ordinary-parameter-count",
@@ -143,7 +39,7 @@ fn normal_package_generic_g0_rejects_declared_contract_drift() {
                 .enumerate()
                 {
                     let mut module = view.module().clone();
-                    let function = module.functions.get_mut("generic_g0/2").unwrap();
+                    let function = module.functions.get_mut("Helpers.checked_pair/2").unwrap();
                     match mutation {
                         0 => {
                             function.metadata.declared_param_decls.clear();
@@ -165,71 +61,8 @@ fn normal_package_generic_g0_rejects_declared_contract_drift() {
                 }
                 Ok::<(), String>(())
             })
-            .expect("source-backed G0 metadata negatives");
+            .expect("source-backed static method metadata negatives");
     });
-}
-
-#[test]
-#[ignore = "requires selected FFI, LLVM18, target/release/ny-llvmc, and lifecycle-kernel archive"]
-fn normal_package_generic_g0_helper_reaches_existing_exe_emitter() {
-    crate::test_support::with_env_vars(
-        &[
-            ("NYASH_MACRO_DISABLE", Some("1")),
-            ("NYASH_NY_LLVM_COMPILER", Some("target/release/ny-llvmc")),
-        ],
-        || {
-            let runtime = Path::new("target/lifecycle-kernel/release");
-            let required_files = [
-                runtime.join("libnyash_lifecycle_kernel.a"),
-                Path::new("target/release/ny-llvmc").to_path_buf(),
-                Path::new("target/release/libhako_llvmc_ffi.so").to_path_buf(),
-            ];
-            let llvm18_available = ["llvm-config-18", "llc-18", "opt-18"]
-                .into_iter()
-                .all(|tool| {
-                    Command::new(tool)
-                        .arg("--version")
-                        .output()
-                        .is_ok_and(|output| output.status.success())
-                });
-            if required_files.iter().any(|path| !path.is_file()) || !llvm18_available {
-                eprintln!("EXE acceptance environment unavailable; witness skipped");
-                return;
-            }
-            crate::runtime::ring0::ensure_global_ring0_initialized();
-            let directory = tempfile::tempdir().expect("EXE acceptance temp directory");
-            let executable = directory.path().join("generic-g0");
-            let mut compiler = MirCompiler::with_options(true);
-            let mut callbacks = 0;
-            compiler
-                .compile_normal_with_published(
-                    published_request(generic_g0_source()),
-                    |view, verification| {
-                        callbacks += 1;
-                        assert!(verification.is_ok(), "{verification:?}");
-                        assert!(view.module().functions.contains_key("generic_g0/2"));
-                        assert_generic_g0_physical_reach(view)?;
-                        let emitted = crate::host_providers::llvm_codegen::emit_published_view_exe(
-                            view,
-                            executable.to_str().expect("UTF-8 executable path"),
-                            runtime.to_str(),
-                            None,
-                        )
-                        .map_err(|error| format!("exe={error}"))?;
-                        assert!(emitted, "the existing typed EXE route must own publication");
-                        let output = Command::new(&executable)
-                            .env("NYASH_NYRT_SILENT_RESULT", "1")
-                            .env("HAKO_NYRT_PLUGIN_HOST", "off")
-                            .output()
-                            .map_err(|error| error.to_string())?;
-                        assert_eq!(output.status.code(), Some(3), "{output:?}");
-                        Ok::<(), String>(())
-                    },
-                )
-                .expect("normal-package Generic G0 EXE acceptance");
-            assert_eq!(callbacks, 1);
-        },
-    );
 }
 
 #[test]
@@ -358,7 +191,7 @@ fn normal_ingress_routes_app_main_static_loop_child_through_callable_consumer() 
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         for bound in [0, 1, 3] {
-            let source = format!("function to_i64(value: i64): i64 {{ return value }} static box Main {{ main() {{ return 0 }} int_to_str(n: i64): i64 {{ local value = to_i64(n) local i = 0 loop(i < {bound}) {{ i = i + 1 }} return value }} }}");
+            let source = format!("static box Main {{ main() {{ return 0 }} int_to_str(n: i64): i64 {{ local value = to_i64(n) local i = 0 loop(i < {bound}) {{ i = i + 1 }} return value }} to_i64(value: i64): i64 {{ return value }} }}");
             let mut compiler = MirCompiler::with_options(false);
             let result = compiler
                 .compile_normal(published_request(&source))
@@ -490,7 +323,7 @@ fn normal_ingress_routes_app_main_static_loop_child_through_callable_consumer() 
 fn optimized_pair_root_with_callable_loop_child_reaches_physical_abi() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        let source = "function to_i64(value: i64): i64 { return value } box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } } static box Main { main() { local pair = new Pair(10, 20) return pair.left + pair.right } int_to_str(n: i64): i64 { local value = to_i64(n) local i = 0 loop(i < 3) { i = i + 1 } return value } }";
+        let source = "box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } } static box Main { main() { local pair = new Pair(10, 20) return pair.left + pair.right } int_to_str(n: i64): i64 { local value = n local i = 0 loop(i < 3) { i = i + 1 } return value } }";
         let mut compiler = MirCompiler::new();
         compiler
             .compile_normal_with_published(published_request(source), |view, verification| {

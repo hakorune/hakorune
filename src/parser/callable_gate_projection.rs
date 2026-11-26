@@ -191,7 +191,7 @@ mod tests {
         crate::parser::source_seal::OpenParserPostpassProductV1,
     ) {
         let tokens = NyashTokenizer::new(
-            "gate Build.test { function chosen() {} } else { function hidden() {} }\n",
+            "gate Build.test { static box Chosen { run() {} } } else { static box Hidden { run() {} } }\n",
         )
         .tokenize()
         .unwrap();

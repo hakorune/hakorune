@@ -193,11 +193,10 @@ pub(crate) fn issue_explicit_parameter_type_map_v1(
 mod tests {
     use super::*;
     use crate::ast::{ASTNode, ParamDecl};
-    use crate::parser::NyashParser;
 
     const SOURCE: &str = r#"
-function mixed(first: i64, second) {
-    return first
+static box Fixture {
+    mixed(first: i64, second) { return first }
 }
 "#;
 
@@ -207,14 +206,7 @@ function mixed(first: i64, second) {
     }
 
     fn function_ast(source: &str) -> ASTNode {
-        let root = NyashParser::parse_from_string(source).expect("parameter fixture parses");
-        let ASTNode::Program { statements, .. } = root else {
-            panic!("parameter fixture must be a Program")
-        };
-        statements
-            .into_iter()
-            .find(|node| matches!(node, ASTNode::FunctionDeclaration { .. }))
-            .expect("parameter fixture function")
+        crate::tests::helpers::parser::parse_fixture_method(source, "Fixture", "mixed")
     }
 
     fn source_receipt<'a>(

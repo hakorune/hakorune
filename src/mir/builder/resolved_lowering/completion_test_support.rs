@@ -67,7 +67,7 @@ pub(super) fn function(name: &str, body: Vec<ASTNode>) -> ASTNode {
 pub(super) fn compile(name: &str, body: &str) -> crate::mir::MirFunction {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     let text =
-        format!("function {name}() {{ {body} }}\nstatic box Main {{ main() {{ return 0 }} }}");
+        format!("static box Fixture {{ {name}() {{ {body} }} }}\nstatic box Main {{ main() {{ return 0 }} }}");
     let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
         &text,
         crate::parser::ParserBuildConfig::default(),
@@ -86,12 +86,13 @@ pub(super) fn compile(name: &str, body: &str) -> crate::mir::MirFunction {
         ))
         .unwrap();
     assert!(result.verification_result.is_ok());
-    let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::free_function(name, 0);
+    let key =
+        hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method("Fixture", name, 0);
     assert_eq!(
         result.module.canonical_callable_definition_symbol(&key),
-        Some(format!("{name}/0").as_str())
+        Some(format!("Fixture.{name}/0").as_str())
     );
-    result.module.functions[&format!("{name}/0")].clone()
+    result.module.functions[&format!("Fixture.{name}/0")].clone()
 }
 
 pub(super) fn return_count(function: &crate::mir::MirFunction) -> usize {

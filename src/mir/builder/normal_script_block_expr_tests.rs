@@ -54,7 +54,7 @@ fn selected_normal_pure_block_expr_matches_legacy() {
     assert_selected_program_parity(program, "script-blockexpr-pure.hako");
     crate::runtime::ring0::ensure_global_ring0_initialized();
     let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
-        "function empty_block() { return { 7 } }\n static box Main { main() { return 0 } }",
+        "static box Fixture { empty_block() { return { 7 } } }\n static box Main { main() { return 0 } }",
         crate::parser::ParserBuildConfig::default(),
     )
     .expect("block expression source parses");
@@ -66,7 +66,7 @@ fn selected_normal_pure_block_expr_matches_legacy() {
     )
     .expect("block expression compiles");
     assert!(result.verification_result.is_ok());
-    let function = &result.module.functions["empty_block/0"];
+    let function = &result.module.functions["Fixture.empty_block/0"];
     let count = function.blocks.values().flat_map(|block| &block.instructions).filter(|instruction| {
         matches!(instruction, crate::mir::MirInstruction::Const { value: crate::mir::ConstValue::Integer(7), .. })
     })

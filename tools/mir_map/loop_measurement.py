@@ -167,7 +167,8 @@ def collect(binary, rows, template, work, jobs, ast=False, watch=None, *, exe_ba
         dump = command(watch, [binary, "--backend", "mir", "--dump-mir", "--verify", source],
                        directory, "dump", env, 180)
         dump.update(parse_evidence(dump, "dump"))
-        prior = reuse_rows.get(source)
+        expected = row.get("expected_refusal")
+        prior = reuse_rows.get(source) if not expected else None
         if (prior and prior['sha256'] == row['sha256'] and dump['kind'] == 'success'
                 and exact_mir(stream_text(prior['dump']), stream_text(dump))):
             result = row | dict(dump=dump, compile=prior['compile'], run=prior['run'],
@@ -181,7 +182,7 @@ def collect(binary, rows, template, work, jobs, ast=False, watch=None, *, exe_ba
             watch, [binary, "--backend", "mir", "--verify", "--emit-exe", exe,
                     "--emit-exe-nyrt", runtime, source], directory, "compile", env, 180)
         compile_result.update(parse_evidence(compile_result, "compile"), emitted=exe.is_file())
-        if expected := row.get("expected_refusal"):
+        if expected:
             for phase, status in (("dump", dump), ("compile", compile_result)):
                 if status["exit"] == 0 or f"[{expected}]" not in stream_text(status):
                     raise ValueError(f"{source}: {phase} must refuse with [{expected}]")

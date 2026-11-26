@@ -1,21 +1,11 @@
 //! Nullable outer membership never grants an I64 result to argument calls.
 use super::*;
-use crate::ast::ASTNode;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
-use crate::parser::NyashParser;
 
 fn source(arguments: &str) -> VerifiedResolvedSourceUnitV1 {
-    let parsed = NyashParser::parse_from_string(&format!(
-        "function probe(token) {{ local item = token.make({arguments}) return item }}"
-    ))
-    .unwrap();
-    let ASTNode::Program { statements, .. } = parsed else {
-        panic!("Program")
-    };
-    let function = statements
-        .into_iter()
-        .find(|node| matches!(node, ASTNode::FunctionDeclaration { .. }))
-        .unwrap();
+    let function = crate::tests::helpers::parser::parse_fixture_method(&format!(
+        "static box Fixture {{ probe(token) {{ local item = token.make({arguments}) return item }} }}"
+    ), "Fixture", "probe");
     VerifiedResolvedSourceUnitV1::resolve_function(function).unwrap()
 }
 

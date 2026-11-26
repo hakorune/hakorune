@@ -193,14 +193,14 @@ fn package_scoped_loan_retains_exact_text_parameter_contract() {
 }
 
 #[test]
-fn top_level_and_dynamic_candidate_share_one_complete_package_batch() {
+fn static_sibling_and_dynamic_candidate_share_one_complete_package_batch() {
     let dynamic = include_str!("../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako");
-    let source = format!("function helper(value) {{ return value }}\n{dynamic}");
-    let package = issue(&source).expect("mixed top-level and Dynamic package");
+    let source = format!("static box Helpers {{ helper(value) {{ return value }} }}\n{dynamic}");
+    let package = issue(&source).expect("mixed static and Dynamic package");
 
     assert_eq!(package.batch().declarations().len(), 5);
-    assert_eq!(package.parameter_declaration_count(), 4);
-    assert_eq!(package.parameter_count(), 15);
+    assert_eq!(package.parameter_declaration_count(), 5);
+    assert_eq!(package.parameter_count(), 16);
     assert!(matches!(
         package.dynamic_projection(),
         NormalCallableDynamicProjectionRefV1::Selected { .. }
@@ -210,9 +210,9 @@ fn top_level_and_dynamic_candidate_share_one_complete_package_batch() {
             .batch()
             .declarations()
             .next()
-            .expect("top-level row remains first")
+            .expect("static sibling remains first")
             .mode(),
-        crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1::TopLevel
+        crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1::StaticBoxMethod
     );
 }
 

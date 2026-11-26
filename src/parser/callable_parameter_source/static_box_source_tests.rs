@@ -63,16 +63,31 @@ fn method_as_method_name_still_parses_as_direct_method() {
 }
 
 #[test]
-fn lone_method_member_keeps_field_classification() {
-    let parsed = parse("static box Api { method }");
-    ParserNormalRootExecutionTestTerminalV1::observe_once(parsed, |loan| {
-        assert!(matches!(
-            loan.static_box_parent_source(),
-            ParserStaticBoxParentSourceDispositionV1::Outside(
-                ParserStaticBoxParentOutsideReasonV1::UnsupportedMemberKind
-            )
-        ));
-    });
+fn static_box_state_is_rejected_before_source_sealing() {
+    for member in [
+        "method",
+        "field",
+        "field: i64",
+        "field: i64 = 1",
+        "field = 1",
+        "init { field }",
+        "static { print(1) }",
+        "static\n{ print(1) }",
+        "weak field",
+    ] {
+        let error = NyashParser::parse_from_string(&format!("static box Api {{ {member} }}"))
+            .expect_err("state must be rejected in a static box");
+        assert!(
+            matches!(
+                error,
+                crate::parser::ParseError::GrammarContract {
+                    stable_reject_tag: "decl/static-box-state",
+                    ..
+                }
+            ),
+            "{member}: {error}"
+        );
+    }
 }
 
 #[test]
@@ -110,19 +125,6 @@ fn static_parent_and_parameter_row_share_the_existing_callable_identity() {
         };
 
         assert!(seal.method_identity().same_as(parameter_identity));
-    });
-}
-
-#[test]
-fn unsupported_static_parent_member_is_explicit_outside() {
-    let parsed = parse("static box Api { field run() { return 1 } }");
-    ParserNormalRootExecutionTestTerminalV1::observe_once(parsed, |loan| {
-        assert!(matches!(
-            loan.static_box_parent_source(),
-            ParserStaticBoxParentSourceDispositionV1::Outside(
-                ParserStaticBoxParentOutsideReasonV1::UnsupportedMemberKind
-            )
-        ));
     });
 }
 

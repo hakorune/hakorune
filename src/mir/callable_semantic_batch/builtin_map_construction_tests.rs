@@ -311,3 +311,33 @@ fn the_builder_reads_a_builtin_empty_map_user_construction_or_missing_source() {
     assert_eq!(issued_state(new_map, false, true), Err("map-shape-missing"));
     assert_eq!(issued_state(new_map, true, false), Err("map-shape-row-missing"));
 }
+
+#[test]
+fn constructing_a_static_shadow_rejects_before_argument_resolution() {
+    use crate::mir::{MirCompiler, NormalCompileRequestV1};
+    use crate::parser::NyashParser;
+
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = "static box MapBox {}
+                 static box Main { main() { return new MapBox(unknown_argument()) } }";
+    let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+        source,
+        crate::parser::ParserBuildConfig::default(),
+    )
+    .expect("static construction is valid syntax");
+    let transformed = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        crate::r#macro::transform_normal_callable_program_v1(parsed)
+    })
+    .expect("exact source transform");
+    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed else {
+        panic!("fixture must be source-backed");
+    };
+    let error = MirCompiler::with_options(false)
+        .compile_normal(NormalCompileRequestV1::for_mir_mode_callable_source(
+            source,
+            None,
+            std::collections::HashMap::new(),
+        ))
+        .expect_err("static construction must reject before attempting arguments");
+    assert!(error.contains("[call/new-static-box]"), "{error}");
+}

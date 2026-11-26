@@ -172,9 +172,9 @@ mod tests {
     use super::{SelectedNormalCallableKeyV1, SelectedNormalCallableSourceSiteV1};
 
     #[test]
-    fn one_catalog_scan_owns_top_level_and_box_method_occurrences() {
+    fn one_catalog_scan_owns_static_and_instance_method_occurrences() {
         let root = NyashParser::parse_from_string(
-            "function helper(x) { return x }\n\
+            "static box Helpers { helper(x) { return x } }\n\
              static box Tools { add(x) { return x } }\n\
              box Page { show(x) { return x } }",
         )
@@ -184,18 +184,16 @@ mod tests {
         let inventory = catalog.selected_source_inventory();
 
         assert_eq!(catalog.len(), 3);
-        assert!(catalog
-            .declaration(&CanonicalSameModuleCallableKeyV1::free_function(
-                "helper", 1
-            ))
-            .is_some());
         assert_eq!(inventory.len(), 3);
-        let top_level = inventory.top_level_function(0).expect("top-level row");
-        assert_eq!(top_level.declared_name(), "helper");
-        assert_eq!(top_level.declared_arity(), 1);
+        let helper_key =
+            CanonicalSameModuleCallableKeyV1::static_box_method("Helpers", "helper", 1);
+        assert!(catalog.declaration(&helper_key).is_some());
         assert_eq!(
-            inventory.site(&SelectedNormalCallableKeyV1::TopLevel(top_level.clone())),
-            Some(&SelectedNormalCallableSourceSiteV1::ProgramFunction { statement_index: 0 })
+            inventory.site(&SelectedNormalCallableKeyV1::Cataloged(helper_key)),
+            Some(&SelectedNormalCallableSourceSiteV1::ProgramBoxMethod {
+                statement_index: 0,
+                method_key: "helper".into(),
+            })
         );
 
         let static_key = catalog

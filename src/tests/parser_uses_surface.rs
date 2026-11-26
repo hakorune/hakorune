@@ -27,22 +27,15 @@ static box Main {
 }
 
 #[test]
-fn parser_uses_surface_parses_free_function_uses_metadata() {
-    let statements = program_statements(
-        r#"
-function reserve(size: i64): i64
-    uses osvm
-{
-    return size
-}
-"#,
+fn parser_uses_surface_refuses_file_function_before_metadata() {
+    let error = crate::parser::NyashParser::parse_from_string(
+        "function reserve(size: i64): i64 uses osvm { return size }",
+    )
+    .expect_err("retired syntax must be rejected");
+    assert!(
+        error.to_string().contains("decl/function-outside-box"),
+        "{error}"
     );
-    let ASTNode::FunctionDeclaration { uses, body, .. } = &statements[0] else {
-        panic!("expected function declaration");
-    };
-
-    assert_eq!(uses, &vec!["osvm".to_string()]);
-    assert_eq!(body.len(), 1);
 }
 
 #[test]

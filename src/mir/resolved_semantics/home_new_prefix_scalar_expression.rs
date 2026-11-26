@@ -587,18 +587,11 @@ mod tests {
 
     #[test]
     fn guarded_mul_return_refuses_missing_or_failed_child_before_observation() {
-        let crate::ast::ASTNode::Program { statements, .. } =
-            crate::parser::NyashParser::parse_from_string(
-                "function probe(p) { if p <= 8 { return p * me.limit() } return 0 }",
-            )
-            .unwrap()
-        else {
-            panic!("Program")
-        };
-        let function = statements
-            .into_iter()
-            .find(|node| matches!(node, crate::ast::ASTNode::FunctionDeclaration { .. }))
-            .unwrap();
+        let function = crate::tests::helpers::parser::parse_fixture_method(
+            "box Fixture { probe(p) { if p <= 8 { return p * me.limit() } return 0 } }",
+            "Fixture",
+            "probe",
+        );
         let source =
             crate::mir::compiler::VerifiedResolvedSourceUnitV1::resolve_function(function).unwrap();
         let input = source.root_function_input().unwrap();

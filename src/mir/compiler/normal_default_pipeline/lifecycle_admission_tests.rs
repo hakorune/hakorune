@@ -17,8 +17,8 @@ fn scalar_local_then_terminal_call_reaches_published_lifecycle() {
         for source in [
             "static box Main { main() { local first = helper(10) return helper(20) }
              helper(value: i64): i64 { return value } }",
-            "static function helper(value: i64): i64 { return value }
-             static box Main { main() { local first = helper(10) return helper(20) } }",
+            "static box Helpers { helper(value: i64): i64 { return value } }
+             static box Main { main() { local first = Helpers.helper(10) return Helpers.helper(20) } }",
         ] {
             for optimize in [false, true] {
                 let result = MirCompiler::with_options(optimize)
@@ -243,9 +243,8 @@ fn lifecycle_admission_collects_call_edges_module_wide() {
         MirCompiler::with_options(false)
             .compile_normal_with_published(
                 published_request(
-                    "static function inner(): i64 { return 7 }
-                     static function helper(value: i64): i64 { return value }
-                     static box Main { main() { return helper(10) } }",
+                    "static box Helpers { inner(): i64 { return 7 } helper(value: i64): i64 { return value } }
+                     static box Main { main() { return Helpers.helper(10) } }",
                 ),
                 |view, _| {
                     let root = view.retained_root().unwrap().signature.name.as_str();
@@ -275,7 +274,8 @@ fn lifecycle_admission_collects_call_edges_module_wide() {
                                 call: crate::mir::definitions::MirCall::new(
                                     None,
                                     Callee::Global(
-                                        hakorune_mir_defs::CanonicalGlobalTargetV1::new_free_function(
+                                        hakorune_mir_defs::CanonicalGlobalTargetV1::new_static_box_method(
+                                            "Helpers".into(),
                                             target.into(),
                                             arity,
                                         )

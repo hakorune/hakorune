@@ -2,21 +2,13 @@
 use super::*;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
-use crate::parser::NyashParser;
 
 fn unit() -> VerifiedResolvedSourceUnitV1 {
-    source_unit("function probe(token) { local first = token.make() local second = token.make() local number = 7 token.consume(first.child) return first }")
+    source_unit("static box Fixture { probe(token) { local first = token.make() local second = token.make() local number = 7 token.consume(first.child) return first } }")
 }
 
 fn source_unit(text: &str) -> VerifiedResolvedSourceUnitV1 {
-    let parsed = NyashParser::parse_from_string(text).unwrap();
-    let ASTNode::Program { statements, .. } = parsed else {
-        panic!("Program")
-    };
-    let function = statements
-        .into_iter()
-        .find(|node| matches!(node, ASTNode::FunctionDeclaration { .. }))
-        .unwrap();
+    let function = crate::tests::helpers::parser::parse_fixture_method(text, "Fixture", "probe");
     VerifiedResolvedSourceUnitV1::resolve_function(function).unwrap()
 }
 
@@ -280,7 +272,7 @@ fn take_pending_move_invalidates_direct_and_aliased_uses_before_entry() {
         HomePrefixUnavailableV1 as Unavailable, LocalCallObservationV1, LocalCallResultClassV1,
         ResolvedLexicalRefV1, SourceBindingSiteV1};
     for argument in ["7", "p.value", "move p", "token.inspect(alias)"] {
-        let source = source_unit(&format!("function probe(token) {{ local p = token.make() local alias = p local result = token.consume(move p, {argument}) local follow = token.inspect(alias) return result }}"));
+        let source = source_unit(&format!("static box Fixture {{ probe(token) {{ local p = token.make() local alias = p local result = token.consume(move p, {argument}) local follow = token.inspect(alias) return result }} }}"));
         let input = source.root_function_input().unwrap();
         let rows = initializers(input);
         let (p, acquisition) = &rows[0];

@@ -43,22 +43,6 @@ fn parsed_method(source: &str, box_name: &str, method_name: &str) -> ASTNode {
         .expect("exact method declaration")
 }
 
-fn parsed_function(source: &str, function_name: &str) -> ASTNode {
-    let program = NyashParser::parse_from_string(source).expect("probe fixture parses");
-    let ASTNode::Program { statements, .. } = program else {
-        panic!("parser must return Program")
-    };
-    statements
-        .into_iter()
-        .find(|statement| {
-            matches!(
-                statement,
-                ASTNode::FunctionDeclaration { name, .. } if name == function_name
-            )
-        })
-        .expect("exact function declaration")
-}
-
 struct ProbeInput<'a> {
     input: ResolvedFunctionLoweringInputV1<'a>,
     body: super::located::LocatedBodyV1<'a>,
@@ -355,7 +339,8 @@ fn probe_loop_cond_canonical_ast() {
 }
 
 const G0_TYPED: &str = r#"
-function generic_g0(i: i64, j: i64): i64 {
+box G0Fixture {
+generic_g0(i: i64, j: i64): i64 {
     loop(i < 3) {
         loop(j < 3) {
             j = j + 1
@@ -364,11 +349,12 @@ function generic_g0(i: i64, j: i64): i64 {
     }
     return j
 }
+}
 "#;
 
 #[test]
 fn probe_generic_g0_canonical() {
-    let function = parsed_function(G0_TYPED, "generic_g0");
+    let function = parsed_method(G0_TYPED, "G0Fixture", "generic_g0");
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(function.clone())
         .expect("canonical g0 fixture resolves");
     let row = row(&unit, function);
