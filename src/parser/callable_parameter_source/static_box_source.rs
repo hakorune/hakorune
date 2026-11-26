@@ -291,7 +291,6 @@ pub(in crate::parser) enum ParserStaticBoxParentSourceDispositionV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::parser) enum ParserStaticBoxParentOutsideReasonV1 {
     ProgramCohort,
-    MultipleParentRows,
     BuildGatePath,
     DirectMethodCohort,
 }

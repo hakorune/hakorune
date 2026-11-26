@@ -40,7 +40,6 @@ pub(crate) enum ParserCompositeIncompleteV1 {
     ProviderDeclarationMissing,
     RootTerminalValueMissing,
     ReceiverMissing,
-    ArgumentCoverageMissing,
     ArgumentOrdinalOverflow,
 }
 
@@ -49,7 +48,6 @@ pub(crate) enum ParserCompositeIntegrityIssueV1 {
     ForeignParser,
     ProviderPlacementMismatch,
     ProviderAnchorMismatch,
-    DuplicateProvider,
     CallTreeContradiction,
 }
 
@@ -253,7 +251,6 @@ impl ParserCompositeArgumentV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ParserCompositeTransformRejectV1 {
-    WitnessChanged,
     ProviderChanged,
     ProviderResultChanged,
     RootCallChanged,
@@ -263,6 +260,5 @@ pub(crate) enum ParserCompositeTransformRejectV1 {
     ArgumentChanged { ordinal: u32 },
     ResultChanged,
     TerminalChanged,
-    CompositeDropped,
     CompatibilityLoss,
 }
