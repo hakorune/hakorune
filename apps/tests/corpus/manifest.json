@@ -51062,56 +51062,8 @@
       "coverage_exe": false
     },
     {
-      "path": "lang/src/mir/builder/loop_recipe/emit_direct_accum_wire.hako",
-      "sha256": "d56fe8e9361d38e8cdf6ff18c8e48bad4449d783fdbc33a99c9ce84485e2d009",
-      "groups": [
-        "B"
-      ],
-      "coverage_exe": false
-    },
-    {
-      "path": "lang/src/mir/builder/loop_recipe/emit_loop_recipe_wire.hako",
-      "sha256": "0a843118bc6037e60a793467a36f439a1d67c3263ba533ee077df878bc308821",
-      "groups": [
-        "B"
-      ],
-      "coverage_exe": false
-    },
-    {
-      "path": "lang/src/mir/builder/loop_recipe/emit_loop_true_wire.hako",
-      "sha256": "154a108971755e5115bced0283fb175aab2c3a8e4e66700d1c9b4131e9fca28d",
-      "groups": [
-        "B"
-      ],
-      "coverage_exe": false
-    },
-    {
-      "path": "lang/src/mir/builder/loop_recipe/emit_m8a_recurrence_wire.hako",
-      "sha256": "bb733aa98039a6e1c72e8be1defb4179aec3cf75074097f309caf463c6ee7e0c",
-      "groups": [
-        "B"
-      ],
-      "coverage_exe": false
-    },
-    {
       "path": "lang/src/mir/builder/loop_recipe/emit_m8c_scans_wire.hako",
       "sha256": "60d85c85eb0be308bf189315b06baec843294f804829500bf99f8b120070a43b",
-      "groups": [
-        "B"
-      ],
-      "coverage_exe": false
-    },
-    {
-      "path": "lang/src/mir/builder/loop_recipe/emit_m8d_loopcond_wire.hako",
-      "sha256": "f63e42f5350449c640842a4ac6066cc545e294c67aba5b86eff08911bd66aadf",
-      "groups": [
-        "B"
-      ],
-      "coverage_exe": false
-    },
-    {
-      "path": "lang/src/mir/builder/loop_recipe/emit_nested_predicate_wire.hako",
-      "sha256": "07a9e5a72748dcf7eabd0e0fe4f4b56610dd0d85c80d4adff636d9fbe0167c42",
       "groups": [
         "B"
       ],
