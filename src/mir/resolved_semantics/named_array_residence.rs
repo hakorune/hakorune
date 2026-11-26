@@ -288,7 +288,15 @@ pub(crate) fn verify_field_residence_relations(
     if call.arity() != 1 || argument.ordinal() != 0 || argument.site() != &claim.argument {
         return Err(E::ArgumentShape);
     }
-    if !argument_is_integer_source(ledger, body_shape, &claim.argument, integer_source) {
+    let core_result = |site: &SourceExprSiteV1| {
+        integer_source.filter(|contract| {
+            contract.owner() == ledger.owner()
+                && contract.call_site() == site
+                && contract.result_site() == site
+                && contract.target().result() == CoreMethodHomeResultRelationV1::I64ToCaller
+        }).map(|_| true)
+    };
+    if !array_integer_source(ledger, body_shape, &claim.argument, &core_result) {
         return Err(E::IntegerSourceMissing);
     }
     Ok(())
@@ -374,27 +382,23 @@ pub(crate) fn resolve_birth_provider(
 
 const INTEGER_SOURCE_DEPTH: u32 = 8;
 
-/// Bounded I64 argument proof over the exact resolver rows: integer literal,
-/// local binding whose initializer and every rebind are integer-producing,
-/// arithmetic over integer operands, unary minus, or a nested CoreMethod
-/// contract whose result relation is `I64ToCaller`. Everything else —
-/// strings, floats, bools, handles, unknown calls — is foreign to this
-/// family and rejects instead of guessing.
-fn argument_is_integer_source(
+/// Prove an integer Array argument over exact resolver rows. Callers may
+/// supply leaf evidence. An identified leaf with failed evidence returns
+/// `Some(false)` to preserve its rejection boundary; `None` continues walking.
+pub(crate) fn array_integer_source(
     ledger: &CallableSemanticSourceLedgerView<'_>,
     body_shape: &VerifiedResolvedBodyShapeInventoryV1,
     site: &SourceExprSiteV1,
-    integer_source: Option<&VerifiedResolverCoreMethodCallableContractV1>,
+    integer_leaf: &dyn Fn(&SourceExprSiteV1) -> Option<bool>,
 ) -> bool {
-    let mut visited = BTreeSet::new();
-    integer_source_at(ledger, body_shape, site, integer_source, &mut visited, 0)
+    integer_source_at(ledger, body_shape, site, integer_leaf, &mut BTreeSet::new(), 0)
 }
 
 fn integer_source_at(
     ledger: &CallableSemanticSourceLedgerView<'_>,
     body_shape: &VerifiedResolvedBodyShapeInventoryV1,
     site: &SourceExprSiteV1,
-    integer_source: Option<&VerifiedResolverCoreMethodCallableContractV1>,
+    integer_leaf: &dyn Fn(&SourceExprSiteV1) -> Option<bool>,
     visited: &mut BTreeSet<BindingRefV1>,
     depth: u32,
 ) -> bool {
@@ -407,14 +411,8 @@ fn integer_source_at(
     ) {
         return true;
     }
-    if let Some(contract) = integer_source {
-        if contract.owner() == ledger.owner()
-            && contract.call_site() == site
-            && contract.result_site() == site
-            && contract.target().result() == CoreMethodHomeResultRelationV1::I64ToCaller
-        {
-            return true;
-        }
+    if let Some(integer) = integer_leaf(site) {
+        return integer;
     }
     if let Some(source) = ledger.unary_source(site) {
         if source.operator() == ResolvedUnaryOperatorV1::Minus {
@@ -422,7 +420,7 @@ fn integer_source_at(
                 ledger,
                 body_shape,
                 source.operand(),
-                integer_source,
+                integer_leaf,
                 visited,
                 depth + 1,
             );
@@ -445,8 +443,8 @@ fn integer_source_at(
         ) {
             return false;
         }
-        return integer_source_at(ledger, body_shape, source.lhs(), integer_source, visited, depth + 1)
-            && integer_source_at(ledger, body_shape, source.rhs(), integer_source, visited, depth + 1);
+        return integer_source_at(ledger, body_shape, source.lhs(), integer_leaf, visited, depth + 1)
+            && integer_source_at(ledger, body_shape, source.rhs(), integer_leaf, visited, depth + 1);
     }
     let Some(ResolvedLexicalRefV1::Local(binding)) = ledger.variable_ref(site) else {
         return false;
@@ -466,7 +464,7 @@ fn integer_source_at(
     let Some(initializer_site) = initializer.initializer_site() else {
         return false;
     };
-    if !integer_source_at(ledger, body_shape, initializer_site, integer_source, visited, depth + 1) {
+    if !integer_source_at(ledger, body_shape, initializer_site, integer_leaf, visited, depth + 1) {
         return false;
     }
     body_shape
@@ -479,6 +477,6 @@ fn integer_source_at(
             )
         })
         .all(|source| {
-            integer_source_at(ledger, body_shape, source.value_site(), integer_source, visited, depth + 1)
+            integer_source_at(ledger, body_shape, source.value_site(), integer_leaf, visited, depth + 1)
         })
 }
