@@ -6,7 +6,6 @@ use std::collections::BTreeSet;
 
 enum RuneTarget {
     Box,
-    FreeFunction,
     StaticFunction,
     StaticBoxMethod,
     InstanceMethod,
@@ -17,18 +16,6 @@ enum RuneTarget {
 impl NyashParser {
     pub(super) fn take_pending_runes_for_box(&mut self) -> Result<DeclarationAttrs, ParseError> {
         self.take_pending_runes_for_target(RuneTarget::Box)
-    }
-
-    pub(super) fn take_pending_runes_for_free_function(
-        &mut self,
-    ) -> Result<DeclarationAttrs, ParseError> {
-        self.take_pending_runes_for_target(RuneTarget::FreeFunction)
-    }
-
-    pub(super) fn take_pending_runes_for_static_function(
-        &mut self,
-    ) -> Result<DeclarationAttrs, ParseError> {
-        self.take_pending_runes_for_target(RuneTarget::StaticFunction)
     }
 
     pub(super) fn take_pending_runes_for_static_box_method(
@@ -209,7 +196,7 @@ fn validate_runes_for_target(
                     });
                 }
             }
-            RuneTarget::FreeFunction | RuneTarget::StaticFunction | RuneTarget::StaticBoxMethod => {
+            RuneTarget::StaticFunction | RuneTarget::StaticBoxMethod => {
             }
         }
 
@@ -240,7 +227,6 @@ fn repeatable_rune_name(name: &str) -> bool {
 fn target_label(target: &RuneTarget) -> &'static str {
     match target {
         RuneTarget::Box => "box",
-        RuneTarget::FreeFunction => "function",
         RuneTarget::StaticFunction => "static function",
         RuneTarget::StaticBoxMethod => "static-box method",
         RuneTarget::InstanceMethod => "instance method",

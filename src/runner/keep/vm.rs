@@ -258,7 +258,7 @@ impl NyashRunner {
         }
         let vm_user_factory =
             crate::runner::modes::common_util::vm_user_factory::prepare_vm_user_factory(
-                &ast, true, true,
+                &ast, true,
             );
         if emit_trace {
             let ring0 = crate::runtime::ring0::get_global_ring0();

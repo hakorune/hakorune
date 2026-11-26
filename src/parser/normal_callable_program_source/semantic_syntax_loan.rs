@@ -22,7 +22,6 @@ use super::model::direct_source_matches_parameter_declaration;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum FinalCallableDeclarationModeV1 {
-    TopLevel,
     StaticBoxMethod,
     InstanceBoxMethod,
 }
@@ -262,10 +261,7 @@ fn issue_method_source_observation(
         declaration,
         gate_path,
         member_ordinal,
-    } = direct.path()
-    else {
-        return None;
-    };
+    } = direct.path();
     // The bounded I0 observes only direct source methods.  Build-gate methods
     // retain their own richer gate relation and are intentionally not
     // collapsed into an ordinary Box source site here.
@@ -288,9 +284,7 @@ fn declaration_owner_name(
     ast: &ASTNode,
     slot: InitialCallableFinalSlotV1,
 ) -> Result<Option<&str>, FinalCallableSemanticSyntaxLoanErrorV1> {
-    let InitialCallableFinalSlotV1::BoxMethod { statement, .. } = slot else {
-        return Ok(None);
-    };
+    let InitialCallableFinalSlotV1::BoxMethod { statement, .. } = slot;
     let ASTNode::Program { statements, .. } = ast else {
         return Err(FinalCallableSemanticSyntaxLoanErrorV1::DeclarationMissing);
     };
@@ -340,7 +334,6 @@ fn declaration_mode(
     slot: InitialCallableFinalSlotV1,
 ) -> Result<FinalCallableDeclarationModeV1, FinalCallableSemanticSyntaxLoanErrorV1> {
     match slot {
-        InitialCallableFinalSlotV1::TopLevel { .. } => Ok(FinalCallableDeclarationModeV1::TopLevel),
         InitialCallableFinalSlotV1::BoxMethod { statement, .. } => {
             let ASTNode::Program { statements, .. } = ast else {
                 return Err(FinalCallableSemanticSyntaxLoanErrorV1::DeclarationMissing);

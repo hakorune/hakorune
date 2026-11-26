@@ -77,9 +77,6 @@ impl SourceProgramMemberGateStepV1 {
 /// Placement is intentionally distinct from the opaque callable anchor.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum SourceProgramCallablePathV1 {
-    TopLevel {
-        declaration: SourceProgramDeclarationPathV1,
-    },
     BoxMethod {
         declaration: SourceProgramDeclarationPathV1,
         gate_path: Box<[SourceProgramMemberGateStepV1]>,
@@ -88,12 +85,6 @@ pub(super) enum SourceProgramCallablePathV1 {
 }
 
 impl SourceProgramCallablePathV1 {
-    pub(super) fn top_level(path: SourceBoxDeclarationPathV1) -> Self {
-        Self::TopLevel {
-            declaration: SourceProgramDeclarationPathV1::from_parser_path(path),
-        }
-    }
-
     pub(super) fn box_method(
         declaration: SourceProgramDeclarationPathV1,
         gate_path: Box<[SourceProgramMemberGateStepV1]>,
@@ -108,24 +99,23 @@ impl SourceProgramCallablePathV1 {
 
     pub(super) fn declaration(&self) -> &SourceProgramDeclarationPathV1 {
         match self {
-            Self::TopLevel { declaration } | Self::BoxMethod { declaration, .. } => declaration,
+            Self::BoxMethod { declaration, .. } => declaration,
         }
     }
 
     pub(super) fn box_method_parts(
         &self,
-    ) -> Option<(
+    ) -> (
         &SourceProgramDeclarationPathV1,
         &[SourceProgramMemberGateStepV1],
         u32,
-    )> {
+    ) {
         match self {
-            Self::TopLevel { .. } => None,
             Self::BoxMethod {
                 declaration,
                 gate_path,
                 member_ordinal,
-            } => Some((declaration, gate_path, *member_ordinal)),
+            } => (declaration, gate_path, *member_ordinal),
         }
     }
 }

@@ -12,10 +12,8 @@ use std::sync::{Arc, RwLock};
 pub(crate) fn install_inline_user_box_factory(
     ast: &ASTNode,
     include_static_box_decls: bool,
-    alias_static_instances: bool,
 ) -> HashMap<String, CoreBoxDecl> {
     let mut nonstatic_decls: HashMap<String, CoreBoxDecl> = HashMap::new();
-    let mut static_names: Vec<String> = Vec::new();
     let mut static_box_decls: HashMap<String, CoreBoxDecl> = HashMap::new();
 
     if let ASTNode::Program { statements, .. } = ast {
@@ -57,7 +55,6 @@ pub(crate) fn install_inline_user_box_factory(
                 };
 
                 if *is_static {
-                    static_names.push(name.clone());
                     if include_static_box_decls {
                         static_box_decls.insert(name.clone(), decl);
                     }
@@ -73,14 +70,6 @@ pub(crate) fn install_inline_user_box_factory(
         for (name, sdecl) in static_box_decls.iter() {
             if !decls.contains_key(name) {
                 decls.insert(name.clone(), sdecl.clone());
-            }
-        }
-    }
-    if alias_static_instances {
-        for s in static_names.into_iter() {
-            let inst = format!("{}Instance", s);
-            if let Some(d) = nonstatic_decls.get(&inst) {
-                decls.insert(s, d.clone());
             }
         }
     }

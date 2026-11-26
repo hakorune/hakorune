@@ -1,6 +1,6 @@
 /*!
  * Static declaration parsing
- * Handles both static functions and static boxes
+ * Static boxes and constant tables
  */
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
@@ -9,11 +9,10 @@ use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 
 impl NyashParser {
-    /// 静的宣言をパース - 🔥 static function / static box 記法  
+    /// Parse a static box or static constant table.
     pub fn parse_static_declaration(&mut self) -> Result<ASTNode, ParseError> {
         self.consume(TokenType::STATIC)?;
 
-        // 次のトークンで分岐: function か box か
         match &self.current_token().token_type {
             TokenType::FUNCTION => Err(ParseError::function_outside_box(self.current_token().line)),
             TokenType::BOX => crate::parser::declarations::static_def::parse_static_box(self),
@@ -94,81 +93,6 @@ impl NyashParser {
             values,
             span: Span::unknown(),
         };
-
-        self.wrap_with_pending_build_gate(node)
-    }
-
-    /// 静的関数宣言をパース - static function Name() { ... }
-    fn parse_static_function(&mut self) -> Result<ASTNode, ParseError> {
-        self.consume(TokenType::FUNCTION)?;
-        let attrs = self.take_pending_runes_for_static_function()?;
-
-        // 関数名を取得（Box名.関数名の形式をサポート）
-        let name = if let TokenType::IDENTIFIER(first_part) = &self.current_token().token_type {
-            let mut full_name = first_part.clone();
-            self.advance();
-
-            // ドット記法をチェック（例：Math.min）
-            if self.match_token(&TokenType::DOT) {
-                self.advance(); // DOTを消費
-
-                if let TokenType::IDENTIFIER(method_name) = &self.current_token().token_type {
-                    full_name = format!("{}.{}", full_name, method_name);
-                    self.advance();
-                } else {
-                    let line = self.current_token().line;
-                    return Err(ParseError::UnexpectedToken {
-                        found: self.current_token().token_type.clone(),
-                        expected: "method name after dot".to_string(),
-                        line,
-                    });
-                }
-            }
-
-            full_name
-        } else {
-            let line = self.current_token().line;
-            return Err(ParseError::UnexpectedToken {
-                found: self.current_token().token_type.clone(),
-                expected: "static function name".to_string(),
-                line,
-            });
-        };
-
-        // パラメータリストをパース
-        self.consume(TokenType::LPAREN)?;
-
-        let param_decls =
-            crate::parser::common::params::parse_param_decl_list(self, "static method")?;
-        let params = crate::ast::ParamDecl::names(&param_decls);
-
-        self.consume(TokenType::RPAREN)?;
-        let return_type_name =
-            crate::parser::common::params::parse_optional_return_type_annotation(
-                self,
-                "static method",
-            )?;
-        let (uses, contracts) = self.parse_signature_metadata_until_body()?;
-
-        // 関数本体をパース（共通ブロックヘルパー）
-        let body = self.parse_block_statements()?;
-
-        let diagnostic_name = name.clone();
-        let node = ASTNode::FunctionDeclaration {
-            name,
-            params,
-            param_decls,
-            return_type_name,
-            body,
-            contracts,
-            uses,
-            is_static: true,    // 🔥 静的関数フラグを設定
-            is_override: false, // デフォルトは非オーバーライド
-            attrs,
-            span: Span::unknown(),
-        };
-
-        self.issue_direct_free_static_function(diagnostic_name)?;
 
         self.wrap_with_pending_build_gate(node)
     }

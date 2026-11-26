@@ -56,7 +56,6 @@ pub(super) struct VerifiedCallableResultContractRowV1 {
     terminal_invoke_result: Option<InvokeCallResultKind>,
     borrowed_result: Option<std::sync::Arc<crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>>,
     completion: Rc<VerifiedFunctionCompletionV1>,
-    top_level_input: Option<top_level::VerifiedTopLevelScalarInputV1>,
     // Exit-site keyed terminal relations; consumers needing a single row
     // must name the site or prove a uniform projection over the whole map.
     terminal_relations: Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>,
@@ -125,7 +124,6 @@ impl VerifiedCallableResultContractRowV1 {
         Option<ExactTrivialScalarAbiV1>,
         Rc<VerifiedFunctionCompletionV1>,
         Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>,
-        Option<top_level::VerifiedTopLevelScalarInputV1>,
     ) {
         (
             self.batch_slot,
@@ -135,7 +133,6 @@ impl VerifiedCallableResultContractRowV1 {
             self.result,
             self.completion,
             self.terminal_relations,
-            self.top_level_input,
         )
     }
 
@@ -418,25 +415,23 @@ impl VerifiedCallableResultContractBuilderV1 {
         completion: Rc<VerifiedFunctionCompletionV1>,
         terminal_relations: BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
     ) -> Result<(), CallablePhysicalHeaderIssueV1> {
-        self.push_completion_with_top_level_input(
+        self.push_completion_with_scalar_results(
             declaration,
             selected,
             completion,
             terminal_relations,
             None,
-            None,
         )
     }
 
-    pub(super) fn push_completion_with_top_level_input(
+    pub(super) fn push_completion_with_scalar_results(
         &mut self,
         declaration: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticDeclarationRefV1<'_>,
         selected: &VerifiedSelectedCallableBatchMapV1,
         completion: Rc<VerifiedFunctionCompletionV1>,
         terminal_relations: BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
         scalar_results: Option<&BorrowedResultCohortV1>,
-        top_level_input: Option<top_level::VerifiedTopLevelScalarInputV1>,
-    ) -> Result<(), CallablePhysicalHeaderIssueV1> {
+        ) -> Result<(), CallablePhysicalHeaderIssueV1> {
         let batch_slot = declaration.batch_slot();
         let result = super::physical_header::validate_declared_result(completion.as_ref(), declaration.owner(),
             batch_slot, declaration.borrowed_result().map(|row| row.as_ref()), declaration.declared_result_box())?;
@@ -444,25 +439,13 @@ impl VerifiedCallableResultContractBuilderV1 {
         let role = selected
             .role_for_batch_slot(batch_slot)
             .ok_or(CallablePhysicalHeaderIssueV1::SelectedBatchSlotUnavailable)?;
-        match (
+        if !matches!(
             selected.key_for_batch_slot(batch_slot),
-            top_level_input.as_ref(),
+            Some(SelectedNormalCallableKeyV1::Cataloged(_))
         ) {
-            (Some(key @ SelectedNormalCallableKeyV1::TopLevel(_)), Some(input)) => {
-                input.validate_attachment(
-                    batch_slot,
-                    declaration.owner(),
-                    declaration.identity(),
-                    key,
-                )?;
-                input.validate_declaration_origin(declaration.function_origin())?;
-            }
-            (Some(SelectedNormalCallableKeyV1::Cataloged(_)), None) => {}
-            _ => {
-                return Err(CallablePhysicalHeaderIssueV1::ParameterCoverage {
-                    _batch_slot: batch_slot,
-                })
-            }
+            return Err(CallablePhysicalHeaderIssueV1::ParameterCoverage {
+                _batch_slot: batch_slot,
+            });
         }
         let contract = CallableResultContractRefV1::from_completion(
             declaration.owner(), declaration.identity(), role, result, &completion, &terminal_relations,
@@ -478,7 +461,6 @@ impl VerifiedCallableResultContractBuilderV1 {
             terminal_invoke_result,
             borrowed_result: declaration.borrowed_result().cloned(),
             completion,
-            top_level_input,
             terminal_relations: Rc::new(terminal_relations),
         });
         Ok(())
@@ -635,25 +617,6 @@ impl VerifiedCallableResultContractCohortV1 {
             {
                 return Err(Issue::ResultContractMismatch);
             }
-            if let Some(key @ SelectedNormalCallableKeyV1::TopLevel(_)) =
-                selected.key_for_batch_slot(row.batch_slot)
-            {
-                row.top_level_input
-                    .as_ref()
-                    .ok_or(Issue::MissingParameterContract)?
-                    .validate_attachment(row.batch_slot, row.owner, &row.identity, key)
-                    .map_err(|_| Issue::ResultContractMismatch)?;
-                if parameters
-                    .iter()
-                    .any(|parameter| parameter.batch_slot == row.batch_slot)
-                {
-                    return Err(Issue::DuplicateParameterContract);
-                }
-                continue;
-            }
-            if row.top_level_input.is_some() {
-                return Err(Issue::ResultContractMismatch);
-            }
             let mut matches = parameters.iter().filter(|p| p.batch_slot == row.batch_slot);
             let parameter = matches.next().ok_or(Issue::MissingParameterContract)?;
             if matches.next().is_some() {
@@ -759,11 +722,6 @@ impl VerifiedCallableResultContractCohortV1 {
 #[path = "result_contract_callable_keys.rs"]
 pub(super) mod callable_keys;
 pub(super) use callable_keys::owns_dynamic_carrier_result_v1;
-
-#[path = "result_contract_top_level.rs"]
-mod top_level;
-pub(super) use top_level::{issue_top_level_scalar_input_v1, VerifiedTopLevelScalarInputV1};
-
 
 impl super::VerifiedNormalCallableSemanticPackageV1 {
     /// Borrow the same package's completed Text declaration before installation.

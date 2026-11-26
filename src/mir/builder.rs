@@ -287,7 +287,6 @@ mod normal_script_runtime_block_port;
 mod normal_script_runtime_work; // Selected Script runtime Box callable admission
 #[cfg(test)]
 mod normal_script_selected_occurrence; // typed selected-Script work-plan-to-semantics handoff
-mod normal_top_level_function_admission; // Selected top-level callable source/physical admission
 pub(in crate::mir) mod ops;
 mod phi;
 mod phi_completion; // PHI0-S0: disconnected semantic completion vocabulary

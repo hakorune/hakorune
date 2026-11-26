@@ -599,7 +599,6 @@ mir::builder::callable_declaration_catalog::recovery_tests::fixture_root_pointer
 mir::builder::callable_declaration_catalog::recovery_tests::same_box_provider_caller_order_and_root_mode_select_same_key
 mir::builder::callable_declaration_catalog::recovery_tests::text_merged_source_normalizes_to_the_same_catalog_decision
 mir::builder::callable_declaration_catalog::recovery_tests::zero_and_ambiguous_candidates_do_not_recover
-mir::builder::callable_declaration_catalog::selected_source_inventory::tests::distinct_top_level_occurrences_share_one_canonical_free_function_projection
 mir::builder::callable_declaration_catalog::selected_source_inventory::tests::non_program_catalog_does_not_claim_program_occurrences
 mir::builder::callable_declaration_catalog::selected_source_inventory::tests::one_catalog_scan_owns_top_level_and_box_method_occurrences
 mir::builder::callable_declaration_catalog::selected_source_inventory::tests::static_main_methods_remain_transferred_to_main_expansion
@@ -678,7 +677,6 @@ mir::builder::calls::function_session::terminal::tests::draft_seal_pending_close
 mir::builder::calls::function_session::terminal::tests::draft_seal_session_discard_restores_parent_context_once
 mir::builder::calls::function_session::terminal::tests::dropping_pending_restores_without_a_collector_side_effect
 mir::builder::calls::function_session::terminal::tests::explicit_abort_discards_the_draft_and_releases_the_builder
-mir::builder::calls::function_session::terminal::tests::generic_g0_pending_session_admission_variant_is_typed
 mir::builder::calls::function_session::terminal::tests::legacy_pending_capture_keeps_legacy_authority_distinct_from_resolved
 mir::builder::calls::function_session::terminal::tests::pending_success_keeps_parent_captured_until_explicit_abort
 mir::builder::calls::function_session_tests::box_compilation_session_preserves_the_existing_partial_type_context_action
@@ -2087,8 +2085,6 @@ mir::builder::program_declaration_facts::tests::source_facts_keep_static_scalar_
 mir::builder::program_root_lowering::tests::deferred_static_context_scope_restores_prior_context_after_error
 mir::builder::program_root_lowering::tests::deferred_static_context_scope_restores_prior_context_after_success
 mir::builder::program_root_lowering::tests::deferred_static_context_scope_restores_prior_context_after_unwind
-mir::builder::program_root_work_plan::selected_projection_validator::tests::accepts_unique_selected_normal_physical_projections
-mir::builder::program_root_work_plan::selected_projection_validator::tests::rejects_same_name_and_arity_selected_normal_physical_projection
 mir::builder::program_root_work_plan::tests::app_partition_preserves_source_order_and_runtime_retention
 mir::builder::program_root_work_plan::tests::raw_runtime_keeps_the_neutral_statement_carrier
 mir::builder::program_root_work_plan::tests::raw_top_level_functions_do_not_issue_selected_receipts
@@ -6236,6 +6232,7 @@ parser::callable_gate_projection_tests::nested_member_selection_keeps_the_full_s
 parser::callable_gate_projection_tests::opening_postpass_twice_rejects_the_moved_callable_session
 parser::callable_gate_projection_tests::selected_top_level_and_member_rows_are_pruned_in_one_transaction
 parser::callable_gate_projection_tests::top_level_else_and_nested_top_level_leaf_are_selected_exactly
+parser::callable_gate_projection_tests::unselected_top_level_gate_branch_still_rejects_free_function
 parser::callable_parameter_source::canonical_script_source_admission::tests::boxes_remain_compatibility_and_using_is_unresolved
 parser::callable_parameter_source::canonical_script_source_admission::tests::independent_parser_invocations_have_distinct_admission_seals
 parser::callable_parameter_source::canonical_script_source_admission::tests::pure_script_requires_the_exhaustive_shape_and_issues_once
@@ -6298,9 +6295,8 @@ parser::callable_source_anchor::tests::foreign_parser_path_rejects_before_public
 parser::callable_source_anchor::tests::generated_delegate_does_not_add_a_direct_anchor_row
 parser::callable_source_anchor::tests::generated_property_does_not_enter_the_direct_anchor_session
 parser::callable_source_anchor::tests::member_gate_children_keep_both_written_paths_before_selection
-parser::callable_source_anchor::tests::mixed_direct_source_keeps_five_rows_across_four_direct_kinds
+parser::callable_source_anchor::tests::mixed_method_source_keeps_exact_rows_and_placements
 parser::callable_source_anchor::tests::nested_member_gate_keeps_the_full_written_branch_path
-parser::callable_source_anchor::tests::top_level_gate_children_keep_both_written_paths_before_selection
 parser::declarations::box_def::members::property_batch::tests::birth_once_tracking_happens_after_successful_commit
 parser::declarations::box_def::members::property_batch::tests::collision_rejects_whole_batch_and_birth_once_side_effect
 parser::declarations::box_def::members::property_batch::tests::property_rows_commit_in_emission_order_with_generated_provenance

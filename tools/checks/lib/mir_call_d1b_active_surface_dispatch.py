@@ -245,7 +245,6 @@ def _check_free_function_publication_i0(
     allowed = set(row["allowed_files"])
     required = {
         "src/mir/builder/callable_declaration_catalog/source_backed.rs",
-        "src/mir/builder/normal_top_level_function_admission.rs",
         "src/mir/normal_callable_semantic_package/issuer.rs",
         "src/mir/function/published_backend_view.rs",
         "tools/checks/lib/mir_call_d1b_active_surface_guard.py",

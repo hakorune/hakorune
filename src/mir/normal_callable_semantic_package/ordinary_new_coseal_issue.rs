@@ -260,13 +260,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             result_prefixes,
         ) = batch
             .with_lowering_input(batch_slot, |input| -> Result<_, OrdinaryNewCoSealIssueV1> {
-                let mut top_level_input =
-                    super::super::result_contract::issue_top_level_scalar_input_v1(
-                        declaration,
-                        selected,
-                        input,
-                    )
-                    .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                 let owner_loan = direct_call_loans.and_then(|loans| loans.get(owner));
                 let entry_home = entry_home_loans.for_batch_slot(batch_slot);
                 let batch_contract_rows: Vec<_> = parameter_contracts
@@ -438,7 +431,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         is_app_main,
                         has_new_sites: !new_sites.is_empty(),
                         has_result_sites: !result_sites.is_empty(),
-                        has_top_level_input: top_level_input.is_some(),
                         readiness,
                     },
                     |no_sites, no_map_or_owner_loan| walk_triggers::plain_main_integer_result_v1(
@@ -455,7 +447,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     &mut seeds,
                     &mut root_completion,
                     &mut root_terminal_relation,
-                    &mut top_level_input,
                 )?;
                 // The borrowed-actuals probe is an issuance for other functions, not a route (S3b-R6).
                 if !route.walks() && has_borrowed_source_calls {
@@ -595,8 +586,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 // source facts without selecting an executable
                                 // callable or issuing its physical header.
                                 if selected.role_for_batch_slot(batch_slot).is_some() {
-                                    seeds.push_completion_with_top_level_input(
-                                        declaration, selected, Rc::new(completion), relation, Some(&borrowed_i64_results), top_level_input.take(),
+                                    seeds.push_completion_with_scalar_results(
+                                        declaration, selected, Rc::new(completion), relation, Some(&borrowed_i64_results),
                                     ).map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                                 }
                             }

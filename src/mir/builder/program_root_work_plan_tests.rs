@@ -112,9 +112,7 @@ fn raw_top_level_functions_do_not_issue_selected_receipts() {
     let parts = plan.into_parts();
     assert!(matches!(
         &parts.immediate[0],
-        PreparedProgramRootImmediateWorkV1::TopLevelFunction(
-            PreparedProgramRootTopLevelFunctionWorkV1::RawCompatibility(_)
-        )
+        PreparedProgramRootImmediateWorkV1::TopLevelFunction(_)
     ));
 }
 

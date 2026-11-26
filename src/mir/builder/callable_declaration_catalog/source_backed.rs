@@ -16,7 +16,7 @@ use super::catalog::validate_parameters;
 use super::{
     CanonicalSameModuleCallableKeyV1, SameModuleCallableCatalogBrandV1,
     SameModuleCallableNamespaceV1, SelectedCallableConsumptionRoleV1, SelectedNormalCallableKeyV1,
-    SelectedNormalCallableSourceSiteV1, SelectedTopLevelFunctionKeyV1,
+    SelectedNormalCallableSourceSiteV1,
     VerifiedSameModuleCallableDeclarationCatalogV1, VerifiedSameModuleCallableDeclarationV1,
     VerifiedSelectedNormalCallableSourceInventoryV1,
 };
@@ -213,152 +213,99 @@ pub(in crate::mir) fn issue_source_backed_same_module_callable_catalog_v1(
                 };
                 let arity = u32::try_from(params.len())
                     .map_err(|_| SourceBackedCallableCatalogIssueV1::ArityOverflow)?;
-                let (selected_key, role) = match row.mode() {
-                    FinalCallableDeclarationModeV1::TopLevel => {
-                        let crate::parser::InitialCallableFinalSlotV1::TopLevel { statement } =
-                            row.final_slot()
-                        else {
-                            return Err(SourceBackedCallableCatalogIssueV1::SourceShape);
-                        };
-                        // Keep the parser-issued occurrence key for source
-                        // pairing, while issuing the existing canonical
-                        // FreeFunction definition row from the same
-                        // declaration.  Consumers must never recreate this
-                        // key from the physical `name/arity` projection.
-                        let key = CanonicalSameModuleCallableKeyV1::free_function(name, arity);
-                        validate_parameters(&key, params, param_decls)
-                            .map_err(|_| SourceBackedCallableCatalogIssueV1::SourceShape)?;
-                        let declaration = VerifiedSameModuleCallableDeclarationV1 {
-                            key: key.clone(),
-                            params: params.clone().into_boxed_slice(),
-                            param_decls: param_decls.clone().into_boxed_slice(),
-                            return_type_name: return_type_name.clone().map(String::into_boxed_str),
-                            body: body.clone().into_boxed_slice(),
-                            uses: uses.clone().into_boxed_slice(),
-                            attrs: attrs.clone(),
-                        };
-                        if rows_by_key.insert(key, declaration).is_some() {
-                            return Err(SourceBackedCallableCatalogIssueV1::DuplicateCanonicalKey);
-                        }
-                        (
-                            SelectedNormalCallableKeyV1::TopLevel(
-                                SelectedTopLevelFunctionKeyV1::new(
-                                    statement as usize,
-                                    name,
-                                    params.len(),
-                                ),
-                            ),
-                            SelectedCallableConsumptionRoleV1::ordinary(),
+                let owner = row
+                    .owner_name()
+                    .ok_or(SourceBackedCallableCatalogIssueV1::SourceShape)?;
+                let key = match row.mode() {
+                    FinalCallableDeclarationModeV1::StaticBoxMethod => {
+                        CanonicalSameModuleCallableKeyV1::static_box_method(
+                            owner, name, arity,
                         )
                     }
-                    FinalCallableDeclarationModeV1::StaticBoxMethod
-                    | FinalCallableDeclarationModeV1::InstanceBoxMethod => {
-                        let owner = row
-                            .owner_name()
-                            .ok_or(SourceBackedCallableCatalogIssueV1::SourceShape)?;
-                        let key = match row.mode() {
-                            FinalCallableDeclarationModeV1::StaticBoxMethod => {
-                                CanonicalSameModuleCallableKeyV1::static_box_method(
-                                    owner, name, arity,
-                                )
-                            }
-                            FinalCallableDeclarationModeV1::InstanceBoxMethod => {
-                                CanonicalSameModuleCallableKeyV1::instance_box_method(
-                                    owner, name, arity,
-                                )
-                            }
-                            FinalCallableDeclarationModeV1::TopLevel => unreachable!(),
-                        };
-                        validate_parameters(&key, params, param_decls)
-                            .map_err(|_| SourceBackedCallableCatalogIssueV1::SourceShape)?;
-                        let declaration = VerifiedSameModuleCallableDeclarationV1 {
-                            key: key.clone(),
-                            params: params.clone().into_boxed_slice(),
-                            param_decls: param_decls.clone().into_boxed_slice(),
-                            return_type_name: return_type_name.clone().map(String::into_boxed_str),
-                            body: body.clone().into_boxed_slice(),
-                            uses: uses.clone().into_boxed_slice(),
-                            attrs: attrs.clone(),
-                        };
-                        if rows_by_key.insert(key.clone(), declaration).is_some() {
-                            return Err(SourceBackedCallableCatalogIssueV1::DuplicateCanonicalKey);
-                        }
-                        if matches!(row.mode(), FinalCallableDeclarationModeV1::StaticBoxMethod) {
-                            static_lookup
-                                .entry((name.clone().into_boxed_str(), arity))
-                                .or_default()
-                                .push(key.clone());
-                        }
-                        let role = if let Some(main) = app_relation {
-                            if main.main_callable().same_as(row.identity()) {
-                                if matched_app_main.is_some() {
-                                    return Err(
-                                        SourceBackedCallableCatalogIssueV1::AppMainDuplicate,
-                                    );
-                                }
-                                if key.namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod
-                                {
-                                    return Err(
-                                        SourceBackedCallableCatalogIssueV1::AppMainNonStatic,
-                                    );
-                                }
-                                matched_app_main = Some((row.identity().clone(), key.clone()));
-                                continue;
-                            }
-                            if main
-                                .static_children()
-                                .iter()
-                                .any(|child| child.same_as(row.identity()))
-                            {
-                                if row.mode() != FinalCallableDeclarationModeV1::StaticBoxMethod {
-                                    return Err(SourceBackedCallableCatalogIssueV1::SourceShape);
-                                }
-                                let observation = row
-                                    .method_source_observation()
-                                    .ok_or(SourceBackedCallableCatalogIssueV1::SourceShape)?;
-                                let crate::parser::InitialCallableFinalSlotV1::BoxMethod {
-                                    statement,
-                                    method,
-                                } = row.final_slot()
-                                else {
-                                    return Err(SourceBackedCallableCatalogIssueV1::SourceShape);
-                                };
-                                let source_site = observation.source_site();
-                                if !observation.identity().same_as(row.identity())
-                                    || source_site.box_statement_ordinal() != statement
-                                    || source_site.member_ordinal() != method.inventory_ordinal()
-                                    || statement != main.main_statement()
-                                {
-                                    return Err(SourceBackedCallableCatalogIssueV1::SourceShape);
-                                }
-                                matched_app_static_children += 1;
-                                SelectedCallableConsumptionRoleV1::app_main_static_child(
-                                    statement, method,
-                                )
-                            } else {
-                                SelectedCallableConsumptionRoleV1::ordinary()
-                            }
-                        } else {
-                            SelectedCallableConsumptionRoleV1::ordinary()
-                        };
-                        (SelectedNormalCallableKeyV1::Cataloged(key), role)
+                    FinalCallableDeclarationModeV1::InstanceBoxMethod => {
+                        CanonicalSameModuleCallableKeyV1::instance_box_method(
+                            owner, name, arity,
+                        )
                     }
                 };
+                validate_parameters(&key, params, param_decls)
+                    .map_err(|_| SourceBackedCallableCatalogIssueV1::SourceShape)?;
+                let declaration = VerifiedSameModuleCallableDeclarationV1 {
+                    key: key.clone(),
+                    params: params.clone().into_boxed_slice(),
+                    param_decls: param_decls.clone().into_boxed_slice(),
+                    return_type_name: return_type_name.clone().map(String::into_boxed_str),
+                    body: body.clone().into_boxed_slice(),
+                    uses: uses.clone().into_boxed_slice(),
+                    attrs: attrs.clone(),
+                };
+                if rows_by_key.insert(key.clone(), declaration).is_some() {
+                    return Err(SourceBackedCallableCatalogIssueV1::DuplicateCanonicalKey);
+                }
+                if matches!(row.mode(), FinalCallableDeclarationModeV1::StaticBoxMethod) {
+                    static_lookup
+                        .entry((name.clone().into_boxed_str(), arity))
+                        .or_default()
+                        .push(key.clone());
+                }
+                let role = if let Some(main) = app_relation {
+                    if main.main_callable().same_as(row.identity()) {
+                        if matched_app_main.is_some() {
+                            return Err(
+                                SourceBackedCallableCatalogIssueV1::AppMainDuplicate,
+                            );
+                        }
+                        if key.namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod
+                        {
+                            return Err(
+                                SourceBackedCallableCatalogIssueV1::AppMainNonStatic,
+                            );
+                        }
+                        matched_app_main = Some((row.identity().clone(), key.clone()));
+                        continue;
+                    }
+                    if main
+                        .static_children()
+                        .iter()
+                        .any(|child| child.same_as(row.identity()))
+                    {
+                        if row.mode() != FinalCallableDeclarationModeV1::StaticBoxMethod {
+                            return Err(SourceBackedCallableCatalogIssueV1::SourceShape);
+                        }
+                        let observation = row
+                            .method_source_observation()
+                            .ok_or(SourceBackedCallableCatalogIssueV1::SourceShape)?;
+                        let crate::parser::InitialCallableFinalSlotV1::BoxMethod {
+                            statement,
+                            method,
+                        } = row.final_slot();
+                        let source_site = observation.source_site();
+                        if !observation.identity().same_as(row.identity())
+                            || source_site.box_statement_ordinal() != statement
+                            || source_site.member_ordinal() != method.inventory_ordinal()
+                            || statement != main.main_statement()
+                        {
+                            return Err(SourceBackedCallableCatalogIssueV1::SourceShape);
+                        }
+                        matched_app_static_children += 1;
+                        SelectedCallableConsumptionRoleV1::app_main_static_child(
+                            statement, method,
+                        )
+                    } else {
+                        SelectedCallableConsumptionRoleV1::ordinary()
+                    }
+                } else {
+                    SelectedCallableConsumptionRoleV1::ordinary()
+                };
+                let selected_key = SelectedNormalCallableKeyV1::Cataloged(key);
                 if !selected_keys.insert(selected_key.clone()) {
                     return Err(SourceBackedCallableCatalogIssueV1::DuplicateSelectedKey);
                 }
-                let site = match row.final_slot() {
-                    crate::parser::InitialCallableFinalSlotV1::TopLevel { statement } => {
-                        SelectedNormalCallableSourceSiteV1::ProgramFunction {
-                            statement_index: statement as usize,
-                        }
-                    }
-                    crate::parser::InitialCallableFinalSlotV1::BoxMethod { statement, .. } => {
-                        SelectedNormalCallableSourceSiteV1::ProgramBoxMethod {
-                            statement_index: statement as usize,
-                            method_key: name.clone().into_boxed_str(),
-                        }
-                    }
+                let crate::parser::InitialCallableFinalSlotV1::BoxMethod { statement, .. } =
+                    row.final_slot();
+                let site = SelectedNormalCallableSourceSiteV1::ProgramBoxMethod {
+                    statement_index: statement as usize,
+                    method_key: name.clone().into_boxed_str(),
                 };
                 selected_rows.push((selected_key.clone(), site));
                 selected_identities.push(SourceBackedSelectedIdentityV1 {

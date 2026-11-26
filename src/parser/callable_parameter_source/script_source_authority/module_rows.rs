@@ -254,12 +254,7 @@ impl ParserNormalModuleSourceAuthorityIssuerV1 {
                 ParserNormalModuleSourceRowsOutsideReasonV1::StaticMethod,
             );
         }
-        let Some((declaration, gate_path, member_ordinal)) = direct.path().box_method_parts()
-        else {
-            return ParserNormalModuleSourceRowsDispositionV1::IntegrityInvalid {
-                _error: ParserNormalModuleSourceRowsIntegrityIssueV1::CallableSourceMismatch,
-            };
-        };
+        let (declaration, gate_path, member_ordinal) = direct.path().box_method_parts();
         if !gate_path.is_empty()
             || declaration.compatibility_box_path() != seal.box_site().path()
             || member_ordinal != catalog_row.source_site().source_member_ordinal()

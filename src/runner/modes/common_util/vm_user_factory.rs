@@ -33,13 +33,11 @@ impl VmUserFactoryState {
 pub(crate) fn prepare_vm_user_factory(
     ast: &ASTNode,
     include_static_box_decls: bool,
-    alias_static_instances: bool,
 ) -> VmUserFactoryState {
     let static_box_decls =
         crate::runner::modes::common_util::user_box_factory::install_inline_user_box_factory(
             ast,
             include_static_box_decls,
-            alias_static_instances,
         );
     VmUserFactoryState { static_box_decls }
 }

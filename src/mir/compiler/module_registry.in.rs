@@ -35,13 +35,20 @@ pub(in crate::mir) mod generic_g0_capability;
 pub(in crate::mir) mod generic_g0_completion;
 pub(in crate::mir) mod generic_g0_function_effect;
 pub(crate) mod generic_g0_observation;
+#[cfg(test)]
 pub(in crate::mir) mod generic_g0_physical_entry_facts;
+#[cfg(test)]
 pub(in crate::mir) mod generic_g0_physical_function_effect;
+#[cfg(test)]
 pub(in crate::mir) mod generic_g0_physical_function_entry_input;
+#[cfg(test)]
 pub(in crate::mir) mod generic_g0_physical_operation_cohort;
+#[cfg(test)]
 pub(in crate::mir) mod generic_g0_physical_operation_mapping;
 #[cfg(test)]
+#[cfg(test)]
 pub(crate) mod generic_g0_physical_prepare;
+#[cfg(test)]
 pub(in crate::mir) mod generic_g0_physical_shell_facts;
 pub(in crate::mir) mod generic_g0_projection;
 pub(in crate::mir) mod generic_g0_result_abi;

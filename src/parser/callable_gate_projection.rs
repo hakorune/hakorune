@@ -116,11 +116,7 @@ pub(super) fn prune_direct_callable_rows(
             declaration,
             gate_path,
             ..
-        } = row.path()
-        else {
-            retained.push(row);
-            continue;
-        };
+        } = row.path();
         if gate_path.is_empty() {
             retained.push(row);
             continue;

@@ -5,45 +5,6 @@ use crate::parser::declarations::box_def::members::pending_method::PendingExplic
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 
-pub(crate) enum ParsedStaticMemberV1 {
-    Field(String),
-    Method(PendingExplicitMethodV1),
-}
-
-/// Parse a `static { ... }` initializer if present, honoring STRICT gate behavior.
-/// Returns Ok(Some(body)) when consumed; Ok(None) otherwise.
-pub(crate) fn parse_static_initializer_if_any(
-    p: &mut NyashParser,
-) -> Result<Option<Vec<ASTNode>>, ParseError> {
-    if !p.match_token(&TokenType::STATIC) {
-        return Ok(None);
-    }
-    let strict = crate::parser::env::parser_static_init_strict_enabled();
-    if strict {
-        match p.peek_token() {
-            TokenType::LBRACE => {
-                p.advance(); // consume 'static'
-                let body = p.parse_block_statements()?;
-                return Ok(Some(body));
-            }
-            TokenType::BOX | TokenType::FUNCTION => {
-                // top-level seam: do not consume, let caller close the box
-                return Ok(None);
-            }
-            _ => {
-                // backward-compatible fallback: treat as initializer
-                p.advance();
-                let body = p.parse_block_statements()?;
-                return Ok(Some(body));
-            }
-        }
-    } else {
-        p.advance(); // consume 'static'
-        let body = p.parse_block_statements()?;
-        Ok(Some(body))
-    }
-}
-
 /// `method` is a member modifier, not a token kind. Called after the member
 /// loop consumed an identifier `method`; adopts the following `name (` head as
 /// the real method name. Returns None when that head is absent so a lone
@@ -71,13 +32,13 @@ pub(crate) fn take_method_modifier_name(p: &mut NyashParser) -> Option<String> {
     Some(real_name)
 }
 
-/// Parse either a method or a field in static box after consuming an identifier `name`.
+/// Parse a method in a static box after consuming its name.
 /// The caller owns publication into the ordered inventory.
-pub(crate) fn try_parse_method_or_field(
+pub(super) fn parse_method(
     p: &mut NyashParser,
     name: String,
     declaration_span: Span,
-) -> Result<ParsedStaticMemberV1, ParseError> {
+) -> Result<PendingExplicitMethodV1, ParseError> {
     let trace = crate::parser::env::parser_static_trace_enabled();
     // Allow NEWLINE(s) between identifier and '('
     if !p.match_token(&TokenType::LPAREN) {
@@ -99,7 +60,7 @@ pub(crate) fn try_parse_method_or_field(
                     name
                 ));
             }
-            return Ok(ParsedStaticMemberV1::Field(name));
+            return Err(super::static_box_state(declaration_span.line));
         }
     }
     if trace {
@@ -147,12 +108,10 @@ pub(crate) fn try_parse_method_or_field(
     };
     let mut method = method;
     p.attach_pending_runes_to_declaration(&mut method)?;
-    Ok(ParsedStaticMemberV1::Method(
-        PendingExplicitMethodV1::with_parameter_source(
-            name,
-            method,
-            declaration_span,
-            parameter_source,
-        ),
+    Ok(PendingExplicitMethodV1::with_parameter_source(
+        name,
+        method,
+        declaration_span,
+        parameter_source,
     ))
 }

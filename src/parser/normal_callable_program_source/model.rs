@@ -570,10 +570,7 @@ pub(super) fn direct_source_matches_parameter_declaration(
         declaration: source_box,
         gate_path,
         member_ordinal,
-    } = source.path()
-    else {
-        return false;
-    };
+    } = source.path();
     if !gate_path.is_empty()
         || source_box.compatibility_box_path() != declaration.source_site().box_site().path()
         || *member_ordinal != declaration.source_member_ordinal()

@@ -20,6 +20,7 @@ use super::identity::ResolvedSsaIdentityStateV2;
 
 #[path = "session/draft_seal_close.rs"]
 mod draft_seal_close;
+#[cfg(test)]
 #[path = "session/generic_g0_entry_adoption.rs"]
 mod generic_g0_entry_adoption;
 
@@ -180,6 +181,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
     /// Generic-only session opener.  It consumes the resolver-issued outer-If
     /// and borrows Completion while projecting the typed BlockExpr count; no
     /// S6C envelope or common-V2 admission is involved.
+    #[cfg(test)]
     pub(in crate::mir::builder::resolved_lowering) fn new_generic(
         input: ResolvedFunctionLoweringInputV1<'source>,
         if_control: VerifiedResolvedFunctionIfControlV1,
@@ -295,6 +297,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         }
     }
 
+    #[cfg(test)]
     pub(in crate::mir::builder) fn adopt_generic_g0_entry_lanes(
         &mut self,
         builder: &mut MirBuilder,

@@ -45,12 +45,15 @@ use crate::mir::resolved_semantics::{
     SourceBindingSiteV1, VerifiedResolvedBodyShapeInventoryV1,
 };
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
+#[cfg(test)]
 use super::generic_g0_physical_operation_cohort::{
     GenericG0PhysicalOperationCohortRejectV1, GenericG0PhysicalOperationCohortV1,
 };
 
+#[cfg(test)]
 #[path = "generic_g0_source_parent/physical_emitter_source_parts.rs"]
 pub(in crate::mir::compiler) mod physical_emitter_source_parts;
+#[cfg(test)]
 pub(in crate::mir::compiler) use physical_emitter_source_parts::{
     GenericG0PhysicalEmitterSourcePartsRef,
 };
@@ -136,12 +139,14 @@ pub(crate) struct VerifiedGenericG0SourceParentV1<'source> {
 impl<'source> VerifiedGenericG0SourceParentV1<'source> {
     /// Lend this exact owned parent to prephysical validators before the
     /// one-way operation-cohort transition consumes it.
+    #[cfg(test)]
     pub(super) fn borrow_for_physical_emitter(
         &self,
     ) -> GenericG0SourceParentRefV1<'_, 'source> {
         GenericG0SourceParentRefV1 { parent: self }
     }
 
+    #[cfg(test)]
     pub(in crate::mir::compiler) fn physical_emitter_source_parts(
         &self,
     ) -> GenericG0PhysicalEmitterSourcePartsRef<'_, 'source> {
@@ -203,6 +208,7 @@ impl<'source> VerifiedGenericG0SourceParentV1<'source> {
         &self.completion
     }
 
+    #[cfg(test)]
     pub(super) fn into_physical_operation_cohort(
         self,
     ) -> Result<GenericG0PhysicalOperationCohortV1<'source>, GenericG0PhysicalOperationCohortRejectV1>
@@ -234,11 +240,14 @@ impl<'source> VerifiedGenericG0SourceParentV1<'source> {
 
 /// Callback-scoped combined view.  No raw `(input, selection)` tuple or
 /// independently reacquirable demand is exposed to the callback.
+#[cfg(test)]
 pub(crate) struct GenericG0SourceParentRefV1<'loan, 'source> {
     parent: &'loan VerifiedGenericG0SourceParentV1<'source>,
 }
 
+#[cfg(test)]
 impl<'loan, 'source> GenericG0SourceParentRefV1<'loan, 'source> {
+    #[cfg(test)]
     pub(in crate::mir::compiler) fn physical_emitter_source_parts(
         &self,
     ) -> GenericG0PhysicalEmitterSourcePartsRef<'_, 'source> {

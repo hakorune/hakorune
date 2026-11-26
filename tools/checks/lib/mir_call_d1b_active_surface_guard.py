@@ -1410,13 +1410,10 @@ def check_docs_history_retire_r0(state: dict, card: dict, root: Path) -> None:
     if "superseded_by = \"ffcae72725:" not in body:
         fail("docs history retirement successor evidence drifted")
     successor = root / "src/mir/builder/program_root_work_plan.rs"
-    validator = root / "src/mir/builder/program_root_work_plan/selected_projection_validator.rs"
-    if not successor.is_file() or not validator.is_file():
+    if not successor.is_file():
         fail("docs history retirement successor owner is missing")
     if sum(1 for _ in successor.open(encoding="utf-8")) >= 760:
         fail("docs history retirement successor crossed the split threshold")
-    if sum(1 for _ in validator.open(encoding="utf-8")) >= 760:
-        fail("docs history retirement validator crossed the split threshold")
 
     for pattern in (
         str(DOCS_HISTORY_RETIRE_R0_CANDIDATE),

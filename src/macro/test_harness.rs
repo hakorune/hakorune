@@ -22,12 +22,10 @@ pub(super) fn issue_test_harness_transform_v1(ast: &ASTNode) -> TestHarnessTrans
         call: nyash_rust::ASTNode,
     }
 
-    // Collect tests (top-level and Box)
     let mut tests: Vec<TestPlan> = Vec::new();
-    let mut _main_params_len: usize = 0;
 
     // Optional JSON args:
-    // - Simple: { "test_name": [1, "s", true], "Box.method": [ ... ] }
+    // - Simple: { "Box.method": [1, "s", true] }
     // - Detailed per-test: { "Box.method": { "args": [...], "instance": {"ctor":"new|birth","args":[...] } } }
     // - Typed values inside args supported via objects (see json_to_ast below)
     #[derive(Clone, Default)]
@@ -308,53 +306,6 @@ pub(super) fn issue_test_harness_transform_v1(ast: &ASTNode) -> TestHarnessTrans
         }
         None
     })();
-    if let nyash_rust::ASTNode::Program { statements, .. } = ast {
-        for st in statements {
-            match st {
-                nyash_rust::ASTNode::FunctionDeclaration { name, params, .. } => {
-                    if name == "main" {
-                        _main_params_len = params.len();
-                    }
-                    if name.starts_with("test_") {
-                        let label = name.clone();
-                        // select args: JSON map > defaults > skip
-                        let mut maybe_args: Option<Vec<nyash_rust::ASTNode>> = None;
-                        if let Some(m) = &args_map {
-                            if let Some(v) = m.get(&label) {
-                                maybe_args = Some(v.args.clone());
-                            }
-                        }
-                        let args = if let Some(a) = maybe_args {
-                            a
-                        } else if !params.is_empty() && crate::config::env::test_args_defaults() {
-                            let mut a: Vec<nyash_rust::ASTNode> = Vec::new();
-                            for _ in params {
-                                a.push(nyash_rust::ASTNode::Literal {
-                                    value: nyash_rust::ast::LiteralValue::Integer(0),
-                                    span: nyash_rust::ast::Span::unknown(),
-                                });
-                            }
-                            a
-                        } else if params.is_empty() {
-                            Vec::new()
-                        } else {
-                            crate::macro_log!("[macro][test][args] missing args for {} (need {}), skipping (set NYASH_TEST_ARGS_DEFAULTS=1 for zero defaults)", label, params.len());
-                            continue;
-                        };
-                        tests.push(TestPlan {
-                            setup: None,
-                            call: nyash_rust::ASTNode::FunctionCall {
-                                name: name.clone(),
-                                arguments: args,
-                                span: nyash_rust::ast::Span::unknown(),
-                            },
-                        });
-                    }
-                }
-                _ => {}
-            }
-        }
-    }
     // Collect Box tests: static and instance (no-arg only for instance)
     if let nyash_rust::ASTNode::Program { statements, .. } = ast {
         for st in statements {

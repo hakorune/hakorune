@@ -14,7 +14,7 @@ use super::super::MirBuilder;
 use super::{
     PreparedProgramDeferredStaticBoxWorkV1, PreparedProgramRootImmediateWorkV1,
     PreparedProgramRootInstanceBoxWorkV1, PreparedProgramRootTopLevelFunctionPartsV1,
-    PreparedProgramRootTopLevelFunctionWorkV1, ProgramRootWorkPlanAdmissionV1,
+    ProgramRootWorkPlanAdmissionV1,
 };
 
 impl PreparedProgramRootImmediateWorkV1 {
@@ -74,21 +74,6 @@ impl PreparedProgramDeferredStaticBoxWorkV1 {
             self.methods,
         )
         .lower_raw_compat_with_port_v1(builder, port)
-    }
-}
-
-impl PreparedProgramRootTopLevelFunctionWorkV1 {
-    pub(in crate::mir::builder) fn lower_raw_compat_with_port_v1(
-        self,
-        builder: &mut MirBuilder,
-        port: &mut RawInvocationChildPortV1<'_, '_>,
-    ) -> Result<(), String> {
-        match self {
-            Self::RawCompatibility(parts) => parts.lower_raw_compat_with_port_v1(builder, port),
-            Self::SelectedNormal { .. } => Err(
-                "[freeze:contract][mir/top-level-function-admission/raw-compat-port]".to_owned(),
-            ),
-        }
     }
 }
 

@@ -180,9 +180,6 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                     row.owner(),
                     row.function_origin(),
                     match row.mode() {
-                        ResolvedCallableDeclarationModeV1::TopLevel => {
-                            return Err(CallableParameterContractIssueV1::DeclarationCoverage)
-                        }
                         ResolvedCallableDeclarationModeV1::StaticBoxMethod => {
                             CallableParameterDeclarationModeV1::StaticBoxMethod
                         }

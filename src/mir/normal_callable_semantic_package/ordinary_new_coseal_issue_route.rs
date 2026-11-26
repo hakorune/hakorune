@@ -82,7 +82,6 @@ pub(super) struct RouteFactsV1 {
     pub(super) is_app_main: bool,
     pub(super) has_new_sites: bool,
     pub(super) has_result_sites: bool,
-    pub(super) has_top_level_input: bool,
     /// The prefix probe found every selected `new` covered (S3b-R5).
     pub(super) readiness: bool,
 }
@@ -123,8 +122,7 @@ impl OwnershipRouteV1 {
         let child_new_ready = facts.seed_eligible && facts.has_new_sites && facts.readiness;
         let child_result_ready = facts.seed_eligible && facts.has_result_sites;
         let map_literal = requests.has(R::MapLiteral);
-        let seed = (facts.seed_eligible
-            || (facts.has_top_level_input && !facts.has_new_sites && !facts.has_result_sites))
+        let seed = facts.seed_eligible
             && !requests.0.iter().any(|request| request.blocks_plain_seed(facts.is_app_main))
             && !child_new_ready
             && !child_result_ready;

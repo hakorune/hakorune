@@ -11,9 +11,6 @@ use super::syntax_loan::{
 /// Placement is private cache data, never callable identity.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum InitialCallableFinalSlotV1 {
-    TopLevel {
-        statement: u32,
-    },
     BoxMethod {
         statement: u32,
         method: BoxMethodInventoryOrdinalV1,
