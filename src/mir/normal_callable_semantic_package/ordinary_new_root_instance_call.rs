@@ -160,10 +160,10 @@ impl OrdinaryNewClaimLedgerV1 {
                             // Plain home releases directly; an owned-field
                             // home releases through its sealed children
                             // inventory — `Some` never degrades to plain.
-                            let releasable = claim.destruction()
-                                .supports_complete_execution(claim.children().is_some());
+                            let releasable = claim.core().destruction()
+                                .supports_complete_execution(claim.core().children().is_some());
                             !releasable
-                                || claim.construction().is_err()
+                                || claim.core().construction().is_err()
                                 || claim.home_prefix().is_err()
                         })
                 });
@@ -210,7 +210,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 if claim.destination != origin {
                     return Err(freeze("root-instance-call-new-binding"));
                 }
-                (claim.class().to_owned(), claim.object())
+                (claim.core().class().to_owned(), claim.core().object())
             } else {
                 // A sealed Map construction is a Map Home, not an ordinary object:
                 // a method call on it that no shared Core operation covers is the

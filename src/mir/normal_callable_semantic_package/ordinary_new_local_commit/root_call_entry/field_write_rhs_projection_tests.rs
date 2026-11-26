@@ -8,7 +8,7 @@ fn owned_rhs_projection_rejects_wrong_literal_and_unowned_effects() {
         "box Pair { left: i64 right: i64 } static box Main { main() { local p = new Pair() p.left = 7 p.right = 20 return 0 } }").unwrap();
     let ledger = &package.ordinary_new_claim_ledger;
     let claims = ledger.pending_claims_for_test();
-    let owner = claims.values().next().unwrap().site().owner();
+    let owner = claims.values().next().unwrap().core().site().owner();
     let recipe = ledger
         .completion_for_owner(owner)
         .unwrap()

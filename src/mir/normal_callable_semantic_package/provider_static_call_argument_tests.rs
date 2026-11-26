@@ -12,7 +12,7 @@
 use super::brand_catalog_tests::issue_with_brand_catalog as issue;
 use super::{
     ConstructionEligibilityV1, ConstructionStoreRhsV1, ConstructionUnavailableV1,
-    OrdinaryNewTrivialArgumentKindV1, QualifiedStaticCallArgumentKindV1,
+    SelectedNewArgumentKindV1, QualifiedStaticCallArgumentKindV1,
 };
 
 fn parent_construction(source: &str) -> ConstructionEligibilityV1 {
@@ -91,9 +91,9 @@ fn provider_static_call_argument_seals_target_and_literal_actuals() {
     assert_eq!(arguments.len(), 2);
     assert_eq!(
         arguments[0].kind(),
-        &OrdinaryNewTrivialArgumentKindV1::Integer(0)
+        &SelectedNewArgumentKindV1::Integer(0)
     );
-    let OrdinaryNewTrivialArgumentKindV1::QualifiedStaticCall {
+    let SelectedNewArgumentKindV1::QualifiedStaticCall {
         target,
         arguments: actuals,
     } = arguments[1].kind()
@@ -154,7 +154,7 @@ fn provider_static_call_argument_seals_target_and_literal_actuals() {
     let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
         hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method("LayoutBox", "class_size", 1));
     let mut context = crate::mir::builder::CompilationContext::new();
-    let installed = package.prepare_install(&mut context).unwrap().commit();
+    let installed = package.prepare_install_with_consumer(&mut context, None).unwrap().commit();
     installed.begin_lowering(&context).unwrap().with_selected_lowering_input(&key, |input| {
         let entry = ledger.borrowed_ordinary_entry_source_v1(&input).unwrap().unwrap();
         let incoming = entry.incoming().unwrap();
@@ -279,7 +279,7 @@ fn provider_static_call_arguments_seal_in_source_order() {
     let names: Vec<&str> = arguments
         .iter()
         .map(|argument| match argument.kind() {
-            OrdinaryNewTrivialArgumentKindV1::QualifiedStaticCall { target, .. } => target.name(),
+            SelectedNewArgumentKindV1::QualifiedStaticCall { target, .. } => target.name(),
             other => panic!("both arguments seal qualified static calls, got {other:?}"),
         })
         .collect();

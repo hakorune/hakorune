@@ -28,57 +28,13 @@ fn final_source(source: &str) -> VerifiedFinalCallableProgramSourceV1 {
 }
 
 #[test]
-fn installed_s6c_child_lends_one_cohort_exactly_once() {
-    let mut resolver = FunctionSemanticResolverSessionV1::new(602).expect("resolver");
-    let package = issue_normal_callable_semantic_package_v1(&mut resolver, final_source(FIXTURE))
-        .expect("same-cohort S6C child");
-    let mut context = CompilationContext::new();
-    let installed = package
-        .prepare_install(&mut context)
-        .expect("vacant catalog")
-        .commit();
-    let mut port = installed.begin_lowering(&context).expect("same catalog");
-    port.with_s6c_child(|child| {
-        assert_eq!(
-            child.result(),
-            crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1::I64
-        );
-        assert_eq!(child.signature().source_logical_arity(), 2);
-        assert_eq!(child.signature().physical_formal_lane_count(), 4);
-        assert_eq!(child.selected().parameter_contracts().count(), 2);
-        assert_eq!(
-            child.storage_header().params(),
-            ["s".to_owned(), "ch".to_owned()]
-        );
-        assert_eq!(child.storage_header().return_type_name(), Some("i64"));
-        assert_eq!(
-            child.physical_effects().effect_mask(),
-            crate::mir::EffectMask::READ
-        );
-        assert_eq!(child.physical_effects().external_call_count(), 2);
-        child.with_completion_parity(|completion| {
-            assert!(completion.cleanup_empty());
-            assert_eq!(completion.explicit_exit_count(), 2);
-        });
-    })
-    .expect("first child loan");
-    assert_eq!(
-        port.with_s6c_child(|_| ()),
-        Err(NormalCallableSemanticPackageInstallIssueV1::S6CChildAlreadyConsumed)
-    );
-    port.take_object_definitions(&context)
-        .expect("explicit definition transfer for semantic-only test");
-    port.complete().expect("selected child coverage");
-}
-
-#[test]
 fn s6c_child_cannot_be_taken_through_generic_key_loan() {
     let mut resolver = FunctionSemanticResolverSessionV1::new(603).expect("resolver");
     let package = issue_normal_callable_semantic_package_v1(&mut resolver, final_source(FIXTURE))
         .expect("same-cohort S6C child");
     let mut context = CompilationContext::new();
     let installed = package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .expect("vacant catalog")
         .commit();
     let mut port = installed.begin_lowering(&context).expect("same catalog");
@@ -89,14 +45,4 @@ fn s6c_child_cannot_be_taken_through_generic_key_loan() {
         port.with_selected_lowering_input(&key, |_| ()),
         Err(NormalCallableSemanticPackageInstallIssueV1::MainChildAdmissionRequired)
     );
-    port.with_s6c_child(|child| {
-        assert_eq!(
-            child.result(),
-            crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1::I64
-        )
-    })
-    .expect("typed child loan");
-    port.take_object_definitions(&context)
-        .expect("explicit definition transfer for semantic-only test");
-    port.complete().expect("selected child coverage");
 }

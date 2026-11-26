@@ -105,7 +105,7 @@ fn child_relation_real_page_heap_pins_all_sites_and_retains_prefix_failures() {
     let mut uncovered = 0;
     for (_, claim) in claims
         .iter()
-        .filter(|(_, claim)| claim.class() == "HakoAllocHandleResult")
+        .filter(|(_, claim)| claim.core().class() == "HakoAllocHandleResult")
     {
         if claim.home_prefix().is_ok() {
             covered += 1;

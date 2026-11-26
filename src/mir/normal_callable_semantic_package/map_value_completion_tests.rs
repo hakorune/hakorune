@@ -10,7 +10,7 @@ fn assert_install_stop(
     expected: impl FnOnce(&super::install::NormalCallableSemanticPackageInstallIssueV1) -> bool,
 ) {
     let mut context = CompilationContext::new();
-    let error = match package.prepare_install(&mut context) {
+    let error = match package.prepare_install_with_consumer(&mut context, None) {
         Err((_, error)) => error,
         Ok(_) => panic!("source capability cannot enable physical Map execution"),
     };
@@ -22,7 +22,7 @@ fn assert_install_stop(
 /// execution boundary stays downstream at lowering.
 fn assert_install_admits(package: super::VerifiedNormalCallableSemanticPackageV1) {
     let mut context = CompilationContext::new();
-    assert!(package.prepare_install(&mut context).is_ok());
+    assert!(package.prepare_install_with_consumer(&mut context, None).is_ok());
 }
 
 #[test]
@@ -226,7 +226,7 @@ fn app_main_call_admits_one_ordinary_map_callee_value_owner() {
     );
     let mut context = CompilationContext::new();
     package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .expect("one ordinary child Map owner is admitted");
     assert!(context.callable_declaration_catalog_vacant());
 }
@@ -249,7 +249,7 @@ fn app_main_and_one_ordinary_map_owner_share_install_admission() {
         .is_some_and(|flow| !flow.maps().is_empty()));
     let mut context = CompilationContext::new();
     package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .expect("root and one called ordinary Map owner are admitted");
     assert!(context.callable_declaration_catalog_vacant());
 }
@@ -365,7 +365,7 @@ fn mixed_value_replacement_keeps_home_transfer_positions() {
         [map.local_binding().unwrap()]
     );
     assert!(package
-        .prepare_install(&mut CompilationContext::new())
+        .prepare_install_with_consumer(&mut CompilationContext::new(), None)
         .is_ok());
 }
 
@@ -410,7 +410,7 @@ fn map_scalar_literals_and_aliases_retain_exact_source_evidence() {
             .iter()
             .all(|entry| entry.transfer_home().is_none()));
         assert!(package
-            .prepare_install(&mut CompilationContext::new())
+            .prepare_install_with_consumer(&mut CompilationContext::new(), None)
             .is_ok());
     }
 }

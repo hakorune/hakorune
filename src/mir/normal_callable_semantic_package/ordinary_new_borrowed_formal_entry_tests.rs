@@ -114,7 +114,7 @@ fn installed_ordinary_loan_borrows_all_actual_domains_without_reclassifying_form
         .clone();
     let ledger = Rc::clone(&package.ordinary_new_claim_ledger);
     let mut context = crate::mir::builder::CompilationContext::new();
-    let installed = package.prepare_install(&mut context).unwrap().commit();
+    let installed = package.prepare_install_with_consumer(&mut context, None).unwrap().commit();
     let mut port = installed.begin_lowering(&context).unwrap();
     port.with_selected_lowering_input(&key, |input| {
         let projection = ledger
@@ -439,7 +439,7 @@ fn foreign_installed_instance_loan_cannot_be_classified_outside_profile() {
         .unwrap()
         .clone();
     let mut context = crate::mir::builder::CompilationContext::new();
-    let installed = foreign.prepare_install(&mut context).unwrap().commit();
+    let installed = foreign.prepare_install_with_consumer(&mut context, None).unwrap().commit();
     installed
         .begin_lowering(&context)
         .unwrap()
@@ -469,7 +469,7 @@ fn static_opaque_loan_preserves_the_ordinary_source_failure() {
         ),
     );
     let mut context = crate::mir::builder::CompilationContext::new();
-    let installed = package.prepare_install(&mut context).unwrap().commit();
+    let installed = package.prepare_install_with_consumer(&mut context, None).unwrap().commit();
     installed
         .begin_lowering(&context)
         .unwrap()
@@ -786,7 +786,7 @@ fn static_entry_loan_requires_original_successful_completion() {
         }
         let ledger = Rc::clone(&package.ordinary_new_claim_ledger);
         let mut context = crate::mir::builder::CompilationContext::new();
-        let installed = package.prepare_install(&mut context).unwrap().commit();
+        let installed = package.prepare_install_with_consumer(&mut context, None).unwrap().commit();
         installed
             .begin_lowering(&context)
             .unwrap()

@@ -831,12 +831,9 @@ cardinality check stays at this adapter boundary (`13` operations, one `If`,
 one `Exit`, `15` placements); the generic products do not encode that profile
 fact.
 
-`NormalCallableSemanticPackagePortV1::with_s6c_common_v2_pre_session` lends
-the selected callable, package-owned signature, installed S6C child, and
-common envelope from one exactly-once HRTB loan. The existing
-`with_s6c_child` is only a compatibility wrapper over this path, so it cannot
-create a second child authority. Focused tests cover the positive envelope,
-foreign-owner rejection, and duplicate-consumption boundary.
+The package's S6C source issuer still validates the candidate and consumes its
+exact Completion seed. Normal Main-child lowering uses its parser identity and
+selected role to open its scoped input.
 
 The envelope also retains the already-issued non-Clone
 `VerifiedS6CReturnSourceRecipeBindingV1` from that same cohort. This is

@@ -3,7 +3,7 @@
 use super::*;
 use crate::mir::normal_callable_semantic_package::{
     qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
-    selected_mapping::VerifiedSelectedCallableBatchMapV1, OrdinaryNewTrivialArgumentKindV1 as Kind,
+    selected_mapping::VerifiedSelectedCallableBatchMapV1, SelectedNewArgumentKindV1 as Kind,
     OrdinaryNewTrivialArgumentV1 as Argument, QualifiedStaticCallArgumentKindV1 as Actual,
 };
 use crate::mir::resolved_semantics::{

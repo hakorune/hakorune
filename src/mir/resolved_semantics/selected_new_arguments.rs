@@ -37,6 +37,25 @@ pub(crate) enum SelectedNewArgumentKindV1 {
     Expression {
         evaluation: std::rc::Rc<super::CheckedExpressionEvaluationV1>,
     },
+    /// A proven `Alias.m(..)` qualified static-box call: the sealed claim
+    /// row proves the `StaticBoxMethod` target and its `ExactI64` result
+    /// disposition; `arguments` are the callee's sealed literal actuals in
+    /// source order. Only the provider-`new` argument arm inside a Birth
+    /// plan seals this shape — the `local x = new` argument inventory
+    /// never produces it.
+    QualifiedStaticCall {
+        target: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        arguments: Box<[QualifiedStaticCallArgumentKindV1]>,
+    },
+}
+
+/// One sealed literal actual of a qualified static-call provider argument.
+/// The claim's required-i64 ordinals were discharged at seal time; this
+/// row keeps only the value the emitter materializes once.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum QualifiedStaticCallArgumentKindV1 {
+    Integer(i64),
+    Bool(bool),
 }
 
 #[derive(Debug, Clone)]
@@ -136,6 +155,12 @@ impl SelectedNewArgumentObservationV1 {
     pub(crate) fn new_site(&self) -> &OwnedExprSiteV1 {
         &self.new_site
     }
+    pub(crate) fn into_parts(
+        self,
+    ) -> (OwnedExprSiteV1, Result<Box<[SelectedNewArgumentV1]>, SelectedNewArgumentUnavailableV1>) {
+        (self.new_site, self.arguments)
+    }
+
     pub(crate) fn arguments(
         &self,
     ) -> Result<&[SelectedNewArgumentV1], &SelectedNewArgumentUnavailableV1> {

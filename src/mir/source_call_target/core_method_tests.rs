@@ -1,3 +1,4 @@
+use crate::mir::normal_callable_semantic_package::seal_selected_core_method_rows;
 use crate::mir::callable_semantic_batch::{
     issue_resolved_callable_semantic_batch_v1, issue_s6c_typed_input_relation_v1,
     VerifiedResolvedCallableSemanticBatchV1, VerifiedS6CTypedInputRelationV1,
@@ -234,16 +235,15 @@ fn source_bound_core_method_catalog_rejects_foreign_caller() {
             &NyashParser::parse_from_string(FIXTURE).unwrap(),
         )
         .unwrap();
-    let target_catalog = crate::mir::source_call_target::test_support::empty_targets(&declarations);
     let foreign = crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
         "Foreign", "run", 0,
     );
-    let rejected = target_catalog
-        .extend_core_method_calls(foreign.clone(), rows)
+    let owner = rows[0].1.contract().owner();
+    let rejected = seal_selected_core_method_rows(&declarations, &foreign, owner, rows.into_vec())
         .unwrap_err();
     assert_eq!(
         rejected,
-        SourceBoundCoreMethodTargetIssueV1::ForeignCaller(foreign)
+        format!("{:?}", SourceBoundCoreMethodTargetIssueV1::ForeignCaller(foreign))
     );
 }
 
@@ -277,14 +277,17 @@ fn source_bound_core_method_catalog_rejects_duplicate_exact_site() {
         .unwrap()
         .key()
         .clone();
-    let target_catalog = crate::mir::source_call_target::test_support::empty_targets(&declarations)
-        .extend_core_method_calls(caller.clone(), first)
-        .unwrap();
-    let rejected = target_catalog
-        .extend_core_method_calls(caller, second)
-        .unwrap_err();
-    assert!(matches!(
+    let owner = first[0].1.contract().owner();
+    let duplicate_site = second[0].0.clone();
+    let rejected = seal_selected_core_method_rows(
+        &declarations,
+        &caller,
+        owner,
+        first.into_vec().into_iter().chain(second.into_vec()),
+    )
+    .unwrap_err();
+    assert_eq!(
         rejected,
-        SourceBoundCoreMethodTargetIssueV1::CatalogCollision(_)
-    ));
+        format!("{:?}", SourceBoundCoreMethodTargetIssueV1::CatalogCollision(duplicate_site))
+    );
 }

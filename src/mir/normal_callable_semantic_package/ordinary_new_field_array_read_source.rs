@@ -557,7 +557,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn retain_argument_read(
     census: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
     argument: &mut OrdinaryNewTrivialArgumentV1,
 ) -> Result<(), String> {
-    let OrdinaryNewTrivialArgumentKindV1::Local { binding } = argument.kind() else { return Ok(()) };
+    let SelectedNewArgumentKindV1::Local { binding } = argument.kind() else { return Ok(()) };
     let binding = *binding;
     let declaration = batch.declarations().find(|row| row.owner() == argument.owner())
         .ok_or_else(|| freeze("array-read/argument-owner"))?;

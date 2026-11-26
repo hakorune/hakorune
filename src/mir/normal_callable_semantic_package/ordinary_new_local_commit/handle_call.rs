@@ -212,8 +212,8 @@ impl OrdinaryNewClaimLedgerV1 {
         let commits = self.local_commits.borrow();
         let mut objects = claims
             .values()
-            .filter(|claim| claim.class() == class)
-            .map(|claim| claim.object())
+            .filter(|claim| claim.core().class() == class)
+            .map(|claim| claim.core().object())
             .chain(commits.values().filter_map(|row| match row {
                 LocalCommitV1::Result(result) if result.box_source.name() == class => {
                     Some(result.object())
@@ -378,7 +378,7 @@ impl OrdinaryNewClaimLedgerV1 {
         self.result_claims
             .borrow()
             .get(site)
-            .map(|claim| claim.object())
+            .map(|claim| claim.core().object())
     }
 
     /// Begin emission for a handle-result local `Call`: the sealed

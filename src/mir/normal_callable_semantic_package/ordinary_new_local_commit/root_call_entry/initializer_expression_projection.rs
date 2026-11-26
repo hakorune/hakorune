@@ -642,26 +642,31 @@ impl ExpressionEmissionV1<InitializerExpressionContractV1> {
             if self.dynamic_result_binding_v1()?.1.dst_value() != Some(self.value()) {
                 return Err(freeze("initializer-expression/dynamic-result-drift"));
             }
-            expression.validate_dynamic_local_handoff_continuation_v1(
+            expression.validate_continuation_v1(
                 context,
                 function,
                 finishing,
-                &self.entry,
                 &self.terminal,
                 &self.continuation,
-                self.value(),
+                ExpressionContinuationPolicyV1 {
+                    entry: Some(&self.entry),
+                    forwarded_dynamic_carrier: Some((self.value(), CarrierHandoffV1::LocalOrArgument)),
+                    ..Default::default()
+                },
             )
         } else {
-            expression.validate_local_continuation_with_purpose_v1(
+            expression.validate_continuation_v1(
                 context,
                 function,
                 finishing,
-                &self.entry,
                 &self.terminal,
                 &self.continuation,
-                self.contract.install.as_ref(),
-                None,
-                self.contract.purpose_acquisition.as_ref(),
+                ExpressionContinuationPolicyV1 {
+                    entry: Some(&self.entry),
+                    residence: self.contract.install.as_ref(),
+                    purpose_acquisition: self.contract.purpose_acquisition.as_ref(),
+                    ..Default::default()
+                },
             )
         }
     }

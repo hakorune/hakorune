@@ -439,14 +439,16 @@ impl EmittedBoolConditionProjectionV1 {
                 } => {
                     let projection = self.comparison_inputs_v1(node)?;
                     let context = CallValidationContextV1::Lowering(ledger);
-                    let covered = projection.validate_scalar_continuation_v1(
+                    let covered = projection.validate_continuation_v1(
                         context,
                         function,
                         None,
-                        entry,
                         terminal,
                         continuation,
-                        None,
+                        ExpressionContinuationPolicyV1 {
+                            entry: Some(entry),
+                            ..Default::default()
+                        },
                     )?;
                     let mut ordered = projection.ordered_bindings_in_context(context)?;
                     ordered.extend(terminal.iter().cloned());

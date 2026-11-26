@@ -115,7 +115,7 @@ fn same_class_other_claim_cannot_replace_missing_exact_returned_leaf() {
         .result_claims
         .borrow()
         .values()
-        .any(|claim| claim.class() == "Token"));
+        .any(|claim| claim.core().class() == "Token"));
     assert_eq!(
         ledger
             .checked_object_return_leaf_v1(&key, &witness)

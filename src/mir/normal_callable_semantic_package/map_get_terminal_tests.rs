@@ -15,7 +15,7 @@ use crate::mir::resolved_semantics::home_new_prefix::{
 /// stays downstream at lowering.
 fn assert_install_admits(package: super::VerifiedNormalCallableSemanticPackageV1) {
     let mut context = crate::mir::builder::CompilationContext::new();
-    assert!(package.prepare_install(&mut context).is_ok());
+    assert!(package.prepare_install_with_consumer(&mut context, None).is_ok());
 }
 
 fn contract_for<'a>(
@@ -52,7 +52,7 @@ fn borrowed_map_argument_handoff_co_seals_call_edge() {
     .expect("map-argument package");
     let mut context = crate::mir::builder::CompilationContext::new();
     let installed = package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .map_err(|(_, issue)| issue)
         .expect("covered handoff installs")
         .commit();
@@ -154,7 +154,7 @@ fn qualified_static_call_argument_stays_on_parked_opaque_lane() {
     .expect("opaque-call package issues");
     let mut context = crate::mir::builder::CompilationContext::new();
     assert!(matches!(
-        package.prepare_install(&mut context),
+        package.prepare_install_with_consumer(&mut context, None),
         Err((
             _,
             super::NormalCallableSemanticPackageInstallIssueV1::MapLifecycleConsumerMissing

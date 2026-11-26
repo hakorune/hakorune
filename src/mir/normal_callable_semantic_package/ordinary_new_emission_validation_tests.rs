@@ -29,9 +29,9 @@ pub(super) fn fixture() -> EmissionFixture {
     let [claim] = claims.as_slice() else {
         panic!("one selected New claim");
     };
-    let owner = claim.site().owner();
-    let site = claim.site().clone();
-    let box_source = claim.box_source().clone();
+    let owner = claim.core().site().owner();
+    let site = claim.core().site().clone();
+    let box_source = claim.core().box_source().clone();
     let declaration = package
         .batch()
         .declarations()
@@ -240,8 +240,8 @@ fn ordinary_new_finalizer_rejects_residual_emission() {
     .expect("source package");
     let claim_rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
     let claim = claim_rows.values().next().expect("claim");
-    let owner = claim.site().owner();
-    let site = claim.site().clone();
+    let owner = claim.core().site().owner();
+    let site = claim.core().site().clone();
     drop(claim_rows);
     let ledger = package.ordinary_new_claim_ledger;
     ledger.register_new_root(owner).expect("root registration");

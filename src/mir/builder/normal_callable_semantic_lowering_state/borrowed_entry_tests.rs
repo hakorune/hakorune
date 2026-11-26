@@ -79,7 +79,7 @@ fn state_for_key(
     key: SelectedNormalCallableKeyV1,
 ) -> CallableSemanticLoweringState {
     let mut context = CompilationContext::new();
-    let installed = package.prepare_install(&mut context).unwrap().commit();
+    let installed = package.prepare_install_with_consumer(&mut context, None).unwrap().commit();
     let ledger = installed.ordinary_new_claim_ledger();
     installed
         .begin_lowering(&context)

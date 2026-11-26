@@ -24,8 +24,6 @@ use crate::mir::resolved_semantics::{
     VerifiedResolverCoreMethodCallableContractV1,
 };
 
-use super::{VerifiedSourceCallTargetCatalogV1, VerifiedSourceCallTargetV1};
-
 /// One route-neutral source-bound CoreMethod row.  The contract already owns
 /// the resolver call, loop placement and generated target; this wrapper only
 /// records its catalog arm.
@@ -378,52 +376,6 @@ pub(super) fn nearest_loop<'a, T>(
         ));
     }
     Ok(Some(first))
-}
-
-impl<'catalog> VerifiedSourceCallTargetCatalogV1<'catalog> {
-    /// Atomically add the resolver-owned CoreMethod arm to this existing
-    /// route-neutral catalog.  The caller/site key remains the same identity
-    /// used by Static and DynamicMember rows.
-    pub(crate) fn extend_core_method_calls(
-        mut self,
-        caller: CanonicalSameModuleCallableKeyV1,
-        rows: impl IntoIterator<Item = (SourceExprSiteV1, VerifiedSourceBoundCoreMethodCallV1)>,
-    ) -> Result<Self, SourceBoundCoreMethodTargetIssueV1> {
-        if self.declarations.declaration(&caller).is_none() {
-            return Err(SourceBoundCoreMethodTargetIssueV1::ForeignCaller(caller));
-        }
-        for (site, target) in rows {
-            let key = (caller.clone(), site.clone());
-            if self.rows.contains_key(&key) {
-                return Err(SourceBoundCoreMethodTargetIssueV1::CatalogCollision(site));
-            }
-            self.rows
-                .insert(key, VerifiedSourceCallTargetV1::CoreMethod(target));
-        }
-        Ok(self)
-    }
-
-    /// Consume the catalog arm into the selected callable's lowering state.
-    /// This is a transport projection; it does not create another target map.
-    pub(crate) fn into_core_method_calls(
-        self,
-        caller: &CanonicalSameModuleCallableKeyV1,
-    ) -> Result<BTreeMap<SourceExprSiteV1, VerifiedSourceBoundCoreMethodCallV1>, SourceExprSiteV1>
-    {
-        let mut rows = BTreeMap::new();
-        for ((row_caller, site), target) in self.rows {
-            if &row_caller != caller {
-                continue;
-            }
-            let VerifiedSourceCallTargetV1::CoreMethod(target) = target else {
-                return Err(site);
-            };
-            if rows.insert(site.clone(), target).is_some() {
-                return Err(site);
-            }
-        }
-        Ok(rows)
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

@@ -60,7 +60,7 @@ impl ObjectReturnTeardownDescriptorV1 {
     #[cfg(test)]
     fn from_exact_claim(claim: &OrdinaryNewResultClaimV1) -> Self {
         Self {
-            object: claim.object(),
+            object: claim.core().object(),
             destruction: claim.core.destruction(),
             children: claim.core.children().map(|children| children.into()),
         }

@@ -22,11 +22,11 @@ fn ordinary_new_owned_array_children_seal_in_declaration_order() {
         panic!("one claim, got {claims:?}")
     };
     assert_eq!(
-        claim.destruction(),
+        claim.core().destruction(),
         crate::mir::function::ObjectDestructionDispositionV1::ARRAY_FIELDS_NO_HOOK
     );
     let ordinals: Vec<u32> = claim
-        .children()
+        .core().children()
         .expect("proven owned residences")
         .iter()
         .map(|child| {
@@ -74,12 +74,12 @@ fn ordinary_new_owned_array_children_stay_unproven_on_ambiguous_writes() {
             panic!("{label}: one claim, got {claims:?}")
         };
         assert_eq!(
-            claim.destruction(),
+            claim.core().destruction(),
             crate::mir::function::ObjectDestructionDispositionV1::ARRAY_FIELDS_NO_HOOK,
             "{label}"
         );
         assert!(
-            claim.children().is_none(),
+            claim.core().children().is_none(),
             "{label}: an unproven residence stays unsealed"
         );
     }
@@ -110,16 +110,16 @@ fn ordinary_new_owned_object_children_seal_in_declaration_order() {
         .pending_claims_for_test();
     let claims: Vec<_> = rows
         .values()
-        .filter(|claim| claim.class() == "Parent")
+        .filter(|claim| claim.core().class() == "Parent")
         .collect();
     let [claim] = claims.as_slice() else {
         panic!("one Parent claim, got {claims:?}")
     };
     assert_eq!(
-        claim.destruction(),
+        claim.core().destruction(),
         crate::mir::function::ObjectDestructionDispositionV1::no_hook_fields(true, true, false)
     );
-    let children = claim.children().expect("proven owned residences");
+    let children = claim.core().children().expect("proven owned residences");
     assert_eq!(children.len(), 2);
     assert_eq!(children[0].field.declaration_ordinal(), 0);
     assert!(
@@ -131,7 +131,7 @@ fn ordinary_new_owned_object_children_seal_in_declaration_order() {
         panic!("user-object field must seal an Object child, got {:?}", children[1])
     };
     assert_ne!(
-        child, claim.object(),
+        child, claim.core().object(),
         "the sealed child identity is the declared class, not the parent"
     );
 }
@@ -166,16 +166,16 @@ fn ordinary_new_owned_self_referential_children_seal() {
         .pending_claims_for_test();
     let claims: Vec<_> = rows
         .values()
-        .filter(|claim| claim.class() == "Node")
+        .filter(|claim| claim.core().class() == "Node")
         .collect();
     let [claim] = claims.as_slice() else {
         panic!("one Node claim, got {claims:?}")
     };
     assert_eq!(
-        claim.destruction(),
+        claim.core().destruction(),
         crate::mir::function::ObjectDestructionDispositionV1::OBJECT_FIELDS_NO_HOOK
     );
-    let children = claim.children().expect("self-referential residences seal");
+    let children = claim.core().children().expect("self-referential residences seal");
     assert_eq!(children.len(), 2);
     for (ordinal, child) in children.iter().enumerate() {
         assert_eq!(child.field.declaration_ordinal() as usize, ordinal);
@@ -184,7 +184,7 @@ fn ordinary_new_owned_self_referential_children_seal() {
         };
         assert_eq!(
             inner,
-            claim.object(),
+            claim.core().object(),
             "the sealed child identity is the enclosing object itself"
         );
     }
@@ -225,12 +225,12 @@ fn ordinary_new_owned_nested_object_child_seals() {
         .pending_claims_for_test();
     let claims: Vec<_> = rows
         .values()
-        .filter(|claim| claim.class() == "Top")
+        .filter(|claim| claim.core().class() == "Top")
         .collect();
     let [claim] = claims.as_slice() else {
         panic!("one Top claim, got {claims:?}")
     };
-    let children = claim.children().expect("nested object residences seal");
+    let children = claim.core().children().expect("nested object residences seal");
     let [child] = children.as_ref() else {
         panic!("one Object child, got {children:?}")
     };
@@ -242,13 +242,13 @@ fn ordinary_new_owned_nested_object_child_seals() {
     // children are the sealed rows the teardown walks at runtime.
     let mid_claims: Vec<_> = rows
         .values()
-        .filter(|claim| claim.class() == "Mid")
+        .filter(|claim| claim.core().class() == "Mid")
         .collect();
     let [mid] = mid_claims.as_slice() else {
         panic!("one Mid claim, got {mid_claims:?}")
     };
     assert!(
-        mid.children().is_some(),
+        mid.core().children().is_some(),
         "the nested child's own inventory seals through the same census"
     );
 }
@@ -277,13 +277,13 @@ fn ordinary_new_owned_nested_object_child_stays_unproven_on_rejected_evidence() 
         .pending_claims_for_test();
     let claims: Vec<_> = rows
         .values()
-        .filter(|claim| claim.class() == "Top")
+        .filter(|claim| claim.core().class() == "Top")
         .collect();
     let [claim] = claims.as_slice() else {
         panic!("one Top claim, got {claims:?}")
     };
     assert!(
-        claim.children().is_none(),
+        claim.core().children().is_none(),
         "an unproven nested child leaves the inventory unsealed"
     );
 }
@@ -313,12 +313,12 @@ fn ordinary_new_owned_nested_array_child_seals() {
         .pending_claims_for_test();
     let claims: Vec<_> = rows
         .values()
-        .filter(|claim| claim.class() == "Parent")
+        .filter(|claim| claim.core().class() == "Parent")
         .collect();
     let [claim] = claims.as_slice() else {
         panic!("one Parent claim, got {claims:?}")
     };
-    let children = claim.children().expect("proven owned residences");
+    let children = claim.core().children().expect("proven owned residences");
     let [child] = children.as_ref() else {
         panic!("one Object child, got {children:?}")
     };
@@ -371,18 +371,18 @@ fn ordinary_new_owned_object_children_stay_unproven_on_rejected_evidence() {
             .pending_claims_for_test();
         let claims: Vec<_> = rows
             .values()
-            .filter(|claim| claim.class() == "Parent")
+            .filter(|claim| claim.core().class() == "Parent")
             .collect();
         let [claim] = claims.as_slice() else {
             panic!("{label}: one Parent claim, got {claims:?}")
         };
         assert_eq!(
-            claim.destruction(),
+            claim.core().destruction(),
             crate::mir::function::ObjectDestructionDispositionV1::OBJECT_FIELDS_NO_HOOK,
             "{label}"
         );
         assert!(
-            claim.children().is_none(),
+            claim.core().children().is_none(),
             "{label}: rejected residence evidence stays unsealed"
         );
     }
@@ -419,13 +419,13 @@ fn ordinary_new_owned_object_children_decline_non_self_cycles() {
         .pending_claims_for_test();
     let claims: Vec<_> = rows
         .values()
-        .filter(|claim| claim.class() == "Parent")
+        .filter(|claim| claim.core().class() == "Parent")
         .collect();
     let [claim] = claims.as_slice() else {
         panic!("one Parent claim, got {claims:?}")
     };
     assert!(
-        claim.children().is_none(),
+        claim.core().children().is_none(),
         "a non-self ownership cycle stays unsealed"
     );
 }

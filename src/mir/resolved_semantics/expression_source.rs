@@ -275,7 +275,7 @@ pub(crate) struct ResolvedExpressionSourceInventoryV1 {
     unaries: BTreeMap<SourceExprSiteV1, ResolvedUnaryExpressionSourceV1>,
     literals: BTreeMap<SourceExprSiteV1, ResolvedLiteralSourceV1>,
     conditionals: BTreeMap<SourceExprSiteV1, ResolvedConditionalExpressionSourceV1>,
-    initializers: BTreeMap<SourceBindingSiteV1, ResolvedInitializerRelationV1>,
+    initializers: std::rc::Rc<BTreeMap<SourceBindingSiteV1, ResolvedInitializerRelationV1>>,
     constructions: BTreeMap<SourceExprSiteV1, ResolvedNewExpressionSourceV1>,
 }
 
@@ -301,7 +301,7 @@ impl ResolvedExpressionSourceInventoryV1 {
                 .collect(),
             literals: literals.into_iter().collect(),
             conditionals: BTreeMap::new(),
-            initializers: BTreeMap::new(),
+            initializers: Default::default(),
             constructions: BTreeMap::new(),
         }
     }
@@ -389,6 +389,12 @@ impl ResolvedExpressionSourceInventoryV1 {
 
     pub(crate) fn initializers(&self) -> impl Iterator<Item = &ResolvedInitializerRelationV1> {
         self.initializers.values()
+    }
+
+    pub(crate) fn initializer_rows(
+        &self,
+    ) -> &std::rc::Rc<BTreeMap<SourceBindingSiteV1, ResolvedInitializerRelationV1>> {
+        &self.initializers
     }
 
     /// The unique source relation for a binding, independent of rebindings.
@@ -577,7 +583,7 @@ pub(super) fn seal_shadow_expression_source_v1(
         unaries,
         literals: draft.literals,
         conditionals,
-        initializers,
+        initializers: initializers.into(),
         constructions,
     })
 }

@@ -1,5 +1,6 @@
 //! Existing computed-argument physical proof, within the lexical argument family.
 use super::*;
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::root_home::{CarrierHandoffV1, ExpressionContinuationPolicyV1};
 
 impl EmittedArgumentExpressionProjectionV1 {
     pub(super) fn ordinal(&self) -> Result<u32, String> {
@@ -229,40 +230,50 @@ impl EmittedArgumentExpressionProjectionV1 {
         self.validate_source(context)?;
         match self.completion {
             ArgumentCompletionV1::ScalarCompleted => {
-                self.expression().validate_scalar_continuation_v1(
+                self.expression().validate_continuation_v1(
                     context,
                     function,
                     finishing,
-                    &self.body.entry,
                     &self.terminal,
                     &self.continuation,
-                    inherited,
+                    ExpressionContinuationPolicyV1 {
+                        entry: Some(&self.body.entry),
+                        inherited,
+                        ..Default::default()
+                    },
                 )
             }
             ArgumentCompletionV1::OwnedTextDeferred => {
-                self.expression().validate_deferred_owned_continuation_v1(
+                self.expression().validate_continuation_v1(
                     context,
                     function,
                     finishing,
-                    &self.body.entry,
                     &self.terminal,
                     &self.continuation,
-                    inherited,
-                    self.purpose_acquisition.as_ref(),
+                    ExpressionContinuationPolicyV1 {
+                        entry: Some(&self.body.entry),
+                        inherited,
+                        purpose_acquisition: self.purpose_acquisition.as_ref(),
+                        defer_owned_argument: true,
+                        ..Default::default()
+                    },
                 )
             }
             ArgumentCompletionV1::DynamicCarrierDeferred => {
                 let carrier = self.validate_source(context)?;
                 self.expression()
-                    .validate_dynamic_carrier_argument_continuation_v1(
+                    .validate_continuation_v1(
                         context,
                         function,
                         finishing,
-                        &self.body.entry,
                         &self.terminal,
                         &self.continuation,
-                        inherited,
-                        carrier,
+                        ExpressionContinuationPolicyV1 {
+                            entry: Some(&self.body.entry),
+                            inherited,
+                            forwarded_dynamic_carrier: Some((carrier, CarrierHandoffV1::LocalOrArgument)),
+                            ..Default::default()
+                        },
                     )
             }
         }

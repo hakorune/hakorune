@@ -95,7 +95,7 @@ fn original_main_object_return_matrix_preserves_source_cleanup_and_finished_refu
                                     .is_ok_and(|prefix| prefix.destination() == binding.binding())
                             })
                             .unwrap()
-                            .object()
+                            .core().object()
                     })
                     .collect();
                 let main = package
@@ -363,9 +363,9 @@ fn object_return_actual_instance_matrix_preserves_normal_fault_and_finished_bind
                 let object = ledger
                     .pending_result_claims_for_test()
                     .values()
-                    .find(|claim| claim.class() == "Token")
+                    .find(|claim| claim.core().class() == "Token")
                     .unwrap()
-                    .object();
+                    .core().object();
                 let fields: Vec<_> = ledger
                     .owned_field_children_for(object)
                     .flatten()

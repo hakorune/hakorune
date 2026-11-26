@@ -127,14 +127,13 @@ impl ExpressionEmissionV1<Rc<CheckedPrintExpressionFrameV1>> {
         function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
-        self.expression().validate_paths_to_terminal(
+        self.expression().validate_continuation_v1(
             context,
             function,
             finishing,
             &self.terminal,
             &self.continuation,
-            None,
-            None,
+            ExpressionContinuationPolicyV1::default(),
         )
     }
 

@@ -39,7 +39,7 @@ fn scope(mode: &str) -> Result<(), String> {
     )
     .map_err(|issue| format!("{issue:?}"))?;
     let mut context = CompilationContext::new();
-    let installed = package.prepare_install(&mut context).unwrap().commit();
+    let installed = package.prepare_install_with_consumer(&mut context, None).unwrap().commit();
     let ledger = installed.ordinary_new_claim_ledger();
     let mut selected = installed.begin_lowering(&context).unwrap();
     let named_arrays = selected.named_array_emission_collector();

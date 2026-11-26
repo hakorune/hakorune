@@ -489,7 +489,7 @@ impl ConstructionState {
                     let ConstructionStoreRhsV1::ProviderConstruction { arguments, .. } = &store.rhs
                         else { return Err(fault("provider-argument-source-kind")); };
                     let expected: Vec<_> = arguments.iter().filter(|argument|
-                        matches!(argument.kind(), crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::QualifiedStaticCall { .. }))
+                        matches!(argument.kind(), crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1::QualifiedStaticCall { .. }))
                         .map(|argument| argument.ordinal()).collect();
                     if !expected.iter().copied().eq(birth.call_args.iter().map(|argument| argument.ordinal)) {
                         return Err(fault("provider-argument-source-coverage"));

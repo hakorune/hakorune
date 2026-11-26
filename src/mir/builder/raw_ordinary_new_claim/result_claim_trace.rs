@@ -20,8 +20,8 @@ pub(super) fn take<E: std::fmt::Debug>(
     match result {
         Ok(Some(claim)) => eprintln!(
             "[mir-compile/result-new-take] site={site:?} class={class} arity={arity} state=claimed prefix_error={:?} argument_error={:?} construction_error={:?}",
-            claim.home_prefix().err(), claim.argument_rows().err(),
-            claim.construction().as_ref().err()
+            claim.home_prefix().err(), claim.core().argument_rows().err(),
+            claim.core().construction().as_ref().err()
         ),
         Ok(None) => eprintln!(
             "[mir-compile/result-new-take] site={site:?} class={class} arity={arity} state=absent"
@@ -36,8 +36,8 @@ pub(super) fn prepare(claim: &OrdinaryNewResultClaimV1, result: &Result<crate::m
     if crate::config::env::builder_mir_compile_trace() {
         eprintln!(
             "[mir-compile/result-new-prepare] site={:?} class={} selected={result:?}",
-            claim.site(),
-            claim.class()
+            claim.core().site(),
+            claim.core().class()
         );
     }
 }

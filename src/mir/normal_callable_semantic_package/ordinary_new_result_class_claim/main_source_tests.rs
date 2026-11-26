@@ -236,24 +236,24 @@ fn main_direct_and_received_share_original_source_outcomes_and_callee_witnesses(
     assert!(ledger.callable_result_source_v1(owner).unwrap().unwrap().borrowed_nullable().is_some());
     // Original New actual and the same borrowed evaluation survive co-seal.
     let claims = ledger.pending_claims_for_test();
-    let claim = claims.values().find(|claim| claim.site().owner() == owner && claim.core.class.as_ref() == "UserStats").unwrap();
-    assert_eq!(claim.construction().as_ref().unwrap(), plan);
+    let claim = claims.values().find(|claim| claim.core().site().owner() == owner && claim.core.class.as_ref() == "UserStats").unwrap();
+    assert_eq!(claim.core().construction().as_ref().unwrap(), plan);
     let sum = ledger.constructor_text_store_sum_v1(birth, &original.stores()[0]).unwrap();
     assert!(Rc::ptr_eq(text.text_input_v1().unwrap(), &sum));
-    let [argument] = claim.argument_rows().unwrap() else { panic!("original New actual"); };
-    let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = argument.kind()
+    let [argument] = claim.core().argument_rows().unwrap() else { panic!("original New actual"); };
+    let crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1::Expression { evaluation } = argument.kind()
         else { panic!("Text must not become a raw scalar/object argument: {:?}", argument.kind()); };
     assert!(matches!(evaluation.source().root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::NewArgument { construction, ordinal: 0, .. }
-        if construction.site() == claim.site().site() && construction.arguments().first() == Some(argument.site())));
+        if construction.site() == claim.core().site().site() && construction.arguments().first() == Some(argument.site())));
     assert!(evaluation.reference_coverage_is_exact());
     assert!(evaluation.references().values().any(|reference| matches!(reference,
         crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::FiniteEntry { .. })));
     assert!(evaluation.owned_result_nodes().is_empty());
-    let observation = crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentObservationV1::new(claim.site().clone(), Ok(vec![
+    let observation = crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentObservationV1::new(claim.core().site().clone(), Ok(vec![
         crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentV1::new(0, argument.site().clone(),
             crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentKindV1::Expression { evaluation: Rc::clone(evaluation) })].into_boxed_slice()));
     let converted = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal_helpers::convert_selected_new_arguments(observation).unwrap();
-    let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation: retained } = converted[0].kind() else { unreachable!() };
+    let crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1::Expression { evaluation: retained } = converted[0].kind() else { unreachable!() };
     assert!(Rc::ptr_eq(evaluation, retained));
 
 }

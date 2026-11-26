@@ -277,7 +277,7 @@ impl BorrowedEntryStructureV1<'_> {
         binding: BindingRefV1, source_binding: BindingRefV1, formal: BindingRefV1,
     ) -> Result<(), String> {
         let EntryStructureEvidenceV1::OriginalInputs { uses, .. } = &self.evidence else { return Err(freeze("borrowed-alias/finite-structure-required")); };
-        let mut originals = uses.initializers().iter().filter(|row| row.binding() == binding && row.declaration_site() == declaration);
+        let mut originals = uses.initializers().filter(|row| row.binding() == binding && row.declaration_site() == declaration);
         let original = originals.next().ok_or_else(|| freeze("borrowed-alias/source-copy-missing"))?;
         if originals.next().is_some() || site.owner() != self.owner || original.initializer_site() != Some(site.site())
             || self.finite_alias_formal_v1(original, Some(source_binding))? != Some(formal) {

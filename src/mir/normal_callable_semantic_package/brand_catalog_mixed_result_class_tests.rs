@@ -668,7 +668,7 @@ static box Main {
     .expect("probe fixture package");
     let ledger = &package.ordinary_new_claim_ledger;
     let claims = ledger.pending_result_claims_for_test();
-    let classes: Vec<&str> = claims.values().map(|c| c.class()).collect();
+    let classes: Vec<&str> = claims.values().map(|c| c.core().class()).collect();
     assert_eq!(
         classes,
         ["Probe"],
@@ -676,8 +676,8 @@ static box Main {
     );
     for claim in claims.values() {
         assert!(claim.home_prefix().is_ok(), "result home prefix sealed");
-        assert!(claim.construction().is_ok(), "result construction sealed");
-        assert!(claim.argument_rows().is_ok(), "result arguments sealed");
+        assert!(claim.core().construction().is_ok(), "result construction sealed");
+        assert!(claim.core().argument_rows().is_ok(), "result arguments sealed");
     }
 }
 
@@ -717,8 +717,8 @@ static box Main {
     assert_eq!(claims.len(), 1, "one `local p = new Probe(1)` claim");
     for claim in claims {
         assert!(claim.home_prefix().is_ok(), "local home prefix sealed");
-        assert!(claim.construction().is_ok(), "local construction sealed");
-        assert!(claim.argument_rows().is_ok(), "local arguments sealed");
+        assert!(claim.core().construction().is_ok(), "local construction sealed");
+        assert!(claim.core().argument_rows().is_ok(), "local arguments sealed");
     }
     let result_rows = ledger.pending_result_claims_for_test();
     let result_claims: Vec<_> = result_rows.values().collect();
@@ -729,7 +729,7 @@ static box Main {
     );
     for claim in result_claims {
         assert!(claim.home_prefix().is_ok(), "result home prefix sealed");
-        assert!(claim.construction().is_ok(), "result construction sealed");
-        assert!(claim.argument_rows().is_ok(), "result arguments sealed");
+        assert!(claim.core().construction().is_ok(), "result construction sealed");
+        assert!(claim.core().argument_rows().is_ok(), "result arguments sealed");
     }
 }

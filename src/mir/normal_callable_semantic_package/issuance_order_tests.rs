@@ -80,7 +80,7 @@ fn dynamic_lends_its_original_completion_without_owned_result_row() {
         "ordinary siblings retained"
     );
     let mut context = CompilationContext::new();
-    let installed = package.prepare_install(&mut context).unwrap().commit();
+    let installed = package.prepare_install_with_consumer(&mut context, None).unwrap().commit();
     let key = SelectedNormalCallableKeyV1::Cataloged(
         CanonicalSameModuleCallableKeyV1::test_static_box_method(
             "ParserScanLoopBox",
@@ -105,8 +105,8 @@ fn dynamic_lends_its_original_completion_without_owned_result_row() {
             ));
         });
         assert!(
-            input.physical_header().is_some(),
-            "APrime header remains available"
+            input.result_contract().unwrap().result().is_some(),
+            "APrime result remains available"
         );
     })
     .unwrap();

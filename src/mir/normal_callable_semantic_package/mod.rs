@@ -6,6 +6,8 @@
 //! consumption, physical ABI, or fallback route.
 
 mod core_method_source;
+#[cfg(test)]
+pub(crate) use core_method_source::seal_selected_core_method_rows;
 pub(crate) use core_method_source::{ExpressionCoreSourceLoanV1, FieldMapReceiverSourceV1};
 #[cfg(test)]
 mod core_method_source_tests;
@@ -80,7 +82,6 @@ mod result_contract;
 pub(crate) use result_contract::VerifiedCallableResultContractCohortV1;
 mod s6c_child;
 mod s6c_effects;
-mod s6c_storage_header;
 mod selected_mapping;
 
 /// Physical source selection belongs to the requested artifact, not to a
@@ -187,7 +188,7 @@ pub(crate) use ordinary_new_coseal::{
     LexicalInstanceCallSourceTargetV1, MapStoredResultSourceV1, MixedLocalCallSourceLoanV1,
     NewEmissionSelectionV1, NewEmissionUnavailableV1, ObjectReturnCallQualificationV1,
     OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewConstructorDispositionV1,
-    OrdinaryNewResultClaimV1, OrdinaryNewResultClassV1, OrdinaryNewTrivialArgumentKindV1,
+    OrdinaryNewResultClaimV1, OrdinaryNewResultClassV1, SelectedNewArgumentKindV1,
     OrdinaryNewTrivialArgumentV1, OwnedFieldChildKindV1, OwnedFieldChildV1,
     PreparedTerminalMapGetReturnV1, QualifiedFieldWriteReceiverV1,
     QualifiedStaticCallArgumentKindV1, ReceiverCallClassObservationV1, ResultExitOriginV1,
@@ -211,7 +212,6 @@ PreparedRootHomeGraphPlanV1, PreparedRootHomeOrderV1,
     PreparedStaticTerminalRootRouteV1, RootCleanupActionV1, RootHomeFaultSequencesV1,
     RootHomeReleaseOriginV1,
 };
-pub(crate) use physical_header::CallablePhysicalHeaderRefV1;
 pub(crate) use physical_signature::{
     PhysicalCallableLaneRoleV1, PhysicalCallableLaneV1, PhysicalCallableSignatureRowRefV1,
 };

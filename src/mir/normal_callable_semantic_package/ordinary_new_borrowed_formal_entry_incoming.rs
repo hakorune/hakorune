@@ -391,7 +391,7 @@ impl OrdinaryNewClaimLedgerV1 {
         uses: &super::super::borrowed_formal_uses::OriginalFormalUseSourceV1,
         covered: &mut BTreeSet<(crate::mir::resolved_semantics::SourceExprSiteV1, BindingRefV1)>,
     ) -> Result<(), String> {
-        use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1 as ArgumentKind;
+        use crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1 as ArgumentKind;
         use crate::mir::resolved_semantics::ResolvedLexicalRefV1;
         self.visit_new_input_arguments_v1(owner, &mut |argument| {
             match argument.kind() {
@@ -562,7 +562,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(in crate::mir::normal_callable_semantic_package) fn finite_new_argument_domain_v1(
         &self, argument: &crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentV1,
     ) -> Result<Option<(BindingRefV1, BorrowedFormalDomainV1)>, String> {
-        use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1 as Kind;
+        use crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1 as Kind;
         let binding = match argument.kind() {
             Kind::Local { binding } | Kind::Handle { binding } | Kind::BoundValue { binding } => *binding,
             _ => return Ok(None),

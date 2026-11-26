@@ -18,13 +18,13 @@ fn reclaim_rejects_coordinated_duplicate_field_cleanup_after_healthy_control() {
     let [claim] = claims.as_slice() else {
         panic!("one root claim")
     };
-    let site = claim.site().clone();
+    let site = claim.core().site().clone();
     let destination = claim.home_prefix().unwrap().destination();
-    let child = claim.construction().as_ref().unwrap().stores()[0].field();
+    let child = claim.core().construction().as_ref().unwrap().stores()[0].field();
     let ConstructionStoreRhsV1::ProviderConstruction {
         object: Some(child_object),
         ..
-    } = claim.construction().as_ref().unwrap().stores()[0].rhs()
+    } = claim.core().construction().as_ref().unwrap().stores()[0].rhs()
     else {
         panic!("owned child")
     };
@@ -83,7 +83,7 @@ fn reclaim_rejects_coordinated_duplicate_field_cleanup_after_healthy_control() {
         invoke_block: BasicBlockId(0),
         dst: result,
     };
-    let OrdinaryNewConstructorDispositionV1::Birth(recipe) = claim.constructor() else {
+    let OrdinaryNewConstructorDispositionV1::Birth(recipe) = claim.into_core().constructor() else {
         panic!("Birth")
     };
     let call = crate::mir::instruction::BirthInvokeV1::from_value_arguments(

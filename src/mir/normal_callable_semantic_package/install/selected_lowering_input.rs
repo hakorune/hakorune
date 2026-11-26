@@ -1,7 +1,7 @@
 use crate::mir::builder::SelectedNormalCallableKeyV1;
 
 use super::{
-    CallablePhysicalHeaderRefV1, CallableResultContractRefV1,
+    CallableResultContractRefV1,
     InstalledNormalCallableSemanticPackageV1, NormalCallableDynamicProjectionV1,
     NormalCallableSemanticPackageInstallIssueV1, SelectedCallableLoweringInputRefV1,
     SelectedCallableSemanticRefV1,
@@ -60,8 +60,7 @@ impl InstalledNormalCallableSemanticPackageV1 {
             }
             _ => SelectedCallableSemanticRefV1::Ordinary,
         };
-        let lend = |result_contract: Option<CallableResultContractRefV1<'_>>,
-                    physical_header: Option<CallablePhysicalHeaderRefV1<'_>>| {
+        let lend = |result_contract: Option<CallableResultContractRefV1<'_>>| {
             self.batch
                 .with_lowering_input_and_source_identity(batch_slot, |source, source_identity| {
                     if result_contract.is_some_and(|contract| contract.owner() != source.owner()) {
@@ -85,7 +84,6 @@ impl InstalledNormalCallableSemanticPackageV1 {
                         source,
                         parameter_contracts: parameters,
                         block_expr_expectation,
-                        physical_header,
                         result_contract,
                         semantic,
                         source_identity,
@@ -123,8 +121,7 @@ impl InstalledNormalCallableSemanticPackageV1 {
                         authority.completion(),
                         &terminal_relations, None,
                     );
-                    let header = CallablePhysicalHeaderRefV1::from_result_contract(contract);
-                    lend(Some(contract), header)
+                    lend(Some(contract))
                 });
             }
         }
@@ -161,7 +158,6 @@ impl InstalledNormalCallableSemanticPackageV1 {
             }
             SelectedNormalCallableKeyV1::TopLevel(_) => None,
         };
-        let physical_header = self.physical_header.row(batch_slot, &self.result_contracts);
-        lend(result_contract, physical_header)
+        lend(result_contract)
     }
 }

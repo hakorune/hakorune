@@ -113,8 +113,8 @@ fn retained_unavailable_claim_releases_staged_argument_reads() {
         .try_take_result(&site, "Leaf", 1)
         .expect("result take")
         .expect("result claim present");
-    assert!(claim.argument_rows().is_ok(), "the same field argument remains staged");
-    assert_eq!(claim.construction().is_ok(), ready, "only runtime Birth arithmetic remains unsupported");
+    assert!(claim.core().argument_rows().is_ok(), "the same field argument remains staged");
+    assert_eq!(claim.core().construction().is_ok(), ready, "only runtime Birth arithmetic remains unsupported");
     let prepared = ledger.prepare_result_new_emission(&claim).unwrap().is_ok();
     if ready {
         assert!(prepared, "the supported Unit statement no longer declines the claim");

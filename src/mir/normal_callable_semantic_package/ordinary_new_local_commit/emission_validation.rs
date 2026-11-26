@@ -11,7 +11,7 @@ impl OrdinaryNewClaimLedgerV1 {
         site: &OwnedExprSiteV1,
         received: &CallReceivedCommitV1,
     ) -> bool {
-        use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1;
+        use crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1;
 
         if received.owner != site.owner() || received.binding.owner() != site.owner() {
             return false;
@@ -52,7 +52,7 @@ impl OrdinaryNewClaimLedgerV1 {
             for argument in arguments.iter() {
                 if argument.owner() != site.owner()
                     || argument.new_site() != parent_site
-                    || !matches!(argument.kind(), OrdinaryNewTrivialArgumentKindV1::BoundValue { binding }
+                    || !matches!(argument.kind(), SelectedNewArgumentKindV1::BoundValue { binding }
                         if *binding == received.binding)
                 {
                     continue;
@@ -523,11 +523,11 @@ impl OrdinaryNewClaimLedgerV1 {
         source: &super::super::OrdinaryNewTrivialArgumentV1,
         value: crate::mir::ValueId,
     ) -> Result<(), String> {
-        use super::super::OrdinaryNewTrivialArgumentKindV1;
+        use super::super::SelectedNewArgumentKindV1;
 
         let matching = match source.kind() {
-            OrdinaryNewTrivialArgumentKindV1::Expression { .. } => 0,
-            OrdinaryNewTrivialArgumentKindV1::Integer(expected) => function
+            SelectedNewArgumentKindV1::Expression { .. } => 0,
+            SelectedNewArgumentKindV1::Integer(expected) => function
                 .blocks
                 .values()
                 .flat_map(|block| block.all_instructions())
@@ -538,7 +538,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     } if *dst == value && actual == expected)
                 })
                 .count(),
-            OrdinaryNewTrivialArgumentKindV1::Bool(expected) => function
+            SelectedNewArgumentKindV1::Bool(expected) => function
                 .blocks
                 .values()
                 .flat_map(|block| block.all_instructions())
@@ -549,7 +549,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     } if *dst == value && actual == expected)
                 })
                 .count(),
-            OrdinaryNewTrivialArgumentKindV1::Null => function
+            SelectedNewArgumentKindV1::Null => function
                 .blocks
                 .values()
                 .flat_map(|block| block.all_instructions())
@@ -566,7 +566,7 @@ impl OrdinaryNewClaimLedgerV1 {
             // the sealed row: exactly one invoke carries the sealed global
             // target with literal-only actuals in source order, and its
             // normal landing owns the projection.
-            OrdinaryNewTrivialArgumentKindV1::QualifiedStaticCall { target, arguments } => {
+            SelectedNewArgumentKindV1::QualifiedStaticCall { target, arguments } => {
                 let global = target
                     .canonical_global_target_v1()
                     .map_err(|_| freeze("argument-call-target"))?;
@@ -651,10 +651,10 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             // `I64Field` emits an `ObjectFieldGet` — the argument field-read
             // ledger, not a literal shape, validates that emission.
-            OrdinaryNewTrivialArgumentKindV1::Local { .. }
-            | OrdinaryNewTrivialArgumentKindV1::Handle { .. }
-            | OrdinaryNewTrivialArgumentKindV1::BoundValue { .. }
-            | OrdinaryNewTrivialArgumentKindV1::I64Field { .. } => return Ok(()),
+            SelectedNewArgumentKindV1::Local { .. }
+            | SelectedNewArgumentKindV1::Handle { .. }
+            | SelectedNewArgumentKindV1::BoundValue { .. }
+            | SelectedNewArgumentKindV1::I64Field { .. } => return Ok(()),
         };
         if matching != 1 {
             return Err(freeze("argument-literal-drift"));

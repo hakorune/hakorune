@@ -61,107 +61,29 @@ impl OrdinaryNewClaimCoreV1 {
 }
 
 impl OrdinaryNewAdmissionClaimV1 {
-    pub(crate) fn execution_profile(&self) -> Result<NewExecutionProfileRefV1<'_>, ConstructionUnavailableV1> {
-        self.core.execution_profile()
+    pub(crate) fn core(&self) -> &OrdinaryNewClaimCoreV1 {
+        &self.core
     }
 
-    pub(crate) fn object(&self) -> CanonicalObjectIdV1 {
-        self.core.object()
-    }
-
-    pub(crate) fn destruction(&self) -> ObjectDestructionDispositionV1 {
-        self.core.destruction()
-    }
-
-    pub(crate) fn construction(&self) -> &ConstructionEligibilityV1 {
-        self.core.construction()
-    }
-
-    pub(crate) fn construction_source(&self) -> &ConstructionSourceEligibilityV1 {
-        self.core.construction_source()
-    }
-
-    pub(crate) fn box_source(&self) -> &crate::parser::ParserOrdinaryBoxSourceRowV1 {
-        self.core.box_source()
-    }
-
-    pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
-        self.core.site()
-    }
-
-    pub(crate) fn class(&self) -> &str {
-        self.core.class()
-    }
-
-    pub(crate) const fn arity(&self) -> usize {
-        self.core.arity()
-    }
-
-    pub(crate) fn constructor(self) -> OrdinaryNewConstructorDispositionV1 {
-        self.core.constructor()
+    pub(crate) fn into_core(self) -> OrdinaryNewClaimCoreV1 {
+        self.core
     }
 
     pub(crate) fn home_prefix(&self) -> Result<&CallerNewHomePrefixV1, &HomePrefixUnavailableV1> {
         self.home_prefix.as_ref()
     }
-
-    pub(crate) fn argument_rows(
-        &self,
-    ) -> Result<
-        &[super::OrdinaryNewTrivialArgumentV1],
-        &crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1,
-    > {
-        self.core.argument_rows()
-    }
-
-    pub(crate) fn children(&self) -> Option<&[OwnedFieldChildV1]> {
-        self.core.children()
-    }
 }
 
 impl OrdinaryNewResultClaimV1 {
-    pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
-        self.core.site()
+    pub(crate) fn core(&self) -> &OrdinaryNewClaimCoreV1 {
+        &self.core
     }
 
-    pub(crate) fn class(&self) -> &str {
-        self.core.class()
-    }
-
-    pub(crate) const fn arity(&self) -> usize {
-        self.core.arity()
-    }
-
-    pub(crate) fn object(&self) -> CanonicalObjectIdV1 {
-        self.core.object()
-    }
-
-    pub(crate) fn construction(&self) -> &ConstructionEligibilityV1 {
-        self.core.construction()
-    }
-
-    pub(crate) fn construction_source(&self) -> &ConstructionSourceEligibilityV1 {
-        self.core.construction_source()
-    }
-
-    pub(crate) fn box_source(&self) -> &crate::parser::ParserOrdinaryBoxSourceRowV1 {
-        self.core.box_source()
-    }
-
-    pub(crate) fn constructor(self) -> OrdinaryNewConstructorDispositionV1 {
-        self.core.constructor()
+    pub(crate) fn into_core(self) -> OrdinaryNewClaimCoreV1 {
+        self.core
     }
 
     pub(crate) fn home_prefix(&self) -> Result<&ResultNewHomePrefixV1, &HomePrefixUnavailableV1> {
         self.home_prefix.as_ref()
-    }
-
-    pub(crate) fn argument_rows(
-        &self,
-    ) -> Result<
-        &[super::OrdinaryNewTrivialArgumentV1],
-        &crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1,
-    > {
-        self.core.argument_rows()
     }
 }

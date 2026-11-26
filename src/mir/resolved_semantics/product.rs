@@ -41,8 +41,8 @@ pub(crate) struct ResolvedFunctionDataV1 {
     pub(crate) scopes: BTreeMap<ScopeId, ResolvedScopeRecordV1>,
     pub(crate) regions: BTreeMap<RegionId, ResolvedRegionRecordV1>,
     pub(crate) declarations: BTreeMap<SourceBindingSiteV1, BindingRefV1>,
-    pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, ResolvedLexicalRefV1>,
-    pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ResolvedAssignmentTargetV1>,
+    pub(crate) variable_uses: std::rc::Rc<BTreeMap<SourceExprSiteV1, ResolvedLexicalRefV1>>,
+    pub(crate) assignment_targets: std::rc::Rc<BTreeMap<SourceExprSiteV1, ResolvedAssignmentTargetV1>>,
     pub(crate) direct_call_targets: BTreeMap<SourceExprSiteV1, ResolvedDirectCallTargetV1>,
     pub(crate) direct_call_observations:
         BTreeMap<SourceExprSiteV1, ResolvedDirectCallObservationV1>,

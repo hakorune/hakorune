@@ -63,14 +63,15 @@ struct Fixture {
 fn fixture() -> Fixture {
     let mut context = CompilationContext::new();
     let installed = package()
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .expect("package install")
         .commit();
     let mut port = installed.begin_lowering(&context).expect("lowering loan");
     let key = SelectedNormalCallableKeyV1::Cataloged(
         CanonicalSameModuleCallableKeyV1::test_static_box_method("Scan", "run", 0),
     );
-    port.with_selected_lowering_input_and_core_methods(&key, |input, rows, _| {
+    let rows = port.take_source_core_method_calls(&key);
+    port.with_selected_lowering_input(&key, |input| {
         let push_site = rows
             .iter()
             .find(|(_, row)| row.contract().named_array_requirement().is_some())
@@ -117,7 +118,7 @@ fn fixture() -> Fixture {
         let entry = PreparedCallableEntryValuesV1::static_function(&builder, 0)
             .expect("static entry values");
         state.install_entry_values(&entry).expect("entry install");
-        Ok(Fixture { state, push_site })
+        Fixture { state, push_site }
     })
     .expect("selected named-array loan")
 }

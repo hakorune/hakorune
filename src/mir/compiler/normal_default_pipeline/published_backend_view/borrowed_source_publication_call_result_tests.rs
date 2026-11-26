@@ -430,7 +430,7 @@ fn owned_call_results_publish_original_child_handle_contracts() {
                         if actual.owner() != owner
                             || actual.target().mir_symbol_projection() != "HakoAllocHandleResult.birth/3" { continue; }
                         let Some(argument) = actual.arguments().iter().find(|arg| arg.source().ordinal() == 2
-                            && matches!(arg.source().kind(), crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::BoundValue { .. }))
+                            && matches!(arg.source().kind(), crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1::BoundValue { .. }))
                             else { continue };
                         assert_eq!(source.received_birth_actual_result_v1(actual, 2, function)?, Some(expected));
                         let drift = actual.with_argument_value_for_test(2, crate::mir::ValueId::new(9999));

@@ -62,7 +62,7 @@ fn main_static_child_cannot_use_generic_key_only_admission() {
     let package = issue(&main_fixture()).expect("valid source-backed Main expansion");
     let mut context = CompilationContext::new();
     let installed = package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .expect("vacant catalog slot")
         .commit();
     let mut port = installed

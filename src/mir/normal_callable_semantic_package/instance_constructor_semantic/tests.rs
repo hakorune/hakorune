@@ -122,10 +122,10 @@ fn definition_transfer_rejects_foreign_context_and_missing_empty_payload() {
     let issue =
         || super::super::brand_catalog_tests::issue_with_brand_catalog("box Empty {}").unwrap();
     let mut own_context = CompilationContext::new();
-    let own = issue().prepare_install(&mut own_context).unwrap().commit();
+    let own = issue().prepare_install_with_consumer(&mut own_context, None).unwrap().commit();
     let mut foreign_context = CompilationContext::new();
     let _foreign = issue()
-        .prepare_install(&mut foreign_context)
+        .prepare_install_with_consumer(&mut foreign_context, None)
         .unwrap()
         .commit();
     let mut port = own.begin_lowering(&own_context).unwrap();
@@ -142,7 +142,7 @@ fn definition_transfer_rejects_foreign_context_and_missing_empty_payload() {
 
     let mut pending_context = CompilationContext::new();
     let pending = issue()
-        .prepare_install(&mut pending_context)
+        .prepare_install_with_consumer(&mut pending_context, None)
         .unwrap()
         .commit();
     assert_eq!(

@@ -38,18 +38,18 @@ fn key() -> SelectedNormalCallableKeyV1 {
 #[test]
 fn selected_loan_retains_canonical_caller_and_exact_source_owner() {
     let mut context = CompilationContext::new();
-    let installed = package().prepare_install(&mut context).unwrap().commit();
+    let installed = package().prepare_install_with_consumer(&mut context, None).unwrap().commit();
     let mut port = installed.begin_lowering(&context).unwrap();
     let mut count = 0;
-    port.with_selected_lowering_input_and_core_methods(&key(), |input, rows, _| {
+    let rows = port.take_source_core_method_calls(&key());
+    port.with_selected_lowering_input(&key(), |input| {
         count = rows.len();
         for (site, row) in rows {
-            row.require_selected(input.selected_key(), input.source().owner())?;
+            row.require_selected(input.selected_key(), input.source().owner()).unwrap();
             assert_eq!(&site, row.contract().call_site());
             let contract = row.contract();
             assert_eq!(contract.owner(), input.source().owner());
         }
-        Ok(())
     })
     .unwrap();
     assert_eq!(
@@ -57,16 +57,17 @@ fn selected_loan_retains_canonical_caller_and_exact_source_owner() {
         "length and substring must both cross the package loan"
     );
     assert!(port
-        .with_selected_lowering_input_and_core_methods(&key(), |_, _, _| Ok(()))
+        .with_selected_lowering_input(&key(), |_| ())
         .is_err());
 }
 
 #[test]
 fn canonical_caller_substitution_is_rejected() {
     let mut context = CompilationContext::new();
-    let installed = package().prepare_install(&mut context).unwrap().commit();
+    let installed = package().prepare_install_with_consumer(&mut context, None).unwrap().commit();
     let mut port = installed.begin_lowering(&context).unwrap();
-    port.with_selected_lowering_input_and_core_methods(&key(), |input, rows, _| {
+    let rows = port.take_source_core_method_calls(&key());
+    port.with_selected_lowering_input(&key(), |input| {
         assert_eq!(rows.len(), 2);
         let foreign = SelectedNormalCallableKeyV1::Cataloged(
             CanonicalSameModuleCallableKeyV1::test_static_box_method("Other", "run", 1),
@@ -78,7 +79,6 @@ fn canonical_caller_substitution_is_rejected() {
                 "[freeze:contract][named-array/selected-source-mismatch]"
             );
         }
-        Ok(())
     })
     .unwrap();
 }
@@ -87,34 +87,29 @@ fn canonical_caller_substitution_is_rejected() {
 fn same_key_from_another_package_cannot_supply_source_owner() {
     let mut first_context = CompilationContext::new();
     let first = package()
-        .prepare_install(&mut first_context)
+        .prepare_install_with_consumer(&mut first_context, None)
         .unwrap()
         .commit();
     let mut second_context = CompilationContext::new();
     let second = package()
-        .prepare_install(&mut second_context)
+        .prepare_install_with_consumer(&mut second_context, None)
         .unwrap()
         .commit();
     let mut first_port = first.begin_lowering(&first_context).unwrap();
     let mut second_port = second.begin_lowering(&second_context).unwrap();
-    first_port
-        .with_selected_lowering_input_and_core_methods(&key(), |_, rows, _| {
-            assert_eq!(rows.len(), 2);
-            second_port
-                .with_selected_lowering_input_and_core_methods(&key(), |input, _, _| {
-                    for row in rows.values() {
-                        assert_eq!(
-                            row.require_selected(input.selected_key(), input.source().owner())
-                                .unwrap_err(),
-                            "[freeze:contract][named-array/selected-source-mismatch]"
-                        );
-                    }
-                    Ok(())
-                })
-                .unwrap();
-            Ok(())
-        })
-        .unwrap();
+    let rows = first_port.take_source_core_method_calls(&key());
+    assert_eq!(rows.len(), 2);
+    first_port.with_selected_lowering_input(&key(), |_| {
+        second_port.with_selected_lowering_input(&key(), |input| {
+            for row in rows.values() {
+                assert_eq!(
+                    row.require_selected(input.selected_key(), input.source().owner())
+                        .unwrap_err(),
+                    "[freeze:contract][named-array/selected-source-mismatch]"
+                );
+            }
+        }).unwrap();
+    }).unwrap();
 }
 
 type GetRows = BTreeMap<
@@ -293,10 +288,11 @@ static box Scan {{
         CanonicalSameModuleCallableKeyV1::test_static_box_method("Scan", "run", arity),
     );
     let mut context = CompilationContext::new();
-    let installed = package.prepare_install(&mut context).unwrap().commit();
+    let installed = package.prepare_install_with_consumer(&mut context, None).unwrap().commit();
     let mut port = installed.begin_lowering(&context).unwrap();
     let mut rows = Vec::new();
-    port.with_selected_lowering_input_and_core_methods(&key, |_, source_rows, _| {
+    let source_rows = port.take_source_core_method_calls(&key);
+    port.with_selected_lowering_input(&key, |_| {
         for (_, row) in source_rows {
             let contract = row.contract();
             rows.push((
@@ -306,7 +302,6 @@ static box Scan {{
                 contract.target().result(),
             ));
         }
-        Ok(())
     })
     .map_err(|error| format!("{error:?}"))?;
     Ok(rows)

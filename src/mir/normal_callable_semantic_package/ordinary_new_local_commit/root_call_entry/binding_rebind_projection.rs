@@ -240,16 +240,19 @@ impl ExpressionEmissionV1<BindingRebindExpressionContractV1> {
             Some(unwind) => expression.with_prior_home_unwind(unwind),
             None => expression,
         };
-        let covered = expression.validate_residence_continuation_v1(
+        let covered = expression.validate_continuation_v1(
             context,
             function,
             finishing,
-            &self.entry,
             &self.terminal,
             &self.continuation,
-            self.contract.install.as_ref(),
-            displaced.as_ref(),
-            self.contract.purpose_acquisition.as_ref(),
+            ExpressionContinuationPolicyV1 {
+                entry: Some(&self.entry),
+                residence: self.contract.install.as_ref(),
+                displaced: displaced.as_ref(),
+                purpose_acquisition: self.contract.purpose_acquisition.as_ref(),
+                ..Default::default()
+            },
         )?;
         Ok(covered)
     }

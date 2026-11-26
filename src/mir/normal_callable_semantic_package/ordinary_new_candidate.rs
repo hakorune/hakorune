@@ -339,7 +339,7 @@ pub(super) fn validate_take_actuals_v1(
                 && argument.explicit_move()
                 && matches!(
                     argument.kind(),
-                    OrdinaryNewTrivialArgumentKindV1::Handle { .. }
+                    SelectedNewArgumentKindV1::Handle { .. }
                 )
         });
         if !moved {

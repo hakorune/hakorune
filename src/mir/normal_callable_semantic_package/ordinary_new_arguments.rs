@@ -7,62 +7,16 @@ use super::result_class_claim::SourceConstructionChildRelationV1;
 use crate::mir::resolved_semantics::{BindingRefV1, OwnedExprSiteV1, SourceExprSiteV1};
 use std::rc::Rc;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) enum OrdinaryNewTrivialArgumentKindV1 {
-    Integer(i64),
-    Bool(bool),
-    /// The exact source `null` literal.
-    Null,
-    Local {
-        binding: BindingRefV1,
-    },
-    Handle {
-        binding: BindingRefV1,
-    },
-    /// A binding produced by an inventoried call expression (source
-    /// provenance only; no scalar/rooted-storage class is claimed).
-    BoundValue {
-        binding: BindingRefV1,
-    },
-    /// A proven `i64` field read: the exact read site on this row keys
-    /// the staged issuer proof; `object` is the receiver expression's
-    /// lexical binding.
-    I64Field {
-        object: BindingRefV1,
-    },
-    /// SAME qualified original New actual; kept distinct from raw scalar or
-    /// object bindings until complete Text/Birth transport is verified.
-    Expression { evaluation: Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1> },
-    /// A proven `Alias.m(..)` qualified static-box call: the sealed claim
-    /// row proves the `StaticBoxMethod` target and its `ExactI64` result
-    /// disposition; `arguments` are the callee's sealed literal actuals in
-    /// source order. Only the provider-`new` argument arm inside a Birth
-    /// plan seals this shape — the `local x = new` argument inventory
-    /// never produces it.
-    QualifiedStaticCall {
-        target: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
-        arguments: Box<[QualifiedStaticCallArgumentKindV1]>,
-    },
-}
-
-/// One sealed literal actual of a qualified static-call provider argument.
-/// The claim's required-i64 ordinals were discharged at seal time; this
-/// row keeps only the value the emitter materializes once.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) enum QualifiedStaticCallArgumentKindV1 {
-    Integer(i64),
-    Bool(bool),
-}
+pub(crate) use crate::mir::resolved_semantics::home_new_prefix::{
+    QualifiedStaticCallArgumentKindV1, SelectedNewArgumentKindV1,
+};
+use crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentV1;
 
 #[derive(Debug, Clone)]
 pub(crate) struct OrdinaryNewTrivialArgumentV1 {
     owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     new_site: OwnedExprSiteV1,
-    ordinal: u32,
-    site: SourceExprSiteV1,
-    kind: OrdinaryNewTrivialArgumentKindV1,
-    /// The source actual is written `move x` (a `take` formal requires it).
-    explicit_move: bool,
+    source: SelectedNewArgumentV1,
     /// Original actual/formal/field provenance only, never a Home grant.
     child_relations: Box<[Rc<SourceConstructionChildRelationV1>]>,
     field_array_read: Option<Rc<ArgumentFieldArrayReadSourceV1>>,
@@ -72,11 +26,11 @@ impl PartialEq for OrdinaryNewTrivialArgumentV1 {
     fn eq(&self, other: &Self) -> bool {
         self.owner == other.owner
             && self.new_site == other.new_site
-            && self.ordinal == other.ordinal
-            && self.site == other.site
-            && match (&self.kind, &other.kind) {
-                (OrdinaryNewTrivialArgumentKindV1::Expression { evaluation: a }, OrdinaryNewTrivialArgumentKindV1::Expression { evaluation: b }) => Rc::ptr_eq(a, b),
-                _ => self.kind == other.kind,
+            && self.ordinal() == other.ordinal()
+            && self.site() == other.site()
+            && match (self.kind(), other.kind()) {
+                (SelectedNewArgumentKindV1::Expression { evaluation: a }, SelectedNewArgumentKindV1::Expression { evaluation: b }) => Rc::ptr_eq(a, b),
+                _ => self.kind() == other.kind(),
             }
             && match (&self.field_array_read, &other.field_array_read) {
                 (None, None) => true, (Some(a), Some(b)) => Rc::ptr_eq(a, b), _ => false,
@@ -97,26 +51,32 @@ impl OrdinaryNewTrivialArgumentV1 {
         new_site: OwnedExprSiteV1,
         ordinal: u32,
         site: SourceExprSiteV1,
-        kind: OrdinaryNewTrivialArgumentKindV1,
+        kind: SelectedNewArgumentKindV1,
+    ) -> Self {
+        Self::from_resolved(new_site, owner, SelectedNewArgumentV1::new(ordinal, site, kind))
+    }
+
+    pub(super) fn from_resolved(
+        new_site: OwnedExprSiteV1,
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        source: SelectedNewArgumentV1,
     ) -> Self {
         Self {
             owner,
             new_site,
-            ordinal,
-            site,
-            kind,
-            explicit_move: false,
+            source,
             child_relations: Box::new([]),
             field_array_read: None,
         }
     }
 
     pub(crate) fn with_explicit_move(mut self, explicit_move: bool) -> Self {
-        self.explicit_move = explicit_move;
+        self.source = self.source.with_explicit_move(explicit_move);
         self
     }
+
     pub(crate) const fn explicit_move(&self) -> bool {
-        self.explicit_move
+        self.source.explicit_move()
     }
 
     pub(crate) const fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
@@ -126,13 +86,13 @@ impl OrdinaryNewTrivialArgumentV1 {
         &self.new_site
     }
     pub(crate) const fn ordinal(&self) -> u32 {
-        self.ordinal
+        self.source.ordinal()
     }
     pub(crate) fn site(&self) -> &SourceExprSiteV1 {
-        &self.site
+        self.source.site()
     }
-    pub(crate) fn kind(&self) -> &OrdinaryNewTrivialArgumentKindV1 {
-        &self.kind
+    pub(crate) fn kind(&self) -> &SelectedNewArgumentKindV1 {
+        self.source.kind()
     }
 
     pub(crate) fn child_relations(&self) -> &[Rc<SourceConstructionChildRelationV1>] {
@@ -169,7 +129,7 @@ impl OrdinaryNewTrivialArgumentV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn retain_field_array_read(
         &mut self, read: Rc<ArgumentFieldArrayReadSourceV1>,
     ) -> Result<(), String> {
-        if !matches!(self.kind, OrdinaryNewTrivialArgumentKindV1::Local { binding } if binding == read.binding)
+        if !matches!(self.kind(), SelectedNewArgumentKindV1::Local { binding } if *binding == read.binding)
             || self.owner != read.read.call().owner() || self.field_array_read.is_some() {
             return Err("[freeze:contract][named-array/argument-source-drift]".into());
         }

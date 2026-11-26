@@ -164,7 +164,7 @@ fn collect_index_validation_requirements(
         draft.record_expression(row.else_block().clone());
         draft.record_expression(row.else_tail().clone());
     }
-    for (site, target) in &data.assignment_targets {
+    for (site, target) in data.assignment_targets.iter() {
         draft.record_expression(site.clone());
         if let ResolvedAssignmentTargetV1::FieldWrite { receiver }
         | ResolvedAssignmentTargetV1::IndexWrite { receiver } = target

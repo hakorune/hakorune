@@ -715,7 +715,7 @@ fn static_entry_installed_loan_retains_all_actuals_and_physical_source() {
     let completion = Rc::clone(ledger.completion_index[&owner].as_ref().unwrap());
     assert_eq!(completion.owner(), owner);
     let mut context = crate::mir::builder::CompilationContext::new();
-    let installed = package.prepare_install(&mut context).unwrap().commit();
+    let installed = package.prepare_install_with_consumer(&mut context, None).unwrap().commit();
     installed
         .begin_lowering(&context)
         .unwrap()

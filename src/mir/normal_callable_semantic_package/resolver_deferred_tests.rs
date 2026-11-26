@@ -497,7 +497,7 @@ fn app_main_qualified_receiver_package_port_is_one_shot() {
 
     let mut context = CompilationContext::new();
     let installed = package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .expect("vacant catalog slot")
         .commit();
     let mut port = installed
@@ -525,7 +525,7 @@ fn app_main_without_qualified_receiver_is_unavailable_but_still_one_shot() {
         .expect("plain App Main package");
     let mut context = CompilationContext::new();
     let installed = package
-        .prepare_install(&mut context)
+        .prepare_install_with_consumer(&mut context, None)
         .expect("vacant catalog slot")
         .commit();
     let mut port = installed

@@ -6,7 +6,7 @@
 
 use super::{
     OrdinaryNewCoSealIssueV1, OrdinaryNewConstructorDispositionV1,
-    OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1,
+    OrdinaryNewTrivialArgumentV1,
 };
 use crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1;
 use crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1;
@@ -19,32 +19,21 @@ use crate::mir::resolved_semantics::{OwnedExprSiteV1, SourcePathSegmentV1};
 pub(super) fn convert_selected_new_arguments(
     observation: SelectedNewArgumentObservationV1,
 ) -> Result<Box<[OrdinaryNewTrivialArgumentV1]>, SelectedNewArgumentUnavailableV1> {
-    let rows = observation.arguments().map_err(Clone::clone)?;
-    rows.iter().map(|row| {
-        let kind = match row.kind() {
-            SelectedNewArgumentKindV1::Integer(value) => OrdinaryNewTrivialArgumentKindV1::Integer(*value),
-            SelectedNewArgumentKindV1::Bool(value) => OrdinaryNewTrivialArgumentKindV1::Bool(*value),
-            SelectedNewArgumentKindV1::Null => OrdinaryNewTrivialArgumentKindV1::Null,
-            SelectedNewArgumentKindV1::Local { binding } => OrdinaryNewTrivialArgumentKindV1::Local { binding: *binding },
-            SelectedNewArgumentKindV1::Handle { binding } => OrdinaryNewTrivialArgumentKindV1::Handle { binding: *binding },
-            SelectedNewArgumentKindV1::BoundValue { binding } => OrdinaryNewTrivialArgumentKindV1::BoundValue { binding: *binding },
-            SelectedNewArgumentKindV1::I64Field { object } => OrdinaryNewTrivialArgumentKindV1::I64Field { object: *object },
-            SelectedNewArgumentKindV1::Expression { evaluation } => {
-                if evaluation.source().owner() != observation.new_site().owner()
-                    || !evaluation.reference_coverage_is_exact()
-                    || !matches!(evaluation.source().root(),
-                        crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::NewArgument { construction, ordinal, .. }
-                            if construction.site() == observation.new_site().site() && *ordinal == row.ordinal()
-                                && construction.arguments().get(*ordinal as usize) == Some(row.site()))
-                    || evaluation.source().nodes().first().is_none_or(|node| node.site() != row.site()) {
-                    return Err(SelectedNewArgumentUnavailableV1::SourceMismatch { new_site: observation.new_site().clone() });
-                }
-                OrdinaryNewTrivialArgumentKindV1::Expression { evaluation: std::rc::Rc::clone(evaluation) }
+    let (new_site, rows) = observation.into_parts();
+    let owner = new_site.owner();
+    rows?.into_vec().into_iter().map(|row| {
+        if let SelectedNewArgumentKindV1::Expression { evaluation } = row.kind() {
+            if evaluation.source().owner() != owner
+                || !evaluation.reference_coverage_is_exact()
+                || !matches!(evaluation.source().root(),
+                    crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::NewArgument { construction, ordinal, .. }
+                        if construction.site() == new_site.site() && *ordinal == row.ordinal()
+                            && construction.arguments().get(*ordinal as usize) == Some(row.site()))
+                || evaluation.source().nodes().first().is_none_or(|node| node.site() != row.site()) {
+                return Err(SelectedNewArgumentUnavailableV1::SourceMismatch { new_site: new_site.clone() });
             }
-        };
-        Ok(OrdinaryNewTrivialArgumentV1::new(observation.new_site().owner(),
-            observation.new_site().clone(), row.ordinal(), row.site().clone(), kind)
-            .with_explicit_move(row.explicit_move()))
+        }
+        Ok(OrdinaryNewTrivialArgumentV1::from_resolved(new_site.clone(), owner, row))
     }).collect()
 }
 
@@ -182,7 +171,7 @@ pub(super) fn validate_selected_new_argument_contracts_v1(
         return Ok(());
     };
     for row in rows.iter() {
-        let OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = row.kind() else {
+        let SelectedNewArgumentKindV1::Expression { evaluation } = row.kind() else {
             continue;
         };
         if evaluation.root_class() != L::Value(V::String) {

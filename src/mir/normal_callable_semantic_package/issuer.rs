@@ -69,7 +69,6 @@ use super::physical_signature::{
 };
 use super::result_contract::CallableResultContractIssueV1;
 use super::s6c_child::{issue_s6c_semantic_child_v1, S6CSemanticChildIssueV1};
-use super::s6c_storage_header::VerifiedS6CStorageHeaderProjectionV1;
 use super::selected_mapping::{
     issue_selected_callable_batch_map_v1, SelectedCallableBatchMapIssueV1,
     VerifiedSelectedCallableBatchMapV1,
@@ -572,7 +571,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
     ordinary_new_claim_ledger
         .retain_original_parameter_contracts_v1(&parameter_contracts)
         .map_err(|_error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error })?;
-    let s6c_child = issue_s6c_semantic_child_v1(&batch, &selected, &mut completion_seeds)
+    let s6c_child_slot = issue_s6c_semantic_child_v1(&batch, &selected, &mut completion_seeds)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::S6CChild { _error: error })?;
     ordinary_new_claim_ledger
         .retain_completion_index(&completion_seeds)
@@ -586,21 +585,17 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         &ordinary_new_claim_ledger,
     )
     .map_err(|error| NormalCallableSemanticPackageIssueV1::MapReadFact { _error: error })?;
-    let s6c_storage_header = match s6c_child.as_ref() {
-        None => None,
-        Some(child) => {
-            let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) =
-                selected.key_for_batch_slot(child.batch_slot())
-            else {
-                return Err(NormalCallableSemanticPackageIssueV1::MissingS6CStorageHeader);
-            };
-            let declaration = catalog
-                .catalog()
-                .declaration(key)
-                .ok_or(NormalCallableSemanticPackageIssueV1::MissingS6CStorageHeader)?;
-            Some(VerifiedS6CStorageHeaderProjectionV1::from_catalog_declaration(declaration))
-        }
-    };
+    if let Some(slot) = s6c_child_slot {
+        let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) =
+            selected.key_for_batch_slot(slot)
+        else {
+            return Err(NormalCallableSemanticPackageIssueV1::MissingS6CStorageHeader);
+        };
+        catalog
+            .catalog()
+            .declaration(key)
+            .ok_or(NormalCallableSemanticPackageIssueV1::MissingS6CStorageHeader)?;
+    }
     let result_contracts = completion_seeds
         .seal()
         .map_err(|error| NormalCallableSemanticPackageIssueV1::ResultContract { _error: error })?;
@@ -695,8 +690,6 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         result_contracts,
         physical_signature,
         declared_instance_call_locators,
-        s6c_child,
-        s6c_storage_header,
         physical_header,
         dynamic,
         dynamic_physical_header,

@@ -1,5 +1,6 @@
 //! The existing New emission keeps exact checked read/local Copy/actual loans.
 use super::*;
+use super::root_home::ExpressionContinuationPolicyV1;
 #[path = "argument_cleanup.rs"]
 mod cleanup;
 use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
@@ -163,7 +164,7 @@ impl EmittedNewExpressionV1 {
         source: &super::super::OrdinaryNewTrivialArgumentV1,
         payload: &BirthArgumentV1,
     ) -> Result<(), String> {
-        let super::super::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } =
+        let super::super::SelectedNewArgumentKindV1::Expression { evaluation } =
             source.kind()
         else {
             return Err(freeze("argument-source-drift"));
@@ -217,26 +218,31 @@ impl EmittedNewExpressionV1 {
             .transpose()?;
         view.validate_recorded(actual.as_deref().unwrap_or(&self.original), finishing)?;
         let covered = if self.acquired.is_empty() {
-            view.validate_local_continuation_v1(
+            view.validate_continuation_v1(
                 context,
                 function,
                 finishing,
-                &self.entry,
                 &self.terminal,
                 &self.continuation,
-                None,
-                inherited,
+                ExpressionContinuationPolicyV1 {
+                    entry: Some(&self.entry),
+                    inherited,
+                    ..Default::default()
+                },
             )?
         } else {
-            view.validate_deferred_owned_continuation_v1(
+            view.validate_continuation_v1(
                 context,
                 function,
                 finishing,
-                &self.entry,
                 &self.terminal,
                 &self.continuation,
-                inherited,
-                None,
+                ExpressionContinuationPolicyV1 {
+                    entry: Some(&self.entry),
+                    inherited,
+                    defer_owned_argument: true,
+                    ..Default::default()
+                },
             )?
         };
         if finishing.is_none() {
@@ -277,11 +283,11 @@ impl EmittedNewArgumentV1 {
     }
     pub(in crate::mir) fn deferred_text_values_v1(&self) -> Result<Vec<ValueId>, String> {
         match (&self.expression, self.source.kind()) {
-            (Some(packet), super::super::OrdinaryNewTrivialArgumentKindV1::Expression { .. }) => {
+            (Some(packet), super::super::SelectedNewArgumentKindV1::Expression { .. }) => {
                 packet.require_source_v1(&self.source, &self.payload)?;
                 Ok(packet.deferred_values_v1())
             }
-            (None, super::super::OrdinaryNewTrivialArgumentKindV1::Expression { .. })
+            (None, super::super::SelectedNewArgumentKindV1::Expression { .. })
             | (Some(_), _) => Err(freeze("argument-source-drift")),
             (None, _) => {
                 self.value_only_v1()?;

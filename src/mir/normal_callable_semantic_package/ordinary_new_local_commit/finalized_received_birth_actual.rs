@@ -2,7 +2,7 @@
 //! The generic BoundValue kind itself grants no ownership or non-null claim.
 use super::*;
 use crate::mir::instruction::InvokeCallResultKind;
-use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1;
+use crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1;
 use crate::mir::normal_callable_semantic_package::instance_construction::ConstructionStoreRhsV1;
 
 impl FinalizedRootSourceHandoffV1 {
@@ -21,7 +21,7 @@ impl FinalizedRootSourceHandoffV1 {
     ) -> Result<Option<T>, String> {
         let argument = actual.arguments().iter().find(|arg| arg.source().ordinal() == ordinal)
             .ok_or_else(|| freeze("received-birth/argument-missing"))?;
-        let OrdinaryNewTrivialArgumentKindV1::BoundValue { binding } = argument.source().kind()
+        let SelectedNewArgumentKindV1::BoundValue { binding } = argument.source().kind()
             else { return Ok(None) };
         let binding = *binding;
         let argument_value = argument.value_only_v1()?;

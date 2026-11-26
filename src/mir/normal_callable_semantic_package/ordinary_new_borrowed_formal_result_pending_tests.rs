@@ -236,7 +236,7 @@ fn field_array_result_retains_one_read_and_all_original_returns() {
                     argument.owner(), argument.new_site().clone(), argument.ordinal(), argument.site().clone(), argument.kind().clone());
             let scalar = claims.values().flat_map(|claim| claim.core.argument_rows.as_ref().into_iter().flatten())
                 .find(|argument| argument.owner() != contract.owner && matches!(argument.kind(),
-                    crate::mir::normal_callable_semantic_package::ordinary_new_coseal::OrdinaryNewTrivialArgumentKindV1::Local { .. })).unwrap();
+                    crate::mir::normal_callable_semantic_package::ordinary_new_coseal::SelectedNewArgumentKindV1::Local { .. })).unwrap();
             super::super::super::super::field_array_read_source::retain_argument_read(package.batch(), &package.selected,
                 &package.instance_constructors, &unavailable, &ledger.array_i64_fields, &mut fresh(scalar)).unwrap();
             for (argument, source) in arguments {

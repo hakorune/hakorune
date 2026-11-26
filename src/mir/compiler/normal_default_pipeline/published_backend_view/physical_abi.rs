@@ -766,11 +766,11 @@ pub(super) fn array_element_tag(
 /// value table pins the emitted ValueId to `MirType::Integer`; `Null` and
 /// `Handle` actuals still carry no scalar tag.
 pub(super) fn scalar_actual_kind(
-    kind: &crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1,
+    kind: &crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1,
     value: crate::mir::ValueId,
     caller: &std::collections::BTreeMap<crate::mir::ValueId, crate::mir::MirType>,
 ) -> Result<u32, String> {
-    use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1 as Kind;
+    use crate::mir::normal_callable_semantic_package::SelectedNewArgumentKindV1 as Kind;
     match kind {
         Kind::Null => Ok(0),
         Kind::Integer(_) => Ok(1),

@@ -17,13 +17,13 @@ pub(crate) use emission::{
 };
 
 use crate::mir::builder::{
-    SelectedNormalCallableKeyV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
+    CanonicalSameModuleCallableKeyV1, SelectedNormalCallableKeyV1,
+    VerifiedSameModuleCallableDeclarationCatalogV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
-use crate::mir::resolved_semantics::SourceExprSiteV1;
+use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceExprSiteV1};
 use crate::mir::source_call_target::{
-    VerifiedSourceBoundCoreMethodCallV1, VerifiedSourceCallTargetCatalogV1,
-    VerifiedStaticImportAliasViewV1,
+    SourceBoundCoreMethodTargetIssueV1, VerifiedSourceBoundCoreMethodCallV1,
 };
 use std::collections::BTreeMap;
 
@@ -129,9 +129,6 @@ fn issue_source_core_method_calls_with_v1(
     String,
 > {
     let declarations = catalog.catalog();
-    let imports = VerifiedStaticImportAliasViewV1::brand_only(declarations);
-    let mut target_catalog = VerifiedSourceCallTargetCatalogV1::seal_qualified(&imports, [])
-        .map_err(|error| format!("{error:?}"))?;
     let mut issued = BTreeMap::new();
     for key in selected.keys() {
         let SelectedNormalCallableKeyV1::Cataloged(catalog_key) = key else {
@@ -151,43 +148,51 @@ fn issue_source_core_method_calls_with_v1(
                 Ok::<_, String>((input.owner(), rows))
             })
             .map_err(|error| format!("{error:?}"))??;
-        target_catalog = target_catalog
-            .extend_core_method_calls(catalog_key.clone(), Vec::from(rows).into_iter())
-            .map_err(|error| format!("{error:?}"))?;
-        let has_rows = target_catalog
-            .all_rows()
-            .any(|((caller, _), _)| caller == catalog_key);
-        if has_rows {
-            let rows = target_catalog
-                .into_core_method_calls(catalog_key)
-                .map_err(|error| format!("{error:?}"))?;
-            let rows = rows
-                .into_iter()
-                .map(|(site, row)| {
-                    if row.contract().owner() != owner || row.contract().call_site() != &site {
-                        return Err(crate::mir::named_array_obligation::fault(
-                            "package-source-mismatch",
-                        ));
-                    }
-                    Ok((
-                        site,
-                        SelectedSourceCoreMethodCallV1 {
-                            caller: catalog_key.clone(),
-                            row,
-                            allocation: None,
-                        },
-                    ))
-                })
-                .collect::<Result<BTreeMap<_, _>, String>>()?;
-            issued.insert(
-                SelectedNormalCallableKeyV1::Cataloged(catalog_key.clone()),
-                rows,
-            );
-            target_catalog = VerifiedSourceCallTargetCatalogV1::seal_qualified(&imports, [])
-                .map_err(|error| format!("{error:?}"))?;
+        let rows = seal_selected_core_method_rows(declarations, catalog_key, owner, rows.into_vec())?;
+        if !rows.is_empty() {
+            issued.insert(key.clone(), rows);
         }
     }
     Ok(issued)
+}
+
+pub(crate) fn seal_selected_core_method_rows(
+    declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
+    caller: &CanonicalSameModuleCallableKeyV1,
+    owner: FunctionOwnerIdV1,
+    rows: impl IntoIterator<Item = (SourceExprSiteV1, VerifiedSourceBoundCoreMethodCallV1)>,
+) -> Result<SourceCoreMethodCallRowsV1, String> {
+    if declarations.declaration(caller).is_none() {
+        return Err(format!(
+            "{:?}",
+            SourceBoundCoreMethodTargetIssueV1::ForeignCaller(caller.clone())
+        ));
+    }
+    let mut selected = BTreeMap::new();
+    for (site, row) in rows {
+        match selected.entry(site) {
+            std::collections::btree_map::Entry::Vacant(entry) => {
+                entry.insert(SelectedSourceCoreMethodCallV1 {
+                    caller: caller.clone(),
+                    row,
+                    allocation: None,
+                });
+            }
+            std::collections::btree_map::Entry::Occupied(entry) => {
+                return Err(format!(
+                    "{:?}",
+                    SourceBoundCoreMethodTargetIssueV1::CatalogCollision(entry.key().clone())
+                ));
+            }
+        }
+    }
+    // Check source correspondence after collisions, retaining the refusal order.
+    for (site, row) in &selected {
+        if row.contract().owner() != owner || row.contract().call_site() != site {
+            return Err(crate::mir::named_array_obligation::fault("package-source-mismatch"));
+        }
+    }
+    Ok(selected)
 }
 
 /// Package-owned canonical association. Builder can observe or consume it, but

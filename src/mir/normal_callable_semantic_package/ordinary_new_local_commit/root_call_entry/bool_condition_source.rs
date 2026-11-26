@@ -566,14 +566,16 @@ impl EmittedBoolConditionProjectionV1 {
                         return Err(freeze("bool-condition/scoped-call-source"));
                     }
                     let projection = self.comparison_inputs_v1(node)?;
-                    projection.validate_scalar_continuation_v1(
+                    projection.validate_continuation_v1(
                         context,
                         function,
                         finishing,
-                        entry,
                         terminal,
                         continuation,
-                        None,
+                        ExpressionContinuationPolicyV1 {
+                            entry: Some(entry),
+                            ..Default::default()
+                        },
                     )?;
                     for binding in bindings.iter() {
                         if mapped(binding, finishing)?.is_none()

@@ -174,7 +174,7 @@ fn scalar_expression_rejects_field_reads_after_selected_root_transfer() {
         let claims = package.ordinary_new_claim_ledger.pending_claims_for_test();
         let shell = claims
             .values()
-            .find(|claim| claim.class() == "Shell")
+            .find(|claim| claim.core().class() == "Shell")
             .expect("Shell claim");
         assert!(
             shell.home_prefix().is_ok(),
