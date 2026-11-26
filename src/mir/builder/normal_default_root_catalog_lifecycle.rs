@@ -273,6 +273,9 @@ impl ModuleBuilderInvocationSessionV1 {
                 })
             }
         };
+        if !self.config().repl_mode() {
+            resolver.require_explicit_file_calls();
+        }
         let import_rows = self
             .config()
             .using_import_boxes()
@@ -297,7 +300,9 @@ impl ModuleBuilderInvocationSessionV1 {
                             session: self,
                             _source: None,
                             error: NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
-                                format!("[mir/callable-semantic-package/issue] {error:?}").into(),
+                                error.call_diagnostic().unwrap_or_else(||
+                                    format!("[mir/callable-semantic-package/issue] {error:?}")
+                                ).into(),
                             ),
                         })
                     }
@@ -389,11 +394,15 @@ impl ModuleBuilderInvocationSessionV1 {
                     } else {
                         None
                     };
-                    match ScriptDirectStaticCallLookupIssuerV1::issue(
-                        package,
-                        lookup_window,
-                        &imports,
-                    ) {
+                    let lookup = declaration_facts.with_brand_catalog(|brands| {
+                        ScriptDirectStaticCallLookupIssuerV1::issue(
+                            package,
+                            lookup_window,
+                            &imports,
+                            resolver.requires_explicit_file_calls().then_some(brands),
+                        )
+                    });
+                    match lookup {
                         Ok((lookup, publication_owner)) => {
                             (lookup, Some(publication_owner), main_relation)
                         }
@@ -402,8 +411,9 @@ impl ModuleBuilderInvocationSessionV1 {
                                 session: self,
                                 _source: None,
                                 error: NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                                    format!("[mir/script-static-lookup/preflight] {error:?}")
-                                        .into(),
+                                    error.call_diagnostic().unwrap_or_else(|| {
+                                        format!("[mir/script-static-lookup/preflight] {error:?}")
+                                    }).into(),
                                 ),
                             })
                         }

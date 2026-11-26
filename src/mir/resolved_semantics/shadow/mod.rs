@@ -14,6 +14,7 @@ mod path;
 mod product;
 pub(super) mod resolver;
 mod root_traversal;
+pub(in crate::mir) use root_traversal::FileCallScopeV1;
 mod script_admission;
 mod script_root_dispatch;
 mod script_root_window;

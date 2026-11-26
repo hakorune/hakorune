@@ -47,6 +47,23 @@ pub(crate) fn classify_call_name_v1(name: &str) -> CallNameClassificationV1 {
     }
 }
 
+pub(crate) fn is_math_function(name: &str) -> bool {
+    matches!(
+        name,
+        "sin" | "cos" | "abs" | "min" | "max" | "sqrt" | "pow" | "floor" | "ceil"
+    )
+}
+
+pub(crate) fn is_reserved_source_function_call_v1(name: &str, arity: usize) -> bool {
+    let classification = classify_call_name_v1(name);
+    classification.raw_unified_admission()
+        || classification.callee_class() != CallNameCalleeClassV1::Ordinary
+        || is_math_function(name)
+        || (name == "str" && arity == 1)
+        || name == "Range"
+        || name.starts_with("mem.")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

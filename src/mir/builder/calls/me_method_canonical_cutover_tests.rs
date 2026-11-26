@@ -270,6 +270,7 @@ fn static_current_owner_missing_target_rejects_before_arguments() {
             owner: "Helpers".into(),
             method: "absent".into(),
             arity: 1,
+            site: site(),
         }
     );
 }

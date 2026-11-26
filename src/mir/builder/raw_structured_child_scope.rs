@@ -502,6 +502,12 @@ impl<Port> StaticResultPublicationIngressPortV1 for RawStructuredChildScopePortV
 where
     Port: StaticResultPublicationIngressPortV1,
 {
+    fn current_owner_static_target_v1(
+        &self,
+    ) -> Option<crate::mir::builder::CanonicalSameModuleCallableKeyV1> {
+        self.child.current_owner_static_target_v1()
+    }
+
     fn take_static_result_publication_ingress_v1(
         &mut self,
         declarations: Option<&crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1>,

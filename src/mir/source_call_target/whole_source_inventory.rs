@@ -1,12 +1,13 @@
 use std::collections::{BTreeMap, BTreeSet};
 
+use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::ast::ASTNode;
 use crate::mir::builder::{
     AppMainCatalogCoSealV1, CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
     VerifiedSameModuleCallableDeclarationCatalogV1, VerifiedSameModuleCallableDeclarationV1,
 };
 use crate::mir::resolved_semantics::{
-    observe_method_calls_shadow_view_v0, FunctionSyntaxViewV1, ShadowMethodCallReceiverV0,
+    observe_method_calls_shadow_view_v0, FileCallScopeV1, FunctionSyntaxViewV1, ShadowMethodCallReceiverV0,
     ShadowResolveErrorV0, SourceExprSiteV1,
 };
 
@@ -71,12 +72,20 @@ impl<'catalog> VerifiedWholeSourceStaticCallTargetInventoryV1<'catalog> {
         declarations: &'catalog VerifiedSameModuleCallableDeclarationCatalogV1,
         imports: &VerifiedStaticImportAliasViewV1<'catalog>,
     ) -> Result<Self, WholeSourceStaticCallTargetInventoryErrorV1> {
+        Self::verify_with_file_calls(declarations, imports, None)
+    }
+
+    pub(crate) fn verify_with_file_calls(
+        declarations: &'catalog VerifiedSameModuleCallableDeclarationCatalogV1,
+        imports: &VerifiedStaticImportAliasViewV1<'catalog>,
+        file_brands: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
+    ) -> Result<Self, WholeSourceStaticCallTargetInventoryErrorV1> {
         if !imports.is_branded_by(declarations) {
             return Err(WholeSourceStaticCallTargetInventoryErrorV1::ImportCatalogMismatch);
         }
 
         let (observed_callers, calls, first_method_observation_unavailable) =
-            observe_all_calls(declarations)?;
+            observe_all_calls(declarations, file_brands)?;
         let targets = seal_static_targets(declarations, imports, &calls)?;
         Ok(Self {
             declarations,
@@ -253,6 +262,7 @@ enum StaticRetentionV1<'a> {
 
 fn observe_all_calls<'catalog>(
     declarations: &'catalog VerifiedSameModuleCallableDeclarationCatalogV1,
+    file_brands: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
 ) -> Result<
     (
         Box<[CanonicalSameModuleCallableKeyV1]>,
@@ -277,7 +287,13 @@ fn observe_all_calls<'catalog>(
             declaration.body(),
             receiver_policy,
         );
-        let observed = match observe_method_calls_shadow_view_v0(view) {
+        let file_calls = file_brands.map(|brands| FileCallScopeV1 {
+            declarations,
+            static_owner: (caller.namespace() == SameModuleCallableNamespaceV1::StaticBoxMethod)
+                .then(|| caller.owner()),
+            brands,
+        });
+        let observed = match observe_method_calls_shadow_view_v0(view, file_calls) {
             Ok(observed) => observed,
             Err(cause) if is_bounded_method_observation_unavailability(&cause) => {
                 first_method_observation_unavailable.get_or_insert_with(|| {
@@ -402,19 +418,29 @@ fn seal_static_targets<'catalog>(
             unreachable!("variable-call filter");
         };
         let canonical_owner = imports.canonical_owner(name).unwrap_or(name);
-        if declarations
+        let has_exact_target = declarations
             .declaration_for(
                 SameModuleCallableNamespaceV1::StaticBoxMethod,
                 canonical_owner,
                 call.method(),
                 call.arity() as usize,
             )
-            .is_none()
+            .is_some();
+        if !has_exact_target
+            && declarations.static_method_arities(canonical_owner, call.method()).next().is_none()
         {
             continue;
         }
         match VerifiedQualifiedCallRouteFactsV1::verify(call, lexical, imports) {
-            Ok(row) => facts.push(row),
+            Ok(row) => {
+                if !has_exact_target {
+                    let expected = declarations.static_method_arities(canonical_owner, call.method()).collect();
+                    return Err(WholeSourceStaticCallTargetInventoryErrorV1::StaticArityMismatch(
+                        super::error::StaticCallArityMismatchV1::for_call(call, canonical_owner, expected),
+                    ));
+                }
+                facts.push(row);
+            }
             Err(
                 QualifiedCallRouteFactsErrorV1::ReservedRouteSelected { .. }
                 | QualifiedCallRouteFactsErrorV1::ReservedRouteRejected { .. }

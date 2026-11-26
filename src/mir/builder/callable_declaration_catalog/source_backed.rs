@@ -189,8 +189,6 @@ pub(in crate::mir) fn issue_source_backed_same_module_callable_catalog_v1(
         .with_callable_semantic_syntax(|loan| {
             let brand = SameModuleCallableCatalogBrandV1::fresh();
             let mut rows_by_key = BTreeMap::new();
-            let mut static_lookup =
-                BTreeMap::<(Box<str>, u32), Vec<CanonicalSameModuleCallableKeyV1>>::new();
             let mut selected_rows = Vec::new();
             let mut selected_identities = Vec::new();
             let mut selected_keys = BTreeSet::new();
@@ -241,12 +239,6 @@ pub(in crate::mir) fn issue_source_backed_same_module_callable_catalog_v1(
                 };
                 if rows_by_key.insert(key.clone(), declaration).is_some() {
                     return Err(SourceBackedCallableCatalogIssueV1::DuplicateCanonicalKey);
-                }
-                if matches!(row.mode(), FinalCallableDeclarationModeV1::StaticBoxMethod) {
-                    static_lookup
-                        .entry((name.clone().into_boxed_str(), arity))
-                        .or_default()
-                        .push(key.clone());
                 }
                 let role = if let Some(main) = app_relation {
                     if main.main_callable().same_as(row.identity()) {
@@ -375,13 +367,6 @@ pub(in crate::mir) fn issue_source_backed_same_module_callable_catalog_v1(
                 None
             };
 
-            let static_keys_by_method_and_arity = static_lookup
-                .into_iter()
-                .map(|(lookup, mut keys)| {
-                    keys.sort();
-                    (lookup, keys.into_boxed_slice())
-                })
-                .collect();
             selected_identities.sort_by(|left, right| left.key.cmp(&right.key));
             let selected_source_inventory = VerifiedSelectedNormalCallableSourceInventoryV1::seal(
                 brand.clone(),
@@ -392,7 +377,6 @@ pub(in crate::mir) fn issue_source_backed_same_module_callable_catalog_v1(
                 catalog: VerifiedSameModuleCallableDeclarationCatalogV1 {
                     brand,
                     rows_by_key,
-                    static_keys_by_method_and_arity,
                     selected_source_inventory,
                     source_backed_app_main: app_main_co_seal,
                 },

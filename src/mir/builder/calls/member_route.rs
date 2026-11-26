@@ -150,7 +150,15 @@ impl MirBuilder {
         if let Some(value) = keys_count { return Ok(value); }
         let route_plan = {
             let syntax = port.method_call_syntax(input)?;
-            self.plan_member_call_route(syntax.receiver(), syntax.method())?
+            let static_me = matches!(syntax.receiver(), ASTNode::Me { .. })
+                .then(|| port.current_owner_static_target_v1())
+                .flatten();
+            match static_me {
+                Some(target) => MemberCallRoutePlan::StaticReceiver {
+                    box_name: target.owner().to_owned(),
+                },
+                None => self.plan_member_call_route(syntax.receiver(), syntax.method())?,
+            }
         };
 
         // Both receiver spellings consume the same exact source-selected

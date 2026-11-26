@@ -88,6 +88,7 @@ pub(crate) enum AppMainFreeStaticResolverIssueV1 {
 /// One resolver session per compilation input.
 #[derive(Debug)]
 pub(crate) struct FunctionSemanticResolverSessionV1 {
+    requires_explicit_file_calls: bool,
     compilation_unit_ordinal: u32,
     next_function_ordinal: u32,
     owners: FunctionOwnerIssuerV1,
@@ -138,8 +139,17 @@ struct CanonicalizedDraftV1 {
 }
 
 impl FunctionSemanticResolverSessionV1 {
+    pub(crate) fn require_explicit_file_calls(&mut self) {
+        self.requires_explicit_file_calls = true;
+    }
+
+    pub(crate) fn requires_explicit_file_calls(&self) -> bool {
+        self.requires_explicit_file_calls
+    }
+
     pub(crate) fn new(compilation_unit_ordinal: u32) -> Result<Self, ResolveFunctionErrorV1> {
         Ok(Self {
+            requires_explicit_file_calls: false,
             compilation_unit_ordinal,
             next_function_ordinal: 0,
             owners: FunctionOwnerIssuerV1::new_for_compilation()

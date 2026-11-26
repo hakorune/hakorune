@@ -4,6 +4,7 @@
 //! producer an exact caller/site and canonical callee, but it does not issue a
 //! Recipe, a result publication row, or a physical call.
 
+use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use std::collections::BTreeMap;
 
 use crate::ast::ASTNode;
@@ -21,7 +22,7 @@ use crate::mir::policies::source_method_typeop_route::{
     classify_source_method_typeop_route_v1, SourceMethodTypeOpDispositionV1,
 };
 use crate::mir::resolved_semantics::{
-    observe_script_method_calls_shadow_view_v0, project_source_node_v1, ProjectedSourceNodeV1,
+    observe_script_method_calls_shadow_view_v0, project_source_node_v1, FileCallScopeV1, ProjectedSourceNodeV1,
     ScriptSyntaxViewV1, ShadowMethodCallReceiverV0, ShadowQualifiedReceiverDispositionV0,
     ShadowResolveErrorV0, SourceExprSiteV1, SourcePathSegmentV1, SourcePathV1,
     VerifiedScriptRootDemandWindowV1,
@@ -140,6 +141,7 @@ impl VerifiedScriptDirectStaticCallLookupV1 {
         imports: &VerifiedStaticImportAliasViewV1<'_>,
         targets: &crate::mir::source_call_target::VerifiedSourceStaticCallTargetCatalogV1<'_>,
         results: &VerifiedSameModuleCallableResultCatalogV1<'_, '_>,
+        file_brands: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
     ) -> Result<Self, ScriptDirectStaticCallLookupErrorV1> {
         if !imports.is_branded_by(declarations) {
             return Err(ScriptDirectStaticCallLookupErrorV1::CatalogRelationMismatch);
@@ -159,7 +161,12 @@ impl VerifiedScriptDirectStaticCallLookupV1 {
             );
         }
 
-        let observed = observe_script_method_calls_shadow_view_v0(view, window)
+        let file_calls = file_brands.map(|brands| FileCallScopeV1 {
+            declarations,
+            static_owner: None,
+            brands,
+        });
+        let observed = observe_script_method_calls_shadow_view_v0(view, window, file_calls)
             .map_err(ScriptDirectStaticCallLookupErrorV1::MethodObservation)?;
         let mut coverage_rows = BTreeMap::new();
         let mut rows = BTreeMap::new();

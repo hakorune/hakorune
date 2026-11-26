@@ -9,7 +9,7 @@ use crate::parser::{BuildMode, NyashParser, ParserBuildConfig};
 #[test]
 fn artifact_validation_rejects_selected_ordinary_child_symbol_drift() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
-    let source = callable_source("box Page {} static box Main { main() { return helper(2) } helper(value: i64): i64 { return value } }", ParserBuildConfig::default());
+    let source = callable_source("box Page {} static box Main { main() { return me.helper(2) } helper(value: i64): i64 { return value } }", ParserBuildConfig::default());
     let completed = session()
         .complete_normal_default_program_root_catalog_lifecycle(
             source,

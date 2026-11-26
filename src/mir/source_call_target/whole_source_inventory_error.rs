@@ -27,4 +27,29 @@ pub(crate) enum WholeSourceStaticCallTargetInventoryErrorV1 {
     QualifiedRoute(QualifiedCallRouteFactsErrorV1),
     QualifiedTarget(QualifiedStaticCallTargetErrorV1),
     CurrentOwnerTarget(CurrentOwnerStaticCallTargetErrorV1),
+    StaticArityMismatch(super::error::StaticCallArityMismatchV1),
+}
+
+impl WholeSourceStaticCallTargetInventoryErrorV1 {
+    pub(crate) fn call_diagnostic(&self) -> Option<String> {
+        match self {
+            Self::MethodCallObservation { cause, .. } => cause.call_diagnostic(),
+            Self::StaticArityMismatch(issue)
+            | Self::CurrentOwnerTarget(CurrentOwnerStaticCallTargetErrorV1::ArityMismatch(issue)) =>
+                Some(format!(
+                    "[call/arity-mismatch] {}.{} expects {:?} arguments, got {}; call in {}.{} at {:?}",
+                    issue.target_owner,
+                    issue.selector,
+                    issue.expected,
+                    issue.actual,
+                    issue.caller.owner(),
+                    issue.caller.name(),
+                    issue.site.node()
+                )),
+            Self::CurrentOwnerTarget(CurrentOwnerStaticCallTargetErrorV1::TargetOutsideCatalog {
+                owner, method, arity, site,
+            }) => Some(format!("[call/target-missing] no declaration for {owner}.{method}/{arity} at {:?}", site.node())),
+            _ => None,
+        }
+    }
 }

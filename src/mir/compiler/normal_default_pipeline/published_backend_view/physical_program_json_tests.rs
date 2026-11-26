@@ -27,6 +27,7 @@ fn map_argument_edge_serializes_corroborated_map_pair() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let mut compiler = MirCompiler::with_options(false);
+        compiler.set_repl_mode(true);
         compiler
             .compile_normal_with_published(
                 request(

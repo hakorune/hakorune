@@ -202,6 +202,26 @@ pub(in crate::mir) enum NormalCallableSemanticPackageIssueV1 {
     },
 }
 
+impl NormalCallableSemanticPackageIssueV1 {
+    pub(in crate::mir) fn call_diagnostic(&self) -> Option<String> {
+        match self {
+            Self::QualifiedStaticClaim {
+                _error: super::qualified_static_call_claim::QualifiedStaticCallClaimIndexIssueV1::TargetInventory(error),
+            } => error.call_diagnostic(),
+            Self::Batch { _error: ResolvedCallableSemanticBatchIssueV1::Resolver(reject) } => {
+                use crate::mir::resolved_semantics::{ResolveFunctionErrorV1, ResolveOwnerForestErrorV1};
+                match reject.error() {
+                    ResolveOwnerForestErrorV1::Function(ResolveFunctionErrorV1::Syntax(error)) => {
+                        error.call_diagnostic()
+                    }
+                    _ => None,
+                }
+            }
+            _ => None,
+        }
+    }
+}
+
 #[cfg(test)]
 pub(in crate::mir) fn issue_normal_callable_semantic_package_v1(
     resolver: &mut FunctionSemanticResolverSessionV1,
@@ -270,6 +290,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1::issue(
             catalog.catalog(),
             import_rows.iter().cloned(),
+            brand_catalog.filter(|_| resolver.requires_explicit_file_calls()),
         )
         .map_err(
             |error| NormalCallableSemanticPackageIssueV1::QualifiedStaticClaim { _error: error },

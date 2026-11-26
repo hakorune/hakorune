@@ -87,7 +87,23 @@ impl FunctionSemanticResolverSessionV1 {
         let mut deferred_rest = Vec::new();
         for input in inputs {
             match construct_selected_callable_owner_tree_v1(input.view(), brand_catalog) {
-                Ok(tree) => trees.push((input, tree)),
+                Ok(mut tree) => {
+                    if self.requires_explicit_file_calls() {
+                        let same_owner_has_method = |name: &str| {
+                            let Some(owner) = static_owner(input) else { return false; };
+                            inputs.iter().any(|candidate| {
+                                static_owner(candidate) == Some(owner)
+                                    && candidate.header().is_some_and(|header| header.name() == name)
+                            })
+                        };
+                        validate_file_call_observations(&mut tree, &same_owner_has_method)
+                            .map_err(|error| SourceBoundSelectedCallableResolverRejectV1::from_parts(
+                                input.source().clone(),
+                                ResolveOwnerForestErrorV1::Function(ResolveFunctionErrorV1::Syntax(error)),
+                            ))?;
+                    }
+                    trees.push((input, tree));
+                }
                 Err(error) => match selected_callable_source_deferral(error) {
                     Ok(observation) => {
                         let deferred = SelectedCallableResolverDeferredV1::from_parts(
@@ -248,6 +264,44 @@ impl FunctionSemanticResolverSessionV1 {
             ResolveOwnerForestErrorV1::Function(ResolveFunctionErrorV1::AppMainDirectCall(issue)),
         )
     }
+}
+
+fn static_owner<'a>(input: &'a SelectedCallableResolverInputV1<'_>) -> Option<&'a str> {
+    if input.view().receiver_policy() != crate::mir::resolved_semantics::ReceiverPolicyV1::StaticCurrentOwner {
+        return None;
+    }
+    match input.source() {
+        SelectedCallableResolverSourceIdentityV1::Callable { diagnostic_owner, .. } => {
+            diagnostic_owner.as_deref()
+        }
+        _ => None,
+    }
+}
+
+/// The selected-owner traversal can see calls beyond the method inventory's
+/// observation profile. Keep its remaining file observations out of FreeStatic
+/// unless they belong to an existing reserved form.
+fn validate_file_call_observations(
+    tree: &mut ShadowOwnerConstructionTreeV1<'_>,
+    same_owner_has_method: &impl Fn(&str) -> bool,
+) -> Result<(), crate::mir::resolved_semantics::ShadowResolveErrorV0> {
+    use crate::mir::policies::call_name_classification::is_reserved_source_function_call_v1;
+    use crate::mir::resolved_semantics::ShadowResolveErrorV0;
+
+    tree.function.direct_calls.retain(|_, call| !call.lexical_value);
+    for (site, call) in &tree.function.direct_calls {
+        if !is_reserved_source_function_call_v1(&call.name, call.arity as usize) {
+            return Err(ShadowResolveErrorV0::BareCallTargetMissing {
+                name: call.name.clone(),
+                site: site.clone(),
+                suggest_me: same_owner_has_method(&call.name),
+            });
+        }
+    }
+    for child in &mut tree.children {
+        validate_file_call_observations(&mut child.tree, same_owner_has_method)?;
+    }
+    Ok(())
 }
 
 /// Check the only direct-call policy split before canonicalizing the forest.

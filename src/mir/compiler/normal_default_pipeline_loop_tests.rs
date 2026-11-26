@@ -193,6 +193,13 @@ fn normal_ingress_routes_app_main_static_loop_child_through_callable_consumer() 
         for bound in [0, 1, 3] {
             let source = format!("static box Main {{ main() {{ return 0 }} int_to_str(n: i64): i64 {{ local value = to_i64(n) local i = 0 loop(i < {bound}) {{ i = i + 1 }} return value }} to_i64(value: i64): i64 {{ return value }} }}");
             let mut compiler = MirCompiler::with_options(false);
+            let missing = compiler
+                .compile_normal(published_request(&source))
+                .expect_err("file source must reject a bare static prefix");
+            assert!(missing.contains("[call/target-missing]"), "{missing}");
+
+            // The compatibility profile still exercises the legacy writer.
+            compiler.set_repl_mode(true);
             let result = compiler
                 .compile_normal(published_request(&source))
                 .expect("App Main static loop child compile");

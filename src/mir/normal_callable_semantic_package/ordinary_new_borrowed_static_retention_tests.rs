@@ -135,7 +135,7 @@ fn static_retention_main_literal_observation_uses_original_main_loan() {
         crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root)
             .unwrap();
     let (claims, _) = crate::mir::normal_callable_semantic_package::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1::issue(
-        &declarations, std::iter::empty(),
+        &declarations, std::iter::empty(), None
     ).unwrap();
     assert!(claims.catalog_brand().is_same(declarations.brand()));
     let key = |namespace, owner, method, arity| {

@@ -55,8 +55,6 @@ pub(crate) struct VerifiedSameModuleCallableDeclarationCatalogV1 {
     pub(super) brand: SameModuleCallableCatalogBrandV1,
     pub(super) rows_by_key:
         BTreeMap<CanonicalSameModuleCallableKeyV1, VerifiedSameModuleCallableDeclarationV1>,
-    pub(super) static_keys_by_method_and_arity:
-        BTreeMap<(Box<str>, u32), Box<[CanonicalSameModuleCallableKeyV1]>>,
     pub(super) selected_source_inventory: VerifiedSelectedNormalCallableSourceInventoryV1,
     pub(super) source_backed_app_main: Option<super::source_backed::AppMainCatalogCoSealV1>,
 }
@@ -92,8 +90,6 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
     ) -> Result<Self, SameModuleCallableDeclarationCatalogErrorV1> {
         let brand = SameModuleCallableCatalogBrandV1::fresh();
         let mut rows_by_key = BTreeMap::new();
-        let mut static_keys_by_method_and_arity =
-            BTreeMap::<(Box<str>, u32), Vec<CanonicalSameModuleCallableKeyV1>>::new();
         let mut box_owners = BTreeSet::new();
         let mut selected_source_rows = Vec::new();
         let mut selected_semantic_blockers = Vec::new();
@@ -261,12 +257,6 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
                         },
                     ));
                 }
-                if namespace == SameModuleCallableNamespaceV1::StaticBoxMethod {
-                    static_keys_by_method_and_arity
-                        .entry((map_name.to_string().into_boxed_str(), arity))
-                        .or_default()
-                        .push(key);
-                }
             }
 
             for declaration in constructors.values() {
@@ -316,17 +306,9 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
             }
         }
 
-        let static_keys_by_method_and_arity = static_keys_by_method_and_arity
-            .into_iter()
-            .map(|(lookup, mut keys)| {
-                keys.sort();
-                (lookup, keys.into_boxed_slice())
-            })
-            .collect();
         Ok(Self {
             brand: brand.clone(),
             rows_by_key,
-            static_keys_by_method_and_arity,
             selected_source_inventory: VerifiedSelectedNormalCallableSourceInventoryV1::seal(
                 brand,
                 selected_source_rows,
@@ -403,15 +385,14 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
             .filter(|(key, _)| key.namespace() == SameModuleCallableNamespaceV1::StaticBoxMethod)
     }
 
-    pub(crate) fn static_candidates(
-        &self,
+    pub(crate) fn static_method_arities<'a>(
+        &'a self,
+        owner: &str,
         method: &str,
-        arity: u32,
-    ) -> &[CanonicalSameModuleCallableKeyV1] {
-        self.static_keys_by_method_and_arity
-            .get(&(method.into(), arity))
-            .map(Box::as_ref)
-            .unwrap_or(&[])
+    ) -> impl Iterator<Item = u32> + 'a {
+        let first = CanonicalSameModuleCallableKeyV1::static_box_method(owner, method, 0);
+        let last = CanonicalSameModuleCallableKeyV1::static_box_method(owner, method, u32::MAX);
+        self.rows_by_key.range(first..=last).map(|(key, _)| key.arity())
     }
 
     pub(crate) fn declaration_for(

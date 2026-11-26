@@ -7,8 +7,9 @@ fn map_result_local_call_publishes_ordinary_map_callee_and_map_edge() {
             make_map() { return %{"a" => 1} }
         }"#;
         for optimize in [false, true] {
-            MirCompiler::with_options(optimize)
-                .compile_normal_with_published(request(source), |view, verification| {
+            let mut compiler = MirCompiler::with_options(optimize);
+            compiler.set_repl_mode(true);
+            compiler.compile_normal_with_published(request(source), |view, verification| {
                     assert!(verification.is_ok(), "{verification:?}");
                     let input = view.issue_lifecycle_physical_abi_input()?;
                     // The map-returning callee is emitted under the

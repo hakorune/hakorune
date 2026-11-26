@@ -15,7 +15,7 @@ fn scalar_local_then_terminal_call_reaches_published_lifecycle() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         for source in [
-            "static box Main { main() { local first = helper(10) return helper(20) }
+            "static box Main { main() { local first = me.helper(10) return me.helper(20) }
              helper(value: i64): i64 { return value } }",
             "static box Helpers { helper(value: i64): i64 { return value } }
              static box Main { main() { local first = Helpers.helper(10) return Helpers.helper(20) } }",
@@ -96,11 +96,14 @@ fn scalar_local_then_plain_return_preserves_ordinary_call_through_publication() 
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         for optimize in [false, true] {
-            let result = MirCompiler::with_options(optimize)
-                .compile_normal(published_request(
-                    "static box Main { main() { local first = helper(10) return 0 }
+            // This checks the retained Plain direct-call protocol, including
+            // its absence of a Fault successor.
+            let mut compiler = MirCompiler::with_options(optimize);
+            compiler.set_repl_mode(true);
+            let result = compiler.compile_normal(published_request(
+                "static box Main { main() { local first = helper(10) return 0 }
                  helper(value: i64): i64 { return value } }",
-                ))
+            ))
                 .expect("Plain source still finishes and publishes");
             assert!(
                 result.verification_result.is_ok(),

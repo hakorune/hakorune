@@ -111,6 +111,11 @@ impl OrdinaryNewClaimLedgerV1 {
             else {
                 continue;
             };
+            if call.receiver() == ResolvedMethodCallReceiverSourceV1::CurrentOwner {
+                // Resolve classified this as a static call. Its source site
+                // belongs to the shared static publication ingress.
+                continue;
+            }
             if self
                 .borrowed_terminal_arguments_v1(owner, terminal.return_site())?
                 .is_some()

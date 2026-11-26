@@ -17,6 +17,8 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
+use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
+
 use crate::mir::builder::{
     CanonicalSameModuleCallableKeyV1, SelectedNormalCallableKeyV1,
     VerifiedSameModuleCallableDeclarationCatalogV1,
@@ -112,6 +114,7 @@ impl QualifiedStaticCallClaimIndexV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn issue(
         declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
         import_rows: impl IntoIterator<Item = (String, String)>,
+        file_brands: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
     ) -> Result<
         (Self, BTreeSet<CanonicalSameModuleCallableKeyV1>),
         QualifiedStaticCallClaimIndexIssueV1,
@@ -119,7 +122,7 @@ impl QualifiedStaticCallClaimIndexV1 {
         let imports = VerifiedStaticImportAliasViewV1::seal(declarations, import_rows)
             .map_err(QualifiedStaticCallClaimIndexIssueV1::ImportAlias)?;
         let inventory =
-            VerifiedWholeSourceStaticCallTargetInventoryV1::verify(declarations, &imports)
+            VerifiedWholeSourceStaticCallTargetInventoryV1::verify_with_file_calls(declarations, &imports, file_brands)
                 .map_err(QualifiedStaticCallClaimIndexIssueV1::TargetInventory)?;
         let closed_app_zero_incoming = declarations
             .source_backed_app_main()
@@ -473,12 +476,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn claim_for_source_site_v1
             claims.current_owner_i64_source(key, site.site()).is_some()
         );
     }
+    let returns_call_value = site.owner() == input.owner()
+        && input
+            .body_shape()
+            .is_some_and(|shape| shape.return_value_sites().any(|value| value == site.site()));
     if let Some(claim) = claims.claim(key, site.site()) {
-        if site.owner() == input.owner()
-            && input
-                .body_shape()
-                .is_some_and(|shape| shape.return_value_sites().any(|value| value == site.site()))
-        {
+        if returns_call_value {
             if let Some(call) = input.function().method_call(site.site()) {
                 let original = claims.incoming_source(key, site, call, selected, contracts, app_main)
                     .map_err(|issue| super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue })?;
@@ -526,6 +529,18 @@ pub(in crate::mir::normal_callable_semantic_package) fn claim_for_source_site_v1
         .ok_or_else(reject)?;
     if loan.contract().parameters.len() != call.arguments().len() {
         return Err(reject());
+    }
+    if returns_call_value && loan.contract().parameters.iter().all(|parameter| {
+        matches!(
+            parameter.kind,
+            crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactTrivial(
+                crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64
+            )
+        )
+    }) {
+        // Scalar-only returns use the same static publication as qualified
+        // calls. They do not create a second Home terminal obligation.
+        return Ok(None);
     }
     let VerifiedCallableResultDispositionV1::ExactI64 {
         required_i64_arguments,

@@ -6,6 +6,7 @@
 //! owner is also issued here for the callable package so the generic catalogs
 //! are not re-observed after Builder effects.
 
+use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use super::normal_script_neutral_window::PreparedCanonicalScriptNeutralProgramWindowV1;
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1;
 use crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1;
@@ -25,6 +26,17 @@ pub(super) enum NormalScriptDirectStaticLookupIssueV1 {
     Lookup(ScriptDirectStaticCallLookupErrorV1),
 }
 
+impl NormalScriptDirectStaticLookupIssueV1 {
+    pub(super) fn call_diagnostic(&self) -> Option<String> {
+        match self {
+            Self::Lookup(ScriptDirectStaticCallLookupErrorV1::MethodObservation(error)) => {
+                error.call_diagnostic()
+            }
+            _ => None,
+        }
+    }
+}
+
 /// The only production lookup issuer.  The returned relation and existing
 /// publication owner are both owned, so all temporary catalog borrows end
 /// before the semantic package is moved into Builder.
@@ -35,6 +47,7 @@ impl ScriptDirectStaticCallLookupIssuerV1 {
         package: &VerifiedNormalCallableSemanticPackageV1,
         neutral_window: Option<&PreparedCanonicalScriptNeutralProgramWindowV1>,
         imports: &VerifiedStaticImportAliasViewV1<'_>,
+        file_brands: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
     ) -> Result<
         (
             Option<VerifiedScriptDirectStaticCallLookupV1>,
@@ -92,6 +105,7 @@ impl ScriptDirectStaticCallLookupIssuerV1 {
                     &imports,
                     &targets,
                     &results,
+                    file_brands,
                 )
                 .map_err(NormalScriptDirectStaticLookupIssueV1::Lookup)
             })
@@ -121,7 +135,7 @@ impl ScriptDirectStaticCallLookupIssuerV1 {
         .map_err(|error| NormalScriptDirectStaticLookupIssueV1::Import {
             _detail: format!("{error:?}").into(),
         })?;
-        Self::issue(package, neutral_window, &imports)
+        Self::issue(package, neutral_window, &imports, None)
     }
 }
 

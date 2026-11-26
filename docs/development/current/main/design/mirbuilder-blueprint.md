@@ -504,7 +504,7 @@ source → MIR の間で、program を断ってよい理由は、**この表に�
 | A12 | `decl/fini-as-method` | `fini()` を普通の method として宣言する | S | `L/lifecycle.md:58-66` |
 | A13 | `decl/top-level-statement` | file mode の top-level に文(代入、`local`、式の文) | S | `L/repl.md:71-75` |
 | A14 | `decl/callable-contract-conflict` | `CallableContract` が宣言や本体と矛盾する | S | `L/callable-contracts.md:430-432` |
-| A15 | `call/target-missing` | 呼び出し先の宣言が無い・あいまい(無い関数。型が静的に分かる receiver の、無い method) | S | `L/function-call-evaluation.md:140-141`、`:180-182` |
+| A15 | `call/target-missing` | 呼び出し先の宣言が無い・あいまい。file の束縛の無い裸の `f(x)` も呼び出し位置で拒否する。同じ static box に `f` がある時だけ `me.f(x)` を案内する。 | S | `L/function-call-evaluation.md:140-141`、`:180-182` |
 | A16 | `call/arity-mismatch` | 引数の数が宣言と違う(別の同名を探さない) | S | `L/callable-contracts.md:80-83`、`L/function-call-evaluation.md:96-98` |
 | A17 | `name/me-outside-instance` | instance の method・`birth`・`fini` の外の `me`(値として)。static の中の `me.field`、`me` を渡す事 | S | `L/semantic-kernel.md`(Control Boundaries の `me`) |
 | A18 | `call/direct-birth` | `obj.birth(...)` を直接呼ぶ | S | `L/lifecycle.md:124` |

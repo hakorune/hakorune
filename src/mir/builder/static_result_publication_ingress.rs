@@ -100,6 +100,12 @@ impl fmt::Display for StaticResultPublicationIngressErrorV1 {
 }
 
 pub(in crate::mir::builder) trait StaticResultPublicationIngressPortV1 {
+    /// Read the target already sealed for the current static receiver site.
+    /// The existing publication ingress still owns the affine take.
+    fn current_owner_static_target_v1(&self) -> Option<CanonicalSameModuleCallableKeyV1> {
+        None
+    }
+
     /// Classify and, only for an exact Cataloged source site, consume one
     /// existing publication handoff.  A non-`StaticBoxMethod` Cataloged
     /// caller is admitted only when `declarations` resolves the probed
@@ -379,6 +385,22 @@ pub(in crate::mir::builder) fn take_expression_static_packet_v1(
 }
 
 impl StaticResultPublicationIngressPortV1 for RawInvocationChildPortV1<'_, '_> {
+    fn current_owner_static_target_v1(&self) -> Option<CanonicalSameModuleCallableKeyV1> {
+        let RawInvocationSourceContextV1::Located {
+            root: RawInvocationRootLineageV1::Cataloged(caller),
+            site,
+            ..
+        } = self.current_source_context_v1()?
+        else {
+            return None;
+        };
+        if caller.namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod {
+            return None;
+        }
+        self.module_port
+            .target_for_source(&caller, &SourceExprSiteV1::from_node(site))
+    }
+
     fn take_static_result_publication_ingress_v1(
         &mut self,
         declarations: Option<&VerifiedSameModuleCallableDeclarationCatalogV1>,

@@ -164,6 +164,7 @@ pub(crate) struct ShadowExitRecordV0 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ShadowDirectCallUseV0 {
     pub(crate) name: Box<str>,
+    pub(crate) lexical_value: bool,
     pub(crate) arity: u32,
     pub(crate) argument_sites: Box<[SourceExprSiteV1]>,
 }
@@ -175,6 +176,11 @@ pub(crate) struct ShadowExplicitExternCallV0 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ShadowResolveErrorV0 {
+    BareCallTargetMissing {
+        name: Box<str>,
+        site: SourceExprSiteV1,
+        suggest_me: bool,
+    },
     ExpectedFunctionDeclaration,
     SameScopeRedeclaration {
         name: Box<str>,
@@ -256,6 +262,19 @@ pub(crate) enum ShadowResolveErrorV0 {
 }
 
 impl ShadowResolveErrorV0 {
+    pub(crate) fn call_diagnostic(&self) -> Option<String> {
+        let Self::BareCallTargetMissing { name, site, suggest_me } = self else {
+            return None;
+        };
+        let mut diagnostic = format!(
+            "[call/target-missing] {name} at {:?}",
+            site.node(),
+        );
+        if *suggest_me {
+            diagnostic.push_str(&format!(". Call the static method as me.{name}(...)"));
+        }
+        Some(diagnostic)
+    }
     /// Script source shapes remain deferred so RootLower retains their user
     /// diagnostic authority. Receipt/coverage corruption is never a fallback.
     pub(crate) const fn is_script_source_deferral(&self) -> bool {

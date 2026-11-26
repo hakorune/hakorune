@@ -86,6 +86,7 @@ pub(in crate::mir::resolved_semantics) struct ShadowResolverV0<'ast, 'schema> {
     pub(super) enum_variant_demand: Option<&'schema dyn EnumVariantDemandV1>,
     pub(super) enum_match_demand: Option<&'schema dyn EnumMatchDemandV1>,
     pub(super) brand_catalog: Option<&'schema VerifiedBrandProgramDeclarationCatalogV1>,
+    file_calls: Option<super::root_traversal::FileCallScopeV1<'schema>>,
     pub(super) record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
     pub(super) enum_variant_demands: BTreeMap<SourceExprSiteV1, EnumVariantAdmissionV1>,
     pub(super) enum_match_demands: BTreeSet<SourceExprSiteV1>,
@@ -116,6 +117,7 @@ pub(super) fn traverse_shadow_root_v1<'ast, 'schema>(
         input.enum_variant_demand(),
         input.enum_match_demand(),
         input.brand_catalog(),
+        input.file_calls(),
     );
     if receiver_policy == ReceiverPolicyV1::DeclaredInstance {
         resolver.declare_binding(
@@ -190,6 +192,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         enum_variant_demand: Option<&'schema dyn EnumVariantDemandV1>,
         enum_match_demand: Option<&'schema dyn EnumMatchDemandV1>,
         brand_catalog: Option<&'schema VerifiedBrandProgramDeclarationCatalogV1>,
+        file_calls: Option<super::root_traversal::FileCallScopeV1<'schema>>,
     ) -> Self {
         let function_scope = ShadowScopeIdV0::new(0);
         let function_region = ShadowRegionIdV0::new(0);
@@ -258,6 +261,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             enum_variant_demand,
             enum_match_demand,
             brand_catalog,
+            file_calls,
             record_literal_demands: BTreeMap::new(),
             enum_variant_demands: BTreeMap::new(),
             enum_match_demands: BTreeSet::new(),
@@ -496,6 +500,34 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         }
     }
 
+    pub(super) fn check_file_call_target(
+        &self,
+        site: SourceExprSiteV1,
+        name: &str,
+        arity: usize,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        use crate::mir::policies::call_name_classification::is_reserved_source_function_call_v1;
+
+        let Some(scope) = self.file_calls else {
+            return Ok(());
+        };
+        if self.lookup(name).is_some()
+            || self.ancestor_is_visible(name)
+            || scope.brands.contains_name(name)
+            || is_reserved_source_function_call_v1(name, arity)
+        {
+            return Ok(());
+        }
+        let suggest_me = scope.static_owner.is_some_and(|owner| {
+            scope.declarations.static_method_arities(owner, name).next().is_some()
+        });
+        Err(ShadowResolveErrorV0::BareCallTargetMissing {
+            name: name.into(),
+            site,
+            suggest_me,
+        })
+    }
+
     pub(super) fn record_direct_call(
         &mut self,
         site: SourceExprSiteV1,
@@ -504,8 +536,13 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
     ) -> Result<(), ShadowResolveErrorV0> {
         let arity = u32::try_from(argument_sites.len())
             .map_err(|_| ShadowResolveErrorV0::FunctionCallArityOverflow { site: site.clone() })?;
+        let lexical_value = (self.lookup(name).is_some() || self.ancestor_is_visible(name))
+            && !crate::mir::policies::call_name_classification::is_reserved_source_function_call_v1(
+                name, argument_sites.len(),
+            );
         let record = ShadowDirectCallUseV0 {
             name: name.into(),
+            lexical_value,
             arity,
             argument_sites,
         };

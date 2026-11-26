@@ -171,7 +171,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn with_source_claims_fixtu
     let catalog = issue_source_backed_same_module_callable_catalog_v1(&source).unwrap();
     let (static_claims, _) = qualified_static_call_claim::QualifiedStaticCallClaimIndexV1::issue(
         catalog.catalog(),
-        std::iter::empty(),
+        std::iter::empty(), None
     )
     .unwrap();
     let mut resolver =

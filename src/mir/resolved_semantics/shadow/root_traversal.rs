@@ -20,6 +20,13 @@ use super::script_root_window::{
 };
 use super::traversal_profile::ShadowTraversalProfileV1;
 
+#[derive(Clone, Copy)]
+pub(in crate::mir) struct FileCallScopeV1<'a> {
+    pub(in crate::mir) declarations: &'a crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1,
+    pub(in crate::mir) static_owner: Option<&'a str>,
+    pub(in crate::mir) brands: &'a VerifiedBrandProgramDeclarationCatalogV1,
+}
+
 pub(super) struct ShadowRootTraversalInputV1<'ast, 'schema> {
     params: &'ast [String],
     items: ShadowRootItemsV1<'ast>,
@@ -30,6 +37,7 @@ pub(super) struct ShadowRootTraversalInputV1<'ast, 'schema> {
     enum_match_demand: Option<&'schema dyn EnumMatchDemandV1>,
     record_schema_demand: Option<&'schema dyn RecordSchemaDemandV1>,
     brand_catalog: Option<&'schema VerifiedBrandProgramDeclarationCatalogV1>,
+    file_calls: Option<FileCallScopeV1<'schema>>,
 }
 
 enum ShadowRootItemsV1<'ast> {
@@ -69,6 +77,7 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
             enum_match_demand: None,
             record_schema_demand: None,
             brand_catalog: None,
+            file_calls: None,
         }
     }
 
@@ -89,6 +98,7 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
             enum_match_demand: Some(enum_match_demand),
             record_schema_demand: Some(record_schema_demand),
             brand_catalog: None,
+            file_calls: None,
         }
     }
 
@@ -108,7 +118,17 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
             enum_match_demand: None,
             record_schema_demand: None,
             brand_catalog: None,
+            file_calls: None,
         }
+    }
+
+    pub(super) fn with_file_calls(mut self, scope: Option<FileCallScopeV1<'schema>>) -> Self {
+        self.file_calls = scope;
+        self
+    }
+
+    pub(super) fn file_calls(&self) -> Option<FileCallScopeV1<'schema>> {
+        self.file_calls
     }
 
     pub(super) fn with_brand_catalog(

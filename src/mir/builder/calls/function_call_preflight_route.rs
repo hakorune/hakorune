@@ -9,10 +9,6 @@ use super::super::recursive_child_lowering::{
 };
 use super::super::{EffectMask, MirBuilder, MirInstruction, MirType, ValueId};
 use crate::ast::ASTNode;
-use crate::mir::builder::callable_declaration_catalog::{
-    BareStaticRecoveryDecisionV1, BareStaticRecoveryNoRecoveryReasonV1,
-    SameModuleCallableNamespaceV1,
-};
 use crate::mir::builder::calls::resolver::CalleeResolverBox;
 use crate::mir::instruction::FastMemRegionId;
 use crate::mir::{Callee, TypeOpKind};
@@ -511,33 +507,6 @@ fn prepare_cataloged_target_v1(
         return resolve_catalog_call_target_v1(builder, CallTarget::Global(target));
     }
 
-    if catalog
-        .declaration_for(
-            SameModuleCallableNamespaceV1::StaticBoxMethod,
-            caller.owner(),
-            name,
-            arity,
-        )
-        .is_some()
-    {
-        return Err(format!(
-            "[freeze:contract][direct-call/bare-static-method-retired] owner={} name={} arity={arity}",
-            caller.owner(),
-            name,
-        ));
-    }
-
-    let current_owner_has_method = catalog
-        .static_declarations()
-        .any(|(key, _)| key.owner() == caller.owner() && key.name() == name);
-    if current_owner_has_method {
-        return Err(format!(
-            "[freeze:contract][direct-call/current-owner-arity-mismatch] owner={} name={} arity={arity}",
-            caller.owner(),
-            name,
-        ));
-    }
-
     if let Some(value) = builder
         .function_state
         .variable_ctx
@@ -555,24 +524,9 @@ fn prepare_cataloged_target_v1(
         return resolve_catalog_call_target_v1(builder, CallTarget::Extern(name.to_owned()));
     }
 
-    match BareStaticRecoveryDecisionV1::decide(catalog, name, arity)
-        .map_err(|error| format!("[freeze:contract][direct-call/{error}]"))?
-    {
-        BareStaticRecoveryDecisionV1::Unique(key) => Err(format!(
-            "[freeze:contract][direct-call/bare-static-method-retired] candidate_owner={} name={} arity={}",
-            key.owner(),
-            key.name(),
-            key.arity(),
-        )),
-        BareStaticRecoveryDecisionV1::NoRecovery(reason) => Err(match reason {
-            BareStaticRecoveryNoRecoveryReasonV1::NoCandidate => format!(
-                "[freeze:contract][direct-call/no-candidate] name={name} arity={arity}"
-            ),
-            BareStaticRecoveryNoRecoveryReasonV1::Ambiguous { candidate_count } => format!(
-                "[freeze:contract][direct-call/ambiguous-static] name={name} arity={arity} candidates={candidate_count}"
-            ),
-        }),
-    }
+    Err(format!(
+        "[freeze:contract][direct-call/installed-source-relation-missing] name={name} arity={arity}"
+    ))
 }
 
 fn resolve_catalog_call_target_v1(
