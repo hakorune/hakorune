@@ -263,28 +263,6 @@ impl ParsedProgramWithCallableParameterSourceV1 {
         }
     }
 
-    pub(crate) fn into_normal_file_source(self) -> PreparedParserNormalFileSourceV1 {
-        let Self {
-            completed,
-            parameter_source,
-            canonical_script_source_rows,
-            source_authority,
-            normal_root_execution,
-        } = self;
-        PreparedParserNormalFileSourceV1 {
-            source: Self {
-                completed,
-                parameter_source,
-                canonical_script_source_rows:
-                    CanonicalScriptSourceRowsDispositionV1::MovedToParallelHandoff,
-                source_authority,
-                normal_root_execution,
-            },
-            script_rows: canonical_script_source_rows,
-            _seal: PreparedParserNormalFileSourceSealV1,
-        }
-    }
-
     pub(super) fn has_source_only_callable_contract(&self) -> bool {
         matches!(&self.parameter_source, ParserCallableParameterSourceDispositionV1::Complete(catalog) if catalog.requires_retained_source())
     }
@@ -536,24 +514,6 @@ impl ParsedProgramWithCallableParameterSourceV1 {
         consume_completed_postpass_at_test_terminal(completed);
         consume_program_source_authority_at_named_terminal(source_authority);
         Ok(observation)
-    }
-}
-
-impl PreparedParserNormalSourceBackedRawVmV1 {
-    pub(crate) fn into_ast_after_named_raw_discard(self) -> crate::ast::ASTNode {
-        consume_parameter_source_at_named_terminal(self.parameter_source);
-        consume_program_source_authority_at_named_terminal(self.source_authority);
-        consume_ready_root_for_raw(self.root);
-        self.completed.into_ast()
-    }
-}
-
-impl PreparedParserNormalCompatibilityRawVmV1 {
-    pub(crate) fn into_ast_after_named_compatibility_extraction(self) -> crate::ast::ASTNode {
-        consume_parameter_source_at_named_terminal(self.parameter_source);
-        consume_program_source_authority_at_named_terminal(self.source_authority);
-        consume_compatibility_closure_at_named_terminal(self.compatibility);
-        self.completed.into_ast()
     }
 }
 
