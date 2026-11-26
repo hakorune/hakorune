@@ -21,6 +21,27 @@ pub(crate) type SelectedLoopProductV1 = BTreeMap<
     Result<std::rc::Rc<RetainedSourceLoopProductV1>, LoopProductUnavailableV1>,
 >;
 
+pub(super) fn retain_selected_loop_product_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    prestate: LoopI64PreStateRequestV1,
+    rows: &mut SelectedLoopProductV1,
+    policy: crate::mir::builder::LoopFactsPolicyFrameV1,
+) -> Option<SelectedLoopHomeLoanV1> {
+    let key = (prestate.owner(), prestate.site().clone());
+    match rows.entry(key) {
+        std::collections::btree_map::Entry::Vacant(slot) => {
+            let row = RetainedSourceLoopProductV1::issue(input, prestate.site(), policy);
+            let loan = row.observation_source_v1(input)
+                .map(|_| SelectedLoopHomeLoanV1::SourceObservation(std::rc::Rc::clone(&row)));
+            slot.insert(Ok(row));
+            loan
+        }
+        std::collections::btree_map::Entry::Occupied(mut slot) => {
+            let _ = slot.insert(Err(LoopProductUnavailableV1::Duplicate));
+            None
+        }
+    }
+}
 
 impl super::OrdinaryNewClaimLedgerV1 {
     /// Borrow branch joins from the SAME selected source-loop product when a
@@ -45,7 +66,7 @@ impl super::OrdinaryNewClaimLedgerV1 {
             let Ok(retained) = row else {
                 continue;
             };
-            let Some(Ok(product)) = retained.source_recipe.get() else {
+            let Some(Ok(product)) = retained.source_recipe() else {
                 continue;
             };
             for basis in product.source.headers.values() {
@@ -93,7 +114,7 @@ impl super::OrdinaryNewClaimLedgerV1 {
             let Ok(retained) = row else {
                 continue;
             };
-            let Some(Ok(product)) = retained.source_recipe.get() else {
+            let Some(Ok(product)) = retained.source_recipe() else {
                 continue;
             };
             for join in product.schedule().text_branch_joins_v2()
@@ -118,8 +139,7 @@ impl super::OrdinaryNewClaimLedgerV1 {
         match self.selected_loop_products.get(&(owner, site.clone())) {
             Some(Ok(row)) => {
                 let source = row
-                    .source
-                    .as_ref()
+                    .retained_source()
                     .ok_or("[freeze:contract][preissued-loop/retained-source-missing]")?;
                 if source.owner() != owner || source.site() != site {
                     return Err("[freeze:contract][preissued-loop/retained-source-drift]".into());
@@ -142,7 +162,7 @@ impl super::OrdinaryNewClaimLedgerV1 {
     > {
         match self.selected_loop_products.get(&(owner, site.clone())) {
             Some(Ok(row)) => {
-                row.source_recipe.get().map_or(Ok(None), |product| {
+                row.source_recipe().map_or(Ok(None), |product| {
                     product.as_ref().map(Some).map_err(Clone::clone)
                 })
             }
@@ -157,36 +177,7 @@ impl super::OrdinaryNewClaimLedgerV1 {
     ) -> Result<Option<crate::mir::builder::PreissuedCallableLoopSourcePlanV1>, String> {
         match self.selected_loop_products.get(&(owner, site.clone())) {
             Some(Ok(slot)) => {
-                let product = slot
-                    .source_recipe
-                    .get()
-                    .map(|row| row.as_ref().map(std::rc::Rc::clone).map_err(Clone::clone))
-                    .transpose()?;
-                let mut retained = slot.plan.borrow_mut();
-                let plan = retained
-                    .as_ref()
-                    .ok_or_else(|| "[freeze:contract][preissued-loop/already-taken]".to_owned())?
-                    .as_ref()
-                    .map_err(Clone::clone)?;
-                if plan.owner() != owner
-                    || plan.site() != site
-                    || slot.source.as_ref().is_none_or(|source| {
-                        !std::rc::Rc::ptr_eq(source, plan.original_source_v1())
-                    })
-                {
-                    return Err("[freeze:contract][source-loop/plan-row-identity]".into());
-                }
-                if let Some(product) = &product {
-                    plan.validate_source_recipe_attachment_v2(product)?;
-                }
-                let mut plan = retained
-                    .take()
-                    .expect("checked affine slot")
-                    .expect("checked planner outcome");
-                if let Some(product) = product {
-                    plan.attach_source_recipe_v2(product)?;
-                }
-                Ok(Some(plan))
+                slot.take_plan_v2(owner, site).map(Some)
             }
             _ => Ok(None),
         }
@@ -199,7 +190,7 @@ impl super::OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
     ) -> Result<(), String> {
         if self.selected_loop_products.iter().any(|((source_owner, _), row)| *source_owner == owner
-            && matches!(row, Ok(slot) if slot.plan.borrow().is_some())) {
+            && matches!(row, Ok(slot) if slot.has_plan())) {
             return Err("[freeze:contract][preissued-loop/unconsumed]".into());
         }
         if self
@@ -208,7 +199,7 @@ impl super::OrdinaryNewClaimLedgerV1 {
             .any(|((source_owner, _), row)| {
                 *source_owner == owner
                     && matches!(row, Ok(slot)
-                if slot.source.as_ref().is_some_and(|source| source.binding_handoff_pending_v1()))
+                if slot.retained_source().is_some_and(|source| source.binding_handoff_pending_v1()))
             })
         {
             return Err("[freeze:contract][preissued-loop/binding-handoff-unconsumed]".into());
