@@ -1,6 +1,5 @@
 //! Independent expression terminal cleanup.
 use super::*;
-use super::expression_continuation_paths::CarrierHandoffV1;
 
 impl ExpressionPhysicalProjectionRefV1<'_> {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_effective_root_v1(
@@ -98,44 +97,25 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         Ok(())
     }
 
-    pub(in super::super::super) fn validate_paths_to_terminal(
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit)
+    fn validate_continuation_v1(
         &self,
         context: CallValidationContextV1<'_>,
         function: &MirFunction,
         finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
         terminal: &Option<Binding>,
         continuation: &Option<Binding>,
-        residence: Option<&Binding>,
-        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
+        policy: ExpressionContinuationPolicyV1<'_, '_>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
-        self.validate_paths_with_policy(
-            context,
-            function,
-            finishing,
-            terminal,
-            continuation,
-            residence,
-            inherited,
-            false,
-            None,
-            None,
-            None,
-        )
-    }
-    pub(super) fn validate_paths_with_policy(
-        &self,
-        context: CallValidationContextV1<'_>,
-        function: &MirFunction,
-        finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        terminal: &Option<Binding>,
-        continuation: &Option<Binding>,
-        residence: Option<&Binding>,
-        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
-        defer_owned_argument: bool,
-        displaced: Option<&InvokeOperation>,
-        purpose_acquisition: Option<&[Binding; 2]>,
-        forwarded_dynamic_carrier: Option<(ValueId, CarrierHandoffV1)>,
-    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
+        let ExpressionContinuationPolicyV1 {
+            entry, residence, inherited, defer_owned_argument, displaced,
+            purpose_acquisition, forwarded_dynamic_carrier,
+        } = policy;
+        if let Some(entry) = entry {
+            self.validate_local_delimiters_v1(
+                context, function, finishing, entry, terminal, continuation,
+            )?;
+        }
         let (Some(terminal), Some(continuation)) = (terminal, continuation) else {
             if terminal.is_some()
                 || continuation.is_some()

@@ -5,6 +5,23 @@ use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::LocalRout
 use crate::mir::normal_callable_semantic_package::RootCallDispositionV1;
 use crate::mir::resolved_semantics::home_new_prefix::LifecyclePrefixSourceV1;
 
+#[derive(Clone, Copy)]
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) enum CarrierHandoffV1 {
+    LocalOrArgument,
+    PendingReturn,
+}
+
+#[derive(Default)]
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) struct ExpressionContinuationPolicyV1<'a, 'frame> {
+    pub entry: Option<&'a Option<(BasicBlockId, MirInstruction)>>,
+    pub residence: Option<&'a (BasicBlockId, MirInstruction)>,
+    pub inherited: Option<&'a ExpressionCallTransientPrefixV1<'frame>>,
+    pub defer_owned_argument: bool,
+    pub displaced: Option<&'a InvokeOperation>,
+    pub purpose_acquisition: Option<&'a [(BasicBlockId, MirInstruction); 2]>,
+    pub forwarded_dynamic_carrier: Option<(ValueId, CarrierHandoffV1)>,
+}
+
 /// A source-ordered group checked without changing the shared ledger.
 /// A selected caller may hold this through fallible draft admission; existing
 /// callers commit it immediately.

@@ -1,5 +1,6 @@
 //! Shared passive Map key/receiver physical observations; no source classifier.
 use super::*;
+use super::root_home::ExpressionContinuationPolicyV1;
 use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 
 /// Passive Text-key observations shared by exact Map reads and installs.
@@ -133,15 +134,16 @@ impl FieldMapKeyReadEmissionV1 {
         }
         let actual = finishing.map(|p| p.bindings(&self.original)).transpose()?;
         expression.validate_recorded(actual.as_deref().unwrap_or(&self.original), finishing)?;
-        let covered = expression.validate_local_continuation_v1(
+        let covered = expression.validate_continuation_v1(
             context,
             function,
             finishing,
-            &Some(self.entry.clone()),
             &Some(self.terminal.clone()),
             &Some(self.continuation.clone()),
-            None,
-            None,
+            ExpressionContinuationPolicyV1 {
+                entry: Some(&Some(self.entry.clone())),
+                ..Default::default()
+            },
         )?;
         let actual_invoke = match finishing {
             Some(p) => p

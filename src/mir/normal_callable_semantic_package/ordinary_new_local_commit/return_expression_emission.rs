@@ -1,5 +1,6 @@
 //! Return-specific result and residence contract over the common expression record.
 use super::*;
+use super::root_home::{CarrierHandoffV1, ExpressionContinuationPolicyV1};
 /// One Return-owned expression. Residence carries only its additional ownership
 /// events; scalar results reuse the same values, reads and independent replay.
 #[derive(Debug)]
@@ -194,33 +195,46 @@ impl super::ExpressionEmissionV1<ReturnExpressionContractV1> {
             .transpose()?;
         expression.validate_recorded(recorded.as_deref().unwrap_or(&self.original), projection)?;
         let covered = match &self.contract.residence {
-            Some(row) => expression.validate_residence_continuation_v1(
+            Some(row) => expression.validate_continuation_v1(
                 context,
                 function,
                 projection,
-                &self.entry,
                 &self.terminal,
                 &self.continuation,
-                Some(&row.install),
-                displaced.as_ref(),
-                row.materialize.as_ref(),
+                ExpressionContinuationPolicyV1 {
+                    entry: Some(&self.entry),
+                    residence: Some(&row.install),
+                    displaced: displaced.as_ref(),
+                    purpose_acquisition: row.materialize.as_ref(),
+                    ..Default::default()
+                },
             )?,
             None if context.ledger().owned_carrier_materialization_v1(
                 self.contract.source.source().owner(), self.contract.source.source().root().statement(),
-            ).is_some() => expression.validate_pending_carrier_return_v1(
-                context, function, projection, &self.entry, &self.terminal,
-                &self.continuation, self.contract.value, self.contract.dynamic_purpose.as_ref(),
-            )?,
-            None => expression.validate_local_continuation_with_purpose_v1(
+            ).is_some() => expression.validate_continuation_v1(
                 context,
                 function,
                 projection,
-                &self.entry,
                 &self.terminal,
                 &self.continuation,
-                None,
-                None,
-                self.contract.dynamic_purpose.as_ref(),
+                ExpressionContinuationPolicyV1 {
+                    entry: Some(&self.entry),
+                    forwarded_dynamic_carrier: Some((self.contract.value, CarrierHandoffV1::PendingReturn)),
+                    purpose_acquisition: self.contract.dynamic_purpose.as_ref(),
+                    ..Default::default()
+                },
+            )?,
+            None => expression.validate_continuation_v1(
+                context,
+                function,
+                projection,
+                &self.terminal,
+                &self.continuation,
+                ExpressionContinuationPolicyV1 {
+                    entry: Some(&self.entry),
+                    purpose_acquisition: self.contract.dynamic_purpose.as_ref(),
+                    ..Default::default()
+                },
             )?,
         };
         if projection.is_none() {

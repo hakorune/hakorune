@@ -122,15 +122,16 @@ impl FieldAppendTextProjectionV1 {
             actual.as_deref().unwrap_or(&self.expression_bindings),
             finishing,
         )?;
-        let covered = expression.validate_local_continuation_v1(
+        let covered = expression.validate_continuation_v1(
             context,
             function,
             finishing,
-            &Some(self.entry.clone()),
             &Some(self.terminal.clone()),
             &Some(self.continuation.clone()),
-            None,
-            None,
+            ExpressionContinuationPolicyV1 {
+                entry: Some(&Some(self.entry.clone())),
+                ..Default::default()
+            },
         )?;
         let map = |row: &Binding| match finishing {
             Some(p) => p
@@ -364,8 +365,17 @@ impl EmittedFieldArrayAppendV1 {
                 { return Err(freeze("field-array-append/pin-origin")); }
                 let expression = argument.expression();
                 expression.validate_source(context)?;
-                let covered = expression.validate_local_continuation_v1(context, function, finishing,
-                    &argument.entry, &argument.terminal, &argument.continuation, None, None)?;
+                let covered = expression.validate_continuation_v1(
+                    context,
+                    function,
+                    finishing,
+                    &argument.terminal,
+                    &argument.continuation,
+                    ExpressionContinuationPolicyV1 {
+                        entry: Some(&argument.entry),
+                        ..Default::default()
+                    },
+                )?;
                 let observed = finishing.map(|p| p.bindings(&argument.original)).transpose()?;
                 expression.validate_recorded(observed.as_deref().unwrap_or(&argument.original), finishing)?;
                 if finishing.is_none() {

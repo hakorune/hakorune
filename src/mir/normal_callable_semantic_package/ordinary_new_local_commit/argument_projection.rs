@@ -1,5 +1,6 @@
 //! The existing New emission keeps exact checked read/local Copy/actual loans.
 use super::*;
+use super::root_home::ExpressionContinuationPolicyV1;
 #[path = "argument_cleanup.rs"]
 mod cleanup;
 use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
@@ -217,26 +218,31 @@ impl EmittedNewExpressionV1 {
             .transpose()?;
         view.validate_recorded(actual.as_deref().unwrap_or(&self.original), finishing)?;
         let covered = if self.acquired.is_empty() {
-            view.validate_local_continuation_v1(
+            view.validate_continuation_v1(
                 context,
                 function,
                 finishing,
-                &self.entry,
                 &self.terminal,
                 &self.continuation,
-                None,
-                inherited,
+                ExpressionContinuationPolicyV1 {
+                    entry: Some(&self.entry),
+                    inherited,
+                    ..Default::default()
+                },
             )?
         } else {
-            view.validate_deferred_owned_continuation_v1(
+            view.validate_continuation_v1(
                 context,
                 function,
                 finishing,
-                &self.entry,
                 &self.terminal,
                 &self.continuation,
-                inherited,
-                None,
+                ExpressionContinuationPolicyV1 {
+                    entry: Some(&self.entry),
+                    inherited,
+                    defer_owned_argument: true,
+                    ..Default::default()
+                },
             )?
         };
         if finishing.is_none() {

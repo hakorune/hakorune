@@ -1,231 +1,7 @@
-//! Independent expression continuation paths.
+//! Checks that expression continuation delimiters still describe the original frame.
 use super::*;
 
-#[derive(Clone, Copy)]
-pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) enum CarrierHandoffV1 {
-    LocalOrArgument,
-    PendingReturn,
-}
-
 impl ExpressionPhysicalProjectionRefV1<'_> {
-    pub(in crate::mir) fn validate_scalar_continuation_v1(
-        &self,
-        context: CallValidationContextV1<'_>,
-        function: &MirFunction,
-        finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        entry: &Option<Binding>,
-        terminal: &Option<Binding>,
-        continuation: &Option<Binding>,
-        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
-    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
-        self.validate_local_continuation_v1(
-            context,
-            function,
-            finishing,
-            entry,
-            terminal,
-            continuation,
-            None,
-            inherited,
-        )
-    }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_residence_continuation_v1(
-        &self,
-        context: CallValidationContextV1<'_>,
-        function: &MirFunction,
-        finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        entry: &Option<Binding>,
-        terminal: &Option<Binding>,
-        continuation: &Option<Binding>,
-        residence: Option<&Binding>,
-        displaced: Option<&InvokeOperation>,
-        purpose_acquisition: Option<&[Binding; 2]>,
-    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
-        self.validate_local_delimiters_v1(
-            context,
-            function,
-            finishing,
-            entry,
-            terminal,
-            continuation,
-        )?;
-        self.validate_paths_with_policy(
-            context,
-            function,
-            finishing,
-            terminal,
-            continuation,
-            residence,
-            None,
-            false,
-            displaced,
-            purpose_acquisition,
-            None,
-        )
-    }
-    pub(in crate::mir) fn validate_local_continuation_v1(
-        &self,
-        context: CallValidationContextV1<'_>,
-        function: &MirFunction,
-        finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        entry: &Option<Binding>,
-        terminal: &Option<Binding>,
-        continuation: &Option<Binding>,
-        residence: Option<&Binding>,
-        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
-    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
-        self.validate_local_continuation_with_purpose_v1(
-            context,
-            function,
-            finishing,
-            entry,
-            terminal,
-            continuation,
-            residence,
-            inherited,
-            None,
-        )
-    }
-    /// A Local that owns a Text snapshot of an owned carrier also carries the `Materialize` pair.
-    pub(in crate::mir) fn validate_local_continuation_with_purpose_v1(
-        &self,
-        context: CallValidationContextV1<'_>,
-        function: &MirFunction,
-        finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        entry: &Option<Binding>,
-        terminal: &Option<Binding>,
-        continuation: &Option<Binding>,
-        residence: Option<&Binding>,
-        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
-        purpose_acquisition: Option<&[Binding; 2]>,
-    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
-        self.validate_local_delimiters_v1(
-            context,
-            function,
-            finishing,
-            entry,
-            terminal,
-            continuation,
-        )?;
-        self.validate_paths_with_policy(
-            context,
-            function,
-            finishing,
-            terminal,
-            continuation,
-            residence,
-            inherited,
-            false,
-            None,
-            purpose_acquisition,
-            None,
-        )
-    }
-    pub(in crate::mir) fn validate_dynamic_local_handoff_continuation_v1(
-        &self,
-        context: CallValidationContextV1<'_>,
-        function: &MirFunction,
-        finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        entry: &Option<Binding>,
-        terminal: &Option<Binding>,
-        continuation: &Option<Binding>,
-        carrier: ValueId,
-    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
-        self.validate_dynamic_carrier_argument_continuation_v1(
-            context,
-            function,
-            finishing,
-            entry,
-            terminal,
-            continuation,
-            None,
-            carrier,
-        )
-    }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_deferred_owned_continuation_v1(
-        &self,
-        context: CallValidationContextV1<'_>,
-        function: &MirFunction,
-        finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        entry: &Option<Binding>,
-        terminal: &Option<Binding>,
-        continuation: &Option<Binding>,
-        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
-        purpose_acquisition: Option<&[Binding; 2]>,
-    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
-        self.validate_local_delimiters_v1(
-            context,
-            function,
-            finishing,
-            entry,
-            terminal,
-            continuation,
-        )?;
-        self.validate_paths_with_policy(
-            context,
-            function,
-            finishing,
-            terminal,
-            continuation,
-            None,
-            inherited,
-            true,
-            None,
-            purpose_acquisition,
-            None,
-        )
-    }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_dynamic_carrier_argument_continuation_v1(
-        &self,
-        context: CallValidationContextV1<'_>,
-        function: &MirFunction,
-        finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        entry: &Option<Binding>,
-        terminal: &Option<Binding>,
-        continuation: &Option<Binding>,
-        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
-        carrier: ValueId,
-    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
-        self.validate_local_delimiters_v1(
-            context,
-            function,
-            finishing,
-            entry,
-            terminal,
-            continuation,
-        )?;
-        self.validate_paths_with_policy(
-            context,
-            function,
-            finishing,
-            terminal,
-            continuation,
-            None,
-            inherited,
-            false,
-            None,
-            None,
-            Some((carrier, CarrierHandoffV1::LocalOrArgument)),
-        )
-    }
-
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_pending_carrier_return_v1(
-        &self,
-        context: CallValidationContextV1<'_>,
-        function: &MirFunction,
-        finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        entry: &Option<Binding>,
-        terminal: &Option<Binding>,
-        continuation: &Option<Binding>,
-        carrier: ValueId,
-        acquisition: Option<&[Binding; 2]>,
-    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
-        self.validate_local_delimiters_v1(context, function, finishing, entry, terminal, continuation)?;
-        self.validate_paths_with_policy(
-            context, function, finishing, terminal, continuation,
-            None, None, false, None, acquisition, Some((carrier, CarrierHandoffV1::PendingReturn)),
-        )
-    }
     pub(super) fn validate_local_delimiters_v1(
         &self,
         context: CallValidationContextV1<'_>,
@@ -311,26 +87,30 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         terminal: &Option<Binding>,
         continuation: &Option<Binding>,
     ) {
-        self.validate_deferred_owned_continuation_v1(
+        self.validate_continuation_v1(
             context,
             function,
             None,
-            entry,
             terminal,
             continuation,
-            None,
-            None,
+            ExpressionContinuationPolicyV1 {
+                entry: Some(entry),
+                defer_owned_argument: true,
+                ..Default::default()
+            },
         )
         .unwrap();
         assert!(
-            self.validate_scalar_continuation_v1(
+            self.validate_continuation_v1(
                 context,
                 function,
                 None,
-                entry,
                 terminal,
                 continuation,
-                None
+                ExpressionContinuationPolicyV1 {
+                    entry: Some(entry),
+                    ..Default::default()
+                },
             )
             .is_err(),
             "scalar completion cannot skip its own Ends"
@@ -345,15 +125,17 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             edge_args: None,
         });
         assert!(
-            self.validate_deferred_owned_continuation_v1(
+            self.validate_continuation_v1(
                 context,
                 &changed,
                 None,
-                entry,
                 terminal,
                 continuation,
-                None,
-                None
+                ExpressionContinuationPolicyV1 {
+                    entry: Some(entry),
+                    defer_owned_argument: true,
+                    ..Default::default()
+                },
             )
             .is_err(),
             "deferred delimiter must remain original"

@@ -289,15 +289,18 @@ impl EmittedFieldWriteRhsV1 {
                 materializes,
                 owned.acquisition.as_ref(),
             )?;
-            let covered = view.validate_deferred_owned_continuation_v1(
+            let covered = view.validate_continuation_v1(
                 context,
                 function,
                 finishing,
-                &owned.body.entry,
                 &owned.terminal,
                 &owned.continuation,
-                None,
-                owned.acquisition.as_ref(),
+                ExpressionContinuationPolicyV1 {
+                    entry: Some(&owned.body.entry),
+                    purpose_acquisition: owned.acquisition.as_ref(),
+                    defer_owned_argument: true,
+                    ..Default::default()
+                },
             )?;
             if finishing.is_none() && post_rhs_prefix.is_empty() {
                 let mut ordered = view.ordered_bindings_in_context(context)?;

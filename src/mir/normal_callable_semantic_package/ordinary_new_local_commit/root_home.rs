@@ -739,6 +739,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
 #[path = "root_call_entry.rs"]
 mod call_entry;
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) use call_entry::{CarrierHandoffV1, ExpressionContinuationPolicyV1};
 #[path = "root_map_field_install.rs"]
 mod map_field_install;
 pub(crate) use map_field_install::{MapFieldInstallEmissionV1, PreparedMapFieldInstallV1};
