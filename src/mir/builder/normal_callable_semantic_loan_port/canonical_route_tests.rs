@@ -43,6 +43,6 @@ fn generic_g0_selection_rejects_missing_policy_mode() {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(function)
         .expect("Generic G0 fixture resolves");
     let input = unit.root_function_input().expect("root function input");
-    let result = super::generic_g0::try_select_top_level_generic_g0_plan_v1(input, None);
+    let result = super::canonical_route::try_classify_generic_g0_route_v1(input, None);
     assert!(matches!(result, Err(error) if error.contains("CapabilityNotActivated")));
 }

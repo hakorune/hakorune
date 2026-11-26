@@ -165,8 +165,6 @@ mod tests {
         CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
         VerifiedSameModuleCallableDeclarationCatalogV1,
     };
-    use crate::mir::builder::module_draft_collector::FunctionDraftKeyV1;
-    use crate::mir::builder::normal_top_level_function_admission::NormalTopLevelFunctionDraftAdmissionV1;
     use crate::parser::NyashParser;
 
     use super::{SelectedNormalCallableKeyV1, SelectedNormalCallableSourceSiteV1};
@@ -283,33 +281,4 @@ mod tests {
             .is_some());
     }
 
-    #[test]
-    fn distinct_top_level_occurrences_share_one_canonical_free_function_projection() {
-        let first = NormalTopLevelFunctionDraftAdmissionV1::from_catalog_key(
-            super::SelectedTopLevelFunctionKeyV1::new(2, "same", 1),
-        );
-        let second = NormalTopLevelFunctionDraftAdmissionV1::from_catalog_key(
-            super::SelectedTopLevelFunctionKeyV1::new(9, "same", 1),
-        );
-
-        assert_ne!(
-            first.source_key().statement_index(),
-            second.source_key().statement_index()
-        );
-        assert_eq!(first.physical_symbol(), "same/1");
-        assert_eq!(second.physical_arity(), 1);
-        assert_eq!(
-            second.canonical_key(),
-            &CanonicalSameModuleCallableKeyV1::free_function("same", 1)
-        );
-        let (key, symbol, arity) = second.into_collector_parts();
-        assert_eq!(
-            key,
-            FunctionDraftKeyV1::CatalogedBoxMethod(
-                CanonicalSameModuleCallableKeyV1::free_function("same", 1)
-            )
-        );
-        assert_eq!(symbol, "same/1");
-        assert_eq!(arity, 1);
-    }
 }

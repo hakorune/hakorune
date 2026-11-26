@@ -9,15 +9,6 @@ use crate::mir::builder::calls::LegacyFunctionPayloadPendingSessionV1;
 use crate::mir::builder::normal_callable_semantic_lowering_state::construction::RetainedConstructionValidation;
 
 impl RawInvocationChildPortV1<'_, '_> {
-    pub(in crate::mir::builder) fn commit_normal_top_level_function_pending_v1(
-        &mut self,
-        pending: LegacyFunctionPendingSessionV1<'_>,
-        admission: super::super::normal_top_level_function_admission::NormalTopLevelFunctionDraftAdmissionV1,
-    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
-        self.module_port
-            .commit_normal_top_level_function_pending(pending, admission)
-    }
-
     pub(in crate::mir::builder) fn commit_normal_instance_constructor_pending_v1(
         &mut self,
         pending: LegacyFunctionPayloadPendingSessionV1<'_, Option<RetainedConstructionValidation>>,

@@ -24,14 +24,10 @@ use super::normal_script_runtime_work::{
 };
 #[cfg(test)]
 use super::normal_script_selected_occurrence::SelectedScriptProgramOccurrenceV1;
-use super::normal_top_level_function_admission::NormalTopLevelFunctionDraftAdmissionV1;
 use super::MirBuilder;
 use crate::ast::{ASTNode, DeclarationAttrs, FieldDecl, ParamDecl};
 
 mod raw_compatibility;
-mod selected_projection_validator;
-#[cfg(test)]
-use selected_projection_validator::validate_selected_normal_top_level_projections;
 #[derive(Debug)]
 pub(super) struct PreparedProgramRootWorkPlanV1 {
     immediate: Box<[PreparedProgramRootImmediateWorkV1]>,
@@ -62,7 +58,7 @@ pub(super) struct PreparedProgramRootWorkPlanPartsV1 {
 #[derive(Debug)]
 pub(super) enum PreparedProgramRootImmediateWorkV1 {
     InstanceBox(PreparedProgramRootInstanceBoxWorkV1),
-    TopLevelFunction(PreparedProgramRootTopLevelFunctionWorkV1),
+    TopLevelFunction(PreparedProgramRootTopLevelFunctionPartsV1),
 }
 #[derive(Debug)]
 pub(super) struct PreparedProgramRootInstanceBoxWorkV1 {
@@ -75,14 +71,6 @@ pub(super) struct PreparedProgramRootInstanceBoxWorkV1 {
     normal_constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
     init_fields: Vec<String>,
     weak_fields: Vec<String>,
-}
-#[derive(Debug)]
-pub(super) enum PreparedProgramRootTopLevelFunctionWorkV1 {
-    RawCompatibility(PreparedProgramRootTopLevelFunctionPartsV1),
-    SelectedNormal {
-        admission: NormalTopLevelFunctionDraftAdmissionV1,
-        parts: PreparedProgramRootTopLevelFunctionPartsV1,
-    },
 }
 #[derive(Debug)]
 pub(super) struct PreparedProgramRootTopLevelFunctionPartsV1 {
@@ -251,10 +239,6 @@ impl PreparedProgramRootWorkPlanV1 {
             "selected callable inventory must match work-plan admission",
         );
         if work_plan_admission == ProgramRootWorkPlanAdmissionV1::SelectedNormal {
-            validate_selected_normal_top_level_projections(
-                &statements,
-                selected_callable_sources.expect("selected callable inventory"),
-            )?;
             let cohort = constructor_source_cohort.ok_or_else(|| {
                 "[freeze:contract][mir/instance-constructor-source/cohort-missing]".to_owned()
             })?;
@@ -298,7 +282,6 @@ impl PreparedProgramRootWorkPlanV1 {
                 statement_index,
                 work_plan_admission,
                 normal_script_kind,
-                selected_callable_sources,
                 constructor_source_cohort,
             );
             if work_plan_admission == ProgramRootWorkPlanAdmissionV1::SelectedNormal {
@@ -411,7 +394,7 @@ impl PreparedProgramRootImmediateWorkV1 {
     {
         match self {
             Self::InstanceBox(work) => work.lower_with_port_v1(builder, callables),
-            Self::TopLevelFunction(work) => work.lower_with_port_v1(builder, callables),
+            Self::TopLevelFunction(work) => work.lower_raw_with_port_v1(builder, callables),
         }
     }
 }
@@ -447,29 +430,6 @@ impl PreparedProgramRootInstanceBoxWorkV1 {
         match self.normal_constructor_sources {
             Some(sources) => lifecycle.lower_normal_root_with_port_v1(builder, callables, sources),
             None => lifecycle.lower_root_with_port_v1(builder, callables),
-        }
-    }
-}
-impl PreparedProgramRootTopLevelFunctionWorkV1 {
-    fn lower_with_port_v1<Port>(
-        self,
-        builder: &mut MirBuilder,
-        callables: &mut Port,
-    ) -> Result<(), String>
-    where
-        Port: RootCallableCapturePortV1,
-    {
-        match self {
-            Self::RawCompatibility(parts) => parts.lower_raw_with_port_v1(builder, callables),
-            Self::SelectedNormal { admission, parts } => {
-                parts.lower_normal_with_port_v1(builder, callables, admission)
-            }
-        }
-    }
-    #[cfg(test)]
-    fn name(&self) -> &str {
-        match self {
-            Self::RawCompatibility(parts) | Self::SelectedNormal { parts, .. } => &parts.name,
         }
     }
 }
@@ -516,27 +476,6 @@ impl PreparedProgramRootTopLevelFunctionPartsV1 {
             Some(self.declaration),
         )
     }
-    fn lower_normal_with_port_v1<Port>(
-        self,
-        builder: &mut MirBuilder,
-        callables: &mut Port,
-        admission: NormalTopLevelFunctionDraftAdmissionV1,
-    ) -> Result<(), String>
-    where
-        Port: RootCallableCapturePortV1,
-    {
-        callables.lower_normal_top_level_function(
-            builder,
-            admission,
-            self.params,
-            self.param_decls,
-            self.return_type_name,
-            self.body,
-            self.uses,
-            self.attrs,
-            Some(self.declaration),
-        )
-    }
 }
 fn classify_statement(
     statement: ASTNode,
@@ -544,7 +483,6 @@ fn classify_statement(
     statement_index: usize,
     work_plan_admission: ProgramRootWorkPlanAdmissionV1,
     normal_script_kind: Option<NormalScriptProgramItemAdmissionV1>,
-    selected_callable_sources: Option<&VerifiedSelectedNormalCallableSourceInventoryV1>,
     constructor_source_cohort: Option<&VerifiedInstanceConstructorPhysicalSourceCohortV1>,
 ) -> ProgramRootStatementDispositionV1 {
     match &statement {
@@ -630,7 +568,7 @@ fn classify_statement(
             uses,
             attrs,
             ..
-        } => {
+        } if work_plan_admission == ProgramRootWorkPlanAdmissionV1::RawCompatibility => {
             let parts = PreparedProgramRootTopLevelFunctionPartsV1::from_source(
                 name.clone(),
                 params.clone(),
@@ -641,28 +579,8 @@ fn classify_statement(
                 attrs.clone(),
                 statement.clone(),
             );
-            let work = match work_plan_admission {
-                ProgramRootWorkPlanAdmissionV1::RawCompatibility => {
-                    PreparedProgramRootTopLevelFunctionWorkV1::RawCompatibility(parts)
-                }
-                ProgramRootWorkPlanAdmissionV1::SelectedNormal => {
-                    let source_key = selected_callable_sources
-                        .and_then(|sources| sources.top_level_function(statement_index))
-                        .filter(|key| {
-                            key.declared_name() == name && key.declared_arity() == params.len()
-                        })
-                        .cloned()
-                        .expect("selected callable catalog/work-plan source contract");
-                    PreparedProgramRootTopLevelFunctionWorkV1::SelectedNormal {
-                        admission: NormalTopLevelFunctionDraftAdmissionV1::from_catalog_key(
-                            source_key,
-                        ),
-                        parts,
-                    }
-                }
-            };
             ProgramRootStatementDispositionV1::ImmediateOnly(
-                PreparedProgramRootImmediateWorkV1::TopLevelFunction(work),
+                PreparedProgramRootImmediateWorkV1::TopLevelFunction(parts),
             )
         }
         _ => {

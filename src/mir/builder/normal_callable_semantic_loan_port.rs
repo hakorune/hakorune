@@ -23,7 +23,6 @@ use super::normal_callable_semantic_lowering_state::CallableSemanticLoweringStat
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use super::normal_instance_constructor_demand_loan::InstanceConstructorDemandConsumptionV1;
 use super::normal_instance_constructor_semantic_scope::with_constructor_semantic_scope;
-use super::normal_top_level_function_admission::NormalTopLevelFunctionDraftAdmissionV1;
 use super::pinned_text_invocation_binding::PinnedTextCompileInvocationBindingRefV1;
 use super::raw_invocation_source_transport::RawSourceTransportPortV1;
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
@@ -40,8 +39,6 @@ use crate::mir::normal_callable_semantic_package::{
 mod canonical_route;
 #[path = "normal_callable_semantic_loan_port/cataloged_instance_scope.rs"]
 mod cataloged_instance_scope;
-#[path = "normal_callable_semantic_loan_port/generic_g0.rs"]
-mod generic_g0;
 #[path = "normal_callable_semantic_loan_port/main_root.rs"]
 mod main_root;
 #[path = "normal_callable_semantic_loan_port/ordinary_new.rs"]

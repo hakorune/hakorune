@@ -163,33 +163,6 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
     }
 
     #[allow(clippy::too_many_arguments)]
-    fn lower_normal_top_level_function(
-        &mut self,
-        builder: &mut MirBuilder,
-        admission: NormalTopLevelFunctionDraftAdmissionV1,
-        params: Vec<String>,
-        param_decls: Vec<ParamDecl>,
-        return_type_name: Option<String>,
-        body: Vec<ASTNode>,
-        uses: Vec<String>,
-        attrs: DeclarationAttrs,
-        declaration: Option<ASTNode>,
-    ) -> Result<(), String> {
-        generic_g0::lower_normal_top_level_function(
-            self,
-            builder,
-            admission,
-            params,
-            param_decls,
-            return_type_name,
-            body,
-            uses,
-            attrs,
-            declaration,
-        )
-    }
-
-    #[allow(clippy::too_many_arguments)]
     fn lower_cataloged_static_box_method(
         &mut self,
         builder: &mut MirBuilder,
