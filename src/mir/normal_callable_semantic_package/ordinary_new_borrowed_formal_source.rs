@@ -55,7 +55,7 @@ mod value_domain;
 mod array_source;
 pub(super) use array_source::OriginalArraySourcesV1;
 pub(in crate::mir::normal_callable_semantic_package) use array_source::{ArrayElementSourceLoanV1, ArrayHolderLifecycleRecipeV1};
-pub(crate) use array_source::NamedArrayHolderSourceLoanV1;
+pub(crate) use crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1;
 
 
 /// The sealed class view one borrowed formal may carry on a dominated

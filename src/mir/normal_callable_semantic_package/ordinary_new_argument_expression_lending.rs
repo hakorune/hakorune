@@ -71,7 +71,7 @@ fn lend_argument_source_inner_for_array_v1(
     site: &OwnedExprSiteV1,
     ordinal: u32,
     dynamic_array_carrier_append: Option<
-        crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1,
+        crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1,
     >,
     dynamic_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
 ) -> Result<Option<ArgumentExpressionSourceLoanV1>, String> {
@@ -442,7 +442,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_carrier_array_a
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &OwnedExprSiteV1,
     ordinal: u32,
-    holder: &crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1,
+    holder: &crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1,
     dynamic_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
     retained: Option<&ArgumentExpressionSourceLoanV1>,
 ) -> Result<Option<ArgumentExpressionSourceLoanV1>, String> {

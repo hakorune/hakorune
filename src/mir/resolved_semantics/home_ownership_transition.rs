@@ -164,7 +164,7 @@ impl<'source> PrefixLocalFlow<'source> {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn acquire_named_array_holder(
         &mut self,
         homes: &mut HomesV1,
-        source: crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1,
+        source: crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1,
     ) {
         let binding = source.binding();
         self.install_named_array_holder(source);

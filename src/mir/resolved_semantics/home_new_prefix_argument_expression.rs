@@ -12,7 +12,7 @@ fn carrier_array_append_holder<E>(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
-) -> Result<Option<crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1>, E> {
+) -> Result<Option<crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1>, E> {
     let Some(call) = input.function().method_call_source_v1(call_site.site()) else {
         return Ok(None);
     };

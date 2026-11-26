@@ -91,7 +91,7 @@ enum StoredLocal {
     LoopText {
         product: std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
     },
-    NamedArrayHolder(crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1),
+    NamedArrayHolder(crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1),
     Home {
         acquisition: super::OwnedExprSiteV1,
         /// Immutable declaration source; branch-local readiness is not shared here.

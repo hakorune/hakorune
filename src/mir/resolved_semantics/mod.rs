@@ -43,6 +43,7 @@ pub(crate) use named_array_append_only_source::{
 mod named_array_requirement;
 mod named_array_residence;
 pub(crate) use named_array_requirement::{
+    NamedArrayHolderSourceLoanV1,
     NamedArrayConstructionRequirementV1, NamedArrayConstructionSourceV1,
     NamedArrayRequirementIssueV1,
 };

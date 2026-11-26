@@ -26,7 +26,7 @@ pub(crate) struct QualifiedFieldWriteRhsV1 {
         ),
     >,
     // A conditional transfer of the exact live holder, not a physical End grant.
-    owned_array: Option<crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1>,
+    owned_array: Option<crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1>,
     evaluation: Option<Rc<CheckedExpressionEvaluationV1>>,
 }
 impl QualifiedFieldWriteRhsV1 {
@@ -35,7 +35,7 @@ impl QualifiedFieldWriteRhsV1 {
     }
     pub(crate) fn owned_array(
         &self,
-    ) -> Option<&crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1> {
+    ) -> Option<&crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1> {
         self.owned_array.as_ref()
     }
     pub(crate) fn evaluation(&self) -> Option<&CheckedExpressionEvaluationV1> {
@@ -438,7 +438,7 @@ impl HomeExpressionPlanV1 {
     /// Original Plain LOCAL Array move, staged before the source Home successor.
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn owned_array_field_write(
         frame: Rc<CheckedFieldWriteFrameV1>,
-        array: crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1,
+        array: crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1,
     ) -> Option<Self> {
         let local = frame.owned_local()?;
         let field = local

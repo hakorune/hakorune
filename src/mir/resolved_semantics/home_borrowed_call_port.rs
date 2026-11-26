@@ -10,7 +10,7 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
     NamedArrayHolderInitializer(super::BindingRefV1),
     NamedArrayAppendStatement {
         binding: super::BindingRefV1,
-        source: &'a crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1,
+        source: &'a crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1,
     },
     Observe(
         crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
@@ -27,7 +27,7 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
     ArgumentExpressionCarrierArrayAppendSource {
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
         ordinal: u32,
-        holder: &'a crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1,
+        holder: &'a crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1,
     },
     CompleteArgumentExpression {
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
@@ -150,7 +150,7 @@ pub(crate) enum BorrowedCallArgumentsV1 {
         arguments: Box<[LocalCallArgumentV1]>,
     },
     NamedArrayHolderSource(
-        crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1,
+        crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1,
     ),
     /// Original nullable borrow and argument observation only, never a Home.
     BorrowedNullableLocalSource {

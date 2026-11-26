@@ -32,7 +32,7 @@ pub(crate) enum LifecyclePrefixSourceV1 {
     OwnedArrayAppend {
         site: OwnedExprSiteV1,
         statement: SourceStmtSiteV1,
-        holder: crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1,
+        holder: crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1,
         candidate: OwnedExprSiteV1,
     },
     BoolCondition {

@@ -5,9 +5,12 @@ use super::{
     FunctionOwnerIdV1, ResolvedAssignmentTargetV1, ResolvedLexicalRefV1, ResolvedLiteralSourceV1,
     ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1, SourceStmtSiteV1,
     VerifiedResolvedMethodCallSourceV1, VerifiedResolverCoreMethodCallableContractV1,
+    NamedArrayAppendOnlySourceV1, NamedArrayEmptyTransferSourceV1, OwnedExprSiteV1,
+    ResolvedAssignmentSourceV1,
 };
 use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::parser::ParserOrdinaryBoxSourceCoverageV1;
+use std::rc::Rc;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum NamedArrayRequirementIssueV1 {
@@ -190,5 +193,125 @@ impl NamedArrayConstructionRequirementV1 {
             call: call.site().clone(),
             argument: argument.site().clone(),
         })
+    }
+}
+
+/// Original LOCAL holder identity for the source Home walk. Element support,
+/// when selected, stays anchored to the same structural source.
+#[derive(Debug, Clone)]
+pub(crate) struct NamedArrayHolderSourceLoanV1 {
+    construction: NamedArrayConstructionSourceV1,
+    element_contract: Option<Rc<NamedArrayAppendOnlySourceV1>>,
+    append_only: Option<Rc<NamedArrayAppendOnlySourceV1>>,
+    empty_transfer: Option<NamedArrayEmptyTransferSourceV1>,
+}
+impl PartialEq for NamedArrayHolderSourceLoanV1 {
+    fn eq(&self, other: &Self) -> bool {
+        self.construction == other.construction
+            && self.empty_transfer == other.empty_transfer
+            && match (&self.element_contract, &other.element_contract) {
+                (Some(a), Some(b)) => Rc::ptr_eq(a, b),
+                (None, None) => true,
+                _ => false,
+            }
+            && match (&self.append_only, &other.append_only) {
+                (Some(a), Some(b)) => Rc::ptr_eq(a, b),
+                (None, None) => true,
+                _ => false,
+            }
+    }
+}
+impl Eq for NamedArrayHolderSourceLoanV1 {}
+impl NamedArrayHolderSourceLoanV1 {
+    pub(in crate::mir) fn from_element_contract(holder: Rc<NamedArrayAppendOnlySourceV1>) -> Self {
+        Self {
+            construction: holder.construction().clone(),
+            element_contract: Some(holder),
+            append_only: None,
+            empty_transfer: None,
+        }
+    }
+    pub(in crate::mir) fn from_construction(
+        construction: NamedArrayConstructionSourceV1,
+        empty_transfer: Option<NamedArrayEmptyTransferSourceV1>,
+    ) -> Self {
+        Self { construction, element_contract: None, append_only: None, empty_transfer }
+    }
+    pub(in crate::mir) fn from_append_only(
+        construction: NamedArrayConstructionSourceV1,
+        append_only: Rc<NamedArrayAppendOnlySourceV1>,
+    ) -> Self {
+        Self { construction, element_contract: None, append_only: Some(append_only), empty_transfer: None }
+    }
+    pub(crate) fn proves_empty_transfer(
+        &self, assignment: &ResolvedAssignmentSourceV1,
+        destination: BindingRefV1, field: &str,
+    ) -> bool {
+        self.element_contract.is_none() && self.append_only.is_none() && self.empty_transfer.as_ref().is_some_and(|source|
+            source.matches_transfer(&self.construction, assignment, destination, field))
+    }
+    pub(crate) fn has_element_contract(&self) -> bool { self.element_contract.is_some() }
+    pub(crate) fn is_dynamic_carrier_append_only_v1(&self) -> bool {
+        self.element_contract.is_none() && self.append_only.as_ref().is_some_and(|source|
+            source.has_appends() && source.reads().is_empty())
+    }
+    pub(crate) fn is_exact_empty_transfer_v1(&self) -> bool {
+        self.element_contract.is_none() && self.append_only.is_none() && self.empty_transfer.is_some()
+    }
+    pub(crate) fn original_append_sites_v1(&self) -> Vec<OwnedExprSiteV1> {
+        let rows = self.append_only.as_ref().map(|source| source.appends())
+            .or_else(|| self.element_contract.as_ref().map(|row| row.appends()));
+        rows.into_iter().flatten().map(|row|
+            OwnedExprSiteV1::new(self.binding().owner(), row.call().clone())).collect()
+    }
+    pub(crate) fn append_candidate_is_null_v1(&self, call: &OwnedExprSiteV1) -> Option<bool> {
+        if call.owner() != self.binding().owner() { return None; }
+        self.element_contract.as_ref()
+            .and_then(|row| row.appends().iter().find(|append| append.call() == call.site())
+                .map(|append| append.null_candidate()))
+            .or_else(|| self.append_only.as_ref()?.append_candidate_is_null_v1(call.site()))
+    }
+    pub(crate) fn binding(&self) -> BindingRefV1 {
+        self.construction.binding()
+    }
+    pub(in crate::mir) fn construction_site(&self) -> &SourceExprSiteV1 {
+        self.construction.construction()
+    }
+    pub(crate) fn construction(&self) -> OwnedExprSiteV1 {
+        OwnedExprSiteV1::new(self.construction.owner(), self.construction_site().clone())
+    }
+    pub(crate) fn append_candidate(&self, call: &OwnedExprSiteV1) -> Option<OwnedExprSiteV1> {
+        if call.owner() != self.binding().owner() {
+            return None;
+        }
+        let candidate = self.element_contract.as_ref()
+            .and_then(|row| row.appends().iter().find(|append| append.call() == call.site())
+                .map(|append| append.candidate()))
+            .or_else(|| self.append_only.as_ref()?.append_candidate_v1(call.site()))?;
+        Some(OwnedExprSiteV1::new(call.owner(), candidate.clone()))
+    }
+    pub(crate) fn append_receiver_v1(
+        &self,
+        call: &OwnedExprSiteV1,
+    ) -> Option<SourceExprSiteV1> {
+        if call.owner() != self.binding().owner() {
+            return None;
+        }
+        self.element_contract
+            .as_ref()
+            .and_then(|row| {
+                row.appends()
+                    .iter()
+                    .find(|append| append.call() == call.site())
+                    .map(|append| append.receiver().clone())
+            })
+            .or_else(|| {
+                self.append_only
+                    .as_ref()?
+                    .appends()
+                    .iter()
+                    .find(|append| append.call() == call.site())
+                    .map(|append| append.receiver().clone())
+            })
     }
 }

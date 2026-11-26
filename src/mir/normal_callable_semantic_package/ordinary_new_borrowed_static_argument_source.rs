@@ -60,7 +60,7 @@ pub(crate) struct ArgumentExpressionSourceLoanV1 {
     result: ArgumentExpressionResultV1,
     calls: BTreeMap<usize, ArgumentMethodSourceV1>,
     dynamic_array_carrier_append:
-        Option<crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1>,
+        Option<crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1>,
 }
 impl PartialEq for ArgumentExpressionSourceLoanV1 {
     fn eq(&self, other: &Self) -> bool {
@@ -86,7 +86,7 @@ impl ArgumentExpressionSourceLoanV1 {
     }
     pub(crate) fn dynamic_array_carrier_append_v1(
         &self,
-    ) -> Option<&crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1> {
+    ) -> Option<&crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1> {
         self.dynamic_array_carrier_append.as_ref()
     }
     pub(crate) fn dynamic_array_carrier_call_is_v1(&self, site: &SourceExprSiteV1) -> bool {

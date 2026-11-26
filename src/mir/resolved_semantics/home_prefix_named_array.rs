@@ -1,7 +1,7 @@
 //! Named Array source state stays distinct from ordinary object New and aliases.
 use super::super::named_array::NamedArrayHomeObservationV1;
 use super::*;
-use crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1;
+use crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1;
 
 impl PrefixLocalFlow<'_> {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_field_array_access_source_v1(

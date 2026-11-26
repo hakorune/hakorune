@@ -255,7 +255,7 @@ StoredReceiverFaultV1, StoredReceiverReadV1,
 
 pub(in crate::mir) use ordinary_new_coseal::FinalizedLexicalCallContextV1;
 
-pub(crate) use ordinary_new_coseal::NamedArrayHolderSourceLoanV1;
+use crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1;
 pub(crate) use ordinary_new_coseal::{
     BorrowedScalarResultSourceLoanV1, CallableResultSourceV1, CallableScalarResultSourceLoanV1,
     ResultPathFieldSourceLoanV1,
