@@ -1,7 +1,7 @@
 //! One source-derived scalar terminal plan for emission and independent validation.
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::{
-    ComparisonExecutionKindV1 as ComparisonKind, SourceScalarKind,
+    ComparisonExecutionKindV1 as ComparisonKind, ComparisonExecutionPlanV1, SourceScalarKind,
 };
 
 /// Central terminal operation projection shared by the Bool writer and both
@@ -282,6 +282,33 @@ pub(crate) fn checked_scalar_invoke_operation_v1(
     })
 }
 
+/// Check the recorded Compare against source semantics. The final membership
+/// and operand-provenance checks bind this row to the finished function.
+fn matches_direct_comparison(
+    plan: ComparisonExecutionPlanV1,
+    result: ValueId,
+    left: ValueId,
+    right: ValueId,
+    instruction: &MirInstruction,
+) -> bool {
+    use crate::mir::CompareOp;
+    let (dst, lhs, rhs, operator_matches) = match (plan.kind(), instruction) {
+        (ComparisonKind::Null, MirInstruction::NullCompare { dst, lhs, rhs, op })
+        | (ComparisonKind::Scalar(_), MirInstruction::Compare { dst, lhs, rhs, op }) => {
+            (dst, lhs, rhs, *op == plan.operator())
+        }
+        (
+            ComparisonKind::DynamicScalarEquality { dynamic_left },
+            MirInstruction::Compare {
+                dst, lhs, rhs,
+                op: CompareOp::DynamicScalarEquality { negated, dynamic_left: actual_left },
+            },
+        ) => (dst, lhs, rhs, *actual_left == dynamic_left && *negated == (plan.operator() == CompareOp::Ne)),
+        _ => return false,
+    };
+    operator_matches && (*dst, *lhs, *rhs) == (result, left, right)
+}
+
 /// The same source plan checks either a direct Bool Invoke or an Integer
 /// extraction followed by the original comparison in that Normal landing.
 pub(crate) fn scalar_condition_bindings_v1(
@@ -304,10 +331,10 @@ pub(crate) fn scalar_condition_bindings_v1(
         Ok(row)
     };
     if let Some((plan, left, right)) = plan.direct_observation_v1() {
-        let expected = plan
-            .instruction_v1(result, left, right)
-            .ok_or_else(|| freeze("bool-condition/text-compare-projection"))?;
-        return Ok(vec![unique(&|(_, row)| *row == expected)?.clone()]);
+        return Ok(vec![unique(&|(_, row)| {
+            matches_direct_comparison(plan, result, left, right, row)
+        })?
+        .clone()]);
     }
     if let Some(read) = plan.read() {
         return Ok(vec![unique(&|(_, row)| {
@@ -463,5 +490,93 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             Ok(())
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::compiler::{MirCompiler, NormalCompileRequestV1};
+    use crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog;
+    use crate::mir::verification::geometry::FunctionVerificationGeometry;
+    use crate::mir::CompareOp;
+
+    #[test]
+    fn completed_bool_compare_rejects_wrong_operator_and_operand_order() {
+        let source = "box Flag { n: i64 = 1 birth() {} }
+            static box Main { main() {
+                local flag = new Flag()
+                local a = flag.n == 1
+                local b = flag.n == 2
+                if a == b { return 1 }
+                return 2
+            } }";
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        let package = issue_with_brand_catalog(source).expect("source package");
+        crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+            let frames: Vec<_> = package.batch().declarations()
+                .filter_map(|declaration| package.ordinary_new_claim_ledger
+                    .completion_for_owner(declaration.owner()))
+                .filter_map(|completion| completion.cleanup().root_flow())
+                .flat_map(|flow| flow.expression_plans())
+                .filter_map(|plan| plan.condition_frame())
+                .collect();
+            let [frame] = frames.as_slice() else {
+                panic!("expected the original Bool condition");
+            };
+            let evaluation = frame.evaluation();
+            let plan = evaluation.comparison_plan_v1(0).unwrap().unwrap();
+            assert_eq!(plan.kind(), ComparisonKind::Scalar(SourceScalarKind::Bool));
+            assert_eq!(plan.operator(), CompareOp::Eq);
+            let [left, right] = plan.operands().unwrap();
+
+            let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+                source, crate::parser::ParserBuildConfig::default(),
+            ).expect("file source");
+            let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+                crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
+            else {
+                panic!("expected source-backed file ingress");
+            };
+            let request = NormalCompileRequestV1::for_mir_mode_callable_source(
+                source, None, Default::default(),
+            );
+            let mut module = MirCompiler::with_options(false).compile_normal(request)
+                .expect("unmodified source compiles").module;
+            let function = module.functions.get_mut("main").unwrap();
+            let result = function.blocks.values().find_map(|block| {
+                match &block.terminator {
+                    Some(MirInstruction::Branch { condition, .. }) => Some(*condition),
+                    _ => None,
+                }
+            }).expect("source branch");
+            let (block, index, compare) = FunctionVerificationGeometry::new(function)
+                .definition(result).expect("finished branch condition");
+            let MirInstruction::Compare { lhs, rhs, .. } = compare else {
+                panic!("the branch must use the finished Bool Compare");
+            };
+            assert_ne!(lhs, rhs);
+            let mut inputs = vec![None; evaluation.source().nodes().len()];
+            inputs[left] = Some(EvaluatedExpressionValueV1::Bool(*lhs));
+            inputs[right] = Some(EvaluatedExpressionValueV1::Bool(*rhs));
+
+            let instruction = &mut function.blocks.get_mut(&block).unwrap().instructions[index];
+            let check = |row: &MirInstruction| {
+                scalar_condition_bindings_v1(
+                    evaluation, 0, &inputs, None, result, &[(block, row.clone())],
+                )
+            };
+            check(instruction).expect("the original comparison satisfies the source");
+            if let MirInstruction::Compare { op, .. } = instruction {
+                *op = CompareOp::Ne;
+            }
+            assert!(check(instruction).unwrap_err().ends_with("bool-condition/text-compare-invoke]"));
+
+            if let MirInstruction::Compare { lhs, rhs, op, .. } = instruction {
+                *op = CompareOp::Eq;
+                std::mem::swap(lhs, rhs);
+            }
+            assert!(check(instruction).unwrap_err().ends_with("bool-condition/text-compare-invoke]"));
+        });
     }
 }
