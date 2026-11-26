@@ -175,10 +175,6 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
                     return Err(ResolvedCallableSemanticBatchIssueV1::SourceCoverage);
                 };
                 let (mode, receiver) = match syntax.mode() {
-                    FinalCallableDeclarationModeV1::TopLevel => (
-                        ResolvedCallableDeclarationModeV1::TopLevel,
-                        ReceiverPolicyV1::Absent,
-                    ),
                     FinalCallableDeclarationModeV1::StaticBoxMethod => (
                         ResolvedCallableDeclarationModeV1::StaticBoxMethod,
                         ReceiverPolicyV1::StaticCurrentOwner,
@@ -431,9 +427,6 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
                         }
                         FinalCallableDeclarationModeV1::InstanceBoxMethod => {
                             DeclaredInstanceMethodModeV1::Instance
-                        }
-                        FinalCallableDeclarationModeV1::TopLevel => {
-                            return Err(ResolvedCallableSemanticBatchIssueV1::SourceCoverage)
                         }
                     };
                     let parameter_count = u32::try_from(params.len())

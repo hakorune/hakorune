@@ -62,7 +62,6 @@ pub(in crate::parser) fn declaration_at(
         unreachable!("verified initial callable source retains a Program")
     };
     match slot {
-        InitialCallableFinalSlotV1::TopLevel { statement } => &statements[statement as usize],
         InitialCallableFinalSlotV1::BoxMethod { statement, method } => {
             let ASTNode::BoxDeclaration { methods, .. } = &statements[statement as usize] else {
                 unreachable!("verified Box method slot retains a Box declaration")

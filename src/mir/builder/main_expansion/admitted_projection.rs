@@ -191,9 +191,7 @@ fn exact_main_box_slot(
             method: "<parser-identity>".to_owned(),
         });
     }
-    let InitialCallableFinalSlotV1::BoxMethod { statement, method } = row.final_slot() else {
-        return Err(MainExpansionErrorV1::RootRelationMismatch);
-    };
+    let InitialCallableFinalSlotV1::BoxMethod { statement, method } = row.final_slot();
     Ok((statement, method))
 }
 

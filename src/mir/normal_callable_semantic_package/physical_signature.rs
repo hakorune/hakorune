@@ -183,16 +183,6 @@ pub(super) fn issue_callable_physical_signature_v1(
                 else {
                     return Err(CallablePhysicalSignatureIssueV1::MissingSelectedIdentity);
                 };
-                if matches!(
-                    declaration.mode(),
-                    ResolvedCallableDeclarationModeV1::TopLevel
-                ) {
-                    // Top-level rows remain in the complete semantic batch,
-                    // but the current package physical-signature row is for
-                    // selected direct Box methods only.  Their physical
-                    // owner is a later root lane, never inferred here.
-                    continue;
-                }
                 let Some(selected_identity) = selected.identity_for_batch_slot(batch_slot) else {
                     return Err(CallablePhysicalSignatureIssueV1::MissingSelectedIdentity);
                 };
@@ -246,7 +236,6 @@ pub(super) fn issue_callable_physical_signature_v1(
                             Some(binding),
                         )
                     }
-                    ResolvedCallableDeclarationModeV1::TopLevel => unreachable!(),
                 };
                 if contract.mode != mode {
                     return Err(CallablePhysicalSignatureIssueV1::ParameterOwnerMismatch);

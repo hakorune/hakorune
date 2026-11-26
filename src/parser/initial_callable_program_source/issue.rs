@@ -181,7 +181,7 @@ pub(in crate::parser) fn expected_callable_slots_with_generated(
             .map_err(|_| InitialCallableProgramSourceRejectV1::FinalSlotOutOfRange)?;
         match node {
             ASTNode::FunctionDeclaration { .. } => {
-                slots.push(InitialCallableFinalSlotV1::TopLevel { statement });
+                return Err(InitialCallableProgramSourceRejectV1::WrongDeclarationKind);
             }
             ASTNode::BoxDeclaration {
                 methods,
@@ -471,7 +471,6 @@ fn same_slot_coverage(
 
 fn slot_key(slot: InitialCallableFinalSlotV1) -> (u32, u32) {
     match slot {
-        InitialCallableFinalSlotV1::TopLevel { statement } => (statement, 0),
         InitialCallableFinalSlotV1::BoxMethod { statement, method } => {
             (statement, method.inventory_ordinal().saturating_add(1))
         }

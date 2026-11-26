@@ -1771,7 +1771,6 @@
   "src/mir/normal_callable_semantic_package/resolved_selected_handoff_tests.rs": "normal_callable_semantic_package/package core (mod, model, issuer*, install*, selected_*)",
   "src/mir/normal_callable_semantic_package/resolver_deferred_tests.rs": "normal_callable_semantic_package/package core (mod, model, issuer*, install*, selected_*)",
   "src/mir/normal_callable_semantic_package/result_contract.rs": "normal_callable_semantic_package/physical_header/signature + s6c_* + result_contract",
-  "src/mir/normal_callable_semantic_package/result_contract_top_level.rs": "normal_callable_semantic_package/physical_header/signature + s6c_* + result_contract",
   "src/mir/normal_callable_semantic_package/result_origin_tests.rs": "normal_callable_semantic_package/physical_header/signature + s6c_* + result_contract",
   "src/mir/normal_callable_semantic_package/s6c_child.rs": "normal_callable_semantic_package/physical_header/signature + s6c_* + result_contract",
   "src/mir/normal_callable_semantic_package/s6c_child_tests.rs": "normal_callable_semantic_package/physical_header/signature + s6c_* + result_contract",

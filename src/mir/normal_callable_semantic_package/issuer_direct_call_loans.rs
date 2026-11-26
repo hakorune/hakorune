@@ -4,7 +4,7 @@ use super::super::direct_call_loan::{
 use super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use super::DirectCallDispositionIssueV1;
 use crate::mir::builder::{
-    CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
+    SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
     VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
 use crate::mir::callable_semantic_batch::{
@@ -135,26 +135,11 @@ fn collect_direct_call_rows_v1(
                             .ok_or(
                                 DirectCallDispositionIssueV1::PublishedTargetMissing,
                             )?;
-                        let (key, expected_namespace) = match selected_key {
-                            SelectedNormalCallableKeyV1::Cataloged(key) => {
-                                (key.clone(), SameModuleCallableNamespaceV1::StaticBoxMethod)
-                            }
-                            SelectedNormalCallableKeyV1::TopLevel(top_level) => {
-                                let arity = u32::try_from(top_level.declared_arity()).map_err(
-                                    |_| {
-                                        DirectCallDispositionIssueV1::PublishedTargetArityMismatch
-                                    },
-                                )?;
-                                (
-                                    CanonicalSameModuleCallableKeyV1::free_function(
-                                        top_level.declared_name(),
-                                        arity,
-                                    ),
-                                    SameModuleCallableNamespaceV1::FreeFunction,
-                                )
-                            }
+                        let SelectedNormalCallableKeyV1::Cataloged(key) = selected_key else {
+                            return Err(DirectCallDispositionIssueV1::PublishedTargetNamespaceMismatch);
                         };
-                        if key.namespace() != expected_namespace {
+                        let key = key.clone();
+                        if key.namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod {
                             return Err(
                                 DirectCallDispositionIssueV1::PublishedTargetNamespaceMismatch,
                             );

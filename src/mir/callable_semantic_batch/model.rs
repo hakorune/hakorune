@@ -17,7 +17,6 @@ use crate::parser::{FinalCallableSemanticSyntaxLoanErrorV1, VerifiedFinalCallabl
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ResolvedCallableDeclarationModeV1 {
-    TopLevel,
     StaticBoxMethod,
     InstanceBoxMethod,
 }

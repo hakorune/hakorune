@@ -22,9 +22,6 @@ pub(super) fn issue_plain_completion(
         Result<Rc<VerifiedFunctionCompletionV1>, FunctionCompletionVerificationErrorV1>,
     >,
     root_terminal_relation: &mut BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
-    top_level_input: &mut Option<
-        super::super::super::result_contract::VerifiedTopLevelScalarInputV1,
-    >,
 ) -> Result<(), OrdinaryNewCoSealIssueV1> {
     let batch_slot = declaration.batch_slot();
     if seed_completion || app_main_integer_result {
@@ -48,13 +45,12 @@ pub(super) fn issue_plain_completion(
         }
         if seed_completion {
             seeds
-                .push_completion_with_top_level_input(
+                .push_completion_with_scalar_results(
                     declaration,
                     selected,
                     Rc::clone(&completion),
                     BTreeMap::new(),
                     Some(scalar_results),
-                    top_level_input.take(),
                 )
                 .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
         }

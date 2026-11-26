@@ -9,7 +9,7 @@
  * - expressions.rs: 式パーサー (parse_expression, parse_or, parse_and等)
  * - statements.rs: 文パーサー (parse_statement, parse_if, parse_loop等)
  * - declarations/: Box宣言パーサー (box_definition, static_box, dependency_helpers)
- * - items/: トップレベル宣言 (global_vars, functions, static_items)
+ * - items/: トップレベル宣言 (global_vars, static_items)
  *
  * 2025-08-16: 大規模リファクタリング完了
  * - 1530行 → 227行 (85%削減)
