@@ -51,9 +51,6 @@ pub(crate) enum LoopRecipeV2RejectReason {
     UnknownItem {
         key: LoopItemKeyV1,
     },
-    UnknownCarrier {
-        key: LoopCarrierKeyV1,
-    },
     UnknownExit {
         key: LoopExitKeyV1,
     },
