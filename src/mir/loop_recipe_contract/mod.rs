@@ -1,5 +1,6 @@
 //! Neutral selfhost-portable recursive Loop recipe contract.
 
+#[cfg(test)]
 mod continuation;
 // Shared resolver-function declaration lookup for physical-ready producers.
 mod binding_declaration;
@@ -17,10 +18,12 @@ mod binding_declaration;
 // Caller-zero source-segment allocation demand; synthetic After is separate.
 mod error;
 mod ids;
+#[cfg(test)]
 mod input_source;
 mod join_sig;
 // Canonical draft builder: single key allocator + source-anchor co-recorder.
 // Main0 Continue and the selected variable-bound Mul producer use this owner.
+#[cfg(test)]
 mod internal_declaration;
 mod join_sig_branch;
 #[cfg(test)]
@@ -28,12 +31,17 @@ mod loop_cond_break_continue_producer;
 #[cfg(test)]
 mod loop_true_break_continue_producer;
 mod normalize;
+#[cfg(test)]
 mod operation_carrier_demand;
 mod operation_effect;
+#[cfg(test)]
 mod operation_physical_demand;
+#[cfg(test)]
 mod physical_layout;
+#[cfg(test)]
 mod physical_transfer;
 mod producer_id;
+#[cfg(test)]
 mod recipe_draft;
 pub(crate) mod route_id;
 mod s6c_scan_with_init;
@@ -178,42 +186,52 @@ mod typed_schema_v2_structure_tests;
 pub(crate) use binding_declaration::{
     resolve_loop_binding_declaration_v1, ResolvedLoopBindingDeclarationV1,
 };
+#[cfg(test)]
 pub(crate) use continuation::VerifiedLoopContinuationContractV1;
+#[cfg(test)]
 pub(crate) use error::LoopRecipeRejectReasonV1;
 pub(crate) use ids::{
     LoopBindingKeyV1, LoopBlockKeyV1, LoopCarrierKeyV1, LoopExitKeyV1, LoopItemKeyV1,
     LoopNodeKeyV1, LoopValueKeyV1,
 };
+#[cfg(test)]
 pub(crate) use input_source::{
     issue_initialized_local_input_source_set_v1, LoopInitializedLocalInputSourceRelationV1,
     LoopInitializedLocalInputSourceSetRejectV1, VerifiedLoopInitializedLocalInputSourceSetV1,
 };
+#[cfg(test)]
 pub(crate) use internal_declaration::LoopInternalDeclarationModeV1;
 pub(crate) use join_sig::{
-    issue_sole_root_carrier_join_closure_v2, LoopJoinBranchArmTransferRefV2, LoopJoinBranchArmV2,
-    LoopJoinBranchExitRefV2, LoopJoinBranchExitTargetV2, LoopJoinClosureRejectV2,
-    LoopJoinEdgeRoleV1, LoopJoinEdgeV2, LoopJoinExitOccurrenceV1, LoopJoinLogicalTransferRejectV2,
-    LoopJoinLogicalTransferViewV2, LoopJoinNextItemV1, LoopJoinPayloadV2, LoopJoinPortBindingV2,
-    LoopJoinPortV1, LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1, LoopJoinSigV1,
-    VerifiedLoopJoinClosureV2, VerifiedLoopJoinSigV1,
+    issue_sole_root_carrier_join_closure_v2, LoopJoinClosureRejectV2, LoopJoinLogicalTransferRejectV2,
+    LoopJoinLogicalTransferViewV2, VerifiedLoopJoinClosureV2,
+};
+#[cfg(test)]
+pub(crate) use join_sig::{
+    LoopJoinBranchArmTransferRefV2, LoopJoinBranchArmV2, LoopJoinBranchExitTargetV2,
+    LoopJoinEdgeRoleV1, LoopJoinEdgeV2, LoopJoinExitOccurrenceV1, LoopJoinPayloadV2,
+    LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1,
+    VerifiedLoopJoinSigV1,
 };
 pub(crate) use normalize::{LoopRecipeDecodeErrorV2, LoopRecipeNormalizerV2};
+#[cfg(test)]
 pub(crate) use operation_carrier_demand::PreparedLoopDerivedCarrierSeedRowV1;
 pub(crate) use operation_effect::{
-    LoopOperationEffectRejectV1, LoopOperationSourceEvidenceV1,
-    VerifiedLoopOperationEffectProductV1, VerifiedLoopOperationSourceEvidenceV1,
+    LoopOperationEffectRejectV1, LoopOperationSourceEvidenceV1, VerifiedLoopOperationEffectProductV1,
 };
+#[cfg(test)]
+pub(crate) use operation_effect::VerifiedLoopOperationSourceEvidenceV1;
+#[cfg(test)]
 pub(crate) use operation_physical_demand::{
     LoopOperationPhysicalDemandRejectV1, PreparedLoopOperationProgramV1,
     PreparedLoopReadBindingRowV1, PreparedLoopWriteBindingRowV1,
     VerifiedLoopOperationPhysicalDemandV1,
 };
+#[cfg(test)]
 pub(crate) use physical_layout::{
     LoopPhysicalLayoutRejectV1, LoopPhysicalSegmentKeyV1, LoopPhysicalSegmentRoleV1,
     LoopPhysicalTargetV1, LoopPhysicalTransferV1, PreparedLoopPhysicalLayoutV1,
 };
 pub(crate) use producer_id::LoopRecipeProducerIdV1;
-pub(crate) use recipe_draft::{LoopRecipeDraftRejectV1, LoopRecipeDraftV1};
 pub(crate) use s6c_prephysical_ingress::{
     issue_s6c_prephysical_ingress_v2, S6CPrephysicalCompletionParityRefV2,
     S6CPrephysicalIngressRejectV2, VerifiedS6CPrephysicalIngressV2,
@@ -231,11 +249,15 @@ pub(crate) use s6c_scan_with_init_joinir_output_rows::{
     S6CLogicalCallArgsV1, S6CLogicalCallSlotV1, S6CLogicalItemV1,
 };
 pub(crate) use schema::{
-    LoopBinaryI64OpV1, LoopCompareI64OpV1, LoopConditionV1, LoopExitKindV1,
-    LoopNodeSourceBindingV1, LoopNodeV1, LoopOperationV1, LoopRecipeArtifactV1,
-    LoopRecipeBindingV1, LoopRecipeBlockV1, LoopRecipeCarrierV1, LoopRecipeItemRowV1,
-    LoopRecipeItemV1, LoopRecipeProvenanceV1, LoopRecipeSourceBindingV1, LoopRecipeSourceOwnerV1,
-    LoopRecipeV1, LoopRecipeValueV1, LoopSourcePathStepV1, LoopSourcePathV1, LoopValueClassV1,
+    LoopNodeSourceBindingV1,
+    LoopRecipeProvenanceV1, LoopRecipeSourceBindingV1, LoopRecipeSourceOwnerV1, LoopSourcePathStepV1,
+    LoopSourcePathV1, LoopValueClassV1,
+};
+#[cfg(test)]
+pub(crate) use schema::{
+    LoopBinaryI64OpV1, LoopCompareI64OpV1, LoopConditionV1, LoopNodeV1, LoopOperationV1,
+    LoopRecipeArtifactV1, LoopRecipeBindingV1, LoopRecipeBlockV1, LoopRecipeCarrierV1,
+    LoopRecipeItemRowV1, LoopRecipeItemV1, LoopRecipeV1, LoopRecipeValueV1,
 };
 pub(crate) use schema_v2::{
     LoopBinaryI64OpV2, LoopCompareI64OpV2, LoopConditionV2, LoopExitKindV2, LoopNodeV2,
@@ -245,18 +267,19 @@ pub(crate) use schema_v2::{
     LOOP_RECIPE_SCHEMA_VERSION_V2,
 };
 pub(crate) use semantic_context::VerifiedLoopSemanticContextV1;
+pub(crate) use source_bound_core::{LoopBindingEffectAnchorV1, VerifiedLoopCoreProductV1};
+#[cfg(test)]
 pub(crate) use source_bound_core::{
-    issue_source_bound_core_from_artifact_v1, LoopBindingEffectAnchorV1,
-    LoopBindingEffectRelationV1, LoopBindingEffectRoleV1, LoopRecipeBindingRelationV1,
-    VerifiedLoopCoreProductV1, VerifiedLoopRecipeBindingRelationV1,
+    issue_source_bound_core_from_artifact_v1, LoopBindingEffectRelationV1, LoopBindingEffectRoleV1,
+    LoopRecipeBindingRelationV1,
 };
 pub(crate) use typed_schema_v2::{
     LoopRecipeV2RejectReason, LoopRecipeVerifierV2, VerifiedLoopRecipeArtifactV2,
     VerifiedLoopRecipeV2,
 };
-pub(crate) use verify::{
-    verify_source_bound_recipe_v1, LoopRecipeVerifierV1, VerifiedLoopRecipeV1,
-};
+#[cfg(test)]
+pub(crate) use verify::{verify_source_bound_recipe_v1, LoopRecipeVerifierV1};
+pub(crate) use verify::VerifiedLoopRecipeV1;
 
 /// Test-only end-to-end seam. The structural source-claim capability remains
 /// private even when sibling modules exercise artifact verification.

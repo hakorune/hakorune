@@ -69,8 +69,10 @@ impl LoopOperationSourceEvidenceV1 {
 }
 
 #[derive(Debug, PartialEq, Eq)]
+#[cfg(test)]
 pub(crate) struct VerifiedLoopOperationSourceEvidenceV1(LoopOperationSourceEvidenceV1);
 
+#[cfg(test)]
 impl VerifiedLoopOperationSourceEvidenceV1 {
     pub(crate) const fn item(&self) -> LoopItemKeyV1 {
         self.0.item
@@ -127,6 +129,7 @@ pub(crate) enum LoopOperationEffectRejectV1 {
 #[derive(Debug)]
 pub(crate) struct VerifiedLoopOperationEffectProductV1 {
     core: VerifiedLoopCoreProductV1,
+    #[cfg(test)]
     evidence: Box<[VerifiedLoopOperationSourceEvidenceV1]>,
 }
 
@@ -137,6 +140,7 @@ impl VerifiedLoopOperationEffectProductV1 {
     ) -> Result<Self, LoopOperationEffectRejectV1> {
         let operations = operation_membership(core.recipe().as_recipe());
         let mut seen = BTreeSet::new();
+        #[cfg(test)]
         let mut verified = Vec::with_capacity(evidence.len());
         for row in evidence {
             let item = row.item;
@@ -172,14 +176,17 @@ impl VerifiedLoopOperationEffectProductV1 {
                 return Err(LoopOperationEffectRejectV1::InvalidSourceLoop { item });
             }
             verify_operation(&core, item, operation, &row)?;
+            #[cfg(test)]
             verified.push(VerifiedLoopOperationSourceEvidenceV1(row));
         }
         if let Some(item) = operations.keys().find(|item| !seen.contains(item)) {
             return Err(LoopOperationEffectRejectV1::MissingEvidence { item: *item });
         }
+        #[cfg(test)]
         verified.sort_by_key(VerifiedLoopOperationSourceEvidenceV1::item);
         Ok(Self {
             core,
+            #[cfg(test)]
             evidence: verified.into_boxed_slice(),
         })
     }
@@ -188,6 +195,7 @@ impl VerifiedLoopOperationEffectProductV1 {
         &self.core
     }
 
+    #[cfg(test)]
     pub(crate) fn evidence(&self) -> &[VerifiedLoopOperationSourceEvidenceV1] {
         &self.evidence
     }
@@ -198,6 +206,7 @@ impl VerifiedLoopOperationEffectProductV1 {
             .replace_outer_condition_with_computed_left_for_test()
     }
 
+    #[cfg(test)]
     pub(crate) fn into_parts(
         self,
     ) -> (

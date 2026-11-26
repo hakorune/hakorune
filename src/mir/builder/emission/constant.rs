@@ -86,6 +86,7 @@ fn emit_exact_const(b: &mut MirBuilder, value: ConstValue) -> Result<ValueId, St
 ///
 /// The caller owns target-block validation; this helper only preserves the
 /// canonical Const type-fact and Builder emission path.
+#[cfg(test)]
 pub(in crate::mir) fn emit_integer_at(
     b: &mut MirBuilder,
     block: BasicBlockId,

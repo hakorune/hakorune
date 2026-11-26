@@ -40,25 +40,6 @@ impl LoopInitializedLocalInputSourceRelationV1 {
         }
     }
 
-    pub(crate) fn declaration(&self) -> &SourceBindingSiteV1 {
-        &self.declaration
-    }
-
-    pub(crate) fn initializer(&self) -> &SourceExprSiteV1 {
-        &self.initializer
-    }
-
-    pub(crate) const fn source_binding(&self) -> BindingRefV1 {
-        self.source_binding
-    }
-
-    pub(crate) const fn recipe_value(&self) -> LoopValueKeyV1 {
-        self.recipe_value
-    }
-
-    pub(crate) const fn class(&self) -> LoopValueClassV1 {
-        self.class
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -83,16 +64,6 @@ pub(crate) enum LoopInitializedLocalInputSourceSetRejectV1 {
 pub(crate) struct VerifiedLoopInitializedLocalInputSourceSetV1 {
     owner: FunctionOwnerIdV1,
     rows: Box<[LoopInitializedLocalInputSourceRelationV1]>,
-}
-
-impl VerifiedLoopInitializedLocalInputSourceSetV1 {
-    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
-    pub(crate) fn rows(&self) -> &[LoopInitializedLocalInputSourceRelationV1] {
-        &self.rows
-    }
 }
 
 pub(crate) fn issue_initialized_local_input_source_set_v1(

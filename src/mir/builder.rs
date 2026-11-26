@@ -33,6 +33,7 @@ mod new_expression;
 mod normal_callable_binding_materialization;
 mod normal_callable_binding_materialization_port; // existing formal ValueId handoff
 mod normal_local_materialization;
+#[cfg(test)]
 mod normal_callable_catalog_owner_link; // exact catalog key/owner/source ingress co-seal
 mod normal_callable_dynamic_origin; // source-backed Dynamic -> existing physical receipts
 mod normal_callable_dynamic_source; // source-backed untyped formal/Loop carrier authority
@@ -59,7 +60,9 @@ mod normal_callable_semantic_loan_port; // Thin installed-package port adapter
 mod normal_callable_semantic_lowering_state;
 pub(in crate::mir) use normal_callable_semantic_lowering_state::validate_map_local_annotation;
 mod function_fault_frame; // Shared physical frame; source owners select the role
+#[cfg(test)]
 mod normal_callable_semantic_source; // Co-sealed selected callable source authority
+#[cfg(test)]
 mod normal_callable_semantic_source_lookup; // Exact legacy source-site/view lookup during cutover
 pub(in crate::mir) use control_flow::plan::LoopFactsPolicyFrameV1;
 mod normal_cataloged_box_method_lowering;
@@ -76,6 +79,7 @@ pub(crate) use callable_declaration_catalog::{
 pub(in crate::mir) use main_expansion::{
     MainExpansionErrorV1, PreparedAdmittedNormalRootExpansionV1, VerifiedMainStaticChildV1,
 };
+#[cfg(test)]
 pub(in crate::mir) use normal_callable_catalog_owner_link::{
     issue_catalog_callable_owner_link_v1, CatalogCallableOwnerLinkIssueV1,
     VerifiedCatalogCallableOwnerLinkV1,
@@ -85,6 +89,7 @@ pub(in crate::mir) use normal_callable_dynamic_source::{
 };
 #[cfg(test)]
 pub(in crate::mir) use normal_callable_semantic_source::NormalCallableSemanticAdmissionV1;
+#[cfg(test)]
 pub(in crate::mir) use normal_callable_semantic_source::VerifiedNormalCallableSemanticSourceV1;
 mod calls; // Call system modules (refactored from builder_calls)
 mod collection_literals; // ArrayLiteral / MapLiteral lowering

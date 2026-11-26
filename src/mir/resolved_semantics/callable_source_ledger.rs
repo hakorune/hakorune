@@ -5,6 +5,7 @@
 //! or lower a Recipe.  Each source family keeps its typed key and has one
 //! explicit query instead of being flattened into a route-local map.
 
+#[cfg(test)]
 use super::direct_call::ResolvedDirectCallTargetV1;
 use super::ids::BindingRefV1;
 use super::ordered_capture::OrderedCaptureDemandV1;
@@ -212,6 +213,7 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         self.function.expression_source().initializers()
     }
 
+    #[cfg(test)]
     pub(crate) fn conditional_expression_sources(
         &self,
     ) -> impl Iterator<Item = &super::ResolvedConditionalExpressionSourceV1> {
@@ -328,6 +330,7 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         self.function.loop_sites()
     }
 
+    #[cfg(test)]
     pub(crate) fn direct_call_targets(
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, ResolvedDirectCallTargetV1)> {
@@ -377,6 +380,7 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         self.forest.ordered_capture_demands(self.owner)
     }
 
+    #[cfg(test)]
     pub(crate) fn family_count(&self, family: CallableSourceRowFamilyV1) -> usize {
         match family {
             CallableSourceRowFamilyV1::Declaration => self.declaration_sites().count(),
@@ -390,6 +394,7 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         }
     }
 
+    #[cfg(test)]
     pub(crate) fn family_disposition(
         &self,
         family: CallableSourceRowFamilyV1,

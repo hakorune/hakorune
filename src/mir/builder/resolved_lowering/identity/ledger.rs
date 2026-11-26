@@ -105,6 +105,7 @@ impl<'a> ResolvedIdentityLedgerV2<'a> {
     /// adapter to repeat resolver-owned record fields. The declaration site is
     /// still required, so a raw `(BindingRef, ValueId)` pair cannot enter the
     /// canonical identity owner.
+    #[cfg(test)]
     pub(in crate::mir::builder::resolved_lowering) fn adopt_declaration_exact(
         &mut self,
         site: &SourceBindingSiteV1,
@@ -241,6 +242,7 @@ impl<'a> ResolvedIdentityLedgerV2<'a> {
         self.retired.extend(declarations.iter().copied());
     }
 
+    #[cfg(test)]
     pub(in crate::mir::builder::resolved_lowering) fn retire_materialized(
         &mut self,
         binding: BindingRefV1,

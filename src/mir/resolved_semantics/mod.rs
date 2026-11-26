@@ -208,10 +208,13 @@ pub use owner_forest::{UpvarAccessKindV1, VerifiedSemanticOwnerForestV1};
 pub(crate) use owner_forest_payload::VerifiedSemanticOwnerProductV1;
 pub(crate) use owner_resolver::{
     ResolveOwnerForestErrorV1, ResolveScriptForestOutcomeV1,
-    ResolveSelectedCallableForestsOutcomeV1, ResolveSelectedCallableForestsWithBodyShapesOutcomeV1,
     ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1,
     ResolveSourceBoundSelectedCallableForestsWithFreeStaticOutcomeV1,
     SourceBoundSelectedCallableResolverRejectV1,
+};
+#[cfg(test)]
+pub(crate) use owner_resolver::{
+    ResolveSelectedCallableForestsOutcomeV1, ResolveSelectedCallableForestsWithBodyShapesOutcomeV1,
 };
 pub(crate) use owner_root_profile::SemanticOwnerRootProfileV1;
 pub use owner_source_kind::SemanticOwnerSourceKindV1;

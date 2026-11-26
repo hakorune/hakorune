@@ -5,65 +5,21 @@
 //! or value publication authority.
 
 use crate::mir::builder::MirBuilder;
-use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
-use crate::mir::{BasicBlockId, ValueId};
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) struct ReadyLoopEntryRowV1 {
-    key: crate::mir::loop_recipe_contract::LoopValueKeyV1,
-    binding: BindingRefV1,
-    value: ValueId,
-}
-
-impl ReadyLoopEntryRowV1 {
-    pub(super) const fn new(
-        key: crate::mir::loop_recipe_contract::LoopValueKeyV1,
-        binding: BindingRefV1,
-        value: ValueId,
-    ) -> Self {
-        Self {
-            key,
-            binding,
-            value,
-        }
-    }
-
-    pub(super) const fn value(self) -> ValueId {
-        self.value
-    }
-
-    pub(super) const fn binding(self) -> BindingRefV1 {
-        self.binding
-    }
-}
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
+use crate::mir::BasicBlockId;
 
 #[derive(Debug)]
 pub(in crate::mir::builder::resolved_lowering) struct ReadyLoopEntryV1 {
     owner: FunctionOwnerIdV1,
     preheader: BasicBlockId,
-    pub(super) rows: Box<[ReadyLoopEntryRowV1]>,
 }
 
 impl ReadyLoopEntryV1 {
-    pub(super) fn from_rows(
+    pub(in crate::mir::builder::resolved_lowering) const fn new(
         owner: FunctionOwnerIdV1,
         preheader: BasicBlockId,
-        rows: Vec<ReadyLoopEntryRowV1>,
     ) -> Self {
-        Self {
-            owner,
-            preheader,
-            rows: rows.into_boxed_slice(),
-        }
-    }
-
-    #[cfg(test)]
-    pub(super) fn new_for_test(
-        owner: FunctionOwnerIdV1,
-        preheader: BasicBlockId,
-        rows: Vec<ReadyLoopEntryRowV1>,
-    ) -> Self {
-        Self::from_rows(owner, preheader, rows)
+        Self { owner, preheader }
     }
 
     pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
@@ -72,29 +28,6 @@ impl ReadyLoopEntryV1 {
 
     pub(super) const fn preheader(&self) -> BasicBlockId {
         self.preheader
-    }
-}
-
-/// Mechanical bridge from canonical identity receipts to segment allocation.
-/// The rows must already have been read from the live canonical preheader;
-/// this constructor performs no source lookup.
-#[cfg(test)]
-pub(in crate::mir::builder::resolved_lowering) fn ready_loop_entry_from_canonical_rows(
-    owner: FunctionOwnerIdV1,
-    preheader: BasicBlockId,
-    rows: Vec<(
-        crate::mir::loop_recipe_contract::LoopValueKeyV1,
-        BindingRefV1,
-        ValueId,
-    )>,
-) -> ReadyLoopEntryV1 {
-    ReadyLoopEntryV1 {
-        owner,
-        preheader,
-        rows: rows
-            .into_iter()
-            .map(|(key, binding, value)| ReadyLoopEntryRowV1::new(key, binding, value))
-            .collect(),
     }
 }
 

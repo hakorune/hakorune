@@ -2,6 +2,7 @@ use super::super::source_coverage::{CoveredSourceSiteV1, VerifiedLocatedSourceCo
 use super::use_ledger::{
     FunctionIfControlUseLedgerV1, IfControlCoverageUseErrorV1, IfControlCoverageUseV1,
 };
+#[cfg(test)]
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
 use crate::mir::resolved_semantics::{
@@ -144,6 +145,7 @@ pub(crate) struct VerifiedResolvedFunctionIfControlV1 {
 }
 
 impl VerifiedResolvedFunctionIfControlV1 {
+    #[cfg(test)]
     pub(crate) fn empty_for_loop_profile(
         input: ResolvedFunctionLoweringInputV1<'_>,
     ) -> Result<Self, String> {
@@ -153,6 +155,7 @@ impl VerifiedResolvedFunctionIfControlV1 {
     /// Close the outer If-control ledger when every exact If belongs to one
     /// selected Loop source. The Loop logical/physical owner must consume those
     /// rows; this function does not silently discard unrelated If control.
+    #[cfg(test)]
     pub(crate) fn empty_for_owned_loop_profile(
         input: ResolvedFunctionLoweringInputV1<'_>,
         loop_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
@@ -160,6 +163,7 @@ impl VerifiedResolvedFunctionIfControlV1 {
         super::super::loop_owned_if::verify_owned_loop_if_partition_v1(input, loop_site)
     }
 
+    #[cfg(test)]
     pub(in crate::mir::resolved_control_flow) fn empty_verified(owner: FunctionOwnerIdV1) -> Self {
         Self {
             owner,
@@ -172,12 +176,14 @@ impl VerifiedResolvedFunctionIfControlV1 {
         self.owner
     }
 
+    #[cfg(test)]
     pub(in crate::mir::resolved_control_flow) const fn rows(
         &self,
     ) -> &[VerifiedLocatedIfControlV1] {
         &self.rows
     }
 
+    #[cfg(test)]
     pub(in crate::mir::resolved_control_flow) fn if_control(
         &self,
         site: &SourceStmtSiteV1,
@@ -185,6 +191,7 @@ impl VerifiedResolvedFunctionIfControlV1 {
         self.rows.iter().find(|row| row.site() == site)
     }
 
+    #[cfg(test)]
     pub(in crate::mir::resolved_control_flow) const fn coverage_partition_len(&self) -> usize {
         self.coverage_partition.len()
     }

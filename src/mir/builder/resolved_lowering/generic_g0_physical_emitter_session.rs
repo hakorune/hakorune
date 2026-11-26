@@ -10,7 +10,7 @@ use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionS
 use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::ReadyLoopEntryV1;
 use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::{
     allocate_for_layout, emit_loop_segment_operation_dispatch_v1,
-    ready_loop_entry_from_canonical_rows, LoopOperationDispatchServicesV1,
+    LoopOperationDispatchServicesV1,
     LoopPhysicalSegmentBlockReceiptV1, LoopPhysicalServicesV1,
 };
 use crate::mir::builder::MirBuilder;
@@ -115,7 +115,6 @@ fn with_generic_g0_physical_emitter_session_preflight<R>(
         session.adopt_generic_g0_entry_lanes(draft, preflight.shell_plan().descriptors())?;
 
         let preheader = session.entry_block(draft)?;
-        let mut canonical_rows = Vec::with_capacity(preflight.entries().len());
         for row in preflight.entries() {
             let receipt = session
                 .identity
@@ -126,10 +125,8 @@ fn with_generic_g0_physical_emitter_session_preflight<R>(
             {
                 return Err("generic canonical entry receipt drift".to_owned());
             }
-            canonical_rows.push((row.recipe_value(), row.binding(), receipt.physical_value()));
         }
-        let ready_entry =
-            ready_loop_entry_from_canonical_rows(input.owner(), preheader, canonical_rows);
+        let ready_entry = ReadyLoopEntryV1::new(input.owner(), preheader);
         let mut services = LoopPhysicalServicesV1::new(draft, session.control()?);
         let segment_receipt = allocate_for_layout(preflight.layout(), &ready_entry, &mut services)
             .map_err(|error| format!("generic segment preflight: {error:?}"))?;

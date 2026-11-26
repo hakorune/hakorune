@@ -41,10 +41,12 @@ pub(crate) use error::{
 pub(crate) use model::{
     CurrentOwnerStaticReceiverV1, QualifiedStaticReceiverV1,
     VerifiedCurrentOwnerStaticCallTargetV1, VerifiedQualifiedStaticCallTargetV1,
-    VerifiedSourceCallTargetCatalogV1, VerifiedSourceCallTargetV1,
+    VerifiedSourceCallTargetV1,
     VerifiedSourceStaticCallTargetCatalogV1, VerifiedSourceStaticCallTargetV1,
     VerifiedStaticImportAliasViewV1,
 };
+#[cfg(test)]
+pub(crate) use model::VerifiedSourceCallTargetCatalogV1;
 pub(crate) use qualified_receiver_lexical::{
     QualifiedReceiverLexicalDispositionV1, VerifiedQualifiedReceiverLexicalDispositionsV1,
 };

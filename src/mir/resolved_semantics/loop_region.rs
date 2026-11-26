@@ -307,6 +307,7 @@ impl VerifiedResolvedFunctionV1 {
     }
 
     /// Returns only the sealed cardinality for future source/flow bijection.
+    #[cfg(test)]
     pub(crate) fn loop_region_bundle_count(&self) -> usize {
         self.core.loop_regions.len()
     }

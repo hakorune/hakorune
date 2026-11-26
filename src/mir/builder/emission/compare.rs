@@ -23,6 +23,7 @@ pub(in crate::mir::builder) fn emit_to_recorded(
 }
 
 #[inline]
+#[cfg(test)]
 pub(in crate::mir::builder) fn emit_to_at(
     b: &mut MirBuilder,
     block: crate::mir::BasicBlockId,

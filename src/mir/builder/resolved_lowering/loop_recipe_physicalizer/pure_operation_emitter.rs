@@ -24,20 +24,6 @@ pub(super) struct PreparedLoopOperationEmissionV1 {
 }
 
 impl PreparedLoopOperationEmissionV1 {
-    #[cfg(test)]
-    pub(super) const fn const_i64_for_canary(
-        owner: FunctionOwnerIdV1,
-        item: LoopItemKeyV1,
-        result: LoopValueKeyV1,
-        value: i64,
-    ) -> Self {
-        Self {
-            owner,
-            item,
-            operation: LoopOperationV1::ConstI64 { result, value },
-        }
-    }
-
     pub(super) const fn from_operation(
         owner: FunctionOwnerIdV1,
         item: LoopItemKeyV1,
@@ -48,15 +34,6 @@ impl PreparedLoopOperationEmissionV1 {
             item,
             operation,
         }
-    }
-
-    #[cfg(test)]
-    pub(super) const fn from_operation_for_canary(
-        owner: FunctionOwnerIdV1,
-        item: LoopItemKeyV1,
-        operation: LoopOperationV1,
-    ) -> Self {
-        Self::from_operation(owner, item, operation)
     }
 
     pub(super) const fn owner(self) -> FunctionOwnerIdV1 {

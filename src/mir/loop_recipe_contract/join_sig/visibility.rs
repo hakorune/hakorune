@@ -1,12 +1,17 @@
 use std::collections::{btree_map::Entry, BTreeMap, BTreeSet};
 
 use super::super::ids::{LoopBindingKeyV1, LoopNodeKeyV1, LoopValueKeyV1};
+#[cfg(test)]
 use super::super::schema::LoopRecipeV1;
-use super::model::{LoopJoinPayload, LoopJoinPayloadV1, LoopJoinSigRejectReasonV1};
+#[cfg(test)]
+use super::model::LoopJoinPayloadV1;
+use super::model::{LoopJoinPayload, LoopJoinSigRejectReasonV1};
 use super::recipe_view::{
     LoopJoinItemView, LoopJoinOperationFamily, LoopJoinOperationView, LoopJoinRecipeView,
-    LoopRecipeV1JoinView,
 };
+
+#[cfg(test)]
+use super::recipe_view::LoopRecipeV1JoinView;
 
 pub(super) fn seed_carriers<V: LoopJoinRecipeView>(
     recipe: &V,
@@ -109,6 +114,7 @@ pub(in crate::mir::loop_recipe_contract) fn visible_payloads_from_view<V: LoopJo
 
 /// Historical V1 test seam. Production elaboration uses the borrowed verified
 /// Recipe view directly; this wrapper preserves existing projection tests.
+#[cfg(test)]
 pub(in crate::mir::loop_recipe_contract) fn visible_payloads(
     recipe: &LoopRecipeV1,
     key: LoopNodeKeyV1,

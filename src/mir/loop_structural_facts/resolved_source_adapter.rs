@@ -63,6 +63,7 @@ impl VerifiedLoopRootSourceV1 {
     ///
     /// The caller cannot inject an arbitrary Loop key; the semantic verifier
     /// is the sole authority for canonical root identity.
+    #[cfg(test)]
     pub(crate) fn into_root_claim(
         self,
         recipe: &VerifiedLoopRecipeV1,

@@ -3,10 +3,12 @@ use std::collections::BTreeSet;
 use crate::mir::builder::resolved_lowering::canonical_cfg::VerifiedPredecessorsV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::resolved_semantics::{
-    BindingKindV1, BindingRefV1, FunctionOwnerIdV1, ResolvedExitSiteV1, SourceBindingSiteV1,
-    SourceExprSiteV1, VerifiedResolvedFunctionV1,
+    BindingKindV1, BindingRefV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
+    VerifiedResolvedFunctionV1,
 };
-use crate::mir::{BasicBlock, BasicBlockId, MirInstruction, ValueId};
+#[cfg(test)]
+use crate::mir::{resolved_semantics::FunctionOwnerIdV1, BasicBlock, MirInstruction};
+use crate::mir::{BasicBlockId, ValueId};
 
 use super::super::identity::ledger::ResolvedIdentityLedgerV2;
 use super::super::semantic_stack::ResolvedScopeRetirementV1;
@@ -14,6 +16,7 @@ use super::super::semantic_stack::ResolvedScopeRetirementV1;
 /// Canonical result of a source-bound binding read. The receipt is issued by
 /// the identity/SSA owner; leaf emitters may only transport its value.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg(test)]
 pub(crate) struct CanonicalBindingReadReceiptV1 {
     owner: FunctionOwnerIdV1,
     binding: BindingRefV1,
@@ -21,6 +24,7 @@ pub(crate) struct CanonicalBindingReadReceiptV1 {
     physical_value: ValueId,
 }
 
+#[cfg(test)]
 impl CanonicalBindingReadReceiptV1 {
     pub(in crate::mir) const fn owner(self) -> FunctionOwnerIdV1 {
         self.owner
@@ -84,6 +88,7 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
 
     /// Publish an existing local value through an exact resolver-issued
     /// declaration relation. No caller-supplied name or binding kind is used.
+    #[cfg(test)]
     pub(in crate::mir::builder::resolved_lowering) fn publish_declaration_exact(
         &mut self,
         builder: &mut MirBuilder,
@@ -110,6 +115,7 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
     /// Activate a declaration whose first reaching value is issued later by
     /// an exact assignment claim. This seam never calls the SSA builder and
     /// therefore cannot allocate a value or provisional PHI.
+    #[cfg(test)]
     pub(in crate::mir::builder::resolved_lowering) fn activate_declaration_without_value(
         &mut self,
         site: &SourceBindingSiteV1,
@@ -131,6 +137,7 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
     /// Activate an exact resolver-issued declaration without a value. The
     /// loop-internal declaration lane uses this before the producing
     /// write claims its assignment; no name or kind is consulted.
+    #[cfg(test)]
     pub(in crate::mir::builder::resolved_lowering) fn activate_declaration_exact(
         &mut self,
         site: &SourceBindingSiteV1,
@@ -170,6 +177,7 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
     /// Consume an exact witness claim without consulting names or rebuilding
     /// source identity. The ledger and active-binding check remain one API
     /// boundary so an adapter cannot write a retired binding.
+    #[cfg(test)]
     pub(in crate::mir::builder::resolved_lowering) fn claim_variable_use_binding(
         &mut self,
         site: &SourceExprSiteV1,
@@ -182,6 +190,7 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
 
     /// Read an already-adopted entry binding without claiming another source
     /// site. This is the non-claim seed/read operation for a loop adapter.
+    #[cfg(test)]
     pub(in crate::mir::builder::resolved_lowering) fn read_entry(
         &mut self,
         builder: &mut MirBuilder,
@@ -200,6 +209,7 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
 
     /// Read an exact source-bound entry and issue the canonical immutable
     /// receipt used by the private Loop leaf emitter.
+    #[cfg(test)]
     pub(in crate::mir::builder::resolved_lowering) fn read_entry_receipt(
         &mut self,
         builder: &mut MirBuilder,
@@ -214,61 +224,6 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
             physical_block: block,
             physical_value: value,
         })
-    }
-
-    /// Verify the existing one-predecessor SSA edge used by a profile's
-    /// terminal read. The target may directly inherit its predecessor's
-    /// ValueId or use a distinct PHI ValueId; the authority is the sealed edge
-    /// and PHI relation, not an unconstrained latest-value lookup.
-    pub(in crate::mir::builder::resolved_lowering) fn verify_single_predecessor_read_relation(
-        &self,
-        builder: &MirBuilder,
-        target: CanonicalBindingReadReceiptV1,
-        predecessor: CanonicalBindingReadReceiptV1,
-    ) -> Result<(), String> {
-        if target.owner != self.ledger.owner()
-            || predecessor.owner != self.ledger.owner()
-            || target.owner != predecessor.owner
-            || target.binding != predecessor.binding
-            || target.physical_block == predecessor.physical_block
-        {
-            return Err(
-                "[freeze:contract][canonical_binding_ssa/read_relation_identity]".to_owned(),
-            );
-        }
-        let function = builder
-            .function_state
-            .current_function
-            .as_ref()
-            .ok_or_else(|| {
-                "[freeze:contract][canonical_binding_ssa/read_relation_function]".to_owned()
-            })?;
-        let target_block = function.get_block(target.physical_block).ok_or_else(|| {
-            "[freeze:contract][canonical_binding_ssa/read_relation_target]".to_owned()
-        })?;
-        if target_block.predecessors.len() != 1
-            || !target_block
-                .predecessors
-                .contains(&predecessor.physical_block)
-        {
-            return Err(
-                "[freeze:contract][canonical_binding_ssa/read_relation_predecessor]".to_owned(),
-            );
-        }
-        if !function_defines_value(function, predecessor.physical_value)
-            || !function_defines_value(function, target.physical_value)
-        {
-            return Err("[freeze:contract][canonical_binding_ssa/read_relation_input]".to_owned());
-        }
-        if target.physical_value == predecessor.physical_value {
-            return Ok(());
-        }
-        verify_single_predecessor_phi(
-            target_block,
-            target.physical_value,
-            predecessor.physical_block,
-            predecessor.physical_value,
-        )
     }
 
     pub(in crate::mir::builder::resolved_lowering) fn resolve_assignment_binding(
@@ -300,6 +255,7 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
 
     /// Exact assignment claim plus active-binding check for execution
     /// adapters. The legacy lowerer keeps its existing two-step API.
+    #[cfg(test)]
     pub(in crate::mir::builder::resolved_lowering) fn define_assignment_exact(
         &mut self,
         builder: &mut MirBuilder,
@@ -364,14 +320,7 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
     }
 }
 
-fn function_defines_value(function: &crate::mir::MirFunction, value: ValueId) -> bool {
-    function.blocks.values().any(|block| {
-        block
-            .all_instructions()
-            .any(|instruction| instruction.dst_value() == Some(value))
-    })
-}
-
+#[cfg(test)]
 fn verify_single_predecessor_phi(
     target: &BasicBlock,
     target_value: ValueId,
@@ -411,6 +360,7 @@ impl ResolvedScopeRetirementV1 for ResolvedSsaIdentityStateV2<'_> {
         Ok(())
     }
 
+    #[cfg(test)]
     fn retire_scope_error(&mut self, declarations: &[BindingRefV1]) {
         for binding in declarations.iter().copied() {
             if self.active.remove(&binding) {

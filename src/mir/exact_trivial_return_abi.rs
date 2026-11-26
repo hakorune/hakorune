@@ -4,6 +4,7 @@
 //! function, select a terminal value, or install runtime metadata.
 
 use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
+#[cfg(test)]
 use crate::mir::MirType;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -23,6 +24,7 @@ impl ExactTrivialReturnAbiV1 {
         }
     }
 
+    #[cfg(test)]
     pub(crate) const fn mir_type(self) -> MirType {
         self.scalar.mir_type()
     }

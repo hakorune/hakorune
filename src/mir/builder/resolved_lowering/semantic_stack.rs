@@ -15,6 +15,7 @@ use crate::mir::resolved_semantics::{
 /// function-owned Binding SSA route. The semantic stack never owns values.
 pub(super) trait ResolvedScopeRetirementV1 {
     fn retire_scope_success(&mut self, declarations: &[BindingRefV1]) -> Result<(), String>;
+    #[cfg(test)]
     fn retire_scope_error(&mut self, declarations: &[BindingRefV1]);
 }
 
@@ -217,6 +218,7 @@ impl ResolvedSemanticStackV1 {
         identity.retire_scope_success(&session.declarations)
     }
 
+    #[cfg(test)]
     pub(super) fn close_scope_region_error<R: ResolvedScopeRetirementV1>(
         &mut self,
         session: ResolvedScopeRegionSessionV1,

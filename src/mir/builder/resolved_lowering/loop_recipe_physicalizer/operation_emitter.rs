@@ -57,15 +57,6 @@ impl PreparedLoopReadBindingEmissionV1 {
         }
     }
 
-    #[cfg(test)]
-    pub(super) fn from_row_for_test(
-        owner: FunctionOwnerIdV1,
-        row: &PreparedLoopReadBindingRowV1,
-        expected_role: LoopPhysicalBlockRoleV1,
-    ) -> Self {
-        Self::from_row(owner, row, expected_role)
-    }
-
     pub(super) const fn result(&self) -> LoopValueKeyV1 {
         self.result
     }
@@ -117,9 +108,6 @@ impl ReadBindingEmissionReceiptV1 {
         self.canonical.physical_value()
     }
 
-    pub(super) const fn canonical(self) -> CanonicalBindingReadReceiptV1 {
-        self.canonical
-    }
 }
 
 pub(super) struct CanonicalBindingReadServicesV1<'a, 'source> {
@@ -215,15 +203,6 @@ impl PreparedLoopWriteBindingEmissionV1 {
             expected_role,
             class: row.class(),
         }
-    }
-
-    #[cfg(test)]
-    pub(super) fn from_row_for_test(
-        owner: FunctionOwnerIdV1,
-        row: &PreparedLoopWriteBindingRowV1,
-        expected_role: LoopPhysicalBlockRoleV1,
-    ) -> Self {
-        Self::from_row(owner, row, expected_role)
     }
 
     pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
