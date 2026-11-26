@@ -10,7 +10,6 @@ mod composite_source;
 mod issuer;
 mod model;
 mod normal_root_execution;
-mod normal_source_plan_consumer;
 mod normal_source_plan_seed;
 mod normal_source_plan_surface;
 mod parse_product;
@@ -40,13 +39,6 @@ pub(in crate::parser) use model::{
 pub(crate) use normal_root_execution::{
     ParserNormalRootExecutionRoleV1, ParserNormalRootExecutionSourceDispositionV1,
     ParserNormalRootExecutionSourceV1, ParserNormalRootExecutionTerminalClassV1,
-};
-pub(crate) use normal_source_plan_consumer::{
-    AdmittedSourcePlanBoundNormalCallableSourceV1, NormalSourcePlanBoxRefV1,
-    NormalSourcePlanRootRefV1, NormalSourcePlanSurfaceLoanErrorV1, NormalSourcePlanSurfaceLoanV1,
-    NormalSourcePlanTopLevelRowRefV1, NormalSourcePlanUnsupportedKindV1,
-    ParserNormalRootSourcePlanConsumeErrorV1, ParserNormalRootSourcePlanConsumerV1,
-    RejectedParserNormalRootSourcePlanConsumptionV1, SourcePlanBoundNormalCallableSourceV1,
 };
 pub(in crate::parser) use normal_source_plan_seed::{
     ParserNormalSourcePlanSeedDispositionV1, ParserNormalSourcePlanSeedIssueV1,

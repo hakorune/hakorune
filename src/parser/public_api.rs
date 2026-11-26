@@ -1,9 +1,6 @@
 //! Crate-visible parser product surface kept separate from the parser barrel.
 
 pub(crate) use super::callable_parameter_source::{
-    AdmittedSourcePlanBoundNormalCallableSourceV1, NormalSourcePlanBoxRefV1,
-    NormalSourcePlanRootRefV1, NormalSourcePlanSurfaceLoanErrorV1, NormalSourcePlanSurfaceLoanV1,
-    NormalSourcePlanTopLevelRowRefV1, NormalSourcePlanUnsupportedKindV1,
     ParserCompositeIncompleteV1, ParserCompositeIntegrityIssueV1, ParserCompositeOutsideReasonV1,
     ParserCompositeSourceLoanRejectV1, ParserCompositeSourceLoanV1,
     ParserCompositeSourceUnavailableV1, ParserInvocationWitnessV1,
@@ -11,11 +8,10 @@ pub(crate) use super::callable_parameter_source::{
     ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1,
     ParserNormalRawVmSourceExtractionErrorV1, ParserNormalRawVmSourceKindV1,
     ParserNormalRootExecutionRoleV1, ParserNormalRootExecutionSourceV1,
-    ParserNormalRootExecutionTerminalClassV1, ParserNormalRootSourcePlanConsumeErrorV1,
-    ParserNormalRootSourcePlanConsumerV1, PreparedParserNormalCompatibilityRawVmV1,
+    ParserNormalRootExecutionTerminalClassV1,
+    PreparedParserNormalCompatibilityRawVmV1,
     PreparedParserNormalRawVmSourceRouteV1, PreparedParserNormalSourceBackedRawVmV1,
-    RejectedParserNormalRawVmSourceExtractionV1, RejectedParserNormalRootSourcePlanConsumptionV1,
-    SourcePlanBoundNormalCallableSourceV1,
+    RejectedParserNormalRawVmSourceExtractionV1,
 };
 pub(crate) use super::constructor_source_catalog::{
     ConstructorSourceIdV1, FinalConstructorSemanticSyntaxLoanErrorV1,
