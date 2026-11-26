@@ -813,60 +813,13 @@ CFG/SSA/PHI, Text, and physical lowering remain outside this source-projection
 section; the bounded physical terminal is documented below. Fallback, retry,
 and alternate publication remain outside the route.
 
-## Generic G0 canonical issuer/package I0
+## Generic G0 source rejection
 
-`generic_g0_capability::verify_with_generic_g0_mode_v1` is the production
-preflight caller for the exact marked G0 root. It takes the immutable
-`BuilderInvocationConfigV1::snapshot_for_canonical` projection once for mode,
-requires the source handoff to prove `Complete`, and declines known non-G0
-shapes to the existing preflight. It does not read the environment, infer a
-mode, rescan AST after projection, or fall back after a G0 integrity failure.
-
-The issuer carries the verified source parent in `CanonicalGenericG0PlanV1`.
-Normal top-level admission passes that plan to
-`lower_resolved_generic_g0_function_pending_v1`. The physical lowerer consumes
-the source-owned entry rows, layout, control, Completion, and Generic Tail.
-It keeps the unpublished draft pending until the normal collector admits it.
-
-### Generic G0 production terminal I1 (2026-09-11)
-
-The logical source identity remains `generic_g0/2`. The declared-instance
-admission fixture projects three physical `i64` lanes (receiver, `i`, `j`)
-from the source-owned storage relation. The normal top-level free function
-projects two lanes. The test-only emitter session covers the computed-left
-case through `prepare_recursive_after_v1`, and the admission tests cover
-carrier-entry loss.
-
-### Generic G0 normal-package function consumer I0 (2026-09-12)
-
-The normal package now has one bounded Generic G0 consumer for a selected
-top-level `FreeFunction`. `NormalCallableSemanticPackagePortAdapterV1` lends
-the exact `ResolvedFunctionLoweringInputV1` through
-`with_selected_lowering_input`; the function-level probe selects the explicit
-`CanonicalCallableRouteV1::GenericG0` arm and rejects an invalid invocation
-policy before the legacy source route. No source-unit reconstruction or
-`source_ast()` re-resolution is part of this edge.
-
-The selected plan is admitted by the existing Generic physical cohort, lowered
-through one pending canonical child session, and committed by the existing
-`commit_resolved_pending`/Single collector lifecycle. A top-level static
-FreeFunction keeps two physical `i64` lanes (no receiver); the three-lane
-declared-instance source-bound fixture remains the I1 scope. The focused
-positive package test and missing-policy negative test are green. This I0 does
-not claim cataloged method cutover, all-family Loop coverage, backend parity,
-or source-to-exe success.
-
-### Generic G0 helper backend reach I1 (2026-09-12)
-
-The normal-package acceptance witness now calls the source-backed top-level
-`generic_g0/2` from `Main.main`. Its positive assertion issues the existing
-physical program and checks the exact root `Invoke(Call)` relation, the
-helper's two integer lanes, and the helper body `Compare`/`Add` operations.
-Module presence alone is not sufficient. Under LLVM18, the ignored static EXE
-witness now uses that same selected view and existing emitter to execute the
-called G0 body with exit3, without a skip or runtime archive alias. Physical
-JSON preserves six signed Compare predicates; V4 consumes scalar PHIs and the
-supplied CFG. This is not backend parity or whole-MIRBuilder completion.
+The normal static-method route runs the existing source probe in
+`generic_g0_capability.rs` after the CallableSingleLoop probe. Its named
+refusals remain part of that route. File-function emission was retired with
+the ADR-005 cleanup. The existing physical admission, rollback, and recursive
+After checks run in the lib tests.
 
 ## Generic G0 storage/lane source projection I0
 

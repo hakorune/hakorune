@@ -807,7 +807,6 @@
   "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_lowerer.rs": "builder/resolved_lowering/loop_recipe_physicalizer/",
   "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_production_canary_tests.rs": "builder/resolved_lowering/loop_recipe_physicalizer/",
   "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/carrier_emitter.rs": "builder/resolved_lowering/loop_recipe_physicalizer/",
-  "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/generic_lowerer.rs": "builder/resolved_lowering/loop_recipe_physicalizer/",
   "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/generic_production_canary_tests.rs": "builder/resolved_lowering/loop_recipe_physicalizer/",
   "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/initialized_local_input_materializer.rs": "builder/resolved_lowering/loop_recipe_physicalizer/",
   "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/mod.rs": "builder/resolved_lowering/loop_recipe_physicalizer/",

@@ -2,23 +2,6 @@
 use super::*;
 
 impl MirBuilder {
-    pub(in crate::mir::builder) fn lower_resolved_generic_g0_function_pending_v1(
-        &mut self,
-        function_name: &str,
-        plan: CanonicalGenericG0PlanV1<'_>,
-    ) -> Result<PendingFunctionSessionCloseV1<'_>, CanonicalFunctionSessionErrorV1> {
-        let admission = crate::mir::compiler::generic_g0_physical_operation_cohort::
-            issue_generic_g0_physical_emitter_admission_from_source_parent_v1(
-                plan.into_source_parent(),
-            )
-            .map_err(CanonicalFunctionSessionErrorV1::GenericG0Admission)?;
-        loop_recipe_physicalizer::lower_generic_g0_function_draft_pending_v1(
-            self,
-            function_name,
-            admission,
-        )
-    }
-
     #[cfg(test)]
     pub(in crate::mir) fn build_resolved_trivial_function_module(
         &mut self,

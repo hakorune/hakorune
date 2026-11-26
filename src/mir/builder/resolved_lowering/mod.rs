@@ -17,6 +17,7 @@ pub(in crate::mir::builder) use draft_seal_owner::{
     SelectedDynamicCandidateMetadataV1,
 };
 #[cfg(test)]
+#[cfg(test)]
 mod generic_g0_physical_emitter_session;
 mod identity;
 mod semantic_stack;
@@ -55,9 +56,7 @@ mod tests;
 #[cfg(test)]
 mod void_tests;
 
-use crate::mir::compiler::capability::{
-    CanonicalGenericG0PlanV1, CanonicalTrivialBindingSsaPlanV1,
-};
+use crate::mir::compiler::capability::CanonicalTrivialBindingSsaPlanV1;
 use crate::mir::MirFunction;
 #[cfg(test)]
 use crate::mir::MirModule;

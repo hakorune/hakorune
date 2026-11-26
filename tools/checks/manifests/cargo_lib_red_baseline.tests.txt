@@ -677,7 +677,6 @@ mir::builder::calls::function_session::terminal::tests::draft_seal_pending_close
 mir::builder::calls::function_session::terminal::tests::draft_seal_session_discard_restores_parent_context_once
 mir::builder::calls::function_session::terminal::tests::dropping_pending_restores_without_a_collector_side_effect
 mir::builder::calls::function_session::terminal::tests::explicit_abort_discards_the_draft_and_releases_the_builder
-mir::builder::calls::function_session::terminal::tests::generic_g0_pending_session_admission_variant_is_typed
 mir::builder::calls::function_session::terminal::tests::legacy_pending_capture_keeps_legacy_authority_distinct_from_resolved
 mir::builder::calls::function_session::terminal::tests::pending_success_keeps_parent_captured_until_explicit_abort
 mir::builder::calls::function_session_tests::box_compilation_session_preserves_the_existing_partial_type_context_action

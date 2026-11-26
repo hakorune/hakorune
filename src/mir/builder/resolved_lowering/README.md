@@ -480,9 +480,8 @@ R0. The current route allocates exact R1 segments and root After through the
 segment allocator; it does not reopen the historical fixed topology.
 
 The historical topology canary is not a standalone production selector and
-does not open retry, fallback, or legacy deletion. The bounded CallableSingleLoop
-and Generic G0 consumers are the named production routes and emit their
-operation/CFG/DraftSeal products through the existing owners. The DirectAccum
+does not open retry, fallback, or legacy deletion. The bounded CallableSingleLoop consumer emits its operation/CFG/DraftSeal
+products through the existing production owners. The DirectAccum
 binding port remains profile-specific and must not be reused as the common
 port; no second
 CFG/SSA/PHI owner is allowed. The historical passive
@@ -617,10 +616,7 @@ R2 is closed as an adapter receipt only. R3-I0 now allocates one block per R1
 segment plus one root After (no Step), retains the complete segment program,
 preflights and emits every entry/transfer once through canonical
 CFG/identity/PhiTxn, and returns the neutral After continuation used by the
-existing Tail/Completion/DraftSeal path. The historical canary does not own
-the Generic G0 production selector or collector; the bounded I1 production
-terminal below now consumes its separate source-parent admission. Retry,
-fallback, and legacy retirement remain closed.
+existing Tail/Completion/DraftSeal path. The Generic G0 canary exercises the common services in lib tests.
 
 ## Generic G0 exact-ingress I0 receipt (2026-08-08)
 
@@ -788,37 +784,9 @@ replays the same semantic shape. The carrier leaf uses the shared provisional
 type publication contract for unsealed PHI values; it owns no type, SSA, CFG,
 Tail, selector, retry, fallback, collector, or publication authority.
 
-This remains caller-zero evidence only and is not the production lowerer. The
-current production terminal consumes the same semantic products through the
-separate source-parent admission below. M8/M9, source-to-exe acceptance,
-backend parity, and broad legacy retirement remain closed.
-
-## Generic G0 production terminal I1 (2026-09-11)
-
-`generic_lowerer.rs` is the one production physical consumer for the bounded
-Generic G0 profile. It consumes `PreparedGenericG0PhysicalEmitterAdmissionV1`
-inside the existing unpublished function transaction, adopts the resolver-
-issued receiver/parameter lanes, reads entry values through canonical identity,
-emits the prepared operation/layout program, consumes the neutral recursive
-After plus Generic Tail, and closes through the existing
-`finish_profile_close -> ReadyFunctionDraftSealV1` seam. The enclosing
-source-bound compiler route then uses the existing Single collector,
-completion, drain manifest, finalization, postprocess, external commit, and
-`publish_once` path.
-
-The source header and MIR symbol keep logical arity 2 (`generic_g0/2`), while
-the declared-instance physical signature has three `i64` lanes. That physical
-arity is carried from the source-owned storage-lane projection to the existing
-Single collector; it is never inferred from MIR or used to rewrite the source
-header. The legacy `generic_g0_physical_emitter_session` remains test-only.
-The production lowerer separately passes descriptor-owned source declarations
-and Completion-owned result declaration through the existing declared-signature
-setter. DraftSeal refreshes entry/return carriers before publication. Receiver
-i64 storage is not a source annotation; omission of a return declaration and
-its carrier together is caught by source-backed preservation assertions.
-The focused suite and I1 guard cover the positive publication terminal and
-late prepared-commit rejection with no publication. Source-to-exe and wider
-Loop-family activation are later cards.
+This is test-only evidence. The file-function emitter was retired during the
+ADR-005 cleanup. The normal static-method source probe still issues its
+existing named refusals through the compiler.
 
 ## Fixed-role topology retirement R0 (2026-09-12)
 
@@ -828,7 +796,7 @@ topology receipt, logical-block target issuer, dispatcher preparation wrappers,
 and their disconnected test fixtures are deleted. They are not compatibility
 fallbacks and have no current Rust caller.
 
-The production route is now explicit: Callable and Generic lowerers allocate
+The CallableSingleLoop production route allocates
 the `PreparedLoopPhysicalLayoutV1` segment blocks, the segment dispatcher
 issues targets by exact segment key, and the existing canonical CFG/SSA/PHI
 owners perform the physical effects. Shared entry transport and at-target

@@ -289,7 +289,6 @@ do
     case "$caller" in
       "$PHYSICALIZER_DIR/callable_lowerer.rs"|\
       "$PHYSICALIZER_DIR/callable_production_canary_tests.rs"|\
-      "$PHYSICALIZER_DIR/generic_lowerer.rs"|\
       "$PHYSICALIZER_DIR/generic_production_canary_tests.rs") ;;
       *) guard_fail "$TAG" "segment physical route gained an unexpected caller: $caller" ;;
     esac

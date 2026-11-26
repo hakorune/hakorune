@@ -78,6 +78,7 @@ impl ReadyLoopEntryV1 {
 /// Mechanical bridge from canonical identity receipts to segment allocation.
 /// The rows must already have been read from the live canonical preheader;
 /// this constructor performs no source lookup.
+#[cfg(test)]
 pub(in crate::mir::builder::resolved_lowering) fn ready_loop_entry_from_canonical_rows(
     owner: FunctionOwnerIdV1,
     preheader: BasicBlockId,
