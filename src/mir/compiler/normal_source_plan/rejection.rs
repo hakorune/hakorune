@@ -42,7 +42,6 @@ pub(crate) enum NormalSourcePlanErrorV1 {
         field: NormalSourcePlanIdentityFieldV1,
     },
     RootNotProgram,
-    ParserSurfaceObservation(crate::parser::NormalSourcePlanSurfaceLoanErrorV1),
     RootExecutionRelationMismatch,
     MissingSourceEntry,
     DuplicateMain,
@@ -85,7 +84,6 @@ impl NormalSourcePlanErrorV1 {
             | Self::SourceLineageUnavailable
             | Self::SourceIdentityMismatch { .. }
             | Self::RootNotProgram
-            | Self::ParserSurfaceObservation(_)
             | Self::RootExecutionRelationMismatch
             | Self::UnsupportedTopLevelSurface { .. } => NormalSourcePlanStageV1::RootSurface,
             Self::MixedSourceFamilies => NormalSourcePlanStageV1::FamilyClosure,
