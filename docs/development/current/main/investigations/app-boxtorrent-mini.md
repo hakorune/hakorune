@@ -95,6 +95,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 3. [ ] **次の順序（11-06決定、[記録](selfhost-call-order-consult-2026-11-06.md)）**: ①型付き呼出しの合成→②結果契約（scalar/Bool/nullable/String）・基本式・container・混在field・fieldへ入れない`take`→③`edit`とADRの残り（`from`/`take place`/`match`/`update`/`sync box`）→④9課題の組合せ確認、3bと旧経路退役→徹底的な整理→⑤selfhost部分集合の`.hako` parser parity、selfhost。文法凍結は不変。[S1〜S3a](mirbuilder-structure-refactor-queue-d0-2026-08-23.md)・Bool・S3b・String・object・staticの箱とString・結果種類一元化・nullable・S4・基本式一部・書き手整理・正規化1回目・String長着地。保留: GenericG0はLoop cohortと同時、S6C・Dynamicは残す。
 
 ## 検証コマンド
+- NR-2 の既存 scalar 条件テストに完成 MIR の演算子・左右の入れ替えを検査する負例を置く。source と writer が同じ誤りを共有する場合は通常の成功例だけでは検出できない。
 - 選択smoke: `HAKO_ROOT=$PWD NYASH_ROOT=$PWD NYASH_BIN=$PWD/target/quick/hakorune NYASH_EMIT_EXE_NYRT=$PWD/target/quick BUILD_TIMEOUT_SECS=1200 bash tools/smokes/v2/profiles/integration/apps/boxtorrent_mini_exe.sh`（最適化版で約140秒。opt0版は`BUILD_TIMEOUT_SECS`既定300秒を超えるので使わない）。
 - 固定suite: 上記の`run.sh ... --timeout 420`。ビルド: `cargo quick-build --bin hakorune`（最適化CLI）、`cargo quick-build-lifecycle-fast`（runtime）、`bash tools/build_hako_llvmc_ffi.sh`（C shim）。`cargo quick-build-fast`は開発用opt0で`target/quick/hakorune`を上書きする点に注意。
 - 詳細履歴（Map借用整理series、Set receipt arm、Bool Local等）はGitに保持。決定29のkernel testは、既存のnullable Text試験が覆わない借用元のEnd後の内容、Boolと整数の区別、無効な入力での出力保持を検査する。既存のスカラー結果テストは混在・暗黙出口・不適合注釈の拒否を保持し、有限借用の結果が呼び手の型によらず owned Dynamic になることを確認する。

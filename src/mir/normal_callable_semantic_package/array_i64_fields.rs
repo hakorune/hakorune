@@ -29,10 +29,8 @@ use super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use super::*;
 use crate::mir::builder::SelectedNormalCallableKeyV1;
 use crate::mir::resolved_semantics::{
-    BindingKindV1, BindingRefV1, BodyExpressionShapeV1,
-    CallableSemanticSourceLedgerView, ResolvedAssignmentTargetV1, ResolvedBinaryOperatorV1,
-    ResolvedLexicalRefV1, ResolvedLiteralSourceV1,
-    ResolvedUnaryOperatorV1, VerifiedResolvedBodyShapeInventoryV1,
+    array_integer_source, BindingKindV1, BindingRefV1, BodyExpressionShapeV1,
+    CallableSemanticSourceLedgerView, ResolvedLexicalRefV1, VerifiedResolvedBodyShapeInventoryV1,
 };
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -66,8 +64,6 @@ pub(crate) struct ArrayFieldCensusV1 {
     pub(crate) write_fields: Box<[ArrayFieldWriteCandidateV1]>,
     pub(crate) field_reads: Box<[ArrayFieldGetCandidateV1]>,
 }
-
-const INTEGER_SOURCE_DEPTH: u32 = 8;
 
 /// `formal.<field>` leaf authority: `field` names exactly one non-weak
 /// numeric-integer declaration across the package's ordinary-box coverage.
@@ -137,15 +133,9 @@ pub(crate) fn formal_i64_index_field(
         && coverage_unique_i64_field(constructors, coverage, field)
 }
 
-/// Integer-source proof for one write value argument, mirroring the named
-/// Array `integer_source` contract and adding three Box-census leaves: a
-/// `me.<numeric field>` read on the same declaration, a `get` on a field
-/// inside the current proven set (its elements are already i64 by the
-/// fixpoint rule), and a `formal.<field>` read whose object is an exact
-/// parameter binding — the caller's `formal_i64_field` predicate owns the
-/// unique-declaration proof for that name.
-#[allow(clippy::too_many_arguments)]
-pub(crate) fn integer_source_at(
+/// Supply declaration and proven Array get facts to the resolver's
+/// integer-expression walk. The caller owns the whole-Box write census.
+pub(crate) fn array_field_integer_source(
     ledger: &CallableSemanticSourceLedgerView<'_>,
     shape: &VerifiedResolvedBodyShapeInventoryV1,
     numeric_fields: &BTreeSet<Box<str>>,
@@ -153,148 +143,28 @@ pub(crate) fn integer_source_at(
     get_calls: &BTreeMap<SourceExprSiteV1, Box<str>>,
     formal_i64_field: &dyn Fn(&str) -> bool,
     site: &SourceExprSiteV1,
-    visited: &mut BTreeSet<BindingRefV1>,
-    depth: u32,
 ) -> bool {
-    if depth > INTEGER_SOURCE_DEPTH {
-        return false;
-    }
-    if matches!(
-        ledger.literal_source(site),
-        Some(ResolvedLiteralSourceV1::Integer(_) | ResolvedLiteralSourceV1::TypedInteger { .. })
-    ) {
-        return true;
-    }
-    if let Some(field) = get_calls.get(site) {
-        return proven.contains(field.as_ref());
-    }
-    if let Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) =
-        shape.expression_shape(site)
-    {
-        if is_self_receiver(ledger, shape, object) && numeric_fields.contains(field.as_ref()) {
-            return true;
+    array_integer_source(ledger, shape, site, &|site| {
+        if let Some(field) = get_calls.get(site) {
+            return Some(proven.contains(field.as_ref()));
         }
-        // `formal.<field>`: the object must resolve to an exact parameter
-        // binding of this callable — a local alias or `me`-rooted receiver
-        // keeps the existing leaves — and the caller's predicate alone
-        // decides the unique-declaration proof.
-        let Some(BodyExpressionShapeV1::Variable {
-            resolved: ResolvedLexicalRefV1::Local(binding),
-            ..
-        }) = shape.expression_shape(object)
+        let BodyExpressionShapeV1::FieldAccess { object, field, .. } = shape.expression_shape(site)?
         else {
-            return false;
+            return None;
         };
-        return ledger
-            .binding(*binding)
-            .is_some_and(|row| matches!(row.kind(), BindingKindV1::Parameter { .. }))
-            && formal_i64_field(field);
-    }
-    if let Some(source) = ledger.unary_source(site) {
-        return source.operator() == ResolvedUnaryOperatorV1::Minus
-            && integer_source_at(
-                ledger,
-                shape,
-                numeric_fields,
-                proven,
-                get_calls,
-                formal_i64_field,
-                source.operand(),
-                visited,
-                depth + 1,
-            );
-    }
-    if let Some(source) = ledger.binary_source(site) {
-        if !matches!(
-            source.operator(),
-            ResolvedBinaryOperatorV1::Add
-                | ResolvedBinaryOperatorV1::Subtract
-                | ResolvedBinaryOperatorV1::Multiply
-                | ResolvedBinaryOperatorV1::Divide
-                | ResolvedBinaryOperatorV1::Modulo
-                | ResolvedBinaryOperatorV1::BitAnd
-                | ResolvedBinaryOperatorV1::BitOr
-                | ResolvedBinaryOperatorV1::BitXor
-                | ResolvedBinaryOperatorV1::Shl
-                | ResolvedBinaryOperatorV1::Shr
-        ) {
-            return false;
-        }
-        return integer_source_at(
-            ledger,
-            shape,
-            numeric_fields,
-            proven,
-            get_calls,
-            formal_i64_field,
-            source.lhs(),
-            visited,
-            depth + 1,
-        ) && integer_source_at(
-            ledger,
-            shape,
-            numeric_fields,
-            proven,
-            get_calls,
-            formal_i64_field,
-            source.rhs(),
-            visited,
-            depth + 1,
-        );
-    }
-    let Some(ResolvedLexicalRefV1::Local(binding)) = ledger.variable_ref(site) else {
-        return false;
-    };
-    if !visited.insert(binding) {
-        return true;
-    }
-    let mut initializers = ledger
-        .initializer_relations()
-        .filter(|row| row.binding() == binding);
-    let Some(initializer) = initializers.next() else {
-        return false;
-    };
-    if initializers.next().is_some() {
-        return false;
-    }
-    let Some(initializer_site) = initializer.initializer_site() else {
-        return false;
-    };
-    if !integer_source_at(
-        ledger,
-        shape,
-        numeric_fields,
-        proven,
-        get_calls,
-        formal_i64_field,
-        initializer_site,
-        visited,
-        depth + 1,
-    ) {
-        return false;
-    }
-    shape
-        .assignment_sources()
-        .iter()
-        .filter(|source| {
-            matches!(
-                ledger.assignment_target(source.target_site()),
-                Some(ResolvedAssignmentTargetV1::BindingRebind(actual)) if *actual == binding
-            )
-        })
-        .all(|source| {
-            integer_source_at(
-                ledger,
-                shape,
-                numeric_fields,
-                proven,
-                get_calls,
-                formal_i64_field,
-                source.value_site(),
-                visited,
-                depth + 1,
-            )
-        })
+        Some(
+            (is_self_receiver(ledger, shape, object) && numeric_fields.contains(field.as_ref()))
+                || matches!(
+                    shape.expression_shape(object),
+                    Some(BodyExpressionShapeV1::Variable {
+                        resolved: ResolvedLexicalRefV1::Local(binding),
+                        ..
+                    }) if ledger.binding(*binding)
+                        .is_some_and(|row| matches!(row.kind(), BindingKindV1::Parameter { .. }))
+                        && formal_i64_field(field)
+                ),
+        )
+    })
 }
 
 /// Issue the element-integer field set for one exact Box source row.
@@ -436,8 +306,7 @@ pub(crate) fn issue_array_i64_fields_v1(
                     let ledger = input.forest().callable_source_ledger(input.owner()).ok()?;
                     let shape = input.body_shape()?;
                     let method_gets = get_calls.get(method).cloned().unwrap_or_default();
-                    let mut visited = BTreeSet::new();
-                    Some(integer_source_at(
+                    Some(array_field_integer_source(
                         &ledger,
                         shape,
                         &numeric_fields,
@@ -445,8 +314,6 @@ pub(crate) fn issue_array_i64_fields_v1(
                         &method_gets,
                         &formal_i64_field,
                         arg,
-                        &mut visited,
-                        0,
                     ))
                 })?;
                 if ok != Some(true) {

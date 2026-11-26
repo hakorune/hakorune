@@ -47,7 +47,7 @@ pub(crate) use named_array_requirement::{
     NamedArrayRequirementIssueV1,
 };
 pub(crate) use named_array_residence::{
-    detect_field_residence_claim, resolve_birth_provider, seal_field_residence_requirement,
+    array_integer_source, detect_field_residence_claim, resolve_birth_provider, seal_field_residence_requirement,
     verify_field_residence_relations, NamedArrayFieldResidenceIssueV1,
     NamedArrayFieldResidenceObjectV1, NamedArrayFieldResidenceRequirementV1,
     NamedArrayRequirementV1, NamedArrayResultDemandV1,

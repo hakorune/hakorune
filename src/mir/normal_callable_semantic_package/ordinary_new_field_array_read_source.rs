@@ -344,7 +344,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn capture_exact_get(
             field,
         )
     };
-    let integer_index = super::array_i64_fields::integer_source_at(
+    let integer_index = super::array_i64_fields::array_field_integer_source(
         &ledger,
         shape,
         &numeric_fields,
@@ -352,8 +352,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn capture_exact_get(
         &get_calls,
         &formal_i64_field,
         call.arguments()[0].site(),
-        &mut BTreeSet::new(),
-        0,
     );
     if !integer_index { return Ok(None); }
     let index_field = match shape.expression_shape(call.arguments()[0].site()) {
