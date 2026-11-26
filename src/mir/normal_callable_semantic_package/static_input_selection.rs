@@ -1,10 +1,7 @@
 //! Original input selection and closed domain queries.
 use super::static_input_finish::{StaticInputEvidenceV1, StaticInputFinishV1};
 use super::*;
-use crate::mir::normal_callable_semantic_package::{
-    selected_mapping::VerifiedSelectedCallableBatchMapV1, OrdinaryNewClaimLedgerV1,
-};
-use std::collections::BTreeSet;
+use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
 use std::rc::Rc;
 
 impl OrdinaryNewClaimLedgerV1 {
