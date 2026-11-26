@@ -599,7 +599,6 @@ mir::builder::callable_declaration_catalog::recovery_tests::fixture_root_pointer
 mir::builder::callable_declaration_catalog::recovery_tests::same_box_provider_caller_order_and_root_mode_select_same_key
 mir::builder::callable_declaration_catalog::recovery_tests::text_merged_source_normalizes_to_the_same_catalog_decision
 mir::builder::callable_declaration_catalog::recovery_tests::zero_and_ambiguous_candidates_do_not_recover
-mir::builder::callable_declaration_catalog::selected_source_inventory::tests::distinct_top_level_occurrences_share_one_canonical_free_function_projection
 mir::builder::callable_declaration_catalog::selected_source_inventory::tests::non_program_catalog_does_not_claim_program_occurrences
 mir::builder::callable_declaration_catalog::selected_source_inventory::tests::one_catalog_scan_owns_top_level_and_box_method_occurrences
 mir::builder::callable_declaration_catalog::selected_source_inventory::tests::static_main_methods_remain_transferred_to_main_expansion
@@ -2087,8 +2086,6 @@ mir::builder::program_declaration_facts::tests::source_facts_keep_static_scalar_
 mir::builder::program_root_lowering::tests::deferred_static_context_scope_restores_prior_context_after_error
 mir::builder::program_root_lowering::tests::deferred_static_context_scope_restores_prior_context_after_success
 mir::builder::program_root_lowering::tests::deferred_static_context_scope_restores_prior_context_after_unwind
-mir::builder::program_root_work_plan::selected_projection_validator::tests::accepts_unique_selected_normal_physical_projections
-mir::builder::program_root_work_plan::selected_projection_validator::tests::rejects_same_name_and_arity_selected_normal_physical_projection
 mir::builder::program_root_work_plan::tests::app_partition_preserves_source_order_and_runtime_retention
 mir::builder::program_root_work_plan::tests::raw_runtime_keeps_the_neutral_statement_carrier
 mir::builder::program_root_work_plan::tests::raw_top_level_functions_do_not_issue_selected_receipts
