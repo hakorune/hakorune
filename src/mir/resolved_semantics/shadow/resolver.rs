@@ -536,13 +536,10 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
     ) -> Result<(), ShadowResolveErrorV0> {
         let arity = u32::try_from(argument_sites.len())
             .map_err(|_| ShadowResolveErrorV0::FunctionCallArityOverflow { site: site.clone() })?;
-        let lexical_value = (self.lookup(name).is_some() || self.ancestor_is_visible(name))
-            && !crate::mir::policies::call_name_classification::is_reserved_source_function_call_v1(
-                name, argument_sites.len(),
-            );
+        let has_lexical_binding = self.lookup(name).is_some() || self.ancestor_is_visible(name);
         let record = ShadowDirectCallUseV0 {
             name: name.into(),
-            lexical_value,
+            has_lexical_binding,
             arity,
             argument_sites,
         };

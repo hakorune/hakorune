@@ -164,7 +164,7 @@ pub(crate) struct ShadowExitRecordV0 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ShadowDirectCallUseV0 {
     pub(crate) name: Box<str>,
-    pub(crate) lexical_value: bool,
+    pub(crate) has_lexical_binding: bool,
     pub(crate) arity: u32,
     pub(crate) argument_sites: Box<[SourceExprSiteV1]>,
 }

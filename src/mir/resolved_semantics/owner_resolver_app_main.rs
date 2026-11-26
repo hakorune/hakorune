@@ -288,7 +288,10 @@ fn validate_file_call_observations(
     use crate::mir::policies::call_name_classification::is_reserved_source_function_call_v1;
     use crate::mir::resolved_semantics::ShadowResolveErrorV0;
 
-    tree.function.direct_calls.retain(|_, call| !call.lexical_value);
+    tree.function.direct_calls.retain(|_, call| {
+        !call.has_lexical_binding
+            || is_reserved_source_function_call_v1(&call.name, call.arity as usize)
+    });
     for (site, call) in &tree.function.direct_calls {
         if !is_reserved_source_function_call_v1(&call.name, call.arity as usize) {
             return Err(ShadowResolveErrorV0::BareCallTargetMissing {
