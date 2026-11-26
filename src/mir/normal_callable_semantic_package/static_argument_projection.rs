@@ -1,7 +1,6 @@
 //! Project the same pending/executable source arguments without issuing new facts.
 use super::*;
 use super::static_source::{original_static_source_v1, validate_static_source_actuals_v1, validate_qualified_argument_sources_v1};
-use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 use crate::mir::resolved_semantics::home_new_prefix::{QualifiedStaticCallClaimV1, StaticScalarCallClaimV1};
 use crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1;
 use std::rc::Rc;
@@ -49,48 +48,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_current_
         return Ok(None);
     }
     project_pending_static_source_arguments_for_route_v1(prepared, pending, site, required, true)
-}
-
-/// The original source candidate for one selected loop-body scalar actual.
-/// This only proves binding/class/site, never the per-iteration payload or ABI.
-pub(in crate::mir::normal_callable_semantic_package) fn project_current_owner_loop_scalar_source_v1(
-    source: &Result<PreparedBorrowedFormalIngressV1, String>,
-    pending: &PendingBorrowedFormalActualsV1,
-    site: &OwnedExprSiteV1,
-    claim: &StaticScalarCallClaimV1,
-) -> Result<Option<(Rc<StaticIncomingSourceV1>, BindingRefV1, SourceExprSiteV1)>, String> {
-    let reject = || freeze("borrowed-static/loop-scalar-source-drift");
-    let Some(arguments) =
-        project_pending_current_owner_static_source_arguments_v1(source, pending, site, claim)?
-    else {
-        return Ok(None);
-    };
-    let [LocalCallArgumentV1::BorrowedActual {
-        ordinal: 0,
-        site: argument_site,
-    }] = arguments.as_ref()
-    else {
-        return Err(reject());
-    };
-    let row = pending
-        .get(site)
-        .ok_or_else(reject)?
-        .as_ref()
-        .map_err(Clone::clone)?;
-    let (original, binding, original_site) =
-        super::static_numeric_evidence::original_scalar_source_v1(row)?.ok_or_else(reject)?;
-    let prepared = source.as_ref().map_err(Clone::clone)?;
-    let retained = prepared
-        .source_incoming
-        .static_observations()
-        .get(site)
-        .ok_or_else(reject)?
-        .as_ref()
-        .map_err(Clone::clone)?;
-    if !Rc::ptr_eq(original, retained) || original_site != argument_site {
-        return Err(reject());
-    }
-    Ok(Some((Rc::clone(original), binding, original_site.clone())))
 }
 
 /// Shared argument proof for one already-issued Qualified row. Membership is
