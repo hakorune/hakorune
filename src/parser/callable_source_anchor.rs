@@ -382,54 +382,6 @@ impl NyashParser {
         Ok(())
     }
 
-    fn issue_direct_top_level_callable(
-        &mut self,
-        kind: DirectCallableDeclarationKindV1,
-        diagnostic_name: impl Into<Box<str>>,
-    ) -> Result<(), ParseError> {
-        let line = self.current_token().line;
-        let path = self
-            .active_source_declaration_path()
-            .cloned()
-            .ok_or_else(|| ParseError::GrammarContract {
-                stable_reject_tag: "parser/direct-callable-source",
-                detail: "top-level callable requires an active parser source path".to_owned(),
-                line,
-            })?;
-        self.callable_source_session
-            .as_mut()
-            .ok_or(DirectCallableSourceIssueV1::SessionAlreadyMoved)
-            .map_err(|error| map_issue(error, line))?
-            .issue_direct(
-                SourceProgramCallablePathV1::top_level(path),
-                kind,
-                DirectCallableCommitPlacementV1::TopLevel,
-                diagnostic_name,
-            )
-            .map_err(|error| map_issue(error, line))
-            .map(|_| ())
-    }
-
-    pub(super) fn issue_direct_free_function(
-        &mut self,
-        diagnostic_name: impl Into<Box<str>>,
-    ) -> Result<(), ParseError> {
-        self.issue_direct_top_level_callable(
-            DirectCallableDeclarationKindV1::FreeFunction,
-            diagnostic_name,
-        )
-    }
-
-    pub(super) fn issue_direct_free_static_function(
-        &mut self,
-        diagnostic_name: impl Into<Box<str>>,
-    ) -> Result<(), ParseError> {
-        self.issue_direct_top_level_callable(
-            DirectCallableDeclarationKindV1::FreeStaticFunction,
-            diagnostic_name,
-        )
-    }
-
     fn issue_committed_explicit_box_method(
         &mut self,
         kind: DirectCallableDeclarationKindV1,

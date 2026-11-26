@@ -3,11 +3,9 @@
  *
  * Top-level item declarations:
  * - Global variables
- * - Function declarations
- * - Static declarations (functions and boxes)
+ * - Static boxes and constant tables
  */
 
-pub mod functions;
 pub mod global_vars;
 pub mod static_items;
 
