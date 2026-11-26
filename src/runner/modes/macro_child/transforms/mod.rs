@@ -5,7 +5,6 @@
 mod array;
 mod foreach;
 mod if_to_loopform;
-mod lift;
 mod loops;
 mod map;
 mod peek;
@@ -31,9 +30,6 @@ pub(super) fn transform_for_foreach(ast: &nyash_rust::ASTNode) -> nyash_rust::AS
 pub(super) fn transform_scopebox_inject(ast: &nyash_rust::ASTNode) -> nyash_rust::ASTNode {
     scopebox::transform_scopebox_inject(ast)
 }
-pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyash_rust::ASTNode {
-    lift::transform_lift_nested_functions(ast)
-}
 pub(super) fn transform_if_to_loopform(ast: &nyash_rust::ASTNode) -> nyash_rust::ASTNode {
     if_to_loopform::transform_if_to_loopform(ast)
 }
@@ -56,15 +52,14 @@ pub fn normalize_core_pass(ast: &nyash_rust::ASTNode) -> nyash_rust::ASTNode {
     } else {
         a3
     };
-    let a4b = transform_lift_nested_functions(&a4);
     let a5 = if std::env::var("NYASH_IF_AS_LOOPFORM")
         .ok()
         .map(|v| v == "1" || v == "true" || v == "on")
         .unwrap_or(false)
     {
-        transform_if_to_loopform(&a4b)
+        transform_if_to_loopform(&a4)
     } else {
-        a4b
+        a4
     };
     let a6 = if std::env::var("NYASH_CATCH_NEW")
         .ok()
