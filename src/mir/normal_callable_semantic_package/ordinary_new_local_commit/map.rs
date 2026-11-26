@@ -2,7 +2,8 @@
 use super::*;
 use crate::mir::instruction::{InvokeCallResultKind, MapInvokeOperation as Map};
 use crate::mir::resolved_semantics::home_new_prefix::{
-    LocalCallObservationV1, LocalCallResultClassV1, MapEntryBorrowKindV1, MapFieldInstallV1,
+    LocalCallObservationV1, LocalCallResultClassV1, MapEntryBorrowKindV1,
+    MapEntryStoreClassV1 as Store, MapFieldInstallV1,
     MapHomeEntry, MapHomeFlow, MapValueSource, SourceScalarKind,
 };
 use crate::mir::resolved_semantics::ResolvedInitializerRelationV1;
@@ -330,60 +331,18 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Err(freeze("map-initializer-source-drift"));
         }
-        let mut rows = self.local_commits.borrow_mut();
-        if rows.contains_key(site) {
-            return Err(freeze("map-duplicate-emission"));
-        }
-        for binding in flow.allocation_fault() {
-            if !installed_source_home(&rows, &binding).is_ok_and(LocalCommitV1::end_available) {
-                return Err(freeze("map-prior-home-unavailable"));
-            }
-        }
-        for entry in flow.entries() {
-            let Some((acquisition, binding)) = entry.transfer_home() else {
-                // Stored entries need a covered store class — scalar,
-                // sealed text, or empty-array payloads, or a self-rooted
-                // handle borrow, the only borrowed leaf the selected
-                // InstallValue lane carries. Map-local, kind-less local,
-                // and opaque child payloads keep failing here.
-                let covered = match entry.store_class() {
-                    crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Scalar
-                    | crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Text
-                    | crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::EmptyArray => {
-                        true
-                    }
-                    crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Borrowed => {
-                        entry.value_source().is_some_and(|v| {
-                            v.borrowed_root()
-                                .is_some_and(|(kind, _)| kind == MapEntryBorrowKindV1::Handle)
-                        })
-                    }
-                    _ => false,
-                };
-                if !covered {
-                    return Err(freeze("map-value-consumer-missing"));
-                }
-                continue;
-            };
-            let row = rows
-                .get(acquisition)
-                .and_then(LocalCommitV1::ordinary)
-                .filter(|row| row.installs(binding))
-                .ok_or_else(|| freeze("map-candidate-not-installed"))?;
-            if row.destruction != super::super::ObjectDestructionDispositionV1::NUMERIC_NO_HOOK {
-                return Err(freeze("map-candidate-end-unavailable"));
-            }
-        }
-        rows.insert(
-            site.clone(),
-            LocalCommitV1::Map(MapLocalProgress {
-                owner: site.owner(),
-                binding: Some(relation.binding()),
-                declaration: Some(relation.declaration_site().clone()),
-                progress: MapProgress::Emitting,
-            }),
-        );
-        Ok(())
+        self.begin_map_literal(
+            site,
+            flow,
+            Some((relation.binding(), relation.declaration_site())),
+            |entry| match entry.store_class() {
+                Store::Scalar | Store::Text | Store::EmptyArray => true,
+                Store::Borrowed => entry.value_source()
+                    .and_then(|value| value.borrowed_root())
+                    .is_some_and(|(kind, _)| kind == MapEntryBorrowKindV1::Handle),
+                _ => false,
+            },
+        )
     }
 
     /// Begin emission for a map-result local Call. The sealed local-call
@@ -435,54 +394,11 @@ impl OrdinaryNewClaimLedgerV1 {
         if call.owner() != site.owner() {
             return Err(freeze("map-argument-source-drift"));
         }
-        let mut rows = self.local_commits.borrow_mut();
-        if rows.contains_key(site) {
-            return Err(freeze("map-duplicate-emission"));
-        }
-        for binding in flow.allocation_fault() {
-            if !installed_source_home(&rows, &binding).is_ok_and(LocalCommitV1::end_available) {
-                return Err(freeze("map-prior-home-unavailable"));
-            }
-        }
-        for entry in flow.entries() {
-            let Some((acquisition, binding)) = entry.transfer_home() else {
-                // A borrowed entry cannot ride an argument handoff: the
-                // `BorrowedHandle` payload tag made the entry readable as a
-                // non-scalar Fault rather than a silent integer, but no
-                // catalogable borrow source exists for the call edge yet
-                // (`OpaqueHandle` formals are not direct-call catalogable),
-                // so the unproven edge stays closed.
-                if !matches!(
-                    entry.store_class(),
-                    crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Scalar
-                        | crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Text
-                        | crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::EmptyArray
-                        | crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::BorrowedArray
-                ) {
-                    return Err(freeze("map-value-consumer-missing"));
-                }
-                continue;
-            };
-            let row = rows
-                .get(acquisition)
-                .and_then(LocalCommitV1::ordinary)
-                .filter(|row| row.installs(binding))
-                .ok_or_else(|| freeze("map-candidate-not-installed"))?;
-            if row.destruction != super::super::ObjectDestructionDispositionV1::NUMERIC_NO_HOOK {
-                return Err(freeze("map-candidate-end-unavailable"));
-            }
-        }
-        rows.insert(
-            site.clone(),
-            LocalCommitV1::Map(MapLocalProgress {
-                owner: site.owner(),
-                binding: None,
-                declaration: None,
-                progress: MapProgress::Emitting,
-            }),
-        );
-        Ok(())
+        self.begin_map_literal(site, flow, None, |entry| {
+            matches!(entry.store_class(), Store::Scalar | Store::Text | Store::EmptyArray | Store::BorrowedArray)
+        })
     }
+
     /// Begin emission for a `return %{...}` literal. The sealed flow row's
     /// `ReturnBoundary` statement must be this owner's explicit terminal
     /// exit; there is no binding or declaration to install into.
@@ -500,6 +416,18 @@ impl OrdinaryNewClaimLedgerV1 {
         if !returns_here {
             return Err(freeze("map-return-source-drift"));
         }
+        self.begin_map_literal(site, flow, None, |entry| {
+            matches!(entry.store_class(), Store::Scalar | Store::Text | Store::EmptyArray)
+        })
+    }
+
+    fn begin_map_literal(
+        &self,
+        site: &OwnedExprSiteV1,
+        flow: &MapHomeFlow,
+        local: Option<(BindingRefV1, &SourceBindingSiteV1)>,
+        covers: impl Fn(&MapHomeEntry) -> bool,
+    ) -> Result<(), String> {
         let mut rows = self.local_commits.borrow_mut();
         if rows.contains_key(site) {
             return Err(freeze("map-duplicate-emission"));
@@ -511,12 +439,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         for entry in flow.entries() {
             let Some((acquisition, binding)) = entry.transfer_home() else {
-                if !matches!(
-                    entry.store_class(),
-                    crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Scalar
-                        | crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Text
-                        | crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::EmptyArray
-                ) {
+                if !covers(entry) {
                     return Err(freeze("map-value-consumer-missing"));
                 }
                 continue;
@@ -534,13 +457,14 @@ impl OrdinaryNewClaimLedgerV1 {
             site.clone(),
             LocalCommitV1::Map(MapLocalProgress {
                 owner: site.owner(),
-                binding: None,
-                declaration: None,
+                binding: local.map(|(binding, _)| binding),
+                declaration: local.map(|(_, declaration)| declaration.clone()),
                 progress: MapProgress::Emitting,
             }),
         );
         Ok(())
     }
+
     pub(crate) fn map_candidate_object(
         &self,
         entry: &MapHomeEntry,
