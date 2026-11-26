@@ -176,9 +176,6 @@ pub struct NyashParser {
     source_build_gate_scope: source_gate_ledger::SourceBuildGateScopeV1,
     prepared_source_build_gate_records: Vec<source_gate_ledger::PreparedBuildGateSourceRecordV1>,
     pub(super) build_gate_observations: Vec<build_cfg::decision_set::BuildGateObservationV1>,
-    /// 🔥 Static box依存関係追跡（循環依存検出用）
-    pub(super) static_box_dependencies:
-        std::collections::HashMap<String, std::collections::HashSet<String>>,
     /// 🔥 デバッグ燃料：無限ループ検出用制限値 (None = 無制限)
     pub(super) debug_fuel: Option<usize>,
     /// Pending rune annotations waiting for the next declaration node.
@@ -224,7 +221,6 @@ impl NyashParser {
             source_build_gate_scope: source_gate_ledger::SourceBuildGateScopeV1::Closed,
             prepared_source_build_gate_records: Vec::new(),
             build_gate_observations: Vec::new(),
-            static_box_dependencies: std::collections::HashMap::new(),
             debug_fuel: Some(100_000), // デフォルト値
             pending_runes: Vec::new(),
             pending_build_gate: None,
@@ -508,8 +504,6 @@ impl NyashParser {
 
         self.ensure_no_pending_runes("end of file")?;
 
-        // 🔥 すべてのstatic box解析後に循環依存検出
-        self.check_circular_dependencies()?;
         self.ensure_no_pending_build_gate("end of file")?;
 
         Ok(ASTNode::Program {

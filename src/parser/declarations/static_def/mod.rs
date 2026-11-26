@@ -1,8 +1,8 @@
 //! Static Box Definition (staged split)
 
-use crate::ast::{ASTNode, BoxMethodInventoryOrdinalV1, BoxMethodInventoryV1, FieldDecl, Span};
+use crate::ast::{ASTNode, BoxMethodInventoryOrdinalV1, BoxMethodInventoryV1, Span};
 use crate::parser::callable_parameter_source::static_box_source::{
-    OpenParserStaticBoxSourceTransactionV1, ParserStaticBoxMemberKindV1,
+    OpenParserStaticBoxSourceTransactionV1,
 };
 use crate::parser::common::ParserUtils;
 use crate::parser::declarations::box_def::members::pending_method::PendingExplicitMethodV1;
@@ -61,13 +61,8 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         box_span.line,
     );
 
-    let fields: Vec<String> = Vec::new();
     let mut methods = BoxMethodInventoryV1::empty();
     let constructors = HashMap::new();
-    let mut init_fields = Vec::new();
-    let mut weak_fields = Vec::new(); // 🔗 Track weak fields for static box
-    let mut static_init: Option<Vec<ASTNode>> = None;
-
     let mut pending_method: Option<PendingExplicitMethodV1> = None;
     while !p.match_token(&TokenType::RBRACE) && !p.is_at_end() {
         // Tolerate blank lines between members
@@ -113,40 +108,19 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
                 if matches!(p.peek_nth_token(offset), TokenType::LBRACE) {
                     return Err(static_box_state(p.current_token().line));
                 }
+                if !crate::parser::env::parser_static_init_strict_enabled()
+                    || !matches!(p.peek_token(), TokenType::BOX | TokenType::FUNCTION)
+                {
+                    p.advance();
+                    p.consume(TokenType::LBRACE)?;
+                } else if crate::parser::env::parser_static_seam_break_on_static_enabled() {
+                    if crate::parser::env::cli_verbose_enabled() {
+                        crate::parser::log::debug("[parser][static-box][seam] encountered 'static' inside static box; breaking (compat shim)");
+                    }
+                    break;
+                }
             }
             _ => {}
-        }
-
-        // 🔥 static 初期化子の処理（厳密ゲート互換）
-        if let Some(body) = members::parse_static_initializer_if_any(p)? {
-            p.ensure_no_pending_runes("static initializer")?;
-            static_init = Some(body);
-            source_transaction
-                .commit_unsupported_member(ParserStaticBoxMemberKindV1::StaticInitializer)
-                .map_err(static_source_issue)?;
-            continue;
-        } else if p.match_token(&TokenType::STATIC) {
-            // 互換用の暫定ガード（既定OFF）: using テキスト結合の継ぎ目で誤って 'static' が入った場合に
-            // ループを抜けて外側の '}' 消費に委ねる。既定では無効化し、文脈エラーとして扱う。
-            if crate::parser::env::parser_static_seam_break_on_static_enabled() {
-                if crate::parser::env::cli_verbose_enabled() {
-                    crate::parser::log::debug("[parser][static-box][seam] encountered 'static' inside static box; breaking (compat shim)");
-                }
-                break;
-            }
-        }
-
-        // initブロックの処理（共通ヘルパに委譲）
-        if crate::parser::declarations::box_def::members::fields::parse_init_block_if_any(
-            p,
-            &mut init_fields,
-            &mut weak_fields,
-        )? {
-            p.ensure_no_pending_runes("init block")?;
-            source_transaction
-                .commit_unsupported_member(ParserStaticBoxMemberKindV1::InitBlock)
-                .map_err(static_source_issue)?;
-            continue;
         }
 
         // 🔧 Safety valve: if we encounter statement keywords (LOCAL, RETURN, etc.) at member level,
@@ -211,12 +185,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
                         field_or_method = name;
                     }
                 }
-                match members::try_parse_method_or_field(p, field_or_method, declaration_span)? {
-                    members::ParsedStaticMemberV1::Field(_) => {
-                        return Err(static_box_state(declaration_span.line));
-                    }
-                    members::ParsedStaticMemberV1::Method(method) => pending_method = Some(method),
-                }
+                pending_method = Some(members::parse_method(p, field_or_method, declaration_span)?);
             }
             _ => {
                 return Err(ParseError::UnexpectedToken {
@@ -259,36 +228,16 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         ));
     }
 
-    // 🔥 Static初期化ブロックから依存関係を抽出
-    if let Some(ref init_stmts) = static_init {
-        let dependencies = p.extract_dependencies_from_statements(init_stmts);
-        p.static_box_dependencies.insert(name.clone(), dependencies);
-    } else {
-        p.static_box_dependencies
-            .insert(name.clone(), std::collections::HashSet::new());
-    }
-
-    let field_decls = fields
-        .iter()
-        .cloned()
-        .map(|name| FieldDecl {
-            is_weak: weak_fields.contains(&name),
-            name,
-            declared_type_name: None,
-            default_value: None,
-        })
-        .collect();
-
     Ok(ASTNode::BoxDeclaration {
         name,
-        fields,
-        field_decls,
+        fields: vec![],
+        field_decls: vec![],
         public_fields: vec![],
         private_fields: vec![],
         methods,
         constructors,
-        init_fields,
-        weak_fields, // 🔗 Add weak fields to static box construction
+        init_fields: vec![],
+        weak_fields: vec![],
         delegates: vec![],
         invariants: vec![],
         transitions: vec![],
@@ -299,7 +248,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         type_parameters,
         is_sync: false,
         is_static: true, // 🔥 static boxフラグを設定
-        static_init,     // 🔥 static初期化ブロック
+        static_init: None,
         attrs,
         span: box_span,
     })

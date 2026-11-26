@@ -21,9 +21,6 @@ use super::super::source_path::SourceBoxDeclarationPathV1;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::parser) enum ParserStaticBoxMemberKindV1 {
     DirectMethod,
-    Field,
-    InitBlock,
-    StaticInitializer,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -50,24 +47,9 @@ impl ParserStaticBoxDeclarationSyntaxV1 {
 }
 
 #[derive(Debug)]
-enum PreparedParserStaticBoxMemberSourceRowV1 {
-    DirectMethod {
-        site: SourceBoxMethodSiteV1,
-        callable_identity: CallableDeclarationIdentityV1,
-    },
-    Unsupported {
-        _site: SourceBoxMemberSiteV1,
-        kind: ParserStaticBoxMemberKindV1,
-    },
-}
-
-impl PreparedParserStaticBoxMemberSourceRowV1 {
-    fn kind(&self) -> ParserStaticBoxMemberKindV1 {
-        match self {
-            Self::DirectMethod { .. } => ParserStaticBoxMemberKindV1::DirectMethod,
-            Self::Unsupported { kind, .. } => *kind,
-        }
-    }
+struct PreparedParserStaticBoxMemberSourceRowV1 {
+    site: SourceBoxMethodSiteV1,
+    callable_identity: CallableDeclarationIdentityV1,
 }
 
 #[derive(Debug)]
@@ -108,19 +90,6 @@ impl OpenParserStaticBoxSourceTransactionV1 {
         self.cursor.current_program_callable_path()
     }
 
-    pub(in crate::parser) fn commit_unsupported_member(
-        &mut self,
-        kind: ParserStaticBoxMemberKindV1,
-    ) -> Result<(), ParserStaticBoxSourceIssueV1> {
-        if kind == ParserStaticBoxMemberKindV1::DirectMethod {
-            return Err(ParserStaticBoxSourceIssueV1::DirectMethodNeedsRelation);
-        }
-        let site = self.current_member_site();
-        self.rows
-            .push(PreparedParserStaticBoxMemberSourceRowV1::Unsupported { _site: site, kind });
-        self.finish_member()
-    }
-
     pub(in crate::parser) fn commit_direct_method(
         &mut self,
         site: SourceBoxMethodSiteV1,
@@ -134,7 +103,7 @@ impl OpenParserStaticBoxSourceTransactionV1 {
             return Err(ParserStaticBoxSourceIssueV1::ForeignOrStaleMethodSite);
         }
         self.rows
-            .push(PreparedParserStaticBoxMemberSourceRowV1::DirectMethod {
+            .push(PreparedParserStaticBoxMemberSourceRowV1 {
                 site,
                 callable_identity,
             });
@@ -168,7 +137,6 @@ impl OpenParserStaticBoxSourceTransactionV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::parser) enum ParserStaticBoxSourceIssueV1 {
     Cursor(ParserBoxMemberSourceCursorErrorV1),
-    DirectMethodNeedsRelation,
     NonDirectMethod,
     ForeignOrStaleMethodSite,
     MemberCoverageMismatch,
@@ -202,19 +170,13 @@ impl PreparedParserStaticBoxParentSourceV1 {
     ) -> impl ExactSizeIterator<Item = ParserStaticBoxMemberKindV1> + '_ {
         self.rows
             .iter()
-            .map(PreparedParserStaticBoxMemberSourceRowV1::kind)
+            .map(|_| ParserStaticBoxMemberKindV1::DirectMethod)
     }
 
     pub(in crate::parser) fn direct_method_relations(
         &self,
     ) -> impl Iterator<Item = (&SourceBoxMethodSiteV1, &CallableDeclarationIdentityV1)> + '_ {
-        self.rows.iter().filter_map(|row| match row {
-            PreparedParserStaticBoxMemberSourceRowV1::DirectMethod {
-                site,
-                callable_identity,
-            } => Some((site, callable_identity)),
-            PreparedParserStaticBoxMemberSourceRowV1::Unsupported { .. } => None,
-        })
+        self.rows.iter().map(|row| (&row.site, &row.callable_identity))
     }
 }
 
@@ -243,7 +205,7 @@ impl ParserStaticBoxParentSourceSealV1 {
             && self.member_kinds.iter().copied().eq(prepared
                 .rows
                 .iter()
-                .map(PreparedParserStaticBoxMemberSourceRowV1::kind))
+                .map(|_| ParserStaticBoxMemberKindV1::DirectMethod))
             && self.methods.len() == prepared.direct_method_relations().count()
             && self.methods.iter().all(|method| {
                 prepared.direct_method_relations().any(|(site, identity)| {
@@ -331,7 +293,6 @@ pub(in crate::parser) enum ParserStaticBoxParentOutsideReasonV1 {
     ProgramCohort,
     MultipleParentRows,
     BuildGatePath,
-    UnsupportedMemberKind,
     DirectMethodCohort,
 }
 
@@ -416,26 +377,7 @@ impl ParserStaticBoxParentSourceAuthorityIssuerV1 {
                     _error: ParserStaticBoxParentSourceIntegrityIssueV1::MemberCoverageMismatch,
                 };
             }
-            if parent
-                .rows
-                .iter()
-                .any(|row| row.kind() != ParserStaticBoxMemberKindV1::DirectMethod)
-            {
-                return ParserStaticBoxParentSourceDispositionV1::Outside(
-                    ParserStaticBoxParentOutsideReasonV1::UnsupportedMemberKind,
-                );
-            }
-            let direct_methods = parent
-                .rows
-                .iter()
-                .filter_map(|row| match row {
-                    PreparedParserStaticBoxMemberSourceRowV1::DirectMethod {
-                        site,
-                        callable_identity,
-                    } => Some((site, callable_identity)),
-                    PreparedParserStaticBoxMemberSourceRowV1::Unsupported { .. } => None,
-                })
-                .collect::<Vec<_>>();
+            let direct_methods = parent.direct_method_relations().collect::<Vec<_>>();
             if direct_methods.is_empty() {
                 return ParserStaticBoxParentSourceDispositionV1::Outside(
                     ParserStaticBoxParentOutsideReasonV1::DirectMethodCohort,
@@ -514,7 +456,7 @@ impl ParserStaticBoxParentSourceAuthorityIssuerV1 {
             let member_kinds = parent
                 .rows
                 .iter()
-                .map(PreparedParserStaticBoxMemberSourceRowV1::kind)
+                .map(|_| ParserStaticBoxMemberKindV1::DirectMethod)
                 .collect::<Vec<_>>()
                 .into_boxed_slice();
             parent_seals.push(ParserStaticBoxParentSourceSealV1 {
