@@ -181,6 +181,10 @@ def collect(binary, rows, template, work, jobs, ast=False, watch=None, *, exe_ba
             watch, [binary, "--backend", "mir", "--verify", "--emit-exe", exe,
                     "--emit-exe-nyrt", runtime, source], directory, "compile", env, 180)
         compile_result.update(parse_evidence(compile_result, "compile"), emitted=exe.is_file())
+        if expected := row.get("expected_refusal"):
+            for phase, status in (("dump", dump), ("compile", compile_result)):
+                if status["exit"] == 0 or f"[{expected}]" not in stream_text(status):
+                    raise ValueError(f"{source}: {phase} must refuse with [{expected}]")
         result = row | {"dump": dump, "compile": compile_result}
         if compile_result["kind"] == "success" and not compile_result["emitted"]:
             compile_result["kind"] = "internal-verification-error"
