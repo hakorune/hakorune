@@ -104,7 +104,6 @@ pub(super) mod lexical_instance_call;
 pub(super) use lexical_instance_call::ClosedOriginalCoreSourceV1;
 pub(crate) use lexical_instance_call::LexicalInstanceCallSourceTargetV1;
 pub(crate) use lexical_instance_call::ResultPathFieldSourceLoanV1;
-pub(in crate::mir) use lexical_instance_call::SourceValueClassFactsV1;
 pub(in crate::mir) use lexical_instance_call::{MainArgumentKindV1, MainArgumentsSourceV1};
 #[cfg(test)]
 pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::{
@@ -112,7 +111,6 @@ pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::
 };
 pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::ArrayHolderLifecycleRecipeV1;
 pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::BorrowedAppMainSourceLoanV1;
-pub(crate) use lexical_instance_call::NamedArrayHolderSourceLoanV1;
 pub(in crate::mir) use local_commit::EmittedDynamicInvocationCallProjectionV1;
 pub(crate) use local_commit::EmittedOwnedArrayReadV1;
 #[cfg(test)]
@@ -170,7 +168,7 @@ pub(crate) use receiver_call_observation::ReceiverCallClassObservationV1;
 pub(super) mod result_class_claim;
 pub(in crate::mir::normal_callable_semantic_package) use result_class_claim::verified_value_return_sites;
 pub(crate) use result_class_claim::{
-    BorrowedCallResultSourceLoanV1, BorrowedCallSourceLoanV1, BorrowedLifetimeAnchorV1,
+    BorrowedCallResultSourceLoanV1, BorrowedCallSourceLoanV1,
     BorrowedNullableLocalSourceLoanV1, MapStoredResultSourceV1, MixedLocalCallSourceLoanV1,
     ObjectReturnCallQualificationV1, OrdinaryNewResultClassV1, ResultExitOriginV1,
     ResultOriginWitnessV1, ResultValueOriginV1, ResultWitnessStepV1,
@@ -672,7 +670,7 @@ pub(crate) use local_commit::{
     displaced_replacement_fault_sequences_v2, fault_indices_after_normal_step_v2,
 };
 
-pub(in crate::mir) use lexical_instance_call::{SourceValueAlternativeV1, SourceValueSumV1};
+pub(in crate::mir) use lexical_instance_call::SourceValueSumV1;
 
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn corroborate_field_map_source_v1(

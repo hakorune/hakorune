@@ -268,7 +268,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .is_some_and(|row| row.is_complete())
     }
 
-    pub(crate) fn issue(
+    pub(in crate::mir::normal_callable_semantic_package) fn issue(
         claims: Box<[OrdinaryNewAdmissionClaimV1]>,
         result_claims: Box<[OrdinaryNewResultClaimV1]>,
         ordinary_box_names: Box<[Box<str>]>,

@@ -8,7 +8,6 @@ mod source_sum;
 pub(super) use preparation::prepare_original_formal_seeds_v1;
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use source_sum::OriginalIntegerBasisV1;
 pub(in crate::mir) use source_sum::{SourceValueSumV1, SourceValueAlternativeV1};
-pub(in crate::mir) use source_sum::SourceValueClassFactsV1;
 pub(in crate::mir::normal_callable_semantic_package) use source_sum::ClosedOriginalCoreSourceV1;
 #[path = "ordinary_new_borrowed_formal_new_seeds.rs"]
 mod new_seeds;

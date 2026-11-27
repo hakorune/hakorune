@@ -8,7 +8,6 @@ use crate::mir::resolved_semantics::home_new_prefix::{
     BorrowedCallActualCandidateV1, BorrowedCallActualValueV1,
 };
 pub(in crate::mir) use source_seeds::{SourceValueSumV1, SourceValueAlternativeV1};
-pub(in crate::mir) use source_seeds::SourceValueClassFactsV1;
 use crate::mir::callable_parameter_contract::{
     CallableParameterContractKindV1, CallableParameterDeclarationModeV1,
 };

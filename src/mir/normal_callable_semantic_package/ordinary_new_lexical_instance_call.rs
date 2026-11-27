@@ -241,8 +241,7 @@ mod borrowed_formal_uses;
 mod borrowed_formal_source;
 pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_source::ClosedOriginalCoreSourceV1;
 pub(super) use borrowed_formal_source::OriginalBorrowedFormalSourceV1;
-pub(in crate::mir) use borrowed_formal_source::{SourceValueSumV1, SourceValueAlternativeV1};
-pub(in crate::mir) use borrowed_formal_source::SourceValueClassFactsV1;
+pub(in crate::mir) use borrowed_formal_source::SourceValueSumV1;
 
 #[path = "ordinary_new_borrowed_formal_actuals.rs"]
 mod borrowed_formal_actuals;
