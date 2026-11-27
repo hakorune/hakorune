@@ -104,6 +104,7 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
 pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     lowering_completed: std::cell::Cell<bool>,
     catalog_brand: SameModuleCallableCatalogBrandV1,
+    app_main_root: Option<super::app_main_relation::VerifiedAppMainRootRelationV1>,
     batch: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     direct_call_loans: Option<super::direct_call_loan::DirectCallDispositionLoansV1>,
     map_read_facts: super::map_read_fact::MapReadFactsV1,
@@ -320,6 +321,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
                 source_static_claims_for_test: _,
             root_execution,
             catalog,
+            app_main_root,
             batch,
             direct_call_loans,
             map_read_facts,
@@ -367,6 +369,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
         InstalledNormalCallableSemanticPackageV1 {
             lowering_completed: std::cell::Cell::new(false),
             catalog_brand,
+            app_main_root,
             batch,
             direct_call_loans,
             map_read_facts,

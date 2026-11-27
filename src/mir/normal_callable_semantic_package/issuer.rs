@@ -394,7 +394,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         validate_cataloged_source_co_seal_v1(&catalog, &batch, &selected)
             .map_err(|error| NormalCallableSemanticPackageIssueV1::Batch { _error: error })?,
     );
-    app_main_relation::validate_app_main_root_owner_relation_v1(&catalog, &batch)
+    let app_main_root = app_main_relation::validate_app_main_root_owner_relation_v1(&catalog, &batch)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::AppMainRoot { _error: error })?;
     let mut direct_call_loans = match app_main_identity.as_ref() {
         Some(identity) => issue_direct_call_loans_v1(&catalog, &batch, &selected, identity)
@@ -693,6 +693,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         source_static_claims_for_test: static_claim_index,
         root_execution: super::model::NormalRootExecutionPackageStateV1::Prepared(root_execution),
         catalog,
+        app_main_root,
         batch,
         direct_call_loans,
         map_read_facts,
