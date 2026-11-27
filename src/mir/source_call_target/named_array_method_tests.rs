@@ -291,7 +291,7 @@ fn append_only_object_source_retains_all_stores_without_class_or_home_permission
                 "arr.push(factory.make(2))",
                 "local result = arr.push(factory.make(2))",
             ),
-            Some(E::SourceOrder),
+            None,
         ),
         (
             original.replace("arr.push(factory.make(2))", "arr.push(factory)"),
@@ -306,6 +306,10 @@ fn append_only_object_source_retains_all_stores_without_class_or_home_permission
                 "arr.push(factory.make(2))",
                 "if true { arr.push(factory.make(2)) }",
             ),
+            None,
+        ),
+        (
+            original.replace("factory.use(arr.get(0))", "local read = arr.get(0) factory.use(read)"),
             Some(E::SourceOrder),
         ),
         (

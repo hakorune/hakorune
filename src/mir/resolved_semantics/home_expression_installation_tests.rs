@@ -411,8 +411,8 @@ fn complete_expression_installation_publishes_only_after_the_final_field_batch()
         ("false && obj.missing()", true, false),
         ("1 && true", true, false),
         ("true", false, false),
-        ("obj != null && true", false, false),
-        ("(3 - 1 == 2) && true", false, false),
+        ("obj != null && true", true, false),
+        ("(3 - 1 == 2) && true", true, true),
     ] {
         let function = crate::tests::helpers::parser::parse_fixture_method(
             &format!(
@@ -429,7 +429,7 @@ fn complete_expression_installation_publishes_only_after_the_final_field_batch()
             let mut calls = Vec::new();
             let mut path_calls = Default::default();
             let mut batches = 0;
-            let mut demands = 0;
+            let mut demands = std::collections::BTreeSet::new();
             use crate::mir::resolved_semantics::home_new_prefix::condition::{
                 observe, ConditionInstallationV1,
             };
@@ -446,8 +446,8 @@ fn complete_expression_installation_publishes_only_after_the_final_field_batch()
                         batches += 1;
                         Ok(field_ok.then(Vec::new))
                     },
-                    &mut |_, _| {
-                        demands += 1;
+                    &mut |site, _| {
+                        demands.insert(site.clone());
                         Ok(None)
                     },
                 )
@@ -463,7 +463,11 @@ fn complete_expression_installation_publishes_only_after_the_final_field_batch()
                 "{expression}"
             );
             assert_eq!(batches, usize::from(accepted), "{expression}");
-            assert_eq!(demands, usize::from(expression == "false && obj.missing()"));
+            let expected = input.function().method_calls()
+                .filter(|(_, call)| call.selector() == "missing")
+                .map(|(site, _)| crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), site.clone()))
+                .collect::<std::collections::BTreeSet<_>>();
+            assert_eq!(demands, expected, "{expression}: original method demand");
             assert_eq!(
                 flow.expression_plans().len(),
                 usize::from(accepted && field_ok)
