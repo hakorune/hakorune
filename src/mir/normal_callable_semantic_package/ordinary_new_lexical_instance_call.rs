@@ -305,7 +305,6 @@ pub(in crate::mir) use borrowed_formal_entry::{
 #[cfg(test)]
 pub(super) use {borrowed_formal_source::prepare_borrowed_formal_ingress_v1,
     borrowed_formal_actuals::{lend_argument_expression_source_v1, stage_borrowed_call_actuals_v1}};
-pub(crate) use borrowed_formal_source::NamedArrayHolderSourceLoanV1;
 pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_source::{ArrayElementSourceLoanV1, ArrayHolderLifecycleRecipeV1};
 pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_source::PreparedBorrowedFormalIngressV1;
 
