@@ -1,0 +1,17 @@
+// BM-13 measurement copy (% 256 pair) of benchmarks/bench_method_call_only_small.hako
+// See benchmarks/variants/README.md for the expected result.
+// Same loop; the receiver is the literal "nyash" instead of `new StringBox("nyash")`.
+// MIR lowers the loop body to the length of a static text (no real method call).
+// Only the final `return` is reduced with `% 256`.
+static box Main {
+  main() {
+    local i = 0
+    local s = "nyash"
+    local total = 0
+    loop(i < 5000) { // 5e3 method calls per run (faster per-run)
+      total = total + s.length()
+      i = i + 1
+    }
+    return total % 256
+  }
+}

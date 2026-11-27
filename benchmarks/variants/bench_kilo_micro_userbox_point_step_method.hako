@@ -1,0 +1,41 @@
+// BM-13 measurement copy (full result) of benchmarks/bench_kilo_micro_userbox_point_add.hako
+// See benchmarks/variants/README.md for the expected result.
+// DIFFERENT WORKLOAD: the per-iteration field read/write moves into `Point.step()`
+// and the final sum into `Point.total()`; fields are `i64` set by `birth`.
+box Point {
+  x: i64
+  y: i64
+
+  birth(x: i64, y: i64) {
+    me.x = x
+    me.y = y
+  }
+
+  step() {
+    local sum = me.x + me.y
+    me.x = me.x + 1
+    me.y = me.y + 2
+    return sum
+  }
+
+  total() {
+    return me.x + me.y
+  }
+}
+
+static box Main {
+  main() {
+    local ops = 2000000
+    local p = new Point(1, 2)
+
+    local acc = 0
+    local i = 0
+    loop (i < ops) {
+      local sum = p.step()
+      acc = acc + sum
+      i = i + 1
+    }
+
+    return acc + p.total()
+  }
+}

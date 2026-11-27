@@ -1,0 +1,48 @@
+// BM-13 measurement copy (full result) of benchmarks/bench_kilo_micro_userbox_flag_toggle.hako
+// See benchmarks/variants/README.md for the expected result.
+// DIFFERENT WORKLOAD: the Bool field becomes an `i64` 0/1 field; the loop calls
+// `hit()` and `set_on()`/`set_off()` instead of comparing/assigning a Bool.
+box Flag {
+  enabled: i64
+
+  birth(enabled: i64) {
+    me.enabled = enabled
+  }
+
+  hit() {
+    if (me.enabled != 0) {
+      return 1
+    }
+    return 0
+  }
+
+  set_on() {
+    me.enabled = 1
+  }
+
+  set_off() {
+    me.enabled = 0
+  }
+}
+
+static box Main {
+  main() {
+    local ops = 2000000
+    local flip_at = 1000000
+    local f = new Flag(1)
+
+    local acc = 0
+    local i = 0
+    loop (i < ops) {
+      acc = acc + f.hit()
+      if (i < flip_at) {
+        f.set_on()
+      } else {
+        f.set_off()
+      }
+      i = i + 1
+    }
+
+    return acc + f.hit()
+  }
+}
