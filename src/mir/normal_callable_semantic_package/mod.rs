@@ -55,6 +55,7 @@ pub(crate) use instance_constructor_semantic::{
     BirthFormalUseCoverageV1, VerifiedInstanceConstructorSemanticBatchV1,
 };
 pub(in crate::mir) use instance_entry_home::SourceEntryHomeIssueV1;
+mod app_main_relation;
 mod issuer;
 mod loop_break_source;
 pub(in crate::mir) use loop_break_source::LoopBreakSourcePackageLoanV1;

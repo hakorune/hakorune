@@ -49,6 +49,10 @@ pub(super) struct VerifiedAppMainRootRelationV1 {
 }
 
 impl VerifiedAppMainRootRelationV1 {
+    pub(super) fn batch_slot(&self) -> u32 {
+        self.batch_slot
+    }
+
     pub(super) fn slot_for(
         &self,
         key: &CanonicalSameModuleCallableKeyV1,

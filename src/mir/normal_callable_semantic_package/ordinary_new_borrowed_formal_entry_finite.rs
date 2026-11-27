@@ -49,8 +49,6 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Option<BorrowedEntryStructureV1<'a>>, String> {
         use super::super::borrowed_formal_uses::BorrowedIncomingSourceV1;
         use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1 as Mode;
-        let catalog = catalog
-            .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
         let mut matching = catalog.for_owner(owner);
         let Some(contract) = matching.next() else { return Ok(None) };
         if matching.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }

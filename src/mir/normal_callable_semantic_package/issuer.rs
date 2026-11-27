@@ -32,8 +32,7 @@ use crate::mir::resolved_semantics::{
 use crate::parser::VerifiedFinalCallableProgramSourceV1;
 use std::rc::Rc;
 
-#[path = "app_main_relation.rs"]
-mod app_main_relation;
+use super::app_main_relation;
 #[path = "direct_call_co_seal.rs"]
 mod direct_call_co_seal;
 #[path = "issuer_object_input_finish.rs"]
@@ -650,13 +649,8 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         &mut direct_call_loans, &batch, &selected, catalog.catalog().source_backed_app_main(),
         &parameter_contracts, &ordinary_new_claim_ledger, &physical_signature, &result_contracts,
     ).map_err(|_error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error })?;
-    let app_main_batch_slot = app_main_identity.as_ref().and_then(|identity| {
-        batch
-            .declarations()
-            .find(|declaration| declaration.identity().same_as(identity))
-            .map(|declaration| declaration.batch_slot())
-    });
-    if let Some(root_batch_slot) = app_main_batch_slot {
+    if let Some(root) = &app_main_root {
+        let root_batch_slot = root.batch_slot();
         batch
             .with_lowering_input(root_batch_slot, |input| {
                 ordinary_new_claim_ledger.issue_root_instance_call_dispositions(

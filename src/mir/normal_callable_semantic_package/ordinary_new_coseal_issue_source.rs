@@ -562,7 +562,7 @@ pub(super) fn has_receiver_home_call_v1(
     };
     super::super::lexical_instance_call::has_original_forwarding_receiver_input_source_v1(
         source,
-        Some(contracts),
+        contracts,
         owner,
         &mut |target| {
             observations.get(target.call_site()).is_some_and(|row| {
