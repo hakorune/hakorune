@@ -17,7 +17,7 @@ fn declared_state(parameter: &str, actual: &str) -> CallableSemanticLoweringStat
 
 fn declared_builder(parameter_type: &str) -> crate::mir::MirBuilder {
     let mut function = carrier_function(&[ValueId(51), ValueId(72)]);
-    function.signature.params[1] = MirType::Box("Wrap".into());
+    function.signature.params[1] = MirType::Box(parameter_type.into());
     function.metadata.declared_param_decls = vec![
         MirParamDecl {
             name: "me".into(),
@@ -49,10 +49,10 @@ fn original_declared_class_preflights_existing_value_and_tagged_column() {
         );
         assert_eq!(projected, vec![(1, ValueId(72))]);
         let function = builder.function_state.current_function.as_ref().unwrap();
-        assert_eq!(function.signature.params[1], MirType::Box("Wrap".into()));
+        assert_eq!(function.signature.params[1], MirType::Box(parameter_type.into()));
         assert_eq!(
             builder.function_state.type_ctx.value_types[&ValueId(72)],
-            MirType::Box("Wrap".into())
+            MirType::Box(parameter_type.into())
         );
         assert_eq!(
             function.metadata.physical_param_carriers.as_deref(),

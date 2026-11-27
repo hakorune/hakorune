@@ -169,12 +169,12 @@ fn null_only_and_forwarded_null_never_gain_legacy_membership() {
 
 #[test]
 fn origin_rejects_rebind_unknown_actual_class_and_ungrounded_cycle() {
-    let methods = "give(h: Token) { return h } rebound(h: Token) { h = null return h } local_rebound(h: Token) { local same = me.give(h) same = null return same } unknown(actual) { return me.give(actual) } multi(a: Token, b: Token, choose: i64) { if choose == 0 { return a } return b } cycle(h: Token) { return me.cycle(h) } mismatch(h: Other, choose: i64) { if choose == 0 { return new Token(1) } return h } builtin() { return new ArrayBox() }";
+    let methods = "give(h: Token) { return h } give_nullable(h: Token?) { return h } rebound(h: Token) { h = null return h } local_rebound(h: Token) { local same = me.give(h) same = null return same } unknown() { return me.give_nullable(null) } multi(a: Token, b: Token, choose: i64) { if choose == 0 { return a } return b } cycle(h: Token) { return me.cycle(h) } mismatch(h: Other, choose: i64) { if choose == 0 { return new Token(1) } return h } builtin() { return new ArrayBox() }";
     let package = issue(&format!("{TOKEN} box Other {{ value: i64 birth(value) {{ me.value = value }} }} box Door {{ {methods} }} static box Main {{ main() {{ return 0 }} }}")).unwrap();
     for (name, arity) in [
         ("rebound", 1),
         ("local_rebound", 1),
-        ("unknown", 1),
+        ("unknown", 0),
         ("multi", 3),
         ("cycle", 1),
         ("mismatch", 2),
