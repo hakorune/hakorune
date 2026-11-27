@@ -64,31 +64,6 @@ impl NamedArrayEmissionCollectorV1 {
         });
         self
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn recheck_field_appends(&self,
-        sources: Vec<super::FieldArrayAppendSourceLoanV1>,
-    ) -> Result<(), String> {
-        let expected = self.expected.as_ref().map_err(Clone::clone)?;
-        let expected_count = expected.values().filter(|row| matches!(row, Expected::FieldAppend(_))).count();
-        if expected_count != sources.len() {
-            return Err(fault("read-source-domain-drift"));
-        }
-        let mut seen = std::collections::BTreeSet::new();
-        for source in sources {
-            let frame = source.text_frame().ok_or_else(|| fault("checked-source-mismatch"))?;
-            let key = (frame.source().caller().clone(), source.site().site().clone());
-            if !seen.insert(key.clone()) {
-                return Err(fault("read-source-domain-drift"));
-            }
-            let Some(Expected::FieldAppend(original)) = expected.get(&key)
-                else { return Err(fault("read-source-domain-drift")) };
-            if !original.same_source(&source) { return Err(fault("read-original-source-drift")); }
-        }
-        if seen.len() != expected_count {
-            return Err(fault("read-source-domain-drift"));
-        }
-        Ok(())
-    }
-
     pub(in crate::mir::normal_callable_semantic_package) fn with_field_reads(
         mut self,
         reads: Result<Vec<std::rc::Rc<super::field_read::FieldArrayReadRecipeV1>>, String>,
@@ -126,34 +101,16 @@ impl NamedArrayEmissionCollectorV1 {
         self
     }
 
-    pub(in crate::mir::normal_callable_semantic_package) fn recheck_owned_holders(
+    /// Lowering borrows the installed obligations. The collector matches
+    /// handbacks against these same source capabilities.
+    pub(in crate::mir::normal_callable_semantic_package) fn owned_holders(
         &self,
-        current: Vec<std::rc::Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::ArrayHolderLifecycleRecipeV1>>,
-    ) -> Result<(), String> {
+    ) -> Result<impl Iterator<Item = &std::rc::Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::ArrayHolderLifecycleRecipeV1>>, String> {
         let expected = self.expected.as_ref().map_err(Clone::clone)?;
-        if expected.values().filter(|row| matches!(row, Expected::OwnedHolder(_))).count() != current.len() {
-            return Err(fault("owned-holder-source-domain-drift"));
-        }
-        for recipe in current {
-            let Some(Expected::OwnedHolder(original)) = expected.get(&(recipe.caller().clone(), recipe.construction().clone()))
-                else { return Err(fault("owned-holder-source-domain-drift")); };
-            if !std::rc::Rc::ptr_eq(original, &recipe) {
-                return Err(fault("owned-holder-original-source-drift"));
-            }
-        }
-        Ok(())
-    }
-
-    pub(in crate::mir::normal_callable_semantic_package) fn recheck_reads(
-        &self, current: Vec<std::rc::Rc<super::field_read::FieldArrayReadRecipeV1>>,
-    ) -> Result<(), String> {
-        let expected = self.expected.as_ref().map_err(Clone::clone)?;
-        if expected.values().filter(|row| matches!(row, Expected::Read(_))).count() != current.len() { return Err(fault("read-source-domain-drift")); }
-        for recipe in current {
-            let Some(Expected::Read(original)) = expected.get(&(recipe.caller().clone(), recipe.call_site().clone())) else { return Err(fault("read-source-domain-drift")) };
-            if !original.same_source(&recipe) { return Err(fault("read-original-source-drift")); }
-        }
-        Ok(())
+        Ok(expected.values().filter_map(|row| match row {
+            Expected::OwnedHolder(recipe) => Some(recipe),
+            _ => None,
+        }))
     }
 
     pub(crate) fn hand_back(
