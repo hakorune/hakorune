@@ -291,42 +291,63 @@ fn is_pin_temp(var_name: &str) -> bool {
 mod tests {
     use super::*;
 
-    /// Test merge_exit_with_classification with simple carrier variable
-    ///
-    /// Phase 36: This is the ONLY remaining test (merge_continue tests removed as dead code)
+
     #[test]
-    fn test_merge_exit_with_classification_simple_carrier() {
-        let header_id = BasicBlockId::new(0);
-        let break_bb = BasicBlockId::new(1);
+    fn loop_exit_merge_keeps_only_actual_predecessors() {
+        for (case_name, exit_predecessors, expected_count, includes_header) in [
+            (
+                "test_merge_exit_with_classification_simple_carrier",
+                &[0, 1][..],
+                2,
+                true,
+            ),
+            (
+                "test_merge_exit_with_classification_break_only_loop",
+                &[1],
+                1,
+                false,
+            ),
+        ] {
+            println!("case: {case_name}");
+            let header_id = BasicBlockId::new(0);
+            let break_bb = BasicBlockId::new(1);
 
-        let mut header_vals = BTreeMap::new();
-        header_vals.insert("i".to_string(), ValueId::new(1));
+            let mut header_vals = BTreeMap::new();
+            header_vals.insert("i".to_string(), ValueId::new(1));
 
-        let mut break_snap = BTreeMap::new();
-        break_snap.insert("i".to_string(), ValueId::new(10));
-        let exit_snapshots = vec![(break_bb, break_snap)];
+            let mut break_snap = BTreeMap::new();
+            break_snap.insert("i".to_string(), ValueId::new(10));
+            let exit_snapshots = vec![(break_bb, break_snap)];
 
-        let exit_preds = vec![header_id, break_bb];
-        let pinned_vars = vec![];
-        let carrier_vars = vec!["i".to_string()];
+            let exit_preds = exit_predecessors
+                .iter()
+                .copied()
+                .map(BasicBlockId::new)
+                .collect::<Vec<_>>();
+            let pinned_vars = vec![];
+            let carrier_vars = vec!["i".to_string()];
 
-        // Phase 69-2: inspector は merge_exit_with_classification 内部で構築
-        let result = LoopSnapshotMergeBox::merge_exit_with_classification(
-            header_id,
-            &header_vals,
-            &exit_snapshots,
-            &exit_preds,
-            &pinned_vars,
-            &carrier_vars,
-        )
-        .unwrap();
+            // Phase 69-2: inspector は merge_exit_with_classification 内部で構築
+            let result = LoopSnapshotMergeBox::merge_exit_with_classification(
+                header_id,
+                &header_vals,
+                &exit_snapshots,
+                &exit_preds,
+                &pinned_vars,
+                &carrier_vars,
+            )
+            .unwrap();
 
-        // "i" should have exit PHI with inputs from header and break
-        assert_eq!(result.len(), 1);
-        let i_inputs = result.get("i").unwrap();
-        assert_eq!(i_inputs.len(), 2);
-        assert!(i_inputs.contains(&(header_id, ValueId::new(1))));
-        assert!(i_inputs.contains(&(break_bb, ValueId::new(10))));
+            // Check the full incoming membership without assuming PHI order.
+            assert_eq!(result.len(), 1);
+            let i_inputs = result.get("i").unwrap();
+            assert_eq!(i_inputs.len(), expected_count);
+            assert_eq!(
+                i_inputs.contains(&(header_id, ValueId::new(1))),
+                includes_header
+            );
+            assert!(i_inputs.contains(&(break_bb, ValueId::new(10))));
+        }
     }
 
     /// Test merge_exit_with_classification skips BodyLocalInternal variables
@@ -370,45 +391,5 @@ mod tests {
         );
     }
 
-    /// Test merge_exit_with_classification with header not in exit_preds (break-only loop)
-    ///
-    /// Phase 36: Tests Case B (header not in exit preds)
-    #[test]
-    fn test_merge_exit_with_classification_break_only_loop() {
-        let header_id = BasicBlockId::new(0);
-        let break_bb = BasicBlockId::new(1);
 
-        let mut header_vals = BTreeMap::new();
-        header_vals.insert("i".to_string(), ValueId::new(1));
-
-        let mut break_snap = BTreeMap::new();
-        break_snap.insert("i".to_string(), ValueId::new(10));
-        let exit_snapshots = vec![(break_bb, break_snap)];
-
-        // Note: header_id NOT in exit_preds (break-only loop, no header fallthrough)
-        let exit_preds = vec![break_bb];
-        let pinned_vars = vec![];
-        let carrier_vars = vec!["i".to_string()];
-
-        // Phase 69-2: inspector は merge_exit_with_classification 内部で構築
-        let result = LoopSnapshotMergeBox::merge_exit_with_classification(
-            header_id,
-            &header_vals,
-            &exit_snapshots,
-            &exit_preds,
-            &pinned_vars,
-            &carrier_vars,
-        )
-        .unwrap();
-
-        // "i" should have exit PHI with ONLY break input (no header input)
-        assert_eq!(result.len(), 1);
-        let i_inputs = result.get("i").unwrap();
-        assert_eq!(i_inputs.len(), 1);
-        assert!(i_inputs.contains(&(break_bb, ValueId::new(10))));
-        assert!(
-            !i_inputs.contains(&(header_id, ValueId::new(1))),
-            "Header input should be excluded when header not in exit_preds"
-        );
-    }
 }

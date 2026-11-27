@@ -329,17 +329,20 @@ mod tests {
         function
     }
 
-    #[test]
-    fn infer_phi_base_relation_detects_same_base_through_single_input_phi() {
+    fn assert_phi_with_anchor_window(query: ValueId, window_safe: bool) {
         let function = build_phi_function();
         let def_map = build_value_def_map(&function);
         let anchors = BTreeSet::from([ValueId(10)]);
 
-        let relation =
-            infer_phi_base_query_with_anchors(&function, &def_map, ValueId(21), &anchors);
+        let relation = infer_phi_base_query_with_anchors(&function, &def_map, query, &anchors);
 
         assert_eq!(relation.relation, PhiBaseRelation::SameBase(ValueId(10)));
-        assert!(!relation.window_safe);
+        assert_eq!(relation.window_safe, window_safe);
+    }
+
+    #[test]
+    fn infer_phi_base_relation_detects_same_base_through_single_input_phi() {
+        assert_phi_with_anchor_window(ValueId(21), false);
     }
 
     #[test]
@@ -368,15 +371,7 @@ mod tests {
 
     #[test]
     fn infer_phi_base_relation_marks_single_input_chain_as_window_safe() {
-        let function = build_phi_function();
-        let def_map = build_value_def_map(&function);
-        let anchors = BTreeSet::from([ValueId(10)]);
-
-        let relation =
-            infer_phi_base_query_with_anchors(&function, &def_map, ValueId(22), &anchors);
-
-        assert_eq!(relation.relation, PhiBaseRelation::SameBase(ValueId(10)));
-        assert!(relation.window_safe);
+        assert_phi_with_anchor_window(ValueId(22), true);
     }
 
     #[test]

@@ -556,11 +556,16 @@ mod tests {
             .any(|plan| plan.shape_key == "Option|0:none,1:i64"));
     }
 
-    #[test]
-    fn function_site_plan_map_annotates_local_variant_tag_source() {
+    fn option_i64_site_plans(
+        module_name: &str,
+        instructions: impl IntoIterator<Item = MirInstruction>,
+    ) -> (
+        Vec<BoxedSumAbiPlanV1>,
+        BTreeMap<(crate::mir::BasicBlockId, usize), BoxedSumSitePlan>,
+    ) {
         use crate::mir::{BasicBlock, BasicBlockId, MirFunction};
 
-        let mut module = MirModule::new("boxed_sum_tag_site_probe".to_string());
+        let mut module = MirModule::new(module_name.to_string());
         module.metadata.enum_decls.insert(
             "Option".to_string(),
             MirEnumDecl {
@@ -578,19 +583,9 @@ mod tests {
             },
         );
         let mut block = BasicBlock::new(BasicBlockId::new(0));
-        block.add_instruction(MirInstruction::VariantMake {
-            dst: crate::mir::ValueId::new(2),
-            enum_name: "Option".to_string(),
-            variant: "Some".to_string(),
-            tag: 1,
-            payload: Some(crate::mir::ValueId::new(1)),
-            payload_type: Some(MirType::Integer),
-        });
-        block.add_instruction(MirInstruction::VariantTag {
-            dst: crate::mir::ValueId::new(3),
-            value: crate::mir::ValueId::new(2),
-            enum_name: "Option".to_string(),
-        });
+        for instruction in instructions {
+            block.add_instruction(instruction);
+        }
         let mut function = MirFunction::new(
             FunctionSignature {
                 name: "probe".to_string(),
@@ -606,6 +601,29 @@ mod tests {
         let plans = build_boxed_sum_abi_plans(&module);
         let function = module.functions.get("probe").unwrap();
         let site_map = build_function_boxed_sum_site_plan_map(function, &plans);
+        (plans, site_map)
+    }
+
+    #[test]
+    fn function_site_plan_map_annotates_local_variant_tag_source() {
+        let (plans, site_map) = option_i64_site_plans(
+            "boxed_sum_tag_site_probe",
+            [
+                MirInstruction::VariantMake {
+                    dst: crate::mir::ValueId::new(2),
+                    enum_name: "Option".to_string(),
+                    variant: "Some".to_string(),
+                    tag: 1,
+                    payload: Some(crate::mir::ValueId::new(1)),
+                    payload_type: Some(MirType::Integer),
+                },
+                MirInstruction::VariantTag {
+                    dst: crate::mir::ValueId::new(3),
+                    value: crate::mir::ValueId::new(2),
+                    enum_name: "Option".to_string(),
+                },
+            ],
+        );
         let tag_site = site_map.get(&(BasicBlockId::new(0), 1)).unwrap();
         let plan = plans.get(tag_site.plan_id as usize).unwrap();
 
@@ -615,49 +633,17 @@ mod tests {
 
     #[test]
     fn variant_make_none_uses_payload_type_as_instantiation_hint() {
-        use crate::mir::{BasicBlock, BasicBlockId, MirFunction};
-
-        let mut module = MirModule::new("boxed_sum_none_i64_probe".to_string());
-        module.metadata.enum_decls.insert(
-            "Option".to_string(),
-            MirEnumDecl {
-                type_parameters: vec!["T".to_string()],
-                variants: vec![
-                    MirEnumVariantDecl {
-                        name: "None".to_string(),
-                        payload_type_name: None,
-                    },
-                    MirEnumVariantDecl {
-                        name: "Some".to_string(),
-                        payload_type_name: Some("T".to_string()),
-                    },
-                ],
-            },
+        let (plans, site_map) = option_i64_site_plans(
+            "boxed_sum_none_i64_probe",
+            [MirInstruction::VariantMake {
+                dst: crate::mir::ValueId::new(2),
+                enum_name: "Option".to_string(),
+                variant: "None".to_string(),
+                tag: 0,
+                payload: None,
+                payload_type: Some(MirType::Integer),
+            }],
         );
-        let mut block = BasicBlock::new(BasicBlockId::new(0));
-        block.add_instruction(MirInstruction::VariantMake {
-            dst: crate::mir::ValueId::new(2),
-            enum_name: "Option".to_string(),
-            variant: "None".to_string(),
-            tag: 0,
-            payload: None,
-            payload_type: Some(MirType::Integer),
-        });
-        let mut function = MirFunction::new(
-            FunctionSignature {
-                name: "probe".to_string(),
-                params: vec![],
-                return_type: MirType::Void,
-                effects: EffectMask::PURE,
-            },
-            BasicBlockId::new(0),
-        );
-        function.blocks.insert(BasicBlockId::new(0), block);
-        module.functions.insert("probe".to_string(), function);
-
-        let plans = build_boxed_sum_abi_plans(&module);
-        let function = module.functions.get("probe").unwrap();
-        let site_map = build_function_boxed_sum_site_plan_map(function, &plans);
         let make_site = site_map.get(&(BasicBlockId::new(0), 0)).unwrap();
         let plan = plans.get(make_site.plan_id as usize).unwrap();
 
@@ -670,49 +656,17 @@ mod tests {
 
     #[test]
     fn variant_make_some_payload_zero_is_still_payload_present() {
-        use crate::mir::{BasicBlock, BasicBlockId, MirFunction};
-
-        let mut module = MirModule::new("boxed_sum_some_zero_payload_probe".to_string());
-        module.metadata.enum_decls.insert(
-            "Option".to_string(),
-            MirEnumDecl {
-                type_parameters: vec!["T".to_string()],
-                variants: vec![
-                    MirEnumVariantDecl {
-                        name: "None".to_string(),
-                        payload_type_name: None,
-                    },
-                    MirEnumVariantDecl {
-                        name: "Some".to_string(),
-                        payload_type_name: Some("T".to_string()),
-                    },
-                ],
-            },
+        let (plans, site_map) = option_i64_site_plans(
+            "boxed_sum_some_zero_payload_probe",
+            [MirInstruction::VariantMake {
+                dst: crate::mir::ValueId::new(2),
+                enum_name: "Option".to_string(),
+                variant: "Some".to_string(),
+                tag: 1,
+                payload: Some(crate::mir::ValueId::new(0)),
+                payload_type: Some(MirType::Integer),
+            }],
         );
-        let mut block = BasicBlock::new(BasicBlockId::new(0));
-        block.add_instruction(MirInstruction::VariantMake {
-            dst: crate::mir::ValueId::new(2),
-            enum_name: "Option".to_string(),
-            variant: "Some".to_string(),
-            tag: 1,
-            payload: Some(crate::mir::ValueId::new(0)),
-            payload_type: Some(MirType::Integer),
-        });
-        let mut function = MirFunction::new(
-            FunctionSignature {
-                name: "probe".to_string(),
-                params: vec![],
-                return_type: MirType::Void,
-                effects: EffectMask::PURE,
-            },
-            BasicBlockId::new(0),
-        );
-        function.blocks.insert(BasicBlockId::new(0), block);
-        module.functions.insert("probe".to_string(), function);
-
-        let plans = build_boxed_sum_abi_plans(&module);
-        let function = module.functions.get("probe").unwrap();
-        let site_map = build_function_boxed_sum_site_plan_map(function, &plans);
         let make_site = site_map.get(&(BasicBlockId::new(0), 0)).unwrap();
         let plan = plans.get(make_site.plan_id as usize).unwrap();
 

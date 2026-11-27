@@ -220,55 +220,72 @@ fn v2_dynamic_add_rejects_reversed_operands() {
     );
 }
 
+
 #[test]
-fn v2_dynamic_add_rejects_dynamic_rhs() {
-    let mut artifact = dynamic_operation_recipe();
-    if let LoopRecipeItemV2::Operation {
-        operation: LoopOperationV2::DynamicAdd { right, .. },
-    } = &mut artifact.recipe.items[3].item
-    {
-        *right = LoopValueKeyV1::new(1);
+fn dynamic_operations_reject_invalid_right_value() {
+    for (case_name, index, is_add, replacement) in [
+        ("v2_dynamic_add_rejects_dynamic_rhs", 3, true, 1),
+        ("v2_dynamic_less_rejects_bool_rhs", 6, false, 3),
+    ] {
+        println!("case: {case_name}");
+
+        let mut artifact = dynamic_operation_recipe();
+        let item = &mut artifact.recipe.items[index].item;
+        if let LoopRecipeItemV2::Operation { operation } = item {
+            match operation {
+                LoopOperationV2::DynamicAdd { right, .. } if is_add => {
+                    *right = LoopValueKeyV1::new(replacement)
+                }
+                LoopOperationV2::DynamicLess { right, .. } if !is_add => {
+                    *right = LoopValueKeyV1::new(replacement)
+                }
+                _ => {}
+            }
+        }
+        assert_eq!(
+            LoopRecipeVerifierV2::verify_artifact(artifact),
+            Err(LoopRecipeV2RejectReason::InvalidOperationDomain {
+                item: LoopItemKeyV1::new(index as _),
+            })
+        );
     }
-    assert_eq!(
-        LoopRecipeVerifierV2::verify_artifact(artifact),
-        Err(LoopRecipeV2RejectReason::InvalidOperationDomain {
-            item: LoopItemKeyV1::new(3),
-        })
-    );
 }
 
 #[test]
-fn v2_dynamic_less_rejects_non_dynamic_left() {
-    let mut artifact = dynamic_operation_recipe();
-    if let LoopRecipeItemV2::Operation {
-        operation: LoopOperationV2::DynamicLess { left, .. },
-    } = &mut artifact.recipe.items[6].item
-    {
-        *left = LoopValueKeyV1::new(7);
-    }
-    assert_eq!(
-        LoopRecipeVerifierV2::verify_artifact(artifact),
-        Err(LoopRecipeV2RejectReason::InvalidOperationDomain {
-            item: LoopItemKeyV1::new(6),
-        })
-    );
-}
+fn dynamic_less_rejects_invalid_left_value() {
+    for (case_name, item, replacement, expected) in [
+        (
+            "v2_dynamic_less_rejects_non_dynamic_left",
+            6,
+            7,
+            LoopRecipeV2RejectReason::InvalidOperationDomain {
+                item: LoopItemKeyV1::new(6),
+            },
+        ),
+        (
+            "v2_dynamic_less_rejects_forward_call_result",
+            1,
+            6,
+            LoopRecipeV2RejectReason::ValueUsedBeforeDefinition {
+                item: LoopItemKeyV1::new(1),
+                key: LoopValueKeyV1::new(6),
+            },
+        ),
+    ] {
+        println!("case: {case_name}");
 
-#[test]
-fn v2_dynamic_less_rejects_bool_rhs() {
-    let mut artifact = dynamic_operation_recipe();
-    if let LoopRecipeItemV2::Operation {
-        operation: LoopOperationV2::DynamicLess { right, .. },
-    } = &mut artifact.recipe.items[6].item
-    {
-        *right = LoopValueKeyV1::new(3);
+        let mut artifact = dynamic_operation_recipe();
+        if let LoopRecipeItemV2::Operation {
+            operation: LoopOperationV2::DynamicLess { left, .. },
+        } = &mut artifact.recipe.items[item].item
+        {
+            *left = LoopValueKeyV1::new(replacement);
+        }
+        assert_eq!(
+            LoopRecipeVerifierV2::verify_artifact(artifact),
+            Err(expected)
+        );
     }
-    assert_eq!(
-        LoopRecipeVerifierV2::verify_artifact(artifact),
-        Err(LoopRecipeV2RejectReason::InvalidOperationDomain {
-            item: LoopItemKeyV1::new(6),
-        })
-    );
 }
 
 #[test]
@@ -279,24 +296,6 @@ fn v2_dynamic_add_rejects_wrong_result_class() {
         LoopRecipeVerifierV2::verify_artifact(artifact),
         Err(LoopRecipeV2RejectReason::ValueClassMismatch {
             key: LoopValueKeyV1::new(10),
-        })
-    );
-}
-
-#[test]
-fn v2_dynamic_less_rejects_forward_call_result() {
-    let mut artifact = dynamic_operation_recipe();
-    if let LoopRecipeItemV2::Operation {
-        operation: LoopOperationV2::DynamicLess { left, .. },
-    } = &mut artifact.recipe.items[1].item
-    {
-        *left = LoopValueKeyV1::new(6);
-    }
-    assert_eq!(
-        LoopRecipeVerifierV2::verify_artifact(artifact),
-        Err(LoopRecipeV2RejectReason::ValueUsedBeforeDefinition {
-            item: LoopItemKeyV1::new(1),
-            key: LoopValueKeyV1::new(6),
         })
     );
 }

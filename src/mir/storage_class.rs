@@ -227,62 +227,48 @@ mod tests {
     }
 
     #[test]
-    fn refresh_function_collects_storage_classes_from_field_get_declared_type() {
-        let signature = FunctionSignature {
-            name: "test_func".to_string(),
-            params: vec![],
-            return_type: MirType::Void,
-            effects: EffectMask::PURE,
-        };
-        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
-        function
-            .get_block_mut(BasicBlockId::new(0))
-            .expect("entry block")
-            .add_instruction(super::super::MirInstruction::FieldGet {
-                dst: ValueId::new(1),
-                base: ValueId::new(0),
-                field: "x".to_string(),
-                declared_type: Some(MirType::Box("IntegerBox".to_string())),
-            });
-
-        refresh_function_storage_class_facts(&mut function);
-
-        assert_eq!(
+    fn field_get_collects_declared_scalar_storage_classes() {
+        for (case_name, box_name, expected_storage) in [
+            (
+                "refresh_function_collects_storage_classes_from_field_get_declared_type",
+                "IntegerBox",
+                StorageClass::InlineI64,
+            ),
+            (
+                "refresh_function_collects_float_storage_class_from_field_get_declared_type",
+                "FloatBox",
+                StorageClass::InlineF64,
+            ),
+        ] {
+            println!("case: {case_name}");
+            let signature = FunctionSignature {
+                name: "test_func".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            };
+            let mut function = MirFunction::new(signature, BasicBlockId::new(0));
             function
-                .metadata
-                .value_storage_classes
-                .get(&ValueId::new(1)),
-            Some(&StorageClass::InlineI64)
-        );
+                .get_block_mut(BasicBlockId::new(0))
+                .expect("entry block")
+                .add_instruction(super::super::MirInstruction::FieldGet {
+                    dst: ValueId::new(1),
+                    base: ValueId::new(0),
+                    field: "x".to_string(),
+                    declared_type: Some(MirType::Box(box_name.to_string())),
+                });
+
+            refresh_function_storage_class_facts(&mut function);
+
+            assert_eq!(
+                function
+                    .metadata
+                    .value_storage_classes
+                    .get(&ValueId::new(1)),
+                Some(&expected_storage)
+            );
+        }
     }
 
-    #[test]
-    fn refresh_function_collects_float_storage_class_from_field_get_declared_type() {
-        let signature = FunctionSignature {
-            name: "test_func".to_string(),
-            params: vec![],
-            return_type: MirType::Void,
-            effects: EffectMask::PURE,
-        };
-        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
-        function
-            .get_block_mut(BasicBlockId::new(0))
-            .expect("entry block")
-            .add_instruction(super::super::MirInstruction::FieldGet {
-                dst: ValueId::new(1),
-                base: ValueId::new(0),
-                field: "x".to_string(),
-                declared_type: Some(MirType::Box("FloatBox".to_string())),
-            });
 
-        refresh_function_storage_class_facts(&mut function);
-
-        assert_eq!(
-            function
-                .metadata
-                .value_storage_classes
-                .get(&ValueId::new(1)),
-            Some(&StorageClass::InlineF64)
-        );
-    }
 }

@@ -133,28 +133,53 @@ fn resolved_root_adapter_issues_v2_root_without_manual_coordinates() {
     );
 }
 
-#[test]
-fn scope_loop_preserves_scope_body_root_and_item_identity() {
-    let tree = function(vec![ASTNode::ScopeBox {
-        body: vec![loop_stmt(Vec::new())],
-        span: Span::unknown(),
-    }]);
-    let product = resolve_function(&tree);
 
-    assert_eq!(
-        bind(
-            &product,
-            stmt(vec![
+#[test]
+fn source_path_keeps_every_loop_and_scope_boundary() {
+    for (case_name, body, path, steps) in [
+        (
+            "scope_loop_preserves_scope_body_root_and_item_identity",
+            vec![ASTNode::ScopeBox {
+                body: vec![loop_stmt(Vec::new())],
+                span: Span::unknown(),
+            }],
+            vec![
                 SourcePathSegmentV1::Body(0),
                 SourcePathSegmentV1::ScopeBody(0),
-            ]),
-        )
-        .unwrap(),
-        expected(vec![
-            LoopSourcePathStepV1::BodyItem { index: 0 },
-            LoopSourcePathStepV1::ScopeBodyItem { index: 0 },
-        ])
-    );
+            ],
+            vec![
+                LoopSourcePathStepV1::BodyItem { index: 0 },
+                LoopSourcePathStepV1::ScopeBodyItem { index: 0 },
+            ],
+        ),
+        (
+            "multiple_scopes_under_a_loop_preserve_every_container_boundary",
+            vec![loop_stmt(vec![ASTNode::ScopeBox {
+                body: vec![ASTNode::ScopeBox {
+                    body: vec![loop_stmt(Vec::new())],
+                    span: Span::unknown(),
+                }],
+                span: Span::unknown(),
+            }])],
+            vec![
+                SourcePathSegmentV1::Body(0),
+                SourcePathSegmentV1::LoopBody(0),
+                SourcePathSegmentV1::ScopeBody(0),
+                SourcePathSegmentV1::ScopeBody(0),
+            ],
+            vec![
+                LoopSourcePathStepV1::BodyItem { index: 0 },
+                LoopSourcePathStepV1::LoopBodyItem { index: 0 },
+                LoopSourcePathStepV1::ScopeBodyItem { index: 0 },
+                LoopSourcePathStepV1::ScopeBodyItem { index: 0 },
+            ],
+        ),
+    ] {
+        println!("case: {case_name}");
+        let tree = function(body);
+        let product = resolve_function(&tree);
+        assert_eq!(bind(&product, stmt(path)).unwrap(), expected(steps));
+    }
 }
 
 #[test]
@@ -174,37 +199,6 @@ fn nested_loop_preserves_loop_body_root_and_item_identity() {
         expected(vec![
             LoopSourcePathStepV1::BodyItem { index: 0 },
             LoopSourcePathStepV1::LoopBodyItem { index: 0 },
-        ])
-    );
-}
-
-#[test]
-fn multiple_scopes_under_a_loop_preserve_every_container_boundary() {
-    let tree = function(vec![loop_stmt(vec![ASTNode::ScopeBox {
-        body: vec![ASTNode::ScopeBox {
-            body: vec![loop_stmt(Vec::new())],
-            span: Span::unknown(),
-        }],
-        span: Span::unknown(),
-    }])]);
-    let product = resolve_function(&tree);
-
-    assert_eq!(
-        bind(
-            &product,
-            stmt(vec![
-                SourcePathSegmentV1::Body(0),
-                SourcePathSegmentV1::LoopBody(0),
-                SourcePathSegmentV1::ScopeBody(0),
-                SourcePathSegmentV1::ScopeBody(0),
-            ]),
-        )
-        .unwrap(),
-        expected(vec![
-            LoopSourcePathStepV1::BodyItem { index: 0 },
-            LoopSourcePathStepV1::LoopBodyItem { index: 0 },
-            LoopSourcePathStepV1::ScopeBodyItem { index: 0 },
-            LoopSourcePathStepV1::ScopeBodyItem { index: 0 },
         ])
     );
 }

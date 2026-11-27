@@ -250,14 +250,12 @@ mod tests {
         assert_eq!(resolver.resolve(ValueId(2)), Some(MirType::Integer));
     }
 
-    #[test]
-    fn test_resolve_through_phi_uniform() {
+    fn resolve_two_input_phi(incoming_type: MirType) -> Option<MirType> {
         let mut f = make_test_function();
         let mut value_types = BTreeMap::new();
 
-        // v1 and v2 both have type Integer
         value_types.insert(ValueId(1), MirType::Integer);
-        value_types.insert(ValueId(2), MirType::Integer);
+        value_types.insert(ValueId(2), incoming_type);
 
         // Phi v3 <- [(Block0, v1), (Block1, v2)]
         let mut bb = BasicBlock::new(BasicBlockId::new(0));
@@ -272,33 +270,20 @@ mod tests {
         f.blocks.insert(BasicBlockId::new(0), bb);
 
         let resolver = PhiTypeResolver::new(&f, &value_types);
-        assert_eq!(resolver.resolve(ValueId(3)), Some(MirType::Integer));
+        resolver.resolve(ValueId(3))
+    }
+
+    #[test]
+    fn test_resolve_through_phi_uniform() {
+        assert_eq!(
+            resolve_two_input_phi(MirType::Integer),
+            Some(MirType::Integer)
+        );
     }
 
     #[test]
     fn test_resolve_through_phi_mixed_types() {
-        let mut f = make_test_function();
-        let mut value_types = BTreeMap::new();
-
-        // v1 has Integer, v2 has String (different types)
-        value_types.insert(ValueId(1), MirType::Integer);
-        value_types.insert(ValueId(2), MirType::String);
-
-        // Phi v3 <- [(Block0, v1), (Block1, v2)]
-        let mut bb = BasicBlock::new(BasicBlockId::new(0));
-        bb.instructions.push(MirInstruction::Phi {
-            dst: ValueId(3),
-            inputs: vec![
-                (BasicBlockId::new(0), ValueId(1)),
-                (BasicBlockId::new(1), ValueId(2)),
-            ],
-            type_hint: None,
-        });
-        f.blocks.insert(BasicBlockId::new(0), bb);
-
-        let resolver = PhiTypeResolver::new(&f, &value_types);
-        // Should return None because types don't match
-        assert_eq!(resolver.resolve(ValueId(3)), None);
+        assert_eq!(resolve_two_input_phi(MirType::String), None);
     }
 
     #[test]
@@ -335,28 +320,21 @@ mod tests {
     }
 
     #[test]
-    fn test_resolve_unknown_returns_none() {
-        let f = make_test_function();
-        let mut value_types = BTreeMap::new();
+    fn resolver_filters_unknown_and_void_types() {
+        for (case_name, value_type) in [
+            ("test_resolve_unknown_returns_none", MirType::Unknown),
+            ("test_resolve_void_returns_none", MirType::Void),
+        ] {
+            println!("case: {case_name}");
+            let f = make_test_function();
+            let mut value_types = BTreeMap::new();
 
-        // v1 has type Unknown
-        value_types.insert(ValueId(1), MirType::Unknown);
+            value_types.insert(ValueId(1), value_type);
 
-        let resolver = PhiTypeResolver::new(&f, &value_types);
-        // Unknown should be filtered out
-        assert_eq!(resolver.resolve(ValueId(1)), None);
+            let resolver = PhiTypeResolver::new(&f, &value_types);
+            assert_eq!(resolver.resolve(ValueId(1)), None);
+        }
     }
 
-    #[test]
-    fn test_resolve_void_returns_none() {
-        let f = make_test_function();
-        let mut value_types = BTreeMap::new();
 
-        // v1 has type Void
-        value_types.insert(ValueId(1), MirType::Void);
-
-        let resolver = PhiTypeResolver::new(&f, &value_types);
-        // Void should be filtered out
-        assert_eq!(resolver.resolve(ValueId(1)), None);
-    }
 }
