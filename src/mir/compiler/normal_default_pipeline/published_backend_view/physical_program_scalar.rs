@@ -101,7 +101,10 @@ pub(super) fn validate_selected_scalar_operations(
             function.signature.name,
             actual.len(),
             expected.len(),
-            actual.iter().find(|binding| !expected.contains(binding)),
+            actual
+                .iter()
+                .filter(|binding| !expected.contains(binding))
+                .min_by_key(|(block, _)| *block),
             expected.iter().find(|binding| !actual.contains(binding))
         ));
     }

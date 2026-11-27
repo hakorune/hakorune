@@ -79,7 +79,10 @@ pub(super) fn check_module_with_source(
         }) {
             errors.push(error(function.entry_block, reason));
         }
-        for (id, block) in &function.blocks {
+        // Keep module diagnostics in block and instruction order within each function.
+        let mut blocks: Vec<_> = function.blocks.iter().collect();
+        blocks.sort_unstable_by_key(|(&id, _)| id);
+        for (id, block) in blocks {
             for (index, instruction) in block.all_instructions().enumerate() {
                 if let MirInstruction::ObjectFieldGet { field, .. } = instruction {
                     if !module

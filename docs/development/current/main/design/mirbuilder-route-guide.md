@@ -13,6 +13,8 @@ commit beeb34e635 のソースを読んで作成した。掃除 1 で追った�
 4. その中で先に `b/raw_expression_dispatch/statement_surface.rs:261 try_build_with_port_v1`(If/Loop/Assignment/CompoundAssignment/Return/Local…)を試し、残りを `mod.rs:179-` の式 match(Literal/BinaryOp/MethodCall/FunctionCall/FieldAccess/New…)へ。match の末尾 `mod.rs:615` は `unsupported_raw_ast_node_error_v1`。`Break`/`Continue` の arm はどこにも無い。`Lambda` は `mod.rs:354` で `legacy_lambda_surface_retired_v1`(`mod.rs:22`)のエラーを返す。
 5. 台帳の種類と構文による選択は `b/raw_invocation_source_transport/source_node.rs:33` の一箇所。早い文位置は Local・Nowait・Outbox。Return・束縛再代入・Map・変数は式位置で、通常の文の span 設定と式の観測が済んでから選ぶ。
 
+完成 MIR の Invoke 診断は `m/verification/invoke.rs::check_module_with_source` が関数内を block 番号・命令順に照合して並べる。scalar source coverage の不一致箇所も `m/compiler/normal_default_pipeline/published_backend_view/physical_program_scalar.rs::validate_selected_scalar_operations` が最小の block 番号から選ぶ。
+
 ## 1. 構文別の表
 
 blueprint が持ち主を名指ししているのは if(決定 18)と loop(決定 20)だけ。他は「1 つの共通操作」(§5〜§8)としか書かれない。**「推定」と付けた持ち主は名指しが無いので、最も多くの経路が合流する関数を選んだ物**。
