@@ -275,6 +275,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
     expression: Option<
         &crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
     >,
+    static_return: bool,
 ) -> Result<Option<BorrowedCallArgumentsV1>, String> {
     let Ok(prepared) = source else {
         return ordinary_result_absent(site, "the prepared source ingress is unavailable");
@@ -285,10 +286,16 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
         // the source purpose before any protocol validation is attempted.
         let tagged = prepared.has_tagged_static_input_v1(original.callee_owner(), original.parameters())
             && pending.get(site).is_some_and(|rows| rows.as_ref().is_ok_and(|row| row.source_static_snapshot_v1().is_some()));
+        let scalar_return = expression.is_some_and(|plan| original.is_scalar_return_source_v1(plan))
+            && (original.has_exact_i64_inputs_v1()
+                || (prepared.can_extend_static_return_v1(original) && pending.contains_key(site)));
+        if static_return && !scalar_return {
+            return ordinary_result_absent(site, "the original static Return uses a different input owner");
+        }
         if original.source_scalar_result_v1().is_some()
             && !tagged
             && !expression.is_some_and(|plan| plan.owner() == site.owner()
-                && (original.is_scalar_return_source_v1(plan)
+                && (scalar_return
                     || matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. })
                     // Any other use site takes this result only while its
                     // actuals are still passive source rows; once another
@@ -304,6 +311,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
         return source_static_result_arguments_v1(
             source, pending, contracts, site, selected, completed, expression,
         );
+    }
+    if static_return {
+        return Ok(None);
     }
     // An original expression binds the loan. A scalar classifier can also ask
     // whether this exact source has an owned Dynamic result before choosing a writer.

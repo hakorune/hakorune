@@ -314,6 +314,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         read,
         binding,
         root,
+        integer_order,
     } = request
     {
         return source
@@ -321,7 +322,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             .map_err(Clone::clone)
             .and_then(|source| {
                 super::super::lexical_instance_call::lend_dynamic_entry_read_v1(
-                    input, source, contracts, site, plan, read, binding, root,
+                    input, source, contracts, site, plan, read, binding, root, integer_order,
                 )
             })
             .map(|row| row.map(BorrowedCallArgumentsV1::DynamicEntryRead))
@@ -349,10 +350,15 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         site: site.clone(),
         issue,
     })?;
-    if let BorrowedCallActualRequestV1::SourceResultArguments { expression } = request {
+    let result_request = match request {
+        BorrowedCallActualRequestV1::SourceResultArguments { expression } => Some((expression, false)),
+        BorrowedCallActualRequestV1::StaticScalarReturnArguments(expression) => Some((Some(expression), true)),
+        _ => None,
+    };
+    if let Some((expression, static_return)) = result_request {
         if let Some(text) =
             super::super::lexical_instance_call::source_ordinary_result_arguments_v1(
-                source, pending, contracts, site, targets, selected, completed, expression,
+                source, pending, contracts, site, targets, selected, completed, expression, static_return,
             )
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
                 site: site.clone(),
@@ -360,6 +366,9 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             })?
         {
             return Ok(Some(text));
+        }
+        if static_return {
+            return Ok(None);
         }
         return super::super::lexical_instance_call::source_scalar_result_arguments_v1(
             targets, contracts, source, pending, results, site, classes,
@@ -753,6 +762,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         | BorrowedCallActualRequestV1::BorrowedNullableReturnArguments(_)
         | BorrowedCallActualRequestV1::MixedLocalArguments(_)
         | BorrowedCallActualRequestV1::SourceResultArguments { .. }
+        | BorrowedCallActualRequestV1::StaticScalarReturnArguments(_)
         | BorrowedCallActualRequestV1::SourceUnitDiscardArguments
         | BorrowedCallActualRequestV1::ObjectArguments(..) => {
             unreachable!("observation handled before demand")

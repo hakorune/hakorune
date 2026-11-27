@@ -77,7 +77,12 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         dynamic_calls,
         Some(&array_sources),
     )
-    .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/incoming-coverage")))?;
+    .map_err(|error| match error {
+        super::BorrowedIncomingDraftErrorV1::ArgumentTypeMismatch { call, ordinal, target, expected, location: [line, column] } => format!(
+            "[type/argument-mismatch] line={line} column={column} call={call:?} target={target:?} argument={ordinal} actual=null formal={expected}",
+        ),
+        error => format!("{}: {error:?}", freeze("borrowed-formal/incoming-coverage")),
+    })?;
     let seeds = source_seeds::prepare_original_formal_seeds_v1(
         batch, selected, entry_home_loans, constructors, callable_result_classes,
         local_candidates, contracts, definitions, &inventory, guarded_actuals, static_claims, array_i64_fields,

@@ -8,12 +8,13 @@ fn source(bridge: &str, actual: &str) -> String {
         "owned_other" => ("local obj = new Other(0)", "obj"),
         other => ("", other),
     };
+    let class = if actual == "null" { "Wrap?" } else { "Wrap" };
     format!(
         "box Wrap {{ v: i64 birth(v) {{ me.v = v }} }}
         box Other {{ v: i64 birth(v) {{ me.v = v }} }}
         box Door {{ birth() {{ }}
             probe(p): i64 {{ if p == null {{ return 0 }} return p.v }}
-            bridge(h: Wrap): i64 {{ {bridge} }}
+            bridge(h: {class}): i64 {{ {bridge} }}
         }}
         static box Main {{ main() {{ local recv = new Door()
             {prefix} local out = recv.bridge({actual}) return 0 }} }}"
@@ -168,12 +169,12 @@ fn source_domain_fixture(bridge: &str, actual: &str) -> String {
         "{} local unused = me.blocked(h) return 0",
         bridge.trim_end_matches("return 0")
     );
-    let text = source(&bridge, if actual == "uncalled" { "null" } else { actual }).replace(
+    let text = source(&bridge, if actual == "uncalled" { "0" } else { actual }).replace(
         "probe(p): i64",
         "blocked(p): i64 { local ignored: i64 = p return 0 } probe(p): i64",
     );
     if actual == "uncalled" {
-        text.replace("local out = recv.bridge(null)", "local out = 0")
+        text.replace("local out = recv.bridge(0)", "local out = 0")
     } else {
         text
     }

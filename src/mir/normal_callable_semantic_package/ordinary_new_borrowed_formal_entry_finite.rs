@@ -46,6 +46,7 @@ impl OrdinaryNewClaimLedgerV1 {
         parameters: &[(u32, BindingRefV1, CallableParameterContractKindV1)],
         nominal_sibling_structure: bool,
         allow_tagged: bool,
+        original_static_return: bool,
     ) -> Result<Option<BorrowedEntryStructureV1<'a>>, String> {
         use super::super::borrowed_formal_uses::BorrowedIncomingSourceV1;
         use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1 as Mode;
@@ -69,7 +70,8 @@ impl OrdinaryNewClaimLedgerV1 {
             // Existing Uses/Object owners keep authority. A complete original
             // mixed cohort with no legacy draft can lend structural membership
             // for sibling reads; it never selects finite executable input work.
-            let dynamic_return = dynamic_return && sums.iter().all(|sum| sum.finite_input());
+            let finite_return = (dynamic_return || original_static_return)
+                && sums.iter().all(|sum| sum.finite_input());
             let nominal = sums.iter().any(|sum| sum.object_class_v1().is_some());
             // Ownership is declared, while the same closed source SUM still proves
             // each actual's class. This structural view grants no entry transfer.
@@ -92,16 +94,16 @@ impl OrdinaryNewClaimLedgerV1 {
             // Original Text domains select the same finite source structure even
             // when a legacy Uses definition exists. Full uses and incoming still
             // require their original proof; non-Text owners keep that selection.
-            if !dynamic_return && !text_requested && !owned_nominal
+            if !finite_return && !text_requested && !owned_nominal
                 && (source.definitions.contains_key(&owner) || source.target_static.contains_key(&owner)) {
                 return Ok(None);
             }
             // Preserve the existing Text refusal boundary. New scalar families
             // select only a complete original cohort, never one convenient formal.
-            if !dynamic_return && !text_requested && !owned_nominal && ((contract.mode == Mode::StaticBoxMethod
+            if !finite_return && !text_requested && !owned_nominal && ((contract.mode == Mode::StaticBoxMethod
                 && source.is_scalar_only_static_input_v1(owner)) || sums.is_empty() || !sums.iter().all(|sum| sum.finite_input())) { return Ok(None); }
             let uses = source.original_formal_uses_v1(owner)?;
-            if !dynamic_return && !text_requested && !owned_nominal && !source.original_finite_forward_input_request_v1(owner)
+            if !finite_return && !text_requested && !owned_nominal && !source.original_finite_forward_input_request_v1(owner)
                 && !uses.scalar_expression_use_requested_v1() { return Ok(None); }
             for (formal, sum) in borrowed.iter().zip(sums) {
                 if !sum.finite_input()
@@ -343,7 +345,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(contract) = contracts.next() else { return Ok(false) };
         if contracts.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
         let parameters: Vec<_> = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
-        Ok(Self::finite_input_entry_structure_v1(source, catalog, owner, &parameters, false, true)?.is_some())
+        Ok(Self::finite_input_entry_structure_v1(source, catalog, owner, &parameters, false, true, false)?.is_some())
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_entry) fn finite_entry_for_owner_v1(
@@ -364,8 +366,10 @@ impl OrdinaryNewClaimLedgerV1 {
         parameters: &[(u32, BindingRefV1, CallableParameterContractKindV1)],
     ) -> Result<Option<BorrowedEntryStructureV1<'a>>, String> {
         let allow_tagged = self.allows_general_tagged_static_input_v1(source, owner);
+        let original_static_return = self.has_borrowed_static_return_inputs_v1(source, owner);
         Self::finite_input_entry_structure_v1(
-            source, self.original_parameter_contracts.as_ref(), owner, parameters, true, allow_tagged,
+            source, self.original_parameter_contracts.as_ref(), owner, parameters, true,
+            allow_tagged, original_static_return,
         )
     }
 

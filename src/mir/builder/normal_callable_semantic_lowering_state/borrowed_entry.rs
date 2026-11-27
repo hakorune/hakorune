@@ -107,21 +107,23 @@ impl CallableSemanticLoweringState {
         let mut projected = Vec::new();
         for (ordinal, binding, value) in rows.iter() {
             let index = *ordinal as usize + offset;
-            if let Some(class) = declared.get(binding) {
+            if let Some(&(class, nullable)) = declared.get(binding) {
                 let declaration = function
                     .metadata
                     .declared_param_decls
                     .get(index)
                     .ok_or_else(|| freeze("borrowed-entry/declared-header-missing"))?;
-                let original_type = crate::mir::MirType::Box((*class).into());
+                let spelling = declaration.declared_type_name.as_deref();
+                let nominal = if nullable { spelling.and_then(|name| name.strip_suffix('?')) } else { spelling };
+                let original_type = spelling.map(|name| crate::mir::MirType::Box(name.into()));
                 if function.metadata.declared_param_decls.len() != function.params.len()
                     || declaration.implicit_receiver
-                    || declaration.declared_type_name.as_deref() != Some(*class)
+                    || nominal != Some(class)
                     || self.binding_names.get(binding).map(|name| name.as_ref())
                         != Some(declaration.name.as_str())
-                    || function.signature.params.get(index) != Some(&original_type)
+                    || function.signature.params.get(index) != original_type.as_ref()
                     || builder.function_state.type_ctx.value_types.get(value)
-                        != Some(&original_type)
+                        != original_type.as_ref()
                 {
                     return Err(freeze("borrowed-entry/declared-header-or-value-drift"));
                 }

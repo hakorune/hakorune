@@ -22,7 +22,11 @@ fn declared_and_forwarding_only_domains_publish_exact_class_layouts() {
                 } else {
                     prefix
                 };
-                let parameter = if opaque { "p" } else { "p: Item" };
+                let parameter = match (opaque, domain) {
+                    (true, _) => "p",
+                    (false, "null") => "p: Item?",
+                    (false, _) => "p: Item",
+                };
                 let body = match shape {
                     "ignored" => "return 11",
                     "declared-copy" | "opaque-copy" => "local alias = p local recv = new Transport() local out = recv.read(alias) return 11",

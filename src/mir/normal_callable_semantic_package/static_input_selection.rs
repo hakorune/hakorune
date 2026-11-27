@@ -40,6 +40,33 @@ impl OrdinaryNewClaimLedgerV1 {
             })
     }
 
+    fn observes_borrowed_static_return_v1(
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        original: &Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
+    ) -> bool {
+        use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1;
+        let site = original.call_site();
+        source.can_extend_static_return_v1(original)
+            && self.observes_static_result_v1(original, LocalCallResultClassV1::I64)
+            && self.local_call_for_owner(site.owner(), site.site())
+                .and_then(|call| self.borrow_return_expression_evaluation_v1(site.owner(), call.statement()).ok().flatten())
+                .is_some_and(|evaluation| original.is_scalar_return_source_v1(evaluation.source()))
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
+    fn has_borrowed_static_return_inputs_v1(
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
+    ) -> bool {
+        source.source_incoming.source_rows_v1().any(|row| {
+            row.callee == owner && matches!(&row.source,
+                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
+                    if self.observes_borrowed_static_return_v1(source, original))
+        })
+    }
+
     /// The one rule for owing a Static actual row, asked after the caller
     /// census is validated. Every caller keeps its source identity and vetoes;
     /// only a caller that the co-seal recorded as omitted from this closed-app
@@ -127,6 +154,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     // original row exists; no separate zero-input protocol remains.
                     (allow_tagged && source.has_tagged_static_input_v1(owner, original.parameters()))
                         || finite_forward || text_source || signed_expression || exact_input_text
+                        || self.observes_borrowed_static_return_v1(source, original)
                         || original.is_zeroarg_i64_v1()
                         || original.parameters().iter().any(|formal| formal.takes_declared_object_v1())
                 }

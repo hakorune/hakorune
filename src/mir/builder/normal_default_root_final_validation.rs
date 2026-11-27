@@ -105,7 +105,7 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
             crate::mir::named_array_obligation::reject_unretained_module(module)?;
             let mut root_validation = self.root_validation;
             // Retain original source evidence for the final diagnostic verifier
-            // when Dynamic uses require the existing source seal.
+            // for borrowed arguments and Dynamic uses that require the existing source seal.
             let tagged_comparison = module.functions.values().any(|function| {
                 !function.metadata.borrowed_integer_comparisons.is_empty()
                     || function.blocks.values().flat_map(|block| block.all_instructions()).any(
@@ -114,6 +114,7 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
             });
             if matches!(&root_validation, RootValidation::OrdinaryNew { ledger, .. }
                 if ledger.requires_dynamic_result_handoff_v1()
+                    || crate::mir::verification::requires_borrowed_call_argument_source_uses(module)
                     || tagged_comparison
                     || crate::mir::verification::requires_dynamic_field_source_uses(module))
             {

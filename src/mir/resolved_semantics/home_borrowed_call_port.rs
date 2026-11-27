@@ -68,6 +68,7 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
         read: &'a super::SourceExprSiteV1,
         binding: super::BindingRefV1,
         root: super::BindingRefV1,
+        integer_order: Option<&'a crate::mir::resolved_semantics::borrowed_integer_comparison::BorrowedIntegerComparisonSourceV1>,
     },
     ExpressionCoreSource {
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
@@ -94,6 +95,9 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
         expression:
             Option<&'a crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
     },
+    StaticScalarReturnArguments(
+        &'a crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
+    ),
     SourceUnitDiscardArguments,
     ReceivedObjectArguments(
         crate::mir::resolved_semantics::BindingRefV1,

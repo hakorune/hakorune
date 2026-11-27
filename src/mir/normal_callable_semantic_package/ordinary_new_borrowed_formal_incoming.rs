@@ -545,6 +545,30 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                         ));
                         continue;
                     }
+                    // Resolve a literal null against the original declaration,
+                    // before transport selection. Only the exact named, non-null
+                    // ordinary object declaration can reject here.
+                    if let Some((argument, class)) = call.arguments().iter()
+                        .zip(&contract.parameters)
+                        .find_map(|(argument, formal)| match &formal.kind {
+                            crate::mir::callable_parameter_contract::CallableParameterContractKindV1::DeclaredObject(class)
+                                if !formal.nullable_object && matches!(input.function().expression_source().literal(argument.site()),
+                                    Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Null)) =>
+                                Some((argument, class)),
+                            _ => None,
+                        })
+                    {
+                        let span = input.source().expr_at(&owned)
+                            .map_err(|_| BorrowedIncomingDraftErrorV1::CallIdentity(owned.clone()))?
+                            .node().span();
+                        return Err(BorrowedIncomingDraftErrorV1::ArgumentTypeMismatch {
+                            call: owned.clone(),
+                            ordinal: argument.ordinal(),
+                            target: exact.target().clone(),
+                            expected: class.clone(),
+                            location: [span.line, span.column],
+                        });
+                    }
                     // Capability exclusions apply to the whole callee. Retain
                     // the original row below, including every caller and veto.
                     if contract.mode == CallableParameterDeclarationModeV1::StaticBoxMethod {

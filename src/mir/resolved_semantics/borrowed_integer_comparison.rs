@@ -31,6 +31,14 @@ impl BorrowedIntegerComparisonSourceV1 {
         input: ResolvedFunctionLoweringInputV1<'_>,
         site: &SourceExprSiteV1,
     ) -> Option<Self> {
+        Self::at_with_integer_operands(input, site, |operand| Self::is_exact_integer(input, operand))
+    }
+
+    fn at_with_integer_operands(
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        site: &SourceExprSiteV1,
+        mut is_integer: impl FnMut(&SourceExprSiteV1) -> bool,
+    ) -> Option<Self> {
         use DynamicOperatorValueClassV1 as Class;
         let function = input.function();
         let expressions = function.expression_source();
@@ -40,8 +48,8 @@ impl BorrowedIntegerComparisonSourceV1 {
         let family = comparison_operator_family_v1(binary.operator())?;
         let [left, right] = [binary.lhs(), binary.rhs()];
         let tagged_on_left = match (
-            Self::is_exact_integer(input, left),
-            Self::is_exact_integer(input, right),
+            is_integer(left),
+            is_integer(right),
         ) {
             (false, true) => true,
             (true, false) => false,
@@ -153,6 +161,24 @@ impl BorrowedIntegerComparisonSourceV1 {
     pub(crate) fn read(&self) -> &SourceExprSiteV1 {
         &self.read
     }
+    pub(crate) fn matches_order_read(
+        &self,
+        plan: &crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
+        read: &SourceExprSiteV1,
+        formal: BindingRefV1,
+    ) -> bool {
+        self.site.owner() == plan.owner()
+            && self.read() == read
+            && self.formal == formal
+            && plan.nodes().iter().any(|node| {
+                node.site() == self.site.site()
+                    && node.binary().is_some_and(|binary| {
+                        binary.operator().compare_op() == Some(self.operator)
+                            && (if self.tagged_on_left { binary.lhs() } else { binary.rhs() }) == read
+                    })
+            })
+    }
+
     pub(crate) fn formal(&self) -> BindingRefV1 {
         self.formal
     }
@@ -255,6 +281,7 @@ pub(in crate::mir) type ComparisonPrefixHomes = BTreeMap<OwnedExprSiteV1, Option
 pub(super) fn sources_by_statement<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     borrows_at: &mut impl FnMut(&SourceExprSiteV1, BindingRefV1, BindingRefV1) -> Result<bool, E>,
+    integer_field_at: &mut impl FnMut(&SourceExprSiteV1) -> Result<bool, E>,
 ) -> Result<SourcesByStatement, E> {
     let function = input.function();
     if !function.declaration_sites().any(|site| matches!(site,
@@ -266,8 +293,21 @@ pub(super) fn sources_by_statement<E>(
     let inventory = function.source_site_inventory();
     let expression = function.expression_source();
     let mut by_statement = SourcesByStatement::new();
+    let mut integer_fields = std::collections::BTreeSet::new();
     for binary in expression.binaries() {
-        if let Some(source) = BorrowedIntegerComparisonSourceV1::at(input, binary.site()) {
+        if !matches!(binary.operator().compare_op(), Some(op) if !matches!(op, CompareOp::Eq | CompareOp::Ne)) {
+            continue;
+        }
+        for operand in [binary.lhs(), binary.rhs()] {
+            if integer_field_at(operand)? {
+                integer_fields.insert(operand.clone());
+            }
+        }
+        if let Some(source) = BorrowedIntegerComparisonSourceV1::at_with_integer_operands(
+            input, binary.site(),
+            |operand| integer_fields.contains(operand)
+                || BorrowedIntegerComparisonSourceV1::is_exact_integer(input, operand),
+        ) {
             if !source.has_read_only_uses(input, borrows_at)? {
                 continue;
             }
@@ -297,6 +337,8 @@ pub(super) fn sources_by_statement<E>(
                     .expr_at(&site)
                     .is_ok_and(|row| match row.node() {
                         ASTNode::Literal { .. } | ASTNode::Variable { .. } => true,
+                        ASTNode::Me { .. } => true,
+                        ASTNode::FieldAccess { .. } => integer_fields.contains(site.site()),
                         ASTNode::UnaryOp { .. } => {
                             expression.negative_integer_immediate(site.site()).is_some()
                         }

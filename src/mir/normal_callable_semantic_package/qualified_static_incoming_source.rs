@@ -71,8 +71,15 @@ impl StaticIncomingSourceV1 {
         &self,
         plan: &crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
     ) -> bool {
-        self.source_scalar_result_v1().is_some_and(|result|
-            Self::exact_i64_input_result_v1(self.parameters(), result))
+        use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1 as Class;
+        // This selects the original Return purpose. The actuals are lent
+        // separately by the ordered, phase-checked source input protocol.
+        self.source_scalar_result_v1() == Some(Class::I64)
+            && self.parameters.iter().all(|formal| {
+                formal.kind.is_i64_actual_v1()
+                    || (formal.kind.is_ordinary_borrowed_handle()
+                        && formal.demand == crate::mir::resolved_semantics::HomeDemandV1::Handle)
+            })
             && plan.owner() == self.call_site().owner()
             && matches!(plan.root(),
                 crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
@@ -365,6 +372,7 @@ impl<'a> StaticIncomingSourceLoanV1<'a> {
                         ordinal: formal.ordinal,
                         binding: formal.binding,
                         kind: formal.kind.clone(),
+                        nullable_object: formal.nullable_object,
                         demand: formal.demand,
                     },
                 )

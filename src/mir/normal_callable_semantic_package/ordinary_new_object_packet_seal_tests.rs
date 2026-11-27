@@ -601,7 +601,7 @@ fn object_packet_unqualified_nested_producer_lends_completed_zero_inputs() {
 #[test]
 fn object_packet_field_support_joins_original_callee_formal_and_actual_storage() {
     let package = issue_with_brand_catalog("box Token {} box Holder { child: Token birth(child) { me.child = child } }
-        box Maker { make(marker: i64, h: Token) { return new Holder(h) }
+        box Maker { make(marker: i64, h: Token?) { return new Holder(h) }
             relay(h: Token) { return me.make(7, h) }
             nullRelay() { return me.make(7, null) } }
         static box Main { main() { return 0 } }").unwrap();

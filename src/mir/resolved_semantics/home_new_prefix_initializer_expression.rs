@@ -168,7 +168,7 @@ pub(super) fn observe<E>(
                 plan: &source,
                 read: node.site(),
                 binding,
-                root,
+                root, integer_order: None,
             },
         )? {
             dynamic_reads.push(read);

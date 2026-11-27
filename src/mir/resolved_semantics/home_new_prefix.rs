@@ -521,12 +521,31 @@ pub(crate) fn scan_new_home_flow<E>(
         None => parameters.iter().filter(|(_, _, _, demand)| *demand == HomeDemandV1::Home)
             .map(|(_, binding, _, _)| LiveHomeV1::Stable(*binding)).collect(),
     };
-    let comparison_sources = local_flow::comparison_sources(input, &mut |read, binding, formal| {
-        view_use(
-            &OwnedExprSiteV1::new(input.owner(), read.clone()),
-            BorrowedViewUseRequestV1::TaggedStaticArgument { binding, formal },
-        )
-    })?;
+    let comparison_sources = local_flow::comparison_sources(
+        input,
+        &mut |read, binding, formal| {
+            view_use(
+                &OwnedExprSiteV1::new(input.owner(), read.clone()),
+                BorrowedViewUseRequestV1::TaggedStaticArgument { binding, formal },
+            )
+        },
+        &mut |operand| {
+            use super::{BodyExpressionShapeV1, BodyMeReceiverV1};
+            let Some(shape) = input.body_shape() else { return Ok(false); };
+            let Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) =
+                shape.expression_shape(operand)
+            else { return Ok(false); };
+            let Some(BodyExpressionShapeV1::Me {
+                receiver: BodyMeReceiverV1::Lexical(receiver), ..
+            }) = shape.expression_shape(object)
+            else { return Ok(false); };
+            scalar_field.comparison_i64_field(
+                &OwnedExprSiteV1::new(input.owner(), operand.clone()),
+                *receiver,
+                field,
+            )
+        },
+    )?;
     let mut locals = PrefixLocalFlow::with_source_value_class_facts(
         input, source_value_class_facts, comparison_sources,
     );

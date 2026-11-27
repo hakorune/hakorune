@@ -340,6 +340,7 @@ fn qualified_static_input_source_rejects_missing_duplicate_slot_and_ordinal_cont
                     parameters: row.parameters.iter().map(|formal|
                         crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1 {
                             ordinal: formal.ordinal, binding: formal.binding, kind: formal.kind.clone(),
+                            nullable_object: formal.nullable_object,
                             demand: formal.demand,
                         }).collect(),
                 };

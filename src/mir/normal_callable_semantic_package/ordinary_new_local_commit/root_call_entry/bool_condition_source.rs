@@ -464,6 +464,9 @@ impl EmittedBoolConditionProjectionV1 {
                         Some(comparison) if comparison.source.site().site() == original.site() =>
                             comparison.original_operands(),
                         Some(_) => return Err(freeze("bool-condition/operator-source")),
+                        None if comparison.is_some_and(|plan| {
+                            plan.kind() == crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionKindV1::BorrowedInteger
+                        }) => return Err(freeze("bool-condition/operator-source")),
                         None => (a, b),
                     };
                     if operands[0].values() != (lhs, a) || operands[1].values() != (rhs, b) {

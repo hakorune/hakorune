@@ -296,6 +296,13 @@ pub(super) enum BorrowedIncomingDraftErrorV1 {
     BatchLoan,
     UnresolvedCaller(OwnedExprSiteV1),
     OutsideOrdinaryScope(OwnedExprSiteV1),
+    ArgumentTypeMismatch {
+        call: OwnedExprSiteV1,
+        ordinal: u32,
+        target: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        expected: Box<str>,
+        location: [usize; 2],
+    },
     CallIdentity(OwnedExprSiteV1),
     NoIncoming(FunctionOwnerIdV1),
 }

@@ -192,6 +192,16 @@ impl
         }
         Ok(row.construction_source.as_ref().ok().map(Rc::clone))
     }
+    fn comparison_i64_field(
+        &mut self,
+        site: &OwnedExprSiteV1,
+        receiver: BindingRefV1,
+        field: &str,
+    ) -> Result<bool, OrdinaryNewCoSealIssueV1> {
+        terminal_home::argument_integer_field(
+            self.constructors, &[], site, self.receiver, receiver, field,
+        ).map(|field| field.is_some())
+    }
     fn argument_i64_field(
         &mut self,
         site: &OwnedExprSiteV1,

@@ -354,7 +354,11 @@ pub(super) fn resolve_original_source_sums_v1(
             registered.insert(formal.binding);
             graph.nodes[node].invalid |= source.sum_vetoes.contains(&contract.owner);
             if let CallableParameterContractKindV1::DeclaredObject(name) = &formal.kind {
-                graph.nodes[node].constraints.push(name.clone());
+                let node = &mut graph.nodes[node];
+                node.constraints.push(name.clone());
+                if formal.nullable_object {
+                    node.atoms.insert(SourceValueAlternativeV1::Null);
+                }
             }
         }
     }

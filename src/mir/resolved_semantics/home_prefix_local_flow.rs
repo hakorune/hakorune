@@ -263,7 +263,7 @@ impl<'source> PrefixLocalFlow<'source> {
     pub(super) fn new(input: ResolvedFunctionLoweringInputV1<'source>) -> Self {
         let comparisons = comparison_sources(input, &mut |_, _, _| {
             Ok::<bool, std::convert::Infallible>(false)
-        }).unwrap();
+        }, &mut |_| Ok(false)).unwrap();
         Self::with_source_value_class_facts(input, None, comparisons)
     }
 
@@ -306,6 +306,17 @@ impl<'source> PrefixLocalFlow<'source> {
             .borrow()
             .get(site)
             .is_some_and(Option::is_some)
+    }
+
+    pub(super) fn borrowed_integer_order_read(
+        &self,
+        plan: &crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
+        read: &SourceExprSiteV1,
+        formal: BindingRefV1,
+    ) -> Option<borrowed_integer_comparison::BorrowedIntegerComparisonSourceV1> {
+        self.comparison_prefix_homes.borrow().values().flatten()
+            .find(|prefix| prefix.source.matches_order_read(plan, read, formal))
+            .map(|prefix| prefix.source.clone())
     }
 
     pub(super) fn comparison_prefix_homes(&self) -> borrowed_integer_comparison::ComparisonPrefixHomes {

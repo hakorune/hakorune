@@ -217,3 +217,35 @@ fn borrowed_checked_integer_return_publishes_original_exit_and_compare() {
         }
     });
 }
+
+#[test]
+fn original_static_return_uses_verified_borrowed_arguments() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for (method, caller, callee, source_kind) in [
+            ("flag(b) { if b { return 4 } return 5 }", "Main.flag(true)", "Main.flag/1", 2),
+            ("a(p): i64 { return 0 }", "me.a(1)", "Main.a/1", 1),
+        ] {
+            let text = format!("static box Main {{ {method} main() {{ return {caller} }} }}");
+            MirCompiler::with_options(false).compile_normal_with_published(request(&text), |view, verification| -> Result<(), String> {
+                require_artifact_verification(verification);
+                let payload = view.issue_lifecycle_physical_abi_input()?;
+                let wire = crate::mir::compiler::normal_default_pipeline::published_backend_view::physical_program_json::emit_lifecycle_physical_abi_json(&payload)?;
+                let wire: serde_json::Value = serde_json::from_str(&wire).unwrap();
+                let functions = wire["functions"].as_array().unwrap();
+                assert!(functions.iter().any(|function| function["name"] == callee
+                    && function["params"][0]["representation"] == "borrowed_kind_payload_v1"));
+                let main = functions.iter().find(|function| function["name"] == "main").unwrap();
+                let calls: Vec<_> = main["blocks"].as_array().unwrap().iter()
+                    .map(|block| &block["terminator"]["instruction"]["operation"])
+                    .filter(|operation| operation["kind"] == "ordinary_call")
+                    .collect();
+                let [call] = calls.as_slice() else {
+                    panic!("Return owns exactly one Call");
+                };
+                assert_eq!(call["call"]["args"][0]["kind"], source_kind);
+                Ok(())
+            }).unwrap_or_else(|error| panic!("{caller}: {error}"));
+        }
+    });
+}
