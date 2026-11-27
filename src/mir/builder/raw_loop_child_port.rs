@@ -72,8 +72,6 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
             .as_ref()
             .map(|function| function.signature.name.clone())
             .unwrap_or_else(|| "<unknown>".to_owned());
-        let debug = crate::config::env::joinir_dev::debug_enabled();
-        let in_static_box = builder.comp_ctx.current_static_box.is_some();
         let policy = LoopFactsPolicyFrameV1::from_environment();
         let prepared = PreparedLocatedRawLoopChildEntryV1::prepare_with_method_source_observation(
             &source,
@@ -95,14 +93,13 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
             self.source_input.ok_or("[freeze:contract][raw-loop-child-entry/source-input-missing]")?;
             let declarations = builder.comp_ctx.callable_declaration_catalog().ok();
             let target = source_target_for_loop(self.module_port, declarations, &source, &callable_ledger, consume_publication)?;
-            let value = prepared.lower_with_invocation_port_v2(builder, &function_name, debug,
-                in_static_box, policy, self, target)?;
+            let value = prepared.lower_with_invocation_port_v2(builder, &function_name, policy, self, target)?;
             if callable_ledger.borrow().has_pending_source_static_result_publications() {
                 return Err("[freeze:contract][callable-loop/static-publication/residual-after-lower]".to_owned());
             }
             Ok(value)
         } else {
-            prepared.lower_v1(builder, &function_name, debug, in_static_box, policy)
+            prepared.lower_v1(builder, &function_name, policy)
         }
     }
 }

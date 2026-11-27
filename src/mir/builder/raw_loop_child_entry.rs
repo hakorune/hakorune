@@ -85,9 +85,6 @@ pub(in crate::mir::builder) struct PreparedCallableGenericLoopSourceFactsPayload
     pub(in crate::mir::builder) body: Vec<ASTNode>,
     pub(in crate::mir::builder) owner: FunctionOwnerIdV1,
     pub(in crate::mir::builder) binding_product: CallableLoopReadyBodyOnlyProductV1,
-    pub(in crate::mir::builder) function_name: Box<str>,
-    pub(in crate::mir::builder) debug: bool,
-    pub(in crate::mir::builder) in_static_box: bool,
     pub(in crate::mir::builder) policy: LoopFactsPolicyFrameV1,
     pub(in crate::mir::builder) function_origin:
         Option<crate::mir::resolved_semantics::FunctionOriginV1>,
@@ -188,15 +185,11 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         self,
         builder: &mut MirBuilder,
         function_name: &str,
-        debug: bool,
-        in_static_box: bool,
         policy: LoopFactsPolicyFrameV1,
     ) -> Result<ValueId, String> {
         self.lower_with_callable_source_v2(
             builder,
             function_name,
-            debug,
-            in_static_box,
             policy,
             None,
             None,
@@ -209,8 +202,6 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         self,
         builder: &mut MirBuilder,
         function_name: &str,
-        debug: bool,
-        in_static_box: bool,
         policy: LoopFactsPolicyFrameV1,
         invocation: Option<&mut super::recursive_child_lowering::RawInvocationChildPortV1<'_, '_>>,
         callable_ledger: Option<
@@ -337,9 +328,6 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         let payload = prepared
             .into_callable_generic_loop_source_facts_payload_with_source_relations(
                 owner,
-                function_name,
-                debug,
-                in_static_box,
                 policy,
                 function_origin,
                 source_kind,
@@ -380,15 +368,10 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         }
     }
 
-    /// Extended source payload used by the selected LoopCond bridge. The
-    /// compatibility wrapper above keeps existing GenericLoop tests and
-    /// callers on the same preparation contract.
+    /// Source payload for the checked LoopCond bridge.
     pub(in crate::mir::builder) fn into_callable_generic_loop_source_facts_payload_with_source_relations(
         self,
         owner: FunctionOwnerIdV1,
-        function_name: &str,
-        debug: bool,
-        in_static_box: bool,
         policy: LoopFactsPolicyFrameV1,
         function_origin: Option<crate::mir::resolved_semantics::FunctionOriginV1>,
         source_kind: Option<crate::mir::resolved_semantics::SemanticOwnerSourceKindV1>,
@@ -440,9 +423,6 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             body,
             owner,
             binding_product,
-            function_name: function_name.into(),
-            debug,
-            in_static_box,
             policy,
             function_origin,
             source_kind,
@@ -466,9 +446,6 @@ pub(super) fn checked_source_route_unavailable(
     function_name: &str,
     site: Option<&crate::mir::resolved_semantics::SourceNodeSiteV1>,
 ) -> String {
-    use super::control_flow::verify::diagnostics::planner_reject_detail;
-
-    planner_reject_detail::clear_last_plan_reject_detail();
     format!(
         "[freeze:contract][raw-loop-child-entry/checked-source-route-unavailable] function={function_name} site={site:?}"
     )

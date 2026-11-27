@@ -1,4 +1,4 @@
-//! One pure planner issuance, retained from source through the existing physical issuer.
+//! Checked loop source retained from Resolve through physical emission.
 use super::*;
 use crate::mir::builder::control_flow::plan::LoopFactsPolicyFrameV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -12,8 +12,7 @@ use crate::mir::builder::normal_callable_loop_handoff::{
     CallableLoopBindingProjectionDispositionV1, CallableLoopBindingSourceV1,
 };
 
-/// Same original source membership and the sole planner result. No physical ID,
-/// Home permission or second planner call can be manufactured by this transport.
+/// Original source membership and its preissued checked V2 product.
 #[derive(Debug)]
 pub(in crate::mir) struct PreissuedCallableLoopSourcePlanV1 {
     source: Rc<RetainedCallableLoopSourceV1>,
@@ -21,7 +20,7 @@ pub(in crate::mir) struct PreissuedCallableLoopSourcePlanV1 {
     source_recipe: Option<Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>,
 }
 
-/// Original Loop source identity shared by Home and the affine planner consumer.
+/// Original Loop source identity shared by Home and the affine checked loop consumer.
 /// Keeping it alive grants no value class, Home continuation or physical role.
 #[derive(Debug)]
 pub(crate) struct RetainedCallableLoopSourceV1 {

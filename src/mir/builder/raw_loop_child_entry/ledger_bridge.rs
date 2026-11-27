@@ -9,7 +9,7 @@ use std::rc::Rc;
 
 impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
     pub(in crate::mir::builder) fn lower_with_invocation_port_v2(
-        self, builder: &mut MirBuilder, function_name: &str, debug: bool, in_static_box: bool,
+        self, builder: &mut MirBuilder, function_name: &str,
         policy: LoopFactsPolicyFrameV1,
         invocation: &mut crate::mir::builder::recursive_child_lowering::RawInvocationChildPortV1<'_, '_>,
         source_target_probe: CallableLoopSourceTargetProbeV1,
@@ -17,12 +17,12 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         let ledger = invocation.source_ledger.callable().cloned()
             .ok_or("[freeze:contract][raw-loop-child-entry/callable-ledger-missing]")?;
         let input = invocation.source_input.ok_or("[freeze:contract][raw-loop-child-entry/source-input-missing]")?;
-        self.lower_with_callable_source_v2(builder, function_name, debug, in_static_box, policy,
+        self.lower_with_callable_source_v2(builder, function_name, policy,
             Some(invocation), Some(&ledger), Some(input), source_target_probe)
     }
 }
 
-/// The existing semantic ledger owns the affine source-planner transport.
+/// The existing semantic ledger owns the affine checked loop source transport.
 pub(super) fn take_preissued_source_plan_v1(
     ledger: Option<&Rc<RefCell<CallableSemanticLoweringState>>>,
     owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,

@@ -2,7 +2,7 @@
 
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::builder::control_flow::plan::facts::reject_reason::{
-    handoff_tables, log_reject, RejectReason,
+    log_reject, RejectReason,
 };
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
@@ -23,11 +23,7 @@ pub(in crate::mir::builder) fn check_match_return_source(
     if !matches!(scrutinee.as_ref(), ASTNode::Variable { .. } | ASTNode::Literal {
         value: LiteralValue::Integer(_), ..
     }) {
-        log_reject(
-            "match_return_facts",
-            RejectReason::MatchReturnScrutineeNotSupported,
-            handoff_tables::for_match_return_facts,
-        );
+        log_reject(RejectReason::MatchReturnScrutineeNotSupported);
         return reject_if_strict(
             strict,
             RejectReason::MatchReturnScrutineeNotSupported.as_freeze_message(),
@@ -35,11 +31,7 @@ pub(in crate::mir::builder) fn check_match_return_source(
     }
 
     if arms.len() < 2 {
-        log_reject(
-            "match_return_facts",
-            RejectReason::MatchReturnTooFewArms,
-            handoff_tables::for_match_return_facts,
-        );
+        log_reject(RejectReason::MatchReturnTooFewArms);
         return reject_if_strict(
             strict,
             RejectReason::MatchReturnTooFewArms.as_freeze_message(),
@@ -47,20 +39,12 @@ pub(in crate::mir::builder) fn check_match_return_source(
     }
 
     if !matches!(else_expr.as_ref(), ASTNode::Literal { .. }) {
-        log_reject(
-            "match_return_facts",
-            RejectReason::MatchReturnElseNotLiteral,
-            handoff_tables::for_match_return_facts,
-        );
+        log_reject(RejectReason::MatchReturnElseNotLiteral);
         return reject_if_strict(strict, RejectReason::MatchReturnElseNotLiteral.as_freeze_message());
     }
 
     if arms.iter().any(|(_, expr)| !matches!(expr, ASTNode::Literal { .. })) {
-        log_reject(
-            "match_return_facts",
-            RejectReason::MatchReturnArmNotLiteral,
-            handoff_tables::for_match_return_facts,
-        );
+        log_reject(RejectReason::MatchReturnArmNotLiteral);
         return reject_if_strict(strict, RejectReason::MatchReturnArmNotLiteral.as_freeze_message());
     }
 

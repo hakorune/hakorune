@@ -1,12 +1,8 @@
 //! Source-owned route token for the bounded LoopCond handoff.
 //!
-//! The planner remains the Facts/Recipe authority.  This module only co-seals
-//! its already selected route with the resolver forest projection that the
-//! callable scope owns.  It does not lower, allocate Builder state, or select
-//! a compatibility fallback.
+//! The V2 token binds the checked recipe to the resolver's loop projection
+//! and exact source items before the writer consumes it.
 
-use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
-use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 use crate::mir::loop_structural_facts::VerifiedLoopCondBreakContinueSourceForestProjectionV1;
 use crate::mir::resolved_semantics::{
     CallableSemanticSourceLedgerView, FunctionOriginV1, FunctionOwnerIdV1,
@@ -72,133 +68,7 @@ mod items;
 
 pub(in crate::mir::builder) use items::*;
 
-/// Sole surviving callable family derived from the matched route census.
-///
-/// This typed tag is the family-selection authority at the callable
-/// membership seam; `LoopRouteId` stays diagnostic vocabulary and is never
-/// a dispatch key.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder) enum CallableLoopSoleFamilyV1 {
-    LoopCondBreakContinue,
-    LoopTrueBreakContinue,
-    LoopCondReturnInBody,
-}
-
-/// Data-only callable route match issued from canonical loop facts.
-///
-/// This product records which non-generic route predicates the retained
-/// policy surface reports for one loop. It is not a scheduler: it owns no
-/// entry order, execution, or fallback — consumers select on the typed
-/// `sole_family()` tag and read the matched set only for diagnostics. The
-/// GenericLoop routes are absent by construction; their fact arms retired
-/// with the ordered registry.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir::builder) struct CallableLoopRouteMatchV1 {
-    matched: Box<[LoopRouteId]>,
-}
-
-impl CallableLoopRouteMatchV1 {
-    /// Evaluate the retained route predicates in canonical entry order.
-    ///
-    /// Suppression is unnecessary for the exclusivity checks the callable
-    /// arms perform: a suppressed route's suppressor is itself a matched
-    /// route, so `matched == [route]` holds exactly when the route is the
-    /// sole surviving candidate.
-    pub(in crate::mir::builder) fn issue(facts: &CanonicalLoopFacts) -> Self {
-        use crate::mir::builder::control_flow::joinir::route_entry::registry::predicates::*;
-        let mut matched = Vec::new();
-        if pred_loop_break_recipe(facts) {
-            matched.push(LoopRouteId::LoopBreakRecipe);
-        }
-        if pred_if_phi_join(facts) {
-            matched.push(LoopRouteId::IfPhiJoin);
-        }
-        if pred_loop_continue_only(facts) {
-            matched.push(LoopRouteId::LoopContinueOnly);
-        }
-        if pred_loop_true_early_exit(facts) {
-            matched.push(LoopRouteId::LoopTrueEarlyExit);
-        }
-        if pred_loop_simple_while(facts) {
-            matched.push(LoopRouteId::LoopSimpleWhile);
-        }
-        if pred_loop_char_map(facts) {
-            matched.push(LoopRouteId::LoopCharMap);
-        }
-        if pred_loop_array_join(facts) {
-            matched.push(LoopRouteId::LoopArrayJoin);
-        }
-        if pred_scan_with_init(facts) {
-            matched.push(LoopRouteId::ScanWithInit);
-        }
-        if pred_bool_predicate_scan(facts) {
-            matched.push(LoopRouteId::BoolPredicateScan);
-        }
-        if pred_accum_const_loop(facts) {
-            matched.push(LoopRouteId::AccumConstLoop);
-        }
-        if pred_nested_loop_minimal(facts) {
-            matched.push(LoopRouteId::NestedLoopMinimal);
-        }
-        if pred_loop_true_break_continue(facts) {
-            matched.push(LoopRouteId::LoopTrueBreakContinue);
-        }
-        if pred_loop_cond_break_continue(facts) {
-            matched.push(LoopRouteId::LoopCondBreakContinue);
-        }
-        if pred_loop_cond_continue_only(facts) {
-            matched.push(LoopRouteId::LoopCondContinueOnly);
-        }
-        if pred_loop_cond_continue_with_return(facts) {
-            matched.push(LoopRouteId::LoopCondContinueWithReturn);
-        }
-        if pred_loop_cond_return_in_body(facts) {
-            matched.push(LoopRouteId::LoopCondReturnInBody);
-        }
-        Self {
-            matched: matched.into_boxed_slice(),
-        }
-    }
-
-    /// Matched route candidates in canonical entry order. Diagnostic only;
-    /// family selection reads `sole_family()`.
-    pub(in crate::mir::builder) fn matched_routes(&self) -> &[LoopRouteId] {
-        &self.matched
-    }
-
-    /// The sole surviving callable family when exactly one retained family
-    /// predicate matched. `None` on zero matches or overlap — callers stop
-    /// typed instead of falling back.
-    ///
-    /// `LoopBreakRecipe` is owner-less vocabulary: its wire coverage is
-    /// `TypedDeclined` (the plan-lane pipeline retired), so a matched row is
-    /// provenance only and cannot contend for the sole family. Other route
-    /// IDs keep contending — a live-vocabulary overlap still yields `None`.
-    pub(in crate::mir::builder) fn sole_family(&self) -> Option<CallableLoopSoleFamilyV1> {
-        match self
-            .matched
-            .iter()
-            .filter(|route| **route != LoopRouteId::LoopBreakRecipe)
-            .collect::<Vec<_>>()
-            .as_slice()
-        {
-            [LoopRouteId::LoopCondBreakContinue] => {
-                Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue)
-            }
-            [LoopRouteId::LoopTrueBreakContinue] => {
-                Some(CallableLoopSoleFamilyV1::LoopTrueBreakContinue)
-            }
-            [LoopRouteId::LoopCondReturnInBody] => {
-                Some(CallableLoopSoleFamilyV1::LoopCondReturnInBody)
-            }
-            _ => None,
-        }
-    }
-}
-
-/// One move-only source route token.  The planner outcome and resolver forest
-/// are consumed together; no later consumer may pair them by AST shape or
-/// source line.
+/// One move-only source route token for the checked product and resolver forest.
 #[derive(Debug)]
 pub(in crate::mir::builder) struct CallableLoopSourceRouteTokenV1 {
     owner: FunctionOwnerIdV1,
@@ -319,10 +189,6 @@ fn is_under_parent(site: &SourceNodeSiteV1, parent: &SourceNodeSiteV1) -> bool {
 #[cfg(test)]
 #[path = "normal_callable_loop_source_route_tests.rs"]
 mod tests;
-
-#[cfg(test)]
-#[path = "normal_callable_loop_source_route_dead_route_tests.rs"]
-mod dead_route_tests;
 
 #[cfg(test)]
 #[path = "normal_callable_loop_scalar_result_tests.rs"]

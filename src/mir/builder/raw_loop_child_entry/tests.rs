@@ -291,8 +291,6 @@ fn body_only_product_rejects_before_builder_effect_without_a_checked_route() {
         .lower_v1(
             &mut builder,
             "outside-terminal/0",
-            false,
-            false,
             LoopFactsPolicyFrameV1::from_values(false, false, false, false, false, true),
         )
         .expect_err("body-only product must reject an unavailable checked route before effects");

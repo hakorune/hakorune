@@ -1,14 +1,10 @@
 use super::{
-    CallableLoopRouteMatchV1, CallableLoopSourceItemBindingV1,
+    CallableLoopSourceItemBindingV1,
     CallableLoopSourceRouteRejectV1, CallableLoopSourceRouteTokenV1,
     CallableLoopSourceTargetProbeV1, CallableLoopSourceTargetRelationV1,
     CallableLoopSourceTargetRequirementV1,
 };
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
-use crate::mir::builder::control_flow::plan::single_planner::{
-    self, CallableLoopFactsPlannerInputV1,
-};
-use crate::mir::builder::control_flow::plan::{LoopFactsPolicyFrameV1, PlanBuildOutcome};
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::callable_result_representation::{
     VerifiedCallableResultRepresentationV1, VerifiedStaticCallResultPublicationDemandV1,
@@ -183,8 +179,6 @@ pub(super) struct ArmedLoopCondParts {
     pub(super) parent_site: SourceNodeSiteV1,
     pub(super) function_origin: FunctionOriginV1,
     pub(super) source_kind: SemanticOwnerSourceKindV1,
-    pub(super) outcome: PlanBuildOutcome,
-    pub(super) selection: CallableLoopRouteMatchV1,
     pub(super) projection: VerifiedLoopCondBreakContinueSourceForestProjectionV1,
     pub(super) items: Box<[CallableLoopSourceItemBindingV1]>,
     pub(super) call_sites: Box<[SourceExprSiteV1]>,
@@ -211,26 +205,6 @@ pub(super) fn armed_loop_cond_parts(source: &str) -> ArmedLoopCondParts {
         .source()
         .body_stmt(&root_body, loop_index)
         .expect("root loop");
-    let ASTNode::Loop {
-        condition, body, ..
-    } = root.node()
-    else {
-        panic!("fixture root must be a loop")
-    };
-    let policy = LoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
-    let outcome = single_planner::try_build_source_outcome(CallableLoopFactsPlannerInputV1::new(
-        condition,
-        body,
-        policy,
-        "armed-loop-cond-fixture".into(),
-        false,
-    ))
-    .expect("planner outcome");
-    let selection = CallableLoopRouteMatchV1::issue(outcome.facts.as_ref().expect("facts"));
-    assert_eq!(
-        selection.matched_routes(),
-        [crate::mir::loop_recipe_contract::route_id::LoopRouteId::LoopCondBreakContinue]
-    );
     let projection = issue_loop_cond_break_continue_source_forest_projection_v1(input, &root)
         .expect("forest projection");
     let ledger = input
@@ -253,8 +227,6 @@ pub(super) fn armed_loop_cond_parts(source: &str) -> ArmedLoopCondParts {
         parent_site: root.site().node().clone(),
         function_origin: input.function().function_origin(),
         source_kind: input.function().source_kind(),
-        outcome,
-        selection,
         projection,
         items,
         call_sites,

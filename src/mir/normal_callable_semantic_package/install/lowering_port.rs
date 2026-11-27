@@ -273,7 +273,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
                         _catalog_brand: self.installed.catalog_brand.clone(),
                     },
                     core_method_calls,
-                    ))
+                ))
             })??;
         self.consumed.insert(key);
         Ok(result)
