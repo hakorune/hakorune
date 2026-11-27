@@ -330,7 +330,7 @@ fn static_execution_scope_preserves_unrelated_object_source_integrity() {
                 4 if guarded => "reconstructed-input-drift",
                 4 => "source-snapshot-drift",
                 5 => "object-view-drift",
-                6 => "original-catalog-missing",
+                6 => "contract",
                 _ => unreachable!(),
             };
             assert!(error.contains(expected), "mutation {mutation}: {error}");

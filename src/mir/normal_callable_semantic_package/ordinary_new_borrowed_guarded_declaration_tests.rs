@@ -107,7 +107,7 @@ fn guarded_declaration_and_reconstruction_refuse_lost_original_guard_or_catalog(
             assert!(ledger
                 .checked_guarded_instance_definition_v1(source, owner)
                 .unwrap_err()
-                .contains("original-catalog-missing"));
+                .contains("borrowed-guarded/declaration-missing"));
         } else {
             ledger
                 .borrowed_formal_source
