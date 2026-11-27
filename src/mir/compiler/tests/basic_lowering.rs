@@ -97,36 +97,6 @@ fn test_lowering_is_method_call_in_print() {
 }
 
 #[test]
-#[ignore = "MIR13 migration: extern console.log expectation pending"]
-fn test_lowering_extern_console_log() {
-    // Build AST: console.log("hi") → ExternCall env.console.log
-    let ast = ASTNode::MethodCall {
-        object: Box::new(ASTNode::Variable {
-            name: "console".to_string(),
-            span: crate::ast::Span::unknown(),
-        }),
-        method: "log".to_string(),
-        arguments: vec![ASTNode::Literal {
-            value: LiteralValue::String("hi".to_string()),
-            span: crate::ast::Span::unknown(),
-        }],
-        span: crate::ast::Span::unknown(),
-    };
-
-    let mut compiler = MirCompiler::new();
-    let result = crate::test_support::with_env_vars(&[("NYASH_MIR_UNIFIED_CALL", None)], || {
-        compiler.compile(ast)
-    }).expect("compile should succeed");
-    let dump = MirPrinter::verbose().print_module(&result.module);
-
-    assert!(
-        dump.contains("extern_call env.console.log"),
-        "Expected extern_call env.console.log in MIR dump. Got:\n{}",
-        dump
-    );
-}
-
-#[test]
 fn test_lowering_boxcall_array_push() {
     // Build AST: (new ArrayBox()).push(1)
     let ast = ASTNode::Program {

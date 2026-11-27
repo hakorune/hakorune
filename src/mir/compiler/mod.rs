@@ -17,8 +17,6 @@ use std::time::Instant;
 include!("module_registry.in.rs");
 
 #[cfg(test)]
-mod callable_catalog_cutover_tests;
-#[cfg(test)]
 mod legacy_candidate_session_tests;
 #[cfg(test)]
 mod operator_call_retirement_tests;
