@@ -59,7 +59,7 @@ fn exact_original_target(
 
 /// One immutable source scan; derived grounding never outlives its inputs.
 /// Per-loan identity and dependency checks remain independent of this fold.
-struct ScalarSourceValidationV1<'a> {
+pub(in crate::mir::normal_callable_semantic_package) struct ScalarSourceValidationV1<'a> {
     source: &'a Result<PreparedBorrowedFormalIngressV1, String>,
     results: &'a ResultSources,
     grounded: std::cell::OnceCell<BTreeSet<FunctionOwnerIdV1>>,

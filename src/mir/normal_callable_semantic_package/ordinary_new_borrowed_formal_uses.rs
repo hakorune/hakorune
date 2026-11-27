@@ -9,7 +9,9 @@ use std::rc::Rc;
 
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::normal_callable_semantic_package::model::{OwnedCallableParameterContractDeclarationV1, OwnedCallableParameterContractsV1};
+#[cfg(test)]
+use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1;
+use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 use crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1;
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::{field_write_claim, result_class_claim};
 use crate::mir::resolved_semantics::{
