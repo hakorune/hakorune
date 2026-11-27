@@ -21,16 +21,11 @@ fn source(
     package: &crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1,
 ) -> Rc<StaticIncomingSourceV1> {
     let ledger = &package.ordinary_new_claim_ledger;
-    let site = ledger
-        .borrowed_static_source_sites
-        .as_ref()
-        .unwrap()
-        .as_ref()
-        .unwrap()
-        .iter()
-        .next()
-        .unwrap()
-        .clone();
+    use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::StaticLocalSourceSelectionV1;
+    let Some(Ok(StaticLocalSourceSelectionV1::Sealed { sites: rows, .. })) = &ledger.borrowed_static_source_sites else {
+        panic!("sealed source selection");
+    };
+    let site = rows.keys().next().unwrap().clone();
     ledger
         .selected_static_local_source_v1(&site)
         .unwrap()

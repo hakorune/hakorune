@@ -184,7 +184,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 })
                 .map(|call| call.call.clone())
                 .collect();
-            if let Some(Ok(selected)) = self.borrowed_static_source_sites.as_mut() {
+            if let Some(Ok(crate::mir::normal_callable_semantic_package::ordinary_new_coseal::StaticLocalSourceSelectionV1::Pending(selected))) = self.borrowed_static_source_sites.as_mut() {
                 selected.extend(sites);
             }
             let prepared = self.prepare_static_expression_input_owner_v1(

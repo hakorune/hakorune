@@ -355,6 +355,11 @@ fn main_terminal_packet_denies_restored_source_only_actual() {
         .checked_completed_static_expression_input_v1(&original)
         .unwrap()
         .is_none());
+    use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::StaticLocalSourceSelectionV1;
+    ledger.borrowed_static_source_sites = Some(Ok(StaticLocalSourceSelectionV1::Pending(
+        [original.call_site().clone()].into(),
+    )));
+    ledger.seal_static_local_sources_v1();
     assert!(!ledger
         .selected_static_local_source_v1(original.call_site())
         .is_ok_and(|source| source.is_some()));

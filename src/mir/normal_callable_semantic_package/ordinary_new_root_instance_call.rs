@@ -302,16 +302,8 @@ impl OrdinaryNewClaimLedgerV1 {
             let signature = signatures
                 .row(*target_batch_slot)
                 .ok_or_else(|| freeze("root-instance-call-signature-missing"))?;
-            if signature.mode()
-            != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
+            if !signature.matches_source_shape(crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod, call.arity() as usize)
             || signature.owner() != result.owner()
-            || signature.source_logical_arity() != call.arity()
-            || signature.receiver_lane_count() != 1
-            || signature.lanes().first().is_none_or(|lane| {
-                lane.index() != 0
-                    || lane.role()
-                        != PhysicalCallableLaneRoleV1::InstanceReceiver
-            })
         {
             return Err(freeze("root-instance-call-signature-contract"));
         }

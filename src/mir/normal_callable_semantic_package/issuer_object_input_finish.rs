@@ -55,6 +55,7 @@ pub(super) fn issue_signature_and_finish_inputs_v1(
     ledger
         .finish_original_instance_input_actuals_v1(selected, contracts, &signature, results)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error })?;
+    ledger.seal_static_local_sources_v1();
     Ok(signature)
 }
 

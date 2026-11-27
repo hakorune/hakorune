@@ -512,6 +512,9 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
             assert!(ledger.borrowed_formal_actuals.remove(original.call_site()).is_some());
             assert!(ledger.checked_completed_static_forwarded_actuals_v1(&original).unwrap().is_none(),
                 "missing actual invalidates the original completed input");
+            let pending = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::StaticLocalSourceSelectionV1::Pending(pair_sites.iter().cloned().collect());
+            ledger.borrowed_static_source_sites = Some(Ok(pending));
+            ledger.seal_static_local_sources_v1();
             assert!(ledger.selected_static_local_source_v1(&pair_sites[0]).is_err(),
                 "one missing actual invalidates the selected cohort packet");
         });

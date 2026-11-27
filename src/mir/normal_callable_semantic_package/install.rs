@@ -450,39 +450,6 @@ impl InstalledNormalCallableSemanticPackageV1 {
         if !self.lowering_completed.get() {
             return Err(NormalCallableSemanticPackageInstallIssueV1::LoweringNotCompleted);
         }
-        self.named_array_emissions
-            .recheck_reads(
-                self.ordinary_new_claim_ledger
-                    .field_array_read_recipes_v1()
-                    .map_err(|error| {
-                        NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into())
-                    })?,
-            )
-            .map_err(|error| {
-                NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into())
-            })?;
-        self.named_array_emissions
-            .recheck_field_appends(
-                self.ordinary_new_claim_ledger
-                    .field_array_text_append_sources_v1()
-                    .map_err(|error| {
-                        NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into())
-                    })?,
-            )
-            .map_err(|error| {
-                NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into())
-            })?;
-        self.named_array_emissions
-            .recheck_owned_holders(
-                self.ordinary_new_claim_ledger
-                    .owned_array_lifecycle_recipes_v1(&self.result_contracts)
-                    .map_err(|error| {
-                        NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into())
-                    })?,
-            )
-            .map_err(|error| {
-                NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into())
-            })?;
         let rows = Rc::try_unwrap(self.named_array_emissions)
             .map_err(|_| {
                 NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(

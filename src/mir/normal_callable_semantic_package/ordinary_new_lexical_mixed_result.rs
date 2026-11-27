@@ -38,12 +38,24 @@ impl OrdinaryNewClaimLedgerV1 {
         context.require_ledger(self)?;
         let source = row.source_target();
         let loan = source.mixed_local_source().ok_or_else(|| freeze("mixed-call/source-missing"))?;
-        self.callable_result_classes.recheck_mixed_local_roots_v1(loan).map_err(freeze)?;
         let proof = row.mixed_result.as_ref().ok_or_else(|| freeze("mixed-call/result-unsealed"))?;
         if proof.source() != source || proof.teardown().object() != loan.object() {
             return Err(freeze("mixed-call/result-source-drift"));
         }
-        self.recheck_mixed_call_result_using_v1(proof, context)?;
+        let kind = InvokeCallResultKind::MixedHandle { formal_ordinal: loan.callee_ordinal() };
+        if row.result() != Some(kind) || row.object_packet.is_some() || row.scalar_result.is_some()
+            || row.unit_completion.is_some() || row.borrowed_completion.is_some()
+        { return Err(freeze("mixed-call/source-input-drift")); }
+        if context.is_finalized() {
+            self.recheck_mixed_call_result_using_v1(proof, context)?;
+            self.check_ready_mixed_input_v1(row)?;
+        }
+        Ok(kind)
+    }
+
+    fn check_ready_mixed_input_v1(&self, row: &LexicalInstanceCallDispositionRowV1) -> Result<(), String> {
+        let source = row.source_target();
+        let loan = source.mixed_local_source().ok_or_else(|| freeze("mixed-call/source-missing"))?;
         let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("mixed-call/ingress-missing"))?
             .as_ref().map_err(Clone::clone)?;
         let mut originals = ingress.source_incoming.exact_rows().filter(|incoming| &incoming.call == source.call_site());
@@ -53,15 +65,12 @@ impl OrdinaryNewClaimLedgerV1 {
         let contracts = self.original_parameter_contracts.as_ref();
         let arguments = self.checked_completed_original_instance_target_arguments_v1(source, selected, contracts, signatures)?
             .ok_or_else(|| freeze("mixed-call/input-incomplete"))?;
-        let kind = InvokeCallResultKind::MixedHandle { formal_ordinal: loan.callee_ordinal() };
         if originals.next().is_some() || incoming.source.require_instance()? != source
             || incoming.callee != loan.callee_owner() || loan.callee_ordinal() >= source.target().arity()
             || observed.mixed() != Some(loan) || observed.arguments() != arguments
             || observed.local_binding() != Some((loan.declaration(), loan.destination()))
-            || row.result() != Some(kind) || row.object_packet.is_some() || row.scalar_result.is_some()
-            || row.unit_completion.is_some() || row.borrowed_completion.is_some()
         { return Err(freeze("mixed-call/source-input-drift")); }
-        Ok(kind)
+        Ok(())
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn finish_mixed_call_slots_v1(
@@ -70,38 +79,28 @@ impl OrdinaryNewClaimLedgerV1 {
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         results: &VerifiedCallableResultContractCohortV1,
     ) -> Result<(), String> {
-        let pending: Vec<_> = self.lexical_instance_calls.borrow().iter().filter_map(|(site, slot)| match slot {
-            LexicalInstanceCallDispositionSlotV1::SourcePending(source) if source.mixed_local_source().is_some() && !source.has_borrowed_receiver_source_v1() => Some((site.clone(), source.clone())),
-            _ => None,
-        }).collect();
-        let mut upgrades = Vec::new();
-        for (site, source) in &pending {
-            let loan = source.mixed_local_source().ok_or_else(|| freeze("mixed-call/source-missing"))?;
-            self.callable_result_classes.recheck_mixed_local_roots_v1(loan).map_err(freeze)?;
-            let Some(arguments) = self.checked_completed_original_instance_target_arguments_v1(source, selected, contracts, signatures)?
-            else { continue; };
-            let observed = self.mixed_call_source_v1(site).ok_or_else(|| freeze("mixed-call/observation-missing"))?;
-            if observed.mixed() != Some(loan) || observed.arguments() != arguments { return Err(freeze("mixed-call/arguments-drift")); }
-            let Some(proof) = self.checked_mixed_call_result_v1(source, results)? else { continue; };
-            let signature = signatures.row(source.target_batch_slot()).ok_or_else(|| freeze("mixed-call/signature-missing"))?;
-            if signature.mode() != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
-                || signature.source_logical_arity() != source.target().arity() || signature.receiver_lane_count() != 1
-            { return Err(freeze("mixed-call/signature-drift")); }
-            let row = LexicalInstanceCallDispositionRowV1 {
-                source: source.clone(), result: Some(InvokeCallResultKind::MixedHandle { formal_ordinal: loan.callee_ordinal() }),
-                mixed_result: Some(Rc::new(proof)), scalar_result: None, unit_completion: None, borrowed_completion: None, object_packet: None,
-            };
-            self.corroborate_mixed_call_v1(&row)?;
-            upgrades.push((site.clone(), row));
-        }
-        let mut slots = self.lexical_instance_calls.borrow_mut();
-        for (site, source) in &pending {
-            if !matches!(slots.get(site), Some(LexicalInstanceCallDispositionSlotV1::SourcePending(current)) if current == source) {
-                return Err(freeze("mixed-call/slot-drift"));
-            }
-        }
-        for (site, row) in upgrades { slots.insert(site, LexicalInstanceCallDispositionSlotV1::Ready(row)); }
-        Ok(())
+        self.finish_lexical_slots_v1(
+            |source| source.mixed_local_source().is_some() && !source.has_borrowed_receiver_source_v1(),
+            |ledger, site, source| {
+                let loan = source.mixed_local_source().ok_or_else(|| freeze("mixed-call/source-missing"))?;
+                ledger.callable_result_classes.recheck_mixed_local_roots_v1(loan).map_err(freeze)?;
+                let Some(arguments) = ledger.checked_completed_original_instance_target_arguments_v1(source, selected, contracts, signatures)?
+                else { return Ok(None); };
+                let observed = ledger.mixed_call_source_v1(site).ok_or_else(|| freeze("mixed-call/observation-missing"))?;
+                if observed.mixed() != Some(loan) || observed.arguments() != arguments { return Err(freeze("mixed-call/arguments-drift")); }
+                let Some(proof) = ledger.checked_mixed_call_result_v1(source, results)? else { return Ok(None); };
+                let signature = signatures.row(source.target_batch_slot()).ok_or_else(|| freeze("mixed-call/signature-missing"))?;
+                if !signature.matches_source_shape(crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod, source.target().arity() as usize)
+                { return Err(freeze("mixed-call/signature-drift")); }
+                let row = LexicalInstanceCallDispositionRowV1 {
+                    source: source.clone(), result: Some(InvokeCallResultKind::MixedHandle { formal_ordinal: loan.callee_ordinal() }),
+                    mixed_result: Some(Rc::new(proof)), scalar_result: None, unit_completion: None, borrowed_completion: None, object_packet: None,
+                };
+                ledger.check_ready_mixed_input_v1(&row)?;
+                ledger.corroborate_mixed_call_v1(&row)?;
+                Ok(Some((row, false)))
+            }, "mixed-call/slot-drift",
+        )
     }
 }
 

@@ -48,8 +48,7 @@ impl StaticExecutionEmissionV1 {
         use crate::mir::normal_callable_semantic_package::physical_signature::PhysicalCallableLaneRoleV1;
         let source = &self.original;
         let signature = self.signatures.row(source.target_batch_slot()).ok_or_else(|| reject("signature-missing"))?;
-        if signature.owner() != source.callee_owner() || signature.mode() != Mode::StaticBoxMethod
-            || signature.receiver_lane_count() != 0 || signature.source_logical_arity() != source.target().arity()
+        if signature.owner() != source.callee_owner() || !signature.matches_source_shape(Mode::StaticBoxMethod, source.target().arity() as usize)
             || signature.physical_formal_lane_count() != source.target().arity()
             || signature.physical_callable_lane_count() != source.target().arity()
             || signature.lanes().len() != source.parameters().len()

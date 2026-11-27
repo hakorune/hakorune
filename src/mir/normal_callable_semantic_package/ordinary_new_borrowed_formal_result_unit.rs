@@ -227,6 +227,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let site = source.call_site().clone();
         let row = LexicalInstanceCallDispositionRowV1 { source, result: Some(result),
             scalar_result: None, unit_completion: Some(completion), borrowed_completion: None, object_packet: None, mixed_result: None };
+        self.checked_borrowed_map_receiver_source_v1(row.source_target())?;
         self.corroborate_unit_discard_v1(&row)?;
         if self.lexical_instance_calls.borrow_mut().insert(site.clone(), LexicalInstanceCallDispositionSlotV1::Ready(row)).is_some() {
             return Err(freeze("unit-call/duplicate"));
@@ -265,10 +266,10 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     pub(crate) fn corroborate_unit_discard_v1(&self, row: &LexicalInstanceCallDispositionRowV1) -> Result<(), String> {
-        self.checked_borrowed_map_receiver_source_v1(row.source_target())?;
-        let completion = self.original_unit_completion_v1(row.source_target())?;
+        let completion = self.completion_source_for_owner_v1(row.source_target().callee_owner())
+            .ok_or_else(|| freeze("unit-call/completion-unavailable"))?;
         if row.result() != Some(InvokeCallResultKind::Unit) || row.scalar_result.is_some() || row.object_packet.is_some()
-            || row.unit_completion.as_ref().is_none_or(|retained| !Rc::ptr_eq(retained, &completion)) {
+            || row.unit_completion.as_ref().is_none_or(|retained| !Rc::ptr_eq(retained, completion)) {
             return Err(freeze("unit-call/retained-completion-drift"));
         }
         Ok(())

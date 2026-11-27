@@ -115,11 +115,8 @@ impl OrdinaryNewClaimLedgerV1 {
             .filter(|(_, row)| row.owner() == owner)
         {
             match row {
-                LocalCommitV1::TextResidence(packet) => {
-                    self.validate_text_residence_home_v1(
-                        packet,
-                        CallValidationContextV1::Lowering(self),
-                    )?;
+                LocalCommitV1::TextResidence(_) => {
+                    let packet = self.published_text_residence_v1(site, CallValidationContextV1::Lowering(self))?;
                     packet.validate_paths(
                         CallValidationContextV1::Lowering(self),
                         function,
@@ -127,11 +124,8 @@ impl OrdinaryNewClaimLedgerV1 {
                     )?;
                     continue;
                 }
-                LocalCommitV1::DynamicCarrierResidence(packet) => {
-                    self.validate_dynamic_carrier_residence_home_v1(
-                        packet,
-                        CallValidationContextV1::Lowering(self),
-                    )?;
+                LocalCommitV1::DynamicCarrierResidence(_) => {
+                    let packet = self.published_dynamic_residence_v1(site, CallValidationContextV1::Lowering(self))?;
                     packet.validate_paths(
                         CallValidationContextV1::Lowering(self),
                         function,

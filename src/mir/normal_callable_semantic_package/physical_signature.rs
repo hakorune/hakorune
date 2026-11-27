@@ -97,6 +97,22 @@ impl<'a> PhysicalCallableSignatureRowRefV1<'a> {
         self.row.source_logical_arity
     }
 
+    /// Match the original declaration. The issuer already fixes the receiver
+    /// lane for this mode and the ordered lanes for every source formal.
+    pub(crate) fn matches_source_shape(
+        self,
+        mode: CallableParameterDeclarationModeV1,
+        arity: usize,
+    ) -> bool {
+        self.mode() == mode && self.source_logical_arity() as usize == arity
+    }
+
+    pub(crate) fn instance_receiver(self) -> Option<PhysicalCallableLaneV1> {
+        (self.mode() == CallableParameterDeclarationModeV1::InstanceBoxMethod)
+            .then(|| self.row.lanes.first().copied())
+            .flatten()
+    }
+
     pub(crate) const fn receiver_lane_count(self) -> u32 {
         self.row.receiver_lane_count
     }

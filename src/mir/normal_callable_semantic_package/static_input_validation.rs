@@ -21,9 +21,7 @@ pub(super) fn static_input_signature_matches_v1(
     let arity = contract.parameters.len() as u32;
     signature.identity().same_as(identity)
         && signature.owner() == contract.owner
-        && signature.mode() == contract.mode
-        && signature.source_logical_arity() == arity
-        && signature.receiver_lane_count() == 0
+        && signature.matches_source_shape(contract.mode, arity as usize)
         && signature.physical_formal_lane_count() == arity
         && signature.physical_callable_lane_count() == arity
         && signature.lanes().len() == arity as usize

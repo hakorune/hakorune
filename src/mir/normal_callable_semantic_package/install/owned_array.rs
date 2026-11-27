@@ -6,7 +6,7 @@ use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 #[derive(Clone, Copy)]
 pub(crate) struct OwnedArrayLifecycleSourceLoanV1<'package> {
     ledger: &'package OrdinaryNewClaimLedgerV1,
-    results: &'package VerifiedCallableResultContractCohortV1,
+    collector: &'package super::super::NamedArrayEmissionCollectorV1,
 }
 impl<'package> NormalCallableSemanticPackagePortV1<'package> {
     pub(crate) fn owned_array_lifecycle_source_v1(
@@ -14,7 +14,7 @@ impl<'package> NormalCallableSemanticPackagePortV1<'package> {
     ) -> OwnedArrayLifecycleSourceLoanV1<'package> {
         OwnedArrayLifecycleSourceLoanV1 {
             ledger: self.installed.ordinary_new_claim_ledger.as_ref(),
-            results: &self.installed.result_contracts,
+            collector: &self.installed.named_array_emissions,
         }
     }
 }
@@ -28,12 +28,7 @@ impl OwnedArrayLifecycleSourceLoanV1<'_> {
         }
         Ok(())
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn recipes_v1(
-        &self,
-    ) -> Result<Vec<Rc<super::super::ordinary_new_coseal::ArrayHolderLifecycleRecipeV1>>, String>
-    {
-        self.ledger.owned_array_lifecycle_recipes_v1(self.results)
-    }
+
 }
 
 /// The same retained holder recipe paired with its original initializer relation.
@@ -152,7 +147,7 @@ impl OwnedArrayLifecycleSourceLoanV1<'_> {
         relation: crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
     ) -> Result<Option<PreparedOwnedArrayConstructionV1>, String> {
         let mut found = None;
-        for recipe in self.recipes_v1()? {
+        for recipe in self.collector.owned_holders()? {
             if recipe.owner() != site.owner() || recipe.construction() != site.site() {
                 continue;
             }
@@ -167,7 +162,7 @@ impl OwnedArrayLifecycleSourceLoanV1<'_> {
                 return Err("[freeze:contract][owned-array/construction-source-drift]".into());
             }
             recipe.initializer_prefix_v1()?;
-            found = Some(recipe);
+            found = Some(Rc::clone(recipe));
         }
         Ok(found.map(|recipe| PreparedOwnedArrayConstructionV1 {
             authority: ArrayConstructionAuthorityV1::Typed(recipe),
@@ -228,7 +223,7 @@ impl OwnedArrayLifecycleSourceLoanV1<'_> {
         site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
     ) -> Result<Option<OwnedArrayReadSourceLoanV1>, String> {
         let mut found = None;
-        for recipe in self.recipes_v1()? {
+        for recipe in self.collector.owned_holders()? {
             if recipe.original_read_v1(site).is_none() {
                 continue;
             }
@@ -237,7 +232,7 @@ impl OwnedArrayLifecycleSourceLoanV1<'_> {
             }
             recipe.original_read_integer_v1(site)?;
             found = Some(OwnedArrayReadSourceLoanV1 {
-                recipe,
+                recipe: Rc::clone(recipe),
                 site: site.clone(),
             });
         }
@@ -400,7 +395,7 @@ impl OwnedArrayLifecycleSourceLoanV1<'_> {
         site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
     ) -> Result<Option<OwnedArrayAppendSourceLoanV1>, String> {
         let mut found = None;
-        for recipe in self.recipes_v1()? {
+        for recipe in self.collector.owned_holders()? {
             if recipe.original_append_v1(site).is_none() {
                 continue;
             }
@@ -409,7 +404,7 @@ impl OwnedArrayLifecycleSourceLoanV1<'_> {
             }
             recipe.append_prior_homes_v1(site)?;
             found = Some(OwnedArrayAppendSourceLoanV1 {
-                authority: OwnedArrayAppendAuthorityV1::Typed(recipe),
+                authority: OwnedArrayAppendAuthorityV1::Typed(Rc::clone(recipe)),
                 site: site.clone(),
             });
         }
