@@ -10,6 +10,7 @@ mod borrowed_calls;
 pub(in crate::mir) use borrowed_calls::requires_dynamic_field_source_uses;
 #[path = "invoke_call_edge.rs"]
 mod call_edge;
+pub(in crate::mir) use call_edge::requires_borrowed_call_argument_source_uses;
 pub(super) use call_edge::{cataloged_call_target, cataloged_i64_call_result};
 use call_edge::{cataloged_edge_key, check_call_edge};
 #[path = "invoke_map.rs"]
@@ -30,11 +31,13 @@ use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction};
 /// domain rule. `Sealed` enforces the Integer-domain corridor ABI —
 /// the contract selected consumers transport. `Document` verifies
 /// canonical structure only: document publication serializes the
-/// same edges without claiming the corridor.
+/// same edges without claiming the corridor. `Diagnostic` checks the scalar
+/// edge domain and applies original call coverage to Normal/Fault calls.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum CatalogedCallEdgePolicyV1 {
     Sealed,
     Document,
+    Diagnostic,
 }
 
 /// Declaration references survive publication; a backend must never recover
@@ -159,6 +162,9 @@ pub(super) fn check_module_with_source(
                 }
                 if let Some(call) = call {
                     let slots = loans.remove(&(function.signature.name.clone(), *id, index));
+                    let source_bound = root.is_some()
+                        && (edge_policy != CatalogedCallEdgePolicyV1::Diagnostic
+                            || matches!(instruction, MirInstruction::Invoke { .. }));
                     check_call_edge(
                         module,
                         function,
@@ -169,7 +175,7 @@ pub(super) fn check_module_with_source(
                         image
                             .takes
                             .get(&(function.signature.name.clone(), *id, index)),
-                        root.is_some(),
+                        source_bound,
                         &image.receiver_callees,
                         &mut errors,
                     );

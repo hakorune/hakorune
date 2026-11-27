@@ -746,6 +746,53 @@ mod integer_comparison;
 mod static_input;
 
 #[test]
+fn diagnostic_verification_uses_original_loans_for_the_emitted_protocol() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let compatibility = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/apps/tests/corpus/bool-result/in/j3d.hako"
+    ));
+    let mixed = format!(
+        "{}\nstatic box Main {{ main() {{ return SizeClassBox.size_to_bin(9) }} }}",
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/lang/src/hako_alloc/memory/size_class_box.hako"
+        ))
+    );
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for source in [compatibility, mixed.as_str()] {
+            MirCompiler::with_options(false)
+                .compile_normal(request(source))
+                .expect("the normal diagnostic module compiles")
+                .verification_result
+                .expect("the diagnostic module satisfies its call protocols");
+        }
+    });
+}
+
+#[test]
+fn original_signed_ordering_keeps_its_checked_entry_view() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/apps/tests/corpus/compare-normalize-fix/probes/matrix-mixed-ge-if.hako"
+    ));
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        MirCompiler::with_options(false)
+            .compile_normal_with_published(request(source), |view, verification| {
+                require_artifact_verification(verification);
+                let function = &view.module().functions["Probe.run/1"];
+                let checks = crate::mir::verification::borrowed_integer_comparison::verified_sites(function)
+                    .expect("the independent verifier matches the signed source comparison");
+                assert_eq!(checks.len(), 1);
+                assert_eq!(checks[0].1.source.operator(), crate::mir::CompareOp::Ge);
+                Ok(())
+            })
+            .expect("the signed entry remains executable");
+    });
+}
+
+#[test]
 fn original_untyped_ordering_checks_the_tag_after_both_operands() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {

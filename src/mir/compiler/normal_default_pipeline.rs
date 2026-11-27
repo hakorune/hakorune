@@ -557,7 +557,7 @@ impl MirCompiler {
             |mut result, session, retained_root| {
                 if let Some(root) = retained_root.as_ref() {
                     result.verification_result = super::MirVerifier::new_strict()
-                        .verify_module_with_finalized_root(&result.module, Some(root));
+                        .verify_diagnostic_module_with_finalized_root(&result.module, root);
                 }
                 let prepared = session
                     .prepare_external_commit()

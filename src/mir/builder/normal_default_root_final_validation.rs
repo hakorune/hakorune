@@ -114,7 +114,7 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
             });
             if matches!(&root_validation, RootValidation::OrdinaryNew { ledger, .. }
                 if ledger.requires_dynamic_result_handoff_v1()
-                    || ledger.has_borrowed_call_argument_sources_v1()
+                    || crate::mir::verification::requires_borrowed_call_argument_source_uses(module)
                     || tagged_comparison
                     || crate::mir::verification::requires_dynamic_field_source_uses(module))
             {

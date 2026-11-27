@@ -41,14 +41,6 @@ impl BorrowedFormalActualSourceV1 {
 }
 
 impl crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1 {
-    pub(in crate::mir) fn has_borrowed_call_argument_sources_v1(&self) -> bool {
-        self.borrowed_formal_actuals.values().any(|row| {
-            row.as_ref().is_ok_and(|row| {
-                row.opaque_actuals.iter().any(|actual| !actual.source.transfers_home_at_entry_v1())
-            })
-        })
-    }
-
     pub(in crate::mir) fn has_taken_call_argument_sources_v1(&self) -> bool {
         self.borrowed_formal_actuals
             .values()

@@ -1,7 +1,36 @@
 //! Cataloged Call-edge ABI correspondence over original tagged and take slots.
 use super::{borrowed_calls, error, CatalogedCallEdgePolicyV1};
 use crate::mir::verification_types::VerificationError;
-use crate::mir::{BasicBlockId, MirFunction};
+use crate::mir::{instruction::InvokeOperation, BasicBlockId, MirFunction, MirInstruction};
+use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
+
+/// Ask for retention when an emitted Normal/Fault call needs an original loan.
+/// The finished source verifier still matches every loan to its original site.
+pub(in crate::mir) fn requires_borrowed_call_argument_source_uses(
+    module: &crate::mir::MirModule,
+) -> bool {
+    module
+        .functions
+        .values()
+        .flat_map(|function| function.blocks.values())
+        .flat_map(|block| block.all_instructions())
+        .any(|row| {
+            let MirInstruction::Invoke {
+                operation: InvokeOperation::Call { call, .. },
+                ..
+            } = row else {
+                return false;
+            };
+            cataloged_call_target(module, call).is_some_and(|(callee, receiver_params)| {
+                callee.metadata.physical_param_carriers.as_deref().is_some_and(|carriers| {
+                    carriers
+                        .iter()
+                        .skip(receiver_params)
+                        .any(|carrier| *carrier == Carrier::BorrowedTaggedValue)
+                })
+            })
+        })
+}
 
 /// The same-module call edges this verifier corroborates argument kinds on:
 /// static-box and free calls plus instance methods resolve to cataloged

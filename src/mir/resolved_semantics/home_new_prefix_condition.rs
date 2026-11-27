@@ -703,8 +703,8 @@ fn install_source<E>(
             continue;
         };
         let integer_order = locals.borrowed_integer_order_read(&source, node.site(), root);
-        let prefer_tagged = integer_order.is_some()
-            || super::argument_expression::scalar_dynamic_demand_v1(input, locals, local_calls, node.site(), true);
+        let prefer_tagged =
+            super::argument_expression::scalar_dynamic_demand_v1(input, locals, local_calls, node.site(), true);
         if !prefer_tagged {
             if let Some(BorrowedCallArgumentsV1::FiniteEntryRead(read)) = actuals(
                 &owned,
@@ -712,13 +712,17 @@ fn install_source<E>(
                     input, plan: &source, read: node.site(), binding, root,
                 },
             )? {
-                initial_references.push((index, CheckedExpressionReferenceV1::FiniteEntry {
-                    read, exclusion: None,
-                }));
-                continue;
+                // The original signed entry already owns the checked Integer
+                // view. Other ordering operands retain their runtime tag check.
+                if integer_order.is_none() || read.signed_only() {
+                    initial_references.push((index, CheckedExpressionReferenceV1::FiniteEntry {
+                        read, exclusion: None,
+                    }));
+                    continue;
+                }
             }
         }
-        if prefer_tagged || source.compares_with_proven_text_v1(index, |other| {
+        if prefer_tagged || integer_order.is_some() || source.compares_with_proven_text_v1(index, |other| {
             locals.static_text_reference(other).is_some() || locals.text_reference(other).is_some()
         }) {
             if let Some(BorrowedCallArgumentsV1::DynamicEntryRead(read)) = actuals(
