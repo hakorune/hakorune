@@ -614,17 +614,14 @@ impl RootLifecyclePrefixBindingGroupV1 {
         }
         Ok(())
     }
-    pub(super) fn new_bool_pending(
-        packet: Rc<EmittedBoolConditionProjectionV1>,
-    ) -> Result<Self, String> {
-        packet.validate_prefix_recorded(packet.prefix())?;
+    pub(super) fn new_bool_pending(packet: Rc<EmittedBoolConditionProjectionV1>) -> Self {
         let source = packet.frame().source();
-        Ok(Self {
+        Self {
             site: OwnedExprSiteV1::new(source.owner(), source.nodes()[0].site().clone()),
             bindings: Rc::from(packet.prefix()),
             proof: PrefixPhysicalProofV1::BoolCondition(packet),
             projected: false,
-        })
+        }
     }
 
     pub(in crate::mir) fn owned_array_append(

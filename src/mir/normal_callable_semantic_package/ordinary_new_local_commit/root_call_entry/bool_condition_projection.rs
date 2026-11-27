@@ -595,7 +595,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<PreparedLifecyclePrefixBindingGroupV1<'_>, String> {
         self.prepare_local_call_binding_group(
             packet.frame().source().owner(),
-            RootLifecyclePrefixBindingGroupV1::new_bool_pending(packet)?,
+            RootLifecyclePrefixBindingGroupV1::new_bool_pending(packet),
         )
     }
     /// Lend the same source-owned Phi tuples to draft repair. A symbol is
