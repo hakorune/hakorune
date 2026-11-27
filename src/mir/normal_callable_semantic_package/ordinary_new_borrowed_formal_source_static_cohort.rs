@@ -16,9 +16,11 @@ impl PreparedBorrowedFormalIngressV1 {
         parameters.iter().any(|formal| formal.kind == CallableParameterContractKindV1::OpaqueHandle)
             && !self.has_tagged_static_input_v1(owner, parameters)
             && !self.is_scalar_only_static_input_v1(owner)
-            && original.required_i64_arguments().iter().all(|ordinal| {
-                parameters.get(*ordinal as usize).is_some_and(|formal| formal.kind.is_i64_actual_v1())
-            })
+            && original.required_i64_arguments().iter()
+                .chain(original.source_result().required_i64_arguments().unwrap_or_default())
+                .all(|ordinal| {
+                    parameters.get(*ordinal as usize).is_some_and(|formal| formal.kind.is_i64_actual_v1())
+                })
             && self.lend_original_input_sums_v1(parameters).is_some_and(|sums| {
                 sums.iter().all(|sum| sum.finite_input())
             })

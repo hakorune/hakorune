@@ -198,9 +198,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_return_expres
     } else {
         match actuals(
             &purpose,
-            super::super::super::BorrowedCallActualRequestV1::SourceResultArguments {
-                expression: Some(&source),
-            },
+            super::super::super::BorrowedCallActualRequestV1::StaticScalarReturnArguments(&source),
         )? {
             Some(super::super::super::BorrowedCallArgumentsV1::SourceResult {
                 loan: super::super::super::LocalCallResultSourceV1::Ordinary(loan),

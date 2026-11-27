@@ -95,6 +95,9 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
         expression:
             Option<&'a crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
     },
+    StaticScalarReturnArguments(
+        &'a crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
+    ),
     SourceUnitDiscardArguments,
     ReceivedObjectArguments(
         crate::mir::resolved_semantics::BindingRefV1,
