@@ -4,6 +4,25 @@ use super::*;
 #[path = "ordinary_new_initializer_scalar_tests.rs"]
 mod scalar_tests;
 
+fn assert_bool_text_entry_refused(text: &str) {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+        text,
+        crate::parser::ParserBuildConfig::default(),
+    ).unwrap();
+    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+        crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
+    else { panic!("original source"); };
+    let request = crate::mir::NormalCompileRequestV1::for_mir_mode_callable_source(
+        source, None, Default::default(),
+    );
+    let error = crate::mir::MirCompiler::with_options(false)
+        .compile_normal(request).expect_err("Bool source does not qualify for a Text entry read");
+    assert!(error.to_string().contains(
+        "[ordinary-new/local-commit/expression/reference-execution-pending/text-entry-domain]"
+    ), "{error}");
+}
+
 #[test]
 fn initializer_text_entry_read_retains_all_incoming_and_original_alias_provenance() {
     use crate::mir::resolved_semantics::ResolvedLexicalRefV1;
@@ -15,13 +34,13 @@ fn initializer_text_entry_read_retains_all_incoming_and_original_alias_provenanc
         ("local alias = key", "\"field\"", "", true),
         ("key = other", "\"field\"", "", false),
         ("", "null", "", true),
-        ("", "true", "", false),
+        ("", "true", "", true),
         ("", "7", "", true),
         (
             "",
             "\"field\"",
             "second() { return Values.caller(true, \"spare\") }",
-            false,
+            true,
         ),
         (
             "",
@@ -50,6 +69,10 @@ fn initializer_text_entry_read_retains_all_incoming_and_original_alias_provenanc
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
             &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
         ).unwrap();
+        let bool_input = actual == "true" || sibling.starts_with("second(");
+        if bool_input {
+            assert_bool_text_entry_refused(&text);
+        }
         let ledger = &package.ordinary_new_claim_ledger;
         let source = ledger.borrowed_formal_source.as_ref().unwrap();
         let contract = package
@@ -80,6 +103,12 @@ fn initializer_text_entry_read_retains_all_incoming_and_original_alias_provenanc
                 assert!(Rc::ptr_eq(loan.requirement().source_plan(), &plan));
                 assert_eq!(loan.leaf_class(None).is_some(), actual != "null", "source Null still requires the real terminating branch");
                 assert_eq!(loan.requirement().formal(), (0, contract.parameters[0].binding));
+                if bool_input {
+                    use crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::{Bool, String};
+                    use crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1;
+                    let classes = std::iter::once(Bool).chain((actual != "true").then_some(String));
+                    assert_eq!(loan.leaf_class(None), ExpressionLeafClassV1::from_classes(classes));
+                }
                 if actual == "7" {
                     let shape = input.body_shape().unwrap();
                     let statement = shape.statements().iter().find(|row| matches!(row,
@@ -118,7 +147,7 @@ fn text_initializer_frame_requires_original_text_signed_source_and_current_prefi
         (": i64", "\"text\"", 0, true),
         (": usize", "\"text\"", 0, false),
         ("", "\"text\"", 0, true),
-        (": i64", "true", 0, false),
+        (": i64", "true", 0, true),
         (": i64", "\"text\"", 1, false),
         (": i64", "\"text\"", 2, false),
         (": i64", "\"text\"", 3, false),
@@ -131,6 +160,9 @@ fn text_initializer_frame_requires_original_text_signed_source_and_current_prefi
             seed() {{ return Values.caller({actual}, 7) }}
         }} static box Main {{ main() {{ return Values.seed() }} }}"#
         );
+        if actual == "true" {
+            assert_bool_text_entry_refused(&text);
+        }
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
             &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
         let ledger = &package.ordinary_new_claim_ledger;
@@ -632,16 +664,22 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
         package.batch().with_lowering_input(declaration.batch_slot(), |input| {
             let contract = package.parameter_contracts.iter().find(|row| row.owner == input.owner()).unwrap();
             let parameters = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
+            let call_site = input.function().method_calls().find(|(_, call)| call.selector() == "sink")
+                .map(|(site, _)| OwnedExprSiteV1::new(input.owner(), site.clone())).unwrap();
+            let mut before_qualification = None;
             let mut pending = ledger.borrowed_formal_actuals.clone();
             let (plans, _) = crate::mir::resolved_semantics::home_new_prefix::observe_local_initializers_for_test(
                 input, parameters, true, None,
                 &mut |fields: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], _| -> Result<_, OrdinaryNewCoSealIssueV1> { assert!(fields.is_empty()); Ok(Some(Vec::new())) },
-                &mut |site, request| borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &[],
+                &mut |site, request| {
+                    if site == &call_site && matches!(request, BorrowedCallActualRequestV1::CompleteArgumentExpression { .. }) {
+                        before_qualification.get_or_insert_with(|| pending.clone());
+                    }
+                    borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &[],
                     &package.parameter_contracts, &[], None, source, &Ok(Default::default()), &mut pending,
                     &ledger.borrowed_i64_results, &mut |_| None, site, request,
-                    &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None)).unwrap();
-            let call_site = input.function().method_calls().find(|(_, call)| call.selector() == "sink")
-                .map(|(site, _)| OwnedExprSiteV1::new(input.owner(), site.clone())).unwrap();
+                    &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None)
+                }).unwrap();
             let caller = CanonicalSameModuleCallableKeyV1::static_box_method("Values", "caller", contract.parameters.len() as u32);
             let (claim, _) = package.source_static_claims_for_test.claim_target(&caller, call_site.site()).unwrap();
             let frames: Vec<_> = plans.iter().filter_map(|plan| plan.argument_frame()).collect();
@@ -661,7 +699,7 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
                     "an equal reissued frame is not the observed argument qualification");
                 assert_eq!(frame.evaluation().references().len(), static_reads + residence_reads + entry_reads + frame.references().len());
                 if entry_reads > 0 && !owned {
-                    let mut unqualified = pending.clone();
+                    let mut unqualified = before_qualification.as_ref().unwrap().clone();
                     let read = frame.text_reads()[0];
                     let actuals = [BorrowedCallActualCandidateV1 { ordinal: 0, site: read.read().clone(),
                         value: BorrowedCallActualValueV1::SelfRooted { binding: read.binding(), root: read.formal().1 } }];
@@ -695,6 +733,8 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
                     crate::mir::MirBuilder::assert_checked_expression_core_for_test(input, package.ordinary_new_claim_ledger_for_test(), frame);
                 }
                 let parameters = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
+                // Start both qualifications from the same staged, original source plan.
+                let mut pending = before_qualification.expect("staged argument before completion");
                 let (repeated, _) = crate::mir::resolved_semantics::home_new_prefix::observe_local_initializers_for_test(
                     input, parameters, true, None,
                     &mut |fields: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], _| -> Result<_, OrdinaryNewCoSealIssueV1> { assert!(fields.is_empty()); Ok(Some(Vec::new())) },

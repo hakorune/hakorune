@@ -282,6 +282,13 @@ fn qualified_static_call_claim_rejects_non_i64_evidence_at_required_ordinal() {
 
 #[test]
 fn static_call_claim_carries_exact_result_class_at_current_owner_boundary() {
+    let wrap_owner = |package: &super::VerifiedNormalCallableSemanticPackageV1| {
+        package.batch().declarations().find(|declaration|
+            package.selected.key_for_batch_slot(declaration.batch_slot())
+                .is_some_and(|key| matches!(key, crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)
+                    if key.owner() == "LayoutBox" && key.name() == "wrap"))
+        ).expect("original wrap declaration").owner()
+    };
     for (label, callee, expression, accepted, class) in [
         (
             "zeroarg-i64",
@@ -301,7 +308,7 @@ fn static_call_claim_carries_exact_result_class_at_current_owner_boundary() {
         (
             "zeroarg-bool",
             "word() { return true }",
-            "me.word()",
+            "LayoutBox.word()",
             true,
             LocalCallResultClassV1::Bool,
         ),
@@ -326,7 +333,8 @@ fn static_call_claim_carries_exact_result_class_at_current_owner_boundary() {
             static box Main {{ main() {{ return LayoutBox.wrap() }} }}"
         ))
         .unwrap_or_else(|issue| panic!("{label}: {issue:?}"));
-        let calls = local_calls(&package);
+        let owner = wrap_owner(&package);
+        let calls: Vec<_> = local_calls(&package).into_iter().filter(|call| call.owner() == owner).collect();
         assert_eq!(
             calls.len(),
             usize::from(accepted),
@@ -368,6 +376,7 @@ fn static_call_claim_carries_exact_result_class_at_current_owner_boundary() {
             0,
         ),
         ("if me.word() > 0 { return 1 } return 0", 1, false, 0),
+        ("if (me.word() > 0) && true { return 1 } local later = new Page() return 0", 1, false, 0),
         ("return me.word()", 1, false, 0),
         ("return me.word() + 1", 1, false, 0),
         (
@@ -389,8 +398,9 @@ fn static_call_claim_carries_exact_result_class_at_current_owner_boundary() {
             }} static box Main {{ main() {{ return LayoutBox.wrap() }} }}"
         ))
         .unwrap_or_else(|issue| panic!("{body}: {issue:?}"));
-        let calls = local_calls(&package);
-        assert_eq!(calls.len(), count, "original value sites: {body}");
+        let owner = wrap_owner(&package);
+        let calls: Vec<_> = local_calls(&package).into_iter().filter(|call| call.owner() == owner).collect();
+        assert_eq!(calls.len(), count, "original value sites: {body}: {calls:?}");
         for call in &calls {
             assert_eq!(
                 call.local_binding().is_some(),
@@ -404,13 +414,9 @@ fn static_call_claim_carries_exact_result_class_at_current_owner_boundary() {
             );
             assert!(call.arguments().is_empty());
         }
-        let wrap = package.batch().declarations().find(|declaration|
-            package.selected.key_for_batch_slot(declaration.batch_slot())
-                .is_some_and(|key| matches!(key, crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key) if key.name() == "wrap"))
-        ).expect("original wrap declaration");
         let completion = package
             .ordinary_new_claim_ledger
-            .completion_for_owner(wrap.owner())
+            .completion_for_owner(owner)
             .expect("original completed owner");
         let flow = completion
             .cleanup()
@@ -427,8 +433,8 @@ fn static_call_claim_carries_exact_result_class_at_current_owner_boundary() {
     for body in [
         "local inner = me.word() + true local later = new Page() return 0",
         "local inner = me.word() + me.flag() local later = new Page() return 0",
-        "if (me.word() > 0) && true { return 1 } local later = new Page() return 0",
-        "local inner = LayoutBox.echo(me.word()) local later = new Page() return 0",
+        "if (me.word() > 0) && 7 { return 1 } local later = new Page() return 0",
+        "local inner = LayoutBox.echo(me.word() + true) local later = new Page() return 0",
     ] {
         let package = issue(&format!(
             "box Page {{ birth() {{ }} }} static box LayoutBox {{ word() {{ return 7 }}
@@ -437,7 +443,7 @@ fn static_call_claim_carries_exact_result_class_at_current_owner_boundary() {
         ))
         .unwrap_or_else(|issue| panic!("{body}: {issue:?}"));
         assert!(
-            local_calls(&package).is_empty(),
+            local_calls(&package).iter().all(|call| call.owner() != wrap_owner(&package)),
             "no partial observation: {body}"
         );
         assert!(

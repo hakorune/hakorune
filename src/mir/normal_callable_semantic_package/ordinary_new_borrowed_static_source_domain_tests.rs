@@ -245,7 +245,7 @@ fn static_source_domain_never_omits_mixed_original_actuals() {
         ("q.length()", "Values.chain(\"text\")", Some(Value::SignedI64)),
         ("q.indexOf(\"t\")", "Values.chain(\"text\")", Some(Value::SignedI64)),
         ("q.indexOf(7)", "Values.chain(\"text\")", None),
-        ("Values.substring(0,1)", "Values.chain(\"text\")", None),
+        ("Values.substring(0,1)", "Values.chain(\"text\")", Some(Value::Null)),
     ] {
         let caller = if calls.is_empty() { "return 0".to_owned() } else { format!("local a = {calls} return 0") };
         let text = format!("static box Values {{ sink(p) {{ return 0 }} substring(a,b) {{ return null }} chain(q) {{ local n = Values.sink({actual}) return 0 }} unused() {{ {caller} }} }} static box Main {{ main() {{ return 0 }} }}");
@@ -262,7 +262,8 @@ fn static_source_domain_never_omits_mixed_original_actuals() {
                 for (site, method) in input.function().method_calls() {
                     if method.selector() != "substring" && method.selector() != "length" && method.selector() != "indexOf" { continue; }
                     let closed = source.closed_core_source_v1(&OwnedExprSiteV1::new(input.owner(), site.clone()));
-                    assert_eq!(closed.is_some(), expected.is_some(), "closed original request: {actual}; {calls}");
+                    let expects_core = expected.is_some() && actual != "Values.substring(0,1)";
+                    assert_eq!(closed.is_some(), expects_core, "closed original request: {actual}; {calls}");
                     if let Some(closed) = closed {
                         assert!(std::sync::Arc::ptr_eq(closed.method(), input.function().method_call_source_v1(site).unwrap()));
                         assert_eq!(closed.manifest().arity(), method.arity());
@@ -301,10 +302,25 @@ fn static_source_domain_missing_claim_or_unsupported_body_never_seeds_a_callee()
         assert!(source.source_incoming.source_registered_owners_v1().contains(&p.owner()));
         assert_eq!(source.source_incoming.source_rows_v1().filter(|row| row.callee == p.owner()).count(), 2,
             "unsupported use/transport cannot erase original source incoming");
-        // Original 7/8 inputs retain their source agreement independently of
-        // Bool/Text result class. That class still forbids the I64 executable
-        // cohort; source input agreement cannot fabricate an entry or result.
-        assert!(!source.contains_definition_for_test(p.owner()));
+        // Both original calls may independently agree on their input. A
+        // Bool result gets its own exact class, never an I64 result route.
+        if passive_source {
+            let rows: Vec<_> = source.original_static_input_sources_v1()
+                .filter(|row| row.callee_owner() == p.owner())
+                .collect();
+            assert_eq!(rows.len(), 2, "{body}");
+            for row in rows {
+                assert_eq!(
+                    row.qualified_scalar_result_v1(),
+                    (body == "return true").then_some(
+                        crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Bool
+                    ),
+                    "{body}"
+                );
+                assert!(!row.is_zeroarg_i64_v1(), "{body}");
+            }
+        }
+        assert_eq!(source.contains_definition_for_test(p.owner()), body == "return true", "{body}");
     }
     // Nested declaration/Birth callers remain explicit unknowns, with the
     // SAME resolver row and ordered actuals; they cannot enter legacy ABI rows.

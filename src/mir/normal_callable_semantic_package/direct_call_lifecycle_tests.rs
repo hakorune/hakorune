@@ -428,10 +428,6 @@ fn map_target_without_exact_terminal_arguments_or_cleanup_cannot_remain_scalar()
             "return helper(30)",
             "local m = %{\"v\" => value} return value",
         ),
-        (
-            "return helper(30)",
-            "print(value) local m = %{\"v\" => value} return 30",
-        ),
     ] {
         let result = issue(&format!(
             "static box Main {{ main() {{ {main} }} helper(value: i64): i64 {{ {helper} }} }}"
@@ -448,6 +444,28 @@ fn map_target_without_exact_terminal_arguments_or_cleanup_cannot_remain_scalar()
             "{main} / {helper}: {result:?}"
         );
     }
+
+    // Print-before-Map now has an exact lifecycle consumer. Its original
+    // i64 argument must still never enter the unchecked scalar lane.
+    let mut package = issue(
+        r#"static box Main {
+            main() { return helper(30) }
+            helper(value: i64): i64 { print(value) local m = %{"v" => value} return 30 }
+        }"#,
+    ).expect("Print-before-Map has the original terminal lifecycle loan");
+    let (completion, call) = package.ordinary_new_claim_ledger.call_source_completion().unwrap();
+    assert_eq!(completion.owner(), call.owner());
+    assert_eq!(completion.explicit_site(), Some(call.return_site()));
+    assert_eq!(call.arguments(), [
+        crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1::I64(30),
+    ]);
+    let owner = call.owner();
+    let site = call.call_site().clone();
+    let mut loans = package.direct_call_loans.take().unwrap();
+    let loan = loans.get_mut(owner).unwrap().take_once(owner, site).unwrap();
+    assert_eq!(loan.scalar_emission().err(), Some(DirectCallLoanErrorV1::LifecycleConsumerMissing));
+    assert!(loan.lifecycle_emission().is_ok());
+    loans.finish_empty().unwrap();
 }
 
 #[test]

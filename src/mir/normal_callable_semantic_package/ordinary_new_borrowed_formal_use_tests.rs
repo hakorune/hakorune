@@ -21,13 +21,24 @@ pub(super) fn with_source_product<R>(
         Result<BorrowedFormalSourceProductV1, BorrowedFormalUseDraftErrorV1>,
     ) -> R,
 ) -> R {
+    try_with_source_product(body, change, check).expect("source-backed package")
+}
+
+pub(super) fn try_with_source_product<R>(
+    body: &str,
+    change: impl FnOnce(&mut OwnedCallableParameterContractDeclarationV1),
+    check: impl FnOnce(
+        ResolvedFunctionLoweringInputV1<'_>,
+        Result<BorrowedFormalSourceProductV1, BorrowedFormalUseDraftErrorV1>,
+    ) -> R,
+) -> Result<R, crate::mir::normal_callable_semantic_package::NormalCallableSemanticPackageIssueV1> {
     let source = format!(
         "box BorrowUse {{ birth() {{ }} probe(p): i64 {{ {body} }} \
          sink(q): i64 {{ return 0 }} word_size(): i64 {{ return 8 }} }} \
          static box Main {{ main() {{ return 0 }} }}"
     );
     let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::
-        issue_with_brand_catalog(&source).expect("source-backed package");
+        issue_with_brand_catalog(&source)?;
     let contract = package
         .parameter_contracts
         .iter()
@@ -59,7 +70,7 @@ pub(super) fn with_source_product<R>(
         }).collect(),
     };
     change(&mut contract);
-    package
+    Ok(package
         .batch()
         .with_lowering_input(contract.batch_slot, |input| {
             check(
@@ -73,7 +84,7 @@ pub(super) fn with_source_product<R>(
                 ),
             )
         })
-        .expect("exact source loan")
+        .expect("exact source loan"))
 }
 
 #[test]

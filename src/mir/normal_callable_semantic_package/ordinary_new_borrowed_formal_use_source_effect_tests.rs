@@ -5,7 +5,6 @@ use super::*;
 fn opaque_return_receiver_condition_and_store_are_not_transport_uses() {
     for body in [
         "return p",
-        "local value = p.sink(0) return 0",
         "if p { return 1 } return 0",
         "me.value = p return 0",
     ] {
@@ -17,6 +16,17 @@ fn opaque_return_receiver_condition_and_store_are_not_transport_uses() {
             "unsupported use: {body}"
         );
     }
+    with_source_product("local value = p.sink(0) return 0", |_| {}, |input, product| {
+        let draft = product.unwrap().draft.unwrap();
+        let [row] = draft.uses.as_ref() else { panic!("one original receiver use: {:?}", draft.uses) };
+        let BorrowedFormalUseDraftKindV1::InstanceMethodReceiver { call } = &row.kind else {
+            panic!("receiver must not become a transport use: {row:?}");
+        };
+        let original = input.function().method_call(call.site()).expect("same original method");
+        assert_eq!(original.selector(), "sink");
+        assert_eq!(original.receiver_site(), row.site.site());
+        assert_eq!(draft.origins.get(&row.binding), Some(&row.formal));
+    });
     // Qualified nullable-return source stays separate from ordinary transport.
     for field_write in [false, true] {
         let body = if field_write {

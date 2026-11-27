@@ -422,13 +422,14 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
     assert!(ledger
         .validate_after_compiler_finishing(&changed_frame)
         .unwrap_err()
-        .contains("emission-binding-drift"));
+        .contains("[ordinary-new/local-commit/physical-boundary/finished-sequence]"));
     let mut changed_exit = physical.clone();
     changed_exit.blocks.remove(&exit_id);
-    assert!(ledger
-        .validate_after_compiler_finishing(&changed_exit)
-        .unwrap_err()
-        .contains("root-cleanup-graph/residual-node"));
+    let error = ledger.validate_after_compiler_finishing(&changed_exit).unwrap_err();
+    assert!(
+        error.contains("[ordinary-new/local-commit/physical-boundary/unmapped-block]"),
+        "{error}"
+    );
     for (extra_terminal, expected_error) in [
         (
             crate::mir::MirInstruction::ReturnFault {
@@ -441,7 +442,7 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
                 .terminator
                 .clone()
                 .unwrap(),
-            "root-cleanup-graph/internal-incoming",
+            "[ordinary-new/local-commit/physical-boundary/incoming-drift",
         ),
     ] {
         let mut extra_lifecycle = physical.clone();

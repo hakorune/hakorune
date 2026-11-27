@@ -120,7 +120,7 @@ fn declared_instance_package() -> super::VerifiedNormalCallableSemanticPackageV1
     let mut resolver = FunctionSemanticResolverSessionV1::new(952).expect("resolver");
     issue_normal_callable_semantic_package_v1(
         &mut resolver,
-        final_source("box Counter { call() { return me.value() } value() { return 1 } }"),
+        final_source("box Counter { call() { return me.value(1) } value(input: i64): i64 { return input } }"),
     )
     .expect("declared-instance package")
 }
@@ -130,7 +130,8 @@ fn consume_declared_instance_selected_rows(
     call_site: Option<&crate::mir::resolved_semantics::OwnedExprSiteV1>,
 ) {
     for method in ["call", "value"] {
-        let key = CanonicalSameModuleCallableKeyV1::test_instance_box_method("Counter", method, 0);
+        let arity = usize::from(method == "value");
+        let key = CanonicalSameModuleCallableKeyV1::test_instance_box_method("Counter", method, arity);
         port.with_selected_cataloged_lowering_input_signature_and_declared_instance_locator(
             admission(&key),
             |input, signature, mut locator| {
