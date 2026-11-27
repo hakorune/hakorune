@@ -57,8 +57,6 @@ pub(crate) use instance_constructor_semantic::{
 pub(in crate::mir) use instance_entry_home::SourceEntryHomeIssueV1;
 mod app_main_relation;
 mod issuer;
-mod loop_break_source;
-pub(in crate::mir) use loop_break_source::LoopBreakSourcePackageLoanV1;
 mod map_lifecycle_undertaking;
 #[cfg(test)]
 mod map_lifecycle_undertaking_tests;
@@ -113,8 +111,7 @@ mod declared_instance_locator_tests;
 #[cfg(test)]
 mod instance_entry_home_tests;
 #[cfg(test)]
-#[path = "loop_break_source_tests.rs"]
-mod loop_break_source_tests;
+mod dynamic_source_tests;
 #[cfg(test)]
 mod main_static_child_tests;
 #[cfg(test)]
@@ -141,7 +138,6 @@ pub(in crate::mir) use declared_instance_locator::{
     DeclaredInstanceCallLocatorScopeV1, DeclaredInstanceCallLocatorViewV1,
 };
 pub(crate) use direct_call_loan::{DirectCallDispositionLoansV1, DirectCallDispositionRowV1};
-pub(in crate::mir) use install::LoopBreakSourcePackageTakeHandle;
 pub(in crate::mir) use install::SelectedCallableSemanticRefV1;
 pub(crate) use install::{
     InstalledNormalCallableSemanticPackageV1, NormalCallableSemanticPackageInstallIssueV1,

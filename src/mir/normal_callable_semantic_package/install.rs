@@ -1,6 +1,5 @@
 //! Consuming source-backed catalog installation and scoped selected loans.
 
-mod loop_break_source;
 mod lowering_port;
 #[path = "install_map_preflight.rs"]
 mod map_preflight;
@@ -45,7 +44,6 @@ use super::{
     BuilderInstallTokenV1,
 };
 
-pub(in crate::mir) use loop_break_source::LoopBreakSourcePackageTakeHandle;
 pub(crate) use signature_loan::ResolvedCallablePhysicalSignatureLoanV1;
 mod owned_array;
 pub(crate) use owned_array::{
@@ -123,7 +121,6 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
         super::declared_instance_locator::DeclaredInstanceCallPackageLocatorDispositionV1,
     dynamic: NormalCallableDynamicProjectionV1,
     dynamic_physical_header: RefCell<Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>>,
-    loop_break_source: RefCell<super::loop_break_source::VerifiedLoopBreakSourcePackageV1>,
     named_array_emissions: Rc<super::NamedArrayEmissionCollectorV1>,
     source_core_method_calls: RefCell<
         std::collections::BTreeMap<
@@ -334,7 +331,6 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             physical_header: _,
             dynamic,
             dynamic_physical_header,
-            loop_break_source,
             declared_instance_call_locators,
             source_core_method_calls,
             mut named_array_field_providers,
@@ -383,7 +379,6 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             declared_instance_call_locators,
             dynamic,
             dynamic_physical_header: RefCell::new(dynamic_physical_header),
-            loop_break_source: RefCell::new(loop_break_source),
             named_array_emissions,
             source_core_method_calls: RefCell::new(source_core_method_calls),
             named_array_field_providers: RefCell::new(named_array_field_providers),

@@ -6,13 +6,10 @@
 
 #[path = "normal_callable_loop_source_facts/generic.rs"]
 mod generic;
-#[path = "normal_callable_loop_source_facts/loop_break.rs"]
-mod loop_break;
 #[path = "normal_callable_loop_source_facts/loop_cond.rs"]
 mod loop_cond;
 
 pub(in crate::mir::builder) use generic::*;
 pub(in crate::mir) use generic::{issue_preissued_callable_loop_source_plan_v1, PreissuedCallableLoopSourcePlanV1, RetainedCallableLoopSourceV1};
-pub(in crate::mir) use loop_break::*;
 pub(in crate::mir::builder) use loop_cond::*;
 pub(in crate::mir) use loop_cond::{CompletedSourceLoopPhiPointsV2, PreparedSourceLoopPhiCompletionV2};

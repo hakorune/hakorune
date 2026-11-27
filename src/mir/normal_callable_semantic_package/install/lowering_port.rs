@@ -121,16 +121,13 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         Ok(result)
     }
 
-    /// Variant for the source-backed lowering path that also lends the
-    /// package-owned LoopBreak transport handle. Existing callers keep the
-    /// narrower signature above.
-    pub(in crate::mir) fn with_selected_cataloged_lowering_input_signature_and_loop_break<R>(
+    /// Lend the selected cataloged input and its physical signature together.
+    pub(in crate::mir) fn with_selected_cataloged_lowering_input_signature<R>(
         &mut self,
         admission: NormalCatalogedBoxMethodDraftAdmissionV1,
         callback: impl for<'loan> FnOnce(
             SelectedCatalogedCallableLoweringInputV1<'loan>,
             ResolvedCallablePhysicalSignatureLoanV1<'loan>,
-            super::LoopBreakSourcePackageTakeHandle<'loan>,
         ) -> R,
     ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
         let key = SelectedNormalCallableKeyV1::Cataloged(admission.source_key().clone());
@@ -145,13 +142,9 @@ impl NormalCallableSemanticPackagePortV1<'_> {
             .row(batch_slot)
             .ok_or(NormalCallableSemanticPackageInstallIssueV1::PhysicalSignatureUnavailable)?;
         self.with_selected_cataloged_lowering_input(admission, |input| {
-            let loop_break_take = super::LoopBreakSourcePackageTakeHandle {
-                installed: self.installed,
-            };
             callback(
                 input,
                 ResolvedCallablePhysicalSignatureLoanV1::new(signature),
-                loop_break_take,
             )
         })
     }
@@ -216,7 +209,6 @@ impl NormalCallableSemanticPackagePortV1<'_> {
                 crate::mir::resolved_semantics::SourceExprSiteV1,
                 SelectedSourceCoreMethodCallV1,
             >,
-            super::LoopBreakSourcePackageTakeHandle<'loan>,
         ) -> R,
     ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
         let Some((key, identity, role)) = self
@@ -272,9 +264,6 @@ impl NormalCallableSemanticPackagePortV1<'_> {
                     }
                 })
                 .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::MainChildRoleMismatch)?;
-                let loop_break_take = super::LoopBreakSourcePackageTakeHandle {
-                    installed: self.installed,
-                };
                 Ok(callback(
                     MainStaticChildLoweringInputV1 {
                         selected,
@@ -284,7 +273,6 @@ impl NormalCallableSemanticPackagePortV1<'_> {
                         _catalog_brand: self.installed.catalog_brand.clone(),
                     },
                     core_method_calls,
-                    loop_break_take,
                 ))
             })??;
         self.consumed.insert(key);

@@ -1,31 +1,15 @@
-//! Source-aware callable loop Facts/Recipe issuer.
-//!
-//! This module only transports one already-located callable Loop into the
-//! existing planner/Facts authority. It does not lower, consume a ledger,
-//! select a route, or provide a fallback path.  Its only production caller is
-//! the Ready branch in `raw_loop_child_entry`.
-//!
-//! The retained callable plan family is LoopCond. The ordered
-//! registry's GenericLoop arm retired with the route scheduler; unmatched
-//! profiles end at `RouteNotFrontSelected` instead of a second lowering path.
+//! The raw Loop child entry supplies a located Loop and its checked V2
+//! source product. An absent product ends at the shared source-route refusal.
 
-use crate::mir::builder::control_flow::plan::single_planner::{
-    self, CallableLoopFactsPlannerInputV1,
-};
 use crate::mir::builder::normal_callable_loop_handoff::CallableLoopReadyBodyOnlyProductV1;
-use crate::mir::builder::normal_callable_loop_source_route::{
-    CallableLoopRouteMatchV1, CallableLoopSoleFamilyV1,
-};
 use crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceRouteRejectV1;
 use crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use crate::mir::builder::raw_loop_child_entry::PreparedCallableGenericLoopSourceFactsPayloadV1;
-use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceNodeSiteV1, SourcePathSegmentV1};
 
 #[path = "generic/planner.rs"]
 mod planner;
 pub(in crate::mir) use planner::{issue_preissued_callable_loop_source_plan_v1, PreissuedCallableLoopSourcePlanV1, RetainedCallableLoopSourceV1};
-use planner::PlannedSourceLoopV1;
 use super::loop_cond;
 use super::loop_cond::CallableLoopCondSourceFactsV1;
 
@@ -43,16 +27,13 @@ pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsSourceErrorV1 {
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsRouteErrorV1 {
-    NonGenericOrOverlapping {
-        routes: Box<[LoopRouteId]>,
-    },
     LoopCondRouteRejected(CallableLoopSourceRouteRejectV1),
 }
 
 #[derive(Debug)]
 pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsDispositionV1<'source> {
     SourceUnavailable(CallableGenericLoopSourceFactsSourceErrorV1),
-    FactsAbsent,
+    CheckedSourceRouteUnavailable,
     FactsRejected(Box<str>),
     RouteNotFrontSelected(CallableGenericLoopSourceFactsRouteErrorV1),
     LoopCondReady(CallableLoopCondSourceFactsV1<'source>),

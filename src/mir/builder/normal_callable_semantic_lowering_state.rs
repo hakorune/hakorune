@@ -15,7 +15,6 @@ use crate::mir::ValueId;
 use super::normal_callable_binding_materialization_port::PreparedCallableEntryValuesV1;
 use super::normal_callable_dynamic_origin::CallableDynamicOriginLoweringStateV1;
 use super::normal_callable_dynamic_source::SourceBackedDynamicCallableIssuerV1;
-use crate::mir::normal_callable_semantic_package::LoopBreakSourcePackageLoanV1;
 use crate::mir::normal_callable_semantic_package::SelectedSourceCoreMethodCallV1;
 
 #[path = "normal_callable_construction_state.rs"]
@@ -96,7 +95,6 @@ pub(in crate::mir) struct CallableSemanticLoweringState {
     consumed_brand_constructors: BTreeSet<SourceNodeSiteV1>,
     consumed_source_core_method_calls: BTreeSet<crate::mir::resolved_semantics::SourceExprSiteV1>,
     source_loop_bridge: Option<source_loop_bridge::CallableLoopSourceBridgeV1>,
-    loop_break_source: Option<LoopBreakSourcePackageLoanV1>,
     named_array_reads:
         Vec<crate::mir::normal_callable_semantic_package::EmittedNamedArrayRequirementV1>,
     named_array_writes:
@@ -195,24 +193,6 @@ impl CallableSemanticLoweringState {
             .as_ref()
             .and_then(|bridge| bridge.source_items_for(&statement_site))
     }
-
-    /// Consume one package-issued LoopBreak candidate by exact source site.
-    /// Missing candidates are typed absence for this route; they do not
-    /// reclassify an unrelated loop or synthesize a fallback product.
-    pub(super) fn take_loop_break_source_candidate(
-        &mut self,
-        site: &SourceNodeSiteV1,
-    ) -> Result<Option<crate::mir::builder::VerifiedCallableLoopBreakSourceCandidateV1>, String>
-    {
-        let statement_site =
-            crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone());
-        self.loop_break_source
-            .as_mut()
-            .map(|loan| Ok(loan.take_candidate_for_site(&statement_site)))
-            .unwrap_or(Ok(None))
-    }
-
-
 
     /// Return the resolver-issued CoreMethod item rows that cover one exact
     /// loop root. This is an applicability view only; physical consumption

@@ -72,8 +72,6 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
             .as_ref()
             .map(|function| function.signature.name.clone())
             .unwrap_or_else(|| "<unknown>".to_owned());
-        let debug = crate::config::env::joinir_dev::debug_enabled();
-        let in_static_box = builder.comp_ctx.current_static_box.is_some();
         let policy = LoopFactsPolicyFrameV1::from_environment();
         let prepared = PreparedLocatedRawLoopChildEntryV1::prepare_with_method_source_observation(
             &source,
@@ -95,14 +93,13 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
             self.source_input.ok_or("[freeze:contract][raw-loop-child-entry/source-input-missing]")?;
             let declarations = builder.comp_ctx.callable_declaration_catalog().ok();
             let target = source_target_for_loop(self.module_port, declarations, &source, &callable_ledger, consume_publication)?;
-            let value = prepared.lower_with_invocation_port_v2(builder, &function_name, debug,
-                in_static_box, policy, self, target)?;
+            let value = prepared.lower_with_invocation_port_v2(builder, &function_name, policy, self, target)?;
             if callable_ledger.borrow().has_pending_source_static_result_publications() {
                 return Err("[freeze:contract][callable-loop/static-publication/residual-after-lower]".to_owned());
             }
             Ok(value)
         } else {
-            prepared.lower_v1(builder, &function_name, debug, in_static_box, policy)
+            prepared.lower_v1(builder, &function_name, policy)
         }
     }
 }
@@ -359,28 +356,15 @@ mod tests {
         assert_eq!(after, before, "fail-fast must not create partial MIR");
     }
 
-    /// A resolver-cataloged nested loop with no admitted callable Facts stays
-    /// at the source-facts terminal. It must not re-enter the compatibility
-    /// GenericLoop route, regardless of the planner diagnostic mode.
     #[test]
     fn unarmed_nested_loop_stops_at_source_facts_without_compatibility_reentry() {
-        for (mode, expected_terminal) in [
-            (
-                &crate::test_support::JOINIR_DEFAULT_MODE,
-                "[callable-loop/facts-absent]",
-            ),
-            (
-                &crate::test_support::JOINIR_STRICT_PLANNER_MODE,
-                "[callable-loop/facts-rejected]",
-            ),
-        ] {
-            crate::test_support::with_env_vars(mode, || {
-                let error = lower_unarmed_nested_loop()
-                    .expect_err("unarmed nested loop must stop at its source owner");
-                assert!(error.contains(expected_terminal), "{error}");
-                assert!(!error.contains("route_loop"), "{error}");
-            });
-        }
+        let error = lower_unarmed_nested_loop()
+            .expect_err("unarmed nested loop must stop at its source owner");
+        assert!(
+            error.contains("[raw-loop-child-entry/checked-source-route-unavailable]"),
+            "{error}"
+        );
+        assert!(!error.contains("route_loop"), "{error}");
     }
 
     /// Lower the if-nested (resolver-cataloged but unarmed) loop of the mixed

@@ -34,7 +34,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         self.package
             .with_main_static_child_lowering_input(
                 child,
-                |input, core_method_calls, loop_break_take| {
+                |input, core_method_calls| {
                 let (selected, admission, signature) = input.into_lowering_and_admission();
                 if !matches!(
                     selected.semantic(),
@@ -57,7 +57,6 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                         Rc::clone(&named_array_emissions),
                         Rc::clone(&ordinary_new_claim_ledger),
                         Some(owned_array_source),
-                        Some(loop_break_take),
                         |inner, transport| {
                             inner
                                 .lower_normal_cataloged_static_box_method_with_source_v1(
@@ -160,9 +159,9 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                     admission.source_key().clone(),
                 ));
         self.package
-            .with_selected_cataloged_lowering_input_signature_and_loop_break(
+            .with_selected_cataloged_lowering_input_signature(
                 admission,
-                |input, signature, loop_break_take| {
+                |input, signature| {
                 validate_selected_cataloged_input(&input)?;
                 validate_selected_signature_loan(&input, &signature)?;
                 let (selected, admission, _physical_header) = input.into_lowering_and_admission();
@@ -178,7 +177,6 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                         Rc::clone(&named_array_emissions),
                         Rc::clone(&ordinary_new_claim_ledger),
                         Some(owned_array_source),
-                        Some(loop_break_take),
                         |inner, transport| {
                         inner
                             .lower_normal_cataloged_static_box_method_with_source_v1(

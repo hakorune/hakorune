@@ -1,82 +1,14 @@
-//! Control-flow entrypoints for MIR builder.
-//!
-//! This module provides the main entry points for control flow constructs:
-//! - Block expressions
-//! - If/else conditionals
-//! - Loops
-//! - Try/catch/finally exception handling
-//! - Throw statements
-//!
-//! # Architecture
-//!
-//! Originally a monolithic 1,632-line file, this module has been modularized
-//! into focused submodules for better maintainability and clarity:
-//!
-//! ## Submodules
-//!
-//! - `debug` - Debug utilities and tracing
-//! - `joinir` - JoinIR integration (route entry, routing, merge)
-//!   - `route_entry` - Active module surface for route entry / registry
-//!   - `routing` - Route routing and dispatch
-//!   - `merge` - MIR block merging (5 phases)
-//! - `exception` - Exception handling (try/catch/throw)
-//!
-//! ## Modularization History
-//!
-//! - Phase 1: Debug utilities (debug.rs) ✅
-//! - Phase 2: Route entry layer (`joinir::route_entry`) ✅
-//! - Phase 3: JoinIR routing (joinir/routing.rs) ✅
-//! - Phase 5: Exception handling (exception/) ✅
-//! - Phase 6: Documentation and cleanup ✅
-//!
-//! # Design Philosophy
-//!
-//! All control flow implementations follow a delegation pattern:
-//! - Entry points in this file validate and route to submodules
-//! - Submodules implement the actual logic
-//! - Clear separation of concerns enables easier testing and modification
+//! Control-flow entrypoints and shared MIR CFG, exit, and V2 loop support.
 
 use super::ValueId;
 use crate::ast::ASTNode;
 
-// Phase 1: Debug utilities
-pub(in crate::mir::builder) mod debug;
-
-// Phase 2-4: JoinIR integration (route entry, routing, merge)
-pub(in crate::mir::builder) mod joinir;
-
-// Phase 5: Exception handling
-
-// Phase 264: EdgeCFG Fragment API (入口SSOT)
-pub(in crate::mir::builder) mod edgecfg;
-
-// Phase 29ca P1: top-level descriptive owner surface (folderization first cut)
-pub(in crate::mir::builder) mod facts;
-
-// Loop facts, recipe matching, and checked source lowering.
-pub(in crate::mir::builder) mod recipes;
-
-// Phase 29ca P1: top-level verifier/observability owner surface (folderization first cut)
-pub(in crate::mir::builder) mod verify;
-
-// Phase 29ca P1: top-level lowering/orchestration owner surface (folderization first cut)
-pub(in crate::mir::builder) mod lower;
-
-// Phase 29ca P1: top-level cleanup/policy owner surface (folderization first cut)
 pub(in crate::mir::builder) mod cleanup;
-
-// MIR-CLEAN-007: grouped generic-loop canon owner surface.
-pub(in crate::mir::builder) mod generic_loop_canon;
-
-// Phase 273 P0: Plan Extractor (Pure) + PlanLowerer SSOT
+pub(in crate::mir::builder) mod debug;
+pub(in crate::mir::builder) mod edgecfg;
+pub(in crate::mir::builder) mod joinir;
+pub(in crate::mir::builder) mod lower;
 pub(in crate::mir::builder) mod plan;
-
-
-
-
-
-
-
 
 impl super::MirBuilder {
 
