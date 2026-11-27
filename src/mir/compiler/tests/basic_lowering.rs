@@ -151,24 +151,10 @@ fn compile_static_call_cohort_with_literal_and_computed_arguments() {
 #[test]
 #[ignore = "requires C FFI, LLVM and NYASH_EMIT_EXE_NYRT"]
 fn mixed_static_call_arguments_exe_exit_zero() {
-    let runtime = std::env::var("NYASH_EMIT_EXE_NYRT").expect("native runtime archive");
     let directory = tempfile::tempdir().expect("EXE test directory");
     for (index, source) in mixed_static_call_arguments().enumerate() {
         let path = directory.path().join(format!("mixed-static-input-{index}"));
-        let executable = path.to_str().expect("UTF-8 executable path");
-        let request = callable_source_request(&source, "mixed-static-input-cohort.hako")
-            .for_closed_app_executable();
-        let result = MirCompiler::with_options(true)
-            .compile_normal_with_published(request, |view, verification| {
-                verification.as_ref().expect("verified MIR");
-                assert!(crate::host_providers::llvm_codegen::emit_published_view_exe(
-                    view, executable, Some(&runtime), None,
-                )?);
-                Ok(())
-            })
-            .expect("emit mixed static call executable");
-        assert!(matches!(result, crate::mir::NormalPublishedCompileOutcome::Consumed(())));
-        let output = std::process::Command::new(&path).output().expect("run executable");
+        let output = run_callable_source_exe(&source, "mixed-static-input-cohort.hako", &path);
         assert_eq!(output.status.code(), Some(0), "{source}: {output:?}");
     }
 }
