@@ -182,51 +182,47 @@ mod tests {
         )
     }
 
-    #[test]
-    fn closure_orders_dependencies_before_dependents() {
-        let mut immediate = BTreeMap::<String, Vec<SameModuleDefinitionPlan>>::new();
-        immediate.insert(
-            "main".to_string(),
-            vec![row("Summary.build/1", "module_generic")],
-        );
-        immediate.insert(
-            "Summary.build/1".to_string(),
-            vec![row("PhaseState.parse/2", "uniform_mir")],
-        );
-        immediate.insert(
-            "PhaseState.parse/2".to_string(),
-            vec![row("Consumer.consume/4", "uniform_mir")],
-        );
-
-        let plans = definition_closure("main", &immediate);
-        let symbols = plans
-            .iter()
-            .map(|plan| plan.target_symbol.as_str())
-            .collect::<Vec<_>>();
-
-        assert_eq!(
-            symbols,
-            vec![
-                "Consumer.consume/4",
-                "PhaseState.parse/2",
-                "Summary.build/1"
-            ]
-        );
-    }
 
     #[test]
-    fn closure_keeps_cycles_finite() {
-        let mut immediate = BTreeMap::<String, Vec<SameModuleDefinitionPlan>>::new();
-        immediate.insert("main".to_string(), vec![row("A/0", "uniform_mir")]);
-        immediate.insert("A/0".to_string(), vec![row("B/0", "uniform_mir")]);
-        immediate.insert("B/0".to_string(), vec![row("A/0", "uniform_mir")]);
+    fn definition_closure_orders_dependencies_and_closes_cycles() {
+        for (case_name, edges, expected_symbols) in [
+            (
+                "closure_orders_dependencies_before_dependents",
+                [
+                    ("main", "Summary.build/1", "module_generic"),
+                    ("Summary.build/1", "PhaseState.parse/2", "uniform_mir"),
+                    ("PhaseState.parse/2", "Consumer.consume/4", "uniform_mir"),
+                ],
+                &[
+                    "Consumer.consume/4",
+                    "PhaseState.parse/2",
+                    "Summary.build/1",
+                ][..],
+            ),
+            (
+                "closure_keeps_cycles_finite",
+                [
+                    ("main", "A/0", "uniform_mir"),
+                    ("A/0", "B/0", "uniform_mir"),
+                    ("B/0", "A/0", "uniform_mir"),
+                ],
+                &["B/0", "A/0"],
+            ),
+        ] {
+            println!("case: {case_name}");
 
-        let plans = definition_closure("main", &immediate);
-        let symbols = plans
-            .iter()
-            .map(|plan| plan.target_symbol.as_str())
-            .collect::<Vec<_>>();
+            let immediate = edges
+                .into_iter()
+                .map(|(source, target, owner)| (source.to_string(), vec![row(target, owner)]))
+                .collect::<BTreeMap<_, _>>();
+            let plans = definition_closure("main", &immediate);
+            let symbols = plans
+                .iter()
+                .map(|plan| plan.target_symbol.as_str())
+                .collect::<Vec<_>>();
 
-        assert_eq!(symbols, vec!["B/0", "A/0"]);
+            assert_eq!(symbols, expected_symbols);
+        }
     }
+
 }

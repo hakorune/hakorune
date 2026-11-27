@@ -367,9 +367,11 @@ mod tests {
     }
 
     #[test]
-    fn selected_script_box_methods_match_legacy_without_duplicate_functions() {
-        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
-        let source = r#"
+    fn script_box_shapes_reject_at_the_same_legacy_and_normal_boundary() {
+        for (case_name, source, path, diagnostic) in [
+            (
+                "selected_script_box_methods_match_legacy_without_duplicate_functions",
+                r#"
 box Page {
   capacity: usize = 0
   birth() { return 6 }
@@ -377,93 +379,40 @@ box Page {
 }
 static box Helpers { value() { return 8 } }
 print(1)
-"#;
-        let legacy_ast = NyashParser::parse_from_string(source).expect("legacy Script source");
-        let normal_ast = NyashParser::parse_from_string(source).expect("normal Script source");
-        let mut legacy_compiler = MirCompiler::with_options(false);
-        let legacy_error = legacy_compiler
-            .compile_with_source(legacy_ast, Some("script-box-parity.hako"))
-            .expect_err("legacy Script box stays on the retired compat boundary");
-        assert!(
-            legacy_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/instance]"),
-            "{legacy_error}"
-        );
-        let mut normal_compiler = MirCompiler::with_options(false);
-        let request = NormalCompileRequestV1::for_mir_mode(
-            normal_ast,
-            Some("script-box-parity.hako"),
-            HashMap::new(),
-        )
-        .expect("normal Script request");
-        let normal_error = normal_compiler
-            .compile_normal(request)
-            .expect_err("normal Script box stays on the retired compat boundary");
-        assert!(
-            normal_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/instance]"),
-            "{normal_error}"
-        );
-    }
-
-    #[test]
-    fn selected_generic_script_box_keeps_full_legacy_callable_parity() {
-        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
-        let source = "box Page<T> { birth() { return 6 } answer() { return 7 } } print(1)";
-        let legacy_ast = NyashParser::parse_from_string(source).expect("legacy Script source");
-        let normal_ast = NyashParser::parse_from_string(source).expect("normal Script source");
-        let mut legacy_compiler = MirCompiler::with_options(false);
-        let legacy_error = legacy_compiler
-            .compile_with_source(legacy_ast, Some("nonplain-script-box-parity.hako"))
-            .expect_err("legacy nonplain Script box stays on the retired compat boundary");
-        assert!(
-            legacy_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/instance]"),
-            "{legacy_error}"
-        );
-        let mut normal_compiler = MirCompiler::with_options(false);
-        let normal_error = normal_compiler
-            .compile_normal(
-                NormalCompileRequestV1::for_mir_mode(
-                    normal_ast,
-                    Some("nonplain-script-box-parity.hako"),
-                    HashMap::new(),
-                )
-                .expect("normal Script request"),
-            )
-            .expect_err("normal nonplain Script box stays on the retired compat boundary");
-        assert!(
-            normal_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/instance]"),
-            "{normal_error}"
-        );
-    }
-
-    #[test]
-    fn selected_generic_static_script_box_keeps_legacy_callable_parity() {
-        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
-        let source = "static box Helpers<T> { value() { return 8 } } print(1)";
-        let legacy_ast = NyashParser::parse_from_string(source).expect("legacy Script source");
-        let normal_ast = NyashParser::parse_from_string(source).expect("normal Script source");
-        let mut legacy_compiler = MirCompiler::with_options(false);
-        let legacy_error = legacy_compiler
-            .compile_with_source(legacy_ast, Some("generic-static-script-box.hako"))
-            .expect_err("legacy generic static Script box stays on the retired compat boundary");
-        assert!(
-            legacy_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/static]"),
-            "{legacy_error}"
-        );
-        let mut normal_compiler = MirCompiler::with_options(false);
-        let normal_error = normal_compiler
-            .compile_normal(
-                NormalCompileRequestV1::for_mir_mode(
-                    normal_ast,
-                    Some("generic-static-script-box.hako"),
-                    HashMap::new(),
-                )
-                .expect("normal Script request"),
-            )
-            .expect_err("normal generic static Script box stays on the retired compat boundary");
-        assert!(
-            normal_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/static]"),
-            "{normal_error}"
-        );
+"#,
+                "script-box-parity.hako",
+                "[freeze:contract][raw-compat/runtime-box-fate-retired/instance]",
+            ),
+            (
+                "selected_generic_script_box_keeps_full_legacy_callable_parity",
+                "box Page<T> { birth() { return 6 } answer() { return 7 } } print(1)",
+                "nonplain-script-box-parity.hako",
+                "[freeze:contract][raw-compat/runtime-box-fate-retired/instance]",
+            ),
+            (
+                "selected_generic_static_script_box_keeps_legacy_callable_parity",
+                "static box Helpers<T> { value() { return 8 } } print(1)",
+                "generic-static-script-box.hako",
+                "[freeze:contract][raw-compat/runtime-box-fate-retired/static]",
+            ),
+        ] {
+            println!("case: {case_name}");
+            let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+            let legacy_ast = NyashParser::parse_from_string(source).expect("legacy Script source");
+            let normal_ast = NyashParser::parse_from_string(source).expect("normal Script source");
+            let mut legacy_compiler = MirCompiler::with_options(false);
+            let legacy_error = legacy_compiler
+                .compile_with_source(legacy_ast, Some(path))
+                .expect_err("legacy Script box stays on the retired compat boundary");
+            assert!(legacy_error.contains(diagnostic), "{legacy_error}");
+            let mut normal_compiler = MirCompiler::with_options(false);
+            let request = NormalCompileRequestV1::for_mir_mode(normal_ast, Some(path), HashMap::new())
+                .expect("normal Script request");
+            let normal_error = normal_compiler
+                .compile_normal(request)
+                .expect_err("normal Script box stays on the retired compat boundary");
+            assert!(normal_error.contains(diagnostic), "{normal_error}");
+        }
     }
 
     #[test]

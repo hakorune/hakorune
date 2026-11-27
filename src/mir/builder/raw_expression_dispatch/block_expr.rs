@@ -180,22 +180,43 @@ mod tests {
     }
 
     #[test]
-    fn lower_stops_after_first_failed_prelude_statement() {
-        let prepared =
-            PreparedRawBlockExprV1::prepare(vec![integer(1), integer(2)], integer(3)).unwrap();
-        let mut builder = MirBuilder::new();
-        builder.enter_function_for_test("prepared_block_expr_failure/0".to_owned());
-        let mut port = RecordingBlockExprPortV1 {
-            fail_statement: Some(2),
-            ..Default::default()
-        };
+    fn block_expression_stops_at_the_failing_demand() {
+        for (case_name, symbol, fail_statement, fail_tail, error, demands) in [
+            (
+                "lower_stops_after_first_failed_prelude_statement",
+                "prepared_block_expr_failure/0",
+                Some(2),
+                false,
+                "statement 2 failed",
+                &["stmt:1", "stmt:2"][..],
+            ),
+            (
+                "tail_failure_occurs_after_the_complete_prelude_once",
+                "prepared_block_expr_tail_failure/0",
+                None,
+                true,
+                "tail failed",
+                &["stmt:1", "stmt:2", "tail:3"][..],
+            ),
+        ] {
+            println!("case: {case_name}");
+            let prepared =
+                PreparedRawBlockExprV1::prepare(vec![integer(1), integer(2)], integer(3)).unwrap();
+            let mut builder = MirBuilder::new();
+            builder.enter_function_for_test(symbol.to_owned());
+            let mut port = RecordingBlockExprPortV1 {
+                fail_statement,
+                fail_tail,
+                ..Default::default()
+            };
 
-        assert_eq!(
-            lower_prepared_raw_block_expr_with_port_v1(&mut builder, &mut port, prepared)
-                .unwrap_err(),
-            "statement 2 failed"
-        );
-        assert_eq!(port.demands, ["stmt:1", "stmt:2"]);
+            assert_eq!(
+                lower_prepared_raw_block_expr_with_port_v1(&mut builder, &mut port, prepared)
+                    .unwrap_err(),
+                error
+            );
+            assert_eq!(port.demands, demands);
+        }
     }
 
     #[test]
@@ -210,22 +231,5 @@ mod tests {
         assert_eq!(port.demands, ["tail:3"]);
     }
 
-    #[test]
-    fn tail_failure_occurs_after_the_complete_prelude_once() {
-        let prepared =
-            PreparedRawBlockExprV1::prepare(vec![integer(1), integer(2)], integer(3)).unwrap();
-        let mut builder = MirBuilder::new();
-        builder.enter_function_for_test("prepared_block_expr_tail_failure/0".to_owned());
-        let mut port = RecordingBlockExprPortV1 {
-            fail_tail: true,
-            ..Default::default()
-        };
 
-        assert_eq!(
-            lower_prepared_raw_block_expr_with_port_v1(&mut builder, &mut port, prepared)
-                .unwrap_err(),
-            "tail failed"
-        );
-        assert_eq!(port.demands, ["stmt:1", "stmt:2", "tail:3"]);
-    }
 }

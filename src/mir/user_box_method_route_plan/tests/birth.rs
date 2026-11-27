@@ -1,15 +1,21 @@
 use super::*;
 
-#[test]
-fn refresh_module_user_box_method_routes_accepts_birth_same_module_target() {
-    let mut module = MirModule::new("user_box_birth_route_test".to_string());
+fn birth_route_module(
+    module_name: &str,
+    box_name: &str,
+    field: &str,
+    type_id: u32,
+    body: Vec<MirInstruction>,
+    returned: ValueId,
+) -> MirModule {
+    let mut module = MirModule::new(module_name.to_string());
     module
         .metadata
         .user_box_decls
-        .insert("Pair".to_string(), vec!["left".to_string()]);
+        .insert(box_name.to_string(), vec![field.to_string()]);
     module.metadata.typed_object_plans.push(TypedObjectPlan {
-        box_name: "Pair".to_string(),
-        type_id: 7,
+        box_name: box_name.to_string(),
+        type_id,
         layout_kind: "runtime_slot_object_v0".to_string(),
         field_count: 0,
         fields: Vec::new(),
@@ -17,8 +23,8 @@ fn refresh_module_user_box_method_routes_accepts_birth_same_module_target() {
 
     let mut birth = MirFunction::new(
         FunctionSignature {
-            name: "Pair.birth/0".to_string(),
-            params: vec![MirType::Box("Pair".to_string())],
+            name: format!("{box_name}.birth/0"),
+            params: vec![MirType::Box(box_name.to_string())],
             return_type: MirType::Void,
             effects: EffectMask::PURE,
         },
@@ -26,12 +32,15 @@ fn refresh_module_user_box_method_routes_accepts_birth_same_module_target() {
     );
     birth.params = vec![ValueId::new(0)];
     let mut birth_block = BasicBlock::new(BasicBlockId::new(0));
+    for instruction in body {
+        birth_block.add_instruction(instruction);
+    }
     birth_block.add_instruction(MirInstruction::Const {
-        dst: ValueId::new(1),
+        dst: returned,
         value: ConstValue::Void,
     });
     birth_block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(1)),
+        value: Some(returned),
     });
     birth.add_block(birth_block);
 
@@ -49,7 +58,7 @@ fn refresh_module_user_box_method_routes_accepts_birth_same_module_target() {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
-            box_name: "Pair".to_string(),
+            box_name: box_name.to_string(),
             method: "birth".to_string(),
             receiver: Some(ValueId::new(1)),
             certainty: TypeCertainty::Known,
@@ -65,6 +74,19 @@ fn refresh_module_user_box_method_routes_accepts_birth_same_module_target() {
 
     refresh_module_user_box_method_routes(&mut module);
 
+    module
+}
+
+#[test]
+fn refresh_module_user_box_method_routes_accepts_birth_same_module_target() {
+    let module = birth_route_module(
+        "user_box_birth_route_test",
+        "Pair",
+        "left",
+        7,
+        vec![],
+        ValueId::new(1),
+    );
     let main = module.get_function("main").expect("main function");
     let route = &main.metadata.user_box_method_routes[0];
     assert_eq!(route.route_id(), "user_box.method_call");
@@ -79,78 +101,22 @@ fn refresh_module_user_box_method_routes_accepts_birth_same_module_target() {
 
 #[test]
 fn refresh_module_user_box_method_routes_rejects_unsupported_birth_body() {
-    let mut module = MirModule::new("user_box_birth_route_reject_test".to_string());
-    module
-        .metadata
-        .user_box_decls
-        .insert("Pair".to_string(), vec!["left".to_string()]);
-    module.metadata.typed_object_plans.push(TypedObjectPlan {
-        box_name: "Pair".to_string(),
-        type_id: 7,
-        layout_kind: "runtime_slot_object_v0".to_string(),
-        field_count: 0,
-        fields: Vec::new(),
-    });
-
-    let mut birth = MirFunction::new(
-        FunctionSignature {
-            name: "Pair.birth/0".to_string(),
-            params: vec![MirType::Box("Pair".to_string())],
-            return_type: MirType::Void,
+    let module = birth_route_module(
+        "user_box_birth_route_reject_test",
+        "Pair",
+        "left",
+        7,
+        vec![MirInstruction::LegacyCallV0 {
+            dst: Some(ValueId::new(1)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "helper".to_string(),
+            ))),
+            args: vec![],
             effects: EffectMask::PURE,
-        },
-        BasicBlockId::new(0),
+        }],
+        ValueId::new(2),
     );
-    birth.params = vec![ValueId::new(0)];
-    let mut birth_block = BasicBlock::new(BasicBlockId::new(0));
-    birth_block.add_instruction(MirInstruction::LegacyCallV0 {
-        dst: Some(ValueId::new(1)),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Global(crate::mir::test_global_target(
-            "helper".to_string(),
-        ))),
-        args: vec![],
-        effects: EffectMask::PURE,
-    });
-    birth_block.add_instruction(MirInstruction::Const {
-        dst: ValueId::new(2),
-        value: ConstValue::Void,
-    });
-    birth_block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(2)),
-    });
-    birth.add_block(birth_block);
-
-    let mut main = MirFunction::new(
-        FunctionSignature {
-            name: "main".to_string(),
-            params: vec![],
-            return_type: MirType::Integer,
-            effects: EffectMask::PURE,
-        },
-        BasicBlockId::new(0),
-    );
-    let mut block = BasicBlock::new(BasicBlockId::new(0));
-    block.add_instruction(MirInstruction::LegacyCallV0 {
-        dst: Some(ValueId::new(2)),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Method {
-            box_name: "Pair".to_string(),
-            method: "birth".to_string(),
-            receiver: Some(ValueId::new(1)),
-            certainty: TypeCertainty::Known,
-            box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::UserDefined,
-        }),
-        args: vec![],
-        effects: EffectMask::PURE,
-    });
-    main.add_block(block);
-
-    module.add_function(birth);
-    module.add_function(main);
-
-    refresh_module_user_box_method_routes(&mut module);
-
     let main = module.get_function("main").expect("main function");
     let route = &main.metadata.user_box_method_routes[0];
     assert_eq!(route.proof(), "typed_user_box_method_contract_missing");
@@ -161,79 +127,25 @@ fn refresh_module_user_box_method_routes_rejects_unsupported_birth_body() {
 
 #[test]
 fn refresh_module_user_box_method_routes_accepts_birth_with_string_handle_const() {
-    let mut module = MirModule::new("user_box_birth_string_const_route_test".to_string());
-    module
-        .metadata
-        .user_box_decls
-        .insert("Manifest".to_string(), vec!["root".to_string()]);
-    module.metadata.typed_object_plans.push(TypedObjectPlan {
-        box_name: "Manifest".to_string(),
-        type_id: 9,
-        layout_kind: "runtime_slot_object_v0".to_string(),
-        field_count: 0,
-        fields: Vec::new(),
-    });
-
-    let mut birth = MirFunction::new(
-        FunctionSignature {
-            name: "Manifest.birth/0".to_string(),
-            params: vec![MirType::Box("Manifest".to_string())],
-            return_type: MirType::Void,
-            effects: EffectMask::PURE,
-        },
-        BasicBlockId::new(0),
+    let module = birth_route_module(
+        "user_box_birth_string_const_route_test",
+        "Manifest",
+        "root",
+        9,
+        vec![
+            MirInstruction::Const {
+                dst: ValueId::new(1),
+                value: ConstValue::String("".to_string()),
+            },
+            MirInstruction::FieldSet {
+                base: ValueId::new(0),
+                field: "root".to_string(),
+                value: ValueId::new(1),
+                declared_type: Some(MirType::String),
+            },
+        ],
+        ValueId::new(2),
     );
-    birth.params = vec![ValueId::new(0)];
-    let mut birth_block = BasicBlock::new(BasicBlockId::new(0));
-    birth_block.add_instruction(MirInstruction::Const {
-        dst: ValueId::new(1),
-        value: ConstValue::String("".to_string()),
-    });
-    birth_block.add_instruction(MirInstruction::FieldSet {
-        base: ValueId::new(0),
-        field: "root".to_string(),
-        value: ValueId::new(1),
-        declared_type: Some(MirType::String),
-    });
-    birth_block.add_instruction(MirInstruction::Const {
-        dst: ValueId::new(2),
-        value: ConstValue::Void,
-    });
-    birth_block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(2)),
-    });
-    birth.add_block(birth_block);
-
-    let mut main = MirFunction::new(
-        FunctionSignature {
-            name: "main".to_string(),
-            params: vec![],
-            return_type: MirType::Integer,
-            effects: EffectMask::PURE,
-        },
-        BasicBlockId::new(0),
-    );
-    let mut block = BasicBlock::new(BasicBlockId::new(0));
-    block.add_instruction(MirInstruction::LegacyCallV0 {
-        dst: Some(ValueId::new(2)),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Method {
-            box_name: "Manifest".to_string(),
-            method: "birth".to_string(),
-            receiver: Some(ValueId::new(1)),
-            certainty: TypeCertainty::Known,
-            box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::UserDefined,
-        }),
-        args: vec![],
-        effects: EffectMask::PURE,
-    });
-    main.add_block(block);
-
-    module.add_function(birth);
-    module.add_function(main);
-
-    refresh_module_user_box_method_routes(&mut module);
-
     let main = module.get_function("main").expect("main function");
     let route = &main.metadata.user_box_method_routes[0];
     assert_eq!(route.proof(), "typed_user_box_birth_same_module");

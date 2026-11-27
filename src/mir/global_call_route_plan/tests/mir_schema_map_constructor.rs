@@ -423,91 +423,78 @@ fn refresh_module_global_call_routes_marks_mir_schema_map_constructor_contract()
     );
 }
 
-#[test]
-fn refresh_module_global_call_routes_accepts_mir_schema_map_wrapper_unknown_return() {
-    let mut module = MirModule::new("global_call_mir_schema_map_wrapper_test".to_string());
-    let caller = make_function_with_global_call_args(
-        "IfMirEmitBox._ret_block/3",
-        Some(ValueId::new(30)),
-        vec![ValueId::new(20), ValueId::new(21), ValueId::new(22)],
-    );
-    module.functions.insert("main".to_string(), caller);
-    module.functions.insert(
-        "MirSchemaBox.i/1".to_string(),
-        mir_schema_i_function("MirSchemaBox.i/1"),
-    );
-    module.functions.insert(
-        "MirSchemaBox.inst_const/2".to_string(),
-        mir_schema_inst_const_function("MirSchemaBox.inst_const/2", "MirSchemaBox.i/1"),
-    );
-    module.functions.insert(
-        "MirSchemaBox.inst_ret/1".to_string(),
-        mir_schema_inst_ret_function("MirSchemaBox.inst_ret/1", "MirSchemaBox.i/1"),
-    );
-    module.functions.insert(
-        "MirSchemaBox.block/2".to_string(),
-        mir_schema_block_function("MirSchemaBox.block/2"),
-    );
-    module.functions.insert(
-        "IfMirEmitBox._ret_block/3".to_string(),
-        mir_schema_ret_block_wrapper_function("IfMirEmitBox._ret_block/3"),
-    );
-
-    refresh_module_global_call_routes(&mut module);
-
-    let route = &module.functions["main"].metadata.global_call_routes[0];
-    assert_eq!(
-        route.target_shape(),
-        None,
-        "reason={:?} blocker={:?}/{:?}",
-        route.target_shape_reason(),
-        route.target_shape_blocker_symbol(),
-        route.target_shape_blocker_reason()
-    );
-    assert_eq!(
-        route.proof(),
-        "typed_global_call_mir_schema_map_constructor"
-    );
-    assert_eq!(route.return_shape(), Some("map_handle"));
-    assert_eq!(route.target_return_type(), Some("?".to_string()));
-}
 
 #[test]
-fn refresh_module_global_call_routes_accepts_mir_schema_module_root_unknown_return() {
-    let mut module = MirModule::new("global_call_mir_schema_module_root_test".to_string());
-    let caller = make_function_with_global_call_args(
-        "MirSchemaBox.module/1",
-        Some(ValueId::new(30)),
-        vec![ValueId::new(20)],
-    );
-    module.functions.insert("main".to_string(), caller);
-    module.functions.insert(
-        "MirSchemaBox.i/1".to_string(),
-        mir_schema_i_function("MirSchemaBox.i/1"),
-    );
-    module.functions.insert(
-        "MirSchemaBox.module/1".to_string(),
-        mir_schema_module_root_function("MirSchemaBox.module/1", "MirSchemaBox.i/1"),
-    );
+fn mir_schema_map_routes_accept_unknown_declared_return() {
+    for (case_name, module_name, symbol, arguments, schema_functions, demand) in [
+        (
+            "refresh_module_global_call_routes_accepts_mir_schema_map_wrapper_unknown_return",
+            "global_call_mir_schema_map_wrapper_test",
+            "IfMirEmitBox._ret_block/3",
+            vec![ValueId::new(20), ValueId::new(21), ValueId::new(22)],
+            vec![
+                (
+                    "MirSchemaBox.inst_const/2".to_string(),
+                    mir_schema_inst_const_function("MirSchemaBox.inst_const/2", "MirSchemaBox.i/1"),
+                ),
+                (
+                    "MirSchemaBox.inst_ret/1".to_string(),
+                    mir_schema_inst_ret_function("MirSchemaBox.inst_ret/1", "MirSchemaBox.i/1"),
+                ),
+                (
+                    "MirSchemaBox.block/2".to_string(),
+                    mir_schema_block_function("MirSchemaBox.block/2"),
+                ),
+                (
+                    "IfMirEmitBox._ret_block/3".to_string(),
+                    mir_schema_ret_block_wrapper_function("IfMirEmitBox._ret_block/3"),
+                ),
+            ],
+            None,
+        ),
+        (
+            "refresh_module_global_call_routes_accepts_mir_schema_module_root_unknown_return",
+            "global_call_mir_schema_module_root_test",
+            "MirSchemaBox.module/1",
+            vec![ValueId::new(20)],
+            vec![(
+                "MirSchemaBox.module/1".to_string(),
+                mir_schema_module_root_function("MirSchemaBox.module/1", "MirSchemaBox.i/1"),
+            )],
+            Some("runtime_i64_or_handle"),
+        ),
+    ] {
+        println!("case: {case_name}");
+        let mut module = MirModule::new(module_name.to_string());
+        let caller = make_function_with_global_call_args(symbol, Some(ValueId::new(30)), arguments);
+        module.functions.insert("main".to_string(), caller);
+        module.functions.insert(
+            "MirSchemaBox.i/1".to_string(),
+            mir_schema_i_function("MirSchemaBox.i/1"),
+        );
+        module.functions.extend(schema_functions);
 
-    refresh_module_global_call_routes(&mut module);
+        refresh_module_global_call_routes(&mut module);
 
-    let route = &module.functions["main"].metadata.global_call_routes[0];
-    assert_eq!(
-        route.target_shape(),
-        None,
-        "reason={:?} blocker={:?}/{:?}",
-        route.target_shape_reason(),
-        route.target_shape_blocker_symbol(),
-        route.target_shape_blocker_reason()
-    );
-    assert_eq!(
-        route.proof(),
-        "typed_global_call_mir_schema_map_constructor"
-    );
-    assert_eq!(route.return_shape(), Some("map_handle"));
-    assert_eq!(route.value_demand(), "runtime_i64_or_handle");
-    assert_eq!(route.target_return_type(), Some("?".to_string()));
+        let route = &module.functions["main"].metadata.global_call_routes[0];
+        assert_eq!(
+            route.target_shape(),
+            None,
+            "reason={:?} blocker={:?}/{:?}",
+            route.target_shape_reason(),
+            route.target_shape_blocker_symbol(),
+            route.target_shape_blocker_reason()
+        );
+        assert_eq!(
+            route.proof(),
+            "typed_global_call_mir_schema_map_constructor"
+        );
+        assert_eq!(route.return_shape(), Some("map_handle"));
+        if let Some(demand) = demand {
+            assert_eq!(route.value_demand(), demand);
+        }
+        assert_eq!(route.target_return_type(), Some("?".to_string()));
+    }
 }
 
 #[test]

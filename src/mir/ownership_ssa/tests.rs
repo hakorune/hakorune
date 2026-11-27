@@ -256,16 +256,38 @@ fn branch_without_a_disposition_is_rejected() {
 }
 
 #[test]
-fn same_source_forwarded_twice_on_one_edge_is_rejected() {
-    let (mut function, abi) = function(&[MirOwnershipKindV1::Owned], 2);
-    jump(&mut function, 0, 1);
-    phi(&mut function, 1, 10, &[(0, 0)]);
-    phi(&mut function, 1, 11, &[(0, 0)]);
-    ret(&mut function, 1, 10);
-    assert!(matches!(
-        verify_ownership_ssa_v1(&function, &abi),
-        Err(OwnershipSsaErrorV1::DuplicateConsumeOnEdge { .. })
-    ));
+fn ownership_ssa_rejects_invalid_phi_edge_inputs() {
+    for (case_name, phi_rows, rejects) in [
+        (
+            "same_source_forwarded_twice_on_one_edge_is_rejected",
+            &[(10, 0), (11, 0)][..],
+            (|result| {
+                matches!(
+                    result,
+                    Err(OwnershipSsaErrorV1::DuplicateConsumeOnEdge { .. })
+                )
+            }) as fn(_) -> bool,
+        ),
+        (
+            "phi_input_from_non_predecessor_is_rejected",
+            &[(10, 99)][..],
+            |result| {
+                matches!(
+                    result,
+                    Err(OwnershipSsaErrorV1::PhiPredecessorMismatch { .. })
+                )
+            },
+        ),
+    ] {
+        println!("case: {case_name}");
+        let (mut function, abi) = function(&[MirOwnershipKindV1::Owned], 2);
+        jump(&mut function, 0, 1);
+        for &(destination, predecessor) in phi_rows {
+            phi(&mut function, 1, destination, &[(predecessor, 0)]);
+        }
+        ret(&mut function, 1, 10);
+        assert!(rejects(verify_ownership_ssa_v1(&function, &abi)));
+    }
 }
 
 #[test]
@@ -357,18 +379,6 @@ fn unreachable_block_is_rejected() {
         assert!(matches!(verify_ownership_ssa_v1(&function, &abi),
             Err(OwnershipSsaErrorV1::UnreachableBlock { block }) if block == bb(1)));
     }
-}
-
-#[test]
-fn phi_input_from_non_predecessor_is_rejected() {
-    let (mut function, abi) = function(&[MirOwnershipKindV1::Owned], 2);
-    jump(&mut function, 0, 1);
-    phi(&mut function, 1, 10, &[(99, 0)]);
-    ret(&mut function, 1, 10);
-    assert!(matches!(
-        verify_ownership_ssa_v1(&function, &abi),
-        Err(OwnershipSsaErrorV1::PhiPredecessorMismatch { .. })
-    ));
 }
 
 #[test]

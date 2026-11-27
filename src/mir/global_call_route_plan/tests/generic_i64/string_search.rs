@@ -403,161 +403,50 @@ fn refresh_module_global_call_routes_accepts_string_contains_not_scalar_body() {
     assert_eq!(route.return_shape(), Some("ScalarI64"));
 }
 
+
 #[test]
-fn refresh_module_global_call_routes_accepts_string_indexof_generic_i64_body() {
-    let mut module = MirModule::new("global_call_string_indexof_i64_body_test".to_string());
+fn string_search_routes_to_generic_i64_with_constant_or_formal_needle() {
+    for (case_name, module_name, symbol, method, arguments, needle) in [
+                ("refresh_module_global_call_routes_accepts_string_indexof_generic_i64_body", "global_call_string_indexof_i64_body_test", "Helper.index_of_version/1", "indexOf", vec![ValueId::new(1)], Some("\"version\":0")),
+("refresh_module_global_call_routes_accepts_string_lastindexof_generic_i64_body", "global_call_string_lastindexof_i64_body_test", "Helper.last_index_of_version/1", "lastIndexOf", vec![ValueId::new(1)], Some("\"version\"")),
+("refresh_module_global_call_routes_infers_unknown_string_search_needle_generic_i64_body", "global_call_string_search_unknown_needle_test", "Helper.last_index_of_unknown_needle/2", "lastIndexOf", vec![ValueId::new(1), ValueId::new(2)], None),
+            ] {
+                println!("case: {case_name}");
+                    let mut module = MirModule::new(module_name.to_string());
     let caller = make_function_with_global_call_args(
-        "Helper.index_of_version/1",
+        symbol,
         Some(ValueId::new(10)),
-        vec![ValueId::new(1)],
+        arguments.clone(),
     );
     let mut callee = MirFunction::new(
         FunctionSignature {
-            name: "Helper.index_of_version/1".to_string(),
-            params: vec![MirType::Unknown],
+            name: symbol.to_string(),
+            params: vec![MirType::Unknown; arguments.len()],
             return_type: MirType::Integer,
             effects: EffectMask::PURE,
         },
         BasicBlockId::new(0),
     );
-    callee.params = vec![ValueId::new(1)];
+    callee.params = arguments.clone();
     let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    entry.instructions.extend([
-        MirInstruction::Const {
+    if let Some(needle) = needle {
+        entry.instructions.push(MirInstruction::Const {
             dst: ValueId::new(2),
-            value: ConstValue::String("\"version\":0".to_string()),
-        },
-        MirInstruction::LegacyCallV0 {
-            dst: Some(ValueId::new(3)),
-            func: ValueId::INVALID,
-            callee: Some(Callee::Method {
-                box_name: "RuntimeDataBox".to_string(),
-                method: "indexOf".to_string(),
-                receiver: Some(ValueId::new(1)),
-                certainty: TypeCertainty::Union,
-                box_kind: CalleeBoxKind::RuntimeData,
-            }),
-            args: vec![ValueId::new(2)],
-            effects: EffectMask::PURE,
-        },
-    ]);
-    entry.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(3)),
-    });
-    module.functions.insert("main".to_string(), caller);
-    module
-        .functions
-        .insert("Helper.index_of_version/1".to_string(), callee);
-
-    refresh_module_global_call_routes(&mut module);
-
-    let route = &module.functions["main"].metadata.global_call_routes[0];
-    assert_eq!(
-        route.target_shape(),
-        Some("generic_i64_body"),
-        "reason={:?} blocker={:?}/{:?}",
-        route.target_shape_reason(),
-        route.target_shape_blocker_symbol(),
-        route.target_shape_blocker_reason()
-    );
-    assert_eq!(route.target_shape_reason(), None);
-    assert_eq!(route.proof(), "typed_global_call_generic_i64");
-    assert_eq!(route.return_shape(), Some("ScalarI64"));
-}
-
-#[test]
-fn refresh_module_global_call_routes_accepts_string_lastindexof_generic_i64_body() {
-    let mut module = MirModule::new("global_call_string_lastindexof_i64_body_test".to_string());
-    let caller = make_function_with_global_call_args(
-        "Helper.last_index_of_version/1",
-        Some(ValueId::new(10)),
-        vec![ValueId::new(1)],
-    );
-    let mut callee = MirFunction::new(
-        FunctionSignature {
-            name: "Helper.last_index_of_version/1".to_string(),
-            params: vec![MirType::Unknown],
-            return_type: MirType::Integer,
-            effects: EffectMask::PURE,
-        },
-        BasicBlockId::new(0),
-    );
-    callee.params = vec![ValueId::new(1)];
-    let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    entry.instructions.extend([
-        MirInstruction::Const {
-            dst: ValueId::new(2),
-            value: ConstValue::String("\"version\"".to_string()),
-        },
-        MirInstruction::LegacyCallV0 {
-            dst: Some(ValueId::new(3)),
-            func: ValueId::INVALID,
-            callee: Some(Callee::Method {
-                box_name: "RuntimeDataBox".to_string(),
-                method: "lastIndexOf".to_string(),
-                receiver: Some(ValueId::new(1)),
-                certainty: TypeCertainty::Union,
-                box_kind: CalleeBoxKind::RuntimeData,
-            }),
-            args: vec![ValueId::new(2)],
-            effects: EffectMask::PURE,
-        },
-    ]);
-    entry.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(3)),
-    });
-    module.functions.insert("main".to_string(), caller);
-    module
-        .functions
-        .insert("Helper.last_index_of_version/1".to_string(), callee);
-
-    refresh_module_global_call_routes(&mut module);
-
-    let route = &module.functions["main"].metadata.global_call_routes[0];
-    assert_eq!(
-        route.target_shape(),
-        Some("generic_i64_body"),
-        "reason={:?} blocker={:?}/{:?}",
-        route.target_shape_reason(),
-        route.target_shape_blocker_symbol(),
-        route.target_shape_blocker_reason()
-    );
-    assert_eq!(route.target_shape_reason(), None);
-    assert_eq!(route.proof(), "typed_global_call_generic_i64");
-    assert_eq!(route.return_shape(), Some("ScalarI64"));
-}
-
-#[test]
-fn refresh_module_global_call_routes_infers_unknown_string_search_needle_generic_i64_body() {
-    let mut module = MirModule::new("global_call_string_search_unknown_needle_test".to_string());
-    let caller = make_function_with_global_call_args(
-        "Helper.last_index_of_unknown_needle/2",
-        Some(ValueId::new(10)),
-        vec![ValueId::new(1), ValueId::new(2)],
-    );
-    let mut callee = MirFunction::new(
-        FunctionSignature {
-            name: "Helper.last_index_of_unknown_needle/2".to_string(),
-            params: vec![MirType::Unknown, MirType::Unknown],
-            return_type: MirType::Integer,
-            effects: EffectMask::PURE,
-        },
-        BasicBlockId::new(0),
-    );
-    callee.params = vec![ValueId::new(1), ValueId::new(2)];
-    let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+            value: ConstValue::String(needle.to_string()),
+        });
+    }
     entry.instructions.push(MirInstruction::LegacyCallV0 {
-        dst: Some(ValueId::new(3)),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Method {
-            box_name: "RuntimeDataBox".to_string(),
-            method: "lastIndexOf".to_string(),
-            receiver: Some(ValueId::new(1)),
-            certainty: TypeCertainty::Union,
-            box_kind: CalleeBoxKind::RuntimeData,
-        }),
-        args: vec![ValueId::new(2)],
-        effects: EffectMask::PURE,
+            dst: Some(ValueId::new(3)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: method.to_string(),
+                receiver: Some(ValueId::new(1)),
+                certainty: TypeCertainty::Union,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![ValueId::new(2)],
+            effects: EffectMask::PURE,
     });
     entry.set_terminator(MirInstruction::Return {
         value: Some(ValueId::new(3)),
@@ -565,7 +454,7 @@ fn refresh_module_global_call_routes_infers_unknown_string_search_needle_generic
     module.functions.insert("main".to_string(), caller);
     module
         .functions
-        .insert("Helper.last_index_of_unknown_needle/2".to_string(), callee);
+        .insert(symbol.to_string(), callee);
 
     refresh_module_global_call_routes(&mut module);
 
@@ -581,6 +470,7 @@ fn refresh_module_global_call_routes_infers_unknown_string_search_needle_generic
     assert_eq!(route.target_shape_reason(), None);
     assert_eq!(route.proof(), "typed_global_call_generic_i64");
     assert_eq!(route.return_shape(), Some("ScalarI64"));
+            }
 }
 
 #[test]

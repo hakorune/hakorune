@@ -7,21 +7,23 @@ fn run_dead_code_and_memory_effect(module: &mut MirModule) -> usize {
     eliminated
 }
 
-#[test]
-fn test_dce_prunes_dead_load_from_private_carrier_root() {
+fn private_carrier_load_module(
+    return_type: MirType,
+    returned: Option<ValueId>,
+    instructions: impl IntoIterator<Item = MirInstruction>,
+) -> MirModule {
     let mut module = MirModule::new("dce_test".to_string());
 
     let sig = FunctionSignature {
         name: "test/0".to_string(),
         params: vec![],
-        return_type: MirType::Void,
+        return_type,
         effects: EffectMask::PURE,
     };
     let mut func = MirFunction::new(sig, BasicBlockId(0));
 
     let v_box = ValueId(1);
     let v_ptr = ValueId(2);
-    let v_loaded = ValueId(3);
 
     {
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
@@ -36,16 +38,31 @@ fn test_dce_prunes_dead_load_from_private_carrier_root() {
             box_val: v_box,
         });
         bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Load {
-            dst: v_loaded,
-            ptr: v_ptr,
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.set_terminator(MirInstruction::Return { value: None });
+        for instruction in instructions {
+            bb0.instructions.push(instruction);
+            bb0.instruction_spans.push(Span::unknown());
+        }
+        bb0.set_terminator(MirInstruction::Return { value: returned });
     }
 
     module.add_function(func);
 
+    module
+}
+
+#[test]
+fn test_dce_prunes_dead_load_from_private_carrier_root() {
+    let v_box = ValueId(1);
+    let v_ptr = ValueId(2);
+    let v_loaded = ValueId(3);
+    let mut module = private_carrier_load_module(
+        MirType::Void,
+        None,
+        [MirInstruction::Load {
+            dst: v_loaded,
+            ptr: v_ptr,
+        }],
+    );
     let eliminated = run_dead_code_and_memory_effect(&mut module);
     assert_eq!(eliminated, 2);
 
@@ -67,45 +84,16 @@ fn test_dce_prunes_dead_load_from_private_carrier_root() {
 
 #[test]
 fn test_dce_keeps_live_load_from_private_carrier_root() {
-    let mut module = MirModule::new("dce_test".to_string());
-
-    let sig = FunctionSignature {
-        name: "test/0".to_string(),
-        params: vec![],
-        return_type: MirType::Integer,
-        effects: EffectMask::PURE,
-    };
-    let mut func = MirFunction::new(sig, BasicBlockId(0));
-
-    let v_box = ValueId(1);
     let v_ptr = ValueId(2);
     let v_loaded = ValueId(3);
-
-    {
-        let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
-        bb0.instructions.push(MirInstruction::NewBox {
-            dst: v_box,
-            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
-            args: vec![],
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::RefNew {
-            dst: v_ptr,
-            box_val: v_box,
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Load {
+    let mut module = private_carrier_load_module(
+        MirType::Integer,
+        Some(v_loaded),
+        [MirInstruction::Load {
             dst: v_loaded,
             ptr: v_ptr,
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.set_terminator(MirInstruction::Return {
-            value: Some(v_loaded),
-        });
-    }
-
-    module.add_function(func);
-
+        }],
+    );
     let eliminated = eliminate_dead_code(&mut module);
     assert_eq!(eliminated, 0);
 
@@ -259,49 +247,24 @@ fn test_dce_keeps_dead_load_when_same_private_carrier_has_store() {
 
 #[test]
 fn test_dce_prunes_dead_load_through_copy_alias_private_carrier() {
-    let mut module = MirModule::new("dce_test".to_string());
-
-    let sig = FunctionSignature {
-        name: "test/0".to_string(),
-        params: vec![],
-        return_type: MirType::Void,
-        effects: EffectMask::PURE,
-    };
-    let mut func = MirFunction::new(sig, BasicBlockId(0));
-
     let v_box = ValueId(1);
     let v_ptr = ValueId(2);
     let v_ptr_copy = ValueId(3);
     let v_loaded = ValueId(4);
-
-    {
-        let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
-        bb0.instructions.push(MirInstruction::NewBox {
-            dst: v_box,
-            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
-            args: vec![],
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::RefNew {
-            dst: v_ptr,
-            box_val: v_box,
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Copy {
-            dst: v_ptr_copy,
-            src: v_ptr,
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Load {
-            dst: v_loaded,
-            ptr: v_ptr_copy,
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.set_terminator(MirInstruction::Return { value: None });
-    }
-
-    module.add_function(func);
-
+    let mut module = private_carrier_load_module(
+        MirType::Void,
+        None,
+        [
+            MirInstruction::Copy {
+                dst: v_ptr_copy,
+                src: v_ptr,
+            },
+            MirInstruction::Load {
+                dst: v_loaded,
+                ptr: v_ptr_copy,
+            },
+        ],
+    );
     let eliminated = run_dead_code_and_memory_effect(&mut module);
     assert_eq!(eliminated, 3);
 
@@ -325,22 +288,23 @@ fn test_dce_prunes_dead_load_through_copy_alias_private_carrier() {
         .any(|inst| matches!(inst, MirInstruction::Load { dst, .. } if *dst == v_loaded)));
 }
 
-#[test]
-fn test_dce_prunes_overwritten_store_on_private_carrier_root() {
+fn private_carrier_overwritten_store_module(
+    return_type: MirType,
+    returned: Option<ValueId>,
+    instructions: impl IntoIterator<Item = MirInstruction>,
+) -> MirModule {
     let mut module = MirModule::new("dce_test".to_string());
 
     let sig = FunctionSignature {
         name: "test/0".to_string(),
         params: vec![],
-        return_type: MirType::Void,
+        return_type,
         effects: EffectMask::PURE,
     };
     let mut func = MirFunction::new(sig, BasicBlockId(0));
 
     let v_box = ValueId(1);
     let v_ptr = ValueId(2);
-    let v_old = ValueId(3);
-    let v_new = ValueId(4);
 
     {
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
@@ -355,31 +319,45 @@ fn test_dce_prunes_overwritten_store_on_private_carrier_root() {
             box_val: v_box,
         });
         bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Const {
-            dst: v_old,
-            value: ConstValue::Integer(1),
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Const {
-            dst: v_new,
-            value: ConstValue::Integer(2),
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Store {
-            value: v_old,
-            ptr: v_ptr,
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Store {
-            value: v_new,
-            ptr: v_ptr,
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.set_terminator(MirInstruction::Return { value: None });
+        for instruction in instructions {
+            bb0.instructions.push(instruction);
+            bb0.instruction_spans.push(Span::unknown());
+        }
+        bb0.set_terminator(MirInstruction::Return { value: returned });
     }
 
     module.add_function(func);
 
+    module
+}
+
+#[test]
+fn test_dce_prunes_overwritten_store_on_private_carrier_root() {
+    let v_ptr = ValueId(2);
+    let v_old = ValueId(3);
+    let v_new = ValueId(4);
+    let mut module = private_carrier_overwritten_store_module(
+        MirType::Void,
+        None,
+        [
+            MirInstruction::Const {
+                dst: v_old,
+                value: ConstValue::Integer(1),
+            },
+            MirInstruction::Const {
+                dst: v_new,
+                value: ConstValue::Integer(2),
+            },
+            MirInstruction::Store {
+                value: v_old,
+                ptr: v_ptr,
+            },
+            MirInstruction::Store {
+                value: v_new,
+                ptr: v_ptr,
+            },
+        ],
+    );
     let eliminated = run_dead_code_and_memory_effect(&mut module);
     assert_eq!(eliminated, 2);
 
@@ -398,65 +376,36 @@ fn test_dce_prunes_overwritten_store_on_private_carrier_root() {
 
 #[test]
 fn test_dce_keeps_overwritten_store_when_load_intervenes_on_private_carrier() {
-    let mut module = MirModule::new("dce_test".to_string());
-
-    let sig = FunctionSignature {
-        name: "test/0".to_string(),
-        params: vec![],
-        return_type: MirType::Void,
-        effects: EffectMask::PURE,
-    };
-    let mut func = MirFunction::new(sig, BasicBlockId(0));
-
-    let v_box = ValueId(1);
     let v_ptr = ValueId(2);
     let v_old = ValueId(3);
     let v_new = ValueId(4);
     let v_seen = ValueId(5);
-
-    {
-        let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
-        bb0.instructions.push(MirInstruction::NewBox {
-            dst: v_box,
-            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
-            args: vec![],
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::RefNew {
-            dst: v_ptr,
-            box_val: v_box,
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Const {
-            dst: v_old,
-            value: ConstValue::Integer(1),
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Const {
-            dst: v_new,
-            value: ConstValue::Integer(2),
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Store {
-            value: v_old,
-            ptr: v_ptr,
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Load {
-            dst: v_seen,
-            ptr: v_ptr,
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Store {
-            value: v_new,
-            ptr: v_ptr,
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.set_terminator(MirInstruction::Return { value: None });
-    }
-
-    module.add_function(func);
-
+    let mut module = private_carrier_overwritten_store_module(
+        MirType::Void,
+        None,
+        [
+            MirInstruction::Const {
+                dst: v_old,
+                value: ConstValue::Integer(1),
+            },
+            MirInstruction::Const {
+                dst: v_new,
+                value: ConstValue::Integer(2),
+            },
+            MirInstruction::Store {
+                value: v_old,
+                ptr: v_ptr,
+            },
+            MirInstruction::Load {
+                dst: v_seen,
+                ptr: v_ptr,
+            },
+            MirInstruction::Store {
+                value: v_new,
+                ptr: v_ptr,
+            },
+        ],
+    );
     let eliminated = eliminate_dead_code(&mut module);
     assert_eq!(eliminated, 0);
 
@@ -476,65 +425,36 @@ fn test_dce_keeps_overwritten_store_when_load_intervenes_on_private_carrier() {
 
 #[test]
 fn test_dce_prunes_overwritten_store_through_copy_alias_private_carrier() {
-    let mut module = MirModule::new("dce_test".to_string());
-
-    let sig = FunctionSignature {
-        name: "test/0".to_string(),
-        params: vec![],
-        return_type: MirType::Void,
-        effects: EffectMask::PURE,
-    };
-    let mut func = MirFunction::new(sig, BasicBlockId(0));
-
-    let v_box = ValueId(1);
     let v_ptr = ValueId(2);
     let v_ptr_copy = ValueId(3);
     let v_old = ValueId(4);
     let v_new = ValueId(5);
-
-    {
-        let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
-        bb0.instructions.push(MirInstruction::NewBox {
-            dst: v_box,
-            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
-            args: vec![],
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::RefNew {
-            dst: v_ptr,
-            box_val: v_box,
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Copy {
-            dst: v_ptr_copy,
-            src: v_ptr,
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Const {
-            dst: v_old,
-            value: ConstValue::Integer(1),
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Const {
-            dst: v_new,
-            value: ConstValue::Integer(2),
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Store {
-            value: v_old,
-            ptr: v_ptr,
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Store {
-            value: v_new,
-            ptr: v_ptr_copy,
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.set_terminator(MirInstruction::Return { value: None });
-    }
-
-    module.add_function(func);
-
+    let mut module = private_carrier_overwritten_store_module(
+        MirType::Void,
+        None,
+        [
+            MirInstruction::Copy {
+                dst: v_ptr_copy,
+                src: v_ptr,
+            },
+            MirInstruction::Const {
+                dst: v_old,
+                value: ConstValue::Integer(1),
+            },
+            MirInstruction::Const {
+                dst: v_new,
+                value: ConstValue::Integer(2),
+            },
+            MirInstruction::Store {
+                value: v_old,
+                ptr: v_ptr,
+            },
+            MirInstruction::Store {
+                value: v_new,
+                ptr: v_ptr_copy,
+            },
+        ],
+    );
     let eliminated = run_dead_code_and_memory_effect(&mut module);
     assert_eq!(eliminated, 2);
 

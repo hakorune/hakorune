@@ -344,25 +344,30 @@ fn source_backed_print_producer_publishes_typed_builtin_row() {
     }
 }
 
-#[test]
-fn source_backed_app_main_root_uses_cataloged_scope() {
-    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
-    let source = callable_source(
-        "static box Main { main() { return 0 } }",
-        ParserBuildConfig::default(),
-    );
+fn assert_source_backed_root_catalog_symbol(text: &str, symbol: &str, expectation: &str) {
+    let source = callable_source(text, ParserBuildConfig::default());
     let completed = session()
         .complete_normal_default_program_root_catalog_lifecycle(
             source,
             CallableMainMaterializationPolicyV1::Omitted,
             NormalRuntimeInputSnapshotV1::empty(),
         )
-        .expect("source-backed App Main root must lower through its package scope");
+        .expect(expectation);
     let (_, module, _) = completed.into_parts();
     assert!(module
         .functions
         .iter()
-        .any(|(_, function)| function.signature.name == "main"));
+        .any(|(_, function)| function.signature.name == symbol));
+}
+
+#[test]
+fn source_backed_app_main_root_uses_cataloged_scope() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    assert_source_backed_root_catalog_symbol(
+        "static box Main { main() { return 0 } }",
+        "main",
+        "source-backed App Main root must lower through its package scope",
+    );
 }
 
 #[test]
@@ -721,23 +726,11 @@ fn source_bound_static_result_owner_reaches_the_raw_terminal() {
 
 #[test]
 fn source_backed_selected_callable_uses_the_installed_package_port() {
-    let source = callable_source(
+    assert_source_backed_root_catalog_symbol(
         "static box Scan { run(value) { return value } }",
-        ParserBuildConfig::default(),
+        "Scan.run/1",
+        "source-backed package must lower",
     );
-    let completed = session()
-        .complete_normal_default_program_root_catalog_lifecycle(
-            source,
-            CallableMainMaterializationPolicyV1::Omitted,
-            NormalRuntimeInputSnapshotV1::empty(),
-        )
-        .expect("source-backed package must lower");
-    let (_, module, _) = completed.into_parts();
-
-    assert!(module
-        .functions
-        .iter()
-        .any(|(_, function)| function.signature.name == "Scan.run/1"));
 }
 
 #[test]

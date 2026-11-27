@@ -51,30 +51,35 @@ fn detects_runtime_data_receiver_from_new_array_box_root() {
     assert_eq!(route.skip_instruction_indices, vec![3]);
 }
 
-#[test]
-fn rejects_unproven_runtime_data_receiver() {
-    let mut function = test_function(MirType::Box("MapBox".to_string()));
-    let block = entry_block(&mut function);
-    block.add_instruction(array_get(10, "RuntimeDataBox", 1, 2));
-    block.add_instruction(length_call(12, "RuntimeDataBox", "length", 10));
-
-    refresh_function_array_string_len_window_routes(&mut function);
-
-    assert!(function.metadata.array_string_len_window_routes.is_empty());
-}
 
 #[test]
-fn rejects_post_len_source_use() {
-    let mut function = test_function(MirType::Box("ArrayBox".to_string()));
-    let block = entry_block(&mut function);
-    block.add_instruction(array_get(10, "RuntimeDataBox", 1, 2));
-    block.add_instruction(copy(11, 10));
-    block.add_instruction(length_call(12, "RuntimeDataBox", "size", 11));
-    block.add_instruction(copy(13, 10));
+fn array_len_rejects_unproven_get_windows() {
+    for (case_name, receiver_type, rest) in [
+        (
+            "rejects_unproven_runtime_data_receiver",
+            "MapBox",
+            vec![length_call(12, "RuntimeDataBox", "length", 10)],
+        ),
+        (
+            "rejects_post_len_source_use",
+            "ArrayBox",
+            vec![
+                copy(11, 10),
+                length_call(12, "RuntimeDataBox", "size", 11),
+                copy(13, 10),
+            ],
+        ),
+    ] {
+        println!("case: {case_name}");
+        let mut function = test_function(MirType::Box(receiver_type.to_string()));
+        let block = entry_block(&mut function);
+        block.add_instruction(array_get(10, "RuntimeDataBox", 1, 2));
+        block.instructions.extend(rest);
 
-    refresh_function_array_string_len_window_routes(&mut function);
+        refresh_function_array_string_len_window_routes(&mut function);
 
-    assert!(function.metadata.array_string_len_window_routes.is_empty());
+        assert!(function.metadata.array_string_len_window_routes.is_empty());
+    }
 }
 
 #[test]
@@ -105,8 +110,7 @@ fn detects_keep_get_live_shape() {
     );
 }
 
-#[test]
-fn detects_source_only_insert_mid_direct_set_shape() {
+fn array_len_insert_mid_prefix() -> MirFunction {
     let mut function = test_function(MirType::Box("ArrayBox".to_string()));
     let block = entry_block(&mut function);
     block.add_instruction(array_get(10, "RuntimeDataBox", 1, 2));
@@ -130,6 +134,12 @@ fn detects_source_only_insert_mid_direct_set_shape() {
         vec![ValueId::new(15), ValueId::new(12)],
     ));
     block.add_instruction(const_s(18, "xx"));
+    function
+}
+#[test]
+fn detects_source_only_insert_mid_direct_set_shape() {
+    let mut function = array_len_insert_mid_prefix();
+    let block = entry_block(&mut function);
     block.add_instruction(binop(19, BinaryOp::Add, 16, 18));
     block.add_instruction(binop(20, BinaryOp::Add, 19, 17));
     block.add_instruction(array_set(1, 2, 20));
@@ -149,29 +159,8 @@ fn detects_source_only_insert_mid_direct_set_shape() {
 
 #[test]
 fn detects_source_only_piecewise_concat3_direct_set_shape() {
-    let mut function = test_function(MirType::Box("ArrayBox".to_string()));
+    let mut function = array_len_insert_mid_prefix();
     let block = entry_block(&mut function);
-    block.add_instruction(array_get(10, "RuntimeDataBox", 1, 2));
-    block.add_instruction(copy(11, 10));
-    block.add_instruction(length_call(12, "RuntimeDataBox", "length", 11));
-    block.add_instruction(const_i(13, 0));
-    block.add_instruction(const_i(14, 2));
-    block.add_instruction(binop(15, BinaryOp::Div, 12, 14));
-    block.add_instruction(method_call(
-        Some(16),
-        "RuntimeDataBox",
-        "substring",
-        11,
-        vec![ValueId::new(13), ValueId::new(15)],
-    ));
-    block.add_instruction(method_call(
-        Some(17),
-        "RuntimeDataBox",
-        "substring",
-        11,
-        vec![ValueId::new(15), ValueId::new(12)],
-    ));
-    block.add_instruction(const_s(18, "xx"));
     block.add_instruction(const_i(19, 1));
     block.add_instruction(binop(20, BinaryOp::Add, 12, 19));
     block.add_instruction(extern_call(
@@ -202,29 +191,8 @@ fn detects_source_only_piecewise_concat3_direct_set_shape() {
 
 #[test]
 fn falls_back_to_keep_live_when_direct_set_result_has_extra_use() {
-    let mut function = test_function(MirType::Box("ArrayBox".to_string()));
+    let mut function = array_len_insert_mid_prefix();
     let block = entry_block(&mut function);
-    block.add_instruction(array_get(10, "RuntimeDataBox", 1, 2));
-    block.add_instruction(copy(11, 10));
-    block.add_instruction(length_call(12, "RuntimeDataBox", "length", 11));
-    block.add_instruction(const_i(13, 0));
-    block.add_instruction(const_i(14, 2));
-    block.add_instruction(binop(15, BinaryOp::Div, 12, 14));
-    block.add_instruction(method_call(
-        Some(16),
-        "RuntimeDataBox",
-        "substring",
-        11,
-        vec![ValueId::new(13), ValueId::new(15)],
-    ));
-    block.add_instruction(method_call(
-        Some(17),
-        "RuntimeDataBox",
-        "substring",
-        11,
-        vec![ValueId::new(15), ValueId::new(12)],
-    ));
-    block.add_instruction(const_s(18, "xx"));
     block.add_instruction(binop(19, BinaryOp::Add, 16, 18));
     block.add_instruction(binop(20, BinaryOp::Add, 19, 17));
     block.add_instruction(copy(21, 20));

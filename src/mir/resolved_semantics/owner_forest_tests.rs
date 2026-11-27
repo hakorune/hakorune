@@ -587,41 +587,34 @@ fn resolver_records_compound_outer_assignment_as_read_and_rebind_at_one_site() {
 }
 
 #[test]
-fn resolver_does_not_backpatch_lambda_initializer_self_reference() {
-    let tree = function(vec![local(
-        "f",
-        lambda(&[], vec![return_value(variable("f"))]),
-    )]);
-    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
-    let error = session
-        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
-        .unwrap_err();
+fn resolver_does_not_backpatch_late_binding_captures() {
+    for (case_name, statements) in [
+        (
+            "resolver_does_not_backpatch_lambda_initializer_self_reference",
+            vec![local("f", lambda(&[], vec![return_value(variable("f"))]))],
+        ),
+        (
+            "resolver_does_not_capture_a_later_ancestor_declaration",
+            vec![
+                local("f", lambda(&[], vec![return_value(variable("later"))])),
+                local("later", int(1)),
+            ],
+        ),
+    ] {
+        println!("case: {case_name}");
+        let tree = function(statements);
+        let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+        let error = session
+            .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+            .unwrap_err();
 
-    assert!(matches!(
-        error,
-        ResolveOwnerForestErrorV1::Function(ResolveFunctionErrorV1::Syntax(
-            super::shadow::ShadowResolveErrorV0::UnresolvedName { .. }
-        ))
-    ));
-}
-
-#[test]
-fn resolver_does_not_capture_a_later_ancestor_declaration() {
-    let tree = function(vec![
-        local("f", lambda(&[], vec![return_value(variable("later"))])),
-        local("later", int(1)),
-    ]);
-    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
-    let error = session
-        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
-        .unwrap_err();
-
-    assert!(matches!(
-        error,
-        ResolveOwnerForestErrorV1::Function(ResolveFunctionErrorV1::Syntax(
-            super::shadow::ShadowResolveErrorV0::UnresolvedName { .. }
-        ))
-    ));
+        assert!(matches!(
+            error,
+            ResolveOwnerForestErrorV1::Function(ResolveFunctionErrorV1::Syntax(
+                super::shadow::ShadowResolveErrorV0::UnresolvedName { .. }
+            ))
+        ));
+    }
 }
 
 #[test]

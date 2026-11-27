@@ -200,15 +200,20 @@ fn pending_construction_retains_constructor_identity_after_target_take() {
     assert_eq!(plan.stores().len(), 1);
 }
 
-#[test]
-fn nonordinary_class_does_not_consume_claim() {
+fn ordinary_page_claim_at_test_site() -> (OwnedExprSiteV1, OrdinaryNewClaimLedgerV1) {
     let site = test_site();
     let ledger = OrdinaryNewClaimLedgerV1::issue(
         vec![claim(site.clone(), 0)].into_boxed_slice(),
         Box::new([]),
-        vec!["Page".into()].into_boxed_slice(), Default::default(),
+        vec!["Page".into()].into_boxed_slice(),
+        Default::default(),
     );
 
+    (site, ledger)
+}
+#[test]
+fn nonordinary_class_does_not_consume_claim() {
+    let (site, ledger) = ordinary_page_claim_at_test_site();
     assert_eq!(ledger.try_take(&site, "Plugin", 0), Ok(None));
     assert!(!ledger.is_empty());
     assert!(ledger.try_take(&site, "Page", 0).unwrap().is_some());
@@ -217,13 +222,7 @@ fn nonordinary_class_does_not_consume_claim() {
 
 #[test]
 fn mismatched_shape_preserves_claim_for_the_correct_consumer() {
-    let site = test_site();
-    let ledger = OrdinaryNewClaimLedgerV1::issue(
-        vec![claim(site.clone(), 0)].into_boxed_slice(),
-        Box::new([]),
-        vec!["Page".into()].into_boxed_slice(), Default::default(),
-    );
-
+    let (site, ledger) = ordinary_page_claim_at_test_site();
     assert_eq!(
         ledger.try_take(&site, "Page", 1),
         Err(OrdinaryNewClaimTakeErrorV1::Mismatch)

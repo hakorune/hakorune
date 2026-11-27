@@ -330,8 +330,7 @@ fn records_runtime_data_arraybox_get_as_warm_core_method_route() {
     assert_eq!(route.publication_policy(), None);
 }
 
-#[test]
-fn records_runtime_data_has_mapbox_receiver_origin_without_promotion() {
+fn runtime_data_has_on_constructed_box(box_name: &str) -> MirFunction {
     let mut function = make_function();
     let block = function
         .blocks
@@ -339,7 +338,7 @@ fn records_runtime_data_has_mapbox_receiver_origin_without_promotion() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
+        target: crate::mir::ConstructionTarget::Named(box_name.to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Copy {
@@ -351,6 +350,13 @@ fn records_runtime_data_has_mapbox_receiver_origin_without_promotion() {
     refresh_function_generic_method_routes(&mut function);
 
     assert_eq!(function.metadata.generic_method_routes.len(), 1);
+
+    function
+}
+
+#[test]
+fn records_runtime_data_has_mapbox_receiver_origin_without_promotion() {
+    let function = runtime_data_has_on_constructed_box("MapBox");
     let route = &function.metadata.generic_method_routes[0];
     assert_eq!(route.box_name(), "RuntimeDataBox");
     assert_eq!(route.receiver_origin_box(), Some("MapBox"));
@@ -370,36 +376,56 @@ fn records_runtime_data_has_mapbox_receiver_origin_without_promotion() {
     assert_eq!(route.publication_policy(), None);
 }
 
+
 #[test]
-fn records_box_has_as_any_runtime_data_route() {
-    let mut function = make_function();
-    let block = function
-        .blocks
-        .get_mut(&BasicBlockId::new(0))
-        .expect("entry");
-    block.add_instruction(method_call(Some(4), "Box", "has", 1, vec![3]));
+fn box_lookup_methods_use_runtime_data_carriers() {
+    for (case_name, method, route_id, kind, carrier, op, helper, tier) in [
+        (
+            "records_box_has_as_any_runtime_data_route",
+            "has",
+            "generic_method.has",
+            GenericMethodRouteKind::RuntimeDataContainsAny,
+            "AnyHas carrier",
+            CoreMethodOp::AnyHas,
+            Some("nyash.runtime_data.has_hh"),
+            Some(CoreMethodLoweringTier::WarmDirectAbi),
+        ),
+        (
+            "records_box_get_as_any_runtime_data_route",
+            "get",
+            "generic_method.get",
+            GenericMethodRouteKind::RuntimeDataLoadAny,
+            "AnyGet carrier",
+            CoreMethodOp::AnyGet,
+            None,
+            None,
+        ),
+    ] {
+        println!("case: {case_name}");
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(method_call(Some(4), "Box", method, 1, vec![3]));
 
-    refresh_function_generic_method_routes(&mut function);
+        refresh_function_generic_method_routes(&mut function);
 
-    assert_eq!(function.metadata.generic_method_routes.len(), 1);
-    let route = &function.metadata.generic_method_routes[0];
-    assert_eq!(route.box_name(), "Box");
-    assert_eq!(route.route_id(), "generic_method.has");
-    assert_eq!(
-        route.route_kind(),
-        GenericMethodRouteKind::RuntimeDataContainsAny
-    );
-    assert_eq!(
-        route.route_kind().helper_symbol(),
-        "nyash.runtime_data.has_hh"
-    );
-    assert_eq!(route.receiver_origin_box(), Some("Box"));
-    let core_method = route.core_method().expect("AnyHas carrier");
-    assert_eq!(core_method.op, CoreMethodOp::AnyHas);
-    assert_eq!(
-        core_method.lowering_tier,
-        CoreMethodLoweringTier::WarmDirectAbi
-    );
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.box_name(), "Box");
+        assert_eq!(route.route_id(), route_id);
+        assert_eq!(route.route_kind(), kind);
+        if let Some(helper) = helper {
+            assert_eq!(route.route_kind().helper_symbol(), helper);
+        }
+        assert_eq!(route.receiver_origin_box(), Some("Box"));
+        let core_method = route.core_method().expect(carrier);
+        assert_eq!(core_method.op, op);
+        if let Some(tier) = tier {
+            assert_eq!(core_method.lowering_tier, tier);
+        }
+    }
 }
 
 #[test]
@@ -446,51 +472,10 @@ fn records_runtime_data_get_without_receiver_origin_as_any_route() {
     );
 }
 
-#[test]
-fn records_box_get_as_any_runtime_data_route() {
-    let mut function = make_function();
-    let block = function
-        .blocks
-        .get_mut(&BasicBlockId::new(0))
-        .expect("entry");
-    block.add_instruction(method_call(Some(4), "Box", "get", 1, vec![3]));
-
-    refresh_function_generic_method_routes(&mut function);
-
-    assert_eq!(function.metadata.generic_method_routes.len(), 1);
-    let route = &function.metadata.generic_method_routes[0];
-    assert_eq!(route.box_name(), "Box");
-    assert_eq!(route.route_id(), "generic_method.get");
-    assert_eq!(
-        route.route_kind(),
-        GenericMethodRouteKind::RuntimeDataLoadAny
-    );
-    assert_eq!(route.receiver_origin_box(), Some("Box"));
-    let core_method = route.core_method().expect("AnyGet carrier");
-    assert_eq!(core_method.op, CoreMethodOp::AnyGet);
-}
 
 #[test]
 fn records_runtime_data_arraybox_has_as_arrayhas_core_method_route() {
-    let mut function = make_function();
-    let block = function
-        .blocks
-        .get_mut(&BasicBlockId::new(0))
-        .expect("entry");
-    block.add_instruction(MirInstruction::NewBox {
-        dst: ValueId::new(1),
-        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
-        args: vec![],
-    });
-    block.add_instruction(MirInstruction::Copy {
-        dst: ValueId::new(2),
-        src: ValueId::new(1),
-    });
-    block.add_instruction(method_call(Some(4), "RuntimeDataBox", "has", 2, vec![3]));
-
-    refresh_function_generic_method_routes(&mut function);
-
-    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let function = runtime_data_has_on_constructed_box("ArrayBox");
     let route = &function.metadata.generic_method_routes[0];
     assert_eq!(route.box_name(), "RuntimeDataBox");
     assert_eq!(route.method(), "has");

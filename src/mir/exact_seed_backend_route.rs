@@ -492,39 +492,36 @@ mod tests {
     }
 
     #[test]
-    fn exact_seed_backend_route_selects_userbox_point_local_scalar_metadata() {
-        let mut function = make_function();
-        function.metadata.userbox_local_scalar_seed_route =
-            Some(crate::mir::userbox_local_scalar_seed_plan::test_support::point_local_i64());
+    fn exact_seed_backend_routes_select_userbox_local_scalar_metadata() {
+        for (case_name, seed, expected_tag, expected_proof) in [
+            (
+                "exact_seed_backend_route_selects_userbox_point_local_scalar_metadata",
+                crate::mir::userbox_local_scalar_seed_plan::test_support::point_local_i64 as fn() -> _,
+                "userbox_point_local_scalar",
+                "userbox_point_field_local_scalar_seed",
+            ),
+            (
+                "exact_seed_backend_route_selects_userbox_flag_pointf_local_scalar_metadata",
+                crate::mir::userbox_local_scalar_seed_plan::test_support::flag_copy_local_bool,
+                "userbox_flag_pointf_local_scalar",
+                "userbox_flag_field_local_scalar_seed",
+            ),
+        ] {
+            println!("case: {case_name}");
+            let mut function = make_function();
+            function.metadata.userbox_local_scalar_seed_route = Some(seed());
 
-        refresh_function_exact_seed_backend_route(&mut function);
+            refresh_function_exact_seed_backend_route(&mut function);
 
-        let route = function
-            .metadata
-            .exact_seed_backend_route
-            .expect("exact seed backend route");
-        assert_eq!(route.tag.as_str(), "userbox_point_local_scalar");
-        assert_eq!(route.source_route, "userbox_local_scalar_seed_route");
-        assert_eq!(route.proof, "userbox_point_field_local_scalar_seed");
-        assert_eq!(route.selected_value, None);
-    }
-
-    #[test]
-    fn exact_seed_backend_route_selects_userbox_flag_pointf_local_scalar_metadata() {
-        let mut function = make_function();
-        function.metadata.userbox_local_scalar_seed_route =
-            Some(crate::mir::userbox_local_scalar_seed_plan::test_support::flag_copy_local_bool());
-
-        refresh_function_exact_seed_backend_route(&mut function);
-
-        let route = function
-            .metadata
-            .exact_seed_backend_route
-            .expect("exact seed backend route");
-        assert_eq!(route.tag.as_str(), "userbox_flag_pointf_local_scalar");
-        assert_eq!(route.source_route, "userbox_local_scalar_seed_route");
-        assert_eq!(route.proof, "userbox_flag_field_local_scalar_seed");
-        assert_eq!(route.selected_value, None);
+            let route = function
+                .metadata
+                .exact_seed_backend_route
+                .expect("exact seed backend route");
+            assert_eq!(route.tag.as_str(), expected_tag);
+            assert_eq!(route.source_route, "userbox_local_scalar_seed_route");
+            assert_eq!(route.proof, expected_proof);
+            assert_eq!(route.selected_value, None);
+        }
     }
 
     #[test]

@@ -152,59 +152,75 @@ fn map_lifecycle_stop_precedes_catalog_install_and_body_allocation() {
 }
 
 #[test]
-fn main0_continue_canonical_root_publishes_one_main_through_collector() {
-    crate::runtime::ring0::ensure_global_ring0_initialized();
-    let source = callable_source(
-        include_str!("../../../apps/tests/phase29ca_generic_loop_continue_min.hako"),
-        ParserBuildConfig::default(),
-    );
-    let completed = session()
-        .complete_normal_default_program_root_catalog_lifecycle(
-            source,
-            CallableMainMaterializationPolicyV1::Omitted,
-            NormalRuntimeInputSnapshotV1::empty(),
-        )
-        .expect("selected Main0 continue fixture lowers through the canonical root route");
-    let (_, module, validate) = completed.into_parts();
-    let main = module.get_function("main").expect("canonical root main");
-    // One physical Main: exactly one function owns the root symbol and
-    // exactly one function is marked as the module entry point.
-    assert_eq!(
-        module
-            .functions
-            .keys()
-            .filter(|name| name.as_str() == "main")
-            .count(),
-        1
-    );
-    assert_eq!(
-        module
-            .functions
-            .values()
-            .filter(|function| function.metadata.is_entry_point)
-            .count(),
-        1
-    );
-    // Root finalization must not append a second value Return.
-    let returns = main
-        .blocks
-        .values()
-        .filter(|block| {
-            matches!(
-                &block.terminator,
-                Some(crate::mir::MirInstruction::Return { value: Some(_) })
+fn main0_loop_variants_publish_one_main_through_collector() {
+    for (case_name, source_text, description) in [
+        (
+            "main0_continue_canonical_root_publishes_one_main_through_collector",
+            include_str!("../../../apps/tests/phase29ca_generic_loop_continue_min.hako"),
+            "selected Main0 continue fixture lowers through the canonical root route",
+        ),
+        (
+            "main0_in_body_step_canonical_root_publishes_one_main_through_collector",
+            include_str!("../../../apps/tests/phase29cb_generic_loop_in_body_step_min.hako"),
+            "selected Main0 in-body-step fixture lowers through the canonical root route",
+        ),
+        (
+            "main0_derived_predicate_canonical_root_publishes_one_main_through_collector",
+            include_str!("../../../apps/tests/generic_loop_carrier_type_v0_numeric_min.hako"),
+            "selected Main0 derived-predicate fixture lowers through the canonical root route",
+        ),
+    ] {
+        println!("case: {case_name}");
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        let source = callable_source(source_text, ParserBuildConfig::default());
+        let completed = session()
+            .complete_normal_default_program_root_catalog_lifecycle(
+                source,
+                CallableMainMaterializationPolicyV1::Omitted,
+                NormalRuntimeInputSnapshotV1::empty(),
             )
-        })
-        .count();
-    assert_eq!(returns, 1, "canonical main owns exactly one value Return");
-    // Current loop lowering must retain a real backedge PHI.
-    assert!(main.blocks.values().any(|block| {
-        block
-            .instructions
-            .iter()
-            .any(|instruction| matches!(instruction, crate::mir::MirInstruction::Phi { .. }))
-    }));
-    validate(&module).expect("canonical main passes final root validation");
+            .expect(description);
+        let (_, module, validate) = completed.into_parts();
+        let main = module.get_function("main").expect("canonical root main");
+        // One physical Main: exactly one function owns the root symbol and
+        // exactly one function is marked as the module entry point.
+        assert_eq!(
+            module
+                .functions
+                .keys()
+                .filter(|name| name.as_str() == "main")
+                .count(),
+            1
+        );
+        assert_eq!(
+            module
+                .functions
+                .values()
+                .filter(|function| function.metadata.is_entry_point)
+                .count(),
+            1
+        );
+        // Root finalization must not append a second value Return.
+        let returns = main
+            .blocks
+            .values()
+            .filter(|block| {
+                matches!(
+                    &block.terminator,
+                    Some(crate::mir::MirInstruction::Return { value: Some(_) })
+                )
+            })
+            .count();
+        assert_eq!(returns, 1, "canonical main owns exactly one value Return");
+        // Current loop lowering must retain a real backedge PHI.
+        assert!(main.blocks.values().any(|block| {
+            block
+                .instructions
+                .iter()
+                .any(|instruction| matches!(instruction, crate::mir::MirInstruction::Phi { .. }))
+        }));
+        validate(&module).expect("canonical main passes final root validation");
+    }
 }
 
 #[test]
@@ -241,67 +257,11 @@ fn non_profile_app_main_declines_selection_and_keeps_legacy_wrapper() {
 }
 
 #[test]
-fn main0_in_body_step_canonical_root_publishes_one_main_through_collector() {
-    crate::runtime::ring0::ensure_global_ring0_initialized();
-    let source = callable_source(
-        include_str!("../../../apps/tests/phase29cb_generic_loop_in_body_step_min.hako"),
-        ParserBuildConfig::default(),
-    );
-    let completed = session()
-        .complete_normal_default_program_root_catalog_lifecycle(
-            source,
-            CallableMainMaterializationPolicyV1::Omitted,
-            NormalRuntimeInputSnapshotV1::empty(),
-        )
-        .expect("selected Main0 in-body-step fixture lowers through the canonical root route");
-    let (_, module, validate) = completed.into_parts();
-    let main = module.get_function("main").expect("canonical root main");
-    // One physical Main: exactly one function owns the root symbol and
-    // exactly one function is marked as the module entry point.
-    assert_eq!(
-        module
-            .functions
-            .keys()
-            .filter(|name| name.as_str() == "main")
-            .count(),
-        1
-    );
-    assert_eq!(
-        module
-            .functions
-            .values()
-            .filter(|function| function.metadata.is_entry_point)
-            .count(),
-        1
-    );
-    // Root finalization must not append a second value Return.
-    let returns = main
-        .blocks
-        .values()
-        .filter(|block| {
-            matches!(
-                &block.terminator,
-                Some(crate::mir::MirInstruction::Return { value: Some(_) })
-            )
-        })
-        .count();
-    assert_eq!(returns, 1, "canonical main owns exactly one value Return");
-    // Current loop lowering must retain a real backedge PHI.
-    assert!(main.blocks.values().any(|block| {
-        block
-            .instructions
-            .iter()
-            .any(|instruction| matches!(instruction, crate::mir::MirInstruction::Phi { .. }))
-    }));
-    validate(&module).expect("canonical main passes final root validation");
-}
-
-#[test]
-fn main0_in_body_step_bound_variant_stays_on_the_canonical_route() {
-    crate::runtime::ring0::ensure_global_ring0_initialized();
-    // A different bound literal keeps the same source/PHI guarantees.
-    let source = callable_source(
-        r#"static box Main {
+fn main0_bound_variants_stay_on_the_canonical_route() {
+    for (case_name, source_text) in [
+        (
+            "main0_in_body_step_bound_variant_stays_on_the_canonical_route",
+            r#"static box Main {
     main() {
         local i = 0
         local tmp = 0
@@ -312,88 +272,10 @@ fn main0_in_body_step_bound_variant_stays_on_the_canonical_route() {
         return i
     }
 }"#,
-        ParserBuildConfig::default(),
-    );
-    let completed = session()
-        .complete_normal_default_program_root_catalog_lifecycle(
-            source,
-            CallableMainMaterializationPolicyV1::Omitted,
-            NormalRuntimeInputSnapshotV1::empty(),
-        )
-        .expect("bound-2 variant keeps the canonical root route");
-    let (_, module, validate) = completed.into_parts();
-    let main = module.get_function("main").expect("canonical root main");
-    assert!(main.blocks.values().any(|block| {
-        block
-            .instructions
-            .iter()
-            .any(|instruction| matches!(instruction, crate::mir::MirInstruction::Phi { .. }))
-    }));
-    validate(&module).expect("bound variant passes final root validation");
-}
-
-#[test]
-fn main0_derived_predicate_canonical_root_publishes_one_main_through_collector() {
-    crate::runtime::ring0::ensure_global_ring0_initialized();
-    let source = callable_source(
-        include_str!("../../../apps/tests/generic_loop_carrier_type_v0_numeric_min.hako"),
-        ParserBuildConfig::default(),
-    );
-    let completed = session()
-        .complete_normal_default_program_root_catalog_lifecycle(
-            source,
-            CallableMainMaterializationPolicyV1::Omitted,
-            NormalRuntimeInputSnapshotV1::empty(),
-        )
-        .expect("selected Main0 derived-predicate fixture lowers through the canonical root route");
-    let (_, module, validate) = completed.into_parts();
-    let main = module.get_function("main").expect("canonical root main");
-    // One physical Main: exactly one function owns the root symbol and
-    // exactly one function is marked as the module entry point.
-    assert_eq!(
-        module
-            .functions
-            .keys()
-            .filter(|name| name.as_str() == "main")
-            .count(),
-        1
-    );
-    assert_eq!(
-        module
-            .functions
-            .values()
-            .filter(|function| function.metadata.is_entry_point)
-            .count(),
-        1
-    );
-    // Root finalization must not append a second value Return.
-    let returns = main
-        .blocks
-        .values()
-        .filter(|block| {
-            matches!(
-                &block.terminator,
-                Some(crate::mir::MirInstruction::Return { value: Some(_) })
-            )
-        })
-        .count();
-    assert_eq!(returns, 1, "canonical main owns exactly one value Return");
-    // Current loop lowering must retain a real backedge PHI.
-    assert!(main.blocks.values().any(|block| {
-        block
-            .instructions
-            .iter()
-            .any(|instruction| matches!(instruction, crate::mir::MirInstruction::Phi { .. }))
-    }));
-    validate(&module).expect("canonical main passes final root validation");
-}
-
-#[test]
-fn main0_derived_predicate_bound_variant_stays_on_the_canonical_route() {
-    crate::runtime::ring0::ensure_global_ring0_initialized();
-    // A different bound initializer keeps the same source/PHI guarantees.
-    let source = callable_source(
-        r#"static box Main {
+        ),
+        (
+            "main0_derived_predicate_bound_variant_stays_on_the_canonical_route",
+            r#"static box Main {
     main() {
         local j = 0
         local m = 0
@@ -404,22 +286,27 @@ fn main0_derived_predicate_bound_variant_stays_on_the_canonical_route() {
         return j
     }
 }"#,
-        ParserBuildConfig::default(),
-    );
-    let completed = session()
-        .complete_normal_default_program_root_catalog_lifecycle(
-            source,
-            CallableMainMaterializationPolicyV1::Omitted,
-            NormalRuntimeInputSnapshotV1::empty(),
-        )
-        .expect("bound-2 variant keeps the canonical root route");
-    let (_, module, validate) = completed.into_parts();
-    let main = module.get_function("main").expect("canonical root main");
-    assert!(main.blocks.values().any(|block| {
-        block
-            .instructions
-            .iter()
-            .any(|instruction| matches!(instruction, crate::mir::MirInstruction::Phi { .. }))
-    }));
-    validate(&module).expect("bound variant passes final root validation");
+        ),
+    ] {
+        println!("case: {case_name}");
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        // A different bound literal keeps the same source/PHI guarantees.
+        let source = callable_source(source_text, ParserBuildConfig::default());
+        let completed = session()
+            .complete_normal_default_program_root_catalog_lifecycle(
+                source,
+                CallableMainMaterializationPolicyV1::Omitted,
+                NormalRuntimeInputSnapshotV1::empty(),
+            )
+            .expect("bound-2 variant keeps the canonical root route");
+        let (_, module, validate) = completed.into_parts();
+        let main = module.get_function("main").expect("canonical root main");
+        assert!(main.blocks.values().any(|block| {
+            block
+                .instructions
+                .iter()
+                .any(|instruction| matches!(instruction, crate::mir::MirInstruction::Phi { .. }))
+        }));
+        validate(&module).expect("bound variant passes final root validation");
+    }
 }

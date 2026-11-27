@@ -361,35 +361,31 @@ mod tests {
     }
 
     #[test]
-    fn rejects_negative_assignment_through_copy_chains() {
-        let module = module_with_numeric_field("usize", field_set_function_with_copies(-1));
-        let errors = check_exact_numeric_field_assignments(&module).unwrap_err();
+    fn unsigned_field_rejects_negative_assignment_sources() {
+        for (case_name, make_function) in [
+            (
+                "rejects_negative_assignment_through_copy_chains",
+                field_set_function_with_copies as fn(i64) -> _,
+            ),
+            (
+                "rejects_negative_assignment_to_box_typed_param_field",
+                field_set_on_box_param_function,
+            ),
+        ] {
+            println!("case: {case_name}");
+            let module = module_with_numeric_field("usize", make_function(-1));
+            let errors = check_exact_numeric_field_assignments(&module).unwrap_err();
 
-        assert!(matches!(
-            &errors[0],
-            VerificationError::ExactNumericRangeViolation {
-                declared_type_name,
-                value,
-                reason,
-                ..
-            } if declared_type_name == "usize" && *value == -1 && reason == "negative-to-unsigned"
-        ));
-    }
-
-    #[test]
-    fn rejects_negative_assignment_to_box_typed_param_field() {
-        let module = module_with_numeric_field("usize", field_set_on_box_param_function(-1));
-        let errors = check_exact_numeric_field_assignments(&module).unwrap_err();
-
-        assert!(matches!(
-            &errors[0],
-            VerificationError::ExactNumericRangeViolation {
-                declared_type_name,
-                value,
-                reason,
-                ..
-            } if declared_type_name == "usize" && *value == -1 && reason == "negative-to-unsigned"
-        ));
+            assert!(matches!(
+                &errors[0],
+                VerificationError::ExactNumericRangeViolation {
+                    declared_type_name,
+                    value,
+                    reason,
+                    ..
+                } if declared_type_name == "usize" && *value == -1 && reason == "negative-to-unsigned"
+            ));
+        }
     }
 
     #[test]
@@ -415,57 +411,53 @@ mod tests {
     }
 
     #[test]
-    fn rejects_dynamic_param_assignment_to_usize_field_until_runtime_check_exists() {
-        let module = module_with_numeric_field("usize", field_set_param_value_function());
-        let errors = check_exact_numeric_field_assignments(&module).unwrap_err();
+    fn dynamic_numeric_field_producers_require_typed_checks() {
+        for (case_name, field_type, make_function, expected_producer, expected_reason) in [
+            (
+                "rejects_dynamic_param_assignment_to_usize_field_until_runtime_check_exists",
+                "usize",
+                field_set_param_value_function as fn() -> _,
+                "param",
+                "dynamic-type-and-range-check-required",
+            ),
+            (
+                "rejects_dynamic_binop_assignment_to_usize_field_until_runtime_check_exists",
+                "usize",
+                field_set_binop_value_function,
+                "binop",
+                "dynamic-type-and-range-check-required",
+            ),
+            (
+                "rejects_dynamic_call_assignment_to_usize_field_until_runtime_check_exists",
+                "usize",
+                field_set_call_value_function,
+                "call",
+                "dynamic-type-and-range-check-required",
+            ),
+            (
+                "rejects_dynamic_param_assignment_to_i64_field_until_type_check_exists",
+                "i64",
+                field_set_param_value_function,
+                "param",
+                "dynamic-type-check-required",
+            ),
+        ] {
+            println!("case: {case_name}");
+            let module = module_with_numeric_field(field_type, make_function());
+            let errors = check_exact_numeric_field_assignments(&module).unwrap_err();
 
-        assert!(matches!(
-            &errors[0],
-            VerificationError::ExactNumericDynamicCheckRequired {
-                declared_type_name,
-                producer,
-                reason,
-                ..
-            } if declared_type_name == "usize"
-                && producer == "param"
-                && reason == "dynamic-type-and-range-check-required"
-        ));
-    }
-
-    #[test]
-    fn rejects_dynamic_binop_assignment_to_usize_field_until_runtime_check_exists() {
-        let module = module_with_numeric_field("usize", field_set_binop_value_function());
-        let errors = check_exact_numeric_field_assignments(&module).unwrap_err();
-
-        assert!(matches!(
-            &errors[0],
-            VerificationError::ExactNumericDynamicCheckRequired {
-                declared_type_name,
-                producer,
-                reason,
-                ..
-            } if declared_type_name == "usize"
-                && producer == "binop"
-                && reason == "dynamic-type-and-range-check-required"
-        ));
-    }
-
-    #[test]
-    fn rejects_dynamic_call_assignment_to_usize_field_until_runtime_check_exists() {
-        let module = module_with_numeric_field("usize", field_set_call_value_function());
-        let errors = check_exact_numeric_field_assignments(&module).unwrap_err();
-
-        assert!(matches!(
-            &errors[0],
-            VerificationError::ExactNumericDynamicCheckRequired {
-                declared_type_name,
-                producer,
-                reason,
-                ..
-            } if declared_type_name == "usize"
-                && producer == "call"
-                && reason == "dynamic-type-and-range-check-required"
-        ));
+            assert!(matches!(
+                &errors[0],
+                VerificationError::ExactNumericDynamicCheckRequired {
+                    declared_type_name,
+                    producer,
+                    reason,
+                    ..
+                } if declared_type_name == field_type
+                    && producer == expected_producer
+                    && reason == expected_reason
+            ));
+        }
     }
 
     #[test]
@@ -493,24 +485,6 @@ mod tests {
                 producer,
                 ..
             } if declared_type_name == "usize" && producer == "param"
-        ));
-    }
-
-    #[test]
-    fn rejects_dynamic_param_assignment_to_i64_field_until_type_check_exists() {
-        let module = module_with_numeric_field("i64", field_set_param_value_function());
-        let errors = check_exact_numeric_field_assignments(&module).unwrap_err();
-
-        assert!(matches!(
-            &errors[0],
-            VerificationError::ExactNumericDynamicCheckRequired {
-                declared_type_name,
-                producer,
-                reason,
-                ..
-            } if declared_type_name == "i64"
-                && producer == "param"
-                && reason == "dynamic-type-check-required"
         ));
     }
 

@@ -310,9 +310,15 @@ fn borrowed_nullable_result_lexical_call_publishes_checked_release() {
     });
 }
 
-/// The borrowed nullable class is bounded: exits splitting scalar i64 and
-/// nullable object forms, or return shapes outside `null`/`new ..`, freeze
-/// at the source gate instead of falling back to the scalar lane.
+fn published_borrowed_argument_error(text: &str, label: &str) -> String {
+    MirCompiler::with_options(false)
+        .compile_normal_with_published(request(text), |view, verification| {
+            require_artifact_verification(verification);
+            view.issue_lifecycle_physical_abi_input().map(|_| ())
+        })
+        .err()
+        .unwrap_or_else(|| panic!("{label}: unexpectedly admitted"))
+}
 #[test]
 fn borrowed_nullable_result_rejects_mixed_and_unproved_returns() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
@@ -345,23 +351,15 @@ fn borrowed_nullable_result_rejects_mixed_and_unproved_returns() {
                 box Store {{ limit: i64 birth() {{ me.limit = 10 }} {callee} }} \
                 static box Main {{ main() {{ local s = new Store() local h = s.check(5) {consumer} }} }}",
             );
-            let error = MirCompiler::with_options(false)
-                .compile_normal_with_published(request(&text), |view, verification| {
-                    require_artifact_verification(verification);
-                    view.issue_lifecycle_physical_abi_input()
-                        .map(|_| ())
-                })
-                .err()
-                .unwrap_or_else(|| panic!("{label}: unexpectedly admitted"));
-            assert!(error.contains(token) && error.contains(cause), "{label}: {error}");
+            let error = published_borrowed_argument_error(&text, label);
+            assert!(
+                error.contains(token) && error.contains(cause),
+                "{label}: {error}"
+            );
         }
     });
 }
 
-/// The `local h = recv.m(..)` lane is the sole admitted caller edge for
-/// borrowed nullable results today: `me.`-receiver forwarding inside a
-/// nested method and field reads through the received handle stay
-/// fail-closed at their own boundaries.
 #[test]
 fn borrowed_nullable_result_frontiers_stay_fail_closed() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
@@ -386,14 +384,7 @@ fn borrowed_nullable_result_frontiers_stay_fail_closed() {
                 check(p) {{ if p > me.limit {{ return null }} return new Item(p, 3) }} {callee} }} \
                 static box Main {{ {caller} }}",
             );
-            let error = MirCompiler::with_options(false)
-                .compile_normal_with_published(request(&text), |view, verification| {
-                    require_artifact_verification(verification);
-                    view.issue_lifecycle_physical_abi_input()
-                        .map(|_| ())
-                })
-                .err()
-                .unwrap_or_else(|| panic!("{label}: unexpectedly admitted"));
+            let error = published_borrowed_argument_error(&text, label);
             assert!(error.contains(token), "{label}: {error}");
         }
     });
@@ -501,18 +492,12 @@ fn nullable_field_read_publishes_guarded_object_field_get() {
     });
 }
 
-/// Unguarded `h.id`, a read inside the null-check arm before its `return`,
-/// and an undeclared field all stay fail-closed — the narrow proof comes
-/// only from a terminated `== null` arm on the surviving fall-through.
 #[test]
 fn nullable_field_read_stays_fail_closed() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         for (label, tail) in [
-            (
-                "unguarded",
-                "return h.id",
-            ),
+            ("unguarded", "return h.id"),
             (
                 "inside-null-arm",
                 "if h == null { return h.id } return s.limit",
@@ -528,14 +513,7 @@ fn nullable_field_read_stays_fail_closed() {
                 check(p) {{ if p > me.limit {{ return null }} return new Item(p, 3) }} }} \
                 static box Main {{ main() {{ local s = new Store() local h = s.check(5) {tail} }} }}",
             );
-            let error = MirCompiler::with_options(false)
-                .compile_normal_with_published(request(&text), |view, verification| {
-                    require_artifact_verification(verification);
-                    view.issue_lifecycle_physical_abi_input()
-                        .map(|_| ())
-                })
-                .err()
-                .unwrap_or_else(|| panic!("{label}: unexpectedly admitted"));
+            let error = published_borrowed_argument_error(&text, label);
             assert!(
                 error.contains("IncompleteOrdinaryNewCoverage")
                     || error.contains("artifact-source-unavailable"),
@@ -552,7 +530,10 @@ fn nonscalar_birth_actuals_still_reject() {
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         for (label, body) in [
             ("null", "local h = new Item(null) return 1"),
-            ("handle", "local g = new Item(5) local h = new Item(g) return 1"),
+            (
+                "handle",
+                "local g = new Item(5) local h = new Item(g) return 1",
+            ),
         ] {
             let text = format!(
                 "box Item {{ id: i64 birth(id) {{ me.id = id }} }} \
@@ -561,15 +542,11 @@ fn nonscalar_birth_actuals_still_reject() {
                 }} \
                 static box Main {{ main() {{ local s = new Store() return s.check(1) }} }}",
             );
-            let error = MirCompiler::with_options(false)
-                .compile_normal_with_published(request(&text), |view, verification| {
-                    require_artifact_verification(verification);
-                    view.issue_lifecycle_physical_abi_input()
-                        .map(|_| ())
-                })
-                .err()
-                .unwrap_or_else(|| panic!("{label}: unexpectedly admitted"));
-            assert!(error.contains("actual-kind-unavailable"), "{label}: {error}");
+            let error = published_borrowed_argument_error(&text, label);
+            assert!(
+                error.contains("actual-kind-unavailable"),
+                "{label}: {error}"
+            );
         }
     });
 }

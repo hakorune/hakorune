@@ -188,54 +188,82 @@ fn literal_program_seals_one_shared_script_owner_and_projection() {
 }
 
 #[test]
-fn bare_me_seals_script_source_then_uses_existing_rootlower_diagnostic() {
-    let program = ASTNode::Program {
-        statements: vec![ASTNode::Me {
+fn bare_receivers_preserve_legacy_diagnostics_and_compiler_reuse() {
+    for (case_name, receiver, entry, receiver_absent, path, reuse_path) in [
+        (
+            "bare_me_seals_script_source_then_uses_existing_rootlower_diagnostic",
+            ASTNode::Me {
+                span: Span::unknown(),
+            },
+            receiver_absent_entry(0),
+            true,
+            "script-bare-me.hako",
+            "script-bare-me-reuse.hako",
+        ),
+        (
+            "bare_this_seals_script_source_then_uses_existing_unsupported_diagnostic",
+            ASTNode::This {
+                span: Span::unknown(),
+            },
+            bare_this_unsupported_entry(0),
+            false,
+            "script-bare-this.hako",
+            "script-bare-this-reuse.hako",
+        ),
+    ] {
+        println!("case: {case_name}");
+        let program = ASTNode::Program {
+            statements: vec![receiver],
             span: Span::unknown(),
-        }],
-        span: Span::unknown(),
-    };
-    let source = PreparedNormalDefaultProgramRootV1::seal(program.clone()).expect("Program source");
-    let window = VerifiedScriptRootDemandWindowV1::seal(vec![receiver_absent_entry(0)], 1)
-        .expect("bare Me window");
-    let mut resolver = FunctionSemanticResolverSessionV1::new(0).expect("resolver");
-    let view = ScriptSyntaxViewV1::from_program(source.source_ast()).expect("Script view");
-    let ResolveScriptOutcomeV1::Complete(owner) = resolver
-        .resolve_script(view, &window)
-        .expect("bare Me resolve")
-    else {
-        panic!("bare Me is a zero-child diagnostic boundary");
-    };
-    let product = VerifiedScriptSemanticSourceV1::seal(&source, owner, &window)
-        .expect("bare Me Script source");
-    assert_eq!(product.forest().owner_count(), 1);
-    assert_eq!(product.receiver_absent_sites().count(), 1);
-    let mut legacy = MirCompiler::with_options(false);
-    let legacy_error = legacy
-        .compile_with_source(program.clone(), Some("script-bare-me.hako"))
-        .expect_err("legacy bare Me rejects through the existing owner");
-    let mut normal = MirCompiler::with_options(false);
-    let normal_error = normal
-        .compile_normal(
-            NormalCompileRequestV1::for_mir_mode(
-                program,
-                Some("script-bare-me.hako"),
-                std::collections::HashMap::new(),
+        };
+        let source =
+            PreparedNormalDefaultProgramRootV1::seal(program.clone()).expect("Program source");
+        let window = VerifiedScriptRootDemandWindowV1::seal(vec![entry], 1)
+            .expect("bare receiver demand window");
+        let mut resolver = FunctionSemanticResolverSessionV1::new(0).expect("resolver");
+        let view = ScriptSyntaxViewV1::from_program(source.source_ast()).expect("Script view");
+        let ResolveScriptOutcomeV1::Complete(owner) = resolver
+            .resolve_script(view, &window)
+            .expect("bare receiver resolves")
+        else {
+            panic!("bare receiver has a complete diagnostic boundary");
+        };
+        let product = VerifiedScriptSemanticSourceV1::seal(&source, owner, &window)
+            .expect("bare receiver Script source");
+        assert_eq!(product.forest().owner_count(), 1);
+        let site_count = if receiver_absent {
+            product.receiver_absent_sites().count()
+        } else {
+            product.bare_this_unsupported_sites().count()
+        };
+        assert_eq!(site_count, 1);
+        let mut legacy = MirCompiler::with_options(false);
+        let legacy_error = legacy
+            .compile_with_source(program.clone(), Some(path))
+            .expect_err("legacy bare receiver rejects");
+        let mut normal = MirCompiler::with_options(false);
+        let normal_error = normal
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    program,
+                    Some(path),
+                    std::collections::HashMap::new(),
+                )
+                .expect("normal request"),
             )
-            .expect("normal request"),
-        )
-        .expect_err("normal bare Me rejects through the existing owner");
-    assert_eq!(normal_error, legacy_error);
-    normal
-        .compile_normal(
-            NormalCompileRequestV1::for_mir_mode(
-                NyashParser::parse_from_string("0").expect("reuse source"),
-                Some("script-bare-me-reuse.hako"),
-                std::collections::HashMap::new(),
+            .expect_err("normal bare receiver rejects");
+        assert_eq!(normal_error, legacy_error);
+        normal
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    NyashParser::parse_from_string("0").expect("reuse source"),
+                    Some(reuse_path),
+                    std::collections::HashMap::new(),
+                )
+                .expect("reuse request"),
             )
-            .expect("reuse request"),
-        )
-        .expect("fresh request succeeds");
+            .expect("fresh request succeeds");
+    }
 }
 
 #[test]
@@ -276,57 +304,6 @@ fn using_directive_is_complete_and_retains_void_runtime_completion() {
         },
         "script-using.hako",
     );
-}
-
-#[test]
-fn bare_this_seals_script_source_then_uses_existing_unsupported_diagnostic() {
-    let program = ASTNode::Program {
-        statements: vec![ASTNode::This {
-            span: Span::unknown(),
-        }],
-        span: Span::unknown(),
-    };
-    let source = PreparedNormalDefaultProgramRootV1::seal(program.clone()).expect("Program source");
-    let window = VerifiedScriptRootDemandWindowV1::seal(vec![bare_this_unsupported_entry(0)], 1)
-        .expect("bare This window");
-    let mut resolver = FunctionSemanticResolverSessionV1::new(0).expect("resolver");
-    let view = ScriptSyntaxViewV1::from_program(source.source_ast()).expect("Script view");
-    let ResolveScriptOutcomeV1::Complete(owner) = resolver
-        .resolve_script(view, &window)
-        .expect("bare This resolve")
-    else {
-        panic!("bare This is an existing diagnostic boundary");
-    };
-    let product = VerifiedScriptSemanticSourceV1::seal(&source, owner, &window)
-        .expect("bare This Script source");
-    assert_eq!(product.forest().owner_count(), 1);
-    assert_eq!(product.bare_this_unsupported_sites().count(), 1);
-    let mut legacy = MirCompiler::with_options(false);
-    let legacy_error = legacy
-        .compile_with_source(program.clone(), Some("script-bare-this.hako"))
-        .expect_err("legacy bare This rejects through the existing terminal");
-    let mut normal = MirCompiler::with_options(false);
-    let normal_error = normal
-        .compile_normal(
-            NormalCompileRequestV1::for_mir_mode(
-                program,
-                Some("script-bare-this.hako"),
-                std::collections::HashMap::new(),
-            )
-            .expect("normal request"),
-        )
-        .expect_err("normal bare This rejects through the existing terminal");
-    assert_eq!(normal_error, legacy_error);
-    normal
-        .compile_normal(
-            NormalCompileRequestV1::for_mir_mode(
-                NyashParser::parse_from_string("0").expect("reuse source"),
-                Some("script-bare-this-reuse.hako"),
-                std::collections::HashMap::new(),
-            )
-            .expect("reuse request"),
-        )
-        .expect("fresh request succeeds");
 }
 
 #[test]

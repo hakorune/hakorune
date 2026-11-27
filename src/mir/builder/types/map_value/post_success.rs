@@ -168,43 +168,41 @@ mod tests {
         .is_none());
     }
 
-    #[test]
-    fn direct_unified_schedule_replays_source_then_distinct_final_receiver() {
-        let source = map_callee("set", 10);
-        let mut replay =
-            PreparedMapWriteReplayV1::prepare(&source, &[ValueId::new(20), ValueId::new(30)])
-                .unwrap();
-        replay
-            .append_if_distinct_receiver(
-                &map_callee("set", 11),
-                &[ValueId::new(11), ValueId::new(21), ValueId::new(31)],
-            )
-            .unwrap();
-
-        assert_eq!(receivers(replay), vec![ValueId::new(10), ValueId::new(11)]);
-    }
 
     #[test]
-    fn delegated_schedule_preserves_source_then_materialized_then_final_receiver() {
-        let source = map_callee("delete", 10);
-        let mut replay = PreparedMapWriteReplayV1::prepare(&source, &[ValueId::new(20)]).unwrap();
-        replay
-            .append_if_distinct_receiver(
-                &map_callee("delete", 11),
-                &[ValueId::new(11), ValueId::new(21)],
-            )
-            .unwrap();
-        replay
-            .append_if_distinct_receiver(
-                &map_callee("delete", 12),
-                &[ValueId::new(12), ValueId::new(22)],
-            )
-            .unwrap();
+    fn map_write_replay_preserves_distinct_receiver_order() {
+        for (case_name, method, source_args, steps, expected) in [
+            (
+                "direct_unified_schedule_replays_source_then_distinct_final_receiver",
+                "set",
+                &[20, 30][..],
+                &[(11, &[11, 21, 31][..])][..],
+                vec![10, 11],
+            ),
+            (
+                "delegated_schedule_preserves_source_then_materialized_then_final_receiver",
+                "delete",
+                &[20][..],
+                &[(11, &[11, 21][..]), (12, &[12, 22][..])][..],
+                vec![10, 11, 12],
+            ),
+        ] {
+            println!("case: {case_name}");
 
-        assert_eq!(
-            receivers(replay),
-            vec![ValueId::new(10), ValueId::new(11), ValueId::new(12)]
-        );
+            let source = map_callee(method, 10);
+            let source_args: Vec<_> = source_args.iter().copied().map(ValueId::new).collect();
+            let mut replay = PreparedMapWriteReplayV1::prepare(&source, &source_args).unwrap();
+            for &(receiver, args) in steps {
+                let args: Vec<_> = args.iter().copied().map(ValueId::new).collect();
+                replay
+                    .append_if_distinct_receiver(&map_callee(method, receiver), &args)
+                    .unwrap();
+            }
+            assert_eq!(
+                receivers(replay),
+                expected.into_iter().map(ValueId::new).collect::<Vec<_>>()
+            );
+        }
     }
 
     #[test]

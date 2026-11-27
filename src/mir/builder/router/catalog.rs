@@ -90,13 +90,6 @@ fn is_mapbox_unified_value_path(method: &str, arity: usize) -> bool {
 mod tests {
     use super::*;
 
-    fn accepts(box_name: &str, method: &str, arity: usize) {
-        assert!(
-            unified_value_path_reason(box_name, method, arity).is_some(),
-            "{box_name}.{method}/{arity} should be catalog-backed"
-        );
-    }
-
     fn rejects(box_name: &str, method: &str, arity: usize) {
         assert!(
             unified_value_path_reason(box_name, method, arity).is_none(),
@@ -104,74 +97,84 @@ mod tests {
         );
     }
 
-    #[test]
-    fn string_catalog_rows_accept_known_value_paths() {
-        for (method, arity) in [
-            ("length", 0),
-            ("len", 0),
-            ("size", 0),
-            ("substring", 2),
-            ("substr", 2),
-            ("concat", 1),
-            ("trim", 0),
-            ("toUpper", 0),
-            ("toLower", 0),
-            ("toUpperCase", 0),
-            ("toLowerCase", 0),
-            ("contains", 1),
-            ("startsWith", 1),
-            ("lastIndexOf", 1),
-            ("lastIndexOf", 2),
-            ("replace", 2),
-            ("indexOf", 1),
-            ("indexOf", 2),
-            ("find", 1),
-            ("find", 2),
-        ] {
-            accepts("StringBox", method, arity);
-        }
-    }
 
     #[test]
-    fn array_catalog_rows_accept_known_value_paths() {
-        for (method, arity) in [
-            ("length", 0),
-            ("size", 0),
-            ("len", 0),
-            ("push", 1),
-            ("slice", 2),
-            ("get", 1),
-            ("pop", 0),
-            ("set", 2),
-            ("clear", 0),
-            ("contains", 1),
-            ("indexOf", 1),
-            ("join", 1),
-            ("reverse", 0),
-            ("sort", 0),
-            ("remove", 1),
-            ("insert", 2),
+    fn catalog_rows_accept_known_box_value_paths() {
+        for (case_name, box_name, calls) in [
+            (
+                "string_catalog_rows_accept_known_value_paths",
+                "StringBox",
+                &[
+                    ("length", 0),
+                    ("len", 0),
+                    ("size", 0),
+                    ("substring", 2),
+                    ("substr", 2),
+                    ("concat", 1),
+                    ("trim", 0),
+                    ("toUpper", 0),
+                    ("toLower", 0),
+                    ("toUpperCase", 0),
+                    ("toLowerCase", 0),
+                    ("contains", 1),
+                    ("startsWith", 1),
+                    ("lastIndexOf", 1),
+                    ("lastIndexOf", 2),
+                    ("replace", 2),
+                    ("indexOf", 1),
+                    ("indexOf", 2),
+                    ("find", 1),
+                    ("find", 2),
+                ][..],
+            ),
+            (
+                "array_catalog_rows_accept_known_value_paths",
+                "ArrayBox",
+                &[
+                    ("length", 0),
+                    ("size", 0),
+                    ("len", 0),
+                    ("push", 1),
+                    ("slice", 2),
+                    ("get", 1),
+                    ("pop", 0),
+                    ("set", 2),
+                    ("clear", 0),
+                    ("contains", 1),
+                    ("indexOf", 1),
+                    ("join", 1),
+                    ("reverse", 0),
+                    ("sort", 0),
+                    ("remove", 1),
+                    ("insert", 2),
+                ][..],
+            ),
+            (
+                "map_catalog_rows_accept_known_value_paths",
+                "MapBox",
+                &[
+                    ("size", 0),
+                    ("len", 0),
+                    ("length", 0),
+                    ("has", 1),
+                    ("get", 1),
+                    ("set", 2),
+                    ("delete", 1),
+                    ("remove", 1),
+                    ("values", 0),
+                    ("keys", 0),
+                    ("clear", 0),
+                ][..],
+            ),
         ] {
-            accepts("ArrayBox", method, arity);
-        }
-    }
+            println!("case: {case_name}");
 
-    #[test]
-    fn map_catalog_rows_accept_known_value_paths() {
-        for (method, arity) in [
-            ("size", 0),
-            ("len", 0),
-            ("length", 0),
-            ("has", 1),
-            ("get", 1),
-            ("set", 2),
-            ("delete", 1),
-            ("remove", 1),
-            ("values", 0),
-            ("keys", 0),
-            ("clear", 0),
-        ] {
-            accepts("MapBox", method, arity);
+            for &(method, arity) in calls {
+                assert!(
+                    unified_value_path_reason(box_name, method, arity).is_some(),
+                    "{box_name}.{method}/{arity} should be catalog-backed"
+                );
+            }
         }
     }
 

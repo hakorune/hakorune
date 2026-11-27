@@ -40,49 +40,46 @@ fn records_direct_map_keys_with_redundant_receiver_as_core_method_route() {
     );
 }
 
-#[test]
-fn records_box_keys_as_map_keys_runtime_route() {
-    let mut function = make_function();
-    let block = function
-        .blocks
-        .get_mut(&BasicBlockId::new(0))
-        .expect("entry");
-    block.add_instruction(method_call(Some(3), "Box", "keys", 1, vec![]));
-
-    refresh_function_generic_method_routes(&mut function);
-
-    assert_eq!(function.metadata.generic_method_routes.len(), 1);
-    let route = &function.metadata.generic_method_routes[0];
-    assert_eq!(route.route_id(), "generic_method.keys");
-    assert_eq!(route.box_name(), "Box");
-    assert_eq!(route.receiver_origin_box(), Some("Box"));
-    assert_eq!(route.result_origin_box(), Some("ArrayBox"));
-    assert_eq!(route.route_kind(), GenericMethodRouteKind::MapKeysArray);
-    assert_eq!(route.route_kind().helper_symbol(), "nyash.map.keys_h");
-    let core_method = route.core_method().expect("MapKeys carrier");
-    assert_eq!(core_method.op, CoreMethodOp::MapKeys);
-}
 
 #[test]
-fn records_runtime_data_keys_without_receiver_origin_as_map_keys_route() {
-    let mut function = make_function();
-    let block = function
-        .blocks
-        .get_mut(&BasicBlockId::new(0))
-        .expect("entry");
-    block.add_instruction(method_call(Some(3), "RuntimeDataBox", "keys", 1, vec![]));
+fn keys_routes_keep_the_array_result_origin() {
+    for (case_name, box_name, receiver_origin, helper) in [
+        (
+            "records_box_keys_as_map_keys_runtime_route",
+            "Box",
+            Some("Box"),
+            Some("nyash.map.keys_h"),
+        ),
+        (
+            "records_runtime_data_keys_without_receiver_origin_as_map_keys_route",
+            "RuntimeDataBox",
+            None,
+            None,
+        ),
+    ] {
+        println!("case: {case_name}");
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(method_call(Some(3), box_name, "keys", 1, vec![]));
 
-    refresh_function_generic_method_routes(&mut function);
+        refresh_function_generic_method_routes(&mut function);
 
-    assert_eq!(function.metadata.generic_method_routes.len(), 1);
-    let route = &function.metadata.generic_method_routes[0];
-    assert_eq!(route.route_id(), "generic_method.keys");
-    assert_eq!(route.box_name(), "RuntimeDataBox");
-    assert_eq!(route.receiver_origin_box(), None);
-    assert_eq!(route.result_origin_box(), Some("ArrayBox"));
-    assert_eq!(route.route_kind(), GenericMethodRouteKind::MapKeysArray);
-    let core_method = route.core_method().expect("MapKeys carrier");
-    assert_eq!(core_method.op, CoreMethodOp::MapKeys);
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.route_id(), "generic_method.keys");
+        assert_eq!(route.box_name(), box_name);
+        assert_eq!(route.receiver_origin_box(), receiver_origin);
+        assert_eq!(route.result_origin_box(), Some("ArrayBox"));
+        assert_eq!(route.route_kind(), GenericMethodRouteKind::MapKeysArray);
+        if let Some(helper) = helper {
+            assert_eq!(route.route_kind().helper_symbol(), helper);
+        }
+        let core_method = route.core_method().expect("MapKeys carrier");
+        assert_eq!(core_method.op, CoreMethodOp::MapKeys);
+    }
 }
 
 #[test]

@@ -277,93 +277,65 @@ fn make_main_calling_method_reset() -> MirFunction {
     function
 }
 
-#[test]
-fn inline_soft_leaf_rewrites_verified_required_receiver_fieldset_call() {
-    let mut module = MirModule::new("inline_required_receiver_fieldset_test".to_string());
-    let callee = make_reset_inline_function();
-    assert!(callee.metadata.inline_plans.iter().any(|plan| matches!(
-        plan.request,
-        crate::mir::inline_plan::InlineRequest::Required
-    ) && plan.verified));
-    module.add_function(callee);
-    module.add_function(make_main_calling_reset());
-
-    assert_eq!(apply(&mut module), 1);
-
-    let main = module.get_function("Main.main/0").expect("main function");
-    let entry = main.entry_block();
-    assert!(!entry
-        .instructions
-        .iter()
-        .any(|inst| matches!(inst, MirInstruction::LegacyCallV0 { .. })));
-    assert!(entry.instructions.iter().any(|inst| matches!(
-        inst,
-        MirInstruction::FieldSet {
-            base: ValueId(1),
-            field,
-            ..
-        } if field == "last_selected_index"
-    )));
-}
 
 #[test]
-fn inline_soft_leaf_rewrites_verified_required_user_method_call() {
-    let mut module =
-        MirModule::new("inline_required_user_method_receiver_fieldset_test".to_string());
-    let mut callee = make_reset_inline_function();
-    callee.signature.name = "Main.reset/0".to_string();
-    assert!(callee.metadata.inline_plans.iter().any(|plan| matches!(
-        plan.request,
-        crate::mir::inline_plan::InlineRequest::Required
-    ) && plan.verified));
-    module.add_function(callee);
-    module.add_function(make_main_calling_method_reset());
+fn required_inline_receiver_forms_rewrite_to_fieldset() {
+    for (case_name, module_name, make_callee, callee_name, make_main, expected_base) in [
+        (
+            "inline_soft_leaf_rewrites_verified_required_receiver_fieldset_call",
+            "inline_required_receiver_fieldset_test",
+            make_reset_inline_function as fn() -> MirFunction,
+            None,
+            make_main_calling_reset as fn() -> MirFunction,
+            ValueId(1),
+        ),
+        (
+            "inline_soft_leaf_rewrites_verified_required_user_method_call",
+            "inline_required_user_method_receiver_fieldset_test",
+            make_reset_inline_function,
+            Some("Main.reset/0"),
+            make_main_calling_method_reset,
+            ValueId(1),
+        ),
+        (
+            "inline_soft_leaf_rewrites_verified_required_implicit_receiver_fieldset_call",
+            "inline_required_implicit_receiver_fieldset_test",
+            make_implicit_reset_inline_function,
+            None,
+            make_main_calling_implicit_reset,
+            ValueId::INVALID,
+        ),
+    ] {
+        println!("case: {case_name}");
+        let mut module = MirModule::new(module_name.to_string());
+        let mut callee = make_callee();
+        if let Some(symbol) = callee_name {
+            callee.signature.name = symbol.to_string();
+        }
+        assert!(callee.metadata.inline_plans.iter().any(|plan| matches!(
+            plan.request,
+            crate::mir::inline_plan::InlineRequest::Required
+        ) && plan.verified));
+        module.add_function(callee);
+        module.add_function(make_main());
 
-    assert_eq!(apply(&mut module), 1);
+        assert_eq!(apply(&mut module), 1);
 
-    let main = module.get_function("Main.main/0").expect("main function");
-    let entry = main.entry_block();
-    assert!(!entry
-        .instructions
-        .iter()
-        .any(|inst| matches!(inst, MirInstruction::LegacyCallV0 { .. })));
-    assert!(entry.instructions.iter().any(|inst| matches!(
-        inst,
-        MirInstruction::FieldSet {
-            base: ValueId(1),
-            field,
-            ..
-        } if field == "last_selected_index"
-    )));
-}
-
-#[test]
-fn inline_soft_leaf_rewrites_verified_required_implicit_receiver_fieldset_call() {
-    let mut module = MirModule::new("inline_required_implicit_receiver_fieldset_test".to_string());
-    let callee = make_implicit_reset_inline_function();
-    assert!(callee.metadata.inline_plans.iter().any(|plan| matches!(
-        plan.request,
-        crate::mir::inline_plan::InlineRequest::Required
-    ) && plan.verified));
-    module.add_function(callee);
-    module.add_function(make_main_calling_implicit_reset());
-
-    assert_eq!(apply(&mut module), 1);
-
-    let main = module.get_function("Main.main/0").expect("main function");
-    let entry = main.entry_block();
-    assert!(!entry
-        .instructions
-        .iter()
-        .any(|inst| matches!(inst, MirInstruction::LegacyCallV0 { .. })));
-    assert!(entry.instructions.iter().any(|inst| matches!(
-        inst,
-        MirInstruction::FieldSet {
-            base: ValueId::INVALID,
-            field,
-            ..
-        } if field == "last_selected_index"
-    )));
+        let main = module.get_function("Main.main/0").expect("main function");
+        let entry = main.entry_block();
+        assert!(!entry
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::LegacyCallV0 { .. })));
+        assert!(entry.instructions.iter().any(|inst| matches!(
+            inst,
+            MirInstruction::FieldSet {
+                base,
+                field,
+                ..
+            } if *base == expected_base && field == "last_selected_index"
+        )));
+    }
 }
 
 #[test]

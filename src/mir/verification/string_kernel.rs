@@ -508,25 +508,73 @@ mod tests {
         )));
     }
 
-    #[test]
-    fn verifier_rejects_explicit_cold_publish_without_boundary_metadata() {
-        let mut function = slot_text_function();
-        let mut plan = base_slot_plan(StringKernelPlanCarrier::KernelTextSlot);
-        plan.text_consumer = Some(StringKernelPlanTextConsumer::ExplicitColdPublish);
-        plan.publication_boundary = None;
-        plan.publish_reason = Some(StringPublishReason::ExplicitApiReplay);
-        plan.publish_repr_policy = Some(StringPublishReprPolicy::StableOwned);
-        function
-            .metadata
-            .string_kernel_plans
-            .insert(ValueId::new(10), plan);
 
-        let errors = check_string_kernel_plans(&function).expect_err("expected boundary failure");
-        assert!(errors.iter().any(|error| matches!(
-            error,
-            VerificationError::StringKernelPlanViolation { reason, .. }
-                if reason.contains("publication_boundary=first_external_boundary")
-        )));
+    #[test]
+    fn verifier_rejects_incomplete_explicit_publish_metadata() {
+        for (case_name, make_function, change_plan, expected_failure, required_reasons) in [
+            (
+                "verifier_rejects_explicit_cold_publish_without_boundary_metadata",
+                slot_text_function as fn() -> MirFunction,
+                (|plan| plan.publication_boundary = None) as fn(&mut StringKernelPlan),
+                "expected boundary failure",
+                &["publication_boundary=first_external_boundary"][..],
+            ),
+            (
+                "verifier_rejects_publish_text_without_borrow_provenance",
+                explicit_publish_function,
+                |plan| {
+                    plan.borrow_contract = None;
+                    plan.source_root = None;
+                },
+                "expected provenance failure",
+                &[
+                    "borrow_contract=borrow_text_from_obj",
+                    "source_root for verifier-visible borrow provenance",
+                ][..],
+            ),
+            (
+                "verifier_rejects_publish_text_without_freeze_publish_separation_contract",
+                explicit_publish_function,
+                |plan| plan.publication_contract = None,
+                "expected separation failure",
+                &["keep freeze.str separated from publish.text"][..],
+            ),
+            (
+                "verifier_rejects_unproven_stable_view_publish_request",
+                slot_text_function,
+                |plan| plan.publish_repr_policy = Some(StringPublishReprPolicy::StableView),
+                "expected stable_view failure",
+                &["stable_view repr request requires stable_view_provenance"][..],
+            ),
+            (
+                "verifier_rejects_stable_view_provenance_without_stable_view_request",
+                explicit_publish_function,
+                |plan| plan.stable_view_provenance = Some(StringStableViewProvenance::AlreadyStable),
+                "expected stray provenance failure",
+                &["stable_view_provenance=already_stable requires publish_repr_policy=stable_view"][..],
+            ),
+        ] {
+            println!("case: {case_name}");
+            let mut function = make_function();
+            let mut plan = base_slot_plan(StringKernelPlanCarrier::KernelTextSlot);
+            plan.text_consumer = Some(StringKernelPlanTextConsumer::ExplicitColdPublish);
+            plan.publish_reason = Some(StringPublishReason::ExplicitApiReplay);
+            plan.publish_repr_policy = Some(StringPublishReprPolicy::StableOwned);
+            change_plan(&mut plan);
+            function
+                .metadata
+                .string_kernel_plans
+                .insert(ValueId::new(10), plan);
+
+            let errors = check_string_kernel_plans(&function).expect_err(expected_failure);
+            for required_reason in required_reasons {
+                assert!(errors.iter().any(|error| matches!(
+                    error,
+                    VerificationError::StringKernelPlanViolation { reason, .. }
+                        if reason.contains(required_reason)
+                )));
+            }
+        }
     }
 
     #[test]
@@ -550,75 +598,6 @@ mod tests {
     }
 
     #[test]
-    fn verifier_rejects_publish_text_without_borrow_provenance() {
-        let mut function = explicit_publish_function();
-        let mut plan = base_slot_plan(StringKernelPlanCarrier::KernelTextSlot);
-        plan.text_consumer = Some(StringKernelPlanTextConsumer::ExplicitColdPublish);
-        plan.borrow_contract = None;
-        plan.source_root = None;
-        plan.publish_reason = Some(StringPublishReason::ExplicitApiReplay);
-        plan.publish_repr_policy = Some(StringPublishReprPolicy::StableOwned);
-        function
-            .metadata
-            .string_kernel_plans
-            .insert(ValueId::new(10), plan);
-
-        let errors = check_string_kernel_plans(&function).expect_err("expected provenance failure");
-        assert!(errors.iter().any(|error| matches!(
-            error,
-            VerificationError::StringKernelPlanViolation { reason, .. }
-                if reason.contains("borrow_contract=borrow_text_from_obj")
-        )));
-        assert!(errors.iter().any(|error| matches!(
-            error,
-            VerificationError::StringKernelPlanViolation { reason, .. }
-                if reason.contains("source_root for verifier-visible borrow provenance")
-        )));
-    }
-
-    #[test]
-    fn verifier_rejects_publish_text_without_freeze_publish_separation_contract() {
-        let mut function = explicit_publish_function();
-        let mut plan = base_slot_plan(StringKernelPlanCarrier::KernelTextSlot);
-        plan.text_consumer = Some(StringKernelPlanTextConsumer::ExplicitColdPublish);
-        plan.publication_contract = None;
-        plan.publish_reason = Some(StringPublishReason::ExplicitApiReplay);
-        plan.publish_repr_policy = Some(StringPublishReprPolicy::StableOwned);
-        function
-            .metadata
-            .string_kernel_plans
-            .insert(ValueId::new(10), plan);
-
-        let errors = check_string_kernel_plans(&function).expect_err("expected separation failure");
-        assert!(errors.iter().any(|error| matches!(
-            error,
-            VerificationError::StringKernelPlanViolation { reason, .. }
-                if reason.contains("keep freeze.str separated from publish.text")
-        )));
-    }
-
-    #[test]
-    fn verifier_rejects_unproven_stable_view_publish_request() {
-        let mut function = slot_text_function();
-        let mut plan = base_slot_plan(StringKernelPlanCarrier::KernelTextSlot);
-        plan.text_consumer = Some(StringKernelPlanTextConsumer::ExplicitColdPublish);
-        plan.publish_reason = Some(StringPublishReason::ExplicitApiReplay);
-        plan.publish_repr_policy = Some(StringPublishReprPolicy::StableView);
-        function
-            .metadata
-            .string_kernel_plans
-            .insert(ValueId::new(10), plan);
-
-        let errors =
-            check_string_kernel_plans(&function).expect_err("expected stable_view failure");
-        assert!(errors.iter().any(|error| matches!(
-            error,
-            VerificationError::StringKernelPlanViolation { reason, .. }
-                if reason.contains("stable_view repr request requires stable_view_provenance")
-        )));
-    }
-
-    #[test]
     fn verifier_accepts_proven_stable_view_publish_request() {
         let mut function = explicit_publish_function();
         let mut plan = base_slot_plan(StringKernelPlanCarrier::KernelTextSlot);
@@ -634,25 +613,5 @@ mod tests {
         check_string_kernel_plans(&function).expect("proven stable_view request should pass");
     }
 
-    #[test]
-    fn verifier_rejects_stable_view_provenance_without_stable_view_request() {
-        let mut function = explicit_publish_function();
-        let mut plan = base_slot_plan(StringKernelPlanCarrier::KernelTextSlot);
-        plan.text_consumer = Some(StringKernelPlanTextConsumer::ExplicitColdPublish);
-        plan.publish_reason = Some(StringPublishReason::ExplicitApiReplay);
-        plan.publish_repr_policy = Some(StringPublishReprPolicy::StableOwned);
-        plan.stable_view_provenance = Some(StringStableViewProvenance::AlreadyStable);
-        function
-            .metadata
-            .string_kernel_plans
-            .insert(ValueId::new(10), plan);
 
-        let errors =
-            check_string_kernel_plans(&function).expect_err("expected stray provenance failure");
-        assert!(errors.iter().any(|error| matches!(
-            error,
-            VerificationError::StringKernelPlanViolation { reason, .. }
-                if reason.contains("stable_view_provenance=already_stable requires publish_repr_policy=stable_view")
-        )));
-    }
 }

@@ -2,10 +2,20 @@
 
 use super::*;
 
+fn assert_legacy_birth_global_boundary(source: &str, expectation: &str) {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let ast = NyashParser::parse_from_string(source).expect("parse");
+    let mut compiler = MirCompiler::with_options(false);
+    let error = { compiler.compile(ast) }.expect_err(expectation);
+    assert!(
+        error.contains("[freeze:contract][ordinary-new/birth-global-legacy-stopped]"),
+        "{error}"
+    );
+}
+
 #[test]
 fn compile_attaches_dynamic_integer_range_contract_before_verify() {
-    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
-    let ast = NyashParser::parse_from_string(
+    assert_legacy_birth_global_boundary(
         r#"
 box Page {
   capacity: usize = 0
@@ -19,14 +29,7 @@ static box Main {
   }
 }
 "#,
-    )
-    .expect("parse");
-    let mut compiler = MirCompiler::with_options(false);
-    let error = { compiler.compile(ast) }
-        .expect_err("new Page on this lane hits the retired birth-global boundary");
-    assert!(
-        error.contains("[freeze:contract][ordinary-new/birth-global-legacy-stopped]"),
-        "{error}"
+        "new Page on this lane hits the retired birth-global boundary",
     );
 }
 
@@ -131,8 +134,7 @@ static box Main {
 
 #[test]
 fn compile_publishes_exact_numeric_box_field_proof_from_ordinary_literal() {
-    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
-    let ast = NyashParser::parse_from_string(
+    assert_legacy_birth_global_boundary(
         r#"
 box Page {
   capacity: usize = 0
@@ -146,21 +148,13 @@ static box Main {
   }
 }
 "#,
-    )
-    .expect("parse");
-    let mut compiler = MirCompiler::with_options(false);
-    let error = { compiler.compile(ast) }
-        .expect_err("new Page on this lane hits the retired birth-global boundary");
-    assert!(
-        error.contains("[freeze:contract][ordinary-new/birth-global-legacy-stopped]"),
-        "{error}"
+        "new Page on this lane hits the retired birth-global boundary",
     );
 }
 
 #[test]
 fn compile_rejects_out_of_range_ordinary_literal_at_exact_numeric_box_field() {
-    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
-    let ast = NyashParser::parse_from_string(
+    assert_legacy_birth_global_boundary(
         r#"
 box ByteCell {
   value: u8 = 0
@@ -174,13 +168,6 @@ static box Main {
   }
 }
 "#,
-    )
-    .expect("parse");
-    let mut compiler = MirCompiler::with_options(false);
-    let error = { compiler.compile(ast) }
-        .expect_err("new ByteCell on this lane hits the retired birth-global boundary");
-    assert!(
-        error.contains("[freeze:contract][ordinary-new/birth-global-legacy-stopped]"),
-        "{error}"
+        "new ByteCell on this lane hits the retired birth-global boundary",
     );
 }

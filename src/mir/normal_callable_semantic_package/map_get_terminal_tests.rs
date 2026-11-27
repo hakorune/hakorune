@@ -235,33 +235,57 @@ fn borrowed_map_parameter_map_get_issues_terminal_relation_without_cleanup() {
     assert!(flow.terminal_homes().unwrap().is_empty());
 }
 
-/// `return <borrowed map>` is an escape: the borrowed formal can never ride
-/// the map-local return lane, so the terminal stays uncovered and fails
-/// closed at the named boundary.
 #[test]
-fn borrowed_map_parameter_return_stays_uncovered() {
-    let package = issue(
-        "static box Work { read_k(m: MapBox) { return m } }
+fn unproved_map_terminal_routes_stay_uncovered() {
+    for (case_name, source_text, description, arity, relation_description, coverage_description) in [
+        (
+            "borrowed_map_parameter_return_stays_uncovered",
+            "static box Work { read_k(m: MapBox) { return m } }
          static box Main { main() { return 0 } }",
-    )
-    .expect("borrowed-map return package");
-    let contract = contract_for(&package, 1);
-    assert!(
-        contract.terminal_relations().is_empty(),
-        "borrowed-map return issues no relation"
-    );
-    assert!(
-        matches!(
-            contract
-                .completion()
-                .cleanup()
-                .root_flow()
-                .expect("root flow")
-                .terminal_homes(),
-            Err(HomePrefixUnavailableV1::ReturnValueNotCovered(_))
+            "borrowed-map return package",
+            1,
+            "borrowed-map return issues no relation",
+            "borrowed-map return stays uncovered",
         ),
-        "borrowed-map return stays uncovered"
-    );
+        (
+            "map_get_with_non_literal_key_stays_uncovered",
+            "static box Work { read_k(m: MapBox, k) { return m.get(k) } }
+         static box Main { main() { return 0 } }",
+            "non-literal key package",
+            2,
+            "non-literal key issues no relation",
+            "non-literal key stays uncovered",
+        ),
+        (
+            "map_terminal_with_non_get_selector_stays_uncovered",
+            "static box Work { write_k(m: MapBox) { return m.set(\"k\", 1) } }
+         static box Main { main() { return 0 } }",
+            "non-get selector package",
+            1,
+            "non-get selector issues no relation",
+            "non-get selector stays uncovered",
+        ),
+    ] {
+        println!("case: {case_name}");
+        let package = issue(source_text).expect(description);
+        let contract = contract_for(&package, arity);
+        assert!(
+            contract.terminal_relations().is_empty(),
+            "{relation_description}"
+        );
+        assert!(
+            matches!(
+                contract
+                    .completion()
+                    .cleanup()
+                    .root_flow()
+                    .expect("root flow")
+                    .terminal_homes(),
+                Err(HomePrefixUnavailableV1::ReturnValueNotCovered(_))
+            ),
+            "{coverage_description}"
+        );
+    }
 }
 
 /// A map carrying a `Borrowed` handle entry is readable now that the entry
@@ -312,60 +336,4 @@ fn call_returned_map_get_issues_relation_and_installs() {
         TerminalMapGetReceiverClassV1::OwnedLocal
     );
     assert_install_admits(package);
-}
-
-/// The key is a sealed source literal. A parameter-bound or computed key
-/// stays uncovered rather than widening the contract.
-#[test]
-fn map_get_with_non_literal_key_stays_uncovered() {
-    let package = issue(
-        "static box Work { read_k(m: MapBox, k) { return m.get(k) } }
-         static box Main { main() { return 0 } }",
-    )
-    .expect("non-literal key package");
-    let contract = contract_for(&package, 2);
-    assert!(
-        contract.terminal_relations().is_empty(),
-        "non-literal key issues no relation"
-    );
-    assert!(
-        matches!(
-            contract
-                .completion()
-                .cleanup()
-                .root_flow()
-                .expect("root flow")
-                .terminal_homes(),
-            Err(HomePrefixUnavailableV1::ReturnValueNotCovered(_))
-        ),
-        "non-literal key stays uncovered"
-    );
-}
-
-/// Only the `get` selector is readable. Other selectors on the same map
-/// receiver stay uncovered — writes and mutations are outside this lane.
-#[test]
-fn map_terminal_with_non_get_selector_stays_uncovered() {
-    let package = issue(
-        "static box Work { write_k(m: MapBox) { return m.set(\"k\", 1) } }
-         static box Main { main() { return 0 } }",
-    )
-    .expect("non-get selector package");
-    let contract = contract_for(&package, 1);
-    assert!(
-        contract.terminal_relations().is_empty(),
-        "non-get selector issues no relation"
-    );
-    assert!(
-        matches!(
-            contract
-                .completion()
-                .cleanup()
-                .root_flow()
-                .expect("root flow")
-                .terminal_homes(),
-            Err(HomePrefixUnavailableV1::ReturnValueNotCovered(_))
-        ),
-        "non-get selector stays uncovered"
-    );
 }

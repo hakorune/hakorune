@@ -34,43 +34,58 @@ fn typeop_descends_receiver_once_and_keeps_type_string_syntax_only() {
         .any(|instruction| matches!(instruction, MirInstruction::TypeOp { .. })));
 }
 
-#[test]
-fn static_route_skips_receiver_and_descends_arguments_left_to_right() {
-    let input = RouteInput {
-        // Generic unissued static routes now retire before descent; Math is
-        // the explicitly preserved qualified compatibility owner.
-        receiver: variable("Math"),
-        method: "abs".to_string(),
-        arguments: vec![integer(1), integer(2)],
-    };
-    let mut port = RoutePort::default();
-    let mut builder = builder("static_route/0");
-
-    builder
-        .build_method_call_from_input_v1(&mut port, &input)
-        .unwrap();
-
-    assert_eq!(port.events, ["argument:0", "argument:1", "terminal:static"]);
-}
 
 #[test]
-fn standard_route_descends_receiver_before_arguments() {
-    let input = RouteInput {
-        receiver: integer(7),
-        method: "routeMethod".to_string(),
-        arguments: vec![integer(1), integer(2)],
-    };
-    let mut port = RoutePort::default();
-    let mut builder = builder("standard_route/0");
+fn member_routes_preserve_argument_and_receiver_descent_order() {
+    for (case_name, symbol, receiver, method, arguments, expected_events) in [
+        (
+            "static_route_skips_receiver_and_descends_arguments_left_to_right",
+            "static_route/0",
+            variable("Math"),
+            "abs",
+            vec![integer(1), integer(2)],
+            &["argument:0", "argument:1", "terminal:static"][..],
+        ),
+        (
+            "standard_route_descends_receiver_before_arguments",
+            "standard_route/0",
+            integer(7),
+            "routeMethod",
+            vec![integer(1), integer(2)],
+            &["receiver", "argument:0", "argument:1", "terminal:standard"],
+        ),
+        (
+            "malformed_typeop_uses_standard_receiver_then_argument_demand",
+            "malformed_typeop_route/0",
+            integer(7),
+            "is",
+            vec![integer(1)],
+            &["receiver", "argument:0", "terminal:standard"],
+        ),
+        (
+            "env_route_keeps_receiver_syntax_only_and_descends_arguments",
+            "env_route/0",
+            field(variable("env"), "console"),
+            "log",
+            vec![integer(1), integer(2)],
+            &["argument:0", "argument:1", "terminal:env"],
+        ),
+    ] {
+        println!("case: {case_name}");
+        let input = RouteInput {
+            receiver,
+            method: method.to_string(),
+            arguments,
+        };
+        let mut port = RoutePort::default();
+        let mut builder = builder(symbol);
 
-    builder
-        .build_method_call_from_input_v1(&mut port, &input)
-        .unwrap();
+        builder
+            .build_method_call_from_input_v1(&mut port, &input)
+            .unwrap();
 
-    assert_eq!(
-        port.events,
-        ["receiver", "argument:0", "argument:1", "terminal:standard"]
-    );
+        assert_eq!(port.events, expected_events);
+    }
 }
 
 #[test]
@@ -228,40 +243,6 @@ fn weak_load_and_upgrade_preflight_bypass_generic_terminal() {
         .build_method_call_from_input_v1(&mut port, &valid)
         .unwrap();
     assert_eq!(port.events, ["receiver", "terminal:typeop"]);
-}
-
-#[test]
-fn malformed_typeop_uses_standard_receiver_then_argument_demand() {
-    let input = RouteInput {
-        receiver: integer(7),
-        method: "is".to_string(),
-        arguments: vec![integer(1)],
-    };
-    let mut port = RoutePort::default();
-    let mut builder = builder("malformed_typeop_route/0");
-
-    builder
-        .build_method_call_from_input_v1(&mut port, &input)
-        .unwrap();
-
-    assert_eq!(port.events, ["receiver", "argument:0", "terminal:standard"]);
-}
-
-#[test]
-fn env_route_keeps_receiver_syntax_only_and_descends_arguments() {
-    let input = RouteInput {
-        receiver: field(variable("env"), "console"),
-        method: "log".to_string(),
-        arguments: vec![integer(1), integer(2)],
-    };
-    let mut port = RoutePort::default();
-    let mut builder = builder("env_route/0");
-
-    builder
-        .build_method_call_from_input_v1(&mut port, &input)
-        .unwrap();
-
-    assert_eq!(port.events, ["argument:0", "argument:1", "terminal:env"]);
 }
 
 #[test]

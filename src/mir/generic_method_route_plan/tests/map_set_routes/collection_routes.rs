@@ -1,151 +1,92 @@
 use super::*;
 
-#[test]
-fn records_direct_array_push_core_method_route() {
-    let mut function = make_function();
-    let block = function
-        .blocks
-        .get_mut(&BasicBlockId::new(0))
-        .expect("entry");
-    block.add_instruction(array_write(
-        1,
-        Some(4),
-        crate::mir::ArrayElementWriteKind::Push,
-        1,
-        None,
-        2,
-    ));
-
-    refresh_function_generic_method_routes(&mut function);
-
-    assert_eq!(function.metadata.generic_method_routes.len(), 1);
-    let route = &function.metadata.generic_method_routes[0];
-    assert_eq!(route.route_id(), "generic_method.push");
-    assert_eq!(route.box_name(), "ArrayBox");
-    assert_eq!(route.method(), "push");
-    assert_eq!(route.arity(), 1);
-    assert_eq!(route.receiver_origin_box(), Some("ArrayBox"));
-    assert_eq!(route.key_route(), None);
-    assert_eq!(route.key_value(), None);
-    assert_eq!(route.route_kind(), GenericMethodRouteKind::ArrayAppendAny);
-    assert_eq!(route.proof(), GenericMethodRouteProof::PushSurfacePolicy);
-    let core_method = route.core_method().expect("ArrayPush carrier");
-    assert_eq!(core_method.op, CoreMethodOp::ArrayPush);
-    assert_eq!(
-        core_method.lowering_tier,
-        CoreMethodLoweringTier::ColdFallback
-    );
-    assert_eq!(
-        route.return_shape(),
-        Some(GenericMethodReturnShape::ScalarI64)
-    );
-    assert_eq!(route.value_demand(), GenericMethodValueDemand::WriteAny);
-    assert_eq!(
-        route.publication_policy(),
-        Some(GenericMethodPublicationPolicy::NoPublication)
-    );
-}
 
 #[test]
-fn records_box_push_as_dynamic_array_append_route() {
-    let mut function = make_function();
-    let block = function
-        .blocks
-        .get_mut(&BasicBlockId::new(0))
-        .expect("entry");
-    block.add_instruction(MirInstruction::Copy {
-        dst: ValueId::new(2),
-        src: ValueId::new(1),
-    });
-    block.add_instruction(array_write(
-        1,
-        Some(5),
-        crate::mir::ArrayElementWriteKind::Push,
-        2,
-        None,
-        3,
-    ));
+fn array_push_preserves_cold_core_route_across_receiver_origins() {
+    for (case_name, construct_array, receiver, destination, item) in [
+        (
+            "records_direct_array_push_core_method_route",
+            false,
+            1,
+            4,
+            2,
+        ),
+        (
+            "records_box_push_as_dynamic_array_append_route",
+            false,
+            2,
+            5,
+            3,
+        ),
+        (
+            "records_runtime_data_arraybox_push_through_copy_as_cold_core_method_route",
+            true,
+            2,
+            4,
+            3,
+        ),
+    ] {
+        println!("case: {case_name}");
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        if construct_array {
+            block.add_instruction(MirInstruction::NewBox {
+                dst: ValueId::new(1),
+                target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
+                args: vec![],
+            });
+        }
+        if receiver == 2 {
+            block.add_instruction(MirInstruction::Copy {
+                dst: ValueId::new(2),
+                src: ValueId::new(1),
+            });
+        }
+        block.add_instruction(array_write(
+            1,
+            Some(destination),
+            crate::mir::ArrayElementWriteKind::Push,
+            receiver,
+            None,
+            item,
+        ));
 
-    refresh_function_generic_method_routes(&mut function);
+        refresh_function_generic_method_routes(&mut function);
 
-    assert_eq!(function.metadata.generic_method_routes.len(), 1);
-    let route = &function.metadata.generic_method_routes[0];
-    assert_eq!(route.route_id(), "generic_method.push");
-    assert_eq!(route.box_name(), "ArrayBox");
-    assert_eq!(route.method(), "push");
-    assert_eq!(route.arity(), 1);
-    assert_eq!(route.receiver_origin_box(), Some("ArrayBox"));
-    assert_eq!(route.route_kind(), GenericMethodRouteKind::ArrayAppendAny);
-    assert_eq!(route.proof(), GenericMethodRouteProof::PushSurfacePolicy);
-    let core_method = route.core_method().expect("Box ArrayPush carrier");
-    assert_eq!(core_method.op, CoreMethodOp::ArrayPush);
-    assert_eq!(
-        core_method.lowering_tier,
-        CoreMethodLoweringTier::ColdFallback
-    );
-    assert_eq!(
-        route.return_shape(),
-        Some(GenericMethodReturnShape::ScalarI64)
-    );
-    assert_eq!(route.value_demand(), GenericMethodValueDemand::WriteAny);
-    assert_eq!(
-        route.publication_policy(),
-        Some(GenericMethodPublicationPolicy::NoPublication)
-    );
-}
-
-#[test]
-fn records_runtime_data_arraybox_push_through_copy_as_cold_core_method_route() {
-    let mut function = make_function();
-    let block = function
-        .blocks
-        .get_mut(&BasicBlockId::new(0))
-        .expect("entry");
-    block.add_instruction(MirInstruction::NewBox {
-        dst: ValueId::new(1),
-        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
-        args: vec![],
-    });
-    block.add_instruction(MirInstruction::Copy {
-        dst: ValueId::new(2),
-        src: ValueId::new(1),
-    });
-    block.add_instruction(array_write(
-        1,
-        Some(4),
-        crate::mir::ArrayElementWriteKind::Push,
-        2,
-        None,
-        3,
-    ));
-
-    refresh_function_generic_method_routes(&mut function);
-
-    assert_eq!(function.metadata.generic_method_routes.len(), 1);
-    let route = &function.metadata.generic_method_routes[0];
-    assert_eq!(route.route_id(), "generic_method.push");
-    assert_eq!(route.box_name(), "ArrayBox");
-    assert_eq!(route.method(), "push");
-    assert_eq!(route.receiver_origin_box(), Some("ArrayBox"));
-    assert_eq!(route.route_kind(), GenericMethodRouteKind::ArrayAppendAny);
-    assert_eq!(route.proof(), GenericMethodRouteProof::PushSurfacePolicy);
-    let core_method = route
-        .core_method()
-        .expect("RuntimeDataBox Array-origin push core method op");
-    assert_eq!(core_method.op, CoreMethodOp::ArrayPush);
-    assert_eq!(
-        core_method.lowering_tier,
-        CoreMethodLoweringTier::ColdFallback
-    );
-    assert_eq!(
-        route.return_shape(),
-        Some(GenericMethodReturnShape::ScalarI64)
-    );
-    assert_eq!(route.value_demand(), GenericMethodValueDemand::WriteAny);
-    assert_eq!(
-        route.publication_policy(),
-        Some(GenericMethodPublicationPolicy::NoPublication)
-    );
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.route_id(), "generic_method.push");
+        assert_eq!(route.box_name(), "ArrayBox");
+        assert_eq!(route.method(), "push");
+        if !construct_array {
+            assert_eq!(route.arity(), 1);
+        }
+        assert_eq!(route.receiver_origin_box(), Some("ArrayBox"));
+        if receiver == 1 {
+            assert_eq!(route.key_route(), None);
+            assert_eq!(route.key_value(), None);
+        }
+        assert_eq!(route.route_kind(), GenericMethodRouteKind::ArrayAppendAny);
+        assert_eq!(route.proof(), GenericMethodRouteProof::PushSurfacePolicy);
+        let core_method = route.core_method().expect("ArrayPush carrier");
+        assert_eq!(core_method.op, CoreMethodOp::ArrayPush);
+        assert_eq!(
+            core_method.lowering_tier,
+            CoreMethodLoweringTier::ColdFallback
+        );
+        assert_eq!(
+            route.return_shape(),
+            Some(GenericMethodReturnShape::ScalarI64)
+        );
+        assert_eq!(route.value_demand(), GenericMethodValueDemand::WriteAny);
+        assert_eq!(
+            route.publication_policy(),
+            Some(GenericMethodPublicationPolicy::NoPublication)
+        );
+    }
 }
 
 #[test]

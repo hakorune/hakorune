@@ -459,12 +459,14 @@ fn lexical_handle_result_call_installs_owned_home_and_releases_at_exit() {
 }
 
 #[test]
-fn lexical_handle_lane_leaves_rebound_receiver_dynamic() {
-    // `w` is rebound between its `new` claim and the call: the receiver's
-    // provenance is no longer a single claim-local `new`, so no Handle
-    // observation seals and the site stays on the dynamic member route.
-    let mut package = issue(
-        r#"box Point { x: i64 y: i64 birth(x, y) { me.x = x me.y = y } }
+fn lexical_handle_lane_leaves_unproven_calls_dynamic() {
+    for (case_name, source_text, description, dynamic_description) in [
+        (
+            // `w` is rebound between its `new` claim and the call: the receiver's
+            // provenance is no longer a single claim-local `new`, so no Handle
+            // observation seals and the site stays on the dynamic member route.
+            "lexical_handle_lane_leaves_rebound_receiver_dynamic",
+            r#"box Point { x: i64 y: i64 birth(x, y) { me.x = x me.y = y } }
         box Work {
             n: i64
             birth(n) { me.n = n }
@@ -478,32 +480,12 @@ fn lexical_handle_lane_leaves_rebound_receiver_dynamic() {
                 return 30
             }
         }"#,
-    )
-    .expect("rebound receiver still issues");
-    let ledger = &package.ordinary_new_claim_ledger;
-    let completion = ledger.root_completion_for_test();
-    let flow = completion.cleanup().root_flow().unwrap();
-    assert_eq!(
-        flow.local_calls()
-            .iter()
-            .filter(|call| {
-                call.result()
-                    == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Handle
-            })
-            .count(),
-        0,
-        "a rebound receiver must not seal a Handle observation"
-    );
-    let _ = package.direct_call_loans.take();
-}
-
-#[test]
-fn lexical_handle_lane_leaves_nonconstruction_callee_dynamic() {
-    // `w.size()` returns an integer field, not `new`: the sealed terminal
-    // relation is truthful I64 evidence, the disposition records it, and
-    // the caller scan issues no Handle observation.
-    let mut package = issue(
-        r#"box Work {
+            "rebound receiver still issues",
+            "a rebound receiver must not seal a Handle observation",
+        ),
+        (
+            "lexical_handle_lane_leaves_nonconstruction_callee_dynamic",
+            r#"box Work {
             n: i64
             birth(n) { me.n = n }
             size() { return me.n }
@@ -511,23 +493,28 @@ fn lexical_handle_lane_leaves_nonconstruction_callee_dynamic() {
         static box Main {
             main() { local w = new Work(0) local h = w.size() return h }
         }"#,
-    )
-    .expect("non-construction callee still issues");
-    let ledger = &package.ordinary_new_claim_ledger;
-    let completion = ledger.root_completion_for_test();
-    let flow = completion.cleanup().root_flow().unwrap();
-    assert_eq!(
-        flow.local_calls()
-            .iter()
-            .filter(|call| {
-                call.result()
-                    == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Handle
-            })
-            .count(),
-        0,
-        "a non-construction callee must not seal a Handle observation"
-    );
-    let _ = package.direct_call_loans.take();
+            "non-construction callee still issues",
+            "a non-construction callee must not seal a Handle observation",
+        ),
+    ] {
+        println!("case: {case_name}");
+        let mut package = issue(source_text).expect(description);
+        let ledger = &package.ordinary_new_claim_ledger;
+        let completion = ledger.root_completion_for_test();
+        let flow = completion.cleanup().root_flow().unwrap();
+        assert_eq!(
+            flow.local_calls()
+                .iter()
+                .filter(|call| {
+                    call.result()
+                == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Handle
+                })
+                .count(),
+            0,
+            "{dynamic_description}"
+        );
+        let _ = package.direct_call_loans.take();
+    }
 }
 
 #[test]

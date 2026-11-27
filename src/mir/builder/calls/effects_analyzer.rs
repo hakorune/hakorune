@@ -148,29 +148,32 @@ mod tests {
     }
 
     #[test]
-    fn test_compute_effects_method_pure() {
-        let callee = Callee::Method {
-            box_name: "StringBox".to_string(),
-            method: "upper".to_string(),
-            receiver: Some(ValueId::new(1)),
-            certainty: TypeCertainty::Known,
-            box_kind: CalleeBoxKind::RuntimeData,
-        };
-        let effects = EffectsAnalyzerBox::compute_call_effects(&callee);
-        assert_eq!(effects, EffectMask::PURE);
-    }
-
-    #[test]
-    fn test_compute_effects_method_read() {
-        let callee = Callee::Method {
-            box_name: "ArrayBox".to_string(),
-            method: "get".to_string(),
-            receiver: Some(ValueId::new(1)),
-            certainty: TypeCertainty::Known,
-            box_kind: CalleeBoxKind::RuntimeData,
-        };
-        let effects = EffectsAnalyzerBox::compute_call_effects(&callee);
-        assert_eq!(effects, EffectMask::READ);
+    fn compute_runtime_data_method_effects() {
+        for (case_name, box_name, method, expected_effects) in [
+            (
+                "test_compute_effects_method_pure",
+                "StringBox",
+                "upper",
+                EffectMask::PURE,
+            ),
+            (
+                "test_compute_effects_method_read",
+                "ArrayBox",
+                "get",
+                EffectMask::READ,
+            ),
+        ] {
+            println!("case: {case_name}");
+            let callee = Callee::Method {
+                box_name: box_name.to_string(),
+                method: method.to_string(),
+                receiver: Some(ValueId::new(1)),
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::RuntimeData,
+            };
+            let effects = EffectsAnalyzerBox::compute_call_effects(&callee);
+            assert_eq!(effects, expected_effects);
+        }
     }
 
     #[test]

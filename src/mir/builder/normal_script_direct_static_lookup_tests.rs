@@ -115,58 +115,45 @@ fn cataloged_box_has_complete_empty_root_coverage() {
 }
 
 #[test]
-fn issuer_keeps_non_direct_source_routes_in_coverage() {
-    let package = make_package("local Alias = 0\nreturn Alias.run(1)\nreturn 1.run()", 1807);
-    let neutral = PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package)
-        .expect("neutral source window");
-    let (lookup, _publication_owner) =
-        ScriptDirectStaticCallLookupIssuerV1::issue_for_test(&package, Some(&neutral), &[])
-            .expect("owned lookup relation");
-    let lookup = lookup.expect("non-App Script lookup");
-    let rows = lookup.source_coverage().rows().expect("non-empty coverage");
-    assert_eq!(rows.len(), 2);
-    assert!(rows.values().any(|row| {
-        row.disposition()
-            == VerifiedScriptCallCoverageDispositionV1::NonDirect(
+fn script_lookup_keeps_non_direct_reasons_in_coverage() {
+    for (case_name, source, owner, reasons) in [
+        (
+            "issuer_keeps_non_direct_source_routes_in_coverage",
+            "local Alias = 0\nreturn Alias.run(1)\nreturn 1.run()",
+            1807,
+            [
                 VerifiedScriptNonDirectCallReasonV1::QualifiedReceiverBound,
-            )
-    }));
-    assert!(rows.values().any(|row| {
-        row.disposition()
-            == VerifiedScriptCallCoverageDispositionV1::NonDirect(
                 VerifiedScriptNonDirectCallReasonV1::DynamicReceiver,
-            )
-    }));
-    assert!(lookup.rows().next().is_none());
-}
-
-#[test]
-fn issuer_keeps_typeop_and_reserved_routes_in_coverage() {
-    let package = make_package(
-        "return Helpers.is(\"Integer\")\nreturn __mir__.log(\"value\")",
-        1808,
-    );
-    let neutral = PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package)
-        .expect("neutral source window");
-    let (lookup, _publication_owner) =
-        ScriptDirectStaticCallLookupIssuerV1::issue_for_test(&package, Some(&neutral), &[])
-            .expect("owned lookup relation");
-    let lookup = lookup.expect("non-App Script lookup");
-    let rows = lookup.source_coverage().rows().expect("non-empty coverage");
-    assert_eq!(rows.len(), 2);
-    assert!(rows.values().any(|row| {
-        row.disposition()
-            == VerifiedScriptCallCoverageDispositionV1::NonDirect(
+            ],
+        ),
+        (
+            "issuer_keeps_typeop_and_reserved_routes_in_coverage",
+            "return Helpers.is(\"Integer\")\nreturn __mir__.log(\"value\")",
+            1808,
+            [
                 VerifiedScriptNonDirectCallReasonV1::TypeOperation,
-            )
-    }));
-    assert!(rows.values().any(|row| {
-        row.disposition()
-            == VerifiedScriptCallCoverageDispositionV1::NonDirect(
                 VerifiedScriptNonDirectCallReasonV1::ReservedRoute,
-            )
-    }));
-    assert!(lookup.rows().next().is_none());
+            ],
+        ),
+    ] {
+        println!("case: {case_name}");
+        let package = make_package(source, owner);
+        let neutral = PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package)
+            .expect("neutral source window");
+        let (lookup, _publication_owner) =
+            ScriptDirectStaticCallLookupIssuerV1::issue_for_test(&package, Some(&neutral), &[])
+                .expect("owned lookup relation");
+        let lookup = lookup.expect("non-App Script lookup");
+        let rows = lookup.source_coverage().rows().expect("non-empty coverage");
+        assert_eq!(rows.len(), 2);
+
+        for reason in reasons {
+            assert!(rows.values().any(|row| {
+                row.disposition() == VerifiedScriptCallCoverageDispositionV1::NonDirect(reason)
+            }));
+        }
+        assert!(lookup.rows().next().is_none());
+    }
 }
 
 #[test]

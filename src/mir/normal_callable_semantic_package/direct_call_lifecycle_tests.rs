@@ -151,9 +151,11 @@ fn distinct_map_call_owners_share_the_existing_install_preflight() {
 }
 
 #[test]
-fn three_distinct_map_call_owners_share_source_ordered_local_bindings() {
-    let package = issue(
-        r#"static box Main {
+fn map_call_owners_share_source_ordered_local_bindings() {
+    for (case_name, source_text, description, expected_owners, expected_locals) in [
+        (
+            "three_distinct_map_call_owners_share_source_ordered_local_bindings",
+            r#"static box Main {
             main() {
                 local first = helper(10)
                 local second = middle(20)
@@ -164,36 +166,84 @@ fn three_distinct_map_call_owners_share_source_ordered_local_bindings() {
             middle(value: i64): i64 { local m = %{"middle" => value} return 30 }
             other(value: i64): i64 { local m = %{"second" => value} return 30 }
         }"#,
-    )
-    .expect("three distinct ordinary Map owners");
-    let targets: std::collections::BTreeSet<_> = package
-        .direct_call_loans
-        .as_ref()
-        .expect("direct-call loans")
-        .iter()
-        .flat_map(|loan| {
-            loan.map_target_owners(&package.batch)
-                .unwrap_or_default()
-                .into_vec()
-        })
-        .collect();
-    assert_eq!(targets.len(), 3);
-    let completion = package
-        .ordinary_new_claim_ledger
-        .call_source_completion()
-        .expect("terminal Call relation")
-        .0;
-    assert_eq!(
-        completion
-            .cleanup()
-            .root_flow()
-            .unwrap()
-            .local_calls()
-            .len(),
-        2
-    );
-    let mut context = crate::mir::builder::CompilationContext::new();
-    assert!(package.prepare_install_with_consumer(&mut context, None).is_ok());
+            "three distinct ordinary Map owners",
+            3,
+            2,
+        ),
+        (
+            "four_distinct_map_call_owners_share_three_source_ordered_local_bindings",
+            r#"static box Main {
+            main() {
+                local first = helper(10)
+                local second = middle(20)
+                local third = later(1)
+                local root_map = %{"root" => 1}
+                return other(30)
+            }
+            helper(value: i64): i64 { local m = %{"first" => value} return 30 }
+            middle(value: i64): i64 { local m = %{"middle" => value} return 30 }
+            later(value: i64): i64 { local m = %{"later" => value} return 30 }
+            other(value: i64): i64 { local m = %{"other" => value} return 30 }
+        }"#,
+            "four distinct ordinary Map owners",
+            4,
+            3,
+        ),
+        (
+            "five_distinct_map_call_owners_share_four_source_ordered_local_bindings",
+            r#"static box Main {
+            main() {
+                local first = helper(10)
+                local second = middle(20)
+                local third = later(1)
+                local fourth = extra(2)
+                local root_map = %{"root" => 1}
+                return other(30)
+            }
+            helper(value: i64): i64 { local m = %{"first" => value} return 30 }
+            middle(value: i64): i64 { local m = %{"middle" => value} return 30 }
+            later(value: i64): i64 { local m = %{"later" => value} return 30 }
+            extra(value: i64): i64 { local m = %{"extra" => value} return 30 }
+            other(value: i64): i64 { local m = %{"other" => value} return 30 }
+        }"#,
+            "five distinct ordinary Map owners",
+            5,
+            4,
+        ),
+    ] {
+        println!("case: {case_name}");
+        let package = issue(source_text).expect(description);
+        let targets: std::collections::BTreeSet<_> = package
+            .direct_call_loans
+            .as_ref()
+            .expect("direct-call loans")
+            .iter()
+            .flat_map(|loan| {
+                loan.map_target_owners(&package.batch)
+                    .unwrap_or_default()
+                    .into_vec()
+            })
+            .collect();
+        assert_eq!(targets.len(), expected_owners);
+        let completion = package
+            .ordinary_new_claim_ledger
+            .call_source_completion()
+            .expect("terminal Call relation")
+            .0;
+        assert_eq!(
+            completion
+                .cleanup()
+                .root_flow()
+                .unwrap()
+                .local_calls()
+                .len(),
+            expected_locals
+        );
+        let mut context = crate::mir::builder::CompilationContext::new();
+        assert!(package
+            .prepare_install_with_consumer(&mut context, None)
+            .is_ok());
+    }
 }
 
 #[test]
@@ -215,104 +265,6 @@ fn repeated_map_target_fourth_call_installs_under_the_undertaking() {
         }"#,
     )
     .expect("source facts remain issuable for the bounded rejection");
-    let mut context = crate::mir::builder::CompilationContext::new();
-    assert!(package.prepare_install_with_consumer(&mut context, None).is_ok());
-}
-
-#[test]
-fn four_distinct_map_call_owners_share_three_source_ordered_local_bindings() {
-    let package = issue(
-        r#"static box Main {
-            main() {
-                local first = helper(10)
-                local second = middle(20)
-                local third = later(1)
-                local root_map = %{"root" => 1}
-                return other(30)
-            }
-            helper(value: i64): i64 { local m = %{"first" => value} return 30 }
-            middle(value: i64): i64 { local m = %{"middle" => value} return 30 }
-            later(value: i64): i64 { local m = %{"later" => value} return 30 }
-            other(value: i64): i64 { local m = %{"other" => value} return 30 }
-        }"#,
-    )
-    .expect("four distinct ordinary Map owners");
-    let targets: std::collections::BTreeSet<_> = package
-        .direct_call_loans
-        .as_ref()
-        .expect("direct-call loans")
-        .iter()
-        .flat_map(|loan| {
-            loan.map_target_owners(&package.batch)
-                .unwrap_or_default()
-                .into_vec()
-        })
-        .collect();
-    assert_eq!(targets.len(), 4);
-    let completion = package
-        .ordinary_new_claim_ledger
-        .call_source_completion()
-        .expect("terminal Call relation")
-        .0;
-    assert_eq!(
-        completion
-            .cleanup()
-            .root_flow()
-            .unwrap()
-            .local_calls()
-            .len(),
-        3
-    );
-    let mut context = crate::mir::builder::CompilationContext::new();
-    assert!(package.prepare_install_with_consumer(&mut context, None).is_ok());
-}
-
-#[test]
-fn five_distinct_map_call_owners_share_four_source_ordered_local_bindings() {
-    let package = issue(
-        r#"static box Main {
-            main() {
-                local first = helper(10)
-                local second = middle(20)
-                local third = later(1)
-                local fourth = extra(2)
-                local root_map = %{"root" => 1}
-                return other(30)
-            }
-            helper(value: i64): i64 { local m = %{"first" => value} return 30 }
-            middle(value: i64): i64 { local m = %{"middle" => value} return 30 }
-            later(value: i64): i64 { local m = %{"later" => value} return 30 }
-            extra(value: i64): i64 { local m = %{"extra" => value} return 30 }
-            other(value: i64): i64 { local m = %{"other" => value} return 30 }
-        }"#,
-    )
-    .expect("five distinct ordinary Map owners");
-    let targets: std::collections::BTreeSet<_> = package
-        .direct_call_loans
-        .as_ref()
-        .expect("direct-call loans")
-        .iter()
-        .flat_map(|loan| {
-            loan.map_target_owners(&package.batch)
-                .unwrap_or_default()
-                .into_vec()
-        })
-        .collect();
-    assert_eq!(targets.len(), 5);
-    let completion = package
-        .ordinary_new_claim_ledger
-        .call_source_completion()
-        .expect("terminal Call relation")
-        .0;
-    assert_eq!(
-        completion
-            .cleanup()
-            .root_flow()
-            .unwrap()
-            .local_calls()
-            .len(),
-        4
-    );
     let mut context = crate::mir::builder::CompilationContext::new();
     assert!(package.prepare_install_with_consumer(&mut context, None).is_ok());
 }

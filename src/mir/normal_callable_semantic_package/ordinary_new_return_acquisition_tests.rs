@@ -184,57 +184,49 @@ fn completed_object_acquisition_received_typed_scalar_keeps_original_binding() {
     assert!(ledger.has_pending_object_return_v1(owner));
 }
 
-#[test]
-fn completed_object_acquisition_missing_staged_input_stays_unavailable() {
-    for received in [false, true] {
-        for opaque in [false, true] {
-            let mut package = package(received, opaque);
-            let value = terminal(&package);
-            let TerminalReturnedSourceV1::OwnedCall(original) = value.returned() else {
-                panic!("owned")
-            };
-            let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
-            assert!(ledger
-                .borrowed_formal_actuals
-                .remove(original.qualification().call())
-                .is_some());
-            assert!(ledger
-                .checked_completed_object_acquisition_v1(
-                    &value,
-                    &package.selected,
-                    &package.parameter_contracts,
-                    &package.physical_signature,
-                )
-                .unwrap()
-                .is_none());
-            assert!(ledger.validate_no_pending_object_returns_v1().is_err());
-        }
-    }
-}
 
 #[test]
-fn completed_object_acquisition_missing_receiver_observation_stays_unavailable() {
-    for opaque in [false, true] {
-        let mut package = package(true, opaque);
-        let value = terminal(&package);
-        let TerminalReturnedSourceV1::OwnedCall(original) = value.returned() else {
-            panic!("owned")
-        };
-        let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
-        assert!(ledger
-            .receiver_call_observations
-            .remove(original.qualification().call())
-            .is_some());
-        assert!(ledger
-            .checked_completed_object_acquisition_v1(
-                &value,
-                &package.selected,
-                &package.parameter_contracts,
-                &package.physical_signature,
-            )
-            .unwrap()
-            .is_none());
-        assert!(ledger.validate_no_pending_object_returns_v1().is_err());
+fn completed_object_acquisition_requires_both_observations() {
+    for (case_name, received_cases, missing_staged_input) in [
+        (
+            "completed_object_acquisition_missing_staged_input_stays_unavailable",
+            &[false, true][..],
+            true,
+        ),
+        (
+            "completed_object_acquisition_missing_receiver_observation_stays_unavailable",
+            &[true][..],
+            false,
+        ),
+    ] {
+        println!("case: {case_name}");
+        for &received in received_cases {
+            for opaque in [false, true] {
+                let mut package = package(received, opaque);
+                let value = terminal(&package);
+                let TerminalReturnedSourceV1::OwnedCall(original) = value.returned() else {
+                    panic!("owned")
+                };
+                let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+                let call = original.qualification().call();
+                let removed = if missing_staged_input {
+                    ledger.borrowed_formal_actuals.remove(call).is_some()
+                } else {
+                    ledger.receiver_call_observations.remove(call).is_some()
+                };
+                assert!(removed);
+                assert!(ledger
+                    .checked_completed_object_acquisition_v1(
+                        &value,
+                        &package.selected,
+                        &package.parameter_contracts,
+                        &package.physical_signature,
+                    )
+                    .unwrap()
+                    .is_none());
+                assert!(ledger.validate_no_pending_object_returns_v1().is_err());
+            }
+        }
     }
 }
 

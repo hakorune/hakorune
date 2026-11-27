@@ -323,30 +323,53 @@ fn self_rooted_handle_entry_describes_handle_ownership_share() {
 }
 
 #[test]
-fn declared_capability_seals_an_in_owner_handle_borrow() {
-    // The same site the builder consumer now declares: a handle-borrowed
-    // entry on a non-escaping map seals.
-    let package = issue(
-        "static box Work { stash(h) { local m = %{\"v\" => h} return 0 } }
+fn declared_map_capabilities_seal_each_entry_kind() {
+    for (case_name, source_text, description, operations) in [
+        (
+            "declared_capability_seals_an_in_owner_handle_borrow",
+            "static box Work { stash(h) { local m = %{\"v\" => h} return 0 } }
          static box Main { main() { return 30 } }",
-    )
-    .expect("handle-borrow package");
-    let obligations = package
-        .describe_map_lifecycle_obligations()
-        .expect("obligations describe");
-    let capability = MapLifecycleConsumerCapabilityV1::covering([
-        Op::ValueCreate,
-        Op::EntryStore(StoreClass::Scalar),
-        Op::EntryStore(StoreClass::Transferred),
-        Op::EntryDisplace,
-        Op::OwnershipTransfer,
-        Op::OwnershipShare(BorrowKind::Handle),
-        Op::ReturnHandoff,
-        Op::NormalCleanup,
-        Op::FaultCleanup,
-    ]);
-    let undertaking = verify_map_lifecycle_undertaking(&obligations, capability).unwrap();
-    assert_eq!(undertaking.owners().len(), 1);
+            "handle-borrow package",
+            vec![
+                Op::ValueCreate,
+                Op::EntryStore(StoreClass::Scalar),
+                Op::EntryStore(StoreClass::Transferred),
+                Op::EntryDisplace,
+                Op::OwnershipTransfer,
+                Op::OwnershipShare(BorrowKind::Handle),
+                Op::ReturnHandoff,
+                Op::NormalCleanup,
+                Op::FaultCleanup,
+            ],
+        ),
+        (
+            "declared_capability_seals_a_text_entry",
+            "static box Work { make() { local m = %{\"name\" => \"main\"} return 0 } }
+         static box Main { main() { return 30 } }",
+            "text-entry package",
+            vec![
+                Op::ValueCreate,
+                Op::EntryStore(StoreClass::Scalar),
+                Op::EntryStore(StoreClass::Transferred),
+                Op::EntryStore(StoreClass::Text),
+                Op::EntryDisplace,
+                Op::OwnershipTransfer,
+                Op::OwnershipShare(BorrowKind::Handle),
+                Op::ReturnHandoff,
+                Op::NormalCleanup,
+                Op::FaultCleanup,
+            ],
+        ),
+    ] {
+        println!("case: {case_name}");
+        let package = issue(source_text).expect(description);
+        let obligations = package
+            .describe_map_lifecycle_obligations()
+            .expect("obligations describe");
+        let capability = MapLifecycleConsumerCapabilityV1::covering(operations);
+        let undertaking = verify_map_lifecycle_undertaking(&obligations, capability).unwrap();
+        assert_eq!(undertaking.owners().len(), 1);
+    }
 }
 
 #[test]
@@ -428,34 +451,6 @@ fn text_entry_describes_text_store_class() {
     let operations = operations_of(&package, 0, 0);
     assert!(operations.contains(&Op::EntryStore(StoreClass::Text)));
     assert!(!operations.contains(&Op::EntryStore(StoreClass::Opaque)));
-}
-
-#[test]
-fn declared_capability_seals_a_text_entry() {
-    // The declared consumer lane covers `EntryStore(Text)`: a
-    // non-escaping map with a string-literal entry verifies.
-    let package = issue(
-        "static box Work { make() { local m = %{\"name\" => \"main\"} return 0 } }
-         static box Main { main() { return 30 } }",
-    )
-    .expect("text-entry package");
-    let obligations = package
-        .describe_map_lifecycle_obligations()
-        .expect("obligations describe");
-    let capability = MapLifecycleConsumerCapabilityV1::covering([
-        Op::ValueCreate,
-        Op::EntryStore(StoreClass::Scalar),
-        Op::EntryStore(StoreClass::Transferred),
-        Op::EntryStore(StoreClass::Text),
-        Op::EntryDisplace,
-        Op::OwnershipTransfer,
-        Op::OwnershipShare(BorrowKind::Handle),
-        Op::ReturnHandoff,
-        Op::NormalCleanup,
-        Op::FaultCleanup,
-    ]);
-    let undertaking = verify_map_lifecycle_undertaking(&obligations, capability).unwrap();
-    assert_eq!(undertaking.owners().len(), 1);
 }
 
 #[test]

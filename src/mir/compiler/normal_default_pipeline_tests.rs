@@ -227,36 +227,45 @@ fn published_consumer_admits_lifecycle_only_after_final_artifact_preparation() {
 }
 
 #[test]
-fn callable_source_request_retains_atomic_final_program_owner() {
-    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        let parsed = NyashParser::parse_normal_callable_program_with_build_config(
-            "static box Scan { run(x) { return x } }",
-            crate::parser::ParserBuildConfig::default(),
-        )
-        .expect("callable-aware parse");
-        let transformed =
-            crate::r#macro::transform_normal_callable_program_v1(parsed).expect("exact transform");
-        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed
-        else {
-            panic!("static exact source must remain source-backed")
-        };
-        let request = NormalCompileRequestV1::for_mir_mode_callable_source(
-            source,
-            Some("scan.hako"),
-            HashMap::new(),
-        );
-        let (program, source, imports, admission, _, target_capability) = request.into_parts();
-        assert!(program.is_callable_source_backed());
-        assert_eq!(source.source_file(), Some("scan.hako"));
-        assert!(imports.is_empty());
-        assert_eq!(
-            admission,
-            NormalCompileAdmissionV1::PreparedSourceWithImports(
-                NormalPreparedSourceCallerV1::MirMode
+fn callable_source_requests_preserve_program_and_caller() {
+    for (case_name, make_request, expected_caller) in [
+        (
+            "callable_source_request_retains_atomic_final_program_owner",
+            NormalCompileRequestV1::for_mir_mode_callable_source as fn(_, Option<&str>, _) -> _,
+            NormalPreparedSourceCallerV1::MirMode,
+        ),
+        (
+            "llvm_callable_source_request_keeps_llvm_caller_identity",
+            NormalCompileRequestV1::for_llvm_callable_source,
+            NormalPreparedSourceCallerV1::LlvmSourceCompiler,
+        ),
+    ] {
+        println!("case: {case_name}");
+        crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+            let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+                "static box Scan { run(x) { return x } }",
+                crate::parser::ParserBuildConfig::default(),
             )
-        );
-        assert!(target_capability.is_none());
-    });
+            .expect("callable-aware parse");
+            let transformed = crate::r#macro::transform_normal_callable_program_v1(parsed)
+                .expect("exact transform");
+            let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+                transformed
+            else {
+                panic!("static exact source must remain source-backed")
+            };
+            let request = make_request(source, Some("scan.hako"), HashMap::new());
+            let (program, source, imports, admission, _, target_capability) = request.into_parts();
+            assert!(program.is_callable_source_backed());
+            assert_eq!(source.source_file(), Some("scan.hako"));
+            assert!(imports.is_empty());
+            assert_eq!(
+                admission,
+                NormalCompileAdmissionV1::PreparedSourceWithImports(expected_caller)
+            );
+            assert!(target_capability.is_none());
+        });
+    }
 }
 
 #[test]
@@ -281,39 +290,6 @@ fn callable_source_request_carries_parser_composite_ready_token() {
         );
         let (program, _, _, _, _, _) = request.into_parts();
         assert!(program.is_callable_source_backed());
-    });
-}
-
-#[test]
-fn llvm_callable_source_request_keeps_llvm_caller_identity() {
-    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        let parsed = NyashParser::parse_normal_callable_program_with_build_config(
-            "static box Scan { run(x) { return x } }",
-            crate::parser::ParserBuildConfig::default(),
-        )
-        .expect("callable-aware parse");
-        let transformed =
-            crate::r#macro::transform_normal_callable_program_v1(parsed).expect("exact transform");
-        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed
-        else {
-            panic!("static exact source must remain source-backed")
-        };
-        let request = NormalCompileRequestV1::for_llvm_callable_source(
-            source,
-            Some("scan.hako"),
-            HashMap::new(),
-        );
-        let (program, source, imports, admission, _, target_capability) = request.into_parts();
-        assert!(program.is_callable_source_backed());
-        assert_eq!(source.source_file(), Some("scan.hako"));
-        assert!(imports.is_empty());
-        assert_eq!(
-            admission,
-            NormalCompileAdmissionV1::PreparedSourceWithImports(
-                NormalPreparedSourceCallerV1::LlvmSourceCompiler
-            )
-        );
-        assert!(target_capability.is_none());
     });
 }
 
@@ -413,11 +389,17 @@ fn normal_ingress_materializes_required_callable_main_without_changing_script() 
 }
 
 #[test]
-fn normal_ingress_preserves_app_main_free_static_definition_after_finish() {
-    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+fn published_app_main_retains_static_callee_definition() {
+    for (case_name, text, repl, owner, path, expected_symbol, definition_count) in [
+                ("normal_ingress_preserves_app_main_free_static_definition_after_finish", "static box Main { main() { return helper(2) } helper(value: i64): i64 { return value } }", true, "Main", "app-main-free-static.hako", "Main.helper/1", Some(1)),
+("normal_ingress_preserves_qualified_static_sibling_after_finish", "static box Helpers { helper(value: i64): i64 { return value } }\n\
+             static box Main { main() { return Helpers.helper(2) } }", false, "Helpers", "app-main-qualified-sibling.hako", "Helpers.helper/1", None),
+            ] {
+                println!("case: {case_name}");
+                    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let parsed = NyashParser::parse_normal_callable_program_with_build_config(
-            "static box Main { main() { return helper(2) } helper(value: i64): i64 { return value } }",
+            text,
             crate::parser::ParserBuildConfig::default(),
         )
         .expect("App source");
@@ -428,15 +410,17 @@ fn normal_ingress_preserves_app_main_free_static_definition_after_finish() {
             panic!("App source must remain source-backed")
         };
         let mut compiler = MirCompiler::with_options(false);
-        compiler.set_repl_mode(true);
+        if repl {
+            compiler.set_repl_mode(true);
+        }
         let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method(
-            "Main", "helper", 1,
+            owner, "helper", 1,
         );
         let outcome = compiler
             .compile_normal_with_published(
                 NormalCompileRequestV1::for_mir_mode_callable_source(
                     source,
-                    Some("app-main-free-static.hako"),
+                    Some(path),
                     HashMap::new(),
                 ),
                 |view, verification| {
@@ -446,8 +430,10 @@ fn normal_ingress_preserves_app_main_free_static_definition_after_finish() {
                         view.retained_root_result().unwrap(),
                         Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64Return { .. })
                     ));
-                    assert_eq!(view.module().canonical_callable_definition_count(), 1);
-                    assert_eq!(view.module().canonical_callable_definition_symbol(&key), Some("Main.helper/1"));
+                    if let Some(count) = definition_count {
+                        assert_eq!(view.module().canonical_callable_definition_count(), count);
+                    }
+                    assert_eq!(view.module().canonical_callable_definition_symbol(&key), Some(expected_symbol));
                     let contract = view.issue_lifecycle_compiled_entry_contract()?;
                     assert_eq!(contract.ordinary_calls().len(), 1);
                     assert!(contract.program().functions().iter().any(|function| matches!(
@@ -466,61 +452,7 @@ fn normal_ingress_preserves_app_main_free_static_definition_after_finish() {
             NormalPublishedCompileOutcome::Consumed(())
         ));
     });
-}
-
-#[test]
-fn normal_ingress_preserves_qualified_static_sibling_after_finish() {
-    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
-    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        let parsed = NyashParser::parse_normal_callable_program_with_build_config(
-            "static box Helpers { helper(value: i64): i64 { return value } }\n\
-             static box Main { main() { return Helpers.helper(2) } }",
-            crate::parser::ParserBuildConfig::default(),
-        )
-        .expect("mixed App source");
-        let transformed = crate::r#macro::transform_normal_callable_program_v1(parsed)
-            .expect("exact callable transform");
-        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed
-        else {
-            panic!("App source must remain source-backed")
-        };
-        let mut compiler = MirCompiler::with_options(false);
-        let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method(
-            "Helpers", "helper", 1,
-        );
-        let outcome = compiler
-            .compile_normal_with_published(
-                NormalCompileRequestV1::for_mir_mode_callable_source(
-                    source,
-                    Some("app-main-qualified-sibling.hako"),
-                    HashMap::new(),
-                ),
-                |view, verification| {
-                    assert!(verification.is_ok(), "{verification:?}");
-                    assert_eq!(view.route(), crate::mir::function::PublishedStaticMethodRouteV1::CanonicalTyped);
-                    assert!(matches!(
-                        view.retained_root_result().unwrap(),
-                        Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64Return { .. })
-                    ));
-                    assert_eq!(view.module().canonical_callable_definition_symbol(&key), Some("Helpers.helper/1"));
-                    let contract = view.issue_lifecycle_compiled_entry_contract()?;
-                    assert_eq!(contract.ordinary_calls().len(), 1);
-                    assert!(contract.program().functions().iter().any(|function| matches!(
-                        function.role(),
-                        crate::mir::compiler::normal_default_pipeline::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key: actual, .. }
-                            if actual == &key
-                    )));
-                    let generic = crate::mir::function::PublishedMirBackendView::try_new(view.module()).unwrap();
-                    assert_eq!(generic.route(), crate::mir::function::PublishedStaticMethodRouteV1::UnsupportedBeforeObject);
-                    Ok::<(), String>(())
-                },
-            )
-            .expect("selected App Main qualified static target publication");
-        assert!(matches!(
-            outcome,
-            NormalPublishedCompileOutcome::Consumed(())
-        ));
-    });
+            }
 }
 
 
@@ -623,20 +555,36 @@ fn selfhost_macro_preexpand_fixes_anonymous_source_and_empty_imports() {
 }
 
 #[test]
-fn vm_hako_post_macro_preserves_named_source_and_exact_imports() {
-    let program =
-        VerifiedPostMacroWholeFileProgramV1::seal(program()).expect("Program must seal once");
-    let imports = HashMap::from([("Alias".to_owned(), "Target".to_owned())]);
-    let request =
-        NormalCompileRequestV1::for_vm_hako_post_macro(program, "vm-hako.hako", imports.clone());
-    let (_, source, actual_imports, admission, _, _) = request.into_parts();
+fn vm_post_macro_requests_preserve_source_and_imports() {
+    for (case_name, alias, target, make_request, source_file, expected_admission) in [
+        (
+            "vm_hako_post_macro_preserves_named_source_and_exact_imports",
+            "Alias",
+            "Target",
+            NormalCompileRequestV1::for_vm_hako_post_macro as fn(_, &str, _) -> _,
+            "vm-hako.hako",
+            NormalCompileAdmissionV1::VmHakoPostMacroProgramWithImports,
+        ),
+        (
+            "vm_keep_post_macro_preserves_named_source_and_exact_imports",
+            "KeepAlias",
+            "KeepTarget",
+            NormalCompileRequestV1::for_vm_keep_post_macro,
+            "vm-keep.hako",
+            NormalCompileAdmissionV1::VmKeepPostMacroProgramWithImports,
+        ),
+    ] {
+        println!("case: {case_name}");
+        let program =
+            VerifiedPostMacroWholeFileProgramV1::seal(program()).expect("Program must seal once");
+        let imports = HashMap::from([(alias.to_owned(), target.to_owned())]);
+        let request = make_request(program, source_file, imports.clone());
+        let (_, source, actual_imports, admission, _, _) = request.into_parts();
 
-    assert_eq!(source.source_file(), Some("vm-hako.hako"));
-    assert_eq!(actual_imports, imports);
-    assert_eq!(
-        admission,
-        NormalCompileAdmissionV1::VmHakoPostMacroProgramWithImports
-    );
+        assert_eq!(source.source_file(), Some(source_file));
+        assert_eq!(actual_imports, imports);
+        assert_eq!(admission, expected_admission);
+    }
 }
 
 #[test]
@@ -651,23 +599,6 @@ fn vm_fallback_post_macro_preserves_named_source_and_empty_imports() {
     assert_eq!(
         admission,
         NormalCompileAdmissionV1::VmFallbackPostMacroProgramNoImports
-    );
-}
-
-#[test]
-fn vm_keep_post_macro_preserves_named_source_and_exact_imports() {
-    let program =
-        VerifiedPostMacroWholeFileProgramV1::seal(program()).expect("Program must seal once");
-    let imports = HashMap::from([("KeepAlias".to_owned(), "KeepTarget".to_owned())]);
-    let request =
-        NormalCompileRequestV1::for_vm_keep_post_macro(program, "vm-keep.hako", imports.clone());
-    let (_, source, actual_imports, admission, _, _) = request.into_parts();
-
-    assert_eq!(source.source_file(), Some("vm-keep.hako"));
-    assert_eq!(actual_imports, imports);
-    assert_eq!(
-        admission,
-        NormalCompileAdmissionV1::VmKeepPostMacroProgramWithImports
     );
 }
 

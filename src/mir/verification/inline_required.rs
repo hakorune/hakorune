@@ -122,6 +122,16 @@ mod tests {
         assert!(function.metadata.inline_plans[0].verified);
     }
 
+    fn assert_required_fieldset_inline_plan(function: &MirFunction) {
+        assert!(
+            check_required_inline_plans(function).is_ok(),
+            "{}",
+            error_text(function)
+        );
+        assert_eq!(function.metadata.inline_plans.len(), 1);
+        assert!(function.metadata.inline_plans[0].verified);
+    }
+
     #[test]
     fn required_inline_verifies_receiver_fieldset_leaf_by_shape_inference() {
         let function = function_with_runes(
@@ -141,13 +151,7 @@ mod tests {
             ],
         );
 
-        assert!(
-            check_required_inline_plans(&function).is_ok(),
-            "{}",
-            error_text(&function)
-        );
-        assert_eq!(function.metadata.inline_plans.len(), 1);
-        assert!(function.metadata.inline_plans[0].verified);
+        assert_required_fieldset_inline_plan(&function);
     }
 
     #[test]
@@ -169,13 +173,7 @@ mod tests {
             ],
         );
 
-        assert!(
-            check_required_inline_plans(&function).is_ok(),
-            "{}",
-            error_text(&function)
-        );
-        assert_eq!(function.metadata.inline_plans.len(), 1);
-        assert!(function.metadata.inline_plans[0].verified);
+        assert_required_fieldset_inline_plan(&function);
     }
 
     #[test]
@@ -197,13 +195,7 @@ mod tests {
             ],
         );
 
-        assert!(
-            check_required_inline_plans(&function).is_ok(),
-            "{}",
-            error_text(&function)
-        );
-        assert_eq!(function.metadata.inline_plans.len(), 1);
-        assert!(function.metadata.inline_plans[0].verified);
+        assert_required_fieldset_inline_plan(&function);
     }
 
     #[test]

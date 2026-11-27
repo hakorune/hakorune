@@ -401,10 +401,9 @@ mod tests {
         );
     }
 
-    #[test]
-    fn pipeline_does_not_reclassify_unknown_plus_integer_as_integer() {
+    fn infer_add_result(symbol: &str, lhs: Option<MirType>) -> Option<MirType> {
         let signature = FunctionSignature {
-            name: "dynamic_add_stays_untyped".to_string(),
+            name: symbol.to_string(),
             params: vec![],
             return_type: MirType::Void,
             effects: EffectMask::PURE,
@@ -420,37 +419,25 @@ mod tests {
                 rhs: ValueId::new(2),
             });
         let mut value_types = BTreeMap::from([(ValueId::new(2), MirType::Integer)]);
+        if let Some(lhs) = lhs {
+            value_types.insert(ValueId::new(1), lhs);
+        }
 
         TypePropagationPipeline::run(&mut function, &mut value_types).expect("pipeline");
 
-        assert_eq!(value_types.get(&ValueId::new(3)), None);
+        value_types.get(&ValueId::new(3)).cloned()
+    }
+
+    #[test]
+    fn pipeline_does_not_reclassify_unknown_plus_integer_as_integer() {
+        assert_eq!(infer_add_result("dynamic_add_stays_untyped", None), None);
     }
 
     #[test]
     fn pipeline_keeps_exact_integer_add_inference() {
-        let signature = FunctionSignature {
-            name: "exact_integer_add".to_string(),
-            params: vec![],
-            return_type: MirType::Void,
-            effects: EffectMask::PURE,
-        };
-        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
-        function
-            .get_block_mut(BasicBlockId::new(0))
-            .expect("entry block")
-            .add_instruction(MirInstruction::BinOp {
-                dst: ValueId::new(3),
-                op: BinaryOp::Add,
-                lhs: ValueId::new(1),
-                rhs: ValueId::new(2),
-            });
-        let mut value_types = BTreeMap::from([
-            (ValueId::new(1), MirType::Integer),
-            (ValueId::new(2), MirType::Integer),
-        ]);
-
-        TypePropagationPipeline::run(&mut function, &mut value_types).expect("pipeline");
-
-        assert_eq!(value_types.get(&ValueId::new(3)), Some(&MirType::Integer));
+        assert_eq!(
+            infer_add_result("exact_integer_add", Some(MirType::Integer)),
+            Some(MirType::Integer)
+        );
     }
 }

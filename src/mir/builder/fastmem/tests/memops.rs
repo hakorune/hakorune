@@ -28,175 +28,101 @@ fn emitted_binop_kinds(function: &crate::mir::MirFunction) -> Vec<crate::mir::Bi
         .collect()
 }
 
+
 #[test]
-fn fastmem_source_emits_local_free_list_memops() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("fastmem_local_free_list/0".to_string());
-    let body = vec![
-        local("page_table", int_lit(8192)),
-        local("key", int_lit(3)),
-        local("block", int_lit(12288)),
-        ASTNode::FastMemRegion {
-            contract: "PageMapV0".to_string(),
-            body: vec![
-                local("page", index(var("page_table"), var("key"))),
-                ASTNode::FunctionCall {
-                    name: "mem.localFreePush".to_string(),
-                    arguments: vec![var("page"), var("block")],
-                    span: span(),
-                },
-                local(
-                    "popped",
-                    ASTNode::FunctionCall {
-                        name: "mem.localFreePop".to_string(),
-                        arguments: vec![var("page")],
-                        span: span(),
-                    },
-                ),
+fn fastmem_source_emits_ordered_list_memops() {
+    let call = |name: &str, arguments| ASTNode::FunctionCall {
+        name: name.to_string(),
+        arguments,
+        span: span(),
+    };
+    for (case_name, symbol, block_local, operations, expected_memops) in [
+        (
+            "fastmem_source_emits_local_free_list_memops",
+            "fastmem_local_free_list/0",
+            Some(local("block", int_lit(12288))),
+            vec![
+                call("mem.localFreePush", vec![var("page"), var("block")]),
+                local("popped", call("mem.localFreePop", vec![var("page")])),
             ],
-            span: span(),
-        },
-    ];
-
-    super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-    let function = builder.function_state.current_function.as_ref().unwrap();
-
-    assert_eq!(
-        emitted_memop_kinds(function),
-        vec![
-            MemOpKind::TableIndex,
-            MemOpKind::LocalFreePush,
-            MemOpKind::LocalFreePop,
-        ]
-    );
-}
-
-#[test]
-fn fastmem_source_emits_free_head_pop_memop() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("fastmem_free_head_pop/0".to_string());
-    let body = vec![
-        local("page_table", int_lit(8192)),
-        local("key", int_lit(3)),
-        ASTNode::FastMemRegion {
-            contract: "PageMapV0".to_string(),
-            body: vec![
-                local("page", index(var("page_table"), var("key"))),
-                local(
-                    "popped",
-                    ASTNode::FunctionCall {
-                        name: "mem.freeHeadPop".to_string(),
-                        arguments: vec![var("page")],
-                        span: span(),
-                    },
-                ),
-            ],
-            span: span(),
-        },
-    ];
-
-    super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-    let function = builder.function_state.current_function.as_ref().unwrap();
-
-    assert_eq!(
-        emitted_memop_kinds(function),
-        vec![MemOpKind::TableIndex, MemOpKind::FreeHeadPop]
-    );
-}
-
-#[test]
-fn fastmem_source_emits_free_head_push_memop() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("fastmem_free_head_push/0".to_string());
-    let body = vec![
-        local("page_table", int_lit(8192)),
-        local("key", int_lit(3)),
-        local("block", int_lit(12288)),
-        ASTNode::FastMemRegion {
-            contract: "PageMapV0".to_string(),
-            body: vec![
-                local("page", index(var("page_table"), var("key"))),
-                ASTNode::FunctionCall {
-                    name: "mem.freeHeadPush".to_string(),
-                    arguments: vec![var("page"), var("block")],
-                    span: span(),
-                },
-            ],
-            span: span(),
-        },
-    ];
-
-    super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-    let function = builder.function_state.current_function.as_ref().unwrap();
-
-    assert_eq!(
-        emitted_memop_kinds(function),
-        vec![MemOpKind::TableIndex, MemOpKind::FreeHeadPush]
-    );
-}
-
-#[test]
-fn fastmem_source_emits_atomic_remote_head_push_memop() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("fastmem_atomic_remote_head_push/0".to_string());
-    let body = vec![
-        local("page_table", int_lit(8192)),
-        local("key", int_lit(3)),
-        local("block", int_lit(12288)),
-        ASTNode::FastMemRegion {
-            contract: "PageMapV0".to_string(),
-            body: vec![
-                local("page", index(var("page_table"), var("key"))),
-                ASTNode::FunctionCall {
-                    name: "mem.atomicRemoteHeadPush".to_string(),
-                    arguments: vec![var("page"), var("block")],
-                    span: span(),
-                },
-            ],
-            span: span(),
-        },
-    ];
-
-    super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-    let function = builder.function_state.current_function.as_ref().unwrap();
-
-    assert_eq!(
-        emitted_memop_kinds(function),
-        vec![MemOpKind::TableIndex, MemOpKind::AtomicRemoteHeadPush]
-    );
-}
-
-#[test]
-fn fastmem_source_emits_atomic_remote_head_drain_memop() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("fastmem_atomic_remote_head_drain/0".to_string());
-    let body = vec![
-        local("page_table", int_lit(8192)),
-        local("key", int_lit(3)),
-        ASTNode::FastMemRegion {
-            contract: "PageMapV0".to_string(),
-            body: vec![
-                local("page", index(var("page_table"), var("key"))),
+            &[
+                MemOpKind::TableIndex,
+                MemOpKind::LocalFreePush,
+                MemOpKind::LocalFreePop,
+            ][..],
+        ),
+        (
+            "fastmem_source_emits_free_head_pop_memop",
+            "fastmem_free_head_pop/0",
+            None,
+            vec![local("popped", call("mem.freeHeadPop", vec![var("page")]))],
+            &[MemOpKind::TableIndex, MemOpKind::FreeHeadPop],
+        ),
+        (
+            "fastmem_source_emits_free_head_push_memop",
+            "fastmem_free_head_push/0",
+            Some(local("block", int_lit(12288))),
+            vec![call("mem.freeHeadPush", vec![var("page"), var("block")])],
+            &[MemOpKind::TableIndex, MemOpKind::FreeHeadPush],
+        ),
+        (
+            "fastmem_source_emits_atomic_remote_head_push_memop",
+            "fastmem_atomic_remote_head_push/0",
+            Some(local("block", int_lit(12288))),
+            vec![call(
+                "mem.atomicRemoteHeadPush",
+                vec![var("page"), var("block")],
+            )],
+            &[MemOpKind::TableIndex, MemOpKind::AtomicRemoteHeadPush],
+        ),
+        (
+            "fastmem_source_emits_atomic_remote_head_drain_memop",
+            "fastmem_atomic_remote_head_drain/0",
+            None,
+            vec![local(
+                "drained",
+                call("mem.atomicRemoteHeadDrain", vec![var("page")]),
+            )],
+            &[MemOpKind::TableIndex, MemOpKind::AtomicRemoteHeadDrain],
+        ),
+        (
+            "fastmem_source_emits_drain_remote_list_to_local_memop",
+            "fastmem_drain_remote_list_to_local/0",
+            None,
+            vec![
                 local(
                     "drained",
-                    ASTNode::FunctionCall {
-                        name: "mem.atomicRemoteHeadDrain".to_string(),
-                        arguments: vec![var("page")],
-                        span: span(),
-                    },
+                    call("mem.atomicRemoteHeadDrain", vec![var("page")]),
+                ),
+                call(
+                    "mem.drainRemoteListToLocal",
+                    vec![var("page"), var("drained")],
                 ),
             ],
+            &[
+                MemOpKind::TableIndex,
+                MemOpKind::AtomicRemoteHeadDrain,
+                MemOpKind::DrainRemoteListToLocal,
+            ],
+        ),
+    ] {
+        println!("case: {case_name}");
+
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test(symbol.to_string());
+        let mut body = vec![local("page_table", int_lit(8192)), local("key", int_lit(3))];
+        body.extend(block_local);
+        let mut region_body = vec![local("page", index(var("page_table"), var("key")))];
+        region_body.extend(operations);
+        body.push(ASTNode::FastMemRegion {
+            contract: "PageMapV0".to_string(),
+            body: region_body,
             span: span(),
-        },
-    ];
-
-    super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-    let function = builder.function_state.current_function.as_ref().unwrap();
-
-    assert_eq!(
-        emitted_memop_kinds(function),
-        vec![MemOpKind::TableIndex, MemOpKind::AtomicRemoteHeadDrain]
-    );
+        });
+        super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
+        let function = builder.function_state.current_function.as_ref().unwrap();
+        assert_eq!(emitted_memop_kinds(function), expected_memops);
+    }
 }
 
 #[test]
@@ -232,48 +158,6 @@ fn fastmem_source_emits_numeric_binary_memops() {
             crate::mir::BinaryOp::Sub,
             crate::mir::BinaryOp::Shr,
             crate::mir::BinaryOp::BitAnd,
-        ]
-    );
-}
-
-#[test]
-fn fastmem_source_emits_drain_remote_list_to_local_memop() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("fastmem_drain_remote_list_to_local/0".to_string());
-    let body = vec![
-        local("page_table", int_lit(8192)),
-        local("key", int_lit(3)),
-        ASTNode::FastMemRegion {
-            contract: "PageMapV0".to_string(),
-            body: vec![
-                local("page", index(var("page_table"), var("key"))),
-                local(
-                    "drained",
-                    ASTNode::FunctionCall {
-                        name: "mem.atomicRemoteHeadDrain".to_string(),
-                        arguments: vec![var("page")],
-                        span: span(),
-                    },
-                ),
-                ASTNode::FunctionCall {
-                    name: "mem.drainRemoteListToLocal".to_string(),
-                    arguments: vec![var("page"), var("drained")],
-                    span: span(),
-                },
-            ],
-            span: span(),
-        },
-    ];
-
-    super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-    let function = builder.function_state.current_function.as_ref().unwrap();
-
-    assert_eq!(
-        emitted_memop_kinds(function),
-        vec![
-            MemOpKind::TableIndex,
-            MemOpKind::AtomicRemoteHeadDrain,
-            MemOpKind::DrainRemoteListToLocal,
         ]
     );
 }

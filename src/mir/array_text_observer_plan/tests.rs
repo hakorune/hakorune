@@ -77,22 +77,37 @@ fn detects_array_get_indexof_direct_scalar_route() {
     assert_eq!(route.fallback_policy(), "fail_fast");
 }
 
+
 #[test]
-fn marks_get_live_when_source_has_non_observer_use() {
-    let mut function = test_function(MirType::Integer);
-    let block = entry_block(&mut function);
-    block.add_instruction(array_get(10, 1, 2));
-    block.add_instruction(const_s(11, "needle"));
-    block.add_instruction(indexof_call(12, 10, 11));
-    block.add_instruction(len_call(13, 10));
-    block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(12)),
-    });
+fn array_observer_keeps_values_with_an_extra_use_live() {
+    for (case_name, extra_use, keeps_live) in [
+        (
+            "marks_get_live_when_source_has_non_observer_use",
+            10,
+            ArrayTextObserverRoute::keep_get_live as fn(&ArrayTextObserverRoute) -> bool,
+        ),
+        (
+            "marks_observer_arg_live_when_const_is_used_elsewhere",
+            11,
+            ArrayTextObserverRoute::observer_arg0_keep_live,
+        ),
+    ] {
+        println!("case: {case_name}");
+        let mut function = test_function(MirType::Integer);
+        let block = entry_block(&mut function);
+        block.add_instruction(array_get(10, 1, 2));
+        block.add_instruction(const_s(11, "needle"));
+        block.add_instruction(indexof_call(12, 10, 11));
+        block.add_instruction(len_call(13, extra_use));
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(12)),
+        });
 
-    refresh_function_array_text_observer_routes(&mut function);
+        refresh_function_array_text_observer_routes(&mut function);
 
-    let route = &function.metadata.array_text_observer_routes[0];
-    assert!(route.keep_get_live());
+        let route = &function.metadata.array_text_observer_routes[0];
+        assert!(keeps_live(route));
+    }
 }
 
 #[test]
@@ -120,24 +135,6 @@ fn keeps_get_dead_when_source_only_feeds_same_slot_const_suffix_store() {
 }
 
 
-
-#[test]
-fn marks_observer_arg_live_when_const_is_used_elsewhere() {
-    let mut function = test_function(MirType::Integer);
-    let block = entry_block(&mut function);
-    block.add_instruction(array_get(10, 1, 2));
-    block.add_instruction(const_s(11, "needle"));
-    block.add_instruction(indexof_call(12, 10, 11));
-    block.add_instruction(len_call(13, 11));
-    block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(12)),
-    });
-
-    refresh_function_array_text_observer_routes(&mut function);
-
-    let route = &function.metadata.array_text_observer_routes[0];
-    assert!(route.observer_arg0_keep_live());
-}
 
 
 fn test_function(return_type: MirType) -> MirFunction {

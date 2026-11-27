@@ -227,58 +227,41 @@ mod tests {
         );
     }
 
-    #[test]
-    fn source_uses_random_becomes_metadata_only_capability_plan() {
-        let plans = capability_plans_from_sources(
-            "Main.secure/0",
-            &[],
-            &["random".to_string(), "osvm".to_string()],
-        );
-
+    fn assert_source_capabilities(symbol: &str, uses: &[&str], expected_allow: &[&str]) {
+        let uses: Vec<_> = uses.iter().map(|name| (*name).to_string()).collect();
+        let plans = capability_plans_from_sources(symbol, &[], &uses);
         assert_eq!(plans.len(), 1);
-        assert_eq!(plans[0].function, "Main.secure/0");
-        assert_eq!(plans[0].allow, vec!["hako.osvm", "hako.random"]);
+        assert_eq!(plans[0].function, symbol);
+        assert_eq!(plans[0].allow, expected_allow);
         assert_eq!(plans[0].source, "source_uses");
         assert!(!plans[0].verified);
+    }
+
+    #[test]
+    fn source_uses_random_becomes_metadata_only_capability_plan() {
+        assert_source_capabilities(
+            "Main.secure/0",
+            &["random", "osvm"],
+            &["hako.osvm", "hako.random"],
+        );
     }
 
     #[test]
     fn source_declared_uses_emit_canonical_capability_plan_ids() {
-        let plans = capability_plans_from_sources(
+        assert_source_capabilities(
             "Main.low/0",
-            &[],
-            &[
-                "rawbuf".to_string(),
-                "unknown".to_string(),
-                "atomic".to_string(),
-                "osvm".to_string(),
-                "random".to_string(),
-            ],
+            &["rawbuf", "unknown", "atomic", "osvm", "random"],
+            &["hako.atomic", "hako.osvm", "hako.random", "hako.rawbuf"],
         );
-
-        assert_eq!(plans.len(), 1);
-        assert_eq!(plans[0].function, "Main.low/0");
-        assert_eq!(
-            plans[0].allow,
-            vec!["hako.atomic", "hako.osvm", "hako.random", "hako.rawbuf"]
-        );
-        assert_eq!(plans[0].source, "source_uses");
-        assert!(!plans[0].verified);
     }
 
     #[test]
     fn source_declared_uses_emit_reclaim_execution_capability_marker() {
-        let plans = capability_plans_from_sources(
+        assert_source_capabilities(
             "Main.reclaim/0",
-            &[],
-            &["alloc_reclaim".to_string(), "atomic".to_string()],
+            &["alloc_reclaim", "atomic"],
+            &["hako.alloc.reclaim", "hako.atomic"],
         );
-
-        assert_eq!(plans.len(), 1);
-        assert_eq!(plans[0].function, "Main.reclaim/0");
-        assert_eq!(plans[0].allow, vec!["hako.alloc.reclaim", "hako.atomic"]);
-        assert_eq!(plans[0].source, "source_uses");
-        assert!(!plans[0].verified);
     }
 
     #[test]

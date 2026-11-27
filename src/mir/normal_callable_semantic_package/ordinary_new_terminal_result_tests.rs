@@ -191,28 +191,46 @@ fn unannotated_instance_return_retains_source_scalar_without_duplicate_root_row(
 // (`return 0`), takes the lexical borrowed terminal seam instead and issues no root
 // row (`ordinary_new_root_instance_call.rs`, the `borrowed_terminal_arguments_v1` skip).
 #[test]
-fn root_instance_call_stays_unissued_for_unreleasable_terminal_home() {
-    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
-        "box Page { birth() { } }
+fn root_instance_calls_require_sealed_releasable_receiver_homes() {
+    for (case_name, source_text, description) in [
+        (
+            // `holder`'s claim is unreleasable (`inner: MapBox` is a declared
+            // type that is no numeric, Array, Text or user-box slot, so it gives
+            // `Destruction::Unavailable(FieldType)`), so `prepare_root_home_exit`
+            // can never take the row. The issuer must withhold it instead of
+            // stranding `Ready` rows. (An untyped `init { inner }` field is a releasable
+            // Dynamic slot now and does not reach this branch.)
+            "root_instance_call_stays_unissued_for_unreleasable_terminal_home",
+            "box Page { birth() { } }
         box Holder { inner: MapBox
         birth() { me.inner = new Page() }
         run(n: i64): i64 { return n + 1 } }
         static box Main { main() {
         local holder = new Holder()
         return holder.run(1) } }",
-    )
-    .expect("unreleasable receiver home source");
-    let ledger = &package.ordinary_new_claim_ledger;
-    let owner = ledger.root_completion_for_test().owner();
-    // The terminal call is still a known instance call ...
-    assert!(ledger.root_instance_call_expected(owner));
-    // ... but `holder`'s claim is unreleasable (`inner: MapBox` is a declared
-    // type that is no numeric, Array, Text or user-box slot, so it gives
-    // `Destruction::Unavailable(FieldType)`), so `prepare_root_home_exit`
-    // can never take the row. The issuer must withhold it instead of
-    // stranding `Ready` rows. (An untyped `init { inner }` field is a releasable
-    // Dynamic slot now and does not reach this branch.)
-    assert!(ledger.root_instance_call_is_empty());
+            "unreleasable receiver home source",
+        ),
+        (
+            "root_instance_call_stays_unissued_for_owned_field_without_sealed_children",
+            "box Page { birth() { } }
+        box Holder { inner: Page
+        birth() { }
+        run(n: i64): i64 { return n + 1 } }
+        static box Main { main() {
+        local holder = new Holder()
+        return holder.run(1) } }",
+            "unsealed owned-field receiver home source",
+        ),
+    ] {
+        println!("case: {case_name}");
+        let package = super::super::brand_catalog_tests::issue_with_brand_catalog(source_text)
+            .expect(description);
+        let ledger = &package.ordinary_new_claim_ledger;
+        let owner = ledger.root_completion_for_test().owner();
+        // The terminal call is still a known instance call ...
+        assert!(ledger.root_instance_call_expected(owner));
+        assert!(ledger.root_instance_call_is_empty());
+    }
 }
 
 #[test]
@@ -553,27 +571,6 @@ fn root_instance_call_admits_owned_field_receiver_with_sealed_children() {
         assert!(ledger.root_instance_call_expected(owner), "{declaration}");
         assert!(!ledger.root_instance_call_is_empty(), "{declaration}");
     }
-}
-
-#[test]
-fn root_instance_call_stays_unissued_for_owned_field_without_sealed_children() {
-    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
-        "box Page { birth() { } }
-        box Holder { inner: Page
-        birth() { }
-        run(n: i64): i64 { return n + 1 } }
-        static box Main { main() {
-        local holder = new Holder()
-        return holder.run(1) } }",
-    )
-    .expect("unsealed owned-field receiver home source");
-    let ledger = &package.ordinary_new_claim_ledger;
-    let owner = ledger.root_completion_for_test().owner();
-    assert!(ledger.root_instance_call_expected(owner));
-    // `inner` is declared typed but never written in birth — no sealed
-    // residence, `children` is `None`, `end_available` can never hold,
-    // so the issuer still withholds the `Ready` row.
-    assert!(ledger.root_instance_call_is_empty());
 }
 
 #[test]
