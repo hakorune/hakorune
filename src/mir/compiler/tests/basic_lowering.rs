@@ -130,3 +130,15 @@ fn test_lowering_boxcall_array_push() {
         dump
     );
 }
+
+#[test]
+fn compile_static_call_cohort_with_literal_and_computed_arguments() {
+    for (first, second) in [("7", "7 + 1"), ("7 + 1", "7")] {
+        let source = format!(
+            "static box Layout {{ pick(p) {{ return 0 }} }} \
+             static box Main {{ main() {{ local a = Layout.pick({first}) \
+             local b = Layout.pick({second}) return 0 }} }}"
+        );
+        verify_callable_source(&source, "mixed-static-input-cohort.hako");
+    }
+}

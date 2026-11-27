@@ -162,6 +162,33 @@ enum FormalDomainProjectionV1<'a> {
 }
 
 impl OriginalFormalSeedProductV1 {
+    /// The closed formal domain and its original arguments choose the signed
+    /// expression protocol for the whole callee before actuals are staged.
+    pub(super) fn signed_static_expression_owners_v1(
+        &self,
+    ) -> impl Iterator<Item = FunctionOwnerIdV1> + '_ {
+        use super::super::borrowed_formal_uses::BorrowedIncomingSourceV1;
+
+        self.rows.iter().filter_map(|row| {
+            let sums = self.source_sums.as_ref()?;
+            let BorrowedIncomingSourceV1::Static(source) = &row.incoming.source else {
+                return None;
+            };
+            let signed = source.parameters().iter()
+                .filter(|formal| formal.kind == CallableParameterContractKindV1::OpaqueHandle)
+                .all(|formal| sums.values.get(&formal.binding).is_some_and(|sum| sum.signed_only()));
+            let computed = row.incoming.arguments.iter().zip(&row.seeds)
+                .any(|((ordinal, site, binding), seed)| {
+                    source.parameters().get(*ordinal as usize).is_some_and(|formal|
+                        formal.binding == *binding
+                            && formal.kind == CallableParameterContractKindV1::OpaqueHandle)
+                        && matches!(seed, OriginalFormalActualSeedV1::Binary { owner, source, .. }
+                            if *owner == row.incoming.call.owner() && source.site() == site)
+                });
+            (signed && computed).then_some(row.incoming.callee)
+        })
+    }
+
     /// Binding selected Stored targets changes no original row/ordered actual.
     /// Equal but newly issued source Rcs, loss and additional rows stay refused.
     pub(super) fn corroborate_original_v1(&self, inventory: &BorrowedIncomingInventoryV1) -> bool {

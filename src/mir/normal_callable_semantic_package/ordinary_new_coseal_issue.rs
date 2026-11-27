@@ -188,7 +188,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         &mut owned_field_children,
     )?;
     if let Ok(source) = &mut borrowed_formal_source {
-        source.select_static_tagged_sources_v1();
+        source.select_static_input_sources_v1();
     }
     let typed_static_walk_owners = walk_triggers::typed_static_walk_owners_v1(
         &borrowed_formal_source,

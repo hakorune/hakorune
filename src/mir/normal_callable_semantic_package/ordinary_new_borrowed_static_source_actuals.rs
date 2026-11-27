@@ -382,8 +382,11 @@ pub(super) fn selects_static_expression_source_v1(
     let ordinary_input_source = original.is_some_and(|source|
         source.qualified_scalar_result_v1().is_some()
             && crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1::owning_ordinary_source_input_cohort_v1(source.parameters()));
+    let signed_expression_cohort = original.is_some_and(|source|
+        prepared.has_signed_static_expression_input_v1(source.callee_owner()));
     Ok(original.is_some()
-        && (core_source || source_expression || sibling_source || ordinary_input_source || tagged_forward))
+        && (core_source || source_expression || sibling_source || ordinary_input_source
+            || tagged_forward || signed_expression_cohort))
 }
 
 pub(super) fn prepare_static_source_actuals_v1(
