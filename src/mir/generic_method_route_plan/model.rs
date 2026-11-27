@@ -388,6 +388,7 @@ impl GenericMethodRoute {
         self.evidence.arg0_origin_box.as_deref()
     }
 
+    #[cfg(test)]
     pub(crate) fn override_result_origin_box(&mut self, box_name: String) {
         self.evidence.result_origin_box = Some(box_name);
     }

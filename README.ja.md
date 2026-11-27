@@ -126,10 +126,6 @@ Phase‑15（2025‑09）アップデート
 - bootstrap / acceptance の engineering helper は `tools/selfhost/proof/*` に残すが、一般 front-door proof surface とは分けて扱う
 - Makefile: `make run-minimal`, `make smoke-selfhost`
 
-MIR注記: Core‑13 最小カーネルは既定で有効（NYASH_MIR_CORE13=1）。旧命令は正規化されます（Array/Ref→BoxCall、TypeCheck/Cast/Barrier/WeakRefの統一）。
-
-純化モード: `NYASH_MIR_CORE13_PURE=1` を有効にすると、Optimizer が Load/Store/NewBox/Unary を Core‑13 形に書き換え、残存する非Core‑13命令があればコンパイルを失敗させます。あえて実行が壊れる可能性がありますが、MIR違反を早期に発見するための設計です。
-
 変更履歴（要点）: `CHANGELOG.md`
 
 ## 🚀 **歴史的マイルストーン（Nyash時代）**

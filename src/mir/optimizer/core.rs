@@ -93,27 +93,9 @@ impl MirOptimizer {
         module: &mut MirModule,
         stats: &mut OptimizationStats,
     ) {
-        let core13 = crate::config::env::mir_core13();
-        let mut ref_to_boxcall = crate::config::env::mir_ref_boxcall();
-        if core13 {
-            ref_to_boxcall = true;
-        }
-
         // Pass 0: Normalize legacy instructions to unified forms.
-        // Includes optional Array→BoxCall guarded by env inside the pass.
         stats.merge(
             crate::mir::optimizer_passes::normalize::normalize_legacy_instructions(self, module),
-        );
-        // Pass 0.1: RefGet/RefSet → BoxCall(getField/setField) (guarded).
-        if ref_to_boxcall {
-            stats.merge(
-                crate::mir::optimizer_passes::normalize::normalize_ref_field_access(self, module),
-            );
-        }
-
-        // Normalize Python helper form: py.getattr(obj, name) → obj.getattr(name).
-        stats.merge(
-            crate::mir::optimizer_passes::normalize::normalize_python_helper_calls(self, module),
         );
     }
 
@@ -171,22 +153,6 @@ impl MirOptimizer {
     }
 
     fn run_late_call_and_inline(&mut self, module: &mut MirModule, stats: &mut OptimizationStats) {
-        // Reserved hooks stay in their current order until a separate
-        // classification card retires or hides them from the visible schedule.
-        stats.merge(crate::mir::optimizer_passes::reorder::reorder_pure_instructions(self, module));
-        stats.merge(
-            crate::mir::optimizer_passes::intrinsics::optimize_intrinsic_calls(self, module),
-        );
-
-        stats.merge(
-            crate::mir::optimizer_passes::boxfield::optimize_boxfield_operations(self, module),
-        );
-
-        let updates = crate::mir::passes::type_hints::propagate_param_type_hints(module);
-        if updates > 0 {
-            stats.intrinsic_optimizations += updates as usize;
-        }
-
         // Inline consumes refreshed MIR InlinePlan metadata only.
         crate::mir::rune_plan_refresh::refresh_module_rune_plans(module);
         let inline_soft_leaf = crate::mir::passes::inline_soft_leaf::apply(module);

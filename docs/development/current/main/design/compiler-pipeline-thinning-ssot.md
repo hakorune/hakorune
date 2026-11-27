@@ -232,8 +232,6 @@ The safe target is a facade schedule, not physical pass deletion:
 ```text
 normalize_frontend_surface:
   legacy normalization
-  optional ref-field normalization
-  Python helper normalization
 
 placement_effect_pre:
   pre-DCE placement/effect transform
@@ -251,14 +249,12 @@ placement_effect_post:
   post-DCE placement/effect transform
 
 late_call_and_inline:
-  boxfield optimization
   callsite canonicalization
   rune plan refresh
   inline soft leaf
 
 optional_and_diagnostics:
   optional concat3
-  optional Core-13 pure normalization
   diagnostics
 ```
 
@@ -268,7 +264,6 @@ Do not merge these without a separate optimizer semantics card:
 DCE with memory-effect
 pre/post placement-effect
 string_corridor_sink internal phases
-Core-13 pure normalization into early normalization
 CSE with DCE as if CSE were full SSA rewrite
 ```
 
@@ -427,15 +422,23 @@ no DCE / placement / memory-effect physical merge
 
 ### OPT-THIN-002
 
-Classify optimizer no-op scaffolds and reserved hooks.
+Retiring a scaffold requires a usage gate that covers its writers and its
+consumers, including compatibility ingress.
 
-Acceptance:
-
-```text
-reorder / intrinsics / type_hints / ref-field normalization classified
-default visible schedule no longer reads like active behavior where it is not
-no scaffold deletion without usage gate
-```
+- PH-0 ran MIR dump and EXE on 6,290 inputs. Of these, 2,973 reached MIR
+  finalization. The instrumentation saw zero `LegacyCallV0` instructions and
+  zero rewrites or markers from the Group A scaffolds.
+- PC-10 reran the same 6,290 inputs through each of the VM, minimal MIR JSON
+  and stage1 direct entry points. Together the runs reached semantic refresh
+  on 3,390 distinct inputs. The 63 tracked Program JSON fixtures and 119
+  tracked MIR JSON fixtures added no hits. Two hand-authored v0 artifacts
+  reached closure-body and array-read canonicalization. Both have
+  user-visible MIR dumps on JSON intake, so those passes remain.
+- R1 retires the reorder, intrinsic, type-hint and ref-field scaffolds and
+  the default RC wrapper. The `rc-insertion-minimal` feature still supplies the
+  RC pass. The measured LegacyCallV0-only Group C writers are also retired.
+  For the constructor metadata, the C box-name fallback was checked
+  separately for MapBox and ArrayBox.
 
 ### OPT-THIN-003
 

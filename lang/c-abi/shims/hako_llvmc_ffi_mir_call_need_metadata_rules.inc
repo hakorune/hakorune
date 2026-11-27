@@ -57,21 +57,6 @@
       }
 
       auto enum MirCallNeedKind
-      mir_call_constructor_need_kind_from_lowering_plan_entry(yyjson_val* entry) {
-        struct LoweringPlanConstructorCallView view;
-        if (!read_lowering_plan_constructor_call_view(entry, &view)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_NONE;
-        }
-        if (view.need_kind && !strcmp(view.need_kind, "map_birth")) {
-          return HAKO_LLVMC_MIR_CALL_NEED_MAP_BIRTH;
-        }
-        if (view.need_kind && !strcmp(view.need_kind, "array_birth")) {
-          return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_BIRTH;
-        }
-        return HAKO_LLVMC_MIR_CALL_NEED_NONE;
-      }
-
-      auto enum MirCallNeedKind
       mir_call_extern_need_kind_from_lowering_plan_entry(yyjson_val* entry) {
         struct LoweringPlanExternCallView view;
         const struct HakoLlvmcExternCallRouteRegistryRow* row = NULL;

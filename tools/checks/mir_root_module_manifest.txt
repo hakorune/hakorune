@@ -44,7 +44,6 @@ compile_target_capability	pub	none
 compile_timing	pub(crate)	none
 compiler	private	none
 concat_const_suffix_micro_seed_plan	pub	none
-constructor_call_route_plan	pub	none
 contracts	pub	none
 control_form	pub	none
 core_method_op	pub	none
@@ -120,7 +119,6 @@ numeric_substrate	pub(crate)	none
 optimizer	pub	none
 optimizer_passes	pub	none
 optimizer_stats	pub	none
-ordered_map_origin_plan	pub	none
 ownership_backend_capability	pub(crate)	none
 ownership_ssa	pub(crate)	none
 parameter_entry_backend_capability	pub(crate)	none
@@ -192,7 +190,6 @@ type_propagation	pub	none
 typed_array_backend_capability	pub(crate)	none
 typed_object_plan	pub	none
 types	pub	none
-user_box_method_publication	pub	none
 user_box_method_route_plan	pub	none
 userbox_known_receiver_method_seed_plan	pub	none
 userbox_local_scalar_seed_plan	pub	none

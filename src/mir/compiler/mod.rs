@@ -2,6 +2,7 @@ use super::builder::MirBuilder;
 use super::function::DynamicV2MetadataPairObservation;
 use super::function::MirModule;
 use super::optimizer::MirOptimizer;
+#[cfg(feature = "rc-insertion-minimal")]
 use super::passes::rc_insertion::insert_rc_instructions;
 use super::printer::MirPrinter;
 use super::semantic_refresh::{
@@ -46,12 +47,14 @@ enum MirFinishScheduleV1 {
     SelectedDynamic,
 }
 
+#[cfg(any(test, feature = "rc-insertion-minimal"))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum LegacyRcInsertionScheduleV1 {
     Skip,
     Run,
 }
 
+#[cfg(any(test, feature = "rc-insertion-minimal"))]
 impl MirFinishScheduleV1 {
     fn legacy_rc_insertion(self) -> LegacyRcInsertionScheduleV1 {
         match self {
@@ -241,6 +244,7 @@ impl MirCompiler {
         let verification_result = self.verifier.verify_module(&module);
         super::compile_timing::trace_stage("verify", stage_start.elapsed());
 
+        #[cfg(feature = "rc-insertion-minimal")]
         match schedule.legacy_rc_insertion() {
             LegacyRcInsertionScheduleV1::Skip => {}
             LegacyRcInsertionScheduleV1::Run => {

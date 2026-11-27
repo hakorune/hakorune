@@ -18,26 +18,6 @@ pub fn phi_global_debug_enabled() -> bool {
     std::env::var("NYASH_PHI_GLOBAL_DEBUG").is_ok()
 }
 
-// ---- Phase 11.8 MIR cleanup toggles ----
-/// Core-13 minimal MIR mode toggle. Default ON unless NYASH_MIR_CORE13=0.
-pub fn mir_core13() -> bool {
-    match std::env::var("NYASH_MIR_CORE13").ok() {
-        Some(v) => {
-            let lv = v.to_ascii_lowercase();
-            !(lv == "0" || lv == "false" || lv == "off")
-        }
-        None => true,
-    }
-}
-
-pub fn mir_ref_boxcall() -> bool {
-    std::env::var("NYASH_MIR_REF_BOXCALL").ok().as_deref() == Some("1") || mir_core13()
-}
-
-pub fn mir_array_boxcall() -> bool {
-    std::env::var("NYASH_MIR_ARRAY_BOXCALL").ok().as_deref() == Some("1") || mir_core13()
-}
-
 // ---- Optimizer diagnostics ----
 pub fn opt_debug() -> bool {
     std::env::var("NYASH_OPT_DEBUG").is_ok()

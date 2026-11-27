@@ -16,7 +16,6 @@ use super::{
     global_call_route_plan::refresh_module_global_call_routes,
     map_lookup_fusion_plan::refresh_function_map_lookup_fusion_routes,
     map_repr_plan::refresh_function_map_repr_plans,
-    ordered_map_origin_plan::refresh_module_ordered_map_get_result_origins,
     typed_object_plan::{
         refresh_module_typed_object_collection_field_element_value_types,
         refresh_module_typed_object_field_value_types,
@@ -69,11 +68,6 @@ pub fn refresh_module_route_fixpoint(module: &mut MirModule) {
     refresh_module_typed_object_collection_field_element_value_types(module);
     typed_elapsed += stage_start.elapsed();
 
-    // Seed focused carrier-data map result origins before generic/user-box
-    // refresh so downstream ArrayBox reads can inherit the published type.
-    shadow.record(RouteFamily::OrderedMapResultOrigins);
-    refresh_module_ordered_map_get_result_origins(module);
-
     let stage_start = Instant::now();
     shadow.record(RouteFamily::GenericMethod);
     refresh_module_generic_method_routes(module);
@@ -100,10 +94,6 @@ pub fn refresh_module_route_fixpoint(module: &mut MirModule) {
     let _ = refresh_module_global_call_routes(module);
     global_elapsed += stage_start.elapsed();
 
-    // Re-run the focused origin publication after user-box routes settle so
-    // route result-box overrides and nested ArrayBox reads stay aligned.
-    shadow.record(RouteFamily::OrderedMapResultOrigins);
-    refresh_module_ordered_map_get_result_origins(module);
     let stage_start = Instant::now();
     shadow.record(RouteFamily::TypedObjectCollectionElementTypes);
     refresh_module_typed_object_collection_field_element_value_types(module);
@@ -116,8 +106,6 @@ pub fn refresh_module_route_fixpoint(module: &mut MirModule) {
     shadow.record(RouteFamily::UserBoxMethod);
     let _ = refresh_module_user_box_method_routes(module);
     user_box_elapsed += stage_start.elapsed();
-    shadow.record(RouteFamily::OrderedMapResultOrigins);
-    refresh_module_ordered_map_get_result_origins(module);
 
     let shadow_report = shadow
         .finish()

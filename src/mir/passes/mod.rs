@@ -14,4 +14,3 @@ pub mod rc_insertion_helpers;
 pub mod semantic_simplification;
 pub mod simplify_cfg;
 pub mod string_corridor_sink;
-pub mod type_hints;

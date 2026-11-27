@@ -14,11 +14,10 @@ pub(crate) enum RouteFamily {
     MapRepresentation,
     TypedObjectFieldValueTypes,
     TypedObjectCollectionElementTypes,
-    OrderedMapResultOrigins,
 }
 
 impl RouteFamily {
-    const ALL: [Self; 8] = [
+    const ALL: [Self; 7] = [
         Self::GenericMethod,
         Self::GlobalCall,
         Self::UserBoxMethod,
@@ -26,7 +25,6 @@ impl RouteFamily {
         Self::MapRepresentation,
         Self::TypedObjectFieldValueTypes,
         Self::TypedObjectCollectionElementTypes,
-        Self::OrderedMapResultOrigins,
     ];
 
     const fn tag(self) -> &'static str {
@@ -38,7 +36,6 @@ impl RouteFamily {
             Self::MapRepresentation => "map_representation",
             Self::TypedObjectFieldValueTypes => "typed_object_field_value_types",
             Self::TypedObjectCollectionElementTypes => "typed_object_collection_element_types",
-            Self::OrderedMapResultOrigins => "ordered_map_result_origins",
         }
     }
 }
@@ -49,10 +46,6 @@ const CURRENT_EDGES: &[(RouteFamily, RouteFamily)] = &[
     (RouteFamily::GlobalCall, RouteFamily::MapLookupFusion),
     (RouteFamily::GlobalCall, RouteFamily::MapRepresentation),
     (RouteFamily::UserBoxMethod, RouteFamily::GlobalCall),
-    (
-        RouteFamily::UserBoxMethod,
-        RouteFamily::OrderedMapResultOrigins,
-    ),
     (
         RouteFamily::MapLookupFusion,
         RouteFamily::TypedObjectFieldValueTypes,
@@ -67,14 +60,6 @@ const CURRENT_EDGES: &[(RouteFamily, RouteFamily)] = &[
     ),
     (
         RouteFamily::TypedObjectCollectionElementTypes,
-        RouteFamily::GenericMethod,
-    ),
-    (
-        RouteFamily::OrderedMapResultOrigins,
-        RouteFamily::TypedObjectCollectionElementTypes,
-    ),
-    (
-        RouteFamily::OrderedMapResultOrigins,
         RouteFamily::GenericMethod,
     ),
 ];
@@ -277,8 +262,11 @@ mod tests {
     #[test]
     fn current_graph_closes_all_route_families_deterministically() {
         let graph = RouteDependencyGraph::current().expect("current route graph");
-        let first = graph.affected_worklist([RouteFamily::GlobalCall]);
-        let second = graph.affected_worklist([RouteFamily::GlobalCall]);
+        let global_worklist = graph.affected_worklist([RouteFamily::GlobalCall]);
+        assert!(!global_worklist.contains(&RouteFamily::TypedObjectCollectionElementTypes));
+        let dirty = [RouteFamily::GlobalCall, RouteFamily::TypedObjectCollectionElementTypes];
+        let first = graph.affected_worklist(dirty);
+        let second = graph.affected_worklist(dirty);
 
         assert_eq!(first, second);
         assert_eq!(first.len(), RouteFamily::ALL.len());

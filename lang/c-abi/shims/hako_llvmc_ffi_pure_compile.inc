@@ -482,7 +482,6 @@ static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
       #include "hako_llvmc_ffi_user_box_method_route_registry.inc"
       #include "hako_llvmc_ffi_lowering_plan_metadata.inc"
       #include "hako_llvmc_ffi_extern_call_route_registry.inc"
-      #include "hako_llvmc_ffi_constructor_call_route_metadata.inc"
       #include "hako_llvmc_ffi_generic_method_result_metadata.inc"
       struct PhysicalDefinitionPlan* definition_plan = &invocation->definitions;
       #include "hako_llvmc_ffi_module_leaf_function_emit.inc"

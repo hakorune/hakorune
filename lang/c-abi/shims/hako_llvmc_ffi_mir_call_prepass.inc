@@ -20,9 +20,6 @@
         }
         if (ctype && !strcmp(ctype, "Constructor")) {
           long long dst = read_int(ins, "dst");
-          if (mark_constructor_call_from_lowering_plan(bid, ii, dst, needs)) {
-            return;
-          }
           switch (classify_mir_call_constructor_surface(
               cal ? (read_str(cal, "box_name")
                   ? read_str(cal, "box_name")

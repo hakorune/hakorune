@@ -3397,7 +3397,6 @@ mir::concat_const_suffix_micro_seed_plan::tests::detects_current_copy_elided_ent
 mir::concat_const_suffix_micro_seed_plan::tests::detects_current_unified_string_length_receiver_arg_shape
 mir::concat_const_suffix_micro_seed_plan::tests::detects_exact_5_block_concat_const_suffix_route
 mir::concat_const_suffix_micro_seed_plan::tests::rejects_when_ops_bound_changes
-mir::constructor_call_route_plan::tests::refresh_function_constructor_call_routes_records_collection_births
 mir::contracts::backend_core_ops::tests::callsite_rejects_call_with_closure_callee
 mir::contracts::backend_core_ops::tests::callsite_rejects_closure_call_with_runtime_args
 mir::contracts::backend_core_ops::tests::callsite_rejects_closure_call_without_dst
@@ -5073,8 +5072,6 @@ mir::optimizer::tests::test_normalize_keeps_weakref_load_instruction
 mir::optimizer::tests::test_optimization_stats
 mir::optimizer::tests::test_optimizer_creation
 mir::optimizer_passes::diagnostics::tests::diagnostics_observe_typed_method_without_legacy_func_const_scan
-mir::ordered_map_origin_plan::tests::publishes_arraybox_origin_and_rewrites_nested_reads
-mir::ordered_map_origin_plan::tests::publishes_arraybox_origin_for_explicit_carrier_snapshot_reads
 mir::ownership_backend_capability::tests::missing_sealed_witness_is_rejected
 mir::ownership_backend_capability::tests::only_witnessed_llvmlite_object_lane_is_accepted
 mir::ownership_backend_capability::tests::stale_witness_is_rejected_after_control_lifetime_changes
@@ -6029,11 +6026,6 @@ mir::typed_object_plan::storage_inference::tests::runtime_receiver_and_collectio
 mir::typed_object_plan::storage_inference::tests::runtime_receiver_and_collection::build_typed_object_plans_uses_param_box_origins_for_runtime_method_receiver_storage
 mir::typed_object_plan::tests::publishes_integer_result_for_typed_object_array_field_get
 mir::typed_object_plan::tests::publishes_integer_result_from_observed_method_param_array_write
-mir::user_box_method_publication::tests::call_publication_consumes_canonical_typed_operands
-mir::user_box_method_publication::tests::call_publication_ignores_non_operands_and_targetless_shapes
-mir::user_box_method_publication::tests::classifier_allows_same_block_newbox_before_method_call
-mir::user_box_method_publication::tests::classifier_rejects_param_receiver_without_interprocedural_proof
-mir::user_box_method_publication::tests::legacy_func_remains_publication_operand_until_schema_cutover
 mir::user_box_method_route_plan::tests::birth::refresh_module_user_box_method_routes_accepts_birth_same_module_target
 mir::user_box_method_route_plan::tests::birth::refresh_module_user_box_method_routes_accepts_birth_with_string_handle_const
 mir::user_box_method_route_plan::tests::birth::refresh_module_user_box_method_routes_accepts_void_method_with_generic_route
@@ -6580,7 +6572,6 @@ runner::mir_json_emit::tests::array_routes::build_mir_json_root_emits_array_text
 runner::mir_json_emit::tests::array_write::explicit_array_write_is_observable_in_mir_json
 runner::mir_json_emit::tests::build_mir_json_root_requires_and_emits_pinned_text_plan_census
 runner::mir_json_emit::tests::checked_callout_transport::checked_callout_transport_round_trips_without_backend_activation
-runner::mir_json_emit::tests::constructor_call_routes::build_mir_json_root_emits_constructor_call_lowering_plan
 runner::mir_json_emit::tests::control_edge_args::either_branch_edge_args_rejects_with_exact_edge_kind
 runner::mir_json_emit::tests::control_edge_args::exact_none_control_edges_emit_one_function_witness
 runner::mir_json_emit::tests::control_edge_args::some_empty_jump_edge_args_rejects_the_witness_and_is_not_published
