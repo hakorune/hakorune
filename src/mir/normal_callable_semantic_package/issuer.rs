@@ -340,6 +340,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
     // Dynamic Loop candidate below is only one consumer and cannot serve as
     // the ordinary-expression source catalog.
     let mut dynamic_source_calls = Vec::new();
+    let mut dynamic_calls_by_slot = std::collections::BTreeMap::new();
     for (key, _, _) in catalog.selected_identities() {
         if !matches!(key, crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(_)) {
             continue;
@@ -347,7 +348,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         let batch_slot = selected
             .batch_slot(key)
             .ok_or(NormalCallableSemanticPackageIssueV1::MissingDynamicSourceOwner)?;
-        let calls = batch
+        let (dynamic, calls) = batch
             .with_lowering_input(batch_slot, |input| {
                 let dynamic = crate::mir::builder::issue_source_backed_dynamic_callable_v1(input)
                     .map_err(|_error| DynamicCallableAdmissionIssueV1::SourceBacked { _error })?;
@@ -355,6 +356,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
                     input, &dynamic,
                 )
                 .map_err(|_error| DynamicCallableAdmissionIssueV1::Calls { _error })
+                .map(|calls| (dynamic, calls))
             })
             .map_err(|_error| NormalCallableSemanticPackageIssueV1::BatchLoan { _error })?
             .map_err(|_issue| NormalCallableSemanticPackageIssueV1::Dynamic {
@@ -362,6 +364,9 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
                 _issue,
             })?;
         dynamic_source_calls.extend(calls.iter().cloned());
+        if selected.dynamic_eligible_batch_slot(batch_slot) {
+            dynamic_calls_by_slot.insert(batch_slot, (dynamic, calls));
+        }
     }
     let field_writers = super::ordinary_new_coseal::OrdinaryNewFieldWriteClaimDraftV1::capture_sources(
         &batch, &selected, &captured_constructors,
@@ -456,11 +461,12 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
             })?;
         if let DynamicCallableAdmissionV1::Candidate {
             owner,
-            source,
             inventory,
-            calls,
         } = admission
         {
+            // Both selections come from the same sealed catalog-to-batch map.
+            let (source, calls) = dynamic_calls_by_slot.remove(&batch_slot)
+                .ok_or(NormalCallableSemanticPackageIssueV1::MissingDynamicSourceOwner)?;
             if candidate
                 .replace((batch_slot, owner, source, inventory, calls))
                 .is_some()
