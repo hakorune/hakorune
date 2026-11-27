@@ -164,7 +164,7 @@ impl EmittedOwnedArrayHolderV1 {
             } if *owner == self.owner() => {
                 let (selected, _) = ledger
                     .original_instance_input_issuance
-                    .as_ref()
+                    .get()
                     .ok_or_else(|| freeze("owned-holder/original-issuance-missing"))?;
                 let contracts = ledger
                     .original_parameter_contracts.as_ref();

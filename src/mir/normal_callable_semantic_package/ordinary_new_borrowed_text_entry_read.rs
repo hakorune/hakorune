@@ -279,7 +279,7 @@ pub(in crate::mir) fn original_entry_layout_v1(&self, binding: crate::mir::resol
         && ledger.source_formal_is_signed_i64_v1(formal)?;
     if rows.next().is_some() || declaration.parameters.get(row.ordinal as usize).is_none_or(|original| original.binding != formal)
         || !accepted_kind && !source_signed_i64 { return Err(freeze("expression/scalar-entry-contract")); }
-    let (selected, signatures) = ledger.original_instance_input_issuance.as_ref()
+    let (selected, signatures) = ledger.original_instance_input_issuance.get()
         .ok_or_else(|| freeze("expression/scalar-entry-issuance"))?;
     let signature = signatures.row(declaration.batch_slot).ok_or_else(|| freeze("expression/scalar-entry-signature"))?;
     let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) = selected.key_for_batch_slot(declaration.batch_slot)

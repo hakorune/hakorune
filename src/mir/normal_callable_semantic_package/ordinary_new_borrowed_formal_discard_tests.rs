@@ -93,7 +93,7 @@ fn borrowed_statement_discard_retains_original_actuals_without_local_destination
         let original = observation.borrowed_scalar().expect("dedicated original Bool loan");
         let mut row = ledger.take_lexical_instance_call(observation.owner(), observation.site().site()).unwrap().unwrap();
         assert_eq!(row.scalar_result_source_v1(), Some(original));
-        let (selected, signatures) = ledger.original_instance_input_issuance.as_ref().unwrap();
+        let (selected, signatures) = ledger.original_instance_input_issuance.get().unwrap();
         let arguments = ledger.checked_completed_original_instance_target_arguments_v1(
             row.source_target(), selected, ledger.original_parameter_contracts.as_ref(), signatures,
         ).unwrap();

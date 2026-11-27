@@ -526,7 +526,7 @@ impl crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1 {
         }
         let (selected, signatures) = self
             .original_instance_input_issuance
-            .as_ref()
+            .get()
             .ok_or_else(reject)?;
         let catalog = self
             .original_parameter_contracts.as_ref();

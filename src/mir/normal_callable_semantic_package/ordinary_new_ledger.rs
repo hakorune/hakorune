@@ -292,7 +292,7 @@ impl OrdinaryNewClaimLedgerV1 {
             ordinary_box_names,
             original_object_sources: None,
             original_parameter_contracts,
-            original_instance_input_issuance: None,
+            original_instance_input_issuance: std::cell::OnceCell::new(),
             omitted_static_callers: None,
             array_holder_lifecycles: RefCell::new(BTreeMap::new()),
             local_commits: RefCell::new(BTreeMap::new()),

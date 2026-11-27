@@ -317,7 +317,7 @@ fn stored_nullable_local_source_retains_original_borrow_without_object_promotion
             .corroborate_borrowed_nullable_call_v1(&row)
             .unwrap_err()
             .contains("input-issuance-missing"));
-        ledger.original_instance_input_issuance = Some(issuance);
+        ledger.original_instance_input_issuance.set(issuance).unwrap();
         ledger.corroborate_borrowed_nullable_call_v1(&row).unwrap();
         let row = row.with_result_for_test(Some(
             crate::mir::instruction::InvokeCallResultKind::NullableHandle,

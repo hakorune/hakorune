@@ -562,7 +562,7 @@ fn original_qualified_opaque_input_demands_whole_callee_without_global_cycle() {
         .find(|row| row.source.target().owner() == "Layout").unwrap().call.clone();
     let issuance = ledger.original_instance_input_issuance.take().unwrap();
     assert!(ledger.checked_completed_opaque_object_target_arguments_v1(&target, contract).unwrap().is_none(), "source qualification is no completed input");
-    ledger.original_instance_input_issuance = Some(issuance);
+    ledger.original_instance_input_issuance.set(issuance).unwrap();
     let original_other = ledger.borrowed_formal_actuals.insert(unrelated.clone(), Err("unrelated-static-refusal".into())).unwrap();
     let args = ledger.checked_completed_opaque_object_target_arguments_v1(&target, contract)
         .unwrap().expect("original family has no dependency on another consumer");
@@ -614,7 +614,7 @@ fn original_qualified_body_entry_shares_whole_native_input_owner() {
                 0 => {}
                 1 => { ledger.borrowed_formal_actuals.remove(&sibling); }
                 2 => { ledger.borrowed_formal_actuals.insert(sibling, Err("original-callee-sibling-refusal".into())); }
-                _ => { ledger.original_instance_input_issuance = None; }
+                _ => { ledger.original_instance_input_issuance.take().unwrap(); }
             }
             if scalar {
                 let row = ledger.take_lexical_instance_call(call_site.owner(), call_site.site()).unwrap().unwrap();

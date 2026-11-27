@@ -33,7 +33,7 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             let (selected, signatures) = self
                 .original_instance_input_issuance
-                .as_ref()
+                .get()
                 .ok_or_else(|| freeze("borrowed-entry/original-issuance-missing"))?;
             let catalog = self
                 .original_parameter_contracts.as_ref();

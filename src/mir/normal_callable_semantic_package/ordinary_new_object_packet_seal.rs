@@ -62,7 +62,7 @@ fn packet_input_ready_v1(
 ) -> Result<bool, String> {
     match family {
         ObjectPacketInputFamilyV1::QualifiedOriginal | ObjectPacketInputFamilyV1::OriginalSourceInstance => {
-            let Some((selected, signatures)) = &ledger.original_instance_input_issuance else {
+            let Some((selected, signatures)) = ledger.original_instance_input_issuance.get() else {
                 return Ok(false);
             };
             let catalog = ledger

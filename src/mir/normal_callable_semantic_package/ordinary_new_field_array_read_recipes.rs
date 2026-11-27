@@ -78,7 +78,7 @@ impl OrdinaryNewClaimLedgerV1 {
     fn field_array_read_recipe_from_source_v1(&self, owner: FunctionOwnerIdV1,
         source: Rc<super::super::CheckedFieldArrayAccessSourceV1>,
     ) -> Result<Rc<FieldArrayReadRecipeV1>, String> {
-        let (selected, _) = self.original_instance_input_issuance.as_ref().ok_or_else(|| array_fault("read-original-issuance-missing"))?;
+        let (selected, _) = self.original_instance_input_issuance.get().ok_or_else(|| array_fault("read-original-issuance-missing"))?;
         let catalog = self.original_parameter_contracts.as_ref();
         let mut contracts = catalog.for_owner(owner);
         let contract = contracts.next().ok_or_else(|| array_fault("read-original-contract-missing"))?;
@@ -95,7 +95,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn array_field_original_caller_v1(
         &self, owner: FunctionOwnerIdV1,
     ) -> Result<Option<&CanonicalSameModuleCallableKeyV1>, String> {
-        let (selected, _) = self.original_instance_input_issuance.as_ref().ok_or_else(|| array_fault("read-original-issuance-missing"))?;
+        let (selected, _) = self.original_instance_input_issuance.get().ok_or_else(|| array_fault("read-original-issuance-missing"))?;
         let catalog = self.original_parameter_contracts.as_ref();
         let mut contracts = catalog.for_owner(owner);
         let Some(contract) = contracts.next() else { return Ok(None); };

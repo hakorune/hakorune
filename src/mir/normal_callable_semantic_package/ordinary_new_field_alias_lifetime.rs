@@ -77,7 +77,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod {
             return Ok(false);
         }
-        let Some((selected, _)) = &self.original_instance_input_issuance else { return Ok(false) };
+        let Some((selected, _)) = self.original_instance_input_issuance.get() else { return Ok(false) };
         let Some(identity) = selected.identity_for_batch_slot(contract.batch_slot) else { return Ok(false) };
         self.checked_instance_entry_root_v1(root, contract.batch_slot, identity, owner)
     }
@@ -102,7 +102,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if rows.next().is_some() || catalog.for_batch_slot(contract.batch_slot).count() != 1 {
             return Err(fault("alias/entry-root-field-drift"));
         }
-        let Some((selected, _)) = &self.original_instance_input_issuance else { return Ok(false); };
+        let Some((selected, _)) = self.original_instance_input_issuance.get() else { return Ok(false); };
         let Some(identity) = selected.identity_for_batch_slot(contract.batch_slot) else { return Ok(false); };
         if !matches!(selected.key_for_batch_slot(contract.batch_slot),
             Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
@@ -261,7 +261,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self, root: BindingRefV1, batch_slot: u32, owner: FunctionOwnerIdV1,
         function: &crate::mir::MirFunction,
     ) -> Result<(usize, ValueId), String> {
-        let (selected, signatures) = self.original_instance_input_issuance.as_ref()
+        let (selected, signatures) = self.original_instance_input_issuance.get()
             .ok_or_else(|| fault("alias/entry-issuance"))?;
         let identity = selected.identity_for_batch_slot(batch_slot)
             .ok_or_else(|| fault("alias/entry-identity"))?;
@@ -292,7 +292,7 @@ impl OrdinaryNewClaimLedgerV1 {
         identity: &crate::parser::CallableDeclarationIdentityV1,
         owner: FunctionOwnerIdV1,
     ) -> Result<bool, String> {
-        let Some((selected, signatures)) = &self.original_instance_input_issuance else {
+        let Some((selected, signatures)) = self.original_instance_input_issuance.get() else {
             return Ok(false);
         };
         let Some(signature) = signatures.row(batch_slot) else {

@@ -299,8 +299,9 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     >,
     // Borrow the package's single immutable catalog; never reissue parameters.
     original_parameter_contracts: Rc<super::model::OwnedCallableParameterContractsV1>,
-    // Shared immutable original issuance, never copied signature rows or receipts.
-    original_instance_input_issuance: Option<(
+    // The original signature is issued after source assembly. This slot is
+    // write-once and shares the signature cohort used at the package boundary.
+    original_instance_input_issuance: std::cell::OnceCell<(
         Rc<super::selected_mapping::VerifiedSelectedCallableBatchMapV1>,
         Rc<super::physical_signature::VerifiedCallablePhysicalSignatureCohortV1>,
     )>,

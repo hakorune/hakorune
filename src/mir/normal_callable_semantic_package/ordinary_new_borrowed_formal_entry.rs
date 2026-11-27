@@ -448,7 +448,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let qualified = ingress.source_incoming.has_object_input_callee_v1(target);
         let selected_input = self.selected_object_input_contract_v1(ingress, contract)?;
         if (qualified || source_input) && selected_input {
-            let Some((selected, signatures)) = &self.original_instance_input_issuance else {
+            let Some((selected, signatures)) = self.original_instance_input_issuance.get() else {
                 return Ok(None);
             };
             let catalog = self.original_parameter_contracts.as_ref();

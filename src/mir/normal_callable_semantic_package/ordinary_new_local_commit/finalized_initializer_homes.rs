@@ -82,7 +82,7 @@ impl FinalizedRootSourceHandoffV1 {
         let mut result = std::collections::BTreeMap::new();
         let owners = self.take_entry_owners_v1();
         if owners.is_empty() { return Ok(result); }
-        let (selected, _) = self.ledger.original_instance_input_issuance.as_ref()
+        let (selected, _) = self.ledger.original_instance_input_issuance.get()
             .ok_or_else(|| "[ownership/take-source-contract-missing]".to_owned())?;
         for declaration in self.ledger.original_parameter_contracts.iter()
             .filter(|row| owners.contains(&row.owner)) {
@@ -108,7 +108,7 @@ impl FinalizedRootSourceHandoffV1 {
         use crate::mir::callable_parameter_contract::CallableParameterContractKindV1 as Contract;
         use crate::mir::normal_callable_semantic_package::physical_signature::PhysicalCallableLaneRoleV1 as Role;
         let unsupported = || "[ownership/move-abi-not-supported]".to_owned();
-        let (selected, signatures) = self.ledger.original_instance_input_issuance.as_ref().ok_or_else(unsupported)?;
+        let (selected, signatures) = self.ledger.original_instance_input_issuance.get().ok_or_else(unsupported)?;
         let selected_key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key.clone());
         let slot = selected.batch_slot(&selected_key).ok_or_else(unsupported)?;
         let signature = signatures.row(slot).ok_or_else(unsupported)?;

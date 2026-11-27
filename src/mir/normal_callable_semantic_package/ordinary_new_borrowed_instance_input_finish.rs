@@ -81,11 +81,9 @@ impl OrdinaryNewClaimLedgerV1 {
         selected: std::rc::Rc<VerifiedSelectedCallableBatchMapV1>,
         signatures: std::rc::Rc<VerifiedCallablePhysicalSignatureCohortV1>,
     ) -> Result<(), String> {
-        if self.original_instance_input_issuance.is_some() {
-            return Err(freeze("instance-input/duplicate-original-issuance"));
-        }
-        self.original_instance_input_issuance = Some((selected, signatures));
-        Ok(())
+        self.original_instance_input_issuance
+            .set((selected, signatures))
+            .map_err(|_| freeze("instance-input/duplicate-original-issuance"))
     }
 
     /// Demand all original producers through the existing whole-input owner.
@@ -188,7 +186,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let (original_selected, original_signatures) = self
             .original_instance_input_issuance
-            .as_ref()
+            .get()
             .ok_or_else(|| freeze("array-producer-plan/original-issuance-missing"))?;
         if !std::ptr::eq(selected, original_selected.as_ref())
             || !std::ptr::eq(signatures, original_signatures.as_ref())
@@ -335,7 +333,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let (original_selected, _) = self
             .original_instance_input_issuance
-            .as_ref()
+            .get()
             .ok_or_else(|| freeze("array-lifecycle/original-issuance-missing"))?;
         let original_contracts = self
             .original_parameter_contracts.as_ref();
@@ -426,7 +424,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .map_err(Clone::clone)?;
         let (selected, signatures) = self
             .original_instance_input_issuance
-            .as_ref()
+            .get()
             .ok_or_else(|| freeze("array-lifecycle/original-issuance-missing"))?;
         for recipe in &recipes {
             let completion = self
@@ -582,7 +580,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     }
     let (selected, signatures) = ledger
         .original_instance_input_issuance
-        .as_ref()
+        .get()
         .ok_or_else(|| freeze("instance-input/original-issuance-missing"))?;
     match ledger.prepare_original_instance_input_owner_v1(
         source,

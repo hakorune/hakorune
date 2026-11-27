@@ -372,7 +372,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let catalog = self.original_parameter_contracts.as_ref();
             let mut contracts = catalog.for_owner(owner);
             let contract = contracts.next().ok_or_else(|| freeze("callable-result/nullable-parameter"))?;
-            let (selected, _) = self.original_instance_input_issuance.as_ref()
+            let (selected, _) = self.original_instance_input_issuance.get()
                 .ok_or_else(|| freeze("callable-result/nullable-catalog"))?;
             if contracts.next().is_some() || key_ordinal >= key.arity()
                 || selected.key_for_batch_slot(contract.batch_slot)

@@ -49,7 +49,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-nullable-call/completion-missing"))?;
         let observed = self.borrowed_nullable_call_source_v1(source.call_site())
             .ok_or_else(|| freeze("borrowed-nullable-call/observation-missing"))?;
-        let (selected, signatures) = self.original_instance_input_issuance.as_ref()
+        let (selected, signatures) = self.original_instance_input_issuance.get()
             .ok_or_else(|| freeze("borrowed-nullable-call/input-issuance-missing"))?;
 
         let arguments = self.checked_completed_original_instance_target_arguments_v1(source, selected, catalog, signatures)?
