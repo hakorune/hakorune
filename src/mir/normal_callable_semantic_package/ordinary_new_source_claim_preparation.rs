@@ -8,7 +8,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pre
     selected: &VerifiedSelectedCallableBatchMapV1,
     app_main: Option<&BorrowedAppMainSourceLoanV1<'_>>,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
-    parameter_contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    parameter_contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     field_writers: Rc<field_write_claim::OriginalFieldWriterInventoryV1>,
     entry_home: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1>,
 ) -> Result<

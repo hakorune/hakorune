@@ -8,11 +8,10 @@ use crate::mir::resolved_semantics::home_new_prefix::{
     BorrowedCallActualCandidateV1, BorrowedCallActualValueV1,
 };
 pub(in crate::mir) use source_seeds::{SourceValueSumV1, SourceValueAlternativeV1};
-pub(in crate::mir) use source_seeds::SourceValueClassFactsV1;
 use crate::mir::callable_parameter_contract::{
     CallableParameterContractKindV1, CallableParameterDeclarationModeV1,
 };
-use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
+use crate::mir::normal_callable_semantic_package::model::{OwnedCallableParameterContractsV1};
 use std::collections::{BTreeMap, BTreeSet};
 use std::rc::Rc;
 
@@ -55,7 +54,7 @@ mod value_domain;
 mod array_source;
 pub(super) use array_source::OriginalArraySourcesV1;
 pub(in crate::mir::normal_callable_semantic_package) use array_source::{ArrayElementSourceLoanV1, ArrayHolderLifecycleRecipeV1};
-pub(crate) use array_source::NamedArrayHolderSourceLoanV1;
+pub(crate) use crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1;
 
 
 /// The sealed class view one borrowed formal may carry on a dominated
@@ -159,7 +158,7 @@ impl PreparedBorrowedFormalIngressV1 {
         &self,
         input: ResolvedFunctionLoweringInputV1<'_>,
         call: &OwnedExprSiteV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &OwnedCallableParameterContractsV1,
         actuals: &'a [BorrowedCallActualCandidateV1],
     ) -> Result<std::borrow::Cow<'a, [BorrowedCallActualCandidateV1]>, String> {
         let mut refined = std::borrow::Cow::Borrowed(actuals);
@@ -187,7 +186,7 @@ impl PreparedBorrowedFormalIngressV1 {
         call: &OwnedExprSiteV1,
         ordinal: u32,
         construction: &crate::mir::resolved_semantics::ResolvedNewExpressionSourceV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &OwnedCallableParameterContractsV1,
     ) -> Result<bool, String> {
         let mut rows = self
             .source_incoming
@@ -249,7 +248,7 @@ pub(super) enum FormalActualSeedV1 {
 pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_ingress_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     prepared: &PreparedLexicalInstanceCallSourceTargetsV1,
     app_main_slot: Option<u32>,
     dynamic_slot: Option<u32>,
@@ -330,7 +329,7 @@ pub(super) fn classify_actual_seed(
     candidates: &[super::super::candidate::OrdinaryNewCandidate],
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     site: &SourceExprSiteV1,
 ) -> FormalActualSeedV1 {
     classify_actual_seed_in_scope(

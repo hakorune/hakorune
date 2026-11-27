@@ -324,7 +324,7 @@ impl PreparedBorrowedFormalIngressV1 {
                 .exact_rows()
                 .filter(|row| row.callee == owner)
                 .count(),
-            self.source_incoming.vetoed_owners().contains(&owner),
+            self.source_incoming.collect_vetoes_v1(true).contains(&owner),
         )
     }
 
@@ -334,7 +334,7 @@ impl PreparedBorrowedFormalIngressV1 {
 pub(super) fn static_terminal_sites_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     app_main: Option<&BorrowedAppMainSourceLoanV1<'_>>,
 ) -> Result<BTreeSet<OwnedExprSiteV1>, String> {
     let mut sites = BTreeSet::new();

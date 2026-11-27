@@ -15,7 +15,7 @@ use crate::mir::callable_semantic_batch::{
     ResolvedCallableDeclarationModeV1, ResolvedCallableSemanticBatchLoanErrorV1,
     VerifiedResolvedCallableSemanticBatchV1,
 };
-use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
+use crate::mir::normal_callable_semantic_package::model::{OwnedCallableParameterContractsV1};
 use crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingOriginV1, BindingRefV1, FunctionOwnerIdV1, SourceBindingSiteV1,
@@ -160,7 +160,7 @@ pub(super) fn issue_callable_physical_signature_v1(
     brand: SameModuleCallableCatalogBrandV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    parameter_contracts: &[OwnedCallableParameterContractDeclarationV1],
+    parameter_contracts: &OwnedCallableParameterContractsV1,
 ) -> Result<VerifiedCallablePhysicalSignatureCohortV1, CallablePhysicalSignatureIssueV1> {
     let mut selected_slots = BTreeSet::new();
     for key in selected.keys() {
@@ -189,9 +189,7 @@ pub(super) fn issue_callable_physical_signature_v1(
                 if !declaration.identity().same_as(selected_identity) {
                     return Err(CallablePhysicalSignatureIssueV1::MissingSelectedIdentity);
                 }
-                let mut contracts = parameter_contracts
-                    .iter()
-                    .filter(|row| row.batch_slot == batch_slot);
+                let mut contracts = parameter_contracts.for_batch_slot(batch_slot);
                 let Some(contract) = contracts.next() else {
                     return Err(CallablePhysicalSignatureIssueV1::MissingParameterContract);
                 };

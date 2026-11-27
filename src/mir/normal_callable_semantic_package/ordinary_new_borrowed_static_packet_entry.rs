@@ -296,7 +296,7 @@ impl OrdinaryNewClaimLedgerV1 {
         self.verify_original_static_source_v1(source)?;
         let (selected, original) = self
             .original_instance_input_issuance
-            .as_ref()
+            .get()
             .ok_or_else(|| freeze("static-execution/issuance"))?;
         if !Rc::ptr_eq(original, signatures)
             || !source.catalog_brand().is_same(selected.catalog_brand())

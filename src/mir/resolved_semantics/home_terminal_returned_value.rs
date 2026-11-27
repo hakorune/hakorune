@@ -634,7 +634,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_borrowed_call
         Ok(observed) => {
             let loan = observed.borrowed_nullable_call().expect("checked borrowed return observation");
             if !locals.borrowed_call_support_available_v1(loan)
-                || !matches!(loan.lifetime_anchor_v1(), Some(crate::mir::normal_callable_semantic_package::BorrowedLifetimeAnchorV1::Entry { .. })) {
+                || !matches!(loan.lifetime_anchor_v1(), Some(crate::mir::resolved_semantics::BorrowedLifetimeAnchorV1::Entry { .. })) {
                 Err(super::HomePrefixUnavailableV1::ReturnValueNotCovered(statement.site().clone()))
             } else {
                 let terminal = TerminalValueReturnV1::issue(input.owner(), statement.site().clone(), value.site().clone(),

@@ -1,7 +1,7 @@
 //! Conditional named-Array Homes in the same source walk. No storage, Normal
 //! producer, commit, borrowed value or End execution capability is issued here.
 use super::*;
-use crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1;
+use crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]

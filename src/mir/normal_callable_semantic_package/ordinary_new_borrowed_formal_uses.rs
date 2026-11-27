@@ -9,6 +9,8 @@ use std::rc::Rc;
 
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+#[cfg(test)]
+use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1;
 use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 use crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1;
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::{field_write_claim, result_class_claim};
@@ -308,7 +310,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct BorrowedIncomingCall
 
 #[path = "ordinary_new_borrowed_call_source.rs"]
 mod call_source;
-pub(super) use call_source::{borrow_call_sources_v1, BorrowedCallSourceLoanV1};
+pub(super) use call_source::{borrow_call_sources_v1, BorrowedIncomingCallLoanV1};
 #[path = "ordinary_new_borrowed_incoming_source.rs"]
 mod incoming_source;
 pub(super) use incoming_source::BorrowedIncomingSourceV1;
@@ -329,7 +331,7 @@ pub(super) fn draft_borrowed_incoming_calls_v1(
     batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     selected: &super::VerifiedSelectedCallableBatchMapV1,
     drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     calls: &BTreeMap<OwnedExprSiteV1, &super::LexicalInstanceCallSourceTargetV1>,
     ordinary_callers: &std::collections::BTreeSet<FunctionOwnerIdV1>,
 ) -> Result<Box<[BorrowedIncomingCallDraftV1]>, BorrowedIncomingDraftErrorV1> {

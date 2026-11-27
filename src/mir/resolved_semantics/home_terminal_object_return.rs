@@ -126,12 +126,7 @@ pub(super) fn observe_object_return_source<E>(
         if original.site() != loan.call() || !homes.iter().any(|home| home.binding() == binding) {
             return Ok(Err(unavailable()));
         }
-        let same_result_role = matches!(
-            (loan.class(), original.result()),
-            (crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::Object(_), LocalCallResultClassV1::Handle)
-                | (crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::NullableObject(_), LocalCallResultClassV1::Nullable)
-        );
-        if !same_result_role {
+        if loan.class().local_call_result() != Some(original.result()) {
             return Ok(Err(unavailable()));
         }
         ObjectReturnAcquisitionV1::Received(original.clone())

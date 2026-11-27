@@ -97,7 +97,7 @@ fn guarded_declaration_and_reconstruction_refuse_lost_original_guard_or_catalog(
             })
             .unwrap();
         if lose_catalog {
-            ledger.original_parameter_contracts = None;
+            ledger.original_parameter_contracts = Default::default();
             let source = ledger
                 .borrowed_formal_source
                 .as_ref()
@@ -107,7 +107,7 @@ fn guarded_declaration_and_reconstruction_refuse_lost_original_guard_or_catalog(
             assert!(ledger
                 .checked_guarded_instance_definition_v1(source, owner)
                 .unwrap_err()
-                .contains("original-catalog-missing"));
+                .contains("borrowed-guarded/declaration-missing"));
         } else {
             ledger
                 .borrowed_formal_source

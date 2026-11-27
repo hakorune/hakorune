@@ -209,32 +209,72 @@ pub(super) struct OwnedCallableParameterContractDeclarationV1 {
     pub(super) mode: CallableParameterDeclarationModeV1,
     pub(super) parameters: Box<[OwnedCallableParameterContractV1]>,
 }
-impl OwnedCallableParameterContractDeclarationV1 {
+/// The package's original parameter declarations, in batch traversal order.
+#[derive(Debug, Default)]
+pub(super) struct OwnedCallableParameterContractsV1 {
+    rows: Box<[OwnedCallableParameterContractDeclarationV1]>,
+    by_owner: BTreeMap<FunctionOwnerIdV1, Vec<usize>>,
+    by_slot: BTreeMap<u32, Vec<usize>>,
+}
+
+impl FromIterator<OwnedCallableParameterContractDeclarationV1> for OwnedCallableParameterContractsV1 {
+    fn from_iter<I: IntoIterator<Item = OwnedCallableParameterContractDeclarationV1>>(iter: I) -> Self {
+        let rows: Box<[_]> = iter.into_iter().collect();
+        let mut by_owner: BTreeMap<_, Vec<_>> = BTreeMap::new();
+        let mut by_slot: BTreeMap<_, Vec<_>> = BTreeMap::new();
+        for (index, row) in rows.iter().enumerate() {
+            by_owner.entry(row.owner).or_default().push(index);
+            by_slot.entry(row.batch_slot).or_default().push(index);
+        }
+        Self { rows, by_owner, by_slot }
+    }
+}
+
+impl std::ops::Deref for OwnedCallableParameterContractsV1 {
+    type Target = [OwnedCallableParameterContractDeclarationV1];
+
+    fn deref(&self) -> &Self::Target {
+        &self.rows
+    }
+}
+
+impl<'a> IntoIterator for &'a OwnedCallableParameterContractsV1 {
+    type Item = &'a OwnedCallableParameterContractDeclarationV1;
+    type IntoIter = std::slice::Iter<'a, OwnedCallableParameterContractDeclarationV1>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.rows.iter()
+    }
+}
+
+impl OwnedCallableParameterContractsV1 {
     pub(super) fn for_owner(
-        contracts: &[Self],
+        &self,
         owner: FunctionOwnerIdV1,
-    ) -> impl Iterator<Item = &Self> {
-        contracts.iter().filter(move |row| row.owner == owner)
+    ) -> impl Iterator<Item = &OwnedCallableParameterContractDeclarationV1> {
+        self.by_owner.get(&owner).into_iter().flatten().map(|&index| &self.rows[index])
     }
 
-    pub(super) fn for_batch_slot(contracts: &[Self], slot: u32) -> impl Iterator<Item = &Self> {
-        contracts.iter().filter(move |row| row.batch_slot == slot)
+    pub(super) fn for_batch_slot(&self, slot: u32) -> impl Iterator<Item = &OwnedCallableParameterContractDeclarationV1> {
+        self.by_slot.get(&slot).into_iter().flatten().map(|&index| &self.rows[index])
     }
 
     pub(super) fn unique_for_owner<E>(
-        contracts: &[Self],
+        &self,
         owner: FunctionOwnerIdV1,
         missing: impl FnOnce() -> E,
         duplicate: impl FnOnce() -> E,
-    ) -> Result<&Self, E> {
-        let mut rows = Self::for_owner(contracts, owner);
+    ) -> Result<&OwnedCallableParameterContractDeclarationV1, E> {
+        let mut rows = self.for_owner(owner);
         let row = rows.next().ok_or_else(missing)?;
         if rows.next().is_some() {
             return Err(duplicate());
         }
         Ok(row)
     }
+}
 
+impl OwnedCallableParameterContractDeclarationV1 {
     /// Existing strict scalar input family. This selects no actuals, entry,
     /// result, or execution permission; those still require their own proofs.
     pub(in crate::mir::normal_callable_semantic_package) fn has_exact_i64_parameters_v1(&self) -> bool {
@@ -257,6 +297,7 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
         super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
     pub(super) root_execution: NormalRootExecutionPackageStateV1,
     pub(super) catalog: VerifiedSourceBackedSameModuleCallableCatalogV1,
+    pub(super) app_main_root: Option<super::app_main_relation::VerifiedAppMainRootRelationV1>,
     pub(super) batch: VerifiedResolvedCallableSemanticBatchV1,
     pub(super) direct_call_loans: Option<super::direct_call_loan::DirectCallDispositionLoansV1>,
     pub(super) map_read_facts: super::map_read_fact::MapReadFactsV1,
@@ -265,7 +306,7 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     pub(super) instance_constructors:
         super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
     pub(super) selected: Rc<super::selected_mapping::VerifiedSelectedCallableBatchMapV1>,
-    pub(super) parameter_contracts: Rc<[OwnedCallableParameterContractDeclarationV1]>,
+    pub(super) parameter_contracts: Rc<OwnedCallableParameterContractsV1>,
     pub(super) result_contracts: super::result_contract::VerifiedCallableResultContractCohortV1,
     pub(super) physical_signature:
         Rc<super::physical_signature::VerifiedCallablePhysicalSignatureCohortV1>,

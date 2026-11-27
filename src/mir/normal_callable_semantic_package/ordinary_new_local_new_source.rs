@@ -26,9 +26,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(());
         };
         let mut callers = self
-            .original_parameter_contracts
-            .as_ref()
-            .ok_or("[freeze:contract][stored-child/caller-catalog-missing]")?
+            .original_parameter_contracts.as_ref()
             .iter()
             .filter(|row| row.owner == target.call_site().owner());
         let caller = callers
@@ -37,9 +35,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if callers.next().is_some()
             || caller.batch_slot != slot
             || self
-                .original_parameter_contracts
-                .as_ref()
-                .unwrap()
+                .original_parameter_contracts.as_ref()
                 .iter()
                 .filter(|row| row.batch_slot == slot)
                 .count()

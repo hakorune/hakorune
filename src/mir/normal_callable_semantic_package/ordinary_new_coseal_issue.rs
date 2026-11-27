@@ -66,7 +66,6 @@ mod result_membership;
 
 #[path = "ordinary_new_coseal_issue_loop.rs"]
 mod loop_issue;
-pub(crate) use loop_issue::RetainedSourceLoopProductV1;
 pub(super) use loop_issue::SelectedLoopProductV1;
 
 pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_cohort_v1(
@@ -78,7 +77,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     >,
     app_main_source: Option<&crate::mir::builder::AppMainCatalogCoSealV1>,
     direct_call_loans: Option<&super::super::direct_call_loan::DirectCallDispositionLoansV1>,
-    parameter_contracts: &[super::super::model::OwnedCallableParameterContractDeclarationV1],
+    parameter_contracts: &Rc<super::super::model::OwnedCallableParameterContractsV1>,
     entry_home_loans: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
     dynamic: &mut super::super::model::NormalCallableDynamicProjectionV1,
     dynamic_source_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
@@ -262,9 +261,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             .with_lowering_input(batch_slot, |input| -> Result<_, OrdinaryNewCoSealIssueV1> {
                 let owner_loan = direct_call_loans.and_then(|loans| loans.get(owner));
                 let entry_home = entry_home_loans.for_batch_slot(batch_slot);
-                let batch_contract_rows: Vec<_> = parameter_contracts
-                    .iter()
-                    .filter(|row| row.batch_slot == batch_slot)
+                let batch_contract_rows: Vec<_> = parameter_contracts.for_batch_slot(batch_slot)
                     .collect();
                 let batch_params =
                     || batch_contract_rows.iter().flat_map(|row| row.parameters.iter());
@@ -411,7 +408,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 // Print expressions need the same original Home scan even
                 // without constructions, borrowed calls or owned temporaries.
                 requests.require(ScanRequestV1::PrintOperand, walk_triggers::has_print_expression_v1(input));
-                requests.require(ScanRequestV1::ConditionOperand, walk_triggers::has_condition_expression_v1(input));
+                requests.require(ScanRequestV1::ConditionOperand, crate::mir::resolved_semantics::home_new_prefix::requires_condition_expression_walk_v1(input));
                 requests.require(ScanRequestV1::ValueExpression,
                     walk_triggers::has_dynamic_return_v1(input, dynamic_source_calls)
                         || walk_triggers::has_explicit_copy_source_v1(input)
@@ -676,6 +673,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         claims.into_boxed_slice(),
         result_claims.into_boxed_slice(),
         names,
+        Rc::clone(parameter_contracts),
     );
     ledger.original_object_sources = Some(Rc::clone(
         instance_constructors.original_object_sources_v1(),

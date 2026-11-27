@@ -166,9 +166,9 @@ fn full_child_finishing_rejects_foreign_field_positions_and_masked_exits() {
                         let crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Call(call) = relation else { return None };
                         call.source_scalar().map(|loan| loan.source()).filter(|target| target.callee_owner() == site.owner())
                     }).expect("original getter incoming target");
-                    let (selected, signatures) = ledger.original_instance_input_issuance.as_ref().unwrap();
+                    let (selected, signatures) = ledger.original_instance_input_issuance.get().unwrap();
                     let arguments = ledger.checked_completed_original_instance_target_arguments_v1(
-                        target, selected, ledger.original_parameter_contracts.as_ref().unwrap(), signatures,
+                        target, selected, ledger.original_parameter_contracts.as_ref(), signatures,
                     )?.expect("whole original empty input cohort finished");
                     assert!(arguments.is_empty());
                 }

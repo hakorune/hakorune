@@ -52,7 +52,7 @@ impl<'a> OriginalActualSourceContextV1<'a> {
         slot: u32,
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         inventory: &BorrowedIncomingInventoryV1,
         omitted: &BTreeMap<FunctionOwnerIdV1, CanonicalSameModuleCallableKeyV1>,
     ) -> Result<(), String> {
@@ -90,7 +90,7 @@ impl<'a> OriginalActualSourceContextV1<'a> {
             .declarations()
             .find(|row| row.batch_slot() == slot)
             .ok_or_else(reject)?;
-        let mut rows = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, input.owner());
+        let mut rows = contracts.for_owner(input.owner());
         let contract = rows.next().ok_or_else(reject)?;
         if input.owner() != source.callee_owner()
             || slot != source.target_batch_slot()
@@ -228,7 +228,7 @@ impl<'a> OriginalActualSourceContextV1<'a> {
         input: ResolvedFunctionLoweringInputV1<'_>,
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         claims: Option<&'a QualifiedStaticCallClaimIndexV1>,
         main: Option<AppMainSourceRefV1<'_>>,
         omitted: &BTreeMap<FunctionOwnerIdV1, CanonicalSameModuleCallableKeyV1>,
@@ -251,7 +251,7 @@ impl<'a> OriginalActualSourceContextV1<'a> {
                 if declarations.next().is_some() {
                     return Err(freeze("source-sum/caller-owner"));
                 }
-                let mut rows = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, input.owner());
+                let mut rows = contracts.for_owner(input.owner());
                 let row = rows
                     .next()
                     .ok_or_else(|| freeze("source-sum/caller-contract"))?;
@@ -743,9 +743,7 @@ mod tests {
         );
         let slot = package.selected.batch_slot(&key).unwrap();
         let formal = package
-            .parameter_contracts
-            .iter()
-            .find(|row| row.batch_slot == slot)
+            .parameter_contracts.for_batch_slot(slot).next()
             .unwrap()
             .parameters[0]
             .binding;

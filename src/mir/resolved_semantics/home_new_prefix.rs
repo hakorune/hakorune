@@ -5,6 +5,7 @@
 
 #[path = "home_field_source.rs"]
 mod field_source;
+pub(crate) use crate::mir::loop_recipe_contract::RetainedSourceLoopProductV1;
 pub(crate) use field_source::{
     HomeFieldSourceConsultV1, NoScalarFieldSourceV1,
 };
@@ -18,13 +19,6 @@ use super::{
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 
-/// Source walk permission from one selected verifier. The search role is a
-/// source-only view of the same Static V2 product consumed after Home.
-pub(crate) enum SelectedLoopHomeLoanV1 {
-    SourceObservation(
-        std::rc::Rc<crate::mir::normal_callable_semantic_package::RetainedSourceLoopProductV1>,
-    ),
-}
 use crate::mir::normal_callable_semantic_package::ObjectReturnCallQualificationV1;
 use crate::mir::resolved_control_flow::{
     issue_new_fault_continuation_v1, issue_result_new_fault_continuation_v1, issue_shared_new_fault_continuation_v1, NewFaultContinuationV1,
@@ -412,7 +406,7 @@ pub(crate) fn scan_new_home_flow<E>(
         ),
     >,
     entry_home: Option<&VerifiedInstanceEntryHomeLoanV1>,
-    source_value_class_facts: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::SourceValueClassFactsV1>>,
+    source_value_class_facts: Option<std::rc::Rc<crate::mir::resolved_semantics::source_value_class::SourceValueClassFactsV1>>,
     exit_sites: &[SourceStmtSiteV1],
     uncovered_implicit_exit: bool,
     result_sites: &BTreeSet<OwnedExprSiteV1>,
@@ -436,7 +430,7 @@ pub(crate) fn scan_new_home_flow<E>(
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
     loop_prestate: &mut impl FnMut(
         LoopI64PreStateRequestV1,
-    ) -> Result<Option<SelectedLoopHomeLoanV1>, E>,
+    ) -> Result<Option<std::rc::Rc<RetainedSourceLoopProductV1>>, E>,
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,
     ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,

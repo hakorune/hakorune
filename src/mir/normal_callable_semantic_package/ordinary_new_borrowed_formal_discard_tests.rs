@@ -93,9 +93,9 @@ fn borrowed_statement_discard_retains_original_actuals_without_local_destination
         let original = observation.borrowed_scalar().expect("dedicated original Bool loan");
         let mut row = ledger.take_lexical_instance_call(observation.owner(), observation.site().site()).unwrap().unwrap();
         assert_eq!(row.scalar_result_source_v1(), Some(original));
-        let (selected, signatures) = ledger.original_instance_input_issuance.as_ref().unwrap();
+        let (selected, signatures) = ledger.original_instance_input_issuance.get().unwrap();
         let arguments = ledger.checked_completed_original_instance_target_arguments_v1(
-            row.source_target(), selected, ledger.original_parameter_contracts.as_deref().unwrap(), signatures,
+            row.source_target(), selected, ledger.original_parameter_contracts.as_ref(), signatures,
         ).unwrap();
         assert!(arguments.is_some(), "same original Bool input must be executable");
         assert_eq!(ledger.checked_local_scalar_call_result_v1(&row).unwrap(), crate::mir::instruction::InvokeCallResultKind::Bool);
@@ -110,7 +110,7 @@ fn borrowed_statement_discard_retains_original_actuals_without_local_destination
             "static box Main { main() { return 0 } }",
         ).unwrap();
         assert!(ledger.checked_root_array_holder_caller_v1(observation.owner(), &foreign.selected,
-            ledger.original_parameter_contracts.as_deref().unwrap()).unwrap_err()
+            ledger.original_parameter_contracts.as_ref()).unwrap_err()
             .contains("original-issuance-drift"));
         let ledger = std::rc::Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
         let key = ledger.app_main_catalog_key.take();

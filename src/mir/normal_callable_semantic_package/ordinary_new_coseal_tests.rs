@@ -78,7 +78,7 @@ fn exact_claim_is_consumed_once() {
     let ledger = OrdinaryNewClaimLedgerV1::issue(
         vec![claim(site.clone(), 0)].into_boxed_slice(),
         Box::new([]),
-        vec!["Page".into()].into_boxed_slice(),
+        vec!["Page".into()].into_boxed_slice(), Default::default(),
     );
 
     let taken = ledger
@@ -155,7 +155,7 @@ fn exact_claim_is_consumed_once() {
         ledger.validate_finalized_new_root(&physical).unwrap(),
         O::Unavailable(U::CompletionRejected)
     );
-    let empty = OrdinaryNewClaimLedgerV1::issue(Box::new([]), Box::new([]), Box::new([]));
+    let empty = OrdinaryNewClaimLedgerV1::issue(Box::new([]), Box::new([]), Box::new([]), Default::default());
     assert_eq!(
         empty.validate_finalized_new_root(&physical).unwrap(),
         O::NotIssued
@@ -206,7 +206,7 @@ fn nonordinary_class_does_not_consume_claim() {
     let ledger = OrdinaryNewClaimLedgerV1::issue(
         vec![claim(site.clone(), 0)].into_boxed_slice(),
         Box::new([]),
-        vec!["Page".into()].into_boxed_slice(),
+        vec!["Page".into()].into_boxed_slice(), Default::default(),
     );
 
     assert_eq!(ledger.try_take(&site, "Plugin", 0), Ok(None));
@@ -221,7 +221,7 @@ fn mismatched_shape_preserves_claim_for_the_correct_consumer() {
     let ledger = OrdinaryNewClaimLedgerV1::issue(
         vec![claim(site.clone(), 0)].into_boxed_slice(),
         Box::new([]),
-        vec!["Page".into()].into_boxed_slice(),
+        vec!["Page".into()].into_boxed_slice(), Default::default(),
     );
 
     assert_eq!(
@@ -319,7 +319,7 @@ fn ordinary_new_local_commit_rejects_drift_without_consuming_pending_installatio
     let ledger = OrdinaryNewClaimLedgerV1::issue(
         vec![claim].into_boxed_slice(),
         Box::new([]),
-        vec!["Page".into(), "Other".into()].into_boxed_slice(),
+        vec!["Page".into(), "Other".into()].into_boxed_slice(), Default::default(),
     );
     let good = (destination, ordinal, ValueId(8), ValueId(9));
     assert!(ledger
@@ -423,7 +423,7 @@ fn local_batch_rejection_does_not_install_an_earlier_row() {
     let ledger = OrdinaryNewClaimLedgerV1::issue(
         vec![first, second].into_boxed_slice(),
         Box::new([]),
-        vec!["Page".into()].into_boxed_slice(),
+        vec!["Page".into()].into_boxed_slice(), Default::default(),
     );
     for (site, value) in [(&first_site, ValueId(8)), (&second_site, ValueId(10))] {
         let taken = ledger.try_take(site, "Page", 0).unwrap().unwrap();

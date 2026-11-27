@@ -32,8 +32,7 @@ use crate::mir::resolved_semantics::{
 use crate::parser::VerifiedFinalCallableProgramSourceV1;
 use std::rc::Rc;
 
-#[path = "app_main_relation.rs"]
-mod app_main_relation;
+use super::app_main_relation;
 #[path = "direct_call_co_seal.rs"]
 mod direct_call_co_seal;
 #[path = "issuer_object_input_finish.rs"]
@@ -57,7 +56,7 @@ use super::instance_constructor_semantic::{
 };
 use super::loop_break_source::issue_loop_break_source_package_v1;
 use super::model::{
-    NormalCallableDynamicProjectionV1, OwnedCallableParameterContractDeclarationV1,
+    NormalCallableDynamicProjectionV1, OwnedCallableParameterContractDeclarationV1, OwnedCallableParameterContractsV1,
     OwnedCallableParameterContractV1, VerifiedNormalCallableSemanticPackageV1,
 };
 use super::ordinary_new_coseal::{issue_ordinary_source_cohort_v1, OrdinaryNewCoSealIssueV1};
@@ -340,6 +339,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
     // Dynamic Loop candidate below is only one consumer and cannot serve as
     // the ordinary-expression source catalog.
     let mut dynamic_source_calls = Vec::new();
+    let mut dynamic_calls_by_slot = std::collections::BTreeMap::new();
     for (key, _, _) in catalog.selected_identities() {
         if !matches!(key, crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(_)) {
             continue;
@@ -347,7 +347,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         let batch_slot = selected
             .batch_slot(key)
             .ok_or(NormalCallableSemanticPackageIssueV1::MissingDynamicSourceOwner)?;
-        let calls = batch
+        let (dynamic, calls) = batch
             .with_lowering_input(batch_slot, |input| {
                 let dynamic = crate::mir::builder::issue_source_backed_dynamic_callable_v1(input)
                     .map_err(|_error| DynamicCallableAdmissionIssueV1::SourceBacked { _error })?;
@@ -355,6 +355,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
                     input, &dynamic,
                 )
                 .map_err(|_error| DynamicCallableAdmissionIssueV1::Calls { _error })
+                .map(|calls| (dynamic, calls))
             })
             .map_err(|_error| NormalCallableSemanticPackageIssueV1::BatchLoan { _error })?
             .map_err(|_issue| NormalCallableSemanticPackageIssueV1::Dynamic {
@@ -362,6 +363,9 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
                 _issue,
             })?;
         dynamic_source_calls.extend(calls.iter().cloned());
+        if selected.dynamic_eligible_batch_slot(batch_slot) {
+            dynamic_calls_by_slot.insert(batch_slot, (dynamic, calls));
+        }
     }
     let field_writers = super::ordinary_new_coseal::OrdinaryNewFieldWriteClaimDraftV1::capture_sources(
         &batch, &selected, &captured_constructors,
@@ -394,7 +398,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         validate_cataloged_source_co_seal_v1(&catalog, &batch, &selected)
             .map_err(|error| NormalCallableSemanticPackageIssueV1::Batch { _error: error })?,
     );
-    app_main_relation::validate_app_main_root_owner_relation_v1(&catalog, &batch)
+    let app_main_root = app_main_relation::validate_app_main_root_owner_relation_v1(&catalog, &batch)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::AppMainRoot { _error: error })?;
     let mut direct_call_loans = match app_main_identity.as_ref() {
         Some(identity) => issue_direct_call_loans_v1(&catalog, &batch, &selected, identity)
@@ -405,7 +409,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         issue_callable_parameter_contract_v1(&batch).map_err(|error| {
             NormalCallableSemanticPackageIssueV1::ParameterContract { _error: error }
         })?;
-    let parameter_contracts: Rc<[OwnedCallableParameterContractDeclarationV1]> =
+    let parameter_contracts: Rc<OwnedCallableParameterContractsV1> =
         parameter_contract_catalog
             .declarations()
             .map(|declaration| OwnedCallableParameterContractDeclarationV1 {
@@ -424,7 +428,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
                     .collect::<Vec<_>>()
                     .into_boxed_slice(),
             })
-            .collect::<Vec<_>>()
+            .collect::<OwnedCallableParameterContractsV1>()
             .into();
     // The sole Home ABI issuer consumes the live common parameter catalog
     // once — it projects entry demands for the exact instance cohort without
@@ -456,11 +460,12 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
             })?;
         if let DynamicCallableAdmissionV1::Candidate {
             owner,
-            source,
             inventory,
-            calls,
         } = admission
         {
+            // Both selections come from the same sealed catalog-to-batch map.
+            let (source, calls) = dynamic_calls_by_slot.remove(&batch_slot)
+                .ok_or(NormalCallableSemanticPackageIssueV1::MissingDynamicSourceOwner)?;
             if candidate
                 .replace((batch_slot, owner, source, inventory, calls))
                 .is_some()
@@ -478,9 +483,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
             dynamic_inventory,
             dynamic_calls,
         )) => {
-            let mut dynamic_contracts = parameter_contracts
-                .iter()
-                .filter(|declaration| declaration.batch_slot == dynamic_batch_slot);
+            let mut dynamic_contracts = parameter_contracts.for_batch_slot(dynamic_batch_slot);
             let Some(dynamic_contract) = dynamic_contracts.next() else {
                 return Err(NormalCallableSemanticPackageIssueV1::MissingDynamicParameterContract);
             };
@@ -586,9 +589,6 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
             });
         }
     }
-    ordinary_new_claim_ledger
-        .retain_original_parameter_contracts_v1(&parameter_contracts)
-        .map_err(|_error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error })?;
     let s6c_child_slot = issue_s6c_semantic_child_v1(&batch, &selected, &mut completion_seeds)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::S6CChild { _error: error })?;
     ordinary_new_claim_ledger
@@ -649,13 +649,8 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         &mut direct_call_loans, &batch, &selected, catalog.catalog().source_backed_app_main(),
         &parameter_contracts, &ordinary_new_claim_ledger, &physical_signature, &result_contracts,
     ).map_err(|_error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error })?;
-    let app_main_batch_slot = app_main_identity.as_ref().and_then(|identity| {
-        batch
-            .declarations()
-            .find(|declaration| declaration.identity().same_as(identity))
-            .map(|declaration| declaration.batch_slot())
-    });
-    if let Some(root_batch_slot) = app_main_batch_slot {
+    if let Some(root) = &app_main_root {
+        let root_batch_slot = root.batch_slot();
         batch
             .with_lowering_input(root_batch_slot, |input| {
                 ordinary_new_claim_ledger.issue_root_instance_call_dispositions(
@@ -698,6 +693,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         source_static_claims_for_test: static_claim_index,
         root_execution: super::model::NormalRootExecutionPackageStateV1::Prepared(root_execution),
         catalog,
+        app_main_root,
         batch,
         direct_call_loans,
         map_read_facts,

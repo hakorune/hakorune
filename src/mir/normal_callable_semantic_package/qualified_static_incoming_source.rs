@@ -4,7 +4,7 @@ use super::*;
 use crate::mir::callable_result_representation::{
     CallableResultEvidenceV1, OwnedCallableResultCallSiteV1,
 };
-use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
+use crate::mir::normal_callable_semantic_package::model::{OwnedCallableParameterContractDeclarationV1, OwnedCallableParameterContractsV1};
 use crate::mir::resolved_semantics::{
     FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedMethodCallReceiverSourceV1,
     VerifiedResolvedMethodCallSourceV1,
@@ -404,7 +404,7 @@ impl QualifiedStaticCallClaimIndexV1 {
         site: &'a OwnedExprSiteV1,
         source: &'a VerifiedResolvedMethodCallSourceV1,
         selected: &super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
-        contracts: &'a [OwnedCallableParameterContractDeclarationV1],
+        contracts: &'a OwnedCallableParameterContractsV1,
         app_main: Option<&crate::mir::normal_callable_semantic_package::ordinary_new_coseal::BorrowedAppMainSourceLoanV1<'_>>,
     ) -> Result<Option<StaticIncomingSourceLoanV1<'a>>, String> {
         self.incoming_source_in_census(
@@ -427,7 +427,7 @@ impl QualifiedStaticCallClaimIndexV1 {
         site: &'a OwnedExprSiteV1,
         source: &'a VerifiedResolvedMethodCallSourceV1,
         selected: &super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
-        contracts: &'a [OwnedCallableParameterContractDeclarationV1],
+        contracts: &'a OwnedCallableParameterContractsV1,
         omitted: &std::collections::BTreeMap<FunctionOwnerIdV1, CanonicalSameModuleCallableKeyV1>,
         app_main: Option<&crate::mir::normal_callable_semantic_package::ordinary_new_coseal::BorrowedAppMainSourceLoanV1<'_>>,
     ) -> Result<Option<StaticIncomingSourceLoanV1<'a>>, String> {
@@ -473,7 +473,7 @@ impl QualifiedStaticCallClaimIndexV1 {
         let reject = || "[freeze:contract][borrowed-static/incoming-source-identity]".to_owned();
         let caller_contract =
             if matches!(caller_source, StaticIncomingCallerSourceV1::Declaration(_)) {
-                let mut callers = contracts.iter().filter(|row| row.owner == site.owner());
+                let mut callers = contracts.for_owner(site.owner());
                 let caller_contract = callers.next().ok_or_else(reject)?;
                 let main = app_main.filter(|main| main.matches_contract(caller_contract));
                 if callers.next().is_some()
@@ -519,7 +519,7 @@ impl QualifiedStaticCallClaimIndexV1 {
                 None => {
                     let mut owners = omitted.iter().filter(|(_, key)| *key == target);
                     let (owner, _) = owners.next().ok_or_else(reject)?;
-                    let mut rows = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, *owner);
+                    let mut rows = contracts.for_owner(*owner);
                     let row = rows.next().ok_or_else(reject)?;
                     if owners.next().is_some() || rows.next().is_some() {
                         return Err(reject());
@@ -527,7 +527,7 @@ impl QualifiedStaticCallClaimIndexV1 {
                     row.batch_slot
                 }
             };
-        let mut matches = OwnedCallableParameterContractDeclarationV1::for_batch_slot(contracts, slot);
+        let mut matches = contracts.for_batch_slot(slot);
         let contract = matches.next().ok_or_else(reject)?;
         if matches.next().is_some()
             || source.owner() != site.owner()

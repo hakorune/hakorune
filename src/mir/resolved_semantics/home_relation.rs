@@ -141,3 +141,11 @@ impl HomeRelationBrandIssuerV1 {
 #[cfg(test)]
 #[path = "home_relation_tests.rs"]
 mod tests;
+
+/// Common caller lifetime identity only. Original reads and payload class
+/// stay on their own source loans; no leaf read stands for a joined value.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum BorrowedLifetimeAnchorV1 {
+    Entry { root: super::BindingRefV1, caller_support: crate::mir::instruction::BorrowedResultSupportV1 },
+    Owned { root: super::BindingRefV1, acquisition: super::OwnedExprSiteV1 },
+}

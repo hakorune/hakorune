@@ -167,7 +167,7 @@ fn collect_nodes(bindings: &Bindings) -> Result<BTreeMap<BasicBlockId, &MirInstr
         }
         edges(terminal)?;
     }
-    require_acyclic(&nodes)?;
+    require_acyclic_until(&nodes, None)?;
     Ok(nodes)
 }
 fn topology(

@@ -184,7 +184,7 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         let (selected, _) = self
             .original_instance_input_issuance
-            .as_ref()
+            .get()
             .ok_or_else(|| freeze("static-input/completed-source-drift"))?;
         let completion = self
             .completion_source_for_owner_v1(original.callee_owner())
@@ -222,7 +222,7 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         let (selected, _) = self
             .original_instance_input_issuance
-            .as_ref()
+            .get()
             .ok_or_else(|| freeze("static-input/completed-source-drift"))?;
         Ok(original.corroborates_completed_text_publication_v1(publication, selected, text))
     }
@@ -293,10 +293,8 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("static-input/source-cohort-veto"));
         }
         let catalog = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("static-input/catalog-missing"))?;
-        let mut matching = catalog.iter().filter(|row| row.owner == owner);
+            .original_parameter_contracts.as_ref();
+        let mut matching = catalog.for_owner(owner);
         let contract = matching
             .next()
             .ok_or_else(|| freeze("static-input/contract-missing"))?;

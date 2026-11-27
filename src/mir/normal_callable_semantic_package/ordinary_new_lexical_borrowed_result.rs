@@ -4,7 +4,7 @@ use super::*;
 use std::rc::Rc;
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::home_new_prefix::{LocalCallObservationV1, LocalCallResultClassV1};
-use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
+use crate::mir::normal_callable_semantic_package::model::{OwnedCallableParameterContractsV1};
 use crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1;
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -42,15 +42,14 @@ impl OrdinaryNewClaimLedgerV1 {
             .map_err(|issue| freeze(issue))?;
         let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("borrowed-nullable-call/ingress-missing"))?
             .as_ref().map_err(Clone::clone)?;
-        let catalog = self.original_parameter_contracts.as_deref()
-            .ok_or_else(|| freeze("borrowed-nullable-call/catalog-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         let incoming = Self::original_instance_input_call_v1(ingress, catalog, source.call_site())?
             .ok_or_else(|| freeze("borrowed-nullable-call/incoming-missing"))?;
         let completion = self.completion_source_for_owner_v1(source.callee_owner())
             .ok_or_else(|| freeze("borrowed-nullable-call/completion-missing"))?;
         let observed = self.borrowed_nullable_call_source_v1(source.call_site())
             .ok_or_else(|| freeze("borrowed-nullable-call/observation-missing"))?;
-        let (selected, signatures) = self.original_instance_input_issuance.as_ref()
+        let (selected, signatures) = self.original_instance_input_issuance.get()
             .ok_or_else(|| freeze("borrowed-nullable-call/input-issuance-missing"))?;
 
         let arguments = self.checked_completed_original_instance_target_arguments_v1(source, selected, catalog, signatures)?
@@ -91,8 +90,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some((class, object)) = loan.map_payload_v1() else {
             return Err(freeze("borrowed-nullable-call/source-completion-drift"));
         };
-        let catalog = self.original_parameter_contracts.as_deref()
-            .ok_or_else(|| freeze("borrowed-nullable-call/catalog-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("borrowed-nullable-call/ingress-missing"))?
             .as_ref().map_err(Clone::clone)?;
         let producer = Self::original_instance_input_call_v1(ingress, catalog, loan.call())?
@@ -171,7 +169,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn finish_borrowed_nullable_slots_v1(
         &mut self, batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         results: &VerifiedCallableResultContractCohortV1,
     ) -> Result<(), String> {
@@ -225,7 +223,7 @@ impl OrdinaryNewClaimLedgerV1 {
     }
     fn finish_borrowed_map_receiver_slots_v1(
         &mut self, selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         results: &VerifiedCallableResultContractCohortV1,
     ) -> Result<(), String> {

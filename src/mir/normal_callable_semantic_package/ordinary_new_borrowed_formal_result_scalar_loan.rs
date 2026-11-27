@@ -59,7 +59,7 @@ fn exact_original_target(
 
 /// One immutable source scan; derived grounding never outlives its inputs.
 /// Per-loan identity and dependency checks remain independent of this fold.
-struct ScalarSourceValidationV1<'a> {
+pub(in crate::mir::normal_callable_semantic_package) struct ScalarSourceValidationV1<'a> {
     source: &'a Result<PreparedBorrowedFormalIngressV1, String>,
     results: &'a ResultSources,
     grounded: std::cell::OnceCell<BTreeSet<FunctionOwnerIdV1>>,
@@ -162,7 +162,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn corroborate_source_scala
 
 fn source_scalar_seed_target_v1(
     ingress: &PreparedBorrowedFormalIngressV1, target: &LexicalInstanceCallSourceTargetV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     results: &ResultSources, classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
 ) -> Result<bool, String> {
     if !target.uses_existing_borrowed_result_v1() { return Ok(false); }
@@ -248,7 +248,7 @@ fn source_scalar_seed_target_v1(
 /// No seedless cycle or unrelated call/discard makes a scalar family member.
 fn selected_source_scalar_target_v1(
     ingress: &PreparedBorrowedFormalIngressV1, target: &LexicalInstanceCallSourceTargetV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     results: &ResultSources, classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
 ) -> Result<bool, String> {
     if source_scalar_seed_target_v1(ingress, target, contracts, results, classes)? {
@@ -289,7 +289,7 @@ fn selected_source_scalar_target_v1(
 /// This lends no empty cleanup, input, signature or executable result permission.
 pub(in crate::mir::normal_callable_semantic_package) fn required_scalar_source_walk_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>, results: &ResultSources,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     owner: FunctionOwnerIdV1, classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
 ) -> Result<bool, (OwnedExprSiteV1, String)> {
     let Ok(ingress) = source else { return Ok(false); };
@@ -325,7 +325,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn required_scalar_source_w
 /// Selected source absence/errors must never become an old-I64 retry.
 pub(in crate::mir::normal_callable_semantic_package) fn source_scalar_result_arguments_v1(
     targets: &super::super::PreparedLexicalInstanceCallSourceTargetsV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     pending: &PendingBorrowedFormalActualsV1,
     results: &ResultSources,
@@ -379,7 +379,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_scalar_result_arg
 pub(in crate::mir::normal_callable_semantic_package) fn lend_source_scalar_result_arguments_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     pending: &PendingBorrowedFormalActualsV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     results: &ResultSources,
     loan: &BorrowedScalarResultSourceLoanV1,
     array_ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
@@ -389,9 +389,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_source_scalar_resul
     if target.target().arity() == 0 && target.argument_sites().is_empty() {
         let ingress = source.as_ref().map_err(Clone::clone)?;
         exact_original_target(ingress, target)?;
-        let mut matching = contracts
-            .iter()
-            .filter(|contract| contract.owner == target.callee_owner());
+        let mut matching = contracts.for_owner(target.callee_owner());
         let contract = matching
             .next()
             .ok_or_else(|| freeze("scalar-loan/zero-argument-contract-missing"))?;
@@ -426,7 +424,6 @@ impl CallableScalarResultSourceLoanV1 {
         }
     }
     pub(crate) fn returns(&self) -> &[OwnedExprSiteV1] { &self.facts.returns }
-    pub(crate) fn field_array_reads(&self) -> &[Rc<pending::field_array_read::CheckedFieldArrayReadSourceV1>] { &self.facts.field_array_reads }
     pub(crate) fn same_facts(&self, other: &Self) -> bool {
         self.owner == other.owner && Rc::ptr_eq(&self.facts, &other.facts)
             && Rc::ptr_eq(&self.completion, &other.completion)
@@ -445,23 +442,17 @@ impl OrdinaryNewClaimLedgerV1 {
         let source = self.borrowed_formal_source.as_ref()
             .ok_or_else(|| freeze("callable-scalar/source-missing"))?;
         let ingress = source.as_ref().map_err(Clone::clone)?;
-        let catalog = self.original_parameter_contracts.as_deref()
-            .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         let original = Self::original_instance_input_call_v1(ingress, catalog, site)?
             .ok_or_else(|| freeze("callable-scalar/anchor-missing"))?;
         let target = original.source.require_instance()?;
         validation.validate(loan, target)
     }
 
-    /// Original scalar terminal/Discard membership selects this responsibility.
-    /// Other result owners and their errors are not implicit scalar candidates.
-    pub(in crate::mir::normal_callable_semantic_package) fn callable_scalar_result_participant_v1(&self, owner: FunctionOwnerIdV1) -> Result<bool, String> {
-        self.callable_scalar_result_scope_v1(owner, false, None)
-    }
 
     /// One original membership walk serves passive selection and source issuance.
     /// Only the issuer requests proof verification; entry selection grants no result.
-    fn callable_scalar_result_scope_v1(&self, owner: FunctionOwnerIdV1, verify: bool,
+    pub(in crate::mir::normal_callable_semantic_package) fn callable_scalar_result_scope_v1(&self, owner: FunctionOwnerIdV1, verify: bool,
         validation: Option<&ScalarSourceValidationV1<'_>>) -> Result<bool, String> {
         let mut anchors = Vec::new();
         let mut participants = BTreeSet::new();
@@ -528,9 +519,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
             }
         }
-        let catalog = self.original_parameter_contracts.as_deref()
-            .ok_or_else(|| freeze("callable-scalar/catalog-missing"))?;
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+        let catalog = self.original_parameter_contracts.as_ref();
+        let mut contracts = catalog.for_owner(owner);
         let contract = contracts.next().ok_or_else(|| freeze("callable-scalar/contract-missing"))?;
         if contracts.next().is_some() { return Err(freeze("callable-scalar/contract-duplicate")); }
         Ok(contract.mode == crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod)
@@ -567,7 +557,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("callable-scalar/source-missing"))?;
         let validation = ScalarSourceValidationV1::new(ingress, &self.borrowed_i64_results);
         let source = self.checked_callable_scalar_result_source_v1(owner, &validation)?;
-        Ok(source.field_array_reads().to_vec())
+        Ok(source.facts.field_array_reads.to_vec())
     }
 
     /// Issue the `keys().length()` Return recipe once the whole scalar result
@@ -594,8 +584,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let ingress = self.borrowed_formal_source.as_ref()
             .ok_or_else(|| freeze("callable-scalar/source-missing"))?
             .as_ref().map_err(Clone::clone)?;
-        let catalog = self.original_parameter_contracts.as_deref()
-            .ok_or_else(|| freeze("callable-scalar/catalog-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         let grounded = validation.grounded.get_or_init(||
             grounded_source_results_with_ingress_v1(&self.borrowed_i64_results, ingress));
         let mut pending = vec![(owner, None)];
@@ -611,7 +600,7 @@ impl OrdinaryNewClaimLedgerV1 {
             current_proof.require_source_scalar_v1()?;
             let completion = self.completion_source_for_owner_v1(current)
                 .ok_or_else(|| freeze("callable-scalar/completion-missing"))?;
-            let mut contracts = catalog.iter().filter(|row| row.owner == current);
+            let mut contracts = catalog.for_owner(current);
             let contract = contracts.next()
                 .ok_or_else(|| freeze("callable-scalar/contract-missing"))?;
             if contracts.next().is_some() {

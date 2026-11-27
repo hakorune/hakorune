@@ -1,7 +1,7 @@
 //! One mixed result upgrades the existing lexical cell after full source sealing.
 use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use super::*;
-use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
+use crate::mir::normal_callable_semantic_package::model::{OwnedCallableParameterContractsV1};
 use crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1;
 use crate::mir::resolved_semantics::home_new_prefix::{LocalCallObservationV1, LocalCallResultClassV1};
 use std::rc::Rc;
@@ -15,11 +15,6 @@ impl LexicalInstanceCallDispositionRowV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    pub(in crate::mir::normal_callable_semantic_package) fn mixed_call_teardown_v1<'a>(
-        &self, row: &'a LexicalInstanceCallDispositionRowV1,
-    ) -> Result<&'a super::super::completion_index::ObjectReturnTeardownDescriptorV1, String> {
-        self.mixed_call_teardown_using_v1(row, CallValidationContextV1::Lowering(self))
-    }
 
     pub(in crate::mir::normal_callable_semantic_package) fn mixed_call_teardown_using_v1<'a>(
         &self, row: &'a LexicalInstanceCallDispositionRowV1, context: CallValidationContextV1<'_>,
@@ -54,8 +49,8 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut originals = ingress.source_incoming.exact_rows().filter(|incoming| &incoming.call == source.call_site());
         let incoming = originals.next().ok_or_else(|| freeze("mixed-call/incoming-missing"))?;
         let observed = self.mixed_call_source_v1(source.call_site()).ok_or_else(|| freeze("mixed-call/observation-missing"))?;
-        let (selected, signatures) = self.original_instance_input_issuance.as_ref().ok_or_else(|| freeze("mixed-call/input-issuance-missing"))?;
-        let contracts = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("mixed-call/catalog-missing"))?;
+        let (selected, signatures) = self.original_instance_input_issuance.get().ok_or_else(|| freeze("mixed-call/input-issuance-missing"))?;
+        let contracts = self.original_parameter_contracts.as_ref();
         let arguments = self.checked_completed_original_instance_target_arguments_v1(source, selected, contracts, signatures)?
             .ok_or_else(|| freeze("mixed-call/input-incomplete"))?;
         let kind = InvokeCallResultKind::MixedHandle { formal_ordinal: loan.callee_ordinal() };
@@ -71,7 +66,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
     pub(in crate::mir::normal_callable_semantic_package) fn finish_mixed_call_slots_v1(
         &mut self, selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         results: &VerifiedCallableResultContractCohortV1,
     ) -> Result<(), String> {

@@ -56,14 +56,12 @@ impl StaticInputFinishV1 {
 
 pub(super) fn check_exact_usize_scalar_caller_v1(
     selected: &VerifiedSelectedCallableBatchMapV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     signatures: &VerifiedCallablePhysicalSignatureCohortV1,
     original: &Rc<StaticIncomingSourceV1>,
     binding: BindingRefV1,
 ) -> Result<(), String> {
-    let mut callers = contracts
-        .iter()
-        .filter(|row| row.owner == original.call_site().owner());
+    let mut callers = contracts.for_owner(original.call_site().owner());
     let caller = callers
         .next()
         .ok_or_else(|| freeze("static-scalar/caller-contract-missing"))?;
@@ -333,7 +331,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         source: &PreparedBorrowedFormalIngressV1,
         owner: FunctionOwnerIdV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     ) -> bool {
         let Ok(rows) = source.source_incoming.project(&BTreeSet::from([owner])) else {
             return false;
@@ -345,9 +343,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 else {
                     return false;
                 };
-                let Some(caller) = contracts
-                    .iter()
-                    .find(|contract| contract.owner == row.call.owner())
+                let Some(caller) = contracts.for_owner(row.call.owner()).next()
                 else {
                     return false;
                 };
@@ -408,10 +404,8 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(None);
         }
         let catalog = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("static-scalar/original-catalog-missing"))?;
-        let mut declarations = catalog.iter().filter(|row| row.owner == owner);
+            .original_parameter_contracts.as_ref();
+        let mut declarations = catalog.for_owner(owner);
         let declaration = declarations
             .next()
             .ok_or_else(|| freeze("static-scalar/original-contract-missing"))?;
@@ -456,7 +450,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn prepare_numeric_static_inputs_v1(
         &self,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         results: &VerifiedCallableResultContractCohortV1,
     ) -> Result<StaticInputRowsV1, String> {
@@ -522,8 +516,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }) {
                 continue;
             }
-            let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
-                contracts, owner,
+            let contract = contracts.unique_for_owner(owner,
                 || freeze("static-scalar/contract-missing"),
                 || freeze("static-scalar/contract-identity"),
             )?;

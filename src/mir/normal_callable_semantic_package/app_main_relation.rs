@@ -5,7 +5,7 @@
 //! distinct Main relation failures into the generic direct-call rejection.
 
 use crate::mir::builder::{
-    SameModuleCallableNamespaceV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
+    CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
 use crate::mir::callable_semantic_batch::{
     ResolvedCallableDeclarationModeV1, ResolvedCallableSemanticBatchLoanErrorV1,
@@ -40,6 +40,31 @@ pub(crate) enum AppMainRootRelationIssueV1 {
     ParameterCountOverflow,
 }
 
+/// A private batch slot attested by the source-backed App Main relation.
+#[derive(Debug)]
+pub(super) struct VerifiedAppMainRootRelationV1 {
+    batch_slot: u32,
+    identity: crate::parser::CallableDeclarationIdentityV1,
+    arity: u32,
+}
+
+impl VerifiedAppMainRootRelationV1 {
+    pub(super) fn batch_slot(&self) -> u32 {
+        self.batch_slot
+    }
+
+    pub(super) fn slot_for(
+        &self,
+        key: &CanonicalSameModuleCallableKeyV1,
+        identity: &crate::parser::CallableDeclarationIdentityV1,
+    ) -> Option<u32> {
+        (key.namespace() == SameModuleCallableNamespaceV1::StaticBoxMethod
+            && key.arity() == self.arity
+            && identity.same_as(&self.identity))
+            .then_some(self.batch_slot)
+    }
+}
+
 /// Validate the retained App/Main identity against the exact semantic batch
 /// and its complete owner forest before package-side parameter/install work.
 /// This is deliberately provenance-only: it does not construct a raw lineage,
@@ -47,10 +72,10 @@ pub(crate) enum AppMainRootRelationIssueV1 {
 pub(super) fn validate_app_main_root_owner_relation_v1(
     catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
-) -> Result<(), AppMainRootRelationIssueV1> {
+) -> Result<Option<VerifiedAppMainRootRelationV1>, AppMainRootRelationIssueV1> {
     let declaration_catalog = catalog.catalog();
     let Some(app_main) = declaration_catalog.source_backed_app_main() else {
-        return Ok(());
+        return Ok(None);
     };
     if !declaration_catalog
         .brand()
@@ -144,5 +169,9 @@ pub(super) fn validate_app_main_root_owner_relation_v1(
             Ok(())
         })
         .map_err(AppMainRootRelationIssueV1::BatchLoan)??;
-    Ok(())
+    Ok(Some(VerifiedAppMainRootRelationV1 {
+        batch_slot: declaration.batch_slot(),
+        identity: app_main.parser_identity().clone(),
+        arity: expected_arity,
+    }))
 }

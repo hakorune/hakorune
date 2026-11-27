@@ -272,7 +272,7 @@ pub(super) fn classify_actual_seed_in_scope(
     candidates: &[super::super::super::candidate::OrdinaryNewCandidate],
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     site: &SourceExprSiteV1,
     transport_owners: Option<&BTreeSet<FunctionOwnerIdV1>>,
     guarded: Option<(&BorrowedGuardedActualV1, &OwnedExprSiteV1, u32)>,
@@ -305,7 +305,7 @@ pub(super) fn classify_original_actual_seed_in_scope(
     candidates: &[super::super::super::candidate::OrdinaryNewCandidate],
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     site: &SourceExprSiteV1,
     guarded: Option<(&BorrowedGuardedActualV1, &OwnedExprSiteV1, u32)>,
     inventory: Option<&BorrowedIncomingInventoryV1>,
@@ -339,7 +339,7 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
     candidates: &[super::super::super::candidate::OrdinaryNewCandidate],
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     site: &SourceExprSiteV1,
     guarded: Option<(&BorrowedGuardedActualV1, &OwnedExprSiteV1, u32)>,
     inventory: Option<&BorrowedIncomingInventoryV1>,
@@ -613,7 +613,7 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
         };
     }
     if value_domain::declared_integer_seed_v1(input, contracts, binding) {
-        return if contracts.iter().filter(|row| row.owner == input.owner()).flat_map(|row| &row.parameters)
+        return if contracts.for_owner(input.owner()).flat_map(|row| &row.parameters)
             .any(|row| row.binding == binding && matches!(row.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()))
         { OriginalFormalActualSeedV1::Scalar(SourceScalarKind::Integer) } else { OriginalFormalActualSeedV1::SourceInteger };
     }
@@ -680,9 +680,7 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
             .get(&caller)
             .and_then(|draft| draft.origins.get(&binding))
         {
-            let declared_constraint = contracts
-                .iter()
-                .find(|row| row.owner == caller)
+            let declared_constraint = contracts.for_owner(caller).next()
                 .and_then(|row| row.parameters.iter().find(|row| row.binding == *formal))
                 .and_then(|row| match &row.kind {
                     CallableParameterContractKindV1::DeclaredObject(class) => Some(class.clone()),
@@ -702,7 +700,7 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
                 if !sum_stable {
                     return OriginalFormalActualSeedV1::Conflict;
                 }
-                let mut owners = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, input.owner());
+                let mut owners = contracts.for_owner(input.owner());
                 if let Some(contract) = owners.next().filter(|_| owners.next().is_none()) {
                     if let Some(formal) = contract.parameters.iter().enumerate().find_map(|(ordinal, formal)|
                         (formal.binding == binding && formal.ordinal as usize == ordinal

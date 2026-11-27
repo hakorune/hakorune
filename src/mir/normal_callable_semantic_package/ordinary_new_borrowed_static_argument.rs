@@ -2,7 +2,7 @@
 //! This product proves source identity only, never integer view or transport.
 use super::borrowed_formal_uses::{BorrowedFormalUseDraftKindV1, BorrowedFormalUsesDraftV1};
 use super::*;
-use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
+use crate::mir::normal_callable_semantic_package::model::{OwnedCallableParameterContractsV1};
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::{
     caller_key_for_function, incoming_source::StaticIncomingSourceV1,
     QualifiedStaticCallClaimIndexV1,
@@ -62,7 +62,7 @@ impl StaticArgumentSourceV1 {
 pub(super) fn collect_static_argument_sources_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     claims: Option<&QualifiedStaticCallClaimIndexV1>,
     app_main: Option<&super::BorrowedAppMainSourceLoanV1<'_>>,
@@ -73,7 +73,7 @@ pub(super) fn collect_static_argument_sources_v1(
     };
     let mut call_sources = BTreeMap::new();
     for (owner, draft) in definitions {
-        let mut caller_contracts = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, *owner);
+        let mut caller_contracts = contracts.for_owner(*owner);
         let contract = caller_contracts
             .next()
             .ok_or_else(|| freeze("borrowed-static/caller-contract"))?;

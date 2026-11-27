@@ -3,7 +3,7 @@
 use super::super::{BindingRefV1, OwnedExprSiteV1, SourceExprSiteV1, SourceScalarKind};
 use super::*;
 use crate::mir::normal_callable_semantic_package::{
-    ArgumentExpressionSourceLoanV1, BorrowedTextEntryReadRequirementV1,
+    ArgumentExpressionSourceLoanV1, BorrowedFormalEntryReadRequirementV1,
 };
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_value_profile::{
@@ -82,7 +82,7 @@ impl CheckedArgumentExpressionFrameV1 {
     pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] {
         self.evaluation.prior_homes()
     }
-    pub(crate) fn text_reads(&self) -> Vec<&BorrowedTextEntryReadRequirementV1> {
+    pub(crate) fn text_reads(&self) -> Vec<&BorrowedFormalEntryReadRequirementV1> {
         self.evaluation
             .references()
             .values()
@@ -113,7 +113,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
     core: ArgumentExpressionSourceLoanV1,
     statement: &SourceStmtSiteV1,
     prior_homes: &[LiveHomeV1],
-    text_reads: &[BorrowedTextEntryReadRequirementV1],
+    text_reads: &[BorrowedFormalEntryReadRequirementV1],
     finite_entry_reads: &[crate::mir::normal_callable_semantic_package::FiniteEntryReadV1],
     dynamic_entry_reads: &[crate::mir::normal_callable_semantic_package::DynamicEntryReadV1],
     loop_dynamic_reads: &[super::super::LoopDynamicReadV1],

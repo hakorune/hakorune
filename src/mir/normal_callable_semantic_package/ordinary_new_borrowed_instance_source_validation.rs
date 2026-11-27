@@ -7,7 +7,7 @@ use super::*;
 
 pub(super) fn reconstruct_instance_source_actuals_v1(
     ingress: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     call: &super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
     identity: &InstanceSourceActualIdentityV1,
     array_ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
@@ -145,9 +145,7 @@ pub(super) fn reconstruct_instance_source_actuals_v1(
                         .unwrap_or(Ok(None));
                 }
                 if let BorrowedCallActualValueV1::MethodCall(method) = &candidate.value {
-                    let parameter = contracts
-                        .iter()
-                        .find(|row| row.owner == call.callee)
+                    let parameter = contracts.for_owner(call.callee).next()
                         .and_then(|row| row.parameters.get(ordinal as usize))
                         .filter(|row| row.ordinal == ordinal && row.binding == formal)
                         .ok_or_else(|| freeze("borrowed-instance/actual-identity"))?;
@@ -281,12 +279,12 @@ fn original_unknown_scalar_actual_v1(
 /// this exact local read at this exact call ordinal.
 fn original_local_object_binding_actual_v1(
     ingress: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     call: &super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
     identity: &InstanceSourceActualIdentityV1,
     candidate: &BorrowedCallActualCandidateV1,
 ) -> Option<BorrowedFormalActualSourceV1> {
-    use crate::mir::normal_callable_semantic_package::SourceValueAlternativeV1 as Value;
+    use crate::mir::resolved_semantics::source_value_class::SourceValueAlternativeV1 as Value;
     use crate::mir::resolved_value_profile::expression_plan::{
         ExpressionNodeSourceV1, ExpressionPlanRootV1,
     };
@@ -312,9 +310,7 @@ fn original_local_object_binding_actual_v1(
     if expected_site != &candidate.site || formal.owner() != call.callee {
         return None;
     }
-    let parameter = contracts
-        .iter()
-        .find(|row| row.owner == call.callee)?
+    let parameter = contracts.for_owner(call.callee).next()?
         .parameters
         .get(candidate.ordinal as usize)?;
     if parameter.ordinal != candidate.ordinal
@@ -359,7 +355,7 @@ fn original_local_object_binding_actual_v1(
 
 pub(super) fn recheck_instance_source_actuals_v1(
     ingress: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     call: &super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
     rows: &PreparedBorrowedCallActualsV1,
     identity: &InstanceSourceActualIdentityV1,
@@ -421,7 +417,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn recheck_pending_array_so
 /// Source-domain validation only, used outside qualified Static execution scope.
 pub(in crate::mir::normal_callable_semantic_package) fn revalidate_passive_instance_incoming_v1(
     ingress: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     call: &super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
     rows: &PreparedBorrowedCallActualsV1,
     classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
@@ -433,7 +429,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn revalidate_passive_insta
 
 pub(in crate::mir::normal_callable_semantic_package) fn revalidate_passive_instance_incoming_with_array_context_v1(
     ingress: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     call: &super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
     rows: &PreparedBorrowedCallActualsV1,
     classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
@@ -540,9 +536,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn revalidate_passive_insta
                 loan.class()
             }
             BorrowedCallActualValueV1::MethodCall(ref method) => {
-                let parameter = contracts
-                    .iter()
-                    .find(|row| row.owner == call.callee)
+                let parameter = contracts.for_owner(call.callee).next()
                     .and_then(|row| row.parameters.get(*ordinal as usize))
                     .filter(|row| row.ordinal == *ordinal && row.binding == *formal)
                     .ok_or_else(|| freeze("borrowed-instance/actual-identity"))?;
@@ -627,7 +621,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn revalidate_passive_insta
 pub(in crate::mir::normal_callable_semantic_package) fn project_pending_instance_source_arguments_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     pending: &PendingBorrowedFormalActualsV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     site: &OwnedExprSiteV1,
 ) -> Result<Option<Box<[LocalCallArgumentV1]>>, String> {
     project_pending_instance_source_arguments_with_array_context_v1(
@@ -638,7 +632,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_instance
 pub(in crate::mir::normal_callable_semantic_package) fn project_pending_instance_source_arguments_with_array_context_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     pending: &PendingBorrowedFormalActualsV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     site: &OwnedExprSiteV1,
     array_ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
 ) -> Result<Option<Box<[LocalCallArgumentV1]>>, String> {
@@ -730,7 +724,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_instance
 pub(in crate::mir::normal_callable_semantic_package) fn source_instance_scalar_reads_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     pending: &PendingBorrowedFormalActualsV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     target: &LexicalInstanceCallSourceTargetV1,
     ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
 ) -> Result<Vec<(SourceExprSiteV1, BindingRefV1, SourceScalarKind)>, String> {

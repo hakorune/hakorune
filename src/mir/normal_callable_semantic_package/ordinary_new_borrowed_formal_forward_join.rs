@@ -7,8 +7,8 @@ use super::*;
 /// result still does not prove incoming coverage, availability or carrier ABI.
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn join_borrowed_forward_uses_v1(
     drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
-    calls: &BTreeMap<OwnedExprSiteV1, BorrowedCallSourceLoanV1<'_>>,
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
+    calls: &BTreeMap<OwnedExprSiteV1, BorrowedIncomingCallLoanV1<'_>>,
 ) -> Result<Box<[BorrowedForwardUseDraftRowV1]>, BorrowedForwardJoinDraftErrorV1> {
     let mut rows = Vec::new();
     for (owner, draft) in drafts {
@@ -32,9 +32,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             {
                 return Err(BorrowedForwardJoinDraftErrorV1::CallIdentity(error_site));
             }
-            let mut matching = contracts
-                .iter()
-                .filter(|contract| contract.owner == exact_call.callee_owner());
+            let mut matching = contracts.for_owner(exact_call.callee_owner());
             let contract = matching.next().ok_or_else(|| {
                 BorrowedForwardJoinDraftErrorV1::MissingCallee(error_site.clone())
             })?;

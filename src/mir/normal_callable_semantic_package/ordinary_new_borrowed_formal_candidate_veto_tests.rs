@@ -1,5 +1,6 @@
 //! A source candidate must retain scanner vetoes beside otherwise good input.
 use super::*;
+use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 
 #[test]
 fn candidate_integer_agreement_refuses_good_row_plus_unresolved_caller_veto() {
@@ -59,7 +60,7 @@ fn candidate_integer_agreement_refuses_good_row_plus_unresolved_caller_veto() {
     )
     .unwrap();
     assert_eq!(inventory.exact_rows().count(), 1);
-    assert!(inventory.vetoed_owners().contains(&contract.owner));
+    assert!(inventory.collect_vetoes_v1(true).contains(&contract.owner));
     let empty_loans =
         crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1::issue(Box::new([]));
     let original_seeds = source_seeds::prepare_original_formal_seeds_v1(
@@ -561,7 +562,7 @@ fn original_qualified_opaque_input_demands_whole_callee_without_global_cycle() {
         .find(|row| row.source.target().owner() == "Layout").unwrap().call.clone();
     let issuance = ledger.original_instance_input_issuance.take().unwrap();
     assert!(ledger.checked_completed_opaque_object_target_arguments_v1(&target, contract).unwrap().is_none(), "source qualification is no completed input");
-    ledger.original_instance_input_issuance = Some(issuance);
+    ledger.original_instance_input_issuance.set(issuance).unwrap();
     let original_other = ledger.borrowed_formal_actuals.insert(unrelated.clone(), Err("unrelated-static-refusal".into())).unwrap();
     let args = ledger.checked_completed_opaque_object_target_arguments_v1(&target, contract)
         .unwrap().expect("original family has no dependency on another consumer");
@@ -605,7 +606,7 @@ fn original_qualified_body_entry_shares_whole_native_input_owner() {
             assert_eq!(ledger.selected_original_object_input_owner_v1(source, first.callee).unwrap(), !scalar);
             if scalar {
                 ledger.borrowed_formal_actuals[&first.call].as_ref().unwrap().require_executable_v1().unwrap();
-                assert!(ledger.callable_scalar_result_participant_v1(first.callee).unwrap());
+                assert!(ledger.callable_scalar_result_scope_v1(first.callee, false, None).unwrap());
             }
             ledger.borrowed_formal_actuals.insert(unrelated, Err("unrelated-static-refusal".into()));
             let call_site = first.call.clone();
@@ -613,7 +614,7 @@ fn original_qualified_body_entry_shares_whole_native_input_owner() {
                 0 => {}
                 1 => { ledger.borrowed_formal_actuals.remove(&sibling); }
                 2 => { ledger.borrowed_formal_actuals.insert(sibling, Err("original-callee-sibling-refusal".into())); }
-                _ => { ledger.original_instance_input_issuance = None; }
+                _ => { ledger.original_instance_input_issuance.take().unwrap(); }
             }
             if scalar {
                 let row = ledger.take_lexical_instance_call(call_site.owner(), call_site.site()).unwrap().unwrap();

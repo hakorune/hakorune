@@ -66,7 +66,7 @@ impl ArrayElementSourceLoanV1 {
         let Some(flow) = completion.cleanup().root_flow() else {
             return Ok(None);
         };
-        let loan = NamedArrayHolderSourceLoanV1::from_requirement(Rc::clone(&self.requirement));
+        let loan = NamedArrayHolderSourceLoanV1::from_element_contract(Rc::clone(self.requirement.holder_source_v1()));
         let mut initializer = None;
         let mut appends = Vec::new();
         for observation in flow.named_arrays() {
@@ -201,7 +201,7 @@ impl ArrayHolderLifecycleRecipeV1 {
             return Err(freeze("array-lifecycle/original-read-coverage"));
         }
         Ok(Some(Rc::new(Self {
-            holder: NamedArrayHolderSourceLoanV1::from_requirement(Rc::clone(&source.requirement)),
+            holder: NamedArrayHolderSourceLoanV1::from_element_contract(Rc::clone(source.requirement.holder_source_v1())),
             completion: Rc::clone(completion), caller: caller.clone(),
             elements: ArrayHolderElementRecipeV1 {
                 source: reads[0].clone(), producer: Rc::clone(home.producer), reads: reads.into(),

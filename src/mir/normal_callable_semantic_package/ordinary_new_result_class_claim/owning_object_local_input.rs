@@ -2,7 +2,7 @@
 use super::call_witness::OriginalLocalCallSourceV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::{AppMainSourceRefV1, LexicalInstanceCallSourceTargetV1};
-use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
+use crate::mir::normal_callable_semantic_package::model::{OwnedCallableParameterContractsV1};
 use crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use std::rc::Rc;
 
@@ -44,7 +44,7 @@ impl OrdinaryNewResultClassClaimsV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn owning_object_local_input_source_v1(
         &self, batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        parameters: &OwnedCallableParameterContractsV1,
         reference: &super::super::lexical_instance_call::CallTargetReferenceV1, destination: BindingRefV1,
         app_main: Option<AppMainSourceRefV1<'_>>,
     ) -> Result<Option<OwningObjectLocalInputSourceLoanV1>, &'static str> {

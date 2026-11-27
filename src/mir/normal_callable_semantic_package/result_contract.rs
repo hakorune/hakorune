@@ -21,7 +21,7 @@ use std::collections::BTreeMap;
 use std::rc::Rc;
 
 use super::ordinary_new_coseal::lexical_instance_call::BorrowedResultCohortV1;
-use super::model::OwnedCallableParameterContractDeclarationV1;
+use super::model::{OwnedCallableParameterContractsV1};
 use super::physical_header::CallablePhysicalHeaderIssueV1;
 pub(super) use super::physical_header::{
     declared_scalar_agrees_v1, validate_result,
@@ -42,7 +42,7 @@ pub(crate) struct VerifiedCallableResultContractCohortV1 {
     named_array_emissions: Box<[super::EmittedNamedArrayRequirementV1]>,
     completed_context: Option<(
         std::rc::Rc<super::selected_mapping::VerifiedSelectedCallableBatchMapV1>,
-        std::rc::Rc<[super::model::OwnedCallableParameterContractDeclarationV1]>,
+        std::rc::Rc<super::model::OwnedCallableParameterContractsV1>,
     )>,
 }
 
@@ -557,7 +557,7 @@ impl VerifiedCallableResultContractBuilderV1 {
 pub(super) fn preflight_declaration(
     declaration: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticDeclarationRefV1<'_>,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    parameter_contracts: &[OwnedCallableParameterContractDeclarationV1],
+    parameter_contracts: &OwnedCallableParameterContractsV1,
 ) -> Result<bool, CallablePhysicalHeaderIssueV1> {
     let batch_slot = declaration.batch_slot();
     if !matches!(
@@ -568,9 +568,7 @@ pub(super) fn preflight_declaration(
     ) {
         return Ok(false);
     }
-    let mut contracts = parameter_contracts
-        .iter()
-        .filter(|row| row.batch_slot == batch_slot);
+    let mut contracts = parameter_contracts.for_batch_slot(batch_slot);
     let Some(contract) = contracts.next() else {
         return Ok(false);
     };
@@ -602,7 +600,7 @@ impl VerifiedCallableResultContractCohortV1 {
     pub(super) fn retain_completed_context(
         mut self,
         selected: std::rc::Rc<super::selected_mapping::VerifiedSelectedCallableBatchMapV1>,
-        parameters: std::rc::Rc<[super::model::OwnedCallableParameterContractDeclarationV1]>,
+        parameters: std::rc::Rc<super::model::OwnedCallableParameterContractsV1>,
     ) -> Result<Self, super::NormalCallableSemanticPackageInstallIssueV1> {
         use super::NormalCallableSemanticPackageInstallIssueV1 as Issue;
         if self.completed_context.is_some() {
@@ -617,7 +615,7 @@ impl VerifiedCallableResultContractCohortV1 {
             {
                 return Err(Issue::ResultContractMismatch);
             }
-            let mut matches = parameters.iter().filter(|p| p.batch_slot == row.batch_slot);
+            let mut matches = parameters.for_batch_slot(row.batch_slot);
             let parameter = matches.next().ok_or(Issue::MissingParameterContract)?;
             if matches.next().is_some() {
                 return Err(Issue::DuplicateParameterContract);

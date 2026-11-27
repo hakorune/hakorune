@@ -402,9 +402,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 loan.source(),
             )?;
             let contracts = self
-                .original_parameter_contracts
-                .as_deref()
-                .ok_or_else(|| freeze("borrowed-terminal/catalog-missing"))?;
+                .original_parameter_contracts.as_ref();
             let expected = lend_source_scalar_result_arguments_v1(
                 source,
                 &self.borrowed_formal_actuals,

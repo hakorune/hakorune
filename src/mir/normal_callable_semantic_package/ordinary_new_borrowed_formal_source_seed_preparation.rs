@@ -17,7 +17,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             super::super::super::super::OrdinaryNewCoSealIssueV1,
         >,
     >,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     inventory: &BorrowedIncomingInventoryV1,
     guarded: &BTreeMap<(OwnedExprSiteV1, u32), BorrowedGuardedActualV1>,
@@ -210,7 +210,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 let slot = context.declaration_slot();
                 let candidates = slot.and_then(|slot| candidates.get(&slot)).and_then(|rows| rows.as_ref().ok())
                     .map(Vec::as_slice).unwrap_or(&[]);
-                let receiver = slot.and_then(|slot| contracts.iter().find(|row| row.owner == caller)
+                let receiver = slot.and_then(|slot| contracts.for_owner(caller).next()
                     .filter(|row| row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod)
                     .and_then(|_| crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
                         selected, batch, entry_home_loans.for_batch_slot(slot), slot)));
@@ -320,7 +320,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 }
                 let local_candidates = context.declaration_slot().and_then(|slot| candidates.get(&slot))
                     .and_then(|rows| rows.as_ref().ok()).map(Vec::as_slice).unwrap_or(&[]);
-                let receiver = context.declaration_slot().and_then(|slot| contracts.iter().find(|row| row.owner == input.owner())
+                let receiver = context.declaration_slot().and_then(|slot| contracts.for_owner(input.owner()).next()
                     .filter(|row| row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod)
                     .and_then(|_| crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
                         selected, batch, entry_home_loans.for_batch_slot(slot), slot)));
@@ -434,7 +434,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                         let slot = context.declaration_slot();
                         let local_candidates = slot.and_then(|slot| candidates.get(&slot))
                             .and_then(|rows| rows.as_ref().ok()).map(Vec::as_slice).unwrap_or(&[]);
-                        let receiver = slot.and_then(|slot| contracts.iter().find(|row| row.owner == input.owner())
+                        let receiver = slot.and_then(|slot| contracts.for_owner(input.owner()).next()
                             .filter(|row| row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod)
                             .and_then(|_| crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
                                 selected, batch, entry_home_loans.for_batch_slot(slot), slot)));
@@ -480,7 +480,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 let slot = context.declaration_slot();
                 let local_candidates = slot.and_then(|slot| candidates.get(&slot))
                     .and_then(|rows| rows.as_ref().ok()).map(Vec::as_slice).unwrap_or(&[]);
-                let receiver = slot.and_then(|slot| contracts.iter().find(|row| row.owner == input.owner())
+                let receiver = slot.and_then(|slot| contracts.for_owner(input.owner()).next()
                     .filter(|row| row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod)
                     .and_then(|_| crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
                         selected, batch, entry_home_loans.for_batch_slot(slot), slot)));
@@ -530,7 +530,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 let slot = context.declaration_slot();
                 let local_candidates = slot.and_then(|slot| candidates.get(&slot))
                     .and_then(|rows| rows.as_ref().ok()).map(Vec::as_slice).unwrap_or(&[]);
-                let receiver = slot.and_then(|slot| contracts.iter().find(|row| row.owner == input.owner())
+                let receiver = slot.and_then(|slot| contracts.for_owner(input.owner()).next()
                     .filter(|row| row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod)
                     .and_then(|_| crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
                         selected, batch, entry_home_loans.for_batch_slot(slot), slot)));
@@ -558,9 +558,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                     Origin::Join { incoming, .. } => Expansion::Join(incoming.iter().map(|(_, value)| *value).collect()),
                     Origin::Entry(binding) => {
                         let receiver = context.declaration_slot().and_then(|slot| {
-                            contracts
-                                .iter()
-                                .find(|row| row.owner == owner)
+                            contracts.for_owner(owner).next()
                                 .filter(|row| row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod)
                                 .and_then(|_| crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
                                     selected, batch, entry_home_loans.for_batch_slot(slot), slot,
@@ -588,7 +586,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                         let slot = context.declaration_slot();
                         let local_candidates = slot.and_then(|slot| candidates.get(&slot)).and_then(|rows| rows.as_ref().ok())
                             .map(Vec::as_slice).unwrap_or(&[]);
-                        let receiver = slot.and_then(|slot| contracts.iter().find(|row| row.owner == owner)
+                        let receiver = slot.and_then(|slot| contracts.for_owner(owner).next()
                             .filter(|row| row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod)
                             .and_then(|_| crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
                                 selected, batch, entry_home_loans.for_batch_slot(slot), slot)));

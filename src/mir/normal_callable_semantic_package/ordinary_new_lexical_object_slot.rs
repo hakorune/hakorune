@@ -6,7 +6,6 @@ use crate::mir::callable_parameter_contract::{
     CallableParameterContractKindV1, CallableParameterDeclarationModeV1,
 };
 use crate::mir::normal_callable_semantic_package::{
-    model::OwnedCallableParameterContractDeclarationV1,
     result_contract::VerifiedCallableResultContractCohortV1,
 };
 use crate::mir::resolved_semantics::home_new_prefix::{
@@ -68,11 +67,10 @@ impl OrdinaryNewClaimLedgerV1 {
                             = &usage.kind else { return false; };
                         call == target.call_site()
                             && target.argument_sites().get(*ordinal as usize) == Some(usage.site.site())
-                            && self.original_parameter_contracts.as_deref().is_some_and(|catalog|
-                                catalog.iter().filter(|row| row.owner == caller)
+                            && self.original_parameter_contracts.as_ref().for_owner(caller)
                                     .flat_map(|row| &row.parameters).any(|parameter|
                                         parameter.binding == usage.formal
-                                            && parameter.kind == CallableParameterContractKindV1::OpaqueHandle))
+                                            && parameter.kind == CallableParameterContractKindV1::OpaqueHandle)
                             && draft.uses.iter().any(|guard| guard.formal == usage.formal
                                 && matches!(guard.kind,
                                     borrowed_formal_uses::BorrowedFormalUseDraftKindV1::CompareOperand { .. }))
@@ -80,7 +78,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 });
                 if numeric_forward {
                     return has_original_forwarding_receiver_input_source_v1(source,
-                        self.original_parameter_contracts.as_deref(), caller, &mut |original| original == target);
+                        self.original_parameter_contracts.as_ref(), caller, &mut |original| original == target);
                 }
             }
         }
@@ -111,7 +109,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         has_original_forwarding_receiver_input_source_v1(
             source,
-            self.original_parameter_contracts.as_deref(),
+            self.original_parameter_contracts.as_ref(),
             target.call_site().owner(),
             &mut |original| original == target,
         )
@@ -120,7 +118,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn finish_object_lexical_slots_v1(
         &mut self,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         results: &VerifiedCallableResultContractCohortV1,
     ) -> Result<(), String> {
@@ -185,7 +183,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         source: &LexicalInstanceCallSourceTargetV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         results: &VerifiedCallableResultContractCohortV1,
     ) -> Result<
@@ -219,9 +217,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("lexical-object/producer-dependency-identity"));
             }
         }
-        let mut matching = contracts
-            .iter()
-            .filter(|row| row.owner == source.callee_owner());
+        let mut matching = contracts.for_owner(source.callee_owner());
         let contract = matching
             .next()
             .ok_or_else(|| freeze("lexical-object/contract-missing"))?;
@@ -480,7 +476,7 @@ mod tests;
 /// issuance. The callback selects a source target, never executable authority.
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn has_original_forwarding_receiver_input_source_v1(
     source: &PreparedBorrowedFormalIngressV1,
-    catalog: Option<&[OwnedCallableParameterContractDeclarationV1]>,
+    catalog: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     owner: FunctionOwnerIdV1,
     select: &mut impl FnMut(&LexicalInstanceCallSourceTargetV1) -> bool,
 ) -> Result<bool, String> {

@@ -436,7 +436,7 @@ fn object_slot_formal_ordinal_and_binding_drift_refuse() {
         } else {
             contract.parameters[0].ordinal = 1;
         }
-        package.parameter_contracts = contracts.into();
+        package.parameter_contracts = std::rc::Rc::new(contracts.into_iter().collect());
         assert!(ledger
             .finish_object_lexical_slots_v1(
                 &package.selected,

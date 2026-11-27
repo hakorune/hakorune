@@ -46,12 +46,12 @@ impl BorrowedIncomingSourceV1 {
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn as_loan(
         &self,
-    ) -> Result<BorrowedCallSourceLoanV1<'_>, String> {
+    ) -> Result<BorrowedIncomingCallLoanV1<'_>, String> {
         match self {
             Self::Instance(row) | Self::SelectedStored { target: row, .. } => {
-                Ok(BorrowedCallSourceLoanV1::Instance(row))
+                Ok(BorrowedIncomingCallLoanV1::Instance(row))
             }
-            Self::Static(row) => Ok(BorrowedCallSourceLoanV1::Static(row)),
+            Self::Static(row) => Ok(BorrowedIncomingCallLoanV1::Static(row)),
             Self::PendingStored(_) => Err(super::super::freeze(
                 "borrowed-formal/incoming-stored-pending",
             )),
@@ -139,13 +139,12 @@ impl BorrowedIncomingSourceV1 {
         &self,
         ordinal: u32,
         construction: &crate::mir::resolved_semantics::ResolvedNewExpressionSourceV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     ) -> bool {
         if self.argument_sites().get(ordinal as usize) != Some(construction.site()) {
             return false;
         }
-        let mut declarations = OwnedCallableParameterContractDeclarationV1::for_batch_slot(
-            contracts, self.target_batch_slot(),
+        let mut declarations = contracts.for_batch_slot(self.target_batch_slot(),
         )
         .filter(|declaration| declaration.owner == self.callee_owner());
         let Some(declaration) = declarations.next() else {

@@ -49,11 +49,11 @@ pub(crate) struct ObjectFieldClassSourceV1 {
     class: Box<str>,
     declaration: Option<(hakorune_mir_defs::CanonicalFieldRefV1, Option<String>)>,
     array_qualified: bool,
-    source_sum: Option<(Rc<DeclaredFieldValueSourceV1>, Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>)>,
+    source_sum: Option<(Rc<DeclaredFieldValueSourceV1>, Rc<crate::mir::resolved_semantics::source_value_class::SourceValueSumV1>)>,
 }
 impl ObjectFieldClassSourceV1 {
     pub(crate) fn class(&self) -> &str { &self.class }
-    pub(crate) fn source_sum(&self) -> Option<&Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>> {
+    pub(crate) fn source_sum(&self) -> Option<&Rc<crate::mir::resolved_semantics::source_value_class::SourceValueSumV1>> {
         self.source_sum.as_ref().map(|(_, sum)| sum)
     }
     pub(crate) fn array_field(&self) -> Option<hakorune_mir_defs::CanonicalFieldRefV1> {

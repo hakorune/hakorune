@@ -128,7 +128,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn att
     app_main: Option<&crate::mir::normal_callable_semantic_package::ordinary_new_coseal::BorrowedAppMainSourceLoanV1<'_>>,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-    parameters: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
+    parameters: &super::super::super::model::OwnedCallableParameterContractsV1,
 ) -> Result<(), super::super::OrdinaryNewCoSealIssueV1> {
     facts.attach_field_inventory_v1(fields);
     let mut dynamic_classes = BTreeMap::<CanonicalFieldRefV1, BTreeSet<CanonicalObjectIdV1>>::new();
@@ -293,7 +293,7 @@ fn join_outer(
     selected: &super::super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-    parameters: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
+    parameters: &super::super::super::model::OwnedCallableParameterContractsV1,
     dynamic_classes: &BTreeMap<CanonicalFieldRefV1, CanonicalObjectIdV1>,
 ) -> Vec<SourceConstructionChildRelationV1> {
     let mut result = Vec::new();
@@ -499,7 +499,7 @@ fn dynamic_child_classes_for_outer(
     selected: &super::super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-    parameters: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
+    parameters: &super::super::super::model::OwnedCallableParameterContractsV1,
 ) -> Vec<(CanonicalFieldRefV1, CanonicalObjectIdV1)> {
     let mut result = Vec::new();
     let Some(_owner) = birth_owner_for_outer(outer, input, batch, constructors) else { return result; };
@@ -550,7 +550,7 @@ fn actual_witnesses(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &super::super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-    parameters: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
+    parameters: &super::super::super::model::OwnedCallableParameterContractsV1,
 ) -> Option<Vec<Rc<ResultOriginWitnessV1>>> {
     let function = input.function();
     if matches!(
@@ -645,7 +645,7 @@ pub(super) fn class_agrees(
     slot: u32,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
-    parameters: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
+    parameters: &super::super::super::model::OwnedCallableParameterContractsV1,
 ) -> bool {
     use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
     let name = match origin {

@@ -89,7 +89,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
     site: &OwnedExprSiteV1,
     binding: BindingRefV1,
 ) -> Result<
-    Option<crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1>,
+    Option<crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1>,
     OrdinaryNewCoSealIssueV1,
 > {
     let refuse = |issue: String| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
@@ -151,7 +151,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
     });
     if empty_transfer.is_some() {
         return Ok(Some(
-            crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1::from_construction(
+            crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1::from_construction(
                 identity,
                 empty_transfer,
             ),
@@ -166,7 +166,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
             body_shape,
         ) {
             Ok(source) if source.has_appends() => {
-                return Ok(Some(crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1::from_append_only(
+                return Ok(Some(crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1::from_append_only(
                     identity,
                     std::rc::Rc::new(source),
                 )));
@@ -178,7 +178,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
         }
     }
     Ok(Some(
-        crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1::from_construction(
+        crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1::from_construction(
             identity, None,
         ),
     ))

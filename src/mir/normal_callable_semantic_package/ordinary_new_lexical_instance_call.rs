@@ -241,8 +241,7 @@ mod borrowed_formal_uses;
 mod borrowed_formal_source;
 pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_source::ClosedOriginalCoreSourceV1;
 pub(super) use borrowed_formal_source::OriginalBorrowedFormalSourceV1;
-pub(in crate::mir) use borrowed_formal_source::{SourceValueSumV1, SourceValueAlternativeV1};
-pub(in crate::mir) use borrowed_formal_source::SourceValueClassFactsV1;
+pub(in crate::mir) use borrowed_formal_source::SourceValueSumV1;
 
 #[path = "ordinary_new_borrowed_formal_actuals.rs"]
 mod borrowed_formal_actuals;
@@ -306,7 +305,6 @@ pub(in crate::mir) use borrowed_formal_entry::{
 #[cfg(test)]
 pub(super) use {borrowed_formal_source::prepare_borrowed_formal_ingress_v1,
     borrowed_formal_actuals::{lend_argument_expression_source_v1, stage_borrowed_call_actuals_v1}};
-pub(crate) use borrowed_formal_source::NamedArrayHolderSourceLoanV1;
 pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_source::{ArrayElementSourceLoanV1, ArrayHolderLifecycleRecipeV1};
 pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_source::PreparedBorrowedFormalIngressV1;
 
@@ -684,5 +682,4 @@ pub(super) use borrowed_formal_entry::original_borrowed_instance_input_completio
 
 pub(crate) use borrowed_formal_actuals::{ArgumentExpressionSourceLoanV1, DynamicEntryReadV1, FiniteEntryReadV1};
 
-pub(crate) use borrowed_formal_entry::BorrowedTextEntryReadRequirementV1;
 pub(crate) use borrowed_formal_entry::BorrowedFormalEntryReadRequirementV1;

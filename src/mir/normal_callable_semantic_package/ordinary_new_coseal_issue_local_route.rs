@@ -14,7 +14,7 @@ pub(super) struct LocalRouteSourcesV1<'a> {
     pub(super) owner_loan: Option<&'a crate::mir::normal_callable_semantic_package::direct_call_loan::DirectCallDispositionLoanV1>,
     pub(super) selected: &'a VerifiedSelectedCallableBatchMapV1,
     pub(super) batch: &'a VerifiedResolvedCallableSemanticBatchV1,
-    pub(super) parameter_contracts: &'a [crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    pub(super) parameter_contracts: &'a crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     pub(super) callable_result_classes: &'a super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     pub(super) candidates: &'a [OrdinaryNewCandidate],
     pub(super) receiver_call_observations: &'a BTreeMap<OwnedExprSiteV1, crate::mir::normal_callable_semantic_package::ReceiverCallClassObservationV1>,

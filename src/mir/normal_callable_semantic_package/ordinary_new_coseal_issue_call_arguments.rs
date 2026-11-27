@@ -18,7 +18,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     selected: &VerifiedSelectedCallableBatchMapV1,
     targets: &super::super::lexical_instance_call::PreparedLexicalInstanceCallSourceTargetsV1,
     dynamic_source_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
-    contracts: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
+    contracts: &super::super::super::model::OwnedCallableParameterContractsV1,
     candidates: &[OrdinaryNewCandidate],
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     source: &Result<super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1, String>,

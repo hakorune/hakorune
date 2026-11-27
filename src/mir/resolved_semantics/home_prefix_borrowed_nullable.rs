@@ -1,7 +1,8 @@
 //! Ownership-free nullable call result in the existing prefix state.
 use super::*;
 use crate::mir::resolved_semantics::SourceBindingSiteV1;
-use crate::mir::normal_callable_semantic_package::{BorrowedNullableLocalSourceLoanV1, BorrowedLifetimeAnchorV1};
+use crate::mir::normal_callable_semantic_package::{BorrowedNullableLocalSourceLoanV1};
+use crate::mir::resolved_semantics::BorrowedLifetimeAnchorV1;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 /// Branch-local read validity retains the same immutable source loan even

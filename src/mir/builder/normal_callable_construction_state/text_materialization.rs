@@ -9,7 +9,7 @@ type Binding = (BasicBlockId, MirInstruction);
 
 #[derive(Debug)]
 pub(super) enum PreparedTextInputV1 {
-    Parameter { sum: Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>, ordinal: usize },
+    Parameter { sum: Rc<crate::mir::resolved_semantics::source_value_class::SourceValueSumV1>, ordinal: usize },
     Literal(Box<str>),
 }
 #[derive(Debug)]

@@ -38,7 +38,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     selected: &super::super::VerifiedSelectedCallableBatchMapV1,
     drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     calls: &BTreeMap<OwnedExprSiteV1, &super::super::LexicalInstanceCallSourceTargetV1>,
     ordinary_callers: &std::collections::BTreeSet<FunctionOwnerIdV1>,
     static_context: Option<&StaticIncomingContextV1<'_>>,
@@ -64,7 +64,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     selected: &super::super::VerifiedSelectedCallableBatchMapV1,
     omitted_static_callers: &BTreeMap<FunctionOwnerIdV1, crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
     drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     calls: &BTreeMap<OwnedExprSiteV1, &super::super::LexicalInstanceCallSourceTargetV1>,
     ordinary_callers: &std::collections::BTreeSet<FunctionOwnerIdV1>,
     static_context: Option<&StaticIncomingContextV1<'_>>,
@@ -110,7 +110,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     let mut stored_seen = std::collections::BTreeSet::new();
     let mut definitions = BTreeMap::new();
     for owner in drafts.keys() {
-        let mut matching = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, *owner);
+        let mut matching = contracts.for_owner(*owner);
         let contract = matching
             .next()
             .ok_or(BorrowedIncomingDraftErrorV1::SourceIdentity)?;
@@ -193,9 +193,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             continue;
         }
         let qualifications = requirement.object_return_sources();
-        let mut matching = contracts
-            .iter()
-            .filter(|row| row.owner == target.callee_owner);
+        let mut matching = contracts.for_owner(target.callee_owner);
         let contract = matching
             .next()
             .ok_or(BorrowedIncomingDraftErrorV1::SourceIdentity)?;
@@ -280,9 +278,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             }
             if key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
                 || key.arity() != 0
-                || contracts
-                    .iter()
-                    .filter(|row| row.owner == contract.owner)
+                || contracts.for_owner(contract.owner)
                     .count()
                     != 1
                 || definitions
@@ -324,7 +320,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             .map_err(|_| BorrowedIncomingDraftErrorV1::BatchLoan)?;
         if key.namespace() != namespace || declaration.owner() != contract.owner || !same_mode
             || key.arity() as usize != contract.parameters.len() || !original_parameters
-            || contracts.iter().filter(|row| row.owner == contract.owner).count() != 1
+            || contracts.for_owner(contract.owner).count() != 1
             || !contract.parameters.iter().enumerate().all(|(ordinal, formal)|
                 formal.ordinal as usize == ordinal && formal.binding.owner() == contract.owner)
         { return Err(BorrowedIncomingDraftErrorV1::SourceIdentity); }
@@ -404,8 +400,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                             // A qualified original Static loan belongs to a different
                             // namespace. Missing/failed authority remains a veto.
                             if let Some(Ok(original)) = static_observation {
-                                let mut target_contracts = contracts.iter().filter(|row|
-                                    row.owner == original.callee_owner());
+                                let mut target_contracts = contracts.for_owner(original.callee_owner());
                                 let target_contract = target_contracts.next()
                                     .ok_or(BorrowedIncomingDraftErrorV1::SourceIdentity)?;
                                 if instance.is_some()
@@ -695,7 +690,7 @@ fn corroborate_stored_dispatch_v1(
     reference: &super::super::source::CallTargetReferenceV1,
     receiver: &super::super::source::StoredReceiverSourceV1,
     selected: &super::super::VerifiedSelectedCallableBatchMapV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
 ) -> Result<(), BorrowedIncomingDraftErrorV1> {
     use crate::mir::resolved_semantics::{BodyExpressionShapeV1, BodyMeReceiverV1};
     let invalid = || BorrowedIncomingDraftErrorV1::CallIdentity(reference.call_site.clone());
@@ -738,9 +733,7 @@ fn corroborate_stored_dispatch_v1(
         || !matches!(shape.expression_shape(&receiver.parent_site),
             Some(BodyExpressionShapeV1::Me { receiver: BodyMeReceiverV1::Lexical(binding), .. })
                 if binding == &receiver.parent_binding)) { return Err(invalid()); }
-    let mut targets = contracts
-        .iter()
-        .filter(|row| row.owner == reference.callee_owner);
+    let mut targets = contracts.for_owner(reference.callee_owner);
     let target = targets
         .next()
         .filter(|row| {

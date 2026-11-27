@@ -286,10 +286,7 @@ impl DirectCallDispositionLoanV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn map_argument_edges(&self) -> Vec<(OwnedExprSiteV1, u32, FunctionOwnerIdV1)> {
         self.map_edges_v1(true)
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn map_formal_edges(&self) -> Vec<(OwnedExprSiteV1, u32, FunctionOwnerIdV1)> {
-        self.map_edges_v1(false)
-    }
-    fn map_edges_v1(&self, lifecycle_only: bool) -> Vec<(OwnedExprSiteV1, u32, FunctionOwnerIdV1)> {
+    pub(super) fn map_edges_v1(&self, lifecycle_only: bool) -> Vec<(OwnedExprSiteV1, u32, FunctionOwnerIdV1)> {
         self.rows.iter().filter_map(|(site, slot)| match slot {
             DirectCallDispositionSlotV1::Ready(row) if !lifecycle_only || matches!(row.execution, DirectCallExecutionV1::Lifecycle(_)) =>
                 row.resolver_emission().map(|emission| (site, emission)),

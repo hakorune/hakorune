@@ -15,7 +15,7 @@ impl PreparedBorrowedFormalIngressV1 {
 }
 
 pub(super) fn issue_checked_static_inputs_v1(
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     static_arguments: &BTreeMap<
         (OwnedExprSiteV1, u32),

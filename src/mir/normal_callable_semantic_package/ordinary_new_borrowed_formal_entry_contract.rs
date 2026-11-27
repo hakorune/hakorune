@@ -258,8 +258,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if uses.cover_exact_bool_static_return_reads_v1(contract.owner, contract.batch_slot,
                 incoming, &origins, &mut covered)? == Some(false) { input_use_pending!("bool-static-return") }
         }
-        let catalog = self.original_parameter_contracts.as_deref()
-            .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         use super::super::borrowed_formal_uses::BorrowedIncomingSourceV1;
         for observation in calls {
             let original = self.original_input_use_call_v1(structure.source, catalog, observation.site())?;
@@ -346,7 +345,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         // Original New/Return identity can close its read census before the
         // ownership walk publishes terminals. Home/cleanup stay with that walk.
-        if let Some((selected, _)) = &self.original_instance_input_issuance {
+        if let Some((selected, _)) = self.original_instance_input_issuance.get() {
             if let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) = selected.key_for_batch_slot(contract.batch_slot) {
                 if self.callable_result_classes.outcomes(key).is_some() {
                     for root in self.callable_result_classes.checked_original_source_roots_v1(key, contract.owner).map_err(freeze)? {
@@ -575,8 +574,8 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1, view: &BorrowedEntryOwnerViewV1<'_>, incoming: &BorrowedEntryActualsV1<'_>,
     ) -> Result<Box<[BorrowedFormalDomainV1]>, String> {
         use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1 as Mode;
-        let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+        let catalog = self.original_parameter_contracts.as_ref();
+        let mut contracts = catalog.for_owner(owner);
         let contract = contracts.next().ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
         if contracts.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
         if contract.mode == Mode::StaticBoxMethod { return self.checked_static_input_domains_for_owner_v1(owner); }
@@ -621,8 +620,8 @@ impl OrdinaryNewClaimLedgerV1 {
                     view.incoming.clone(), incoming)
             }
             EntryStructureEvidenceV1::OriginalInputs { uses, incoming, domains, tagged } => {
-                let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
-                let contract = catalog.iter().find(|row| row.owner == structure.owner)
+                let catalog = self.original_parameter_contracts.as_ref();
+                let contract = catalog.for_owner(structure.owner).next()
                     .ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
                 let complete = self.checked_input_use_source_v1(contract)?
                     .ok_or_else(|| format!("{}: owner={:?}",
@@ -635,7 +634,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 for call in &execution {
                     match &call.source {
                         super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Instance(target) => {
-                            let (selected, signatures) = self.original_instance_input_issuance.as_ref()
+                            let (selected, signatures) = self.original_instance_input_issuance.get()
                                 .ok_or_else(|| freeze("borrowed-entry/original-issuance-missing"))?;
                             if self.checked_completed_original_instance_target_arguments_v1(target, selected, catalog, signatures)?.is_none() {
                                 if crate::config::env::builder_debug_enabled() {

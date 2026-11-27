@@ -7,7 +7,7 @@ use super::*;
 /// concrete payload view.
 #[derive(Debug, Clone)]
 pub(crate) struct TaggedDynamicReadV1 {
-    points: std::rc::Rc<crate::mir::normal_callable_semantic_package::SourceValueClassFactsV1>,
+    points: std::rc::Rc<crate::mir::resolved_semantics::source_value_class::SourceValueClassFactsV1>,
     read: SourceExprSiteV1,
     binding: BindingRefV1,
     value: crate::mir::resolved_semantics::source_value_flow::SourceValueRefV1,
@@ -26,7 +26,7 @@ impl Eq for TaggedDynamicReadV1 {}
 /// It carries no concrete payload tag, conversion, or ownership permission.
 #[derive(Debug, Clone)]
 pub(crate) struct TaggedDynamicValueV1 {
-    points: std::rc::Rc<crate::mir::normal_callable_semantic_package::SourceValueClassFactsV1>,
+    points: std::rc::Rc<crate::mir::resolved_semantics::source_value_class::SourceValueClassFactsV1>,
     flow: std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>,
     binding: BindingRefV1,
     value: crate::mir::resolved_semantics::source_value_flow::SourceValueRefV1,

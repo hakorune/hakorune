@@ -317,7 +317,7 @@ fn stored_nullable_local_source_retains_original_borrow_without_object_promotion
             .corroborate_borrowed_nullable_call_v1(&row)
             .unwrap_err()
             .contains("input-issuance-missing"));
-        ledger.original_instance_input_issuance = Some(issuance);
+        ledger.original_instance_input_issuance.set(issuance).unwrap();
         ledger.corroborate_borrowed_nullable_call_v1(&row).unwrap();
         let row = row.with_result_for_test(Some(
             crate::mir::instruction::InvokeCallResultKind::NullableHandle,
@@ -431,6 +431,7 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
                     crate::mir::callable_parameter_contract::CallableParameterContractKindV1::DeclaredObject("Token".into());
             }
             let parameters = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
+            let contracts: crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1 = contracts.into_iter().collect();
             let mut pending = BTreeMap::new();
             let mut batches = 0;
             let mut source_requests = 0;

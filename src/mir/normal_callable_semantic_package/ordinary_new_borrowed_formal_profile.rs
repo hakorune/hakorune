@@ -11,7 +11,7 @@ use super::borrowed_formal_source::{
 };
 use super::source::{PreparedSourceCallNeedV1, StoredReceiverSourceV1};
 use super::*;
-use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
+use crate::mir::normal_callable_semantic_package::model::{OwnedCallableParameterContractsV1};
 use crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1;
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -24,7 +24,7 @@ fn attach_owning_object_local_input_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     facts: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     app_main: Option<&BorrowedAppMainSourceLoanV1<'_>>,
 ) -> Result<(), String> {
@@ -59,7 +59,7 @@ fn original_mixed_local_loan_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     facts: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
  app_main: Option<&BorrowedAppMainSourceLoanV1<'_>>) -> Result<Option<super::super::result_class_claim::MixedLocalCallSourceLoanV1>, String> {
@@ -98,7 +98,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
     selected: &VerifiedSelectedCallableBatchMapV1,
     omitted_static_callers: &BTreeMap<FunctionOwnerIdV1, crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     static_call_claims: &crate::mir::normal_callable_semantic_package::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
     app_main_slot: Option<u32>,
     app_main: Option<&BorrowedAppMainSourceLoanV1<'_>>,
@@ -529,7 +529,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                                     let reference = need.reference();
                                     let constructor = need.stored().is_some_and(|receiver|
                                         matches!(receiver.origin, super::source::StoredReceiverSourceOriginV1::Constructor(_)));
-                                    let declarations: Vec<_> = contracts.iter().filter(|row| row.owner == reference.callee_owner).collect();
+                                    let declarations: Vec<_> = contracts.for_owner(reference.callee_owner).collect();
                                     constructor && original.is_unit_candidate_v1() && original.matches(&reference)
                                         && reference.target.arity() == 0 && reference.argument_sites.is_empty()
                                         && declarations.len() == 1 && declarations[0].parameters.is_empty()
@@ -667,15 +667,13 @@ fn stored_object_source_eligible_v1(
     need: &PreparedSourceCallNeedV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     drafts: &BTreeMap<FunctionOwnerIdV1, super::borrowed_formal_uses::BorrowedFormalUsesDraftV1>,
     facts: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
 ) -> Result<bool, String> {
     use super::super::result_class_claim::{OrdinaryNewResultClassV1, ResultValueOriginV1};
     let reference = need.reference();
-    let mut matching = contracts
-        .iter()
-        .filter(|row| row.owner == reference.callee_owner);
+    let mut matching = contracts.for_owner(reference.callee_owner);
     let Some(contract) = matching.next() else {
         return Ok(false);
     };

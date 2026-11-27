@@ -198,6 +198,7 @@ fn static_execution_scope_preserves_unrelated_object_source_integrity() {
             assert_ne!(selected.callee, passive.callee);
             let owner = selected.callee;
             let passive_site = passive.call.clone();
+            let passive_owner = passive.callee;
             let passive_argument = passive.arguments[0].clone();
             let passive_root = *source.source_only_definitions[&passive.call.owner()]
                 .origins
@@ -310,7 +311,12 @@ fn static_execution_scope_preserves_unrelated_object_source_integrity() {
                         .insert(passive_argument.2, view);
                 }
                 6 => {
-                    ledger.original_parameter_contracts = None;
+                    use crate::mir::normal_callable_semantic_package::model::parameter_catalog_for_drift_test;
+
+                    let rows = parameter_catalog_for_drift_test(&ledger.original_parameter_contracts);
+                    ledger.original_parameter_contracts = Rc::new(rows.into_iter()
+                        .filter(|row| row.owner != passive_owner)
+                        .collect());
                 }
                 _ => unreachable!(),
             }
@@ -330,7 +336,7 @@ fn static_execution_scope_preserves_unrelated_object_source_integrity() {
                 4 if guarded => "reconstructed-input-drift",
                 4 => "source-snapshot-drift",
                 5 => "object-view-drift",
-                6 => "original-catalog-missing",
+                6 => "[ordinary-new/borrowed-object/source-contract]",
                 _ => unreachable!(),
             };
             assert!(error.contains(expected), "mutation {mutation}: {error}");

@@ -41,9 +41,8 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn checked_source_instance_input_entry_v1<'a>(
         &'a self, source: &'a PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1,
     ) -> Result<Option<BorrowedEntryOwnerViewV1<'a>>, String> {
-        let catalog = self.original_parameter_contracts.as_deref()
-            .ok_or_else(|| freeze("instance-input/original-catalog-missing"))?;
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+        let catalog = self.original_parameter_contracts.as_ref();
+        let mut contracts = catalog.for_owner(owner);
         let contract = contracts.next().ok_or_else(|| freeze("instance-input/contract-missing"))?;
         if contracts.next().is_some() { return Err(freeze("instance-input/contract-duplicate")); }
         if contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod {
@@ -59,8 +58,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn selected_source_instance_input_owner_v1(
         &self, source: &PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1,
     ) -> Result<bool, String> {
-        let catalog = self.original_parameter_contracts.as_deref()
-            .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         Ok(Self::original_finite_instance_input_request_v1(source, catalog, owner)?
             || self.checked_source_instance_input_entry_v1(source, owner)?.is_some()
             || self.selected_original_instance_input_kind_v1(source, owner)?
@@ -122,8 +120,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if let Some(view) = self.checked_mixed_instance_entry_v1(source, owner)? {
                 return Ok(Some(view));
             }
-            let catalog = self.original_parameter_contracts.as_deref()
-                .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
+            let catalog = self.original_parameter_contracts.as_ref();
             let mut core_input = false;
             for call in source.source_incoming.exact_rows().filter(|row| row.callee == owner) {
                 core_input |= super::super::borrowed_formal_actuals::original_core_argument_input_request_v1(
@@ -132,22 +129,20 @@ impl OrdinaryNewClaimLedgerV1 {
             if core_input || self.selected_original_object_input_owner_v1(source, owner)?
                 || source.original_returned_field_participant_request_v1(owner)?.is_some() {
                 return mixed_instance::checked_original_instance_parameter_frame_v1(
-                    source, self.original_parameter_contracts.as_deref(), owner);
+                    source, self.original_parameter_contracts.as_ref(), owner);
             }
             if self.original_instance_input_kind_v1(source, owner)?
                 == Some(super::super::borrowed_formal_actuals::object_input_finish::OriginalInstanceInputKindV1::SourceInstance)
                 && self.original_instance_input_requires_reconstruction_v1(source, owner)?
             {
                 return mixed_instance::checked_original_instance_parameter_frame_v1(
-                    source, self.original_parameter_contracts.as_deref(), owner);
+                    source, self.original_parameter_contracts.as_ref(), owner);
             }
             // Static finishers cannot interpret an Instance declaration's empty
             // incoming as a Static execution veto. Mode is original source law.
             let catalog = self
-                .original_parameter_contracts
-                .as_deref()
-                .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
-            let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+                .original_parameter_contracts.as_ref();
+            let mut contracts = catalog.for_owner(owner);
             let contract = contracts
                 .next()
                 .ok_or_else(|| freeze("borrowed-entry/original-contract-missing"))?;
@@ -203,7 +198,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     /// Loan the original target, including its source owner and batch identity.
     pub(crate) fn incoming_targets(
         &self,
-    ) -> impl Iterator<Item = Result<super::borrowed_formal_uses::BorrowedCallSourceLoanV1<'_>, String>>
+    ) -> impl Iterator<Item = Result<super::borrowed_formal_uses::BorrowedIncomingCallLoanV1<'_>, String>>
     {
         self.incoming_rows
             .iter()
@@ -325,9 +320,7 @@ impl OrdinaryNewClaimLedgerV1 {
             // forwards. Reconstruct their exact original input before adding the
             // caller dependency; a phase alone cannot supply an edge.
             let catalog = self
-                .original_parameter_contracts
-                .as_deref()
-                .ok_or_else(|| freeze("borrowed-static/original-catalog-missing"))?;
+                .original_parameter_contracts.as_ref();
             for call in calls.iter().filter(|row| owners.contains(&row.callee)) {
                 let actuals = self
                     .borrowed_formal_actuals
@@ -408,9 +401,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .as_ref()
                 .map_err(Clone::clone)?;
             let catalog = self
-                .original_parameter_contracts
-                .as_deref()
-                .ok_or_else(|| freeze("borrowed-static/original-catalog-missing"))?;
+                .original_parameter_contracts.as_ref();
             let guarded =
                 super::super::borrowed_formal_actuals::revalidate_guarded_object_incoming_v1(
                     source, catalog, call, actuals,
@@ -456,7 +447,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Option<BorrowedEntryOwnerViewV1<'a>>, String> {
         let Some(definition) = checked_guarded_instance_source_v1(
             source,
-            self.original_parameter_contracts.as_deref(),
+            self.original_parameter_contracts.as_ref(),
             owner,
         )?
         else {
@@ -493,10 +484,8 @@ impl OrdinaryNewClaimLedgerV1 {
         parameters: &[(u32, BindingRefV1, CallableParameterContractKindV1)],
     ) -> Result<(), String> {
         let catalog = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+            .original_parameter_contracts.as_ref();
+        let mut contracts = catalog.for_owner(owner);
         let contract = contracts
             .next()
             .ok_or_else(|| freeze("borrowed-entry/original-contract-missing"))?;
@@ -547,7 +536,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     'a,
 >(
     source: &'a PreparedBorrowedFormalIngressV1,
-    catalog: Option<&[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1]>,
+    catalog: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     owner: FunctionOwnerIdV1,
 ) -> Result<Option<&'a BorrowedFormalUsesDraftV1>, String> {
     use super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1 as Use;
@@ -562,8 +551,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     {
         return Ok(None);
     }
-    let catalog = catalog.ok_or_else(|| freeze("borrowed-guarded/original-catalog-missing"))?;
-    let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+    let mut contracts = catalog.for_owner(owner);
     let contract = contracts
         .next()
         .ok_or_else(|| freeze("borrowed-guarded/declaration-missing"))?;

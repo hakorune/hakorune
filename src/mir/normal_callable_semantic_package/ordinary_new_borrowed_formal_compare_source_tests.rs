@@ -344,7 +344,7 @@ fn current_owner_integer_call_child_keeps_exact_loan_and_refusal_boundaries() {
                     input, contract, &package.instance_constructors, None, Some(&bad_context),
                 ).is_err(), "foreign source cohort");
             }
-            let duplicate: Vec<_> = package.parameter_contracts.iter().chain(package.parameter_contracts.iter()).map(|row| {
+            let duplicate = package.parameter_contracts.iter().chain(package.parameter_contracts.iter()).map(|row| {
                 OwnedCallableParameterContractDeclarationV1 {
                     owner: row.owner, batch_slot: row.batch_slot, mode: row.mode,
                     parameters: row.parameters.iter().map(|formal| crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1 {

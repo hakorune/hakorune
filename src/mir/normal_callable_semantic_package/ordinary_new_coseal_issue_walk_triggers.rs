@@ -38,13 +38,7 @@ pub(super) fn has_print_expression_v1(input: ResolvedFunctionLoweringInputV1<'_>
     })
 }
 
-pub(super) fn has_condition_expression_v1(input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
-    crate::mir::resolved_semantics::home_new_prefix::requires_condition_expression_walk_v1(input)
-}
 
-pub(super) fn has_nested_call_argument_walk_v1(input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
-    crate::mir::resolved_semantics::home_new_prefix::requires_nested_call_argument_walk_v1(input)
-}
 
 /// Candidate collection and the completion walk select the same original
 /// declarations. An unselected nested-call source still needs its own input
@@ -61,7 +55,7 @@ pub(super) fn needs_declaration_walk_v1(
     if batch.declarations().any(|row| row.batch_slot() == slot && omitted_static_callers.contains_key(&row.owner())) {
         return Ok(false);
     }
-    batch.with_lowering_input(slot, has_nested_call_argument_walk_v1)
+    batch.with_lowering_input(slot, crate::mir::resolved_semantics::home_new_prefix::requires_nested_call_argument_walk_v1)
         .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)
 }
 
@@ -232,7 +226,7 @@ pub(super) fn plain_main_integer_result_v1(
 /// No finished input or physical entry is used to choose its own prerequisites.
 pub(super) fn has_original_borrowed_walk_v1(
     source: &Result<super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1, String>,
-    catalog: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
+    catalog: &super::super::super::model::OwnedCallableParameterContractsV1,
     targets: &super::super::lexical_instance_call::PreparedLexicalInstanceCallSourceTargetsV1,
     owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
 ) -> Result<bool, OrdinaryNewCoSealIssueV1> {
@@ -277,7 +271,7 @@ pub(super) fn has_original_borrowed_walk_v1(
 fn caller_is_selected_or_checked_main_v1(
     batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
-    contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     main: Option<&super::super::lexical_instance_call::BorrowedAppMainSourceLoanV1<'_>>,
     caller: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticDeclarationRefV1<'_>,
     key: Option<&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1>,
@@ -299,7 +293,7 @@ pub(super) fn typed_static_walk_owners_v1(
     selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     main: Option<&super::super::lexical_instance_call::BorrowedAppMainSourceLoanV1<'_>>,
     batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
-    contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
 ) -> Result<
     std::collections::BTreeSet<crate::mir::resolved_semantics::FunctionOwnerIdV1>,
     OrdinaryNewCoSealIssueV1,
@@ -375,7 +369,7 @@ pub(super) fn text_completion_order_v1<'a>(
     selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     main: Option<&super::super::lexical_instance_call::BorrowedAppMainSourceLoanV1<'_>>,
     batch: &'a crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
-    contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
 ) -> Result<
     Vec<crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticDeclarationRefV1<'a>>,
     OrdinaryNewCoSealIssueV1,

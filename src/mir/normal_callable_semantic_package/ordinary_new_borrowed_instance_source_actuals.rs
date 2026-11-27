@@ -28,7 +28,7 @@ pub(super) struct InstanceSourceActualIdentityV1 {
 /// and whole-input reconstruction together. This grants no executable frame.
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn original_core_argument_input_request_v1(
     ingress: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     site: &OwnedExprSiteV1,
 ) -> Result<bool, String> {
     let mut originals = ingress
@@ -44,7 +44,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     let Some(target) = original.source.instance() else {
         return Ok(false);
     };
-    let mut matching = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, original.callee);
+    let mut matching = contracts.for_owner(original.callee);
     let contract = matching
         .next()
         .ok_or_else(|| freeze("borrowed-instance/source-contract"))?;
@@ -80,7 +80,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 
 pub(super) fn prepare_instance_source_actuals_v1(
     ingress: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     site: &OwnedExprSiteV1,
     actuals: &[BorrowedCallActualCandidateV1],
 ) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
@@ -289,7 +289,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
         }
         return Ok(None);
     }
-    let mut matching = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, original.callee);
+    let mut matching = contracts.for_owner(original.callee);
     let contract = matching
         .next()
         .ok_or_else(|| freeze("borrowed-instance/source-contract"))?;
@@ -728,12 +728,12 @@ pub(super) fn selected_original_instance_forward_v1(
 /// Original declared root/alias constraint, never a caller entry permit.
 pub(super) fn declared_source_actual_class_v1(
     ingress: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     call: &OwnedExprSiteV1,
     binding: BindingRefV1,
     root: BindingRefV1,
 ) -> Result<Option<Box<str>>, String> {
-    let mut matching = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, call.owner());
+    let mut matching = contracts.for_owner(call.owner());
     let Some(contract) = matching.next() else {
         return Ok(None);
     };

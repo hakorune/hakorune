@@ -1,4 +1,5 @@
 use super::*;
+use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 
 #[test]
 fn real_bin_size_checked_add_initializer_advances_home_prefix() {
@@ -302,6 +303,7 @@ fn source_contract_identity_corruption_is_not_profile_outside() {
         .unwrap()
         .parameters[0]
         .ordinal = 1;
+    let contracts = contracts.into_iter().collect();
     let empty_loans =
         crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1::issue(Box::new([]));
     let empty_candidates = BTreeMap::new();

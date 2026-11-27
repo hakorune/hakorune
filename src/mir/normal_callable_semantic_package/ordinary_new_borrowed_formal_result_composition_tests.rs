@@ -1019,7 +1019,7 @@ fn direct_map_receiver_numeric_writes_close_the_original_callee_effects() {
 
 #[test]
 fn array_set_and_push_join_original_element_sources() {
-    use crate::mir::normal_callable_semantic_package::SourceValueAlternativeV1;
+    use crate::mir::resolved_semantics::source_value_class::SourceValueAlternativeV1;
     let source = "box Sink { birth() {} accept(value) { return 0 } }
         box Page { init { values } birth() { me.values = new ArrayBox() }
           seed() { me.values.push(\"x\") me.values.set(0, 7) }
@@ -1043,7 +1043,7 @@ fn array_set_and_push_join_original_element_sources() {
 
 #[test]
 fn array_write_uses_original_formal_field_source() {
-    use crate::mir::normal_callable_semantic_package::SourceValueAlternativeV1;
+    use crate::mir::resolved_semantics::source_value_class::SourceValueAlternativeV1;
     let source = "box Handle { block_id: i64 birth() { me.block_id = 7 } }
         box Sink { birth() {} accept(value) { return 0 } }
         box Page { init { values } birth() { me.values = new ArrayBox() }

@@ -77,7 +77,7 @@ fn indexed_root_literal_validation_keeps_missing_and_physical_drift_refusals() {
     for (owner, value, literal) in [(root, ValueId(900), if is_bool { ConstValue::Bool(true) } else { ConstValue::Integer(7) }), (child, ValueId(901), if is_bool { ConstValue::Bool(false) } else { ConstValue::Integer(30) })] {
         let original = function(value, literal.clone(), value);
         ledger
-            .validate_terminal_scalar_literal_return(owner, &original)
+            .validate_terminal_scalar_literal_return_projected(owner, &original, None)
             .unwrap();
         if owner == root {
             ledger
@@ -92,7 +92,7 @@ fn indexed_root_literal_validation_keeps_missing_and_physical_drift_refusals() {
         }
         assert_eq!(
             ledger
-                .validate_terminal_scalar_literal_return(owner, &original)
+                .validate_terminal_scalar_literal_return_projected(owner, &original, None)
                 .unwrap_err(),
             "[freeze:contract][ordinary-new/local-commit/literal-unconsumed]"
         );
@@ -102,9 +102,10 @@ fn indexed_root_literal_validation_keeps_missing_and_physical_drift_refusals() {
             (root, ValueId(900), if is_bool { ConstValue::Bool(true) } else { ConstValue::Integer(7) })
         };
         ledger
-            .validate_terminal_scalar_literal_return(
+            .validate_terminal_scalar_literal_return_projected(
                 other,
                 &function(other_value, other_literal, other_value),
+                None,
             )
             .unwrap();
         ledger
@@ -124,7 +125,7 @@ fn indexed_root_literal_validation_keeps_missing_and_physical_drift_refusals() {
         ] {
             assert_eq!(
                 ledger
-                    .validate_terminal_scalar_literal_return(owner, &changed)
+                    .validate_terminal_scalar_literal_return_projected(owner, &changed, None)
                     .unwrap_err(),
                 "[freeze:contract][ordinary-new/local-commit/literal-physical-drift]"
             );
@@ -142,7 +143,7 @@ fn indexed_root_literal_validation_keeps_missing_and_physical_drift_refusals() {
                 changed.blocks.get_mut(&BasicBlockId(0)).unwrap()
                     .add_instruction_before_terminator(duplicate);
             }
-            assert_eq!(ledger.validate_terminal_scalar_literal_return(owner, &changed).unwrap_err(),
+            assert_eq!(ledger.validate_terminal_scalar_literal_return_projected(owner, &changed, None).unwrap_err(),
                 "[freeze:contract][ordinary-new/local-commit/literal-physical-drift]");
         }
         let mut relocated = original.clone();
@@ -150,10 +151,10 @@ fn indexed_root_literal_validation_keeps_missing_and_physical_drift_refusals() {
         block.id = BasicBlockId(7);
         relocated.entry_block = block.id;
         relocated.add_block(block);
-        assert!(ledger.validate_terminal_scalar_literal_return(owner, &relocated).unwrap_err()
+        assert!(ledger.validate_terminal_scalar_literal_return_projected(owner, &relocated, None).unwrap_err()
             .contains("literal-physical-drift"));
         ledger
-            .validate_terminal_scalar_literal_return(owner, &original)
+            .validate_terminal_scalar_literal_return_projected(owner, &original, None)
             .unwrap();
     }
 }

@@ -8,7 +8,7 @@ use crate::mir::resolved_semantics::home_new_prefix::ObjectCallSourceSupportV1;
 
 pub(in crate::mir::normal_callable_semantic_package) fn project_pending_object_arguments_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     actuals: &PendingBorrowedFormalActualsV1,
     target: &LexicalInstanceCallSourceTargetV1,
     loan: &ObjectReturnCallQualificationV1,
@@ -37,7 +37,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_object_a
 /// Qualified callers validate their original qualification before this lender.
 pub(in crate::mir::normal_callable_semantic_package) fn project_pending_object_target_arguments_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     actuals: &PendingBorrowedFormalActualsV1,
     target: &LexicalInstanceCallSourceTargetV1,
     ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,

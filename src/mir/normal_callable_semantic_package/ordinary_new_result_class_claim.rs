@@ -67,7 +67,7 @@ mod object_call_source;
 pub(crate) use object_call_source::ObjectCallSourceLoanV1;
 #[path = "ordinary_new_result_class_claim/object_return_loan.rs"]
 mod object_return_loan;
-pub(crate) use borrowed_nullable_local::{BorrowedNullableLocalSourceLoanV1, BorrowedCallResultSourceLoanV1, BorrowedCallSourceLoanV1, BorrowedLifetimeAnchorV1, BorrowedFormalReturnSourceLoanV1};
+pub(crate) use borrowed_nullable_local::{BorrowedNullableLocalSourceLoanV1, BorrowedCallResultSourceLoanV1, BorrowedCallSourceLoanV1, BorrowedFormalReturnSourceLoanV1};
 #[path = "ordinary_new_result_class_claim/witness.rs"]
 mod witness;
 pub(crate) use object_return_loan::ObjectReturnCallQualificationV1;
@@ -542,14 +542,12 @@ fn resolve_forward_local(
 /// Exact ordinal/kind of one original formal binding in its declaration.
 /// Class membership never supplies an owning destination contract.
 fn parameter_contract<'a>(
-    parameter_contracts: &'a [crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    parameter_contracts: &'a crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     batch_slot: u32,
     binding: BindingRefV1,
 ) -> Option<&'a crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1>
 {
-    parameter_contracts
-        .iter()
-        .find(|declaration| declaration.batch_slot == batch_slot)?
+    parameter_contracts.for_batch_slot(batch_slot).next()?
         .parameters
         .iter()
         .find(|parameter| parameter.binding == binding)

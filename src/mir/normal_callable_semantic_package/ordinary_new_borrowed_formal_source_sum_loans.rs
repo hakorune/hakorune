@@ -2,63 +2,6 @@
 //! producer; these views grant no execution, payload conversion or Home.
 use super::*;
 
-/// Source-only classes for exact formal and flow points in one complete
-/// original SUM. The retained flow identity prevents these facts from being
-/// reused by another callable; they grant no payload conversion or execution.
-#[derive(Debug, Clone)]
-pub(crate) struct SourceValueClassFactsV1 {
-    owner: FunctionOwnerIdV1,
-    flow: std::sync::Arc<
-        crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1,
-    >,
-    tagged_dynamic_formals: BTreeSet<BindingRefV1>,
-    tagged_dynamic_points: BTreeSet<SourceValueRefV1>,
-    signed_i64_formals: BTreeSet<BindingRefV1>,
-}
-impl SourceValueClassFactsV1 {
-    pub(in crate::mir) fn proves_formal(&self, binding: BindingRefV1) -> bool {
-        binding.owner() == self.owner && self.tagged_dynamic_formals.contains(&binding)
-    }
-    pub(in crate::mir) fn proves_signed_i64_formal(&self, binding: BindingRefV1) -> bool {
-        binding.owner() == self.owner && self.signed_i64_formals.contains(&binding)
-    }
-    pub(in crate::mir) fn proves_value(
-        &self,
-        flow: &std::sync::Arc<
-            crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1,
-        >,
-        value: SourceValueRefV1,
-    ) -> bool {
-        self.owner == flow.owner()
-            && std::sync::Arc::ptr_eq(&self.flow, flow)
-            && self.tagged_dynamic_points.contains(&value)
-    }
-    pub(in crate::mir) fn proves_read(
-        &self,
-        flow: &std::sync::Arc<
-            crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1,
-        >,
-        site: &SourceExprSiteV1,
-        binding: BindingRefV1,
-    ) -> Option<SourceValueRefV1> {
-        if binding.owner() != self.owner || !std::sync::Arc::ptr_eq(&self.flow, flow) {
-            return None;
-        }
-        let value = flow.read(site, binding)?;
-        // A formal's direct read is already anchored by the exact Entry
-        // origin and the formal's Dynamic SUM. It need not also appear as a
-        // derived point: alias and computed reads still require point membership.
-        let exact_formal_entry = self.proves_formal(binding)
-            && matches!(
-                flow.origin(value),
-                Some(crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1::Entry(
-                    original,
-                )) if *original == binding
-            );
-        (self.proves_value(flow, value) || exact_formal_entry).then_some(value)
-    }
-}
-
 impl PreparedBorrowedFormalIngressV1 {
     /// A closed class for every original field writer. No read, residence,
     /// conversion or execution permission is issued by this source fact.
@@ -376,13 +319,13 @@ impl PreparedBorrowedFormalIngressV1 {
         let has_dynamic_points =
             !tagged_dynamic_formals.is_empty() && !tagged_dynamic_points.is_empty();
         (!signed_i64_formals.is_empty() || has_dynamic_points).then(|| {
-            std::rc::Rc::new(SourceValueClassFactsV1 {
+            std::rc::Rc::new(SourceValueClassFactsV1::new(
                 owner,
                 flow,
                 tagged_dynamic_formals,
                 tagged_dynamic_points,
                 signed_i64_formals,
-            })
+            ))
         })
     }
     /// Same original read point, without assigning it a scalar/result protocol.
@@ -601,7 +544,7 @@ impl OriginalBorrowedFormalSourceV1 {
         site: &SourceExprSiteV1,
         constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
         definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     ) -> Option<OriginalIntegerBasisV1> {
         if !self
             .seeds
@@ -612,9 +555,7 @@ impl OriginalBorrowedFormalSourceV1 {
         }
         let binding = arg_site_binding(input, site)?;
         if value_domain::declared_integer_seed_v1(input, contracts, binding) {
-            let abi = contracts
-                .iter()
-                .find(|row| row.owner == input.owner())?
+            let abi = contracts.for_owner(input.owner()).next()?
                 .parameters
                 .iter()
                 .find(|row| row.binding == binding)

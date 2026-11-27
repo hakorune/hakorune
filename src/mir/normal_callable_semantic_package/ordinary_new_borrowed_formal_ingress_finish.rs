@@ -8,7 +8,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     omitted: &BTreeMap<FunctionOwnerIdV1, crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     calls: &BTreeMap<OwnedExprSiteV1, &LexicalInstanceCallSourceTargetV1>,
     ordinary_callers: &BTreeSet<FunctionOwnerIdV1>,
     definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
@@ -39,8 +39,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     // references. Only original borrowed formal ordinals select this family.
     let mut arguments = BTreeSet::new();
     let mut retain_arguments = |reference: super::super::source::CallTargetReferenceV1| -> Result<(), String> {
-        let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
-            contracts, reference.callee_owner, || freeze("array-source/contract-missing"), || freeze("array-source/contract-identity"),
+        let contract = contracts.unique_for_owner(reference.callee_owner, || freeze("array-source/contract-missing"), || freeze("array-source/contract-identity"),
         )?;
         if contract.batch_slot != reference.target_batch_slot
             || contract.parameters.len() != reference.argument_sites.len() {
@@ -94,7 +93,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     brands: Option<&crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1>,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     entry_home_loans: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
     instance_constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
     local_candidates: &BTreeMap<
@@ -219,9 +218,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                     outside.insert(*owner);
                     continue;
                 };
-                let contract = contracts
-                    .iter()
-                    .find(|contract| contract.owner == target.callee_owner());
+                let contract = contracts.for_owner(target.callee_owner()).next();
                 let Some(contract) = contract else {
                     return Err(freeze("borrowed-formal/missing-source-contract"));
                 };

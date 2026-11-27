@@ -55,6 +55,7 @@ pub(crate) use instance_constructor_semantic::{
     BirthFormalUseCoverageV1, VerifiedInstanceConstructorSemanticBatchV1,
 };
 pub(in crate::mir) use instance_entry_home::SourceEntryHomeIssueV1;
+mod app_main_relation;
 mod issuer;
 mod loop_break_source;
 pub(in crate::mir) use loop_break_source::LoopBreakSourcePackageLoanV1;
@@ -67,8 +68,6 @@ mod map_read_fact_tests;
 mod model;
 mod ordinary_new_coseal;
 pub(crate) use ordinary_new_coseal::OrdinaryResultSourceLoanV1;
-pub(crate) use ordinary_new_coseal::RetainedSourceLoopProductV1;
-pub(in crate::mir) use ordinary_new_coseal::SourceValueClassFactsV1;
 pub(crate) use ordinary_new_coseal::{
     EntryFieldWriteSourceV1, OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1,
 };
@@ -182,7 +181,7 @@ pub(crate) use ordinary_new_coseal::CanonicalArrayFieldReadSourceV1;
 pub(in crate::mir) use ordinary_new_coseal::TextFieldValueSourceV1;
 pub(crate) use ordinary_new_coseal::{
     BirthAbiHandoffV1, BorrowedCallResultSourceLoanV1, BorrowedCallSourceLoanV1,
-    BorrowedCompareIntegerLiteralLoanV1, BorrowedCompareSourceLoanV1, BorrowedLifetimeAnchorV1,
+    BorrowedCompareIntegerLiteralLoanV1, BorrowedCompareSourceLoanV1,
     BorrowedNullableLocalSourceLoanV1, FinalizedBirthActualsV1, FinalizedRootResultAbiV1,
     FinalizedRootSourceHandoffV1, LexicalInstanceCallDispositionRowV1,
     LexicalInstanceCallSourceTargetV1, MapStoredResultSourceV1, MixedLocalCallSourceLoanV1,
@@ -256,7 +255,7 @@ StoredReceiverFaultV1, StoredReceiverReadV1,
 
 pub(in crate::mir) use ordinary_new_coseal::FinalizedLexicalCallContextV1;
 
-pub(crate) use ordinary_new_coseal::NamedArrayHolderSourceLoanV1;
+use crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1;
 pub(crate) use ordinary_new_coseal::{
     BorrowedScalarResultSourceLoanV1, CallableResultSourceV1, CallableScalarResultSourceLoanV1,
     ResultPathFieldSourceLoanV1,
@@ -317,13 +316,12 @@ pub(crate) use ordinary_new_coseal::{
 };
 
 pub(crate) use ordinary_new_coseal::BorrowedFormalEntryReadRequirementV1;
-pub(crate) use ordinary_new_coseal::BorrowedTextEntryReadRequirementV1;
 
 pub(crate) use ordinary_new_coseal::{
     displaced_replacement_fault_sequences_v2, fault_indices_after_normal_step_v2,
 };
 
-pub(in crate::mir) use ordinary_new_coseal::{SourceValueAlternativeV1, SourceValueSumV1};
+use crate::mir::resolved_semantics::source_value_class::{SourceValueAlternativeV1, SourceValueSumV1};
 
 pub(in crate::mir) use ordinary_new_coseal::{
     EmittedNewArgumentV1, EmittedNewExpressionV1, NewArgumentCleanupV1,

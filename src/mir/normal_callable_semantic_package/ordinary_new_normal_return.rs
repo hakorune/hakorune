@@ -6,7 +6,6 @@ use super::return_handoff::{
     VerifiedObjectReturnHandoffV1,
 };
 use crate::mir::normal_callable_semantic_package::{
-    model::OwnedCallableParameterContractDeclarationV1,
     physical_signature::VerifiedCallablePhysicalSignatureCohortV1,
     selected_mapping::VerifiedSelectedCallableBatchMapV1,
 };
@@ -52,7 +51,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn seal_object_return_dispositions_v1(
         &mut self,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
     ) -> Result<(), String> {
         if self.normal_return_dispositions.is_some() {

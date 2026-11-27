@@ -310,7 +310,7 @@ fn primitive_literal_class_v1(literal: &ResolvedLiteralSourceV1) -> Option<Borro
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn prepare_original_returns_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
 ) -> OriginalReturnsV1 {
     contracts.iter().filter(|contract|
         contract.mode == crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod).map(|contract| {
@@ -320,7 +320,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             }).ok_or_else(|| freeze("borrowed-result/original-return-key"))?;
             if input.owner() != contract.owner || input.function().owner() != contract.owner
                 || key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod || key.arity() as usize != contract.parameters.len()
-                || contracts.iter().filter(|row| row.owner == contract.owner).count() != 1
+                || contracts.for_owner(contract.owner).count() != 1
                 || contract.parameters.iter().enumerate().any(|(ordinal, row)|
                     row.ordinal as usize != ordinal || row.binding.owner() != input.owner())
             { return Err(freeze("borrowed-result/original-return-owner")); }

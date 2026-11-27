@@ -59,7 +59,7 @@ pub(super) fn validate_original(
     if reached.len() != nodes.len() {
         return Err(fault("unreachable-node"));
     }
-    require_acyclic(&nodes)?;
+    require_acyclic_until(&nodes, None)?;
     for (id, terminal) in &nodes {
         let block = function
             .blocks
@@ -111,9 +111,6 @@ impl RootCleanupBoundary {
 
 // Reachability alone admits a release loop. The original emitted cleanup must
 // be a DAG, including the no-opt case where no deleted node is followed.
-fn require_acyclic(nodes: &BTreeMap<BasicBlockId, &MirInstruction>) -> Result<(), String> {
-    require_acyclic_until(nodes, None)
-}
 fn require_acyclic_until(nodes: &BTreeMap<BasicBlockId, &MirInstruction>, stop: Option<BasicBlockId>) -> Result<(), String> {
     if stop.is_some_and(|id| nodes.contains_key(&id)) { return Err(fault("owned-stop")); }
     let mut incoming: BTreeMap<_, usize> = nodes.keys().map(|id| (*id, 0)).collect();

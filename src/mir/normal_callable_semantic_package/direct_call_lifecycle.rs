@@ -1,7 +1,7 @@
 //! Co-seal existing source products in the affine direct-call inventory.
 //! No target lookup by name, second Completion, or physical continuation is issued.
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::LocalRouteWriterV1;
-use super::super::model::OwnedCallableParameterContractDeclarationV1;
+use super::super::model::{OwnedCallableParameterContractsV1};
 use super::super::ordinary_new_coseal::OrdinaryNewClaimLedgerV1;
 use super::super::result_contract::VerifiedCallableResultContractCohortV1;
 use super::*;
@@ -73,7 +73,7 @@ pub(in crate::mir::normal_callable_semantic_package) use result_validation::{con
 /// this gate keeps the unproven edge closed until a catalogable borrow/// source exists.
 fn map_argument_edge(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
-    parameters: &[OwnedCallableParameterContractDeclarationV1],
+    parameters: &OwnedCallableParameterContractsV1,
     results: &VerifiedCallableResultContractCohortV1,
     root: &OrdinaryNewClaimLedgerV1,
     map_read_facts: &crate::mir::normal_callable_semantic_package::MapReadFactsV1,
@@ -93,7 +93,7 @@ fn map_argument_edge(
         return false;
     }
     let callee_owner = target.callable().owner();
-    let mut contracts = parameters.iter().filter(|row| row.owner == callee_owner);
+    let mut contracts = parameters.for_owner(callee_owner);
     let Some(contract) = contracts.next() else {
         return false;
     };
@@ -261,7 +261,7 @@ pub(super) fn completion_ready(
 
 pub(super) fn exact_formals(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
-    parameters: &[OwnedCallableParameterContractDeclarationV1],
+    parameters: &OwnedCallableParameterContractsV1,
     row: &DirectCallDispositionRowV1,
 ) -> bool {
     let Some(emission) = row.resolver_emission() else { return false };
@@ -271,9 +271,7 @@ pub(super) fn exact_formals(
     }) {
         return false;
     }
-    let mut matches = parameters
-        .iter()
-        .filter(|row| row.owner == target.callable().owner());
+    let mut matches = parameters.for_owner(target.callable().owner());
     let Some(contract) = matches.next() else {
         return false;
     };
@@ -355,7 +353,7 @@ impl DirectCallDispositionLoanV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn local_result_class_v1(
         &self,
         batch: &VerifiedResolvedCallableSemanticBatchV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        parameters: &OwnedCallableParameterContractsV1,
         facts: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::OrdinaryNewResultClassClaimsV1,
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         site: &OwnedExprSiteV1,
@@ -401,7 +399,7 @@ impl DirectCallDispositionLoanV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn co_seal_lifecycle(
         &mut self,
         batch: &VerifiedResolvedCallableSemanticBatchV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        parameters: &OwnedCallableParameterContractsV1,
         results: &VerifiedCallableResultContractCohortV1,
         root: &OrdinaryNewClaimLedgerV1,
         map_read_facts: &crate::mir::normal_callable_semantic_package::MapReadFactsV1,

@@ -296,7 +296,7 @@ fn passive_stored_dispatch_excludes_only_exact_different_targets() {
         assert!(retained.source.same_source(&row.source), "missing selected target keeps the original Rc and args");
     }
     assert!(absent.project(&BTreeSet::from([leaf_owner.unwrap()])).is_err());
-    assert!(absent.vetoed_owners().contains(&leaf_owner.unwrap()));
+    assert!(absent.collect_vetoes_v1(true).contains(&leaf_owner.unwrap()));
     let all_calls: BTreeMap<_, _> = source.incoming.iter().map(|row|
         (row.call.clone(), row.source.require_instance().unwrap())
     ).collect();

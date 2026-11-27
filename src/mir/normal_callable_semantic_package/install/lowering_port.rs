@@ -2,9 +2,8 @@ use std::{collections::BTreeMap, rc::Rc};
 
 use crate::mir::builder::{
     CanonicalSameModuleCallableKeyV1, NormalCatalogedBoxMethodDraftAdmissionV1,
-    SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1, VerifiedMainStaticChildV1,
+    SelectedNormalCallableKeyV1, VerifiedMainStaticChildV1,
 };
-use crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::normal_callable_semantic_package::SelectedSourceCoreMethodCallV1;
 use crate::parser::CallableDeclarationIdentityV1;
@@ -50,49 +49,14 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         if self.main_root_consumed {
             return Err(NormalCallableSemanticPackageInstallIssueV1::MainRootAlreadyConsumed);
         }
-        let batch_slot = self.app_main_root_batch_slot(expected_key, expected_identity)?;
+        let batch_slot = self.installed.app_main_root.as_ref()
+            .and_then(|root| root.slot_for(expected_key, expected_identity))
+            .ok_or(NormalCallableSemanticPackageInstallIssueV1::MainRootRelationMismatch)?;
         self.main_root_consumed = true;
         self.installed
             .batch
             .with_lowering_input_and_source_identity(batch_slot, callback)
             .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)
-    }
-
-    fn app_main_root_batch_slot(
-        &self,
-        expected_key: &CanonicalSameModuleCallableKeyV1,
-        expected_identity: &CallableDeclarationIdentityV1,
-    ) -> Result<u32, NormalCallableSemanticPackageInstallIssueV1> {
-        if expected_key.namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod {
-            return Err(NormalCallableSemanticPackageInstallIssueV1::MainRootRelationMismatch);
-        }
-        self.installed
-            .batch
-            .with_declaration_semantics(|batch| {
-                let mut declarations = batch
-                    .declarations()
-                    .iter()
-                    .filter(|declaration| declaration.identity().same_as(expected_identity));
-                let declaration = declarations
-                    .next()
-                    .ok_or(NormalCallableSemanticPackageInstallIssueV1::MainRootRelationMismatch)?;
-                if declarations.next().is_some()
-                    || declaration.mode() != ResolvedCallableDeclarationModeV1::StaticBoxMethod
-                    || u32::try_from(
-                        declaration
-                            .parameters()
-                            .map_or(0, |parameters| parameters.len()),
-                    )
-                    .ok()
-                        != Some(expected_key.arity())
-                {
-                    return Err(
-                        NormalCallableSemanticPackageInstallIssueV1::MainRootRelationMismatch,
-                    );
-                }
-                Ok(declaration.batch_slot())
-            })
-            .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)?
     }
 
     pub(crate) fn ordinary_box_is_covered(&self, class: &str) -> bool {

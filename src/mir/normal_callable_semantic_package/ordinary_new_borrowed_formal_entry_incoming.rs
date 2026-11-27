@@ -8,7 +8,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(super) fn original_input_use_call_v1(
         &self,
         source: &PreparedBorrowedFormalIngressV1,
-        catalog: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+        catalog: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         site: &OwnedExprSiteV1,
     ) -> Result<Option<super::super::borrowed_formal_uses::BorrowedIncomingSourceV1>, String> {
         use super::super::borrowed_formal_uses::BorrowedIncomingSourceV1;
@@ -90,9 +90,9 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
         let source = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("borrowed-call/source-missing"))?
             .as_ref().map_err(Clone::clone)?;
-        let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         if !Self::original_finite_instance_input_request_v1(source, catalog, row.callee_owner())? { return Ok(None); }
-        let contract = catalog.iter().find(|contract| contract.owner == row.callee_owner())
+        let contract = catalog.for_owner(row.callee_owner()).next()
             .ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
         let parameters: Vec<_> = contract.parameters.iter().map(|formal|
             (formal.ordinal, formal.binding, formal.kind.clone())).collect();
@@ -184,9 +184,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .is_some_and(|owners| !owners.contains(&call.callee))
             {
                 let contracts = self
-                    .original_parameter_contracts
-                    .as_deref()
-                    .ok_or_else(|| freeze("borrowed-static/original-catalog-missing"))?;
+                    .original_parameter_contracts.as_ref();
                 if super::super::borrowed_formal_actuals::revalidate_passive_object_incoming_v1(
                     source, contracts, call, actuals,
                     Some(self),
@@ -202,9 +200,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 )
             }) {
                 let catalog = self
-                    .original_parameter_contracts
-                    .as_deref()
-                    .ok_or_else(|| freeze("borrowed-guarded/original-catalog-missing"))?;
+                    .original_parameter_contracts.as_ref();
                 super::super::borrowed_formal_actuals::revalidate_passive_object_incoming_v1(
                     source, catalog, call, actuals,
                     Some(self),
@@ -307,12 +303,11 @@ impl OrdinaryNewClaimLedgerV1 {
         if actuals.ordered_arguments_for_v1(call)? != acquisition.arguments() {
             return Err(freeze("object-return/support-argument-snapshot"));
         }
-        let catalog = self.original_parameter_contracts.as_deref()
-            .ok_or_else(|| freeze("object-return/support-catalog"))?;
-        let mut callers = catalog.iter().filter(|row| row.owner == loan.call().owner());
+        let catalog = self.original_parameter_contracts.as_ref();
+        let mut callers = catalog.for_owner(loan.call().owner());
         let caller = callers.next().ok_or_else(|| freeze("object-return/support-caller"))?;
         if callers.next().is_some() { return Err(freeze("object-return/support-caller")); }
-        let mut callees = catalog.iter().filter(|row| row.owner == target.callee_owner());
+        let mut callees = catalog.for_owner(target.callee_owner());
         let callee = callees.next().ok_or_else(|| freeze("object-return/support-callee"))?;
         if callees.next().is_some() || callee.batch_slot != target.target_batch_slot() {
             return Err(freeze("object-return/support-callee"));

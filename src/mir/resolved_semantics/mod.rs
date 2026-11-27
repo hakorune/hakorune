@@ -43,6 +43,7 @@ pub(crate) use named_array_append_only_source::{
 mod named_array_requirement;
 mod named_array_residence;
 pub(crate) use named_array_requirement::{
+    NamedArrayHolderSourceLoanV1,
     NamedArrayConstructionRequirementV1, NamedArrayConstructionSourceV1,
     NamedArrayRequirementIssueV1,
 };
@@ -82,6 +83,7 @@ mod source_path_policy;
 mod source_projection;
 mod source_site;
 mod source_site_inventory;
+pub(in crate::mir) mod source_value_class;
 pub(crate) mod source_value_flow;
 mod verifier;
 
@@ -170,6 +172,7 @@ pub(crate) use home_abi::{
     VerifiedInstanceEntryHomeParameterV1,
 };
 pub(crate) use home_relation::{
+    BorrowedLifetimeAnchorV1,
     HomeDemandV1, HomeRelationBrandIssuerV1, HomeRelationBrandV1, HomeRelationRejectV1,
     HomeResultRelationV1,
 };

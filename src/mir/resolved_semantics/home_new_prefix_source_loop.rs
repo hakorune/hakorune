@@ -1,5 +1,6 @@
 //! Original Loop Header/body/exit walk through the existing recursive scanner.
 //! This source summary is deliberately not Home After or physical permission.
+use crate::mir::loop_recipe_contract::RetainedSourceLoopProductV1;
 use super::*;
 use crate::mir::resolved_semantics::BodyChildRoleV1;
 
@@ -38,7 +39,7 @@ pub(super) fn observe<'a, E>(
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
     loop_prestate: &mut impl FnMut(
         LoopI64PreStateRequestV1,
-    ) -> Result<Option<SelectedLoopHomeLoanV1>, E>,
+    ) -> Result<Option<std::rc::Rc<RetainedSourceLoopProductV1>>, E>,
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,
     ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,

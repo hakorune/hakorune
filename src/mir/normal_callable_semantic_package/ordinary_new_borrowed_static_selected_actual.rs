@@ -576,7 +576,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(super) fn prepare_static_forwarded_inputs_v1(
         &self,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         results: &VerifiedCallableResultContractCohortV1,
     ) -> Result<StaticInputRowsV1, String> {
@@ -616,8 +616,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("static-one/whole-cohort"));
             }
             let owner = original.callee_owner();
-            let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
-                contracts, owner,
+            let contract = contracts.unique_for_owner(owner,
                 || freeze("static-one/contract-missing"),
                 || freeze("static-one/contract-identity"),
             )?;

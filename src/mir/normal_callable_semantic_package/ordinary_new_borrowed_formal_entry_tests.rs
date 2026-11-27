@@ -682,7 +682,7 @@ fn final_entry_loan_retains_original_targets_and_rechecks_recorded_values() {
             .as_ref()
             .unwrap();
         for (target, original) in loan.incoming_targets().zip(source.incoming.iter()) {
-            let super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Instance(target) =
+            let super::super::borrowed_formal_uses::BorrowedIncomingCallLoanV1::Instance(target) =
                 target.unwrap()
             else {
                 panic!("original Instance loan");

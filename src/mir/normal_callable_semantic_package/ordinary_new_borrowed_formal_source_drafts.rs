@@ -4,7 +4,7 @@ use super::*;
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn collect_borrowed_source_drafts_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     static_claims: Option<&crate::mir::normal_callable_semantic_package::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1>,
     app_main_slot: Option<u32>,
     dynamic_slot: Option<u32>,
@@ -178,7 +178,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 /// with the existing graph and inventory projection. This issues no new claim.
 pub(super) fn seed_static_transport_owners_v1(
     selected: &VerifiedSelectedCallableBatchMapV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     inventory: &BorrowedIncomingInventoryV1,
     static_arguments: &BTreeMap<
@@ -226,9 +226,7 @@ pub(super) fn seed_static_transport_owners_v1(
         {
             continue;
         }
-        let mut contracts = contracts
-            .iter()
-            .filter(|row| row.owner == source.callee_owner());
+        let mut contracts = contracts.for_owner(source.callee_owner());
         let contract = contracts
             .next()
             .ok_or_else(|| freeze("borrowed-static/seed-contract-missing"))?;
@@ -253,7 +251,7 @@ pub(super) fn seed_static_transport_owners_v1(
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
 fn dynamic_provider_owners_v1(
     selected: &VerifiedSelectedCallableBatchMapV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     dynamic_source_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
 ) -> BTreeSet<FunctionOwnerIdV1> {
     use crate::mir::builder::SelectedNormalCallableKeyV1;

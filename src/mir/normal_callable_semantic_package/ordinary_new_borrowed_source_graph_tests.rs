@@ -1,7 +1,7 @@
 //! Original rows and callee vetoes share one immutable inventory.
 #[path = "ordinary_new_borrowed_instance_source_domain_tests.rs"]
 mod instance_source_domain_tests;
-use super::super::super::borrowed_formal_uses::{borrow_call_sources_v1, BorrowedCallSourceLoanV1};
+use super::super::super::borrowed_formal_uses::{borrow_call_sources_v1, BorrowedIncomingCallLoanV1};
 use super::*;
 use std::rc::Rc;
 type Package =
@@ -176,7 +176,7 @@ fn object_source_inventory_preserves_unresolved_outside_and_global_vetoes() {
         omitted.project(&owners).unwrap_err(),
         BorrowedIncomingDraftErrorV1::UnresolvedCaller(rows[1].call.clone())
     );
-    assert!(omitted.vetoed_owners().contains(&rows[0].callee));
+    assert!(omitted.collect_vetoes_v1(true).contains(&rows[0].callee));
     let calls = rows
         .iter()
         .map(|row| (row.call.clone(), row.source.require_instance().unwrap()))
@@ -201,7 +201,7 @@ fn object_source_inventory_preserves_unresolved_outside_and_global_vetoes() {
     outside
         .observations
         .push_legacy((None, Err(BorrowedIncomingDraftErrorV1::BatchLoan)));
-    assert!(outside.vetoed_owners().contains(&rows[0].callee));
+    assert!(outside.collect_vetoes_v1(true).contains(&rows[0].callee));
     assert_eq!(
         outside.project(&owners).unwrap_err(),
         BorrowedIncomingDraftErrorV1::BatchLoan
@@ -287,7 +287,7 @@ fn source_graph_retains_raw_no_incoming_and_projects_final_callee_only() {
         assert!(row.arguments.is_empty());
         assert!(inventory.owners.contains(&row.callee));
         assert!(!inventory.source_vetoed_owners_v1().contains(&row.callee));
-        assert_eq!(inventory.vetoed_owners().contains(&row.callee), !unit_candidate);
+        assert_eq!(inventory.collect_vetoes_v1(true).contains(&row.callee), !unit_candidate);
         assert!(inventory.legacy_observations().all(|(_, observed)| !matches!(observed,
             Err(BorrowedIncomingDraftErrorV1::NoIncoming(owner)) if owner == &row.callee)));
         assert!(!package.batch().declarations().any(|declaration| declaration.owner() == row.call.owner()));
@@ -354,7 +354,7 @@ fn source_graph_retains_raw_no_incoming_and_projects_final_callee_only() {
     let row = ingress.source_incoming.exact_rows().find(|row| row.source.unit_discard_source_v1().is_some()).unwrap();
     assert!(row.source.is_pending(), "ordinary stored Unit stays outside constructor selection");
     assert!(row.source.require_instance().is_err());
-    assert!(ingress.source_incoming.vetoed_owners().contains(&row.callee));
+    assert!(ingress.source_incoming.collect_vetoes_v1(true).contains(&row.callee));
     // The same selector/arity in a provider argument is an original Static
     // edge, independently of the constructor's pending stored Instance edge.
     let package = self::package("static box Layout { seed() { return 8 } } box Page { id: i64 birth(n) { me.id = n } seed(): i64 { return 0 } } box Pool { page: Page birth() { me.page = new Page(Layout.seed()) me.page.seed() } } static box Main { main() { local pool = new Pool() return 0 } }");
@@ -537,7 +537,7 @@ fn source_graph_selected_callee_keeps_every_caller_veto_and_global_batch_fault()
         static_observations: BTreeMap::new(),
         observations: test_observations(vec![(None, Err(BorrowedIncomingDraftErrorV1::BatchLoan))]),
     };
-    assert_eq!(inventory.vetoed_owners(), inventory.owners);
+    assert_eq!(inventory.collect_vetoes_v1(true), inventory.owners);
     for selected in [owners, Default::default()] {
         assert_eq!(
             inventory.project(&selected).unwrap_err(),
@@ -572,7 +572,7 @@ fn source_graph_static_owner_preserves_rc_and_refuses_instance_authority() {
         matches!(owned.clone(), BorrowedIncomingSourceV1::Static(row) if Rc::ptr_eq(&row, original))
     );
     assert!(
-        matches!(owned.as_loan().unwrap(), BorrowedCallSourceLoanV1::Static(row) if std::ptr::eq(row, original.as_ref()))
+        matches!(owned.as_loan().unwrap(), BorrowedIncomingCallLoanV1::Static(row) if std::ptr::eq(row, original.as_ref()))
     );
     assert!(owned
         .require_instance()

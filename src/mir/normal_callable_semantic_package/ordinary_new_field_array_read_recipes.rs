@@ -78,9 +78,9 @@ impl OrdinaryNewClaimLedgerV1 {
     fn field_array_read_recipe_from_source_v1(&self, owner: FunctionOwnerIdV1,
         source: Rc<super::super::CheckedFieldArrayAccessSourceV1>,
     ) -> Result<Rc<FieldArrayReadRecipeV1>, String> {
-        let (selected, _) = self.original_instance_input_issuance.as_ref().ok_or_else(|| array_fault("read-original-issuance-missing"))?;
-        let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| array_fault("read-original-catalog-missing"))?;
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+        let (selected, _) = self.original_instance_input_issuance.get().ok_or_else(|| array_fault("read-original-issuance-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
+        let mut contracts = catalog.for_owner(owner);
         let contract = contracts.next().ok_or_else(|| array_fault("read-original-contract-missing"))?;
         if contracts.next().is_some() { return Err(array_fault("read-original-contract-duplicate")); }
         let Some(SelectedNormalCallableKeyV1::Cataloged(caller)) = selected.key_for_batch_slot(contract.batch_slot) else { return Err(array_fault("read-original-caller-missing")) };
@@ -95,9 +95,9 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn array_field_original_caller_v1(
         &self, owner: FunctionOwnerIdV1,
     ) -> Result<Option<&CanonicalSameModuleCallableKeyV1>, String> {
-        let (selected, _) = self.original_instance_input_issuance.as_ref().ok_or_else(|| array_fault("read-original-issuance-missing"))?;
-        let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| array_fault("read-original-catalog-missing"))?;
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+        let (selected, _) = self.original_instance_input_issuance.get().ok_or_else(|| array_fault("read-original-issuance-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
+        let mut contracts = catalog.for_owner(owner);
         let Some(contract) = contracts.next() else { return Ok(None); };
         if contracts.next().is_some() { return Err(array_fault("read-original-contract-duplicate")); }
         let Some(SelectedNormalCallableKeyV1::Cataloged(caller)) = selected.key_for_batch_slot(contract.batch_slot) else { return Ok(None); };
@@ -132,7 +132,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .map(|source| source.map(Rc::new))
     }
     pub(in crate::mir::normal_callable_semantic_package) fn field_array_read_recipes_v1(&self) -> Result<Vec<Rc<FieldArrayReadRecipeV1>>, String> {
-        let Some(catalog) = &self.original_parameter_contracts else { return Ok(Vec::new()) };
+        let catalog = self.original_parameter_contracts.as_ref();
         let mut recipes = Vec::new();
         for contract in catalog.iter() {
             for source in self.field_array_read_sources_for_owner_v1(contract.owner)? {

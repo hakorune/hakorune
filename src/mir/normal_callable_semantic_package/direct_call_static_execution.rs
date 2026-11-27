@@ -6,8 +6,7 @@ use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::LocalRout
 use super::*;
 use crate::mir::builder::{AppMainCatalogCoSealV1, CanonicalSameModuleCallableKeyV1, SelectedNormalCallableKeyV1};
 use crate::mir::callable_semantic_batch::{ResolvedCallableDeclarationModeV1, VerifiedResolvedCallableSemanticBatchV1};
-use crate::mir::normal_callable_semantic_package::{model::OwnedCallableParameterContractDeclarationV1,
-    ordinary_new_coseal::OrdinaryNewClaimLedgerV1, selected_mapping::VerifiedSelectedCallableBatchMapV1};
+use crate::mir::normal_callable_semantic_package::{ordinary_new_coseal::OrdinaryNewClaimLedgerV1, selected_mapping::VerifiedSelectedCallableBatchMapV1};
 use crate::mir::resolved_semantics::home_new_prefix::{LifecyclePrefixSourceV1, LocalCallResultClassV1};
 use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
 use crate::mir::resolved_semantics::ExactCallableParamAbiV1;
@@ -107,7 +106,7 @@ fn exact_i64(row: &DirectCallDispositionRowV1) -> bool {
 }
 fn seal_local(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
-    parameters: &[OwnedCallableParameterContractDeclarationV1], ledger: &OrdinaryNewClaimLedgerV1,
+    parameters: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1, ledger: &OrdinaryNewClaimLedgerV1,
     site: &OwnedExprSiteV1, row: &mut DirectCallDispositionRowV1,
 ) -> Result<(), String> {
     let local = ledger.local_call_for_owner(site.owner(), site.site()).ok_or_else(|| reject("local-source"))?;
@@ -133,7 +132,7 @@ impl DirectCallDispositionLoansV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn join_static_execution_v1(
         loans: &mut Option<Self>, batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1, main: Option<&AppMainCatalogCoSealV1>,
-        parameters: &[OwnedCallableParameterContractDeclarationV1], ledger: &OrdinaryNewClaimLedgerV1,
+        parameters: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1, ledger: &OrdinaryNewClaimLedgerV1,
         signatures: &Rc<crate::mir::normal_callable_semantic_package::physical_signature::VerifiedCallablePhysicalSignatureCohortV1>,
         results: &crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1,
     ) -> Result<(), String> {

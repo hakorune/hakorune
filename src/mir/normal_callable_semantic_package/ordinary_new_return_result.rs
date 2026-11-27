@@ -36,7 +36,7 @@ impl ObjectCallFieldSupportRequirementV1 {
             &super::super::lexical_instance_call::PreparedBorrowedFormalActualV1,
         ) -> Result<(), String>,
     ) -> Result<(), String> {
-        for requirement in requirements.iter().flat_map(|group| group.supports_v1()) {
+        for requirement in requirements.iter().flat_map(|group| group.supports.iter()) {
             let mut matching = actuals.iter().filter(|actual| actual.ordinal == requirement.ordinal);
             let actual = matching.next().ok_or_else(|| freeze("object-packet/field-support-actual-missing"))?;
             if matching.next().is_some() || actual.formal != requirement.formal
@@ -49,6 +49,7 @@ impl ObjectCallFieldSupportRequirementV1 {
         Ok(())
     }
 
+    #[cfg(test)]
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn supports_v1(&self) -> &[super::return_leaf::ObjectReturnFieldSupportV1] {
         &self.supports
     }

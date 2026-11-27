@@ -242,7 +242,7 @@ pub(crate) struct ExpressionCoreSourceLoanV1 {
     node: usize,
     original: Rc<OrdinaryCoreSourceCallV1>,
     text_entry_receiver_read:
-        Option<crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1>,
+        Option<crate::mir::normal_callable_semantic_package::BorrowedFormalEntryReadRequirementV1>,
 }
 impl PartialEq for ExpressionCoreSourceLoanV1 {
     fn eq(&self, other: &Self) -> bool {
@@ -315,14 +315,14 @@ impl ExpressionCoreSourceLoanV1 {
     }
     pub(crate) fn text_entry_receiver_read(
         &self,
-    ) -> Option<&crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1>
+    ) -> Option<&crate::mir::normal_callable_semantic_package::BorrowedFormalEntryReadRequirementV1>
     {
         self.text_entry_receiver_read.as_ref()
     }
     pub(in crate::mir::normal_callable_semantic_package) fn with_text_entry_receiver_read_v1(
         mut self,
         read: Option<
-            crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1,
+            crate::mir::normal_callable_semantic_package::BorrowedFormalEntryReadRequirementV1,
         >,
     ) -> Result<Self, String> {
         use crate::mir::resolved_semantics::{

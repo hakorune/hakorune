@@ -211,7 +211,7 @@ fn original_instance_input_keeps_result_law_and_rechecks_whole_cohort() {
     ledger.completion_index.insert(original.callee, saved);
     // Borrowing a foreign original signature must fail even after installation.
     let foreign = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(text).unwrap();
-    ledger.original_instance_input_issuance.as_mut().unwrap().1 =
+    ledger.original_instance_input_issuance.get_mut().unwrap().1 =
         foreign.physical_signature.clone();
     let source = ledger
         .borrowed_formal_source

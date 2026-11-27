@@ -130,7 +130,7 @@ impl ExpressionFieldRootSourceV1 {
         };
         let (selected, signatures) = ledger
             .original_instance_input_issuance
-            .as_ref()
+            .get()
             .ok_or("expression-path/root-entry-issuance")?;
         let signature = signatures
             .row(*slot)

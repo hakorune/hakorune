@@ -4,7 +4,7 @@ use super::*;
 pub(super) fn construct_borrowed_call_actuals_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
     incoming_row: &super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     call: &OwnedExprSiteV1,
     actuals: &[BorrowedCallActualCandidateV1],
     homes: object_source::ObjectActualHomeSourceV1<'_>,
@@ -17,9 +17,7 @@ pub(super) fn construct_borrowed_call_actuals_v1(
         BindingRefV1,
     ) -> Result<Option<BorrowedFormalActualSourceV1>, String>,
 ) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
-    let mut callee_contracts = contracts
-        .iter()
-        .filter(|row| row.owner == incoming_row.callee);
+    let mut callee_contracts = contracts.for_owner(incoming_row.callee);
     let contract = callee_contracts
         .next()
         .ok_or_else(|| freeze("borrowed-actual/formal-missing"))?;

@@ -60,7 +60,7 @@ pub(crate) struct ArgumentExpressionSourceLoanV1 {
     result: ArgumentExpressionResultV1,
     calls: BTreeMap<usize, ArgumentMethodSourceV1>,
     dynamic_array_carrier_append:
-        Option<crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1>,
+        Option<crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1>,
 }
 impl PartialEq for ArgumentExpressionSourceLoanV1 {
     fn eq(&self, other: &Self) -> bool {
@@ -86,7 +86,7 @@ impl ArgumentExpressionSourceLoanV1 {
     }
     pub(crate) fn dynamic_array_carrier_append_v1(
         &self,
-    ) -> Option<&crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1> {
+    ) -> Option<&crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1> {
         self.dynamic_array_carrier_append.as_ref()
     }
     pub(crate) fn dynamic_array_carrier_call_is_v1(&self, site: &SourceExprSiteV1) -> bool {
@@ -208,22 +208,21 @@ impl ArgumentExpressionSourceLoanV1 {
 /// optional catalog is unnecessary for Static (its source owns all formals),
 /// and mandatory for Instance; absence never invents an empty formal contract.
 struct ArgumentSourceIdentityRefV1<'a> {
-    source: super::super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1<'a>,
+    source: super::super::super::borrowed_formal_uses::BorrowedIncomingCallLoanV1<'a>,
     candidates: &'a [BorrowedCallActualCandidateV1],
     slots: &'a BTreeMap<u32, ArgumentExpressionV1>,
     formals: &'a [crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1],
 }
 fn argument_source_contract_v1<'a>(
-    contracts: &'a [OwnedCallableParameterContractDeclarationV1],
+    contracts: &'a crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     source: &LexicalInstanceCallSourceTargetV1,
     candidates: &[BorrowedCallActualCandidateV1],
     reject: impl Fn() -> String + Copy,
 ) -> Result<&'a OwnedCallableParameterContractDeclarationV1, String> {
-    let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
-        contracts, source.callee_owner(), reject, reject,
+    let contract = contracts.unique_for_owner(source.callee_owner(), reject, reject,
     )?;
     if contract.batch_slot != source.target_batch_slot()
-        || contract.mode != super::super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Instance(source).declaration_mode()
+        || contract.mode != super::super::super::borrowed_formal_uses::BorrowedIncomingCallLoanV1::Instance(source).declaration_mode()
         || contract.parameters.len() != candidates.len()
         || contract.parameters.iter().zip(candidates).enumerate().any(|(index, (formal, candidate))| {
             formal.ordinal as usize != index
@@ -237,11 +236,11 @@ fn argument_source_contract_v1<'a>(
 }
 fn argument_source_identity_v1<'a>(
     prepared: &'a PreparedBorrowedFormalIngressV1,
-    contracts: Option<&'a [OwnedCallableParameterContractDeclarationV1]>,
+    contracts: Option<&'a crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1>,
     rows: &'a PreparedBorrowedCallActualsV1,
     site: &OwnedExprSiteV1,
 ) -> Result<Option<ArgumentSourceIdentityRefV1<'a>>, String> {
-    use super::super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1 as Loan;
+    use super::super::super::borrowed_formal_uses::BorrowedIncomingCallLoanV1 as Loan;
     let rows = rows.source_static_snapshot_v1().unwrap_or(rows);
     match &rows.phase {
         BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) => {
@@ -332,9 +331,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .as_ref()
             .map_err(Clone::clone)?;
         let contracts = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("argument-expression/source-contracts"))?;
+            .original_parameter_contracts.as_ref();
         let identity = argument_source_identity_v1(
             self.borrowed_formal_source
                 .as_ref()
@@ -486,9 +483,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(Rc::clone(frame));
         }
         let contracts = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("argument-expression/source-contracts"))?;
+            .original_parameter_contracts.as_ref();
         let identity = argument_source_identity_v1(prepared, Some(contracts), rows, call)?
             .ok_or_else(|| freeze("argument-expression/source-phase"))?;
         if let Some(snapshot) = rows.source_static_snapshot_v1() {

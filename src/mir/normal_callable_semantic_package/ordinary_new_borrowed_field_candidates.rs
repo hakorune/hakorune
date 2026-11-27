@@ -9,7 +9,7 @@ impl FieldCandidatesV1 {
         constructors: &VerifiedInstanceConstructorSemanticBatchV1,
         original: Result<&OriginalBorrowedFormalSourceV1, &String>,
         definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         needs: &[Result<Option<super::super::super::source::PreparedSourceCallNeedV1>, String>],
         results: &super::super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     ) -> Rc<Self> {

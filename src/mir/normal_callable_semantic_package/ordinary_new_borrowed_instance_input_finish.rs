@@ -32,7 +32,7 @@ impl OrdinaryNewClaimLedgerV1 {
     /// Finite Text source membership selects the source scope, never a phase.
     pub(in crate::mir::normal_callable_semantic_package) fn original_instance_input_calls_v1(
         source: &PreparedBorrowedFormalIngressV1,
-        catalog: &[OwnedCallableParameterContractDeclarationV1],
+        catalog: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         owner: FunctionOwnerIdV1,
     ) -> Result<Box<[BorrowedIncomingCallDraftV1]>, String> {
         let owners = std::collections::BTreeSet::from([owner]);
@@ -46,7 +46,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
     pub(in crate::mir::normal_callable_semantic_package) fn original_instance_input_call_v1(
         source: &PreparedBorrowedFormalIngressV1,
-        catalog: &[OwnedCallableParameterContractDeclarationV1],
+        catalog: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         site: &OwnedExprSiteV1,
     ) -> Result<Option<BorrowedIncomingCallDraftV1>, String> {
         // Successful source membership only proposes an owner. The checked
@@ -81,11 +81,9 @@ impl OrdinaryNewClaimLedgerV1 {
         selected: std::rc::Rc<VerifiedSelectedCallableBatchMapV1>,
         signatures: std::rc::Rc<VerifiedCallablePhysicalSignatureCohortV1>,
     ) -> Result<(), String> {
-        if self.original_instance_input_issuance.is_some() {
-            return Err(freeze("instance-input/duplicate-original-issuance"));
-        }
-        self.original_instance_input_issuance = Some((selected, signatures));
-        Ok(())
+        self.original_instance_input_issuance
+            .set((selected, signatures))
+            .map_err(|_| freeze("instance-input/duplicate-original-issuance"))
     }
 
     /// Demand all original producers through the existing whole-input owner.
@@ -113,9 +111,7 @@ impl OrdinaryNewClaimLedgerV1 {
         elements: &[&ArrayElementSourceLoanV1],
     ) -> Result<TypedInputClosureV1, String> {
         let catalog = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("array-producer-input/original-catalog-missing"))?;
+            .original_parameter_contracts.as_ref();
         let mut owners = std::collections::BTreeSet::new();
         let mut pending = false;
         let mut proposed = Vec::new();
@@ -190,7 +186,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let (original_selected, original_signatures) = self
             .original_instance_input_issuance
-            .as_ref()
+            .get()
             .ok_or_else(|| freeze("array-producer-plan/original-issuance-missing"))?;
         if !std::ptr::eq(selected, original_selected.as_ref())
             || !std::ptr::eq(signatures, original_signatures.as_ref())
@@ -324,7 +320,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         owner: FunctionOwnerIdV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     ) -> Result<Option<&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1>, String> {
         let source = self
             .borrowed_formal_source
@@ -337,12 +333,10 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let (original_selected, _) = self
             .original_instance_input_issuance
-            .as_ref()
+            .get()
             .ok_or_else(|| freeze("array-lifecycle/original-issuance-missing"))?;
         let original_contracts = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("array-lifecycle/original-catalog-missing"))?;
+            .original_parameter_contracts.as_ref();
         if !std::ptr::eq(selected, original_selected.as_ref())
             || !std::ptr::eq(contracts, original_contracts)
         {
@@ -358,10 +352,8 @@ impl OrdinaryNewClaimLedgerV1 {
         selected: &'a VerifiedSelectedCallableBatchMapV1,
     ) -> Result<&'a hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, String> {
         let catalog = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("array-lifecycle/original-catalog-missing"))?;
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+            .original_parameter_contracts.as_ref();
+        let mut contracts = catalog.for_owner(owner);
         let contract = contracts
             .next()
             .ok_or_else(|| freeze("array-lifecycle/caller-missing"))?;
@@ -432,7 +424,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .map_err(Clone::clone)?;
         let (selected, signatures) = self
             .original_instance_input_issuance
-            .as_ref()
+            .get()
             .ok_or_else(|| freeze("array-lifecycle/original-issuance-missing"))?;
         for recipe in &recipes {
             let completion = self
@@ -472,7 +464,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn finish_original_instance_input_actuals_v1(
         &mut self,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         results: &crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1,
     ) -> Result<(), String> {
@@ -504,8 +496,7 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 continue;
             }
-            let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
-                contracts, owner,
+            let contract = contracts.unique_for_owner(owner,
                 || freeze("instance-input/contract-missing"),
                 || freeze("instance-input/contract-duplicate"),
             )?;
@@ -572,12 +563,12 @@ impl OrdinaryNewClaimLedgerV1 {
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn recheck_finished_instance_input_v1(
     ledger: &OrdinaryNewClaimLedgerV1,
     source: &PreparedBorrowedFormalIngressV1,
-    catalog: &[OwnedCallableParameterContractDeclarationV1],
+    catalog: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     original: &BorrowedIncomingCallDraftV1,
     actuals: &PreparedBorrowedCallActualsV1,
 ) -> Result<(), String> {
     let owner = original.callee;
-    let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+    let mut contracts = catalog.for_owner(owner);
     let contract = contracts
         .next()
         .ok_or_else(|| freeze("instance-input/contract-missing"))?;
@@ -589,7 +580,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     }
     let (selected, signatures) = ledger
         .original_instance_input_issuance
-        .as_ref()
+        .get()
         .ok_or_else(|| freeze("instance-input/original-issuance-missing"))?;
     match ledger.prepare_original_instance_input_owner_v1(
         source,
@@ -634,7 +625,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 pub(in crate::mir::normal_callable_semantic_package) fn revalidate_guarded_instance_incoming_v1(
     ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
     source: &PreparedBorrowedFormalIngressV1,
-    catalog: &[OwnedCallableParameterContractDeclarationV1],
+    catalog: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     call: &BorrowedIncomingCallDraftV1,
     rows: &PreparedBorrowedCallActualsV1,
 ) -> Result<bool, String> {

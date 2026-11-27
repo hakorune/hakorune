@@ -149,7 +149,7 @@ pub(super) fn encode_parameters(
                                     }
                                     row["object_nonnull_view"] = json!(true);
                                 } else if input.entry().has_finite_borrowed_input_v1(ordinal) {
-                                    use crate::mir::normal_callable_semantic_package::SourceValueAlternativeV1 as Alternative;
+                                    use crate::mir::resolved_semantics::source_value_class::SourceValueAlternativeV1 as Alternative;
                                     let mut alternatives = domain.finite_alternatives_v1()
                                         .ok_or_else(|| fault("borrowed-carrier-source-missing"))?.iter().map(|alternative| match alternative {
                                             Alternative::Null => Ok((0, "null")), Alternative::SignedI64 => Ok((1, "i64")),

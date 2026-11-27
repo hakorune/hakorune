@@ -1,6 +1,6 @@
 //! Source-backed input/result checks for lexical calls that produce an object.
 use super::*;
-use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
+use crate::mir::normal_callable_semantic_package::model::{OwnedCallableParameterContractsV1};
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::OrdinaryNewResultClassClaimsV1;
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::{
     lexical_instance_call::{PendingBorrowedFormalActualsV1, PreparedBorrowedFormalIngressV1},
@@ -20,7 +20,7 @@ pub(super) fn project(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     pending: &PendingBorrowedFormalActualsV1,
     targets: &PreparedLexicalInstanceCallSourceTargetsV1,
     candidates: &[OrdinaryNewCandidate],

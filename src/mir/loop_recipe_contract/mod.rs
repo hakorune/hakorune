@@ -52,6 +52,8 @@ pub(crate) use source_loop_v2::{produce_source_loop_recipe_v2, VerifiedSourceLoo
 mod source_loop_bool;
 pub(crate) use source_loop_bool::{project_source_loop_bool_v1, CheckedLoopBoolExpressionV1};
 mod read_only_inputs;
+mod retained_source_loop;
+pub(crate) use retained_source_loop::RetainedSourceLoopProductV1;
 mod source_binding;
 mod typed_schema_v2;
 mod typed_schema_v2_structure;

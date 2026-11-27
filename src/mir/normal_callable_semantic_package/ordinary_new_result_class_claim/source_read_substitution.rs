@@ -1,7 +1,7 @@
 //! Passive indirect actual provenance during the source-result fixed point.
 //! Canonical loans, Prefix liveness and physical transport are later checks.
 use super::*;
-use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
+use crate::mir::normal_callable_semantic_package::model::{OwnedCallableParameterContractsV1};
 use crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use crate::mir::callable_semantic_batch::{VerifiedResolvedCallableSemanticBatchV1, ResolvedCallableBorrowedResultDeclarationV1, ResolvedCallableBorrowedResultSupportV1};
 use crate::mir::resolved_semantics::home_new_prefix::DeclaredCallReadSourceV1;
@@ -32,7 +32,7 @@ impl SourceReadSubstitutionV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn matches_support_v1(&self,
         plan: &super::super::borrowed_nullable_local::BorrowedSupportReadV1,
     ) -> bool {
-        use super::super::BorrowedLifetimeAnchorV1;
+        use crate::mir::resolved_semantics::BorrowedLifetimeAnchorV1;
         self.source == *plan.source_signature_v1()
             && matches!(plan.anchor(), BorrowedLifetimeAnchorV1::Entry { root, caller_support: crate::mir::instruction::BorrowedResultSupportV1::Formal(ordinal) }
                 if *root == self.formal && *ordinal == self.ordinal)
@@ -64,7 +64,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct SourceCompositionCon
     pub(in crate::mir::normal_callable_semantic_package) fields: &'a super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     pub(in crate::mir::normal_callable_semantic_package) claims: &'a super::super::OrdinaryNewResultClassClaimsV1,
     pub(in crate::mir::normal_callable_semantic_package) pending: &'a BTreeSet<CanonicalSameModuleCallableKeyV1>,
-    pub(in crate::mir::normal_callable_semantic_package) parameters: &'a [OwnedCallableParameterContractDeclarationV1],
+    pub(in crate::mir::normal_callable_semantic_package) parameters: &'a OwnedCallableParameterContractsV1,
     pub(in crate::mir::normal_callable_semantic_package) caller: &'a CanonicalSameModuleCallableKeyV1,
     pub(in crate::mir::normal_callable_semantic_package) batch_slot: u32,
 }

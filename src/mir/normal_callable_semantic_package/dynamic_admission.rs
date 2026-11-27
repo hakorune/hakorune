@@ -1,6 +1,3 @@
-use crate::mir::builder::{
-    issue_source_backed_dynamic_callable_v1, VerifiedSourceBackedDynamicCallableV1,
-};
 use crate::mir::compiler::dynamic_full_body_recipe::{
     DynamicFullLoopParameterContractV2, DynamicFullLoopRecipeProducerRejectV2,
 };
@@ -14,8 +11,7 @@ use crate::mir::resolved_control_flow::{
 };
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, ResolvedLoopRegionLookupErrorV1};
 use crate::mir::source_call_target::{
-    issue_source_bound_dynamic_member_calls_v1, DynamicMemberSourceIssueV1,
-    VerifiedSourceBoundDynamicMemberCallV1,
+    DynamicMemberSourceIssueV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -31,9 +27,7 @@ pub(super) enum DynamicCallableDeclineV1 {
 pub(super) enum DynamicCallableAdmissionV1 {
     Candidate {
         owner: FunctionOwnerIdV1,
-        source: VerifiedSourceBackedDynamicCallableV1,
         inventory: VerifiedDynamicLoopFullBodySourceInventoryV1,
-        calls: Box<[VerifiedSourceBoundDynamicMemberCallV1]>,
     },
     Declined {
         _reason: DynamicCallableDeclineV1,
@@ -104,18 +98,9 @@ pub(super) fn admit_dynamic_callable_v1(
         }
     };
     let owner = source.owner();
-    // The package is the sole production owner of this source-backed Dynamic
-    // classification. Lowering later borrows the retained product instead of
-    // reissuing it from the resolved AST a second time.
-    let source_backed = issue_source_backed_dynamic_callable_v1(input)
-        .map_err(|error| DynamicCallableAdmissionIssueV1::SourceBacked { _error: error })?;
-    let calls = issue_source_bound_dynamic_member_calls_v1(input, &source_backed)
-        .map_err(|error| DynamicCallableAdmissionIssueV1::Calls { _error: error })?;
     Ok(DynamicCallableAdmissionV1::Candidate {
         owner,
-        source: source_backed,
         inventory: source,
-        calls,
     })
 }
 

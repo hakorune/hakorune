@@ -36,7 +36,7 @@ fn corroborates_argument_source_v1(
 pub(in crate::mir::normal_callable_semantic_package) fn bind_argument_sources_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     prepared: &PreparedBorrowedFormalIngressV1,
-    contracts: Option<&[OwnedCallableParameterContractDeclarationV1]>,
+    contracts: Option<&crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1>,
     site: &OwnedExprSiteV1,
     previous: Option<&Result<PreparedBorrowedCallActualsV1, String>>,
     rows: Option<&mut PreparedBorrowedCallActualsV1>,
@@ -76,7 +76,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn bind_argument_sources_v1
             .ok_or_else(reject)?;
         identity.argument_sources = model::bind_original_argument_plans_v1(
             input,
-            super::super::super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Instance(
+            super::super::super::super::borrowed_formal_uses::BorrowedIncomingCallLoanV1::Instance(
                 &identity.source,
             ),
             method,
@@ -115,7 +115,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn bind_argument_sources_v1
             .ok_or_else(reject)?;
         identity.argument_sources = model::bind_original_argument_plans_v1(
             input,
-            super::super::super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Instance(
+            super::super::super::super::borrowed_formal_uses::BorrowedIncomingCallLoanV1::Instance(
                 &identity.source,
             ),
             method,
@@ -224,7 +224,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn bind_argument_sources_v1
     }
     identity.argument_sources = model::bind_original_argument_plans_v1(
         input,
-        super::super::super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Static(
+        super::super::super::super::borrowed_formal_uses::BorrowedIncomingCallLoanV1::Static(
             &identity.source,
         ),
         identity.source.method_source(),
@@ -642,7 +642,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn complete_argument_expres
     input: ResolvedFunctionLoweringInputV1<'_>,
     prepared: &PreparedBorrowedFormalIngressV1,
     pending: &mut PendingBorrowedFormalActualsV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     site: &OwnedExprSiteV1,
     dynamic_source_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
     frame: &Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>,

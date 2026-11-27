@@ -49,7 +49,7 @@ fn argument_expression_requires_i64_v1(
 pub(in crate::mir::normal_callable_semantic_package) fn lend_argument_expression_source_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
     pending: &PendingBorrowedFormalActualsV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     site: &OwnedExprSiteV1,
     ordinal: u32,
 ) -> Result<Option<ArgumentExpressionSourceLoanV1>, String> {
@@ -58,7 +58,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_argument_expression
 pub(super) fn lend_argument_source_inner_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
     pending: &PendingBorrowedFormalActualsV1,
-    contracts: Option<&[OwnedCallableParameterContractDeclarationV1]>,
+    contracts: Option<&crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1>,
     site: &OwnedExprSiteV1,
     ordinal: u32,
 ) -> Result<Option<ArgumentExpressionSourceLoanV1>, String> {
@@ -67,11 +67,11 @@ pub(super) fn lend_argument_source_inner_v1(
 fn lend_argument_source_inner_for_array_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
     pending: &PendingBorrowedFormalActualsV1,
-    contracts: Option<&[OwnedCallableParameterContractDeclarationV1]>,
+    contracts: Option<&crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1>,
     site: &OwnedExprSiteV1,
     ordinal: u32,
     dynamic_array_carrier_append: Option<
-        crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1,
+        crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1,
     >,
     dynamic_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
 ) -> Result<Option<ArgumentExpressionSourceLoanV1>, String> {
@@ -298,7 +298,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_argument_source
     input: ResolvedFunctionLoweringInputV1<'_>,
     prepared: &PreparedBorrowedFormalIngressV1,
     pending: &PendingBorrowedFormalActualsV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     site: &OwnedExprSiteV1,
     ordinal: u32,
 ) -> Result<Option<ArgumentExpressionSourceLoanV1>, String> {
@@ -442,7 +442,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_carrier_array_a
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &OwnedExprSiteV1,
     ordinal: u32,
-    holder: &crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1,
+    holder: &crate::mir::resolved_semantics::NamedArrayHolderSourceLoanV1,
     dynamic_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
     retained: Option<&ArgumentExpressionSourceLoanV1>,
 ) -> Result<Option<ArgumentExpressionSourceLoanV1>, String> {
@@ -537,13 +537,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_carrier_array_a
 pub(in crate::mir::normal_callable_semantic_package) fn lend_text_entry_read_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
     pending: &PendingBorrowedFormalActualsV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     site: &OwnedExprSiteV1,
     loan: &ArgumentExpressionSourceLoanV1,
     read: &crate::mir::resolved_semantics::SourceExprSiteV1,
     binding: BindingRefV1,
     root: BindingRefV1,
-) -> Result<crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1, String>
+) -> Result<crate::mir::normal_callable_semantic_package::BorrowedFormalEntryReadRequirementV1, String>
 {
     let ExpressionPlanRootV1::CallArgument { ordinal, call, .. } = loan.plan().root() else {
         return Err(freeze("borrowed-text-entry/source-identity"));
@@ -579,7 +579,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_text_entry_read_v1(
 
 pub(in crate::mir::normal_callable_semantic_package) fn lend_field_array_text_entry_read_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &OwnedExprSiteV1,
     source: &crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1,
@@ -587,7 +587,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_field_array_text_en
     read: &crate::mir::resolved_semantics::SourceExprSiteV1,
     binding: BindingRefV1,
     root: BindingRefV1,
-) -> Result<crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1, String>
+) -> Result<crate::mir::normal_callable_semantic_package::BorrowedFormalEntryReadRequirementV1, String>
 {
     let reject = || freeze("borrowed-text-entry/source-identity");
     let Some(method) = source.append_method() else {
@@ -639,7 +639,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_field_array_text_en
 pub(in crate::mir::normal_callable_semantic_package) fn lend_expression_core_source_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     prepared: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     plan: &Rc<ExpressionSourcePlanV1>,
     site: &OwnedExprSiteV1,
 ) -> Result<Option<crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1>, String>
@@ -667,13 +667,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_expression_core_sou
 fn lend_core_text_entry_receiver_read_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     prepared: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     plan: &Rc<ExpressionSourcePlanV1>,
     core: &Rc<
         crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1,
     >,
 ) -> Result<
-    Option<crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1>,
+    Option<crate::mir::normal_callable_semantic_package::BorrowedFormalEntryReadRequirementV1>,
     String,
 > {
     use crate::mir::resolved_semantics::{

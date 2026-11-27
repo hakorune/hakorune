@@ -121,6 +121,7 @@ fn qualified_static_input_source_keeps_unselected_main_and_opaque_full_formal() 
         let mut changed = mutable_catalog(&package.parameter_contracts);
         changed.iter_mut().find(|row| row.owner == caller.owner).unwrap().mode =
             crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod;
+        let changed = changed.into_iter().collect();
         assert!(view.checked_caller_key(package.batch(), &changed, caller.owner, caller.batch_slot)
             .unwrap_err().contains("app-main-contract"));
     }
@@ -348,7 +349,7 @@ fn qualified_static_input_source_rejects_missing_duplicate_slot_and_ordinal_cont
             3 => contracts[index].parameters[0].ordinal += 1,
             _ => contracts[index].parameters[0].binding = caller_binding,
         }
-        package.parameter_contracts = contracts.into();
+        package.parameter_contracts = std::rc::Rc::new(contracts.into_iter().collect());
         assert!(
             input_source(&package, false)
                 .unwrap_err()

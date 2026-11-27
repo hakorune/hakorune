@@ -8,7 +8,7 @@ pub(super) fn issue_signature_and_finish_inputs_v1(
     brand: crate::mir::builder::SameModuleCallableCatalogBrandV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &std::rc::Rc<VerifiedSelectedCallableBatchMapV1>,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     results: &crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1,
     ledger: &mut OrdinaryNewClaimLedgerV1,
 ) -> Result<
@@ -61,7 +61,7 @@ pub(super) fn issue_signature_and_finish_inputs_v1(
 pub(super) fn issue_and_finish_lexical_slots_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     signatures: &VerifiedCallablePhysicalSignatureCohortV1,
     results: &crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1,
     ledger: &mut OrdinaryNewClaimLedgerV1,

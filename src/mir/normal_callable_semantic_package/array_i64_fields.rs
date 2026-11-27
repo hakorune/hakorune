@@ -77,17 +77,9 @@ pub(crate) fn coverage_unique_i64_field(
     coverage: &crate::parser::ParserOrdinaryBoxSourceCoverageV1,
     field: &str,
 ) -> bool {
-    coverage_unique_i64_field_ref(constructors, coverage, field).is_some()
+    coverage_unique_i64_field_source(constructors, coverage, field).is_some()
 }
 
-/// Retain the canonical declaration selected by the same complete-name census.
-pub(crate) fn coverage_unique_i64_field_ref(
-    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
-    coverage: &crate::parser::ParserOrdinaryBoxSourceCoverageV1,
-    field: &str,
-) -> Option<hakorune_mir_defs::CanonicalFieldRefV1> {
-    coverage_unique_i64_field_source(constructors, coverage, field).map(|source| source.field())
-}
 
 /// Same unique declaration census, retaining metadata before any consumer projects it.
 pub(crate) fn coverage_unique_i64_field_source(
