@@ -17,10 +17,11 @@ fn root_and_borrowed_child_field_returns_survive_canonical_finishing() {
             ),
         ] {
             let reader = if shape == "root" {
-                ""
+                String::new()
             } else {
-                "box Transport { flag: i64 birth() { me.flag = 0 }
-                    read(p: Item): i64 { if p == null { return 7 } return p.value } }"
+                let class = if shape == "null" { "Item?" } else { "Item" };
+                format!("box Transport {{ flag: i64 birth() {{ me.flag = 0 }}
+                    read(p: {class}): i64 {{ if p == null {{ return 7 }} return p.value }} }}")
             };
             let text = format!(
                 "box Item {{ value: i64 birth() {{ me.value = 5 }} }}
@@ -60,7 +61,7 @@ fn field_return_publication_rejects_swapped_null_guard_with_original_handoff() {
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let text = "box Item { value: i64 birth() { me.value = 5 } }
             box Transport { flag: i64 birth() { me.flag = 0 }
-                read(p: Item): i64 { if p == null { return 7 } return p.value } }
+                read(p: Item?): i64 { if p == null { return 7 } return p.value } }
             static box Main { main() { local recv = new Transport() return recv.read(null) } }";
         for optimize in [false, true] {
             MirCompiler::with_options(optimize).compile_normal_with_published(

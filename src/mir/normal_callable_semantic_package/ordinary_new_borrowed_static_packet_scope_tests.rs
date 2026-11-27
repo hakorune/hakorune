@@ -291,7 +291,7 @@ fn static_execution_scope_preserves_unrelated_object_source_integrity() {
                 }
                 5 => {
                     let donor = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
-                    "box Wrap { v: i64 birth(v) { me.v = v } } box Door { birth() {} probe(p): i64 { if p == null { return 0 } return p.v } bridge(h: Wrap): i64 { local recv = new Door() local out = recv.probe(h) return 0 } } static box Main { main() { local recv = new Door() local out = recv.bridge(null) return 0 } }"
+                    "box Wrap { v: i64 birth(v) { me.v = v } } box Door { birth() {} probe(p): i64 { if p == null { return 0 } return p.v } bridge(h: Wrap?): i64 { local recv = new Door() local out = recv.probe(h) return 0 } } static box Main { main() { local recv = new Door() local out = recv.bridge(null) return 0 } }"
                 ).expect("existing declared Object view fixture");
                     let donor_source = donor
                         .ordinary_new_claim_ledger

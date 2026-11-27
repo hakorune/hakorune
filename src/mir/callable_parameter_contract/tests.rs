@@ -345,7 +345,7 @@ fn unadmitted_declared_box_name_still_rejects() {
 
 #[test]
 fn unsupported_explicit_type_rejects_without_opaque_fallback() {
-    for spelling in ["f64", "Leaf?", "Shared<Leaf>", "Shared<Leaf?>", "Array<Leaf[]>" ] {
+    for spelling in ["f64", "f64?", "Missing?", "Shared<Leaf>", "Shared<Leaf?>", "Array<Leaf[]>"] {
         let batch = batch(&format!("box Leaf {{}} static box Api {{ run(value: {spelling}) {{ return value }} }}"), 9);
         batch.with_declaration_semantics(|semantic| {
             let parameters = semantic.declarations().last().unwrap().parameters().unwrap();
@@ -354,6 +354,11 @@ fn unsupported_explicit_type_rejects_without_opaque_fallback() {
         assert!(matches!(issue_callable_parameter_contract_v1(&batch),
             Err(super::CallableParameterContractIssueV1::UnsupportedDeclaredType { .. })));
     }
+    let nullable = batch("box Leaf {} static box Api { run(value: Leaf?) { return value } }", 9);
+    let catalog = issue_callable_parameter_contract_v1(&nullable).expect("nullable nominal parameter");
+    let formal = &catalog.declarations().last().unwrap().parameters()[0];
+    assert_eq!(formal.kind(), CallableParameterContractKindV1::DeclaredObject("Leaf".into()));
+    assert!(formal.nullable_object());
     let batch = batch("box Leaf {} static box Api { run(): Leaf? { return null } }", 10);
     batch.with_declaration_semantics(|semantic| {
         assert!(matches!(semantic.declarations().last().unwrap().declared_result_type(), Some(crate::ast::TypeReferenceV1::Nullable(_))));

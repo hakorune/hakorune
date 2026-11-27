@@ -4,8 +4,7 @@ use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
 use crate::mir::function::MirParamDecl;
 use crate::mir::MirType;
 
-fn declared_state(typed: bool, actual: &str) -> CallableSemanticLoweringState {
-    let parameter = if typed { "p: Wrap" } else { "p" };
+fn declared_state(parameter: &str, actual: &str) -> CallableSemanticLoweringState {
     let text = format!(
         "box Wrap {{ value: i64 birth(value) {{ me.value = value }} }}
          box Transport {{ birth() {{ }} probe({parameter}): i64 {{ return 0 }} }}
@@ -16,7 +15,7 @@ fn declared_state(typed: bool, actual: &str) -> CallableSemanticLoweringState {
     state_from_package(package, 1)
 }
 
-fn declared_builder() -> crate::mir::MirBuilder {
+fn declared_builder(parameter_type: &str) -> crate::mir::MirBuilder {
     let mut function = carrier_function(&[ValueId(51), ValueId(72)]);
     function.signature.params[1] = MirType::Box("Wrap".into());
     function.metadata.declared_param_decls = vec![
@@ -27,7 +26,7 @@ fn declared_builder() -> crate::mir::MirBuilder {
         },
         MirParamDecl {
             name: "p".into(),
-            declared_type_name: Some("Wrap".into()),
+            declared_type_name: Some(parameter_type.into()),
             implicit_receiver: false,
         },
     ];
@@ -36,9 +35,9 @@ fn declared_builder() -> crate::mir::MirBuilder {
 
 #[test]
 fn original_declared_class_preflights_existing_value_and_tagged_column() {
-    for actual in ["null", "obj"] {
-        let state = declared_state(true, actual);
-        let builder = declared_builder();
+    for (parameter_type, actual) in [("Wrap?", "null"), ("Wrap", "obj")] {
+        let state = declared_state(&format!("p: {parameter_type}"), actual);
+        let builder = declared_builder(parameter_type);
         let entry = PreparedCallableEntryValuesV1::instance_method(&builder, 1).unwrap();
         let (carriers, projected) = state
             .prepare_borrowed_entry_carriers(&entry, &builder)
@@ -67,8 +66,8 @@ fn original_declared_class_preflights_existing_value_and_tagged_column() {
 #[test]
 fn declared_header_and_value_drift_reject_before_any_entry_effect() {
     for change in 0..9 {
-        let state = declared_state(true, "null");
-        let mut builder = declared_builder();
+        let state = declared_state("p: Wrap?", "null");
+        let mut builder = declared_builder("Wrap?");
         let entry = PreparedCallableEntryValuesV1::instance_method(&builder, 1).unwrap();
         let function = builder.function_state.current_function.as_mut().unwrap();
         match change {
@@ -129,8 +128,8 @@ fn declared_header_and_value_drift_reject_before_any_entry_effect() {
 
 #[test]
 fn inferred_opaque_class_never_authorizes_a_declared_box_header() {
-    let state = declared_state(false, "obj");
-    let builder = declared_builder();
+    let state = declared_state("p", "obj");
+    let builder = declared_builder("Wrap");
     let entry = PreparedCallableEntryValuesV1::instance_method(&builder, 1).unwrap();
     assert!(state
         .prepare_borrowed_entry_carriers(&entry, &builder)

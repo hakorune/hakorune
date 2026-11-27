@@ -15,7 +15,7 @@ fn owned_object_layout_keeps_ignored_null_only_declared_parent() {
                 let text = "box Leaf { flag: i64 birth() { me.flag = 0 } }
                 box Parent { child: Leaf birth() { me.child = new Leaf() } }
                 box Transport { flag: i64 birth() { me.flag = 0 }
-                    probe(p: Parent): i64 { local scratch = new Transport() return 7 } }
+                    probe(p: Parent?): i64 { local scratch = new Transport() return 7 } }
                 static box Main { main() { local recv = new Transport()
                     return recv.probe(null) } }"
                     .replace("local scratch = new Transport() return 7", body);

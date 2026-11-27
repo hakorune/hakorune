@@ -91,7 +91,7 @@ fn stored_child_finishing_rejects_missing_duplicate_and_drifted_receiver_reads()
 fn request(text: Option<&str>) -> NormalCompileRequestV1 {
     let text = text.unwrap_or("box Item { value: i64 other: i64 birth() { me.value = 5 me.other = 9 } }
         box Transport { flag: i64 birth() { me.flag = 0 }
-            read(p: Item): i64 { if p == null { return 7 } return p.value } }
+            read(p: Item?): i64 { if p == null { return 7 } return p.value } }
         static box Main { main() { local recv = new Transport() return recv.read(null) } }");
     let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
         text,

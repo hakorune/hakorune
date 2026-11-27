@@ -31,20 +31,20 @@ fn borrowed_call_results_publish_grounded_chains_in_both_orders() {
                     } else {
                         result
                     };
-                    let read = format!("read(p: Item){read_annotation} {{ if p == null {{ return 7 }} return p.value }}");
-                    let bridge = format!("bridge(p: Item){result} {{ local recv = new Transport() {bridge_return} }}");
-                    let wrap = format!(
-                        "wrap(p: Item){result} {{ local recv = new Transport() {wrap_return} }}"
-                    );
-                    let methods = if reverse {
-                        format!("{wrap} {bridge} {read}")
-                    } else {
-                        format!("{read} {bridge} {wrap}")
-                    };
-                    for (domain, prefix, actual) in [
-                        ("object", "local item = new Item()", "item"),
-                        ("null", "", "null"),
+                    for (domain, prefix, actual, class) in [
+                        ("object", "local item = new Item()", "item", "Item"),
+                        ("null", "", "null", "Item?"),
                     ] {
+                        let read = format!("read(p: {class}){read_annotation} {{ if p == null {{ return 7 }} return p.value }}");
+                        let bridge = format!("bridge(p: {class}){result} {{ local recv = new Transport() {bridge_return} }}");
+                        let wrap = format!(
+                            "wrap(p: {class}){result} {{ local recv = new Transport() {wrap_return} }}"
+                        );
+                        let methods = if reverse {
+                            format!("{wrap} {bridge} {read}")
+                        } else {
+                            format!("{read} {bridge} {wrap}")
+                        };
                         let text = format!("box Item {{ value: i64 birth() {{ me.value = 5 }} }}
                         box Transport {{ flag: i64 birth() {{ me.flag = 0 }} {methods} }}
                         static box Main {{ main() {{ local recv = new Transport() {prefix} return recv.wrap({actual}) }} }}");
@@ -78,37 +78,41 @@ fn borrowed_call_results_publish_grounded_chains_in_both_orders() {
 fn borrowed_stored_child_call_results_publish_original_receivers() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        for (parameter, body, variant) in [
+        for (body, variant) in [
             (
-                "p: Item",
                 "if p == null { return 7 } return p.value",
                 "declared",
             ),
-            ("p", "if p == null { return 7 } return p.value", "opaque"),
-            ("p", "return 5", "scalar"),
+            ("if p == null { return 7 } return p.value", "opaque"),
+            ("return 5", "scalar"),
         ] {
             for reverse in [false, true] {
                 for annotated in [false, true] {
                     let result = if annotated { ": i64" } else { "" };
-                    let leaf = format!(
-                        "box Leaf {{ flag: i64 birth() {{ me.flag = 0 }}
-                    read({parameter}){result} {{ {body} }} }}"
-                    );
-                    let parent = format!(
-                        "box Parent {{ left: Leaf right: Leaf
-                    birth() {{ me.left = new Leaf() me.right = new Leaf() }}
-                    first(p: Item){result} {{ return me.left.read(p) }}
-                    second(p: Item){result} {{ return me.right.read(p) }} }}"
-                    );
-                    let definitions = if reverse {
-                        format!("{parent} {leaf}")
-                    } else {
-                        format!("{leaf} {parent}")
-                    };
-                    for (domain, prefix, actual) in [
-                        ("object", "local item = new Item()", "item"),
-                        ("null", "", "null"),
+                    for (domain, prefix, actual, class) in [
+                        ("object", "local item = new Item()", "item", "Item"),
+                        ("null", "", "null", "Item?"),
                     ] {
+                        let parameter = match (variant, class) {
+                            ("declared", "Item?") => "p: Item?",
+                            ("declared", _) => "p: Item",
+                            _ => "p",
+                        };
+                        let leaf = format!(
+                            "box Leaf {{ flag: i64 birth() {{ me.flag = 0 }}
+                        read({parameter}){result} {{ {body} }} }}"
+                        );
+                        let parent = format!(
+                            "box Parent {{ left: Leaf right: Leaf
+                        birth() {{ me.left = new Leaf() me.right = new Leaf() }}
+                        first(p: {class}){result} {{ return me.left.read(p) }}
+                        second(p: {class}){result} {{ return me.right.read(p) }} }}"
+                        );
+                        let definitions = if reverse {
+                            format!("{parent} {leaf}")
+                        } else {
+                            format!("{leaf} {parent}")
+                        };
                         for method in ["first", "second"] {
                             let other = if method == "first" { "second" } else { "first" };
                             let text = format!(
