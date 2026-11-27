@@ -58,7 +58,7 @@ DISPOSITIONS = {
     "lifecycle_only",
     "diagnostic_only",
 }
-CFG_DOMAINS = {"production", "test"}
+CFG_DOMAINS = {"production", "feature", "test"}
 
 REQUIRED = {
     "id",
@@ -153,7 +153,7 @@ def validate_row(row: dict) -> None:
 
     if (
         not isinstance(row.get("production_invocation_count"), int)
-        or row["production_invocation_count"] < 1
+        or row["production_invocation_count"] < 0
     ):
         fail(f"{row_id}: invalid production_invocation_count")
     if not isinstance(row.get("canonical_repair_reachable"), bool):
@@ -184,6 +184,9 @@ def validate_row(row: dict) -> None:
             fail(f"{row_id}: invalid cfg_domain")
         if not isinstance(site["occurrence_ordinal"], int) or site["occurrence_ordinal"] < 0:
             fail(f"{row_id}: invalid occurrence_ordinal")
+    has_production_site = any(site["cfg_domain"] == "production" for site in sites)
+    if has_production_site != (row["production_invocation_count"] > 0):
+        fail(f"{row_id}: production invocation count does not match cfg domains")
 
 
 def validate_source_bijection(rows: list[dict]) -> int:

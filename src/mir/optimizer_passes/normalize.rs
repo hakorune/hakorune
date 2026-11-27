@@ -168,25 +168,3 @@ pub fn normalize_legacy_instructions(
     }
     stats
 }
-
-pub fn normalize_ref_field_access(
-    _opt: &mut MirOptimizer,
-    module: &mut MirModule,
-) -> OptimizationStats {
-    let stats = OptimizationStats::new();
-    let pass_name = "normalize.ref_field_access";
-    let func_names: Vec<String> = module.functions.keys().cloned().collect();
-    for fname in func_names {
-        if idemp_enabled() {
-            let key = idemp_key(pass_name, &fname);
-            if idemp_already_done(module, &key) {
-                continue;
-            }
-        }
-        if idemp_enabled() {
-            let key = idemp_key(pass_name, &fname);
-            idemp_mark(module, key);
-        }
-    }
-    stats
-}
