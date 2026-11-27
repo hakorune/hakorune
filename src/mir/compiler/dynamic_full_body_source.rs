@@ -132,21 +132,10 @@ impl VerifiedDynamicLoopFullBodySourceInventoryV1 {
         &self.completion
     }
 
-    pub(crate) fn into_parts(
-        self,
-    ) -> (
-        VerifiedCallableLoopMembershipV1,
-        Box<[DynamicFullBodyBindingRowV1]>,
-        Box<[DynamicFullBodySourceRowV1]>,
-        VerifiedFunctionCompletionV1,
-    ) {
-        (
-            self.loop_membership,
-            self.bindings,
-            self.rows,
-            self.completion,
-        )
+    pub(crate) fn into_completion(self) -> VerifiedFunctionCompletionV1 {
+        self.completion
     }
+
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

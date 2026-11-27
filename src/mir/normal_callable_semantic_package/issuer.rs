@@ -15,16 +15,6 @@ use crate::mir::callable_semantic_batch::{
     ResolvedCallableDeclarationModeV1, ResolvedCallableSemanticBatchIssueV1,
     ResolvedCallableSemanticBatchLoanErrorV1, VerifiedResolvedCallableSemanticBatchV1,
 };
-use crate::mir::compiler::dynamic_full_body_recipe::{
-    issue_dynamic_exit_transaction_coseal_i0, issue_dynamic_full_loop_semantic_program_v2,
-    issue_dynamic_full_loop_source_recipe_envelope_v2,
-    issue_dynamic_invocation_carrier_lifecycle_program_v1,
-    issue_dynamic_invocation_cleanup_projection_i0,
-    produce_dynamic_full_loop_recipe_v2_with_contract, DynamicExitTransactionCoSealRejectV1,
-    DynamicFullLoopRecipeProducerRejectV2, DynamicFullLoopSemanticProgramRejectV2,
-    DynamicFullLoopSourceRecipeEnvelopeRejectV2, DynamicInvocationCarrierLifecycleProgramRejectV1,
-    DynamicInvocationCleanupProjectionRejectV1,
-};
 use crate::mir::resolved_semantics::{
     CallableHomeAbiIssuerV1, CallableLookupErrorV1, FunctionSemanticResolverSessionV1,
 };
@@ -48,7 +38,7 @@ use super::declared_instance_locator::{
     issue_declared_instance_call_package_locator_v1, DeclaredInstanceCallPackageLocatorIssueV1,
 };
 use super::dynamic_admission::{
-    admit_dynamic_callable_v1, issue_dynamic_parameter_contract_v2,
+    admit_dynamic_callable_v1, check_dynamic_call_targets, check_dynamic_parameters,
     DynamicCallableAdmissionIssueV1, DynamicCallableAdmissionV1,
 };
 use super::instance_constructor_semantic::{
@@ -160,25 +150,13 @@ pub(in crate::mir) enum NormalCallableSemanticPackageIssueV1 {
         _issue: DynamicCallableAdmissionIssueV1,
     },
     DynamicRecipe {
-        _error: DynamicFullLoopRecipeProducerRejectV2,
+        _error: super::dynamic_admission::DynamicParameterContractRejectV1,
     },
     DuplicateDynamicCandidate,
     MissingDynamicParameterContract,
     DynamicParameterContractIdentity,
     DynamicRecipeEnvelope {
-        _error: DynamicFullLoopSourceRecipeEnvelopeRejectV2,
-    },
-    DynamicSemanticProgram {
-        _error: DynamicFullLoopSemanticProgramRejectV2,
-    },
-    DynamicInvocationLifecycle {
-        _error: DynamicInvocationCarrierLifecycleProgramRejectV1,
-    },
-    DynamicCleanup {
-        _error: DynamicInvocationCleanupProjectionRejectV1,
-    },
-    DynamicExitTransaction {
-        _error: DynamicExitTransactionCoSealRejectV1,
+        _error: super::dynamic_admission::DynamicCallEnvelopeRejectV1,
     },
     MissingDynamicPhysicalHeader,
     MissingDynamicSourceOwner,
@@ -485,47 +463,11 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
             if dynamic_contracts.next().is_some() || dynamic_contract.owner != dynamic_owner {
                 return Err(NormalCallableSemanticPackageIssueV1::DynamicParameterContractIdentity);
             }
-            let typed_contract = issue_dynamic_parameter_contract_v2(&dynamic_contract.parameters)
-                .map_err(|issue| match issue {
-                    DynamicCallableAdmissionIssueV1::Recipe(reject) => {
-                        NormalCallableSemanticPackageIssueV1::DynamicRecipe { _error: reject }
-                    }
-                    other => NormalCallableSemanticPackageIssueV1::Dynamic {
-                        _batch_slot: dynamic_batch_slot,
-                        _issue: other,
-                    },
-                })?;
-            let dynamic_recipe = produce_dynamic_full_loop_recipe_v2_with_contract(
-                dynamic_inventory,
-                typed_contract,
-            )
-            .map_err(
-                |error| NormalCallableSemanticPackageIssueV1::DynamicRecipe { _error: error },
-            )?;
-            let dynamic_envelope =
-                issue_dynamic_full_loop_source_recipe_envelope_v2(dynamic_recipe, dynamic_calls)
-                    .map_err(|error| {
-                        NormalCallableSemanticPackageIssueV1::DynamicRecipeEnvelope {
-                            _error: error,
-                        }
-                    })?;
-            let dynamic_semantic =
-                issue_dynamic_full_loop_semantic_program_v2(dynamic_envelope).map_err(|error| {
-                    NormalCallableSemanticPackageIssueV1::DynamicSemanticProgram { _error: error }
-                })?;
-            let dynamic_invocation = issue_dynamic_invocation_carrier_lifecycle_program_v1(
-                dynamic_semantic,
-            )
-            .map_err(|error| {
-                NormalCallableSemanticPackageIssueV1::DynamicInvocationLifecycle { _error: error }
-            })?;
-            let program = issue_dynamic_invocation_cleanup_projection_i0(dynamic_invocation)
-                .map_err(
-                    |error| NormalCallableSemanticPackageIssueV1::DynamicCleanup { _error: error },
-                )?;
-            let program = issue_dynamic_exit_transaction_coseal_i0(program).map_err(|error| {
-                NormalCallableSemanticPackageIssueV1::DynamicExitTransaction { _error: error }
-            })?;
+            check_dynamic_parameters(&dynamic_inventory, &dynamic_contract.parameters)
+                .map_err(|_error| NormalCallableSemanticPackageIssueV1::DynamicRecipe { _error })?;
+            check_dynamic_call_targets(&dynamic_inventory, &dynamic_calls)
+                .map_err(|_error| NormalCallableSemanticPackageIssueV1::DynamicRecipeEnvelope { _error })?;
+            let completion = dynamic_inventory.into_completion();
             let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(dynamic_key)) =
                 selected.key_for_batch_slot(dynamic_batch_slot)
             else {
@@ -542,7 +484,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
                     batch_slot: dynamic_batch_slot,
                     _owner: dynamic_owner,
                     source: Rc::new(dynamic_source),
-                    program,
+                    completion,
                     result: None,
                 },
                 Some(physical_header),

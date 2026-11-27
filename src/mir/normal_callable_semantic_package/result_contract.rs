@@ -26,9 +26,7 @@ use super::physical_header::CallablePhysicalHeaderIssueV1;
 pub(super) use super::physical_header::{
     declared_scalar_agrees_v1, validate_result,
 };
-use super::selected_mapping::{
-    SelectedCallableBatchMapRowRefV1, VerifiedSelectedCallableBatchMapV1,
-};
+use super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum CallableResultContractIssueV1 {

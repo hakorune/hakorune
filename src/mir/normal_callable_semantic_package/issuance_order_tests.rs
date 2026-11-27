@@ -90,20 +90,12 @@ fn dynamic_lends_its_original_completion_without_owned_result_row() {
     );
     let mut port = installed.begin_lowering(&context).unwrap();
     port.with_selected_lowering_input(&key, |input| {
-        let SelectedCallableSemanticRefV1::Dynamic { program, .. } = input.semantic() else {
+        let SelectedCallableSemanticRefV1::Dynamic { completion, .. } = input.semantic() else {
             panic!("same Dynamic owner");
         };
-        program.with_canonical_session_authority(|authority| {
-            assert!(input
-                .result_contract()
-                .unwrap()
-                .terminal_relations()
-                .is_empty());
-            assert!(std::ptr::eq(
-                input.result_contract().unwrap().completion(),
-                authority.completion()
-            ));
-        });
+        let result = input.result_contract().unwrap();
+        assert!(result.terminal_relations().is_empty());
+        assert!(std::ptr::eq(result.completion(), completion));
         assert!(
             input.result_contract().unwrap().result().is_some(),
             "APrime result remains available"

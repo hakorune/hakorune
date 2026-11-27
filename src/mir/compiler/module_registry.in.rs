@@ -6,7 +6,6 @@
 #[cfg(test)]
 pub(crate) mod loop_source_expression_shapes;
 pub(crate) mod canonical_source_identity;
-pub(in crate::mir) mod dynamic_full_body_recipe;
 pub(in crate::mir) mod dynamic_full_body_source;
 #[cfg(test)]
 mod dynamic_full_body_source_tests;

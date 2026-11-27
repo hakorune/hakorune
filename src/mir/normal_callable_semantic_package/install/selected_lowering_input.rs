@@ -44,11 +44,11 @@ impl InstalledNormalCallableSemanticPackageV1 {
         let semantic = match &self.dynamic {
             NormalCallableDynamicProjectionV1::Selected {
                 batch_slot: dynamic_slot,
-                program,
+                completion,
                 source,
                 ..
             } if *dynamic_slot == batch_slot => {
-                SelectedCallableSemanticRefV1::Dynamic { program, source }
+                SelectedCallableSemanticRefV1::Dynamic { completion, source }
             }
             _ => SelectedCallableSemanticRefV1::Ordinary,
         };
@@ -86,27 +86,19 @@ impl InstalledNormalCallableSemanticPackageV1 {
         };
         if let NormalCallableDynamicProjectionV1::Selected {
             batch_slot: dynamic_slot,
-            program,
+            completion,
             result,
             ..
         } = &self.dynamic
         {
             if *dynamic_slot == batch_slot {
-                return program.with_canonical_session_authority(|authority| {
-                    // The canonical-session authority's completion has no
-                    // package-retained per-exit relation map; an empty map
-                    // is exactly that observation, never a Unit inference.
-                    let terminal_relations = std::collections::BTreeMap::new();
-                    let contract = CallableResultContractRefV1::from_completion(
-                        authority.completion().owner(),
-                        row.identity(),
-                        row.role(),
-                        *result,
-                        authority.completion(),
-                        &terminal_relations, None,
-                    );
-                    lend(Some(contract))
-                });
+                // This completion has no package-retained per-exit relation map.
+                let terminal_relations = std::collections::BTreeMap::new();
+                let contract = CallableResultContractRefV1::from_completion(
+                    completion.owner(), row.identity(), row.role(), *result,
+                    completion, &terminal_relations, None,
+                );
+                return lend(Some(contract));
             }
         }
         let result_contract = match key {
