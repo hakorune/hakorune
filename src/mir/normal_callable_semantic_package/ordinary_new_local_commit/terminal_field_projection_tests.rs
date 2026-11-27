@@ -142,14 +142,14 @@ fn rearm_children(ledger: &OrdinaryNewClaimLedgerV1, original: &crate::mir::MirM
 fn full_child_finishing_rejects_foreign_field_positions_and_masked_exits() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        for (text, symbol, published) in [(None, "Transport.read/1", true),
-            (Some(include_str!("../../../../apps/typed-object-method-min/main.hako")), "Pair.sum/0", true),
+        for (text, symbol, dynamic) in [(None, "Transport.read/1", false),
+            (Some(include_str!("../../../../apps/typed-object-method-min/main.hako")), "Pair.sum/0", false),
             (Some("box Counter { n: i64 other: i64 birth(capacity) { me.n = capacity me.other = 9 } read() { return me.n } }
-                static box Main { main() { local c = new Counter(7) return c.read() } }"), "Counter.read/0", true),
+                static box Main { main() { local c = new Counter(7) return c.read() } }"), "Counter.read/0", false),
             (Some("box Counter { n other: i64 birth(capacity) { me.n = capacity me.other = 9 } read() { return me.n } }
-                static box Main { main() { local c = new Counter(7) return c.read() } }"), "Counter.read/0", false)] {
+                static box Main { main() { local c = new Counter(7) return c.read() } }"), "Counter.read/0", true)] {
         let outcome = MirCompiler::with_options(false).compile_normal_with_published(
-            request(text), |view, _| -> Result<(), String> {
+            request(text), |view, verification| -> Result<(), String> {
                 let source = view.retained_root_source().expect("same original ledger");
                 let ledger = &source.ledger;
                 let original = view.module().clone();
@@ -172,13 +172,53 @@ fn full_child_finishing_rejects_foreign_field_positions_and_masked_exits() {
                     )?.expect("whole original empty input cohort finished");
                     assert!(arguments.is_empty());
                 }
+                use crate::mir::instruction::InvokeOperation;
+                if dynamic {
+                    verification.as_ref().expect("verified checked field read");
+                }
                 let (read_block, read_index, read) = reader.blocks.iter().find_map(|(id, block)| {
-                    block.instructions.iter().enumerate().find_map(|(index, instruction)| {
-                        matches!(instruction, MirInstruction::ObjectFieldGet { .. })
-                            .then(|| (*id, index, instruction.clone()))
+                    block.all_instructions().enumerate().find_map(|(index, instruction)| {
+                        let selected = if dynamic {
+                            matches!(instruction, MirInstruction::Invoke {
+                                operation: InvokeOperation::FieldGet { .. }, ..
+                            })
+                        } else {
+                            matches!(instruction, MirInstruction::ObjectFieldGet { .. })
+                        };
+                        selected.then(|| (*id, index, instruction.clone()))
                     })
                 }).expect("original exact read");
-                let MirInstruction::ObjectFieldGet { dst, base, field } = read else { unreachable!() };
+                let (dst, base, field, checked) = match &read {
+                    MirInstruction::ObjectFieldGet { dst, base, field } => (*dst, *base, *field, None),
+                    MirInstruction::Invoke {
+                        operation: InvokeOperation::FieldGet { base, field }, normal_landing, ..
+                    } => {
+                        let (result_index, dst) = reader.blocks[normal_landing].instructions.iter()
+                            .enumerate().find_map(|(index, row)| match row {
+                                MirInstruction::InvokeNormalResult { invoke_block, dst }
+                                    if *invoke_block == read_block => Some((index, *dst)),
+                                _ => None,
+                            }).expect("original checked field result");
+                        (dst, *base, *field, Some((*normal_landing, result_index)))
+                    }
+                    _ => unreachable!(),
+                };
+                let replace_read = |reader: &mut crate::mir::MirFunction, dst, base, field| {
+                    match checked {
+                        Some((normal, result_index)) => {
+                            let mut invoke = read.clone();
+                            let MirInstruction::Invoke { operation, .. } = &mut invoke else {
+                                unreachable!("original checked field read");
+                            };
+                            *operation = InvokeOperation::FieldGet { base, field };
+                            reader.blocks.get_mut(&read_block).unwrap().set_terminator(invoke);
+                            reader.blocks.get_mut(&normal).unwrap().instructions[result_index] =
+                                MirInstruction::InvokeNormalResult { invoke_block: read_block, dst };
+                        }
+                        None => reader.blocks.get_mut(&read_block).unwrap().instructions[read_index] =
+                            MirInstruction::ObjectFieldGet { dst, base, field },
+                    }
+                };
                 if symbol == "Pair.sum/0" {
                     let (add_block, add_index, add) = reader.blocks.iter().find_map(|(block, row)|
                         row.instructions.iter().enumerate().find_map(|(index, instruction)|
@@ -245,6 +285,17 @@ fn full_child_finishing_rejects_foreign_field_positions_and_masked_exits() {
                     let mut changed = original.clone();
                     let reader = changed.functions.get_mut(symbol).unwrap();
                     match change {
+                        0 | 4 if checked.is_some() => {
+                            let (normal, _) = checked.unwrap();
+                            if change == 0 {
+                                reader.blocks.get_mut(&read_block).unwrap().set_terminator(
+                                    MirInstruction::Jump { target: normal, edge_args: None },
+                                );
+                            }
+                            let mut isolated = BasicBlock::new(orphan);
+                            isolated.set_terminator(read.clone());
+                            reader.add_block(isolated);
+                        }
                         0 => {
                             let block = reader.blocks.get_mut(&read_block).unwrap();
                             let instruction = block.instructions.remove(read_index);
@@ -255,18 +306,15 @@ fn full_child_finishing_rejects_foreign_field_positions_and_masked_exits() {
                             reader.add_block(isolated);
                         }
                         1..=3 => {
-                            reader.blocks.get_mut(&read_block).unwrap().instructions[read_index] =
-                                MirInstruction::ObjectFieldGet {
-                                    dst: if change == 1 { ValueId(9999) } else { dst },
-                                    base: if change == 2 { dst } else { base },
-                                    field: if change == 3 {
-                                        hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(field.object(), if field.declaration_ordinal() == 0 { 1 } else { 0 }).unwrap()
-                                    } else { field },
-                                };
+                            let field = if change == 3 {
+                                hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(
+                                    field.object(), if field.declaration_ordinal() == 0 { 1 } else { 0 },
+                                ).unwrap()
+                            } else { field };
+                            replace_read(reader, if change == 1 { ValueId(9999) } else { dst },
+                                         if change == 2 { dst } else { base }, field);
                         }
-                        4 => reader.blocks.get_mut(&read_block).unwrap().add_instruction(
-                            MirInstruction::ObjectFieldGet { dst, base, field },
-                        ),
+                        4 => reader.blocks.get_mut(&read_block).unwrap().add_instruction(read.clone()),
                         5 => {
                             let replacement = if symbol == "Counter.read/0" || symbol == "Pair.sum/0" {
                                 let replacement = ValueId(99997);
@@ -303,6 +351,7 @@ fn full_child_finishing_rejects_foreign_field_positions_and_masked_exits() {
                         .find(|(_, row)| row.numeric_source.is_some()).unwrap().0.clone();
                     let foreign = hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(field.object(), 1).unwrap();
                     let original_source = ledger.local_field_reads.borrow().get(&site).unwrap().source.clone();
+                    rearm_children(ledger, &original);
                     ledger.local_field_reads.borrow_mut().get_mut(&site).unwrap().source =
                         crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1::from_declaration(
                             foreign, original_source.result().clone(), original_source.declared_type_name().map(Into::into));
@@ -313,9 +362,7 @@ fn full_child_finishing_rejects_foreign_field_positions_and_masked_exits() {
                         assert!(issue.contains("integer-field/"), "immutable common source rejects the changed field: {issue}");
                     }
                     let mut changed = original.clone();
-                    changed.functions.get_mut(symbol).unwrap().blocks.get_mut(&read_block).unwrap()
-                        .instructions[read_index] = MirInstruction::ObjectFieldGet { dst, base, field: foreign };
-                    rearm_children(ledger, &original);
+                    replace_read(changed.functions.get_mut(symbol).unwrap(), dst, base, foreign);
                     let outcome = ledger.validate_finalized_child_functions(&changed, false);
                     ledger.local_field_reads.borrow_mut().get_mut(&site).unwrap().source = original_source;
                     let issue = outcome.unwrap_err();
@@ -325,12 +372,7 @@ fn full_child_finishing_rejects_foreign_field_positions_and_masked_exits() {
                 Ok(())
             },
         );
-        if published {
-            outcome.unwrap_or_else(|issue| panic!("{symbol}: {issue}"));
-        } else {
-            let issue = outcome.err().expect("unannotated source class remains unproved");
-            assert!(issue.contains("borrowed-result/source-not-i64"), "{issue}");
-        }
+        outcome.unwrap_or_else(|issue| panic!("{symbol}: {issue}"));
         }
     });
 }

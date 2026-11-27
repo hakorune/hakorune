@@ -23,6 +23,35 @@ pub(super) struct OriginalCallSourceImageV1 {
     pub(super) births: BTreeSet<(String, BasicBlockId, usize)>,
 }
 
+/// Detects when the verifier needs the original Dynamic field operations.
+/// The finalized source handoff must still corroborate each operation.
+pub(in crate::mir) fn requires_dynamic_field_source_uses(module: &MirModule) -> bool {
+    module
+        .functions
+        .values()
+        .flat_map(|function| function.blocks.values())
+        .flat_map(|body| body.all_instructions())
+        .any(|row| match row {
+            MirInstruction::Invoke {
+                operation:
+                    InvokeOperation::FieldGet { field, .. }
+                    | InvokeOperation::String(
+                        crate::mir::instruction::StringInvokeOperation::FieldMaterialize {
+                            field,
+                            ..
+                        },
+                    )
+                    | InvokeOperation::ObjectFieldBorrow { field, .. },
+                ..
+            } => module.canonical_field_demands_dynamic_view(*field),
+            MirInstruction::Invoke {
+                operation: InvokeOperation::FieldSet { mode, .. },
+                ..
+            } => *mode != crate::mir::instruction::FieldSetModeV1::ExactSlot,
+            _ => false,
+        })
+}
+
 pub(super) fn original_call_slots(
     module: &MirModule,
     root: Option<&FinalizedRootHandoffV1>,
@@ -100,32 +129,6 @@ pub(super) fn original_call_slots(
             Ok(())
         },
     )?;
-    // Demand selects verification only; no opcode or declaration grants a loan.
-    // Keep the old exact-slot verifier passive when no Dynamic view is requested.
-    let dynamic_fields = module
-        .functions
-        .values()
-        .flat_map(|function| function.blocks.values())
-        .flat_map(|body| body.all_instructions())
-        .any(|row| match row {
-            MirInstruction::Invoke {
-                operation:
-                    InvokeOperation::FieldGet { field, .. }
-                    | InvokeOperation::String(
-                        crate::mir::instruction::StringInvokeOperation::FieldMaterialize {
-                            field,
-                            ..
-                        },
-                    )
-                    | InvokeOperation::ObjectFieldBorrow { field, .. },
-                ..
-            } => module.canonical_field_demands_dynamic_view(*field),
-            MirInstruction::Invoke {
-                operation: InvokeOperation::FieldSet { mode, .. },
-                ..
-            } => *mode != crate::mir::instruction::FieldSetModeV1::ExactSlot,
-            _ => false,
-        });
     // Retained source owners select read verification, including typed scalar
     // reads. The emitted opcode cannot waive its original nullable guard.
     source.with_checked_field_read_functions_v1(module, |owner, function| {
@@ -136,7 +139,7 @@ pub(super) fn original_call_slots(
         }
         Ok(())
     })?;
-    if dynamic_fields {
+    if requires_dynamic_field_source_uses(module) {
         source.with_owned_field_write_functions_v1(module, |owner, function| {
             source.with_finished_owned_field_writes_v1(owner, function, |row| {
                 image

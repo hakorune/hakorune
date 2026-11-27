@@ -198,3 +198,92 @@ fn compile_reads_a_typed_numeric_loop_local_after_reassignment() {
         "typed-branch-loop-reassign.hako",
     );
 }
+
+const DYNAMIC_FIELD_CASES: [(&str, &str, i32, &str); 3] = [
+    (
+        "counter.hako",
+        r#"
+box Counter {
+  n
+  birth(c) { me.n = c }
+  read() { return me.n }
+}
+static box Main {
+  main() {
+    local c = new Counter(7)
+    return c.read()
+  }
+}
+"#,
+        7,
+        "",
+    ),
+    (
+        "repeated.hako",
+        r#"
+box Counter {
+  n
+  birth(c) { me.n = c }
+  bump(): i64 {
+    print(me.n)
+    me.n = 11
+    print(me.n)
+    me.n = 13
+    print(me.n)
+    return 13
+  }
+}
+static box Main {
+  main() {
+    local c = new Counter(7)
+    return c.bump()
+  }
+}
+"#,
+        13,
+        "7\n11\n13\n",
+    ),
+    (
+        "other-box.hako",
+        r#"
+box Counter {
+  n
+  birth(c) { me.n = c }
+}
+box Reader {
+  read() {
+    local c = new Counter(9)
+    print(c.n)
+    return 9
+  }
+}
+static box Main {
+  main() {
+    local reader = new Reader()
+    return reader.read()
+  }
+}
+"#,
+        9,
+        "9\n",
+    ),
+];
+
+#[test]
+fn verify_callable_dynamic_field_reads_and_writes() {
+    for (fixture, source, _, _) in DYNAMIC_FIELD_CASES {
+        verify_callable_source(source, fixture);
+    }
+}
+
+#[test]
+#[ignore = "requires C FFI, LLVM and NYASH_EMIT_EXE_NYRT"]
+fn execute_callable_dynamic_field_reads_and_writes() {
+    let directory = tempfile::tempdir().expect("EXE test directory");
+    for (fixture, source, exit, stdout) in DYNAMIC_FIELD_CASES {
+        let path = directory.path().join(fixture).with_extension("exe");
+        let output = run_callable_source_exe(source, fixture, &path);
+        assert_eq!(output.status.code(), Some(exit), "{fixture}: {output:?}");
+        assert_eq!(output.stdout, stdout.as_bytes(), "{fixture}");
+    }
+}

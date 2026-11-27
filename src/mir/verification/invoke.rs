@@ -7,6 +7,7 @@ use crate::mir::instruction::{InvokeOperation, MapInvokeOperation};
 
 #[path = "invoke_borrowed_calls.rs"]
 mod borrowed_calls;
+pub(in crate::mir) use borrowed_calls::requires_dynamic_field_source_uses;
 #[path = "invoke_call_edge.rs"]
 mod call_edge;
 pub(super) use call_edge::{cataloged_call_target, cataloged_i64_call_result};

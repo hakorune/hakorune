@@ -29,7 +29,7 @@ mod hako_alloc_metadata;
 mod hako_alloc_page_lifecycle;
 mod inline_required;
 mod invoke;
-pub(in crate::mir) use invoke::check_string_call_source_uses;
+pub(in crate::mir) use invoke::{check_string_call_source_uses, requires_dynamic_field_source_uses};
 mod legacy;
 mod module_metadata;
 mod numeric_substrate;

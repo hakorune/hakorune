@@ -51,3 +51,27 @@ fn verify_callable_source(source: &str, path: &str) {
         .into_verified_module()
         .expect("verify callable source");
 }
+
+fn run_callable_source_exe(
+    source: &str,
+    fixture: &str,
+    executable: &std::path::Path,
+) -> std::process::Output {
+    let runtime = std::env::var("NYASH_EMIT_EXE_NYRT").expect("native runtime archive");
+    let path = executable.to_str().expect("UTF-8 executable path");
+    let request = callable_source_request(source, fixture).for_closed_app_executable();
+    let result = MirCompiler::with_options(true)
+        .compile_normal_with_published(request, |view, verification| {
+            verification.as_ref().expect("verified MIR");
+            assert!(crate::host_providers::llvm_codegen::emit_published_view_exe(
+                view, path, Some(&runtime), None,
+            )?);
+            Ok(())
+        })
+        .unwrap_or_else(|error| panic!("{fixture}: {error}"));
+    assert!(matches!(result, crate::mir::NormalPublishedCompileOutcome::Consumed(())));
+    std::process::Command::new(executable)
+        .env("NYASH_NYRT_SILENT_RESULT", "1")
+        .output()
+        .expect("run executable")
+}
