@@ -488,7 +488,7 @@ pub(in crate::mir) fn forwarded_fixture(
         ValueId(73),
         vec![
             crate::mir::builder::stmts::CompletedLocalBindingV1::new(0, ValueId(72), ValueId(73))
-                .with_copy(Some(copy.clone()))
+                .with_materialization(Some(copy.clone()))
                 .unwrap(),
         ],
     );

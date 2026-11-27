@@ -25,28 +25,6 @@ pub(in crate::mir::builder) fn emit(
         CheckedRebindDestinationV1::prepare(builder, state, ledger, Rc::clone(&frame))?;
     let name = destination.name().to_owned();
     let previous = destination.previous();
-    // A LocalContractWrite needs its own result relation. Refuse before RHS
-    // effects, never silently invoke the raw assignment after selecting a frame.
-    if builder
-        .function_state
-        .binding_ctx
-        .lookup(&name)
-        .is_some_and(|binding| {
-            builder
-                .function_state
-                .current_function
-                .as_ref()
-                .is_some_and(|function| {
-                    crate::mir::type_contracts::local_slot::local_slot_contract(
-                        function,
-                        crate::mir::LocalSlotId::from(binding),
-                    )
-                    .is_some()
-                })
-        })
-    {
-        return Err(freeze("rebind-expression/local-contract-receipt-pending"));
-    }
     let loop_residency = if frame.text_loop_carrier_v1().is_some() {
         Some((
             source_loop.ok_or_else(|| freeze("rebind-expression/old-text-end"))?,
@@ -118,7 +96,7 @@ pub(in crate::mir::builder) fn emit(
         .ok_or_else(|| freeze("no-block"))?
         .instructions
         .len();
-    let receipt = build_checked_variable_assignment_with_completion_v1(builder, destination, value)
+    let mut receipt = build_checked_variable_assignment_with_completion_v1(builder, destination, value)
         .map_err(|error| error.bounded_report())?;
     let function = builder
         .function_state
@@ -130,11 +108,12 @@ pub(in crate::mir::builder) fn emit(
         .get(&block)
         .ok_or_else(|| freeze("no-block"))?
         .instructions[before..];
-    if !effects.is_empty() {
+    if !receipt.record_checked_write(block, effects) {
         return Err(freeze("rebind-expression/unexpected-assignment-effect"));
     }
     let assigned = receipt.assigned();
-    let bindings = expression.body.bindings.clone();
+    let mut bindings = expression.body.bindings.clone();
+    bindings.extend(receipt.contract_write().cloned());
     let packet = Rc::new(ExpressionEmissionV1::new_rebind_v1(
         Rc::clone(&frame),
         receipt,

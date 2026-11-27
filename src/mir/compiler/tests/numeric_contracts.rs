@@ -171,3 +171,20 @@ static box Main {
         "new ByteCell on this lane hits the retired birth-global boundary",
     );
 }
+
+#[test]
+fn compile_reads_a_typed_numeric_local() {
+    verify_callable_source(
+        "static box Main { main() { local x: i64 = 1 return x } }",
+        "typed-local-read.hako",
+    );
+}
+
+#[test]
+fn compile_reads_a_typed_numeric_loop_local_after_reassignment() {
+    verify_callable_source(
+        "static box Main { main() { local x: i64 = 1 \
+         loop (x < 3) { x = x + 1 } return x } }",
+        "typed-loop-reassign.hako",
+    );
+}

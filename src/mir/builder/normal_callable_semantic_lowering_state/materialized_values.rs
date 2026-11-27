@@ -1,6 +1,6 @@
 //! Original local materialization evidence travels with the existing value slot.
 use super::*;
-use crate::mir::builder::stmts::CompletedLocalBindingV1;
+use crate::mir::builder::stmts::{local_initializer_operands, CompletedLocalBindingV1};
 use crate::mir::{BasicBlockId, MirInstruction};
 
 #[derive(Debug, Clone)]
@@ -216,15 +216,8 @@ struct LocalInitializerProofV1 {
 
 impl LocalInitializerProofV1 {
     fn from_completed(binding: BindingRefV1, row: &CompletedLocalBindingV1) -> Option<Self> {
-        let copies = match row.copy() {
-            Some(copy) => {
-                if !matches!(&copy.1, MirInstruction::Copy { src, dst }
-                    if *src == row.initializer() && *dst == row.local())
-                {
-                    return None;
-                }
-                vec![copy.clone()]
-            }
+        let copies = match row.materialization() {
+            Some(step) => vec![step.clone()],
             None if row.initializer() == row.local() => Vec::new(),
             None => return None,
         };
@@ -245,13 +238,13 @@ impl LocalInitializerProofV1 {
         }
         let mut current = self.value;
         for (index, copy) in self.copies.iter().enumerate() {
-            let MirInstruction::Copy { dst, src } = &copy.1 else {
+            let Some((src, dst)) = local_initializer_operands(&copy.1) else {
                 return Err("[freeze:contract][forwarded-copy/instruction]".into());
             };
-            if *src != current || self.copies[..index].contains(copy) {
+            if src != current || self.copies[..index].contains(copy) {
                 return Err("[freeze:contract][forwarded-copy/chain]".into());
             }
-            current = *dst;
+            current = dst;
         }
         if current != result {
             return Err("[freeze:contract][forwarded-copy/result]".into());
@@ -324,7 +317,7 @@ impl MaterializedValuesV1 {
             copies: Vec::new(),
             local_initializer: None,
         });
-        Self::append_local_copy(proof, row)
+        Self::append_local_materialization(proof, row)
     }
 
     pub(super) fn initializer_provenance(
@@ -338,14 +331,14 @@ impl MaterializedValuesV1 {
             copies: Vec::new(),
             local_initializer: Some(LocalInitializerProofV1::from_completed(binding, row)?),
         };
-        Self::append_local_copy(proof, row)
+        Self::append_local_materialization(proof, row)
     }
 
-    fn append_local_copy(
+    fn append_local_materialization(
         mut proof: LocalProvenanceV1,
         row: &CompletedLocalBindingV1,
     ) -> Option<LocalProvenanceV1> {
-        match row.copy() {
+        match row.materialization() {
             Some(copy) => proof.copies.push(copy.clone()),
             None if row.local() == row.initializer() => {}
             None => return None,
@@ -686,7 +679,7 @@ impl LocalProvenanceV1 {
         };
         builder.emit_instruction(copy.clone()).unwrap();
         let receipt = CompletedLocalBindingV1::new(0, dst, copied)
-            .with_copy(Some((header, copy)))
+            .with_materialization(Some((header, copy)))
             .unwrap();
         let alias = values.local_provenance(point.binding(), &receipt).unwrap();
         assert!(Rc::ptr_eq(

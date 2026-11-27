@@ -47,7 +47,7 @@ impl ExpressionEmissionV1<BindingRebindExpressionContractV1> {
     }
     fn validate_effective_root(&self) -> Result<(), String> {
         self.expression().validate_effective_root_v1(
-            self.value(),
+            self.contract.receipt.rhs(),
             self.contract.frame.is_text_residence(),
             self.contract.frame.materializes_root(),
             self.contract.purpose_acquisition.as_ref(),
@@ -89,7 +89,7 @@ impl ExpressionEmissionV1<BindingRebindExpressionContractV1> {
         ledger: &OrdinaryNewClaimLedgerV1,
         function: &MirFunction,
     ) -> Result<Self, String> {
-        if receipt.rhs() != receipt.assigned() {
+        if !receipt.valid_checked_result() {
             return Err(freeze("rebind-expression/assignment-result"));
         }
         let root = if let Some(reference) = body
@@ -111,6 +111,9 @@ impl ExpressionEmissionV1<BindingRebindExpressionContractV1> {
             }
             ReferenceProducerV1::Definition(root.clone())
         };
+        let root = receipt.contract_write()
+            .map(|write| ReferenceProducerV1::Definition(write.clone()))
+            .unwrap_or(root);
         let install = body
             .bindings
             .iter()
@@ -149,6 +152,11 @@ impl ExpressionEmissionV1<BindingRebindExpressionContractV1> {
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
         self.expression().validate_recorded(bindings, finishing)?;
+        if self.contract.receipt.contract_write().is_some_and(
+            |write| bindings.iter().filter(|row| *row == write).count() != 1,
+        ) {
+            return Err(freeze("rebind-expression/assignment-write-membership"));
+        }
         if [&self.entry, &self.terminal, &self.continuation]
             .into_iter()
             .flatten()
@@ -189,7 +197,7 @@ impl ExpressionEmissionV1<BindingRebindExpressionContractV1> {
         }
         self.validate_effective_root()?;
         if selected.is_some_and(|original| !Rc::ptr_eq(original, &self.contract.frame))
-            || self.contract.receipt.rhs() != self.contract.receipt.assigned()
+            || !self.contract.receipt.valid_checked_result()
         {
             return Err(freeze("rebind-expression/source-or-value"));
         }
@@ -199,6 +207,29 @@ impl ExpressionEmissionV1<BindingRebindExpressionContractV1> {
             .matches_rebind_frame_v1(&self.contract.frame)
         {
             return Err(freeze("rebind-expression/target-name"));
+        }
+        if let Some(write) = self.contract.receipt.contract_write() {
+            let actual = match (finishing, context.is_finalized()) {
+                (Some(boundary), true) => Some(
+                    boundary.relation_binding(function, write)?
+                        .ok_or_else(|| freeze("rebind-expression/assignment-write-missing"))?,
+                ),
+                (Some(boundary), false) => {
+                    if boundary.captured_definition(self.value())? != write {
+                        return Err(freeze("rebind-expression/assignment-write-capture"));
+                    }
+                    None
+                }
+                (None, _) => Some(write.clone()),
+            };
+            if let Some((block, instruction)) = actual {
+                context.ledger().with_function_geometry_v1(function, |geometry| {
+                    if !geometry.matches_exact_definition(block, &instruction, true) {
+                        return Err(freeze("rebind-expression/assignment-write-definition"));
+                    }
+                    Ok(())
+                })?;
+            }
         }
         self.expression().validate_source(context)?;
         let installs = self

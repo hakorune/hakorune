@@ -11,7 +11,7 @@ fn state_with_body(body: &str) -> CallableSemanticLoweringState {
 
 fn completed(source: u32, destination: u32, copied: bool) -> CompletedLocalStatementV1 {
     let row = CompletedLocalBindingV1::new(0, ValueId(source), ValueId(destination))
-        .with_copy(copied.then_some((
+        .with_materialization(copied.then_some((
             BasicBlockId(0),
             MirInstruction::Copy {
                 src: ValueId(source),

@@ -6,7 +6,7 @@ fn copied_local(initializer: ValueId, local: ValueId) -> CompletedLocalStatement
     CompletedLocalStatementV1::from_parts(
         local,
         vec![CompletedLocalBindingV1::new(0, initializer, local)
-            .with_copy(Some((
+            .with_materialization(Some((
                 BasicBlockId::new(0),
                 MirInstruction::Copy {
                     dst: local,

@@ -442,7 +442,7 @@ pub(in crate::mir::builder) struct CompletedLocalBindingV1 {
     ordinal: u32,
     initializer: ValueId,
     local: ValueId,
-    copy: Option<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
+    materialization: Option<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
 }
 
 impl CompletedLocalBindingV1 {
@@ -455,7 +455,7 @@ impl CompletedLocalBindingV1 {
             ordinal,
             initializer,
             local,
-            copy: None,
+            materialization: None,
         }
     }
 
@@ -471,25 +471,47 @@ impl CompletedLocalBindingV1 {
         self.local
     }
 
-    pub(in crate::mir::builder) fn with_copy(
+    pub(in crate::mir::builder) fn with_materialization(
         mut self,
-        copy: Option<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
+        materialization: Option<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
     ) -> Result<Self, String> {
-        if copy.as_ref().is_some_and(|(_, instruction)| {
-            !matches!(instruction,
-            crate::mir::MirInstruction::Copy { dst, src }
-                if *dst == self.local && *src == self.initializer)
+        if materialization.as_ref().is_some_and(|(_, instruction)| {
+            local_initializer_operands(instruction) != Some((self.initializer, self.local))
         }) {
-            return Err("[freeze:contract][local-descent/copy-receipt-drift]".into());
+            return Err("[freeze:contract][local-descent/materialization-receipt-drift]".into());
         }
-        self.copy = copy;
+        self.materialization = materialization;
         Ok(self)
+    }
+
+    pub(in crate::mir::builder) fn materialization(
+        &self,
+    ) -> Option<&(crate::mir::BasicBlockId, crate::mir::MirInstruction)> {
+        self.materialization.as_ref()
     }
 
     pub(in crate::mir::builder) fn copy(
         &self,
     ) -> Option<&(crate::mir::BasicBlockId, crate::mir::MirInstruction)> {
-        self.copy.as_ref()
+        self.materialization()
+            .filter(|(_, instruction)| matches!(instruction, crate::mir::MirInstruction::Copy { .. }))
+    }
+}
+
+/// A checked numeric initialization relates the input and the newly defined
+/// value just like a Copy, while retaining the original slot write instruction.
+pub(in crate::mir::builder) fn local_initializer_operands(
+    instruction: &crate::mir::MirInstruction,
+) -> Option<(ValueId, ValueId)> {
+    match instruction {
+        crate::mir::MirInstruction::Copy { src, dst }
+        | crate::mir::MirInstruction::LocalContractWrite {
+            src,
+            dst,
+            write_kind: crate::mir::function::LocalContractWriteKind::Init,
+            ..
+        } => Some((*src, *dst)),
+        _ => None,
     }
 }
 

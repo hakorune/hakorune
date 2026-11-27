@@ -4,7 +4,8 @@
 //! `MirBuilder::build_assignment_from_value` authority exactly once and
 //! retains the requested target, RHS, and returned carrier.
 
-use crate::mir::{MirBuilder, ValueId};
+use crate::mir::function::LocalContractWriteKind;
+use crate::mir::{BasicBlockId, LocalSlotId, MirBuilder, MirInstruction, ValueId};
 
 #[derive(Debug)]
 pub(in crate::mir) struct CompletedVariableAssignmentV1 {
@@ -12,6 +13,7 @@ pub(in crate::mir) struct CompletedVariableAssignmentV1 {
     rhs: ValueId,
     assigned: ValueId,
     scalar: Option<CheckedRebindDestinationV1>,
+    contract_write: Option<(BasicBlockId, MirInstruction)>,
     _seal: CompletedVariableAssignmentSealV1,
 }
 
@@ -26,6 +28,7 @@ pub(in crate::mir) struct CheckedRebindDestinationV1 {
     frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>,
     name: String,
     previous: ValueId,
+    checked_slot: Option<LocalSlotId>,
 }
 impl CheckedRebindDestinationV1 {
     pub(in crate::mir::builder) fn prepare(builder: &MirBuilder,
@@ -36,7 +39,12 @@ impl CheckedRebindDestinationV1 {
         ledger.validate_rebind_expression_source_v1(&frame)?;
         let name = state.source_loop_binding_name(frame.target(), &builder.function_state.variable_ctx.variable_map)?.to_owned();
         let previous = state.value_for_exact_binding(frame.source().owner(), frame.target()).map_err(|error| error.to_string())?;
-        Ok(Self { frame, name, previous })
+        let checked_slot = builder.function_state.binding_ctx.lookup(&name)
+            .map(LocalSlotId::from)
+            .filter(|slot| builder.function_state.current_function.as_ref().is_some_and(
+                |function| crate::mir::type_contracts::local_slot::local_slot_contract(function, *slot).is_some(),
+            ));
+        Ok(Self { frame, name, previous, checked_slot })
     }
     pub(in crate::mir::builder) fn name(&self) -> &str { &self.name }
     pub(in crate::mir::builder) fn previous(&self) -> ValueId {
@@ -66,6 +74,36 @@ impl CompletedVariableAssignmentV1 {
 
     pub(in crate::mir) const fn assigned(&self) -> ValueId {
         self.assigned
+    }
+
+    pub(in crate::mir::builder) fn record_checked_write(
+        &mut self,
+        block: BasicBlockId,
+        effects: &[MirInstruction],
+    ) -> bool {
+        match effects {
+            [] => {}
+            [instruction @ MirInstruction::LocalContractWrite { .. }] => {
+                self.contract_write = Some((block, instruction.clone()));
+            }
+            _ => return false,
+        }
+        self.valid_checked_result()
+    }
+
+    pub(in crate::mir) fn contract_write(&self) -> Option<&(BasicBlockId, MirInstruction)> {
+        self.contract_write.as_ref()
+    }
+
+    pub(in crate::mir) fn valid_checked_result(&self) -> bool {
+        match (self.scalar.as_ref().and_then(|destination| destination.checked_slot),
+               self.contract_write()) {
+            (None, None) => self.rhs == self.assigned,
+            (Some(slot), Some((_, MirInstruction::LocalContractWrite {
+                dst, src, local_slot_id, write_kind: LocalContractWriteKind::Reassign,
+            }))) => (*dst, *src, *local_slot_id) == (self.assigned, self.rhs, slot),
+            _ => false,
+        }
     }
 
     #[cfg(test)]
@@ -132,6 +170,7 @@ fn complete(builder: &mut MirBuilder, target: String, rhs: ValueId, scalar: Opti
             rhs,
             assigned,
             scalar,
+            contract_write: None,
             _seal: CompletedVariableAssignmentSealV1,
         }),
         Err(detail) => Err(RejectedVariableAssignmentCompletionV1 {

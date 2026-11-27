@@ -173,7 +173,7 @@ fn build_local_statement_from_values_with_types_and_preclaims_with_receipt(
             .transpose()?
             .flatten()
             .is_some();
-        let mut copy = None;
+        let mut materialization = None;
         if reuse {
             // The exact caller supplied physical identity; no Copy or contract write.
         } else if exact_contract {
@@ -190,12 +190,13 @@ fn build_local_statement_from_values_with_types_and_preclaims_with_receipt(
                 var_name,
                 declared_type_name.expect("exact local has declared type"),
             )?;
-            builder.emit_instruction(crate::mir::MirInstruction::LocalContractWrite {
+            let instruction = crate::mir::MirInstruction::LocalContractWrite {
                 dst: var_id,
                 src: init_val,
                 local_slot_id,
                 write_kind: crate::mir::function::LocalContractWriteKind::Init,
-            })?;
+            };
+            materialization = Some(emit_local_materialization(builder, instruction)?);
         } else if typed_array_contract {
             let function = builder
                 .function_state
@@ -239,9 +240,13 @@ fn build_local_statement_from_values_with_types_and_preclaims_with_receipt(
                     array: init_val,
                 })?;
             }
-            copy = Some(emit_local_copy(builder, var_id, init_val)?);
+            materialization = Some(emit_local_materialization(
+                builder, crate::mir::MirInstruction::Copy { dst: var_id, src: init_val },
+            )?);
         } else {
-            copy = Some(emit_local_copy(builder, var_id, init_val)?);
+            materialization = Some(emit_local_materialization(
+                builder, crate::mir::MirInstruction::Copy { dst: var_id, src: init_val },
+            )?);
         }
         crate::mir::builder::metadata::propagate::propagate(builder, init_val, var_id);
 
@@ -268,7 +273,7 @@ fn build_local_statement_from_values_with_types_and_preclaims_with_receipt(
                 "[freeze:contract][local-descent/completion-ordinal-overflow]".to_owned()
             })?;
             values.push(
-                super::CompletedLocalBindingV1::new(ordinal, init_val, var_id).with_copy(copy)?,
+                super::CompletedLocalBindingV1::new(ordinal, init_val, var_id).with_materialization(materialization)?,
             );
         }
         last_value = Some(var_id);
@@ -276,16 +281,14 @@ fn build_local_statement_from_values_with_types_and_preclaims_with_receipt(
     Ok(last_value.unwrap_or_else(|| builder.next_value_id()))
 }
 
-fn emit_local_copy(
+fn emit_local_materialization(
     builder: &mut MirBuilder,
-    dst: ValueId,
-    src: ValueId,
+    instruction: crate::mir::MirInstruction,
 ) -> Result<(crate::mir::BasicBlockId, crate::mir::MirInstruction), String> {
     let block = builder
         .function_state
         .current_block
         .ok_or("[freeze:contract][local-descent/copy-block-missing]")?;
-    let instruction = crate::mir::MirInstruction::Copy { dst, src };
     builder.emit_instruction(instruction.clone())?;
     Ok((block, instruction))
 }
