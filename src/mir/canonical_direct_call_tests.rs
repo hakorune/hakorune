@@ -1,6 +1,5 @@
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl, Span};
-use crate::mir::compiler::VerifiedResolvedCallableProgramV1;
-use crate::mir::resolved_semantics::VerifiedCallableHeaderV1;
+use crate::mir::resolved_semantics::{seal_test_callable_header, VerifiedCallableHeaderV1};
 
 use super::*;
 use crate::mir::canonical_direct_call_contract::VerifiedDirectCallEffectV1;
@@ -22,19 +21,7 @@ fn header() -> VerifiedCallableHeaderV1 {
         attrs: DeclarationAttrs::default(),
         span: Span::unknown(),
     };
-    let source = VerifiedResolvedCallableProgramV1::resolve(ASTNode::Program {
-        statements: vec![tree],
-        span: Span::unknown(),
-    })
-    .unwrap();
-    source
-        .module()
-        .source()
-        .catalog()
-        .index()
-        .resolve_free_static_source_call("countdown", 1)
-        .unwrap()
-        .clone()
+    seal_test_callable_header(&tree)
 }
 
 #[test]
@@ -137,19 +124,7 @@ fn rejects_non_scalar_parameter_abi_before_materialization() {
         attrs: DeclarationAttrs::default(),
         span: Span::unknown(),
     };
-    let source = VerifiedResolvedCallableProgramV1::resolve(ASTNode::Program {
-        statements: vec![tree],
-        span: Span::unknown(),
-    })
-    .unwrap();
-    let map_header = source
-        .module()
-        .source()
-        .catalog()
-        .index()
-        .resolve_free_static_source_call("read_k", 1)
-        .unwrap()
-        .clone();
+    let map_header = seal_test_callable_header(&tree);
     let emission = VerifiedCanonicalDirectCallEmissionV1::conservative_from_header(&map_header);
     assert_eq!(
         emission.materialize_call(None, vec![ValueId::new(3)]),

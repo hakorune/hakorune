@@ -368,8 +368,7 @@ mod tests {
     use super::*;
     use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl, Span};
     use crate::mir::canonical_direct_call::VerifiedCanonicalDirectCallEmissionV1;
-    use crate::mir::compiler::VerifiedResolvedCallableProgramV1;
-    use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
+    use crate::mir::resolved_semantics::{seal_test_callable_header, FunctionOwnerIssuerV1};
 
     fn fixture() -> (
         FunctionOwnerIdV1,
@@ -392,21 +391,10 @@ mod tests {
             attrs: DeclarationAttrs::default(),
             span: Span::unknown(),
         };
-        let source = VerifiedResolvedCallableProgramV1::resolve(ASTNode::Program {
-            statements: vec![function],
-            span: Span::unknown(),
-        })
-        .expect("callable fixture");
-        let header = source
-            .module()
-            .source()
-            .catalog()
-            .index()
-            .resolve_free_static_source_call("helper", 1)
-            .expect("exact helper header");
+        let header = seal_test_callable_header(&function);
         let owner = header.callable().owner();
         let site = crate::mir::resolved_semantics::SourcePathV1::function_body().expr();
-        let emission = VerifiedCanonicalDirectCallEmissionV1::conservative_from_header(header);
+        let emission = VerifiedCanonicalDirectCallEmissionV1::conservative_from_header(&header);
         (owner, site, emission)
     }
 
