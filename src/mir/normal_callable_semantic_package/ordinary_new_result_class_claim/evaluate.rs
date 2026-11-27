@@ -20,7 +20,7 @@ pub(super) fn evaluate_row(
     exits: &[PendingResultExitV1],
     claims: &OrdinaryNewResultClassClaimsV1,
     pending: &BTreeSet<CanonicalSameModuleCallableKeyV1>,
-    parameter_contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    parameter_contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     batch_slot: u32,
     coverage: &ParserOrdinaryBoxSourceCoverageV1,
     borrowed: Option<&crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>,
@@ -170,9 +170,7 @@ pub(super) fn evaluate_row(
         return ExitVerdictV1::Dead;
     }
     if let (Some(found), Some(ordinal)) = (&class, forwarded) {
-        let Some(parameter) = parameter_contracts
-            .iter()
-            .find(|row| row.batch_slot == batch_slot)
+        let Some(parameter) = parameter_contracts.for_batch_slot(batch_slot).next()
             .and_then(|row| {
                 row.parameters
                     .iter()
@@ -228,7 +226,7 @@ impl OrdinaryNewResultClassClaimDraftV1 {
         selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
         app_main: Option<&crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::BorrowedAppMainSourceLoanV1<'_>>,
         field_write_claims: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-        parameter_contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+        parameter_contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
         entry_home: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1>,
     ) -> OrdinaryNewResultClassClaimsV1 {

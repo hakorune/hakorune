@@ -13,7 +13,7 @@ impl FinalizedRootSourceHandoffV1 {
         let entry = self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
         let catalog = self.ledger.original_parameter_contracts.as_deref()
             .ok_or_else(|| freeze("borrowed-parameter/catalog"))?;
-        let mut owners = catalog.iter().filter(|row| row.owner == owner);
+        let mut owners = catalog.for_owner(owner);
         let declaration = owners.next().ok_or_else(|| freeze("borrowed-parameter/owner"))?;
         if owners.next().is_some() { return Err(freeze("borrowed-parameter/duplicate-owner")); }
         let values = self.borrowed_ordinary_entry_values_v1(owner)?;

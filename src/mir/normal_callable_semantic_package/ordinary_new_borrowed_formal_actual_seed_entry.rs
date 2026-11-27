@@ -162,16 +162,14 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn source_entry_seed_v1(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     owner: FunctionOwnerIdV1,
     binding: BindingRefV1,
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
 ) -> Result<Option<OriginalFormalActualSeedV1>, String> {
     let declared_integer = value_domain::declared_integer_seed_v1(input, contracts, binding);
     if declared_integer {
-        let signed = contracts
-            .iter()
-            .filter(|row| row.owner == owner)
+        let signed = contracts.for_owner(owner)
             .flat_map(|row| &row.parameters)
             .any(|row| {
                 row.binding == binding

@@ -2,7 +2,7 @@
 //! Neither caller return shape, acquired Home nor executable input is authority.
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::AppMainSourceRefV1;
 use super::*;
-use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
+use crate::mir::normal_callable_semantic_package::model::{OwnedCallableParameterContractsV1};
 use crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1};
 use std::rc::Rc;
@@ -70,7 +70,7 @@ impl OrdinaryNewResultClassClaimsV1 {
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
         fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        parameters: &OwnedCallableParameterContractsV1,
         call: &OwnedExprSiteV1,
         destination: BindingRefV1,
         app_main: Option<AppMainSourceRefV1<'_>>,
@@ -89,7 +89,7 @@ impl OrdinaryNewResultClassClaimsV1 {
         &self, batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
         fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1], call: &OwnedExprSiteV1,
+        parameters: &OwnedCallableParameterContractsV1, call: &OwnedExprSiteV1,
         destination: BindingRefV1, app_main: Option<AppMainSourceRefV1<'_>>,
     ) -> Result<Option<BorrowedNullableLocalSourceLoanV1>, &'static str> {
         let Some(source) = self.original_local_call_source_v1(batch, selected, fields,
@@ -108,7 +108,7 @@ impl OrdinaryNewResultClassClaimsV1 {
     }
 
     fn lend_original_local_v1(&self, original: OriginalLocalCallV1,
-        batch: &VerifiedResolvedCallableSemanticBatchV1, parameters: &[OwnedCallableParameterContractDeclarationV1],
+        batch: &VerifiedResolvedCallableSemanticBatchV1, parameters: &OwnedCallableParameterContractsV1,
         call: &OwnedExprSiteV1, destination: BindingRefV1,
     ) -> Result<Option<BorrowedNullableLocalSourceLoanV1>, &'static str> {
         let common = self.lend_original_call_v1(original.source.call_source, original.support, batch, parameters, call)?;
@@ -119,7 +119,7 @@ impl OrdinaryNewResultClassClaimsV1 {
 
     fn lend_original_call_v1(&self, source: call_witness::OriginalCallSourceV1,
         support: BorrowedCallSupportV1, batch: &VerifiedResolvedCallableSemanticBatchV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1], call: &OwnedExprSiteV1,
+        parameters: &OwnedCallableParameterContractsV1, call: &OwnedExprSiteV1,
     ) -> Result<BorrowedCallResultSourceLoanV1, &'static str> {
         let roots = self.checked_original_source_roots_v1(&source.key, source.callee_owner)?;
         if roots.is_empty() { return Err("borrowed-nullable/callee-roots-empty"); }
@@ -142,7 +142,7 @@ impl OrdinaryNewResultClassClaimsV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn borrowed_nullable_return_source_v1(
         &self, batch: &VerifiedResolvedCallableSemanticBatchV1, selected: &VerifiedSelectedCallableBatchMapV1,
         fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1], call: &OwnedExprSiteV1,
+        parameters: &OwnedCallableParameterContractsV1, call: &OwnedExprSiteV1,
         app_main: Option<AppMainSourceRefV1<'_>>,
     ) -> Result<Option<BorrowedCallSourceLoanV1>, &'static str> {
         let Some(caller) = batch.unique_declaration_for_owner(call.owner())
@@ -164,7 +164,7 @@ impl OrdinaryNewResultClassClaimsV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn recheck_borrowed_call_source_v1(
         &self, batch: &VerifiedResolvedCallableSemanticBatchV1, selected: &VerifiedSelectedCallableBatchMapV1,
         fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1], loan: &BorrowedCallSourceLoanV1,
+        parameters: &OwnedCallableParameterContractsV1, loan: &BorrowedCallSourceLoanV1,
         app_main: Option<AppMainSourceRefV1<'_>>,
     ) -> Result<(), &'static str> {
         if let Some(local) = loan.local() {
@@ -185,7 +185,7 @@ impl OrdinaryNewResultClassClaimsV1 {
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
         fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        parameters: &OwnedCallableParameterContractsV1,
         loan: &BorrowedNullableLocalSourceLoanV1,
         app_main: Option<AppMainSourceRefV1<'_>>,
     ) -> Result<(), &'static str> {
@@ -216,7 +216,7 @@ impl OrdinaryNewResultClassClaimsV1 {
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
         fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        parameters: &OwnedCallableParameterContractsV1,
         call: &OwnedExprSiteV1,
         destination: BindingRefV1,
         app_main: Option<AppMainSourceRefV1<'_>>,
@@ -234,7 +234,7 @@ impl OrdinaryNewResultClassClaimsV1 {
     fn borrowed_call_support_v1(&self, batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
         fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        parameters: &OwnedCallableParameterContractsV1,
         source: &call_witness::OriginalCallSourceV1, call: &OwnedExprSiteV1,
         app_main: Option<AppMainSourceRefV1<'_>>,
     ) -> Result<Option<BorrowedCallSupportV1>, &'static str> {
@@ -292,7 +292,7 @@ impl OrdinaryNewResultClassClaimsV1 {
                     BorrowedCallSupportV1::OwnedLocal { callee_ordinal: *ordinal, actual: actual.clone(), source: original }
                 } else {
                     let read = support_read.ok_or("borrowed-nullable/actual-root")?;
-                    let parameter = parameters.iter().find(|row| row.owner == source.callee_owner)
+                    let parameter = parameters.for_owner(source.callee_owner).next()
                         .and_then(|row| row.parameters.iter().find(|row| row.ordinal == *ordinal))
                         .ok_or("borrowed-nullable/formal-root")?;
                     if !matches!(&parameter.kind, CallableParameterContractKindV1::DeclaredObject(class)

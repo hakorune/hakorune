@@ -153,12 +153,11 @@ impl DynamicEntryReadV1 {
 // Both untyped entry-read lenders select membership from the same original
 // declaration. A typed object keeps its own alias/null-guard lane.
 fn opaque_entry_contract_v1<'a>(
-    contracts: &'a [OwnedCallableParameterContractDeclarationV1],
+    contracts: &'a crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     owner: FunctionOwnerIdV1,
     root: BindingRefV1,
 ) -> Result<Option<&'a OwnedCallableParameterContractDeclarationV1>, ()> {
-    let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
-        contracts, owner, || (), || (),
+    let contract = contracts.unique_for_owner(owner, || (), || (),
     )?;
     Ok(contract
         .parameters
@@ -173,7 +172,7 @@ fn opaque_entry_contract_v1<'a>(
 pub(in crate::mir::normal_callable_semantic_package) fn lend_dynamic_entry_read_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     prepared: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     site: &OwnedExprSiteV1,
     plan: &Rc<ExpressionSourcePlanV1>,
     read: &SourceExprSiteV1,
@@ -262,7 +261,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_dynamic_entry_read_
 pub(in crate::mir::normal_callable_semantic_package) fn lend_finite_entry_read_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     prepared: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     site: &OwnedExprSiteV1,
     plan: &Rc<ExpressionSourcePlanV1>,
     read: &SourceExprSiteV1,

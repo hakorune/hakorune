@@ -117,11 +117,10 @@ impl StaticInputFinishV1 {
 }
 
 fn static_input_contract_v1(
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     owner: FunctionOwnerIdV1,
 ) -> Result<&OwnedCallableParameterContractDeclarationV1, String> {
-    let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
-        contracts, owner,
+    let contract = contracts.unique_for_owner(owner,
         || freeze("static-input/contract-missing"),
         || freeze("static-input/contract-duplicate"),
     )?;
@@ -133,7 +132,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &mut self,
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         results: &VerifiedCallableResultContractCohortV1,
     ) -> Result<(), String> {
@@ -154,7 +153,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn finish_static_input_cohorts_v1(
         &mut self,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         results: &VerifiedCallableResultContractCohortV1,
     ) -> Result<(), String> {

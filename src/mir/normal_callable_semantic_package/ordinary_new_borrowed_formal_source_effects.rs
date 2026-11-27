@@ -6,14 +6,14 @@ use super::*;
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn readonly_call_closure_v1(root: FunctionOwnerIdV1, inventory: &BorrowedIncomingInventoryV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     constructors: Option<&crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1>,
-    contracts: Option<&[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1]>,
+    contracts: Option<&crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1>,
 ) -> bool {
     use crate::mir::resolved_semantics::{BodyEffectKindV1 as Effect, BodyStatementShapeV1};
     let mut pending = vec![root]; let mut seen = BTreeSet::new();
     while let Some(owner) = pending.pop() {
         if !seen.insert(owner) { continue; }
         if let Some(contracts) = contracts {
-            let mut rows = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, owner);
+            let mut rows = contracts.for_owner(owner);
             let Some(row) = rows.next() else { return false; };
             if rows.next().is_some() || row.parameters.iter().any(|formal|
                 formal.demand == crate::mir::resolved_semantics::HomeDemandV1::Home) { return false; }
@@ -55,7 +55,7 @@ impl PreparedBorrowedFormalIngressV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn call_preserves_read_loans_v1(&self,
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         batch: &VerifiedResolvedCallableSemanticBatchV1,
-        contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         call: &OwnedExprSiteV1,
     ) -> bool {
         let mut rows = self.source_incoming.source_rows_with_method_v1().filter(|(row, _)| &row.call == call);

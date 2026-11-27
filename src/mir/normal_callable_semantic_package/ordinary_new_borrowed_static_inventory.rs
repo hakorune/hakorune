@@ -46,7 +46,7 @@ impl StaticIncomingContextV1<'_> {
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         omitted: &BTreeMap<FunctionOwnerIdV1, CanonicalSameModuleCallableKeyV1>,
         selected: &super::super::super::VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         operand_retained: Option<&Rc<StaticIncomingSourceV1>>,
     ) -> Result<Option<StaticIncomingObservationV1>, BorrowedIncomingDraftErrorV1> {
         let caller = caller.into();
@@ -74,7 +74,7 @@ impl StaticIncomingContextV1<'_> {
                 Ok(None)
             };
         }
-        let mut callers = contracts.iter().filter(|row| row.owner == site.owner());
+        let mut callers = contracts.for_owner(site.owner());
         let contract = callers.next();
         let observation = (|| {
             let loan = if let Some(caller_batch_slot) = caller.declaration_slot() {

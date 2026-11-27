@@ -2,7 +2,7 @@
 use super::*;
 use std::rc::Rc;
 use crate::mir::builder::{AppMainCatalogCoSealV1, CanonicalSameModuleCallableKeyV1};
-use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
+use crate::mir::normal_callable_semantic_package::model::{OwnedCallableParameterContractDeclarationV1, OwnedCallableParameterContractsV1};
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::OrdinaryNewCoSealIssueV1;
 
 pub(in crate::mir::normal_callable_semantic_package) struct BorrowedAppMainSourceLoanV1<'a> {
@@ -45,7 +45,7 @@ impl MainArgumentsSourceV1 {
     }
     pub(in crate::mir::normal_callable_semantic_package) fn require_original_v1(
         &self, batch: &VerifiedResolvedCallableSemanticBatchV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &OwnedCallableParameterContractsV1,
     ) -> Result<(), &'static str> {
         AppMainSourceRefV1 { identity: &self.identity, key: &self.key }
             .checked_caller_key(batch, contracts, self.owner, self.batch_slot)?;
@@ -93,7 +93,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct AppMainSourceRefV1<'
 impl<'a> AppMainSourceRefV1<'a> {
     pub(in crate::mir::normal_callable_semantic_package) fn checked_caller_key(
         self, batch: &VerifiedResolvedCallableSemanticBatchV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &OwnedCallableParameterContractsV1,
         owner: FunctionOwnerIdV1, slot: u32,
     ) -> Result<&'a CanonicalSameModuleCallableKeyV1, &'static str> {
         let mut declarations = batch.declarations().filter(|row| row.identity().same_as(self.identity));
@@ -102,8 +102,7 @@ impl<'a> AppMainSourceRefV1<'a> {
             || self.key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
         { return Err("original-caller/app-main-identity"); }
         let reject = || "original-caller/app-main-contract";
-        let row = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
-            contracts, owner, reject, reject,
+        let row = contracts.unique_for_owner(owner, reject, reject,
         )?;
         if row.batch_slot != slot
             || row.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::StaticBoxMethod
@@ -128,10 +127,10 @@ impl OrdinaryNewClaimLedgerV1 {
 impl BorrowedAppMainSourceLoanV1<'_> {
     pub(in crate::mir::normal_callable_semantic_package) fn arguments_source_v1(
         &self, batch: &VerifiedResolvedCallableSemanticBatchV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &OwnedCallableParameterContractsV1,
     ) -> Result<Rc<MainArgumentsSourceV1>, &'static str> {
         self.caller_source_ref_v1().checked_caller_key(batch, contracts, self.owner, self.batch_slot)?;
-        let contract = contracts.iter().find(|row| row.owner == self.owner)
+        let contract = contracts.for_owner(self.owner).next()
             .ok_or("main-arguments/source-contract")?;
         if !self.matches_contract(contract) { return Err("main-arguments/source-contract"); }
         batch.with_lowering_input(self.batch_slot, |input| {

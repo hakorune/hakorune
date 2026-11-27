@@ -77,7 +77,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     >,
     app_main_source: Option<&crate::mir::builder::AppMainCatalogCoSealV1>,
     direct_call_loans: Option<&super::super::direct_call_loan::DirectCallDispositionLoansV1>,
-    parameter_contracts: &[super::super::model::OwnedCallableParameterContractDeclarationV1],
+    parameter_contracts: &super::super::model::OwnedCallableParameterContractsV1,
     entry_home_loans: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
     dynamic: &mut super::super::model::NormalCallableDynamicProjectionV1,
     dynamic_source_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
@@ -261,9 +261,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             .with_lowering_input(batch_slot, |input| -> Result<_, OrdinaryNewCoSealIssueV1> {
                 let owner_loan = direct_call_loans.and_then(|loans| loans.get(owner));
                 let entry_home = entry_home_loans.for_batch_slot(batch_slot);
-                let batch_contract_rows: Vec<_> = parameter_contracts
-                    .iter()
-                    .filter(|row| row.batch_slot == batch_slot)
+                let batch_contract_rows: Vec<_> = parameter_contracts.for_batch_slot(batch_slot)
                     .collect();
                 let batch_params =
                     || batch_contract_rows.iter().flat_map(|row| row.parameters.iter());

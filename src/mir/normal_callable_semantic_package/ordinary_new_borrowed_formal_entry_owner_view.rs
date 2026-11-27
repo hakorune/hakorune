@@ -43,7 +43,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Option<BorrowedEntryOwnerViewV1<'a>>, String> {
         let catalog = self.original_parameter_contracts.as_deref()
             .ok_or_else(|| freeze("instance-input/original-catalog-missing"))?;
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+        let mut contracts = catalog.for_owner(owner);
         let contract = contracts.next().ok_or_else(|| freeze("instance-input/contract-missing"))?;
         if contracts.next().is_some() { return Err(freeze("instance-input/contract-duplicate")); }
         if contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod {
@@ -147,7 +147,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .original_parameter_contracts
                 .as_deref()
                 .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
-            let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+            let mut contracts = catalog.for_owner(owner);
             let contract = contracts
                 .next()
                 .ok_or_else(|| freeze("borrowed-entry/original-contract-missing"))?;
@@ -496,7 +496,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .original_parameter_contracts
             .as_deref()
             .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+        let mut contracts = catalog.for_owner(owner);
         let contract = contracts
             .next()
             .ok_or_else(|| freeze("borrowed-entry/original-contract-missing"))?;
@@ -547,7 +547,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     'a,
 >(
     source: &'a PreparedBorrowedFormalIngressV1,
-    catalog: Option<&[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1]>,
+    catalog: Option<&crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1>,
     owner: FunctionOwnerIdV1,
 ) -> Result<Option<&'a BorrowedFormalUsesDraftV1>, String> {
     use super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1 as Use;
@@ -563,7 +563,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         return Ok(None);
     }
     let catalog = catalog.ok_or_else(|| freeze("borrowed-guarded/original-catalog-missing"))?;
-    let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+    let mut contracts = catalog.for_owner(owner);
     let contract = contracts
         .next()
         .ok_or_else(|| freeze("borrowed-guarded/declaration-missing"))?;

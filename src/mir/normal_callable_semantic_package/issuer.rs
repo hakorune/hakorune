@@ -57,7 +57,7 @@ use super::instance_constructor_semantic::{
 };
 use super::loop_break_source::issue_loop_break_source_package_v1;
 use super::model::{
-    NormalCallableDynamicProjectionV1, OwnedCallableParameterContractDeclarationV1,
+    NormalCallableDynamicProjectionV1, OwnedCallableParameterContractDeclarationV1, OwnedCallableParameterContractsV1,
     OwnedCallableParameterContractV1, VerifiedNormalCallableSemanticPackageV1,
 };
 use super::ordinary_new_coseal::{issue_ordinary_source_cohort_v1, OrdinaryNewCoSealIssueV1};
@@ -405,7 +405,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         issue_callable_parameter_contract_v1(&batch).map_err(|error| {
             NormalCallableSemanticPackageIssueV1::ParameterContract { _error: error }
         })?;
-    let parameter_contracts: Rc<[OwnedCallableParameterContractDeclarationV1]> =
+    let parameter_contracts: Rc<OwnedCallableParameterContractsV1> =
         parameter_contract_catalog
             .declarations()
             .map(|declaration| OwnedCallableParameterContractDeclarationV1 {
@@ -424,7 +424,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
                     .collect::<Vec<_>>()
                     .into_boxed_slice(),
             })
-            .collect::<Vec<_>>()
+            .collect::<OwnedCallableParameterContractsV1>()
             .into();
     // The sole Home ABI issuer consumes the live common parameter catalog
     // once — it projects entry demands for the exact instance cohort without
@@ -478,9 +478,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
             dynamic_inventory,
             dynamic_calls,
         )) => {
-            let mut dynamic_contracts = parameter_contracts
-                .iter()
-                .filter(|declaration| declaration.batch_slot == dynamic_batch_slot);
+            let mut dynamic_contracts = parameter_contracts.for_batch_slot(dynamic_batch_slot);
             let Some(dynamic_contract) = dynamic_contracts.next() else {
                 return Err(NormalCallableSemanticPackageIssueV1::MissingDynamicParameterContract);
             };

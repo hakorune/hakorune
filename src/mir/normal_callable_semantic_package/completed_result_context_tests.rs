@@ -22,7 +22,7 @@ fn completed_context_rejects_missing_foreign_and_duplicate_formals() {
             let slot = contracts[0].batch_slot;
             contracts[1].batch_slot = slot;
         }
-        package.parameter_contracts = contracts.into();
+        package.parameter_contracts = std::rc::Rc::new(contracts.into_iter().collect());
         let result = package
             .result_contracts
             .retain_completed_context(package.selected, package.parameter_contracts);

@@ -5,14 +5,12 @@ use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
 
 fn collect_opaque_forward_identities_v1(
     need: &PreparedSourceCallNeedV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
 ) -> Option<Vec<ForwardIdentityV1>> {
     let reference = need.reference();
     let draft = drafts.get(&reference.call_site.owner())?;
-    let mut contracts = contracts
-        .iter()
-        .filter(|row| row.owner == reference.callee_owner);
+    let mut contracts = contracts.for_owner(reference.callee_owner);
     let contract = contracts.next()?;
     let callee = drafts.get(&contract.owner)?;
     if contracts.next().is_some()
@@ -62,15 +60,13 @@ fn collect_opaque_forward_identities_v1(
 /// opaque ordinals lend identities. Legacy consumers keep their former law.
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn collect_observed_forward_identities_v1(
     need: &PreparedSourceCallNeedV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
 ) -> Option<Vec<ForwardIdentityV1>> {
     let forwards = collect_opaque_forward_identities_v1(need, contracts, drafts)?;
     let reference = need.reference();
     let draft = drafts.get(&reference.call_site.owner())?;
-    let contract = contracts
-        .iter()
-        .find(|row| row.owner == reference.callee_owner)?;
+    let contract = contracts.for_owner(reference.callee_owner).next()?;
     let mut seen = std::collections::BTreeSet::new();
     let mut opaque = 0;
     for row in &draft.uses {
@@ -98,14 +94,12 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 
 pub(super) fn forward_identities_v1(
     need: &PreparedSourceCallNeedV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
 ) -> Option<Vec<ForwardIdentityV1>> {
     let forwards = collect_opaque_forward_identities_v1(need, contracts, drafts)?;
     let reference = need.reference();
-    let contract = contracts
-        .iter()
-        .find(|row| row.owner == reference.callee_owner)?;
+    let contract = contracts.for_owner(reference.callee_owner).next()?;
     (forwards.len()
         == contract
             .parameters
@@ -118,7 +112,7 @@ pub(super) fn forward_identities_v1(
 pub(super) fn conditional_class_loans_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     needs: &[Result<Option<PreparedSourceCallNeedV1>, String>],
     callable_result_classes: &super::super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,

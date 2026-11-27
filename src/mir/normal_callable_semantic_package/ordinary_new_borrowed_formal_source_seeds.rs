@@ -86,7 +86,7 @@ impl OriginalBorrowedFormalSourceV1 {
         )],
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     ) -> Result<bool, (OwnedExprSiteV1, String)> {
         if classes.is_empty() || !self.seeds.corroborate_original_v1(&self.inventory) {
             return Ok(false);
@@ -286,7 +286,7 @@ impl OriginalFormalSeedProductV1 {
         arrays: &super::array_source::ArraySourceRequirementsV1,
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         owners: &BTreeSet<FunctionOwnerIdV1>,
         inventory: &BorrowedIncomingInventoryV1,
     ) -> Result<
@@ -309,7 +309,7 @@ impl OriginalFormalSeedProductV1 {
     fn refresh_source_objects_v1(
         &mut self, batch: &VerifiedResolvedCallableSemanticBatchV1,
         constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1], inventory: &BorrowedIncomingInventoryV1,
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1, inventory: &BorrowedIncomingInventoryV1,
     ) -> Result<(), String> {
         let views = self.project_v1(batch, constructors, contracts, inventory,
             FormalDomainProjectionV1::SourceObject)?.0;
@@ -325,7 +325,7 @@ impl OriginalFormalSeedProductV1 {
         &self,
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         inventory: &BorrowedIncomingInventoryV1,
         projection: FormalDomainProjectionV1<'_>,
     ) -> Result<
@@ -548,7 +548,7 @@ pub(super) fn classify_mixed_actual_seed_v1(
     candidates: &[super::super::super::candidate::OrdinaryNewCandidate],
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     binding: BindingRefV1,
     inventory: &BorrowedIncomingInventoryV1,
     visited: &BTreeSet<BindingRefV1>,

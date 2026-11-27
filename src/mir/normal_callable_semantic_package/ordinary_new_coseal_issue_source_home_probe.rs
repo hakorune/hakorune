@@ -17,7 +17,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pro
     batch_slot: u32,
     selected: &VerifiedSelectedCallableBatchMapV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
-    parameter_contracts: &[super::super::super::super::model::OwnedCallableParameterContractDeclarationV1],
+    parameter_contracts: &super::super::super::super::model::OwnedCallableParameterContractsV1,
     callable_result_classes: &result_class_claim::OrdinaryNewResultClassClaimsV1,
     candidates: &[OrdinaryNewCandidate], result_constructions: &[OrdinaryNewSiteResolutionV1],
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
@@ -53,9 +53,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pro
         &new_sites,
         entry_home,
         explicit_sites,
-        parameter_contracts
-            .iter()
-            .filter(|row| row.batch_slot == batch_slot)
+        parameter_contracts.for_batch_slot(batch_slot)
             .flat_map(|row| row.parameters.iter())
             .map(|row| (row.ordinal, row.binding, row.kind.clone(), row.demand)),
         // The probe asks the same route question as the verified lane,

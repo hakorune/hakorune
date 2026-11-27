@@ -26,7 +26,7 @@ impl TargetStaticSourceCohortV1 {
 pub(super) fn issue_target_static_source_cohorts_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     inventory: &BorrowedIncomingInventoryV1,
     static_arguments: &BTreeMap<

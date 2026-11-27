@@ -16,7 +16,7 @@ struct StaticOperandContextV1
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) selected:
         &'a VerifiedSelectedCallableBatchMapV1,
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) contracts:
-        &'a [OwnedCallableParameterContractDeclarationV1],
+        &'a crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) caller:
         &'a CanonicalSameModuleCallableKeyV1,
 }

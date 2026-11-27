@@ -9,7 +9,7 @@ use std::rc::Rc;
 
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
+use crate::mir::normal_callable_semantic_package::model::{OwnedCallableParameterContractDeclarationV1, OwnedCallableParameterContractsV1};
 use crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1;
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::{field_write_claim, result_class_claim};
 use crate::mir::resolved_semantics::{
@@ -329,7 +329,7 @@ pub(super) fn draft_borrowed_incoming_calls_v1(
     batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     selected: &super::VerifiedSelectedCallableBatchMapV1,
     drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     calls: &BTreeMap<OwnedExprSiteV1, &super::LexicalInstanceCallSourceTargetV1>,
     ordinary_callers: &std::collections::BTreeSet<FunctionOwnerIdV1>,
 ) -> Result<Box<[BorrowedIncomingCallDraftV1]>, BorrowedIncomingDraftErrorV1> {

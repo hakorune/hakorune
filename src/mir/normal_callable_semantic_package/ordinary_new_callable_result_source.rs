@@ -291,7 +291,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         let catalog = self.original_parameter_contracts.as_deref()
             .ok_or_else(|| freeze("callable-result/nullable-catalog"))?;
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+        let mut contracts = catalog.for_owner(owner);
         let contract = contracts.next().ok_or_else(|| freeze("callable-result/nullable-parameter"))?;
         if contracts.next().is_some()
             || contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
@@ -372,7 +372,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 else { return Err(freeze("callable-result/nullable-root-role")); };
             let catalog = self.original_parameter_contracts.as_deref()
                 .ok_or_else(|| freeze("callable-result/nullable-catalog"))?;
-            let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+            let mut contracts = catalog.for_owner(owner);
             let contract = contracts.next().ok_or_else(|| freeze("callable-result/nullable-parameter"))?;
             let (selected, _) = self.original_instance_input_issuance.as_ref()
                 .ok_or_else(|| freeze("callable-result/nullable-catalog"))?;

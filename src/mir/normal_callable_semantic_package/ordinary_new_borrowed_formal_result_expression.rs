@@ -166,7 +166,7 @@ impl ResultExpressionSourceV1 {
         original: Option<&OriginalBorrowedFormalSourceV1>,
         constructors: &VerifiedInstanceConstructorSemanticBatchV1,
         definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         needs: &[Result<Option<super::super::source::PreparedSourceCallNeedV1>, String>],
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1,

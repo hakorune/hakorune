@@ -29,9 +29,7 @@ fn packet_input_family_v1(
         .original_parameter_contracts
         .as_deref()
         .ok_or_else(|| freeze("object-packet/original-catalog-missing"))?;
-    let mut contracts = catalog
-        .iter()
-        .filter(|row| row.owner == target.callee_owner());
+    let mut contracts = catalog.for_owner(target.callee_owner());
     let contract = contracts
         .next()
         .ok_or_else(|| freeze("object-packet/original-contract-missing"))?;

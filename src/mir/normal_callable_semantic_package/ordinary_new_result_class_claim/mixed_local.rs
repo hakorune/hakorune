@@ -4,7 +4,6 @@ use super::call_witness::OriginalLocalCallSourceV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::AppMainSourceRefV1;
 use crate::mir::normal_callable_semantic_package::{
-    model::OwnedCallableParameterContractDeclarationV1,
     selected_mapping::VerifiedSelectedCallableBatchMapV1,
     VerifiedInstanceConstructorSemanticBatchV1,
 };
@@ -182,7 +181,7 @@ impl OrdinaryNewResultClassClaimsV1 {
         selected: &VerifiedSelectedCallableBatchMapV1,
         constructors: &VerifiedInstanceConstructorSemanticBatchV1,
         fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        parameters: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         call: &OwnedExprSiteV1,
         destination: BindingRefV1,
         app_main: Option<AppMainSourceRefV1<'_>>,
@@ -332,7 +331,7 @@ impl OrdinaryNewResultClassClaimsV1 {
         selected: &VerifiedSelectedCallableBatchMapV1,
         constructors: &VerifiedInstanceConstructorSemanticBatchV1,
         fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        parameters: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         loan: &MixedLocalCallSourceLoanV1,
         app_main: Option<AppMainSourceRefV1<'_>>,
     ) -> Result<(), &'static str> {

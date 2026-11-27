@@ -11,7 +11,7 @@ pub(super) fn original_local_loan_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     fields: &super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     facts: &OrdinaryNewResultClassClaimsV1,
  app_main: Option<AppMainSourceRefV1<'_>>) -> Result<Option<BorrowedNullableLocalSourceLoanV1>, String> {
@@ -59,7 +59,7 @@ pub(super) fn recheck_original_call_loan_v1(
     loan: &BorrowedCallSourceLoanV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     fields: &super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     facts: &OrdinaryNewResultClassClaimsV1,
  app_main: Option<AppMainSourceRefV1<'_>>) -> Result<(), String> {
@@ -78,9 +78,7 @@ pub(super) fn recheck_original_call_loan_v1(
     {
         return Err(freeze("target-identity"));
     }
-    let mut declarations = contracts
-        .iter()
-        .filter(|row| row.owner == reference.callee_owner);
+    let mut declarations = contracts.for_owner(reference.callee_owner);
     let declaration = declarations
         .next()
         .ok_or_else(|| freeze("callee-contract"))?;

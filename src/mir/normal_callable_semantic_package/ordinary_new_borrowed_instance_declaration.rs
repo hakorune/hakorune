@@ -6,7 +6,7 @@ use super::*;
 /// during Object packet demand. This lends source membership, never a result.
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn checked_forwarding_instance_source_v1<'a>(
     source: &'a PreparedBorrowedFormalIngressV1,
-    catalog: Option<&[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1]>,
+    catalog: Option<&crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1>,
     owner: FunctionOwnerIdV1,
 ) -> Result<Option<&'a BorrowedFormalUsesDraftV1>, String> {
     if let Some(draft) = checked_guarded_instance_source_v1(source, catalog, owner)? {
@@ -47,7 +47,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if !demanded { return Ok(None); }
         let catalog = self.original_parameter_contracts.as_deref()
             .ok_or_else(|| freeze("borrowed-result-entry/catalog-missing"))?;
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+        let mut contracts = catalog.for_owner(owner);
         let contract = contracts.next().ok_or_else(|| freeze("borrowed-result-entry/contract-missing"))?;
         if contracts.next().is_some() { return Err(freeze("borrowed-result-entry/contract-duplicate")); }
         if contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
@@ -173,12 +173,12 @@ impl OrdinaryNewClaimLedgerV1 {
 /// It never selects a pending phase, reconstructs an actual, or admits a use.
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn checked_original_instance_parameter_frame_v1<'a>(
     source: &'a PreparedBorrowedFormalIngressV1,
-    catalog: Option<&[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1]>,
+    catalog: Option<&crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1>,
     owner: FunctionOwnerIdV1,
 ) -> Result<Option<BorrowedEntryOwnerViewV1<'a>>, String> {
     let Some(definition) = source.source_definition_for(owner) else { return Ok(None); };
     let catalog = catalog.ok_or_else(|| freeze("mixed-entry/catalog-missing"))?;
-    let mut rows = catalog.iter().filter(|row| row.owner == owner);
+    let mut rows = catalog.for_owner(owner);
     let contract = rows.next().ok_or_else(|| freeze("mixed-entry/contract-missing"))?;
     if rows.next().is_some() { return Err(freeze("mixed-entry/contract-duplicate")); }
     if contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
@@ -241,14 +241,14 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     'a,
 >(
     source: &'a PreparedBorrowedFormalIngressV1,
-    catalog: Option<&[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1]>,
+    catalog: Option<&crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1>,
     owner: FunctionOwnerIdV1,
 ) -> Result<Option<BorrowedEntryOwnerViewV1<'a>>, String> {
     let Some(definition) = source.source_definition_for(owner) else {
         return Ok(None);
     };
     let catalog = catalog.ok_or_else(|| freeze("mixed-entry/catalog-missing"))?;
-    let mut rows = catalog.iter().filter(|row| row.owner == owner);
+    let mut rows = catalog.for_owner(owner);
     let contract = rows
         .next()
         .ok_or_else(|| freeze("mixed-entry/contract-missing"))?;
@@ -384,7 +384,7 @@ impl PreparedBorrowedFormalIngressV1 {
     /// Lend the existing selected mixed frame for an exact tagged BorrowForCall.
     /// This neither narrows the payload to Integer nor invents a call guard.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn original_mixed_tagged_forward_v1(
-        &self, catalog: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+        &self, catalog: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         call: &OwnedExprSiteV1, ordinal: u32, site: &crate::mir::resolved_semantics::SourceExprSiteV1,
         binding: crate::mir::resolved_semantics::BindingRefV1, root: crate::mir::resolved_semantics::BindingRefV1,
     ) -> Result<Option<&super::super::super::borrowed_formal_uses::BorrowedFormalUsesDraftV1>, String> {
@@ -394,7 +394,7 @@ impl PreparedBorrowedFormalIngressV1 {
         let mut originals = self.source_incoming.exact_rows().filter(|row| &row.call == call);
         let original = originals.next().ok_or_else(|| freeze("mixed-forward/original-missing"))?;
         let target = original.source.require_instance()?;
-        let mut contracts = catalog.iter().filter(|row| row.owner == original.callee);
+        let mut contracts = catalog.for_owner(original.callee);
         let contract = contracts.next().ok_or_else(|| freeze("mixed-forward/callee-missing"))?;
         if originals.next().is_some() || contracts.next().is_some() || binding.owner() != call.owner()
             || root.owner() != call.owner() || target.call_site() != call || target.callee_owner() != original.callee
@@ -421,7 +421,7 @@ impl PreparedBorrowedFormalIngressV1 {
 
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn original_borrowed_instance_input_completion_needed_v1(
     source: &PreparedBorrowedFormalIngressV1,
-    catalog: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    catalog: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     owner: FunctionOwnerIdV1,
 ) -> Result<bool, (OwnedExprSiteV1, String)> {
     for call in source.source_incoming.source_rows_v1().filter(|row| row.callee == owner) {

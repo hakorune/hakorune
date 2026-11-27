@@ -258,7 +258,7 @@ impl OrdinaryNewClaimLedgerV1 {
         constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
         claims: &crate::mir::normal_callable_semantic_package::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &OwnedCallableParameterContractsV1,
     ) -> Result<(), String> {
         let sources = constructors.provider_static_sources_v1(claims, selected)?;
         for provider in sources {
@@ -388,7 +388,7 @@ pub(super) fn selects_static_expression_source_v1(
 
 pub(super) fn prepare_static_source_actuals_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     call: &OwnedExprSiteV1,
     actuals: &[BorrowedCallActualCandidateV1],
 ) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
@@ -422,7 +422,7 @@ pub(super) fn prepare_static_source_actuals_v1(
 /// Stage the original input from a callee completion that proves Text exits.
 pub(in crate::mir::normal_callable_semantic_package) fn prepare_completed_static_text_actuals_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     call: &OwnedExprSiteV1,
     actuals: &[BorrowedCallActualCandidateV1],
     selected: &VerifiedSelectedCallableBatchMapV1,
@@ -458,7 +458,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_completed_static
 
 fn prepare_original_static_source_actuals_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     call: &OwnedExprSiteV1,
     actuals: &[BorrowedCallActualCandidateV1],
     source: &Rc<StaticIncomingSourceV1>,
@@ -472,9 +472,7 @@ fn prepare_original_static_source_actuals_v1(
                     .contains(&super::super::borrowed_formal_source::SourceValueAlternativeV1::Text)
         })
     };
-    let mut matching = contracts
-        .iter()
-        .filter(|row| row.owner == source.callee_owner());
+    let mut matching = contracts.for_owner(source.callee_owner());
     let contract = matching
         .next()
         .ok_or_else(|| freeze("borrowed-static/target-contract"))?;

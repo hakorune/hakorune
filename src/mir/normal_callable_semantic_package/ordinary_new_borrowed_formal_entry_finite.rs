@@ -9,7 +9,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self, source: &PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1,
     ) -> Result<bool, String> {
         if let Some(contract) = self.original_parameter_contracts.as_deref()
-            .and_then(|catalog| catalog.iter().find(|row| row.owner == owner))
+            .and_then(|catalog| catalog.for_owner(owner).next())
             .filter(|row| row.mode == crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod) {
             if let Some(structure) = self.finite_entry_for_owner_v1(owner)? {
                 if !std::ptr::eq(source, structure.source) { return Err(freeze("borrowed-entry/foreign-source-loan")); }
@@ -42,7 +42,7 @@ impl OrdinaryNewClaimLedgerV1 {
     /// remain unfulfilled; this is never an executable incoming projection.
     pub(super) fn finite_input_entry_structure_v1<'a>(
         source: &'a PreparedBorrowedFormalIngressV1,
-        catalog: Option<&[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1]>,
+        catalog: Option<&crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1>,
         owner: FunctionOwnerIdV1,
         parameters: &[(u32, BindingRefV1, CallableParameterContractKindV1)],
         nominal_sibling_structure: bool,
@@ -52,7 +52,7 @@ impl OrdinaryNewClaimLedgerV1 {
         use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1 as Mode;
         let catalog = catalog
             .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
-        let mut matching = catalog.iter().filter(|row| row.owner == owner);
+        let mut matching = catalog.for_owner(owner);
         let Some(contract) = matching.next() else { return Ok(None) };
         if matching.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
         let namespace = match contract.mode {
@@ -325,10 +325,10 @@ impl OrdinaryNewClaimLedgerV1 {
     /// all use purposes and executable incoming remain separate prerequisites.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn original_finite_instance_input_request_v1(
         source: &PreparedBorrowedFormalIngressV1,
-        catalog: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+        catalog: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         owner: FunctionOwnerIdV1,
     ) -> Result<bool, String> {
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+        let mut contracts = catalog.for_owner(owner);
         let Some(contract) = contracts.next() else { return Ok(false) };
         if contracts.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
         if contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod { return Ok(false); }
@@ -339,10 +339,10 @@ impl OrdinaryNewClaimLedgerV1 {
     /// of body/actual completion. Admitted Uses owners retain their original authority.
     pub(in crate::mir::normal_callable_semantic_package) fn original_finite_input_use_request_v1(
         source: &PreparedBorrowedFormalIngressV1,
-        catalog: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+        catalog: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         owner: FunctionOwnerIdV1,
     ) -> Result<bool, String> {
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+        let mut contracts = catalog.for_owner(owner);
         let Some(contract) = contracts.next() else { return Ok(false) };
         if contracts.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
         let parameters: Vec<_> = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();

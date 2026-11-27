@@ -303,6 +303,7 @@ fn child_relation_full_facade_does_not_duplicate_callee_constructions() {
                 .unwrap()
                 .parameters[0]
                 .ordinal = 9;
+            let changed = changed.into_iter().collect();
             assert!(original
                 .compose_at_v1(&call, &facts, batch, &changed)
                 .is_err());
@@ -550,6 +551,7 @@ fn child_relation_changed_forward_formal_ordinal_rejects_whole_mixed_candidate()
                 .find(|p| p.ordinal == 0)
                 .unwrap()
                 .ordinal = 9;
+            let contracts = contracts.into_iter().collect();
             attach_source_child_relations_v1(
                 &mut scratch,
                 batch,

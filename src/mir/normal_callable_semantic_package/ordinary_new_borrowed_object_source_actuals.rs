@@ -72,7 +72,7 @@ pub(super) fn selected_original_object_phase_v1(
 
 pub(super) fn prepare_object_source_actuals_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     call: &OwnedExprSiteV1,
     actuals: &[BorrowedCallActualCandidateV1],
 ) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
@@ -101,8 +101,7 @@ pub(super) fn prepare_object_source_actuals_v1(
     if !prepared.source_incoming.has_object_input_callee_v1(target) {
         return Ok(None);
     }
-    let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
-        contracts, original.callee,
+    let contract = contracts.unique_for_owner(original.callee,
         || freeze("borrowed-object/source-contract"),
         || freeze("borrowed-object/source-actual-identity"),
     )?;
@@ -326,7 +325,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 /// Entry and final physical Normal/use closure remain independent obligations.
 pub(super) fn reconstruct_object_source_actuals_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     call: &super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
     identity: &ObjectSourceActualIdentityV1,
     ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
@@ -363,7 +362,7 @@ pub(super) fn reconstruct_object_source_actuals_v1(
 /// One original per-argument constructor context, independent of result law.
 pub(super) fn reconstruct_original_argument_protocol_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     call: &super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
     candidates: &[BorrowedCallActualCandidateV1],
     ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
@@ -381,7 +380,7 @@ pub(super) fn reconstruct_original_argument_protocol_v1(
                 return Err(freeze("borrowed-object/field-candidate-missing"));
             };
             let core_integer = if let BorrowedCallActualValueV1::MethodCall(method) = &candidate.value {
-                contracts.iter().find(|row| row.owner == call.callee)
+                contracts.for_owner(call.callee).next()
                     .and_then(|row| row.parameters.iter().find(|row| row.binding == formal))
                     .filter(|row| matches!(row.kind, CallableParameterContractKindV1::OpaqueHandle))
                     .map(|row| static_source::core_argument_source_v1(prepared,
@@ -421,7 +420,7 @@ pub(super) fn reconstruct_original_argument_protocol_v1(
 
 pub(super) fn reconstruct_original_argument_protocol_with_sources_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     call: &super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
     candidates: &[BorrowedCallActualCandidateV1],
     source_actual: &mut dyn FnMut(
@@ -474,7 +473,7 @@ enum ObjectInputActualContextV1<'a> {
 
 fn original_object_input_context_v1<'a>(
     prepared: &'a PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     call: &super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
     candidates: &[BorrowedCallActualCandidateV1],
     ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
@@ -504,9 +503,7 @@ fn original_object_input_context_v1<'a>(
                     .and_then(|draft| draft.origins.get(binding))
                     != Some(root) =>
             {
-                let mut originals = contracts
-                    .iter()
-                    .filter(|row| row.owner == call.call.owner());
+                let mut originals = contracts.for_owner(call.call.owner());
                 let contract = originals
                     .next()
                     .ok_or_else(|| freeze("borrowed-guarded/caller-contract-missing"))?;
@@ -635,7 +632,7 @@ pub(super) fn contains_guarded_object_forward_v1(
 
 pub(super) fn recheck_object_source_actuals_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     call: &super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
     rows: &PreparedBorrowedCallActualsV1,
     identity: &ObjectSourceActualIdentityV1,

@@ -4,7 +4,6 @@ use super::super::{result_class_claim, OrdinaryNewClaimLedgerV1};
 use super::return_acquisition::VerifiedObjectReturnSourceAcquisitionV1;
 use super::return_leaf::{ObjectReturnFieldSupportV1, VerifiedObjectReturnLeafV1};
 use crate::mir::normal_callable_semantic_package::{
-    model::OwnedCallableParameterContractDeclarationV1,
     physical_signature::VerifiedCallablePhysicalSignatureCohortV1,
     selected_mapping::VerifiedSelectedCallableBatchMapV1,
 };
@@ -143,7 +142,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         value: &TerminalValueReturnV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
     ) -> Result<ObjectReturnHandoffAvailabilityV1, String> {
         self.checked_object_return_handoff_with_memo_v1(
@@ -159,7 +158,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         value: &TerminalValueReturnV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         memo: &mut ObjectReturnHandoffMemoV1,
     ) -> Result<ObjectReturnHandoffAvailabilityV1, String> {
@@ -177,7 +176,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         value: &TerminalValueReturnV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         path: &mut BTreeSet<(FunctionOwnerIdV1, SourceStmtSiteV1)>,
         memo: &mut ObjectReturnHandoffMemoV1,

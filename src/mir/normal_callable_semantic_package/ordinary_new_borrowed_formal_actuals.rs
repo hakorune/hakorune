@@ -3,7 +3,7 @@
 use super::borrowed_formal_source::PreparedBorrowedFormalIngressV1;
 use super::*;
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
-use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
+use crate::mir::normal_callable_semantic_package::model::{OwnedCallableParameterContractDeclarationV1, OwnedCallableParameterContractsV1};
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::BorrowedResultCohortV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
     BorrowedCallActualCandidateV1, BorrowedCallActualValueV1, LocalCallArgumentV1, SourceScalarKind,
@@ -42,7 +42,7 @@ pub(in crate::mir::normal_callable_semantic_package) use static_selected_actual:
 /// Revalidate a passive Object input without lending executable arguments.
 pub(super) fn revalidate_passive_object_incoming_v1(
     ingress: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     call: &super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
     rows: &PreparedBorrowedCallActualsV1,
     ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
@@ -244,7 +244,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_dynamic_invocati
 
 pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_actuals_v1(
     prepared: &Result<PreparedBorrowedFormalIngressV1, String>,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     call: &OwnedExprSiteV1,
     actuals: &[BorrowedCallActualCandidateV1],
     candidates: &[super::super::candidate::OrdinaryNewCandidate],
@@ -468,7 +468,7 @@ pub(in crate::mir::normal_callable_semantic_package) use argument_projection::{
 /// Exact reconstructed guarded source edge for the original reverse dependency graph.
 pub(super) fn revalidate_guarded_object_incoming_v1(
     source: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &OwnedCallableParameterContractsV1,
     call: &super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
     rows: &PreparedBorrowedCallActualsV1,
     ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,

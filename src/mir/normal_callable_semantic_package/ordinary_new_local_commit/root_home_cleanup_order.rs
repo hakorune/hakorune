@@ -615,7 +615,7 @@ impl super::OrdinaryNewClaimLedgerV1 {
         let Some(catalog) = self.original_parameter_contracts.as_deref() else {
             return Ok(None);
         };
-        let mut declarations = catalog.iter().filter(|row| row.owner == binding.owner());
+        let mut declarations = catalog.for_owner(binding.owner());
         let Some(declaration) = declarations.next() else {
             return Ok(None);
         };

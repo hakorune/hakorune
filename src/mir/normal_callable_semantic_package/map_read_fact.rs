@@ -6,7 +6,7 @@
 //! or physical operation.  The physical read owner remains a later boundary.
 
 use super::direct_call_loan::DirectCallDispositionLoansV1;
-use super::model::OwnedCallableParameterContractDeclarationV1;
+use super::model::{OwnedCallableParameterContractsV1};
 use super::ordinary_new_coseal::OrdinaryNewClaimLedgerV1;
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
@@ -258,7 +258,7 @@ pub(crate) enum MapReadFactIssueV1 {
 pub(super) fn issue_map_read_facts_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     loans: Option<&DirectCallDispositionLoansV1>,
-    parameters: &[OwnedCallableParameterContractDeclarationV1],
+    parameters: &OwnedCallableParameterContractsV1,
     ledger: &OrdinaryNewClaimLedgerV1,
 ) -> Result<MapReadFactsV1, MapReadFactIssueV1> {
     let mut rows = Vec::new();
@@ -298,9 +298,7 @@ pub(super) fn issue_map_read_facts_v1(
                     site: actual_map.clone(),
                 }
             })?;
-            let formal = parameters
-                .iter()
-                .filter(|row| row.owner == callee_owner)
+            let formal = parameters.for_owner(callee_owner)
                 .flat_map(|row| row.parameters.iter())
                 .find(|row| row.ordinal == ordinal)
                 .ok_or(MapReadFactIssueV1::FormalMissing {

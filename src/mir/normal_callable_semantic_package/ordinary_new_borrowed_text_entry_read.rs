@@ -1,6 +1,5 @@
 //! Required source Text read, fulfilled only by a later finished borrowed entry.
 use super::*;
-use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -31,7 +30,7 @@ impl BorrowedFormalEntryReadRequirementV1 {
 
 
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn issue_formal_entry_read_requirement_v1(
-    contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     plan: &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>, read: &SourceExprSiteV1,
     binding: BindingRefV1, root: BindingRefV1,
     original: super::super::borrowed_formal_uses::OriginalFormalReadLoanV1,
@@ -43,8 +42,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     }
     let node = plan.nodes().iter().position(|node| node.site() == read
         && matches!(node.source(), ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(original)) if *original == binding)).ok_or_else(reject)?;
-    let declaration = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
-        contracts, binding.owner(), reject, reject,
+    let declaration = contracts.unique_for_owner(binding.owner(), reject, reject,
     )?;
     if !original.matches_contract(declaration) { return Err(reject()); }
     let mut formals = declaration.parameters.iter().filter(|row| row.binding == root);
@@ -57,7 +55,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 }
 
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn issue_text_entry_read_requirement_v1(
-    contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     plan: &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>, read: &SourceExprSiteV1,
     binding: BindingRefV1, root: BindingRefV1,
     original: super::super::borrowed_formal_uses::OriginalFormalReadLoanV1,
@@ -78,7 +76,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let source = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("borrowed-dynamic-entry/source-missing"))?
             .as_ref().map_err(Clone::clone)?;
         let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("borrowed-dynamic-entry/catalog-missing"))?;
-        let mut declarations = catalog.iter().filter(|row| row.owner == owner);
+        let mut declarations = catalog.for_owner(owner);
         let declaration = declarations.next().ok_or_else(|| freeze("borrowed-dynamic-entry/declaration-missing"))?;
         if declarations.next().is_some() || requirement.batch_slot != declaration.batch_slot
             || requirement.mode != declaration.mode || !requirement.original.matches_contract(declaration)
@@ -154,7 +152,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let source = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("borrowed-text-entry/source-missing"))?
             .as_ref().map_err(Clone::clone)?;
         let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("borrowed-text-entry/catalog-missing"))?;
-        let mut declarations = catalog.iter().filter(|row| row.owner == owner);
+        let mut declarations = catalog.for_owner(owner);
         let declaration = declarations.next().ok_or_else(|| freeze("borrowed-text-entry/declaration-missing"))?;
         if declarations.next().is_some() || requirement.batch_slot != declaration.batch_slot
             || requirement.mode != declaration.mode
@@ -263,7 +261,7 @@ pub(in crate::mir) fn original_entry_layout_v1(&self, binding: crate::mir::resol
     use crate::mir::normal_callable_semantic_package::PhysicalCallableLaneRoleV1 as Role;
     let ledger = self;
     let catalog = ledger.original_parameter_contracts.as_deref().ok_or_else(|| freeze("expression/scalar-entry-catalog"))?;
-    let mut declarations = catalog.iter().filter(|row| row.owner == binding.owner());
+    let mut declarations = catalog.for_owner(binding.owner());
     let declaration = declarations.next().ok_or_else(|| freeze("expression/scalar-entry-owner"))?;
     if declarations.next().is_some() { return Err(freeze("expression/scalar-entry-owner")); }
     let (receivers, namespace) = match declaration.mode {

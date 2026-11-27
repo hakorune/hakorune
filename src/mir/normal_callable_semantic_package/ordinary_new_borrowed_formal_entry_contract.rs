@@ -576,7 +576,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Box<[BorrowedFormalDomainV1]>, String> {
         use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1 as Mode;
         let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+        let mut contracts = catalog.for_owner(owner);
         let contract = contracts.next().ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
         if contracts.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
         if contract.mode == Mode::StaticBoxMethod { return self.checked_static_input_domains_for_owner_v1(owner); }
@@ -622,7 +622,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             EntryStructureEvidenceV1::OriginalInputs { uses, incoming, domains, tagged } => {
                 let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
-                let contract = catalog.iter().find(|row| row.owner == structure.owner)
+                let contract = catalog.for_owner(structure.owner).next()
                     .ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
                 let complete = self.checked_input_use_source_v1(contract)?
                     .ok_or_else(|| format!("{}: owner={:?}",

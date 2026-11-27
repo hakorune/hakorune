@@ -7,7 +7,7 @@ impl OrdinaryNewResultClassClaimsV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn declared_read_source_at_v1(&self,
         batch: &VerifiedResolvedCallableSemanticBatchV1, selected: &VerifiedSelectedCallableBatchMapV1,
         fields: &super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        parameters: &OwnedCallableParameterContractsV1,
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         site: &crate::mir::resolved_semantics::SourceExprSiteV1, app_main: Option<AppMainSourceRefV1<'_>>,
         caller: Option<&CanonicalSameModuleCallableKeyV1>,
@@ -25,7 +25,7 @@ impl OrdinaryNewResultClassClaimsV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn borrowed_support_read_at_v1(&self,
         batch: &VerifiedResolvedCallableSemanticBatchV1, selected: &VerifiedSelectedCallableBatchMapV1,
         fields: &super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        parameters: &OwnedCallableParameterContractsV1,
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         site: &crate::mir::resolved_semantics::SourceExprSiteV1, app_main: Option<AppMainSourceRefV1<'_>>,
     ) -> Result<Option<BorrowedSupportReadV1>, &'static str> {
@@ -41,7 +41,7 @@ impl OrdinaryNewResultClassClaimsV1 {
     pub(super) fn original_borrowed_read_v1(&self,
         batch: &VerifiedResolvedCallableSemanticBatchV1, selected: &VerifiedSelectedCallableBatchMapV1,
         fields: &super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        parameters: &OwnedCallableParameterContractsV1,
         outer: &call_witness::OriginalCallSourceV1, actual: &ResultActualSourceV1,
         app_main: Option<AppMainSourceRefV1<'_>>,
     ) -> Result<Option<BorrowedSupportReadV1>, &'static str> {

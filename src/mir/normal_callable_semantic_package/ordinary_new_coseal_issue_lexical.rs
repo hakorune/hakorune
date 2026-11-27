@@ -107,14 +107,12 @@ fn lexical_claim_local_target(
 /// binding set without re-filtering.
 fn all_formals_exact_i64<'a>(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
-    parameter_contracts: &'a [crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    parameter_contracts: &'a crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     callee_owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     arity: u32,
 ) -> Option<&'a crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1>
 {
-    let mut contracts = parameter_contracts
-        .iter()
-        .filter(|row| row.owner == callee_owner);
+    let mut contracts = parameter_contracts.for_owner(callee_owner);
     let contract = contracts.next()?;
     if contracts.next().is_some() || contract.parameters.len() != arity as usize {
         return None;
@@ -163,7 +161,7 @@ fn all_formals_exact_i64<'a>(
 pub(super) fn lexical_local_route(
     selected: &VerifiedSelectedCallableBatchMapV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
-    parameter_contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    parameter_contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     candidates: &[OrdinaryNewCandidate],
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
@@ -222,7 +220,7 @@ pub(super) fn prepare_source_preflight_v1(
         crate::mir::builder::CanonicalSameModuleCallableKeyV1,
     >,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
-    parameter_contracts: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
+    parameter_contracts: &super::super::super::model::OwnedCallableParameterContractsV1,
     static_call_claims: &super::super::super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
     app_main_batch_slot: Option<u32>,
     app_main: Option<&super::super::lexical_instance_call::BorrowedAppMainSourceLoanV1<'_>>,

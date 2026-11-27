@@ -134,7 +134,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
     pub(in crate::mir::normal_callable_semantic_package) fn retain_original_parameter_contracts_v1(
         &mut self,
-        contracts: &Rc<[super::super::model::OwnedCallableParameterContractDeclarationV1]>,
+        contracts: &Rc<super::super::model::OwnedCallableParameterContractsV1>,
     ) -> Result<(), String> {
         if self.original_parameter_contracts.is_some() {
             return Err(
@@ -151,7 +151,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn unpublishable_dynamic_text_parameter_v1<'a>(
         &self,
         selected: &'a super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
-        contracts: &[super::super::model::OwnedCallableParameterContractDeclarationV1],
+        contracts: &super::super::model::OwnedCallableParameterContractsV1,
     ) -> Option<&'a hakorune_mir_defs::CanonicalSameModuleCallableKeyV1> {
         use crate::mir::builder::SelectedNormalCallableKeyV1;
         use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
@@ -180,7 +180,7 @@ impl OrdinaryNewClaimLedgerV1 {
     #[cfg(test)]
     pub(in crate::mir::normal_callable_semantic_package) fn original_parameter_contracts_v1(
         &self,
-    ) -> Option<&Rc<[super::super::model::OwnedCallableParameterContractDeclarationV1]>> {
+    ) -> Option<&Rc<super::super::model::OwnedCallableParameterContractsV1>> {
         self.original_parameter_contracts.as_ref()
     }
 
@@ -631,7 +631,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &mut self,
         source: Option<&crate::mir::builder::AppMainCatalogCoSealV1>,
         batch: &VerifiedResolvedCallableSemanticBatchV1,
-        contracts: &[super::super::model::OwnedCallableParameterContractDeclarationV1],
+        contracts: &super::super::model::OwnedCallableParameterContractsV1,
     ) -> Result<(), OrdinaryNewCoSealIssueV1> {
         self.main_arguments_source =
             lexical_instance_call::borrow_app_main_source_v1(batch, source)?

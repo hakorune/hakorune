@@ -30,7 +30,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn req
 /// This consult lends syntax; Home qualification still proves each use.
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct FieldSourcesWithOriginalWritesV1<'a> {
     caller: Option<&'a CanonicalSameModuleCallableKeyV1>,
-    parameter_contracts: &'a [crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    parameter_contracts: &'a crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     constructors: &'a VerifiedInstanceConstructorSemanticBatchV1,
     receiver: Option<(BindingRefV1, &'a crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     entry: Option<&'a crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1>,
@@ -52,7 +52,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn fie
     'a,
 >(
     caller: Option<&'a CanonicalSameModuleCallableKeyV1>,
-    parameter_contracts: &'a [crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    parameter_contracts: &'a crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     constructors: &'a VerifiedInstanceConstructorSemanticBatchV1,
     receiver: Option<(
         BindingRefV1,

@@ -1,7 +1,6 @@
 //! Original acquisition joins completed inputs; Fault and source snapshots stay immutable.
 use super::super::{OrdinaryNewClaimLedgerV1, OrdinaryNewResultClassV1};
 use crate::mir::normal_callable_semantic_package::{
-    model::OwnedCallableParameterContractDeclarationV1,
     physical_signature::VerifiedCallablePhysicalSignatureCohortV1,
     selected_mapping::VerifiedSelectedCallableBatchMapV1,
 };
@@ -31,7 +30,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         value: &TerminalValueReturnV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
     ) -> Result<Option<VerifiedObjectReturnSourceAcquisitionV1>, String> {
         let TerminalReturnedSourceV1::OwnedCall(original) = value.returned() else {
@@ -80,9 +79,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(target) = source.object_source_target_at_v1(loan.call())? else {
             return Ok(None);
         };
-        let mut rows = contracts
-            .iter()
-            .filter(|row| row.owner == target.callee_owner());
+        let mut rows = contracts.for_owner(target.callee_owner());
         let contract = rows.next().ok_or_else(|| freeze("contract-missing"))?;
         if rows.next().is_some() {
             return Err(freeze("contract-duplicate"));

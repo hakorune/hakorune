@@ -14,7 +14,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .original_parameter_contracts
             .as_deref()
             .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+        let mut contracts = catalog.for_owner(owner);
         let contract = contracts
             .next()
             .ok_or_else(|| freeze("object-input/original-contract-missing"))?;
@@ -67,7 +67,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .original_parameter_contracts
             .as_deref()
             .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
-        let mut originals = catalog.iter().filter(|row| row.owner == contract.owner);
+        let mut originals = catalog.for_owner(contract.owner);
         let original = originals
             .next()
             .ok_or_else(|| freeze("object-input/original-contract-missing"))?;

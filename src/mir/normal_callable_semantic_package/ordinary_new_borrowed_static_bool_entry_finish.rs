@@ -167,7 +167,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &mut self,
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         results: &VerifiedCallableResultContractCohortV1,
     ) -> Result<(), String> {
@@ -219,9 +219,7 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 return Err(freeze("static-bool-entry/source-identity"));
             }
-            let mut callers = contracts
-                .iter()
-                .filter(|caller| caller.owner == row.call.owner());
+            let mut callers = contracts.for_owner(row.call.owner());
             let caller = callers
                 .next()
                 .ok_or_else(|| freeze("static-bool-entry/caller-missing"))?;
@@ -294,7 +292,7 @@ impl OrdinaryNewClaimLedgerV1 {
             super::static_numeric_evidence::check_exact_usize_scalar_caller_v1(
                 selected, contracts, signatures, original, binding,
             )?;
-            let mut matching = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, owner);
+            let mut matching = contracts.for_owner(owner);
             let contract = matching
                 .next()
                 .ok_or_else(|| freeze("static-bool-entry/contract-missing"))?;

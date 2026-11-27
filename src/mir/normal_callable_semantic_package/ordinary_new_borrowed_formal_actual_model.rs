@@ -262,7 +262,7 @@ impl PreparedBorrowedCallActualsV1 {
     #[cfg(test)]
     pub(in crate::mir::normal_callable_semantic_package) fn object_source_for_test(
         ingress: &PreparedBorrowedFormalIngressV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         call: &OwnedExprSiteV1,
         candidates: &[BorrowedCallActualCandidateV1],
     ) -> Self {

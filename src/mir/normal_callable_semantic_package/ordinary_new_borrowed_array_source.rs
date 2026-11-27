@@ -337,7 +337,7 @@ impl ArrayElementSourceLoanV1 {
     /// Exact original input rows for ALL producers, never a prefix or Ready grant.
     pub(in crate::mir::normal_callable_semantic_package) fn original_producer_inputs_v1<'a>(
         &self, ingress: &'a PreparedBorrowedFormalIngressV1,
-        catalog: &'a [crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+        catalog: &'a crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     ) -> Result<Vec<(&'a super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
     &'a crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1)>, String>{
         let mut inputs = Vec::new();

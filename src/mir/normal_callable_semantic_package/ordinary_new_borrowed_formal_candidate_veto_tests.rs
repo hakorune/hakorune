@@ -1,5 +1,6 @@
 //! A source candidate must retain scanner vetoes beside otherwise good input.
 use super::*;
+use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 
 #[test]
 fn candidate_integer_agreement_refuses_good_row_plus_unresolved_caller_veto() {

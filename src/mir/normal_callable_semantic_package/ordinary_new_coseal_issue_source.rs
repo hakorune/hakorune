@@ -506,7 +506,7 @@ pub(super) fn source_call_arguments_v1(
     fields: &field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     targets: &super::super::lexical_instance_call::PreparedLexicalInstanceCallSourceTargetsV1,
     dynamic_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
-    contracts: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
+    contracts: &super::super::super::model::OwnedCallableParameterContractsV1,
     candidates: &[OrdinaryNewCandidate],
     source: &Result<super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1, String>,
     static_sites: &Result<BTreeSet<OwnedExprSiteV1>, String>,
@@ -543,7 +543,7 @@ pub(super) fn has_receiver_home_call_v1(
         receiver_call_observation::ReceiverCallClassObservationV1,
     >,
     source: &Result<super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1, String>,
-    contracts: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
+    contracts: &super::super::super::model::OwnedCallableParameterContractsV1,
 ) -> Result<bool, OrdinaryNewCoSealIssueV1> {
     if has_nullable_receiver_call_v1(owner, observations) {
         return Ok(true);

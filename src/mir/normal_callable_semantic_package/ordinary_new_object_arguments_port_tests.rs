@@ -431,6 +431,7 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
                     crate::mir::callable_parameter_contract::CallableParameterContractKindV1::DeclaredObject("Token".into());
             }
             let parameters = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
+            let contracts: crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1 = contracts.into_iter().collect();
             let mut pending = BTreeMap::new();
             let mut batches = 0;
             let mut source_requests = 0;

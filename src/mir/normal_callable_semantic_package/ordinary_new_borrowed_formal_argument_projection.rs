@@ -43,7 +43,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 pub(in crate::mir::normal_callable_semantic_package) fn project_pending_instance_arguments_by_phase_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     actuals: &PendingBorrowedFormalActualsV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     target: &LexicalInstanceCallSourceTargetV1,
     array_ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
 ) -> Result<Box<[LocalCallArgumentV1]>, String> {
@@ -83,7 +83,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_instance
 pub(in crate::mir::normal_callable_semantic_package) fn project_pending_i64_result_arguments_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     actuals: &PendingBorrowedFormalActualsV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     results: &BorrowedResultCohortV1,
     site: &OwnedExprSiteV1,
     proposed: bool,

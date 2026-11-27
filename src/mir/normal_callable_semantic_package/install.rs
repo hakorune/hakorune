@@ -40,8 +40,7 @@ use super::result_contract::{CallableResultContractRefV1, VerifiedCallableResult
 use super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use super::{
     model::{
-        NormalCallableDynamicProjectionV1, NormalRootExecutionPackageStateV1,
-        OwnedCallableParameterContractDeclarationV1, VerifiedNormalCallableSemanticPackageV1,
+        NormalCallableDynamicProjectionV1, NormalRootExecutionPackageStateV1, VerifiedNormalCallableSemanticPackageV1,
     },
     BuilderInstallTokenV1,
 };
@@ -116,7 +115,7 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     instance_constructors:
         super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
     selected: Rc<VerifiedSelectedCallableBatchMapV1>,
-    parameter_contracts: Rc<[OwnedCallableParameterContractDeclarationV1]>,
+    parameter_contracts: Rc<crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1>,
     result_contracts: VerifiedCallableResultContractCohortV1,
     physical_signature: Rc<VerifiedCallablePhysicalSignatureCohortV1>,
     declared_instance_call_locators:

@@ -41,7 +41,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let contract = self
             .original_parameter_contracts
             .as_deref()
-            .and_then(|catalog| catalog.iter().find(|row| row.owner == owner))
+            .and_then(|catalog| catalog.for_owner(owner).next())
             .ok_or_else(|| freeze("object-input/original-contract-missing"))?;
         let catalog = self
             .original_parameter_contracts
@@ -217,7 +217,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn finish_typed_object_input_actuals_v1(
         &mut self,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
     ) -> Result<(), String> {
         let Some(Ok(source)) = &self.borrowed_formal_source else {
@@ -235,8 +235,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .map(|row| row.callee)
             .collect();
         for owner in owners {
-            let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
-                contracts, owner,
+            let contract = contracts.unique_for_owner(owner,
                 || freeze("object-input/contract-missing"),
                 || freeze("object-input/contract-duplicate"),
             )?;
@@ -281,7 +280,7 @@ impl OrdinaryNewClaimLedgerV1 {
         target: &LexicalInstanceCallSourceTargetV1,
         loan: &crate::mir::normal_callable_semantic_package::ObjectReturnCallQualificationV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
     ) -> Result<Option<&[LocalCallArgumentV1]>, String> {
         if loan.call() != target.call_site()
@@ -307,7 +306,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         target: &LexicalInstanceCallSourceTargetV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
     ) -> Result<Option<&[LocalCallArgumentV1]>, String> {
         let source = self
@@ -328,7 +327,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         target: &LexicalInstanceCallSourceTargetV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
     ) -> Result<Option<&[LocalCallArgumentV1]>, String> {
         let source = self
@@ -337,9 +336,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("object-input/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        let mut matching = contracts
-            .iter()
-            .filter(|row| row.owner == target.callee_owner());
+        let mut matching = contracts.for_owner(target.callee_owner());
         let contract = matching
             .next()
             .ok_or_else(|| freeze("object-input/contract-missing"))?;

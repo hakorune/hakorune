@@ -162,7 +162,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn corroborate_source_scala
 
 fn source_scalar_seed_target_v1(
     ingress: &PreparedBorrowedFormalIngressV1, target: &LexicalInstanceCallSourceTargetV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     results: &ResultSources, classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
 ) -> Result<bool, String> {
     if !target.uses_existing_borrowed_result_v1() { return Ok(false); }
@@ -248,7 +248,7 @@ fn source_scalar_seed_target_v1(
 /// No seedless cycle or unrelated call/discard makes a scalar family member.
 fn selected_source_scalar_target_v1(
     ingress: &PreparedBorrowedFormalIngressV1, target: &LexicalInstanceCallSourceTargetV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     results: &ResultSources, classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
 ) -> Result<bool, String> {
     if source_scalar_seed_target_v1(ingress, target, contracts, results, classes)? {
@@ -289,7 +289,7 @@ fn selected_source_scalar_target_v1(
 /// This lends no empty cleanup, input, signature or executable result permission.
 pub(in crate::mir::normal_callable_semantic_package) fn required_scalar_source_walk_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>, results: &ResultSources,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     owner: FunctionOwnerIdV1, classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
 ) -> Result<bool, (OwnedExprSiteV1, String)> {
     let Ok(ingress) = source else { return Ok(false); };
@@ -325,7 +325,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn required_scalar_source_w
 /// Selected source absence/errors must never become an old-I64 retry.
 pub(in crate::mir::normal_callable_semantic_package) fn source_scalar_result_arguments_v1(
     targets: &super::super::PreparedLexicalInstanceCallSourceTargetsV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     pending: &PendingBorrowedFormalActualsV1,
     results: &ResultSources,
@@ -379,7 +379,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_scalar_result_arg
 pub(in crate::mir::normal_callable_semantic_package) fn lend_source_scalar_result_arguments_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     pending: &PendingBorrowedFormalActualsV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     results: &ResultSources,
     loan: &BorrowedScalarResultSourceLoanV1,
     array_ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
@@ -389,9 +389,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_source_scalar_resul
     if target.target().arity() == 0 && target.argument_sites().is_empty() {
         let ingress = source.as_ref().map_err(Clone::clone)?;
         exact_original_target(ingress, target)?;
-        let mut matching = contracts
-            .iter()
-            .filter(|contract| contract.owner == target.callee_owner());
+        let mut matching = contracts.for_owner(target.callee_owner());
         let contract = matching
             .next()
             .ok_or_else(|| freeze("scalar-loan/zero-argument-contract-missing"))?;
@@ -524,7 +522,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let catalog = self.original_parameter_contracts.as_deref()
             .ok_or_else(|| freeze("callable-scalar/catalog-missing"))?;
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+        let mut contracts = catalog.for_owner(owner);
         let contract = contracts.next().ok_or_else(|| freeze("callable-scalar/contract-missing"))?;
         if contracts.next().is_some() { return Err(freeze("callable-scalar/contract-duplicate")); }
         Ok(contract.mode == crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod)
@@ -605,7 +603,7 @@ impl OrdinaryNewClaimLedgerV1 {
             current_proof.require_source_scalar_v1()?;
             let completion = self.completion_source_for_owner_v1(current)
                 .ok_or_else(|| freeze("callable-scalar/completion-missing"))?;
-            let mut contracts = catalog.iter().filter(|row| row.owner == current);
+            let mut contracts = catalog.for_owner(current);
             let contract = contracts.next()
                 .ok_or_else(|| freeze("callable-scalar/contract-missing"))?;
             if contracts.next().is_some() {

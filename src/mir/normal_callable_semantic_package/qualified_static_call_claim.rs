@@ -356,7 +356,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predic
     caller_key: Option<CanonicalSameModuleCallableKeyV1>,
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'index>,
     selected: &'index super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
-    contracts: &'index [super::model::OwnedCallableParameterContractDeclarationV1],
+    contracts: &'index super::model::OwnedCallableParameterContractsV1,
     app_main: Option<&'index super::ordinary_new_coseal::BorrowedAppMainSourceLoanV1<'_>>,
     ingress: Option<&'index super::ordinary_new_coseal::lexical_instance_call::PreparedBorrowedFormalIngressV1>,
 ) -> Result<
@@ -455,7 +455,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn claim_for_source_site_v1
     input: &crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
     selected: &super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
-    contracts: &[super::model::OwnedCallableParameterContractDeclarationV1],
+    contracts: &super::model::OwnedCallableParameterContractsV1,
     app_main: Option<&super::ordinary_new_coseal::BorrowedAppMainSourceLoanV1<'_>>,
 ) -> Result<Option<StaticScalarCallClaimV1>, super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1> {
     let Some(key) = caller_key else {

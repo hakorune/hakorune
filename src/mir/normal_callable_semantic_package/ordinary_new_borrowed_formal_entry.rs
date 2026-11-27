@@ -454,7 +454,7 @@ impl OrdinaryNewClaimLedgerV1 {
             };
             let catalog = self.original_parameter_contracts.as_deref()
                 .ok_or_else(|| freeze("object-return/original-input-catalog-missing"))?;
-            let mut original = catalog.iter().filter(|row| row.owner == contract.owner);
+            let mut original = catalog.for_owner(contract.owner);
             let original = original.next()
                 .filter(|_| original.next().is_none())
                 .ok_or_else(|| freeze("object-return/original-input-contract"))?;

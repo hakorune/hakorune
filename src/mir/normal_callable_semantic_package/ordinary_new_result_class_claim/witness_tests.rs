@@ -140,7 +140,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn with_source_claims_fixtu
         &VerifiedResolvedCallableSemanticBatchV1,
         &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
         &crate::mir::normal_callable_semantic_package::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
-        &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+        &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         Option<&super::super::lexical_instance_call::BorrowedAppMainSourceLoanV1<'_>>,
         &std::rc::Rc<super::super::OriginalFieldWriterInventoryV1>,
     ) -> R,
@@ -206,7 +206,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn with_source_claims_fixtu
     let parameter_catalog =
         crate::mir::callable_parameter_contract::issue_callable_parameter_contract_v1(&batch)
             .unwrap();
-    let parameters: Vec<_> = parameter_catalog
+    let parameters: crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1 = parameter_catalog
         .declarations()
         .map(|row| model::OwnedCallableParameterContractDeclarationV1 {
             batch_slot: row.batch_slot(),

@@ -152,7 +152,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(catalog) = self.original_parameter_contracts.as_deref() else {
             return Ok(false);
         };
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+        let mut contracts = catalog.for_owner(owner);
         let Some(contract) = contracts.next() else { return Ok(false) };
         if contracts.next().is_some() {
             return Err(freeze("borrowed-entry/original-contract-duplicate"));
@@ -188,7 +188,7 @@ impl OrdinaryNewClaimLedgerV1 {
         -> Result<std::collections::BTreeSet<BindingRefV1>, String> {
         let catalog = self.original_parameter_contracts.as_deref()
             .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
-        let mut rows = catalog.iter().filter(|row| row.owner == owner);
+        let mut rows = catalog.for_owner(owner);
         let row = rows.next().ok_or_else(|| freeze("borrowed-entry/original-contract-missing"))?;
         if rows.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
         let mut result = std::collections::BTreeSet::new();
@@ -316,9 +316,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     .original_parameter_contracts
                     .as_deref()
                     .ok_or_else(|| freeze("mixed-entry/catalog-missing"))?;
-                let contract = catalog
-                    .iter()
-                    .find(|row| row.owner == owner)
+                let contract = catalog.for_owner(owner).next()
                     .ok_or_else(|| freeze("mixed-entry/contract-missing"))?;
                 let parameters: Vec<_> = rows
                     .iter()

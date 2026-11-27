@@ -214,13 +214,12 @@ struct ArgumentSourceIdentityRefV1<'a> {
     formals: &'a [crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1],
 }
 fn argument_source_contract_v1<'a>(
-    contracts: &'a [OwnedCallableParameterContractDeclarationV1],
+    contracts: &'a crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     source: &LexicalInstanceCallSourceTargetV1,
     candidates: &[BorrowedCallActualCandidateV1],
     reject: impl Fn() -> String + Copy,
 ) -> Result<&'a OwnedCallableParameterContractDeclarationV1, String> {
-    let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
-        contracts, source.callee_owner(), reject, reject,
+    let contract = contracts.unique_for_owner(source.callee_owner(), reject, reject,
     )?;
     if contract.batch_slot != source.target_batch_slot()
         || contract.mode != super::super::super::borrowed_formal_uses::BorrowedIncomingCallLoanV1::Instance(source).declaration_mode()
@@ -237,7 +236,7 @@ fn argument_source_contract_v1<'a>(
 }
 fn argument_source_identity_v1<'a>(
     prepared: &'a PreparedBorrowedFormalIngressV1,
-    contracts: Option<&'a [OwnedCallableParameterContractDeclarationV1]>,
+    contracts: Option<&'a crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1>,
     rows: &'a PreparedBorrowedCallActualsV1,
     site: &OwnedExprSiteV1,
 ) -> Result<Option<ArgumentSourceIdentityRefV1<'a>>, String> {

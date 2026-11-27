@@ -139,13 +139,12 @@ impl BorrowedIncomingSourceV1 {
         &self,
         ordinal: u32,
         construction: &crate::mir::resolved_semantics::ResolvedNewExpressionSourceV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     ) -> bool {
         if self.argument_sites().get(ordinal as usize) != Some(construction.site()) {
             return false;
         }
-        let mut declarations = OwnedCallableParameterContractDeclarationV1::for_batch_slot(
-            contracts, self.target_batch_slot(),
+        let mut declarations = contracts.for_batch_slot(self.target_batch_slot(),
         )
         .filter(|declaration| declaration.owner == self.callee_owner());
         let Some(declaration) = declarations.next() else {

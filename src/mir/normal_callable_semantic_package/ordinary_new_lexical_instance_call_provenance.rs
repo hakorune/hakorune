@@ -11,7 +11,7 @@ pub(super) struct LexicalReceiverClassSourceV1<'a> {
     ordinary_box_names: &'a [Box<str>],
     field_write_claims: &'a super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     callable_result_classes: &'a super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
-    parameters: &'a [crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    parameters: &'a crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     app_main: Option<AppMainSourceRefV1<'a>>,
     constructors: Option<&'a crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1>,
     entries: Option<&'a crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1>,
@@ -23,7 +23,7 @@ impl<'a> LexicalReceiverClassSourceV1<'a> {
         ordinary_box_names: &'a [Box<str>],
         field_write_claims: &'a super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
         callable_result_classes: &'a super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
-        parameters: &'a [crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+        parameters: &'a crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         app_main: Option<AppMainSourceRefV1<'a>>,
         constructors: Option<&'a crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1>,
         entries: Option<&'a crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1>,
@@ -94,7 +94,7 @@ impl LexicalReceiverClassSourceV1<'_> {
         };
         // A take declaration supplies nominal class, not entry or ownership
         // permission. The original full incoming cohort still closes later.
-        let mut contracts = self.parameters.iter().filter(|row| row.batch_slot == callee_slot);
+        let mut contracts = self.parameters.for_batch_slot(callee_slot);
         if let Some(contract) = contracts.next() {
             if contracts.next().is_some() {
                 return Err(freeze("lexical-instance-call/batch-loan"));

@@ -5,7 +5,7 @@ use super::{
     ResultOriginWitnessV1, ResultSupportSubstitutionV1, ResultValueOriginV1, ResultWitnessStepV1,
 };
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
-use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
+use crate::mir::normal_callable_semantic_package::model::{OwnedCallableParameterContractsV1};
 use crate::mir::resolved_semantics::OwnedExprSiteV1;
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 use std::rc::Rc;
@@ -15,7 +15,7 @@ use std::rc::Rc;
 fn selected_or_main_caller_key_v1<'a>(
     batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     selected: &'a crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
-    parameters: &[OwnedCallableParameterContractDeclarationV1],
+    parameters: &OwnedCallableParameterContractsV1,
     app_main: Option<AppMainSourceRefV1<'a>>,
     owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     slot: u32,
@@ -141,7 +141,7 @@ impl OriginalCallSourceV1 {
     pub(super) fn formal_actual_v1(
         &self,
         batch: &super::VerifiedResolvedCallableSemanticBatchV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        parameters: &OwnedCallableParameterContractsV1,
         ordinal: u32,
     ) -> Result<(super::BindingRefV1, u32), &'static str> {
         let root = self
@@ -149,9 +149,7 @@ impl OriginalCallSourceV1 {
             .get(ordinal as usize)
             .and_then(|row| row.binding)
             .ok_or("borrowed-nullable/actual-root")?;
-        let mut contracts = parameters
-            .iter()
-            .filter(|row| row.batch_slot == self.caller_slot);
+        let mut contracts = parameters.for_batch_slot(self.caller_slot);
         let contract = contracts
             .next()
             .ok_or("borrowed-nullable/caller-contract")?;
@@ -191,7 +189,7 @@ impl OriginalCallSourceV1 {
         output: &OwnedExprSiteV1,
         facts: &super::OrdinaryNewResultClassClaimsV1,
         batch: &super::VerifiedResolvedCallableSemanticBatchV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        parameters: &OwnedCallableParameterContractsV1,
     ) -> Result<Vec<Rc<ResultOriginWitnessV1>>, &'static str> {
         let roots = facts.checked_original_source_roots_v1(&self.key, self.callee_owner)?;
         if roots.is_empty() {
@@ -220,7 +218,7 @@ impl super::OrdinaryNewResultClassClaimsV1 {
         selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
         fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
         call: &OwnedExprSiteV1, destination: super::BindingRefV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1], app_main: Option<AppMainSourceRefV1<'_>>,
+        parameters: &OwnedCallableParameterContractsV1, app_main: Option<AppMainSourceRefV1<'_>>,
     ) -> Result<Option<OriginalLocalCallSourceV1>, &'static str> {
         self.resolve_original_local_call_v1(batch, selected, fields, call, destination, parameters, app_main, true, None)
     }
@@ -230,7 +228,7 @@ impl super::OrdinaryNewResultClassClaimsV1 {
         selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
         fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
         call: &OwnedExprSiteV1, destination: super::BindingRefV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1], app_main: Option<AppMainSourceRefV1<'_>>,
+        parameters: &OwnedCallableParameterContractsV1, app_main: Option<AppMainSourceRefV1<'_>>,
         caller: Option<&CanonicalSameModuleCallableKeyV1>,
     ) -> Result<Option<OriginalLocalCallSourceV1>, &'static str> {
         self.resolve_original_local_call_v1(batch, selected, fields, call, destination, parameters, app_main, false, caller)
@@ -243,7 +241,7 @@ impl super::OrdinaryNewResultClassClaimsV1 {
         fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
         call: &OwnedExprSiteV1,
         destination: super::BindingRefV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        parameters: &OwnedCallableParameterContractsV1,
         app_main: Option<AppMainSourceRefV1<'_>>,
         require_outcomes: bool,
         original_caller: Option<&CanonicalSameModuleCallableKeyV1>,
@@ -267,7 +265,7 @@ impl super::OrdinaryNewResultClassClaimsV1 {
         selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
         fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
         call: &OwnedExprSiteV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        parameters: &OwnedCallableParameterContractsV1,
         app_main: Option<AppMainSourceRefV1<'_>>,
         require_outcomes: bool,
         original_caller: Option<&CanonicalSameModuleCallableKeyV1>,
@@ -346,7 +344,7 @@ impl super::OrdinaryNewResultClassClaimsV1 {
         selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
         reference: &super::super::lexical_instance_call::CallTargetReferenceV1,
         destination: super::BindingRefV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        parameters: &OwnedCallableParameterContractsV1,
         app_main: Option<AppMainSourceRefV1<'_>>,
     ) -> Result<OriginalLocalCallSourceV1, &'static str> {
         let call = &reference.call_site;
@@ -497,7 +495,7 @@ impl<'a> CallWitnessSourceV1<'a> {
     pub(super) fn compose(
         self,
         callee_rows: &[ResultExitOriginV1],
-        parameter_contracts: &[OwnedCallableParameterContractDeclarationV1],
+        parameter_contracts: &OwnedCallableParameterContractsV1,
         batch_slot: u32,
     ) -> Option<Vec<Rc<ResultOriginWitnessV1>>> {
         self.compose_with_source(callee_rows, parameter_contracts, batch_slot, None).ok().flatten()
@@ -506,7 +504,7 @@ impl<'a> CallWitnessSourceV1<'a> {
     pub(super) fn compose_with_source(
         self,
         callee_rows: &[ResultExitOriginV1],
-        parameter_contracts: &[OwnedCallableParameterContractDeclarationV1],
+        parameter_contracts: &OwnedCallableParameterContractsV1,
         batch_slot: u32,
         context: Option<&super::witness::SourceCompositionContextV1<'_>>,
     ) -> Result<Option<Vec<Rc<ResultOriginWitnessV1>>>, CanonicalSameModuleCallableKeyV1> {

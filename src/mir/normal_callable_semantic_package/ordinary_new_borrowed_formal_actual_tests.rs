@@ -491,7 +491,7 @@ fn mixed_actuals_check_the_nonopaque_formal_ordinal() {
         .unwrap()
         .parameters[1]
         .ordinal = 0;
-    package.parameter_contracts = contracts.into();
+    package.parameter_contracts = std::rc::Rc::new(contracts.into_iter().collect());
     let error = prepare_borrowed_call_actuals_v1(
         package
             .ordinary_new_claim_ledger

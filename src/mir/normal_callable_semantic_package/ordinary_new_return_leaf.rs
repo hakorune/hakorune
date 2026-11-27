@@ -198,7 +198,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 };
                 let catalog = self.original_parameter_contracts.as_deref()
                     .ok_or_else(|| freeze("object-return/field-support-catalog"))?;
-                let mut rows = catalog.iter().filter(|row| row.owner == site.owner());
+                let mut rows = catalog.for_owner(site.owner());
                 let contract = rows.next().ok_or_else(|| freeze("object-return/field-support-owner"))?;
                 if rows.next().is_some() { return Err(freeze("object-return/field-support-owner")); }
                 let mut parameters = contract.parameters.iter().filter(|row| row.ordinal == *ordinal);

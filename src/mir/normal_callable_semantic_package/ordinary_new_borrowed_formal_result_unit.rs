@@ -6,7 +6,7 @@ use crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1;
 
 pub(in crate::mir::normal_callable_semantic_package) fn source_unit_discard_v1(
     targets: &super::super::PreparedLexicalInstanceCallSourceTargetsV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     pending: &PendingBorrowedFormalActualsV1,
     site: &OwnedExprSiteV1,
@@ -46,10 +46,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_unit_discard_v1(
 /// The incoming opaque-formal subset and full ordered actual list have different
 /// cardinalities. Corroborate both against the same original declaration.
 fn check_original_argument_contract_v1(
-    contracts: &[OwnedCallableParameterContractDeclarationV1], target: &LexicalInstanceCallSourceTargetV1,
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1, target: &LexicalInstanceCallSourceTargetV1,
     incoming: &super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
 ) -> Result<(), String> {
-    let declarations: Vec<_> = contracts.iter().filter(|row| row.owner == incoming.callee).collect();
+    let declarations: Vec<_> = contracts.for_owner(incoming.callee).collect();
     let [declaration] = declarations.as_slice() else { return Err(freeze("unit-source/declaration-missing-or-duplicate")); };
     if target.callee_owner() != incoming.callee || target.call_site() != &incoming.call
         || incoming.source.require_instance()? != target || declaration.batch_slot != target.target_batch_slot()
@@ -94,7 +94,7 @@ impl OrdinaryNewClaimLedgerV1 {
     /// The input owner still verifies its cleanup and finishes actuals.
     pub(in crate::mir::normal_callable_semantic_package) fn original_unit_implicit_input_request_v1(
         &self, ingress: &PreparedBorrowedFormalIngressV1,
-        catalog: &[OwnedCallableParameterContractDeclarationV1],
+        catalog: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
     ) -> Result<bool, String> {
         if completion.implicit_body_end().is_none() { return Ok(false); }

@@ -296,7 +296,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .original_parameter_contracts
             .as_deref()
             .ok_or_else(|| freeze("static-input/catalog-missing"))?;
-        let mut matching = catalog.iter().filter(|row| row.owner == owner);
+        let mut matching = catalog.for_owner(owner);
         let contract = matching
             .next()
             .ok_or_else(|| freeze("static-input/contract-missing"))?;

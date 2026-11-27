@@ -1,7 +1,7 @@
 //! One mixed result upgrades the existing lexical cell after full source sealing.
 use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use super::*;
-use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
+use crate::mir::normal_callable_semantic_package::model::{OwnedCallableParameterContractsV1};
 use crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1;
 use crate::mir::resolved_semantics::home_new_prefix::{LocalCallObservationV1, LocalCallResultClassV1};
 use std::rc::Rc;
@@ -66,7 +66,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
     pub(in crate::mir::normal_callable_semantic_package) fn finish_mixed_call_slots_v1(
         &mut self, selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         results: &VerifiedCallableResultContractCohortV1,
     ) -> Result<(), String> {

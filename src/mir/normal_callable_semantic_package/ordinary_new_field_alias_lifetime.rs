@@ -70,9 +70,9 @@ impl OrdinaryNewClaimLedgerV1 {
         let catalog = self.original_parameter_contracts.as_deref()
             .ok_or_else(|| fault("alias/entry-root-empty"))?;
         let owner = target.call_site().owner();
-        let mut rows = catalog.iter().filter(|row| row.owner == owner);
+        let mut rows = catalog.for_owner(owner);
         let Some(contract) = rows.next() else { return Ok(false) };
-        if rows.next().is_some() || catalog.iter().filter(|row| row.batch_slot == contract.batch_slot).count() != 1 {
+        if rows.next().is_some() || catalog.for_batch_slot(contract.batch_slot).count() != 1 {
             return Err(fault("alias/entry-root-field-drift"));
         }
         if contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod {
@@ -98,9 +98,9 @@ impl OrdinaryNewClaimLedgerV1 {
         let root = target.receiver_binding()?;
         let owner = target.call_site().owner();
         let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| fault("alias/entry-root-empty"))?;
-        let mut rows = catalog.iter().filter(|row| row.owner == owner);
+        let mut rows = catalog.for_owner(owner);
         let Some(contract) = rows.next() else { return Ok(false); };
-        if rows.next().is_some() || catalog.iter().filter(|row| row.batch_slot == contract.batch_slot).count() != 1 {
+        if rows.next().is_some() || catalog.for_batch_slot(contract.batch_slot).count() != 1 {
             return Err(fault("alias/entry-root-field-drift"));
         }
         let Some((selected, _)) = &self.original_instance_input_issuance else { return Ok(false); };

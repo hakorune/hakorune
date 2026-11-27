@@ -284,7 +284,7 @@ impl CoreRequestNode {
 }
 pub(super) fn resolve_original_source_sums_v1(
     source: &OriginalFormalSeedProductV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
     initializer_roots: &[OriginalFormalActualSeedV1],
     field_roots: &[FieldSourceSeedsV1],
@@ -436,17 +436,13 @@ pub(super) fn resolve_original_source_sums_v1(
         if !registered.contains(binding) {
             row.invalid = true;
         } else if row.union.is_empty() && !row.invalid {
-            let untyped = contracts
-                .iter()
-                .filter(|contract| contract.owner == binding.owner())
+            let untyped = contracts.for_owner(binding.owner())
                 .flat_map(|contract| &contract.parameters)
                 .any(|formal| {
                     formal.binding == *binding
                         && formal.kind == CallableParameterContractKindV1::OpaqueHandle
                 });
-            let declared_i64 = contracts
-                .iter()
-                .filter(|contract| contract.owner == binding.owner())
+            let declared_i64 = contracts.for_owner(binding.owner())
                 .flat_map(|contract| &contract.parameters)
                 .any(|formal| {
                     formal.binding == *binding

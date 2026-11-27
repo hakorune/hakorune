@@ -32,7 +32,7 @@ impl OrdinaryNewClaimLedgerV1 {
     /// Finite Text source membership selects the source scope, never a phase.
     pub(in crate::mir::normal_callable_semantic_package) fn original_instance_input_calls_v1(
         source: &PreparedBorrowedFormalIngressV1,
-        catalog: &[OwnedCallableParameterContractDeclarationV1],
+        catalog: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         owner: FunctionOwnerIdV1,
     ) -> Result<Box<[BorrowedIncomingCallDraftV1]>, String> {
         let owners = std::collections::BTreeSet::from([owner]);
@@ -46,7 +46,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
     pub(in crate::mir::normal_callable_semantic_package) fn original_instance_input_call_v1(
         source: &PreparedBorrowedFormalIngressV1,
-        catalog: &[OwnedCallableParameterContractDeclarationV1],
+        catalog: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         site: &OwnedExprSiteV1,
     ) -> Result<Option<BorrowedIncomingCallDraftV1>, String> {
         // Successful source membership only proposes an owner. The checked
@@ -324,7 +324,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         owner: FunctionOwnerIdV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     ) -> Result<Option<&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1>, String> {
         let source = self
             .borrowed_formal_source
@@ -361,7 +361,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .original_parameter_contracts
             .as_deref()
             .ok_or_else(|| freeze("array-lifecycle/original-catalog-missing"))?;
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+        let mut contracts = catalog.for_owner(owner);
         let contract = contracts
             .next()
             .ok_or_else(|| freeze("array-lifecycle/caller-missing"))?;
@@ -472,7 +472,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn finish_original_instance_input_actuals_v1(
         &mut self,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         results: &crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1,
     ) -> Result<(), String> {
@@ -504,8 +504,7 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 continue;
             }
-            let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
-                contracts, owner,
+            let contract = contracts.unique_for_owner(owner,
                 || freeze("instance-input/contract-missing"),
                 || freeze("instance-input/contract-duplicate"),
             )?;
@@ -572,12 +571,12 @@ impl OrdinaryNewClaimLedgerV1 {
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn recheck_finished_instance_input_v1(
     ledger: &OrdinaryNewClaimLedgerV1,
     source: &PreparedBorrowedFormalIngressV1,
-    catalog: &[OwnedCallableParameterContractDeclarationV1],
+    catalog: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     original: &BorrowedIncomingCallDraftV1,
     actuals: &PreparedBorrowedCallActualsV1,
 ) -> Result<(), String> {
     let owner = original.callee;
-    let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+    let mut contracts = catalog.for_owner(owner);
     let contract = contracts
         .next()
         .ok_or_else(|| freeze("instance-input/contract-missing"))?;
@@ -634,7 +633,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 pub(in crate::mir::normal_callable_semantic_package) fn revalidate_guarded_instance_incoming_v1(
     ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
     source: &PreparedBorrowedFormalIngressV1,
-    catalog: &[OwnedCallableParameterContractDeclarationV1],
+    catalog: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     call: &BorrowedIncomingCallDraftV1,
     rows: &PreparedBorrowedCallActualsV1,
 ) -> Result<bool, String> {

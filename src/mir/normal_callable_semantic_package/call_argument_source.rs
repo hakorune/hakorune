@@ -288,7 +288,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_take_homes_v1(
     pending: &PendingBorrowedFormalActualsV1,
     site: &OwnedExprSiteV1,
     candidates: &[super::super::super::candidate::OrdinaryNewCandidate],
-    contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     prepared: &Result<PreparedBorrowedFormalIngressV1, String>,
     targets: &super::super::PreparedLexicalInstanceCallSourceTargetsV1,
@@ -387,7 +387,7 @@ fn exact_no_entry_transfer_v1(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     prepared: &Result<PreparedBorrowedFormalIngressV1, String>,
     targets: &super::super::PreparedLexicalInstanceCallSourceTargetsV1,
-    contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     site: &OwnedExprSiteV1,
 ) -> Result<bool, String> {
     let Some(method) = input.function().method_call_source_v1(site.site()) else {
@@ -427,7 +427,7 @@ fn exact_no_entry_transfer_v1(
     let Some((owner, slot, arguments)) = target else {
         return Ok(false);
     };
-    let mut matching = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, owner);
+    let mut matching = contracts.for_owner(owner);
     let Some(contract) = matching.next() else {
         return Ok(false);
     };
@@ -452,7 +452,7 @@ fn source_take_homes_with_source_v1(
     pending: &PendingBorrowedFormalActualsV1,
     site: &OwnedExprSiteV1,
     source: ObjectActualHomeSourceV1<'_>,
-    contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
 ) -> Result<
     (
         bool,
@@ -497,9 +497,7 @@ fn source_take_homes_with_source_v1(
             _ => None,
         };
         if let Some((target, actuals, incoming)) = instance {
-            let mut matching = contracts
-                .iter()
-                .filter(|row| row.owner == target.callee_owner());
+            let mut matching = contracts.for_owner(target.callee_owner());
             let contract = matching
                 .next()
                 .ok_or_else(|| freeze("borrowed-actual/formal-missing"))?;

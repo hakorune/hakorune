@@ -4,7 +4,7 @@ use super::*;
 use std::rc::Rc;
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::home_new_prefix::{LocalCallObservationV1, LocalCallResultClassV1};
-use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
+use crate::mir::normal_callable_semantic_package::model::{OwnedCallableParameterContractsV1};
 use crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1;
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -171,7 +171,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn finish_borrowed_nullable_slots_v1(
         &mut self, batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         results: &VerifiedCallableResultContractCohortV1,
     ) -> Result<(), String> {
@@ -225,7 +225,7 @@ impl OrdinaryNewClaimLedgerV1 {
     }
     fn finish_borrowed_map_receiver_slots_v1(
         &mut self, selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &OwnedCallableParameterContractsV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         results: &VerifiedCallableResultContractCohortV1,
     ) -> Result<(), String> {

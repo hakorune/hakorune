@@ -101,10 +101,10 @@ pub(super) fn resolve_formal_domains_v1(
 /// This is not an i64 Return/range grant; no scalar-local alias inference.
 pub(super) fn declared_integer_seed_v1(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     binding: BindingRefV1,
 ) -> bool {
-    let mut owners = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, input.owner());
+    let mut owners = contracts.for_owner(input.owner());
     let Some(contract) = owners.next() else {
         return false;
     };
@@ -155,9 +155,7 @@ mod tests {
         );
         let slot = package.selected.batch_slot(&key).unwrap();
         package
-            .parameter_contracts
-            .iter()
-            .find(|row| row.batch_slot == slot)
+            .parameter_contracts.for_batch_slot(slot).next()
             .unwrap()
             .parameters[0]
             .binding
@@ -465,21 +463,19 @@ mod tests {
                 );
                 let slot = package.selected.batch_slot(&key).unwrap();
                 let contract = package
-                    .parameter_contracts
-                    .iter()
-                    .find(|row| row.batch_slot == slot)
+                    .parameter_contracts.for_batch_slot(slot).next()
                     .unwrap();
                 let binding = contract.parameters[0].binding;
                 package.batch().with_lowering_input(slot, |input| {
                 assert_eq!(declared_integer_seed_v1(input, &package.parameter_contracts, binding), expected, "{body}");
-                let bad = OwnedCallableParameterContractDeclarationV1 {
+                let bad = crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1 {
                     owner: contract.owner, batch_slot: contract.batch_slot, mode: contract.mode,
                     parameters: vec![crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1 {
                         ordinal: 1, binding, kind: contract.parameters[0].kind.clone(),
                         demand: contract.parameters[0].demand,
                     }].into_boxed_slice(),
                 };
-                assert!(!declared_integer_seed_v1(input, &[bad], binding));
+                assert!(!declared_integer_seed_v1(input, &[bad].into_iter().collect(), binding));
             }).unwrap();
             }
         }
@@ -532,9 +528,7 @@ mod tests {
                 crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer
             );
             let caller_contract = package
-                .parameter_contracts
-                .iter()
-                .find(|row| row.owner == original_call.call.owner())
+                .parameter_contracts.for_owner(original_call.call.owner()).next()
                 .unwrap();
             assert_eq!(*source, caller_contract.parameters[0].binding);
             assert!(

@@ -544,7 +544,7 @@ impl OriginalBorrowedFormalSourceV1 {
         site: &SourceExprSiteV1,
         constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
         definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     ) -> Option<OriginalIntegerBasisV1> {
         if !self
             .seeds
@@ -555,9 +555,7 @@ impl OriginalBorrowedFormalSourceV1 {
         }
         let binding = arg_site_binding(input, site)?;
         if value_domain::declared_integer_seed_v1(input, contracts, binding) {
-            let abi = contracts
-                .iter()
-                .find(|row| row.owner == input.owner())?
+            let abi = contracts.for_owner(input.owner()).next()?
                 .parameters
                 .iter()
                 .find(|row| row.binding == binding)

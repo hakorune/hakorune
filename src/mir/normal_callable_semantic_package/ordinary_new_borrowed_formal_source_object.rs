@@ -70,14 +70,14 @@ impl OriginalBorrowedFormalSourceV1 {
         input: ResolvedFunctionLoweringInputV1<'_>,
         site: &SourceExprSiteV1,
         definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     ) -> Option<OriginalFormalObjectBasisV1> {
         if !self.seeds.corroborate_original_v1(&self.inventory) {
             return None;
         }
         let binding = arg_site_binding(input, site)?;
         let formal = *definitions.get(&input.owner())?.origins.get(&binding)?;
-        let mut declarations = OwnedCallableParameterContractDeclarationV1::for_owner(contracts, input.owner());
+        let mut declarations = contracts.for_owner(input.owner());
         let declaration = declarations.next()?;
         if declarations.next().is_some()
             || declaration.mode != CallableParameterDeclarationModeV1::InstanceBoxMethod

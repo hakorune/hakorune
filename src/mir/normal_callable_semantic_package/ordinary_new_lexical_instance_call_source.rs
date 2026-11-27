@@ -474,7 +474,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
     ordinary_box_names: &[Box<str>],
     field_write_claims: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
-    parameters: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    parameters: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     app_main: Option<AppMainSourceRefV1<'_>>,
     omitted_static_callers: &BTreeMap<FunctionOwnerIdV1, CanonicalSameModuleCallableKeyV1>,
     stored_receiver: &mut impl FnMut(

@@ -516,6 +516,7 @@ fn static_source_domain_rejects_foreign_owner_ordinal_and_mode_contracts() {
         target.owner = owner;
         target.parameters[0].ordinal = ordinal;
         target.mode = mode;
+        let contracts = contracts.into_iter().collect();
         let scope = package
             .batch()
             .declarations()

@@ -235,7 +235,7 @@ fn capture_call(
 fn source_result_pending(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     needs: &[Result<Option<PreparedSourceCallNeedV1>, String>],
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
@@ -248,8 +248,7 @@ fn source_result_pending(
     owner: FunctionOwnerIdV1,
     dynamic_source_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
 ) -> Result<BorrowedI64ResultSourceV1, String> {
-    let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
-        contracts, owner,
+    let contract = contracts.unique_for_owner(owner,
         || freeze("borrowed-result/source-contract-missing"),
         || freeze("borrowed-result/source-contract-duplicate"),
     )?;
@@ -357,7 +356,7 @@ fn source_result_pending(
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn prepare_pending_results_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     needs: &PreparedSourceNeedsV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
@@ -476,7 +475,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     results: &BorrowedResultCohortV1,
     grounded: &BTreeSet<FunctionOwnerIdV1>,
     drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
 ) -> bool {
     let reference = need.reference();
     grounded.contains(&reference.call_site.owner()) && grounded.contains(&reference.callee_owner)
@@ -493,7 +492,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn promote_grounded_computed_scalar_sources_v1(
     pending: &BorrowedResultCohortV1,
     needs: &mut PreparedSourceNeedsV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
 ) -> Result<bool, (OwnedExprSiteV1, String)> {
     let Ok(rows) = needs else { return Ok(false); };
     let mut promoted = false;
@@ -674,10 +673,9 @@ fn seal_one(
 }
 
 fn zero_parameter_instance_result_owner_v1(
-    contracts: &[OwnedCallableParameterContractDeclarationV1], owner: FunctionOwnerIdV1,
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1, owner: FunctionOwnerIdV1,
 ) -> Result<bool, String> {
-    let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
-        contracts, owner,
+    let contract = contracts.unique_for_owner(owner,
         || freeze("borrowed-result/source-contract-missing"),
         || freeze("borrowed-result/source-contract-duplicate"),
     )?;
@@ -686,7 +684,7 @@ fn zero_parameter_instance_result_owner_v1(
 
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn seal_pending_results_v1(
     mut results: BorrowedResultCohortV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,

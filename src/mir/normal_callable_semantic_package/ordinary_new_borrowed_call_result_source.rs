@@ -53,7 +53,7 @@ impl OrdinaryArgumentCallSourceV1 {
         &self,
         input: ResolvedFunctionLoweringInputV1<'_>,
         prepared: &PreparedBorrowedFormalIngressV1,
-        contracts: Option<&[OwnedCallableParameterContractDeclarationV1]>,
+        contracts: Option<&crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1>,
     ) -> Result<(), String> {
         let reject = || freeze("borrowed-actual/text-call-source-identity");
         if input.owner() != self.call_site().owner()
@@ -267,7 +267,7 @@ fn ordinary_result_absent<T>(site: &OwnedExprSiteV1, why: &str) -> Result<Option
 pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_arguments_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     pending: &PendingBorrowedFormalActualsV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     site: &OwnedExprSiteV1,
     targets: &super::super::PreparedLexicalInstanceCallSourceTargetsV1,
     selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
@@ -393,7 +393,7 @@ pub(super) fn has_completed_static_text_result_v1(
 pub(in crate::mir::normal_callable_semantic_package) fn source_static_result_arguments_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     pending: &PendingBorrowedFormalActualsV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     site: &OwnedExprSiteV1,
     selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     completed: Option<&crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractBuilderV1>,
@@ -423,8 +423,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_static_result_arg
     };
     let original = Rc::clone(original);
     let reject = || freeze("borrowed-static/core-source-identity");
-    let contract = OwnedCallableParameterContractDeclarationV1::unique_for_owner(
-        contracts, original.callee_owner(), reject, reject,
+    let contract = contracts.unique_for_owner(original.callee_owner(), reject, reject,
     )?;
     if contract.batch_slot != original.target_batch_slot()
         || contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::StaticBoxMethod

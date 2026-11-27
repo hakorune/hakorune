@@ -35,7 +35,7 @@ fn source_graph_instance_registration_without_static_context_preserves_legacy_an
     let calls = source.source_incoming.source_rows_v1()
         .filter_map(|row| row.source.require_instance().ok().map(|target| (row.call.clone(), target)))
         .collect();
-    let scan = |contracts: &[_]| inventory_borrowed_incoming_calls_v1(
+    let scan = |contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1| inventory_borrowed_incoming_calls_v1(
         package.batch(), &package.selected, &BTreeMap::new(), contracts,
         &calls, &Default::default(), None,
     );
@@ -67,6 +67,7 @@ fn source_graph_instance_registration_without_static_context_preserves_legacy_an
         }
         // A changed mode must not silently erase a selected Instance owner,
         // even when there is no Static source context.
+        let contracts: crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1 = contracts.into_iter().collect();
         assert!(matches!(scan(&contracts), Err(BorrowedIncomingDraftErrorV1::SourceIdentity)), "mutation {mutation}");
     }
 }

@@ -5,7 +5,7 @@ use crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1;
 
 pub(in crate::mir::normal_callable_semantic_package) fn arguments_v1(
     targets: &PreparedLexicalInstanceCallSourceTargetsV1,
-    contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     pending: &PendingBorrowedFormalActualsV1,
     facts: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
@@ -87,7 +87,7 @@ fn freeze(reason: &str) -> String {
 
 pub(in crate::mir::normal_callable_semantic_package) fn mixed_arguments_v1(
     targets: &PreparedLexicalInstanceCallSourceTargetsV1,
-    contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    contracts: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     pending: &PendingBorrowedFormalActualsV1,
     facts: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
