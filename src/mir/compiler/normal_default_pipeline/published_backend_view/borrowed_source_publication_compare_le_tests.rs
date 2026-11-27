@@ -230,7 +230,7 @@ fn original_static_return_uses_verified_borrowed_arguments() {
             MirCompiler::with_options(false).compile_normal_with_published(request(&text), |view, verification| -> Result<(), String> {
                 require_artifact_verification(verification);
                 let payload = view.issue_lifecycle_physical_abi_input()?;
-                let wire = super::super::physical_program_json::emit_lifecycle_physical_abi_json(&payload)?;
+                let wire = crate::mir::compiler::normal_default_pipeline::published_backend_view::physical_program_json::emit_lifecycle_physical_abi_json(&payload)?;
                 let wire: serde_json::Value = serde_json::from_str(&wire).unwrap();
                 let functions = wire["functions"].as_array().unwrap();
                 assert!(functions.iter().any(|function| function["name"] == callee

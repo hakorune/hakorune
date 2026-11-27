@@ -858,7 +858,9 @@ static box Main {{ main() {{
                     Ok(())
                 });
             if declaration == "Item" && actual == "null" {
-                let error = result.expect_err("the declared non-null formal rejects a literal null");
+                let Err(error) = result else {
+                    panic!("the declared non-null formal rejects a literal null");
+                };
                 assert!(error.to_string().contains("[type/argument-mismatch]"), "{error}");
             } else {
                 result.unwrap_or_else(|error| panic!("{declaration}/{actual}: {error}"));
