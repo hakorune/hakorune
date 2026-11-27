@@ -55,16 +55,23 @@ pub(super) fn emit_lifecycle_physical_program_value(
                     let instructions = block
                         .instructions()
                         .iter()
-                        .map(|row| -> Result<Value, String> { Ok(json!({
-                            "index": row.index(),
-                            "instruction": encode_instruction(
-                                row.field_ref(), row.instruction(), &births, function_ordinal,
-                                diagnostic_site(abi_input, function_ordinal, block.id().0, row.index(), row.instruction())?,
-                                abi_input,
-                                &ordinary,
-                                Some((program.functions(), function, (block.id(), row.index()))),
-                            )?,
-                        })) })
+                        .map(|row| -> Result<Value, String> {
+                            let copy = row
+                                .local_slot_copy()
+                                .map(|(dst, src)| MirInstruction::Copy { dst, src });
+                            let original = row.instruction();
+                            Ok(json!({
+                                "index": row.index(),
+                                "instruction": encode_instruction(
+                                    row.field_ref(), copy.as_ref().unwrap_or(original), &births,
+                                    function_ordinal,
+                                    diagnostic_site(abi_input, function_ordinal, block.id().0, row.index(), original)?,
+                                    abi_input,
+                                    &ordinary,
+                                    Some((program.functions(), function, (block.id(), row.index()))),
+                                )?,
+                            }))
+                        })
                         .collect::<Result<Vec<_>, String>>()?;
                     Ok(json!({
                         "id": block.id().0,

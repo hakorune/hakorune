@@ -67,7 +67,7 @@ pub(crate) struct GuaranteeMatrixRow {
 pub(crate) const GUARANTEE_MATRIX: [GuaranteeMatrixRow; 11] = [
     GuaranteeMatrixRow {
         site: AnnotationSite::LocalSlot,
-        current: GuaranteeClass::RuntimeCheckedContract,
+        current: GuaranteeClass::VerifiedRuntimeGuardedContract,
         target: GuaranteeClass::VerifiedRuntimeGuardedContract,
         owner: EnforcementOwner::LocalSlotContract,
         activation: ActivationScope::ExactNumericFirstSlice,
@@ -172,7 +172,7 @@ pub(crate) fn exact_numeric_box_field_contract_is_active() -> bool {
 
 pub(crate) fn exact_numeric_local_slot_contract_is_active() -> bool {
     let row = guarantee_for(AnnotationSite::LocalSlot);
-    row.current == GuaranteeClass::RuntimeCheckedContract
+    row.current == GuaranteeClass::VerifiedRuntimeGuardedContract
         && row.owner == EnforcementOwner::LocalSlotContract
         && row.activation == ActivationScope::ExactNumericFirstSlice
         && row.unsupported_backend == UnsupportedBackendPolicy::RejectBeforeEffects

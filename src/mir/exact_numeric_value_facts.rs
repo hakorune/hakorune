@@ -332,11 +332,12 @@ fn seed_local_contract_write_facts(
             ) else {
                 continue;
             };
+            // The canonical write still checks its input. Only a proven
+            // physical projection can elide the check at this coordinate.
             if contract.contract_id
                 != crate::mir::type_contracts::local_slot::local_slot_contract_id(*local_slot_id)
                 || contract.declared_type_name != "i64"
                 || !contract.runtime_check_required
-                || contract.proof_elision_allowed
             {
                 continue;
             }

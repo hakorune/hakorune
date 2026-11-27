@@ -459,7 +459,10 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
     for (block, saved) in function.blocks().iter().zip(original.blocks()) {
         let same_row = |a: super::super::physical_program::PublishedLifecyclePhysicalInstructionRefV1<'_>,
                         b: super::super::physical_program::PublishedLifecyclePhysicalInstructionRefV1<'_>| {
-            a.index() == b.index() && a.field_ref() == b.field_ref() && a.instruction() == b.instruction()
+            a.index() == b.index()
+                && a.field_ref() == b.field_ref()
+                && a.instruction() == b.instruction()
+                && a.local_slot_copy() == b.local_slot_copy()
         };
         if block.id() != saved.id()
             || block.edges() != saved.edges()

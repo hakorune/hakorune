@@ -23,6 +23,7 @@ mod barrier;
 pub(in crate::mir) mod borrowed_integer_comparison;
 mod cfg;
 mod contract_carriers;
+pub(crate) mod local_slot_writes;
 mod fastmem;
 pub(crate) mod geometry;
 mod hako_alloc_metadata;

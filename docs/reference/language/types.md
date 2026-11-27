@@ -89,6 +89,11 @@ verifier-backed proof. `MirType`, storage/layout metadata, route facts, and
 Plan/Rune hints are not semantic proof. Unsupported backends reject before
 execution rather than falling back to another backend.
 
+For an exact numeric local, initialization and each reassignment are separate
+contract boundaries. The runtime check can be elided at a write only when
+fresh verification of the finished MIR establishes that the source of that
+write satisfies the declared type on every incoming path.
+
 ### Integer values and implementation boxes
 
 Decision: accepted. Source integer values and object identity are distinct.

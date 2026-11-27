@@ -32,6 +32,7 @@ fn project(function: &MirFunction) -> PublishedLifecyclePhysicalFunctionV1<'_> {
                         index: index as u32,
                         instruction,
                         field_ref: None,
+                        local_slot_copy: None,
                     },
                 )
                 .collect(),
@@ -39,6 +40,7 @@ fn project(function: &MirFunction) -> PublishedLifecyclePhysicalFunctionV1<'_> {
                 index: row.instructions.len() as u32,
                 instruction: row.terminator.as_ref().unwrap(),
                 field_ref: None,
+                local_slot_copy: None,
             },
             edges: Box::new([]),
         }]

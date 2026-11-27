@@ -9,6 +9,9 @@ pub(crate) fn emit_published_view_body(
     }
     let module = view.module();
     crate::mir::semantic_refresh::validate_published_contracts(module)?;
+    crate::mir::local_slot_backend_capability::enforce_local_slot_backend_supported(
+        module, "ny-llvmc-obj", view.local_slot_writes(),
+    )?;
     for function in module.functions.values() {
         for block in function.blocks.values() {
             let mut seen_non_phi = false;
@@ -23,7 +26,7 @@ pub(crate) fn emit_published_view_body(
             }
         }
     }
-    let root = super::root::build_published_body_root(view)?;
+    let root = super::root::build_published_body_root(view, view.local_slot_writes())?;
     serialize_mir_json_root(&root)
 }
 
@@ -71,7 +74,7 @@ pub(crate) fn emit_mir_json_for_published_view(
     view: &crate::mir::function::PublishedMirBackendView<'_>,
     path: &std::path::Path,
 ) -> Result<(), String> {
-    let root = super::root::build_published_body_root(view)?;
+    let root = super::root::build_published_body_root(view, None)?;
     write_mir_json_root(path, &root)
 }
 

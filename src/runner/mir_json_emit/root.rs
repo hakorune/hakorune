@@ -132,21 +132,23 @@ pub(super) fn build_mir_json_root_with_profile(
     profile: JsonEgressProfile,
 ) -> Result<serde_json::Value, String> {
     crate::mir::named_array_obligation::reject_unretained_module(module)?;
-    build_root_contents(module, profile)
+    build_root_contents(module, profile, None)
 }
 
 /// Internal body projection retains the borrowed published authority at its caller.
 /// This does not discharge the constructor capability or export an executable.
 pub(super) fn build_published_body_root(
     view: &crate::mir::function::PublishedMirBackendView<'_>,
+    local_slot_writes: Option<&crate::mir::verification::local_slot_writes::VerifiedLocalSlotWrites<'_>>,
 ) -> Result<serde_json::Value, String> {
     view.validated_named_arrays()?;
-    build_root_contents(view.module(), JsonEgressProfile::CanonicalV1)
+    build_root_contents(view.module(), JsonEgressProfile::CanonicalV1, local_slot_writes)
 }
 
 fn build_root_contents(
     module: &crate::mir::MirModule,
     profile: JsonEgressProfile,
+    local_slot_writes: Option<&crate::mir::verification::local_slot_writes::VerifiedLocalSlotWrites<'_>>,
 ) -> Result<serde_json::Value, String> {
     let use_v1_schema = profile.is_canonical_v1();
     let canonical_transport = use_v1_schema && super::canonical_transport::selected(module);
@@ -204,6 +206,7 @@ fn build_root_contents(
                 emitters::emit_non_phi_instructions(
                     f,
                     bb,
+                    local_slot_writes,
                     pinned_text_residence_transport,
                     profile,
                     canonical_transport,

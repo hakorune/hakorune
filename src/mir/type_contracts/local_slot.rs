@@ -15,6 +15,18 @@ pub(crate) fn is_exact_numeric_local_type(declared_type_name: Option<&str>) -> b
     exact_numeric_mir_type_from_declared_name(declared_type_name, NumericTarget::host()).is_some()
 }
 
+fn declaration_permits_write_elision(declared_type_name: &str) -> bool {
+    declared_type_name == "i64"
+}
+
+pub(in crate::mir) fn permits_i64_write_elision(function: &MirFunction, slot: LocalSlotId) -> bool {
+    exact_numeric_local_slot_contract_is_active()
+        && local_slot_contract(function, slot).is_some_and(|contract| {
+            contract.proof_elision_allowed
+                && declaration_permits_write_elision(&contract.declared_type_name)
+        })
+}
+
 pub(crate) fn register_local_slot_contract(
     function: &mut MirFunction,
     local_slot_id: LocalSlotId,
@@ -47,7 +59,7 @@ pub(crate) fn register_local_slot_contract(
             diagnostic_source_name: source_name.to_string(),
             declared_type_name: declared_type_name.to_string(),
             runtime_check_required: true,
-            proof_elision_allowed: false,
+            proof_elision_allowed: declaration_permits_write_elision(declared_type_name),
             backend_capability_required: LOCAL_SLOT_EXACT_NUMERIC_CAPABILITY.to_string(),
         });
     function
@@ -71,6 +83,7 @@ pub(crate) fn validate_local_slot_contracts(function: &MirFunction) -> Result<()
             || contract.contract_id != local_slot_contract_id(contract.local_slot_id)
             || !contract.runtime_check_required
             || contract.proof_elision_allowed
+                != declaration_permits_write_elision(&contract.declared_type_name)
             || contract.backend_capability_required != LOCAL_SLOT_EXACT_NUMERIC_CAPABILITY
         {
             return Err(format!(

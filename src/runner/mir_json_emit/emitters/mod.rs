@@ -45,6 +45,7 @@ pub(crate) fn emit_phi_instructions(
 pub(crate) fn emit_non_phi_instructions(
     func: &crate::mir::MirFunction,
     block: &crate::mir::BasicBlock,
+    local_slot_writes: Option<&crate::mir::verification::local_slot_writes::VerifiedLocalSlotWrites<'_>>,
     pinned_text_residence_transport: bool,
     profile: JsonEgressProfile,
     canonical_transport: bool,
@@ -59,11 +60,14 @@ pub(crate) fn emit_non_phi_instructions(
         if let I::Phi { .. } = inst {
             continue;
         }
+        let copy = local_slot_writes
+            .and_then(|proofs| proofs.copy_operands(func, block.id, instruction_index, inst))
+            .map(|(dst, src)| I::Copy { dst, src });
         let value = emit_instruction(
             func,
             block.id,
             instruction_index,
-            inst,
+            copy.as_ref().unwrap_or(inst),
             pinned_text_residence_transport,
             profile,
             canonical_transport,

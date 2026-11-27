@@ -1,5 +1,6 @@
 use crate::mir::type_contracts::local_slot::validate_local_slot_contracts;
-use crate::mir::MirModule;
+use crate::mir::verification::local_slot_writes::VerifiedLocalSlotWrites;
+use crate::mir::{MirInstruction, MirModule};
 
 pub(crate) const LOCAL_SLOT_BACKEND_CAPABILITY_MISSING_TAG: &str =
     "[type/backend_local_contract_capability_missing]";
@@ -7,6 +8,7 @@ pub(crate) const LOCAL_SLOT_BACKEND_CAPABILITY_MISSING_TAG: &str =
 pub(crate) fn enforce_local_slot_backend_supported(
     module: &MirModule,
     backend: &str,
+    proofs: Option<&VerifiedLocalSlotWrites<'_>>,
 ) -> Result<(), String> {
     let mut rows = 0usize;
     for function in module.functions.values() {
@@ -14,6 +16,20 @@ pub(crate) fn enforce_local_slot_backend_supported(
         rows += function.metadata.local_slot_contracts.len();
     }
     if rows == 0 || backend == "mir-interpreter" {
+        return Ok(());
+    }
+    if matches!(backend, "ny-llvmc-exe" | "ny-llvmc-obj")
+        && proofs.is_some_and(|proofs| {
+            module.functions.values().all(|function| {
+                function.blocks.iter().all(|(&block, body)| {
+                    body.instructions.iter().enumerate().all(|(index, row)| {
+                        !matches!(row, MirInstruction::LocalContractWrite { .. })
+                            || proofs.copy_operands(function, block, index, row).is_some()
+                    })
+                })
+            })
+        })
+    {
         return Ok(());
     }
     Err(format!(
@@ -73,9 +89,9 @@ mod tests {
     #[test]
     fn only_reference_interpreter_supports_first_slice() {
         let module = module_with_contract();
-        assert!(enforce_local_slot_backend_supported(&module, "mir-interpreter").is_ok());
+        assert!(enforce_local_slot_backend_supported(&module, "mir-interpreter", None).is_ok());
         for backend in ["pyvm-harness", "ny-llvmc-exe", "llvmlite-obj", "wasm"] {
-            let error = enforce_local_slot_backend_supported(&module, backend).unwrap_err();
+            let error = enforce_local_slot_backend_supported(&module, backend, None).unwrap_err();
             assert!(error.contains(LOCAL_SLOT_BACKEND_CAPABILITY_MISSING_TAG));
         }
     }
