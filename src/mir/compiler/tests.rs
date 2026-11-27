@@ -1,6 +1,5 @@
 use super::{
-    finish_schedule_for_normal_module, module_session::CanonicalModuleLoweringSessionV1,
-    require_canonical_verification, CanonicalFinishScheduleV1, CanonicalLoweringErrorV1,
+    finish_schedule_for_normal_module,
     LegacyRcInsertionScheduleV1, MirCompiler, MirFinishScheduleV1,
 };
 use crate::ast::{ASTNode, LiteralValue};

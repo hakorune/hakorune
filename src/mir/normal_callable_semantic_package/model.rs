@@ -8,7 +8,7 @@ use crate::mir::callable_parameter_contract::{
     CallableParameterContractKindV1, CallableParameterDeclarationModeV1,
 };
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
-use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicExitTransactionCoSealV1;
+use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
@@ -342,7 +342,7 @@ pub(super) enum NormalCallableDynamicProjectionV1 {
         batch_slot: u32,
         _owner: FunctionOwnerIdV1,
         source: Rc<VerifiedSourceBackedDynamicCallableV1>,
-        program: VerifiedDynamicExitTransactionCoSealV1,
+        completion: VerifiedFunctionCompletionV1,
         result: Option<crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1>,
     },
 }
@@ -351,7 +351,7 @@ pub(super) enum NormalCallableDynamicProjectionV1 {
 pub(in crate::mir) enum NormalCallableDynamicProjectionRefV1<'package> {
     ValidUnselected,
     Selected {
-        program: &'package VerifiedDynamicExitTransactionCoSealV1,
+        completion: &'package VerifiedFunctionCompletionV1,
     },
 }
 
@@ -661,8 +661,8 @@ impl VerifiedNormalCallableSemanticPackageV1 {
             NormalCallableDynamicProjectionV1::ValidUnselected => {
                 NormalCallableDynamicProjectionRefV1::ValidUnselected
             }
-            NormalCallableDynamicProjectionV1::Selected { program, .. } => {
-                NormalCallableDynamicProjectionRefV1::Selected { program }
+            NormalCallableDynamicProjectionV1::Selected { completion, .. } => {
+                NormalCallableDynamicProjectionRefV1::Selected { completion }
             }
         }
     }

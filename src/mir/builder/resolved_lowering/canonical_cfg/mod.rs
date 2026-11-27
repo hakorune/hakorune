@@ -9,7 +9,6 @@ mod error;
 mod fragment;
 mod instruction;
 pub(in crate::mir::builder) use instruction::InstructionPlacementV1;
-mod pinned_text_finish;
 mod predecessors;
 mod session;
 

@@ -44,11 +44,11 @@ impl InstalledNormalCallableSemanticPackageV1 {
         let semantic = match &self.dynamic {
             NormalCallableDynamicProjectionV1::Selected {
                 batch_slot: dynamic_slot,
-                program,
+                completion,
                 source,
                 ..
             } if *dynamic_slot == batch_slot => {
-                SelectedCallableSemanticRefV1::Dynamic { program, source }
+                SelectedCallableSemanticRefV1::Dynamic { completion, source }
             }
             _ => SelectedCallableSemanticRefV1::Ordinary,
         };
@@ -86,35 +86,22 @@ impl InstalledNormalCallableSemanticPackageV1 {
         };
         if let NormalCallableDynamicProjectionV1::Selected {
             batch_slot: dynamic_slot,
-            program,
+            completion,
             result,
             ..
         } = &self.dynamic
         {
             if *dynamic_slot == batch_slot {
-                return program.with_canonical_session_authority(|authority| {
-                    // The canonical-session authority's completion has no
-                    // package-retained per-exit relation map; an empty map
-                    // is exactly that observation, never a Unit inference.
-                    let terminal_relations = std::collections::BTreeMap::new();
-                    let contract = CallableResultContractRefV1::from_completion(
-                        authority.completion().owner(),
-                        row.identity(),
-                        row.role(),
-                        *result,
-                        authority.completion(),
-                        &terminal_relations, None,
-                    );
-                    lend(Some(contract))
-                });
+                // This completion has no package-retained per-exit relation map.
+                let terminal_relations = std::collections::BTreeMap::new();
+                let contract = CallableResultContractRefV1::from_completion(
+                    completion.owner(), row.identity(), row.role(), *result,
+                    completion, &terminal_relations, None,
+                );
+                return lend(Some(contract));
             }
         }
         let result_contract = match key {
-            // The S6C child consumed this row's Completion seed exclusively
-            // before the generic retention cohort was assembled. Its selected
-            // view remains valid, but the generic result contract is absent by
-            // construction; S6C owns the matching completion through its
-            // child loan instead.
             SelectedNormalCallableKeyV1::Cataloged(_) if self.selected.is_main_child_key(key) => {
                 None
             }

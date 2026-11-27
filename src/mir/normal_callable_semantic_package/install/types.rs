@@ -1,12 +1,12 @@
 use crate::mir::builder::{CompilationContext, VerifiedSourceBackedDynamicCallableV1};
-use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicExitTransactionCoSealV1;
+use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1;
 
 #[derive(Clone, Copy)]
 pub(in crate::mir) enum SelectedCallableSemanticRefV1<'loan> {
     Ordinary,
     Dynamic {
-        program: &'loan VerifiedDynamicExitTransactionCoSealV1,
+        completion: &'loan VerifiedFunctionCompletionV1,
         source: &'loan std::rc::Rc<VerifiedSourceBackedDynamicCallableV1>,
     },
 }

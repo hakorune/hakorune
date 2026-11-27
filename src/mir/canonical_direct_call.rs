@@ -9,7 +9,6 @@ use crate::mir::canonical_direct_call_contract::{
 };
 use crate::mir::definitions::MirCall;
 use crate::mir::resolved_semantics::{ExactCallableParamAbiV1, VerifiedCallableHeaderV1};
-use crate::mir::resolved_value_profile::VerifiedTrivialDirectCallV1;
 use crate::mir::{Callee, Effect, EffectMask, MirInstruction, ValueId};
 use hakorune_mir_defs::CanonicalGlobalTargetV1;
 
@@ -66,12 +65,6 @@ impl VerifiedCanonicalDirectCallEmissionV1 {
         }
     }
 
-    pub(crate) fn from_verified_profile(row: &VerifiedTrivialDirectCallV1) -> Self {
-        Self {
-            target: row.target().clone(),
-            effect: row.effect(),
-        }
-    }
 
     pub(crate) const fn target(&self) -> &VerifiedTrivialDirectCallTargetV1 {
         &self.target

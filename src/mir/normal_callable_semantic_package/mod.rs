@@ -79,8 +79,6 @@ mod qualified_static_call_claim;
 pub(in crate::mir) use qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 mod result_contract;
 pub(crate) use result_contract::VerifiedCallableResultContractCohortV1;
-mod s6c_child;
-mod s6c_effects;
 mod selected_mapping;
 
 /// Physical source selection belongs to the requested artifact, not to a
@@ -136,8 +134,6 @@ mod resolved_selected_handoff_tests;
 mod resolver_deferred_tests;
 #[cfg(test)]
 mod result_origin_tests;
-#[cfg(test)]
-mod s6c_child_tests;
 #[cfg(test)]
 mod tests;
 
@@ -214,7 +210,6 @@ PreparedRootHomeGraphPlanV1, PreparedRootHomeOrderV1,
 pub(crate) use physical_signature::{
     PhysicalCallableLaneRoleV1, PhysicalCallableLaneV1, PhysicalCallableSignatureRowRefV1,
 };
-pub(crate) use s6c_effects::VerifiedS6CPhysicalFunctionEffectsV1;
 
 #[cfg(test)]
 mod lexical_i64_local_call_tests;

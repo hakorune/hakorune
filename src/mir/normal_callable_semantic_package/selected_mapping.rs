@@ -41,15 +41,6 @@ impl VerifiedSelectedCallableBatchMapV1 {
         &self.catalog_brand
     }
 
-    pub(super) fn main_static_child_rows(
-        &self,
-    ) -> impl Iterator<Item = SelectedCallableBatchMapRowRefV1<'_>> {
-        self.rows.iter().filter_map(|row| {
-            row.role
-                .is_main_static_child()
-                .then_some(SelectedCallableBatchMapRowRefV1 { row })
-        })
-    }
 
     pub(super) fn batch_slot(&self, key: &SelectedNormalCallableKeyV1) -> Option<u32> {
         self.row_for_key(key).map(SelectedCallableBatchMapRowRefV1::batch_slot)

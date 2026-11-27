@@ -312,3 +312,12 @@ mod source_value_flow_tests;
 pub(in crate::mir) fn new_static_box_diagnostic(class: &str) -> String {
     format!("[freeze:contract][call/new-static-box] call methods on {class} by name or construct an ordinary box")
 }
+
+#[cfg(test)]
+pub(crate) fn seal_test_callable_header(function: &crate::ast::ASTNode) -> VerifiedCallableHeaderV1 {
+    let syntax = CallableHeaderSyntaxViewV1::from_function_ast(function).expect("function syntax");
+    let mut owners = FunctionOwnerIssuerV1::new_for_compilation().expect("owner issuer");
+    VerifiedOwnerFreeCallableHeaderV1::seal(syntax)
+        .expect("callable header")
+        .attach_owner(owners.issue().expect("function owner"))
+}

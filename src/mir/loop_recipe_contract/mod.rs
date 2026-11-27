@@ -21,22 +21,15 @@ mod join_sig;
 mod join_sig_branch;
 mod producer_id;
 pub(crate) mod route_id;
-mod s6c_scan_with_init;
 // Caller-zero source-to-Recipe/Join Return binding; no physical effect.
-mod s6c_return_source_binding;
 // Caller-zero product-first JOINIR input façade; no physical consumer.
-mod s6c_scan_with_init_joinir;
 // Caller-zero logical output product and typed consumer; no JoinIR/MIR materialization.
-mod s6c_scan_with_init_joinir_output;
 // Caller-zero Builder-free prephysical ingress; no physical IDs or session state.
-mod s6c_prephysical_ingress;
-mod s6c_scan_with_init_joinir_output_rows;
 // Caller-zero parent-retaining TextEq site contract; no physical target.
 // Source-bound TextEq occurrence view; no physical IDs/runtime wire.
 // Caller-zero source-backed scalar-scan corridor view; no physical effect.
 // Typed row façade is currently exercised by focused tests only.
 mod bool_region;
-mod s6c_scan_with_init_rows;
 mod schema;
 mod schema_v2;
 pub(crate) use bool_region::{
@@ -68,13 +61,7 @@ mod producer_id_migration_tests;
 
 
 
-#[cfg(test)]
-#[path = "s6c_scan_with_init_tests.rs"]
-mod s6c_scan_with_init_tests;
 
-#[cfg(test)]
-#[path = "s6c_prephysical_ingress_tests.rs"]
-mod s6c_prephysical_ingress_tests;
 
 
 #[cfg(test)]
@@ -110,22 +97,6 @@ pub(crate) use join_sig::{
     LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigRejectReasonV1,
 };
 pub(crate) use producer_id::LoopRecipeProducerIdV1;
-pub(crate) use s6c_prephysical_ingress::{
-    issue_s6c_prephysical_ingress_v2, S6CPrephysicalCompletionParityRefV2,
-    S6CPrephysicalIngressRejectV2, VerifiedS6CPrephysicalIngressV2,
-};
-#[cfg(test)]
-pub(crate) use s6c_prephysical_ingress::S6CPrephysicalOperationRoleV2;
-pub(crate) use s6c_return_source_binding::VerifiedS6CReturnSourceRecipeBindingV1;
-pub(crate) use s6c_scan_with_init::{
-    produce_s6c_scan_with_init_recipe_v2, S6CScanWithInitRecipeProducerRejectV2,
-    VerifiedS6CScanWithInitRecipeProductV2,
-};
-pub(crate) use s6c_scan_with_init_joinir::S6CLogicalCallRoleV1;
-pub(crate) use s6c_scan_with_init_joinir_output::issue_s6c_scan_with_init_logical_output_v1;
-pub(crate) use s6c_scan_with_init_joinir_output_rows::{
-    S6CLogicalCallArgsV1, S6CLogicalCallSlotV1, S6CLogicalItemV1,
-};
 pub(crate) use schema::{
     LoopNodeSourceBindingV1,
     LoopRecipeProvenanceV1, LoopRecipeSourceBindingV1, LoopRecipeSourceOwnerV1, LoopSourcePathStepV1,

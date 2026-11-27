@@ -2,14 +2,6 @@
 
 use super::*;
 
-#[test]
-fn trivial_binding_ssa_finish_schedule_skips_legacy_rc() {
-    assert_eq!(
-        MirFinishScheduleV1::Canonical(CanonicalFinishScheduleV1::TrivialBindingSsa)
-            .legacy_rc_insertion(),
-        LegacyRcInsertionScheduleV1::Skip
-    );
-}
 
 #[test]
 fn legacy_finish_schedule_keeps_legacy_rc() {
@@ -137,26 +129,4 @@ fn test_basic_mir_compilation() {
         !compile_result.module.functions.is_empty(),
         "Module should contain at least one function"
     );
-}
-
-#[test]
-fn canonical_verification_failure_discards_candidate_before_commit() {
-    let mut compiler = MirCompiler::with_options(false);
-    compiler.builder.repl_mode = true;
-    let mut session = CanonicalModuleLoweringSessionV1::open(&compiler.builder);
-    session.builder_mut().repl_mode = false;
-
-    let error = require_canonical_verification(Err(vec![
-        crate::mir::VerificationError::UnreachableBlock {
-            block: crate::mir::BasicBlockId::new(900),
-        },
-    ]))
-    .unwrap_err();
-    drop(session);
-
-    assert!(matches!(
-        error,
-        CanonicalLoweringErrorV1::MirVerificationFailed { .. }
-    ));
-    assert!(compiler.builder.repl_mode);
 }

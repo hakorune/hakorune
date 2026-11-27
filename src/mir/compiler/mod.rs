@@ -17,30 +17,18 @@ use std::time::Instant;
 include!("module_registry.in.rs");
 
 #[cfg(test)]
-mod callable_batch_correspondence_test_support;
-#[cfg(test)]
 mod callable_catalog_cutover_tests;
-#[cfg(test)]
-mod capability_tests;
-#[cfg(test)]
-mod finite_direct_call_tests;
 #[cfg(test)]
 mod legacy_candidate_session_tests;
 #[cfg(test)]
-mod module_session_borrow_p0_tests;
-#[cfg(test)]
 mod operator_call_retirement_tests;
-#[cfg(test)]
-mod recursive_callable_module_activation_tests;
-#[cfg(test)]
-mod resolved_callable_module_tests;
 #[cfg(test)]
 mod source_view_tests;
 #[cfg(test)]
 mod static_result_target_only_emission_tests;
 pub(in crate::mir) use lowering_input::LegacyModuleLoweringInputV1;
 pub use lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1};
-use module_session::{CanonicalModuleLoweringSessionV1, InvocationIdentityIssuerV1};
+use module_session::InvocationIdentityIssuerV1;
 pub(in crate::mir) use normal_default_pipeline::published_backend_view;
 pub(crate) use normal_default_pipeline::{
     emit_lifecycle_physical_abi_json, PublishedLifecyclePhysicalAbiInputV1,
@@ -54,24 +42,8 @@ pub(crate) use normal_default_pipeline::{
     NormalPublishedCompileOutcome, RejectedPostMacroWholeFileProgramV1,
     VerifiedPostMacroWholeFileProgramV1,
 };
-pub use resolved_callable_module_input::{
-    ResolvedCallableModuleLoweringInputV1, VerifiedResolvedCallableProgramV1,
-};
-
-/// Closed post-build schedule selected with the canonical lowering owner.
-///
-/// The schedule is carried separately from the MIR module so a selected
-/// Binding-SSA owner cannot accidentally enter legacy RC insertion.  Route
-/// selection remains pre-Builder; this value only materializes that sealed
-/// decision after the candidate module has been built.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum CanonicalFinishScheduleV1 {
-    TrivialBindingSsa,
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum MirFinishScheduleV1 {
-    Canonical(CanonicalFinishScheduleV1),
     Legacy,
     SelectedDynamic,
 }
@@ -85,9 +57,6 @@ enum LegacyRcInsertionScheduleV1 {
 impl MirFinishScheduleV1 {
     fn legacy_rc_insertion(self) -> LegacyRcInsertionScheduleV1 {
         match self {
-            Self::Canonical(CanonicalFinishScheduleV1::TrivialBindingSsa) => {
-                LegacyRcInsertionScheduleV1::Skip
-            }
             Self::Legacy => LegacyRcInsertionScheduleV1::Run,
             Self::SelectedDynamic => LegacyRcInsertionScheduleV1::Skip,
         }
@@ -126,37 +95,13 @@ fn finish_schedule_for_normal_module(module: &MirModule) -> Result<MirFinishSche
     })
 }
 
-fn require_canonical_verification(
-    verification_result: Result<(), Vec<VerificationError>>,
-) -> Result<(), CanonicalLoweringErrorV1> {
-    verification_result.map_err(|errors| CanonicalLoweringErrorV1::MirVerificationFailed {
-        errors: errors
-            .into_iter()
-            .map(|error| error.to_string())
-            .collect::<Vec<_>>()
-            .into_boxed_slice(),
-    })
-}
 
-fn set_candidate_source_hint(candidate: &mut MirBuilder, source_file: Option<&str>) {
-    match source_file {
-        Some(source) => candidate.set_source_file_hint(source.to_string()),
-        None => candidate.clear_source_file_hint(),
-    }
-}
 
 fn validate_builder_operator_call_ingress_once_v1(
 ) -> Result<(), crate::config::env::BuilderOperatorCallIngressErrorV1> {
     crate::config::env::validate_builder_operator_call_ingress_v1()
 }
 
-fn map_operator_call_ingress_error(
-    error: crate::config::env::BuilderOperatorCallIngressErrorV1,
-) -> CanonicalLoweringErrorV1 {
-    CanonicalLoweringErrorV1::OperatorCallIngress {
-        detail: error.to_string(),
-    }
-}
 
 /// MIR compilation result
 #[derive(Debug, Clone)]
@@ -245,76 +190,7 @@ impl MirCompiler {
         self.compile_normal(request)
     }
 
-    /// Compile one exact P0c-MR recursive callable Program.
-    ///
-    /// This explicit ingress never probes the acyclic, self-call, or legacy
-    /// routes. Every SCC, function plan, and draft is sealed before the
-    /// caller's Builder is mutated.
-    pub fn compile_resolved_recursive_callable_module(
-        &mut self,
-        input: ResolvedCallableModuleLoweringInputV1<'_>,
-        source_file: Option<&str>,
-    ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
-        validate_builder_operator_call_ingress_once_v1()
-            .map_err(map_operator_call_ingress_error)?;
-        if self.builder.repl_mode {
-            return Err(CanonicalLoweringErrorV1::UnsupportedCanonicalOwnerKind);
-        }
-        let plan = recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1::verify(
-            input.program().module(),
-        )
-        .map_err(|error| callable_program_stage_error("recursive_activation", error))?;
 
-        let stage_start = Instant::now();
-        let mut module_session = CanonicalModuleLoweringSessionV1::open(&self.builder);
-        set_candidate_source_hint(module_session.builder_mut(), source_file);
-        let candidate = module_session
-            .builder_mut()
-            .build_recursive_callable_module_candidate(plan)
-            .map_err(|error| callable_program_stage_error("recursive_transaction", error))?;
-        super::compile_timing::trace_stage(
-            "build_resolved_recursive_callable_module",
-            stage_start.elapsed(),
-        );
-        let result = self.finish_built_canonical_module(
-            candidate,
-            CanonicalFinishScheduleV1::TrivialBindingSsa,
-        )?;
-        module_session.commit(&mut self.builder);
-        Ok(result)
-    }
-
-    fn finish_built_canonical_module(
-        &mut self,
-        module: MirModule,
-        schedule: CanonicalFinishScheduleV1,
-    ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
-        let result = self
-            .finish_built_module(
-                module,
-                MirFinishScheduleV1::Canonical(schedule),
-                &Default::default(),
-            )
-            .map_err(|detail| CanonicalLoweringErrorV1::BuilderContract { detail })?;
-
-        // Legacy reports its historical pre-transform verifier result.
-        // Canonical publication has a stronger barrier: verify the fully
-        // transformed module after its selected finish schedule and callsite
-        // canonicalization, and never let an Err cross the module-session
-        // commit.
-        let stage_start = Instant::now();
-        let verification_result = self.verifier.verify_module(&result.module);
-        super::compile_timing::trace_stage(
-            "canonical_post_transform_verify",
-            stage_start.elapsed(),
-        );
-        require_canonical_verification(verification_result)?;
-
-        Ok(MirCompileResult {
-            module: result.module,
-            verification_result: Ok(()),
-        })
-    }
 
     fn finish_built_module(
         &mut self,
@@ -410,14 +286,6 @@ impl MirCompiler {
     /// Dump MIR to string for debugging
     pub fn dump_mir(&self, module: &MirModule) -> String {
         MirPrinter::new().print_module(module)
-    }
-}
-fn callable_program_stage_error(
-    stage: &'static str,
-    error: impl std::fmt::Debug,
-) -> CanonicalLoweringErrorV1 {
-    CanonicalLoweringErrorV1::SourceUnitResolution {
-        detail: format!("[freeze:contract][canonical_callable_module/{stage}] {error:?}"),
     }
 }
 impl Default for MirCompiler {

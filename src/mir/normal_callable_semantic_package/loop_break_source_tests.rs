@@ -27,16 +27,37 @@ fn parser_scan_source_seals_one_dynamic_candidate_and_all_parameter_contracts() 
     );
     assert_eq!(package.parameter_declaration_count(), 4);
     assert_eq!(package.parameter_count(), 15);
-    let NormalCallableDynamicProjectionRefV1::Selected { program } = package.dynamic_projection()
+    let NormalCallableDynamicProjectionRefV1::Selected { completion } = package.dynamic_projection()
     else {
         panic!("exact Dynamic row must remain selected")
     };
-    assert_eq!(
-        program.current(),
-        crate::mir::compiler::dynamic_full_body_recipe::DynamicInvocationCleanupCurrentDispositionV1::ExactI64TrivialNoEnd
-    );
+    assert_eq!(completion.explicit_sites().len(), 2);
 }
 
+
+#[test]
+fn dynamic_admission_retains_parameter_and_target_refusals() {
+    use super::dynamic_admission::{
+        DynamicCallAdmissionRejectV1, DynamicCallEnvelopeRejectV1, DynamicParameterContractRejectV1,
+    };
+
+    let scan = include_str!("../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako");
+    let exact = "skip_while(src, pos: i64, end: i64, pred_chars)";
+    let text_position = scan.replace(exact, "skip_while(src, pos: StringBox, end: i64, pred_chars)");
+    assert!(matches!(
+        issue(&text_position),
+        Err(NormalCallableSemanticPackageIssueV1::DynamicRecipe {
+            _error: DynamicParameterContractRejectV1::ParameterContractMismatch,
+        })
+    ));
+    let non_dynamic_receiver = scan.replace(exact, "skip_while(src, pos: i64, end: i64, pred_chars: MapBox)");
+    assert!(matches!(
+        issue(&non_dynamic_receiver),
+        Err(NormalCallableSemanticPackageIssueV1::DynamicRecipeEnvelope {
+            _error: DynamicCallEnvelopeRejectV1::Calls(DynamicCallAdmissionRejectV1::MissingTarget),
+        })
+    ));
+}
 
 #[test]
 fn direct_loop_break_source_package_retains_one_candidate_row() {

@@ -7,15 +7,12 @@ mod cleanup;
 mod function_control;
 #[cfg(test)]
 pub(crate) use function_control::{FunctionUnitOriginV1, ReturnExitRelationV1};
-pub(crate) mod if_control;
 #[cfg(test)]
-mod loop_owned_if;
 mod source_coverage;
 
 #[cfg(test)]
 mod function_control_tests;
 #[cfg(test)]
-mod if_control_tests;
 #[cfg(test)]
 mod source_coverage_tests;
 

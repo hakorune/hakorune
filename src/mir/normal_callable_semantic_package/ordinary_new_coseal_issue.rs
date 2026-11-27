@@ -229,24 +229,20 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
         if let super::super::model::NormalCallableDynamicProjectionV1::Selected {
             batch_slot: dynamic_slot,
-            program,
+            completion,
             result,
             ..
         } = dynamic
         {
             if *dynamic_slot == batch_slot {
                 if seed_eligible {
-                    *result = program
-                        .with_canonical_session_authority(|authority| {
-                            super::super::physical_header::validate_declared_result(
-                                authority.completion(),
-                                owner,
-                                batch_slot,
-                                declaration.borrowed_result().map(|row| row.as_ref()),
-                                declaration.declared_result_box(),
-                            )
-                        })
-                        .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
+                    *result = super::super::physical_header::validate_declared_result(
+                        completion,
+                        owner,
+                        batch_slot,
+                        declaration.borrowed_result().map(|row| row.as_ref()),
+                        declaration.declared_result_box(),
+                    ).map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                 }
                 continue;
             }

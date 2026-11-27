@@ -1,8 +1,6 @@
-use crate::mir::compiler::dynamic_full_body_recipe::{
-    DynamicFullLoopParameterContractV2, DynamicFullLoopRecipeProducerRejectV2,
-};
 use crate::mir::compiler::dynamic_full_body_source::{
-    DynamicFullBodySourceIssueV1, DynamicFullBodySourceIssuerV1,
+    DynamicFullBodyBindingRoleV1, DynamicFullBodySourceIssueV1, DynamicFullBodySourceIssuerV1,
+    DynamicFullBodySourceRoleV1, DynamicFullBodySourceSiteV1,
     VerifiedDynamicLoopFullBodySourceInventoryV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -45,7 +43,6 @@ pub(in crate::mir) enum DynamicCallableAdmissionIssueV1 {
     Completion {
         _error: FunctionCompletionVerificationErrorV1,
     },
-    Recipe(DynamicFullLoopRecipeProducerRejectV2),
     Calls {
         _error: DynamicMemberSourceIssueV1,
     },
@@ -104,42 +101,70 @@ pub(super) fn admit_dynamic_callable_v1(
     })
 }
 
-pub(super) fn issue_dynamic_parameter_contract_v2(
-    rows: &[super::model::OwnedCallableParameterContractV1],
-) -> Result<DynamicFullLoopParameterContractV2, DynamicCallableAdmissionIssueV1> {
-    let rows = rows
-        .iter()
-        .map(|row| {
-            let class = match row.kind {
-                crate::mir::callable_parameter_contract::CallableParameterContractKindV1::OpaqueHandle
-                | crate::mir::callable_parameter_contract::CallableParameterContractKindV1::DeclaredHandle
-                | crate::mir::callable_parameter_contract::CallableParameterContractKindV1::DeclaredObject(_)
-                | crate::mir::callable_parameter_contract::CallableParameterContractKindV1::Map => {
-                    crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopParameterClassV2::Dynamic
-                }
-                crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactTrivial(abi) => {
-                    if abi != crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64 {
-                        return Err(DynamicCallableAdmissionIssueV1::Recipe(
-                            DynamicFullLoopRecipeProducerRejectV2::ParameterContractMismatch,
-                        ));
-                    }
-                    crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopParameterClassV2::I64
-                }
-                crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactText(_) => {
-                    return Err(DynamicCallableAdmissionIssueV1::Recipe(
-                        DynamicFullLoopRecipeProducerRejectV2::ParameterContractMismatch,
-                    ));
-                }
-            };
-            Ok(crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopParameterContractRowV2 {
-                ordinal: row.ordinal,
-                binding: row.binding,
-                class,
-            })
-        })
-        .collect::<Result<Vec<_>, _>>()?
-        .into_boxed_slice();
-    Ok(DynamicFullLoopParameterContractV2::new(rows))
+// Keep the existing public rejection names at the admission boundary.
+#[derive(Debug)]
+pub(in crate::mir) enum DynamicParameterContractRejectV1 {
+    ParameterContractMismatch,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) enum DynamicCallAdmissionRejectV1 {
+    MissingTarget,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) enum DynamicCallEnvelopeRejectV1 {
+    Calls(DynamicCallAdmissionRejectV1),
+}
+
+pub(super) fn check_dynamic_parameters(
+    inventory: &VerifiedDynamicLoopFullBodySourceInventoryV1,
+    parameters: &[super::model::OwnedCallableParameterContractV1],
+) -> Result<(), DynamicParameterContractRejectV1> {
+    use crate::mir::callable_parameter_contract::CallableParameterContractKindV1 as Kind;
+    use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
+    use DynamicFullBodyBindingRoleV1 as Role;
+    use DynamicParameterContractRejectV1::ParameterContractMismatch;
+
+    if parameters.len() != 4 {
+        return Err(ParameterContractMismatch);
+    }
+    for (ordinal, role) in [Role::Src, Role::Pos, Role::End, Role::PredChars].into_iter().enumerate() {
+        let parameter = parameters.iter().find(|row| row.ordinal as usize == ordinal)
+            .ok_or(ParameterContractMismatch)?;
+        let expected_class = match role {
+            Role::Pos | Role::End => matches!(
+                parameter.kind, Kind::ExactTrivial(ExactTrivialParameterAbiV1::I64),
+            ),
+            _ => matches!(parameter.kind,
+                Kind::OpaqueHandle | Kind::DeclaredHandle | Kind::DeclaredObject(_) | Kind::Map),
+        };
+        let original_binding = inventory.bindings().iter()
+            .find(|row| row.role() == role)
+            .map(|row| row.binding());
+        if !expected_class || original_binding != Some(parameter.binding) {
+            return Err(ParameterContractMismatch);
+        }
+    }
+    Ok(())
+}
+
+pub(super) fn check_dynamic_call_targets(
+    inventory: &VerifiedDynamicLoopFullBodySourceInventoryV1,
+    targets: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
+) -> Result<(), DynamicCallEnvelopeRejectV1> {
+    // The source issuer already seals the two distinct expression sites.
+    // The target issuer can omit either if its receiver lacks a Dynamic origin.
+    for role in [DynamicFullBodySourceRoleV1::SubstringCall, DynamicFullBodySourceRoleV1::IndexOfCall] {
+        let observed = inventory.rows().iter().any(|row| {
+            row.role() == role && matches!(row.site(), DynamicFullBodySourceSiteV1::Expression(site)
+                if targets.iter().any(|target| target.owner() == inventory.owner() && target.call_site() == site))
+        });
+        if !observed {
+            return Err(DynamicCallEnvelopeRejectV1::Calls(DynamicCallAdmissionRejectV1::MissingTarget));
+        }
+    }
+    Ok(())
 }
 
 enum ClassifiedDynamicSourceIssueV1 {
@@ -176,34 +201,5 @@ fn classify_source_issue(error: DynamicFullBodySourceIssueV1) -> ClassifiedDynam
         | DynamicFullBodySourceIssueV1::CoverageMismatch => {
             ClassifiedDynamicSourceIssueV1::Rejected(error)
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::super::model::OwnedCallableParameterContractV1;
-    use super::{issue_dynamic_parameter_contract_v2, DynamicCallableAdmissionIssueV1};
-    use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
-    use crate::mir::exact_text_parameter_abi::ExactTextFormalAbiV1;
-    use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
-    use hakorune_mir_core::BindingId;
-
-    #[test]
-    fn exact_text_is_rejected_before_dynamic_recipe_reclassification() {
-        let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
-        let owner = issuer.issue().unwrap();
-        let rows = [OwnedCallableParameterContractV1 {
-            ordinal: 0,
-            binding: crate::mir::resolved_semantics::BindingRefV1::new(owner, BindingId::new(0)),
-            kind: CallableParameterContractKindV1::ExactText(ExactTextFormalAbiV1::STRING_BOX),
-            demand: (CallableParameterContractKindV1::ExactText(ExactTextFormalAbiV1::STRING_BOX)).home_demand(),
-        }];
-
-        assert!(matches!(
-            issue_dynamic_parameter_contract_v2(&rows),
-            Err(DynamicCallableAdmissionIssueV1::Recipe(
-                crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopRecipeProducerRejectV2::ParameterContractMismatch
-            ))
-        ));
     }
 }

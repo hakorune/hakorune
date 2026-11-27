@@ -1,7 +1,6 @@
 //! Owner-indexed Completion retention for the existing ordinary-New ledger.
 //!
-//! The index borrows the issuer's `Rc` products after S6C has consumed its
-//! exclusive seed. It does not verify, copy, or reclassify source meaning.
+//! The index borrows the issuer's original Completion products.
 
 use super::super::result_contract::VerifiedCallableResultContractBuilderV1;
 use super::{OrdinaryNewClaimLedgerV1, OrdinaryNewCoSealIssueV1};

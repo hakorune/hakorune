@@ -43,11 +43,7 @@ pub(crate) mod callable_result_representation;
 pub(crate) mod callable_semantic_batch;
 pub(crate) mod canonical_direct_call;
 pub(crate) mod canonical_direct_call_contract;
-pub(crate) mod canonical_direct_static_call_backend_capability;
-pub(crate) mod canonical_direct_static_call_capability;
 pub(crate) mod canonical_physical_drain;
-pub(crate) mod canonical_recursive_callable_module_backend_capability;
-pub(crate) mod canonical_recursive_callable_module_capability;
 pub(crate) mod compile_timing;
 mod compiler;
 
@@ -197,7 +193,6 @@ pub mod record_state_residence_plan; // metadata-only box-private record-state c
 pub(crate) mod record_value_backend_capability; // record construction/update contract backend gate
 pub mod region; // Phase 25.1l: Region/GC観測レイヤ（LoopForm v2 × RefKind）
 pub(crate) mod resolved_control_flow; // carrier-free exact coverage/topology contracts
-pub(crate) mod resolved_region_flow; // pre-Builder owner-closed control-flow products
 pub(crate) mod resolved_semantics; // pre-plan owner-scoped binding/scope/region semantic arena
 pub(crate) mod resolved_value_profile; // pre-Builder executable representation proofs
 pub(crate) mod return_exit_backend_capability; // exact-numeric return-exit backend gate
@@ -274,8 +269,7 @@ pub(crate) use compiler::{
 pub use compiler::{
     CanonicalLoweringErrorV1, MirCompileResult, MirCompiler, NormalCompileRequestV1,
     NormalProgramCompileRequestErrorV1, RejectedNormalProgramCompileRequestV1,
-    ResolvedCallableModuleLoweringInputV1,
-    VerifiedResolvedCallableProgramV1, VerifiedResolvedSourceUnitV1,
+    VerifiedResolvedSourceUnitV1,
 };
 pub(crate) use compiler::{
     RejectedPostMacroWholeFileProgramV1, VerifiedPostMacroWholeFileProgramV1,
