@@ -103,7 +103,7 @@ static int lv4_indexed_return(const hako_lv4_input* in,
       (faulted || !lv4_birth_finish(in, fn, state, return_block))) return 0;
   if (birth && faulted && lv4_is(term, "op", "return_fault") &&
       !lv4_birth_drop_provided(in, fn, state)) return 0;
-  for (size_t i = 0; i < count; i++) if (state[i]) return 0;
+  if (!lv4_state_empty(state, count)) return 0;
   if (lv4_is(term, "op", "return_fault")) return faulted;
   if (lv4_is(fn->function, "role", "ordinary_unit")) {
     yyjson_val* value = yyjson_obj_get(term, "value");
