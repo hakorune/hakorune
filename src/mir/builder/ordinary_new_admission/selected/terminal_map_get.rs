@@ -27,8 +27,7 @@ fn emit_read(builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState
     let frame = body.required_fault_frame_v1()?;
     let (terminal, continuation) = expression_value::finish_value_continuation_v1(builder, &mut body)?;
     let read = StoredMapGetReadEmissionV1::issue(source.clone(), Rc::clone(key), receiver,
-        body.values, body.reference_reads, body.entry.ok_or_else(|| freeze("expression/fault-frame-required"))?, terminal.ok_or_else(|| freeze("expression/fault-frame-required"))?, continuation.ok_or_else(|| freeze("expression/fault-frame-required"))?, body.bindings, ledger,
-        builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
+        body.values, body.reference_reads, body.entry.ok_or_else(|| freeze("expression/fault-frame-required"))?, terminal.ok_or_else(|| freeze("expression/fault-frame-required"))?, continuation.ok_or_else(|| freeze("expression/fault-frame-required"))?, body.bindings, ledger)?;
     Ok((read, frame))
 }
 
@@ -39,8 +38,7 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder,
     let owner = source.terminal().owner();
     let exit = source.terminal().return_site().clone();
     let (read, _) = emit_read(builder, state, ledger, source.get_source(), source.parts().1)?;
-    let stored = StoredMapGetReturnEmissionV1::issue(source, read, ledger,
-        builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
+    let stored = StoredMapGetReturnEmissionV1::new(source, read);
     let operation = stored.operation(CallValidationContextV1::Lowering(ledger),
         builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
     let value = builder.next_value_id();

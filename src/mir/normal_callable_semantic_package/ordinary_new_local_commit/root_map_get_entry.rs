@@ -177,15 +177,11 @@ pub(crate) struct StoredMapGetReturnEmissionV1 {
     read: StoredMapGetReadEmissionV1,
 }
 impl StoredMapGetReturnEmissionV1 {
-    pub(crate) fn issue(
+    pub(crate) fn new(
         source: crate::mir::normal_callable_semantic_package::StoredMapGetReturnSourceLoanV1,
         read: StoredMapGetReadEmissionV1,
-        ledger: &OrdinaryNewClaimLedgerV1,
-        function: &MirFunction,
-    ) -> Result<Self, String> {
-        let packet = Self { source, read };
-        packet.operation(CallValidationContextV1::Lowering(ledger), function)?;
-        Ok(packet)
+    ) -> Self {
+        Self { source, read }
     }
     pub(super) fn bindings(&self) -> &[(BasicBlockId, MirInstruction)] {
         &self.read.key_read.original
@@ -198,6 +194,10 @@ impl StoredMapGetReturnEmissionV1 {
         context: CallValidationContextV1<'_>,
         function: &MirFunction,
     ) -> Result<InvokeOperation, String> {
+        self.validate_return_source(context)?;
+        self.read.operation(context, function)
+    }
+    fn validate_return_source(&self, context: CallValidationContextV1<'_>) -> Result<(), String> {
         let terminal = self.source.terminal();
         let retained = context
             .ledger()
@@ -209,7 +209,7 @@ impl StoredMapGetReturnEmissionV1 {
         {
             return Err(freeze("map-get-shape"));
         }
-        self.read.operation(context, function)
+        Ok(())
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate(
         &self,
@@ -219,7 +219,7 @@ impl StoredMapGetReturnEmissionV1 {
         invoke: &(BasicBlockId, MirInstruction),
         projection: &(BasicBlockId, MirInstruction),
     ) -> Result<crate::mir::instruction::InvokeCallResultKind, String> {
-        self.operation(context, function)?;
+        self.validate_return_source(context)?;
         self.read
             .validate(context, function, finishing, invoke, projection)?;
         Ok(
@@ -251,7 +251,6 @@ impl StoredMapGetReadEmissionV1 {
         continuation: (BasicBlockId, MirInstruction),
         original: Vec<(BasicBlockId, MirInstruction)>,
         ledger: &OrdinaryNewClaimLedgerV1,
-        function: &MirFunction,
     ) -> Result<Self, String> {
         let key_read = super::map_key_read::FieldMapKeyReadEmissionV1::issue(
             key,
@@ -264,9 +263,7 @@ impl StoredMapGetReadEmissionV1 {
             original,
             ledger,
         )?;
-        let read = Self { source, key_read };
-        read.operation(CallValidationContextV1::Lowering(ledger), function)?;
-        Ok(read)
+        Ok(Self { source, key_read })
     }
     fn copy_dependencies(&self) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
         self.key_read.copy_dependencies()

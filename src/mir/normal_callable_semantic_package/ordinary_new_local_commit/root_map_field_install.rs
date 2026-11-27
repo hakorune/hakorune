@@ -29,7 +29,6 @@ impl PreparedMapFieldInstallV1 {
         continuation: Binding,
         original: Vec<Binding>,
         ledger: &OrdinaryNewClaimLedgerV1,
-        function: &MirFunction,
     ) -> Result<Self, String> {
         let key = FieldMapKeyReadEmissionV1::issue(
             Rc::clone(frame.key()),
@@ -42,13 +41,7 @@ impl PreparedMapFieldInstallV1 {
             original,
             ledger,
         )?;
-        let prepared = Self {
-            frame,
-            key,
-            candidate,
-        };
-        prepared.operation(CallValidationContextV1::Lowering(ledger), function)?;
-        Ok(prepared)
+        Ok(Self { frame, key, candidate })
     }
     pub(in crate::mir) fn operation(
         &self,
