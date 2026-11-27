@@ -53,6 +53,65 @@ pub(super) fn allocation_invoke_function() -> crate::mir::MirFunction {
 }
 
 #[test]
+fn module_invoke_diagnostics_follow_block_order() {
+    use crate::mir::verification_types::VerificationError;
+    use crate::mir::{BasicBlock, BasicBlockId, MirModule, MirVerifier};
+    use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
+
+    let read_block = BasicBlockId(4);
+    let read_normal = BasicBlockId(5);
+    let read_fault = BasicBlockId(6);
+    let field = CanonicalFieldRefV1::from_declaration_ordinal(
+        CanonicalObjectIdV1::from_declaration_index(0).unwrap(),
+        0,
+    )
+    .unwrap();
+    let expected = [
+        (BasicBlockId(1), "[freeze:contract][mir/invoke/object-definition-missing]"),
+        (read_block, "[freeze:contract][mir/invoke/field-read-definition-invalid]"),
+    ];
+
+    // Each build gets an independently seeded block map for the same MIR.
+    for _ in 0..16 {
+        let mut function = allocation_invoke_function();
+        function.blocks.get_mut(&BasicBlockId(2)).unwrap().set_terminator(
+            MirInstruction::Jump { target: read_block, edge_args: None },
+        );
+        let mut read = BasicBlock::new(read_block);
+        read.set_terminator(MirInstruction::Invoke {
+            operation: InvokeOperation::FieldGet { field, base: ValueId(1) },
+            fault_frame: ValueId(0),
+            normal_landing: read_normal,
+            fault_landing: read_fault,
+        });
+        let mut normal = BasicBlock::new(read_normal);
+        normal.add_instruction(MirInstruction::InvokeNormalResult {
+            invoke_block: read_block,
+            dst: ValueId(3),
+        });
+        normal.set_terminator(MirInstruction::Return { value: None });
+        let mut fault = BasicBlock::new(read_fault);
+        fault.set_terminator(MirInstruction::ReturnFault { fault_frame: ValueId(0) });
+        for block in [read, normal, fault] {
+            function.add_block(block);
+        }
+        function.update_cfg();
+        let mut module = MirModule::new("invoke_diagnostic_order".into());
+        module.add_function(function);
+
+        let errors = MirVerifier::new().verify_module(&module).unwrap_err();
+        let actual: Vec<_> = errors
+            .iter()
+            .map(|error| match error {
+                VerificationError::ControlFlowError { block, reason } => (*block, reason.as_str()),
+                other => panic!("unexpected verification error: {other:?}"),
+            })
+            .collect();
+        assert_eq!(actual, expected);
+    }
+}
+
+#[test]
 fn allocation_identity_requires_definition_and_is_not_a_value_operand() {
     use crate::mir::function::{CanonicalObjectDefinitionV1, ObjectLayoutUnavailableV1};
     use crate::mir::{BasicBlockId, MirModule, MirVerifier};
