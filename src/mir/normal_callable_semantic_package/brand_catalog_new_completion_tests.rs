@@ -386,9 +386,10 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         }
     }
     assert!(ledger
-        .validate_finalized_new_root(&changed_frame)
+        .validate_new_emissions(sites[0].owner(), &changed_frame, None)
         .unwrap_err()
         .contains("emission-binding-drift"));
+    assert!(ledger.validate_finalized_new_root(&changed_frame).is_err());
     let mut changed_copy = physical.clone();
     for block in changed_copy.blocks.values_mut() {
         for instruction in &mut block.instructions {
@@ -398,9 +399,10 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         }
     }
     assert!(ledger
-        .validate_finalized_new_root(&changed_copy)
+        .validate_new_emissions(sites[0].owner(), &changed_copy, None)
         .unwrap_err()
         .contains("emission-local-copy-drift"));
+    assert!(ledger.validate_finalized_new_root(&changed_copy).is_err());
     let mut drifted = physical.clone();
     drifted.blocks.clear();
     assert!(ledger.validate_finalized_new_root(&drifted).is_err());
