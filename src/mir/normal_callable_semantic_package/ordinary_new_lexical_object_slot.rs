@@ -1,5 +1,5 @@
 //! Source-pending lexical Object slots close atomically over original evidence.
-use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::LocalRouteWriterV1;
+use crate::mir::normal_callable_semantic_package::PhysicalCallableLaneRoleV1;
 use super::super::completion_index::ObjectReturnTeardownAvailabilityV1;
 use super::*;
 use crate::mir::callable_parameter_contract::{
@@ -122,61 +122,24 @@ impl OrdinaryNewClaimLedgerV1 {
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         results: &VerifiedCallableResultContractCohortV1,
     ) -> Result<(), String> {
-        let pending: Vec<_> = self
-            .lexical_instance_calls
-            .borrow()
-            .iter()
-            .filter_map(|(site, slot)| match slot {
-                LexicalInstanceCallDispositionSlotV1::SourcePending(source) => {
-                    Some((site.clone(), source.clone()))
-                }
-                _ => None,
-            })
-            .collect();
-        let mut upgrades = Vec::new();
-        for (site, source) in &pending {
+        self.finish_lexical_slots_v1(|_| true, |ledger, site, source| {
             if site != source.call_site() {
                 return Err(freeze("lexical-object/slot-source"));
             }
-            if source.borrowed_nullable_call_source().is_some() || source.mixed_local_source().is_some() { continue; }
-            if let Some((kind, route, teardown, field_supports)) = self
-                .checked_object_lexical_slot_v1(source, selected, contracts, signatures, results)?
-            {
-                if let Some(packet) = ObjectPacketSealV1::retain(self, source, kind, teardown, field_supports)? {
-                    upgrades.push((site.clone(), source.clone(), kind, route, packet));
-                }
+            if source.borrowed_nullable_call_source().is_some() || source.mixed_local_source().is_some() {
+                return Ok(None);
             }
-        }
-        // Recheck every original cell before changing any cell or route inventory.
-        let mut slots = self.lexical_instance_calls.borrow_mut();
-        for (site, original) in &pending {
-            if !matches!(slots.get(site), Some(LexicalInstanceCallDispositionSlotV1::SourcePending(current)) if current == original)
-            {
-                return Err(freeze("lexical-object/slot-drift"));
-            }
-        }
-        let mut routes = Vec::new();
-        for (site, source, kind, route, packet) in upgrades {
-            if route {
-                routes.push(site.clone());
-            }
-            slots.insert(
-                site,
-                LexicalInstanceCallDispositionSlotV1::Ready(LexicalInstanceCallDispositionRowV1 {
-                    source,
-                    result: Some(kind),
-                    scalar_result: None,
-                    unit_completion: None,
-                    borrowed_completion: None,
-                    object_packet: Some(packet), mixed_result: None,
-                }),
-            );
-        }
-        drop(slots);
-        for site in routes {
-            self.record_lifecycle_local_call_site(site, LocalRouteWriterV1::ObjectSlot)?;
-        }
-        Ok(())
+            let Some((kind, route, teardown, field_supports)) =
+                ledger.checked_object_lexical_slot_v1(source, selected, contracts, signatures, results)?
+            else { return Ok(None); };
+            let Some(packet) = ObjectPacketSealV1::retain(ledger, source, kind, teardown, field_supports)?
+            else { return Ok(None); };
+            let row = LexicalInstanceCallDispositionRowV1 {
+                source: source.clone(), result: Some(kind), scalar_result: None, unit_completion: None,
+                borrowed_completion: None, object_packet: Some(packet), mixed_result: None,
+            };
+            Ok(Some((row, route)))
+        }, "lexical-object/slot-drift")
     }
 
     fn checked_object_lexical_slot_v1(
@@ -246,15 +209,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let lanes = signature.lanes();
             if !signature.identity().same_as(identity)
                 || signature.owner() != contract.owner
-                || signature.mode() != contract.mode
-                || signature.source_logical_arity() as usize != contract.parameters.len()
-                || signature.receiver_lane_count() != 1
-                || lanes.first().is_none_or(|lane| {
-                    lane.index() != 0
-                        || lane.role() != PhysicalCallableLaneRoleV1::InstanceReceiver
-                        || lane.logical_ordinal().is_some()
-                        || lane.binding().owner() != contract.owner
-                })
+                || !signature.matches_source_shape(contract.mode, contract.parameters.len())
             {
                 return Err(freeze("lexical-object/signature-identity"));
             }

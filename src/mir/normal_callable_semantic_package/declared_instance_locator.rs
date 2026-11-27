@@ -483,23 +483,13 @@ fn validate_signature(
         return Err(DeclaredInstanceCallPackageLocatorIssueV1::TargetSignatureArityMismatch);
     }
     let lanes = signature.lanes();
-    if signature.receiver_lane_count() != 1 {
+    if signature.instance_receiver().is_none() {
         return Err(DeclaredInstanceCallPackageLocatorIssueV1::ReceiverLaneMissing);
     }
     if signature.physical_callable_lane_count() as usize != lanes.len()
         || signature.physical_formal_lane_count() + 1 != signature.physical_callable_lane_count()
     {
         return Err(DeclaredInstanceCallPackageLocatorIssueV1::LaneCountMismatch);
-    }
-    let Some(receiver) = lanes.first() else {
-        return Err(DeclaredInstanceCallPackageLocatorIssueV1::ReceiverLaneMissing);
-    };
-    if receiver.index() != 0
-        || receiver.role() != PhysicalCallableLaneRoleV1::InstanceReceiver
-        || receiver.logical_ordinal().is_some()
-        || receiver.binding().owner() != signature.owner()
-    {
-        return Err(DeclaredInstanceCallPackageLocatorIssueV1::ReceiverLaneShapeMismatch);
     }
     let mut logical_ordinals = BTreeSet::new();
     for (index, lane) in lanes.iter().enumerate() {

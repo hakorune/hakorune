@@ -284,14 +284,9 @@ pub(in crate::mir) fn original_entry_layout_v1(&self, binding: crate::mir::resol
     let signature = signatures.row(declaration.batch_slot).ok_or_else(|| freeze("expression/scalar-entry-signature"))?;
     let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) = selected.key_for_batch_slot(declaration.batch_slot)
         else { return Err(freeze("expression/scalar-entry-key")) };
-    if signature.owner() != binding.owner() || signature.mode() != declaration.mode
+    if signature.owner() != binding.owner() || !signature.matches_source_shape(declaration.mode, declaration.parameters.len())
         || key.namespace() != namespace || key.arity() as usize != declaration.parameters.len()
-        || !selected.identity_for_batch_slot(declaration.batch_slot).is_some_and(|identity| signature.identity().same_as(identity))
-        || signature.source_logical_arity() as usize != declaration.parameters.len()
-        || signature.receiver_lane_count() as usize != receivers
-        || signature.lanes().iter().filter(|lane| lane.role() == Role::InstanceReceiver).count() != receivers
-        || receivers == 1 && signature.lanes().first().is_none_or(|lane| lane.index() != 0
-            || lane.role() != Role::InstanceReceiver || lane.logical_ordinal().is_some() || lane.binding().owner() != binding.owner()) {
+        || !selected.identity_for_batch_slot(declaration.batch_slot).is_some_and(|identity| signature.identity().same_as(identity)) {
         return Err(freeze("expression/scalar-entry-source-signature"));
     }
     let mut lanes = signature.lanes().iter().filter(|lane| lane.binding() == formal

@@ -269,8 +269,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(fault("alias/entry-root"));
         }
         let signature = signatures.row(batch_slot).ok_or_else(|| fault("alias/entry-signature"))?;
-        let lane = signature.lanes().iter().find(|lane| lane.role()
-            == crate::mir::normal_callable_semantic_package::PhysicalCallableLaneRoleV1::InstanceReceiver)
+        let lane = signature.instance_receiver()
             .ok_or_else(|| fault("alias/entry-receiver"))?;
         let index = lane.index() as usize;
         let value = *function.params.get(index).ok_or_else(|| fault("alias/entry-receiver"))?;
@@ -300,17 +299,10 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         let selected_key = selected.key_for_batch_slot(batch_slot);
         let selected_identity = selected.identity_for_batch_slot(batch_slot);
-        let mut receivers = signature.lanes().iter().filter(|lane| {
-            lane.role()
-                == crate::mir::normal_callable_semantic_package::PhysicalCallableLaneRoleV1::InstanceReceiver
-        });
-        let exact_receiver = receivers.next().is_some_and(|lane| lane.binding() == root)
-            && receivers.next().is_none();
+        let exact_receiver = signature.instance_receiver().is_some_and(|lane| lane.binding() == root);
         Ok(exact_receiver
             && root.owner() == owner
             && signature.owner() == owner
-            && signature.mode()
-                == crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
             && signature.identity().same_as(identity)
             && selected_identity.is_some_and(|actual| actual.same_as(identity))
             && matches!(selected_key,

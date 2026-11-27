@@ -572,16 +572,10 @@ impl OrdinaryNewClaimLedgerV1 {
         let lanes = signature.lanes();
         if !signature.identity().same_as(identity)
             || signature.owner() != owner
-            || signature.mode() != contract.mode
-            || signature.source_logical_arity() as usize != contract.parameters.len()
-            || signature.receiver_lane_count() != 1
+            || !signature.matches_source_shape(contract.mode, contract.parameters.len())
             || signature.physical_formal_lane_count() as usize != contract.parameters.len()
             || signature.physical_callable_lane_count() as usize != contract.parameters.len() + 1
             || lanes.len() != contract.parameters.len() + 1
-            || lanes[0].role() != PhysicalCallableLaneRoleV1::InstanceReceiver
-            || lanes[0].index() != 0
-            || lanes[0].logical_ordinal().is_some()
-            || lanes[0].binding().owner() != owner
             || lanes[1..]
                 .iter()
                 .zip(&contract.parameters)

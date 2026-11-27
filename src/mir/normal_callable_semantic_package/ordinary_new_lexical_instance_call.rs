@@ -25,7 +25,7 @@ use crate::mir::builder::SelectedNormalCallableKeyV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::normal_callable_semantic_package::physical_signature::{
-    PhysicalCallableLaneRoleV1, VerifiedCallablePhysicalSignatureCohortV1,
+    VerifiedCallablePhysicalSignatureCohortV1,
 };
 use crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use crate::mir::resolved_semantics::{
@@ -311,6 +311,51 @@ pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_source:
 pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_result::source_unit_discard_v1;
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Prepare all upgrades before publishing any lexical slot or route.
+    fn finish_lexical_slots_v1(
+        &mut self,
+        belongs: impl Fn(&LexicalInstanceCallSourceTargetV1) -> bool,
+        prepare: impl Fn(
+            &Self, &OwnedExprSiteV1, &LexicalInstanceCallSourceTargetV1,
+        ) -> Result<Option<(LexicalInstanceCallDispositionRowV1, bool)>, String>,
+        slot_error: &str,
+    ) -> Result<(), String> {
+        let pending: Vec<_> = self.lexical_instance_calls.get_mut().iter().filter_map(|(site, slot)| {
+            match slot {
+                LexicalInstanceCallDispositionSlotV1::SourcePending(source) if belongs(source) => {
+                    Some((site.clone(), source.clone()))
+                }
+                _ => None,
+            }
+        }).collect();
+        let mut upgrades = Vec::new();
+        for (site, source) in &pending {
+            if let Some((row, routes_local)) = prepare(self, site, source)? {
+                upgrades.push((site.clone(), row, routes_local));
+            }
+        }
+        let slots = self.lexical_instance_calls.get_mut();
+        for (site, source) in &pending {
+            if !matches!(slots.get(site), Some(LexicalInstanceCallDispositionSlotV1::SourcePending(held)) if held == source) {
+                return Err(freeze(slot_error));
+            }
+        }
+        if upgrades.iter().any(|(_, _, routes)| *routes) {
+            let mut routes = self.lifecycle_local_call_sites.get_mut().clone();
+            for (site, _, routes_local) in &upgrades {
+                if *routes_local {
+                    routes.route_local(site.clone(), LocalRouteWriterV1::ObjectSlot)?;
+                }
+            }
+            *self.lifecycle_local_call_sites.get_mut() = routes;
+        }
+        for (site, row, _) in upgrades {
+            slots.insert(site, LexicalInstanceCallDispositionSlotV1::Ready(row));
+        }
+        Ok(())
+    }
+
+
     /// Join lexical receiver provenance to selected `InstanceBoxMethod`
     /// targets for every method call in the batch. Parameter receivers are
     /// proven by caller edges whose argument carries exactly one claim class;
@@ -397,14 +442,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 continue;
             };
-            if signature.mode()
-                != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
-                || signature.source_logical_arity() != target.arity()
-                || signature.receiver_lane_count() != 1
-                || signature.lanes().first().is_none_or(|lane| {
-                    lane.index() != 0
-                        || lane.role() != PhysicalCallableLaneRoleV1::InstanceReceiver
-                })
+            if !signature.matches_source_shape(crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod, target.arity() as usize)
             {
                 if terminal_selected {
                     return Err(freeze("lexical-instance-call/terminal-signature-mismatch"));

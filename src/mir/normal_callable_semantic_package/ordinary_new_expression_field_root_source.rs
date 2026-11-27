@@ -143,15 +143,7 @@ impl ExpressionFieldRootSourceV1 {
             || signature.mode() != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod {
             return Err("expression-path/root-entry-drift".into());
         }
-        let mut receivers = signature.lanes().iter().filter(|lane| {
-            lane.role()
-            == super::super::super::physical_signature::PhysicalCallableLaneRoleV1::InstanceReceiver
-        });
-        if receivers
-            .next()
-            .is_none_or(|lane| lane.binding() != self.home)
-            || receivers.next().is_some()
-        {
+        if signature.instance_receiver().is_none_or(|lane| lane.binding() != self.home) {
             return Err("expression-path/root-entry-receiver".into());
         }
         Ok(())

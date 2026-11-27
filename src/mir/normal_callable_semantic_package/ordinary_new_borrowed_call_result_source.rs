@@ -559,10 +559,7 @@ impl crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1 {
         let signature = signatures
             .row(source.target_batch_slot())
             .ok_or_else(reject)?;
-        if signature.mode() != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
-            || signature.source_logical_arity() != source.target().arity() || signature.receiver_lane_count() != 1
-            || signature.lanes().first().is_none_or(|lane| lane.index() != 0
-                || lane.role() != crate::mir::normal_callable_semantic_package::physical_signature::PhysicalCallableLaneRoleV1::InstanceReceiver)
+        if !signature.matches_source_shape(crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod, source.target().arity() as usize)
         { return Err(freeze("borrowed-call/result-not-corroborated")); }
         let arguments = self
             .checked_completed_original_instance_target_arguments_v1(

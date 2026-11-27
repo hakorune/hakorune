@@ -1,4 +1,5 @@
 //! Original numeric argument evidence and corroboration of its whole static input cohort.
+use crate::mir::normal_callable_semantic_package::PhysicalCallableLaneRoleV1;
 use super::static_input_finish::{StaticInputEvidenceV1, StaticInputFinishV1, StaticInputRowsV1};
 use super::*;
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
@@ -78,8 +79,7 @@ pub(super) fn check_exact_usize_scalar_caller_v1(
         || !matches!(selected.key_for_batch_slot(caller.batch_slot),
             Some(SelectedNormalCallableKeyV1::Cataloged(key)) if key == original.caller())
         || caller_signature.owner() != caller.owner
-        || caller_signature.mode() != caller.mode
-        || caller_signature.source_logical_arity() != 1
+        || !caller_signature.matches_source_shape(caller.mode, 1)
         || caller_signature.lanes().len() != 1
         || caller_signature.lanes()[0].role() != PhysicalCallableLaneRoleV1::OrdinaryScalar
         || caller_signature.lanes()[0].binding() != binding
