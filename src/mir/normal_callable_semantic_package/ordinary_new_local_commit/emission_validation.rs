@@ -107,6 +107,7 @@ impl OrdinaryNewClaimLedgerV1 {
         projection: Option<&super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
         self.validate_lexical_body_cleanup(owner, function, projection)?;
+        let context = CallValidationContextV1::Lowering(self);
         let intervals = super::read_argument::IntervalViewV1::new(function);
         for (site, row) in self
             .local_commits
@@ -116,21 +117,17 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             match row {
                 LocalCommitV1::TextResidence(_) => {
-                    let packet = self.published_text_residence_v1(site, CallValidationContextV1::Lowering(self))?;
-                    packet.validate_paths(
-                        CallValidationContextV1::Lowering(self),
-                        function,
-                        projection,
-                    )?;
+                    let packet = self.published_text_residence_v1(site, context)?;
+                    if projection.is_none() {
+                        packet.validate_paths(context, function, None)?;
+                    }
                     continue;
                 }
                 LocalCommitV1::DynamicCarrierResidence(_) => {
-                    let packet = self.published_dynamic_residence_v1(site, CallValidationContextV1::Lowering(self))?;
-                    packet.validate_paths(
-                        CallValidationContextV1::Lowering(self),
-                        function,
-                        projection,
-                    )?;
+                    let packet = self.published_dynamic_residence_v1(site, context)?;
+                    if projection.is_none() {
+                        packet.validate_paths(context, function, None)?;
+                    }
                     continue;
                 }
                 LocalCommitV1::Shared(packet) => {
@@ -150,7 +147,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         site,
                         &intervals,
                         projection,
-                        CallValidationContextV1::Lowering(self),
+                        context,
                     )?;
                     continue;
                 }
@@ -162,8 +159,17 @@ impl OrdinaryNewClaimLedgerV1 {
                 row,
                 function,
                 projection,
-                CallValidationContextV1::Lowering(self),
+                context,
             )?;
+        }
+        // Finished paths live in the original tree, including Text and
+        // Dynamic homes matched above. Loop packets visit their own children.
+        if let Some(projection) = projection {
+            context.with_local_call_groups_v1(owner, |groups| {
+                groups.iter().try_for_each(|group| {
+                    group.validate_recorded_in_context(context, function, Some(projection))
+                })
+            })?;
         }
         Ok(())
     }

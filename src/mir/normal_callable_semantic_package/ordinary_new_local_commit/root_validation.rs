@@ -176,7 +176,6 @@ impl OrdinaryNewClaimLedgerV1 {
         child: bool,
     ) -> Result<(), String> {
         let _source_scope = self.branch_source_scope_v1(owner);
-        let _physical_scope = self.physical_validation_scope_v1(function, Some(projection), false);
         self.validate_new_emissions(owner, function, Some(projection))?;
         if !child {
             self.validate_terminal_unit_return(owner, function)?;

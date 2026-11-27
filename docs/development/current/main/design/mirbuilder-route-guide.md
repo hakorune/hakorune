@@ -15,6 +15,8 @@ commit beeb34e635 のソースを読んで作成した。掃除 1 で追った�
 
 完成 MIR の Invoke 診断は `m/verification/invoke.rs::check_module_with_source` が関数内を block 番号・命令順に照合して並べる。scalar source coverage の不一致箇所も `m/compiler/normal_default_pipeline/published_backend_view/physical_program_scalar.rs::validate_selected_scalar_operations` が最小の block 番号から選ぶ。
 
+local prefix の原本は `m/normal_callable_semantic_package/ordinary_new_local_commit/root_validation.rs::validate_owner_body` が完成した関数で照合し、exit 側は source 順と実際の座標を確かめる。Lowering は既存の prefix に発行し、独立の Finalized は実際の経路を検証する。
+
 ## 1. 構文別の表
 
 blueprint が持ち主を名指ししているのは if(決定 18)と loop(決定 20)だけ。他は「1 つの共通操作」(§5〜§8)としか書かれない。**「推定」と付けた持ち主は名指しが無いので、最も多くの経路が合流する関数を選んだ物**。

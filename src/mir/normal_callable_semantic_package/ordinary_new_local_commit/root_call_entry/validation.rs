@@ -535,7 +535,9 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         self.validate_local_call_binding_groups_with_pending(owner, exit, groups, pending_routes)?;
         for group in groups {
-            group.validate_recorded_in_context(context, function, proof_projection)?;
+            if proof_projection.is_none() || context.is_finalized() || group.is_rebound() {
+                group.validate_recorded_in_context(context, function, proof_projection)?;
+            }
             group.check_physical_bindings_v1(function, storage_projection)?;
         }
         Ok(())
