@@ -336,7 +336,7 @@ fn static_execution_scope_preserves_unrelated_object_source_integrity() {
                 4 if guarded => "reconstructed-input-drift",
                 4 => "source-snapshot-drift",
                 5 => "object-view-drift",
-                6 => "[borrowed-object/source-contract]",
+                6 => "[ordinary-new/borrowed-object/source-contract]",
                 _ => unreachable!(),
             };
             assert!(error.contains(expected), "mutation {mutation}: {error}");
