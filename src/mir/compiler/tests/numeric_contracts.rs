@@ -178,6 +178,10 @@ fn compile_reads_a_typed_numeric_local() {
         "static box Main { main() { local x: i64 = 1 return x } }",
         "typed-local-read.hako",
     );
+    verify_callable_source(
+        "static box Main { main() { local x: i64 = 1 x = x + 1 return x } }",
+        "typed-local-reassign.hako",
+    );
 }
 
 #[test]
@@ -186,5 +190,11 @@ fn compile_reads_a_typed_numeric_loop_local_after_reassignment() {
         "static box Main { main() { local x: i64 = 1 \
          loop (x < 3) { x = x + 1 } return x } }",
         "typed-loop-reassign.hako",
+    );
+    verify_callable_source(
+        "static box Main { main() { local x: i64 = 0 \
+         if x == 0 { x = 1 } else { x = 2 } \
+         loop (x < 3) { x = x + 1 } return x } }",
+        "typed-branch-loop-reassign.hako",
     );
 }
